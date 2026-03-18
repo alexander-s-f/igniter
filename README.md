@@ -10,6 +10,8 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - diagnostics reports
 - reactive side effects
 - graph and runtime introspection
+- async-capable pending nodes with snapshot/restore
+- store-backed execution resume flows
 
 The repository now contains a working v2 core built around explicit compile-time and runtime boundaries.
 
@@ -78,6 +80,7 @@ The examples folder also has its own quick index in [`examples/README.md`](examp
 | `basic_pricing.rb` | `ruby examples/basic_pricing.rb` | basic contract, lazy resolution, input updates |
 | `composition.rb` | `ruby examples/composition.rb` | nested contracts and composed results |
 | `diagnostics.rb` | `ruby examples/diagnostics.rb` | diagnostics text plus machine-readable output |
+| `async_store.rb` | `ruby examples/async_store.rb` | pending execution, file-backed store, worker-style resume |
 
 There are also matching living examples in `spec/igniter/examples_spec.rb`.
 Those are useful if you want to read the examples in test form.
@@ -155,6 +158,47 @@ contract.execution.as_json
 contract.events.map(&:as_json)
 ```
 
+### 5. Async Store And Resume
+
+```ruby
+class AsyncQuoteExecutor < Igniter::Executor
+  input :order_total, type: :numeric
+
+  def call(order_total:)
+    defer(token: "quote-#{order_total}", payload: { kind: "pricing_quote" })
+  end
+end
+
+class AsyncPricingContract < Igniter::Contract
+  run_with runner: :store
+
+  define do
+    input :order_total, type: :numeric
+
+    compute :quote_total, depends_on: [:order_total], call: AsyncQuoteExecutor
+
+    compute :gross_total, depends_on: [:quote_total] do |quote_total:|
+      quote_total * 1.2
+    end
+
+    output :gross_total
+  end
+end
+
+contract = AsyncPricingContract.new(order_total: 100)
+deferred = contract.result.gross_total
+execution_id = contract.execution.events.execution_id
+
+resumed = AsyncPricingContract.resume_from_store(
+  execution_id,
+  token: deferred.token,
+  value: 150
+)
+
+resumed.result.gross_total
+# => 180.0
+```
+
 ## Composition Example
 
 ```ruby
@@ -227,6 +271,7 @@ contract.audit_snapshot
 - [Architecture v2](docs/ARCHITECTURE_V2.md)
 - [Execution Model v2](docs/EXECUTION_MODEL_V2.md)
 - [API Draft v2](docs/API_V2.md)
+- [Store Adapters](docs/STORE_ADAPTERS.md)
 - [Concepts and Principles](docs/IGNITER_CONCEPTS.md)
 
 ## Direction
@@ -251,6 +296,10 @@ rake spec
 Current baseline:
 
 - synchronous runtime
+- parallel thread-pool runner
+- pending/deferred runtime states
+- snapshot/restore execution lifecycle
+- store-backed resume flow
 - compile-time graph validation
 - typed inputs
 - composition

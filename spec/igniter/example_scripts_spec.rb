@@ -32,4 +32,13 @@ RSpec.describe "Igniter example scripts" do
     expect(stdout).to include("Diagnostics PriceContract")
     expect(stdout).to include(":outputs=>{:gross_total=>120.0}")
   end
+
+  it "runs the async store example" do
+    stdout, stderr, status = run_example("async_store.rb")
+
+    expect(status.success?).to eq(true), stderr
+    expect(stdout).to include("pending_token=quote-100")
+    expect(stdout).to include("pending_status=true")
+    expect(stdout).to include("resumed_gross_total=180.0")
+  end
 end

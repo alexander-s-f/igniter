@@ -72,6 +72,29 @@ Outputs: gross_total=120.0
 {:graph=>"PriceContract", ...}
 ```
 
+### `async_store.rb`
+
+Run:
+
+```bash
+ruby examples/async_store.rb
+```
+
+Shows:
+
+- deferred executor output through `defer`
+- file-backed pending execution store
+- restore and resume flow through `resume_from_store`
+
+Expected output shape:
+
+```text
+pending_token=quote-100
+stored_execution_id=<uuid>
+pending_status=true
+resumed_gross_total=180.0
+```
+
 ## Validation
 
 These scripts are exercised by [example_scripts_spec.rb](/Users/alex/dev/hotfix/igniter/spec/igniter/example_scripts_spec.rb), so the documented commands and outputs stay aligned with the code.

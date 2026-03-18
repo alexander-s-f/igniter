@@ -54,6 +54,7 @@ contract.result.gross_total
 contract.result.to_h
 contract.success?
 contract.failed?
+contract.pending?
 
 contract.update_inputs(order_total: 120)
 contract.result.gross_total
@@ -70,6 +71,7 @@ Suggested instance methods:
 - `diagnostics`
 - `success?`
 - `failed?`
+- `pending?`
 
 ## Result API
 
@@ -82,6 +84,7 @@ Suggested methods:
 - `as_json`
 - `success?`
 - `failed?`
+- `pending?`
 - `errors`
 - `states`
 - `explain`
@@ -119,6 +122,16 @@ Method form:
 compute :vat_rate, depends_on: [:country], call: :resolve_vat_rate
 ```
 
+Executor registry form:
+
+```ruby
+Igniter.register_executor("pricing.multiply", MultiplyExecutor)
+
+compute :gross_total,
+        depends_on: %i[order_total multiplier],
+        executor: "pricing.multiply"
+```
+
 Rules:
 
 - one compute node has one callable
@@ -149,6 +162,12 @@ compose :pricing, contract: PriceContract, inputs: {
 output :pricing, from: :pricing
 ```
 
+Child output export:
+
+```ruby
+output :gross_total, from: "pricing.gross_total"
+```
+
 Collection composition can be added later, but should not complicate the first kernel API.
 
 ## Introspection API
@@ -161,6 +180,7 @@ PriceContract.graph.to_h
 PriceContract.graph.to_mermaid
 
 contract.execution.states
+contract.execution.plan
 contract.execution.to_h
 contract.execution.as_json
 contract.result.as_json
@@ -168,6 +188,7 @@ contract.events.map(&:as_json)
 contract.diagnostics.to_h
 contract.diagnostics.to_text
 contract.diagnostics.to_markdown
+contract.snapshot
 ```
 
 The main rule is that introspection reads stable compile/runtime objects rather than poking through private internals.
@@ -189,6 +210,33 @@ Or:
 
 ```ruby
 contract.subscribe(auditor)
+```
+
+Async/store-backed flow:
+
+```ruby
+contract = AsyncPricingContract.new(order_total: 100)
+deferred = contract.result.gross_total
+
+AsyncPricingContract.resume_from_store(
+  contract.execution.events.execution_id,
+  token: deferred.token,
+  value: 150
+)
+```
+
+Reference store adapters:
+
+```ruby
+Igniter.execution_store = Igniter::Runtime::Stores::ActiveRecordStore.new(
+  record_class: IgniterExecutionSnapshot
+)
+```
+
+```ruby
+Igniter.execution_store = Igniter::Runtime::Stores::RedisStore.new(
+  redis: Redis.new(url: ENV.fetch("REDIS_URL"))
+)
 ```
 
 Where a subscriber responds to:
@@ -238,5 +286,13 @@ Each Igniter error also carries structured context when available:
 - collection composition
 - advanced typed schemas
 - retries
-- async executors
 - Rails-specific DSL sugar
+
+### Now Present In v2 Core
+
+- executor registry
+- schema-driven graph compilation
+- thread-pool runner
+- deferred/pending executor protocol
+- execution snapshot/restore
+- store-backed resume flow

@@ -162,6 +162,8 @@ Canonical kernel events:
 - `node_started`
 - `node_succeeded`
 - `node_failed`
+- `node_pending`
+- `node_resumed`
 - `node_invalidated`
 
 Suggested event fields:
@@ -181,6 +183,7 @@ Current payload examples:
 - composition success payload includes `child_execution_id` and `child_graph`
 - `execution_failed` includes `graph`, `targets`, and `error`
 - `node_invalidated` includes `cause`
+- `node_pending` includes deferred token/payload
 
 ## Public Resolution API
 
@@ -215,6 +218,80 @@ Reasons:
 
 Thread-safe or parallel execution can be added later behind explicit executors.
 
+Current core now supports:
+
+- `:inline` runner
+- `:thread_pool` runner
+- `:store` runner for pending snapshot persistence
+
+## Pending And Resume
+
+Executors may return a deferred value instead of a final result:
+
+```ruby
+class AsyncQuoteExecutor < Igniter::Executor
+  def call(order_total:)
+    defer(token: "quote-#{order_total}", payload: { kind: "pricing_quote" })
+  end
+end
+```
+
+Runtime behavior:
+
+1. node resolves to `:pending`
+2. a `DeferredResult` is stored in cache
+3. downstream nodes that depend on it also resolve to `:pending`
+4. caller may persist a snapshot
+5. later, runtime resumes the source node with a final value
+
+Public resume API:
+
+```ruby
+contract.execution.resume(:quote_total, value: 150)
+contract.execution.resume_by_token("quote-100", value: 150)
+```
+
+## Snapshot And Store Flow
+
+Execution snapshot contains:
+
+- graph name
+- execution id
+- runner metadata
+- normalized inputs
+- serialized cache states
+- serialized events
+
+Current store implementations:
+
+- `Igniter::Runtime::Stores::MemoryStore`
+- `Igniter::Runtime::Stores::FileStore`
+
+Store-backed flow:
+
+```ruby
+class AsyncPricingContract < Igniter::Contract
+  run_with runner: :store
+end
+
+contract = AsyncPricingContract.new(order_total: 100)
+deferred = contract.result.gross_total
+
+execution_id = contract.execution.events.execution_id
+restored = AsyncPricingContract.restore_from_store(execution_id)
+restored.execution.resume_by_token(deferred.token, value: 150)
+```
+
+Worker entrypoint:
+
+```ruby
+AsyncPricingContract.resume_from_store(
+  execution_id,
+  token: deferred.token,
+  value: 150
+)
+```
+
 ## Kernel Invariants
 
 These invariants should be enforced by tests:
@@ -227,6 +304,8 @@ These invariants should be enforced by tests:
 6. event order is deterministic
 7. failures remain inspectable in cache/result
 8. composition creates isolated child executions
+9. pending nodes are not treated as succeeded
+10. restored executions preserve pending tokens and event identity
 
 ## Testing Strategy
 
