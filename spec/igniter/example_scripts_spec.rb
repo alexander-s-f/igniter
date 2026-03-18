@@ -41,4 +41,13 @@ RSpec.describe "Igniter example scripts" do
     expect(stdout).to include("pending_status=true")
     expect(stdout).to include("resumed_gross_total=180.0")
   end
+
+  it "runs the marketing ergonomics example" do
+    stdout, stderr, status = run_example("marketing_ergonomics.rb")
+
+    expect(status.success?).to eq(true), stderr
+    expect(stdout).to include("Plan MarketingQuoteContract")
+    expect(stdout).to include('quote={:vendor_id=>"eLocal", :trade=>"HVAC", :zip_code=>"60601", :bid=>45.0}')
+    expect(stdout).to include('outbox=[{:vendor_id=>"eLocal", :zip_code=>"60601"}]')
+  end
 end

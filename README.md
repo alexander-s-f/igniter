@@ -9,6 +9,7 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - runtime auditing
 - diagnostics reports
 - reactive side effects
+- ergonomic DSL helpers (`const`, `lookup`, `map`, `guard`, `export`, `effect`)
 - graph and runtime introspection
 - async-capable pending nodes with snapshot/restore
 - store-backed execution resume flows
@@ -68,6 +69,7 @@ contract.diagnostics_text
 - Diagnostics: build compact text, markdown, or structured reports for triage.
 - Reactive: subscribe declaratively to runtime events.
 - Introspection: render graphs as text or Mermaid and inspect runtime state.
+- Ergonomics: use compact DSL helpers for common lookup, transform, guard, export, and side-effect patterns.
 
 ## Quick Start Recipes
 
@@ -81,6 +83,7 @@ The examples folder also has its own quick index in [`examples/README.md`](examp
 | `composition.rb` | `ruby examples/composition.rb` | nested contracts and composed results |
 | `diagnostics.rb` | `ruby examples/diagnostics.rb` | diagnostics text plus machine-readable output |
 | `async_store.rb` | `ruby examples/async_store.rb` | pending execution, file-backed store, worker-style resume |
+| `marketing_ergonomics.rb` | `ruby examples/marketing_ergonomics.rb` | compact domain DSL with `const`, `lookup`, `map`, `guard`, `effect`, and `explain_plan` |
 
 There are also matching living examples in `spec/igniter/examples_spec.rb`.
 Those are useful if you want to read the examples in test form.
@@ -199,6 +202,47 @@ resumed.result.gross_total
 # => 180.0
 ```
 
+### 6. Ergonomic DSL
+
+```ruby
+class MarketingQuoteContract < Igniter::Contract
+  define do
+    input :service, type: :string
+    input :zip_code, type: :string
+
+    const :vendor_id, "eLocal"
+
+    map :trade_name, from: :service do |service:|
+      %w[heating cooling ventilation air_conditioning].include?(service.downcase) ? "HVAC" : service
+    end
+
+    lookup :trade, depends_on: [:trade_name] do |trade_name:|
+      { name: trade_name, base_bid: 45.0 }
+    end
+
+    guard :zip_supported, depends_on: [:zip_code], message: "Unsupported zip" do |zip_code:|
+      zip_code == "60601"
+    end
+
+    compute :quote, depends_on: %i[vendor_id trade zip_supported zip_code] do |vendor_id:, trade:, zip_supported:, zip_code:|
+      zip_supported
+      { vendor_id: vendor_id, trade: trade[:name], zip_code: zip_code, bid: trade[:base_bid] }
+    end
+
+    output :quote
+  end
+
+  effect "quote" do |contract:, **|
+    puts "Persist #{contract.result.quote.inspect}"
+  end
+end
+
+contract = MarketingQuoteContract.new(service: "heating", zip_code: "60601")
+
+contract.explain_plan
+contract.result.quote
+```
+
 ## Composition Example
 
 ```ruby
@@ -239,7 +283,7 @@ class NotifyingContract < Igniter::Contract
     output :order_total
   end
 
-  react_to :node_succeeded, path: "order_total" do |event:, **|
+  effect "order_total" do |event:, **|
     puts "Resolved #{event.path}"
   end
 end
@@ -256,6 +300,7 @@ contract.result.gross_total
 
 contract.result.states
 contract.result.explain(:gross_total)
+contract.explain_plan
 contract.execution.to_h
 contract.execution.as_json
 contract.result.as_json

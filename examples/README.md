@@ -95,6 +95,32 @@ pending_status=true
 resumed_gross_total=180.0
 ```
 
+### `marketing_ergonomics.rb`
+
+Run:
+
+```bash
+ruby examples/marketing_ergonomics.rb
+```
+
+Shows:
+
+- ergonomic helpers `const`, `lookup`, `map`, `guard`
+- reactive shorthand via `effect`
+- pre-execution planning via `contract.explain_plan`
+- a domain-style contract that stays compact without hiding the graph
+
+Expected output shape:
+
+```text
+Plan MarketingQuoteContract
+Targets: quote
+...
+---
+quote={:vendor_id=>"eLocal", :trade=>"HVAC", :zip_code=>"60601", :bid=>45.0}
+outbox=[{:vendor_id=>"eLocal", :zip_code=>"60601"}]
+```
+
 ## Validation
 
 These scripts are exercised by [example_scripts_spec.rb](/Users/alex/dev/hotfix/igniter/spec/igniter/example_scripts_spec.rb), so the documented commands and outputs stay aligned with the code.

@@ -68,6 +68,7 @@ Suggested instance methods:
 - `update_inputs`
 - `events`
 - `execution`
+- `explain_plan`
 - `diagnostics`
 - `success?`
 - `failed?`
@@ -132,6 +133,24 @@ compute :gross_total,
         executor: "pricing.multiply"
 ```
 
+Ergonomic helper forms:
+
+```ruby
+const :vendor_id, "eLocal"
+
+lookup :trade, depends_on: [:trade_name] do |trade_name:|
+  Trade.enabled.find_by!(name: trade_name)
+end
+
+map :normalized_trade_name, from: :service do |service:|
+  service.downcase == "heating" ? "HVAC" : service
+end
+
+guard :business_hours_valid, depends_on: %i[vendor current_time], message: "Closed" do |vendor:, current_time:|
+  current_time.between?(vendor.start_at, vendor.stop_at)
+end
+```
+
 Rules:
 
 - one compute node has one callable
@@ -168,6 +187,12 @@ Child output export:
 output :gross_total, from: "pricing.gross_total"
 ```
 
+Bulk child output export:
+
+```ruby
+export :gross_total, :vat_rate, from: :pricing
+```
+
 Collection composition can be added later, but should not complicate the first kernel API.
 
 ## Introspection API
@@ -181,6 +206,7 @@ PriceContract.graph.to_mermaid
 
 contract.execution.states
 contract.execution.plan
+contract.explain_plan
 contract.execution.to_h
 contract.execution.as_json
 contract.result.as_json
@@ -210,6 +236,21 @@ Or:
 
 ```ruby
 contract.subscribe(auditor)
+```
+
+Reactive side-effect shorthand:
+
+```ruby
+class LoggingContract < Igniter::Contract
+  define do
+    input :order_total
+    output :order_total
+  end
+
+  effect "order_total" do |event:, contract:, **|
+    AuditLog.create!(path: event.path, value: contract.result.order_total)
+  end
+end
 ```
 
 Async/store-backed flow:
