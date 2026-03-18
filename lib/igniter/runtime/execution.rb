@@ -146,9 +146,9 @@ module Igniter
       end
 
       def restore!(snapshot)
-        @inputs.replace(symbolize_keys(snapshot.fetch(:inputs, {})))
-        cache.restore!(deserialize_states(snapshot.fetch(:states, {})))
-        events.restore!(events: snapshot.fetch(:events, []), execution_id: snapshot[:execution_id] || snapshot["execution_id"])
+        @inputs.replace(symbolize_keys(value_from(snapshot, :inputs) || {}))
+        cache.restore!(deserialize_states(value_from(snapshot, :states) || {}))
+        events.restore!(events: value_from(snapshot, :events) || [], execution_id: value_from(snapshot, :execution_id))
         audit.restore!(events.events)
         self
       end
@@ -327,6 +327,10 @@ module Igniter
         else
           value || Time.now.utc
         end
+      end
+
+      def value_from(data, key)
+        data[key] || data[key.to_s]
       end
 
       alias_method :resolve_output_value, :resolve_exported_output

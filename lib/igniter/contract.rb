@@ -16,6 +16,14 @@ module Igniter
         restore(snapshot)
       end
 
+      def resume_from_store(execution_id, token:, value:, store: nil)
+        Runtime::JobWorker.new(self, store: store || Igniter.execution_store).resume(
+          execution_id: execution_id,
+          token: token,
+          value: value
+        )
+      end
+
       def define_schema(schema)
         @compiled_graph = DSL::SchemaBuilder.compile(schema, name: contract_name)
       end
