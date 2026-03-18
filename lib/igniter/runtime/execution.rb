@@ -261,7 +261,7 @@ module Igniter
           memo[node.name] = NodeState.new(
             node: node,
             status: (state_data[:status] || state_data["status"]).to_sym,
-            value: deserialize_state_value(state_data[:value] || state_data["value"]),
+            value: deserialize_state_value(node, state_data[:value] || state_data["value"]),
             error: deserialize_state_error(state_data[:error] || state_data["error"]),
             version: state_data[:version] || state_data["version"],
             resolved_at: deserialize_time(state_data[:resolved_at] || state_data["resolved_at"]),
@@ -276,16 +276,15 @@ module Igniter
           { type: :deferred, data: value.as_json }
         when Runtime::Result
           {
-            type: :result_ref,
-            graph: value.execution.compiled_graph.name,
-            execution_id: value.execution.events.execution_id
+            type: :result_snapshot,
+            snapshot: value.execution.snapshot(include_resolution: false)
           }
         else
           value
         end
       end
 
-      def deserialize_state_value(value)
+      def deserialize_state_value(node, value)
         if value.is_a?(Hash) && (value[:type] || value["type"])&.to_sym == :deferred
           data = value[:data] || value["data"] || {}
           return Runtime::DeferredResult.build(
@@ -294,6 +293,14 @@ module Igniter
             source_node: data[:source_node] || data["source_node"],
             waiting_on: data[:waiting_on] || data["waiting_on"]
           )
+        end
+
+        if value.is_a?(Hash) && (value[:type] || value["type"])&.to_sym == :result_snapshot
+          snapshot = value[:snapshot] || value["snapshot"] || {}
+          if node.kind == :composition
+            child_contract = node.contract_class.restore(snapshot)
+            return child_contract.result
+          end
         end
 
         value
