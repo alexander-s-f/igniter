@@ -71,6 +71,7 @@ contract.diagnostics_text
 
 The repository contains runnable examples in [`examples/`](examples).
 They also have matching specs, so they stay in sync with the implementation.
+The examples folder also has its own quick index in [`examples/README.md`](examples/README.md).
 
 | Example | Run | Shows |
 | --- | --- | --- |
