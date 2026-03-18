@@ -2,6 +2,7 @@
 
 require_relative "igniter/version"
 require_relative "igniter/errors"
+require_relative "igniter/executor"
 require_relative "igniter/model"
 require_relative "igniter/compiler"
 require_relative "igniter/events"

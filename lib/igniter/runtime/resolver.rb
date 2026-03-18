@@ -62,8 +62,28 @@ module Igniter
         case callable
         when Proc
           callable.call(**dependencies)
+        when Class
+          call_compute_class(callable, dependencies)
         when Symbol, String
           @execution.contract_instance.public_send(callable.to_sym, **dependencies)
+        else
+          call_compute_object(callable, dependencies)
+        end
+      end
+
+      def call_compute_class(callable, dependencies)
+        if callable <= Igniter::Executor
+          callable.new(execution: @execution, contract: @execution.contract_instance).call(**dependencies)
+        elsif callable.respond_to?(:call)
+          callable.call(**dependencies)
+        else
+          raise ResolutionError, "Unsupported callable: #{callable}"
+        end
+      end
+
+      def call_compute_object(callable, dependencies)
+        if callable.respond_to?(:call)
+          callable.call(**dependencies)
         else
           raise ResolutionError, "Unsupported callable: #{callable.class}"
         end

@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
     "lib/igniter.rb",
     "lib/igniter/version.rb",
     "lib/igniter/errors.rb",
+    "lib/igniter/executor.rb",
     "lib/igniter/contract.rb",
     "lib/igniter/model.rb",
     "lib/igniter/model/*.rb",
