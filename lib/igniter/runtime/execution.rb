@@ -80,13 +80,20 @@ module Igniter
         Diagnostics::Report.new(self)
       end
 
+      def plan(output_names = nil)
+        @planner.plan(output_names)
+      end
+
       def to_h
         {
           graph: compiled_graph.name,
           execution_id: events.execution_id,
           inputs: inputs.dup,
+          runner: runner_strategy,
+          max_workers: max_workers,
           success: !cache.values.any?(&:failed?),
           failed: cache.values.any?(&:failed?),
+          plan: plan,
           states: states,
           event_count: events.events.size
         }

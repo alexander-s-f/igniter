@@ -92,4 +92,15 @@ RSpec.describe "Igniter introspection" do
     expect(explanation[:dependencies][:status]).to eq(:succeeded)
     expect(explanation[:dependencies][:value]).to eq(120.0)
   end
+
+  it "builds a machine-readable execution plan with ready and blocked nodes" do
+    contract = contract_class.new(order_total: 100, country: "UA")
+
+    plan = contract.execution.plan
+
+    expect(plan[:targets]).to eq([:gross_total])
+    expect(plan[:ready]).to include(:order_total, :country, :vat_rate)
+    expect(plan[:blocked]).to include(:gross_total)
+    expect(plan[:nodes][:gross_total][:waiting_on]).to include(:vat_rate)
+  end
 end
