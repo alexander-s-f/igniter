@@ -37,6 +37,7 @@ module Igniter
             event_id: event.event_id,
             type: event.type,
             execution_id: event.execution_id,
+            node_id: event.node_id,
             node_name: event.node_name,
             path: event.path,
             status: event.status,

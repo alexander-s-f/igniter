@@ -26,10 +26,15 @@ module Igniter
                 end
 
         @execution.cache.write(state)
-        @execution.events.emit(state.failed? ? :node_failed : :node_succeeded, node: node, status: state.status)
+        @execution.events.emit(
+          state.failed? ? :node_failed : :node_succeeded,
+          node: node,
+          status: state.status,
+          payload: success_payload(node, state)
+        )
         state
       rescue StandardError => e
-        state = NodeState.new(node: node, status: :failed, error: normalize_error(e))
+        state = NodeState.new(node: node, status: :failed, error: normalize_error(e, node))
         @execution.cache.write(state)
         @execution.events.emit(:node_failed, node: node, status: :failed, payload: { error: state.error.message })
         state
@@ -73,13 +78,36 @@ module Igniter
         end
 
         child_contract = node.contract_class.new(child_inputs)
+        child_contract.resolve_all
+        child_error = child_contract.result.errors.values.first
+        raise child_error if child_error
+
         NodeState.new(node: node, status: :succeeded, value: child_contract.result)
       end
 
-      def normalize_error(error)
+      def success_payload(node, state)
+        return {} unless node.kind == :composition
+        return {} unless state.value.is_a?(Igniter::Runtime::Result)
+
+        {
+          child_execution_id: state.value.execution.events.execution_id,
+          child_graph: state.value.execution.compiled_graph.name
+        }
+      end
+
+      def normalize_error(error, node)
         return error if error.is_a?(Igniter::Error)
 
-        ResolutionError.new(error.message)
+        ResolutionError.new(
+          error.message,
+          context: {
+            graph: @execution.compiled_graph.name,
+            node_id: node.id,
+            node_name: node.name,
+            node_path: node.path,
+            source_location: node.source_location
+          }
+        )
       end
     end
   end

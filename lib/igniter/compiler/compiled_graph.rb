@@ -3,17 +3,23 @@
 module Igniter
   module Compiler
     class CompiledGraph
-      attr_reader :name, :nodes, :nodes_by_name, :outputs, :outputs_by_name, :resolution_order, :dependents
+      attr_reader :name, :nodes, :nodes_by_id, :nodes_by_name, :nodes_by_path, :outputs, :outputs_by_name, :resolution_order, :dependents
 
       def initialize(name:, nodes:, outputs:, resolution_order:, dependents:)
         @name = name
         @nodes = nodes.freeze
+        @nodes_by_id = nodes.each_with_object({}) { |node, memo| memo[node.id] = node }.freeze
         @nodes_by_name = nodes.each_with_object({}) { |node, memo| memo[node.name] = node }.freeze
+        @nodes_by_path = nodes.each_with_object({}) { |node, memo| memo[node.path] = node }.freeze
         @outputs = outputs.freeze
         @outputs_by_name = outputs.each_with_object({}) { |node, memo| memo[node.name] = node }.freeze
         @resolution_order = resolution_order.freeze
         @dependents = dependents.transform_values(&:freeze).freeze
         freeze
+      end
+
+      def fetch_node_by_id(id)
+        @nodes_by_id.fetch(id)
       end
 
       def fetch_node(name)
@@ -22,6 +28,10 @@ module Igniter
 
       def node?(name)
         @nodes_by_name.key?(name.to_sym)
+      end
+
+      def fetch_node_by_path(path)
+        @nodes_by_path.fetch(path.to_s)
       end
 
       def fetch_output(name)

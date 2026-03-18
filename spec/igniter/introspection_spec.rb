@@ -47,10 +47,25 @@ RSpec.describe "Igniter introspection" do
     states = contract.result.states
 
     expect(states[:gross_total]).to include(
+      id: contract.execution.compiled_graph.fetch_node(:gross_total).id,
       path: "gross_total",
       kind: :compute,
       status: :succeeded,
       value: 120.0
+    )
+  end
+
+  it "includes invalidation details in runtime states" do
+    contract = contract_class.new(order_total: 100, country: "UA")
+    contract.result.gross_total
+    contract.update_inputs(order_total: 150)
+
+    states = contract.execution.states
+
+    expect(states[:gross_total][:invalidated_by]).to eq(
+      node_id: contract.execution.compiled_graph.fetch_node(:order_total).id,
+      node_name: :order_total,
+      node_path: "order_total"
     )
   end
 
@@ -59,7 +74,9 @@ RSpec.describe "Igniter introspection" do
 
     explanation = contract.result.explain(:gross_total)
 
+    expect(explanation[:output_id]).to eq(contract.execution.compiled_graph.fetch_output(:gross_total).id)
     expect(explanation[:output]).to eq(:gross_total)
+    expect(explanation[:source_id]).to eq(contract.execution.compiled_graph.fetch_node(:gross_total).id)
     expect(explanation[:source]).to eq(:gross_total)
     expect(explanation[:dependencies].dig(:dependencies, 0, :name)).to eq(:order_total)
     expect(explanation[:dependencies].dig(:dependencies, 1, :name)).to eq(:vat_rate)

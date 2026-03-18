@@ -18,6 +18,7 @@ module Igniter
           event_id: SecureRandom.uuid,
           type: type,
           execution_id: execution_id,
+          node_id: node&.id,
           node_name: node&.name,
           path: node&.path,
           status: status,

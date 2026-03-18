@@ -54,6 +54,20 @@ RSpec.describe "Igniter input validation" do
     end.to raise_error(Igniter::InputError, /Missing required input: order_total/)
   end
 
+  it "attaches graph and node context to input errors" do
+    contract = contract_class.new(country: "UA")
+
+    expect do
+      contract.result.gross_total
+    end.to raise_error(Igniter::InputError) { |error|
+      expect(error.graph).to eq("AnonymousContract")
+      expect(error.node_name).to eq(:order_total)
+      expect(error.node_path).to eq("order_total")
+      expect(error.message).to include("graph=AnonymousContract")
+      expect(error.message).to include("node=order_total")
+    }
+  end
+
   it "validates updated input types" do
     contract = contract_class.new(order_total: 100, country: "UA")
 

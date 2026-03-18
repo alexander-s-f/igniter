@@ -66,8 +66,6 @@ RSpec.describe "Igniter composition" do
     expect(child_execution_id).not_to eq(parent_execution_id)
     expect(contract.events.map(&:path)).to include("pricing")
     expect(contract.events.map(&:path)).not_to include("gross_total")
-
-    pricing_result.gross_total
     expect(pricing_result.execution.events.events.map(&:path)).to include("gross_total")
   end
 
@@ -119,5 +117,52 @@ RSpec.describe "Igniter composition" do
         end
       end
     end.to raise_error(Igniter::ValidationError, /missing mappings for required child inputs: country/i)
+  end
+
+  it "eagerly resolves child outputs before marking composition as succeeded" do
+    contract = checkout_contract.new(order_total: 100, country: "UA")
+
+    pricing_result = contract.result.pricing
+
+    child_event_types = pricing_result.execution.events.events.map(&:type)
+    expect(child_event_types).to include(:execution_started, :execution_finished, :node_succeeded)
+
+    pricing_event = contract.events.find { |event| event.type == :node_succeeded && event.path == "pricing" }
+    expect(pricing_event.payload).to include(
+      child_execution_id: pricing_result.execution.events.execution_id,
+      child_graph: pricing_result.execution.compiled_graph.name
+    )
+  end
+
+  it "fails the parent composition node when child resolution fails" do
+    failing_child = Class.new(Igniter::Contract) do
+      define do
+        input :order_total
+
+        compute :gross_total, depends_on: [:order_total] do |order_total:|
+          raise "boom" if order_total > 100
+
+          order_total
+        end
+
+        output :gross_total
+      end
+    end
+
+    parent_contract = Class.new(Igniter::Contract) do
+      define do
+        input :order_total
+        compose :pricing, contract: failing_child, inputs: { order_total: :order_total }
+        output :pricing
+      end
+    end
+
+    contract = parent_contract.new(order_total: 150)
+
+    expect { contract.result.pricing }.to raise_error(Igniter::ResolutionError, /boom/)
+
+    pricing_state = contract.execution.cache.fetch(:pricing)
+    expect(pricing_state).to be_failed
+    expect(contract.events.map(&:type)).to include(:execution_failed, :node_failed)
   end
 end

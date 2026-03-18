@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
     "lib/igniter/runtime.rb",
     "lib/igniter/runtime/cache.rb",
     "lib/igniter/runtime/execution.rb",
+    "lib/igniter/runtime/invalidator.rb",
     "lib/igniter/runtime/input_validator.rb",
     "lib/igniter/runtime/node_state.rb",
     "lib/igniter/runtime/resolver.rb",

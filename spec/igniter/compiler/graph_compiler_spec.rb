@@ -48,6 +48,38 @@ RSpec.describe Igniter::Compiler::GraphCompiler do
       .to raise_error(Igniter::ValidationError, /Duplicate output name: country/)
   end
 
+  it "raises on duplicate node ids" do
+    graph = Igniter::Model::Graph.new(
+      name: "BrokenGraph",
+      nodes: [
+        Igniter::Model::InputNode.new(id: "dup", name: :country),
+        Igniter::Model::InputNode.new(id: "dup", name: :order_total),
+        Igniter::Model::OutputNode.new(id: "3", name: :country, source: :country)
+      ]
+    )
+
+    expect { described_class.call(graph) }
+      .to raise_error(Igniter::ValidationError, /Duplicate node id: dup/)
+  end
+
+  it "raises on duplicate node paths" do
+    first = Igniter::Model::InputNode.new(id: "1", name: :country)
+    duplicate_path = Igniter::Model::InputNode.new(id: "2", name: :region, metadata: { source_location: "spec.rb" })
+    duplicate_path.instance_variable_set(:@path, first.path)
+
+    graph = Igniter::Model::Graph.new(
+      name: "BrokenGraph",
+      nodes: [
+        first,
+        duplicate_path,
+        Igniter::Model::OutputNode.new(id: "3", name: :country, source: :country)
+      ]
+    )
+
+    expect { described_class.call(graph) }
+      .to raise_error(Igniter::ValidationError, /Duplicate node path: country/)
+  end
+
   it "includes source location in validation errors for DSL-defined graphs" do
     expect do
       Igniter.compile do
@@ -56,7 +88,25 @@ RSpec.describe Igniter::Compiler::GraphCompiler do
         end
         output :gross_total
       end
-    end.to raise_error(Igniter::ValidationError, /declared at .*graph_compiler_spec\.rb/)
+    end.to raise_error(Igniter::ValidationError, /location=.*graph_compiler_spec\.rb/)
+  end
+
+  it "attaches graph and node context to validation errors" do
+    expect do
+      Igniter.compile do
+        compute :gross_total, depends_on: [:missing_dep] do |missing_dep:|
+          missing_dep
+        end
+        output :gross_total
+      end
+    end.to raise_error(Igniter::ValidationError) { |error|
+      expect(error.graph).to eq("AnonymousContract")
+      expect(error.node_name).to eq(:gross_total)
+      expect(error.node_path).to eq("gross_total")
+      expect(error.source_location).to include("graph_compiler_spec.rb")
+      expect(error.message).to include("graph=AnonymousContract")
+      expect(error.message).to include("node=gross_total")
+    }
   end
 
   it "rejects compute blocks with positional parameters" do

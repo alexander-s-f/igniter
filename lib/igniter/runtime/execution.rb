@@ -15,14 +15,17 @@ module Igniter
         @audit = Extensions::Auditing::Timeline.new(self)
         @events.subscribe(@audit)
         @resolver = Resolver.new(self)
+        @invalidator = Invalidator.new(self)
       end
 
       def resolve_output(name)
         output = compiled_graph.fetch_output(name)
-        state = @resolver.resolve(output.source)
-        raise state.error if state.failed?
+        with_execution_lifecycle([output.source]) do
+          state = @resolver.resolve(output.source)
+          raise state.error if state.failed?
 
-        state.value
+          state.value
+        end
       end
 
       def resolve(name)
@@ -30,10 +33,12 @@ module Igniter
       end
 
       def resolve_all
-        @events.emit(:execution_started, payload: { graph: compiled_graph.name })
-        compiled_graph.outputs.each { |output_node| resolve(output_node.source) }
-        @events.emit(:execution_finished, payload: { graph: compiled_graph.name })
-        self
+        output_sources = compiled_graph.outputs.map(&:source)
+
+        with_execution_lifecycle(output_sources) do
+          compiled_graph.outputs.each { |output_node| resolve(output_node.source) }
+          self
+        end
       end
 
       def update_inputs(new_inputs)
@@ -44,7 +49,7 @@ module Igniter
           input_node = compiled_graph.fetch_node(name)
           cache.write(NodeState.new(node: input_node, status: :succeeded, value: value, invalidated_by: name))
           @events.emit(:input_updated, node: input_node, status: :succeeded, payload: { value: value })
-          invalidate_dependents(name)
+          @invalidator.invalidate_from(name)
         end
 
         self
@@ -70,28 +75,34 @@ module Igniter
 
       private
 
-      def invalidate_dependents(node_name)
-        queue = compiled_graph.dependents.fetch(node_name.to_sym, []).dup
-        seen = {}
-
-        until queue.empty?
-          dependent_name = queue.shift
-          next if seen[dependent_name]
-
-          seen[dependent_name] = true
-          dependent_node = compiled_graph.fetch_node(dependent_name)
-          cache.stale!(dependent_node, invalidated_by: node_name.to_sym)
-          events.emit(:node_invalidated, node: dependent_node, status: :stale, payload: { cause: node_name.to_sym })
-          emit_output_invalidations_for(dependent_node.name, node_name)
-          queue.concat(compiled_graph.dependents.fetch(dependent_name, []))
+      def with_execution_lifecycle(node_names)
+        if resolution_required_for_any?(node_names)
+          @events.emit(:execution_started, payload: { graph: compiled_graph.name, targets: node_names.map(&:to_sym) })
+          begin
+            result = yield
+            @events.emit(:execution_finished, payload: { graph: compiled_graph.name, targets: node_names.map(&:to_sym) })
+            result
+          rescue StandardError => e
+            @events.emit(
+              :execution_failed,
+              status: :failed,
+              payload: {
+                graph: compiled_graph.name,
+                targets: node_names.map(&:to_sym),
+                error: e.message
+              }
+            )
+            raise
+          end
+        else
+          yield
         end
       end
 
-      def emit_output_invalidations_for(source_name, cause_name)
-        compiled_graph.outputs.each do |output_node|
-          next unless output_node.source == source_name.to_sym
-
-          events.emit(:node_invalidated, node: output_node, status: :stale, payload: { cause: cause_name.to_sym })
+      def resolution_required_for_any?(node_names)
+        node_names.any? do |node_name|
+          state = cache.fetch(node_name)
+          state.nil? || state.stale?
         end
       end
 

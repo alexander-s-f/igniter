@@ -13,8 +13,10 @@ module Igniter
       end
 
       def call
+        validate_unique_ids!
         index_runtime_nodes!
         validate_outputs!
+        validate_unique_paths!
         validate_dependencies!
         validate_callable_signatures!
 
@@ -34,6 +36,38 @@ module Igniter
       end
 
       private
+
+      def validate_unique_ids!
+        seen = {}
+
+        @graph.nodes.each do |node|
+          if seen.key?(node.id)
+            raise validation_error(node, "Duplicate node id: #{node.id}")
+          end
+
+          seen[node.id] = true
+        end
+      end
+
+      def validate_unique_paths!
+        seen = {}
+
+        runtime_nodes.each do |node|
+          if seen.key?(node.path)
+            raise validation_error(node, "Duplicate node path: #{node.path}")
+          end
+
+          seen[node.path] = true
+        end
+
+        outputs.each do |output|
+          if seen.key?(output.path)
+            raise validation_error(output, "Duplicate node path: #{output.path}")
+          end
+
+          seen[output.path] = true
+        end
+      end
 
       def index_runtime_nodes!
         runtime_nodes.each do |node|
@@ -155,9 +189,16 @@ module Igniter
       end
 
       def validation_error(node, message)
-        location = node.source_location
-        suffix = location ? " (declared at #{location})" : ""
-        ValidationError.new("#{message}#{suffix}")
+        ValidationError.new(
+          message,
+          context: {
+            graph: @graph.name,
+            node_id: node.id,
+            node_name: node.name,
+            node_path: node.path,
+            source_location: node.source_location
+          }
+        )
       end
     end
   end

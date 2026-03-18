@@ -61,4 +61,63 @@ RSpec.describe Igniter::Contract do
     expect(second_state.version).to eq(3)
     expect(second_state.value).to eq(180.0)
   end
+
+  it "emits execution lifecycle events only when resolution work is required" do
+    contract = contract_class.new(order_total: 100, country: "UA")
+
+    contract.result.gross_total
+    contract.result.gross_total
+    contract.success?
+
+    lifecycle_events = contract.events.select { |event| %i[execution_started execution_finished].include?(event.type) }
+
+    expect(lifecycle_events.map(&:type)).to eq(%i[execution_started execution_finished])
+
+    contract.update_inputs(order_total: 150)
+    contract.result.gross_total
+
+    lifecycle_events = contract.events.select { |event| %i[execution_started execution_finished].include?(event.type) }
+    expect(lifecycle_events.map(&:type)).to eq(
+      %i[execution_started execution_finished execution_started execution_finished]
+    )
+  end
+
+  it "does not emit downstream invalidation events for unresolved nodes" do
+    contract = contract_class.new(order_total: 100, country: "UA")
+
+    contract.update_inputs(order_total: 150)
+
+    invalidated_paths = contract.events
+      .select { |event| event.type == :node_invalidated }
+      .map(&:path)
+
+    expect(invalidated_paths).to be_empty
+  end
+
+  it "attaches node context to resolution errors" do
+    failing_contract = Class.new(described_class) do
+      define do
+        input :order_total
+
+        compute :gross_total, depends_on: [:order_total] do |order_total:|
+          raise "exploded #{order_total}"
+        end
+
+        output :gross_total
+      end
+    end
+
+    contract = failing_contract.new(order_total: 100)
+
+    expect do
+      contract.result.gross_total
+    end.to raise_error(Igniter::ResolutionError) { |error|
+      expect(error.graph).to eq("AnonymousContract")
+      expect(error.node_name).to eq(:gross_total)
+      expect(error.node_path).to eq("gross_total")
+      expect(error.message).to include("exploded 100")
+      expect(error.message).to include("graph=AnonymousContract")
+      expect(error.message).to include("node=gross_total")
+    }
+  end
 end

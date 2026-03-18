@@ -27,9 +27,12 @@ module Igniter
           source = @execution.compiled_graph.fetch_node(output.source)
 
           {
+            output_id: output.id,
             output: output.name,
             path: output.path,
+            source_id: source.id,
             source: source.name,
+            source_path: source.path,
             dependencies: dependency_tree(source)
           }
         end
@@ -39,10 +42,13 @@ module Igniter
         def dependency_tree(node)
           state = @execution.cache.fetch(node.name)
           {
+            id: node.id,
             name: node.name,
             path: node.path,
             kind: node.kind,
+            source_location: node.source_location,
             status: state&.status,
+            invalidated_by: invalidation_details(state),
             value: serialize_value(state&.value),
             error: state&.error&.message,
             dependencies: node.dependencies.map do |dependency_name|
@@ -53,13 +59,26 @@ module Igniter
 
         def serialize_state(state)
           {
+            id: state.node.id,
             path: state.node.path,
             kind: state.node.kind,
+            source_location: state.node.source_location,
             status: state.status,
             version: state.version,
-            invalidated_by: state.invalidated_by,
+            invalidated_by: invalidation_details(state),
             value: serialize_value(state.value),
             error: state.error&.message
+          }
+        end
+
+        def invalidation_details(state)
+          return nil unless state&.invalidated_by
+
+          invalidating_node = @execution.compiled_graph.fetch_node(state.invalidated_by)
+          {
+            node_id: invalidating_node.id,
+            node_name: invalidating_node.name,
+            node_path: invalidating_node.path
           }
         end
 

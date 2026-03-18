@@ -50,6 +50,18 @@ RSpec.describe "Igniter auditing" do
     expect(event_ids.uniq).to eq(event_ids)
   end
 
+  it "includes node identifiers in serialized audit events" do
+    contract = contract_class.new(order_total: 100, country: "UA")
+
+    contract.result.gross_total
+
+    event = contract.audit_snapshot[:events].find do |entry|
+      entry[:node_name] == :gross_total && entry[:type] == :node_succeeded
+    end
+
+    expect(event[:node_id]).to eq(contract.execution.compiled_graph.fetch_node(:gross_total).id)
+  end
+
   it "captures child execution snapshots for composition nodes" do
     pricing_contract = contract_class
 

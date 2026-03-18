@@ -6,6 +6,7 @@ module Igniter
       :event_id,
       :type,
       :execution_id,
+      :node_id,
       :node_name,
       :path,
       :status,
