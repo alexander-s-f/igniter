@@ -40,6 +40,8 @@ Gem::Specification.new do |spec|
     "lib/igniter/runtime/result.rb",
     "lib/igniter/dsl.rb",
     "lib/igniter/dsl/contract_builder.rb",
+    "lib/igniter/diagnostics.rb",
+    "lib/igniter/diagnostics/*.rb",
     "lib/igniter/extensions.rb",
     "lib/igniter/extensions/*.rb",
     "lib/igniter/extensions/auditing/*.rb",

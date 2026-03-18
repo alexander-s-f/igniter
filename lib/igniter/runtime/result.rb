@@ -12,7 +12,7 @@ module Igniter
 
       def to_h
         @execution.compiled_graph.outputs.each_with_object({}) do |output_node, memo|
-          memo[output_node.name] = serialize_value(public_send(output_node.name))
+          memo[output_node.name] = serialize_output_value(public_send(output_node.name))
         end
       end
 
@@ -45,6 +45,20 @@ module Igniter
         @execution.explain_output(output_name)
       end
 
+      def as_json(*)
+        @execution.resolve_all
+
+        {
+          graph: @execution.compiled_graph.name,
+          execution_id: @execution.events.execution_id,
+          outputs: to_h,
+          success: !failed?,
+          failed: failed?,
+          errors: serialize_errors(errors),
+          states: states
+        }
+      end
+
       private
 
       def define_output_readers!
@@ -58,11 +72,32 @@ module Igniter
       def serialize_value(value)
         case value
         when Result
-          value.to_h
+          value.as_json
         when Array
           value.map { |item| serialize_value(item) }
         else
           value
+        end
+      end
+
+      def serialize_output_value(value)
+        case value
+        when Result
+          value.to_h
+        when Array
+          value.map { |item| serialize_output_value(item) }
+        else
+          value
+        end
+      end
+
+      def serialize_errors(error_hash)
+        error_hash.each_with_object({}) do |(node_name, error), memo|
+          memo[node_name] = {
+            type: error.class.name,
+            message: error.message,
+            context: error.respond_to?(:context) ? error.context : {}
+          }
         end
       end
     end

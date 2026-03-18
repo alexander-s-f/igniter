@@ -73,6 +73,28 @@ module Igniter
         Extensions::Introspection::RuntimeFormatter.explain_output(self, name)
       end
 
+      def diagnostics
+        Diagnostics::Report.new(self)
+      end
+
+      def to_h
+        {
+          graph: compiled_graph.name,
+          execution_id: events.execution_id,
+          inputs: inputs.dup,
+          success: !cache.values.any?(&:failed?),
+          failed: cache.values.any?(&:failed?),
+          states: states,
+          event_count: events.events.size
+        }
+      end
+
+      def as_json(*)
+        to_h.merge(
+          events: events.events.map(&:as_json)
+        )
+      end
+
       private
 
       def with_execution_lifecycle(node_names)

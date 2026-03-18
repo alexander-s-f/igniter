@@ -8,6 +8,7 @@ require_relative "igniter/events"
 require_relative "igniter/runtime"
 require_relative "igniter/dsl"
 require_relative "igniter/extensions"
+require_relative "igniter/diagnostics"
 require_relative "igniter/contract"
 
 module Igniter

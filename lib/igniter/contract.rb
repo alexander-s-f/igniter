@@ -94,6 +94,18 @@ module Igniter
       self
     end
 
+    def diagnostics
+      Diagnostics::Report.new(execution)
+    end
+
+    def diagnostics_text
+      diagnostics.to_text
+    end
+
+    def diagnostics_markdown
+      diagnostics.to_markdown
+    end
+
     def success?
       execution.success?
     end
