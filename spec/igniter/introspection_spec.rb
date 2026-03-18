@@ -103,4 +103,40 @@ RSpec.describe "Igniter introspection" do
     expect(plan[:blocked]).to include(:gross_total)
     expect(plan[:nodes][:gross_total][:waiting_on]).to include(:vat_rate)
   end
+
+  it "explains the execution plan without resolving compute nodes" do
+    calls = 0
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :order_total, type: :numeric
+        input :country, type: :string
+
+        compute :vat_rate, depends_on: [:country] do |country:|
+          calls += 1
+          country == "UA" ? 0.2 : 0.0
+        end
+
+        compute :gross_total, depends_on: %i[order_total vat_rate] do |order_total:, vat_rate:|
+          calls += 1
+          order_total * (1 + vat_rate)
+        end
+
+        output :gross_total
+      end
+    end
+
+    contract = contract_class.new(order_total: 100, country: "UA")
+
+    explanation = contract.explain_plan
+
+    expect(explanation).to include("Plan AnonymousContract")
+    expect(explanation).to include("Targets: gross_total")
+    expect(explanation).to include("Ready: order_total,country,vat_rate")
+    expect(explanation).to include("Blocked: gross_total")
+    expect(explanation).to include("compute gross_total")
+    expect(explanation).to include("waiting_on=vat_rate")
+    expect(calls).to eq(0)
+    expect(contract.events).to be_empty
+  end
 end

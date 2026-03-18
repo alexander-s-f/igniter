@@ -170,6 +170,10 @@ module Igniter
       diagnostics.to_markdown
     end
 
+    def explain_plan(output_names = nil)
+      execution.explain_plan(output_names)
+    end
+
     def success?
       execution.success?
     end

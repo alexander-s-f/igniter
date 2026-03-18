@@ -45,6 +45,34 @@ module Igniter
         )
       end
 
+      def const(name, value = nil, **metadata, &block)
+        raise CompileError, "const :#{name} cannot accept both a value and a block" if !block.nil? && !value.nil?
+        raise CompileError, "const :#{name} requires a value or a block" if block.nil? && value.nil?
+
+        callable = if block
+                     block
+                   else
+                     proc { value }
+                   end
+
+        compute(name, depends_on: [], call: callable, **metadata.merge(kind: :const))
+      end
+
+      def lookup(name, depends_on:, call: nil, executor: nil, **metadata, &block)
+        compute(name, depends_on: depends_on, call: call, executor: executor, **{ category: :lookup }.merge(metadata), &block)
+      end
+
+      def guard(name, depends_on:, call: nil, executor: nil, message: nil, **metadata, &block)
+        compute(
+          name,
+          depends_on: depends_on,
+          call: call,
+          executor: executor,
+          **metadata.merge(kind: :guard, guard: true, guard_message: message || "Guard '#{name}' failed"),
+          &block
+        )
+      end
+
       def output(name, from: nil, **metadata)
         add_node(
           Model::OutputNode.new(

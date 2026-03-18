@@ -109,6 +109,10 @@ module Igniter
         @planner.plan(output_names)
       end
 
+      def explain_plan(output_names = nil)
+        Extensions::Introspection::PlanFormatter.to_text(self, output_names)
+      end
+
       def to_h
         {
           graph: compiled_graph.name,
