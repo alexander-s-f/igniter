@@ -7,6 +7,10 @@ module Igniter
         @compiled_graph = DSL::ContractBuilder.compile(name: contract_name, &block)
       end
 
+      def define_schema(schema)
+        @compiled_graph = DSL::SchemaBuilder.compile(schema, name: contract_name)
+      end
+
       def react_to(event_type, path: nil, &block)
         raise CompileError, "react_to requires a block" unless block
 

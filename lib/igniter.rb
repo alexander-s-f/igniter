@@ -2,6 +2,7 @@
 
 require_relative "igniter/version"
 require_relative "igniter/errors"
+require_relative "igniter/type_system"
 require_relative "igniter/executor"
 require_relative "igniter/executor_registry"
 require_relative "igniter/model"
@@ -25,6 +26,10 @@ module Igniter
 
     def compile(&block)
       DSL::ContractBuilder.compile(&block)
+    end
+
+    def compile_schema(schema, name: nil)
+      DSL::SchemaBuilder.compile(schema, name: name)
     end
   end
 end

@@ -50,6 +50,10 @@ module Igniter
         metadata[:summary] || executor_metadata[:summary]
       end
 
+      def type
+        metadata[:type] || executor_metadata[:type]
+      end
+
       private
 
       def executor_metadata

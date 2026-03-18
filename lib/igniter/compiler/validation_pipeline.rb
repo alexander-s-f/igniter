@@ -7,6 +7,7 @@ module Igniter
         Validators::UniquenessValidator,
         Validators::OutputsValidator,
         Validators::DependenciesValidator,
+        Validators::TypeCompatibilityValidator,
         Validators::CallableValidator
       ].freeze
 

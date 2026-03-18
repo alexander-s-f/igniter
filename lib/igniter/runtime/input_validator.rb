@@ -3,17 +3,6 @@
 module Igniter
   module Runtime
     class InputValidator
-      SUPPORTED_TYPES = {
-        integer: Integer,
-        float: Float,
-        numeric: Numeric,
-        string: String,
-        boolean: :boolean,
-        array: Array,
-        hash: Hash,
-        symbol: Symbol
-      }.freeze
-
       def initialize(compiled_graph)
         @compiled_graph = compiled_graph
       end
@@ -104,24 +93,13 @@ module Igniter
         return if value.nil?
         return unless input_node.type
 
-        unless supported_type?(input_node.type)
+        unless TypeSystem.supported?(input_node.type)
           raise input_error(input_node, "Unsupported input type '#{input_node.type}' for '#{input_node.name}'")
         end
 
-        return if type_match?(input_node.type, value)
+        return if TypeSystem.match?(input_node.type, value)
 
         raise input_error(input_node, "Input '#{input_node.name}' must be of type #{input_node.type}, got #{value.class}")
-      end
-
-      def supported_type?(type)
-        SUPPORTED_TYPES.key?(type.to_sym)
-      end
-
-      def type_match?(type, value)
-        matcher = SUPPORTED_TYPES.fetch(type.to_sym)
-        return value == true || value == false if matcher == :boolean
-
-        value.is_a?(matcher)
       end
 
       def symbolize_keys(hash)

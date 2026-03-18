@@ -81,6 +81,45 @@ module Igniter
         Extensions::Introspection::GraphFormatter.to_text(self)
       end
 
+      def to_schema
+        {
+          name: name,
+          inputs: nodes.select { |node| node.kind == :input }.map do |node|
+            {
+              name: node.name,
+              type: node.type,
+              required: node.required?,
+              default: (node.default if node.default?),
+              metadata: node.metadata.reject { |key, _| key == :source_location || key == :type || key == :required || key == :default }
+            }.compact
+          end,
+          compositions: nodes.select { |node| node.kind == :composition }.map do |node|
+            {
+              name: node.name,
+              contract: node.contract_class,
+              inputs: node.input_mapping,
+              metadata: node.metadata.reject { |key, _| key == :source_location }
+            }
+          end,
+          computes: nodes.select { |node| node.kind == :compute }.map do |node|
+            {
+              name: node.name,
+              depends_on: node.dependencies,
+              executor: node.executor_key,
+              call: (node.callable unless node.executor_key),
+              metadata: node.metadata.reject { |key, _| %i[source_location executor_key].include?(key) }
+            }.compact
+          end,
+          outputs: outputs.map do |output|
+            {
+              name: output.name,
+              from: output.source,
+              metadata: output.metadata.reject { |key, _| %i[source_location type].include?(key) }
+            }.compact
+          end
+        }
+      end
+
       def to_mermaid
         Extensions::Introspection::GraphFormatter.to_mermaid(self)
       end

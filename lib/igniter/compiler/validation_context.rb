@@ -28,6 +28,22 @@ module Igniter
         runtime_nodes_by_name.key?(dependency_name.to_sym) || outputs_by_name.key?(dependency_name.to_sym)
       end
 
+      def node?(name)
+        runtime_nodes_by_name.key?(name.to_sym)
+      end
+
+      def output?(name)
+        outputs_by_name.key?(name.to_sym)
+      end
+
+      def fetch_node(name)
+        runtime_nodes_by_name.fetch(name.to_sym)
+      end
+
+      def fetch_output(name)
+        outputs_by_name.fetch(name.to_sym)
+      end
+
       def validation_error(node, message)
         ValidationError.new(
           message,

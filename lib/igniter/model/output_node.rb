@@ -27,6 +27,10 @@ module Igniter
         source.to_s.include?(".")
       end
 
+      def type
+        metadata[:type]
+      end
+
       def child_output_name
         return unless composition_output?
 
