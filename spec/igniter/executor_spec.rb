@@ -3,7 +3,19 @@
 require "spec_helper"
 
 RSpec.describe "Igniter executors" do
+  around do |example|
+    Igniter.executor_registry.clear
+    example.run
+    Igniter.executor_registry.clear
+  end
+
   class MultiplyExecutor < Igniter::Executor
+    executor_key "pricing.multiply"
+    label "Multiply total"
+    category :pricing
+    tags :math, :revenue
+    summary "Multiplies order total by a numeric multiplier"
+
     input :order_total
     input :multiplier
 
@@ -113,8 +125,43 @@ RSpec.describe "Igniter executors" do
     text = contract_class.graph.to_text
 
     expect(text).to include("callable=MultiplyExecutor")
+    expect(text).to include("executor_key=pricing.multiply")
     expect(text).to include("label=Multiply total")
     expect(text).to include("category=pricing")
     expect(text).to include("tags=math,revenue")
+    expect(text).to include("summary=Multiplies order total by a numeric multiplier")
+  end
+
+  it "resolves executors from the global registry" do
+    Igniter.register_executor("pricing.multiply", MultiplyExecutor)
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :order_total, type: :numeric
+        input :multiplier, type: :numeric
+
+        compute :gross_total, depends_on: %i[order_total multiplier], executor: "pricing.multiply"
+        output :gross_total
+      end
+    end
+
+    contract = contract_class.new(order_total: 100, multiplier: 1.2)
+
+    expect(contract.result.gross_total).to eq(120.0)
+    expect(contract.class.graph.to_text).to include("executor_key=pricing.multiply")
+  end
+
+  it "fails compilation for unknown executor registry keys" do
+    expect do
+      Class.new(Igniter::Contract) do
+        define do
+          input :order_total, type: :numeric
+          input :multiplier, type: :numeric
+
+          compute :gross_total, depends_on: %i[order_total multiplier], executor: "missing.executor"
+          output :gross_total
+        end
+      end
+    end.to raise_error(Igniter::CompileError, /Unknown executor registry key: missing.executor/)
   end
 end

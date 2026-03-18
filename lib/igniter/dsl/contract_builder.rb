@@ -30,10 +30,9 @@ module Igniter
         )
       end
 
-      def compute(name, depends_on:, call: nil, **metadata, &block)
-        callable = call || block
+      def compute(name, depends_on:, call: nil, executor: nil, **metadata, &block)
+        callable, resolved_metadata = resolve_compute_callable(call: call, executor: executor, metadata: metadata, block: block)
         raise CompileError, "compute :#{name} requires a callable" unless callable
-        raise CompileError, "compute :#{name} cannot accept both `call:` and a block" if call && block
 
         add_node(
           Model::ComputeNode.new(
@@ -41,7 +40,7 @@ module Igniter
             name: name,
             dependencies: Array(depends_on),
             callable: callable,
-            metadata: with_source_location(metadata)
+            metadata: with_source_location(resolved_metadata)
           )
         )
       end
@@ -89,6 +88,19 @@ module Igniter
 
       def with_source_location(metadata)
         metadata.merge(source_location: caller_locations(2, 1).first&.to_s)
+      end
+
+      def resolve_compute_callable(call:, executor:, metadata:, block:)
+        raise CompileError, "compute cannot accept both `call:` and `executor:`" if call && executor
+        raise CompileError, "compute cannot accept both `call:` and a block" if call && block
+        raise CompileError, "compute cannot accept both `executor:` and a block" if executor && block
+
+        if executor
+          definition = Igniter.executor_registry.fetch(executor)
+          return [definition.executor_class, definition.metadata.merge(metadata).merge(executor_key: definition.key)]
+        end
+
+        [call || block, metadata]
       end
     end
   end

@@ -38,6 +38,17 @@ module Igniter
         @outputs_by_name.fetch(name.to_sym)
       end
 
+      def output?(name)
+        @outputs_by_name.key?(name.to_sym)
+      end
+
+      def fetch_dependency(name)
+        return fetch_node(name) if node?(name)
+        return fetch_output(name) if output?(name)
+
+        raise KeyError, "Unknown dependency '#{name}'"
+      end
+
       def to_h
         {
           name: name,

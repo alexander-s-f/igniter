@@ -59,7 +59,7 @@ module Igniter
             value: serialize_value(state&.value),
             error: state&.error&.message,
             dependencies: node.dependencies.map do |dependency_name|
-              dependency_tree(@execution.compiled_graph.fetch_node(dependency_name))
+              dependency_tree(@execution.compiled_graph.fetch_dependency(dependency_name))
             end
           }
         end

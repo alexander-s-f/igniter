@@ -3,6 +3,7 @@
 require_relative "igniter/version"
 require_relative "igniter/errors"
 require_relative "igniter/executor"
+require_relative "igniter/executor_registry"
 require_relative "igniter/model"
 require_relative "igniter/compiler"
 require_relative "igniter/events"
@@ -14,6 +15,14 @@ require_relative "igniter/contract"
 
 module Igniter
   class << self
+    def executor_registry
+      @executor_registry ||= ExecutorRegistry.new
+    end
+
+    def register_executor(key, executor_class, **metadata)
+      executor_registry.register(key, executor_class, **metadata)
+    end
+
     def compile(&block)
       DSL::ContractBuilder.compile(&block)
     end

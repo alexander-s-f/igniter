@@ -25,9 +25,11 @@ module Igniter
             line += " depends_on=#{node.dependencies.join(',')}" if node.dependencies.any?
             if node.kind == :compute
               line += " callable=#{node.callable_name}"
+              line += " executor_key=#{node.executor_key}" if node.executor_key
               line += " label=#{node.executor_label}" if node.executor_label
               line += " category=#{node.executor_category}" if node.executor_category
               line += " tags=#{node.executor_tags.join(',')}" if node.executor_tags.any?
+              line += " summary=#{node.executor_summary}" if node.executor_summary
             end
             if node.kind == :composition
               line += " contract=#{node.contract_class.name || 'AnonymousContract'}"
@@ -49,11 +51,11 @@ module Igniter
           end
           @graph.outputs.each do |output|
             lines << %(  #{output_id(output)}["output: #{output.name}"])
-            lines << %(  #{node_id(@graph.fetch_node(output.source))} --> #{output_id(output)})
+            lines << %(  #{node_id(@graph.fetch_node(output.source_root))} --> #{output_id(output)})
           end
           @graph.nodes.each do |node|
             node.dependencies.each do |dependency_name|
-              dependency_node = @graph.fetch_node(dependency_name)
+              dependency_node = @graph.fetch_dependency(dependency_name)
               lines << %(  #{node_id(dependency_node)} --> #{node_id(node)})
             end
           end
@@ -63,6 +65,8 @@ module Igniter
         private
 
         def node_id(node)
+          return "output_#{node.name}" if node.kind == :output
+
           "node_#{node.name}"
         end
 

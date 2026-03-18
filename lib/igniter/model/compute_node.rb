@@ -30,16 +30,32 @@ module Igniter
         end
       end
 
+      def executor_key
+        metadata[:executor_key] || executor_metadata[:key]
+      end
+
       def executor_label
-        metadata[:label]
+        metadata[:label] || executor_metadata[:label]
       end
 
       def executor_category
-        metadata[:category]
+        metadata[:category] || executor_metadata[:category]
       end
 
       def executor_tags
-        Array(metadata[:tags]).freeze
+        Array(metadata[:tags] || executor_metadata[:tags]).freeze
+      end
+
+      def executor_summary
+        metadata[:summary] || executor_metadata[:summary]
+      end
+
+      private
+
+      def executor_metadata
+        return {} unless callable.is_a?(Class) && callable <= Igniter::Executor
+
+        callable.executor_metadata
       end
     end
   end
