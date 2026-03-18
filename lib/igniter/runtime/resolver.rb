@@ -48,10 +48,7 @@ module Igniter
 
       def resolve_compute(node)
         dependencies = node.dependencies.each_with_object({}) do |dependency_name, memo|
-          dependency_state = resolve(dependency_name)
-          raise dependency_state.error if dependency_state.failed?
-
-          memo[dependency_name] = dependency_state.value
+          memo[dependency_name] = resolve_dependency_value(dependency_name)
         end
 
         value = call_compute(node.callable, dependencies)
@@ -91,10 +88,7 @@ module Igniter
 
       def resolve_composition(node)
         child_inputs = node.input_mapping.each_with_object({}) do |(child_input_name, dependency_name), memo|
-          dependency_state = resolve(dependency_name)
-          raise dependency_state.error if dependency_state.failed?
-
-          memo[child_input_name] = dependency_state.value
+          memo[child_input_name] = resolve_dependency_value(dependency_name)
         end
 
         child_contract = node.contract_class.new(child_inputs)
@@ -103,6 +97,20 @@ module Igniter
         raise child_error if child_error
 
         NodeState.new(node: node, status: :succeeded, value: child_contract.result)
+      end
+
+      def resolve_dependency_value(dependency_name)
+        if @execution.compiled_graph.node?(dependency_name)
+          dependency_state = resolve(dependency_name)
+          raise dependency_state.error if dependency_state.failed?
+
+          dependency_state.value
+        elsif @execution.compiled_graph.outputs_by_name.key?(dependency_name.to_sym)
+          output = @execution.compiled_graph.fetch_output(dependency_name)
+          @execution.send(:resolve_exported_output, output)
+        else
+          raise ResolutionError, "Unknown dependency: #{dependency_name}"
+        end
       end
 
       def success_payload(node, state)

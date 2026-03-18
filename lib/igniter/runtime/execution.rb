@@ -20,11 +20,8 @@ module Igniter
 
       def resolve_output(name)
         output = compiled_graph.fetch_output(name)
-        with_execution_lifecycle([output.source]) do
-          state = @resolver.resolve(output.source)
-          raise state.error if state.failed?
-
-          state.value
+        with_execution_lifecycle([output.source_root]) do
+          resolve_exported_output(output)
         end
       end
 
@@ -33,10 +30,10 @@ module Igniter
       end
 
       def resolve_all
-        output_sources = compiled_graph.outputs.map(&:source)
+        output_sources = compiled_graph.outputs.map(&:source_root)
 
         with_execution_lifecycle(output_sources) do
-          compiled_graph.outputs.each { |output_node| resolve(output_node.source) }
+          compiled_graph.outputs.each { |output_node| resolve_output_value(output_node) }
           self
         end
       end
@@ -137,6 +134,19 @@ module Igniter
       def fetch_input!(name)
         @input_validator.fetch_value!(name, @inputs)
       end
+
+      private
+
+      def resolve_exported_output(output)
+        state = @resolver.resolve(output.source_root)
+        raise state.error if state.failed?
+
+        return state.value unless output.composition_output?
+
+        state.value.public_send(output.child_output_name)
+      end
+
+      alias_method :resolve_output_value, :resolve_exported_output
     end
   end
 end

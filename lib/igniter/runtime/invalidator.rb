@@ -37,7 +37,7 @@ module Igniter
 
       def emit_output_invalidations_for(source_name, cause_name)
         @execution.compiled_graph.outputs.each do |output_node|
-          next unless output_node.source == source_name.to_sym
+          next unless output_node.source_root == source_name.to_sym
 
           @execution.events.emit(
             :node_invalidated,

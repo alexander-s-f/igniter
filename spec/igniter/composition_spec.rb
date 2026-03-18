@@ -41,6 +41,25 @@ RSpec.describe "Igniter composition" do
     end
   end
 
+  let(:checkout_projection_contract) do
+    child_contract = pricing_contract
+
+    Class.new(Igniter::Contract) do
+      define do
+        input :order_total
+        input :country
+
+        compose :pricing, contract: child_contract, inputs: {
+          order_total: :order_total,
+          country: :country
+        }
+
+        output :gross_total, from: "pricing.gross_total"
+        output :vat_rate, from: "pricing.vat_rate"
+      end
+    end
+  end
+
   it "returns a nested result for composition outputs" do
     contract = checkout_contract.new(order_total: 100, country: "UA")
 
@@ -53,6 +72,52 @@ RSpec.describe "Igniter composition" do
         gross_total: 120.0,
         vat_rate: 0.2
       }
+    )
+  end
+
+  it "exports child composition outputs directly without projection compute nodes" do
+    contract = checkout_projection_contract.new(order_total: 100, country: "UA")
+
+    expect(contract.result.gross_total).to eq(120.0)
+    expect(contract.result.vat_rate).to eq(0.2)
+    expect(contract.result.to_h).to eq(
+      gross_total: 120.0,
+      vat_rate: 0.2
+    )
+  end
+
+  it "allows downstream composition inputs to depend on exported outputs" do
+    pricing = pricing_contract
+
+    pipeline_contract = Class.new(Igniter::Contract) do
+      define do
+        input :order_total
+        input :country
+
+        compose :pricing, contract: pricing, inputs: {
+          order_total: :order_total,
+          country: :country
+        }
+
+        output :gross_total, from: "pricing.gross_total"
+        output :vat_rate, from: "pricing.vat_rate"
+
+        compute :summary, depends_on: %i[gross_total vat_rate] do |gross_total:, vat_rate:|
+          {
+            gross_total: gross_total,
+            vat_rate: vat_rate
+          }
+        end
+
+        output :summary
+      end
+    end
+
+    contract = pipeline_contract.new(order_total: 100, country: "UA")
+
+    expect(contract.result.summary).to eq(
+      gross_total: 120.0,
+      vat_rate: 0.2
     )
   end
 
@@ -117,6 +182,26 @@ RSpec.describe "Igniter composition" do
         end
       end
     end.to raise_error(Igniter::ValidationError, /missing mappings for required child inputs: country/i)
+  end
+
+  it "fails compilation for unknown exported child outputs" do
+    child_contract = pricing_contract
+
+    expect do
+      Class.new(Igniter::Contract) do
+        define do
+          input :order_total
+          input :country
+
+          compose :pricing, contract: child_contract, inputs: {
+            order_total: :order_total,
+            country: :country
+          }
+
+          output :missing_value, from: "pricing.missing_value"
+        end
+      end
+    end.to raise_error(Igniter::ValidationError, /unknown child output 'missing_value'/i)
   end
 
   it "eagerly resolves child outputs before marking composition as succeeded" do

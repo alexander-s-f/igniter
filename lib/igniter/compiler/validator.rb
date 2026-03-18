@@ -83,10 +83,38 @@ module Igniter
         seen = {}
         outputs.each do |output|
           raise validation_error(output, "Duplicate output name: #{output.name}") if seen.key?(output.name)
-          raise validation_error(output, "Unknown output source '#{output.source}' for output '#{output.name}'") unless @runtime_nodes_by_name.key?(output.source)
+          validate_output_source!(output)
 
           seen[output.name] = true
         end
+      end
+
+      def validate_output_source!(output)
+        if output.composition_output?
+          validate_composed_output_source!(output)
+        else
+          return if @runtime_nodes_by_name.key?(output.source)
+
+          raise validation_error(output, "Unknown output source '#{output.source}' for output '#{output.name}'")
+        end
+      end
+
+      def validate_composed_output_source!(output)
+        composition_node = @runtime_nodes_by_name[output.source_root]
+        unless composition_node&.kind == :composition
+          raise validation_error(
+            output,
+            "Output '#{output.name}' references unknown composition source '#{output.source}'"
+          )
+        end
+
+        child_graph = composition_node.contract_class.compiled_graph
+        return if child_graph.outputs_by_name.key?(output.child_output_name)
+
+        raise validation_error(
+          output,
+          "Output '#{output.name}' references unknown child output '#{output.child_output_name}' on composition '#{composition_node.name}'"
+        )
       end
 
       def validate_dependencies!
@@ -94,7 +122,7 @@ module Igniter
           validate_composition_node!(node) if node.kind == :composition
 
           node.dependencies.each do |dependency_name|
-            next if @runtime_nodes_by_name.key?(dependency_name)
+            next if dependency_resolvable?(dependency_name)
 
             raise validation_error(node, "Unknown dependency '#{dependency_name}' for node '#{node.name}'")
           end
@@ -146,6 +174,10 @@ module Igniter
 
           validate_callable_signature!(node)
         end
+      end
+
+      def dependency_resolvable?(dependency_name)
+        @runtime_nodes_by_name.key?(dependency_name) || outputs.any? { |output| output.name == dependency_name.to_sym }
       end
 
       def validate_callable_signature!(node)

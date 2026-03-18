@@ -82,28 +82,43 @@ module Igniter
       end
 
       def serialize_errors
-        execution_result.errors.map do |node_name, error|
+        execution.cache.values.filter_map do |state|
+          next unless state.failed?
+
           {
-            node_name: node_name,
-            type: error.class.name,
-            message: error.message,
-            context: error.respond_to?(:context) ? error.context : {}
+            node_name: state.node.name,
+            type: state.error.class.name,
+            message: state.error.message,
+            context: state.error.respond_to?(:context) ? state.error.context : {}
           }
         end
       end
 
       def serialize_outputs
         execution.compiled_graph.outputs.each_with_object({}) do |output_node, memo|
-          state = execution.cache.fetch(output_node.source)
-          memo[output_node.name] = serialize_output_state(state)
+          state = execution.cache.fetch(output_node.source_root)
+          memo[output_node.name] = serialize_output_value(output_node, state)
         end
       end
 
-      def serialize_output_state(state)
+      def serialize_output_value(output_node, state)
         return nil unless state
         return { error: state.error.message, status: state.status } if state.failed?
 
+        if output_node.composition_output?
+          return serialize_output_from_child(output_node, state.value)
+        end
+
         serialize_value(state.value)
+      end
+
+      def serialize_output_from_child(output_node, child_result)
+        return nil unless child_result.is_a?(Runtime::Result)
+
+        child_errors = child_result.execution.cache.values.select(&:failed?)
+        return { error: child_errors.first.error.message, status: :failed } unless child_errors.empty?
+
+        child_result.public_send(output_node.child_output_name)
       end
 
       def summarize_nodes

@@ -6,15 +6,31 @@ module Igniter
       attr_reader :source
 
       def initialize(id:, name:, source:, metadata: {})
+        normalized_source = source.to_s
+
         super(
           id: id,
           kind: :output,
           name: name,
           path: "output.#{name}",
-          dependencies: [source],
+          dependencies: [normalized_source.split(".").first],
           metadata: metadata
         )
-        @source = source.to_sym
+        @source = normalized_source.include?(".") ? normalized_source : normalized_source.to_sym
+      end
+
+      def source_root
+        source.to_s.split(".").first.to_sym
+      end
+
+      def composition_output?
+        source.to_s.include?(".")
+      end
+
+      def child_output_name
+        return unless composition_output?
+
+        source.to_s.split(".", 2).last.to_sym
       end
     end
   end

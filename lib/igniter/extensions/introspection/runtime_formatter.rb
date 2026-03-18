@@ -24,9 +24,9 @@ module Igniter
 
         def explain_output(output_name)
           output = @execution.compiled_graph.fetch_output(output_name)
-          source = @execution.compiled_graph.fetch_node(output.source)
+          source = @execution.compiled_graph.fetch_node(output.source_root)
 
-          {
+          explanation = {
             output_id: output.id,
             output: output.name,
             path: output.path,
@@ -35,6 +35,13 @@ module Igniter
             source_path: source.path,
             dependencies: dependency_tree(source)
           }
+
+          if output.composition_output?
+            explanation[:child_output] = output.child_output_name
+            explanation[:child_output_path] = output.source.to_s
+          end
+
+          explanation
         end
 
         private
