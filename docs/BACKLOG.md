@@ -53,3 +53,55 @@ Suggested implementation order:
 4. add a minimal synchronous implementation
 5. extend to parallel runner
 6. later extend to pending/store-backed item execution
+
+## Conditional Branches v1
+
+Status: idea
+Priority: high
+
+Problem:
+
+- Real orchestration often needs explicit conditional routing.
+- Without a branching primitive, users push control flow into `compute` blocks or executors.
+- That hides workflow structure and weakens diagnostics and introspection.
+
+Example direction:
+
+```ruby
+branch :delivery_strategy, depends_on: :country do
+  on "US", contract: USDeliveryContract
+  on "UA", contract: LocalDeliveryContract
+  else contract: DefaultDeliveryContract
+end
+```
+
+Why it matters:
+
+- makes control flow explicit in the graph
+- keeps routing logic out of generic `compute` nodes
+- improves explainability by showing which branch was selected
+- fits future schema/UI-driven graph composition
+
+Likely semantics:
+
+- `depends_on:` resolves the selector input
+- one branch is selected at runtime based on ordered matching
+- the selected branch behaves like a composition-like node
+- diagnostics and events should include which branch matched
+
+Open design questions:
+
+- exact-match only vs predicate-based matching
+- whether `else` is required or optional
+- compatibility of outputs across different branches
+- how branch nodes appear in plans, graphs, and runtime state
+- whether branches select contracts only or also arbitrary nodes/executors
+
+Suggested implementation order:
+
+1. write a short design doc for Branches v1
+2. define graph/model/runtime semantics
+3. add compile-time validation for branch definitions
+4. implement a minimal contract-branching version
+5. add introspection and diagnostics for selected branch visibility
+6. later extend to schema-driven graph builders
