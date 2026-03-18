@@ -93,4 +93,28 @@ RSpec.describe "Igniter executors" do
       end
     end.to raise_error(Igniter::ValidationError, /executor requires undeclared dependencies: vat_rate/i)
   end
+
+  it "includes executor metadata in graph introspection" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :order_total, type: :numeric
+        input :multiplier, type: :numeric
+
+        compute :gross_total,
+                depends_on: %i[order_total multiplier],
+                call: MultiplyExecutor,
+                label: "Multiply total",
+                category: :pricing,
+                tags: %i[math revenue]
+        output :gross_total
+      end
+    end
+
+    text = contract_class.graph.to_text
+
+    expect(text).to include("callable=MultiplyExecutor")
+    expect(text).to include("label=Multiply total")
+    expect(text).to include("category=pricing")
+    expect(text).to include("tags=math,revenue")
+  end
 end

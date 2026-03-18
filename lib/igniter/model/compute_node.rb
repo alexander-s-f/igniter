@@ -16,6 +16,31 @@ module Igniter
         )
         @callable = callable
       end
+
+      def callable_name
+        case callable
+        when Proc
+          "proc"
+        when Symbol, String
+          callable.to_s
+        when Class
+          callable.name || "AnonymousClass"
+        else
+          callable.class.name || "AnonymousCallable"
+        end
+      end
+
+      def executor_label
+        metadata[:label]
+      end
+
+      def executor_category
+        metadata[:category]
+      end
+
+      def executor_tags
+        Array(metadata[:tags]).freeze
+      end
     end
   end
 end

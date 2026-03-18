@@ -27,7 +27,7 @@ RSpec.describe "Igniter introspection" do
 
     expect(text).to include("Graph AnonymousContract")
     expect(text).to include("input order_total")
-    expect(text).to include("compute gross_total depends_on=order_total,vat_rate")
+    expect(text).to include("compute gross_total depends_on=order_total,vat_rate callable=proc")
     expect(text).to include("output.gross_total -> gross_total")
   end
 
@@ -37,6 +37,7 @@ RSpec.describe "Igniter introspection" do
     expect(mermaid).to include("graph TD")
     expect(mermaid).to include('node_order_total["input: order_total"]')
     expect(mermaid).to include('node_vat_rate --> node_gross_total')
+    expect(mermaid).to include('node_gross_total["compute: gross_total\nproc"]')
     expect(mermaid).to include('node_gross_total --> output_gross_total')
   end
 

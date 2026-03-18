@@ -23,6 +23,12 @@ module Igniter
           @graph.nodes.each do |node|
             line = "- #{node.kind} #{node.path}"
             line += " depends_on=#{node.dependencies.join(',')}" if node.dependencies.any?
+            if node.kind == :compute
+              line += " callable=#{node.callable_name}"
+              line += " label=#{node.executor_label}" if node.executor_label
+              line += " category=#{node.executor_category}" if node.executor_category
+              line += " tags=#{node.executor_tags.join(',')}" if node.executor_tags.any?
+            end
             if node.kind == :composition
               line += " contract=#{node.contract_class.name || 'AnonymousContract'}"
             end
@@ -65,7 +71,9 @@ module Igniter
         end
 
         def node_label(node)
-          "#{node.kind}: #{node.name}"
+          return "#{node.kind}: #{node.name}" unless node.kind == :compute
+
+          "#{node.kind}: #{node.name}\\n#{node.callable_name}"
         end
       end
     end
