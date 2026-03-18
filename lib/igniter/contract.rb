@@ -71,6 +71,38 @@ module Igniter
         end
       end
 
+      def on_failure(&block)
+        react_to(:execution_failed, once_per_execution: true) do |event:, contract:, execution:|
+          block.call(
+            event: event,
+            contract: contract,
+            execution: execution,
+            status: :failed,
+            errors: terminal_errors(execution),
+            error: terminal_errors(execution).values.first
+          )
+        end
+      end
+
+      def on_exit(&block)
+        terminal_hook = proc do |event:, contract:, execution:|
+          status = event.type == :execution_failed ? :failed : :succeeded
+          errors = status == :failed ? terminal_errors(execution) : {}
+
+          block.call(
+            event: event,
+            contract: contract,
+            execution: execution,
+            status: status,
+            errors: errors,
+            error: errors.values.first
+          )
+        end
+
+        react_to(:execution_finished, once_per_execution: true, &terminal_hook)
+        react_to(:execution_failed, once_per_execution: true, &terminal_hook)
+      end
+
       def compiled_graph
         @compiled_graph || superclass_compiled_graph
       end
@@ -100,6 +132,14 @@ module Igniter
         return unless superclass.respond_to?(:execution_options)
 
         superclass.execution_options
+      end
+
+      def terminal_errors(execution)
+        execution.cache.values.each_with_object({}) do |state, memo|
+          next unless state.failed?
+
+          memo[state.node.name] = state.error
+        end
       end
     end
 

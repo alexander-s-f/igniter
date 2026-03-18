@@ -181,6 +181,92 @@ RSpec.describe "Igniter reactive" do
     expect(observed).to eq([[{ bid: 120.0 }, 120.0]])
   end
 
+  it "supports on_failure once per failed execution" do
+    observed = []
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :order_total
+
+        compute :gross_total, depends_on: [:order_total] do |order_total:|
+          raise "boom" if order_total > 100
+
+          order_total * 1.2
+        end
+
+        expose :gross_total, as: :response
+      end
+
+      on_failure do |status:, error:, errors:, **|
+        observed << [status, error.message, errors.keys]
+      end
+    end
+
+    contract = contract_class.new(order_total: 150)
+
+    expect { contract.result.response }.to raise_error(Igniter::ResolutionError, /boom/)
+    expect { contract.result.response rescue nil }.not_to change { observed.size }
+    expect(observed.size).to eq(1)
+    expect(observed.first[0]).to eq(:failed)
+    expect(observed.first[1]).to match(/boom/)
+    expect(observed.first[2]).to eq([:gross_total])
+  end
+
+  it "supports on_exit for successful executions" do
+    observed = []
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :order_total
+
+        compute :gross_total, depends_on: [:order_total] do |order_total:|
+          order_total * 1.2
+        end
+
+        expose :gross_total, as: :response
+      end
+
+      on_exit do |status:, errors:, **|
+        observed << [status, errors]
+      end
+    end
+
+    contract = contract_class.new(order_total: 100)
+
+    expect(contract.result.response).to eq(120.0)
+    expect(contract.result.response).to eq(120.0)
+    expect(observed).to eq([[:succeeded, {}]])
+  end
+
+  it "supports on_exit for failed executions" do
+    observed = []
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :order_total
+
+        compute :gross_total, depends_on: [:order_total] do |order_total:|
+          raise "boom" if order_total > 100
+
+          order_total * 1.2
+        end
+
+        expose :gross_total, as: :response
+      end
+
+      on_exit do |status:, error:, **|
+        observed << [status, error.message]
+      end
+    end
+
+    contract = contract_class.new(order_total: 150)
+
+    expect { contract.result.response }.to raise_error(Igniter::ResolutionError, /boom/)
+    expect(observed.size).to eq(1)
+    expect(observed.first[0]).to eq(:failed)
+    expect(observed.first[1]).to match(/boom/)
+  end
+
   it "keeps parent reactions isolated from child composition events" do
     observed = []
 
