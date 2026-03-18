@@ -47,7 +47,7 @@ RSpec.describe "Igniter example scripts" do
 
     expect(status.success?).to eq(true), stderr
     expect(stdout).to include("Plan MarketingQuoteContract")
-    expect(stdout).to include('quote={:vendor_id=>"eLocal", :trade=>"HVAC", :zip_code=>"60601", :bid=>45.0}')
+    expect(stdout).to include('response={:vendor_id=>"eLocal", :trade=>"HVAC", :zip_code=>"60601", :bid=>45.0}')
     expect(stdout).to include('outbox=[{:vendor_id=>"eLocal", :zip_code=>"60601"}]')
   end
 end

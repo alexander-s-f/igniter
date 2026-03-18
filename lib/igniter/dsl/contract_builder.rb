@@ -84,6 +84,14 @@ module Igniter
         end
       end
 
+      def expose(*sources, as: nil, **metadata)
+        raise CompileError, "expose cannot use `as:` with multiple sources" if as && sources.size != 1
+
+        sources.each do |source|
+          output(as || source, from: source, **metadata)
+        end
+      end
+
       def output(name, from: nil, **metadata)
         add_node(
           Model::OutputNode.new(

@@ -149,6 +149,8 @@ end
 guard :business_hours_valid, depends_on: %i[vendor current_time], message: "Closed" do |vendor:, current_time:|
   current_time.between?(vendor.start_at, vendor.stop_at)
 end
+
+expose :bid_details, as: :response
 ```
 
 Rules:
@@ -191,6 +193,13 @@ Bulk child output export:
 
 ```ruby
 export :gross_total, :vat_rate, from: :pricing
+```
+
+Pass-through or aliased output exposure:
+
+```ruby
+expose :bid_details, as: :response
+expose :gross_total
 ```
 
 Collection composition can be added later, but should not complicate the first kernel API.
@@ -247,8 +256,26 @@ class LoggingContract < Igniter::Contract
     output :order_total
   end
 
-  effect "order_total" do |event:, contract:, **|
-    AuditLog.create!(path: event.path, value: contract.result.order_total)
+  effect "order_total" do |event:, value:, **|
+    AuditLog.create!(path: event.path, value: value)
+  end
+end
+```
+
+Final-output success shorthand:
+
+```ruby
+class PersistingContract < Igniter::Contract
+  define do
+    input :order_total
+    compute :gross_total, depends_on: [:order_total] do |order_total:|
+      order_total * 1.2
+    end
+    expose :gross_total, as: :response
+  end
+
+  on_success :response do |value:, contract:, **|
+    AuditLog.create!(response: value, inputs: contract.execution.inputs)
   end
 end
 ```

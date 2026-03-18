@@ -156,4 +156,22 @@ RSpec.describe "Igniter DSL ergonomics" do
     expect(contract.result.gross_total).to eq(120.0)
     expect(contract.result.vat_rate).to eq(0.2)
   end
+
+  it "supports expose as a shorthand for output aliases" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :service, type: :string
+
+        map :trade_name, from: :service do |service:|
+          service.downcase == "heating" ? "HVAC" : service
+        end
+
+        expose :trade_name, as: :normalized_trade_name
+      end
+    end
+
+    contract = contract_class.new(service: "heating")
+
+    expect(contract.result.normalized_trade_name).to eq("HVAC")
+  end
 end

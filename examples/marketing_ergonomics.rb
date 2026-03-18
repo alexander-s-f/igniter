@@ -34,13 +34,13 @@ class MarketingQuoteContract < Igniter::Contract
       }
     end
 
-    output :quote
+    expose :quote, as: :response
   end
 
-  effect "quote" do |contract:, **|
+  on_success :response do |value:, **|
     OUTBOX << {
-      vendor_id: contract.result.quote[:vendor_id],
-      zip_code: contract.result.quote[:zip_code]
+      vendor_id: value[:vendor_id],
+      zip_code: value[:zip_code]
     }
   end
 end
@@ -49,5 +49,5 @@ contract = MarketingQuoteContract.new(service: "heating", zip_code: "60601")
 
 puts contract.explain_plan
 puts "---"
-puts "quote=#{contract.result.quote.inspect}"
+puts "response=#{contract.result.response.inspect}"
 puts "outbox=#{OUTBOX.inspect}"

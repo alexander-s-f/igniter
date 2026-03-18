@@ -51,6 +51,25 @@ module Igniter
         react_to(event_type, path: path, &block)
       end
 
+      def on_success(target, &block)
+        graph = compiled_graph
+        if graph&.output?(target)
+          react_to(:execution_finished) do |event:, contract:, execution:|
+            next if execution.cache.values.any?(&:failed?)
+            next if execution.cache.values.any?(&:pending?)
+
+            block.call(
+              event: event,
+              contract: contract,
+              execution: execution,
+              value: contract.result.public_send(target)
+            )
+          end
+        else
+          effect(target.to_s, event_type: :node_succeeded, &block)
+        end
+      end
+
       def compiled_graph
         @compiled_graph || superclass_compiled_graph
       end

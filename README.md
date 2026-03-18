@@ -9,7 +9,7 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - runtime auditing
 - diagnostics reports
 - reactive side effects
-- ergonomic DSL helpers (`const`, `lookup`, `map`, `guard`, `export`, `effect`)
+- ergonomic DSL helpers (`const`, `lookup`, `map`, `guard`, `export`, `expose`, `effect`, `on_success`)
 - graph and runtime introspection
 - async-capable pending nodes with snapshot/restore
 - store-backed execution resume flows
@@ -83,7 +83,7 @@ The examples folder also has its own quick index in [`examples/README.md`](examp
 | `composition.rb` | `ruby examples/composition.rb` | nested contracts and composed results |
 | `diagnostics.rb` | `ruby examples/diagnostics.rb` | diagnostics text plus machine-readable output |
 | `async_store.rb` | `ruby examples/async_store.rb` | pending execution, file-backed store, worker-style resume |
-| `marketing_ergonomics.rb` | `ruby examples/marketing_ergonomics.rb` | compact domain DSL with `const`, `lookup`, `map`, `guard`, `effect`, and `explain_plan` |
+| `marketing_ergonomics.rb` | `ruby examples/marketing_ergonomics.rb` | compact domain DSL with `const`, `lookup`, `map`, `guard`, `expose`, `on_success`, and `explain_plan` |
 
 There are also matching living examples in `spec/igniter/examples_spec.rb`.
 Those are useful if you want to read the examples in test form.
@@ -229,18 +229,18 @@ class MarketingQuoteContract < Igniter::Contract
       { vendor_id: vendor_id, trade: trade[:name], zip_code: zip_code, bid: trade[:base_bid] }
     end
 
-    output :quote
+    expose :quote, as: :response
   end
 
-  effect "quote" do |contract:, **|
-    puts "Persist #{contract.result.quote.inspect}"
+  on_success :response do |value:, **|
+    puts "Persist #{value.inspect}"
   end
 end
 
 contract = MarketingQuoteContract.new(service: "heating", zip_code: "60601")
 
 contract.explain_plan
-contract.result.quote
+contract.result.response
 ```
 
 ## Composition Example
@@ -283,7 +283,22 @@ class NotifyingContract < Igniter::Contract
     output :order_total
   end
 
-  effect "order_total" do |event:, **|
+  on_success :order_total do |value:, **|
+    puts "Resolved #{value}"
+  end
+end
+```
+
+Or attach directly to a node event when you want the node value:
+
+```ruby
+class NotifyingContract < Igniter::Contract
+  define do
+    input :order_total, type: :numeric
+    output :order_total
+  end
+
+  effect "order_total" do |event:, value:, **|
     puts "Resolved #{event.path}"
   end
 end

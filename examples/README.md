@@ -105,8 +105,8 @@ ruby examples/marketing_ergonomics.rb
 
 Shows:
 
-- ergonomic helpers `const`, `lookup`, `map`, `guard`
-- reactive shorthand via `effect`
+- ergonomic helpers `const`, `lookup`, `map`, `guard`, `expose`
+- success-side-effect shorthand via `on_success`
 - pre-execution planning via `contract.explain_plan`
 - a domain-style contract that stays compact without hiding the graph
 
@@ -117,7 +117,7 @@ Plan MarketingQuoteContract
 Targets: quote
 ...
 ---
-quote={:vendor_id=>"eLocal", :trade=>"HVAC", :zip_code=>"60601", :bid=>45.0}
+response={:vendor_id=>"eLocal", :trade=>"HVAC", :zip_code=>"60601", :bid=>45.0}
 outbox=[{:vendor_id=>"eLocal", :zip_code=>"60601"}]
 ```
 
