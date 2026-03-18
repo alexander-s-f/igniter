@@ -14,6 +14,7 @@ module Igniter
       end
 
       UNDEFINED_INPUT_DEFAULT = :__igniter_undefined__
+      UNDEFINED_CONST_VALUE = :__igniter_const_undefined__
 
       def input(name, type: nil, required: nil, default: UNDEFINED_INPUT_DEFAULT, **metadata)
         input_metadata = with_source_location(metadata)
@@ -45,9 +46,9 @@ module Igniter
         )
       end
 
-      def const(name, value = nil, **metadata, &block)
-        raise CompileError, "const :#{name} cannot accept both a value and a block" if !block.nil? && !value.nil?
-        raise CompileError, "const :#{name} requires a value or a block" if block.nil? && value.nil?
+      def const(name, value = UNDEFINED_CONST_VALUE, **metadata, &block)
+        raise CompileError, "const :#{name} cannot accept both a value and a block" if !block.nil? && value != UNDEFINED_CONST_VALUE
+        raise CompileError, "const :#{name} requires a value or a block" if block.nil? && value == UNDEFINED_CONST_VALUE
 
         callable = if block
                      block
@@ -62,6 +63,10 @@ module Igniter
         compute(name, depends_on: depends_on, call: call, executor: executor, **{ category: :lookup }.merge(metadata), &block)
       end
 
+      def map(name, from:, call: nil, executor: nil, **metadata, &block)
+        compute(name, depends_on: [from], call: call, executor: executor, **{ category: :map }.merge(metadata), &block)
+      end
+
       def guard(name, depends_on:, call: nil, executor: nil, message: nil, **metadata, &block)
         compute(
           name,
@@ -71,6 +76,12 @@ module Igniter
           **metadata.merge(kind: :guard, guard: true, guard_message: message || "Guard '#{name}' failed"),
           &block
         )
+      end
+
+      def export(*names, from:, **metadata)
+        names.each do |name|
+          output(name, from: "#{from}.#{name}", **metadata)
+        end
       end
 
       def output(name, from: nil, **metadata)

@@ -47,6 +47,10 @@ module Igniter
         )
       end
 
+      def effect(path = nil, event_type: :node_succeeded, &block)
+        react_to(event_type, path: path, &block)
+      end
+
       def compiled_graph
         @compiled_graph || superclass_compiled_graph
       end

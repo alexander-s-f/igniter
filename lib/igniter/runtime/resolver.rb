@@ -62,6 +62,7 @@ module Igniter
 
         value = call_compute(node.callable, dependencies)
         return NodeState.new(node: node, status: :pending, value: normalize_deferred_result(value, node)) if deferred_result?(value)
+        value = normalize_guard_value(node, value)
 
         NodeState.new(node: node, status: :succeeded, value: value)
       end
@@ -186,6 +187,22 @@ module Igniter
 
         ResolutionError.new(
           error.message,
+          context: {
+            graph: @execution.compiled_graph.name,
+            node_id: node.id,
+            node_name: node.name,
+            node_path: node.path,
+            source_location: node.source_location
+          }
+        )
+      end
+
+      def normalize_guard_value(node, value)
+        return value unless node.respond_to?(:guard?) && node.guard?
+        return true if value
+
+        raise ResolutionError.new(
+          node.metadata[:guard_message] || "Guard '#{node.name}' failed",
           context: {
             graph: @execution.compiled_graph.name,
             node_id: node.id,

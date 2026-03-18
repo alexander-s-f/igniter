@@ -1,0 +1,159 @@
+# frozen_string_literal: true
+
+require "spec_helper"
+
+RSpec.describe "Igniter DSL ergonomics" do
+  it "supports const nodes without dependencies" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        const :vendor_id, "eLocal"
+        output :vendor_id
+      end
+    end
+
+    contract = contract_class.new
+
+    expect(contract.result.vendor_id).to eq("eLocal")
+    expect(contract.class.graph.to_text).to include("compute vendor_id callable=const const=true")
+  end
+
+  it "supports lookup as a semantic compute alias" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :trade_name, type: :string
+
+        lookup :trade, depends_on: [:trade_name] do |trade_name:|
+          { name: trade_name }
+        end
+
+        output :trade
+      end
+    end
+
+    contract = contract_class.new(trade_name: "HVAC")
+
+    expect(contract.result.trade).to eq(name: "HVAC")
+    expect(contract.class.graph.to_text).to include("category=lookup")
+  end
+
+  it "supports map as a shorthand for single-dependency transforms" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :service, type: :string
+
+        map :trade_name, from: :service do |service:|
+          service.downcase == "heating" ? "HVAC" : service
+        end
+
+        output :trade_name
+      end
+    end
+
+    contract = contract_class.new(service: "heating")
+
+    expect(contract.result.trade_name).to eq("HVAC")
+    expect(contract.class.graph.to_text).to include("category=map")
+  end
+
+  it "supports guard nodes for explicit gating" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :open, type: :boolean
+
+        guard :business_hours_valid, depends_on: [:open], message: "Closed" do |open:|
+          open
+        end
+
+        compute :quote, depends_on: [:business_hours_valid] do |business_hours_valid:|
+          business_hours_valid
+          "accepted"
+        end
+
+        output :quote
+      end
+    end
+
+    contract = contract_class.new(open: true)
+
+    expect(contract.result.quote).to eq("accepted")
+    expect(contract.execution.cache.fetch(:business_hours_valid).value).to eq(true)
+    expect(contract.class.graph.to_text).to include("compute business_hours_valid depends_on=open callable=guard guard=true")
+  end
+
+  it "fails guard nodes with the configured message" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :open, type: :boolean
+
+        guard :business_hours_valid, depends_on: [:open], message: "Closed" do |open:|
+          open
+        end
+
+        output :business_hours_valid
+      end
+    end
+
+    contract = contract_class.new(open: false)
+
+    expect { contract.result.business_hours_valid }.to raise_error(Igniter::ResolutionError, /Closed/)
+  end
+
+  it "supports effect as a shorthand for node success reactions" do
+    observed = []
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :bid, type: :numeric
+        output :bid
+      end
+
+      effect "bid" do |event:, contract:, execution:|
+        observed << [event.type, event.path, contract.result.bid, execution.compiled_graph.name]
+      end
+    end
+
+    contract = contract_class.new(bid: 45)
+
+    expect(contract.result.bid).to eq(45)
+    expect(observed).to eq([[:node_succeeded, "bid", 45, "AnonymousContract"]])
+  end
+
+  it "supports export as a shorthand for child output re-exports" do
+    pricing_contract = Class.new(Igniter::Contract) do
+      define do
+        input :order_total
+        input :country
+
+        compute :vat_rate, depends_on: [:country] do |country:|
+          country == "UA" ? 0.2 : 0.0
+        end
+
+        compute :gross_total, depends_on: %i[order_total vat_rate] do |order_total:, vat_rate:|
+          order_total * (1 + vat_rate)
+        end
+
+        output :gross_total
+        output :vat_rate
+      end
+    end
+
+    checkout_contract = Class.new(Igniter::Contract) do
+      define do
+        input :order_total
+        input :country
+
+        compose :pricing, contract: pricing_contract, inputs: {
+          order_total: :order_total,
+          country: :country
+        }
+
+        export :gross_total, :vat_rate, from: :pricing
+      end
+    end
+
+    contract = checkout_contract.new(order_total: 100, country: "UA")
+
+    expect(contract.result.gross_total).to eq(120.0)
+    expect(contract.result.vat_rate).to eq(0.2)
+  end
+end

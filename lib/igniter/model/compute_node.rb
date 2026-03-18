@@ -18,6 +18,9 @@ module Igniter
       end
 
       def callable_name
+        return "const" if const?
+        return "guard" if guard?
+
         case callable
         when Proc
           "proc"
@@ -52,6 +55,14 @@ module Igniter
 
       def type
         metadata[:type] || executor_metadata[:type]
+      end
+
+      def const?
+        metadata[:kind] == :const
+      end
+
+      def guard?
+        metadata[:guard] == true || metadata[:kind] == :guard
       end
 
       private

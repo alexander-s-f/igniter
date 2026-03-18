@@ -25,6 +25,8 @@ module Igniter
             line += " depends_on=#{node.dependencies.join(',')}" if node.dependencies.any?
             if node.kind == :compute
               line += " callable=#{node.callable_name}"
+              line += " guard=true" if node.guard?
+              line += " const=true" if node.const?
               line += " executor_key=#{node.executor_key}" if node.executor_key
               line += " label=#{node.executor_label}" if node.executor_label
               line += " category=#{node.executor_category}" if node.executor_category
