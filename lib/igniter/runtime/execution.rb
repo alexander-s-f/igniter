@@ -3,11 +3,13 @@
 module Igniter
   module Runtime
     class Execution
-      attr_reader :compiled_graph, :contract_instance, :inputs, :cache, :events, :audit
+      attr_reader :compiled_graph, :contract_instance, :inputs, :cache, :events, :audit, :runner_strategy, :max_workers
 
-      def initialize(compiled_graph:, contract_instance:, inputs:)
+      def initialize(compiled_graph:, contract_instance:, inputs:, runner: :inline, max_workers: nil)
         @compiled_graph = compiled_graph
         @contract_instance = contract_instance
+        @runner_strategy = runner
+        @max_workers = max_workers
         @input_validator = InputValidator.new(compiled_graph)
         @inputs = @input_validator.normalize_initial_inputs(inputs)
         @cache = Cache.new
@@ -15,12 +17,15 @@ module Igniter
         @audit = Extensions::Auditing::Timeline.new(self)
         @events.subscribe(@audit)
         @resolver = Resolver.new(self)
+        @planner = Planner.new(self)
+        @runner = RunnerFactory.build(@runner_strategy, self, resolver: @resolver, max_workers: @max_workers)
         @invalidator = Invalidator.new(self)
       end
 
       def resolve_output(name)
         output = compiled_graph.fetch_output(name)
         with_execution_lifecycle([output.source_root]) do
+          run_targets([output.source_root])
           resolve_exported_output(output)
         end
       end
@@ -30,9 +35,10 @@ module Igniter
       end
 
       def resolve_all
-        output_sources = compiled_graph.outputs.map(&:source_root)
+        output_sources = @planner.targets_for_outputs
 
         with_execution_lifecycle(output_sources) do
+          run_targets(output_sources)
           compiled_graph.outputs.each { |output_node| resolve_output_value(output_node) }
           self
         end
@@ -144,6 +150,10 @@ module Igniter
         return state.value unless output.composition_output?
 
         state.value.public_send(output.child_output_name)
+      end
+
+      def run_targets(node_names)
+        @runner.run(node_names)
       end
 
       alias_method :resolve_output_value, :resolve_exported_output

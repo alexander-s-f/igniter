@@ -19,6 +19,14 @@ module Igniter
         status == :stale
       end
 
+      def pending?
+        status == :pending
+      end
+
+      def running?
+        status == :running
+      end
+
       def succeeded?
         status == :succeeded
       end

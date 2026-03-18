@@ -9,8 +9,8 @@ module Igniter
 
       def resolve(node_name)
         node = @execution.compiled_graph.fetch_node(node_name)
-        cached = @execution.cache.fetch(node.name)
-        return cached if cached && !cached.stale?
+        resolution_status, cached = @execution.cache.begin_resolution(node)
+        return cached if resolution_status == :cached
 
         @execution.events.emit(:node_started, node: node, status: :running)
 

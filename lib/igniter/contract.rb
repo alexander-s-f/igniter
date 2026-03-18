@@ -7,6 +7,10 @@ module Igniter
         @compiled_graph = DSL::ContractBuilder.compile(name: contract_name, &block)
       end
 
+      def run_with(runner:, max_workers: nil)
+        @execution_options = { runner: runner, max_workers: max_workers }.compact
+      end
+
       def define_schema(schema)
         @compiled_graph = DSL::SchemaBuilder.compile(schema, name: contract_name)
       end
@@ -30,6 +34,10 @@ module Igniter
         @reactions ||= []
       end
 
+      def execution_options
+        @execution_options || superclass_execution_options || {}
+      end
+
       private
 
       def contract_name
@@ -41,18 +49,38 @@ module Igniter
 
         superclass.compiled_graph
       end
+
+      def superclass_execution_options
+        return unless superclass.respond_to?(:execution_options)
+
+        superclass.execution_options
+      end
     end
 
     attr_reader :execution, :result
 
-    def initialize(inputs = {})
+    def initialize(inputs = nil, runner: nil, max_workers: nil, **keyword_inputs)
       graph = self.class.compiled_graph
       raise CompileError, "#{self.class.name} has no compiled graph. Use `define`." unless graph
+
+      normalized_inputs =
+        if inputs.nil?
+          keyword_inputs
+        elsif keyword_inputs.empty?
+          inputs
+        else
+          inputs.to_h.merge(keyword_inputs)
+        end
+
+      execution_options = self.class.execution_options.merge(
+        { runner: runner, max_workers: max_workers }.compact
+      )
 
       @execution = Runtime::Execution.new(
         compiled_graph: graph,
         contract_instance: self,
-        inputs: inputs
+        inputs: normalized_inputs,
+        **execution_options
       )
       @reactive = Extensions::Reactive::Engine.new(
         execution: @execution,
