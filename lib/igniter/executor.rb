@@ -66,5 +66,9 @@ module Igniter
       @execution = execution
       @contract = contract
     end
+
+    def defer(token: nil, payload: {})
+      Runtime::DeferredResult.build(token: token, payload: payload)
+    end
   end
 end

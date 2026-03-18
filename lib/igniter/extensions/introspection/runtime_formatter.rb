@@ -91,6 +91,14 @@ module Igniter
 
         def serialize_value(value)
           case value
+          when Igniter::Runtime::DeferredResult
+            {
+              type: :deferred,
+              token: value.token,
+              payload: value.payload,
+              source_node: value.source_node,
+              waiting_on: value.waiting_on
+            }
           when Igniter::Runtime::Result
             {
               type: :result,

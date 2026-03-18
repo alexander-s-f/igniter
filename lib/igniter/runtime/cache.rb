@@ -34,9 +34,9 @@ module Igniter
         @mutex.synchronize do
           loop do
             current = @states[node.name]
-            return [:cached, current] if current && !current.stale? && !current.running? && !current.pending?
+            return [:cached, current] if current && !current.stale? && !current.running?
 
-            unless current&.running? || current&.pending?
+            unless current&.running?
               @states[node.name] = NodeState.new(
                 node: node,
                 status: :running,

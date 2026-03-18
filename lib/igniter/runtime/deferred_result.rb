@@ -1,0 +1,40 @@
+# frozen_string_literal: true
+
+require "securerandom"
+
+module Igniter
+  module Runtime
+    class DeferredResult
+      attr_reader :token, :payload, :source_node, :waiting_on
+
+      def initialize(token:, payload: {}, source_node: nil, waiting_on: nil)
+        @token = token
+        @payload = payload.freeze
+        @source_node = source_node&.to_sym
+        @waiting_on = waiting_on&.to_sym
+      end
+
+      def self.build(token: nil, payload: {}, source_node: nil, waiting_on: nil)
+        new(
+          token: token || SecureRandom.uuid,
+          payload: payload,
+          source_node: source_node,
+          waiting_on: waiting_on
+        )
+      end
+
+      def to_h
+        {
+          token: token,
+          payload: payload,
+          source_node: source_node,
+          waiting_on: waiting_on
+        }.compact
+      end
+
+      def as_json(*)
+        to_h
+      end
+    end
+  end
+end

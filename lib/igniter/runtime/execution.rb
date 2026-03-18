@@ -58,14 +58,30 @@ module Igniter
         self
       end
 
+      def resume(node_name, value:)
+        node = compiled_graph.fetch_node(node_name)
+        current = cache.fetch(node.name)
+        raise ResolutionError, "Node '#{node_name}' is not pending" unless current&.pending?
+
+        cache.write(NodeState.new(node: node, status: :succeeded, value: value))
+        @events.emit(:node_resumed, node: node, status: :succeeded, payload: { resumed: true })
+        @invalidator.invalidate_from(node.name)
+        self
+      end
+
       def success?
         resolve_all
-        !cache.values.any?(&:failed?)
+        !failed? && !pending?
       end
 
       def failed?
         resolve_all
         cache.values.any?(&:failed?)
+      end
+
+      def pending?
+        resolve_all
+        cache.values.any?(&:pending?)
       end
 
       def states
@@ -91,8 +107,9 @@ module Igniter
           inputs: inputs.dup,
           runner: runner_strategy,
           max_workers: max_workers,
-          success: !cache.values.any?(&:failed?),
+          success: success?,
           failed: cache.values.any?(&:failed?),
+          pending: cache.values.any?(&:pending?),
           plan: plan,
           states: states,
           event_count: events.events.size
@@ -153,6 +170,7 @@ module Igniter
       def resolve_exported_output(output)
         state = @resolver.resolve(output.source_root)
         raise state.error if state.failed?
+        return state.value if state.pending?
 
         return state.value unless output.composition_output?
 

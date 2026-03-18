@@ -18,12 +18,17 @@ module Igniter
 
       def success?
         @execution.resolve_all
-        !failed?
+        !failed? && !pending?
       end
 
       def failed?
         @execution.resolve_all
         @execution.cache.values.any?(&:failed?)
+      end
+
+      def pending?
+        @execution.resolve_all
+        @execution.cache.values.any?(&:pending?)
       end
 
       def errors
@@ -52,8 +57,9 @@ module Igniter
           graph: @execution.compiled_graph.name,
           execution_id: @execution.events.execution_id,
           outputs: to_h,
-          success: !failed?,
+          success: !failed? && !pending?,
           failed: failed?,
+          pending: pending?,
           errors: serialize_errors(errors),
           states: states
         }
@@ -82,6 +88,8 @@ module Igniter
 
       def serialize_output_value(value)
         case value
+        when DeferredResult
+          value.as_json
         when Result
           value.to_h
         when Array

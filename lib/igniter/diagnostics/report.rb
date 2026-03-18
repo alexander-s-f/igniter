@@ -76,6 +76,7 @@ module Igniter
 
       def status
         return :failed if execution.cache.values.any?(&:failed?)
+        return :pending if execution.cache.values.any?(&:pending?)
         return :stale if execution.cache.values.any?(&:stale?)
 
         :succeeded
@@ -128,6 +129,7 @@ module Igniter
           total: states.size,
           succeeded: states.values.count { |state| state[:status] == :succeeded },
           failed: states.values.count { |state| state[:status] == :failed },
+          pending: states.values.count { |state| state[:status] == :pending },
           stale: states.values.count { |state| state[:status] == :stale },
           failed_nodes: states.filter_map do |node_name, state|
             next unless state[:status] == :failed
@@ -154,6 +156,7 @@ module Igniter
 
       def format_nodes(nodes)
         line = "Nodes: total=#{nodes[:total]}, succeeded=#{nodes[:succeeded]}, failed=#{nodes[:failed]}, stale=#{nodes[:stale]}"
+        line = "Nodes: total=#{nodes[:total]}, succeeded=#{nodes[:succeeded]}, failed=#{nodes[:failed]}, pending=#{nodes[:pending]}, stale=#{nodes[:stale]}"
         return line if nodes[:failed_nodes].empty?
 
         failures = nodes[:failed_nodes].map { |node| "#{node[:node_name]}(#{node[:error]})" }.join(", ")
@@ -176,6 +179,8 @@ module Igniter
 
       def serialize_value(value)
         case value
+        when Runtime::DeferredResult
+          value.as_json
         when Runtime::Result
           value.to_h
         when Array

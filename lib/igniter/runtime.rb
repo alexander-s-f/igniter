@@ -2,6 +2,7 @@
 
 require_relative "runtime/node_state"
 require_relative "runtime/cache"
+require_relative "runtime/deferred_result"
 require_relative "runtime/input_validator"
 require_relative "runtime/planner"
 require_relative "runtime/runners/inline_runner"

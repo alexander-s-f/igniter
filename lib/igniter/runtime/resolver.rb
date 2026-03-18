@@ -26,12 +26,21 @@ module Igniter
                 end
 
         @execution.cache.write(state)
-        @execution.events.emit(
-          state.failed? ? :node_failed : :node_succeeded,
+        emit_resolution_event(node, state)
+        state
+      rescue PendingDependencyError => e
+        state = NodeState.new(
           node: node,
-          status: state.status,
-          payload: success_payload(node, state)
+          status: :pending,
+          value: Runtime::DeferredResult.build(
+            token: e.deferred_result.token,
+            payload: e.deferred_result.payload,
+            source_node: e.deferred_result.source_node,
+            waiting_on: e.deferred_result.waiting_on || node.name
+          )
         )
+        @execution.cache.write(state)
+        @execution.events.emit(:node_pending, node: node, status: :pending, payload: pending_payload(state))
         state
       rescue StandardError => e
         state = NodeState.new(node: node, status: :failed, error: normalize_error(e, node))
@@ -52,6 +61,8 @@ module Igniter
         end
 
         value = call_compute(node.callable, dependencies)
+        return NodeState.new(node: node, status: :pending, value: normalize_deferred_result(value, node)) if deferred_result?(value)
+
         NodeState.new(node: node, status: :succeeded, value: value)
       end
 
@@ -103,14 +114,61 @@ module Igniter
         if @execution.compiled_graph.node?(dependency_name)
           dependency_state = resolve(dependency_name)
           raise dependency_state.error if dependency_state.failed?
+          raise PendingDependencyError.new(dependency_state.value, context: pending_context(dependency_state.node)) if dependency_state.pending?
 
           dependency_state.value
         elsif @execution.compiled_graph.outputs_by_name.key?(dependency_name.to_sym)
           output = @execution.compiled_graph.fetch_output(dependency_name)
-          @execution.send(:resolve_exported_output, output)
+          value = @execution.send(:resolve_exported_output, output)
+          raise PendingDependencyError.new(value) if deferred_result?(value)
+
+          value
         else
           raise ResolutionError, "Unknown dependency: #{dependency_name}"
         end
+      end
+
+      def deferred_result?(value)
+        value.is_a?(Runtime::DeferredResult)
+      end
+
+      def normalize_deferred_result(value, node)
+        Runtime::DeferredResult.build(
+          token: value.token,
+          payload: value.payload,
+          source_node: value.source_node || node.name,
+          waiting_on: value.waiting_on
+        )
+      end
+
+      def emit_resolution_event(node, state)
+        event_type =
+          if state.failed?
+            :node_failed
+          elsif state.pending?
+            :node_pending
+          else
+            :node_succeeded
+          end
+
+        payload = state.pending? ? pending_payload(state) : success_payload(node, state)
+        @execution.events.emit(event_type, node: node, status: state.status, payload: payload)
+      end
+
+      def pending_payload(state)
+        return {} unless state.value.is_a?(Runtime::DeferredResult)
+
+        state.value.to_h
+      end
+
+      def pending_context(node)
+        {
+          graph: @execution.compiled_graph.name,
+          node_id: node.id,
+          node_name: node.name,
+          node_path: node.path,
+          source_location: node.source_location
+        }
       end
 
       def success_payload(node, state)
