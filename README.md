@@ -7,6 +7,7 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - typed input validation
 - nested contract composition
 - runtime auditing
+- diagnostics reports
 - reactive side effects
 - graph and runtime introspection
 
@@ -49,6 +50,9 @@ contract.result.gross_total
 contract.update_inputs(order_total: 150)
 contract.result.gross_total
 # => 180.0
+
+contract.diagnostics_text
+# => compact execution summary
 ```
 
 ## Features
@@ -59,8 +63,96 @@ contract.result.gross_total
 - Typed inputs: validate types, defaults, and required fields.
 - Composition: execute nested contracts with isolated child executions.
 - Auditing: collect execution timelines and snapshots.
+- Diagnostics: build compact text, markdown, or structured reports for triage.
 - Reactive: subscribe declaratively to runtime events.
 - Introspection: render graphs as text or Mermaid and inspect runtime state.
+
+## Quick Start Recipes
+
+The repository contains runnable examples in [`examples/`](examples).
+They also have matching specs, so they stay in sync with the implementation.
+
+| Example | Run | Shows |
+| --- | --- | --- |
+| `basic_pricing.rb` | `ruby examples/basic_pricing.rb` | basic contract, lazy resolution, input updates |
+| `composition.rb` | `ruby examples/composition.rb` | nested contracts and composed results |
+| `diagnostics.rb` | `ruby examples/diagnostics.rb` | diagnostics text plus machine-readable output |
+
+There are also matching living examples in `spec/igniter/examples_spec.rb`.
+Those are useful if you want to read the examples in test form.
+
+### 1. Basic Pricing Contract
+
+```ruby
+class PriceContract < Igniter::Contract
+  define do
+    input :order_total, type: :numeric
+    input :country, type: :string
+
+    compute :vat_rate, depends_on: [:country] do |country:|
+      country == "UA" ? 0.2 : 0.0
+    end
+
+    compute :gross_total, depends_on: %i[order_total vat_rate] do |order_total:, vat_rate:|
+      order_total * (1 + vat_rate)
+    end
+
+    output :gross_total
+  end
+end
+
+PriceContract.new(order_total: 100, country: "UA").result.gross_total
+# => 120.0
+```
+
+### 2. Nested Composition
+
+```ruby
+class CheckoutContract < Igniter::Contract
+  define do
+    input :order_total, type: :numeric
+    input :country, type: :string
+
+    compose :pricing, contract: PriceContract, inputs: {
+      order_total: :order_total,
+      country: :country
+    }
+
+    output :pricing
+  end
+end
+
+CheckoutContract.new(order_total: 100, country: "UA").result.pricing.gross_total
+# => 120.0
+```
+
+### 3. Diagnostics And Introspection
+
+```ruby
+contract = PriceContract.new(order_total: 100, country: "UA")
+contract.result.gross_total
+
+contract.result.states
+contract.result.explain(:gross_total)
+contract.diagnostics.to_h
+contract.diagnostics_text
+contract.diagnostics_markdown
+contract.audit_snapshot
+```
+
+### 4. Machine-Readable Data
+
+```ruby
+contract = PriceContract.new(order_total: 100, country: "UA")
+contract.result.gross_total
+
+contract.result.to_h
+# => { gross_total: 120.0 }
+
+contract.result.as_json
+contract.execution.as_json
+contract.events.map(&:as_json)
+```
 
 ## Composition Example
 
@@ -119,6 +211,13 @@ contract.result.gross_total
 
 contract.result.states
 contract.result.explain(:gross_total)
+contract.execution.to_h
+contract.execution.as_json
+contract.result.as_json
+contract.events.map(&:as_json)
+contract.diagnostics.to_h
+contract.diagnostics_text
+contract.diagnostics_markdown
 contract.audit_snapshot
 ```
 
@@ -155,6 +254,7 @@ Current baseline:
 - typed inputs
 - composition
 - auditing
+- diagnostics reporting
 - reactive subscriptions
 - graph/runtime introspection
 

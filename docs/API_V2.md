@@ -67,6 +67,7 @@ Suggested instance methods:
 - `update_inputs`
 - `events`
 - `execution`
+- `diagnostics`
 - `success?`
 - `failed?`
 
@@ -78,10 +79,12 @@ Suggested methods:
 
 - output readers by name
 - `to_h`
+- `as_json`
 - `success?`
 - `failed?`
 - `errors`
 - `states`
+- `explain`
 
 Avoid relying on `method_missing` as the main implementation mechanism if explicit generated readers are practical.
 
@@ -158,7 +161,13 @@ PriceContract.graph.to_h
 PriceContract.graph.to_mermaid
 
 contract.execution.states
-contract.events.to_a
+contract.execution.to_h
+contract.execution.as_json
+contract.result.as_json
+contract.events.map(&:as_json)
+contract.diagnostics.to_h
+contract.diagnostics.to_text
+contract.diagnostics.to_markdown
 ```
 
 The main rule is that introspection reads stable compile/runtime objects rather than poking through private internals.
@@ -171,6 +180,9 @@ Suggested access patterns:
 contract.events.each do |event|
   puts "#{event.type} #{event.path}"
 end
+
+contract.events.map(&:to_h)
+contract.events.map(&:as_json)
 ```
 
 Or:
@@ -198,6 +210,14 @@ end
 ```
 
 Result-level inspection should still expose node failures without forcing exception-driven control flow for every error path.
+
+Each Igniter error also carries structured context when available:
+
+- `graph`
+- `node_id`
+- `node_name`
+- `node_path`
+- `source_location`
 
 ## Roadmap API Decisions
 

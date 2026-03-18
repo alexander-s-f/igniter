@@ -139,7 +139,8 @@ Composition node resolution:
 1. resolve parent-side mapping dependencies
 2. build child inputs
 3. instantiate child execution
-4. return child `Result` or collection of child `Result`
+4. resolve child outputs inside the child execution
+5. return child `Result`
 
 Composition should not flatten child state into the parent cache. Child execution remains isolated.
 
@@ -170,11 +171,16 @@ Suggested event fields:
 - `timestamp`
 - `type`
 - `node_id`
+- `node_name`
 - `path`
 - `status`
 - `payload`
-- `causation_id`
-- `correlation_id`
+
+Current payload examples:
+
+- composition success payload includes `child_execution_id` and `child_graph`
+- `execution_failed` includes `graph`, `targets`, and `error`
+- `node_invalidated` includes `cause`
 
 ## Public Resolution API
 
@@ -235,3 +241,5 @@ Minimum runtime test matrix:
 - captures compute exceptions as failed node state
 - resolves nested composition
 - emits expected events in order
+- exposes machine-readable execution/result/event payloads
+- exposes diagnostics reports for both success and failure flows

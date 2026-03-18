@@ -51,6 +51,7 @@ Gem::Specification.new do |spec|
     "README.md",
     "LICENSE.txt",
     "CHANGELOG.md",
+    "examples/*.rb",
     "docs/*.md"
   ].sort
 
