@@ -21,7 +21,7 @@ done (the Ruby logic within the computations).
    but providing a framework for organizing existing code.
 
 2. **Explicit is better than Implicit.**
-   Dependencies between components are always declared explicitly (`from: ...`). The framework avoids "magic," automatic
+   Dependencies between components are always declared explicitly (`depends_on: ...`). The framework avoids "magic," automatic
    dependency injection, or hidden behaviors. If node `A` depends on node `B`, it's always visible in the code.
 
 3. **Separation of Concerns.**
@@ -33,25 +33,25 @@ done (the Ruby logic within the computations).
     * **Reactive:** Reacting to events within the graph.
 
 4. **Transparency and Debugging "out of the box."**
-   The framework is designed so that its execution is easy to trace. Built-in introspection (`print_runtime`) and
-   auditing (`Player`) mechanisms are not add-ons, but an integral part of the core.
+   The framework is designed so that its execution is easy to trace. Built-in graph/runtime introspection and
+   auditing snapshots are not add-ons, but an integral part of the core.
 
 ## Key Concepts
 
 #### Contract
 
-The main unit of work in Igniter. A class inheriting from `Igniter::Root` that encapsulates a single business process.
+The main unit of work in Igniter. A class inheriting from `Igniter::Contract` that encapsulates a single business process.
 
 #### Definition Graph
 
 The static "blueprint" or "plan" of a contract. It is created once when the class is loaded, within the
-`context do ... end` block. This graph describes all the nodes, their types, and the dependencies between them. It is
+`define do ... end` block. This graph describes all the nodes, their types, and the dependencies between them. It is
 immutable during execution.
 
 #### Runtime Graph
 
-The "live" representation of the contract at runtime. It contains `Runtime::Node` objects, which store the computed
-values, statuses (`:success`, `:failure`), and errors for each node.
+The "live" representation of the contract at runtime. It contains `Runtime::NodeState` objects, which store the computed
+values, statuses (`:succeeded`, `:failed`, `:stale`), and errors for each node.
 
 #### Nodes
 
@@ -70,13 +70,12 @@ The basic building blocks of the graph. The main node types in the DSL are:
 ## Contract Lifecycle
 
 1. **Definition:** Ruby loads the contract class. The `context` block is executed, building the static
-   `Definition::Graph`.
+   compiled graph.
 2. **Initialization:** `MyContract.new(inputs)` is called. An instance of the contract and its execution context (
    `Runtime::Execution`) are created. The input data is stored.
-3. **Execution:** `contract.resolve!` is called. Igniter begins to lazily traverse the dependency graph, starting from the
+3. **Execution:** a result reader such as `contract.result.total` or `contract.resolve_all` is called. Igniter begins to lazily traverse the dependency graph, starting from the
    `output` nodes. It only computes the nodes necessary to produce the result. Computation results are cached.
-4. **Result:** After `resolve!` completes, the `contract.result` object provides access to the outputs and the overall
+4. **Result:** After resolution completes, the `contract.result` object provides access to the outputs and the overall
    status (`success?`/`failed?`).
-5. **Update and Re-computation:** When input data is changed (e.g., `contract.inputs.zip_code = "..."`) and `resolve!`
-   is called again, Igniter invalidates only the parts of the graph that depend on the changed input and re-computes only
+5. **Update and Re-computation:** When input data is changed with `contract.update_inputs(...)`, Igniter invalidates only the parts of the graph that depend on the changed input and re-computes only
    them.

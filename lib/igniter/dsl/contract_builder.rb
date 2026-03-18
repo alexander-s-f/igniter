@@ -13,11 +13,13 @@ module Igniter
         @sequence = 0
       end
 
-      def input(name, type: nil, required: nil, default: :__arbor_undefined__, **metadata)
+      UNDEFINED_INPUT_DEFAULT = :__igniter_undefined__
+
+      def input(name, type: nil, required: nil, default: UNDEFINED_INPUT_DEFAULT, **metadata)
         input_metadata = with_source_location(metadata)
         input_metadata[:type] = type if type
         input_metadata[:required] = required unless required.nil?
-        input_metadata[:default] = default unless default == :__arbor_undefined__
+        input_metadata[:default] = default unless default == UNDEFINED_INPUT_DEFAULT
 
         add_node(
           Model::InputNode.new(

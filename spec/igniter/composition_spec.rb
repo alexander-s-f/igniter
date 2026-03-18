@@ -83,4 +83,41 @@ RSpec.describe "Igniter composition" do
     expect(second_child.gross_total).to eq(180.0)
     expect(second_child.execution.events.execution_id).not_to eq(first_execution_id)
   end
+
+  it "fails compilation for unknown child input mappings" do
+    child_contract = pricing_contract
+
+    expect do
+      Class.new(Igniter::Contract) do
+        define do
+          input :order_total
+
+          compose :pricing, contract: child_contract, inputs: {
+            order_total: :order_total,
+            unknown_child_input: :order_total
+          }
+
+          output :pricing
+        end
+      end
+    end.to raise_error(Igniter::ValidationError, /maps unknown child inputs: unknown_child_input/i)
+  end
+
+  it "fails compilation when required child inputs are not mapped" do
+    child_contract = pricing_contract
+
+    expect do
+      Class.new(Igniter::Contract) do
+        define do
+          input :order_total
+
+          compose :pricing, contract: child_contract, inputs: {
+            order_total: :order_total
+          }
+
+          output :pricing
+        end
+      end
+    end.to raise_error(Igniter::ValidationError, /missing mappings for required child inputs: country/i)
+  end
 end

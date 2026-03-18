@@ -44,6 +44,7 @@ Gem::Specification.new do |spec|
     "lib/igniter/extensions/auditing/*.rb",
     "lib/igniter/extensions/reactive/*.rb",
     "lib/igniter/extensions/introspection/*.rb",
+    "sig/*.rbs",
     "README.md",
     "LICENSE.txt",
     "CHANGELOG.md",

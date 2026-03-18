@@ -58,4 +58,42 @@ RSpec.describe Igniter::Compiler::GraphCompiler do
       end
     end.to raise_error(Igniter::ValidationError, /declared at .*graph_compiler_spec\.rb/)
   end
+
+  it "rejects compute blocks with positional parameters" do
+    expect do
+      Igniter.compile do
+        input :order_total
+        compute :gross_total, depends_on: [:order_total] do |order_total|
+          order_total * 1.2
+        end
+        output :gross_total
+      end
+    end.to raise_error(Igniter::ValidationError, /must use keyword arguments/i)
+  end
+
+  it "rejects compute blocks that require undeclared dependencies" do
+    expect do
+      Igniter.compile do
+        input :order_total
+        input :vat_rate
+        compute :gross_total, depends_on: [:order_total] do |order_total:, vat_rate:|
+          order_total * (1 + vat_rate)
+        end
+        output :gross_total
+      end
+    end.to raise_error(Igniter::ValidationError, /requires undeclared dependencies: vat_rate/i)
+  end
+
+  it "rejects compute blocks that cannot accept declared dependencies" do
+    expect do
+      Igniter.compile do
+        input :order_total
+        input :vat_rate
+        compute :gross_total, depends_on: %i[order_total vat_rate] do |order_total:|
+          order_total
+        end
+        output :gross_total
+      end
+    end.to raise_error(Igniter::ValidationError, /declares unsupported dependencies.*vat_rate/i)
+  end
 end
