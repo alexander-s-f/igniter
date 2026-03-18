@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "set"
+
 module Igniter
   module Extensions
     module Reactive
@@ -11,12 +13,15 @@ module Igniter
           @contract = contract
           @reactions = reactions
           @errors = []
+          @fired_reactions = Set.new
         end
 
         def call(event)
           reactions.each do |reaction|
             next unless Matcher.new(reaction, event).match?
+            next if already_fired?(reaction, event)
 
+            mark_fired(reaction, event)
             call_action(
               reaction.action,
               event: event,
@@ -55,6 +60,22 @@ module Igniter
 
           state = execution.cache.fetch(event.node_name)
           state&.value
+        end
+
+        def already_fired?(reaction, event)
+          return false unless reaction.once_per_execution
+
+          @fired_reactions.include?(reaction_key(reaction, event))
+        end
+
+        def mark_fired(reaction, event)
+          return unless reaction.once_per_execution
+
+          @fired_reactions << reaction_key(reaction, event)
+        end
+
+        def reaction_key(reaction, event)
+          [reaction.object_id, event.execution_id]
         end
       end
     end

@@ -37,13 +37,14 @@ module Igniter
         instance.restore_execution(snapshot)
       end
 
-      def react_to(event_type, path: nil, &block)
+      def react_to(event_type, path: nil, once_per_execution: false, &block)
         raise CompileError, "react_to requires a block" unless block
 
         reactions << Extensions::Reactive::Reaction.new(
           event_type: event_type,
           path: path,
-          action: block
+          action: block,
+          once_per_execution: once_per_execution
         )
       end
 
@@ -54,7 +55,7 @@ module Igniter
       def on_success(target, &block)
         graph = compiled_graph
         if graph&.output?(target)
-          react_to(:execution_finished) do |event:, contract:, execution:|
+          react_to(:execution_finished, once_per_execution: true) do |event:, contract:, execution:|
             next if execution.cache.values.any?(&:failed?)
             next if execution.cache.values.any?(&:pending?)
 

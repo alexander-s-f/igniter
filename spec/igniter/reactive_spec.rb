@@ -115,6 +115,72 @@ RSpec.describe "Igniter reactive" do
     expect(observed).to eq([[120.0, 120.0]])
   end
 
+  it "runs output on_success only once per execution even when multiple outputs are read" do
+    observed = []
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :order_total
+
+        compute :gross_total, depends_on: [:order_total] do |order_total:|
+          order_total * 1.2
+        end
+
+        expose :gross_total, as: :response
+
+        compute :audit_value, depends_on: [:gross_total] do |gross_total:|
+          gross_total.round
+        end
+
+        output :audit_value
+      end
+
+      on_success :response do |value:, **|
+        observed << value
+      end
+    end
+
+    contract = contract_class.new(order_total: 100)
+
+    expect(contract.result.response).to eq(120.0)
+    expect(contract.result.audit_value).to eq(120)
+    expect(observed).to eq([120.0])
+  end
+
+  it "does not re-enter output on_success when callback reads another unresolved output" do
+    observed = []
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :order_total
+
+        compute :gross_total, depends_on: [:order_total] do |order_total:|
+          order_total * 1.2
+        end
+
+        expose :gross_total, as: :response
+
+        compute :vendor_response, depends_on: [:gross_total] do |gross_total:|
+          { bid: gross_total }
+        end
+
+        output :vendor_response
+      end
+
+      on_success :vendor_response do |value:, contract:, **|
+        observed << [value, contract.result.response]
+      end
+    end
+
+    contract = contract_class.new(order_total: 100)
+
+    expect(contract.result.to_h).to eq(
+      response: 120.0,
+      vendor_response: { bid: 120.0 }
+    )
+    expect(observed).to eq([[{ bid: 120.0 }, 120.0]])
+  end
+
   it "keeps parent reactions isolated from child composition events" do
     observed = []
 
