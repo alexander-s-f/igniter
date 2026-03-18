@@ -16,6 +16,20 @@ module Igniter
       :timestamp,
       keyword_init: true
     ) do
+      def self.from_h(data)
+        new(
+          event_id: value_from(data, :event_id),
+          type: value_from(data, :type).to_sym,
+          execution_id: value_from(data, :execution_id),
+          node_id: value_from(data, :node_id),
+          node_name: value_from(data, :node_name)&.to_sym,
+          path: value_from(data, :path),
+          status: value_from(data, :status)&.to_sym,
+          payload: value_from(data, :payload) || {},
+          timestamp: parse_timestamp(value_from(data, :timestamp))
+        )
+      end
+
       def to_h
         {
           event_id: event_id,
@@ -35,6 +49,21 @@ module Igniter
       end
 
       private
+
+      def self.parse_timestamp(value)
+        case value
+        when Time
+          value
+        when String
+          Time.iso8601(value)
+        else
+          value
+        end
+      end
+
+      def self.value_from(data, key)
+        data[key] || data[key.to_s]
+      end
 
       def serialize_value(value)
         case value

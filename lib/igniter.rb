@@ -20,6 +20,14 @@ module Igniter
       @executor_registry ||= ExecutorRegistry.new
     end
 
+    def execution_store
+      @execution_store ||= Runtime::Stores::MemoryStore.new
+    end
+
+    def execution_store=(store)
+      @execution_store = store
+    end
+
     def register_executor(key, executor_class, **metadata)
       executor_registry.register(key, executor_class, **metadata)
     end

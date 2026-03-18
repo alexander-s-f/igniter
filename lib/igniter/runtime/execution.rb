@@ -3,13 +3,14 @@
 module Igniter
   module Runtime
     class Execution
-      attr_reader :compiled_graph, :contract_instance, :inputs, :cache, :events, :audit, :runner_strategy, :max_workers
+      attr_reader :compiled_graph, :contract_instance, :inputs, :cache, :events, :audit, :runner_strategy, :max_workers, :store
 
-      def initialize(compiled_graph:, contract_instance:, inputs:, runner: :inline, max_workers: nil)
+      def initialize(compiled_graph:, contract_instance:, inputs:, runner: :inline, max_workers: nil, store: nil)
         @compiled_graph = compiled_graph
         @contract_instance = contract_instance
         @runner_strategy = runner
         @max_workers = max_workers
+        @store = store
         @input_validator = InputValidator.new(compiled_graph)
         @inputs = @input_validator.normalize_initial_inputs(inputs)
         @cache = Cache.new
@@ -18,7 +19,7 @@ module Igniter
         @events.subscribe(@audit)
         @resolver = Resolver.new(self)
         @planner = Planner.new(self)
-        @runner = RunnerFactory.build(@runner_strategy, self, resolver: @resolver, max_workers: @max_workers)
+        @runner = RunnerFactory.build(@runner_strategy, self, resolver: @resolver, max_workers: @max_workers, store: @store)
         @invalidator = Invalidator.new(self)
       end
 
@@ -66,7 +67,15 @@ module Igniter
         cache.write(NodeState.new(node: node, status: :succeeded, value: value))
         @events.emit(:node_resumed, node: node, status: :succeeded, payload: { resumed: true })
         @invalidator.invalidate_from(node.name)
+        persist_runtime_state!
         self
+      end
+
+      def resume_by_token(token, value:)
+        node_name = pending_node_name_for_token(token)
+        raise ResolutionError, "No pending node found for token '#{token}'" unless node_name
+
+        resume(node_name, value: value)
       end
 
       def success?
@@ -122,6 +131,28 @@ module Igniter
         )
       end
 
+      def snapshot(include_resolution: true)
+        resolve_pending_safe if include_resolution
+
+        {
+          graph: compiled_graph.name,
+          execution_id: events.execution_id,
+          runner: runner_strategy,
+          max_workers: max_workers,
+          inputs: inputs.dup,
+          states: serialize_states,
+          events: events.events.map(&:as_json)
+        }
+      end
+
+      def restore!(snapshot)
+        @inputs.replace(symbolize_keys(snapshot.fetch(:inputs, {})))
+        cache.restore!(deserialize_states(snapshot.fetch(:states, {})))
+        events.restore!(events: snapshot.fetch(:events, []), execution_id: snapshot[:execution_id] || snapshot["execution_id"])
+        audit.restore!(events.events)
+        self
+      end
+
       private
 
       def with_execution_lifecycle(node_names)
@@ -129,6 +160,7 @@ module Igniter
           @events.emit(:execution_started, payload: { graph: compiled_graph.name, targets: node_names.map(&:to_sym) })
           begin
             result = yield
+            persist_runtime_state!
             @events.emit(:execution_finished, payload: { graph: compiled_graph.name, targets: node_names.map(&:to_sym) })
             result
           rescue StandardError => e
@@ -141,6 +173,7 @@ module Igniter
                 error: e.message
               }
             )
+            persist_runtime_state!
             raise
           end
         else
@@ -179,6 +212,121 @@ module Igniter
 
       def run_targets(node_names)
         @runner.run(node_names)
+      end
+
+      def persist_runtime_state!
+        return unless @runner.respond_to?(:persist!)
+
+        @runner.persist!
+      end
+
+      def pending_node_name_for_token(token)
+        source_match = cache.values.find do |state|
+          state.pending? &&
+            state.value.is_a?(Runtime::DeferredResult) &&
+            state.value.token == token &&
+            state.value.source_node == state.node.name
+        end
+        return source_match.node.name if source_match
+
+        cache.values.find do |state|
+          state.pending? &&
+            state.value.is_a?(Runtime::DeferredResult) &&
+            state.value.token == token
+        end&.node&.name
+      end
+
+      def resolve_pending_safe
+        resolve_all
+      rescue Igniter::Error
+        nil
+      end
+
+      def serialize_states
+        cache.to_h.each_with_object({}) do |(node_name, state), memo|
+          memo[node_name] = {
+            status: state.status,
+            version: state.version,
+            resolved_at: state.resolved_at&.iso8601,
+            invalidated_by: state.invalidated_by,
+            value: serialize_state_value(state.value),
+            error: serialize_state_error(state.error)
+          }
+        end
+      end
+
+      def deserialize_states(snapshot_states)
+        snapshot_states.each_with_object({}) do |(node_name, state_data), memo|
+          node = compiled_graph.fetch_node(node_name)
+          memo[node.name] = NodeState.new(
+            node: node,
+            status: (state_data[:status] || state_data["status"]).to_sym,
+            value: deserialize_state_value(state_data[:value] || state_data["value"]),
+            error: deserialize_state_error(state_data[:error] || state_data["error"]),
+            version: state_data[:version] || state_data["version"],
+            resolved_at: deserialize_time(state_data[:resolved_at] || state_data["resolved_at"]),
+            invalidated_by: (state_data[:invalidated_by] || state_data["invalidated_by"])&.to_sym
+          )
+        end
+      end
+
+      def serialize_state_value(value)
+        case value
+        when Runtime::DeferredResult
+          { type: :deferred, data: value.as_json }
+        when Runtime::Result
+          {
+            type: :result_ref,
+            graph: value.execution.compiled_graph.name,
+            execution_id: value.execution.events.execution_id
+          }
+        else
+          value
+        end
+      end
+
+      def deserialize_state_value(value)
+        if value.is_a?(Hash) && (value[:type] || value["type"])&.to_sym == :deferred
+          data = value[:data] || value["data"] || {}
+          return Runtime::DeferredResult.build(
+            token: data[:token] || data["token"],
+            payload: data[:payload] || data["payload"] || {},
+            source_node: data[:source_node] || data["source_node"],
+            waiting_on: data[:waiting_on] || data["waiting_on"]
+          )
+        end
+
+        value
+      end
+
+      def serialize_state_error(error)
+        return nil unless error
+
+        {
+          type: error.class.name,
+          message: error.message,
+          context: error.respond_to?(:context) ? error.context : {}
+        }
+      end
+
+      def deserialize_state_error(error_data)
+        return nil unless error_data
+
+        ResolutionError.new(
+          error_data[:message] || error_data["message"],
+          context: error_data[:context] || error_data["context"] || {}
+        )
+      end
+
+      def deserialize_time(value)
+        case value
+        when Time
+          value
+        when String
+          Time.iso8601(value)
+        else
+          value || Time.now.utc
+        end
       end
 
       alias_method :resolve_output_value, :resolve_exported_output

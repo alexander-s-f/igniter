@@ -19,6 +19,10 @@ module Igniter
           @events.dup
         end
 
+        def restore!(events)
+          @events = Array(events).map { |event| event.is_a?(Igniter::Events::Event) ? event : Igniter::Events::Event.from_h(event) }
+        end
+
         def snapshot
           {
             execution_id: execution.events.execution_id,

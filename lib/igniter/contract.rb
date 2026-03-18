@@ -11,8 +11,22 @@ module Igniter
         @execution_options = { runner: runner, max_workers: max_workers }.compact
       end
 
+      def restore_from_store(execution_id, store: nil)
+        snapshot = (store || Igniter.execution_store).fetch(execution_id)
+        restore(snapshot)
+      end
+
       def define_schema(schema)
         @compiled_graph = DSL::SchemaBuilder.compile(schema, name: contract_name)
+      end
+
+      def restore(snapshot)
+        instance = new(
+          snapshot[:inputs] || snapshot["inputs"] || {},
+          runner: snapshot[:runner] || snapshot["runner"],
+          max_workers: snapshot[:max_workers] || snapshot["max_workers"]
+        )
+        instance.restore_execution(snapshot)
       end
 
       def react_to(event_type, path: nil, &block)
@@ -75,6 +89,7 @@ module Igniter
       execution_options = self.class.execution_options.merge(
         { runner: runner, max_workers: max_workers }.compact
       )
+      execution_options[:store] ||= Igniter.execution_store if execution_options[:runner]&.to_sym == :store
 
       @execution = Runtime::Execution.new(
         compiled_graph: graph,
@@ -128,6 +143,15 @@ module Igniter
 
     def diagnostics
       Diagnostics::Report.new(execution)
+    end
+
+    def snapshot
+      execution.snapshot
+    end
+
+    def restore_execution(snapshot)
+      execution.restore!(snapshot)
+      self
     end
 
     def diagnostics_text

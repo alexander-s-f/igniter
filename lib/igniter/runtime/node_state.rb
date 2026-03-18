@@ -34,6 +34,18 @@ module Igniter
       def failed?
         status == :failed
       end
+
+      def to_h
+        {
+          node_name: node.name,
+          status: status,
+          version: version,
+          resolved_at: resolved_at,
+          invalidated_by: invalidated_by,
+          value: value,
+          error: error
+        }
+      end
     end
   end
 end

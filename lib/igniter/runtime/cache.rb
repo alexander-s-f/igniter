@@ -80,6 +80,13 @@ module Igniter
         @mutex.synchronize { @states.dup }
       end
 
+      def restore!(states)
+        @mutex.synchronize do
+          @states = states.transform_keys(&:to_sym)
+          @condition.broadcast
+        end
+      end
+
       private
 
       def next_version(current)

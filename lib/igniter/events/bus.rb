@@ -34,6 +34,11 @@ module Igniter
       def subscribe(subscriber = nil, &block)
         @subscribers << (subscriber || block)
       end
+
+      def restore!(events:, execution_id: nil)
+        @execution_id = execution_id if execution_id
+        @events = Array(events).map { |event| event.is_a?(Event) ? event : Event.from_h(event) }
+      end
     end
   end
 end
