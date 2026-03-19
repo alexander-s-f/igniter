@@ -68,16 +68,26 @@ module Igniter
         compute(name, with: from, call: call, executor: executor, **{ category: :map }.merge(metadata), &block)
       end
 
-      def guard(name, depends_on: nil, with: nil, call: nil, executor: nil, message: nil, eq: UNDEFINED_GUARD_MATCHER, **metadata, &block)
-        if eq != UNDEFINED_GUARD_MATCHER
-          raise CompileError, "guard :#{name} cannot combine `eq:` with `call:`, `executor:`, or a block" if call || executor || block
+      def guard(name, depends_on: nil, with: nil, call: nil, executor: nil, message: nil,
+                eq: UNDEFINED_GUARD_MATCHER, in: UNDEFINED_GUARD_MATCHER, matches: UNDEFINED_GUARD_MATCHER,
+                **metadata, &block)
+        matcher_options = {
+          eq: eq,
+          in: binding.local_variable_get(:in),
+          matches: matches
+        }.reject { |_key, value| value == UNDEFINED_GUARD_MATCHER }
+
+        if matcher_options.any?
+          raise CompileError, "guard :#{name} cannot combine matcher options with `call:`, `executor:`, or a block" if call || executor || block
+          raise CompileError, "guard :#{name} supports only one matcher option at a time" if matcher_options.size > 1
 
           dependencies = normalize_dependencies(depends_on: depends_on, with: with)
-          raise CompileError, "guard :#{name} with `eq:` requires exactly one dependency" unless dependencies.size == 1
+          raise CompileError, "guard :#{name} with matcher options requires exactly one dependency" unless dependencies.size == 1
 
-          call = proc do |**values|
-            values.fetch(dependencies.first) == eq
-          end
+          dependency = dependencies.first
+          matcher_name, matcher_value = matcher_options.first
+
+          call = build_guard_matcher(matcher_name, matcher_value, dependency)
         end
 
         compute(
@@ -168,6 +178,29 @@ module Igniter
 
         dependencies = depends_on || with
         Array(dependencies)
+      end
+
+      def build_guard_matcher(matcher_name, matcher_value, dependency)
+        case matcher_name
+        when :eq
+          proc do |**values|
+            values.fetch(dependency) == matcher_value
+          end
+        when :in
+          allowed_values = Array(matcher_value)
+          proc do |**values|
+            allowed_values.include?(values.fetch(dependency))
+          end
+        when :matches
+          matcher = matcher_value
+          raise CompileError, "`matches:` expects a Regexp" unless matcher.is_a?(Regexp)
+
+          proc do |**values|
+            values.fetch(dependency).to_s.match?(matcher)
+          end
+        else
+          raise CompileError, "Unsupported guard matcher: #{matcher_name}"
+        end
       end
     end
   end

@@ -161,6 +161,64 @@ RSpec.describe "Igniter DSL ergonomics" do
     expect { contract.result.usa_only }.to raise_error(Igniter::ResolutionError, /Unsupported country/)
   end
 
+  it "supports matcher-style guard in shorthand" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :country_code, type: :string
+
+        guard :supported_country, with: :country_code, in: %w[USA CAN], message: "Unsupported country"
+
+        compute :region, with: :supported_country do |supported_country:|
+          supported_country
+          "north_america"
+        end
+
+        output :region
+      end
+    end
+
+    contract = contract_class.new(country_code: "CAN")
+
+    expect(contract.result.region).to eq("north_america")
+  end
+
+  it "supports matcher-style guard matches shorthand" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :zip_code, type: :string
+
+        guard :valid_zip, with: :zip_code, matches: /\A\d{5}\z/, message: "Invalid zip"
+
+        compute :normalized_zip, with: :valid_zip do |valid_zip:|
+          valid_zip
+          "ok"
+        end
+
+        output :normalized_zip
+      end
+    end
+
+    contract = contract_class.new(zip_code: "60601")
+
+    expect(contract.result.normalized_zip).to eq("ok")
+  end
+
+  it "fails matcher-style guard when no match occurs" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :zip_code, type: :string
+
+        guard :valid_zip, with: :zip_code, matches: /\A\d{5}\z/, message: "Invalid zip"
+
+        output :valid_zip
+      end
+    end
+
+    contract = contract_class.new(zip_code: "abc")
+
+    expect { contract.result.valid_zip }.to raise_error(Igniter::ResolutionError, /Invalid zip/)
+  end
+
   it "supports effect as a shorthand for node success reactions" do
     observed = []
 
