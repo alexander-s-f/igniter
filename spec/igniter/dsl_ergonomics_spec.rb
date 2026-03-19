@@ -430,4 +430,102 @@ RSpec.describe "Igniter DSL ergonomics" do
     expect(contract.class.graph.to_text).to include("depends_on=technician_ids,date,property_type")
     expect(contract.class.graph.to_text).to include("mapper=#<Proc:")
   end
+
+  it "supports using for named collection mappers" do
+    child_contract = Class.new(Igniter::Contract) do
+      define do
+        input :technician_id
+        input :date
+
+        compute :summary, with: %i[technician_id date] do |technician_id:, date:|
+          { technician_id: technician_id, date: date }
+        end
+
+        output :summary
+      end
+    end
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :technician_ids, type: :array
+        input :date, type: :string
+
+        collection :technicians,
+          with: :technician_ids,
+          depends_on: :date,
+          each: child_contract,
+          key: :technician_id,
+          using: :build_technician_inputs
+
+        output :technicians
+      end
+
+      def build_technician_inputs(item:, date:)
+        {
+          technician_id: item,
+          date: date
+        }
+      end
+    end
+
+    contract = contract_class.new(technician_ids: %w[t-1], date: "2026-03-19")
+
+    expect(contract.result.technicians["t-1"].result.summary).to eq(
+      technician_id: "t-1",
+      date: "2026-03-19"
+    )
+  end
+
+  it "supports using for named branch mappers" do
+    us = Class.new(Igniter::Contract) do
+      define do
+        input :country
+        input :order_total
+
+        compute :price, with: :order_total do |order_total:|
+          order_total * 1.1
+        end
+
+        output :price
+      end
+    end
+
+    fallback = Class.new(Igniter::Contract) do
+      define do
+        input :country
+        input :order_total
+
+        expose :order_total, as: :price
+      end
+    end
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :country
+        input :order_total
+        input :multiplier
+
+        branch :delivery_strategy,
+          with: :country,
+          depends_on: %i[order_total multiplier],
+          using: :build_branch_inputs do
+          on "US", contract: us
+          default contract: fallback
+        end
+
+        export :price, from: :delivery_strategy
+      end
+
+      def build_branch_inputs(selector:, order_total:, multiplier:)
+        {
+          country: selector,
+          order_total: order_total * multiplier
+        }
+      end
+    end
+
+    contract = contract_class.new(country: "US", order_total: 100, multiplier: 2)
+
+    expect(contract.result.price).to be_within(0.001).of(220.0)
+  end
 end

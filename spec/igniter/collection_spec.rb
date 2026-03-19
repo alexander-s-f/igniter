@@ -225,4 +225,42 @@ RSpec.describe "Igniter collections" do
     expect(failed_event.payload).to include(item_key: 2, error_type: "Igniter::ResolutionError")
     expect(failed_event.payload[:error]).to include("boom")
   end
+
+  it "supports hash-like collection sources when map_inputs is used" do
+    child = Class.new(Igniter::Contract) do
+      define do
+        input :company_id
+        input :location_id
+
+        compute :summary, with: %i[company_id location_id] do |company_id:, location_id:|
+          { company_id: company_id, location_id: location_id }
+        end
+
+        output :summary
+      end
+    end
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :locations_map
+
+        collection :company_locations,
+          with: :locations_map,
+          each: child,
+          key: :location_id,
+          map_inputs: lambda { |item:|
+            company_id, location_id = item
+            { company_id: company_id, location_id: location_id }
+          }
+
+        output :company_locations
+      end
+    end
+
+    contract = contract_class.new(locations_map: { "1" => "746", "2" => "1666" })
+    result = contract.result.company_locations
+
+    expect(result.keys).to eq(%w[746 1666])
+    expect(result["746"].result.summary).to eq(company_id: "1", location_id: "746")
+  end
 end

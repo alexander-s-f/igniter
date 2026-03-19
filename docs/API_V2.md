@@ -228,6 +228,28 @@ collection :calls,
   }
 ```
 
+For repeated mappers, prefer `using:` over inline lambdas:
+
+```ruby
+collection :company_locations,
+  with: :locations_map,
+  each: CompanyLocationSchedulerContract,
+  key: :location_id,
+  depends_on: %i[services_map property_type date],
+  using: :build_company_location_inputs
+```
+
+```ruby
+branch :status_route,
+  with: :telephony_status,
+  depends_on: %i[extension_id active_calls],
+  using: :build_status_route_inputs do
+  on "CallConnected", contract: CallConnectedContract
+  on "NoCall", contract: NoCallContract
+  default contract: UnknownStatusContract
+end
+```
+
 Rules:
 
 - one compute node has one callable

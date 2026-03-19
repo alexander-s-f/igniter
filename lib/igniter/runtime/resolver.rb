@@ -332,6 +332,10 @@ module Igniter
       end
 
       def normalize_collection_items(node, items, context_values = {})
+        if node.input_mapper? && items.is_a?(Hash)
+          items = items.to_a
+        end
+
         unless items.is_a?(Array)
           raise CollectionInputError.new(
             "Collection '#{node.name}' expects an array, got #{items.class}",
