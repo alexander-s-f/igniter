@@ -105,3 +105,62 @@ Suggested implementation order:
 4. implement a minimal contract-branching version
 5. add introspection and diagnostics for selected branch visibility
 6. later extend to schema-driven graph builders
+
+## Namespaces / Scopes v1
+
+Status: idea
+Priority: medium
+
+Problem:
+
+- Larger contracts need a way to group related nodes without extracting every subgraph into a separate top-level contract.
+- Without grouping, large orchestration graphs become flat and harder to scan.
+- Users may want a local container for related calculations before deciding whether the logic deserves a standalone contract.
+
+Example direction:
+
+```ruby
+scope :availability do
+  lookup :vendor, depends_on: %i[trade vendor_id], call: LookupVendor
+  lookup :zip_code, depends_on: [:zip_code_raw], call: LookupZipCode
+  compute :geo_bids, depends_on: %i[zip_code vendor], call: LookupGeoBids
+  compute :availability, depends_on: %i[vendor zip_code], call: CalculateAvailability
+end
+```
+
+Possible extended direction:
+
+```ruby
+namespace :availability do
+  input :vendor_id
+  input :zip_code_raw
+
+  compute :vendor, ...
+  compute :availability, ...
+
+  output :availability
+end
+```
+
+Why it matters:
+
+- improves readability of larger contracts
+- creates a middle layer between a flat graph and full contract composition
+- may provide a path toward inline-contract semantics
+- could improve future graph visualization and schema editing UX
+
+Open design questions:
+
+- purely visual grouping vs real runtime/model boundary
+- whether scoped nodes get path prefixes like `availability.vendor`
+- whether scopes can define local inputs/outputs
+- how scopes differ from composition and when users should prefer one over the other
+- whether inline contracts should compile into the same graph or nested child executions
+
+Suggested implementation order:
+
+1. write a short design note comparing scopes vs composition
+2. decide whether v1 is visual/logical grouping only or a true subgraph primitive
+3. define path, output, and introspection semantics
+4. implement minimal grouping support
+5. later evaluate inline-contract execution semantics
