@@ -76,6 +76,7 @@ contract.diagnostics_text
 The repository contains runnable examples in [`examples/`](examples).
 They also have matching specs, so they stay in sync with the implementation.
 The examples folder also has its own quick index in [`examples/README.md`](examples/README.md).
+There is also a short patterns guide in [`docs/PATTERNS.md`](docs/PATTERNS.md).
 
 | Example | Run | Shows |
 | --- | --- | --- |
@@ -441,6 +442,7 @@ contract.audit_snapshot
 - [Architecture v2](docs/ARCHITECTURE_V2.md)
 - [Execution Model v2](docs/EXECUTION_MODEL_V2.md)
 - [API Draft v2](docs/API_V2.md)
+- [Patterns](docs/PATTERNS.md)
 - [Branches v1](docs/BRANCHES_V1.md)
 - [Collections v1](docs/COLLECTIONS_V1.md)
 - [Store Adapters](docs/STORE_ADAPTERS.md)

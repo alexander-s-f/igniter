@@ -2,6 +2,7 @@
 
 These scripts are intended to be runnable entry points for new users.
 Each one can be executed directly from the project root with `ruby examples/<name>.rb`.
+For higher-level guidance on when to use each style, see [PATTERNS.md](/Users/alex/dev/hotfix/igniter/docs/PATTERNS.md).
 
 ## Available Scripts
 
