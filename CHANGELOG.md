@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.3.1] - 2026-03-19
+
 - Add DX-oriented DSL helpers `project` and `aggregate` for compact extraction and summary nodes.
 - Extend `branch` and `collection` with `map_inputs:` and named `using:` mappers to reduce orchestration wiring noise.
 - Allow `collection` mapper mode to iterate over hash-like sources directly without a preparatory `to_a` node.
