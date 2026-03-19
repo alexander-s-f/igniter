@@ -104,6 +104,27 @@ RSpec.describe "Igniter introspection" do
     expect(plan[:nodes][:gross_total][:waiting_on]).to include(:vat_rate)
   end
 
+  it "preserves scoped paths in plans and graph formatting" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :country, type: :string
+
+        scope :taxes do
+          compute :vat_rate, with: :country do |country:|
+            country == "UA" ? 0.2 : 0.0
+          end
+        end
+
+        output :vat_rate
+      end
+    end
+
+    contract = contract_class.new(country: "UA")
+
+    expect(contract.class.graph.to_text).to include("taxes.vat_rate")
+    expect(contract.execution.plan[:nodes][:vat_rate][:path]).to eq("taxes.vat_rate")
+  end
+
   it "explains the execution plan without resolving compute nodes" do
     calls = 0
 

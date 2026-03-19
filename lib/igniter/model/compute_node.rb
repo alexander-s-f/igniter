@@ -5,12 +5,12 @@ module Igniter
     class ComputeNode < Node
       attr_reader :callable
 
-      def initialize(id:, name:, dependencies:, callable:, metadata: {})
+      def initialize(id:, name:, dependencies:, callable:, path: nil, metadata: {})
         super(
           id: id,
           kind: :compute,
           name: name,
-          path: name,
+          path: (path || name),
           dependencies: dependencies,
           metadata: metadata
         )

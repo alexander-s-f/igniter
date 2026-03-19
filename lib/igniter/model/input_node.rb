@@ -3,8 +3,8 @@
 module Igniter
   module Model
     class InputNode < Node
-      def initialize(id:, name:, metadata: {})
-        super(id: id, kind: :input, name: name, path: name, metadata: metadata)
+      def initialize(id:, name:, path: nil, metadata: {})
+        super(id: id, kind: :input, name: name, path: (path || name), metadata: metadata)
       end
 
       def type

@@ -153,6 +153,22 @@ end
 expose :bid_details, as: :response
 ```
 
+Short dependency alias:
+
+```ruby
+compute :zip_code, with: :zip_code_raw do |zip_code_raw:|
+  ZipCode.find_by_code!(zip_code_raw)
+end
+```
+
+Matcher-style guards:
+
+```ruby
+guard :usa_only, with: :country_code, eq: "USA", message: "Unsupported country"
+guard :supported_country, with: :country_code, in: %w[USA CAN], message: "Unsupported country"
+guard :valid_zip, with: :zip_code, matches: /\A\d{5}\z/, message: "Invalid zip"
+```
+
 Rules:
 
 - one compute node has one callable
@@ -201,6 +217,23 @@ Pass-through or aliased output exposure:
 expose :bid_details, as: :response
 expose :gross_total
 ```
+
+Grouped node paths:
+
+```ruby
+scope :availability do
+  lookup :vendor, with: %i[trade vendor_id], call: LookupVendor
+  lookup :zip_code, with: :zip_code_raw, call: LookupZipCode
+  compute :geo_bids, with: %i[zip_code vendor], call: LookupGeoBids
+end
+
+namespace :validation do
+  guard :valid_zip, with: :zip_code, matches: /\A\d{5}\z/, message: "Invalid zip"
+end
+```
+
+`scope` and `namespace` currently improve structure and introspection by prefixing node paths.
+They do not yet introduce a separate runtime boundary.
 
 Collection composition can be added later, but should not complicate the first kernel API.
 

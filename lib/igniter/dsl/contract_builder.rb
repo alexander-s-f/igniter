@@ -11,6 +11,7 @@ module Igniter
         @name = name
         @nodes = []
         @sequence = 0
+        @scope_stack = []
       end
 
       UNDEFINED_INPUT_DEFAULT = :__igniter_undefined__
@@ -27,6 +28,7 @@ module Igniter
           Model::InputNode.new(
             id: next_id,
             name: name,
+            path: scoped_path(name),
             metadata: input_metadata
           )
         )
@@ -42,6 +44,7 @@ module Igniter
             name: name,
             dependencies: normalize_dependencies(depends_on: depends_on, with: with),
             callable: callable,
+            path: scoped_path(name),
             metadata: with_source_location(resolved_metadata)
           )
         )
@@ -115,12 +118,24 @@ module Igniter
         end
       end
 
+      def scope(name, &block)
+        raise CompileError, "scope requires a block" unless block
+
+        @scope_stack << name.to_s
+        instance_eval(&block)
+      ensure
+        @scope_stack.pop
+      end
+
+      alias namespace scope
+
       def output(name, from: nil, **metadata)
         add_node(
           Model::OutputNode.new(
             id: next_id,
             name: name,
             source: (from || name),
+            path: scoped_output_path(name),
             metadata: with_source_location(metadata)
           )
         )
@@ -135,6 +150,7 @@ module Igniter
             name: name,
             contract_class: contract,
             input_mapping: inputs,
+            path: scoped_path(name),
             metadata: with_source_location(metadata)
           )
         )
@@ -201,6 +217,18 @@ module Igniter
         else
           raise CompileError, "Unsupported guard matcher: #{matcher_name}"
         end
+      end
+
+      def scoped_path(name)
+        return name.to_s if @scope_stack.empty?
+
+        "#{@scope_stack.join('.')}.#{name}"
+      end
+
+      def scoped_output_path(name)
+        return "output.#{name}" if @scope_stack.empty?
+
+        "#{@scope_stack.join('.')}.output.#{name}"
       end
     end
   end

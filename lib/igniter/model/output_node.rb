@@ -5,14 +5,14 @@ module Igniter
     class OutputNode < Node
       attr_reader :source
 
-      def initialize(id:, name:, source:, metadata: {})
+      def initialize(id:, name:, source:, path: nil, metadata: {})
         normalized_source = source.to_s
 
         super(
           id: id,
           kind: :output,
           name: name,
-          path: "output.#{name}",
+          path: (path || "output.#{name}"),
           dependencies: [normalized_source.split(".").first],
           metadata: metadata
         )

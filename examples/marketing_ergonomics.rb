@@ -12,19 +12,23 @@ class MarketingQuoteContract < Igniter::Contract
 
     const :vendor_id, "eLocal"
 
-    map :trade_name, from: :service do |service:|
-      %w[heating cooling ventilation air_conditioning].include?(service.downcase) ? "HVAC" : service
+    scope :routing do
+      map :trade_name, from: :service do |service:|
+        %w[heating cooling ventilation air_conditioning].include?(service.downcase) ? "HVAC" : service
+      end
     end
 
-    lookup :trade, depends_on: [:trade_name] do |trade_name:|
-      { name: trade_name, base_bid: trade_name == "HVAC" ? 45.0 : 25.0 }
+    scope :pricing do
+      lookup :trade, with: :trade_name do |trade_name:|
+        { name: trade_name, base_bid: trade_name == "HVAC" ? 45.0 : 25.0 }
+      end
     end
 
-    guard :zip_supported, depends_on: [:zip_code], message: "Unsupported zip" do |zip_code:|
-      %w[60601 10001].include?(zip_code)
+    namespace :validation do
+      guard :zip_supported, with: :zip_code, in: %w[60601 10001], message: "Unsupported zip"
     end
 
-    compute :quote, depends_on: %i[vendor_id trade zip_supported zip_code] do |vendor_id:, trade:, zip_supported:, zip_code:|
+    compute :quote, with: %i[vendor_id trade zip_supported zip_code] do |vendor_id:, trade:, zip_supported:, zip_code:|
       zip_supported
       {
         vendor_id: vendor_id,

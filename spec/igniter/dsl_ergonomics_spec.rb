@@ -295,4 +295,46 @@ RSpec.describe "Igniter DSL ergonomics" do
 
     expect(contract.result.normalized_trade_name).to eq("HVAC")
   end
+
+  it "supports scope for grouped node paths" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :trade_name, type: :string
+
+        scope :availability do
+          lookup :trade, with: :trade_name do |trade_name:|
+            { name: trade_name }
+          end
+        end
+
+        output :trade
+      end
+    end
+
+    contract = contract_class.new(trade_name: "HVAC")
+
+    expect(contract.result.trade).to eq(name: "HVAC")
+    expect(contract.class.graph.fetch_node(:trade).path).to eq("availability.trade")
+    expect(contract.class.graph.to_text).to include("lookup")
+    expect(contract.class.graph.to_text).to include("availability.trade")
+  end
+
+  it "supports namespace as an alias for scope" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :zip_code, type: :string
+
+        namespace :validation do
+          guard :valid_zip, with: :zip_code, matches: /\A\d{5}\z/, message: "Invalid zip"
+        end
+
+        output :valid_zip
+      end
+    end
+
+    contract = contract_class.new(zip_code: "60601")
+
+    expect(contract.result.valid_zip).to eq(true)
+    expect(contract.class.graph.fetch_node(:valid_zip).path).to eq("validation.valid_zip")
+  end
 end

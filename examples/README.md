@@ -105,8 +105,9 @@ ruby examples/marketing_ergonomics.rb
 
 Shows:
 
-- ergonomic helpers `const`, `lookup`, `map`, `guard`, `expose`
+- ergonomic helpers `with`, `const`, `lookup`, `map`, matcher-style `guard`, `expose`
 - success-side-effect shorthand via `on_success`
+- structural grouping via `scope` and `namespace`
 - pre-execution planning via `contract.explain_plan`
 - a domain-style contract that stays compact without hiding the graph
 

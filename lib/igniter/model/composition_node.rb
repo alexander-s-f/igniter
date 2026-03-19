@@ -5,12 +5,12 @@ module Igniter
     class CompositionNode < Node
       attr_reader :contract_class, :input_mapping
 
-      def initialize(id:, name:, contract_class:, input_mapping:, metadata: {})
+      def initialize(id:, name:, contract_class:, input_mapping:, path: nil, metadata: {})
         super(
           id: id,
           kind: :composition,
           name: name,
-          path: name,
+          path: (path || name),
           dependencies: input_mapping.values,
           metadata: metadata
         )

@@ -79,7 +79,7 @@ module Igniter
         def node_label(node)
           return "#{node.kind}: #{node.name}" unless node.kind == :compute
 
-          "#{node.kind}: #{node.name}\\n#{node.callable_name}"
+          "#{node.kind}: #{node.path}\\n#{node.callable_name}"
         end
       end
     end

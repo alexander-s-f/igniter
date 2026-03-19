@@ -9,7 +9,7 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - runtime auditing
 - diagnostics reports
 - reactive side effects
-- ergonomic DSL helpers (`const`, `lookup`, `map`, `guard`, `export`, `expose`, `effect`, `on_success`)
+- ergonomic DSL helpers (`with`, `const`, `lookup`, `map`, `guard`, `export`, `expose`, `effect`, `on_success`, `scope`, `namespace`)
 - graph and runtime introspection
 - async-capable pending nodes with snapshot/restore
 - store-backed execution resume flows
@@ -83,7 +83,7 @@ The examples folder also has its own quick index in [`examples/README.md`](examp
 | `composition.rb` | `ruby examples/composition.rb` | nested contracts and composed results |
 | `diagnostics.rb` | `ruby examples/diagnostics.rb` | diagnostics text plus machine-readable output |
 | `async_store.rb` | `ruby examples/async_store.rb` | pending execution, file-backed store, worker-style resume |
-| `marketing_ergonomics.rb` | `ruby examples/marketing_ergonomics.rb` | compact domain DSL with `const`, `lookup`, `map`, `guard`, `expose`, `on_success`, and `explain_plan` |
+| `marketing_ergonomics.rb` | `ruby examples/marketing_ergonomics.rb` | compact domain DSL with `with`, matcher-style `guard`, `scope`/`namespace`, `expose`, `on_success`, and `explain_plan` |
 
 There are also matching living examples in `spec/igniter/examples_spec.rb`.
 Those are useful if you want to read the examples in test form.
@@ -212,19 +212,23 @@ class MarketingQuoteContract < Igniter::Contract
 
     const :vendor_id, "eLocal"
 
-    map :trade_name, from: :service do |service:|
-      %w[heating cooling ventilation air_conditioning].include?(service.downcase) ? "HVAC" : service
+    scope :routing do
+      map :trade_name, from: :service do |service:|
+        %w[heating cooling ventilation air_conditioning].include?(service.downcase) ? "HVAC" : service
+      end
     end
 
-    lookup :trade, depends_on: [:trade_name] do |trade_name:|
-      { name: trade_name, base_bid: 45.0 }
+    scope :pricing do
+      lookup :trade, with: :trade_name do |trade_name:|
+        { name: trade_name, base_bid: 45.0 }
+      end
     end
 
-    guard :zip_supported, depends_on: [:zip_code], message: "Unsupported zip" do |zip_code:|
-      zip_code == "60601"
+    namespace :validation do
+      guard :zip_supported, with: :zip_code, in: %w[60601 10001], message: "Unsupported zip"
     end
 
-    compute :quote, depends_on: %i[vendor_id trade zip_supported zip_code] do |vendor_id:, trade:, zip_supported:, zip_code:|
+    compute :quote, with: %i[vendor_id trade zip_supported zip_code] do |vendor_id:, trade:, zip_supported:, zip_code:|
       zip_supported
       { vendor_id: vendor_id, trade: trade[:name], zip_code: zip_code, bid: trade[:base_bid] }
     end
@@ -241,6 +245,14 @@ contract = MarketingQuoteContract.new(service: "heating", zip_code: "60601")
 
 contract.explain_plan
 contract.result.response
+```
+
+You can also use matcher-style guards directly:
+
+```ruby
+guard :usa_only, with: :country_code, eq: "USA", message: "Unsupported country"
+guard :supported_country, with: :country_code, in: %w[USA CAN], message: "Unsupported country"
+guard :valid_zip, with: :zip_code, matches: /\A\d{5}\z/, message: "Invalid zip"
 ```
 
 ## Composition Example
