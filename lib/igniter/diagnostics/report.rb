@@ -203,7 +203,7 @@ module Igniter
       end
 
       def inline_hash(hash)
-        hash.map { |key, value| "#{key}=#{value.inspect}" }.join(", ")
+        hash.map { |key, value| "#{key}=#{inline_value(value)}" }.join(", ")
       end
 
       def serialize_value(value)
@@ -219,6 +219,78 @@ module Igniter
         else
           value
         end
+      end
+
+      def inline_value(value)
+        case value
+        when Hash
+          return summarize_serialized_collection_hash(value) if serialized_collection_hash?(value)
+          return summarize_serialized_collection_items_hash(value) if serialized_collection_items_hash?(value)
+
+          "{#{value.map { |key, nested| "#{key}:#{inline_value(nested)}" }.join(', ')}}"
+        when Array
+          "[#{value.map { |item| inline_value(item) }.join(', ')}]"
+        when Runtime::Result
+          summarize_nested_result(value)
+        when Runtime::CollectionResult
+          summarize_collection_result(value)
+        else
+          value.inspect
+        end
+      end
+
+      def summarize_nested_result(result)
+        outputs = result.to_h.keys
+        "{graph=#{result.execution.compiled_graph.name.inspect}, status=#{nested_result_status(result).inspect}, outputs=#{outputs.inspect}}"
+      end
+
+      def summarize_collection_result(result)
+        summary = result.summary
+        failed_keys = result.failures.keys
+        "{mode=#{result.mode.inspect}, total=#{summary[:total]}, succeeded=#{summary[:succeeded]}, failed=#{summary[:failed]}, status=#{summary[:status].inspect}, keys=#{result.keys.inspect}, failed_keys=#{failed_keys.inspect}}"
+      end
+
+      def serialized_collection_hash?(value)
+        value.key?(:mode) && value.key?(:summary) && value.key?(:items)
+      end
+
+      def summarize_serialized_collection_hash(value)
+        summary = value[:summary] || {}
+        items = value[:items] || {}
+        failed_keys = items.each_with_object([]) do |(key, item), memo|
+          memo << key if item[:status] == :failed || item["status"] == :failed
+        end
+
+        "{mode=#{value[:mode].inspect}, total=#{summary[:total]}, succeeded=#{summary[:succeeded]}, failed=#{summary[:failed]}, status=#{summary[:status].inspect}, keys=#{items.keys.inspect}, failed_keys=#{failed_keys.inspect}}"
+      end
+
+      def serialized_collection_items_hash?(value)
+        return false if value.empty?
+
+        value.values.all? do |item|
+          item.is_a?(Hash) && (item.key?(:key) || item.key?("key")) && (item.key?(:status) || item.key?("status"))
+        end
+      end
+
+      def summarize_serialized_collection_items_hash(value)
+        failed_keys = value.each_with_object([]) do |(key, item), memo|
+          status = item[:status] || item["status"]
+          memo << key if status == :failed || status == "failed"
+        end
+
+        total = value.size
+        failed = failed_keys.size
+        succeeded = total - failed
+        status = failed.zero? ? :succeeded : :partial_failure
+
+        "{mode=:collect, total=#{total}, succeeded=#{succeeded}, failed=#{failed}, status=#{status.inspect}, keys=#{value.keys.inspect}, failed_keys=#{failed_keys.inspect}}"
+      end
+
+      def nested_result_status(result)
+        return :failed if result.failed?
+        return :pending if result.pending?
+
+        :succeeded
       end
 
       def summarize_collection_nodes

@@ -128,4 +128,46 @@ RSpec.describe "Igniter diagnostics" do
     expect(markdown).to include("`technicians`: total=2, succeeded=1, failed=1, status=partial_failure")
     expect(markdown).to include("`technicians[2]` failed: Technician inactive")
   end
+
+  it "formats nested result and collection outputs compactly in diagnostics text" do
+    child_contract = Class.new(Igniter::Contract) do
+      define do
+        input :technician_inputs, type: :array
+
+        collection :technicians, with: :technician_inputs, each: Class.new(Igniter::Contract) {
+          define do
+            input :technician_id
+
+            compute :summary, with: :technician_id do |technician_id:|
+              { id: technician_id }
+            end
+
+            output :summary
+          end
+        }, key: :technician_id, mode: :collect
+
+        output :technicians
+      end
+    end
+
+    parent_contract = Class.new(Igniter::Contract) do
+      define do
+        input :technician_inputs, type: :array
+
+        compose :batch, contract: child_contract, inputs: {
+          technician_inputs: :technician_inputs
+        }
+
+        output :batch
+      end
+    end
+
+    contract = parent_contract.new(technician_inputs: [{ technician_id: 1 }, { technician_id: 2 }])
+
+    text = contract.diagnostics_text
+    markdown = contract.diagnostics_markdown
+
+    expect(text).to include('batch={technicians:{mode=:collect, total=2, succeeded=2, failed=0, status=:succeeded, keys=[1, 2], failed_keys=[]}}')
+    expect(markdown).to include("- Outputs: batch={technicians:{mode=:collect, total=2, succeeded=2, failed=0, status=:succeeded, keys=[1, 2], failed_keys=[]}}")
+  end
 end
