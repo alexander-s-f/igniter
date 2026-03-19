@@ -70,6 +70,12 @@ module Igniter
               base[:default_contract] = node.default_contract.name
               base[:inputs] = node.input_mapping
             end
+            if node.kind == :collection
+              base[:with] = node.source_dependency
+              base[:each] = node.contract_class.name
+              base[:key] = node.key_name
+              base[:mode] = node.mode
+            end
             base
           end,
           outputs: outputs.map do |output|
@@ -114,6 +120,16 @@ module Igniter
               inputs: node.input_mapping,
               cases: node.cases.map { |entry| { on: entry[:match], contract: entry[:contract] } },
               default: node.default_contract,
+              metadata: node.metadata.reject { |key, _| key == :source_location }
+            }
+          end,
+          collections: nodes.select { |node| node.kind == :collection }.map do |node|
+            {
+              name: node.name,
+              with: node.source_dependency,
+              each: node.contract_class,
+              key: node.key_name,
+              mode: node.mode,
               metadata: node.metadata.reject { |key, _| key == :source_location }
             }
           end,

@@ -16,6 +16,7 @@ module Igniter
           @context.runtime_nodes.each do |node|
             validate_composition_node!(node) if node.kind == :composition
             validate_branch_node!(node) if node.kind == :branch
+            validate_collection_node!(node) if node.kind == :collection
 
             node.dependencies.each do |dependency_name|
               next if @context.dependency_resolvable?(dependency_name)
@@ -120,6 +121,28 @@ module Igniter
           raise @context.validation_error(
             node,
             "Branch '#{node.name}' is missing mappings for required child inputs: #{missing_required_inputs.sort.join(', ')}"
+          )
+        end
+
+        def validate_collection_node!(node)
+          unless node.contract_class.is_a?(Class) && node.contract_class <= Igniter::Contract
+            raise @context.validation_error(node, "Collection '#{node.name}' must reference an Igniter::Contract subclass")
+          end
+
+          unless node.contract_class.compiled_graph
+            raise @context.validation_error(node, "Collection '#{node.name}' references an uncompiled contract")
+          end
+
+          unless %i[collect fail_fast].include?(node.mode)
+            raise @context.validation_error(node, "Collection '#{node.name}' mode must be `:collect` or `:fail_fast`")
+          end
+
+          child_input_names = node.contract_class.compiled_graph.nodes.select { |child_node| child_node.kind == :input }.map(&:name)
+          return if child_input_names.include?(node.key_name)
+
+          raise @context.validation_error(
+            node,
+            "Collection '#{node.name}' key '#{node.key_name}' must be a child contract input"
           )
         end
       end

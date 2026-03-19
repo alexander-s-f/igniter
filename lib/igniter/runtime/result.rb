@@ -79,6 +79,8 @@ module Igniter
         case value
         when Result
           value.as_json
+        when CollectionResult
+          value.as_json
         when Array
           value.map { |item| serialize_value(item) }
         else
@@ -91,6 +93,8 @@ module Igniter
         when DeferredResult
           value.as_json
         when Result
+          value.to_h
+        when CollectionResult
           value.to_h
         when Array
           value.map { |item| serialize_output_value(item) }

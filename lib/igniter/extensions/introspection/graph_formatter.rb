@@ -42,6 +42,12 @@ module Igniter
               line += " cases=#{cases.join('|')}"
               line += " default=#{node.default_contract.name || 'AnonymousContract'}"
             end
+            if node.kind == :collection
+              line += " with=#{node.source_dependency}"
+              line += " each=#{node.contract_class.name || 'AnonymousContract'}"
+              line += " key=#{node.key_name}"
+              line += " mode=#{node.mode}"
+            end
             lines << line
           end
           lines << "Outputs:"

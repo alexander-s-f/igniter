@@ -50,4 +50,13 @@ RSpec.describe "Igniter example scripts" do
     expect(stdout).to include('response={:vendor_id=>"eLocal", :trade=>"HVAC", :zip_code=>"60601", :bid=>45.0}')
     expect(stdout).to include('outbox=[{:vendor_id=>"eLocal", :zip_code=>"60601"}]')
   end
+
+  it "runs the collection example" do
+    stdout, stderr, status = run_example("collection.rb")
+
+    expect(status.success?).to eq(true), stderr
+    expect(stdout).to include("keys=[1, 2]")
+    expect(stdout).to include(':status=>:succeeded')
+    expect(stdout).to include(':summary=>{:id=>1, :name=>"Anna"}')
+  end
 end

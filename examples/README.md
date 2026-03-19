@@ -122,6 +122,28 @@ response={:vendor_id=>"eLocal", :trade=>"HVAC", :zip_code=>"60601", :bid=>45.0}
 outbox=[{:vendor_id=>"eLocal", :zip_code=>"60601"}]
 ```
 
+### `collection.rb`
+
+Run:
+
+```bash
+ruby examples/collection.rb
+```
+
+Shows:
+
+- declarative fan-out via `collection`
+- stable item identity via `key:`
+- `CollectionResult` output surface
+- per-item child contract results in `:collect` mode
+
+Expected output shape:
+
+```text
+keys=[1, 2]
+items={1=>{:key=>1, :status=>:succeeded, ...}, 2=>{:key=>2, :status=>:succeeded, ...}}
+```
+
 ## Validation
 
 These scripts are exercised by [example_scripts_spec.rb](/Users/alex/dev/hotfix/igniter/spec/igniter/example_scripts_spec.rb), so the documented commands and outputs stay aligned with the code.

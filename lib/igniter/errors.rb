@@ -48,6 +48,8 @@ module Igniter
   class ValidationError < CompileError; end
   class CycleError < ValidationError; end
   class InputError < Error; end
+  class CollectionInputError < Error; end
+  class CollectionKeyError < Error; end
   class ResolutionError < Error; end
   class CompositionError < Error; end
   class BranchSelectionError < Error; end

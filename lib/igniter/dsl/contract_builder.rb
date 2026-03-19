@@ -176,6 +176,21 @@ module Igniter
         )
       end
 
+      def collection(name, with:, each:, key:, mode: :collect, **metadata)
+        add_node(
+          Model::CollectionNode.new(
+            id: next_id,
+            name: name,
+            source_dependency: with,
+            contract_class: each,
+            key_name: key,
+            mode: mode,
+            path: scoped_path(name),
+            metadata: with_source_location(metadata)
+          )
+        )
+      end
+
       def compile
         Compiler::GraphCompiler.call(Model::Graph.new(name: @name, nodes: @nodes))
       end

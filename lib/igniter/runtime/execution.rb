@@ -283,6 +283,19 @@ module Igniter
             type: :result_snapshot,
             snapshot: value.execution.snapshot(include_resolution: false)
           }
+        when Runtime::CollectionResult
+          {
+            type: :collection_result,
+            mode: value.mode,
+            items: value.items.transform_values do |item|
+              {
+                key: item.key,
+                status: item.status,
+                result: serialize_state_value(item.result),
+                error: serialize_state_error(item.error)
+              }
+            end
+          }
         else
           value
         end
@@ -314,6 +327,26 @@ module Igniter
             child_contract = contract_class.restore(snapshot)
             return child_contract.result
           end
+
+          if node.kind == :collection
+            child_contract = node.contract_class.restore(snapshot)
+            return child_contract.result
+          end
+        end
+
+        if value.is_a?(Hash) && (value[:type] || value["type"])&.to_sym == :collection_result
+          items = (value[:items] || value["items"] || {}).each_with_object({}) do |(key, item), memo|
+            memo[key.is_a?(String) && key.match?(/\A\d+\z/) ? key.to_i : key] = Runtime::CollectionResult::Item.new(
+              key: item[:key] || item["key"] || key,
+              status: (item[:status] || item["status"]).to_sym,
+              result: deserialize_state_value(node, item[:result] || item["result"]),
+              error: deserialize_state_error(item[:error] || item["error"])
+            )
+          end
+          return Runtime::CollectionResult.new(
+            items: items,
+            mode: (value[:mode] || value["mode"] || :collect).to_sym
+          )
         end
 
         value

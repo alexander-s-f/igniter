@@ -9,7 +9,7 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - runtime auditing
 - diagnostics reports
 - reactive side effects
-- ergonomic DSL helpers (`with`, `const`, `lookup`, `map`, `guard`, `export`, `expose`, `effect`, `on_success`, `scope`, `namespace`, `branch`)
+- ergonomic DSL helpers (`with`, `const`, `lookup`, `map`, `guard`, `export`, `expose`, `effect`, `on_success`, `scope`, `namespace`, `branch`, `collection`)
 - graph and runtime introspection
 - async-capable pending nodes with snapshot/restore
 - store-backed execution resume flows
@@ -84,6 +84,7 @@ The examples folder also has its own quick index in [`examples/README.md`](examp
 | `diagnostics.rb` | `ruby examples/diagnostics.rb` | diagnostics text plus machine-readable output |
 | `async_store.rb` | `ruby examples/async_store.rb` | pending execution, file-backed store, worker-style resume |
 | `marketing_ergonomics.rb` | `ruby examples/marketing_ergonomics.rb` | compact domain DSL with `with`, matcher-style `guard`, `scope`/`namespace`, `expose`, `on_success`, and `explain_plan` |
+| `collection.rb` | `ruby examples/collection.rb` | declarative fan-out, stable item keys, and `CollectionResult` |
 
 There are also matching living examples in `spec/igniter/examples_spec.rb`.
 Those are useful if you want to read the examples in test form.
@@ -279,6 +280,26 @@ end
 
 `branch` is a graph primitive for explicit routing. It selects one child contract from ordered cases and resolves only the chosen branch.
 
+### 8. Declarative Collections
+
+```ruby
+class TechnicianBatchContract < Igniter::Contract
+  define do
+    input :technician_inputs, type: :array
+
+    collection :technicians,
+      with: :technician_inputs,
+      each: TechnicianContract,
+      key: :technician_id,
+      mode: :collect
+
+    output :technicians
+  end
+end
+```
+
+`collection` is a graph primitive for explicit fan-out. It runs one child contract per item hash and returns a `CollectionResult` keyed by stable item identity.
+
 ## Composition Example
 
 ```ruby
@@ -368,6 +389,7 @@ contract.audit_snapshot
 - [Execution Model v2](docs/EXECUTION_MODEL_V2.md)
 - [API Draft v2](docs/API_V2.md)
 - [Branches v1](docs/BRANCHES_V1.md)
+- [Collections v1](docs/COLLECTIONS_V1.md)
 - [Store Adapters](docs/STORE_ADAPTERS.md)
 - [Concepts and Principles](docs/IGNITER_CONCEPTS.md)
 

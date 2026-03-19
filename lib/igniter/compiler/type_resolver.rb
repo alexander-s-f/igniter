@@ -43,6 +43,8 @@ module Igniter
           :result
         when :branch
           :result
+        when :collection
+          :array
         else
           nil
         end

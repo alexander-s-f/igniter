@@ -23,6 +23,8 @@ module Igniter
                   resolve_composition(node)
                 when :branch
                   resolve_branch(node)
+                when :collection
+                  resolve_collection(node)
                 else
                   raise ResolutionError, "Unsupported node kind: #{node.kind}"
                 end
@@ -145,6 +147,44 @@ module Igniter
         NodeState.new(node: node, status: :succeeded, value: child_contract.result)
       end
 
+      def resolve_collection(node)
+        items = resolve_dependency_value(node.source_dependency)
+        normalized_items = normalize_collection_items(node, items)
+        collection_items = {}
+
+        normalized_items.each do |item_inputs|
+          item_key = extract_collection_key(node, item_inputs)
+          child_contract = node.contract_class.new(item_inputs)
+          begin
+            child_contract.resolve_all
+          rescue Igniter::Error
+            nil
+          end
+          child_error = child_contract.execution.cache.values.find(&:failed?)&.error
+
+          if child_error
+            collection_items[item_key] = Runtime::CollectionResult::Item.new(
+              key: item_key,
+              status: :failed,
+              error: child_error
+            )
+            raise child_error if node.mode == :fail_fast
+          else
+            collection_items[item_key] = Runtime::CollectionResult::Item.new(
+              key: item_key,
+              status: :succeeded,
+              result: child_contract.result
+            )
+          end
+        end
+
+        NodeState.new(
+          node: node,
+          status: :succeeded,
+          value: Runtime::CollectionResult.new(items: collection_items, mode: node.mode)
+        )
+      end
+
       def resolve_dependency_value(dependency_name)
         if @execution.compiled_graph.node?(dependency_name)
           dependency_state = resolve(dependency_name)
@@ -245,6 +285,60 @@ module Igniter
             source_location: node.source_location
           }
         )
+      end
+
+      def normalize_collection_items(node, items)
+        unless items.is_a?(Array)
+          raise CollectionInputError.new(
+            "Collection '#{node.name}' expects an array, got #{items.class}",
+            context: collection_context(node)
+          )
+        end
+
+        items.each do |item|
+          next if item.is_a?(Hash)
+
+          raise CollectionInputError.new(
+            "Collection '#{node.name}' expects item hashes, got #{item.class}",
+            context: collection_context(node)
+          )
+        end
+
+        ensure_unique_collection_keys!(node, items)
+        items.map { |item| item.transform_keys(&:to_sym) }
+      end
+
+      def extract_collection_key(node, item_inputs)
+        item_inputs.fetch(node.key_name)
+      rescue KeyError
+        raise CollectionKeyError.new(
+          "Collection '#{node.name}' item is missing key '#{node.key_name}'",
+          context: collection_context(node)
+        )
+      end
+
+      def ensure_unique_collection_keys!(node, items)
+        keys = items.map do |item|
+          item.fetch(node.key_name) { raise CollectionKeyError.new("Collection '#{node.name}' item is missing key '#{node.key_name}'", context: collection_context(node)) }
+        end
+
+        duplicates = keys.group_by(&:itself).select { |_key, entries| entries.size > 1 }.keys
+        return if duplicates.empty?
+
+        raise CollectionKeyError.new(
+          "Collection '#{node.name}' has duplicate keys: #{duplicates.join(', ')}",
+          context: collection_context(node)
+        )
+      end
+
+      def collection_context(node)
+        {
+          graph: @execution.compiled_graph.name,
+          node_id: node.id,
+          node_name: node.name,
+          node_path: node.path,
+          source_location: node.source_location
+        }
       end
     end
   end

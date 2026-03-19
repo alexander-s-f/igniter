@@ -182,6 +182,16 @@ branch :delivery_strategy, with: :country, inputs: {
 end
 ```
 
+Declarative fan-out:
+
+```ruby
+collection :technicians,
+  with: :technician_inputs,
+  each: TechnicianContract,
+  key: :technician_id,
+  mode: :collect
+```
+
 Rules:
 
 - one compute node has one callable
@@ -229,6 +239,14 @@ Branch output export:
 ```ruby
 export :price, :eta, from: :delivery_strategy
 ```
+
+Collection output:
+
+```ruby
+output :technicians
+```
+
+This returns a `CollectionResult` rather than a plain array.
 
 Pass-through or aliased output exposure:
 
