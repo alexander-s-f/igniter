@@ -69,4 +69,59 @@ RSpec.describe "Igniter diagnostics" do
     expect(report[:nodes][:failed_nodes].first).to include(node_name: :gross_total)
     expect(report[:errors].first[:message]).to include("boom 100")
   end
+
+  it "summarizes collection item failures in diagnostics" do
+    child_contract = Class.new(Igniter::Contract) do
+      define do
+        input :technician_id
+
+        guard :active_technician, with: :technician_id, message: "Technician inactive" do |technician_id:|
+          technician_id != 2
+        end
+
+        compute :summary, with: %i[technician_id active_technician] do |technician_id:, active_technician:|
+          active_technician
+          { id: technician_id }
+        end
+
+        output :summary
+      end
+    end
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :technician_inputs, type: :array
+
+        collection :technicians, with: :technician_inputs, each: child_contract, key: :technician_id, mode: :collect
+
+        output :technicians
+      end
+    end
+
+    contract = contract_class.new(technician_inputs: [
+      { technician_id: 1 },
+      { technician_id: 2 }
+    ])
+
+    report = contract.diagnostics.to_h
+    text = contract.diagnostics_text
+
+    expect(report[:status]).to eq(:succeeded)
+    expect(report[:outputs][:technicians]).to include(
+      mode: :collect,
+      summary: include(total: 2, succeeded: 1, failed: 1, status: :partial_failure)
+    )
+    expect(report[:collection_nodes]).to include(
+      include(
+        node_name: :technicians,
+        total: 2,
+        succeeded: 1,
+        failed: 1,
+        status: :partial_failure,
+        failed_items: [include(key: 2, message: include("Technician inactive"))]
+      )
+    )
+    expect(text).to include("Collections: technicians total=2 succeeded=1 failed=1 status=partial_failure")
+    expect(text).to include("failed_items=2(")
+  end
 end

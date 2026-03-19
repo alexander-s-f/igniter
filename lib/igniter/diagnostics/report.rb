@@ -17,6 +17,7 @@ module Igniter
           outputs: serialize_outputs,
           errors: serialize_errors,
           nodes: summarize_nodes,
+          collection_nodes: summarize_collection_nodes,
           events: summarize_events
         }
       end
@@ -33,6 +34,7 @@ module Igniter
         lines << "Status: #{report[:status]}"
         lines << format_outputs(report[:outputs])
         lines << format_nodes(report[:nodes])
+        lines << format_collection_nodes(report[:collection_nodes])
         lines << format_errors(report[:errors])
         lines << format_events(report[:events])
         lines.compact.join("\n")
@@ -47,6 +49,9 @@ module Igniter
         lines << "- Status: `#{report[:status]}`"
         lines << "- Outputs: #{inline_hash(report[:outputs])}"
         lines << "- Nodes: total=#{report[:nodes][:total]}, succeeded=#{report[:nodes][:succeeded]}, failed=#{report[:nodes][:failed]}, stale=#{report[:nodes][:stale]}"
+        unless report[:collection_nodes].empty?
+          lines << "- Collections: #{report[:collection_nodes].map { |node| "#{node[:node_name]} total=#{node[:total]} succeeded=#{node[:succeeded]} failed=#{node[:failed]} status=#{node[:status]}" }.join('; ')}"
+        end
         lines << "- Events: total=#{report[:events][:total]}, latest=#{report[:events][:latest_type] || 'none'}"
 
         unless report[:errors].empty?
@@ -169,6 +174,19 @@ module Igniter
         "Errors: #{errors.map { |error| "#{error[:node_name]}=#{error[:type]}" }.join(', ')}"
       end
 
+      def format_collection_nodes(collection_nodes)
+        return nil if collection_nodes.empty?
+
+        summaries = collection_nodes.map do |node|
+          summary = "#{node[:node_name]} total=#{node[:total]} succeeded=#{node[:succeeded]} failed=#{node[:failed]} status=#{node[:status]}"
+          next summary if node[:failed_items].empty?
+
+          "#{summary} failed_items=#{node[:failed_items].map { |item| "#{item[:key]}(#{item[:message]})" }.join(', ')}"
+        end
+
+        "Collections: #{summaries.join('; ')}"
+      end
+
       def format_events(events)
         "Events: total=#{events[:total]}, latest=#{events[:latest_type] || 'none'}"
       end
@@ -183,10 +201,37 @@ module Igniter
           value.as_json
         when Runtime::Result
           value.to_h
+        when Runtime::CollectionResult
+          value.as_json
         when Array
           value.map { |item| serialize_value(item) }
         else
           value
+        end
+      end
+
+      def summarize_collection_nodes
+        execution.cache.values.filter_map do |state|
+          next unless state.value.is_a?(Runtime::CollectionResult)
+
+          result = state.value
+          {
+            node_name: state.node.name,
+            path: state.node.path,
+            mode: result.mode,
+            total: result.items.size,
+            succeeded: result.successes.size,
+            failed: result.failures.size,
+            status: result.failures.empty? ? :succeeded : :partial_failure,
+            failed_items: result.failures.values.map do |item|
+              {
+                key: item.key,
+                type: item.error.class.name,
+                message: item.error.message,
+                context: item.error.respond_to?(:context) ? item.error.context : {}
+              }
+            end
+          }
         end
       end
     end

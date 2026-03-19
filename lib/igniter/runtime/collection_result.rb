@@ -70,9 +70,20 @@ module Igniter
         items.transform_values(&:to_h)
       end
 
+      def summary
+        {
+          mode: mode,
+          total: items.size,
+          succeeded: successes.size,
+          failed: failures.size,
+          status: failures.empty? ? :succeeded : :partial_failure
+        }
+      end
+
       def as_json(*)
         {
           mode: mode,
+          summary: summary,
           items: to_h
         }
       end
