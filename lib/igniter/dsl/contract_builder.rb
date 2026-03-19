@@ -156,6 +156,26 @@ module Igniter
         )
       end
 
+      def branch(name, with:, inputs:, **metadata, &block)
+        raise CompileError, "branch :#{name} requires a block" unless block
+        raise CompileError, "branch :#{name} requires an `inputs:` hash" unless inputs.is_a?(Hash)
+
+        definition = BranchBuilder.build(&block)
+
+        add_node(
+          Model::BranchNode.new(
+            id: next_id,
+            name: name,
+            selector_dependency: with,
+            cases: definition[:cases],
+            default_contract: definition[:default_contract],
+            input_mapping: inputs,
+            path: scoped_path(name),
+            metadata: with_source_location(metadata)
+          )
+        )
+      end
+
       def compile
         Compiler::GraphCompiler.call(Model::Graph.new(name: @name, nodes: @nodes))
       end
@@ -229,6 +249,34 @@ module Igniter
         return "output.#{name}" if @scope_stack.empty?
 
         "#{@scope_stack.join('.')}.output.#{name}"
+      end
+
+      class BranchBuilder
+        def self.build(&block)
+          new.tap { |builder| builder.instance_eval(&block) }.to_h
+        end
+
+        def initialize
+          @cases = []
+          @default_contract = nil
+        end
+
+        def on(match, contract:)
+          @cases << { match: match, contract: contract }
+        end
+
+        def default(contract:)
+          raise CompileError, "branch can define only one `default`" if @default_contract
+
+          @default_contract = contract
+        end
+
+        def to_h
+          {
+            cases: @cases,
+            default_contract: @default_contract
+          }
+        end
       end
     end
   end

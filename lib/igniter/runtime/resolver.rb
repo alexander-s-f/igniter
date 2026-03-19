@@ -21,6 +21,8 @@ module Igniter
                   resolve_compute(node)
                 when :composition
                   resolve_composition(node)
+                when :branch
+                  resolve_branch(node)
                 else
                   raise ResolutionError, "Unsupported node kind: #{node.kind}"
                 end
@@ -111,6 +113,38 @@ module Igniter
         NodeState.new(node: node, status: :succeeded, value: child_contract.result)
       end
 
+      def resolve_branch(node)
+        selector_value = resolve_dependency_value(node.selector_dependency)
+        selected_case = node.cases.find { |entry| entry[:match] == selector_value }
+        selected_contract = selected_case ? selected_case[:contract] : node.default_contract
+        matched_case = selected_case ? selected_case[:match] : :default
+
+        raise BranchSelectionError, "Branch '#{node.name}' has no matching case and no default" unless selected_contract
+
+        child_inputs = node.input_mapping.each_with_object({}) do |(child_input_name, dependency_name), memo|
+          memo[child_input_name] = resolve_dependency_value(dependency_name)
+        end
+
+        @execution.events.emit(
+          :branch_selected,
+          node: node,
+          status: :succeeded,
+          payload: {
+            selector: node.selector_dependency,
+            selector_value: selector_value,
+            matched_case: matched_case,
+            selected_contract: selected_contract.name || "AnonymousContract"
+          }
+        )
+
+        child_contract = selected_contract.new(child_inputs)
+        child_contract.resolve_all
+        child_error = child_contract.result.errors.values.first
+        raise child_error if child_error
+
+        NodeState.new(node: node, status: :succeeded, value: child_contract.result)
+      end
+
       def resolve_dependency_value(dependency_name)
         if @execution.compiled_graph.node?(dependency_name)
           dependency_state = resolve(dependency_name)
@@ -173,7 +207,7 @@ module Igniter
       end
 
       def success_payload(node, state)
-        return {} unless node.kind == :composition
+        return {} unless %i[composition branch].include?(node.kind)
         return {} unless state.value.is_a?(Igniter::Runtime::Result)
 
         {

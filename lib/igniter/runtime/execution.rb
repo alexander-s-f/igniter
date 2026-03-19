@@ -305,6 +305,15 @@ module Igniter
             child_contract = node.contract_class.restore(snapshot)
             return child_contract.result
           end
+
+          if node.kind == :branch
+            snapshot_graph = snapshot[:graph] || snapshot["graph"]
+            contract_class = node.possible_contracts.find { |candidate| candidate.compiled_graph.name == snapshot_graph }
+            return value unless contract_class
+
+            child_contract = contract_class.restore(snapshot)
+            return child_contract.result
+          end
         end
 
         value

@@ -50,6 +50,7 @@ module Igniter
   class InputError < Error; end
   class ResolutionError < Error; end
   class CompositionError < Error; end
+  class BranchSelectionError < Error; end
   class PendingDependencyError < Error
     attr_reader :deferred_result
 

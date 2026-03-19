@@ -169,6 +169,19 @@ guard :supported_country, with: :country_code, in: %w[USA CAN], message: "Unsupp
 guard :valid_zip, with: :zip_code, matches: /\A\d{5}\z/, message: "Invalid zip"
 ```
 
+Declarative routing:
+
+```ruby
+branch :delivery_strategy, with: :country, inputs: {
+  country: :country,
+  order_total: :order_total
+} do
+  on "US", contract: USDeliveryContract
+  on "UA", contract: LocalDeliveryContract
+  default contract: DefaultDeliveryContract
+end
+```
+
 Rules:
 
 - one compute node has one callable
@@ -211,6 +224,12 @@ Bulk child output export:
 export :gross_total, :vat_rate, from: :pricing
 ```
 
+Branch output export:
+
+```ruby
+export :price, :eta, from: :delivery_strategy
+```
+
 Pass-through or aliased output exposure:
 
 ```ruby
@@ -234,6 +253,8 @@ end
 
 `scope` and `namespace` currently improve structure and introspection by prefixing node paths.
 They do not yet introduce a separate runtime boundary.
+
+Branch nodes introduce explicit control flow and behave like composition-like nested results.
 
 Collection composition can be added later, but should not complicate the first kernel API.
 

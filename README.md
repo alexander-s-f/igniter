@@ -9,7 +9,7 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - runtime auditing
 - diagnostics reports
 - reactive side effects
-- ergonomic DSL helpers (`with`, `const`, `lookup`, `map`, `guard`, `export`, `expose`, `effect`, `on_success`, `scope`, `namespace`)
+- ergonomic DSL helpers (`with`, `const`, `lookup`, `map`, `guard`, `export`, `expose`, `effect`, `on_success`, `scope`, `namespace`, `branch`)
 - graph and runtime introspection
 - async-capable pending nodes with snapshot/restore
 - store-backed execution resume flows
@@ -255,6 +255,30 @@ guard :supported_country, with: :country_code, in: %w[USA CAN], message: "Unsupp
 guard :valid_zip, with: :zip_code, matches: /\A\d{5}\z/, message: "Invalid zip"
 ```
 
+### 7. Declarative Branching
+
+```ruby
+class DeliveryContract < Igniter::Contract
+  define do
+    input :country
+    input :order_total
+
+    branch :delivery_strategy, with: :country, inputs: {
+      country: :country,
+      order_total: :order_total
+    } do
+      on "US", contract: USDeliveryContract
+      on "UA", contract: LocalDeliveryContract
+      default contract: DefaultDeliveryContract
+    end
+
+    export :price, :eta, from: :delivery_strategy
+  end
+end
+```
+
+`branch` is a graph primitive for explicit routing. It selects one child contract from ordered cases and resolves only the chosen branch.
+
 ## Composition Example
 
 ```ruby
@@ -343,6 +367,7 @@ contract.audit_snapshot
 - [Architecture v2](docs/ARCHITECTURE_V2.md)
 - [Execution Model v2](docs/EXECUTION_MODEL_V2.md)
 - [API Draft v2](docs/API_V2.md)
+- [Branches v1](docs/BRANCHES_V1.md)
 - [Store Adapters](docs/STORE_ADAPTERS.md)
 - [Concepts and Principles](docs/IGNITER_CONCEPTS.md)
 

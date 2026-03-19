@@ -15,6 +15,7 @@ module Igniter
         def call
           @context.runtime_nodes.each do |node|
             validate_composition_node!(node) if node.kind == :composition
+            validate_branch_node!(node) if node.kind == :branch
 
             node.dependencies.each do |dependency_name|
               next if @context.dependency_resolvable?(dependency_name)
@@ -62,6 +63,63 @@ module Igniter
           raise @context.validation_error(
             node,
             "Composition '#{node.name}' is missing mappings for required child inputs: #{missing_required_inputs.sort.join(', ')}"
+          )
+        end
+
+        def validate_branch_node!(node)
+          validate_branch_structure!(node)
+
+          node.possible_contracts.each do |contract_class|
+            validate_branch_contract!(node, contract_class)
+            validate_branch_input_mapping!(node, contract_class.compiled_graph)
+          end
+        end
+
+        def validate_branch_structure!(node)
+          raise @context.validation_error(node, "Branch '#{node.name}' must define at least one `on` case") if node.cases.empty?
+          raise @context.validation_error(node, "Branch '#{node.name}' must define a `default` contract") unless node.default_contract
+
+          duplicate_matches = node.cases.group_by { |entry| entry[:match] }.select { |_match, entries| entries.size > 1 }.keys
+          return if duplicate_matches.empty?
+
+          raise @context.validation_error(
+            node,
+            "Branch '#{node.name}' has duplicate case values: #{duplicate_matches.map(&:inspect).join(', ')}"
+          )
+        end
+
+        def validate_branch_contract!(node, contract_class)
+          unless contract_class.is_a?(Class) && contract_class <= Igniter::Contract
+            raise @context.validation_error(node, "Branch '#{node.name}' must reference Igniter::Contract subclasses")
+          end
+
+          unless contract_class.compiled_graph
+            raise @context.validation_error(node, "Branch '#{node.name}' references an uncompiled contract")
+          end
+        end
+
+        def validate_branch_input_mapping!(node, child_graph)
+          child_input_nodes = child_graph.nodes.select { |child_node| child_node.kind == :input }
+          child_input_names = child_input_nodes.map(&:name)
+
+          unknown_inputs = node.input_mapping.keys - child_input_names
+          unless unknown_inputs.empty?
+            raise @context.validation_error(
+              node,
+              "Branch '#{node.name}' maps unknown child inputs: #{unknown_inputs.sort.join(', ')}"
+            )
+          end
+
+          missing_required_inputs = child_input_nodes
+            .select(&:required?)
+            .reject { |child_input| node.input_mapping.key?(child_input.name) }
+            .map(&:name)
+
+          return if missing_required_inputs.empty?
+
+          raise @context.validation_error(
+            node,
+            "Branch '#{node.name}' is missing mappings for required child inputs: #{missing_required_inputs.sort.join(', ')}"
           )
         end
       end

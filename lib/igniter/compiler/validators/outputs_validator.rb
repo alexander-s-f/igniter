@@ -22,7 +22,7 @@ module Igniter
 
         def validate_output_source!(output)
           if output.composition_output?
-            validate_composed_output_source!(output)
+            validate_nested_output_source!(output)
           else
             return if @context.runtime_nodes_by_name.key?(output.source)
 
@@ -30,21 +30,34 @@ module Igniter
           end
         end
 
-        def validate_composed_output_source!(output)
-          composition_node = @context.runtime_nodes_by_name[output.source_root]
-          unless composition_node&.kind == :composition
+        def validate_nested_output_source!(output)
+          parent_node = @context.runtime_nodes_by_name[output.source_root]
+          unless %i[composition branch].include?(parent_node&.kind)
             raise @context.validation_error(
               output,
-              "Output '#{output.name}' references unknown composition source '#{output.source}'"
+              "Output '#{output.name}' references unknown nested source '#{output.source}'"
             )
           end
 
-          child_graph = composition_node.contract_class.compiled_graph
-          return if child_graph.outputs_by_name.key?(output.child_output_name)
+          validate_nested_output_presence!(output, parent_node)
+        end
+
+        def validate_nested_output_presence!(output, parent_node)
+          child_graphs =
+            case parent_node.kind
+            when :composition
+              [parent_node.contract_class.compiled_graph]
+            when :branch
+              parent_node.possible_contracts.map(&:compiled_graph)
+            else
+              []
+            end
+
+          return if child_graphs.all? { |graph| graph.outputs_by_name.key?(output.child_output_name) }
 
           raise @context.validation_error(
             output,
-            "Output '#{output.name}' references unknown child output '#{output.child_output_name}' on composition '#{composition_node.name}'"
+            "Output '#{output.name}' references unknown child output '#{output.child_output_name}' on nested source '#{parent_node.name}'"
           )
         end
       end

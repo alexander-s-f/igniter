@@ -36,6 +36,12 @@ module Igniter
             if node.kind == :composition
               line += " contract=#{node.contract_class.name || 'AnonymousContract'}"
             end
+            if node.kind == :branch
+              cases = node.cases.map { |entry| "#{entry[:match].inspect}:#{entry[:contract].name || 'AnonymousContract'}" }
+              line += " selector=#{node.selector_dependency}"
+              line += " cases=#{cases.join('|')}"
+              line += " default=#{node.default_contract.name || 'AnonymousContract'}"
+            end
             lines << line
           end
           lines << "Outputs:"
@@ -77,7 +83,7 @@ module Igniter
         end
 
         def node_label(node)
-          return "#{node.kind}: #{node.name}" unless node.kind == :compute
+          return "#{node.kind}: #{node.path}" unless node.kind == :compute
 
           "#{node.kind}: #{node.path}\\n#{node.callable_name}"
         end

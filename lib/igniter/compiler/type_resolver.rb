@@ -41,6 +41,8 @@ module Igniter
           node.type
         when :composition
           :result
+        when :branch
+          :result
         else
           nil
         end
