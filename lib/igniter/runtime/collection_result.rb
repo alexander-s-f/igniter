@@ -66,6 +66,25 @@ module Igniter
         items.select { |_key, item| item.failed? }
       end
 
+      def items_summary
+        items.transform_values do |item|
+          {
+            status: item.status,
+            error: item.error&.message
+          }.compact
+        end
+      end
+
+      def failed_items
+        failures.transform_values do |item|
+          {
+            type: item.error.class.name,
+            message: item.error.message,
+            context: item.error.respond_to?(:context) ? item.error.context : {}
+          }
+        end
+      end
+
       def to_h
         items.transform_values(&:to_h)
       end

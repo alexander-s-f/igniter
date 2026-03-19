@@ -105,6 +105,7 @@ RSpec.describe "Igniter diagnostics" do
 
     report = contract.diagnostics.to_h
     text = contract.diagnostics_text
+    markdown = contract.diagnostics_markdown
 
     expect(report[:status]).to eq(:succeeded)
     expect(report[:outputs][:technicians]).to include(
@@ -123,5 +124,8 @@ RSpec.describe "Igniter diagnostics" do
     )
     expect(text).to include("Collections: technicians total=2 succeeded=1 failed=1 status=partial_failure")
     expect(text).to include("failed_items=2(")
+    expect(markdown).to include("## Collections")
+    expect(markdown).to include("`technicians`: total=2, succeeded=1, failed=1, status=partial_failure")
+    expect(markdown).to include("`technicians[2]` failed: Technician inactive")
   end
 end

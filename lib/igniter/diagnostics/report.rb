@@ -62,6 +62,17 @@ module Igniter
           end
         end
 
+        unless report[:collection_nodes].empty?
+          lines << ""
+          lines << "## Collections"
+          report[:collection_nodes].each do |node|
+            lines << "- `#{node[:node_name]}`: total=#{node[:total]}, succeeded=#{node[:succeeded]}, failed=#{node[:failed]}, status=#{node[:status]}"
+            node[:failed_items].each do |item|
+              lines << "- `#{node[:node_name]}[#{item[:key]}]` failed: #{item[:message]}"
+            end
+          end
+        end
+
         lines.join("\n")
       end
 

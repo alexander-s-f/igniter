@@ -86,6 +86,9 @@ RSpec.describe "Igniter collections" do
     expect(result.successes.keys).to eq([1])
     expect(result.failures.keys).to eq([2])
     expect(result[2].error.message).to match(/boom/)
+    expect(result.items_summary[1]).to eq(status: :succeeded)
+    expect(result.items_summary[2]).to include(status: :failed, error: include("boom"))
+    expect(result.failed_items[2]).to include(type: "Igniter::ResolutionError", message: include("boom"))
   end
 
   it "fails fast in fail_fast mode" do
