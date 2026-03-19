@@ -66,9 +66,11 @@ module Igniter
             end
             if node.kind == :branch
               base[:selector] = node.selector_dependency
+              base[:depends_on] = node.context_dependencies if node.context_dependencies.any?
               base[:cases] = node.cases.map { |entry| { match: entry[:match], contract: entry[:contract].name } }
               base[:default_contract] = node.default_contract.name
               base[:inputs] = node.input_mapping
+              base[:mapper] = node.input_mapper.to_s if node.input_mapper?
             end
             if node.kind == :collection
               base[:with] = node.source_dependency
@@ -119,7 +121,9 @@ module Igniter
             {
               name: node.name,
               with: node.selector_dependency,
+              depends_on: node.context_dependencies,
               inputs: node.input_mapping,
+              map_inputs: (node.input_mapper if node.input_mapper?),
               cases: node.cases.map { |entry| { on: entry[:match], contract: entry[:contract] } },
               default: node.default_contract,
               metadata: node.metadata.reject { |key, _| key == :source_location }

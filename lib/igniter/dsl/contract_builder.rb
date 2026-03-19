@@ -184,9 +184,12 @@ module Igniter
         )
       end
 
-      def branch(name, with:, inputs:, **metadata, &block)
+      def branch(name, with:, inputs: nil, depends_on: nil, map_inputs: nil, using: nil, **metadata, &block)
         raise CompileError, "branch :#{name} requires a block" unless block
-        raise CompileError, "branch :#{name} requires an `inputs:` hash" unless inputs.is_a?(Hash)
+        raise CompileError, "branch :#{name} requires either `inputs:` or `map_inputs:`/`using:`" if inputs.nil? && map_inputs.nil? && using.nil?
+        raise CompileError, "branch :#{name} cannot combine `inputs:` with `map_inputs:` or `using:`" if inputs && (map_inputs || using)
+        raise CompileError, "branch :#{name} cannot use both `map_inputs:` and `using:`" if map_inputs && using
+        raise CompileError, "branch :#{name} requires an `inputs:` hash" if inputs && !inputs.is_a?(Hash)
 
         definition = BranchBuilder.build(&block)
 
@@ -197,7 +200,9 @@ module Igniter
             selector_dependency: with,
             cases: definition[:cases],
             default_contract: definition[:default_contract],
-            input_mapping: inputs,
+            input_mapping: inputs || {},
+            context_dependencies: normalize_dependencies(depends_on: depends_on, with: nil),
+            input_mapper: map_inputs || using,
             path: scoped_path(name),
             metadata: with_source_location(metadata)
           )

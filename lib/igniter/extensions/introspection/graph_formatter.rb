@@ -39,8 +39,10 @@ module Igniter
             if node.kind == :branch
               cases = node.cases.map { |entry| "#{entry[:match].inspect}:#{entry[:contract].name || 'AnonymousContract'}" }
               line += " selector=#{node.selector_dependency}"
+              line += " depends_on=#{node.context_dependencies.join(',')}" if node.context_dependencies.any?
               line += " cases=#{cases.join('|')}"
               line += " default=#{node.default_contract.name || 'AnonymousContract'}"
+              line += " mapper=#{node.input_mapper}" if node.input_mapper?
             end
             if node.kind == :collection
               line += " with=#{node.source_dependency}"

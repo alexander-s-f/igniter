@@ -186,6 +186,21 @@ branch :delivery_strategy, with: :country, inputs: {
   on "UA", contract: LocalDeliveryContract
   default contract: DefaultDeliveryContract
 end
+
+branch :status_route,
+  with: :telephony_status,
+  depends_on: %i[extension_id active_calls],
+  map_inputs: ->(selector:, extension_id:, active_calls:) {
+    {
+      extension_id: extension_id,
+      telephony_status: selector,
+      active_calls: active_calls
+    }
+  } do
+  on "CallConnected", contract: CallConnectedContract
+  on "NoCall", contract: NoCallContract
+  default contract: UnknownStatusContract
+end
 ```
 
 Declarative fan-out:

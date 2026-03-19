@@ -87,7 +87,7 @@ There is also a short patterns guide in [`docs/PATTERNS.md`](docs/PATTERNS.md).
 | `marketing_ergonomics.rb` | `ruby examples/marketing_ergonomics.rb` | compact domain DSL with `with`, matcher-style `guard`, `scope`/`namespace`, `expose`, `on_success`, and `explain_plan` |
 | `collection.rb` | `ruby examples/collection.rb` | declarative fan-out, stable item keys, and `CollectionResult` |
 | `collection_partial_failure.rb` | `ruby examples/collection_partial_failure.rb` | `:collect` mode, partial failure summary, and collection diagnostics |
-| `ringcentral_routing.rb` | `ruby examples/ringcentral_routing.rb` | top-level `branch`, nested `collection`, `project`, `aggregate`, `map_inputs`, and nested diagnostics semantics |
+| `ringcentral_routing.rb` | `ruby examples/ringcentral_routing.rb` | top-level `branch`, nested `collection`, `project`, `aggregate`, `branch/collection map_inputs`, and nested diagnostics semantics |
 
 There are also matching living examples in `spec/igniter/examples_spec.rb`.
 Those are useful if you want to read the examples in test form.

@@ -123,9 +123,17 @@ module Igniter
 
         raise BranchSelectionError, "Branch '#{node.name}' has no matching case and no default" unless selected_contract
 
-        child_inputs = node.input_mapping.each_with_object({}) do |(child_input_name, dependency_name), memo|
-          memo[child_input_name] = resolve_dependency_value(dependency_name)
+        context_values = node.context_dependencies.each_with_object({}) do |dependency_name, memo|
+          memo[dependency_name] = resolve_dependency_value(dependency_name)
         end
+
+        child_inputs = if node.input_mapper?
+                         map_branch_inputs(node, selector_value, context_values)
+                       else
+                         node.input_mapping.each_with_object({}) do |(child_input_name, dependency_name), memo|
+                           memo[child_input_name] = resolve_dependency_value(dependency_name)
+                         end
+                       end
 
         @execution.events.emit(
           :branch_selected,
@@ -145,6 +153,16 @@ module Igniter
         raise child_error if child_error
 
         NodeState.new(node: node, status: :succeeded, value: child_contract.result)
+      end
+
+      def map_branch_inputs(node, selector_value, context_values)
+        mapper = node.input_mapper
+
+        if mapper.is_a?(Symbol) || mapper.is_a?(String)
+          return @execution.contract_instance.public_send(mapper, selector: selector_value, **context_values)
+        end
+
+        mapper.call(selector: selector_value, **context_values)
       end
 
       def resolve_collection(node)

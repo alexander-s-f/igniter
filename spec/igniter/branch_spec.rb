@@ -185,6 +185,40 @@ RSpec.describe "Igniter branches" do
     )
   end
 
+  it "supports branch map_inputs with extra dependencies" do
+    us = us_contract
+    fallback = default_contract
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :country
+        input :order_total
+        input :multiplier
+
+        branch :delivery_strategy,
+          with: :country,
+          depends_on: %i[order_total multiplier],
+          map_inputs: lambda { |selector:, order_total:, multiplier:|
+            {
+              country: selector,
+              order_total: order_total * multiplier
+            }
+          } do
+          on "US", contract: us
+          default contract: fallback
+        end
+
+        export :price, from: :delivery_strategy
+      end
+    end
+
+    contract = contract_class.new(country: "US", order_total: 100, multiplier: 2)
+
+    expect(contract.result.price).to be_within(0.001).of(220.0)
+    expect(contract.class.graph.to_text).to include("depends_on=order_total,multiplier")
+    expect(contract.class.graph.to_text).to include("mapper=#<Proc:")
+  end
+
   it "fails compilation when exported outputs do not exist across all branch contracts" do
     incomplete_contract = Class.new(Igniter::Contract) do
       define do

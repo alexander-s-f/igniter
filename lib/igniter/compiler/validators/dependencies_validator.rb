@@ -100,6 +100,8 @@ module Igniter
         end
 
         def validate_branch_input_mapping!(node, child_graph)
+          return if node.input_mapper?
+
           child_input_nodes = child_graph.nodes.select { |child_node| child_node.kind == :input }
           child_input_names = child_input_nodes.map(&:name)
 
