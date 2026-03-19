@@ -144,6 +144,30 @@ keys=[1, 2]
 items={1=>{:key=>1, :status=>:succeeded, ...}, 2=>{:key=>2, :status=>:succeeded, ...}}
 ```
 
+### `collection_partial_failure.rb`
+
+Run:
+
+```bash
+ruby examples/collection_partial_failure.rb
+```
+
+Shows:
+
+- `collection` in `mode: :collect`
+- `CollectionResult#summary`
+- `CollectionResult#items_summary`
+- `CollectionResult#failed_items`
+- diagnostics output for partial collection failure without failing the whole execution
+
+Expected output shape:
+
+```text
+summary={:mode=>:collect, :total=>3, :succeeded=>2, :failed=>1, :status=>:partial_failure}
+items_summary={1=>{:status=>:succeeded}, 2=>{:status=>:failed, ...}, ...}
+failed_items={2=>{:type=>"Igniter::ResolutionError", ...}}
+```
+
 ### `ringcentral_routing.rb`
 
 Run:

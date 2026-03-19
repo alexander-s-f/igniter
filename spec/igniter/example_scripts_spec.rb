@@ -70,4 +70,14 @@ RSpec.describe "Igniter example scripts" do
     expect(stdout).to include('child_collection_summary={:mode=>:collect, :total=>3, :succeeded=>3, :failed=>0, :status=>:succeeded}')
     expect(stdout).to include('"s-outbound-1"')
   end
+
+  it "runs the collection partial failure example" do
+    stdout, stderr, status = run_example("collection_partial_failure.rb")
+
+    expect(status.success?).to eq(true), stderr
+    expect(stdout).to include('summary={:mode=>:collect, :total=>3, :succeeded=>2, :failed=>1, :status=>:partial_failure}')
+    expect(stdout).to include('items_summary={1=>{:status=>:succeeded}, 2=>{:status=>:failed')
+    expect(stdout).to include('failed_items={2=>{:type=>"Igniter::ResolutionError"')
+    expect(stdout).to include('Collections: technicians total=3 succeeded=2 failed=1 status=partial_failure')
+  end
 end

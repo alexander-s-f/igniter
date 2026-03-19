@@ -248,6 +248,17 @@ output :technicians
 
 This returns a `CollectionResult` rather than a plain array.
 
+Suggested `CollectionResult` surface:
+
+- `keys`
+- `successes`
+- `failures`
+- `summary`
+- `items_summary`
+- `failed_items`
+- `to_h`
+- `as_json`
+
 Nested routing and fan-out can be combined:
 
 ```ruby

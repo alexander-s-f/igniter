@@ -85,6 +85,7 @@ The examples folder also has its own quick index in [`examples/README.md`](examp
 | `async_store.rb` | `ruby examples/async_store.rb` | pending execution, file-backed store, worker-style resume |
 | `marketing_ergonomics.rb` | `ruby examples/marketing_ergonomics.rb` | compact domain DSL with `with`, matcher-style `guard`, `scope`/`namespace`, `expose`, `on_success`, and `explain_plan` |
 | `collection.rb` | `ruby examples/collection.rb` | declarative fan-out, stable item keys, and `CollectionResult` |
+| `collection_partial_failure.rb` | `ruby examples/collection_partial_failure.rb` | `:collect` mode, partial failure summary, and collection diagnostics |
 | `ringcentral_routing.rb` | `ruby examples/ringcentral_routing.rb` | top-level `branch`, nested `collection`, per-item routing, and nested diagnostics semantics |
 
 There are also matching living examples in `spec/igniter/examples_spec.rb`.
@@ -342,6 +343,15 @@ end
 ```
 
 `collection` is a graph primitive for explicit fan-out. It runs one child contract per item hash and returns a `CollectionResult` keyed by stable item identity.
+
+In `mode: :collect`, a collection can succeed overall while still containing failed items. In that case:
+
+- `result.summary` gives collection-level status such as `:partial_failure`
+- `result.items_summary` gives compact per-item status
+- `result.failed_items` gives only failed item details
+- `contract.diagnostics_text` and `contract.diagnostics_markdown` include collection failure summaries
+
+See `examples/collection_partial_failure.rb` for a runnable example.
 
 ## Composition Example
 
