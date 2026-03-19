@@ -1,5 +1,17 @@
 ## [Unreleased]
 
+## [0.3.0] - 2026-03-19
+
+- Add executor metadata and global executor registry for self-describing, schema-friendly execution steps.
+- Split compiler validation into a pluggable validation pipeline and add shared type compatibility checks.
+- Introduce planner/runner runtime architecture with `:inline`, `:thread_pool`, and store-backed execution modes.
+- Add deferred nodes, pending state, snapshot/restore, token-based resume, worker-style resume flow, and reference file/ActiveRecord/Redis store adapters.
+- Expand the DSL with `with`, matcher-style `guard`, `scope`, `namespace`, `branch`, `collection`, `expose`, `on_failure`, and `on_exit`.
+- Add `branch` and `collection` as graph primitives with compile-time validation, nested runtime support, and item-level collection events.
+- Improve diagnostics and auditing with collection summaries, partial-failure visibility, item-level failure reporting, and richer markdown/text output.
+- Add production-like runnable examples for async resume, ergonomic domain contracts, collection partial failure, and nested branch + collection routing.
+- Add design docs for branches, collections, store adapters, and orchestration patterns.
+
 ## [0.2.0] - 2026-03-18
 
 - Complete the `arbor` to `igniter` rename across runtime, docs, examples, console setup, and shipped signatures.
