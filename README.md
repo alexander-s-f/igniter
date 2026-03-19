@@ -85,6 +85,7 @@ The examples folder also has its own quick index in [`examples/README.md`](examp
 | `async_store.rb` | `ruby examples/async_store.rb` | pending execution, file-backed store, worker-style resume |
 | `marketing_ergonomics.rb` | `ruby examples/marketing_ergonomics.rb` | compact domain DSL with `with`, matcher-style `guard`, `scope`/`namespace`, `expose`, `on_success`, and `explain_plan` |
 | `collection.rb` | `ruby examples/collection.rb` | declarative fan-out, stable item keys, and `CollectionResult` |
+| `ringcentral_routing.rb` | `ruby examples/ringcentral_routing.rb` | top-level `branch`, nested `collection`, per-item routing, and nested diagnostics semantics |
 
 There are also matching living examples in `spec/igniter/examples_spec.rb`.
 Those are useful if you want to read the examples in test form.
@@ -277,6 +278,48 @@ class DeliveryContract < Igniter::Contract
   end
 end
 ```
+
+### 8. Branch + Collection Routing
+
+```ruby
+class RingcentralWebhookContract < Igniter::Contract
+  define do
+    input :payload
+
+    scope :parse do
+      map :body, from: :payload do |payload:|
+        payload.fetch("body", {})
+      end
+
+      map :telephony_status, from: :body do |body:|
+        body["telephonyStatus"]
+      end
+
+      map :active_calls, from: :body do |body:|
+        body["activeCalls"] || []
+      end
+    end
+
+    branch :status_route, with: :telephony_status, inputs: {
+      extension_id: :extension_id,
+      telephony_status: :telephony_status,
+      active_calls: :active_calls
+    } do
+      on "CallConnected", contract: CallConnectedContract
+      on "NoCall", contract: NoCallContract
+      default contract: UnknownStatusContract
+    end
+
+    export :routing_summary, from: :status_route
+  end
+end
+```
+
+In nested flows, diagnostics stay attached to the execution that actually owns the node:
+
+- the parent execution sees the top-level `branch_selected`
+- collection item events live on the selected child execution
+- collection summaries are easiest to read from the child contract diagnostics
 
 `branch` is a graph primitive for explicit routing. It selects one child contract from ordered cases and resolves only the chosen branch.
 

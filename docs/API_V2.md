@@ -248,6 +248,36 @@ output :technicians
 
 This returns a `CollectionResult` rather than a plain array.
 
+Nested routing and fan-out can be combined:
+
+```ruby
+branch :status_route, with: :telephony_status, inputs: {
+  extension_id: :extension_id,
+  telephony_status: :telephony_status,
+  active_calls: :active_calls
+} do
+  on "CallConnected", contract: CallConnectedContract
+  on "NoCall", contract: NoCallContract
+  default contract: UnknownStatusContract
+end
+```
+
+Inside the selected branch contract:
+
+```ruby
+collection :calls,
+  with: :call_inputs,
+  each: CallEventContract,
+  key: :session_id,
+  mode: :collect
+```
+
+Diagnostics and audit stay local to the execution that owns the node:
+
+- the parent execution records top-level branch selection
+- collection item events belong to the selected child execution
+- collection summaries should usually be read from the child contract diagnostics
+
 Pass-through or aliased output exposure:
 
 ```ruby

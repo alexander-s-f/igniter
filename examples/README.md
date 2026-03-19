@@ -144,6 +144,33 @@ keys=[1, 2]
 items={1=>{:key=>1, :status=>:succeeded, ...}, 2=>{:key=>2, :status=>:succeeded, ...}}
 ```
 
+### `ringcentral_routing.rb`
+
+Run:
+
+```bash
+ruby examples/ringcentral_routing.rb
+```
+
+Shows:
+
+- top-level routing via `branch`
+- nested fan-out via `collection`
+- per-item nested routing via another `branch`
+- `CollectionResult` summary on the selected child contract
+- the practical boundary between parent diagnostics and child diagnostics
+
+Expected output shape:
+
+```text
+Plan RingcentralWebhookContract
+...
+---
+routing_summary={:extension_id=>62872332031, ...}
+status_route_branch=CallConnected
+child_collection_summary={:mode=>:collect, :total=>3, ...}
+```
+
 ## Validation
 
 These scripts are exercised by [example_scripts_spec.rb](/Users/alex/dev/hotfix/igniter/spec/igniter/example_scripts_spec.rb), so the documented commands and outputs stay aligned with the code.

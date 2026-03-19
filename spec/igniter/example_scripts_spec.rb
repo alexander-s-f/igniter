@@ -59,4 +59,15 @@ RSpec.describe "Igniter example scripts" do
     expect(stdout).to include(':status=>:succeeded')
     expect(stdout).to include(':summary=>{:id=>1, :name=>"Anna"}')
   end
+
+  it "runs the ringcentral routing example" do
+    stdout, stderr, status = run_example("ringcentral_routing.rb")
+
+    expect(status.success?).to eq(true), stderr
+    expect(stdout).to include("Plan RingcentralWebhookContract")
+    expect(stdout).to include('routing_summary={:extension_id=>62872332031, :telephony_status=>"CallConnected"')
+    expect(stdout).to include("status_route_branch=CallConnected")
+    expect(stdout).to include('child_collection_summary={:mode=>:collect, :total=>3, :succeeded=>3, :failed=>0, :status=>:succeeded}')
+    expect(stdout).to include('"s-outbound-1"')
+  end
 end
