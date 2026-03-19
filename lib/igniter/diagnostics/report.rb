@@ -254,7 +254,7 @@ module Igniter
           return summarize_serialized_collection_hash(value) if serialized_collection_hash?(value)
           return summarize_serialized_collection_items_hash(value) if serialized_collection_items_hash?(value)
 
-          "{#{value.map { |key, nested| "#{key}:#{inline_value(nested)}" }.join(', ')}}"
+          "{#{value.map { |key, nested| "#{key}: #{inline_value(nested)}" }.join(', ')}}"
         when Array
           "[#{value.map { |item| inline_value(item) }.join(', ')}]"
         when Runtime::Result

@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+- Add DX-oriented DSL helpers `project` and `aggregate` for compact extraction and summary nodes.
+- Extend `branch` and `collection` with `map_inputs:` and named `using:` mappers to reduce orchestration wiring noise.
+- Allow `collection` mapper mode to iterate over hash-like sources directly without a preparatory `to_a` node.
+- Add diagnostics-only output presenters via `present` for compact human-facing summaries without changing raw machine-readable outputs.
+- Improve diagnostics formatting for nested branch/collection outputs and clean up inline value rendering for hashes and symbol-heavy summaries.
+- Validate and exercise the new DX surface against private production-like scheduler migration POCs.
+
 ## [0.3.0] - 2026-03-19
 
 - Add executor metadata and global executor registry for self-describing, schema-friendly execution steps.

@@ -167,8 +167,8 @@ RSpec.describe "Igniter diagnostics" do
     text = contract.diagnostics_text
     markdown = contract.diagnostics_markdown
 
-    expect(text).to include('batch={technicians:{mode=:collect, total=2, succeeded=2, failed=0, status=:succeeded, keys=[1, 2], failed_keys=[]}}')
-    expect(markdown).to include("- Outputs: batch={technicians:{mode=:collect, total=2, succeeded=2, failed=0, status=:succeeded, keys=[1, 2], failed_keys=[]}}")
+    expect(text).to include('batch={technicians: {mode=:collect, total=2, succeeded=2, failed=0, status=:succeeded, keys=[1, 2], failed_keys=[]}}')
+    expect(markdown).to include("- Outputs: batch={technicians: {mode=:collect, total=2, succeeded=2, failed=0, status=:succeeded, keys=[1, 2], failed_keys=[]}}")
   end
 
   it "supports output presenters for compact diagnostics formatting" do
@@ -199,7 +199,7 @@ RSpec.describe "Igniter diagnostics" do
       { company_id: "1", location_id: "746" },
       { company_id: "2", location_id: "1666" }
     ])
-    expect(text).to include('rows={total:2, company_ids:["1", "2"]}')
-    expect(markdown).to include('- Outputs: rows={total:2, company_ids:["1", "2"]}')
+    expect(text).to include('rows={total: 2, company_ids: ["1", "2"]}')
+    expect(markdown).to include('- Outputs: rows={total: 2, company_ids: ["1", "2"]}')
   end
 end
