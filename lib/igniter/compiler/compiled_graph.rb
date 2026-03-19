@@ -72,9 +72,11 @@ module Igniter
             end
             if node.kind == :collection
               base[:with] = node.source_dependency
+              base[:depends_on] = node.context_dependencies if node.context_dependencies.any?
               base[:each] = node.contract_class.name
               base[:key] = node.key_name
               base[:mode] = node.mode
+              base[:mapper] = node.input_mapper.to_s if node.input_mapper?
             end
             base
           end,
@@ -127,9 +129,11 @@ module Igniter
             {
               name: node.name,
               with: node.source_dependency,
+              depends_on: node.context_dependencies,
               each: node.contract_class,
               key: node.key_name,
               mode: node.mode,
+              map_inputs: (node.input_mapper if node.input_mapper?),
               metadata: node.metadata.reject { |key, _| key == :source_location }
             }
           end,

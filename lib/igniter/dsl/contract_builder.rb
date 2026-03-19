@@ -17,6 +17,7 @@ module Igniter
       UNDEFINED_INPUT_DEFAULT = :__igniter_undefined__
       UNDEFINED_CONST_VALUE = :__igniter_const_undefined__
       UNDEFINED_GUARD_MATCHER = :__igniter_guard_matcher_undefined__
+      UNDEFINED_PROJECT_OPTION = :__igniter_project_undefined__
 
       def input(name, type: nil, required: nil, default: UNDEFINED_INPUT_DEFAULT, **metadata)
         input_metadata = with_source_location(metadata)
@@ -69,6 +70,33 @@ module Igniter
 
       def map(name, from:, call: nil, executor: nil, **metadata, &block)
         compute(name, with: from, call: call, executor: executor, **{ category: :map }.merge(metadata), &block)
+      end
+
+      def project(name, from:, key: UNDEFINED_PROJECT_OPTION, dig: UNDEFINED_PROJECT_OPTION, default: UNDEFINED_PROJECT_OPTION, **metadata)
+        if key != UNDEFINED_PROJECT_OPTION && dig != UNDEFINED_PROJECT_OPTION
+          raise CompileError, "project :#{name} cannot use both `key:` and `dig:`"
+        end
+
+        if key == UNDEFINED_PROJECT_OPTION && dig == UNDEFINED_PROJECT_OPTION
+          raise CompileError, "project :#{name} requires either `key:` or `dig:`"
+        end
+
+        callable = proc do |**values|
+          source = values.fetch(from.to_sym)
+          extract_projected_value(
+            source,
+            key: key,
+            dig: dig,
+            default: default,
+            node_name: name
+          )
+        end
+
+        compute(name, with: from, call: callable, **{ category: :project }.merge(metadata))
+      end
+
+      def aggregate(name, depends_on: nil, with: nil, call: nil, executor: nil, **metadata, &block)
+        compute(name, depends_on: depends_on, with: with, call: call, executor: executor, **{ category: :aggregate }.merge(metadata), &block)
       end
 
       def guard(name, depends_on: nil, with: nil, call: nil, executor: nil, message: nil,
@@ -176,7 +204,9 @@ module Igniter
         )
       end
 
-      def collection(name, with:, each:, key:, mode: :collect, **metadata)
+      def collection(name, with:, each:, key:, mode: :collect, depends_on: nil, map_inputs: nil, using: nil, **metadata)
+        raise CompileError, "collection :#{name} cannot use both `map_inputs:` and `using:`" if map_inputs && using
+
         add_node(
           Model::CollectionNode.new(
             id: next_id,
@@ -185,6 +215,8 @@ module Igniter
             contract_class: each,
             key_name: key,
             mode: mode,
+            context_dependencies: normalize_dependencies(depends_on: depends_on, with: nil),
+            input_mapper: map_inputs || using,
             path: scoped_path(name),
             metadata: with_source_location(metadata)
           )
@@ -252,6 +284,32 @@ module Igniter
         else
           raise CompileError, "Unsupported guard matcher: #{matcher_name}"
         end
+      end
+
+      def extract_projected_value(source, key:, dig:, default:, node_name:)
+        if key != UNDEFINED_PROJECT_OPTION
+          return fetch_project_value(source, key, default, node_name)
+        end
+
+        current = source
+        Array(dig).each do |part|
+          current = fetch_project_value(current, part, default, node_name)
+        end
+        current
+      end
+
+      def fetch_project_value(source, part, default, node_name)
+        if source.is_a?(Hash)
+          return source.fetch(part) if source.key?(part)
+          return source.fetch(part.to_s) if source.key?(part.to_s)
+          return source.fetch(part.to_sym) if source.key?(part.to_sym)
+        elsif source.respond_to?(part)
+          return source.public_send(part)
+        end
+
+        return default unless default == UNDEFINED_PROJECT_OPTION
+
+        raise ResolutionError, "project :#{node_name} could not extract #{part.inspect}"
       end
 
       def scoped_path(name)

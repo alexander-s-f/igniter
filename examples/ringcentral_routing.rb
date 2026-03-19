@@ -104,29 +104,26 @@ class CallConnectedContract < Igniter::Contract
       active_calls.any?
     end
 
-    map :call_inputs, from: :active_calls do |active_calls:|
-      active_calls.map do |call|
-        {
-          session_id: call.fetch("telephonySessionId"),
-          direction: call.fetch("direction"),
-          from: call.fetch("from"),
-          to: call.fetch("to"),
-          start_time: call.fetch("startTime")
-        }
-      end
-    end
-
     collection :calls,
-      with: :call_inputs,
+      with: :active_calls,
       each: CallEventContract,
       key: :session_id,
-      mode: :collect
+      mode: :collect,
+      map_inputs: lambda { |item:|
+        {
+          session_id: item.fetch("telephonySessionId"),
+          direction: item.fetch("direction"),
+          from: item.fetch("from"),
+          to: item.fetch("to"),
+          start_time: item.fetch("startTime")
+        }
+      }
 
     compute :call_summaries, with: :calls do |calls:|
       calls.successes.values.map { |item| item.result.summary }
     end
 
-    compute :routing_summary, with: %i[calls call_summaries extension_id telephony_status has_calls] do |calls:, call_summaries:, extension_id:, telephony_status:, has_calls:|
+    aggregate :routing_summary, with: %i[calls call_summaries extension_id telephony_status has_calls] do |calls:, call_summaries:, extension_id:, telephony_status:, has_calls:|
       has_calls
       {
         extension_id: extension_id,
@@ -204,21 +201,10 @@ class RingcentralWebhookContract < Igniter::Contract
     input :payload
 
     scope :parse do
-      map :body, from: :payload do |payload:|
-        payload.fetch("body", {})
-      end
-
-      map :telephony_status, from: :body do |body:|
-        body["telephonyStatus"]
-      end
-
-      map :extension_id, from: :body do |body:|
-        body["extensionId"]
-      end
-
-      map :active_calls, from: :body do |body:|
-        body["activeCalls"] || []
-      end
+      project :body, from: :payload, key: :body, default: {}
+      project :telephony_status, from: :body, key: "telephonyStatus"
+      project :extension_id, from: :body, key: "extensionId"
+      project :active_calls, from: :body, key: "activeCalls", default: []
     end
 
     branch :status_route, with: :telephony_status, inputs: {

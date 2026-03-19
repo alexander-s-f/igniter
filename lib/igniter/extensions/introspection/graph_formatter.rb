@@ -44,9 +44,11 @@ module Igniter
             end
             if node.kind == :collection
               line += " with=#{node.source_dependency}"
+              line += " depends_on=#{node.context_dependencies.join(',')}" if node.context_dependencies.any?
               line += " each=#{node.contract_class.name || 'AnonymousContract'}"
               line += " key=#{node.key_name}"
               line += " mode=#{node.mode}"
+              line += " mapper=#{node.input_mapper}" if node.input_mapper?
             end
             lines << line
           end

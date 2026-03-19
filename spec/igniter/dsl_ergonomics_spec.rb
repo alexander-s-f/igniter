@@ -73,6 +73,43 @@ RSpec.describe "Igniter DSL ergonomics" do
     expect(contract.class.graph.to_text).to include("category=map")
   end
 
+  it "supports project for trivial hash extraction" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :payload
+
+        project :body, from: :payload, key: :body
+        project :telephony_status, from: :body, key: "telephonyStatus"
+
+        output :telephony_status
+      end
+    end
+
+    contract = contract_class.new(payload: { body: { "telephonyStatus" => "CallConnected" } })
+
+    expect(contract.result.telephony_status).to eq("CallConnected")
+    expect(contract.class.graph.to_text).to include("category=project")
+  end
+
+  it "supports aggregate as a semantic compute alias" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :numbers, type: :array
+
+        aggregate :total, with: :numbers do |numbers:|
+          numbers.sum
+        end
+
+        output :total
+      end
+    end
+
+    contract = contract_class.new(numbers: [1, 2, 3])
+
+    expect(contract.result.total).to eq(6)
+    expect(contract.class.graph.to_text).to include("category=aggregate")
+  end
+
   it "supports guard nodes for explicit gating" do
     contract_class = Class.new(Igniter::Contract) do
       define do
@@ -336,5 +373,61 @@ RSpec.describe "Igniter DSL ergonomics" do
 
     expect(contract.result.valid_zip).to eq(true)
     expect(contract.class.graph.fetch_node(:valid_zip).path).to eq("validation.valid_zip")
+  end
+
+  it "supports collection map_inputs with extra dependencies" do
+    child_contract = Class.new(Igniter::Contract) do
+      define do
+        input :technician_id
+        input :date
+        input :property_type
+
+        compute :summary, with: %i[technician_id date property_type] do |technician_id:, date:, property_type:|
+          { technician_id: technician_id, date: date, property_type: property_type }
+        end
+
+        output :summary
+      end
+    end
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :technician_ids, type: :array
+        input :date, type: :string
+        input :property_type, type: :string
+
+        collection :technicians,
+          with: :technician_ids,
+          depends_on: %i[date property_type],
+          each: child_contract,
+          key: :technician_id,
+          map_inputs: lambda { |item:, date:, property_type:|
+            {
+              technician_id: item,
+              date: date,
+              property_type: property_type
+            }
+          }
+
+        output :technicians
+      end
+    end
+
+    contract = contract_class.new(
+      technician_ids: %w[t-1 t-2],
+      date: "2026-03-19",
+      property_type: "commercial"
+    )
+
+    result = contract.result.technicians
+
+    expect(result.keys).to eq(%w[t-1 t-2])
+    expect(result["t-1"].result.summary).to eq(
+      technician_id: "t-1",
+      date: "2026-03-19",
+      property_type: "commercial"
+    )
+    expect(contract.class.graph.to_text).to include("depends_on=technician_ids,date,property_type")
+    expect(contract.class.graph.to_text).to include("mapper=#<Proc:")
   end
 end

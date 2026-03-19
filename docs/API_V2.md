@@ -146,6 +146,12 @@ map :normalized_trade_name, from: :service do |service:|
   service.downcase == "heating" ? "HVAC" : service
 end
 
+project :telephony_status, from: :body, key: "telephonyStatus"
+
+aggregate :available_slots, with: :technicians do |technicians:|
+  technicians.successes.values.sum { |item| item.result.summary[:available_slots] }
+end
+
 guard :business_hours_valid, depends_on: %i[vendor current_time], message: "Closed" do |vendor:, current_time:|
   current_time.between?(vendor.start_at, vendor.stop_at)
 end
@@ -190,6 +196,21 @@ collection :technicians,
   each: TechnicianContract,
   key: :technician_id,
   mode: :collect
+
+collection :calls,
+  with: :active_calls,
+  each: CallEventContract,
+  key: :session_id,
+  mode: :collect,
+  map_inputs: ->(item:) {
+    {
+      session_id: item.fetch("telephonySessionId"),
+      direction: item.fetch("direction"),
+      from: item.fetch("from"),
+      to: item.fetch("to"),
+      start_time: item.fetch("startTime")
+    }
+  }
 ```
 
 Rules:

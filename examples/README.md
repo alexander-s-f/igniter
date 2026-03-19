@@ -181,6 +181,9 @@ Shows:
 
 - top-level routing via `branch`
 - nested fan-out via `collection`
+- trivial field extraction via `project`
+- compact summary building via `aggregate`
+- item input shaping via `collection map_inputs:`
 - per-item nested routing via another `branch`
 - `CollectionResult` summary on the selected child contract
 - the practical boundary between parent diagnostics and child diagnostics

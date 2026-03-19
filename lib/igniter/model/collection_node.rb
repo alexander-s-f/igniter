@@ -3,15 +3,15 @@
 module Igniter
   module Model
     class CollectionNode < Node
-      attr_reader :source_dependency, :contract_class, :key_name, :mode
+      attr_reader :source_dependency, :contract_class, :key_name, :mode, :context_dependencies, :input_mapper
 
-      def initialize(id:, name:, source_dependency:, contract_class:, key_name:, mode:, path: nil, metadata: {})
+      def initialize(id:, name:, source_dependency:, contract_class:, key_name:, mode:, context_dependencies: [], input_mapper: nil, path: nil, metadata: {})
         super(
           id: id,
           kind: :collection,
           name: name,
           path: (path || name),
-          dependencies: [source_dependency],
+          dependencies: [source_dependency, *context_dependencies],
           metadata: metadata
         )
 
@@ -19,6 +19,12 @@ module Igniter
         @contract_class = contract_class
         @key_name = key_name.to_sym
         @mode = mode.to_sym
+        @context_dependencies = Array(context_dependencies).map(&:to_sym)
+        @input_mapper = input_mapper
+      end
+
+      def input_mapper?
+        !input_mapper.nil?
       end
     end
   end

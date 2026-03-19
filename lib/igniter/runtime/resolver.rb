@@ -149,7 +149,10 @@ module Igniter
 
       def resolve_collection(node)
         items = resolve_dependency_value(node.source_dependency)
-        normalized_items = normalize_collection_items(node, items)
+        context_values = node.context_dependencies.each_with_object({}) do |dependency_name, memo|
+          memo[dependency_name] = resolve_dependency_value(dependency_name)
+        end
+        normalized_items = normalize_collection_items(node, items, context_values)
         collection_items = {}
 
         normalized_items.each do |item_inputs|
@@ -310,7 +313,7 @@ module Igniter
         )
       end
 
-      def normalize_collection_items(node, items)
+      def normalize_collection_items(node, items, context_values = {})
         unless items.is_a?(Array)
           raise CollectionInputError.new(
             "Collection '#{node.name}' expects an array, got #{items.class}",
@@ -318,7 +321,13 @@ module Igniter
           )
         end
 
-        items.each do |item|
+        mapped_items = if node.input_mapper?
+                         items.map { |item| map_collection_item_inputs(node, item, context_values) }
+                       else
+                         items
+                       end
+
+        mapped_items.each do |item|
           next if item.is_a?(Hash)
 
           raise CollectionInputError.new(
@@ -327,8 +336,18 @@ module Igniter
           )
         end
 
-        ensure_unique_collection_keys!(node, items)
-        items.map { |item| item.transform_keys(&:to_sym) }
+        ensure_unique_collection_keys!(node, mapped_items)
+        mapped_items.map { |item| item.transform_keys(&:to_sym) }
+      end
+
+      def map_collection_item_inputs(node, item, context_values)
+        mapper = node.input_mapper
+
+        if mapper.is_a?(Symbol) || mapper.is_a?(String)
+          return @execution.contract_instance.public_send(mapper, item: item, **context_values)
+        end
+
+        mapper.call(item: item, **context_values)
       end
 
       def extract_collection_key(node, item_inputs)
