@@ -170,4 +170,36 @@ RSpec.describe "Igniter diagnostics" do
     expect(text).to include('batch={technicians:{mode=:collect, total=2, succeeded=2, failed=0, status=:succeeded, keys=[1, 2], failed_keys=[]}}')
     expect(markdown).to include("- Outputs: batch={technicians:{mode=:collect, total=2, succeeded=2, failed=0, status=:succeeded, keys=[1, 2], failed_keys=[]}}")
   end
+
+  it "supports output presenters for compact diagnostics formatting" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :rows, type: :array
+        output :rows
+      end
+
+      present :rows do |value:, **|
+        {
+          total: value.size,
+          company_ids: value.map { |row| row[:company_id] }.uniq
+        }
+      end
+    end
+
+    contract = contract_class.new(rows: [
+      { company_id: "1", location_id: "746" },
+      { company_id: "2", location_id: "1666" }
+    ])
+
+    report = contract.diagnostics.to_h
+    text = contract.diagnostics_text
+    markdown = contract.diagnostics_markdown
+
+    expect(report[:outputs][:rows]).to eq([
+      { company_id: "1", location_id: "746" },
+      { company_id: "2", location_id: "1666" }
+    ])
+    expect(text).to include('rows={total:2, company_ids:["1", "2"]}')
+    expect(markdown).to include('- Outputs: rows={total:2, company_ids:["1", "2"]}')
+  end
 end

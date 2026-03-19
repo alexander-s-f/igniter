@@ -103,6 +103,13 @@ module Igniter
         react_to(:execution_failed, once_per_execution: true, &terminal_hook)
       end
 
+      def present(output_name, with: nil, &block)
+        raise CompileError, "present requires a block or `with:`" unless block || with
+        raise CompileError, "present cannot use both a block and `with:`" if block && with
+
+        own_output_presenters[output_name.to_sym] = with || block
+      end
+
       def compiled_graph
         @compiled_graph || superclass_compiled_graph
       end
@@ -116,7 +123,16 @@ module Igniter
         @execution_options || superclass_execution_options || {}
       end
 
+      def output_presenters
+        inherited = superclass.respond_to?(:output_presenters) ? superclass.output_presenters : {}
+        inherited.merge(own_output_presenters)
+      end
+
       private
+
+      def own_output_presenters
+        @output_presenters ||= {}
+      end
 
       def contract_name
         name || "AnonymousContract"

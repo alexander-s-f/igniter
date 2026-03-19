@@ -32,7 +32,7 @@ module Igniter
         lines << "Diagnostics #{report[:graph]}"
         lines << "Execution #{report[:execution_id]}"
         lines << "Status: #{report[:status]}"
-        lines << format_outputs(report[:outputs])
+        lines << format_outputs(presented_outputs)
         lines << format_nodes(report[:nodes])
         lines << format_collection_nodes(report[:collection_nodes])
         lines << format_errors(report[:errors])
@@ -47,7 +47,7 @@ module Igniter
         lines << ""
         lines << "- Execution: `#{report[:execution_id]}`"
         lines << "- Status: `#{report[:status]}`"
-        lines << "- Outputs: #{inline_hash(report[:outputs])}"
+        lines << "- Outputs: #{inline_hash(presented_outputs)}"
         lines << "- Nodes: total=#{report[:nodes][:total]}, succeeded=#{report[:nodes][:succeeded]}, failed=#{report[:nodes][:failed]}, stale=#{report[:nodes][:stale]}"
         unless report[:collection_nodes].empty?
           lines << "- Collections: #{report[:collection_nodes].map { |node| "#{node[:node_name]} total=#{node[:total]} succeeded=#{node[:succeeded]} failed=#{node[:failed]} status=#{node[:status]}" }.join('; ')}"
@@ -170,6 +170,13 @@ module Igniter
         "Outputs: #{inline_hash(outputs)}"
       end
 
+      def presented_outputs
+        @presented_outputs ||= execution.compiled_graph.outputs.each_with_object({}) do |output_node, memo|
+          raw_value = to_h[:outputs][output_node.name]
+          memo[output_node.name] = present_output(output_node.name, raw_value)
+        end
+      end
+
       def format_nodes(nodes)
         line = "Nodes: total=#{nodes[:total]}, succeeded=#{nodes[:succeeded]}, failed=#{nodes[:failed]}, stale=#{nodes[:stale]}"
         line = "Nodes: total=#{nodes[:total]}, succeeded=#{nodes[:succeeded]}, failed=#{nodes[:failed]}, pending=#{nodes[:pending]}, stale=#{nodes[:stale]}"
@@ -204,6 +211,26 @@ module Igniter
 
       def inline_hash(hash)
         hash.map { |key, value| "#{key}=#{inline_value(value)}" }.join(", ")
+      end
+
+      def present_output(output_name, raw_value)
+        presenter = execution.contract_instance.class.output_presenters[output_name.to_sym]
+        return raw_value unless presenter
+
+        if presenter.is_a?(Symbol) || presenter.is_a?(String)
+          execution.contract_instance.public_send(
+            presenter,
+            value: raw_value,
+            contract: execution.contract_instance,
+            execution: execution
+          )
+        else
+          presenter.call(
+            value: raw_value,
+            contract: execution.contract_instance,
+            execution: execution
+          )
+        end
       end
 
       def serialize_value(value)
