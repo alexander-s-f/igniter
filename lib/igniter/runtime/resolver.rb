@@ -154,6 +154,7 @@ module Igniter
 
         normalized_items.each do |item_inputs|
           item_key = extract_collection_key(node, item_inputs)
+          emit_collection_item_event(:collection_item_started, node, item_key, item_inputs: item_inputs)
           child_contract = node.contract_class.new(item_inputs)
           begin
             child_contract.resolve_all
@@ -168,12 +169,26 @@ module Igniter
               status: :failed,
               error: child_error
             )
+            emit_collection_item_event(
+              :collection_item_failed,
+              node,
+              item_key,
+              error: child_error.message,
+              error_type: child_error.class.name,
+              child_execution_id: child_contract.execution.events.execution_id
+            )
             raise child_error if node.mode == :fail_fast
           else
             collection_items[item_key] = Runtime::CollectionResult::Item.new(
               key: item_key,
               status: :succeeded,
               result: child_contract.result
+            )
+            emit_collection_item_event(
+              :collection_item_succeeded,
+              node,
+              item_key,
+              child_execution_id: child_contract.execution.events.execution_id
             )
           end
         end
@@ -228,6 +243,14 @@ module Igniter
 
         payload = state.pending? ? pending_payload(state) : success_payload(node, state)
         @execution.events.emit(event_type, node: node, status: state.status, payload: payload)
+      end
+
+      def emit_collection_item_event(type, node, item_key, payload = {})
+        @execution.events.emit(
+          type,
+          node: node,
+          payload: payload.merge(item_key: item_key)
+        )
       end
 
       def pending_payload(state)

@@ -89,4 +89,50 @@ RSpec.describe "Igniter auditing" do
     expect(child[:snapshot][:graph]).to eq(pricing_contract.graph.name)
     expect(child[:snapshot][:states][:gross_total][:value]).to eq(120.0)
   end
+
+  it "captures collection item events in the audit timeline" do
+    technician_contract = Class.new(Igniter::Contract) do
+      define do
+        input :technician_id
+
+        compute :summary, with: :technician_id do |technician_id:|
+          raise "inactive" if technician_id == 2
+
+          technician_id
+        end
+
+        output :summary
+      end
+    end
+
+    batch_contract = Class.new(Igniter::Contract) do
+      define do
+        input :technician_inputs, type: :array
+
+        collection :technicians, with: :technician_inputs, each: technician_contract, key: :technician_id, mode: :collect
+
+        output :technicians
+      end
+    end
+
+    contract = batch_contract.new(technician_inputs: [
+      { technician_id: 1 },
+      { technician_id: 2 }
+    ])
+
+    contract.result.technicians
+
+    snapshot = contract.audit_snapshot
+    item_events = snapshot[:events].select { |event| event[:type].to_s.start_with?("collection_item_") }
+
+    expect(item_events.map { |event| event[:type] }).to include(
+      :collection_item_started,
+      :collection_item_succeeded,
+      :collection_item_failed
+    )
+    expect(item_events.find { |event| event[:type] == :collection_item_failed }[:payload]).to include(
+      item_key: 2,
+      error_type: "Igniter::ResolutionError"
+    )
+  end
 end

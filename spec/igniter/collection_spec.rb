@@ -180,4 +180,46 @@ RSpec.describe "Igniter collections" do
     expect(text).to include("key=technician_id")
     expect(text).to include("mode=collect")
   end
+
+  it "emits item-level collection events" do
+    failing_child = Class.new(Igniter::Contract) do
+      define do
+        input :technician_id
+
+        compute :summary, with: :technician_id do |technician_id:|
+          raise "boom" if technician_id == 2
+
+          technician_id
+        end
+
+        output :summary
+      end
+    end
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :technician_inputs, type: :array
+
+        collection :technicians, with: :technician_inputs, each: failing_child, key: :technician_id, mode: :collect
+
+        output :technicians
+      end
+    end
+
+    contract = contract_class.new(technician_inputs: [
+      { technician_id: 1 },
+      { technician_id: 2 }
+    ])
+
+    contract.result.technicians
+
+    event_types = contract.audit.events.map(&:type)
+    failed_event = contract.audit.events.find { |event| event.type == :collection_item_failed }
+    succeeded_event = contract.audit.events.find { |event| event.type == :collection_item_succeeded }
+
+    expect(event_types).to include(:collection_item_started, :collection_item_succeeded, :collection_item_failed)
+    expect(succeeded_event.payload).to include(item_key: 1)
+    expect(failed_event.payload).to include(item_key: 2, error_type: "Igniter::ResolutionError")
+    expect(failed_event.payload[:error]).to include("boom")
+  end
 end
