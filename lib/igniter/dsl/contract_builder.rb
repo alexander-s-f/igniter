@@ -15,6 +15,7 @@ module Igniter
 
       UNDEFINED_INPUT_DEFAULT = :__igniter_undefined__
       UNDEFINED_CONST_VALUE = :__igniter_const_undefined__
+      UNDEFINED_GUARD_MATCHER = :__igniter_guard_matcher_undefined__
 
       def input(name, type: nil, required: nil, default: UNDEFINED_INPUT_DEFAULT, **metadata)
         input_metadata = with_source_location(metadata)
@@ -31,7 +32,7 @@ module Igniter
         )
       end
 
-      def compute(name, depends_on:, call: nil, executor: nil, **metadata, &block)
+      def compute(name, depends_on: nil, with: nil, call: nil, executor: nil, **metadata, &block)
         callable, resolved_metadata = resolve_compute_callable(call: call, executor: executor, metadata: metadata, block: block)
         raise CompileError, "compute :#{name} requires a callable" unless callable
 
@@ -39,7 +40,7 @@ module Igniter
           Model::ComputeNode.new(
             id: next_id,
             name: name,
-            dependencies: Array(depends_on),
+            dependencies: normalize_dependencies(depends_on: depends_on, with: with),
             callable: callable,
             metadata: with_source_location(resolved_metadata)
           )
@@ -56,21 +57,33 @@ module Igniter
                      proc { value }
                    end
 
-        compute(name, depends_on: [], call: callable, **metadata.merge(kind: :const))
+        compute(name, with: [], call: callable, **metadata.merge(kind: :const))
       end
 
-      def lookup(name, depends_on:, call: nil, executor: nil, **metadata, &block)
-        compute(name, depends_on: depends_on, call: call, executor: executor, **{ category: :lookup }.merge(metadata), &block)
+      def lookup(name, depends_on: nil, with: nil, call: nil, executor: nil, **metadata, &block)
+        compute(name, depends_on: depends_on, with: with, call: call, executor: executor, **{ category: :lookup }.merge(metadata), &block)
       end
 
       def map(name, from:, call: nil, executor: nil, **metadata, &block)
-        compute(name, depends_on: [from], call: call, executor: executor, **{ category: :map }.merge(metadata), &block)
+        compute(name, with: from, call: call, executor: executor, **{ category: :map }.merge(metadata), &block)
       end
 
-      def guard(name, depends_on:, call: nil, executor: nil, message: nil, **metadata, &block)
+      def guard(name, depends_on: nil, with: nil, call: nil, executor: nil, message: nil, eq: UNDEFINED_GUARD_MATCHER, **metadata, &block)
+        if eq != UNDEFINED_GUARD_MATCHER
+          raise CompileError, "guard :#{name} cannot combine `eq:` with `call:`, `executor:`, or a block" if call || executor || block
+
+          dependencies = normalize_dependencies(depends_on: depends_on, with: with)
+          raise CompileError, "guard :#{name} with `eq:` requires exactly one dependency" unless dependencies.size == 1
+
+          call = proc do |**values|
+            values.fetch(dependencies.first) == eq
+          end
+        end
+
         compute(
           name,
           depends_on: depends_on,
+          with: with,
           call: call,
           executor: executor,
           **metadata.merge(kind: :guard, guard: true, guard_message: message || "Guard '#{name}' failed"),
@@ -148,6 +161,13 @@ module Igniter
         end
 
         [call || block, metadata]
+      end
+
+      def normalize_dependencies(depends_on:, with:)
+        raise CompileError, "Use either `depends_on:` or `with:`, not both" if depends_on && with
+
+        dependencies = depends_on || with
+        Array(dependencies)
       end
     end
   end

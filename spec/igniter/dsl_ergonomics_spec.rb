@@ -22,7 +22,7 @@ RSpec.describe "Igniter DSL ergonomics" do
       define do
         input :trade_name, type: :string
 
-        lookup :trade, depends_on: [:trade_name] do |trade_name:|
+        lookup :trade, with: :trade_name do |trade_name:|
           { name: trade_name }
         end
 
@@ -34,6 +34,24 @@ RSpec.describe "Igniter DSL ergonomics" do
 
     expect(contract.result.trade).to eq(name: "HVAC")
     expect(contract.class.graph.to_text).to include("category=lookup")
+  end
+
+  it "supports with as an alias for depends_on in compute nodes" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :country, type: :string
+
+        compute :country_code, with: :country do |country:|
+          country.to_s.upcase
+        end
+
+        output :country_code
+      end
+    end
+
+    contract = contract_class.new(country: "ua")
+
+    expect(contract.result.country_code).to eq("UA")
   end
 
   it "supports map as a shorthand for single-dependency transforms" do
@@ -96,6 +114,51 @@ RSpec.describe "Igniter DSL ergonomics" do
     contract = contract_class.new(open: false)
 
     expect { contract.result.business_hours_valid }.to raise_error(Igniter::ResolutionError, /Closed/)
+  end
+
+  it "supports matcher-style guard eq shorthand" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :country, type: :string
+
+        map :country_code, from: :country do |country:|
+          country.to_s.upcase
+        end
+
+        guard :usa_only, with: :country_code, eq: "USA", message: "Unsupported country"
+
+        compute :shipping_zone, with: :usa_only do |usa_only:|
+          usa_only
+          "domestic"
+        end
+
+        output :shipping_zone
+      end
+    end
+
+    contract = contract_class.new(country: "usa")
+
+    expect(contract.result.shipping_zone).to eq("domestic")
+  end
+
+  it "fails matcher-style guard eq shorthand with the configured message" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :country, type: :string
+
+        map :country_code, from: :country do |country:|
+          country.to_s.upcase
+        end
+
+        guard :usa_only, with: :country_code, eq: "USA", message: "Unsupported country"
+
+        output :usa_only
+      end
+    end
+
+    contract = contract_class.new(country: "ua")
+
+    expect { contract.result.usa_only }.to raise_error(Igniter::ResolutionError, /Unsupported country/)
   end
 
   it "supports effect as a shorthand for node success reactions" do
