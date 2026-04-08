@@ -11,10 +11,10 @@ module Igniter
         @runner_strategy = runner
         @max_workers = max_workers
         @store = store
-        @input_validator = InputValidator.new(compiled_graph)
+        @events = Events::Bus.new
+        @input_validator = InputValidator.new(compiled_graph, execution_id: @events.execution_id)
         @inputs = @input_validator.normalize_initial_inputs(inputs)
         @cache = Cache.new
-        @events = Events::Bus.new
         @audit = Extensions::Auditing::Timeline.new(self)
         @events.subscribe(@audit)
         @resolver = Resolver.new(self)

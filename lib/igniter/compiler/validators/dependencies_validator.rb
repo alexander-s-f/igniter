@@ -12,8 +12,10 @@ module Igniter
           @context = context
         end
 
-        def call
+        def call # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity
           @context.runtime_nodes.each do |node|
+            next if node.kind == :await
+
             validate_composition_node!(node) if node.kind == :composition
             validate_branch_node!(node) if node.kind == :branch
             validate_collection_node!(node) if node.kind == :collection
@@ -40,6 +42,7 @@ module Igniter
           end
 
           validate_composition_input_mapping!(node, contract_class.compiled_graph)
+          validate_composition_cycle!(node)
         end
 
         def validate_composition_input_mapping!(node, child_graph)
@@ -124,6 +127,43 @@ module Igniter
             node,
             "Branch '#{node.name}' is missing mappings for required child inputs: #{missing_required_inputs.sort.join(', ')}"
           )
+        end
+
+        def validate_composition_cycle!(node)
+          child_contract = node.contract_class
+          return unless child_contract.respond_to?(:compiled_graph) && child_contract.compiled_graph
+
+          current_name = @context.graph.name
+          # Skip anonymous contracts to avoid false positives when multiple
+          # anonymous contracts share the same name "AnonymousContract"
+          return if current_name == "AnonymousContract"
+
+          validate_direct_cycle!(node, child_contract, current_name)
+          validate_grandchild_cycles!(node, child_contract, current_name)
+        end
+
+        def validate_direct_cycle!(node, child_contract, current_name)
+          return unless child_contract.compiled_graph.name == current_name
+
+          raise @context.validation_error(
+            node,
+            "Composition cycle: '#{node.name}' composes '#{child_contract.name}' " \
+            "which is the same contract ('#{current_name}')"
+          )
+        end
+
+        def validate_grandchild_cycles!(node, child_contract, current_name) # rubocop:disable Metrics/AbcSize
+          child_contract.compiled_graph.nodes.select { |n| n.kind == :composition }.each do |grandchild|
+            next unless grandchild.contract_class.respond_to?(:compiled_graph)
+            next unless grandchild.contract_class.compiled_graph
+            next unless grandchild.contract_class.compiled_graph.name == current_name
+
+            raise @context.validation_error(
+              node,
+              "Composition cycle: '#{node.name}' -> '#{child_contract.name}' -> " \
+              "'#{grandchild.contract_class.name}' loops back to '#{current_name}'"
+            )
+          end
         end
 
         def validate_collection_node!(node)

@@ -29,13 +29,18 @@ module Igniter
       context[:source_location]
     end
 
+    def execution_id
+      context[:execution_id]
+    end
+
     private
 
-    def format_message(message, context)
+    def format_message(message, context) # rubocop:disable Metrics/AbcSize
       details = []
       details << "graph=#{context[:graph]}" if context[:graph]
       details << "node=#{context[:node_name]}" if context[:node_name]
       details << "path=#{context[:node_path]}" if context[:node_path]
+      details << "execution=#{context[:execution_id]}" if context[:execution_id]
       details << "location=#{context[:source_location]}" if context[:source_location]
 
       return message if details.empty?

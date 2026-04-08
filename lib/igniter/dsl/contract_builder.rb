@@ -3,12 +3,13 @@
 module Igniter
   module DSL
     class ContractBuilder
-      def self.compile(name: "AnonymousContract", &block)
-        new(name: name).tap { |builder| builder.instance_eval(&block) }.compile
+      def self.compile(name: "AnonymousContract", correlation_keys: [], &block)
+        new(name: name, correlation_keys: correlation_keys).tap { |builder| builder.instance_eval(&block) }.compile
       end
 
-      def initialize(name:)
+      def initialize(name:, correlation_keys: [])
         @name = name
+        @correlation_keys = correlation_keys
         @nodes = []
         @sequence = 0
         @scope_stack = []
@@ -228,8 +229,26 @@ module Igniter
         )
       end
 
+      def await(name, event:, **metadata)
+        add_node(
+          Model::AwaitNode.new(
+            id: next_id,
+            name: name.to_sym,
+            path: scoped_path(name),
+            event_name: event,
+            metadata: with_source_location(metadata)
+          )
+        )
+      end
+
       def compile
-        Compiler::GraphCompiler.call(Model::Graph.new(name: @name, nodes: @nodes))
+        Compiler::GraphCompiler.call(
+          Model::Graph.new(
+            name: @name,
+            nodes: @nodes,
+            metadata: { correlation_keys: @correlation_keys || [] }
+          )
+        )
       end
 
       private

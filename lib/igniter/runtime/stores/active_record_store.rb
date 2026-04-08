@@ -12,12 +12,24 @@ module Igniter
           @snapshot_column = snapshot_column.to_sym
         end
 
-        def save(snapshot)
+        def save(snapshot, correlation: nil, graph: nil) # rubocop:disable Lint/UnusedMethodArgument
           execution_id = snapshot[:execution_id] || snapshot["execution_id"]
           record = @record_class.find_or_initialize_by(@execution_id_column => execution_id)
           record.public_send(:"#{@snapshot_column}=", JSON.generate(snapshot))
           record.save!
           execution_id
+        end
+
+        def find_by_correlation(graph:, correlation:)
+          raise NotImplementedError, "find_by_correlation is not implemented for ActiveRecordStore"
+        end
+
+        def list_all(graph: nil)
+          raise NotImplementedError, "list_all is not implemented for ActiveRecordStore"
+        end
+
+        def list_pending(graph: nil)
+          raise NotImplementedError, "list_pending is not implemented for ActiveRecordStore"
         end
 
         def fetch(execution_id)

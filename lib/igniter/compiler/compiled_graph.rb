@@ -49,6 +49,10 @@ module Igniter
         raise KeyError, "Unknown dependency '#{name}'"
       end
 
+      def await_nodes
+        @nodes.select { |n| n.kind == :await }
+      end
+
       def to_h
         {
           name: name,
@@ -80,6 +84,7 @@ module Igniter
               base[:mode] = node.mode
               base[:mapper] = node.input_mapper.to_s if node.input_mapper?
             end
+            base[:event] = node.event_name if node.kind == :await
             base
           end,
           outputs: outputs.map do |output|
@@ -114,6 +119,13 @@ module Igniter
               name: node.name,
               contract: node.contract_class,
               inputs: node.input_mapping,
+              metadata: node.metadata.reject { |key, _| key == :source_location }
+            }
+          end,
+          awaits: nodes.select { |node| node.kind == :await }.map do |node|
+            {
+              name: node.name,
+              event: node.event_name,
               metadata: node.metadata.reject { |key, _| key == :source_location }
             }
           end,

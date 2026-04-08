@@ -11,10 +11,22 @@ module Igniter
           @namespace = namespace
         end
 
-        def save(snapshot)
+        def save(snapshot, correlation: nil, graph: nil) # rubocop:disable Lint/UnusedMethodArgument
           execution_id = snapshot[:execution_id] || snapshot["execution_id"]
           @redis.set(redis_key(execution_id), JSON.generate(snapshot))
           execution_id
+        end
+
+        def find_by_correlation(graph:, correlation:)
+          raise NotImplementedError, "find_by_correlation is not implemented for RedisStore"
+        end
+
+        def list_all(graph: nil)
+          raise NotImplementedError, "list_all is not implemented for RedisStore"
+        end
+
+        def list_pending(graph: nil)
+          raise NotImplementedError, "list_pending is not implemented for RedisStore"
         end
 
         def fetch(execution_id)

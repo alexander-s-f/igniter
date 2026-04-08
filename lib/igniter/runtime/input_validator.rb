@@ -3,8 +3,9 @@
 module Igniter
   module Runtime
     class InputValidator
-      def initialize(compiled_graph)
+      def initialize(compiled_graph, execution_id: nil)
         @compiled_graph = compiled_graph
+        @execution_id = execution_id
       end
 
       def normalize_initial_inputs(raw_inputs)
@@ -106,7 +107,7 @@ module Igniter
         hash.each_with_object({}) { |(key, value), memo| memo[key.to_sym] = value }
       end
 
-      def input_error(input_node, message)
+      def input_error(input_node, message) # rubocop:disable Metrics/MethodLength
         InputError.new(
           message,
           context: {
@@ -114,7 +115,8 @@ module Igniter
             node_id: input_node.id,
             node_name: input_node.name,
             node_path: input_node.path,
-            source_location: input_node.source_location
+            source_location: input_node.source_location,
+            execution_id: @execution_id
           }
         )
       end

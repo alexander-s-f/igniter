@@ -3,8 +3,20 @@
 module Igniter
   class Contract
     class << self
+      def correlate_by(*keys)
+        @correlation_keys = keys.map(&:to_sym).freeze
+      end
+
+      def correlation_keys
+        @correlation_keys || []
+      end
+
       def define(&block)
-        @compiled_graph = DSL::ContractBuilder.compile(name: contract_name, &block)
+        @compiled_graph = DSL::ContractBuilder.compile(
+          name: contract_name,
+          correlation_keys: correlation_keys,
+          &block
+        )
       end
 
       def run_with(runner:, max_workers: nil)
@@ -26,6 +38,45 @@ module Igniter
 
       def define_schema(schema)
         @compiled_graph = DSL::SchemaBuilder.compile(schema, name: contract_name)
+      end
+
+      def start(inputs = {}, store: nil, **keyword_inputs)
+        resolved_store = store || Igniter.execution_store
+        all_inputs = inputs.merge(keyword_inputs)
+
+        instance = new(all_inputs, runner: :store, store: resolved_store)
+        instance.resolve_all
+
+        correlation = correlation_keys.each_with_object({}) do |key, hash|
+          hash[key] = all_inputs[key] || all_inputs[key.to_s]
+        end
+
+        resolved_store.save(instance.snapshot, correlation: correlation.compact, graph: contract_name)
+        instance
+      end
+
+      def deliver_event(event_name, correlation:, payload:, store: nil) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+        resolved_store = store || Igniter.execution_store
+        execution_id = resolved_store.find_by_correlation(
+          graph: contract_name,
+          correlation: correlation.transform_keys(&:to_sym)
+        )
+        unless execution_id
+          raise ResolutionError,
+                "No pending execution found for #{contract_name} with given correlation"
+        end
+
+        instance = restore_from_store(execution_id, store: resolved_store)
+
+        await_node = instance.execution.compiled_graph.await_nodes
+                             .find { |n| n.event_name == event_name.to_sym }
+        raise ResolutionError, "No await node found for event '#{event_name}' in #{contract_name}" unless await_node
+
+        instance.execution.resume(await_node.name, value: payload)
+        instance.resolve_all
+
+        resolved_store.save(instance.snapshot, correlation: correlation.transform_keys(&:to_sym), graph: contract_name)
+        instance
       end
 
       def restore(snapshot)
@@ -159,9 +210,9 @@ module Igniter
       end
     end
 
-    attr_reader :execution, :result
+    attr_reader :execution, :result, :reactive
 
-    def initialize(inputs = nil, runner: nil, max_workers: nil, **keyword_inputs)
+    def initialize(inputs = nil, runner: nil, max_workers: nil, store: nil, **keyword_inputs)
       graph = self.class.compiled_graph
       raise CompileError, "#{self.class.name} has no compiled graph. Use `define`." unless graph
 
@@ -175,7 +226,7 @@ module Igniter
         end
 
       execution_options = self.class.execution_options.merge(
-        { runner: runner, max_workers: max_workers }.compact
+        { runner: runner, max_workers: max_workers, store: store }.compact
       )
       execution_options[:store] ||= Igniter.execution_store if execution_options[:runner]&.to_sym == :store
 
@@ -220,10 +271,6 @@ module Igniter
       execution.audit.snapshot
     end
 
-    def reactive
-      @reactive
-    end
-
     def subscribe(subscriber = nil, &block)
       execution.events.subscribe(subscriber, &block)
       self
@@ -260,6 +307,10 @@ module Igniter
 
     def failed?
       execution.failed?
+    end
+
+    def pending?
+      execution.pending?
     end
   end
 end

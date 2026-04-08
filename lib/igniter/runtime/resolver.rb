@@ -25,6 +25,8 @@ module Igniter
                   resolve_branch(node)
                 when :collection
                   resolve_collection(node)
+                when :await
+                  resolve_await(node)
                 else
                   raise ResolutionError, "Unsupported node kind: #{node.kind}"
                 end
@@ -57,6 +59,15 @@ module Igniter
 
       def resolve_input(node)
         NodeState.new(node: node, status: :succeeded, value: @execution.fetch_input!(node.name))
+      end
+
+      def resolve_await(node)
+        deferred = Runtime::DeferredResult.build(
+          payload: { event: node.event_name },
+          source_node: node.name,
+          waiting_on: node.name
+        )
+        raise PendingDependencyError.new(deferred, "Waiting for external event '#{node.event_name}'")
       end
 
       def resolve_compute(node)
@@ -310,7 +321,8 @@ module Igniter
             node_id: node.id,
             node_name: node.name,
             node_path: node.path,
-            source_location: node.source_location
+            source_location: node.source_location,
+            execution_id: @execution.events.execution_id
           }
         )
       end

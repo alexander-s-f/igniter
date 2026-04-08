@@ -8,7 +8,8 @@ module Igniter
         Validators::OutputsValidator,
         Validators::DependenciesValidator,
         Validators::TypeCompatibilityValidator,
-        Validators::CallableValidator
+        Validators::CallableValidator,
+        Validators::AwaitValidator
       ].freeze
 
       def self.call(context, validators: DEFAULT_VALIDATORS)
