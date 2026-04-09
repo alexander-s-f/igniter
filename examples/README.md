@@ -199,6 +199,102 @@ status_route_branch=CallConnected
 child_collection_summary={:mode=>:collect, :total=>3, ...}
 ```
 
+### `order_pipeline.rb`
+
+Run:
+
+```bash
+ruby examples/order_pipeline.rb
+```
+
+Shows:
+
+- `guard` — abort early when a precondition is not met
+- `collection` — fan-out via `LineItemContract` per line item
+- `branch` — route to domestic or international shipping strategy
+- `export` — lift branch outputs (`shipping_cost`, `eta`) to the parent graph
+- end-to-end pipeline: items → subtotal → shipping → grand total
+
+Expected output shape:
+
+```text
+=== US Order ===
+items_summary={:mode=>:collect, :total=>3, :succeeded=>3, :failed=>0, :status=>:succeeded}
+order_subtotal=199.96
+shipping_cost=0.0
+eta=2-3 business days
+grand_total=199.96
+
+=== International Order (DE) ===
+shipping_cost=29.99
+eta=7-14 business days
+grand_total=229.95
+
+=== Out of Stock ===
+error=Order cannot be placed: items are out of stock
+```
+
+### `distributed_server.rb`
+
+Run:
+
+```bash
+ruby examples/distributed_server.rb
+```
+
+Shows:
+
+- `correlate_by` — tag a contract class with correlation keys
+- `Contract.start` — launch an execution that suspends at `await` nodes
+- `Contract.deliver_event` — resume a suspended execution with an event payload
+- `on_success` — callback that fires when the graph completes
+- full lifecycle: submit → screening event → manager event → decision
+
+Expected output shape:
+
+```text
+=== Step 1: Application submitted ===
+pending=true
+waiting_for=[:screening_completed]
+
+=== Step 2: Background screening completed ===
+still_pending=true
+
+=== Step 3: Manager review completed ===
+[callback] Decision reached: HIRED
+
+=== Final result ===
+success=true
+decision={:status=>:hired, :note=>"Excellent system design skills"}
+```
+
+### `llm/tool_use.rb`
+
+Run:
+
+```bash
+ruby examples/llm/tool_use.rb
+```
+
+Shows:
+
+- chained LLM compute nodes (`classify → assess priority → draft response`)
+- tool declaration with the class-level `tools` method
+- conversation context with `Igniter::LLM::Context` for multi-turn messages
+- mock provider so the example runs offline without an API key
+
+Expected output shape (with mock provider):
+
+```text
+=== Feedback Triage Pipeline ===
+category=category: bug_report
+priority=priority: high
+response=We have logged this issue and will address it in the next release.
+
+--- Diagnostics ---
+...
+```
+
 ## Validation
 
 These scripts are exercised by [example_scripts_spec.rb](/Users/alex/dev/hotfix/igniter/spec/igniter/example_scripts_spec.rb), so the documented commands and outputs stay aligned with the code.

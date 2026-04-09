@@ -80,4 +80,42 @@ RSpec.describe "Igniter example scripts" do
     expect(stdout).to include('failed_items={2=>{:type=>"Igniter::ResolutionError"')
     expect(stdout).to include('Collections: technicians total=3 succeeded=2 failed=1 status=partial_failure')
   end
+
+  it "runs the order pipeline example" do
+    stdout, stderr, status = run_example("order_pipeline.rb")
+
+    expect(status.success?).to eq(true), stderr
+    expect(stdout).to include("order_subtotal=199.96")
+    expect(stdout).to include("shipping_cost=0.0")
+    expect(stdout).to include("eta=2-3 business days")
+    expect(stdout).to include("grand_total=199.96")
+    expect(stdout).to include("shipping_cost=29.99")
+    expect(stdout).to include("eta=7-14 business days")
+    expect(stdout).to include("grand_total=229.95")
+    expect(stdout).to include("items are out of stock")
+  end
+
+  it "runs the distributed server example" do
+    stdout, stderr, status = run_example("distributed_server.rb")
+
+    expect(status.success?).to eq(true), stderr
+    expect(stdout).to include("pending=true")
+    expect(stdout).to include("waiting_for=")
+    expect(stdout).to include(":screening_completed")
+    expect(stdout).to include("still_pending=true")
+    expect(stdout).to include("[callback] Decision reached: HIRED")
+    expect(stdout).to include("success=true")
+    expect(stdout).to include("status=>:hired")
+    expect(stdout).to include("Excellent system design skills")
+  end
+
+  it "runs the LLM tool use example" do
+    stdout, stderr, status = run_example("llm/tool_use.rb")
+
+    expect(status.success?).to eq(true), stderr
+    expect(stdout).to include("=== Feedback Triage Pipeline ===")
+    expect(stdout).to include("category=category: bug_report")
+    expect(stdout).to include("priority=priority: high")
+    expect(stdout).to include("response=We have logged this issue")
+  end
 end

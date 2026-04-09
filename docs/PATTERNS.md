@@ -220,3 +220,192 @@ Guideline:
 - model the slow step as a deferred node
 - resume with store-backed execution restore
 - keep downstream graph pure and resumable
+
+## 9. Distributed Event-Driven Contract
+
+Use this when execution spans multiple external triggers (webhooks, background jobs, async callbacks) that arrive at different times.
+
+Examples:
+
+- [distributed_server.rb](../examples/distributed_server.rb)
+
+Use:
+
+- multi-step approval workflows
+- job application pipelines
+- order fulfilment with external vendor callbacks
+- KYC / onboarding flows requiring background checks
+
+Key DSL:
+
+```ruby
+class ApplicationReviewWorkflow < Igniter::Contract
+  correlate_by :application_id       # uniquely identifies an in-flight execution
+
+  define do
+    input :application_id
+    input :applicant_name
+
+    # Execution suspends here until the named event is delivered
+    await :screening_result, event: :screening_completed
+    await :manager_review,   event: :manager_reviewed
+
+    compute :decision, depends_on: %i[screening_result manager_review] do |screening_result:, manager_review:|
+      manager_review[:approved] && screening_result[:passed] ? :hired : :rejected
+    end
+
+    output :decision
+  end
+end
+
+store = Igniter::Runtime::Stores::MemoryStore.new
+
+# Launch — suspends at the first await
+exec = ApplicationReviewWorkflow.start({ application_id: "app-1", applicant_name: "Alice" }, store: store)
+
+# Deliver events as they arrive (order does not matter)
+ApplicationReviewWorkflow.deliver_event(:screening_completed,
+  correlation: { application_id: "app-1" },
+  payload: { passed: true, score: 92 },
+  store: store)
+
+final = ApplicationReviewWorkflow.deliver_event(:manager_reviewed,
+  correlation: { application_id: "app-1" },
+  payload: { approved: true, note: "Strong candidate" },
+  store: store)
+
+final.result.decision  # => :hired
+```
+
+Guideline:
+
+- choose correlation keys that uniquely identify the in-flight instance
+- deliver events from any process; the store is the coordination layer
+- keep `await` payloads as plain hashes — they become the node's resolved value
+- `on_success` / `on_exit` callbacks fire when the final event resolves the graph
+
+## 10. Remote Contract Composition
+
+Use this when logic lives on a different service node and should be called over HTTP inside a graph.
+
+Examples:
+
+- [examples/server/](../examples/server/)
+
+Key DSL:
+
+```ruby
+require "igniter/server"
+
+# ── Service node (runs on port 4568) ─────────────────────────────────────────
+
+class ScoringContract < Igniter::Contract
+  define do
+    input :value
+    compute :score, depends_on: :value do |value:|
+      value * 1.5
+    end
+    output :score
+  end
+end
+
+Igniter::Server.configure do |c|
+  c.port = 4568
+  c.register "ScoringContract", ScoringContract
+end
+Igniter::Server.start  # blocking
+
+# ── Orchestrator node (runs on port 4567) ─────────────────────────────────────
+
+class PipelineContract < Igniter::Contract
+  define do
+    input :data
+    remote :scored,
+           contract: "ScoringContract",
+           node:     "http://localhost:4568",
+           inputs:   { value: :data }
+    output :scored
+  end
+end
+```
+
+Guideline:
+
+- validate the `node:` URL at compile time — the graph will reject bad URLs before runtime
+- keep remote contracts on a shared input interface so they are easy to swap
+- igniter-server is stateless over HTTP; use a shared store for distributed state
+- start the service with `bin/igniter-server start --port 4568 --require ./contracts.rb`
+
+## 11. LLM Compute Node
+
+Use this when a step requires a language model — classification, summarisation, drafting, or multi-step agent chains.
+
+Examples:
+
+- [llm/tool_use.rb](../examples/llm/tool_use.rb)
+
+Key DSL:
+
+```ruby
+require "igniter/integrations/llm"
+
+Igniter::LLM.configure do |c|
+  c.default_provider = :anthropic
+  c.anthropic.api_key = ENV.fetch("ANTHROPIC_API_KEY")
+end
+
+class SummarizeExecutor < Igniter::LLM::Executor
+  provider :anthropic
+  model    "claude-haiku-4-5-20251001"
+  system_prompt "Return a single concise sentence summary."
+
+  def call(text:)
+    complete("Summarize: #{text}")
+  end
+end
+
+class ArticleContract < Igniter::Contract
+  define do
+    input :text
+    compute :summary, depends_on: :text, call: SummarizeExecutor
+    output :summary
+  end
+end
+
+ArticleContract.new(text: "Long article...").result.summary
+```
+
+For multi-turn conversations, use `Igniter::LLM::Context`:
+
+```ruby
+def call(feedback:, category:)
+  ctx = Igniter::LLM::Context
+    .empty(system: self.class.system_prompt)
+    .append_user("Feedback: #{feedback}")
+    .append_user("Category: #{category}")
+  chat(context: ctx)
+end
+```
+
+For tool use (Anthropic function calling), declare tools at the class level:
+
+```ruby
+class ClassifyExecutor < Igniter::LLM::Executor
+  tools({
+    name: "set_category",
+    description: "Record the detected category",
+    input_schema: { type: "object", properties: { category: { type: "string" } }, required: ["category"] }
+  })
+
+  def call(feedback:)
+    complete_with_tools("Classify: #{feedback}")
+  end
+end
+```
+
+Guideline:
+
+- keep prompts inside the executor class, not scattered in the graph
+- use `Context` when a step needs multi-turn history rather than a single prompt
+- chain LLM executors as normal `compute` nodes — the graph handles ordering and caching
+- mock the provider in tests and CI; real API calls belong in integration tests only
