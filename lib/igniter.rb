@@ -39,5 +39,9 @@ module Igniter
     def compile_schema(schema, name: nil)
       DSL::SchemaBuilder.compile(schema, name: name)
     end
+
+    def configure
+      yield self
+    end
   end
 end
