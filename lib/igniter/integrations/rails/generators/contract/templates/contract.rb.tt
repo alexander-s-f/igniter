@@ -1,0 +1,22 @@
+# frozen_string_literal: true
+
+class <%= class_name %>Contract < Igniter::Contract
+<% if options[:correlate_by].any? -%>
+  correlate_by <%= options[:correlate_by].map { |k| ":#{k}" }.join(", ") %>
+
+<% end -%>
+  define do
+<% (options[:inputs].any? ? options[:inputs] : ["id"]).each do |input| -%>
+    input :<%= input %>
+<% end -%>
+
+    # TODO: add compute nodes
+    # compute :result, depends_on: :id do |id:|
+    #   { id: id }
+    # end
+
+<% options[:outputs].each do |output| -%>
+    # output :<%= output %>, from: :<%= output %>
+<% end -%>
+  end
+end

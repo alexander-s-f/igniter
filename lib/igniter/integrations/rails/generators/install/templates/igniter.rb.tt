@@ -1,0 +1,16 @@
+# frozen_string_literal: true
+
+# Igniter configuration
+# See: https://github.com/your-org/igniter
+
+Igniter.configure do |config|
+  # Store: persists execution state for long-running and distributed workflows.
+  # Defaults to MemoryStore (in-process, no persistence).
+  #
+  # For production, use Redis:
+  #   config.execution_store = Igniter::Runtime::Stores::RedisStore.new(Redis.new(url: ENV["REDIS_URL"]))
+  #
+  # Or ActiveRecord (requires igniter-active_record migration):
+  #   config.execution_store = Igniter::Runtime::Stores::ActiveRecordStore.new
+  config.execution_store = Igniter::Runtime::Stores::MemoryStore.new
+end
