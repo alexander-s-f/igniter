@@ -295,6 +295,39 @@ response=We have logged this issue and will address it in the next release.
 ...
 ```
 
+### `agents.rb`
+
+Run:
+
+```bash
+ruby examples/agents.rb
+```
+
+Shows:
+
+- `Igniter::Agent` — stateful message-driven actor with `on` handlers and `schedule` timers
+- `Igniter::Supervisor` — one_for_one supervision with restart budget
+- `Igniter::Registry` — thread-safe lookup by name
+- `Igniter::StreamLoop` — continuous contract tick-loop with hot-swap inputs
+
+Expected output shape:
+
+```text
+=== Supervised agents ===
+counter=8
+after_reset=10
+history=[10]
+
+=== Registry lookup ===
+named_counter=42
+
+=== Stream loop ===
+statuses_sample=[:alert, :normal]
+
+log_entries=1
+done=true
+```
+
 ## Validation
 
 These scripts are exercised by [example_scripts_spec.rb](/Users/alex/dev/hotfix/igniter/spec/igniter/example_scripts_spec.rb), so the documented commands and outputs stay aligned with the code.

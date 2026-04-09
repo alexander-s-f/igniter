@@ -159,5 +159,5 @@ begin
   oos_order.resolve_all
 rescue Igniter::ResolutionError => e
   puts "\n=== Out of Stock ==="
-  puts "error=#{e.message.split(" graph=").first}"
+  puts "error=#{e.message.split(" [").first}"
 end

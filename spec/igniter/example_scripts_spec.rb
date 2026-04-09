@@ -118,4 +118,20 @@ RSpec.describe "Igniter example scripts" do
     expect(stdout).to include("priority=priority: high")
     expect(stdout).to include("response=We have logged this issue")
   end
+
+  it "runs the agents example" do
+    stdout, stderr, status = run_example("agents.rb")
+
+    expect(status.success?).to eq(true), stderr
+    expect(stdout).to include("=== Supervised agents ===")
+    expect(stdout).to include("counter=8")
+    expect(stdout).to include("after_reset=10")
+    expect(stdout).to include("=== Registry lookup ===")
+    expect(stdout).to include("named_counter=42")
+    expect(stdout).to include("=== Stream loop ===")
+    expect(stdout).to include("statuses_sample=")
+    expect(stdout).to include(":alert")
+    expect(stdout).to include(":normal")
+    expect(stdout).to include("done=true")
+  end
 end
