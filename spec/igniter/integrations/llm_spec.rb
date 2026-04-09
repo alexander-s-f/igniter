@@ -46,8 +46,8 @@ RSpec.describe "Igniter LLM Integration" do
 
     it "serialises and restores via to_h / from_h" do
       ctx = described_class.empty(system: "sys")
-                            .append_user("hi")
-                            .append_assistant("hello")
+                           .append_user("hi")
+                           .append_assistant("hello")
 
       restored = described_class.from_h(ctx.to_h)
       expect(restored.length).to eq(ctx.length)
@@ -57,9 +57,9 @@ RSpec.describe "Igniter LLM Integration" do
     it "converts to_a with string roles for provider consumption" do
       ctx = described_class.empty(system: "sys").append_user("q")
       expect(ctx.to_a).to eq([
-        { "role" => "system", "content" => "sys" },
-        { "role" => "user", "content" => "q" }
-      ])
+                               { "role" => "system", "content" => "sys" },
+                               { "role" => "user", "content" => "q" }
+                             ])
     end
   end
 
@@ -75,27 +75,27 @@ RSpec.describe "Igniter LLM Integration" do
       end
 
       it "raises ProviderError on connection failure" do
-        expect {
+        expect do
           provider.chat(messages: [{ role: "user", content: "hello" }], model: "llama3.2")
-        }.to raise_error(Igniter::LLM::ProviderError)
+        end.to raise_error(Igniter::LLM::ProviderError)
       end
     end
 
     context "with a stubbed successful response" do
       let(:response_body) do
         JSON.generate({
-          "model" => "llama3.2",
-          "message" => { "role" => "assistant", "content" => "Hello!" },
-          "eval_count" => 10,
-          "prompt_eval_count" => 5,
-          "done" => true
-        })
+                        "model" => "llama3.2",
+                        "message" => { "role" => "assistant", "content" => "Hello!" },
+                        "eval_count" => 10,
+                        "prompt_eval_count" => 5,
+                        "done" => true
+                      })
       end
 
       before do
         http_response = instance_double(Net::HTTPOK,
-          is_a?: true,
-          body: response_body)
+                                        is_a?: true,
+                                        body: response_body)
         allow(http_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
         allow_any_instance_of(Net::HTTP).to receive(:request).and_return(http_response)
       end
@@ -122,16 +122,232 @@ RSpec.describe "Igniter LLM Integration" do
     end
   end
 
+  # ── Anthropic Provider ────────────────────────────────────────────────────
+
+  describe Igniter::LLM::Providers::Anthropic do
+    subject(:provider) { described_class.new(api_key: "test-key") }
+
+    context "when API key is missing" do
+      it "raises ConfigurationError" do
+        p = described_class.new(api_key: nil)
+        expect do
+          p.chat(messages: [{ role: "user", content: "hi" }], model: "claude-sonnet-4-6")
+        end.to raise_error(Igniter::LLM::ConfigurationError, /API key not configured/)
+      end
+    end
+
+    context "when Anthropic is not reachable" do
+      before do
+        allow_any_instance_of(Net::HTTP).to receive(:request)
+          .and_raise(Errno::ECONNREFUSED, "connection refused")
+      end
+
+      it "raises ProviderError on connection failure" do
+        expect do
+          provider.chat(messages: [{ role: "user", content: "hello" }], model: "claude-sonnet-4-6")
+        end.to raise_error(Igniter::LLM::ProviderError, /Cannot connect/)
+      end
+    end
+
+    context "with a stubbed successful response" do
+      let(:response_body) do
+        JSON.generate({
+                        "id" => "msg_01",
+                        "type" => "message",
+                        "role" => "assistant",
+                        "content" => [{ "type" => "text", "text" => "Hello from Claude!" }],
+                        "usage" => { "input_tokens" => 8, "output_tokens" => 12 }
+                      })
+      end
+
+      before do
+        http_response = instance_double(Net::HTTPOK, body: response_body)
+        allow(http_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
+        allow_any_instance_of(Net::HTTP).to receive(:request).and_return(http_response)
+      end
+
+      it "returns content from the text block" do
+        result = provider.chat(
+          messages: [{ role: "user", content: "Hi" }],
+          model: "claude-sonnet-4-6"
+        )
+        expect(result[:content]).to eq("Hello from Claude!")
+        expect(result[:role]).to eq(:assistant)
+        expect(result[:tool_calls]).to eq([])
+      end
+
+      it "tracks token usage" do
+        provider.chat(messages: [{ role: "user", content: "Hi" }], model: "claude-sonnet-4-6")
+        expect(provider.last_usage[:prompt_tokens]).to eq(8)
+        expect(provider.last_usage[:completion_tokens]).to eq(12)
+        expect(provider.last_usage[:total_tokens]).to eq(20)
+      end
+
+      it "extracts system message from messages array" do
+        messages = [
+          { role: "system", content: "Be concise." },
+          { role: "user", content: "What is 2+2?" }
+        ]
+        # We verify it doesn't raise and processes correctly
+        result = provider.chat(messages: messages, model: "claude-sonnet-4-6")
+        expect(result[:content]).to eq("Hello from Claude!")
+      end
+    end
+
+    context "with a tool_use response" do
+      let(:response_body) do
+        JSON.generate({
+                        "role" => "assistant",
+                        "content" => [
+                          { "type" => "tool_use", "name" => "search", "input" => { "query" => "ruby" } }
+                        ],
+                        "usage" => { "input_tokens" => 5, "output_tokens" => 8 }
+                      })
+      end
+
+      before do
+        http_response = instance_double(Net::HTTPOK, body: response_body)
+        allow(http_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
+        allow_any_instance_of(Net::HTTP).to receive(:request).and_return(http_response)
+      end
+
+      it "parses tool_use blocks into tool_calls" do
+        result = provider.chat(
+          messages: [{ role: "user", content: "Search for ruby" }],
+          model: "claude-sonnet-4-6"
+        )
+        expect(result[:tool_calls].length).to eq(1)
+        expect(result[:tool_calls].first[:name]).to eq("search")
+        expect(result[:tool_calls].first[:arguments]).to eq({ query: "ruby" })
+      end
+    end
+  end
+
+  # ── OpenAI Provider ────────────────────────────────────────────────────────
+
+  describe Igniter::LLM::Providers::OpenAI do
+    subject(:provider) { described_class.new(api_key: "sk-test") }
+
+    context "when API key is missing" do
+      it "raises ConfigurationError" do
+        p = described_class.new(api_key: nil)
+        expect do
+          p.chat(messages: [{ role: "user", content: "hi" }], model: "gpt-4o")
+        end.to raise_error(Igniter::LLM::ConfigurationError, /API key not configured/)
+      end
+    end
+
+    context "when OpenAI is not reachable" do
+      before do
+        allow_any_instance_of(Net::HTTP).to receive(:request)
+          .and_raise(Errno::ECONNREFUSED, "connection refused")
+      end
+
+      it "raises ProviderError on connection failure" do
+        expect do
+          provider.chat(messages: [{ role: "user", content: "hello" }], model: "gpt-4o")
+        end.to raise_error(Igniter::LLM::ProviderError, /Cannot connect/)
+      end
+    end
+
+    context "with a stubbed successful response" do
+      let(:response_body) do
+        JSON.generate({
+                        "id" => "chatcmpl-01",
+                        "object" => "chat.completion",
+                        "choices" => [
+                          {
+                            "index" => 0,
+                            "message" => { "role" => "assistant", "content" => "Hello from GPT!" },
+                            "finish_reason" => "stop"
+                          }
+                        ],
+                        "usage" => { "prompt_tokens" => 6, "completion_tokens" => 9, "total_tokens" => 15 }
+                      })
+      end
+
+      before do
+        http_response = instance_double(Net::HTTPOK, body: response_body)
+        allow(http_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
+        allow_any_instance_of(Net::HTTP).to receive(:request).and_return(http_response)
+      end
+
+      it "returns content from choices[0].message" do
+        result = provider.chat(
+          messages: [{ role: "user", content: "Hi" }],
+          model: "gpt-4o"
+        )
+        expect(result[:content]).to eq("Hello from GPT!")
+        expect(result[:role]).to eq(:assistant)
+        expect(result[:tool_calls]).to eq([])
+      end
+
+      it "tracks token usage" do
+        provider.chat(messages: [{ role: "user", content: "Hi" }], model: "gpt-4o")
+        expect(provider.last_usage[:prompt_tokens]).to eq(6)
+        expect(provider.last_usage[:completion_tokens]).to eq(9)
+        expect(provider.last_usage[:total_tokens]).to eq(15)
+      end
+
+      it "provides single-turn complete shortcut" do
+        result = provider.complete(prompt: "Hi", system: "Be brief.", model: "gpt-4o")
+        expect(result).to eq("Hello from GPT!")
+      end
+    end
+
+    context "with a tool_calls response" do
+      let(:response_body) do
+        JSON.generate({
+                        "choices" => [
+                          {
+                            "message" => {
+                              "role" => "assistant",
+                              "content" => nil,
+                              "tool_calls" => [
+                                {
+                                  "type" => "function",
+                                  "function" => {
+                                    "name" => "get_weather",
+                                    "arguments" => JSON.generate({ "location" => "Paris" })
+                                  }
+                                }
+                              ]
+                            },
+                            "finish_reason" => "tool_calls"
+                          }
+                        ],
+                        "usage" => { "prompt_tokens" => 10, "completion_tokens" => 5 }
+                      })
+      end
+
+      before do
+        http_response = instance_double(Net::HTTPOK, body: response_body)
+        allow(http_response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
+        allow_any_instance_of(Net::HTTP).to receive(:request).and_return(http_response)
+      end
+
+      it "parses tool_calls from the message" do
+        result = provider.chat(
+          messages: [{ role: "user", content: "What's the weather in Paris?" }],
+          model: "gpt-4o"
+        )
+        expect(result[:tool_calls].length).to eq(1)
+        expect(result[:tool_calls].first[:name]).to eq("get_weather")
+        expect(result[:tool_calls].first[:arguments]).to eq({ location: "Paris" })
+      end
+    end
+  end
+
   # ── LLM Executor ──────────────────────────────────────────────────────────
 
   describe Igniter::LLM::Executor do
     let(:response_body) do
       JSON.generate({
-        "message" => { "role" => "assistant", "content" => "The answer is 42." },
-        "eval_count" => 5,
-        "prompt_eval_count" => 3,
-        "done" => true
-      })
+                      "message" => { "role" => "assistant", "content" => "The answer is 42." },
+                      "eval_count" => 5,
+                      "prompt_eval_count" => 3,
+                      "done" => true
+                    })
     end
 
     before do
