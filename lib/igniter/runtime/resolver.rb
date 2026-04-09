@@ -27,6 +27,8 @@ module Igniter
                   resolve_collection(node)
                 when :await
                   resolve_await(node)
+                when :remote
+                  resolve_remote(node)
                 else
                   raise ResolutionError, "Unsupported node kind: #{node.kind}"
                 end
@@ -68,6 +70,34 @@ module Igniter
           waiting_on: node.name
         )
         raise PendingDependencyError.new(deferred, "Waiting for external event '#{node.event_name}'")
+      end
+
+      def resolve_remote(node) # rubocop:disable Metrics/MethodLength
+        unless defined?(Igniter::Server::Client)
+          raise ResolutionError,
+                "remote: nodes require `require 'igniter/server'` (server integration not loaded)"
+        end
+
+        inputs = node.input_mapping.each_with_object({}) do |(child_input, dep_name), memo|
+          memo[child_input] = resolve_dependency_value(dep_name)
+        end
+
+        client   = Igniter::Server::Client.new(node.node_url, timeout: node.timeout)
+        response = client.execute(node.contract_name, inputs: inputs)
+
+        case response[:status]
+        when :succeeded
+          NodeState.new(node: node, status: :succeeded, value: response[:outputs])
+        when :failed
+          error_message = response.dig(:error, :message) || response.dig(:error, "message")
+          raise ResolutionError,
+                "Remote #{node.contract_name}@#{node.node_url}: #{error_message}"
+        else
+          raise ResolutionError,
+                "Remote #{node.contract_name}@#{node.node_url}: unexpected status '#{response[:status]}'"
+        end
+      rescue Igniter::Server::Client::ConnectionError => e
+        raise ResolutionError, "Cannot reach #{node.node_url}: #{e.message}"
       end
 
       def resolve_compute(node)

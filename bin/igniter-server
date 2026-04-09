@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+
+options = { port: 4567, host: "0.0.0.0", requires: [], config: nil }
+
+OptionParser.new do |opts|
+  opts.banner = <<~BANNER
+    igniter-server — standalone HTTP server for Igniter contracts
+
+    Usage:
+      igniter-server start [options]
+
+  BANNER
+
+  opts.on("--port PORT", Integer, "Port to listen on (default: 4567)") { |v| options[:port] = v }
+  opts.on("--host HOST",          "Host to bind to (default: 0.0.0.0)") { |v| options[:host] = v }
+  opts.on("--require FILE",       "Require a file (can be used multiple times)") { |v| options[:requires] << v }
+  opts.on("--config FILE",        "Load a server config file") { |v| options[:config] = v }
+  opts.on("-h", "--help",         "Show this help") do
+    puts opts
+    exit
+  end
+  opts.on("-v", "--version", "Show version") do
+    puts "igniter-server #{Igniter::VERSION}"
+    exit
+  end
+end.parse!
+
+command = ARGV.shift || "start"
+
+unless command == "start"
+  warn "Unknown command: #{command}. Use: igniter-server start [options]"
+  exit 1
+end
+
+# Load user files first so they can register contracts before the server starts
+options[:requires].each { |f| require File.expand_path(f) }
+load File.expand_path(options[:config]) if options[:config]
+
+require_relative "../lib/igniter/server"
+
+# Ensure version is loaded for --version flag above
+require_relative "../lib/igniter/version"
+
+Igniter::Server.start(port: options[:port], host: options[:host])

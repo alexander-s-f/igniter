@@ -9,6 +9,7 @@ require_relative "model/branch_node"
 require_relative "model/collection_node"
 require_relative "model/output_node"
 require_relative "model/await_node"
+require_relative "model/remote_node"
 
 module Igniter
   module Model

@@ -9,7 +9,8 @@ module Igniter
         Validators::DependenciesValidator,
         Validators::TypeCompatibilityValidator,
         Validators::CallableValidator,
-        Validators::AwaitValidator
+        Validators::AwaitValidator,
+        Validators::RemoteValidator
       ].freeze
 
       def self.call(context, validators: DEFAULT_VALIDATORS)

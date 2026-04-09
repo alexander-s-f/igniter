@@ -229,6 +229,25 @@ module Igniter
         )
       end
 
+      def remote(name, contract:, node:, inputs:, timeout: 30, **metadata) # rubocop:disable Metrics/MethodLength
+        raise CompileError, "remote :#{name} requires inputs: Hash" unless inputs.is_a?(Hash)
+        raise CompileError, "remote :#{name} requires a contract: name" if contract.nil? || contract.to_s.strip.empty?
+        raise CompileError, "remote :#{name} requires a node: URL"     if node.nil?    || node.to_s.strip.empty?
+
+        add_node(
+          Model::RemoteNode.new(
+            id: next_id,
+            name: name.to_sym,
+            contract_name: contract.to_s,
+            node_url: node.to_s,
+            input_mapping: inputs,
+            timeout: timeout,
+            path: scoped_path(name),
+            metadata: with_source_location(metadata)
+          )
+        )
+      end
+
       def await(name, event:, **metadata)
         add_node(
           Model::AwaitNode.new(
