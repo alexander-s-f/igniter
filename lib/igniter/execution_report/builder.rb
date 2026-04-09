@@ -45,7 +45,8 @@ module Igniter
           kind: node.kind,
           status: status,
           value: state&.value,
-          error: state&.error
+          error: state&.error,
+          effect_type: node.respond_to?(:effect_type) ? node.effect_type : nil
         )
       end
     end

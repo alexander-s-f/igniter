@@ -25,6 +25,8 @@ module Igniter
                   resolve_branch(node)
                 when :collection
                   resolve_collection(node)
+                when :effect
+                  resolve_effect(node)
                 when :await
                   resolve_await(node)
                 when :remote
@@ -61,6 +63,19 @@ module Igniter
 
       def resolve_input(node)
         NodeState.new(node: node, status: :succeeded, value: @execution.fetch_input!(node.name))
+      end
+
+      def resolve_effect(node)
+        dependencies = node.dependencies.each_with_object({}) do |dep, memo|
+          memo[dep] = resolve_dependency_value(dep)
+        end
+
+        value = node.adapter_class.new(
+          execution: @execution,
+          contract: @execution.contract_instance
+        ).call(**dependencies)
+
+        NodeState.new(node: node, status: :succeeded, value: value)
       end
 
       def resolve_await(node)

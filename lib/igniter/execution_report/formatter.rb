@@ -39,7 +39,8 @@ module Igniter
                 when :failed    then "[fail]"
                 else                 "[pend]"
                 end
-          kind_str = entry.kind.to_s.ljust(10)
+          kind_label = entry.effect_type ? "effect:#{entry.effect_type}" : entry.kind.to_s
+          kind_str = kind_label.ljust(10)
           lines << "  #{tag}  #{kind_str}  :#{entry.name}"
           lines << "               error: #{entry.error.message}" if entry.failed? && entry.error
         end

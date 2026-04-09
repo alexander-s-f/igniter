@@ -14,13 +14,31 @@ module Igniter
 
         def call
           @context.runtime_nodes.each do |node|
-            next unless node.kind == :compute
-
-            validate_callable_signature!(node)
+            if node.kind == :compute
+              validate_callable_signature!(node)
+            elsif node.kind == :effect
+              validate_effect_adapter!(node)
+            end
           end
         end
 
         private
+
+        def validate_effect_adapter!(node)
+          adapter = node.adapter_class
+          unless adapter.is_a?(Class) && adapter <= Igniter::Effect
+            raise @context.validation_error(
+              node,
+              "Effect '#{node.name}' adapter must be a subclass of Igniter::Effect"
+            )
+          end
+
+          validate_parameters_signature!(
+            node,
+            adapter.instance_method(:call).parameters,
+            adapter.name || "effect"
+          )
+        end
 
         def validate_callable_signature!(node)
           callable = node.callable

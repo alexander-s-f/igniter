@@ -5,6 +5,8 @@ require_relative "igniter/errors"
 require_relative "igniter/type_system"
 require_relative "igniter/executor"
 require_relative "igniter/executor_registry"
+require_relative "igniter/effect"
+require_relative "igniter/effect_registry"
 require_relative "igniter/model"
 require_relative "igniter/compiler"
 require_relative "igniter/events"
@@ -30,6 +32,14 @@ module Igniter
 
     def register_executor(key, executor_class, **metadata)
       executor_registry.register(key, executor_class, **metadata)
+    end
+
+    def effect_registry
+      @effect_registry ||= EffectRegistry.new
+    end
+
+    def register_effect(key, adapter_class, **metadata)
+      effect_registry.register(key, adapter_class, **metadata)
     end
 
     def compile(&block)

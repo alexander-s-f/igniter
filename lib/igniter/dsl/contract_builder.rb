@@ -248,6 +248,21 @@ module Igniter
         )
       end
 
+      def effect(name, uses:, depends_on: nil, with: nil, **metadata)
+        adapter_class = resolve_effect_adapter(name, uses)
+
+        add_node(
+          Model::EffectNode.new(
+            id: next_id,
+            name: name,
+            dependencies: normalize_dependencies(depends_on: depends_on, with: with),
+            adapter_class: adapter_class,
+            path: scoped_path(name),
+            metadata: with_source_location(metadata)
+          )
+        )
+      end
+
       def await(name, event:, **metadata)
         add_node(
           Model::AwaitNode.new(
@@ -304,6 +319,23 @@ module Igniter
 
         dependencies = depends_on || with
         Array(dependencies)
+      end
+
+      def resolve_effect_adapter(name, uses)
+        case uses
+        when Symbol, String
+          Igniter.effect_registry.fetch(uses.to_sym).adapter_class
+        when Class
+          unless uses <= Igniter::Effect
+            raise CompileError,
+                  "effect :#{name} `uses:` must be an Igniter::Effect subclass or a registered effect name"
+          end
+
+          uses
+        else
+          raise CompileError,
+                "effect :#{name} `uses:` must be an Igniter::Effect subclass or a registered effect name"
+        end
       end
 
       def build_guard_matcher(matcher_name, matcher_value, dependency)

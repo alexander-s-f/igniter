@@ -7,7 +7,9 @@ module Igniter
     #
     # A node is eligible for compensation if:
     #   1. Its state in the cache is `succeeded?`
-    #   2. The contract class has a registered `Compensation` for it
+    #   2. A compensation is declared for it, via one of:
+    #      a. Contract-level `compensate :node_name do ... end`  (takes precedence)
+    #      b. Built-in compensation defined on the Igniter::Effect adapter class
     #
     # Compensation failures are captured as failed CompensationRecords and
     # do NOT halt the rollback of other nodes.
@@ -20,11 +22,8 @@ module Igniter
 
       # @return [Array<CompensationRecord>]
       def run_compensations
-        declared = @contract.class.compensations
-        return [] if declared.empty?
-
         eligible_nodes_reversed.filter_map do |node|
-          compensation = declared[node.name]
+          compensation = find_compensation(node)
           next unless compensation
 
           attempt(compensation, node)
@@ -38,6 +37,24 @@ module Igniter
       end
 
       private
+
+      # Resolve the compensation to use for a node, if any.
+      #
+      # Contract-level `compensate :node_name` takes precedence over built-in
+      # compensation declared on an Igniter::Effect subclass.
+      #
+      # @return [Igniter::Saga::Compensation, nil]
+      def find_compensation(node)
+        declared = @contract.class.compensations
+        return declared[node.name] if declared.key?(node.name)
+
+        return nil unless node.kind == :effect
+
+        built_in = node.adapter_class.built_in_compensation
+        return nil unless built_in
+
+        Compensation.new(node.name, &built_in)
+      end
 
       # Nodes that succeeded, in reverse resolution order.
       def eligible_nodes_reversed
