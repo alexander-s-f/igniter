@@ -45,7 +45,7 @@ module Igniter
 
       return message if details.empty?
 
-      "#{message} [#{details.join(', ')}]"
+      "#{message} [#{details.join(", ")}]"
     end
   end
 
@@ -58,11 +58,21 @@ module Igniter
   class ResolutionError < Error; end
   class CompositionError < Error; end
   class BranchSelectionError < Error; end
+
   class PendingDependencyError < Error
     attr_reader :deferred_result
 
     def initialize(deferred_result, message = "Dependency is pending", context: {})
       @deferred_result = deferred_result
+      super(message, context: context)
+    end
+  end
+
+  class InvariantError < Error
+    attr_reader :violations
+
+    def initialize(message = nil, violations: [], context: {})
+      @violations = violations.freeze
       super(message, context: context)
     end
   end
