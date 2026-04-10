@@ -13,6 +13,7 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - runtime auditing, diagnostics reports, and reactive side effects
 - graph and runtime introspection (text, Mermaid)
 - ergonomic DSL helpers: `const`, `lookup`, `map`, `project`, `aggregate`, `guard`, `export`, `expose`, `effect`, `on_success`, `scope`, `namespace`
+- `Igniter::Application` — application scaffold with YAML config, autoloading, scheduler, and `igniter-server new` generator
 
 ## Installation
 
@@ -363,6 +364,10 @@ Igniter::Server.start
 **CLI:**
 
 ```bash
+# Generate a new application scaffold
+igniter-server new my_app
+
+# Start a server directly
 igniter-server start --port 4568 --require ./contracts.rb
 ```
 
@@ -448,6 +453,60 @@ end
 
 See [`examples/llm/research_agent.rb`](examples/llm/research_agent.rb), [`examples/llm/tool_use.rb`](examples/llm/tool_use.rb), and [`docs/LLM_V1.md`](docs/LLM_V1.md).
 
+### 12. Igniter::Application
+
+Package contracts, executors, scheduler, and server config into a single coherent entry point:
+
+```bash
+# Scaffold a new application
+igniter-server new my_app
+cd my_app && bundle install && bin/start
+```
+
+```ruby
+require "igniter/application"
+
+class MyApp < Igniter::Application
+  config_file "application.yml"       # optional YAML base config
+
+  configure do |c|
+    c.port  = ENV.fetch("PORT", 4567).to_i
+    c.store = Igniter::Runtime::Stores::MemoryStore.new
+  end
+
+  executors_path "executors/"         # eager-require all executors
+  contracts_path "contracts/"         # eager-require all contracts
+
+  register "OrderContract", OrderContract
+
+  schedule :cleanup, every: "1h" do
+    puts "[cleanup] #{Time.now.strftime("%H:%M")}"
+  end
+
+  schedule :report, every: "1d", at: "09:00" do
+    DailyReportContract.new.resolve_all(date: Date.today)
+  end
+end
+
+MyApp.start       # blocking built-in HTTP server
+# or
+MyApp.rack_app    # Rack app for Puma / Unicorn
+```
+
+**`application.yml`** — base config loaded before the `configure` block (block always wins):
+
+```yaml
+server:
+  port: 4567
+  host: "0.0.0.0"
+  log_format: json    # text (default) or json
+  drain_timeout: 30
+```
+
+**Scheduler interval formats:** `30` (seconds), `"30s"`, `"5m"`, `"2h"`, `"1d"`, `{ hours: 1, minutes: 30 }`
+
+See [`docs/APPLICATION_V1.md`](docs/APPLICATION_V1.md) for the full reference and companion app example.
+
 ## Examples
 
 | Example | Run | Shows |
@@ -465,6 +524,7 @@ See [`examples/llm/research_agent.rb`](examples/llm/research_agent.rb), [`exampl
 | `server/node1.rb` + `node2.rb` | run both, then curl | Two-node igniter-server with `remote:` DSL |
 | `llm/research_agent.rb` | `ruby examples/llm/research_agent.rb` | Multi-step LLM pipeline with Ollama |
 | `llm/tool_use.rb` | `ruby examples/llm/tool_use.rb` | LLM tool declarations, chained LLM nodes, `Context` |
+| `companion/demo.rb` | `ruby examples/companion/demo.rb` | End-to-end voice AI pipeline using `Igniter::Application` |
 
 ## Design Docs
 
@@ -478,6 +538,7 @@ See [`examples/llm/research_agent.rb`](examples/llm/research_agent.rb), [`exampl
 - [Store Adapters](docs/STORE_ADAPTERS.md)
 - [igniter-server v1](docs/SERVER_V1.md)
 - [LLM Integration v1](docs/LLM_V1.md)
+- [Application scaffold v1](docs/APPLICATION_V1.md)
 - [Concepts and Principles](docs/IGNITER_CONCEPTS.md)
 
 ## Development
@@ -500,6 +561,7 @@ Current feature baseline:
 - igniter-server: TCP server, Rack adapter, CLI, `remote:` DSL
 - LLM compute nodes: Ollama, Anthropic, OpenAI providers
 - Rails integration: Railtie, ActiveJob, ActionCable, webhook controller mixin
+- `Igniter::Application`: YAML config, autoloading, scheduler, generator (`igniter-server new`)
 - auditing, diagnostics, reactive subscriptions, graph introspection
 
 ## License

@@ -328,6 +328,43 @@ log_entries=1
 done=true
 ```
 
+### `companion/demo.rb`
+
+Run:
+
+```bash
+ruby examples/companion/demo.rb
+```
+
+Shows:
+
+- `Igniter::Application` — unified entry point with `config_file`, `configure`, `register`, `schedule`
+- `compose` + `export` — four-stage pipeline (ASR → Intent → Chat → TTS) wired as one graph
+- Mock executors — runs end-to-end without hardware or API keys
+- Turn-by-turn interactive loop with session history
+
+For real Ollama inference:
+
+```bash
+COMPANION_REAL_LLM=1 ruby examples/companion/demo.rb
+```
+
+Expected output per turn:
+
+```text
+── Turn 1 ────────────────────────────────────────────
+  [ASR mock]    → "Hello, are you there?"
+  [Intent mock] → question
+  [Chat mock]   → "I'd need a moment to look that up..."
+  [TTS mock]    → synthesising 76 chars
+  Heard:    "Hello, are you there?"
+  Intent:   question (92%)
+  Response: "I'd need a moment to look that up..."
+  Audio:    4328 chars (Base64 WAV)
+```
+
+See [`companion/README.md`](companion/README.md) for distributed deployment (k3s), ESP32 setup, and real hardware instructions.
+
 ## Validation
 
 These scripts are exercised by [example_scripts_spec.rb](/Users/alex/dev/hotfix/igniter/spec/igniter/example_scripts_spec.rb), so the documented commands and outputs stay aligned with the code.
