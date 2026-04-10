@@ -116,6 +116,9 @@ module Igniter
       end
 
       def resolve_compute(node) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+        # Capability policy check — raises CapabilityViolationError if denied.
+        check_capability_policy!(node)
+
         # Running state preserves dep_snapshot + value_version from the stale state.
         # These are used for memoization (skip recompute) and value backdating.
         running_state = @execution.cache.fetch(node.name)
@@ -141,6 +144,17 @@ module Igniter
                                dep_snapshot: current_dep_snapshot)
         end
 
+        # Content-addressed cache: pure executor + same dep values → reuse across executions.
+        if (content_key = build_content_key(node, dependencies))
+          cached_value = Igniter::ContentAddressing.cache.fetch(content_key)
+          if cached_value
+            @execution.events.emit(:node_content_cache_hit, node: node, status: :succeeded,
+                                                            payload: { key: content_key.to_s })
+            return NodeState.new(node: node, status: :succeeded, value: cached_value,
+                                 dep_snapshot: current_dep_snapshot)
+          end
+        end
+
         value = call_compute(node.callable, dependencies)
         if deferred_result?(value)
           return NodeState.new(node: node, status: :pending,
@@ -158,6 +172,9 @@ module Igniter
                                value_version: old_value_version,
                                dep_snapshot: current_dep_snapshot)
         end
+
+        # Store in content cache for future executions.
+        Igniter::ContentAddressing.cache.store(content_key, value) if content_key
 
         NodeState.new(node: node, status: :succeeded, value: value,
                       dep_snapshot: current_dep_snapshot)
@@ -408,6 +425,27 @@ module Igniter
             execution_id: @execution.events.execution_id
           }
         )
+      end
+
+      # ─── Capabilities ──────────────────────────────────────────────────────────
+
+      def check_capability_policy!(node)
+        return unless defined?(Igniter::Capabilities) && Igniter::Capabilities.policy
+        return unless node.callable.is_a?(Class) && node.callable <= Igniter::Executor
+
+        Igniter::Capabilities.policy.check!(node.name, node.callable)
+      end
+
+      # ─── Content addressing ────────────────────────────────────────────────────
+
+      # Returns a ContentKey for pure executors when content addressing is loaded.
+      # Returns nil for non-pure executors, Procs, or when the extension is absent.
+      def build_content_key(node, dep_values)
+        return unless defined?(Igniter::ContentAddressing)
+        return unless node.callable.is_a?(Class) && node.callable <= Igniter::Executor
+        return unless node.callable.pure?
+
+        Igniter::ContentAddressing::ContentKey.compute(node.callable, dep_values)
       end
 
       def build_dep_snapshot(node)

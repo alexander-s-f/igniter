@@ -64,7 +64,8 @@ module Igniter
           next if inputs.key?(node.name)
           next unless node.default?
 
-          inputs[node.name] = node.default
+          d = node.default
+          inputs[node.name] = d.respond_to?(:call) ? d.call : d
         end
       end
 
@@ -77,7 +78,10 @@ module Igniter
       end
 
       def missing_value!(input_node)
-        return input_node.default if input_node.default?
+        if input_node.default?
+          d = input_node.default
+          return d.respond_to?(:call) ? d.call : d
+        end
         return nil unless input_node.required?
 
         raise input_error(input_node, "Missing required input: #{input_node.name}")
