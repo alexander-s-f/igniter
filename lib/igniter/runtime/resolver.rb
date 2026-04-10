@@ -538,19 +538,25 @@ module Igniter
       end
 
       def normalize_error(error, node)
-        return error if error.is_a?(Igniter::Error)
+        # Trust any Igniter::Error that already carries node context.
+        return error if error.is_a?(Igniter::Error) && error.node_name
 
-        ResolutionError.new(
-          error.message,
-          context: {
-            graph: @execution.compiled_graph.name,
-            node_id: node.id,
-            node_name: node.name,
-            node_path: node.path,
-            source_location: node.source_location,
-            execution_id: @execution.events.execution_id
-          }
-        )
+        # Domain-specific subclasses (IncidentError, DeferredCapabilityError,
+        # InvariantError, …) carry semantics the caller depends on — preserve
+        # their type unchanged. Only bare Igniter::ResolutionError instances
+        # (raised with just a message inside an executor) get enriched.
+        return error if error.is_a?(Igniter::Error) && !error.instance_of?(Igniter::ResolutionError)
+
+        node_context = {
+          graph: @execution.compiled_graph.name,
+          node_id: node.id,
+          node_name: node.name,
+          node_path: node.path,
+          source_location: node.source_location,
+          execution_id: @execution.events.execution_id
+        }
+
+        ResolutionError.new(error.message, context: node_context)
       end
 
       # ─── Capabilities ──────────────────────────────────────────────────────────
