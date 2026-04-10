@@ -544,8 +544,105 @@ Node C goes offline:
 
 ---
 
+## Phase 3 — Gossip Protocol
+
+> **Status**: v1 shipped (2026-04)
+
+### Motivation
+
+Phase 2 seeds act as soft coordinators — topology is only as complete as the seeds know.
+If a seed goes offline after bootstrapping, peers can still communicate, but new nodes
+cannot be discovered. Phase 3 adds **peer-to-peer gossip**: after each seed poll, every
+node also exchanges its peer list with N randomly chosen nodes from its own registry.
+This makes topology convergence faster, decentralised, and resilient to seed failure.
+
+### How It Works
+
+```
+Each poll_once cycle (every discovery_interval seconds):
+  1. Seed poll:    GET /v1/mesh/peers from each seed → register returned peers  (Phase 2)
+  2. Gossip round: pick min(gossip_fanout, registry.size) random registry peers
+                   GET /v1/mesh/peers on each → register returned peers          (Phase 3)
+```
+
+No new server endpoints are introduced. Gossip reuses the existing `GET /v1/mesh/peers`
+endpoint from Phase 2.
+
+### Convergence Example
+
+```
+Seed knows [A, B, C] → after bootstrap, every node knows A, B, C
+Seed goes down        → Phase 2 can't discover new peer D
+D joins, announces    → seed down, but D's poller is running
+E polls seed (empty), then gossips with A → E discovers D ← Phase 3 win
+```
+
+With fanout = 3 in a 10-node mesh, each node contacts 3 random peers per round.
+After ~2 rounds every node has high probability of knowing any new peer.
+
+### Configuration
+
+```ruby
+Igniter::Mesh.configure do |c|
+  c.peer_name          = "api-node"
+  c.local_url          = "http://api.internal:4567"
+  c.seeds              = %w[http://seed:4567]
+  c.discovery_interval = 30
+  c.gossip_fanout      = 3   # random peers per gossip round (default 3, 0 = disabled)
+end
+
+Igniter::Mesh.start_discovery!
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `gossip_fanout` | `3` | Number of random registry peers to contact per gossip round. Set to `0` to disable gossip entirely. |
+
+### `GossipRound` API
+
+`GossipRound` is a plain object created and invoked automatically by `Poller#poll_once`,
+but you can also call it directly (e.g. for a one-off topology refresh):
+
+```ruby
+Igniter::Mesh::GossipRound.new(Igniter::Mesh.config).run
+```
+
+**Behaviour:**
+- Picks `min(gossip_fanout, registry.size)` random peers, excluding self (by `local_url`).
+- Fetches `GET /v1/mesh/peers` from each candidate.
+- Skips entries with `nil` name or `nil` url, and skips self (by `peer_name` match).
+- Registers newly discovered peers in `PeerRegistry` (idempotent — latest version wins).
+- Swallows `ConnectionError` per peer — a dead peer must not abort the round.
+
+### Example
+
+See `examples/mesh_gossip.rb` for a 3-node scenario: A knows B, C only knows A. After
+a single gossip round C discovers B without any seed involvement.
+
+### Topology Diagram (Phase 3)
+
+```
+Seed goes offline after bootstrap:
+  Node A: registry = {B, C}
+  Node B: registry = {A, C}
+  Node C: registry = {A, B}
+
+New node D announces itself to seed (seed accepts, but is unreachable to others):
+  Only D's local registry has {D}
+
+Next gossip round on Node A:
+  A picks B and C at random, fetches their lists
+  B returns {A, C, D} ← D has gossiped with B already
+  A registers D → A now knows D
+
+Next gossip round on Node E (new node, only knows seed):
+  Seed is down → seed poll returns []
+  E picks A from registry, fetches A's list
+  A returns {B, C, D} → E discovers all three
+```
+
+---
+
 ## Roadmap
 
-- **Phase 3 — Gossip Protocol**: peers share their peer lists with each other (not just
-  seeds), enabling faster failure detection and topology convergence without a central
-  coordinator.
+*(No further phases currently planned.)*

@@ -4,7 +4,8 @@ module Igniter
   module Mesh
     # Configuration for the local mesh node: registered peers and local identity.
     class Config
-      attr_accessor :peer_name, :local_capabilities, :seeds, :discovery_interval, :auto_announce, :local_url
+      attr_accessor :peer_name, :local_capabilities, :seeds, :discovery_interval,
+                    :auto_announce, :local_url, :gossip_fanout
       attr_reader   :peers, :peer_registry
 
       def initialize
@@ -16,6 +17,7 @@ module Igniter
         @discovery_interval = 30
         @auto_announce      = true
         @local_url          = nil
+        @gossip_fanout      = 3
       end
 
       # Register a remote peer by name.

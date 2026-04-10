@@ -8,6 +8,7 @@ require_relative "mesh/router"
 require_relative "mesh/announcer"
 require_relative "mesh/poller"
 require_relative "mesh/discovery"
+require_relative "mesh/gossip"
 
 module Igniter
   # Mesh routing for remote: nodes.

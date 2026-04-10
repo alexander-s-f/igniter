@@ -41,9 +41,11 @@ module Igniter
         @mutex.synchronize { @running }
       end
 
-      # Fetch peers from all seeds immediately (synchronous, used at startup).
+      # Fetch peers from all seeds, then run a gossip round with random registry
+      # peers (Phase 3). Synchronous — used at startup and inside the background loop.
       def poll_once
         @config.seeds.each { |url| fetch_peers_from(url) }
+        GossipRound.new(@config).run if @config.gossip_fanout.positive?
       end
 
       private
