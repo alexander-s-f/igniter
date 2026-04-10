@@ -1,0 +1,5 @@
+server:
+  port: 4567
+  host: "0.0.0.0"
+  log_format: text   # set LOG_FORMAT=json for structured JSON logs
+  drain_timeout: 30

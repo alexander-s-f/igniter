@@ -5,12 +5,13 @@ require "optparse"
 
 options = { port: 4567, host: "0.0.0.0", requires: [], config: nil }
 
-OptionParser.new do |opts|
+global = OptionParser.new do |opts|
   opts.banner = <<~BANNER
     igniter-server — standalone HTTP server for Igniter contracts
 
     Usage:
       igniter-server start [options]
+      igniter-server new APP_NAME
 
   BANNER
 
@@ -18,30 +19,50 @@ OptionParser.new do |opts|
   opts.on("--host HOST",          "Host to bind to (default: 0.0.0.0)") { |v| options[:host] = v }
   opts.on("--require FILE",       "Require a file (can be used multiple times)") { |v| options[:requires] << v }
   opts.on("--config FILE",        "Load a server config file") { |v| options[:config] = v }
-  opts.on("-h", "--help",         "Show this help") do
+  opts.on("-h", "--help", "Show this help") do
     puts opts
     exit
   end
   opts.on("-v", "--version", "Show version") do
+    require_relative "../lib/igniter/version"
     puts "igniter-server #{Igniter::VERSION}"
     exit
   end
-end.parse!
+end
+
+global.parse!
 
 command = ARGV.shift || "start"
 
-unless command == "start"
-  warn "Unknown command: #{command}. Use: igniter-server start [options]"
+case command
+when "start"
+  options[:requires].each { |f| require File.expand_path(f) }
+  load File.expand_path(options[:config]) if options[:config]
+
+  require_relative "../lib/igniter/server"
+  require_relative "../lib/igniter/version"
+
+  Igniter::Server.start(port: options[:port], host: options[:host])
+
+when "new"
+  app_name = ARGV.shift
+  if app_name.nil? || app_name.strip.empty?
+    warn "Usage: igniter-server new APP_NAME"
+    exit 1
+  end
+
+  if File.exist?(app_name)
+    warn "Error: '#{app_name}' already exists"
+    exit 1
+  end
+
+  require_relative "../lib/igniter/application/generator"
+
+  puts "Creating Igniter application '#{app_name}'..."
+  Igniter::Application::Generator.new(app_name).generate
+
+else
+  warn "Unknown command: #{command}"
+  warn "Available commands: start, new"
   exit 1
 end
-
-# Load user files first so they can register contracts before the server starts
-options[:requires].each { |f| require File.expand_path(f) }
-load File.expand_path(options[:config]) if options[:config]
-
-require_relative "../lib/igniter/server"
-
-# Ensure version is loaded for --version flag above
-require_relative "../lib/igniter/version"
-
-Igniter::Server.start(port: options[:port], host: options[:host])
