@@ -204,6 +204,31 @@ end
 
 ---
 
+### `GET /v1/manifest`
+
+Returns a JSON description of this peer for use by the Igniter Mesh. See [MESH_V1.md](MESH_V1.md).
+
+**Response:**
+```json
+{
+  "peer_name":    "orders-node",
+  "capabilities": ["orders", "inventory"],
+  "contracts":    ["ProcessOrder"],
+  "url":          "http://0.0.0.0:4567"
+}
+```
+
+Configure `peer_name` and `peer_capabilities` on `Igniter::Server`:
+
+```ruby
+Igniter::Server.configure do |c|
+  c.peer_name         = "orders-node"
+  c.peer_capabilities = %i[orders inventory]
+end
+```
+
+---
+
 ### `GET /v1/health`
 
 General health check (human-readable, not a K8s probe).
@@ -270,6 +295,11 @@ an `Igniter::ResolutionError` is raised and propagates like any other node failu
 
 **Note:** `require "igniter/server"` is required to load `Igniter::Server::Client`.
 Without it, any contract with a `remote:` node will raise at resolution time.
+
+### Mesh routing (capability / pinned)
+
+The `remote:` keyword also supports two mesh routing modes via `capability:` and `pinned_to:`
+instead of a hard-coded `node:` URL. See [MESH_V1.md](MESH_V1.md) for the full reference.
 
 ---
 
