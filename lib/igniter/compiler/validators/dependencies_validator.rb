@@ -19,6 +19,7 @@ module Igniter
             validate_composition_node!(node) if node.kind == :composition
             validate_branch_node!(node) if node.kind == :branch
             validate_collection_node!(node) if node.kind == :collection
+            validate_aggregate_node!(node)   if node.kind == :aggregate
 
             node.dependencies.each do |dependency_name|
               next if @context.dependency_resolvable?(dependency_name)
@@ -207,6 +208,32 @@ module Igniter
           else
             raise @context.validation_error(node, "Collection '#{node.name}' window: must use :last or :seconds")
           end
+        end
+
+        def validate_aggregate_node!(node)
+          source_sym = node.source_collection
+          source = @context.runtime_nodes.find { |n| n.name == source_sym }
+
+          unless source
+            raise @context.validation_error(
+              node,
+              "Aggregate '#{node.name}' references unknown collection '#{source_sym}'"
+            )
+          end
+
+          unless source.kind == :collection
+            raise @context.validation_error(
+              node,
+              "Aggregate '#{node.name}': source '#{source_sym}' must be a collection node, got :#{source.kind}"
+            )
+          end
+
+          return if source.mode == :incremental
+
+          raise @context.validation_error(
+            node,
+            "Aggregate '#{node.name}': source '#{source_sym}' must use mode: :incremental"
+          )
         end
       end
     end

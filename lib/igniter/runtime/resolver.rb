@@ -29,6 +29,8 @@ module Igniter
                   resolve_effect(node)
                 when :await
                   resolve_await(node)
+                when :aggregate
+                  resolve_aggregate(node)
                 when :remote
                   resolve_remote(node)
                 else
@@ -63,6 +65,26 @@ module Igniter
 
       def resolve_input(node)
         NodeState.new(node: node, status: :succeeded, value: @execution.fetch_input!(node.name))
+      end
+
+      def resolve_aggregate(node)
+        unless defined?(Igniter::Dataflow)
+          raise ResolutionError,
+                "Aggregate nodes require the dataflow extension. " \
+                "Add: require 'igniter/extensions/dataflow'"
+        end
+
+        collection_result = resolve_dependency_value(node.source_collection)
+        unless collection_result.respond_to?(:diff)
+          raise ResolutionError,
+                "Aggregate '#{node.name}' requires an incremental collection. " \
+                "Ensure '#{node.source_collection}' uses mode: :incremental"
+        end
+
+        agg_state = @execution.aggregate_state_for(node.name)
+        agg_state.apply_diff!(collection_result.diff, collection_result)
+
+        NodeState.new(node: node, status: :succeeded, value: agg_state.value)
       end
 
       def resolve_effect(node)

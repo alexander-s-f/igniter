@@ -66,6 +66,17 @@ module Igniter
         @diff_states[node_name.to_sym] ||= Igniter::Dataflow::DiffState.new
       end
 
+
+      # Returns the AggregateState for an aggregate node (created on first access).
+      # Persists across update_inputs calls for the lifetime of this Execution.
+      def aggregate_state_for(node_name)
+        @aggregate_states ||= {}
+        @aggregate_states[node_name.to_sym] ||= begin
+          node = compiled_graph.fetch_node(node_name)
+          Igniter::Dataflow::AggregateState.new(node.operator)
+        end
+      end
+
       def resume(node_name, value:)
         node = compiled_graph.fetch_node(node_name)
         current = cache.fetch(node.name)

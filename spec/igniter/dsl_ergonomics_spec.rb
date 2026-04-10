@@ -91,23 +91,31 @@ RSpec.describe "Igniter DSL ergonomics" do
     expect(contract.class.graph.to_text).to include("category=project")
   end
 
-  it "supports aggregate as a semantic compute alias" do
+  it "supports aggregate nodes over incremental collections" do
+    require "igniter/extensions/dataflow"
+
+    item_contract = Class.new(Igniter::Contract) do
+      define do
+        input :id
+        input :n, type: :numeric
+        output :n
+      end
+    end
+
     contract_class = Class.new(Igniter::Contract) do
       define do
         input :numbers, type: :array
-
-        aggregate :total, with: :numbers do |numbers:|
-          numbers.sum
-        end
-
+        collection :items, with: :numbers, each: item_contract, key: :id, mode: :incremental
+        aggregate :total, from: :items, sum: ->(item) { item.result.n.to_f }
         output :total
       end
     end
 
-    contract = contract_class.new(numbers: [1, 2, 3])
+    contract = contract_class.new(numbers: [{ id: "a", n: 1 }, { id: "b", n: 2 }, { id: "c", n: 3 }])
+    contract.resolve_all
 
-    expect(contract.result.total).to eq(6)
-    expect(contract.class.graph.to_text).to include("category=aggregate")
+    expect(contract.result.total).to eq(6.0)
+    expect(contract.class.graph.to_text).to include("aggregate total")
   end
 
   it "supports guard nodes for explicit gating" do

@@ -407,12 +407,13 @@ RSpec.describe "Igniter::Dataflow — incremental collection" do
       contract = contract_class.new(items: [{ sensor_id: "x", value: 1 }])
 
       # Temporarily hide the Dataflow constant to simulate the extension not being loaded.
+      dataflow_backup = Igniter::Dataflow
       Igniter.send(:remove_const, :Dataflow)
       begin
         pattern = %r{require 'igniter/extensions/dataflow'}
         expect { contract.resolve_all }.to raise_error(Igniter::ResolutionError, pattern)
       ensure
-        require "igniter/dataflow"
+        Igniter::Dataflow = dataflow_backup # rubocop:disable Naming/ConstantName
       end
     end
   end

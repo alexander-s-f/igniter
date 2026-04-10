@@ -4,6 +4,9 @@ require "igniter/dataflow/diff"
 require "igniter/dataflow/diff_state"
 require "igniter/dataflow/window_filter"
 require "igniter/dataflow/incremental_collection_result"
+require "igniter/dataflow/aggregate_operators"
+require "igniter/dataflow/aggregate_state"
+require "igniter/model/aggregate_node"
 
 module Igniter
   # Incremental Dataflow — Phase 1: differential collection processing.

@@ -123,7 +123,7 @@ class CallConnectedContract < Igniter::Contract
       calls.successes.values.map { |item| item.result.summary }
     end
 
-    aggregate :routing_summary, with: %i[calls call_summaries extension_id telephony_status has_calls] do |calls:, call_summaries:, extension_id:, telephony_status:, has_calls:|
+    compute :routing_summary, with: %i[calls call_summaries extension_id telephony_status has_calls] do |calls:, call_summaries:, extension_id:, telephony_status:, has_calls:|
       has_calls
       {
         extension_id: extension_id,

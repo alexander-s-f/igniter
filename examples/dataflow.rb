@@ -2,9 +2,16 @@
 
 # examples/dataflow.rb
 #
-# Demonstrates Igniter's incremental dataflow: mode: :incremental on a collection
-# node means only added/changed items have their child contract re-run.
-# Removed items are retracted automatically.
+# Demonstrates Igniter's incremental dataflow:
+#
+# Part 1 — Incremental Collection (mode: :incremental)
+#   Only added/changed items have their child contract re-run.
+#   Removed items are retracted automatically.
+#   window: { last: N } keeps a bounded sliding window in memory.
+#
+# Part 2 — Maintained Aggregates
+#   Aggregate nodes (count, sum, avg, min, max, group_count, custom) update
+#   in O(change) time — only the diff contributes, not the full collection.
 #
 # Typical use-cases:
 #   • IoT sensor streams   — thousands of sensors, updates arrive as diffs
@@ -16,10 +23,11 @@
 require_relative "../lib/igniter"
 require_relative "../lib/igniter/extensions/dataflow"
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# PART 1 — Incremental Collection + Sliding Window
+# ═══════════════════════════════════════════════════════════════════════════════
+
 # ─── Child contract: process a single sensor reading ──────────────────────────
-#
-# Receives one sensor payload and classifies its value.
-#
 class SensorAnalysis < Igniter::Contract
   define do
     input :sensor_id
@@ -44,13 +52,7 @@ class SensorAnalysis < Igniter::Contract
   end
 end
 
-# ─── Pipeline contract: fan-out across all sensor readings ────────────────────
-#
-# readings ──→ processed (incremental collection)
-#
-# window: { last: 5 } keeps only the 5 most-recent readings in the window so
-# memory footprint stays bounded even for long-running streams.
-#
+# ─── Pipeline with sliding window ─────────────────────────────────────────────
 class SensorPipeline < Igniter::Contract
   define do
     input :readings, type: :array
@@ -83,9 +85,11 @@ def print_results(processed)
   end
 end
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 1. Initial batch — 4 sensors, all treated as :added
-# ──────────────────────────────────────────────────────────────────────────────
+puts "═" * 60
+puts "PART 1 — Incremental Collection + Sliding Window"
+puts "═" * 60
+
+# ── Round 1: initial batch — 4 sensors, all treated as :added ─────────────────
 
 initial_readings = [
   { sensor_id: "tmp-1",  value: 20, unit: "°C" },
@@ -101,11 +105,8 @@ diff = pipeline.collection_diff(:processed)
 print_diff("── Round 1: initial batch ──────────────────────────", diff)
 print_results(pipeline.result.processed)
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 2. One sensor value changes — only that contract is re-run
-# ──────────────────────────────────────────────────────────────────────────────
+# ── Round 2: one sensor crosses critical threshold ────────────────────────────
 
-# Simulate tmp-2 crossing the critical threshold
 pipeline.feed_diff(:readings, update: [{ sensor_id: "tmp-2", value: 90, unit: "°C" }])
 pipeline.resolve_all
 
@@ -113,9 +114,7 @@ diff = pipeline.collection_diff(:processed)
 print_diff("── Round 2: tmp-2 value 45 → 90 ───────────────────", diff)
 print_results(pipeline.result.processed)
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 3. New sensor arrives — only it is processed
-# ──────────────────────────────────────────────────────────────────────────────
+# ── Round 3: new sensor arrives ───────────────────────────────────────────────
 
 pipeline.feed_diff(:readings, add: [{ sensor_id: "wind-1", value: 15, unit: "m/s" }])
 pipeline.resolve_all
@@ -124,9 +123,7 @@ diff = pipeline.collection_diff(:processed)
 print_diff("── Round 3: wind-1 joins the stream ────────────────", diff)
 print_results(pipeline.result.processed)
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 4. Sensor goes offline — retracted from the result
-# ──────────────────────────────────────────────────────────────────────────────
+# ── Round 4: sensor goes offline ──────────────────────────────────────────────
 
 pipeline.feed_diff(:readings, remove: ["hum-1"])
 pipeline.resolve_all
@@ -135,9 +132,7 @@ diff = pipeline.collection_diff(:processed)
 print_diff("── Round 4: hum-1 removed ──────────────────────────", diff)
 print_results(pipeline.result.processed)
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 5. Identical update — zero re-runs (pure memoization)
-# ──────────────────────────────────────────────────────────────────────────────
+# ── Round 5: identical update — zero re-runs ──────────────────────────────────
 
 pipeline.update_inputs(readings: pipeline.execution.inputs[:readings].dup)
 pipeline.resolve_all
@@ -145,10 +140,7 @@ pipeline.resolve_all
 diff = pipeline.collection_diff(:processed)
 print_diff("── Round 5: no data changed (zero re-runs) ─────────", diff)
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 6. Sliding-window demonstration — window: { last: 5 }
-#    Adding a 6th sensor evicts the oldest from the window
-# ──────────────────────────────────────────────────────────────────────────────
+# ── Round 6: sliding window — adding 6th sensor evicts oldest ─────────────────
 
 pipeline.feed_diff(:readings, add: [{ sensor_id: "co2-1", value: 60, unit: "ppm" }])
 pipeline.resolve_all
@@ -157,11 +149,160 @@ diff = pipeline.collection_diff(:processed)
 print_diff("── Round 6: co2-1 added (window: last 5) ───────────", diff)
 puts "\n  Active sensors in window: #{pipeline.result.processed.keys.inspect}"
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 7. Summary
-# ──────────────────────────────────────────────────────────────────────────────
+# ─── Summary ──────────────────────────────────────────────────────────────────
 
 puts "\n── Summary ─────────────────────────────────────────────"
 puts "  Final window: #{pipeline.result.processed.keys.inspect}"
 puts "  Diff explain: #{pipeline.collection_diff(:processed).explain}"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PART 2 — Maintained Aggregates
+#
+# Aggregates update in O(change) time — only the diff items are processed.
+# The AggregateState stores per-key contributions so that removed/changed items
+# can be retracted without rescanning the full collection.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+puts "\n"
+puts "═" * 60
+puts "PART 2 — Maintained Aggregates"
+puts "═" * 60
+
+# ─── Child contract: classify sensor with zone info ───────────────────────────
+
+class SensorMetrics < Igniter::Contract
+  define do
+    input :sensor_id
+    input :value, type: :numeric
+    input :zone
+
+    compute :status, depends_on: :value do |value:|
+      value > 75 ? :critical : :normal
+    end
+
+    output :status
+    output :value   # exposed for sum/avg/min/max projections
+    output :zone    # exposed for group_count
+  end
+end
+
+# ─── Analytics pipeline with all built-in aggregate operators ─────────────────
+
+class AnalyticsPipeline < Igniter::Contract
+  define do # rubocop:disable Metrics/BlockLength
+    input :sensors, type: :array
+
+    collection :processed,
+               with: :sensors,
+               each: SensorMetrics,
+               key: :sensor_id,
+               mode: :incremental
+
+    # ── Built-in operators ──────────────────────────────────────────────────
+    aggregate :total, from: :processed # count all
+    aggregate :high_count,
+              from: :processed,
+              count: ->(item) { item.result.status == :critical }
+    aggregate :total_value,
+              from: :processed,
+              sum: ->(item) { item.result.value.to_f }
+    aggregate :avg_value,
+              from: :processed,
+              avg: ->(item) { item.result.value.to_f }
+    aggregate :peak,
+              from: :processed,
+              max: ->(item) { item.result.value.to_f }
+    aggregate :by_zone,
+              from: :processed,
+              group_count: ->(item) { item.result.zone }
+
+    # ── Custom retractable aggregate ────────────────────────────────────────
+    # Maintains a sorted list of unique critical sensor IDs
+    critical_add = lambda do |acc, item|
+      item.result.status == :critical ? (acc + [item.key]).sort.uniq : acc
+    end
+    aggregate :critical_ids,
+              from: :processed,
+              initial: [],
+              add: critical_add,
+              remove: ->(acc, item) { acc - [item.key] }
+
+    output :processed
+    output :total
+    output :high_count
+    output :total_value
+    output :avg_value
+    output :peak
+    output :by_zone
+    output :critical_ids
+  end
+end
+
+# ─── Helper ───────────────────────────────────────────────────────────────────
+
+def print_aggregates(result) # rubocop:disable Metrics/AbcSize
+  r = result
+  puts "  total       = #{r.total}"
+  puts "  high_count  = #{r.high_count}  (critical sensors)"
+  puts "  total_value = #{r.total_value.round(1)}"
+  puts "  avg_value   = #{r.avg_value.round(2)}"
+  puts "  peak        = #{r.peak.inspect}"
+  puts "  by_zone     = #{r.by_zone.inspect}"
+  puts "  critical_ids= #{r.critical_ids.inspect}"
+end
+
+sensor = ->(id, value, zone) { { sensor_id: id, value: value, zone: zone } }
+
+# ── Round A: initial batch ─────────────────────────────────────────────────────
+
+sensors_a = [
+  sensor.call("s1", 20, "north"), # normal
+  sensor.call("s2", 80, "north"), # critical
+  sensor.call("s3", 90, "south"), # critical
+  sensor.call("s4", 30, "south")  # normal
+]
+
+ap = AnalyticsPipeline.new(sensors: sensors_a)
+ap.resolve_all
+
+puts "\n── Round A: initial batch (4 sensors) ──────────────────"
+puts "  diff: #{ap.collection_diff(:processed).processed_count} child contract(s) run"
+print_aggregates(ap.result)
+
+# ── Round B: s2 value drops (critical → normal) ───────────────────────────────
+
+ap.feed_diff(:sensors, update: [sensor.call("s2", 40, "north")])
+ap.resolve_all
+
+puts "\n── Round B: s2 value 80 → 40  (critical → normal) ──────"
+puts "  diff: #{ap.collection_diff(:processed).processed_count} child contract(s) run"
+print_aggregates(ap.result)
+
+# ── Round C: new sensor added in a new zone ────────────────────────────────────
+
+ap.feed_diff(:sensors, add: [sensor.call("s5", 95, "east")])
+ap.resolve_all
+
+puts "\n── Round C: s5 added in zone 'east' (critical) ─────────"
+puts "  diff: #{ap.collection_diff(:processed).processed_count} child contract(s) run"
+print_aggregates(ap.result)
+
+# ── Round D: peak sensor removed ──────────────────────────────────────────────
+
+ap.feed_diff(:sensors, remove: ["s5"])
+ap.resolve_all
+
+puts "\n── Round D: s5 removed (peak was 95) ───────────────────"
+puts "  diff: #{ap.collection_diff(:processed).processed_count} child contract(s) run"
+print_aggregates(ap.result)
+
+# ── Round E: no change — zero re-runs, aggregates stable ──────────────────────
+
+ap.update_inputs(sensors: ap.execution.inputs[:sensors].dup)
+ap.resolve_all
+
+puts "\n── Round E: no change (zero re-runs, aggregates stable) "
+puts "  diff: #{ap.collection_diff(:processed).processed_count} child contract(s) run"
+print_aggregates(ap.result)
+
 puts "\nDone."

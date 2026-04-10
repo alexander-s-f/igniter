@@ -96,10 +96,6 @@ module Igniter
         compute(name, with: from, call: callable, **{ category: :project }.merge(metadata))
       end
 
-      def aggregate(name, depends_on: nil, with: nil, call: nil, executor: nil, **metadata, &block)
-        compute(name, depends_on: depends_on, with: with, call: call, executor: executor, **{ category: :aggregate }.merge(metadata), &block)
-      end
-
       def guard(name, depends_on: nil, with: nil, call: nil, executor: nil, message: nil,
                 eq: UNDEFINED_GUARD_MATCHER, in: UNDEFINED_GUARD_MATCHER, matches: UNDEFINED_GUARD_MATCHER,
                 **metadata, &block)
@@ -224,6 +220,43 @@ module Igniter
             window: window,
             context_dependencies: normalize_dependencies(depends_on: depends_on, with: nil),
             input_mapper: map_inputs || using,
+            path: scoped_path(name),
+            metadata: with_source_location(metadata)
+          )
+        )
+      end
+
+      # Declares a maintained aggregate over an incremental collection node.
+      #
+      # The aggregate updates in O(change) time: only added/changed/removed items
+      # affect the result; unchanged items contribute zero work.
+      #
+      # @param name        [Symbol]  output name
+      # @param from        [Symbol]  name of an upstream incremental collection node
+      # @param count       [Proc, nil]  ->(item) { bool } — count items matching predicate (nil = count all)
+      # @param sum         [Proc, nil]  ->(item) { numeric }
+      # @param avg         [Proc, nil]  ->(item) { numeric }
+      # @param min         [Proc, nil]  ->(item) { numeric }  (O(n) on removal)
+      # @param max         [Proc, nil]  ->(item) { numeric }  (O(n) on removal)
+      # @param group_count [Proc, nil]  ->(item) { group_key } — Hash{key => count}
+      # @param initial     [Object, nil]  initial accumulator for custom aggregates
+      # @param add         [Proc, nil]  ->(acc, item) { new_acc } — custom add
+      # @param remove      [Proc, nil]  ->(acc, item) { new_acc } — custom remove
+      #
+      # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
+      def aggregate(name, from:, count: nil, sum: nil, avg: nil, min: nil, max: nil,
+                    group_count: nil, initial: nil, add: nil, remove: nil, **metadata)
+        # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
+        operator = build_aggregate_operator(
+          count: count, sum: sum, avg: avg, min: min, max: max,
+          group_count: group_count, initial: initial, add: add, remove: remove
+        )
+        add_node(
+          Model::AggregateNode.new(
+            id: next_id,
+            name: name,
+            source_collection: from,
+            operator: operator,
             path: scoped_path(name),
             metadata: with_source_location(metadata)
           )
@@ -399,6 +432,26 @@ module Igniter
 
         "#{@scope_stack.join('.')}.output.#{name}"
       end
+
+      # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      def build_aggregate_operator(count:, sum:, avg:, min:, max:, group_count:, initial:, add:, remove:)
+        if add && remove
+          Dataflow::AggregateOperators.custom(initial: initial || 0, add: add, remove: remove)
+        elsif sum
+          Dataflow::AggregateOperators.sum(projection: sum)
+        elsif avg
+          Dataflow::AggregateOperators.avg(projection: avg)
+        elsif min
+          Dataflow::AggregateOperators.min(projection: min)
+        elsif max
+          Dataflow::AggregateOperators.max(projection: max)
+        elsif group_count
+          Dataflow::AggregateOperators.group_count(projection: group_count)
+        else
+          Dataflow::AggregateOperators.count(filter: count)
+        end
+      end
+      # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
       class BranchBuilder
         def self.build(&block)
