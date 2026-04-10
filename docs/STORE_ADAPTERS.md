@@ -7,12 +7,17 @@ Igniter ships with reference execution stores for:
 - ActiveRecord-style persistence
 - Redis-style persistence
 
-All stores implement the same minimal protocol:
+All stores implement the same protocol:
 
-- `save(snapshot)`
-- `fetch(execution_id)`
-- `delete(execution_id)`
-- `exist?(execution_id)`
+| Method | Description |
+|--------|-------------|
+| `save(snapshot, correlation: nil, graph: nil)` | Persist a snapshot; build secondary indexes for query |
+| `fetch(execution_id)` | Load a snapshot by ID; raises on missing |
+| `delete(execution_id)` | Remove a snapshot and clean up indexes |
+| `exist?(execution_id)` | Check existence without raising |
+| `find_by_correlation(graph:, correlation:)` | Find execution_id by correlation hash |
+| `list_all(graph: nil)` | All execution_ids, optionally filtered by graph name |
+| `list_pending(graph: nil)` | Execution_ids that have at least one node in `:pending` state |
 
 ## Memory Store
 
@@ -75,22 +80,45 @@ Igniter.execution_store = Igniter::Runtime::Stores::ActiveRecordStore.new(
 
 ## Redis Store
 
-Expected client protocol:
+`RedisStore` maintains secondary indexes so it can answer all query API calls efficiently:
 
-- `set(key, value)`
-- `get(key)`
-- `del(key)`
-- `exists?(key)`
+| Key pattern | Redis type | Purpose |
+|-------------|-----------|---------|
+| `{ns}:{execution_id}` | String | Serialized snapshot JSON |
+| `{ns}:all` | Set | All execution IDs |
+| `{ns}:graph:{name}` | Set | Execution IDs for one graph |
+| `{ns}:corr:{graph}` | Hash | `JSON(sorted_correlation)` → execution_id |
 
-Example configuration:
+The client must support these Redis commands:
+`set`, `get`, `del`, `exists?`, `sadd`, `srem`, `smembers`, `hset`, `hget`.
+
+The standard [`redis` gem](https://github.com/redis/redis-rb) satisfies this interface.
 
 ```ruby
 redis = Redis.new(url: ENV.fetch("REDIS_URL"))
 
 Igniter.execution_store = Igniter::Runtime::Stores::RedisStore.new(
   redis: redis,
-  namespace: "igniter:executions"
+  namespace: "igniter:executions"   # optional, default shown
 )
+```
+
+**Query API:**
+
+```ruby
+store = Igniter::Runtime::Stores::RedisStore.new(redis: redis)
+
+# Find a pending execution by correlation
+execution_id = store.find_by_correlation(
+  graph: "OrderContract",
+  correlation: { order_id: "o-42" }
+)
+
+# List all executions for a graph
+ids = store.list_all(graph: "OrderContract")
+
+# List only pending executions (O(n) scan — acceptable for moderate volumes)
+pending_ids = store.list_pending(graph: "OrderContract")
 ```
 
 ## Worker Flow

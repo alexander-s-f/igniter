@@ -66,6 +66,9 @@ Igniter::Server.configure do |c|
   c.host = "0.0.0.0"          # bind address (default: "0.0.0.0")
   c.port = 4567                # TCP port (default: 4567)
   c.store = my_store           # execution store for distributed contracts
+  c.log_format = :text         # :text (default) or :json — structured JSON for Loki/ELK
+  c.drain_timeout = 30         # seconds to drain in-flight requests on SIGTERM (default: 30)
+  c.metrics_collector = Igniter::Metrics::Collector.new  # enable Prometheus metrics
   c.register "Name", MyClass   # register a contract
   c.contracts = {              # bulk registration
     "ContractA" => ContractA,
@@ -145,9 +148,65 @@ Returns `404` if the execution is not found in the configured store.
 
 ---
 
+### `GET /v1/live`
+
+Kubernetes **liveness** probe. Always returns `200 OK`. If this endpoint fails, the pod should be restarted.
+
+**Response:**
+```json
+{ "status": "alive", "pid": 12345 }
+```
+
+---
+
+### `GET /v1/ready`
+
+Kubernetes **readiness** probe. Returns `200` when the server can accept traffic, `503` when it cannot (no contracts registered or store unreachable).
+
+**Response (ready):**
+```json
+{ "status": "ready", "checks": { "store": "ok", "contracts": "ok" } }
+```
+
+**Response (not ready, 503):**
+```json
+{ "status": "not_ready", "checks": { "store": "ok", "contracts": "no_contracts_registered" } }
+```
+
+---
+
+### `GET /v1/metrics`
+
+Prometheus text format metrics (exposition format 0.0.4). Returns `501` if no `metrics_collector` is configured.
+
+**Content-Type:** `text/plain; version=0.0.4; charset=utf-8`
+
+**Metrics exposed:**
+
+| Metric | Type | Labels | Description |
+|--------|------|--------|-------------|
+| `igniter_executions_total` | counter | `graph`, `status` | Contract executions completed |
+| `igniter_execution_duration_seconds` | histogram | `graph` | Execution wall-clock duration |
+| `igniter_http_requests_total` | counter | `method`, `path`, `status` | HTTP requests received |
+| `igniter_http_request_duration_seconds` | histogram | `method`, `path`, `status` | HTTP request processing duration |
+| `igniter_pending_executions` | gauge | `graph` | Executions currently in pending state in the store |
+
+Dynamic path segments are collapsed to avoid high cardinality (e.g. `/v1/contracts/MyContract/execute` → `/v1/contracts/:name/execute`).
+
+**Enable metrics:**
+```ruby
+require "igniter/metrics"
+
+Igniter::Server.configure do |c|
+  c.metrics_collector = Igniter::Metrics::Collector.new
+end
+```
+
+---
+
 ### `GET /v1/health`
 
-Health check endpoint.
+General health check (human-readable, not a K8s probe).
 
 **Response:**
 ```json
@@ -265,6 +324,116 @@ Errors:
 Each node is an independent Ruby process. The orchestrator's graph is validated
 at load time — if `ScoringContract`'s URL is malformed, it fails at compile time,
 not at the first HTTP call.
+
+---
+
+## Kubernetes Deployment
+
+### Deployment manifest
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: igniter-server
+spec:
+  replicas: 3
+  template:
+    spec:
+      terminationGracePeriodSeconds: 60   # must be > drain_timeout
+      containers:
+        - name: igniter
+          image: my-org/igniter-app:latest
+          ports:
+            - containerPort: 4567
+          env:
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef: { name: redis-secret, key: url }
+          livenessProbe:
+            httpGet: { path: /v1/live, port: 4567 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /v1/ready, port: 4567 }
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 5"]  # give k8s time to drain
+```
+
+### Server configuration for K8s
+
+```ruby
+require "igniter/server"
+require "igniter/metrics"
+
+Igniter::Server.configure do |c|
+  c.host         = "0.0.0.0"
+  c.port         = 4567
+  c.log_format   = :json          # structured logs → stdout → Loki/CloudWatch
+  c.drain_timeout = 30            # seconds, must be < terminationGracePeriodSeconds
+  c.metrics_collector = Igniter::Metrics::Collector.new
+  c.store        = Igniter::Runtime::Stores::RedisStore.new(
+    redis: Redis.new(url: ENV.fetch("REDIS_URL")),
+    namespace: "igniter:prod"
+  )
+  c.register "MyContract", MyContract
+end
+
+Igniter::Server.start
+```
+
+### Prometheus scraping (prometheus.yml)
+
+```yaml
+scrape_configs:
+  - job_name: igniter
+    static_configs:
+      - targets: ["igniter-service:4567"]
+    metrics_path: /v1/metrics
+```
+
+---
+
+## Structured Logging
+
+igniter-server logs every request and lifecycle event to `$stdout`.
+
+**Text format** (default, `:text`):
+```
+[2026-04-10T12:00:00Z] INFO igniter-server started host=0.0.0.0 port=4567 pid=1
+[2026-04-10T12:00:01Z] INFO POST /v1/contracts/MyContract/execute status=200
+[2026-04-10T12:00:02Z] INFO SIGTERM received — draining drain_timeout=30 pid=1
+```
+
+**JSON format** (`:json`) — one JSON object per line, compatible with Loki, ELK, CloudWatch Logs:
+```json
+{"time":"2026-04-10T12:00:00.123Z","level":"INFO","msg":"igniter-server started","host":"0.0.0.0","port":4567,"pid":1}
+{"time":"2026-04-10T12:00:01.456Z","level":"INFO","msg":"POST /v1/contracts/MyContract/execute","status":200}
+```
+
+Configure via:
+```ruby
+Igniter::Server.configure { |c| c.log_format = :json }
+```
+
+---
+
+## Graceful Shutdown
+
+On `SIGTERM`, the server:
+1. Stops accepting new connections
+2. Waits up to `drain_timeout` seconds for in-flight requests to complete
+3. Exits cleanly
+
+```ruby
+Igniter::Server.configure { |c| c.drain_timeout = 30 }
+```
+
+Set `terminationGracePeriodSeconds` in your Kubernetes Deployment to a value greater than `drain_timeout` (e.g. 60s) to give the server enough time to drain before the pod is force-killed.
 
 ---
 
