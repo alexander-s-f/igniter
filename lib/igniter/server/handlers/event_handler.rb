@@ -4,6 +4,10 @@ module Igniter
   module Server
     module Handlers
       class EventHandler < Base
+        def initialize(registry, store, collector: nil) # rubocop:disable Lint/UnusedMethodArgument
+          super(registry, store)
+        end
+
         private
 
         def handle(params:, body:) # rubocop:disable Metrics/MethodLength

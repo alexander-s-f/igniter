@@ -3,15 +3,19 @@
 module Igniter
   module Server
     class Config
-      attr_accessor :host, :port, :store, :logger
+      attr_accessor :host, :port, :store, :logger,
+                    :metrics_collector, :log_format, :drain_timeout
       attr_reader   :registry
 
       def initialize
-        @host     = "0.0.0.0"
-        @port     = 4567
-        @store    = Igniter::Runtime::Stores::MemoryStore.new
-        @registry = Registry.new
-        @logger   = nil
+        @host              = "0.0.0.0"
+        @port              = 4567
+        @store             = Igniter::Runtime::Stores::MemoryStore.new
+        @registry          = Registry.new
+        @logger            = nil
+        @metrics_collector = nil
+        @log_format        = :text
+        @drain_timeout     = 30
       end
 
       def register(name, contract_class)

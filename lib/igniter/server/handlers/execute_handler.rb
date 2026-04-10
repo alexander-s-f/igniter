@@ -4,6 +4,11 @@ module Igniter
   module Server
     module Handlers
       class ExecuteHandler < Base
+        def initialize(registry, store, collector: nil)
+          super(registry, store)
+          @collector = collector
+        end
+
         private
 
         def handle(params:, body:)
@@ -18,6 +23,7 @@ module Igniter
             contract_class.start(inputs, store: @store)
           else
             contract = contract_class.new(inputs)
+            contract.execution.events.subscribe(@collector) if @collector
             begin
               contract.resolve_all
             rescue Igniter::Error

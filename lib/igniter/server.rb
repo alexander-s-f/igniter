@@ -12,6 +12,7 @@ module Igniter
 end
 
 require_relative "server/registry"
+require_relative "server/server_logger"
 require_relative "server/config"
 require_relative "server/router"
 require_relative "server/http_server"
@@ -23,6 +24,9 @@ require_relative "server/handlers/contracts_handler"
 require_relative "server/handlers/execute_handler"
 require_relative "server/handlers/event_handler"
 require_relative "server/handlers/status_handler"
+require_relative "server/handlers/liveness_handler"
+require_relative "server/handlers/readiness_handler"
+require_relative "server/handlers/metrics_handler"
 
 module Igniter
   module Server

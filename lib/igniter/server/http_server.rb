@@ -7,29 +7,35 @@ module Igniter
     # Pure-Ruby HTTP/1.1 server built on TCPServer (stdlib, zero external deps).
     # Spawns one thread per connection. Intended for development and orchestration use.
     # For production, use RackApp with Puma via `Igniter::Server.rack_app`.
-    class HttpServer
+    class HttpServer # rubocop:disable Metrics/ClassLength
       CRLF = "\r\n"
       STATUS_MESSAGES = {
         200 => "OK",
         400 => "Bad Request",
         404 => "Not Found",
         422 => "Unprocessable Entity",
-        500 => "Internal Server Error"
+        500 => "Internal Server Error",
+        501 => "Not Implemented",
+        503 => "Service Unavailable"
       }.freeze
 
       def initialize(config)
-        @config = config
-        @router = Router.new(config)
+        @config       = config
+        @router       = Router.new(config)
+        @logger       = ServerLogger.new(format: config.log_format)
+        @in_flight    = 0
+        @in_flight_mu = Mutex.new
       end
 
-      def start # rubocop:disable Metrics/MethodLength
+      def start # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
         @tcp_server = TCPServer.new(@config.host, @config.port)
         @running    = true
 
         trap("INT")  { stop }
-        trap("TERM") { stop }
+        trap("TERM") { graceful_stop }
 
-        log("igniter-server listening on http://#{@config.host}:#{@config.port}")
+        @logger.info("igniter-server started",
+                     host: @config.host, port: @config.port, pid: Process.pid)
 
         loop do
           break unless @running
@@ -39,9 +45,19 @@ module Igniter
         end
       rescue IOError
         # Server socket closed via stop
+      ensure
+        drain_in_flight
+        @logger.info("igniter-server stopped", pid: Process.pid)
       end
 
       def stop
+        @running = false
+        @tcp_server&.close
+      end
+
+      def graceful_stop
+        @logger.info("SIGTERM received — draining",
+                     drain_timeout: @config.drain_timeout, pid: Process.pid)
         @running = false
         @tcp_server&.close
       end
@@ -57,7 +73,7 @@ module Igniter
         nil
       end
 
-      def handle_connection(socket) # rubocop:disable Metrics/MethodLength
+      def handle_connection(socket) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
         request_line = socket.gets&.chomp
         return unless request_line&.include?(" ")
 
@@ -65,12 +81,36 @@ module Igniter
         headers = read_headers(socket)
         body    = read_body(socket, headers["content-length"].to_i)
 
-        result = @router.call(http_method, path, body)
-        write_response(socket, result)
+        with_in_flight do
+          result = @router.call(http_method, path, body)
+          write_response(socket, result)
+          @logger.info("#{http_method} #{path}", status: result[:status])
+        end
       rescue StandardError => e
-        log("Connection error: #{e.message}")
+        @logger.error("Connection error", error: e.message)
       ensure
         socket.close rescue nil # rubocop:disable Style/RescueModifier
+      end
+
+      def with_in_flight
+        @in_flight_mu.synchronize { @in_flight += 1 }
+        yield
+      ensure
+        @in_flight_mu.synchronize { @in_flight -= 1 }
+      end
+
+      def drain_in_flight
+        timeout  = @config.drain_timeout.to_i
+        deadline = Time.now + timeout
+
+        loop do
+          remaining = @in_flight_mu.synchronize { @in_flight }
+          break if remaining.zero?
+          break if Time.now > deadline
+
+          @logger.info("Draining in-flight connections", remaining: remaining)
+          sleep 0.1
+        end
       end
 
       def read_headers(socket)
@@ -86,23 +126,20 @@ module Igniter
         length.positive? ? socket.read(length).to_s : ""
       end
 
-      def write_response(socket, result)
+      def write_response(socket, result) # rubocop:disable Metrics/MethodLength
         body   = result[:body].to_s
         code   = result[:status].to_i
         phrase = STATUS_MESSAGES.fetch(code, "Unknown")
+        ct     = result.dig(:headers, "Content-Type") || "application/json"
 
         response  = "HTTP/1.1 #{code} #{phrase}#{CRLF}"
-        response += "Content-Type: application/json#{CRLF}"
+        response += "Content-Type: #{ct}#{CRLF}"
         response += "Content-Length: #{body.bytesize}#{CRLF}"
         response += "Connection: close#{CRLF}"
         response += CRLF
         response += body
 
         socket.write(response)
-      end
-
-      def log(message)
-        @config.logger&.puts(message) || $stdout.puts(message)
       end
     end
   end

@@ -33,24 +33,20 @@ RSpec.describe "Igniter store adapters" do
 
   class FakeRedis
     def initialize
-      @data = {}
+      @data  = {}
+      @sets  = Hash.new { |h, k| h[k] = Set.new }
+      @hashes = Hash.new { |h, k| h[k] = {} }
     end
 
-    def set(key, value)
-      @data[key] = value
-    end
-
-    def get(key)
-      @data[key]
-    end
-
-    def del(key)
-      @data.delete(key)
-    end
-
-    def exists?(key)
-      @data.key?(key) ? 1 : 0
-    end
+    def set(key, value)  = @data[key] = value
+    def get(key)         = @data[key]
+    def del(key)         = @data.delete(key)
+    def exists?(key)     = @data.key?(key) ? 1 : 0
+    def sadd(key, val)   = @sets[key].add(val)
+    def srem(key, val)   = @sets[key].delete(val)
+    def smembers(key)    = @sets[key].to_a
+    def hset(key, field, val) = @hashes[key][field] = val
+    def hget(key, field)      = @hashes[key][field]
   end
 
   let(:snapshot) do
