@@ -9,6 +9,9 @@ module Igniter
     #                    raises DeferredCapabilityError when no alive peer is found.
     #   - :pinned      → asserts the named peer is alive and returns its URL;
     #                    raises IncidentError when the peer is unknown or unreachable.
+    #
+    # Peer pool = static peers (Config#peers) + dynamic peers (Config#peer_registry).
+    # Static peers take precedence when a name appears in both sets.
     class Router
       HEALTH_CACHE_TTL = 5 # seconds
 
@@ -22,7 +25,7 @@ module Igniter
       # Find an alive peer advertising +capability+.
       # Returns the peer URL. Raises DeferredCapabilityError when none are alive.
       def find_peer_for(capability, deferred_result)
-        candidates = @config.peers_with_capability(capability).select { |p| alive?(p) }
+        candidates = all_capable_peers(capability).select { |p| alive?(p) }
 
         raise DeferredCapabilityError.new(capability, deferred_result) if candidates.empty?
 
@@ -32,7 +35,7 @@ module Igniter
       # Resolve the URL of a pinned peer by name.
       # Raises IncidentError if the peer is unknown or unreachable.
       def resolve_pinned(peer_name)
-        peer = @config.peer_named(peer_name)
+        peer = find_named_peer(peer_name)
 
         unless peer
           raise IncidentError.new(
@@ -52,6 +55,26 @@ module Igniter
       end
 
       private
+
+      # Combined static + dynamic peer pool for capability lookup.
+      # Static peers take precedence over same-named dynamic peers.
+      def all_capable_peers(capability)
+        merge_peers(
+          @config.peers_with_capability(capability),
+          @config.peer_registry.peers_with_capability(capability)
+        )
+      end
+
+      # Lookup peer by name across static and dynamic pools.
+      def find_named_peer(name)
+        @config.peer_named(name) || @config.peer_registry.peer_named(name)
+      end
+
+      # Merge static and dynamic peer lists; static names win on collision.
+      def merge_peers(static, dynamic)
+        seen = static.each_with_object({}) { |p, h| h[p.name] = true }
+        static + dynamic.reject { |p| seen[p.name] }
+      end
 
       def url_for_round_robin(capability, candidates)
         idx = @mutex.synchronize do

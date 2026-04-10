@@ -418,9 +418,134 @@ The compiler validates mesh routing options before any contract executes:
 
 ---
 
+---
+
+## Phase 2 — Dynamic Discovery
+
+> **Status**: v2 shipped (2026-04)
+
+Eliminates the need for static `add_peer` declarations. Every peer acts as a registry,
+stores the known peer list, and exposes it at `GET /v1/mesh/peers`.
+
+### Configuration
+
+```ruby
+Igniter::Mesh.configure do |c|
+  c.peer_name          = "api-node"
+  c.local_url          = "http://api.internal:4567"   # how OTHER peers reach this node
+  c.local_capabilities = %i[api]
+  c.seeds              = %w[http://orders.internal:4567 http://audit.internal:4567]
+  c.discovery_interval = 30   # seconds between polls (default)
+  c.auto_announce      = true # announce self to seeds at startup (default)
+
+  # Static peers still work alongside dynamic discovery:
+  c.add_peer "legacy-node", url: "http://legacy.internal:4567", capabilities: %i[billing]
+end
+
+Igniter::Mesh.start_discovery!   # announce + poll + background thread
+# …on graceful shutdown:
+Igniter::Mesh.stop_discovery!    # deannounce + stop background thread
+```
+
+### `Igniter::Mesh.start_discovery!`
+
+Performs three steps synchronously:
+
+1. **Announce** — POSTs self-manifest to each seed (`POST /v1/mesh/peers`).
+2. **Immediate poll** — fetches `GET /v1/mesh/peers` from each seed and populates
+   the local `PeerRegistry` with newly discovered peers.
+3. **Background poller** — starts a thread that repeats the poll every `discovery_interval` seconds.
+
+Returns `Igniter::Mesh` (chainable).
+
+### `Igniter::Mesh.stop_discovery!`
+
+1. **Deannounce** — sends `DELETE /v1/mesh/peers/:name` to each seed (best-effort).
+2. Stops the background polling thread.
+
+### Peer registry endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `GET /v1/mesh/peers` | GET | List all known peers (static + dynamic, merged) |
+| `POST /v1/mesh/peers` | POST | Register a peer in this node's dynamic registry |
+| `DELETE /v1/mesh/peers/:name` | DELETE | Deregister a peer by name (idempotent) |
+
+**POST body:**
+```json
+{ "name": "orders-node", "url": "http://orders.internal:4567", "capabilities": ["orders"] }
+```
+
+**GET response:**
+```json
+[
+  { "name": "orders-node", "url": "http://orders.internal:4567", "capabilities": ["orders"] },
+  { "name": "legacy-node", "url": "http://legacy.internal:4567", "capabilities": ["billing"] }
+]
+```
+
+### Static + dynamic peer merge
+
+The `Router` and `GET /v1/mesh/peers` both merge static and dynamic peers:
+
+- Static peers (`add_peer`) take **precedence** — if a static and dynamic peer share
+  the same name, the static entry wins.
+- Dynamic-only peers are appended after all static peers.
+
+### `PeerRegistry`
+
+Thread-safe registry for dynamically discovered peers. Available at
+`Igniter::Mesh.config.peer_registry`:
+
+```ruby
+reg = Igniter::Mesh.config.peer_registry
+
+reg.register(Igniter::Mesh::Peer.new(name: "x", url: "http://x:4567", capabilities: [:orders]))
+reg.unregister("x")         # idempotent
+reg.all                     # → Array<Peer> snapshot
+reg.peer_named("x")         # → Peer | nil
+reg.peers_with_capability(:orders)  # → Array<Peer>
+reg.size                    # → Integer
+reg.clear                   # (useful in tests)
+```
+
+### `Client` mesh methods
+
+```ruby
+client = Igniter::Server::Client.new("http://seed:4567")
+
+client.list_peers
+# => [{ name: "orders-node", url: "http://...", capabilities: [:orders] }, ...]
+
+client.register_peer(name: "api-node", url: "http://api:4567", capabilities: %i[api])
+# => { "registered" => true, "name" => "api-node" }
+
+client.unregister_peer("api-node")
+```
+
+### Topology diagram (Phase 2)
+
+```
+Node A starts:
+  Igniter::Mesh.start_discovery!(seeds: ["http://seed:4567"])
+    → POST /v1/mesh/peers  to seed  (self-announce)
+    → GET  /v1/mesh/peers  from seed (immediate poll → fills PeerRegistry)
+    → background thread polls seed every 30s
+
+Node B starts later:
+  same flow → also announces to seed
+  Next poll on Node A → discovers Node B → added to PeerRegistry
+  Node A's capability routing now includes Node B
+
+Node C goes offline:
+  Health cache expires → alive?(C) returns false → C skipped in routing
+  C's entry stays in PeerRegistry (no auto-remove) — will route again if C recovers
+```
+
+---
+
 ## Roadmap
 
-- **Phase 2 — Dynamic Discovery**: peers register themselves at startup, manifests are fetched
-  automatically, topology is discovered without static configuration.
-- **Phase 3 — Gossip Protocol**: peers share health information with each other, enabling
-  faster failure detection and load awareness without a central coordinator.
+- **Phase 3 — Gossip Protocol**: peers share their peer lists with each other (not just
+  seeds), enabling faster failure detection and topology convergence without a central
+  coordinator.

@@ -28,6 +28,7 @@ require_relative "server/handlers/liveness_handler"
 require_relative "server/handlers/readiness_handler"
 require_relative "server/handlers/metrics_handler"
 require_relative "server/handlers/manifest_handler"
+require_relative "server/handlers/peers_handler"
 
 module Igniter
   module Server

@@ -8,7 +8,7 @@ module Igniter
   module Server
     # HTTP client for calling remote igniter-server nodes.
     # Uses only stdlib (Net::HTTP + JSON), no external gems required.
-    class Client
+    class Client # rubocop:disable Metrics/ClassLength
       class Error < Igniter::Server::Error; end
       class ConnectionError < Error; end
       class RemoteError < Error; end
@@ -62,6 +62,29 @@ module Igniter
         }
       end
 
+      # Fetch the list of all peers known to the remote node.
+      # Returns an Array of hashes with :name, :url, :capabilities (Array<Symbol>).
+      def list_peers
+        Array(get("/v1/mesh/peers")).map do |p|
+          {
+            name: p["name"],
+            url: p["url"],
+            capabilities: Array(p["capabilities"]).map(&:to_sym)
+          }
+        end
+      end
+
+      # Register this node as a peer on the remote node.
+      def register_peer(name:, url:, capabilities: [])
+        post("/v1/mesh/peers",
+             { "name" => name, "url" => url, "capabilities" => capabilities.map(&:to_s) })
+      end
+
+      # Remove a peer registration from the remote node. Best-effort.
+      def unregister_peer(name)
+        delete_request("/v1/mesh/peers/#{uri_encode(name)}")
+      end
+
       private
 
       def post(path, body)
@@ -78,6 +101,15 @@ module Igniter
         uri  = build_uri(path)
         http = build_http(uri)
         req  = Net::HTTP::Get.new(uri.path, json_headers)
+        parse_response(http.request(req))
+      rescue Errno::ECONNREFUSED, Errno::EADDRNOTAVAIL, SocketError, Net::OpenTimeout => e
+        raise ConnectionError, "Cannot connect to #{@base_url}: #{e.message}"
+      end
+
+      def delete_request(path)
+        uri  = build_uri(path)
+        http = build_http(uri)
+        req  = Net::HTTP::Delete.new(uri.path, json_headers)
         parse_response(http.request(req))
       rescue Errno::ECONNREFUSED, Errno::EADDRNOTAVAIL, SocketError, Net::OpenTimeout => e
         raise ConnectionError, "Cannot connect to #{@base_url}: #{e.message}"

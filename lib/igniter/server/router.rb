@@ -9,15 +9,18 @@ module Igniter
     # Used by both HttpServer (TCPServer) and RackApp.
     class Router
       ROUTES = [
-        { method: "GET",  pattern: %r{\A/v1/live\z},    handler: :liveness },
-        { method: "GET",  pattern: %r{\A/v1/ready\z},   handler: :readiness },
-        { method: "GET",  pattern: %r{\A/v1/metrics\z}, handler: :metrics },
-        { method: "GET",  pattern: %r{\A/v1/health\z},   handler: :health },
-        { method: "GET",  pattern: %r{\A/v1/manifest\z}, handler: :manifest },
-        { method: "GET",  pattern: %r{\A/v1/contracts\z},                             handler: :contracts },
-        { method: "POST", pattern: %r{\A/v1/contracts/(?<name>[^/]+)/execute\z},      handler: :execute },
-        { method: "POST", pattern: %r{\A/v1/contracts/(?<name>[^/]+)/events\z},       handler: :event },
-        { method: "GET",  pattern: %r{\A/v1/executions/(?<id>[^/]+)\z},               handler: :status }
+        { method: "GET",    pattern: %r{\A/v1/live\z},                             handler: :liveness },
+        { method: "GET",    pattern: %r{\A/v1/ready\z},                            handler: :readiness },
+        { method: "GET",    pattern: %r{\A/v1/metrics\z},                          handler: :metrics },
+        { method: "GET",    pattern: %r{\A/v1/health\z},                           handler: :health },
+        { method: "GET",    pattern: %r{\A/v1/manifest\z},                         handler: :manifest },
+        { method: "GET",    pattern: %r{\A/v1/mesh/peers\z},                       handler: :mesh_peers_list },
+        { method: "POST",   pattern: %r{\A/v1/mesh/peers\z},                       handler: :mesh_peers_register },
+        { method: "DELETE", pattern: %r{\A/v1/mesh/peers/(?<name>.+)\z},           handler: :mesh_peers_delete },
+        { method: "GET",    pattern: %r{\A/v1/contracts\z},                        handler: :contracts },
+        { method: "POST",   pattern: %r{\A/v1/contracts/(?<name>[^/]+)/execute\z}, handler: :execute },
+        { method: "POST",   pattern: %r{\A/v1/contracts/(?<name>[^/]+)/events\z},  handler: :event },
+        { method: "GET",    pattern: %r{\A/v1/executions/(?<id>[^/]+)\z},          handler: :status }
       ].freeze
 
       def initialize(config)
@@ -61,15 +64,18 @@ module Igniter
         collector = @config.metrics_collector
 
         case key
-        when :liveness  then Handlers::LivenessHandler.new(registry, store)
-        when :readiness then Handlers::ReadinessHandler.new(registry, store)
-        when :metrics   then Handlers::MetricsHandler.new(registry, store, collector: collector)
-        when :health    then Handlers::HealthHandler.new(registry, store, node_url: node_url)
-        when :manifest  then Handlers::ManifestHandler.new(registry, store, config: @config)
-        when :contracts then Handlers::ContractsHandler.new(registry, store)
-        when :execute   then Handlers::ExecuteHandler.new(registry, store, collector: collector)
-        when :event     then Handlers::EventHandler.new(registry, store, collector: collector)
-        when :status    then Handlers::StatusHandler.new(registry, store)
+        when :liveness           then Handlers::LivenessHandler.new(registry, store)
+        when :readiness          then Handlers::ReadinessHandler.new(registry, store)
+        when :metrics            then Handlers::MetricsHandler.new(registry, store, collector: collector)
+        when :health             then Handlers::HealthHandler.new(registry, store, node_url: node_url)
+        when :manifest           then Handlers::ManifestHandler.new(registry, store, config: @config)
+        when :mesh_peers_list    then Handlers::MeshPeersListHandler.new(registry, store)
+        when :mesh_peers_register then Handlers::MeshPeersRegisterHandler.new(registry, store)
+        when :mesh_peers_delete  then Handlers::MeshPeersDeleteHandler.new(registry, store)
+        when :contracts          then Handlers::ContractsHandler.new(registry, store)
+        when :execute            then Handlers::ExecuteHandler.new(registry, store, collector: collector)
+        when :event              then Handlers::EventHandler.new(registry, store, collector: collector)
+        when :status             then Handlers::StatusHandler.new(registry, store)
         end
       end
 
