@@ -207,6 +207,39 @@ module Igniter
           end
         end
 
+        # TTL cache: any compute node + same dep fingerprint → reuse across executions.
+        ttl_key             = build_ttl_cache_key(node, dependencies)
+        is_coalescing_leader = false
+
+        if ttl_key
+          if (cached_value = Igniter::NodeCache.cache.fetch(ttl_key))
+            @execution.events.emit(:node_ttl_cache_hit, node: node, status: :succeeded,
+                                                        payload: { key: ttl_key.to_s })
+            return NodeState.new(node: node, status: :succeeded, value: cached_value,
+                                 dep_snapshot: current_dep_snapshot)
+          end
+
+          # Coalescing: if another execution is already computing this node for the same
+          # inputs, join as a follower instead of duplicating the work.
+          if node.coalesce? && (lock = Igniter::NodeCache.coalescing_lock)
+            role, flight = lock.acquire(ttl_key.hex)
+            if role == :follower
+              coalesced_value, coalesced_error = lock.wait(flight)
+              raise coalesced_error if coalesced_error
+
+              # Follower timed out — coalesced_value is nil, fall through to compute independently
+              unless coalesced_value.nil? && coalesced_error.nil? && !flight.done
+                @execution.events.emit(:node_coalesced, node: node, status: :succeeded,
+                                                        payload: { key: ttl_key.to_s })
+                return NodeState.new(node: node, status: :succeeded, value: coalesced_value,
+                                     dep_snapshot: current_dep_snapshot)
+              end
+            else
+              is_coalescing_leader = true
+            end
+          end
+        end
+
         value = call_compute(node.callable, dependencies)
         if deferred_result?(value)
           return NodeState.new(node: node, status: :pending,
@@ -220,6 +253,7 @@ module Igniter
         if old_value && old_value_version.positive? && value == old_value
           @execution.events.emit(:node_backdated, node: node, status: :succeeded,
                                                   payload: { reason: :value_unchanged })
+          store_ttl_result(ttl_key, value, node, is_coalescing_leader)
           return NodeState.new(node: node, status: :succeeded, value: value,
                                value_version: old_value_version,
                                dep_snapshot: current_dep_snapshot)
@@ -228,8 +262,16 @@ module Igniter
         # Store in content cache for future executions.
         Igniter::ContentAddressing.cache.store(content_key, value) if content_key
 
+        # Store in TTL cache and notify any coalescing followers.
+        store_ttl_result(ttl_key, value, node, is_coalescing_leader)
+
         NodeState.new(node: node, status: :succeeded, value: value,
                       dep_snapshot: current_dep_snapshot)
+      rescue StandardError => e
+        # If this execution was the coalescing leader, notify followers of the failure
+        # so they are unblocked (they will re-raise the error through their own path).
+        Igniter::NodeCache.coalescing_lock&.finish!(ttl_key&.hex, error: e) if is_coalescing_leader
+        raise
       end
 
       def call_compute(callable, dependencies)
@@ -578,6 +620,32 @@ module Igniter
         return unless node.callable.pure?
 
         Igniter::ContentAddressing::ContentKey.compute(node.callable, dep_values)
+      end
+
+      # ─── TTL cache ─────────────────────────────────────────────────────────────
+
+      # Returns a NodeCache::CacheKey when TTL caching is active for this node.
+      # Returns nil when NodeCache is not loaded, no backend is configured,
+      # or the node has no cache_ttl declared.
+      def build_ttl_cache_key(node, dep_values)
+        return unless defined?(Igniter::NodeCache)
+        return unless Igniter::NodeCache.cache
+        return unless node.respond_to?(:cache_ttl) && node.cache_ttl
+
+        dep_hex = Igniter::NodeCache::Fingerprinter.call(dep_values)
+        Igniter::NodeCache::CacheKey.new(
+          @execution.compiled_graph.name,
+          node.name,
+          dep_hex
+        )
+      end
+
+      # Stores a computed value in the TTL cache and signals any coalescing followers.
+      def store_ttl_result(ttl_key, value, node, is_leader)
+        return unless ttl_key
+
+        Igniter::NodeCache.cache.store(ttl_key, value, ttl: node.cache_ttl)
+        Igniter::NodeCache.coalescing_lock&.finish!(ttl_key.hex, value: value) if is_leader
       end
 
       def build_dep_snapshot(node)

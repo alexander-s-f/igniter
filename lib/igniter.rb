@@ -30,6 +30,23 @@ module Igniter
       @execution_store = store
     end
 
+    # TTL cache backend for compute nodes. nil = disabled (default).
+    # Set to Igniter::NodeCache::Memory.new (or a Redis-backed equivalent).
+    def node_cache
+      defined?(Igniter::NodeCache) ? Igniter::NodeCache.cache : nil
+    end
+
+    def node_cache=(cache)
+      require_relative "igniter/node_cache"
+      Igniter::NodeCache.cache = cache
+    end
+
+    # When true, auto-creates a CoalescingLock alongside the configured node cache.
+    def node_coalescing=(enabled)
+      require_relative "igniter/node_cache"
+      Igniter::NodeCache.coalescing_lock = enabled ? Igniter::NodeCache::CoalescingLock.new : nil
+    end
+
     def register_executor(key, executor_class, **metadata)
       executor_registry.register(key, executor_class, **metadata)
     end

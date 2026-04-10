@@ -23,6 +23,18 @@ module Igniter
         @execution_options = { runner: runner, max_workers: max_workers }.compact
       end
 
+      # Ergonomic alias for run_with. Accepts pool_size: as a clearer name for
+      # max_workers: when using the thread_pool runner.
+      #
+      #   class MyContract < Igniter::Contract
+      #     runner :thread_pool, pool_size: 4
+      #     define do ... end
+      #   end
+      def runner(strategy, pool_size: nil, max_workers: nil, **opts)
+        workers = pool_size || max_workers
+        @execution_options = { runner: strategy, max_workers: workers }.merge(opts).compact
+      end
+
       def restore_from_store(execution_id, store: nil)
         snapshot = (store || Igniter.execution_store).fetch(execution_id)
         restore(snapshot)

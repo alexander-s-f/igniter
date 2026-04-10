@@ -57,6 +57,19 @@ module Igniter
         metadata[:type] || executor_metadata[:type]
       end
 
+      # Seconds to cache this node's result across executions (nil = no TTL cache).
+      # Requires Igniter::NodeCache.cache to be configured.
+      def cache_ttl
+        metadata[:cache_ttl]
+      end
+
+      # When true, concurrent executions with identical dep fingerprints share one
+      # computation (the follower waits for the leader's result).
+      # Requires Igniter::NodeCache.coalescing_lock to be configured.
+      def coalesce?
+        metadata[:coalesce] == true
+      end
+
       def const?
         metadata[:kind] == :const
       end
