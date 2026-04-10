@@ -251,10 +251,12 @@ module Igniter
           memo[node_name] = {
             status: state.status,
             version: state.version,
+            value_version: state.value_version,
             resolved_at: state.resolved_at&.iso8601,
             invalidated_by: state.invalidated_by,
             value: serialize_state_value(state.value),
-            error: serialize_state_error(state.error)
+            error: serialize_state_error(state.error),
+            dep_snapshot: state.dep_snapshot
           }
         end
       end
@@ -262,14 +264,18 @@ module Igniter
       def deserialize_states(snapshot_states)
         snapshot_states.each_with_object({}) do |(node_name, state_data), memo|
           node = compiled_graph.fetch_node(node_name)
+          raw_dep_snapshot = state_data[:dep_snapshot] || state_data["dep_snapshot"]
+          dep_snapshot = raw_dep_snapshot&.transform_keys(&:to_sym)
           memo[node.name] = NodeState.new(
             node: node,
             status: (state_data[:status] || state_data["status"]).to_sym,
             value: deserialize_state_value(node, state_data[:value] || state_data["value"]),
             error: deserialize_state_error(state_data[:error] || state_data["error"]),
             version: state_data[:version] || state_data["version"],
+            value_version: state_data[:value_version] || state_data["value_version"],
             resolved_at: deserialize_time(state_data[:resolved_at] || state_data["resolved_at"]),
-            invalidated_by: (state_data[:invalidated_by] || state_data["invalidated_by"])&.to_sym
+            invalidated_by: (state_data[:invalidated_by] || state_data["invalidated_by"])&.to_sym,
+            dep_snapshot: dep_snapshot
           )
         end
       end

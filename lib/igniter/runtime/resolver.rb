@@ -115,16 +115,52 @@ module Igniter
         raise ResolutionError, "Cannot reach #{node.node_url}: #{e.message}"
       end
 
-      def resolve_compute(node)
+      def resolve_compute(node) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+        # Running state preserves dep_snapshot + value_version from the stale state.
+        # These are used for memoization (skip recompute) and value backdating.
+        running_state = @execution.cache.fetch(node.name)
+        old_dep_snapshot = running_state&.dep_snapshot
+        old_value = running_state&.value
+        old_value_version = running_state&.value_version || 0
+
+        # Resolve all dependencies (may recursively recompute upstream nodes).
         dependencies = node.dependencies.each_with_object({}) do |dependency_name, memo|
           memo[dependency_name] = resolve_dependency_value(dependency_name)
         end
 
+        # Build snapshot of current dep value_versions (only regular nodes, not outputs).
+        current_dep_snapshot = build_dep_snapshot(node)
+
+        # Memoization: if all dep value_versions are unchanged, skip the compute entirely.
+        if old_dep_snapshot && old_value && old_value_version.positive? &&
+           dep_snapshot_match?(current_dep_snapshot, old_dep_snapshot)
+          @execution.events.emit(:node_skipped, node: node, status: :succeeded,
+                                                payload: { reason: :deps_unchanged })
+          return NodeState.new(node: node, status: :succeeded, value: old_value,
+                               value_version: old_value_version,
+                               dep_snapshot: current_dep_snapshot)
+        end
+
         value = call_compute(node.callable, dependencies)
-        return NodeState.new(node: node, status: :pending, value: normalize_deferred_result(value, node)) if deferred_result?(value)
+        if deferred_result?(value)
+          return NodeState.new(node: node, status: :pending,
+                               value: normalize_deferred_result(value, node))
+        end
+
         value = normalize_guard_value(node, value)
 
-        NodeState.new(node: node, status: :succeeded, value: value)
+        # Value backdating: if the output is unchanged, preserve value_version so that
+        # downstream nodes whose dep_snapshots reference this node won't see it as changed.
+        if old_value && old_value_version.positive? && value == old_value
+          @execution.events.emit(:node_backdated, node: node, status: :succeeded,
+                                                  payload: { reason: :value_unchanged })
+          return NodeState.new(node: node, status: :succeeded, value: value,
+                               value_version: old_value_version,
+                               dep_snapshot: current_dep_snapshot)
+        end
+
+        NodeState.new(node: node, status: :succeeded, value: value,
+                      dep_snapshot: current_dep_snapshot)
       end
 
       def call_compute(callable, dependencies)
@@ -151,11 +187,9 @@ module Igniter
       end
 
       def call_compute_object(callable, dependencies)
-        if callable.respond_to?(:call)
-          callable.call(**dependencies)
-        else
-          raise ResolutionError, "Unsupported callable: #{callable.class}"
-        end
+        raise ResolutionError, "Unsupported callable: #{callable.class}" unless callable.respond_to?(:call)
+
+        callable.call(**dependencies)
       end
 
       def resolve_composition(node)
@@ -281,13 +315,17 @@ module Igniter
         if @execution.compiled_graph.node?(dependency_name)
           dependency_state = resolve(dependency_name)
           raise dependency_state.error if dependency_state.failed?
-          raise PendingDependencyError.new(dependency_state.value, context: pending_context(dependency_state.node)) if dependency_state.pending?
+
+          if dependency_state.pending?
+            raise PendingDependencyError.new(dependency_state.value,
+                                             context: pending_context(dependency_state.node))
+          end
 
           dependency_state.value
         elsif @execution.compiled_graph.outputs_by_name.key?(dependency_name.to_sym)
           output = @execution.compiled_graph.fetch_output(dependency_name)
           value = @execution.send(:resolve_exported_output, output)
-          raise PendingDependencyError.new(value) if deferred_result?(value)
+          raise PendingDependencyError, value if deferred_result?(value)
 
           value
         else
@@ -372,6 +410,21 @@ module Igniter
         )
       end
 
+      def build_dep_snapshot(node)
+        node.dependencies.each_with_object({}) do |dep_name, memo|
+          next unless @execution.compiled_graph.node?(dep_name)
+
+          dep_state = @execution.cache.fetch(dep_name.to_sym)
+          memo[dep_name] = dep_state&.value_version
+        end
+      end
+
+      def dep_snapshot_match?(current, old)
+        return false if current.size != old.size
+
+        current.all? { |name, vv| old[name] == vv }
+      end
+
       def normalize_guard_value(node, value)
         return value unless node.respond_to?(:guard?) && node.guard?
         return true if value
@@ -389,9 +442,7 @@ module Igniter
       end
 
       def normalize_collection_items(node, items, context_values = {})
-        if node.input_mapper? && items.is_a?(Hash)
-          items = items.to_a
-        end
+        items = items.to_a if node.input_mapper? && items.is_a?(Hash)
 
         unless items.is_a?(Array)
           raise CollectionInputError.new(
@@ -440,14 +491,17 @@ module Igniter
 
       def ensure_unique_collection_keys!(node, items)
         keys = items.map do |item|
-          item.fetch(node.key_name) { raise CollectionKeyError.new("Collection '#{node.name}' item is missing key '#{node.key_name}'", context: collection_context(node)) }
+          item.fetch(node.key_name) do
+            raise CollectionKeyError.new("Collection '#{node.name}' item is missing key '#{node.key_name}'",
+                                         context: collection_context(node))
+          end
         end
 
         duplicates = keys.group_by(&:itself).select { |_key, entries| entries.size > 1 }.keys
         return if duplicates.empty?
 
         raise CollectionKeyError.new(
-          "Collection '#{node.name}' has duplicate keys: #{duplicates.join(', ')}",
+          "Collection '#{node.name}' has duplicate keys: #{duplicates.join(", ")}",
           context: collection_context(node)
         )
       end
