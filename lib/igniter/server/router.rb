@@ -12,7 +12,8 @@ module Igniter
         { method: "GET",  pattern: %r{\A/v1/live\z},    handler: :liveness },
         { method: "GET",  pattern: %r{\A/v1/ready\z},   handler: :readiness },
         { method: "GET",  pattern: %r{\A/v1/metrics\z}, handler: :metrics },
-        { method: "GET",  pattern: %r{\A/v1/health\z},  handler: :health },
+        { method: "GET",  pattern: %r{\A/v1/health\z},   handler: :health },
+        { method: "GET",  pattern: %r{\A/v1/manifest\z}, handler: :manifest },
         { method: "GET",  pattern: %r{\A/v1/contracts\z},                             handler: :contracts },
         { method: "POST", pattern: %r{\A/v1/contracts/(?<name>[^/]+)/execute\z},      handler: :execute },
         { method: "POST", pattern: %r{\A/v1/contracts/(?<name>[^/]+)/events\z},       handler: :event },
@@ -53,7 +54,7 @@ module Igniter
 
       private
 
-      def build_handler(key) # rubocop:disable Metrics/MethodLength
+      def build_handler(key) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
         registry  = @config.registry
         store     = @config.store
         node_url  = "http://#{@config.host}:#{@config.port}"
@@ -64,6 +65,7 @@ module Igniter
         when :readiness then Handlers::ReadinessHandler.new(registry, store)
         when :metrics   then Handlers::MetricsHandler.new(registry, store, collector: collector)
         when :health    then Handlers::HealthHandler.new(registry, store, node_url: node_url)
+        when :manifest  then Handlers::ManifestHandler.new(registry, store, config: @config)
         when :contracts then Handlers::ContractsHandler.new(registry, store)
         when :execute   then Handlers::ExecuteHandler.new(registry, store, collector: collector)
         when :event     then Handlers::EventHandler.new(registry, store, collector: collector)

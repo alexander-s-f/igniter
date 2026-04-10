@@ -25,6 +25,8 @@ module Igniter
         private
 
         def validate_url!(node)
+          return if node.routing_mode != :static
+
           return if node.node_url.start_with?("http://", "https://")
 
           raise @context.validation_error(

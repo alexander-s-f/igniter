@@ -109,17 +109,19 @@ module Igniter
         raise PendingDependencyError.new(deferred, "Waiting for external event '#{node.event_name}'")
       end
 
-      def resolve_remote(node) # rubocop:disable Metrics/MethodLength
+      def resolve_remote(node) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         unless defined?(Igniter::Server::Client)
           raise ResolutionError,
                 "remote: nodes require `require 'igniter/server'` (server integration not loaded)"
         end
 
+        url = resolve_remote_url(node)
+
         inputs = node.input_mapping.each_with_object({}) do |(child_input, dep_name), memo|
           memo[child_input] = resolve_dependency_value(dep_name)
         end
 
-        client   = Igniter::Server::Client.new(node.node_url, timeout: node.timeout)
+        client   = Igniter::Server::Client.new(url, timeout: node.timeout)
         response = client.execute(node.contract_name, inputs: inputs)
 
         case response[:status]
@@ -128,13 +130,41 @@ module Igniter
         when :failed
           error_message = response.dig(:error, :message) || response.dig(:error, "message")
           raise ResolutionError,
-                "Remote #{node.contract_name}@#{node.node_url}: #{error_message}"
+                "Remote #{node.contract_name}@#{url}: #{error_message}"
         else
           raise ResolutionError,
-                "Remote #{node.contract_name}@#{node.node_url}: unexpected status '#{response[:status]}'"
+                "Remote #{node.contract_name}@#{url}: unexpected status '#{response[:status]}'"
         end
       rescue Igniter::Server::Client::ConnectionError => e
-        raise ResolutionError, "Cannot reach #{node.node_url}: #{e.message}"
+        raise ResolutionError, "Cannot reach #{url}: #{e.message}"
+      end
+
+      # Resolve the target URL for a remote node based on its routing_mode.
+      # :static     → node_url directly
+      # :capability → Mesh::Router selects an alive peer (raises DeferredCapabilityError if none)
+      # :pinned     → Mesh::Router asserts the peer is alive (raises IncidentError if not)
+      def resolve_remote_url(node) # rubocop:disable Metrics/MethodLength
+        case node.routing_mode
+        when :static
+          node.node_url
+        when :capability
+          unless defined?(Igniter::Mesh)
+            raise ResolutionError,
+                  "remote :#{node.name} uses capability routing — add `require 'igniter/mesh'`"
+          end
+          deferred = Runtime::DeferredResult.build(
+            payload: { capability: node.capability },
+            source_node: node.name,
+            waiting_on: node.name
+          )
+          Igniter::Mesh.router.find_peer_for(node.capability, deferred)
+        when :pinned
+          unless defined?(Igniter::Mesh)
+            raise ResolutionError,
+                  "remote :#{node.name} uses pinned routing — add `require 'igniter/mesh'`"
+          end
+          Igniter::Mesh.router.resolve_pinned(node.pinned_to)
+        end
       end
 
       def resolve_compute(node) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity

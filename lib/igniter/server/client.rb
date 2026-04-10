@@ -51,6 +51,17 @@ module Igniter
         get("/v1/health")
       end
 
+      # Fetch peer manifest: peer_name, capabilities, contracts, url.
+      def manifest
+        response = get("/v1/manifest")
+        {
+          peer_name: response["peer_name"],
+          capabilities: (response["capabilities"] || []).map(&:to_sym),
+          contracts: response["contracts"] || [],
+          url: response["url"]
+        }
+      end
+
       private
 
       def post(path, body)
