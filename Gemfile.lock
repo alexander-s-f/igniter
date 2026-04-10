@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    igniter (0.4.3)
+    igniter (0.4.5)
 
 GEM
   remote: https://rubygems.org/
