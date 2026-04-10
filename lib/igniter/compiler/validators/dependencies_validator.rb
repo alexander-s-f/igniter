@@ -175,9 +175,11 @@ module Igniter
             raise @context.validation_error(node, "Collection '#{node.name}' references an uncompiled contract")
           end
 
-          unless %i[collect fail_fast].include?(node.mode)
-            raise @context.validation_error(node, "Collection '#{node.name}' mode must be `:collect` or `:fail_fast`")
+          unless %i[collect fail_fast incremental].include?(node.mode)
+            raise @context.validation_error(node, "Collection '#{node.name}' mode must be `:collect`, `:fail_fast`, or `:incremental`")
           end
+
+          validate_window_option!(node) if node.window
 
           child_input_names = node.contract_class.compiled_graph.nodes.select { |child_node| child_node.kind == :input }.map(&:name)
           return if child_input_names.include?(node.key_name)
@@ -186,6 +188,25 @@ module Igniter
             node,
             "Collection '#{node.name}' key '#{node.key_name}' must be a child contract input"
           )
+        end
+
+        def validate_window_option!(node) # rubocop:disable Metrics/MethodLength
+          window = node.window
+          unless window.is_a?(Hash)
+            raise @context.validation_error(node, "Collection '#{node.name}' window: must be a Hash")
+          end
+
+          if window.key?(:last)
+            unless window[:last].is_a?(Integer) && window[:last].positive?
+              raise @context.validation_error(node, "Collection '#{node.name}' window: { last: } must be a positive Integer")
+            end
+          elsif window.key?(:seconds)
+            unless window.key?(:field)
+              raise @context.validation_error(node, "Collection '#{node.name}' window: { seconds: } requires a :field key")
+            end
+          else
+            raise @context.validation_error(node, "Collection '#{node.name}' window: must use :last or :seconds")
+          end
         end
       end
     end

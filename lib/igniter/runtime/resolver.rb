@@ -273,6 +273,8 @@ module Igniter
       end
 
       def resolve_collection(node)
+        return resolve_incremental_collection(node) if node.mode == :incremental
+
         items = resolve_dependency_value(node.source_dependency)
         context_values = node.context_dependencies.each_with_object({}) do |dependency_name, memo|
           memo[dependency_name] = resolve_dependency_value(dependency_name)
@@ -325,6 +327,78 @@ module Igniter
           node: node,
           status: :succeeded,
           value: Runtime::CollectionResult.new(items: collection_items, mode: node.mode)
+        )
+      end
+
+      def resolve_incremental_collection(node) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+        unless defined?(Igniter::Dataflow)
+          raise ResolutionError.new(
+            "Collection '#{node.name}' uses mode: :incremental — " \
+            "add `require 'igniter/extensions/dataflow'` to activate it",
+            context: collection_context(node)
+          )
+        end
+
+        items = resolve_dependency_value(node.source_dependency)
+        context_values = node.context_dependencies.each_with_object({}) do |dep_name, memo|
+          memo[dep_name] = resolve_dependency_value(dep_name)
+        end
+
+        normalized_items = normalize_collection_items(node, items, context_values)
+        normalized_items = Igniter::Dataflow::WindowFilter.new(node.window).apply(normalized_items) if node.window
+
+        diff_state = @execution.diff_state_for(node.name)
+        key_fn     = ->(item) { extract_collection_key(node, item) }
+        diff       = diff_state.compute_diff(normalized_items, key_fn)
+
+        collection_items = {}
+
+        # Reuse cached results for unchanged items (no child contract re-run)
+        diff.unchanged.each do |key|
+          cached = diff_state.cached_item_for(key)
+          collection_items[key] = cached if cached
+          emit_collection_item_event(:collection_item_reused, node, key)
+        end
+
+        # Retract removed items from the diff state
+        diff.removed.each { |key| diff_state.retract!(key) }
+
+        # Run child contracts only for added + changed items
+        to_process = normalized_items.select { |item| diff.added.include?(key_fn.call(item)) || diff.changed.include?(key_fn.call(item)) }
+
+        to_process.each do |item_inputs|
+          item_key = key_fn.call(item_inputs)
+          emit_collection_item_event(:collection_item_started, node, item_key, item_inputs: item_inputs)
+          child_contract = node.contract_class.new(item_inputs)
+          begin
+            child_contract.resolve_all
+          rescue Igniter::Error
+            nil
+          end
+          child_error = child_contract.execution.cache.values.find(&:failed?)&.error
+
+          result_item = if child_error
+            emit_collection_item_event(:collection_item_failed, node, item_key, error: child_error.message, error_type: child_error.class.name, child_execution_id: child_contract.execution.events.execution_id)
+            Runtime::CollectionResult::Item.new(key: item_key, status: :failed, error: child_error)
+          else
+            emit_collection_item_event(:collection_item_succeeded, node, item_key, child_execution_id: child_contract.execution.events.execution_id)
+            Runtime::CollectionResult::Item.new(key: item_key, status: :succeeded, result: child_contract.result)
+          end
+
+          collection_items[item_key] = result_item
+          diff_state.update!(item_key, item_inputs, result_item)
+        end
+
+        # Preserve the input array ordering in the result
+        ordered_items = normalized_items.each_with_object({}) do |item_inputs, memo|
+          key = key_fn.call(item_inputs)
+          memo[key] = collection_items[key] if collection_items.key?(key)
+        end
+
+        NodeState.new(
+          node: node,
+          status: :succeeded,
+          value: Igniter::Dataflow::IncrementalCollectionResult.new(items: ordered_items, diff: diff)
         )
       end
 

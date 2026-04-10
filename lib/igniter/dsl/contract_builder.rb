@@ -210,7 +210,7 @@ module Igniter
         )
       end
 
-      def collection(name, with:, each:, key:, mode: :collect, depends_on: nil, map_inputs: nil, using: nil, **metadata)
+      def collection(name, with:, each:, key:, mode: :collect, window: nil, depends_on: nil, map_inputs: nil, using: nil, **metadata)
         raise CompileError, "collection :#{name} cannot use both `map_inputs:` and `using:`" if map_inputs && using
 
         add_node(
@@ -221,6 +221,7 @@ module Igniter
             contract_class: each,
             key_name: key,
             mode: mode,
+            window: window,
             context_dependencies: normalize_dependencies(depends_on: depends_on, with: nil),
             input_mapper: map_inputs || using,
             path: scoped_path(name),

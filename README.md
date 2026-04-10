@@ -76,6 +76,7 @@ contract.diagnostics_text     # compact execution summary
 - **Capabilities**: executors declare what resources they need (`:network`, `:database`, …); `Policy` denies them at runtime.
 - **Temporal contracts**: inject `as_of` time input automatically; replay any historical computation with the original timestamp.
 - **Content addressing**: `pure` executors get a universal cache key — identical inputs return a cached result across executions, processes, and deployments.
+- **Incremental dataflow**: `mode: :incremental` on collection nodes — only added/changed items run, unchanged items reuse cached results, removed items are retracted. O(change) not O(total).
 
 ## Quick Start Recipes
 
@@ -610,6 +611,48 @@ Igniter::ContentAddressing.cache = RedisContentCache.new(Redis.new)
 
 See [`docs/CONTENT_ADDRESSING_V1.md`](docs/CONTENT_ADDRESSING_V1.md).
 
+### 16. Incremental Dataflow — O(change) Collection Processing
+
+`mode: :incremental` on a collection node makes the runtime diff the input array on
+every `resolve_all`. Only added/changed items have their child contract re-run;
+unchanged items reuse the cached result; removed items are retracted automatically.
+
+```ruby
+require "igniter/extensions/dataflow"
+
+class SensorPipeline < Igniter::Contract
+  define do
+    input :readings, type: :array
+
+    collection :processed,
+               with: :readings,
+               each: SensorAnalysis,
+               key:  :sensor_id,
+               mode: :incremental,
+               window: { last: 1000 }   # bounded memory
+
+    output :processed
+  end
+end
+
+pipeline = SensorPipeline.new(readings: initial_batch)
+pipeline.resolve_all  # all N items run once
+
+# Push only the delta — no full-array replacement needed
+pipeline.feed_diff(:readings,
+  add:    [{ sensor_id: "new-1", value: 10 }],
+  update: [{ sensor_id: "tmp-2", value: 90 }],
+  remove: ["hum-1"]
+)
+pipeline.resolve_all  # only 2 child contracts run (new-1 + tmp-2)
+
+diff = pipeline.collection_diff(:processed)
+diff.processed_count  # => 2
+diff.unchanged.size   # => N - 2
+```
+
+See [`docs/DATAFLOW_V1.md`](docs/DATAFLOW_V1.md).
+
 ## Examples
 
 | Example | Run | Shows |
@@ -628,6 +671,7 @@ See [`docs/CONTENT_ADDRESSING_V1.md`](docs/CONTENT_ADDRESSING_V1.md).
 | `llm/research_agent.rb` | `ruby examples/llm/research_agent.rb` | Multi-step LLM pipeline with Ollama |
 | `llm/tool_use.rb` | `ruby examples/llm/tool_use.rb` | LLM tool declarations, chained LLM nodes, `Context` |
 | `companion/demo.rb` | `ruby examples/companion/demo.rb` | End-to-end voice AI pipeline using `Igniter::Application` |
+| `dataflow.rb` | `ruby examples/dataflow.rb` | Incremental sensor pipeline: `mode: :incremental`, `feed_diff`, sliding window |
 
 ## Design Docs
 
@@ -645,6 +689,7 @@ See [`docs/CONTENT_ADDRESSING_V1.md`](docs/CONTENT_ADDRESSING_V1.md).
 - [Capabilities v1](docs/CAPABILITIES_V1.md)
 - [Temporal Contracts v1](docs/TEMPORAL_V1.md)
 - [Content Addressing v1](docs/CONTENT_ADDRESSING_V1.md)
+- [Incremental Dataflow v1](docs/DATAFLOW_V1.md)
 - [Concepts and Principles](docs/IGNITER_CONCEPTS.md)
 
 ## Development
@@ -672,6 +717,7 @@ Current feature baseline:
 - capability-based security: `capabilities`, `pure`, `Policy`, `CapabilityViolationError`
 - temporal contracts: `include Igniter::Temporal`, `temporal_compute`, `as_of` input, historical reproduction
 - content-addressed computation: `pure`, `fingerprint`, universal `ContentKey`, pluggable `ContentCache`
+- incremental dataflow: `mode: :incremental`, `window:`, `feed_diff`, `collection_diff`, `DiffState`, `IncrementalCollectionResult`
 
 ## License
 

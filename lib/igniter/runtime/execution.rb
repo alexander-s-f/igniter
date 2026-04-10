@@ -59,6 +59,13 @@ module Igniter
         self
       end
 
+      # Returns the DiffState for an incremental collection node (created on first access).
+      # Persists across update_inputs calls for the lifetime of this Execution.
+      def diff_state_for(node_name)
+        @diff_states ||= {}
+        @diff_states[node_name.to_sym] ||= Igniter::Dataflow::DiffState.new
+      end
+
       def resume(node_name, value:)
         node = compiled_graph.fetch_node(node_name)
         current = cache.fetch(node.name)
