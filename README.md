@@ -14,6 +14,9 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - graph and runtime introspection (text, Mermaid)
 - ergonomic DSL helpers: `const`, `lookup`, `map`, `project`, `aggregate`, `guard`, `export`, `expose`, `effect`, `on_success`, `scope`, `namespace`
 - `Igniter::Application` — application scaffold with YAML config, autoloading, scheduler, and `igniter-server new` generator
+- capability-based security: declare executor resource requirements, enforce `Policy` at runtime
+- temporal contracts: reproducible historical execution via an explicit `as_of` time input
+- content-addressed computation: `pure` executors cached by input fingerprint across executions and processes
 
 ## Installation
 
@@ -70,6 +73,9 @@ contract.diagnostics_text     # compact execution summary
 - **Diagnostics**: compact text, Markdown, or structured reports for triage.
 - **Reactive**: subscribe declaratively to runtime events with `effect`, `on_success`, `on_failure`.
 - **Introspection**: render graphs as text or Mermaid; inspect runtime state.
+- **Capabilities**: executors declare what resources they need (`:network`, `:database`, …); `Policy` denies them at runtime.
+- **Temporal contracts**: inject `as_of` time input automatically; replay any historical computation with the original timestamp.
+- **Content addressing**: `pure` executors get a universal cache key — identical inputs return a cached result across executions, processes, and deployments.
 
 ## Quick Start Recipes
 
@@ -507,6 +513,103 @@ server:
 
 See [`docs/APPLICATION_V1.md`](docs/APPLICATION_V1.md) for the full reference and companion app example.
 
+### 13. Capability-Based Security
+
+Declare what external resources an executor needs, then deny specific capabilities at the
+policy level — without touching the executors themselves:
+
+```ruby
+require "igniter/capabilities"
+
+class DbLookup < Igniter::Executor
+  capabilities :database
+
+  def call(id:)
+    DB.find(id)
+  end
+end
+
+class PureCalc < Igniter::Executor
+  pure  # shorthand for capabilities(:pure)
+
+  def call(x:, y:) = x + y
+end
+
+# Inspect the graph's surface area before deploying
+MyContract.compiled_graph.required_capabilities
+# => { fetch: [:database], total: [:pure] }
+
+# Enforce policy at boot time
+Igniter::Capabilities.policy = Igniter::Capabilities::Policy.new(denied: [:database])
+
+MyContract.new(id: 1).resolve_all
+# => CapabilityViolationError: Node 'fetch' uses denied capabilities: database
+```
+
+See [`docs/CAPABILITIES_V1.md`](docs/CAPABILITIES_V1.md).
+
+### 14. Temporal Contracts
+
+Make time an explicit input so every execution is fully reproducible:
+
+```ruby
+require "igniter/temporal"
+
+class TaxRateContract < Igniter::Contract
+  include Igniter::Temporal
+
+  define do
+    input :country
+    # `as_of` is injected automatically (default: Time.now)
+
+    temporal_compute :rate, depends_on: :country do |country:, as_of:|
+      HISTORICAL_RATES.dig(country, as_of.year) || 0.0
+    end
+
+    output :rate
+  end
+end
+
+# Current rate
+TaxRateContract.new(country: "UA").result.rate
+# => 0.22
+
+# Reproduce the exact 2024 result
+TaxRateContract.new(country: "UA", as_of: Time.new(2024, 1, 1)).result.rate
+# => 0.20
+```
+
+See [`docs/TEMPORAL_V1.md`](docs/TEMPORAL_V1.md).
+
+### 15. Content-Addressed Computation
+
+`pure` executors are cached by a fingerprint of their logic + inputs. Identical computation
+is never repeated — within an execution, across executions, or across processes:
+
+```ruby
+require "igniter/extensions/content_addressing"
+
+class TaxCalculator < Igniter::Executor
+  pure
+  fingerprint "tax_calc_v1"   # bump to invalidate the cache when logic changes
+
+  def call(country:, amount:)
+    TAX_RATES[country] * amount
+  end
+end
+
+# First execution — computes and caches
+InvoiceContract.new(country: "UA", amount: 1000).result.tax  # computed
+
+# Second execution — served from cache; TaxCalculator is never called
+InvoiceContract.new(country: "UA", amount: 1000).result.tax  # cache hit
+
+# Distributed cache (Redis) — shared across all nodes
+Igniter::ContentAddressing.cache = RedisContentCache.new(Redis.new)
+```
+
+See [`docs/CONTENT_ADDRESSING_V1.md`](docs/CONTENT_ADDRESSING_V1.md).
+
 ## Examples
 
 | Example | Run | Shows |
@@ -539,6 +642,9 @@ See [`docs/APPLICATION_V1.md`](docs/APPLICATION_V1.md) for the full reference an
 - [igniter-server v1](docs/SERVER_V1.md)
 - [LLM Integration v1](docs/LLM_V1.md)
 - [Application scaffold v1](docs/APPLICATION_V1.md)
+- [Capabilities v1](docs/CAPABILITIES_V1.md)
+- [Temporal Contracts v1](docs/TEMPORAL_V1.md)
+- [Content Addressing v1](docs/CONTENT_ADDRESSING_V1.md)
 - [Concepts and Principles](docs/IGNITER_CONCEPTS.md)
 
 ## Development
@@ -563,6 +669,9 @@ Current feature baseline:
 - Rails integration: Railtie, ActiveJob, ActionCable, webhook controller mixin
 - `Igniter::Application`: YAML config, autoloading, scheduler, generator (`igniter-server new`)
 - auditing, diagnostics, reactive subscriptions, graph introspection
+- capability-based security: `capabilities`, `pure`, `Policy`, `CapabilityViolationError`
+- temporal contracts: `include Igniter::Temporal`, `temporal_compute`, `as_of` input, historical reproduction
+- content-addressed computation: `pure`, `fingerprint`, universal `ContentKey`, pluggable `ContentCache`
 
 ## License
 
