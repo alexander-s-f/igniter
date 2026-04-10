@@ -1,25 +1,77 @@
 # frozen_string_literal: true
 
+require "uri"
+
 module Igniter
   module Server
     module Handlers
-      # GET /v1/mesh/peers
-      # Returns the merged list of static + dynamically discovered peers.
-      class MeshPeersListHandler < Base
+      # Shared helper — merges static (add_peer) and dynamic (PeerRegistry) peer pools.
+      # Static entries take precedence when the same name appears in both pools.
+      module MeshPeersMerger
         private
 
-        def handle(params:, body:) # rubocop:disable Lint/UnusedMethodArgument
-          return json_ok([]) unless defined?(Igniter::Mesh)
-
-          peers = merged_peers
-          json_ok(peers.map { |p| { "name" => p.name, "url" => p.url, "capabilities" => p.capabilities.map(&:to_s) } })
-        end
-
         def merged_peers
+          return [] unless defined?(Igniter::Mesh)
+
           static  = Igniter::Mesh.config.peers
           dynamic = Igniter::Mesh.config.peer_registry.all
           seen    = static.each_with_object({}) { |p, h| h[p.name] = true }
           static + dynamic.reject { |p| seen[p.name] }
+        end
+      end
+
+      # GET /v1/mesh/peers
+      # Returns the merged list of static + dynamically discovered peers.
+      class MeshPeersListHandler < Base
+        include MeshPeersMerger
+
+        private
+
+        def handle(params:, body:) # rubocop:disable Lint/UnusedMethodArgument
+          json_ok(merged_peers.map do |p|
+            { "name" => p.name, "url" => p.url, "capabilities" => p.capabilities.map(&:to_s) }
+          end)
+        end
+      end
+
+      # GET /v1/mesh/sd
+      # Returns the peer list in Prometheus HTTP SD format so that Prometheus can
+      # dynamically discover all igniter-server scrape targets without a static target list.
+      #
+      # Response shape (one object per peer):
+      #   [{ "targets" => ["host:port"], "labels" => { "__meta_igniter_peer_name" => ..., ... } }]
+      #
+      # Usage in prometheus.yml:
+      #   scrape_configs:
+      #     - job_name: igniter
+      #       http_sd_configs:
+      #         - url: http://any-seed:4567/v1/mesh/sd
+      #           refresh_interval: 30s
+      #       metrics_path: /v1/metrics
+      class MeshSdHandler < Base
+        include MeshPeersMerger
+
+        private
+
+        def handle(params:, body:) # rubocop:disable Lint/UnusedMethodArgument
+          json_ok(merged_peers.map { |p| sd_entry(p) })
+        end
+
+        def sd_entry(peer)
+          {
+            "targets" => [host_port(peer.url)],
+            "labels" => {
+              "__meta_igniter_peer_name" => peer.name,
+              "__meta_igniter_capabilities" => peer.capabilities.map(&:to_s).join(",")
+            }
+          }
+        end
+
+        def host_port(url)
+          uri = URI.parse(url)
+          "#{uri.host}:#{uri.port}"
+        rescue URI::InvalidURIError
+          url
         end
       end
 

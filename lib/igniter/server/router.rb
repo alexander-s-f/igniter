@@ -15,6 +15,7 @@ module Igniter
         { method: "GET",    pattern: %r{\A/v1/health\z},                           handler: :health },
         { method: "GET",    pattern: %r{\A/v1/manifest\z},                         handler: :manifest },
         { method: "GET",    pattern: %r{\A/v1/mesh/peers\z},                       handler: :mesh_peers_list },
+        { method: "GET",    pattern: %r{\A/v1/mesh/sd\z}, handler: :mesh_sd },
         { method: "POST",   pattern: %r{\A/v1/mesh/peers\z},                       handler: :mesh_peers_register },
         { method: "DELETE", pattern: %r{\A/v1/mesh/peers/(?<name>.+)\z},           handler: :mesh_peers_delete },
         { method: "GET",    pattern: %r{\A/v1/contracts\z},                        handler: :contracts },
@@ -70,6 +71,7 @@ module Igniter
         when :health             then Handlers::HealthHandler.new(registry, store, node_url: node_url)
         when :manifest           then Handlers::ManifestHandler.new(registry, store, config: @config)
         when :mesh_peers_list    then Handlers::MeshPeersListHandler.new(registry, store)
+        when :mesh_sd            then Handlers::MeshSdHandler.new(registry, store)
         when :mesh_peers_register then Handlers::MeshPeersRegisterHandler.new(registry, store)
         when :mesh_peers_delete  then Handlers::MeshPeersDeleteHandler.new(registry, store)
         when :contracts          then Handlers::ContractsHandler.new(registry, store)

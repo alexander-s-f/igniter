@@ -643,6 +643,90 @@ Next gossip round on Node E (new node, only knows seed):
 
 ---
 
+## Observability — Prometheus Service Discovery
+
+> **Status**: v1 shipped (2026-04)
+
+### Problem
+
+Each node already exposes `GET /v1/metrics` (Prometheus text 0.0.4). In a dynamic mesh the
+set of nodes changes as peers join/leave. Maintaining a static `prometheus.yml` target list
+is fragile. `GET /v1/mesh/sd` solves this: Prometheus polls one stable endpoint and
+automatically discovers all scrape targets as the topology changes.
+
+### Endpoint
+
+```
+GET /v1/mesh/sd
+```
+
+Returns the current peer list (static `add_peer` + dynamic `PeerRegistry`, same merge logic
+as `GET /v1/mesh/peers`) in **Prometheus HTTP SD format**. Self is not included (consistent
+with `/v1/mesh/peers`). Returns `[]` when Mesh is not loaded.
+
+### Response Format
+
+```json
+[
+  {
+    "targets": ["node-a:4567"],
+    "labels": {
+      "__meta_igniter_peer_name":    "node-a",
+      "__meta_igniter_capabilities": "orders,inventory"
+    }
+  },
+  {
+    "targets": ["node-b:4567"],
+    "labels": {
+      "__meta_igniter_peer_name":    "node-b",
+      "__meta_igniter_capabilities": "audit"
+    }
+  }
+]
+```
+
+- `targets` — `host:port` extracted from the peer URL (scheme stripped).
+- `__meta_igniter_peer_name` — peer name; available during Prometheus relabeling.
+- `__meta_igniter_capabilities` — comma-separated capability list (empty string if none).
+  Labels with `__meta_` prefix are dropped after relabeling unless explicitly kept via
+  `relabel_configs`.
+
+### Prometheus Configuration
+
+Point `http_sd_configs` at any mesh node that has seed/gossip knowledge of the cluster.
+Because topology propagates via gossip, any node works — no dedicated coordinator required.
+
+```yaml
+scrape_configs:
+  - job_name: igniter
+    http_sd_configs:
+      - url: http://any-seed:4567/v1/mesh/sd
+        refresh_interval: 30s      # re-polls every 30s; matches default discovery_interval
+    metrics_path: /v1/metrics
+    # Optional: keep peer metadata as labels after scraping
+    relabel_configs:
+      - source_labels: [__meta_igniter_peer_name]
+        target_label: igniter_peer
+      - source_labels: [__meta_igniter_capabilities]
+        target_label: igniter_capabilities
+```
+
+### How Metrics Flow
+
+```
+Prometheus
+  → GET /v1/mesh/sd (any seed, 30s refresh)
+      ← [{ targets: ["node-a:4567"], ...}, { targets: ["node-b:4567"], ...}]
+  → GET http://node-a:4567/v1/metrics  (15s scrape)
+  → GET http://node-b:4567/v1/metrics  (15s scrape)
+  → GET http://node-c:4567/v1/metrics  (appears after gossip propagation)
+```
+
+New nodes are discovered within one gossip round + one SD refresh interval — typically
+under 60 seconds in a default configuration.
+
+---
+
 ## Roadmap
 
 *(No further phases currently planned.)*
