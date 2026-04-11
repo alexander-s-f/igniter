@@ -1,317 +1,307 @@
-# Igniter v2 Architecture
-
-## Goal
-
-Igniter v2 is a Ruby library for describing business logic as a validated dependency graph and executing that graph with:
-
-- deterministic resolution
-- lazy evaluation
-- selective invalidation
-- transparent events
-- optional extensions built on top of the event stream
-
-The core design principle is strict separation between:
-
-- model time: describing the graph
-- compile time: validating and freezing the graph
-- runtime: resolving the graph against inputs
+# Igniter — Architecture
 
 ## Design Principles
 
-1. Small, hard core.
-   The kernel should be minimal, strict, and easy to test.
+1. **Small, hard core.** The kernel is minimal, strict, and independently testable.
+   Extensions, server, and cluster layers are opt-in.
 
-2. Compile first, execute second.
-   No runtime should deal with half-built DSL objects.
+2. **Compile first, execute second.** Graphs are validated and frozen before any
+   execution begins. Runtime never deals with half-built DSL objects.
 
-3. Explicit data flow.
-   Dependencies, output exposure, and composition mappings are always declared.
+3. **Explicit data flow.** Dependencies, output exposure, and composition mappings
+   are always declared. Nothing is implicit.
 
-4. Extensions over hooks.
-   Auditing, reactions, tracing, and introspection consume runtime events instead of being deeply embedded in execution.
+4. **Extensions over hooks.** Auditing, reactive effects, tracing, and introspection
+   consume the runtime event stream instead of being coupled to execution internals.
 
-5. Stable identities.
-   Nodes should have stable `id`, `path`, and `kind`. Runtime logic must not depend on Ruby object identity alone.
+5. **Stable identities.** Every node has a stable `id`, `kind`, `name`, and `path`.
+   Runtime logic does not rely on Ruby object identity.
 
-## Layered Architecture
+6. **Strict separation of compile-time and runtime concerns.**
+   - *Model time*: describe the graph (DSL).
+   - *Compile time*: validate and freeze the graph (Compiler).
+   - *Runtime*: resolve the graph against one input set (Runtime).
 
-### 1. `Igniter::Model`
+---
 
-Pure compile-time domain objects. No lazy execution, no caching, no observers.
+## Layer Map
 
-Primary objects:
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Cluster Layer  (igniter-cluster, future gem)                    │
+│  Consensus (Raft) · Mesh (gossip) · Replication                  │
+├─────────────────────────────────────────────────────────────────┤
+│  Server Layer   (igniter-server, future gem)                     │
+│  HTTP Server · Rack · Application scaffold · CLI                 │
+│  Actor system (Agent/Supervisor/Registry)                        │
+│  LLM integration · Tool registry · Skill system                  │
+│  Memory stores · Metrics · Scheduler                             │
+├─────────────────────────────────────────────────────────────────┤
+│  Core Library   (igniter)                                        │
+│  Model · Compiler · DSL · Runtime · Events                       │
+│  Extensions: auditing, saga, provenance, incremental, dataflow,  │
+│              differential, invariants, content-addressing         │
+│  Capabilities · Temporal · Fingerprint · NodeCache               │
+│  Property testing                                                │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-- `Igniter::Model::Graph`
-- `Igniter::Model::Node`
-- `Igniter::Model::InputNode`
-- `Igniter::Model::ComputeNode`
-- `Igniter::Model::OutputNode`
-- `Igniter::Model::CompositionNode`
-- `Igniter::Model::Dependency`
+Each layer is a strict superset of the one below it. Your domain contracts live
+in the core layer and are never rewritten as you scale.
+
+---
+
+## Core Layer
+
+### `Igniter::Model`
+
+Pure compile-time domain objects. Immutable after the compiler runs.
+
+| Object | Responsibility |
+|--------|----------------|
+| `Model::Graph` | Graph topology and traversal primitives |
+| `Model::Node` | Base node with id, kind, name, path, metadata |
+| `Model::InputNode` | Input declaration with type and default |
+| `Model::ComputeNode` | Computation with dependency declarations, cache_ttl, coalesce |
+| `Model::OutputNode` | Output exposure |
+| `Model::CompositionNode` | Nested contract reference |
+| `Model::BranchNode` | Conditional routing |
+| `Model::CollectionNode` | Fan-out over an array |
+| `Model::AwaitNode` | Suspend execution until an external event |
+| `Model::EffectNode` | Declared side effect with compensation |
+| `Model::AggregateNode` | Multi-input aggregation |
+
+### `Igniter::Compiler`
+
+Transforms DSL-built graph drafts into a frozen `CompiledGraph`.
 
 Responsibilities:
+- Node uniqueness and path validation
+- Dependency reference validation (no dangling edges)
+- Cycle detection (topological sort)
+- Composition mapping validation
+- Freeze and seal the result
 
-- represent graph topology
-- store node metadata
-- store dependency declarations
-- store source location metadata for diagnostics
-- expose graph traversal primitives
+Outputs:
+- Stable node registry by `id` and `path`
+- Dependency index and reverse dependency index
+- Topological resolution order
+- Required capabilities surface
 
-Constraints:
+### `Igniter::DSL`
 
-- immutable after compilation
-- no implicit mutation during runtime
+Fluent builder that translates keyword declarations into model objects.
 
-### 2. `Igniter::Compiler`
+Key methods: `input`, `compute`, `output`, `compose`, `branch`, `collection`,
+`await`, `const`, `lookup`, `map`, `project`, `aggregate`, `guard`, `expose`,
+`export`, `effect`, `on_success`, `scope`, `namespace`, `remote`.
 
-Transforms draft model definitions into a validated `CompiledGraph`.
+Rules:
+- DSL contains no execution logic.
+- DSL never decides cache or invalidation behavior.
+- Source location metadata is attached for diagnostics.
 
-Primary objects:
-
-- `Igniter::Compiler::GraphCompiler`
-- `Igniter::Compiler::CompiledGraph`
-- `Igniter::Compiler::Validator`
-- `Igniter::Compiler::ResolutionPlan`
-
-Responsibilities:
-
-- validate node uniqueness
-- validate paths and namespaces
-- validate dependency references
-- detect cycles
-- validate composition mappings
-- compute topological order
-- freeze the result
-
-Compiler output:
-
-- stable node registry by id and path
-- dependency index
-- reverse dependency index
-- topological resolution plan
-- output registry
-
-### 3. `Igniter::Runtime`
+### `Igniter::Runtime`
 
 Executes a compiled graph for one input set.
 
-Primary objects:
+| Object | Responsibility |
+|--------|----------------|
+| `Runtime::Execution` | Public session: inputs, resolve, events |
+| `Runtime::Resolver` | Resolve one node: call executor, apply cache, emit events |
+| `Runtime::Cache` | Store NodeState by node id within one execution |
+| `Runtime::Invalidator` | Mark downstream nodes stale on input change |
+| `Runtime::Result` | Output facade — lazy, one accessor per output |
+| `Runtime::NodeState` | One resolved node: value, error, timing, status |
+| `Runtime::Planner` | Compute minimal resolution plan for a requested output |
+| `Runtime::InputValidator` | Type-check inputs at execution boundary |
 
-- `Igniter::Runtime::Execution`
-- `Igniter::Runtime::Resolver`
-- `Igniter::Runtime::Cache`
-- `Igniter::Runtime::Invalidator`
-- `Igniter::Runtime::NodeState`
-- `Igniter::Runtime::Result`
-- `Igniter::Runtime::ExecutorRegistry`
+Non-responsibilities of runtime:
+- Graph validation (Compiler's job)
+- DSL parsing (DSL's job)
+- Persistence (store adapters)
+- Reactive policy decisions (event subscribers)
 
-Responsibilities:
+Runners:
+- `:inline` — sequential, single-threaded (default)
+- `:thread_pool` — concurrent via `pool_size` threads
+- `:store` — async / deferred nodes with snapshot / restore
 
-- hold input values
-- resolve requested outputs or nodes
-- cache node states
-- invalidate downstream nodes on input changes
-- emit lifecycle events
-- expose execution result
+### `Igniter::Events`
 
-Non-responsibilities:
+All runtime state changes produce structured events. Extensions and reactive
+effects consume events without coupling to execution internals.
 
-- graph validation
-- DSL parsing
-- auditing persistence
-- reactive policy decisions
+```
+node_started · node_succeeded · node_failed · node_cached
+node_ttl_cache_hit · node_coalesced · input_validated
+execution_started · execution_completed · execution_failed
+```
 
-### 4. `Igniter::DSL`
+### `Igniter::Extensions`
 
-Thin syntax layer that produces a graph draft or a builder input for the compiler.
+Optional packages that enrich the core without modifying it.
 
-Primary objects:
+| Extension | Require | Purpose |
+|-----------|---------|---------|
+| Auditing | `igniter/extensions/auditing` | Execution timeline + snapshots |
+| Reactive | built-in | `effect`, `on_success`, `on_failure` DSL hooks |
+| Introspection | `igniter/extensions/introspection` | Text + Mermaid graph render |
+| Saga | `igniter/extensions/saga` | Compensation / rollback pattern |
+| Provenance | `igniter/extensions/provenance` | Data lineage tracking |
+| Incremental | `igniter/extensions/incremental` | Always-on memoization + backdating |
+| Dataflow | `igniter/extensions/dataflow` | O(change) incremental collections |
+| Differential | `igniter/extensions/differential` | Contract version comparison |
+| Invariants | `igniter/extensions/invariants` | Runtime invariant enforcement |
+| Content addressing | `igniter/extensions/content_addressing` | Universal input-fingerprint cache |
 
-- `Igniter::DSL::Contract`
-- `Igniter::DSL::Builder`
-- `Igniter::DSL::Reference`
+---
 
-Responsibilities:
+## Server Layer
 
-- provide ergonomic declaration syntax
-- map user declarations to model/compiler input
-- attach source-location metadata for errors
+Activated by `require "igniter/server"` or `require "igniter/application"`.
 
-Rules:
+### `Igniter::Server`
 
-- DSL must not contain execution logic
-- DSL must not decide invalidation or cache behavior
-- DSL should prefer explicit references over `method_missing`
+Rack-compatible HTTP server exposing contracts as a REST API.
 
-### 5. `Igniter::Events`
+| Component | Responsibility |
+|-----------|----------------|
+| `Server::RackApp` | Request routing, JSON serialisation |
+| `Server::HttpServer` | Built-in TCP server (no external dep) |
+| `Server::Registry` | Named contract registry |
+| `Server::Client` | HTTP client for `remote:` DSL |
+| `Server::Handlers` | /execute, /events, /health, /contracts, /metrics |
 
-Canonical runtime event schema.
+### `Igniter::Application`
 
-Primary objects:
+Convention-over-configuration entry point for single-machine deployments.
 
-- `Igniter::Events::Event`
-- `Igniter::Events::Bus`
-- `Igniter::Events::Subscriber`
+DSL: `config_file`, `configure`, `executors_path`, `contracts_path`, `tools_path`,
+`agents_path`, `skills_path`, `on_boot`, `register`, `schedule`.
 
-Responsibilities:
+Lifecycle: `autoload_paths!` → `on_boot` blocks → `configure` blocks → start server.
 
-- publish structured execution events
-- provide extension point for diagnostics and reactive features
+### Actor system — `Igniter::Agent` / `Igniter::Supervisor` / `Igniter::Registry`
 
-### 6. `Igniter::Extensions`
+Lightweight actor model built on Ruby threads and message-passing mailboxes.
+Used for stateful background processes (proactive agents, stream loops).
 
-Optional packages built on top of the event stream and compiled/runtime APIs.
+### LLM integration — `Igniter::LLM`
 
-Initial extension namespaces:
+LLM compute nodes with provider failover, tool-use auto-loop, structured output,
+feedback refinement, and audio transcription.
 
-- `Igniter::Extensions::Auditing`
-- `Igniter::Extensions::Reactive`
-- `Igniter::Extensions::Introspection`
+Providers: Ollama · Anthropic · OpenAI (+ compatible: Groq, Mistral, Azure).
 
-## Runtime Boundaries
+### Tool system — `Igniter::Tool` / `Igniter::Skill`
 
-The runtime is split by responsibility:
+- `Tool < Executor` — atomic operation with schema, capability guard, discoverable interface.
+- `Skill < LLM::Executor` — agentic sub-process with its own LLM loop and tool registry.
+- Both register in `Igniter::ToolRegistry` with scope: `:bundled` | `:managed` | `:workspace`.
 
-- `Execution`: public session object
-- `Resolver`: resolves one node using dependencies
-- `Cache`: stores `NodeState` by node id
-- `Invalidator`: marks downstream nodes stale
-- `Result`: output facade for callers
-- `Bus`: emits execution events
+---
 
-This is deliberate. The old shape concentrated orchestration, state mutation, notifications, and invalidation in one class. In v2, each concern gets a dedicated object.
+## Cluster Layer
 
-## Node Model
+Activated by `require "igniter/consensus"` and `require "igniter/extensions/mesh"`.
 
-Every compiled node should have:
+### `Igniter::Consensus`
 
-- `id`
-- `kind`
-- `name`
-- `path`
-- `dependencies`
-- `metadata`
+Raft-based cluster coordination.
 
-Candidate node kinds for v2:
+- Leader election with quorum.
+- `StateMachine` DSL for replicated state machines.
+- `Cluster.start` bootstraps the node and connects to peers.
+- Read consistency: `:any` (low-latency) or `:quorum` (strongly consistent).
 
-- `:input`
-- `:compute`
-- `:output`
-- `:composition`
+### `Igniter::Mesh`
 
-Optional later kinds:
+Gossip-based peer discovery.
 
-- `:constant`
-- `:projection`
-- `:group`
+- Periodic peer exchange — no central registry required.
+- Prometheus SD endpoint (`/v1/prometheus/targets`).
+- Kubernetes health probes (`/v1/healthz`, `/v1/readyz`).
+- Node metadata propagation (available contracts, version, load).
 
-### Why reduce node kinds
+### `Igniter::Replication`
 
-The kernel should start with the smallest set that explains the execution model clearly. Extra node kinds should be added only when they materially simplify the model rather than encode DSL convenience.
+Distributed execution state replication across nodes so any node can
+continue a distributed workflow after a peer failure.
 
-## Composition Strategy
-
-Composition is a first-class node kind.
-
-A composition node:
-
-- references another compiled contract
-- defines an input mapping from parent execution to child execution
-- returns either a child `Result` or a collection of child `Result` objects
-
-Composition rules:
-
-- parent and child graphs are independently compiled
-- child execution has its own cache and event stream
-- parent events may carry child execution correlation metadata
-
-## Extension Strategy
-
-Extensions must subscribe to events and read runtime state through stable APIs.
-
-Examples:
-
-- auditing stores a timeline of events and snapshots
-- reactive runs side effects in response to selected events
-- introspection formats compiled graphs and runtime state
-
-The kernel should not know persistence formats, storage adapters, or replay UIs.
+---
 
 ## Error Model
 
-Errors should be typed and predictable.
+All errors inherit from `Igniter::Error` with structured context metadata:
+`graph:`, `node:`, `path:`, `source:`.
 
 Primary families:
 
-- `Igniter::CompileError`
-- `Igniter::ValidationError`
-- `Igniter::CycleError`
-- `Igniter::InputError`
-- `Igniter::ResolutionError`
-- `Igniter::CompositionError`
+| Class | When |
+|-------|------|
+| `CompileError` | Graph structure is invalid |
+| `ValidationError` | Input fails type or guard check |
+| `CycleError` | Dependency graph has a cycle |
+| `ResolutionError` | Executor raises during node resolution |
+| `CompositionError` | Nested contract mapping is invalid |
+| `CapabilityViolationError` | Executor uses a denied capability |
+| `ToolLoopError` | LLM tool-use loop exceeds `max_tool_iterations` |
 
-Compile errors should include source metadata when available:
+---
 
-- contract class
-- node path
-- line number
-- declaration snippet or declaration type
+## Key Files
 
-## Packaging Rules
+| File | Layer | Purpose |
+|------|-------|---------|
+| `lib/igniter/contract.rb` | Core | Contract class — define, compile, execute |
+| `lib/igniter/dsl/contract_builder.rb` | Core | All DSL keywords |
+| `lib/igniter/compiler/graph_compiler.rb` | Core | Compilation orchestrator |
+| `lib/igniter/compiler/compiled_graph.rb` | Core | Frozen compiled graph |
+| `lib/igniter/runtime/execution.rb` | Core | Execution lifecycle |
+| `lib/igniter/runtime/resolver.rb` | Core | Node resolution (TTL cache, coalescing) |
+| `lib/igniter/type_system.rb` | Core | Type validation |
+| `lib/igniter/errors.rb` | Core | Error hierarchy |
+| `lib/igniter/server/rack_app.rb` | Server | HTTP request handling |
+| `lib/igniter/application.rb` | Server | Application scaffold entry point |
+| `lib/igniter/agent.rb` | Server | Actor agent base class |
+| `lib/igniter/tool.rb` | Server | Tool base class |
+| `lib/igniter/skill.rb` | Server | Skill base class |
+| `lib/igniter/integrations/llm.rb` | Server | LLM integration entry point |
+| `lib/igniter/consensus/cluster.rb` | Cluster | Raft cluster bootstrap |
+| `lib/igniter/mesh/gossip.rb` | Cluster | Gossip peer exchange |
 
-The public surface should be intentionally small:
+---
 
-- `require "igniter"`
-- `Igniter::Contract`
-- `Igniter.compile`
-- `Igniter.execute`
+## Packaging Roadmap
 
-Autoloading must be optional convenience, not a hard dependency for correctness.
+The gem is currently shipped as a single package with load-time optional require boundaries.
+The planned split into three gems mirrors the deployment hierarchy:
 
-The gem must be valid and packageable without:
-
-- a `.git` directory
-- Rails
-- optional extensions
-
-## Initial Directory Shape
-
-```text
-lib/
-  igniter.rb
-  igniter/
-    version.rb
-    errors.rb
-    contract.rb
-    model/
-    compiler/
-    runtime/
-    events/
-    dsl/
-    extensions/
-      auditing/
-      reactive/
-      introspection/
-spec/
-  compiler/
-  runtime/
-  integration/
-docs/
-  ARCHITECTURE_V2.md
-  EXECUTION_MODEL_V2.md
-  API_V2.md
+```
+igniter               # core library
+  └─ igniter-server   # server + application scaffold + actors + LLM
+       └─ igniter-cluster   # consensus + mesh + replication
 ```
 
-## Non-Goals for the First Rewrite
+Until the split is complete, enforce tier boundaries through optional requires:
 
-These should not block the first working kernel:
+```ruby
+# Embedded: only load what you need
+require "igniter"
+require "igniter/extensions/saga"
 
-- Rails integration
-- persistence adapters
-- replay UI
-- async execution
-- distributed execution
-- type inference
-- speculative optimization
+# Server: adds the server layer
+require "igniter/server"
+require "igniter/application"
+require "igniter/integrations/llm"
 
-The first target is a strict, reliable, inspectable synchronous engine.
+# Cluster: adds consensus and mesh on top of server
+require "igniter/consensus"
+require "igniter/extensions/mesh"
+```
+
+Do **not** `require "igniter/consensus"` in an embedded context — it is a cluster-tier
+component with its own operational requirements (quorum, persistent WAL, network ports).
+
+See [`docs/DEPLOYMENT_V1.md`](DEPLOYMENT_V1.md) for full scenario walkthroughs.

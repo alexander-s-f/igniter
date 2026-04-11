@@ -24,6 +24,21 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 gem "igniter"
 ```
 
+## Deployment Modes
+
+Igniter scales from a single `require` to a multi-node cluster. Each mode is a strict
+superset of the one before it — your domain contracts never change.
+
+| Mode | Use case | Entry point |
+|------|----------|-------------|
+| **Embedded** | Add to Rails / Sidekiq / plain Ruby | `require "igniter"` |
+| **App Server** | Standalone HTTP service, single machine | `igniter-server new my_app` |
+| **Cluster** | Multi-node with Raft consensus + gossip mesh | `require "igniter/consensus"` |
+
+See [`docs/DEPLOYMENT_V1.md`](docs/DEPLOYMENT_V1.md) for detailed setup instructions for each scenario and the gem separation roadmap.
+
+---
+
 ## Quick Start
 
 ```ruby
@@ -670,11 +685,12 @@ See [`docs/DATAFLOW_V1.md`](docs/DATAFLOW_V1.md).
 | `server/node1.rb` + `node2.rb` | run both, then curl | Two-node igniter-server with `remote:` DSL |
 | `llm/research_agent.rb` | `ruby examples/llm/research_agent.rb` | Multi-step LLM pipeline with Ollama |
 | `llm/tool_use.rb` | `ruby examples/llm/tool_use.rb` | LLM tool declarations, chained LLM nodes, `Context` |
-| `companion/demo.rb` | `ruby examples/companion/demo.rb` | End-to-end voice AI pipeline using `Igniter::Application` |
+| `companion/bin/demo` | `ruby examples/companion/bin/demo` | End-to-end voice AI pipeline using `Igniter::Application` |
 | `dataflow.rb` | `ruby examples/dataflow.rb` | Incremental sensor pipeline: `mode: :incremental`, `feed_diff`, sliding window |
 
 ## Design Docs
 
+- [Deployment Scenarios v1](docs/DEPLOYMENT_V1.md)
 - [Architecture v2](docs/ARCHITECTURE_V2.md)
 - [Execution Model v2](docs/EXECUTION_MODEL_V2.md)
 - [API Draft v2](docs/API_V2.md)
