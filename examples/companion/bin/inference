@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Start the Companion inference node (ASR, Intent, TTS).
+# Intended for Raspberry Pi 5 nodes in the companion cluster.
+set -e
+cd "$(dirname "$0")/.."
+exec bundle exec ruby servers/inference_server.rb "$@"

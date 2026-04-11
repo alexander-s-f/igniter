@@ -26,12 +26,20 @@ require "igniter/server"
 require "igniter/metrics"
 
 base = File.join(__dir__, "..")
-require_relative "#{base}/executors/whisper_executor"
-require_relative "#{base}/executors/piper_executor"
-require_relative "#{base}/executors/intent_executor"
-require_relative "#{base}/contracts/asr_contract"
-require_relative "#{base}/contracts/intent_contract"
-require_relative "#{base}/contracts/tts_contract"
+
+require "igniter/integrations/llm"
+Igniter::LLM.configure do |c|
+  c.default_provider = :ollama
+  c.ollama.url       = ENV.fetch("OLLAMA_URL", "http://localhost:11434")
+end
+
+require_relative "#{base}/app/tools/time_tool"
+require_relative "#{base}/app/executors/whisper_executor"
+require_relative "#{base}/app/executors/piper_executor"
+require_relative "#{base}/app/executors/intent_executor"
+require_relative "#{base}/app/contracts/asr_contract"
+require_relative "#{base}/app/contracts/intent_contract"
+require_relative "#{base}/app/contracts/tts_contract"
 
 Igniter::Server.configure do |c|
   c.host       = "0.0.0.0"
