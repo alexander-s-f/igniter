@@ -3,7 +3,7 @@
 
 require "optparse"
 
-options = { port: 4567, host: "0.0.0.0", requires: [], config: nil }
+options = { port: 4567, host: "0.0.0.0", requires: [], config: nil, minimal: false }
 
 global = OptionParser.new do |opts|
   opts.banner = <<~BANNER
@@ -11,7 +11,7 @@ global = OptionParser.new do |opts|
 
     Usage:
       igniter-server start [options]
-      igniter-server new APP_NAME
+      igniter-server new APP_NAME [--minimal]
 
   BANNER
 
@@ -19,6 +19,7 @@ global = OptionParser.new do |opts|
   opts.on("--host HOST",          "Host to bind to (default: 0.0.0.0)") { |v| options[:host] = v }
   opts.on("--require FILE",       "Require a file (can be used multiple times)") { |v| options[:requires] << v }
   opts.on("--config FILE",        "Load a server config file") { |v| options[:config] = v }
+  opts.on("--minimal",            "Skip demo scaffold — only create directory structure") { options[:minimal] = true }
   opts.on("-h", "--help", "Show this help") do
     puts opts
     exit
@@ -58,8 +59,9 @@ when "new"
 
   require_relative "../lib/igniter/application/generator"
 
-  puts "Creating Igniter application '#{app_name}'..."
-  Igniter::Application::Generator.new(app_name).generate
+  mode = options[:minimal] ? " (minimal)" : ""
+  puts "Creating Igniter application '#{app_name}'#{mode}..."
+  Igniter::Application::Generator.new(app_name, minimal: options[:minimal]).generate
 
 else
   warn "Unknown command: #{command}"

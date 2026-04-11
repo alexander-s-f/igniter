@@ -24,8 +24,13 @@ module Igniter
     #   ├── Gemfile
     #   └── config.ru              — Rack entry point (Puma / Unicorn)
     class Generator
-      def initialize(name)
-        @name = name.to_s.strip
+      # @param name     [String]  application directory / class name base
+      # @param minimal  [Boolean] when true, skip demo scaffold files;
+      #                           only the directory structure + config is written.
+      #                           Use when you will populate app/ yourself.
+      def initialize(name, minimal: false)
+        @name    = name.to_s.strip
+        @minimal = minimal
         raise ArgumentError, "App name cannot be blank" if @name.empty?
 
         @dir = @name
@@ -41,18 +46,29 @@ module Igniter
         create_dir "lib"
         create_dir "bin"
 
-        write "application.rb",              application_rb
-        write "application.yml",             application_yml
-        write "Gemfile",                     gemfile
-        write "config.ru",                   config_ru
-        write "bin/start",                   bin_start
-        write "bin/demo",                    bin_demo
-        write "lib/.keep",                   ""
-        write "app/executors/greeter.rb",    executor_greeter
-        write "app/contracts/greet_contract.rb", contract_greet
-        write "app/tools/greet_tool.rb",     tool_greet
-        write "app/agents/host_agent.rb",    agent_host
-        write "app/skills/concierge_skill.rb", skill_concierge
+        write "application.rb",  application_rb
+        write "application.yml", application_yml
+        write "Gemfile",         gemfile
+        write "config.ru",       config_ru
+        write "bin/start",       bin_start
+        write "lib/.keep",       ""
+
+        if @minimal
+          # Minimal mode: just placeholders so the directories are not empty.
+          write "app/executors/.keep",  ""
+          write "app/contracts/.keep",  ""
+          write "app/tools/.keep",      ""
+          write "app/agents/.keep",     ""
+          write "app/skills/.keep",     ""
+          write "bin/demo",             bin_demo_stub
+        else
+          write "bin/demo",                        bin_demo
+          write "app/executors/greeter.rb",        executor_greeter
+          write "app/contracts/greet_contract.rb", contract_greet
+          write "app/tools/greet_tool.rb",         tool_greet
+          write "app/agents/host_agent.rb",        agent_host
+          write "app/skills/concierge_skill.rb",   skill_concierge
+        end
 
         FileUtils.chmod(0o755, path("bin/start"))
         FileUtils.chmod(0o755, path("bin/demo"))
@@ -63,7 +79,9 @@ module Igniter
         puts "  Next steps:"
         puts "    cd #{@name}"
         puts "    bundle install"
-        puts "    ruby bin/demo      # ← see it work immediately"
+        unless @minimal
+          puts "    ruby bin/demo      # ← see it work immediately"
+        end
         puts "    bin/start          # ← launch the HTTP server"
         puts
         puts "  Production (Puma):"
@@ -246,6 +264,19 @@ module Igniter
           puts "  Run  bin/start  →  http://localhost:4567"
           puts "  \#{hr}"
           puts
+        RUBY
+      end
+
+      # ─── bin/demo stub (minimal mode) ────────────────────────────────────────
+
+      def bin_demo_stub
+        <<~RUBY
+          #!/usr/bin/env ruby
+          # frozen_string_literal: true
+          # Replace this stub with your own demo script.
+          # See examples/companion/bin/demo for a full example.
+          puts "#{module_name}App — add your demo code here."
+          puts "Run  bin/start  →  http://localhost:4567"
         RUBY
       end
 
