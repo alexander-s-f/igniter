@@ -14,8 +14,9 @@ module Igniter
     #   ├── Gemfile
     #   ├── config.ru          — Rack entry point for Puma/Unicorn
     #   ├── bin/start          — convenience start script
-    #   ├── contracts/         — put your Contract subclasses here
-    #   └── executors/         — put your Executor subclasses here
+    #   ├── contracts/         — Contract subclasses
+    #   ├── executors/         — Executor subclasses
+    #   └── agents/            — Agent, Supervisor, and ProactiveAgent subclasses
     class Generator
       def initialize(name)
         @name = name.to_s.strip
@@ -28,6 +29,7 @@ module Igniter
         create_dir ""
         create_dir "contracts"
         create_dir "executors"
+        create_dir "agents"
         create_dir "bin"
 
         write "application.rb",  application_rb
@@ -37,6 +39,7 @@ module Igniter
         write "bin/start",       bin_start
         write "contracts/.keep", ""
         write "executors/.keep", ""
+        write "agents/.keep",    ""
 
         FileUtils.chmod(0o755, path("bin/start"))
 
@@ -80,12 +83,15 @@ module Igniter
           require "igniter"
           require "igniter/server"
           require "igniter/application"
-
-          Dir[File.join(__dir__, "executors/**/*.rb")].sort.each { |f| require f }
-          Dir[File.join(__dir__, "contracts/**/*.rb")].sort.each { |f| require f }
+          require "igniter/agents"
 
           class #{module_name}App < Igniter::Application
             config_file File.join(__dir__, "application.yml")
+
+            # Eagerly load all .rb files from these directories on startup.
+            executors_path "executors"
+            contracts_path "contracts"
+            agents_path    "agents"
 
             configure do |c|
               # Override YAML values here, e.g.:
@@ -93,8 +99,10 @@ module Igniter
               # c.store = Igniter::Runtime::Stores::MemoryStore.new
             end
 
+            # Register contracts for HTTP dispatch:
             # register "MyContract", MyContract
 
+            # Recurring background jobs:
             # schedule :heartbeat, every: "30s" do
             #   puts "[heartbeat] \#{Time.now.strftime("%H:%M:%S")}"
             # end
@@ -109,8 +117,8 @@ module Igniter
           server:
             port: 4567
             host: "0.0.0.0"
-            log_format: text   # text or json (json = Loki/ELK compatible)
-            drain_timeout: 30
+            log_format: text   # text | json  (json = Loki/ELK compatible)
+            drain_timeout: 30  # seconds to wait for in-flight requests on shutdown
         YAML
       end
 

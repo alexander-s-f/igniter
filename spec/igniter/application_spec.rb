@@ -51,6 +51,14 @@ RSpec.describe Igniter::Application do
       expect(app1.instance_variable_get(:@scheduled_jobs).length).to eq(1)
       expect(app2.instance_variable_get(:@scheduled_jobs)).to be_empty
     end
+
+    it "does not leak agents_paths between subclasses" do
+      app1 = fresh_app { agents_path "agents" }
+      app2 = fresh_app
+
+      expect(app1.instance_variable_get(:@agents_paths)).to eq(["agents"])
+      expect(app2.instance_variable_get(:@agents_paths)).to be_empty
+    end
   end
 
   # ─── AppConfig ────────────────────────────────────────────────────────────
@@ -238,6 +246,18 @@ RSpec.describe Igniter::Application do
           expect(File.exist?("my_app/bin/start")).to be true
           expect(File.exist?("my_app/contracts/.keep")).to be true
           expect(File.exist?("my_app/executors/.keep")).to be true
+          expect(File.exist?("my_app/agents/.keep")).to be true
+        end
+      end
+    end
+
+    it "includes agents_path declaration in generated application.rb" do
+      Dir.mktmpdir do |tmp|
+        Dir.chdir(tmp) do
+          described_class.new("my_app").generate
+          content = File.read("my_app/application.rb")
+          expect(content).to include("agents_path")
+          expect(content).to include('require "igniter/agents"')
         end
       end
     end

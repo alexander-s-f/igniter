@@ -73,6 +73,12 @@ module Igniter
         @contracts_paths << path
       end
 
+      # Declare a directory whose .rb files are eagerly required at startup
+      # (agents, supervisors, and other actor-system components).
+      def agents_path(path)
+        @agents_paths << path
+      end
+
       # Register a contract class under a name for HTTP dispatch.
       def register(name, contract_class)
         @registered[name.to_s] = contract_class
@@ -120,6 +126,7 @@ module Igniter
         subclass.instance_variable_set(:@configure_blocks, [])
         subclass.instance_variable_set(:@executors_paths,  [])
         subclass.instance_variable_set(:@contracts_paths,  [])
+        subclass.instance_variable_set(:@agents_paths,     [])
         subclass.instance_variable_set(:@registered,       {})
         subclass.instance_variable_set(:@scheduled_jobs,   [])
         subclass.instance_variable_set(:@app_config,       AppConfig.new)
@@ -150,6 +157,7 @@ module Igniter
         loader = Autoloader.new(base_dir: Dir.pwd)
         @executors_paths.each { |p| loader.load_path(p) }
         @contracts_paths.each { |p| loader.load_path(p) }
+        @agents_paths.each    { |p| loader.load_path(p) }
       end
 
       def build_scheduler(server_config)
