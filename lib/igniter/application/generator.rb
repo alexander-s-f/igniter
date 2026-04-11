@@ -215,9 +215,9 @@ module Igniter
 
           # ── 1. Contract ─────────────────────────────────────────────────────
           puts "1 · Contract — validated dependency graph"
-          result = GreetContract.new.resolve_all(name: "Alice")
-          puts "  ➜  \#{result[:greeting][:message]}"
-          puts "     resolved at \#{result[:greeting][:greeted_at]}"
+          greeting = GreetContract.new(name: "Alice").result.greeting
+          puts "  ➜  \#{greeting[:message]}"
+          puts "     resolved at \#{greeting[:greeted_at]}"
           puts
 
           # ── 2. Agent ────────────────────────────────────────────────────────
@@ -226,14 +226,14 @@ module Igniter
           ref.call(:greet, { name: "Bob" })
           ref.call(:greet, { name: "Carol" })
           stats = ref.call(:stats)
-          puts "  ➜  Greeted \#{stats[:total]} visitors: \#{stats[:recent].map { |v| v[:name] }.join(", ")}"
+          puts "  ➜  Greeted \#{stats.total} visitors: \#{stats.recent.map { |v| v[:name] }.join(", ")}"
           ref.stop
           puts
 
           # ── 3. Tool ─────────────────────────────────────────────────────────
           puts "3 · Tool — LLM-callable (Anthropic / OpenAI compatible)"
           schema = GreetTool.to_schema
-          params = schema[:parameters][:properties].keys.join(", ")
+          params = schema[:parameters]["properties"].keys.join(", ")
           puts "  ➜  \#{schema[:name]}(\#{params}) — \#{schema[:description]}"
           puts
 
@@ -298,7 +298,7 @@ module Igniter
             param :name, type: :string, required: true, desc: "The person's name"
 
             def call(name:)
-              GreetContract.new.resolve_all(name:)[:greeting]
+              GreetContract.new(name:).result.greeting
             end
           end
         RUBY
@@ -313,15 +313,18 @@ module Igniter
           # An Agent is a stateful actor — it holds state between messages and
           # processes them sequentially in its own thread.
           #
-          # Handlers that return a Hash → async state transition.
-          # Handlers that return anything else → sync query, value sent back to caller.
+          # Handlers that return a Hash  → async state transition (no reply).
+          # Handlers that return non-Hash → sync query, value sent back to caller.
           class HostAgent < Igniter::Agent
+            # Struct for sync queries: must be non-Hash so the runner sends it as a reply.
+            Stats = Struct.new(:total, :recent, keyword_init: true)
+
             initial_state visitors: [], count: 0
 
             on :greet do |state:, payload:|
-              name   = payload.fetch(:name, "stranger")
-              result = GreetContract.new.resolve_all(name:)
-              puts "  [HostAgent] \#{result[:greeting][:message]}"
+              name     = payload.fetch(:name, "stranger")
+              greeting = GreetContract.new(name:).result.greeting
+              puts "  [HostAgent] \#{greeting[:message]}"
 
               state.merge(
                 visitors: (state[:visitors] + [{ name: name, at: Time.now.iso8601 }]).last(10),
@@ -329,9 +332,9 @@ module Igniter
               )
             end
 
-            # Sync query — returns a plain value (not a Hash), so the caller receives it directly.
+            # Sync query — returns a Struct (non-Hash), so the caller receives it directly.
             on :stats do |state:, **|
-              { total: state[:count], recent: state[:visitors].last(3) }
+              Stats.new(total: state[:count], recent: state[:visitors].last(3))
             end
           end
         RUBY
