@@ -59,6 +59,30 @@ RSpec.describe Igniter::Application do
       expect(app1.instance_variable_get(:@agents_paths)).to eq(["agents"])
       expect(app2.instance_variable_get(:@agents_paths)).to be_empty
     end
+
+    it "does not leak tools_paths between subclasses" do
+      app1 = fresh_app { tools_path "app/tools" }
+      app2 = fresh_app
+
+      expect(app1.instance_variable_get(:@tools_paths)).to eq(["app/tools"])
+      expect(app2.instance_variable_get(:@tools_paths)).to be_empty
+    end
+
+    it "does not leak skills_paths between subclasses" do
+      app1 = fresh_app { skills_path "app/skills" }
+      app2 = fresh_app
+
+      expect(app1.instance_variable_get(:@skills_paths)).to eq(["app/skills"])
+      expect(app2.instance_variable_get(:@skills_paths)).to be_empty
+    end
+
+    it "does not leak on_boot blocks between subclasses" do
+      app1 = fresh_app { on_boot {} }
+      app2 = fresh_app
+
+      expect(app1.instance_variable_get(:@boot_blocks).length).to eq(1)
+      expect(app2.instance_variable_get(:@boot_blocks)).to be_empty
+    end
   end
 
   # ─── AppConfig ────────────────────────────────────────────────────────────
@@ -235,29 +259,57 @@ RSpec.describe Igniter::Application do
       expect { described_class.new("") }.to raise_error(ArgumentError, /blank/)
     end
 
-    it "creates expected files in a temp dir" do
+    it "creates expected scaffold files and directories" do
       Dir.mktmpdir do |tmp|
         Dir.chdir(tmp) do
           described_class.new("my_app").generate
+
+          # Root files
           expect(File.exist?("my_app/application.rb")).to be true
           expect(File.exist?("my_app/application.yml")).to be true
           expect(File.exist?("my_app/Gemfile")).to be true
           expect(File.exist?("my_app/config.ru")).to be true
+
+          # bin/
           expect(File.exist?("my_app/bin/start")).to be true
-          expect(File.exist?("my_app/contracts/.keep")).to be true
-          expect(File.exist?("my_app/executors/.keep")).to be true
-          expect(File.exist?("my_app/agents/.keep")).to be true
+          expect(File.exist?("my_app/bin/demo")).to be true
+
+          # lib/
+          expect(File.exist?("my_app/lib/.keep")).to be true
+
+          # app/ example source files
+          expect(File.exist?("my_app/app/executors/greeter.rb")).to be true
+          expect(File.exist?("my_app/app/contracts/greet_contract.rb")).to be true
+          expect(File.exist?("my_app/app/tools/greet_tool.rb")).to be true
+          expect(File.exist?("my_app/app/agents/host_agent.rb")).to be true
+          expect(File.exist?("my_app/app/skills/concierge_skill.rb")).to be true
         end
       end
     end
 
-    it "includes agents_path declaration in generated application.rb" do
+    it "generated application.rb uses app/ paths and on_boot" do
       Dir.mktmpdir do |tmp|
         Dir.chdir(tmp) do
           described_class.new("my_app").generate
           content = File.read("my_app/application.rb")
+          expect(content).to include("executors_path")
+          expect(content).to include("contracts_path")
+          expect(content).to include("tools_path")
           expect(content).to include("agents_path")
-          expect(content).to include('require "igniter/agents"')
+          expect(content).to include("skills_path")
+          expect(content).to include("on_boot")
+        end
+      end
+    end
+
+    it "generated example files reference correct Igniter base classes" do
+      Dir.mktmpdir do |tmp|
+        Dir.chdir(tmp) do
+          described_class.new("my_app").generate
+          expect(File.read("my_app/app/executors/greeter.rb")).to include("Igniter::Executor")
+          expect(File.read("my_app/app/contracts/greet_contract.rb")).to include("Igniter::Contract")
+          expect(File.read("my_app/app/tools/greet_tool.rb")).to include("Igniter::Tool")
+          expect(File.read("my_app/app/agents/host_agent.rb")).to include("Igniter::Agent")
         end
       end
     end
@@ -272,11 +324,12 @@ RSpec.describe Igniter::Application do
       end
     end
 
-    it "makes bin/start executable" do
+    it "makes bin/start and bin/demo executable" do
       Dir.mktmpdir do |tmp|
         Dir.chdir(tmp) do
           described_class.new("exectest").generate
           expect(File.executable?("exectest/bin/start")).to be true
+          expect(File.executable?("exectest/bin/demo")).to be true
         end
       end
     end
@@ -315,6 +368,21 @@ RSpec.describe Igniter::Application do
 
       sc = app.send(:build!)
       expect(sc.registry.registered?("SampleContract")).to be true
+    end
+
+    it "on_boot block runs during build! (after autoload_paths!)" do
+      called = []
+      app = fresh_app { on_boot { called << :booted } }
+      app.send(:build!)
+      expect(called).to eq([:booted])
+    end
+
+    it "on_boot block can register constants defined inline" do
+      klass = sample_contract_class
+      app   = fresh_app { on_boot { register "LazyContract", klass } }
+
+      sc = app.send(:build!)
+      expect(sc.registry.registered?("LazyContract")).to be true
     end
   end
 end

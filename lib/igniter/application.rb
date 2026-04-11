@@ -79,9 +79,31 @@ module Igniter
         @agents_paths << path
       end
 
+      # Declare a directory whose .rb files are eagerly required at startup
+      # (Tool subclasses — LLM-callable function wrappers).
+      def tools_path(path)
+        @tools_paths << path
+      end
+
+      # Declare a directory whose .rb files are eagerly required at startup
+      # (Skill subclasses — LLM reasoning loops with their own tool sets).
+      def skills_path(path)
+        @skills_paths << path
+      end
+
       # Register a contract class under a name for HTTP dispatch.
       def register(name, contract_class)
         @registered[name.to_s] = contract_class
+      end
+
+      # Register a block to run after all paths are autoloaded but before the
+      # server starts. Use this for registrations that reference autoloaded
+      # constants, e.g.:
+      #
+      #   on_boot { register "MyContract", MyContract }
+      #
+      def on_boot(&block)
+        @boot_blocks << block
       end
 
       # Define a recurring background job.
@@ -127,6 +149,9 @@ module Igniter
         subclass.instance_variable_set(:@executors_paths,  [])
         subclass.instance_variable_set(:@contracts_paths,  [])
         subclass.instance_variable_set(:@agents_paths,     [])
+        subclass.instance_variable_set(:@tools_paths,      [])
+        subclass.instance_variable_set(:@skills_paths,     [])
+        subclass.instance_variable_set(:@boot_blocks,      [])
         subclass.instance_variable_set(:@registered,       {})
         subclass.instance_variable_set(:@scheduled_jobs,   [])
         subclass.instance_variable_set(:@app_config,       AppConfig.new)
@@ -140,6 +165,7 @@ module Igniter
         cfg = @app_config
         apply_yml!(cfg)
         autoload_paths!
+        @boot_blocks.each(&:call)
         @configure_blocks.each { |b| b.call(cfg) }
         sc = cfg.to_server_config
         @registered.each { |name, klass| sc.register(name, klass) }
@@ -157,7 +183,9 @@ module Igniter
         loader = Autoloader.new(base_dir: Dir.pwd)
         @executors_paths.each { |p| loader.load_path(p) }
         @contracts_paths.each { |p| loader.load_path(p) }
+        @tools_paths.each     { |p| loader.load_path(p) }
         @agents_paths.each    { |p| loader.load_path(p) }
+        @skills_paths.each    { |p| loader.load_path(p) }
       end
 
       def build_scheduler(server_config)
