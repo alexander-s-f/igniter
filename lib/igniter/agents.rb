@@ -5,7 +5,7 @@
 # Usage:
 #   require "igniter/agents"
 #
-# Provides one production-grade agent per domain:
+# Provides production-grade agents per domain:
 #
 #   Reliability   — Igniter::Agents::RetryAgent
 #   Pipeline      — Igniter::Agents::BatchProcessorAgent
@@ -14,6 +14,10 @@
 #                   Igniter::Agents::CriticAgent
 #                   Igniter::Agents::PlannerAgent
 #                   Igniter::Agents::ChainAgent
+#                   Igniter::Agents::SelfReflectionAgent
+#                   Igniter::Agents::ObserverAgent
+#                   Igniter::Agents::EvaluatorAgent
+#                   Igniter::Agents::EvolutionAgent
 #   Observability — Igniter::Agents::MetricsAgent
 #
 require_relative "integrations/agents"
@@ -24,6 +28,10 @@ require_relative "agents/ai/router_agent"
 require_relative "agents/ai/critic_agent"
 require_relative "agents/ai/planner_agent"
 require_relative "agents/ai/chain_agent"
+require_relative "agents/ai/self_reflection_agent"
+require_relative "agents/ai/observer_agent"
+require_relative "agents/ai/evaluator_agent"
+require_relative "agents/ai/evolution_agent"
 require_relative "agents/observability/metrics_agent"
 
 module Igniter
@@ -34,6 +42,7 @@ module Igniter
     def self.all
       [RetryAgent, BatchProcessorAgent, CronAgent,
        RouterAgent, CriticAgent, PlannerAgent, ChainAgent,
+       SelfReflectionAgent, ObserverAgent, EvaluatorAgent, EvolutionAgent,
        MetricsAgent]
     end
   end
