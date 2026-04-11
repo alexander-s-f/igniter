@@ -20,10 +20,14 @@ require "base64"
 
 base = __dir__
 
-# ── Load tools (always needed) ──────────────────────────────────────────────
+# ── Load tools + skills (always needed) ─────────────────────────────────────
+require "igniter/tool"
+require "igniter/skill"
 require_relative "#{base}/tools/time_tool"
 require_relative "#{base}/tools/weather_tool"
 require_relative "#{base}/tools/notes_tool"
+require_relative "#{base}/skills/research_skill"
+require_relative "#{base}/skills/remind_me_skill"
 
 # ── Load executors ──────────────────────────────────────────────────────────
 if ENV["COMPANION_REAL_LLM"]
@@ -51,50 +55,65 @@ require_relative "#{base}/contracts/intent_contract"
 require_relative "#{base}/contracts/chat_contract"
 require_relative "#{base}/contracts/tts_contract"
 
-# ── Section 1: Tool schemas ──────────────────────────────────────────────────
+# ── Section 1: Tools & Skills available to ChatExecutor ─────────────────────
 puts
 puts "=" * 60
-puts "  Tools Available to ChatExecutor"
+puts "  Tools & Skills available to ChatExecutor"
 puts "=" * 60
+puts "  Tools  = atomic operations (stateless, instant)"
+puts "  Skills = agentic sub-processes (own LLM loop + sub-tools)"
+puts
 
-tools = [Companion::TimeTool, Companion::WeatherTool,
-         Companion::SaveNoteTool, Companion::GetNotesTool]
+COMPANION_CATALOG = [
+  Companion::TimeTool,
+  Companion::WeatherTool,
+  Companion::SaveNoteTool,
+  Companion::GetNotesTool,
+  Companion::ResearchSkill,
+  Companion::RemindMeSkill,
+].freeze
 
-tools.each do |tool|
-  schema = tool.to_schema
-  caps   = tool.required_capabilities
-  puts
-  puts "  #{tool.tool_name}  #{caps.any? ? "(requires: #{caps.join(", ")})" : "(no capabilities required)"}"
-  puts "  Description: #{schema[:description]}"
+COMPANION_CATALOG.each do |klass|
+  kind   = klass < Igniter::Skill ? "skill" : "tool"
+  schema = klass.to_schema
+  caps   = klass.required_capabilities
+  cap_s  = caps.any? ? " (requires: #{caps.join(", ")})" : ""
+
+  puts "  [#{kind.center(5)}] #{klass.tool_name}#{cap_s}"
+  puts "           #{schema[:description].slice(0, 80)}..."
   params = schema.dig(:parameters, :properties) || {}
   if params.any?
-    puts "  Parameters:"
     params.each do |name, info|
-      req = (schema.dig(:parameters, :required) || []).include?(name.to_s) ? " *required" : ""
-      puts "    #{name} (#{info[:type]}#{req}): #{info[:description]}"
+      req = (schema.dig(:parameters, :required) || []).include?(name.to_s) ? "*" : " "
+      puts "           #{req} #{name} (#{info["type"]}): #{info["description"]}"
     end
   else
-    puts "  Parameters: none"
+    puts "           (no parameters)"
   end
+  puts
 end
 
-puts
-puts "  Capability guard demo:"
+puts "  Capability guard — trying SaveNoteTool without :storage:"
 save_tool = Companion::SaveNoteTool.new
 begin
   save_tool.call_with_capability_check!(allowed_capabilities: [], key: "test", value: "x")
 rescue Igniter::Tool::CapabilityError => e
-  puts "  [ok] CapabilityError raised: #{e.message}"
+  puts "  [ok] CapabilityError: #{e.message}"
 end
-begin
-  result = save_tool.call_with_capability_check!(
-    allowed_capabilities: [:storage],
-    key: "demo_key", value: "hello from capability demo"
-  )
-  puts "  [ok] Call succeeded: #{result}"
-ensure
-  Companion::NotesStore.reset!
-end
+result = save_tool.call_with_capability_check!(
+  allowed_capabilities: [:storage], key: "demo_key", value: "hello"
+)
+puts "  [ok] Allowed → #{result}"
+Companion::NotesStore.reset!
+
+puts
+puts "  ResearchSkill in mock mode:"
+puts "  " + Companion::ResearchSkill.new.call(topic: "Ruby")
+puts
+puts "  RemindMeSkill in mock mode:"
+puts "  " + Companion::RemindMeSkill.new.call(request: "remind me to call Alice tomorrow at 9am")
+puts "  Notes after reminder: #{Companion::NotesStore.all.inspect}"
+Companion::NotesStore.reset!
 
 # ── Section 2: Consensus-backed notes store ──────────────────────────────────
 if ENV["COMPANION_CONSENSUS"]

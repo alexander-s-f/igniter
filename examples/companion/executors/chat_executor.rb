@@ -2,16 +2,20 @@
 
 require "igniter/integrations/llm"
 require "igniter/tool"
+require "igniter/skill"
 require_relative "../tools/time_tool"
 require_relative "../tools/weather_tool"
 require_relative "../tools/notes_tool"
+require_relative "../skills/research_skill"
+require_relative "../skills/remind_me_skill"
 
 module Companion
-  # Conversational response generator using a local LLM via Ollama.
+  # Conversational response generator using a local LLM (Ollama).
   #
-  # Accepts full conversation history for multi-turn dialogue.
-  # Responses are tuned for voice output: concise, no markdown.
-  # Equipped with tools for time, weather, and persistent notes.
+  # Equipped with atomic tools (TimeTool, WeatherTool, notes) for instant
+  # lookups and agentic skills (ResearchSkill, RemindMeSkill) for tasks that
+  # require multi-step reasoning. The auto tool-use loop in #complete selects
+  # and dispatches tools/skills transparently.
   #
   # Config:
   #   CHAT_MODEL  — Ollama model name (default: llama3.1:8b)
@@ -21,44 +25,41 @@ module Companion
     model ENV.fetch("CHAT_MODEL", "llama3.1:8b")
     temperature 0.7
 
-    # Capabilities this executor is allowed to exercise.
-    # Controls which tools are permitted to run (capability guard).
+    # This executor is allowed to exercise all sub-tool/skill capabilities.
     capabilities :network, :storage
 
-    # Tool classes available to the LLM during a conversation turn.
-    # The auto tool-use loop is triggered automatically by #complete.
-    tools TimeTool, WeatherTool, SaveNoteTool, GetNotesTool
+    # ── Tools (atomic) + Skills (agentic) ─────────────────────────────────
+    tools TimeTool,        # what time/date is it?
+          WeatherTool,     # current weather for a location
+          SaveNoteTool,    # save a named note
+          GetNotesTool,    # recall saved notes
+          ResearchSkill,   # deep-dive on a topic (own LLM loop inside)
+          RemindMeSkill    # parse + persist a natural language reminder
 
-    # Prevent runaway tool chains (voice response should be fast).
-    max_tool_iterations 4
+    max_tool_iterations 6
 
     VOICE_SYSTEM_PROMPT = <<~PROMPT.freeze
       You are a helpful voice assistant running on a local device.
       Keep responses concise (1-3 short sentences) — they will be spoken aloud.
       Avoid markdown, bullet points, or code unless explicitly asked.
       Be friendly and natural.
-      You have tools available: check the time, get weather, and save or recall notes for the user.
+
+      You have tools for instant lookups (time, weather, notes) and skills for
+      deeper tasks (ResearchSkill for factual questions, RemindMeSkill for reminders).
+      Choose the most appropriate tool or skill for each request.
     PROMPT
 
-    # message              — String: current user utterance
-    # conversation_history — Array<Hash>: [{role:, content:}, ...] last ~10 turns
-    # intent               — Hash: { category:, confidence:, language: } from IntentExecutor
     def call(message:, conversation_history:, intent:)
       ctx = build_history_context(conversation_history, intent)
-      # #complete (not #chat) activates the auto tool-use loop when tools are declared.
       complete(message, context: ctx)
     end
 
     private
 
-    # Build a Context from prior history + dynamic system prompt.
-    # The final user message is passed separately to #complete so that
-    # the tool loop can append tool_results before the LLM sees it.
     def build_history_context(history, intent)
       system_msg = intent_aware_system(intent)
       ctx        = Igniter::LLM::Context.empty(system: system_msg)
 
-      # Replay prior turns (cap at 10 to limit token usage)
       (history || []).last(10).each do |turn|
         role    = (turn[:role]    || turn["role"]).to_s
         content = (turn[:content] || turn["content"]).to_s

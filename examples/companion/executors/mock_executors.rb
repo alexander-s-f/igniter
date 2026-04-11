@@ -2,6 +2,8 @@
 
 require "base64"
 require_relative "../tools/notes_tool"
+require_relative "../skills/research_skill"
+require_relative "../skills/remind_me_skill"
 
 # Stub executors for local demo and testing.
 # No hardware, no Ollama, no Whisper, no Piper required.
@@ -111,6 +113,13 @@ module Companion
           items = notes.map { |k, v| "#{k}: #{v}" }.join("; ")
           "[tool: get_notes] Here's what I have saved: #{items}"
         end
+
+      when /research|tell me about|explain|how does/i
+        topic = message.sub(/^(?:research|tell me about|explain|how does)\s*/i, "").strip
+        "[skill: research] #{Companion::ResearchSkill.new.call(topic: topic)}"
+
+      when /remind me|don.t let me forget|set a reminder/i
+        "[skill: remind_me] #{Companion::RemindMeSkill.new.call(request: message)}"
       end
     end
 

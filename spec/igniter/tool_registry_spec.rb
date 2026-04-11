@@ -57,7 +57,7 @@ RSpec.describe Igniter::ToolRegistry do
 
     it "raises ArgumentError for non-Tool classes" do
       expect { described_class.register(String) }
-        .to raise_error(ArgumentError, /must be an Igniter::Tool subclass/)
+        .to raise_error(ArgumentError, /must be an Igniter::Tool or Igniter::Skill subclass/)
     end
 
     it "raises ArgumentError for plain objects" do
