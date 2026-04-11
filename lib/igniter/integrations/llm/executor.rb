@@ -122,7 +122,12 @@ module Igniter
       # @param context [Context, nil]
       # @return [String] final LLM text response
       def complete(prompt, context: nil)
-        tool_classes = self.class.tools.select { |t| t.is_a?(Class) && t < Igniter::Tool }
+        # Accept both Igniter::Tool and Igniter::Skill subclasses (duck-type check).
+        # Using respond_to? avoids a circular require: skill.rb requires this file,
+        # so we can't safely reference Igniter::Skill or Igniter::Tool::Discoverable here.
+        tool_classes = self.class.tools.select { |t|
+          t.is_a?(Class) && t.respond_to?(:tool_name) && t.respond_to?(:to_schema)
+        }
 
         if tool_classes.any?
           run_tool_loop(prompt: prompt, context: context, tool_classes: tool_classes)

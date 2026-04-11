@@ -1,25 +1,27 @@
 # frozen_string_literal: true
 
 require_relative "tool"
+require_relative "skill"
 
 module Igniter
-  # Global registry for Igniter::Tool classes.
+  # Global registry for Igniter::Tool and Igniter::Skill classes.
   #
-  # Provides tool discovery and LLM schema generation, with optional
-  # capability-based filtering so different agents see only the tools
-  # they are authorized to call.
+  # Both Tools (atomic operations) and Skills (agentic sub-processes) share the
+  # same discovery interface and are registered the same way. The registry does
+  # not distinguish between them — from a caller's perspective both are callable
+  # units described by name, description, and a parameter schema.
   #
   # == Registration
   #
-  #   Igniter::ToolRegistry.register(SearchWeb, WriteFile, RunTests)
+  #   Igniter::ToolRegistry.register(SearchWeb, WriteFile, ResearchSkill)
   #
   # == Discovery
   #
   #   Igniter::ToolRegistry.all
-  #   # => [SearchWeb, WriteFile, RunTests]
+  #   # => [SearchWeb, WriteFile, ResearchSkill]
   #
   #   Igniter::ToolRegistry.tools_for(capabilities: [:web_access])
-  #   # => [SearchWeb]  (WriteFile needs :filesystem_write, RunTests needs :code_execution)
+  #   # => [SearchWeb, ResearchSkill]
   #
   # == Schema generation
   #
@@ -29,36 +31,36 @@ module Igniter
     @tools = {}
 
     class << self
-      # Register one or more Tool subclasses.
-      # Each class must be an Igniter::Tool subclass.
+      # Register one or more Tool or Skill subclasses.
       #
-      # @param tool_classes [Array<Class>]
-      # @raise [ArgumentError] if a class is not an Igniter::Tool subclass
+      # @param tool_classes [Array<Class>] Tool or Skill subclasses
+      # @raise [ArgumentError] if a class is not discoverable
       def register(*tool_classes)
         tool_classes.flatten.each do |klass|
-          unless klass.is_a?(Class) && klass < Igniter::Tool
-            raise ArgumentError, "#{klass.inspect} must be an Igniter::Tool subclass"
+          unless discoverable?(klass)
+            raise ArgumentError,
+                  "#{klass.inspect} must be an Igniter::Tool or Igniter::Skill subclass"
           end
           @tools[klass.tool_name] = klass
         end
         self
       end
 
-      # Look up a tool by its snake_case name.
+      # Look up a tool or skill by its snake_case name.
       # @param name [String, Symbol]
       # @return [Class, nil]
       def find(name)
         @tools[name.to_s]
       end
 
-      # All registered tool classes.
+      # All registered classes.
       # @return [Array<Class>]
       def all
         @tools.values
       end
 
-      # Tool classes whose required capabilities are fully covered by +capabilities+.
-      # Tools with no required capabilities are always included.
+      # Classes whose required capabilities are fully covered by +capabilities+.
+      # Tools/skills with no required capabilities are always included.
       #
       # @param capabilities [Array<Symbol>]
       # @return [Array<Class>]
@@ -69,10 +71,10 @@ module Igniter
         end
       end
 
-      # Generate tool schemas for the given provider.
-      # Optionally filter by capabilities (only returns tools the agent may call).
+      # Generate schemas for the given provider.
+      # Optionally filter by capabilities.
       #
-      # @param provider      [Symbol]       :anthropic, :openai, or nil for intermediate
+      # @param provider      [Symbol]        :anthropic, :openai, or nil for intermediate
       # @param capabilities  [Array<Symbol>] optional capability filter
       # @return [Array<Hash>]
       def schemas(provider = nil, capabilities: nil)
@@ -80,20 +82,24 @@ module Igniter
         list.map { |klass| klass.to_schema(provider) }
       end
 
-      # Number of registered tools.
-      def size
-        @tools.size
-      end
+      # Number of registered classes.
+      def size = @tools.size
 
-      # True if no tools are registered.
-      def empty?
-        @tools.empty?
-      end
+      # True if nothing is registered.
+      def empty? = @tools.empty?
 
       # Remove all registrations (primarily for tests).
       def clear!
         @tools = {}
         self
+      end
+
+      private
+
+      # A class is discoverable if it is a Tool or Skill (includes Tool::Discoverable).
+      def discoverable?(klass)
+        klass.is_a?(Class) &&
+          (klass < Igniter::Tool || klass < Igniter::Skill)
       end
     end
   end
