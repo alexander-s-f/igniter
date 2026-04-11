@@ -68,7 +68,11 @@ module Igniter
           tool_calls = content_blocks
                        .select { |b| b["type"] == "tool_use" }
                        .map do |b|
-            { name: b["name"].to_s, arguments: (b["input"] || {}).transform_keys(&:to_sym) }
+            {
+              id:        b["id"].to_s,
+              name:      b["name"].to_s,
+              arguments: (b["input"] || {}).transform_keys(&:to_sym),
+            }
           end
 
           usage = response.fetch("usage", {})
@@ -80,9 +84,38 @@ module Igniter
           { role: :assistant, content: text_content, tool_calls: tool_calls }
         end
 
-        def normalize_messages(messages)
-          messages.map do |m|
-            { "role" => (m[:role] || m["role"]).to_s, "content" => (m[:content] || m["content"]).to_s }
+        def normalize_messages(messages) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+          messages.flat_map do |m|
+            role = (m[:role] || m["role"]).to_sym
+
+            case role
+            when :assistant
+              calls = Array(m[:tool_calls])
+              if calls.any?
+                # Anthropic requires tool_use blocks inside the content array
+                blocks = []
+                blocks << { "type" => "text", "text" => m[:content].to_s } unless m[:content].to_s.empty?
+                calls.each do |tc|
+                  blocks << {
+                    "type"  => "tool_use",
+                    "id"    => tc[:id].to_s,
+                    "name"  => tc[:name].to_s,
+                    "input" => (tc[:arguments] || {}).transform_keys(&:to_s),
+                  }
+                end
+                [{ "role" => "assistant", "content" => blocks }]
+              else
+                [{ "role" => "assistant", "content" => m[:content].to_s }]
+              end
+            when :tool_results
+              # All results for one LLM turn → single user message with tool_result blocks
+              blocks = Array(m[:results]).map do |r|
+                { "type" => "tool_result", "tool_use_id" => r[:id].to_s, "content" => r[:content].to_s }
+              end
+              [{ "role" => "user", "content" => blocks }]
+            else
+              [{ "role" => role.to_s, "content" => (m[:content] || m["content"]).to_s }]
+            end
           end
         end
 

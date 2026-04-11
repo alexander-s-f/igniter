@@ -67,8 +67,9 @@ module Igniter
           raw.map do |tc|
             fn = tc["function"] || {}
             {
-              name: fn["name"].to_s,
-              arguments: parse_arguments(fn["arguments"])
+              id:        tc["id"].to_s,
+              name:      fn["name"].to_s,
+              arguments: parse_arguments(fn["arguments"]),
             }
           end
         end
@@ -83,9 +84,37 @@ module Igniter
           {}
         end
 
-        def normalize_messages(messages)
-          messages.map do |m|
-            { "role" => (m[:role] || m["role"]).to_s, "content" => (m[:content] || m["content"]).to_s }
+        def normalize_messages(messages) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+          messages.flat_map do |m|
+            role = (m[:role] || m["role"]).to_sym
+
+            case role
+            when :assistant
+              calls = Array(m[:tool_calls])
+              if calls.any?
+                # OpenAI assistant message with tool_calls field
+                formatted = calls.map do |tc|
+                  {
+                    "id"       => tc[:id].to_s,
+                    "type"     => "function",
+                    "function" => {
+                      "name"      => tc[:name].to_s,
+                      "arguments" => JSON.generate(tc[:arguments] || {}),
+                    },
+                  }
+                end
+                [{ "role" => "assistant", "content" => m[:content].to_s, "tool_calls" => formatted }]
+              else
+                [{ "role" => "assistant", "content" => m[:content].to_s }]
+              end
+            when :tool_results
+              # OpenAI expects one :tool message per result
+              Array(m[:results]).map do |r|
+                { "role" => "tool", "tool_call_id" => r[:id].to_s, "name" => r[:name].to_s, "content" => r[:content].to_s }
+              end
+            else
+              [{ "role" => role.to_s, "content" => (m[:content] || m["content"]).to_s }]
+            end
           end
         end
 
