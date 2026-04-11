@@ -18,6 +18,9 @@
 #                   Igniter::Agents::ObserverAgent
 #                   Igniter::Agents::EvaluatorAgent
 #                   Igniter::Agents::EvolutionAgent
+#   Proactive     — Igniter::Agents::ProactiveAgent  (base)
+#                   Igniter::Agents::AlertAgent
+#                   Igniter::Agents::HealthCheckAgent
 #   Observability — Igniter::Agents::MetricsAgent
 #
 require_relative "integrations/agents"
@@ -32,6 +35,9 @@ require_relative "agents/ai/self_reflection_agent"
 require_relative "agents/ai/observer_agent"
 require_relative "agents/ai/evaluator_agent"
 require_relative "agents/ai/evolution_agent"
+require_relative "agents/proactive_agent"
+require_relative "agents/ai/alert_agent"
+require_relative "agents/ai/health_check_agent"
 require_relative "agents/observability/metrics_agent"
 
 module Igniter
@@ -43,6 +49,7 @@ module Igniter
       [RetryAgent, BatchProcessorAgent, CronAgent,
        RouterAgent, CriticAgent, PlannerAgent, ChainAgent,
        SelfReflectionAgent, ObserverAgent, EvaluatorAgent, EvolutionAgent,
+       AlertAgent, HealthCheckAgent,
        MetricsAgent]
     end
   end
