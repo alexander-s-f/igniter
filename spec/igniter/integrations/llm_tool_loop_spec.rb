@@ -46,6 +46,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
         @calls << { messages: messages.dup, tools: tools }
         response = @responses.shift
         raise "No more mock responses" unless response
+
         response
       end
     end
@@ -87,8 +88,8 @@ RSpec.describe "Igniter::LLM tool-use loop" do
   describe "#complete without Tool classes" do
     it "returns content directly without looping" do
       provider = mock_provider.new([
-        { role: :assistant, content: "Hello!", tool_calls: [] },
-      ])
+                                     { role: :assistant, content: "Hello!", tool_calls: [] }
+                                   ])
       executor_class = Class.new(Igniter::LLM::Executor) do
         define_method(:provider_instance) { provider }
         define_singleton_method(:provider) { :mock }
@@ -107,12 +108,12 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       provider_responses = [
         # First turn: LLM requests tool
         {
-          role:       :assistant,
-          content:    "",
-          tool_calls: [{ id: "c1", name: "calculator", arguments: { expression: "2 + 2" } }],
+          role: :assistant,
+          content: "",
+          tool_calls: [{ id: "c1", name: "calculator", arguments: { expression: "2 + 2" } }]
         },
         # Second turn: LLM produces final text
-        { role: :assistant, content: "The answer is 4.", tool_calls: [] },
+        { role: :assistant, content: "The answer is 4.", tool_calls: [] }
       ]
       provider = mock_provider.new(provider_responses)
 
@@ -144,11 +145,11 @@ RSpec.describe "Igniter::LLM tool-use loop" do
 
       provider_responses = [
         {
-          role:       :assistant,
-          content:    "",
-          tool_calls: [{ id: "id1", name: "calc", arguments: { expression: "3 * 3" } }],
+          role: :assistant,
+          content: "",
+          tool_calls: [{ id: "id1", name: "calc", arguments: { expression: "3 * 3" } }]
         },
-        { role: :assistant, content: "9", tool_calls: [] },
+        { role: :assistant, content: "9", tool_calls: [] }
       ]
       provider = mock_provider.new(provider_responses)
 
@@ -178,8 +179,8 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       end
 
       provider = mock_provider.new([
-        { role: :assistant, content: "done", tool_calls: [] },
-      ])
+                                     { role: :assistant, content: "done", tool_calls: [] }
+                                   ])
 
       executor_class = Class.new(Igniter::LLM::Executor) do
         tools calc
@@ -204,14 +205,14 @@ RSpec.describe "Igniter::LLM tool-use loop" do
 
       provider_responses = [
         {
-          role:       :assistant,
-          content:    "",
+          role: :assistant,
+          content: "",
           tool_calls: [
             { id: "a1", name: "calculator", arguments: { expression: "1 + 1" } },
-            { id: "a2", name: "calculator", arguments: { expression: "2 + 2" } },
-          ],
+            { id: "a2", name: "calculator", arguments: { expression: "2 + 2" } }
+          ]
         },
-        { role: :assistant, content: "2 and 4", tool_calls: [] },
+        { role: :assistant, content: "2 and 4", tool_calls: [] }
       ]
       provider = mock_provider.new(provider_responses)
 
@@ -245,9 +246,9 @@ RSpec.describe "Igniter::LLM tool-use loop" do
 
       # Always return tool_calls → infinite loop
       infinite_response = {
-        role:       :assistant,
-        content:    "",
-        tool_calls: [{ id: "x", name: "inf", arguments: { x: "loop" } }],
+        role: :assistant,
+        content: "",
+        tool_calls: [{ id: "x", name: "inf", arguments: { x: "loop" } }]
       }
       provider = mock_provider.new(Array.new(5, infinite_response))
 
@@ -278,10 +279,10 @@ RSpec.describe "Igniter::LLM tool-use loop" do
 
       provider_responses = [
         {
-          role:       :assistant,
-          content:    "",
-          tool_calls: [{ id: "r1", name: "restricted", arguments: { x: "test" } }],
-        },
+          role: :assistant,
+          content: "",
+          tool_calls: [{ id: "r1", name: "restricted", arguments: { x: "test" } }]
+        }
       ]
       provider = mock_provider.new(provider_responses)
 
@@ -301,18 +302,18 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       guarded = Class.new(Igniter::Tool) do
         def self.name = "Guarded"
         description "Guarded tool"
-        param :x, type: :string, required: true
+        param :input, type: :string, required: true
         requires_capability :special_cap
-        def call(x:) = "ok"
+        def call(**) = "ok"
       end
 
       provider_responses = [
         {
-          role:       :assistant,
-          content:    "",
-          tool_calls: [{ id: "g1", name: "guarded", arguments: { x: "input" } }],
+          role: :assistant,
+          content: "",
+          tool_calls: [{ id: "g1", name: "guarded", arguments: { input: "input" } }]
         },
-        { role: :assistant, content: "done", tool_calls: [] },
+        { role: :assistant, content: "done", tool_calls: [] }
       ]
       provider = mock_provider.new(provider_responses)
 
@@ -335,17 +336,17 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       calc = Class.new(Igniter::Tool) do
         def self.name = "Calculator"
         description "Math"
-        param :x, type: :string, required: true
-        def call(x:) = x
+        param :val, type: :string, required: true
+        def call(val:) = val
       end
 
       provider_responses = [
         {
-          role:       :assistant,
-          content:    "",
-          tool_calls: [{ id: "u1", name: "nonexistent_tool", arguments: { x: "y" } }],
+          role: :assistant,
+          content: "",
+          tool_calls: [{ id: "u1", name: "nonexistent_tool", arguments: { val: "y" } }]
         },
-        { role: :assistant, content: "I see the tool is unavailable.", tool_calls: [] },
+        { role: :assistant, content: "I see the tool is unavailable.", tool_calls: [] }
       ]
       provider = mock_provider.new(provider_responses)
 
@@ -377,6 +378,212 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       parent = Class.new(Igniter::LLM::Executor) { max_tool_iterations 5 }
       child  = Class.new(parent)
       expect(child.max_tool_iterations).to eq(5)
+    end
+  end
+
+  # ── Provider failover chain ───────────────────────────────────────────────────
+
+  describe "provider failover" do
+    let(:success_response) { { content: "fallback worked", tool_calls: [] } }
+    let(:usage)            { { prompt_tokens: 5, completion_tokens: 5, total_tokens: 10 }.freeze }
+
+    # Provider that always raises ProviderError
+    let(:failing_provider_class) do
+      Class.new do
+        attr_reader :last_usage
+
+        def initialize = (@last_usage = { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 }.freeze)
+        def chat(**) = raise Igniter::LLM::ProviderError, "Connection refused"
+      end
+    end
+
+    def build_failover_executor(primary_prov, fallback_providers, providers_map)
+      Class.new(Igniter::LLM::Executor) do
+        provider primary_prov, fallback: fallback_providers
+        model "primary-model", fallback: fallback_providers.map { |p| "#{p}-model" }
+
+        define_method(:provider_instance) { providers_map[@last_provider] }
+        define_singleton_method(:provider) { primary_prov }
+
+        def call(prompt:) = complete(prompt)
+      end
+    end
+
+    describe ".provider_chain" do
+      it "returns [primary] when no fallback given" do
+        klass = Class.new(Igniter::LLM::Executor) { provider :anthropic }
+        expect(klass.provider_chain).to eq(%i[anthropic])
+      end
+
+      it "includes fallback providers" do
+        klass = Class.new(Igniter::LLM::Executor) do
+          provider :anthropic, fallback: %i[openai ollama]
+        end
+        expect(klass.provider_chain).to eq(%i[anthropic openai ollama])
+      end
+
+      it "is copied to subclasses" do
+        parent = Class.new(Igniter::LLM::Executor) { provider :anthropic, fallback: [:openai] }
+        child  = Class.new(parent)
+        expect(child.provider_chain).to eq(%i[anthropic openai])
+      end
+
+      it "child can override without mutating parent" do
+        parent = Class.new(Igniter::LLM::Executor) { provider :anthropic, fallback: [:openai] }
+        child  = Class.new(parent) { provider :ollama }
+        expect(parent.provider_chain).to eq(%i[anthropic openai])
+        expect(child.provider_chain).to eq(%i[ollama])
+      end
+    end
+
+    describe ".model_chain" do
+      it "returns [primary_model] when no fallback given" do
+        klass = Class.new(Igniter::LLM::Executor) { model "claude-sonnet-4-6" }
+        expect(klass.model_chain).to eq(["claude-sonnet-4-6"])
+      end
+
+      it "includes fallback models" do
+        klass = Class.new(Igniter::LLM::Executor) do
+          model "claude-sonnet-4-6", fallback: ["gpt-4o", "llama3.2"]
+        end
+        expect(klass.model_chain).to eq(["claude-sonnet-4-6", "gpt-4o", "llama3.2"])
+      end
+
+      it "is copied to subclasses independently" do
+        parent = Class.new(Igniter::LLM::Executor) { model "m1", fallback: ["m2"] }
+        child  = Class.new(parent) { model "m3" }
+        expect(parent.model_chain).to eq(%w[m1 m2])
+        expect(child.model_chain).to eq(%w[m3])
+      end
+    end
+
+    describe "failover on ProviderError" do
+      let(:failing) do
+        Class.new do
+          attr_reader :last_usage
+
+          def initialize = (@last_usage = {}.freeze)
+          def chat(**) = raise Igniter::LLM::ProviderError, "down"
+        end
+      end
+
+      let(:succeeds) do
+        resp = success_response
+        u    = usage
+        inst = Class.new do
+          attr_reader :last_usage
+
+          def chat(**) = @resp
+        end.new
+
+        inst.instance_variable_set(:@resp, resp)
+        inst.instance_variable_set(:@last_usage, u)
+        inst
+      end
+
+      def build_two_provider_executor(failing_class, success_inst)
+        providers = { anthropic: failing_class.new, openai: success_inst }
+        Class.new(Igniter::LLM::Executor) do
+          provider :anthropic, fallback: [:openai]
+          model "claude-sonnet-4-6", fallback: ["gpt-4o"]
+
+          define_method(:provider_instance) { providers[@last_provider] }
+          define_singleton_method(:provider) { :anthropic }
+
+          def call(prompt:) = complete(prompt)
+        end
+      end
+
+      it "returns the fallback provider's response" do
+        klass    = build_two_provider_executor(failing, succeeds)
+        result   = klass.call(prompt: "hello")
+        expect(result).to eq("fallback worked")
+      end
+
+      it "sets last_provider to the successful provider" do
+        klass    = build_two_provider_executor(failing, succeeds)
+        instance = klass.new
+        instance.call(prompt: "hello")
+        expect(instance.last_provider).to eq(:openai)
+      end
+
+      it "sets last_model to the fallback model" do
+        klass    = build_two_provider_executor(failing, succeeds)
+        instance = klass.new
+        instance.call(prompt: "hello")
+        expect(instance.last_model).to eq("gpt-4o")
+      end
+
+      it "raises the last ProviderError when all providers fail" do
+        both_failing = { anthropic: failing.new, openai: failing.new }
+        klass = Class.new(Igniter::LLM::Executor) do
+          provider :anthropic, fallback: [:openai]
+          define_method(:provider_instance) { both_failing[@last_provider] }
+          define_singleton_method(:provider) { :anthropic }
+          def call(prompt:) = complete(prompt)
+        end
+        expect { klass.call(prompt: "x") }.to raise_error(Igniter::LLM::ProviderError)
+      end
+
+      it "does NOT catch ConfigurationError (missing API key is a config bug)" do
+        config_error_provider = Class.new do
+          attr_reader :last_usage
+
+          def initialize = (@last_usage = {}.freeze)
+          def chat(**) = raise Igniter::LLM::ConfigurationError, "no api key"
+        end
+
+        providers = { anthropic: config_error_provider.new }
+        klass = Class.new(Igniter::LLM::Executor) do
+          provider :anthropic
+          define_method(:provider_instance) { providers[@last_provider] }
+          define_singleton_method(:provider) { :anthropic }
+          def call(prompt:) = complete(prompt)
+        end
+        expect { klass.call(prompt: "x") }.to raise_error(Igniter::LLM::ConfigurationError)
+      end
+    end
+
+    describe "call_history tracking" do
+      it "records input and output after each complete call" do
+        succeeds = Class.new do
+          attr_reader :last_usage
+
+          def initialize = (@last_usage = {}.freeze)
+          def chat(**) = { content: "result", tool_calls: [] }
+        end.new
+
+        klass = Class.new(Igniter::LLM::Executor) do
+          provider :ollama
+          define_method(:provider_instance) { succeeds }
+          define_singleton_method(:provider) { :ollama }
+          def call(prompt:) = complete(prompt)
+        end
+        instance = klass.new
+        instance.call(prompt: "question")
+        expect(instance.call_history).not_to be_nil
+        expect(instance.call_history.last[:input]).to eq("question")
+        expect(instance.call_history.last[:output]).to eq("result")
+      end
+
+      it "retains at most 20 entries" do
+        success = Class.new do
+          attr_reader :last_usage
+
+          def initialize = (@last_usage = {}.freeze)
+          def chat(**) = { content: "r#{@n = (@n || 0) + 1}", tool_calls: [] }
+        end.new
+
+        klass = Class.new(Igniter::LLM::Executor) do
+          provider :ollama
+          define_method(:provider_instance) { success }
+          define_singleton_method(:provider) { :ollama }
+          def call(prompt:) = complete(prompt)
+        end
+        instance = klass.new
+        25.times { |i| instance.call(prompt: "q#{i}") }
+        expect(instance.call_history.size).to eq(20)
+      end
     end
   end
 end

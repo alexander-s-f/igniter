@@ -173,4 +173,137 @@ RSpec.describe Igniter::ToolRegistry do
       expect(described_class.clear!).to be(described_class)
     end
   end
+
+  # ── Scope hierarchy ──────────────────────────────────────────────────────────
+
+  describe "scope support" do
+    let(:bundled_tool) do
+      Class.new(Igniter::Tool) do
+        def self.name = "BundledWeather"
+        description "Bundled weather tool"
+        param :city, type: :string, required: true
+        def call(**) = { temp: 20 }
+      end
+    end
+
+    let(:managed_tool) do
+      Class.new(Igniter::Tool) do
+        def self.name = "ManagedTranslate"
+        description "Managed translation tool"
+        param :text, type: :string, required: true
+        def call(text:) = text
+      end
+    end
+
+    describe ".register with scope:" do
+      it "accepts scope: :bundled" do
+        described_class.register(bundled_tool, scope: :bundled)
+        expect(described_class.all).to include(bundled_tool)
+      end
+
+      it "accepts scope: :managed" do
+        described_class.register(managed_tool, scope: :managed)
+        expect(described_class.all).to include(managed_tool)
+      end
+
+      it "defaults to scope: :workspace when no scope given" do
+        described_class.register(free_tool)
+        expect(described_class.all(scope: :workspace)).to include(free_tool)
+      end
+
+      it "raises ArgumentError for an invalid scope" do
+        expect { described_class.register(free_tool, scope: :unknown) }
+          .to raise_error(ArgumentError, /Invalid scope/)
+      end
+    end
+
+    describe ".all with scope:" do
+      before do
+        described_class.register(bundled_tool, scope: :bundled)
+        described_class.register(managed_tool, scope: :managed)
+        described_class.register(free_tool,    scope: :workspace)
+      end
+
+      it "returns all tools when no scope given (backward compat)" do
+        expect(described_class.all).to contain_exactly(bundled_tool, managed_tool, free_tool)
+      end
+
+      it "returns only bundled tools with scope: :bundled" do
+        expect(described_class.all(scope: :bundled)).to contain_exactly(bundled_tool)
+      end
+
+      it "returns only managed tools with scope: :managed" do
+        expect(described_class.all(scope: :managed)).to contain_exactly(managed_tool)
+      end
+
+      it "returns only workspace tools with scope: :workspace" do
+        expect(described_class.all(scope: :workspace)).to contain_exactly(free_tool)
+      end
+
+      it "returns empty array for a scope with no registrations" do
+        described_class.clear!
+        described_class.register(free_tool, scope: :workspace)
+        expect(described_class.all(scope: :bundled)).to eq([])
+      end
+    end
+
+    describe ".find regardless of scope" do
+      it "finds a bundled tool by name" do
+        described_class.register(bundled_tool, scope: :bundled)
+        expect(described_class.find("bundled_weather")).to be(bundled_tool)
+      end
+
+      it "finds a workspace tool by name" do
+        described_class.register(free_tool, scope: :workspace)
+        expect(described_class.find("echo")).to be(free_tool)
+      end
+    end
+
+    describe ".size and .empty? count across all scopes" do
+      it "counts entries from all scopes" do
+        described_class.register(bundled_tool, scope: :bundled)
+        described_class.register(free_tool,    scope: :workspace)
+        expect(described_class.size).to eq(2)
+      end
+
+      it "is empty? when nothing registered regardless of scope" do
+        expect(described_class.empty?).to be true
+      end
+    end
+
+    describe ".tools_for with scope:" do
+      before do
+        described_class.register(search_tool, scope: :bundled)
+        described_class.register(free_tool,   scope: :workspace)
+      end
+
+      it "filters by capability across all scopes when no scope given" do
+        result = described_class.tools_for(capabilities: [:web_access])
+        expect(result).to include(search_tool, free_tool)
+      end
+
+      it "filters by capability within a specific scope" do
+        result = described_class.tools_for(capabilities: [:web_access], scope: :bundled)
+        expect(result).to include(search_tool)
+        expect(result).not_to include(free_tool)
+      end
+    end
+
+    describe ".schemas with scope:" do
+      before do
+        described_class.register(bundled_tool, scope: :bundled)
+        described_class.register(free_tool,    scope: :workspace)
+      end
+
+      it "generates schemas for all scopes when no scope given" do
+        names = described_class.schemas.map { |s| s[:name] }
+        expect(names).to include("bundled_weather", "echo")
+      end
+
+      it "generates schemas for the given scope only" do
+        names = described_class.schemas(scope: :bundled).map { |s| s[:name] }
+        expect(names).to contain_exactly("bundled_weather")
+      end
+    end
+  end
 end

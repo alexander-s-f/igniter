@@ -40,18 +40,52 @@ module Igniter
     #       # Auto-loop: LLM → tool_use → capability check → Tool#call → result → LLM
     #     end
     #   end
+    #
+    # == Provider failover
+    #
+    #   class MyAgent < Igniter::LLM::Executor
+    #     provider :anthropic, fallback: [:openai, :ollama]
+    #     model "claude-sonnet-4-6", fallback: ["gpt-4o", "llama3.2"]
+    #     # On ProviderError, retries with OpenAI/GPT-4o, then Ollama/llama3.2
+    #   end
     class Executor < Igniter::Executor
       class << self
-        def provider(name = nil)
-          return @provider || Igniter::LLM.config.default_provider if name.nil?
-
-          @provider = name.to_sym
+        # Set or get the primary provider, with optional fallback chain.
+        #
+        # @param name     [Symbol, nil] :ollama, :anthropic, or :openai
+        # @param fallback [Array<Symbol>] providers to try on ProviderError, in order
+        def provider(name = nil, fallback: nil)
+          if name.nil?
+            @provider_chain&.first || Igniter::LLM.config.default_provider
+          else
+            chain = [name] + Array(fallback)
+            @provider_chain = chain.map(&:to_sym)
+          end
         end
 
-        def model(name = nil)
-          return @model || provider_config.default_model if name.nil?
+        # Full provider chain (primary + fallbacks).
+        def provider_chain
+          @provider_chain&.dup || [provider]
+        end
 
-          @model = name
+        # Set or get the primary model, with optional fallback list.
+        # Fallback models align positionally with the provider fallback chain.
+        #
+        # @param name     [String, nil]
+        # @param fallback [Array<String>] models to use per fallback provider
+        def model(name = nil, fallback: nil)
+          if name.nil?
+            @model_chain&.first || default_model_for(
+              @provider_chain&.first || Igniter::LLM.config.default_provider
+            )
+          else
+            @model_chain = [name] + Array(fallback)
+          end
+        end
+
+        # Full model chain (primary + fallbacks).
+        def model_chain
+          @model_chain&.dup || [model]
         end
 
         def system_prompt(text = nil)
@@ -84,6 +118,9 @@ module Igniter
 
         def inherited(subclass)
           super
+          subclass.instance_variable_set(:@provider_chain, @provider_chain&.dup)
+          subclass.instance_variable_set(:@model_chain, @model_chain&.dup)
+          # Keep legacy @provider / @model ivars in sync for backward compat
           subclass.instance_variable_set(:@provider, @provider)
           subclass.instance_variable_set(:@model, @model)
           subclass.instance_variable_set(:@system_prompt, @system_prompt)
@@ -94,6 +131,12 @@ module Igniter
 
         private
 
+        def default_model_for(prov)
+          Igniter::LLM.config.provider_config(prov).default_model
+        rescue StandardError
+          "llama3.2"
+        end
+
         def provider_config
           Igniter::LLM.provider_instance(provider).instance_of?(Class) ? nil : Igniter::LLM.config.provider_config(provider)
         rescue StandardError
@@ -101,7 +144,7 @@ module Igniter
         end
       end
 
-      attr_reader :last_usage, :last_context
+      attr_reader :last_usage, :last_context, :last_provider, :last_model, :call_history
 
       # Subclasses override this method. Use #complete or #chat inside.
       def call(**_inputs)
@@ -113,34 +156,38 @@ module Igniter
       # Single-turn completion, or auto tool-use loop when Igniter::Tool subclasses
       # are registered via the +tools+ DSL.
       #
-      # Tool-use loop (activated when tools DSL contains Tool subclasses):
-      # 1. Send message + tool schemas to LLM API
-      # 2. If response has tool_use blocks → check capabilities → execute → append results → repeat
-      # 3. When response contains text and no tool_use → return the text
+      # Wraps execution in the provider failover chain: on ProviderError the next
+      # provider/model pair is tried. ConfigurationError is NOT caught — a missing
+      # API key is a configuration bug, not a transient provider failure.
       #
       # @param prompt  [String]
       # @param context [Context, nil]
       # @return [String] final LLM text response
-      def complete(prompt, context: nil)
-        # Accept both Igniter::Tool and Igniter::Skill subclasses (duck-type check).
-        # Using respond_to? avoids a circular require: skill.rb requires this file,
-        # so we can't safely reference Igniter::Skill or Igniter::Tool::Discoverable here.
-        tool_classes = self.class.tools.select { |t|
-          t.is_a?(Class) && t.respond_to?(:tool_name) && t.respond_to?(:to_schema)
-        }
+      def complete(prompt, context: nil) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+        with_provider_fallback do
+          # Accept both Igniter::Tool and Igniter::Skill subclasses (duck-type check).
+          # Using respond_to? avoids a circular require: skill.rb requires this file,
+          # so we can't safely reference Igniter::Skill or Igniter::Tool::Discoverable here.
+          tool_classes = self.class.tools.select do |t|
+            t.is_a?(Class) && t.respond_to?(:tool_name) && t.respond_to?(:to_schema)
+          end
 
-        if tool_classes.any?
-          run_tool_loop(prompt: prompt, context: context, tool_classes: tool_classes)
-        else
-          messages = build_messages(prompt: prompt, context: context)
-          response = provider_instance.chat(
-            messages: messages,
-            model: self.class.model,
-            **completion_options
-          )
-          @last_usage = provider_instance.last_usage
-          @last_context = track_context(context, prompt, response[:content])
-          response[:content]
+          result = if tool_classes.any?
+                     run_tool_loop(prompt: prompt, context: context, tool_classes: tool_classes)
+                   else
+                     messages = build_messages(prompt: prompt, context: context)
+                     response = provider_instance.chat(
+                       messages: messages,
+                       model: current_model,
+                       **completion_options
+                     )
+                     @last_usage   = provider_instance.last_usage
+                     @last_context = track_context(context, prompt, response[:content])
+                     response[:content]
+                   end
+
+          track_call_history(prompt, result)
+          result
         end
       end
 
@@ -149,7 +196,7 @@ module Igniter
         messages = context.is_a?(Context) ? context.to_a : Array(context)
         response = provider_instance.chat(
           messages: messages,
-          model: self.class.model,
+          model: current_model,
           **completion_options
         )
         @last_usage = provider_instance.last_usage
@@ -163,7 +210,7 @@ module Igniter
         messages = build_messages(prompt: prompt, context: context)
         response = provider_instance.chat(
           messages: messages,
-          model: self.class.model,
+          model: current_model,
           tools: self.class.tools,
           **completion_options
         )
@@ -178,6 +225,38 @@ module Igniter
 
       private
 
+      # Iterate through the provider/model chain, retrying on ProviderError.
+      # ConfigurationError propagates immediately (missing API key = config bug).
+      #
+      # Does NOT call Igniter::LLM.provider_instance directly; instead it resets
+      # @provider_instance = nil before each attempt so that the #provider_instance
+      # accessor re-evaluates (or a test's define_method override takes effect).
+      def with_provider_fallback # rubocop:disable Metrics/MethodLength
+        chain      = self.class.provider_chain
+        mchain     = self.class.model_chain
+        last_error = nil
+
+        chain.each_with_index do |prov, i|
+          @last_provider     = prov
+          @last_model        = mchain[i] # nil when chain is shorter → current_model falls back
+          @provider_instance = nil # clear memo; forces re-evaluation per attempt
+
+          begin
+            return yield
+          rescue Igniter::LLM::ProviderError => e
+            last_error = e
+          end
+        end
+
+        raise last_error
+      end
+
+      # The model to use for the current request (set by with_provider_fallback,
+      # or falls back to the class-level default).
+      def current_model
+        @last_model || self.class.model
+      end
+
       # Execute the tool-use loop until the LLM produces a plain-text response.
       def run_tool_loop(prompt:, context:, tool_classes:) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
         messages     = build_messages(prompt: prompt, context: context)
@@ -189,8 +268,8 @@ module Igniter
         loop do
           response = provider_instance.chat(
             messages: messages,
-            model:    self.class.model,
-            tools:    schemas,
+            model: current_model,
+            tools: schemas,
             **completion_options
           )
           @last_usage = provider_instance.last_usage
@@ -205,9 +284,9 @@ module Igniter
 
           # Append assistant's tool-use turn (preserves tool_call ids for Anthropic/OpenAI)
           messages << {
-            role:       "assistant",
-            content:    response[:content],
-            tool_calls: response[:tool_calls],
+            role: "assistant",
+            content: response[:content],
+            tool_calls: response[:tool_calls]
           }
 
           # Execute each requested tool and collect results
@@ -238,7 +317,7 @@ module Igniter
       end
 
       def provider_instance
-        @provider_instance ||= Igniter::LLM.provider_instance(self.class.provider)
+        @provider_instance ||= Igniter::LLM.provider_instance(@last_provider || self.class.provider)
       end
 
       def build_messages(prompt:, context: nil)
@@ -261,6 +340,12 @@ module Igniter
       def track_context(existing, user_prompt, assistant_reply)
         ctx = existing.is_a?(Context) ? existing : Context.empty(system: self.class.system_prompt)
         ctx.append_user(user_prompt).append_assistant(assistant_reply)
+      end
+
+      def track_call_history(input, output)
+        @call_history ||= []
+        @call_history << { input: input, output: output.to_s, timestamp: Time.now }
+        @call_history = @call_history.last(20) if @call_history.size > 20
       end
     end
   end
