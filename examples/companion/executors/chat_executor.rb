@@ -1,41 +1,62 @@
 # frozen_string_literal: true
 
 require "igniter/integrations/llm"
+require "igniter/tool"
+require_relative "../tools/time_tool"
+require_relative "../tools/weather_tool"
+require_relative "../tools/notes_tool"
 
 module Companion
   # Conversational response generator using a local LLM via Ollama.
   #
   # Accepts full conversation history for multi-turn dialogue.
   # Responses are tuned for voice output: concise, no markdown.
+  # Equipped with tools for time, weather, and persistent notes.
   #
   # Config:
-  #   CHAT_MODEL — Ollama model name (default: llama3.1:8b)
-  #   OLLAMA_URL — Ollama HTTP URL (default: http://localhost:11434)
+  #   CHAT_MODEL  — Ollama model name (default: llama3.1:8b)
+  #   OLLAMA_URL  — Ollama HTTP URL  (default: http://localhost:11434)
   class ChatExecutor < Igniter::LLM::Executor
     provider :ollama
     model ENV.fetch("CHAT_MODEL", "llama3.1:8b")
     temperature 0.7
+
+    # Capabilities this executor is allowed to exercise.
+    # Controls which tools are permitted to run (capability guard).
+    capabilities :network, :storage
+
+    # Tool classes available to the LLM during a conversation turn.
+    # The auto tool-use loop is triggered automatically by #complete.
+    tools TimeTool, WeatherTool, SaveNoteTool, GetNotesTool
+
+    # Prevent runaway tool chains (voice response should be fast).
+    max_tool_iterations 4
 
     VOICE_SYSTEM_PROMPT = <<~PROMPT.freeze
       You are a helpful voice assistant running on a local device.
       Keep responses concise (1-3 short sentences) — they will be spoken aloud.
       Avoid markdown, bullet points, or code unless explicitly asked.
       Be friendly and natural.
+      You have tools available: check the time, get weather, and save or recall notes for the user.
     PROMPT
 
     # message              — String: current user utterance
     # conversation_history — Array<Hash>: [{role:, content:}, ...] last ~10 turns
     # intent               — Hash: { category:, confidence:, language: } from IntentExecutor
     def call(message:, conversation_history:, intent:)
-      ctx = build_context(message, conversation_history, intent)
-      chat(context: ctx)
+      ctx = build_history_context(conversation_history, intent)
+      # #complete (not #chat) activates the auto tool-use loop when tools are declared.
+      complete(message, context: ctx)
     end
 
     private
 
-    def build_context(message, history, intent) # rubocop:disable Metrics/MethodLength
+    # Build a Context from prior history + dynamic system prompt.
+    # The final user message is passed separately to #complete so that
+    # the tool loop can append tool_results before the LLM sees it.
+    def build_history_context(history, intent)
       system_msg = intent_aware_system(intent)
-      ctx = Igniter::LLM::Context.empty(system: system_msg)
+      ctx        = Igniter::LLM::Context.empty(system: system_msg)
 
       # Replay prior turns (cap at 10 to limit token usage)
       (history || []).last(10).each do |turn|
@@ -46,7 +67,7 @@ module Companion
         ctx = role == "user" ? ctx.append_user(content) : ctx.append_assistant(content)
       end
 
-      ctx.append_user(message)
+      ctx
     end
 
     def intent_aware_system(intent)

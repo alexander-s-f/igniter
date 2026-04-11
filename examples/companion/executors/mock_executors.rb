@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "base64"
+require_relative "../tools/notes_tool"
 
 # Stub executors for local demo and testing.
 # No hardware, no Ollama, no Whisper, no Piper required.
@@ -10,8 +11,9 @@ module Companion
       "What is Igniter and how does it work?",
       "Tell me something interesting about Ruby.",
       "What time is it?",
-      "How is the weather today?",
-      "Set a reminder for five minutes.",
+      "How is the weather today in New York?",
+      "Remember that my favorite language is Ruby.",
+      "What did I ask you to remember?",
       "Hello, are you there?"
     ].freeze
 
@@ -27,6 +29,7 @@ module Companion
       /hello|hi\b|hey\b|good morning/i    => "greeting",
       /bye|goodbye|see you|good night/i   => "farewell",
       /set|start|open|play|stop|remind/i  => "command",
+      /remember|save|note/i               => "command",
       /sorry|what did|can you repeat/i    => "clarification"
     }.freeze
 
@@ -38,6 +41,8 @@ module Companion
     end
   end
 
+  # Mock chat executor that simulates tool behaviour for demo purposes.
+  # When COMPANION_REAL_LLM=1 the real ChatExecutor (with actual tool-use loop) is used instead.
   class MockChatExecutor < Igniter::Executor
     RESPONSES = {
       "question"      => [
@@ -72,10 +77,46 @@ module Companion
     }.freeze
 
     def call(message:, conversation_history:, intent:)
-      category = (intent[:category] || intent["category"] || "other").to_s
-      response = (RESPONSES[category] || RESPONSES["other"]).sample
+      response = tool_simulation(message) || intent_response(intent)
       puts "  [Chat mock] → \"#{response}\""
       response
+    end
+
+    private
+
+    # Simulate tool calls for common phrases so the demo shows realistic output
+    # without needing a real LLM. The real ChatExecutor triggers the actual
+    # tool-use loop via Igniter::Tool when COMPANION_REAL_LLM=1.
+    def tool_simulation(message) # rubocop:disable Metrics/MethodLength
+      case message
+      when /what time/i
+        now = Time.now
+        "[tool: time] The current time is #{now.strftime("%I:%M %p")}."
+
+      when /weather.*in\s+(\w[\w\s]*?)(\?|$)/i, /weather.*today/i
+        location = Regexp.last_match(1)&.strip || "your area"
+        "[tool: weather] It looks #{%w[sunny cloudy rainy].sample} in #{location} today."
+
+      when /remember(?:.*that)?\s+(.+)/i
+        note = Regexp.last_match(1).to_s.strip
+        key  = "note_#{Time.now.to_i % 1000}"
+        NotesStore.save(key, note)
+        "[tool: save_note] Got it, I've saved that: \"#{note}\""
+
+      when /what did.*remember|what.*notes|recall/i
+        notes = NotesStore.all
+        if notes.empty?
+          "[tool: get_notes] I don't have any saved notes yet."
+        else
+          items = notes.map { |k, v| "#{k}: #{v}" }.join("; ")
+          "[tool: get_notes] Here's what I have saved: #{items}"
+        end
+      end
+    end
+
+    def intent_response(intent)
+      category = (intent[:category] || intent["category"] || "other").to_s
+      (RESPONSES[category] || RESPONSES["other"]).sample
     end
   end
 
