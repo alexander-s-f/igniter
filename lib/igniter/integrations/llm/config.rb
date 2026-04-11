@@ -35,17 +35,45 @@ module Igniter
         end
       end
 
-      PROVIDERS = %i[ollama anthropic openai].freeze
+      class DeepgramConfig
+        attr_accessor :api_key, :base_url, :timeout
+
+        def initialize
+          @api_key  = ENV["DEEPGRAM_API_KEY"]
+          @base_url = "https://api.deepgram.com"
+          @timeout  = 300
+        end
+      end
+
+      class AssemblyAIConfig
+        attr_accessor :api_key, :base_url, :timeout, :poll_interval, :poll_timeout
+
+        def initialize
+          @api_key       = ENV["ASSEMBLYAI_API_KEY"]
+          @base_url      = "https://api.assemblyai.com"
+          @timeout       = 60
+          @poll_interval = 2
+          @poll_timeout  = 300
+        end
+      end
+
+      PROVIDERS                 = %i[ollama anthropic openai].freeze
+      TRANSCRIPTION_PROVIDERS   = %i[openai deepgram assemblyai].freeze
 
       attr_accessor :default_provider
-      attr_reader :providers
+      attr_reader :providers, :transcription_providers
 
-      def initialize
+      def initialize # rubocop:disable Metrics/MethodLength
         @default_provider = :ollama
         @providers = {
           ollama: OllamaConfig.new,
           anthropic: AnthropicConfig.new,
           openai: OpenAIConfig.new
+        }
+        @transcription_providers = {
+          openai: @providers[:openai], # reuse existing OpenAI config
+          deepgram: DeepgramConfig.new,
+          assemblyai: AssemblyAIConfig.new
         }
       end
 
@@ -61,8 +89,24 @@ module Igniter
         @providers[:openai]
       end
 
+      def deepgram
+        @transcription_providers[:deepgram]
+      end
+
+      def assemblyai
+        @transcription_providers[:assemblyai]
+      end
+
       def provider_config(name)
-        @providers.fetch(name.to_sym) { raise ArgumentError, "Unknown LLM provider: #{name}. Available: #{PROVIDERS.inspect}" }
+        @providers.fetch(name.to_sym) do
+          raise ArgumentError, "Unknown LLM provider: #{name}. Available: #{PROVIDERS.inspect}"
+        end
+      end
+
+      def transcription_provider_config(name)
+        @transcription_providers.fetch(name.to_sym) do
+          raise ArgumentError, "Unknown transcription provider: #{name}. Available: #{TRANSCRIPTION_PROVIDERS.inspect}"
+        end
       end
     end
   end
