@@ -7,6 +7,12 @@ require_relative "replication/bootstrappers/git"
 require_relative "replication/bootstrappers/gem"
 require_relative "replication/bootstrappers/tarball"
 require_relative "replication/replication_agent"
+require_relative "replication/node_role"
+require_relative "replication/role_registry"
+require_relative "replication/network_topology"
+require_relative "replication/expansion_plan"
+require_relative "replication/expansion_planner"
+require_relative "replication/reflective_replication_agent"
 
 module Igniter
   # Self-replication capability: deploy a running Igniter instance to a
