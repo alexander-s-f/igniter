@@ -2,9 +2,4 @@
 set -e
 cd "$(dirname "$0")/.."
 
-app="${1:-${IGNITER_APP:-main}}"
-if [ "$#" -gt 0 ]; then
-  shift
-fi
-
-exec bundle exec ruby workspace.rb "$app" "$@"
+exec bundle exec ruby workspace.rb "$@"

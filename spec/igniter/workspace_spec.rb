@@ -16,12 +16,17 @@ RSpec.describe Igniter::Workspace do
     ENV["IGNITER_ENV"] = original_env
   end
 
-  def build_workspace(root:, environment: nil)
+  def build_workspace(root:, environment: nil, app_classes: nil)
+    app_classes ||= {
+      main: Class.new(Igniter::Application),
+      dashboard: Class.new(Igniter::Application)
+    }
+
     Class.new(described_class).tap do |workspace|
       workspace.root_dir(root)
       workspace.environment(environment) if environment
-      workspace.app :main, path: "apps/main", klass: Class.new(Igniter::Application)
-      workspace.app :dashboard, path: "apps/dashboard", klass: Class.new(Igniter::Application)
+      workspace.app :main, path: "apps/main", klass: app_classes.fetch(:main)
+      workspace.app :dashboard, path: "apps/dashboard", klass: app_classes.fetch(:dashboard)
     end
   end
 
@@ -111,6 +116,92 @@ RSpec.describe Igniter::Workspace do
 
       expect($LOAD_PATH).to include(File.join(tmp, "dsl_shared"))
       expect($LOAD_PATH).to include(File.join(tmp, "lib", "shared"))
+    end
+  end
+
+  it "starts an app by deployment role" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
+        topology:
+          profile: local
+        apps:
+          main:
+            role: api
+          dashboard:
+            role: admin
+      YAML
+
+      started = []
+      main_app = Class.new(Igniter::Application) do
+        define_singleton_method(:start) { started << :main }
+      end
+      dashboard_app = Class.new(Igniter::Application) do
+        define_singleton_method(:start) { started << :dashboard }
+      end
+
+      workspace = build_workspace(
+        root: tmp,
+        app_classes: { main: main_app, dashboard: dashboard_app }
+      )
+
+      workspace.start(role: :admin)
+
+      expect(started).to eq([:dashboard])
+    end
+  end
+
+  it "starts from CLI args with env and role selection" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config", "environments"))
+      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
+        topology:
+          profile: local
+        apps:
+          main:
+            role: api
+          dashboard:
+            role: admin
+      YAML
+      File.write(File.join(tmp, "config", "environments", "production.yml"), <<~YAML)
+        workspace:
+          default_app: dashboard
+      YAML
+
+      started = []
+      main_app = Class.new(Igniter::Application) do
+        define_singleton_method(:start) { started << :main }
+      end
+      dashboard_app = Class.new(Igniter::Application) do
+        define_singleton_method(:start) { started << :dashboard }
+      end
+
+      workspace = build_workspace(
+        root: tmp,
+        app_classes: { main: main_app, dashboard: dashboard_app }
+      )
+
+      workspace.start_cli(%w[--env production --profile local --role admin])
+
+      expect(workspace.environment).to eq("production")
+      expect(workspace.default_app).to eq(:dashboard)
+      expect(started).to eq([:dashboard])
+    end
+  end
+
+  it "raises when requested profile does not match topology profile" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
+        topology:
+          profile: local
+      YAML
+
+      workspace = build_workspace(root: tmp)
+
+      expect do
+        workspace.start(profile: "production")
+      end.to raise_error(ArgumentError, /does not match topology profile/)
     end
   end
 end

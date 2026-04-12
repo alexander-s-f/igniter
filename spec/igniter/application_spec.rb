@@ -326,11 +326,14 @@ RSpec.describe Igniter::Application do
           described_class.new("my_app").generate
           workspace = File.read("my_app/workspace.rb")
           main_app  = File.read("my_app/apps/main/application.rb")
+          bin_start = File.read("my_app/bin/start")
 
           expect(workspace).to include("Igniter::Workspace")
           expect(workspace).to include("app :main")
+          expect(workspace).to include("start_cli(ARGV)")
           expect(File.read("my_app/config/topology.yml")).to include("role: api")
           expect(File.read("my_app/config/environments/production.yml")).to include("replicas: 2")
+          expect(bin_start).to include("exec bundle exec ruby workspace.rb \"$@\"")
           expect(main_app).to include("root_dir __dir__")
           expect(main_app).to include("executors_path")
           expect(main_app).to include("contracts_path")

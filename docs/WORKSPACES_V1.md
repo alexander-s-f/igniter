@@ -178,6 +178,24 @@ ruby bin/demo
 
 `config.ru` also defaults to `apps/main` unless `IGNITER_APP` is set.
 
+`workspace.rb` and generated `bin/start` also understand deployment-aware launch options:
+
+```bash
+bin/start main
+bin/start --role api
+bin/start --role admin
+bin/start --env production --role api
+bin/start --profile local --role api
+```
+
+Resolution rules:
+
+- explicit app name wins
+- otherwise `--role` resolves the first matching app from `config/topology.yml`
+- otherwise the workspace default app is used
+- `--env` loads `config/environments/<name>.yml`
+- `--profile` validates against `topology.profile`
+
 ---
 
 ## Companion Direction

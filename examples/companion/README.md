@@ -26,6 +26,8 @@ cd examples/companion
 bin/demo
 bin/start
 bin/start inference
+bin/start --role admin
+bin/start --env production --role api
 ```
 
 ## Roles
@@ -202,6 +204,16 @@ This deployment config is intentionally separate from `apps/*/application.yml`:
 - `apps/*` defines the code and leaf runtime defaults
 - `config/topology.yml` defines how those apps are deployed together
 - `config/deploy/*` holds container/runtime artifacts
+
+Operational launch examples:
+
+```bash
+bin/start main
+bin/start --role api
+bin/start --role admin
+bin/start --env production --role api
+bin/start --profile local-compose --role admin
+```
 
 ## Dashboard
 

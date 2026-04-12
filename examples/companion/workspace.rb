@@ -17,6 +17,5 @@ module Companion
 end
 
 if $PROGRAM_NAME == __FILE__
-  app_name = ARGV.shift || ENV.fetch("IGNITER_APP", "main")
-  Companion::Workspace.start(app_name)
+  Companion::Workspace.start_cli(ARGV)
 end

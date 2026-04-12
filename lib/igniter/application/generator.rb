@@ -157,8 +157,7 @@ module Igniter
           end
 
           if $PROGRAM_NAME == __FILE__
-            app_name = ARGV.shift || ENV.fetch("IGNITER_APP", "main")
-            #{workspace_class_name}.start(app_name)
+            #{workspace_class_name}.start_cli(ARGV)
           end
         RUBY
       end
@@ -331,12 +330,7 @@ module Igniter
           set -e
           cd "$(dirname "$0")/.."
 
-          app="${1:-${IGNITER_APP:-main}}"
-          if [ "$#" -gt 0 ]; then
-            shift
-          fi
-
-          exec bundle exec ruby workspace.rb "$app" "$@"
+          exec bundle exec ruby workspace.rb "$@"
         BASH
       end
 

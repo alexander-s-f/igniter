@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "optparse"
 require "yaml"
 
 module Igniter
@@ -90,15 +91,31 @@ module Igniter
 
       def application(name = nil)
         setup_load_paths!
-        app_definition(name).klass
+        app_definition(resolve_app_name(name)).klass
       end
 
-      def start(name = nil)
-        application(name).start
+      def start(name = nil, role: nil, environment: nil, profile: nil)
+        environment(environment) if environment
+        validate_profile!(profile) if profile
+        application(resolve_app_name(name, role: role)).start
       end
 
-      def rack_app(name = nil)
-        application(name).rack_app
+      def rack_app(name = nil, role: nil, environment: nil, profile: nil)
+        environment(environment) if environment
+        validate_profile!(profile) if profile
+        application(resolve_app_name(name, role: role)).rack_app
+      end
+
+      def start_cli(argv = ARGV)
+        options = parse_cli_options(argv.dup)
+        target = options.delete(:target)
+
+        start(
+          target,
+          role: options[:role],
+          environment: options[:environment],
+          profile: options[:profile]
+        )
       end
 
       def workspace_settings(reload: false)
@@ -135,6 +152,10 @@ module Igniter
         apps_for_role(role).first
       end
 
+      def topology_profile
+        topology.dig("topology", "profile")
+      end
+
       def setup_load_paths!
         configured_paths = Array(workspace_settings.dig("workspace", "shared_lib_paths"))
         (@shared_lib_paths + configured_paths).uniq.each do |path|
@@ -159,6 +180,50 @@ module Igniter
       end
 
       private
+
+      def parse_cli_options(argv)
+        options = {}
+
+        parser = OptionParser.new do |opts|
+          opts.on("--app NAME", "Start a specific app by name") do |value|
+            options[:target] = value
+          end
+
+          opts.on("--role NAME", "Start the first app matching a deployment role") do |value|
+            options[:role] = value
+          end
+
+          opts.on("--env NAME", "Use config/environments/<NAME>.yml overlay") do |value|
+            options[:environment] = value
+          end
+
+          opts.on("--profile NAME", "Require topology profile to match NAME") do |value|
+            options[:profile] = value
+          end
+        end
+
+        parser.parse!(argv)
+        options[:target] ||= argv.shift
+        options
+      end
+
+      def resolve_app_name(name = nil, role: nil)
+        return normalize_app_name(name) if name && app_names.include?(normalize_app_name(name))
+
+        if role
+          app_name = app_for_role(role)
+          return app_name if app_name
+
+          raise ArgumentError, "Unknown deployment role #{role.inspect}"
+        end
+
+        if name
+          role_match = app_for_role(name)
+          return role_match if role_match
+        end
+
+        normalize_app_name(name || default_app)
+      end
 
       def normalize_app_name(name)
         name.to_sym
@@ -188,6 +253,14 @@ module Igniter
 
       def workspace_environment_overrides
         environment_settings.reject { |key, _value| key.to_s == "topology" }
+      end
+
+      def validate_profile!(profile)
+        expected = profile.to_s.strip
+        actual = topology_profile.to_s.strip
+        return if expected.empty? || actual.empty? || expected == actual
+
+        raise ArgumentError, "Requested profile #{expected.inspect} does not match topology profile #{actual.inspect}"
       end
 
       def load_yaml(path)
