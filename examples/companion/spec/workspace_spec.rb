@@ -3,6 +3,14 @@
 require_relative "spec_helper"
 
 RSpec.describe Companion::Workspace do
+  describe Companion::Boot do
+    it "builds default stores from workspace and app config" do
+      expect(described_class.default_data_store(app_name: :main)).to be_a(Igniter::Data::Stores::InMemory)
+      expect(described_class.default_execution_store(app_name: :main)).to be_a(Igniter::Runtime::Stores::MemoryStore)
+      expect(described_class.default_execution_store(app_name: :inference)).to be_a(Igniter::Runtime::Stores::MemoryStore)
+    end
+  end
+
   describe "app registry" do
     it "registers main and inference apps" do
       expect(described_class.default_app).to eq(:main)

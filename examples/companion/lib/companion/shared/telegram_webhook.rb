@@ -3,6 +3,7 @@
 require "json"
 require "igniter/channels"
 require_relative "conversation_store"
+require_relative "telegram_bindings_store"
 
 module Companion
   module TelegramWebhook
@@ -18,6 +19,8 @@ module Companion
       text = message["text"].to_s.strip
       chat_id = message.dig("chat", "id")&.to_s
       return json(200, ok: true, ignored: true, reason: "missing_text_or_chat") if text.empty? || chat_id.to_s.empty?
+
+      TelegramBindingsStore.upsert(message)
 
       session_id = "telegram:#{chat_id}"
       response_text =

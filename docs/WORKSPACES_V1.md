@@ -91,8 +91,9 @@ Available methods:
 - `start(name = nil)` — start a named app.
 - `rack_app(name = nil)` — return a Rack app for a named app.
 
-`workspace.yml` is reserved for workspace-level metadata and future coordinator config.
-Unlike `apps/<name>/application.yml`, it is not the leaf server config file.
+`workspace.yml` is the place for workspace-level metadata and shared defaults such as
+data-store settings. Unlike `apps/<name>/application.yml`, it is not the leaf server
+config file; app-local server and execution settings still live inside each app.
 
 ---
 

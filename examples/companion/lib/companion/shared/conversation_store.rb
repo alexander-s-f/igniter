@@ -1,40 +1,55 @@
 # frozen_string_literal: true
 
+require "igniter/data"
+
 module Companion
   module ConversationStore
     MAX_TURNS = 20
+    COLLECTION = "companion_conversations"
 
     class << self
       def append(session_id, role:, content:)
-        mutex.synchronize do
-          conversations[session_key(session_id)] ||= []
-          conversations[session_key(session_id)] << {
-            role: role.to_s,
-            content: content.to_s
-          }
-          conversations[session_key(session_id)] = conversations[session_key(session_id)].last(MAX_TURNS)
-        end
+        history = history(session_id)
+        history << normalize_turn("role" => role.to_s, "content" => content.to_s)
+        store.put(collection: COLLECTION, key: session_key(session_id), value: history.last(MAX_TURNS).map(&method(:serialize_turn)))
       end
 
       def history(session_id)
-        mutex.synchronize { Array(conversations[session_key(session_id)]).map(&:dup) }
+        Array(store.get(collection: COLLECTION, key: session_key(session_id))).map do |turn|
+          normalize_turn(turn)
+        end
       end
 
       def clear(session_id)
-        mutex.synchronize { conversations.delete(session_key(session_id)) }
+        store.delete(collection: COLLECTION, key: session_key(session_id))
       end
 
       def reset!
-        mutex.synchronize { @conversations = {} }
+        store.clear(collection: COLLECTION)
       end
 
       private
 
-      def conversations = (@conversations ||= {})
-      def mutex = (@mutex ||= Mutex.new)
+      def store
+        Igniter::Data.default_store
+      end
 
       def session_key(session_id)
         session_id.to_s
+      end
+
+      def serialize_turn(turn)
+        {
+          "role" => turn[:role].to_s,
+          "content" => turn[:content].to_s
+        }
+      end
+
+      def normalize_turn(turn)
+        {
+          role: (turn[:role] || turn["role"]).to_s,
+          content: (turn[:content] || turn["content"]).to_s
+        }
       end
     end
   end

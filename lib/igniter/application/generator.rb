@@ -161,6 +161,11 @@ module Igniter
             default_app: main
             shared_lib_paths:
               - lib
+
+          persistence:
+            data:
+              adapter: memory   # memory | sqlite
+              path: var/#{@project_name}_data.sqlite3
         YAML
       end
 
@@ -211,6 +216,11 @@ module Igniter
             host: "0.0.0.0"
             log_format: text   # text | json
             drain_timeout: 30
+
+          persistence:
+            execution:
+              adapter: memory   # memory | sqlite | redis
+              path: var/main_executions.sqlite3
         YAML
       end
 
@@ -229,6 +239,7 @@ module Igniter
           end
 
           # Optional:
+          # gem "sqlite3" # local SQLite-backed data + execution stores
           # gem "puma"   # production HTTP server  →  bundle exec puma config.ru
         RUBY
       end

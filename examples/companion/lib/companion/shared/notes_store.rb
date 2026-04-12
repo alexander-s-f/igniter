@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require "igniter/data"
+
 module Companion
   module NotesStore
+    COLLECTION = "companion_notes"
+
     class << self
       def configure_cluster(cluster)
         @cluster = cluster
@@ -11,7 +15,7 @@ module Companion
         if @cluster
           @cluster.write(type: :set_note, key: key.to_s, value: value.to_s)
         else
-          mutex.synchronize { local_notes[key.to_s] = value.to_s }
+          store.put(collection: COLLECTION, key: key, value: value.to_s)
         end
       end
 
@@ -19,7 +23,7 @@ module Companion
         if @cluster
           (@cluster.state_machine_snapshot[:notes] || {})[key.to_s]
         else
-          mutex.synchronize { local_notes[key.to_s] }
+          store.get(collection: COLLECTION, key: key)
         end
       end
 
@@ -27,7 +31,7 @@ module Companion
         if @cluster
           @cluster.state_machine_snapshot[:notes] || {}
         else
-          mutex.synchronize { local_notes.dup }
+          store.all(collection: COLLECTION)
         end
       end
 
@@ -35,13 +39,14 @@ module Companion
 
       def reset!
         @cluster = nil
-        mutex.synchronize { @local_notes = {} }
+        store.clear(collection: COLLECTION)
       end
 
       private
 
-      def mutex = (@mutex ||= Mutex.new)
-      def local_notes = (@local_notes ||= {})
+      def store
+        Igniter::Data.default_store
+      end
     end
   end
 end

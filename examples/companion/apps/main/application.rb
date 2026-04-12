@@ -19,6 +19,7 @@ module Companion
     route "POST", "/telegram/webhook", with: Companion::TelegramWebhook
 
     on_boot do
+      Companion::Boot.configure_persistence!(app_name: :main)
       Companion::Boot.configure_ai!
 
       if ENV["CONSENSUS_NODES"]
@@ -49,15 +50,7 @@ module Companion
     configure do |c|
       c.port = ENV.fetch("ORCHESTRATOR_PORT", "4567").to_i
       c.log_format = ENV.fetch("LOG_FORMAT", "text").to_sym
-      c.store = if ENV["REDIS_URL"]
-                  require "redis"
-                  Igniter::Runtime::Stores::RedisStore.new(
-                    redis: Redis.new(url: ENV["REDIS_URL"]),
-                    namespace: "companion:executions"
-                  )
-                else
-                  Igniter::Runtime::Stores::MemoryStore.new
-                end
+      c.store = Companion::Boot.default_execution_store(app_name: :main)
     end
 
     schedule :session_gc, every: "1h" do

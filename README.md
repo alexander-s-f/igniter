@@ -36,6 +36,7 @@ layer folders.
 | Contract DSL, model, compiler, runtime | `require "igniter"` |
 | Actor runtime and tool foundation | `require "igniter/core"` |
 | Specific core features | `require "igniter/core/tool"`, `require "igniter/core/memory"`, `require "igniter/core/temporal"` |
+| App data persistence | `require "igniter/data"` |
 | Behavioral extensions | `require "igniter/extensions/auditing"`, `require "igniter/extensions/capabilities"` |
 | AI providers, skills, transcription | `require "igniter/ai"` |
 | Communication transports | `require "igniter/channels"` |
@@ -50,6 +51,7 @@ layer folders.
 - **Core features**: focused building blocks that still belong to core, such as tools, memory, metrics, temporal support, and caches.
 - **Extensions**: opt-in behavioral add-ons loaded from `igniter/extensions/*`.
 - **Capability layers**: optional subsystems such as `Igniter::AI` and `Igniter::Channels`.
+- **Data layer**: `Igniter::Data`, a tiny JSON-first persistence API for app records such as chat bindings, notes, and sessions.
 - **Hosting layers**: `Igniter::Server` and `Igniter::Cluster`.
 - **Profile**: `Igniter::Workspace` + `Igniter::Application`, a packaged way to assemble and run apps on top of `Server`.
 - **Plugin**: framework-specific integration such as `Igniter::Rails`.

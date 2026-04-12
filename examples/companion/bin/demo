@@ -11,6 +11,7 @@ require "base64"
 require "igniter/core"
 require "igniter/ai"
 
+Companion::Boot.configure_persistence!(app_name: :main)
 Companion::Boot.load_demo!(real_llm: ENV["COMPANION_REAL_LLM"])
 
 puts ENV["COMPANION_REAL_LLM"] ? "[demo] Using real LLM executors (Ollama must be running)" :

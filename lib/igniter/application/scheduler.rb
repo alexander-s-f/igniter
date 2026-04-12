@@ -21,7 +21,7 @@ module Igniter
     #   "1d"             — 1 day
     #   { hours: 1, minutes: 30 }
     class Scheduler
-      Job = Data.define(:name, :interval, :at_time, :block)
+      Job = ::Data.define(:name, :interval, :at_time, :block)
 
       def initialize(logger: nil)
         @jobs    = []

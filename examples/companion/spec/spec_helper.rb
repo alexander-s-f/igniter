@@ -12,6 +12,7 @@ require "base64"
 
 COMPANION_ROOT = Companion::Boot.root unless defined?(COMPANION_ROOT)
 
+Companion::Boot.configure_persistence!(app_name: :main)
 Companion::Boot.load_demo!(real_llm: false)
 
 RSpec.configure do |config|
@@ -21,5 +22,10 @@ RSpec.configure do |config|
   config.after(:each) do
     Companion::NotesStore.reset! if defined?(Companion::NotesStore)
     Companion::ConversationStore.reset! if defined?(Companion::ConversationStore)
+    Companion::TelegramBindingsStore.reset! if defined?(Companion::TelegramBindingsStore)
+  end
+
+  config.after(:suite) do
+    Companion::Boot.reset_persistence!
   end
 end

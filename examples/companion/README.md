@@ -37,6 +37,39 @@ bin/start inference
 Single-process demo mode uses `Companion::LocalPipelineContract` and mock executors so it
 runs without hardware, Ollama, Whisper, or Piper.
 
+## Persistence
+
+Companion now splits persistence into two layers:
+
+- workspace data in `workspace.yml` → notes, chat bindings, conversation state
+- app execution store in `apps/<name>/application.yml` → pending/resumable executions
+
+Default example config stays on in-memory adapters so the demo works without extra gems.
+To persist data locally, add `sqlite3` and switch the adapters:
+
+```yaml
+# workspace.yml
+persistence:
+  data:
+    adapter: sqlite
+    path: var/companion_data.sqlite3
+```
+
+```yaml
+# apps/main/application.yml
+persistence:
+  execution:
+    adapter: sqlite
+    path: var/main_executions.sqlite3
+```
+
+ENV still wins when needed:
+
+```bash
+export COMPANION_DATA_DB=var/companion_data.sqlite3
+export COMPANION_EXECUTION_DB=var/main_executions.sqlite3
+```
+
 ## Telegram Delivery
 
 `apps/main` now includes a Telegram tool powered by `Igniter::Channels::Telegram`.

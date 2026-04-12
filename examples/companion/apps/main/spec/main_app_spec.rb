@@ -194,6 +194,9 @@ RSpec.describe Companion::MainApp do
         body: "It is sunny and 21C.",
         metadata: { reply_to_message_id: 11 }
       )
+      expect(Companion::TelegramBindingsStore.get("12345")).to include(
+        "chat_id" => "12345"
+      )
       expect(Companion::ConversationStore.history("telegram:12345")).to eq(
         [
           { role: "user", content: "weather in Kyiv" },

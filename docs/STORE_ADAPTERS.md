@@ -4,6 +4,7 @@ Igniter ships with reference execution stores for:
 
 - memory
 - file
+- sqlite
 - ActiveRecord-style persistence
 - Redis-style persistence
 
@@ -36,6 +37,29 @@ Igniter.execution_store = Igniter::Runtime::Stores::FileStore.new(
   root: Rails.root.join("tmp/igniter_executions")
 )
 ```
+
+## SQLite Store
+
+Useful for single-node application profiles that want durable local execution
+snapshots without pulling in Redis or ActiveRecord.
+
+`SQLiteStore` is a soft dependency. Add `sqlite3` in the app that uses it:
+
+```ruby
+gem "sqlite3"
+```
+
+```ruby
+Igniter.execution_store = Igniter::Runtime::Stores::SQLiteStore.new(
+  path: "var/igniter_executions.sqlite3"
+)
+```
+
+The store keeps one row per execution snapshot and secondary indexes for:
+
+- `graph`
+- `pending`
+- `(graph, correlation_json)`
 
 ## ActiveRecord Store
 

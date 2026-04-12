@@ -14,6 +14,7 @@ require_relative "runtime/stores/active_record_store"
 require_relative "runtime/stores/file_store"
 require_relative "runtime/stores/memory_store"
 require_relative "runtime/stores/redis_store"
+require_relative "runtime/stores/sqlite_store"
 require_relative "runtime/runner_factory"
 require_relative "runtime/remote_adapter"
 require_relative "runtime/resolver"
@@ -23,5 +24,6 @@ require_relative "runtime/execution"
 
 module Igniter
   module Runtime
+    ConfigurationError = Class.new(Igniter::Error)
   end
 end
