@@ -16,6 +16,7 @@ From the repository root:
 bundle exec ruby examples/companion/bin/demo
 bundle exec ruby examples/companion/workspace.rb main
 bundle exec ruby examples/companion/workspace.rb inference
+bundle exec ruby examples/companion/workspace.rb dashboard
 ```
 
 Or from inside the example:
@@ -33,6 +34,7 @@ bin/start inference
 |-----|----------------|
 | `apps/main` | orchestrator, tools, skills, chat executor, proactive agents |
 | `apps/inference` | ASR, intent classification, TTS executors and contracts |
+| `apps/dashboard` | workspace monitoring, reminder/state overview, JSON status snapshot |
 
 Single-process demo mode uses `Companion::LocalPipelineContract` and mock executors so it
 runs without hardware, Ollama, Whisper, or Piper.
@@ -134,6 +136,10 @@ examples/companion/
 ├── workspace.rb
 ├── workspace.yml
 ├── apps/
+│   ├── dashboard/
+│   │   ├── application.rb
+│   │   ├── application.yml
+│   │   └── spec/
 │   ├── main/
 │   │   ├── application.rb
 │   │   ├── application.yml
@@ -169,7 +175,26 @@ for role-specific behavior:
 bundle exec rspec examples/companion/spec
 bundle exec rspec examples/companion/apps/main/spec
 bundle exec rspec examples/companion/apps/inference/spec
+bundle exec rspec examples/companion/apps/dashboard/spec
 ```
+
+## Dashboard
+
+Run the dashboard app:
+
+```bash
+cd examples/companion
+bin/start dashboard
+```
+
+Then open:
+
+- `http://localhost:4569/` for the HTML dashboard
+- `http://localhost:4569/api/overview` for the JSON snapshot
+
+The dashboard reads the same persisted workspace data used by `apps/main`, so it can
+show notes, active reminders, Telegram chat bindings, notification preferences, and
+per-app execution-store summaries.
 
 ## Migration Note
 
