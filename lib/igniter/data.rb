@@ -9,6 +9,7 @@ module Igniter
 end
 
 require_relative "data/store"
+require_relative "data/stores/file"
 require_relative "data/stores/in_memory"
 require_relative "data/stores/sqlite"
 
