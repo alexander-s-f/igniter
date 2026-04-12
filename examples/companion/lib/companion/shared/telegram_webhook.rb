@@ -2,7 +2,10 @@
 
 require "json"
 require "igniter/channels"
+require_relative "current_session"
 require_relative "conversation_store"
+require_relative "notification_preferences_store"
+require_relative "reminder_store"
 require_relative "telegram_bindings_store"
 
 module Companion
@@ -20,21 +23,35 @@ module Companion
       chat_id = message.dig("chat", "id")&.to_s
       return json(200, ok: true, ignored: true, reason: "missing_text_or_chat") if text.empty? || chat_id.to_s.empty?
 
-      TelegramBindingsStore.upsert(message)
+      TelegramBindingsStore.upsert(message, prefer: prefer_chat_command?(text))
 
       session_id = "telegram:#{chat_id}"
       response_text =
         if start_command?(text)
           ConversationStore.clear(session_id)
+          NotificationPreferencesStore.set_telegram_enabled(chat_id, true)
           welcome_message
+        elsif use_here_command?(text)
+          TelegramBindingsStore.select!(chat_id)
+          preferred_chat_message
+        elsif notifications_on_command?(text)
+          NotificationPreferencesStore.set_telegram_enabled(chat_id, true)
+          notifications_enabled_message
+        elsif notifications_off_command?(text)
+          NotificationPreferencesStore.set_telegram_enabled(chat_id, false)
+          notifications_disabled_message
+        elsif reminders_command?(text)
+          reminders_message(chat_id)
         else
           history = ConversationStore.history(session_id)
           intent = { category: "other", confidence: 0.5, language: "en" }
-          response = Companion::ChatContract.new(
-            message: text,
-            conversation_history: history,
-            intent: intent
-          ).result.response_text
+          response = Companion::CurrentSession.with(session_context(chat_id, session_id, message)) do
+            Companion::ChatContract.new(
+              message: text,
+              conversation_history: history,
+              intent: intent
+            ).result.response_text
+          end
 
           ConversationStore.append(session_id, role: :user, content: text)
           ConversationStore.append(session_id, role: :assistant, content: response)
@@ -76,8 +93,59 @@ module Companion
       text == "/start"
     end
 
+    def use_here_command?(text)
+      text == "/use_here"
+    end
+
+    def notifications_on_command?(text)
+      text == "/notifications on"
+    end
+
+    def notifications_off_command?(text)
+      text == "/notifications off"
+    end
+
+    def reminders_command?(text)
+      text == "/reminders"
+    end
+
+    def prefer_chat_command?(text)
+      start_command?(text) || use_here_command?(text)
+    end
+
     def welcome_message
-      "Hello! I'm Companion. Ask me about time, weather, notes, reminders, or research topics."
+      "Hello! I'm Companion. This chat is now linked for Telegram updates. " \
+        "Ask me about time, weather, notes, reminders, or research topics."
+    end
+
+    def preferred_chat_message
+      "This chat is now the default Telegram destination for Companion messages."
+    end
+
+    def notifications_enabled_message
+      "Telegram notifications are now enabled for this chat."
+    end
+
+    def notifications_disabled_message
+      "Telegram notifications are now disabled for this chat."
+    end
+
+    def reminders_message(chat_id)
+      reminders = Companion::ReminderStore.for_chat(chat_id)
+      return "No active reminders for this chat yet." if reminders.empty?
+
+      lines = reminders.last(5).map { |reminder| "- #{reminder["note"]}" }
+      "Active reminders for this chat:\n" + lines.join("\n")
+    end
+
+    def session_context(chat_id, session_id, message)
+      {
+        channel: :telegram,
+        chat_id: chat_id.to_s,
+        session_id: session_id.to_s,
+        user_id: message.dig("from", "id")&.to_s,
+        username: message.dig("from", "username")
+      }
     end
 
     def json(status, payload)

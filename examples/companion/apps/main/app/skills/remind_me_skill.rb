@@ -4,6 +4,10 @@ require "igniter/ai"
 require_relative "../tools/time_tool"
 require_relative "../tools/save_note_tool"
 require_relative "../tools/get_notes_tool"
+require_relative "../../../../lib/companion/shared/current_session"
+require_relative "../../../../lib/companion/shared/reminder_store"
+require_relative "../../../../lib/companion/shared/notification_preferences_store"
+require_relative "../../../../lib/companion/shared/telegram_bindings_store"
 
 module Companion
   class RemindMeSkill < Igniter::AI::Skill
@@ -65,8 +69,46 @@ module Companion
       key = "reminder_#{slug}"
       note = "#{task} — #{timing}"
       NotesStore.save(key, note)
+      reminder = ReminderStore.create(
+        task: task,
+        timing: timing,
+        request: request,
+        **reminder_delivery_context
+      )
 
-      "[remind_me] Got it! Saved reminder: \"#{note}\""
+      "[remind_me] Got it! Saved reminder: \"#{note}\" (id=#{reminder["id"]})#{notification_suffix(reminder)}"
+    end
+
+    def reminder_delivery_context
+      context = Companion::CurrentSession.context || {}
+      chat_id = resolve_notification_chat_id(context)
+
+      {
+        session_id: context[:session_id],
+        channel: chat_id ? "telegram" : context[:channel],
+        chat_id: chat_id,
+        notifications_enabled: chat_id ? Companion::NotificationPreferencesStore.telegram_enabled?(chat_id) : nil
+      }
+    end
+
+    def resolve_notification_chat_id(context)
+      if context[:channel].to_s == "telegram" && !context[:chat_id].to_s.empty?
+        context[:chat_id].to_s
+      else
+        preferred_chat_id = Companion::TelegramBindingsStore.preferred_chat_id
+        return nil if preferred_chat_id.to_s.empty?
+        return nil unless Companion::NotificationPreferencesStore.telegram_enabled?(preferred_chat_id)
+
+        preferred_chat_id
+      end
+    end
+
+    def notification_suffix(reminder)
+      return "" unless reminder["channel"] == "telegram" && reminder["chat_id"]
+
+      enabled = reminder["notifications_enabled"] != false
+      enabled ? " Telegram notifications are enabled for this reminder." :
+                " Telegram notifications are currently disabled for this chat."
     end
   end
 end

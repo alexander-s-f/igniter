@@ -84,6 +84,7 @@ RSpec.describe Companion::MainApp do
       result = described_class.new.call(message: "Hello from Igniter")
 
       expect(result).to include("Telegram is not configured")
+      expect(result).to include("/start")
     end
 
     it "sends a Telegram message through Igniter::Channels::Telegram" do
@@ -107,12 +108,45 @@ RSpec.describe Companion::MainApp do
       )
 
       expect(channel).to have_received(:deliver).with(
-        to: nil,
+        to: "12345",
         subject: "Summary",
         body: "Call summary is ready"
       )
       expect(response).to include("Sent Telegram message to 12345")
       expect(response).to include("777")
+    end
+
+    it "uses a linked Telegram chat when TELEGRAM_CHAT_ID is not set" do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("TELEGRAM_BOT_TOKEN").and_return("bot-token")
+      allow(ENV).to receive(:[]).with("TELEGRAM_CHAT_ID").and_return(nil)
+
+      Companion::TelegramBindingsStore.upsert(
+        {
+          "chat" => { "id" => 444, "username" => "alex" },
+          "from" => { "id" => 77, "username" => "alex" }
+        },
+        prefer: true
+      )
+
+      channel = instance_double(Igniter::Channels::Telegram)
+      result = Igniter::Channels::DeliveryResult.new(
+        status: :delivered,
+        provider: :telegram,
+        recipient: "444",
+        external_id: "999"
+      )
+      allow(Igniter::Channels::Telegram).to receive(:new).and_return(channel)
+      allow(channel).to receive(:deliver).and_return(result)
+
+      response = described_class.new.call(message: "Reminder digest")
+
+      expect(channel).to have_received(:deliver).with(
+        to: "444",
+        subject: nil,
+        body: "Reminder digest"
+      )
+      expect(response).to include("via linked Telegram chat")
     end
   end
 
@@ -166,6 +200,93 @@ RSpec.describe Companion::MainApp do
         body: include("Hello! I'm Companion"),
         metadata: { reply_to_message_id: 10 }
       )
+      expect(Companion::TelegramBindingsStore.preferred_chat_id).to eq("12345")
+    end
+
+    it "marks the current chat as preferred on /use_here" do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("TELEGRAM_WEBHOOK_SECRET").and_return(nil)
+
+      Companion::TelegramBindingsStore.upsert(
+        {
+          "chat" => { "id" => 222, "username" => "old_chat" },
+          "from" => { "id" => 7 }
+        },
+        prefer: true
+      )
+
+      result = described_class.call(
+        params: {},
+        body: { "message" => { "text" => "/use_here", "message_id" => 12, "chat" => { "id" => 12345 } } },
+        headers: {},
+        raw_body: '{"message":{"text":"/use_here"}}',
+        config: nil
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(Companion::TelegramBindingsStore.preferred_chat_id).to eq("12345")
+      expect(channel).to have_received(:deliver).with(
+        to: "12345",
+        body: include("default Telegram destination"),
+        metadata: { reply_to_message_id: 12 }
+      )
+    end
+
+    it "persists notification preferences with /notifications off and /notifications on" do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("TELEGRAM_WEBHOOK_SECRET").and_return(nil)
+
+      off_result = described_class.call(
+        params: {},
+        body: { "message" => { "text" => "/notifications off", "message_id" => 13, "chat" => { "id" => 12345 } } },
+        headers: {},
+        raw_body: '{"message":{"text":"/notifications off"}}',
+        config: nil
+      )
+
+      expect(off_result[:status]).to eq(200)
+      expect(Companion::NotificationPreferencesStore.telegram_enabled?("12345")).to be(false)
+
+      on_result = described_class.call(
+        params: {},
+        body: { "message" => { "text" => "/notifications on", "message_id" => 14, "chat" => { "id" => 12345 } } },
+        headers: {},
+        raw_body: '{"message":{"text":"/notifications on"}}',
+        config: nil
+      )
+
+      expect(on_result[:status]).to eq(200)
+      expect(Companion::NotificationPreferencesStore.telegram_enabled?("12345")).to be(true)
+    end
+
+    it "lists active reminders for the current chat" do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("TELEGRAM_WEBHOOK_SECRET").and_return(nil)
+
+      Companion::ReminderStore.create(
+        task: "Call Alice",
+        timing: "tomorrow",
+        request: "remind me to call Alice tomorrow",
+        session_id: "telegram:12345",
+        channel: "telegram",
+        chat_id: "12345",
+        notifications_enabled: true
+      )
+
+      result = described_class.call(
+        params: {},
+        body: { "message" => { "text" => "/reminders", "message_id" => 15, "chat" => { "id" => 12345 } } },
+        headers: {},
+        raw_body: '{"message":{"text":"/reminders"}}',
+        config: nil
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(channel).to have_received(:deliver).with(
+        to: "12345",
+        body: include("Call Alice"),
+        metadata: { reply_to_message_id: 15 }
+      )
     end
 
     it "runs ChatContract and sends the response back to Telegram" do
@@ -197,6 +318,7 @@ RSpec.describe Companion::MainApp do
       expect(Companion::TelegramBindingsStore.get("12345")).to include(
         "chat_id" => "12345"
       )
+      expect(Companion::TelegramBindingsStore.latest_chat_id).to eq("12345")
       expect(Companion::ConversationStore.history("telegram:12345")).to eq(
         [
           { role: "user", content: "weather in Kyiv" },
@@ -225,15 +347,40 @@ RSpec.describe Companion::MainApp do
   end
 
   describe Companion::RemindMeSkill do
-    it "parses a reminder request and saves a note" do
+    it "parses a reminder request and saves a note plus a persisted reminder" do
       described_class.new.call(request: "remind me to call Alice tomorrow at 9am")
       expect(Companion::NotesStore.all).not_to be_empty
+      expect(Companion::ReminderStore.active).not_to be_empty
     end
 
     it "returns a confirmation string" do
       result = described_class.new.call(request: "remind me to review PR #42 at 3pm")
       expect(result).to be_a(String)
       expect(result).not_to be_empty
+    end
+
+    it "binds reminders to the current Telegram chat when session context is present" do
+      Companion::TelegramBindingsStore.upsert(
+        {
+          "chat" => { "id" => 12345, "username" => "alex" },
+          "from" => { "id" => 7, "username" => "alex" }
+        },
+        prefer: true
+      )
+      Companion::NotificationPreferencesStore.set_telegram_enabled("12345", true)
+
+      result = Companion::CurrentSession.with(channel: :telegram, chat_id: "12345", session_id: "telegram:12345") do
+        described_class.new.call(request: "remind me to pay rent tomorrow")
+      end
+
+      reminder = Companion::ReminderStore.active.last
+
+      expect(reminder).to include(
+        "channel" => "telegram",
+        "chat_id" => "12345",
+        "notifications_enabled" => true
+      )
+      expect(result).to include("Telegram notifications are enabled")
     end
   end
 

@@ -23,6 +23,9 @@ RSpec.configure do |config|
     Companion::NotesStore.reset! if defined?(Companion::NotesStore)
     Companion::ConversationStore.reset! if defined?(Companion::ConversationStore)
     Companion::TelegramBindingsStore.reset! if defined?(Companion::TelegramBindingsStore)
+    Companion::ReminderStore.reset! if defined?(Companion::ReminderStore)
+    Companion::NotificationPreferencesStore.reset! if defined?(Companion::NotificationPreferencesStore)
+    Companion::CurrentSession.reset! if defined?(Companion::CurrentSession)
   end
 
   config.after(:suite) do

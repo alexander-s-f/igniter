@@ -78,11 +78,13 @@ Configure:
 
 ```bash
 export TELEGRAM_BOT_TOKEN=123456:your-bot-token
-export TELEGRAM_CHAT_ID=123456789
 ```
 
 Then the companion can forward summaries, reminders, or ad-hoc messages to Telegram
 through `Companion::SendTelegramTool`.
+
+You can still set `TELEGRAM_CHAT_ID` explicitly, but it is no longer required once a
+user has linked a chat through the inbound bot flow.
 
 ## Telegram Inbound Bot Workflow
 
@@ -104,12 +106,26 @@ When configured, the companion expects the header
 The inbound MVP flow is:
 
 1. Telegram sends a text update to `/telegram/webhook`
-2. `apps/main` builds a short per-chat conversation history
-3. `Companion::ChatContract` generates the reply
-4. `Igniter::Channels::Telegram` sends the response back to the same chat
+2. companion persists the chat binding and remembers the most recent / preferred chat
+3. `apps/main` builds a short per-chat conversation history
+4. `Companion::ChatContract` generates the reply
+5. `Igniter::Channels::Telegram` sends the response back to the same chat
 
 So after wiring your bot webhook to the running companion, you can talk to it
 directly in Telegram.
+
+Useful bot commands:
+
+- `/start` — link the current chat and reset its local conversation history
+- `/use_here` — make the current chat the default destination for future outbound Telegram messages
+- `/notifications on` — enable persisted Telegram notifications for this chat
+- `/notifications off` — disable persisted Telegram notifications for this chat
+- `/reminders` — list active reminders linked to the current chat
+
+Reminder requests are now persisted as structured records in companion data storage, not
+just as loose notes. When a reminder is created from a linked Telegram chat, companion
+also persists whether Telegram notifications are enabled for that chat, which gives us a
+clean base for the future `apps/dashboard`.
 
 ## Structure
 
