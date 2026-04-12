@@ -1,6 +1,10 @@
 # Igniter::Application v1
 
-`Igniter::Application` is an optional base class that packages contracts, executors, YAML config, a background scheduler, and server startup into a single coherent entry point. It replaces the raw `Igniter::Server.configure` boilerplate and provides a conventional project layout.
+`Igniter::Application` is the leaf runtime for one app inside an Igniter workspace.
+
+It packages contracts, executors, YAML config, a background scheduler, and server startup into a single coherent entry point. It replaces the raw `Igniter::Server.configure` boilerplate and is usually coordinated by a root `Igniter::Workspace`.
+
+See [WORKSPACES_V1.md](./WORKSPACES_V1.md) for the standard `apps/` layout.
 
 ---
 
@@ -19,53 +23,61 @@ This creates:
 
 ```
 my_app/
-├── app/
-│   ├── contracts/       ← Contract subclasses
-│   ├── executors/       ← Executor subclasses
-│   ├── tools/           ← optional Tool subclasses
-│   ├── agents/          ← optional Agent subclasses
-│   └── skills/          ← optional Skill subclasses
-├── lib/                 ← shared libraries / helpers
+├── workspace.rb         ← Workspace coordinator
+├── workspace.yml        ← workspace metadata
+├── apps/
+│   └── main/
+│       ├── application.rb
+│       ├── application.yml
+│       ├── app/
+│       │   ├── contracts/
+│       │   ├── executors/
+│       │   ├── tools/
+│       │   ├── agents/
+│       │   └── skills/
+│       └── spec/
+├── lib/my_app/shared/   ← shared libraries / helpers
 ├── bin/start            ← convenience start script
 ├── bin/demo             ← runnable smoke demo
-├── application.rb       ← Application class (entry point)
-├── application.yml      ← base config (port, log_format, etc.)
 ├── Gemfile
 ├── config.ru            ← Rack entry point for Puma / Unicorn
+└── spec/                ← shared + integration + workspace-level specs
 ```
 
-### 2. Define your Application
+### 2. Define your leaf app
 
 ```ruby
-# application.rb
+# apps/main/application.rb
 require "igniter/application"
+require "igniter/core"
 
-class MyApp < Igniter::Application
-  config_file File.join(__dir__, "application.yml")   # optional
+module MyApp
+  class MainApp < Igniter::Application
+    root_dir __dir__
+    config_file "application.yml"
 
-  executors_path "app/executors"
-  contracts_path "app/contracts"
+    executors_path "app/executors"
+    contracts_path "app/contracts"
 
-  configure do |c|
-    c.port  = ENV.fetch("PORT", 4567).to_i
-    c.store = Igniter::Runtime::Stores::MemoryStore.new
-  end
+    configure do |c|
+      c.port  = ENV.fetch("PORT", 4567).to_i
+      c.store = Igniter::Runtime::Stores::MemoryStore.new
+    end
 
-  on_boot do
-    register "OrderContract",   OrderContract
-    register "InvoiceContract", InvoiceContract
-  end
+    on_boot do
+      register "OrderContract",   MyApp::OrderContract
+      register "InvoiceContract", MyApp::InvoiceContract
+    end
 
-  schedule :cleanup, every: "1h" do
-    puts "[cleanup] #{Time.now.strftime("%H:%M")}"
-  end
+    schedule :cleanup, every: "1h" do
+      puts "[cleanup] #{Time.now.strftime("%H:%M")}"
+    end
 
-  schedule :daily_report, every: "1d", at: "09:00" do
-    DailyReportContract.new.resolve_all(date: Date.today)
+    schedule :daily_report, every: "1d", at: "09:00" do
+      MyApp::DailyReportContract.new.resolve_all(date: Date.today)
+    end
   end
 end
-
-MyApp.start if $PROGRAM_NAME == __FILE__
 ```
 
 `require "igniter/application"` is the canonical entrypoint. It loads the server layer
@@ -74,15 +86,18 @@ for you, so most applications do not need a separate `require "igniter/server"`.
 If your application uses tools or agents, also load `require "igniter/core"`.
 If it uses skills, providers, or `Igniter::AI.configure`, also load `require "igniter/ai"`.
 
-### 3. Run
+### 3. Run through the workspace
 
 ```bash
-# Built-in HTTP server (blocking)
-ruby application.rb
+bin/start
+bin/start main
 
 # Rack / Puma
 bundle exec puma config.ru
 ```
+
+The generated root `workspace.rb` is a workspace coordinator; it selects the leaf app
+and calls `MainApp.start` under the hood.
 
 ---
 
@@ -93,8 +108,12 @@ bundle exec puma config.ru
 Load a YAML file as the base configuration. Applied **before** the `configure` block — values in the block always win.
 
 ```ruby
-config_file File.join(__dir__, "application.yml")
+root_dir __dir__
+config_file "application.yml"
 ```
+
+`root_dir __dir__` makes relative paths resolve from the app directory (`apps/main/`),
+not from the repo root.
 
 ### `configure { |c| ... }`
 
@@ -197,8 +216,8 @@ Same as `start` but returns a Rack-compatible application instead of blocking. U
 
 ```ruby
 # config.ru
-require_relative "application"
-run MyApp.rack_app
+require_relative "workspace"
+run MyApp::Workspace.rack_app(:main)
 ```
 
 ```bash
@@ -242,7 +261,7 @@ end
 
 ## Companion App Example
 
-`examples/companion/` is a full production-style application built with `Igniter::Application`. It implements a distributed voice AI assistant pipeline:
+`examples/companion/` is the main workspace-based production-style demo. It implements a distributed voice AI assistant pipeline split across `apps/main` and `apps/inference`.
 
 ```
 ESP32 microphone → ASR → Intent → Chat (LLM) → TTS → ESP32 speaker
@@ -251,22 +270,22 @@ ESP32 microphone → ASR → Intent → Chat (LLM) → TTS → ESP32 speaker
 **Single-process demo (mock executors, no hardware):**
 
 ```bash
-ruby examples/companion/demo.rb
+ruby examples/companion/bin/demo
 ```
 
 **Orchestrator node (HP t740, real Ollama):**
 
 ```bash
 # Requires: ollama serve (llama3.1:8b pulled)
-bundle exec ruby examples/companion/application.rb
+bundle exec ruby examples/companion/workspace.rb main
 ```
 
-**See also:** [`examples/companion/README.md`](../examples/companion/README.md)
+**See also:** [`examples/companion/README.md`](../examples/companion/README.md) and [`examples/companion_legacy/README.md`](../examples/companion_legacy/README.md)
 
 ---
 
 ## Integration with igniter-server
 
-`Igniter::Application` is a thin wrapper around `Igniter::Server`. The underlying `Server::Config` and `HttpServer` are the same — you can still use `Igniter::Server.configure` directly when you don't need the Application scaffold.
+`Igniter::Application` is a thin wrapper around `Igniter::Server`. The underlying `Server::Config` and `HttpServer` are the same — you can still use `Igniter::Server.configure` directly when you don't need the application/profile scaffold.
 
 The two approaches are compatible in the same process: `Igniter::Application#start` calls `Igniter::Server::HttpServer.new(config).start` internally.

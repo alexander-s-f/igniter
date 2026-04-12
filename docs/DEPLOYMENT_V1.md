@@ -117,8 +117,9 @@ See [`docs/RAILS_INTEGRATION.md`](RAILS_INTEGRATION.md) (TODO) for the full refe
 
 **Profile:** standalone HTTP service hosting contracts, single node.
 
-Igniter provides a full application scaffold — directory layout, YAML config, autoloading,
-scheduler, and HTTP hosting — via `Igniter::Application` and the `igniter-server` CLI.
+Igniter provides a full workspace scaffold — directory layout, YAML config, autoloading,
+scheduler, and HTTP hosting — via `Igniter::Workspace`, leaf `Igniter::Application` apps,
+and the `igniter-server` CLI.
 AI, tools, skills, and channels remain opt-in layers that an application can load when needed.
 
 ### When to choose
@@ -147,60 +148,82 @@ Generated structure:
 
 ```
 my_app/
-├── application.rb          # Igniter::Application subclass
-├── application.yml         # YAML base config
+├── workspace.rb            # Igniter::Workspace coordinator
+├── workspace.yml           # workspace metadata
 ├── Gemfile
 ├── config.ru               # Rack entry point
+├── apps/
+│   └── main/
+│       ├── application.rb  # leaf Igniter::Application subclass
+│       ├── application.yml # app-local server config
+│       ├── app/
+│       │   ├── contracts/
+│       │   ├── executors/
+│       │   ├── tools/
+│       │   ├── agents/
+│       │   └── skills/
+│       └── spec/
+├── lib/
+│   └── my_app/shared/
 ├── bin/
-│   ├── start               # igniter-server start wrapper
+│   ├── start               # workspace start wrapper
 │   └── demo                # runnable smoke test
-├── app/
-│   ├── contracts/          # Igniter::Contract subclasses
-│   ├── executors/          # Igniter::Executor subclasses
-│   ├── tools/              # Igniter::Tool subclasses (LLM tool registry)
-│   ├── agents/             # Igniter::Agent subclasses (actor system)
-│   └── skills/             # Igniter::AI::Skill subclasses (agentic LLM sub-processes)
 └── spec/
-    ├── spec_helper.rb
-    └── *_spec.rb
+    └── shared + integration + workspace-level specs
 ```
 
-### Application class
+### Workspace + leaf app
 
 ```ruby
-# application.rb
+# workspace.rb
+require "igniter/application"
+require_relative "apps/main/application"
+
+module MyApp
+  class Workspace < Igniter::Workspace
+    root_dir __dir__
+    shared_lib_path "lib"
+
+    app :main, path: "apps/main", klass: MyApp::MainApp, default: true
+  end
+end
+```
+
+```ruby
+# apps/main/application.rb
 require "igniter/application"
 require "igniter/core"
 require "igniter/ai"
 
-class MyApp < Igniter::Application
-  config_file "application.yml"
+module MyApp
+  class MainApp < Igniter::Application
+    root_dir __dir__
+    config_file "application.yml"
 
-  executors_path "app/executors"
-  contracts_path "app/contracts"
-  tools_path     "app/tools"
-  agents_path    "app/agents"
-  skills_path    "app/skills"
+    executors_path "app/executors"
+    contracts_path "app/contracts"
+    tools_path     "app/tools"
+    agents_path    "app/agents"
+    skills_path    "app/skills"
 
-  on_boot do
-    # Runs after autoloading, before server starts.
-    # Safe to reference autoloaded constants here.
-    Igniter::AI.configure do |c|
-      c.default_provider = :anthropic
-      c.anthropic.api_key = ENV["ANTHROPIC_API_KEY"]
+    on_boot do
+      Igniter::AI.configure do |c|
+        c.default_provider = :anthropic
+        c.anthropic.api_key = ENV["ANTHROPIC_API_KEY"]
+      end
+
+      register "OrderContract", MyApp::OrderContract
     end
 
-    register "OrderContract", OrderContract
-  end
+    configure do |c|
+      c.port       = ENV.fetch("PORT", 4567).to_i
+      c.log_format = :json
+      c.store      = Igniter::Runtime::Stores::MemoryStore.new
+    end
 
-  configure do |c|
-    c.port       = ENV.fetch("PORT", 4567).to_i
-    c.log_format = :json
-    c.store      = Igniter::Runtime::Stores::MemoryStore.new
-  end
-
-  schedule :cleanup, every: "1h" do
-    puts "[cleanup] #{Time.now}"
+    schedule :cleanup, every: "1h" do
+      puts "[cleanup] #{Time.now}"
+    end
   end
 end
 ```
@@ -224,10 +247,12 @@ end
 
 ### Reference example
 
-`examples/companion/` is a full single-machine application: voice assistant pipeline,
+`examples/companion/` is the main workspace-based application demo: voice assistant pipeline,
 LLM chat/intent/TTS/ASR contracts, proactive agents, tool registry, scheduled session GC.
 
-See [`docs/APPLICATION_V1.md`](APPLICATION_V1.md) and [`docs/SERVER_V1.md`](SERVER_V1.md).
+`examples/companion_legacy/` remains as the older flat-layout reference during transition.
+
+See [`docs/APPLICATION_V1.md`](APPLICATION_V1.md), [`docs/WORKSPACES_V1.md`](WORKSPACES_V1.md), and [`docs/SERVER_V1.md`](SERVER_V1.md).
 
 ---
 
@@ -282,7 +307,7 @@ igniter + igniter/core + igniter/server + igniter/cluster
 ### Cluster setup
 
 ```ruby
-# application.rb (same on every node)
+# apps/main/application.rb (same on every node)
 require "igniter/application"
 require "igniter/cluster"
 

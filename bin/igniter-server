@@ -60,7 +60,7 @@ when "new"
   require_relative "../lib/igniter/application/generator"
 
   mode = options[:minimal] ? " (minimal)" : ""
-  puts "Creating Igniter application '#{app_name}'#{mode}..."
+  puts "Creating Igniter workspace '#{app_name}'#{mode}..."
   Igniter::Application::Generator.new(app_name, minimal: options[:minimal]).generate
 
 else

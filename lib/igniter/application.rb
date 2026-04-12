@@ -5,6 +5,7 @@ require_relative "application/app_config"
 require_relative "application/yml_loader"
 require_relative "application/autoloader"
 require_relative "application/scheduler"
+require_relative "application/workspace"
 require_relative "application/generator"
 
 module Igniter
@@ -49,6 +50,14 @@ module Igniter
   class Application
     class << self
       # ─── DSL ─────────────────────────────────────────────────────────────────
+
+      # Root directory for this application.
+      # Relative config and autoload paths are resolved from here.
+      def root_dir(path = nil)
+        return @root_dir unless path
+
+        @root_dir = File.expand_path(path)
+      end
 
       # Path to an optional YAML configuration file.
       # Loaded before the configure block — configure values override YAML.
@@ -144,6 +153,7 @@ module Igniter
 
       def inherited(subclass)
         super
+        subclass.instance_variable_set(:@root_dir,         Dir.pwd)
         subclass.instance_variable_set(:@yml_path,         nil)
         subclass.instance_variable_set(:@configure_blocks, [])
         subclass.instance_variable_set(:@executors_paths,  [])
@@ -175,17 +185,23 @@ module Igniter
       def apply_yml!(cfg)
         return unless @yml_path
 
-        yml = YmlLoader.load(@yml_path)
+        yml = YmlLoader.load(resolve_path(@yml_path))
         YmlLoader.apply(cfg, yml)
       end
 
       def autoload_paths!
-        loader = Autoloader.new(base_dir: Dir.pwd)
+        loader = Autoloader.new(base_dir: @root_dir || Dir.pwd)
         @executors_paths.each { |p| loader.load_path(p) }
         @contracts_paths.each { |p| loader.load_path(p) }
         @tools_paths.each     { |p| loader.load_path(p) }
         @agents_paths.each    { |p| loader.load_path(p) }
         @skills_paths.each    { |p| loader.load_path(p) }
+      end
+
+      def resolve_path(path)
+        return path if path.nil? || File.absolute_path(path) == path
+
+        File.expand_path(path, @root_dir || Dir.pwd)
       end
 
       def build_scheduler(server_config)

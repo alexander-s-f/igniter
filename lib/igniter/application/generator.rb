@@ -4,77 +4,87 @@ require "fileutils"
 
 module Igniter
   class Application
-    # Generates a new Igniter application scaffold.
+    # Generates a new Igniter workspace scaffold.
     # Invoked via: igniter-server new my_app
     #
     # Creates:
     #   my_app/
-    #   ├── app/
-    #   │   ├── contracts/         — Contract subclasses (dependency graphs)
-    #   │   ├── executors/         — Executor subclasses (pure functions)
-    #   │   ├── tools/             — Tool subclasses (LLM-callable wrappers)
-    #   │   ├── agents/            — Agent / Supervisor / ProactiveAgent subclasses
-    #   │   └── skills/            — Skill subclasses (LLM reasoning loops)
-    #   ├── lib/                   — Shared libraries and helpers
+    #   ├── apps/
+    #   │   └── main/
+    #   │       ├── app/
+    #   │       │   ├── contracts/     — Contract subclasses
+    #   │       │   ├── executors/     — Executor subclasses
+    #   │       │   ├── tools/         — optional Tool subclasses
+    #   │       │   ├── agents/        — optional Agent subclasses
+    #   │       │   └── skills/        — optional Skill subclasses
+    #   │       ├── spec/              — app-local specs
+    #   │       ├── application.rb     — leaf Igniter::Application
+    #   │       └── application.yml    — app-local server config
+    #   ├── lib/<project>/shared/      — shared libraries / helpers
+    #   ├── spec/                      — shared + integration + workspace-level specs
     #   ├── bin/
-    #   │   ├── start              — Launch the HTTP server
-    #   │   └── demo               — Run a quick demo (no server needed)
-    #   ├── application.rb         — Application class (entry point)
-    #   ├── application.yml        — Base server config
+    #   │   ├── start                  — Launch a named app (default: main)
+    #   │   └── demo                   — Run a quick demo (no server needed)
+    #   ├── workspace.rb               — Workspace coordinator
+    #   ├── workspace.yml              — Workspace metadata
     #   ├── Gemfile
-    #   └── config.ru              — Rack entry point (Puma / Unicorn)
+    #   └── config.ru                  — Rack entry point (defaults to main)
     class Generator
-      # @param name     [String]  application directory / class name base
-      # @param minimal  [Boolean] when true, skip demo scaffold files;
-      #                           only the directory structure + config is written.
-      #                           Use when you will populate app/ yourself.
       def initialize(name, minimal: false)
         @name    = name.to_s.strip
         @minimal = minimal
         raise ArgumentError, "App name cannot be blank" if @name.empty?
 
         @dir = @name
+        @project_name = File.basename(@dir)
       end
 
       def generate # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
         create_dir ""
-        create_dir "app/contracts"
-        create_dir "app/executors"
-        create_dir "app/tools"
-        create_dir "app/agents"
-        create_dir "app/skills"
-        create_dir "lib"
+        create_dir "apps/main/app/contracts"
+        create_dir "apps/main/app/executors"
+        create_dir "apps/main/app/tools"
+        create_dir "apps/main/app/agents"
+        create_dir "apps/main/app/skills"
+        create_dir "apps/main/spec"
+        create_dir "lib/#{namespace_path}/shared"
+        create_dir "spec"
         create_dir "bin"
 
-        write "application.rb",  application_rb
-        write "application.yml", application_yml
-        write "Gemfile",         gemfile
-        write "config.ru",       config_ru
-        write "bin/start",       bin_start
-        write "lib/.keep",       ""
+        write "workspace.rb",                  workspace_rb
+        write "workspace.yml",                 workspace_yml
+        write "Gemfile",                       gemfile
+        write "config.ru",                     config_ru
+        write "bin/start",                     bin_start
+        write "spec/spec_helper.rb",           root_spec_helper
+        write "spec/workspace_spec.rb",        workspace_spec
+        write "apps/main/spec/spec_helper.rb", main_spec_helper
+        write "apps/main/application.rb",      main_application_rb
+        write "apps/main/application.yml",     main_application_yml
+        write "lib/#{namespace_path}/shared/.keep", ""
 
         if @minimal
-          # Minimal mode: just placeholders so the directories are not empty.
-          write "app/executors/.keep",  ""
-          write "app/contracts/.keep",  ""
-          write "app/tools/.keep",      ""
-          write "app/agents/.keep",     ""
-          write "app/skills/.keep",     ""
-          write "bin/demo",             bin_demo_stub
+          write "apps/main/app/executors/.keep", ""
+          write "apps/main/app/contracts/.keep", ""
+          write "apps/main/app/tools/.keep",     ""
+          write "apps/main/app/agents/.keep",    ""
+          write "apps/main/app/skills/.keep",    ""
+          write "bin/demo",                      bin_demo_stub
         else
-          write "bin/demo",                        bin_demo
-          write "app/executors/greeter.rb",        executor_greeter
-          write "app/contracts/greet_contract.rb", contract_greet
-          write "app/tools/greet_tool.rb",         tool_greet
-          write "app/agents/host_agent.rb",        agent_host
-          write "app/skills/concierge_skill.rb",   skill_concierge
+          write "bin/demo",                                     bin_demo
+          write "apps/main/spec/main_app_spec.rb",              main_app_spec
+          write "apps/main/app/executors/greeter.rb",           executor_greeter
+          write "apps/main/app/contracts/greet_contract.rb",    contract_greet
+          write "apps/main/app/tools/greet_tool.rb",            tool_greet
+          write "apps/main/app/agents/host_agent.rb",           agent_host
+          write "apps/main/app/skills/concierge_skill.rb",      skill_concierge
         end
 
         FileUtils.chmod(0o755, path("bin/start"))
         FileUtils.chmod(0o755, path("bin/demo"))
 
         puts
-        puts "  Done! Your #{module_name}App is ready."
+        puts "  Done! Your #{module_name} workspace is ready."
         puts
         puts "  Next steps:"
         puts "    cd #{@name}"
@@ -82,7 +92,8 @@ module Igniter
         unless @minimal
           puts "    ruby bin/demo      # ← see it work immediately"
         end
-        puts "    bin/start          # ← launch the HTTP server"
+        puts "    bin/start          # ← launch apps/main"
+        puts "    bin/start main     # ← explicit app selection"
         puts
         puts "  Production (Puma):"
         puts "    bundle add puma && bundle exec puma config.ru"
@@ -106,58 +117,100 @@ module Igniter
       end
 
       def module_name
-        @name.split(/[-_\s]+/).map(&:capitalize).join
+        @project_name.split(/[^a-zA-Z0-9]+/).reject(&:empty?).map(&:capitalize).join
       end
 
-      # ─── application.rb ──────────────────────────────────────────────────────
+      def namespace_path
+        @project_name.strip.downcase.gsub(/[^a-z0-9]+/, "_").gsub(/\A_+|_+\z/, "")
+      end
 
-      def application_rb
+      def workspace_class_name
+        "#{module_name}::Workspace"
+      end
+
+      # ─── workspace.rb (workspace coordinator) ────────────────────────────────
+
+      def workspace_rb
         <<~RUBY
           # frozen_string_literal: true
 
-          require "igniter"
-          require "igniter/core"
-          require "igniter/server"
           require "igniter/application"
+          require_relative "apps/main/application"
 
-          class #{module_name}App < Igniter::Application
-            config_file File.join(__dir__, "application.yml")
+          module #{module_name}
+            class Workspace < Igniter::Workspace
+              root_dir __dir__
+              shared_lib_path "lib"
 
-            # Eagerly load app code in dependency order.
-            executors_path "app/executors"
-            contracts_path "app/contracts"
-            tools_path     "app/tools"
-            agents_path    "app/agents"
-            skills_path    "app/skills"
-
-            # on_boot runs after all paths are loaded — safe to reference autoloaded constants.
-            on_boot do
-              register "GreetContract", GreetContract
+              app :main, path: "apps/main", klass: #{module_name}::MainApp, default: true
             end
-
-            configure do |c|
-              # c.port  = ENV.fetch("PORT", 4567).to_i
-              # c.store = Igniter::Runtime::Stores::MemoryStore.new
-            end
-
-            # schedule :heartbeat, every: "30s" do
-            #   puts "[heartbeat] \#{Time.now.strftime("%H:%M:%S")}"
-            # end
           end
 
-          #{module_name}App.start if $PROGRAM_NAME == __FILE__
+          if $PROGRAM_NAME == __FILE__
+            app_name = ARGV.shift || ENV.fetch("IGNITER_APP", "main")
+            #{workspace_class_name}.start(app_name)
+          end
         RUBY
       end
 
-      # ─── application.yml ─────────────────────────────────────────────────────
+      # ─── workspace.yml (workspace metadata) ──────────────────────────────────
 
-      def application_yml
+      def workspace_yml
+        <<~YAML
+          workspace:
+            default_app: main
+            shared_lib_paths:
+              - lib
+        YAML
+      end
+
+      # ─── apps/main/application.rb ───────────────────────────────────────────
+
+      def main_application_rb
+        <<~RUBY
+          # frozen_string_literal: true
+
+          require "igniter/application"
+          require "igniter/core"
+
+          module #{module_name}
+            class MainApp < Igniter::Application
+              root_dir __dir__
+              config_file "application.yml"
+
+              # Eagerly load app code in dependency order.
+              tools_path     "app/tools"
+              skills_path    "app/skills"
+              executors_path "app/executors"
+              contracts_path "app/contracts"
+              agents_path    "app/agents"
+
+              on_boot do
+                register "GreetContract", #{module_name}::GreetContract
+              end
+
+              configure do |c|
+                # c.port  = ENV.fetch("PORT", 4567).to_i
+                # c.store = Igniter::Runtime::Stores::MemoryStore.new
+              end
+
+              # schedule :heartbeat, every: "30s" do
+              #   puts "[heartbeat] \#{Time.now.strftime("%H:%M:%S")}"
+              # end
+            end
+          end
+        RUBY
+      end
+
+      # ─── apps/main/application.yml ──────────────────────────────────────────
+
+      def main_application_yml
         <<~YAML
           server:
             port: 4567
             host: "0.0.0.0"
-            log_format: text   # text | json  (json = Loki/ELK compatible)
-            drain_timeout: 30  # seconds to wait for in-flight requests on shutdown
+            log_format: text   # text | json
+            drain_timeout: 30
         YAML
       end
 
@@ -170,6 +223,10 @@ module Igniter
           source "https://rubygems.org"
 
           gem "igniter"
+
+          group :development, :test do
+            gem "rspec"
+          end
 
           # Optional:
           # gem "puma"   # production HTTP server  →  bundle exec puma config.ru
@@ -184,9 +241,9 @@ module Igniter
           # Rack entry point — use with Puma or any Rack-compatible server.
           #   bundle exec puma config.ru
 
-          require_relative "application"
+          require_relative "workspace"
 
-          run #{module_name}App.rack_app
+          run #{workspace_class_name}.rack_app(ENV.fetch("IGNITER_APP", "main"))
         RUBY
       end
 
@@ -197,7 +254,13 @@ module Igniter
           #!/usr/bin/env bash
           set -e
           cd "$(dirname "$0")/.."
-          exec bundle exec ruby application.rb "$@"
+
+          app="${1:-${IGNITER_APP:-main}}"
+          if [ "$#" -gt 0 ]; then
+            shift
+          fi
+
+          exec bundle exec ruby workspace.rb "$app" "$@"
         BASH
       end
 
@@ -207,7 +270,7 @@ module Igniter
         <<~RUBY
           #!/usr/bin/env ruby
           # frozen_string_literal: true
-          # Quick demo — no server needed.  Run: ruby bin/demo
+          # Quick demo — no server needed. Run: ruby bin/demo
 
           root = File.expand_path("..", __dir__)
           $LOAD_PATH.unshift(File.join(root, "lib"))
@@ -215,30 +278,28 @@ module Igniter
 
           require "igniter"
           require "igniter/core"
+          require_relative "../apps/main/application"
 
-          # Load app code in dependency order
-          %w[executors contracts tools agents].each do |dir|
-            Dir[File.join(root, "app/\#{dir}/**/*.rb")].sort.each { |f| require f }
+          %w[tools skills executors contracts agents].each do |dir|
+            Dir[File.join(root, "apps/main/app/\#{dir}/**/*.rb")].sort.each { |f| require f }
           end
 
           hr = "─" * 48
 
           puts
           puts "  \#{hr}"
-          puts "  #{module_name}App  ·  Powered by Igniter ⚡"
+          puts "  #{module_name} Workspace  ·  apps/main powered by Igniter ⚡"
           puts "  \#{hr}"
           puts
 
-          # ── 1. Contract ─────────────────────────────────────────────────────
           puts "1 · Contract — validated dependency graph"
-          greeting = GreetContract.new(name: "Alice").result.greeting
+          greeting = #{module_name}::GreetContract.new(name: "Alice").result.greeting
           puts "  ➜  \#{greeting[:message]}"
           puts "     resolved at \#{greeting[:greeted_at]}"
           puts
 
-          # ── 2. Agent ────────────────────────────────────────────────────────
           puts "2 · Agent — stateful actor"
-          ref = HostAgent.start
+          ref = #{module_name}::HostAgent.start
           ref.call(:greet, { name: "Bob" })
           ref.call(:greet, { name: "Carol" })
           stats = ref.call(:stats)
@@ -246,20 +307,19 @@ module Igniter
           ref.stop
           puts
 
-          # ── 3. Tool ─────────────────────────────────────────────────────────
           puts "3 · Tool — LLM-callable (Anthropic / OpenAI compatible)"
-          schema = GreetTool.to_schema
+          schema = #{module_name}::GreetTool.to_schema
           params = schema[:parameters]["properties"].keys.join(", ")
           puts "  ➜  \#{schema[:name]}(\#{params}) — \#{schema[:description]}"
           puts
 
-          # ── 4. Skill ────────────────────────────────────────────────────────
           puts "4 · Skill — LLM reasoning loop (stub — add API key to activate)"
-          puts "  ➜  See app/skills/concierge_skill.rb"
+          puts "  ➜  See apps/main/app/skills/concierge_skill.rb"
           puts
 
           puts "  \#{hr}"
-          puts "  Run  bin/start  →  http://localhost:4567"
+          puts "  Run  bin/start       →  start apps/main"
+          puts "  Run  bin/start main  →  explicit app selection"
           puts "  \#{hr}"
           puts
         RUBY
@@ -273,137 +333,219 @@ module Igniter
           # frozen_string_literal: true
           # Replace this stub with your own demo script.
           # See examples/companion/bin/demo for a full example.
-          puts "#{module_name}App — add your demo code here."
-          puts "Run  bin/start  →  http://localhost:4567"
+          puts "#{module_name} workspace — add your demo code here."
+          puts "Run  bin/start       →  start apps/main"
+          puts "Run  bin/start main  →  explicit app selection"
         RUBY
       end
 
-      # ─── app/executors/greeter.rb ─────────────────────────────────────────
+      # ─── spec/spec_helper.rb ───────────────────────────────────────────────
+
+      def root_spec_helper
+        <<~RUBY
+          # frozen_string_literal: true
+
+          require "rspec"
+          require_relative "../workspace"
+
+          #{workspace_class_name}.setup_load_paths!
+
+          RSpec.configure do |config|
+            config.disable_monkey_patching!
+            config.expect_with(:rspec) { |c| c.syntax = :expect }
+          end
+        RUBY
+      end
+
+      # ─── spec/workspace_spec.rb ────────────────────────────────────────────
+
+      def workspace_spec
+        <<~RUBY
+          # frozen_string_literal: true
+
+          require_relative "spec_helper"
+
+          RSpec.describe #{workspace_class_name} do
+            it "registers apps/main as the default app" do
+              expect(described_class.default_app).to eq(:main)
+              expect(described_class.application(:main)).to be(#{module_name}::MainApp)
+            end
+          end
+        RUBY
+      end
+
+      # ─── apps/main/spec/spec_helper.rb ─────────────────────────────────────
+
+      def main_spec_helper
+        <<~RUBY
+          # frozen_string_literal: true
+
+          require_relative "../../../spec/spec_helper"
+
+          #{module_name}::MainApp.send(:build!)
+        RUBY
+      end
+
+      # ─── apps/main/spec/main_app_spec.rb ───────────────────────────────────
+
+      def main_app_spec
+        <<~RUBY
+          # frozen_string_literal: true
+
+          require_relative "spec_helper"
+
+          RSpec.describe #{module_name}::MainApp do
+            it "builds and registers the greet contract" do
+              config = described_class.send(:build!)
+              expect(config.registry.registered?("GreetContract")).to be(true)
+            end
+          end
+
+          RSpec.describe #{module_name}::GreetContract do
+            it "returns a greeting" do
+              result = described_class.new(name: "Alice").result.greeting
+
+              expect(result[:message]).to include("Alice")
+              expect(result[:greeted_at]).to be_a(String)
+            end
+          end
+        RUBY
+      end
+
+      # ─── apps/main/app/executors/greeter.rb ────────────────────────────────
 
       def executor_greeter
         <<~RUBY
           # frozen_string_literal: true
 
-          # A pure function: given inputs, produce an output. No side effects.
-          # Executors are the leaf nodes in a Contract dependency graph.
-          class Greeter < Igniter::Executor
-            def call(name:)
-              { message: "Hello, \#{name}!", greeted_at: Time.now.iso8601 }
+          module #{module_name}
+            # A pure function: given inputs, produce an output. No side effects.
+            # Executors are the leaf nodes in a Contract dependency graph.
+            class Greeter < Igniter::Executor
+              def call(name:)
+                { message: "Hello, \#{name}!", greeted_at: Time.now.iso8601 }
+              end
             end
           end
         RUBY
       end
 
-      # ─── app/contracts/greet_contract.rb ─────────────────────────────────
+      # ─── apps/main/app/contracts/greet_contract.rb ─────────────────────────
 
       def contract_greet
         <<~RUBY
           # frozen_string_literal: true
 
-          # A Contract declares business logic as a validated dependency graph.
-          # Igniter resolves execution order and validates edges at compile time.
-          class GreetContract < Igniter::Contract
-            define do
-              input  :name
-              compute :greeting, depends_on: :name, call: Greeter
-              output :greeting
+          module #{module_name}
+            # A Contract declares business logic as a validated dependency graph.
+            # Igniter resolves execution order and validates edges at compile time.
+            class GreetContract < Igniter::Contract
+              define do
+                input  :name
+                compute :greeting, depends_on: :name, call: #{module_name}::Greeter
+                output :greeting
+              end
             end
           end
         RUBY
       end
 
-      # ─── app/tools/greet_tool.rb ─────────────────────────────────────────
+      # ─── apps/main/app/tools/greet_tool.rb ─────────────────────────────────
 
       def tool_greet
         <<~RUBY
           # frozen_string_literal: true
 
-          # A Tool wraps an Executor with LLM-friendly metadata.
-          # Any LLM (Anthropic, OpenAI) can call this via function-calling —
-          # the schema is generated automatically from the param declarations.
-          class GreetTool < Igniter::Tool
-            description "Greet a person by name and return a welcome message"
+          module #{module_name}
+            # A Tool wraps an Executor with LLM-friendly metadata.
+            # Any LLM (Anthropic, OpenAI) can call this via function-calling —
+            # the schema is generated automatically from the param declarations.
+            class GreetTool < Igniter::Tool
+              description "Greet a person by name and return a welcome message"
 
-            param :name, type: :string, required: true, desc: "The person's name"
+              param :name, type: :string, required: true, desc: "The person's name"
 
-            def call(name:)
-              GreetContract.new(name:).result.greeting
+              def call(name:)
+                #{module_name}::GreetContract.new(name:).result.greeting
+              end
             end
           end
         RUBY
       end
 
-      # ─── app/agents/host_agent.rb ─────────────────────────────────────────
+      # ─── apps/main/app/agents/host_agent.rb ────────────────────────────────
 
       def agent_host
         <<~RUBY
           # frozen_string_literal: true
 
-          # An Agent is a stateful actor — it holds state between messages and
-          # processes them sequentially in its own thread.
-          #
-          # Handlers that return a Hash  → async state transition (no reply).
-          # Handlers that return non-Hash → sync query, value sent back to caller.
-          class HostAgent < Igniter::Agent
-            # Struct for sync queries: must be non-Hash so the runner sends it as a reply.
-            Stats = Struct.new(:total, :recent, keyword_init: true)
+          module #{module_name}
+            # An Agent is a stateful actor — it holds state between messages and
+            # processes them sequentially in its own thread.
+            #
+            # Handlers that return a Hash  → async state transition (no reply).
+            # Handlers that return non-Hash → sync query, value sent back to caller.
+            class HostAgent < Igniter::Agent
+              Stats = Struct.new(:total, :recent, keyword_init: true)
 
-            initial_state visitors: [], count: 0
+              initial_state visitors: [], count: 0
 
-            on :greet do |state:, payload:|
-              name     = payload.fetch(:name, "stranger")
-              greeting = GreetContract.new(name:).result.greeting
-              puts "  [HostAgent] \#{greeting[:message]}"
+              on :greet do |state:, payload:|
+                name     = payload.fetch(:name, "stranger")
+                greeting = #{module_name}::GreetContract.new(name:).result.greeting
+                puts "  [HostAgent] \#{greeting[:message]}"
 
-              state.merge(
-                visitors: (state[:visitors] + [{ name: name, at: Time.now.iso8601 }]).last(10),
-                count:    state[:count] + 1
-              )
-            end
+                state.merge(
+                  visitors: (state[:visitors] + [{ name: name, at: Time.now.iso8601 }]).last(10),
+                  count:    state[:count] + 1
+                )
+              end
 
-            # Sync query — returns a Struct (non-Hash), so the caller receives it directly.
-            on :stats do |state:, **|
-              Stats.new(total: state[:count], recent: state[:visitors].last(3))
+              on :stats do |state:, **|
+                Stats.new(total: state[:count], recent: state[:visitors].last(3))
+              end
             end
           end
         RUBY
       end
 
-      # ─── app/skills/concierge_skill.rb ───────────────────────────────────
+      # ─── apps/main/app/skills/concierge_skill.rb ───────────────────────────
 
       def skill_concierge
         <<~RUBY
           # frozen_string_literal: true
 
-          # A Skill is a full LLM reasoning loop with access to your Tools.
-          # Unlike a single Tool call, a Skill plans, reasons, and uses tools
-          # iteratively until the task is complete.
-          #
-          # To activate:
-          #   1. Add your API key: export ANTHROPIC_API_KEY=sk-ant-...
-          #   2. Uncomment the code below.
-          #   3. Add  require "igniter/ai"  to application.rb.
-          #
-          # require "igniter/ai"
-          #
-          # class ConciergeSkill < Igniter::AI::Skill
-          #   description "An AI concierge that greets visitors and answers questions"
-          #
-          #   param :request, type: :string, required: true, desc: "The visitor's request"
-          #
-          #   provider :anthropic           # or :openai, :ollama
-          #   model    "claude-haiku-4-5-20251001"
-          #   tools    GreetTool            # give the skill access to your tools
-          #
-          #   system_prompt <<~PROMPT
-          #     You are a friendly concierge. Help visitors feel welcome.
-          #     Use the greet_tool to greet people by name.
-          #   PROMPT
-          #
-          #   def call(request:)
-          #     complete(request)           # runs the LLM loop, returns final text
-          #   end
-          # end
+          module #{module_name}
+            # A Skill is a full LLM reasoning loop with access to your Tools.
+            # Unlike a single Tool call, a Skill plans, reasons, and uses tools
+            # iteratively until the task is complete.
+            #
+            # To activate:
+            #   1. Add your API key: export ANTHROPIC_API_KEY=sk-ant-...
+            #   2. Uncomment the code below.
+            #   3. Add require "igniter/ai" to apps/main/application.rb.
+            #
+            # require "igniter/ai"
+            #
+            # class ConciergeSkill < Igniter::AI::Skill
+            #   description "An AI concierge that greets visitors and answers questions"
+            #
+            #   param :request, type: :string, required: true, desc: "The visitor's request"
+            #
+            #   provider :anthropic           # or :openai, :ollama
+            #   model    "claude-haiku-4-5-20251001"
+            #   tools    #{module_name}::GreetTool
+            #
+            #   system_prompt <<~PROMPT
+            #     You are a friendly concierge. Help visitors feel welcome.
+            #     Use the greet_tool to greet people by name.
+            #   PROMPT
+            #
+            #   def call(request:)
+            #     complete(request)
+            #   end
+            # end
+          end
         RUBY
       end
     end
