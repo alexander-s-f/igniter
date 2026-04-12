@@ -7,7 +7,15 @@ topology:
   network: companion
   notes:
     - "apps/ define code roles; this file describes deployment roles and wiring"
-    - "workspace.rb does not consume this file yet; it is the canonical operational config"
+    - "workspace.rb consumes this file for role-aware boot and compose generation"
+
+deploy:
+  compose:
+    context: ../../../../
+    dockerfile: examples/companion/config/deploy/Dockerfile
+    working_dir: /app/examples/companion
+    volume_name: companion_var
+    volume_target: /app/examples/companion/var
 
 apps:
   main:
@@ -20,6 +28,9 @@ apps:
     command: bundle exec ruby examples/companion/workspace.rb main
     depends_on:
       - inference
+    environment:
+      COMPANION_EXECUTION_ADAPTER: sqlite
+      COMPANION_EXECUTION_DB: var/main_executions.sqlite3
     persistence:
       execution:
         adapter: sqlite
@@ -33,6 +44,9 @@ apps:
     http:
       port: 4568
     command: bundle exec ruby examples/companion/workspace.rb inference
+    environment:
+      COMPANION_EXECUTION_ADAPTER: sqlite
+      COMPANION_EXECUTION_DB: var/inference_executions.sqlite3
     persistence:
       execution:
         adapter: sqlite
@@ -48,14 +62,19 @@ apps:
     command: bundle exec ruby examples/companion/workspace.rb dashboard
     depends_on:
       - main
+    environment:
+      COMPANION_EXECUTION_ADAPTER: sqlite
+      COMPANION_EXECUTION_DB: var/dashboard_executions.sqlite3
     persistence:
       execution:
         adapter: sqlite
         path: var/dashboard_executions.sqlite3
 
 shared:
+  environment:
+    COMPANION_DATA_ADAPTER: sqlite
+    COMPANION_DATA_DB: var/companion_data.sqlite3
   persistence:
     data:
       adapter: sqlite
       path: var/companion_data.sqlite3
-

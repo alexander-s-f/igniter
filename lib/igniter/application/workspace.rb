@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "fileutils"
 require "optparse"
 require "yaml"
 
@@ -59,6 +60,12 @@ module Igniter
         reset_workspace_state!
       end
 
+      def compose_file(path = nil)
+        return @compose_yml_path unless path
+
+        @compose_yml_path = path
+      end
+
       def app(name, path:, klass:, default: false)
         definition = AppDefinition.new(
           name: name.to_sym,
@@ -110,6 +117,20 @@ module Igniter
         options = parse_cli_options(argv.dup)
         target = options.delete(:target)
 
+        if options[:print_compose]
+          environment(options[:environment]) if options[:environment]
+          validate_profile!(options[:profile]) if options[:profile]
+          puts compose_yaml
+          return
+        end
+
+        if options[:write_compose]
+          environment(options[:environment]) if options[:environment]
+          validate_profile!(options[:profile]) if options[:profile]
+          write_compose(options[:write_compose] == true ? nil : options[:write_compose])
+          return
+        end
+
         start(
           target,
           role: options[:role],
@@ -139,6 +160,78 @@ module Igniter
         shared = topology.fetch("shared", {})
         app = topology.fetch("apps", {}).fetch(app_name.to_s, {})
         deep_merge(shared, app)
+      end
+
+      def deployment_snapshot
+        {
+          "workspace" => {
+            "root_dir" => @root_dir,
+            "environment" => resolved_environment,
+            "default_app" => default_app.to_s,
+            "topology_profile" => topology_profile.to_s
+          },
+          "apps" => app_names.each_with_object({}) do |app_name, result|
+            definition = app_definition(app_name)
+            result[app_name.to_s] = deployment(app_name).merge(
+              "app" => app_name.to_s,
+              "path" => definition.path,
+              "class_name" => definition.klass.name || definition.klass.inspect,
+              "default" => (app_name == default_app)
+            )
+          end
+        }
+      end
+
+      def compose_config
+        snapshot = deployment_snapshot
+        compose = topology.dig("deploy", "compose") || {}
+        volume_name = compose["volume_name"] || "#{workspace_slug}_var"
+        working_dir = compose["working_dir"]
+        build = compose["build"]
+        dockerfile = compose["dockerfile"]
+        build_context = compose["context"]
+        shared_env = stringify_hash(compose["environment"] || {})
+        volume_target = compose["volume_target"]
+
+        services = snapshot.fetch("apps").each_with_object({}) do |(app_name, app_config), result|
+          service = {}
+          service["build"] = build_config(build_context, dockerfile) if build_context || dockerfile || build
+          service["image"] = build if build.is_a?(String)
+          service["command"] = app_config["command"] || "bundle exec ruby workspace.rb #{app_name}"
+          service["working_dir"] = working_dir if present?(working_dir)
+
+          env = shared_env.merge(compose_environment_for(app_name, app_config))
+          service["environment"] = env unless env.empty?
+
+          port = app_config.dig("http", "port")
+          if app_config["public"] && port
+            service["ports"] = ["#{port}:#{port}"]
+          end
+
+          depends_on = Array(app_config["depends_on"]).map(&:to_s)
+          service["depends_on"] = depends_on unless depends_on.empty?
+
+          if volume_target
+            service["volumes"] = ["#{volume_name}:#{volume_target}"]
+          end
+
+          result[app_name] = service
+        end
+
+        compose_config = { "services" => services }
+        compose_config["volumes"] = { volume_name => {} } if volume_target
+        compose_config
+      end
+
+      def compose_yaml
+        YAML.dump(compose_config)
+      end
+
+      def write_compose(path = nil)
+        target = resolve_path(path || @compose_yml_path)
+        FileUtils.mkdir_p(File.dirname(target))
+        File.write(target, compose_yaml)
+        target
       end
 
       def apps_for_role(role)
@@ -171,6 +264,7 @@ module Igniter
         subclass.instance_variable_set(:@topology_yml_path, "config/topology.yml")
         subclass.instance_variable_set(:@environment_name, nil)
         subclass.instance_variable_set(:@environment_yml_path, nil)
+        subclass.instance_variable_set(:@compose_yml_path, "config/deploy/compose.yml")
         subclass.instance_variable_set(:@shared_lib_paths, [])
         subclass.instance_variable_set(:@apps, {})
         subclass.instance_variable_set(:@default_app, nil)
@@ -199,6 +293,14 @@ module Igniter
 
           opts.on("--profile NAME", "Require topology profile to match NAME") do |value|
             options[:profile] = value
+          end
+
+          opts.on("--print-compose", "Print a Docker Compose config generated from topology.yml") do
+            options[:print_compose] = true
+          end
+
+          opts.on("--write-compose [PATH]", "Write a Docker Compose config generated from topology.yml") do |value|
+            options[:write_compose] = value || true
           end
         end
 
@@ -261,6 +363,43 @@ module Igniter
         return if expected.empty? || actual.empty? || expected == actual
 
         raise ArgumentError, "Requested profile #{expected.inspect} does not match topology profile #{actual.inspect}"
+      end
+
+      def build_config(context, dockerfile)
+        config = {}
+        config["context"] = context if present?(context)
+        config["dockerfile"] = dockerfile if present?(dockerfile)
+        config
+      end
+
+      def compose_environment_for(app_name, app_config)
+        env = stringify_hash(topology.fetch("shared", {}).fetch("environment", {}))
+        env.merge!(stringify_hash(app_config.fetch("environment", {})))
+        env.merge!(
+          {
+          "IGNITER_APP" => app_name.to_s,
+          "PORT" => app_config.dig("http", "port").to_s
+          }
+        )
+        env["IGNITER_ENV"] = resolved_environment unless resolved_environment.empty?
+        env["IGNITER_TOPOLOGY_PROFILE"] = topology_profile.to_s unless topology_profile.to_s.empty?
+        env.reject { |_key, value| !present?(value) }
+      end
+
+      def stringify_hash(hash)
+        hash.each_with_object({}) do |(key, value), result|
+          result[key.to_s] = value.to_s
+        end
+      end
+
+      def workspace_slug
+        name = workspace_settings.dig("workspace", "name")
+        candidate = present?(name) ? name : File.basename(@root_dir.to_s)
+        candidate.to_s.strip.downcase.gsub(/[^a-z0-9]+/, "_").gsub(/\A_+|_+\z/, "")
+      end
+
+      def present?(value)
+        !value.to_s.strip.empty?
       end
 
       def load_yaml(path)

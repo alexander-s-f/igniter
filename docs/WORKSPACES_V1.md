@@ -186,6 +186,8 @@ bin/start --role api
 bin/start --role admin
 bin/start --env production --role api
 bin/start --profile local --role api
+bin/start --print-compose
+bin/start --write-compose
 ```
 
 Resolution rules:
@@ -195,6 +197,8 @@ Resolution rules:
 - otherwise the workspace default app is used
 - `--env` loads `config/environments/<name>.yml`
 - `--profile` validates against `topology.profile`
+- `--print-compose` renders a Docker Compose config from `config/topology.yml`
+- `--write-compose` writes the rendered Compose config to `config/deploy/compose.yml`
 
 ---
 

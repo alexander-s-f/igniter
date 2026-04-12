@@ -204,4 +204,135 @@ RSpec.describe Igniter::Workspace do
       end.to raise_error(ArgumentError, /does not match topology profile/)
     end
   end
+
+  it "builds a deployment snapshot for all registered apps" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "workspace.yml"), <<~YAML)
+        workspace:
+          name: demo_workspace
+          default_app: dashboard
+      YAML
+      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
+        topology:
+          profile: local
+        shared:
+          persistence:
+            data:
+              adapter: sqlite
+        apps:
+          main:
+            role: api
+            replicas: 2
+          dashboard:
+            role: admin
+            replicas: 1
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      snapshot = workspace.deployment_snapshot
+
+      expect(snapshot.dig("workspace", "default_app")).to eq("dashboard")
+      expect(snapshot.dig("workspace", "topology_profile")).to eq("local")
+      expect(snapshot.dig("apps", "main")).to include(
+        "app" => "main",
+        "role" => "api",
+        "replicas" => 2,
+        "default" => false
+      )
+      expect(snapshot.dig("apps", "dashboard")).to include(
+        "app" => "dashboard",
+        "role" => "admin",
+        "default" => true
+      )
+    end
+  end
+
+  it "generates a compose config from topology deploy settings" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "workspace.yml"), <<~YAML)
+        workspace:
+          name: companion
+      YAML
+      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
+        topology:
+          profile: local-compose
+        deploy:
+          compose:
+            context: ../../../../
+            dockerfile: examples/companion/config/deploy/Dockerfile
+            working_dir: /app/examples/companion
+            volume_name: companion_var
+            volume_target: /app/examples/companion/var
+        apps:
+          main:
+            role: api
+            public: true
+            command: bundle exec ruby workspace.rb main
+            environment:
+              APP_MODE: main
+            http:
+              port: 4567
+            depends_on:
+              - dashboard
+          dashboard:
+            role: admin
+            public: true
+            command: bundle exec ruby workspace.rb dashboard
+            http:
+              port: 4569
+      YAML
+
+      workspace = build_workspace(root: tmp, environment: "production")
+      compose = workspace.compose_config
+
+      expect(compose.dig("services", "main", "build")).to eq(
+        "context" => "../../../../",
+        "dockerfile" => "examples/companion/config/deploy/Dockerfile"
+      )
+      expect(compose.dig("services", "main", "environment")).to include(
+        "APP_MODE" => "main",
+        "IGNITER_APP" => "main",
+        "IGNITER_ENV" => "production",
+        "IGNITER_TOPOLOGY_PROFILE" => "local-compose",
+        "PORT" => "4567"
+      )
+      expect(compose.dig("services", "main", "ports")).to eq(["4567:4567"])
+      expect(compose.dig("services", "main", "depends_on")).to eq(["dashboard"])
+      expect(compose.dig("services", "main", "volumes")).to eq(
+        ["companion_var:/app/examples/companion/var"]
+      )
+      expect(compose.fetch("volumes")).to include("companion_var" => {})
+      expect(workspace.compose_yaml).to include("services:")
+      expect(workspace.compose_yaml).to include("companion_var")
+    end
+  end
+
+  it "writes generated compose yaml to the configured path" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "workspace.yml"), <<~YAML)
+        workspace:
+          name: write_test
+      YAML
+      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
+        topology:
+          profile: local
+        apps:
+          main:
+            role: api
+            public: true
+            http:
+              port: 4567
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      path = workspace.write_compose
+
+      expect(path).to eq(File.join(tmp, "config", "deploy", "compose.yml"))
+      expect(File.read(path)).to include("services:")
+      expect(File.read(path)).to include("main:")
+    end
+  end
 end

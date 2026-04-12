@@ -1,58 +1,60 @@
+---
 services:
   main:
     build:
-      context: ../../../../
+      context: "../../../../"
       dockerfile: examples/companion/config/deploy/Dockerfile
-    command: bundle exec ruby workspace.rb main
-    working_dir: /app/examples/companion
+    command: bundle exec ruby examples/companion/workspace.rb main
+    working_dir: "/app/examples/companion"
     environment:
       COMPANION_DATA_ADAPTER: sqlite
       COMPANION_DATA_DB: var/companion_data.sqlite3
       COMPANION_EXECUTION_ADAPTER: sqlite
       COMPANION_EXECUTION_DB: var/main_executions.sqlite3
-      PORT: 4567
+      IGNITER_APP: main
+      PORT: '4567'
+      IGNITER_TOPOLOGY_PROFILE: local-compose
     ports:
-      - "4567:4567"
-    volumes:
-      - companion_var:/app/examples/companion/var
+    - 4567:4567
     depends_on:
-      - inference
-
+    - inference
+    volumes:
+    - companion_var:/app/examples/companion/var
   inference:
     build:
-      context: ../../../../
+      context: "../../../../"
       dockerfile: examples/companion/config/deploy/Dockerfile
-    command: bundle exec ruby workspace.rb inference
-    working_dir: /app/examples/companion
+    command: bundle exec ruby examples/companion/workspace.rb inference
+    working_dir: "/app/examples/companion"
     environment:
       COMPANION_DATA_ADAPTER: sqlite
       COMPANION_DATA_DB: var/companion_data.sqlite3
       COMPANION_EXECUTION_ADAPTER: sqlite
       COMPANION_EXECUTION_DB: var/inference_executions.sqlite3
-      PORT: 4568
-    ports:
-      - "4568:4568"
+      IGNITER_APP: inference
+      PORT: '4568'
+      IGNITER_TOPOLOGY_PROFILE: local-compose
     volumes:
-      - companion_var:/app/examples/companion/var
-
+    - companion_var:/app/examples/companion/var
   dashboard:
     build:
-      context: ../../../../
+      context: "../../../../"
       dockerfile: examples/companion/config/deploy/Dockerfile
-    command: bundle exec ruby workspace.rb dashboard
-    working_dir: /app/examples/companion
+    command: bundle exec ruby examples/companion/workspace.rb dashboard
+    working_dir: "/app/examples/companion"
     environment:
       COMPANION_DATA_ADAPTER: sqlite
       COMPANION_DATA_DB: var/companion_data.sqlite3
       COMPANION_EXECUTION_ADAPTER: sqlite
       COMPANION_EXECUTION_DB: var/dashboard_executions.sqlite3
-      PORT: 4569
+      IGNITER_APP: dashboard
+      PORT: '4569'
+      IGNITER_TOPOLOGY_PROFILE: local-compose
     ports:
-      - "4569:4569"
-    volumes:
-      - companion_var:/app/examples/companion/var
+    - 4569:4569
     depends_on:
-      - main
-
+    - main
+    volumes:
+    - companion_var:/app/examples/companion/var
 volumes:
-  companion_var:
+  companion_var: {}

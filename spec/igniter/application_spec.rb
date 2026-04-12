@@ -332,6 +332,7 @@ RSpec.describe Igniter::Application do
           expect(workspace).to include("app :main")
           expect(workspace).to include("start_cli(ARGV)")
           expect(File.read("my_app/config/topology.yml")).to include("role: api")
+          expect(File.read("my_app/config/topology.yml")).to include("dockerfile: config/deploy/Dockerfile")
           expect(File.read("my_app/config/environments/production.yml")).to include("replicas: 2")
           expect(bin_start).to include("exec bundle exec ruby workspace.rb \"$@\"")
           expect(main_app).to include("root_dir __dir__")

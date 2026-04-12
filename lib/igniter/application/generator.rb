@@ -189,6 +189,14 @@ module Igniter
             notes:
               - "apps/ define code roles; this file describes deployment roles and wiring"
 
+          deploy:
+            compose:
+              context: .
+              dockerfile: config/deploy/Dockerfile
+              working_dir: /app
+              volume_name: #{namespace_path}_var
+              volume_target: /app/var
+
           apps:
             main:
               app: main

@@ -213,6 +213,8 @@ bin/start --role api
 bin/start --role admin
 bin/start --env production --role api
 bin/start --profile local-compose --role admin
+bin/start --print-compose
+bin/start --write-compose
 ```
 
 ## Dashboard
