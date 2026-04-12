@@ -335,4 +335,61 @@ RSpec.describe Igniter::Workspace do
       expect(File.read(path)).to include("main:")
     end
   end
+
+  it "generates a Procfile.dev for local multi-app development" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "workspace.yml"), <<~YAML)
+        workspace:
+          name: home_lab
+      YAML
+      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
+        topology:
+          profile: development
+        shared:
+          environment:
+            SHARED_FLAG: "1"
+        apps:
+          main:
+            role: api
+            http:
+              port: 4567
+          dashboard:
+            role: admin
+            command: bundle exec ruby workspace.rb dashboard
+            environment:
+              DASHBOARD_MODE: enabled
+            http:
+              port: 4569
+      YAML
+
+      workspace = build_workspace(root: tmp, environment: "development")
+      procfile = workspace.procfile_dev
+
+      expect(procfile).to include("main:")
+      expect(procfile).to include("dashboard:")
+      expect(procfile).to include("SHARED_FLAG=1")
+      expect(procfile).to include("DASHBOARD_MODE=enabled")
+      expect(procfile).to include("bundle exec ruby workspace.rb dashboard")
+    end
+  end
+
+  it "writes generated Procfile.dev to the configured path" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
+        apps:
+          main:
+            role: api
+            http:
+              port: 4567
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      path = workspace.write_procfile_dev
+
+      expect(path).to eq(File.join(tmp, "config", "deploy", "Procfile.dev"))
+      expect(File.read(path)).to include("main:")
+    end
+  end
 end

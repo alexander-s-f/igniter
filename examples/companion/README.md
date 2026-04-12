@@ -24,6 +24,7 @@ Or from inside the example:
 ```bash
 cd examples/companion
 bin/demo
+bin/dev
 bin/start
 bin/start inference
 bin/start --role admin
@@ -191,6 +192,7 @@ Companion now includes a canonical deployment layout under `config/`:
 
 - [config/topology.yml](/Users/alex/dev/projects/igniter/examples/companion/config/topology.yml) describes deployment roles and wiring
 - [config/deploy/Dockerfile](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/Dockerfile) is the shared container image
+- [config/deploy/Procfile.dev](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/Procfile.dev) is the generated local multi-process dev profile
 - [config/deploy/compose.yml](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/compose.yml) starts `main`, `inference`, and `dashboard` together
 
 From the repository root:
@@ -212,6 +214,9 @@ bin/start main
 bin/start --role api
 bin/start --role admin
 bin/start --env production --role api
+bin/dev
+bin/start --print-procfile-dev
+bin/start --write-procfile-dev
 bin/start --profile local-compose --role admin
 bin/start --print-compose
 bin/start --write-compose

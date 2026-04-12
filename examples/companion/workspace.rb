@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+$LOAD_PATH.unshift(File.expand_path("../../lib", __dir__))
+
 require "igniter/application"
 require_relative "apps/main/application"
 require_relative "apps/inference/application"

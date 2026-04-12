@@ -26,6 +26,7 @@ my_app/
 │   ├── topology.yml
 │   └── deploy/
 │       ├── Dockerfile
+│       ├── Procfile.dev
 │       └── compose.yml
 ├── apps/
 │   └── main/
@@ -41,6 +42,7 @@ my_app/
 │           └── spec_helper.rb
 ├── bin/
 │   ├── start
+│   ├── dev
 │   └── demo
 ├── lib/
 │   └── my_app/
@@ -189,6 +191,19 @@ bin/start --profile local --role api
 bin/start --print-compose
 bin/start --write-compose
 ```
+
+For local multi-app development there is also a workspace-native dev mode:
+
+```bash
+bin/dev
+bin/dev --env production
+ruby workspace.rb --print-procfile-dev
+ruby workspace.rb --write-procfile-dev
+```
+
+`bin/dev` starts every registered app locally with prefixed logs, without Docker.
+`config/deploy/Procfile.dev` is the generated compatibility artifact for `foreman`,
+`overmind`, or similar process managers when you want them.
 
 Resolution rules:
 

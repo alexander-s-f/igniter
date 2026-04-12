@@ -294,11 +294,13 @@ RSpec.describe Igniter::Application do
           expect(File.exist?("my_app/config/environments/development.yml")).to be true
           expect(File.exist?("my_app/config/environments/production.yml")).to be true
           expect(File.exist?("my_app/config/deploy/.keep")).to be true
+          expect(File.exist?("my_app/config/deploy/Procfile.dev")).to be true
           expect(File.exist?("my_app/Gemfile")).to be true
           expect(File.exist?("my_app/config.ru")).to be true
 
           # bin/
           expect(File.exist?("my_app/bin/start")).to be true
+          expect(File.exist?("my_app/bin/dev")).to be true
           expect(File.exist?("my_app/bin/demo")).to be true
 
           # workspace structure
@@ -327,6 +329,7 @@ RSpec.describe Igniter::Application do
           workspace = File.read("my_app/workspace.rb")
           main_app  = File.read("my_app/apps/main/application.rb")
           bin_start = File.read("my_app/bin/start")
+          bin_dev   = File.read("my_app/bin/dev")
 
           expect(workspace).to include("Igniter::Workspace")
           expect(workspace).to include("app :main")
@@ -334,7 +337,9 @@ RSpec.describe Igniter::Application do
           expect(File.read("my_app/config/topology.yml")).to include("role: api")
           expect(File.read("my_app/config/topology.yml")).to include("dockerfile: config/deploy/Dockerfile")
           expect(File.read("my_app/config/environments/production.yml")).to include("replicas: 2")
+          expect(File.read("my_app/config/deploy/Procfile.dev")).to include("main:")
           expect(bin_start).to include("exec bundle exec ruby workspace.rb \"$@\"")
+          expect(bin_dev).to include("exec bundle exec ruby workspace.rb --dev \"$@\"")
           expect(main_app).to include("root_dir __dir__")
           expect(main_app).to include("executors_path")
           expect(main_app).to include("contracts_path")
@@ -389,6 +394,7 @@ RSpec.describe Igniter::Application do
         Dir.chdir(tmp) do
           described_class.new("exectest").generate
           expect(File.executable?("exectest/bin/start")).to be true
+          expect(File.executable?("exectest/bin/dev")).to be true
           expect(File.executable?("exectest/bin/demo")).to be true
         end
       end

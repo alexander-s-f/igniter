@@ -63,9 +63,11 @@ module Igniter
         write "config/environments/development.yml", development_yml
         write "config/environments/production.yml",  production_yml
         write "config/deploy/.keep",           ""
+        write "config/deploy/Procfile.dev",    procfile_dev
         write "Gemfile",                       gemfile
         write "config.ru",                     config_ru
         write "bin/start",                     bin_start
+        write "bin/dev",                       bin_dev
         write "spec/spec_helper.rb",           root_spec_helper
         write "spec/workspace_spec.rb",        workspace_spec
         write "apps/main/spec/spec_helper.rb", main_spec_helper
@@ -91,6 +93,7 @@ module Igniter
         end
 
         FileUtils.chmod(0o755, path("bin/start"))
+        FileUtils.chmod(0o755, path("bin/dev"))
         FileUtils.chmod(0o755, path("bin/demo"))
 
         puts
@@ -103,6 +106,7 @@ module Igniter
           puts "    ruby bin/demo      # ← see it work immediately"
         end
         puts "    bin/start          # ← launch apps/main"
+        puts "    bin/dev            # ← launch the whole workspace locally"
         puts "    bin/start main     # ← explicit app selection"
         puts
         puts "  Production (Puma):"
@@ -342,6 +346,16 @@ module Igniter
         BASH
       end
 
+      def bin_dev
+        <<~BASH
+          #!/usr/bin/env bash
+          set -e
+          cd "$(dirname "$0")/.."
+
+          exec bundle exec ruby workspace.rb --dev "$@"
+        BASH
+      end
+
       # ─── bin/demo ────────────────────────────────────────────────────────────
 
       def bin_demo
@@ -397,6 +411,7 @@ module Igniter
 
           puts "  \#{hr}"
           puts "  Run  bin/start       →  start apps/main"
+          puts "  Run  bin/dev         →  start the whole workspace locally"
           puts "  Run  bin/start main  →  explicit app selection"
           puts "  \#{hr}"
           puts
@@ -413,8 +428,15 @@ module Igniter
           # See examples/companion/bin/demo for a full example.
           puts "#{module_name} workspace — add your demo code here."
           puts "Run  bin/start       →  start apps/main"
+          puts "Run  bin/dev         →  start the whole workspace locally"
           puts "Run  bin/start main  →  explicit app selection"
         RUBY
+      end
+
+      def procfile_dev
+        <<~TEXT
+          main: IGNITER_APP=main PORT=4567 bundle exec ruby workspace.rb main
+        TEXT
       end
 
       # ─── spec/spec_helper.rb ───────────────────────────────────────────────

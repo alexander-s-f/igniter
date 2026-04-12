@@ -2,6 +2,7 @@
 
 require "fileutils"
 require "optparse"
+require "shellwords"
 require "yaml"
 
 module Igniter
@@ -66,6 +67,12 @@ module Igniter
         @compose_yml_path = path
       end
 
+      def procfile_dev_file(path = nil)
+        return @procfile_dev_path unless path
+
+        @procfile_dev_path = path
+      end
+
       def app(name, path:, klass:, default: false)
         definition = AppDefinition.new(
           name: name.to_sym,
@@ -116,6 +123,28 @@ module Igniter
       def start_cli(argv = ARGV)
         options = parse_cli_options(argv.dup)
         target = options.delete(:target)
+
+        if options[:print_procfile_dev]
+          environment(options[:environment]) if options[:environment]
+          validate_profile!(options[:profile]) if options[:profile]
+          puts procfile_dev
+          return
+        end
+
+        if options[:write_procfile_dev]
+          environment(options[:environment]) if options[:environment]
+          validate_profile!(options[:profile]) if options[:profile]
+          write_procfile_dev(options[:write_procfile_dev] == true ? nil : options[:write_procfile_dev])
+          return
+        end
+
+        if options[:dev]
+          start_dev(
+            environment: options[:environment],
+            profile: options[:profile]
+          )
+          return
+        end
 
         if options[:print_compose]
           environment(options[:environment]) if options[:environment]
@@ -234,6 +263,109 @@ module Igniter
         target
       end
 
+      def dev_services
+        snapshot = deployment_snapshot
+
+        app_names.map do |app_name|
+          app_config = snapshot.fetch("apps").fetch(app_name.to_s)
+          {
+            name: app_name.to_s,
+            command: app_config["dev_command"] || app_config["command"] || "bundle exec ruby workspace.rb #{app_name}",
+            environment: runtime_environment_for(app_name, app_config)
+          }
+        end
+      end
+
+      def procfile_dev
+        dev_services.map do |service|
+          "#{service.fetch(:name)}: #{shell_command_with_env(service.fetch(:command), service.fetch(:environment))}"
+        end.join("\n") + "\n"
+      end
+
+      def write_procfile_dev(path = nil)
+        target = resolve_path(path || @procfile_dev_path)
+        FileUtils.mkdir_p(File.dirname(target))
+        File.write(target, procfile_dev)
+        target
+      end
+
+      def start_dev(environment: nil, profile: nil) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+        environment(environment) if environment
+        validate_profile!(profile) if profile
+
+        services = dev_services
+        raise ArgumentError, "No apps registered for workspace dev mode" if services.empty?
+
+        processes = {}
+        readers = []
+        stopping = false
+        exit_status = 0
+
+        stop_all = lambda do |signal|
+          next if stopping
+
+          stopping = true
+          processes.each_value do |process|
+            begin
+              Process.kill(signal, process.fetch(:pid))
+            rescue Errno::ESRCH
+              nil
+            end
+          end
+        end
+
+        previous_int = trap("INT") { stop_all.call("TERM") }
+        previous_term = trap("TERM") { stop_all.call("TERM") }
+
+        services.each do |service|
+          reader, writer = IO.pipe
+          pid = Process.spawn(
+            service.fetch(:environment),
+            service.fetch(:command),
+            chdir: @root_dir,
+            out: writer,
+            err: writer
+          )
+          writer.close
+
+          processes[pid] = { name: service.fetch(:name), pid: pid }
+          readers << Thread.new(reader, service.fetch(:name)) do |io, name|
+            io.each_line do |line|
+              $stdout.print("[#{name}] #{line}")
+            end
+          ensure
+            io.close unless io.closed?
+          end
+        end
+
+        until processes.empty?
+          pid, status = Process.wait2
+          process = processes.delete(pid)
+          next unless process
+
+          if status.exitstatus.to_i != 0 && exit_status.zero?
+            exit_status = status.exitstatus
+          end
+
+          unless stopping
+            warn "[workspace:dev] #{process.fetch(:name)} exited with status #{status.exitstatus || "unknown"}"
+            stop_all.call("TERM")
+          end
+        end
+      ensure
+        processes&.each_value do |process|
+          begin
+            Process.kill("KILL", process.fetch(:pid))
+          rescue Errno::ESRCH
+            nil
+          end
+        end
+        readers&.each(&:join)
+        trap("INT", previous_int) if previous_int
+        trap("TERM", previous_term) if previous_term
+        raise SystemExit, exit_status unless exit_status.to_i.zero?
+      end
+
       def apps_for_role(role)
         desired = role.to_s
         topology.fetch("apps", {}).filter_map do |name, config|
@@ -265,6 +397,7 @@ module Igniter
         subclass.instance_variable_set(:@environment_name, nil)
         subclass.instance_variable_set(:@environment_yml_path, nil)
         subclass.instance_variable_set(:@compose_yml_path, "config/deploy/compose.yml")
+        subclass.instance_variable_set(:@procfile_dev_path, "config/deploy/Procfile.dev")
         subclass.instance_variable_set(:@shared_lib_paths, [])
         subclass.instance_variable_set(:@apps, {})
         subclass.instance_variable_set(:@default_app, nil)
@@ -301,6 +434,18 @@ module Igniter
 
           opts.on("--write-compose [PATH]", "Write a Docker Compose config generated from topology.yml") do |value|
             options[:write_compose] = value || true
+          end
+
+          opts.on("--dev", "Start all workspace apps locally with prefixed logs") do
+            options[:dev] = true
+          end
+
+          opts.on("--print-procfile-dev", "Print a Procfile.dev generated from topology.yml") do
+            options[:print_procfile_dev] = true
+          end
+
+          opts.on("--write-procfile-dev [PATH]", "Write a Procfile.dev generated from topology.yml") do |value|
+            options[:write_procfile_dev] = value || true
           end
         end
 
@@ -373,17 +518,30 @@ module Igniter
       end
 
       def compose_environment_for(app_name, app_config)
+        env = stringify_hash(topology.dig("deploy", "compose", "environment") || {})
+        env.merge!(runtime_environment_for(app_name, app_config))
+        env.reject { |_key, value| !present?(value) }
+      end
+
+      def runtime_environment_for(app_name, app_config)
         env = stringify_hash(topology.fetch("shared", {}).fetch("environment", {}))
         env.merge!(stringify_hash(app_config.fetch("environment", {})))
         env.merge!(
           {
-          "IGNITER_APP" => app_name.to_s,
-          "PORT" => app_config.dig("http", "port").to_s
+            "IGNITER_APP" => app_name.to_s,
+            "PORT" => app_config.dig("http", "port").to_s
           }
         )
         env["IGNITER_ENV"] = resolved_environment unless resolved_environment.empty?
         env["IGNITER_TOPOLOGY_PROFILE"] = topology_profile.to_s unless topology_profile.to_s.empty?
         env.reject { |_key, value| !present?(value) }
+      end
+
+      def shell_command_with_env(command, env)
+        assignments = env.map do |key, value|
+          "#{Shellwords.escape(key)}=#{Shellwords.escape(value)}"
+        end
+        (assignments + [command]).join(" ").strip
       end
 
       def stringify_hash(hash)
