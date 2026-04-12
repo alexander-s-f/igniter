@@ -67,9 +67,15 @@ module Igniter
       def accept_connection
         @tcp_server.accept_nonblock
       rescue IO::WaitReadable
-        IO.select([@tcp_server], nil, nil, 0.5)
+        return nil unless @running
+
+        begin
+          IO.select([@tcp_server], nil, nil, 0.5)
+        rescue IOError, Errno::EBADF
+          nil
+        end
         nil
-      rescue IOError
+      rescue IOError, Errno::EBADF
         nil
       end
 

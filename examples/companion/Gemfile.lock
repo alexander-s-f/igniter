@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    igniter (0.5.0)
+
+PLATFORMS
+  arm64-darwin-25
+  ruby
+
+DEPENDENCIES
+  igniter
+
+CHECKSUMS
+  igniter (0.5.0)
+
+BUNDLED WITH
+  4.0.10
