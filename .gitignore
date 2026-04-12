@@ -7,3 +7,5 @@
 /spec/reports/
 /tmp/
 .idea
+/playgrounds/*
+!/playgrounds/README.md
