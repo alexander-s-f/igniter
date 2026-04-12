@@ -26,6 +26,9 @@ RSpec.configure do |config|
     Companion::ReminderStore.reset! if defined?(Companion::ReminderStore)
     Companion::NotificationPreferencesStore.reset! if defined?(Companion::NotificationPreferencesStore)
     Companion::CurrentSession.reset! if defined?(Companion::CurrentSession)
+    Companion::Dashboard::ViewSubmissionStore.reset! if defined?(Companion::Dashboard::ViewSubmissionStore)
+    Companion::Dashboard::TrainingCheckinStore.reset! if defined?(Companion::Dashboard::TrainingCheckinStore)
+    Igniter::Plugins::View::SchemaStore.new.reset! if defined?(Igniter::Plugins::View::SchemaStore)
   end
 
   config.after(:suite) do

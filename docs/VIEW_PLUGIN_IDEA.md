@@ -48,6 +48,34 @@ Core
       -> optional View plugin
 ```
 
+## Experimental API now in the repo
+
+The first small slice of that plugin now exists:
+
+- `require "igniter/view"`
+- `Igniter::Plugins::View.render { |view| ... }`
+- `Igniter::Plugins::View::Builder`
+- `Igniter::Plugins::View::Component`
+- `Igniter::Plugins::View::Page`
+- `Igniter::Plugins::View::FormBuilder`
+- `Igniter::Plugins::View::Response.html(...)`
+
+This API is intentionally small.
+
+Its current role is:
+
+- stop hardcoding large HTML strings
+- prove out Ruby-native rendering patterns in real apps
+- give `examples/companion/apps/dashboard` a cleaner shape
+
+It is still intentionally small, but it now has enough structure to explore:
+
+- page objects
+- reusable components
+- basic server-rendered forms
+
+It is **not** yet a full component system or form framework.
+
 ## Why Arbre is a good fit
 
 Arbre is attractive here because it keeps the whole stack inside Ruby:
@@ -67,6 +95,7 @@ That matches the “lego-style” philosophy well.
 - HTTP routes declared at the app layer
 - JSON handlers for machine access
 - HTML rendering isolated into a dedicated view object
+- `Igniter::Plugins::View` as the rendering primitive
 - persisted app data from `Igniter::Data`
 - app-local actions that mutate reminders and notification preferences
 
@@ -135,7 +164,8 @@ Instead:
 
 1. keep evolving `examples/companion/apps/dashboard`
 2. keep views isolated under a clear namespace
-3. watch for repeated patterns in handlers, actions, and rendering
-4. when those patterns stabilize, extract them into an opt-in plugin
+3. keep growing `Igniter::Plugins::View` only where repetition becomes obvious
+4. watch for repeated patterns in handlers, actions, forms, and rendering
+5. when those patterns stabilize, extract or formalize the richer plugin surface
 
 That gives Igniter a UI story without diluting the core architecture.

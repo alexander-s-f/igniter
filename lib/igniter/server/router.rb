@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "json"
+require "uri"
 
 module Igniter
   module Server
@@ -34,7 +35,7 @@ module Igniter
         started_at = Time.now.utc
         method_uc  = http_method.to_s.upcase
         normalized_path = normalize_path(path)
-        body = parse_body(body_str)
+        body = parse_body(body_str, headers)
 
         custom_result = dispatch_custom_route(
           method_uc,
@@ -170,10 +171,35 @@ module Igniter
         )
       end
 
-      def parse_body(str)
+      def parse_body(str, headers = {})
         return {} if str.nil? || str.strip.empty?
 
-        JSON.parse(str)
+        case request_content_type(headers)
+        when "application/x-www-form-urlencoded"
+          parse_form_body(str)
+        else
+          JSON.parse(str)
+        end
+      end
+
+      def parse_form_body(str)
+        URI.decode_www_form(str).each_with_object({}) do |(key, value), memo|
+          if memo.key?(key)
+            memo[key] = Array(memo[key]) << value
+          else
+            memo[key] = value
+          end
+        end
+      end
+
+      def request_content_type(headers)
+        headers.to_h.each do |key, value|
+          next unless key.to_s.casecmp("Content-Type").zero?
+
+          return value.to_s.split(";", 2).first.strip.downcase
+        end
+
+        nil
       end
 
       def normalize_path(path)

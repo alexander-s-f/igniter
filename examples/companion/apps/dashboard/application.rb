@@ -6,7 +6,18 @@ require_relative "../../lib/companion/boot"
 require_relative "../../lib/companion/dashboard/home_handler"
 require_relative "../../lib/companion/dashboard/overview_handler"
 require_relative "../../lib/companion/dashboard/reminder_action_handler"
+require_relative "../../lib/companion/dashboard/reminder_create_handler"
+require_relative "../../lib/companion/dashboard/schema_page_handler"
+require_relative "../../lib/companion/dashboard/schema_submission_handler"
 require_relative "../../lib/companion/dashboard/telegram_preference_handler"
+require_relative "../../lib/companion/dashboard/training_checkin_store"
+require_relative "../../lib/companion/dashboard/training_checkin_submission_contract"
+require_relative "../../lib/companion/dashboard/view_schema_delete_handler"
+require_relative "../../lib/companion/dashboard/view_schema_handler"
+require_relative "../../lib/companion/dashboard/view_schema_patch_handler"
+require_relative "../../lib/companion/dashboard/view_schemas_handler"
+require_relative "../../lib/companion/dashboard/view_schema_catalog"
+require_relative "../../lib/companion/dashboard/view_submission_store"
 
 module Companion
   class DashboardApp < Igniter::Application
@@ -15,11 +26,20 @@ module Companion
 
     route "GET", "/", with: Companion::Dashboard::HomeHandler
     route "GET", "/api/overview", with: Companion::Dashboard::OverviewHandler
+    route "GET", "/api/views", with: Companion::Dashboard::ViewSchemasHandler
+    route "POST", "/api/views", with: Companion::Dashboard::ViewSchemasHandler
+    route "GET", %r{\A/api/views/(?<id>[^/]+)\z}, with: Companion::Dashboard::ViewSchemaHandler
+    route "PATCH", %r{\A/api/views/(?<id>[^/]+)\z}, with: Companion::Dashboard::ViewSchemaPatchHandler
+    route "DELETE", %r{\A/api/views/(?<id>[^/]+)\z}, with: Companion::Dashboard::ViewSchemaDeleteHandler
+    route "GET", %r{\A/views/(?<id>[^/]+)\z}, with: Companion::Dashboard::SchemaPageHandler
+    route "POST", "/reminders", with: Companion::Dashboard::ReminderCreateHandler
+    route "POST", %r{\A/views/(?<id>[^/]+)/submissions\z}, with: Companion::Dashboard::SchemaSubmissionHandler
     route "POST", "/api/telegram/preferences", with: Companion::Dashboard::TelegramPreferenceHandler
     route "POST", %r{\A/api/reminders/(?<id>[^/]+)/complete\z}, with: Companion::Dashboard::ReminderActionHandler
 
     on_boot do
       Companion::Boot.configure_persistence!(app_name: :dashboard)
+      Companion::Dashboard::ViewSchemaCatalog.seed!
     end
 
     configure do |c|

@@ -108,6 +108,22 @@ RSpec.describe Igniter::Server::Router do
       result = router.call("POST", "/webhook?token=1", JSON.generate({}))
       expect(result[:status]).to eq(200)
     end
+
+    it "parses application/x-www-form-urlencoded bodies for custom routes" do
+      result = router.call(
+        "POST",
+        "/webhook",
+        "task=Pay+rent&timing=tomorrow&chat_id=12345",
+        headers: { "Content-Type" => "application/x-www-form-urlencoded; charset=utf-8" }
+      )
+
+      data = JSON.parse(result[:body])
+      expect(data["body"]).to include(
+        "task" => "Pay rent",
+        "timing" => "tomorrow",
+        "chat_id" => "12345"
+      )
+    end
   end
 
   describe "invalid JSON body" do

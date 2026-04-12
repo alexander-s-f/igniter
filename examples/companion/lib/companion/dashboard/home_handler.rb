@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "igniter/view"
 require_relative "overview_snapshot"
 require_relative "views/home_page"
 
@@ -11,11 +12,7 @@ module Companion
       def call(params:, body:, headers:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
         snapshot = OverviewSnapshot.build
 
-        {
-          status: 200,
-          body: Views::HomePage.render(snapshot),
-          headers: { "Content-Type" => "text/html; charset=utf-8" }
-        }
+        Igniter::Plugins::View::Response.html(Views::HomePage.render(snapshot: snapshot))
       end
     end
   end
