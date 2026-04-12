@@ -1,8 +1,10 @@
 # igniter-server v1
 
-igniter-server turns any Igniter contract into an HTTP service. Multiple server nodes can call
-each other using the `remote:` DSL, enabling distributed multi-node architectures with
-compile-time validated cross-node contracts.
+`Igniter::Server` is Igniter's HTTP hosting layer.
+
+`igniter-server` turns contracts into an HTTP service. Multiple server nodes can call
+each other using the `remote:` DSL, while `Igniter::Cluster` adds the distributed
+coordination and routing layer on top.
 
 ## Quick Start
 
@@ -195,7 +197,7 @@ Dynamic path segments are collapsed to avoid high cardinality (e.g. `/v1/contrac
 
 **Enable metrics:**
 ```ruby
-require "igniter/metrics"
+require "igniter/core/metrics"
 
 Igniter::Server.configure do |c|
   c.metrics_collector = Igniter::Metrics::Collector.new
@@ -398,7 +400,7 @@ spec:
 
 ```ruby
 require "igniter/server"
-require "igniter/metrics"
+require "igniter/core/metrics"
 
 Igniter::Server.configure do |c|
   c.host         = "0.0.0.0"

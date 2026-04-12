@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
-require_relative "igniter/version"
-require_relative "igniter/errors"
-require_relative "igniter/type_system"
-require_relative "igniter/executor"
-require_relative "igniter/executor_registry"
-require_relative "igniter/effect"
-require_relative "igniter/effect_registry"
-require_relative "igniter/model"
-require_relative "igniter/compiler"
-require_relative "igniter/events"
-require_relative "igniter/runtime"
-require_relative "igniter/dsl"
-require_relative "igniter/extensions"
-require_relative "igniter/diagnostics"
-require_relative "igniter/contract"
+require_relative "igniter/core/version"
+require_relative "igniter/core/errors"
+require_relative "igniter/core/type_system"
+require_relative "igniter/core/executor"
+require_relative "igniter/core/executor_registry"
+require_relative "igniter/core/effect"
+require_relative "igniter/core/effect_registry"
+require_relative "igniter/core/model"
+require_relative "igniter/core/compiler"
+require_relative "igniter/core/events"
+require_relative "igniter/core/runtime"
+require_relative "igniter/core/dsl"
+require_relative "igniter/core/extensions"
+require_relative "igniter/core/diagnostics"
+require_relative "igniter/core/contract"
 
 module Igniter
   class << self
@@ -37,13 +37,13 @@ module Igniter
     end
 
     def node_cache=(cache)
-      require_relative "igniter/node_cache"
+      require_relative "igniter/core/node_cache"
       Igniter::NodeCache.cache = cache
     end
 
     # When true, auto-creates a CoalescingLock alongside the configured node cache.
     def node_coalescing=(enabled)
-      require_relative "igniter/node_cache"
+      require_relative "igniter/core/node_cache"
       Igniter::NodeCache.coalescing_lock = enabled ? Igniter::NodeCache::CoalescingLock.new : nil
     end
 

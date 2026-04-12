@@ -7,7 +7,7 @@
 #
 # This example uses in-process stubs so no real HTTP servers are needed.
 
-require_relative "../lib/igniter/extensions/mesh"
+require_relative "../lib/igniter/cluster"
 
 # ─── Shared contract ──────────────────────────────────────────────────────────
 class ProcessOrder < Igniter::Contract
@@ -123,7 +123,7 @@ puts "=" * 60
 puts "Scenario 1: Dynamic discovery from seed"
 puts "=" * 60
 
-Igniter::Mesh.configure do |c|
+Igniter::Cluster::Mesh.configure do |c|
   c.peer_name          = "api-node"
   c.local_url          = "http://api-node:4567"
   c.local_capabilities = %i[api]
@@ -132,13 +132,13 @@ Igniter::Mesh.configure do |c|
 end
 
 puts "\nBefore start_discovery!:"
-puts "  Dynamic peers: #{Igniter::Mesh.config.peer_registry.size}"
+puts "  Dynamic peers: #{Igniter::Cluster::Mesh.config.peer_registry.size}"
 
-Igniter::Mesh.start_discovery!
+Igniter::Cluster::Mesh.start_discovery!
 
 puts "\nAfter start_discovery!:"
-puts "  Dynamic peers: #{Igniter::Mesh.config.peer_registry.size}"
-Igniter::Mesh.config.peer_registry.all.each do |p|
+puts "  Dynamic peers: #{Igniter::Cluster::Mesh.config.peer_registry.size}"
+Igniter::Cluster::Mesh.config.peer_registry.all.each do |p|
   puts "  - #{p.name} @ #{p.url} caps=#{p.capabilities}"
 end
 puts
@@ -183,15 +183,15 @@ puts "=" * 60
 
 # Simulate a new billing-node announcing itself via POST /v1/mesh/peers
 # In production this is done by the new peer calling start_discovery!
-new_peer = Igniter::Mesh::Peer.new(
+new_peer = Igniter::Cluster::Mesh::Peer.new(
   name:         "billing-node",
   url:          "http://billing-node:4567",
   capabilities: %i[billing]
 )
-Igniter::Mesh.config.peer_registry.register(new_peer)
+Igniter::Cluster::Mesh.config.peer_registry.register(new_peer)
 
 puts "  Registered billing-node into local registry"
-puts "  Peers with :billing capability: #{Igniter::Mesh.config.peer_registry.peers_with_capability(:billing).map(&:name)}"
+puts "  Peers with :billing capability: #{Igniter::Cluster::Mesh.config.peer_registry.peers_with_capability(:billing).map(&:name)}"
 puts
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -234,10 +234,10 @@ puts "=" * 60
 puts "Scenario 5: Static add_peer + dynamic discovery merged"
 puts "=" * 60
 
-Igniter::Mesh.stop_discovery!
-Igniter::Mesh.reset!
+Igniter::Cluster::Mesh.stop_discovery!
+Igniter::Cluster::Mesh.reset!
 
-Igniter::Mesh.configure do |c|
+Igniter::Cluster::Mesh.configure do |c|
   c.peer_name = "api-node"
   c.local_url = "http://api-node:4567"
   c.seeds     = %w[http://seed:4567]
@@ -246,22 +246,22 @@ Igniter::Mesh.configure do |c|
   c.add_peer "legacy-node", url: "http://legacy:4567", capabilities: %i[billing]
 end
 
-Igniter::Mesh.start_discovery!
+Igniter::Cluster::Mesh.start_discovery!
 
-static_names  = Igniter::Mesh.config.peers.map(&:name)
-dynamic_names = Igniter::Mesh.config.peer_registry.all.map(&:name)
+static_names  = Igniter::Cluster::Mesh.config.peers.map(&:name)
+dynamic_names = Igniter::Cluster::Mesh.config.peer_registry.all.map(&:name)
 
 puts "  Static peers:  #{static_names}"
 puts "  Dynamic peers: #{dynamic_names}"
 puts "  Combined (via router):"
-all_orders = Igniter::Mesh.router.instance_eval { all_capable_peers(:orders) }.map(&:name)
+all_orders = Igniter::Cluster::Mesh.router.instance_eval { all_capable_peers(:orders) }.map(&:name)
 puts "    :orders capable peers: #{all_orders}"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Cleanup
 # ─────────────────────────────────────────────────────────────────────────────
-Igniter::Mesh.stop_discovery!
-Igniter::Mesh.reset!
+Igniter::Cluster::Mesh.stop_discovery!
+Igniter::Cluster::Mesh.reset!
 ClientStubs.uninstall!
 
 puts "\nDone."

@@ -7,7 +7,7 @@ of every graph visible and auditable at a glance.
 ## Quick Start
 
 ```ruby
-require "igniter/capabilities"
+require "igniter/extensions/capabilities"
 
 # 1. Declare capabilities on executors
 class DatabaseLookup < Igniter::Executor
@@ -139,7 +139,7 @@ end
 
 ## Graph Introspection
 
-After `require "igniter/extensions/capabilities"` (or `require "igniter/capabilities"`) the
+After `require "igniter/extensions/capabilities"` (or `require "igniter/extensions/capabilities"`) the
 compiled graph gains two introspection methods:
 
 ### `required_capabilities`
@@ -148,7 +148,7 @@ Returns a Hash of `{ node_name => [capabilities] }` for every node whose executo
 declares at least one capability.
 
 ```ruby
-require "igniter/capabilities"
+require "igniter/extensions/capabilities"
 
 class MyContract < Igniter::Contract
   define do
@@ -200,8 +200,8 @@ This lets your test suite run without real I/O while production executions are u
 
 | File | Purpose |
 |------|---------|
-| `lib/igniter/capabilities.rb` | `Capabilities` module, `Policy` class, `CapabilityViolationError` |
+| `lib/igniter/core/capabilities.rb` | `Capabilities` module, `Policy` class, `CapabilityViolationError` |
 | `lib/igniter/extensions/capabilities.rb` | Patches `CompiledGraph` with `required_capabilities` / `capabilities_for` |
-| `lib/igniter/executor.rb` | `capabilities`, `pure`, `pure?`, `declared_capabilities`, `fingerprint` DSL |
-| `lib/igniter/runtime/resolver.rb` | `check_capability_policy!` guard in `resolve_compute` |
+| `lib/igniter/core/executor.rb` | `capabilities`, `pure`, `pure?`, `declared_capabilities`, `fingerprint` DSL |
+| `lib/igniter/core/runtime/resolver.rb` | `check_capability_policy!` guard in `resolve_compute` |
 | `spec/igniter/capabilities_spec.rb` | 16 examples |

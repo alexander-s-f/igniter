@@ -7,7 +7,7 @@ computation and get the identical result — even months later.
 ## Quick Start
 
 ```ruby
-require "igniter/temporal"
+require "igniter/core/temporal"
 
 class TaxRateContract < Igniter::Contract
   include Igniter::Temporal
@@ -149,7 +149,7 @@ audit.total == result.total  # => true
 Temporal contracts compose with every other Igniter feature:
 
 ```ruby
-require "igniter/temporal"
+require "igniter/core/temporal"
 require "igniter/extensions/content_addressing"
 
 class TaxCalculator < Igniter::Temporal::Executor
@@ -169,6 +169,6 @@ is part of the content key, so the cache is invalidated automatically when time 
 
 | File | Purpose |
 |------|---------|
-| `lib/igniter/temporal.rb` | `Temporal` module, `ClassMethods#define`, `temporal_compute` DSL helper, `Temporal::Executor` base class |
-| `lib/igniter/runtime/input_validator.rb` | Proc defaults called at execution time (`apply_defaults`, `missing_value!`) |
+| `lib/igniter/core/temporal.rb` | `Temporal` module, `ClassMethods#define`, `temporal_compute` DSL helper, `Temporal::Executor` base class |
+| `lib/igniter/core/runtime/input_validator.rb` | Proc defaults called at execution time (`apply_defaults`, `missing_value!`) |
 | `spec/igniter/temporal_spec.rb` | 13 examples |

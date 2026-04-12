@@ -1,6 +1,6 @@
 # Distributed Consensus with Igniter — v1
 
-`require "igniter/consensus"` provides a Raft-inspired consensus cluster built on
+`require "igniter/cluster"` provides a Raft-inspired consensus cluster built on
 Igniter's Actor primitives. The Raft protocol is fully encapsulated — users interact
 with the high-level `Cluster` API and an optional `StateMachine` subclass.
 
@@ -9,10 +9,10 @@ with the high-level `Cluster` API and an optional `StateMachine` subclass.
 ## Quick start
 
 ```ruby
-require "igniter/consensus"
+require "igniter/cluster"
 
 # Start a 5-node cluster with the built-in key-value state machine
-cluster = Igniter::Consensus::Cluster.start(nodes: %i[n1 n2 n3 n4 n5])
+cluster = Igniter::Cluster::Consensus::Cluster.start(nodes: %i[n1 n2 n3 n4 n5])
 cluster.wait_for_leader
 
 cluster.write(key: :price, value: 99)   # replicated to all nodes
@@ -29,10 +29,10 @@ Two complementary Igniter primitives map naturally to consensus protocols:
 
 | Primitive | Role |
 |-----------|------|
-| `Igniter::Consensus::Node` | Raft agent — leader election, log replication (internal) |
-| `Igniter::Consensus::Cluster` | Lifecycle management + high-level read/write API |
-| `Igniter::Consensus::StateMachine` | User-extensible state machine DSL |
-| `Igniter::Consensus::ReadQuery` | Built-in single-shot read Contract |
+| `Igniter::Cluster::Consensus::Node` | Raft agent — leader election, log replication (internal) |
+| `Igniter::Cluster::Consensus::Cluster` | Lifecycle management + high-level read/write API |
+| `Igniter::Cluster::Consensus::StateMachine` | User-extensible state machine DSL |
+| `Igniter::Cluster::Consensus::ReadQuery` | Built-in single-shot read Contract |
 
 ```
 Cluster of 5 Node agents, each registered in Igniter::Registry
@@ -68,7 +68,7 @@ Follower ──(timeout 1–1.5 s)──► Candidate ──(quorum votes)──
 ### Starting a cluster
 
 ```ruby
-cluster = Igniter::Consensus::Cluster.start(
+cluster = Igniter::Cluster::Consensus::Cluster.start(
   nodes:         %i[n1 n2 n3 n4 n5],   # Registry names for each node
   state_machine: MyStateMachine,         # optional — default is KV store
   verbose:       false,                  # print Raft events to stdout
@@ -85,7 +85,7 @@ leader_ref = cluster.wait_for_leader          # blocks up to ~2 s
 leader_ref = cluster.wait_for_leader(timeout: 5)  # custom timeout
 ```
 
-Raises `Igniter::Consensus::NoLeaderError` if no leader is elected within the timeout.
+Raises `Igniter::Cluster::Consensus::NoLeaderError` if no leader is elected within the timeout.
 
 ### Writing
 
@@ -122,7 +122,7 @@ cluster.stop!           # graceful stop of all nodes (timeout: 2s default)
 cluster.stop!(timeout: 5)
 ```
 
-### Contract integration
+### Contract usage
 
 ```ruby
 q = cluster.read_contract(key: :price)   # returns ReadQuery instance
@@ -134,10 +134,10 @@ q.result.value   # => 99
 
 ## `StateMachine` — custom command reducers
 
-Subclass `Igniter::Consensus::StateMachine` and declare handlers with `apply`:
+Subclass `Igniter::Cluster::Consensus::StateMachine` and declare handlers with `apply`:
 
 ```ruby
-class OrderBook < Igniter::Consensus::StateMachine
+class OrderBook < Igniter::Cluster::Consensus::StateMachine
   # Each handler receives (state, command) and must return the NEW state (immutably).
   apply :add_order do |state, cmd|
     state.merge(cmd[:id] => cmd[:order])
@@ -153,7 +153,7 @@ class OrderBook < Igniter::Consensus::StateMachine
   end
 end
 
-cluster = Igniter::Consensus::Cluster.start(
+cluster = Igniter::Cluster::Consensus::Cluster.start(
   nodes: %i[n1 n2 n3 n4 n5],
   state_machine: OrderBook,
 )
@@ -179,7 +179,7 @@ When no `state_machine:` is provided, commands use a simple key-value protocol:
 `find_leader → read_value`:
 
 ```ruby
-q = Igniter::Consensus::ReadQuery.new(cluster: cluster, key: :price)
+q = Igniter::Cluster::Consensus::ReadQuery.new(cluster: cluster, key: :price)
 q.resolve_all
 q.result.value   # => 99
 ```
@@ -202,7 +202,7 @@ class PriceCheck < Igniter::Contract
     input :cluster
     input :threshold
 
-    compute :leader,       with: :cluster,         call: Igniter::Consensus::FindLeader
+    compute :leader,       with: :cluster,         call: Igniter::Cluster::Consensus::FindLeader
     compute :current_price, with: [:leader],        call: ReadCurrentPrice
     compute :verdict,      with: [:current_price, :threshold], call: EvaluatePrice
 
@@ -299,7 +299,7 @@ end
 # Or catch at the Cluster level before even attempting a Contract:
 cluster.has_quorum?   # => false
 cluster.write(key: :x, value: 1)
-# => Igniter::Consensus::NoLeaderError: No leader available
+# => Igniter::Cluster::Consensus::NoLeaderError: No leader available
 ```
 
 `FindLeader` scans all known nodes, finds no leader, and raises `Igniter::ResolutionError`.
@@ -348,7 +348,7 @@ end
 ref.call(:status).role   # => :leader
 ```
 
-`Igniter::Consensus::Node` uses `NodeStatus` and `NodeReadResult` structs internally.
+`Igniter::Cluster::Consensus::Node` uses `NodeStatus` and `NodeReadResult` structs internally.
 
 ### 3. `ref.state` vs `ref.call()`
 
@@ -387,7 +387,7 @@ first heartbeat from a freshly elected leader, causing cascading elections.
 ### Custom state machine commands
 
 ```ruby
-class InventoryMachine < Igniter::Consensus::StateMachine
+class InventoryMachine < Igniter::Cluster::Consensus::StateMachine
   apply :set     do |state, cmd| state.merge(cmd[:key] => cmd[:value]) end
   apply :incr    do |state, cmd| state.merge(cmd[:key] => (state[cmd[:key]] || 0) + cmd[:by]) end
   apply :delete  do |state, cmd| state.reject { |k, _| k == cmd[:key] } end
@@ -415,8 +415,8 @@ Start separate clusters per shard and route writes by key hash:
 
 ```ruby
 SHARD_CLUSTERS = {
-  0 => Igniter::Consensus::Cluster.start(nodes: %i[n1a n2a n3a]),
-  1 => Igniter::Consensus::Cluster.start(nodes: %i[n1b n2b n3b]),
+  0 => Igniter::Cluster::Consensus::Cluster.start(nodes: %i[n1a n2a n3a]),
+  1 => Igniter::Cluster::Consensus::Cluster.start(nodes: %i[n1b n2b n3b]),
 }
 
 def shard_for(key) = key.hash % SHARD_CLUSTERS.size
@@ -429,7 +429,7 @@ Access the underlying Node agent via `Igniter::Registry` to intercept writes:
 
 ```ruby
 # Subscribe to writes via a custom state machine that persists to Redis:
-class RedisBackedMachine < Igniter::Consensus::StateMachine
+class RedisBackedMachine < Igniter::Cluster::Consensus::StateMachine
   apply :set do |state, cmd|
     $redis.rpush("raft:log", { key: cmd[:key], value: cmd[:value] }.to_json)
     state.merge(cmd[:key] => cmd[:value])
@@ -466,12 +466,12 @@ Output covers 10 steps:
 
 | File | Purpose |
 |------|---------|
-| `lib/igniter/consensus.rb` | Entry point (`require "igniter/consensus"`) |
-| `lib/igniter/consensus/cluster.rb` | **Public API** — lifecycle, read, write, status |
-| `lib/igniter/consensus/state_machine.rb` | User DSL — `apply :type do \|state, cmd\| end` |
-| `lib/igniter/consensus/node.rb` | Internal Raft agent (full protocol) |
-| `lib/igniter/consensus/executors.rb` | `FindLeader`, `ReadValue`, `SubmitCommand` |
-| `lib/igniter/consensus/read_query.rb` | `ReadQuery` built-in Contract |
-| `lib/igniter/consensus/errors.rb` | `NoLeaderError`, `QuorumLostError` |
+| `lib/igniter/cluster.rb` | Entry point (`require "igniter/cluster"`) |
+| `lib/igniter/cluster/consensus/cluster.rb` | **Public API** — lifecycle, read, write, status |
+| `lib/igniter/cluster/consensus/state_machine.rb` | User DSL — `apply :type do \|state, cmd\| end` |
+| `lib/igniter/cluster/consensus/node.rb` | Internal Raft agent (full protocol) |
+| `lib/igniter/cluster/consensus/executors.rb` | `FindLeader`, `ReadValue`, `SubmitCommand` |
+| `lib/igniter/cluster/consensus/read_query.rb` | `ReadQuery` built-in Contract |
+| `lib/igniter/cluster/consensus/errors.rb` | `NoLeaderError`, `QuorumLostError` |
 | `examples/consensus.rb` | Full working demo (10 steps) |
-| `spec/igniter/consensus_spec.rb` | Test suite (35 examples) |
+| `spec/igniter/cluster/consensus_spec.rb` | Test suite (35 examples) |

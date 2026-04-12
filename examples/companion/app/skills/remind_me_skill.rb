@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/skill"
+require "igniter/ai"
 require_relative "../tools/time_tool"
 require_relative "../tools/notes_tool"
 
@@ -14,7 +14,7 @@ module Companion
   # Real LLM mode: uses TimeTool + SaveNoteTool in an internal loop to extract
   # structured data from natural language and persist it.
   # Mock mode: uses regex heuristics to simulate the same behaviour without LLM.
-  class RemindMeSkill < Igniter::Skill
+  class RemindMeSkill < Igniter::AI::Skill
     description "Set a reminder from a natural language request. " \
                 "Parses when and what, then saves a structured reminder. " \
                 "Use this when the user says things like " \

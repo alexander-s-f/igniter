@@ -1,81 +1,117 @@
 # Igniter: Concepts and Principles
 
-This document describes the high-level concepts, philosophy, and architectural principles behind the Igniter framework.
+This document describes the core ideas behind Igniter in the shortest possible form.
+For the filesystem and layer map, start with [Architecture Index](./ARCHITECTURE_INDEX.md).
 
 ## What is Igniter?
 
-**Igniter** is a Ruby framework for building **declarative, auditable, and reactive business processes**.
+**Igniter** is a Ruby framework for expressing business logic as a **validated dependency graph**.
 
-It allows you to describe complex business logic not as a sequence of imperative steps, but as a **dependency graph** of
-data and computations. Igniter handles the orchestration of this graph: it determines *when* and in *what order* to
-perform computations, and it does so lazily—only when a result is actually needed.
+Instead of writing one long imperative flow, you describe:
 
-The core idea is to separate the description of **WHAT** needs to be done (the graph's structure) from **HOW** it's
-done (the Ruby logic within the computations).
+- the required inputs
+- the derived computations
+- the exposed outputs
+- the dependencies between them
+
+Igniter then compiles that graph, validates it, and executes it lazily at runtime.
+
+The central separation is:
+
+- **what** the graph is: model + DSL + compiler
+- **how** values are produced: runtime + executors
 
 ## Philosophy
 
-1. **Declarative Structure, Imperative Logic.**
-   The process structure (inputs, outputs, dependencies) is described using a simple and limited DSL. The computations
-   and business rules themselves are written in pure, powerful, and familiar Ruby. We are not inventing a new language,
-   but providing a framework for organizing existing code.
+1. **Declarative structure, imperative logic.**
+   Graph structure is declared with a constrained DSL. The actual business logic stays in normal Ruby.
 
-2. **Explicit is better than Implicit.**
-   Dependencies between components are always declared explicitly (`depends_on: ...`). The framework avoids "magic," automatic
-   dependency injection, or hidden behaviors. If node `A` depends on node `B`, it's always visible in the code.
+2. **Explicit dependencies.**
+   Data flow is always declared. If node `A` depends on node `B`, that relationship should be visible in code.
 
-3. **Separation of Concerns.**
-   Igniter is architecturally divided into independent modules:
-    * **Definition:** The static "description" of a contract.
-    * **Runtime:** The "live" execution and computation of the graph.
-    * **DSL:** The tools for building the definition graph.
-    * **Auditing:** Recording and replaying the execution history.
-    * **Reactive:** Reacting to events within the graph.
+3. **Compile first, execute second.**
+   Contracts are validated and frozen before runtime starts. Execution should never operate on a half-built graph.
 
-4. **Transparency and Debugging "out of the box."**
-   The framework is designed so that its execution is easy to trace. Built-in graph/runtime introspection and
-   auditing snapshots are not add-ons, but an integral part of the core.
+4. **Lazy and inspectable runtime.**
+   Igniter resolves only what is needed, caches resolved nodes, and keeps execution observable through events, diagnostics, and introspection.
 
-## Key Concepts
+5. **Optional layers over a hard core.**
+   Core contracts stay the same whether you use embedded mode, AI features, server hosting, or a cluster.
 
-#### Contract
+## Core Concepts
 
-The main unit of work in Igniter. A class inheriting from `Igniter::Contract` that encapsulates a single business process.
+### Contract
 
-#### Definition Graph
+The main unit of work in Igniter.
 
-The static "blueprint" or "plan" of a contract. It is created once when the class is loaded, within the
-`define do ... end` block. This graph describes all the nodes, their types, and the dependencies between them. It is
-immutable during execution.
+A contract is a class inheriting from `Igniter::Contract`. It defines:
 
-#### Runtime Graph
+- inputs
+- compute nodes
+- outputs
+- optional composition, routing, collections, effects, and reactive behavior
 
-The "live" representation of the contract at runtime. It contains `Runtime::NodeState` objects, which store the computed
-values, statuses (`:succeeded`, `:failed`, `:stale`), and errors for each node.
+### Definition graph
 
-#### Nodes
+The static blueprint of a contract.
 
-The basic building blocks of the graph. The main node types in the DSL are:
+It is created once when the class is loaded inside the `define do ... end` block.
+The compiler validates this graph and produces a frozen compiled representation.
 
-* **`input`**: The entry point for data into the contract.
-* **`compute`**: The main workhorse node. It performs data transformation. It can be a simple computation (with a `Proc`
-  or method) or a composition of another contract.
-* **`output`**: The public interface of the contract. It declares which internal nodes are the official result of the
-  process.
-* **`composition`**: A special kind of `compute` that encapsulates and executes another contract, allowing for the
-  construction of a process hierarchy.
-* **`reaction`**: A node describing a side effect that should occur in response to an event on the graph (e.g., on the
-  successful computation of another node).
+### Execution
+
+The live runtime session for one input set.
+
+An execution owns:
+
+- current inputs
+- node states
+- cache
+- event stream
+- resolution behavior
+
+### Nodes
+
+The building blocks of the graph. Common DSL node types are:
+
+- `input` — external data entering the graph
+- `compute` — derived value or delegated executor call
+- `output` — public result exposed by the contract
+- `compose` — nested contract execution
+- `branch` — declarative runtime routing
+- `collection` — fan-out over an array of item inputs
+- `await` — suspend until an external event arrives
+- `effect` / reactive hooks — side effects driven by runtime events
 
 ## Contract Lifecycle
 
-1. **Definition:** Ruby loads the contract class. The `context` block is executed, building the static
-   compiled graph.
-2. **Initialization:** `MyContract.new(inputs)` is called. An instance of the contract and its execution context (
-   `Runtime::Execution`) are created. The input data is stored.
-3. **Execution:** a result reader such as `contract.result.total` or `contract.resolve_all` is called. Igniter begins to lazily traverse the dependency graph, starting from the
-   `output` nodes. It only computes the nodes necessary to produce the result. Computation results are cached.
-4. **Result:** After resolution completes, the `contract.result` object provides access to the outputs and the overall
-   status (`success?`/`failed?`).
-5. **Update and Re-computation:** When input data is changed with `contract.update_inputs(...)`, Igniter invalidates only the parts of the graph that depend on the changed input and re-computes only
-   them.
+1. **Definition**
+   Ruby loads the contract class and executes `define do ... end`.
+
+2. **Compilation**
+   Igniter validates the graph and freezes the compiled form.
+
+3. **Initialization**
+   `MyContract.new(inputs)` creates a contract instance and its `Runtime::Execution`.
+
+4. **Resolution**
+   A result reader such as `contract.result.total` or `contract.resolve_all` triggers lazy resolution of only the required nodes.
+
+5. **Observation**
+   Events, diagnostics, audit snapshots, and introspection tools expose what happened during execution.
+
+6. **Update and invalidation**
+   `contract.update_inputs(...)` marks affected downstream nodes stale. Re-computation happens only when values are requested again.
+
+## Architectural View
+
+Igniter is intentionally layered:
+
+- **Core**: DSL, model, compiler, runtime, events, diagnostics
+- **Core features**: actors, tools, memory, metrics, temporal support, caches
+- **Extensions**: auditing, provenance, incremental, dataflow, invariants, and similar behavioral add-ons
+- **Capability layers**: AI and Channels
+- **Hosting layers**: Server, Application, Cluster
+- **Plugins**: framework-specific integrations such as Rails
+
+That layering exists so that embedded use stays small, while larger deployments can add hosting and distributed concerns without rewriting domain contracts.

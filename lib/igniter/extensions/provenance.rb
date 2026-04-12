@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../provenance"
+require_relative "../core/provenance"
 
 module Igniter
   module Extensions

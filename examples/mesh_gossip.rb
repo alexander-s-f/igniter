@@ -8,7 +8,7 @@
 #
 # This example uses in-process stubs so no real HTTP servers are needed.
 
-require_relative "../lib/igniter/extensions/mesh"
+require_relative "../lib/igniter/cluster"
 
 # ─── Shared contract ──────────────────────────────────────────────────────────
 class CheckInventory < Igniter::Contract
@@ -79,7 +79,7 @@ puts "=" * 60
 puts "Scenario 1: C's registry before gossip"
 puts "=" * 60
 
-Igniter::Mesh.configure do |c|
+Igniter::Cluster::Mesh.configure do |c|
   c.peer_name          = NODE_C[:name]
   c.local_url          = NODE_C[:url]
   c.local_capabilities = NODE_C[:capabilities].map(&:to_sym)
@@ -89,16 +89,16 @@ Igniter::Mesh.configure do |c|
 end
 
 # C initially knows A (as if bootstrapped from a seed earlier)
-Igniter::Mesh.config.peer_registry.register(
-  Igniter::Mesh::Peer.new(name: NODE_A[:name], url: NODE_A[:url], capabilities: NODE_A[:capabilities].map(&:to_sym))
+Igniter::Cluster::Mesh.config.peer_registry.register(
+  Igniter::Cluster::Mesh::Peer.new(name: NODE_A[:name], url: NODE_A[:url], capabilities: NODE_A[:capabilities].map(&:to_sym))
 )
 
 puts "\nC's registry before gossip:"
-Igniter::Mesh.config.peer_registry.all.each do |p|
+Igniter::Cluster::Mesh.config.peer_registry.all.each do |p|
   puts "  - #{p.name} @ #{p.url} caps=#{p.capabilities}"
 end
 
-knows_b_before = !Igniter::Mesh.config.peer_registry.peer_named("node-b").nil?
+knows_b_before = !Igniter::Cluster::Mesh.config.peer_registry.peer_named("node-b").nil?
 puts "  C knows node-b? #{knows_b_before}"
 puts
 
@@ -109,14 +109,14 @@ puts "=" * 60
 puts "Scenario 2: C runs one gossip round → discovers B via A"
 puts "=" * 60
 
-Igniter::Mesh::GossipRound.new(Igniter::Mesh.config).run
+Igniter::Cluster::Mesh::GossipRound.new(Igniter::Cluster::Mesh.config).run
 
 puts "\nC's registry after gossip:"
-Igniter::Mesh.config.peer_registry.all.each do |p|
+Igniter::Cluster::Mesh.config.peer_registry.all.each do |p|
   puts "  - #{p.name} @ #{p.url} caps=#{p.capabilities}"
 end
 
-knows_b_after = !Igniter::Mesh.config.peer_registry.peer_named("node-b").nil?
+knows_b_after = !Igniter::Cluster::Mesh.config.peer_registry.peer_named("node-b").nil?
 puts "\n  C knows node-b? #{knows_b_after}"
 puts "  Convergence achieved without seed: #{knows_b_after}"
 puts
@@ -128,9 +128,9 @@ puts "=" * 60
 puts "Scenario 3: gossip_fanout = 0 disables the gossip round"
 puts "=" * 60
 
-Igniter::Mesh.reset!
+Igniter::Cluster::Mesh.reset!
 
-Igniter::Mesh.configure do |c|
+Igniter::Cluster::Mesh.configure do |c|
   c.peer_name          = NODE_C[:name]
   c.local_url          = NODE_C[:url]
   c.gossip_fanout      = 0   # disabled
@@ -139,13 +139,13 @@ Igniter::Mesh.configure do |c|
 end
 
 # Seed registry with A
-Igniter::Mesh.config.peer_registry.register(
-  Igniter::Mesh::Peer.new(name: NODE_A[:name], url: NODE_A[:url], capabilities: NODE_A[:capabilities].map(&:to_sym))
+Igniter::Cluster::Mesh.config.peer_registry.register(
+  Igniter::Cluster::Mesh::Peer.new(name: NODE_A[:name], url: NODE_A[:url], capabilities: NODE_A[:capabilities].map(&:to_sym))
 )
 
-before_size = Igniter::Mesh.config.peer_registry.size
-Igniter::Mesh::Poller.new(Igniter::Mesh.config).poll_once  # no seeds → no seed fetch; gossip disabled
-after_size  = Igniter::Mesh.config.peer_registry.size
+before_size = Igniter::Cluster::Mesh.config.peer_registry.size
+Igniter::Cluster::Mesh::Poller.new(Igniter::Cluster::Mesh.config).poll_once  # no seeds → no seed fetch; gossip disabled
+after_size  = Igniter::Cluster::Mesh.config.peer_registry.size
 
 puts "  gossip_fanout = 0 → registry size unchanged: #{before_size} → #{after_size}"
 puts
@@ -153,7 +153,7 @@ puts
 # ─────────────────────────────────────────────────────────────────────────────
 # Cleanup
 # ─────────────────────────────────────────────────────────────────────────────
-Igniter::Mesh.reset!
+Igniter::Cluster::Mesh.reset!
 
 Igniter::Server::Client.class_eval do
   alias_method :list_peers, :real_list_peers_gossip

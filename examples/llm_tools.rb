@@ -6,8 +6,8 @@
 #   - Declarative metadata (description, param schema, required capabilities)
 #   - JSON schema generation for Anthropic / OpenAI APIs
 #   - Capability-based access guards (enforced before tool.call)
-#   - Automatic tool-use loop inside LLM::Executor#complete
-#   - ToolRegistry for global discovery and schema export
+#   - Automatic tool-use loop inside AI::Executor#complete
+#   - AI::ToolRegistry for global discovery and schema export
 #   - Tool reuse as regular Igniter::Contract compute nodes
 #
 # Requires: ANTHROPIC_API_KEY (skips live calls if absent)
@@ -15,9 +15,8 @@
 # Run: bundle exec ruby examples/llm_tools.rb
 
 require "igniter"
-require "igniter/tool"
-require "igniter/tool_registry"
-require "igniter/integrations/llm"
+require "igniter/core/tool"
+require "igniter/ai"
 
 puts "=" * 62
 puts "  Igniter::Tool Demo"
@@ -86,18 +85,18 @@ require "json"
 puts JSON.pretty_generate(Calculator.to_schema(:anthropic)).split("\n").map { |l| "    #{l}" }.join("\n")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# [3] ToolRegistry
+# [3] AI::ToolRegistry
 # ─────────────────────────────────────────────────────────────────────────────
-puts "\n[3] ToolRegistry"
+puts "\n[3] AI::ToolRegistry"
 
-Igniter::ToolRegistry.register(Calculator, TimeNow, DatabaseLookup)
-puts "  Registered #{Igniter::ToolRegistry.size} tools: #{Igniter::ToolRegistry.all.map(&:tool_name).join(", ")}"
+Igniter::AI::ToolRegistry.register(Calculator, TimeNow, DatabaseLookup)
+puts "  Registered #{Igniter::AI::ToolRegistry.size} tools: #{Igniter::AI::ToolRegistry.all.map(&:tool_name).join(", ")}"
 
 # Capability filtering
-public_tools = Igniter::ToolRegistry.tools_for(capabilities: [])
+public_tools = Igniter::AI::ToolRegistry.tools_for(capabilities: [])
 puts "  Tools with no caps required: #{public_tools.map(&:tool_name).join(", ")}"
 
-db_tools = Igniter::ToolRegistry.tools_for(capabilities: %i[database_read])
+db_tools = Igniter::AI::ToolRegistry.tools_for(capabilities: %i[database_read])
 puts "  Tools available with :database_read: #{db_tools.map(&:tool_name).join(", ")}"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -152,16 +151,16 @@ puts "  SKU-003: #{checker.result.product[:name]}"
 puts "  Stock:   #{checker.result.product[:stock]}  →  discount: #{(checker.result.discount[:rate] * 100).to_i}% (#{checker.result.discount[:reason]})"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# [6] LLM::Executor with automatic tool-use loop
+# [6] AI::Executor with automatic tool-use loop
 #     (live call requires ANTHROPIC_API_KEY)
 # ─────────────────────────────────────────────────────────────────────────────
-puts "\n[6] LLM::Executor with automatic tool-use loop"
+puts "\n[6] AI::Executor with automatic tool-use loop"
 
 if ENV["ANTHROPIC_API_KEY"].to_s.empty?
   puts "  ANTHROPIC_API_KEY not set — skipping live call"
   puts "  (showing executor definition only)"
 
-  class ProductAgent < Igniter::LLM::Executor
+  class ProductAgent < Igniter::AI::Executor
     provider :anthropic
     model "claude-haiku-4-5-20251001"
     system_prompt "You are a helpful product assistant. Use tools to answer questions."
@@ -189,7 +188,7 @@ if ENV["ANTHROPIC_API_KEY"].to_s.empty?
   puts "    capabilities: #{ProductAgent.declared_capabilities.inspect}"
   puts "    max_iters:    #{ProductAgent.max_tool_iterations}"
 else
-  class ProductAgent < Igniter::LLM::Executor
+  class ProductAgent < Igniter::AI::Executor
     provider :anthropic
     model "claude-haiku-4-5-20251001"
     system_prompt "You are a helpful product assistant. Use tools to answer questions."
@@ -207,7 +206,7 @@ else
   begin
     answer = ProductAgent.new.call(question: "What is the price of SKU-001 and what is 15% of that price?")
     puts "  Agent: #{answer}"
-  rescue Igniter::LLM::Error => e
+  rescue Igniter::AI::Error => e
     puts "  LLM error: #{e.message}"
   end
 end
@@ -217,7 +216,7 @@ end
 # ─────────────────────────────────────────────────────────────────────────────
 puts "\n[7] Agent with restricted capabilities"
 
-class RestrictedAgent < Igniter::LLM::Executor
+class RestrictedAgent < Igniter::AI::Executor
   provider :anthropic
   model "claude-haiku-4-5-20251001"
   system_prompt "You are a limited assistant."
@@ -232,6 +231,6 @@ class RestrictedAgent < Igniter::LLM::Executor
 end
 
 puts "  RestrictedAgent.declared_capabilities: #{RestrictedAgent.declared_capabilities.inspect}"
-puts "  Tools it may safely call: #{Igniter::ToolRegistry.tools_for(capabilities: RestrictedAgent.declared_capabilities).map(&:tool_name).join(", ")}"
+puts "  Tools it may safely call: #{Igniter::AI::ToolRegistry.tools_for(capabilities: RestrictedAgent.declared_capabilities).map(&:tool_name).join(", ")}"
 
 puts "\nDone."

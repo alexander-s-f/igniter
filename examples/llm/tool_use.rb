@@ -5,7 +5,7 @@
 # Shows:
 #   - Chained LLM compute nodes (classify → assess priority → draft response)
 #   - Tool declaration with the class-level `tools` method
-#   - Conversation context with Igniter::LLM::Context
+#   - Conversation context with Igniter::AI::Context
 #   - Mock provider so the example runs offline without an API key
 #
 # To use real Anthropic Claude, set ANTHROPIC_API_KEY and remove the mock block.
@@ -14,9 +14,9 @@
 
 $LOAD_PATH.unshift File.join(__dir__, "../../lib")
 require "igniter"
-require "igniter/integrations/llm"
+require "igniter/ai"
 
-Igniter::LLM.configure do |c|
+Igniter::AI.configure do |c|
   c.default_provider = :anthropic
   c.anthropic.api_key = ENV.fetch("ANTHROPIC_API_KEY", "demo")
 end
@@ -24,7 +24,7 @@ end
 # ── Mock provider (remove to use real Anthropic) ──────────────────────────────
 
 module Igniter
-  module LLM
+  module AI
     module Providers
       class Anthropic
         def chat(messages:, **_opts) # rubocop:disable Metrics/MethodLength
@@ -66,7 +66,7 @@ CLASSIFY_TOOL = {
 
 # ── Executors ─────────────────────────────────────────────────────────────────
 
-class ClassifyExecutor < Igniter::LLM::Executor
+class ClassifyExecutor < Igniter::AI::Executor
   provider :anthropic
   model    "claude-haiku-4-5-20251001"
   system_prompt "Classify the feedback. Reply with 'category: <type>' " \
@@ -81,14 +81,14 @@ class ClassifyExecutor < Igniter::LLM::Executor
   end
 end
 
-class PriorityAssessor < Igniter::LLM::Executor
+class PriorityAssessor < Igniter::AI::Executor
   provider :anthropic
   model    "claude-haiku-4-5-20251001"
   system_prompt "Assess ticket priority (low/medium/high). Reply with 'priority: <level>'."
 
   def call(feedback:, category:)
     # Use Context to build a multi-turn conversation
-    ctx = Igniter::LLM::Context
+    ctx = Igniter::AI::Context
           .empty(system: self.class.system_prompt)
           .append_user("Feedback: #{feedback}")
           .append_user("Category: #{category}")
@@ -96,7 +96,7 @@ class PriorityAssessor < Igniter::LLM::Executor
   end
 end
 
-class ResponseDrafter < Igniter::LLM::Executor
+class ResponseDrafter < Igniter::AI::Executor
   provider :anthropic
   model    "claude-haiku-4-5-20251001"
   system_prompt "You are a customer success agent. Write one professional support response."

@@ -262,13 +262,13 @@ The `window:` filter caps the maximum work per round at `window_size`, not total
 
 | File | Purpose |
 |------|---------|
-| `lib/igniter/dataflow.rb` | Entry point |
-| `lib/igniter/dataflow/diff.rb` | `Diff` struct |
-| `lib/igniter/dataflow/diff_state.rb` | Per-node mutable state |
-| `lib/igniter/dataflow/window_filter.rb` | `WindowFilter` — `last:` and `seconds:` |
-| `lib/igniter/dataflow/incremental_collection_result.rb` | Result type with `.diff` |
+| `lib/igniter/core/dataflow.rb` | Entry point |
+| `lib/igniter/core/dataflow/diff.rb` | `Diff` struct |
+| `lib/igniter/core/dataflow/diff_state.rb` | Per-node mutable state |
+| `lib/igniter/core/dataflow/window_filter.rb` | `WindowFilter` — `last:` and `seconds:` |
+| `lib/igniter/core/dataflow/incremental_collection_result.rb` | Result type with `.diff` |
 | `lib/igniter/extensions/dataflow.rb` | Extension — patches `Contract` with `feed_diff`, `collection_diff` |
-| `lib/igniter/runtime/resolver.rb` | `resolve_incremental_collection` |
-| `lib/igniter/runtime/execution.rb` | `diff_state_for(node_name)` |
+| `lib/igniter/core/runtime/resolver.rb` | `resolve_incremental_collection` |
+| `lib/igniter/core/runtime/execution.rb` | `diff_state_for(node_name)` |
 | `spec/igniter/dataflow_spec.rb` | 33 examples |
 | `examples/dataflow.rb` | Sensor pipeline demo |

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "lib/igniter/version"
+require_relative "lib/igniter/core/version"
 
 Gem::Specification.new do |spec|
   spec.name = "igniter"

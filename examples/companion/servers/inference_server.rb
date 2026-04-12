@@ -23,12 +23,12 @@ $LOAD_PATH.unshift(File.join(__dir__, "../../../lib"))
 
 require "igniter"
 require "igniter/server"
-require "igniter/metrics"
+require "igniter/core/metrics"
 
 base = File.join(__dir__, "..")
 
-require "igniter/integrations/llm"
-Igniter::LLM.configure do |c|
+require "igniter/ai"
+Igniter::AI.configure do |c|
   c.default_provider = :ollama
   c.ollama.url       = ENV.fetch("OLLAMA_URL", "http://localhost:11434")
 end

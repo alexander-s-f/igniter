@@ -27,7 +27,7 @@ Igniter::Tool < Igniter::Executor
 ## Defining a tool
 
 ```ruby
-require "igniter/tool"
+require "igniter/core/tool"
 
 class DatabaseLookup < Igniter::Tool
   description "Look up a product by SKU in the catalog"
@@ -76,26 +76,26 @@ DatabaseLookup.to_schema(:openai)
 
 ---
 
-## `Igniter::ToolRegistry` — discovery and schema export
+## `Igniter::AI::ToolRegistry` — discovery and schema export
 
 ```ruby
-require "igniter/tool_registry"
+require "igniter/ai"
 
 # Global registration (typically in an initializer)
-Igniter::ToolRegistry.register(Calculator, DatabaseLookup, SendEmail)
+Igniter::AI::ToolRegistry.register(Calculator, DatabaseLookup, SendEmail)
 
 # Discovery
-Igniter::ToolRegistry.all                               # => [Calculator, DatabaseLookup, SendEmail]
-Igniter::ToolRegistry.find("calculator")                # => Calculator
+Igniter::AI::ToolRegistry.all                               # => [Calculator, DatabaseLookup, SendEmail]
+Igniter::AI::ToolRegistry.find("calculator")                # => Calculator
 
 # Capability filtering — only tools the agent is authorized to call
-Igniter::ToolRegistry.tools_for(capabilities: [:database_read])
+Igniter::AI::ToolRegistry.tools_for(capabilities: [:database_read])
 # => [Calculator, DatabaseLookup]   (SendEmail needs :email_send)
 
 # Schema export
-Igniter::ToolRegistry.schemas                           # intermediate, all tools
-Igniter::ToolRegistry.schemas(:anthropic)               # Anthropic format, all
-Igniter::ToolRegistry.schemas(:openai, capabilities: [:database_read])  # filtered
+Igniter::AI::ToolRegistry.schemas                           # intermediate, all tools
+Igniter::AI::ToolRegistry.schemas(:anthropic)               # Anthropic format, all
+Igniter::AI::ToolRegistry.schemas(:openai, capabilities: [:database_read])  # filtered
 ```
 
 ---
@@ -136,10 +136,10 @@ SendEmail.new.call_with_capability_check!(
 ```
 
 The agent's capabilities come from the `Igniter::Executor.capabilities` DSL
-inherited by `LLM::Executor`:
+inherited by `AI::Executor`:
 
 ```ruby
-class SupportAgent < Igniter::LLM::Executor
+class SupportAgent < Igniter::AI::Executor
   capabilities :database_read, :email_send   # what this agent may do
   tools DatabaseLookup, SendEmail
   ...
@@ -148,7 +148,7 @@ end
 
 ---
 
-## LLM::Executor — automatic tool-use loop
+## AI::Executor — automatic tool-use loop
 
 When `tools` DSL contains `Igniter::Tool` subclasses, `#complete` runs an
 automatic loop:
@@ -174,7 +174,7 @@ LLM request + tool schemas
 ```
 
 ```ruby
-class ProductAssistant < Igniter::LLM::Executor
+class ProductAssistant < Igniter::AI::Executor
   provider :anthropic
   model "claude-haiku-4-5-20251001"
   system_prompt "You are a product assistant. Use tools when needed."
@@ -205,7 +205,7 @@ puts answer
 | Tool raises `CapabilityError` | Re-raised immediately — loop stops |
 | Tool raises any other error | Error message string returned as tool result; LLM can recover |
 | Unknown tool name in response | `"Unknown tool: ..."` returned as tool result |
-| Loop exceeds `max_tool_iterations` | `Igniter::LLM::ToolLoopError` raised |
+| Loop exceeds `max_tool_iterations` | `Igniter::AI::ToolLoopError` raised |
 
 ---
 
@@ -263,9 +263,9 @@ Each provider handles its own format in `normalize_messages`.
 ## Full example
 
 ```ruby
-require "igniter/tool"
-require "igniter/tool_registry"
-require "igniter/integrations/llm"
+require "igniter/core/tool"
+require "igniter/ai"
+require "igniter/ai"
 
 class SearchWeb < Igniter::Tool
   description "Search the internet for current information"
@@ -291,10 +291,10 @@ class WriteReport < Igniter::Tool
 end
 
 # Register globally
-Igniter::ToolRegistry.register(SearchWeb, WriteReport)
+Igniter::AI::ToolRegistry.register(SearchWeb, WriteReport)
 
 # LLM executor with auto-loop
-class ResearchAgent < Igniter::LLM::Executor
+class ResearchAgent < Igniter::AI::Executor
   provider :anthropic
   model "claude-sonnet-4-6"
   system_prompt "Research assistant. Search, synthesize, write reports."
@@ -336,12 +336,12 @@ end
 
 | File | Purpose |
 |------|---------|
-| `lib/igniter/tool.rb` | `Igniter::Tool` base class — DSL, schema, capability guard |
-| `lib/igniter/tool_registry.rb` | Global registry + capability-filtered discovery |
-| `lib/igniter/integrations/llm/executor.rb` | Auto tool-use loop in `#complete`, `max_tool_iterations` |
-| `lib/igniter/integrations/llm/providers/anthropic.rb` | Tool message normalization (Anthropic format) |
-| `lib/igniter/integrations/llm/providers/openai.rb` | Tool message normalization (OpenAI format) |
+| `lib/igniter/core/tool.rb` | `Igniter::Tool` base class — DSL, schema, capability guard |
+| `lib/igniter/ai/tool_registry.rb` | AI registry + capability-filtered discovery |
+| `lib/igniter/ai/executor.rb` | Auto tool-use loop in `#complete`, `max_tool_iterations` |
+| `lib/igniter/ai/providers/anthropic.rb` | Tool message normalization (Anthropic format) |
+| `lib/igniter/ai/providers/openai.rb` | Tool message normalization (OpenAI format) |
 | `spec/igniter/tool_spec.rb` | Tool unit tests (40 examples) |
 | `spec/igniter/tool_registry_spec.rb` | Registry tests (20 examples) |
-| `spec/igniter/integrations/llm_tool_loop_spec.rb` | Loop + guards tests (mock provider, 27 examples) |
+| `spec/igniter/integrations/llm_tool_loop_spec.rb` | AI tool-loop + guard tests (mock provider, 27 examples) |
 | `examples/llm_tools.rb` | Full demo |

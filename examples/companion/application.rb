@@ -30,12 +30,10 @@
 $LOAD_PATH.unshift(File.join(__dir__, "../../lib")) if File.exist?("../../lib/igniter.rb")
 
 require "igniter"
+require "igniter/core"
 require "igniter/server"
 require "igniter/application"
-require "igniter/tool"
-require "igniter/skill"
-require "igniter/integrations/agents"
-require "igniter/integrations/llm"
+require "igniter/ai"
 
 class CompanionApp < Igniter::Application
   config_file File.join(__dir__, "application.yml")
@@ -49,18 +47,18 @@ class CompanionApp < Igniter::Application
 
   on_boot do
     # Configure LLM integration (Ollama running locally or via cluster service).
-    Igniter::LLM.configure do |c|
+    Igniter::AI.configure do |c|
       c.default_provider = :ollama
       c.ollama.url       = ENV.fetch("OLLAMA_URL", "http://localhost:11434")
     end
 
     # Optional: Consensus cluster for replicated notes store.
     if ENV["CONSENSUS_NODES"]
-      require "igniter/consensus"
+      require "igniter/cluster"
       require_relative "lib/session_state_machine"
 
       node_ids = ENV["CONSENSUS_NODES"].split(",").map { |s| s.strip.to_sym }
-      cluster  = Igniter::Consensus::Cluster.start(
+      cluster  = Igniter::Cluster::Consensus::Cluster.start(
         nodes:         node_ids,
         state_machine: Companion::SessionStateMachine,
         verbose:       false

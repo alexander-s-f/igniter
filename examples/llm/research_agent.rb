@@ -15,10 +15,10 @@
 
 $LOAD_PATH.unshift File.join(__dir__, "../../lib")
 require "igniter"
-require "igniter/integrations/llm"
+require "igniter/ai"
 
 # Configure LLM
-Igniter::LLM.configure do |config|
+Igniter::AI.configure do |config|
   config.default_provider = :ollama
   config.ollama.default_model = "llama3.2"
   config.ollama.base_url = ENV.fetch("OLLAMA_URL", "http://localhost:11434")
@@ -26,7 +26,7 @@ end
 
 # ─── Executors ───────────────────────────────────────────────────────────────
 
-class QuestionAnalyzer < Igniter::LLM::Executor
+class QuestionAnalyzer < Igniter::AI::Executor
   model "llama3.2"
   system_prompt <<~SYSTEM
     You are a research planner. Given a question, extract:
@@ -46,7 +46,7 @@ class QuestionAnalyzer < Igniter::LLM::Executor
   end
 end
 
-class AnswerSynthesizer < Igniter::LLM::Executor
+class AnswerSynthesizer < Igniter::AI::Executor
   model "llama3.2"
   system_prompt "You are a research assistant. Synthesize information into clear, accurate answers."
 
@@ -116,7 +116,7 @@ puts "=" * 60
 
 # Check if Ollama is running
 begin
-  provider = Igniter::LLM.provider_instance(:ollama)
+  provider = Igniter::AI.provider_instance(:ollama)
   models = provider.models
   puts "\nOllama models available: #{models.first(3).join(", ")}"
 rescue => e
@@ -124,7 +124,7 @@ rescue => e
   puts "Running with mock answers instead...\n"
 
   # Mock the provider for demo without Ollama
-  module Igniter::LLM::Providers
+  module Igniter::AI::Providers
     class Ollama
       def chat(messages:, model:, **_opts)
         prompt = messages.map { |m| m["content"] || m[:content] }.last.to_s

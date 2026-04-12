@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/skill"
+require "igniter/ai"
 
-RSpec.describe Igniter::Skill::OutputSchema do
+RSpec.describe Igniter::AI::Skill::OutputSchema do
   let(:schema) do
     described_class.new do
       field :summary,    String
@@ -68,7 +68,7 @@ RSpec.describe Igniter::Skill::OutputSchema do
 
     it "returns a StructuredResult for valid JSON" do
       result = schema.parse(valid_json)
-      expect(result).to be_a(Igniter::Skill::StructuredResult)
+      expect(result).to be_a(Igniter::AI::Skill::StructuredResult)
     end
 
     it "exposes declared field readers on the result" do
@@ -86,21 +86,21 @@ RSpec.describe Igniter::Skill::OutputSchema do
 
     it "raises ParseError when no JSON object is found" do
       expect { schema.parse("Just some plain text.") }
-        .to raise_error(Igniter::Skill::OutputSchema::ParseError, /No JSON object found/)
+        .to raise_error(Igniter::AI::Skill::OutputSchema::ParseError, /No JSON object found/)
     end
 
     it "raises ParseError for malformed JSON" do
       expect { schema.parse("{not valid json}") }
-        .to raise_error(Igniter::Skill::OutputSchema::ParseError, /Invalid JSON/)
+        .to raise_error(Igniter::AI::Skill::OutputSchema::ParseError, /Invalid JSON/)
     end
   end
 end
 
-RSpec.describe Igniter::Skill::StructuredResult do
+RSpec.describe Igniter::AI::Skill::StructuredResult do
   let(:fields) do
     [
-      Igniter::Skill::OutputSchema::Field.new(name: :title,  type: String),
-      Igniter::Skill::OutputSchema::Field.new(name: :score,  type: Float)
+      Igniter::AI::Skill::OutputSchema::Field.new(name: :title,  type: String),
+      Igniter::AI::Skill::OutputSchema::Field.new(name: :score,  type: Float)
     ]
   end
 
@@ -134,7 +134,7 @@ RSpec.describe Igniter::Skill::StructuredResult do
   end
 end
 
-RSpec.describe Igniter::Skill do
+RSpec.describe Igniter::AI::Skill do
   describe ".output_schema DSL" do
     let(:skill_class) do
       Class.new(described_class) do
@@ -148,12 +148,12 @@ RSpec.describe Igniter::Skill do
     end
 
     it "stores an OutputSchema instance" do
-      expect(skill_class.output_schema).to be_a(Igniter::Skill::OutputSchema)
+      expect(skill_class.output_schema).to be_a(Igniter::AI::Skill::OutputSchema)
     end
 
     it "propagates output_schema to subclasses" do
       child = Class.new(skill_class)
-      expect(child.output_schema).to be_a(Igniter::Skill::OutputSchema)
+      expect(child.output_schema).to be_a(Igniter::AI::Skill::OutputSchema)
     end
 
     it "does not share the same instance across sibling classes" do
@@ -171,17 +171,17 @@ RSpec.describe Igniter::Skill do
 
       it "stores the value via Executor metadata (no OutputSchema created)" do
         expect(plain_executor.output_schema).to eq("MySchemaV1")
-        expect(plain_executor.output_schema).not_to be_a(Igniter::Skill::OutputSchema)
+        expect(plain_executor.output_schema).not_to be_a(Igniter::AI::Skill::OutputSchema)
       end
     end
   end
 
   describe "#complete with output_schema" do
-    # Stub LLM::Executor#complete (the parent) to return a fixed string,
+    # Stub AI::Executor#complete (the parent) to return a fixed string,
     # letting Skill's override intercept and parse/forward it.
     # rubocop:disable Metrics/MethodLength
     def stub_llm_complete(instance, return_value)
-      allow(Igniter::LLM::Executor.instance_method(:complete)
+      allow(Igniter::AI::Executor.instance_method(:complete)
               .bind(instance))
         .to receive(:call) { return_value }
     rescue TypeError
@@ -189,14 +189,14 @@ RSpec.describe Igniter::Skill do
       allow(instance).to receive(:complete).and_wrap_original do |_original, prompt, **_kw|
         # Call Skill's override with the prompt but intercept super
         schema = instance.class.output_schema
-        if schema.is_a?(Igniter::Skill::OutputSchema)
+        if schema.is_a?(Igniter::AI::Skill::OutputSchema)
           # rubocop:disable Lint/Void
           "#{prompt}\n\nRespond ONLY with valid JSON matching this schema: #{schema.to_json_description}"
           # rubocop:enable Lint/Void
         else
           prompt
         end
-        schema.is_a?(Igniter::Skill::OutputSchema) ? schema.parse(return_value) : return_value
+        schema.is_a?(Igniter::AI::Skill::OutputSchema) ? schema.parse(return_value) : return_value
       end
     end
     # rubocop:enable Metrics/MethodLength
@@ -216,18 +216,18 @@ RSpec.describe Igniter::Skill do
 
     it "returns a StructuredResult when output_schema is set" do
       instance = skill_class_with_schema.new
-      allow_any_instance_of(Igniter::LLM::Executor).to receive(:complete)
+      allow_any_instance_of(Igniter::AI::Executor).to receive(:complete)
         .and_return('{"answer": "42", "score": 1.0}')
 
       result = instance.send(:complete, "test")
-      expect(result).to be_a(Igniter::Skill::StructuredResult)
+      expect(result).to be_a(Igniter::AI::Skill::StructuredResult)
       expect(result.answer).to eq("42")
       expect(result.score).to eq(1.0)
     end
 
     it "returns a plain String when no output_schema is set" do
       instance = skill_class_without_schema.new
-      allow_any_instance_of(Igniter::LLM::Executor).to receive(:complete)
+      allow_any_instance_of(Igniter::AI::Executor).to receive(:complete)
         .and_return("plain text")
 
       result = instance.send(:complete, "test")
@@ -238,7 +238,7 @@ RSpec.describe Igniter::Skill do
       received_prompt = nil
       instance = skill_class_with_schema.new
 
-      allow_any_instance_of(Igniter::LLM::Executor).to receive(:complete) do |_, prompt, **|
+      allow_any_instance_of(Igniter::AI::Executor).to receive(:complete) do |_, prompt, **|
         received_prompt = prompt
         '{"answer": "yes", "score": 0.5}'
       end
@@ -252,7 +252,7 @@ RSpec.describe Igniter::Skill do
       received_prompt = nil
       instance = skill_class_without_schema.new
 
-      allow_any_instance_of(Igniter::LLM::Executor).to receive(:complete) do |_, prompt, **|
+      allow_any_instance_of(Igniter::AI::Executor).to receive(:complete) do |_, prompt, **|
         received_prompt = prompt
         "plain answer"
       end

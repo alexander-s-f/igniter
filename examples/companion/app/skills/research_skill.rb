@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/skill"
+require "igniter/ai"
 require_relative "../tools/notes_tool"
 
 module Companion
@@ -13,7 +13,7 @@ module Companion
   #
   # In mock mode (default) it returns a structured mock response so the
   # full pipeline runs without any external services.
-  class ResearchSkill < Igniter::Skill
+  class ResearchSkill < Igniter::AI::Skill
     description "Research a topic in depth and return a clear, concise summary. " \
                 "Use this when the user asks a factual question that requires " \
                 "looking up information rather than a quick recall."

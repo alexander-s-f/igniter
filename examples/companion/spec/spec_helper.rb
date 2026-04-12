@@ -5,9 +5,8 @@
 # Or via main suite:      bundle exec rake spec  (from repo root)
 
 require "igniter"
-require "igniter/tool"
-require "igniter/skill"
-require "igniter/integrations/agents"
+require "igniter/core"
+require "igniter/ai"
 
 COMPANION_ROOT = File.expand_path("..", __dir__) unless defined?(COMPANION_ROOT)
 

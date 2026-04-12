@@ -1,6 +1,8 @@
 # LLM Integration v1
 
-Igniter's LLM integration (`require "igniter/integrations/llm"`) makes language models
+This document describes the LLM-focused part of Igniter's AI layer.
+
+Igniter's AI layer (`require "igniter/ai"`) makes language models
 first-class compute nodes inside a graph. A multi-step LLM pipeline — classify, assess,
 draft a response — is just a normal Igniter contract with chained `compute` nodes backed
 by LLM executors. Caching, invalidation, auditing, and diagnostics all work the same way.
@@ -8,14 +10,14 @@ by LLM executors. Caching, invalidation, auditing, and diagnostics all work the 
 ## Quick Start
 
 ```ruby
-require "igniter/integrations/llm"
+require "igniter/ai"
 
-Igniter::LLM.configure do |c|
+Igniter::AI.configure do |c|
   c.default_provider = :anthropic
   c.anthropic.api_key = ENV["ANTHROPIC_API_KEY"]
 end
 
-class SummarizeExecutor < Igniter::LLM::Executor
+class SummarizeExecutor < Igniter::AI::Executor
   provider :anthropic
   model    "claude-haiku-4-5-20251001"
   system_prompt "Return a single concise sentence summary."
@@ -38,15 +40,15 @@ ArticleContract.new(text: "Long article...").result.summary
 
 ---
 
-## `Igniter::LLM::Executor`
+## `Igniter::AI::Executor`
 
-Subclass `Igniter::LLM::Executor` and override `#call(**inputs)`. Inside `call`, use the
+Subclass `Igniter::AI::Executor` and override `#call(**inputs)`. Inside `call`, use the
 protected helper methods to interact with the provider.
 
 ### Class-level configuration
 
 ```ruby
-class MyExecutor < Igniter::LLM::Executor
+class MyExecutor < Igniter::AI::Executor
   provider     :anthropic          # :ollama | :anthropic | :openai
   model        "claude-haiku-4-5-20251001"
   system_prompt "You are a helpful assistant."
@@ -68,7 +70,7 @@ end
 Configuration is inherited by subclasses:
 
 ```ruby
-class BaseExecutor < Igniter::LLM::Executor
+class BaseExecutor < Igniter::AI::Executor
   provider :anthropic
   model    "claude-haiku-4-5-20251001"
 end
@@ -91,12 +93,12 @@ end
 
 ---
 
-## `Igniter::LLM::Context`
+## `Igniter::AI::Context`
 
 Immutable conversation history that accumulates turns across calls.
 
 ```ruby
-ctx = Igniter::LLM::Context.empty(system: "You are a code reviewer.")
+ctx = Igniter::AI::Context.empty(system: "You are a code reviewer.")
 ctx = ctx.append_user("Review this method: def foo; end")
 ctx = ctx.append_assistant("The method is empty. Consider adding a docstring.")
 ctx = ctx.append_user("How would you improve it?")
@@ -116,7 +118,7 @@ response = chat(context: ctx)
 No API key needed. Requires a running Ollama instance.
 
 ```ruby
-Igniter::LLM.configure do |c|
+Igniter::AI.configure do |c|
   c.default_provider = :ollama
   c.ollama.base_url      = ENV.fetch("OLLAMA_URL", "http://localhost:11434")
   c.ollama.default_model = "llama3.2"
@@ -131,7 +133,7 @@ ollama pull llama3.2
 ### Anthropic
 
 ```ruby
-Igniter::LLM.configure do |c|
+Igniter::AI.configure do |c|
   c.default_provider = :anthropic
   c.anthropic.api_key       = ENV["ANTHROPIC_API_KEY"]
   c.anthropic.default_model = "claude-haiku-4-5-20251001"
@@ -146,7 +148,7 @@ Anthropic-specific notes:
 ### OpenAI (and compatible)
 
 ```ruby
-Igniter::LLM.configure do |c|
+Igniter::AI.configure do |c|
   c.default_provider = :openai
   c.openai.api_key       = ENV["OPENAI_API_KEY"]
   c.openai.default_model = "gpt-4o-mini"
@@ -165,7 +167,7 @@ Chain multiple LLM executors as sequential compute nodes. Each node receives the
 output of the previous as an input:
 
 ```ruby
-class ClassifyExecutor < Igniter::LLM::Executor
+class ClassifyExecutor < Igniter::AI::Executor
   provider :anthropic
   model    "claude-haiku-4-5-20251001"
   system_prompt "Classify feedback into: bug_report, feature_request, question."
@@ -175,13 +177,13 @@ class ClassifyExecutor < Igniter::LLM::Executor
   end
 end
 
-class PriorityExecutor < Igniter::LLM::Executor
+class PriorityExecutor < Igniter::AI::Executor
   provider :anthropic
   model    "claude-haiku-4-5-20251001"
   system_prompt "Assess priority: low, medium, or high."
 
   def call(feedback:, category:)
-    ctx = Igniter::LLM::Context
+    ctx = Igniter::AI::Context
       .empty(system: self.class.system_prompt)
       .append_user("Feedback: #{feedback}")
       .append_user("Category: #{category}")
@@ -227,7 +229,7 @@ EXTRACT_TOOL = {
   }
 }.freeze
 
-class EntityExtractor < Igniter::LLM::Executor
+class EntityExtractor < Igniter::AI::Executor
   provider :anthropic
   model    "claude-haiku-4-5-20251001"
   system_prompt "Extract named entities. Always use the extract_entities tool."
@@ -302,10 +304,10 @@ end
 
 ## Token Usage and Auditing
 
-Each `Igniter::LLM::Executor` instance tracks token usage after each call:
+Each `Igniter::AI::Executor` instance tracks token usage after each call:
 
 ```ruby
-class TrackingExecutor < Igniter::LLM::Executor
+class TrackingExecutor < Igniter::AI::Executor
   def call(text:)
     result = complete("Process: #{text}")
     # last_usage is available after complete/chat

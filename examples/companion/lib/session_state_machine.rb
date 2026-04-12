@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/consensus"
+require "igniter/cluster"
 
 module Companion
   # Raft state machine for replicated companion session state.
@@ -16,7 +16,7 @@ module Companion
   #   { op: :set_note,    key: "...", value: "..." }
   #   { op: :delete_note, key: "..." }
   #   { op: :clear_history }
-  class SessionStateMachine < Igniter::Consensus::StateMachine
+  class SessionStateMachine < Igniter::Cluster::Consensus::StateMachine
     apply :append_turn do |state, cmd|
       entry   = { role: cmd[:role].to_s, content: cmd[:content].to_s }
       history = (state[:history] || []) + [entry]

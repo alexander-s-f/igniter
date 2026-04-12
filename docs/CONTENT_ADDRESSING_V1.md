@@ -159,8 +159,8 @@ require "igniter/extensions/content_addressing"
 ```
 
 This single require:
-1. Loads `lib/igniter/content_addressing.rb` (ContentKey, Cache, module-level cache accessor).
-2. Activates the resolver hooks via `lib/igniter/runtime/resolver.rb`.
+1. Loads `lib/igniter/core/content_addressing.rb` (ContentKey, Cache, module-level cache accessor).
+2. Activates the resolver hooks via `lib/igniter/core/runtime/resolver.rb`.
 
 Non-pure executors are completely unaffected — no overhead, no behavior change.
 
@@ -171,7 +171,7 @@ dependency hash and therefore part of the content key. Historical and current ti
 produce distinct cache entries, and identical timestamps produce cache hits:
 
 ```ruby
-require "igniter/temporal"
+require "igniter/core/temporal"
 require "igniter/extensions/content_addressing"
 
 class TaxRateExecutor < Igniter::Temporal::Executor
@@ -214,8 +214,8 @@ Old cache entries with `"discount_v1"` prefix in the key are never read again.
 
 | File | Purpose |
 |------|---------|
-| `lib/igniter/content_addressing.rb` | `ContentKey`, `Cache`, module-level `cache` accessor |
-| `lib/igniter/extensions/content_addressing.rb` | Entry point (`require "igniter/content_addressing"`) |
-| `lib/igniter/executor.rb` | `pure`, `fingerprint`, `content_fingerprint`, `pure?` class DSL |
-| `lib/igniter/runtime/resolver.rb` | `build_content_key` + cache fetch/store hooks in `resolve_compute` |
+| `lib/igniter/core/content_addressing.rb` | `ContentKey`, `Cache`, module-level `cache` accessor |
+| `lib/igniter/extensions/content_addressing.rb` | Entry point (`require "igniter/extensions/content_addressing"`) |
+| `lib/igniter/core/executor.rb` | `pure`, `fingerprint`, `content_fingerprint`, `pure?` class DSL |
+| `lib/igniter/core/runtime/resolver.rb` | `build_content_key` + cache fetch/store hooks in `resolve_compute` |
 | `spec/igniter/content_addressing_spec.rb` | 19 examples |

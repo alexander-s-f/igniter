@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/node_cache"
-require "igniter/fingerprint"
+require "igniter/core/node_cache"
+require "igniter/core/fingerprint"
 
 RSpec.describe "Igniter Node Cache (Gaps 1–4)" do
   # ── Helpers ──────────────────────────────────────────────────────────────

@@ -13,17 +13,17 @@
 #   pinned_to: "name"  — must call this exact peer; if it is down the node
 #                        fails with IncidentError signalling admin intervention.
 #
-# In production you would require "igniter/extensions/mesh" and configure real
+# In production you would require "igniter/cluster" and configure real
 # peer URLs.  Here we stub the HTTP layer so the example runs without any
 # actual servers.
 # ─────────────────────────────────────────────────────────────────────────────
 
-require "igniter/extensions/mesh"
+require "igniter/cluster"
 require "json"
 
 # ── 1. Configure the mesh ────────────────────────────────────────────────────
 
-Igniter::Mesh.configure do |c|
+Igniter::Cluster::Mesh.configure do |c|
   c.peer_name          = "api-node"
   c.local_capabilities = [:api]
 
@@ -37,8 +37,8 @@ Igniter::Mesh.configure do |c|
              capabilities: %i[audit]
 end
 
-puts "Mesh configured with #{Igniter::Mesh.config.peers.size} peers:"
-Igniter::Mesh.config.peers.each do |p|
+puts "Mesh configured with #{Igniter::Cluster::Mesh.config.peers.size} peers:"
+Igniter::Cluster::Mesh.config.peers.each do |p|
   puts "  #{p.name} (#{p.url}) — capabilities: #{p.capabilities.join(", ")}"
 end
 puts
@@ -115,8 +115,8 @@ end
 
 puts "=== Scenario A: capability routing — orders-node alive ==="
 
-Igniter::Mesh.reset!
-Igniter::Mesh.configure do |c|
+Igniter::Cluster::Mesh.reset!
+Igniter::Cluster::Mesh.configure do |c|
   c.add_peer "orders-node",
              url: "http://orders.internal:4567",
              capabilities: [:orders]
@@ -142,15 +142,15 @@ rescue Igniter::Error => e
   puts "  Error: #{e.message}"
 ensure
   Igniter::Server::Client.define_singleton_method(:new, &original_new)
-  Igniter::Mesh.reset!
+  Igniter::Cluster::Mesh.reset!
 end
 
 puts
 
 puts "=== Scenario B: capability routing — no alive peers (deferred) ==="
 
-Igniter::Mesh.reset!
-Igniter::Mesh.configure do |c|
+Igniter::Cluster::Mesh.reset!
+Igniter::Cluster::Mesh.configure do |c|
   c.add_peer "orders-node",
              url: "http://orders.internal:4567",
              capabilities: [:orders]
@@ -176,13 +176,13 @@ order_state = contract.execution.cache.fetch(:order_result)
 puts "  order_result status: #{order_state&.status.inspect}   (expected :pending)"
 
 Igniter::Server::Client.define_singleton_method(:new, &original_new)
-Igniter::Mesh.reset!
+Igniter::Cluster::Mesh.reset!
 puts
 
 puts "=== Scenario C: pinned_to routing — audit-node down (incident) ==="
 
-Igniter::Mesh.reset!
-Igniter::Mesh.configure do |c|
+Igniter::Cluster::Mesh.reset!
+Igniter::Cluster::Mesh.configure do |c|
   c.add_peer "audit-node",
              url: "http://audit.internal:4567",
              capabilities: [:audit]
@@ -205,7 +205,7 @@ puts "  error class:      #{audit_state&.error&.class}"
 puts "  error message:    #{audit_state&.error&.message}"
 
 Igniter::Server::Client.define_singleton_method(:new, &original_new)
-Igniter::Mesh.reset!
+Igniter::Cluster::Mesh.reset!
 puts
 
 # ── 6. GET /v1/manifest demo ─────────────────────────────────────────────────

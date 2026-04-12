@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/memory"
+require "igniter/core/memory"
 
 RSpec.describe Igniter::Memory::ReflectionCycle do
   let(:store)    { Igniter::Memory::Stores::InMemory.new }

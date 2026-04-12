@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "igniter"
-require "igniter/differential"
+require_relative "../../igniter"
+require_relative "../core/differential"
 
 module Igniter
   module Extensions

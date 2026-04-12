@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter"
+require_relative "../igniter"
 require "json"
 
 # Define the top-level Server module and Error class first,
@@ -18,6 +18,7 @@ require_relative "server/router"
 require_relative "server/http_server"
 require_relative "server/rack_app"
 require_relative "server/client"
+require_relative "server/remote_adapter"
 require_relative "server/handlers/base"
 require_relative "server/handlers/health_handler"
 require_relative "server/handlers/contracts_handler"
@@ -71,3 +72,5 @@ module Igniter
     end
   end
 end
+
+Igniter::Runtime.remote_adapter = Igniter::Server::RemoteAdapter.new

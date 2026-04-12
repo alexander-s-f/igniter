@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/integrations/llm"
+require "igniter/ai"
 
 RSpec.describe "Igniter LLM Integration" do
   # ── Config ────────────────────────────────────────────────────────────────
 
-  describe Igniter::LLM::Config do
+  describe Igniter::AI::Config do
     subject(:config) { described_class.new }
 
     it "defaults to ollama provider" do
@@ -25,7 +25,7 @@ RSpec.describe "Igniter LLM Integration" do
 
   # ── Context ───────────────────────────────────────────────────────────────
 
-  describe Igniter::LLM::Context do
+  describe Igniter::AI::Context do
     it "starts empty" do
       ctx = described_class.empty
       expect(ctx.empty?).to be true
@@ -65,7 +65,7 @@ RSpec.describe "Igniter LLM Integration" do
 
   # ── Ollama Provider ───────────────────────────────────────────────────────
 
-  describe Igniter::LLM::Providers::Ollama do
+  describe Igniter::AI::Providers::Ollama do
     subject(:provider) { described_class.new(base_url: "http://localhost:11434") }
 
     context "when Ollama is not available" do
@@ -77,7 +77,7 @@ RSpec.describe "Igniter LLM Integration" do
       it "raises ProviderError on connection failure" do
         expect do
           provider.chat(messages: [{ role: "user", content: "hello" }], model: "llama3.2")
-        end.to raise_error(Igniter::LLM::ProviderError)
+        end.to raise_error(Igniter::AI::ProviderError)
       end
     end
 
@@ -124,7 +124,7 @@ RSpec.describe "Igniter LLM Integration" do
 
   # ── Anthropic Provider ────────────────────────────────────────────────────
 
-  describe Igniter::LLM::Providers::Anthropic do
+  describe Igniter::AI::Providers::Anthropic do
     subject(:provider) { described_class.new(api_key: "test-key") }
 
     context "when API key is missing" do
@@ -132,7 +132,7 @@ RSpec.describe "Igniter LLM Integration" do
         p = described_class.new(api_key: nil)
         expect do
           p.chat(messages: [{ role: "user", content: "hi" }], model: "claude-sonnet-4-6")
-        end.to raise_error(Igniter::LLM::ConfigurationError, /API key not configured/)
+        end.to raise_error(Igniter::AI::ConfigurationError, /API key not configured/)
       end
     end
 
@@ -145,7 +145,7 @@ RSpec.describe "Igniter LLM Integration" do
       it "raises ProviderError on connection failure" do
         expect do
           provider.chat(messages: [{ role: "user", content: "hello" }], model: "claude-sonnet-4-6")
-        end.to raise_error(Igniter::LLM::ProviderError, /Cannot connect/)
+        end.to raise_error(Igniter::AI::ProviderError, /Cannot connect/)
       end
     end
 
@@ -225,7 +225,7 @@ RSpec.describe "Igniter LLM Integration" do
 
   # ── OpenAI Provider ────────────────────────────────────────────────────────
 
-  describe Igniter::LLM::Providers::OpenAI do
+  describe Igniter::AI::Providers::OpenAI do
     subject(:provider) { described_class.new(api_key: "sk-test") }
 
     context "when API key is missing" do
@@ -233,7 +233,7 @@ RSpec.describe "Igniter LLM Integration" do
         p = described_class.new(api_key: nil)
         expect do
           p.chat(messages: [{ role: "user", content: "hi" }], model: "gpt-4o")
-        end.to raise_error(Igniter::LLM::ConfigurationError, /API key not configured/)
+        end.to raise_error(Igniter::AI::ConfigurationError, /API key not configured/)
       end
     end
 
@@ -246,7 +246,7 @@ RSpec.describe "Igniter LLM Integration" do
       it "raises ProviderError on connection failure" do
         expect do
           provider.chat(messages: [{ role: "user", content: "hello" }], model: "gpt-4o")
-        end.to raise_error(Igniter::LLM::ProviderError, /Cannot connect/)
+        end.to raise_error(Igniter::AI::ProviderError, /Cannot connect/)
       end
     end
 
@@ -340,7 +340,7 @@ RSpec.describe "Igniter LLM Integration" do
 
   # ── LLM Executor ──────────────────────────────────────────────────────────
 
-  describe Igniter::LLM::Executor do
+  describe Igniter::AI::Executor do
     let(:response_body) do
       JSON.generate({
                       "message" => { "role" => "assistant", "content" => "The answer is 42." },
@@ -356,7 +356,7 @@ RSpec.describe "Igniter LLM Integration" do
       allow_any_instance_of(Net::HTTP).to receive(:request).and_return(http_response)
 
       # Reset memoised provider instances
-      Igniter::LLM.instance_variable_set(:@provider_instances, nil)
+      Igniter::AI.instance_variable_set(:@provider_instances, nil)
     end
 
     let(:executor_class) do
@@ -413,7 +413,7 @@ RSpec.describe "Igniter LLM Integration" do
       it "tracks last_context after a complete call" do
         executor = executor_class.new
         executor.call(question: "something")
-        expect(executor.last_context).to be_a(Igniter::LLM::Context)
+        expect(executor.last_context).to be_a(Igniter::AI::Context)
         expect(executor.last_context.length).to eq(3) # system + user + assistant
       end
     end

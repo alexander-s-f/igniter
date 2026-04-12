@@ -2,7 +2,7 @@
 
 ## Overview
 
-`Igniter::Skill` is a composable unit of agent capability — the bridge between
+`Igniter::AI::Skill` is a composable unit of agent capability — the bridge between
 atomic Tools and full autonomous Agents.
 
 | | Tool | Skill | Agent |
@@ -34,7 +34,7 @@ ChatExecutor (parent)
 ## Defining a Skill
 
 ```ruby
-class ResearchSkill < Igniter::Skill
+class ResearchSkill < Igniter::AI::Skill
   # ── Discovery interface (same as Tool) ──
   description "Research a topic by searching and synthesizing multiple sources"
 
@@ -45,7 +45,7 @@ class ResearchSkill < Igniter::Skill
 
   requires_capability :network
 
-  # ── Agentic implementation (LLM::Executor DSL) ──
+  # ── Agentic implementation (AI::Executor DSL) ──
   provider :anthropic
   model "claude-sonnet-4-6"
   system_prompt "You are a research assistant. Be concise and accurate."
@@ -63,7 +63,7 @@ end
 ## Hierarchy Example: ChatExecutor with Skills
 
 ```ruby
-class ChatExecutor < Igniter::LLM::Executor
+class ChatExecutor < Igniter::AI::Executor
   provider :ollama
   model "llama3.1:8b"
   capabilities :network, :storage     # controls which tools/skills may run
@@ -102,15 +102,15 @@ ResearchSkill.to_schema(:openai)     # => { type: "function", function: {...} }
 Skills register the same way as Tools:
 
 ```ruby
-Igniter::ToolRegistry.register(
+Igniter::AI::ToolRegistry.register(
   TimeTool, WeatherTool,    # tools
   ResearchSkill,            # skill — registered exactly like a tool
 )
 
-Igniter::ToolRegistry.tools_for(capabilities: [:network])
+Igniter::AI::ToolRegistry.tools_for(capabilities: [:network])
 # => [WeatherTool, ResearchSkill]  (TimeTool has no cap requirement → always included)
 
-Igniter::ToolRegistry.schemas(:anthropic, capabilities: [:network, :storage])
+Igniter::AI::ToolRegistry.schemas(:anthropic, capabilities: [:network, :storage])
 ```
 
 ## Capability Guard
@@ -118,7 +118,7 @@ Igniter::ToolRegistry.schemas(:anthropic, capabilities: [:network, :storage])
 Same `call_with_capability_check!` interface as Tool. `CapabilityError` is the same class:
 
 ```ruby
-Igniter::Skill::CapabilityError == Igniter::Tool::CapabilityError  # => true
+Igniter::AI::Skill::CapabilityError == Igniter::Tool::CapabilityError  # => true
 
 skill = ResearchSkill.new
 skill.call_with_capability_check!(allowed_capabilities: [], topic: "AI")
@@ -127,10 +127,10 @@ skill.call_with_capability_check!(allowed_capabilities: [], topic: "AI")
 
 ## Inheritance
 
-A Skill inherits BOTH the Discoverable DSL AND the LLM::Executor config:
+A Skill inherits BOTH the Discoverable DSL AND the AI::Executor config:
 
 ```ruby
-class BaseResearcher < Igniter::Skill
+class BaseResearcher < Igniter::AI::Skill
   provider :anthropic
   model "claude-sonnet-4-6"
   requires_capability :network
@@ -203,10 +203,10 @@ Skills in Companion:
 
 | File | Description |
 |------|-------------|
-| `lib/igniter/skill.rb` | Skill base class |
-| `lib/igniter/tool/discoverable.rb` | Shared DSL (Tool + Skill) |
-| `lib/igniter/tool.rb` | Tool base class |
-| `lib/igniter/tool_registry.rb` | Registry for Tool + Skill |
+| `lib/igniter/ai/skill.rb` | Skill base class |
+| `lib/igniter/core/tool/discoverable.rb` | Shared DSL (Tool + Skill) |
+| `lib/igniter/core/tool.rb` | Tool base class |
+| `lib/igniter/ai/tool_registry.rb` | Registry for Tool + Skill |
 | `spec/igniter/skill_spec.rb` | 30+ examples |
 | `examples/companion/skills/research_skill.rb` | ResearchSkill demo |
 | `examples/companion/skills/remind_me_skill.rb` | RemindMeSkill demo |

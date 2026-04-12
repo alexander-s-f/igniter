@@ -1,18 +1,20 @@
-# Igniter — LLM::Transcriber
+# Igniter — AI::Transcriber
 
-`Igniter::LLM::Transcriber` is a first-class Executor for audio-to-text conversion.
+`Igniter::AI::Transcriber` is a first-class Executor for audio-to-text conversion.
 It plugs into the Contract graph exactly like any other compute node, giving you
 caching, dependency resolution, and parallel execution for free.
+
+This document covers the transcription part of Igniter's AI layer.
 
 ```
 audio file / URL
       │
       ▼
- CallTranscriber          ← LLM::Transcriber subclass
+ CallTranscriber          ← AI::Transcriber subclass
       │  TranscriptResult
       │   .text, .words, .speakers, .duration
       ▼
- CallExtractor            ← LLM::Executor subclass
+ CallExtractor            ← AI::Executor subclass
       │  Hash (structured JSON)
       ▼
   CRM / DB
@@ -23,13 +25,13 @@ audio file / URL
 ## Quick start
 
 ```ruby
-require "igniter/integrations/llm"
+require "igniter/ai"
 
-Igniter::LLM.configure do |c|
+Igniter::AI.configure do |c|
   c.deepgram.api_key = ENV["DEEPGRAM_API_KEY"]
 end
 
-class MyTranscriber < Igniter::LLM::Transcriber
+class MyTranscriber < Igniter::AI::Transcriber
   transcription_provider :deepgram
   model "nova-3"
   language "en"
@@ -59,7 +61,7 @@ puts result.speakers.map { |s| "#{s.speaker}: #{s.text}" }.join("\n")
 | **Pricing** | whisper-1: `$0.006/min` · gpt-4o-mini-transcribe: `$0.003/min` |
 
 ```ruby
-class CallTranscriber < Igniter::LLM::Transcriber
+class CallTranscriber < Igniter::AI::Transcriber
   transcription_provider :openai
   model "gpt-4o-mini-transcribe"   # or "whisper-1"
   language "en"
@@ -83,11 +85,11 @@ end
 | **Pricing** | `$0.0077/min` (includes diarization, per-second billing) |
 
 ```ruby
-Igniter::LLM.configure do |c|
+Igniter::AI.configure do |c|
   c.deepgram.api_key = ENV["DEEPGRAM_API_KEY"]
 end
 
-class CallTranscriber < Igniter::LLM::Transcriber
+class CallTranscriber < Igniter::AI::Transcriber
   transcription_provider :deepgram
   model "nova-3"
   diarize true
@@ -122,13 +124,13 @@ Results accessible via `result.raw["results"]["channels"][0]["alternatives"][0]`
 | **Free tier** | 333 hr/month |
 
 ```ruby
-Igniter::LLM.configure do |c|
+Igniter::AI.configure do |c|
   c.assemblyai.api_key      = ENV["ASSEMBLYAI_API_KEY"]
   c.assemblyai.poll_interval = 3    # seconds between status checks
   c.assemblyai.poll_timeout  = 600  # fail-safe timeout in seconds
 end
 
-class CallTranscriber < Igniter::LLM::Transcriber
+class CallTranscriber < Igniter::AI::Transcriber
   transcription_provider :assemblyai
   diarize true
   poll_interval 3
@@ -166,7 +168,7 @@ transcribe(audio_url,
 ## DSL reference
 
 ```ruby
-class MyTranscriber < Igniter::LLM::Transcriber
+class MyTranscriber < Igniter::AI::Transcriber
   # ── Required ──────────────────────────────────────────────────────────
   transcription_provider :openai   # :openai | :deepgram | :assemblyai
 
@@ -268,7 +270,7 @@ gpt-4o-mini (extraction, 14 000 calls)  ≈   $4/month
 Total                                    ≈  $81/month
 ```
 
-### Rails integration sketch
+### Rails plugin sketch
 
 ```ruby
 # app/models/call_recording.rb
@@ -385,7 +387,7 @@ end
 ## Configuration reference
 
 ```ruby
-Igniter::LLM.configure do |c|
+Igniter::AI.configure do |c|
   # OpenAI (used by both chat executors and openai transcription provider)
   c.openai.api_key  = ENV["OPENAI_API_KEY"]
   c.openai.base_url = "https://api.openai.com"  # override for Azure/proxy

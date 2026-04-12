@@ -1,9 +1,11 @@
 # Igniter — Architecture
 
+For the shortest operational overview, start with [Architecture Index](./ARCHITECTURE_INDEX.md).
+
 ## Design Principles
 
 1. **Small, hard core.** The kernel is minimal, strict, and independently testable.
-   Extensions, server, and cluster layers are opt-in.
+   Extensions and higher layers are opt-in.
 
 2. **Compile first, execute second.** Graphs are validated and frozen before any
    execution begins. Runtime never deals with half-built DSL objects.
@@ -27,31 +29,64 @@
 ## Layer Map
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  Cluster Layer  (igniter-cluster, future gem)                    │
-│  Consensus (Raft) · Mesh (gossip) · Replication                  │
-├─────────────────────────────────────────────────────────────────┤
-│  Server Layer   (igniter-server, future gem)                     │
-│  HTTP Server · Rack · Application scaffold · CLI                 │
-│  Actor system (Agent/Supervisor/Registry)                        │
-│  LLM integration · Tool registry · Skill system                  │
-│  Memory stores · Metrics · Scheduler                             │
-├─────────────────────────────────────────────────────────────────┤
-│  Core Library   (igniter)                                        │
-│  Model · Compiler · DSL · Runtime · Events                       │
-│  Extensions: auditing, saga, provenance, incremental, dataflow,  │
-│              differential, invariants, content-addressing         │
-│  Capabilities · Temporal · Fingerprint · NodeCache               │
-│  Property testing                                                │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│  Cluster Layer                                                     │
+│  Igniter::Cluster                                                  │
+│  Consensus · Mesh · Replication · cluster-aware remote routing     │
+├─────────────────────────────────────────────────────────────────────┤
+│  Application / Hosting Layers                                      │
+│  Igniter::Application · Igniter::Server                            │
+│  App scaffold · scheduler · autoloading · Rack · HTTP transport    │
+├─────────────────────────────────────────────────────────────────────┤
+│  Capability Layers                                                 │
+│  Igniter::AI · Igniter::Channels                                   │
+│  providers · skills · transcription · webhook / messaging adapters │
+├─────────────────────────────────────────────────────────────────────┤
+│  Core Library                                                      │
+│  Igniter                                                            │
+│  contract DSL · model · compiler · runtime · events · diagnostics  │
+│  actor runtime · tool foundation · memory · metrics · caches       │
+│  temporal · capabilities · fingerprint · property testing          │
+│  extensions: auditing, reactive, introspection, saga, provenance,  │
+│              incremental, dataflow, differential, invariants,      │
+│              content-addressing                                    │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-Each layer is a strict superset of the one below it. Your domain contracts live
-in the core layer and are never rewritten as you scale.
+The core layer is the foundation. Higher layers add hosting, distribution, AI,
+or transport concerns without changing domain contracts.
+
+## Filesystem and Loading Rules
+
+- `lib/igniter/` contains only top-level public entrypoints such as `igniter.rb`,
+  `core.rb`, `ai.rb`, `server.rb`, `cluster.rb`, `application.rb`, `channels.rb`,
+  `plugins.rb`, and `rails.rb`.
+- Substantive core code lives under `lib/igniter/core/`.
+- Behavioral add-ons live under `lib/igniter/extensions/`.
+- Framework integrations live under `lib/igniter/plugins/`.
+- Layer-specific implementation lives under `lib/igniter/ai/`, `server/`,
+  `cluster/`, `application/`, and `channels/`.
+
+## Terminology
+
+- **Core** means the hard foundation under `Igniter` and `igniter/core/*`.
+- **Core features** are focused facilities still owned by core, for example tools, memory, metrics, temporal support, capabilities, and caches.
+- **Extensions** are optional behavioral add-ons loaded from `igniter/extensions/*`.
+- **Capability layers** are optional subsystems such as `Igniter::AI` and `Igniter::Channels`.
+- **Hosting layers** are `Igniter::Server` and `Igniter::Cluster`.
+- **Profile** means `Igniter::Application`: a packaged assembly/runtime style over `Igniter::Server`.
+- **Plugin** means framework-specific integration such as `Igniter::Rails`.
 
 ---
 
 ## Core Layer
+
+Primary entrypoints:
+
+- `require "igniter"` — contract DSL, model, compiler, runtime, events, diagnostics
+- `require "igniter/core"` — actor runtime and tool foundation
+- `require "igniter/core/<feature>"` — focused core feature loading
+- `require "igniter/extensions/<feature>"` — opt-in behavioral extensions
 
 ### `Igniter::Model`
 
@@ -127,6 +162,18 @@ Runners:
 - `:thread_pool` — concurrent via `pool_size` threads
 - `:store` — async / deferred nodes with snapshot / restore
 
+### Core actor runtime and tool foundation
+
+These abstractions are part of the core, not the server layer.
+
+| Object | Responsibility |
+|--------|----------------|
+| `Igniter::Agent` | Stateful mailbox-driven process |
+| `Igniter::Supervisor` | Worker lifecycle / restart policy |
+| `Igniter::Registry` | Named actor lookup |
+| `Igniter::StreamLoop` | Long-lived pull / poll loop |
+| `Igniter::Tool` | Executor + schema + discoverability for machine-usable operations |
+
 ### `Igniter::Events`
 
 All runtime state changes produce structured events. Extensions and reactive
@@ -157,21 +204,62 @@ Optional packages that enrich the core without modifying it.
 
 ---
 
+## AI Layer
+
+Activated by `require "igniter/ai"`.
+
+### `Igniter::AI`
+
+LLM-oriented execution features that are intentionally outside the hard core.
+
+- Provider configuration and failover
+- `Igniter::AI::Executor`
+- `Igniter::AI::Skill`
+- `Igniter::AI::ToolRegistry`
+- Structured output and tool loop orchestration
+- Audio transcription
+
+Providers: Ollama · Anthropic · OpenAI (+ compatible providers such as Groq, Mistral, Azure).
+
+---
+
+## Channels Layer
+
+Activated by `require "igniter/channels"`.
+
+### `Igniter::Channels`
+
+Transport-neutral outbound communication layer built on `Igniter::Effect`.
+
+- `Igniter::Channels::Message` — immutable transport-agnostic message envelope.
+- `Igniter::Channels::DeliveryResult` — normalized send result.
+- `Igniter::Channels::Base < Igniter::Effect` — adapter base for Telegram, WhatsApp, email, webhook, SMS.
+- `Igniter::Channels::Webhook` — first built-in transport adapter.
+
+---
+
 ## Server Layer
 
-Activated by `require "igniter/server"` or `require "igniter/application"`.
+Activated by `require "igniter/server"` and also loaded indirectly by `require "igniter/application"`.
 
 ### `Igniter::Server`
 
-Rack-compatible HTTP server exposing contracts as a REST API.
+Rack-compatible HTTP transport and service hosting for contracts.
 
 | Component | Responsibility |
 |-----------|----------------|
 | `Server::RackApp` | Request routing, JSON serialisation |
 | `Server::HttpServer` | Built-in TCP server (no external dep) |
 | `Server::Registry` | Named contract registry |
-| `Server::Client` | HTTP client for `remote:` DSL |
+| `Server::Client` | HTTP client for remote execution |
+| `Server::RemoteAdapter` | Bridge from runtime remote seam to HTTP transport |
 | `Server::Handlers` | /execute, /events, /health, /contracts, /metrics |
+
+---
+
+## Application Layer
+
+Activated by `require "igniter/application"`.
 
 ### `Igniter::Application`
 
@@ -182,31 +270,16 @@ DSL: `config_file`, `configure`, `executors_path`, `contracts_path`, `tools_path
 
 Lifecycle: `autoload_paths!` → `on_boot` blocks → `configure` blocks → start server.
 
-### Actor system — `Igniter::Agent` / `Igniter::Supervisor` / `Igniter::Registry`
-
-Lightweight actor model built on Ruby threads and message-passing mailboxes.
-Used for stateful background processes (proactive agents, stream loops).
-
-### LLM integration — `Igniter::LLM`
-
-LLM compute nodes with provider failover, tool-use auto-loop, structured output,
-feedback refinement, and audio transcription.
-
-Providers: Ollama · Anthropic · OpenAI (+ compatible: Groq, Mistral, Azure).
-
-### Tool system — `Igniter::Tool` / `Igniter::Skill`
-
-- `Tool < Executor` — atomic operation with schema, capability guard, discoverable interface.
-- `Skill < LLM::Executor` — agentic sub-process with its own LLM loop and tool registry.
-- Both register in `Igniter::ToolRegistry` with scope: `:bundled` | `:managed` | `:workspace`.
+`Igniter::Application` is a profile over `Igniter::Server`, not a separate capability
+layer between core and server.
 
 ---
 
 ## Cluster Layer
 
-Activated by `require "igniter/consensus"` and `require "igniter/extensions/mesh"`.
+Activated by `require "igniter/cluster"`.
 
-### `Igniter::Consensus`
+### `Igniter::Cluster::Consensus`
 
 Raft-based cluster coordination.
 
@@ -215,7 +288,7 @@ Raft-based cluster coordination.
 - `Cluster.start` bootstraps the node and connects to peers.
 - Read consistency: `:any` (low-latency) or `:quorum` (strongly consistent).
 
-### `Igniter::Mesh`
+### `Igniter::Cluster::Mesh`
 
 Gossip-based peer discovery.
 
@@ -224,10 +297,19 @@ Gossip-based peer discovery.
 - Kubernetes health probes (`/v1/healthz`, `/v1/readyz`).
 - Node metadata propagation (available contracts, version, load).
 
-### `Igniter::Replication`
+### `Igniter::Cluster::Replication`
 
 Distributed execution state replication across nodes so any node can
 continue a distributed workflow after a peer failure.
+
+---
+
+## Plugin Layer
+
+Framework-specific integrations live under `Igniter::Plugins`.
+
+- `Igniter::Plugins::Rails`
+- short public entrypoint: `require "igniter/rails"`
 
 ---
 
@@ -254,22 +336,22 @@ Primary families:
 
 | File | Layer | Purpose |
 |------|-------|---------|
-| `lib/igniter/contract.rb` | Core | Contract class — define, compile, execute |
-| `lib/igniter/dsl/contract_builder.rb` | Core | All DSL keywords |
-| `lib/igniter/compiler/graph_compiler.rb` | Core | Compilation orchestrator |
-| `lib/igniter/compiler/compiled_graph.rb` | Core | Frozen compiled graph |
-| `lib/igniter/runtime/execution.rb` | Core | Execution lifecycle |
-| `lib/igniter/runtime/resolver.rb` | Core | Node resolution (TTL cache, coalescing) |
-| `lib/igniter/type_system.rb` | Core | Type validation |
-| `lib/igniter/errors.rb` | Core | Error hierarchy |
+| `lib/igniter/core/contract.rb` | Core | Contract class — define, compile, execute |
+| `lib/igniter/core/dsl/contract_builder.rb` | Core | All DSL keywords |
+| `lib/igniter/core/compiler/graph_compiler.rb` | Core | Compilation orchestrator |
+| `lib/igniter/core/compiler/compiled_graph.rb` | Core | Frozen compiled graph |
+| `lib/igniter/core/runtime/execution.rb` | Core | Execution lifecycle |
+| `lib/igniter/core/runtime/resolver.rb` | Core | Node resolution (TTL cache, coalescing) |
+| `lib/igniter/core/type_system.rb` | Core | Type validation |
+| `lib/igniter/core/errors.rb` | Core | Error hierarchy |
 | `lib/igniter/server/rack_app.rb` | Server | HTTP request handling |
-| `lib/igniter/application.rb` | Server | Application scaffold entry point |
-| `lib/igniter/agent.rb` | Server | Actor agent base class |
-| `lib/igniter/tool.rb` | Server | Tool base class |
-| `lib/igniter/skill.rb` | Server | Skill base class |
-| `lib/igniter/integrations/llm.rb` | Server | LLM integration entry point |
-| `lib/igniter/consensus/cluster.rb` | Cluster | Raft cluster bootstrap |
-| `lib/igniter/mesh/gossip.rb` | Cluster | Gossip peer exchange |
+| `lib/igniter/application.rb` | Application | Application scaffold entry point |
+| `lib/igniter/core/agent.rb` | Core | Actor agent base class entry point |
+| `lib/igniter/core/tool.rb` | Core | Tool base class entry point |
+| `lib/igniter/ai/skill.rb` | AI | Skill base class |
+| `lib/igniter/ai.rb` | AI | AI integration entry point |
+| `lib/igniter/cluster/consensus/cluster.rb` | Cluster | Raft cluster bootstrap |
+| `lib/igniter/cluster/mesh/gossip.rb` | Cluster | Gossip peer exchange |
 
 ---
 
@@ -294,14 +376,14 @@ require "igniter/extensions/saga"
 # Server: adds the server layer
 require "igniter/server"
 require "igniter/application"
-require "igniter/integrations/llm"
+require "igniter/ai"
 
 # Cluster: adds consensus and mesh on top of server
-require "igniter/consensus"
-require "igniter/extensions/mesh"
+require "igniter/cluster"
+require "igniter/cluster"
 ```
 
-Do **not** `require "igniter/consensus"` in an embedded context — it is a cluster-tier
+Do **not** `require "igniter/cluster"` in an embedded context — it is a cluster-tier
 component with its own operational requirements (quorum, persistent WAL, network ports).
 
 See [`docs/DEPLOYMENT_V1.md`](DEPLOYMENT_V1.md) for full scenario walkthroughs.

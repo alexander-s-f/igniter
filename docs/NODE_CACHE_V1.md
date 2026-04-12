@@ -19,7 +19,7 @@ Both features are opt-in, zero-overhead for unconfigured nodes, and work indepen
 ## Quick Start
 
 ```ruby
-require "igniter/node_cache"
+require "igniter/core/node_cache"
 
 # In-process memory backend (single Ruby process / single Puma worker)
 Igniter.configure do |c|
@@ -252,7 +252,7 @@ Equivalent to `run_with(runner: :thread_pool, max_workers: 4)`. Accepts `pool_si
 
 ```ruby
 require "igniter"
-require "igniter/node_cache"
+require "igniter/core/node_cache"
 
 Igniter.configure do |c|
   c.node_cache      = Igniter::NodeCache::Memory.new
@@ -315,10 +315,10 @@ end
 
 | File | Purpose |
 |------|---------|
-| `lib/igniter/node_cache.rb` | `CacheKey`, `Memory`, `CoalescingLock`, `Fingerprinter` |
-| `lib/igniter/fingerprint.rb` | `Igniter::Fingerprint` mixin |
-| `lib/igniter/model/compute_node.rb` | `cache_ttl`, `coalesce?` readers |
-| `lib/igniter/runtime/resolver.rb` | TTL cache + coalescing hooks in `resolve_compute` |
+| `lib/igniter/core/node_cache.rb` | `CacheKey`, `Memory`, `CoalescingLock`, `Fingerprinter` |
+| `lib/igniter/core/fingerprint.rb` | `Igniter::Fingerprint` mixin |
+| `lib/igniter/core/model/compute_node.rb` | `cache_ttl`, `coalesce?` readers |
+| `lib/igniter/core/runtime/resolver.rb` | TTL cache + coalescing hooks in `resolve_compute` |
 | `lib/igniter.rb` | `node_cache=`, `node_coalescing=` in configure API |
 | `spec/igniter/node_cache_spec.rb` | 42 examples |
 | `examples/elocal_webhook.rb` | Real-world usage — eLocal auction webhook migration |

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/tool"
+require "igniter/core/tool"
 
 module Companion
   # Returns current weather for a location.

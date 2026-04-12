@@ -8,8 +8,9 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - declarative routing (`branch`) and fan-out (`collection`)
 - distributed workflows: `await` events across process boundaries
 - multi-node deployments via `igniter-server` and the `remote:` DSL
-- LLM compute nodes with Ollama, Anthropic, and OpenAI providers
-- Rails integration: ActiveJob, ActionCable, webhook handlers, generators
+- AI compute nodes with Ollama, Anthropic, and OpenAI providers
+- transport-neutral communication adapters via `Igniter::Channels`
+- Rails plugin: ActiveJob, ActionCable, webhook handlers, generators
 - runtime auditing, diagnostics reports, and reactive side effects
 - graph and runtime introspection (text, Mermaid)
 - ergonomic DSL helpers: `const`, `lookup`, `map`, `project`, `aggregate`, `guard`, `export`, `expose`, `effect`, `on_success`, `scope`, `namespace`
@@ -24,6 +25,35 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 gem "igniter"
 ```
 
+## Loading Conventions
+
+`Igniter` now uses explicit layer entrypoints. The root `lib/igniter/` directory is
+reserved for top-level layer modules, while substantive implementation lives under
+layer folders.
+
+| What you want | Require |
+|---------------|---------|
+| Contract DSL, model, compiler, runtime | `require "igniter"` |
+| Actor runtime and tool foundation | `require "igniter/core"` |
+| Specific core features | `require "igniter/core/tool"`, `require "igniter/core/memory"`, `require "igniter/core/temporal"` |
+| Behavioral extensions | `require "igniter/extensions/auditing"`, `require "igniter/extensions/capabilities"` |
+| AI providers, skills, transcription | `require "igniter/ai"` |
+| Communication transports | `require "igniter/channels"` |
+| HTTP hosting | `require "igniter/server"` |
+| Opinionated app profile | `require "igniter/application"` |
+| Distributed runtime | `require "igniter/cluster"` |
+| Rails plugin | `require "igniter/rails"` |
+
+## Terminology
+
+- **Core**: the hard foundation loaded through `require "igniter"` and `require "igniter/core/*"`.
+- **Core features**: focused building blocks that still belong to core, such as tools, memory, metrics, temporal support, and caches.
+- **Extensions**: opt-in behavioral add-ons loaded from `igniter/extensions/*`.
+- **Capability layers**: optional subsystems such as `Igniter::AI` and `Igniter::Channels`.
+- **Hosting layers**: `Igniter::Server` and `Igniter::Cluster`.
+- **Profile**: `Igniter::Application`, a packaged way to assemble and run an app on top of `Server`.
+- **Plugin**: framework-specific integration such as `Igniter::Rails`.
+
 ## Deployment Modes
 
 Igniter scales from a single `require` to a multi-node cluster. Each mode is a strict
@@ -33,7 +63,7 @@ superset of the one before it — your domain contracts never change.
 |------|----------|-------------|
 | **Embedded** | Add to Rails / Sidekiq / plain Ruby | `require "igniter"` |
 | **App Server** | Standalone HTTP service, single machine | `igniter-server new my_app` |
-| **Cluster** | Multi-node with Raft consensus + gossip mesh | `require "igniter/consensus"` |
+| **Cluster** | Multi-node with Raft consensus + gossip mesh | `require "igniter/cluster"` |
 
 See [`docs/DEPLOYMENT_V1.md`](docs/DEPLOYMENT_V1.md) for detailed setup instructions for each scenario and the gem separation roadmap.
 
@@ -82,8 +112,8 @@ contract.diagnostics_text     # compact execution summary
 - **Collection**: declarative fan-out — run one child contract per item in an array.
 - **Distributed workflows**: `await` external events; resume via `deliver_event`.
 - **igniter-server**: host contracts as a TCP/Rack HTTP service; call remote contracts with the `remote:` DSL.
-- **LLM integration**: compute nodes powered by Ollama, Anthropic, or OpenAI providers.
-- **Rails integration**: Railtie, ActiveJob base class, ActionCable adapter, webhook controller mixin.
+- **AI layer**: compute nodes powered by Ollama, Anthropic, or OpenAI providers.
+- **Rails plugin**: Railtie, ActiveJob base class, ActionCable adapter, webhook controller mixin.
 - **Auditing**: collect execution timelines and snapshots.
 - **Diagnostics**: compact text, Markdown, or structured reports for triage.
 - **Reactive**: subscribe declaratively to runtime events with `effect`, `on_success`, `on_failure`.
@@ -420,14 +450,14 @@ Use language models as first-class compute nodes. Supported providers: Ollama (l
 Anthropic (Claude), OpenAI (and compatible APIs: Groq, Mistral, Azure OpenAI):
 
 ```ruby
-require "igniter/integrations/llm"
+require "igniter/ai"
 
-Igniter::LLM.configure do |c|
+Igniter::AI.configure do |c|
   c.default_provider = :anthropic
   c.anthropic.api_key = ENV["ANTHROPIC_API_KEY"]
 end
 
-class ClassifyExecutor < Igniter::LLM::Executor
+class ClassifyExecutor < Igniter::AI::Executor
   provider :anthropic
   model    "claude-haiku-4-5-20251001"
   system_prompt "Classify feedback into: bug_report, feature_request, question."
@@ -437,7 +467,7 @@ class ClassifyExecutor < Igniter::LLM::Executor
   end
 end
 
-class DraftResponseExecutor < Igniter::LLM::Executor
+class DraftResponseExecutor < Igniter::AI::Executor
   provider :anthropic
   model    "claude-haiku-4-5-20251001"
   system_prompt "You are a customer success agent. Write one professional response sentence."
@@ -463,7 +493,7 @@ end
 Multi-step reasoning with conversation history:
 
 ```ruby
-class MultiStepExecutor < Igniter::LLM::Executor
+class MultiStepExecutor < Igniter::AI::Executor
   def call(text:, prior_analysis:)
     ctx = Context.empty(system: self.class.system_prompt)
       .append_user("Initial: #{text}")
@@ -535,7 +565,7 @@ Declare what external resources an executor needs, then deny specific capabiliti
 policy level — without touching the executors themselves:
 
 ```ruby
-require "igniter/capabilities"
+require "igniter/extensions/capabilities"
 
 class DbLookup < Igniter::Executor
   capabilities :database
@@ -569,7 +599,7 @@ See [`docs/CAPABILITIES_V1.md`](docs/CAPABILITIES_V1.md).
 Make time an explicit input so every execution is fully reproducible:
 
 ```ruby
-require "igniter/temporal"
+require "igniter/core/temporal"
 
 class TaxRateContract < Igniter::Contract
   include Igniter::Temporal
@@ -690,6 +720,7 @@ See [`docs/DATAFLOW_V1.md`](docs/DATAFLOW_V1.md).
 
 ## Design Docs
 
+- [Architecture Index](docs/ARCHITECTURE_INDEX.md)
 - [Deployment Scenarios v1](docs/DEPLOYMENT_V1.md)
 - [Architecture v2](docs/ARCHITECTURE_V2.md)
 - [Execution Model v2](docs/EXECUTION_MODEL_V2.md)
@@ -726,8 +757,8 @@ Current feature baseline:
 - composition, branch, collection, guard, scope / namespace
 - distributed workflows: `await`, `correlate_by`, `start`, `deliver_event`
 - igniter-server: TCP server, Rack adapter, CLI, `remote:` DSL
-- LLM compute nodes: Ollama, Anthropic, OpenAI providers
-- Rails integration: Railtie, ActiveJob, ActionCable, webhook controller mixin
+- AI layer: Ollama, Anthropic, OpenAI providers
+- Rails plugin: Railtie, ActiveJob, ActionCable, webhook controller mixin
 - `Igniter::Application`: YAML config, autoloading, scheduler, generator (`igniter-server new`)
 - auditing, diagnostics, reactive subscriptions, graph introspection
 - capability-based security: `capabilities`, `pure`, `Policy`, `CapabilityViolationError`

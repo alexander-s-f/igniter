@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/server"
+require_relative "server"
 require_relative "application/app_config"
 require_relative "application/yml_loader"
 require_relative "application/autoloader"

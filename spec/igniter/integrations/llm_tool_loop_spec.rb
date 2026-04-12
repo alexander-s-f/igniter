@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "igniter/integrations/llm"
-require "igniter/tool"
+require "igniter/ai"
+require "igniter/core/tool"
 
-RSpec.describe "Igniter::LLM tool-use loop" do
+RSpec.describe "Igniter::AI tool-use loop" do
   # ── Fixtures ──────────────────────────────────────────────────────────────────
 
   let(:calculator_tool) do
@@ -57,7 +57,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
     responses = responses_block ? responses_block.call : []
     provider  = mock_provider.new(responses)
 
-    Class.new(Igniter::LLM::Executor) do
+    Class.new(Igniter::AI::Executor) do
       tools(*tool_classes) unless tool_classes.empty?
       capabilities(*capabilities) unless capabilities.empty?
       max_tool_iterations max_iters
@@ -90,7 +90,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       provider = mock_provider.new([
                                      { role: :assistant, content: "Hello!", tool_calls: [] }
                                    ])
-      executor_class = Class.new(Igniter::LLM::Executor) do
+      executor_class = Class.new(Igniter::AI::Executor) do
         define_method(:provider_instance) { provider }
         define_singleton_method(:provider) { :mock }
         define_singleton_method(:model)    { "mock-model" }
@@ -117,7 +117,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       ]
       provider = mock_provider.new(provider_responses)
 
-      executor_class = Class.new(Igniter::LLM::Executor) do
+      executor_class = Class.new(Igniter::AI::Executor) do
         tools(Class.new(Igniter::Tool) do
           def self.name = "Calculator"
           description "Math"
@@ -153,7 +153,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       ]
       provider = mock_provider.new(provider_responses)
 
-      executor_class = Class.new(Igniter::LLM::Executor) do
+      executor_class = Class.new(Igniter::AI::Executor) do
         tools calc
         define_method(:provider_instance) { provider }
         define_singleton_method(:provider) { :mock }
@@ -182,7 +182,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
                                      { role: :assistant, content: "done", tool_calls: [] }
                                    ])
 
-      executor_class = Class.new(Igniter::LLM::Executor) do
+      executor_class = Class.new(Igniter::AI::Executor) do
         tools calc
         define_method(:provider_instance) { provider }
         define_singleton_method(:provider) { :mock }
@@ -216,7 +216,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       ]
       provider = mock_provider.new(provider_responses)
 
-      executor_class = Class.new(Igniter::LLM::Executor) do
+      executor_class = Class.new(Igniter::AI::Executor) do
         tools calc
         define_method(:provider_instance) { provider }
         define_singleton_method(:provider) { :mock }
@@ -252,7 +252,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       }
       provider = mock_provider.new(Array.new(5, infinite_response))
 
-      executor_class = Class.new(Igniter::LLM::Executor) do
+      executor_class = Class.new(Igniter::AI::Executor) do
         tools calc
         max_tool_iterations 3
         define_method(:provider_instance) { provider }
@@ -261,7 +261,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       end
 
       expect { executor_class.new.send(:complete, "loop") }
-        .to raise_error(Igniter::LLM::ToolLoopError, /max_tool_iterations.*3/)
+        .to raise_error(Igniter::AI::ToolLoopError, /max_tool_iterations.*3/)
     end
   end
 
@@ -286,7 +286,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       ]
       provider = mock_provider.new(provider_responses)
 
-      executor_class = Class.new(Igniter::LLM::Executor) do
+      executor_class = Class.new(Igniter::AI::Executor) do
         tools restricted
         # declared_capabilities is empty — :secret_cap not included
         define_method(:provider_instance) { provider }
@@ -317,7 +317,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       ]
       provider = mock_provider.new(provider_responses)
 
-      executor_class = Class.new(Igniter::LLM::Executor) do
+      executor_class = Class.new(Igniter::AI::Executor) do
         tools guarded
         capabilities :special_cap
         define_method(:provider_instance) { provider }
@@ -350,7 +350,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
       ]
       provider = mock_provider.new(provider_responses)
 
-      executor_class = Class.new(Igniter::LLM::Executor) do
+      executor_class = Class.new(Igniter::AI::Executor) do
         tools calc
         define_method(:provider_instance) { provider }
         define_singleton_method(:provider) { :mock }
@@ -370,12 +370,12 @@ RSpec.describe "Igniter::LLM tool-use loop" do
 
   describe "max_tool_iterations DSL" do
     it "defaults to 10" do
-      klass = Class.new(Igniter::LLM::Executor)
+      klass = Class.new(Igniter::AI::Executor)
       expect(klass.max_tool_iterations).to eq(10)
     end
 
     it "is inherited" do
-      parent = Class.new(Igniter::LLM::Executor) { max_tool_iterations 5 }
+      parent = Class.new(Igniter::AI::Executor) { max_tool_iterations 5 }
       child  = Class.new(parent)
       expect(child.max_tool_iterations).to eq(5)
     end
@@ -393,12 +393,12 @@ RSpec.describe "Igniter::LLM tool-use loop" do
         attr_reader :last_usage
 
         def initialize = (@last_usage = { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 }.freeze)
-        def chat(**) = raise Igniter::LLM::ProviderError, "Connection refused"
+        def chat(**) = raise Igniter::AI::ProviderError, "Connection refused"
       end
     end
 
     def build_failover_executor(primary_prov, fallback_providers, providers_map)
-      Class.new(Igniter::LLM::Executor) do
+      Class.new(Igniter::AI::Executor) do
         provider primary_prov, fallback: fallback_providers
         model "primary-model", fallback: fallback_providers.map { |p| "#{p}-model" }
 
@@ -411,25 +411,25 @@ RSpec.describe "Igniter::LLM tool-use loop" do
 
     describe ".provider_chain" do
       it "returns [primary] when no fallback given" do
-        klass = Class.new(Igniter::LLM::Executor) { provider :anthropic }
+        klass = Class.new(Igniter::AI::Executor) { provider :anthropic }
         expect(klass.provider_chain).to eq(%i[anthropic])
       end
 
       it "includes fallback providers" do
-        klass = Class.new(Igniter::LLM::Executor) do
+        klass = Class.new(Igniter::AI::Executor) do
           provider :anthropic, fallback: %i[openai ollama]
         end
         expect(klass.provider_chain).to eq(%i[anthropic openai ollama])
       end
 
       it "is copied to subclasses" do
-        parent = Class.new(Igniter::LLM::Executor) { provider :anthropic, fallback: [:openai] }
+        parent = Class.new(Igniter::AI::Executor) { provider :anthropic, fallback: [:openai] }
         child  = Class.new(parent)
         expect(child.provider_chain).to eq(%i[anthropic openai])
       end
 
       it "child can override without mutating parent" do
-        parent = Class.new(Igniter::LLM::Executor) { provider :anthropic, fallback: [:openai] }
+        parent = Class.new(Igniter::AI::Executor) { provider :anthropic, fallback: [:openai] }
         child  = Class.new(parent) { provider :ollama }
         expect(parent.provider_chain).to eq(%i[anthropic openai])
         expect(child.provider_chain).to eq(%i[ollama])
@@ -438,19 +438,19 @@ RSpec.describe "Igniter::LLM tool-use loop" do
 
     describe ".model_chain" do
       it "returns [primary_model] when no fallback given" do
-        klass = Class.new(Igniter::LLM::Executor) { model "claude-sonnet-4-6" }
+        klass = Class.new(Igniter::AI::Executor) { model "claude-sonnet-4-6" }
         expect(klass.model_chain).to eq(["claude-sonnet-4-6"])
       end
 
       it "includes fallback models" do
-        klass = Class.new(Igniter::LLM::Executor) do
+        klass = Class.new(Igniter::AI::Executor) do
           model "claude-sonnet-4-6", fallback: ["gpt-4o", "llama3.2"]
         end
         expect(klass.model_chain).to eq(["claude-sonnet-4-6", "gpt-4o", "llama3.2"])
       end
 
       it "is copied to subclasses independently" do
-        parent = Class.new(Igniter::LLM::Executor) { model "m1", fallback: ["m2"] }
+        parent = Class.new(Igniter::AI::Executor) { model "m1", fallback: ["m2"] }
         child  = Class.new(parent) { model "m3" }
         expect(parent.model_chain).to eq(%w[m1 m2])
         expect(child.model_chain).to eq(%w[m3])
@@ -463,7 +463,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
           attr_reader :last_usage
 
           def initialize = (@last_usage = {}.freeze)
-          def chat(**) = raise Igniter::LLM::ProviderError, "down"
+          def chat(**) = raise Igniter::AI::ProviderError, "down"
         end
       end
 
@@ -483,7 +483,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
 
       def build_two_provider_executor(failing_class, success_inst)
         providers = { anthropic: failing_class.new, openai: success_inst }
-        Class.new(Igniter::LLM::Executor) do
+        Class.new(Igniter::AI::Executor) do
           provider :anthropic, fallback: [:openai]
           model "claude-sonnet-4-6", fallback: ["gpt-4o"]
 
@@ -516,13 +516,13 @@ RSpec.describe "Igniter::LLM tool-use loop" do
 
       it "raises the last ProviderError when all providers fail" do
         both_failing = { anthropic: failing.new, openai: failing.new }
-        klass = Class.new(Igniter::LLM::Executor) do
+        klass = Class.new(Igniter::AI::Executor) do
           provider :anthropic, fallback: [:openai]
           define_method(:provider_instance) { both_failing[@last_provider] }
           define_singleton_method(:provider) { :anthropic }
           def call(prompt:) = complete(prompt)
         end
-        expect { klass.call(prompt: "x") }.to raise_error(Igniter::LLM::ProviderError)
+        expect { klass.call(prompt: "x") }.to raise_error(Igniter::AI::ProviderError)
       end
 
       it "does NOT catch ConfigurationError (missing API key is a config bug)" do
@@ -530,17 +530,17 @@ RSpec.describe "Igniter::LLM tool-use loop" do
           attr_reader :last_usage
 
           def initialize = (@last_usage = {}.freeze)
-          def chat(**) = raise Igniter::LLM::ConfigurationError, "no api key"
+          def chat(**) = raise Igniter::AI::ConfigurationError, "no api key"
         end
 
         providers = { anthropic: config_error_provider.new }
-        klass = Class.new(Igniter::LLM::Executor) do
+        klass = Class.new(Igniter::AI::Executor) do
           provider :anthropic
           define_method(:provider_instance) { providers[@last_provider] }
           define_singleton_method(:provider) { :anthropic }
           def call(prompt:) = complete(prompt)
         end
-        expect { klass.call(prompt: "x") }.to raise_error(Igniter::LLM::ConfigurationError)
+        expect { klass.call(prompt: "x") }.to raise_error(Igniter::AI::ConfigurationError)
       end
     end
 
@@ -553,7 +553,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
           def chat(**) = { content: "result", tool_calls: [] }
         end.new
 
-        klass = Class.new(Igniter::LLM::Executor) do
+        klass = Class.new(Igniter::AI::Executor) do
           provider :ollama
           define_method(:provider_instance) { succeeds }
           define_singleton_method(:provider) { :ollama }
@@ -574,7 +574,7 @@ RSpec.describe "Igniter::LLM tool-use loop" do
           def chat(**) = { content: "r#{@n = (@n || 0) + 1}", tool_calls: [] }
         end.new
 
-        klass = Class.new(Igniter::LLM::Executor) do
+        klass = Class.new(Igniter::AI::Executor) do
           provider :ollama
           define_method(:provider_instance) { success }
           define_singleton_method(:provider) { :ollama }

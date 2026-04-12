@@ -2,7 +2,7 @@
 
 # examples/consensus.rb
 #
-# Demonstrates Igniter::Consensus — a Raft-inspired consensus cluster.
+# Demonstrates Igniter::Cluster::Consensus — a Raft-inspired consensus cluster.
 #
 # Two APIs are shown:
 #
@@ -10,15 +10,15 @@
 #   Low-level   Raw Igniter::Contract with Consensus executors (BidAuction)
 #
 # The Raft protocol (leader election, log replication, quorum commits) is
-# fully encapsulated inside Igniter::Consensus::Node. Users only interact
+# fully encapsulated inside Igniter::Cluster::Consensus::Node. Users only interact
 # with Cluster and, optionally, a custom StateMachine subclass.
 #
 # Run: bundle exec ruby examples/consensus.rb
 
-require "igniter/consensus"
+require "igniter/cluster"
 
 puts "=" * 62
-puts "  Igniter::Consensus Demo (5-node Raft cluster)"
+puts "  Igniter::Cluster::Consensus Demo (5-node Raft cluster)"
 puts "=" * 62
 
 NODES = %i[n1 n2 n3 n4 n5].freeze
@@ -28,7 +28,7 @@ NODES = %i[n1 n2 n3 n4 n5].freeze
 # ─────────────────────────────────────────────────────────────────────────────
 puts "\n[1] Starting #{NODES.size}-node cluster"
 
-cluster = Igniter::Consensus::Cluster.start(nodes: NODES)
+cluster = Igniter::Cluster::Consensus::Cluster.start(nodes: NODES)
 puts "  Nodes: #{NODES.join(", ")}"
 puts "  Quorum needed: #{cluster.quorum_size}/#{NODES.size}"
 
@@ -82,7 +82,7 @@ Igniter::Registry.find(old_leader_id)&.kill
 Igniter::Registry.unregister(old_leader_id)
 
 surviving_ids = NODES.reject { |n| n == old_leader_id }
-surviving = Igniter::Consensus::Cluster.new(nodes: surviving_ids)
+surviving = Igniter::Cluster::Consensus::Cluster.new(nodes: surviving_ids)
 
 puts "  Waiting for new election..."
 new_leader_ref = surviving.wait_for_leader
@@ -105,7 +105,7 @@ puts "  :price after failover = #{q2.result.value}"
 # ─────────────────────────────────────────────────────────────────────────────
 puts "\n[8] Custom state machine (counter)"
 
-class CounterMachine < Igniter::Consensus::StateMachine
+class CounterMachine < Igniter::Cluster::Consensus::StateMachine
   apply :increment do |state, cmd|
     state.merge(cmd[:key] => (state[cmd[:key]] || 0) + cmd[:by])
   end
@@ -114,7 +114,7 @@ class CounterMachine < Igniter::Consensus::StateMachine
   end
 end
 
-counter_cluster = Igniter::Consensus::Cluster.start(
+counter_cluster = Igniter::Cluster::Consensus::Cluster.start(
   nodes: %i[cx1 cx2 cx3],
   state_machine: CounterMachine,
 )
@@ -212,8 +212,8 @@ end
 
 puts "  Surviving: #{minority_ids.join(", ")}  (quorum needs #{cluster.quorum_size}/#{NODES.size})"
 puts "  Waiting — no leader should be elected..."
-sleep Igniter::Consensus::ELECTION_TIMEOUT_BASE +
-      Igniter::Consensus::ELECTION_TIMEOUT_JITTER + 0.3
+sleep Igniter::Cluster::Consensus::ELECTION_TIMEOUT_BASE +
+      Igniter::Cluster::Consensus::ELECTION_TIMEOUT_JITTER + 0.3
 
 minority_roles = minority_ids.map { |n|
   ref = Igniter::Registry.find(n)
@@ -221,7 +221,7 @@ minority_roles = minority_ids.map { |n|
 }
 puts "  States: #{minority_roles.join("  ")}"
 
-minority_cluster = Igniter::Consensus::Cluster.new(nodes: minority_ids)
+minority_cluster = Igniter::Cluster::Consensus::Cluster.new(nodes: minority_ids)
 puts "  ConsensusQuery with #{minority_ids.size}/#{NODES.size} nodes:"
 begin
   minority_cluster.read_contract(key: :price).resolve_all

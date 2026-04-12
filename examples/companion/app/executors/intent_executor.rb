@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/integrations/llm"
+require "igniter/ai"
 
 module Companion
   # Fast intent classification using a small local LLM via Ollama.
@@ -11,7 +11,7 @@ module Companion
   # Config:
   #   INTENT_MODEL — Ollama model name (default: qwen2.5:1.5b)
   #   OLLAMA_URL   — Ollama HTTP URL (default: http://localhost:11434)
-  class IntentExecutor < Igniter::LLM::Executor
+  class IntentExecutor < Igniter::AI::Executor
     VALID_CATEGORIES = %w[question command greeting farewell clarification other].freeze
 
     provider :ollama
@@ -20,7 +20,7 @@ module Companion
     def call(text:)
       return default_intent if text.to_s.strip.empty?
 
-      ctx = Igniter::LLM::Context.empty(system: CLASSIFICATION_SYSTEM_PROMPT)
+      ctx = Igniter::AI::Context.empty(system: CLASSIFICATION_SYSTEM_PROMPT)
       ctx = ctx.append_user(text)
       raw = chat(context: ctx)
       parse_intent(raw)

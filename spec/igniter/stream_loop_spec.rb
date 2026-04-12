@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/integrations/agents"
+require "igniter/core"
 
 RSpec.describe Igniter::StreamLoop do
   let(:simple_contract) do

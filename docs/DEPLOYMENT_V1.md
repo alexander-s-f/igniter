@@ -4,6 +4,23 @@ Igniter is designed to work at three distinct levels of scale. Each level is a s
 of the one below it — you can start with embedded contracts and grow into a full cluster
 without changing your domain logic.
 
+## Loading Rules
+
+Use the smallest entrypoint that matches the deployment mode:
+
+| Need | Require |
+|------|---------|
+| Core contracts and runtime | `require "igniter"` |
+| Actor / tool foundation | `require "igniter/core"` |
+| Specific core features | `require "igniter/core/temporal"`, `require "igniter/core/node_cache"` |
+| Extensions | `require "igniter/extensions/auditing"`, `require "igniter/extensions/capabilities"` |
+| AI | `require "igniter/ai"` |
+| Channels | `require "igniter/channels"` |
+| HTTP hosting | `require "igniter/server"` |
+| App profile | `require "igniter/application"` |
+| Cluster runtime | `require "igniter/cluster"` |
+| Rails plugin | `require "igniter/rails"` |
+
 ---
 
 ## Scenario 1 — Embedded Library
@@ -23,10 +40,13 @@ contracts are called directly by user code. No scaffolding, no server process �
 ### What you get
 
 ```
-model + compiler + dsl + runtime + extensions
+igniter
+  + optional igniter/core/* features
+  + optional igniter/extensions/* behaviors
 ```
 
-No server, no actor system, no HTTP, no Raft. The gem is a pure library.
+No server, no cluster, no HTTP transport. Add `igniter/core/*`, `igniter/extensions/*`,
+`igniter/ai`, or `igniter/channels` only when your app needs them.
 
 ### Structure — entirely up to the user
 
@@ -71,17 +91,17 @@ require "igniter/extensions/saga"           # compensation / rollback
 require "igniter/extensions/provenance"     # data lineage
 require "igniter/extensions/incremental"    # memoization across calls
 require "igniter/extensions/dataflow"       # incremental O(change) collections
-require "igniter/temporal"                  # reproducible historical execution
-require "igniter/capabilities"              # capability-based security
-require "igniter/node_cache"                # TTL cache + request coalescing
-require "igniter/integrations/rails"        # Railtie, ActiveJob, ActionCable, generators
+require "igniter/core/temporal"             # reproducible historical execution
+require "igniter/extensions/capabilities"   # capability-based security
+require "igniter/core/node_cache"           # TTL cache + request coalescing
+require "igniter/rails"                     # Railtie, ActiveJob, ActionCable, generators
 ```
 
-### Rails integration
+### Rails plugin
 
 ```ruby
 # config/initializers/igniter.rb
-require "igniter/integrations/rails"
+require "igniter/rails"
 
 Igniter::Rails.configure do |c|
   c.store = Igniter::Runtime::Stores::MemoryStore.new
@@ -98,8 +118,8 @@ See [`docs/RAILS_INTEGRATION.md`](RAILS_INTEGRATION.md) (TODO) for the full refe
 **Profile:** standalone HTTP service hosting contracts, single node.
 
 Igniter provides a full application scaffold — directory layout, YAML config, autoloading,
-scheduler, HTTP server, actor agents, LLM integration, tool registry — via
-`Igniter::Application` and the `igniter-server` CLI.
+scheduler, and HTTP hosting — via `Igniter::Application` and the `igniter-server` CLI.
+AI, tools, skills, and channels remain opt-in layers that an application can load when needed.
 
 ### When to choose
 
@@ -110,7 +130,9 @@ scheduler, HTTP server, actor agents, LLM integration, tool registry — via
 ### What you get
 
 ```
-core + server + application scaffold + agents + LLM + tools + skills
+igniter + igniter/core + igniter/server + igniter/application
+    + optional igniter/ai
+    + optional igniter/channels
 ```
 
 ### Scaffold
@@ -137,7 +159,7 @@ my_app/
 │   ├── executors/          # Igniter::Executor subclasses
 │   ├── tools/              # Igniter::Tool subclasses (LLM tool registry)
 │   ├── agents/             # Igniter::Agent subclasses (actor system)
-│   └── skills/             # Igniter::Skill subclasses (agentic LLM sub-processes)
+│   └── skills/             # Igniter::AI::Skill subclasses (agentic LLM sub-processes)
 └── spec/
     ├── spec_helper.rb
     └── *_spec.rb
@@ -148,6 +170,8 @@ my_app/
 ```ruby
 # application.rb
 require "igniter/application"
+require "igniter/core"
+require "igniter/ai"
 
 class MyApp < Igniter::Application
   config_file "application.yml"
@@ -161,7 +185,7 @@ class MyApp < Igniter::Application
   on_boot do
     # Runs after autoloading, before server starts.
     # Safe to reference autoloaded constants here.
-    Igniter::LLM.configure do |c|
+    Igniter::AI.configure do |c|
       c.default_provider = :anthropic
       c.anthropic.api_key = ENV["ANTHROPIC_API_KEY"]
     end
@@ -214,11 +238,11 @@ and distributed contract routing.
 
 Each node runs Scenario 2 (application server), plus the cluster layer adds:
 
-- **Consensus** (`Igniter::Consensus`) — Raft-based leader election, distributed state machines,
+- **Consensus** (`Igniter::Cluster::Consensus`) — Raft-based leader election, distributed state machines,
   strongly consistent reads and writes.
-- **Mesh** (`Igniter::Mesh`) — gossip-based peer discovery, Prometheus SD, K8s health probes,
+- **Mesh** (`Igniter::Cluster::Mesh`) — gossip-based peer discovery, Prometheus SD, K8s health probes,
   node metadata propagation.
-- **Replication** (`Igniter::Replication`) — contract execution state replicated across nodes;
+- **Replication** (`Igniter::Cluster::Replication`) — contract execution state replicated across nodes;
   any node can continue a distributed workflow after a peer failure.
 - **Remote contracts** — the `remote:` DSL transparently calls contracts on peer nodes.
 
@@ -232,10 +256,10 @@ Each node runs Scenario 2 (application server), plus the cluster layer adds:
 ### What you get
 
 ```
-core + server + agents + LLM + tools + skills
-    + consensus (Raft cluster)
-    + mesh (gossip discovery)
-    + replication (distributed state)
+igniter + igniter/core + igniter/server + igniter/cluster
+    + optional igniter/application
+    + optional igniter/ai
+    + optional igniter/channels
 ```
 
 ### Topology example — 3-node cluster
@@ -259,8 +283,8 @@ core + server + agents + LLM + tools + skills
 
 ```ruby
 # application.rb (same on every node)
-require "igniter/consensus"
-require "igniter/extensions/mesh"
+require "igniter/application"
+require "igniter/cluster"
 
 class ClusterApp < Igniter::Application
   config_file "application.yml"
@@ -268,13 +292,13 @@ class ClusterApp < Igniter::Application
   contracts_path "app/contracts"
 
   on_boot do
-    cluster = Igniter::Consensus::Cluster.start(
+    cluster = Igniter::Cluster::Consensus::Cluster.start(
       node_id:   ENV.fetch("NODE_ID"),
       peers:     ENV.fetch("PEERS").split(","),
       store:     Igniter::Runtime::Stores::MemoryStore.new
     )
 
-    Igniter::Mesh.configure do |c|
+    Igniter::Cluster::Mesh.configure do |c|
       c.node_id  = ENV.fetch("NODE_ID")
       c.peers    = cluster.peer_addresses
       c.metadata = { contracts: %w[OrderContract PricingContract] }
@@ -345,31 +369,37 @@ and [`examples/mesh.rb`](../examples/mesh.rb).
 
 ## Gem Layer Roadmap
 
-The current gem ships all three layers as one package with optional-require boundaries.
-The planned gem separation mirrors the deployment hierarchy:
+The current gem ships all layers in one package with explicit load boundaries.
+The planned gem separation mirrors the same architecture:
 
 ```
-igniter               # core library — model, compiler, dsl, runtime, extensions
-  └─ igniter-server   # application server — http, agents, llm, tools, scaffold, CLI
-       └─ igniter-cluster   # distributed layer — consensus, mesh, replication
+igniter               # core + extensions
+  ├─ igniter-ai       # AI capability layer
+  ├─ igniter-channels # transport capability layer
+  ├─ igniter-server   # hosting layer + transport for remote execution
+  └─ igniter-cluster  # distributed hosting layer
 ```
 
 Benefits of separation:
 
 - Embedded users don't pull in Raft and HTTP server code.
+- Capability layers can evolve on their own cadence.
 - Each tier has its own version cycle.
 - The `igniter-server` binary lives in the correct gem.
 - Dependencies are explicit rather than load-time optional.
 
 Until the split is complete, the optional-require pattern enforces the same boundaries:
 
-| Tier | What to require |
+| Layer | What to require |
 |------|----------------|
 | Core | `require "igniter"` |
-| Extensions | `require "igniter/extensions/saga"` etc. |
-| Server | `require "igniter/server"` / `require "igniter/application"` |
-| Agents / LLM | `require "igniter/integrations/agents"` / `"igniter/integrations/llm"` |
-| Cluster | `require "igniter/consensus"` / `require "igniter/extensions/mesh"` |
+| Core features | `require "igniter/core"` or `require "igniter/core/<feature>"` |
+| Extensions | `require "igniter/extensions/<feature>"` |
+| Capability layers | `require "igniter/ai"` / `require "igniter/channels"` |
+| Hosting profile | `require "igniter/application"` |
+| Hosting layer | `require "igniter/server"` |
+| Distributed hosting | `require "igniter/cluster"` |
+| Plugin | `require "igniter/rails"` |
 
-Never `require "igniter/consensus"` in an embedded context —
+Never `require "igniter/cluster"` in an embedded context —
 it is a cluster-tier component with its own operational requirements.

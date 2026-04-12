@@ -5,7 +5,7 @@ module Igniter
     module Handlers
       # Returns a JSON manifest describing this peer: its name, advertised
       # capabilities, registered contracts, and its base URL.
-      # Used by Igniter::Mesh::Router health-probing and peer discovery.
+      # Used by Igniter::Cluster::Mesh::Router health-probing and peer discovery.
       class ManifestHandler < Base
         def initialize(registry, store, config: nil)
           super(registry, store)

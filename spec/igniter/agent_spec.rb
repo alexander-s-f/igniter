@@ -2,7 +2,7 @@
 
 require "spec_helper"
 require "timeout"
-require "igniter/integrations/agents"
+require "igniter/core"
 
 RSpec.describe Igniter::Agent do
   # Helper: wait until condition is true or timeout

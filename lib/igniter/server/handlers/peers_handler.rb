@@ -11,10 +11,10 @@ module Igniter
         private
 
         def merged_peers
-          return [] unless defined?(Igniter::Mesh)
+          return [] unless defined?(Igniter::Cluster::Mesh)
 
-          static  = Igniter::Mesh.config.peers
-          dynamic = Igniter::Mesh.config.peer_registry.all
+          static  = Igniter::Cluster::Mesh.config.peers
+          dynamic = Igniter::Cluster::Mesh.config.peer_registry.all
           seen    = static.each_with_object({}) { |p, h| h[p.name] = true }
           static + dynamic.reject { |p| seen[p.name] }
         end
@@ -81,7 +81,7 @@ module Igniter
         private
 
         def handle(params:, body:) # rubocop:disable Lint/UnusedMethodArgument, Metrics/AbcSize
-          return json_error("Igniter::Mesh is not loaded", status: 422) unless defined?(Igniter::Mesh)
+          return json_error("Igniter::Cluster::Mesh is not loaded", status: 422) unless defined?(Igniter::Cluster::Mesh)
 
           name = body["name"].to_s.strip
           url  = body["url"].to_s.strip
@@ -89,8 +89,8 @@ module Igniter
           return json_error("url is required",  status: 400) if url.empty?
 
           caps = Array(body["capabilities"]).map(&:to_sym)
-          peer = Igniter::Mesh::Peer.new(name: name, url: url, capabilities: caps)
-          Igniter::Mesh.config.peer_registry.register(peer)
+          peer = Igniter::Cluster::Mesh::Peer.new(name: name, url: url, capabilities: caps)
+          Igniter::Cluster::Mesh.config.peer_registry.register(peer)
 
           json_ok({ "registered" => true, "name" => name })
         end
@@ -102,10 +102,10 @@ module Igniter
         private
 
         def handle(params:, body:) # rubocop:disable Lint/UnusedMethodArgument
-          return json_error("Igniter::Mesh is not loaded", status: 422) unless defined?(Igniter::Mesh)
+          return json_error("Igniter::Cluster::Mesh is not loaded", status: 422) unless defined?(Igniter::Cluster::Mesh)
 
           name = params[:name].to_s
-          Igniter::Mesh.config.peer_registry.unregister(name)
+          Igniter::Cluster::Mesh.config.peer_registry.unregister(name)
 
           json_ok({ "unregistered" => true, "name" => name })
         end

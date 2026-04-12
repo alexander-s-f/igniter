@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/temporal"
+require "igniter/core/temporal"
 
 RSpec.describe Igniter::Temporal do
   # ─── Module inclusion ─────────────────────────────────────────────────────

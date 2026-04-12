@@ -1,11 +1,13 @@
 # Igniter Mesh — Phase 1: Static Mesh
 
 > **Status**: v1 shipped (2026-04)
-> **Require**: `require "igniter/extensions/mesh"`
+> **Require**: `require "igniter/cluster"`
 
 ---
 
 ## Overview
+
+`Igniter::Cluster::Mesh` is part of Igniter's cluster layer.
 
 Igniter Mesh extends the `remote:` DSL with intelligent peer routing. Instead of hard-coding a
 URL for every remote node, contracts can declare their **capability requirements**, and the mesh
@@ -25,11 +27,11 @@ dynamic discovery). Each peer advertises capabilities it can handle. The mesh ro
 ## Quick Start
 
 ```ruby
-require "igniter/extensions/mesh"
+require "igniter/cluster"
 
 # ── 1. Declare the peer topology ─────────────────────────────────────────────
 
-Igniter::Mesh.configure do |c|
+Igniter::Cluster::Mesh.configure do |c|
   c.peer_name          = "api-node"          # this node's identity
   c.local_capabilities = [:api]              # capabilities this node itself provides
 
@@ -85,10 +87,10 @@ end
 
 ## Configuration
 
-### `Igniter::Mesh.configure`
+### `Igniter::Cluster::Mesh.configure`
 
 ```ruby
-Igniter::Mesh.configure do |c|
+Igniter::Cluster::Mesh.configure do |c|
   c.peer_name          = "my-node"           # String — this node's identity in the mesh
   c.local_capabilities = %i[api search]      # Symbols — capabilities this node provides
 
@@ -107,7 +109,7 @@ end
 ### Reset
 
 ```ruby
-Igniter::Mesh.reset!  # clears config + router (useful in tests)
+Igniter::Cluster::Mesh.reset!  # clears config + router (useful in tests)
 ```
 
 ---
@@ -166,8 +168,8 @@ remote :audit_log,
 | Situation | Outcome |
 |-----------|---------|
 | Named peer is alive | Executes normally |
-| Named peer is down | Node becomes **`:failed`** with `Igniter::Mesh::IncidentError` |
-| Named peer is not registered | Node becomes **`:failed`** with `Igniter::Mesh::IncidentError` |
+| Named peer is down | Node becomes **`:failed`** with `Igniter::Cluster::Mesh::IncidentError` |
+| Named peer is not registered | Node becomes **`:failed`** with `Igniter::Cluster::Mesh::IncidentError` |
 
 Use `pinned_to:` for critical side-effects (audit trails, payment processors, authoritative
 records) that must not be load-balanced and must alert an operator when unavailable.
@@ -176,27 +178,27 @@ records) that must not be load-balanced and must alert an operator when unavaila
 
 ## Error Types
 
-### `Igniter::Mesh::DeferredCapabilityError`
+### `Igniter::Cluster::Mesh::DeferredCapabilityError`
 
 Raised internally by `Mesh::Router#find_peer_for` when no alive peer has the requested
 capability. Inherits from `Igniter::PendingDependencyError`, so the runtime's existing
 `rescue PendingDependencyError` branch catches it and transitions the node to `:pending`.
 
 ```ruby
-rescue Igniter::Mesh::DeferredCapabilityError => e
+rescue Igniter::Cluster::Mesh::DeferredCapabilityError => e
   e.capability  # => :orders
   e.message     # => "No alive peer with capability :orders"
 end
 ```
 
-### `Igniter::Mesh::IncidentError`
+### `Igniter::Cluster::Mesh::IncidentError`
 
 Raised internally by `Mesh::Router#resolve_pinned` when the pinned peer is unknown or
 unreachable. Inherits from `Igniter::ResolutionError < StandardError`, so the runtime's
 existing `rescue StandardError` branch catches it and transitions the node to `:failed`.
 
 ```ruby
-rescue Igniter::Mesh::IncidentError => e
+rescue Igniter::Cluster::Mesh::IncidentError => e
   e.peer_name  # => "audit-node"
   e.message    # => "Pinned peer 'audit-node' is unreachable — manual intervention required"
 end
@@ -206,7 +208,7 @@ end
 
 ## Health Routing — `Mesh::Router`
 
-The router is obtained via `Igniter::Mesh.router` (lazy-initialized, thread-safe).
+The router is obtained via `Igniter::Cluster::Mesh.router` (lazy-initialized, thread-safe).
 
 ### Health cache
 
@@ -229,7 +231,7 @@ selection and is never reset, providing even distribution over time.
 ### Manual operations
 
 ```ruby
-router = Igniter::Mesh.router
+router = Igniter::Cluster::Mesh.router
 
 # Expire a peer's health cache entry (e.g. after a known failure)
 router.invalidate_health!("http://orders.internal:4567")
@@ -305,12 +307,12 @@ Compiler::RemoteValidator
           ▼
 Runtime::Resolver#resolve_remote_url(node)
   :static     → node.node_url (unchanged)
-  :capability → Igniter::Mesh.router.find_peer_for(cap, deferred_result)
+  :capability → Igniter::Cluster::Mesh.router.find_peer_for(cap, deferred_result)
                   ✓ alive peer found  → URL → execute via Client
                   ✗ no alive peer     → DeferredCapabilityError
                                         → existing rescue PendingDependencyError
                                         → NodeState(:pending)
-  :pinned     → Igniter::Mesh.router.resolve_pinned(peer_name)
+  :pinned     → Igniter::Cluster::Mesh.router.resolve_pinned(peer_name)
                   ✓ alive             → URL → execute via Client
                   ✗ down / unknown    → IncidentError
                                         → existing rescue StandardError
@@ -353,13 +355,13 @@ rescue chains.
 
 ## Testing
 
-Use `Igniter::Mesh.reset!` in `after` hooks to isolate tests:
+Use `Igniter::Cluster::Mesh.reset!` in `after` hooks to isolate tests:
 
 ```ruby
-require "igniter/extensions/mesh"
+require "igniter/cluster"
 
 RSpec.describe "OrderPipeline" do
-  after { Igniter::Mesh.reset! }
+  after { Igniter::Cluster::Mesh.reset! }
 
   it "resolves via alive peer" do
     # Stub the HTTP client
@@ -370,7 +372,7 @@ RSpec.describe "OrderPipeline" do
     )
     allow(Igniter::Server::Client).to receive(:new).and_return(stub_client)
 
-    Igniter::Mesh.configure do |c|
+    Igniter::Cluster::Mesh.configure do |c|
       c.add_peer "orders-node",
                  url:          "http://orders.internal:4567",
                  capabilities: [:orders]
@@ -387,7 +389,7 @@ RSpec.describe "OrderPipeline" do
       .and_raise(Igniter::Server::Client::ConnectionError, "refused")
     allow(Igniter::Server::Client).to receive(:new).and_return(dead_client)
 
-    Igniter::Mesh.configure do |c|
+    Igniter::Cluster::Mesh.configure do |c|
       c.add_peer "orders-node",
                  url:          "http://orders.internal:4567",
                  capabilities: [:orders]
@@ -430,7 +432,7 @@ stores the known peer list, and exposes it at `GET /v1/mesh/peers`.
 ### Configuration
 
 ```ruby
-Igniter::Mesh.configure do |c|
+Igniter::Cluster::Mesh.configure do |c|
   c.peer_name          = "api-node"
   c.local_url          = "http://api.internal:4567"   # how OTHER peers reach this node
   c.local_capabilities = %i[api]
@@ -442,12 +444,12 @@ Igniter::Mesh.configure do |c|
   c.add_peer "legacy-node", url: "http://legacy.internal:4567", capabilities: %i[billing]
 end
 
-Igniter::Mesh.start_discovery!   # announce + poll + background thread
+Igniter::Cluster::Mesh.start_discovery!   # announce + poll + background thread
 # …on graceful shutdown:
-Igniter::Mesh.stop_discovery!    # deannounce + stop background thread
+Igniter::Cluster::Mesh.stop_discovery!    # deannounce + stop background thread
 ```
 
-### `Igniter::Mesh.start_discovery!`
+### `Igniter::Cluster::Mesh.start_discovery!`
 
 Performs three steps synchronously:
 
@@ -456,9 +458,9 @@ Performs three steps synchronously:
    the local `PeerRegistry` with newly discovered peers.
 3. **Background poller** — starts a thread that repeats the poll every `discovery_interval` seconds.
 
-Returns `Igniter::Mesh` (chainable).
+Returns `Igniter::Cluster::Mesh` (chainable).
 
-### `Igniter::Mesh.stop_discovery!`
+### `Igniter::Cluster::Mesh.stop_discovery!`
 
 1. **Deannounce** — sends `DELETE /v1/mesh/peers/:name` to each seed (best-effort).
 2. Stops the background polling thread.
@@ -495,12 +497,12 @@ The `Router` and `GET /v1/mesh/peers` both merge static and dynamic peers:
 ### `PeerRegistry`
 
 Thread-safe registry for dynamically discovered peers. Available at
-`Igniter::Mesh.config.peer_registry`:
+`Igniter::Cluster::Mesh.config.peer_registry`:
 
 ```ruby
-reg = Igniter::Mesh.config.peer_registry
+reg = Igniter::Cluster::Mesh.config.peer_registry
 
-reg.register(Igniter::Mesh::Peer.new(name: "x", url: "http://x:4567", capabilities: [:orders]))
+reg.register(Igniter::Cluster::Mesh::Peer.new(name: "x", url: "http://x:4567", capabilities: [:orders]))
 reg.unregister("x")         # idempotent
 reg.all                     # → Array<Peer> snapshot
 reg.peer_named("x")         # → Peer | nil
@@ -527,7 +529,7 @@ client.unregister_peer("api-node")
 
 ```
 Node A starts:
-  Igniter::Mesh.start_discovery!(seeds: ["http://seed:4567"])
+  Igniter::Cluster::Mesh.start_discovery!(seeds: ["http://seed:4567"])
     → POST /v1/mesh/peers  to seed  (self-announce)
     → GET  /v1/mesh/peers  from seed (immediate poll → fills PeerRegistry)
     → background thread polls seed every 30s
@@ -583,7 +585,7 @@ After ~2 rounds every node has high probability of knowing any new peer.
 ### Configuration
 
 ```ruby
-Igniter::Mesh.configure do |c|
+Igniter::Cluster::Mesh.configure do |c|
   c.peer_name          = "api-node"
   c.local_url          = "http://api.internal:4567"
   c.seeds              = %w[http://seed:4567]
@@ -591,7 +593,7 @@ Igniter::Mesh.configure do |c|
   c.gossip_fanout      = 3   # random peers per gossip round (default 3, 0 = disabled)
 end
 
-Igniter::Mesh.start_discovery!
+Igniter::Cluster::Mesh.start_discovery!
 ```
 
 | Option | Default | Description |
@@ -604,7 +606,7 @@ Igniter::Mesh.start_discovery!
 but you can also call it directly (e.g. for a one-off topology refresh):
 
 ```ruby
-Igniter::Mesh::GossipRound.new(Igniter::Mesh.config).run
+Igniter::Cluster::Mesh::GossipRound.new(Igniter::Cluster::Mesh.config).run
 ```
 
 **Behaviour:**

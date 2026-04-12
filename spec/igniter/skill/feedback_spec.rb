@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/skill"
+require "igniter/ai"
 
-RSpec.describe Igniter::Skill::FeedbackEntry do
+RSpec.describe Igniter::AI::Skill::FeedbackEntry do
   let(:entry) do
     described_class.new(
       input: "what is Ruby?",
@@ -27,17 +27,17 @@ RSpec.describe Igniter::Skill::FeedbackEntry do
   end
 end
 
-RSpec.describe Igniter::Skill::FeedbackStore::Memory do
+RSpec.describe Igniter::AI::Skill::FeedbackStore::Memory do
   subject(:store) { described_class.new }
 
   let(:good_entry) do
-    Igniter::Skill::FeedbackEntry.new(
+    Igniter::AI::Skill::FeedbackEntry.new(
       input: "q", output: "a", rating: :good, notes: "nice", timestamp: Time.now
     )
   end
 
   let(:bad_entry) do
-    Igniter::Skill::FeedbackEntry.new(
+    Igniter::AI::Skill::FeedbackEntry.new(
       input: "q2", output: "a2", rating: :bad, notes: "wrong", timestamp: Time.now
     )
   end
@@ -102,7 +102,7 @@ RSpec.describe Igniter::Skill::FeedbackStore::Memory do
   describe "MAX_SIZE cap" do
     it "drops oldest entries when exceeding MAX_SIZE" do
       (described_class::MAX_SIZE + 5).times do |i|
-        store.store(Igniter::Skill::FeedbackEntry.new(
+        store.store(Igniter::AI::Skill::FeedbackEntry.new(
                       input: "q#{i}", output: "a#{i}", rating: :good, timestamp: Time.now
                     ))
       end
@@ -114,7 +114,7 @@ RSpec.describe Igniter::Skill::FeedbackStore::Memory do
     it "handles concurrent stores without data loss" do
       threads = 20.times.map do |i|
         Thread.new do
-          store.store(Igniter::Skill::FeedbackEntry.new(
+          store.store(Igniter::AI::Skill::FeedbackEntry.new(
                         input: "q#{i}", output: "a#{i}", rating: :good, timestamp: Time.now
                       ))
         end
@@ -125,7 +125,7 @@ RSpec.describe Igniter::Skill::FeedbackStore::Memory do
   end
 end
 
-RSpec.describe Igniter::Skill::FeedbackRefiner do
+RSpec.describe Igniter::AI::Skill::FeedbackRefiner do
   let(:mock_provider) do
     Class.new do
       attr_reader :last_usage, :received_messages, :received_model
@@ -146,13 +146,13 @@ RSpec.describe Igniter::Skill::FeedbackRefiner do
   subject(:refiner) { described_class.new(mock_provider, "my-model") }
 
   let(:good_entry) do
-    Igniter::Skill::FeedbackEntry.new(
+    Igniter::AI::Skill::FeedbackEntry.new(
       input: "q", output: "a", rating: :good, notes: "Very helpful", timestamp: Time.now
     )
   end
 
   let(:bad_entry) do
-    Igniter::Skill::FeedbackEntry.new(
+    Igniter::AI::Skill::FeedbackEntry.new(
       input: "q", output: "b", rating: :bad, notes: "Too verbose", timestamp: Time.now
     )
   end
@@ -163,7 +163,7 @@ RSpec.describe Igniter::Skill::FeedbackRefiner do
     end
 
     it "returns the current prompt when all entries have no notes" do
-      no_notes = Igniter::Skill::FeedbackEntry.new(
+      no_notes = Igniter::AI::Skill::FeedbackEntry.new(
         input: "q", output: "a", rating: :bad, notes: nil, timestamp: Time.now
       )
       expect(refiner.refine("original", [no_notes])).to eq("original")
@@ -198,7 +198,7 @@ RSpec.describe Igniter::Skill::FeedbackRefiner do
   end
 end
 
-RSpec.describe Igniter::Skill do
+RSpec.describe Igniter::AI::Skill do
   describe "feedback DSL" do
     let(:skill_class) do
       Class.new(described_class) do
@@ -225,7 +225,7 @@ RSpec.describe Igniter::Skill do
 
     describe ".feedback_store :memory" do
       it "creates a FeedbackStore::Memory instance" do
-        expect(skill_class.feedback_store).to be_a(Igniter::Skill::FeedbackStore::Memory)
+        expect(skill_class.feedback_store).to be_a(Igniter::AI::Skill::FeedbackStore::Memory)
       end
 
       it "is NOT shared with subclasses (each class gets nil)" do
@@ -242,7 +242,7 @@ RSpec.describe Igniter::Skill do
   end
 
   describe "#feedback" do
-    let(:store) { Igniter::Skill::FeedbackStore::Memory.new }
+    let(:store) { Igniter::AI::Skill::FeedbackStore::Memory.new }
 
     let(:skill_class) do
       s = store
@@ -301,8 +301,8 @@ RSpec.describe Igniter::Skill do
     it "delegates to FeedbackRefiner with the provider and model" do
       mock_provider_obj = double("provider", last_usage: {}.freeze,
                                              chat: { content: "better prompt", tool_calls: [] })
-      store = Igniter::Skill::FeedbackStore::Memory.new
-      store.store(Igniter::Skill::FeedbackEntry.new(
+      store = Igniter::AI::Skill::FeedbackStore::Memory.new
+      store.store(Igniter::AI::Skill::FeedbackEntry.new(
                     input: "q", output: "a", rating: :bad, notes: "too long", timestamp: Time.now
                   ))
 

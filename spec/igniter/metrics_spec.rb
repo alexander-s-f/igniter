@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/metrics"
+require "igniter/core/metrics"
 
 RSpec.describe Igniter::Metrics::Collector do
   subject(:collector) { described_class.new }

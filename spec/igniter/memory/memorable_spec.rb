@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/memory"
+require "igniter/core/memory"
 
 RSpec.describe Igniter::Memory::Memorable do
   after { Igniter::Memory.reset! }

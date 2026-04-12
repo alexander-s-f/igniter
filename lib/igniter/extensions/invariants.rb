@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "igniter"
-require "igniter/invariant"
+require_relative "../../igniter"
+require_relative "../core/invariant"
 
 module Igniter
   module Extensions

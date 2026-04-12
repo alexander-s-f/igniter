@@ -2,7 +2,7 @@
 
 require "igniter"
 require "igniter/extensions/invariants"
-require "igniter/property_testing"
+require "igniter/core/property_testing"
 
 G = Igniter::PropertyTesting::Generators
 

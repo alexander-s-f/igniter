@@ -19,9 +19,8 @@ Dir.chdir(root)
 
 require "igniter"
 require "base64"
-require "igniter/tool"
-require "igniter/skill"
-require "igniter/integrations/agents"
+require "igniter/core"
+require "igniter/ai"
 
 # ── Load tools + skills first (executors reference them) ──────────────────────
 Dir[File.join(root, "app/tools/**/*.rb")].sort.each   { |f| require f }
@@ -29,8 +28,8 @@ Dir[File.join(root, "app/skills/**/*.rb")].sort.each  { |f| require f }
 
 # ── Load executors ─────────────────────────────────────────────────────────────
 if ENV["COMPANION_REAL_LLM"]
-  require "igniter/integrations/llm"
-  Igniter::LLM.configure do |c|
+  require "igniter/ai"
+  Igniter::AI.configure do |c|
     c.default_provider = :ollama
     c.ollama.url       = ENV.fetch("OLLAMA_URL", "http://localhost:11434")
   end
@@ -71,7 +70,7 @@ COMPANION_CATALOG = [
 ].freeze
 
 COMPANION_CATALOG.each do |klass|
-  kind   = klass < Igniter::Skill ? "skill" : "tool"
+  kind   = klass < Igniter::AI::Skill ? "skill" : "tool"
   schema = klass.to_schema
   caps   = klass.required_capabilities
   cap_s  = caps.any? ? " (requires: #{caps.join(", ")})" : ""
@@ -115,7 +114,7 @@ Companion::NotesStore.reset!
 
 # ── Section 2: Consensus-backed notes store (optional) ────────────────────────
 if ENV["COMPANION_CONSENSUS"]
-  require "igniter/consensus"
+  require "igniter/cluster"
   require File.join(root, "lib/session_state_machine")
 
   puts
@@ -125,7 +124,7 @@ if ENV["COMPANION_CONSENSUS"]
   puts
   puts "  Starting 3-node Raft cluster with SessionStateMachine..."
 
-  cluster = Igniter::Consensus::Cluster.start(
+  cluster = Igniter::Cluster::Consensus::Cluster.start(
     nodes:         [:companion_1, :companion_2, :companion_3],
     state_machine: Companion::SessionStateMachine,
     verbose:       false

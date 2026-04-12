@@ -19,36 +19,42 @@ This creates:
 
 ```
 my_app/
+├── app/
+│   ├── contracts/       ← Contract subclasses
+│   ├── executors/       ← Executor subclasses
+│   ├── tools/           ← optional Tool subclasses
+│   ├── agents/          ← optional Agent subclasses
+│   └── skills/          ← optional Skill subclasses
+├── lib/                 ← shared libraries / helpers
+├── bin/start            ← convenience start script
+├── bin/demo             ← runnable smoke demo
 ├── application.rb       ← Application class (entry point)
 ├── application.yml      ← base config (port, log_format, etc.)
 ├── Gemfile
 ├── config.ru            ← Rack entry point for Puma / Unicorn
-├── bin/start            ← convenience start script
-├── contracts/           ← put Contract subclasses here
-└── executors/           ← put Executor subclasses here
 ```
 
 ### 2. Define your Application
 
 ```ruby
 # application.rb
-require "igniter"
-require "igniter/server"
 require "igniter/application"
-
-Dir[File.join(__dir__, "executors/**/*.rb")].sort.each { |f| require f }
-Dir[File.join(__dir__, "contracts/**/*.rb")].sort.each { |f| require f }
 
 class MyApp < Igniter::Application
   config_file File.join(__dir__, "application.yml")   # optional
+
+  executors_path "app/executors"
+  contracts_path "app/contracts"
 
   configure do |c|
     c.port  = ENV.fetch("PORT", 4567).to_i
     c.store = Igniter::Runtime::Stores::MemoryStore.new
   end
 
-  register "OrderContract",   OrderContract
-  register "InvoiceContract", InvoiceContract
+  on_boot do
+    register "OrderContract",   OrderContract
+    register "InvoiceContract", InvoiceContract
+  end
 
   schedule :cleanup, every: "1h" do
     puts "[cleanup] #{Time.now.strftime("%H:%M")}"
@@ -61,6 +67,12 @@ end
 
 MyApp.start if $PROGRAM_NAME == __FILE__
 ```
+
+`require "igniter/application"` is the canonical entrypoint. It loads the server layer
+for you, so most applications do not need a separate `require "igniter/server"`.
+
+If your application uses tools or agents, also load `require "igniter/core"`.
+If it uses skills, providers, or `Igniter::AI.configure`, also load `require "igniter/ai"`.
 
 ### 3. Run
 
@@ -104,9 +116,15 @@ end
 Eagerly require all `.rb` files under the given directory on startup.
 
 ```ruby
-executors_path "executors/"
-contracts_path "contracts/"
+executors_path "app/executors"
+contracts_path "app/contracts"
 ```
+
+Related entrypoints:
+
+- `tools_path(path)`
+- `agents_path(path)`
+- `skills_path(path)`
 
 ### `register(name, contract_class)`
 
@@ -196,11 +214,12 @@ Returns the `AppConfig` instance (populated after the first call to `start` or `
 ## Build Order
 
 1. YAML file loaded → values applied to `AppConfig`
-2. `executors_path` / `contracts_path` directories required
-3. `configure` blocks run in declaration order (override YAML)
-4. `Server::Config` built from `AppConfig`
-5. Contracts registered on the server registry
-6. Scheduler started (one thread per job)
+2. `executors_path` / `contracts_path` / `tools_path` / `agents_path` / `skills_path` directories loaded
+3. `on_boot` blocks run
+4. `configure` blocks run in declaration order (override YAML)
+5. `Server::Config` built from `AppConfig`
+6. Contracts registered on the server registry
+7. Scheduler started (one thread per job)
 
 ---
 

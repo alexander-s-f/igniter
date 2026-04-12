@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/capabilities"
+require_relative "../core/capabilities"
 
 # Patches CompiledGraph with capability introspection methods.
 # The Resolver integration is handled via guard-claused hooks in resolver.rb.

@@ -116,10 +116,9 @@ module Igniter
           # frozen_string_literal: true
 
           require "igniter"
+          require "igniter/core"
           require "igniter/server"
           require "igniter/application"
-          require "igniter/tool"
-          require "igniter/integrations/agents"
 
           class #{module_name}App < Igniter::Application
             config_file File.join(__dir__, "application.yml")
@@ -215,8 +214,7 @@ module Igniter
           Dir.chdir(root)
 
           require "igniter"
-          require "igniter/tool"
-          require "igniter/integrations/agents"
+          require "igniter/core"
 
           # Load app code in dependency order
           %w[executors contracts tools agents].each do |dir|
@@ -384,11 +382,11 @@ module Igniter
           # To activate:
           #   1. Add your API key: export ANTHROPIC_API_KEY=sk-ant-...
           #   2. Uncomment the code below.
-          #   3. Add  require "igniter/integrations/llm"  to application.rb.
+          #   3. Add  require "igniter/ai"  to application.rb.
           #
-          # require "igniter/integrations/llm"
+          # require "igniter/ai"
           #
-          # class ConciergeSkill < Igniter::Skill
+          # class ConciergeSkill < Igniter::AI::Skill
           #   description "An AI concierge that greets visitors and answers questions"
           #
           #   param :request, type: :string, required: true, desc: "The visitor's request"

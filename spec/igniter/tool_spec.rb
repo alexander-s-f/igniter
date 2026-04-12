@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "igniter"
-require "igniter/tool"
+require "igniter/core/tool"
 
 RSpec.describe Igniter::Tool do
   # ── Minimal tool fixture ─────────────────────────────────────────────────────

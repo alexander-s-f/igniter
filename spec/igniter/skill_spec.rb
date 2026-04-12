@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/tool"
-require "igniter/skill"
-require "igniter/tool_registry"
+require "igniter/core/tool"
+require "igniter/ai"
 
-RSpec.describe Igniter::Skill do
+RSpec.describe Igniter::AI::Skill do
   # ── Minimal concrete skill (no LLM needed in unit tests) ──────────────────
   let(:greeter_skill) do
     Class.new(described_class) do
@@ -214,23 +213,23 @@ RSpec.describe Igniter::Skill do
     end
 
     it "raises the same CapabilityError via Skill::CapabilityError alias" do
-      expect(Igniter::Skill::CapabilityError).to equal(Igniter::Tool::CapabilityError)
+      expect(Igniter::AI::Skill::CapabilityError).to equal(Igniter::Tool::CapabilityError)
     end
   end
 
   # ── ToolRegistry interop ───────────────────────────────────────────────────
 
   describe "ToolRegistry integration" do
-    before { Igniter::ToolRegistry.clear! }
-    after  { Igniter::ToolRegistry.clear! }
+    before { Igniter::AI::ToolRegistry.clear! }
+    after  { Igniter::AI::ToolRegistry.clear! }
 
     it "registers a Skill alongside a Tool" do
       tool = Class.new(Igniter::Tool) { description "T" }
       skill = Class.new(described_class) { description "S" }
       stub_const("ATool", tool)
       stub_const("ASkill", skill)
-      Igniter::ToolRegistry.register(ATool, ASkill)
-      expect(Igniter::ToolRegistry.size).to eq(2)
+      Igniter::AI::ToolRegistry.register(ATool, ASkill)
+      expect(Igniter::AI::ToolRegistry.size).to eq(2)
     end
 
     it "filters by capabilities (tool and skill mixed)" do
@@ -240,17 +239,17 @@ RSpec.describe Igniter::Skill do
       end
       stub_const("FreeTool", free_tool)
       stub_const("NetSkill", net_skill)
-      Igniter::ToolRegistry.register(FreeTool, NetSkill)
+      Igniter::AI::ToolRegistry.register(FreeTool, NetSkill)
 
-      expect(Igniter::ToolRegistry.tools_for(capabilities: []).map(&:name)).to eq(["FreeTool"])
-      expect(Igniter::ToolRegistry.tools_for(capabilities: [:network]).map(&:name))
+      expect(Igniter::AI::ToolRegistry.tools_for(capabilities: []).map(&:name)).to eq(["FreeTool"])
+      expect(Igniter::AI::ToolRegistry.tools_for(capabilities: [:network]).map(&:name))
         .to contain_exactly("FreeTool", "NetSkill")
     end
 
     it "raises ArgumentError for a non-discoverable class" do
       expect {
-        Igniter::ToolRegistry.register(String)
-      }.to raise_error(ArgumentError, /Igniter::Tool or Igniter::Skill subclass/)
+        Igniter::AI::ToolRegistry.register(String)
+      }.to raise_error(ArgumentError, /Igniter::Tool or Igniter::AI::Skill subclass/)
     end
   end
 
@@ -270,10 +269,10 @@ RSpec.describe Igniter::Skill do
     end
 
     it "Skill and Tool are interchangeable in the tools DSL" do
-      executor = Class.new(Igniter::LLM::Executor) do
+      executor = Class.new(Igniter::AI::Executor) do
         tools(
           Class.new(Igniter::Tool) { description "T" },
-          Class.new(Igniter::Skill) { description "S" }
+          Class.new(Igniter::AI::Skill) { description "S" }
         )
       end
       expect(executor.tools.size).to eq(2)

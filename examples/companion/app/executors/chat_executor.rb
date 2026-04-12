@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-require "igniter/integrations/llm"
-require "igniter/tool"
-require "igniter/skill"
+require "igniter/ai"
+require "igniter/core/tool"
 require_relative "../tools/time_tool"
 require_relative "../tools/weather_tool"
 require_relative "../tools/notes_tool"
@@ -20,7 +19,7 @@ module Companion
   # Config:
   #   CHAT_MODEL  — Ollama model name (default: llama3.1:8b)
   #   OLLAMA_URL  — Ollama HTTP URL  (default: http://localhost:11434)
-  class ChatExecutor < Igniter::LLM::Executor
+  class ChatExecutor < Igniter::AI::Executor
     provider :ollama
     model ENV.fetch("CHAT_MODEL", "llama3.1:8b")
     temperature 0.7
@@ -58,7 +57,7 @@ module Companion
 
     def build_history_context(history, intent)
       system_msg = intent_aware_system(intent)
-      ctx        = Igniter::LLM::Context.empty(system: system_msg)
+      ctx        = Igniter::AI::Context.empty(system: system_msg)
 
       (history || []).last(10).each do |turn|
         role    = (turn[:role]    || turn["role"]).to_s

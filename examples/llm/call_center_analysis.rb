@@ -36,12 +36,12 @@
 
 $LOAD_PATH.unshift File.join(__dir__, "../../lib")
 require "igniter"
-require "igniter/integrations/llm"
+require "igniter/ai"
 require "json"
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 
-Igniter::LLM.configure do |c|
+Igniter::AI.configure do |c|
   # AssemblyAI: cheapest option WITH diarization
   c.assemblyai.api_key = ENV.fetch("ASSEMBLYAI_API_KEY", "demo")
   c.assemblyai.poll_interval = 3   # seconds; the service usually takes 30-60 s
@@ -57,7 +57,7 @@ end
 # Swap `transcription_provider :openai` + `model "gpt-4o-mini-transcribe"`
 # if you don't need speaker labels and want the absolute lowest cost.
 
-class CallTranscriber < Igniter::LLM::Transcriber
+class CallTranscriber < Igniter::AI::Transcriber
   transcription_provider :assemblyai
   # model "universal-2"          # default; or "best" for higher accuracy
   diarize true                   # speaker_labels — identifies Agent vs Customer
@@ -109,7 +109,7 @@ EXTRACTION_SCHEMA = {
   }
 }.freeze
 
-class CallExtractor < Igniter::LLM::Executor
+class CallExtractor < Igniter::AI::Executor
   provider  :openai
   model     "gpt-4o-mini"
 
@@ -266,7 +266,7 @@ module DemoMode
   TEXT
 
   def self.seg(speaker, start_time, end_time, text)
-    Igniter::LLM::Transcription::SpeakerSegment.new(
+    Igniter::AI::Transcription::SpeakerSegment.new(
       speaker: speaker, start_time: start_time, end_time: end_time, text: text
     )
   end
@@ -287,7 +287,7 @@ module DemoMode
       seg("A", 36.7, 41.0,
           "Wonderful, you're all set. Expect a call from our technician the morning of your appointment.")
     ]
-    Igniter::LLM::Transcription::TranscriptResult.new(
+    Igniter::AI::Transcription::TranscriptResult.new(
       text: TRANSCRIPT_TEXT, words: [], speakers: speakers,
       language: "en", duration: 41.0, provider: :assemblyai, model: "universal-2", raw: {}
     )

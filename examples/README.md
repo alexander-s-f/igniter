@@ -280,7 +280,7 @@ Shows:
 
 - chained LLM compute nodes (`classify → assess priority → draft response`)
 - tool declaration with the class-level `tools` method
-- conversation context with `Igniter::LLM::Context` for multi-turn messages
+- conversation context with `Igniter::AI::Context` for multi-turn messages
 - mock provider so the example runs offline without an API key
 
 Expected output shape (with mock provider):

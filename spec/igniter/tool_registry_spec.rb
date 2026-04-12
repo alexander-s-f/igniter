@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "igniter"
-require "igniter/tool_registry"
+require "igniter/ai"
 
-RSpec.describe Igniter::ToolRegistry do
+RSpec.describe Igniter::AI::ToolRegistry do
   # Tool fixtures
   let(:search_tool) do
     Class.new(Igniter::Tool) do
@@ -57,7 +57,7 @@ RSpec.describe Igniter::ToolRegistry do
 
     it "raises ArgumentError for non-Tool classes" do
       expect { described_class.register(String) }
-        .to raise_error(ArgumentError, /must be an Igniter::Tool or Igniter::Skill subclass/)
+        .to raise_error(ArgumentError, /must be an Igniter::Tool or Igniter::AI::Skill subclass/)
     end
 
     it "raises ArgumentError for plain objects" do

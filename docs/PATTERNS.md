@@ -10,7 +10,7 @@ Use this when the flow is a straight dependency chain with no routing or fan-out
 
 Example:
 
-- [basic_pricing.rb](/Users/alex/dev/hotfix/igniter/examples/basic_pricing.rb)
+- [basic_pricing.rb](../examples/basic_pricing.rb)
 
 Use:
 
@@ -42,8 +42,8 @@ Use this when one contract should orchestrate several bounded subgraphs.
 
 Examples:
 
-- [composition.rb](/Users/alex/dev/hotfix/igniter/examples/composition.rb)
-- [ringcentral_routing.rb](/Users/alex/dev/hotfix/igniter/examples/ringcentral_routing.rb)
+- [composition.rb](../examples/composition.rb)
+- [ringcentral_routing.rb](../examples/ringcentral_routing.rb)
 
 Use:
 
@@ -63,7 +63,7 @@ Use this when the graph is still one contract, but a flat node list becomes hard
 
 Example:
 
-- [marketing_ergonomics.rb](/Users/alex/dev/hotfix/igniter/examples/marketing_ergonomics.rb)
+- [marketing_ergonomics.rb](../examples/marketing_ergonomics.rb)
 
 Use:
 
@@ -97,7 +97,7 @@ Use this when control flow depends on a selector value and should stay visible i
 
 Examples:
 
-- [ringcentral_routing.rb](/Users/alex/dev/hotfix/igniter/examples/ringcentral_routing.rb)
+- [ringcentral_routing.rb](../examples/ringcentral_routing.rb)
 
 Use:
 
@@ -132,9 +132,9 @@ Use this when a node should run the same child contract for many item inputs.
 
 Examples:
 
-- [collection.rb](/Users/alex/dev/hotfix/igniter/examples/collection.rb)
-- [collection_partial_failure.rb](/Users/alex/dev/hotfix/igniter/examples/collection_partial_failure.rb)
-- [ringcentral_routing.rb](/Users/alex/dev/hotfix/igniter/examples/ringcentral_routing.rb)
+- [collection.rb](../examples/collection.rb)
+- [collection_partial_failure.rb](../examples/collection_partial_failure.rb)
+- [ringcentral_routing.rb](../examples/ringcentral_routing.rb)
 
 Use:
 
@@ -166,7 +166,7 @@ Use `mode: :collect` when you want item-level failures surfaced, but not promote
 
 Example:
 
-- [collection_partial_failure.rb](/Users/alex/dev/hotfix/igniter/examples/collection_partial_failure.rb)
+- [collection_partial_failure.rb](../examples/collection_partial_failure.rb)
 
 What to read:
 
@@ -188,7 +188,7 @@ Use this when routing chooses a stage, and that stage performs fan-out or per-it
 
 Example:
 
-- [ringcentral_routing.rb](/Users/alex/dev/hotfix/igniter/examples/ringcentral_routing.rb)
+- [ringcentral_routing.rb](../examples/ringcentral_routing.rb)
 
 Observed semantics:
 
@@ -207,7 +207,7 @@ Use this when a node cannot complete immediately and should suspend the executio
 
 Example:
 
-- [async_store.rb](/Users/alex/dev/hotfix/igniter/examples/async_store.rb)
+- [async_store.rb](../examples/async_store.rb)
 
 Use:
 
@@ -347,14 +347,14 @@ Examples:
 Key DSL:
 
 ```ruby
-require "igniter/integrations/llm"
+require "igniter/ai"
 
-Igniter::LLM.configure do |c|
+Igniter::AI.configure do |c|
   c.default_provider = :anthropic
   c.anthropic.api_key = ENV.fetch("ANTHROPIC_API_KEY")
 end
 
-class SummarizeExecutor < Igniter::LLM::Executor
+class SummarizeExecutor < Igniter::AI::Executor
   provider :anthropic
   model    "claude-haiku-4-5-20251001"
   system_prompt "Return a single concise sentence summary."
@@ -375,11 +375,11 @@ end
 ArticleContract.new(text: "Long article...").result.summary
 ```
 
-For multi-turn conversations, use `Igniter::LLM::Context`:
+For multi-turn conversations, use `Igniter::AI::Context`:
 
 ```ruby
 def call(feedback:, category:)
-  ctx = Igniter::LLM::Context
+  ctx = Igniter::AI::Context
     .empty(system: self.class.system_prompt)
     .append_user("Feedback: #{feedback}")
     .append_user("Category: #{category}")
@@ -390,7 +390,7 @@ end
 For tool use (Anthropic function calling), declare tools at the class level:
 
 ```ruby
-class ClassifyExecutor < Igniter::LLM::Executor
+class ClassifyExecutor < Igniter::AI::Executor
   tools({
     name: "set_category",
     description: "Record the detected category",

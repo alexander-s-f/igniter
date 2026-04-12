@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/integrations/llm"
+require "igniter/ai"
 
-RSpec.describe Igniter::LLM::Transcriber do
+RSpec.describe Igniter::AI::Transcriber do
   # ── Shared mock provider ───────────────────────────────────────────────────
 
   def mock_transcription_provider(result)
-    Class.new(Igniter::LLM::Transcription::Providers::Base) do
+    Class.new(Igniter::AI::Transcription::Providers::Base) do
       define_method(:transcribe) { |*_args, **_kw| result }
     end.new
   end
 
   let(:sample_result) do
-    Igniter::LLM::Transcription::TranscriptResult.new(
+    Igniter::AI::Transcription::TranscriptResult.new(
       text: "Добрый день, чем могу помочь?",
       words: [],
       speakers: nil,
@@ -150,7 +150,7 @@ RSpec.describe Igniter::LLM::Transcriber do
       instance.define_singleton_method(:provider_instance) { provider }
 
       result = instance.call(audio_path: "call.mp3")
-      expect(result).to be_a(Igniter::LLM::Transcription::TranscriptResult)
+      expect(result).to be_a(Igniter::AI::Transcription::TranscriptResult)
       expect(result.text).to eq("Добрый день, чем могу помочь?")
       expect(result.language).to eq("ru")
       expect(result.duration).to eq(4.5)
@@ -161,7 +161,7 @@ RSpec.describe Igniter::LLM::Transcriber do
         define_method(:call) { |audio_path:| transcribe(audio_path) }
       end
       expect { klass.call(audio_path: "x.mp3") }
-        .to raise_error(Igniter::LLM::ConfigurationError, /transcription_provider not configured/)
+        .to raise_error(Igniter::AI::ConfigurationError, /transcription_provider not configured/)
     end
   end
 
@@ -177,11 +177,11 @@ RSpec.describe Igniter::LLM::Transcriber do
         received_model = nil
         # Capture let-defined result in a local variable so the define_method
         # proc can reference it regardless of what `self` is at call-time.
-        fixture = Igniter::LLM::Transcription::TranscriptResult.new(
+        fixture = Igniter::AI::Transcription::TranscriptResult.new(
           text: "ok", words: [], speakers: nil, language: nil,
           duration: 1.0, provider: prov, model: expected_model, raw: {}
         )
-        provider_spy = Class.new(Igniter::LLM::Transcription::Providers::Base) do
+        provider_spy = Class.new(Igniter::AI::Transcription::Providers::Base) do
           define_method(:transcribe) do |_src, model:, **_kw|
             received_model = model
             fixture
@@ -196,7 +196,7 @@ RSpec.describe Igniter::LLM::Transcriber do
         allow_any_instance_of(klass).to receive(:provider_instance).and_return(provider_spy)
 
         result = klass.call(audio_path: "audio.wav")
-        expect(result).to be_a(Igniter::LLM::Transcription::TranscriptResult)
+        expect(result).to be_a(Igniter::AI::Transcription::TranscriptResult)
         expect(received_model).to eq(expected_model)
       end
     end
@@ -217,7 +217,7 @@ end
 
 # ── TranscriptResult ──────────────────────────────────────────────────────────
 
-RSpec.describe Igniter::LLM::Transcription::TranscriptResult do
+RSpec.describe Igniter::AI::Transcription::TranscriptResult do
   subject do
     described_class.new(
       text: "Hello world", words: [], speakers: nil,
@@ -238,7 +238,7 @@ RSpec.describe Igniter::LLM::Transcription::TranscriptResult do
   end
 end
 
-RSpec.describe Igniter::LLM::Transcription::TranscriptWord do
+RSpec.describe Igniter::AI::Transcription::TranscriptWord do
   subject do
     described_class.new(word: "hello", start_time: 0.1, end_time: 0.4, confidence: 0.99, speaker: 0)
   end
@@ -257,7 +257,7 @@ RSpec.describe Igniter::LLM::Transcription::TranscriptWord do
   end
 end
 
-RSpec.describe Igniter::LLM::Transcription::SpeakerSegment do
+RSpec.describe Igniter::AI::Transcription::SpeakerSegment do
   subject do
     described_class.new(speaker: 0, start_time: 0.0, end_time: 5.5, text: "Добрый день")
   end
@@ -272,7 +272,7 @@ end
 
 # ── Provider: OpenAI ──────────────────────────────────────────────────────────
 
-RSpec.describe Igniter::LLM::Transcription::Providers::OpenAI do
+RSpec.describe Igniter::AI::Transcription::Providers::OpenAI do
   subject(:provider) { described_class.new(api_key: "test-key") }
 
   describe "#transcribe" do
@@ -295,7 +295,7 @@ RSpec.describe Igniter::LLM::Transcription::Providers::OpenAI do
 
     it "returns a TranscriptResult" do
       result = provider.transcribe("call.mp3", model: "whisper-1")
-      expect(result).to be_a(Igniter::LLM::Transcription::TranscriptResult)
+      expect(result).to be_a(Igniter::AI::Transcription::TranscriptResult)
       expect(result.text).to eq("Hello world")
       expect(result.language).to eq("en")
       expect(result.duration).to eq(3.0)
@@ -321,14 +321,14 @@ RSpec.describe Igniter::LLM::Transcription::Providers::OpenAI do
     it "raises ConfigurationError when api_key is absent" do
       p = described_class.new(api_key: nil)
       expect { p.transcribe("x.mp3", model: "whisper-1") }
-        .to raise_error(Igniter::LLM::ConfigurationError, /OPENAI_API_KEY/)
+        .to raise_error(Igniter::AI::ConfigurationError, /OPENAI_API_KEY/)
     end
   end
 end
 
 # ── Provider: Deepgram ────────────────────────────────────────────────────────
 
-RSpec.describe Igniter::LLM::Transcription::Providers::Deepgram do
+RSpec.describe Igniter::AI::Transcription::Providers::Deepgram do
   subject(:provider) { described_class.new(api_key: "dg-key") }
 
   let(:dg_response) do
@@ -391,13 +391,13 @@ RSpec.describe Igniter::LLM::Transcription::Providers::Deepgram do
   it "raises ConfigurationError when api_key is absent" do
     p = described_class.new(api_key: nil)
     expect { p.transcribe("x.wav", model: "nova-3") }
-      .to raise_error(Igniter::LLM::ConfigurationError, /DEEPGRAM_API_KEY/)
+      .to raise_error(Igniter::AI::ConfigurationError, /DEEPGRAM_API_KEY/)
   end
 end
 
 # ── Provider: AssemblyAI ──────────────────────────────────────────────────────
 
-RSpec.describe Igniter::LLM::Transcription::Providers::AssemblyAI do
+RSpec.describe Igniter::AI::Transcription::Providers::AssemblyAI do
   subject(:provider) { described_class.new(api_key: "aai-key", poll_interval: 0.01, poll_timeout: 5) }
 
   let(:completed_response) do
@@ -451,7 +451,7 @@ RSpec.describe Igniter::LLM::Transcription::Providers::AssemblyAI do
                                                                "status" => "error", "error" => "unsupported format"
                                                              })
     expect { provider.transcribe("x.mp3", model: "universal-2") }
-      .to raise_error(Igniter::LLM::ProviderError, /unsupported format/)
+      .to raise_error(Igniter::AI::ProviderError, /unsupported format/)
   end
 
   it "raises ProviderError on poll timeout" do
@@ -462,29 +462,29 @@ RSpec.describe Igniter::LLM::Transcription::Providers::AssemblyAI do
     allow(p).to receive(:submit_job).and_return("j1")
     allow(p).to receive(:fetch_transcript).and_return({ "status" => "processing" })
     expect { p.transcribe("x.mp3", model: "universal-2") }
-      .to raise_error(Igniter::LLM::ProviderError, /timed out/)
+      .to raise_error(Igniter::AI::ProviderError, /timed out/)
   end
 
   it "raises ConfigurationError when api_key is absent" do
     p = described_class.new(api_key: nil)
     expect { p.transcribe("x.mp3", model: "universal-2") }
-      .to raise_error(Igniter::LLM::ConfigurationError, /ASSEMBLYAI_API_KEY/)
+      .to raise_error(Igniter::AI::ConfigurationError, /ASSEMBLYAI_API_KEY/)
   end
 end
 
 # ── LLM Config: transcription providers ──────────────────────────────────────
 
-RSpec.describe Igniter::LLM::Config do
+RSpec.describe Igniter::AI::Config do
   subject(:cfg) { described_class.new }
 
   describe "transcription providers" do
     it "exposes deepgram config" do
-      expect(cfg.deepgram).to be_a(Igniter::LLM::Config::DeepgramConfig)
+      expect(cfg.deepgram).to be_a(Igniter::AI::Config::DeepgramConfig)
       expect(cfg.deepgram.base_url).to eq("https://api.deepgram.com")
     end
 
     it "exposes assemblyai config" do
-      expect(cfg.assemblyai).to be_a(Igniter::LLM::Config::AssemblyAIConfig)
+      expect(cfg.assemblyai).to be_a(Igniter::AI::Config::AssemblyAIConfig)
       expect(cfg.assemblyai.poll_timeout).to eq(300)
     end
 
@@ -501,7 +501,7 @@ end
 
 # ── Multipart builder ─────────────────────────────────────────────────────────
 
-RSpec.describe Igniter::LLM::Transcription::Providers::Base do
+RSpec.describe Igniter::AI::Transcription::Providers::Base do
   subject(:base) { described_class.new }
 
   describe "#build_multipart (via send)" do

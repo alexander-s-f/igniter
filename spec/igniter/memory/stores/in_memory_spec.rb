@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/memory"
+require "igniter/core/memory"
 
 RSpec.describe Igniter::Memory::Stores::InMemory do
   subject(:store) { described_class.new }
