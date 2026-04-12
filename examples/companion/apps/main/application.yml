@@ -1,0 +1,5 @@
+server:
+  port: 4567
+  host: "0.0.0.0"
+  log_format: text   # text | json
+  drain_timeout: 30

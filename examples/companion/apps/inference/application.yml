@@ -1,0 +1,5 @@
+server:
+  port: 4568
+  host: "0.0.0.0"
+  log_format: text
+  drain_timeout: 30

@@ -1,0 +1,64 @@
+# frozen_string_literal: true
+
+require "igniter/application"
+require "igniter/core"
+require_relative "../../lib/companion/boot"
+
+module Companion
+  class MainApp < Igniter::Application
+    root_dir __dir__
+    config_file "application.yml"
+
+    tools_path     "app/tools"
+    skills_path    "app/skills"
+    executors_path "app/executors"
+    contracts_path "app/contracts"
+    agents_path    "app/agents"
+
+    on_boot do
+      Companion::Boot.configure_ai!
+
+      if ENV["CONSENSUS_NODES"]
+        require "igniter/cluster"
+        require_relative "../../lib/companion/shared/session_state_machine"
+
+        node_ids = ENV["CONSENSUS_NODES"].split(",").map { |value| value.strip.to_sym }
+        cluster = Igniter::Cluster::Consensus::Cluster.start(
+          nodes: node_ids,
+          state_machine: Companion::SessionStateMachine,
+          verbose: false
+        )
+        begin
+          cluster.wait_for_leader(timeout: 5)
+          Companion::NotesStore.configure_cluster(cluster)
+          puts "Consensus cluster active: #{node_ids.size} nodes, " \
+               "leader=#{cluster.leader&.name}, quorum=#{cluster.quorum_size}"
+        rescue StandardError => e
+          warn "Consensus cluster unavailable (#{e.message}) — using in-process notes store"
+        end
+        at_exit { cluster.stop!(timeout: 3) rescue nil }
+      end
+
+      register "ChatContract", Companion::ChatContract
+      register "VoiceAssistantContract", Companion::VoiceAssistantContract
+    end
+
+    configure do |c|
+      c.port = ENV.fetch("ORCHESTRATOR_PORT", "4567").to_i
+      c.log_format = ENV.fetch("LOG_FORMAT", "text").to_sym
+      c.store = if ENV["REDIS_URL"]
+                  require "redis"
+                  Igniter::Runtime::Stores::RedisStore.new(
+                    redis: Redis.new(url: ENV["REDIS_URL"]),
+                    namespace: "companion:executions"
+                  )
+                else
+                  Igniter::Runtime::Stores::MemoryStore.new
+                end
+    end
+
+    schedule :session_gc, every: "1h" do
+      # placeholder — extend with session store cleanup as needed
+    end
+  end
+end

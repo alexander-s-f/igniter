@@ -1,6 +1,17 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# Companion AI Assistant — full demo (no server, no hardware needed).
+#
+# Usage (mock executors — runs anywhere):
+#   ruby bin/demo
+#
+# With a real LLM (requires Ollama running locally):
+#   COMPANION_REAL_LLM=1 ruby bin/demo
+#
+# With Consensus replicated notes store (3-node in-process cluster):
+#   COMPANION_CONSENSUS=1 ruby bin/demo
+
 require_relative "../lib/companion/boot"
 
 Companion::Boot.setup_load_path!
@@ -18,6 +29,7 @@ puts ENV["COMPANION_REAL_LLM"] ? "[demo] Using real LLM executors (Ollama must b
 
 hr = "=" * 60
 
+# ── Section 1: Tool & Skill catalog ───────────────────────────────────────────
 puts
 puts hr
 puts "  Tools & Skills available to ChatExecutor"
@@ -32,14 +44,14 @@ COMPANION_CATALOG = [
   Companion::SaveNoteTool,
   Companion::GetNotesTool,
   Companion::ResearchSkill,
-  Companion::RemindMeSkill
+  Companion::RemindMeSkill,
 ].freeze
 
 COMPANION_CATALOG.each do |klass|
-  kind = klass < Igniter::AI::Skill ? "skill" : "tool"
+  kind   = klass < Igniter::AI::Skill ? "skill" : "tool"
   schema = klass.to_schema
-  caps = klass.required_capabilities
-  cap_s = caps.any? ? " (requires: #{caps.join(", ")})" : ""
+  caps   = klass.required_capabilities
+  cap_s  = caps.any? ? " (requires: #{caps.join(", ")})" : ""
 
   puts "  [#{kind.center(5)}] #{klass.tool_name}#{cap_s}"
   puts "           #{schema[:description]}"
@@ -78,6 +90,7 @@ puts "  " + Companion::RemindMeSkill.new.call(request: "remind me to call Alice 
 puts "  Notes after reminder: #{Companion::NotesStore.all.inspect}"
 Companion::NotesStore.reset!
 
+# ── Section 2: Consensus-backed notes store (optional) ────────────────────────
 if ENV["COMPANION_CONSENSUS"]
   require "igniter/cluster"
   Companion::Boot.require_path("lib/companion/shared/session_state_machine.rb")
@@ -90,9 +103,9 @@ if ENV["COMPANION_CONSENSUS"]
   puts "  Starting 3-node Raft cluster with SessionStateMachine..."
 
   cluster = Igniter::Cluster::Consensus::Cluster.start(
-    nodes: [:companion_1, :companion_2, :companion_3],
+    nodes:         [:companion_1, :companion_2, :companion_3],
     state_machine: Companion::SessionStateMachine,
-    verbose: false
+    verbose:       false
   )
   cluster.wait_for_leader(timeout: 4)
   puts "  Leader: #{cluster.leader.name}  quorum: #{cluster.quorum_size}/#{cluster.alive_count}"
@@ -100,7 +113,7 @@ if ENV["COMPANION_CONSENSUS"]
   Companion::NotesStore.configure_cluster(cluster)
 
   Companion::NotesStore.save("favorite_language", "Ruby")
-  cluster.write(type: :append_turn, role: "user", content: "Hello!")
+  cluster.write(type: :append_turn, role: "user",      content: "Hello!")
   cluster.write(type: :append_turn, role: "assistant", content: "Hi!")
 
   snapshot = cluster.state_machine_snapshot
@@ -136,9 +149,9 @@ turns = (ENV["COMPANION_TURNS"] || "3").to_i
 turns.times do |i|
   puts "── Turn #{i + 1} " + "─" * 44
   contract = Companion::LocalPipelineContract.new(
-    audio_data: fake_audio,
+    audio_data:           fake_audio,
     conversation_history: history,
-    session_id: session_id
+    session_id:           session_id
   )
   begin
     result = contract.result
@@ -149,7 +162,7 @@ turns.times do |i|
     notes = Companion::NotesStore.all
     puts "  Notes:    #{notes}" unless notes.empty?
 
-    history << { role: "user", content: result.transcript }
+    history << { role: "user",      content: result.transcript }
     history << { role: "assistant", content: result.response_text }
     history = history.last(20)
   rescue Igniter::Error => e
@@ -165,73 +178,100 @@ puts hr
 def call_handler(klass, type, state, payload = {})
   handler = klass.handlers[type]
   raise "No handler :#{type} on #{klass}" unless handler
-
   handler.call(state: state, payload: payload)
 end
 
+# 1. Generic ProactiveAgent
 puts
 puts "1 · Custom ProactiveAgent — TemperatureMonitor"
 class TemperatureMonitor < Igniter::Agents::ProactiveAgent
   intent "Alert when server room temperature exceeds safe range"
-  sensor = [22.0, 24.5, 26.0, 28.3, 32.1, 35.7].cycle
+  SENSOR = [22.0, 24.5, 26.0, 28.3, 32.1, 35.7].cycle
   scan_interval 2.0
-  watch :temp_celsius, poll: -> { sensor.next }
+  watch :temp_celsius, poll: -> { SENSOR.next }
   trigger :overheating,
-          condition: ->(ctx) { ctx[:temp_celsius].to_f > 30 },
-          action: ->(state:, context:) {
-            puts "  ⚠ TRIGGER :overheating  temp=#{context[:temp_celsius]}°C"
-            state.merge(last_alert: context[:temp_celsius])
-          }
+    condition: ->(ctx) { ctx[:temp_celsius].to_f > 30 },
+    action:    ->(state:, context:) {
+      puts "  ⚠ TRIGGER :overheating  temp=#{context[:temp_celsius]}°C"
+      state.merge(last_alert: context[:temp_celsius])
+    }
   proactive_initial_state last_alert: nil
 end
 
 state = TemperatureMonitor.default_state
 6.times do |i|
   state = call_handler(TemperatureMonitor, :_scan, state)
-  puts "  Scan #{i + 1}: temp=#{state[:context][:temp_celsius]}°C  triggers=#{state[:trigger_history].size}"
+  puts "  Scan #{i + 1}: temp=#{state[:context][:temp_celsius]}°C  " \
+       "triggers=#{state[:trigger_history].size}"
 end
 
+# 2. AlertAgent
 puts
 puts "2 · AlertAgent — API threshold monitoring"
 class ApiMonitor < Igniter::Agents::AlertAgent
   intent "Watch API error rate and latency"
   scan_interval 5.0
   monitor :error_rate, source: -> { 0.08 }
-  monitor :p99_ms, source: -> { 350 }
+  monitor :p99_ms,     source: -> { 350 }
   threshold :error_rate, above: 0.05
-  threshold :p99_ms, above: 500
+  threshold :p99_ms,     above: 500
   proactive_initial_state alerts: [], silenced: false
 end
 
-state = ApiMonitor.default_state
-state = call_handler(ApiMonitor, :_scan, state)
+state  = ApiMonitor.default_state
+state  = call_handler(ApiMonitor, :_scan, state)
 alerts = call_handler(ApiMonitor, :alerts, state)
 puts "  Alerts fired: #{alerts.size}"
-alerts.each { |alert| puts "  → #{alert.metric}=#{alert.value} #{alert.kind} #{alert.threshold}" }
-state = call_handler(ApiMonitor, :silence, state)
-state = call_handler(ApiMonitor, :_scan, state)
+alerts.each { |a| puts "  → #{a.metric}=#{a.value} #{a.kind} #{a.threshold}" }
+state  = call_handler(ApiMonitor, :silence, state)
+state  = call_handler(ApiMonitor, :_scan, state)
 alerts2 = call_handler(ApiMonitor, :alerts, state)
 puts "  After silence — still #{alerts2.size} (no new alerts added)"
 
+# 3. HealthCheckAgent
 puts
 puts "3 · HealthCheckAgent — dependency liveness"
 class InfraHealth < Igniter::Agents::HealthCheckAgent
   intent "Monitor database and cache"
   scan_interval 15.0
-  check :database, poll: -> { true }
-  check :cache, poll: -> { false }
+  check :database, poll: -> { true  }
+  check :cache,    poll: -> { false }
   proactive_initial_state health: {}, transitions: []
 end
 
-state = InfraHealth.default_state
+state       = InfraHealth.default_state
+state       = call_handler(InfraHealth, :_scan, state)
+health      = call_handler(InfraHealth, :health, state)
+all_ok      = call_handler(InfraHealth, :all_healthy, state)
+transitions = call_handler(InfraHealth, :transitions, state)
+puts "  Health: #{health}  all_healthy: #{all_ok}"
+puts "  Transitions: #{transitions.map { |t| "#{t.service}:#{t.from}→#{t.to}" }}"
 state = call_handler(InfraHealth, :_scan, state)
-health = call_handler(InfraHealth, :health, state)
-puts "  Health: #{health.inspect}"
+puts "  After 2nd scan transitions: #{call_handler(InfraHealth, :transitions, state).size} (no duplicate)"
 
+# 4. ConversationNudgeAgent
 puts
-puts "4 · Companion agents in app context"
+puts "4 · ConversationNudgeAgent — reactive + proactive"
 state = Companion::ConversationNudgeAgent.default_state
 3.times { |i| state = call_handler(Companion::ConversationNudgeAgent, :record_turn, state, role: :user, text: "Weather #{i}?") }
-state = call_handler(Companion::ConversationNudgeAgent, :_scan, state)
+state  = call_handler(Companion::ConversationNudgeAgent, :_scan, state)
 nudges = call_handler(Companion::ConversationNudgeAgent, :nudges, state)
-puts "  Companion nudges: #{nudges.map(&:kind).inspect}"
+puts "  After 3 unanswered turns — nudges: #{nudges.size}"
+nudges.first(2).each { |n| puts "  → [#{n.kind}] #{n.suggestion}" }
+
+# 5. Pause / resume
+puts
+puts "5 · Pause / resume"
+state  = ApiMonitor.default_state
+state  = call_handler(ApiMonitor, :pause, state)
+status = call_handler(ApiMonitor, :status, state)
+puts "  After :pause  — active=#{status.active}"
+state  = call_handler(ApiMonitor, :resume, state)
+status = call_handler(ApiMonitor, :status, state)
+puts "  After :resume — active=#{status.active}"
+
+puts
+puts hr
+puts "  Done! Run  bin/start  →  http://localhost:4567"
+puts hr
+puts

@@ -4,8 +4,5 @@ source "https://rubygems.org"
 
 gem "igniter"
 
-# Optional production HTTP server:
-# gem "puma"
-
-# Optional persistent store:
-# gem "redis"
+# Optional:
+# gem "puma"   # production HTTP server  →  bundle exec puma config.ru

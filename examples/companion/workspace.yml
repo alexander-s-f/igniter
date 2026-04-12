@@ -1,0 +1,4 @@
+workspace:
+  default_app: main
+  shared_lib_paths:
+    - lib

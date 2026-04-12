@@ -244,17 +244,17 @@ end
 
 ## Companion example
 
-`examples/companion/proactive/` shows three proactive agents in the context of
-the voice assistant companion application:
+`examples/companion/apps/main/app/agents/` shows proactive agents in the context of
+the workspace-based voice assistant companion:
 
 | File | Agent | Mission |
 |---|---|---|
-| `conversation_nudge_agent.rb` | `ConversationNudgeAgent` | Detect silence and topic stagnation; propose conversation nudges |
-| `system_watch_agent.rb` | `SystemAlertAgent` / `DependencyHealthAgent` | Monitor API metrics and service liveness |
-| `demo.rb` | All four agents | Self-contained, runnable demonstration |
+| `apps/main/app/agents/conversation_nudge_agent.rb` | `ConversationNudgeAgent` | Detect silence and topic stagnation; propose conversation nudges |
+| `apps/main/app/agents/system_watch_agent.rb` | `SystemAlertAgent` / `DependencyHealthAgent` | Monitor API metrics and service liveness |
+| `bin/demo` | All four agents | Self-contained, runnable demonstration |
 
 ```bash
-ruby examples/companion/proactive/demo.rb
+ruby examples/companion/bin/demo
 ```
 
 ---

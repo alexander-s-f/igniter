@@ -328,12 +328,27 @@ log_entries=1
 done=true
 ```
 
-### `companion/demo.rb`
+### `companion/bin/demo`
 
 Run:
 
 ```bash
-ruby examples/companion/demo.rb
+ruby examples/companion/bin/demo
+```
+
+Shows:
+
+- `Igniter::Workspace` — root coordinator for `apps/*`
+- `Igniter::Application` — leaf apps under `apps/main` and `apps/inference`
+- workspace-shaped voice assistant demo
+- local end-to-end ASR → Intent → Chat → TTS pipeline using mock executors
+
+### `companion_legacy/bin/demo`
+
+Run:
+
+```bash
+ruby examples/companion_legacy/bin/demo
 ```
 
 Shows:
@@ -346,7 +361,7 @@ Shows:
 For real Ollama inference:
 
 ```bash
-COMPANION_REAL_LLM=1 ruby examples/companion/demo.rb
+COMPANION_REAL_LLM=1 ruby examples/companion_legacy/bin/demo
 ```
 
 Expected output per turn:
@@ -363,7 +378,7 @@ Expected output per turn:
   Audio:    4328 chars (Base64 WAV)
 ```
 
-See [`companion/README.md`](companion/README.md) for distributed deployment (k3s), ESP32 setup, and real hardware instructions.
+See [`companion/README.md`](companion/README.md) for the workspace layout and ESP32 firmware, and [`companion_legacy/README.md`](companion_legacy/README.md) for the older flat-layout deployment notes.
 
 ## Validation
 

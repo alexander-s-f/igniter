@@ -208,6 +208,6 @@ Skills in Companion:
 | `lib/igniter/core/tool.rb` | Tool base class |
 | `lib/igniter/ai/tool_registry.rb` | Registry for Tool + Skill |
 | `spec/igniter/skill_spec.rb` | 30+ examples |
-| `examples/companion/skills/research_skill.rb` | ResearchSkill demo |
-| `examples/companion/skills/remind_me_skill.rb` | RemindMeSkill demo |
+| `examples/companion/apps/main/app/skills/research_skill.rb` | ResearchSkill demo |
+| `examples/companion/apps/main/app/skills/remind_me_skill.rb` | RemindMeSkill demo |
 | `docs/TOOLS_V1.md` | Tool system docs |
