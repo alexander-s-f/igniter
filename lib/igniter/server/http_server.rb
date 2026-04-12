@@ -30,9 +30,10 @@ module Igniter
       def start # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
         @tcp_server = TCPServer.new(@config.host, @config.port)
         @running    = true
+        @shutdown_mode = nil
 
-        trap("INT")  { stop }
-        trap("TERM") { graceful_stop }
+        trap("INT")  { request_shutdown(:immediate) }
+        trap("TERM") { request_shutdown(:graceful) }
 
         @logger.info("igniter-server started",
                      host: @config.host, port: @config.port, pid: Process.pid)
@@ -46,23 +47,31 @@ module Igniter
       rescue IOError
         # Server socket closed via stop
       ensure
+        if @shutdown_mode == :graceful
+          @logger.info("SIGTERM received — draining",
+                       drain_timeout: @config.drain_timeout, pid: Process.pid)
+        end
         drain_in_flight
         @logger.info("igniter-server stopped", pid: Process.pid)
       end
 
       def stop
-        @running = false
-        @tcp_server&.close
+        request_shutdown(:immediate)
       end
 
       def graceful_stop
-        @logger.info("SIGTERM received — draining",
-                     drain_timeout: @config.drain_timeout, pid: Process.pid)
-        @running = false
-        @tcp_server&.close
+        request_shutdown(:graceful)
       end
 
       private
+
+      def request_shutdown(mode)
+        @shutdown_mode ||= mode
+        @running = false
+        @tcp_server&.close
+      rescue IOError, Errno::EBADF
+        nil
+      end
 
       def accept_connection
         @tcp_server.accept_nonblock

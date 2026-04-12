@@ -36,4 +36,23 @@ RSpec.describe Igniter::Server::HttpServer do
       expect(server.send(:accept_connection)).to be_nil
     end
   end
+
+  describe "#graceful_stop" do
+    it "closes the socket and marks the server as stopped without logging in trap-sensitive path" do
+      tcp_server = instance_double(TCPServer)
+      logger = instance_double(Igniter::Server::ServerLogger)
+
+      server.instance_variable_set(:@tcp_server, tcp_server)
+      server.instance_variable_set(:@logger, logger)
+      server.instance_variable_set(:@running, true)
+
+      expect(tcp_server).to receive(:close)
+      expect(logger).not_to receive(:info)
+
+      server.graceful_stop
+
+      expect(server.instance_variable_get(:@running)).to be(false)
+      expect(server.instance_variable_get(:@shutdown_mode)).to eq(:graceful)
+    end
+  end
 end

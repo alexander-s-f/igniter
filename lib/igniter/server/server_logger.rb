@@ -34,6 +34,8 @@ module Igniter
       def log(level, message, context)
         line = @format == :json ? json_line(level, message, context) : text_line(level, message, context)
         @mutex.synchronize { @out.puts(line) }
+      rescue ThreadError
+        @out.puts(line)
       end
 
       def json_line(level, message, context)

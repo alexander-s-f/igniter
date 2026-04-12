@@ -128,4 +128,16 @@ RSpec.describe Igniter::Server::ServerLogger do
       expect(parsed["code"]).to eq(500)
     end
   end
+
+  it "falls back to direct output when mutex synchronization is unavailable" do
+    out = StringIO.new
+    logger = described_class.new(format: :text, out: out)
+    mutex = instance_double(Mutex)
+
+    logger.instance_variable_set(:@mutex, mutex)
+    allow(mutex).to receive(:synchronize).and_raise(ThreadError, "can't be called from trap context")
+
+    expect { logger.info("shutdown") }.not_to raise_error
+    expect(out.string).to include("shutdown")
+  end
 end
