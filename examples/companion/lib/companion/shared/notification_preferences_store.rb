@@ -32,6 +32,10 @@ module Companion
         set(telegram_scope(chat_id), "telegram_enabled" => enabled ? true : false)
       end
 
+      def all
+        store.all(collection: COLLECTION)
+      end
+
       def telegram_enabled?(chat_id)
         prefs = telegram_preferences(chat_id)
         return true if prefs.nil?

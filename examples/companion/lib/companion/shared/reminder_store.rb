@@ -31,6 +31,20 @@ module Companion
         store.get(collection: COLLECTION, key: reminder_id.to_s)
       end
 
+      def update(reminder_id, attributes)
+        reminder = get(reminder_id)
+        return nil unless reminder
+
+        store.put(
+          collection: COLLECTION,
+          key: reminder_id.to_s,
+          value: reminder.merge(stringify_keys(attributes)).merge(
+            "id" => reminder_id.to_s,
+            "updated_at" => Time.now.utc.iso8601
+          )
+        )
+      end
+
       def all
         store.all(collection: COLLECTION).values.sort_by { |reminder| reminder["created_at"].to_s }
       end
@@ -43,6 +57,10 @@ module Companion
         active.select { |reminder| reminder["chat_id"].to_s == chat_id.to_s }
       end
 
+      def complete(reminder_id)
+        update(reminder_id, "status" => "completed", "completed_at" => Time.now.utc.iso8601)
+      end
+
       def reset!
         store.clear(collection: COLLECTION)
       end
@@ -51,6 +69,12 @@ module Companion
 
       def store
         Igniter::Data.default_store
+      end
+
+      def stringify_keys(hash)
+        hash.each_with_object({}) do |(key, value), memo|
+          memo[key.to_s] = value
+        end
       end
     end
   end

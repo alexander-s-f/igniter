@@ -36,7 +36,7 @@ module Companion
       end
 
       def notification_preferences
-        Igniter::Data.default_store.all(collection: Companion::NotificationPreferencesStore::COLLECTION)
+        Companion::NotificationPreferencesStore.all
       end
 
       def execution_store_summary

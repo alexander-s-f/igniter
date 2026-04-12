@@ -5,6 +5,8 @@ require "igniter/core"
 require_relative "../../lib/companion/boot"
 require_relative "../../lib/companion/dashboard/home_handler"
 require_relative "../../lib/companion/dashboard/overview_handler"
+require_relative "../../lib/companion/dashboard/reminder_action_handler"
+require_relative "../../lib/companion/dashboard/telegram_preference_handler"
 
 module Companion
   class DashboardApp < Igniter::Application
@@ -13,6 +15,8 @@ module Companion
 
     route "GET", "/", with: Companion::Dashboard::HomeHandler
     route "GET", "/api/overview", with: Companion::Dashboard::OverviewHandler
+    route "POST", "/api/telegram/preferences", with: Companion::Dashboard::TelegramPreferenceHandler
+    route "POST", %r{\A/api/reminders/(?<id>[^/]+)/complete\z}, with: Companion::Dashboard::ReminderActionHandler
 
     on_boot do
       Companion::Boot.configure_persistence!(app_name: :dashboard)
