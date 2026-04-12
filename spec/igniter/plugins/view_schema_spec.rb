@@ -21,6 +21,8 @@ RSpec.describe "Igniter::Plugins::View schema runtime" do
       title: "Daily Training Check-in",
       actions: {
         submit_checkin: {
+          type: "contract",
+          target: "Companion::Dashboard::TrainingCheckinSubmissionContract",
           method: "post",
           path: "/views/training-checkin/submissions"
         }
@@ -34,7 +36,7 @@ RSpec.describe "Igniter::Plugins::View schema runtime" do
             type: "form",
             action: "submit_checkin",
             children: [
-              { type: "input", name: "duration_minutes", label: "Duration", required: true },
+              { type: "input", name: "duration_minutes", label: "Duration", required: true, value_type: "integer" },
               {
                 type: "select",
                 name: "mood",
@@ -45,7 +47,7 @@ RSpec.describe "Igniter::Plugins::View schema runtime" do
                   { label: "Good", value: "good" }
                 ]
               },
-              { type: "checkbox", name: "share", label: "Share with coach", checked: true },
+              { type: "checkbox", name: "share", label: "Share with coach", checked: true, value_type: "boolean" },
               { type: "submit", label: "Save" }
             ]
           }
@@ -124,10 +126,22 @@ RSpec.describe "Igniter::Plugins::View schema runtime" do
     )
 
     expect(normalized).to eq(
-      "duration_minutes" => "45",
+      "duration_minutes" => 45,
       "mood" => "great",
       "share" => true
     )
+  end
+
+  it "validates required schema fields after normalization" do
+    schema = Igniter::Plugins::View::Schema.load(schema_payload)
+    normalized = { "duration_minutes" => nil, "mood" => "great", "share" => false }
+
+    errors = Igniter::Plugins::View::SubmissionValidator.new(schema).validate(
+      normalized,
+      action_id: "submit_checkin"
+    )
+
+    expect(errors).to eq("duration_minutes" => "is required")
   end
 
   it "rejects invalid schema nodes" do

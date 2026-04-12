@@ -12,7 +12,10 @@ module Companion
         schema = ViewSchemaCatalog.store.get(params[:id])
         return not_found(params[:id]) unless schema
 
-        body = Igniter::Plugins::View::SchemaRenderer.render(schema: schema)
+        body = Igniter::Plugins::View::SchemaRenderer.render(
+          schema: schema,
+          notice: "Schema-driven page rendered from persisted view definition."
+        )
         Igniter::Plugins::View::Response.html(body)
       end
 

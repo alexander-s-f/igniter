@@ -4,7 +4,14 @@ module Igniter
   module Plugins
     module View
       class SubmissionNormalizer
-        Error = Class.new(ArgumentError)
+        class Error < ArgumentError
+          attr_reader :field_errors
+
+          def initialize(message = nil, field_errors: {})
+            super(message)
+            @field_errors = field_errors
+          end
+        end
 
         def initialize(schema)
           @schema = schema.is_a?(Schema) ? schema : Schema.load(schema)
@@ -16,13 +23,20 @@ module Igniter
 
           source = stringify_keys(payload)
           normalized = {}
+          field_errors = {}
 
           Array(form["children"]).each do |field|
             next unless field_node?(field)
 
             name = field.fetch("name")
-            normalized[name] = normalize_field(field, source[name])
+            begin
+              normalized[name] = normalize_field(field, source[name])
+            rescue Error => e
+              field_errors.merge!(e.field_errors)
+            end
           end
+
+          raise Error.new("submission contains invalid values", field_errors: field_errors) unless field_errors.empty?
 
           normalized
         end
@@ -36,6 +50,7 @@ module Igniter
         end
 
         def normalize_field(field, raw_value)
+          name = field.fetch("name")
           value =
             case field["type"]
             when "checkbox"
@@ -55,7 +70,7 @@ module Igniter
             value
           end
         rescue ArgumentError
-          raise Error, "invalid value for #{field.fetch("name")}: #{raw_value.inspect}"
+          raise Error.new("invalid value for #{name}", field_errors: { name => "must be a valid #{field["value_type"]}" })
         end
 
         def normalize_scalar(value)

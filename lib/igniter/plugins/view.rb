@@ -12,6 +12,7 @@ require_relative "view/schema_renderer"
 require_relative "view/schema_store"
 require_relative "view/submission_normalizer"
 require_relative "view/submission_processor"
+require_relative "view/submission_validator"
 
 module Igniter
   module Plugins

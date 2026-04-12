@@ -64,6 +64,21 @@ module Igniter
             font: inherit;
             cursor: pointer;
           }
+          .view-error {
+            color: #a33d29;
+            font-size: 13px;
+          }
+          .view-input-error {
+            border-color: #a33d29 !important;
+            background: #fff5f3 !important;
+          }
+          .view-notice {
+            margin: 0 0 16px;
+            padding: 12px 14px;
+            border: 1px solid #d9c8aa;
+            border-radius: 14px;
+            background: #fffaf2;
+          }
           .view-muted {
             color: #5c6b70;
           }
@@ -73,9 +88,12 @@ module Igniter
           new(schema: schema, **kwargs).render
         end
 
-        def initialize(schema:, action_resolver: nil)
+        def initialize(schema:, action_resolver: nil, values: {}, errors: {}, notice: nil)
           @schema = schema.is_a?(Schema) ? schema : Schema.load(schema)
           @action_resolver = action_resolver
+          @values = stringify_keys(values)
+          @errors = stringify_keys(errors)
+          @notice = notice
         end
 
         def call(view)
@@ -89,6 +107,7 @@ module Igniter
             end
             html.tag(:body) do |body|
               body.tag(:main, class: "view-page") do |main|
+                main.tag(:div, notice, class: "view-notice") if notice
                 render_node(main, schema.layout)
               end
             end
@@ -97,7 +116,7 @@ module Igniter
 
         private
 
-        attr_reader :schema, :action_resolver
+        attr_reader :schema, :action_resolver, :values, :errors, :notice
 
         def render_node(view, node) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/MethodLength
           case node.fetch("type")
@@ -141,27 +160,37 @@ module Igniter
         end
 
         def render_form_child(form, node)
+          field_name = node["name"]
+          field_error = field_name ? errors[field_name] : nil
+          error_class = field_error ? "view-input-error" : nil
+
           case node.fetch("type")
           when "input"
             form.label(dom_id(node), node.fetch("label"))
             form.input(node.fetch("name"),
                        id: dom_id(node),
                        placeholder: node["placeholder"],
-                       value: node["value"],
-                       required: node["required"])
+                       value: value_for(node),
+                       required: node["required"],
+                       class: error_class)
+            render_field_error(form, field_error)
           when "textarea"
             form.label(dom_id(node), node.fetch("label"))
             form.textarea(node.fetch("name"),
                           id: dom_id(node),
-                          value: node["value"],
+                          value: value_for(node),
                           placeholder: node["placeholder"],
-                          rows: node.fetch("rows", nil))
+                          rows: node.fetch("rows", nil),
+                          class: error_class)
+            render_field_error(form, field_error)
           when "select"
             form.label(dom_id(node), node.fetch("label"))
             form.select(node.fetch("name"),
                         id: dom_id(node),
-                        selected: node["selected"],
-                        options: Array(node["options"]).map { |option| [option.fetch("label"), option.fetch("value")] })
+                        selected: value_for(node, fallback: node["selected"]),
+                        options: Array(node["options"]).map { |option| [option.fetch("label"), option.fetch("value")] },
+                        class: error_class)
+            render_field_error(form, field_error)
           when "checkbox"
             form.label(dom_id(node)) do |label|
               label.raw(
@@ -169,12 +198,13 @@ module Igniter
                   FormBuilder.new(view).checkbox(
                     node.fetch("name"),
                     value: node.fetch("value", "1"),
-                    checked: node.fetch("checked", false)
+                    checked: checked_for(node)
                   )
                 end
               )
               label.text(" #{node.fetch("label")}")
             end
+            render_field_error(form, field_error)
           when "submit"
             form.submit(node.fetch("label"))
           when "text"
@@ -198,6 +228,33 @@ module Igniter
 
         def dom_id(node)
           node.fetch("id", "view-#{node.fetch("name").tr("_", "-")}")
+        end
+
+        def value_for(node, fallback: node["value"])
+          values.key?(node.fetch("name")) ? values[node.fetch("name")] : fallback
+        end
+
+        def checked_for(node)
+          return values[node.fetch("name")] if values.key?(node.fetch("name"))
+
+          node.fetch("checked", false)
+        end
+
+        def render_field_error(form, message)
+          return unless message
+
+          form.view.tag(:p, message, class: "view-error")
+        end
+
+        def stringify_keys(value)
+          case value
+          when Hash
+            value.each_with_object({}) { |(key, entry), memo| memo[key.to_s] = stringify_keys(entry) }
+          when Array
+            value.map { |entry| stringify_keys(entry) }
+          else
+            value
+          end
         end
       end
     end

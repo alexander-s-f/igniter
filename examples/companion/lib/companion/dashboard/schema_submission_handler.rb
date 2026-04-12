@@ -20,6 +20,11 @@ module Companion
           body,
           action_id: action_id
         )
+        validation_errors = Igniter::Plugins::View::SubmissionValidator.new(schema).validate(
+          normalized_payload,
+          action_id: action_id
+        )
+        return validation_response(schema, raw_payload: body, errors: validation_errors) unless validation_errors.empty?
 
         submission = ViewSubmissionStore.create(
           view_id: view_id,
@@ -53,6 +58,9 @@ module Companion
              Igniter::Plugins::View::Schema::Error,
              ArgumentError,
              NameError => e
+        field_errors = e.respond_to?(:field_errors) ? e.field_errors : {}
+        return validation_response(schema, raw_payload: body, errors: field_errors) if field_errors && !field_errors.empty?
+
         error_response(view_id, e.message)
       end
 
@@ -83,6 +91,17 @@ module Companion
             end
           end
         end
+
+        Igniter::Plugins::View::Response.html(body, status: 422)
+      end
+
+      def validation_response(schema, raw_payload:, errors:)
+        body = Igniter::Plugins::View::SchemaRenderer.render(
+          schema: schema,
+          values: raw_payload.reject { |key, _| key.to_s == "_action" },
+          errors: errors,
+          notice: "Please review the highlighted fields."
+        )
 
         Igniter::Plugins::View::Response.html(body, status: 422)
       end

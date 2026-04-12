@@ -187,6 +187,7 @@ RSpec.describe Companion::DashboardApp do
       expect(result[:status]).to eq(200)
       expect(result[:headers]["Content-Type"]).to include("text/html")
       expect(result[:body]).to include("Daily Training Check-in")
+      expect(result[:body]).to include("Schema-driven page rendered from persisted view definition.")
       expect(result[:body]).to include('action="/views/training-checkin/submissions"')
     end
   end
@@ -227,6 +228,33 @@ RSpec.describe Companion::DashboardApp do
       expect(checkins.size).to eq(1)
       expect(checkins.first.dig("checkin", "duration_minutes")).to eq(45)
       expect(checkins.first.dig("checkin", "share_with_coach")).to eq(true)
+    end
+
+    it "re-renders the schema form with validation errors and preserves values" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: { id: "training-checkin" },
+        body: {
+          "_action" => "submit_checkin",
+          "mood" => "great",
+          "duration_minutes" => "",
+          "notes" => "Still showed up"
+        },
+        headers: { "Content-Type" => "application/x-www-form-urlencoded" },
+        raw_body: "mood=great",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(422)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("Please review the highlighted fields.")
+      expect(result[:body]).to include("is required")
+      expect(result[:body]).to include('name="notes"')
+      expect(result[:body]).to include(">Still showed up</textarea>")
+      expect(result[:body]).to include('<option value="great" selected>Great</option>')
+      expect(Companion::Dashboard::ViewSubmissionStore.for_view("training-checkin")).to be_empty
+      expect(Companion::Dashboard::TrainingCheckinStore.all).to be_empty
     end
   end
 
