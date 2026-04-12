@@ -100,6 +100,24 @@ module Igniter
         @skills_paths << path
       end
 
+      # Register a custom HTTP route handled by this application.
+      #
+      #   route "POST", "/telegram/webhook", with: TelegramWebhook
+      #   route "GET", %r{\A/internal/ping\z} do |params:, body:, headers:, env:, raw_body:, config:|
+      #     { ok: true }
+      #   end
+      def route(method, path, with: nil, &block)
+        raise ArgumentError, "route requires a callable `with:` or a block" unless with || block
+        raise ArgumentError, "route cannot use both `with:` and a block" if with && block
+
+        handler = with || block
+        @custom_routes << {
+          method: method.to_s.upcase,
+          path: path,
+          handler: handler
+        }
+      end
+
       # Register a contract class under a name for HTTP dispatch.
       def register(name, contract_class)
         @registered[name.to_s] = contract_class
@@ -161,6 +179,7 @@ module Igniter
         subclass.instance_variable_set(:@agents_paths,     [])
         subclass.instance_variable_set(:@tools_paths,      [])
         subclass.instance_variable_set(:@skills_paths,     [])
+        subclass.instance_variable_set(:@custom_routes,    [])
         subclass.instance_variable_set(:@boot_blocks,      [])
         subclass.instance_variable_set(:@registered,       {})
         subclass.instance_variable_set(:@scheduled_jobs,   [])
@@ -178,6 +197,7 @@ module Igniter
         @boot_blocks.each(&:call)
         @configure_blocks.each { |b| b.call(cfg) }
         sc = cfg.to_server_config
+        sc.custom_routes = @custom_routes.dup
         @registered.each { |name, klass| sc.register(name, klass) }
         sc
       end

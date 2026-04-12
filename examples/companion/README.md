@@ -6,6 +6,7 @@ It now combines both goals:
 
 - show the standard `Igniter::Workspace` project shape
 - demonstrate a realistic voice assistant split into `apps/main` and `apps/inference`
+- show how an Igniter app can ship user-facing communication via Telegram
 
 ## Quick Start
 
@@ -35,6 +36,47 @@ bin/start inference
 
 Single-process demo mode uses `Companion::LocalPipelineContract` and mock executors so it
 runs without hardware, Ollama, Whisper, or Piper.
+
+## Telegram Delivery
+
+`apps/main` now includes a Telegram tool powered by `Igniter::Channels::Telegram`.
+
+Configure:
+
+```bash
+export TELEGRAM_BOT_TOKEN=123456:your-bot-token
+export TELEGRAM_CHAT_ID=123456789
+```
+
+Then the companion can forward summaries, reminders, or ad-hoc messages to Telegram
+through `Companion::SendTelegramTool`.
+
+## Telegram Inbound Bot Workflow
+
+`apps/main` also exposes a webhook endpoint for inbound Telegram updates:
+
+```text
+POST /telegram/webhook
+```
+
+Optional protection:
+
+```bash
+export TELEGRAM_WEBHOOK_SECRET=choose-a-random-secret
+```
+
+When configured, the companion expects the header
+`X-Telegram-Bot-Api-Secret-Token` to match that secret.
+
+The inbound MVP flow is:
+
+1. Telegram sends a text update to `/telegram/webhook`
+2. `apps/main` builds a short per-chat conversation history
+3. `Companion::ChatContract` generates the reply
+4. `Igniter::Channels::Telegram` sends the response back to the same chat
+
+So after wiring your bot webhook to the running companion, you can talk to it
+directly in Telegram.
 
 ## Structure
 

@@ -91,6 +91,14 @@ RSpec.describe Igniter::Application do
       expect(app1.instance_variable_get(:@boot_blocks).length).to eq(1)
       expect(app2.instance_variable_get(:@boot_blocks)).to be_empty
     end
+
+    it "does not leak custom routes between subclasses" do
+      app1 = fresh_app { route "POST", "/webhook" do { ok: true } end }
+      app2 = fresh_app
+
+      expect(app1.instance_variable_get(:@custom_routes).length).to eq(1)
+      expect(app2.instance_variable_get(:@custom_routes)).to be_empty
+    end
   end
 
   # ─── AppConfig ────────────────────────────────────────────────────────────
@@ -133,6 +141,13 @@ RSpec.describe Igniter::Application do
         collector = Object.new
         cfg.metrics_collector = collector
         expect(cfg.to_server_config.metrics_collector).to be(collector)
+      end
+
+      it "copies custom_routes" do
+        route = { method: "POST", path: "/webhook", handler: ->(**) { { ok: true } } }
+        cfg.custom_routes = [route]
+
+        expect(cfg.to_server_config.custom_routes).to eq([route])
       end
     end
   end
@@ -403,6 +418,19 @@ RSpec.describe Igniter::Application do
 
       sc = app.send(:build!)
       expect(sc.registry.registered?("SampleContract")).to be true
+    end
+
+    it "passes custom routes to the Server::Config" do
+      app = fresh_app do
+        route "POST", "/webhook" do |params:, body:, **|
+          { status: 200, body: { ok: true, size: body.size }, headers: { "Content-Type" => "application/json" } }
+        end
+      end
+
+      sc = app.send(:build!)
+      expect(sc.custom_routes.length).to eq(1)
+      expect(sc.custom_routes.first[:method]).to eq("POST")
+      expect(sc.custom_routes.first[:path]).to eq("/webhook")
     end
 
     it "on_boot block runs during build! (after autoload_paths!)" do

@@ -6,6 +6,7 @@ require_relative "../tools/time_tool"
 require_relative "../tools/weather_tool"
 require_relative "../tools/save_note_tool"
 require_relative "../tools/get_notes_tool"
+require_relative "../tools/send_telegram_tool"
 require_relative "../skills/research_skill"
 require_relative "../skills/remind_me_skill"
 
@@ -21,6 +22,7 @@ module Companion
           WeatherTool,
           SaveNoteTool,
           GetNotesTool,
+          SendTelegramTool,
           ResearchSkill,
           RemindMeSkill
 
@@ -32,8 +34,8 @@ module Companion
       Avoid markdown, bullet points, or code unless explicitly asked.
       Be friendly and natural.
 
-      You have tools for instant lookups (time, weather, notes) and skills for
-      deeper tasks (ResearchSkill for factual questions, RemindMeSkill for reminders).
+      You have tools for instant lookups (time, weather, notes, Telegram delivery) and
+      skills for deeper tasks (ResearchSkill for factual questions, RemindMeSkill for reminders).
       Choose the most appropriate tool or skill for each request.
     PROMPT
 

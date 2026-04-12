@@ -30,27 +30,41 @@ module Igniter
 
       # Main dispatch entry point — called by both HttpServer and RackApp.
       # Records HTTP metrics when a collector is configured.
-      def call(http_method, path, body_str) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+      def call(http_method, path, body_str, headers: {}, env: nil) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
         started_at = Time.now.utc
         method_uc  = http_method.to_s.upcase
+        normalized_path = normalize_path(path)
+        body = parse_body(body_str)
+
+        custom_result = dispatch_custom_route(
+          method_uc,
+          normalized_path,
+          body,
+          headers: headers,
+          env: env,
+          raw_body: body_str
+        )
+        if custom_result
+          record_http_metric(method_uc, normalized_path, custom_result[:status], started_at)
+          return custom_result
+        end
 
         ROUTES.each do |route|
           next unless route[:method] == method_uc
 
-          match = route[:pattern].match(path)
+          match = route[:pattern].match(normalized_path)
           next unless match
 
           params  = match.named_captures.transform_keys(&:to_sym)
-          body    = parse_body(body_str)
           handler = build_handler(route[:handler])
           result  = handler.call(params: params, body: body)
 
-          record_http_metric(method_uc, path, result[:status], started_at)
+          record_http_metric(method_uc, normalized_path, result[:status], started_at)
           return result
         end
 
-        result = not_found_response(path)
-        record_http_metric(method_uc, path, 404, started_at)
+        result = not_found_response(normalized_path)
+        record_http_metric(method_uc, normalized_path, 404, started_at)
         result
       rescue JSON::ParserError => e
         { status: 400, body: JSON.generate({ error: "Invalid JSON: #{e.message}" }), headers: json_ct }
@@ -81,6 +95,72 @@ module Igniter
         end
       end
 
+      def dispatch_custom_route(method, path, body, headers:, env:, raw_body:)
+        Array(@config.custom_routes).each do |route|
+          next unless route[:method] == method
+
+          params = match_custom_path(route[:path], path)
+          next unless params
+
+          result = route.fetch(:handler).call(
+            params: params,
+            body: body,
+            headers: headers,
+            env: env,
+            raw_body: raw_body,
+            config: @config
+          )
+
+          return coerce_custom_result(result)
+        end
+
+        nil
+      end
+
+      def match_custom_path(pattern, path)
+        case pattern
+        when String
+          pattern == path ? {} : nil
+        when Regexp
+          match = pattern.match(path)
+          match ? match.named_captures.transform_keys(&:to_sym) : nil
+        else
+          raise ArgumentError, "Custom route path must be a String or Regexp"
+        end
+      end
+
+      def coerce_custom_result(result)
+        if custom_response_hash?(result)
+          {
+            status: integer_or_default(result[:status] || result["status"], 200),
+            body: serialize_custom_body(result[:body] || result["body"]),
+            headers: (result[:headers] || result["headers"] || json_ct).transform_keys(&:to_s)
+          }
+        else
+          { status: 200, body: serialize_custom_body(result), headers: json_ct }
+        end
+      end
+
+      def custom_response_hash?(result)
+        result.is_a?(Hash) && (result.key?(:status) || result.key?("status") ||
+          result.key?(:body) || result.key?("body") || result.key?(:headers) || result.key?("headers"))
+      end
+
+      def serialize_custom_body(body)
+        case body
+        when String
+          body
+        when nil
+          ""
+        else
+          JSON.generate(body)
+        end
+      end
+
+      def integer_or_default(value, default)
+        value.nil? ? default : value.to_i
+      end
+
       def record_http_metric(method, path, status, started_at)
         return unless @config.metrics_collector
 
@@ -94,6 +174,10 @@ module Igniter
         return {} if str.nil? || str.strip.empty?
 
         JSON.parse(str)
+      end
+
+      def normalize_path(path)
+        path.to_s.split("?", 2).first
       end
 
       def not_found_response(path)

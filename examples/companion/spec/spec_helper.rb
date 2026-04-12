@@ -20,5 +20,6 @@ RSpec.configure do |config|
 
   config.after(:each) do
     Companion::NotesStore.reset! if defined?(Companion::NotesStore)
+    Companion::ConversationStore.reset! if defined?(Companion::ConversationStore)
   end
 end

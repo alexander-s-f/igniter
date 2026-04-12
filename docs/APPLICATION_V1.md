@@ -145,6 +145,38 @@ Related entrypoints:
 - `agents_path(path)`
 - `skills_path(path)`
 
+### `route(method, path, with: nil) { ... }`
+
+Register a custom app-level HTTP endpoint. This is useful for inbound webhooks,
+Telegram bot updates, or lightweight internal callbacks that should live inside
+the leaf app rather than in a separate Rack service.
+
+```ruby
+route "POST", "/telegram/webhook" do |params:, body:, headers:, raw_body:, **|
+  { ok: true, received: body }
+end
+```
+
+Or delegate to a callable object:
+
+```ruby
+route "POST", "/telegram/webhook", with: MyApp::TelegramWebhook
+```
+
+Callable handlers receive:
+
+- `params:` — named path captures for regex routes
+- `body:` — parsed JSON request body
+- `headers:` — normalized request headers
+- `raw_body:` — raw request body string
+- `env:` — Rack env when running under Rack, otherwise `nil`
+- `config:` — current `Igniter::Server::Config`
+
+Return either:
+
+- a plain object / hash → auto-wrapped as `200` JSON
+- or a full response hash with `status`, `body`, and optional `headers`
+
 ### `register(name, contract_class)`
 
 Register a contract for HTTP dispatch.
@@ -237,7 +269,7 @@ Returns the `AppConfig` instance (populated after the first call to `start` or `
 3. `on_boot` blocks run
 4. `configure` blocks run in declaration order (override YAML)
 5. `Server::Config` built from `AppConfig`
-6. Contracts registered on the server registry
+6. Contracts and custom routes registered on the server config
 7. Scheduler started (one thread per job)
 
 ---

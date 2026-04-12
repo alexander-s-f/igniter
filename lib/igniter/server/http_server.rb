@@ -82,7 +82,7 @@ module Igniter
         body    = read_body(socket, headers["content-length"].to_i)
 
         with_in_flight do
-          result = @router.call(http_method, path, body)
+          result = @router.call(http_method, path, body, headers: headers)
           write_response(socket, result)
           @logger.info("#{http_method} #{path}", status: result[:status])
         end

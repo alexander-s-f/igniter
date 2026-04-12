@@ -3,6 +3,7 @@
 require "igniter/application"
 require "igniter/core"
 require_relative "../../lib/companion/boot"
+require_relative "../../lib/companion/shared/telegram_webhook"
 
 module Companion
   class MainApp < Igniter::Application
@@ -14,6 +15,8 @@ module Companion
     executors_path "app/executors"
     contracts_path "app/contracts"
     agents_path    "app/agents"
+
+    route "POST", "/telegram/webhook", with: Companion::TelegramWebhook
 
     on_boot do
       Companion::Boot.configure_ai!

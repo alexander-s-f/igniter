@@ -5,7 +5,7 @@ module Igniter
     class Config
       attr_accessor :host, :port, :store, :logger,
                     :metrics_collector, :log_format, :drain_timeout,
-                    :peer_name, :peer_capabilities
+                    :peer_name, :peer_capabilities, :custom_routes
       attr_reader   :registry
 
       def initialize
@@ -19,6 +19,7 @@ module Igniter
         @drain_timeout     = 30
         @peer_name         = nil
         @peer_capabilities = []
+        @custom_routes     = []
       end
 
       def register(name, contract_class)

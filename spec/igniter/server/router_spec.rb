@@ -63,6 +63,53 @@ RSpec.describe Igniter::Server::Router do
     end
   end
 
+  describe "custom application routes" do
+    before do
+      config.custom_routes = [
+        {
+          method: "POST",
+          path: "/webhook",
+          handler: lambda do |params:, body:, headers:, raw_body:, **|
+            {
+              status: 200,
+              body: {
+                ok: true,
+                params: params,
+                body: body,
+                raw_size: raw_body.bytesize,
+                secret: headers["X-Test-Secret"]
+              },
+              headers: { "Content-Type" => "application/json" }
+            }
+          end
+        }
+      ]
+    end
+
+    it "dispatches to a custom route handler" do
+      result = router.call(
+        "POST",
+        "/webhook",
+        JSON.generate({ "ping" => "pong" }),
+        headers: { "X-Test-Secret" => "abc123" }
+      )
+
+      expect(result[:status]).to eq(200)
+      data = JSON.parse(result[:body])
+      expect(data).to include(
+        "ok" => true,
+        "body" => { "ping" => "pong" },
+        "raw_size" => 15,
+        "secret" => "abc123"
+      )
+    end
+
+    it "matches routes before query string" do
+      result = router.call("POST", "/webhook?token=1", JSON.generate({}))
+      expect(result[:status]).to eq(200)
+    end
+  end
+
   describe "invalid JSON body" do
     it "returns 400" do
       result = router.call("POST", "/v1/contracts/AddOne/execute", "not-json{")

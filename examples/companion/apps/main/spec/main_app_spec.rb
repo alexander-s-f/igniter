@@ -75,6 +75,134 @@ RSpec.describe Companion::MainApp do
     end
   end
 
+  describe Companion::SendTelegramTool do
+    it "returns a helpful message when Telegram is not configured" do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("TELEGRAM_BOT_TOKEN").and_return(nil)
+      allow(ENV).to receive(:[]).with("TELEGRAM_CHAT_ID").and_return(nil)
+
+      result = described_class.new.call(message: "Hello from Igniter")
+
+      expect(result).to include("Telegram is not configured")
+    end
+
+    it "sends a Telegram message through Igniter::Channels::Telegram" do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("TELEGRAM_BOT_TOKEN").and_return("bot-token")
+      allow(ENV).to receive(:[]).with("TELEGRAM_CHAT_ID").and_return("12345")
+
+      channel = instance_double(Igniter::Channels::Telegram)
+      result = Igniter::Channels::DeliveryResult.new(
+        status: :delivered,
+        provider: :telegram,
+        recipient: "12345",
+        external_id: "777"
+      )
+      allow(Igniter::Channels::Telegram).to receive(:new).and_return(channel)
+      allow(channel).to receive(:deliver).and_return(result)
+
+      response = described_class.new.call(
+        message: "Call summary is ready",
+        title: "Summary"
+      )
+
+      expect(channel).to have_received(:deliver).with(
+        to: nil,
+        subject: "Summary",
+        body: "Call summary is ready"
+      )
+      expect(response).to include("Sent Telegram message to 12345")
+      expect(response).to include("777")
+    end
+  end
+
+  describe Companion::TelegramWebhook do
+    let(:channel) { instance_double(Igniter::Channels::Telegram) }
+    let(:delivery_result) do
+      Igniter::Channels::DeliveryResult.new(
+        status: :delivered,
+        provider: :telegram,
+        recipient: "12345",
+        external_id: "888"
+      )
+    end
+
+    before do
+      allow(Igniter::Channels::Telegram).to receive(:new).and_return(channel)
+      allow(channel).to receive(:deliver).and_return(delivery_result)
+    end
+
+    it "returns 401 when the Telegram secret token does not match" do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("TELEGRAM_WEBHOOK_SECRET").and_return("secret-1")
+
+      result = described_class.call(
+        params: {},
+        body: { "message" => { "text" => "hello", "chat" => { "id" => 12345 } } },
+        headers: { "X-Telegram-Bot-Api-Secret-Token" => "wrong" },
+        raw_body: "{}",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(401)
+      expect(channel).not_to have_received(:deliver)
+    end
+
+    it "responds to /start with a welcome message" do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("TELEGRAM_WEBHOOK_SECRET").and_return(nil)
+
+      result = described_class.call(
+        params: {},
+        body: { "message" => { "text" => "/start", "message_id" => 10, "chat" => { "id" => 12345 } } },
+        headers: {},
+        raw_body: '{"message":{"text":"/start"}}',
+        config: nil
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(channel).to have_received(:deliver).with(
+        to: "12345",
+        body: include("Hello! I'm Companion"),
+        metadata: { reply_to_message_id: 10 }
+      )
+    end
+
+    it "runs ChatContract and sends the response back to Telegram" do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with("TELEGRAM_WEBHOOK_SECRET").and_return(nil)
+
+      contract = instance_double(Companion::ChatContract, result: double(response_text: "It is sunny and 21C."))
+      allow(Companion::ChatContract).to receive(:new).and_return(contract)
+
+      result = described_class.call(
+        params: {},
+        body: { "message" => { "text" => "weather in Kyiv", "message_id" => 11, "chat" => { "id" => 12345 } } },
+        headers: {},
+        raw_body: '{"message":{"text":"weather in Kyiv"}}',
+        config: nil
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(Companion::ChatContract).to have_received(:new).with(
+        message: "weather in Kyiv",
+        conversation_history: [],
+        intent: { category: "other", confidence: 0.5, language: "en" }
+      )
+      expect(channel).to have_received(:deliver).with(
+        to: "12345",
+        body: "It is sunny and 21C.",
+        metadata: { reply_to_message_id: 11 }
+      )
+      expect(Companion::ConversationStore.history("telegram:12345")).to eq(
+        [
+          { role: "user", content: "weather in Kyiv" },
+          { role: "assistant", content: "It is sunny and 21C." }
+        ]
+      )
+    end
+  end
+
   describe Companion::ResearchSkill do
     it "returns a summary string for a known topic (mock mode)" do
       result = described_class.new.call(topic: "Ruby")

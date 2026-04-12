@@ -104,6 +104,40 @@ Supported webhook features:
 other application adapters that convert external HTTP requests into contract
 events.
 
+## Built-in Telegram adapter
+
+`Igniter::Channels::Telegram` is the first built-in user-facing messaging adapter.
+
+```ruby
+require "igniter/channels"
+
+telegram = Igniter::Channels::Telegram.new(
+  bot_token: ENV["TELEGRAM_BOT_TOKEN"],
+  default_chat_id: ENV["TELEGRAM_CHAT_ID"]
+)
+
+result = telegram.deliver(
+  subject: "Call Summary",
+  body: "Lead is interested in a follow-up next Tuesday."
+)
+
+result.status      # => :delivered
+result.message_id  # => Telegram message id
+```
+
+Supported Telegram features in the MVP adapter:
+
+- `sendMessage` delivery
+- default `bot_token` and `chat_id` from initializer or environment
+- `telegram:<chat_id>` or raw `chat_id` destinations
+- optional `subject + body` rendering into one message
+- `parse_mode`, `message_thread_id`, `reply_markup`
+- optional preview suppression and silent delivery
+
+Current limitation:
+
+- attachments/media are not supported yet in the built-in adapter
+
 ## Using channels directly
 
 ```ruby

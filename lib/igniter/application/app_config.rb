@@ -6,7 +6,7 @@ module Igniter
     # Wraps server-level settings in a single place.
     # Call #to_server_config to get a Server::Config for HttpServer / RackApp.
     class AppConfig
-      attr_accessor :host, :port, :store, :log_format, :drain_timeout, :metrics_collector
+      attr_accessor :host, :port, :store, :log_format, :drain_timeout, :metrics_collector, :custom_routes
 
       def initialize
         @host              = "0.0.0.0"
@@ -15,6 +15,7 @@ module Igniter
         @log_format        = :text
         @drain_timeout     = 30
         @metrics_collector = nil
+        @custom_routes     = []
       end
 
       def to_server_config
@@ -25,6 +26,7 @@ module Igniter
           sc.log_format        = log_format
           sc.drain_timeout     = drain_timeout
           sc.metrics_collector = metrics_collector
+          sc.custom_routes     = custom_routes
         end
       end
     end
