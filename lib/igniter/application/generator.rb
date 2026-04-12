@@ -21,6 +21,10 @@ module Igniter
     #   │       ├── application.rb     — leaf Igniter::Application
     #   │       └── application.yml    — app-local server config
     #   ├── lib/<project>/shared/      — shared libraries / helpers
+    #   ├── config/
+    #   │   ├── topology.yml           — deployment roles + wiring
+    #   │   ├── environments/          — environment overlays
+    #   │   └── deploy/                — operational artifacts (Docker / Compose / etc.)
     #   ├── spec/                      — shared + integration + workspace-level specs
     #   ├── bin/
     #   │   ├── start                  — Launch a named app (default: main)
@@ -48,11 +52,17 @@ module Igniter
         create_dir "apps/main/app/skills"
         create_dir "apps/main/spec"
         create_dir "lib/#{namespace_path}/shared"
+        create_dir "config/environments"
+        create_dir "config/deploy"
         create_dir "spec"
         create_dir "bin"
 
         write "workspace.rb",                  workspace_rb
         write "workspace.yml",                 workspace_yml
+        write "config/topology.yml",           topology_yml
+        write "config/environments/development.yml", development_yml
+        write "config/environments/production.yml",  production_yml
+        write "config/deploy/.keep",           ""
         write "Gemfile",                       gemfile
         write "config.ru",                     config_ru
         write "bin/start",                     bin_start
@@ -166,6 +176,61 @@ module Igniter
             data:
               adapter: memory   # memory | sqlite
               path: var/#{@project_name}_data.sqlite3
+        YAML
+      end
+
+      def topology_yml
+        <<~YAML
+          workspace:
+            name: #{@project_name}
+            default_app: main
+
+          topology:
+            profile: local
+            notes:
+              - "apps/ define code roles; this file describes deployment roles and wiring"
+
+          apps:
+            main:
+              app: main
+              role: api
+              replicas: 1
+              public: true
+              http:
+                port: 4567
+              command: bundle exec ruby workspace.rb main
+
+          shared:
+            persistence:
+              data:
+                adapter: sqlite
+                path: var/#{@project_name}_data.sqlite3
+        YAML
+      end
+
+      def development_yml
+        <<~YAML
+          workspace:
+            environment: development
+
+          topology:
+            profile: development
+            apps:
+              main:
+                replicas: 1
+        YAML
+      end
+
+      def production_yml
+        <<~YAML
+          workspace:
+            environment: production
+
+          topology:
+            profile: production
+            apps:
+              main:
+                replicas: 2
         YAML
       end
 

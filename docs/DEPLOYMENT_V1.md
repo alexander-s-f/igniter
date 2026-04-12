@@ -150,6 +150,11 @@ Generated structure:
 my_app/
 ├── workspace.rb            # Igniter::Workspace coordinator
 ├── workspace.yml           # workspace metadata
+├── config/
+│   ├── topology.yml        # deployment roles + wiring
+│   └── deploy/
+│       ├── Dockerfile      # shared container image
+│       └── compose.yml     # local / reference multi-app deployment
 ├── Gemfile
 ├── config.ru               # Rack entry point
 ├── apps/
@@ -171,6 +176,13 @@ my_app/
 └── spec/
     └── shared + integration + workspace-level specs
 ```
+
+Deployment config intentionally lives outside `apps/*`:
+
+- `apps/*` = code and leaf runtime defaults
+- `workspace.yml` = shared workspace defaults
+- `config/topology.yml` = deployment roles and cross-app wiring
+- `config/deploy/*` = Docker / Compose / future operational artifacts
 
 ### Workspace + leaf app
 

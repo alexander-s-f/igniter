@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-gem "igniter"
+gem "igniter", path: "../.."
 
 # Optional:
 # gem "puma"   # production HTTP server  →  bundle exec puma config.ru

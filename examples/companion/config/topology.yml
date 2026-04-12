@@ -1,0 +1,61 @@
+workspace:
+  name: companion
+  default_app: main
+
+topology:
+  profile: local-compose
+  network: companion
+  notes:
+    - "apps/ define code roles; this file describes deployment roles and wiring"
+    - "workspace.rb does not consume this file yet; it is the canonical operational config"
+
+apps:
+  main:
+    app: main
+    role: api
+    replicas: 1
+    public: true
+    http:
+      port: 4567
+    command: bundle exec ruby examples/companion/workspace.rb main
+    depends_on:
+      - inference
+    persistence:
+      execution:
+        adapter: sqlite
+        path: var/main_executions.sqlite3
+
+  inference:
+    app: inference
+    role: worker
+    replicas: 1
+    public: false
+    http:
+      port: 4568
+    command: bundle exec ruby examples/companion/workspace.rb inference
+    persistence:
+      execution:
+        adapter: sqlite
+        path: var/inference_executions.sqlite3
+
+  dashboard:
+    app: dashboard
+    role: admin
+    replicas: 1
+    public: true
+    http:
+      port: 4569
+    command: bundle exec ruby examples/companion/workspace.rb dashboard
+    depends_on:
+      - main
+    persistence:
+      execution:
+        adapter: sqlite
+        path: var/dashboard_executions.sqlite3
+
+shared:
+  persistence:
+    data:
+      adapter: sqlite
+      path: var/companion_data.sqlite3
+

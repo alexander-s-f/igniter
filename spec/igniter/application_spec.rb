@@ -290,6 +290,10 @@ RSpec.describe Igniter::Application do
           # Root files
           expect(File.exist?("my_app/workspace.rb")).to be true
           expect(File.exist?("my_app/workspace.yml")).to be true
+          expect(File.exist?("my_app/config/topology.yml")).to be true
+          expect(File.exist?("my_app/config/environments/development.yml")).to be true
+          expect(File.exist?("my_app/config/environments/production.yml")).to be true
+          expect(File.exist?("my_app/config/deploy/.keep")).to be true
           expect(File.exist?("my_app/Gemfile")).to be true
           expect(File.exist?("my_app/config.ru")).to be true
 
@@ -325,6 +329,8 @@ RSpec.describe Igniter::Application do
 
           expect(workspace).to include("Igniter::Workspace")
           expect(workspace).to include("app :main")
+          expect(File.read("my_app/config/topology.yml")).to include("role: api")
+          expect(File.read("my_app/config/environments/production.yml")).to include("replicas: 2")
           expect(main_app).to include("root_dir __dir__")
           expect(main_app).to include("executors_path")
           expect(main_app).to include("contracts_path")

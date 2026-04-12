@@ -135,6 +135,11 @@ clean base for the future `apps/dashboard`.
 examples/companion/
 ├── workspace.rb
 ├── workspace.yml
+├── config/
+│   ├── topology.yml
+│   └── deploy/
+│       ├── Dockerfile
+│       └── compose.yml
 ├── apps/
 │   ├── dashboard/
 │   │   ├── application.rb
@@ -177,6 +182,26 @@ bundle exec rspec examples/companion/apps/main/spec
 bundle exec rspec examples/companion/apps/inference/spec
 bundle exec rspec examples/companion/apps/dashboard/spec
 ```
+
+## Deployment Reference
+
+Companion now includes a canonical deployment layout under `config/`:
+
+- [config/topology.yml](/Users/alex/dev/projects/igniter/examples/companion/config/topology.yml) describes deployment roles and wiring
+- [config/deploy/Dockerfile](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/Dockerfile) is the shared container image
+- [config/deploy/compose.yml](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/compose.yml) starts `main`, `inference`, and `dashboard` together
+
+From the repository root:
+
+```bash
+docker compose -f examples/companion/config/deploy/compose.yml up --build
+```
+
+This deployment config is intentionally separate from `apps/*/application.yml`:
+
+- `apps/*` defines the code and leaf runtime defaults
+- `config/topology.yml` defines how those apps are deployed together
+- `config/deploy/*` holds container/runtime artifacts
 
 ## Dashboard
 
