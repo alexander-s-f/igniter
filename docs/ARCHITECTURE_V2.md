@@ -2,6 +2,9 @@
 
 For the shortest operational overview, start with [Architecture Index](./ARCHITECTURE_INDEX.md).
 
+For the intended persistence direction across local apps and distributed clusters,
+see [Persistence Model v1](./PERSISTENCE_MODEL_V1.md).
+
 ## Design Principles
 
 1. **Small, hard core.** The kernel is minimal, strict, and independently testable.
