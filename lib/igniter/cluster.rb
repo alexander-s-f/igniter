@@ -3,6 +3,7 @@
 require_relative "server"
 require_relative "cluster/mesh"
 require_relative "cluster/remote_adapter"
+require_relative "cluster/ownership"
 require_relative "cluster/consensus"
 require_relative "cluster/replication"
 

@@ -121,6 +121,7 @@ If you are adding new code:
 - Put it in **Server** if it is about HTTP hosting or remote transport.
 - Put it in **Application** if it is about project layout, boot lifecycle, or scheduler/profile behavior.
 - Put it in **Cluster** if it is about distributed coordination or routing across nodes.
+  Ownership, routing-to-owner, leases, and replicated metadata belong here too.
 - Put it in **Plugins** if it adapts Rails or another framework.
 
 ## Canonical Mental Model

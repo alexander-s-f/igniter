@@ -300,6 +300,15 @@ Gossip-based peer discovery.
 - Kubernetes health probes (`/v1/healthz`, `/v1/readyz`).
 - Node metadata propagation (available contracts, version, load).
 
+### `Igniter::Cluster::Ownership`
+
+Ownership is the bridge between local-first persistence and distributed routing.
+
+- Entities can be claimed by an owner node or role.
+- Reads and follow-up writes should route to the owner.
+- Ownership metadata is small cluster state, not a global application database.
+- Capability routing remains a fallback when no explicit owner is known.
+
 ### `Igniter::Cluster::Replication`
 
 Distributed execution state replication across nodes so any node can
