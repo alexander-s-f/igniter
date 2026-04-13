@@ -66,6 +66,22 @@ library facilities only. This makes it a good default discovery/introspection
 tool for agent-style applications that need to understand their local
 environment before selecting workflows or tools.
 
+Igniter also includes a companion selector tool:
+
+```ruby
+selection = Igniter::Tools::LocalWorkflowSelectorTool.new.call_with_capability_check!(
+  allowed_capabilities: [:system_read],
+  goals: %w[esp32 hardware],
+  include_discovery: false
+)
+```
+
+`Igniter::Tools::LocalWorkflowSelectorTool` builds on `SystemDiscoveryTool` and
+returns concrete workflow recommendations with missing-utility diagnostics. It
+is useful as a bootstrap step for agents that should adapt to the current node
+instead of assuming that `docker`, `pio`, `ollama`, `ffmpeg`, or `sqlite3` are
+available everywhere.
+
 ### Supported param types
 
 | Symbol | JSON type |
