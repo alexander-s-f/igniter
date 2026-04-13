@@ -139,6 +139,7 @@ Read next:
 
 - [Architecture v2](./ARCHITECTURE_V2.md)
 - [Persistence Model v1](./PERSISTENCE_MODEL_V1.md)
+- [Cluster Debug v1](./CLUSTER_DEBUG_V1.md)
 - [Deployment Scenarios v1](./DEPLOYMENT_V1.md)
 - [Application v1](./APPLICATION_V1.md)
 - [Workspaces v1](./WORKSPACES_V1.md)

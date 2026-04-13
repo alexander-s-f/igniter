@@ -213,6 +213,9 @@ instead of:
 
 - treating the shared SQLite file as the final cluster abstraction
 
+For the operational/debugging layer that sits on top of this model, see
+[Cluster Debug v1](./CLUSTER_DEBUG_V1.md).
+
 ## Recommended Next Steps
 
 ### Near Term

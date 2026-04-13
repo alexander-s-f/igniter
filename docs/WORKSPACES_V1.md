@@ -209,6 +209,9 @@ ruby workspace.rb --write-procfile-dev
 `config/deploy/Procfile.dev` is the generated compatibility artifact for `foreman`,
 `overmind`, or similar process managers when you want them.
 
+For owner-routed debugging and projection recovery patterns at the workspace level,
+see [Cluster Debug v1](./CLUSTER_DEBUG_V1.md).
+
 Resolution rules:
 
 - explicit app name wins
