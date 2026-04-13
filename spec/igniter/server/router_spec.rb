@@ -124,6 +124,60 @@ RSpec.describe Igniter::Server::Router do
         "chat_id" => "12345"
       )
     end
+
+    it "runs before, around, and after hooks around custom routes" do
+      calls = []
+      config.before_request_hooks = [
+        lambda do |request:|
+          calls << [:before, request[:path]]
+          request[:body]["extra"] = "from-before"
+        end
+      ]
+      config.around_request_hooks = [
+        lambda do |request:, &inner|
+          calls << [:around_before, request[:path]]
+          result = inner.call
+          calls << [:around_after, request[:path]]
+          result
+        end
+      ]
+      config.after_request_hooks = [
+        lambda do |request:, response:|
+          calls << [:after, response[:status]]
+          response[:headers]["X-Hook"] = "after"
+        end
+      ]
+
+      result = router.call("POST", "/webhook", JSON.generate({ "ping" => "pong" }))
+
+      expect(result[:status]).to eq(200)
+      expect(result[:headers]["X-Hook"]).to eq("after")
+      data = JSON.parse(result[:body])
+      expect(data["body"]).to include("ping" => "pong", "extra" => "from-before")
+      expect(calls).to eq([
+        [:before, "/webhook"],
+        [:around_before, "/webhook"],
+        [:around_after, "/webhook"],
+        [:after, 200]
+      ])
+    end
+
+    it "allows around hooks to short-circuit custom route handling" do
+      config.around_request_hooks = [
+        lambda do |request:, &inner|
+          {
+            status: 202,
+            body: { intercepted: true, path: request[:path] },
+            headers: { "Content-Type" => "application/json" }
+          }
+        end
+      ]
+
+      result = router.call("POST", "/webhook", JSON.generate({ "ping" => "pong" }))
+
+      expect(result[:status]).to eq(202)
+      expect(JSON.parse(result[:body])).to include("intercepted" => true, "path" => "/webhook")
+    end
   end
 
   describe "invalid JSON body" do

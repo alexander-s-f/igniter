@@ -11,6 +11,7 @@ module Igniter
     #   run Igniter::Server.rack_app
     class RackApp
       def initialize(config)
+        config.logger ||= ServerLogger.new(format: config.log_format)
         @router = Router.new(config)
       end
 

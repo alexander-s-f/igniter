@@ -23,6 +23,7 @@ module Igniter
         @config       = config
         @router       = Router.new(config)
         @logger       = ServerLogger.new(format: config.log_format)
+        @config.logger ||= @logger
         @in_flight    = 0
         @in_flight_mu = Mutex.new
       end

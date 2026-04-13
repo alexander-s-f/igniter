@@ -99,6 +99,22 @@ RSpec.describe Igniter::Application do
       expect(app1.instance_variable_get(:@custom_routes).length).to eq(1)
       expect(app2.instance_variable_get(:@custom_routes)).to be_empty
     end
+
+    it "does not leak request hooks between subclasses" do
+      app1 = fresh_app do
+        before_request {}
+        after_request {}
+        around_request { |request:, &inner| inner.call }
+      end
+      app2 = fresh_app
+
+      expect(app1.instance_variable_get(:@before_request_hooks).length).to eq(1)
+      expect(app1.instance_variable_get(:@after_request_hooks).length).to eq(1)
+      expect(app1.instance_variable_get(:@around_request_hooks).length).to eq(1)
+      expect(app2.instance_variable_get(:@before_request_hooks)).to be_empty
+      expect(app2.instance_variable_get(:@after_request_hooks)).to be_empty
+      expect(app2.instance_variable_get(:@around_request_hooks)).to be_empty
+    end
   end
 
   # ─── AppConfig ────────────────────────────────────────────────────────────
@@ -148,6 +164,20 @@ RSpec.describe Igniter::Application do
         cfg.custom_routes = [route]
 
         expect(cfg.to_server_config.custom_routes).to eq([route])
+      end
+
+      it "copies request hooks" do
+        before_hook = ->(request:) { request[:body] = { "ok" => true } }
+        after_hook = ->(request:, response:) { response[:status] = 201 }
+        around_hook = ->(request:, &inner) { inner.call }
+        cfg.before_request_hooks = [before_hook]
+        cfg.after_request_hooks = [after_hook]
+        cfg.around_request_hooks = [around_hook]
+
+        sc = cfg.to_server_config
+        expect(sc.before_request_hooks).to eq([before_hook])
+        expect(sc.after_request_hooks).to eq([after_hook])
+        expect(sc.around_request_hooks).to eq([around_hook])
       end
     end
   end
@@ -448,6 +478,23 @@ RSpec.describe Igniter::Application do
       expect(sc.custom_routes.length).to eq(1)
       expect(sc.custom_routes.first[:method]).to eq("POST")
       expect(sc.custom_routes.first[:path]).to eq("/webhook")
+    end
+
+    it "passes request hooks to the Server::Config" do
+      before_hook = ->(request:) { request[:body] = { "before" => true } }
+      after_hook = ->(request:, response:) { response[:headers]["X-After"] = "1" }
+      around_hook = ->(request:, &inner) { inner.call }
+
+      app = fresh_app do
+        before_request(with: before_hook)
+        after_request(with: after_hook)
+        around_request(with: around_hook)
+      end
+
+      sc = app.send(:build!)
+      expect(sc.before_request_hooks).to eq([before_hook])
+      expect(sc.after_request_hooks).to eq([after_hook])
+      expect(sc.around_request_hooks).to eq([around_hook])
     end
 
     it "on_boot block runs during build! (after autoload_paths!)" do

@@ -118,6 +118,28 @@ module Igniter
         }
       end
 
+      # Register a hook to run before every custom application route.
+      # Hook receives a mutable request hash:
+      #
+      #   before_request do |request:|
+      #     request[:headers]["X-Trace"] ||= "demo"
+      #   end
+      def before_request(with: nil, &block)
+        @before_request_hooks << normalize_request_hook!(with, block, :before_request)
+      end
+
+      # Register a hook to run after every custom application route.
+      # Hook receives the request hash and the normalized response hash.
+      def after_request(with: nil, &block)
+        @after_request_hooks << normalize_request_hook!(with, block, :after_request)
+      end
+
+      # Register a hook to wrap custom application route handling.
+      # Hook receives the request hash and a block that continues the pipeline.
+      def around_request(with: nil, &block)
+        @around_request_hooks << normalize_request_hook!(with, block, :around_request)
+      end
+
       # Register a contract class under a name for HTTP dispatch.
       def register(name, contract_class)
         @registered[name.to_s] = contract_class
@@ -180,6 +202,9 @@ module Igniter
         subclass.instance_variable_set(:@tools_paths,      [])
         subclass.instance_variable_set(:@skills_paths,     [])
         subclass.instance_variable_set(:@custom_routes,    [])
+        subclass.instance_variable_set(:@before_request_hooks, [])
+        subclass.instance_variable_set(:@after_request_hooks,  [])
+        subclass.instance_variable_set(:@around_request_hooks, [])
         subclass.instance_variable_set(:@boot_blocks,      [])
         subclass.instance_variable_set(:@registered,       {})
         subclass.instance_variable_set(:@scheduled_jobs,   [])
@@ -198,6 +223,9 @@ module Igniter
         @configure_blocks.each { |b| b.call(cfg) }
         sc = cfg.to_server_config
         sc.custom_routes = @custom_routes.dup
+        sc.before_request_hooks = @before_request_hooks.dup
+        sc.after_request_hooks = @after_request_hooks.dup
+        sc.around_request_hooks = @around_request_hooks.dup
         @registered.each { |name, klass| sc.register(name, klass) }
         sc
       end
@@ -232,6 +260,13 @@ module Igniter
           @scheduled_jobs.each { |j| sched.add(j[:name], every: j[:every], at: j[:at], &j[:block]) }
           sched
         end
+      end
+
+      def normalize_request_hook!(callable, block, name)
+        raise ArgumentError, "#{name} requires a callable `with:` or a block" unless callable || block
+        raise ArgumentError, "#{name} cannot use both `with:` and a block" if callable && block
+
+        callable || block
       end
     end
   end

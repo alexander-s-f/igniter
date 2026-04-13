@@ -103,19 +103,51 @@ module Igniter
           params = match_custom_path(route[:path], path)
           next unless params
 
-          result = route.fetch(:handler).call(
+          request = {
+            method: method,
+            path: path,
             params: params,
             body: body,
             headers: headers,
             env: env,
             raw_body: raw_body,
-            config: @config
-          )
+            config: @config,
+            route: route
+          }
 
-          return coerce_custom_result(result)
+          Array(@config.before_request_hooks).each { |hook| hook.call(request: request) }
+
+          result = build_custom_route_pipeline(request).call
+          response = coerce_custom_result(result)
+
+          Array(@config.after_request_hooks).each do |hook|
+            hook.call(request: request, response: response)
+          end
+
+          return response
         end
 
         nil
+      end
+
+      def build_custom_route_pipeline(request)
+        route = request.fetch(:route)
+        handler_call = lambda do
+          route.fetch(:handler).call(
+            params: request[:params],
+            body: request[:body],
+            headers: request[:headers],
+            env: request[:env],
+            raw_body: request[:raw_body],
+            config: request[:config]
+          )
+        end
+
+        Array(@config.around_request_hooks).reverse_each.reduce(handler_call) do |inner, hook|
+          lambda do
+            hook.call(request: request, &inner)
+          end
+        end
       end
 
       def match_custom_path(pattern, path)
