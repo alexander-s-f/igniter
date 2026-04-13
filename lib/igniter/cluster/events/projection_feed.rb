@@ -6,12 +6,18 @@ module Igniter
   module Cluster
     module Events
       class ProjectionFeed
-        def initialize(name:, log:, projector:, store:, checkpoint_collection: "igniter_cluster_projection_feed_checkpoints")
+        include HookSupport
+
+        def initialize(name:, log:, projector:, store:, checkpoint_collection: "igniter_cluster_projection_feed_checkpoints",
+                       before_process: [], after_process: [], around_process: [])
           @name = name.to_s
           @log = log
           @projector = projector
           @store = store
           @checkpoint_collection = checkpoint_collection.to_s
+          @before_process = before_process.dup
+          @after_process = after_process.dup
+          @around_process = around_process.dup
         end
 
         def start!
@@ -31,13 +37,30 @@ module Igniter
         end
 
         def process(event)
-          @projector.call(event)
-          write_checkpoint(event)
-          event
+          context = { feed: self, event: event, name: @name }
+          run_before_hooks(@before_process, context)
+          result = run_around_hooks(@around_process, context) { project_and_checkpoint(event) }
+          run_after_hooks(@after_process, context.merge(result: result))
+          result
         end
 
         def checkpoint
           checkpoint_data&.dup
+        end
+
+        def before_process(callable = nil, &block)
+          @before_process << (callable || block)
+          self
+        end
+
+        def after_process(callable = nil, &block)
+          @after_process << (callable || block)
+          self
+        end
+
+        def around_process(callable = nil, &block)
+          @around_process << (callable || block)
+          self
         end
 
         private
@@ -62,6 +85,12 @@ module Igniter
               "updated_at" => Time.now.utc.iso8601
             }
           )
+        end
+
+        def project_and_checkpoint(event)
+          @projector.call(event)
+          write_checkpoint(event)
+          event
         end
       end
     end

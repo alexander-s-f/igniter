@@ -6,10 +6,15 @@ module Igniter
   module Cluster
     module Events
       class Log
-        def initialize(store:, collection: "igniter_cluster_events")
+        include HookSupport
+
+        def initialize(store:, collection: "igniter_cluster_events", before_publish: [], after_publish: [], around_publish: [])
           @store = store
           @collection = collection.to_s
           @subscribers = []
+          @before_publish = before_publish.dup
+          @after_publish = after_publish.dup
+          @around_publish = around_publish.dup
         end
 
         def publish(type: nil, source:, topic: nil, entity_type: nil, entity_id: nil, payload: {}, metadata: {}, envelope: nil)
@@ -23,9 +28,11 @@ module Igniter
             metadata: metadata
           )
 
-          active_store.put(collection: @collection, key: key_for(event), value: event.as_json)
-          @subscribers.each { |subscriber| subscriber.call(event) }
-          event
+          context = { log: self, event: event, collection: @collection }
+          run_before_hooks(@before_publish, context)
+          result = run_around_hooks(@around_publish, context) { persist_and_notify(event) }
+          run_after_hooks(@after_publish, context.merge(result: result))
+          result
         end
 
         def publish_runtime_event(event, source:, topic: "runtime", metadata: {})
@@ -53,10 +60,31 @@ module Igniter
           @subscribers << (subscriber || block)
         end
 
+        def before_publish(callable = nil, &block)
+          @before_publish << (callable || block)
+          self
+        end
+
+        def after_publish(callable = nil, &block)
+          @after_publish << (callable || block)
+          self
+        end
+
+        def around_publish(callable = nil, &block)
+          @around_publish << (callable || block)
+          self
+        end
+
         private
 
         def active_store
           @store.respond_to?(:call) ? @store.call : @store
+        end
+
+        def persist_and_notify(event)
+          active_store.put(collection: @collection, key: key_for(event), value: event.as_json)
+          @subscribers.each { |subscriber| subscriber.call(event) }
+          event
         end
 
         def key_for(event)

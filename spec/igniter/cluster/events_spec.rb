@@ -8,6 +8,8 @@ require "igniter"
 RSpec.describe Igniter::Cluster::Events do
   let(:store) { Igniter::Data::Stores::InMemory.new }
 
+  after { Igniter::Cluster::Events.reset! }
+
   describe Igniter::Cluster::Events::Envelope do
     it "builds a serializable cluster event envelope" do
       envelope = Igniter::Cluster::Events::Envelope.build(
@@ -121,6 +123,80 @@ RSpec.describe Igniter::Cluster::Events do
 
       expect(replayed.map(&:entity_id)).to eq(["a"])
       expect(observed).to eq(["a"])
+    end
+  end
+
+  describe Igniter::Cluster::Events::ReadModelProjector do
+    it "projects transformed cluster events into a read model store" do
+      projector = described_class.new(
+        store: store,
+        collection: "test_read_models",
+        transform: lambda { |event|
+          next unless event.topic == "ownership"
+
+          {
+            "id" => "#{event.entity_type}:#{event.entity_id}",
+            "owner" => event.payload.fetch("claim").fetch("owner")
+          }
+        }
+      )
+
+      event = Igniter::Cluster::Events::Envelope.build(
+        topic: :ownership,
+        type: :ownership_claimed,
+        source: :edge,
+        entity_type: :voice_session,
+        entity_id: "abc123",
+        payload: { claim: { owner: "edge" } }
+      )
+
+      projection = projector.call(event)
+
+      expect(projection).to include(
+        "id" => "voice_session:abc123",
+        "owner" => "edge"
+      )
+      expect(store.get(collection: "test_read_models", key: "voice_session:abc123")).to eq(projection)
+    end
+  end
+
+  describe ".build_log / .build_projection_feed hooks" do
+    it "builds configured log and projection feeds with callbacks" do
+      observed = []
+      Igniter::Cluster::Events.store = store
+      Igniter::Cluster::Events.before_publish do |event:, **|
+        observed << [:before_publish, event.type]
+      end
+      Igniter::Cluster::Events.after_publish do |event:, **|
+        observed << [:after_publish, event.type]
+      end
+      Igniter::Cluster::Events.before_process do |event:, **|
+        observed << [:before_process, event.type]
+      end
+      Igniter::Cluster::Events.after_process do |event:, **|
+        observed << [:after_process, event.type]
+      end
+
+      log = Igniter::Cluster::Events.build_log(collection: "hook_events")
+      feed = Igniter::Cluster::Events.build_projection_feed(
+        name: :hook_feed,
+        log: log,
+        projector: ->(event) { observed << [:projector, event.type] },
+        checkpoint_collection: "hook_checkpoints"
+      ).start!
+
+      log.publish(type: :voice_session_created, topic: :voice_sessions, source: :edge)
+
+      expect(feed.checkpoint).to include("name" => "hook_feed")
+      expect(observed).to eq(
+        [
+          [:before_publish, "voice_session_created"],
+          [:before_process, "voice_session_created"],
+          [:projector, "voice_session_created"],
+          [:after_process, "voice_session_created"],
+          [:after_publish, "voice_session_created"]
+        ]
+      )
     end
   end
 end
