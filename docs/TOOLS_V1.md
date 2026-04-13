@@ -82,6 +82,21 @@ is useful as a bootstrap step for agents that should adapt to the current node
 instead of assuming that `docker`, `pio`, `ollama`, `ffmpeg`, or `sqlite3` are
 available everywhere.
 
+For more opinionated setup guidance, Igniter also includes:
+
+```ruby
+plan = Igniter::Tools::AgentBootstrapTool.new.call_with_capability_check!(
+  allowed_capabilities: [:system_read],
+  goal: "cluster_debug"
+)
+```
+
+`Igniter::Tools::AgentBootstrapTool` turns a named goal such as
+`esp32_bringup`, `cluster_debug`, `local_ai_node`, or `dashboard_dev` into a
+concrete bootstrap plan with recommended workflows, steps, and success
+criteria. It is a good fit for agent onboarding and environment-aware startup
+flows.
+
 ### Supported param types
 
 | Symbol | JSON type |
