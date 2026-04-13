@@ -2,6 +2,7 @@
 
 require "spec_helper"
 require "igniter/cluster"
+require "igniter/data"
 
 RSpec.describe Igniter::Cluster::Ownership do
   after { Igniter::Cluster::Ownership.reset! }
@@ -58,6 +59,17 @@ RSpec.describe Igniter::Cluster::Ownership do
 
       expect(registry.claims_for_owner(:edge_1).map(&:entity_id)).to contain_exactly("a", "b")
     end
+
+    it "can persist claims through a shared data store" do
+      store = Igniter::Data::Stores::InMemory.new
+      writer = described_class.new(store: store)
+      reader = described_class.new(store: store)
+
+      writer.claim(:voice_session, "abc123", owner: :edge_1, metadata: { source: "esp32" })
+
+      expect(reader.owner_for(:voice_session, "abc123")).to eq("edge_1")
+      expect(reader.lookup(:voice_session, "abc123").metadata).to eq("source" => "esp32")
+    end
   end
 
   describe Igniter::Cluster::Ownership::Resolver do
@@ -107,6 +119,46 @@ RSpec.describe Igniter::Cluster::Ownership do
 
       expect(described_class.owner_for(:voice_session, "abc123")).to eq("edge_1")
       expect(described_class.resolve_url(:voice_session, "abc123")).to eq("http://edge-1:4570")
+    end
+  end
+
+  describe ".store=" do
+    it "uses a persistent registry when a data store is configured" do
+      store = Igniter::Data::Stores::InMemory.new
+      described_class.store = store
+
+      described_class.claim(:voice_session, "abc123", owner: :edge_1)
+
+      registry = Igniter::Cluster::Ownership::Registry.new(store: store)
+      expect(registry.owner_for(:voice_session, "abc123")).to eq("edge_1")
+    end
+  end
+
+  describe Igniter::Cluster::Ownership::OwnerClient do
+    let(:resolver) { instance_double(Igniter::Cluster::Ownership::Resolver) }
+    subject(:client) { described_class.new(resolver: resolver, timeout: 1) }
+
+    it "routes a request to the resolved owner URL" do
+      allow(resolver).to receive(:resolve).and_return(
+        { owner: "edge_1", claim: nil, url: "http://edge-1:4570" }
+      )
+
+      response = instance_double(Net::HTTPOK, code: "200", body: "{\"ok\":true}", to_hash: { "content-type" => ["application/json"] })
+      http = instance_double(Net::HTTP)
+      allow(Net::HTTP).to receive(:new).with("edge-1", 4570).and_return(http)
+      allow(http).to receive(:use_ssl=).with(false)
+      allow(http).to receive(:read_timeout=).with(1)
+      allow(http).to receive(:open_timeout=).with(5)
+      allow(http).to receive(:request).and_return(response)
+
+      result = client.request(:voice_session, "abc123", method: "GET", path: "/v1/voice_sessions/abc123")
+
+      expect(result).to include(
+        owner: "edge_1",
+        status: 200,
+        body: "{\"ok\":true}"
+      )
+      expect(result[:headers]["content-type"]).to eq("application/json")
     end
   end
 end

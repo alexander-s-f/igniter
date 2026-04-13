@@ -34,6 +34,28 @@ module Igniter
           )
         end
 
+        def to_h
+          {
+            "entity_type" => entity_type,
+            "entity_id" => entity_id,
+            "owner" => owner,
+            "metadata" => metadata,
+            "claimed_at" => claimed_at.iso8601,
+            "updated_at" => updated_at.iso8601
+          }
+        end
+
+        def self.from_h(payload)
+          new(
+            entity_type: payload.fetch("entity_type"),
+            entity_id: payload.fetch("entity_id"),
+            owner: payload.fetch("owner"),
+            metadata: payload.fetch("metadata", {}),
+            claimed_at: Time.iso8601(payload.fetch("claimed_at")),
+            updated_at: Time.iso8601(payload.fetch("updated_at"))
+          )
+        end
+
         private
 
         def stringify_keys(hash)

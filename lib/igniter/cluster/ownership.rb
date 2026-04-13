@@ -4,17 +4,35 @@ require_relative "ownership/errors"
 require_relative "ownership/claim"
 require_relative "ownership/registry"
 require_relative "ownership/resolver"
+require_relative "ownership/owner_client"
 
 module Igniter
   module Cluster
     module Ownership
       class << self
+        attr_reader :store
+
         def registry
-          @registry ||= Registry.new
+          @registry ||= Registry.new(store: @store)
         end
 
         def resolver
           @resolver ||= Resolver.new(registry: registry)
+        end
+
+        def client
+          @client ||= OwnerClient.new(resolver: resolver)
+        end
+
+        def configure
+          yield self
+        end
+
+        def store=(store)
+          @store = store
+          @registry = nil
+          @resolver = nil
+          @client = nil
         end
 
         def claim(entity_type, entity_id, owner:, metadata: {})
@@ -53,6 +71,8 @@ module Igniter
         def reset!
           @registry = nil
           @resolver = nil
+          @client = nil
+          @store = nil
         end
       end
     end

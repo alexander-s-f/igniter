@@ -164,6 +164,7 @@ Cluster should provide explicit distributed state primitives rather than pretend
 Likely future primitives:
 
 - ownership registry
+- projection store for derived read models
 - replicated key-value for small metadata
 - leases
 - event propagation
@@ -222,8 +223,8 @@ instead of:
 ### Medium Term
 
 1. Define `Igniter::Cluster` ownership APIs.
-2. Introduce replicated metadata primitives for bindings and routing.
-3. Add projection patterns for dashboards and monitoring apps.
+2. Add projection store patterns for dashboards and monitoring apps.
+3. Introduce replicated metadata primitives for bindings and routing.
 4. Introduce external storage plugins for centralized deployment modes.
 
 ## Canonical Mental Model
