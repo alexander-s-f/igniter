@@ -164,7 +164,9 @@ Cluster should provide explicit distributed state primitives rather than pretend
 Likely future primitives:
 
 - ownership registry
+- cluster event log / envelopes
 - projection store for derived read models
+- projection feeds over cluster events
 - replicated key-value for small metadata
 - leases
 - event propagation
