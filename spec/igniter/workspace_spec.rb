@@ -368,6 +368,8 @@ RSpec.describe Igniter::Workspace do
 
       expect(procfile).to include("main:")
       expect(procfile).to include("dashboard:")
+      expect(procfile).to include("RUBYOPT=")
+      expect(procfile).to include("dev_output_sync")
       expect(procfile).to include("SHARED_FLAG=1")
       expect(procfile).to include("DASHBOARD_MODE=enabled")
       expect(procfile).to include("bundle exec ruby workspace.rb dashboard")

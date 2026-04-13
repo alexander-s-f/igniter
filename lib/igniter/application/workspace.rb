@@ -271,7 +271,7 @@ module Igniter
           {
             name: app_name.to_s,
             command: app_config["dev_command"] || app_config["command"] || "bundle exec ruby workspace.rb #{app_name}",
-            environment: runtime_environment_for(app_name, app_config)
+            environment: dev_runtime_environment_for(app_name, app_config)
           }
         end
       end
@@ -535,6 +535,19 @@ module Igniter
         env["IGNITER_ENV"] = resolved_environment unless resolved_environment.empty?
         env["IGNITER_TOPOLOGY_PROFILE"] = topology_profile.to_s unless topology_profile.to_s.empty?
         env.reject { |_key, value| !present?(value) }
+      end
+
+      def dev_runtime_environment_for(app_name, app_config)
+        runtime_environment_for(app_name, app_config).merge("RUBYOPT" => rubyopt_with_dev_output_sync)
+      end
+
+      def rubyopt_with_dev_output_sync
+        helper = File.expand_path("dev_output_sync", __dir__)
+        parts = []
+        existing = ENV["RUBYOPT"].to_s.strip
+        parts << existing unless existing.empty?
+        parts << "-r#{Shellwords.escape(helper)}"
+        parts.join(" ").strip
       end
 
       def shell_command_with_env(command, env)

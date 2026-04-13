@@ -338,6 +338,7 @@ RSpec.describe Igniter::Application do
           expect(File.read("my_app/config/topology.yml")).to include("dockerfile: config/deploy/Dockerfile")
           expect(File.read("my_app/config/environments/production.yml")).to include("replicas: 2")
           expect(File.read("my_app/config/deploy/Procfile.dev")).to include("main:")
+          expect(File.read("my_app/Gemfile")).to include("gem \"sqlite3\"")
           expect(bin_start).to include("exec bundle exec ruby workspace.rb \"$@\"")
           expect(bin_dev).to include("exec bundle exec ruby workspace.rb --dev \"$@\"")
           expect(main_app).to include("root_dir __dir__")

@@ -53,6 +53,10 @@ my_app/
 └── config.ru
 ```
 
+Generated workspaces include `sqlite3` by default. That keeps `Igniter::Workspace`
+practical out of the box for local app data and execution persistence, while the
+core `igniter` gem itself still avoids mandatory production dependencies.
+
 Rules:
 
 - `apps/<name>` is a real unit with its own code and specs.

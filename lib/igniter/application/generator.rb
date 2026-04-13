@@ -309,13 +309,13 @@ module Igniter
           source "https://rubygems.org"
 
           gem "igniter"
+          gem "sqlite3" # workspace-local data + execution stores
 
           group :development, :test do
             gem "rspec"
           end
 
           # Optional:
-          # gem "sqlite3" # local SQLite-backed data + execution stores
           # gem "puma"   # production HTTP server  →  bundle exec puma config.ru
         RUBY
       end

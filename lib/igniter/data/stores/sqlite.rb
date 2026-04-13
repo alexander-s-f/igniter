@@ -112,7 +112,7 @@ module Igniter
         def prepare_path!(path)
           return if path.to_s.empty? || path == ":memory:"
 
-          FileUtils.mkdir_p(File.dirname(path))
+          FileUtils.mkdir_p(::File.dirname(path))
         end
       end
     end

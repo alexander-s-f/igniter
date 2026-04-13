@@ -3,6 +3,7 @@
 source "https://rubygems.org"
 
 gem "igniter", path: "../.."
+gem "sqlite3"
 
 # Optional:
 # gem "puma"   # production HTTP server  →  bundle exec puma config.ru
