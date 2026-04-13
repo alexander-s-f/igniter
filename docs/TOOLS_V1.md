@@ -44,6 +44,28 @@ class DatabaseLookup < Igniter::Tool
 end
 ```
 
+## Built-in system introspection tool
+
+Igniter can also expose a safe host snapshot tool for environment-aware agents:
+
+```ruby
+require "igniter/core"
+
+result = Igniter::Tools::SystemDiscoveryTool.new.call_with_capability_check!(
+  allowed_capabilities: [:system_read],
+  include_environment: true,
+  environment_keys: %w[HOME PATH SHELL],
+  utility_candidates: %w[ruby git rg sqlite3 pio docker],
+  scan_path_entries: false
+)
+```
+
+`Igniter::Tools::SystemDiscoveryTool` does not shell out. It inspects the current
+Ruby runtime, host metadata, `PATH`, and executable presence using standard
+library facilities only. This makes it a good default discovery/introspection
+tool for agent-style applications that need to understand their local
+environment before selecting workflows or tools.
+
 ### Supported param types
 
 | Symbol | JSON type |
