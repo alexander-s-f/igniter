@@ -179,7 +179,7 @@ Callable handlers receive:
 - `headers:` — normalized request headers
 - `raw_body:` — raw request body string
 - `env:` — Rack env when running under Rack, otherwise `nil`
-- `config:` — current `Igniter::Server::Config`
+- `config:` — current host runtime config (`Igniter::Server::Config` when using the default server host)
 
 Return either:
 
@@ -233,7 +233,7 @@ server:
   drain_timeout: 30     # seconds for graceful SIGTERM shutdown
 ```
 
-Keys under `server:` map 1-to-1 to `AppConfig` attributes. Values from YAML are applied first; the `configure` block runs afterwards and overrides anything.
+Keys under `server:` map 1-to-1 to application hosting settings. Values from YAML are applied first; the `configure` block runs afterwards and overrides anything.
 
 ENV variables are not expanded in YAML — read them in the `configure` block:
 
@@ -277,9 +277,10 @@ Returns the `AppConfig` instance (populated after the first call to `start` or `
 2. `executors_path` / `contracts_path` / `tools_path` / `agents_path` / `skills_path` directories loaded
 3. `on_boot` blocks run
 4. `configure` blocks run in declaration order (override YAML)
-5. `Server::Config` built from `AppConfig`
-6. Contracts and custom routes registered on the server config
-7. Scheduler started (one thread per job)
+5. `HostConfig` built from `AppConfig`
+6. Concrete host adapter maps `HostConfig` into its runtime config
+7. Contracts and custom routes registered on the runtime config
+8. Scheduler started (one thread per job)
 
 ---
 
@@ -327,6 +328,10 @@ bundle exec ruby examples/companion/workspace.rb main
 
 ## Integration with igniter-server
 
-`Igniter::Application` is a thin wrapper around `Igniter::Server`. The underlying `Server::Config` and `HttpServer` are the same — you can still use `Igniter::Server.configure` directly when you don't need the application/profile scaffold.
+`Igniter::Application` is a thin wrapper around hosting, with `Igniter::Server` as the
+default host adapter. You can still use `Igniter::Server.configure` directly when you
+don't need the application/profile scaffold.
 
-The two approaches are compatible in the same process: `Igniter::Application#start` calls `Igniter::Server::HttpServer.new(config).start` internally.
+The two approaches are compatible in the same process: the default application host
+eventually delegates to `Igniter::Server::HttpServer`, but that server-specific wiring
+now lives in `Igniter::Server::ApplicationHost`, not in `Igniter::Application` itself.

@@ -3,6 +3,7 @@
 require_relative "sdk"
 require_relative "server"
 require_relative "application/host_adapter"
+require_relative "application/host_config"
 require_relative "application/app_config"
 require_relative "application/yml_loader"
 require_relative "application/autoloader"
@@ -253,9 +254,9 @@ module Igniter
         cfg.after_request_hooks = @after_request_hooks.dup
         cfg.around_request_hooks = @around_request_hooks.dup
 
-        host_config = host_adapter.build_config(cfg)
+        host_config = cfg.to_host_config
         @registered.each { |name, klass| host_config.register(name, klass) }
-        host_config
+        host_adapter.build_config(host_config)
       end
 
       def apply_yml!(cfg)

@@ -139,40 +139,39 @@ RSpec.describe Igniter::Application do
       expect(cfg.metrics_collector).to be_nil
     end
 
-    describe "#to_server_config" do
+    describe "#to_host_config" do
       it "copies host and port" do
         cfg.host = "127.0.0.1"
         cfg.port = 9000
-        sc = cfg.to_server_config
-        expect(sc.host).to eq("127.0.0.1")
-        expect(sc.port).to eq(9000)
+        host_config = cfg.to_host_config
+        expect(host_config.host).to eq("127.0.0.1")
+        expect(host_config.port).to eq(9000)
       end
 
-      it "does not override store when nil" do
+      it "keeps store nil until a concrete host decides on defaults" do
         cfg.store = nil
-        sc = cfg.to_server_config
-        # Server::Config provides its own default store
-        expect(sc.store).not_to be_nil
+        host_config = cfg.to_host_config
+        expect(host_config.store).to be_nil
       end
 
       it "copies store when set" do
         custom_store = Igniter::Runtime::Stores::MemoryStore.new
         cfg.store    = custom_store
-        sc           = cfg.to_server_config
-        expect(sc.store).to be(custom_store)
+        host_config = cfg.to_host_config
+        expect(host_config.store).to be(custom_store)
       end
 
       it "copies metrics_collector" do
         collector = Object.new
         cfg.metrics_collector = collector
-        expect(cfg.to_server_config.metrics_collector).to be(collector)
+        expect(cfg.to_host_config.metrics_collector).to be(collector)
       end
 
       it "copies custom_routes" do
         route = { method: "POST", path: "/webhook", handler: ->(**) { { ok: true } } }
         cfg.custom_routes = [route]
 
-        expect(cfg.to_server_config.custom_routes).to eq([route])
+        expect(cfg.to_host_config.custom_routes).to eq([route])
       end
 
       it "copies request hooks" do
@@ -183,11 +182,23 @@ RSpec.describe Igniter::Application do
         cfg.after_request_hooks = [after_hook]
         cfg.around_request_hooks = [around_hook]
 
-        sc = cfg.to_server_config
-        expect(sc.before_request_hooks).to eq([before_hook])
-        expect(sc.after_request_hooks).to eq([after_hook])
-        expect(sc.around_request_hooks).to eq([around_hook])
+        host_config = cfg.to_host_config
+        expect(host_config.before_request_hooks).to eq([before_hook])
+        expect(host_config.after_request_hooks).to eq([after_hook])
+        expect(host_config.around_request_hooks).to eq([around_hook])
       end
+    end
+  end
+
+  describe Igniter::Application::HostConfig do
+    subject(:config) { described_class.new }
+
+    it "tracks contract registrations independently from host adapters" do
+      klass = sample_contract_class
+
+      config.register("SampleContract", klass)
+
+      expect(config.registrations).to eq("SampleContract" => klass)
     end
   end
 
@@ -468,7 +479,7 @@ RSpec.describe Igniter::Application do
       end
     end
 
-    it "registers contracts on the Server::Config" do
+    it "registers contracts on the built host config" do
       klass = sample_contract_class
       app   = fresh_app { register "SampleContract", klass }
 
@@ -476,7 +487,7 @@ RSpec.describe Igniter::Application do
       expect(sc.registry.registered?("SampleContract")).to be true
     end
 
-    it "passes custom routes to the Server::Config" do
+    it "passes custom routes to the built host config" do
       app = fresh_app do
         route "POST", "/webhook" do |params:, body:, **|
           { status: 200, body: { ok: true, size: body.size }, headers: { "Content-Type" => "application/json" } }
@@ -489,7 +500,7 @@ RSpec.describe Igniter::Application do
       expect(sc.custom_routes.first[:path]).to eq("/webhook")
     end
 
-    it "passes request hooks to the Server::Config" do
+    it "passes request hooks to the built host config" do
       before_hook = ->(request:) { request[:body] = { "before" => true } }
       after_hook = ->(request:, response:) { response[:headers]["X-After"] = "1" }
       around_hook = ->(request:, &inner) { inner.call }
@@ -571,13 +582,22 @@ RSpec.describe Igniter::Application do
       expect(app.host_adapter).to be_a(Igniter::Server::ApplicationHost)
     end
 
+    it "lets the default server host provide server-specific defaults" do
+      app = fresh_app
+
+      built = app.send(:build!)
+
+      expect(built).to be_a(Igniter::Server::Config)
+      expect(built.store).not_to be_nil
+    end
+
     it "builds host config through the configured host adapter" do
       built_from = nil
       fake_config = host_config_class.new(nil, {})
       fake_host = Object.new
 
-      fake_host.define_singleton_method(:build_config) do |app_config|
-        built_from = app_config
+      fake_host.define_singleton_method(:build_config) do |host_config|
+        built_from = host_config
         fake_config
       end
 
@@ -589,6 +609,7 @@ RSpec.describe Igniter::Application do
       built = app.send(:build!)
 
       expect(built).to be(fake_config)
+      expect(built_from).to be_a(Igniter::Application::HostConfig)
       expect(built_from.port).to eq(7777)
     end
 
@@ -598,8 +619,8 @@ RSpec.describe Igniter::Application do
       fake_config = host_config_class.new(nil, {})
       fake_host = Object.new
 
-      fake_host.define_singleton_method(:build_config) do |_app_config|
-        events << :build_config
+      fake_host.define_singleton_method(:build_config) do |host_config|
+        events << [:build_config, host_config]
         fake_config
       end
       fake_host.define_singleton_method(:activate_transport!) { events << :activate_transport }
@@ -614,10 +635,11 @@ RSpec.describe Igniter::Application do
       end
 
       expect(app.start).to eq(:started)
-      expect(fake_config.registered["SampleContract"]).to be(klass)
-      expect(events).to eq([
-        :activate_transport,
-        :build_config,
+      expect(events[0]).to eq(:activate_transport)
+      expect(events[1].first).to eq(:build_config)
+      expect(events[1].last).to be_a(Igniter::Application::HostConfig)
+      expect(events[1].last.registrations["SampleContract"]).to be(klass)
+      expect(events[2..]).to eq([
         [:start, fake_config]
       ])
     end
@@ -628,8 +650,8 @@ RSpec.describe Igniter::Application do
       fake_config = host_config_class.new(nil, {})
       fake_host = Object.new
 
-      fake_host.define_singleton_method(:build_config) do |_app_config|
-        events << :build_config
+      fake_host.define_singleton_method(:build_config) do |host_config|
+        events << [:build_config, host_config]
         fake_config
       end
       fake_host.define_singleton_method(:activate_transport!) { events << :activate_transport }
@@ -644,10 +666,11 @@ RSpec.describe Igniter::Application do
       end
 
       expect(app.rack_app).to eq(:rack_app)
-      expect(fake_config.registered["SampleContract"]).to be(klass)
-      expect(events).to eq([
-        :activate_transport,
-        :build_config,
+      expect(events[0]).to eq(:activate_transport)
+      expect(events[1].first).to eq(:build_config)
+      expect(events[1].last).to be_a(Igniter::Application::HostConfig)
+      expect(events[1].last.registrations["SampleContract"]).to be(klass)
+      expect(events[2..]).to eq([
         [:rack_app, fake_config]
       ])
     end

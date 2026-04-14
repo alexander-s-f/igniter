@@ -134,7 +134,9 @@ Igniter::Channels       # communication adapters (Telegram, WhatsApp, email, web
 
 ### Keep Application above Server
 
-`Igniter::Application` currently requires `igniter/server`, builds `Server::Config`, and starts `Server::HttpServer` / `Server::RackApp`. It should stay a profile/framework over `Server`, not a sibling capability layer.
+`Igniter::Application` currently requires `igniter/server` and uses a server-backed host
+adapter by default. It should stay a profile/framework over hosting, not a sibling
+capability layer.
 
 ### Future communication adapters
 
