@@ -271,8 +271,8 @@ module Igniter
               end
 
               configure do |c|
-                # c.port  = ENV.fetch("PORT", 4567).to_i
-                # c.store = Igniter::Runtime::Stores::MemoryStore.new
+                # c.server_host.port = ENV.fetch("PORT", 4567).to_i
+                # c.store            = Igniter::Runtime::Stores::MemoryStore.new
               end
 
               # schedule :heartbeat, every: "30s" do
@@ -287,7 +287,7 @@ module Igniter
 
       def main_application_yml
         <<~YAML
-          server:
+          server_host:
             port: 4567
             host: "0.0.0.0"
             log_format: text   # text | json

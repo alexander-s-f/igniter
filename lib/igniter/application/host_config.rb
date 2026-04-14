@@ -8,27 +8,32 @@ module Igniter
     # tying them to any specific host implementation such as the built-in HTTP
     # server, Rack, or a future event loop / process model.
     class HostConfig
-      attr_accessor :host, :port, :store, :log_format, :drain_timeout, :metrics_collector,
-                    :custom_routes, :before_request_hooks, :after_request_hooks, :around_request_hooks
+      attr_accessor :store, :metrics_collector, :custom_routes,
+                    :before_request_hooks, :after_request_hooks, :around_request_hooks
 
-      attr_reader :registrations
+      attr_reader :registrations, :host_settings
 
       def initialize
-        @host                 = "0.0.0.0"
-        @port                 = 4567
         @store                = nil
-        @log_format           = :text
-        @drain_timeout        = 30
         @metrics_collector    = nil
         @custom_routes        = []
         @before_request_hooks = []
         @after_request_hooks  = []
         @around_request_hooks = []
         @registrations        = {}
+        @host_settings        = {}
       end
 
       def register(name, contract_class)
         @registrations[name.to_s] = contract_class
+      end
+
+      def configure_host(name, settings)
+        @host_settings[name.to_sym] = settings.dup
+      end
+
+      def host_settings_for(name)
+        @host_settings.fetch(name.to_sym, {})
       end
     end
   end

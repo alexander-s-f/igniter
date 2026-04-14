@@ -605,7 +605,7 @@ runtime for each app.
 **`apps/main/application.yml`** — base config loaded before the `configure` block (block always wins):
 
 ```yaml
-server:
+server_host:
   port: 4567
   host: "0.0.0.0"
   log_format: json    # text (default) or json

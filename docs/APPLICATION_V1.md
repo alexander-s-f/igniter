@@ -226,20 +226,22 @@ end
 ## application.yml Reference
 
 ```yaml
-server:
+server_host:
   port: 4567
   host: "0.0.0.0"
   log_format: text      # "text" (default) or "json"
   drain_timeout: 30     # seconds for graceful SIGTERM shutdown
 ```
 
-Keys under `server:` map 1-to-1 to application hosting settings. Values from YAML are applied first; the `configure` block runs afterwards and overrides anything.
+Keys under `server_host:` map 1-to-1 to the default server host settings. Legacy
+`server:` is still accepted for compatibility. Values from YAML are applied first;
+the `configure` block runs afterwards and overrides anything.
 
 ENV variables are not expanded in YAML — read them in the `configure` block:
 
 ```ruby
 configure do |c|
-  c.port = ENV.fetch("PORT", 4567).to_i
+  c.server_host.port = ENV.fetch("PORT", 4567).to_i
 end
 ```
 

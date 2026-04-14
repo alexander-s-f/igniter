@@ -10,12 +10,14 @@ module Igniter
     # responsible for assembling the app graph, config, and scheduler.
     class ApplicationHost < Igniter::Application::HostAdapter
       def build_config(host_config)
+        server_settings = host_config.host_settings_for(:server)
+
         Config.new.tap do |config|
-          config.host                 = host_config.host
-          config.port                 = host_config.port
+          config.host                 = server_settings.fetch(:host, "0.0.0.0")
+          config.port                 = server_settings.fetch(:port, 4567)
           config.store                = host_config.store if host_config.store
-          config.log_format           = host_config.log_format
-          config.drain_timeout        = host_config.drain_timeout
+          config.log_format           = server_settings.fetch(:log_format, :text)
+          config.drain_timeout        = server_settings.fetch(:drain_timeout, 30)
           config.metrics_collector    = host_config.metrics_collector
           config.custom_routes        = host_config.custom_routes
           config.before_request_hooks = host_config.before_request_hooks

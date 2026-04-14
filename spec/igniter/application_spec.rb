@@ -132,20 +132,34 @@ RSpec.describe Igniter::Application do
     subject(:cfg) { described_class.new }
 
     it "provides sane defaults" do
-      expect(cfg.port).to eq(4567)
-      expect(cfg.host).to eq("0.0.0.0")
-      expect(cfg.log_format).to eq(:text)
-      expect(cfg.drain_timeout).to eq(30)
+      expect(cfg.server_host.port).to eq(4567)
+      expect(cfg.server_host.host).to eq("0.0.0.0")
+      expect(cfg.server_host.log_format).to eq(:text)
+      expect(cfg.server_host.drain_timeout).to eq(30)
       expect(cfg.metrics_collector).to be_nil
     end
 
+    it "keeps compatibility accessors delegating to server_host" do
+      cfg.port = 9000
+      cfg.host = "127.0.0.1"
+      cfg.log_format = :json
+      cfg.drain_timeout = 60
+
+      expect(cfg.server_host.port).to eq(9000)
+      expect(cfg.server_host.host).to eq("127.0.0.1")
+      expect(cfg.server_host.log_format).to eq(:json)
+      expect(cfg.server_host.drain_timeout).to eq(60)
+    end
+
     describe "#to_host_config" do
-      it "copies host and port" do
+      it "copies server-host settings into host-specific runtime intent" do
         cfg.host = "127.0.0.1"
         cfg.port = 9000
         host_config = cfg.to_host_config
-        expect(host_config.host).to eq("127.0.0.1")
-        expect(host_config.port).to eq(9000)
+        expect(host_config.host_settings_for(:server)).to include(
+          host: "127.0.0.1",
+          port: 9000
+        )
       end
 
       it "keeps store nil until a concrete host decides on defaults" do
@@ -200,6 +214,12 @@ RSpec.describe Igniter::Application do
 
       expect(config.registrations).to eq("SampleContract" => klass)
     end
+
+    it "tracks host-specific settings separately from neutral hosting intent" do
+      config.configure_host(:server, host: "127.0.0.1", port: 7000)
+
+      expect(config.host_settings_for(:server)).to eq(host: "127.0.0.1", port: 7000)
+    end
   end
 
   # ─── YmlLoader ────────────────────────────────────────────────────────────
@@ -217,40 +237,49 @@ RSpec.describe Igniter::Application do
       expect(described_class.load("/no/such/file.yml")).to eq({})
     end
 
-    it "applies port and host from YAML" do
+    it "applies port and host from server_host YAML" do
       Dir.mktmpdir do |dir|
-        path = write_yml(dir, "server:\n  port: 9999\n  host: \"127.0.0.1\"\n")
+        path = write_yml(dir, "server_host:\n  port: 9999\n  host: \"127.0.0.1\"\n")
         yml  = described_class.load(path)
         described_class.apply(cfg, yml)
-        expect(cfg.port).to eq(9999)
-        expect(cfg.host).to eq("127.0.0.1")
+        expect(cfg.server_host.port).to eq(9999)
+        expect(cfg.server_host.host).to eq("127.0.0.1")
       end
     end
 
     it "applies log_format as symbol" do
       Dir.mktmpdir do |dir|
-        path = write_yml(dir, "server:\n  log_format: json\n")
+        path = write_yml(dir, "server_host:\n  log_format: json\n")
         yml  = described_class.load(path)
         described_class.apply(cfg, yml)
-        expect(cfg.log_format).to eq(:json)
+        expect(cfg.server_host.log_format).to eq(:json)
       end
     end
 
     it "applies drain_timeout" do
       Dir.mktmpdir do |dir|
-        path = write_yml(dir, "server:\n  drain_timeout: 60\n")
+        path = write_yml(dir, "server_host:\n  drain_timeout: 60\n")
         yml  = described_class.load(path)
         described_class.apply(cfg, yml)
-        expect(cfg.drain_timeout).to eq(60)
+        expect(cfg.server_host.drain_timeout).to eq(60)
+      end
+    end
+
+    it "still accepts legacy server YAML for compatibility" do
+      Dir.mktmpdir do |dir|
+        path = write_yml(dir, "server:\n  port: 5678\n")
+        yml  = described_class.load(path)
+        described_class.apply(cfg, yml)
+        expect(cfg.server_host.port).to eq(5678)
       end
     end
 
     it "ignores unknown keys" do
       Dir.mktmpdir do |dir|
-        path = write_yml(dir, "server:\n  port: 5678\nfoo: bar\n")
+        path = write_yml(dir, "server_host:\n  port: 5678\nfoo: bar\n")
         yml  = described_class.load(path)
         expect { described_class.apply(cfg, yml) }.not_to raise_error
-        expect(cfg.port).to eq(5678)
+        expect(cfg.server_host.port).to eq(5678)
       end
     end
   end
@@ -610,7 +639,7 @@ RSpec.describe Igniter::Application do
 
       expect(built).to be(fake_config)
       expect(built_from).to be_a(Igniter::Application::HostConfig)
-      expect(built_from.port).to eq(7777)
+      expect(built_from.host_settings_for(:server)).to include(port: 7777)
     end
 
     it "delegates start to the configured host adapter" do

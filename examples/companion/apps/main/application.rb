@@ -48,8 +48,8 @@ module Companion
     end
 
     configure do |c|
-      c.port = ENV.fetch("ORCHESTRATOR_PORT", "4567").to_i
-      c.log_format = ENV.fetch("LOG_FORMAT", "text").to_sym
+      c.server_host.port = ENV.fetch("ORCHESTRATOR_PORT", "4567").to_i
+      c.server_host.log_format = ENV.fetch("LOG_FORMAT", "text").to_sym
       c.store = Companion::Boot.default_execution_store(app_name: :main)
     end
 
