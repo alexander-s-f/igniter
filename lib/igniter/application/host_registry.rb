@@ -31,17 +31,7 @@ module Igniter
         private
 
         def registry
-          @registry ||= default_registry
-        end
-
-        def default_registry
-          {
-            server: -> { Igniter::Application::ServerHost.new },
-            cluster: -> do
-              require_relative "../cluster"
-              Igniter::Application::ClusterHost.new
-            end
-          }
+          @registry ||= {}
         end
 
         def normalize_name(name)

@@ -99,13 +99,17 @@ class MainApp < Igniter::Application
   host :server   # default
 end
 
+require "igniter/cluster"
+
 class ClusterApp < Igniter::Application
   host :cluster
 end
 ```
 
 If you need a completely custom runtime host, `host_adapter SomeAdapter.new` still
-works as the escape hatch.
+works as the escape hatch. The `:server` profile is registered by
+`require "igniter/application"`, while `:cluster` is registered when the cluster
+entrypoint is loaded.
 
 If your application uses custom tools or agents, also load `require "igniter/core"`.
 If it uses the built-in operational tool pack, load `require "igniter/tools"`.
@@ -138,7 +142,8 @@ host :cluster  # cluster-aware host
 ```
 
 This keeps host choice declarative while preserving `host_adapter(...)` for custom
-adapters.
+adapters. `host :cluster` requires `require "igniter/cluster"` so the cluster host
+pack can register itself.
 
 ### `register_host(name) { ... }`
 

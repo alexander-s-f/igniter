@@ -47,6 +47,20 @@ RSpec.describe "Igniter layer loading" do
     JSON.parse(stdout)
   end
 
+  def registered_host_names_for(entrypoint)
+    script = <<~RUBY
+      require "json"
+      $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
+      require #{entrypoint.inspect}
+      puts JSON.generate(Igniter::Application::HostRegistry.names.map(&:to_s).sort)
+    RUBY
+
+    stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-e", script, chdir: ROOT)
+    raise "Failed to inspect host registry for #{entrypoint}: #{stderr}" unless status.success?
+
+    JSON.parse(stdout)
+  end
+
   it "`require \"igniter\"` stays inside the embedded core layer" do
     features = loaded_igniter_features("igniter")
 
@@ -98,6 +112,12 @@ RSpec.describe "Igniter layer loading" do
     })
   end
 
+  it "`require \"igniter/application\"` registers only the server host profile" do
+    host_names = registered_host_names_for("igniter/application")
+
+    expect(host_names).to eq(["server"])
+  end
+
   it "`require \"igniter/cluster\"` does not mutate the runtime remote adapter by itself" do
     adapter_classes = runtime_remote_adapter_classes_for("igniter/cluster")
 
@@ -105,5 +125,11 @@ RSpec.describe "Igniter layer loading" do
       "before" => "Igniter::Runtime::RemoteAdapter",
       "after" => "Igniter::Runtime::RemoteAdapter"
     })
+  end
+
+  it "`require \"igniter/cluster\"` registers both server and cluster host profiles" do
+    host_names = registered_host_names_for("igniter/cluster")
+
+    expect(host_names).to eq(["cluster", "server"])
   end
 end

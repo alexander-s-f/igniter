@@ -286,7 +286,9 @@ which layers mesh/bootstrap concerns on top of the same host model. The applicat
 declares this through `host :cluster`, while `host_adapter(...)` remains available
 for fully custom hosts. Canonical host profiles are now supplied through
 `Igniter::Application::HostRegistry`, so future host packs can register
-themselves without pushing more branching logic back into `Application`.
+themselves without pushing more branching logic back into `Application`. In other
+words, `require "igniter/application"` registers the server host pack, and
+`require "igniter/cluster"` extends that registry with the cluster host pack.
 
 ---
 
