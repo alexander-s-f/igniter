@@ -2,7 +2,12 @@
 
 `Igniter::Application` is the leaf runtime for one app inside an Igniter workspace.
 
-It packages contracts, executors, YAML config, a background scheduler, and server startup into a single coherent entry point. It replaces the raw `Igniter::Server.configure` boilerplate and is usually coordinated by a root `Igniter::Workspace`.
+It packages contracts, executors, YAML config, a background scheduler, and host
+startup into a single coherent entry point. By default that host is
+`Igniter::Server`, but the application layer now owns the assembly lifecycle and
+delegates deployment/runtime specifics through a host adapter seam. It replaces the
+raw `Igniter::Server.configure` boilerplate and is usually coordinated by a root
+`Igniter::Workspace`.
 
 See [WORKSPACES_V1.md](./WORKSPACES_V1.md) for the standard `apps/` layout.
 

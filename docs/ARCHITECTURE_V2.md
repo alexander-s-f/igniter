@@ -273,10 +273,11 @@ Convention-over-configuration entry point for single-machine deployments.
 DSL: `config_file`, `configure`, `executors_path`, `contracts_path`, `tools_path`,
 `agents_path`, `skills_path`, `on_boot`, `register`, `schedule`.
 
-Lifecycle: `autoload_paths!` → `on_boot` blocks → `configure` blocks → start server.
+Lifecycle: `autoload_paths!` → `on_boot` blocks → `configure` blocks → build host config → run through host adapter.
 
-`Igniter::Application` is a profile over `Igniter::Server`, not a separate capability
-layer between core and server.
+`Igniter::Application` is a profile over hosting. Today the default host adapter is
+`Igniter::Server::ApplicationHost`, so the public API still runs on top of
+`Igniter::Server` without hard-wiring HTTP classes into `Application` itself.
 
 ---
 

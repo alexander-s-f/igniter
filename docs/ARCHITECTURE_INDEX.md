@@ -13,7 +13,7 @@ Start here if you want the shortest accurate map of Igniter's structure.
 | AI | `Igniter::AI` / `require "igniter/ai"` | providers, AI executors, skills, transcription, AI tool registry |
 | Channels | `Igniter::Channels` / `require "igniter/channels"` | transport adapters such as webhook, Telegram, WhatsApp, email, SMS |
 | Server | `Igniter::Server` / `require "igniter/server"` | HTTP hosting, Rack app, remote execution transport; activation is explicit |
-| Application | `Igniter::Application`, `Igniter::Workspace` / `require "igniter/application"` | single-node app profile: workspace coordinator, scaffold, config, autoloading, scheduler |
+| Application | `Igniter::Application`, `Igniter::Workspace` / `require "igniter/application"` | single-node app profile: workspace coordinator, scaffold, config, autoloading, scheduler, host-adapter seam |
 | Cluster | `Igniter::Cluster` / `require "igniter/cluster"` | network runtime: consensus, mesh, replication, cluster-aware routing |
 | Plugins | `Igniter::Plugins::*` / `require "igniter/rails"` | framework-specific integrations |
 

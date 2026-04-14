@@ -2,6 +2,7 @@
 
 require_relative "sdk"
 require_relative "server"
+require_relative "application/host_adapter"
 require_relative "application/app_config"
 require_relative "application/yml_loader"
 require_relative "application/autoloader"
@@ -61,6 +62,12 @@ module Igniter
 
       def sdk_capabilities
         @sdk_capabilities ||= []
+      end
+
+      def host_adapter(adapter = nil)
+        return (@host_adapter ||= Igniter::Server::ApplicationHost.new) unless adapter
+
+        @host_adapter = adapter
       end
 
       # Root directory for this application.
@@ -182,22 +189,26 @@ module Igniter
       # ─── Lifecycle ───────────────────────────────────────────────────────────
 
       # Start the built-in HTTP server (blocking).
-      # Schedules background jobs and registers an at_exit cleanup.
+      # Schedules background jobs and delegates runtime hosting to the
+      # configured host adapter.
       def start
-        Igniter::Server.activate_remote_adapter!
-        sc    = build!
-        sched = build_scheduler(sc)
+        host  = host_adapter
+        host.activate_transport!
+        config = build!
+        sched = build_scheduler(config)
         sched&.start
         at_exit { sched&.stop }
-        Igniter::Server::HttpServer.new(sc).start
+        host.start(config: config)
       end
 
-      # Return a Rack-compatible application (for Puma / Unicorn / etc.).
+      # Return a Rack-compatible application (for Puma / Unicorn / etc.)
+      # through the configured host adapter.
       def rack_app
-        Igniter::Server.activate_remote_adapter!
-        sc = build!
-        build_scheduler(sc)&.start
-        Igniter::Server::RackApp.new(sc)
+        host = host_adapter
+        host.activate_transport!
+        config = build!
+        build_scheduler(config)&.start
+        host.rack_app(config: config)
       end
 
       # Expose the AppConfig (populated after the first build!).
@@ -225,24 +236,26 @@ module Igniter
         subclass.instance_variable_set(:@app_config,       AppConfig.new)
         subclass.instance_variable_set(:@build_scheduler,  nil)
         subclass.instance_variable_set(:@sdk_capabilities, [])
+        subclass.instance_variable_set(:@host_adapter,     nil)
       end
 
       private
 
-      # Build and return a ready Server::Config.
+      # Build and return a ready host-specific config object.
       def build!
         cfg = @app_config
         apply_yml!(cfg)
         autoload_paths!
         @boot_blocks.each(&:call)
         @configure_blocks.each { |b| b.call(cfg) }
-        sc = cfg.to_server_config
-        sc.custom_routes = @custom_routes.dup
-        sc.before_request_hooks = @before_request_hooks.dup
-        sc.after_request_hooks = @after_request_hooks.dup
-        sc.around_request_hooks = @around_request_hooks.dup
-        @registered.each { |name, klass| sc.register(name, klass) }
-        sc
+        cfg.custom_routes = @custom_routes.dup
+        cfg.before_request_hooks = @before_request_hooks.dup
+        cfg.after_request_hooks = @after_request_hooks.dup
+        cfg.around_request_hooks = @around_request_hooks.dup
+
+        host_config = host_adapter.build_config(cfg)
+        @registered.each { |name, klass| host_config.register(name, klass) }
+        host_config
       end
 
       def apply_yml!(cfg)

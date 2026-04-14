@@ -92,6 +92,15 @@ RSpec.describe Igniter::Application do
       expect(app2.instance_variable_get(:@boot_blocks)).to be_empty
     end
 
+    it "does not leak host adapters between subclasses" do
+      fake_host = Object.new
+      app1 = fresh_app { host_adapter fake_host }
+      app2 = fresh_app
+
+      expect(app1.host_adapter).to be(fake_host)
+      expect(app2.host_adapter).to be_a(Igniter::Server::ApplicationHost)
+    end
+
     it "does not leak custom routes between subclasses" do
       app1 = fresh_app { route "POST", "/webhook" do { ok: true } end }
       app2 = fresh_app
@@ -539,6 +548,108 @@ RSpec.describe Igniter::Application do
         expect(sc.port).to eq(6123)
         expect(sc.registry.registered?("RootScopedContract")).to be true
       end
+    end
+  end
+
+  describe "hosting" do
+    let(:host_config_class) do
+      Struct.new(:logger, :registered) do
+        def initialize(...)
+          super
+          self.registered ||= {}
+        end
+
+        def register(name, klass)
+          registered[name] = klass
+        end
+      end
+    end
+
+    it "uses the server host adapter by default" do
+      app = fresh_app
+
+      expect(app.host_adapter).to be_a(Igniter::Server::ApplicationHost)
+    end
+
+    it "builds host config through the configured host adapter" do
+      built_from = nil
+      fake_config = host_config_class.new(nil, {})
+      fake_host = Object.new
+
+      fake_host.define_singleton_method(:build_config) do |app_config|
+        built_from = app_config
+        fake_config
+      end
+
+      app = fresh_app do
+        configure { |c| c.port = 7777 }
+        host_adapter fake_host
+      end
+
+      built = app.send(:build!)
+
+      expect(built).to be(fake_config)
+      expect(built_from.port).to eq(7777)
+    end
+
+    it "delegates start to the configured host adapter" do
+      events = []
+      klass = sample_contract_class
+      fake_config = host_config_class.new(nil, {})
+      fake_host = Object.new
+
+      fake_host.define_singleton_method(:build_config) do |_app_config|
+        events << :build_config
+        fake_config
+      end
+      fake_host.define_singleton_method(:activate_transport!) { events << :activate_transport }
+      fake_host.define_singleton_method(:start) do |config:|
+        events << [:start, config]
+        :started
+      end
+
+      app = fresh_app do
+        register "SampleContract", klass
+        host_adapter fake_host
+      end
+
+      expect(app.start).to eq(:started)
+      expect(fake_config.registered["SampleContract"]).to be(klass)
+      expect(events).to eq([
+        :activate_transport,
+        :build_config,
+        [:start, fake_config]
+      ])
+    end
+
+    it "delegates rack_app to the configured host adapter" do
+      events = []
+      klass = sample_contract_class
+      fake_config = host_config_class.new(nil, {})
+      fake_host = Object.new
+
+      fake_host.define_singleton_method(:build_config) do |_app_config|
+        events << :build_config
+        fake_config
+      end
+      fake_host.define_singleton_method(:activate_transport!) { events << :activate_transport }
+      fake_host.define_singleton_method(:rack_app) do |config:|
+        events << [:rack_app, config]
+        :rack_app
+      end
+
+      app = fresh_app do
+        register "SampleContract", klass
+        host_adapter fake_host
+      end
+
+      expect(app.rack_app).to eq(:rack_app)
+      expect(fake_config.registered["SampleContract"]).to be(klass)
+      expect(events).to eq([
+        :activate_transport,
+        :build_config,
+        [:rack_app, fake_config]
+      ])
     end
   end
 end
