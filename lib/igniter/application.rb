@@ -2,7 +2,7 @@
 
 require_relative "sdk"
 require_relative "application/runtime_pack"
-require_relative "application/workspace"
+require_relative "application/workspace_pack"
 
 module Igniter
   # Base class for Igniter applications.

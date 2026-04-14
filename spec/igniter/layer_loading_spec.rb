@@ -150,6 +150,7 @@ RSpec.describe "Igniter layer loading" do
     features = loaded_igniter_features("igniter/application")
 
     expect(features).to include("igniter/application/runtime_pack.rb")
+    expect(features).to include("igniter/application/workspace_pack.rb")
     expect(features).to include("igniter/application/server_host_pack.rb")
     expect(features).to include("igniter/server/application_host.rb")
   end
