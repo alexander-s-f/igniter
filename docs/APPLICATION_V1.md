@@ -88,7 +88,8 @@ end
 
 `require "igniter/application"` is the canonical entrypoint. It loads the default
 server host pack for you, which in turn brings in the server runtime, and it also
-loads the default threaded scheduler pack for recurring background jobs.
+loads the default threaded scheduler pack for recurring background jobs plus the
+default filesystem loader pack for eager app code loading.
 `MyApp.start` and `MyApp.rack_app` also activate the server remote transport for you.
 If you want to resolve `remote:` nodes outside a hosted app lifecycle, activate
 `Igniter::Server` or `Igniter::Cluster` transport explicitly.
@@ -119,6 +120,12 @@ scheduler :threaded   # default
 ```
 
 and custom adapters can be selected through the scheduler registry.
+
+Application code loading is pluggable too:
+
+```ruby
+loader :filesystem   # default eager file loader
+```
 
 If your application uses custom tools or agents, also load `require "igniter/core"`.
 If it uses the built-in operational tool pack, load `require "igniter/tools"`.
@@ -188,6 +195,18 @@ end
 
 scheduler :inline
 ```
+
+### `loader(name)`
+
+Select the code-loading strategy used before `on_boot`.
+
+```ruby
+loader :filesystem   # default eager loader for app/**/*.rb paths
+```
+
+### `register_loader(name) { ... }`
+
+Register an additional code-loader adapter profile.
 
 ### `config_file(path)`
 

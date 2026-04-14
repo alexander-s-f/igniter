@@ -5,6 +5,9 @@ require_relative "application/host_adapter"
 require_relative "application/host_registry"
 require_relative "application/host_config"
 require_relative "application/server_host_pack"
+require_relative "application/loader_adapter"
+require_relative "application/loader_registry"
+require_relative "application/loader_pack"
 require_relative "application/scheduler_adapter"
 require_relative "application/scheduler_registry"
 require_relative "application/scheduler_pack"
@@ -71,6 +74,18 @@ module Igniter
         HostRegistry.register(name, builder, &block)
       end
 
+      def loader(name = nil)
+        return (@loader_name ||= :filesystem) unless name
+
+        @loader_name = normalize_loader_name(name)
+        @loader_adapter = nil
+        self
+      end
+
+      def register_loader(name, builder = nil, &block)
+        LoaderRegistry.register(name, builder, &block)
+      end
+
       def scheduler(name = nil)
         return (@scheduler_name ||= :threaded) unless name
 
@@ -98,6 +113,12 @@ module Igniter
         return (@host_adapter ||= build_host_adapter(host)) unless adapter
 
         @host_adapter = adapter
+      end
+
+      def loader_adapter(adapter = nil)
+        return (@loader_adapter ||= build_loader_adapter(loader)) unless adapter
+
+        @loader_adapter = adapter
       end
 
       def scheduler_adapter(adapter = nil)
@@ -272,6 +293,8 @@ module Igniter
         subclass.instance_variable_set(:@sdk_capabilities, [])
         subclass.instance_variable_set(:@host_name,        nil)
         subclass.instance_variable_set(:@host_adapter,     nil)
+        subclass.instance_variable_set(:@loader_name,      nil)
+        subclass.instance_variable_set(:@loader_adapter,   nil)
         subclass.instance_variable_set(:@scheduler_name,   nil)
         subclass.instance_variable_set(:@scheduler_adapter, nil)
       end
@@ -286,6 +309,10 @@ module Igniter
         name.to_sym
       end
 
+      def normalize_loader_name(name)
+        name.to_sym
+      end
+
       def build_host_adapter(name)
         builder = host_registry.fetch(normalize_host_name(name))
 
@@ -295,6 +322,18 @@ module Igniter
       end
 
       def build_registered_host(builder)
+        builder.arity == 0 ? builder.call : builder.call(self)
+      end
+
+      def build_loader_adapter(name)
+        builder = loader_registry.fetch(normalize_loader_name(name))
+
+        build_registered_loader(builder)
+      rescue KeyError
+        raise ArgumentError, "unknown application loader #{name.inspect}; expected one of: #{loader_registry.names.join(', ')}"
+      end
+
+      def build_registered_loader(builder)
         builder.arity == 0 ? builder.call : builder.call(self)
       end
 
@@ -314,6 +353,10 @@ module Igniter
         HostRegistry
       end
 
+      def loader_registry
+        LoaderRegistry
+      end
+
       def scheduler_registry
         SchedulerRegistry
       end
@@ -322,7 +365,7 @@ module Igniter
       def build!
         cfg = @app_config
         apply_yml!(cfg)
-        autoload_paths!
+        load_application_code!
         @boot_blocks.each(&:call)
         @configure_blocks.each { |b| b.call(cfg) }
         cfg.custom_routes = @custom_routes.dup
@@ -342,13 +385,17 @@ module Igniter
         YmlLoader.apply(cfg, yml)
       end
 
-      def autoload_paths!
-        loader = Autoloader.new(base_dir: @root_dir || Dir.pwd)
-        @executors_paths.each { |p| loader.load_path(p) }
-        @contracts_paths.each { |p| loader.load_path(p) }
-        @tools_paths.each     { |p| loader.load_path(p) }
-        @agents_paths.each    { |p| loader.load_path(p) }
-        @skills_paths.each    { |p| loader.load_path(p) }
+      def load_application_code!
+        loader_adapter.load!(
+          base_dir: @root_dir || Dir.pwd,
+          paths: {
+            executors: @executors_paths,
+            contracts: @contracts_paths,
+            tools: @tools_paths,
+            agents: @agents_paths,
+            skills: @skills_paths
+          }
+        )
       end
 
       def resolve_path(path)

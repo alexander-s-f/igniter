@@ -118,6 +118,14 @@ RSpec.describe Igniter::Application do
       expect(app2.scheduler).to eq(:threaded)
     end
 
+    it "does not leak selected loaders between subclasses" do
+      app1 = fresh_app { loader :custom }
+      app2 = fresh_app
+
+      expect(app1.loader).to eq(:custom)
+      expect(app2.loader).to eq(:filesystem)
+    end
+
     it "does not leak custom routes between subclasses" do
       app1 = fresh_app { route "POST", "/webhook" do { ok: true } end }
       app2 = fresh_app
@@ -304,6 +312,31 @@ RSpec.describe Igniter::Application do
       expect(app.scheduler_adapter).to be(fake_adapter)
       expect(captured_app).to be(app)
       expect(described_class.registered?(scheduler_name)).to be true
+    end
+  end
+
+  describe Igniter::Application::LoaderRegistry do
+    it "ships with the canonical filesystem loader profile" do
+      expect(described_class.names).to include(:filesystem)
+    end
+
+    it "allows registering a custom loader profile" do
+      loader_name = :"custom_#{object_id}"
+      fake_adapter = Object.new
+      captured_app = nil
+
+      app = fresh_app do
+        register_loader(loader_name) do |application_class|
+          captured_app = application_class
+          fake_adapter
+        end
+
+        loader loader_name
+      end
+
+      expect(app.loader_adapter).to be(fake_adapter)
+      expect(captured_app).to be(app)
+      expect(described_class.registered?(loader_name)).to be true
     end
   end
 
@@ -544,6 +577,39 @@ RSpec.describe Igniter::Application do
     end
   end
 
+  describe Igniter::Application::FilesystemLoaderAdapter do
+    it "loads path groups through the underlying autoloader in canonical order" do
+      adapter = described_class.new
+      calls = []
+      fake_loader = Object.new
+
+      fake_loader.define_singleton_method(:load_path) do |path|
+        calls << path
+      end
+
+      allow(Igniter::Application::Autoloader).to receive(:new).with(base_dir: "/tmp/app").and_return(fake_loader)
+
+      adapter.load!(
+        base_dir: "/tmp/app",
+        paths: {
+          tools: ["app/tools"],
+          contracts: ["app/contracts"],
+          executors: ["app/executors"],
+          skills: ["app/skills"],
+          agents: ["app/agents"]
+        }
+      )
+
+      expect(calls).to eq([
+        "app/executors",
+        "app/contracts",
+        "app/tools",
+        "app/agents",
+        "app/skills"
+      ])
+    end
+  end
+
   # ─── Generator ────────────────────────────────────────────────────────────
 
   describe Igniter::Application::Generator do
@@ -736,6 +802,43 @@ RSpec.describe Igniter::Application do
       expect(sc.around_request_hooks).to eq([around_hook])
     end
 
+    it "delegates code loading to the configured loader adapter before on_boot" do
+      events = []
+      fake_loader = Object.new
+
+      fake_loader.define_singleton_method(:load!) do |base_dir:, paths:|
+        events << [:load, base_dir, paths]
+      end
+
+      app = fresh_app do
+        root_dir "/tmp/loader-app"
+        executors_path "app/executors"
+        contracts_path "app/contracts"
+        tools_path "app/tools"
+        agents_path "app/agents"
+        skills_path "app/skills"
+        loader_adapter fake_loader
+        on_boot { events << :boot }
+      end
+
+      app.send(:build!)
+
+      expect(events).to eq([
+        [
+          :load,
+          "/tmp/loader-app",
+          {
+            executors: ["app/executors"],
+            contracts: ["app/contracts"],
+            tools: ["app/tools"],
+            agents: ["app/agents"],
+            skills: ["app/skills"]
+          }
+        ],
+        :boot
+      ])
+    end
+
     it "on_boot block runs during build! (after autoload_paths!)" do
       called = []
       app = fresh_app { on_boot { called << :booted } }
@@ -829,6 +932,15 @@ RSpec.describe Igniter::Application do
       end
     end
 
+    it "raises a helpful error for an unknown loader" do
+      app = fresh_app { loader :edge }
+
+      expect { app.loader_adapter }.to raise_error(ArgumentError) do |error|
+        expect(error.message).to include("unknown application loader :edge")
+        expect(error.message).to include("filesystem")
+      end
+    end
+
     it "lets the default server host provide server-specific defaults" do
       app = fresh_app
 
@@ -889,6 +1001,7 @@ RSpec.describe Igniter::Application do
           :ok
         end
         host_adapter fake_host
+        loader_adapter Object.new.tap { |loader| loader.define_singleton_method(:load!) { |**| } }
         scheduler_adapter fake_scheduler
       end
 
@@ -929,6 +1042,7 @@ RSpec.describe Igniter::Application do
           :ok
         end
         host_adapter fake_host
+        loader_adapter Object.new.tap { |loader| loader.define_singleton_method(:load!) { |**| } }
         scheduler_adapter fake_scheduler
       end
 

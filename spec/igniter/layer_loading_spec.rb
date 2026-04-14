@@ -75,6 +75,20 @@ RSpec.describe "Igniter layer loading" do
     JSON.parse(stdout)
   end
 
+  def registered_loader_names_for(entrypoint)
+    script = <<~RUBY
+      require "json"
+      $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
+      require #{entrypoint.inspect}
+      puts JSON.generate(Igniter::Application::LoaderRegistry.names.map(&:to_s).sort)
+    RUBY
+
+    stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-e", script, chdir: ROOT)
+    raise "Failed to inspect loader registry for #{entrypoint}: #{stderr}" unless status.success?
+
+    JSON.parse(stdout)
+  end
+
   it "`require \"igniter\"` stays inside the embedded core layer" do
     features = loaded_igniter_features("igniter")
 
@@ -146,6 +160,15 @@ RSpec.describe "Igniter layer loading" do
     expect(scheduler_names).to eq(["threaded"])
     expect(features).to include("igniter/application/scheduler_pack.rb")
     expect(features).to include("igniter/application/threaded_scheduler_adapter.rb")
+  end
+
+  it "`require \"igniter/application\"` registers the default filesystem loader pack" do
+    loader_names = registered_loader_names_for("igniter/application")
+    features = loaded_igniter_features("igniter/application")
+
+    expect(loader_names).to eq(["filesystem"])
+    expect(features).to include("igniter/application/loader_pack.rb")
+    expect(features).to include("igniter/application/filesystem_loader_adapter.rb")
   end
 
   it "`require \"igniter/cluster\"` does not mutate the runtime remote adapter by itself" do
