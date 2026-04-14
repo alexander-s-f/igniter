@@ -35,6 +35,7 @@ layer folders.
 |---------------|---------|
 | Contract DSL, model, compiler, runtime | `require "igniter"` |
 | Actor runtime and tool foundation | `require "igniter/core"` |
+| Built-in operational tools | `require "igniter/tools"` |
 | Specific core features | `require "igniter/core/tool"`, `require "igniter/core/memory"`, `require "igniter/core/temporal"` |
 | App data persistence | `require "igniter/data"` |
 | Behavioral extensions | `require "igniter/extensions/auditing"`, `require "igniter/extensions/capabilities"` |
@@ -63,11 +64,11 @@ superset of the one before it — your domain contracts never change.
 
 | Mode | Use case | Entry point |
 |------|----------|-------------|
-| **Embedded** | Add to Rails / Sidekiq / plain Ruby | `require "igniter"` |
-| **App Server** | Standalone HTTP service, single machine | `igniter-server new my_app` |
+| **Embed** | Add to Rails / Sidekiq / plain Ruby | `require "igniter"` |
+| **Server** | Standalone single-machine app runtime | `require "igniter/application"` |
 | **Cluster** | Multi-node with Raft consensus + gossip mesh | `require "igniter/cluster"` |
 
-See [`docs/DEPLOYMENT_V1.md`](docs/DEPLOYMENT_V1.md) for detailed setup instructions for each scenario and the gem separation roadmap.
+See [`docs/LAYERS_V1.md`](docs/LAYERS_V1.md) for the layer contract and [`docs/DEPLOYMENT_V1.md`](docs/DEPLOYMENT_V1.md) for scenario-specific setup.
 
 ---
 
@@ -300,6 +301,17 @@ class DeliveryContract < Igniter::Contract
 
     export :price, :eta, from: :delivery_strategy
   end
+end
+```
+
+Matcher-style branching is also supported:
+
+```ruby
+branch :delivery_strategy, with: :country, inputs: { country: :country, order_total: :order_total } do
+  on eq: "US",                contract: USDeliveryContract
+  on in: %w[CA MX],           contract: NorthAmericaContract
+  on matches: /\A[A-Z]{2}\z/, contract: InternationalContract
+  default contract: DefaultDeliveryContract
 end
 ```
 

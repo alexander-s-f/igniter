@@ -12,6 +12,7 @@ Use the smallest entrypoint that matches the deployment mode:
 |------|---------|
 | Core contracts and runtime | `require "igniter"` |
 | Actor / tool foundation | `require "igniter/core"` |
+| Built-in operational tools | `require "igniter/tools"` |
 | Specific core features | `require "igniter/core/temporal"`, `require "igniter/core/node_cache"` |
 | Extensions | `require "igniter/extensions/auditing"`, `require "igniter/extensions/capabilities"` |
 | AI | `require "igniter/ai"` |
@@ -46,7 +47,7 @@ igniter
 ```
 
 No server, no cluster, no HTTP transport. Add `igniter/core/*`, `igniter/extensions/*`,
-`igniter/ai`, or `igniter/channels` only when your app needs them.
+`igniter/tools`, `igniter/ai`, or `igniter/channels` only when your app needs them.
 
 ### Structure — entirely up to the user
 

@@ -83,7 +83,8 @@ end
 `require "igniter/application"` is the canonical entrypoint. It loads the server layer
 for you, so most applications do not need a separate `require "igniter/server"`.
 
-If your application uses tools or agents, also load `require "igniter/core"`.
+If your application uses custom tools or agents, also load `require "igniter/core"`.
+If it uses the built-in operational tool pack, load `require "igniter/tools"`.
 If it uses skills, providers, or `Igniter::AI.configure`, also load `require "igniter/ai"`.
 
 ### 3. Run through the workspace

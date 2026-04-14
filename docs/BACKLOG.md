@@ -1,134 +1,116 @@
 # Igniter Backlog
 
-This file is a lightweight backlog for ideas that are worth preserving before they turn into active implementation work.
+This file tracks the next meaningful development steps for Igniter.
+Implemented features should move out of the backlog and into stable docs.
 
-## Collections v1
+## Recently Landed
 
-Status: idea
-Priority: high
+- `branch` is implemented, including exported child outputs, runtime `branch_selected`
+  events, and matcher-style routing via exact values, `in:`, and `matches:`.
+- `collection` is implemented with `CollectionResult`, `:collect` / `:fail_fast` /
+  `:incremental`, per-item events, diagnostics, and `map_inputs`.
+- `scope` / `namespace` are implemented as path-grouping tools for readability and
+  introspection.
 
-Problem:
-
-- Real orchestration often needs fan-out over a list of homogeneous items.
-- Without a collection primitive, users will hide loops inside `compute` nodes.
-- That reduces graph transparency and makes diagnostics, invalidation, and async execution weaker.
-
-Example direction:
-
-```ruby
-collection :technicians,
-  depends_on: :technician_inputs,
-  each: TechnicianContract,
-  key: :technician_id,
-  mode: :collect
-```
-
-Likely semantics:
-
-- `depends_on:` should resolve to an array of item input hashes
-- `each:` should point to a child contract or executor-like collection worker
-- `key:` should provide stable item identity for invalidation, resume, and diagnostics
-- `mode:` should control failure semantics, for example `:collect` vs `:fail_fast`
-
-Why it matters:
-
-- enables explicit fan-out/fan-in in the graph model
-- fits naturally with `thread_pool` execution
-- creates a path toward item-level async/pending/resume
-- improves diagnostics over collection workflows
-
-Open design questions:
-
-- result shape: array, keyed hash, or dedicated `CollectionResult`
-- compile-time validation for item schema and key extraction
-- per-item invalidation and snapshot/restore behavior
-- item-level events and auditing model
-- parent failure semantics when some items fail or remain pending
-
-Suggested implementation order:
-
-1. write a short design doc for Collections v1
-2. define graph/model/runtime semantics
-3. add compile-time validators
-4. add a minimal synchronous implementation
-5. extend to parallel runner
-6. later extend to pending/store-backed item execution
-
-## Conditional Branches v1
-
-Status: idea
-Priority: high
-
-Problem:
-
-- Real orchestration often needs explicit conditional routing.
-- Without a branching primitive, users push control flow into `compute` blocks or executors.
-- That hides workflow structure and weakens diagnostics and introspection.
-
-Example direction:
-
-```ruby
-branch :delivery_strategy, depends_on: :country do
-  on "US", contract: USDeliveryContract
-  on "UA", contract: LocalDeliveryContract
-  else contract: DefaultDeliveryContract
-end
-```
-
-Why it matters:
-
-- makes control flow explicit in the graph
-- keeps routing logic out of generic `compute` nodes
-- improves explainability by showing which branch was selected
-- fits future schema/UI-driven graph composition
-
-Likely semantics:
-
-- `depends_on:` resolves the selector input
-- one branch is selected at runtime based on ordered matching
-- the selected branch behaves like a composition-like node
-- diagnostics and events should include which branch matched
-
-Open design questions:
-
-- exact-match only vs predicate-based matching
-- whether `else` is required or optional
-- compatibility of outputs across different branches
-- how branch nodes appear in plans, graphs, and runtime state
-- whether branches select contracts only or also arbitrary nodes/executors
-
-Suggested implementation order:
-
-1. write a short design doc for Branches v1
-2. define graph/model/runtime semantics
-3. add compile-time validation for branch definitions
-4. implement a minimal contract-branching version
-5. add introspection and diagnostics for selected branch visibility
-6. later extend to schema-driven graph builders
-
-## Namespaces / Scopes v1
+## Branch Predicates vNext
 
 Status: idea
 Priority: medium
 
 Problem:
 
-- Larger contracts need a way to group related nodes without extracting every subgraph into a separate top-level contract.
-- Without grouping, large orchestration graphs become flat and harder to scan.
-- Users may want a local container for related calculations before deciding whether the logic deserves a standalone contract.
+- Current branch routing covers exact values, set membership, and regex matching.
+- Some workflows still need richer predicates that combine several context values or
+  perform custom boolean checks.
+- Today that logic must still fall back to `compute` nodes before branching.
 
 Example direction:
 
 ```ruby
-scope :availability do
-  lookup :vendor, depends_on: %i[trade vendor_id], call: LookupVendor
-  lookup :zip_code, depends_on: [:zip_code_raw], call: LookupZipCode
-  compute :geo_bids, depends_on: %i[zip_code vendor], call: LookupGeoBids
-  compute :availability, depends_on: %i[vendor zip_code], call: CalculateAvailability
+branch :delivery_strategy, with: :country, depends_on: [:vip] do
+  on eq: "US", contract: USDeliveryContract
+  on_if ->(selector:, vip:) { selector == "CA" && vip }, contract: PriorityCanadaContract
+  default contract: DefaultDeliveryContract
 end
 ```
 
-Possible extended direction:
+Why it matters:
+
+- keeps routing declarative even for non-trivial business rules
+- avoids scattering selector normalization across helper compute nodes
+- makes future schema/UI routing editors more expressive
+
+Open design questions:
+
+- proc matcher shape: `selector:` only or full context values
+- compile-time validation vs runtime-only validation for callable matchers
+- how predicate cases should appear in graph introspection and schema export
+- how to keep case ordering understandable when mixing exact and predicate branches
+
+Suggested implementation order:
+
+1. add a short design note for callable branch predicates
+2. keep ordered-first-match semantics
+3. add introspection formatting for predicate cases
+4. add runtime event payloads that expose matcher kind clearly
+
+## Async Collections vNext
+
+Status: idea
+Priority: high
+
+Problem:
+
+- Collections already support synchronous fan-out and incremental diffing.
+- Real deployments still need per-item pending/resume and durable store-backed item
+  execution for slow or external work.
+- Without item-level persistence, large batches must either block inline or move
+  orchestration outside Igniter.
+
+Example direction:
+
+```ruby
+collection :quotes,
+  with: :quote_inputs,
+  each: QuoteContract,
+  key: :quote_id,
+  mode: :collect,
+  runner: :store
+```
+
+Why it matters:
+
+- unlocks long-running fan-out workflows
+- fits naturally with existing `await` and store-backed execution
+- creates a path toward resumable partial batches
+
+Open design questions:
+
+- item-level snapshot format and execution identifiers
+- whether parent collection state becomes pending or partially pending
+- resume API surface for single item vs whole collection
+- interaction with `:incremental` collection mode
+
+Suggested implementation order:
+
+1. design item snapshot and restore semantics
+2. persist child execution ids in `CollectionResult`
+3. support resume for pending items
+4. extend diagnostics with pending-item summaries
+
+## Scoped Interfaces vNext
+
+Status: idea
+Priority: medium
+
+Problem:
+
+- `scope` / `namespace` currently improve readability by grouping node paths.
+- Larger contracts may eventually need stronger subgraph semantics without paying the
+  full cost of extracting every group into a standalone composed contract.
+- There is still no local-interface concept for a grouped block.
+
+Example direction:
 
 ```ruby
 namespace :availability do
@@ -138,29 +120,26 @@ namespace :availability do
   compute :vendor, ...
   compute :availability, ...
 
-  output :availability
+  expose :availability
 end
 ```
 
 Why it matters:
 
-- improves readability of larger contracts
-- creates a middle layer between a flat graph and full contract composition
-- may provide a path toward inline-contract semantics
-- could improve future graph visualization and schema editing UX
+- creates a middle layer between visual grouping and full composition
+- could improve future graph editors and schema-driven authoring
+- makes large contracts easier to reason about as explicit subgraphs
 
 Open design questions:
 
-- purely visual grouping vs real runtime/model boundary
-- whether scoped nodes get path prefixes like `availability.vendor`
-- whether scopes can define local inputs/outputs
-- how scopes differ from composition and when users should prefer one over the other
-- whether inline contracts should compile into the same graph or nested child executions
+- should scoped inputs/outputs be compile-time sugar or real model nodes
+- how visibility rules should work across scope boundaries
+- whether inline scopes should compile into one graph or nested child executions
+- how export/expose semantics should behave for scoped outputs
 
 Suggested implementation order:
 
-1. write a short design note comparing scopes vs composition
-2. decide whether v1 is visual/logical grouping only or a true subgraph primitive
-3. define path, output, and introspection semantics
-4. implement minimal grouping support
-5. later evaluate inline-contract execution semantics
+1. write a design note comparing scoped interfaces vs composition
+2. decide whether vNext is syntax sugar or a real subgraph primitive
+3. define path and visibility semantics
+4. add introspection output that makes scope boundaries explicit

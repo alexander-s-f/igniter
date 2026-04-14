@@ -61,6 +61,9 @@ Branches v1 should stay intentionally narrow.
 Supported:
 
 - exact-match branch selection
+- `eq:` matcher shorthand
+- `in:` membership matching
+- `matches:` regexp matching
 - one selector dependency
 - child contracts as branch targets
 - explicit fallback through `default`
@@ -70,7 +73,6 @@ Supported:
 Not supported in v1:
 
 - predicate lambdas
-- regex or set matching
 - multiple selectors
 - executor targets
 - node-level arbitrary targets
@@ -88,6 +90,20 @@ If the selected child contract fails, the branch node fails.
 
 Unselected branches must not execute.
 
+Case matching remains ordered. The first matching `on` clause wins, so more specific
+cases should appear before broader ones.
+
+Matcher forms:
+
+```ruby
+branch :delivery_strategy, with: :country do
+  on "US", contract: USDeliveryContract
+  on in: %w[CA MX], contract: NorthAmericaContract
+  on matches: /\A[A-Z]{2}\z/, contract: InternationalContract
+  default contract: DefaultDeliveryContract
+end
+```
+
 ## Compile-Time Validation
 
 The compiler should validate:
@@ -96,9 +112,11 @@ The compiler should validate:
 - selector dependency existence
 - at least one `on` case
 - exactly one `default`
-- unique case values within the branch
+- unique exact values across `on` and `in:` cases
 - each case has a valid contract
 - the default has a valid contract
+- `in:` uses a non-empty array
+- `matches:` uses a regexp
 - exported outputs exist across all possible branch contracts
 
 The last point is important:
@@ -148,6 +166,7 @@ Suggested payload:
 {
   selector: :country,
   selector_value: "US",
+  matcher: :eq,
   matched_case: "US",
   selected_contract: "USDeliveryContract"
 }
@@ -203,8 +222,6 @@ In a well-validated graph, this error should be rare.
 
 Possible later additions:
 
-- `in:` matching
-- `matches:` matching
 - predicate matching
 - branch-to-executor targets
 - schema-driven branch authoring

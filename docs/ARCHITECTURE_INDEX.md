@@ -6,14 +6,15 @@ Start here if you want the shortest accurate map of Igniter's structure.
 
 | Layer | Namespace / Require | Responsibility |
 |------|----------------------|----------------|
-| Core | `Igniter` / `require "igniter"` | contract DSL, model, compiler, runtime, events, diagnostics |
-| Core features | `Igniter` / `require "igniter/core"` or `require "igniter/core/<feature>"` | actors, tools, memory, metrics, temporal support, caches, core helpers |
+| Embed kernel | `Igniter` / `require "igniter"` | contract DSL, model, compiler, runtime, events, diagnostics |
+| Actor / tool kit | `Igniter` / `require "igniter/core"` or `require "igniter/core/<feature>"` | actors, tool base classes, memory, metrics, temporal support, caches |
+| Built-in tools | `Igniter::Tools` / `require "igniter/tools"` | system discovery, workflow selection, bootstrap-planning tools |
 | Extensions | `require "igniter/extensions/<feature>"` | behavioral add-ons such as auditing, provenance, incremental, dataflow, invariants |
 | AI | `Igniter::AI` / `require "igniter/ai"` | providers, AI executors, skills, transcription, AI tool registry |
 | Channels | `Igniter::Channels` / `require "igniter/channels"` | transport adapters such as webhook, Telegram, WhatsApp, email, SMS |
 | Server | `Igniter::Server` / `require "igniter/server"` | HTTP hosting, Rack app, remote execution transport |
-| Application | `Igniter::Application`, `Igniter::Workspace` / `require "igniter/application"` | app profile layer: workspace coordinator, scaffold, config, autoloading, scheduler |
-| Cluster | `Igniter::Cluster` / `require "igniter/cluster"` | consensus, mesh, replication, cluster-aware routing |
+| Application | `Igniter::Application`, `Igniter::Workspace` / `require "igniter/application"` | single-node app profile: workspace coordinator, scaffold, config, autoloading, scheduler |
+| Cluster | `Igniter::Cluster` / `require "igniter/cluster"` | network runtime: consensus, mesh, replication, cluster-aware routing |
 | Plugins | `Igniter::Plugins::*` / `require "igniter/rails"` | framework-specific integrations |
 
 ## Dependency Rules
@@ -21,13 +22,14 @@ Start here if you want the shortest accurate map of Igniter's structure.
 Allowed direction of dependencies:
 
 ```text
-Core
+Embed
   ├─ Extensions
+  ├─ Actor/Tool kit
   ├─ AI
   ├─ Channels
   └─ Server
        └─ Application
-       └─ Cluster
+            └─ Cluster
 
 Plugins depend on the layer they integrate with.
 ```
@@ -101,6 +103,7 @@ Prefer the smallest require that matches the feature you need.
 |------|---------|
 | Contracts, DSL, runtime | `require "igniter"` |
 | Actors and tools | `require "igniter/core"` |
+| Built-in operational tools | `require "igniter/tools"` |
 | One core feature | `require "igniter/core/tool"` or `require "igniter/core/temporal"` |
 | One extension | `require "igniter/extensions/auditing"` |
 | AI | `require "igniter/ai"` |
@@ -137,6 +140,7 @@ core foundation
 
 Read next:
 
+- [Layers v1](./LAYERS_V1.md)
 - [Architecture v2](./ARCHITECTURE_V2.md)
 - [Persistence Model v1](./PERSISTENCE_MODEL_V1.md)
 - [Cluster Debug v1](./CLUSTER_DEBUG_V1.md)

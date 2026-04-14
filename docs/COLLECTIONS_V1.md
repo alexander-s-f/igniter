@@ -74,6 +74,8 @@ This is preferable to implicit input mapping because:
 Supported:
 
 - one dependency providing an array of item input hashes
+- `depends_on:` extra context dependencies
+- `map_inputs:` / `using:` item-to-child input mapping
 - child contract execution per item
 - stable key extraction
 - synchronous collection execution
@@ -85,32 +87,37 @@ Not supported in v1:
 - nested async item execution
 - item-level `defer` semantics
 - schema inference from arbitrary item shapes
-- implicit item input mapping from primitives
+- implicit item input mapping without an explicit mapper
 
 ## Suggested DSL Options
 
 - `with:` selector for the collection input
+- `depends_on:` extra parent dependencies available to the mapper
 - `each:` child contract class
 - `key:` stable item identity
 - `mode:` failure behavior
+- `map_inputs:` / `using:` explicit item mapper
 
 Example:
 
 ```ruby
 collection :technicians,
   with: :technician_inputs,
+  depends_on: [:date],
   each: TechnicianContract,
   key: :technician_id,
+  map_inputs: ->(item:, date:) { { technician_id: item[:technician_id], date: date } },
   mode: :collect
 ```
 
 ## Runtime Semantics
 
 1. Resolve the collection input dependency.
-2. Expect an array of hashes.
+2. Expect an array. By default each item should already be a child input hash.
 3. For each item:
    - derive item key
-   - instantiate child contract with item hash
+   - either use the item directly or transform it with `map_inputs:`
+   - instantiate child contract with the resulting child input hash
    - resolve child contract
 4. Aggregate results according to `mode`
 
@@ -192,6 +199,7 @@ The compiler should validate:
 - `each:` is an `Igniter::Contract` subclass
 - `key:` is present
 - child contract is compiled
+- `map_inputs:` / `using:` is optional but, when present, shifts shape validation to runtime
 - if the source type is known, it is compatible with an array-like input
 
 ## Runtime Validation

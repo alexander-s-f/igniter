@@ -49,7 +49,7 @@ end
 Igniter can also expose a safe host snapshot tool for environment-aware agents:
 
 ```ruby
-require "igniter/core"
+require "igniter/tools"
 
 result = Igniter::Tools::SystemDiscoveryTool.new.call_with_capability_check!(
   allowed_capabilities: [:system_read],
