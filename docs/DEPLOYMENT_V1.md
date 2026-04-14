@@ -138,7 +138,7 @@ AI, tools, skills, and channels remain opt-in layers that an application can loa
 ### What you get
 
 ```
-igniter + igniter/core + igniter/server + igniter/application
+igniter + igniter/core + igniter/server + igniter/app
     + optional igniter/ai
     + optional igniter/channels
 ```
@@ -301,7 +301,7 @@ Each node runs Scenario 2 (application server), plus the cluster layer adds:
 
 ```
 igniter + igniter/core + igniter/server + igniter/cluster
-    + optional igniter/application
+    + optional igniter/app
     + optional igniter/ai
     + optional igniter/channels
 ```

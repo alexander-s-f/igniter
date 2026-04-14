@@ -359,18 +359,8 @@ RSpec.describe Igniter::Application do
     end
   end
 
-  describe Igniter::Application::ServerHost do
-    it "remains aliased as Igniter::Server::ApplicationHost for compatibility" do
-      expect(Igniter::Server::ApplicationHost).to be(described_class)
-    end
-  end
-
   describe Igniter::Application::ClusterHost do
     after { Igniter::Cluster::Mesh.reset! }
-
-    it "remains aliased as Igniter::Cluster::ApplicationHost for compatibility" do
-      expect(Igniter::Cluster::ApplicationHost).to be(described_class)
-    end
 
     it "configures server and mesh settings from cluster host config" do
       host_config = Igniter::Application::HostConfig.new

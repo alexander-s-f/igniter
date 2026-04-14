@@ -31,7 +31,7 @@ Current public entrypoints:
 - `require "igniter/channels"` — transport-neutral communication adapters
 - `require "igniter/server"` — HTTP/service hosting
 - `require "igniter/cluster"` — distributed runtime
-- `require "igniter/application"` — opinionated application profile
+- `require "igniter/app"` — opinionated application profile
 - `require "igniter/rails"` — Rails plugin entrypoint
 
 ## Root Vs Layered Layout
@@ -41,7 +41,7 @@ Target filesystem rule:
 - `lib/igniter/` keeps only top-level layer entrypoints.
 - `lib/igniter/core/` holds the substantive core implementation.
 - `lib/igniter/extensions/` holds behavioral extension entrypoints.
-- `lib/igniter/ai/`, `server/`, `cluster/`, `channels/`, `application/` hold their own authoritative code.
+- `lib/igniter/ai/`, `server/`, `cluster/`, `channels/`, `app/` hold their own authoritative code.
 - `lib/igniter/plugins/` is the intended home for framework-specific integrations such as Rails.
 - Rails plugin relocation completed under `lib/igniter/plugins/rails/*`, with `lib/igniter/rails.rb` as the short public entrypoint.
 
@@ -162,7 +162,7 @@ Create target directories and move obvious code without changing behavior:
 - `lib/igniter/ai/`
 - `lib/igniter/server/`
 - `lib/igniter/cluster/`
-- `lib/igniter/application/`
+- `lib/igniter/app/`
 - `lib/igniter/channels/`
 
 This phase is mostly physical reorganization plus namespace cleanup.
@@ -245,10 +245,10 @@ Split it into:
 | `lib/igniter/agents/proactive/alert_agent.rb` | `lib/igniter/agents/proactive/alert_agent.rb` | `Igniter::Agents::AlertAgent` |
 | `lib/igniter/agents/proactive/health_check_agent.rb` | `lib/igniter/agents/proactive/health_check_agent.rb` | `Igniter::Agents::HealthCheckAgent` |
 | `lib/igniter/agents/proactive_agent.rb` | `lib/igniter/agents/proactive_agent.rb` | `Igniter::Agents::ProactiveAgent` |
-| `lib/igniter/agents/observability/*` | `lib/igniter/agents/observability/*` or `lib/igniter/application/agents/observability/*` | depends on coupling |
-| `lib/igniter/agents/reliability/*` | `lib/igniter/core/agents/reliability/*` if fully generic, otherwise `application` |
-| `lib/igniter/agents/pipeline/*` | `lib/igniter/core/agents/pipeline/*` if fully generic, otherwise `application` |
-| `lib/igniter/agents/scheduling/*` | `lib/igniter/application/agents/scheduling/*` | scheduling is app-profile behavior |
+| `lib/igniter/agents/observability/*` | `lib/igniter/agents/observability/*` or `lib/igniter/app/agents/observability/*` | depends on coupling |
+| `lib/igniter/agents/reliability/*` | `lib/igniter/core/agents/reliability/*` if fully generic, otherwise `app` |
+| `lib/igniter/agents/pipeline/*` | `lib/igniter/core/agents/pipeline/*` if fully generic, otherwise `app` |
+| `lib/igniter/agents/scheduling/*` | `lib/igniter/app/agents/scheduling/*` | scheduling is app-profile behavior |
 
 Decision rule:
 
@@ -262,12 +262,12 @@ Application-related files should stay grouped and remain above server concerns.
 
 | Current path | Target path | Target namespace |
 |-------------|-------------|------------------|
-| `lib/igniter/application.rb` | `lib/igniter/application.rb` | `Igniter::Application` |
-| `lib/igniter/application/app_config.rb` | `lib/igniter/application/app_config.rb` | `Igniter::Application::AppConfig` |
-| `lib/igniter/application/autoloader.rb` | `lib/igniter/application/autoloader.rb` | `Igniter::Application::Autoloader` |
-| `lib/igniter/application/scheduler.rb` | `lib/igniter/application/scheduler.rb` | `Igniter::Application::Scheduler` |
-| `lib/igniter/application/yml_loader.rb` | `lib/igniter/application/yml_loader.rb` | `Igniter::Application::YmlLoader` |
-| `lib/igniter/application/generator.rb` | `lib/igniter/application/generator.rb` | `Igniter::Application::Generator` |
+| `lib/igniter/app.rb` | `lib/igniter/app.rb` | `Igniter::Application` |
+| `lib/igniter/app/app_config.rb` | `lib/igniter/app/app_config.rb` | `Igniter::Application::AppConfig` |
+| `lib/igniter/app/autoloader.rb` | `lib/igniter/app/autoloader.rb` | `Igniter::Application::Autoloader` |
+| `lib/igniter/app/scheduler.rb` | `lib/igniter/app/scheduler.rb` | `Igniter::Application::Scheduler` |
+| `lib/igniter/app/yml_loader.rb` | `lib/igniter/app/yml_loader.rb` | `Igniter::Application::YmlLoader` |
+| `lib/igniter/app/generator.rb` | `lib/igniter/app/generator.rb` | `Igniter::Application::Generator` |
 
 No need to invent `Igniter::Server::Application` unless the codebase later proves it cleaner.
 

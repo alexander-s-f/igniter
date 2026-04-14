@@ -31,7 +31,7 @@ require_relative "lib/companion/boot"
 
 Companion::Boot.setup_load_path!
 
-require "igniter/application"
+require "igniter/app"
 require "igniter/core"
 require "igniter/ai"
 

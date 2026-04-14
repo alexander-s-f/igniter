@@ -131,12 +131,10 @@ loader :filesystem   # default eager file loader
 If your application uses scaffold generation APIs such as
 `Igniter::Application::Generator`, load `require "igniter/app/scaffold_pack"`.
 Internally, `require "igniter/app"` now assembles its runtime behavior via
-`require "igniter/application/runtime_pack"` and
-`require "igniter/application/workspace_pack"`.
+`require "igniter/app/runtime_pack"` and
+`require "igniter/app/workspace_pack"`.
 If you want just the leaf application runtime without workspace support, use
 `require "igniter/app/runtime"` instead.
-`require "igniter/application"` and related `igniter/application/*` entrypoints
-remain available as backward-compatible aliases.
 
 If your application uses custom tools or agents, also load `require "igniter/core"`.
 If it uses the built-in operational tool pack, load `require "igniter/tools"`.
@@ -443,10 +441,9 @@ don't need the application/profile scaffold.
 
 The two approaches are compatible in the same process: the default application host
 eventually delegates to `Igniter::Server::HttpServer`, but that server-specific wiring
-now lives in `Igniter::Application::ServerHost` (with `Igniter::Server::ApplicationHost`
-kept as a compatibility alias), not in `Igniter::Application` itself.
+now lives in `Igniter::Application::ServerHost`, not in `Igniter::Application` itself.
 
 For cluster-aware app hosting, the canonical adapter is now
-`Igniter::Application::ClusterHost` (aliased as `Igniter::Cluster::ApplicationHost`).
+`Igniter::Application::ClusterHost`.
 That keeps the host model application-facing while still reusing the cluster/server
 runtime implementation underneath.

@@ -29,6 +29,18 @@ RSpec.describe "Igniter layer loading" do
     JSON.parse(stdout)
   end
 
+  def require_failure_for(entrypoint)
+    script = <<~RUBY
+      $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
+      require #{entrypoint.inspect}
+    RUBY
+
+    _stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-e", script, chdir: ROOT)
+    raise "Expected #{entrypoint} to fail to load" if status.success?
+
+    stderr
+  end
+
   def runtime_remote_adapter_classes_for(entrypoint)
     script = <<~RUBY
       require "json"
@@ -121,46 +133,37 @@ RSpec.describe "Igniter layer loading" do
     features = loaded_igniter_features("igniter/workspace")
 
     expect(features).to include("igniter/workspace.rb")
-    expect(features).to include("igniter/application/workspace_pack.rb")
-    expect(features).to include("igniter/application/workspace.rb")
+    expect(features).to include("igniter/app/workspace_pack.rb")
+    expect(features).to include("igniter/app/workspace.rb")
+    expect(features).not_to include("igniter/app.rb")
     expect(features).not_to include("igniter/application.rb")
-    expect(features).not_to include("igniter/application/runtime_pack.rb")
-    expect(features).not_to include("igniter/application/server_host_pack.rb")
+    expect(features).not_to include("igniter/app/runtime_pack.rb")
+    expect(features).not_to include("igniter/app/server_host_pack.rb")
     expect(features).not_to include("igniter/server.rb")
     expect(features).not_to include("igniter/cluster.rb")
   end
 
-  it "`require \"igniter/app/runtime\"` exposes the leaf app runtime through the app alias entrypoint" do
+  it "`require \"igniter/app/runtime\"` exposes the leaf app runtime without workspace support" do
     features = loaded_igniter_features("igniter/app/runtime")
 
     expect(features).to include("igniter/app/runtime.rb")
-    expect(features).to include("igniter/application/runtime.rb")
-    expect(features).to include("igniter/application/runtime_pack.rb")
+    expect(features).to include("igniter/app/runtime_pack.rb")
     expect(features).not_to include("igniter/app.rb")
-    expect(features).not_to include("igniter/workspace.rb")
-    expect(features).not_to include("igniter/application/workspace_pack.rb")
-  end
-
-  it "`require \"igniter/application/runtime\"` loads the application runtime without workspace support" do
-    features = loaded_igniter_features("igniter/application/runtime")
-
-    expect(features).to include("igniter/application/runtime.rb")
-    expect(features).to include("igniter/application/runtime_pack.rb")
     expect(features).not_to include("igniter/application.rb")
     expect(features).not_to include("igniter/workspace.rb")
-    expect(features).not_to include("igniter/application/workspace_pack.rb")
+    expect(features).not_to include("igniter/app/workspace_pack.rb")
   end
 
   it "`require \"igniter/app\"` loads the canonical app profile umbrella" do
     features = loaded_igniter_features("igniter/app")
 
     expect(features).to include("igniter/app.rb")
-    expect(features).to include("igniter/application.rb")
-    expect(features).to include("igniter/application/runtime.rb")
-    expect(features).to include("igniter/application/runtime_pack.rb")
-    expect(features).to include("igniter/application/workspace_pack.rb")
-    expect(features).to include("igniter/application/server_host_pack.rb")
+    expect(features).to include("igniter/app/runtime.rb")
+    expect(features).to include("igniter/app/runtime_pack.rb")
+    expect(features).to include("igniter/app/workspace_pack.rb")
+    expect(features).to include("igniter/app/server_host_pack.rb")
     expect(features).to include("igniter/server/application_host.rb")
+    expect(features).not_to include("igniter/application.rb")
   end
 
   it "`require \"igniter/tools\"` opt-ins the built-in operational tool pack" do
@@ -186,63 +189,68 @@ RSpec.describe "Igniter layer loading" do
     })
   end
 
-  it "`require \"igniter/application\"` registers only the server host profile" do
-    host_names = registered_host_names_for("igniter/application")
+  it "`require \"igniter/app\"` registers only the server host profile" do
+    host_names = registered_host_names_for("igniter/app")
 
     expect(host_names).to eq(["server"])
   end
 
-  it "`require \"igniter/application\"` remains a compatibility alias for the app profile" do
-    features = loaded_igniter_features("igniter/application")
+  it "`require \"igniter/application\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/application")
 
-    expect(features).to include("igniter/application.rb")
-    expect(features).to include("igniter/application/runtime.rb")
-    expect(features).to include("igniter/application/workspace_pack.rb")
+    expect(error).to include("cannot load such file")
+    expect(error).to include("igniter/application")
   end
 
-  it "`require \"igniter/application\"` loads the default server host through its host pack" do
-    features = loaded_igniter_features("igniter/application")
+  it "`require \"igniter/application/runtime\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/application/runtime")
 
-    expect(features).to include("igniter/application/runtime.rb")
-    expect(features).to include("igniter/application/runtime_pack.rb")
-    expect(features).to include("igniter/application/workspace_pack.rb")
-    expect(features).to include("igniter/application/server_host_pack.rb")
+    expect(error).to include("cannot load such file")
+    expect(error).to include("igniter/application/runtime")
+  end
+
+  it "`require \"igniter/app\"` loads the default server host through its host pack" do
+    features = loaded_igniter_features("igniter/app")
+
+    expect(features).to include("igniter/app/runtime.rb")
+    expect(features).to include("igniter/app/runtime_pack.rb")
+    expect(features).to include("igniter/app/workspace_pack.rb")
+    expect(features).to include("igniter/app/server_host_pack.rb")
     expect(features).to include("igniter/server/application_host.rb")
   end
 
-  it "`require \"igniter/application\"` registers the default threaded scheduler pack" do
-    scheduler_names = registered_scheduler_names_for("igniter/application")
-    features = loaded_igniter_features("igniter/application")
+  it "`require \"igniter/app\"` registers the default threaded scheduler pack" do
+    scheduler_names = registered_scheduler_names_for("igniter/app")
+    features = loaded_igniter_features("igniter/app")
 
     expect(scheduler_names).to eq(["threaded"])
-    expect(features).to include("igniter/application/scheduler_pack.rb")
-    expect(features).to include("igniter/application/threaded_scheduler_adapter.rb")
+    expect(features).to include("igniter/app/scheduler_pack.rb")
+    expect(features).to include("igniter/app/threaded_scheduler_adapter.rb")
   end
 
-  it "`require \"igniter/application\"` registers the default filesystem loader pack" do
-    loader_names = registered_loader_names_for("igniter/application")
-    features = loaded_igniter_features("igniter/application")
+  it "`require \"igniter/app\"` registers the default filesystem loader pack" do
+    loader_names = registered_loader_names_for("igniter/app")
+    features = loaded_igniter_features("igniter/app")
 
     expect(loader_names).to eq(["filesystem"])
-    expect(features).to include("igniter/application/loader_pack.rb")
-    expect(features).to include("igniter/application/filesystem_loader_adapter.rb")
-    expect(features).not_to include("igniter/application/scaffold_pack.rb")
-    expect(features).not_to include("igniter/application/generator.rb")
+    expect(features).to include("igniter/app/loader_pack.rb")
+    expect(features).to include("igniter/app/filesystem_loader_adapter.rb")
+    expect(features).not_to include("igniter/app/scaffold_pack.rb")
+    expect(features).not_to include("igniter/app/generator.rb")
   end
 
-  it "`require \"igniter/application/scaffold_pack\"` opt-ins the scaffold generator pack" do
-    features = loaded_igniter_features("igniter/application/scaffold_pack")
-
-    expect(features).to include("igniter/application/scaffold_pack.rb")
-    expect(features).to include("igniter/application/generator.rb")
-  end
-
-  it "`require \"igniter/app/scaffold_pack\"` exposes the scaffold generator through the app alias" do
+  it "`require \"igniter/app/scaffold_pack\"` opt-ins the scaffold generator pack" do
     features = loaded_igniter_features("igniter/app/scaffold_pack")
 
     expect(features).to include("igniter/app/scaffold_pack.rb")
-    expect(features).to include("igniter/application/scaffold_pack.rb")
-    expect(features).to include("igniter/application/generator.rb")
+    expect(features).to include("igniter/app/generator.rb")
+  end
+
+  it "`require \"igniter/application/scaffold_pack\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/application/scaffold_pack")
+
+    expect(error).to include("cannot load such file")
+    expect(error).to include("igniter/application/scaffold_pack")
   end
 
   it "`require \"igniter/cluster\"` does not mutate the runtime remote adapter by itself" do

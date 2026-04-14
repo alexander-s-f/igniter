@@ -2,7 +2,7 @@
 
 $LOAD_PATH.unshift(File.expand_path("../../lib", __dir__))
 
-require "igniter/application"
+require "igniter/app"
 require_relative "apps/main/application"
 require_relative "apps/inference/application"
 require_relative "apps/dashboard/application"

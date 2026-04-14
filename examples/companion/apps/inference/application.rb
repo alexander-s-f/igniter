@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/application"
+require "igniter/app"
 require "igniter/core"
 require "igniter/core/metrics"
 require_relative "../../lib/companion/boot"

@@ -68,7 +68,7 @@ or transport concerns without changing domain contracts.
 - Behavioral add-ons live under `lib/igniter/extensions/`.
 - Framework integrations live under `lib/igniter/plugins/`.
 - Layer-specific implementation lives under `lib/igniter/ai/`, `server/`,
-  `cluster/`, `application/`, and `channels/`.
+  `cluster/`, `app/`, and `channels/`.
 
 ## Terminology
 
@@ -279,13 +279,12 @@ DSL: `host`, `config_file`, `configure`, `executors_path`, `contracts_path`,
 Lifecycle: loader adapter → `on_boot` blocks → `configure` blocks → build host config → run through host adapter.
 
 `Igniter::Application` is a profile over hosting. Today the default host adapter is
-`Igniter::Application::ServerHost` (aliased as `Igniter::Server::ApplicationHost`
-for compatibility), so the public API still runs on top of `Igniter::Server`
-without hard-wiring HTTP classes into `Application` itself.
+`Igniter::Application::ServerHost`, so the public API still runs on top of
+`Igniter::Server` without hard-wiring HTTP classes into `Application` itself.
 
 When an app needs cluster-aware hosting, it can opt into
-`Igniter::Application::ClusterHost` (aliased as `Igniter::Cluster::ApplicationHost`),
-which layers mesh/bootstrap concerns on top of the same host model. The application
+`Igniter::Application::ClusterHost`, which layers mesh/bootstrap concerns on top of
+the same host model. The application
 declares this through `host :cluster`, while `host_adapter(...)` remains available
 for fully custom hosts. Canonical host profiles are now supplied through
 `Igniter::Application::HostRegistry`, so future host packs can register
@@ -295,10 +294,9 @@ filesystem loader pack, and the default threaded scheduler pack, while
 `require "igniter/cluster"` extends the host registry with the cluster host pack.
 Scaffold generation is no longer part of the runtime entrypoint; it is loaded
 explicitly through `require "igniter/app/scaffold_pack"`. The application
-entrypoint itself is now a thin manifest over `igniter/application/runtime_pack`
-plus `igniter/application/workspace_pack`, while
-`require "igniter/app/runtime"` exposes just the leaf runtime side. The older
-`igniter/application*` entrypoints remain compatibility aliases.
+entrypoint itself is now a thin manifest over `igniter/app/runtime_pack`
+plus `igniter/app/workspace_pack`, while
+`require "igniter/app/runtime"` exposes just the leaf runtime side.
 
 ---
 
@@ -383,7 +381,7 @@ Primary families:
 | `lib/igniter/core/type_system.rb` | Core | Type validation |
 | `lib/igniter/core/errors.rb` | Core | Error hierarchy |
 | `lib/igniter/server/rack_app.rb` | Server | HTTP request handling |
-| `lib/igniter/application.rb` | Application | Application scaffold entry point |
+| `lib/igniter/app.rb` | Application | Application scaffold entry point |
 | `lib/igniter/core/agent.rb` | Core | Actor agent base class entry point |
 | `lib/igniter/core/tool.rb` | Core | Tool base class entry point |
 | `lib/igniter/ai/skill.rb` | AI | Skill base class |

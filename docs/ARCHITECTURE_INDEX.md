@@ -64,7 +64,7 @@ lib/igniter/
   rails.rb
   server.rb
   ai/
-  application/
+  app/
   channels/
   cluster/
   core/
@@ -95,7 +95,7 @@ Placement rules:
 - `lib/igniter/` keeps only top-level public entrypoints.
 - `lib/igniter/core/` holds substantive core implementation.
 - `lib/igniter/extensions/` holds extension entrypoints.
-- `lib/igniter/ai/`, `channels/`, `server/`, `cluster/`, `application/` hold authoritative layer code.
+- `lib/igniter/ai/`, `channels/`, `server/`, `cluster/`, `app/` hold authoritative layer code.
 - `lib/igniter/plugins/` holds framework-specific integrations.
 
 ## Loading Rules
