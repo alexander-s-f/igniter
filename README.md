@@ -43,8 +43,8 @@ layer folders.
 | AI providers, skills, transcription | `require "igniter/ai"` |
 | Communication transports | `require "igniter/channels"` |
 | HTTP hosting | `require "igniter/server"` |
-| Opinionated app profile | `require "igniter/application"` |
-| Narrow app runtime | `require "igniter/application/runtime"` |
+| Opinionated app profile | `require "igniter/app"` |
+| Narrow app runtime | `require "igniter/app/runtime"` |
 | Distributed runtime | `require "igniter/cluster"` |
 | Rails plugin | `require "igniter/rails"` |
 
@@ -56,7 +56,7 @@ layer folders.
 - **Capability layers**: optional subsystems such as `Igniter::AI` and `Igniter::Channels`.
 - **Data layer**: `Igniter::Data`, a tiny JSON-first persistence API for app records such as chat bindings, notes, and sessions.
 - **Hosting layers**: `Igniter::Server` and `Igniter::Cluster`.
-- **Profile**: `Igniter::Workspace` + `Igniter::Application`, a packaged way to assemble an app and run it through host, loader, and scheduler adapters. The defaults are `host :server`, `loader :filesystem`, and `scheduler :threaded`, and `require "igniter/cluster"` adds `host :cluster` for cluster-aware apps.
+- **Profile**: `Igniter::Workspace` + `Igniter::Application`, a packaged way to assemble an app and run it through host, loader, and scheduler adapters. The canonical entrypoint is `require "igniter/app"`, while `require "igniter/application"` remains a compatibility alias. The defaults are `host :server`, `loader :filesystem`, and `scheduler :threaded`, and `require "igniter/cluster"` adds `host :cluster` for cluster-aware apps.
 - **Plugin**: framework-specific integration such as `Igniter::Rails`.
 
 ## Deployment Modes
@@ -67,7 +67,7 @@ superset of the one before it — your domain contracts never change.
 | Mode | Use case | Entry point |
 |------|----------|-------------|
 | **Embed** | Add to Rails / Sidekiq / plain Ruby | `require "igniter"` |
-| **Server** | Standalone single-machine app runtime | `require "igniter/application"` |
+| **Server** | Standalone single-machine app runtime | `require "igniter/app"` |
 | **Cluster** | Multi-node with Raft consensus + gossip mesh | `require "igniter/cluster"` |
 
 See [`docs/LAYERS_V1.md`](docs/LAYERS_V1.md) for the layer contract and [`docs/DEPLOYMENT_V1.md`](docs/DEPLOYMENT_V1.md) for scenario-specific setup.
@@ -561,7 +561,7 @@ MyApp::Workspace.start(:main)
 
 ```ruby
 # apps/main/application.rb
-require "igniter/application"
+require "igniter/app"
 require "igniter/core"
 
 module MyApp

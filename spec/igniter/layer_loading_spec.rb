@@ -130,6 +130,17 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/cluster.rb")
   end
 
+  it "`require \"igniter/app/runtime\"` exposes the leaf app runtime through the app alias entrypoint" do
+    features = loaded_igniter_features("igniter/app/runtime")
+
+    expect(features).to include("igniter/app/runtime.rb")
+    expect(features).to include("igniter/application/runtime.rb")
+    expect(features).to include("igniter/application/runtime_pack.rb")
+    expect(features).not_to include("igniter/app.rb")
+    expect(features).not_to include("igniter/workspace.rb")
+    expect(features).not_to include("igniter/application/workspace_pack.rb")
+  end
+
   it "`require \"igniter/application/runtime\"` loads the application runtime without workspace support" do
     features = loaded_igniter_features("igniter/application/runtime")
 
@@ -138,6 +149,18 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/application.rb")
     expect(features).not_to include("igniter/workspace.rb")
     expect(features).not_to include("igniter/application/workspace_pack.rb")
+  end
+
+  it "`require \"igniter/app\"` loads the canonical app profile umbrella" do
+    features = loaded_igniter_features("igniter/app")
+
+    expect(features).to include("igniter/app.rb")
+    expect(features).to include("igniter/application.rb")
+    expect(features).to include("igniter/application/runtime.rb")
+    expect(features).to include("igniter/application/runtime_pack.rb")
+    expect(features).to include("igniter/application/workspace_pack.rb")
+    expect(features).to include("igniter/application/server_host_pack.rb")
+    expect(features).to include("igniter/server/application_host.rb")
   end
 
   it "`require \"igniter/tools\"` opt-ins the built-in operational tool pack" do
@@ -167,6 +190,14 @@ RSpec.describe "Igniter layer loading" do
     host_names = registered_host_names_for("igniter/application")
 
     expect(host_names).to eq(["server"])
+  end
+
+  it "`require \"igniter/application\"` remains a compatibility alias for the app profile" do
+    features = loaded_igniter_features("igniter/application")
+
+    expect(features).to include("igniter/application.rb")
+    expect(features).to include("igniter/application/runtime.rb")
+    expect(features).to include("igniter/application/workspace_pack.rb")
   end
 
   it "`require \"igniter/application\"` loads the default server host through its host pack" do
@@ -202,6 +233,14 @@ RSpec.describe "Igniter layer loading" do
   it "`require \"igniter/application/scaffold_pack\"` opt-ins the scaffold generator pack" do
     features = loaded_igniter_features("igniter/application/scaffold_pack")
 
+    expect(features).to include("igniter/application/scaffold_pack.rb")
+    expect(features).to include("igniter/application/generator.rb")
+  end
+
+  it "`require \"igniter/app/scaffold_pack\"` exposes the scaffold generator through the app alias" do
+    features = loaded_igniter_features("igniter/app/scaffold_pack")
+
+    expect(features).to include("igniter/app/scaffold_pack.rb")
     expect(features).to include("igniter/application/scaffold_pack.rb")
     expect(features).to include("igniter/application/generator.rb")
   end

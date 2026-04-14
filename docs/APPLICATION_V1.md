@@ -53,7 +53,7 @@ my_app/
 
 ```ruby
 # apps/main/application.rb
-require "igniter/application"
+require "igniter/app"
 require "igniter/core"
 
 module MyApp
@@ -86,11 +86,11 @@ module MyApp
 end
 ```
 
-`require "igniter/application"` is the canonical umbrella entrypoint. It loads the default
+`require "igniter/app"` is the canonical umbrella entrypoint. It loads the default
 server host pack for you, which in turn brings in the server runtime, and it also
 loads the default threaded scheduler pack for recurring background jobs plus the
 default filesystem loader pack for eager app code loading. Scaffold generation is
-now a separate explicit pack loaded through `require "igniter/application/scaffold_pack"`.
+now a separate explicit pack loaded through `require "igniter/app/scaffold_pack"`.
 `MyApp.start` and `MyApp.rack_app` also activate the server remote transport for you.
 If you want to resolve `remote:` nodes outside a hosted app lifecycle, activate
 `Igniter::Server` or `Igniter::Cluster` transport explicitly.
@@ -111,7 +111,7 @@ end
 
 If you need a completely custom runtime host, `host_adapter SomeAdapter.new` still
 works as the escape hatch. The `:server` profile is registered by
-`require "igniter/application"`, while `:cluster` is registered when the cluster
+`require "igniter/app"`, while `:cluster` is registered when the cluster
 entrypoint is loaded.
 
 Background job execution is similarly pluggable:
@@ -129,12 +129,14 @@ loader :filesystem   # default eager file loader
 ```
 
 If your application uses scaffold generation APIs such as
-`Igniter::Application::Generator`, load `require "igniter/application/scaffold_pack"`.
-Internally, `require "igniter/application"` now assembles its runtime behavior via
+`Igniter::Application::Generator`, load `require "igniter/app/scaffold_pack"`.
+Internally, `require "igniter/app"` now assembles its runtime behavior via
 `require "igniter/application/runtime_pack"` and
 `require "igniter/application/workspace_pack"`.
 If you want just the leaf application runtime without workspace support, use
-`require "igniter/application/runtime"` instead.
+`require "igniter/app/runtime"` instead.
+`require "igniter/application"` and related `igniter/application/*` entrypoints
+remain available as backward-compatible aliases.
 
 If your application uses custom tools or agents, also load `require "igniter/core"`.
 If it uses the built-in operational tool pack, load `require "igniter/tools"`.

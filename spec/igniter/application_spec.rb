@@ -2,9 +2,9 @@
 
 require "spec_helper"
 require "igniter/server"
-require "igniter/application"
+require "igniter/app"
 require "igniter/cluster"
-require "igniter/application/scaffold_pack"
+require "igniter/app/scaffold_pack"
 require "tmpdir"
 
 RSpec.describe Igniter::Application do
@@ -678,6 +678,7 @@ RSpec.describe Igniter::Application do
           expect(File.read("my_app/Gemfile")).to include("gem \"sqlite3\"")
           expect(bin_start).to include("exec bundle exec ruby workspace.rb \"$@\"")
           expect(bin_dev).to include("exec bundle exec ruby workspace.rb --dev \"$@\"")
+          expect(main_app).to include('require "igniter/app"')
           expect(main_app).to include("root_dir __dir__")
           expect(main_app).to include("executors_path")
           expect(main_app).to include("contracts_path")

@@ -49,7 +49,7 @@ Optional add-ons that still preserve embedded use:
 Primary entrypoints:
 
 ```ruby
-require "igniter/application"
+require "igniter/app"
 require "igniter/core"
 require "igniter/ai"        # optional
 require "igniter/channels"  # optional

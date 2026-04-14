@@ -18,7 +18,7 @@ Use the smallest entrypoint that matches the deployment mode:
 | AI | `require "igniter/ai"` |
 | Channels | `require "igniter/channels"` |
 | HTTP hosting | `require "igniter/server"` |
-| App profile | `require "igniter/application"` |
+| App profile | `require "igniter/app"` |
 | Cluster runtime | `require "igniter/cluster"` |
 | Rails plugin | `require "igniter/rails"` |
 
@@ -210,7 +210,7 @@ end
 
 ```ruby
 # apps/main/application.rb
-require "igniter/application"
+require "igniter/app"
 require "igniter/core"
 require "igniter/ai"
 
@@ -327,7 +327,7 @@ igniter + igniter/core + igniter/server + igniter/cluster
 
 ```ruby
 # apps/main/application.rb (same on every node)
-require "igniter/application"
+require "igniter/app"
 require "igniter/cluster"
 
 class ClusterApp < Igniter::Application
@@ -440,7 +440,7 @@ Until the split is complete, the optional-require pattern enforces the same boun
 | Core features | `require "igniter/core"` or `require "igniter/core/<feature>"` |
 | Extensions | `require "igniter/extensions/<feature>"` |
 | Capability layers | `require "igniter/ai"` / `require "igniter/channels"` |
-| Hosting profile | `require "igniter/application"` |
+| Hosting profile | `require "igniter/app"` |
 | Hosting layer | `require "igniter/server"` |
 | Distributed hosting | `require "igniter/cluster"` |
 | Plugin | `require "igniter/rails"` |

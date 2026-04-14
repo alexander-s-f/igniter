@@ -12,7 +12,7 @@ module Igniter
   #
   # == Minimal example
   #
-  #   require "igniter/application"
+  #   require "igniter/app"
   #
   #   class MyApp < Igniter::Application
   #     config_file "application.yml"        # optional YAML base config

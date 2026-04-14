@@ -13,9 +13,9 @@ Start here if you want the shortest accurate map of Igniter's structure.
 | AI | `Igniter::AI` / `require "igniter/ai"` | providers, AI executors, skills, transcription, AI tool registry |
 | Channels | `Igniter::Channels` / `require "igniter/channels"` | transport adapters such as webhook, Telegram, WhatsApp, email, SMS |
 | Server | `Igniter::Server` / `require "igniter/server"` | HTTP hosting, Rack app, remote execution transport; activation is explicit |
-| Application | `Igniter::Application` / `require "igniter/application"` | single-node app runtime profile: config, autoloading, scheduler, host-adapter seam |
+| Application | `Igniter::Application` / `require "igniter/app"` | single-node app runtime profile: config, autoloading, scheduler, host-adapter seam |
 | Workspace | `Igniter::Workspace` / `require "igniter/workspace"` | workspace coordinator: shared paths, app registry, topology-aware boot/rack routing |
-| App Runtime | `Igniter::Application` / `require "igniter/application/runtime"` | narrow leaf runtime entrypoint without workspace umbrella |
+| App Runtime | `Igniter::Application` / `require "igniter/app/runtime"` | narrow leaf runtime entrypoint without workspace umbrella |
 | Cluster | `Igniter::Cluster` / `require "igniter/cluster"` | network runtime: consensus, mesh, replication, cluster-aware routing |
 | Plugins | `Igniter::Plugins::*` / `require "igniter/rails"` | framework-specific integrations |
 
@@ -55,6 +55,7 @@ Canonical layout:
 ```text
 lib/igniter/
   ai.rb
+  app.rb
   application.rb
   channels.rb
   cluster.rb
@@ -112,7 +113,7 @@ Prefer the smallest require that matches the feature you need.
 | AI | `require "igniter/ai"` |
 | Channels | `require "igniter/channels"` |
 | HTTP hosting | `require "igniter/server"` |
-| App scaffold/profile | `require "igniter/application"` |
+| App scaffold/profile | `require "igniter/app"` |
 | Distributed runtime | `require "igniter/cluster"` |
 | Rails plugin | `require "igniter/rails"` |
 

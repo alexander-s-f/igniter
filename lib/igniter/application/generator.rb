@@ -251,7 +251,7 @@ module Igniter
         <<~RUBY
           # frozen_string_literal: true
 
-          require "igniter/application"
+          require "igniter/app"
           require "igniter/core"
 
           module #{module_name}

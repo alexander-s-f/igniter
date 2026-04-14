@@ -2,7 +2,7 @@
 
 require "spec_helper"
 require "igniter/sdk"
-require "igniter/application"
+require "igniter/app"
 require "igniter/server"
 require "igniter/cluster"
 

@@ -4,7 +4,7 @@ require "spec_helper"
 require "tmpdir"
 require "fileutils"
 require "igniter/workspace"
-require "igniter/application"
+require "igniter/app"
 
 RSpec.describe Igniter::Workspace do
   around do |example|

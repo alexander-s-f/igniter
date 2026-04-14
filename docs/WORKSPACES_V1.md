@@ -125,7 +125,7 @@ leaf runtime itself.
 Leaf apps are still plain `Igniter::Application` subclasses:
 
 ```ruby
-require "igniter/application"
+require "igniter/app"
 require "igniter/core"
 
 module MySystem

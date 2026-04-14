@@ -244,7 +244,7 @@ Transport-neutral outbound communication layer built on `Igniter::Effect`.
 ## Server Layer
 
 Loaded by `require "igniter/server"` and also loaded indirectly by the default
-server host pack behind `require "igniter/application"`.
+server host pack behind `require "igniter/app"`.
 Remote transport becomes active when you call `Igniter::Server.start`,
 `Igniter::Server.rack_app`, or `Igniter::Server.activate_remote_adapter!`.
 
@@ -265,8 +265,8 @@ Rack-compatible HTTP transport and service hosting for contracts.
 
 ## Application Layer
 
-Activated by `require "igniter/application/runtime"` and re-exported by
-`require "igniter/application"`.
+Activated by `require "igniter/app/runtime"` and re-exported by
+`require "igniter/app"`.
 
 ### `Igniter::Application`
 
@@ -290,14 +290,15 @@ declares this through `host :cluster`, while `host_adapter(...)` remains availab
 for fully custom hosts. Canonical host profiles are now supplied through
 `Igniter::Application::HostRegistry`, so future host packs can register
 themselves without pushing more branching logic back into `Application`. In other
-words, `require "igniter/application"` registers the server host pack, the default
+words, `require "igniter/app"` registers the server host pack, the default
 filesystem loader pack, and the default threaded scheduler pack, while
 `require "igniter/cluster"` extends the host registry with the cluster host pack.
 Scaffold generation is no longer part of the runtime entrypoint; it is loaded
-explicitly through `require "igniter/application/scaffold_pack"`. The application
+explicitly through `require "igniter/app/scaffold_pack"`. The application
 entrypoint itself is now a thin manifest over `igniter/application/runtime_pack`
 plus `igniter/application/workspace_pack`, while
-`require "igniter/application/runtime"` exposes just the leaf runtime side.
+`require "igniter/app/runtime"` exposes just the leaf runtime side. The older
+`igniter/application*` entrypoints remain compatibility aliases.
 
 ---
 
@@ -412,7 +413,7 @@ require "igniter/extensions/saga"
 
 # Server: adds the server layer
 require "igniter/server"
-require "igniter/application"
+require "igniter/app"
 require "igniter/ai"
 
 # Cluster: adds consensus and mesh on top of server
