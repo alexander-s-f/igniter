@@ -195,7 +195,7 @@ Deployment config intentionally lives outside `apps/*`:
 
 ```ruby
 # workspace.rb
-require "igniter/application"
+require "igniter/workspace"
 require_relative "apps/main/application"
 
 module MyApp

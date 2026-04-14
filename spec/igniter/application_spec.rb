@@ -668,6 +668,7 @@ RSpec.describe Igniter::Application do
           bin_dev   = File.read("my_app/bin/dev")
 
           expect(workspace).to include("Igniter::Workspace")
+          expect(workspace).to include('require "igniter/workspace"')
           expect(workspace).to include("app :main")
           expect(workspace).to include("start_cli(ARGV)")
           expect(File.read("my_app/config/topology.yml")).to include("role: api")

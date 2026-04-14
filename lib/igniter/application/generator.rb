@@ -148,7 +148,7 @@ module Igniter
         <<~RUBY
           # frozen_string_literal: true
 
-          require "igniter/application"
+          require "igniter/workspace"
           require_relative "apps/main/application"
 
           module #{module_name}

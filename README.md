@@ -543,7 +543,7 @@ cd my_app && bundle install && bin/start
 ```
 
 ```ruby
-require "igniter/application"
+require "igniter/workspace"
 require_relative "apps/main/application"
 
 module MyApp

@@ -73,7 +73,7 @@ Rules:
 ## Workspace DSL
 
 ```ruby
-require "igniter/application"
+require "igniter/workspace"
 require_relative "apps/main/application"
 require_relative "apps/inference/application"
 
@@ -92,7 +92,7 @@ Generated root file:
 
 ```ruby
 # workspace.rb
-require "igniter/application"
+require "igniter/workspace"
 ```
 
 Available methods:
