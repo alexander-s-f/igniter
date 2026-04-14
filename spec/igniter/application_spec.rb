@@ -249,6 +249,31 @@ RSpec.describe Igniter::Application do
     end
   end
 
+  describe Igniter::Application::HostRegistry do
+    it "ships with the canonical built-in host profiles" do
+      expect(described_class.names).to include(:server, :cluster)
+    end
+
+    it "allows registering a custom host profile" do
+      host_name = :"custom_#{object_id}"
+      fake_host = Object.new
+      captured_app = nil
+
+      app = fresh_app do
+        register_host(host_name) do |application_class|
+          captured_app = application_class
+          fake_host
+        end
+
+        host host_name
+      end
+
+      expect(app.host_adapter).to be(fake_host)
+      expect(captured_app).to be(app)
+      expect(described_class.registered?(host_name)).to be true
+    end
+  end
+
   describe Igniter::Application::ClusterHostConfig do
     subject(:config) { described_class.new }
 
@@ -721,10 +746,11 @@ RSpec.describe Igniter::Application do
     it "raises a helpful error for an unknown host" do
       app = fresh_app { host :edge }
 
-      expect { app.host_adapter }.to raise_error(
-        ArgumentError,
-        'unknown application host :edge; expected one of: server, cluster'
-      )
+      expect { app.host_adapter }.to raise_error(ArgumentError) do |error|
+        expect(error.message).to include("unknown application host :edge")
+        expect(error.message).to include("server")
+        expect(error.message).to include("cluster")
+      end
     end
 
     it "lets the default server host provide server-specific defaults" do

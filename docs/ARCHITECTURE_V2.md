@@ -284,7 +284,9 @@ When an app needs cluster-aware hosting, it can opt into
 `Igniter::Application::ClusterHost` (aliased as `Igniter::Cluster::ApplicationHost`),
 which layers mesh/bootstrap concerns on top of the same host model. The application
 declares this through `host :cluster`, while `host_adapter(...)` remains available
-for fully custom hosts.
+for fully custom hosts. Canonical host profiles are now supplied through
+`Igniter::Application::HostRegistry`, so future host packs can register
+themselves without pushing more branching logic back into `Application`.
 
 ---
 

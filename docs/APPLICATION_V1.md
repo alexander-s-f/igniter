@@ -140,6 +140,21 @@ host :cluster  # cluster-aware host
 This keeps host choice declarative while preserving `host_adapter(...)` for custom
 adapters.
 
+### `register_host(name) { ... }`
+
+Register an additional host profile in the application host registry.
+
+```ruby
+register_host :inline do
+  MyInlineHost.new
+end
+
+host :inline
+```
+
+The registered builder can also accept the application class as an argument if it
+needs app-specific wiring.
+
 ### `config_file(path)`
 
 Load a YAML file as the base configuration. Applied **before** the `configure` block — values in the block always win.

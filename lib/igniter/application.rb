@@ -3,6 +3,7 @@
 require_relative "sdk"
 require_relative "server"
 require_relative "application/host_adapter"
+require_relative "application/host_registry"
 require_relative "application/host_config"
 require_relative "application/server_host"
 require_relative "application/server_host_config"
@@ -63,6 +64,10 @@ module Igniter
         @host_name = normalize_host_name(name)
         @host_adapter = nil
         self
+      end
+
+      def register_host(name, builder = nil, &block)
+        HostRegistry.register(name, builder, &block)
       end
 
       def use(*names)
@@ -259,21 +264,19 @@ module Igniter
       end
 
       def build_host_adapter(name)
-        builder = host_builders.fetch(normalize_host_name(name)) do
-          raise ArgumentError, "unknown application host #{name.inspect}; expected one of: #{host_builders.keys.join(', ')}"
-        end
+        builder = host_registry.fetch(normalize_host_name(name))
 
-        instance_exec(&builder)
+        build_registered_host(builder)
+      rescue KeyError
+        raise ArgumentError, "unknown application host #{name.inspect}; expected one of: #{host_registry.names.join(', ')}"
       end
 
-      def host_builders
-        {
-          server: -> { Igniter::Application::ServerHost.new },
-          cluster: -> do
-            require_relative "cluster"
-            Igniter::Application::ClusterHost.new
-          end
-        }
+      def build_registered_host(builder)
+        builder.arity == 0 ? builder.call : builder.call(self)
+      end
+
+      def host_registry
+        HostRegistry
       end
 
       # Build and return a ready host-specific config object.
