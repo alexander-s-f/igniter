@@ -177,6 +177,9 @@ Implemented now:
 - `require "igniter"` remains the embedded kernel entrypoint
 - `require "igniter/core"` no longer auto-loads built-in operational tools
 - built-in system/bootstrap tools now live behind `require "igniter/tools"`
+- `Igniter::SDK` can register and activate optional capability packs per layer
+- `Igniter.use`, `Igniter::Application.use`, `Igniter::Server.use`, and `Igniter::Cluster.use`
+  now provide a thin declarative wrapper over ordinary `require`
 - load-boundary specs verify that `igniter`, `igniter/core`, and `igniter/tools`
   stay separated
 

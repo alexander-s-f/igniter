@@ -103,6 +103,7 @@ Prefer the smallest require that matches the feature you need.
 |------|---------|
 | Contracts, DSL, runtime | `require "igniter"` |
 | Actors and tools | `require "igniter/core"` |
+| SDK registry / capability activation | `require "igniter/sdk"` |
 | Built-in operational tools | `require "igniter/tools"` |
 | One core feature | `require "igniter/core/tool"` or `require "igniter/core/temporal"` |
 | One extension | `require "igniter/extensions/auditing"` |

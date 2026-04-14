@@ -18,6 +18,20 @@ require_relative "igniter/core/contract"
 
 module Igniter
   class << self
+    def use(*names)
+      require_relative "igniter/sdk"
+
+      @sdk_capabilities ||= []
+      resolved_names = names.flatten.map(&:to_sym)
+      SDK.activate!(*resolved_names, layer: :core)
+      @sdk_capabilities |= resolved_names
+      self
+    end
+
+    def sdk_capabilities
+      @sdk_capabilities ||= []
+    end
+
     def executor_registry
       @executor_registry ||= ExecutorRegistry.new
     end

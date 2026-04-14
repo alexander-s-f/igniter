@@ -35,6 +35,7 @@ layer folders.
 |---------------|---------|
 | Contract DSL, model, compiler, runtime | `require "igniter"` |
 | Actor runtime and tool foundation | `require "igniter/core"` |
+| SDK registry / capability activation | `require "igniter/sdk"` |
 | Built-in operational tools | `require "igniter/tools"` |
 | Specific core features | `require "igniter/core/tool"`, `require "igniter/core/memory"`, `require "igniter/core/temporal"` |
 | App data persistence | `require "igniter/data"` |
@@ -69,6 +70,18 @@ superset of the one before it — your domain contracts never change.
 | **Cluster** | Multi-node with Raft consensus + gossip mesh | `require "igniter/cluster"` |
 
 See [`docs/LAYERS_V1.md`](docs/LAYERS_V1.md) for the layer contract and [`docs/DEPLOYMENT_V1.md`](docs/DEPLOYMENT_V1.md) for scenario-specific setup.
+
+Layer DSL can opt into SDK packs explicitly:
+
+```ruby
+Igniter.use :data
+
+class MyApp < Igniter::Application
+  use :ai, :tools
+end
+
+Igniter::Cluster.use :channels
+```
 
 ---
 

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "sdk"
 require_relative "server"
 require_relative "application/app_config"
 require_relative "application/yml_loader"
@@ -50,6 +51,17 @@ module Igniter
   class Application
     class << self
       # ─── DSL ─────────────────────────────────────────────────────────────────
+
+      def use(*names)
+        resolved_names = names.flatten.map(&:to_sym)
+        Igniter::SDK.activate!(*resolved_names, layer: :application)
+        @sdk_capabilities |= resolved_names
+        self
+      end
+
+      def sdk_capabilities
+        @sdk_capabilities ||= []
+      end
 
       # Root directory for this application.
       # Relative config and autoload paths are resolved from here.
@@ -210,6 +222,7 @@ module Igniter
         subclass.instance_variable_set(:@scheduled_jobs,   [])
         subclass.instance_variable_set(:@app_config,       AppConfig.new)
         subclass.instance_variable_set(:@build_scheduler,  nil)
+        subclass.instance_variable_set(:@sdk_capabilities, [])
       end
 
       private

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "sdk"
 require_relative "../igniter"
 require "json"
 
@@ -34,6 +35,18 @@ require_relative "server/handlers/peers_handler"
 module Igniter
   module Server
     class << self
+      def use(*names)
+        resolved_names = names.flatten.map(&:to_sym)
+        Igniter::SDK.activate!(*resolved_names, layer: :server)
+        @sdk_capabilities ||= []
+        @sdk_capabilities |= resolved_names
+        self
+      end
+
+      def sdk_capabilities
+        @sdk_capabilities ||= []
+      end
+
       def config
         @config ||= Config.new
       end
