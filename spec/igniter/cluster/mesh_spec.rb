@@ -447,6 +447,13 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
   # Resolver integration
   # ─────────────────────────────────────────────────────────────────────────────
   describe "Resolver integration" do
+    around do |example|
+      previous_adapter = Igniter::Runtime.remote_adapter
+      Igniter::Cluster.activate_remote_adapter!
+      example.run
+      Igniter::Runtime.remote_adapter = previous_adapter
+    end
+
     after { Igniter::Cluster::Mesh.reset! }
 
     def mock_remote_response(url, contract_name, outputs: { result: 42 })

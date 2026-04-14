@@ -22,6 +22,12 @@ Use the smallest entrypoint that matches the deployment mode:
 | Cluster runtime | `require "igniter/cluster"` |
 | Rails plugin | `require "igniter/rails"` |
 
+Loading `igniter/server` or `igniter/cluster` does not install a transport adapter as
+a side effect. Hosted entrypoints such as `Igniter::Server.start`,
+`Igniter::Server.rack_app`, and `Igniter::Application.start` activate transport for you.
+For ad hoc `remote:` execution, call `Igniter::Server.activate_remote_adapter!` or
+`Igniter::Cluster.activate_remote_adapter!` explicitly.
+
 ---
 
 ## Scenario 1 — Embedded Library

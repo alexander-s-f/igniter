@@ -17,7 +17,7 @@ RSpec.describe Igniter::Runtime::RemoteAdapter do
   it "raises a helpful error when no transport adapter is configured" do
     expect {
       adapter.call(node: node, inputs: { raw: "hello" })
-    }.to raise_error(Igniter::ResolutionError, /require 'igniter\/server'|remote_adapter/)
+    }.to raise_error(Igniter::ResolutionError, /activate_remote_adapter!|remote_adapter/)
   end
 
   it "can be injected through execution options without loading server" do

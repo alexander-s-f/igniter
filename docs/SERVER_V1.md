@@ -296,7 +296,9 @@ At runtime, if the remote service is unreachable or the remote contract fails,
 an `Igniter::ResolutionError` is raised and propagates like any other node failure.
 
 **Note:** `require "igniter/server"` is required to load `Igniter::Server::Client`.
-Without it, any contract with a `remote:` node will raise at resolution time.
+Hosted entrypoints such as `Igniter::Server.start` and `Igniter::Server.rack_app`
+activate the transport automatically. If you want to resolve a `remote:` node outside
+that lifecycle, call `Igniter::Server.activate_remote_adapter!` first.
 
 ### Mesh routing (capability / pinned)
 

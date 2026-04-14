@@ -13,6 +13,18 @@ require_relative "cluster/replication"
 module Igniter
   module Cluster
     class << self
+      def remote_adapter
+        @remote_adapter ||= RemoteAdapter.new
+      end
+
+      def activate_remote_adapter!
+        Igniter::Runtime.remote_adapter = remote_adapter
+      end
+
+      def deactivate_remote_adapter!
+        Igniter::Runtime.remote_adapter = Igniter::Runtime::RemoteAdapter.new
+      end
+
       def use(*names)
         resolved_names = names.flatten.map(&:to_sym)
         Igniter::SDK.activate!(*resolved_names, layer: :cluster)
@@ -27,5 +39,3 @@ module Igniter
     end
   end
 end
-
-Igniter::Runtime.remote_adapter = Igniter::Cluster::RemoteAdapter.new

@@ -185,8 +185,8 @@ Implemented now:
 
 ## Recommended Next Steps
 
-1. Make `Server` and `Cluster` transport activation explicit instead of mutating
-   `Igniter::Runtime.remote_adapter` as a top-level side effect.
+1. Keep transport activation explicit in examples, docs, and generated apps instead
+   of relying on `require` side effects.
 2. Split server-facing config objects from workspace/profile config more sharply.
 3. Decide whether generic non-AI agents remain in the actor/tool kit or move under
    a dedicated server-mode standard library entrypoint.

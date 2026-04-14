@@ -10,7 +10,8 @@ module Igniter
       def call(node:, inputs:, execution: nil) # rubocop:disable Lint/UnusedMethodArgument
         raise ResolutionError,
               "remote :#{node.name} requires a configured transport adapter. " \
-              "Add `require 'igniter/server'` or set `Igniter::Runtime.remote_adapter`."
+              "Call `Igniter::Server.activate_remote_adapter!`, " \
+              "`Igniter::Cluster.activate_remote_adapter!`, or set `Igniter::Runtime.remote_adapter`."
       end
     end
 

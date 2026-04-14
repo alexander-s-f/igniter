@@ -35,6 +35,18 @@ require_relative "server/handlers/peers_handler"
 module Igniter
   module Server
     class << self
+      def remote_adapter
+        @remote_adapter ||= RemoteAdapter.new
+      end
+
+      def activate_remote_adapter!
+        Igniter::Runtime.remote_adapter = remote_adapter
+      end
+
+      def deactivate_remote_adapter!
+        Igniter::Runtime.remote_adapter = Igniter::Runtime::RemoteAdapter.new
+      end
+
       def use(*names)
         resolved_names = names.flatten.map(&:to_sym)
         Igniter::SDK.activate!(*resolved_names, layer: :server)
@@ -58,12 +70,14 @@ module Igniter
 
       # Start the built-in HTTP server (blocking).
       def start(**options)
+        activate_remote_adapter!
         apply_options!(options)
         HttpServer.new(config).start
       end
 
       # Return a Rack-compatible application for use with Puma/Unicorn/etc.
       def rack_app
+        activate_remote_adapter!
         RackApp.new(config)
       end
 
@@ -85,5 +99,3 @@ module Igniter
     end
   end
 end
-
-Igniter::Runtime.remote_adapter = Igniter::Server::RemoteAdapter.new

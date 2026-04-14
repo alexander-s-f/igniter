@@ -243,7 +243,9 @@ Transport-neutral outbound communication layer built on `Igniter::Effect`.
 
 ## Server Layer
 
-Activated by `require "igniter/server"` and also loaded indirectly by `require "igniter/application"`.
+Loaded by `require "igniter/server"` and also loaded indirectly by `require "igniter/application"`.
+Remote transport becomes active when you call `Igniter::Server.start`,
+`Igniter::Server.rack_app`, or `Igniter::Server.activate_remote_adapter!`.
 
 ### `Igniter::Server`
 
@@ -280,7 +282,9 @@ layer between core and server.
 
 ## Cluster Layer
 
-Activated by `require "igniter/cluster"`.
+Loaded by `require "igniter/cluster"`.
+Cluster-aware remote routing becomes active when you call
+`Igniter::Cluster.activate_remote_adapter!` or run through a hosted cluster flow.
 
 ### `Igniter::Cluster::Consensus`
 

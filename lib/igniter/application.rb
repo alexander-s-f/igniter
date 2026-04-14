@@ -184,6 +184,7 @@ module Igniter
       # Start the built-in HTTP server (blocking).
       # Schedules background jobs and registers an at_exit cleanup.
       def start
+        Igniter::Server.activate_remote_adapter!
         sc    = build!
         sched = build_scheduler(sc)
         sched&.start
@@ -193,6 +194,7 @@ module Igniter
 
       # Return a Rack-compatible application (for Puma / Unicorn / etc.).
       def rack_app
+        Igniter::Server.activate_remote_adapter!
         sc = build!
         build_scheduler(sc)&.start
         Igniter::Server::RackApp.new(sc)

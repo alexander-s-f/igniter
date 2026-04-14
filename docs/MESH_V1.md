@@ -5,6 +5,10 @@
 
 ---
 
+`require "igniter/cluster"` loads the cluster layer. Hosted flows activate cluster
+transport for you; for ad hoc `remote:` resolution, call
+`Igniter::Cluster.activate_remote_adapter!`.
+
 ## Overview
 
 `Igniter::Cluster::Mesh` is part of Igniter's cluster layer.

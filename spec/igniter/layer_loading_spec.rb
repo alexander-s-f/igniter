@@ -29,6 +29,24 @@ RSpec.describe "Igniter layer loading" do
     JSON.parse(stdout)
   end
 
+  def runtime_remote_adapter_classes_for(entrypoint)
+    script = <<~RUBY
+      require "json"
+      $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
+      require "igniter"
+      before = Igniter::Runtime.remote_adapter.class.name
+      require #{entrypoint.inspect}
+      after = Igniter::Runtime.remote_adapter.class.name
+
+      puts JSON.generate({ before: before, after: after })
+    RUBY
+
+    stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-e", script, chdir: ROOT)
+    raise "Failed to inspect runtime adapter for #{entrypoint}: #{stderr}" unless status.success?
+
+    JSON.parse(stdout)
+  end
+
   it "`require \"igniter\"` stays inside the embedded core layer" do
     features = loaded_igniter_features("igniter")
 
@@ -69,5 +87,23 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/application.rb")
     expect(features).not_to include("igniter/cluster.rb")
     expect(features).not_to include("igniter/ai.rb")
+  end
+
+  it "`require \"igniter/server\"` does not mutate the runtime remote adapter by itself" do
+    adapter_classes = runtime_remote_adapter_classes_for("igniter/server")
+
+    expect(adapter_classes).to eq({
+      "before" => "Igniter::Runtime::RemoteAdapter",
+      "after" => "Igniter::Runtime::RemoteAdapter"
+    })
+  end
+
+  it "`require \"igniter/cluster\"` does not mutate the runtime remote adapter by itself" do
+    adapter_classes = runtime_remote_adapter_classes_for("igniter/cluster")
+
+    expect(adapter_classes).to eq({
+      "before" => "Igniter::Runtime::RemoteAdapter",
+      "after" => "Igniter::Runtime::RemoteAdapter"
+    })
   end
 end

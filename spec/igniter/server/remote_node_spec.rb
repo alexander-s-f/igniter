@@ -6,6 +6,13 @@ require "igniter/server"
 RSpec.describe "remote: DSL node" do
   let(:store) { Igniter::Runtime::Stores::MemoryStore.new }
 
+  around do |example|
+    previous_adapter = Igniter::Runtime.remote_adapter
+    Igniter::Server.activate_remote_adapter!
+    example.run
+    Igniter::Runtime.remote_adapter = previous_adapter
+  end
+
   describe "compilation" do
     it "compiles a graph with a remote: node" do
       expect do

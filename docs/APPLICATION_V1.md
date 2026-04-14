@@ -82,6 +82,9 @@ end
 
 `require "igniter/application"` is the canonical entrypoint. It loads the server layer
 for you, so most applications do not need a separate `require "igniter/server"`.
+`MyApp.start` and `MyApp.rack_app` also activate the server remote transport for you.
+If you want to resolve `remote:` nodes outside a hosted app lifecycle, activate
+`Igniter::Server` or `Igniter::Cluster` transport explicitly.
 
 If your application uses custom tools or agents, also load `require "igniter/core"`.
 If it uses the built-in operational tool pack, load `require "igniter/tools"`.
