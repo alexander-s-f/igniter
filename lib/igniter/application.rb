@@ -1,21 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "sdk"
-require_relative "application/host_adapter"
-require_relative "application/host_registry"
-require_relative "application/host_config"
-require_relative "application/server_host_pack"
-require_relative "application/loader_adapter"
-require_relative "application/loader_registry"
-require_relative "application/loader_pack"
-require_relative "application/scheduler_adapter"
-require_relative "application/scheduler_registry"
-require_relative "application/scheduler_pack"
-require_relative "application/server_host_config"
-require_relative "application/cluster_host_config"
-require_relative "application/app_config"
-require_relative "application/yml_loader"
-require_relative "application/autoloader"
+require_relative "application/runtime_pack"
 require_relative "application/workspace"
 
 module Igniter

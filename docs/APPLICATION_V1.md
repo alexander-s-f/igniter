@@ -130,6 +130,8 @@ loader :filesystem   # default eager file loader
 
 If your application uses scaffold generation APIs such as
 `Igniter::Application::Generator`, load `require "igniter/application/scaffold_pack"`.
+Internally, `require "igniter/application"` now assembles its runtime behavior via
+`require "igniter/application/runtime_pack"`.
 
 If your application uses custom tools or agents, also load `require "igniter/core"`.
 If it uses the built-in operational tool pack, load `require "igniter/tools"`.

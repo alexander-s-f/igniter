@@ -149,6 +149,7 @@ RSpec.describe "Igniter layer loading" do
   it "`require \"igniter/application\"` loads the default server host through its host pack" do
     features = loaded_igniter_features("igniter/application")
 
+    expect(features).to include("igniter/application/runtime_pack.rb")
     expect(features).to include("igniter/application/server_host_pack.rb")
     expect(features).to include("igniter/server/application_host.rb")
   end

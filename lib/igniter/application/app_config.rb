@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require_relative "host_config"
+require_relative "server_host_config"
+require_relative "cluster_host_config"
+
 module Igniter
   class Application
     # Unified configuration object for an Igniter::Application.

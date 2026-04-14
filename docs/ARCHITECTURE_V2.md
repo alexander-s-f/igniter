@@ -293,7 +293,9 @@ words, `require "igniter/application"` registers the server host pack, the defau
 filesystem loader pack, and the default threaded scheduler pack, while
 `require "igniter/cluster"` extends the host registry with the cluster host pack.
 Scaffold generation is no longer part of the runtime entrypoint; it is loaded
-explicitly through `require "igniter/application/scaffold_pack"`.
+explicitly through `require "igniter/application/scaffold_pack"`. The application
+entrypoint itself is now a thin manifest over `igniter/application/runtime_pack`
+plus workspace support.
 
 ---
 
