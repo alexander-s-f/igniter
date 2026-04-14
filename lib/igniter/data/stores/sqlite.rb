@@ -18,6 +18,9 @@ module Igniter
           @path = path
           prepare_path!(path)
           @mutex = Mutex.new
+          @db = ::SQLite3::Database.new(path)
+          @db.results_as_hash = true
+          @db.busy_timeout = 1000 if @db.respond_to?(:busy_timeout=)
           create_schema!
         end
 
@@ -132,12 +135,7 @@ module Igniter
         end
 
         def with_db
-          db = ::SQLite3::Database.new(path)
-          db.results_as_hash = true
-          db.busy_timeout = 1000 if db.respond_to?(:busy_timeout=)
-          yield db
-        ensure
-          db&.close
+          yield @db
         end
       end
     end
