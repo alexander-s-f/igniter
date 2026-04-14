@@ -71,7 +71,7 @@ module Igniter
             if node.kind == :branch
               base[:selector] = node.selector_dependency
               base[:depends_on] = node.context_dependencies if node.context_dependencies.any?
-              base[:cases] = node.cases.map { |entry| { match: entry[:match], contract: entry[:contract].name } }
+              base[:cases] = node.cases.map { |entry| serialized_branch_case(entry, contract_name: true) }
               base[:default_contract] = node.default_contract.name
               base[:inputs] = node.input_mapping
               base[:mapper] = node.input_mapper.to_s if node.input_mapper?
@@ -136,7 +136,7 @@ module Igniter
               depends_on: node.context_dependencies,
               inputs: node.input_mapping,
               map_inputs: (node.input_mapper if node.input_mapper?),
-              cases: node.cases.map { |entry| { on: entry[:match], contract: entry[:contract] } },
+              cases: node.cases.map { |entry| serialized_branch_case(entry, contract_name: false) },
               default: node.default_contract,
               metadata: node.metadata.reject { |key, _| key == :source_location }
             }
@@ -174,6 +174,24 @@ module Igniter
 
       def to_mermaid
         Extensions::Introspection::GraphFormatter.to_mermaid(self)
+      end
+
+      private
+
+      def serialized_branch_case(entry, contract_name:)
+        contract_value = contract_name ? entry[:contract].name : entry[:contract]
+
+        case entry[:matcher]
+        when :eq
+          { on: entry[:value], contract: contract_value }
+        when :in
+          { in: entry[:value], contract: contract_value }
+        when :matches
+          value = contract_name ? entry[:value].inspect : entry[:value]
+          { matches: value, contract: contract_value }
+        else
+          { matcher: entry[:matcher], value: entry[:value], contract: contract_value }
+        end
       end
     end
   end

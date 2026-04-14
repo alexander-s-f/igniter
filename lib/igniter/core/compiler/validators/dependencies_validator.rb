@@ -84,13 +84,52 @@ module Igniter
           raise @context.validation_error(node, "Branch '#{node.name}' must define at least one `on` case") if node.cases.empty?
           raise @context.validation_error(node, "Branch '#{node.name}' must define a `default` contract") unless node.default_contract
 
-          duplicate_matches = node.cases.group_by { |entry| entry[:match] }.select { |_match, entries| entries.size > 1 }.keys
+          validate_branch_case_matchers!(node)
+
+          duplicate_matches = node.cases
+            .flat_map { |entry| exact_branch_values(entry) }
+            .group_by(&:itself)
+            .select { |_match, entries| entries.size > 1 }
+            .keys
           return if duplicate_matches.empty?
 
           raise @context.validation_error(
             node,
             "Branch '#{node.name}' has duplicate case values: #{duplicate_matches.map(&:inspect).join(', ')}"
           )
+        end
+
+        def validate_branch_case_matchers!(node)
+          node.cases.each do |entry|
+            case entry[:matcher]
+            when :eq
+              next
+            when :in
+              unless entry[:value].is_a?(Array) && !entry[:value].empty?
+                raise @context.validation_error(node, "Branch '#{node.name}' `in:` cases must use a non-empty Array")
+              end
+            when :matches
+              unless entry[:value].is_a?(Regexp)
+                raise @context.validation_error(node, "Branch '#{node.name}' `matches:` cases must use a Regexp")
+              end
+            else
+              raise @context.validation_error(
+                node,
+                "Branch '#{node.name}' has unsupported matcher #{entry[:matcher].inspect}; use `eq:`, `in:`, or `matches:`"
+              )
+            end
+          end
+        end
+
+        def exact_branch_values(entry)
+          case entry[:matcher]
+          when :eq
+            [entry[:value]]
+          when :in
+            entry[:value]
+          else
+            []
+          end
         end
 
         def validate_branch_contract!(node, contract_class)

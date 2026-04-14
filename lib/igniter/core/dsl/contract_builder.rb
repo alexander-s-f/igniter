@@ -464,6 +464,8 @@ module Igniter
       # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
       class BranchBuilder
+        UNDEFINED_BRANCH_MATCHER = :__igniter_branch_matcher_undefined__
+
         def self.build(&block)
           new.tap { |builder| builder.instance_eval(&block) }.to_h
         end
@@ -473,8 +475,33 @@ module Igniter
           @default_contract = nil
         end
 
-        def on(match, contract:)
-          @cases << { match: match, contract: contract }
+        def on(match = UNDEFINED_BRANCH_MATCHER, contract:, eq: UNDEFINED_BRANCH_MATCHER, in: UNDEFINED_BRANCH_MATCHER, matches: UNDEFINED_BRANCH_MATCHER) # rubocop:disable Metrics/ParameterLists
+          matcher_options = {
+            eq: eq,
+            in: binding.local_variable_get(:in),
+            matches: matches
+          }.reject { |_key, value| value == UNDEFINED_BRANCH_MATCHER }
+
+          if match != UNDEFINED_BRANCH_MATCHER && matcher_options.any?
+            raise CompileError, "branch `on` cannot combine a positional match with `eq:`, `in:`, or `matches:`"
+          end
+
+          if match == UNDEFINED_BRANCH_MATCHER && matcher_options.empty?
+            raise CompileError, "branch `on` requires a positional match or one of `eq:`, `in:`, or `matches:`"
+          end
+
+          if matcher_options.size > 1
+            raise CompileError, "branch `on` supports only one matcher option at a time"
+          end
+
+          matcher, value =
+            if match != UNDEFINED_BRANCH_MATCHER
+              [:eq, match]
+            else
+              matcher_options.first
+            end
+
+          @cases << { matcher: matcher, value: value, contract: contract }
         end
 
         def default(contract:)

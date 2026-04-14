@@ -282,9 +282,9 @@ module Igniter
 
       def resolve_branch(node)
         selector_value = resolve_dependency_value(node.selector_dependency)
-        selected_case = node.cases.find { |entry| entry[:match] == selector_value }
+        selected_case = node.match_case(selector_value)
         selected_contract = selected_case ? selected_case[:contract] : node.default_contract
-        matched_case = selected_case ? selected_case[:match] : :default
+        matched_case = selected_case ? node.case_payload(selected_case) : :default
 
         raise BranchSelectionError, "Branch '#{node.name}' has no matching case and no default" unless selected_contract
 
@@ -307,6 +307,7 @@ module Igniter
           payload: {
             selector: node.selector_dependency,
             selector_value: selector_value,
+            matcher: selected_case ? selected_case[:matcher] : :default,
             matched_case: matched_case,
             selected_contract: selected_contract.name || "AnonymousContract"
           }

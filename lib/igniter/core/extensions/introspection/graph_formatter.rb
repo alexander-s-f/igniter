@@ -37,7 +37,9 @@ module Igniter
               line += " contract=#{node.contract_class.name || 'AnonymousContract'}"
             end
             if node.kind == :branch
-              cases = node.cases.map { |entry| "#{entry[:match].inspect}:#{entry[:contract].name || 'AnonymousContract'}" }
+              cases = node.cases.map do |entry|
+                "#{format_branch_case(entry)}:#{entry[:contract].name || 'AnonymousContract'}"
+              end
               line += " selector=#{node.selector_dependency}"
               line += " depends_on=#{node.context_dependencies.join(',')}" if node.context_dependencies.any?
               line += " cases=#{cases.join('|')}"
@@ -96,6 +98,19 @@ module Igniter
           return "#{node.kind}: #{node.path}" unless node.kind == :compute
 
           "#{node.kind}: #{node.path}\\n#{node.callable_name}"
+        end
+
+        def format_branch_case(entry)
+          case entry[:matcher]
+          when :eq
+            entry[:value].inspect
+          when :in
+            "in=#{entry[:value].inspect}"
+          when :matches
+            "matches=#{entry[:value].inspect}"
+          else
+            "#{entry[:matcher]}=#{entry[:value].inspect}"
+          end
         end
       end
     end

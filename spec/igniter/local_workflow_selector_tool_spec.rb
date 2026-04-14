@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/core"
+require "igniter/tools"
 
 RSpec.describe Igniter::Tools::LocalWorkflowSelectorTool do
   describe ".tool_name" do

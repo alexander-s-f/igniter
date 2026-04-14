@@ -180,8 +180,81 @@ RSpec.describe "Igniter branches" do
     expect(event.payload).to include(
       selector: :country,
       selector_value: "US",
+      matcher: :eq,
       matched_case: "US",
       selected_contract: us.compiled_graph.name
+    )
+  end
+
+  it "supports `in:` branch matching" do
+    us = us_contract
+    fallback = default_contract
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :country
+        input :order_total
+
+        branch :delivery_strategy, with: :country, inputs: {
+          country: :country,
+          order_total: :order_total
+        } do
+          on in: %w[US CA], contract: us
+          default contract: fallback
+        end
+
+        export :price, from: :delivery_strategy
+      end
+    end
+
+    contract = contract_class.new(country: "CA", order_total: 100)
+
+    expect(contract.result.price).to be_within(0.001).of(110.0)
+    expect(contract.class.graph.to_text).to include('cases=in=["US", "CA"]')
+  end
+
+  it "supports `matches:` branch matching and reports matcher metadata" do
+    fallback = default_contract
+
+    regional_contract = Class.new(Igniter::Contract) do
+      define do
+        input :country
+        input :order_total
+
+        compute :price, with: :order_total do |order_total:|
+          order_total * 1.05
+        end
+
+        output :price
+      end
+    end
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :country
+        input :order_total
+
+        branch :delivery_strategy, with: :country, inputs: {
+          country: :country,
+          order_total: :order_total
+        } do
+          on matches: /\A[A-Z]{2}\z/, contract: regional_contract
+          default contract: fallback
+        end
+
+        export :price, from: :delivery_strategy
+      end
+    end
+
+    contract = contract_class.new(country: "PL", order_total: 100)
+
+    expect(contract.result.price).to eq(105.0)
+
+    event = contract.events.find { |item| item.type == :branch_selected }
+    expect(event.payload).to include(
+      selector_value: "PL",
+      matcher: :matches,
+      matched_case: "/\\A[A-Z]{2}\\z/"
     )
   end
 
@@ -248,6 +321,55 @@ RSpec.describe "Igniter branches" do
         end
       end
     end.to raise_error(Igniter::ValidationError, /unknown child output 'price'/i)
+  end
+
+  it "fails compilation when branch case values overlap across `on` and `in:`" do
+    us = us_contract
+    fallback = default_contract
+
+    expect do
+      Class.new(Igniter::Contract) do
+        define do
+          input :country
+          input :order_total
+
+          branch :delivery_strategy, with: :country, inputs: {
+            country: :country,
+            order_total: :order_total
+          } do
+            on "US", contract: us
+            on in: %w[US CA], contract: fallback
+            default contract: fallback
+          end
+
+          output :delivery_strategy
+        end
+      end
+    end.to raise_error(Igniter::ValidationError, /duplicate case values/i)
+  end
+
+  it "fails compilation when `matches:` does not use a Regexp" do
+    us = us_contract
+    fallback = default_contract
+
+    expect do
+      Class.new(Igniter::Contract) do
+        define do
+          input :country
+          input :order_total
+
+          branch :delivery_strategy, with: :country, inputs: {
+            country: :country,
+            order_total: :order_total
+          } do
+            on matches: "US", contract: us
+            default contract: fallback
+          end
+
+          output :delivery_strategy
+        end
+      end
+    end.to raise_error(Igniter::ValidationError, /`matches:` cases must use a Regexp/i)
   end
 
   it "fails the branch node when the selected child contract fails" do
