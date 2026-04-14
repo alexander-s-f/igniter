@@ -169,6 +169,15 @@ RSpec.describe "Igniter layer loading" do
     expect(loader_names).to eq(["filesystem"])
     expect(features).to include("igniter/application/loader_pack.rb")
     expect(features).to include("igniter/application/filesystem_loader_adapter.rb")
+    expect(features).not_to include("igniter/application/scaffold_pack.rb")
+    expect(features).not_to include("igniter/application/generator.rb")
+  end
+
+  it "`require \"igniter/application/scaffold_pack\"` opt-ins the scaffold generator pack" do
+    features = loaded_igniter_features("igniter/application/scaffold_pack")
+
+    expect(features).to include("igniter/application/scaffold_pack.rb")
+    expect(features).to include("igniter/application/generator.rb")
   end
 
   it "`require \"igniter/cluster\"` does not mutate the runtime remote adapter by itself" do

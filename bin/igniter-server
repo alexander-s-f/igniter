@@ -57,7 +57,7 @@ when "new"
     exit 1
   end
 
-  require_relative "../lib/igniter/application/generator"
+  require_relative "../lib/igniter/application/scaffold_pack"
 
   mode = options[:minimal] ? " (minimal)" : ""
   puts "Creating Igniter workspace '#{app_name}'#{mode}..."

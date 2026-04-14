@@ -4,6 +4,7 @@ require "spec_helper"
 require "igniter/server"
 require "igniter/application"
 require "igniter/cluster"
+require "igniter/application/scaffold_pack"
 require "tmpdir"
 
 RSpec.describe Igniter::Application do

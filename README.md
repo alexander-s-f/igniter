@@ -14,7 +14,7 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - runtime auditing, diagnostics reports, and reactive side effects
 - graph and runtime introspection (text, Mermaid)
 - ergonomic DSL helpers: `const`, `lookup`, `map`, `project`, `aggregate`, `guard`, `export`, `expose`, `effect`, `on_success`, `scope`, `namespace`
-- `Igniter::Workspace` + `Igniter::Application` — standard app scaffold with `apps/`, YAML config, autoloading, scheduler, and `igniter-server new`
+- `Igniter::Workspace` + `Igniter::Application` — standard app runtime/profile with `apps/`, YAML config, autoloading, and scheduler; scaffold generation is an explicit pack behind `igniter-server new`
 - capability-based security: declare executor resource requirements, enforce `Policy` at runtime
 - temporal contracts: reproducible historical execution via an explicit `as_of` time input
 - content-addressed computation: `pure` executors cached by input fingerprint across executions and processes

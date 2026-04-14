@@ -17,7 +17,6 @@ require_relative "application/app_config"
 require_relative "application/yml_loader"
 require_relative "application/autoloader"
 require_relative "application/workspace"
-require_relative "application/generator"
 
 module Igniter
   # Base class for Igniter applications.

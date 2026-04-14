@@ -89,7 +89,8 @@ end
 `require "igniter/application"` is the canonical entrypoint. It loads the default
 server host pack for you, which in turn brings in the server runtime, and it also
 loads the default threaded scheduler pack for recurring background jobs plus the
-default filesystem loader pack for eager app code loading.
+default filesystem loader pack for eager app code loading. Scaffold generation is
+now a separate explicit pack loaded through `require "igniter/application/scaffold_pack"`.
 `MyApp.start` and `MyApp.rack_app` also activate the server remote transport for you.
 If you want to resolve `remote:` nodes outside a hosted app lifecycle, activate
 `Igniter::Server` or `Igniter::Cluster` transport explicitly.
@@ -126,6 +127,9 @@ Application code loading is pluggable too:
 ```ruby
 loader :filesystem   # default eager file loader
 ```
+
+If your application uses scaffold generation APIs such as
+`Igniter::Application::Generator`, load `require "igniter/application/scaffold_pack"`.
 
 If your application uses custom tools or agents, also load `require "igniter/core"`.
 If it uses the built-in operational tool pack, load `require "igniter/tools"`.

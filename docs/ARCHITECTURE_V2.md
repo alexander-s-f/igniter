@@ -275,7 +275,7 @@ DSL: `host`, `config_file`, `configure`, `executors_path`, `contracts_path`,
 `tools_path`, `agents_path`, `skills_path`, `on_boot`, `register`, `loader`,
 `scheduler`, `schedule`.
 
-Lifecycle: `autoload_paths!` → `on_boot` blocks → `configure` blocks → build host config → run through host adapter.
+Lifecycle: loader adapter → `on_boot` blocks → `configure` blocks → build host config → run through host adapter.
 
 `Igniter::Application` is a profile over hosting. Today the default host adapter is
 `Igniter::Application::ServerHost` (aliased as `Igniter::Server::ApplicationHost`
@@ -292,6 +292,8 @@ themselves without pushing more branching logic back into `Application`. In othe
 words, `require "igniter/application"` registers the server host pack, the default
 filesystem loader pack, and the default threaded scheduler pack, while
 `require "igniter/cluster"` extends the host registry with the cluster host pack.
+Scaffold generation is no longer part of the runtime entrypoint; it is loaded
+explicitly through `require "igniter/application/scaffold_pack"`.
 
 ---
 
