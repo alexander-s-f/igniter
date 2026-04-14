@@ -2,6 +2,7 @@
 
 require_relative "sdk"
 require_relative "server"
+require_relative "application/cluster_host"
 require_relative "cluster/mesh"
 require_relative "cluster/remote_adapter"
 require_relative "cluster/events"
@@ -12,6 +13,8 @@ require_relative "cluster/replication"
 
 module Igniter
   module Cluster
+    ApplicationHost = Igniter::Application::ClusterHost unless const_defined?(:ApplicationHost, false)
+
     class << self
       def remote_adapter
         @remote_adapter ||= RemoteAdapter.new

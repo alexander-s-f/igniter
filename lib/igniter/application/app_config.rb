@@ -9,10 +9,11 @@ module Igniter
       attr_accessor :store, :metrics_collector,
                     :custom_routes, :before_request_hooks, :after_request_hooks, :around_request_hooks
 
-      attr_reader :server_host
+      attr_reader :server_host, :cluster_host
 
       def initialize
         @server_host       = ServerHostConfig.new
+        @cluster_host      = ClusterHostConfig.new
         @store             = nil
         @metrics_collector = nil
         @custom_routes     = []
@@ -55,6 +56,7 @@ module Igniter
           config.after_request_hooks  = after_request_hooks.dup
           config.around_request_hooks = around_request_hooks.dup
           config.configure_host(:server, server_host.to_h)
+          config.configure_host(:cluster, cluster_host.to_h)
         end
       end
     end

@@ -55,7 +55,7 @@ layer folders.
 - **Capability layers**: optional subsystems such as `Igniter::AI` and `Igniter::Channels`.
 - **Data layer**: `Igniter::Data`, a tiny JSON-first persistence API for app records such as chat bindings, notes, and sessions.
 - **Hosting layers**: `Igniter::Server` and `Igniter::Cluster`.
-- **Profile**: `Igniter::Workspace` + `Igniter::Application`, a packaged way to assemble an app and run it through a host adapter. The default host adapter is `Igniter::Server`.
+- **Profile**: `Igniter::Workspace` + `Igniter::Application`, a packaged way to assemble an app and run it through a host adapter. The default host is `host :server`, with `host :cluster` available for cluster-aware apps.
 - **Plugin**: framework-specific integration such as `Igniter::Rails`.
 
 ## Deployment Modes

@@ -6,6 +6,7 @@ require_relative "application/host_adapter"
 require_relative "application/host_config"
 require_relative "application/server_host"
 require_relative "application/server_host_config"
+require_relative "application/cluster_host_config"
 require_relative "application/app_config"
 require_relative "application/yml_loader"
 require_relative "application/autoloader"
@@ -56,6 +57,14 @@ module Igniter
     class << self
       # ─── DSL ─────────────────────────────────────────────────────────────────
 
+      def host(name = nil)
+        return (@host_name ||= :server) unless name
+
+        @host_name = normalize_host_name(name)
+        @host_adapter = nil
+        self
+      end
+
       def use(*names)
         resolved_names = names.flatten.map(&:to_sym)
         Igniter::SDK.activate!(*resolved_names, layer: :application)
@@ -68,7 +77,7 @@ module Igniter
       end
 
       def host_adapter(adapter = nil)
-        return (@host_adapter ||= Igniter::Application::ServerHost.new) unless adapter
+        return (@host_adapter ||= build_host_adapter(host)) unless adapter
 
         @host_adapter = adapter
       end
@@ -239,10 +248,33 @@ module Igniter
         subclass.instance_variable_set(:@app_config,       AppConfig.new)
         subclass.instance_variable_set(:@build_scheduler,  nil)
         subclass.instance_variable_set(:@sdk_capabilities, [])
+        subclass.instance_variable_set(:@host_name,        nil)
         subclass.instance_variable_set(:@host_adapter,     nil)
       end
 
       private
+
+      def normalize_host_name(name)
+        name.to_sym
+      end
+
+      def build_host_adapter(name)
+        builder = host_builders.fetch(normalize_host_name(name)) do
+          raise ArgumentError, "unknown application host #{name.inspect}; expected one of: #{host_builders.keys.join(', ')}"
+        end
+
+        instance_exec(&builder)
+      end
+
+      def host_builders
+        {
+          server: -> { Igniter::Application::ServerHost.new },
+          cluster: -> do
+            require_relative "cluster"
+            Igniter::Application::ClusterHost.new
+          end
+        }
+      end
 
       # Build and return a ready host-specific config object.
       def build!

@@ -60,6 +60,7 @@ module MyApp
   class MainApp < Igniter::Application
     root_dir __dir__
     config_file "application.yml"
+    host :server
 
     executors_path "app/executors"
     contracts_path "app/contracts"
@@ -91,6 +92,21 @@ for you, so most applications do not need a separate `require "igniter/server"`.
 If you want to resolve `remote:` nodes outside a hosted app lifecycle, activate
 `Igniter::Server` or `Igniter::Cluster` transport explicitly.
 
+Host selection is now declarative at the application layer:
+
+```ruby
+class MainApp < Igniter::Application
+  host :server   # default
+end
+
+class ClusterApp < Igniter::Application
+  host :cluster
+end
+```
+
+If you need a completely custom runtime host, `host_adapter SomeAdapter.new` still
+works as the escape hatch.
+
 If your application uses custom tools or agents, also load `require "igniter/core"`.
 If it uses the built-in operational tool pack, load `require "igniter/tools"`.
 If it uses skills, providers, or `Igniter::AI.configure`, also load `require "igniter/ai"`.
@@ -111,6 +127,18 @@ and calls `MainApp.start` under the hood.
 ---
 
 ## DSL Reference
+
+### `host(name)`
+
+Select the canonical application host profile.
+
+```ruby
+host :server   # default single-node host
+host :cluster  # cluster-aware host
+```
+
+This keeps host choice declarative while preserving `host_adapter(...)` for custom
+adapters.
 
 ### `config_file(path)`
 
@@ -338,3 +366,8 @@ The two approaches are compatible in the same process: the default application h
 eventually delegates to `Igniter::Server::HttpServer`, but that server-specific wiring
 now lives in `Igniter::Application::ServerHost` (with `Igniter::Server::ApplicationHost`
 kept as a compatibility alias), not in `Igniter::Application` itself.
+
+For cluster-aware app hosting, the canonical adapter is now
+`Igniter::Application::ClusterHost` (aliased as `Igniter::Cluster::ApplicationHost`).
+That keeps the host model application-facing while still reusing the cluster/server
+runtime implementation underneath.

@@ -270,8 +270,8 @@ Activated by `require "igniter/application"`.
 
 Convention-over-configuration entry point for single-machine deployments.
 
-DSL: `config_file`, `configure`, `executors_path`, `contracts_path`, `tools_path`,
-`agents_path`, `skills_path`, `on_boot`, `register`, `schedule`.
+DSL: `host`, `config_file`, `configure`, `executors_path`, `contracts_path`,
+`tools_path`, `agents_path`, `skills_path`, `on_boot`, `register`, `schedule`.
 
 Lifecycle: `autoload_paths!` → `on_boot` blocks → `configure` blocks → build host config → run through host adapter.
 
@@ -279,6 +279,12 @@ Lifecycle: `autoload_paths!` → `on_boot` blocks → `configure` blocks → bui
 `Igniter::Application::ServerHost` (aliased as `Igniter::Server::ApplicationHost`
 for compatibility), so the public API still runs on top of `Igniter::Server`
 without hard-wiring HTTP classes into `Application` itself.
+
+When an app needs cluster-aware hosting, it can opt into
+`Igniter::Application::ClusterHost` (aliased as `Igniter::Cluster::ApplicationHost`),
+which layers mesh/bootstrap concerns on top of the same host model. The application
+declares this through `host :cluster`, while `host_adapter(...)` remains available
+for fully custom hosts.
 
 ---
 

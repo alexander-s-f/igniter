@@ -3,6 +3,7 @@
 require "spec_helper"
 require "igniter/server"
 require "igniter/application"
+require "igniter/cluster"
 require "tmpdir"
 
 RSpec.describe Igniter::Application do
@@ -101,6 +102,14 @@ RSpec.describe Igniter::Application do
       expect(app2.host_adapter).to be_a(Igniter::Application::ServerHost)
     end
 
+    it "does not leak selected hosts between subclasses" do
+      app1 = fresh_app { host :cluster }
+      app2 = fresh_app
+
+      expect(app1.host).to eq(:cluster)
+      expect(app2.host).to eq(:server)
+    end
+
     it "does not leak custom routes between subclasses" do
       app1 = fresh_app { route "POST", "/webhook" do { ok: true } end }
       app2 = fresh_app
@@ -136,6 +145,8 @@ RSpec.describe Igniter::Application do
       expect(cfg.server_host.host).to eq("0.0.0.0")
       expect(cfg.server_host.log_format).to eq(:text)
       expect(cfg.server_host.drain_timeout).to eq(30)
+      expect(cfg.cluster_host.local_capabilities).to eq([])
+      expect(cfg.cluster_host.start_discovery).to be false
       expect(cfg.metrics_collector).to be_nil
     end
 
@@ -159,6 +170,22 @@ RSpec.describe Igniter::Application do
         expect(host_config.host_settings_for(:server)).to include(
           host: "127.0.0.1",
           port: 9000
+        )
+      end
+
+      it "copies cluster-host settings into host-specific runtime intent" do
+        cfg.cluster_host.peer_name = "orders-node"
+        cfg.cluster_host.local_capabilities = [:orders]
+        cfg.cluster_host.seeds = ["http://seed:4567"]
+        cfg.cluster_host.start_discovery = true
+
+        host_config = cfg.to_host_config
+
+        expect(host_config.host_settings_for(:cluster)).to include(
+          peer_name: "orders-node",
+          local_capabilities: [:orders],
+          seeds: ["http://seed:4567"],
+          start_discovery: true
         )
       end
 
@@ -222,9 +249,75 @@ RSpec.describe Igniter::Application do
     end
   end
 
+  describe Igniter::Application::ClusterHostConfig do
+    subject(:config) { described_class.new }
+
+    it "tracks static peers and cluster settings" do
+      config.peer_name = "api-node"
+      config.local_capabilities = [:api]
+      config.add_peer("orders-node", url: "http://orders:4567", capabilities: [:orders])
+
+      expect(config.to_h).to include(
+        peer_name: "api-node",
+        local_capabilities: [:api]
+      )
+      expect(config.to_h[:peers]).to eq([
+        { name: "orders-node", url: "http://orders:4567", capabilities: [:orders] }
+      ])
+    end
+  end
+
   describe Igniter::Application::ServerHost do
     it "remains aliased as Igniter::Server::ApplicationHost for compatibility" do
       expect(Igniter::Server::ApplicationHost).to be(described_class)
+    end
+  end
+
+  describe Igniter::Application::ClusterHost do
+    after { Igniter::Cluster::Mesh.reset! }
+
+    it "remains aliased as Igniter::Cluster::ApplicationHost for compatibility" do
+      expect(Igniter::Cluster::ApplicationHost).to be(described_class)
+    end
+
+    it "configures server and mesh settings from cluster host config" do
+      host_config = Igniter::Application::HostConfig.new
+      host_config.configure_host(:server, host: "0.0.0.0", port: 4567, log_format: :text, drain_timeout: 30)
+      host_config.configure_host(
+        :cluster,
+        peer_name: "orders-node",
+        local_capabilities: [:orders],
+        seeds: ["http://seed:4567"],
+        discovery_interval: 15,
+        auto_announce: false,
+        local_url: "http://orders:4567",
+        gossip_fanout: 5,
+        start_discovery: false,
+        peers: [{ name: "audit-node", url: "http://audit:4567", capabilities: [:audit] }]
+      )
+
+      server_config = described_class.new.build_config(host_config)
+
+      expect(server_config.peer_name).to eq("orders-node")
+      expect(server_config.peer_capabilities).to eq([:orders])
+      expect(Igniter::Cluster::Mesh.config.peer_name).to eq("orders-node")
+      expect(Igniter::Cluster::Mesh.config.local_capabilities).to eq([:orders])
+      expect(Igniter::Cluster::Mesh.config.seeds).to eq(["http://seed:4567"])
+      expect(Igniter::Cluster::Mesh.config.discovery_interval).to eq(15)
+      expect(Igniter::Cluster::Mesh.config.auto_announce).to be false
+      expect(Igniter::Cluster::Mesh.config.local_url).to eq("http://orders:4567")
+      expect(Igniter::Cluster::Mesh.config.gossip_fanout).to eq(5)
+      expect(Igniter::Cluster::Mesh.config.peer_named("audit-node")&.url).to eq("http://audit:4567")
+    end
+
+    it "activates the cluster remote adapter" do
+      previous_adapter = Igniter::Runtime.remote_adapter
+
+      described_class.new.activate_transport!
+
+      expect(Igniter::Runtime.remote_adapter).to be_a(Igniter::Cluster::RemoteAdapter)
+    ensure
+      Igniter::Runtime.remote_adapter = previous_adapter
     end
   end
 
@@ -614,7 +707,24 @@ RSpec.describe Igniter::Application do
     it "uses the server host adapter by default" do
       app = fresh_app
 
+      expect(app.host).to eq(:server)
       expect(app.host_adapter).to be_a(Igniter::Application::ServerHost)
+    end
+
+    it "builds the cluster host adapter declaratively" do
+      app = fresh_app { host :cluster }
+
+      expect(app.host).to eq(:cluster)
+      expect(app.host_adapter).to be_a(Igniter::Application::ClusterHost)
+    end
+
+    it "raises a helpful error for an unknown host" do
+      app = fresh_app { host :edge }
+
+      expect { app.host_adapter }.to raise_error(
+        ArgumentError,
+        'unknown application host :edge; expected one of: server, cluster'
+      )
     end
 
     it "lets the default server host provide server-specific defaults" do
@@ -637,6 +747,7 @@ RSpec.describe Igniter::Application do
       end
 
       app = fresh_app do
+        host :cluster
         configure { |c| c.port = 7777 }
         host_adapter fake_host
       end
@@ -644,6 +755,7 @@ RSpec.describe Igniter::Application do
       built = app.send(:build!)
 
       expect(built).to be(fake_config)
+      expect(app.host).to eq(:cluster)
       expect(built_from).to be_a(Igniter::Application::HostConfig)
       expect(built_from.host_settings_for(:server)).to include(port: 7777)
     end
