@@ -265,7 +265,8 @@ Rack-compatible HTTP transport and service hosting for contracts.
 
 ## Application Layer
 
-Activated by `require "igniter/application"`.
+Activated by `require "igniter/application/runtime"` and re-exported by
+`require "igniter/application"`.
 
 ### `Igniter::Application`
 
@@ -295,7 +296,8 @@ filesystem loader pack, and the default threaded scheduler pack, while
 Scaffold generation is no longer part of the runtime entrypoint; it is loaded
 explicitly through `require "igniter/application/scaffold_pack"`. The application
 entrypoint itself is now a thin manifest over `igniter/application/runtime_pack`
-plus `igniter/application/workspace_pack`.
+plus `igniter/application/workspace_pack`, while
+`require "igniter/application/runtime"` exposes just the leaf runtime side.
 
 ---
 

@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "sdk"
-require_relative "application/runtime_pack"
-require_relative "application/workspace_pack"
+require_relative "application/runtime"
+require_relative "workspace"
 
 module Igniter
   # Base class for Igniter applications.

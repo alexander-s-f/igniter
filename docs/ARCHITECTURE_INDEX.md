@@ -15,6 +15,7 @@ Start here if you want the shortest accurate map of Igniter's structure.
 | Server | `Igniter::Server` / `require "igniter/server"` | HTTP hosting, Rack app, remote execution transport; activation is explicit |
 | Application | `Igniter::Application` / `require "igniter/application"` | single-node app runtime profile: config, autoloading, scheduler, host-adapter seam |
 | Workspace | `Igniter::Workspace` / `require "igniter/workspace"` | workspace coordinator: shared paths, app registry, topology-aware boot/rack routing |
+| App Runtime | `Igniter::Application` / `require "igniter/application/runtime"` | narrow leaf runtime entrypoint without workspace umbrella |
 | Cluster | `Igniter::Cluster` / `require "igniter/cluster"` | network runtime: consensus, mesh, replication, cluster-aware routing |
 | Plugins | `Igniter::Plugins::*` / `require "igniter/rails"` | framework-specific integrations |
 

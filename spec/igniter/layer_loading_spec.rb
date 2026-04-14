@@ -130,6 +130,16 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/cluster.rb")
   end
 
+  it "`require \"igniter/application/runtime\"` loads the application runtime without workspace support" do
+    features = loaded_igniter_features("igniter/application/runtime")
+
+    expect(features).to include("igniter/application/runtime.rb")
+    expect(features).to include("igniter/application/runtime_pack.rb")
+    expect(features).not_to include("igniter/application.rb")
+    expect(features).not_to include("igniter/workspace.rb")
+    expect(features).not_to include("igniter/application/workspace_pack.rb")
+  end
+
   it "`require \"igniter/tools\"` opt-ins the built-in operational tool pack" do
     features = loaded_igniter_features("igniter/tools")
 
@@ -162,6 +172,7 @@ RSpec.describe "Igniter layer loading" do
   it "`require \"igniter/application\"` loads the default server host through its host pack" do
     features = loaded_igniter_features("igniter/application")
 
+    expect(features).to include("igniter/application/runtime.rb")
     expect(features).to include("igniter/application/runtime_pack.rb")
     expect(features).to include("igniter/application/workspace_pack.rb")
     expect(features).to include("igniter/application/server_host_pack.rb")

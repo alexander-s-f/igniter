@@ -86,7 +86,7 @@ module MyApp
 end
 ```
 
-`require "igniter/application"` is the canonical entrypoint. It loads the default
+`require "igniter/application"` is the canonical umbrella entrypoint. It loads the default
 server host pack for you, which in turn brings in the server runtime, and it also
 loads the default threaded scheduler pack for recurring background jobs plus the
 default filesystem loader pack for eager app code loading. Scaffold generation is
@@ -133,6 +133,8 @@ If your application uses scaffold generation APIs such as
 Internally, `require "igniter/application"` now assembles its runtime behavior via
 `require "igniter/application/runtime_pack"` and
 `require "igniter/application/workspace_pack"`.
+If you want just the leaf application runtime without workspace support, use
+`require "igniter/application/runtime"` instead.
 
 If your application uses custom tools or agents, also load `require "igniter/core"`.
 If it uses the built-in operational tool pack, load `require "igniter/tools"`.

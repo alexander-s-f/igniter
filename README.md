@@ -44,6 +44,7 @@ layer folders.
 | Communication transports | `require "igniter/channels"` |
 | HTTP hosting | `require "igniter/server"` |
 | Opinionated app profile | `require "igniter/application"` |
+| Narrow app runtime | `require "igniter/application/runtime"` |
 | Distributed runtime | `require "igniter/cluster"` |
 | Rails plugin | `require "igniter/rails"` |
 
