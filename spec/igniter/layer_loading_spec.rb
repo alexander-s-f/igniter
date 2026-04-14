@@ -61,6 +61,20 @@ RSpec.describe "Igniter layer loading" do
     JSON.parse(stdout)
   end
 
+  def registered_scheduler_names_for(entrypoint)
+    script = <<~RUBY
+      require "json"
+      $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
+      require #{entrypoint.inspect}
+      puts JSON.generate(Igniter::Application::SchedulerRegistry.names.map(&:to_s).sort)
+    RUBY
+
+    stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-e", script, chdir: ROOT)
+    raise "Failed to inspect scheduler registry for #{entrypoint}: #{stderr}" unless status.success?
+
+    JSON.parse(stdout)
+  end
+
   it "`require \"igniter\"` stays inside the embedded core layer" do
     features = loaded_igniter_features("igniter")
 
@@ -116,6 +130,22 @@ RSpec.describe "Igniter layer loading" do
     host_names = registered_host_names_for("igniter/application")
 
     expect(host_names).to eq(["server"])
+  end
+
+  it "`require \"igniter/application\"` loads the default server host through its host pack" do
+    features = loaded_igniter_features("igniter/application")
+
+    expect(features).to include("igniter/application/server_host_pack.rb")
+    expect(features).to include("igniter/server/application_host.rb")
+  end
+
+  it "`require \"igniter/application\"` registers the default threaded scheduler pack" do
+    scheduler_names = registered_scheduler_names_for("igniter/application")
+    features = loaded_igniter_features("igniter/application")
+
+    expect(scheduler_names).to eq(["threaded"])
+    expect(features).to include("igniter/application/scheduler_pack.rb")
+    expect(features).to include("igniter/application/threaded_scheduler_adapter.rb")
   end
 
   it "`require \"igniter/cluster\"` does not mutate the runtime remote adapter by itself" do

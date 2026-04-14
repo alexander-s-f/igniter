@@ -110,6 +110,14 @@ RSpec.describe Igniter::Application do
       expect(app2.host).to eq(:server)
     end
 
+    it "does not leak selected schedulers between subclasses" do
+      app1 = fresh_app { scheduler :custom }
+      app2 = fresh_app
+
+      expect(app1.scheduler).to eq(:custom)
+      expect(app2.scheduler).to eq(:threaded)
+    end
+
     it "does not leak custom routes between subclasses" do
       app1 = fresh_app { route "POST", "/webhook" do { ok: true } end }
       app2 = fresh_app
@@ -271,6 +279,31 @@ RSpec.describe Igniter::Application do
       expect(app.host_adapter).to be(fake_host)
       expect(captured_app).to be(app)
       expect(described_class.registered?(host_name)).to be true
+    end
+  end
+
+  describe Igniter::Application::SchedulerRegistry do
+    it "ships with the canonical threaded scheduler profile" do
+      expect(described_class.names).to include(:threaded)
+    end
+
+    it "allows registering a custom scheduler profile" do
+      scheduler_name = :"custom_#{object_id}"
+      fake_adapter = Object.new
+      captured_app = nil
+
+      app = fresh_app do
+        register_scheduler(scheduler_name) do |application_class|
+          captured_app = application_class
+          fake_adapter
+        end
+
+        scheduler scheduler_name
+      end
+
+      expect(app.scheduler_adapter).to be(fake_adapter)
+      expect(captured_app).to be(app)
+      expect(described_class.registered?(scheduler_name)).to be true
     end
   end
 
@@ -475,6 +508,39 @@ RSpec.describe Igniter::Application do
           scheduler.stop
         end.not_to raise_error
       end
+    end
+  end
+
+  describe Igniter::Application::ThreadedSchedulerAdapter do
+    it "builds the underlying scheduler once from declared jobs" do
+      adapter = described_class.new
+      logger = Object.new
+      config = Struct.new(:logger).new(logger)
+      calls = []
+
+      fake_scheduler = Object.new
+      fake_scheduler.define_singleton_method(:add) do |name, every:, at:, &block|
+        calls << [:add, name, every, at, block.call]
+      end
+      fake_scheduler.define_singleton_method(:start) { calls << :start }
+      fake_scheduler.define_singleton_method(:stop) { calls << :stop }
+
+      allow(Igniter::Application::Scheduler).to receive(:new).with(logger: logger).and_return(fake_scheduler)
+
+      jobs = [
+        { name: :tick, every: "1h", at: nil, block: -> { :ok } }
+      ]
+
+      adapter.start(config: config, jobs: jobs)
+      adapter.start(config: config, jobs: jobs)
+      adapter.stop
+
+      expect(calls).to eq([
+        [:add, :tick, "1h", nil, :ok],
+        :start,
+        :start,
+        :stop
+      ])
     end
   end
 
@@ -734,6 +800,7 @@ RSpec.describe Igniter::Application do
 
       expect(app.host).to eq(:server)
       expect(app.host_adapter).to be_a(Igniter::Application::ServerHost)
+      expect(app.scheduler).to eq(:threaded)
     end
 
     it "builds the cluster host adapter declaratively" do
@@ -750,6 +817,15 @@ RSpec.describe Igniter::Application do
         expect(error.message).to include("unknown application host :edge")
         expect(error.message).to include("server")
         expect(error.message).to include("cluster")
+      end
+    end
+
+    it "raises a helpful error for an unknown scheduler" do
+      app = fresh_app { scheduler :edge }
+
+      expect { app.scheduler_adapter }.to raise_error(ArgumentError) do |error|
+        expect(error.message).to include("unknown application scheduler :edge")
+        expect(error.message).to include("threaded")
       end
     end
 
@@ -791,6 +867,7 @@ RSpec.describe Igniter::Application do
       klass = sample_contract_class
       fake_config = host_config_class.new(nil, {})
       fake_host = Object.new
+      fake_scheduler = Object.new
 
       fake_host.define_singleton_method(:build_config) do |host_config|
         events << [:build_config, host_config]
@@ -801,10 +878,18 @@ RSpec.describe Igniter::Application do
         events << [:start, config]
         :started
       end
+      fake_scheduler.define_singleton_method(:start) do |config:, jobs:|
+        events << [:scheduler_start, config, jobs.map { |job| job[:name] }]
+      end
+      fake_scheduler.define_singleton_method(:stop) { events << :scheduler_stop }
 
       app = fresh_app do
         register "SampleContract", klass
+        schedule :tick, every: "1h" do
+          :ok
+        end
         host_adapter fake_host
+        scheduler_adapter fake_scheduler
       end
 
       expect(app.start).to eq(:started)
@@ -813,6 +898,7 @@ RSpec.describe Igniter::Application do
       expect(events[1].last).to be_a(Igniter::Application::HostConfig)
       expect(events[1].last.registrations["SampleContract"]).to be(klass)
       expect(events[2..]).to eq([
+        [:scheduler_start, fake_config, [:tick]],
         [:start, fake_config]
       ])
     end
@@ -822,6 +908,7 @@ RSpec.describe Igniter::Application do
       klass = sample_contract_class
       fake_config = host_config_class.new(nil, {})
       fake_host = Object.new
+      fake_scheduler = Object.new
 
       fake_host.define_singleton_method(:build_config) do |host_config|
         events << [:build_config, host_config]
@@ -832,10 +919,17 @@ RSpec.describe Igniter::Application do
         events << [:rack_app, config]
         :rack_app
       end
+      fake_scheduler.define_singleton_method(:start) do |config:, jobs:|
+        events << [:scheduler_start, config, jobs.map { |job| job[:name] }]
+      end
 
       app = fresh_app do
         register "SampleContract", klass
+        schedule :tick, every: "1h" do
+          :ok
+        end
         host_adapter fake_host
+        scheduler_adapter fake_scheduler
       end
 
       expect(app.rack_app).to eq(:rack_app)
@@ -844,6 +938,7 @@ RSpec.describe Igniter::Application do
       expect(events[1].last).to be_a(Igniter::Application::HostConfig)
       expect(events[1].last.registrations["SampleContract"]).to be(klass)
       expect(events[2..]).to eq([
+        [:scheduler_start, fake_config, [:tick]],
         [:rack_app, fake_config]
       ])
     end

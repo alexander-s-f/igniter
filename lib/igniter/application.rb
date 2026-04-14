@@ -1,17 +1,18 @@
 # frozen_string_literal: true
 
 require_relative "sdk"
-require_relative "server"
 require_relative "application/host_adapter"
 require_relative "application/host_registry"
 require_relative "application/host_config"
-require_relative "application/server_host"
+require_relative "application/server_host_pack"
+require_relative "application/scheduler_adapter"
+require_relative "application/scheduler_registry"
+require_relative "application/scheduler_pack"
 require_relative "application/server_host_config"
 require_relative "application/cluster_host_config"
 require_relative "application/app_config"
 require_relative "application/yml_loader"
 require_relative "application/autoloader"
-require_relative "application/scheduler"
 require_relative "application/workspace"
 require_relative "application/generator"
 
@@ -70,6 +71,18 @@ module Igniter
         HostRegistry.register(name, builder, &block)
       end
 
+      def scheduler(name = nil)
+        return (@scheduler_name ||= :threaded) unless name
+
+        @scheduler_name = normalize_scheduler_name(name)
+        @scheduler_adapter = nil
+        self
+      end
+
+      def register_scheduler(name, builder = nil, &block)
+        SchedulerRegistry.register(name, builder, &block)
+      end
+
       def use(*names)
         resolved_names = names.flatten.map(&:to_sym)
         Igniter::SDK.activate!(*resolved_names, layer: :application)
@@ -85,6 +98,12 @@ module Igniter
         return (@host_adapter ||= build_host_adapter(host)) unless adapter
 
         @host_adapter = adapter
+      end
+
+      def scheduler_adapter(adapter = nil)
+        return (@scheduler_adapter ||= build_scheduler_adapter(scheduler)) unless adapter
+
+        @scheduler_adapter = adapter
       end
 
       # Root directory for this application.
@@ -212,9 +231,8 @@ module Igniter
         host  = host_adapter
         host.activate_transport!
         config = build!
-        sched = build_scheduler(config)
-        sched&.start
-        at_exit { sched&.stop }
+        scheduler = start_scheduler(config)
+        at_exit { stop_scheduler(scheduler) }
         host.start(config: config)
       end
 
@@ -224,7 +242,7 @@ module Igniter
         host = host_adapter
         host.activate_transport!
         config = build!
-        build_scheduler(config)&.start
+        start_scheduler(config)
         host.rack_app(config: config)
       end
 
@@ -251,15 +269,20 @@ module Igniter
         subclass.instance_variable_set(:@registered,       {})
         subclass.instance_variable_set(:@scheduled_jobs,   [])
         subclass.instance_variable_set(:@app_config,       AppConfig.new)
-        subclass.instance_variable_set(:@build_scheduler,  nil)
         subclass.instance_variable_set(:@sdk_capabilities, [])
         subclass.instance_variable_set(:@host_name,        nil)
         subclass.instance_variable_set(:@host_adapter,     nil)
+        subclass.instance_variable_set(:@scheduler_name,   nil)
+        subclass.instance_variable_set(:@scheduler_adapter, nil)
       end
 
       private
 
       def normalize_host_name(name)
+        name.to_sym
+      end
+
+      def normalize_scheduler_name(name)
         name.to_sym
       end
 
@@ -275,8 +298,24 @@ module Igniter
         builder.arity == 0 ? builder.call : builder.call(self)
       end
 
+      def build_scheduler_adapter(name)
+        builder = scheduler_registry.fetch(normalize_scheduler_name(name))
+
+        build_registered_scheduler(builder)
+      rescue KeyError
+        raise ArgumentError, "unknown application scheduler #{name.inspect}; expected one of: #{scheduler_registry.names.join(', ')}"
+      end
+
+      def build_registered_scheduler(builder)
+        builder.arity == 0 ? builder.call : builder.call(self)
+      end
+
       def host_registry
         HostRegistry
+      end
+
+      def scheduler_registry
+        SchedulerRegistry
       end
 
       # Build and return a ready host-specific config object.
@@ -318,14 +357,16 @@ module Igniter
         File.expand_path(path, @root_dir || Dir.pwd)
       end
 
-      def build_scheduler(server_config)
+      def start_scheduler(config)
         return nil if @scheduled_jobs.empty?
 
-        @build_scheduler ||= begin
-          sched = Scheduler.new(logger: server_config.logger)
-          @scheduled_jobs.each { |j| sched.add(j[:name], every: j[:every], at: j[:at], &j[:block]) }
-          sched
-        end
+        adapter = scheduler_adapter
+        adapter.start(config: config, jobs: @scheduled_jobs)
+        adapter
+      end
+
+      def stop_scheduler(adapter)
+        adapter&.stop
       end
 
       def normalize_request_hook!(callable, block, name)

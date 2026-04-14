@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "../server"
 require_relative "../application/host_registry"
 require_relative "../application/server_host"
 

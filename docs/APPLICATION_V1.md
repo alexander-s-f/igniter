@@ -86,8 +86,9 @@ module MyApp
 end
 ```
 
-`require "igniter/application"` is the canonical entrypoint. It loads the server layer
-for you, so most applications do not need a separate `require "igniter/server"`.
+`require "igniter/application"` is the canonical entrypoint. It loads the default
+server host pack for you, which in turn brings in the server runtime, and it also
+loads the default threaded scheduler pack for recurring background jobs.
 `MyApp.start` and `MyApp.rack_app` also activate the server remote transport for you.
 If you want to resolve `remote:` nodes outside a hosted app lifecycle, activate
 `Igniter::Server` or `Igniter::Cluster` transport explicitly.
@@ -110,6 +111,14 @@ If you need a completely custom runtime host, `host_adapter SomeAdapter.new` sti
 works as the escape hatch. The `:server` profile is registered by
 `require "igniter/application"`, while `:cluster` is registered when the cluster
 entrypoint is loaded.
+
+Background job execution is similarly pluggable:
+
+```ruby
+scheduler :threaded   # default
+```
+
+and custom adapters can be selected through the scheduler registry.
 
 If your application uses custom tools or agents, also load `require "igniter/core"`.
 If it uses the built-in operational tool pack, load `require "igniter/tools"`.
@@ -159,6 +168,26 @@ host :inline
 
 The registered builder can also accept the application class as an argument if it
 needs app-specific wiring.
+
+### `scheduler(name)`
+
+Select the canonical background job runtime for `schedule`.
+
+```ruby
+scheduler :threaded   # default in-process scheduler
+```
+
+### `register_scheduler(name) { ... }`
+
+Register an additional scheduler adapter profile.
+
+```ruby
+register_scheduler :inline do
+  MyInlineScheduler.new
+end
+
+scheduler :inline
+```
 
 ### `config_file(path)`
 
