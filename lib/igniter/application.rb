@@ -4,6 +4,7 @@ require_relative "sdk"
 require_relative "server"
 require_relative "application/host_adapter"
 require_relative "application/host_config"
+require_relative "application/server_host"
 require_relative "application/server_host_config"
 require_relative "application/app_config"
 require_relative "application/yml_loader"
@@ -67,7 +68,7 @@ module Igniter
       end
 
       def host_adapter(adapter = nil)
-        return (@host_adapter ||= Igniter::Server::ApplicationHost.new) unless adapter
+        return (@host_adapter ||= Igniter::Application::ServerHost.new) unless adapter
 
         @host_adapter = adapter
       end

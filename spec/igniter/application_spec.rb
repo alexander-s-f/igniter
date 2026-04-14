@@ -98,7 +98,7 @@ RSpec.describe Igniter::Application do
       app2 = fresh_app
 
       expect(app1.host_adapter).to be(fake_host)
-      expect(app2.host_adapter).to be_a(Igniter::Server::ApplicationHost)
+      expect(app2.host_adapter).to be_a(Igniter::Application::ServerHost)
     end
 
     it "does not leak custom routes between subclasses" do
@@ -219,6 +219,12 @@ RSpec.describe Igniter::Application do
       config.configure_host(:server, host: "127.0.0.1", port: 7000)
 
       expect(config.host_settings_for(:server)).to eq(host: "127.0.0.1", port: 7000)
+    end
+  end
+
+  describe Igniter::Application::ServerHost do
+    it "remains aliased as Igniter::Server::ApplicationHost for compatibility" do
+      expect(Igniter::Server::ApplicationHost).to be(described_class)
     end
   end
 
@@ -608,7 +614,7 @@ RSpec.describe Igniter::Application do
     it "uses the server host adapter by default" do
       app = fresh_app
 
-      expect(app.host_adapter).to be_a(Igniter::Server::ApplicationHost)
+      expect(app.host_adapter).to be_a(Igniter::Application::ServerHost)
     end
 
     it "lets the default server host provide server-specific defaults" do

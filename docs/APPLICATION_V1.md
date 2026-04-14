@@ -336,4 +336,5 @@ don't need the application/profile scaffold.
 
 The two approaches are compatible in the same process: the default application host
 eventually delegates to `Igniter::Server::HttpServer`, but that server-specific wiring
-now lives in `Igniter::Server::ApplicationHost`, not in `Igniter::Application` itself.
+now lives in `Igniter::Application::ServerHost` (with `Igniter::Server::ApplicationHost`
+kept as a compatibility alias), not in `Igniter::Application` itself.
