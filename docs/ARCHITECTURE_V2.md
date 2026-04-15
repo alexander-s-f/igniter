@@ -38,7 +38,7 @@ see [Persistence Model v1](./PERSISTENCE_MODEL_V1.md).
 │  Consensus · Mesh · Replication · cluster-aware remote routing     │
 ├─────────────────────────────────────────────────────────────────────┤
 │  Application / Hosting Layers                                      │
-│  Igniter::Application · Igniter::Server                            │
+│  Igniter::App · Igniter::Server                            │
 │  App scaffold · scheduler · autoloading · Rack · HTTP transport    │
 ├─────────────────────────────────────────────────────────────────────┤
 │  Capability Layers                                                 │
@@ -77,7 +77,7 @@ or transport concerns without changing domain contracts.
 - **Extensions** are optional behavioral add-ons loaded from `igniter/extensions/*`.
 - **Capability layers** are optional subsystems such as `Igniter::AI` and `Igniter::Channels`.
 - **Hosting layers** are `Igniter::Server` and `Igniter::Cluster`.
-- **Profile** means `Igniter::Application`: a packaged assembly/runtime style over `Igniter::Server`.
+- **Profile** means `Igniter::App`: a packaged assembly/runtime style over `Igniter::Server`.
 - **Plugin** means framework-specific integration such as `Igniter::Rails`.
 
 ---
@@ -263,12 +263,12 @@ Rack-compatible HTTP transport and service hosting for contracts.
 
 ---
 
-## Application Layer
+## App Layer
 
 Activated by `require "igniter/app/runtime"` and re-exported by
 `require "igniter/app"`.
 
-### `Igniter::Application`
+### `Igniter::App`
 
 Convention-over-configuration entry point for single-machine deployments.
 
@@ -278,16 +278,16 @@ DSL: `host`, `config_file`, `configure`, `executors_path`, `contracts_path`,
 
 Lifecycle: loader adapter → `on_boot` blocks → `configure` blocks → build host config → run through host adapter.
 
-`Igniter::Application` is a profile over hosting. Today the default host adapter is
-`Igniter::Application::AppHost`, so the public API still runs on top of
+`Igniter::App` is a profile over hosting. Today the default host adapter is
+`Igniter::App::AppHost`, so the public API still runs on top of
 `Igniter::Server` without hard-wiring HTTP classes into `Application` itself.
 
 When an app needs cluster-aware hosting, it can opt into
-`Igniter::Application::ClusterAppHost`, which layers mesh/bootstrap concerns on top of
+`Igniter::App::ClusterAppHost`, which layers mesh/bootstrap concerns on top of
 the same host model. The application
 declares this through `host :cluster_app`, while `host_adapter(...)` remains available
 for fully custom hosts. Canonical host profiles are now supplied through
-`Igniter::Application::HostRegistry`, so future host packs can register
+`Igniter::App::HostRegistry`, so future host packs can register
 themselves without pushing more branching logic back into `Application`. In other
 words, `require "igniter/app"` registers the server host pack, the default
 filesystem loader pack, and the default threaded scheduler pack, while

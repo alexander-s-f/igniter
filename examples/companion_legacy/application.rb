@@ -35,7 +35,7 @@ require "igniter/app"
 require "igniter/core"
 require "igniter/ai"
 
-class CompanionApp < Igniter::Application
+class CompanionApp < Igniter::App
   config_file File.join(__dir__, "application.yml")
 
   # Load in dependency order: tools and skills first (executors reference them).

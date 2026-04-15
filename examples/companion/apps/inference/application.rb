@@ -6,7 +6,7 @@ require "igniter/core/metrics"
 require_relative "../../lib/companion/boot"
 
 module Companion
-  class InferenceApp < Igniter::Application
+  class InferenceApp < Igniter::App
     root_dir __dir__
     config_file "application.yml"
 

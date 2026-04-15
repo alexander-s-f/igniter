@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Igniter
-  class Application
+  class App
     # Abstract seam for application code loading.
     #
     # Application declares which path groups exist, while the loader adapter owns

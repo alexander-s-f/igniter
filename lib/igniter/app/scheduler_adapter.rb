@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Igniter
-  class Application
+  class App
     # Abstract seam for background job runtime ownership.
     #
     # Application owns job declarations via `schedule`, while the scheduler

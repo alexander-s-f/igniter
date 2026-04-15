@@ -66,10 +66,10 @@ module Igniter
       end
 
       def register_builtin_capabilities!
-        register(:ai, entrypoint: "igniter/sdk/ai", allowed_layers: %i[application server cluster])
-        register(:channels, entrypoint: "igniter/sdk/channels", allowed_layers: %i[application server cluster])
-        register(:tools, entrypoint: "igniter/sdk/tools", allowed_layers: %i[application server cluster])
-        register(:data, entrypoint: "igniter/sdk/data", allowed_layers: %i[core application server cluster])
+        register(:ai, entrypoint: "igniter/sdk/ai", allowed_layers: %i[app server cluster])
+        register(:channels, entrypoint: "igniter/sdk/channels", allowed_layers: %i[app server cluster])
+        register(:tools, entrypoint: "igniter/sdk/tools", allowed_layers: %i[app server cluster])
+        register(:data, entrypoint: "igniter/sdk/data", allowed_layers: %i[core app server cluster])
       end
 
       private

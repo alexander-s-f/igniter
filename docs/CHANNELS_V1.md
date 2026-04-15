@@ -177,7 +177,7 @@ end
 - `Igniter::Tool` may call channels directly
 - `Igniter::AI::Skill` may orchestrate channel usage
 - Rails/webhook plugins adapt inbound traffic into contracts
-- `Igniter::Application` and upper layers wire credentials, routing, and policy
+- `Igniter::App` and upper layers wire credentials, routing, and policy
 
 `Igniter::Channels` is not an AI layer. It is a delivery/transport layer that AI
 and application code can use.

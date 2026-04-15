@@ -61,7 +61,7 @@ when "new"
 
   mode = options[:minimal] ? " (minimal)" : ""
   puts "Creating Igniter workspace '#{app_name}'#{mode}..."
-  Igniter::Application::Generator.new(app_name, minimal: options[:minimal]).generate
+  Igniter::App::Generator.new(app_name, minimal: options[:minimal]).generate
 
 else
   warn "Unknown command: #{command}"

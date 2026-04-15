@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Igniter
-  class Application
+  class App
     # Global registry of canonical application host builders.
     #
     # Host profiles such as :app and :cluster_app are registered here so the

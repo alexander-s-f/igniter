@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Igniter
-  class Application
+  class App
     # Server-specific host settings owned by the application layer but scoped
     # under the default server host instead of AppConfig's top level.
     class AppHostConfig

@@ -78,7 +78,7 @@ Igniter                  # core
 Igniter::AI             # AI and model-driven execution
 Igniter::Server         # HTTP/service hosting
 Igniter::Cluster        # distributed runtime
-Igniter::Application    # opinionated app profile over Server
+Igniter::App    # opinionated app profile over Server
 Igniter::Channels       # communication adapters (Telegram, WhatsApp, email, webhook, etc.)
 ```
 
@@ -90,8 +90,8 @@ Igniter::Channels       # communication adapters (Telegram, WhatsApp, email, web
 - `Igniter::AI` may depend on `Igniter`.
 - `Igniter::Server` may depend on `Igniter` and `Igniter::AI`.
 - `Igniter::Cluster` may depend on `Igniter`, `Igniter::AI`, and `Igniter::Server`.
-- `Igniter::Application` may depend on `Igniter::Server` and optional upper layers.
-- `Igniter::Channels` may depend on `Igniter` and be used by `Igniter::AI` or `Igniter::Application`.
+- `Igniter::App` may depend on `Igniter::Server` and optional upper layers.
+- `Igniter::Channels` may depend on `Igniter` and be used by `Igniter::AI` or `Igniter::App`.
 
 ### Design rules
 
@@ -109,7 +109,7 @@ Igniter::Channels       # communication adapters (Telegram, WhatsApp, email, web
 | `Igniter::AI` | LLM providers, LLM executors, skills, transcription, AI discovery/registry |
 | `Igniter::Server` | HTTP server, Rack app, API handlers, client, remote execution transport |
 | `Igniter::Cluster` | consensus, mesh, replication, cluster routing |
-| `Igniter::Application` | app config, autoloading, scheduler, generators, app bootstrap |
+| `Igniter::App` | app config, autoloading, scheduler, generators, app bootstrap |
 | `Igniter::Channels` | Telegram, WhatsApp, email, webhook, SMS, call-center, notification transports |
 
 ## Important Architecture Decisions
@@ -134,7 +134,7 @@ Igniter::Channels       # communication adapters (Telegram, WhatsApp, email, web
 
 ### Keep Application above Server
 
-`Igniter::Application` currently requires `igniter/server` and uses a server-backed host
+`Igniter::App` currently requires `igniter/server` and uses a server-backed host
 adapter by default. It should stay a profile/framework over hosting, not a sibling
 capability layer.
 
@@ -262,12 +262,12 @@ Application-related files should stay grouped and remain above server concerns.
 
 | Current path | Target path | Target namespace |
 |-------------|-------------|------------------|
-| `lib/igniter/app.rb` | `lib/igniter/app.rb` | `Igniter::Application` |
-| `lib/igniter/app/app_config.rb` | `lib/igniter/app/app_config.rb` | `Igniter::Application::AppConfig` |
-| `lib/igniter/app/autoloader.rb` | `lib/igniter/app/autoloader.rb` | `Igniter::Application::Autoloader` |
-| `lib/igniter/app/scheduler.rb` | `lib/igniter/app/scheduler.rb` | `Igniter::Application::Scheduler` |
-| `lib/igniter/app/yml_loader.rb` | `lib/igniter/app/yml_loader.rb` | `Igniter::Application::YmlLoader` |
-| `lib/igniter/app/generator.rb` | `lib/igniter/app/generator.rb` | `Igniter::Application::Generator` |
+| `lib/igniter/app.rb` | `lib/igniter/app.rb` | `Igniter::App` |
+| `lib/igniter/app/app_config.rb` | `lib/igniter/app/app_config.rb` | `Igniter::App::AppConfig` |
+| `lib/igniter/app/autoloader.rb` | `lib/igniter/app/autoloader.rb` | `Igniter::App::Autoloader` |
+| `lib/igniter/app/scheduler.rb` | `lib/igniter/app/scheduler.rb` | `Igniter::App::Scheduler` |
+| `lib/igniter/app/yml_loader.rb` | `lib/igniter/app/yml_loader.rb` | `Igniter::App::YmlLoader` |
+| `lib/igniter/app/generator.rb` | `lib/igniter/app/generator.rb` | `Igniter::App::Generator` |
 
 No need to invent `Igniter::Server::Application` unless the codebase later proves it cleaner.
 
@@ -373,7 +373,7 @@ This gives a clean early win without mixing structural reorg and hard runtime re
 - `README.md`
 - `docs/ARCHITECTURE_V2.md`
 - `docs/DEPLOYMENT_V1.md`
-- `docs/APPLICATION_V1.md`
+- `docs/APP_V1.md`
 - `docs/SERVER_V1.md`
 - `docs/LLM_V1.md`
 - `docs/SKILLS_V1.md`

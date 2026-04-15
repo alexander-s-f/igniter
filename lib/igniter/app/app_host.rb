@@ -3,8 +3,8 @@
 require_relative "host_adapter"
 
 module Igniter
-  class Application
-    # Default server-backed host adapter for Igniter::Application.
+  class App
+    # Default server-backed host adapter for Igniter::App.
     #
     # This class belongs to the application layer's host model. It happens to be
     # implemented on top of Igniter::Server today, but the host decision is now

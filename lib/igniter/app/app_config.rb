@@ -5,8 +5,8 @@ require_relative "app_host_config"
 require_relative "cluster_app_host_config"
 
 module Igniter
-  class Application
-    # Unified configuration object for an Igniter::Application.
+  class App
+    # Unified configuration object for an Igniter::App.
     # Captures application-owned hosting settings before a concrete host adapter
     # maps them into a runtime-specific config object.
     class AppConfig

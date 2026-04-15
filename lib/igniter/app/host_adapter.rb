@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Igniter
-  class Application
+  class App
     # Abstract host adapter seam for application runtimes.
     #
     # Application owns app assembly (autoloading, config layering, registration,

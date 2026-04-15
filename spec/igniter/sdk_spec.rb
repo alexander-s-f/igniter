@@ -15,12 +15,12 @@ RSpec.describe Igniter::SDK do
     it "registers built-in SDK capabilities with layer policies" do
       expect(described_class.fetch(:ai)).to have_attributes(
         entrypoint: "igniter/sdk/ai",
-        allowed_layers: include(:application, :server, :cluster)
+        allowed_layers: include(:app, :server, :cluster)
       )
 
       expect(described_class.fetch(:data)).to have_attributes(
         entrypoint: "igniter/sdk/data",
-        allowed_layers: include(:core, :application, :server, :cluster)
+        allowed_layers: include(:core, :app, :server, :cluster)
       )
     end
 
@@ -50,7 +50,7 @@ RSpec.describe Igniter::SDK do
 
     it "raises for unknown capabilities" do
       expect {
-        described_class.activate!(:made_up, layer: :application)
+        described_class.activate!(:made_up, layer: :app)
       }.to raise_error(Igniter::SDK::UnknownCapabilityError, /Unknown SDK capability/)
     end
   end
@@ -64,8 +64,8 @@ RSpec.describe Igniter::SDK do
     end
 
     it "lets applications declare SDK capabilities without leaking between subclasses" do
-      app_one = Class.new(Igniter::Application)
-      app_two = Class.new(Igniter::Application)
+      app_one = Class.new(Igniter::App)
+      app_two = Class.new(Igniter::App)
 
       app_one.use(:tools)
 

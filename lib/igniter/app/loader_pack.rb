@@ -3,6 +3,6 @@
 require_relative "loader_registry"
 require_relative "filesystem_loader_adapter"
 
-Igniter::Application::LoaderRegistry.register(:filesystem) do
-  Igniter::Application::FilesystemLoaderAdapter.new
+Igniter::App::LoaderRegistry.register(:filesystem) do
+  Igniter::App::FilesystemLoaderAdapter.new
 end

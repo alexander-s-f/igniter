@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Igniter
-  class Application
+  class App
     # Eagerly loads all .rb files matching a glob path.
-    # Used by Application#executors_path / #contracts_path.
+    # Used by App#executors_path / #contracts_path.
     class Autoloader
       def initialize(base_dir:)
         @base_dir = File.expand_path(base_dir)

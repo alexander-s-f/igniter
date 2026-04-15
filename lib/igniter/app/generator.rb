@@ -3,7 +3,7 @@
 require "fileutils"
 
 module Igniter
-  class Application
+  class App
     # Generates a new Igniter workspace scaffold.
     # Invoked via: igniter-server new my_app
     #
@@ -18,7 +18,7 @@ module Igniter
     #   │       │   ├── agents/        — optional Agent subclasses
     #   │       │   └── skills/        — optional Skill subclasses
     #   │       ├── spec/              — app-local specs
-    #   │       ├── application.rb     — leaf Igniter::Application
+    #   │       ├── application.rb     — leaf Igniter::App
     #   │       └── application.yml    — app-local server config
     #   ├── lib/<project>/shared/      — shared libraries / helpers
     #   ├── config/
@@ -255,7 +255,7 @@ module Igniter
           require "igniter/core"
 
           module #{module_name}
-            class MainApp < Igniter::Application
+            class MainApp < Igniter::App
               root_dir __dir__
               config_file "application.yml"
 

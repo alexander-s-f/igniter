@@ -1,6 +1,6 @@
-# Igniter::Application v1
+# Igniter::App v1
 
-`Igniter::Application` is the leaf runtime for one app inside an Igniter workspace.
+`Igniter::App` is the leaf runtime for one app inside an Igniter workspace.
 
 It packages contracts, executors, YAML config, a background scheduler, and host
 startup into a single coherent entry point. By default that host is
@@ -57,7 +57,7 @@ require "igniter/app"
 require "igniter/core"
 
 module MyApp
-  class MainApp < Igniter::Application
+  class MainApp < Igniter::App
     root_dir __dir__
     config_file "application.yml"
     host :app
@@ -98,13 +98,13 @@ If you want to resolve `remote:` nodes outside a hosted app lifecycle, activate
 Host selection is now declarative at the application layer:
 
 ```ruby
-class MainApp < Igniter::Application
+class MainApp < Igniter::App
   host :app   # default
 end
 
 require "igniter/cluster"
 
-class ClusterApp < Igniter::Application
+class ClusterApp < Igniter::App
   host :cluster_app
 end
 ```
@@ -129,7 +129,7 @@ loader :filesystem   # default eager file loader
 ```
 
 If your application uses scaffold generation APIs such as
-`Igniter::Application::Generator`, load `require "igniter/app/scaffold_pack"`.
+`Igniter::App::Generator`, load `require "igniter/app/scaffold_pack"`.
 Internally, `require "igniter/app"` now assembles its runtime behavior via
 `require "igniter/app/runtime_pack"` and
 `require "igniter/app/workspace_pack"`.
@@ -393,14 +393,14 @@ Returns the `AppConfig` instance (populated after the first call to `start` or `
 
 ## Subclass Isolation
 
-Each `Igniter::Application` subclass gets its own isolated set of registered contracts, scheduled jobs, and configure blocks via the `inherited` hook. Subclasses do not share state:
+Each `Igniter::App` subclass gets its own isolated set of registered contracts, scheduled jobs, and configure blocks via the `inherited` hook. Subclasses do not share state:
 
 ```ruby
-class AppA < Igniter::Application
+class AppA < Igniter::App
   register "ContractA", ContractA
 end
 
-class AppB < Igniter::Application
+class AppB < Igniter::App
   register "ContractB", ContractB
 end
 # AppA and AppB have completely independent registries
@@ -435,15 +435,15 @@ bundle exec ruby examples/companion/workspace.rb main
 
 ## Integration with igniter-server
 
-`Igniter::Application` is a thin wrapper around hosting, with `Igniter::Server` as the
+`Igniter::App` is a thin wrapper around hosting, with `Igniter::Server` as the
 default host adapter. You can still use `Igniter::Server.configure` directly when you
 don't need the application/profile scaffold.
 
 The two approaches are compatible in the same process: the default application host
 eventually delegates to `Igniter::Server::HttpServer`, but that server-specific wiring
-now lives in `Igniter::Application::AppHost`, not in `Igniter::Application` itself.
+now lives in `Igniter::App::AppHost`, not in `Igniter::App` itself.
 
 For cluster-aware app hosting, the canonical adapter is now
-`Igniter::Application::ClusterAppHost`.
+`Igniter::App::ClusterAppHost`.
 That keeps the host model application-facing while still reusing the cluster/server
 runtime implementation underneath.

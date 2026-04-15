@@ -339,7 +339,7 @@ ruby examples/companion/bin/demo
 Shows:
 
 - `Igniter::Workspace` — root coordinator for `apps/*`
-- `Igniter::Application` — leaf apps under `apps/main` and `apps/inference`
+- `Igniter::App` — leaf apps under `apps/main` and `apps/inference`
 - workspace-shaped voice assistant demo
 - local end-to-end ASR → Intent → Chat → TTS pipeline using mock executors
 
@@ -353,7 +353,7 @@ ruby examples/companion_legacy/bin/demo
 
 Shows:
 
-- `Igniter::Application` — unified entry point with `config_file`, `configure`, `register`, `schedule`
+- `Igniter::App` — unified entry point with `config_file`, `configure`, `register`, `schedule`
 - `compose` + `export` — four-stage pipeline (ASR → Intent → Chat → TTS) wired as one graph
 - Mock executors — runs end-to-end without hardware or API keys
 - Turn-by-turn interactive loop with session history

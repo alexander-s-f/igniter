@@ -11,7 +11,7 @@ A demo stand for a realistic Igniter application.
 
 `examples/companion_legacy` is the older flat app layout that originally grew out of
 `igniter-server new`, then evolved into a richer product: it has an
-`Igniter::Application` entrypoint, canonical `app/contracts`, canonical `app/executors`, `app/tools`,
+`Igniter::App` entrypoint, canonical `app/contracts`, canonical `app/executors`, `app/tools`,
 `app/agents`, `app/skills`, `bin/` scripts, and a small `lib/` area for shared
 support code.
 
@@ -36,7 +36,7 @@ ESP32 mic → [HTTP] → Orchestrator → ASR → Intent → Chat (LLM) → TTS 
 | Edge | ESP32-A1S | Audio capture → HTTP → playback |
 
 In single-process demo mode, the pipeline runs locally through `Companion::LocalPipelineContract`.
-In deployed mode, the orchestrator runs as a full `Igniter::Application`, while the inference
+In deployed mode, the orchestrator runs as a full `Igniter::App`, while the inference
 node runs as a focused HTTP sidecar over the same codebase.
 
 ---
@@ -265,7 +265,7 @@ examples/companion_legacy/
 │   │   ├── boot.rb         ← shared bootstrap / role-based loading helpers
 │   │   ├── demo/
 │   │   └── shared/
-├── application.rb          ← canonical orchestrator Igniter::Application
+├── application.rb          ← canonical orchestrator Igniter::App
 ├── application.yml         ← base config (port, log_format, drain_timeout)
 ├── config.ru
 ├── Gemfile

@@ -19,8 +19,8 @@ RSpec.describe Igniter::Workspace do
 
   def build_workspace(root:, environment: nil, app_classes: nil)
     app_classes ||= {
-      main: Class.new(Igniter::Application),
-      dashboard: Class.new(Igniter::Application)
+      main: Class.new(Igniter::App),
+      dashboard: Class.new(Igniter::App)
     }
 
     Class.new(described_class).tap do |workspace|
@@ -134,10 +134,10 @@ RSpec.describe Igniter::Workspace do
       YAML
 
       started = []
-      main_app = Class.new(Igniter::Application) do
+      main_app = Class.new(Igniter::App) do
         define_singleton_method(:start) { started << :main }
       end
-      dashboard_app = Class.new(Igniter::Application) do
+      dashboard_app = Class.new(Igniter::App) do
         define_singleton_method(:start) { started << :dashboard }
       end
 
@@ -170,10 +170,10 @@ RSpec.describe Igniter::Workspace do
       YAML
 
       started = []
-      main_app = Class.new(Igniter::Application) do
+      main_app = Class.new(Igniter::App) do
         define_singleton_method(:start) { started << :main }
       end
-      dashboard_app = Class.new(Igniter::Application) do
+      dashboard_app = Class.new(Igniter::App) do
         define_singleton_method(:start) { started << :dashboard }
       end
 

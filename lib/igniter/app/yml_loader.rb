@@ -3,7 +3,7 @@
 require "yaml"
 
 module Igniter
-  class Application
+  class App
     # Loads an application.yml and applies values to an AppConfig.
     # YAML is loaded BEFORE the Ruby configure block, so blocks always win.
     #

@@ -4,8 +4,8 @@ require_relative "app_host"
 require_relative "../cluster"
 
 module Igniter
-  class Application
-    # Cluster-backed host adapter for Igniter::Application.
+  class App
+    # Cluster-backed host adapter for Igniter::App.
     #
     # It reuses the server host for HTTP serving, while layering in cluster
     # transport activation plus mesh/bootstrap configuration on the application side.

@@ -64,7 +64,7 @@ RSpec.describe "Igniter layer loading" do
       require "json"
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
       require #{entrypoint.inspect}
-      puts JSON.generate(Igniter::Application::HostRegistry.names.map(&:to_s).sort)
+      puts JSON.generate(Igniter::App::HostRegistry.names.map(&:to_s).sort)
     RUBY
 
     stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-e", script, chdir: ROOT)
@@ -78,7 +78,7 @@ RSpec.describe "Igniter layer loading" do
       require "json"
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
       require #{entrypoint.inspect}
-      puts JSON.generate(Igniter::Application::SchedulerRegistry.names.map(&:to_s).sort)
+      puts JSON.generate(Igniter::App::SchedulerRegistry.names.map(&:to_s).sort)
     RUBY
 
     stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-e", script, chdir: ROOT)
@@ -92,7 +92,7 @@ RSpec.describe "Igniter layer loading" do
       require "json"
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
       require #{entrypoint.inspect}
-      puts JSON.generate(Igniter::Application::LoaderRegistry.names.map(&:to_s).sort)
+      puts JSON.generate(Igniter::App::LoaderRegistry.names.map(&:to_s).sort)
     RUBY
 
     stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-e", script, chdir: ROOT)

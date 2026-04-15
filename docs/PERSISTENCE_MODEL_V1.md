@@ -71,7 +71,7 @@ Examples:
 - leases
 - bindings between device ids and owner nodes
 
-This belongs to `Igniter::Cluster`, not `Igniter::Application`.
+This belongs to `Igniter::Cluster`, not `Igniter::App`.
 
 Properties:
 

@@ -69,7 +69,7 @@ Conceptually:
 Server = Embed + hosting + app profile + actor/tool kit + optional AI/channels
 ```
 
-`Igniter::Application` stays above `Igniter::Server`. It is not a peer of the
+`Igniter::App` stays above `Igniter::Server`. It is not a peer of the
 embedded kernel; it is the opinionated packaging layer for the single-node mode.
 
 ### 3. Cluster
@@ -178,7 +178,7 @@ Implemented now:
 - `require "igniter/core"` no longer auto-loads built-in operational tools
 - built-in system/bootstrap tools now live behind `require "igniter/tools"`
 - `Igniter::SDK` can register and activate optional capability packs per layer
-- `Igniter.use`, `Igniter::Application.use`, `Igniter::Server.use`, and `Igniter::Cluster.use`
+- `Igniter.use`, `Igniter::App.use`, `Igniter::Server.use`, and `Igniter::Cluster.use`
   now provide a thin declarative wrapper over ordinary `require`
 - load-boundary specs verify that `igniter`, `igniter/core`, and `igniter/tools`
   stay separated

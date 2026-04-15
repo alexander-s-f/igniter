@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Igniter
-  class Application
+  class App
     # Registry of canonical application code loaders.
     class LoaderRegistry
       class << self

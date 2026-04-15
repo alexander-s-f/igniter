@@ -4,7 +4,7 @@ require_relative "scheduler_adapter"
 require_relative "scheduler"
 
 module Igniter
-  class Application
+  class App
     # Default in-process scheduler adapter backed by one thread per job.
     class ThreadedSchedulerAdapter < SchedulerAdapter
       def start(config:, jobs:)

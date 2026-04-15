@@ -7,7 +7,7 @@ require "igniter/cluster"
 require "igniter/app/scaffold_pack"
 require "tmpdir"
 
-RSpec.describe Igniter::Application do
+RSpec.describe Igniter::App do
   # Minimal contract for registration tests
   let(:sample_contract_class) do
     Class.new(Igniter::Contract) do
@@ -18,9 +18,9 @@ RSpec.describe Igniter::Application do
     end
   end
 
-  # Helper: define a fresh Application subclass per example
+  # Helper: define a fresh App subclass per example
   def fresh_app(&block)
-    app = Class.new(Igniter::Application)
+    app = Class.new(Igniter::App)
     app.class_eval(&block) if block
     app
   end
@@ -100,7 +100,7 @@ RSpec.describe Igniter::Application do
       app2 = fresh_app
 
       expect(app1.host_adapter).to be(fake_host)
-      expect(app2.host_adapter).to be_a(Igniter::Application::AppHost)
+      expect(app2.host_adapter).to be_a(Igniter::App::AppHost)
     end
 
     it "does not leak selected hosts between subclasses" do
@@ -154,7 +154,7 @@ RSpec.describe Igniter::Application do
 
   # ─── AppConfig ────────────────────────────────────────────────────────────
 
-  describe Igniter::Application::AppConfig do
+  describe Igniter::App::AppConfig do
     subject(:cfg) { described_class.new }
 
     it "provides sane defaults" do
@@ -248,7 +248,7 @@ RSpec.describe Igniter::Application do
     end
   end
 
-  describe Igniter::Application::HostConfig do
+  describe Igniter::App::HostConfig do
     subject(:config) { described_class.new }
 
     it "tracks contract registrations independently from host adapters" do
@@ -266,7 +266,7 @@ RSpec.describe Igniter::Application do
     end
   end
 
-  describe Igniter::Application::HostRegistry do
+  describe Igniter::App::HostRegistry do
     it "ships with the canonical built-in host profiles" do
       expect(described_class.names).to include(:app, :cluster_app)
     end
@@ -291,7 +291,7 @@ RSpec.describe Igniter::Application do
     end
   end
 
-  describe Igniter::Application::SchedulerRegistry do
+  describe Igniter::App::SchedulerRegistry do
     it "ships with the canonical threaded scheduler profile" do
       expect(described_class.names).to include(:threaded)
     end
@@ -316,7 +316,7 @@ RSpec.describe Igniter::Application do
     end
   end
 
-  describe Igniter::Application::LoaderRegistry do
+  describe Igniter::App::LoaderRegistry do
     it "ships with the canonical filesystem loader profile" do
       expect(described_class.names).to include(:filesystem)
     end
@@ -341,7 +341,7 @@ RSpec.describe Igniter::Application do
     end
   end
 
-  describe Igniter::Application::ClusterAppHostConfig do
+  describe Igniter::App::ClusterAppHostConfig do
     subject(:config) { described_class.new }
 
     it "tracks static peers and cluster settings" do
@@ -359,11 +359,11 @@ RSpec.describe Igniter::Application do
     end
   end
 
-  describe Igniter::Application::ClusterAppHost do
+  describe Igniter::App::ClusterAppHost do
     after { Igniter::Cluster::Mesh.reset! }
 
     it "configures server and mesh settings from cluster host config" do
-      host_config = Igniter::Application::HostConfig.new
+      host_config = Igniter::App::HostConfig.new
       host_config.configure_host(:app, host: "0.0.0.0", port: 4567, log_format: :text, drain_timeout: 30)
       host_config.configure_host(
         :cluster_app,
@@ -405,8 +405,8 @@ RSpec.describe Igniter::Application do
 
   # ─── YmlLoader ────────────────────────────────────────────────────────────
 
-  describe Igniter::Application::YmlLoader do
-    let(:cfg) { Igniter::Application::AppConfig.new }
+  describe Igniter::App::YmlLoader do
+    let(:cfg) { Igniter::App::AppConfig.new }
 
     def write_yml(dir, content)
       path = File.join(dir, "application.yml")
@@ -458,7 +458,7 @@ RSpec.describe Igniter::Application do
 
   # ─── Scheduler ────────────────────────────────────────────────────────────
 
-  describe Igniter::Application::Scheduler do
+  describe Igniter::App::Scheduler do
     subject(:scheduler) { described_class.new }
 
     describe "#add + #job_names" do
@@ -526,7 +526,7 @@ RSpec.describe Igniter::Application do
     end
   end
 
-  describe Igniter::Application::ThreadedSchedulerAdapter do
+  describe Igniter::App::ThreadedSchedulerAdapter do
     it "builds the underlying scheduler once from declared jobs" do
       adapter = described_class.new
       logger = Object.new
@@ -540,7 +540,7 @@ RSpec.describe Igniter::Application do
       fake_scheduler.define_singleton_method(:start) { calls << :start }
       fake_scheduler.define_singleton_method(:stop) { calls << :stop }
 
-      allow(Igniter::Application::Scheduler).to receive(:new).with(logger: logger).and_return(fake_scheduler)
+      allow(Igniter::App::Scheduler).to receive(:new).with(logger: logger).and_return(fake_scheduler)
 
       jobs = [
         { name: :tick, every: "1h", at: nil, block: -> { :ok } }
@@ -559,7 +559,7 @@ RSpec.describe Igniter::Application do
     end
   end
 
-  describe Igniter::Application::FilesystemLoaderAdapter do
+  describe Igniter::App::FilesystemLoaderAdapter do
     it "loads path groups through the underlying autoloader in canonical order" do
       adapter = described_class.new
       calls = []
@@ -569,7 +569,7 @@ RSpec.describe Igniter::Application do
         calls << path
       end
 
-      allow(Igniter::Application::Autoloader).to receive(:new).with(base_dir: "/tmp/app").and_return(fake_loader)
+      allow(Igniter::App::Autoloader).to receive(:new).with(base_dir: "/tmp/app").and_return(fake_loader)
 
       adapter.load!(
         base_dir: "/tmp/app",
@@ -594,7 +594,7 @@ RSpec.describe Igniter::Application do
 
   # ─── Generator ────────────────────────────────────────────────────────────
 
-  describe Igniter::Application::Generator do
+  describe Igniter::App::Generator do
     it "raises when name is blank" do
       expect { described_class.new("") }.to raise_error(ArgumentError, /blank/)
     end
@@ -886,7 +886,7 @@ RSpec.describe Igniter::Application do
       app = fresh_app
 
       expect(app.host).to eq(:app)
-      expect(app.host_adapter).to be_a(Igniter::Application::AppHost)
+      expect(app.host_adapter).to be_a(Igniter::App::AppHost)
       expect(app.scheduler).to eq(:threaded)
     end
 
@@ -894,14 +894,14 @@ RSpec.describe Igniter::Application do
       app = fresh_app { host :cluster_app }
 
       expect(app.host).to eq(:cluster_app)
-      expect(app.host_adapter).to be_a(Igniter::Application::ClusterAppHost)
+      expect(app.host_adapter).to be_a(Igniter::App::ClusterAppHost)
     end
 
     it "raises a helpful error for an unknown host" do
       app = fresh_app { host :edge }
 
       expect { app.host_adapter }.to raise_error(ArgumentError) do |error|
-        expect(error.message).to include("unknown application host :edge")
+        expect(error.message).to include("unknown app host :edge")
         expect(error.message).to include("app")
         expect(error.message).to include("cluster_app")
       end
@@ -911,7 +911,7 @@ RSpec.describe Igniter::Application do
       app = fresh_app { scheduler :edge }
 
       expect { app.scheduler_adapter }.to raise_error(ArgumentError) do |error|
-        expect(error.message).to include("unknown application scheduler :edge")
+        expect(error.message).to include("unknown app scheduler :edge")
         expect(error.message).to include("threaded")
       end
     end
@@ -920,7 +920,7 @@ RSpec.describe Igniter::Application do
       app = fresh_app { loader :edge }
 
       expect { app.loader_adapter }.to raise_error(ArgumentError) do |error|
-        expect(error.message).to include("unknown application loader :edge")
+        expect(error.message).to include("unknown app loader :edge")
         expect(error.message).to include("filesystem")
       end
     end
@@ -954,7 +954,7 @@ RSpec.describe Igniter::Application do
 
       expect(built).to be(fake_config)
       expect(app.host).to eq(:cluster_app)
-      expect(built_from).to be_a(Igniter::Application::HostConfig)
+      expect(built_from).to be_a(Igniter::App::HostConfig)
       expect(built_from.host_settings_for(:app)).to include(port: 7777)
     end
 
@@ -992,7 +992,7 @@ RSpec.describe Igniter::Application do
       expect(app.start).to eq(:started)
       expect(events[0]).to eq(:activate_transport)
       expect(events[1].first).to eq(:build_config)
-      expect(events[1].last).to be_a(Igniter::Application::HostConfig)
+      expect(events[1].last).to be_a(Igniter::App::HostConfig)
       expect(events[1].last.registrations["SampleContract"]).to be(klass)
       expect(events[2..]).to eq([
         [:scheduler_start, fake_config, [:tick]],
@@ -1033,7 +1033,7 @@ RSpec.describe Igniter::Application do
       expect(app.rack_app).to eq(:rack_app)
       expect(events[0]).to eq(:activate_transport)
       expect(events[1].first).to eq(:build_config)
-      expect(events[1].last).to be_a(Igniter::Application::HostConfig)
+      expect(events[1].last).to be_a(Igniter::App::HostConfig)
       expect(events[1].last.registrations["SampleContract"]).to be(klass)
       expect(events[2..]).to eq([
         [:scheduler_start, fake_config, [:tick]],
@@ -1044,7 +1044,7 @@ RSpec.describe Igniter::Application do
 end
 
 RSpec.describe Igniter::Workspace do
-  let(:leaf_app) { Class.new(Igniter::Application) }
+  let(:leaf_app) { Class.new(Igniter::App) }
 
   def fresh_workspace(&block)
     workspace = Class.new(Igniter::Workspace)
@@ -1076,7 +1076,7 @@ RSpec.describe Igniter::Workspace do
 
     it "starts a named app" do
       started = []
-      app_class = Class.new(Igniter::Application) do
+      app_class = Class.new(Igniter::App) do
         define_singleton_method(:start) { started << :main }
       end
 

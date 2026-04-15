@@ -6,7 +6,7 @@ require_relative "../../lib/companion/boot"
 require_relative "../../lib/companion/shared/telegram_webhook"
 
 module Companion
-  class MainApp < Igniter::Application
+  class MainApp < Igniter::App
     root_dir __dir__
     config_file "application.yml"
 

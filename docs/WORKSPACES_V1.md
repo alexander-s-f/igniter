@@ -9,7 +9,7 @@ It treats `apps/` as the primary unit of composition:
 - one or more leaf apps under `apps/<name>`
 - shared code under `lib/<project>/shared`
 
-`Igniter::Application` remains the leaf runtime for a single deployable app.
+`Igniter::App` remains the leaf runtime for a single deployable app.
 `Igniter::Workspace` sits above it and decides which app to boot.
 
 ---
@@ -66,7 +66,7 @@ Rules:
 - root `spec/` is for shared code, integration specs, and workspace boot/config behavior.
 - `apps/<name>/spec` is for that app's contracts, executors, tools, agents, and boot behavior.
 - one app must not `require` code from another app directly.
-- the root workspace may start any registered app, but app logic still lives inside leaf `Igniter::Application` subclasses.
+- the root workspace may start any registered app, but app logic still lives inside leaf `Igniter::App` subclasses.
 
 ---
 
@@ -100,7 +100,7 @@ Available methods:
 - `root_dir(path)` — base directory for shared paths.
 - `shared_lib_path(path)` — add a workspace-level support directory to `$LOAD_PATH`.
 - `app(name, path:, klass:, default: false)` — register a leaf app.
-- `application(name = nil)` — return the registered leaf `Igniter::Application` subclass.
+- `application(name = nil)` — return the registered leaf `Igniter::App` subclass.
 - `start(name = nil)` — start a named app.
 - `rack_app(name = nil)` — return a Rack app for a named app.
 
@@ -122,14 +122,14 @@ leaf runtime itself.
 
 ## Leaf App DSL
 
-Leaf apps are still plain `Igniter::Application` subclasses:
+Leaf apps are still plain `Igniter::App` subclasses:
 
 ```ruby
 require "igniter/app"
 require "igniter/core"
 
 module MySystem
-  class MainApp < Igniter::Application
+  class MainApp < Igniter::App
     root_dir __dir__
     config_file "application.yml"
 

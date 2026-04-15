@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Igniter
-  class Application
+  class App
     # Cluster-specific host settings owned by the application layer.
     class ClusterAppHostConfig
       Peer = Struct.new(:name, :url, :capabilities, keyword_init: true)

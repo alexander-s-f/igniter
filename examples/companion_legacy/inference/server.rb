@@ -5,7 +5,7 @@
 #
 # Hosts: ASRContract (Whisper), IntentContract (small LLM), TTSContract (Piper).
 # The orchestrator app calls these via HTTP. This entrypoint intentionally stays
-# a small raw server rather than a second full Igniter::Application.
+# a small raw server rather than a second full Igniter::App.
 #
 # Usage:
 #   # On RPi — start Whisper server first:

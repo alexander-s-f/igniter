@@ -14,7 +14,7 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - runtime auditing, diagnostics reports, and reactive side effects
 - graph and runtime introspection (text, Mermaid)
 - ergonomic DSL helpers: `const`, `lookup`, `map`, `project`, `aggregate`, `guard`, `export`, `expose`, `effect`, `on_success`, `scope`, `namespace`
-- `Igniter::Workspace` + `Igniter::Application` — standard app runtime/profile with `apps/`, YAML config, autoloading, and scheduler; scaffold generation is an explicit pack behind `igniter-server new`
+- `Igniter::Workspace` + `Igniter::App` — standard app runtime/profile with `apps/`, YAML config, autoloading, and scheduler; scaffold generation is an explicit pack behind `igniter-server new`
 - capability-based security: declare executor resource requirements, enforce `Policy` at runtime
 - temporal contracts: reproducible historical execution via an explicit `as_of` time input
 - content-addressed computation: `pure` executors cached by input fingerprint across executions and processes
@@ -56,7 +56,7 @@ layer folders.
 - **Capability layers**: optional subsystems such as `Igniter::AI` and `Igniter::Channels`.
 - **Data layer**: `Igniter::Data`, a tiny JSON-first persistence API for app records such as chat bindings, notes, and sessions.
 - **Hosting layers**: `Igniter::Server` and `Igniter::Cluster`.
-- **Profile**: `Igniter::Workspace` + `Igniter::Application`, a packaged way to assemble an app and run it through host, loader, and scheduler adapters. The public entrypoint is `require "igniter/app"`. The defaults are `host :app`, `loader :filesystem`, and `scheduler :threaded`, and `require "igniter/cluster"` adds `host :cluster_app` for cluster-aware apps.
+- **Profile**: `Igniter::Workspace` + `Igniter::App`, a packaged way to assemble an app and run it through host, loader, and scheduler adapters. The public entrypoint is `require "igniter/app"`. The defaults are `host :app`, `loader :filesystem`, and `scheduler :threaded`, and `require "igniter/cluster"` adds `host :cluster_app` for cluster-aware apps.
 - **Plugin**: framework-specific integration such as `Igniter::Rails`.
 
 ## Deployment Modes
@@ -77,7 +77,7 @@ Layer DSL can opt into SDK packs explicitly:
 ```ruby
 Igniter.use :data
 
-class MyApp < Igniter::Application
+class MyApp < Igniter::App
   use :ai, :tools
 end
 
@@ -533,7 +533,7 @@ end
 
 See [`examples/llm/research_agent.rb`](examples/llm/research_agent.rb), [`examples/llm/tool_use.rb`](examples/llm/tool_use.rb), and [`docs/LLM_V1.md`](docs/LLM_V1.md).
 
-### 12. Igniter::Application / Igniter::Workspace
+### 12. Igniter::App / Igniter::Workspace
 
 Package contracts, executors, scheduler, and server config into a workspace with leaf apps:
 
@@ -565,7 +565,7 @@ require "igniter/app"
 require "igniter/core"
 
 module MyApp
-  class MainApp < Igniter::Application
+  class MainApp < Igniter::App
     root_dir __dir__
     config_file "application.yml"
 
@@ -600,7 +600,7 @@ my_app/
 ```
 
 `Igniter::Workspace` coordinates named apps under `apps/*`. The root `spec/` is for
-shared code and integration/workspace tests. `Igniter::Application` remains the leaf
+shared code and integration/workspace tests. `Igniter::App` remains the leaf
 runtime for each app.
 
 **`apps/main/application.yml`** — base config loaded before the `configure` block (block always wins):
@@ -615,7 +615,7 @@ app_host:
 
 **Scheduler interval formats:** `30` (seconds), `"30s"`, `"5m"`, `"2h"`, `"1d"`, `{ hours: 1, minutes: 30 }`
 
-See [`docs/APPLICATION_V1.md`](docs/APPLICATION_V1.md) for the leaf app reference and [`docs/WORKSPACES_V1.md`](docs/WORKSPACES_V1.md) for the standard workspace layout.
+See [`docs/APP_V1.md`](docs/APP_V1.md) for the leaf app reference and [`docs/WORKSPACES_V1.md`](docs/WORKSPACES_V1.md) for the standard workspace layout.
 
 ### 13. Capability-Based Security
 
@@ -791,7 +791,7 @@ See [`docs/DATAFLOW_V1.md`](docs/DATAFLOW_V1.md).
 - [Store Adapters](docs/STORE_ADAPTERS.md)
 - [igniter-server v1](docs/SERVER_V1.md)
 - [LLM Integration v1](docs/LLM_V1.md)
-- [Application scaffold v1](docs/APPLICATION_V1.md)
+- [App scaffold v1](docs/APP_V1.md)
 - [Workspaces v1](docs/WORKSPACES_V1.md)
 - [Capabilities v1](docs/CAPABILITIES_V1.md)
 - [Temporal Contracts v1](docs/TEMPORAL_V1.md)
@@ -819,7 +819,7 @@ Current feature baseline:
 - igniter-server: TCP server, Rack adapter, CLI, `remote:` DSL
 - AI layer: Ollama, Anthropic, OpenAI providers
 - Rails plugin: Railtie, ActiveJob, ActionCable, webhook controller mixin
-- `Igniter::Workspace` + `Igniter::Application`: workspace scaffold, YAML config, autoloading, scheduler, generator (`igniter-server new`)
+- `Igniter::Workspace` + `Igniter::App`: workspace scaffold, YAML config, autoloading, scheduler, generator (`igniter-server new`)
 - auditing, diagnostics, reactive subscriptions, graph introspection
 - capability-based security: `capabilities`, `pure`, `Policy`, `CapabilityViolationError`
 - temporal contracts: `include Igniter::Temporal`, `temporal_compute`, `as_of` input, historical reproduction

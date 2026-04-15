@@ -24,7 +24,7 @@ Use the smallest entrypoint that matches the deployment mode:
 
 Loading `igniter/server` or `igniter/cluster` does not install a transport adapter as
 a side effect. Hosted entrypoints such as `Igniter::Server.start`,
-`Igniter::Server.rack_app`, and `Igniter::Application.start` activate transport for you.
+`Igniter::Server.rack_app`, and `Igniter::App.start` activate transport for you.
 For ad hoc `remote:` execution, call `Igniter::Server.activate_remote_adapter!` or
 `Igniter::Cluster.activate_remote_adapter!` explicitly.
 
@@ -125,7 +125,7 @@ See [`docs/RAILS_INTEGRATION.md`](RAILS_INTEGRATION.md) (TODO) for the full refe
 **Profile:** standalone HTTP service hosting contracts, single node.
 
 Igniter provides a full workspace scaffold — directory layout, YAML config, autoloading,
-scheduler, and HTTP hosting — via `Igniter::Workspace`, leaf `Igniter::Application` apps,
+scheduler, and HTTP hosting — via `Igniter::Workspace`, leaf `Igniter::App` apps,
 and the `igniter-server` CLI.
 AI, tools, skills, and channels remain opt-in layers that an application can load when needed.
 
@@ -166,7 +166,7 @@ my_app/
 ├── config.ru               # Rack entry point
 ├── apps/
 │   └── main/
-│       ├── application.rb  # leaf Igniter::Application subclass
+│       ├── application.rb  # leaf Igniter::App subclass
 │       ├── application.yml # app-local server config
 │       ├── app/
 │       │   ├── contracts/
@@ -215,7 +215,7 @@ require "igniter/core"
 require "igniter/ai"
 
 module MyApp
-  class MainApp < Igniter::Application
+  class MainApp < Igniter::App
     root_dir __dir__
     config_file "application.yml"
 
@@ -271,7 +271,7 @@ LLM chat/intent/TTS/ASR contracts, proactive agents, tool registry, scheduled se
 
 `examples/companion_legacy/` remains as the older flat-layout reference during transition.
 
-See [`docs/APPLICATION_V1.md`](APPLICATION_V1.md), [`docs/WORKSPACES_V1.md`](WORKSPACES_V1.md), and [`docs/SERVER_V1.md`](SERVER_V1.md).
+See [`docs/APP_V1.md`](APP_V1.md), [`docs/WORKSPACES_V1.md`](WORKSPACES_V1.md), and [`docs/SERVER_V1.md`](SERVER_V1.md).
 
 ---
 
@@ -330,7 +330,7 @@ igniter + igniter/core + igniter/server + igniter/cluster
 require "igniter/app"
 require "igniter/cluster"
 
-class ClusterApp < Igniter::Application
+class ClusterApp < Igniter::App
   config_file "application.yml"
   executors_path "app/executors"
   contracts_path "app/contracts"

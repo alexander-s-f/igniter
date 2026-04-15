@@ -13,7 +13,7 @@ module Igniter
   # - a registry of named apps under apps/<name>
   # - convenience lifecycle methods for starting a specific app
   #
-  # Each registered app is still a regular Igniter::Application subclass.
+  # Each registered app is still a regular Igniter::App subclass.
   class Workspace
     AppDefinition = Struct.new(:name, :path, :klass, :default, keyword_init: true)
 

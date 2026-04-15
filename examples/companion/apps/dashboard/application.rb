@@ -20,7 +20,7 @@ require_relative "../../lib/companion/dashboard/view_schema_catalog"
 require_relative "../../lib/companion/dashboard/view_submission_store"
 
 module Companion
-  class DashboardApp < Igniter::Application
+  class DashboardApp < Igniter::App
     root_dir __dir__
     config_file "application.yml"
 

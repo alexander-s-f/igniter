@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Igniter
-  class Application
+  class App
     # Lightweight pure-Ruby scheduler for recurring background jobs.
     # Uses one Thread per job — no external dependencies.
     #

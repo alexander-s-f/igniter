@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Igniter
-  class Application
+  class App
     # Neutral hosting config produced by the application layer.
     #
     # It captures the runtime-facing needs of an assembled application without

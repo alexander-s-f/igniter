@@ -4,7 +4,7 @@ require_relative "loader_adapter"
 require_relative "autoloader"
 
 module Igniter
-  class Application
+  class App
     # Default eager file-system-backed code loader for application path groups.
     class FilesystemLoaderAdapter < LoaderAdapter
       LOAD_ORDER = %i[executors contracts tools agents skills].freeze

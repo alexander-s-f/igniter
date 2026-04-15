@@ -4,7 +4,7 @@ require_relative "app/runtime"
 require_relative "workspace"
 
 module Igniter
-  # Base class for Igniter applications.
+  # Base class for Igniter apps.
   #
   # Provides a unified DSL for configuration, contract registration,
   # scheduled jobs, and server startup — replacing the raw
@@ -14,7 +14,7 @@ module Igniter
   #
   #   require "igniter/app"
   #
-  #   class MyApp < Igniter::Application
+  #   class MyApp < Igniter::App
   #     config_file "application.yml"        # optional YAML base config
   #
   #     configure do |c|
@@ -42,7 +42,7 @@ module Igniter
   #
   # Values from the YAML file are applied first; the Ruby `configure` block
   # runs afterwards and always wins.
-  class Application
+  class App
     class << self
       # ─── DSL ─────────────────────────────────────────────────────────────────
 
@@ -84,7 +84,7 @@ module Igniter
 
       def use(*names)
         resolved_names = names.flatten.map(&:to_sym)
-        Igniter::SDK.activate!(*resolved_names, layer: :application)
+        Igniter::SDK.activate!(*resolved_names, layer: :app)
         @sdk_capabilities |= resolved_names
         self
       end
@@ -302,7 +302,7 @@ module Igniter
 
         build_registered_host(builder)
       rescue KeyError
-        raise ArgumentError, "unknown application host #{name.inspect}; expected one of: #{host_registry.names.join(', ')}"
+        raise ArgumentError, "unknown app host #{name.inspect}; expected one of: #{host_registry.names.join(', ')}"
       end
 
       def build_registered_host(builder)
@@ -314,7 +314,7 @@ module Igniter
 
         build_registered_loader(builder)
       rescue KeyError
-        raise ArgumentError, "unknown application loader #{name.inspect}; expected one of: #{loader_registry.names.join(', ')}"
+        raise ArgumentError, "unknown app loader #{name.inspect}; expected one of: #{loader_registry.names.join(', ')}"
       end
 
       def build_registered_loader(builder)
@@ -326,7 +326,7 @@ module Igniter
 
         build_registered_scheduler(builder)
       rescue KeyError
-        raise ArgumentError, "unknown application scheduler #{name.inspect}; expected one of: #{scheduler_registry.names.join(', ')}"
+        raise ArgumentError, "unknown app scheduler #{name.inspect}; expected one of: #{scheduler_registry.names.join(', ')}"
       end
 
       def build_registered_scheduler(builder)
