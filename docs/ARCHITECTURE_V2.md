@@ -62,7 +62,7 @@ or transport concerns without changing domain contracts.
 ## Filesystem and Loading Rules
 
 - `lib/igniter/` contains only top-level public entrypoints such as `igniter.rb`,
-  `core.rb`, `ai.rb`, `server.rb`, `cluster.rb`, `application.rb`, `channels.rb`,
+  `core.rb`, `ai.rb`, `server.rb`, `cluster.rb`, `app.rb`, `channels.rb`,
   `plugins.rb`, and `rails.rb`.
 - Substantive core code lives under `lib/igniter/core/`.
 - Behavioral add-ons live under `lib/igniter/extensions/`.

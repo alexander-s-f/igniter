@@ -1,4 +1,4 @@
-workspace:
+stack:
   name: companion
   default_app: main
 
@@ -7,7 +7,7 @@ topology:
   network: companion
   notes:
     - "apps/ define code roles; this file describes deployment roles and wiring"
-    - "workspace.rb consumes this file for role-aware boot and compose generation"
+    - "stack.rb consumes this file for role-aware boot and compose generation"
 
 deploy:
   compose:
@@ -25,7 +25,7 @@ apps:
     public: true
     http:
       port: 4567
-    command: bundle exec ruby examples/companion/workspace.rb main
+    command: bundle exec ruby examples/companion/stack.rb main
     depends_on:
       - inference
     environment:
@@ -43,7 +43,7 @@ apps:
     public: false
     http:
       port: 4568
-    command: bundle exec ruby examples/companion/workspace.rb inference
+    command: bundle exec ruby examples/companion/stack.rb inference
     environment:
       COMPANION_EXECUTION_ADAPTER: sqlite
       COMPANION_EXECUTION_DB: var/inference_executions.sqlite3
@@ -59,7 +59,7 @@ apps:
     public: true
     http:
       port: 4569
-    command: bundle exec ruby examples/companion/workspace.rb dashboard
+    command: bundle exec ruby examples/companion/stack.rb dashboard
     depends_on:
       - main
     environment:

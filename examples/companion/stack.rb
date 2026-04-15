@@ -3,12 +3,12 @@
 $LOAD_PATH.unshift(File.expand_path("../../lib", __dir__))
 
 require "igniter/app"
-require_relative "apps/main/application"
-require_relative "apps/inference/application"
-require_relative "apps/dashboard/application"
+require_relative "apps/main/app"
+require_relative "apps/inference/app"
+require_relative "apps/dashboard/app"
 
 module Companion
-  class Workspace < Igniter::Workspace
+  class Stack < Igniter::Stack
     root_dir __dir__
     shared_lib_path "lib"
 
@@ -19,5 +19,5 @@ module Companion
 end
 
 if $PROGRAM_NAME == __FILE__
-  Companion::Workspace.start_cli(ARGV)
+  Companion::Stack.start_cli(ARGV)
 end

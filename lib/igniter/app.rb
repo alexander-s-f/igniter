@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "app/runtime"
-require_relative "workspace"
+require_relative "stack"
 
 module Igniter
   # Base class for Igniter apps.
@@ -15,7 +15,7 @@ module Igniter
   #   require "igniter/app"
   #
   #   class MyApp < Igniter::App
-  #     config_file "application.yml"        # optional YAML base config
+  #     config_file "app.yml"        # optional YAML base config
   #
   #     configure do |c|
   #       c.app_host.port = 4567
@@ -32,7 +32,7 @@ module Igniter
   #   MyApp.start       # blocking built-in HTTP server
   #   MyApp.rack_app    # Rack-compatible app (Puma / Unicorn)
   #
-  # == YAML config (application.yml)
+  # == YAML config (app.yml)
   #
   #   app_host:
   #     port: 4567

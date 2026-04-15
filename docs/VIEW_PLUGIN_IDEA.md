@@ -15,7 +15,7 @@ Igniter is graph-based and backend-first:
 - channels
 - scheduling
 - persistence
-- workspace apps
+- stack apps
 
 That is a strong foundation for workflows, but not a reason to make frontend rendering
 part of the core library.
@@ -25,7 +25,7 @@ At the same time, these use cases are very compelling:
 - an agent creates a daily training check-in form and asks the user to fill it every day
 - an app exposes a small self-service admin panel
 - a user asks for a public survey/poll link and shares it with an audience
-- an internal workspace app needs operational UI without introducing a JS stack
+- an internal stack app needs operational UI without introducing a JS stack
 
 These scenarios are common enough that Igniter should probably have a story for them.
 
@@ -131,7 +131,7 @@ It should **not** own:
 ### Internal operational UI
 
 - dashboard for reminders, notifications, executions, health
-- admin pages for workspace apps
+- admin pages for stack apps
 
 ### User-facing assistant UI
 

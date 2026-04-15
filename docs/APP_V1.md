@@ -1,15 +1,15 @@
 # Igniter::App v1
 
-`Igniter::App` is the leaf runtime for one app inside an Igniter workspace.
+`Igniter::App` is the leaf runtime for one app inside an Igniter stack.
 
 It packages contracts, executors, YAML config, a background scheduler, and host
 startup into a single coherent entry point. By default that host is
 `Igniter::Server`, but the application layer now owns the assembly lifecycle and
 delegates deployment/runtime specifics through a host adapter seam. It replaces the
 raw `Igniter::Server.configure` boilerplate and is usually coordinated by a root
-`Igniter::Workspace`.
+`Igniter::Stack`.
 
-See [WORKSPACES_V1.md](./WORKSPACES_V1.md) for the standard `apps/` layout.
+See [STACKS_V1.md](./STACKS_V1.md) for the standard `apps/` layout.
 
 ---
 
@@ -28,12 +28,12 @@ This creates:
 
 ```
 my_app/
-├── workspace.rb         ← Workspace coordinator
-├── workspace.yml        ← workspace metadata
+├── stack.rb         ← Stack coordinator
+├── stack.yml        ← stack metadata
 ├── apps/
 │   └── main/
-│       ├── application.rb
-│       ├── application.yml
+│       ├── app.rb
+│       ├── app.yml
 │       ├── app/
 │       │   ├── contracts/
 │       │   ├── executors/
@@ -46,27 +46,27 @@ my_app/
 ├── bin/demo             ← runnable smoke demo
 ├── Gemfile
 ├── config.ru            ← Rack entry point for Puma / Unicorn
-└── spec/                ← shared + integration + workspace-level specs
+└── spec/                ← shared + integration + stack-level specs
 ```
 
 ### 2. Define your leaf app
 
 ```ruby
-# apps/main/application.rb
+# apps/main/app.rb
 require "igniter/app"
 require "igniter/core"
 
 module MyApp
   class MainApp < Igniter::App
     root_dir __dir__
-    config_file "application.yml"
+    config_file "app.yml"
     host :app
 
     executors_path "app/executors"
     contracts_path "app/contracts"
 
     configure do |c|
-      c.port  = ENV.fetch("PORT", 4567).to_i
+      c.app_host.port = ENV.fetch("PORT", 4567).to_i
       c.store = Igniter::Runtime::Stores::MemoryStore.new
     end
 
@@ -132,15 +132,15 @@ If your application uses scaffold generation APIs such as
 `Igniter::App::Generator`, load `require "igniter/app/scaffold_pack"`.
 Internally, `require "igniter/app"` now assembles its runtime behavior via
 `require "igniter/app/runtime_pack"` and
-`require "igniter/app/workspace_pack"`.
-If you want just the leaf application runtime without workspace support, use
+`require "igniter/app/stack_pack"`.
+If you want just the leaf application runtime without stack support, use
 `require "igniter/app/runtime"` instead.
 
 If your application uses custom tools or agents, also load `require "igniter/core"`.
 If it uses the built-in operational tool pack, load `require "igniter/tools"`.
 If it uses skills, providers, or `Igniter::AI.configure`, also load `require "igniter/ai"`.
 
-### 3. Run through the workspace
+### 3. Run through the stack
 
 ```bash
 bin/start
@@ -150,7 +150,7 @@ bin/start main
 bundle exec puma config.ru
 ```
 
-The generated root `workspace.rb` is a workspace coordinator; it selects the leaf app
+The generated root `stack.rb` is a stack coordinator; it selects the leaf app
 and calls `MainApp.start` under the hood.
 
 ---
@@ -223,7 +223,7 @@ Load a YAML file as the base configuration. Applied **before** the `configure` b
 
 ```ruby
 root_dir __dir__
-config_file "application.yml"
+config_file "app.yml"
 ```
 
 `root_dir __dir__` makes relative paths resolve from the app directory (`apps/main/`),
@@ -236,7 +236,7 @@ Block receives an `AppConfig` instance. May be called multiple times; blocks are
 ```ruby
 configure do |c|
   c.host              = "0.0.0.0"
-  c.port              = 4567
+  c.app_host.port     = 4567
   c.log_format        = :json          # :text (default) or :json
   c.drain_timeout     = 30             # seconds for SIGTERM drain
   c.store             = my_store       # any store adapter
@@ -328,7 +328,7 @@ end
 
 ---
 
-## application.yml Reference
+## app.yml Reference
 
 ```yaml
 app_host:
@@ -364,8 +364,8 @@ Same as `start` but returns a Rack-compatible application instead of blocking. U
 
 ```ruby
 # config.ru
-require_relative "workspace"
-run MyApp::Workspace.rack_app(:main)
+require_relative "stack"
+run MyApp::Stack.rack_app(:main)
 ```
 
 ```bash
@@ -410,7 +410,7 @@ end
 
 ## Companion App Example
 
-`examples/companion/` is the main workspace-based production-style demo. It implements a distributed voice AI assistant pipeline split across `apps/main` and `apps/inference`.
+`examples/companion/` is the main stack-based production-style demo. It implements a distributed voice AI assistant pipeline split across `apps/main` and `apps/inference`.
 
 ```
 ESP32 microphone → ASR → Intent → Chat (LLM) → TTS → ESP32 speaker
@@ -426,7 +426,7 @@ ruby examples/companion/bin/demo
 
 ```bash
 # Requires: ollama serve (llama3.1:8b pulled)
-bundle exec ruby examples/companion/workspace.rb main
+bundle exec ruby examples/companion/stack.rb main
 ```
 
 **See also:** [`examples/companion/README.md`](../examples/companion/README.md) and [`examples/companion_legacy/README.md`](../examples/companion_legacy/README.md)

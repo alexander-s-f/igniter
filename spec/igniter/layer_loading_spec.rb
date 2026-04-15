@@ -129,12 +129,12 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/ai.rb")
   end
 
-  it "`require \"igniter/workspace\"` loads workspace support without the application runtime pack" do
-    features = loaded_igniter_features("igniter/workspace")
+  it "`require \"igniter/stack\"` loads stack support without the app runtime pack" do
+    features = loaded_igniter_features("igniter/stack")
 
-    expect(features).to include("igniter/workspace.rb")
-    expect(features).to include("igniter/app/workspace_pack.rb")
-    expect(features).to include("igniter/app/workspace.rb")
+    expect(features).to include("igniter/stack.rb")
+    expect(features).to include("igniter/app/stack_pack.rb")
+    expect(features).to include("igniter/app/stack.rb")
     expect(features).not_to include("igniter/app.rb")
     expect(features).not_to include("igniter/application.rb")
     expect(features).not_to include("igniter/app/runtime_pack.rb")
@@ -143,15 +143,15 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/cluster.rb")
   end
 
-  it "`require \"igniter/app/runtime\"` exposes the leaf app runtime without workspace support" do
+  it "`require \"igniter/app/runtime\"` exposes the leaf app runtime without stack support" do
     features = loaded_igniter_features("igniter/app/runtime")
 
     expect(features).to include("igniter/app/runtime.rb")
     expect(features).to include("igniter/app/runtime_pack.rb")
     expect(features).not_to include("igniter/app.rb")
     expect(features).not_to include("igniter/application.rb")
-    expect(features).not_to include("igniter/workspace.rb")
-    expect(features).not_to include("igniter/app/workspace_pack.rb")
+    expect(features).not_to include("igniter/stack.rb")
+    expect(features).not_to include("igniter/app/stack_pack.rb")
   end
 
   it "`require \"igniter/app\"` loads the canonical app profile umbrella" do
@@ -160,7 +160,7 @@ RSpec.describe "Igniter layer loading" do
     expect(features).to include("igniter/app.rb")
     expect(features).to include("igniter/app/runtime.rb")
     expect(features).to include("igniter/app/runtime_pack.rb")
-    expect(features).to include("igniter/app/workspace_pack.rb")
+    expect(features).to include("igniter/app/stack_pack.rb")
     expect(features).to include("igniter/app/app_host_pack.rb")
     expect(features).to include("igniter/server/app_host.rb")
     expect(features).not_to include("igniter/application.rb")
@@ -195,6 +195,13 @@ RSpec.describe "Igniter layer loading" do
     expect(host_names).to eq(["app"])
   end
 
+  it "`require \"igniter/workspace\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/workspace")
+
+    expect(error).to include("cannot load such file")
+    expect(error).to include("igniter/workspace")
+  end
+
   it "`require \"igniter/application\"` is no longer a valid public entrypoint" do
     error = require_failure_for("igniter/application")
 
@@ -214,7 +221,7 @@ RSpec.describe "Igniter layer loading" do
 
     expect(features).to include("igniter/app/runtime.rb")
     expect(features).to include("igniter/app/runtime_pack.rb")
-    expect(features).to include("igniter/app/workspace_pack.rb")
+    expect(features).to include("igniter/app/stack_pack.rb")
     expect(features).to include("igniter/app/app_host_pack.rb")
     expect(features).to include("igniter/server/app_host.rb")
   end

@@ -1,10 +1,10 @@
-# Companion — Workspace Voice Assistant Demo
+# Companion — Stack Voice Assistant Demo
 
-`examples/companion` is the canonical workspace-style Igniter demo.
+`examples/companion` is the canonical stack-style Igniter demo.
 
 It now combines both goals:
 
-- show the standard `Igniter::Workspace` project shape
+- show the standard `Igniter::Stack` project shape
 - demonstrate a realistic voice assistant split into `apps/main` and `apps/inference`
 - show how an Igniter app can ship user-facing communication via Telegram
 
@@ -14,9 +14,9 @@ From the repository root:
 
 ```bash
 bundle exec ruby examples/companion/bin/demo
-bundle exec ruby examples/companion/workspace.rb main
-bundle exec ruby examples/companion/workspace.rb inference
-bundle exec ruby examples/companion/workspace.rb dashboard
+bundle exec ruby examples/companion/stack.rb main
+bundle exec ruby examples/companion/stack.rb inference
+bundle exec ruby examples/companion/stack.rb dashboard
 ```
 
 Or from inside the example:
@@ -37,7 +37,7 @@ bin/start --env production --role api
 |-----|----------------|
 | `apps/main` | orchestrator, tools, skills, chat executor, proactive agents |
 | `apps/inference` | ASR, intent classification, TTS executors and contracts |
-| `apps/dashboard` | workspace monitoring, reminder/state overview, JSON status snapshot |
+| `apps/dashboard` | stack monitoring, reminder/state overview, JSON status snapshot |
 
 Single-process demo mode uses `Companion::LocalPipelineContract` and mock executors so it
 runs without hardware, Ollama, Whisper, or Piper.
@@ -46,14 +46,14 @@ runs without hardware, Ollama, Whisper, or Piper.
 
 Companion now splits persistence into two layers:
 
-- workspace data in `workspace.yml` → notes, chat bindings, conversation state
-- app execution store in `apps/<name>/application.yml` → pending/resumable executions
+- stack data in `stack.yml` → notes, chat bindings, conversation state
+- app execution store in `apps/<name>/app.yml` → pending/resumable executions
 
 Default example config stays on in-memory adapters so the demo works without extra gems.
 To persist data locally, add `sqlite3` and switch the adapters:
 
 ```yaml
-# workspace.yml
+# stack.yml
 persistence:
   data:
     adapter: sqlite
@@ -61,7 +61,7 @@ persistence:
 ```
 
 ```yaml
-# apps/main/application.yml
+# apps/main/app.yml
 persistence:
   execution:
     adapter: sqlite
@@ -136,8 +136,8 @@ clean base for the future `apps/dashboard`.
 
 ```text
 examples/companion/
-├── workspace.rb
-├── workspace.yml
+├── stack.rb
+├── stack.yml
 ├── config/
 │   ├── topology.yml
 │   └── deploy/
@@ -145,12 +145,12 @@ examples/companion/
 │       └── compose.yml
 ├── apps/
 │   ├── dashboard/
-│   │   ├── application.rb
-│   │   ├── application.yml
+│   │   ├── app.rb
+│   │   ├── app.yml
 │   │   └── spec/
 │   ├── main/
-│   │   ├── application.rb
-│   │   ├── application.yml
+│   │   ├── app.rb
+│   │   ├── app.yml
 │   │   ├── app/
 │   │   │   ├── contracts/
 │   │   │   ├── executors/
@@ -159,8 +159,8 @@ examples/companion/
 │   │   │   └── skills/
 │   │   └── spec/
 │   └── inference/
-│       ├── application.rb
-│       ├── application.yml
+│       ├── app.rb
+│       ├── app.yml
 │       ├── app/
 │       │   ├── contracts/
 │       │   └── executors/
@@ -176,7 +176,7 @@ examples/companion/
 
 ## Testing
 
-Use the workspace-level specs for shared and integration behavior, and the app-local specs
+Use the stack-level specs for shared and integration behavior, and the app-local specs
 for role-specific behavior:
 
 ```bash
@@ -201,7 +201,7 @@ From the repository root:
 docker compose -f examples/companion/config/deploy/compose.yml up --build
 ```
 
-This deployment config is intentionally separate from `apps/*/application.yml`:
+This deployment config is intentionally separate from `apps/*/app.yml`:
 
 - `apps/*` defines the code and leaf runtime defaults
 - `config/topology.yml` defines how those apps are deployed together
@@ -236,7 +236,7 @@ Then open:
 - `http://localhost:4569/` for the HTML dashboard
 - `http://localhost:4569/api/overview` for the JSON snapshot
 
-The dashboard reads the same persisted workspace data used by `apps/main`, so it can
+The dashboard reads the same persisted stack data used by `apps/main`, so it can
 show notes, active reminders, Telegram chat bindings, notification preferences, and
 per-app execution-store summaries.
 
@@ -245,7 +245,7 @@ per-app execution-store summaries.
 The previous flat-layout implementation has been moved to
 [`examples/companion_legacy`](../companion_legacy/README.md) as a temporary reference.
 
-The new workspace companion is now the main demo stand. The legacy version is still useful for:
+The new stack companion is now the main demo stand. The legacy version is still useful for:
 
 - historical comparison during migration
 - distributed deployment notes

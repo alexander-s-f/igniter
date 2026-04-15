@@ -245,7 +245,7 @@ end
 ## Companion example
 
 `examples/companion/apps/main/app/agents/` shows proactive agents in the context of
-the workspace-based voice assistant companion:
+the stack-based voice assistant companion:
 
 | File | Agent | Mission |
 |---|---|---|

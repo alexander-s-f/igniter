@@ -2,4 +2,4 @@
 set -e
 cd "$(dirname "$0")/.."
 
-exec bundle exec ruby workspace.rb --dev "$@"
+exec bundle exec ruby stack.rb --dev "$@"

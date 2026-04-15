@@ -4,7 +4,7 @@ require "fileutils"
 
 module Igniter
   class App
-    # Generates a new Igniter workspace scaffold.
+    # Generates a new Igniter stack scaffold.
     # Invoked via: igniter-server new my_app
     #
     # Creates:
@@ -18,19 +18,19 @@ module Igniter
     #   │       │   ├── agents/        — optional Agent subclasses
     #   │       │   └── skills/        — optional Skill subclasses
     #   │       ├── spec/              — app-local specs
-    #   │       ├── application.rb     — leaf Igniter::App
-    #   │       └── application.yml    — app-local server config
+    #   │       ├── app.rb             — leaf Igniter::App
+    #   │       └── app.yml            — app-local host config
     #   ├── lib/<project>/shared/      — shared libraries / helpers
     #   ├── config/
     #   │   ├── topology.yml           — deployment roles + wiring
     #   │   ├── environments/          — environment overlays
     #   │   └── deploy/                — operational artifacts (Docker / Compose / etc.)
-    #   ├── spec/                      — shared + integration + workspace-level specs
+    #   ├── spec/                      — shared + integration + stack-level specs
     #   ├── bin/
     #   │   ├── start                  — Launch a named app (default: main)
     #   │   └── demo                   — Run a quick demo (no server needed)
-    #   ├── workspace.rb               — Workspace coordinator
-    #   ├── workspace.yml              — Workspace metadata
+    #   ├── stack.rb                   — Stack coordinator
+    #   ├── stack.yml                  — Stack metadata
     #   ├── Gemfile
     #   └── config.ru                  — Rack entry point (defaults to main)
     class Generator
@@ -57,8 +57,8 @@ module Igniter
         create_dir "spec"
         create_dir "bin"
 
-        write "workspace.rb",                  workspace_rb
-        write "workspace.yml",                 workspace_yml
+        write "stack.rb",                      stack_rb
+        write "stack.yml",                     stack_yml
         write "config/topology.yml",           topology_yml
         write "config/environments/development.yml", development_yml
         write "config/environments/production.yml",  production_yml
@@ -69,10 +69,10 @@ module Igniter
         write "bin/start",                     bin_start
         write "bin/dev",                       bin_dev
         write "spec/spec_helper.rb",           root_spec_helper
-        write "spec/workspace_spec.rb",        workspace_spec
+        write "spec/stack_spec.rb",            stack_spec
         write "apps/main/spec/spec_helper.rb", main_spec_helper
-        write "apps/main/application.rb",      main_application_rb
-        write "apps/main/application.yml",     main_application_yml
+        write "apps/main/app.rb",              main_app_rb
+        write "apps/main/app.yml",             main_app_yml
         write "lib/#{namespace_path}/shared/.keep", ""
 
         if @minimal
@@ -97,7 +97,7 @@ module Igniter
         FileUtils.chmod(0o755, path("bin/demo"))
 
         puts
-        puts "  Done! Your #{module_name} workspace is ready."
+        puts "  Done! Your #{module_name} stack is ready."
         puts
         puts "  Next steps:"
         puts "    cd #{@name}"
@@ -106,7 +106,7 @@ module Igniter
           puts "    ruby bin/demo      # ← see it work immediately"
         end
         puts "    bin/start          # ← launch apps/main"
-        puts "    bin/dev            # ← launch the whole workspace locally"
+        puts "    bin/dev            # ← launch the whole stack locally"
         puts "    bin/start main     # ← explicit app selection"
         puts
         puts "  Production (Puma):"
@@ -138,21 +138,21 @@ module Igniter
         @project_name.strip.downcase.gsub(/[^a-z0-9]+/, "_").gsub(/\A_+|_+\z/, "")
       end
 
-      def workspace_class_name
-        "#{module_name}::Workspace"
+      def stack_class_name
+        "#{module_name}::Stack"
       end
 
-      # ─── workspace.rb (workspace coordinator) ────────────────────────────────
+      # ─── stack.rb (stack coordinator) ────────────────────────────────────────
 
-      def workspace_rb
+      def stack_rb
         <<~RUBY
           # frozen_string_literal: true
 
-          require "igniter/workspace"
-          require_relative "apps/main/application"
+          require "igniter/stack"
+          require_relative "apps/main/app"
 
           module #{module_name}
-            class Workspace < Igniter::Workspace
+            class Stack < Igniter::Stack
               root_dir __dir__
               shared_lib_path "lib"
 
@@ -161,16 +161,16 @@ module Igniter
           end
 
           if $PROGRAM_NAME == __FILE__
-            #{workspace_class_name}.start_cli(ARGV)
+            #{stack_class_name}.start_cli(ARGV)
           end
         RUBY
       end
 
-      # ─── workspace.yml (workspace metadata) ──────────────────────────────────
+      # ─── stack.yml (stack metadata) ──────────────────────────────────────────
 
-      def workspace_yml
+      def stack_yml
         <<~YAML
-          workspace:
+          stack:
             default_app: main
             shared_lib_paths:
               - lib
@@ -184,7 +184,7 @@ module Igniter
 
       def topology_yml
         <<~YAML
-          workspace:
+          stack:
             name: #{@project_name}
             default_app: main
 
@@ -209,7 +209,7 @@ module Igniter
               public: true
               http:
                 port: 4567
-              command: bundle exec ruby workspace.rb main
+              command: bundle exec ruby stack.rb main
 
           shared:
             persistence:
@@ -221,7 +221,7 @@ module Igniter
 
       def development_yml
         <<~YAML
-          workspace:
+          stack:
             environment: development
 
           topology:
@@ -234,7 +234,7 @@ module Igniter
 
       def production_yml
         <<~YAML
-          workspace:
+          stack:
             environment: production
 
           topology:
@@ -245,9 +245,9 @@ module Igniter
         YAML
       end
 
-      # ─── apps/main/application.rb ───────────────────────────────────────────
+      # ─── apps/main/app.rb ───────────────────────────────────────────────────
 
-      def main_application_rb
+      def main_app_rb
         <<~RUBY
           # frozen_string_literal: true
 
@@ -257,7 +257,7 @@ module Igniter
           module #{module_name}
             class MainApp < Igniter::App
               root_dir __dir__
-              config_file "application.yml"
+              config_file "app.yml"
 
               # Eagerly load app code in dependency order.
               tools_path     "app/tools"
@@ -283,9 +283,9 @@ module Igniter
         RUBY
       end
 
-      # ─── apps/main/application.yml ──────────────────────────────────────────
+      # ─── apps/main/app.yml ──────────────────────────────────────────────────
 
-      def main_application_yml
+      def main_app_yml
         <<~YAML
           app_host:
             port: 4567
@@ -309,7 +309,7 @@ module Igniter
           source "https://rubygems.org"
 
           gem "igniter"
-          gem "sqlite3" # workspace-local data + execution stores
+          gem "sqlite3" # stack-local data + execution stores
 
           group :development, :test do
             gem "rspec"
@@ -328,9 +328,9 @@ module Igniter
           # Rack entry point — use with Puma or any Rack-compatible server.
           #   bundle exec puma config.ru
 
-          require_relative "workspace"
+          require_relative "stack"
 
-          run #{workspace_class_name}.rack_app(ENV.fetch("IGNITER_APP", "main"))
+          run #{stack_class_name}.rack_app(ENV.fetch("IGNITER_APP", "main"))
         RUBY
       end
 
@@ -342,7 +342,7 @@ module Igniter
           set -e
           cd "$(dirname "$0")/.."
 
-          exec bundle exec ruby workspace.rb "$@"
+          exec bundle exec ruby stack.rb "$@"
         BASH
       end
 
@@ -352,7 +352,7 @@ module Igniter
           set -e
           cd "$(dirname "$0")/.."
 
-          exec bundle exec ruby workspace.rb --dev "$@"
+          exec bundle exec ruby stack.rb --dev "$@"
         BASH
       end
 
@@ -370,7 +370,7 @@ module Igniter
 
           require "igniter"
           require "igniter/core"
-          require_relative "../apps/main/application"
+          require_relative "../apps/main/app"
 
           %w[tools skills executors contracts agents].each do |dir|
             Dir[File.join(root, "apps/main/app/\#{dir}/**/*.rb")].sort.each { |f| require f }
@@ -380,7 +380,7 @@ module Igniter
 
           puts
           puts "  \#{hr}"
-          puts "  #{module_name} Workspace  ·  apps/main powered by Igniter ⚡"
+          puts "  #{module_name} Stack  ·  apps/main powered by Igniter ⚡"
           puts "  \#{hr}"
           puts
 
@@ -411,7 +411,7 @@ module Igniter
 
           puts "  \#{hr}"
           puts "  Run  bin/start       →  start apps/main"
-          puts "  Run  bin/dev         →  start the whole workspace locally"
+          puts "  Run  bin/dev         →  start the whole stack locally"
           puts "  Run  bin/start main  →  explicit app selection"
           puts "  \#{hr}"
           puts
@@ -426,16 +426,16 @@ module Igniter
           # frozen_string_literal: true
           # Replace this stub with your own demo script.
           # See examples/companion/bin/demo for a full example.
-          puts "#{module_name} workspace — add your demo code here."
+          puts "#{module_name} stack — add your demo code here."
           puts "Run  bin/start       →  start apps/main"
-          puts "Run  bin/dev         →  start the whole workspace locally"
+          puts "Run  bin/dev         →  start the whole stack locally"
           puts "Run  bin/start main  →  explicit app selection"
         RUBY
       end
 
       def procfile_dev
         <<~TEXT
-          main: IGNITER_APP=main PORT=4567 bundle exec ruby workspace.rb main
+          main: IGNITER_APP=main PORT=4567 bundle exec ruby stack.rb main
         TEXT
       end
 
@@ -446,9 +446,9 @@ module Igniter
           # frozen_string_literal: true
 
           require "rspec"
-          require_relative "../workspace"
+          require_relative "../stack"
 
-          #{workspace_class_name}.setup_load_paths!
+          #{stack_class_name}.setup_load_paths!
 
           RSpec.configure do |config|
             config.disable_monkey_patching!
@@ -457,18 +457,18 @@ module Igniter
         RUBY
       end
 
-      # ─── spec/workspace_spec.rb ────────────────────────────────────────────
+      # ─── spec/stack_spec.rb ────────────────────────────────────────────────
 
-      def workspace_spec
+      def stack_spec
         <<~RUBY
           # frozen_string_literal: true
 
           require_relative "spec_helper"
 
-          RSpec.describe #{workspace_class_name} do
+          RSpec.describe #{stack_class_name} do
             it "registers apps/main as the default app" do
               expect(described_class.default_app).to eq(:main)
-              expect(described_class.application(:main)).to be(#{module_name}::MainApp)
+              expect(described_class.app(:main)).to be(#{module_name}::MainApp)
             end
           end
         RUBY
@@ -623,7 +623,7 @@ module Igniter
             # To activate:
             #   1. Add your API key: export ANTHROPIC_API_KEY=sk-ant-...
             #   2. Uncomment the code below.
-            #   3. Add require "igniter/ai" to apps/main/application.rb.
+            #   3. Add require "igniter/ai" to apps/main/app.rb.
             #
             # require "igniter/ai"
             #

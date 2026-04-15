@@ -124,8 +124,8 @@ See [`docs/RAILS_INTEGRATION.md`](RAILS_INTEGRATION.md) (TODO) for the full refe
 
 **Profile:** standalone HTTP service hosting contracts, single node.
 
-Igniter provides a full workspace scaffold — directory layout, YAML config, autoloading,
-scheduler, and HTTP hosting — via `Igniter::Workspace`, leaf `Igniter::App` apps,
+Igniter provides a full stack scaffold — directory layout, YAML config, autoloading,
+scheduler, and HTTP hosting — via `Igniter::Stack`, leaf `Igniter::App` apps,
 and the `igniter-server` CLI.
 AI, tools, skills, and channels remain opt-in layers that an application can load when needed.
 
@@ -155,8 +155,8 @@ Generated structure:
 
 ```
 my_app/
-├── workspace.rb            # Igniter::Workspace coordinator
-├── workspace.yml           # workspace metadata
+├── stack.rb            # Igniter::Stack coordinator
+├── stack.yml           # stack metadata
 ├── config/
 │   ├── topology.yml        # deployment roles + wiring
 │   └── deploy/
@@ -166,8 +166,8 @@ my_app/
 ├── config.ru               # Rack entry point
 ├── apps/
 │   └── main/
-│       ├── application.rb  # leaf Igniter::App subclass
-│       ├── application.yml # app-local server config
+│       ├── app.rb  # leaf Igniter::App subclass
+│       ├── app.yml # app-local server config
 │       ├── app/
 │       │   ├── contracts/
 │       │   ├── executors/
@@ -178,28 +178,28 @@ my_app/
 ├── lib/
 │   └── my_app/shared/
 ├── bin/
-│   ├── start               # workspace start wrapper
+│   ├── start               # stack start wrapper
 │   └── demo                # runnable smoke test
 └── spec/
-    └── shared + integration + workspace-level specs
+    └── shared + integration + stack-level specs
 ```
 
 Deployment config intentionally lives outside `apps/*`:
 
 - `apps/*` = code and leaf runtime defaults
-- `workspace.yml` = shared workspace defaults
+- `stack.yml` = shared stack defaults
 - `config/topology.yml` = deployment roles and cross-app wiring
 - `config/deploy/*` = Docker / Compose / future operational artifacts
 
-### Workspace + leaf app
+### Stack + leaf app
 
 ```ruby
-# workspace.rb
-require "igniter/workspace"
-require_relative "apps/main/application"
+# stack.rb
+require "igniter/stack"
+require_relative "apps/main/app"
 
 module MyApp
-  class Workspace < Igniter::Workspace
+  class Stack < Igniter::Stack
     root_dir __dir__
     shared_lib_path "lib"
 
@@ -209,7 +209,7 @@ end
 ```
 
 ```ruby
-# apps/main/application.rb
+# apps/main/app.rb
 require "igniter/app"
 require "igniter/core"
 require "igniter/ai"
@@ -217,7 +217,7 @@ require "igniter/ai"
 module MyApp
   class MainApp < Igniter::App
     root_dir __dir__
-    config_file "application.yml"
+    config_file "app.yml"
 
     executors_path "app/executors"
     contracts_path "app/contracts"
@@ -235,7 +235,7 @@ module MyApp
     end
 
     configure do |c|
-      c.port       = ENV.fetch("PORT", 4567).to_i
+      c.app_host.port = ENV.fetch("PORT", 4567).to_i
       c.log_format = :json
       c.store      = Igniter::Runtime::Stores::MemoryStore.new
     end
@@ -266,12 +266,12 @@ end
 
 ### Reference example
 
-`examples/companion/` is the main workspace-based application demo: voice assistant pipeline,
+`examples/companion/` is the main stack-based application demo: voice assistant pipeline,
 LLM chat/intent/TTS/ASR contracts, proactive agents, tool registry, scheduled session GC.
 
 `examples/companion_legacy/` remains as the older flat-layout reference during transition.
 
-See [`docs/APP_V1.md`](APP_V1.md), [`docs/WORKSPACES_V1.md`](WORKSPACES_V1.md), and [`docs/SERVER_V1.md`](SERVER_V1.md).
+See [`docs/APP_V1.md`](APP_V1.md), [`docs/STACKS_V1.md`](STACKS_V1.md), and [`docs/SERVER_V1.md`](SERVER_V1.md).
 
 ---
 
@@ -326,12 +326,12 @@ igniter + igniter/core + igniter/server + igniter/cluster
 ### Cluster setup
 
 ```ruby
-# apps/main/application.rb (same on every node)
+# apps/main/app.rb (same on every node)
 require "igniter/app"
 require "igniter/cluster"
 
 class ClusterApp < Igniter::App
-  config_file "application.yml"
+  config_file "app.yml"
   executors_path "app/executors"
   contracts_path "app/contracts"
 
@@ -352,7 +352,7 @@ class ClusterApp < Igniter::App
   end
 
   configure do |c|
-    c.port = ENV.fetch("PORT", 4567).to_i
+    c.app_host.port = ENV.fetch("PORT", 4567).to_i
   end
 end
 ```

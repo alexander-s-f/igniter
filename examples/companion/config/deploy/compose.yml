@@ -4,7 +4,7 @@ services:
     build:
       context: "../../../../"
       dockerfile: examples/companion/config/deploy/Dockerfile
-    command: bundle exec ruby examples/companion/workspace.rb main
+    command: bundle exec ruby examples/companion/stack.rb main
     working_dir: "/app/examples/companion"
     environment:
       COMPANION_DATA_ADAPTER: sqlite
@@ -24,7 +24,7 @@ services:
     build:
       context: "../../../../"
       dockerfile: examples/companion/config/deploy/Dockerfile
-    command: bundle exec ruby examples/companion/workspace.rb inference
+    command: bundle exec ruby examples/companion/stack.rb inference
     working_dir: "/app/examples/companion"
     environment:
       COMPANION_DATA_ADAPTER: sqlite
@@ -40,7 +40,7 @@ services:
     build:
       context: "../../../../"
       dockerfile: examples/companion/config/deploy/Dockerfile
-    command: bundle exec ruby examples/companion/workspace.rb dashboard
+    command: bundle exec ruby examples/companion/stack.rb dashboard
     working_dir: "/app/examples/companion"
     environment:
       COMPANION_DATA_ADAPTER: sqlite

@@ -13,9 +13,9 @@ module Companion
 
         {
           generated_at: Time.now.utc.iso8601,
-          workspace: {
-            apps: Companion::Workspace.app_names.map(&:to_s),
-            default_app: Companion::Workspace.default_app.to_s
+          stack: {
+            apps: Companion::Stack.app_names.map(&:to_s),
+            default_app: Companion::Stack.default_app.to_s
           },
           counts: {
             notes: notes.size,
@@ -40,7 +40,7 @@ module Companion
       end
 
       def execution_store_summary
-        Companion::Workspace.app_names.each_with_object({}) do |app_name, memo|
+        Companion::Stack.app_names.each_with_object({}) do |app_name, memo|
           store = Companion::Boot.default_execution_store(app_name: app_name)
           memo[app_name.to_s] = {
             class: store.class.name,

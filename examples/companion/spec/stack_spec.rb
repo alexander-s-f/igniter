@@ -2,7 +2,7 @@
 
 require_relative "spec_helper"
 
-RSpec.describe Companion::Workspace do
+RSpec.describe Companion::Stack do
   describe Companion::Boot do
     it "builds default stores from workspace and app config" do
       expect(described_class.default_data_store(app_name: :main)).to be_a(Igniter::Data::Stores::InMemory)
@@ -16,17 +16,17 @@ RSpec.describe Companion::Workspace do
     it "registers main, inference, and dashboard apps" do
       expect(described_class.default_app).to eq(:main)
       expect(described_class.app_names).to include(:main, :inference, :dashboard)
-      expect(described_class.application(:main)).to be(Companion::MainApp)
-      expect(described_class.application(:inference)).to be(Companion::InferenceApp)
-      expect(described_class.application(:dashboard)).to be(Companion::DashboardApp)
+      expect(described_class.app(:main)).to be(Companion::MainApp)
+      expect(described_class.app(:inference)).to be(Companion::InferenceApp)
+      expect(described_class.app(:dashboard)).to be(Companion::DashboardApp)
     end
   end
 
   describe "workspace wiring" do
     it "maps each app name to its leaf application class" do
-      expect(described_class.application(:main)).to eq(Companion::MainApp)
-      expect(described_class.application(:inference)).to eq(Companion::InferenceApp)
-      expect(described_class.application(:dashboard)).to eq(Companion::DashboardApp)
+      expect(described_class.app(:main)).to eq(Companion::MainApp)
+      expect(described_class.app(:inference)).to eq(Companion::InferenceApp)
+      expect(described_class.app(:dashboard)).to eq(Companion::DashboardApp)
     end
   end
 

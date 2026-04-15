@@ -3,10 +3,10 @@
 require "spec_helper"
 require "tmpdir"
 require "fileutils"
-require "igniter/workspace"
+require "igniter/stack"
 require "igniter/app"
 
-RSpec.describe Igniter::Workspace do
+RSpec.describe Igniter::Stack do
   around do |example|
     original_load_path = $LOAD_PATH.dup
     original_env = ENV["IGNITER_ENV"]
@@ -34,8 +34,8 @@ RSpec.describe Igniter::Workspace do
   it "loads workspace defaults and topology data from standard config files" do
     Dir.mktmpdir do |tmp|
       FileUtils.mkdir_p(File.join(tmp, "config"))
-      File.write(File.join(tmp, "workspace.yml"), <<~YAML)
-        workspace:
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
           default_app: dashboard
           shared_lib_paths:
             - lib/shared
@@ -70,8 +70,8 @@ RSpec.describe Igniter::Workspace do
   it "merges environment overlays into workspace settings and topology" do
     Dir.mktmpdir do |tmp|
       FileUtils.mkdir_p(File.join(tmp, "config", "environments"))
-      File.write(File.join(tmp, "workspace.yml"), <<~YAML)
-        workspace:
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
           default_app: main
           shared_lib_paths:
             - lib/shared
@@ -83,7 +83,7 @@ RSpec.describe Igniter::Workspace do
             replicas: 1
       YAML
       File.write(File.join(tmp, "config", "environments", "production.yml"), <<~YAML)
-        workspace:
+        stack:
           default_app: dashboard
           shared_lib_paths:
             - lib/prod_shared
@@ -96,17 +96,17 @@ RSpec.describe Igniter::Workspace do
       workspace = build_workspace(root: tmp, environment: "production")
 
       expect(workspace.default_app).to eq(:dashboard)
-      expect(workspace.workspace_settings.dig("workspace", "shared_lib_paths")).to eq(["lib/prod_shared"])
+      expect(workspace.stack_settings.dig("stack", "shared_lib_paths")).to eq(["lib/prod_shared"])
       expect(workspace.deployment(:main)).to include("role" => "api", "replicas" => 3)
     end
   end
 
-  it "adds shared lib paths from both DSL and workspace.yml" do
+  it "adds shared lib paths from both DSL and stack.yml" do
     Dir.mktmpdir do |tmp|
       FileUtils.mkdir_p(File.join(tmp, "dsl_shared"))
       FileUtils.mkdir_p(File.join(tmp, "lib", "shared"))
-      File.write(File.join(tmp, "workspace.yml"), <<~YAML)
-        workspace:
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
           shared_lib_paths:
             - lib/shared
       YAML
@@ -165,7 +165,7 @@ RSpec.describe Igniter::Workspace do
             role: admin
       YAML
       File.write(File.join(tmp, "config", "environments", "production.yml"), <<~YAML)
-        workspace:
+        stack:
           default_app: dashboard
       YAML
 
@@ -209,8 +209,8 @@ RSpec.describe Igniter::Workspace do
   it "builds a deployment snapshot for all registered apps" do
     Dir.mktmpdir do |tmp|
       FileUtils.mkdir_p(File.join(tmp, "config"))
-      File.write(File.join(tmp, "workspace.yml"), <<~YAML)
-        workspace:
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
           name: demo_workspace
           default_app: dashboard
       YAML
@@ -233,8 +233,8 @@ RSpec.describe Igniter::Workspace do
       workspace = build_workspace(root: tmp)
       snapshot = workspace.deployment_snapshot
 
-      expect(snapshot.dig("workspace", "default_app")).to eq("dashboard")
-      expect(snapshot.dig("workspace", "topology_profile")).to eq("local")
+      expect(snapshot.dig("stack", "default_app")).to eq("dashboard")
+      expect(snapshot.dig("stack", "topology_profile")).to eq("local")
       expect(snapshot.dig("apps", "main")).to include(
         "app" => "main",
         "role" => "api",
@@ -252,8 +252,8 @@ RSpec.describe Igniter::Workspace do
   it "generates a compose config from topology deploy settings" do
     Dir.mktmpdir do |tmp|
       FileUtils.mkdir_p(File.join(tmp, "config"))
-      File.write(File.join(tmp, "workspace.yml"), <<~YAML)
-        workspace:
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
           name: companion
       YAML
       File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
@@ -270,7 +270,7 @@ RSpec.describe Igniter::Workspace do
           main:
             role: api
             public: true
-            command: bundle exec ruby workspace.rb main
+            command: bundle exec ruby stack.rb main
             environment:
               APP_MODE: main
             http:
@@ -280,7 +280,7 @@ RSpec.describe Igniter::Workspace do
           dashboard:
             role: admin
             public: true
-            command: bundle exec ruby workspace.rb dashboard
+            command: bundle exec ruby stack.rb dashboard
             http:
               port: 4569
       YAML
@@ -313,8 +313,8 @@ RSpec.describe Igniter::Workspace do
   it "writes generated compose yaml to the configured path" do
     Dir.mktmpdir do |tmp|
       FileUtils.mkdir_p(File.join(tmp, "config"))
-      File.write(File.join(tmp, "workspace.yml"), <<~YAML)
-        workspace:
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
           name: write_test
       YAML
       File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
@@ -340,8 +340,8 @@ RSpec.describe Igniter::Workspace do
   it "generates a Procfile.dev for local multi-app development" do
     Dir.mktmpdir do |tmp|
       FileUtils.mkdir_p(File.join(tmp, "config"))
-      File.write(File.join(tmp, "workspace.yml"), <<~YAML)
-        workspace:
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
           name: home_lab
       YAML
       File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
@@ -357,7 +357,7 @@ RSpec.describe Igniter::Workspace do
               port: 4567
           dashboard:
             role: admin
-            command: bundle exec ruby workspace.rb dashboard
+            command: bundle exec ruby stack.rb dashboard
             environment:
               DASHBOARD_MODE: enabled
             http:
@@ -373,7 +373,7 @@ RSpec.describe Igniter::Workspace do
       expect(procfile).to include("dev_output_sync")
       expect(procfile).to include("SHARED_FLAG=1")
       expect(procfile).to include("DASHBOARD_MODE=enabled")
-      expect(procfile).to include("bundle exec ruby workspace.rb dashboard")
+      expect(procfile).to include("bundle exec ruby stack.rb dashboard")
     end
   end
 

@@ -8,7 +8,7 @@ require_relative "../../lib/companion/shared/telegram_webhook"
 module Companion
   class MainApp < Igniter::App
     root_dir __dir__
-    config_file "application.yml"
+    config_file "app.yml"
 
     tools_path     "app/tools"
     skills_path    "app/skills"

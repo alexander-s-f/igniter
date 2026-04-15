@@ -55,7 +55,7 @@ module Companion
     end
 
     def reset_persistence!
-      @workspace_settings = nil
+      @stack_settings = nil
       @app_settings = {}
       @default_data_stores = {}
       @default_execution_stores = {}
@@ -123,23 +123,23 @@ module Companion
     end
 
     def default_app_name
-      name = workspace_settings.dig("workspace", "default_app").to_s.strip
+      name = stack_settings.dig("stack", "default_app").to_s.strip
       name.empty? ? :main : name.to_sym
     end
 
-    def workspace_settings
-      @workspace_settings ||= load_yaml(File.join(root, "workspace.yml"))
+    def stack_settings
+      @stack_settings ||= load_yaml(File.join(root, "stack.yml"))
     end
 
     def app_settings(app_name)
       @app_settings ||= {}
       key = app_name.to_sym
-      @app_settings[key] ||= load_yaml(File.join(root, "apps", key.to_s, "application.yml"))
+      @app_settings[key] ||= load_yaml(File.join(root, "apps", key.to_s, "app.yml"))
     end
 
     def persistence_settings(app_name)
       deep_merge(
-        workspace_settings.fetch("persistence", {}),
+        stack_settings.fetch("persistence", {}),
         app_settings(app_name).fetch("persistence", {})
       )
     end

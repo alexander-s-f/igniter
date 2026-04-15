@@ -48,7 +48,7 @@ Target filesystem rule:
 Keep in `lib/igniter/`:
 
 - `igniter.rb`
-- layer entrypoints like `core.rb`, `ai.rb`, `channels.rb`, `server.rb`, `cluster.rb`, `application.rb`, `plugins.rb`, `rails.rb`, `agents.rb`
+- layer entrypoints like `core.rb`, `ai.rb`, `channels.rb`, `server.rb`, `cluster.rb`, `app.rb`, `plugins.rb`, `rails.rb`, `agents.rb`
 - nested public entrypoint folders such as `core/`, `extensions/`, and `rails/`
 
 Completed implementation relocation into `lib/igniter/core/`:

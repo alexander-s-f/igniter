@@ -2,6 +2,6 @@
 # Rack entry point — use with Puma or any Rack-compatible server.
 #   bundle exec puma config.ru
 
-require_relative "workspace"
+require_relative "stack"
 
-run Companion::Workspace.rack_app(ENV.fetch("IGNITER_APP", "main"))
+run Companion::Stack.rack_app(ENV.fetch("IGNITER_APP", "main"))

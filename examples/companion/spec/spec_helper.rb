@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../lib/companion/boot"
-require_relative "../workspace"
+require_relative "../stack"
 
 Companion::Boot.setup_load_path!
 

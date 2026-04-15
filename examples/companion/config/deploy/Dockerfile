@@ -22,4 +22,4 @@ RUN mkdir -p var
 
 EXPOSE 4567 4568 4569
 
-CMD ["bundle", "exec", "ruby", "workspace.rb", "main"]
+CMD ["bundle", "exec", "ruby", "stack.rb", "main"]

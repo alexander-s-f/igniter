@@ -14,7 +14,7 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - runtime auditing, diagnostics reports, and reactive side effects
 - graph and runtime introspection (text, Mermaid)
 - ergonomic DSL helpers: `const`, `lookup`, `map`, `project`, `aggregate`, `guard`, `export`, `expose`, `effect`, `on_success`, `scope`, `namespace`
-- `Igniter::Workspace` + `Igniter::App` — standard app runtime/profile with `apps/`, YAML config, autoloading, and scheduler; scaffold generation is an explicit pack behind `igniter-server new`
+- `Igniter::Stack` + `Igniter::App` — standard app runtime/profile with `apps/`, YAML config, autoloading, and scheduler; scaffold generation is an explicit pack behind `igniter-server new`
 - capability-based security: declare executor resource requirements, enforce `Policy` at runtime
 - temporal contracts: reproducible historical execution via an explicit `as_of` time input
 - content-addressed computation: `pure` executors cached by input fingerprint across executions and processes
@@ -56,7 +56,7 @@ layer folders.
 - **Capability layers**: optional subsystems such as `Igniter::AI` and `Igniter::Channels`.
 - **Data layer**: `Igniter::Data`, a tiny JSON-first persistence API for app records such as chat bindings, notes, and sessions.
 - **Hosting layers**: `Igniter::Server` and `Igniter::Cluster`.
-- **Profile**: `Igniter::Workspace` + `Igniter::App`, a packaged way to assemble an app and run it through host, loader, and scheduler adapters. The public entrypoint is `require "igniter/app"`. The defaults are `host :app`, `loader :filesystem`, and `scheduler :threaded`, and `require "igniter/cluster"` adds `host :cluster_app` for cluster-aware apps.
+- **Profile**: `Igniter::Stack` + `Igniter::App`, a packaged way to assemble an app and run it through host, loader, and scheduler adapters. The public entrypoint is `require "igniter/app"`. The defaults are `host :app`, `loader :filesystem`, and `scheduler :threaded`, and `require "igniter/cluster"` adds `host :cluster_app` for cluster-aware apps.
 - **Plugin**: framework-specific integration such as `Igniter::Rails`.
 
 ## Deployment Modes
@@ -533,22 +533,22 @@ end
 
 See [`examples/llm/research_agent.rb`](examples/llm/research_agent.rb), [`examples/llm/tool_use.rb`](examples/llm/tool_use.rb), and [`docs/LLM_V1.md`](docs/LLM_V1.md).
 
-### 12. Igniter::App / Igniter::Workspace
+### 12. Igniter::App / Igniter::Stack
 
-Package contracts, executors, scheduler, and server config into a workspace with leaf apps:
+Package contracts, executors, scheduler, and server config into a stack with leaf apps:
 
 ```bash
-# Scaffold a new workspace
+# Scaffold a new stack
 igniter-server new my_app
 cd my_app && bundle install && bin/start
 ```
 
 ```ruby
-require "igniter/workspace"
-require_relative "apps/main/application"
+require "igniter/stack"
+require_relative "apps/main/app"
 
 module MyApp
-  class Workspace < Igniter::Workspace
+  class Stack < Igniter::Stack
     root_dir __dir__
     shared_lib_path "lib"
 
@@ -556,18 +556,18 @@ module MyApp
   end
 end
 
-MyApp::Workspace.start(:main)
+MyApp::Stack.start(:main)
 ```
 
 ```ruby
-# apps/main/application.rb
+# apps/main/app.rb
 require "igniter/app"
 require "igniter/core"
 
 module MyApp
   class MainApp < Igniter::App
     root_dir __dir__
-    config_file "application.yml"
+    config_file "app.yml"
 
     tools_path     "app/tools"
     skills_path    "app/skills"
@@ -586,11 +586,11 @@ The generator now creates:
 
 ```text
 my_app/
-├── workspace.rb
+├── stack.rb
 ├── apps/
 │   └── main/
-│       ├── application.rb
-│       ├── application.yml
+│       ├── app.rb
+│       ├── app.yml
 │       ├── app/
 │       └── spec/
 ├── lib/my_app/shared/
@@ -599,11 +599,11 @@ my_app/
 └── bin/demo
 ```
 
-`Igniter::Workspace` coordinates named apps under `apps/*`. The root `spec/` is for
-shared code and integration/workspace tests. `Igniter::App` remains the leaf
+`Igniter::Stack` coordinates named apps under `apps/*`. The root `spec/` is for
+shared code and integration/stack tests. `Igniter::App` remains the leaf
 runtime for each app.
 
-**`apps/main/application.yml`** — base config loaded before the `configure` block (block always wins):
+**`apps/main/app.yml`** — base config loaded before the `configure` block (block always wins):
 
 ```yaml
 app_host:
@@ -615,7 +615,7 @@ app_host:
 
 **Scheduler interval formats:** `30` (seconds), `"30s"`, `"5m"`, `"2h"`, `"1d"`, `{ hours: 1, minutes: 30 }`
 
-See [`docs/APP_V1.md`](docs/APP_V1.md) for the leaf app reference and [`docs/WORKSPACES_V1.md`](docs/WORKSPACES_V1.md) for the standard workspace layout.
+See [`docs/APP_V1.md`](docs/APP_V1.md) for the leaf app reference and [`docs/STACKS_V1.md`](docs/STACKS_V1.md) for the standard stack layout.
 
 ### 13. Capability-Based Security
 
@@ -773,7 +773,7 @@ See [`docs/DATAFLOW_V1.md`](docs/DATAFLOW_V1.md).
 | `server/node1.rb` + `node2.rb` | run both, then curl | Two-node igniter-server with `remote:` DSL |
 | `llm/research_agent.rb` | `ruby examples/llm/research_agent.rb` | Multi-step LLM pipeline with Ollama |
 | `llm/tool_use.rb` | `ruby examples/llm/tool_use.rb` | LLM tool declarations, chained LLM nodes, `Context` |
-| `companion/bin/demo` | `ruby examples/companion/bin/demo` | Workspace-based voice assistant demo with `apps/main` + `apps/inference` |
+| `companion/bin/demo` | `ruby examples/companion/bin/demo` | Stack-based voice assistant demo with `apps/main` + `apps/inference` |
 | `companion_legacy/bin/demo` | `ruby examples/companion_legacy/bin/demo` | End-to-end voice AI pipeline reference during workspace migration |
 | `dataflow.rb` | `ruby examples/dataflow.rb` | Incremental sensor pipeline: `mode: :incremental`, `feed_diff`, sliding window |
 
@@ -792,7 +792,7 @@ See [`docs/DATAFLOW_V1.md`](docs/DATAFLOW_V1.md).
 - [igniter-server v1](docs/SERVER_V1.md)
 - [LLM Integration v1](docs/LLM_V1.md)
 - [App scaffold v1](docs/APP_V1.md)
-- [Workspaces v1](docs/WORKSPACES_V1.md)
+- [Stacks v1](docs/STACKS_V1.md)
 - [Capabilities v1](docs/CAPABILITIES_V1.md)
 - [Temporal Contracts v1](docs/TEMPORAL_V1.md)
 - [Content Addressing v1](docs/CONTENT_ADDRESSING_V1.md)
@@ -819,7 +819,7 @@ Current feature baseline:
 - igniter-server: TCP server, Rack adapter, CLI, `remote:` DSL
 - AI layer: Ollama, Anthropic, OpenAI providers
 - Rails plugin: Railtie, ActiveJob, ActionCable, webhook controller mixin
-- `Igniter::Workspace` + `Igniter::App`: workspace scaffold, YAML config, autoloading, scheduler, generator (`igniter-server new`)
+- `Igniter::Stack` + `Igniter::App`: stack scaffold, YAML config, autoloading, scheduler, generator (`igniter-server new`)
 - auditing, diagnostics, reactive subscriptions, graph introspection
 - capability-based security: `capabilities`, `pure`, `Policy`, `CapabilityViolationError`
 - temporal contracts: `include Igniter::Temporal`, `temporal_compute`, `as_of` input, historical reproduction

@@ -409,7 +409,7 @@ RSpec.describe Igniter::App do
     let(:cfg) { Igniter::App::AppConfig.new }
 
     def write_yml(dir, content)
-      path = File.join(dir, "application.yml")
+      path = File.join(dir, "app.yml")
       File.write(path, content)
       path
     end
@@ -605,8 +605,8 @@ RSpec.describe Igniter::App do
           described_class.new("my_app").generate
 
           # Root files
-          expect(File.exist?("my_app/workspace.rb")).to be true
-          expect(File.exist?("my_app/workspace.yml")).to be true
+          expect(File.exist?("my_app/stack.rb")).to be true
+          expect(File.exist?("my_app/stack.yml")).to be true
           expect(File.exist?("my_app/config/topology.yml")).to be true
           expect(File.exist?("my_app/config/environments/development.yml")).to be true
           expect(File.exist?("my_app/config/environments/production.yml")).to be true
@@ -620,12 +620,12 @@ RSpec.describe Igniter::App do
           expect(File.exist?("my_app/bin/dev")).to be true
           expect(File.exist?("my_app/bin/demo")).to be true
 
-          # workspace structure
+          # stack structure
           expect(File.exist?("my_app/lib/my_app/shared/.keep")).to be true
           expect(File.exist?("my_app/spec/spec_helper.rb")).to be true
-          expect(File.exist?("my_app/spec/workspace_spec.rb")).to be true
-          expect(File.exist?("my_app/apps/main/application.rb")).to be true
-          expect(File.exist?("my_app/apps/main/application.yml")).to be true
+          expect(File.exist?("my_app/spec/stack_spec.rb")).to be true
+          expect(File.exist?("my_app/apps/main/app.rb")).to be true
+          expect(File.exist?("my_app/apps/main/app.yml")).to be true
           expect(File.exist?("my_app/apps/main/spec/spec_helper.rb")).to be true
 
           # apps/main example source files
@@ -639,26 +639,26 @@ RSpec.describe Igniter::App do
       end
     end
 
-    it "generated workspace and main app files use apps/main and on_boot" do
+    it "generated stack and main app files use apps/main and on_boot" do
       Dir.mktmpdir do |tmp|
         Dir.chdir(tmp) do
           described_class.new("my_app").generate
-          workspace = File.read("my_app/workspace.rb")
-          main_app  = File.read("my_app/apps/main/application.rb")
+          stack = File.read("my_app/stack.rb")
+          main_app  = File.read("my_app/apps/main/app.rb")
           bin_start = File.read("my_app/bin/start")
           bin_dev   = File.read("my_app/bin/dev")
 
-          expect(workspace).to include("Igniter::Workspace")
-          expect(workspace).to include('require "igniter/workspace"')
-          expect(workspace).to include("app :main")
-          expect(workspace).to include("start_cli(ARGV)")
+          expect(stack).to include("Igniter::Stack")
+          expect(stack).to include('require "igniter/stack"')
+          expect(stack).to include("app :main")
+          expect(stack).to include("start_cli(ARGV)")
           expect(File.read("my_app/config/topology.yml")).to include("role: api")
           expect(File.read("my_app/config/topology.yml")).to include("dockerfile: config/deploy/Dockerfile")
           expect(File.read("my_app/config/environments/production.yml")).to include("replicas: 2")
           expect(File.read("my_app/config/deploy/Procfile.dev")).to include("main:")
           expect(File.read("my_app/Gemfile")).to include("gem \"sqlite3\"")
-          expect(bin_start).to include("exec bundle exec ruby workspace.rb \"$@\"")
-          expect(bin_dev).to include("exec bundle exec ruby workspace.rb --dev \"$@\"")
+          expect(bin_start).to include("exec bundle exec ruby stack.rb \"$@\"")
+          expect(bin_dev).to include("exec bundle exec ruby stack.rb --dev \"$@\"")
           expect(main_app).to include('require "igniter/app"')
           expect(main_app).to include("root_dir __dir__")
           expect(main_app).to include("executors_path")
@@ -667,7 +667,7 @@ RSpec.describe Igniter::App do
           expect(main_app).to include("agents_path")
           expect(main_app).to include("skills_path")
           expect(main_app).to include("on_boot")
-          expect(File.read("my_app/spec/spec_helper.rb")).to include("require_relative \"../workspace\"")
+          expect(File.read("my_app/spec/spec_helper.rb")).to include("require_relative \"../stack\"")
           expect(File.read("my_app/apps/main/spec/spec_helper.rb")).to include("MainApp.send(:build!)")
         end
       end
@@ -689,9 +689,9 @@ RSpec.describe Igniter::App do
       Dir.mktmpdir do |tmp|
         Dir.chdir(tmp) do
           described_class.new("my_cool_app").generate
-          content = File.read("my_cool_app/workspace.rb")
+          content = File.read("my_cool_app/stack.rb")
           expect(content).to include("MyCoolApp")
-          expect(File.read("my_cool_app/apps/main/application.rb")).to include("MyCoolApp")
+          expect(File.read("my_cool_app/apps/main/app.rb")).to include("MyCoolApp")
         end
       end
     end
@@ -702,8 +702,8 @@ RSpec.describe Igniter::App do
           described_class.new("examples/companion").generate
 
           expect(File.exist?("examples/companion/lib/companion/shared/.keep")).to be true
-          expect(File.read("examples/companion/workspace.rb")).to include("module Companion")
-          expect(File.read("examples/companion/apps/main/application.rb")).to include("module Companion")
+          expect(File.read("examples/companion/stack.rb")).to include("module Companion")
+          expect(File.read("examples/companion/apps/main/app.rb")).to include("module Companion")
           expect(File.read("examples/companion/apps/main/spec/spec_helper.rb")).to include("Companion::MainApp.send(:build!)")
         end
       end
@@ -735,7 +735,7 @@ RSpec.describe Igniter::App do
 
     it "applies YAML then configure block (block wins)" do
       Dir.mktmpdir do |tmp|
-        yml = File.join(tmp, "application.yml")
+        yml = File.join(tmp, "app.yml")
         File.write(yml, "app_host:\n  port: 6000\n")
 
         app = fresh_app do
@@ -852,11 +852,11 @@ RSpec.describe Igniter::App do
             end
           RUBY
         )
-        File.write(File.join(tmp, "application.yml"), "app_host:\n  port: 6123\n")
+        File.write(File.join(tmp, "app.yml"), "app_host:\n  port: 6123\n")
 
         app = fresh_app do
           root_dir tmp
-          config_file "application.yml"
+          config_file "app.yml"
           contracts_path "app/contracts"
           on_boot { register "RootScopedContract", RootScopedContract }
         end
@@ -1043,35 +1043,35 @@ RSpec.describe Igniter::App do
   end
 end
 
-RSpec.describe Igniter::Workspace do
+RSpec.describe Igniter::Stack do
   let(:leaf_app) { Class.new(Igniter::App) }
 
-  def fresh_workspace(&block)
-    workspace = Class.new(Igniter::Workspace)
-    workspace.class_eval(&block) if block
-    workspace
+  def fresh_stack(&block)
+    stack = Class.new(Igniter::Stack)
+    stack.class_eval(&block) if block
+    stack
   end
 
   describe "class-level DSL isolation" do
     it "does not leak apps between subclasses" do
       app_class = leaf_app
-      workspace1 = fresh_workspace { app :main, path: "apps/main", klass: app_class }
-      workspace2 = fresh_workspace
+      stack1 = fresh_stack { app :main, path: "apps/main", klass: app_class }
+      stack2 = fresh_stack
 
-      expect(workspace1.app_names).to eq([:main])
-      expect(workspace2.app_names).to eq([])
+      expect(stack1.app_names).to eq([:main])
+      expect(stack2.app_names).to eq([])
     end
   end
 
   describe "app registry" do
     it "returns the default app class" do
       app_class = leaf_app
-      workspace = fresh_workspace do
+      stack = fresh_stack do
         app :main, path: "apps/main", klass: app_class
       end
 
-      expect(workspace.application).to be(app_class)
-      expect(workspace.default_app).to eq(:main)
+      expect(stack.app).to be(app_class)
+      expect(stack.default_app).to eq(:main)
     end
 
     it "starts a named app" do
@@ -1080,18 +1080,18 @@ RSpec.describe Igniter::Workspace do
         define_singleton_method(:start) { started << :main }
       end
 
-      workspace = fresh_workspace do
+      stack = fresh_stack do
         app :main, path: "apps/main", klass: app_class
       end
 
-      workspace.start(:main)
+      stack.start(:main)
       expect(started).to eq([:main])
     end
 
     it "adds shared lib paths relative to root_dir" do
       Dir.mktmpdir do |tmp|
         app_class = leaf_app
-        workspace = fresh_workspace do
+        stack = fresh_stack do
           root_dir tmp
           shared_lib_path "lib"
           app :main, path: "apps/main", klass: app_class
@@ -1101,7 +1101,7 @@ RSpec.describe Igniter::Workspace do
         FileUtils.mkdir_p(shared_lib)
         $LOAD_PATH.delete(shared_lib)
 
-        workspace.setup_load_paths!
+        stack.setup_load_paths!
         expect($LOAD_PATH).to include(shared_lib)
       ensure
         $LOAD_PATH.delete(shared_lib)
@@ -1110,11 +1110,11 @@ RSpec.describe Igniter::Workspace do
 
     it "raises on unknown app" do
       app_class = leaf_app
-      workspace = fresh_workspace do
+      stack = fresh_stack do
         app :main, path: "apps/main", klass: app_class
       end
 
-      expect { workspace.application(:inference) }.to raise_error(ArgumentError, /Unknown workspace app/)
+      expect { stack.app(:inference) }.to raise_error(ArgumentError, /Unknown stack app/)
     end
   end
 end

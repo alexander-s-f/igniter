@@ -8,7 +8,7 @@ require_relative "../../lib/companion/boot"
 module Companion
   class InferenceApp < Igniter::App
     root_dir __dir__
-    config_file "application.yml"
+    config_file "app.yml"
 
     executors_path "app/executors"
     contracts_path "app/contracts"

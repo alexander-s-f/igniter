@@ -14,8 +14,8 @@ Start here if you want the shortest accurate map of Igniter's structure.
 | Channels | `Igniter::Channels` / `require "igniter/channels"` | transport adapters such as webhook, Telegram, WhatsApp, email, SMS |
 | Server | `Igniter::Server` / `require "igniter/server"` | HTTP hosting, Rack app, remote execution transport; activation is explicit |
 | Application | `Igniter::App` / `require "igniter/app"` | single-node app runtime profile: config, autoloading, scheduler, host-adapter seam |
-| Workspace | `Igniter::Workspace` / `require "igniter/workspace"` | workspace coordinator: shared paths, app registry, topology-aware boot/rack routing |
-| App Runtime | `Igniter::App` / `require "igniter/app/runtime"` | narrow leaf runtime entrypoint without workspace umbrella |
+| Stack | `Igniter::Stack` / `require "igniter/stack"` | stack coordinator: shared paths, app registry, topology-aware boot/rack routing |
+| App Runtime | `Igniter::App` / `require "igniter/app/runtime"` | narrow leaf runtime entrypoint without stack umbrella |
 | Cluster | `Igniter::Cluster` / `require "igniter/cluster"` | network runtime: consensus, mesh, replication, cluster-aware routing |
 | Plugins | `Igniter::Plugins::*` / `require "igniter/rails"` | framework-specific integrations |
 
@@ -44,7 +44,7 @@ Practical rules:
 - `Channels` may depend on core.
 - `Server` may depend on core and optional upper capability layers.
 - `Application` is a profile over `Server`, not a sibling capability layer.
-- `Igniter::Workspace` coordinates leaf apps; `Igniter::App` remains the leaf runtime.
+- `Igniter::Stack` coordinates leaf apps; `Igniter::App` remains the leaf runtime.
 - `Cluster` sits above `Server`.
 - Plugins adapt external frameworks into Igniter layers; they do not redefine the core.
 
@@ -56,7 +56,7 @@ Canonical layout:
 lib/igniter/
   ai.rb
   app.rb
-  application.rb
+  app.rb
   channels.rb
   cluster.rb
   core.rb
@@ -74,16 +74,16 @@ lib/igniter/
   server/
 ```
 
-Workspace project layout:
+Stack project layout:
 
 ```text
 my_app/
-  workspace.rb
-  workspace.yml
+  stack.rb
+  stack.yml
   apps/
     main/
-      application.rb
-      application.yml
+      app.rb
+      app.yml
       app/
       spec/
   lib/<project>/shared/
@@ -150,4 +150,4 @@ Read next:
 - [Cluster Debug v1](./CLUSTER_DEBUG_V1.md)
 - [Deployment Scenarios v1](./DEPLOYMENT_V1.md)
 - [App v1](./APP_V1.md)
-- [Workspaces v1](./WORKSPACES_V1.md)
+- [Stacks v1](./STACKS_V1.md)
