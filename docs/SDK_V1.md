@@ -231,6 +231,7 @@ horizontal capability packs
 
 Read next:
 
+- [Module System v1](./MODULE_SYSTEM_V1.md)
 - [Layers v1](./LAYERS_V1.md)
 - [Architecture Index](./ARCHITECTURE_INDEX.md)
 - [Architecture v2](./ARCHITECTURE_V2.md)

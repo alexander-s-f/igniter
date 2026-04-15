@@ -196,3 +196,4 @@ Implemented now:
 4. Keep examples and generated apps loading the smallest entrypoints they need.
 
 For the pack-by-pack contract, see [SDK v1](./SDK_V1.md).
+For the full three-axis module model, see [Module System v1](./MODULE_SYSTEM_V1.md).

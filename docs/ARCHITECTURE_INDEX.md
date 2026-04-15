@@ -26,25 +26,21 @@ Start here if you want the shortest accurate map of Igniter's structure.
 Allowed direction of dependencies:
 
 ```text
-Embed
-  ├─ Extensions
-  ├─ Actor/Tool kit
-  ├─ AI
-  ├─ Channels
-  └─ Server
-       └─ App
-            └─ Cluster
+runtime pyramid
+  core -> server/app -> cluster
 
-Plugins depend on the layer they integrate with.
+horizontal capability plane
+  sdk/*
+
+horizontal integration plane
+  plugins/*
 ```
 
 Practical rules:
 
-- Core must not know about `Server`, `Cluster`, `AI`, `Channels`, or plugins.
+- Core must not know about `Server`, `Cluster`, `sdk/*`, or `plugins/*`.
 - Extensions may build on core, but should not become a grab-bag for unrelated features.
-- `AI` may depend on core.
-- `Agents` may depend on core.
-- `Channels` may depend on core.
+- `sdk/*` may depend on core, and must stay explicit.
 - `Server` may depend on core and optional upper capability layers.
 - `App` is a profile over `Server`, not a sibling capability layer.
 - `Igniter::Stack` coordinates leaf apps; `Igniter::App` remains the leaf runtime.
@@ -60,13 +56,9 @@ lib/igniter/
   app.rb
   cluster.rb
   core.rb
-  data.rb
   sdk.rb
-  tools.rb
   plugins.rb
-  rails.rb
   server.rb
-  ai/
   app/
   cluster/
   core/
@@ -154,6 +146,7 @@ Read next:
 
 - [SDK v1](./SDK_V1.md)
 - [Plugins v1](./PLUGINS_V1.md)
+- [Module System v1](./MODULE_SYSTEM_V1.md)
 - [Layers v1](./LAYERS_V1.md)
 - [Architecture v2](./ARCHITECTURE_V2.md)
 - [Persistence Model v1](./PERSISTENCE_MODEL_V1.md)

@@ -74,6 +74,7 @@ superset of the one before it — your domain contracts never change.
 See [`docs/LAYERS_V1.md`](docs/LAYERS_V1.md) for the layer contract and [`docs/DEPLOYMENT_V1.md`](docs/DEPLOYMENT_V1.md) for scenario-specific setup.
 [`docs/SDK_V1.md`](docs/SDK_V1.md) is the canonical reference for optional `sdk/*` packs.
 [`docs/PLUGINS_V1.md`](docs/PLUGINS_V1.md) is the canonical reference for `plugins/*`.
+[`docs/MODULE_SYSTEM_V1.md`](docs/MODULE_SYSTEM_V1.md) is the top-level map that ties runtime layers, `sdk/*`, and `plugins/*` together.
 
 Layer DSL can opt into SDK packs explicitly:
 

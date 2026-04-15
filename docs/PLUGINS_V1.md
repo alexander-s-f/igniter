@@ -146,6 +146,7 @@ plugins/* = environment/framework integrations
 
 Read next:
 
+- [Module System v1](./MODULE_SYSTEM_V1.md)
 - [SDK v1](./SDK_V1.md)
 - [Layers v1](./LAYERS_V1.md)
 - [Architecture Index](./ARCHITECTURE_INDEX.md)
