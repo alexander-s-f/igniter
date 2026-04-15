@@ -2,7 +2,7 @@
 
 require "spec_helper"
 require "igniter/cluster"
-require "igniter/data"
+require "igniter/sdk/data"
 
 RSpec.describe Igniter::Cluster::Ownership do
   after { Igniter::Cluster::Ownership.reset! }

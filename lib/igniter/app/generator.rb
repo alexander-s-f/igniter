@@ -623,9 +623,9 @@ module Igniter
             # To activate:
             #   1. Add your API key: export ANTHROPIC_API_KEY=sk-ant-...
             #   2. Uncomment the code below.
-            #   3. Add require "igniter/ai" to apps/main/app.rb.
+            #   3. Add require "igniter/sdk/ai" to apps/main/app.rb.
             #
-            # require "igniter/ai"
+            # require "igniter/sdk/ai"
             #
             # class ConciergeSkill < Igniter::AI::Skill
             #   description "An AI concierge that greets visitors and answers questions"

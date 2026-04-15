@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/channels"
+require "igniter/sdk/channels"
 
 RSpec.describe Igniter::Channels do
   describe Igniter::Channels::Message do

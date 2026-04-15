@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/ai"
+require "igniter/sdk/ai"
 require_relative "../tools/time_tool"
 require_relative "../tools/save_note_tool"
 require_relative "../tools/get_notes_tool"

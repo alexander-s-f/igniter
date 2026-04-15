@@ -305,8 +305,8 @@ Each node runs Scenario 2 (application server), plus the cluster layer adds:
 ```
 igniter + igniter/core + igniter/server + igniter/cluster
     + optional igniter/app
-    + optional igniter/ai
-    + optional igniter/channels
+    + optional igniter/sdk/ai
+    + optional igniter/sdk/channels
 ```
 
 ### Topology example — 3-node cluster

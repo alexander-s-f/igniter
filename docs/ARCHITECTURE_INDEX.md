@@ -99,7 +99,7 @@ Placement rules:
 - `lib/igniter/core/` holds substantive core implementation.
 - `lib/igniter/extensions/` holds extension entrypoints.
 - `lib/igniter/sdk/` holds canonical optional capability entrypoints and shared capability implementation packs.
-- `lib/igniter/ai/`, `server/`, `cluster/`, and `app/` hold the remaining layer implementation code.
+- `lib/igniter/sdk/ai/`, `server/`, `cluster/`, and `app/` hold the remaining layer implementation code.
 - `lib/igniter/plugins/` holds framework-specific integrations.
 
 ## Loading Rules

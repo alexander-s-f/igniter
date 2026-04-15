@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 RSpec.describe Igniter::AI::Transcriber do
   # ── Shared mock provider ───────────────────────────────────────────────────

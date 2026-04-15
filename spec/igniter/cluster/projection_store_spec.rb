@@ -2,7 +2,7 @@
 
 require "spec_helper"
 require "igniter/cluster"
-require "igniter/data"
+require "igniter/sdk/data"
 
 RSpec.describe Igniter::Cluster::ProjectionStore do
   let(:store) { Igniter::Data::Stores::InMemory.new }

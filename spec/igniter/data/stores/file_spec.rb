@@ -2,7 +2,7 @@
 
 require "spec_helper"
 require "tmpdir"
-require "igniter/data"
+require "igniter/sdk/data"
 
 RSpec.describe Igniter::Data::Stores::File do
   it "stores and retrieves JSON values across instances" do

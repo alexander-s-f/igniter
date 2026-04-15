@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 module Companion
   # Fast intent classification using a small local LLM via Ollama.

@@ -166,19 +166,11 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/application.rb")
   end
 
-  it "`require \"igniter/tools\"` opt-ins the built-in operational tool pack" do
-    features = loaded_igniter_features("igniter/tools")
+  it "`require \"igniter/tools\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/tools")
 
-    expect(features).to include("igniter/tools.rb")
-    expect(features).to include("igniter/sdk/tools.rb")
-    expect(features).to include("igniter/core.rb")
-    expect(features).to include("igniter/sdk/tools/system_discovery_tool.rb")
-    expect(features).to include("igniter/sdk/tools/local_workflow_selector_tool.rb")
-    expect(features).to include("igniter/sdk/tools/agent_bootstrap_tool.rb")
-    expect(features).not_to include("igniter/server.rb")
-    expect(features).not_to include("igniter/application.rb")
-    expect(features).not_to include("igniter/cluster.rb")
-    expect(features).not_to include("igniter/ai.rb")
+    expect(error).to include("cannot load such file")
+    expect(error).to include("igniter/tools")
   end
 
   it "`require \"igniter/sdk/ai\"` loads the canonical AI SDK pack directly" do
@@ -199,11 +191,11 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/cluster.rb")
   end
 
-  it "`require \"igniter/ai\"` is a convenience alias over the AI SDK pack" do
-    features = loaded_igniter_features("igniter/ai")
+  it "`require \"igniter/ai\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/ai")
 
-    expect(features).to include("igniter/ai.rb")
-    expect(features).to include("igniter/sdk/ai.rb")
+    expect(error).to include("cannot load such file")
+    expect(error).to include("igniter/ai")
   end
 
   it "`require \"igniter/sdk/ai/agents\"` loads the canonical AI agents SDK pack directly" do
@@ -225,11 +217,11 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/cluster.rb")
   end
 
-  it "`require \"igniter/agents\"` is a convenience alias over the generic agents SDK pack" do
-    features = loaded_igniter_features("igniter/agents")
+  it "`require \"igniter/agents\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/agents")
 
-    expect(features).to include("igniter/agents.rb")
-    expect(features).to include("igniter/sdk/agents.rb")
+    expect(error).to include("cannot load such file")
+    expect(error).to include("igniter/agents")
   end
 
   it "`require \"igniter/ai/agents\"` is no longer a valid public entrypoint" do
@@ -250,11 +242,11 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/cluster.rb")
   end
 
-  it "`require \"igniter/channels\"` is a convenience alias over the channels SDK pack" do
-    features = loaded_igniter_features("igniter/channels")
+  it "`require \"igniter/channels\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/channels")
 
-    expect(features).to include("igniter/channels.rb")
-    expect(features).to include("igniter/sdk/channels.rb")
+    expect(error).to include("cannot load such file")
+    expect(error).to include("igniter/channels")
   end
 
   it "`require \"igniter/sdk/data\"` loads the canonical data SDK pack directly" do
@@ -268,11 +260,11 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/cluster.rb")
   end
 
-  it "`require \"igniter/data\"` is a convenience alias over the data SDK pack" do
-    features = loaded_igniter_features("igniter/data")
+  it "`require \"igniter/data\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/data")
 
-    expect(features).to include("igniter/data.rb")
-    expect(features).to include("igniter/sdk/data.rb")
+    expect(error).to include("cannot load such file")
+    expect(error).to include("igniter/data")
   end
 
   it "`require \"igniter/sdk/tools\"` loads the canonical tools SDK pack directly" do

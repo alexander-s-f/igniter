@@ -33,7 +33,7 @@ Companion::Boot.setup_load_path!
 
 require "igniter/app"
 require "igniter/core"
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 class CompanionApp < Igniter::App
   config_file File.join(__dir__, "application.yml")

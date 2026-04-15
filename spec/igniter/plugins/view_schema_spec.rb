@@ -2,7 +2,7 @@
 
 require "spec_helper"
 require "igniter/view"
-require "igniter/data"
+require "igniter/sdk/data"
 
 RSpec.describe "Igniter::Plugins::View schema runtime" do
   before do

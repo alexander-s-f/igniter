@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/data"
+require "igniter/sdk/data"
 
 RSpec.describe Igniter::Data::Stores::SQLite do
   before(:all) do

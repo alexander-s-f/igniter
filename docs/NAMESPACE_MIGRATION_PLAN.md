@@ -11,7 +11,7 @@ This is a namespace and dependency-boundary migration first, not a gem split.
 Completed so far:
 
 - core actor/tool foundation moved under `lib/igniter/core/*`
-- AI layer moved under `lib/igniter/ai/*`
+- AI layer moved under `lib/igniter/sdk/ai/*`
 - built-in AI agents moved under `Igniter::AI::Agents`
 - channels foundation introduced under `lib/igniter/sdk/channels/*`
 - first built-in transport added as `Igniter::Channels::Webhook`
@@ -41,7 +41,7 @@ Target filesystem rule:
 - `lib/igniter/` keeps only top-level layer entrypoints.
 - `lib/igniter/core/` holds the substantive core implementation.
 - `lib/igniter/extensions/` holds behavioral extension entrypoints.
-- `lib/igniter/ai/`, `server/`, `cluster/`, `channels/`, `app/` hold their own authoritative code.
+- `lib/igniter/sdk/ai/`, `server/`, `cluster/`, `sdk/channels/`, and `app/` hold their own authoritative code.
 - `lib/igniter/plugins/` is the intended home for framework-specific integrations such as Rails.
 - Rails plugin relocation completed under `lib/igniter/plugins/rails/*`, with `lib/igniter/rails.rb` as the short public entrypoint.
 
@@ -159,7 +159,7 @@ AI tools and skills may call these adapters, but the adapters themselves should 
 Create target directories and move obvious code without changing behavior:
 
 - `lib/igniter/core/`
-- `lib/igniter/ai/`
+- `lib/igniter/sdk/ai/`
 - `lib/igniter/server/`
 - `lib/igniter/cluster/`
 - `lib/igniter/app/`
@@ -203,7 +203,7 @@ These files should move together because they are tightly coupled.
 
 | Current path | Target path | Target namespace |
 |-------------|-------------|------------------|
-| `lib/igniter/integrations/llm.rb` | `lib/igniter/ai.rb` | `Igniter::AI` entrypoint |
+| `lib/igniter/integrations/llm.rb` | `lib/igniter/sdk/ai.rb` | `Igniter::AI` entrypoint |
 | `lib/igniter/integrations/llm/config.rb` | `lib/igniter/sdk/ai/config.rb` | `Igniter::AI::Config` |
 | `lib/igniter/integrations/llm/context.rb` | `lib/igniter/sdk/ai/context.rb` | `Igniter::AI::Context` |
 | `lib/igniter/integrations/llm/executor.rb` | `lib/igniter/sdk/ai/executor.rb` | `Igniter::AI::Executor` |
@@ -233,13 +233,13 @@ Optional alias layer can be added only temporarily during the cut-over if needed
 
 ## Phase 4: Separate built-in agent libraries
 
-The current `lib/igniter/agents.rb` mixes core actor runtime with domain libraries and AI-specific agents.
+The old `lib/igniter/agents.rb` mixed core actor runtime with domain libraries and AI-specific agents.
 
 Split it into:
 
 | Current path | Target path | Target namespace |
 |-------------|-------------|------------------|
-| `lib/igniter/agents.rb` | `lib/igniter/agents.rb` | convenience alias for generic built-in agents |
+| `lib/igniter/agents.rb` | removed | replaced by canonical `lib/igniter/sdk/agents.rb` |
 | `lib/igniter/sdk/ai/agents.rb` | `lib/igniter/sdk/ai/agents.rb` | AI/built-in AI agents entrypoint |
 | `lib/igniter/agents/ai/*` | `lib/igniter/sdk/ai/agents/*` | `Igniter::AI::Agents::*` |
 | `lib/igniter/agents/proactive/alert_agent.rb` | `lib/igniter/sdk/agents/proactive/alert_agent.rb` | `Igniter::Agents::AlertAgent` |
@@ -278,7 +278,7 @@ Channels are future-facing but the directory should exist early to keep the desi
 Suggested initial structure:
 
 ```text
-lib/igniter/channels.rb
+lib/igniter/sdk/channels.rb
 lib/igniter/sdk/channels/base.rb
 lib/igniter/sdk/channels/message.rb
 lib/igniter/sdk/channels/delivery_result.rb

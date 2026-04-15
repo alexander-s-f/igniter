@@ -84,9 +84,9 @@ end
 Igniter::Cluster.use :channels
 ```
 
-Direct `require "igniter/ai"`, `require "igniter/channels"`, `require "igniter/data"`, and
-`require "igniter/tools"`, and `require "igniter/agents"` remain available as convenience aliases, but the canonical
-optional-pack surface now lives under `igniter/sdk/*`.
+Optional capability packs now load only through `igniter/sdk/*`.
+Top-level optional entrypoints such as `igniter/ai`, `igniter/agents`, `igniter/channels`,
+`igniter/data`, and `igniter/tools` are no longer part of the public API.
 
 ---
 

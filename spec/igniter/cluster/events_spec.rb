@@ -2,7 +2,7 @@
 
 require "spec_helper"
 require "igniter/cluster"
-require "igniter/data"
+require "igniter/sdk/data"
 require "igniter"
 
 RSpec.describe Igniter::Cluster::Events do

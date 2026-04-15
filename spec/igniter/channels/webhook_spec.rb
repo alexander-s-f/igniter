@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/channels"
+require "igniter/sdk/channels"
 
 RSpec.describe Igniter::Channels::Webhook do
   let(:http) { instance_double(Net::HTTP) }

@@ -183,8 +183,8 @@ Implemented now:
 - `Igniter::SDK` can register and activate optional capability packs per layer
 - `Igniter.use`, `Igniter::App.use`, `Igniter::Server.use`, and `Igniter::Cluster.use`
   now provide a thin declarative wrapper over ordinary `require`
-- load-boundary specs verify that `igniter`, `igniter/core`, `igniter/sdk/tools`,
-  and the convenience aliases stay separated
+- load-boundary specs verify that `igniter`, `igniter/core`, and `igniter/sdk/*`
+  stay separated without fallback top-level optional-pack aliases
 
 ## Recommended Next Steps
 

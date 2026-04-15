@@ -19,7 +19,7 @@ module Companion
     end
 
     def configure_ai!
-      require "igniter/ai"
+      require "igniter/sdk/ai"
 
       Igniter::AI.configure do |config|
         config.default_provider = :ollama

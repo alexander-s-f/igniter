@@ -26,7 +26,7 @@ Companion::Boot.setup_load_path!
 
 require "igniter/server"
 require "igniter/core/metrics"
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 Companion::Boot.configure_ai!
 Companion::Boot.load_inference!

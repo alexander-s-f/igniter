@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/tools"
+require "igniter/sdk/tools"
 
 RSpec.describe Igniter::Tools::AgentBootstrapTool do
   describe ".tool_name" do
