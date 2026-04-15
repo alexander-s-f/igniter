@@ -384,7 +384,7 @@ Primary families:
 | `lib/igniter/app.rb` | App | App scaffold entry point |
 | `lib/igniter/core/agent.rb` | Core | Actor agent base class entry point |
 | `lib/igniter/core/tool.rb` | Core | Tool base class entry point |
-| `lib/igniter/ai/skill.rb` | AI | Skill base class |
+| `lib/igniter/sdk/ai/skill.rb` | AI | Skill base class |
 | `lib/igniter/ai.rb` | AI | AI integration entry point |
 | `lib/igniter/cluster/consensus/cluster.rb` | Cluster | Raft cluster bootstrap |
 | `lib/igniter/cluster/mesh/gossip.rb` | Cluster | Gossip peer exchange |

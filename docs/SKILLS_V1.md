@@ -203,10 +203,10 @@ Skills in Companion:
 
 | File | Description |
 |------|-------------|
-| `lib/igniter/ai/skill.rb` | Skill base class |
+| `lib/igniter/sdk/ai/skill.rb` | Skill base class |
 | `lib/igniter/core/tool/discoverable.rb` | Shared DSL (Tool + Skill) |
 | `lib/igniter/core/tool.rb` | Tool base class |
-| `lib/igniter/ai/tool_registry.rb` | Registry for Tool + Skill |
+| `lib/igniter/sdk/ai/tool_registry.rb` | Registry for Tool + Skill |
 | `spec/igniter/skill_spec.rb` | 30+ examples |
 | `examples/companion/apps/main/app/skills/research_skill.rb` | ResearchSkill demo |
 | `examples/companion/apps/main/app/skills/remind_me_skill.rb` | RemindMeSkill demo |

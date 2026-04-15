@@ -206,7 +206,7 @@ These files should move together because they are tightly coupled.
 | `lib/igniter/integrations/llm.rb` | `lib/igniter/ai.rb` | `Igniter::AI` entrypoint |
 | `lib/igniter/integrations/llm/config.rb` | `lib/igniter/ai/config.rb` | `Igniter::AI::Config` |
 | `lib/igniter/integrations/llm/context.rb` | `lib/igniter/ai/context.rb` | `Igniter::AI::Context` |
-| `lib/igniter/integrations/llm/executor.rb` | `lib/igniter/ai/executor.rb` | `Igniter::AI::Executor` |
+| `lib/igniter/integrations/llm/executor.rb` | `lib/igniter/sdk/ai/executor.rb` | `Igniter::AI::Executor` |
 | `lib/igniter/integrations/llm/providers/base.rb` | `lib/igniter/sdk/ai/providers/base.rb` | `Igniter::AI::Providers::Base` |
 | `lib/igniter/integrations/llm/providers/openai.rb` | `lib/igniter/sdk/ai/providers/openai.rb` | `Igniter::AI::Providers::OpenAI` |
 | `lib/igniter/integrations/llm/providers/anthropic.rb` | `lib/igniter/sdk/ai/providers/anthropic.rb` | `Igniter::AI::Providers::Anthropic` |
@@ -217,10 +217,10 @@ These files should move together because they are tightly coupled.
 | `lib/igniter/integrations/llm/transcription/providers/openai.rb` | `lib/igniter/sdk/ai/transcription/providers/openai.rb` | `Igniter::AI::Transcription::Providers::OpenAI` |
 | `lib/igniter/integrations/llm/transcription/providers/deepgram.rb` | `lib/igniter/sdk/ai/transcription/providers/deepgram.rb` | `Igniter::AI::Transcription::Providers::Deepgram` |
 | `lib/igniter/integrations/llm/transcription/providers/assemblyai.rb` | `lib/igniter/sdk/ai/transcription/providers/assemblyai.rb` | `Igniter::AI::Transcription::Providers::AssemblyAI` |
-| `lib/igniter/skill.rb` | `lib/igniter/ai/skill.rb` | `Igniter::AI::Skill` |
-| `lib/igniter/skill/output_schema.rb` | `lib/igniter/ai/skill/output_schema.rb` | `Igniter::AI::Skill::OutputSchema` |
-| `lib/igniter/skill/feedback.rb` | `lib/igniter/ai/skill/feedback.rb` | `Igniter::AI::Skill::*` |
-| `lib/igniter/tool_registry.rb` | `lib/igniter/ai/tool_registry.rb` | `Igniter::AI::ToolRegistry` |
+| `lib/igniter/skill.rb` | `lib/igniter/sdk/ai/skill.rb` | `Igniter::AI::Skill` |
+| `lib/igniter/skill/output_schema.rb` | `lib/igniter/sdk/ai/skill/output_schema.rb` | `Igniter::AI::Skill::OutputSchema` |
+| `lib/igniter/skill/feedback.rb` | `lib/igniter/sdk/ai/skill/feedback.rb` | `Igniter::AI::Skill::*` |
+| `lib/igniter/tool_registry.rb` | `lib/igniter/sdk/ai/tool_registry.rb` | `Igniter::AI::ToolRegistry` |
 
 Recommended constant shape after migration:
 

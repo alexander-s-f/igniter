@@ -390,8 +390,8 @@ end
 | File | Purpose |
 |------|---------|
 | `lib/igniter/core/tool.rb` | `Igniter::Tool` base class — DSL, schema, capability guard |
-| `lib/igniter/ai/tool_registry.rb` | AI registry + capability-filtered discovery |
-| `lib/igniter/ai/executor.rb` | Auto tool-use loop in `#complete`, `max_tool_iterations` |
+| `lib/igniter/sdk/ai/tool_registry.rb` | AI registry + capability-filtered discovery |
+| `lib/igniter/sdk/ai/executor.rb` | Auto tool-use loop in `#complete`, `max_tool_iterations` |
 | `lib/igniter/sdk/ai/providers/anthropic.rb` | Tool message normalization (Anthropic format) |
 | `lib/igniter/sdk/ai/providers/openai.rb` | Tool message normalization (OpenAI format) |
 | `spec/igniter/tool_spec.rb` | Tool unit tests (40 examples) |
