@@ -19,7 +19,7 @@ Start here if you want the shortest accurate map of Igniter's structure.
 | Stack | `Igniter::Stack` / `require "igniter/stack"` | stack coordinator: shared paths, app registry, topology-aware boot/rack routing |
 | App Runtime | `Igniter::App` / `require "igniter/app/runtime"` | narrow leaf runtime entrypoint without stack umbrella |
 | Cluster | `Igniter::Cluster` / `require "igniter/cluster"` | network runtime: consensus, mesh, replication, cluster-aware routing |
-| Plugins | `Igniter::Plugins::*` / `require "igniter/rails"` | framework-specific integrations |
+| Plugins | `Igniter::Plugins::*` / `require "igniter/plugins/<name>"` | framework-specific integrations |
 
 ## Dependency Rules
 
@@ -121,7 +121,8 @@ Prefer the smallest require that matches the feature you need.
 | HTTP hosting | `require "igniter/server"` |
 | App scaffold/profile | `require "igniter/app"` |
 | Distributed runtime | `require "igniter/cluster"` |
-| Rails plugin | `require "igniter/rails"` |
+| Rails plugin | `require "igniter/plugins/rails"` |
+| View plugin | `require "igniter/plugins/view"` |
 
 ## Placement Heuristics
 
@@ -152,6 +153,7 @@ core foundation
 Read next:
 
 - [SDK v1](./SDK_V1.md)
+- [Plugins v1](./PLUGINS_V1.md)
 - [Layers v1](./LAYERS_V1.md)
 - [Architecture v2](./ARCHITECTURE_V2.md)
 - [Persistence Model v1](./PERSISTENCE_MODEL_V1.md)

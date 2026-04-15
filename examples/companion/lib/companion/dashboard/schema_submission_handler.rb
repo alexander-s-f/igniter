@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "time"
-require "igniter/view"
+require "igniter/plugins/view"
 
 module Companion
   module Dashboard

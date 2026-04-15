@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/view"
+require "igniter/plugins/view"
 require_relative "overview_snapshot"
 require_relative "views/home_page"
 

@@ -52,7 +52,7 @@ Core
 
 The first small slice of that plugin now exists:
 
-- `require "igniter/view"`
+- `require "igniter/plugins/view"`
 - `Igniter::Plugins::View.render { |view| ... }`
 - `Igniter::Plugins::View::Builder`
 - `Igniter::Plugins::View::Component`

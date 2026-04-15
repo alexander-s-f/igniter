@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/view"
+require "igniter/plugins/view"
 require_relative "view_schema_catalog"
 
 module Companion

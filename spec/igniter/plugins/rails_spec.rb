@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/rails/webhook_concern"
-require "igniter/rails/cable_adapter"
-require "igniter/rails/contract_job"
+require "igniter/plugins/rails"
 
 RSpec.describe "Igniter Rails Integration" do
   let(:store) { Igniter::Runtime::Stores::MemoryStore.new }

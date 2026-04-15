@@ -47,7 +47,8 @@ layer folders.
 | Opinionated app profile | `require "igniter/app"` |
 | Narrow app runtime | `require "igniter/app/runtime"` |
 | Distributed runtime | `require "igniter/cluster"` |
-| Rails plugin | `require "igniter/rails"` |
+| Rails plugin | `require "igniter/plugins/rails"` |
+| View plugin | `require "igniter/plugins/view"` |
 
 ## Terminology
 
@@ -57,7 +58,7 @@ layer folders.
 - **SDK packs**: optional shared capabilities loaded from `igniter/sdk/*`, such as `Igniter::AI`, `Igniter::Agents`, `Igniter::Channels`, `Igniter::Data`, and the built-in tools pack.
 - **Hosting layers**: `Igniter::Server` and `Igniter::Cluster`.
 - **Profile**: `Igniter::Stack` + `Igniter::App`, a packaged way to assemble an app and run it through host, loader, and scheduler adapters. The public entrypoint is `require "igniter/app"`. The defaults are `host :app`, `loader :filesystem`, and `scheduler :threaded`, and `require "igniter/cluster"` adds `host :cluster_app` for cluster-aware apps.
-- **Plugin**: framework-specific integration such as `Igniter::Rails`.
+- **Plugin**: framework or environment integration loaded from `igniter/plugins/*`, such as `Igniter::Rails` or `Igniter::Plugins::View`.
 
 ## Deployment Modes
 
@@ -72,6 +73,7 @@ superset of the one before it — your domain contracts never change.
 
 See [`docs/LAYERS_V1.md`](docs/LAYERS_V1.md) for the layer contract and [`docs/DEPLOYMENT_V1.md`](docs/DEPLOYMENT_V1.md) for scenario-specific setup.
 [`docs/SDK_V1.md`](docs/SDK_V1.md) is the canonical reference for optional `sdk/*` packs.
+[`docs/PLUGINS_V1.md`](docs/PLUGINS_V1.md) is the canonical reference for `plugins/*`.
 
 Layer DSL can opt into SDK packs explicitly:
 

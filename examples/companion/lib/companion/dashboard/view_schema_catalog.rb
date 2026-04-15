@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/view"
+require "igniter/plugins/view"
 
 module Companion
   module Dashboard

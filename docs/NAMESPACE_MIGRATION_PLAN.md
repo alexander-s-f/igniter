@@ -32,7 +32,7 @@ Current public entrypoints:
 - `require "igniter/server"` — HTTP/service hosting
 - `require "igniter/cluster"` — distributed runtime
 - `require "igniter/app"` — opinionated application profile
-- `require "igniter/rails"` — Rails plugin entrypoint
+- `require "igniter/plugins/rails"` — Rails plugin entrypoint
 
 ## Root Vs Layered Layout
 
@@ -43,7 +43,7 @@ Target filesystem rule:
 - `lib/igniter/extensions/` holds behavioral extension entrypoints.
 - `lib/igniter/sdk/ai/`, `server/`, `cluster/`, `sdk/channels/`, and `app/` hold their own authoritative code.
 - `lib/igniter/plugins/` is the intended home for framework-specific integrations such as Rails.
-- Rails plugin relocation completed under `lib/igniter/plugins/rails/*`, with `lib/igniter/rails.rb` as the short public entrypoint.
+- Rails plugin relocation completed under `lib/igniter/plugins/rails/*`, with `igniter/plugins/rails` as the canonical public entrypoint.
 
 Keep in `lib/igniter/`:
 

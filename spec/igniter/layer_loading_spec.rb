@@ -278,6 +278,46 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/cluster.rb")
   end
 
+  it "`require \"igniter/plugins\"` loads only the plugin namespace entrypoint" do
+    features = loaded_igniter_features("igniter/plugins")
+
+    expect(features).to include("igniter/plugins.rb")
+    expect(features).not_to include("igniter/plugins/view.rb")
+    expect(features).not_to include("igniter/plugins/rails.rb")
+  end
+
+  it "`require \"igniter/plugins/view\"` loads the canonical view plugin directly" do
+    features = loaded_igniter_features("igniter/plugins/view")
+
+    expect(features).to include("igniter/plugins/view.rb")
+    expect(features).to include("igniter/plugins/view/schema.rb")
+    expect(features).not_to include("igniter/view.rb")
+    expect(features).not_to include("igniter/plugins/rails.rb")
+  end
+
+  it "`require \"igniter/view\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/view")
+
+    expect(error).to include("cannot load such file")
+    expect(error).to include("igniter/view")
+  end
+
+  it "`require \"igniter/plugins/rails\"` loads the canonical Rails plugin directly" do
+    features = loaded_igniter_features("igniter/plugins/rails")
+
+    expect(features).to include("igniter/plugins/rails.rb")
+    expect(features).to include("igniter/plugins/rails/contract_job.rb")
+    expect(features).to include("igniter/plugins/rails/webhook_concern.rb")
+    expect(features).not_to include("igniter/rails.rb")
+  end
+
+  it "`require \"igniter/rails\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/rails")
+
+    expect(error).to include("cannot load such file")
+    expect(error).to include("igniter/rails")
+  end
+
   it "`require \"igniter/server\"` does not mutate the runtime remote adapter by itself" do
     adapter_classes = runtime_remote_adapter_classes_for("igniter/server")
 

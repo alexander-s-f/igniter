@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/view"
+require "igniter/plugins/view"
 require "igniter/sdk/data"
 
 RSpec.describe "Igniter::Plugins::View schema runtime" do

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/view"
+require "igniter/plugins/view"
 
 RSpec.describe Igniter::Plugins::View do
   class TestMetricCard < Igniter::Plugins::View::Component

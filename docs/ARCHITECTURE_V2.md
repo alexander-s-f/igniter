@@ -345,7 +345,7 @@ continue a distributed workflow after a peer failure.
 Framework-specific integrations live under `Igniter::Plugins`.
 
 - `Igniter::Plugins::Rails`
-- short public entrypoint: `require "igniter/rails"`
+- canonical public entrypoint: `require "igniter/plugins/rails"`
 
 ---
 

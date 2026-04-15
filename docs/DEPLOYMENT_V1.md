@@ -21,7 +21,7 @@ Use the smallest entrypoint that matches the deployment mode:
 | HTTP hosting | `require "igniter/server"` |
 | App profile | `require "igniter/app"` |
 | Cluster runtime | `require "igniter/cluster"` |
-| Rails plugin | `require "igniter/rails"` |
+| Rails plugin | `require "igniter/plugins/rails"` |
 
 Loading `igniter/server` or `igniter/cluster` does not install a transport adapter as
 a side effect. Hosted entrypoints such as `Igniter::Server.start`,
@@ -103,14 +103,14 @@ require "igniter/extensions/dataflow"       # incremental O(change) collections
 require "igniter/core/temporal"             # reproducible historical execution
 require "igniter/extensions/capabilities"   # capability-based security
 require "igniter/core/node_cache"           # TTL cache + request coalescing
-require "igniter/rails"                     # Railtie, ActiveJob, ActionCable, generators
+require "igniter/plugins/rails"             # Railtie, ActiveJob, ActionCable, generators
 ```
 
 ### Rails plugin
 
 ```ruby
 # config/initializers/igniter.rb
-require "igniter/rails"
+require "igniter/plugins/rails"
 
 Igniter::Rails.configure do |c|
   c.store = Igniter::Runtime::Stores::MemoryStore.new
@@ -446,7 +446,7 @@ Until the split is complete, the optional-require pattern enforces the same boun
 | Hosting profile | `require "igniter/app"` |
 | Hosting layer | `require "igniter/server"` |
 | Distributed hosting | `require "igniter/cluster"` |
-| Plugin | `require "igniter/rails"` |
+| Plugin | `require "igniter/plugins/rails"` |
 
 Never `require "igniter/cluster"` in an embedded context —
 it is a cluster-tier component with its own operational requirements.
