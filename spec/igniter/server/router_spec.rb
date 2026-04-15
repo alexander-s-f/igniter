@@ -109,6 +109,36 @@ RSpec.describe Igniter::Server::Router do
       expect(result[:status]).to eq(200)
     end
 
+    it "provides a normalized env hash to custom route handlers" do
+      received_env = nil
+      config.custom_routes = [
+        {
+          method: "GET",
+          path: "/env-check",
+          handler: lambda do |env:, **|
+            received_env = env
+            { status: 200, body: { ok: true }, headers: { "Content-Type" => "application/json" } }
+          end
+        }
+      ]
+
+      result = router.call(
+        "GET",
+        "/env-check?token=abc",
+        "",
+        headers: { "X-Test-Secret" => "abc123" }
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(received_env).to include(
+        "REQUEST_METHOD" => "GET",
+        "PATH_INFO" => "/env-check",
+        "QUERY_STRING" => "token=abc",
+        "HTTP_X_TEST_SECRET" => "abc123"
+      )
+      expect(received_env.fetch("rack.input").read).to eq("")
+    end
+
     it "parses application/x-www-form-urlencoded bodies for custom routes" do
       result = router.call(
         "POST",

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "json"
+require "stringio"
 require "uri"
 
 module Igniter
@@ -43,7 +44,8 @@ module Igniter
           body,
           headers: headers,
           env: env,
-          raw_body: body_str
+          raw_body: body_str,
+          raw_path: path
         )
         if custom_result
           record_http_metric(method_uc, normalized_path, custom_result[:status], started_at)
@@ -96,7 +98,9 @@ module Igniter
         end
       end
 
-      def dispatch_custom_route(method, path, body, headers:, env:, raw_body:)
+      def dispatch_custom_route(method, path, body, headers:, env:, raw_body:, raw_path:)
+        request_env = normalized_request_env(method, path, raw_path, headers, raw_body, env)
+
         Array(@config.custom_routes).each do |route|
           next unless route[:method] == method
 
@@ -109,7 +113,7 @@ module Igniter
             params: params,
             body: body,
             headers: headers,
-            env: env,
+            env: request_env,
             raw_body: raw_body,
             config: @config,
             route: route
@@ -128,6 +132,33 @@ module Igniter
         end
 
         nil
+      end
+
+      def normalized_request_env(method, path, raw_path, headers, raw_body, env)
+        query_string = raw_path.to_s.split("?", 2)[1].to_s
+        normalized_headers = headers.to_h.each_with_object({}) do |(key, value), memo|
+          canonical_key = key.to_s
+          next if canonical_key.empty?
+
+          env_key =
+            case canonical_key.downcase
+            when "content-type"
+              "CONTENT_TYPE"
+            when "content-length"
+              "CONTENT_LENGTH"
+            else
+              "HTTP_#{canonical_key.upcase.tr("-", "_")}"
+            end
+
+          memo[env_key] = value.to_s
+        end
+
+        {
+          "REQUEST_METHOD" => method.to_s.upcase,
+          "PATH_INFO" => normalize_path(path),
+          "QUERY_STRING" => query_string,
+          "rack.input" => StringIO.new(raw_body.to_s)
+        }.merge(normalized_headers).merge(env.to_h)
       end
 
       def build_custom_route_pipeline(request)
