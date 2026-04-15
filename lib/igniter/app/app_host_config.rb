@@ -4,7 +4,7 @@ module Igniter
   class Application
     # Server-specific host settings owned by the application layer but scoped
     # under the default server host instead of AppConfig's top level.
-    class ServerHostConfig
+    class AppHostConfig
       attr_accessor :host, :port, :log_format, :drain_timeout
 
       def initialize

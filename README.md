@@ -56,7 +56,7 @@ layer folders.
 - **Capability layers**: optional subsystems such as `Igniter::AI` and `Igniter::Channels`.
 - **Data layer**: `Igniter::Data`, a tiny JSON-first persistence API for app records such as chat bindings, notes, and sessions.
 - **Hosting layers**: `Igniter::Server` and `Igniter::Cluster`.
-- **Profile**: `Igniter::Workspace` + `Igniter::Application`, a packaged way to assemble an app and run it through host, loader, and scheduler adapters. The public entrypoint is `require "igniter/app"`. The defaults are `host :server`, `loader :filesystem`, and `scheduler :threaded`, and `require "igniter/cluster"` adds `host :cluster` for cluster-aware apps.
+- **Profile**: `Igniter::Workspace` + `Igniter::Application`, a packaged way to assemble an app and run it through host, loader, and scheduler adapters. The public entrypoint is `require "igniter/app"`. The defaults are `host :app`, `loader :filesystem`, and `scheduler :threaded`, and `require "igniter/cluster"` adds `host :cluster_app` for cluster-aware apps.
 - **Plugin**: framework-specific integration such as `Igniter::Rails`.
 
 ## Deployment Modes
@@ -606,7 +606,7 @@ runtime for each app.
 **`apps/main/application.yml`** — base config loaded before the `configure` block (block always wins):
 
 ```yaml
-server_host:
+app_host:
   port: 4567
   host: "0.0.0.0"
   log_format: json    # text (default) or json

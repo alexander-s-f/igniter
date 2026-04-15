@@ -9,16 +9,16 @@ module Igniter
     # This class belongs to the application layer's host model. It happens to be
     # implemented on top of Igniter::Server today, but the host decision is now
     # expressed explicitly from the application side.
-    class ServerHost < HostAdapter
+    class AppHost < HostAdapter
       def build_config(host_config)
-        server_settings = host_config.host_settings_for(:server)
+        app_settings = host_config.host_settings_for(:app)
 
         Igniter::Server::Config.new.tap do |config|
-          config.host                 = server_settings.fetch(:host, "0.0.0.0")
-          config.port                 = server_settings.fetch(:port, 4567)
+          config.host                 = app_settings.fetch(:host, "0.0.0.0")
+          config.port                 = app_settings.fetch(:port, 4567)
           config.store                = host_config.store if host_config.store
-          config.log_format           = server_settings.fetch(:log_format, :text)
-          config.drain_timeout        = server_settings.fetch(:drain_timeout, 30)
+          config.log_format           = app_settings.fetch(:log_format, :text)
+          config.drain_timeout        = app_settings.fetch(:drain_timeout, 30)
           config.metrics_collector    = host_config.metrics_collector
           config.custom_routes        = host_config.custom_routes
           config.before_request_hooks = host_config.before_request_hooks

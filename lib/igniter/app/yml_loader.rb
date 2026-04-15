@@ -8,19 +8,17 @@ module Igniter
     # YAML is loaded BEFORE the Ruby configure block, so blocks always win.
     #
     # Supported YAML structure:
-    #   server_host:
+    #   app_host:
     #     port: 4567
     #     host: "0.0.0.0"
     #     log_format: json        # "text" or "json"
     #     drain_timeout: 30
-    #
-    # Legacy `server:` is still accepted for compatibility.
     class YmlLoader
-      SERVER_HOST_MAPPINGS = {
-        "port" => ->(cfg, v) { cfg.server_host.port = Integer(v) },
-        "host" => ->(cfg, v) { cfg.server_host.host = v.to_s },
-        "log_format" => ->(cfg, v) { cfg.server_host.log_format = v.to_sym },
-        "drain_timeout" => ->(cfg, v) { cfg.server_host.drain_timeout = Integer(v) }
+      APP_HOST_MAPPINGS = {
+        "port" => ->(cfg, v) { cfg.app_host.port = Integer(v) },
+        "host" => ->(cfg, v) { cfg.app_host.host = v.to_s },
+        "log_format" => ->(cfg, v) { cfg.app_host.log_format = v.to_sym },
+        "drain_timeout" => ->(cfg, v) { cfg.app_host.drain_timeout = Integer(v) }
       }.freeze
 
       def self.load(path)
@@ -30,11 +28,11 @@ module Igniter
       end
 
       def self.apply(config, yml)
-        apply_server_host_section(config, yml["server_host"] || yml["server"] || {})
+        apply_app_host_section(config, yml["app_host"] || {})
       end
 
-      def self.apply_server_host_section(config, section)
-        SERVER_HOST_MAPPINGS.each do |key, setter|
+      def self.apply_app_host_section(config, section)
+        APP_HOST_MAPPINGS.each do |key, setter|
           value = section[key]
           setter.call(config, value) unless value.nil?
         end

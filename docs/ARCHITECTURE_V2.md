@@ -279,13 +279,13 @@ DSL: `host`, `config_file`, `configure`, `executors_path`, `contracts_path`,
 Lifecycle: loader adapter → `on_boot` blocks → `configure` blocks → build host config → run through host adapter.
 
 `Igniter::Application` is a profile over hosting. Today the default host adapter is
-`Igniter::Application::ServerHost`, so the public API still runs on top of
+`Igniter::Application::AppHost`, so the public API still runs on top of
 `Igniter::Server` without hard-wiring HTTP classes into `Application` itself.
 
 When an app needs cluster-aware hosting, it can opt into
-`Igniter::Application::ClusterHost`, which layers mesh/bootstrap concerns on top of
+`Igniter::Application::ClusterAppHost`, which layers mesh/bootstrap concerns on top of
 the same host model. The application
-declares this through `host :cluster`, while `host_adapter(...)` remains available
+declares this through `host :cluster_app`, while `host_adapter(...)` remains available
 for fully custom hosts. Canonical host profiles are now supplied through
 `Igniter::Application::HostRegistry`, so future host packs can register
 themselves without pushing more branching logic back into `Application`. In other

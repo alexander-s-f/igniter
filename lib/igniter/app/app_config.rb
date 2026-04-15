@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "host_config"
-require_relative "server_host_config"
-require_relative "cluster_host_config"
+require_relative "app_host_config"
+require_relative "cluster_app_host_config"
 
 module Igniter
   class Application
@@ -13,42 +13,17 @@ module Igniter
       attr_accessor :store, :metrics_collector,
                     :custom_routes, :before_request_hooks, :after_request_hooks, :around_request_hooks
 
-      attr_reader :server_host, :cluster_host
+      attr_reader :app_host, :cluster_app_host
 
       def initialize
-        @server_host       = ServerHostConfig.new
-        @cluster_host      = ClusterHostConfig.new
+        @app_host          = AppHostConfig.new
+        @cluster_app_host  = ClusterAppHostConfig.new
         @store             = nil
         @metrics_collector = nil
         @custom_routes     = []
         @before_request_hooks = []
         @after_request_hooks = []
         @around_request_hooks = []
-      end
-
-      # Compatibility shim while examples/apps migrate to `server_host.*`.
-      def host = server_host.host
-
-      def host=(value)
-        server_host.host = value
-      end
-
-      def port = server_host.port
-
-      def port=(value)
-        server_host.port = value
-      end
-
-      def log_format = server_host.log_format
-
-      def log_format=(value)
-        server_host.log_format = value
-      end
-
-      def drain_timeout = server_host.drain_timeout
-
-      def drain_timeout=(value)
-        server_host.drain_timeout = value
       end
 
       def to_host_config
@@ -59,8 +34,8 @@ module Igniter
           config.before_request_hooks = before_request_hooks.dup
           config.after_request_hooks  = after_request_hooks.dup
           config.around_request_hooks = around_request_hooks.dup
-          config.configure_host(:server, server_host.to_h)
-          config.configure_host(:cluster, cluster_host.to_h)
+          config.configure_host(:app, app_host.to_h)
+          config.configure_host(:cluster_app, cluster_app_host.to_h)
         end
       end
     end

@@ -18,8 +18,8 @@ module Igniter
   #     config_file "application.yml"        # optional YAML base config
   #
   #     configure do |c|
-  #       c.port  = 4567
-  #       c.store = Igniter::Runtime::Stores::MemoryStore.new
+  #       c.app_host.port = 4567
+  #       c.store         = Igniter::Runtime::Stores::MemoryStore.new
   #     end
   #
   #     register "OrderContract", OrderContract
@@ -34,7 +34,7 @@ module Igniter
   #
   # == YAML config (application.yml)
   #
-  #   server:
+  #   app_host:
   #     port: 4567
   #     host: "0.0.0.0"
   #     log_format: json    # text (default) or json
@@ -47,7 +47,7 @@ module Igniter
       # ─── DSL ─────────────────────────────────────────────────────────────────
 
       def host(name = nil)
-        return (@host_name ||= :server) unless name
+        return (@host_name ||= :app) unless name
 
         @host_name = normalize_host_name(name)
         @host_adapter = nil

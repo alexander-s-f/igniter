@@ -47,7 +47,7 @@ RSpec.describe Igniter::Application do
     end
 
     it "does not leak configure blocks between subclasses" do
-      app1 = fresh_app { configure { |c| c.port = 9999 } }
+      app1 = fresh_app { configure { |c| c.app_host.port = 9999 } }
       app2 = fresh_app
 
       expect(app1.instance_variable_get(:@configure_blocks).length).to eq(1)
@@ -100,15 +100,15 @@ RSpec.describe Igniter::Application do
       app2 = fresh_app
 
       expect(app1.host_adapter).to be(fake_host)
-      expect(app2.host_adapter).to be_a(Igniter::Application::ServerHost)
+      expect(app2.host_adapter).to be_a(Igniter::Application::AppHost)
     end
 
     it "does not leak selected hosts between subclasses" do
-      app1 = fresh_app { host :cluster }
+      app1 = fresh_app { host :cluster_app }
       app2 = fresh_app
 
-      expect(app1.host).to eq(:cluster)
-      expect(app2.host).to eq(:server)
+      expect(app1.host).to eq(:cluster_app)
+      expect(app2.host).to eq(:app)
     end
 
     it "does not leak selected schedulers between subclasses" do
@@ -158,47 +158,47 @@ RSpec.describe Igniter::Application do
     subject(:cfg) { described_class.new }
 
     it "provides sane defaults" do
-      expect(cfg.server_host.port).to eq(4567)
-      expect(cfg.server_host.host).to eq("0.0.0.0")
-      expect(cfg.server_host.log_format).to eq(:text)
-      expect(cfg.server_host.drain_timeout).to eq(30)
-      expect(cfg.cluster_host.local_capabilities).to eq([])
-      expect(cfg.cluster_host.start_discovery).to be false
+      expect(cfg.app_host.port).to eq(4567)
+      expect(cfg.app_host.host).to eq("0.0.0.0")
+      expect(cfg.app_host.log_format).to eq(:text)
+      expect(cfg.app_host.drain_timeout).to eq(30)
+      expect(cfg.cluster_app_host.local_capabilities).to eq([])
+      expect(cfg.cluster_app_host.start_discovery).to be false
       expect(cfg.metrics_collector).to be_nil
     end
 
-    it "keeps compatibility accessors delegating to server_host" do
-      cfg.port = 9000
-      cfg.host = "127.0.0.1"
-      cfg.log_format = :json
-      cfg.drain_timeout = 60
+    it "exposes host settings through app_host and cluster_app_host objects" do
+      cfg.app_host.port = 9000
+      cfg.app_host.host = "127.0.0.1"
+      cfg.app_host.log_format = :json
+      cfg.app_host.drain_timeout = 60
 
-      expect(cfg.server_host.port).to eq(9000)
-      expect(cfg.server_host.host).to eq("127.0.0.1")
-      expect(cfg.server_host.log_format).to eq(:json)
-      expect(cfg.server_host.drain_timeout).to eq(60)
+      expect(cfg.app_host.port).to eq(9000)
+      expect(cfg.app_host.host).to eq("127.0.0.1")
+      expect(cfg.app_host.log_format).to eq(:json)
+      expect(cfg.app_host.drain_timeout).to eq(60)
     end
 
     describe "#to_host_config" do
       it "copies server-host settings into host-specific runtime intent" do
-        cfg.host = "127.0.0.1"
-        cfg.port = 9000
+        cfg.app_host.host = "127.0.0.1"
+        cfg.app_host.port = 9000
         host_config = cfg.to_host_config
-        expect(host_config.host_settings_for(:server)).to include(
+        expect(host_config.host_settings_for(:app)).to include(
           host: "127.0.0.1",
           port: 9000
         )
       end
 
       it "copies cluster-host settings into host-specific runtime intent" do
-        cfg.cluster_host.peer_name = "orders-node"
-        cfg.cluster_host.local_capabilities = [:orders]
-        cfg.cluster_host.seeds = ["http://seed:4567"]
-        cfg.cluster_host.start_discovery = true
+        cfg.cluster_app_host.peer_name = "orders-node"
+        cfg.cluster_app_host.local_capabilities = [:orders]
+        cfg.cluster_app_host.seeds = ["http://seed:4567"]
+        cfg.cluster_app_host.start_discovery = true
 
         host_config = cfg.to_host_config
 
-        expect(host_config.host_settings_for(:cluster)).to include(
+        expect(host_config.host_settings_for(:cluster_app)).to include(
           peer_name: "orders-node",
           local_capabilities: [:orders],
           seeds: ["http://seed:4567"],
@@ -260,15 +260,15 @@ RSpec.describe Igniter::Application do
     end
 
     it "tracks host-specific settings separately from neutral hosting intent" do
-      config.configure_host(:server, host: "127.0.0.1", port: 7000)
+      config.configure_host(:app, host: "127.0.0.1", port: 7000)
 
-      expect(config.host_settings_for(:server)).to eq(host: "127.0.0.1", port: 7000)
+      expect(config.host_settings_for(:app)).to eq(host: "127.0.0.1", port: 7000)
     end
   end
 
   describe Igniter::Application::HostRegistry do
     it "ships with the canonical built-in host profiles" do
-      expect(described_class.names).to include(:server, :cluster)
+      expect(described_class.names).to include(:app, :cluster_app)
     end
 
     it "allows registering a custom host profile" do
@@ -341,7 +341,7 @@ RSpec.describe Igniter::Application do
     end
   end
 
-  describe Igniter::Application::ClusterHostConfig do
+  describe Igniter::Application::ClusterAppHostConfig do
     subject(:config) { described_class.new }
 
     it "tracks static peers and cluster settings" do
@@ -359,14 +359,14 @@ RSpec.describe Igniter::Application do
     end
   end
 
-  describe Igniter::Application::ClusterHost do
+  describe Igniter::Application::ClusterAppHost do
     after { Igniter::Cluster::Mesh.reset! }
 
     it "configures server and mesh settings from cluster host config" do
       host_config = Igniter::Application::HostConfig.new
-      host_config.configure_host(:server, host: "0.0.0.0", port: 4567, log_format: :text, drain_timeout: 30)
+      host_config.configure_host(:app, host: "0.0.0.0", port: 4567, log_format: :text, drain_timeout: 30)
       host_config.configure_host(
-        :cluster,
+        :cluster_app,
         peer_name: "orders-node",
         local_capabilities: [:orders],
         seeds: ["http://seed:4567"],
@@ -418,49 +418,40 @@ RSpec.describe Igniter::Application do
       expect(described_class.load("/no/such/file.yml")).to eq({})
     end
 
-    it "applies port and host from server_host YAML" do
+    it "applies port and host from app_host YAML" do
       Dir.mktmpdir do |dir|
-        path = write_yml(dir, "server_host:\n  port: 9999\n  host: \"127.0.0.1\"\n")
+        path = write_yml(dir, "app_host:\n  port: 9999\n  host: \"127.0.0.1\"\n")
         yml  = described_class.load(path)
         described_class.apply(cfg, yml)
-        expect(cfg.server_host.port).to eq(9999)
-        expect(cfg.server_host.host).to eq("127.0.0.1")
+        expect(cfg.app_host.port).to eq(9999)
+        expect(cfg.app_host.host).to eq("127.0.0.1")
       end
     end
 
     it "applies log_format as symbol" do
       Dir.mktmpdir do |dir|
-        path = write_yml(dir, "server_host:\n  log_format: json\n")
+        path = write_yml(dir, "app_host:\n  log_format: json\n")
         yml  = described_class.load(path)
         described_class.apply(cfg, yml)
-        expect(cfg.server_host.log_format).to eq(:json)
+        expect(cfg.app_host.log_format).to eq(:json)
       end
     end
 
     it "applies drain_timeout" do
       Dir.mktmpdir do |dir|
-        path = write_yml(dir, "server_host:\n  drain_timeout: 60\n")
+        path = write_yml(dir, "app_host:\n  drain_timeout: 60\n")
         yml  = described_class.load(path)
         described_class.apply(cfg, yml)
-        expect(cfg.server_host.drain_timeout).to eq(60)
-      end
-    end
-
-    it "still accepts legacy server YAML for compatibility" do
-      Dir.mktmpdir do |dir|
-        path = write_yml(dir, "server:\n  port: 5678\n")
-        yml  = described_class.load(path)
-        described_class.apply(cfg, yml)
-        expect(cfg.server_host.port).to eq(5678)
+        expect(cfg.app_host.drain_timeout).to eq(60)
       end
     end
 
     it "ignores unknown keys" do
       Dir.mktmpdir do |dir|
-        path = write_yml(dir, "server_host:\n  port: 5678\nfoo: bar\n")
+        path = write_yml(dir, "app_host:\n  port: 5678\nfoo: bar\n")
         yml  = described_class.load(path)
         expect { described_class.apply(cfg, yml) }.not_to raise_error
-        expect(cfg.server_host.port).to eq(5678)
+        expect(cfg.app_host.port).to eq(5678)
       end
     end
   end
@@ -735,7 +726,7 @@ RSpec.describe Igniter::Application do
   describe "build pipeline" do
     it "applies configure block to config" do
       app = fresh_app do
-        configure { |c| c.port = 8888 }
+        configure { |c| c.app_host.port = 8888 }
       end
 
       sc = app.send(:build!)
@@ -745,10 +736,10 @@ RSpec.describe Igniter::Application do
     it "applies YAML then configure block (block wins)" do
       Dir.mktmpdir do |tmp|
         yml = File.join(tmp, "application.yml")
-        File.write(yml, "server:\n  port: 6000\n")
+        File.write(yml, "app_host:\n  port: 6000\n")
 
         app = fresh_app do
-          configure { |c| c.port = 7000 }
+          configure { |c| c.app_host.port = 7000 }
         end
         app.config_file(yml)
 
@@ -861,7 +852,7 @@ RSpec.describe Igniter::Application do
             end
           RUBY
         )
-        File.write(File.join(tmp, "application.yml"), "server:\n  port: 6123\n")
+        File.write(File.join(tmp, "application.yml"), "app_host:\n  port: 6123\n")
 
         app = fresh_app do
           root_dir tmp
@@ -894,16 +885,16 @@ RSpec.describe Igniter::Application do
     it "uses the server host adapter by default" do
       app = fresh_app
 
-      expect(app.host).to eq(:server)
-      expect(app.host_adapter).to be_a(Igniter::Application::ServerHost)
+      expect(app.host).to eq(:app)
+      expect(app.host_adapter).to be_a(Igniter::Application::AppHost)
       expect(app.scheduler).to eq(:threaded)
     end
 
     it "builds the cluster host adapter declaratively" do
-      app = fresh_app { host :cluster }
+      app = fresh_app { host :cluster_app }
 
-      expect(app.host).to eq(:cluster)
-      expect(app.host_adapter).to be_a(Igniter::Application::ClusterHost)
+      expect(app.host).to eq(:cluster_app)
+      expect(app.host_adapter).to be_a(Igniter::Application::ClusterAppHost)
     end
 
     it "raises a helpful error for an unknown host" do
@@ -911,8 +902,8 @@ RSpec.describe Igniter::Application do
 
       expect { app.host_adapter }.to raise_error(ArgumentError) do |error|
         expect(error.message).to include("unknown application host :edge")
-        expect(error.message).to include("server")
-        expect(error.message).to include("cluster")
+        expect(error.message).to include("app")
+        expect(error.message).to include("cluster_app")
       end
     end
 
@@ -954,17 +945,17 @@ RSpec.describe Igniter::Application do
       end
 
       app = fresh_app do
-        host :cluster
-        configure { |c| c.port = 7777 }
+        host :cluster_app
+        configure { |c| c.app_host.port = 7777 }
         host_adapter fake_host
       end
 
       built = app.send(:build!)
 
       expect(built).to be(fake_config)
-      expect(app.host).to eq(:cluster)
+      expect(app.host).to eq(:cluster_app)
       expect(built_from).to be_a(Igniter::Application::HostConfig)
-      expect(built_from.host_settings_for(:server)).to include(port: 7777)
+      expect(built_from.host_settings_for(:app)).to include(port: 7777)
     end
 
     it "delegates start to the configured host adapter" do

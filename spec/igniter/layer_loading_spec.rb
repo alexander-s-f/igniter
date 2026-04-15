@@ -138,7 +138,7 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/app.rb")
     expect(features).not_to include("igniter/application.rb")
     expect(features).not_to include("igniter/app/runtime_pack.rb")
-    expect(features).not_to include("igniter/app/server_host_pack.rb")
+    expect(features).not_to include("igniter/app/app_host_pack.rb")
     expect(features).not_to include("igniter/server.rb")
     expect(features).not_to include("igniter/cluster.rb")
   end
@@ -161,7 +161,7 @@ RSpec.describe "Igniter layer loading" do
     expect(features).to include("igniter/app/runtime.rb")
     expect(features).to include("igniter/app/runtime_pack.rb")
     expect(features).to include("igniter/app/workspace_pack.rb")
-    expect(features).to include("igniter/app/server_host_pack.rb")
+    expect(features).to include("igniter/app/app_host_pack.rb")
     expect(features).to include("igniter/server/app_host.rb")
     expect(features).not_to include("igniter/application.rb")
   end
@@ -189,10 +189,10 @@ RSpec.describe "Igniter layer loading" do
     })
   end
 
-  it "`require \"igniter/app\"` registers only the server host profile" do
+  it "`require \"igniter/app\"` registers only the app host profile" do
     host_names = registered_host_names_for("igniter/app")
 
-    expect(host_names).to eq(["server"])
+    expect(host_names).to eq(["app"])
   end
 
   it "`require \"igniter/application\"` is no longer a valid public entrypoint" do
@@ -215,7 +215,7 @@ RSpec.describe "Igniter layer loading" do
     expect(features).to include("igniter/app/runtime.rb")
     expect(features).to include("igniter/app/runtime_pack.rb")
     expect(features).to include("igniter/app/workspace_pack.rb")
-    expect(features).to include("igniter/app/server_host_pack.rb")
+    expect(features).to include("igniter/app/app_host_pack.rb")
     expect(features).to include("igniter/server/app_host.rb")
   end
 
@@ -262,9 +262,9 @@ RSpec.describe "Igniter layer loading" do
     })
   end
 
-  it "`require \"igniter/cluster\"` registers both server and cluster host profiles" do
+  it "`require \"igniter/cluster\"` registers both app host profiles" do
     host_names = registered_host_names_for("igniter/cluster")
 
-    expect(host_names).to eq(["cluster", "server"])
+    expect(host_names).to eq(["app", "cluster_app"])
   end
 end

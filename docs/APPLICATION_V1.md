@@ -60,7 +60,7 @@ module MyApp
   class MainApp < Igniter::Application
     root_dir __dir__
     config_file "application.yml"
-    host :server
+    host :app
 
     executors_path "app/executors"
     contracts_path "app/contracts"
@@ -99,19 +99,19 @@ Host selection is now declarative at the application layer:
 
 ```ruby
 class MainApp < Igniter::Application
-  host :server   # default
+  host :app   # default
 end
 
 require "igniter/cluster"
 
 class ClusterApp < Igniter::Application
-  host :cluster
+  host :cluster_app
 end
 ```
 
 If you need a completely custom runtime host, `host_adapter SomeAdapter.new` still
-works as the escape hatch. The `:server` profile is registered by
-`require "igniter/app"`, while `:cluster` is registered when the cluster
+works as the escape hatch. The `:app` profile is registered by
+`require "igniter/app"`, while `:cluster_app` is registered when the cluster
 entrypoint is loaded.
 
 Background job execution is similarly pluggable:
@@ -162,12 +162,12 @@ and calls `MainApp.start` under the hood.
 Select the canonical application host profile.
 
 ```ruby
-host :server   # default single-node host
-host :cluster  # cluster-aware host
+host :app          # default single-node host
+host :cluster_app  # cluster-aware host
 ```
 
 This keeps host choice declarative while preserving `host_adapter(...)` for custom
-adapters. `host :cluster` requires `require "igniter/cluster"` so the cluster host
+adapters. `host :cluster_app` requires `require "igniter/cluster"` so the cluster host
 pack can register itself.
 
 ### `register_host(name) { ... }`
@@ -331,22 +331,22 @@ end
 ## application.yml Reference
 
 ```yaml
-server_host:
+app_host:
   port: 4567
   host: "0.0.0.0"
   log_format: text      # "text" (default) or "json"
   drain_timeout: 30     # seconds for graceful SIGTERM shutdown
 ```
 
-Keys under `server_host:` map 1-to-1 to the default server host settings. Legacy
-`server:` is still accepted for compatibility. Values from YAML are applied first;
-the `configure` block runs afterwards and overrides anything.
+Keys under `app_host:` map 1-to-1 to the default app host settings. Values from
+YAML are applied first; the `configure` block runs afterwards and overrides
+anything.
 
 ENV variables are not expanded in YAML — read them in the `configure` block:
 
 ```ruby
 configure do |c|
-  c.server_host.port = ENV.fetch("PORT", 4567).to_i
+  c.app_host.port = ENV.fetch("PORT", 4567).to_i
 end
 ```
 
@@ -441,9 +441,9 @@ don't need the application/profile scaffold.
 
 The two approaches are compatible in the same process: the default application host
 eventually delegates to `Igniter::Server::HttpServer`, but that server-specific wiring
-now lives in `Igniter::Application::ServerHost`, not in `Igniter::Application` itself.
+now lives in `Igniter::Application::AppHost`, not in `Igniter::Application` itself.
 
 For cluster-aware app hosting, the canonical adapter is now
-`Igniter::Application::ClusterHost`.
+`Igniter::Application::ClusterAppHost`.
 That keeps the host model application-facing while still reusing the cluster/server
 runtime implementation underneath.

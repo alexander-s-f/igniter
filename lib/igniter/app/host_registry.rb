@@ -4,7 +4,7 @@ module Igniter
   class Application
     # Global registry of canonical application host builders.
     #
-    # Host profiles such as :server and :cluster are registered here so the
+    # Host profiles such as :app and :cluster_app are registered here so the
     # application DSL can stay declarative while runtime-specific packs remain
     # pluggable.
     class HostRegistry

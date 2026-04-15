@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "server_host"
+require_relative "app_host"
 require_relative "../cluster"
 
 module Igniter
@@ -9,10 +9,10 @@ module Igniter
     #
     # It reuses the server host for HTTP serving, while layering in cluster
     # transport activation plus mesh/bootstrap configuration on the application side.
-    class ClusterHost < ServerHost
+    class ClusterAppHost < AppHost
       def build_config(host_config)
         config = super
-        apply_cluster_settings!(config, host_config.host_settings_for(:cluster))
+        apply_cluster_settings!(config, host_config.host_settings_for(:cluster_app))
         config
       end
 

@@ -43,10 +43,10 @@ module Companion
     end
 
     configure do |c|
-      c.server_host.host = "0.0.0.0"
-      c.server_host.port = ENV.fetch("DASHBOARD_PORT", "4569").to_i
-      c.server_host.log_format = ENV.fetch("LOG_FORMAT", "text").to_sym
-      c.server_host.drain_timeout = 30
+      c.app_host.host = "0.0.0.0"
+      c.app_host.port = ENV.fetch("DASHBOARD_PORT", "4569").to_i
+      c.app_host.log_format = ENV.fetch("LOG_FORMAT", "text").to_sym
+      c.app_host.drain_timeout = 30
       c.store = Companion::Boot.default_execution_store(app_name: :dashboard)
     end
   end

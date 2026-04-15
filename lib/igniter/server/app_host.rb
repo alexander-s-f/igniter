@@ -2,12 +2,12 @@
 
 require_relative "../server"
 require_relative "../app/host_registry"
-require_relative "../app/server_host"
+require_relative "../app/app_host"
 
 module Igniter
   module Server
-    Igniter::Application::HostRegistry.register(:server) do
-      Igniter::Application::ServerHost.new
+    Igniter::Application::HostRegistry.register(:app) do
+      Igniter::Application::AppHost.new
     end
   end
 end

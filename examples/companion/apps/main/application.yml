@@ -1,4 +1,4 @@
-server_host:
+app_host:
   port: 4567
   host: "0.0.0.0"
   log_format: text   # text | json
