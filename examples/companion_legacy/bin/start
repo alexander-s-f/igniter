@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-# Start the Companion orchestrator server.
-set -e
-cd "$(dirname "$0")/.."
-exec bundle exec ruby application.rb "$@"
