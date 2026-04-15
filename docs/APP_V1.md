@@ -284,8 +284,20 @@ Callable handlers receive:
 - `body:` — parsed JSON request body
 - `headers:` — normalized request headers
 - `raw_body:` — raw request body string
-- `env:` — Rack env when running under Rack, otherwise `nil`
+- `env:` — normalized request env hash in both Rack and built-in server modes
 - `config:` — current host runtime config (`Igniter::Server::Config` when using the default server host)
+
+`env:` is now guaranteed to be hash-like for custom routes regardless of transport.
+At minimum it includes:
+
+- `REQUEST_METHOD`
+- `PATH_INFO`
+- `QUERY_STRING`
+- `rack.input`
+- request headers mapped into Rack-style keys such as `HTTP_X_FOO`, `CONTENT_TYPE`, and `CONTENT_LENGTH`
+
+This means custom route handlers can safely read query params or inspect request
+metadata without branching on Rack vs built-in `igniter-stack` server mode.
 
 Return either:
 
