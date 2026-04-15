@@ -185,7 +185,8 @@ RSpec.describe "Igniter layer loading" do
     features = loaded_igniter_features("igniter/sdk/ai")
 
     expect(features).to include("igniter/sdk/ai.rb")
-    expect(features).to include("igniter/ai/config.rb")
+    expect(features).to include("igniter/sdk/ai/config.rb")
+    expect(features).to include("igniter/sdk/ai/context.rb")
     expect(features).to include("igniter/sdk/ai/providers/base.rb")
     expect(features).to include("igniter/sdk/ai/transcription/transcript_result.rb")
     expect(features).to include("igniter/sdk/ai/executor.rb")

@@ -2,8 +2,8 @@
 
 require_relative "../../igniter"
 require_relative "../core/tool"
-require_relative "../ai/config"
-require_relative "../ai/context"
+require_relative "ai/config"
+require_relative "ai/context"
 require_relative "ai/providers/base"
 require_relative "ai/providers/ollama"
 require_relative "ai/providers/anthropic"

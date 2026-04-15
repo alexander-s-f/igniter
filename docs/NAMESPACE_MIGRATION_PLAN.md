@@ -204,8 +204,8 @@ These files should move together because they are tightly coupled.
 | Current path | Target path | Target namespace |
 |-------------|-------------|------------------|
 | `lib/igniter/integrations/llm.rb` | `lib/igniter/ai.rb` | `Igniter::AI` entrypoint |
-| `lib/igniter/integrations/llm/config.rb` | `lib/igniter/ai/config.rb` | `Igniter::AI::Config` |
-| `lib/igniter/integrations/llm/context.rb` | `lib/igniter/ai/context.rb` | `Igniter::AI::Context` |
+| `lib/igniter/integrations/llm/config.rb` | `lib/igniter/sdk/ai/config.rb` | `Igniter::AI::Config` |
+| `lib/igniter/integrations/llm/context.rb` | `lib/igniter/sdk/ai/context.rb` | `Igniter::AI::Context` |
 | `lib/igniter/integrations/llm/executor.rb` | `lib/igniter/sdk/ai/executor.rb` | `Igniter::AI::Executor` |
 | `lib/igniter/integrations/llm/providers/base.rb` | `lib/igniter/sdk/ai/providers/base.rb` | `Igniter::AI::Providers::Base` |
 | `lib/igniter/integrations/llm/providers/openai.rb` | `lib/igniter/sdk/ai/providers/openai.rb` | `Igniter::AI::Providers::OpenAI` |
