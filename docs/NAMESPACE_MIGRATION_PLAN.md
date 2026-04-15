@@ -13,7 +13,7 @@ Completed so far:
 - core actor/tool foundation moved under `lib/igniter/core/*`
 - AI layer moved under `lib/igniter/ai/*`
 - built-in AI agents moved under `Igniter::AI::Agents`
-- channels foundation introduced under `lib/igniter/channels/*`
+- channels foundation introduced under `lib/igniter/sdk/channels/*`
 - first built-in transport added as `Igniter::Channels::Webhook`
 - remote execution split into `Igniter::Server::RemoteAdapter` and `Igniter::Cluster::RemoteAdapter`
 - mesh moved to `Igniter::Cluster::Mesh`
@@ -163,7 +163,7 @@ Create target directories and move obvious code without changing behavior:
 - `lib/igniter/server/`
 - `lib/igniter/cluster/`
 - `lib/igniter/app/`
-- `lib/igniter/channels/`
+- `lib/igniter/sdk/channels/`
 
 This phase is mostly physical reorganization plus namespace cleanup.
 
@@ -279,13 +279,13 @@ Suggested initial structure:
 
 ```text
 lib/igniter/channels.rb
-lib/igniter/channels/base.rb
-lib/igniter/channels/message.rb
-lib/igniter/channels/delivery_result.rb
-lib/igniter/channels/telegram/*
-lib/igniter/channels/whatsapp/*
-lib/igniter/channels/email/*
-lib/igniter/channels/webhook/*
+lib/igniter/sdk/channels/base.rb
+lib/igniter/sdk/channels/message.rb
+lib/igniter/sdk/channels/delivery_result.rb
+lib/igniter/sdk/channels/telegram/*
+lib/igniter/sdk/channels/whatsapp/*
+lib/igniter/sdk/channels/email/*
+lib/igniter/sdk/channels/webhook/*
 ```
 
 Suggested abstraction:
