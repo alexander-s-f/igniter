@@ -548,6 +548,7 @@ Package contracts, executors, scheduler, and server config into a stack with lea
 ```bash
 # Scaffold a new stack
 igniter-stack new my_app
+igniter-stack new playgrounds/home-lab --profile playground
 cd my_app && bundle install && bin/start
 ```
 
@@ -606,6 +607,10 @@ my_app/
 ├── bin/start
 └── bin/demo
 ```
+
+Use `--profile playground` when you want a proving-ground scaffold layered on top
+of the base stack generator. The playground profile adds a small `main +
+dashboard` slice without baking that shape into the default scaffold.
 
 `Igniter::Stack` coordinates named apps under `apps/*`. The root `spec/` is for
 shared code and integration/stack tests. `Igniter::App` remains the leaf

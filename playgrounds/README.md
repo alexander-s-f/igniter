@@ -22,7 +22,14 @@ Suggested layout:
 ```text
 playgrounds/
   home-lab/
+  home-lab-legacy/
   esp32-a1s/
   esp32-cam/
   bench/
 ```
+
+Recommended flow for bigger playground rewrites:
+
+- rename the current playground to `*-legacy`
+- scaffold a fresh replacement with `ruby bin/igniter-stack new playgrounds/<name> --profile playground`
+- migrate ideas selectively instead of carrying the whole historical shape forward

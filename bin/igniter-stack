@@ -3,7 +3,14 @@
 
 require "optparse"
 
-options = { port: 4567, host: "0.0.0.0", requires: [], config: nil, minimal: false }
+options = {
+  port: 4567,
+  host: "0.0.0.0",
+  requires: [],
+  config: nil,
+  minimal: false,
+  profile: nil
+}
 
 global = OptionParser.new do |opts|
   opts.banner = <<~BANNER
@@ -11,7 +18,7 @@ global = OptionParser.new do |opts|
 
     Usage:
       igniter-stack start [options]
-      igniter-stack new APP_NAME [--minimal]
+      igniter-stack new APP_NAME [--minimal] [--profile playground]
 
   BANNER
 
@@ -20,6 +27,7 @@ global = OptionParser.new do |opts|
   opts.on("--require FILE",       "Require a file (can be used multiple times)") { |v| options[:requires] << v }
   opts.on("--config FILE",        "Load a server config file") { |v| options[:config] = v }
   opts.on("--minimal",            "Skip demo scaffold — only create directory structure") { options[:minimal] = true }
+  opts.on("--profile NAME",       "Scaffold profile (e.g. playground)") { |v| options[:profile] = v }
   opts.on("-h", "--help", "Show this help") do
     puts opts
     exit
@@ -60,8 +68,20 @@ when "new"
   require_relative "../lib/igniter/app/scaffold_pack"
 
   mode = options[:minimal] ? " (minimal)" : ""
-  puts "Creating Igniter workspace '#{app_name}'#{mode}..."
-  Igniter::App::Generator.new(app_name, minimal: options[:minimal]).generate
+  puts "Creating Igniter stack '#{app_name}'#{mode}..."
+  generator_class =
+    case options[:profile].to_s.strip
+    when "", "default", "base"
+      Igniter::App::Generator
+    when "playground"
+      Igniter::App::Generators::Playground
+    else
+      warn "Unknown scaffold profile: #{options[:profile].inspect}"
+      warn "Available profiles: playground"
+      exit 1
+    end
+
+  generator_class.new(app_name, minimal: options[:minimal]).generate
 
 else
   warn "Unknown command: #{command}"

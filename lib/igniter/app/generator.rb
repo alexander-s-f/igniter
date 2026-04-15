@@ -648,6 +648,7 @@ module Igniter
           end
         RUBY
       end
+
     end
   end
 end
