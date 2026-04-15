@@ -138,6 +138,7 @@ If you want just the leaf application runtime without stack support, use
 
 If your app uses custom tools or agents, also load `require "igniter/core"`.
 If it uses the built-in operational tool pack, load `require "igniter/sdk/tools"`.
+If it uses the built-in generic agents pack, load `require "igniter/sdk/agents"`.
 If it uses skills, providers, or `Igniter::AI.configure`, also load `require "igniter/sdk/ai"`.
 
 ### 3. Run through the stack

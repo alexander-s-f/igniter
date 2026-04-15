@@ -213,6 +213,25 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/ai/agents.rb")
   end
 
+  it "`require \"igniter/sdk/agents\"` loads the canonical generic agents SDK pack directly" do
+    features = loaded_igniter_features("igniter/sdk/agents")
+
+    expect(features).to include("igniter/sdk/agents.rb")
+    expect(features).to include("igniter/sdk/agents/reliability/retry_agent.rb")
+    expect(features).to include("igniter/sdk/agents/proactive_agent.rb")
+    expect(features).not_to include("igniter/agents.rb")
+    expect(features).not_to include("igniter/server.rb")
+    expect(features).not_to include("igniter/app.rb")
+    expect(features).not_to include("igniter/cluster.rb")
+  end
+
+  it "`require \"igniter/agents\"` is a convenience alias over the generic agents SDK pack" do
+    features = loaded_igniter_features("igniter/agents")
+
+    expect(features).to include("igniter/agents.rb")
+    expect(features).to include("igniter/sdk/agents.rb")
+  end
+
   it "`require \"igniter/ai/agents\"` is no longer a valid public entrypoint" do
     error = require_failure_for("igniter/ai/agents")
 

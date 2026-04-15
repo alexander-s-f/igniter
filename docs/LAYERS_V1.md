@@ -51,6 +51,7 @@ Primary entrypoints:
 ```ruby
 require "igniter/app"
 require "igniter/core"
+require "igniter/sdk/agents"   # optional
 require "igniter/sdk/ai"        # optional
 require "igniter/sdk/channels"  # optional
 ```
@@ -61,12 +62,12 @@ Responsibility:
 - Rack / HTTP server
 - stack / app profile
 - agent runtime
-- AI and communication capabilities when requested by the app
+- generic agent libraries, AI, and communication capabilities when requested by the app
 
 Conceptually:
 
 ```text
-Server = Embed + hosting + app/stack profile + actor/tool kit + optional AI/channels
+Server = Embed + hosting + app/stack profile + actor/tool kit + optional agents/AI/channels
 ```
 
 `Igniter::App` stays above `Igniter::Server`. It is not a peer of the
@@ -102,6 +103,7 @@ Allowed direction:
 Embed
   ├─ Extensions
   ├─ Actor/Tool kit
+  ├─ Agents
   ├─ AI
   ├─ Channels
   └─ Server
@@ -115,7 +117,7 @@ Practical rules:
 - `Server` may depend on `Embed`, actor/tool primitives, and optional capability layers.
 - `App` may depend on `Server`, but `Server` should not depend on `App`.
 - `Cluster` may depend on `Server`, but `Server` must not depend on `Cluster`.
-- `AI` and `Channels` are capabilities, not the base kernel.
+- `Agents`, `AI`, and `Channels` are capabilities, not the base kernel.
 
 ## Shared Seams That Need To Stay Narrow
 
@@ -177,6 +179,7 @@ Implemented now:
 - `require "igniter"` remains the embedded kernel entrypoint
 - `require "igniter/core"` no longer auto-loads built-in operational tools
 - built-in system/bootstrap tools now live behind `require "igniter/sdk/tools"`
+- generic built-in agents now live behind `require "igniter/sdk/agents"`
 - `Igniter::SDK` can register and activate optional capability packs per layer
 - `Igniter.use`, `Igniter::App.use`, `Igniter::Server.use`, and `Igniter::Cluster.use`
   now provide a thin declarative wrapper over ordinary `require`

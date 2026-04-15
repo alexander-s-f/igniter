@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "igniter/agents/proactive/alert_agent"
-require "igniter/agents/proactive/health_check_agent"
+require "igniter/sdk/agents/proactive/alert_agent"
+require "igniter/sdk/agents/proactive/health_check_agent"
 
 module Companion
   # System-level monitoring agent for the voice assistant companion.

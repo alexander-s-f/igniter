@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/agents"
+require "igniter/sdk/agents"
 
 RSpec.describe Igniter::Agents::RetryAgent do
   def call_handler(type, state: described_class.default_state, payload: {})

@@ -18,6 +18,11 @@ RSpec.describe Igniter::SDK do
         allowed_layers: include(:app, :server, :cluster)
       )
 
+      expect(described_class.fetch(:agents)).to have_attributes(
+        entrypoint: "igniter/sdk/agents",
+        allowed_layers: include(:app, :server, :cluster)
+      )
+
       expect(described_class.fetch(:data)).to have_attributes(
         entrypoint: "igniter/sdk/data",
         allowed_layers: include(:core, :app, :server, :cluster)
@@ -29,6 +34,7 @@ RSpec.describe Igniter::SDK do
 
       expect(names).to include(:data)
       expect(names).not_to include(:ai)
+      expect(names).not_to include(:agents)
     end
   end
 
@@ -41,6 +47,14 @@ RSpec.describe Igniter::SDK do
       expect(described_class.activated?(:data)).to be(true)
       expect(defined?(Igniter::Data)).to eq("constant")
       expect($LOADED_FEATURES.grep(/igniter\/sdk\/data\.rb$/)).not_to be_empty
+    end
+
+    it "activates the generic agents SDK pack for supported layers" do
+      described_class.activate!(:agents, layer: :app)
+
+      expect(described_class.activated?(:agents)).to be(true)
+      expect(defined?(Igniter::Agents)).to eq("constant")
+      expect($LOADED_FEATURES.grep(/igniter\/sdk\/agents\.rb$/)).not_to be_empty
     end
 
     it "rejects capabilities that are forbidden for a layer" do
@@ -68,9 +82,10 @@ RSpec.describe Igniter::SDK do
       app_one = Class.new(Igniter::App)
       app_two = Class.new(Igniter::App)
 
-      app_one.use(:tools)
+      app_one.use(:tools, :agents)
 
       expect(app_one.sdk_capabilities).to include(:tools)
+      expect(app_one.sdk_capabilities).to include(:agents)
       expect(app_two.sdk_capabilities).to eq([])
     end
 

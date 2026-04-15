@@ -37,6 +37,7 @@ layer folders.
 | Actor runtime and tool foundation | `require "igniter/core"` |
 | SDK registry / capability activation | `require "igniter/sdk"` |
 | Built-in operational tools | `require "igniter/sdk/tools"` |
+| Generic built-in agents | `require "igniter/sdk/agents"` |
 | Specific core features | `require "igniter/core/tool"`, `require "igniter/core/memory"`, `require "igniter/core/temporal"` |
 | App data persistence | `require "igniter/sdk/data"` |
 | Behavioral extensions | `require "igniter/extensions/auditing"`, `require "igniter/extensions/capabilities"` |
@@ -53,7 +54,7 @@ layer folders.
 - **Core**: the hard foundation loaded through `require "igniter"` and `require "igniter/core/*"`.
 - **Core features**: focused building blocks that still belong to core, such as tools, memory, metrics, temporal support, and caches.
 - **Extensions**: opt-in behavioral add-ons loaded from `igniter/extensions/*`.
-- **SDK packs**: optional shared capabilities loaded from `igniter/sdk/*`, such as `Igniter::AI`, `Igniter::Channels`, `Igniter::Data`, and the built-in tools pack.
+- **SDK packs**: optional shared capabilities loaded from `igniter/sdk/*`, such as `Igniter::AI`, `Igniter::Agents`, `Igniter::Channels`, `Igniter::Data`, and the built-in tools pack.
 - **Hosting layers**: `Igniter::Server` and `Igniter::Cluster`.
 - **Profile**: `Igniter::Stack` + `Igniter::App`, a packaged way to assemble an app and run it through host, loader, and scheduler adapters. The public entrypoint is `require "igniter/app"`. The defaults are `host :app`, `loader :filesystem`, and `scheduler :threaded`, and `require "igniter/cluster"` adds `host :cluster_app` for cluster-aware apps.
 - **Plugin**: framework-specific integration such as `Igniter::Rails`.
@@ -84,7 +85,7 @@ Igniter::Cluster.use :channels
 ```
 
 Direct `require "igniter/ai"`, `require "igniter/channels"`, `require "igniter/data"`, and
-`require "igniter/tools"` remain available as convenience aliases, but the canonical
+`require "igniter/tools"`, and `require "igniter/agents"` remain available as convenience aliases, but the canonical
 optional-pack surface now lives under `igniter/sdk/*`.
 
 ---

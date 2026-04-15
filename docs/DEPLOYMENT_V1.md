@@ -13,6 +13,7 @@ Use the smallest entrypoint that matches the deployment mode:
 | Core contracts and runtime | `require "igniter"` |
 | Actor / tool foundation | `require "igniter/core"` |
 | Built-in operational tools | `require "igniter/sdk/tools"` |
+| Generic built-in agents | `require "igniter/sdk/agents"` |
 | Specific core features | `require "igniter/core/temporal"`, `require "igniter/core/node_cache"` |
 | Extensions | `require "igniter/extensions/auditing"`, `require "igniter/extensions/capabilities"` |
 | AI | `require "igniter/sdk/ai"` |
@@ -53,7 +54,8 @@ igniter
 ```
 
 No server, no cluster, no HTTP transport. Add `igniter/core/*`, `igniter/extensions/*`,
-`igniter/sdk/tools`, `igniter/sdk/ai`, or `igniter/sdk/channels` only when your app needs them.
+`igniter/sdk/tools`, `igniter/sdk/agents`, `igniter/sdk/ai`, or `igniter/sdk/channels`
+only when your app needs them.
 
 ### Structure — entirely up to the user
 
@@ -139,6 +141,7 @@ AI, tools, skills, and channels remain opt-in layers that an app can load when n
 
 ```
 igniter + igniter/core + igniter/server + igniter/app
+    + optional igniter/sdk/agents
     + optional igniter/sdk/ai
     + optional igniter/sdk/channels
 ```

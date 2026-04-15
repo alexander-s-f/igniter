@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/agents/proactive/health_check_agent"
+require "igniter/sdk/agents/proactive/health_check_agent"
 
 RSpec.describe Igniter::Agents::HealthCheckAgent do
   let(:h) { ->(klass, type, state, payload = {}) { klass.handlers[type].call(state: state, payload: payload) } }

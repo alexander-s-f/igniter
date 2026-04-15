@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/agents/proactive_agent"
+require "igniter/sdk/agents/proactive_agent"
 
 RSpec.describe Igniter::Agents::ProactiveAgent do
   # Build a minimal concrete subclass for each example group to keep state isolated.

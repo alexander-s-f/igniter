@@ -72,7 +72,7 @@ fires but watchers are not called and triggers are not evaluated.
 ## Quick start
 
 ```ruby
-require "igniter/agents/proactive_agent"
+require "igniter/sdk/agents/proactive_agent"
 
 class ServerTempMonitor < Igniter::Agents::ProactiveAgent
   intent "Alert when server room temperature exceeds safe range"
@@ -103,7 +103,7 @@ status = ref.call(:status)
 Two production-ready proactive agents are included in the stdlib:
 
 ```
-require "igniter/agents"
+require "igniter/sdk/agents"
 ```
 
 ### `AlertAgent`

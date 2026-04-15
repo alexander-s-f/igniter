@@ -9,6 +9,7 @@ Start here if you want the shortest accurate map of Igniter's structure.
 | Embed kernel | `Igniter` / `require "igniter"` | contract DSL, model, compiler, runtime, events, diagnostics |
 | Actor / tool kit | `Igniter` / `require "igniter/core"` or `require "igniter/core/<feature>"` | actors, tool base classes, memory, metrics, temporal support, caches |
 | SDK tools pack | `Igniter` / `require "igniter/sdk/tools"` | system discovery, workflow selection, bootstrap-planning tools |
+| Agents SDK pack | `Igniter::Agents` / `require "igniter/sdk/agents"` | generic built-in agents for reliability, pipeline, scheduling, proactive monitoring, and metrics |
 | Extensions | `require "igniter/extensions/<feature>"` | behavioral add-ons such as auditing, provenance, incremental, dataflow, invariants |
 | AI SDK pack | `Igniter::AI` / `require "igniter/sdk/ai"` | providers, AI executors, skills, transcription, AI tool registry |
 | Channels SDK pack | `Igniter::Channels` / `require "igniter/sdk/channels"` | transport adapters such as webhook, Telegram, WhatsApp, email, SMS |
@@ -42,6 +43,7 @@ Practical rules:
 - Core must not know about `Server`, `Cluster`, `AI`, `Channels`, or plugins.
 - Extensions may build on core, but should not become a grab-bag for unrelated features.
 - `AI` may depend on core.
+- `Agents` may depend on core.
 - `Channels` may depend on core.
 - `Server` may depend on core and optional upper capability layers.
 - `App` is a profile over `Server`, not a sibling capability layer.
@@ -110,6 +112,7 @@ Prefer the smallest require that matches the feature you need.
 | Actors and tools | `require "igniter/core"` |
 | SDK registry / capability activation | `require "igniter/sdk"` |
 | Built-in operational tools | `require "igniter/sdk/tools"` |
+| Generic agents | `require "igniter/sdk/agents"` |
 | One core feature | `require "igniter/core/tool"` or `require "igniter/core/temporal"` |
 | One extension | `require "igniter/extensions/auditing"` |
 | AI | `require "igniter/sdk/ai"` |
@@ -127,6 +130,7 @@ If you are adding new code:
 - Put it in **core** if it is useful in embedded mode and does not require hosting, distribution, providers, or frameworks.
 - Put it in **extensions** if it changes or enriches runtime behavior without belonging to a separate capability layer.
 - Put it in **AI** if it depends on providers, prompts, skills, transcription, or AI tool orchestration.
+- Put it in **Agents** if it is a reusable non-AI actor/agent standard-library pack.
 - Put it in **Channels** if it is a communication or delivery transport.
 - Put it in **Server** if it is about HTTP hosting or remote transport.
 - Put it in **App** if it is about project layout, boot lifecycle, or scheduler/profile behavior.
@@ -140,7 +144,7 @@ If you are adding new code:
 core foundation
   + optional core features
   + optional extensions
-  + optional capability layers (ai, channels)
+  + optional capability layers (agents, ai, channels, data, tools)
   + optional hosting/profile layers (server, app, cluster)
   + optional plugins
 ```

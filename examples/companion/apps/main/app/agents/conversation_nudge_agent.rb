@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/agents/proactive_agent"
+require "igniter/sdk/agents/proactive_agent"
 
 module Companion
   class ConversationNudgeAgent < Igniter::Agents::ProactiveAgent

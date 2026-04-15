@@ -239,22 +239,22 @@ Split it into:
 
 | Current path | Target path | Target namespace |
 |-------------|-------------|------------------|
-| `lib/igniter/agents.rb` | `lib/igniter/agents.rb` | generic built-in agents entrypoint |
+| `lib/igniter/agents.rb` | `lib/igniter/agents.rb` | convenience alias for generic built-in agents |
 | `lib/igniter/sdk/ai/agents.rb` | `lib/igniter/sdk/ai/agents.rb` | AI/built-in AI agents entrypoint |
 | `lib/igniter/agents/ai/*` | `lib/igniter/sdk/ai/agents/*` | `Igniter::AI::Agents::*` |
-| `lib/igniter/agents/proactive/alert_agent.rb` | `lib/igniter/agents/proactive/alert_agent.rb` | `Igniter::Agents::AlertAgent` |
-| `lib/igniter/agents/proactive/health_check_agent.rb` | `lib/igniter/agents/proactive/health_check_agent.rb` | `Igniter::Agents::HealthCheckAgent` |
-| `lib/igniter/agents/proactive_agent.rb` | `lib/igniter/agents/proactive_agent.rb` | `Igniter::Agents::ProactiveAgent` |
-| `lib/igniter/agents/observability/*` | `lib/igniter/agents/observability/*` or `lib/igniter/app/agents/observability/*` | depends on coupling |
-| `lib/igniter/agents/reliability/*` | `lib/igniter/core/agents/reliability/*` if fully generic, otherwise `app` |
-| `lib/igniter/agents/pipeline/*` | `lib/igniter/core/agents/pipeline/*` if fully generic, otherwise `app` |
-| `lib/igniter/agents/scheduling/*` | `lib/igniter/app/agents/scheduling/*` | scheduling is app-profile behavior |
+| `lib/igniter/agents/proactive/alert_agent.rb` | `lib/igniter/sdk/agents/proactive/alert_agent.rb` | `Igniter::Agents::AlertAgent` |
+| `lib/igniter/agents/proactive/health_check_agent.rb` | `lib/igniter/sdk/agents/proactive/health_check_agent.rb` | `Igniter::Agents::HealthCheckAgent` |
+| `lib/igniter/agents/proactive_agent.rb` | `lib/igniter/sdk/agents/proactive_agent.rb` | `Igniter::Agents::ProactiveAgent` |
+| `lib/igniter/agents/observability/*` | `lib/igniter/sdk/agents/observability/*` | `Igniter::Agents::*` |
+| `lib/igniter/agents/reliability/*` | `lib/igniter/sdk/agents/reliability/*` | `Igniter::Agents::*` |
+| `lib/igniter/agents/pipeline/*` | `lib/igniter/sdk/agents/pipeline/*` | `Igniter::Agents::*` |
+| `lib/igniter/agents/scheduling/*` | `lib/igniter/sdk/agents/scheduling/*` | `Igniter::Agents::*` |
 
 Decision rule:
 
 - If an agent is generic mailbox/state/thread logic, it may live near core.
 - If an agent assumes LLMs or AI workflows, keep it under `Igniter::AI::Agents`.
-- If an agent is proactive/monitoring behavior without AI coupling, keep it under `Igniter::Agents`.
+- If an agent is proactive/monitoring behavior without AI coupling, keep it under `Igniter::Agents` and load it from `igniter/sdk/agents`.
 
 ## Phase 5: Keep App as a profile over Server
 
