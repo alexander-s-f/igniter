@@ -1,0 +1,72 @@
+# frozen_string_literal: true
+
+require "spec_helper"
+
+RSpec.describe "Igniter dependency boundaries" do
+  BOUNDARY_ROOT = File.expand_path("../..", __dir__)
+
+  def ruby_files_for(*patterns)
+    patterns.flat_map { |pattern| Dir.glob(File.join(BOUNDARY_ROOT, pattern)) }.sort
+  end
+
+  def require_lines_for(files)
+    files.each_with_object({}) do |file, map|
+      lines = File.readlines(file, chomp: true).filter_map do |line|
+        stripped = line.strip
+        stripped if stripped.start_with?("require ", "require_relative ")
+      end
+      map[file] = lines unless lines.empty?
+    end
+  end
+
+  def offenders_for(require_map, patterns)
+    require_map.each_with_object({}) do |(file, lines), offenders|
+      matches = lines.select { |line| patterns.any? { |pattern| line.match?(pattern) } }
+      offenders[file] = matches unless matches.empty?
+    end
+  end
+
+  def format_offenders(offenders)
+    offenders.map do |file, lines|
+      "#{file.sub("#{BOUNDARY_ROOT}/", "")}:\n  #{lines.join("\n  ")}"
+    end.join("\n")
+  end
+
+  it "does not let core files require sdk or plugin code" do
+    files = ruby_files_for("lib/igniter/core.rb", "lib/igniter/core/**/*.rb")
+    offenders = offenders_for(
+      require_lines_for(files),
+      [
+        /require\s+["']igniter\/sdk\//,
+        /require\s+["']igniter\/plugins\//,
+        /require_relative\s+["'][^"']*sdk(?:\/|["'])/,
+        /require_relative\s+["'][^"']*plugins(?:\/|["'])/
+      ]
+    )
+
+    expect(offenders).to eq({}), <<~MSG
+      Core must not depend on sdk/* or plugins/*.
+
+      Offending require statements:
+      #{format_offenders(offenders)}
+    MSG
+  end
+
+  it "does not let sdk files require plugin code" do
+    files = ruby_files_for("lib/igniter/sdk.rb", "lib/igniter/sdk/**/*.rb")
+    offenders = offenders_for(
+      require_lines_for(files),
+      [
+        /require\s+["']igniter\/plugins\//,
+        /require_relative\s+["'][^"']*plugins(?:\/|["'])/
+      ]
+    )
+
+    expect(offenders).to eq({}), <<~MSG
+      sdk/* must not depend on plugins/*.
+
+      Offending require statements:
+      #{format_offenders(offenders)}
+    MSG
+  end
+end
