@@ -192,6 +192,7 @@ RSpec.describe "Igniter layer loading" do
     expect(features).to include("igniter/sdk/ai/executor.rb")
     expect(features).to include("igniter/sdk/ai/skill.rb")
     expect(features).to include("igniter/sdk/ai/tool_registry.rb")
+    expect(features).to include("igniter/sdk/ai/agents.rb")
     expect(features).not_to include("igniter/ai.rb")
     expect(features).not_to include("igniter/server.rb")
     expect(features).not_to include("igniter/app.rb")
@@ -203,6 +204,13 @@ RSpec.describe "Igniter layer loading" do
 
     expect(features).to include("igniter/ai.rb")
     expect(features).to include("igniter/sdk/ai.rb")
+  end
+
+  it "`require \"igniter/ai/agents\"` is a convenience alias over the AI agents SDK pack" do
+    features = loaded_igniter_features("igniter/ai/agents")
+
+    expect(features).to include("igniter/ai/agents.rb")
+    expect(features).to include("igniter/sdk/ai/agents.rb")
   end
 
   it "`require \"igniter/sdk/channels\"` loads the canonical channels SDK pack directly" do

@@ -240,8 +240,8 @@ Split it into:
 | Current path | Target path | Target namespace |
 |-------------|-------------|------------------|
 | `lib/igniter/agents.rb` | `lib/igniter/agents.rb` | generic built-in agents entrypoint |
-| `lib/igniter/ai/agents.rb` | `lib/igniter/ai/agents.rb` | AI/built-in AI agents entrypoint |
-| `lib/igniter/agents/ai/*` | `lib/igniter/ai/agents/*` | `Igniter::AI::Agents::*` |
+| `lib/igniter/ai/agents.rb` | `lib/igniter/sdk/ai/agents.rb` | AI/built-in AI agents entrypoint |
+| `lib/igniter/agents/ai/*` | `lib/igniter/sdk/ai/agents/*` | `Igniter::AI::Agents::*` |
 | `lib/igniter/agents/proactive/alert_agent.rb` | `lib/igniter/agents/proactive/alert_agent.rb` | `Igniter::Agents::AlertAgent` |
 | `lib/igniter/agents/proactive/health_check_agent.rb` | `lib/igniter/agents/proactive/health_check_agent.rb` | `Igniter::Agents::HealthCheckAgent` |
 | `lib/igniter/agents/proactive_agent.rb` | `lib/igniter/agents/proactive_agent.rb` | `Igniter::Agents::ProactiveAgent` |
