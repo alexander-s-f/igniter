@@ -162,7 +162,7 @@ RSpec.describe "Igniter layer loading" do
     expect(features).to include("igniter/app/runtime_pack.rb")
     expect(features).to include("igniter/app/workspace_pack.rb")
     expect(features).to include("igniter/app/server_host_pack.rb")
-    expect(features).to include("igniter/server/application_host.rb")
+    expect(features).to include("igniter/server/app_host.rb")
     expect(features).not_to include("igniter/application.rb")
   end
 
@@ -216,7 +216,7 @@ RSpec.describe "Igniter layer loading" do
     expect(features).to include("igniter/app/runtime_pack.rb")
     expect(features).to include("igniter/app/workspace_pack.rb")
     expect(features).to include("igniter/app/server_host_pack.rb")
-    expect(features).to include("igniter/server/application_host.rb")
+    expect(features).to include("igniter/server/app_host.rb")
   end
 
   it "`require \"igniter/app\"` registers the default threaded scheduler pack" do
