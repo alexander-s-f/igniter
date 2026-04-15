@@ -37,12 +37,15 @@ module Igniter
           write "config/deploy/Procfile.dev", procfile_dev
           write "spec/stack_spec.rb", stack_spec
           write "lib/#{namespace_path}/shared/stack_overview.rb", shared_stack_overview
+          write "lib/#{namespace_path}/shared/note_store.rb", shared_note_store
         end
 
         def expand_main_surface
           write "apps/main/app.rb", main_app_rb
           write "apps/main/spec/main_app_spec.rb", main_app_spec
           write "lib/#{namespace_path}/main/status_handler.rb", main_status_handler
+          write "lib/#{namespace_path}/main/notes_list_handler.rb", main_notes_list_handler
+          write "lib/#{namespace_path}/main/notes_create_handler.rb", main_notes_create_handler
         end
 
         def add_dashboard_app
@@ -51,6 +54,7 @@ module Igniter
           write "apps/dashboard/spec/spec_helper.rb", dashboard_spec_helper
           write "apps/dashboard/spec/dashboard_app_spec.rb", dashboard_app_spec
           write "lib/#{namespace_path}/dashboard/home_handler.rb", dashboard_home_handler
+          write "lib/#{namespace_path}/dashboard/notes_create_handler.rb", dashboard_notes_create_handler
           write "lib/#{namespace_path}/dashboard/overview_handler.rb", dashboard_overview_handler
           write "lib/#{namespace_path}/dashboard/views/home_page.rb", dashboard_home_page
         end
@@ -241,6 +245,8 @@ module Igniter
             require "igniter/app"
             require "igniter/core"
             require_relative "../../lib/#{namespace_path}/main/status_handler"
+            require_relative "../../lib/#{namespace_path}/main/notes_list_handler"
+            require_relative "../../lib/#{namespace_path}/main/notes_create_handler"
 
             module #{module_name}
               class MainApp < Igniter::App
@@ -254,6 +260,8 @@ module Igniter
                 agents_path    "app/agents"
 
                 route "GET", "/v1/home/status", with: #{module_name}::Main::StatusHandler
+                route "GET", "/v1/notes", with: #{module_name}::Main::NotesListHandler
+                route "POST", "/v1/notes", with: #{module_name}::Main::NotesCreateHandler
 
                 on_boot do
                   register "GreetContract", #{module_name}::GreetContract
@@ -278,6 +286,10 @@ module Igniter
             require "stringio"
 
             RSpec.describe #{module_name}::MainApp do
+              before do
+                #{module_name}::Shared::NoteStore.reset!
+              end
+
               it "builds and registers the greet contract" do
                 config = described_class.send(:build!)
                 expect(config.registry.registered?("GreetContract")).to be(true)
@@ -298,6 +310,37 @@ module Igniter
                 expect(headers["Content-Type"]).to include("application/json")
                 expect(payload.dig("stack", "default_app")).to eq("main")
                 expect(payload.dig("apps", "dashboard", "role")).to eq("admin")
+                expect(payload.dig("counts", "notes")).to eq(0)
+              end
+
+              it "creates and lists shared notes" do
+                app = described_class.rack_app
+
+                create_status, create_headers, create_body = app.call(
+                  "REQUEST_METHOD" => "POST",
+                  "PATH_INFO" => "/v1/notes",
+                  "CONTENT_TYPE" => "application/json",
+                  "rack.input" => StringIO.new(JSON.generate(text: "Check UPS battery"))
+                )
+
+                created = JSON.parse(create_body.each.to_a.join)
+
+                list_status, list_headers, list_body = app.call(
+                  "REQUEST_METHOD" => "GET",
+                  "PATH_INFO" => "/v1/notes",
+                  "rack.input" => StringIO.new
+                )
+
+                listed = JSON.parse(list_body.each.to_a.join)
+
+                expect(create_status).to eq(201)
+                expect(create_headers["Content-Type"]).to include("application/json")
+                expect(created.dig("note", "text")).to eq("Check UPS battery")
+                expect(created["count"]).to eq(1)
+                expect(list_status).to eq(200)
+                expect(list_headers["Content-Type"]).to include("application/json")
+                expect(listed["count"]).to eq(1)
+                expect(listed.dig("notes", 0, "text")).to eq("Check UPS battery")
               end
             end
 
@@ -317,7 +360,6 @@ module Igniter
             # frozen_string_literal: true
 
             require "json"
-            require "time"
             require_relative "../shared/stack_overview"
 
             module #{module_name}
@@ -333,7 +375,80 @@ module Igniter
                       body: JSON.generate(
                         generated_at: snapshot.fetch(:generated_at),
                         stack: snapshot.fetch(:stack),
-                        apps: snapshot.fetch(:apps)
+                        apps: snapshot.fetch(:apps),
+                        counts: snapshot.fetch(:counts),
+                        notes: snapshot.fetch(:notes)
+                      ),
+                      headers: { "Content-Type" => "application/json" }
+                    }
+                  end
+                end
+              end
+            end
+          RUBY
+        end
+
+        def main_notes_list_handler
+          <<~RUBY
+            # frozen_string_literal: true
+
+            require "json"
+            require_relative "../shared/note_store"
+
+            module #{module_name}
+              module Main
+                module NotesListHandler
+                  module_function
+
+                  def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+                    notes = #{module_name}::Shared::NoteStore.all
+
+                    {
+                      status: 200,
+                      body: JSON.generate(
+                        count: notes.size,
+                        notes: notes
+                      ),
+                      headers: { "Content-Type" => "application/json" }
+                    }
+                  end
+                end
+              end
+            end
+          RUBY
+        end
+
+        def main_notes_create_handler
+          <<~RUBY
+            # frozen_string_literal: true
+
+            require "json"
+            require_relative "../shared/note_store"
+
+            module #{module_name}
+              module Main
+                module NotesCreateHandler
+                  module_function
+
+                  def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+                    text = body.fetch("text", body.fetch("note", "")).to_s.strip
+
+                    if text.empty?
+                      return {
+                        status: 422,
+                        body: JSON.generate(error: "text is required"),
+                        headers: { "Content-Type" => "application/json" }
+                      }
+                    end
+
+                    note = #{module_name}::Shared::NoteStore.add(text, source: "main")
+
+                    {
+                      status: 201,
+                      body: JSON.generate(
+                        ok: true,
+                        note: note,
+                        count: #{module_name}::Shared::NoteStore.count
                       ),
                       headers: { "Content-Type" => "application/json" }
                     }
@@ -352,6 +467,7 @@ module Igniter
             require "igniter/core"
             require_relative "../../lib/#{namespace_path}/dashboard/home_handler"
             require_relative "../../lib/#{namespace_path}/dashboard/overview_handler"
+            require_relative "../../lib/#{namespace_path}/dashboard/notes_create_handler"
 
             module #{module_name}
               class DashboardApp < Igniter::App
@@ -360,6 +476,7 @@ module Igniter
 
                 route "GET", "/", with: #{module_name}::Dashboard::HomeHandler
                 route "GET", "/api/overview", with: #{module_name}::Dashboard::OverviewHandler
+                route "POST", "/notes", with: #{module_name}::Dashboard::NotesCreateHandler
 
                 configure do |c|
                   c.app_host.host = "0.0.0.0"
@@ -403,8 +520,13 @@ module Igniter
             require_relative "spec_helper"
             require "json"
             require "stringio"
+            require "uri"
 
             RSpec.describe #{module_name}::DashboardApp do
+              before do
+                #{module_name}::Shared::NoteStore.reset!
+              end
+
               it "renders the overview endpoint" do
                 app = described_class.rack_app
 
@@ -420,6 +542,7 @@ module Igniter
                 expect(headers["Content-Type"]).to include("application/json")
                 expect(payload.dig("stack", "default_app")).to eq("main")
                 expect(payload.dig("apps", "dashboard", "role")).to eq("admin")
+                expect(payload.dig("counts", "notes")).to eq(0)
               end
 
               it "renders the home page" do
@@ -437,6 +560,34 @@ module Igniter
                 expect(headers["Content-Type"]).to include("text/html")
                 expect(html).to include("#{project_label} Dashboard")
                 expect(html).to include("Overview API")
+                expect(html).to include('action="/notes"')
+                expect(html).to include("Shared Notes")
+              end
+
+              it "creates a note from the dashboard form and exposes it in the overview" do
+                app = described_class.rack_app
+
+                create_status, create_headers, = app.call(
+                  "REQUEST_METHOD" => "POST",
+                  "PATH_INFO" => "/notes",
+                  "CONTENT_TYPE" => "application/x-www-form-urlencoded",
+                  "rack.input" => StringIO.new(URI.encode_www_form("text" => "Top off the UPS rack"))
+                )
+
+                overview_status, overview_headers, overview_body = app.call(
+                  "REQUEST_METHOD" => "GET",
+                  "PATH_INFO" => "/api/overview",
+                  "rack.input" => StringIO.new
+                )
+
+                payload = JSON.parse(overview_body.each.to_a.join)
+
+                expect(create_status).to eq(303)
+                expect(create_headers["Location"]).to eq("/?note_created=1")
+                expect(overview_status).to eq(200)
+                expect(overview_headers["Content-Type"]).to include("application/json")
+                expect(payload.dig("counts", "notes")).to eq(1)
+                expect(payload.dig("notes", 0, "text")).to eq("Top off the UPS rack")
               end
             end
           RUBY
@@ -447,6 +598,7 @@ module Igniter
             # frozen_string_literal: true
 
             require "time"
+            require_relative "note_store"
 
             module #{module_name}
               module Shared
@@ -455,6 +607,7 @@ module Igniter
 
                   def build
                     deployment = #{stack_class_name}.deployment_snapshot
+                    notes = #{module_name}::Shared::NoteStore.all
 
                     {
                       generated_at: Time.now.utc.iso8601,
@@ -464,6 +617,10 @@ module Igniter
                         profile: deployment.dig("stack", "topology_profile"),
                         apps: #{stack_class_name}.app_names.map(&:to_s)
                       },
+                      counts: {
+                        notes: notes.size
+                      },
+                      notes: notes.first(8),
                       apps: deployment.fetch("apps").transform_values do |config|
                         {
                           role: config["role"],
@@ -475,6 +632,59 @@ module Igniter
                         }
                       end
                     }
+                  end
+                end
+              end
+            end
+          RUBY
+        end
+
+        def shared_note_store
+          <<~RUBY
+            # frozen_string_literal: true
+
+            require "igniter/sdk/data"
+            require "time"
+
+            module #{module_name}
+              module Shared
+                module NoteStore
+                  COLLECTION = "#{namespace_path}_notes"
+
+                  class << self
+                    def add(text, source: "operator")
+                      entry = {
+                        "id" => "#{namespace_path}-\#{Time.now.utc.strftime("%Y%m%d%H%M%S%6N")}",
+                        "text" => text.to_s.strip,
+                        "source" => source.to_s,
+                        "created_at" => Time.now.utc.iso8601
+                      }
+
+                      store.put(collection: COLLECTION, key: entry.fetch("id"), value: entry)
+                      entry
+                    end
+
+                    def all
+                      store
+                        .all(collection: COLLECTION)
+                        .values
+                        .sort_by { |entry| entry.fetch("created_at", "") }
+                        .reverse
+                    end
+
+                    def count
+                      all.size
+                    end
+
+                    def reset!
+                      store.clear(collection: COLLECTION)
+                    end
+
+                    private
+
+                    def store
+                      @store ||= Igniter::Data::Stores::File.new(path: File.expand_path("../../../var/notes.json", __dir__))
+                    end
                   end
                 end
               end
@@ -499,6 +709,47 @@ module Igniter
                     snapshot = #{module_name}::Shared::StackOverview.build
 
                     Igniter::Plugins::View::Response.html(Views::HomePage.render(snapshot: snapshot))
+                  end
+                end
+              end
+            end
+          RUBY
+        end
+
+        def dashboard_notes_create_handler
+          <<~RUBY
+            # frozen_string_literal: true
+
+            require "igniter/plugins/view"
+            require_relative "../shared/note_store"
+            require_relative "../shared/stack_overview"
+            require_relative "views/home_page"
+
+            module #{module_name}
+              module Dashboard
+                module NotesCreateHandler
+                  module_function
+
+                  def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+                    text = body.fetch("text", body.fetch("note", "")).to_s.strip
+
+                    if text.empty?
+                      snapshot = #{module_name}::Shared::StackOverview.build
+                      html = Views::HomePage.render(
+                        snapshot: snapshot,
+                        error_message: "Note text cannot be blank.",
+                        form_values: body
+                      )
+                      return Igniter::Plugins::View::Response.html(html, status: 422)
+                    end
+
+                    #{module_name}::Shared::NoteStore.add(text, source: "dashboard")
+
+                    {
+                      status: 303,
+                      body: "",
+                      headers: { "Location" => "/?note_created=1" }
+                    }
                   end
                 end
               end
@@ -541,18 +792,22 @@ module Igniter
               module Dashboard
                 module Views
                   class HomePage < Igniter::Plugins::View::Page
-                    def self.render(snapshot:)
-                      new(snapshot: snapshot).render
+                    def self.render(snapshot:, error_message: nil, form_values: {})
+                      new(snapshot: snapshot, error_message: error_message, form_values: form_values).render
                     end
 
-                    def initialize(snapshot:)
-                    @snapshot = snapshot
-                  end
+                    def initialize(snapshot:, error_message:, form_values:)
+                      @snapshot = snapshot
+                      @error_message = error_message
+                      @form_values = form_values
+                    end
 
-                  def call(view)
+                    def call(view)
                       render_document(view, title: "#{project_label} Dashboard") do |body|
                         body.tag(:main, class: "shell") do |main|
                           render_hero(main)
+                          render_metrics(main)
+                          render_notes(main)
                           render_apps(main)
                         end
                       end
@@ -561,6 +816,8 @@ module Igniter
                     private
 
                     attr_reader :snapshot
+                    attr_reader :error_message
+                    attr_reader :form_values
 
                     def yield_head(head)
                       head.tag(:style) { |style| style.raw(stylesheet) }
@@ -579,6 +836,62 @@ module Igniter
                           links.tag(:a, "Overview API", href: "/api/overview")
                           links.text(" · ")
                           links.tag(:a, "Main status", href: "http://127.0.0.1:4567/v1/home/status")
+                        end
+                      end
+                    end
+
+                    def render_metrics(view)
+                      counts = snapshot.fetch(:counts)
+
+                      view.tag(:section, class: "metrics") do |section|
+                        section.tag(:article, class: "metric-card") do |card|
+                          card.tag(:span, "Apps", class: "metric-label")
+                          card.tag(:strong, snapshot.dig(:stack, :apps).size.to_s, class: "metric-value")
+                        end
+
+                        section.tag(:article, class: "metric-card") do |card|
+                          card.tag(:span, "Notes", class: "metric-label")
+                          card.tag(:strong, counts.fetch(:notes).to_s, class: "metric-value")
+                        end
+                      end
+                    end
+
+                    def render_notes(view)
+                      notes = snapshot.fetch(:notes)
+
+                      view.tag(:section, class: "notes-panel") do |section|
+                        section.tag(:div, class: "panel-head") do |head|
+                          head.tag(:h2, "Shared Notes")
+                          head.tag(:p, "Simple cross-app proving slice shared by main and dashboard.")
+                        end
+
+                        if error_message
+                          section.tag(:p, error_message, class: "error-banner")
+                        end
+
+                        section.form(action: "/notes", method: "post", class: "stacked-form") do |form|
+                          form.label("note-text", "Add note")
+                          form.textarea("text",
+                                        id: "note-text",
+                                        rows: 3,
+                                        placeholder: "Capture a lab observation or operator todo",
+                                        value: form_values.fetch("text", ""))
+                          form.submit("Save Note")
+                        end
+
+                        if notes.empty?
+                          section.tag(:p, "No notes saved yet.", class: "empty-state")
+                        else
+                          section.tag(:ul, class: "notes-list") do |list|
+                            notes.each do |note|
+                              list.tag(:li) do |item|
+                                item.tag(:strong, note.fetch("text"))
+                                item.tag(:div, class: "note-meta") do |meta|
+                                  meta.text("source=\#{note.fetch("source")} · created=\#{note.fetch("created_at")}")
+                                end
+                              end
+                            end
+                          end
                         end
                       end
                     end
@@ -627,7 +940,7 @@ module Igniter
                           padding: 40px 0 64px;
                         }
 
-                        .hero, .card {
+                        .hero, .card, .notes-panel, .metric-card {
                           background: var(--card);
                           border: 1px solid var(--line);
                           border-radius: 20px;
@@ -643,13 +956,101 @@ module Igniter
                           margin: 0 0 12px;
                         }
 
-                        .meta, .links, .card p, .card code {
+                        .meta, .links, .card p, .card code, .panel-head p, .note-meta, .metric-label {
                           color: var(--muted);
                         }
 
                         .links a {
                           color: var(--accent);
                           text-decoration: none;
+                        }
+
+                        .metrics {
+                          display: grid;
+                          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                          gap: 16px;
+                          margin-bottom: 24px;
+                        }
+
+                        .metric-card {
+                          padding: 20px;
+                        }
+
+                        .metric-label, .metric-value {
+                          display: block;
+                        }
+
+                        .metric-value {
+                          margin-top: 8px;
+                          font-size: 32px;
+                        }
+
+                        .notes-panel {
+                          padding: 24px;
+                          margin-bottom: 24px;
+                        }
+
+                        .panel-head h2, .panel-head p {
+                          margin: 0 0 10px;
+                        }
+
+                        .stacked-form label,
+                        .stacked-form textarea,
+                        .stacked-form button {
+                          display: block;
+                          width: 100%;
+                        }
+
+                        .stacked-form label {
+                          margin-bottom: 8px;
+                        }
+
+                        .stacked-form textarea {
+                          min-height: 96px;
+                          margin-bottom: 12px;
+                          padding: 12px;
+                          border-radius: 12px;
+                          border: 1px solid var(--line);
+                          background: #fffdf8;
+                          font: inherit;
+                          color: inherit;
+                        }
+
+                        .stacked-form button {
+                          max-width: 220px;
+                          padding: 12px 16px;
+                          border: 0;
+                          border-radius: 999px;
+                          background: var(--accent);
+                          color: white;
+                          cursor: pointer;
+                          font: inherit;
+                        }
+
+                        .error-banner {
+                          margin: 0 0 16px;
+                          padding: 12px 14px;
+                          border-radius: 12px;
+                          background: #fff0e8;
+                          color: #8a3d1f;
+                        }
+
+                        .empty-state {
+                          margin: 16px 0 0;
+                        }
+
+                        .notes-list {
+                          margin: 18px 0 0;
+                          padding-left: 20px;
+                        }
+
+                        .notes-list li + li {
+                          margin-top: 12px;
+                        }
+
+                        .note-meta {
+                          margin-top: 4px;
+                          font-size: 14px;
                         }
 
                         .grid {
@@ -707,6 +1108,7 @@ module Igniter
             - `main` as the operator-facing API surface
             - `dashboard` as the minimal admin surface
             - one shared stack snapshot feeding both apps
+            - one shared notes flow proving simple cross-app persistence
 
             ## Bootstrapping
 
