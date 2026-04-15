@@ -18,7 +18,7 @@ See [STACKS_V1.md](./STACKS_V1.md) for the standard `apps/` layout.
 ### 1. Generate a scaffold
 
 ```bash
-igniter-server new my_app
+igniter-stack new my_app
 cd my_app
 bundle install
 bin/start
@@ -433,7 +433,7 @@ bundle exec ruby examples/companion/stack.rb main
 
 ---
 
-## Integration with igniter-server
+## Integration with igniter-stack
 
 `Igniter::App` is a thin wrapper around hosting, with `Igniter::Server` as the
 default host adapter. You can still use `Igniter::Server.configure` directly when you

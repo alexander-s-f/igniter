@@ -7,11 +7,11 @@ options = { port: 4567, host: "0.0.0.0", requires: [], config: nil, minimal: fal
 
 global = OptionParser.new do |opts|
   opts.banner = <<~BANNER
-    igniter-server — standalone HTTP server for Igniter contracts
+    igniter-stack — stack scaffold and HTTP server toolkit for Igniter
 
     Usage:
-      igniter-server start [options]
-      igniter-server new APP_NAME [--minimal]
+      igniter-stack start [options]
+      igniter-stack new APP_NAME [--minimal]
 
   BANNER
 
@@ -26,7 +26,7 @@ global = OptionParser.new do |opts|
   end
   opts.on("-v", "--version", "Show version") do
     require_relative "../lib/igniter/version"
-    puts "igniter-server #{Igniter::VERSION}"
+    puts "igniter-stack #{Igniter::VERSION}"
     exit
   end
 end
@@ -48,7 +48,7 @@ when "start"
 when "new"
   app_name = ARGV.shift
   if app_name.nil? || app_name.strip.empty?
-    warn "Usage: igniter-server new APP_NAME"
+    warn "Usage: igniter-stack new APP_NAME"
     exit 1
   end
 

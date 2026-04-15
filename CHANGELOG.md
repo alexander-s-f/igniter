@@ -4,15 +4,15 @@
 
 ### Added
 
-- **igniter-server** — standalone HTTP service for hosting contracts over the network
+- **igniter-stack** — standalone HTTP service for hosting contracts over the network
   - `Igniter::Server.start` — blocking pure-Ruby TCPServer; zero external dependencies
   - `Igniter::Server.rack_app` — Rack-compatible adapter for Puma/Unicorn
   - `Igniter::Server.configure { |c| c.port = 4567; c.register "Name", MyContract }`
-  - CLI: `bin/igniter-server start --port 4567 --require ./contracts.rb`
+  - CLI: `bin/igniter-stack start --port 4567 --require ./contracts.rb`
   - REST API: `POST /v1/contracts/:name/execute|events`, `GET /v1/executions/:id|health|contracts`
   - `Igniter::Server::Client` — HTTP client (Net::HTTP + JSON, stdlib only)
   - `Igniter::Server::Registry` — thread-safe contract name → class mapping
-- **`remote:` DSL keyword** — call a contract on a remote igniter-server from inside a graph
+- **`remote:` DSL keyword** — call a contract on a remote igniter-stack from inside a graph
   - `remote :result, contract: "OtherContract", node: "http://host:4568", inputs: { raw: :data }`
   - Validated at compile time (URL format, dependency resolution, contract name)
   - Raises `Igniter::ResolutionError` on connection failure or remote contract failure

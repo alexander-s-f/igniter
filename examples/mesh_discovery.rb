@@ -21,7 +21,7 @@ class ProcessOrder < Igniter::Contract
 end
 
 # ─── Stub HTTP layer ──────────────────────────────────────────────────────────
-# In production each peer is a separate igniter-server process. Here we stub
+# In production each peer is a separate igniter-stack process. Here we stub
 # the HTTP client so the example runs inline.
 
 module ClientStubs

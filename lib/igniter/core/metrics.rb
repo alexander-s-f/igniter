@@ -6,13 +6,13 @@ require_relative "metrics/collector"
 require_relative "metrics/prometheus_exporter"
 
 module Igniter
-  # Metrics collection for Igniter contracts and igniter-server.
+  # Metrics collection for Igniter contracts and igniter-stack.
   #
   # The Collector subscribes to an Igniter::Events::Bus and maintains
   # in-memory counters and histograms with zero external dependencies.
   #
   # Prometheus text format is exported via PrometheusExporter — usable
-  # directly in the /v1/metrics endpoint of igniter-server.
+  # directly in the /v1/metrics endpoint of igniter-stack.
   #
   # Usage (standalone):
   #   require "igniter/core/metrics"
@@ -26,7 +26,7 @@ module Igniter
   #   )
   #   puts exporter.export
   #
-  # Usage (igniter-server — automatic when metrics_collector is set):
+  # Usage (igniter-stack — automatic when metrics_collector is set):
   #   Igniter::Server.configure do |c|
   #     c.metrics_collector = Igniter::Metrics::Collector.new
   #   end

@@ -55,8 +55,8 @@ RSpec.describe Igniter::Cluster::Replication::Bootstrappers::Gem do
   end
 
   describe "#start" do
-    it "uses igniter-server as the default startup script" do
-      expect(session).to receive(:exec!).with(include("igniter-server"))
+    it "uses igniter-stack as the default startup script" do
+      expect(session).to receive(:exec!).with(include("igniter-stack"))
       bootstrapper.start(session: session, manifest: manifest)
     end
 

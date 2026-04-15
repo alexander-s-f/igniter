@@ -2,7 +2,7 @@
 
 module Igniter
   module Model
-    # Represents a node that executes a contract on a remote igniter-server node.
+    # Represents a node that executes a contract on a remote igniter-stack node.
     # The result is the outputs hash returned by the remote contract.
     #
     # Three routing modes:

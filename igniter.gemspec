@@ -32,9 +32,9 @@ Gem::Specification.new do |spec|
   ].sort
 
   spec.bindir = "bin"
-  spec.executables = ["igniter-server"]
+  spec.executables = ["igniter-stack"]
   # spec.bindir = "exe"
-  # spec.executables = ["igniter-server"]
+  # spec.executables = ["igniter-stack"]
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "rake", "~> 13.0"

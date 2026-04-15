@@ -36,7 +36,7 @@ module Igniter
 
       # GET /v1/mesh/sd
       # Returns the peer list in Prometheus HTTP SD format so that Prometheus can
-      # dynamically discover all igniter-server scrape targets without a static target list.
+      # dynamically discover all igniter-stack scrape targets without a static target list.
       #
       # Response shape (one object per peer):
       #   [{ "targets" => ["host:port"], "labels" => { "__meta_igniter_peer_name" => ..., ... } }]

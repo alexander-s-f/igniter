@@ -17,7 +17,7 @@ module Igniter
         "igniter_executions_total" =>
           "Total contract executions completed",
         "igniter_http_requests_total" =>
-          "Total HTTP requests received by igniter-server"
+          "Total HTTP requests received by igniter-stack"
       }.freeze
 
       HISTOGRAM_META = {

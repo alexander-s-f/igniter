@@ -126,7 +126,7 @@ See [`docs/RAILS_INTEGRATION.md`](RAILS_INTEGRATION.md) (TODO) for the full refe
 
 Igniter provides a full stack scaffold — directory layout, YAML config, autoloading,
 scheduler, and HTTP hosting — via `Igniter::Stack`, leaf `Igniter::App` apps,
-and the `igniter-server` CLI.
+and the `igniter-stack` CLI.
 AI, tools, skills, and channels remain opt-in layers that an application can load when needed.
 
 ### When to choose
@@ -147,7 +147,7 @@ igniter + igniter/core + igniter/server + igniter/app
 
 ```bash
 gem install igniter
-igniter-server new my_app
+igniter-stack new my_app
 cd my_app && bundle install && bin/start
 ```
 
@@ -277,7 +277,7 @@ See [`docs/APP_V1.md`](APP_V1.md), [`docs/STACKS_V1.md`](STACKS_V1.md), and [`do
 
 ## Scenario 3 — Application Server Cluster (distributed network)
 
-**Profile:** multiple `igniter-server` nodes cooperating via Raft consensus, gossip mesh,
+**Profile:** multiple `igniter-stack` nodes cooperating via Raft consensus, gossip mesh,
 and distributed contract routing.
 
 Each node runs Scenario 2 (application server), plus the cluster layer adds:
@@ -310,14 +310,14 @@ igniter + igniter/core + igniter/server + igniter/cluster
 
 ```
           ┌─────────────────────┐
-          │   igniter-server    │  node 1 (leader)
+          │   igniter-stack    │  node 1 (leader)
           │   port 4567         │  PricingContract, OrderContract
           └──────────┬──────────┘
                      │  Raft + gossip
           ┌──────────┴──────────┐
           │                     │
 ┌─────────┴───────┐   ┌─────────┴───────┐
-│  igniter-server │   │  igniter-server │
+│  igniter-stack │   │  igniter-stack │
 │  port 4568      │   │  port 4569      │
 │  ScoringContract│   │  InventoryContract│
 └─────────────────┘   └─────────────────┘
@@ -420,7 +420,7 @@ The planned gem separation mirrors the same architecture:
 igniter               # core + extensions
   ├─ igniter-ai       # AI capability layer
   ├─ igniter-channels # transport capability layer
-  ├─ igniter-server   # hosting layer + transport for remote execution
+  ├─ igniter-stack   # hosting layer + transport for remote execution
   └─ igniter-cluster  # distributed hosting layer
 ```
 
@@ -429,7 +429,7 @@ Benefits of separation:
 - Embedded users don't pull in Raft and HTTP server code.
 - Capability layers can evolve on their own cadence.
 - Each tier has its own version cycle.
-- The `igniter-server` binary lives in the correct gem.
+- The `igniter-stack` binary lives in the correct gem.
 - Dependencies are explicit rather than load-time optional.
 
 Until the split is complete, the optional-require pattern enforces the same boundaries:

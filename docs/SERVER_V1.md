@@ -1,8 +1,8 @@
-# igniter-server v1
+# igniter-stack v1
 
 `Igniter::Server` is Igniter's HTTP hosting layer.
 
-`igniter-server` turns contracts into an HTTP service. Multiple server nodes can call
+`igniter-stack` turns contracts into an HTTP service. Multiple server nodes can call
 each other using the `remote:` DSL, while `Igniter::Cluster` adds the distributed
 coordination and routing layer on top.
 
@@ -34,10 +34,10 @@ Igniter::Server.start  # blocking
 
 ```bash
 # Start server, loading contracts from a file
-igniter-server start --port 4567 --require ./contracts.rb
+igniter-stack start --port 4567 --require ./contracts.rb
 
 # With a config block for additional setup
-igniter-server start --port 4567 --require ./contracts.rb --config ./server_config.rb
+igniter-stack start --port 4567 --require ./contracts.rb --config ./server_config.rb
 ```
 
 ### Rack / Puma (production)
@@ -262,7 +262,7 @@ List registered contracts with their input and output names.
 
 ## `remote:` DSL — Cross-Node Contract Composition
 
-Call a contract on a remote igniter-server as a node inside a local graph:
+Call a contract on a remote igniter-stack as a node inside a local graph:
 
 ```ruby
 require "igniter/server"
@@ -369,7 +369,7 @@ not at the first HTTP call.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: igniter-server
+  name: igniter-stack
 spec:
   replicas: 3
   template:
@@ -434,18 +434,18 @@ scrape_configs:
 
 ## Structured Logging
 
-igniter-server logs every request and lifecycle event to `$stdout`.
+igniter-stack logs every request and lifecycle event to `$stdout`.
 
 **Text format** (default, `:text`):
 ```
-[2026-04-10T12:00:00Z] INFO igniter-server started host=0.0.0.0 port=4567 pid=1
+[2026-04-10T12:00:00Z] INFO igniter-stack started host=0.0.0.0 port=4567 pid=1
 [2026-04-10T12:00:01Z] INFO POST /v1/contracts/MyContract/execute status=200
 [2026-04-10T12:00:02Z] INFO SIGTERM received — draining drain_timeout=30 pid=1
 ```
 
 **JSON format** (`:json`) — one JSON object per line, compatible with Loki, ELK, CloudWatch Logs:
 ```json
-{"time":"2026-04-10T12:00:00.123Z","level":"INFO","msg":"igniter-server started","host":"0.0.0.0","port":4567,"pid":1}
+{"time":"2026-04-10T12:00:00.123Z","level":"INFO","msg":"igniter-stack started","host":"0.0.0.0","port":4567,"pid":1}
 {"time":"2026-04-10T12:00:01.456Z","level":"INFO","msg":"POST /v1/contracts/MyContract/execute","status":200}
 ```
 
@@ -473,7 +473,7 @@ Set `terminationGracePeriodSeconds` in your Kubernetes Deployment to a value gre
 
 ## Security
 
-igniter-server ships with no built-in authentication. For production deployments:
+igniter-stack ships with no built-in authentication. For production deployments:
 
 - Place the server behind a reverse proxy (nginx, Caddy, AWS ALB) that handles TLS and auth
 - Use network-level access controls (VPC, security groups, firewall rules)

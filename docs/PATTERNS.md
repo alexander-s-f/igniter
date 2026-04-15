@@ -333,8 +333,8 @@ Guideline:
 
 - validate the `node:` URL at compile time — the graph will reject bad URLs before runtime
 - keep remote contracts on a shared input interface so they are easy to swap
-- igniter-server is stateless over HTTP; use a shared store for distributed state
-- start the service with `bin/igniter-server start --port 4568 --require ./contracts.rb`
+- igniter-stack is stateless over HTTP; use a shared store for distributed state
+- start the service with `bin/igniter-stack start --port 4568 --require ./contracts.rb`
 
 ## 11. LLM Compute Node
 

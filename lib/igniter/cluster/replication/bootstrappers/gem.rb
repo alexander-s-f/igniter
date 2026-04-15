@@ -7,7 +7,7 @@ module Igniter
       # Deploys by installing the igniter gem from RubyGems on the remote host.
       #
       # Optionally pins a specific gem version. The startup script defaults to
-      # the +igniter-server+ executable installed with the gem.
+      # the +igniter-stack+ executable installed with the gem.
       class Gem < Bootstrapper
         def initialize(version: nil, startup_script: nil)
           super()
@@ -24,7 +24,7 @@ module Igniter
 
         def start(session:, manifest:, target_path: "/opt/igniter") # rubocop:disable Lint/UnusedMethodArgument
           log_path = "#{target_path}/igniter.log"
-          script   = @startup_script || "igniter-server"
+          script   = @startup_script || "igniter-stack"
           session.exec!("nohup #{script} >> #{log_path} 2>&1 &")
         end
       end

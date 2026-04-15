@@ -7,14 +7,14 @@ Igniter is a Ruby gem for expressing business logic as a validated dependency gr
 - nested contract composition with isolated child executions
 - declarative routing (`branch`) and fan-out (`collection`)
 - distributed workflows: `await` events across process boundaries
-- multi-node deployments via `igniter-server` and the `remote:` DSL
+- multi-node deployments via `igniter-stack` and the `remote:` DSL
 - AI compute nodes with Ollama, Anthropic, and OpenAI providers
 - transport-neutral communication adapters via `Igniter::Channels`
 - Rails plugin: ActiveJob, ActionCable, webhook handlers, generators
 - runtime auditing, diagnostics reports, and reactive side effects
 - graph and runtime introspection (text, Mermaid)
 - ergonomic DSL helpers: `const`, `lookup`, `map`, `project`, `aggregate`, `guard`, `export`, `expose`, `effect`, `on_success`, `scope`, `namespace`
-- `Igniter::Stack` + `Igniter::App` — standard app runtime/profile with `apps/`, YAML config, autoloading, and scheduler; scaffold generation is an explicit pack behind `igniter-server new`
+- `Igniter::Stack` + `Igniter::App` — standard app runtime/profile with `apps/`, YAML config, autoloading, and scheduler; scaffold generation is an explicit pack behind `igniter-stack new`
 - capability-based security: declare executor resource requirements, enforce `Policy` at runtime
 - temporal contracts: reproducible historical execution via an explicit `as_of` time input
 - content-addressed computation: `pure` executors cached by input fingerprint across executions and processes
@@ -128,7 +128,7 @@ contract.diagnostics_text     # compact execution summary
 - **Branch**: declarative routing — select one child contract from ordered cases at runtime.
 - **Collection**: declarative fan-out — run one child contract per item in an array.
 - **Distributed workflows**: `await` external events; resume via `deliver_event`.
-- **igniter-server**: host contracts as a TCP/Rack HTTP service; call remote contracts with the `remote:` DSL.
+- **igniter-stack**: host contracts as a TCP/Rack HTTP service; call remote contracts with the `remote:` DSL.
 - **AI layer**: compute nodes powered by Ollama, Anthropic, or OpenAI providers.
 - **Rails plugin**: Railtie, ActiveJob base class, ActionCable adapter, webhook controller mixin.
 - **Auditing**: collect execution timelines and snapshots.
@@ -404,7 +404,7 @@ LeadWorkflow.deliver_event(:billing_received,
 
 See [`examples/distributed_server.rb`](examples/distributed_server.rb) and [`docs/DISTRIBUTED_CONTRACTS_V1.md`](docs/DISTRIBUTED_CONTRACTS_V1.md).
 
-### 10. igniter-server
+### 10. igniter-stack
 
 Host contracts as an HTTP service and call them from another graph with the `remote:` DSL:
 
@@ -445,10 +445,10 @@ Igniter::Server.start
 
 ```bash
 # Generate a new application scaffold
-igniter-server new my_app
+igniter-stack new my_app
 
 # Start a server directly
-igniter-server start --port 4568 --require ./contracts.rb
+igniter-stack start --port 4568 --require ./contracts.rb
 ```
 
 **Rack / Puma (`config.ru`):**
@@ -539,7 +539,7 @@ Package contracts, executors, scheduler, and server config into a stack with lea
 
 ```bash
 # Scaffold a new stack
-igniter-server new my_app
+igniter-stack new my_app
 cd my_app && bundle install && bin/start
 ```
 
@@ -770,7 +770,7 @@ See [`docs/DATAFLOW_V1.md`](docs/DATAFLOW_V1.md).
 | `ringcentral_routing.rb` | `ruby examples/ringcentral_routing.rb` | `branch`, nested `collection`, `project`, `aggregate`, diagnostics |
 | `order_pipeline.rb` | `ruby examples/order_pipeline.rb` | `guard` + `collection` + `branch` + `export` in one flow |
 | `distributed_server.rb` | `ruby examples/distributed_server.rb` | `await`, `correlate_by`, `start`, `deliver_event`, `on_success` |
-| `server/node1.rb` + `node2.rb` | run both, then curl | Two-node igniter-server with `remote:` DSL |
+| `server/node1.rb` + `node2.rb` | run both, then curl | Two-node igniter-stack with `remote:` DSL |
 | `llm/research_agent.rb` | `ruby examples/llm/research_agent.rb` | Multi-step LLM pipeline with Ollama |
 | `llm/tool_use.rb` | `ruby examples/llm/tool_use.rb` | LLM tool declarations, chained LLM nodes, `Context` |
 | `companion/bin/demo` | `ruby examples/companion/bin/demo` | Stack-based voice assistant demo with `apps/main` + `apps/inference` |
@@ -789,7 +789,7 @@ See [`docs/DATAFLOW_V1.md`](docs/DATAFLOW_V1.md).
 - [Collections v1](docs/COLLECTIONS_V1.md)
 - [Distributed Contracts v1](docs/DISTRIBUTED_CONTRACTS_V1.md)
 - [Store Adapters](docs/STORE_ADAPTERS.md)
-- [igniter-server v1](docs/SERVER_V1.md)
+- [igniter-stack v1](docs/SERVER_V1.md)
 - [LLM Integration v1](docs/LLM_V1.md)
 - [App scaffold v1](docs/APP_V1.md)
 - [Stacks v1](docs/STACKS_V1.md)
@@ -816,10 +816,10 @@ Current feature baseline:
 - compile-time graph validation, typed inputs, cycle detection
 - composition, branch, collection, guard, scope / namespace
 - distributed workflows: `await`, `correlate_by`, `start`, `deliver_event`
-- igniter-server: TCP server, Rack adapter, CLI, `remote:` DSL
+- igniter-stack: TCP server, Rack adapter, CLI, `remote:` DSL
 - AI layer: Ollama, Anthropic, OpenAI providers
 - Rails plugin: Railtie, ActiveJob, ActionCable, webhook controller mixin
-- `Igniter::Stack` + `Igniter::App`: stack scaffold, YAML config, autoloading, scheduler, generator (`igniter-server new`)
+- `Igniter::Stack` + `Igniter::App`: stack scaffold, YAML config, autoloading, scheduler, generator (`igniter-stack new`)
 - auditing, diagnostics, reactive subscriptions, graph introspection
 - capability-based security: `capabilities`, `pure`, `Policy`, `CapabilityViolationError`
 - temporal contracts: `include Igniter::Temporal`, `temporal_compute`, `as_of` input, historical reproduction

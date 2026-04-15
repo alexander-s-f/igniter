@@ -10,7 +10,7 @@ workspace-based demo in `examples/companion` becomes the canonical path.
 A demo stand for a realistic Igniter application.
 
 `examples/companion_legacy` is the older flat app layout that originally grew out of
-`igniter-server new`, then evolved into a richer product: it has an
+`igniter-stack new`, then evolved into a richer product: it has an
 `Igniter::App` entrypoint, canonical `app/contracts`, canonical `app/executors`, `app/tools`,
 `app/agents`, `app/skills`, `bin/` scripts, and a small `lib/` area for shared
 support code.

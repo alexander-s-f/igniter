@@ -398,7 +398,7 @@ The planned split into three gems mirrors the deployment hierarchy:
 
 ```
 igniter               # core library
-  └─ igniter-server   # server + application scaffold + actors + LLM
+  └─ igniter-stack   # server + application scaffold + actors + LLM
        └─ igniter-cluster   # consensus + mesh + replication
 ```
 

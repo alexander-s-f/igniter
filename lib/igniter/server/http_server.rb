@@ -36,7 +36,7 @@ module Igniter
         trap("INT")  { request_shutdown(:immediate) }
         trap("TERM") { request_shutdown(:graceful) }
 
-        @logger.info("igniter-server started",
+        @logger.info("igniter-stack started",
                      host: @config.host, port: @config.port, pid: Process.pid)
 
         loop do
@@ -53,7 +53,7 @@ module Igniter
                        drain_timeout: @config.drain_timeout, pid: Process.pid)
         end
         drain_in_flight
-        @logger.info("igniter-server stopped", pid: Process.pid)
+        @logger.info("igniter-stack stopped", pid: Process.pid)
       end
 
       def stop

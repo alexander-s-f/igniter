@@ -6,7 +6,7 @@ require "uri"
 
 module Igniter
   module Server
-    # HTTP client for calling remote igniter-server nodes.
+    # HTTP client for calling remote igniter-stack nodes.
     # Uses only stdlib (Net::HTTP + JSON), no external gems required.
     class Client # rubocop:disable Metrics/ClassLength
       class Error < Igniter::Server::Error; end

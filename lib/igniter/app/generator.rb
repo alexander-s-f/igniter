@@ -5,7 +5,7 @@ require "fileutils"
 module Igniter
   class App
     # Generates a new Igniter stack scaffold.
-    # Invoked via: igniter-server new my_app
+    # Invoked via: igniter-stack new my_app
     #
     # Creates:
     #   my_app/

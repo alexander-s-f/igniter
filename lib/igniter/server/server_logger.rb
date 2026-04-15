@@ -4,7 +4,7 @@ require "json"
 
 module Igniter
   module Server
-    # Minimal structured logger for igniter-server.
+    # Minimal structured logger for igniter-stack.
     #
     # format: :json  → each line is a JSON object (Loki/ELK/CloudWatch compatible)
     # format: :text  → human-readable single-line string

@@ -3,7 +3,7 @@
 module Igniter
   module Server
     # Rack-compatible application adapter.
-    # Allows igniter-server to run under any Rack-compatible server (Puma, Unicorn, etc.).
+    # Allows igniter-stack to run under any Rack-compatible server (Puma, Unicorn, etc.).
     #
     # Usage in config.ru:
     #   require "igniter/server"
