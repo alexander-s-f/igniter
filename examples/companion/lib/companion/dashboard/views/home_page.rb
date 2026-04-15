@@ -72,12 +72,12 @@ module Companion
           view.tag(:section, class: "hero") do |hero|
             hero.tag(:h1, "Companion Dashboard")
             hero.tag(:p,
-                     "Workspace-level overview for reminders, Telegram bindings, notification preferences, " \
+                     "Stack-level overview for reminders, Telegram bindings, notification preferences, " \
                      "notes, and execution-store state across companion apps.")
             hero.tag(:div, class: "meta") do |meta|
               meta.text("Generated #{snapshot.fetch(:generated_at)} · ")
-              meta.text("apps=#{snapshot.dig(:workspace, :apps).join(", ")} · ")
-              meta.text("default=#{snapshot.dig(:workspace, :default_app)}")
+              meta.text("apps=#{snapshot.dig(:stack, :apps).join(", ")} · ")
+              meta.text("default=#{snapshot.dig(:stack, :default_app)}")
             end
           end
         end

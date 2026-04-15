@@ -36,12 +36,12 @@ layer folders.
 | Contract DSL, model, compiler, runtime | `require "igniter"` |
 | Actor runtime and tool foundation | `require "igniter/core"` |
 | SDK registry / capability activation | `require "igniter/sdk"` |
-| Built-in operational tools | `require "igniter/tools"` |
+| Built-in operational tools | `require "igniter/sdk/tools"` |
 | Specific core features | `require "igniter/core/tool"`, `require "igniter/core/memory"`, `require "igniter/core/temporal"` |
-| App data persistence | `require "igniter/data"` |
+| App data persistence | `require "igniter/sdk/data"` |
 | Behavioral extensions | `require "igniter/extensions/auditing"`, `require "igniter/extensions/capabilities"` |
-| AI providers, skills, transcription | `require "igniter/ai"` |
-| Communication transports | `require "igniter/channels"` |
+| AI providers, skills, transcription | `require "igniter/sdk/ai"` |
+| Communication transports | `require "igniter/sdk/channels"` |
 | HTTP hosting | `require "igniter/server"` |
 | Opinionated app profile | `require "igniter/app"` |
 | Narrow app runtime | `require "igniter/app/runtime"` |
@@ -53,8 +53,7 @@ layer folders.
 - **Core**: the hard foundation loaded through `require "igniter"` and `require "igniter/core/*"`.
 - **Core features**: focused building blocks that still belong to core, such as tools, memory, metrics, temporal support, and caches.
 - **Extensions**: opt-in behavioral add-ons loaded from `igniter/extensions/*`.
-- **Capability layers**: optional subsystems such as `Igniter::AI` and `Igniter::Channels`.
-- **Data layer**: `Igniter::Data`, a tiny JSON-first persistence API for app records such as chat bindings, notes, and sessions.
+- **SDK packs**: optional shared capabilities loaded from `igniter/sdk/*`, such as `Igniter::AI`, `Igniter::Channels`, `Igniter::Data`, and the built-in tools pack.
 - **Hosting layers**: `Igniter::Server` and `Igniter::Cluster`.
 - **Profile**: `Igniter::Stack` + `Igniter::App`, a packaged way to assemble an app and run it through host, loader, and scheduler adapters. The public entrypoint is `require "igniter/app"`. The defaults are `host :app`, `loader :filesystem`, and `scheduler :threaded`, and `require "igniter/cluster"` adds `host :cluster_app` for cluster-aware apps.
 - **Plugin**: framework-specific integration such as `Igniter::Rails`.
@@ -83,6 +82,10 @@ end
 
 Igniter::Cluster.use :channels
 ```
+
+Direct `require "igniter/ai"`, `require "igniter/channels"`, `require "igniter/data"`, and
+`require "igniter/tools"` remain available as convenience aliases, but the canonical
+optional-pack surface now lives under `igniter/sdk/*`.
 
 ---
 

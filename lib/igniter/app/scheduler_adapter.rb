@@ -4,7 +4,7 @@ module Igniter
   class App
     # Abstract seam for background job runtime ownership.
     #
-    # Application owns job declarations via `schedule`, while the scheduler
+    # App owns job declarations via `schedule`, while the scheduler
     # adapter decides how those jobs are executed, started, and stopped.
     class SchedulerAdapter
       def start(config:, jobs:)

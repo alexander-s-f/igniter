@@ -10,7 +10,7 @@ deployment modes:
 The goal is not only namespacing. The goal is load-bearing separation:
 
 - a Rails app should be able to `require "igniter"` without pulling in server,
-  cluster, AI, workspace, or operational tooling concerns
+  cluster, AI, stack, or operational tooling concerns
 - upper layers should compose the lower ones explicitly
 - shared seams should be narrow, stable, and replaceable
 
@@ -51,22 +51,22 @@ Primary entrypoints:
 ```ruby
 require "igniter/app"
 require "igniter/core"
-require "igniter/ai"        # optional
-require "igniter/channels"  # optional
+require "igniter/sdk/ai"        # optional
+require "igniter/sdk/channels"  # optional
 ```
 
 Responsibility:
 
 - single-machine hosting
 - Rack / HTTP server
-- workspace / app profile
+- stack / app profile
 - agent runtime
 - AI and communication capabilities when requested by the app
 
 Conceptually:
 
 ```text
-Server = Embed + hosting + app profile + actor/tool kit + optional AI/channels
+Server = Embed + hosting + app/stack profile + actor/tool kit + optional AI/channels
 ```
 
 `Igniter::App` stays above `Igniter::Server`. It is not a peer of the
@@ -105,15 +105,15 @@ Embed
   ├─ AI
   ├─ Channels
   └─ Server
-       └─ Application / Workspace
+       └─ App / Stack
             └─ Cluster
 ```
 
 Practical rules:
 
-- `Embed` must not require `Server`, `Application`, `Cluster`, `AI`, or `Channels`.
+- `Embed` must not require `Server`, `App`, `Stack`, `Cluster`, `AI`, or `Channels`.
 - `Server` may depend on `Embed`, actor/tool primitives, and optional capability layers.
-- `Application` may depend on `Server`, but `Server` should not depend on `Application`.
+- `App` may depend on `Server`, but `Server` should not depend on `App`.
 - `Cluster` may depend on `Server`, but `Server` must not depend on `Cluster`.
 - `AI` and `Channels` are capabilities, not the base kernel.
 
@@ -143,7 +143,7 @@ Keep separate:
 
 - embedded execution config
 - server transport / registry config
-- workspace / application profile config
+- stack / app profile config
 - cluster topology / ownership / consensus config
 
 The same object should not grow into a universal cross-layer config bag.
@@ -156,7 +156,7 @@ as local environment discovery do not belong in the minimal core load path.
 Entry point split:
 
 - `require "igniter/core"` — actor/tool primitives
-- `require "igniter/tools"` — built-in operational tool pack
+- `require "igniter/sdk/tools"` — built-in operational tool pack
 
 ### Data seam
 
@@ -176,7 +176,7 @@ Implemented now:
 
 - `require "igniter"` remains the embedded kernel entrypoint
 - `require "igniter/core"` no longer auto-loads built-in operational tools
-- built-in system/bootstrap tools now live behind `require "igniter/tools"`
+- built-in system/bootstrap tools now live behind `require "igniter/sdk/tools"`
 - `Igniter::SDK` can register and activate optional capability packs per layer
 - `Igniter.use`, `Igniter::App.use`, `Igniter::Server.use`, and `Igniter::Cluster.use`
   now provide a thin declarative wrapper over ordinary `require`
@@ -187,7 +187,7 @@ Implemented now:
 
 1. Keep transport activation explicit in examples, docs, and generated apps instead
    of relying on `require` side effects.
-2. Split server-facing config objects from workspace/profile config more sharply.
+2. Split server-facing config objects from stack/profile config more sharply.
 3. Decide whether generic non-AI agents remain in the actor/tool kit or move under
    a dedicated server-mode standard library entrypoint.
 4. Keep examples and generated apps loading the smallest entrypoints they need.

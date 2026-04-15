@@ -338,9 +338,9 @@ ruby examples/companion/bin/demo
 
 Shows:
 
-- `Igniter::Workspace` — root coordinator for `apps/*`
+- `Igniter::Stack` — root coordinator for `apps/*`
 - `Igniter::App` — leaf apps under `apps/main` and `apps/inference`
-- workspace-shaped voice assistant demo
+- stack-shaped voice assistant demo
 - local end-to-end ASR → Intent → Chat → TTS pipeline using mock executors
 
 ### `companion_legacy/bin/demo`

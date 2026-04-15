@@ -122,13 +122,13 @@ scheduler :threaded   # default
 
 and custom adapters can be selected through the scheduler registry.
 
-Application code loading is pluggable too:
+App code loading is pluggable too:
 
 ```ruby
 loader :filesystem   # default eager file loader
 ```
 
-If your application uses scaffold generation APIs such as
+If your app uses scaffold generation APIs such as
 `Igniter::App::Generator`, load `require "igniter/app/scaffold_pack"`.
 Internally, `require "igniter/app"` now assembles its runtime behavior via
 `require "igniter/app/runtime_pack"` and
@@ -136,7 +136,7 @@ Internally, `require "igniter/app"` now assembles its runtime behavior via
 If you want just the leaf application runtime without stack support, use
 `require "igniter/app/runtime"` instead.
 
-If your application uses custom tools or agents, also load `require "igniter/core"`.
+If your app uses custom tools or agents, also load `require "igniter/core"`.
 If it uses the built-in operational tool pack, load `require "igniter/tools"`.
 If it uses skills, providers, or `Igniter::AI.configure`, also load `require "igniter/ai"`.
 

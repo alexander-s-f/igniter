@@ -170,6 +170,7 @@ RSpec.describe "Igniter layer loading" do
     features = loaded_igniter_features("igniter/tools")
 
     expect(features).to include("igniter/tools.rb")
+    expect(features).to include("igniter/sdk/tools.rb")
     expect(features).to include("igniter/core.rb")
     expect(features).to include("igniter/core/tool/system_discovery_tool.rb")
     expect(features).to include("igniter/core/tool/local_workflow_selector_tool.rb")
@@ -178,6 +179,71 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/application.rb")
     expect(features).not_to include("igniter/cluster.rb")
     expect(features).not_to include("igniter/ai.rb")
+  end
+
+  it "`require \"igniter/sdk/ai\"` loads the canonical AI SDK pack directly" do
+    features = loaded_igniter_features("igniter/sdk/ai")
+
+    expect(features).to include("igniter/sdk/ai.rb")
+    expect(features).to include("igniter/ai/config.rb")
+    expect(features).not_to include("igniter/ai.rb")
+    expect(features).not_to include("igniter/server.rb")
+    expect(features).not_to include("igniter/app.rb")
+    expect(features).not_to include("igniter/cluster.rb")
+  end
+
+  it "`require \"igniter/ai\"` is a convenience alias over the AI SDK pack" do
+    features = loaded_igniter_features("igniter/ai")
+
+    expect(features).to include("igniter/ai.rb")
+    expect(features).to include("igniter/sdk/ai.rb")
+  end
+
+  it "`require \"igniter/sdk/channels\"` loads the canonical channels SDK pack directly" do
+    features = loaded_igniter_features("igniter/sdk/channels")
+
+    expect(features).to include("igniter/sdk/channels.rb")
+    expect(features).to include("igniter/channels/message.rb")
+    expect(features).not_to include("igniter/channels.rb")
+    expect(features).not_to include("igniter/server.rb")
+    expect(features).not_to include("igniter/app.rb")
+    expect(features).not_to include("igniter/cluster.rb")
+  end
+
+  it "`require \"igniter/channels\"` is a convenience alias over the channels SDK pack" do
+    features = loaded_igniter_features("igniter/channels")
+
+    expect(features).to include("igniter/channels.rb")
+    expect(features).to include("igniter/sdk/channels.rb")
+  end
+
+  it "`require \"igniter/sdk/data\"` loads the canonical data SDK pack directly" do
+    features = loaded_igniter_features("igniter/sdk/data")
+
+    expect(features).to include("igniter/sdk/data.rb")
+    expect(features).to include("igniter/data/store.rb")
+    expect(features).not_to include("igniter/data.rb")
+    expect(features).not_to include("igniter/server.rb")
+    expect(features).not_to include("igniter/app.rb")
+    expect(features).not_to include("igniter/cluster.rb")
+  end
+
+  it "`require \"igniter/data\"` is a convenience alias over the data SDK pack" do
+    features = loaded_igniter_features("igniter/data")
+
+    expect(features).to include("igniter/data.rb")
+    expect(features).to include("igniter/sdk/data.rb")
+  end
+
+  it "`require \"igniter/sdk/tools\"` loads the canonical tools SDK pack directly" do
+    features = loaded_igniter_features("igniter/sdk/tools")
+
+    expect(features).to include("igniter/sdk/tools.rb")
+    expect(features).to include("igniter/core/tool/system_discovery_tool.rb")
+    expect(features).not_to include("igniter/tools.rb")
+    expect(features).not_to include("igniter/server.rb")
+    expect(features).not_to include("igniter/app.rb")
+    expect(features).not_to include("igniter/cluster.rb")
   end
 
   it "`require \"igniter/server\"` does not mutate the runtime remote adapter by itself" do

@@ -4,7 +4,7 @@ module Igniter
   class App
     # Abstract seam for application code loading.
     #
-    # Application declares which path groups exist, while the loader adapter owns
+    # App declares which path groups exist, while the loader adapter owns
     # how those files are discovered and required.
     class LoaderAdapter
       def load!(base_dir:, paths:)

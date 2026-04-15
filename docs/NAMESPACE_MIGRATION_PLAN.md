@@ -99,7 +99,7 @@ Igniter::Channels       # communication adapters (Telegram, WhatsApp, email, web
 - `Tool` is a core abstraction.
 - `Skill` is an AI abstraction, not a core abstraction.
 - Communication transports are not AI features; they live in `Channels`.
-- `Application` is a packaging/profile layer, not a capability layer between `core` and `server`.
+- `App` is a packaging/profile layer, not a capability layer between `core` and `server`.
 
 ## Target Responsibilities
 
@@ -132,7 +132,7 @@ Igniter::Channels       # communication adapters (Telegram, WhatsApp, email, web
 - transcription providers and result objects
 - AI-oriented built-in agents
 
-### Keep Application above Server
+### Keep App above Server
 
 `Igniter::App` currently requires `igniter/server` and uses a server-backed host
 adapter by default. It should stay a profile/framework over hosting, not a sibling
@@ -256,9 +256,9 @@ Decision rule:
 - If an agent assumes LLMs or AI workflows, keep it under `Igniter::AI::Agents`.
 - If an agent is proactive/monitoring behavior without AI coupling, keep it under `Igniter::Agents`.
 
-## Phase 5: Keep Application as a profile over Server
+## Phase 5: Keep App as a profile over Server
 
-Application-related files should stay grouped and remain above server concerns.
+App-related files should stay grouped and remain above server concerns.
 
 | Current path | Target path | Target namespace |
 |-------------|-------------|------------------|
@@ -269,7 +269,7 @@ Application-related files should stay grouped and remain above server concerns.
 | `lib/igniter/app/yml_loader.rb` | `lib/igniter/app/yml_loader.rb` | `Igniter::App::YmlLoader` |
 | `lib/igniter/app/generator.rb` | `lib/igniter/app/generator.rb` | `Igniter::App::Generator` |
 
-No need to invent `Igniter::Server::Application` unless the codebase later proves it cleaner.
+No need to invent `Igniter::Server::App` unless the codebase later proves it cleaner.
 
 ## Phase 6: Introduce Channels
 
@@ -386,5 +386,5 @@ This gives a clean early win without mixing structural reorg and hard runtime re
 - A reader can tell from path and namespace which layer owns a file.
 - Embedded Rails users can load core plus AI without loading server or cluster.
 - Future Telegram/WhatsApp adapters have a clear home in `Igniter::Channels`.
-- `Application` remains a profile over `Server`.
+- `App` remains a profile over `Server`.
 - Core no longer directly references `Server::Client` or `Mesh`.

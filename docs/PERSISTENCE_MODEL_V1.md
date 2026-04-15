@@ -146,16 +146,16 @@ Core should remain storage-agnostic.
 
 It may define interfaces and store adapters, but must not require a database server.
 
-### Application / Workspace
+### App / Stack
 
-Application profile should be local-first by default.
+App and stack profiles should be local-first by default.
 
 Recommended defaults:
 
 - `Igniter::Data::Stores::SQLite`
 - `Igniter::Runtime::Stores::SQLiteStore`
 
-This is practical for single-node apps and development workspaces.
+This is practical for single-node apps and development stacks.
 
 ### Cluster
 

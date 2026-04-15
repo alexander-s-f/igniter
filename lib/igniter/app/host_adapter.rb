@@ -4,7 +4,7 @@ module Igniter
   class App
     # Abstract host adapter seam for application runtimes.
     #
-    # Application owns app assembly (autoloading, config layering, registration,
+    # App owns app assembly (autoloading, config layering, registration,
     # scheduling), while the host adapter owns deployment/runtime specifics such
     # as transport activation and the concrete object returned by #start/#rack_app.
     class HostAdapter

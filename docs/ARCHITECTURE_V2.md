@@ -37,8 +37,8 @@ see [Persistence Model v1](./PERSISTENCE_MODEL_V1.md).
 │  Igniter::Cluster                                                  │
 │  Consensus · Mesh · Replication · cluster-aware remote routing     │
 ├─────────────────────────────────────────────────────────────────────┤
-│  Application / Hosting Layers                                      │
-│  Igniter::App · Igniter::Server                            │
+│  App / Hosting Layers                                              │
+│  Igniter::App · Igniter::Server                                    │
 │  App scaffold · scheduler · autoloading · Rack · HTTP transport    │
 ├─────────────────────────────────────────────────────────────────────┤
 │  Capability Layers                                                 │
@@ -76,8 +76,8 @@ or transport concerns without changing domain contracts.
 - **Core features** are focused facilities still owned by core, for example tools, memory, metrics, temporal support, capabilities, and caches.
 - **Extensions** are optional behavioral add-ons loaded from `igniter/extensions/*`.
 - **Capability layers** are optional subsystems such as `Igniter::AI` and `Igniter::Channels`.
-- **Hosting layers** are `Igniter::Server` and `Igniter::Cluster`.
-- **Profile** means `Igniter::App`: a packaged assembly/runtime style over `Igniter::Server`.
+- **Hosting layer** means `Igniter::Server`.
+- **Profiles** mean `Igniter::App` and `Igniter::Stack`: packaged runtime/composition styles over the hosting layer.
 - **Plugin** means framework-specific integration such as `Igniter::Rails`.
 
 ---
@@ -280,22 +280,22 @@ Lifecycle: loader adapter → `on_boot` blocks → `configure` blocks → build 
 
 `Igniter::App` is a profile over hosting. Today the default host adapter is
 `Igniter::App::AppHost`, so the public API still runs on top of
-`Igniter::Server` without hard-wiring HTTP classes into `Application` itself.
+`Igniter::Server` without hard-wiring HTTP classes into the app profile itself.
 
 When an app needs cluster-aware hosting, it can opt into
 `Igniter::App::ClusterAppHost`, which layers mesh/bootstrap concerns on top of
-the same host model. The application
+the same host model. The app
 declares this through `host :cluster_app`, while `host_adapter(...)` remains available
 for fully custom hosts. Canonical host profiles are now supplied through
 `Igniter::App::HostRegistry`, so future host packs can register
-themselves without pushing more branching logic back into `Application`. In other
+themselves without pushing more branching logic back into `Igniter::App`. In other
 words, `require "igniter/app"` registers the server host pack, the default
 filesystem loader pack, and the default threaded scheduler pack, while
 `require "igniter/cluster"` extends the host registry with the cluster host pack.
 Scaffold generation is no longer part of the runtime entrypoint; it is loaded
-explicitly through `require "igniter/app/scaffold_pack"`. The application
+explicitly through `require "igniter/app/scaffold_pack"`. The app
 entrypoint itself is now a thin manifest over `igniter/app/runtime_pack`
-plus `igniter/app/workspace_pack`, while
+plus `igniter/app/stack_pack`, while
 `require "igniter/app/runtime"` exposes just the leaf runtime side.
 
 ---
@@ -381,7 +381,7 @@ Primary families:
 | `lib/igniter/core/type_system.rb` | Core | Type validation |
 | `lib/igniter/core/errors.rb` | Core | Error hierarchy |
 | `lib/igniter/server/rack_app.rb` | Server | HTTP request handling |
-| `lib/igniter/app.rb` | Application | Application scaffold entry point |
+| `lib/igniter/app.rb` | App | App scaffold entry point |
 | `lib/igniter/core/agent.rb` | Core | Actor agent base class entry point |
 | `lib/igniter/core/tool.rb` | Core | Tool base class entry point |
 | `lib/igniter/ai/skill.rb` | AI | Skill base class |

@@ -40,6 +40,7 @@ RSpec.describe Igniter::SDK do
 
       expect(described_class.activated?(:data)).to be(true)
       expect(defined?(Igniter::Data)).to eq("constant")
+      expect($LOADED_FEATURES.grep(/igniter\/sdk\/data\.rb$/)).not_to be_empty
     end
 
     it "rejects capabilities that are forbidden for a layer" do

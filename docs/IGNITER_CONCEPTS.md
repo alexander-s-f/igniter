@@ -111,7 +111,7 @@ Igniter is intentionally layered:
 - **Core features**: actors, tools, memory, metrics, temporal support, caches
 - **Extensions**: auditing, provenance, incremental, dataflow, invariants, and similar behavioral add-ons
 - **Capability layers**: AI and Channels
-- **Hosting layers**: Server, Application, Cluster
+- **Hosting/profile layers**: Server, App, Cluster
 - **Plugins**: framework-specific integrations such as Rails
 
 That layering exists so that embedded use stays small, while larger deployments can add hosting and distributed concerns without rewriting domain contracts.

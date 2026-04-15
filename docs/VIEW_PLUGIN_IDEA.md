@@ -39,12 +39,12 @@ Possible future package names:
 - `igniter-arbre`
 - `Igniter::Plugins::View`
 
-The plugin would sit above `Igniter::App` and `Igniter::Server`:
+The plugin would sit above `Igniter::App`, `Igniter::Stack`, and `Igniter::Server`:
 
 ```text
 Core
   -> Server
-    -> Application / Workspace
+    -> App / Stack
       -> optional View plugin
 ```
 

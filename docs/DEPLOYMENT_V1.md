@@ -120,14 +120,14 @@ See [`docs/RAILS_INTEGRATION.md`](RAILS_INTEGRATION.md) (TODO) for the full refe
 
 ---
 
-## Scenario 2 — Application Server (single machine)
+## Scenario 2 — App Server (single machine)
 
 **Profile:** standalone HTTP service hosting contracts, single node.
 
 Igniter provides a full stack scaffold — directory layout, YAML config, autoloading,
 scheduler, and HTTP hosting — via `Igniter::Stack`, leaf `Igniter::App` apps,
 and the `igniter-stack` CLI.
-AI, tools, skills, and channels remain opt-in layers that an application can load when needed.
+AI, tools, skills, and channels remain opt-in layers that an app can load when needed.
 
 ### When to choose
 
@@ -275,7 +275,7 @@ See [`docs/APP_V1.md`](APP_V1.md), [`docs/STACKS_V1.md`](STACKS_V1.md), and [`do
 
 ---
 
-## Scenario 3 — Application Server Cluster (distributed network)
+## Scenario 3 — App Server Cluster (distributed network)
 
 **Profile:** multiple `igniter-stack` nodes cooperating via Raft consensus, gossip mesh,
 and distributed contract routing.
