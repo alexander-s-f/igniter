@@ -7,7 +7,7 @@ Companion::Boot.setup_load_path!
 
 require "igniter"
 require "igniter/core"
-require "igniter/ai"
+require "igniter/sdk/ai"
 require "base64"
 
 COMPANION_ROOT = Companion::Boot.root unless defined?(COMPANION_ROOT)

@@ -9,7 +9,7 @@ Dir.chdir(Companion::Boot.root)
 require "igniter"
 require "base64"
 require "igniter/core"
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 Companion::Boot.configure_persistence!(app_name: :main)
 Companion::Boot.load_demo!(real_llm: ENV["COMPANION_REAL_LLM"])

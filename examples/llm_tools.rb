@@ -16,7 +16,7 @@
 
 require "igniter"
 require "igniter/core/tool"
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 puts "=" * 62
 puts "  Igniter::Tool Demo"

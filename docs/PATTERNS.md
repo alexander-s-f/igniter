@@ -347,7 +347,7 @@ Examples:
 Key DSL:
 
 ```ruby
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 Igniter::AI.configure do |c|
   c.default_provider = :anthropic

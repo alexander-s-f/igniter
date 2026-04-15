@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "json"
-require "igniter/channels"
+require "igniter/sdk/channels"
 require_relative "current_session"
 require_relative "conversation_store"
 require_relative "notification_preferences_store"

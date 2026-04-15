@@ -209,7 +209,7 @@ Optional packages that enrich the core without modifying it.
 
 ## AI Layer
 
-Activated by `require "igniter/ai"`.
+Activated by `require "igniter/sdk/ai"`.
 
 ### `Igniter::AI`
 
@@ -228,7 +228,7 @@ Providers: Ollama · Anthropic · OpenAI (+ compatible providers such as Groq, M
 
 ## Channels Layer
 
-Activated by `require "igniter/channels"`.
+Activated by `require "igniter/sdk/channels"`.
 
 ### `Igniter::Channels`
 
@@ -412,7 +412,7 @@ require "igniter/extensions/saga"
 # Server: adds the server layer
 require "igniter/server"
 require "igniter/app"
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 # Cluster: adds consensus and mesh on top of server
 require "igniter/cluster"

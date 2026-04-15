@@ -36,7 +36,7 @@
 
 $LOAD_PATH.unshift File.join(__dir__, "../../lib")
 require "igniter"
-require "igniter/ai"
+require "igniter/sdk/ai"
 require "json"
 
 # ── Configuration ──────────────────────────────────────────────────────────────

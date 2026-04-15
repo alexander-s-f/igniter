@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/ai"
+require "igniter/sdk/ai"
 require "igniter/core/tool"
 require_relative "../tools/time_tool"
 require_relative "../tools/weather_tool"

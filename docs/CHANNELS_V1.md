@@ -7,7 +7,7 @@ webhook delivery, and CRM/call-center notification transports.
 Load it with:
 
 ```ruby
-require "igniter/channels"
+require "igniter/sdk/channels"
 ```
 
 ## Core objects
@@ -39,7 +39,7 @@ The envelope is intentionally generic:
 ## Writing a channel adapter
 
 ```ruby
-require "igniter/channels"
+require "igniter/sdk/channels"
 
 class TelegramChannel < Igniter::Channels::Base
   channel_name :telegram
@@ -75,7 +75,7 @@ Any other exception is wrapped into `Igniter::Channels::DeliveryError`.
 The first built-in transport is `Igniter::Channels::Webhook`.
 
 ```ruby
-require "igniter/channels"
+require "igniter/sdk/channels"
 
 webhook = Igniter::Channels::Webhook.new(
   url: "https://hooks.example.com/events",
@@ -109,7 +109,7 @@ events.
 `Igniter::Channels::Telegram` is the first built-in user-facing messaging adapter.
 
 ```ruby
-require "igniter/channels"
+require "igniter/sdk/channels"
 
 telegram = Igniter::Channels::Telegram.new(
   bot_token: ENV["TELEGRAM_BOT_TOKEN"],

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/channels"
+require "igniter/sdk/channels"
 require "igniter/core/tool"
 require_relative "../../../../lib/companion/shared/telegram_bindings_store"
 

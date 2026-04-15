@@ -2,7 +2,7 @@
 
 This document describes the LLM-focused part of Igniter's AI layer.
 
-Igniter's AI layer (`require "igniter/ai"`) makes language models
+Igniter's AI layer (`require "igniter/sdk/ai"`) makes language models
 first-class compute nodes inside a graph. A multi-step LLM pipeline — classify, assess,
 draft a response — is just a normal Igniter contract with chained `compute` nodes backed
 by LLM executors. Caching, invalidation, auditing, and diagnostics all work the same way.
@@ -10,7 +10,7 @@ by LLM executors. Caching, invalidation, auditing, and diagnostics all work the 
 ## Quick Start
 
 ```ruby
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 Igniter::AI.configure do |c|
   c.default_provider = :anthropic

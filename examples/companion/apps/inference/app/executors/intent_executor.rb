@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 module Companion
   class IntentExecutor < Igniter::AI::Executor

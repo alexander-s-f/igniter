@@ -12,11 +12,11 @@ Use the smallest entrypoint that matches the deployment mode:
 |------|---------|
 | Core contracts and runtime | `require "igniter"` |
 | Actor / tool foundation | `require "igniter/core"` |
-| Built-in operational tools | `require "igniter/tools"` |
+| Built-in operational tools | `require "igniter/sdk/tools"` |
 | Specific core features | `require "igniter/core/temporal"`, `require "igniter/core/node_cache"` |
 | Extensions | `require "igniter/extensions/auditing"`, `require "igniter/extensions/capabilities"` |
-| AI | `require "igniter/ai"` |
-| Channels | `require "igniter/channels"` |
+| AI | `require "igniter/sdk/ai"` |
+| Channels | `require "igniter/sdk/channels"` |
 | HTTP hosting | `require "igniter/server"` |
 | App profile | `require "igniter/app"` |
 | Cluster runtime | `require "igniter/cluster"` |
@@ -53,7 +53,7 @@ igniter
 ```
 
 No server, no cluster, no HTTP transport. Add `igniter/core/*`, `igniter/extensions/*`,
-`igniter/tools`, `igniter/ai`, or `igniter/channels` only when your app needs them.
+`igniter/sdk/tools`, `igniter/sdk/ai`, or `igniter/sdk/channels` only when your app needs them.
 
 ### Structure — entirely up to the user
 
@@ -139,8 +139,8 @@ AI, tools, skills, and channels remain opt-in layers that an app can load when n
 
 ```
 igniter + igniter/core + igniter/server + igniter/app
-    + optional igniter/ai
-    + optional igniter/channels
+    + optional igniter/sdk/ai
+    + optional igniter/sdk/channels
 ```
 
 ### Scaffold
@@ -212,7 +212,7 @@ end
 # apps/main/app.rb
 require "igniter/app"
 require "igniter/core"
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 module MyApp
   class MainApp < Igniter::App
@@ -439,7 +439,7 @@ Until the split is complete, the optional-require pattern enforces the same boun
 | Core | `require "igniter"` |
 | Core features | `require "igniter/core"` or `require "igniter/core/<feature>"` |
 | Extensions | `require "igniter/extensions/<feature>"` |
-| Capability layers | `require "igniter/ai"` / `require "igniter/channels"` |
+| Capability layers | `require "igniter/sdk/ai"` / `require "igniter/sdk/channels"` |
 | Hosting profile | `require "igniter/app"` |
 | Hosting layer | `require "igniter/server"` |
 | Distributed hosting | `require "igniter/cluster"` |

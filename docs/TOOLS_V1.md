@@ -49,7 +49,7 @@ end
 Igniter can also expose a safe host snapshot tool for environment-aware agents:
 
 ```ruby
-require "igniter/tools"
+require "igniter/sdk/tools"
 
 result = Igniter::Tools::SystemDiscoveryTool.new.call_with_capability_check!(
   allowed_capabilities: [:system_read],
@@ -132,7 +132,7 @@ DatabaseLookup.to_schema(:openai)
 ## `Igniter::AI::ToolRegistry` — discovery and schema export
 
 ```ruby
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 # Global registration (typically in an initializer)
 Igniter::AI::ToolRegistry.register(Calculator, DatabaseLookup, SendEmail)
@@ -317,8 +317,8 @@ Each provider handles its own format in `normalize_messages`.
 
 ```ruby
 require "igniter/core/tool"
-require "igniter/ai"
-require "igniter/ai"
+require "igniter/sdk/ai"
+require "igniter/sdk/ai"
 
 class SearchWeb < Igniter::Tool
   description "Search the internet for current information"

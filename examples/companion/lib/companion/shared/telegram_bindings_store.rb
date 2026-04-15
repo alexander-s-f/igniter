@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "time"
-require "igniter/data"
+require "igniter/sdk/data"
 
 module Companion
   module TelegramBindingsStore

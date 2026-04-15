@@ -27,8 +27,8 @@ Current public entrypoints:
 - `require "igniter/core"` — actor runtime and tool foundation
 - `require "igniter/core/<feature>"` — focused core features such as `tool`, `memory`, `temporal`, `metrics`
 - `require "igniter/extensions/<feature>"` — behavioral extensions such as `auditing`, `capabilities`, `content_addressing`
-- `require "igniter/ai"` — AI providers, executors, skills, transcription
-- `require "igniter/channels"` — transport-neutral communication adapters
+- `require "igniter/sdk/ai"` — AI providers, executors, skills, transcription
+- `require "igniter/sdk/channels"` — transport-neutral communication adapters
 - `require "igniter/server"` — HTTP/service hosting
 - `require "igniter/cluster"` — distributed runtime
 - `require "igniter/app"` — opinionated application profile

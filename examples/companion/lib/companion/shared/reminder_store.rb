@@ -2,7 +2,7 @@
 
 require "securerandom"
 require "time"
-require "igniter/data"
+require "igniter/sdk/data"
 
 module Companion
   module ReminderStore

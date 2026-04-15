@@ -481,7 +481,7 @@ Use language models as first-class compute nodes. Supported providers: Ollama (l
 Anthropic (Claude), OpenAI (and compatible APIs: Groq, Mistral, Azure OpenAI):
 
 ```ruby
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 Igniter::AI.configure do |c|
   c.default_provider = :anthropic

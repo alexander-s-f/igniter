@@ -22,7 +22,7 @@ module Companion
     end
 
     def configure_ai!
-      require "igniter/ai"
+      require "igniter/sdk/ai"
 
       Igniter::AI.configure do |config|
         config.default_provider = :ollama
@@ -32,14 +32,14 @@ module Companion
 
     def configure_persistence!(app_name: default_app_name)
       require "igniter"
-      require "igniter/data"
+      require "igniter/sdk/data"
 
       Igniter::Data.default_store = default_data_store(app_name: app_name)
       Igniter.execution_store = default_execution_store(app_name: app_name)
     end
 
     def default_data_store(app_name: default_app_name)
-      require "igniter/data"
+      require "igniter/sdk/data"
 
       @default_data_stores ||= {}
       key = app_name.to_sym

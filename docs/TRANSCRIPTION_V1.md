@@ -25,7 +25,7 @@ audio file / URL
 ## Quick start
 
 ```ruby
-require "igniter/ai"
+require "igniter/sdk/ai"
 
 Igniter::AI.configure do |c|
   c.deepgram.api_key = ENV["DEEPGRAM_API_KEY"]
