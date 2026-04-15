@@ -811,6 +811,7 @@ See [`docs/DATAFLOW_V1.md`](docs/DATAFLOW_V1.md).
 
 ```bash
 rake          # specs + RuboCop
+rake architecture # architectural boundary guards
 rake spec     # tests only
 rake rubocop  # lint only
 rake build    # build gem

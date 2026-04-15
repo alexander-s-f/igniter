@@ -8,6 +8,7 @@ Igniter is a Ruby gem for declaring and executing business logic as validated de
 
 ```bash
 rake          # Run specs + RuboCop (default)
+rake architecture # Run architectural boundary guards
 rake spec     # Run tests only
 rake rubocop  # Lint only
 rake build    # Build gem
