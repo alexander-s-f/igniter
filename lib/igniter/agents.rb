@@ -16,7 +16,7 @@
 #   Observability — Igniter::Agents::MetricsAgent
 #
 # AI-oriented agents live under:
-#   require "igniter/ai/agents"
+#   require "igniter/sdk/ai/agents"
 #   Igniter::AI::Agents::*
 #
 require_relative "core"
