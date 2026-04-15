@@ -151,6 +151,7 @@ core foundation
 
 Read next:
 
+- [SDK v1](./SDK_V1.md)
 - [Layers v1](./LAYERS_V1.md)
 - [Architecture v2](./ARCHITECTURE_V2.md)
 - [Persistence Model v1](./PERSISTENCE_MODEL_V1.md)

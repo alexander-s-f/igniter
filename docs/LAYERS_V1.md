@@ -194,3 +194,5 @@ Implemented now:
 3. Decide whether generic non-AI agents remain in the actor/tool kit or move under
    a dedicated server-mode standard library entrypoint.
 4. Keep examples and generated apps loading the smallest entrypoints they need.
+
+For the pack-by-pack contract, see [SDK v1](./SDK_V1.md).

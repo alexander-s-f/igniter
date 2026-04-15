@@ -71,6 +71,7 @@ superset of the one before it — your domain contracts never change.
 | **Cluster** | Multi-node with Raft consensus + gossip mesh | `require "igniter/cluster"` |
 
 See [`docs/LAYERS_V1.md`](docs/LAYERS_V1.md) for the layer contract and [`docs/DEPLOYMENT_V1.md`](docs/DEPLOYMENT_V1.md) for scenario-specific setup.
+[`docs/SDK_V1.md`](docs/SDK_V1.md) is the canonical reference for optional `sdk/*` packs.
 
 Layer DSL can opt into SDK packs explicitly:
 
