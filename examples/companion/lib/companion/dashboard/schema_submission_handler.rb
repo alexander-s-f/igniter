@@ -2,6 +2,7 @@
 
 require "time"
 require "igniter/plugins/view"
+require_relative "view_shell"
 
 module Companion
   module Dashboard
@@ -65,32 +66,27 @@ module Companion
       end
 
       def not_found(view_id)
-        {
-          status: 404,
-          body: "View schema not found: #{view_id}",
-          headers: { "Content-Type" => "text/plain; charset=utf-8" }
-        }
+        body = ViewShell.render_message_page(
+          title: "View schema not found",
+          eyebrow: "Schema Submission",
+          message: "No stored schema is available for #{view_id}.",
+          detail: "view_id=#{view_id}",
+          back_label: "Back to dashboard",
+          back_path: "/"
+        )
+
+        Igniter::Plugins::View::Response.html(body, status: 404)
       end
 
       def error_response(view_id, message)
-        body = Igniter::Plugins::View.render do |view|
-          view.doctype
-          view.tag(:html, lang: "en") do |html|
-            html.tag(:head) do |head|
-              head.tag(:meta, charset: "utf-8")
-              head.tag(:title, "Submission Error")
-            end
-            html.tag(:body) do |page|
-              page.tag(:main) do |main|
-                main.tag(:h1, "Submission could not be processed")
-                main.tag(:p, message)
-                main.tag(:p) do |paragraph|
-                  paragraph.tag(:a, "Back to view", href: "/views/#{view_id}")
-                end
-              end
-            end
-          end
-        end
+        body = ViewShell.render_message_page(
+          title: "Submission could not be processed",
+          eyebrow: "Schema Submission",
+          message: message,
+          detail: "view_id=#{view_id}",
+          back_label: "Back to view",
+          back_path: "/views/#{view_id}"
+        )
 
         Igniter::Plugins::View::Response.html(body, status: 422)
       end

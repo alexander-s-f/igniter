@@ -194,6 +194,23 @@ RSpec.describe Companion::DashboardApp do
       expect(result[:body]).to include("Schema Page")
       expect(result[:body]).to include('action="/views/training-checkin/submissions"')
     end
+
+    it "renders a styled not-found page for missing schemas" do
+      result = described_class.call(
+        params: { id: "missing-view" },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(404)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("View not found")
+      expect(result[:body]).to include("No schema stored for missing-view.")
+      expect(result[:body]).to include("Back to dashboard")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
+    end
   end
 
   describe Companion::Dashboard::SchemaSubmissionHandler do
@@ -260,6 +277,42 @@ RSpec.describe Companion::DashboardApp do
       expect(result[:body]).to include('<option value="great" selected>Great</option>')
       expect(Companion::Dashboard::ViewSubmissionStore.for_view("training-checkin")).to be_empty
       expect(Companion::Dashboard::TrainingCheckinStore.all).to be_empty
+    end
+
+    it "renders a styled not-found page when submitting to a missing schema" do
+      result = described_class.call(
+        params: { id: "missing-view" },
+        body: { "_action" => "submit_anything" },
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(404)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("View schema not found")
+      expect(result[:body]).to include("No stored schema is available for missing-view.")
+      expect(result[:body]).to include("Back to dashboard")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
+    end
+
+    it "renders a styled submission error page for invalid submissions" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: { id: "training-checkin" },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(422)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("Submission could not be processed")
+      expect(result[:body]).to include("missing form action")
+      expect(result[:body]).to include("Back to view")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
     end
   end
 
