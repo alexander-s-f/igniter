@@ -264,7 +264,7 @@ module Igniter
       end
 
       def remote(name, contract:, inputs:, node: nil, timeout: 30, # rubocop:disable Metrics/MethodLength,Metrics/ParameterLists,Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-                 capability: nil, query: nil, pinned_to: nil, **metadata)
+                 capability: nil, query: nil, policy: nil, decision: nil, pinned_to: nil, **metadata)
         raise CompileError, "remote :#{name} requires inputs: Hash" unless inputs.is_a?(Hash)
         raise CompileError, "remote :#{name} requires a contract: name" if contract.nil? || contract.to_s.strip.empty?
 
@@ -272,9 +272,43 @@ module Igniter
           raise CompileError, "remote :#{name}: capability:, query:, and pinned_to: are mutually exclusive"
         end
 
+        if policy && pinned_to
+          raise CompileError, "remote :#{name}: policy: cannot be combined with pinned_to:"
+        end
+
+        if decision && pinned_to
+          raise CompileError, "remote :#{name}: decision: cannot be combined with pinned_to:"
+        end
+
+        if policy && capability.nil? && query.nil?
+          raise CompileError, "remote :#{name}: policy: requires capability: or query:"
+        end
+
+        if decision && capability.nil? && query.nil?
+          raise CompileError, "remote :#{name}: decision: requires capability: or query:"
+        end
+
+        if policy && query.is_a?(Hash) && query.key?(:policy)
+          raise CompileError, "remote :#{name}: policy: duplicates query[:policy]"
+        end
+
+        if decision && query.is_a?(Hash) && query.key?(:decision)
+          raise CompileError, "remote :#{name}: decision: duplicates query[:decision]"
+        end
+
         if capability.nil? && query.nil? && pinned_to.nil? && (node.nil? || node.to_s.strip.empty?)
           raise CompileError, "remote :#{name} requires a node: URL"
         end
+
+        capability_query =
+          if policy || decision
+            base_query = query ? query.dup : { all_of: [capability] }
+            base_query[:policy] = policy if policy
+            base_query[:decision] = decision if decision
+            base_query
+          else
+            query
+          end
 
         add_node(
           Model::RemoteNode.new(
@@ -284,8 +318,8 @@ module Igniter
             node_url: node.to_s,
             input_mapping: inputs,
             timeout: timeout,
-            capability: capability,
-            capability_query: query,
+            capability: (policy || decision) ? nil : capability,
+            capability_query: capability_query,
             pinned_to: pinned_to,
             path: scoped_path(name),
             metadata: with_source_location(metadata)

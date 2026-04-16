@@ -10,6 +10,14 @@ module Igniter
     #   :capability — auto-select an alive peer via capability shorthand or query
     #   :pinned     — must use the specific named peer; IncidentError if down
     class RemoteNode < Node
+      SYMBOL_LIST_KEYS = %i[
+        all_of any_of none_of tags
+        allows denies requires_approval
+        permits approvable forbidden
+        actions risky
+      ].freeze
+      SYMBOL_SCALAR_KEYS = %i[name direction nulls mode].freeze
+
       attr_reader :contract_name, :node_url, :input_mapping, :timeout,
                   :capability, :capability_query, :pinned_to
 
@@ -52,18 +60,30 @@ module Igniter
         when Array
           { all_of: query.map(&:to_sym).freeze }.freeze
         when Hash
-          query.each_with_object({}) do |(key, value), memo|
-            memo[key.to_sym] =
-              if value.is_a?(Array)
-                value.map { |item| item.is_a?(String) || item.is_a?(Symbol) ? item.to_sym : item }.freeze
-              elsif value.is_a?(String) || value.is_a?(Symbol)
-                value.to_sym
-              else
-                value
-              end
-          end.freeze
+          normalize_query_hash(query).freeze
         else
           query
+        end
+      end
+
+      def normalize_query_hash(hash)
+        hash.each_with_object({}) do |(key, value), memo|
+          normalized_key = key.to_sym
+          memo[normalized_key] = normalize_query_value(normalized_key, value)
+        end
+      end
+
+      def normalize_query_value(key, value)
+        if SYMBOL_LIST_KEYS.include?(key)
+          Array(value).map { |item| item.is_a?(String) || item.is_a?(Symbol) ? item.to_sym : item }.freeze
+        elsif SYMBOL_SCALAR_KEYS.include?(key) && (value.is_a?(String) || value.is_a?(Symbol))
+          value.to_sym
+        elsif value.is_a?(Hash)
+          normalize_query_hash(value).freeze
+        elsif value.is_a?(Array)
+          value.map { |item| item.is_a?(Hash) ? normalize_query_hash(item).freeze : item }.freeze
+        else
+          value
         end
       end
     end

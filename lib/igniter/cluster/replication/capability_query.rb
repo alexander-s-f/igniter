@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "set"
+
 module Igniter
   module Cluster
     module Replication
@@ -10,9 +12,10 @@ module Igniter
       # capabilities", "at least one of these", "none of these", and "with these
       # tags".
       class CapabilityQuery
-        attr_reader :name, :all_of, :any_of, :none_of, :tags, :metadata, :order_by
+        attr_reader :name, :all_of, :any_of, :none_of, :tags, :metadata, :order_by, :policy, :decision
 
         OPERATOR_KEYS = %i[eq min max in includes contains present].freeze
+        DECISION_MODES = %i[auto_only approval_ok deny_risky].freeze
 
         def self.normalize(query)
           case query
@@ -29,7 +32,7 @@ module Igniter
           end
         end
 
-        def initialize(name: nil, all_of: [], any_of: [], none_of: [], tags: [], metadata: {}, order_by: [])
+        def initialize(name: nil, all_of: [], any_of: [], none_of: [], tags: [], metadata: {}, order_by: [], policy: {}, decision: {})
           @name     = name&.to_sym
           @all_of   = Array(all_of).map(&:to_sym).uniq.sort.freeze
           @any_of   = Array(any_of).map(&:to_sym).uniq.sort.freeze
@@ -37,6 +40,8 @@ module Igniter
           @tags     = Array(tags).map(&:to_sym).uniq.sort.freeze
           @metadata = normalize_metadata(metadata).freeze
           @order_by = normalize_order_by(order_by).freeze
+          @policy   = normalize_policy(policy).freeze
+          @decision = normalize_decision(decision).freeze
           freeze
         end
 
@@ -48,8 +53,10 @@ module Igniter
           none_match = @none_of.none? { |capability| profile.capability?(capability) }
           tags_match = @tags.all? { |tag| profile.tag?(tag) }
           metadata_match = metadata_matches?(profile)
+          policy_match = policy_matches?(profile)
+          decision_match = decision_matches?(profile)
 
-          all_match && any_match && none_match && tags_match && metadata_match
+          all_match && any_match && none_match && tags_match && metadata_match && policy_match && decision_match
         end
 
         def label
@@ -61,6 +68,8 @@ module Igniter
           fragments << "none(#{@none_of.join(",")})" unless @none_of.empty?
           fragments << "tags(#{@tags.join(",")})" unless @tags.empty?
           fragments << "metadata(#{@metadata.keys.join(",")})" unless @metadata.empty?
+          fragments << "policy(#{@policy.keys.join(",")})" unless @policy.empty?
+          fragments << "decision(#{@decision[:mode]})" unless @decision.empty?
           fragments << "order(#{@order_by.map { |clause| "#{clause[:metadata].join(".")}:#{clause[:direction]}" }.join(",")})" unless @order_by.empty?
           fragments.join(" ")
         end
@@ -81,7 +90,9 @@ module Igniter
             none_of: @none_of,
             tags: @tags,
             metadata: @metadata,
-            order_by: @order_by
+            order_by: @order_by,
+            policy: @policy,
+            decision: @decision
           }
         end
 
@@ -89,7 +100,14 @@ module Igniter
           !@order_by.empty?
         end
 
+        def decisioned?
+          !@decision.empty?
+        end
+
         def compare_profiles(left, right)
+          decision_comparison = compare_decision_outcomes(left, right)
+          return decision_comparison unless decision_comparison.zero?
+
           @order_by.each do |clause|
             comparison = compare_values(
               metadata_value(left, clause[:metadata]),
@@ -104,7 +122,10 @@ module Igniter
         end
 
         def ranking_fingerprint(profile)
-          @order_by.map { |clause| metadata_value(profile, clause[:metadata]) }
+          fingerprint = @order_by.map { |clause| metadata_value(profile, clause[:metadata]) }
+          return fingerprint unless decisioned?
+
+          [decision_priority(profile)] + fingerprint
         end
 
         private
@@ -125,6 +146,55 @@ module Igniter
         def normalize_order_by(order_by)
           Array(order_by).map do |clause|
             normalize_order_clause(clause)
+          end
+        end
+
+        def normalize_policy(policy)
+          normalize_policy_value(policy)
+        end
+
+        def normalize_decision(decision)
+          case decision
+          when nil
+            {}
+          when Symbol, String
+            { mode: normalize_decision_mode(decision) }
+          when Hash
+            normalized = normalize_policy_value(decision)
+            return {} if normalized.empty?
+
+            if normalized.key?(:mode)
+              normalized[:mode] = normalize_decision_mode(normalized[:mode])
+            else
+              normalized[:mode] = :auto_only
+            end
+            normalized[:actions] = Array(normalized[:actions]).map(&:to_sym).uniq.freeze if normalized.key?(:actions)
+            normalized[:risky] = Array(normalized[:risky]).map(&:to_sym).uniq.freeze if normalized.key?(:risky)
+            normalized
+          else
+            raise ArgumentError, "Unsupported decision query: #{decision.inspect}"
+          end
+        end
+
+        def normalize_decision_mode(mode)
+          mode = mode.to_sym
+          raise ArgumentError, "Unsupported decision mode: #{mode.inspect}" unless DECISION_MODES.include?(mode)
+
+          mode
+        end
+
+        def normalize_policy_value(value)
+          case value
+          when Hash
+            value.each_with_object({}) do |(key, nested), memo|
+              memo[key.to_sym] = normalize_policy_value(nested)
+            end
+          when Array
+            value.map { |item| normalize_policy_value(item) }
+          when Symbol, String
+            value.to_sym
+          else
+            value
           end
         end
 
@@ -171,6 +241,32 @@ module Igniter
           matches_metadata_subset?(@metadata, normalize_metadata(profile.metadata || {}))
         end
 
+        def policy_matches?(profile)
+          return true if @policy.empty?
+          return false unless profile.respond_to?(:metadata)
+
+          effective = effective_policy_sets(profile)
+          @policy.all? do |key, expected|
+            policy_requirement_matches?(key, expected, effective)
+          end
+        end
+
+        def decision_matches?(profile)
+          return true if @decision.empty?
+
+          outcome = decision_outcome(profile)
+          case @decision.fetch(:mode, :auto_only)
+          when :auto_only
+            outcome == :automatic
+          when :approval_ok
+            %i[automatic approval_required].include?(outcome)
+          when :deny_risky
+            outcome == :automatic && risky_guard_satisfied?(profile)
+          else
+            false
+          end
+        end
+
         def metadata_value(profile, path)
           metadata = normalize_metadata(profile&.metadata || {})
           path.reduce(metadata) do |memo, key|
@@ -185,6 +281,80 @@ module Igniter
             actual_value = actual[key]
             matches_metadata_requirement?(requirement, actual_value)
           end
+        end
+
+        def effective_policy_sets(profile)
+          raw_policy = normalize_policy_value(profile.metadata.fetch(:policy, {}))
+          allows = policy_set(raw_policy[:allows])
+          denies = policy_set(raw_policy[:denies])
+          requires_approval = policy_set(raw_policy[:requires_approval])
+
+          {
+            allows: allows,
+            denies: denies,
+            requires_approval: requires_approval,
+            permits: allows - denies - requires_approval,
+            approvable: requires_approval - denies,
+            forbidden: denies
+          }
+        end
+
+        def decision_outcome(profile)
+          return :automatic if @decision.empty?
+
+          actions = decision_actions
+          return :automatic if actions.empty?
+
+          effective = effective_policy_sets(profile)
+          return :automatic if actions.subset?(effective[:permits])
+          return :approval_required if actions.subset?(effective[:permits] + effective[:approvable])
+
+          :rejected
+        end
+
+        def decision_priority(profile)
+          return 0 if @decision.empty?
+
+          case decision_outcome(profile)
+          when :automatic
+            0
+          when :approval_required
+            1
+          else
+            2
+          end
+        end
+
+        def compare_decision_outcomes(left, right)
+          return 0 unless decisioned?
+
+          decision_priority(left) <=> decision_priority(right)
+        end
+
+        def policy_set(value)
+          Array(value).map(&:to_sym).uniq.to_set
+        end
+
+        def policy_requirement_matches?(key, expected, effective)
+          values = policy_set(expected)
+
+          case key
+          when :allows, :denies, :requires_approval, :permits, :approvable, :forbidden
+            values.subset?(effective.fetch(key))
+          else
+            false
+          end
+        end
+
+        def decision_actions
+          policy_set(@decision[:actions])
+        end
+
+        def risky_guard_satisfied?(profile)
+          risky = policy_set(@decision[:risky])
+          return true if risky.empty?
+
+          effective_policy_sets(profile).fetch(:forbidden).superset?(risky)
         end
 
         def matches_metadata_requirement?(requirement, actual_value)

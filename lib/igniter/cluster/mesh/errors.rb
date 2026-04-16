@@ -7,11 +7,12 @@ module Igniter
     # Inherits from PendingDependencyError so the resolver transitions
     # the node to :pending (same as await/distributed workflow nodes).
     class DeferredCapabilityError < Igniter::PendingDependencyError
-      attr_reader :capability, :query
+      attr_reader :capability, :query, :explanation
 
-      def initialize(capability, deferred_result, message = nil, query: nil)
-        @capability = capability
-        @query      = query
+      def initialize(capability, deferred_result, message = nil, query: nil, explanation: nil)
+        @capability  = capability
+        @query       = query
+        @explanation = explanation
         label       = query ? query.inspect : ":#{capability}"
         super(deferred_result, message || "No alive peer matching capability #{label}")
       end

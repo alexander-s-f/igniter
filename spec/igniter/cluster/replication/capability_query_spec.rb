@@ -30,6 +30,40 @@ RSpec.describe Igniter::Cluster::Replication::CapabilityQuery do
                                      { metadata: %i[load avg1m], direction: :asc, nulls: :first }
                                    ])
     end
+
+    it "normalizes policy clauses to symbols" do
+      query = described_class.normalize(
+        all_of: [:local_llm],
+        policy: {
+          allows: ["system_read"],
+          requires_approval: %w[shell_exec],
+          permits: ["system_read"]
+        }
+      )
+
+      expect(query.policy).to eq(
+        allows: [:system_read],
+        requires_approval: [:shell_exec],
+        permits: [:system_read]
+      )
+    end
+
+    it "normalizes decision clauses to symbols" do
+      query = described_class.normalize(
+        all_of: [:local_llm],
+        decision: {
+          mode: "approval_ok",
+          actions: ["shell_exec"],
+          risky: %w[filesystem_write]
+        }
+      )
+
+      expect(query.decision).to eq(
+        mode: :approval_ok,
+        actions: [:shell_exec],
+        risky: [:filesystem_write]
+      )
+    end
   end
 
   describe "#matches_profile?" do
@@ -75,6 +109,116 @@ RSpec.describe Igniter::Cluster::Replication::CapabilityQuery do
       )
 
       expect(query.matches_profile?(profile)).to be false
+    end
+
+    it "matches against effective policy sets" do
+      profile = Igniter::Cluster::Replication::NodeProfile.new(
+        capabilities: %i[container_runtime local_llm ruby],
+        metadata: {
+          policy: {
+            allows: %i[system_read shell_exec filesystem_write],
+            requires_approval: [:shell_exec],
+            denies: [:filesystem_write]
+          }
+        }
+      )
+
+      query = described_class.new(
+        all_of: [:local_llm],
+        policy: {
+          permits: [:system_read],
+          approvable: [:shell_exec],
+          forbidden: [:filesystem_write]
+        }
+      )
+
+      expect(query.matches_profile?(profile)).to be true
+    end
+
+    it "rejects a profile whose policy cannot auto-permit the requested action" do
+      profile = Igniter::Cluster::Replication::NodeProfile.new(
+        capabilities: %i[container_runtime local_llm ruby],
+        metadata: {
+          policy: {
+            allows: %i[system_read shell_exec],
+            requires_approval: [:shell_exec]
+          }
+        }
+      )
+
+      query = described_class.new(
+        all_of: [:local_llm],
+        policy: { permits: [:shell_exec] }
+      )
+
+      expect(query.matches_profile?(profile)).to be false
+    end
+
+    it "accepts approval-required execution when decision mode is approval_ok" do
+      profile = Igniter::Cluster::Replication::NodeProfile.new(
+        capabilities: %i[container_runtime local_llm ruby],
+        metadata: {
+          policy: {
+            allows: %i[system_read shell_exec],
+            requires_approval: [:shell_exec]
+          }
+        }
+      )
+
+      query = described_class.new(
+        all_of: [:local_llm],
+        decision: { mode: :approval_ok, actions: [:shell_exec] }
+      )
+
+      expect(query.matches_profile?(profile)).to be true
+    end
+
+    it "rejects approval-required execution when decision mode is auto_only" do
+      profile = Igniter::Cluster::Replication::NodeProfile.new(
+        capabilities: %i[container_runtime local_llm ruby],
+        metadata: {
+          policy: {
+            allows: %i[system_read shell_exec],
+            requires_approval: [:shell_exec]
+          }
+        }
+      )
+
+      query = described_class.new(
+        all_of: [:local_llm],
+        decision: { mode: :auto_only, actions: [:shell_exec] }
+      )
+
+      expect(query.matches_profile?(profile)).to be false
+    end
+
+    it "requires risky capabilities to be denied in deny_risky mode" do
+      safe_profile = Igniter::Cluster::Replication::NodeProfile.new(
+        capabilities: %i[container_runtime local_llm ruby],
+        metadata: {
+          policy: {
+            allows: [:system_read],
+            denies: [:filesystem_write]
+          }
+        }
+      )
+
+      risky_profile = Igniter::Cluster::Replication::NodeProfile.new(
+        capabilities: %i[container_runtime local_llm ruby],
+        metadata: {
+          policy: {
+            allows: %i[system_read filesystem_write]
+          }
+        }
+      )
+
+      query = described_class.new(
+        all_of: [:local_llm],
+        decision: { mode: :deny_risky, actions: [:system_read], risky: [:filesystem_write] }
+      )
+
+      expect(query.matches_profile?(safe_profile)).to be true
+      expect(query.matches_profile?(risky_profile)).to be false
     end
   end
 
@@ -130,6 +274,34 @@ RSpec.describe Igniter::Cluster::Replication::CapabilityQuery do
 
     it "builds a stable ranking fingerprint" do
       expect(query.ranking_fingerprint(equal_trust_lower_load)).to eq([0.98, 0.15])
+    end
+
+    it "prefers automatic execution over approval-required when decisioned" do
+      decision_query = described_class.new(
+        all_of: [:local_llm],
+        decision: { mode: :approval_ok, actions: [:shell_exec] }
+      )
+
+      automatic_profile = Igniter::Cluster::Replication::NodeProfile.new(
+        capabilities: %i[local_llm container_runtime],
+        metadata: {
+          policy: {
+            allows: [:shell_exec]
+          }
+        }
+      )
+
+      approval_profile = Igniter::Cluster::Replication::NodeProfile.new(
+        capabilities: %i[local_llm container_runtime],
+        metadata: {
+          policy: {
+            allows: [:shell_exec],
+            requires_approval: [:shell_exec]
+          }
+        }
+      )
+
+      expect(decision_query.compare_profiles(automatic_profile, approval_profile)).to eq(-1)
     end
   end
 end

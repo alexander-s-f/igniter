@@ -145,6 +145,12 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       expect(err.deferred_result).to be(deferred)
     end
 
+    it "stores optional routing explanation" do
+      explanation = { selected_url: nil, peers: [] }
+      err = described_class.new(:orders, deferred, query: { all_of: [:orders] }, explanation: explanation)
+      expect(err.explanation).to eq(explanation)
+    end
+
     it "uses a default message" do
       err = described_class.new(:orders, deferred)
       expect(err.message).to include("orders")
@@ -231,6 +237,63 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       }.to raise_error(Igniter::Cluster::Mesh::DeferredCapabilityError)
     end
 
+    it "attaches explainability data when no alive peer is available" do
+      config.add_peer("orders-dead", url: "http://orders-dead:4567", capabilities: [:orders], tags: [:linux])
+      config.add_peer("orders-mac", url: "http://orders-mac:4567", capabilities: [:orders], tags: [:darwin])
+      stub_dead("http://orders-dead:4567")
+
+      expect {
+        router.find_peer_for_query({ all_of: [:orders], tags: [:linux] }, deferred)
+      }.to raise_error(Igniter::Cluster::Mesh::DeferredCapabilityError) { |error|
+        expect(error.explanation).to include(
+          selected_url: nil,
+          matched_count: 1,
+          eligible_count: 0
+        )
+
+        dead = error.explanation[:peers].find { |peer| peer[:name] == "orders-dead" }
+        mac = error.explanation[:peers].find { |peer| peer[:name] == "orders-mac" }
+
+        expect(dead).to include(matched: true, alive: false, reasons: [:unreachable])
+        expect(mac).to include(matched: false, reasons: [:query_mismatch])
+      }
+    end
+
+    it "explains peer selection and rejected candidates without mutating routing state" do
+      config.add_peer("orders-linux", url: "http://orders-linux:4567", capabilities: [:orders], tags: [:linux], metadata: { trust: { score: 0.95 } })
+      config.add_peer("orders-low", url: "http://orders-low:4567", capabilities: [:orders], tags: [:linux], metadata: { trust: { score: 0.80 } })
+      config.add_peer("orders-mac", url: "http://orders-mac:4567", capabilities: [:orders], tags: [:darwin], metadata: { trust: { score: 0.99 } })
+      stub_alive("http://orders-linux:4567")
+      stub_alive("http://orders-low:4567")
+
+      explanation = router.explain_peer_for_query(
+        {
+          all_of: [:orders],
+          tags: [:linux],
+          order_by: [{ metadata: "trust.score", direction: :desc }]
+        }
+      )
+
+      expect(explanation).to include(
+        selected_url: "http://orders-linux:4567",
+        selected_peer: "orders-linux",
+        matched_count: 2,
+        eligible_count: 2,
+        top_tier_count: 1
+      )
+
+      selected = explanation[:peers].find { |peer| peer[:name] == "orders-linux" }
+      lower = explanation[:peers].find { |peer| peer[:name] == "orders-low" }
+      mismatch = explanation[:peers].find { |peer| peer[:name] == "orders-mac" }
+
+      expect(selected).to include(selected: true, top_tier: true, reasons: [:selected])
+      expect(lower).to include(selected: false, top_tier: false, reasons: [:lower_ranked])
+      expect(mismatch).to include(matched: false, reasons: [:query_mismatch])
+
+      expect(router.find_peer_for_query({ all_of: [:orders], tags: [:linux], order_by: [{ metadata: "trust.score", direction: :desc }] }, deferred))
+        .to eq("http://orders-linux:4567")
+    end
+
     it "find_peer_for returns URL of alive peer" do
       config.add_peer("orders-node", url: "http://orders:4567", capabilities: [:orders])
       stub_alive("http://orders:4567")
@@ -244,6 +307,118 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       stub_alive("http://orders-mac:4567")
 
       expect(router.find_peer_for_query({ all_of: [:orders], tags: [:linux], metadata: { trust: { score: { min: 0.9 } } } }, deferred)).to eq("http://orders:4567")
+    end
+
+    it "supports policy-aware routing shortcuts in queries" do
+      config.add_peer(
+        "orders-safe",
+        url: "http://orders-safe:4567",
+        capabilities: [:orders],
+        metadata: {
+          policy: {
+            allows: %i[system_read shell_exec],
+            requires_approval: [:shell_exec]
+          }
+        }
+      )
+      config.add_peer(
+        "orders-unsafe",
+        url: "http://orders-unsafe:4567",
+        capabilities: [:orders],
+        metadata: {
+          policy: {
+            allows: %i[system_read shell_exec filesystem_write],
+            requires_approval: [:shell_exec],
+            denies: [:filesystem_write]
+          }
+        }
+      )
+      stub_alive("http://orders-safe:4567")
+      stub_alive("http://orders-unsafe:4567")
+
+      query = {
+        all_of: [:orders],
+        policy: {
+          permits: [:system_read],
+          approvable: [:shell_exec],
+          forbidden: [:filesystem_write]
+        }
+      }
+
+      expect(router.find_peer_for_query(query, deferred)).to eq("http://orders-unsafe:4567")
+    end
+
+    it "prefers automatic peers over approval-required peers in approval_ok mode" do
+      config.add_peer(
+        "orders-auto",
+        url: "http://orders-auto:4567",
+        capabilities: [:orders],
+        metadata: {
+          policy: {
+            allows: [:shell_exec]
+          }
+        }
+      )
+      config.add_peer(
+        "orders-approval",
+        url: "http://orders-approval:4567",
+        capabilities: [:orders],
+        metadata: {
+          policy: {
+            allows: [:shell_exec],
+            requires_approval: [:shell_exec]
+          }
+        }
+      )
+      stub_alive("http://orders-auto:4567")
+      stub_alive("http://orders-approval:4567")
+
+      query = {
+        all_of: [:orders],
+        decision: {
+          mode: :approval_ok,
+          actions: [:shell_exec]
+        }
+      }
+
+      expect(router.find_peer_for_query(query, deferred)).to eq("http://orders-auto:4567")
+    end
+
+    it "filters out peers that do not deny risky capabilities in deny_risky mode" do
+      config.add_peer(
+        "orders-safe",
+        url: "http://orders-safe:4567",
+        capabilities: [:orders],
+        metadata: {
+          policy: {
+            allows: [:system_read],
+            denies: [:filesystem_write]
+          }
+        }
+      )
+      config.add_peer(
+        "orders-risky",
+        url: "http://orders-risky:4567",
+        capabilities: [:orders],
+        metadata: {
+          policy: {
+            allows: %i[system_read filesystem_write]
+          }
+        }
+      )
+      stub_alive("http://orders-safe:4567")
+      stub_alive("http://orders-risky:4567")
+
+      query = {
+        all_of: [:orders],
+        decision: {
+          mode: :deny_risky,
+          actions: [:system_read],
+          risky: [:filesystem_write]
+        }
+      }
+
+      expect(router.find_peer_for_query(query, deferred)).to eq("http://orders-safe:4567")
     end
 
     it "can query over dynamic mesh freshness and confidence" do
@@ -402,6 +577,36 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
         .to eq({ all_of: [:orders], tags: [:linux] })
     end
 
+    it "preserves metadata strings while normalizing policy and capability keys" do
+      node = make_node(
+        capability_query: {
+          all_of: ["orders"],
+          metadata: { region: "eu-central" },
+          policy: { permits: ["system_read"] }
+        }
+      )
+
+      expect(node.capability_query).to eq(
+        all_of: [:orders],
+        metadata: { region: "eu-central" },
+        policy: { permits: [:system_read] }
+      )
+    end
+
+    it "normalizes decision keys inside capability_query" do
+      node = make_node(
+        capability_query: {
+          all_of: ["orders"],
+          decision: { mode: "approval_ok", actions: ["shell_exec"], risky: ["filesystem_write"] }
+        }
+      )
+
+      expect(node.capability_query).to eq(
+        all_of: [:orders],
+        decision: { mode: :approval_ok, actions: [:shell_exec], risky: [:filesystem_write] }
+      )
+    end
+
     it "stores pinned_to as string" do
       expect(make_node(pinned_to: :audit_node).pinned_to).to eq("audit_node")
     end
@@ -425,6 +630,30 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       }.to raise_error(Igniter::CompileError, /mutually exclusive/)
     end
 
+    it "raises CompileError when policy: is given without capability: or query:" do
+      expect {
+        builder.remote(:x, contract: "Foo", inputs: {}, policy: { permits: [:system_read] })
+      }.to raise_error(Igniter::CompileError, /policy: requires capability: or query:/)
+    end
+
+    it "raises CompileError when policy: is combined with pinned_to:" do
+      expect {
+        builder.remote(:x, contract: "Foo", inputs: {}, policy: { permits: [:system_read] }, pinned_to: "audit-node")
+      }.to raise_error(Igniter::CompileError, /policy: cannot be combined with pinned_to:/)
+    end
+
+    it "raises CompileError when decision: is given without capability: or query:" do
+      expect {
+        builder.remote(:x, contract: "Foo", inputs: {}, decision: { mode: :approval_ok, actions: [:shell_exec] })
+      }.to raise_error(Igniter::CompileError, /decision: requires capability: or query:/)
+    end
+
+    it "raises CompileError when decision: is combined with pinned_to:" do
+      expect {
+        builder.remote(:x, contract: "Foo", inputs: {}, decision: { mode: :approval_ok, actions: [:shell_exec] }, pinned_to: "audit-node")
+      }.to raise_error(Igniter::CompileError, /decision: cannot be combined with pinned_to:/)
+    end
+
     it "accepts static routing with node:" do
       builder.remote(:x, contract: "Foo", node: "http://x:4567", inputs: {})
       node = builder.instance_variable_get(:@nodes).last
@@ -443,6 +672,61 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       node = builder.instance_variable_get(:@nodes).last
       expect(node.routing_mode).to eq(:capability)
       expect(node.capability_query).to eq({ all_of: [:orders], tags: [:linux] })
+    end
+
+    it "accepts capability: with policy: by lifting both into a capability query" do
+      builder.remote(:x, contract: "Foo", capability: :orders, policy: { permits: [:system_read] }, inputs: {})
+      node = builder.instance_variable_get(:@nodes).last
+      expect(node.routing_mode).to eq(:capability)
+      expect(node.capability).to be_nil
+      expect(node.capability_query).to eq({ all_of: [:orders], policy: { permits: [:system_read] } })
+    end
+
+    it "accepts query: with policy: by merging policy into the capability query" do
+      builder.remote(
+        :x,
+        contract: "Foo",
+        query: { all_of: [:orders], metadata: { region: "eu-central" } },
+        policy: { approvable: [:shell_exec] },
+        inputs: {}
+      )
+      node = builder.instance_variable_get(:@nodes).last
+      expect(node.capability_query).to eq(
+        all_of: [:orders],
+        metadata: { region: "eu-central" },
+        policy: { approvable: [:shell_exec] }
+      )
+    end
+
+    it "accepts capability: with decision: by lifting both into a capability query" do
+      builder.remote(
+        :x,
+        contract: "Foo",
+        capability: :orders,
+        decision: { mode: :approval_ok, actions: [:shell_exec] },
+        inputs: {}
+      )
+      node = builder.instance_variable_get(:@nodes).last
+      expect(node.capability).to be_nil
+      expect(node.capability_query).to eq(
+        all_of: [:orders],
+        decision: { mode: :approval_ok, actions: [:shell_exec] }
+      )
+    end
+
+    it "accepts query: with decision: by merging decision into the capability query" do
+      builder.remote(
+        :x,
+        contract: "Foo",
+        query: { all_of: [:orders] },
+        decision: { mode: :deny_risky, actions: [:system_read], risky: [:filesystem_write] },
+        inputs: {}
+      )
+      node = builder.instance_variable_get(:@nodes).last
+      expect(node.capability_query).to eq(
+        all_of: [:orders],
+        decision: { mode: :deny_risky, actions: [:system_read], risky: [:filesystem_write] }
+      )
     end
 
     it "accepts pinned_to: routing without node:" do
