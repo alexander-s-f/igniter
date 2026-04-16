@@ -894,6 +894,95 @@ module Igniter
             end
           end
 
+          class BarChart < View::Component
+            def initialize(items:, theme:, chart_id:, empty_message: nil, value_suffix: "", max_value: nil)
+              @items = items
+              @theme = theme
+              @chart_id = chart_id
+              @empty_message = empty_message || "No chart data yet."
+              @value_suffix = value_suffix
+              @max_value = max_value
+            end
+
+            def call(view)
+              if @items.empty?
+                view.tag(:p, @empty_message, class: @theme.empty_state_class)
+                return
+              end
+
+              view.tag(:ul, class: "grid gap-3", "data-chart-id": @chart_id) do |list|
+                @items.each do |item|
+                  render_item(list, item)
+                end
+              end
+            end
+
+            private
+
+            def render_item(view, item)
+              key = item.fetch(:key, item.fetch(:label).to_s.downcase.gsub(/[^a-z0-9]+/, "_"))
+              value = item.fetch(:value).to_f
+              max = @max_value || @items.map { |entry| entry.fetch(:value).to_f }.max || 0
+              percent = max <= 0 ? 0 : ((value / max) * 100.0).round(1)
+
+              view.tag(:li, class: "rounded-2xl border border-white/10 bg-white/5 p-4", "data-chart-key": key) do |row|
+                row.tag(:div, class: "flex items-center justify-between gap-4") do |meta|
+                  meta.tag(:strong, item.fetch(:label), class: @theme.item_title_class)
+                  meta.tag(:span, value_label(item.fetch(:value)), class: @theme.muted_text_class, "data-chart-value": key)
+                end
+                row.tag(:div, class: "mt-3 h-2.5 overflow-hidden rounded-full bg-white/10") do |bar|
+                  bar.tag(:div,
+                          "",
+                          class: "h-full rounded-full bg-gradient-to-r from-amber-300 via-orange-300 to-cyan-300 transition-all",
+                          style: "width: #{percent}%",
+                          "data-chart-fill": key)
+                end
+                row.tag(:p, item.fetch(:hint), class: @theme.muted_text_class(extra: "mt-2")) if item[:hint]
+              end
+            end
+
+            def value_label(value)
+              "#{value}#{@value_suffix}"
+            end
+          end
+
+          class MermaidDiagram < View::Component
+            def initialize(diagram:, title: nil, description: nil, wrapper_class: "grid gap-3")
+              @diagram = diagram
+              @title = title
+              @description = description
+              @wrapper_class = wrapper_class
+            end
+
+            def call(view)
+              view.tag(:div, class: @wrapper_class) do |container|
+                container.tag(:div, @title, class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300") if @title
+                container.tag(:p, @description, class: "text-sm leading-6 text-stone-400") if @description
+                container.tag(:pre,
+                              @diagram,
+                              class: "mermaid overflow-x-auto whitespace-pre rounded-3xl border border-white/10 bg-black/20 p-4 font-mono text-xs leading-6 text-stone-200")
+              end
+            end
+          end
+
+          class LiveBadge < View::Component
+            def initialize(label:, value:, interval_seconds:)
+              @label = label
+              @value = value
+              @interval_seconds = interval_seconds
+            end
+
+            def call(view)
+              view.tag(:div,
+                       class: "inline-flex flex-wrap items-center gap-3 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-sm text-cyan-100",
+                       "data-live-badge": "true") do |badge|
+                badge.tag(:span, @label, class: "text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-100/80")
+                badge.tag(:strong, @value, class: "font-mono text-sm text-white", "data-live-generated-at": "true")
+                badge.tag(:span, "poll #{@interval_seconds}s", class: "text-xs text-stone-400")
+              end
+            end
+          end
+
           class StatusBadge < View::Component
             DEFAULT_BASE_CLASS = "status-badge inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]".freeze
 
@@ -1136,6 +1225,25 @@ module Igniter
 
             def resource_list(items:, empty_message: nil, compact: false)
               ResourceList.new(items: items, theme: self, empty_message: empty_message, compact: compact)
+            end
+
+            def bar_chart(items:, chart_id:, empty_message: nil, value_suffix: "", max_value: nil)
+              BarChart.new(
+                items: items,
+                chart_id: chart_id,
+                theme: self,
+                empty_message: empty_message,
+                value_suffix: value_suffix,
+                max_value: max_value
+              )
+            end
+
+            def mermaid_diagram(diagram:, title: nil, description: nil)
+              MermaidDiagram.new(diagram: diagram, title: title, description: description)
+            end
+
+            def live_badge(label:, value:, interval_seconds:)
+              LiveBadge.new(label: label, value: value, interval_seconds: interval_seconds)
             end
 
             def schema_hero(title:, description: nil, eyebrow: "Schema Page", **overrides)

@@ -425,6 +425,28 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI do
           normalized_payload: { "duration_minutes" => 45, "share" => true }
         )
       )
+      view.component(
+        theme.bar_chart(
+          chart_id: "device-status",
+          items: [
+            { key: "online", label: "Online", value: 2 },
+            { key: "offline", label: "Offline", value: 1 }
+          ]
+        )
+      )
+      view.component(
+        theme.mermaid_diagram(
+          diagram: "flowchart LR\n  edge --> dashboard",
+          title: "Topology Mermaid"
+        )
+      )
+      view.component(
+        theme.live_badge(
+          label: "Live mode",
+          value: "2026-04-16T13:20:00Z",
+          interval_seconds: 5
+        )
+      )
     end
 
     expect(html).to include("main-app")
@@ -437,6 +459,13 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI do
     expect(html).to include("duration_minutes")
     expect(html).to include("Type changed during normalization.")
     expect(html).to include("Field value changed during normalization.")
+    expect(html).to include('data-chart-id="device-status"')
+    expect(html).to include('data-chart-fill="online"')
+    expect(html).to include("Topology Mermaid")
+    expect(html).to include("flowchart LR")
+    expect(html).to include('class="mermaid')
+    expect(html).to include("Live mode")
+    expect(html).to include("poll 5s")
   end
 end
 
@@ -515,6 +544,9 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI::Theme do
     expect(theme.endpoint_list(items: [], link_class: "text-amber-200")).to be_a(Igniter::Plugins::View::Tailwind::UI::EndpointList)
     expect(theme.timeline_list(items: [], title_link_class: "hover:text-amber-200", action_link_class: "text-sm")).to be_a(Igniter::Plugins::View::Tailwind::UI::TimelineList)
     expect(theme.payload_diff(raw_payload: {}, normalized_payload: {})).to be_a(Igniter::Plugins::View::Tailwind::UI::PayloadDiff)
+    expect(theme.bar_chart(items: [], chart_id: "ops")).to be_a(Igniter::Plugins::View::Tailwind::UI::BarChart)
+    expect(theme.mermaid_diagram(diagram: "flowchart LR")).to be_a(Igniter::Plugins::View::Tailwind::UI::MermaidDiagram)
+    expect(theme.live_badge(label: "Live", value: "now", interval_seconds: 5)).to be_a(Igniter::Plugins::View::Tailwind::UI::LiveBadge)
   end
 
   it "builds semantic schema layout components from the shared theme" do

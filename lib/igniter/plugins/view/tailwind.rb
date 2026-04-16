@@ -10,6 +10,7 @@ module Igniter
     module View
       module Tailwind
         PLAY_CDN_URL = "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4".freeze
+        MERMAID_CDN_URL = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js".freeze
         DEFAULT_BODY_CLASS = "min-h-screen bg-slate-950 text-slate-100 antialiased".freeze
         DEFAULT_MAIN_CLASS = "mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-10 px-6 py-10 lg:px-10".freeze
         DEFAULT_TAILWIND_CONFIG = {
