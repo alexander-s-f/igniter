@@ -309,6 +309,23 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI do
       )
       view.component(described_class::SchemaStack.new(class_name: "schema-stack") { |stack| stack.tag(:p, "Stack body") })
       view.component(described_class::SchemaGrid.new(class_name: "schema-grid") { |grid| grid.tag(:p, "Grid body") })
+      view.component(described_class::SchemaIntro.new(text: "Intro body", class_name: "schema-intro", muted_class: "schema-intro-muted"))
+      view.component(
+        described_class::SchemaForm.new(
+          action: "/submit",
+          hidden_action: "save",
+          class_name: "schema-form",
+          fieldset: {
+            legend: "Training",
+            description: "Daily inputs",
+            class_name: "schema-fieldset",
+            legend_class: "schema-legend",
+            description_class: "schema-description"
+          }
+        ) do |_form, fieldset|
+          fieldset.tag(:p, "Fieldset body")
+        end
+      )
       view.component(described_class::SchemaSection.new(class_name: "schema-section") { |section| section.tag(:p, "Section body") })
       view.component(described_class::SchemaCard.new(class_name: "schema-card") { |card| card.tag(:p, "Card body") })
     end
@@ -317,6 +334,11 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI do
     expect(html).to include("Schema-driven page.")
     expect(html).to include('class="schema-stack"')
     expect(html).to include('class="schema-grid"')
+    expect(html).to include('class="schema-intro"')
+    expect(html).to include('class="schema-form"')
+    expect(html).to include("<fieldset")
+    expect(html).to include("Training")
+    expect(html).to include("Daily inputs")
     expect(html).to include('class="schema-section"')
     expect(html).to include('class="schema-card"')
   end
@@ -489,8 +511,11 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI::Theme do
     theme = described_class.fetch(:schema)
 
     expect(theme.schema_hero(title: "Schema")).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaHero)
+    expect(theme.schema_intro(text: "Intro")).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaIntro)
+    expect(theme.schema_form(action: "/submit")).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaForm)
     expect(theme.schema_stack {}).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaStack)
     expect(theme.schema_grid {}).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaGrid)
+    expect(theme.schema_fieldset {}).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaFieldset)
     expect(theme.schema_section {}).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaSection)
     expect(theme.schema_card {}).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaCard)
   end

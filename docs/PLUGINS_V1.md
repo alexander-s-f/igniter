@@ -160,6 +160,9 @@ Igniter::Plugins::View::Tailwind::UI::SubmissionNotice
 Igniter::Plugins::View::Tailwind::UI::FieldGroup
 Igniter::Plugins::View::Tailwind::UI::ChoiceField
 Igniter::Plugins::View::Tailwind::UI::SchemaHero
+Igniter::Plugins::View::Tailwind::UI::SchemaIntro
+Igniter::Plugins::View::Tailwind::UI::SchemaForm
+Igniter::Plugins::View::Tailwind::UI::SchemaFieldset
 Igniter::Plugins::View::Tailwind::UI::SchemaStack
 Igniter::Plugins::View::Tailwind::UI::SchemaGrid
 Igniter::Plugins::View::Tailwind::UI::SchemaSection
@@ -196,6 +199,7 @@ exposes shared presets for:
 - semantic server-rendered dashboard slices such as resource lists, endpoint lists, and timeline lists
 - semantic schema/runtime form blocks such as submission notices, grouped inputs, and choice fields
 - semantic schema layout blocks such as schema heroes, stacks, grids, sections, and cards
+- schema-aware composition blocks such as schema forms, fieldsets, and intro text blocks
 
 ## Mental Model
 

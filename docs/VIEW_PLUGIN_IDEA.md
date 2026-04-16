@@ -120,6 +120,9 @@ And the same direction is now starting to show up for schema/runtime form flows:
 That semantic layer now also includes schema layout composition itself:
 
 - `SchemaHero`
+- `SchemaIntro`
+- `SchemaForm`
+- `SchemaFieldset`
 - `SchemaStack`
 - `SchemaGrid`
 - `SchemaSection`

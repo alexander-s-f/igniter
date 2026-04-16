@@ -52,7 +52,7 @@ module Igniter
             level = [[node.fetch("level", 1).to_i, 1].max, 6].min
             view.tag(:"h#{level}", node.fetch("text"), class: heading_classes(level))
           when "text"
-            view.tag(:p, node.fetch("text"), class: text_classes(node.fetch("tone", nil)))
+            view.component(ui_theme.schema_intro(text: node.fetch("text"), tone: node.fetch("tone", nil)))
           when "form"
             render_form(view, node)
           when "input", "textarea", "select", "checkbox", "submit"
@@ -86,20 +86,21 @@ module Igniter
           method = action.fetch("method", "post")
           path = action.fetch("path")
 
-          view.form(action: path, method: method, class: "view-form grid gap-3") do |form|
-            form.hidden("_action", node.fetch("action"))
-            Array(node["children"]).each { |child| render_form_child(form, child) }
-          end
+          view.component(
+            ui_theme.schema_form(action: path, method: method, hidden_action: node.fetch("action")) do |form, fieldset|
+              Array(node["children"]).each { |child| render_form_child(form, fieldset, child) }
+            end
+          )
         end
 
-        def render_form_child(form, node)
+        def render_form_child(form, target, node)
           field_name = node["name"]
           field_error = field_name ? errors[field_name] : nil
           error_class = field_error ? "view-input-error" : nil
 
           case node.fetch("type")
           when "input"
-            form.view.component(
+            target.component(
               Tailwind::UI::FieldGroup.new(id: dom_id(node), label: node.fetch("label"), error: field_error) do |field|
                 FormBuilder.new(field).input(
                   node.fetch("name"),
@@ -112,7 +113,7 @@ module Igniter
               end
             )
           when "textarea"
-            form.view.component(
+            target.component(
               Tailwind::UI::FieldGroup.new(id: dom_id(node), label: node.fetch("label"), error: field_error) do |field|
                 FormBuilder.new(field).textarea(
                   node.fetch("name"),
@@ -125,7 +126,7 @@ module Igniter
               end
             )
           when "select"
-            form.view.component(
+            target.component(
               Tailwind::UI::ChoiceField.new(
                 kind: :select,
                 name: node.fetch("name"),
@@ -138,7 +139,7 @@ module Igniter
               )
             )
           when "checkbox"
-            form.view.component(
+            target.component(
               Tailwind::UI::ChoiceField.new(
                 kind: :checkbox,
                 name: node.fetch("name"),
@@ -152,13 +153,13 @@ module Igniter
               )
             )
           when "submit"
-            form.view.component(
+            target.component(
               Tailwind::UI::InlineActions.new do |actions|
                 FormBuilder.new(actions).submit(node.fetch("label"), class: submit_classes)
               end
             )
           when "text"
-            form.view.tag(:p, node.fetch("text"), class: ui_theme.muted_text_class(extra: "view-muted"))
+            target.component(ui_theme.schema_intro(text: node.fetch("text"), tone: :muted))
           else
             raise ArgumentError, "unsupported form child: #{node["type"]}"
           end
@@ -232,12 +233,6 @@ module Igniter
           end
         end
 
-        def text_classes(tone)
-          base = "text-base leading-7 text-stone-200"
-          return "#{base} view-muted text-stone-400" if tone == "muted"
-
-          base
-        end
       end
     end
   end

@@ -106,9 +106,11 @@ RSpec.describe "Igniter::Plugins::View schema runtime" do
     expect(html).to include("<!DOCTYPE html>")
     expect(html).to include("Daily Training Check-in")
     expect(html).to include("Schema Page")
+    expect(html).to include("view-stack")
     expect(html).to include("@tailwindcss/browser@4")
     expect(html).to include("font-display")
     expect(html).to include('action="/views/training-checkin/submissions"')
+    expect(html).to include("<fieldset")
     expect(html).to include('name="_action"')
     expect(html).to include('name="duration_minutes"')
     expect(html).to include('name="mood"')
@@ -158,6 +160,7 @@ RSpec.describe "Igniter::Plugins::View schema runtime" do
     expect(html).to include("Please review the highlighted fields.")
     expect(html).to include("is required")
     expect(html).to include('class="w-full rounded-2xl border border-white/10 bg-[#160f0d]')
+    expect(html).to include("<fieldset")
     expect(html).to include('option value="great" selected')
   end
 

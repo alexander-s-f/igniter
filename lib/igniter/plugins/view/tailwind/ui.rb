@@ -369,6 +369,61 @@ module Igniter
             end
           end
 
+          class SchemaIntro < View::Component
+            def initialize(text:, tone: nil, tag: :p, class_name:, muted_class:)
+              @text = text
+              @tone = tone
+              @tag = tag
+              @class_name = class_name
+              @muted_class = muted_class
+            end
+
+            def call(view)
+              view.tag(@tag, @text, class: @tone.to_s == "muted" ? @muted_class : @class_name)
+            end
+          end
+
+          class SchemaFieldset < View::Component
+            def initialize(legend: nil, description: nil, class_name:, legend_class:, description_class:, &block)
+              @legend = legend
+              @description = description
+              @class_name = class_name
+              @legend_class = legend_class
+              @description_class = description_class
+              @block = block
+            end
+
+            def call(view)
+              view.tag(:fieldset, class: @class_name) do |fieldset|
+                fieldset.tag(:legend, @legend, class: @legend_class) if @legend
+                fieldset.tag(:p, @description, class: @description_class) if @description
+                @block&.call(fieldset)
+              end
+            end
+          end
+
+          class SchemaForm < View::Component
+            def initialize(action:, method: "post", hidden_action: nil, class_name:, fieldset:, &block)
+              @action = action
+              @method = method
+              @hidden_action = hidden_action
+              @class_name = class_name
+              @fieldset = fieldset
+              @block = block
+            end
+
+            def call(view)
+              view.form(action: @action, method: @method, class: @class_name) do |form|
+                form.hidden("_action", @hidden_action) if @hidden_action
+                form.view.component(
+                  SchemaFieldset.new(**@fieldset) do |fieldset|
+                    @block&.call(form, fieldset)
+                  end
+                )
+              end
+            end
+          end
+
           class MessagePage < View::Component
             DEFAULT_WRAPPER_CLASS = "relative overflow-hidden rounded-[34px] border border-orange-200/15 bg-[radial-gradient(circle_at_top_left,_rgba(194,107,61,0.24),_transparent_18rem),linear-gradient(145deg,rgba(60,33,21,0.96),rgba(22,15,13,0.98))] px-6 py-8 shadow-2xl shadow-black/25 sm:px-8 lg:px-10".freeze
             DEFAULT_GLOW_CLASS = "absolute inset-y-0 right-0 hidden w-72 bg-[radial-gradient(circle_at_center,_rgba(251,146,60,0.14),_transparent_65%)] lg:block".freeze
@@ -783,6 +838,12 @@ module Igniter
                   compact_card_class: "rounded-2xl border border-white/10 bg-white/5 p-4",
                   compact_item_class: "text-sm leading-6 text-stone-300",
                   section_heading_class: "mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-stone-300",
+                  schema_intro_class: "text-base leading-7 text-stone-200",
+                  schema_intro_muted_class: "view-muted text-sm leading-6 text-stone-400",
+                  schema_form_class: "view-form grid gap-3",
+                  schema_fieldset_class: "grid gap-3",
+                  schema_fieldset_legend_class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300",
+                  schema_fieldset_description_class: "text-sm leading-6 text-stone-400",
                   schema_stack_class: SchemaStack::DEFAULT_CLASS,
                   schema_grid_class: SchemaGrid::DEFAULT_CLASS,
                   schema_section_class: SchemaSection::DEFAULT_CLASS,
@@ -835,6 +896,12 @@ module Igniter
                   compact_card_class: "rounded-2xl border border-white/10 bg-white/5 p-4",
                   compact_item_class: "text-sm leading-6 text-stone-300",
                   section_heading_class: "mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-stone-300",
+                  schema_intro_class: "text-base leading-7 text-stone-200",
+                  schema_intro_muted_class: "view-muted text-sm leading-6 text-stone-400",
+                  schema_form_class: "view-form grid gap-3",
+                  schema_fieldset_class: "grid gap-3",
+                  schema_fieldset_legend_class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300",
+                  schema_fieldset_description_class: "text-sm leading-6 text-stone-400",
                   schema_stack_class: SchemaStack::DEFAULT_CLASS,
                   schema_grid_class: SchemaGrid::DEFAULT_CLASS,
                   schema_section_class: SchemaSection::DEFAULT_CLASS,
@@ -880,6 +947,12 @@ module Igniter
                   compact_card_class: "rounded-2xl border border-white/10 bg-white/5 p-4",
                   compact_item_class: "text-sm leading-6 text-stone-300",
                   section_heading_class: "mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-stone-300",
+                  schema_intro_class: "text-base leading-7 text-stone-200",
+                  schema_intro_muted_class: "view-muted text-sm leading-6 text-stone-400",
+                  schema_form_class: "view-form grid gap-3",
+                  schema_fieldset_class: "grid gap-3",
+                  schema_fieldset_legend_class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300",
+                  schema_fieldset_description_class: "text-sm leading-6 text-stone-400",
                   schema_stack_class: SchemaStack::DEFAULT_CLASS,
                   schema_grid_class: SchemaGrid::DEFAULT_CLASS,
                   schema_section_class: SchemaSection::DEFAULT_CLASS,
@@ -917,6 +990,12 @@ module Igniter
                   compact_card_class: "rounded-2xl border border-white/10 bg-white/5 p-4",
                   compact_item_class: "text-sm leading-6 text-stone-300",
                   section_heading_class: "mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-stone-300",
+                  schema_intro_class: "text-base leading-7 text-stone-200",
+                  schema_intro_muted_class: "view-muted text-sm leading-6 text-stone-400",
+                  schema_form_class: "view-form grid gap-3",
+                  schema_fieldset_class: "grid gap-3",
+                  schema_fieldset_legend_class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300",
+                  schema_fieldset_description_class: "text-sm leading-6 text-stone-400",
                   schema_stack_class: SchemaStack::DEFAULT_CLASS,
                   schema_grid_class: SchemaGrid::DEFAULT_CLASS,
                   schema_section_class: SchemaSection::DEFAULT_CLASS,
@@ -954,6 +1033,33 @@ module Igniter
               SchemaHero.new(title: title, description: description, eyebrow: eyebrow, **hero_options)
             end
 
+            def schema_intro(text:, tone: nil, tag: :p)
+              SchemaIntro.new(
+                text: text,
+                tone: tone,
+                tag: tag,
+                class_name: surface(:schema_intro_class),
+                muted_class: surface(:schema_intro_muted_class)
+              )
+            end
+
+            def schema_form(action:, method: "post", hidden_action: nil, legend: nil, description: nil, &block)
+              SchemaForm.new(
+                action: action,
+                method: method,
+                hidden_action: hidden_action,
+                class_name: surface(:schema_form_class),
+                fieldset: {
+                  legend: legend,
+                  description: description,
+                  class_name: surface(:schema_fieldset_class),
+                  legend_class: surface(:schema_fieldset_legend_class),
+                  description_class: surface(:schema_fieldset_description_class)
+                },
+                &block
+              )
+            end
+
             def schema_stack(class_name: nil, &block)
               SchemaStack.new(class_name: class_name || surface(:schema_stack_class), &block)
             end
@@ -968,6 +1074,17 @@ module Igniter
 
             def schema_card(class_name: nil, &block)
               SchemaCard.new(class_name: class_name || surface(:schema_card_class), &block)
+            end
+
+            def schema_fieldset(legend: nil, description: nil, class_name: nil, &block)
+              SchemaFieldset.new(
+                legend: legend,
+                description: description,
+                class_name: class_name || surface(:schema_fieldset_class),
+                legend_class: surface(:schema_fieldset_legend_class),
+                description_class: surface(:schema_fieldset_description_class),
+                &block
+              )
             end
 
             def endpoint_list(items:, empty_message: nil, compact: false, link_class:)
