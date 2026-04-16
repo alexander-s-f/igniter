@@ -5,13 +5,15 @@ module Igniter
     module Mesh
     # Configuration for the local mesh node: registered peers and local identity.
     class Config
-      attr_accessor :peer_name, :local_capabilities, :seeds, :discovery_interval,
-                    :auto_announce, :local_url, :gossip_fanout
+      attr_accessor :peer_name, :local_capabilities, :local_tags, :local_metadata,
+                    :seeds, :discovery_interval, :auto_announce, :local_url, :gossip_fanout
       attr_reader   :peers, :peer_registry
 
       def initialize
         @peer_name          = nil
         @local_capabilities = []
+        @local_tags         = []
+        @local_metadata     = {}
         @peers              = []
         @peer_registry      = PeerRegistry.new
         @seeds              = []
@@ -27,14 +29,19 @@ module Igniter
       #     c.add_peer "orders-node", url: "http://orders.internal:4567",
       #                               capabilities: [:orders, :inventory]
       #   end
-      def add_peer(name, url:, capabilities: [])
-        @peers << Peer.new(name: name, url: url, capabilities: capabilities)
+      def add_peer(name, url:, capabilities: [], tags: [], metadata: {})
+        @peers << Peer.new(name: name, url: url, capabilities: capabilities, tags: tags, metadata: metadata)
         self
       end
 
       # All static peers that advertise a given capability.
       def peers_with_capability(capability)
         @peers.select { |p| p.capable?(capability) }
+      end
+
+      # All static peers matching a capability query.
+      def peers_matching_query(query)
+        @peers.select { |p| p.matches_query?(query) }
       end
 
       # Find a static peer by its registered name. Returns nil if not found.

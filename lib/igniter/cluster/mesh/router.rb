@@ -3,6 +3,8 @@
 module Igniter
   module Cluster
     module Mesh
+    require_relative "../replication/capability_query"
+
     # Thread-safe capability router with a short-lived health cache.
     #
     # Resolves the URL to call for a given routing mode:
@@ -26,11 +28,24 @@ module Igniter
       # Find an alive peer advertising +capability+.
       # Returns the peer URL. Raises DeferredCapabilityError when none are alive.
       def find_peer_for(capability, deferred_result)
-        candidates = all_capable_peers(capability).select { |p| alive?(p) }
+        find_peer_for_query({ all_of: [capability.to_sym] }, deferred_result, round_robin_key: capability.to_sym)
+      end
 
-        raise DeferredCapabilityError.new(capability, deferred_result) if candidates.empty?
+      # Find an alive peer matching a full capability query.
+      # Returns the peer URL. Raises DeferredCapabilityError when none are alive.
+      def find_peer_for_query(query, deferred_result, round_robin_key: nil)
+        normalized = Igniter::Cluster::Replication::CapabilityQuery.normalize(query)
+        candidates = all_matching_peers(normalized).select { |peer| alive?(peer) }
 
-        url_for_round_robin(capability, candidates)
+        if candidates.empty?
+          raise DeferredCapabilityError.new(
+            normalized.name || normalized.all_of.first,
+            deferred_result,
+            query: normalized.to_h
+          )
+        end
+
+        url_for_round_robin(round_robin_key || normalized.to_h, candidates)
       end
 
       # Resolve the URL of a pinned peer by name.
@@ -57,12 +72,12 @@ module Igniter
 
       private
 
-      # Combined static + dynamic peer pool for capability lookup.
+      # Combined static + dynamic peer pool for capability-query lookup.
       # Static peers take precedence over same-named dynamic peers.
-      def all_capable_peers(capability)
+      def all_matching_peers(query)
         merge_peers(
-          @config.peers_with_capability(capability),
-          @config.peer_registry.peers_with_capability(capability)
+          @config.peers_matching_query(query),
+          @config.peer_registry.peers_matching_query(query)
         )
       end
 

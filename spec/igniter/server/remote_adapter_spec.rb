@@ -39,4 +39,18 @@ RSpec.describe Igniter::Server::RemoteAdapter do
       adapter.call(node: node, inputs: { raw: "hello" })
     }.to raise_error(Igniter::ResolutionError, /require 'igniter\/cluster'/)
   end
+
+  it "requires cluster for capability query routing" do
+    node = Igniter::Model::RemoteNode.new(
+      id: "test:3",
+      name: :remote_result,
+      contract_name: "OtherContract",
+      capability_query: { all_of: [:orders], tags: [:linux] },
+      input_mapping: { raw: :data }
+    )
+
+    expect {
+      adapter.call(node: node, inputs: { raw: "hello" })
+    }.to raise_error(Igniter::ResolutionError, /require 'igniter\/cluster'/)
+  end
 end

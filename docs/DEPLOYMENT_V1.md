@@ -292,6 +292,8 @@ Each node runs Scenario 2 (application server), plus the cluster layer adds:
   node metadata propagation.
 - **Replication** (`Igniter::Cluster::Replication`) — contract execution state replicated across nodes;
   any node can continue a distributed workflow after a peer failure.
+- **Adaptive node profiling** (`Igniter::Cluster::Replication::NodeProfile`) — nodes can derive
+  runtime capability coordinates and satisfy capability queries directly from discovered host traits.
 - **Remote contracts** — the `remote:` DSL transparently calls contracts on peer nodes.
 
 ### When to choose

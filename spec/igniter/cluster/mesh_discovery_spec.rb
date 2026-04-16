@@ -12,8 +12,8 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
   describe Igniter::Cluster::Mesh::PeerRegistry do
     subject(:registry) { described_class.new }
 
-    let(:peer_a) { Igniter::Cluster::Mesh::Peer.new(name: "orders", url: "http://orders:4567", capabilities: [:orders]) }
-    let(:peer_b) { Igniter::Cluster::Mesh::Peer.new(name: "audit",  url: "http://audit:4567",  capabilities: [:audit]) }
+    let(:peer_a) { Igniter::Cluster::Mesh::Peer.new(name: "orders", url: "http://orders:4567", capabilities: [:orders], tags: [:linux]) }
+    let(:peer_b) { Igniter::Cluster::Mesh::Peer.new(name: "audit",  url: "http://audit:4567",  capabilities: [:audit], tags: [:linux]) }
 
     it "starts empty" do
       expect(registry.all).to be_empty
@@ -50,6 +50,12 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
       expect(registry.peers_with_capability(:orders)).to contain_exactly(peer_a)
       expect(registry.peers_with_capability(:audit)).to contain_exactly(peer_b)
       expect(registry.peers_with_capability(:unknown)).to be_empty
+    end
+
+    it "peers_matching_query filters correctly" do
+      registry.register(peer_a)
+      registry.register(peer_b)
+      expect(registry.peers_matching_query(all_of: [:orders], tags: [:linux])).to contain_exactly(peer_a)
     end
 
     it "peer_named finds by name" do
@@ -129,6 +135,8 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
         c.peer_name          = "api-node"
         c.local_url          = "http://api.internal:4567"
         c.local_capabilities = %i[api]
+        c.local_tags         = %i[linux]
+        c.local_metadata     = { zone: "eu-1" }
         c.seeds              = %w[http://seed1:4567 http://seed2:4567]
       end
     end
@@ -144,7 +152,7 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
       expect(Igniter::Server::Client).to have_received(:new).with("http://seed1:4567", timeout: 5)
       expect(Igniter::Server::Client).to have_received(:new).with("http://seed2:4567", timeout: 5)
       expect(client_double).to have_received(:register_peer).twice.with(
-        name: "api-node", url: "http://api.internal:4567", capabilities: %i[api]
+        name: "api-node", url: "http://api.internal:4567", capabilities: %i[api], tags: %i[linux], metadata: { zone: "eu-1" }
       )
     end
 
@@ -378,7 +386,7 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
 
     it "finds a dynamic peer when no static peers are configured" do
       config.peer_registry.register(
-        Igniter::Cluster::Mesh::Peer.new(name: "dyn-orders", url: "http://dyn:4567", capabilities: [:orders])
+        Igniter::Cluster::Mesh::Peer.new(name: "dyn-orders", url: "http://dyn:4567", capabilities: [:orders], tags: [:linux])
       )
       stub_alive("http://dyn:4567")
 
@@ -387,9 +395,9 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
     end
 
     it "static peer takes precedence over same-named dynamic peer" do
-      config.add_peer("orders-node", url: "http://static:4567", capabilities: [:orders])
+      config.add_peer("orders-node", url: "http://static:4567", capabilities: [:orders], tags: [:linux])
       config.peer_registry.register(
-        Igniter::Cluster::Mesh::Peer.new(name: "orders-node", url: "http://dynamic:4567", capabilities: [:orders])
+        Igniter::Cluster::Mesh::Peer.new(name: "orders-node", url: "http://dynamic:4567", capabilities: [:orders], tags: [:darwin])
       )
       stub_alive("http://static:4567")
 
@@ -398,9 +406,9 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
     end
 
     it "falls back to dynamic peer when static peer with same capability is dead" do
-      config.add_peer("static-orders", url: "http://static:4567", capabilities: [:orders])
+      config.add_peer("static-orders", url: "http://static:4567", capabilities: [:orders], tags: [:darwin])
       config.peer_registry.register(
-        Igniter::Cluster::Mesh::Peer.new(name: "dyn-orders", url: "http://dyn:4567", capabilities: [:orders])
+        Igniter::Cluster::Mesh::Peer.new(name: "dyn-orders", url: "http://dyn:4567", capabilities: [:orders], tags: [:linux])
       )
       stub_dead("http://static:4567")
       stub_alive("http://dyn:4567")
@@ -419,6 +427,17 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
 
       expect { router.find_peer_for(:orders, deferred) }
         .to raise_error(Igniter::Cluster::Mesh::DeferredCapabilityError)
+    end
+
+    it "finds a peer by capability query across merged static and dynamic pools" do
+      config.add_peer("linux-orders", url: "http://linux:4567", capabilities: [:orders], tags: [:linux])
+      config.peer_registry.register(
+        Igniter::Cluster::Mesh::Peer.new(name: "mac-orders", url: "http://mac:4567", capabilities: [:orders], tags: [:darwin])
+      )
+      stub_alive("http://linux:4567")
+      stub_alive("http://mac:4567")
+
+      expect(router.find_peer_for_query({ all_of: [:orders], tags: [:linux] }, deferred)).to eq("http://linux:4567")
     end
 
     it "resolve_pinned finds a dynamic peer by name" do
@@ -465,7 +484,7 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
     it "returns dynamic peers" do
       Igniter::Cluster::Mesh.configure { |_c| }
       Igniter::Cluster::Mesh.config.peer_registry.register(
-        Igniter::Cluster::Mesh::Peer.new(name: "dyn", url: "http://dyn:4567", capabilities: [:audit])
+        Igniter::Cluster::Mesh::Peer.new(name: "dyn", url: "http://dyn:4567", capabilities: [:audit], tags: [:linux])
       )
 
       result = handler.call(params: {}, body: {})
@@ -581,7 +600,13 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
       it "POSTs to /v1/mesh/peers with correct payload" do
         allow(client).to receive(:post).with(
           "/v1/mesh/peers",
-          { "name" => "api-node", "url" => "http://api:4567", "capabilities" => ["api"] }
+          {
+            "name" => "api-node",
+            "url" => "http://api:4567",
+            "capabilities" => ["api"],
+            "tags" => [],
+            "metadata" => {}
+          }
         ).and_return({ "registered" => true })
 
         client.register_peer(name: "api-node", url: "http://api:4567", capabilities: %i[api])

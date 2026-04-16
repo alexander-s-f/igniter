@@ -17,16 +17,16 @@ RSpec.describe Igniter::Cluster::Replication::NetworkTopology do
       expect(topology.nodes.first.healthy).to be true
     end
 
-    it "stores the role as a symbol" do
-      topology.register(node_id: "n1", host: "10.0.0.1", role: "worker")
-      expect(topology.nodes.first.role).to eq(:worker)
+    it "stores capabilities in the profile" do
+      topology.register(node_id: "n1", host: "10.0.0.1", capabilities: [:local_llm])
+      expect(topology.nodes.first.capabilities).to eq([:local_llm])
     end
 
     it "overwrites an existing entry with the same node_id" do
-      topology.register(node_id: "n1", host: "10.0.0.1", role: :worker)
-      topology.register(node_id: "n1", host: "10.0.0.2", role: :coordinator)
+      topology.register(node_id: "n1", host: "10.0.0.1", capabilities: [:ruby])
+      topology.register(node_id: "n1", host: "10.0.0.2", capabilities: [:local_llm])
       expect(topology.size).to eq(1)
-      expect(topology.nodes.first.role).to eq(:coordinator)
+      expect(topology.nodes.first.capabilities).to eq([:local_llm])
     end
   end
 
@@ -77,39 +77,50 @@ RSpec.describe Igniter::Cluster::Replication::NetworkTopology do
 
   describe "#nodes" do
     before do
-      topology.register(node_id: "w1", host: "10.0.0.1", role: :worker)
-      topology.register(node_id: "c1", host: "10.0.0.2", role: :coordinator)
+      topology.register(node_id: "llm-1", host: "10.0.0.1", capabilities: %i[local_llm container_runtime], tags: [:linux])
+      topology.register(node_id: "db-1", host: "10.0.0.2", capabilities: [:data_store], tags: [:linux])
     end
 
-    it "returns all nodes when no role filter is given" do
+    it "returns all nodes when no filter is given" do
       expect(topology.nodes.size).to eq(2)
     end
 
-    it "filters by role" do
-      workers = topology.nodes(role: :worker)
-      expect(workers.map(&:node_id)).to contain_exactly("w1")
+    it "filters by capability" do
+      nodes = topology.nodes(capability: :local_llm)
+      expect(nodes.map(&:node_id)).to contain_exactly("llm-1")
     end
 
-    it "accepts string role filter" do
-      coordinators = topology.nodes(role: "coordinator")
-      expect(coordinators.map(&:node_id)).to contain_exactly("c1")
+    it "filters by capability query" do
+      nodes = topology.nodes(query: { all_of: %i[local_llm container_runtime], tags: [:linux] })
+      expect(nodes.map(&:node_id)).to contain_exactly("llm-1")
     end
   end
 
-  describe "#needs_role?" do
-    it "returns true when no node with the role exists" do
-      expect(topology.needs_role?(:worker)).to be true
+  describe "#needs_capability?" do
+    it "returns true when no node with the capability exists" do
+      expect(topology.needs_capability?(:local_llm)).to be true
     end
 
-    it "returns false when a healthy node with the role exists" do
-      topology.register(node_id: "w1", host: "10.0.0.1", role: :worker)
-      expect(topology.needs_role?(:worker)).to be false
+    it "returns false when a healthy node with the capability exists" do
+      topology.register(node_id: "w1", host: "10.0.0.1", capabilities: [:local_llm])
+      expect(topology.needs_capability?(:local_llm)).to be false
     end
 
-    it "returns true when only unhealthy nodes have the role" do
-      topology.register(node_id: "w1", host: "10.0.0.1", role: :worker)
+    it "returns true when only unhealthy nodes have the capability" do
+      topology.register(node_id: "w1", host: "10.0.0.1", capabilities: [:local_llm])
       topology.mark_unhealthy(node_id: "w1")
-      expect(topology.needs_role?(:worker)).to be true
+      expect(topology.needs_capability?(:local_llm)).to be true
+    end
+  end
+
+  describe "#needs_capability_query?" do
+    it "returns true when no healthy node matches the query" do
+      expect(topology.needs_capability_query?(%i[local_llm container_runtime])).to be true
+    end
+
+    it "returns false when a healthy node matches the query" do
+      topology.register(node_id: "n1", host: "10.0.0.1", capabilities: %i[local_llm container_runtime], tags: [:linux])
+      expect(topology.needs_capability_query?(all_of: %i[local_llm container_runtime], tags: [:linux])).to be false
     end
   end
 

@@ -40,7 +40,9 @@ module Igniter
         Igniter::Server::Client.new(seed_url, timeout: 5).register_peer(
           name: @config.peer_name,
           url: @config.local_url,
-          capabilities: @config.local_capabilities
+          capabilities: @config.local_capabilities,
+          tags: @config.local_tags,
+          metadata: @config.local_metadata
         )
       rescue Igniter::Server::Client::ConnectionError
         nil

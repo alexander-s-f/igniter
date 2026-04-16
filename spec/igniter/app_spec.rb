@@ -354,7 +354,13 @@ RSpec.describe Igniter::App do
         local_capabilities: [:api]
       )
       expect(config.to_h[:peers]).to eq([
-        { name: "orders-node", url: "http://orders:4567", capabilities: [:orders] }
+        {
+          name: "orders-node",
+          url: "http://orders:4567",
+          capabilities: [:orders],
+          tags: [],
+          metadata: {}
+        }
       ])
     end
   end

@@ -37,7 +37,13 @@ module Igniter
           next if pd[:name] == @config.peer_name
 
           @config.peer_registry.register(
-            Peer.new(name: pd[:name], url: pd[:url], capabilities: pd[:capabilities] || [])
+            Peer.new(
+              name: pd[:name],
+              url: pd[:url],
+              capabilities: pd[:capabilities] || [],
+              tags: pd[:tags] || [],
+              metadata: pd[:metadata] || {}
+            )
           )
         end
       rescue Igniter::Server::Client::ConnectionError

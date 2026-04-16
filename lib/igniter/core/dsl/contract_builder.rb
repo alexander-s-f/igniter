@@ -264,15 +264,15 @@ module Igniter
       end
 
       def remote(name, contract:, inputs:, node: nil, timeout: 30, # rubocop:disable Metrics/MethodLength,Metrics/ParameterLists,Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-                 capability: nil, pinned_to: nil, **metadata)
+                 capability: nil, query: nil, pinned_to: nil, **metadata)
         raise CompileError, "remote :#{name} requires inputs: Hash" unless inputs.is_a?(Hash)
         raise CompileError, "remote :#{name} requires a contract: name" if contract.nil? || contract.to_s.strip.empty?
 
-        if capability && pinned_to
-          raise CompileError, "remote :#{name}: capability: and pinned_to: are mutually exclusive"
+        if [capability, query, pinned_to].count { |value| !value.nil? } > 1
+          raise CompileError, "remote :#{name}: capability:, query:, and pinned_to: are mutually exclusive"
         end
 
-        if capability.nil? && pinned_to.nil? && (node.nil? || node.to_s.strip.empty?)
+        if capability.nil? && query.nil? && pinned_to.nil? && (node.nil? || node.to_s.strip.empty?)
           raise CompileError, "remote :#{name} requires a node: URL"
         end
 
@@ -285,6 +285,7 @@ module Igniter
             input_mapping: inputs,
             timeout: timeout,
             capability: capability,
+            capability_query: query,
             pinned_to: pinned_to,
             path: scoped_path(name),
             metadata: with_source_location(metadata)

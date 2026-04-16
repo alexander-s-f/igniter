@@ -11,7 +11,7 @@ RSpec.describe Igniter::Cluster::Replication::ExpansionPlanner do
     described_class.new(topology: topology, **opts)
   end
 
-  describe "#plan with no required roles and healthy topology" do
+  describe "#plan with no required capabilities and healthy topology" do
     it "returns a no_op plan" do
       plan = build_planner.plan
       expect(plan.no_op?).to be true
@@ -24,7 +24,7 @@ RSpec.describe Igniter::Cluster::Replication::ExpansionPlanner do
 
   describe "#plan — retire unhealthy nodes" do
     before do
-      topology.register(node_id: "n1", host: "10.0.0.1", role: :worker)
+      topology.register(node_id: "n1", host: "10.0.0.1", capabilities: [:local_llm])
       topology.mark_unhealthy(node_id: "n1")
     end
 
@@ -44,33 +44,34 @@ RSpec.describe Igniter::Cluster::Replication::ExpansionPlanner do
     end
   end
 
-  describe "#plan — ensure required roles" do
-    it "adds :replicate_role when the role is absent and a host is available" do
-      planner = build_planner(required_roles: [:worker], host_pool: ["10.0.0.2"])
-      action  = planner.plan.actions.find { |a| a[:action] == :replicate_role }
-      expect(action).to include(role: :worker, host: "10.0.0.2")
+  describe "#plan — ensure required capabilities" do
+    it "adds :replicate_capabilities when the query is absent and a host is available" do
+      planner = build_planner(required_capabilities: [%i[local_llm container_runtime]], host_pool: ["10.0.0.2"])
+      action  = planner.plan.actions.find { |a| a[:action] == :replicate_capabilities }
+      expect(action).to include(host: "10.0.0.2")
+      expect(action.dig(:query, :all_of)).to eq(%i[container_runtime local_llm])
     end
 
-    it "does not add :replicate_role when the role is already covered" do
-      topology.register(node_id: "w1", host: "10.0.0.1", role: :worker)
-      planner = build_planner(required_roles: [:worker], host_pool: ["10.0.0.2"])
-      expect(planner.plan.actions.map { |a| a[:action] }).not_to include(:replicate_role)
+    it "does not add :replicate_capabilities when the query is already covered" do
+      topology.register(node_id: "w1", host: "10.0.0.1", capabilities: %i[local_llm container_runtime])
+      planner = build_planner(required_capabilities: [%i[local_llm container_runtime]], host_pool: ["10.0.0.2"])
+      expect(planner.plan.actions.map { |a| a[:action] }).not_to include(:replicate_capabilities)
     end
 
-    it "notes in rationale when a host is missing for the required role" do
-      planner = build_planner(required_roles: [:coordinator], host_pool: [])
+    it "notes in rationale when a host is missing for the required query" do
+      planner = build_planner(required_capabilities: [%i[local_llm container_runtime]], host_pool: [])
       rationale = planner.plan.rationale
-      expect(rationale).to include("coordinator")
+      expect(rationale).to include("local_llm")
       expect(rationale).to include("no available host")
     end
 
     it "skips already-used hosts when assigning a new node" do
-      topology.register(node_id: "n1", host: "10.0.0.1", role: :worker)
+      topology.register(node_id: "n1", host: "10.0.0.1", capabilities: [:ruby])
       planner = build_planner(
-        required_roles: [:coordinator],
-        host_pool:      ["10.0.0.1", "10.0.0.2"]
+        required_capabilities: [[:local_llm]],
+        host_pool:             ["10.0.0.1", "10.0.0.2"]
       )
-      action = planner.plan.actions.find { |a| a[:action] == :replicate_role }
+      action = planner.plan.actions.find { |a| a[:action] == :replicate_capabilities }
       expect(action[:host]).to eq("10.0.0.2")
     end
   end
@@ -113,21 +114,22 @@ RSpec.describe Igniter::Cluster::Replication::ExpansionPlanner do
       store.record(
         agent_id: "TestAgent",
         type:     :scale_signal,
-        content:  "scale_out:worker",
+        content:  "scale_out:local_llm+container_runtime",
         outcome:  nil
       )
     end
 
-    it "adds :replicate_role action for the signalled role" do
+    it "adds :replicate_capabilities action for the signalled query" do
       planner = build_planner(memory: memory, host_pool: ["10.0.0.5"])
-      action  = planner.plan.actions.find { |a| a[:action] == :replicate_role }
-      expect(action).to include(role: :worker, host: "10.0.0.5")
+      action  = planner.plan.actions.find { |a| a[:action] == :replicate_capabilities }
+      expect(action).to include(host: "10.0.0.5")
+      expect(action.dig(:query, :all_of)).to eq(%i[container_runtime local_llm])
     end
 
     it "ignores malformed scale_signal content" do
       store.record(agent_id: "TestAgent", type: :scale_signal, content: "bad:signal")
       planner = build_planner(memory: memory, host_pool: ["10.0.0.5"])
-      replicate_actions = planner.plan.actions.select { |a| a[:action] == :replicate_role }
+      replicate_actions = planner.plan.actions.select { |a| a[:action] == :replicate_capabilities }
       expect(replicate_actions.size).to eq(1)
     end
   end
@@ -136,7 +138,7 @@ RSpec.describe Igniter::Cluster::Replication::ExpansionPlanner do
     let(:llm_double) do
       double("LLM").tap do |d|
         allow(d).to receive(:call).and_return(
-          actions:   [{ action: :replicate_role, role: :worker, host: "10.0.0.9" }],
+          actions:   [{ action: :replicate_capabilities, query: { all_of: [:local_llm] }, host: "10.0.0.9" }],
           rationale: "LLM says scale out"
         )
       end
@@ -149,12 +151,12 @@ RSpec.describe Igniter::Cluster::Replication::ExpansionPlanner do
       expect(plan.actions.first[:host]).to eq("10.0.0.9")
     end
 
-    it "passes topology and required_roles to the LLM" do
-      topology.register(node_id: "x", host: "10.0.0.1", role: :worker)
-      planner = build_planner(llm: llm_double, required_roles: [:coordinator])
+    it "passes topology and required_capabilities to the LLM" do
+      topology.register(node_id: "x", host: "10.0.0.1", capabilities: [:local_llm])
+      planner = build_planner(llm: llm_double, required_capabilities: [[:container_runtime]])
       planner.plan
       expect(llm_double).to have_received(:call).with(
-        hash_including(required_roles: [:coordinator])
+        hash_including(required_capabilities: [hash_including(all_of: [:container_runtime])])
       )
     end
   end
@@ -167,7 +169,7 @@ RSpec.describe Igniter::Cluster::Replication::ExpansionPlanner do
 
     it "returns false when real actions are present" do
       plan = Igniter::Cluster::Replication::ExpansionPlan.new(
-        actions: [{ action: :replicate_role, role: :worker, host: "x" }]
+        actions: [{ action: :replicate_capabilities, query: { all_of: [:local_llm] }, host: "x" }]
       )
       expect(plan.no_op?).to be false
     end

@@ -8,12 +8,20 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
   # Peer
   # ─────────────────────────────────────────────────────────────────────────────
   describe Igniter::Cluster::Mesh::Peer do
-    subject(:peer) { described_class.new(name: "orders-node", url: "http://orders.internal:4567/", capabilities: [:orders, :inventory]) }
+    subject(:peer) do
+      described_class.new(
+        name: "orders-node",
+        url: "http://orders.internal:4567/",
+        capabilities: [:orders, :inventory],
+        tags: [:linux]
+      )
+    end
 
     it "stores name, url and capabilities" do
       expect(peer.name).to eq("orders-node")
       expect(peer.url).to eq("http://orders.internal:4567") # trailing slash stripped
       expect(peer.capabilities).to eq(%i[orders inventory])
+      expect(peer.tags).to eq([:linux])
     end
 
     it "is frozen" do
@@ -27,6 +35,11 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
 
     it "#capable? returns false for unknown capability" do
       expect(peer.capable?(:billing)).to be false
+    end
+
+    it "matches a capability query across capabilities and tags" do
+      expect(peer.matches_query?(all_of: [:orders], tags: [:linux])).to be true
+      expect(peer.matches_query?(all_of: [:orders], tags: [:darwin])).to be false
     end
 
     it "coerces capabilities to symbols" do
@@ -64,6 +77,12 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       config.add_peer("b", url: "http://b", capabilities: [:audit])
       config.add_peer("c", url: "http://c", capabilities: [:orders, :audit])
       expect(config.peers_with_capability(:orders).map(&:name)).to contain_exactly("a", "c")
+    end
+
+    it "peers_matching_query filters by capability query" do
+      config.add_peer("a", url: "http://a", capabilities: [:orders], tags: [:linux])
+      config.add_peer("b", url: "http://b", capabilities: [:orders], tags: [:darwin])
+      expect(config.peers_matching_query(all_of: [:orders], tags: [:linux]).map(&:name)).to contain_exactly("a")
     end
 
     it "peer_named returns the matching peer or nil" do
@@ -181,6 +200,15 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       expect(router.find_peer_for(:orders, deferred)).to eq("http://orders:4567")
     end
 
+    it "find_peer_for_query matches richer capability queries" do
+      config.add_peer("orders-node", url: "http://orders:4567", capabilities: [:orders], tags: [:linux])
+      config.add_peer("orders-mac", url: "http://orders-mac:4567", capabilities: [:orders], tags: [:darwin])
+      stub_alive("http://orders:4567")
+      stub_alive("http://orders-mac:4567")
+
+      expect(router.find_peer_for_query({ all_of: [:orders], tags: [:linux] }, deferred)).to eq("http://orders:4567")
+    end
+
     it "find_peer_for round-robins across multiple alive peers" do
       config.add_peer("orders-1", url: "http://orders-1:4567", capabilities: [:orders])
       config.add_peer("orders-2", url: "http://orders-2:4567", capabilities: [:orders])
@@ -246,6 +274,10 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       expect(make_node(capability: :orders).routing_mode).to eq(:capability)
     end
 
+    it "is :capability when capability_query: is set" do
+      expect(make_node(capability_query: { all_of: [:orders], tags: [:linux] }).routing_mode).to eq(:capability)
+    end
+
     it "is :pinned when pinned_to: is set" do
       expect(make_node(pinned_to: "audit-node").routing_mode).to eq(:pinned)
     end
@@ -256,6 +288,11 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
 
     it "stores capability as symbol" do
       expect(make_node(capability: "orders").capability).to eq(:orders)
+    end
+
+    it "stores capability_query as normalized hash" do
+      expect(make_node(capability_query: { all_of: ["orders"], tags: ["linux"] }).capability_query)
+        .to eq({ all_of: [:orders], tags: [:linux] })
     end
 
     it "stores pinned_to as string" do
@@ -269,15 +306,15 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
   describe "remote: DSL" do
     let(:builder) { Igniter::DSL::ContractBuilder.new(name: "TestContract") }
 
-    it "raises CompileError when neither node:, capability:, nor pinned_to: given" do
+    it "raises CompileError when neither node:, capability:, query:, nor pinned_to: given" do
       expect {
         builder.remote(:x, contract: "Foo", inputs: {})
       }.to raise_error(Igniter::CompileError, /requires a node/)
     end
 
-    it "raises CompileError if capability: and pinned_to: both given" do
+    it "raises CompileError if query: and pinned_to: both given" do
       expect {
-        builder.remote(:x, contract: "Foo", inputs: {}, capability: :orders, pinned_to: "audit-node")
+        builder.remote(:x, contract: "Foo", inputs: {}, query: { all_of: [:orders] }, pinned_to: "audit-node")
       }.to raise_error(Igniter::CompileError, /mutually exclusive/)
     end
 
@@ -292,6 +329,13 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       node = builder.instance_variable_get(:@nodes).last
       expect(node.routing_mode).to eq(:capability)
       expect(node.capability).to eq(:orders)
+    end
+
+    it "accepts query: routing without node:" do
+      builder.remote(:x, contract: "Foo", query: { all_of: [:orders], tags: [:linux] }, inputs: {})
+      node = builder.instance_variable_get(:@nodes).last
+      expect(node.routing_mode).to eq(:capability)
+      expect(node.capability_query).to eq({ all_of: [:orders], tags: [:linux] })
     end
 
     it "accepts pinned_to: routing without node:" do
@@ -331,6 +375,10 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       expect { compile_with_remote(capability: :orders) }.not_to raise_error
     end
 
+    it "skips URL validation for query: routing" do
+      expect { compile_with_remote(query: { all_of: [:orders], tags: [:linux] }) }.not_to raise_error
+    end
+
     it "skips URL validation for pinned_to: routing" do
       expect { compile_with_remote(pinned_to: "audit-node") }.not_to raise_error
     end
@@ -348,6 +396,10 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
 
     it "defaults peer_capabilities to empty array" do
       expect(config.peer_capabilities).to eq([])
+    end
+
+    it "defaults peer_tags to empty array" do
+      expect(config.peer_tags).to eq([])
     end
 
     it "peer_name is assignable" do
@@ -375,6 +427,8 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       cfg = Igniter::Server::Config.new
       cfg.peer_name         = "orders-node"
       cfg.peer_capabilities = [:orders, :inventory]
+      cfg.peer_tags         = [:linux]
+      cfg.peer_metadata     = { "zone" => "eu-1" }
       cfg
     end
     let(:handler) { Igniter::Server::Handlers::ManifestHandler.new(registry, store, config: server_config) }
@@ -394,6 +448,13 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       result = handler.call(params: {}, body: {})
       body = JSON.parse(result[:body])
       expect(body["capabilities"]).to contain_exactly("orders", "inventory")
+    end
+
+    it "includes tags and metadata" do
+      result = handler.call(params: {}, body: {})
+      body = JSON.parse(result[:body])
+      expect(body["tags"]).to eq(["linux"])
+      expect(body["metadata"]).to eq({ "zone" => "eu-1" })
     end
 
     it "includes contract names" do
@@ -422,6 +483,8 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
                                  body: JSON.generate({
                                    "peer_name" => "orders-node",
                                    "capabilities" => %w[orders inventory],
+                                   "tags" => %w[linux],
+                                   "metadata" => { "zone" => "eu-1" },
                                    "contracts" => ["ProcessOrder"],
                                    "url" => "http://orders:4567"
                                  }))
@@ -438,6 +501,8 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       manifest = client.manifest
       expect(manifest[:peer_name]).to eq("orders-node")
       expect(manifest[:capabilities]).to eq(%i[orders inventory])
+      expect(manifest[:tags]).to eq([:linux])
+      expect(manifest[:metadata]).to eq({ "zone" => "eu-1" })
       expect(manifest[:contracts]).to include("ProcessOrder")
       expect(manifest[:url]).to eq("http://orders:4567")
     end
@@ -560,6 +625,38 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
         contract = contract_class.new(event: "created")
         contract.resolve_all
         expect(contract.result.audit).to eq({ logged: true })
+      end
+    end
+
+    context "with query: routing" do
+      let(:contract_class) do
+        Class.new(Igniter::Contract) do
+          define do
+            input :order_id
+            remote :order_result,
+                   contract: "ProcessOrder",
+                   query: { all_of: [:orders], tags: [:linux] },
+                   inputs: { id: :order_id }
+            output :order_result
+          end
+        end
+      end
+
+      it "routes only to peers matching the full query" do
+        Igniter::Cluster::Mesh.configure do |c|
+          c.add_peer("orders-linux", url: "http://orders-linux:4567", capabilities: [:orders], tags: [:linux])
+          c.add_peer("orders-mac", url: "http://orders-mac:4567", capabilities: [:orders], tags: [:darwin])
+        end
+
+        alive_linux = instance_double(Igniter::Server::Client, health: { "status" => "ok" })
+        alive_mac = instance_double(Igniter::Server::Client, health: { "status" => "ok" })
+        allow(Igniter::Server::Client).to receive(:new).with("http://orders-linux:4567", timeout: 3).and_return(alive_linux)
+        allow(Igniter::Server::Client).to receive(:new).with("http://orders-mac:4567", timeout: 3).and_return(alive_mac)
+        mock_remote_response("http://orders-linux:4567", "ProcessOrder", outputs: { result: 100 })
+
+        contract = contract_class.new(order_id: 42)
+        contract.resolve_all
+        expect(contract.result.order_result).to eq({ result: 100 })
       end
     end
   end

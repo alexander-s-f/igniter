@@ -5,7 +5,8 @@ require_relative "replication_agent"
 require_relative "network_topology"
 require_relative "expansion_plan"
 require_relative "expansion_planner"
-require_relative "role_registry"
+require_relative "capability_query"
+require_relative "node_profile"
 
 module Igniter
   module Cluster
@@ -15,17 +16,17 @@ module Igniter
     #
     # == Additional message types
     #
-    #   :assess_network  — run ExpansionPlanner; execute replicate_role/retire_node actions
+    #   :assess_network  — run ExpansionPlanner; execute replicate_capabilities/retire_node actions
     #   :reflect         — run a ReflectionCycle over recent episodes; store summary in state
     #   :register_node   — register a remote node in the local NetworkTopology
     #   :node_heartbeat  — update last_seen_at for a known node
-    #   :signal_scale    — emit a :scale_signal episode (e.g. from load monitors)
+    #   :signal_scale    — emit a :scale_signal episode for a capability query
     #
     # == State keys (in addition to inherited :events)
     #
     #   :topology        — NetworkTopology instance (created lazily on first access)
     #   :host_pool       — Array<String> of candidate hosts
-    #   :required_roles  — Array<Symbol> of roles that must always be present
+    #   :required_capabilities — Array<CapabilityQuery-ish> that must always be present
     #   :last_plan       — Hash from the most recent ExpansionPlan
     #   :last_reflection — String summary from the most recent reflection cycle
     #
@@ -39,21 +40,19 @@ module Igniter
     # Call +auto_assess(every: N)+ to schedule periodic topology assessment.
     #
     # @example
-    #   RoleRegistry.define(:worker, env_overrides: { "POOL" => "4" })
-    #
     #   class MyAgent < ReflectiveReplicationAgent
     #     enable_class_memory
     #     auto_assess every: 60
     #   end
     #
     #   ref = MyAgent.start(initial_state: {
-    #     topology:       NetworkTopology.new,
-    #     required_roles: [:worker],
-    #     host_pool:      ["10.0.0.2", "10.0.0.3"]
+    #     topology:              NetworkTopology.new,
+    #     required_capabilities: [[:local_llm]],
+    #     host_pool:             ["10.0.0.2", "10.0.0.3"]
     #   })
     #   ref.call(:assess_network)
     class ReflectiveReplicationAgent < ReplicationAgent
-      initial_state topology: nil, host_pool: [], required_roles: [],
+      initial_state topology: nil, host_pool: [], required_capabilities: [],
                     last_plan: nil, last_reflection: nil
 
       # ── Class-level memory ─────────────────────────────────────────────────────
@@ -154,10 +153,13 @@ module Igniter
 
       on :register_node do |state:, payload:, **|
         topology = state[:topology] || NetworkTopology.new
+        agent    = new
+        profile  = payload[:profile] || agent.send(:build_profile_from_payload, payload)
+
         topology.register(
           node_id: payload.fetch(:node_id),
           host:    payload.fetch(:host),
-          role:    payload[:role]
+          profile: profile
         )
         state.merge(topology: topology)
       end
@@ -168,10 +170,10 @@ module Igniter
       end
 
       on :signal_scale do |state:, payload:, **|
-        role = payload.fetch(:role)
+        query = CapabilityQuery.normalize(payload[:query] || payload[:capabilities] || payload.fetch(:capability))
         class_memory&.record(
           type:    :scale_signal,
-          content: "scale_out:#{role}",
+          content: "scale_out:#{query.compact_signature}",
           outcome: nil
         )
         state
@@ -188,18 +190,18 @@ module Igniter
       def run_assess_network(state, payload)
         topology = state[:topology] || NetworkTopology.new
         planner  = ExpansionPlanner.new(
-          topology:       topology,
-          memory:         self.class.class_memory,
-          required_roles: Array(payload[:required_roles] || state[:required_roles]),
-          host_pool:      Array(payload[:host_pool]      || state[:host_pool])
+          topology:              topology,
+          memory:                self.class.class_memory,
+          required_capabilities: Array(payload[:required_capabilities] || state[:required_capabilities]),
+          host_pool:             Array(payload[:host_pool] || state[:host_pool])
         )
 
         plan = planner.plan
 
         plan.actions.each do |action|
           case action[:action]
-          when :replicate_role
-            run_replicate_role(action, topology)
+          when :replicate_capabilities
+            run_replicate_capabilities(action, topology)
           when :retire_node
             topology.remove(node_id: action[:node_id])
             deliver(:node_retired, node_id: action[:node_id], host: action[:host])
@@ -215,24 +217,41 @@ module Igniter
         state.merge(topology: topology, last_plan: plan.to_h)
       end
 
-      # Execute a :replicate_role action: call run_replicate + register in topology.
+      # Execute a :replicate_capabilities action: call run_replicate + register in topology.
       #
       # @param action   [Hash]
       # @param topology [NetworkTopology]
-      def run_replicate_role(action, topology)
-        role_obj = RoleRegistry.registered?(action[:role]) ? RoleRegistry.fetch(action[:role]) : nil
-        env      = role_obj&.env_overrides || {}
-
+      def run_replicate_capabilities(action, topology)
         run_replicate(
           host:                 action.fetch(:host),
           user:                 action.fetch(:user, "deploy"),
           strategy:             action.fetch(:strategy, :git),
-          env:                  env,
+          env:                  action.fetch(:env, {}),
           bootstrapper_options: action.fetch(:bootstrapper_options, {})
         )
 
-        topology.register(node_id: SecureRandom.uuid, host: action[:host], role: action[:role])
-        deliver(:role_replicated, host: action[:host], role: action[:role])
+        query = CapabilityQuery.normalize(action.fetch(:query))
+        profile = NodeProfile.new(capabilities: query.all_of, tags: query.tags)
+        topology.register(node_id: SecureRandom.uuid, host: action[:host], profile: profile)
+        deliver(:capabilities_replicated, host: action[:host], query: query.to_h)
+      end
+
+      def build_profile_from_payload(payload)
+        return payload[:profile] if payload[:profile].is_a?(NodeProfile)
+
+        discovery = payload[:discovery]
+        if discovery
+          NodeProfile.from_discovery(
+            discovery,
+            capabilities: Array(payload[:capabilities]),
+            tags:         Array(payload[:tags])
+          )
+        else
+          NodeProfile.new(
+            capabilities: Array(payload[:capabilities]),
+            tags:         Array(payload[:tags])
+          )
+        end
       end
     end
     end

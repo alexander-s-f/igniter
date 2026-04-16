@@ -57,6 +57,8 @@ module Igniter
         {
           peer_name: response["peer_name"],
           capabilities: (response["capabilities"] || []).map(&:to_sym),
+          tags: (response["tags"] || []).map(&:to_sym),
+          metadata: response["metadata"] || {},
           contracts: response["contracts"] || [],
           url: response["url"]
         }
@@ -69,15 +71,23 @@ module Igniter
           {
             name: p["name"],
             url: p["url"],
-            capabilities: Array(p["capabilities"]).map(&:to_sym)
+            capabilities: Array(p["capabilities"]).map(&:to_sym),
+            tags: Array(p["tags"]).map(&:to_sym),
+            metadata: p["metadata"] || {}
           }
         end
       end
 
       # Register this node as a peer on the remote node.
-      def register_peer(name:, url:, capabilities: [])
+      def register_peer(name:, url:, capabilities: [], tags: [], metadata: {})
         post("/v1/mesh/peers",
-             { "name" => name, "url" => url, "capabilities" => capabilities.map(&:to_s) })
+             {
+               "name" => name,
+               "url" => url,
+               "capabilities" => capabilities.map(&:to_s),
+               "tags" => tags.map(&:to_s),
+               "metadata" => metadata
+             })
       end
 
       # Remove a peer registration from the remote node. Best-effort.

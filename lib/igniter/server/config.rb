@@ -5,7 +5,7 @@ module Igniter
     class Config
       attr_accessor :host, :port, :store, :logger,
                     :metrics_collector, :log_format, :drain_timeout,
-                    :peer_name, :peer_capabilities, :custom_routes,
+                    :peer_name, :peer_capabilities, :peer_tags, :peer_metadata, :custom_routes,
                     :before_request_hooks, :after_request_hooks, :around_request_hooks
       attr_reader   :registry
 
@@ -20,6 +20,8 @@ module Igniter
         @drain_timeout     = 30
         @peer_name         = nil
         @peer_capabilities = []
+        @peer_tags         = []
+        @peer_metadata     = {}
         @custom_routes     = []
         @before_request_hooks = []
         @after_request_hooks = []

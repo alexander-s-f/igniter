@@ -18,6 +18,8 @@ module Igniter
           json_ok({
                     peer_name: @config&.peer_name,
                     capabilities: (@config&.peer_capabilities || []).map(&:to_s),
+                    tags: (@config&.peer_tags || []).map(&:to_s),
+                    metadata: @config&.peer_metadata || {},
                     contracts: @registry.names,
                     url: node_url
                   })

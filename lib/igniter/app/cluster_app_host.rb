@@ -37,13 +37,19 @@ module Igniter
         return if cluster_settings.nil? || cluster_settings.empty?
 
         local_capabilities = Array(cluster_settings[:local_capabilities]).map(&:to_sym)
+        local_tags = Array(cluster_settings[:local_tags]).map(&:to_sym)
+        local_metadata = Hash(cluster_settings[:local_metadata] || {})
         server_config.peer_name = cluster_settings[:peer_name]
         server_config.peer_capabilities = local_capabilities
+        server_config.peer_tags = local_tags
+        server_config.peer_metadata = local_metadata
 
         Igniter::Cluster::Mesh.reset!
         Igniter::Cluster::Mesh.configure do |c|
           c.peer_name = cluster_settings[:peer_name]
           c.local_capabilities = local_capabilities
+          c.local_tags = local_tags
+          c.local_metadata = local_metadata
           c.seeds = Array(cluster_settings[:seeds])
           c.discovery_interval = cluster_settings[:discovery_interval]
           c.auto_announce = cluster_settings[:auto_announce]
@@ -51,7 +57,13 @@ module Igniter
           c.gossip_fanout = cluster_settings[:gossip_fanout]
 
           Array(cluster_settings[:peers]).each do |peer|
-            c.add_peer(peer[:name], url: peer[:url], capabilities: peer[:capabilities])
+            c.add_peer(
+              peer[:name],
+              url: peer[:url],
+              capabilities: peer[:capabilities],
+              tags: peer[:tags],
+              metadata: peer[:metadata]
+            )
           end
         end
       end

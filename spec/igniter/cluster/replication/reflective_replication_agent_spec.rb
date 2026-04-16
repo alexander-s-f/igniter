@@ -22,7 +22,7 @@ RSpec.describe Igniter::Cluster::Replication::ReflectiveReplicationAgent do
   after { described_class.reset_class_memory! }
 
   def default_state(overrides = {})
-    { topology: topology, host_pool: [], required_roles: [],
+    { topology: topology, host_pool: [], required_capabilities: [],
       last_plan: nil, last_reflection: nil }.merge(overrides)
   end
 
@@ -96,20 +96,16 @@ RSpec.describe Igniter::Cluster::Replication::ReflectiveReplicationAgent do
       expect(result).to include(:topology)
     end
 
-    it "registers a new node when :replicate_role action fires" do
-      Igniter::Cluster::Replication::RoleRegistry.reset!
-      Igniter::Cluster::Replication::RoleRegistry.define(:worker)
+    it "registers a new node when :replicate_capabilities action fires" do
       result = call_handler(:assess_network,
-        state:   default_state(host_pool: ["10.0.0.5"], required_roles: [:worker]),
+        state:   default_state(host_pool: ["10.0.0.5"], required_capabilities: [[:local_llm]]),
         payload: {}
       )
-      expect(result[:topology].nodes(role: :worker)).not_to be_empty
-    ensure
-      Igniter::Cluster::Replication::RoleRegistry.reset!
+      expect(result[:topology].nodes(capability: :local_llm)).not_to be_empty
     end
 
     it "removes an unhealthy node when :retire_node action fires" do
-      topology.register(node_id: "bad", host: "10.0.0.9", role: :worker)
+      topology.register(node_id: "bad", host: "10.0.0.9", capabilities: [:local_llm])
       topology.mark_unhealthy(node_id: "bad")
       result = call_handler(:assess_network)
       expect(result[:topology].node_ids).not_to include("bad")
@@ -152,9 +148,9 @@ RSpec.describe Igniter::Cluster::Replication::ReflectiveReplicationAgent do
   describe "on :register_node" do
     it "adds the node to the topology in state" do
       result = call_handler(:register_node,
-        payload: { node_id: "new-node", host: "10.0.0.7", role: :worker }
+        payload: { node_id: "new-node", host: "10.0.0.7", capabilities: [:local_llm] }
       )
-      expect(result[:topology].nodes(role: :worker).map(&:node_id)).to include("new-node")
+      expect(result[:topology].nodes(capability: :local_llm).map(&:node_id)).to include("new-node")
     end
 
     it "creates a topology lazily when state has nil" do
@@ -163,6 +159,28 @@ RSpec.describe Igniter::Cluster::Replication::ReflectiveReplicationAgent do
         payload: { node_id: "n1", host: "10.0.0.1" }
       )
       expect(result[:topology]).to be_a(Igniter::Cluster::Replication::NetworkTopology)
+    end
+
+    it "builds the capability profile from discovery when profile is omitted" do
+      result = call_handler(:register_node,
+        payload: {
+          node_id: "gpu-node",
+          host: "10.0.0.42",
+          discovery: {
+            host: { os: "linux", cpu: "x86_64" },
+            runtime: { ruby: { engine: "ruby" } },
+            paths: {
+              utility_candidates: [
+                { name: "docker", present: true, path: "/usr/bin/docker" },
+                { name: "ollama", present: true, path: "/usr/bin/ollama" }
+              ]
+            }
+          }
+        }
+      )
+
+      node = result[:topology].nodes(query: { all_of: %i[container_runtime local_llm], tags: [:linux] }).first
+      expect(node&.node_id).to eq("gpu-node")
     end
   end
 
@@ -189,9 +207,9 @@ RSpec.describe Igniter::Cluster::Replication::ReflectiveReplicationAgent do
 
   describe "on :signal_scale" do
     it "records a :scale_signal episode" do
-      call_handler(:signal_scale, payload: { role: :worker })
+      call_handler(:signal_scale, payload: { capabilities: %i[local_llm container_runtime] })
       signals = described_class.class_memory.recent(last: 5, type: :scale_signal)
-      expect(signals.map(&:content)).to include("scale_out:worker")
+      expect(signals.map(&:content)).to include("scale_out:container_runtime+local_llm")
     end
   end
 
@@ -218,9 +236,9 @@ RSpec.describe Igniter::Cluster::Replication::ReflectiveReplicationAgent do
   # ── initial_state ──────────────────────────────────────────────────────────
 
   describe "default_state" do
-    it "includes topology, host_pool, required_roles, last_plan, last_reflection" do
+    it "includes topology, host_pool, required_capabilities, last_plan, last_reflection" do
       expect(described_class.default_state.keys).to include(
-        :topology, :host_pool, :required_roles, :last_plan, :last_reflection
+        :topology, :host_pool, :required_capabilities, :last_plan, :last_reflection
       )
     end
   end

@@ -33,6 +33,11 @@ module Igniter
         all.select { |p| p.capable?(capability) }
       end
 
+      # Peers matching a capability query.
+      def peers_matching_query(query)
+        all.select { |p| p.matches_query?(query) }
+      end
+
       # Find a peer by name. Returns nil if not found.
       def peer_named(name)
         @mutex.synchronize { @peers[name.to_s] }

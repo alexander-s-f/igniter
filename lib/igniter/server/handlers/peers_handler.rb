@@ -29,7 +29,13 @@ module Igniter
 
         def handle(params:, body:) # rubocop:disable Lint/UnusedMethodArgument
           json_ok(merged_peers.map do |p|
-            { "name" => p.name, "url" => p.url, "capabilities" => p.capabilities.map(&:to_s) }
+            {
+              "name" => p.name,
+              "url" => p.url,
+              "capabilities" => p.capabilities.map(&:to_s),
+              "tags" => p.tags.map(&:to_s),
+              "metadata" => p.metadata
+            }
           end)
         end
       end
@@ -62,7 +68,8 @@ module Igniter
             "targets" => [host_port(peer.url)],
             "labels" => {
               "__meta_igniter_peer_name" => peer.name,
-              "__meta_igniter_capabilities" => peer.capabilities.map(&:to_s).join(",")
+              "__meta_igniter_capabilities" => peer.capabilities.map(&:to_s).join(","),
+              "__meta_igniter_tags" => peer.tags.map(&:to_s).join(",")
             }
           }
         end
@@ -76,7 +83,7 @@ module Igniter
       end
 
       # POST /v1/mesh/peers
-      # Body: { "name": "peer-name", "url": "http://host:port", "capabilities": ["a", "b"] }
+      # Body: { "name": "peer-name", "url": "http://host:port", "capabilities": ["a", "b"], "tags": ["linux"] }
       class MeshPeersRegisterHandler < Base
         private
 
@@ -89,7 +96,9 @@ module Igniter
           return json_error("url is required",  status: 400) if url.empty?
 
           caps = Array(body["capabilities"]).map(&:to_sym)
-          peer = Igniter::Cluster::Mesh::Peer.new(name: name, url: url, capabilities: caps)
+          tags = Array(body["tags"]).map(&:to_sym)
+          metadata = body["metadata"].is_a?(Hash) ? body["metadata"] : {}
+          peer = Igniter::Cluster::Mesh::Peer.new(name: name, url: url, capabilities: caps, tags: tags, metadata: metadata)
           Igniter::Cluster::Mesh.config.peer_registry.register(peer)
 
           json_ok({ "registered" => true, "name" => name })
