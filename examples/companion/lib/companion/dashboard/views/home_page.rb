@@ -89,10 +89,10 @@ module Companion
             section.component(panel("Execution Stores", subtitle: "Execution persistence across companion apps.") do |panel_view|
               execution_stores_markup(panel_view, snapshot.fetch(:execution_stores))
             end)
-            section.component(panel("View Schemas", subtitle: "Catalog browser and lightweight authoring surface for persisted schemas.") do |panel_view|
+            section.component(surface_preset.authoring_catalog_panel do |panel_view|
               view_schemas_markup(panel_view, snapshot.fetch(:view_schemas))
             end)
-            section.component(panel("Recent Submissions", subtitle: "Latest schema runtime outputs flowing back into the operator surface.") do |panel_view|
+            section.component(surface_preset.recent_submissions_panel do |panel_view|
               view_submissions_markup(panel_view, snapshot.fetch(:view_submissions))
             end)
           end
@@ -127,7 +127,7 @@ module Companion
         end
 
         def create_reminder_form_section
-          ui_theme.form_section(
+          surface_preset.form_section(
             title: "Create Reminder",
             subtitle: "Quick operator flow for scheduling reminders.",
             action: "/reminders"
@@ -332,10 +332,7 @@ module Companion
 
         def render_schema_create_form(view)
           view.component(
-            ui_theme.form_section(
-              title: "Create Schema",
-              subtitle: "Post a full schema payload directly to the catalog API.",
-              action: "#",
+            surface_preset.schema_create_form_section(
               wrapper_class: "#{ui_theme.surface(:schema_card_class)} p-5"
             ) do |form|
               form.label("schema-create-id", "Suggested id", class: ui_theme.field_label_class)
@@ -364,10 +361,7 @@ module Companion
 
         def render_schema_patch_form(view)
           view.component(
-            ui_theme.form_section(
-              title: "Patch Schema",
-              subtitle: "Load an existing schema, edit a JSON patch, then apply it through the catalog API.",
-              action: "#",
+            surface_preset.schema_patch_form_section(
               wrapper_class: "#{ui_theme.surface(:schema_card_class)} p-5"
             ) do |form|
               form.label("schema-patch-id", "Schema id", class: ui_theme.field_label_class)

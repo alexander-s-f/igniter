@@ -759,9 +759,17 @@ RSpec.describe Igniter::Plugins::View::Tailwind::Surfaces do
     expect(schema.theme_name).to eq(:companion)
     expect(schema.components).to include(:form_section, :banner, :action_bar)
     expect(schema.hooks.dig(:catalog)).to include("view_schema_catalog")
+    expect(schema.authoring_catalog_panel {}).to be_a(Igniter::Plugins::View::Tailwind::UI::Panel)
+    expect(schema.schema_create_form_section {}).to be_a(Igniter::Plugins::View::Tailwind::UI::FormSection)
+    expect(schema.schema_patch_form_section {}).to be_a(Igniter::Plugins::View::Tailwind::UI::FormSection)
     expect(submission.theme_name).to eq(:companion)
     expect(submission.components).to include(:payload_diff, :key_value_list, :message_page)
     expect(submission.hooks.dig(:payloads)).to include("raw_payload")
+    expect(submission.submission_summary_panel {}).to be_a(Igniter::Plugins::View::Tailwind::UI::Panel)
+    expect(submission.submission_replay_panel {}).to be_a(Igniter::Plugins::View::Tailwind::UI::Panel)
+    expect(submission.submission_payload_panel(:raw) {}).to be_a(Igniter::Plugins::View::Tailwind::UI::Panel)
+    expect(submission.submission_diff_panel {}).to be_a(Igniter::Plugins::View::Tailwind::UI::Panel)
+    expect(submission.submission_detail_grid_class).to include("xl:grid-cols")
   end
 end
 

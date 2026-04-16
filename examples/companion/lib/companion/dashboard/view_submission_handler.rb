@@ -32,8 +32,8 @@ module Companion
           main_class: "mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8"
         ) do |main|
           render_hero(main, submission: submission, theme: theme)
-          main.tag(:section, class: "grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]") do |grid|
-            grid.component(theme.panel(title: "Summary", subtitle: "Runtime-level context for this schema submission.") do |panel|
+          main.tag(:section, class: surface_preset.submission_detail_grid_class) do |grid|
+            grid.component(surface_preset.submission_summary_panel do |panel|
               panel.component(
                 Igniter::Plugins::View::Tailwind::UI::KeyValueList.new(
                   rows: submission_rows(submission: submission, schema: schema)
@@ -41,19 +41,19 @@ module Companion
               )
             end)
 
-            grid.component(theme.panel(title: "Replay", subtitle: "Replay the stored raw payload back into the originating schema action.") do |panel|
+            grid.component(surface_preset.submission_replay_panel do |panel|
               replay_markup(panel, submission: submission, schema: schema, theme: theme, tokens: tokens)
             end)
 
-            grid.component(theme.panel(title: "Raw Payload", subtitle: "Original form values as they were submitted.") do |panel|
+            grid.component(surface_preset.submission_payload_panel(:raw) do |panel|
               json_markup(panel, submission.fetch("raw_payload"), theme: theme)
             end)
 
-            grid.component(theme.panel(title: "Normalized Payload", subtitle: "Payload after schema normalization and type coercion.") do |panel|
+            grid.component(surface_preset.submission_payload_panel(:normalized) do |panel|
               json_markup(panel, submission.fetch("normalized_payload"), theme: theme)
             end)
 
-            grid.component(theme.panel(title: "Normalization Diff", subtitle: "Field-level view of what changed between raw and normalized payloads.") do |panel|
+            grid.component(surface_preset.submission_diff_panel do |panel|
               panel.component(
                 theme.payload_diff(
                   raw_payload: submission.fetch("raw_payload"),
@@ -63,7 +63,7 @@ module Companion
               )
             end)
 
-            grid.component(theme.panel(title: "Processing Result", subtitle: "Runtime result captured after submission processing.") do |panel|
+            grid.component(surface_preset.submission_payload_panel(:processing_result) do |panel|
               json_markup(panel, submission["processing_result"] || { ok: false, type: "pending" }, theme: theme)
             end)
           end

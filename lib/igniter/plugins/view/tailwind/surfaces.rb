@@ -38,6 +38,103 @@ module Igniter
               )
             end
 
+            def panel(title:, subtitle: nil, &block)
+              theme.panel(title: title, subtitle: subtitle, &block)
+            end
+
+            def form_section(title:, subtitle:, action:, method: "post", **options, &block)
+              theme.form_section(title: title, subtitle: subtitle, action: action, method: method, **options, &block)
+            end
+
+            def authoring_catalog_panel(&block)
+              panel(
+                title: "View Schemas",
+                subtitle: "Catalog browser and lightweight authoring surface for persisted schemas.",
+                &block
+              )
+            end
+
+            def schema_create_form_section(**options, &block)
+              form_section(
+                title: "Create Schema",
+                subtitle: "Post a full schema payload directly to the catalog API.",
+                action: "#",
+                **options,
+                &block
+              )
+            end
+
+            def schema_patch_form_section(**options, &block)
+              form_section(
+                title: "Patch Schema",
+                subtitle: "Load an existing schema, edit a JSON patch, then apply it through the catalog API.",
+                action: "#",
+                **options,
+                &block
+              )
+            end
+
+            def recent_submissions_panel(&block)
+              panel(
+                title: "Recent Submissions",
+                subtitle: "Latest schema runtime outputs flowing back into the operator surface.",
+                &block
+              )
+            end
+
+            def submission_summary_panel(&block)
+              panel(
+                title: "Summary",
+                subtitle: "Runtime-level context for this schema submission.",
+                &block
+              )
+            end
+
+            def submission_replay_panel(&block)
+              panel(
+                title: "Replay",
+                subtitle: "Replay the stored raw payload back into the originating schema action.",
+                &block
+              )
+            end
+
+            def submission_payload_panel(kind, &block)
+              case kind.to_sym
+              when :raw
+                panel(
+                  title: "Raw Payload",
+                  subtitle: "Original form values as they were submitted.",
+                  &block
+                )
+              when :normalized
+                panel(
+                  title: "Normalized Payload",
+                  subtitle: "Payload after schema normalization and type coercion.",
+                  &block
+                )
+              when :processing_result
+                panel(
+                  title: "Processing Result",
+                  subtitle: "Runtime result captured after submission processing.",
+                  &block
+                )
+              else
+                raise ArgumentError, "unsupported submission payload panel kind: #{kind}"
+              end
+            end
+
+            def submission_diff_panel(&block)
+              panel(
+                title: "Normalization Diff",
+                subtitle: "Field-level view of what changed between raw and normalized payloads.",
+                &block
+              )
+            end
+
+            def submission_detail_grid_class
+              "grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
+            end
+
             def realtime_feed_attributes(item_class: theme.compact_card_class)
               {
                 class: theme.compact_list_class,
