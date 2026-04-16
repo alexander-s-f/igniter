@@ -3,7 +3,7 @@
 require "igniter/app"
 require "igniter/core"
 require "igniter/core/metrics"
-require_relative "../../lib/companion/boot"
+require_relative "../../lib/companion"
 
 module Companion
   class InferenceApp < Igniter::App

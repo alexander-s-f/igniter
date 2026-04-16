@@ -2,8 +2,7 @@
 
 require "igniter/app"
 require "igniter/core"
-require_relative "../../lib/companion/boot"
-require_relative "../../lib/companion/shared/telegram_webhook"
+require_relative "../../lib/companion"
 
 module Companion
   class MainApp < Igniter::App

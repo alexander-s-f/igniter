@@ -2,7 +2,7 @@
 
 require "igniter/app"
 require "igniter/core"
-require_relative "../../lib/companion/boot"
+require_relative "../../lib/companion"
 require_relative "../../lib/companion/dashboard/home_handler"
 require_relative "../../lib/companion/dashboard/overview_handler"
 require_relative "../../lib/companion/dashboard/reminder_action_handler"

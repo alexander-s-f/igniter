@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "open3"
+require "rbconfig"
+
 require_relative "spec_helper"
 
 RSpec.describe Companion::Stack do
@@ -66,6 +69,20 @@ RSpec.describe Companion::Stack do
       expect(procfile).to include("bundle exec ruby stack.rb inference")
       expect(procfile).to include("bundle exec ruby stack.rb dashboard")
       expect(procfile).not_to include("examples/companion/stack.rb")
+    end
+
+    it "loads dashboard app with shared stores in a fresh Ruby process" do
+      script = <<~RUBY
+        $LOAD_PATH.unshift(File.expand_path("lib", #{Dir.pwd.inspect}))
+        $LOAD_PATH.unshift(File.expand_path("examples/companion/lib", #{Dir.pwd.inspect}))
+        require File.expand_path("examples/companion/apps/dashboard/app", #{Dir.pwd.inspect})
+        puts [defined?(Companion::NotesStore), defined?(Companion::ReminderStore), defined?(Companion::TelegramBindingsStore)].join(",")
+      RUBY
+
+      stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-e", script, chdir: Dir.pwd)
+
+      expect(status.success?).to be(true), stderr
+      expect(stdout.strip).to eq("constant,constant,constant")
     end
   end
 

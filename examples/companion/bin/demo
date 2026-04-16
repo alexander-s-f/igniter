@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative "../lib/companion/boot"
+require_relative "../lib/companion"
 
 Companion::Boot.setup_load_path!
 Dir.chdir(Companion::Boot.root)
