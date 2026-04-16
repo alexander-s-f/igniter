@@ -40,6 +40,32 @@ module Igniter
           end
         end
 
+        def render_message_page(title:, eyebrow:, message:, back_label:, back_path:, detail: nil,
+                                lang: "en", body_class: DEFAULT_BODY_CLASS, main_class: DEFAULT_MAIN_CLASS,
+                                include_play_cdn: true, tailwind_config: nil, head_content: nil, **message_page_options)
+          render_page(
+            title: title,
+            lang: lang,
+            body_class: body_class,
+            main_class: main_class,
+            include_play_cdn: include_play_cdn,
+            tailwind_config: tailwind_config,
+            head_content: head_content
+          ) do |main|
+            main.component(
+              UI::MessagePage.new(
+                title: title,
+                eyebrow: eyebrow,
+                message: message,
+                back_label: back_label,
+                back_path: back_path,
+                detail: detail,
+                **message_page_options
+              )
+            )
+          end
+        end
+
         def render_config_script(view, config)
           payload = config.is_a?(String) ? config : "tailwind.config = #{JSON.generate(config)};"
           view.tag(:script, type: "text/javascript") do |script|

@@ -149,6 +149,24 @@ RSpec.describe Igniter::Plugins::View::Tailwind do
     expect(html).to include("<p>Hello</p>")
   end
 
+  it "renders a shared message page shell" do
+    html = described_class.render_message_page(
+      title: "Missing View",
+      eyebrow: "Schema Page",
+      message: "No schema stored for training-checkin.",
+      detail: "view_id=training-checkin",
+      back_label: "Back to dashboard",
+      back_path: "/dashboard"
+    )
+
+    expect(html).to include("<!DOCTYPE html>")
+    expect(html).to include("Missing View")
+    expect(html).to include("Schema Page")
+    expect(html).to include("No schema stored for training-checkin.")
+    expect(html).to include("view_id=training-checkin")
+    expect(html).to include('href="/dashboard"')
+  end
+
   it "can render without injecting the Tailwind Play CDN" do
     html = described_class.render_page(title: "Local Page", include_play_cdn: false) do |main|
       main.tag(:p, "Hello")
@@ -174,6 +192,47 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI do
     expect(html).to include("Main surface")
     expect(html).to include("status-badge")
     expect(html).to include("ready")
+  end
+
+  it "renders reusable message pages" do
+    html = Igniter::Plugins::View.render do |view|
+      view.component(
+        described_class::MessagePage.new(
+          title: "Submission Error",
+          eyebrow: "Schema Submission",
+          message: "missing form action",
+          detail: "view_id=training-checkin",
+          back_label: "Back to view",
+          back_path: "/views/training-checkin"
+        )
+      )
+    end
+
+    expect(html).to include("Submission Error")
+    expect(html).to include("Schema Submission")
+    expect(html).to include("missing form action")
+    expect(html).to include("view_id=training-checkin")
+    expect(html).to include('href="/views/training-checkin"')
+  end
+
+  it "renders reusable banners, fields, and inline actions" do
+    html = Igniter::Plugins::View.render do |view|
+      view.component(described_class::Banner.new(message: "Please review the highlighted fields.", tone: :warning))
+      view.component(described_class::Field.new(id: "task", label: "Task", error: "is required") do |field|
+        Igniter::Plugins::View::FormBuilder.new(field).input("task", id: "task", class: "field-input")
+      end)
+      view.component(described_class::InlineActions.new do |actions|
+        actions.tag(:a, "Back", href: "/")
+        actions.tag(:button, "Retry", type: "submit")
+      end)
+    end
+
+    expect(html).to include("Please review the highlighted fields.")
+    expect(html).to include("Task")
+    expect(html).to include("is required")
+    expect(html).to include('class="field-input"')
+    expect(html).to include("Back")
+    expect(html).to include("Retry")
   end
 
   it "renders reusable action bars, form sections, and key-value lists" do

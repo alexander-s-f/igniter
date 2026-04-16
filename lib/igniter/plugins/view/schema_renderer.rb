@@ -47,9 +47,7 @@ module Igniter
                 hero.tag(:p, meta_hint, class: "mt-4 max-w-3xl text-base leading-7 text-stone-300") if meta_hint
               end
 
-              main.tag(:div,
-                       notice,
-                       class: "view-notice rounded-2xl border border-orange-300/20 bg-orange-300/10 px-4 py-3 text-sm text-orange-100") if notice
+              main.component(Tailwind::UI::Banner.new(message: notice, tone: :notice, tag: :div)) if notice
               render_node(main, schema.layout)
             end
           )
@@ -107,49 +105,68 @@ module Igniter
 
           case node.fetch("type")
           when "input"
-            form.label(dom_id(node), node.fetch("label"), class: label_classes)
-            form.input(node.fetch("name"),
-                       id: dom_id(node),
-                       placeholder: node["placeholder"],
-                       value: value_for(node),
-                       required: node["required"],
-                       class: [field_classes, error_class])
-            render_field_error(form, field_error)
+            form.view.component(
+              Tailwind::UI::Field.new(id: dom_id(node), label: node.fetch("label"), error: field_error) do |field|
+                FormBuilder.new(field).input(
+                  node.fetch("name"),
+                  id: dom_id(node),
+                  placeholder: node["placeholder"],
+                  value: value_for(node),
+                  required: node["required"],
+                  class: [field_classes, error_class]
+                )
+              end
+            )
           when "textarea"
-            form.label(dom_id(node), node.fetch("label"), class: label_classes)
-            form.textarea(node.fetch("name"),
-                          id: dom_id(node),
-                          value: value_for(node),
-                          placeholder: node["placeholder"],
-                          rows: node.fetch("rows", nil),
-                          class: [field_classes, "min-h-28", error_class])
-            render_field_error(form, field_error)
+            form.view.component(
+              Tailwind::UI::Field.new(id: dom_id(node), label: node.fetch("label"), error: field_error) do |field|
+                FormBuilder.new(field).textarea(
+                  node.fetch("name"),
+                  id: dom_id(node),
+                  value: value_for(node),
+                  placeholder: node["placeholder"],
+                  rows: node.fetch("rows", nil),
+                  class: [field_classes, "min-h-28", error_class]
+                )
+              end
+            )
           when "select"
-            form.label(dom_id(node), node.fetch("label"), class: label_classes)
-            form.select(node.fetch("name"),
-                        id: dom_id(node),
-                        selected: value_for(node, fallback: node["selected"]),
-                        options: Array(node["options"]).map { |option| [option.fetch("label"), option.fetch("value")] },
-                        class: [field_classes, error_class])
-            render_field_error(form, field_error)
+            form.view.component(
+              Tailwind::UI::Field.new(id: dom_id(node), label: node.fetch("label"), error: field_error) do |field|
+                FormBuilder.new(field).select(
+                  node.fetch("name"),
+                  id: dom_id(node),
+                  selected: value_for(node, fallback: node["selected"]),
+                  options: Array(node["options"]).map { |option| [option.fetch("label"), option.fetch("value")] },
+                  class: [field_classes, error_class]
+                )
+              end
+            )
           when "checkbox"
-            form.label(dom_id(node), class: checkbox_label_classes) do |label|
-              label.raw(
-                View.render do |view|
-                  FormBuilder.new(view).checkbox(
-                    node.fetch("name"),
-                    value: node.fetch("value", "1"),
-                    checked: checked_for(node),
-                    id: dom_id(node),
-                    class: checkbox_classes
+            form.view.component(
+              Tailwind::UI::Field.new(id: dom_id(node), error: field_error) do |field|
+                field.tag(:label, class: checkbox_label_classes, for: dom_id(node)) do |label|
+                  label.raw(
+                    View.render do |view|
+                      FormBuilder.new(view).checkbox(
+                        node.fetch("name"),
+                        value: node.fetch("value", "1"),
+                        checked: checked_for(node),
+                        id: dom_id(node),
+                        class: checkbox_classes
+                      )
+                    end
                   )
+                  label.text(" #{node.fetch("label")}")
                 end
-              )
-              label.text(" #{node.fetch("label")}")
-            end
-            render_field_error(form, field_error)
+              end
+            )
           when "submit"
-            form.submit(node.fetch("label"), class: submit_classes)
+            form.view.component(
+              Tailwind::UI::InlineActions.new do |actions|
+                FormBuilder.new(actions).submit(node.fetch("label"), class: submit_classes)
+              end
+            )
           when "text"
             form.view.tag(:p, node.fetch("text"), class: "view-muted text-sm leading-6 text-stone-400")
           else
@@ -183,12 +200,6 @@ module Igniter
           node.fetch("checked", false)
         end
 
-        def render_field_error(form, message)
-          return unless message
-
-          form.view.tag(:p, message, class: "view-error mt-2 text-sm text-rose-200")
-        end
-
         def stringify_keys(value)
           case value
           when Hash
@@ -198,10 +209,6 @@ module Igniter
           else
             value
           end
-        end
-
-        def label_classes
-          "mb-2 block text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
         end
 
         def checkbox_label_classes

@@ -75,9 +75,13 @@ That Tailwind UI slice is now starting to look like a small server-rendered kit:
 - `MetricCard`
 - `Panel`
 - `StatusBadge`
+- `Banner`
 - `ActionBar`
+- `InlineActions`
 - `KeyValueList`
+- `Field`
 - `FormSection`
+- `MessagePage`
 
 This API is intentionally small.
 

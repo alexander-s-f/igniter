@@ -21,6 +21,137 @@ module Igniter
             end
           end
 
+          class InlineActions < ActionBar
+            DEFAULT_CLASS = "mt-4 flex flex-wrap gap-3".freeze
+
+            def initialize(tag: :div, class_name: DEFAULT_CLASS, &block)
+              super(tag: tag, class_name: class_name, &block)
+            end
+          end
+
+          class Banner < View::Component
+            DEFAULT_BASE_CLASS = "rounded-2xl border px-4 py-3 text-sm".freeze
+
+            def initialize(message:, tone: :notice, tag: :div, base_class: DEFAULT_BASE_CLASS, tone_class: nil)
+              @message = message
+              @tone = tone.to_sym
+              @tag = tag
+              @base_class = base_class
+              @tone_class = tone_class
+            end
+
+            def call(view)
+              view.tag(@tag, @message, class: [@base_class, resolved_tone_class])
+            end
+
+            private
+
+            def resolved_tone_class
+              return @tone_class if @tone_class
+
+              case @tone
+              when :success
+                "border-emerald-300/20 bg-emerald-300/10 text-emerald-100"
+              when :warning
+                "border-amber-300/20 bg-amber-300/10 text-amber-100"
+              when :error
+                "border-rose-300/20 bg-rose-300/10 text-rose-100"
+              when :info
+                "border-cyan-300/20 bg-cyan-300/10 text-cyan-100"
+              else
+                "border-orange-300/20 bg-orange-300/10 text-orange-100"
+              end
+            end
+          end
+
+          class Field < View::Component
+            DEFAULT_WRAPPER_CLASS = "field".freeze
+            DEFAULT_LABEL_CLASS = "mb-2 block text-sm font-semibold uppercase tracking-[0.18em] text-stone-300".freeze
+            DEFAULT_HINT_CLASS = "mt-2 text-sm text-stone-400".freeze
+            DEFAULT_ERROR_CLASS = "mt-2 text-sm text-rose-200".freeze
+
+            def initialize(id:, label: nil, error: nil, hint: nil, wrapper_class: DEFAULT_WRAPPER_CLASS,
+                           label_class: DEFAULT_LABEL_CLASS, hint_class: DEFAULT_HINT_CLASS,
+                           error_class: DEFAULT_ERROR_CLASS, &block)
+              @id = id
+              @label = label
+              @error = error
+              @hint = hint
+              @wrapper_class = wrapper_class
+              @label_class = label_class
+              @hint_class = hint_class
+              @error_class = error_class
+              @block = block
+            end
+
+            def call(view)
+              view.tag(:div, class: @wrapper_class) do |container|
+                container.tag(:label, @label, for: @id, class: @label_class) if @label
+                @block&.call(container)
+                container.tag(:p, @hint, class: @hint_class) if @hint
+                container.tag(:p, @error, class: @error_class) if @error
+              end
+            end
+          end
+
+          class MessagePage < View::Component
+            DEFAULT_WRAPPER_CLASS = "relative overflow-hidden rounded-[34px] border border-orange-200/15 bg-[radial-gradient(circle_at_top_left,_rgba(194,107,61,0.24),_transparent_18rem),linear-gradient(145deg,rgba(60,33,21,0.96),rgba(22,15,13,0.98))] px-6 py-8 shadow-2xl shadow-black/25 sm:px-8 lg:px-10".freeze
+            DEFAULT_GLOW_CLASS = "absolute inset-y-0 right-0 hidden w-72 bg-[radial-gradient(circle_at_center,_rgba(251,146,60,0.14),_transparent_65%)] lg:block".freeze
+            DEFAULT_CONTENT_CLASS = "relative z-10 max-w-3xl".freeze
+            DEFAULT_EYEBROW_CLASS = "text-[11px] font-semibold uppercase tracking-[0.34em] text-orange-200/75".freeze
+            DEFAULT_TITLE_CLASS = "mt-3 font-display text-4xl leading-tight text-white sm:text-5xl".freeze
+            DEFAULT_MESSAGE_CLASS = "mt-4 text-base leading-7 text-stone-300 sm:text-lg".freeze
+            DEFAULT_DETAIL_WRAPPER_CLASS = "mt-4".freeze
+            DEFAULT_DETAIL_CLASS = "rounded-xl bg-black/30 px-3 py-2 font-mono text-xs leading-6 text-orange-100".freeze
+            DEFAULT_ACTION_BAR_CLASS = "mt-6 flex flex-wrap gap-3".freeze
+            DEFAULT_ACTION_CLASS = "inline-flex rounded-full border border-orange-300/20 bg-orange-300/90 px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-950 transition hover:bg-orange-200".freeze
+
+            def initialize(title:, eyebrow:, message:, back_label:, back_path:, detail: nil,
+                           wrapper_class: DEFAULT_WRAPPER_CLASS, glow_class: DEFAULT_GLOW_CLASS,
+                           content_class: DEFAULT_CONTENT_CLASS, eyebrow_class: DEFAULT_EYEBROW_CLASS,
+                           title_class: DEFAULT_TITLE_CLASS, message_class: DEFAULT_MESSAGE_CLASS,
+                           detail_wrapper_class: DEFAULT_DETAIL_WRAPPER_CLASS, detail_class: DEFAULT_DETAIL_CLASS,
+                           action_bar_class: DEFAULT_ACTION_BAR_CLASS, action_class: DEFAULT_ACTION_CLASS)
+              @title = title
+              @eyebrow = eyebrow
+              @message = message
+              @back_label = back_label
+              @back_path = back_path
+              @detail = detail
+              @wrapper_class = wrapper_class
+              @glow_class = glow_class
+              @content_class = content_class
+              @eyebrow_class = eyebrow_class
+              @title_class = title_class
+              @message_class = message_class
+              @detail_wrapper_class = detail_wrapper_class
+              @detail_class = detail_class
+              @action_bar_class = action_bar_class
+              @action_class = action_class
+            end
+
+            def call(view)
+              view.tag(:section, class: @wrapper_class) do |hero|
+                hero.tag(:div, class: @glow_class) unless @glow_class.to_s.empty?
+                hero.tag(:div, class: @content_class) do |content|
+                  content.tag(:p, @eyebrow, class: @eyebrow_class)
+                  content.tag(:h1, @title, class: @title_class)
+                  content.tag(:p, @message, class: @message_class)
+                  if @detail
+                    content.tag(:p, class: @detail_wrapper_class) do |paragraph|
+                      paragraph.tag(:code, @detail, class: @detail_class)
+                    end
+                  end
+                  content.component(
+                    ActionBar.new(class_name: @action_bar_class) do |actions|
+                      actions.tag(:a, @back_label, href: @back_path, class: @action_class)
+                    end
+                  )
+                end
+              end
+            end
+          end
+
           class MetricCard < View::Component
             DEFAULT_WRAPPER_CLASS = "rounded-[28px] border border-white/10 bg-white/5 p-5 shadow-2xl shadow-black/20 backdrop-blur".freeze
             DEFAULT_LABEL_CLASS = "text-[11px] font-semibold uppercase tracking-[0.28em] text-amber-200/70".freeze
