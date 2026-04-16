@@ -16,6 +16,7 @@ module Igniter
           status: status,
           outputs: serialize_outputs,
           errors: serialize_errors,
+          routing: summarize_routing,
           nodes: summarize_nodes,
           collection_nodes: summarize_collection_nodes,
           events: summarize_events
@@ -36,6 +37,7 @@ module Igniter
         lines << format_nodes(report[:nodes])
         lines << format_collection_nodes(report[:collection_nodes])
         lines << format_errors(report[:errors])
+        lines << format_routing(report[:routing])
         lines << format_events(report[:events])
         lines.compact.join("\n")
       end
@@ -51,6 +53,9 @@ module Igniter
         lines << "- Nodes: total=#{report[:nodes][:total]}, succeeded=#{report[:nodes][:succeeded]}, failed=#{report[:nodes][:failed]}, stale=#{report[:nodes][:stale]}"
         unless report[:collection_nodes].empty?
           lines << "- Collections: #{report[:collection_nodes].map { |node| "#{node[:node_name]} total=#{node[:total]} succeeded=#{node[:succeeded]} failed=#{node[:failed]} status=#{node[:status]}" }.join('; ')}"
+        end
+        unless report[:routing][:entries].empty?
+          lines << "- Routing: total=#{report[:routing][:total]}, pending=#{report[:routing][:pending]}, failed=#{report[:routing][:failed]}"
         end
         lines << "- Events: total=#{report[:events][:total]}, latest=#{report[:events][:latest_type] || 'none'}"
 
@@ -72,6 +77,17 @@ module Igniter
             node[:failed_items].each do |item|
               lines << "- `#{node[:node_name]}[#{item[:key]}]` failed: #{item[:message]}"
             end
+          end
+        end
+
+        unless report[:routing][:entries].empty?
+          lines << ""
+          lines << "## Routing"
+          report[:routing][:entries].each do |entry|
+            line = "- `#{entry[:node_name]}` `#{entry[:status]}`: `#{entry[:routing_trace_summary]}`"
+            line += " token=`#{entry[:token]}`" if entry[:token]
+            line += " error=`#{entry[:error][:message]}`" if entry[:error]
+            lines << line
           end
         end
 
@@ -204,6 +220,18 @@ module Igniter
 
       def format_events(events)
         "Events: total=#{events[:total]}, latest=#{events[:latest_type] || 'none'}"
+      end
+
+      def format_routing(routing)
+        return nil if routing[:entries].empty?
+
+        summaries = routing[:entries].map do |entry|
+          summary = "#{entry[:node_name]}(#{entry[:status]} #{entry[:routing_trace_summary]})"
+          summary += " token=#{entry[:token]}" if entry[:token]
+          summary
+        end
+
+        "Routing: total=#{routing[:total]}, pending=#{routing[:pending]}, failed=#{routing[:failed]} #{summaries.join(', ')}"
       end
 
       def inline_hash(hash)
@@ -376,6 +404,19 @@ module Igniter
         end
       end
 
+      def summarize_routing
+        entries = execution.cache.values.filter_map do |state|
+          routing_entry_for(state)
+        end
+
+        {
+          total: entries.size,
+          pending: entries.count { |entry| entry[:status] == :pending },
+          failed: entries.count { |entry| entry[:status] == :failed },
+          entries: entries
+        }
+      end
+
       def serialize_error(node_name, error)
         context = error.respond_to?(:context) ? error.context : {}
         routing_trace = extract_routing_trace(context)
@@ -423,6 +464,39 @@ module Igniter
         return summary unless routing_summary
 
         "#{summary}[#{routing_summary}]"
+      end
+
+      def routing_entry_for(state)
+        if state.pending? && state.value.is_a?(Runtime::DeferredResult) && state.value.routing_trace
+          return {
+            node_name: state.node.name,
+            path: state.node.path,
+            status: :pending,
+            token: state.value.token,
+            waiting_on: state.value.waiting_on,
+            source_node: state.value.source_node,
+            routing_trace: state.value.routing_trace,
+            routing_trace_summary: summarize_routing_trace(state.value.routing_trace)
+          }
+        end
+
+        return unless state.failed?
+
+        context = state.error.respond_to?(:context) ? state.error.context : {}
+        routing_trace = extract_routing_trace(context)
+        return unless routing_trace
+
+        {
+          node_name: state.node.name,
+          path: state.node.path,
+          status: :failed,
+          error: {
+            type: state.error.class.name,
+            message: state.error.message
+          },
+          routing_trace: routing_trace,
+          routing_trace_summary: summarize_routing_trace(routing_trace)
+        }
       end
 
       def extract_routing_trace(context)

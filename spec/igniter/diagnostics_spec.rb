@@ -302,7 +302,22 @@ RSpec.describe "Igniter diagnostics" do
         routing_trace: pending_trace,
         routing_trace_summary: "mode=capability query={:all_of=>[:orders], :tags=>[:linux]} eligible=0 selected=none reasons=unreachable"
       )
+      expect(report[:routing]).to include(total: 1, pending: 1, failed: 0)
+      expect(report[:routing][:entries]).to contain_exactly(
+        include(
+          node_name: :order_result,
+          status: :pending,
+          token: "route-order-42",
+          waiting_on: :order_result,
+          routing_trace: pending_trace,
+          routing_trace_summary: "mode=capability query={:all_of=>[:orders], :tags=>[:linux]} eligible=0 selected=none reasons=unreachable"
+        )
+      )
+      expect(text).to include("Routing: total=1, pending=1, failed=0")
       expect(text).to include("routing=mode=capability query={:all_of=>[:orders], :tags=>[:linux]} eligible=0 selected=none reasons=unreachable")
+      expect(markdown).to include("- Routing: total=1, pending=1, failed=0")
+      expect(markdown).to include("## Routing")
+      expect(markdown).to include("`order_result` `pending`")
       expect(markdown).to include("routing=mode=capability query={:all_of=>[:orders], :tags=>[:linux]} eligible=0 selected=none reasons=unreachable")
     end
 
@@ -325,7 +340,24 @@ RSpec.describe "Igniter diagnostics" do
         routing_trace: failed_trace,
         routing_trace_summary: "mode=pinned peer=audit-node selected=http://audit:4567 reachable=false reasons=unreachable"
       )
+      expect(report[:routing]).to include(total: 1, pending: 0, failed: 1)
+      expect(report[:routing][:entries]).to contain_exactly(
+        include(
+          node_name: :audit_result,
+          status: :failed,
+          routing_trace: failed_trace,
+          routing_trace_summary: "mode=pinned peer=audit-node selected=http://audit:4567 reachable=false reasons=unreachable",
+          error: include(
+            type: "Igniter::ResolutionError",
+            message: include("Pinned peer is unreachable")
+          )
+        )
+      )
+      expect(text).to include("Routing: total=1, pending=0, failed=1")
       expect(text).to include("audit_result=Igniter::ResolutionError[mode=pinned peer=audit-node selected=http://audit:4567 reachable=false reasons=unreachable]")
+      expect(markdown).to include("- Routing: total=1, pending=0, failed=1")
+      expect(markdown).to include("## Routing")
+      expect(markdown).to include("`audit_result` `failed`")
       expect(markdown).to include("`mode=pinned peer=audit-node selected=http://audit:4567 reachable=false reasons=unreachable`")
     end
   end
