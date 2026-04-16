@@ -169,6 +169,100 @@ RSpec.describe Igniter::Plugins::View::Tailwind do
     expect(html).to include("<p>Hello</p>")
   end
 
+  it "can render a shared realtime head with projections and a hook" do
+    html = described_class.render_page(
+      title: "Live Ops",
+      head_content: lambda { |head|
+        described_class::Realtime.render_head(
+          head,
+          config: {
+            overview_path: "/api/overview",
+            stream_path: "/api/overview/stream",
+            poll_interval_seconds: 5
+          },
+          projections: {
+            overview: {
+              metrics: { "devices-online" => "counts.devices_online" },
+              charts: { "device-status" => "charts.device_status" }
+            },
+            activity: {
+              cases: {
+                "device_heartbeat" => {
+                  metric_deltas: { "heartbeats" => 1 },
+                  chart_deltas: { "activity-mix.heartbeats" => 1 }
+                }
+              }
+            }
+          },
+          hook_name: "dashboardRealtimeHook",
+          include_mermaid: true,
+          extra_script: "window.dashboardRealtimeHook = function() {};"
+        )
+      }
+    ) do |main|
+      main.tag(:p, "Hello")
+    end
+
+    expect(html).to include(Igniter::Plugins::View::Tailwind::MERMAID_CDN_URL)
+    expect(html).to include("\"stream_path\":\"/api/overview/stream\"")
+    expect(html).to include("\"devices-online\":\"counts.devices_online\"")
+    expect(html).to include("\"activity-mix.heartbeats\":1")
+    expect(html).to include("new window.EventSource")
+    expect(html).to include("dashboardRealtimeHook")
+    expect(html).to include("window.dashboardRealtimeHook = function() {};")
+  end
+
+  it "can compose reusable realtime projection adapters into a hook" do
+    script = described_class::Realtime::Adapters.compose_hook(
+      name: "opsRealtimeHook",
+      adapters: [
+        described_class::Realtime::Adapters.prompt_buttons(textarea_id: "chat-message"),
+        described_class::Realtime::Adapters.device_presence(
+          device_selector: "[data-device-id=\"__ID__\"]",
+          bootstrap_selector: "[data-device-id]",
+          status_badge_selector_template: "[data-device-status-badge=\"__ID__\"]",
+          last_seen_selector_template: "[data-device-last-seen=\"__ID__\"]",
+          telemetry_selector_template: "[data-device-telemetry=\"__ID__\"]",
+          topology_status_selector: "[data-topology-overall-status='true']",
+          topology_counts_selector: "[data-topology-device-count]",
+          chart_id: "device-status",
+          online_metric_id: "devices-online",
+          status_badge_base_class: Igniter::Plugins::View::Tailwind::UI::StatusBadge::DEFAULT_BASE_CLASS
+        ),
+        described_class::Realtime::Adapters.chat_transcript(
+          selector: "[data-chat-list='true']",
+          item_class: "chat-item",
+          muted_class: "muted",
+          body_class: "body",
+          status_badge_base_class: Igniter::Plugins::View::Tailwind::UI::StatusBadge::DEFAULT_BASE_CLASS,
+          limit: 10
+        ),
+        described_class::Realtime::Adapters.activity_timeline(
+          selector: "[data-activity-timeline='true']",
+          item_class: "timeline-item",
+          title_class: "title",
+          muted_class: "muted",
+          link_class: "link",
+          action_class: "action",
+          limit: 8,
+          source_urls: {
+            "note" => "/api/notes",
+            "camera_event" => "/api/camera_events",
+            "device_heartbeat" => "/api/devices"
+          }
+        )
+      ]
+    )
+
+    expect(script).to include("window[\"opsRealtimeHook\"]")
+    expect(script).to include("document.getElementById(\"chat-message\")")
+    expect(script).to include("devicePresenceState")
+    expect(script).to include("[data-device-id]")
+    expect(script).to include("payload.type !== \"chat_turn\"")
+    expect(script).to include("[data-activity-timeline='true']")
+    expect(script).to include("\"camera_event\":\"/api/camera_events\"")
+  end
+
   it "renders a shared message page shell" do
     html = described_class.render_message_page(
       title: "Missing View",
@@ -200,18 +294,28 @@ end
 RSpec.describe Igniter::Plugins::View::Tailwind::UI do
   it "renders reusable metric cards, panels, and status badges" do
     html = Igniter::Plugins::View.render do |view|
-      view.component(described_class::MetricCard, label: "Alerts", value: 3, hint: "pending")
+      view.component(
+        described_class::MetricCard,
+        label: "Alerts",
+        value: 3,
+        hint: "pending",
+        wrapper_attributes: { data: { metric_id: "alerts" } },
+        value_attributes: { data: { metric_value: "alerts" } }
+      )
       view.component(described_class::Panel.new(title: "Control", subtitle: "Main surface") do |panel|
-        panel.component(described_class::StatusBadge, label: "ready")
+        panel.component(described_class::StatusBadge, label: "ready", html_attributes: { data: { status_id: "control" } })
       end)
     end
 
     expect(html).to include("Alerts")
     expect(html).to include("pending")
+    expect(html).to include('data-metric-id="alerts"')
+    expect(html).to include('data-metric-value="alerts"')
     expect(html).to include("Control")
     expect(html).to include("Main surface")
     expect(html).to include("status-badge")
     expect(html).to include("ready")
+    expect(html).to include('data-status-id="control"')
   end
 
   it "renders reusable message pages" do

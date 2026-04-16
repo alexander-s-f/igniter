@@ -4,6 +4,7 @@ require "json"
 
 require_relative "../view"
 require_relative "tailwind/ui"
+require_relative "tailwind/realtime"
 
 module Igniter
   module Plugins
