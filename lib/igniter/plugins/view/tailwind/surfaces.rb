@@ -187,6 +187,15 @@ module Igniter
               end
             end
 
+            def devices_panel(devices:, empty_message:)
+              panel(
+                title: "Devices",
+                subtitle: "Declared device inventory and current route targets."
+              ) do |view|
+                device_inventory(view, devices: devices, empty_message: empty_message)
+              end
+            end
+
             def notes_list(view, notes:, empty_message:)
               view.tag(:ul, class: theme.list_class, **notes_list_attributes) do |list|
                 if notes.empty?
@@ -202,6 +211,21 @@ module Igniter
               end
             end
 
+            def notes_panel(notes:, empty_message:, error_message: nil, &block)
+              panel(
+                title: "Shared Notes",
+                subtitle: "Fast operator scratchpad shared between main and dashboard."
+              ) do |view|
+                if error_message
+                  view.tag(:p,
+                           error_message,
+                           class: "error-banner mb-4 rounded-2xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100")
+                end
+                block&.call(view)
+                notes_list(view, notes: notes, empty_message: empty_message)
+              end
+            end
+
             def chat_transcript(view, messages:, empty_message:)
               view.tag(:ul, class: theme.list_class, **chat_list_attributes) do |list|
                 if messages.empty?
@@ -214,9 +238,53 @@ module Igniter
                         meta.tag(:span, message.fetch(:meta), class: theme.muted_text_class)
                       end
                       item.tag(:div, message.fetch(:body), class: theme.body_text_class(extra: "mt-3 whitespace-pre-wrap"))
+                      render_chat_action_card(item, message[:action]) if message[:action]
                     end
                   end
                 end
+              end
+            end
+
+            def chat_action_memory(view, queue:, history:)
+              return if queue.empty? && history.empty?
+
+              unless queue.empty?
+                view.tag(:h3, "Action Queue", class: theme.section_heading_class)
+                view.tag(:ul, class: theme.compact_list_class, data: { action_queue: "true" }) do |list|
+                  queue.each do |entry|
+                    list.tag(:li, class: "list-none", data: { action_key: entry.fetch(:action_key) }) do |item|
+                      render_chat_action_card(item, entry, compact: true)
+                    end
+                  end
+                end
+              end
+
+              return if history.empty?
+
+              view.tag(:h3, "Recent Action Outcomes", class: theme.section_heading_class(extra: "mt-4"))
+              view.tag(:ul, class: theme.compact_list_class, data: { action_history: "true" }) do |list|
+                history.each do |entry|
+                  list.tag(:li, class: "list-none", data: { action_key: entry.fetch(:action_key) }) do |item|
+                    render_chat_action_card(item, entry, compact: true)
+                  end
+                end
+              end
+            end
+
+            def chat_panel(messages:, prompts:, empty_message:, error_message: nil, action_queue: [], action_history: [], &block)
+              panel(
+                title: "Igniter Chat",
+                subtitle: "Thin operator chat loop over the current home-lab snapshot."
+              ) do |view|
+                if error_message
+                  view.tag(:p,
+                           error_message,
+                           class: "mb-4 rounded-2xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100")
+                end
+                block&.call(view)
+                chat_prompt_bar(view, prompts: prompts)
+                chat_action_memory(view, queue: action_queue, history: action_history)
+                chat_transcript(view, messages: messages, empty_message: empty_message)
               end
             end
 
@@ -233,6 +301,15 @@ module Igniter
                     end
                   end
                 end
+              end
+            end
+
+            def camera_events_panel(events:, empty_message:)
+              panel(
+                title: "Recent Camera Events",
+                subtitle: "Thin edge-ingest slice for ESP32-CAM style traffic."
+              ) do |view|
+                camera_events_list(view, events: events, empty_message: empty_message)
               end
             end
 
@@ -259,6 +336,255 @@ module Igniter
                     end
                   end
                 end
+              end
+            end
+
+            def timeline_panel(filter_items:, items:, empty_message:)
+              panel(
+                title: "Activity Timeline",
+                subtitle: "Merged recent notes, camera events, and device heartbeats."
+              ) do |view|
+                activity_filter_bar(view, items: filter_items)
+                activity_timeline(view, items: items, empty_message: empty_message)
+              end
+            end
+
+            def timeline_focus_panel(entry:, clear_path:, empty_message: "No focused item.")
+              panel(
+                title: "Timeline Focus",
+                subtitle: "Drilldown into the currently selected timeline item."
+              ) do |view|
+                unless entry
+                  view.tag(:p, empty_message, class: theme.empty_state_class(extra: "empty-state"))
+                  next
+                end
+
+                view.tag(:p, class: "flex flex-wrap items-center gap-2") do |paragraph|
+                  paragraph.component(Tailwind::UI::StatusBadge.new(label: entry.fetch(:type)))
+                  paragraph.tag(:span, entry.fetch(:title), class: theme.section_heading_class(extra: "mt-0 text-stone-200"))
+                end
+                view.tag(:p, entry.fetch(:detail), class: "#{theme.muted_text_class(extra: "muted")} mt-3")
+                view.tag(:p, "seen=#{entry.fetch(:seen)}", class: "#{theme.muted_text_class(extra: "muted")} mt-2")
+                timeline_focus_actions(view, source_url: entry.fetch(:source_url), clear_path: clear_path)
+              end
+            end
+
+            def health_readiness_panel(surfaces:, empty_message:)
+              panel(
+                title: "Health & Readiness",
+                subtitle: "Declared health surfaces for the currently modelled app stack."
+              ) do |view|
+                if surfaces.empty?
+                  view.tag(:p, empty_message, class: theme.empty_state_class(extra: "empty-state"))
+                  next
+                end
+
+                view.tag(:ul, class: theme.list_class) do |list|
+                  surfaces.each do |surface|
+                    list.tag(:li, class: theme.list_item_class) do |item|
+                      item.tag(:strong, surface.fetch(:title), class: theme.item_title_class)
+                      item.tag(:div, class: "mt-3 flex flex-wrap items-center gap-2") do |meta|
+                        meta.component(Tailwind::UI::StatusBadge.new(label: surface.fetch(:status)))
+                        meta.tag(:span, surface.fetch(:meta), class: theme.muted_text_class)
+                      end
+                      next unless surface[:url]
+
+                      item.tag(:a,
+                               surface.fetch(:url),
+                               href: surface.fetch(:url),
+                               class: Tailwind::UI::Tokens.underline_link(theme: :amber, extra: "mt-3 inline-flex text-sm"))
+                    end
+                  end
+                end
+              end
+            end
+
+            def topology_health_panel(health:)
+              panel(
+                title: "Topology Health",
+                subtitle: "High-level health verdict across devices and app surfaces."
+              ) do |view|
+                view.tag(:p, class: "flex flex-wrap items-center gap-2") do |paragraph|
+                  paragraph.tag(:span, "overall=", class: theme.muted_text_class)
+                  paragraph.component(
+                    Tailwind::UI::StatusBadge.new(
+                      label: health.fetch(:overall_status),
+                      html_attributes: topology_overall_status_attributes
+                    )
+                  )
+                end
+                view.tag(:p, health.fetch(:readiness_summary), class: "#{theme.muted_text_class(extra: "muted")} mt-3")
+                if health[:acknowledgement_summary]
+                  view.tag(:p,
+                           health.fetch(:acknowledgement_summary),
+                           class: "#{theme.muted_text_class(extra: "muted")} mt-2",
+                           data: { topology_health_acknowledged: "true" })
+                end
+
+                view.tag(:ul, class: theme.compact_list_class) do |list|
+                  health.fetch(:device_status_counts).each do |entry|
+                    list.tag(:li,
+                             entry.fetch(:label),
+                             class: theme.compact_item_class,
+                             **topology_device_count_attributes(entry.fetch(:status)))
+                  end
+                end
+
+                alerts = health.fetch(:alerts)
+                next if alerts.empty?
+
+                view.tag(:h3, "Alerts", class: theme.section_heading_class)
+                view.tag(:ul, class: theme.compact_list_class) do |list|
+                  alerts.each { |alert| list.tag(:li, alert, class: theme.compact_item_class) }
+                end
+              end
+            end
+
+            def network_topology_panel(topology_notes:, public_endpoints:, dependency_edges:)
+              panel(
+                title: "Network & Topology",
+                subtitle: "Ports, public endpoints, app edges, and topology notes."
+              ) do |view|
+                unless topology_notes.empty?
+                  view.tag(:h3, "Topology Notes", class: theme.section_heading_class)
+                  view.tag(:ul, class: theme.compact_list_class) do |list|
+                    topology_notes.each { |note| list.tag(:li, note, class: theme.compact_item_class) }
+                  end
+                end
+
+                view.tag(:h3, "Public Endpoints", class: theme.section_heading_class)
+                view.component(
+                  theme.endpoint_list(
+                    items: public_endpoints,
+                    compact: true,
+                    empty_message: "No public endpoints configured.",
+                    link_class: Tailwind::UI::Tokens.underline_link(theme: :amber, extra: "text-sm")
+                  )
+                )
+
+                view.tag(:h3, "App Edges", class: theme.section_heading_class)
+                if dependency_edges.empty?
+                  view.tag(:p, "No inter-app dependencies yet.", class: theme.empty_state_class(extra: "empty-state"))
+                else
+                  view.tag(:ul, class: theme.compact_list_class) do |list|
+                    dependency_edges.each { |edge| list.tag(:li, edge, class: theme.compact_item_class) }
+                  end
+                end
+              end
+            end
+
+            def app_services_panel(services:, empty_message:)
+              panel(
+                title: "App Services",
+                subtitle: "Runtime-facing app roles, classes, commands, and dependencies."
+              ) do |view|
+                if services.empty?
+                  view.tag(:p, empty_message, class: theme.empty_state_class(extra: "empty-state"))
+                  next
+                end
+
+                view.tag(:ul, class: theme.list_class) do |list|
+                  services.each do |service|
+                    list.tag(:li, class: theme.list_item_class) do |item|
+                      item.tag(:strong, class: theme.item_title_class) do |heading|
+                        heading.tag(:a, service.fetch(:title), href: service.fetch(:href), class: ops_title_link_class)
+                      end
+                      item.tag(:div, service.fetch(:meta), class: "#{theme.muted_text_class(extra: "muted")} mt-2")
+                      item.tag(:code, service.fetch(:class_name), class: "#{theme.code_class} mt-2 block")
+                      item.tag(:code, service.fetch(:command), class: "#{theme.code_class} mt-2 block")
+                      item.tag(:div, service.fetch(:path), class: "#{theme.muted_text_class(extra: "muted")} mt-2") if service[:path]
+                      item.tag(:div, service.fetch(:depends_on), class: "#{theme.muted_text_class(extra: "muted")} mt-2") if service[:depends_on]
+                    end
+                  end
+                end
+              end
+            end
+
+            def resources_panel(stores:, var_files:, total_var_bytes:)
+              panel(
+                title: "Resources",
+                subtitle: "Current workspace stores and local var files."
+              ) do |view|
+                view.tag(:h3, "Stores", class: theme.section_heading_class)
+                view.component(theme.resource_list(items: stores, compact: true))
+
+                view.tag(:h3, "Var Files", class: theme.section_heading_class)
+                view.component(
+                  theme.resource_list(
+                    items: var_files,
+                    compact: true,
+                    empty_message: "No var files yet."
+                  )
+                )
+
+                view.tag(:p, "total_var_bytes=#{total_var_bytes}", class: "#{theme.muted_text_class(extra: "muted")} mt-3")
+              end
+            end
+
+            def debug_surfaces_panel(api_items:, files:, commands:)
+              panel(
+                title: "Debug Surfaces",
+                subtitle: "Useful entrypoints, file anchors, and local commands."
+              ) do |view|
+                view.tag(:h3, "APIs", class: theme.section_heading_class)
+                view.component(
+                  theme.endpoint_list(
+                    items: api_items,
+                    compact: true,
+                    link_class: Tailwind::UI::Tokens.underline_link(theme: :amber, extra: "text-sm")
+                  )
+                )
+
+                view.tag(:h3, "Files", class: theme.section_heading_class)
+                compact_code_list(view, files)
+
+                view.tag(:h3, "Commands", class: theme.section_heading_class)
+                compact_code_list(view, commands)
+              end
+            end
+
+            def next_ideas_panel(ideas:, empty_message:)
+              panel(
+                title: "Next Ideas",
+                subtitle: "Likely next slices once this proving surface feels stable."
+              ) do |view|
+                if ideas.empty?
+                  view.tag(:p, empty_message, class: theme.empty_state_class(extra: "empty-state"))
+                else
+                  view.tag(:ul, class: theme.compact_list_class) do |list|
+                    ideas.each { |idea| list.tag(:li, idea, class: theme.compact_item_class) }
+                  end
+                end
+              end
+            end
+
+            def topology_flow_panel(diagram:, title: "Topology Mermaid", description: "Devices flow into edge, and app dependencies are overlaid as dotted links.")
+              panel(
+                title: "Topology Flow",
+                subtitle: "Mermaid view of devices, routes, and inter-app dependencies."
+              ) do |view|
+                view.component(
+                  theme.mermaid_diagram(
+                    diagram: diagram,
+                    title: title,
+                    description: description
+                  )
+                )
+              end
+            end
+
+            def execution_flow_panel(diagram:, title: "Execution Mermaid", description: "Ingest and operator actions converge into shared stores and the stack overview loop.")
+              panel(
+                title: "Execution Flow",
+                subtitle: "Mermaid view of ingest, shared stores, stack overview, and dashboard loop."
+              ) do |view|
+                view.component(
+                  theme.mermaid_diagram(
+                    diagram: diagram,
+                    title: title,
+                    description: description
+                  )
+                )
               end
             end
 
@@ -529,6 +855,123 @@ module Igniter
             def ops_title_link_class
               "transition hover:text-amber-200"
             end
+
+            def compact_code_list(view, values)
+              view.tag(:ul, class: theme.compact_list_class) do |list|
+                values.each do |value|
+                  list.tag(:li, class: theme.compact_card_class) { |item| item.tag(:code, value, class: theme.code_class) }
+                end
+              end
+            end
+
+            def render_chat_action_card(view, action, compact: false)
+              view.tag(
+                :div,
+                class: chat_action_card_class(action.fetch(:status), compact: compact),
+                data: { action_status: normalized_action_status(action.fetch(:status)) }
+              ) do |card|
+                card.tag(:div, class: "flex flex-wrap items-center gap-2") do |meta|
+                  meta.tag(:strong, action.fetch(:title), class: theme.item_title_class)
+                  meta.component(
+                    Tailwind::UI::StatusBadge.new(
+                      label: action.fetch(:status),
+                      tone: chat_action_status_tone(action.fetch(:status)),
+                      html_attributes: { data: { action_status_badge: normalized_action_status(action.fetch(:status)) } }
+                    )
+                  )
+                end
+                card.tag(:p, action.fetch(:preview), class: theme.body_text_class(extra: compact ? "mt-2" : "mt-3"))
+                card.tag(:p, action.fetch(:meta), class: theme.muted_text_class(extra: "mt-2")) if action[:meta]
+                render_chat_action_details(card, action[:details])
+                render_chat_action_payload(card, action[:payload], status: action.fetch(:status))
+
+                render_chat_action_card_actions(card, action)
+              end
+            end
+
+            def render_chat_action_card_actions(view, action)
+              actions = []
+              actions << action[:confirm] if action[:confirm]
+              actions << action[:dismiss] if action[:dismiss]
+              return if actions.empty?
+
+              view.tag(:div, class: "mt-4 flex flex-wrap gap-3") do |row|
+                actions.each do |entry|
+                  row.form(action: entry.fetch(:path), method: entry.fetch(:method, "post"), class: "inline-flex") do |form|
+                    entry.fetch(:hidden, {}).each { |name, value| form.hidden(name, value) }
+                    form.submit(entry.fetch(:label), class: entry.fetch(:class_name))
+                  end
+                end
+              end
+            end
+
+            def render_chat_action_details(view, details)
+              items = Array(details).compact
+              return if items.empty?
+
+              view.tag(:dl, class: "mt-3 grid gap-2 text-sm", data: { action_details: "true" }) do |list|
+                items.each do |detail|
+                  next if detail[:value].to_s.strip.empty?
+
+                  list.tag(:div, class: "grid gap-1 rounded-2xl border border-white/10 bg-black/10 px-3 py-2") do |row|
+                    row.tag(:dt, detail.fetch(:label), class: "text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400")
+                    row.tag(:dd, detail.fetch(:value), class: theme.body_text_class)
+                  end
+                end
+              end
+            end
+
+            def render_chat_action_payload(view, payload, status:)
+              data = payload.is_a?(Hash) ? payload : nil
+              return if data.nil? || data.empty?
+
+              label = normalized_action_status(status) == "confirmation_required" ? "Proposed Payload" : "Result Payload"
+              view.tag(:div, class: "mt-3", data: { action_payload: "true" }) do |section|
+                section.tag(:p, label, class: "text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400")
+                section.tag(:pre, class: "#{theme.code_class} mt-2 overflow-x-auto whitespace-pre-wrap") do |code|
+                  code.text(JSON.pretty_generate(data))
+                end
+              end
+            end
+
+            def chat_action_card_class(status, compact:)
+              base = compact ? "rounded-2xl border p-4" : "mt-4 rounded-2xl border p-4"
+              [base, chat_action_card_tone_class(status)].join(" ")
+            end
+
+            def chat_action_card_tone_class(status)
+              case normalized_action_status(status)
+              when "confirmation_required"
+                "border-amber-300/25 bg-amber-300/10"
+              when "completed"
+                "border-emerald-300/25 bg-emerald-300/10"
+              when "dismissed"
+                "border-stone-300/15 bg-stone-400/5"
+              when "unavailable"
+                "border-rose-300/25 bg-rose-300/10"
+              else
+                "border-white/10 bg-white/5"
+              end
+            end
+
+            def chat_action_status_tone(status)
+              case normalized_action_status(status)
+              when "confirmation_required"
+                "border-amber-300/30 bg-amber-300/10 text-amber-100"
+              when "completed"
+                "border-emerald-300/30 bg-emerald-300/10 text-emerald-100"
+              when "dismissed"
+                "border-stone-300/20 bg-stone-400/10 text-stone-200"
+              when "unavailable"
+                "border-rose-300/30 bg-rose-300/10 text-rose-100"
+              else
+                "border-cyan-300/30 bg-cyan-300/10 text-cyan-100"
+              end
+            end
+
+            def normalized_action_status(status)
+              status.to_s.strip.downcase.tr(" ", "_")
+            end
           end
 
           module_function
@@ -559,6 +1002,21 @@ module Igniter
                 chat_transcript
                 camera_events_list
                 activity_timeline
+                devices_panel
+                notes_panel
+                chat_panel
+                camera_events_panel
+                timeline_panel
+                timeline_focus_panel
+                health_readiness_panel
+                topology_health_panel
+                network_topology_panel
+                app_services_panel
+                resources_panel
+                debug_surfaces_panel
+                next_ideas_panel
+                topology_flow_panel
+                execution_flow_panel
               ],
               hooks: {
                 metrics: %w[apps public-apps devices devices-online heartbeats notes chat-turns camera-events motion-events],

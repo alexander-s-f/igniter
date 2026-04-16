@@ -753,7 +753,22 @@ RSpec.describe Igniter::Plugins::View::Tailwind::Surfaces do
       :notes_list,
       :chat_transcript,
       :camera_events_list,
-      :activity_timeline
+      :activity_timeline,
+      :devices_panel,
+      :notes_panel,
+      :chat_panel,
+      :camera_events_panel,
+      :timeline_panel,
+      :timeline_focus_panel,
+      :health_readiness_panel,
+      :topology_health_panel,
+      :network_topology_panel,
+      :app_services_panel,
+      :resources_panel,
+      :debug_surfaces_panel,
+      :next_ideas_panel,
+      :topology_flow_panel,
+      :execution_flow_panel
     )
     expect(preset.hooks.fetch(:realtime_feed)).to eq("realtime_feed")
     expect(html).to include('data-metric-value="devices-online"')
@@ -841,6 +856,184 @@ RSpec.describe Igniter::Plugins::View::Tailwind::Surfaces do
         items: [{ id: "evt-1", type: "note", title: "note · UPS check", href: "/?timeline=note&focus=evt-1", detail: "Top off the UPS rack", age: "2m ago", source_url: "/api/notes" }],
         empty_message: "No activity yet."
       )
+      view.component(
+        preset.devices_panel(
+          devices: [
+            {
+              id: :front_door_cam,
+              title: "front_door_cam",
+              href: "/devices/front_door_cam",
+              subtitle: "esp32_cam via http",
+              code: "routes_to=edge",
+              status: "online",
+              last_seen: "last_seen=just now",
+              telemetry: "battery=88 signal=-60 ip=192.168.0.10"
+            }
+          ],
+          empty_message: "No devices declared yet."
+        )
+      )
+      view.component(
+        preset.notes_panel(
+          notes: [{ id: "note-1", title: "Top off the UPS rack", meta: "source=dashboard · created=2m ago" }],
+          empty_message: "No notes saved yet.",
+          error_message: "Note save failed"
+        ) do |panel|
+          panel.form(action: "/notes", method: "post") { |form| form.submit("Save Note") }
+        end
+      )
+      view.component(
+        preset.chat_panel(
+          messages: [{
+            id: "chat-1",
+            role: "assistant",
+            meta: "operator_chat · just now",
+            body: "Proposed action: save note.",
+            action: {
+              title: "Create Note",
+              status: "confirmation required",
+              preview: "refill filament stock",
+              meta: "queued for confirmation just now",
+              details: [
+                { label: "Prompt", value: "Remember: refill filament stock" },
+                { label: "Updated", value: "just now" }
+              ],
+              payload: {
+                action_key: "chat-action-create-note-remember-refill-filament-stock",
+                type: "create_note",
+                status: "confirmation_required",
+                prompt: "Remember: refill filament stock"
+              },
+              confirm: {
+                path: "/chat",
+                hidden: { "message" => "Remember: refill filament stock", "confirm" => "1" },
+                label: "Confirm pending action",
+                class_name: "confirm-action"
+              },
+              dismiss: {
+                path: "/chat",
+                hidden: { "message" => "Remember: refill filament stock", "dismiss" => "1" },
+                label: "Dismiss",
+                class_name: "dismiss-action"
+              }
+            }
+          }],
+          prompts: ["Which devices are online right now?"],
+          empty_message: "No chat turns yet.",
+          error_message: "Chat send failed",
+          action_history: [{
+            action_key: "chat-action-create-note-remember-refill-filament-stock",
+            title: "Create Note",
+            status: "completed",
+            preview: "refill filament stock",
+            meta: "completed just now",
+            details: [
+              { label: "Note ID", value: "note-123" },
+              { label: "Updated", value: "just now" }
+            ],
+            payload: {
+              action_key: "chat-action-create-note-remember-refill-filament-stock",
+              type: "create_note",
+              status: "completed",
+              note_id: "note-123",
+              note_text: "refill filament stock"
+            }
+          }]
+        ) do |panel|
+          panel.form(action: "/chat", method: "post") { |form| form.submit("Send to Igniter") }
+        end
+      )
+      view.component(
+        preset.camera_events_panel(
+          events: [{ id: "cam-1", title: "front-door-cam", meta: "motion=true · source=esp32-cam", body: "Courier at the front door" }],
+          empty_message: "No camera events yet."
+        )
+      )
+      view.component(
+        preset.timeline_panel(
+          filter_items: [
+            { label: "All activity", href: "/", active: true },
+            { label: "Only notes", href: "/?timeline=note", active: false }
+          ],
+          items: [{ id: "evt-1", type: "note", title: "note · UPS check", href: "/?timeline=note&focus=evt-1", detail: "Top off the UPS rack", age: "2m ago", source_url: "/api/notes" }],
+          empty_message: "No activity yet."
+        )
+      )
+      view.component(
+        preset.timeline_focus_panel(
+          entry: {
+            type: "note",
+            title: "UPS check",
+            detail: "Top off the UPS rack",
+            seen: "2m ago",
+            source_url: "/api/notes"
+          },
+          clear_path: "/?timeline=note"
+        )
+      )
+      view.component(
+        preset.health_readiness_panel(
+          surfaces: [{ title: "main", status: "ready", meta: "role=core · readiness=ok", url: "/health" }],
+          empty_message: "No health surfaces declared yet."
+        )
+      )
+      view.component(
+        preset.topology_health_panel(
+          health: {
+            overall_status: "degraded",
+            readiness_summary: "ready_app_surfaces=2/3",
+            device_status_counts: [{ status: "online", label: "online=1" }, { status: "offline", label: "offline=1" }],
+            alerts: ["front_door_cam missed heartbeat"]
+          }
+        )
+      )
+      view.component(
+        preset.network_topology_panel(
+          topology_notes: ["edge depends on main"],
+          public_endpoints: [{ title: "dashboard", href: "http://127.0.0.1:4571", meta: "role=admin port=4571" }],
+          dependency_edges: ["edge -> main"]
+        )
+      )
+      view.component(
+        preset.app_services_panel(
+          services: [{
+            title: "edge",
+            href: "/apps/edge",
+            meta: "role=edge · port=4570 · replicas=1 · public=true",
+            class_name: "HomeLab::EdgeApp",
+            command: "bundle exec ruby stack.rb edge",
+            path: "path=apps/edge",
+            depends_on: "depends_on=main"
+          }],
+          empty_message: "No app services declared yet."
+        )
+      )
+      view.component(
+        preset.resources_panel(
+          stores: [{ title: "Shared notes store", code: "var/home-lab/notes.json" }],
+          var_files: [{ title: "operator.json", meta: "bytes=128 · updated=2026-04-16T12:00:00Z", code: "var/home-lab/operator.json" }],
+          total_var_bytes: 128
+        )
+      )
+      view.component(
+        preset.debug_surfaces_panel(
+          api_items: [{ title: "Main health", href: "/health" }],
+          files: ["playgrounds/home-lab/config/topology.yml"],
+          commands: ["bundle exec ruby stack.rb dashboard"]
+        )
+      )
+      view.component(
+        preset.next_ideas_panel(
+          ideas: ["Add topology replay mode"],
+          empty_message: "No next ideas yet."
+        )
+      )
+      view.component(
+        preset.topology_flow_panel(diagram: "flowchart LR\ncamera-->edge")
+      )
+      view.component(
+        preset.execution_flow_panel(diagram: "flowchart LR\nedge-->store")
+      )
     end
 
     expect(html).to include("Main health")
@@ -858,6 +1051,38 @@ RSpec.describe Igniter::Plugins::View::Tailwind::Surfaces do
     expect(html).to include('data-camera-events-list="true"')
     expect(html).to include('data-activity-timeline="true"')
     expect(html).to include("Courier at the front door")
+    expect(html).to include("Create Note")
+    expect(html).to include("confirmation required")
+    expect(html).to include("Confirm pending action")
+    expect(html).to include("Dismiss")
+    expect(html).to include("queued for confirmation just now")
+    expect(html).to include("Recent Action Outcomes")
+    expect(html).to include("Note ID")
+    expect(html).to include("note-123")
+    expect(html).to include("Proposed Payload")
+    expect(html).to include("Result Payload")
+    expect(html).to include("&quot;status&quot;: &quot;completed&quot;")
+    expect(html).to include("&quot;type&quot;: &quot;create_note&quot;")
+    expect(html).to include('data-action-status="confirmation_required"')
+    expect(html).to include('data-action-status="completed"')
+    expect(html).to include("Declared device inventory and current route targets.")
+    expect(html).to include("Note save failed")
+    expect(html).to include("Chat send failed")
+    expect(html).to include("Save Note")
+    expect(html).to include("Send to Igniter")
+    expect(html).to include("Drilldown into the currently selected timeline item.")
+    expect(html).to include("Declared health surfaces for the currently modelled app stack.")
+    expect(html).to include("ready_app_surfaces=2/3")
+    expect(html).to include("Ports, public endpoints, app edges, and topology notes.")
+    expect(html).to include("Runtime-facing app roles, classes, commands, and dependencies.")
+    expect(html).to include("Current workspace stores and local var files.")
+    expect(html).to include("Useful entrypoints, file anchors, and local commands.")
+    expect(html).to include("Likely next slices once this proving surface feels stable.")
+    expect(html).to include("front_door_cam missed heartbeat")
+    expect(html).to include("Mermaid view of devices, routes, and inter-app dependencies.")
+    expect(html).to include("Mermaid view of ingest, shared stores, stack overview, and dashboard loop.")
+    expect(html).to include("Topology Mermaid")
+    expect(html).to include("Execution Mermaid")
   end
 
   it "exposes schema-authoring and submission-inspection surface presets" do
