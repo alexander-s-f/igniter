@@ -192,6 +192,101 @@ module Igniter
             end
           end
 
+          class SubmissionNotice < View::Component
+            def initialize(message:, tone: :notice, tag: :div, **banner_options)
+              @message = message
+              @tone = tone
+              @tag = tag
+              @banner_options = banner_options
+            end
+
+            def call(view)
+              view.component(Banner.new(message: @message, tone: @tone, tag: @tag, **@banner_options))
+            end
+          end
+
+          class FieldGroup < View::Component
+            def initialize(id:, label:, error: nil, hint: nil, **field_options, &block)
+              @id = id
+              @label = label
+              @error = error
+              @hint = hint
+              @field_options = field_options
+              @block = block
+            end
+
+            def call(view)
+              view.component(
+                Field.new(
+                  id: @id,
+                  label: @label,
+                  error: @error,
+                  hint: @hint,
+                  **@field_options,
+                  &@block
+                )
+              )
+            end
+          end
+
+          class ChoiceField < View::Component
+            def initialize(kind:, name:, id:, label:, error: nil, hint: nil, options: nil, selected: nil,
+                           checked: nil, value: "1", input_class: nil, checkbox_label_class: nil,
+                           checkbox_class: nil)
+              @kind = kind.to_sym
+              @name = name
+              @id = id
+              @label = label
+              @error = error
+              @hint = hint
+              @options = options
+              @selected = selected
+              @checked = checked
+              @value = value
+              @input_class = input_class
+              @checkbox_label_class = checkbox_label_class
+              @checkbox_class = checkbox_class
+            end
+
+            def call(view)
+              case @kind
+              when :select
+                view.component(
+                  FieldGroup.new(id: @id, label: @label, error: @error, hint: @hint) do |field|
+                    FormBuilder.new(field).select(
+                      @name,
+                      id: @id,
+                      selected: @selected,
+                      options: @options,
+                      class: @input_class
+                    )
+                  end
+                )
+              when :checkbox
+                view.component(
+                  Field.new(id: @id, error: @error, hint: @hint) do |field|
+                    field.tag(:label, class: @checkbox_label_class, for: @id) do |label|
+                      label.raw(
+                        View.render do |nested|
+                          FormBuilder.new(nested).checkbox(
+                            @name,
+                            value: @value,
+                            checked: @checked,
+                            id: @id,
+                            class: @checkbox_class
+                          )
+                        end
+                      )
+                      label.text(" #{@label}")
+                    end
+                  end
+                )
+              else
+                raise ArgumentError, "unsupported choice field kind: #{@kind}"
+              end
+            end
+          end
+
           class MessagePage < View::Component
             DEFAULT_WRAPPER_CLASS = "relative overflow-hidden rounded-[34px] border border-orange-200/15 bg-[radial-gradient(circle_at_top_left,_rgba(194,107,61,0.24),_transparent_18rem),linear-gradient(145deg,rgba(60,33,21,0.96),rgba(22,15,13,0.98))] px-6 py-8 shadow-2xl shadow-black/25 sm:px-8 lg:px-10".freeze
             DEFAULT_GLOW_CLASS = "absolute inset-y-0 right-0 hidden w-72 bg-[radial-gradient(circle_at_center,_rgba(251,146,60,0.14),_transparent_65%)] lg:block".freeze

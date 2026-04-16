@@ -35,7 +35,7 @@ module Igniter
                 hero.tag(:p, meta_hint, class: hero_theme.fetch(:body_class)) if meta_hint
               end
 
-              main.component(Tailwind::UI::Banner.new(message: notice, tone: :notice, tag: :div)) if notice
+              main.component(Tailwind::UI::SubmissionNotice.new(message: notice, tone: :notice, tag: :div)) if notice
               render_node(main, schema.layout)
             end
           )
@@ -94,7 +94,7 @@ module Igniter
           case node.fetch("type")
           when "input"
             form.view.component(
-              Tailwind::UI::Field.new(id: dom_id(node), label: node.fetch("label"), error: field_error) do |field|
+              Tailwind::UI::FieldGroup.new(id: dom_id(node), label: node.fetch("label"), error: field_error) do |field|
                 FormBuilder.new(field).input(
                   node.fetch("name"),
                   id: dom_id(node),
@@ -107,7 +107,7 @@ module Igniter
             )
           when "textarea"
             form.view.component(
-              Tailwind::UI::Field.new(id: dom_id(node), label: node.fetch("label"), error: field_error) do |field|
+              Tailwind::UI::FieldGroup.new(id: dom_id(node), label: node.fetch("label"), error: field_error) do |field|
                 FormBuilder.new(field).textarea(
                   node.fetch("name"),
                   id: dom_id(node),
@@ -120,34 +120,30 @@ module Igniter
             )
           when "select"
             form.view.component(
-              Tailwind::UI::Field.new(id: dom_id(node), label: node.fetch("label"), error: field_error) do |field|
-                FormBuilder.new(field).select(
-                  node.fetch("name"),
-                  id: dom_id(node),
-                  selected: value_for(node, fallback: node["selected"]),
-                  options: Array(node["options"]).map { |option| [option.fetch("label"), option.fetch("value")] },
-                  class: [field_classes, error_class]
-                )
-              end
+              Tailwind::UI::ChoiceField.new(
+                kind: :select,
+                name: node.fetch("name"),
+                id: dom_id(node),
+                label: node.fetch("label"),
+                error: field_error,
+                selected: value_for(node, fallback: node["selected"]),
+                options: Array(node["options"]).map { |option| [option.fetch("label"), option.fetch("value")] },
+                input_class: [field_classes, error_class]
+              )
             )
           when "checkbox"
             form.view.component(
-              Tailwind::UI::Field.new(id: dom_id(node), error: field_error) do |field|
-                field.tag(:label, class: checkbox_label_classes, for: dom_id(node)) do |label|
-                  label.raw(
-                    View.render do |view|
-                      FormBuilder.new(view).checkbox(
-                        node.fetch("name"),
-                        value: node.fetch("value", "1"),
-                        checked: checked_for(node),
-                        id: dom_id(node),
-                        class: checkbox_classes
-                      )
-                    end
-                  )
-                  label.text(" #{node.fetch("label")}")
-                end
-              end
+              Tailwind::UI::ChoiceField.new(
+                kind: :checkbox,
+                name: node.fetch("name"),
+                id: dom_id(node),
+                label: node.fetch("label"),
+                error: field_error,
+                checked: checked_for(node),
+                value: node.fetch("value", "1"),
+                checkbox_label_class: checkbox_label_classes,
+                checkbox_class: checkbox_classes
+              )
             )
           when "submit"
             form.view.component(

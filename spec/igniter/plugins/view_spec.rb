@@ -255,6 +255,46 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI do
     expect(html).to include("Retry")
   end
 
+  it "renders semantic submission notices, field groups, and choice fields" do
+    html = Igniter::Plugins::View.render do |view|
+      view.component(described_class::SubmissionNotice.new(message: "Please review the highlighted fields."))
+      view.component(described_class::FieldGroup.new(id: "task", label: "Task", error: "is required") do |field|
+        Igniter::Plugins::View::FormBuilder.new(field).input("task", id: "task", class: "field-input")
+      end)
+      view.component(
+        described_class::ChoiceField.new(
+          kind: :select,
+          name: "mood",
+          id: "mood",
+          label: "Mood",
+          selected: "good",
+          options: [["Great", "great"], ["Good", "good"]],
+          input_class: "field-select"
+        )
+      )
+      view.component(
+        described_class::ChoiceField.new(
+          kind: :checkbox,
+          name: "share",
+          id: "share",
+          label: "Share with coach",
+          checked: true,
+          checkbox_label_class: "checkbox-shell",
+          checkbox_class: "checkbox-input"
+        )
+      )
+    end
+
+    expect(html).to include("Please review the highlighted fields.")
+    expect(html).to include("Task")
+    expect(html).to include("is required")
+    expect(html).to include('class="field-input"')
+    expect(html).to include('class="field-select"')
+    expect(html).to include('option value="good" selected')
+    expect(html).to include("Share with coach")
+    expect(html).to include('class="checkbox-input"')
+  end
+
   it "renders reusable action bars, form sections, and key-value lists" do
     html = Igniter::Plugins::View.render do |view|
       view.component(described_class::ActionBar.new(tag: :nav) do |bar|

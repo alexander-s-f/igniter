@@ -73,6 +73,7 @@ small built-in Ruby HTML DSL, then opt into adapters only where they help:
 - `Tailwind::UI::Theme` also exposes shared surface helpers for repeated field/input, checkbox, code pill, muted text, and empty-state styling so schema pages and dashboards can stay mostly free of raw utility strings.
 - The same theme object now also exposes list/card/heading/text presets for repeated dashboard containers such as item lists, compact cards, section headings, and item title/body copy.
 - `Igniter::Plugins::View::Tailwind::UI` now also includes semantic dashboard primitives such as `PropertyCard`, `ResourceList`, `EndpointList`, and `TimelineList` for higher-level server-rendered slices.
+- For schema/runtime flows, `Tailwind::UI` also now exposes semantic form primitives such as `SubmissionNotice`, `FieldGroup`, and `ChoiceField`, so `SchemaRenderer` can be composed from domain-level building blocks instead of raw form markup.
 - `Igniter::Plugins::View::Tailwind.render_page(...)` and `render_message_page(...)` also expose built-in visual presets such as `theme: :ops`, `theme: :companion`, and `theme: :schema`, so apps can share a consistent shell while still overriding local layout details when needed.
 
 ## Deployment Modes

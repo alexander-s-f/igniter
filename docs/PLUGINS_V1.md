@@ -156,6 +156,9 @@ Igniter::Plugins::View::Tailwind::UI::KeyValueList
 Igniter::Plugins::View::Tailwind::UI::Field
 Igniter::Plugins::View::Tailwind::UI::FormSection
 Igniter::Plugins::View::Tailwind::UI::MessagePage
+Igniter::Plugins::View::Tailwind::UI::SubmissionNotice
+Igniter::Plugins::View::Tailwind::UI::FieldGroup
+Igniter::Plugins::View::Tailwind::UI::ChoiceField
 Igniter::Plugins::View::Tailwind::UI::PropertyCard
 Igniter::Plugins::View::Tailwind::UI::ResourceList
 Igniter::Plugins::View::Tailwind::UI::EndpointList
@@ -186,6 +189,7 @@ exposes shared presets for:
 - repeated field/input, checkbox, code-pill, muted-text, and empty-state styles
 - repeated list/card/heading/text styles used across dashboard sections
 - semantic server-rendered dashboard slices such as resource lists, endpoint lists, and timeline lists
+- semantic schema/runtime form blocks such as submission notices, grouped inputs, and choice fields
 
 ## Mental Model
 
