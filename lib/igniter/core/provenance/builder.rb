@@ -80,6 +80,17 @@ module Igniter
       def extract_value(state) # rubocop:disable Metrics/MethodLength
         return nil unless state
 
+        if state.failed?
+          return {
+            failed: true,
+            error: {
+              type: state.error.class.name,
+              message: state.error.message,
+              context: state.error.respond_to?(:context) ? state.error.context : {}
+            }
+          }
+        end
+
         val = state.value
         case val
         when Runtime::Result
@@ -87,7 +98,12 @@ module Igniter
         when Runtime::CollectionResult
           val.summary
         when Runtime::DeferredResult
-          { pending: true, event: val.waiting_on }
+          {
+            pending: true,
+            event: val.waiting_on,
+            payload: val.payload,
+            routing_trace: val.routing_trace
+          }.compact
         else
           val
         end

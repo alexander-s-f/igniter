@@ -41,12 +41,15 @@ module Igniter
         emit_resolution_event(node, state)
         state
       rescue PendingDependencyError => e
+        payload = e.deferred_result.payload
+        payload = payload.merge(routing_trace: e.explanation) if e.respond_to?(:explanation) && e.explanation
+
         state = NodeState.new(
           node: node,
           status: :pending,
           value: Runtime::DeferredResult.build(
             token: e.deferred_result.token,
-            payload: e.deferred_result.payload,
+            payload: payload,
             source_node: e.deferred_result.source_node,
             waiting_on: e.deferred_result.waiting_on || node.name
           )
@@ -563,7 +566,9 @@ module Igniter
           execution_id: @execution.events.execution_id
         }
 
-        ResolutionError.new(error.message, context: node_context)
+        existing_context = error.respond_to?(:context) ? error.context : {}
+
+        ResolutionError.new(error.message, context: node_context.merge(existing_context))
       end
 
       # ─── Capabilities ──────────────────────────────────────────────────────────

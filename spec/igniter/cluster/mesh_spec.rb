@@ -507,7 +507,15 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
     it "resolve_pinned raises IncidentError for unknown peer" do
       expect {
         router.resolve_pinned("audit-node")
-      }.to raise_error(Igniter::Cluster::Mesh::IncidentError) { |e| expect(e.peer_name).to eq("audit-node") }
+      }.to raise_error(Igniter::Cluster::Mesh::IncidentError) { |e|
+        expect(e.peer_name).to eq("audit-node")
+        expect(e.context[:routing_trace]).to include(
+          routing_mode: :pinned,
+          peer_name: "audit-node",
+          known: false,
+          reasons: [:unknown_peer]
+        )
+      }
     end
 
     it "resolve_pinned raises IncidentError when peer is down" do
@@ -515,7 +523,17 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       stub_dead("http://audit:4567")
       expect {
         router.resolve_pinned("audit-node")
-      }.to raise_error(Igniter::Cluster::Mesh::IncidentError) { |e| expect(e.peer_name).to eq("audit-node") }
+      }.to raise_error(Igniter::Cluster::Mesh::IncidentError) { |e|
+        expect(e.peer_name).to eq("audit-node")
+        expect(e.context[:routing_trace]).to include(
+          routing_mode: :pinned,
+          peer_name: "audit-node",
+          known: true,
+          selected_url: "http://audit:4567",
+          reachable: false,
+          reasons: [:unreachable]
+        )
+      }
     end
 
     it "resolve_pinned returns URL when peer is alive" do

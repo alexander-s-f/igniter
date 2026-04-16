@@ -58,7 +58,9 @@ module Igniter
           lines << ""
           lines << "## Errors"
           report[:errors].each do |error|
-            lines << "- `#{error[:node_name]}`: #{error[:message]}"
+            line = "- `#{error[:node_name]}`: #{error[:message]}"
+            line += " (`#{error[:routing_trace_summary]}`)" if error[:routing_trace_summary]
+            lines << line
           end
         end
 
@@ -102,12 +104,7 @@ module Igniter
         execution.cache.values.filter_map do |state|
           next unless state.failed?
 
-          {
-            node_name: state.node.name,
-            type: state.error.class.name,
-            message: state.error.message,
-            context: state.error.respond_to?(:context) ? state.error.context : {}
-          }
+          serialize_error(state.node.name, state.error)
         end
       end
 
@@ -120,7 +117,7 @@ module Igniter
 
       def serialize_output_value(output_node, state)
         return nil unless state
-        return { error: state.error.message, status: state.status } if state.failed?
+        return serialize_failed_output(state.error, state.status) if state.failed?
 
         if output_node.composition_output?
           return serialize_output_from_child(output_node, state.value)
@@ -133,7 +130,7 @@ module Igniter
         return nil unless child_result.is_a?(Runtime::Result)
 
         child_errors = child_result.execution.cache.values.select(&:failed?)
-        return { error: child_errors.first.error.message, status: :failed } unless child_errors.empty?
+        return serialize_failed_output(child_errors.first.error, :failed) unless child_errors.empty?
 
         child_result.public_send(output_node.child_output_name)
       end
@@ -189,7 +186,7 @@ module Igniter
       def format_errors(errors)
         return "Errors: none" if errors.empty?
 
-        "Errors: #{errors.map { |error| "#{error[:node_name]}=#{error[:type]}" }.join(', ')}"
+        "Errors: #{errors.map { |error| format_error_summary(error) }.join(', ')}"
       end
 
       def format_collection_nodes(collection_nodes)
@@ -236,7 +233,7 @@ module Igniter
       def serialize_value(value)
         case value
         when Runtime::DeferredResult
-          value.as_json
+          serialize_deferred_result(value)
         when Runtime::Result
           value.to_h
         when Runtime::CollectionResult
@@ -251,6 +248,8 @@ module Igniter
       def inline_value(value)
         case value
         when Hash
+          return summarize_serialized_deferred_hash(value) if serialized_deferred_hash?(value)
+          return summarize_serialized_failed_output_hash(value) if serialized_failed_output_hash?(value)
           return summarize_serialized_collection_hash(value) if serialized_collection_hash?(value)
           return summarize_serialized_collection_items_hash(value) if serialized_collection_items_hash?(value)
 
@@ -289,6 +288,38 @@ module Igniter
         end
 
         "{mode=#{value[:mode].inspect}, total=#{summary[:total]}, succeeded=#{summary[:succeeded]}, failed=#{summary[:failed]}, status=#{summary[:status].inspect}, keys=#{items.keys.inspect}, failed_keys=#{failed_keys.inspect}}"
+      end
+
+      def serialized_deferred_hash?(value)
+        (value.key?(:token) || value.key?("token")) &&
+          (value.key?(:waiting_on) || value.key?("waiting_on"))
+      end
+
+      def summarize_serialized_deferred_hash(value)
+        token = hash_value(value, :token)
+        waiting_on = hash_value(value, :waiting_on)
+        payload = hash_value(value, :payload)
+        routing_summary = hash_value(value, :routing_trace_summary)
+
+        parts = ["token=#{token.inspect}", "waiting_on=#{waiting_on.inspect}"]
+        parts << "payload_keys=#{payload.keys.inspect}" if payload.is_a?(Hash) && !payload.empty?
+        parts << "routing=#{routing_summary}" if routing_summary
+        "{#{parts.join(', ')}}"
+      end
+
+      def serialized_failed_output_hash?(value)
+        (value.key?(:error) || value.key?("error")) &&
+          (value.key?(:status) || value.key?("status"))
+      end
+
+      def summarize_serialized_failed_output_hash(value)
+        status = hash_value(value, :status)
+        error = hash_value(value, :error)
+        routing_summary = hash_value(value, :routing_trace_summary)
+
+        parts = ["status=#{status.inspect}", "error=#{error.inspect}"]
+        parts << "routing=#{routing_summary}" if routing_summary
+        "{#{parts.join(', ')}}"
       end
 
       def serialized_collection_items_hash?(value)
@@ -343,6 +374,102 @@ module Igniter
             end
           }
         end
+      end
+
+      def serialize_error(node_name, error)
+        context = error.respond_to?(:context) ? error.context : {}
+        routing_trace = extract_routing_trace(context)
+
+        {
+          node_name: node_name,
+          type: error.class.name,
+          message: error.message,
+          context: context
+        }.tap do |payload|
+          next unless routing_trace
+
+          payload[:routing_trace] = routing_trace
+          payload[:routing_trace_summary] = summarize_routing_trace(routing_trace)
+        end
+      end
+
+      def serialize_failed_output(error, status)
+        context = error.respond_to?(:context) ? error.context : {}
+        routing_trace = extract_routing_trace(context)
+
+        {
+          error: error.message,
+          status: status
+        }.tap do |payload|
+          next unless routing_trace
+
+          payload[:routing_trace] = routing_trace
+          payload[:routing_trace_summary] = summarize_routing_trace(routing_trace)
+        end
+      end
+
+      def serialize_deferred_result(value)
+        value.as_json.tap do |payload|
+          next unless value.routing_trace
+
+          payload[:routing_trace] = value.routing_trace
+          payload[:routing_trace_summary] = summarize_routing_trace(value.routing_trace)
+        end
+      end
+
+      def format_error_summary(error)
+        summary = "#{error[:node_name]}=#{error[:type]}"
+        routing_summary = error[:routing_trace_summary]
+        return summary unless routing_summary
+
+        "#{summary}[#{routing_summary}]"
+      end
+
+      def extract_routing_trace(context)
+        return nil unless context.is_a?(Hash)
+
+        hash_value(context, :routing_trace)
+      end
+
+      def summarize_routing_trace(trace)
+        return nil unless trace.is_a?(Hash)
+
+        parts = []
+        routing_mode = hash_value(trace, :routing_mode)
+        query = hash_value(trace, :query)
+        capability = hash_value(trace, :capability)
+        peer_name = hash_value(trace, :peer_name)
+        eligible_count = hash_value(trace, :eligible_count)
+        selected_url = hash_value(trace, :selected_url)
+        reachable = hash_value(trace, :reachable)
+        reasons = routing_reasons(trace)
+
+        parts << "mode=#{routing_mode}" if routing_mode
+        parts << "query=#{query.inspect}" if query
+        parts << "capability=#{capability.inspect}" if capability
+        parts << "peer=#{peer_name}" if peer_name
+        parts << "eligible=#{eligible_count}" unless eligible_count.nil?
+        parts << "selected=#{selected_url || 'none'}" if trace.key?(:selected_url) || trace.key?("selected_url")
+        parts << "reachable=#{reachable}" unless reachable.nil?
+        parts << "reasons=#{reasons.join('+')}" unless reasons.empty?
+        parts.empty? ? nil : parts.join(" ")
+      end
+
+      def routing_reasons(trace)
+        reasons = Array(hash_value(trace, :reasons)).compact
+        return reasons unless reasons.empty?
+
+        peers = hash_value(trace, :peers)
+        return [] unless peers.is_a?(Array)
+
+        peers.flat_map { |peer| Array(hash_value(peer, :reasons)) }.compact.uniq
+      end
+
+      def hash_value(hash, key)
+        return hash[key] if hash.key?(key)
+        return hash[key.to_s] if hash.key?(key.to_s)
+
+        nil
       end
     end
   end

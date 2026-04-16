@@ -2,6 +2,7 @@
 
 require "spec_helper"
 require "igniter/extensions/provenance"
+require "igniter/cluster"
 
 RSpec.describe "Igniter::Provenance" do
   # ── Shared contracts ─────────────────────────────────────────────────────────
@@ -210,6 +211,119 @@ RSpec.describe "Igniter::Provenance" do
       # Both branches should appear in the tree
       expect(lin.explain).to include("a =")
       expect(lin.explain).to include("b =")
+    end
+  end
+
+  describe "remote routing traces" do
+    let(:pending_trace) do
+      {
+        query: { all_of: [:orders], tags: [:linux] },
+        selected_url: nil,
+        eligible_count: 0,
+        peers: [
+          { name: "orders-linux", reasons: [:unreachable] }
+        ]
+      }
+    end
+
+    let(:failed_trace) do
+      {
+        routing_mode: :pinned,
+        peer_name: "audit-node",
+        known: true,
+        selected_url: "http://audit:4567",
+        reachable: false,
+        reasons: [:unreachable]
+      }
+    end
+
+    let(:pending_adapter) do
+      trace = pending_trace
+      Class.new do
+        define_method(:initialize) { |routing_trace| @routing_trace = routing_trace }
+
+        define_method(:call) do |node:, inputs:, execution:|
+          raise Igniter::Cluster::Mesh::DeferredCapabilityError.new(
+            :orders,
+            Igniter::Runtime::DeferredResult.build(
+              payload: { query: { all_of: [:orders] } },
+              source_node: node.name,
+              waiting_on: node.name
+            ),
+            query: { all_of: [:orders] },
+            explanation: @routing_trace
+          )
+        end
+      end.new(trace)
+    end
+
+    let(:failed_adapter) do
+      trace = failed_trace
+      Class.new do
+        define_method(:initialize) { |routing_trace| @routing_trace = routing_trace }
+
+        define_method(:call) do |node:, **|
+          raise Igniter::ResolutionError.new(
+            "Pinned peer is unreachable",
+            context: { routing_trace: @routing_trace }
+          )
+        end
+      end.new(trace)
+    end
+
+    let(:pending_contract_class) do
+      adapter = pending_adapter
+      Class.new(Igniter::Contract) do
+        runner :inline, remote_adapter: adapter
+
+        define do
+          input :order_id
+          remote :order_result, contract: "ProcessOrder", node: "http://unused.example", inputs: { id: :order_id }
+          output :order_result
+        end
+      end
+    end
+
+    let(:failed_contract_class) do
+      adapter = failed_adapter
+      Class.new(Igniter::Contract) do
+        runner :inline, remote_adapter: adapter
+
+        define do
+          input :event
+          remote :audit_result, contract: "WriteAudit", node: "http://unused.example", inputs: { event: :event }
+          output :audit_result
+        end
+      end
+    end
+
+    it "includes routing trace in provenance for pending remote nodes" do
+      contract = pending_contract_class.new(order_id: 42)
+      contract.resolve_all
+
+      trace = contract.lineage(:order_result).trace
+      expect(trace.value).to include(
+        pending: true,
+        event: :order_result,
+        routing_trace: pending_trace
+      )
+      expect(trace.value[:payload][:routing_trace]).to eq(pending_trace)
+    end
+
+    it "includes routing trace in provenance for failed remote nodes" do
+      contract = failed_contract_class.new(event: "created")
+      begin
+        contract.resolve_all
+      rescue Igniter::Error
+        nil
+      end
+
+      trace = contract.lineage(:audit_result).trace
+      expect(trace.value).to include(failed: true)
+      expect(trace.value[:error]).to include(
+        type: "Igniter::ResolutionError"
+      )
+      expect(trace.value[:error][:context][:routing_trace]).to eq(failed_trace)
     end
   end
 

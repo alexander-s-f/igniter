@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "igniter/cluster"
 
 RSpec.describe "Igniter diagnostics" do
   let(:contract_class) do
@@ -201,5 +202,131 @@ RSpec.describe "Igniter diagnostics" do
     ])
     expect(text).to include('rows={total: 2, company_ids: ["1", "2"]}')
     expect(markdown).to include('- Outputs: rows={total: 2, company_ids: ["1", "2"]}')
+  end
+
+  describe "distributed routing traces" do
+    let(:pending_trace) do
+      {
+        routing_mode: :capability,
+        query: { all_of: [:orders], tags: [:linux] },
+        selected_url: nil,
+        eligible_count: 0,
+        peers: [
+          { name: "orders-linux", reasons: [:unreachable] }
+        ]
+      }
+    end
+
+    let(:failed_trace) do
+      {
+        routing_mode: :pinned,
+        peer_name: "audit-node",
+        known: true,
+        selected_url: "http://audit:4567",
+        reachable: false,
+        reasons: [:unreachable]
+      }
+    end
+
+    let(:pending_adapter) do
+      trace = pending_trace
+      Class.new do
+        define_method(:initialize) { |routing_trace| @routing_trace = routing_trace }
+
+        define_method(:call) do |node:, **|
+          raise Igniter::Cluster::Mesh::DeferredCapabilityError.new(
+            :orders,
+            Igniter::Runtime::DeferredResult.build(
+              token: "route-order-42",
+              payload: { query: { all_of: [:orders] } },
+              source_node: node.name,
+              waiting_on: node.name
+            ),
+            query: { all_of: [:orders] },
+            explanation: @routing_trace
+          )
+        end
+      end.new(trace)
+    end
+
+    let(:failed_adapter) do
+      trace = failed_trace
+      Class.new do
+        define_method(:initialize) { |routing_trace| @routing_trace = routing_trace }
+
+        define_method(:call) do |**|
+          raise Igniter::ResolutionError.new(
+            "Pinned peer is unreachable",
+            context: { routing_trace: @routing_trace }
+          )
+        end
+      end.new(trace)
+    end
+
+    let(:pending_contract_class) do
+      adapter = pending_adapter
+      Class.new(Igniter::Contract) do
+        runner :inline, remote_adapter: adapter
+
+        define do
+          input :order_id
+          remote :order_result, contract: "ProcessOrder", node: "http://unused.example", inputs: { id: :order_id }
+          output :order_result
+        end
+      end
+    end
+
+    let(:failed_contract_class) do
+      adapter = failed_adapter
+      Class.new(Igniter::Contract) do
+        runner :inline, remote_adapter: adapter
+
+        define do
+          input :event
+          remote :audit_result, contract: "WriteAudit", node: "http://unused.example", inputs: { event: :event }
+          output :audit_result
+        end
+      end
+    end
+
+    it "surfaces routing traces for pending remote outputs in diagnostics" do
+      contract = pending_contract_class.new(order_id: 42)
+
+      report = contract.diagnostics.to_h
+      text = contract.diagnostics_text
+      markdown = contract.diagnostics_markdown
+
+      expect(report[:status]).to eq(:pending)
+      expect(report[:outputs][:order_result]).to include(
+        token: "route-order-42",
+        routing_trace: pending_trace,
+        routing_trace_summary: "mode=capability query={:all_of=>[:orders], :tags=>[:linux]} eligible=0 selected=none reasons=unreachable"
+      )
+      expect(text).to include("routing=mode=capability query={:all_of=>[:orders], :tags=>[:linux]} eligible=0 selected=none reasons=unreachable")
+      expect(markdown).to include("routing=mode=capability query={:all_of=>[:orders], :tags=>[:linux]} eligible=0 selected=none reasons=unreachable")
+    end
+
+    it "surfaces routing traces for failed remote outputs in diagnostics" do
+      contract = failed_contract_class.new(event: "created")
+
+      report = contract.diagnostics.to_h
+      text = contract.diagnostics_text
+      markdown = contract.diagnostics_markdown
+
+      expect(report[:status]).to eq(:failed)
+      expect(report[:outputs][:audit_result]).to include(
+        status: :failed,
+        routing_trace: failed_trace,
+        routing_trace_summary: "mode=pinned peer=audit-node selected=http://audit:4567 reachable=false reasons=unreachable"
+      )
+      expect(report[:outputs][:audit_result][:error]).to include("Pinned peer is unreachable")
+      expect(report[:errors].first).to include(
+        node_name: :audit_result,
+        routing_trace: failed_trace,
+        routing_trace_summary: "mode=pinned peer=audit-node selected=http://audit:4567 reachable=false reasons=unreachable"
+      )
+      expect(text).to include("audit_result=Igniter::ResolutionError[mode=pinned peer=audit-node selected=http://audit:4567 reachable=false reasons=unreachable]")
+      expect(markdown).to include("`mode=pinned peer=audit-node selected=http://audit:4567 reachable=false reasons=unreachable`")
+    end
   end
 end

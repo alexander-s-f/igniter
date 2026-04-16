@@ -100,13 +100,34 @@ module Igniter
         unless peer
           raise IncidentError.new(
             peer_name,
-            "Pinned peer '#{peer_name}' is not registered in Igniter::Cluster::Mesh"
+            "Pinned peer '#{peer_name}' is not registered in Igniter::Cluster::Mesh",
+            context: { routing_trace: explain_pinned(peer_name) }
           )
         end
 
-        raise IncidentError, peer_name unless alive?(peer)
+        unless alive?(peer)
+          raise IncidentError.new(
+            peer_name,
+            nil,
+            context: { routing_trace: explain_pinned(peer_name) }
+          )
+        end
 
         peer.url
+      end
+
+      # Return a structured explanation of pinned routing resolution.
+      def explain_pinned(peer_name)
+        peer = find_named_peer(peer_name)
+
+        {
+          routing_mode: :pinned,
+          peer_name: peer_name.to_s,
+          known: !peer.nil?,
+          selected_url: peer&.url,
+          reachable: peer ? alive?(peer) : false,
+          reasons: pinned_reasons(peer)
+        }
       end
 
       # Expire a peer's cached health status (e.g., after a successful or failed request).
@@ -192,6 +213,13 @@ module Igniter
 
         idx = @mutex.synchronize { @round_robin[key] % candidates.size }
         [candidates[idx], idx]
+      end
+
+      def pinned_reasons(peer)
+        return [:unknown_peer] unless peer
+        return [:unreachable] unless alive?(peer)
+
+        [:selected]
       end
 
       def alive?(peer) # rubocop:disable Metrics/MethodLength

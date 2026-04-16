@@ -35,6 +35,10 @@ module Igniter
       def as_json(*)
         to_h
       end
+
+      def routing_trace
+        payload[:routing_trace] || payload["routing_trace"]
+      end
     end
   end
 end
