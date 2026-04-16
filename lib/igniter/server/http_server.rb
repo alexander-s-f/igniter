@@ -26,6 +26,8 @@ module Igniter
         @config.logger ||= @logger
         @in_flight    = 0
         @in_flight_mu = Mutex.new
+        @connections  = {}
+        @connections_mu = Mutex.new
       end
 
       def start # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
@@ -51,8 +53,8 @@ module Igniter
         if @shutdown_mode == :graceful
           @logger.info("SIGTERM received — draining",
                        drain_timeout: @config.drain_timeout, pid: Process.pid)
+          drain_in_flight
         end
-        drain_in_flight
         @logger.info("igniter-stack stopped", pid: Process.pid)
       end
 
@@ -70,6 +72,7 @@ module Igniter
         @shutdown_mode ||= mode
         @running = false
         @tcp_server&.close
+        close_active_connections if @shutdown_mode == :immediate
       rescue IOError, Errno::EBADF
         nil
       end
@@ -90,6 +93,7 @@ module Igniter
       end
 
       def handle_connection(socket) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+        register_connection(socket)
         request_line = socket.gets&.chomp
         return unless request_line&.include?(" ")
 
@@ -105,6 +109,7 @@ module Igniter
       rescue StandardError => e
         @logger.error("Connection error", error: e.message)
       ensure
+        unregister_connection(socket)
         socket.close rescue nil # rubocop:disable Style/RescueModifier
       end
 
@@ -126,6 +131,23 @@ module Igniter
 
           @logger.info("Draining in-flight connections", remaining: remaining)
           sleep 0.1
+        end
+      end
+
+      def register_connection(socket)
+        @connections_mu.synchronize { @connections[socket.object_id] = socket }
+      end
+
+      def unregister_connection(socket)
+        @connections_mu.synchronize { @connections.delete(socket.object_id) }
+      end
+
+      def close_active_connections
+        sockets = @connections_mu.synchronize { @connections.values.dup }
+        sockets.each do |socket|
+          socket.close
+        rescue IOError, Errno::EBADF
+          nil
         end
       end
 

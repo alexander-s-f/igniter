@@ -55,4 +55,23 @@ RSpec.describe Igniter::Server::HttpServer do
       expect(server.instance_variable_get(:@shutdown_mode)).to eq(:graceful)
     end
   end
+
+  describe "#stop" do
+    it "closes the listener and active client sockets for immediate shutdown" do
+      tcp_server = instance_double(TCPServer)
+      client_socket = instance_double(TCPSocket)
+
+      server.instance_variable_set(:@tcp_server, tcp_server)
+      server.instance_variable_set(:@running, true)
+      server.instance_variable_set(:@connections, { client_socket.object_id => client_socket })
+
+      expect(tcp_server).to receive(:close)
+      expect(client_socket).to receive(:close)
+
+      server.stop
+
+      expect(server.instance_variable_get(:@running)).to be(false)
+      expect(server.instance_variable_get(:@shutdown_mode)).to eq(:immediate)
+    end
+  end
 end
