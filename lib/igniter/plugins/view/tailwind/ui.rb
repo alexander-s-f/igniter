@@ -287,6 +287,88 @@ module Igniter
             end
           end
 
+          class SchemaHero < View::Component
+            def initialize(title:, description: nil, eyebrow: "Schema Page",
+                           wrapper_class:, eyebrow_class:, title_class:, body_class:)
+              @title = title
+              @description = description
+              @eyebrow = eyebrow
+              @wrapper_class = wrapper_class
+              @eyebrow_class = eyebrow_class
+              @title_class = title_class
+              @body_class = body_class
+            end
+
+            def call(view)
+              view.tag(:section, class: @wrapper_class) do |hero|
+                hero.tag(:p, @eyebrow, class: @eyebrow_class)
+                hero.tag(:h1, @title, class: @title_class)
+                hero.tag(:p, @description, class: @body_class) if @description
+              end
+            end
+          end
+
+          class SchemaStack < View::Component
+            DEFAULT_CLASS = "view-stack grid gap-5".freeze
+
+            def initialize(class_name: DEFAULT_CLASS, &block)
+              @class_name = class_name
+              @block = block
+            end
+
+            def call(view)
+              view.tag(:section, class: @class_name) do |container|
+                @block&.call(container)
+              end
+            end
+          end
+
+          class SchemaGrid < View::Component
+            DEFAULT_CLASS = "view-grid grid gap-5 sm:grid-cols-2".freeze
+
+            def initialize(class_name: DEFAULT_CLASS, &block)
+              @class_name = class_name
+              @block = block
+            end
+
+            def call(view)
+              view.tag(:section, class: @class_name) do |container|
+                @block&.call(container)
+              end
+            end
+          end
+
+          class SchemaSection < View::Component
+            DEFAULT_CLASS = "view-section rounded-[28px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur".freeze
+
+            def initialize(tag: :section, class_name: DEFAULT_CLASS, &block)
+              @tag = tag
+              @class_name = class_name
+              @block = block
+            end
+
+            def call(view)
+              view.tag(@tag, class: @class_name) do |container|
+                @block&.call(container)
+              end
+            end
+          end
+
+          class SchemaCard < View::Component
+            DEFAULT_CLASS = "view-card rounded-[28px] border border-orange-200/15 bg-[linear-gradient(145deg,rgba(60,33,21,0.92),rgba(30,18,14,0.96))] p-6 shadow-2xl shadow-black/25".freeze
+
+            def initialize(class_name: DEFAULT_CLASS, &block)
+              @class_name = class_name
+              @block = block
+            end
+
+            def call(view)
+              view.tag(:article, class: @class_name) do |container|
+                @block&.call(container)
+              end
+            end
+          end
+
           class MessagePage < View::Component
             DEFAULT_WRAPPER_CLASS = "relative overflow-hidden rounded-[34px] border border-orange-200/15 bg-[radial-gradient(circle_at_top_left,_rgba(194,107,61,0.24),_transparent_18rem),linear-gradient(145deg,rgba(60,33,21,0.96),rgba(22,15,13,0.98))] px-6 py-8 shadow-2xl shadow-black/25 sm:px-8 lg:px-10".freeze
             DEFAULT_GLOW_CLASS = "absolute inset-y-0 right-0 hidden w-72 bg-[radial-gradient(circle_at_center,_rgba(251,146,60,0.14),_transparent_65%)] lg:block".freeze
@@ -700,7 +782,11 @@ module Igniter
                   list_item_class: "rounded-3xl border border-white/10 bg-white/5 p-4",
                   compact_card_class: "rounded-2xl border border-white/10 bg-white/5 p-4",
                   compact_item_class: "text-sm leading-6 text-stone-300",
-                  section_heading_class: "mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-stone-300"
+                  section_heading_class: "mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-stone-300",
+                  schema_stack_class: SchemaStack::DEFAULT_CLASS,
+                  schema_grid_class: SchemaGrid::DEFAULT_CLASS,
+                  schema_section_class: SchemaSection::DEFAULT_CLASS,
+                  schema_card_class: SchemaCard::DEFAULT_CLASS
                 }
               },
               companion: {
@@ -748,7 +834,11 @@ module Igniter
                   list_item_class: "rounded-3xl border border-white/10 bg-white/5 p-4",
                   compact_card_class: "rounded-2xl border border-white/10 bg-white/5 p-4",
                   compact_item_class: "text-sm leading-6 text-stone-300",
-                  section_heading_class: "mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-stone-300"
+                  section_heading_class: "mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-stone-300",
+                  schema_stack_class: SchemaStack::DEFAULT_CLASS,
+                  schema_grid_class: SchemaGrid::DEFAULT_CLASS,
+                  schema_section_class: SchemaSection::DEFAULT_CLASS,
+                  schema_card_class: SchemaCard::DEFAULT_CLASS
                 }
               },
               ops: {
@@ -789,7 +879,11 @@ module Igniter
                   list_item_class: "rounded-3xl border border-white/10 bg-white/5 p-4",
                   compact_card_class: "rounded-2xl border border-white/10 bg-white/5 p-4",
                   compact_item_class: "text-sm leading-6 text-stone-300",
-                  section_heading_class: "mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-stone-300"
+                  section_heading_class: "mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-stone-300",
+                  schema_stack_class: SchemaStack::DEFAULT_CLASS,
+                  schema_grid_class: SchemaGrid::DEFAULT_CLASS,
+                  schema_section_class: SchemaSection::DEFAULT_CLASS,
+                  schema_card_class: SchemaCard::DEFAULT_CLASS
                 }
               },
               schema: {
@@ -822,7 +916,11 @@ module Igniter
                   list_item_class: "rounded-3xl border border-white/10 bg-white/5 p-4",
                   compact_card_class: "rounded-2xl border border-white/10 bg-white/5 p-4",
                   compact_item_class: "text-sm leading-6 text-stone-300",
-                  section_heading_class: "mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-stone-300"
+                  section_heading_class: "mt-5 text-sm font-semibold uppercase tracking-[0.22em] text-stone-300",
+                  schema_stack_class: SchemaStack::DEFAULT_CLASS,
+                  schema_grid_class: SchemaGrid::DEFAULT_CLASS,
+                  schema_section_class: SchemaSection::DEFAULT_CLASS,
+                  schema_card_class: SchemaCard::DEFAULT_CLASS
                 }
               }
             }.freeze
@@ -849,6 +947,27 @@ module Igniter
 
             def resource_list(items:, empty_message: nil, compact: false)
               ResourceList.new(items: items, theme: self, empty_message: empty_message, compact: compact)
+            end
+
+            def schema_hero(title:, description: nil, eyebrow: "Schema Page", **overrides)
+              hero_options = self.class.deep_merge(hero(:page), overrides)
+              SchemaHero.new(title: title, description: description, eyebrow: eyebrow, **hero_options)
+            end
+
+            def schema_stack(class_name: nil, &block)
+              SchemaStack.new(class_name: class_name || surface(:schema_stack_class), &block)
+            end
+
+            def schema_grid(class_name: nil, &block)
+              SchemaGrid.new(class_name: class_name || surface(:schema_grid_class), &block)
+            end
+
+            def schema_section(tag: :section, class_name: nil, &block)
+              SchemaSection.new(tag: tag, class_name: class_name || surface(:schema_section_class), &block)
+            end
+
+            def schema_card(class_name: nil, &block)
+              SchemaCard.new(class_name: class_name || surface(:schema_card_class), &block)
             end
 
             def endpoint_list(items:, empty_message: nil, compact: false, link_class:)

@@ -117,6 +117,14 @@ And the same direction is now starting to show up for schema/runtime form flows:
 - `FieldGroup`
 - `ChoiceField`
 
+That semantic layer now also includes schema layout composition itself:
+
+- `SchemaHero`
+- `SchemaStack`
+- `SchemaGrid`
+- `SchemaSection`
+- `SchemaCard`
+
 This API is intentionally small.
 
 Its current role is:

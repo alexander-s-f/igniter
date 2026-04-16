@@ -19,21 +19,14 @@ module Igniter
         end
 
         def call(view)
-          hero_theme = ui_theme.hero(:page)
-
           view.raw(
             Tailwind.render_page(
               title: schema.title,
               lang: schema.meta.fetch("lang", "en"),
               theme: :schema
             ) do |main|
-              main.tag(:section,
-                       class: hero_theme.fetch(:wrapper_class)) do |hero|
-                hero.tag(:p, "Schema Page", class: hero_theme.fetch(:eyebrow_class))
-                hero.tag(:h1, schema.title, class: hero_theme.fetch(:title_class))
-                meta_hint = schema.meta["description"] || schema.meta["subtitle"]
-                hero.tag(:p, meta_hint, class: hero_theme.fetch(:body_class)) if meta_hint
-              end
+              meta_hint = schema.meta["description"] || schema.meta["subtitle"]
+              main.component(ui_theme.schema_hero(title: schema.title, description: meta_hint))
 
               main.component(Tailwind::UI::SubmissionNotice.new(message: notice, tone: :notice, tag: :div)) if notice
               render_node(main, schema.layout)
@@ -70,9 +63,22 @@ module Igniter
         end
 
         def render_container(view, tag_name, node, class_name:)
-          view.tag(tag_name, class: container_classes(class_name)) do |container|
-            Array(node["children"]).each { |child| render_node(container, child) }
+          case class_name
+          when "view-stack"
+            view.component(ui_theme.schema_stack { |container| render_children(container, node) })
+          when "view-grid"
+            view.component(ui_theme.schema_grid { |container| render_children(container, node) })
+          when "view-section"
+            view.component(ui_theme.schema_section(tag: tag_name) { |container| render_children(container, node) })
+          when "view-card"
+            view.component(ui_theme.schema_card { |container| render_children(container, node) })
+          else
+            view.tag(tag_name, class: class_name) { |container| render_children(container, node) }
           end
+        end
+
+        def render_children(container, node)
+          Array(node["children"]).each { |child| render_node(container, child) }
         end
 
         def render_form(view, node)
@@ -231,21 +237,6 @@ module Igniter
           return "#{base} view-muted text-stone-400" if tone == "muted"
 
           base
-        end
-
-        def container_classes(class_name)
-          case class_name
-          when "view-stack"
-            "view-stack grid gap-5"
-          when "view-grid"
-            "view-grid grid gap-5 sm:grid-cols-2"
-          when "view-section"
-            "view-section rounded-[28px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur"
-          when "view-card"
-            "view-card rounded-[28px] border border-orange-200/15 bg-[linear-gradient(145deg,rgba(60,33,21,0.92),rgba(30,18,14,0.96))] p-6 shadow-2xl shadow-black/25"
-          else
-            class_name
-          end
         end
       end
     end

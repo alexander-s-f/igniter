@@ -295,6 +295,32 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI do
     expect(html).to include('class="checkbox-input"')
   end
 
+  it "renders semantic schema hero and layout blocks" do
+    html = Igniter::Plugins::View.render do |view|
+      view.component(
+        described_class::SchemaHero.new(
+          title: "Daily Training Check-in",
+          description: "Schema-driven page.",
+          wrapper_class: "schema-hero",
+          eyebrow_class: "schema-eyebrow",
+          title_class: "schema-title",
+          body_class: "schema-body"
+        )
+      )
+      view.component(described_class::SchemaStack.new(class_name: "schema-stack") { |stack| stack.tag(:p, "Stack body") })
+      view.component(described_class::SchemaGrid.new(class_name: "schema-grid") { |grid| grid.tag(:p, "Grid body") })
+      view.component(described_class::SchemaSection.new(class_name: "schema-section") { |section| section.tag(:p, "Section body") })
+      view.component(described_class::SchemaCard.new(class_name: "schema-card") { |card| card.tag(:p, "Card body") })
+    end
+
+    expect(html).to include("Daily Training Check-in")
+    expect(html).to include("Schema-driven page.")
+    expect(html).to include('class="schema-stack"')
+    expect(html).to include('class="schema-grid"')
+    expect(html).to include('class="schema-section"')
+    expect(html).to include('class="schema-card"')
+  end
+
   it "renders reusable action bars, form sections, and key-value lists" do
     html = Igniter::Plugins::View.render do |view|
       view.component(described_class::ActionBar.new(tag: :nav) do |bar|
@@ -457,6 +483,16 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI::Theme do
     expect(theme.resource_list(items: [])).to be_a(Igniter::Plugins::View::Tailwind::UI::ResourceList)
     expect(theme.endpoint_list(items: [], link_class: "text-amber-200")).to be_a(Igniter::Plugins::View::Tailwind::UI::EndpointList)
     expect(theme.timeline_list(items: [], title_link_class: "hover:text-amber-200", action_link_class: "text-sm")).to be_a(Igniter::Plugins::View::Tailwind::UI::TimelineList)
+  end
+
+  it "builds semantic schema layout components from the shared theme" do
+    theme = described_class.fetch(:schema)
+
+    expect(theme.schema_hero(title: "Schema")).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaHero)
+    expect(theme.schema_stack {}).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaStack)
+    expect(theme.schema_grid {}).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaGrid)
+    expect(theme.schema_section {}).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaSection)
+    expect(theme.schema_card {}).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaCard)
   end
 end
 
