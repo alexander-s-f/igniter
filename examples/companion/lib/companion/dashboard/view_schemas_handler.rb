@@ -7,7 +7,7 @@ module Companion
     module ViewSchemasHandler
       module_function
 
-      def call(params:, body:, headers:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+      def call(params:, body:, headers:, env: nil, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
         store = ViewSchemaCatalog.store
 
         if raw_body.to_s.strip.empty? && body == {}

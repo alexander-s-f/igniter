@@ -7,7 +7,7 @@ module Companion
     module ReminderActionHandler
       module_function
 
-      def call(params:, body:, headers:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+      def call(params:, body:, headers:, env: nil, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
         reminder_id = params[:id].to_s
         reminder = Companion::ReminderStore.complete(reminder_id)
         return error(404, "reminder not found") unless reminder

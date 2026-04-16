@@ -228,8 +228,8 @@ Resolution rules:
 ## Companion Direction
 
 `examples/companion` is now the authoritative stack-based demo for this standard.
-The previous flat-layout voice-assistant demo lives in `examples/companion_legacy`.
+The previous pre-refresh voice-assistant demo lives in `examples/companion_legacy` as an archive.
 
 - `examples/companion` = main demo stand and canonical stack example
-- `examples/companion_legacy` = archived flat-layout reference during transition
+- `examples/companion_legacy` = archived pre-refresh reference
 - remaining historical notes can still be ported from the legacy companion when useful

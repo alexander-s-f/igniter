@@ -382,4 +382,4 @@ See [`companion/README.md`](companion/README.md) for the workspace layout and ES
 
 ## Validation
 
-These scripts are exercised by [example_scripts_spec.rb](/Users/alex/dev/hotfix/igniter/spec/igniter/example_scripts_spec.rb), so the documented commands and outputs stay aligned with the code.
+These scripts are exercised by [example_scripts_spec.rb](/Users/alex/dev/projects/igniter/spec/igniter/example_scripts_spec.rb), so the documented commands and outputs stay aligned with the code.

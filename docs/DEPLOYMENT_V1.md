@@ -272,7 +272,8 @@ end
 `examples/companion/` is the main stack-based application demo: voice assistant pipeline,
 LLM chat/intent/TTS/ASR contracts, proactive agents, tool registry, scheduled session GC.
 
-`examples/companion_legacy/` remains as the older flat-layout reference during transition.
+`examples/companion/` is the current canonical deployment example.
+`examples/companion_legacy/` remains only as an archived pre-refresh reference.
 
 See [`docs/APP_V1.md`](APP_V1.md), [`docs/STACKS_V1.md`](STACKS_V1.md), and [`docs/SERVER_V1.md`](SERVER_V1.md).
 

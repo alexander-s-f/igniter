@@ -3,6 +3,23 @@
 require_relative "spec_helper"
 
 RSpec.describe Companion::Stack do
+  around do |example|
+    stack_class = Companion::Stack
+    original_env_name = stack_class.instance_variable_get(:@environment_name)
+    original_igniter_env = ENV["IGNITER_ENV"]
+
+    example.run
+  ensure
+    stack_class.instance_variable_set(:@environment_name, original_env_name)
+    stack_class.send(:reset_stack_state!)
+
+    if original_igniter_env.nil?
+      ENV.delete("IGNITER_ENV")
+    else
+      ENV["IGNITER_ENV"] = original_igniter_env
+    end
+  end
+
   describe Companion::Boot do
     it "builds default stores from stack and app config" do
       expect(described_class.default_data_store(app_name: :main)).to be_a(Igniter::Data::Stores::InMemory)
@@ -49,6 +66,75 @@ RSpec.describe Companion::Stack do
       expect(procfile).to include("bundle exec ruby stack.rb inference")
       expect(procfile).to include("bundle exec ruby stack.rb dashboard")
       expect(procfile).not_to include("examples/companion/stack.rb")
+    end
+  end
+
+  describe "stack cli smoke" do
+    it "prints Procfile.dev commands for all apps" do
+      expect do
+        described_class.start_cli(%w[--print-procfile-dev])
+      end.to output(
+        a_string_including(
+          "main:",
+          "bundle exec ruby stack.rb main",
+          "inference:",
+          "bundle exec ruby stack.rb inference",
+          "dashboard:",
+          "bundle exec ruby stack.rb dashboard"
+        )
+      ).to_stdout
+    end
+
+    it "prints compose yaml for the current scaffold" do
+      expect do
+        described_class.start_cli(%w[--print-compose])
+      end.to output(
+        a_string_including(
+          "services:",
+          "command: bundle exec ruby stack.rb main",
+          "command: bundle exec ruby stack.rb inference",
+          "command: bundle exec ruby stack.rb dashboard",
+          "companion_var:"
+        )
+      ).to_stdout
+    end
+
+    it "prints env-aware Procfile.dev output when an overlay is selected" do
+      expect do
+        described_class.start_cli(%w[--env production --print-procfile-dev])
+      end.to output(
+        a_string_including(
+          "IGNITER_ENV=production",
+          "bundle exec ruby stack.rb main",
+          "bundle exec ruby stack.rb inference",
+          "bundle exec ruby stack.rb dashboard"
+        )
+      ).to_stdout
+    end
+  end
+
+  describe "http handler compatibility" do
+    it "accepts the current router env keyword across companion handlers" do
+      handlers = [
+        Companion::Dashboard::HomeHandler,
+        Companion::Dashboard::OverviewHandler,
+        Companion::Dashboard::ReminderActionHandler,
+        Companion::Dashboard::ReminderCreateHandler,
+        Companion::Dashboard::SchemaPageHandler,
+        Companion::Dashboard::SchemaSubmissionHandler,
+        Companion::Dashboard::TelegramPreferenceHandler,
+        Companion::Dashboard::ViewSchemaDeleteHandler,
+        Companion::Dashboard::ViewSchemaHandler,
+        Companion::Dashboard::ViewSchemaPatchHandler,
+        Companion::Dashboard::ViewSchemasHandler,
+        Companion::Dashboard::ViewSubmissionHandler,
+        Companion::TelegramWebhook
+      ]
+
+      handlers.each do |handler|
+        env_param = handler.method(:call).parameters.find { |type, name| [:key, :keyreq].include?(type) && name == :env }
+        expect(env_param).not_to be_nil, "#{handler} must accept env: for router compatibility"
+      end
     end
   end
 

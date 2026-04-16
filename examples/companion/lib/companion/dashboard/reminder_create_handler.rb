@@ -7,7 +7,7 @@ module Companion
     module ReminderCreateHandler
       module_function
 
-      def call(params:, body:, headers:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+      def call(params:, body:, headers:, env: nil, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
         task = body.fetch("task", "").to_s.strip
         timing = body.fetch("timing", "").to_s.strip
         channel = body.fetch("channel", "").to_s.strip

@@ -265,13 +265,15 @@ per-app execution-store summaries.
 
 ## Migration Note
 
-The previous flat-layout implementation has been moved to
-[`examples/companion_legacy`](../companion_legacy/README.md) as a temporary reference.
+The previous pre-generator-refresh version of this example now lives in
+[`examples/companion_legacy`](../companion_legacy/README.md) as an archived reference.
 
-The new stack companion is now the main demo stand. The legacy version is still useful for:
+The current `examples/companion` is the clean baseline regenerated from the current
+stack/app scaffold and then selectively migrated forward. The legacy version is still
+useful for:
 
 - historical comparison during migration
-- distributed deployment notes
+- checking older deployment and app-shape decisions
 
 ## ESP32 Client
 

@@ -442,7 +442,8 @@ ruby examples/companion/bin/demo
 bundle exec ruby examples/companion/stack.rb main
 ```
 
-**See also:** [`examples/companion/README.md`](../examples/companion/README.md) and [`examples/companion_legacy/README.md`](../examples/companion_legacy/README.md)
+**See also:** [`examples/companion/README.md`](../examples/companion/README.md)
+Archived migration reference: [`examples/companion_legacy/README.md`](../examples/companion_legacy/README.md)
 
 ---
 

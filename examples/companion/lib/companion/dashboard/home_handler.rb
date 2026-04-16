@@ -9,7 +9,7 @@ module Companion
     module HomeHandler
       module_function
 
-      def call(params:, body:, headers:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+      def call(params:, body:, headers:, env: nil, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
         snapshot = OverviewSnapshot.build
 
         Igniter::Plugins::View::Response.html(Views::HomePage.render(snapshot: snapshot))

@@ -9,7 +9,7 @@ module Companion
     module SchemaSubmissionHandler
       module_function
 
-      def call(params:, body:, headers:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+      def call(params:, body:, headers:, env: nil, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
         view_id = params[:id].to_s
         schema = ViewSchemaCatalog.store.get(view_id)
         return not_found(view_id) unless schema

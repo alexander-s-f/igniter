@@ -1,0 +1,12 @@
+stack:
+  environment: development
+
+topology:
+  profile: local-compose
+  apps:
+    main:
+      replicas: 1
+    inference:
+      replicas: 1
+    dashboard:
+      replicas: 1

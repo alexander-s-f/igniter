@@ -12,7 +12,7 @@ module Companion
   module TelegramWebhook
     module_function
 
-    def call(params:, body:, headers:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+    def call(params:, body:, headers:, env: nil, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
       return unauthorized("Telegram webhook secret mismatch") unless valid_secret?(headers)
 
       update = body || {}

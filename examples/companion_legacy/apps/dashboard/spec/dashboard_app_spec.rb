@@ -1,0 +1,620 @@
+# frozen_string_literal: true
+
+require_relative "spec_helper"
+require "uri"
+
+RSpec.describe Companion::DashboardApp do
+  it "uses apps/dashboard as its root directory" do
+    expect(described_class.root_dir).to eq(File.expand_path("..", __dir__))
+  end
+
+  describe Companion::Dashboard::OverviewHandler do
+    it "returns a JSON snapshot of dashboard state" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+      Companion::NotesStore.save("status", "green")
+      Companion::ReminderStore.create(
+        task: "Call Alice",
+        timing: "tomorrow",
+        request: "remind me to call Alice tomorrow",
+        channel: "telegram",
+        chat_id: "12345",
+        notifications_enabled: true
+      )
+      Companion::TelegramBindingsStore.upsert(
+        {
+          "chat" => { "id" => 12345, "username" => "alex" },
+          "from" => { "id" => 7, "username" => "alex" }
+        },
+        prefer: true
+      )
+      Companion::NotificationPreferencesStore.set_telegram_enabled("12345", true)
+      submission = Companion::Dashboard::ViewSubmissionStore.create(
+        view_id: "weekly-review",
+        action_id: "save_review",
+        schema_version: 1,
+        raw_payload: { "highlight" => "Clearer priorities" },
+        normalized_payload: { "highlight" => "Clearer priorities" }
+      )
+      Companion::Dashboard::ViewSubmissionStore.update(
+        submission.fetch("id"),
+        status: "processed",
+        processed_at: "2026-04-16T10:15:00Z",
+        processing_result: { type: "store_submission", ok: true }
+      )
+
+      result = described_class.call(
+        params: {},
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      parsed = JSON.parse(result[:body])
+
+      expect(result[:status]).to eq(200)
+      expect(result[:headers]["Content-Type"]).to eq("application/json")
+      expect(parsed.dig("counts", "notes")).to eq(1)
+      expect(parsed.dig("counts", "active_reminders")).to eq(1)
+      expect(parsed.dig("counts", "view_schemas")).to eq(2)
+      expect(parsed.dig("counts", "view_submissions")).to eq(1)
+      expect(parsed.dig("telegram", "preferred_chat_id")).to eq("12345")
+      expect(parsed.fetch("view_schemas")).to include(
+        include(
+          "id" => "training-checkin",
+          "api_path" => "/api/views/training-checkin",
+          "view_path" => "/views/training-checkin"
+        ),
+        include(
+          "id" => "weekly-review",
+          "api_path" => "/api/views/weekly-review",
+          "view_path" => "/views/weekly-review"
+        )
+      )
+      expect(parsed.fetch("view_submissions")).to include(
+        include(
+          "view_id" => "weekly-review",
+          "view_title" => "Weekly Review",
+          "action_id" => "save_review",
+          "status" => "processed",
+          "processing_type" => "store_submission",
+          "detail_path" => "/submissions/#{submission.fetch("id")}",
+          "api_path" => "/api/views/weekly-review"
+        )
+      )
+    end
+  end
+
+  describe Companion::Dashboard::TelegramPreferenceHandler do
+    it "updates persisted Telegram notification preferences" do
+      result = described_class.call(
+        params: {},
+        body: { "chat_id" => "12345", "enabled" => false },
+        headers: {},
+        raw_body: '{"chat_id":"12345","enabled":false}',
+        config: nil
+      )
+
+      parsed = JSON.parse(result[:body])
+
+      expect(result[:status]).to eq(200)
+      expect(parsed).to include("ok" => true, "telegram_enabled" => false)
+      expect(Companion::NotificationPreferencesStore.telegram_enabled?("12345")).to be(false)
+    end
+  end
+
+  describe Companion::Dashboard::ReminderActionHandler do
+    it "marks a reminder as completed" do
+      reminder = Companion::ReminderStore.create(
+        task: "Call Alice",
+        timing: "tomorrow",
+        request: "remind me to call Alice tomorrow"
+      )
+
+      result = described_class.call(
+        params: { id: reminder.fetch("id") },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      parsed = JSON.parse(result[:body])
+
+      expect(result[:status]).to eq(200)
+      expect(parsed.dig("reminder", "status")).to eq("completed")
+      expect(Companion::ReminderStore.active).to be_empty
+    end
+  end
+
+  describe Companion::Dashboard::ReminderCreateHandler do
+    it "creates a reminder from form params and redirects back to dashboard" do
+      result = described_class.call(
+        params: {},
+        body: {
+          "task" => "Pay rent",
+          "timing" => "tomorrow morning",
+          "channel" => "telegram",
+          "chat_id" => "12345",
+          "notifications_enabled" => "1"
+        },
+        headers: { "Content-Type" => "application/x-www-form-urlencoded" },
+        raw_body: "task=Pay+rent",
+        config: nil
+      )
+
+      reminder = Companion::ReminderStore.active.first
+
+      expect(result[:status]).to eq(303)
+      expect(result[:headers]["Location"]).to include("/?created_reminder=")
+      expect(reminder).to include(
+        "task" => "Pay rent",
+        "timing" => "tomorrow morning",
+        "channel" => "telegram",
+        "chat_id" => "12345",
+        "notifications_enabled" => true
+      )
+    end
+
+    it "returns a validation error page when task is blank" do
+      result = described_class.call(
+        params: {},
+        body: { "task" => "", "timing" => "tomorrow" },
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(422)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("Reminder could not be created")
+    end
+  end
+
+  describe Companion::Dashboard::HomeHandler do
+    it "renders an HTML overview page" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+      Companion::TelegramBindingsStore.upsert(
+        {
+          "chat" => { "id" => 12345, "username" => "alex" },
+          "from" => { "id" => 7, "username" => "alex" }
+        },
+        prefer: true
+      )
+      Companion::NotificationPreferencesStore.set_telegram_enabled("12345", true)
+      Companion::ReminderStore.create(
+        task: "Pay rent",
+        timing: "tomorrow",
+        request: "remind me to pay rent tomorrow",
+        channel: "telegram",
+        chat_id: "12345",
+        notifications_enabled: true
+      )
+      submission = Companion::Dashboard::ViewSubmissionStore.create(
+        view_id: "training-checkin",
+        action_id: "submit_checkin",
+        schema_version: 1,
+        raw_payload: { "duration_minutes" => "45" },
+        normalized_payload: { "duration_minutes" => 45 }
+      )
+      Companion::Dashboard::ViewSubmissionStore.update(
+        submission.fetch("id"),
+        status: "processed",
+        processed_at: "2026-04-16T10:20:00Z",
+        processing_result: { type: "contract", ok: true }
+      )
+
+      result = described_class.call(
+        params: {},
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("Companion Dashboard")
+      expect(result[:body]).to include("/api/overview")
+      expect(result[:body]).to include("<form")
+      expect(result[:body]).to include('action="/reminders"')
+      expect(result[:body]).to include('method="post"')
+      expect(result[:body]).to include("/api/telegram/preferences")
+      expect(result[:body]).to include("Mark Completed")
+      expect(result[:body]).to include("/views/training-checkin")
+      expect(result[:body]).to include("/views/weekly-review")
+      expect(result[:body]).to include("View Schemas")
+      expect(result[:body]).to include("Catalog JSON")
+      expect(result[:body]).to include("/api/views")
+      expect(result[:body]).to include("Create Schema")
+      expect(result[:body]).to include("Patch Schema")
+      expect(result[:body]).to include("Load JSON")
+      expect(result[:body]).to include("Clone")
+      expect(result[:body]).to include("Recent Submissions")
+      expect(result[:body]).to include("Schema JSON")
+      expect(result[:body]).to include("submit_checkin")
+      expect(result[:body]).to include("type=contract")
+      expect(result[:body]).to include("/submissions/#{submission.fetch("id")}")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
+      expect(result[:body]).to include("font-display")
+    end
+  end
+
+  describe Companion::Dashboard::ViewSubmissionHandler do
+    it "renders a submission detail page with replay surface" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+      submission = Companion::Dashboard::ViewSubmissionStore.create(
+        view_id: "training-checkin",
+        action_id: "submit_checkin",
+        schema_version: 1,
+        raw_payload: {
+          "_action" => "submit_checkin",
+          "duration_minutes" => "45",
+          "notes" => "Strong session"
+        },
+        normalized_payload: {
+          "duration_minutes" => 45,
+          "notes" => "Strong session"
+        }
+      )
+      Companion::Dashboard::ViewSubmissionStore.update(
+        submission.fetch("id"),
+        status: "processed",
+        processed_at: "2026-04-16T10:20:00Z",
+        processing_result: { type: "contract", ok: true, output: { saved: true } }
+      )
+
+      result = described_class.call(
+        params: { id: submission.fetch("id") },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("Submission Detail")
+      expect(result[:body]).to include("Replay Submission")
+      expect(result[:body]).to include('action="/views/training-checkin/submissions"')
+      expect(result[:body]).to include("&quot;duration_minutes&quot;: &quot;45&quot;")
+      expect(result[:body]).to include("&quot;duration_minutes&quot;: 45")
+      expect(result[:body]).to include("Normalization Diff")
+      expect(result[:body]).to include("Type changed during normalization.")
+      expect(result[:body]).to include("&quot;type&quot;: &quot;contract&quot;")
+      expect(result[:body]).to include("/api/views/training-checkin")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
+    end
+
+    it "renders a styled not-found page for missing submissions" do
+      result = described_class.call(
+        params: { id: "missing-submission" },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(404)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("Submission not found")
+      expect(result[:body]).to include("No stored submission is available for missing-submission.")
+      expect(result[:body]).to include("Back to dashboard")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
+    end
+  end
+
+  describe Companion::Dashboard::SchemaPageHandler do
+    it "renders a schema-driven view from the store" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: { id: "training-checkin" },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("Daily Training Check-in")
+      expect(result[:body]).to include("Schema-driven page rendered from persisted view definition.")
+      expect(result[:body]).to include("Capture enough detail that tomorrow-you can quickly reconstruct the session.")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
+      expect(result[:body]).to include("Schema Page")
+      expect(result[:body]).to include('action="/views/training-checkin/submissions"')
+    end
+
+    it "renders the weekly review schema from the store" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: { id: "weekly-review" },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("Weekly Review")
+      expect(result[:body]).to include("Keep answers short and concrete.")
+      expect(result[:body]).to include('action="/views/weekly-review/submissions"')
+    end
+
+    it "renders a styled not-found page for missing schemas" do
+      result = described_class.call(
+        params: { id: "missing-view" },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(404)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("View not found")
+      expect(result[:body]).to include("No schema stored for missing-view.")
+      expect(result[:body]).to include("Back to dashboard")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
+    end
+  end
+
+  describe Companion::Dashboard::SchemaSubmissionHandler do
+    it "stores a schema submission and redirects back to the schema page" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: { id: "training-checkin" },
+        body: {
+          "_action" => "submit_checkin",
+          "mood" => "great",
+          "duration_minutes" => "45",
+          "notes" => "Strong session",
+          "share_with_coach" => "1"
+        },
+        headers: { "Content-Type" => "application/x-www-form-urlencoded" },
+        raw_body: "mood=great",
+        config: nil
+      )
+
+      submissions = Companion::Dashboard::ViewSubmissionStore.for_view("training-checkin")
+      checkins = Companion::Dashboard::TrainingCheckinStore.all
+
+      expect(result[:status]).to eq(303)
+      expect(result[:headers]["Location"]).to include("/views/training-checkin")
+      expect(submissions.size).to eq(1)
+      expect(submissions.first).to include(
+        "action_id" => "submit_checkin",
+        "schema_version" => 1,
+        "status" => "processed"
+      )
+      expect(submissions.first.dig("raw_payload", "duration_minutes")).to eq("45")
+      expect(submissions.first.dig("normalized_payload", "duration_minutes")).to eq(45)
+      expect(submissions.first.dig("normalized_payload", "share_with_coach")).to eq(true)
+      expect(submissions.first.dig("processing_result", "type")).to eq("contract")
+      expect(checkins.size).to eq(1)
+      expect(checkins.first.dig("checkin", "duration_minutes")).to eq(45)
+      expect(checkins.first.dig("checkin", "share_with_coach")).to eq(true)
+    end
+
+    it "re-renders the schema form with validation errors and preserves values" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: { id: "training-checkin" },
+        body: {
+          "_action" => "submit_checkin",
+          "mood" => "great",
+          "duration_minutes" => "",
+          "notes" => "Still showed up"
+        },
+        headers: { "Content-Type" => "application/x-www-form-urlencoded" },
+        raw_body: "mood=great",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(422)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("Please review the highlighted fields.")
+      expect(result[:body]).to include("is required")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
+      expect(result[:body]).to include('name="notes"')
+      expect(result[:body]).to include(">Still showed up</textarea>")
+      expect(result[:body]).to include('<option value="great" selected>Great</option>')
+      expect(Companion::Dashboard::ViewSubmissionStore.for_view("training-checkin")).to be_empty
+      expect(Companion::Dashboard::TrainingCheckinStore.all).to be_empty
+    end
+
+    it "stores a lightweight schema submission without contract execution" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: { id: "weekly-review" },
+        body: {
+          "_action" => "save_review",
+          "energy" => "steady",
+          "highlight" => "Clearer boundaries on meetings.",
+          "next_focus" => "Protect mornings",
+          "share_summary" => "1"
+        },
+        headers: { "Content-Type" => "application/x-www-form-urlencoded" },
+        raw_body: "energy=steady",
+        config: nil
+      )
+
+      submissions = Companion::Dashboard::ViewSubmissionStore.for_view("weekly-review")
+
+      expect(result[:status]).to eq(303)
+      expect(result[:headers]["Location"]).to include("/views/weekly-review")
+      expect(submissions.size).to eq(1)
+      expect(submissions.first).to include(
+        "action_id" => "save_review",
+        "schema_version" => 1,
+        "status" => "processed"
+      )
+      expect(submissions.first.dig("normalized_payload", "share_summary")).to eq(true)
+      expect(submissions.first.dig("processing_result", "type")).to eq("store_submission")
+    end
+
+    it "renders a styled not-found page when submitting to a missing schema" do
+      result = described_class.call(
+        params: { id: "missing-view" },
+        body: { "_action" => "submit_anything" },
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(404)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("View schema not found")
+      expect(result[:body]).to include("No stored schema is available for missing-view.")
+      expect(result[:body]).to include("Back to dashboard")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
+    end
+
+    it "renders a styled submission error page for invalid submissions" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: { id: "training-checkin" },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(422)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("Submission could not be processed")
+      expect(result[:body]).to include("missing form action")
+      expect(result[:body]).to include("Back to view")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
+    end
+  end
+
+  describe Companion::Dashboard::ViewSchemasHandler do
+    it "lists stored schemas" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: {},
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      parsed = JSON.parse(result[:body])
+
+      expect(result[:status]).to eq(200)
+      expect(parsed.fetch("schemas")).to include(
+        include(
+          "id" => "training-checkin",
+          "title" => "Daily Training Check-in"
+        ),
+        include(
+          "id" => "weekly-review",
+          "title" => "Weekly Review"
+        )
+      )
+    end
+
+    it "creates a schema via POST payload" do
+      result = described_class.call(
+        params: {},
+        body: {
+          "id" => "public-poll",
+          "version" => 1,
+          "kind" => "page",
+          "title" => "Public Poll",
+          "actions" => {
+            "submit_poll" => { "method" => "post", "path" => "/views/public-poll/submissions" }
+          },
+          "layout" => {
+            "type" => "stack",
+            "children" => [
+              { "type" => "heading", "level" => 1, "text" => "Public Poll" },
+              {
+                "type" => "form",
+                "action" => "submit_poll",
+                "children" => [
+                  { "type" => "input", "name" => "answer", "label" => "Your answer" },
+                  { "type" => "submit", "label" => "Send" }
+                ]
+              }
+            ]
+          }
+        },
+        headers: { "Content-Type" => "application/json" },
+        raw_body: '{"id":"public-poll"}',
+        config: nil
+      )
+
+      parsed = JSON.parse(result[:body])
+
+      expect(result[:status]).to eq(201)
+      expect(parsed.dig("schema", "id")).to eq("public-poll")
+      expect(Companion::Dashboard::ViewSchemaCatalog.store.get("public-poll")).not_to be_nil
+    end
+  end
+
+  describe Companion::Dashboard::ViewSchemaHandler do
+    it "returns one stored schema" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: { id: "training-checkin" },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      parsed = JSON.parse(result[:body])
+      expect(result[:status]).to eq(200)
+      expect(parsed.dig("schema", "id")).to eq("training-checkin")
+    end
+  end
+
+  describe Companion::Dashboard::ViewSchemaPatchHandler do
+    it "patches a schema and increments version" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: { id: "training-checkin" },
+        body: { "title" => "Training Poll" },
+        headers: { "Content-Type" => "application/json" },
+        raw_body: '{"title":"Training Poll"}',
+        config: nil
+      )
+
+      parsed = JSON.parse(result[:body])
+      expect(result[:status]).to eq(200)
+      expect(parsed.dig("schema", "title")).to eq("Training Poll")
+      expect(parsed.dig("schema", "version")).to eq(2)
+    end
+  end
+
+  describe Companion::Dashboard::ViewSchemaDeleteHandler do
+    it "deletes a stored schema" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: { id: "training-checkin" },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      parsed = JSON.parse(result[:body])
+      expect(result[:status]).to eq(200)
+      expect(parsed).to include("ok" => true, "deleted" => "training-checkin")
+      expect(Companion::Dashboard::ViewSchemaCatalog.store.get("training-checkin")).to be_nil
+    end
+  end
+end

@@ -7,7 +7,7 @@ module Companion
     module ViewSchemaPatchHandler
       module_function
 
-      def call(params:, body:, headers:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+      def call(params:, body:, headers:, env: nil, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
         schema = ViewSchemaCatalog.store.patch(params[:id], patch: body)
         json(200, schema: schema.to_h)
       rescue KeyError

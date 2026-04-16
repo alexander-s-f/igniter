@@ -7,7 +7,7 @@ module Companion
     module ViewSchemaHandler
       module_function
 
-      def call(params:, body:, headers:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+      def call(params:, body:, headers:, env: nil, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
         schema = ViewSchemaCatalog.store.get(params[:id])
         return json(404, ok: false, error: "view schema not found") unless schema
 
