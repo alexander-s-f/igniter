@@ -190,6 +190,8 @@ RSpec.describe Companion::DashboardApp do
       expect(result[:headers]["Content-Type"]).to include("text/html")
       expect(result[:body]).to include("Daily Training Check-in")
       expect(result[:body]).to include("Schema-driven page rendered from persisted view definition.")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
+      expect(result[:body]).to include("Schema Page")
       expect(result[:body]).to include('action="/views/training-checkin/submissions"')
     end
   end
@@ -252,6 +254,7 @@ RSpec.describe Companion::DashboardApp do
       expect(result[:headers]["Content-Type"]).to include("text/html")
       expect(result[:body]).to include("Please review the highlighted fields.")
       expect(result[:body]).to include("is required")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
       expect(result[:body]).to include('name="notes"')
       expect(result[:body]).to include(">Still showed up</textarea>")
       expect(result[:body]).to include('<option value="great" selected>Great</option>')

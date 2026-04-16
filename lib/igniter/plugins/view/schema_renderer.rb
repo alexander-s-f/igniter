@@ -4,85 +4,19 @@ module Igniter
   module Plugins
     module View
       class SchemaRenderer < Component
-        DEFAULT_STYLESHEET = <<~CSS
-          body {
-            margin: 0;
-            padding: 32px 20px 56px;
-            background: #f6f1e8;
-            color: #1f2a2e;
-            font-family: "Iowan Old Style", "Palatino Linotype", serif;
+        require_relative "tailwind"
+
+        TAILWIND_CONFIG = {
+          theme: {
+            extend: {
+              fontFamily: {
+                display: ["Fraunces", "Iowan Old Style", "Palatino Linotype", "serif"],
+                body: ["IBM Plex Sans", "Avenir Next", "system-ui", "sans-serif"],
+                mono: ["IBM Plex Mono", "SFMono-Regular", "Menlo", "monospace"]
+              }
+            }
           }
-          .view-page {
-            max-width: 860px;
-            margin: 0 auto;
-          }
-          .view-stack {
-            display: grid;
-            gap: 16px;
-          }
-          .view-grid {
-            display: grid;
-            gap: 16px;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          }
-          .view-section, .view-card {
-            background: #fffaf2;
-            border: 1px solid #d9c8aa;
-            border-radius: 18px;
-            padding: 18px;
-          }
-          .view-card {
-            box-shadow: 0 12px 28px rgba(62, 39, 17, 0.06);
-          }
-          .view-form {
-            display: grid;
-            gap: 12px;
-          }
-          .view-form label {
-            display: grid;
-            gap: 4px;
-            color: #5c6b70;
-            font-size: 14px;
-          }
-          .view-form input,
-          .view-form select,
-          .view-form textarea {
-            width: 100%;
-            border: 1px solid #d9c8aa;
-            border-radius: 12px;
-            padding: 10px 12px;
-            background: #fffdf8;
-            color: #1f2a2e;
-            font: inherit;
-          }
-          .view-form button {
-            border: 0;
-            border-radius: 999px;
-            padding: 10px 14px;
-            background: #c26b3d;
-            color: white;
-            font: inherit;
-            cursor: pointer;
-          }
-          .view-error {
-            color: #a33d29;
-            font-size: 13px;
-          }
-          .view-input-error {
-            border-color: #a33d29 !important;
-            background: #fff5f3 !important;
-          }
-          .view-notice {
-            margin: 0 0 16px;
-            padding: 12px 14px;
-            border: 1px solid #d9c8aa;
-            border-radius: 14px;
-            background: #fffaf2;
-          }
-          .view-muted {
-            color: #5c6b70;
-          }
-        CSS
+        }.freeze
 
         def self.render(schema:, **kwargs)
           new(schema: schema, **kwargs).render
@@ -97,21 +31,28 @@ module Igniter
         end
 
         def call(view)
-          view.doctype
-          view.tag(:html, lang: schema.meta.fetch("lang", "en")) do |html|
-            html.tag(:head) do |head|
-              head.tag(:meta, charset: "utf-8")
-              head.tag(:meta, name: "viewport", content: "width=device-width, initial-scale=1")
-              head.tag(:title, schema.title)
-              head.tag(:style) { |style| style.raw(DEFAULT_STYLESHEET) }
-            end
-            html.tag(:body) do |body|
-              body.tag(:main, class: "view-page") do |main|
-                main.tag(:div, notice, class: "view-notice") if notice
-                render_node(main, schema.layout)
+          view.raw(
+            Tailwind.render_page(
+              title: schema.title,
+              lang: schema.meta.fetch("lang", "en"),
+              body_class: "min-h-screen bg-stone-950 text-stone-100 antialiased selection:bg-orange-300/30 selection:text-white",
+              main_class: "mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8",
+              tailwind_config: TAILWIND_CONFIG
+            ) do |main|
+              main.tag(:section,
+                       class: "overflow-hidden rounded-[34px] border border-orange-200/15 bg-[radial-gradient(circle_at_top_left,_rgba(194,107,61,0.22),_transparent_18rem),linear-gradient(145deg,rgba(60,33,21,0.96),rgba(22,15,13,0.98))] px-6 py-8 shadow-2xl shadow-black/25 sm:px-8") do |hero|
+                hero.tag(:p, "Schema Page", class: "text-[11px] font-semibold uppercase tracking-[0.34em] text-orange-200/75")
+                hero.tag(:h1, schema.title, class: "mt-3 font-display text-4xl leading-tight text-white sm:text-5xl")
+                meta_hint = schema.meta["description"] || schema.meta["subtitle"]
+                hero.tag(:p, meta_hint, class: "mt-4 max-w-3xl text-base leading-7 text-stone-300") if meta_hint
               end
+
+              main.tag(:div,
+                       notice,
+                       class: "view-notice rounded-2xl border border-orange-300/20 bg-orange-300/10 px-4 py-3 text-sm text-orange-100") if notice
+              render_node(main, schema.layout)
             end
-          end
+          )
         end
 
         private
@@ -130,9 +71,9 @@ module Igniter
             render_container(view, :article, node, class_name: "view-card")
           when "heading"
             level = [[node.fetch("level", 1).to_i, 1].max, 6].min
-            view.tag(:"h#{level}", node.fetch("text"))
+            view.tag(:"h#{level}", node.fetch("text"), class: heading_classes(level))
           when "text"
-            view.tag(:p, node.fetch("text"), class: node.fetch("tone", nil) == "muted" ? "view-muted" : nil)
+            view.tag(:p, node.fetch("text"), class: text_classes(node.fetch("tone", nil)))
           when "form"
             render_form(view, node)
           when "input", "textarea", "select", "checkbox", "submit"
@@ -143,7 +84,7 @@ module Igniter
         end
 
         def render_container(view, tag_name, node, class_name:)
-          view.tag(tag_name, class: class_name) do |container|
+          view.tag(tag_name, class: container_classes(class_name)) do |container|
             Array(node["children"]).each { |child| render_node(container, child) }
           end
         end
@@ -153,7 +94,7 @@ module Igniter
           method = action.fetch("method", "post")
           path = action.fetch("path")
 
-          view.form(action: path, method: method, class: "view-form") do |form|
+          view.form(action: path, method: method, class: "view-form grid gap-3") do |form|
             form.hidden("_action", node.fetch("action"))
             Array(node["children"]).each { |child| render_form_child(form, child) }
           end
@@ -166,39 +107,41 @@ module Igniter
 
           case node.fetch("type")
           when "input"
-            form.label(dom_id(node), node.fetch("label"))
+            form.label(dom_id(node), node.fetch("label"), class: label_classes)
             form.input(node.fetch("name"),
                        id: dom_id(node),
                        placeholder: node["placeholder"],
                        value: value_for(node),
                        required: node["required"],
-                       class: error_class)
+                       class: [field_classes, error_class])
             render_field_error(form, field_error)
           when "textarea"
-            form.label(dom_id(node), node.fetch("label"))
+            form.label(dom_id(node), node.fetch("label"), class: label_classes)
             form.textarea(node.fetch("name"),
                           id: dom_id(node),
                           value: value_for(node),
                           placeholder: node["placeholder"],
                           rows: node.fetch("rows", nil),
-                          class: error_class)
+                          class: [field_classes, "min-h-28", error_class])
             render_field_error(form, field_error)
           when "select"
-            form.label(dom_id(node), node.fetch("label"))
+            form.label(dom_id(node), node.fetch("label"), class: label_classes)
             form.select(node.fetch("name"),
                         id: dom_id(node),
                         selected: value_for(node, fallback: node["selected"]),
                         options: Array(node["options"]).map { |option| [option.fetch("label"), option.fetch("value")] },
-                        class: error_class)
+                        class: [field_classes, error_class])
             render_field_error(form, field_error)
           when "checkbox"
-            form.label(dom_id(node)) do |label|
+            form.label(dom_id(node), class: checkbox_label_classes) do |label|
               label.raw(
                 View.render do |view|
                   FormBuilder.new(view).checkbox(
                     node.fetch("name"),
                     value: node.fetch("value", "1"),
-                    checked: checked_for(node)
+                    checked: checked_for(node),
+                    id: dom_id(node),
+                    class: checkbox_classes
                   )
                 end
               )
@@ -206,9 +149,9 @@ module Igniter
             end
             render_field_error(form, field_error)
           when "submit"
-            form.submit(node.fetch("label"))
+            form.submit(node.fetch("label"), class: submit_classes)
           when "text"
-            form.view.tag(:p, node.fetch("text"), class: "view-muted")
+            form.view.tag(:p, node.fetch("text"), class: "view-muted text-sm leading-6 text-stone-400")
           else
             raise ArgumentError, "unsupported form child: #{node["type"]}"
           end
@@ -243,7 +186,7 @@ module Igniter
         def render_field_error(form, message)
           return unless message
 
-          form.view.tag(:p, message, class: "view-error")
+          form.view.tag(:p, message, class: "view-error mt-2 text-sm text-rose-200")
         end
 
         def stringify_keys(value)
@@ -254,6 +197,59 @@ module Igniter
             value.map { |entry| stringify_keys(entry) }
           else
             value
+          end
+        end
+
+        def label_classes
+          "mb-2 block text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+        end
+
+        def checkbox_label_classes
+          "flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200"
+        end
+
+        def checkbox_classes
+          "h-4 w-4 rounded border-white/20 bg-stone-950 text-orange-300"
+        end
+
+        def field_classes
+          "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+        end
+
+        def submit_classes
+          "inline-flex rounded-full border border-orange-300/20 bg-orange-300/90 px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-950 transition hover:bg-orange-200"
+        end
+
+        def heading_classes(level)
+          case level
+          when 1
+            "font-display text-3xl leading-tight text-white sm:text-4xl"
+          when 2
+            "font-display text-2xl text-white"
+          else
+            "font-display text-xl text-white"
+          end
+        end
+
+        def text_classes(tone)
+          base = "text-base leading-7 text-stone-200"
+          return "#{base} view-muted text-stone-400" if tone == "muted"
+
+          base
+        end
+
+        def container_classes(class_name)
+          case class_name
+          when "view-stack"
+            "view-stack grid gap-5"
+          when "view-grid"
+            "view-grid grid gap-5 sm:grid-cols-2"
+          when "view-section"
+            "view-section rounded-[28px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur"
+          when "view-card"
+            "view-card rounded-[28px] border border-orange-200/15 bg-[linear-gradient(145deg,rgba(60,33,21,0.92),rgba(30,18,14,0.96))] p-6 shadow-2xl shadow-black/25"
+          else
+            class_name
           end
         end
       end

@@ -105,6 +105,9 @@ RSpec.describe "Igniter::Plugins::View schema runtime" do
 
     expect(html).to include("<!DOCTYPE html>")
     expect(html).to include("Daily Training Check-in")
+    expect(html).to include("Schema Page")
+    expect(html).to include("@tailwindcss/browser@4")
+    expect(html).to include("font-display")
     expect(html).to include('action="/views/training-checkin/submissions"')
     expect(html).to include('name="_action"')
     expect(html).to include('name="duration_minutes"')
@@ -142,6 +145,20 @@ RSpec.describe "Igniter::Plugins::View schema runtime" do
     )
 
     expect(errors).to eq("duration_minutes" => "is required")
+  end
+
+  it "re-renders schema values and field errors in the shared UI shell" do
+    html = Igniter::Plugins::View::SchemaRenderer.render(
+      schema: schema_payload,
+      values: { "duration_minutes" => "", "mood" => "great" },
+      errors: { "duration_minutes" => "is required" },
+      notice: "Please review the highlighted fields."
+    )
+
+    expect(html).to include("Please review the highlighted fields.")
+    expect(html).to include("is required")
+    expect(html).to include('class="w-full rounded-2xl border border-white/10 bg-[#160f0d]')
+    expect(html).to include('option value="great" selected')
   end
 
   it "rejects invalid schema nodes" do
