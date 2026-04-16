@@ -5,6 +5,104 @@ module Igniter
     module View
       module Tailwind
         module UI
+          module Tokens
+            THEMES = {
+              orange: {
+                strong_border: "border-orange-300/20",
+                strong_bg: "bg-orange-300/90",
+                strong_hover: "hover:bg-orange-200",
+                soft_border: "border-orange-300/20",
+                soft_bg: "bg-orange-300/10",
+                soft_text: "text-orange-100",
+                soft_hover: "hover:bg-orange-300/20",
+                ghost_hover_border: "hover:border-orange-200/35",
+                ghost_hover_bg: "hover:bg-orange-300/10",
+                ghost_hover_text: "hover:text-orange-100",
+                underline_text: "text-orange-200",
+                underline_decoration: "decoration-orange-200/30"
+              },
+              amber: {
+                strong_border: "border-amber-300/20",
+                strong_bg: "bg-amber-300/90",
+                strong_hover: "hover:bg-amber-200",
+                soft_border: "border-amber-200/15",
+                soft_bg: "bg-amber-300/10",
+                soft_text: "text-amber-100",
+                soft_hover: "hover:bg-amber-300/20",
+                ghost_hover_border: "hover:border-amber-200/35",
+                ghost_hover_bg: "hover:bg-amber-300/10",
+                ghost_hover_text: "hover:text-amber-100",
+                underline_text: "text-amber-200",
+                underline_decoration: "decoration-amber-200/30"
+              },
+              cyan: {
+                strong_border: "border-cyan-300/20",
+                strong_bg: "bg-cyan-300/10",
+                strong_hover: "hover:bg-cyan-300/20",
+                soft_border: "border-cyan-300/20",
+                soft_bg: "bg-cyan-300/10",
+                soft_text: "text-cyan-100",
+                soft_hover: "hover:bg-cyan-300/20",
+                ghost_hover_border: "hover:border-cyan-200/30",
+                ghost_hover_bg: "hover:bg-cyan-300/10",
+                ghost_hover_text: "hover:text-cyan-100",
+                underline_text: "text-cyan-200",
+                underline_decoration: "decoration-cyan-200/30"
+              }
+            }.freeze
+
+            module_function
+
+            def action(variant: :primary, theme: :orange, size: :md, extra: nil)
+              classes = [base_action(size), variant_classes(variant.to_sym, palette_for(theme)), extra]
+              classes.compact.join(" ")
+            end
+
+            def underline_link(theme: :orange, extra: nil)
+              palette = palette_for(theme)
+              [palette.fetch(:underline_text), "underline", palette.fetch(:underline_decoration), "underline-offset-4", extra].compact.join(" ")
+            end
+
+            def badge(theme: :orange, extra: nil)
+              palette = palette_for(theme)
+              [
+                "inline-flex rounded-full border px-3 py-1 text-xs font-mono uppercase tracking-[0.18em]",
+                palette.fetch(:soft_border),
+                palette.fetch(:soft_bg),
+                palette.fetch(:soft_text),
+                extra
+              ].compact.join(" ")
+            end
+
+            private_class_method def palette_for(theme)
+              THEMES.fetch(theme.to_sym)
+            end
+
+            private_class_method def base_action(size)
+              case size.to_sym
+              when :sm
+                "inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm transition"
+              else
+                "inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] transition"
+              end
+            end
+
+            private_class_method def variant_classes(variant, palette)
+              case variant
+              when :primary
+                [palette.fetch(:strong_border), palette.fetch(:strong_bg), "text-stone-950", palette.fetch(:strong_hover)].join(" ")
+              when :secondary
+                "border-white/10 bg-white/10 text-stone-100 hover:bg-white/15"
+              when :soft
+                [palette.fetch(:soft_border), palette.fetch(:soft_bg), palette.fetch(:soft_text), palette.fetch(:soft_hover)].join(" ")
+              when :ghost
+                ["border-white/10", "bg-white/5", "text-stone-200", palette.fetch(:ghost_hover_border), palette.fetch(:ghost_hover_bg), palette.fetch(:ghost_hover_text)].join(" ")
+              else
+                raise ArgumentError, "unsupported action variant: #{variant}"
+              end
+            end
+          end
+
           class ActionBar < View::Component
             DEFAULT_CLASS = "flex flex-wrap gap-3".freeze
 
@@ -104,7 +202,7 @@ module Igniter
             DEFAULT_DETAIL_WRAPPER_CLASS = "mt-4".freeze
             DEFAULT_DETAIL_CLASS = "rounded-xl bg-black/30 px-3 py-2 font-mono text-xs leading-6 text-orange-100".freeze
             DEFAULT_ACTION_BAR_CLASS = "mt-6 flex flex-wrap gap-3".freeze
-            DEFAULT_ACTION_CLASS = "inline-flex rounded-full border border-orange-300/20 bg-orange-300/90 px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-950 transition hover:bg-orange-200".freeze
+            DEFAULT_ACTION_CLASS = Tokens.action(variant: :primary, theme: :orange).freeze
 
             def initialize(title:, eyebrow:, message:, back_label:, back_path:, detail: nil,
                            wrapper_class: DEFAULT_WRAPPER_CLASS, glow_class: DEFAULT_GLOW_CLASS,

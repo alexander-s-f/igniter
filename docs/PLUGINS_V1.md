@@ -156,6 +156,7 @@ Igniter::Plugins::View::Tailwind::UI::KeyValueList
 Igniter::Plugins::View::Tailwind::UI::Field
 Igniter::Plugins::View::Tailwind::UI::FormSection
 Igniter::Plugins::View::Tailwind::UI::MessagePage
+Igniter::Plugins::View::Tailwind::UI::Tokens
 ```
 
 ## Mental Model

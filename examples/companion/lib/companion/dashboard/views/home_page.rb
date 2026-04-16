@@ -120,13 +120,13 @@ module Companion
               bar.tag(:span, "JSON API:")
               bar.tag(:a,
                       href: "/api/overview",
-                      class: "text-orange-200 underline decoration-orange-200/30 underline-offset-4") do |anchor|
+                      class: tailwind_tokens.underline_link(theme: :orange)) do |anchor|
                 anchor.tag(:code, "/api/overview")
               end
               bar.tag(:a,
                       "Open schema demo",
                       href: "/views/training-checkin",
-                      class: "text-orange-200 underline decoration-orange-200/30 underline-offset-4")
+                      class: tailwind_tokens.underline_link(theme: :orange))
             end
           )
         end
@@ -298,15 +298,19 @@ module Companion
         end
 
         def primary_button_classes
-          "mt-3 inline-flex rounded-full border border-orange-300/20 bg-orange-300/90 px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-950 transition hover:bg-orange-200"
+          tailwind_tokens.action(variant: :primary, theme: :orange, extra: "mt-3")
         end
 
         def secondary_button_classes
-          "mt-3 inline-flex rounded-full border border-white/10 bg-white/10 px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-100 transition hover:bg-white/15"
+          tailwind_tokens.action(variant: :secondary, extra: "mt-3")
         end
 
         def pill_classes
-          "inline-flex rounded-full border border-orange-300/20 bg-orange-300/10 px-3 py-1 text-xs font-mono uppercase tracking-[0.18em] text-orange-100"
+          tailwind_tokens.badge(theme: :orange)
+        end
+
+        def tailwind_tokens
+          Igniter::Plugins::View::Tailwind::UI::Tokens
         end
 
         def list_classes

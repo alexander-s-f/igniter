@@ -262,3 +262,21 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI do
     expect(html).to include("4569")
   end
 end
+
+RSpec.describe Igniter::Plugins::View::Tailwind::UI::Tokens do
+  it "builds shared action, underline-link, and badge classes" do
+    primary = described_class.action(variant: :primary, theme: :orange)
+    ghost = described_class.action(variant: :ghost, theme: :amber, size: :sm, extra: "pill-link")
+    underline = described_class.underline_link(theme: :amber, extra: "inline-flex")
+    badge = described_class.badge(theme: :orange)
+
+    expect(primary).to include("border-orange-300/20")
+    expect(primary).to include("bg-orange-300/90")
+    expect(ghost).to include("bg-white/5")
+    expect(ghost).to include("pill-link")
+    expect(underline).to include("text-amber-200")
+    expect(underline).to include("underline-offset-4")
+    expect(badge).to include("bg-orange-300/10")
+    expect(badge).to include("text-orange-100")
+  end
+end

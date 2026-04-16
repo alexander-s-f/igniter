@@ -224,7 +224,7 @@ module Igniter
         end
 
         def submit_classes
-          "inline-flex rounded-full border border-orange-300/20 bg-orange-300/90 px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-950 transition hover:bg-orange-200"
+          Tailwind::UI::Tokens.action(variant: :primary, theme: :orange)
         end
 
         def heading_classes(level)

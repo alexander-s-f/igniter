@@ -82,6 +82,7 @@ That Tailwind UI slice is now starting to look like a small server-rendered kit:
 - `Field`
 - `FormSection`
 - `MessagePage`
+- `Tokens`
 
 This API is intentionally small.
 
