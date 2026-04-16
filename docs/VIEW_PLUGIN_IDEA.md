@@ -70,6 +70,15 @@ The first small slice of that plugin now exists:
 - `Igniter::Plugins::View::Response.html(...)`
 - `Igniter::Plugins::View::Tailwind::UI::*` reusable dashboard primitives
 
+That Tailwind UI slice is now starting to look like a small server-rendered kit:
+
+- `MetricCard`
+- `Panel`
+- `StatusBadge`
+- `ActionBar`
+- `KeyValueList`
+- `FormSection`
+
 This API is intentionally small.
 
 Its current role is:

@@ -68,7 +68,7 @@ small built-in Ruby HTML DSL, then opt into adapters only where they help:
 - `require "igniter/plugins/view"` keeps the dependency surface minimal.
 - `require "igniter/plugins/view/arbre"` adds an Arbre integration boundary without making `arbre` a dependency of Igniter itself.
 - `require "igniter/plugins/view/tailwind"` adds a Tailwind-friendly page shell for dashboards and admin surfaces.
-- `Igniter::Plugins::View::Tailwind::UI` provides reusable dashboard primitives such as metric cards, panels, and status badges.
+- `Igniter::Plugins::View::Tailwind::UI` provides reusable dashboard primitives such as metric cards, panels, status badges, action bars, key-value lists, and form sections.
 
 ## Deployment Modes
 

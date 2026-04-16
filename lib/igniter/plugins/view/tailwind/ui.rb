@@ -5,6 +5,22 @@ module Igniter
     module View
       module Tailwind
         module UI
+          class ActionBar < View::Component
+            DEFAULT_CLASS = "flex flex-wrap gap-3".freeze
+
+            def initialize(tag: :div, class_name: DEFAULT_CLASS, &block)
+              @tag = tag
+              @class_name = class_name
+              @block = block
+            end
+
+            def call(view)
+              view.tag(@tag, class: @class_name) do |container|
+                @block&.call(container)
+              end
+            end
+          end
+
           class MetricCard < View::Component
             DEFAULT_WRAPPER_CLASS = "rounded-[28px] border border-white/10 bg-white/5 p-5 shadow-2xl shadow-black/20 backdrop-blur".freeze
             DEFAULT_LABEL_CLASS = "text-[11px] font-semibold uppercase tracking-[0.28em] text-amber-200/70".freeze
@@ -57,6 +73,78 @@ module Igniter
                   head.tag(:p, @subtitle, class: @subtitle_class) if @subtitle
                 end
                 @block.call(panel)
+              end
+            end
+          end
+
+          class FormSection < View::Component
+            DEFAULT_FORM_CLASS = "grid gap-3".freeze
+
+            def initialize(title:, action:, subtitle: nil, method: "post", tag: :section, wrapper_class: Panel::DEFAULT_WRAPPER_CLASS,
+                           head_class: Panel::DEFAULT_HEAD_CLASS, title_class: Panel::DEFAULT_TITLE_CLASS,
+                           subtitle_class: Panel::DEFAULT_SUBTITLE_CLASS, form_class: DEFAULT_FORM_CLASS, &block)
+              @title = title
+              @action = action
+              @subtitle = subtitle
+              @method = method
+              @tag = tag
+              @wrapper_class = wrapper_class
+              @head_class = head_class
+              @title_class = title_class
+              @subtitle_class = subtitle_class
+              @form_class = form_class
+              @block = block
+            end
+
+            def call(view)
+              view.component(
+                Panel.new(
+                  title: @title,
+                  subtitle: @subtitle,
+                  tag: @tag,
+                  wrapper_class: @wrapper_class,
+                  head_class: @head_class,
+                  title_class: @title_class,
+                  subtitle_class: @subtitle_class
+                ) do |panel|
+                  panel.form(action: @action, method: @method, class: @form_class) do |form|
+                    yield_form(form, panel)
+                  end
+                end
+              )
+            end
+
+            private
+
+            def yield_form(form, panel)
+              return if @block.nil?
+
+              if @block.arity >= 2
+                @block.call(form, panel)
+              else
+                @block.call(form)
+              end
+            end
+          end
+
+          class KeyValueList < View::Component
+            DEFAULT_WRAPPER_CLASS = "kv-list mt-1 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-[minmax(140px,190px)_1fr]".freeze
+            DEFAULT_KEY_CLASS = "text-sm font-semibold uppercase tracking-[0.18em] text-stone-400".freeze
+            DEFAULT_VALUE_CLASS = "break-words text-sm leading-6 text-stone-200".freeze
+
+            def initialize(rows:, wrapper_class: DEFAULT_WRAPPER_CLASS, key_class: DEFAULT_KEY_CLASS, value_class: DEFAULT_VALUE_CLASS)
+              @rows = rows
+              @wrapper_class = wrapper_class
+              @key_class = key_class
+              @value_class = value_class
+            end
+
+            def call(view)
+              view.tag(:dl, class: @wrapper_class) do |list|
+                @rows.each do |key, value|
+                  list.tag(:dt, key.to_s, class: @key_class)
+                  list.tag(:dd, value.to_s, class: @value_class)
+                end
               end
             end
           end

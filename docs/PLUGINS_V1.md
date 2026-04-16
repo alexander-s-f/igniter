@@ -149,6 +149,9 @@ Tailwind adapter primitives live under:
 Igniter::Plugins::View::Tailwind::UI::MetricCard
 Igniter::Plugins::View::Tailwind::UI::Panel
 Igniter::Plugins::View::Tailwind::UI::StatusBadge
+Igniter::Plugins::View::Tailwind::UI::ActionBar
+Igniter::Plugins::View::Tailwind::UI::KeyValueList
+Igniter::Plugins::View::Tailwind::UI::FormSection
 ```
 
 ## Mental Model

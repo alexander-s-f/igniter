@@ -95,9 +95,7 @@ module Companion
 
         def render_panels(view)
           view.tag(:section, class: "grid gap-5 xl:grid-cols-2") do |section|
-            section.component(panel("Create Reminder", subtitle: "Quick operator flow for scheduling reminders.") do |panel_view|
-              create_reminder_form(panel_view)
-            end)
+            section.component(create_reminder_form_section)
             section.component(panel("Reminders", subtitle: "Recent active reminders and quick completion actions.") do |panel_view|
               reminders_markup(panel_view, snapshot.fetch(:reminders))
             end)
@@ -114,19 +112,23 @@ module Companion
         end
 
         def render_footer(view)
-          view.tag(:p, class: "rounded-3xl border border-white/10 bg-white/5 px-5 py-4 font-mono text-xs text-stone-300") do |paragraph|
-            paragraph.text("JSON API: ")
-            paragraph.tag(:a,
-                          href: "/api/overview",
-                          class: "text-orange-200 underline decoration-orange-200/30 underline-offset-4") do |anchor|
-              anchor.tag(:code, "/api/overview")
+          view.component(
+            Igniter::Plugins::View::Tailwind::UI::ActionBar.new(
+              tag: :section,
+              class_name: "rounded-3xl border border-white/10 bg-white/5 px-5 py-4 font-mono text-xs text-stone-300"
+            ) do |bar|
+              bar.tag(:span, "JSON API:")
+              bar.tag(:a,
+                      href: "/api/overview",
+                      class: "text-orange-200 underline decoration-orange-200/30 underline-offset-4") do |anchor|
+                anchor.tag(:code, "/api/overview")
+              end
+              bar.tag(:a,
+                      "Open schema demo",
+                      href: "/views/training-checkin",
+                      class: "text-orange-200 underline decoration-orange-200/30 underline-offset-4")
             end
-            paragraph.text(" · ")
-            paragraph.tag(:a,
-                          "Open schema demo",
-                          href: "/views/training-checkin",
-                          class: "text-orange-200 underline decoration-orange-200/30 underline-offset-4")
-          end
+          )
         end
 
         def panel(title, subtitle: nil, &block)
@@ -139,8 +141,13 @@ module Companion
           )
         end
 
-        def create_reminder_form(view)
-          view.form(action: "/reminders", class: "grid gap-3") do |form|
+        def create_reminder_form_section
+          Igniter::Plugins::View::Tailwind::UI::FormSection.new(
+            title: "Create Reminder",
+            subtitle: "Quick operator flow for scheduling reminders.",
+            action: "/reminders",
+            wrapper_class: "rounded-[28px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur"
+          ) do |form|
             form.label("reminder-task", "Task", class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300")
             form.input("task",
                        id: "reminder-task",

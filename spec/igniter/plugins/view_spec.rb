@@ -175,4 +175,31 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI do
     expect(html).to include("status-badge")
     expect(html).to include("ready")
   end
+
+  it "renders reusable action bars, form sections, and key-value lists" do
+    html = Igniter::Plugins::View.render do |view|
+      view.component(described_class::ActionBar.new(tag: :nav) do |bar|
+        bar.tag(:a, "Overview", href: "/overview")
+        bar.tag(:a, "Devices", href: "/devices")
+      end)
+
+      view.component(described_class::FormSection.new(title: "Reminder", subtitle: "Fast create", action: "/reminders") do |form|
+        form.label("task", "Task")
+        form.input("task", id: "task")
+        form.submit("Create")
+      end)
+
+      view.component(described_class::KeyValueList.new(rows: [["role", "dashboard"], ["port", 4569]]))
+    end
+
+    expect(html).to include("<nav")
+    expect(html).to include("Overview")
+    expect(html).to include("Devices")
+    expect(html).to include("Reminder")
+    expect(html).to include("Fast create")
+    expect(html).to include('action="/reminders"')
+    expect(html).to include("<dt")
+    expect(html).to include("dashboard")
+    expect(html).to include("4569")
+  end
 end
