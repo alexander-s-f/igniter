@@ -69,6 +69,8 @@ The first small slice of that plugin now exists:
 - `Igniter::Plugins::View::FormBuilder`
 - `Igniter::Plugins::View::Response.html(...)`
 - `Igniter::Plugins::View::Tailwind::UI::*` reusable dashboard primitives
+- `Igniter::Plugins::View::Tailwind.render_page(..., theme: ...)`
+- `Igniter::Plugins::View::Tailwind.render_message_page(..., theme: ...)`
 
 That Tailwind UI slice is now starting to look like a small server-rendered kit:
 
@@ -83,6 +85,12 @@ That Tailwind UI slice is now starting to look like a small server-rendered kit:
 - `FormSection`
 - `MessagePage`
 - `Tokens`
+
+And the page shell itself now has shared presets for recurring surfaces:
+
+- `theme: :ops` for `playgrounds/home-lab`-style operational dashboards
+- `theme: :companion` for `examples/companion`-style assistant/admin surfaces
+- `theme: :schema` for schema-driven pages and form flows
 
 This API is intentionally small.
 

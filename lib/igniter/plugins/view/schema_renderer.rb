@@ -6,18 +6,6 @@ module Igniter
       class SchemaRenderer < Component
         require_relative "tailwind"
 
-        TAILWIND_CONFIG = {
-          theme: {
-            extend: {
-              fontFamily: {
-                display: ["Fraunces", "Iowan Old Style", "Palatino Linotype", "serif"],
-                body: ["IBM Plex Sans", "Avenir Next", "system-ui", "sans-serif"],
-                mono: ["IBM Plex Mono", "SFMono-Regular", "Menlo", "monospace"]
-              }
-            }
-          }
-        }.freeze
-
         def self.render(schema:, **kwargs)
           new(schema: schema, **kwargs).render
         end
@@ -35,9 +23,7 @@ module Igniter
             Tailwind.render_page(
               title: schema.title,
               lang: schema.meta.fetch("lang", "en"),
-              body_class: "min-h-screen bg-stone-950 text-stone-100 antialiased selection:bg-orange-300/30 selection:text-white",
-              main_class: "mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8",
-              tailwind_config: TAILWIND_CONFIG
+              theme: :schema
             ) do |main|
               main.tag(:section,
                        class: "overflow-hidden rounded-[34px] border border-orange-200/15 bg-[radial-gradient(circle_at_top_left,_rgba(194,107,61,0.22),_transparent_18rem),linear-gradient(145deg,rgba(60,33,21,0.96),rgba(22,15,13,0.98))] px-6 py-8 shadow-2xl shadow-black/25 sm:px-8") do |hero|

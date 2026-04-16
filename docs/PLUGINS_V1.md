@@ -159,6 +159,18 @@ Igniter::Plugins::View::Tailwind::UI::MessagePage
 Igniter::Plugins::View::Tailwind::UI::Tokens
 ```
 
+Tailwind page helpers also expose shared shell presets:
+
+```ruby
+Igniter::Plugins::View::Tailwind.render_page(title: "Home Lab", theme: :ops) { |main| ... }
+Igniter::Plugins::View::Tailwind.render_page(title: "Companion", theme: :companion) { |main| ... }
+Igniter::Plugins::View::Tailwind.render_page(title: "Schema", theme: :schema) { |main| ... }
+```
+
+These presets keep body classes, layout width, and Tailwind config aligned across
+apps while still allowing local overrides such as a narrower `main_class` for a
+detail page or message shell.
+
 ## Mental Model
 
 ```text

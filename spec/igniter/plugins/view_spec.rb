@@ -110,6 +110,7 @@ RSpec.describe Igniter::Plugins::View::Tailwind do
   it "renders a Tailwind-friendly page shell with an optional config script" do
     html = described_class.render_page(
       title: "Ops Dashboard",
+      theme: :ops,
       tailwind_config: {
         theme: {
           extend: {
@@ -129,10 +130,29 @@ RSpec.describe Igniter::Plugins::View::Tailwind do
     expect(html).to include("<!DOCTYPE html>")
     expect(html).to include("<title>Ops Dashboard</title>")
     expect(html).to include(Igniter::Plugins::View::Tailwind::PLAY_CDN_URL)
+    expect(html).to include("bg-stone-950")
     expect(html).to include("tailwind.config = ")
+    expect(html).to include('"lab":{"accent":"#D97706","canvas":"#0c0a09","panel":"#1c1917","line":"#292524"}')
     expect(html).to include('"accent":"#C2410C"')
     expect(html).to include("rounded-3xl")
     expect(html).to include("Cluster Control")
+  end
+
+  it "applies a built-in theme while allowing local layout overrides" do
+    html = described_class.render_message_page(
+      title: "Companion Notice",
+      eyebrow: "Companion",
+      message: "Shared theme shell",
+      back_label: "Back",
+      back_path: "/dashboard",
+      theme: :companion,
+      main_class: "mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-6 px-4 py-6"
+    )
+
+    expect(html).to include("bg-[#160f0d]")
+    expect(html).to include("max-w-4xl")
+    expect(html).to include('"companion":{"accent":"#c26b3d","panel":"#2a1914"}')
+    expect(html).to include("Shared theme shell")
   end
 
   it "can inject additional head content" do
