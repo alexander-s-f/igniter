@@ -11,6 +11,7 @@ module Igniter
       CRLF = "\r\n"
       STATUS_MESSAGES = {
         200 => "OK",
+        303 => "See Other",
         400 => "Bad Request",
         404 => "Not Found",
         422 => "Unprocessable Entity",
@@ -54,6 +55,8 @@ module Igniter
           @logger.info("SIGTERM received — draining",
                        drain_timeout: @config.drain_timeout, pid: Process.pid)
           drain_in_flight
+        elsif @shutdown_mode == :immediate
+          close_active_connections
         end
         @logger.info("igniter-stack stopped", pid: Process.pid)
       end
@@ -72,7 +75,6 @@ module Igniter
         @shutdown_mode ||= mode
         @running = false
         @tcp_server&.close
-        close_active_connections if @shutdown_mode == :immediate
       rescue IOError, Errno::EBADF
         nil
       end
@@ -170,10 +172,14 @@ module Igniter
         body   = result[:body].to_s
         code   = result[:status].to_i
         phrase = STATUS_MESSAGES.fetch(code, "Unknown")
-        ct     = result.dig(:headers, "Content-Type") || "application/json"
+        headers = (result[:headers] || {}).dup
+        ct     = headers.delete("Content-Type") || "application/json"
 
         response  = "HTTP/1.1 #{code} #{phrase}#{CRLF}"
         response += "Content-Type: #{ct}#{CRLF}"
+        headers.each do |key, value|
+          response += "#{key}: #{value}#{CRLF}"
+        end
         response += "Content-Length: #{body.bytesize}#{CRLF}"
         response += "Connection: close#{CRLF}"
         response += CRLF

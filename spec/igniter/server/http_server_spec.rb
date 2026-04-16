@@ -57,21 +57,55 @@ RSpec.describe Igniter::Server::HttpServer do
   end
 
   describe "#stop" do
-    it "closes the listener and active client sockets for immediate shutdown" do
+    it "closes the listener and marks the server for immediate shutdown" do
       tcp_server = instance_double(TCPServer)
-      client_socket = instance_double(TCPSocket)
 
       server.instance_variable_set(:@tcp_server, tcp_server)
       server.instance_variable_set(:@running, true)
-      server.instance_variable_set(:@connections, { client_socket.object_id => client_socket })
 
       expect(tcp_server).to receive(:close)
-      expect(client_socket).to receive(:close)
 
       server.stop
 
       expect(server.instance_variable_get(:@running)).to be(false)
       expect(server.instance_variable_get(:@shutdown_mode)).to eq(:immediate)
+    end
+  end
+
+  describe "#close_active_connections" do
+    it "closes tracked client sockets outside trap context" do
+      client_socket = instance_double(TCPSocket)
+
+      server.instance_variable_set(:@connections, { client_socket.object_id => client_socket })
+
+      expect(client_socket).to receive(:close)
+
+      server.send(:close_active_connections)
+    end
+  end
+
+  describe "#write_response" do
+    it "preserves custom response headers such as redirect location" do
+      socket = StringIO.new
+
+      server.send(
+        :write_response,
+        socket,
+        {
+          status: 303,
+          body: "",
+          headers: {
+            "Content-Type" => "text/html; charset=utf-8",
+            "Location" => "/?note_created=1"
+          }
+        }
+      )
+
+      payload = socket.string
+
+      expect(payload).to include("HTTP/1.1 303 See Other")
+      expect(payload).to include("Content-Type: text/html; charset=utf-8")
+      expect(payload).to include("Location: /?note_created=1")
     end
   end
 end
