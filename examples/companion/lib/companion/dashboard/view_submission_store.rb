@@ -41,10 +41,18 @@ module Companion
         Igniter::Data.default_store.put(collection: COLLECTION, key: id.to_s, value: updated)
       end
 
-      def for_view(view_id)
+      def all
         Igniter::Data.default_store.all(collection: COLLECTION).values
-          .select { |record| record["view_id"] == view_id.to_s }
           .sort_by { |record| record["created_at"].to_s }
+      end
+
+      def recent(limit: 8)
+        all.last(limit).reverse
+      end
+
+      def for_view(view_id)
+        all
+          .select { |record| record["view_id"] == view_id.to_s }
       end
 
       def reset!

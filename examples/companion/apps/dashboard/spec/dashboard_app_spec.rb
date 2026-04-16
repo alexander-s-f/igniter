@@ -28,6 +28,19 @@ RSpec.describe Companion::DashboardApp do
         prefer: true
       )
       Companion::NotificationPreferencesStore.set_telegram_enabled("12345", true)
+      submission = Companion::Dashboard::ViewSubmissionStore.create(
+        view_id: "weekly-review",
+        action_id: "save_review",
+        schema_version: 1,
+        raw_payload: { "highlight" => "Clearer priorities" },
+        normalized_payload: { "highlight" => "Clearer priorities" }
+      )
+      Companion::Dashboard::ViewSubmissionStore.update(
+        submission.fetch("id"),
+        status: "processed",
+        processed_at: "2026-04-16T10:15:00Z",
+        processing_result: { type: "store_submission", ok: true }
+      )
 
       result = described_class.call(
         params: {},
@@ -44,6 +57,7 @@ RSpec.describe Companion::DashboardApp do
       expect(parsed.dig("counts", "notes")).to eq(1)
       expect(parsed.dig("counts", "active_reminders")).to eq(1)
       expect(parsed.dig("counts", "view_schemas")).to eq(2)
+      expect(parsed.dig("counts", "view_submissions")).to eq(1)
       expect(parsed.dig("telegram", "preferred_chat_id")).to eq("12345")
       expect(parsed.fetch("view_schemas")).to include(
         include(
@@ -55,6 +69,16 @@ RSpec.describe Companion::DashboardApp do
           "id" => "weekly-review",
           "api_path" => "/api/views/weekly-review",
           "view_path" => "/views/weekly-review"
+        )
+      )
+      expect(parsed.fetch("view_submissions")).to include(
+        include(
+          "view_id" => "weekly-review",
+          "view_title" => "Weekly Review",
+          "action_id" => "save_review",
+          "status" => "processed",
+          "processing_type" => "store_submission",
+          "api_path" => "/api/views/weekly-review"
         )
       )
     end
@@ -165,6 +189,19 @@ RSpec.describe Companion::DashboardApp do
         chat_id: "12345",
         notifications_enabled: true
       )
+      submission = Companion::Dashboard::ViewSubmissionStore.create(
+        view_id: "training-checkin",
+        action_id: "submit_checkin",
+        schema_version: 1,
+        raw_payload: { "duration_minutes" => "45" },
+        normalized_payload: { "duration_minutes" => 45 }
+      )
+      Companion::Dashboard::ViewSubmissionStore.update(
+        submission.fetch("id"),
+        status: "processed",
+        processed_at: "2026-04-16T10:20:00Z",
+        processing_result: { type: "contract", ok: true }
+      )
 
       result = described_class.call(
         params: {},
@@ -192,6 +229,10 @@ RSpec.describe Companion::DashboardApp do
       expect(result[:body]).to include("Patch Schema")
       expect(result[:body]).to include("Load JSON")
       expect(result[:body]).to include("Clone")
+      expect(result[:body]).to include("Recent Submissions")
+      expect(result[:body]).to include("Schema JSON")
+      expect(result[:body]).to include("submit_checkin")
+      expect(result[:body]).to include("type=contract")
       expect(result[:body]).to include("@tailwindcss/browser@4")
       expect(result[:body]).to include("font-display")
     end

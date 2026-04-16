@@ -145,7 +145,8 @@ They are the current reference examples for authoring semantic schema nodes such
 
 The dashboard home page now also acts as a lightweight schema catalog/editor, so you
 can browse stored schemas, open their rendered pages, fetch `/api/views` JSON, and
-draft create/patch payloads from the same operator surface.
+draft create/patch payloads from the same operator surface. It also shows recent
+view submissions so the authoring/runtime feedback loop stays visible in one place.
 
 ## Structure
 

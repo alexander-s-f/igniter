@@ -71,6 +71,7 @@ module Companion
             section.component(MetricCard, label: "Telegram Chats", value: counts[:telegram_bindings], hint: "linked users")
             section.component(MetricCard, label: "Preferences", value: counts[:notification_preferences], hint: "persisted channel state")
             section.component(MetricCard, label: "View Schemas", value: counts[:view_schemas], hint: "authoring surfaces")
+            section.component(MetricCard, label: "Submissions", value: counts[:view_submissions], hint: "runtime feedback loop")
           end
         end
 
@@ -91,6 +92,9 @@ module Companion
             end)
             section.component(panel("View Schemas", subtitle: "Catalog browser and lightweight authoring surface for persisted schemas.") do |panel_view|
               view_schemas_markup(panel_view, snapshot.fetch(:view_schemas))
+            end)
+            section.component(panel("Recent Submissions", subtitle: "Latest schema runtime outputs flowing back into the operator surface.") do |panel_view|
+              view_submissions_markup(panel_view, snapshot.fetch(:view_submissions))
             end)
           end
         end
@@ -311,6 +315,22 @@ module Companion
           end
         end
 
+        def view_submissions_markup(view, submissions)
+          view.tag(:div, class: "space-y-4") do |container|
+            container.tag(:p,
+                          "Recent submissions make the authoring loop concrete: define a schema, run it, then inspect which action fired and how it was processed.",
+                          class: ui_theme.body_text_class)
+            container.component(
+              ui_theme.timeline_list(
+                items: submissions.map { |submission| submission_timeline_item(submission) },
+                empty_message: "No schema submissions yet. Open a seeded view and submit it once to populate this timeline.",
+                title_link_class: tailwind_tokens.underline_link(theme: :orange),
+                action_link_class: tailwind_tokens.action(variant: :ghost, theme: :orange, size: :sm)
+              )
+            )
+          end
+        end
+
         def render_schema_create_form(view)
           view.component(
             ui_theme.form_section(
@@ -390,6 +410,21 @@ module Companion
             paragraph.tag(:strong, label, class: ui_theme.item_title_class)
             paragraph.tag(:code, value, class: code_classes)
           end
+        end
+
+        def submission_timeline_item(submission)
+          created_at = submission.fetch(:created_at)
+          processed_at = submission[:processed_at] || "pending"
+          processing_type = submission[:processing_type] || "pending"
+
+          {
+            title: submission.fetch(:view_title),
+            href: submission.fetch(:view_path),
+            body: "action=#{submission.fetch(:action_id)} · status=#{submission.fetch(:status)} · type=#{processing_type}",
+            meta: "submission=#{submission.fetch(:id)} · schema_v=#{submission.fetch(:schema_version)} · created=#{created_at} · processed=#{processed_at}",
+            action_label: "Schema JSON",
+            action_href: submission.fetch(:api_path)
+          }
         end
 
         def js_string(value)

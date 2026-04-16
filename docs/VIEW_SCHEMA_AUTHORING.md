@@ -169,6 +169,7 @@ surface for these schemas:
 - browse the seeded catalog from `/`
 - inspect raw schema payloads through `/api/views`
 - load a stored schema into create/patch editors before posting or patching it
+- review recent submissions on the same dashboard to confirm which action and processing path ran
 
 ## Practical Guidance
 

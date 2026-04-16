@@ -10,6 +10,8 @@ module Companion
         reminders = Companion::ReminderStore.active
         bindings = Companion::TelegramBindingsStore.all.values.sort_by { |binding| binding["updated_at"].to_s }.reverse
         preferences = notification_preferences
+        schemas = view_schemas
+        submissions = view_submissions(schemas)
 
         {
           generated_at: Time.now.utc.iso8601,
@@ -21,7 +23,9 @@ module Companion
             notes: notes.size,
             active_reminders: reminders.size,
             telegram_bindings: bindings.size,
-            notification_preferences: preferences.size
+            notification_preferences: preferences.size,
+            view_schemas: schemas.size,
+            view_submissions: submissions.size
           },
           notes: notes,
           reminders: reminders,
@@ -31,7 +35,9 @@ module Companion
             bindings: bindings
           },
           notification_preferences: preferences,
-          execution_stores: execution_store_summary
+          execution_stores: execution_store_summary,
+          view_schemas: schemas,
+          view_submissions: submissions
         }
       end
 
@@ -56,6 +62,45 @@ module Companion
         Array(store.public_send(method_name))
       rescue StandardError
         []
+      end
+
+      def view_schemas
+        ViewSchemaCatalog.store.all.values
+          .sort_by { |schema| schema.id.to_s }
+          .map do |schema|
+            {
+              id: schema.id,
+              title: schema.title,
+              version: schema.version,
+              kind: schema.kind,
+              action_ids: schema.actions.keys.sort,
+              view_path: "/views/#{schema.id}",
+              api_path: "/api/views/#{schema.id}"
+            }
+          end
+      end
+
+      def view_submissions(schema_summaries)
+        schema_index = schema_summaries.each_with_object({}) do |schema, memo|
+          memo[schema.fetch(:id).to_s] = schema
+        end
+
+        ViewSubmissionStore.recent(limit: 8).map do |submission|
+          schema = schema_index[submission.fetch("view_id")]
+          {
+            id: submission.fetch("id"),
+            view_id: submission.fetch("view_id"),
+            view_title: schema ? schema.fetch(:title) : submission.fetch("view_id"),
+            action_id: submission.fetch("action_id"),
+            status: submission.fetch("status"),
+            schema_version: submission.fetch("schema_version"),
+            created_at: submission.fetch("created_at"),
+            processed_at: submission["processed_at"],
+            processing_type: submission.dig("processing_result", "type"),
+            view_path: schema ? schema.fetch(:view_path) : "/views/#{submission.fetch("view_id")}",
+            api_path: schema ? schema.fetch(:api_path) : "/api/views/#{submission.fetch("view_id")}"
+          }
+        end
       end
     end
   end
