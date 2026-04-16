@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "mesh/errors"
+require_relative "mesh/peer_metadata"
 require_relative "mesh/peer"
 require_relative "mesh/peer_registry"
 require_relative "mesh/config"

@@ -103,6 +103,20 @@ RSpec.describe Igniter::Cluster::Ownership do
       )
     end
 
+    it "falls back to capability query routing when configured" do
+      deferred = Igniter::Runtime::DeferredResult.build(payload: {}, source_node: :x, waiting_on: :x)
+      query = { all_of: [:edge_gateway], metadata: { trust: { score: { min: 0.9 } } } }
+      allow(mesh_router).to receive(:find_peer_for_query).with(query, deferred).and_return("http://edge-3:4570")
+
+      result = resolver.resolve(:voice_session, "missing", fallback_query: query, deferred_result: deferred)
+
+      expect(result).to include(
+        mode: :capability_query,
+        owner: nil,
+        url: "http://edge-3:4570"
+      )
+    end
+
     it "raises NoOwnerError when no claim or fallback exists" do
       expect {
         resolver.resolve(:voice_session, "missing")
@@ -119,6 +133,15 @@ RSpec.describe Igniter::Cluster::Ownership do
 
       expect(described_class.owner_for(:voice_session, "abc123")).to eq("edge_1")
       expect(described_class.resolve_url(:voice_session, "abc123")).to eq("http://edge-1:4570")
+    end
+
+    it "supports module-level fallback_query resolution" do
+      router = instance_double(Igniter::Cluster::Mesh::Router)
+      query = { all_of: [:edge_gateway], metadata: { region: "eu-central" } }
+      allow(Igniter::Cluster::Mesh).to receive(:router).and_return(router)
+      allow(router).to receive(:find_peer_for_query).with(query, nil).and_return("http://edge-query:4570")
+
+      expect(described_class.resolve_url(:voice_session, "missing", fallback_query: query)).to eq("http://edge-query:4570")
     end
   end
 
@@ -159,6 +182,31 @@ RSpec.describe Igniter::Cluster::Ownership do
         body: "{\"ok\":true}"
       )
       expect(result[:headers]["content-type"]).to eq("application/json")
+    end
+
+    it "passes fallback_query through to the resolver" do
+      query = { all_of: [:edge_gateway], metadata: { trust: { score: { min: 0.9 } } } }
+      allow(resolver).to receive(:resolve).and_return(
+        { owner: nil, claim: nil, url: "http://edge-query:4570" }
+      )
+
+      response = instance_double(Net::HTTPOK, code: "200", body: "{\"ok\":true}", to_hash: {})
+      http = instance_double(Net::HTTP)
+      allow(Net::HTTP).to receive(:new).with("edge-query", 4570).and_return(http)
+      allow(http).to receive(:use_ssl=).with(false)
+      allow(http).to receive(:read_timeout=).with(1)
+      allow(http).to receive(:open_timeout=).with(5)
+      allow(http).to receive(:request).and_return(response)
+
+      client.request(:voice_session, "abc123", method: "GET", path: "/v1/voice_sessions/abc123", fallback_query: query)
+
+      expect(resolver).to have_received(:resolve).with(
+        :voice_session,
+        "abc123",
+        fallback_capability: nil,
+        fallback_query: query,
+        deferred_result: nil
+      )
     end
   end
 end

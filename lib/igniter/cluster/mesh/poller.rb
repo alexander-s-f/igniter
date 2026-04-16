@@ -72,7 +72,7 @@ module Igniter
               url: pd[:url],
               capabilities: pd[:capabilities] || [],
               tags: pd[:tags] || [],
-              metadata: pd[:metadata] || {}
+              metadata: PeerMetadata.relay(pd[:metadata] || {}, relayed_by: seed_url)
             )
           )
         end

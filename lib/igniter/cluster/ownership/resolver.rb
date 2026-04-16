@@ -9,7 +9,7 @@ module Igniter
           @mesh_router = mesh_router
         end
 
-        def resolve(entity_type, entity_id, fallback_capability: nil, deferred_result: nil)
+        def resolve(entity_type, entity_id, fallback_capability: nil, fallback_query: nil, deferred_result: nil)
           claim = @registry.lookup(entity_type, entity_id)
           if claim
             return {
@@ -17,6 +17,15 @@ module Igniter
               owner: claim.owner,
               claim: claim,
               url: mesh_router.resolve_pinned(claim.owner)
+            }
+          end
+
+          if fallback_query
+            return {
+              mode: :capability_query,
+              owner: nil,
+              claim: nil,
+              url: mesh_router.find_peer_for_query(fallback_query, deferred_result)
             }
           end
 
@@ -32,11 +41,12 @@ module Igniter
           raise NoOwnerError.new(entity_type, entity_id)
         end
 
-        def resolve_url(entity_type, entity_id, fallback_capability: nil, deferred_result: nil)
+        def resolve_url(entity_type, entity_id, fallback_capability: nil, fallback_query: nil, deferred_result: nil)
           resolve(
             entity_type,
             entity_id,
             fallback_capability: fallback_capability,
+            fallback_query: fallback_query,
             deferred_result: deferred_result
           ).fetch(:url)
         end

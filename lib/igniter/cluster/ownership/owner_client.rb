@@ -13,11 +13,12 @@ module Igniter
           @timeout = timeout
         end
 
-        def request(entity_type, entity_id, method:, path:, body: nil, headers: {}, fallback_capability: nil, deferred_result: nil)
+        def request(entity_type, entity_id, method:, path:, body: nil, headers: {}, fallback_capability: nil, fallback_query: nil, deferred_result: nil)
           resolution = @resolver.resolve(
             entity_type,
             entity_id,
             fallback_capability: fallback_capability,
+            fallback_query: fallback_query,
             deferred_result: deferred_result
           )
 

@@ -42,6 +42,43 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       expect(peer.matches_query?(all_of: [:orders], tags: [:darwin])).to be false
     end
 
+    it "matches a capability query across peer metadata" do
+      peer_with_metadata = described_class.new(
+        name: "orders-node",
+        url: "http://orders.internal:4567",
+        capabilities: [:orders],
+        metadata: { trust: { score: 0.95 }, region: "eu-central" }
+      )
+
+      expect(peer_with_metadata.matches_query?(metadata: { trust: { score: { min: 0.9 } }, region: "eu-central" })).to be true
+      expect(peer_with_metadata.matches_query?(metadata: { trust: { score: { min: 0.99 } } })).to be false
+    end
+
+    it "derives mesh freshness from observed_at in the runtime profile" do
+      now = Time.utc(2026, 4, 16, 12, 0, 0)
+      peer_with_mesh = described_class.new(
+        name: "orders-node",
+        url: "http://orders.internal:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh: {
+            observed_at: "2026-04-16T11:59:30Z",
+            confidence: 0.85,
+            hops: 1
+          }
+        }
+      )
+
+      allow(Time).to receive(:now).and_return(now)
+
+      expect(peer_with_mesh.profile.metadata[:mesh]).to include(
+        observed_at: "2026-04-16T11:59:30Z",
+        confidence: 0.85,
+        hops: 1,
+        freshness_seconds: 30
+      )
+    end
+
     it "coerces capabilities to symbols" do
       p = described_class.new(name: "x", url: "http://x", capabilities: %w[audit])
       expect(p.capabilities).to eq([:audit])
@@ -201,12 +238,82 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
     end
 
     it "find_peer_for_query matches richer capability queries" do
-      config.add_peer("orders-node", url: "http://orders:4567", capabilities: [:orders], tags: [:linux])
+      config.add_peer("orders-node", url: "http://orders:4567", capabilities: [:orders], tags: [:linux], metadata: { trust: { score: 0.95 } })
       config.add_peer("orders-mac", url: "http://orders-mac:4567", capabilities: [:orders], tags: [:darwin])
       stub_alive("http://orders:4567")
       stub_alive("http://orders-mac:4567")
 
-      expect(router.find_peer_for_query({ all_of: [:orders], tags: [:linux] }, deferred)).to eq("http://orders:4567")
+      expect(router.find_peer_for_query({ all_of: [:orders], tags: [:linux], metadata: { trust: { score: { min: 0.9 } } } }, deferred)).to eq("http://orders:4567")
+    end
+
+    it "can query over dynamic mesh freshness and confidence" do
+      now = Time.utc(2026, 4, 16, 12, 0, 0)
+      config.add_peer(
+        "orders-fresh",
+        url: "http://orders-fresh:4567",
+        capabilities: [:orders],
+        metadata: { mesh: { observed_at: "2026-04-16T11:59:45Z", confidence: 0.92 } }
+      )
+      config.add_peer(
+        "orders-stale",
+        url: "http://orders-stale:4567",
+        capabilities: [:orders],
+        metadata: { mesh: { observed_at: "2026-04-16T11:58:00Z", confidence: 0.92 } }
+      )
+      stub_alive("http://orders-fresh:4567")
+      stub_alive("http://orders-stale:4567")
+      allow(Time).to receive(:now).and_return(now)
+
+      query = {
+        all_of: [:orders],
+        metadata: {
+          mesh: {
+            freshness_seconds: { max: 30 },
+            confidence: { min: 0.9 }
+          }
+        }
+      }
+
+      expect(router.find_peer_for_query(query, deferred)).to eq("http://orders-fresh:4567")
+    end
+
+    it "prefers the strongest alive peer when order_by is provided" do
+      config.add_peer("orders-low", url: "http://orders-low:4567", capabilities: [:orders], metadata: { trust: { score: 0.90 }, load: { avg1m: 0.10 } })
+      config.add_peer("orders-best", url: "http://orders-best:4567", capabilities: [:orders], metadata: { trust: { score: 0.98 }, load: { avg1m: 0.40 } })
+      config.add_peer("orders-mid", url: "http://orders-mid:4567", capabilities: [:orders], metadata: { trust: { score: 0.95 }, load: { avg1m: 0.20 } })
+      stub_alive("http://orders-low:4567")
+      stub_alive("http://orders-best:4567")
+      stub_alive("http://orders-mid:4567")
+
+      query = {
+        all_of: [:orders],
+        order_by: [
+          { metadata: "trust.score", direction: :desc },
+          { metadata: "load.avg1m", direction: :asc }
+        ]
+      }
+
+      expect(router.find_peer_for_query(query, deferred)).to eq("http://orders-best:4567")
+    end
+
+    it "round-robins only within the top-ranked peer tier" do
+      config.add_peer("orders-top-a", url: "http://orders-top-a:4567", capabilities: [:orders], metadata: { trust: { score: 0.97 } })
+      config.add_peer("orders-top-b", url: "http://orders-top-b:4567", capabilities: [:orders], metadata: { trust: { score: 0.97 } })
+      config.add_peer("orders-low", url: "http://orders-low:4567", capabilities: [:orders], metadata: { trust: { score: 0.90 } })
+      stub_alive("http://orders-top-a:4567")
+      stub_alive("http://orders-top-b:4567")
+      stub_alive("http://orders-low:4567")
+
+      query = {
+        all_of: [:orders],
+        order_by: [
+          { metadata: "trust.score", direction: :desc }
+        ]
+      }
+
+      urls = 3.times.map { router.find_peer_for_query(query, deferred) }
+      expect(urls).to all(satisfy { |url| %w[http://orders-top-a:4567 http://orders-top-b:4567].include?(url) })
+      expect(urls).to include("http://orders-top-a:4567", "http://orders-top-b:4567")
     end
 
     it "find_peer_for round-robins across multiple alive peers" do

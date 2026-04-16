@@ -138,6 +138,36 @@ RSpec.describe "Igniter Mesh — Phase 3: Gossip Protocol" do
         expect(registered.capabilities).to contain_exactly(:payments)
       end
 
+      it "decays relay confidence and increments hops for discovered peers" do
+        config.peer_registry.register(peer_a)
+        stub_list_peers(peer_a.url, [
+                          {
+                            name: "node-d",
+                            url: "http://node-d:4567",
+                            capabilities: [:payments],
+                            metadata: {
+                              mesh: {
+                                observed_at: "2026-04-16T11:59:00Z",
+                                confidence: 1.0,
+                                hops: 0,
+                                origin: "node-d"
+                              }
+                            }
+                          }
+                        ])
+
+        described_class.new(config).run
+
+        mesh = config.peer_registry.peer_named("node-d").metadata[:mesh]
+        expect(mesh).to include(
+          observed_at: "2026-04-16T11:59:00Z",
+          confidence: 0.9,
+          hops: 1,
+          origin: "node-d",
+          relayed_by: "node-a"
+        )
+      end
+
       it "registers multiple peers from one exchange" do
         config.peer_registry.register(peer_a)
         stub_list_peers(peer_a.url, [

@@ -42,7 +42,7 @@ module Igniter
           url: @config.local_url,
           capabilities: @config.local_capabilities,
           tags: @config.local_tags,
-          metadata: @config.local_metadata
+          metadata: PeerMetadata.authoritative(@config.local_metadata, origin: @config.peer_name)
         )
       rescue Igniter::Server::Client::ConnectionError
         nil

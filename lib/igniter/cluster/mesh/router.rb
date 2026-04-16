@@ -45,7 +45,7 @@ module Igniter
           )
         end
 
-        url_for_round_robin(round_robin_key || normalized.to_h, candidates)
+        url_for_round_robin(round_robin_key || normalized.to_h, top_ranked_candidates(normalized, candidates))
       end
 
       # Resolve the URL of a pinned peer by name.
@@ -99,6 +99,16 @@ module Igniter
           i
         end
         candidates[idx].url
+      end
+
+      def top_ranked_candidates(query, candidates)
+        return candidates unless query.ordered?
+
+        ranked = candidates.sort do |left, right|
+          query.compare_profiles(left.profile, right.profile)
+        end
+        best_fingerprint = query.ranking_fingerprint(ranked.first.profile)
+        ranked.select { |peer| query.ranking_fingerprint(peer.profile) == best_fingerprint }
       end
 
       def alive?(peer) # rubocop:disable Metrics/MethodLength

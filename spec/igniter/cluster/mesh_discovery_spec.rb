@@ -152,7 +152,19 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
       expect(Igniter::Server::Client).to have_received(:new).with("http://seed1:4567", timeout: 5)
       expect(Igniter::Server::Client).to have_received(:new).with("http://seed2:4567", timeout: 5)
       expect(client_double).to have_received(:register_peer).twice.with(
-        name: "api-node", url: "http://api.internal:4567", capabilities: %i[api], tags: %i[linux], metadata: { zone: "eu-1" }
+        name: "api-node",
+        url: "http://api.internal:4567",
+        capabilities: %i[api],
+        tags: %i[linux],
+        metadata: hash_including(
+          zone: "eu-1",
+          mesh: hash_including(
+            confidence: 1.0,
+            hops: 0,
+            origin: "api-node",
+            observed_at: kind_of(String)
+          )
+        )
       )
     end
 
@@ -244,6 +256,38 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
 
       expect(config.peer_registry.peer_named("orders-node")).not_to be_nil
       expect(config.peer_registry.peer_named("api-node")).to be_nil
+    end
+
+    it "poll_once adds relay confidence and hop metadata" do
+      config.gossip_fanout = 0
+      client_double = instance_double(Igniter::Server::Client)
+      allow(Igniter::Server::Client).to receive(:new).and_return(client_double)
+      allow(client_double).to receive(:list_peers).and_return([
+        {
+          name: "orders-node",
+          url: "http://orders:4567",
+          capabilities: [:orders],
+          metadata: {
+            mesh: {
+              observed_at: "2026-04-16T11:59:00Z",
+              confidence: 1.0,
+              hops: 0,
+              origin: "orders-node"
+            }
+          }
+        }
+      ])
+
+      poller.poll_once
+
+      mesh = config.peer_registry.peer_named("orders-node").metadata[:mesh]
+      expect(mesh).to include(
+        observed_at: "2026-04-16T11:59:00Z",
+        confidence: 0.9,
+        hops: 1,
+        origin: "orders-node",
+        relayed_by: "http://seed1:4567"
+      )
     end
 
     it "poll_once swallows ConnectionError" do
@@ -490,6 +534,34 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
       result = handler.call(params: {}, body: {})
       data   = JSON.parse(result[:body])
       expect(data.map { |p| p["name"] }).to include("dyn")
+    end
+
+    it "returns runtime mesh freshness for discovered peers" do
+      now = Time.utc(2026, 4, 16, 12, 0, 0)
+      Igniter::Cluster::Mesh.configure { |_c| }
+      Igniter::Cluster::Mesh.config.peer_registry.register(
+        Igniter::Cluster::Mesh::Peer.new(
+          name: "dyn",
+          url: "http://dyn:4567",
+          capabilities: [:audit],
+          metadata: {
+            mesh: {
+              observed_at: "2026-04-16T11:59:40Z",
+              confidence: 0.9,
+              hops: 1
+            }
+          }
+        )
+      )
+      allow(Time).to receive(:now).and_return(now)
+
+      result = handler.call(params: {}, body: {})
+      data   = JSON.parse(result[:body])
+      mesh   = data.first.fetch("metadata").fetch("mesh")
+
+      expect(mesh["confidence"]).to eq(0.9)
+      expect(mesh["hops"]).to eq(1)
+      expect(mesh["freshness_seconds"]).to eq(20)
     end
 
     it "merges static + dynamic, static names win" do

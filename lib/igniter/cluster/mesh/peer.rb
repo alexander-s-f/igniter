@@ -14,7 +14,7 @@ module Igniter
         @url          = url.to_s.chomp("/").freeze
         @capabilities = Array(capabilities).map(&:to_sym).freeze
         @tags         = Array(tags).map(&:to_sym).freeze
-        @metadata     = Hash(metadata).transform_keys(&:to_sym).freeze
+        @metadata     = PeerMetadata.normalize(metadata).freeze
         freeze
       end
 
@@ -28,7 +28,7 @@ module Igniter
       end
 
       def profile
-        Struct.new(:capabilities, :tags, keyword_init: true) do
+        Struct.new(:capabilities, :tags, :metadata, keyword_init: true) do
           def capability?(capability)
             capabilities.include?(capability.to_sym)
           end
@@ -36,7 +36,7 @@ module Igniter
           def tag?(tag)
             tags.include?(tag.to_sym)
           end
-        end.new(capabilities: @capabilities, tags: @tags)
+        end.new(capabilities: @capabilities, tags: @tags, metadata: PeerMetadata.runtime(@metadata))
       end
     end
     end

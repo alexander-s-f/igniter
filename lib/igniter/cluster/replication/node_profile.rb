@@ -89,7 +89,7 @@ module Igniter
           @utilities    = Array(utilities).map(&:to_s).uniq.sort.freeze
           @capabilities = Array(capabilities).map(&:to_sym).uniq.sort.freeze
           @tags         = Array(tags).map(&:to_sym).uniq.sort.freeze
-          @metadata     = Hash(metadata).transform_keys(&:to_sym).freeze
+          @metadata     = normalize_metadata(metadata).freeze
           freeze
         end
 
@@ -112,6 +112,21 @@ module Igniter
             tags: @tags,
             metadata: @metadata
           }
+        end
+
+        private
+
+        def normalize_metadata(value)
+          case value
+          when Hash
+            value.each_with_object({}) do |(key, nested), memo|
+              memo[key.to_sym] = normalize_metadata(nested)
+            end
+          when Array
+            value.map { |item| normalize_metadata(item) }
+          else
+            value
+          end
         end
       end
     end

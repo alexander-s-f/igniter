@@ -59,11 +59,12 @@ module Igniter
           registry.claims_for_owner(owner)
         end
 
-        def resolve_url(entity_type, entity_id, fallback_capability: nil, deferred_result: nil)
+        def resolve_url(entity_type, entity_id, fallback_capability: nil, fallback_query: nil, deferred_result: nil)
           resolver.resolve_url(
             entity_type,
             entity_id,
             fallback_capability: fallback_capability,
+            fallback_query: fallback_query,
             deferred_result: deferred_result
           )
         end

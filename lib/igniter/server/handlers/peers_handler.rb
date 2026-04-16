@@ -34,7 +34,7 @@ module Igniter
               "url" => p.url,
               "capabilities" => p.capabilities.map(&:to_s),
               "tags" => p.tags.map(&:to_s),
-              "metadata" => p.metadata
+              "metadata" => p.profile.metadata
             }
           end)
         end
