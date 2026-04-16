@@ -11,6 +11,9 @@ module Igniter
           grid
           section
           card
+          fieldset
+          notice
+          actions
           heading
           text
           form
@@ -98,10 +101,12 @@ module Igniter
           raise Error, "#{path}.type '#{type}' is not supported" unless NODE_TYPES.include?(type)
 
           case type
-          when "stack", "grid", "section", "card"
+          when "stack", "grid", "section", "card", "fieldset", "actions"
             validate_children!(node, path: path)
           when "heading"
             raise Error, "#{path}.text is required" if blank?(node["text"])
+          when "notice"
+            raise Error, "#{path}.message is required" if blank?(node["message"])
           when "text"
             raise Error, "#{path}.text is required" if blank?(node["text"])
           when "form"

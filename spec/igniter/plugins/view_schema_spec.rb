@@ -32,23 +32,37 @@ RSpec.describe "Igniter::Plugins::View schema runtime" do
         children: [
           { type: "heading", level: 1, text: "Daily Training Check-in" },
           { type: "text", text: "A schema-driven page." },
+          { type: "notice", message: "Bring context from your latest workout.", tone: "info" },
           {
             type: "form",
             action: "submit_checkin",
             children: [
-              { type: "input", name: "duration_minutes", label: "Duration", required: true, value_type: "integer" },
               {
-                type: "select",
-                name: "mood",
-                label: "Mood",
-                selected: "good",
-                options: [
-                  { label: "Great", value: "great" },
-                  { label: "Good", value: "good" }
+                type: "fieldset",
+                legend: "Session",
+                description: "Core daily inputs.",
+                children: [
+                  { type: "input", name: "duration_minutes", label: "Duration", required: true, value_type: "integer" },
+                  {
+                    type: "select",
+                    name: "mood",
+                    label: "Mood",
+                    selected: "good",
+                    options: [
+                      { label: "Great", value: "great" },
+                      { label: "Good", value: "good" }
+                    ]
+                  },
+                  { type: "checkbox", name: "share", label: "Share with coach", checked: true, value_type: "boolean" },
+                  { type: "text", text: "Double-check duration before submitting." }
                 ]
               },
-              { type: "checkbox", name: "share", label: "Share with coach", checked: true, value_type: "boolean" },
-              { type: "submit", label: "Save" }
+              {
+                type: "actions",
+                children: [
+                  { type: "submit", label: "Save" }
+                ]
+              }
             ]
           }
         ]
@@ -109,8 +123,11 @@ RSpec.describe "Igniter::Plugins::View schema runtime" do
     expect(html).to include("view-stack")
     expect(html).to include("@tailwindcss/browser@4")
     expect(html).to include("font-display")
+    expect(html).to include("Bring context from your latest workout.")
     expect(html).to include('action="/views/training-checkin/submissions"')
     expect(html).to include("<fieldset")
+    expect(html).to include("Session")
+    expect(html).to include("Core daily inputs.")
     expect(html).to include('name="_action"')
     expect(html).to include('name="duration_minutes"')
     expect(html).to include('name="mood"')
@@ -161,12 +178,13 @@ RSpec.describe "Igniter::Plugins::View schema runtime" do
     expect(html).to include("is required")
     expect(html).to include('class="w-full rounded-2xl border border-white/10 bg-[#160f0d]')
     expect(html).to include("<fieldset")
+    expect(html).to include("Double-check duration before submitting.")
     expect(html).to include('option value="great" selected')
   end
 
   it "rejects invalid schema nodes" do
     broken_payload = Marshal.load(Marshal.dump(schema_payload))
-    broken_payload[:layout][:children][2][:children][0].delete(:label)
+    broken_payload[:layout][:children][3][:children][0][:children][0].delete(:label)
 
     expect do
       Igniter::Plugins::View::Schema.load(broken_payload)
@@ -183,7 +201,16 @@ RSpec.describe "Igniter::Plugins::View schema runtime" do
         patch: {
           layout: {
             children: [
-              { type: "form", action: "submit_checkin", children: [{ type: "input", name: "x" }] }
+              {
+                type: "form",
+                action: "submit_checkin",
+                children: [
+                  {
+                    type: "fieldset",
+                    children: [{ type: "input", name: "x" }]
+                  }
+                ]
+              }
             ]
           }
         }

@@ -70,6 +70,7 @@ module Companion
             section.component(MetricCard, label: "Active Reminders", value: counts[:active_reminders], hint: "pending follow-ups")
             section.component(MetricCard, label: "Telegram Chats", value: counts[:telegram_bindings], hint: "linked users")
             section.component(MetricCard, label: "Preferences", value: counts[:notification_preferences], hint: "persisted channel state")
+            section.component(MetricCard, label: "View Schemas", value: counts[:view_schemas], hint: "authoring surfaces")
           end
         end
 
@@ -88,6 +89,9 @@ module Companion
             section.component(panel("Execution Stores", subtitle: "Execution persistence across companion apps.") do |panel_view|
               execution_stores_markup(panel_view, snapshot.fetch(:execution_stores))
             end)
+            section.component(panel("View Schemas", subtitle: "Catalog browser and lightweight authoring surface for persisted schemas.") do |panel_view|
+              view_schemas_markup(panel_view, snapshot.fetch(:view_schemas))
+            end)
           end
         end
 
@@ -104,8 +108,12 @@ module Companion
                 anchor.tag(:code, "/api/overview")
               end
               bar.tag(:a,
-                      "Open schema demo",
+                      "Open training check-in",
                       href: "/views/training-checkin",
+                      class: tailwind_tokens.underline_link(theme: :orange))
+              bar.tag(:a,
+                      "Open weekly review",
+                      href: "/views/weekly-review",
                       class: tailwind_tokens.underline_link(theme: :orange))
             end
           )
@@ -234,6 +242,149 @@ module Companion
           )
         end
 
+        def view_schemas_markup(view, schemas)
+          view.tag(:div, class: "space-y-4") do |container|
+            container.tag(:p,
+                          "Browse seeded schemas, open their rendered pages, fetch raw JSON, or draft create/patch payloads against the catalog API without leaving the dashboard.",
+                          class: ui_theme.body_text_class)
+            container.component(
+              Igniter::Plugins::View::Tailwind::UI::ActionBar.new(class_name: "flex flex-wrap gap-2") do |actions|
+                actions.tag(:a,
+                            "Catalog JSON",
+                            href: "/api/views",
+                            class: tailwind_tokens.action(variant: :soft, theme: :orange, size: :sm))
+                actions.tag(:a,
+                            "Open weekly review",
+                            href: "/views/weekly-review",
+                            class: tailwind_tokens.action(variant: :ghost, theme: :orange, size: :sm))
+              end
+            )
+          end
+
+          view.tag(:div, class: "mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]") do |grid|
+            grid.tag(:div) do |column|
+              if schemas.empty?
+                column.tag(:p, "No view schemas stored yet.", class: empty_state_classes)
+              else
+                column.tag(:ul, class: list_classes) do |list|
+                  schemas.each do |schema|
+                    list.tag(:li, class: list_item_classes) do |item|
+                      item.tag(:strong, schema.fetch(:title), class: ui_theme.item_title_class)
+                      item.tag(:div, schema.fetch(:id), class: ui_theme.muted_text_class(extra: "mt-2"))
+                      item.tag(:div,
+                               "version=#{schema.fetch(:version)} · actions=#{schema.fetch(:action_ids).join(", ")}",
+                               class: ui_theme.muted_text_class(extra: "mt-2"))
+                      item.component(
+                        Igniter::Plugins::View::Tailwind::UI::ActionBar.new(
+                          class_name: "mt-3 flex flex-wrap gap-2"
+                        ) do |actions|
+                          actions.tag(:a,
+                                      "Open view",
+                                      href: schema.fetch(:view_path),
+                                      class: tailwind_tokens.action(variant: :soft, theme: :orange, size: :sm))
+                          actions.tag(:a,
+                                      "JSON",
+                                      href: schema.fetch(:api_path),
+                                      class: tailwind_tokens.action(variant: :ghost, theme: :orange, size: :sm))
+                          actions.tag(:button,
+                                      "Load JSON",
+                                      type: "button",
+                                      class: tailwind_tokens.action(variant: :ghost, theme: :orange, size: :sm),
+                                      onclick: "loadSchemaIntoEditor(#{js_string(schema.fetch(:id))})")
+                          actions.tag(:button,
+                                      "Clone",
+                                      type: "button",
+                                      class: tailwind_tokens.action(variant: :ghost, theme: :orange, size: :sm),
+                                      onclick: "cloneSchemaIntoEditor(#{js_string(schema.fetch(:id))})")
+                        end
+                      )
+                    end
+                  end
+                end
+              end
+            end
+
+            grid.tag(:div, class: "space-y-4") do |column|
+              render_schema_create_form(column)
+              render_schema_patch_form(column)
+            end
+          end
+        end
+
+        def render_schema_create_form(view)
+          view.component(
+            ui_theme.form_section(
+              title: "Create Schema",
+              subtitle: "Post a full schema payload directly to the catalog API.",
+              action: "#",
+              wrapper_class: "#{ui_theme.surface(:schema_card_class)} p-5"
+            ) do |form|
+              form.label("schema-create-id", "Suggested id", class: ui_theme.field_label_class)
+              form.input("schema-create-id",
+                         id: "schema-create-id",
+                         value: "weekly-review-copy",
+                         class: input_classes)
+
+              form.label("schema-create-json", "Schema JSON", class: ui_theme.field_label_class)
+              form.textarea("schema-create-json",
+                            id: "schema-create-json",
+                            rows: 16,
+                            value: default_schema_payload,
+                            class: ui_theme.input_class(extra: "min-h-48 font-mono text-xs"))
+
+              form.view.tag(:p,
+                            "Create posts the full payload to /api/views and then reloads the dashboard.",
+                            class: ui_theme.muted_text_class)
+              form.button("Create Schema",
+                          type: "button",
+                          class: primary_button_classes,
+                          onclick: "createSchemaFromEditor()")
+            end
+          )
+        end
+
+        def render_schema_patch_form(view)
+          view.component(
+            ui_theme.form_section(
+              title: "Patch Schema",
+              subtitle: "Load an existing schema, edit a JSON patch, then apply it through the catalog API.",
+              action: "#",
+              wrapper_class: "#{ui_theme.surface(:schema_card_class)} p-5"
+            ) do |form|
+              form.label("schema-patch-id", "Schema id", class: ui_theme.field_label_class)
+              form.input("schema-patch-id",
+                         id: "schema-patch-id",
+                         placeholder: "training-checkin",
+                         class: input_classes)
+
+              form.label("schema-patch-json", "Patch JSON", class: ui_theme.field_label_class)
+              form.textarea("schema-patch-json",
+                            id: "schema-patch-json",
+                            rows: 12,
+                            value: "{\n  \"title\": \"Weekly Review (Edited)\"\n}",
+                            class: ui_theme.input_class(extra: "min-h-40 font-mono text-xs"))
+
+              form.view.tag(:p,
+                            "Delete removes the currently selected schema id. Clone loads an existing schema into the create editor with a copied id.",
+                            class: ui_theme.muted_text_class)
+              form.view.component(
+                Igniter::Plugins::View::Tailwind::UI::ActionBar.new(class_name: "mt-3 flex flex-wrap gap-2") do |actions|
+                  actions.tag(:button,
+                              "Apply Patch",
+                              type: "button",
+                              class: tailwind_tokens.action(variant: :primary, theme: :orange, size: :sm),
+                              onclick: "patchSchemaFromEditor()")
+                  actions.tag(:button,
+                              "Delete Schema",
+                              type: "button",
+                              class: tailwind_tokens.action(variant: :ghost, theme: :orange, size: :sm),
+                              onclick: "deleteSchemaFromEditor()")
+                end
+              )
+            end
+          )
+        end
+
         def labelled_code(view, label, value)
           view.tag(:p, class: ui_theme.body_text_class(extra: "mb-3 flex flex-wrap items-center gap-2")) do |paragraph|
             paragraph.tag(:strong, label, class: ui_theme.item_title_class)
@@ -306,13 +457,139 @@ module Companion
           ui_theme.empty_state_class
         end
 
+        def default_schema_payload
+          JSON.pretty_generate(
+            {
+              id: "weekly-review-copy",
+              version: 1,
+              kind: "page",
+              title: "Weekly Review Copy",
+              actions: {
+                save_review: {
+                  method: "post",
+                  path: "/views/weekly-review-copy/submissions"
+                }
+              },
+              layout: {
+                type: "stack",
+                children: [
+                  { type: "heading", level: 1, text: "Weekly Review Copy" },
+                  { type: "notice", message: "Adjust this draft, then create it.", tone: "notice" },
+                  {
+                    type: "form",
+                    action: "save_review",
+                    children: [
+                      {
+                        type: "fieldset",
+                        legend: "Signals",
+                        description: "Start from one strong signal.",
+                        children: [
+                          { type: "input", name: "focus", label: "Focus", required: true }
+                        ]
+                      },
+                      {
+                        type: "actions",
+                        children: [
+                          { type: "submit", label: "Save" }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          )
+        end
+
         def script_source
           <<~JS
+            async function requestJson(path, options) {
+              const response = await fetch(path, options || {});
+              const text = await response.text();
+              let parsed = {};
+
+              try {
+                parsed = text ? JSON.parse(text) : {};
+              } catch (error) {
+                parsed = { ok: false, error: text || "Invalid JSON response" };
+              }
+
+              if (!response.ok) {
+                throw new Error(parsed.error || "Request failed");
+              }
+
+              return parsed;
+            }
+
             async function postJson(path, payload) {
               await fetch(path, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload || {})
+              });
+              window.location.reload();
+            }
+
+            async function loadSchemaIntoEditor(schemaId) {
+              const result = await requestJson(`/api/views/${encodeURIComponent(schemaId)}`);
+              const payload = result.schema || {};
+              document.getElementById("schema-patch-id").value = payload.id || schemaId;
+              document.getElementById("schema-create-id").value = `${payload.id || schemaId}-copy`;
+              document.getElementById("schema-create-json").value = JSON.stringify(payload, null, 2);
+              document.getElementById("schema-patch-json").value = JSON.stringify({
+                title: `${payload.title || schemaId} (Edited)`
+              }, null, 2);
+            }
+
+            async function cloneSchemaIntoEditor(schemaId) {
+              const result = await requestJson(`/api/views/${encodeURIComponent(schemaId)}`);
+              const payload = result.schema || {};
+              payload.id = `${payload.id || schemaId}-copy`;
+              payload.title = `${payload.title || schemaId} Copy`;
+
+              if (payload.actions) {
+                Object.entries(payload.actions).forEach(([actionId, action]) => {
+                  if (action && action.path) {
+                    action.path = action.path.replace(`/views/${schemaId}/`, `/views/${payload.id}/`);
+                  }
+                });
+              }
+
+              document.getElementById("schema-create-id").value = payload.id;
+              document.getElementById("schema-create-json").value = JSON.stringify(payload, null, 2);
+            }
+
+            async function createSchemaFromEditor() {
+              const raw = document.getElementById("schema-create-json").value;
+              const payload = JSON.parse(raw);
+              const suggestedId = document.getElementById("schema-create-id").value.trim();
+              if (suggestedId.length > 0) {
+                payload.id = suggestedId;
+              }
+
+              await requestJson("/api/views", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+              });
+              window.location.reload();
+            }
+
+            async function patchSchemaFromEditor() {
+              const schemaId = document.getElementById("schema-patch-id").value.trim();
+              const patch = JSON.parse(document.getElementById("schema-patch-json").value);
+              await requestJson(`/api/views/${encodeURIComponent(schemaId)}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(patch)
+              });
+              window.location.reload();
+            }
+
+            async function deleteSchemaFromEditor() {
+              const schemaId = document.getElementById("schema-patch-id").value.trim();
+              await requestJson(`/api/views/${encodeURIComponent(schemaId)}`, {
+                method: "DELETE"
               });
               window.location.reload();
             }

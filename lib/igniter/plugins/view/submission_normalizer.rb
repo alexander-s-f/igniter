@@ -25,9 +25,7 @@ module Igniter
           normalized = {}
           field_errors = {}
 
-          Array(form["children"]).each do |field|
-            next unless field_node?(field)
-
+          each_form_field(form) do |field|
             name = field.fetch("name")
             begin
               normalized[name] = normalize_field(field, source[name])
@@ -47,6 +45,19 @@ module Igniter
 
         def field_node?(node)
           %w[input textarea select checkbox].include?(node["type"])
+        end
+
+        def each_form_field(node, &block)
+          return unless node.is_a?(Hash)
+
+          if field_node?(node)
+            yield node
+            return
+          end
+
+          Array(node["children"]).each do |child|
+            each_form_field(child, &block)
+          end
         end
 
         def normalize_field(field, raw_value)

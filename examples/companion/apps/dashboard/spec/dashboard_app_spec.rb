@@ -10,6 +10,7 @@ RSpec.describe Companion::DashboardApp do
 
   describe Companion::Dashboard::OverviewHandler do
     it "returns a JSON snapshot of dashboard state" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
       Companion::NotesStore.save("status", "green")
       Companion::ReminderStore.create(
         task: "Call Alice",
@@ -42,7 +43,20 @@ RSpec.describe Companion::DashboardApp do
       expect(result[:headers]["Content-Type"]).to eq("application/json")
       expect(parsed.dig("counts", "notes")).to eq(1)
       expect(parsed.dig("counts", "active_reminders")).to eq(1)
+      expect(parsed.dig("counts", "view_schemas")).to eq(2)
       expect(parsed.dig("telegram", "preferred_chat_id")).to eq("12345")
+      expect(parsed.fetch("view_schemas")).to include(
+        include(
+          "id" => "training-checkin",
+          "api_path" => "/api/views/training-checkin",
+          "view_path" => "/views/training-checkin"
+        ),
+        include(
+          "id" => "weekly-review",
+          "api_path" => "/api/views/weekly-review",
+          "view_path" => "/views/weekly-review"
+        )
+      )
     end
   end
 
@@ -134,6 +148,7 @@ RSpec.describe Companion::DashboardApp do
 
   describe Companion::Dashboard::HomeHandler do
     it "renders an HTML overview page" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
       Companion::TelegramBindingsStore.upsert(
         {
           "chat" => { "id" => 12345, "username" => "alex" },
@@ -169,6 +184,14 @@ RSpec.describe Companion::DashboardApp do
       expect(result[:body]).to include("/api/telegram/preferences")
       expect(result[:body]).to include("Mark Completed")
       expect(result[:body]).to include("/views/training-checkin")
+      expect(result[:body]).to include("/views/weekly-review")
+      expect(result[:body]).to include("View Schemas")
+      expect(result[:body]).to include("Catalog JSON")
+      expect(result[:body]).to include("/api/views")
+      expect(result[:body]).to include("Create Schema")
+      expect(result[:body]).to include("Patch Schema")
+      expect(result[:body]).to include("Load JSON")
+      expect(result[:body]).to include("Clone")
       expect(result[:body]).to include("@tailwindcss/browser@4")
       expect(result[:body]).to include("font-display")
     end
@@ -190,9 +213,28 @@ RSpec.describe Companion::DashboardApp do
       expect(result[:headers]["Content-Type"]).to include("text/html")
       expect(result[:body]).to include("Daily Training Check-in")
       expect(result[:body]).to include("Schema-driven page rendered from persisted view definition.")
+      expect(result[:body]).to include("Capture enough detail that tomorrow-you can quickly reconstruct the session.")
       expect(result[:body]).to include("@tailwindcss/browser@4")
       expect(result[:body]).to include("Schema Page")
       expect(result[:body]).to include('action="/views/training-checkin/submissions"')
+    end
+
+    it "renders the weekly review schema from the store" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: { id: "weekly-review" },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("Weekly Review")
+      expect(result[:body]).to include("Keep answers short and concrete.")
+      expect(result[:body]).to include('action="/views/weekly-review/submissions"')
     end
 
     it "renders a styled not-found page for missing schemas" do
@@ -279,6 +321,37 @@ RSpec.describe Companion::DashboardApp do
       expect(Companion::Dashboard::TrainingCheckinStore.all).to be_empty
     end
 
+    it "stores a lightweight schema submission without contract execution" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+
+      result = described_class.call(
+        params: { id: "weekly-review" },
+        body: {
+          "_action" => "save_review",
+          "energy" => "steady",
+          "highlight" => "Clearer boundaries on meetings.",
+          "next_focus" => "Protect mornings",
+          "share_summary" => "1"
+        },
+        headers: { "Content-Type" => "application/x-www-form-urlencoded" },
+        raw_body: "energy=steady",
+        config: nil
+      )
+
+      submissions = Companion::Dashboard::ViewSubmissionStore.for_view("weekly-review")
+
+      expect(result[:status]).to eq(303)
+      expect(result[:headers]["Location"]).to include("/views/weekly-review")
+      expect(submissions.size).to eq(1)
+      expect(submissions.first).to include(
+        "action_id" => "save_review",
+        "schema_version" => 1,
+        "status" => "processed"
+      )
+      expect(submissions.first.dig("normalized_payload", "share_summary")).to eq(true)
+      expect(submissions.first.dig("processing_result", "type")).to eq("store_submission")
+    end
+
     it "renders a styled not-found page when submitting to a missing schema" do
       result = described_class.call(
         params: { id: "missing-view" },
@@ -335,6 +408,10 @@ RSpec.describe Companion::DashboardApp do
         include(
           "id" => "training-checkin",
           "title" => "Daily Training Check-in"
+        ),
+        include(
+          "id" => "weekly-review",
+          "title" => "Weekly Review"
         )
       )
     end

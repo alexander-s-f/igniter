@@ -48,6 +48,8 @@ module Igniter
             render_container(view, :section, node, class_name: "view-section")
           when "card"
             render_container(view, :article, node, class_name: "view-card")
+          when "notice"
+            view.component(Tailwind::UI::SubmissionNotice.new(message: node.fetch("message"), tone: notice_tone(node["tone"]), tag: :div))
           when "heading"
             level = [[node.fetch("level", 1).to_i, 1].max, 6].min
             view.tag(:"h#{level}", node.fetch("text"), class: heading_classes(level))
@@ -88,17 +90,37 @@ module Igniter
 
           view.component(
             ui_theme.schema_form(action: path, method: method, hidden_action: node.fetch("action")) do |form, fieldset|
-              Array(node["children"]).each { |child| render_form_child(form, fieldset, child) }
+              Array(node["children"]).each { |child| render_form_child(form, fieldset, child, inline_actions: false) }
             end
           )
         end
 
-        def render_form_child(form, target, node)
+        def render_form_child(form, target, node, inline_actions:)
           field_name = node["name"]
           field_error = field_name ? errors[field_name] : nil
           error_class = field_error ? "view-input-error" : nil
 
           case node.fetch("type")
+          when "fieldset"
+            target.component(
+              ui_theme.schema_fieldset(legend: node["legend"], description: node["description"]) do |fieldset|
+                Array(node["children"]).each do |child|
+                  render_form_child(form, fieldset, child, inline_actions: false)
+                end
+              end
+            )
+          when "notice"
+            target.component(
+              Tailwind::UI::SubmissionNotice.new(message: node.fetch("message"), tone: notice_tone(node["tone"]), tag: :div)
+            )
+          when "actions"
+            target.component(
+              Tailwind::UI::InlineActions.new do |actions|
+                Array(node["children"]).each do |child|
+                  render_form_child(form, actions, child, inline_actions: true)
+                end
+              end
+            )
           when "input"
             target.component(
               Tailwind::UI::FieldGroup.new(id: dom_id(node), label: node.fetch("label"), error: field_error) do |field|
@@ -153,11 +175,15 @@ module Igniter
               )
             )
           when "submit"
-            target.component(
-              Tailwind::UI::InlineActions.new do |actions|
-                FormBuilder.new(actions).submit(node.fetch("label"), class: submit_classes)
-              end
-            )
+            if inline_actions
+              FormBuilder.new(target).submit(node.fetch("label"), class: submit_classes)
+            else
+              target.component(
+                Tailwind::UI::InlineActions.new do |actions|
+                  FormBuilder.new(actions).submit(node.fetch("label"), class: submit_classes)
+                end
+              )
+            end
           when "text"
             target.component(ui_theme.schema_intro(text: node.fetch("text"), tone: :muted))
           else
@@ -216,6 +242,11 @@ module Igniter
 
         def submit_classes
           Tailwind::UI::Tokens.action(variant: :primary, theme: :orange)
+        end
+
+        def notice_tone(value)
+          candidate = value.to_s.strip
+          candidate.empty? ? :notice : candidate.to_sym
         end
 
         def ui_theme

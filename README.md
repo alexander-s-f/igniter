@@ -76,6 +76,8 @@ small built-in Ruby HTML DSL, then opt into adapters only where they help:
 - For schema/runtime flows, `Tailwind::UI` also now exposes semantic form primitives such as `SubmissionNotice`, `FieldGroup`, and `ChoiceField`, so `SchemaRenderer` can be composed from domain-level building blocks instead of raw form markup.
 - Schema page composition also now has semantic layout primitives such as `SchemaHero`, `SchemaStack`, `SchemaGrid`, `SchemaSection`, and `SchemaCard`, which `SchemaRenderer` uses for page-level structure.
 - The schema layer now also includes `SchemaForm`, `SchemaFieldset`, and `SchemaIntro`, so `SchemaRenderer` is moving toward a thin compiler from schema JSON nodes to semantic UI blocks.
+- Schema JSON itself now understands higher-level nodes such as `notice`, `fieldset`, and `actions`, so page definitions can express semantic form/layout blocks directly instead of only low-level primitives.
+- [`docs/VIEW_SCHEMA_AUTHORING.md`](docs/VIEW_SCHEMA_AUTHORING.md) now documents the recommended public authoring style and points at the canonical seeded schemas in `examples/companion`.
 - `Igniter::Plugins::View::Tailwind.render_page(...)` and `render_message_page(...)` also expose built-in visual presets such as `theme: :ops`, `theme: :companion`, and `theme: :schema`, so apps can share a consistent shell while still overriding local layout details when needed.
 
 ## Deployment Modes

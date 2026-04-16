@@ -12,9 +12,7 @@ module Igniter
           form = schema.form_for_action(action_id)
           return { "_form" => "form not found for action #{action_id}" } unless form
 
-          Array(form["children"]).each_with_object({}) do |field, errors|
-            next unless field_node?(field)
-
+          each_form_field(form).each_with_object({}) do |field, errors|
             name = field.fetch("name")
             value = payload[name]
 
@@ -33,6 +31,21 @@ module Igniter
 
         def field_node?(node)
           %w[input textarea select checkbox].include?(node["type"])
+        end
+
+        def each_form_field(node, result = [])
+          return result unless node.is_a?(Hash)
+
+          if field_node?(node)
+            result << node
+            return result
+          end
+
+          Array(node["children"]).each do |child|
+            each_form_field(child, result)
+          end
+
+          result
         end
 
         def blank?(value)

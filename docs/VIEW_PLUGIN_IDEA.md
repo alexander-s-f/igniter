@@ -128,6 +128,12 @@ That semantic layer now also includes schema layout composition itself:
 - `SchemaSection`
 - `SchemaCard`
 
+And schema JSON can now point at some of those semantics directly with nodes such as:
+
+- `notice`
+- `fieldset`
+- `actions`
+
 This API is intentionally small.
 
 Its current role is:

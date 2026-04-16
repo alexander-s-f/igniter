@@ -200,6 +200,11 @@ exposes shared presets for:
 - semantic schema/runtime form blocks such as submission notices, grouped inputs, and choice fields
 - semantic schema layout blocks such as schema heroes, stacks, grids, sections, and cards
 - schema-aware composition blocks such as schema forms, fieldsets, and intro text blocks
+- direct schema node support for semantic runtime blocks such as `notice`, `fieldset`, and `actions`
+
+Authoring guide:
+
+- [View Schema Authoring](./VIEW_SCHEMA_AUTHORING.md)
 
 ## Mental Model
 

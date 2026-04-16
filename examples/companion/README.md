@@ -132,6 +132,21 @@ just as loose notes. When a reminder is created from a linked Telegram chat, com
 also persists whether Telegram notifications are enabled for that chat, which gives us a
 clean base for the future `apps/dashboard`.
 
+## Seeded View Schemas
+
+The dashboard now seeds two canonical schema-driven pages through
+`Companion::Dashboard::ViewSchemaCatalog`:
+
+- `/views/training-checkin` — contract-backed check-in flow
+- `/views/weekly-review` — lightweight persisted review form
+
+They are the current reference examples for authoring semantic schema nodes such as
+`notice`, `fieldset`, and `actions`.
+
+The dashboard home page now also acts as a lightweight schema catalog/editor, so you
+can browse stored schemas, open their rendered pages, fetch `/api/views` JSON, and
+draft create/patch payloads from the same operator surface.
+
 ## Structure
 
 ```text
