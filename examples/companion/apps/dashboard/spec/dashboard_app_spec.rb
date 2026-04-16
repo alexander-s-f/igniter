@@ -234,6 +234,8 @@ RSpec.describe Companion::DashboardApp do
       expect(result[:body]).to include("Schema JSON")
       expect(result[:body]).to include("submit_checkin")
       expect(result[:body]).to include("type=contract")
+      expect(result[:body]).to include('data-metric-value="notes"')
+      expect(result[:body]).to include('data-metric-value="view-schemas"')
       expect(result[:body]).to include("/submissions/#{submission.fetch("id")}")
       expect(result[:body]).to include("@tailwindcss/browser@4")
       expect(result[:body]).to include("font-display")
@@ -282,6 +284,7 @@ RSpec.describe Companion::DashboardApp do
       expect(result[:body]).to include("Normalization Diff")
       expect(result[:body]).to include("Type changed during normalization.")
       expect(result[:body]).to include("&quot;type&quot;: &quot;contract&quot;")
+      expect(result[:body]).to include("Submission Detail")
       expect(result[:body]).to include("/api/views/training-checkin")
       expect(result[:body]).to include("@tailwindcss/browser@4")
     end

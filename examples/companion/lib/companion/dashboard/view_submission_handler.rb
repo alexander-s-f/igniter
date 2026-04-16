@@ -22,15 +22,16 @@ module Companion
       end
 
       def render_submission_page(submission:, schema:)
-        theme = Igniter::Plugins::View::Tailwind::UI::Theme.fetch(:companion)
+        surface_preset = Igniter::Plugins::View::Tailwind::Surfaces.submission_inspection
+        theme = surface_preset.theme
         tokens = Igniter::Plugins::View::Tailwind::UI::Tokens
 
         Igniter::Plugins::View::Tailwind.render_page(
           title: "Submission #{submission.fetch("id")}",
-          theme: :companion,
+          theme: surface_preset.theme_name,
           main_class: "mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8"
         ) do |main|
-          render_hero(main, submission: submission)
+          render_hero(main, submission: submission, theme: theme)
           main.tag(:section, class: "grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]") do |grid|
             grid.component(theme.panel(title: "Summary", subtitle: "Runtime-level context for this schema submission.") do |panel|
               panel.component(
@@ -69,8 +70,8 @@ module Companion
         end
       end
 
-      def render_hero(view, submission:)
-        hero_theme = Igniter::Plugins::View::Tailwind::UI::Theme.fetch(:companion).hero(:dashboard)
+      def render_hero(view, submission:, theme:)
+        hero_theme = theme.hero(:dashboard)
 
         view.tag(:section, class: hero_theme.fetch(:wrapper_class)) do |hero|
           hero.tag(:div, class: hero_theme.fetch(:glow_class))
@@ -163,7 +164,8 @@ module Companion
           message: "No stored submission is available for #{submission_id}.",
           detail: "submission_id=#{submission_id}",
           back_label: "Back to dashboard",
-          back_path: "/"
+          back_path: "/",
+          surface_preset: Igniter::Plugins::View::Tailwind::Surfaces.submission_inspection
         )
 
         Igniter::Plugins::View::Response.html(body, status: 404)

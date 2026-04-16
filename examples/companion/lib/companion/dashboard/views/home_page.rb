@@ -8,8 +8,6 @@ module Companion
   module Dashboard
     module Views
       class HomePage
-        MetricCard = Igniter::Plugins::View::Tailwind::UI::MetricCard
-
         def self.render(snapshot:)
           new(snapshot: snapshot).render
         end
@@ -21,7 +19,7 @@ module Companion
         def render
           Igniter::Plugins::View::Tailwind.render_page(
             title: "Companion Dashboard",
-            theme: :companion,
+            theme: surface_preset.theme_name,
             head_content: method(:render_head)
           ) do |main|
             render_hero(main)
@@ -36,6 +34,7 @@ module Companion
         attr_reader :snapshot
 
         def render_head(head)
+          surface_preset.render_head(head, config: {})
           head.tag(:script, type: "text/javascript") do |script|
             script.raw(script_source)
           end
@@ -66,12 +65,12 @@ module Companion
           counts = snapshot.fetch(:counts)
 
           view.tag(:section, class: "grid gap-4 sm:grid-cols-2 xl:grid-cols-4") do |section|
-            section.component(MetricCard, label: "Notes", value: counts[:notes], hint: "stored context")
-            section.component(MetricCard, label: "Active Reminders", value: counts[:active_reminders], hint: "pending follow-ups")
-            section.component(MetricCard, label: "Telegram Chats", value: counts[:telegram_bindings], hint: "linked users")
-            section.component(MetricCard, label: "Preferences", value: counts[:notification_preferences], hint: "persisted channel state")
-            section.component(MetricCard, label: "View Schemas", value: counts[:view_schemas], hint: "authoring surfaces")
-            section.component(MetricCard, label: "Submissions", value: counts[:view_submissions], hint: "runtime feedback loop")
+            section.component(metric_card(id: "notes", label: "Notes", value: counts[:notes], hint: "stored context"))
+            section.component(metric_card(id: "active-reminders", label: "Active Reminders", value: counts[:active_reminders], hint: "pending follow-ups"))
+            section.component(metric_card(id: "telegram-bindings", label: "Telegram Chats", value: counts[:telegram_bindings], hint: "linked users"))
+            section.component(metric_card(id: "notification-preferences", label: "Preferences", value: counts[:notification_preferences], hint: "persisted channel state"))
+            section.component(metric_card(id: "view-schemas", label: "View Schemas", value: counts[:view_schemas], hint: "authoring surfaces"))
+            section.component(metric_card(id: "view-submissions", label: "Submissions", value: counts[:view_submissions], hint: "runtime feedback loop"))
           end
         end
 
@@ -473,7 +472,15 @@ module Companion
         end
 
         def ui_theme
-          Igniter::Plugins::View::Tailwind::UI::Theme.fetch(:companion)
+          surface_preset.theme
+        end
+
+        def surface_preset
+          @surface_preset ||= Igniter::Plugins::View::Tailwind::Surfaces.schema_authoring
+        end
+
+        def metric_card(id:, label:, value:, hint:)
+          surface_preset.metric_card(id: id, label: label, value: value, hint: hint)
         end
 
         def list_classes
