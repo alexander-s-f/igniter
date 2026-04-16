@@ -156,6 +156,11 @@ Igniter::Plugins::View::Tailwind::UI::KeyValueList
 Igniter::Plugins::View::Tailwind::UI::Field
 Igniter::Plugins::View::Tailwind::UI::FormSection
 Igniter::Plugins::View::Tailwind::UI::MessagePage
+Igniter::Plugins::View::Tailwind::UI::PropertyCard
+Igniter::Plugins::View::Tailwind::UI::ResourceList
+Igniter::Plugins::View::Tailwind::UI::EndpointList
+Igniter::Plugins::View::Tailwind::UI::TimelineList
+Igniter::Plugins::View::Tailwind::UI::Theme
 Igniter::Plugins::View::Tailwind::UI::Tokens
 ```
 
@@ -170,6 +175,17 @@ Igniter::Plugins::View::Tailwind.render_page(title: "Schema", theme: :schema) { 
 These presets keep body classes, layout width, and Tailwind config aligned across
 apps while still allowing local overrides such as a narrower `main_class` for a
 detail page or message shell.
+
+For component-level styling, `Igniter::Plugins::View::Tailwind::UI::Theme.fetch(...)`
+exposes shared presets for:
+
+- panels
+- form sections
+- message pages
+- hero and surface chrome used by dashboards and detail pages
+- repeated field/input, checkbox, code-pill, muted-text, and empty-state styles
+- repeated list/card/heading/text styles used across dashboard sections
+- semantic server-rendered dashboard slices such as resource lists, endpoint lists, and timeline lists
 
 ## Mental Model
 

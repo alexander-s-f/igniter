@@ -281,6 +281,143 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI do
     expect(html).to include("dashboard")
     expect(html).to include("4569")
   end
+
+  it "renders semantic property, resource, endpoint, and timeline components" do
+    theme = described_class::Theme.fetch(:ops)
+
+    html = Igniter::Plugins::View.render do |view|
+      view.component(
+        described_class::PropertyCard.new(
+          title: "main-app",
+          href: "/apps/main",
+          body: "role=dashboard",
+          meta: "replicas=1",
+          code: "apps/main",
+          action_label: "Open",
+          action_href: "/apps/main",
+          wrapper_class: theme.list_item_class,
+          title_class: theme.item_title_class,
+          body_class: theme.body_text_class,
+          meta_class: theme.muted_text_class,
+          code_class: theme.code_class,
+          link_class: "transition hover:text-amber-200",
+          action_class: "mt-3 inline-flex text-sm"
+        )
+      )
+      view.component(
+        theme.resource_list(
+          items: [{ title: "Store", code: "/tmp/store.db", meta: "bytes=12" }],
+          compact: true
+        )
+      )
+      view.component(
+        theme.endpoint_list(
+          items: [{ title: "Health", href: "/health", meta: "role=main" }],
+          compact: true,
+          link_class: "text-amber-200"
+        )
+      )
+      view.component(
+        theme.timeline_list(
+          items: [{
+            title: "note · Saved",
+            href: "/?focus=1",
+            body: "Captured observation",
+            meta: "2m ago",
+            action_label: "open source",
+            action_href: "/api/notes/1"
+          }],
+          title_link_class: "transition hover:text-amber-200",
+          action_link_class: "mt-3 inline-flex text-sm"
+        )
+      )
+    end
+
+    expect(html).to include("main-app")
+    expect(html).to include('href="/apps/main"')
+    expect(html).to include("/tmp/store.db")
+    expect(html).to include("Health")
+    expect(html).to include('href="/health"')
+    expect(html).to include("note · Saved")
+    expect(html).to include("open source")
+  end
+end
+
+RSpec.describe Igniter::Plugins::View::Tailwind::UI::Theme do
+  it "builds themed panels, form sections, and message page options" do
+    theme = described_class.fetch(:companion)
+
+    html = Igniter::Plugins::View.render do |view|
+      view.component(theme.panel(title: "Control", subtitle: "Shared surface") { |panel| panel.tag(:p, "Hello") })
+      view.component(
+        theme.form_section(title: "Reminder", subtitle: "Fast create", action: "/reminders") do |form|
+          form.label("task", "Task")
+          form.input("task", id: "task")
+        end
+      )
+      view.component(
+        Igniter::Plugins::View::Tailwind::UI::MessagePage.new(
+          title: "Missing View",
+          eyebrow: "Companion",
+          message: "No page registered.",
+          back_label: "Back",
+          back_path: "/dashboard",
+          **theme.message_page_options
+        )
+      )
+    end
+
+    expect(html).to include("bg-[#2a1914]/90")
+    expect(html).to include("Shared surface")
+    expect(html).to include('action="/reminders"')
+    expect(html).to include("Missing View")
+    expect(html).to include("No page registered.")
+  end
+
+  it "exposes shared hero and surface presets" do
+    theme = described_class.fetch(:ops)
+    hero = theme.hero(:dashboard)
+
+    expect(hero.fetch(:wrapper_class)).to include("shadow-glow")
+    expect(hero.fetch(:eyebrow_class)).to include("text-amber-200/75")
+    expect(theme.panel(title: "Topology")).to be_a(Igniter::Plugins::View::Tailwind::UI::Panel)
+  end
+
+  it "exposes shared field, checkbox, code, and empty-state helpers" do
+    companion = described_class.fetch(:companion)
+    schema = described_class.fetch(:schema)
+    ops = described_class.fetch(:ops)
+
+    expect(companion.input_class).to include("bg-[#160f0d]")
+    expect(companion.checkbox_label_class).to include("items-center")
+    expect(companion.checkbox_class).to include("text-orange-300")
+    expect(schema.field_label_class).to include("uppercase")
+    expect(ops.code_class).to include("text-amber-100")
+    expect(ops.empty_state_class(extra: "empty-state")).to include("empty-state")
+    expect(ops.muted_text_class(extra: "muted")).to include("muted")
+  end
+
+  it "exposes shared list, card, and heading helpers" do
+    companion = described_class.fetch(:companion)
+    ops = described_class.fetch(:ops)
+
+    expect(companion.list_class).to include("space-y-4")
+    expect(companion.list_item_class).to include("rounded-3xl")
+    expect(companion.item_title_class).to include("font-semibold")
+    expect(companion.body_text_class(extra: "mt-2")).to include("mt-2")
+    expect(ops.compact_list_class).to include("compact")
+    expect(ops.compact_card_class).to include("rounded-2xl")
+    expect(ops.compact_item_class).to include("text-sm")
+    expect(ops.section_heading_class).to include("tracking-[0.22em]")
+  end
+
+  it "builds semantic list components from the shared theme" do
+    theme = described_class.fetch(:ops)
+
+    expect(theme.resource_list(items: [])).to be_a(Igniter::Plugins::View::Tailwind::UI::ResourceList)
+    expect(theme.endpoint_list(items: [], link_class: "text-amber-200")).to be_a(Igniter::Plugins::View::Tailwind::UI::EndpointList)
+    expect(theme.timeline_list(items: [], title_link_class: "hover:text-amber-200", action_link_class: "text-sm")).to be_a(Igniter::Plugins::View::Tailwind::UI::TimelineList)
+  end
 end
 
 RSpec.describe Igniter::Plugins::View::Tailwind::UI::Tokens do

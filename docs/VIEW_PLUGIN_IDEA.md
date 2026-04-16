@@ -69,6 +69,7 @@ The first small slice of that plugin now exists:
 - `Igniter::Plugins::View::FormBuilder`
 - `Igniter::Plugins::View::Response.html(...)`
 - `Igniter::Plugins::View::Tailwind::UI::*` reusable dashboard primitives
+- `Igniter::Plugins::View::Tailwind::UI::Theme.fetch(...)`
 - `Igniter::Plugins::View::Tailwind.render_page(..., theme: ...)`
 - `Igniter::Plugins::View::Tailwind.render_message_page(..., theme: ...)`
 
@@ -91,6 +92,24 @@ And the page shell itself now has shared presets for recurring surfaces:
 - `theme: :ops` for `playgrounds/home-lab`-style operational dashboards
 - `theme: :companion` for `examples/companion`-style assistant/admin surfaces
 - `theme: :schema` for schema-driven pages and form flows
+
+Inside those shells, `Tailwind::UI::Theme` now gives a second layer of shared
+styling for component-level surfaces such as:
+
+- dashboard panels
+- form sections
+- message/error cards
+- hero banners and small chrome fragments
+- field/input shells, checkbox wrappers, code pills, muted copy, and empty states
+- repeated list/card/heading/title/body text containers for dashboard sections
+
+The next layer is now visible too: semantic dashboard components, not just theme
+tokens. Current examples in the repo include:
+
+- `PropertyCard`
+- `ResourceList`
+- `EndpointList`
+- `TimelineList`
 
 This API is intentionally small.
 

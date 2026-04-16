@@ -19,6 +19,8 @@ module Igniter
         end
 
         def call(view)
+          hero_theme = ui_theme.hero(:page)
+
           view.raw(
             Tailwind.render_page(
               title: schema.title,
@@ -26,11 +28,11 @@ module Igniter
               theme: :schema
             ) do |main|
               main.tag(:section,
-                       class: "overflow-hidden rounded-[34px] border border-orange-200/15 bg-[radial-gradient(circle_at_top_left,_rgba(194,107,61,0.22),_transparent_18rem),linear-gradient(145deg,rgba(60,33,21,0.96),rgba(22,15,13,0.98))] px-6 py-8 shadow-2xl shadow-black/25 sm:px-8") do |hero|
-                hero.tag(:p, "Schema Page", class: "text-[11px] font-semibold uppercase tracking-[0.34em] text-orange-200/75")
-                hero.tag(:h1, schema.title, class: "mt-3 font-display text-4xl leading-tight text-white sm:text-5xl")
+                       class: hero_theme.fetch(:wrapper_class)) do |hero|
+                hero.tag(:p, "Schema Page", class: hero_theme.fetch(:eyebrow_class))
+                hero.tag(:h1, schema.title, class: hero_theme.fetch(:title_class))
                 meta_hint = schema.meta["description"] || schema.meta["subtitle"]
-                hero.tag(:p, meta_hint, class: "mt-4 max-w-3xl text-base leading-7 text-stone-300") if meta_hint
+                hero.tag(:p, meta_hint, class: hero_theme.fetch(:body_class)) if meta_hint
               end
 
               main.component(Tailwind::UI::Banner.new(message: notice, tone: :notice, tag: :div)) if notice
@@ -154,7 +156,7 @@ module Igniter
               end
             )
           when "text"
-            form.view.tag(:p, node.fetch("text"), class: "view-muted text-sm leading-6 text-stone-400")
+            form.view.tag(:p, node.fetch("text"), class: ui_theme.muted_text_class(extra: "view-muted"))
           else
             raise ArgumentError, "unsupported form child: #{node["type"]}"
           end
@@ -198,19 +200,23 @@ module Igniter
         end
 
         def checkbox_label_classes
-          "flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200"
+          ui_theme.checkbox_label_class
         end
 
         def checkbox_classes
-          "h-4 w-4 rounded border-white/20 bg-stone-950 text-orange-300"
+          ui_theme.checkbox_class
         end
 
         def field_classes
-          "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+          ui_theme.input_class
         end
 
         def submit_classes
           Tailwind::UI::Tokens.action(variant: :primary, theme: :orange)
+        end
+
+        def ui_theme
+          Tailwind::UI::Theme.fetch(:schema)
         end
 
         def heading_classes(level)

@@ -42,16 +42,18 @@ module Companion
         end
 
         def render_hero(view)
+          hero_theme = ui_theme.hero(:dashboard)
+
           view.tag(:section,
-                   class: "relative overflow-hidden rounded-[34px] border border-orange-200/15 bg-[radial-gradient(circle_at_top_left,_rgba(194,107,61,0.24),_transparent_18rem),linear-gradient(145deg,rgba(60,33,21,0.96),rgba(22,15,13,0.98))] px-6 py-8 shadow-2xl shadow-black/25 sm:px-8 lg:px-10") do |hero|
-            hero.tag(:div, class: "absolute inset-y-0 right-0 hidden w-72 bg-[radial-gradient(circle_at_center,_rgba(251,146,60,0.14),_transparent_65%)] lg:block")
-            hero.tag(:div, class: "relative z-10 max-w-4xl") do |content|
-              content.tag(:p, "Operator Surface", class: "text-[11px] font-semibold uppercase tracking-[0.34em] text-orange-200/75")
-              content.tag(:h1, "Companion Dashboard", class: "mt-3 font-display text-4xl leading-tight text-white sm:text-5xl")
+                   class: hero_theme.fetch(:wrapper_class)) do |hero|
+            hero.tag(:div, class: hero_theme.fetch(:glow_class))
+            hero.tag(:div, class: hero_theme.fetch(:content_class)) do |content|
+              content.tag(:p, "Operator Surface", class: hero_theme.fetch(:eyebrow_class))
+              content.tag(:h1, "Companion Dashboard", class: hero_theme.fetch(:title_class))
               content.tag(:p,
                           "Stack-level overview for reminders, Telegram bindings, notification preferences, notes, and execution-store state across companion apps.",
-                          class: "mt-4 max-w-3xl text-base leading-7 text-stone-300 sm:text-lg")
-              content.tag(:div, class: "mt-5 flex flex-wrap gap-x-4 gap-y-2 font-mono text-xs text-stone-400") do |meta|
+                          class: hero_theme.fetch(:body_class))
+              content.tag(:div, class: hero_theme.fetch(:meta_class)) do |meta|
                 meta.tag(:span, "Generated #{snapshot.fetch(:generated_at)}")
                 meta.tag(:span, "apps=#{snapshot.dig(:stack, :apps).join(", ")}")
                 meta.tag(:span, "default=#{snapshot.dig(:stack, :default_app)}")
@@ -93,7 +95,7 @@ module Companion
           view.component(
             Igniter::Plugins::View::Tailwind::UI::ActionBar.new(
               tag: :section,
-              class_name: "rounded-3xl border border-white/10 bg-white/5 px-5 py-4 font-mono text-xs text-stone-300"
+              class_name: ui_theme.surface(:footer_bar_class)
             ) do |bar|
               bar.tag(:span, "JSON API:")
               bar.tag(:a,
@@ -110,50 +112,43 @@ module Companion
         end
 
         def panel(title, subtitle: nil, &block)
-          Igniter::Plugins::View::Tailwind::UI::Panel.new(
-            title: title,
-            subtitle: subtitle,
-            wrapper_class: "rounded-[28px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur",
-            subtitle_class: "text-sm leading-6 text-stone-400",
-            &block
-          )
+          ui_theme.panel(title: title, subtitle: subtitle, &block)
         end
 
         def create_reminder_form_section
-          Igniter::Plugins::View::Tailwind::UI::FormSection.new(
+          ui_theme.form_section(
             title: "Create Reminder",
             subtitle: "Quick operator flow for scheduling reminders.",
-            action: "/reminders",
-            wrapper_class: "rounded-[28px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur"
+            action: "/reminders"
           ) do |form|
-            form.label("reminder-task", "Task", class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300")
+            form.label("reminder-task", "Task", class: ui_theme.field_label_class)
             form.input("task",
                        id: "reminder-task",
                        placeholder: "Pay rent",
                        required: true,
-                       class: input_classes)
+                        class: input_classes)
 
-            form.label("reminder-timing", "When", class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300")
+            form.label("reminder-timing", "When", class: ui_theme.field_label_class)
             form.input("timing",
                        id: "reminder-timing",
                        placeholder: "Tomorrow at 09:00",
                        required: true,
                        class: input_classes)
 
-            form.label("reminder-channel", "Channel", class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300")
+            form.label("reminder-channel", "Channel", class: ui_theme.field_label_class)
             form.select("channel",
                         id: "reminder-channel",
                         options: [["No channel", ""], ["Telegram", "telegram"]],
                         class: input_classes)
 
-            form.label("reminder-chat-id", "Telegram chat", class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300")
+            form.label("reminder-chat-id", "Telegram chat", class: ui_theme.field_label_class)
             form.select("chat_id",
                         id: "reminder-chat-id",
                         options: telegram_chat_options,
                         class: input_classes)
 
-            form.label("reminder-notifications", class: "flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-stone-200") do |label|
-              label.raw('<input type="checkbox" name="notifications_enabled" value="1" checked class="h-4 w-4 rounded border-white/20 bg-stone-950 text-orange-300">')
+            form.label("reminder-notifications", class: ui_theme.checkbox_label_class) do |label|
+              label.raw(%(<input type="checkbox" name="notifications_enabled" value="1" checked class="#{ui_theme.checkbox_class}">))
               label.text("Enable Telegram notifications")
             end
 
@@ -168,7 +163,7 @@ module Companion
           view.tag(:ul, class: list_classes) do |list|
             reminders.last(8).reverse.each do |reminder|
               list.tag(:li, class: list_item_classes) do |item|
-                item.tag(:strong, reminder["task"], class: "font-semibold text-white")
+                item.tag(:strong, reminder["task"], class: ui_theme.item_title_class)
                 item.tag(:span, reminder["timing"], class: pill_classes)
                 item.tag(:div, class: "mt-3") do |row|
                   row.tag(:code, "channel=#{reminder["channel"] || "none"} chat=#{reminder["chat_id"] || "-"}", class: code_classes)
@@ -199,7 +194,7 @@ module Companion
               button_class = enabled ? secondary_button_classes : primary_button_classes
 
               list.tag(:li, class: list_item_classes) do |item|
-                item.tag(:strong, name, class: "font-semibold text-white")
+                item.tag(:strong, name, class: ui_theme.item_title_class)
                 item.tag(:div, class: "mt-3") do |row|
                   row.tag(:code, "chat_id=#{chat_id} type=#{binding["type"] || "unknown"}", class: code_classes)
                 end
@@ -218,30 +213,30 @@ module Companion
           view.tag(:ul, class: list_classes) do |list|
             notes.first(8).each do |key, value|
               list.tag(:li, class: list_item_classes) do |item|
-                item.tag(:strong, key, class: "font-semibold text-white")
-                item.tag(:div, value, class: "mt-2 text-sm leading-6 text-stone-300")
+                item.tag(:strong, key, class: ui_theme.item_title_class)
+                item.tag(:div, value, class: ui_theme.body_text_class(extra: "mt-2"))
               end
             end
           end
         end
 
         def execution_stores_markup(view, execution_stores)
-          view.tag(:ul, class: list_classes) do |list|
-            execution_stores.each do |app_name, summary|
-              list.tag(:li, class: list_item_classes) do |item|
-                item.tag(:strong, app_name, class: "font-semibold text-white")
-                item.tag(:div, class: "mt-3") do |row|
-                  row.tag(:code, summary[:class], class: code_classes)
-                end
-                item.tag(:div, "total=#{summary[:total]} pending=#{summary[:pending]}", class: "mt-2 text-sm text-stone-300")
+          view.component(
+            ui_theme.resource_list(
+              items: execution_stores.map do |app_name, summary|
+                {
+                  title: app_name,
+                  meta: "total=#{summary[:total]} pending=#{summary[:pending]}",
+                  code: summary[:class]
+                }
               end
-            end
-          end
+            )
+          )
         end
 
         def labelled_code(view, label, value)
-          view.tag(:p, class: "mb-3 flex flex-wrap items-center gap-2 text-sm text-stone-300") do |paragraph|
-            paragraph.tag(:strong, label, class: "font-semibold text-white")
+          view.tag(:p, class: ui_theme.body_text_class(extra: "mb-3 flex flex-wrap items-center gap-2")) do |paragraph|
+            paragraph.tag(:strong, label, class: ui_theme.item_title_class)
             paragraph.tag(:code, value, class: code_classes)
           end
         end
@@ -272,7 +267,7 @@ module Companion
         end
 
         def input_classes
-          "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+          ui_theme.input_class
         end
 
         def primary_button_classes
@@ -291,20 +286,24 @@ module Companion
           Igniter::Plugins::View::Tailwind::UI::Tokens
         end
 
+        def ui_theme
+          Igniter::Plugins::View::Tailwind::UI::Theme.fetch(:companion)
+        end
+
         def list_classes
-          "space-y-4"
+          ui_theme.list_class
         end
 
         def list_item_classes
-          "rounded-3xl border border-white/10 bg-white/5 p-4"
+          ui_theme.list_item_class
         end
 
         def code_classes
-          "rounded-xl bg-black/30 px-3 py-2 font-mono text-xs leading-6 text-orange-100"
+          ui_theme.code_class
         end
 
         def empty_state_classes
-          "text-sm leading-6 text-stone-400"
+          ui_theme.empty_state_class
         end
 
         def script_source
