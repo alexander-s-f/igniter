@@ -67,6 +67,7 @@ module Igniter
         selected_peer, round_robin_index = preview_round_robin_candidate(round_robin_key || normalized.to_h, top_tier)
 
         {
+          routing_mode: :capability,
           query: normalized.to_h,
           peer_count: peers.size,
           matched_count: evaluations.count { |entry| entry[:matched] },
@@ -83,6 +84,7 @@ module Igniter
               matched: entry[:matched],
               alive: entry[:alive],
               eligible: entry[:eligible],
+              match_details: entry[:match_details],
               top_tier: top_tier_names.include?(peer.name),
               selected: selected_peer&.name == peer.name,
               ranking_fingerprint: entry[:ranking_fingerprint],
@@ -167,6 +169,7 @@ module Igniter
       end
 
       def top_ranked_candidates(query, candidates)
+        return candidates if candidates.empty?
         return candidates unless query.ordered? || query.decisioned?
 
         ranked = candidates.sort do |left, right|
@@ -177,7 +180,8 @@ module Igniter
       end
 
       def evaluate_peer(query, peer)
-        matched = query.matches_profile?(peer.profile)
+        match_details = query.explain_profile(peer.profile)
+        matched = match_details[:matched]
         alive = matched ? alive?(peer) : nil
         eligible = matched && alive
 
@@ -186,6 +190,7 @@ module Igniter
           matched: matched,
           alive: alive,
           eligible: eligible,
+          match_details: match_details,
           ranking_fingerprint: eligible ? query.ranking_fingerprint(peer.profile) : nil
         }
       end

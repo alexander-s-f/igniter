@@ -256,6 +256,7 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
 
         expect(dead).to include(matched: true, alive: false, reasons: [:unreachable])
         expect(mac).to include(matched: false, reasons: [:query_mismatch])
+        expect(mac[:match_details]).to include(failed_dimensions: [:tags])
       }
     end
 
@@ -289,9 +290,39 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       expect(selected).to include(selected: true, top_tier: true, reasons: [:selected])
       expect(lower).to include(selected: false, top_tier: false, reasons: [:lower_ranked])
       expect(mismatch).to include(matched: false, reasons: [:query_mismatch])
+      expect(mismatch[:match_details]).to include(failed_dimensions: [:tags])
 
       expect(router.find_peer_for_query({ all_of: [:orders], tags: [:linux], order_by: [{ metadata: "trust.score", direction: :desc }] }, deferred))
         .to eq("http://orders-linux:4567")
+    end
+
+    it "explains policy and decision mismatches for rejected peers" do
+      config.add_peer(
+        "orders-guarded",
+        url: "http://orders-guarded:4567",
+        capabilities: [:orders],
+        metadata: {
+          policy: {
+            allows: %i[system_read shell_exec],
+            requires_approval: [:shell_exec]
+          }
+        }
+      )
+
+      explanation = router.explain_peer_for_query(
+        {
+          all_of: [:orders],
+          policy: { permits: [:shell_exec] },
+          decision: { mode: :auto_only, actions: [:shell_exec] }
+        }
+      )
+
+      guarded = explanation[:peers].find { |peer| peer[:name] == "orders-guarded" }
+
+      expect(guarded).to include(matched: false, reasons: [:query_mismatch])
+      expect(guarded[:match_details]).to include(failed_dimensions: %i[policy decision])
+      expect(guarded[:match_details][:policy]).to include(failed_keys: [:permits])
+      expect(guarded[:match_details][:decision]).to include(mode: :auto_only, outcome: :approval_required)
     end
 
     it "find_peer_for returns URL of alive peer" do

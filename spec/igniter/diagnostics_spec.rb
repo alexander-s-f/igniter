@@ -208,7 +208,12 @@ RSpec.describe "Igniter diagnostics" do
     let(:pending_trace) do
       {
         routing_mode: :capability,
-        query: { all_of: [:orders], tags: [:linux] },
+        query: {
+          all_of: [:orders],
+          tags: [:linux],
+          policy: { permits: [:shell_exec], approvable: [:deploy] },
+          decision: { mode: :approval_ok, actions: [:shell_exec] }
+        },
         selected_url: nil,
         eligible_count: 0,
         peers: [
@@ -225,6 +230,51 @@ RSpec.describe "Igniter diagnostics" do
         selected_url: "http://audit:4567",
         reachable: false,
         reasons: [:unreachable]
+      }
+    end
+
+    let(:policy_gate_trace) do
+      {
+        routing_mode: :capability,
+        query: {
+          all_of: [:orders],
+          policy: { permits: [:shell_exec] },
+          decision: { mode: :auto_only, actions: [:shell_exec] }
+        },
+        selected_url: nil,
+        eligible_count: 0,
+        matched_count: 0,
+        peer_count: 1,
+        peers: [
+          {
+            name: "orders-guarded",
+            matched: false,
+            reasons: [:query_mismatch],
+            match_details: { failed_dimensions: %i[policy decision] }
+          }
+        ]
+      }
+    end
+
+    let(:capacity_trace) do
+      {
+        routing_mode: :capability,
+        query: {
+          all_of: [:gpu_inference],
+          tags: [:cuda]
+        },
+        selected_url: nil,
+        eligible_count: 0,
+        matched_count: 0,
+        peer_count: 1,
+        peers: [
+          {
+            name: "orders-linux",
+            matched: false,
+            reasons: [:query_mismatch],
+            match_details: { failed_dimensions: %i[capabilities tags] }
+          }
+        ]
       }
     end
 
@@ -263,6 +313,48 @@ RSpec.describe "Igniter diagnostics" do
       end.new(trace)
     end
 
+    let(:policy_gate_adapter) do
+      trace = policy_gate_trace
+      Class.new do
+        define_method(:initialize) { |routing_trace| @routing_trace = routing_trace }
+
+        define_method(:call) do |node:, **|
+          raise Igniter::Cluster::Mesh::DeferredCapabilityError.new(
+            :orders,
+            Igniter::Runtime::DeferredResult.build(
+              token: "gate-order-42",
+              payload: { query: { all_of: [:orders] } },
+              source_node: node.name,
+              waiting_on: node.name
+            ),
+            query: { all_of: [:orders] },
+            explanation: @routing_trace
+          )
+        end
+      end.new(trace)
+    end
+
+    let(:capacity_adapter) do
+      trace = capacity_trace
+      Class.new do
+        define_method(:initialize) { |routing_trace| @routing_trace = routing_trace }
+
+        define_method(:call) do |node:, **|
+          raise Igniter::Cluster::Mesh::DeferredCapabilityError.new(
+            :gpu_inference,
+            Igniter::Runtime::DeferredResult.build(
+              token: "capacity-order-42",
+              payload: { query: { all_of: [:gpu_inference] } },
+              source_node: node.name,
+              waiting_on: node.name
+            ),
+            query: { all_of: [:gpu_inference] },
+            explanation: @routing_trace
+          )
+        end
+      end.new(trace)
+    end
+
     let(:pending_contract_class) do
       adapter = pending_adapter
       Class.new(Igniter::Contract) do
@@ -289,6 +381,32 @@ RSpec.describe "Igniter diagnostics" do
       end
     end
 
+    let(:policy_gate_contract_class) do
+      adapter = policy_gate_adapter
+      Class.new(Igniter::Contract) do
+        runner :inline, remote_adapter: adapter
+
+        define do
+          input :order_id
+          remote :order_result, contract: "ProcessOrder", node: "http://unused.example", inputs: { id: :order_id }
+          output :order_result
+        end
+      end
+    end
+
+    let(:capacity_contract_class) do
+      adapter = capacity_adapter
+      Class.new(Igniter::Contract) do
+        runner :inline, remote_adapter: adapter
+
+        define do
+          input :order_id
+          remote :order_result, contract: "ProcessOrder", node: "http://unused.example", inputs: { id: :order_id }
+          output :order_result
+        end
+      end
+    end
+
     it "surfaces routing traces for pending remote outputs in diagnostics" do
       contract = pending_contract_class.new(order_id: 42)
 
@@ -300,9 +418,20 @@ RSpec.describe "Igniter diagnostics" do
       expect(report[:outputs][:order_result]).to include(
         token: "route-order-42",
         routing_trace: pending_trace,
-        routing_trace_summary: "mode=capability query={:all_of=>[:orders], :tags=>[:linux]} eligible=0 selected=none reasons=unreachable"
+        routing_trace_summary: "mode=capability query={:all_of=>[:orders], :tags=>[:linux], :policy=>{:permits=>[:shell_exec], :approvable=>[:deploy]}, :decision=>{:mode=>:approval_ok, :actions=>[:shell_exec]}} eligible=0 selected=none reasons=unreachable"
       )
       expect(report[:routing]).to include(total: 1, pending: 1, failed: 0)
+      expect(report[:routing][:facets]).to include(
+        by_status: { pending: 1 },
+        by_mode: { capability: 1 },
+        by_reason: { unreachable: 1 },
+        by_mismatch_dimension: {},
+        by_decision_mode: { approval_ok: 1 },
+        by_policy_key: { approvable: 1, permits: 1 },
+        by_latest_event: { node_pending: 1 },
+        by_incident: { peer_unreachable: 1 },
+        by_remediation_code: { restore_peer_connectivity: 1 }
+      )
       expect(report[:routing][:entries]).to contain_exactly(
         include(
           node_name: :order_result,
@@ -310,15 +439,33 @@ RSpec.describe "Igniter diagnostics" do
           token: "route-order-42",
           waiting_on: :order_result,
           routing_trace: pending_trace,
-          routing_trace_summary: "mode=capability query={:all_of=>[:orders], :tags=>[:linux]} eligible=0 selected=none reasons=unreachable"
+          routing_trace_summary: "mode=capability query={:all_of=>[:orders], :tags=>[:linux], :policy=>{:permits=>[:shell_exec], :approvable=>[:deploy]}, :decision=>{:mode=>:approval_ok, :actions=>[:shell_exec]}} eligible=0 selected=none reasons=unreachable",
+          classification: include(
+            routing_mode: :capability,
+            reasons: [:unreachable],
+            decision_mode: :approval_ok,
+            decision_actions: [:shell_exec],
+            policy_keys: %i[approvable permits],
+            latest_event_type: :node_pending,
+            incident: :peer_unreachable
+          ),
+          remediation: [
+            include(
+              code: :restore_peer_connectivity,
+              details: {}
+            )
+          ],
+          events: include(latest_type: :node_pending)
         )
       )
-      expect(text).to include("Routing: total=1, pending=1, failed=0")
-      expect(text).to include("routing=mode=capability query={:all_of=>[:orders], :tags=>[:linux]} eligible=0 selected=none reasons=unreachable")
-      expect(markdown).to include("- Routing: total=1, pending=1, failed=0")
+      expect(text).to include("Routing: total=1, pending=1, failed=0, modes=capability=1, reasons=unreachable=1, incidents=peer_unreachable=1, hints=restore_peer_connectivity=1")
+      expect(text).to include("hints=restore_peer_connectivity")
+      expect(text).to include("routing=mode=capability query={:all_of=>[:orders], :tags=>[:linux], :policy=>{:permits=>[:shell_exec], :approvable=>[:deploy]}, :decision=>{:mode=>:approval_ok, :actions=>[:shell_exec]}} eligible=0 selected=none reasons=unreachable")
+      expect(markdown).to include("- Routing: total=1, pending=1, failed=0, modes=capability=1, reasons=unreachable=1, incidents=peer_unreachable=1, hints=restore_peer_connectivity=1")
       expect(markdown).to include("## Routing")
       expect(markdown).to include("`order_result` `pending`")
-      expect(markdown).to include("routing=mode=capability query={:all_of=>[:orders], :tags=>[:linux]} eligible=0 selected=none reasons=unreachable")
+      expect(markdown).to include("hints=`restore_peer_connectivity`")
+      expect(markdown).to include("mode=capability query={:all_of=>[:orders], :tags=>[:linux], :policy=>{:permits=>[:shell_exec], :approvable=>[:deploy]}, :decision=>{:mode=>:approval_ok, :actions=>[:shell_exec]}} eligible=0 selected=none reasons=unreachable")
     end
 
     it "surfaces routing traces for failed remote outputs in diagnostics" do
@@ -341,24 +488,110 @@ RSpec.describe "Igniter diagnostics" do
         routing_trace_summary: "mode=pinned peer=audit-node selected=http://audit:4567 reachable=false reasons=unreachable"
       )
       expect(report[:routing]).to include(total: 1, pending: 0, failed: 1)
+      expect(report[:routing][:facets]).to include(
+        by_status: { failed: 1 },
+        by_mode: { pinned: 1 },
+        by_reason: { unreachable: 1 },
+        by_mismatch_dimension: {},
+        by_decision_mode: {},
+        by_policy_key: {},
+        by_latest_event: { node_failed: 1 },
+        by_incident: { peer_unreachable: 1 },
+        by_remediation_code: { restore_peer_connectivity: 1 }
+      )
       expect(report[:routing][:entries]).to contain_exactly(
         include(
           node_name: :audit_result,
           status: :failed,
           routing_trace: failed_trace,
           routing_trace_summary: "mode=pinned peer=audit-node selected=http://audit:4567 reachable=false reasons=unreachable",
+          classification: include(
+            routing_mode: :pinned,
+            reasons: [:unreachable],
+            latest_event_type: :node_failed,
+            incident: :peer_unreachable
+          ),
+          remediation: [
+            include(
+              code: :restore_peer_connectivity,
+              details: include(peer_name: "audit-node", selected_url: "http://audit:4567")
+            )
+          ],
+          events: include(latest_type: :node_failed),
           error: include(
             type: "Igniter::ResolutionError",
             message: include("Pinned peer is unreachable")
           )
         )
       )
-      expect(text).to include("Routing: total=1, pending=0, failed=1")
+      expect(text).to include("Routing: total=1, pending=0, failed=1, modes=pinned=1, reasons=unreachable=1, incidents=peer_unreachable=1, hints=restore_peer_connectivity=1")
+      expect(text).to include("hints=restore_peer_connectivity")
       expect(text).to include("audit_result=Igniter::ResolutionError[mode=pinned peer=audit-node selected=http://audit:4567 reachable=false reasons=unreachable]")
-      expect(markdown).to include("- Routing: total=1, pending=0, failed=1")
+      expect(markdown).to include("- Routing: total=1, pending=0, failed=1, modes=pinned=1, reasons=unreachable=1, incidents=peer_unreachable=1, hints=restore_peer_connectivity=1")
       expect(markdown).to include("## Routing")
       expect(markdown).to include("`audit_result` `failed`")
+      expect(markdown).to include("hints=`restore_peer_connectivity`")
       expect(markdown).to include("`mode=pinned peer=audit-node selected=http://audit:4567 reachable=false reasons=unreachable`")
+    end
+
+    it "triages policy gates separately from network incidents" do
+      contract = policy_gate_contract_class.new(order_id: 42)
+
+      report = contract.diagnostics.to_h
+
+      expect(report[:routing][:facets]).to include(
+        by_reason: { query_mismatch: 1 },
+        by_mismatch_dimension: { decision: 1, policy: 1 },
+        by_decision_mode: { auto_only: 1 },
+        by_policy_key: { permits: 1 },
+        by_latest_event: { node_pending: 1 },
+        by_incident: { policy_gate: 1 },
+        by_remediation_code: { adjust_policy_requirements: 1, request_approval_path: 1 }
+      )
+      expect(report[:routing][:entries]).to contain_exactly(
+        include(
+          classification: include(
+            mismatch_dimensions: %i[decision policy],
+            latest_event_type: :node_pending,
+            incident: :policy_gate
+          ),
+          remediation: contain_exactly(
+            include(code: :request_approval_path, details: include(decision_mode: :auto_only, actions: [:shell_exec])),
+            include(code: :adjust_policy_requirements, details: include(policy_keys: [:permits]))
+          ),
+          events: include(latest_type: :node_pending)
+        )
+      )
+    end
+
+    it "triages capacity shortages separately from policy gates" do
+      contract = capacity_contract_class.new(order_id: 42)
+
+      report = contract.diagnostics.to_h
+
+      expect(report[:routing][:facets]).to include(
+        by_reason: { query_mismatch: 1 },
+        by_mismatch_dimension: { capabilities: 1, tags: 1 },
+        by_decision_mode: {},
+        by_policy_key: {},
+        by_latest_event: { node_pending: 1 },
+        by_incident: { capacity_shortage: 1 },
+        by_remediation_code: { add_capability_peer: 1, relax_tag_constraints: 1 }
+      )
+      expect(report[:routing][:entries]).to contain_exactly(
+        include(
+          classification: include(
+            mismatch_dimensions: %i[capabilities tags],
+            latest_event_type: :node_pending,
+            incident: :capacity_shortage
+          ),
+          remediation: contain_exactly(
+            include(code: :add_capability_peer, details: include(all_of: [:gpu_inference])),
+            include(code: :relax_tag_constraints, details: include(tags: [:cuda]))
+          ),
+          events: include(latest_type: :node_pending)
+        )
+      )
     end
   end
 end

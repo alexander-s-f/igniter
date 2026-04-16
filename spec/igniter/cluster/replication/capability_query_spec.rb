@@ -304,4 +304,40 @@ RSpec.describe Igniter::Cluster::Replication::CapabilityQuery do
       expect(decision_query.compare_profiles(automatic_profile, approval_profile)).to eq(-1)
     end
   end
+
+  describe "#explain_profile" do
+    it "describes which query dimensions rejected a profile" do
+      profile = Igniter::Cluster::Replication::NodeProfile.new(
+        capabilities: [:orders],
+        tags: [:linux],
+        metadata: {
+          trust: { score: 0.7 },
+          policy: {
+            allows: %i[system_read shell_exec],
+            requires_approval: [:shell_exec]
+          }
+        }
+      )
+
+      query = described_class.new(
+        all_of: %i[orders gpu],
+        tags: %i[linux cuda],
+        metadata: { trust: { score: { min: 0.9 } } },
+        policy: { permits: [:shell_exec] },
+        decision: { mode: :auto_only, actions: [:shell_exec] }
+      )
+
+      explanation = query.explain_profile(profile)
+
+      expect(explanation).to include(
+        matched: false,
+        failed_dimensions: %i[capabilities tags metadata policy decision]
+      )
+      expect(explanation[:capabilities]).to include(missing_all_of: [:gpu])
+      expect(explanation[:tags]).to include(missing: [:cuda])
+      expect(explanation[:metadata]).to include(failed_paths: [%i[trust score]])
+      expect(explanation[:policy]).to include(failed_keys: [:permits])
+      expect(explanation[:decision]).to include(mode: :auto_only, outcome: :approval_required, matched: false)
+    end
+  end
 end

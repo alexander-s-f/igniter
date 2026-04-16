@@ -128,7 +128,122 @@ module Igniter
           [decision_priority(profile)] + fingerprint
         end
 
+        def explain_profile(profile)
+          capabilities = explain_capabilities(profile)
+          tags = explain_tags(profile)
+          metadata = explain_metadata(profile)
+          policy = explain_policy(profile)
+          decision = explain_decision(profile)
+
+          failed_dimensions = []
+          failed_dimensions << :capabilities unless capabilities[:matched]
+          failed_dimensions << :tags unless tags[:matched]
+          failed_dimensions << :metadata unless metadata[:matched]
+          failed_dimensions << :policy unless policy[:matched]
+          failed_dimensions << :decision unless decision[:matched]
+
+          {
+            matched: failed_dimensions.empty?,
+            failed_dimensions: failed_dimensions.freeze,
+            capabilities: capabilities,
+            tags: tags,
+            metadata: metadata,
+            policy: policy,
+            decision: decision
+          }.freeze
+        end
+
         private
+
+        def explain_capabilities(profile)
+          missing_all_of = @all_of.reject { |capability| profile&.capability?(capability) }
+          any_matches = @any_of.select { |capability| profile&.capability?(capability) }
+          forbidden_present = @none_of.select { |capability| profile&.capability?(capability) }
+          any_satisfied = @any_of.empty? || any_matches.any?
+
+          {
+            matched: missing_all_of.empty? && any_satisfied && forbidden_present.empty?,
+            missing_all_of: missing_all_of.freeze,
+            matched_any_of: any_matches.freeze,
+            any_of: @any_of,
+            any_satisfied: any_satisfied,
+            forbidden_present: forbidden_present.freeze
+          }.freeze
+        end
+
+        def explain_tags(profile)
+          missing = @tags.reject { |tag| profile&.tag?(tag) }
+
+          {
+            matched: missing.empty?,
+            required: @tags,
+            missing: missing.freeze
+          }.freeze
+        end
+
+        def explain_metadata(profile)
+          return { matched: true, failed_paths: [].freeze }.freeze if @metadata.empty?
+          return { matched: false, failed_paths: @metadata.keys.map(&:to_sym).freeze }.freeze unless profile.respond_to?(:metadata)
+
+          actual = normalize_metadata(profile.metadata || {})
+          failed_paths = collect_failed_metadata_paths(@metadata, actual).uniq.freeze
+
+          {
+            matched: failed_paths.empty?,
+            failed_paths: failed_paths
+          }.freeze
+        end
+
+        def explain_policy(profile)
+          return { matched: true, failed_keys: [].freeze, effective: {}.freeze }.freeze if @policy.empty?
+          return { matched: false, failed_keys: @policy.keys.freeze, effective: {}.freeze }.freeze unless profile.respond_to?(:metadata)
+
+          effective = effective_policy_sets(profile)
+          failed_keys = @policy.each_with_object([]) do |(key, expected), memo|
+            memo << key unless policy_requirement_matches?(key, expected, effective)
+          end.freeze
+
+          {
+            matched: failed_keys.empty?,
+            failed_keys: failed_keys,
+            effective: explain_policy_sets(effective)
+          }.freeze
+        end
+
+        def explain_decision(profile)
+          return { matched: true, mode: nil, outcome: nil, actions: [].freeze, risky: [].freeze }.freeze if @decision.empty?
+
+          {
+            matched: decision_matches?(profile),
+            mode: @decision.fetch(:mode, :auto_only),
+            outcome: decision_outcome(profile),
+            actions: Array(@decision[:actions]).freeze,
+            risky: Array(@decision[:risky]).freeze
+          }.freeze
+        end
+
+        def explain_policy_sets(effective)
+          effective.each_with_object({}) do |(key, values), memo|
+            memo[key] = values.to_a.sort.freeze
+          end.freeze
+        end
+
+        def collect_failed_metadata_paths(expected, actual, prefix = [])
+          expected.each_with_object([]) do |(key, requirement), memo|
+            current_path = (prefix + [key]).freeze
+            actual_value = actual[key]
+
+            if requirement.is_a?(Hash) && !operator_hash?(requirement)
+              if actual_value.is_a?(Hash)
+                memo.concat(collect_failed_metadata_paths(requirement, actual_value, current_path))
+              else
+                memo << current_path
+              end
+            elsif !matches_metadata_requirement?(requirement, actual_value)
+              memo << current_path
+            end
+          end
+        end
 
         def normalize_metadata(value)
           case value

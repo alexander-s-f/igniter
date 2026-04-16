@@ -55,7 +55,7 @@ module Igniter
           lines << "- Collections: #{report[:collection_nodes].map { |node| "#{node[:node_name]} total=#{node[:total]} succeeded=#{node[:succeeded]} failed=#{node[:failed]} status=#{node[:status]}" }.join('; ')}"
         end
         unless report[:routing][:entries].empty?
-          lines << "- Routing: total=#{report[:routing][:total]}, pending=#{report[:routing][:pending]}, failed=#{report[:routing][:failed]}"
+          lines << "- Routing: #{routing_overview(report[:routing])}"
         end
         lines << "- Events: total=#{report[:events][:total]}, latest=#{report[:events][:latest_type] || 'none'}"
 
@@ -87,6 +87,9 @@ module Igniter
             line = "- `#{entry[:node_name]}` `#{entry[:status]}`: `#{entry[:routing_trace_summary]}`"
             line += " token=`#{entry[:token]}`" if entry[:token]
             line += " error=`#{entry[:error][:message]}`" if entry[:error]
+            if entry[:remediation]&.any?
+              line += " hints=`#{entry[:remediation].map { |hint| hint[:code] }.join('+')}`"
+            end
             lines << line
           end
         end
@@ -228,10 +231,11 @@ module Igniter
         summaries = routing[:entries].map do |entry|
           summary = "#{entry[:node_name]}(#{entry[:status]} #{entry[:routing_trace_summary]})"
           summary += " token=#{entry[:token]}" if entry[:token]
+          summary += " hints=#{entry[:remediation].map { |hint| hint[:code] }.join('+')}" if entry[:remediation]&.any?
           summary
         end
 
-        "Routing: total=#{routing[:total]}, pending=#{routing[:pending]}, failed=#{routing[:failed]} #{summaries.join(', ')}"
+        "Routing: #{routing_overview(routing)} #{summaries.join(', ')}"
       end
 
       def inline_hash(hash)
@@ -413,6 +417,7 @@ module Igniter
           total: entries.size,
           pending: entries.count { |entry| entry[:status] == :pending },
           failed: entries.count { |entry| entry[:status] == :failed },
+          facets: summarize_routing_facets(entries),
           entries: entries
         }
       end
@@ -468,6 +473,10 @@ module Igniter
 
       def routing_entry_for(state)
         if state.pending? && state.value.is_a?(Runtime::DeferredResult) && state.value.routing_trace
+          events = summarize_node_events(state.node.name)
+          classification = classify_routing_trace(:pending, state.value.routing_trace, events)
+          remediation = remediation_hints(classification, state.value.routing_trace)
+
           return {
             node_name: state.node.name,
             path: state.node.path,
@@ -475,8 +484,11 @@ module Igniter
             token: state.value.token,
             waiting_on: state.value.waiting_on,
             source_node: state.value.source_node,
+            events: events,
             routing_trace: state.value.routing_trace,
-            routing_trace_summary: summarize_routing_trace(state.value.routing_trace)
+            routing_trace_summary: summarize_routing_trace(state.value.routing_trace),
+            classification: classification,
+            remediation: remediation
           }
         end
 
@@ -486,17 +498,237 @@ module Igniter
         routing_trace = extract_routing_trace(context)
         return unless routing_trace
 
+        events = summarize_node_events(state.node.name)
+        classification = classify_routing_trace(:failed, routing_trace, events)
+        remediation = remediation_hints(classification, routing_trace)
+
         {
           node_name: state.node.name,
           path: state.node.path,
           status: :failed,
+          events: events,
           error: {
             type: state.error.class.name,
             message: state.error.message
           },
           routing_trace: routing_trace,
-          routing_trace_summary: summarize_routing_trace(routing_trace)
+          routing_trace_summary: summarize_routing_trace(routing_trace),
+          classification: classification,
+          remediation: remediation
         }
+      end
+
+      def summarize_routing_facets(entries)
+        {
+          by_status: count_by(entries) { |entry| entry[:status] },
+          by_mode: count_by(entries) { |entry| entry.dig(:classification, :routing_mode) },
+          by_reason: count_many(entries) { |entry| entry.dig(:classification, :reasons) },
+          by_mismatch_dimension: count_many(entries) { |entry| entry.dig(:classification, :mismatch_dimensions) },
+          by_decision_mode: count_by(entries) { |entry| entry.dig(:classification, :decision_mode) },
+          by_policy_key: count_many(entries) { |entry| entry.dig(:classification, :policy_keys) },
+          by_latest_event: count_by(entries) { |entry| entry.dig(:classification, :latest_event_type) },
+          by_incident: count_by(entries) { |entry| entry.dig(:classification, :incident) },
+          by_remediation_code: count_many(entries) { |entry| entry[:remediation].map { |hint| hint[:code] } }
+        }
+      end
+
+      def classify_routing_trace(status, trace, events = {})
+        query = hash_value(trace, :query)
+        query = query.to_h if query.respond_to?(:to_h) && !query.is_a?(Hash)
+        query ||= {}
+
+        policy = hash_value(query, :policy)
+        decision = hash_value(query, :decision)
+        reasons = routing_reasons(trace)
+        mismatch_dimensions = trace_mismatch_dimensions(trace)
+        latest_event_type = hash_value(events, :latest_type)
+
+        {
+          status: status,
+          routing_mode: hash_value(trace, :routing_mode) || (hash_value(trace, :peer_name) ? :pinned : :capability),
+          reasons: reasons,
+          mismatch_dimensions: mismatch_dimensions,
+          decision_mode: hash_value(decision || {}, :mode),
+          decision_actions: Array(hash_value(decision || {}, :actions)).compact,
+          risky_actions: Array(hash_value(decision || {}, :risky)).compact,
+          policy_keys: normalized_hash_keys(policy),
+          latest_event_type: latest_event_type,
+          incident: classify_routing_incident(status, trace, reasons, mismatch_dimensions)
+        }
+      end
+
+      def classify_routing_incident(status, trace, reasons, mismatch_dimensions)
+        return :unknown_peer if reasons.include?(:unknown_peer)
+        return :peer_unreachable if reasons.include?(:unreachable)
+        return :policy_gate if mismatch_dimensions.include?(:policy) || mismatch_dimensions.include?(:decision)
+        return :capacity_shortage if mismatch_dimensions.include?(:capabilities) || mismatch_dimensions.include?(:tags) || mismatch_dimensions.include?(:metadata)
+        return :capacity_shortage if status == :pending && hash_value(trace, :peer_count).to_i.zero?
+        return :routing_pending if status == :pending
+        return :routing_failed if status == :failed
+
+        :routing_observed
+      end
+
+      def routing_overview(routing)
+        facets = routing[:facets] || {}
+        parts = [
+          "total=#{routing[:total]}",
+          "pending=#{routing[:pending]}",
+          "failed=#{routing[:failed]}"
+        ]
+        parts << "modes=#{inline_counts(facets[:by_mode])}" unless facets[:by_mode].nil? || facets[:by_mode].empty?
+        parts << "reasons=#{inline_counts(facets[:by_reason])}" unless facets[:by_reason].nil? || facets[:by_reason].empty?
+        parts << "incidents=#{inline_counts(facets[:by_incident])}" unless facets[:by_incident].nil? || facets[:by_incident].empty?
+        parts << "hints=#{inline_counts(facets[:by_remediation_code])}" unless facets[:by_remediation_code].nil? || facets[:by_remediation_code].empty?
+        parts.join(", ")
+      end
+
+      def inline_counts(counts)
+        counts.map { |key, value| "#{key}=#{value}" }.join("/")
+      end
+
+      def count_by(entries)
+        entries.each_with_object(Hash.new(0)) do |entry, memo|
+          key = yield(entry)
+          next if key.nil?
+
+          memo[key] += 1
+        end
+      end
+
+      def count_many(entries)
+        entries.each_with_object(Hash.new(0)) do |entry, memo|
+          Array(yield(entry)).each do |key|
+            next if key.nil?
+
+            memo[key] += 1
+          end
+        end
+      end
+
+      def normalized_hash_keys(value)
+        return [] unless value.is_a?(Hash)
+
+        value.keys.map(&:to_sym).sort
+      end
+
+      def trace_mismatch_dimensions(trace)
+        peers = hash_value(trace, :peers)
+        return [] unless peers.is_a?(Array)
+
+        peers.each_with_object([]) do |peer, memo|
+          reasons = Array(hash_value(peer, :reasons)).map(&:to_sym)
+          next unless reasons.include?(:query_mismatch)
+
+          details = hash_value(peer, :match_details)
+          memo.concat(Array(hash_value(details || {}, :failed_dimensions)).map(&:to_sym))
+        end.uniq.sort
+      end
+
+      def summarize_node_events(node_name)
+        events = execution.events.events.select { |event| event.node_name == node_name.to_sym }
+
+        {
+          total: events.size,
+          latest_type: events.last&.type,
+          types: events.map(&:type).uniq
+        }
+      end
+
+      def remediation_hints(classification, trace)
+        incident = classification[:incident]
+        query = normalized_trace_query(trace)
+
+        case incident
+        when :unknown_peer
+          [build_hint(
+            :register_peer,
+            "Register the pinned peer or update the pinned route name.",
+            peer_name: hash_value(trace, :peer_name)
+          )]
+        when :peer_unreachable
+          [build_hint(
+            :restore_peer_connectivity,
+            "Restore connectivity or health for the selected peer before retrying.",
+            peer_name: hash_value(trace, :peer_name) || hash_value(trace, :selected_peer),
+            selected_url: hash_value(trace, :selected_url)
+          )]
+        when :policy_gate
+          hints = []
+          actions = classification[:decision_actions]
+          policy_keys = classification[:policy_keys]
+
+          if classification[:decision_mode] == :auto_only && actions.any?
+            hints << build_hint(
+              :request_approval_path,
+              "Allow approval-based execution for the requested action set.",
+              decision_mode: classification[:decision_mode],
+              actions: actions
+            )
+          end
+
+          if policy_keys.any?
+            hints << build_hint(
+              :adjust_policy_requirements,
+              "Route to peers whose policy satisfies the requested policy constraints.",
+              policy_keys: policy_keys
+            )
+          end
+
+          hints.empty? ? [build_hint(:review_policy_gate, "Review policy and decision constraints for this route.")] : hints
+        when :capacity_shortage
+          hints = []
+          if classification[:mismatch_dimensions].include?(:capabilities)
+            hints << build_hint(
+              :add_capability_peer,
+              "Add or discover a peer that satisfies the required capabilities.",
+              all_of: Array(hash_value(query, :all_of)),
+              any_of: Array(hash_value(query, :any_of))
+            )
+          end
+
+          if classification[:mismatch_dimensions].include?(:tags)
+            hints << build_hint(
+              :relax_tag_constraints,
+              "Relax the routing tags or provision peers with the required tags.",
+              tags: Array(hash_value(query, :tags))
+            )
+          end
+
+          if classification[:mismatch_dimensions].include?(:metadata)
+            hints << build_hint(
+              :relax_metadata_constraints,
+              "Relax metadata thresholds or provision peers that satisfy them.",
+              metadata_keys: normalized_hash_keys(hash_value(query, :metadata))
+            )
+          end
+
+          if hints.empty?
+            hints << build_hint(
+              :wait_for_peer_discovery,
+              "Wait for peer discovery or register additional peers before retrying.",
+              peer_count: hash_value(trace, :peer_count)
+            )
+          end
+
+          hints
+        else
+          [build_hint(:retry_routing, "Retry routing after topology and health information refreshes.")]
+        end
+      end
+
+      def build_hint(code, message, details = {})
+        {
+          code: code,
+          message: message,
+          details: details.compact
+        }
+      end
+
+      def normalized_trace_query(trace)
+        query = hash_value(trace, :query)
+        query = query.to_h if query.respond_to?(:to_h) && !query.is_a?(Hash)
+        query || {}
       end
 
       def extract_routing_trace(context)
