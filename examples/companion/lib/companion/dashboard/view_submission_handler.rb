@@ -46,11 +46,11 @@ module Companion
             end)
 
             grid.component(surface_preset.submission_payload_panel(:raw) do |panel|
-              json_markup(panel, submission.fetch("raw_payload"), theme: theme)
+              json_markup(panel, submission.fetch("raw_payload"))
             end)
 
             grid.component(surface_preset.submission_payload_panel(:normalized) do |panel|
-              json_markup(panel, submission.fetch("normalized_payload"), theme: theme)
+              json_markup(panel, submission.fetch("normalized_payload"))
             end)
 
             grid.component(surface_preset.submission_diff_panel do |panel|
@@ -64,7 +64,7 @@ module Companion
             end)
 
             grid.component(surface_preset.submission_payload_panel(:processing_result) do |panel|
-              json_markup(panel, submission["processing_result"] || { ok: false, type: "pending" }, theme: theme)
+              json_markup(panel, submission["processing_result"] || { ok: false, type: "pending" })
             end)
           end
         end
@@ -107,17 +107,10 @@ module Companion
       def replay_markup(view, submission:, schema:, theme:, tokens:)
         action = schema&.actions&.dig(submission.fetch("action_id"))
 
-        view.component(
-          Igniter::Plugins::View::Tailwind::UI::ActionBar.new(class_name: "flex flex-wrap gap-2") do |bar|
-            bar.tag(:a,
-                    "Open submission source view",
-                    href: "/views/#{submission.fetch("view_id")}",
-                    class: tokens.action(variant: :soft, theme: :orange, size: :sm))
-            bar.tag(:a,
-                    "Open schema JSON",
-                    href: "/api/views/#{submission.fetch("view_id")}",
-                    class: tokens.action(variant: :ghost, theme: :orange, size: :sm))
-          end
+        Igniter::Plugins::View::Tailwind::Surfaces.submission_inspection.submission_replay_actions(
+          view,
+          source_view_path: "/views/#{submission.fetch("view_id")}",
+          schema_path: "/api/views/#{submission.fetch("view_id")}"
         )
 
         unless action && action["path"]
@@ -151,10 +144,8 @@ module Companion
         end
       end
 
-      def json_markup(view, payload, theme:)
-        view.tag(:pre, class: "#{theme.code_class} overflow-x-auto whitespace-pre-wrap") do |pre|
-          pre.text(JSON.pretty_generate(payload))
-        end
+      def json_markup(view, payload)
+        Igniter::Plugins::View::Tailwind::Surfaces.submission_inspection.submission_json_payload(view, payload)
       end
 
       def not_found(submission_id)

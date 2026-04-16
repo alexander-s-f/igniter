@@ -757,19 +757,82 @@ RSpec.describe Igniter::Plugins::View::Tailwind::Surfaces do
     submission = described_class.submission_inspection
 
     expect(schema.theme_name).to eq(:companion)
-    expect(schema.components).to include(:form_section, :banner, :action_bar)
+    expect(schema.components).to include(:form_section, :banner, :action_bar, :schema_catalog, :submission_timeline)
     expect(schema.hooks.dig(:catalog)).to include("view_schema_catalog")
     expect(schema.authoring_catalog_panel {}).to be_a(Igniter::Plugins::View::Tailwind::UI::Panel)
     expect(schema.schema_create_form_section {}).to be_a(Igniter::Plugins::View::Tailwind::UI::FormSection)
     expect(schema.schema_patch_form_section {}).to be_a(Igniter::Plugins::View::Tailwind::UI::FormSection)
     expect(submission.theme_name).to eq(:companion)
-    expect(submission.components).to include(:payload_diff, :key_value_list, :message_page)
+    expect(submission.components).to include(:payload_diff, :key_value_list, :message_page, :submission_replay_actions, :submission_json_payload)
     expect(submission.hooks.dig(:payloads)).to include("raw_payload")
     expect(submission.submission_summary_panel {}).to be_a(Igniter::Plugins::View::Tailwind::UI::Panel)
     expect(submission.submission_replay_panel {}).to be_a(Igniter::Plugins::View::Tailwind::UI::Panel)
     expect(submission.submission_payload_panel(:raw) {}).to be_a(Igniter::Plugins::View::Tailwind::UI::Panel)
     expect(submission.submission_diff_panel {}).to be_a(Igniter::Plugins::View::Tailwind::UI::Panel)
     expect(submission.submission_detail_grid_class).to include("xl:grid-cols")
+  end
+
+  it "renders semantic authoring and submission content blocks from surface presets" do
+    schema = described_class.schema_authoring
+    submission = described_class.submission_inspection
+
+    html = Igniter::Plugins::View.render do |view|
+      schema.schema_catalog_intro(
+        view,
+        description: "Browse stored schemas.",
+        catalog_path: "/api/views",
+        featured_view_path: "/views/weekly-review",
+        featured_view_label: "Open weekly review"
+      )
+      schema.schema_catalog_list(
+        view,
+        items: [
+          {
+            title: "Weekly Review",
+            id: "weekly-review",
+            meta: "version=1 · actions=save_review",
+            view_path: "/views/weekly-review",
+            api_path: "/api/views/weekly-review",
+            load_action: "loadSchemaIntoEditor(\"weekly-review\")",
+            clone_action: "cloneSchemaIntoEditor(\"weekly-review\")"
+          }
+        ],
+        empty_message: "No schemas yet."
+      )
+      submission.submission_timeline(
+        view,
+        description: "Inspect recent runtime results.",
+        items: [
+          {
+            title: "Weekly Review",
+            href: "/submissions/sub-1",
+            body: "action=save_review · status=processed · type=store_submission",
+            meta: "submission=sub-1",
+            action_label: "Schema JSON",
+            action_href: "/api/views/weekly-review"
+          }
+        ],
+        empty_message: "No submissions yet."
+      )
+      submission.submission_replay_actions(
+        view,
+        source_view_path: "/views/weekly-review",
+        schema_path: "/api/views/weekly-review"
+      )
+      submission.submission_json_payload(view, { "highlight" => "Clearer priorities" })
+    end
+
+    expect(schema.schema_catalog_grid_class).to include("lg:grid-cols")
+    expect(html).to include("Catalog JSON")
+    expect(html).to include("Open weekly review")
+    expect(html).to include("Load JSON")
+    expect(html).to include("Clone")
+    expect(html).to include("Inspect recent runtime results.")
+    expect(html).to include("/submissions/sub-1")
+    expect(html).to include("Open submission source view")
+    expect(html).to include("Open schema JSON")
+    expect(html).to include("&quot;highlight&quot;")
+    expect(html).to include("Clearer priorities")
   end
 end
 

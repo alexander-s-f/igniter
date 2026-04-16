@@ -246,65 +246,21 @@ module Companion
         end
 
         def view_schemas_markup(view, schemas)
-          view.tag(:div, class: "space-y-4") do |container|
-            container.tag(:p,
-                          "Browse seeded schemas, open their rendered pages, fetch raw JSON, or draft create/patch payloads against the catalog API without leaving the dashboard.",
-                          class: ui_theme.body_text_class)
-            container.component(
-              Igniter::Plugins::View::Tailwind::UI::ActionBar.new(class_name: "flex flex-wrap gap-2") do |actions|
-                actions.tag(:a,
-                            "Catalog JSON",
-                            href: "/api/views",
-                            class: tailwind_tokens.action(variant: :soft, theme: :orange, size: :sm))
-                actions.tag(:a,
-                            "Open weekly review",
-                            href: "/views/weekly-review",
-                            class: tailwind_tokens.action(variant: :ghost, theme: :orange, size: :sm))
-              end
-            )
-          end
+          surface_preset.schema_catalog_intro(
+            view,
+            description: "Browse seeded schemas, open their rendered pages, fetch raw JSON, or draft create/patch payloads against the catalog API without leaving the dashboard.",
+            catalog_path: "/api/views",
+            featured_view_path: "/views/weekly-review",
+            featured_view_label: "Open weekly review"
+          )
 
-          view.tag(:div, class: "mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]") do |grid|
+          view.tag(:div, class: "mt-4 #{surface_preset.schema_catalog_grid_class}") do |grid|
             grid.tag(:div) do |column|
-              if schemas.empty?
-                column.tag(:p, "No view schemas stored yet.", class: empty_state_classes)
-              else
-                column.tag(:ul, class: list_classes) do |list|
-                  schemas.each do |schema|
-                    list.tag(:li, class: list_item_classes) do |item|
-                      item.tag(:strong, schema.fetch(:title), class: ui_theme.item_title_class)
-                      item.tag(:div, schema.fetch(:id), class: ui_theme.muted_text_class(extra: "mt-2"))
-                      item.tag(:div,
-                               "version=#{schema.fetch(:version)} · actions=#{schema.fetch(:action_ids).join(", ")}",
-                               class: ui_theme.muted_text_class(extra: "mt-2"))
-                      item.component(
-                        Igniter::Plugins::View::Tailwind::UI::ActionBar.new(
-                          class_name: "mt-3 flex flex-wrap gap-2"
-                        ) do |actions|
-                          actions.tag(:a,
-                                      "Open view",
-                                      href: schema.fetch(:view_path),
-                                      class: tailwind_tokens.action(variant: :soft, theme: :orange, size: :sm))
-                          actions.tag(:a,
-                                      "JSON",
-                                      href: schema.fetch(:api_path),
-                                      class: tailwind_tokens.action(variant: :ghost, theme: :orange, size: :sm))
-                          actions.tag(:button,
-                                      "Load JSON",
-                                      type: "button",
-                                      class: tailwind_tokens.action(variant: :ghost, theme: :orange, size: :sm),
-                                      onclick: "loadSchemaIntoEditor(#{js_string(schema.fetch(:id))})")
-                          actions.tag(:button,
-                                      "Clone",
-                                      type: "button",
-                                      class: tailwind_tokens.action(variant: :ghost, theme: :orange, size: :sm),
-                                      onclick: "cloneSchemaIntoEditor(#{js_string(schema.fetch(:id))})")
-                        end
-                      )
-                    end
-                  end
-                end
-              end
+              surface_preset.schema_catalog_list(
+                column,
+                items: schema_catalog_items(schemas),
+                empty_message: "No view schemas stored yet."
+              )
             end
 
             grid.tag(:div, class: "space-y-4") do |column|
@@ -315,19 +271,12 @@ module Companion
         end
 
         def view_submissions_markup(view, submissions)
-          view.tag(:div, class: "space-y-4") do |container|
-            container.tag(:p,
-                          "Recent submissions make the authoring loop concrete: define a schema, run it, then inspect which action fired and how it was processed.",
-                          class: ui_theme.body_text_class)
-            container.component(
-              ui_theme.timeline_list(
-                items: submissions.map { |submission| submission_timeline_item(submission) },
-                empty_message: "No schema submissions yet. Open a seeded view and submit it once to populate this timeline.",
-                title_link_class: tailwind_tokens.underline_link(theme: :orange),
-                action_link_class: tailwind_tokens.action(variant: :ghost, theme: :orange, size: :sm)
-              )
-            )
-          end
+          surface_preset.submission_timeline(
+            view,
+            description: "Recent submissions make the authoring loop concrete: define a schema, run it, then inspect which action fired and how it was processed.",
+            items: submission_timeline_items(submissions),
+            empty_message: "No schema submissions yet. Open a seeded view and submit it once to populate this timeline."
+          )
         end
 
         def render_schema_create_form(view)
@@ -405,19 +354,35 @@ module Companion
           end
         end
 
-        def submission_timeline_item(submission)
-          created_at = submission.fetch(:created_at)
-          processed_at = submission[:processed_at] || "pending"
-          processing_type = submission[:processing_type] || "pending"
+        def schema_catalog_items(schemas)
+          schemas.map do |schema|
+            {
+              title: schema.fetch(:title),
+              id: schema.fetch(:id),
+              meta: "version=#{schema.fetch(:version)} · actions=#{schema.fetch(:action_ids).join(", ")}",
+              view_path: schema.fetch(:view_path),
+              api_path: schema.fetch(:api_path),
+              load_action: "loadSchemaIntoEditor(#{js_string(schema.fetch(:id))})",
+              clone_action: "cloneSchemaIntoEditor(#{js_string(schema.fetch(:id))})"
+            }
+          end
+        end
 
-          {
-            title: submission.fetch(:view_title),
-            href: submission.fetch(:detail_path),
-            body: "action=#{submission.fetch(:action_id)} · status=#{submission.fetch(:status)} · type=#{processing_type}",
-            meta: "submission=#{submission.fetch(:id)} · schema_v=#{submission.fetch(:schema_version)} · created=#{created_at} · processed=#{processed_at}",
-            action_label: "Schema JSON",
-            action_href: submission.fetch(:api_path)
-          }
+        def submission_timeline_items(submissions)
+          submissions.map do |submission|
+            created_at = submission.fetch(:created_at)
+            processed_at = submission[:processed_at] || "pending"
+            processing_type = submission[:processing_type] || "pending"
+
+            {
+              title: submission.fetch(:view_title),
+              href: submission.fetch(:detail_path),
+              body: "action=#{submission.fetch(:action_id)} · status=#{submission.fetch(:status)} · type=#{processing_type}",
+              meta: "submission=#{submission.fetch(:id)} · schema_v=#{submission.fetch(:schema_version)} · created=#{created_at} · processed=#{processed_at}",
+              action_label: "Schema JSON",
+              action_href: submission.fetch(:api_path)
+            }
+          end
         end
 
         def js_string(value)

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "json"
+
 module Igniter
   module Plugins
     module View
@@ -131,6 +133,102 @@ module Igniter
               )
             end
 
+            def schema_catalog_intro(view, description:, catalog_path:, featured_view_path:, featured_view_label:)
+              view.tag(:div, class: "space-y-4") do |container|
+                container.tag(:p, description, class: theme.body_text_class)
+                container.component(
+                  Tailwind::UI::ActionBar.new(class_name: "flex flex-wrap gap-2") do |actions|
+                    actions.tag(:a,
+                                "Catalog JSON",
+                                href: catalog_path,
+                                class: Tailwind::UI::Tokens.action(variant: :soft, theme: :orange, size: :sm))
+                    actions.tag(:a,
+                                featured_view_label,
+                                href: featured_view_path,
+                                class: Tailwind::UI::Tokens.action(variant: :ghost, theme: :orange, size: :sm))
+                  end
+                )
+              end
+            end
+
+            def schema_catalog_list(view, items:, empty_message:)
+              if items.empty?
+                view.tag(:p, empty_message, class: theme.empty_state_class)
+                return
+              end
+
+              view.tag(:ul, class: theme.list_class) do |list|
+                items.each do |item|
+                  list.tag(:li, class: theme.list_item_class) do |card|
+                    card.tag(:strong, item.fetch(:title), class: theme.item_title_class)
+                    card.tag(:div, item.fetch(:id), class: theme.muted_text_class(extra: "mt-2"))
+                    card.tag(:div, item.fetch(:meta), class: theme.muted_text_class(extra: "mt-2"))
+                    card.component(
+                      Tailwind::UI::ActionBar.new(class_name: "mt-3 flex flex-wrap gap-2") do |actions|
+                        actions.tag(:a,
+                                    "Open view",
+                                    href: item.fetch(:view_path),
+                                    class: Tailwind::UI::Tokens.action(variant: :soft, theme: :orange, size: :sm))
+                        actions.tag(:a,
+                                    "JSON",
+                                    href: item.fetch(:api_path),
+                                    class: Tailwind::UI::Tokens.action(variant: :ghost, theme: :orange, size: :sm))
+                        actions.tag(:button,
+                                    item.fetch(:load_label, "Load JSON"),
+                                    type: "button",
+                                    class: Tailwind::UI::Tokens.action(variant: :ghost, theme: :orange, size: :sm),
+                                    onclick: item.fetch(:load_action))
+                        actions.tag(:button,
+                                    item.fetch(:clone_label, "Clone"),
+                                    type: "button",
+                                    class: Tailwind::UI::Tokens.action(variant: :ghost, theme: :orange, size: :sm),
+                                    onclick: item.fetch(:clone_action))
+                      end
+                    )
+                  end
+                end
+              end
+            end
+
+            def schema_catalog_grid_class
+              "grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]"
+            end
+
+            def submission_timeline(view, description:, items:, empty_message:)
+              view.tag(:div, class: "space-y-4") do |container|
+                container.tag(:p, description, class: theme.body_text_class)
+                container.component(
+                  theme.timeline_list(
+                    items: items,
+                    empty_message: empty_message,
+                    title_link_class: Tailwind::UI::Tokens.underline_link(theme: :orange),
+                    action_link_class: Tailwind::UI::Tokens.action(variant: :ghost, theme: :orange, size: :sm)
+                  )
+                )
+              end
+            end
+
+            def submission_replay_actions(view, source_view_path:, schema_path:)
+              view.component(
+                Tailwind::UI::ActionBar.new(class_name: "flex flex-wrap gap-2") do |bar|
+                  bar.tag(:a,
+                          "Open submission source view",
+                          href: source_view_path,
+                          class: Tailwind::UI::Tokens.action(variant: :soft, theme: :orange, size: :sm))
+                  bar.tag(:a,
+                          "Open schema JSON",
+                          href: schema_path,
+                          class: Tailwind::UI::Tokens.action(variant: :ghost, theme: :orange, size: :sm))
+                end
+              )
+            end
+
+            def submission_json_payload(view, payload)
+              view.tag(:pre, class: "#{theme.code_class} overflow-x-auto whitespace-pre-wrap") do |pre|
+                pre.text(JSON.pretty_generate(payload))
+              end
+            end
+
             def submission_detail_grid_class
               "grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
             end
@@ -225,6 +323,8 @@ module Igniter
                 key_value_list
                 action_bar
                 message_page
+                schema_catalog
+                submission_timeline
               ],
               hooks: {
                 catalog: %w[view_schema_catalog schema_json_link schema_editor],
@@ -244,6 +344,8 @@ module Igniter
                 message_page
                 action_bar
                 code_block
+                submission_replay_actions
+                submission_json_payload
               ],
               hooks: {
                 payloads: %w[raw_payload normalized_payload processing_result],
