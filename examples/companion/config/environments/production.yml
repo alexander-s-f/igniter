@@ -1,0 +1,12 @@
+stack:
+  environment: production
+
+topology:
+  profile: production
+  apps:
+    main:
+      replicas: 2
+    inference:
+      replicas: 1
+    dashboard:
+      replicas: 1

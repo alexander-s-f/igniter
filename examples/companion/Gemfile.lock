@@ -1,17 +1,23 @@
-GEM
-  remote: https://rubygems.org/
+PATH
+  remote: ../..
   specs:
     igniter (0.5.0)
 
+GEM
+  remote: https://rubygems.org/
+  specs:
+    sqlite3 (2.9.2-arm64-darwin)
+
 PLATFORMS
   arm64-darwin-25
-  ruby
 
 DEPENDENCIES
-  igniter
+  igniter!
+  sqlite3
 
 CHECKSUMS
   igniter (0.5.0)
+  sqlite3 (2.9.2-arm64-darwin)
 
 BUNDLED WITH
   4.0.10

@@ -97,6 +97,7 @@ module Companion
             created_at: submission.fetch("created_at"),
             processed_at: submission["processed_at"],
             processing_type: submission.dig("processing_result", "type"),
+            detail_path: "/submissions/#{submission.fetch("id")}",
             view_path: schema ? schema.fetch(:view_path) : "/views/#{submission.fetch("view_id")}",
             api_path: schema ? schema.fetch(:api_path) : "/api/views/#{submission.fetch("view_id")}"
           }

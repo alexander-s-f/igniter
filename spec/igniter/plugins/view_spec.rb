@@ -419,6 +419,12 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI do
           action_link_class: "mt-3 inline-flex text-sm"
         )
       )
+      view.component(
+        theme.payload_diff(
+          raw_payload: { "_action" => "save_review", "duration_minutes" => "45", "share" => "1" },
+          normalized_payload: { "duration_minutes" => 45, "share" => true }
+        )
+      )
     end
 
     expect(html).to include("main-app")
@@ -428,6 +434,9 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI do
     expect(html).to include('href="/health"')
     expect(html).to include("note · Saved")
     expect(html).to include("open source")
+    expect(html).to include("duration_minutes")
+    expect(html).to include("Type changed during normalization.")
+    expect(html).to include("Field value changed during normalization.")
   end
 end
 
@@ -505,6 +514,7 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI::Theme do
     expect(theme.resource_list(items: [])).to be_a(Igniter::Plugins::View::Tailwind::UI::ResourceList)
     expect(theme.endpoint_list(items: [], link_class: "text-amber-200")).to be_a(Igniter::Plugins::View::Tailwind::UI::EndpointList)
     expect(theme.timeline_list(items: [], title_link_class: "hover:text-amber-200", action_link_class: "text-sm")).to be_a(Igniter::Plugins::View::Tailwind::UI::TimelineList)
+    expect(theme.payload_diff(raw_payload: {}, normalized_payload: {})).to be_a(Igniter::Plugins::View::Tailwind::UI::PayloadDiff)
   end
 
   it "builds semantic schema layout components from the shared theme" do

@@ -419,7 +419,7 @@ module Companion
 
           {
             title: submission.fetch(:view_title),
-            href: submission.fetch(:view_path),
+            href: submission.fetch(:detail_path),
             body: "action=#{submission.fetch(:action_id)} · status=#{submission.fetch(:status)} · type=#{processing_type}",
             meta: "submission=#{submission.fetch(:id)} · schema_v=#{submission.fetch(:schema_version)} · created=#{created_at} · processed=#{processed_at}",
             action_label: "Schema JSON",

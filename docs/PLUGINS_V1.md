@@ -153,6 +153,7 @@ Igniter::Plugins::View::Tailwind::UI::Banner
 Igniter::Plugins::View::Tailwind::UI::ActionBar
 Igniter::Plugins::View::Tailwind::UI::InlineActions
 Igniter::Plugins::View::Tailwind::UI::KeyValueList
+Igniter::Plugins::View::Tailwind::UI::PayloadDiff
 Igniter::Plugins::View::Tailwind::UI::Field
 Igniter::Plugins::View::Tailwind::UI::FormSection
 Igniter::Plugins::View::Tailwind::UI::MessagePage
@@ -197,6 +198,7 @@ exposes shared presets for:
 - repeated field/input, checkbox, code-pill, muted-text, and empty-state styles
 - repeated list/card/heading/text styles used across dashboard sections
 - semantic server-rendered dashboard slices such as resource lists, endpoint lists, and timeline lists
+- semantic runtime inspection slices such as payload diffs for raw vs normalized submission data
 - semantic schema/runtime form blocks such as submission notices, grouped inputs, and choice fields
 - semantic schema layout blocks such as schema heroes, stacks, grids, sections, and cards
 - schema-aware composition blocks such as schema forms, fieldsets, and intro text blocks

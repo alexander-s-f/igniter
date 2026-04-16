@@ -78,6 +78,7 @@ RSpec.describe Companion::DashboardApp do
           "action_id" => "save_review",
           "status" => "processed",
           "processing_type" => "store_submission",
+          "detail_path" => "/submissions/#{submission.fetch("id")}",
           "api_path" => "/api/views/weekly-review"
         )
       )
@@ -233,8 +234,73 @@ RSpec.describe Companion::DashboardApp do
       expect(result[:body]).to include("Schema JSON")
       expect(result[:body]).to include("submit_checkin")
       expect(result[:body]).to include("type=contract")
+      expect(result[:body]).to include("/submissions/#{submission.fetch("id")}")
       expect(result[:body]).to include("@tailwindcss/browser@4")
       expect(result[:body]).to include("font-display")
+    end
+  end
+
+  describe Companion::Dashboard::ViewSubmissionHandler do
+    it "renders a submission detail page with replay surface" do
+      Companion::Dashboard::ViewSchemaCatalog.seed!
+      submission = Companion::Dashboard::ViewSubmissionStore.create(
+        view_id: "training-checkin",
+        action_id: "submit_checkin",
+        schema_version: 1,
+        raw_payload: {
+          "_action" => "submit_checkin",
+          "duration_minutes" => "45",
+          "notes" => "Strong session"
+        },
+        normalized_payload: {
+          "duration_minutes" => 45,
+          "notes" => "Strong session"
+        }
+      )
+      Companion::Dashboard::ViewSubmissionStore.update(
+        submission.fetch("id"),
+        status: "processed",
+        processed_at: "2026-04-16T10:20:00Z",
+        processing_result: { type: "contract", ok: true, output: { saved: true } }
+      )
+
+      result = described_class.call(
+        params: { id: submission.fetch("id") },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("Submission Detail")
+      expect(result[:body]).to include("Replay Submission")
+      expect(result[:body]).to include('action="/views/training-checkin/submissions"')
+      expect(result[:body]).to include("&quot;duration_minutes&quot;: &quot;45&quot;")
+      expect(result[:body]).to include("&quot;duration_minutes&quot;: 45")
+      expect(result[:body]).to include("Normalization Diff")
+      expect(result[:body]).to include("Type changed during normalization.")
+      expect(result[:body]).to include("&quot;type&quot;: &quot;contract&quot;")
+      expect(result[:body]).to include("/api/views/training-checkin")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
+    end
+
+    it "renders a styled not-found page for missing submissions" do
+      result = described_class.call(
+        params: { id: "missing-submission" },
+        body: {},
+        headers: {},
+        raw_body: "",
+        config: nil
+      )
+
+      expect(result[:status]).to eq(404)
+      expect(result[:headers]["Content-Type"]).to include("text/html")
+      expect(result[:body]).to include("Submission not found")
+      expect(result[:body]).to include("No stored submission is available for missing-submission.")
+      expect(result[:body]).to include("Back to dashboard")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
     end
   end
 

@@ -146,7 +146,8 @@ They are the current reference examples for authoring semantic schema nodes such
 The dashboard home page now also acts as a lightweight schema catalog/editor, so you
 can browse stored schemas, open their rendered pages, fetch `/api/views` JSON, and
 draft create/patch payloads from the same operator surface. It also shows recent
-view submissions so the authoring/runtime feedback loop stays visible in one place.
+view submissions so the authoring/runtime feedback loop stays visible in one place,
+including a submission detail page with payload inspection, normalization diff, and replay.
 
 ## Structure
 
@@ -156,8 +157,10 @@ examples/companion/
 ├── stack.yml
 ├── config/
 │   ├── topology.yml
+│   ├── environments/
 │   └── deploy/
 │       ├── Dockerfile
+│       ├── Procfile.dev
 │       └── compose.yml
 ├── apps/
 │   ├── dashboard/
@@ -207,6 +210,8 @@ bundle exec rspec examples/companion/apps/dashboard/spec
 Companion now includes a canonical deployment layout under `config/`:
 
 - [config/topology.yml](/Users/alex/dev/projects/igniter/examples/companion/config/topology.yml) describes deployment roles and wiring
+- [config/environments/development.yml](/Users/alex/dev/projects/igniter/examples/companion/config/environments/development.yml) is the local overlay for dev-style boot
+- [config/environments/production.yml](/Users/alex/dev/projects/igniter/examples/companion/config/environments/production.yml) is the production-oriented overlay
 - [config/deploy/Dockerfile](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/Dockerfile) is the shared container image
 - [config/deploy/Procfile.dev](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/Procfile.dev) is the generated local multi-process dev profile
 - [config/deploy/compose.yml](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/compose.yml) starts `main`, `inference`, and `dashboard` together
@@ -220,7 +225,9 @@ docker compose -f examples/companion/config/deploy/compose.yml up --build
 This deployment config is intentionally separate from `apps/*/app.yml`:
 
 - `apps/*` defines the code and leaf runtime defaults
+- `stack.yml` defines stack-level metadata and shared persistence defaults
 - `config/topology.yml` defines how those apps are deployed together
+- `config/environments/*` overlays topology/runtime intent per environment
 - `config/deploy/*` holds container/runtime artifacts
 
 Operational launch examples:

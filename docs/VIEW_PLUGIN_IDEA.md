@@ -82,6 +82,7 @@ That Tailwind UI slice is now starting to look like a small server-rendered kit:
 - `ActionBar`
 - `InlineActions`
 - `KeyValueList`
+- `PayloadDiff`
 - `Field`
 - `FormSection`
 - `MessagePage`
@@ -110,6 +111,7 @@ tokens. Current examples in the repo include:
 - `ResourceList`
 - `EndpointList`
 - `TimelineList`
+- `PayloadDiff`
 
 And the same direction is now starting to show up for schema/runtime form flows:
 

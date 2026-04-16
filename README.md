@@ -68,7 +68,7 @@ small built-in Ruby HTML DSL, then opt into adapters only where they help:
 - `require "igniter/plugins/view"` keeps the dependency surface minimal.
 - `require "igniter/plugins/view/arbre"` adds an Arbre integration boundary without making `arbre` a dependency of Igniter itself.
 - `require "igniter/plugins/view/tailwind"` adds a Tailwind-friendly page shell for dashboards and admin surfaces.
-- `Igniter::Plugins::View::Tailwind::UI` provides reusable dashboard and schema primitives such as metric cards, panels, status badges, banners, action bars, inline actions, key-value lists, field wrappers, form sections, message/error pages, and shared action/link style tokens.
+- `Igniter::Plugins::View::Tailwind::UI` provides reusable dashboard and schema primitives such as metric cards, panels, status badges, banners, action bars, inline actions, key-value lists, payload diffs, field wrappers, form sections, message/error pages, and shared action/link style tokens.
 - `Igniter::Plugins::View::Tailwind::UI::Theme.fetch(...)` provides reusable visual presets for panels, form sections, message pages, and hero/surface chrome inside app-specific views.
 - `Tailwind::UI::Theme` also exposes shared surface helpers for repeated field/input, checkbox, code pill, muted text, and empty-state styling so schema pages and dashboards can stay mostly free of raw utility strings.
 - The same theme object now also exposes list/card/heading/text presets for repeated dashboard containers such as item lists, compact cards, section headings, and item title/body copy.

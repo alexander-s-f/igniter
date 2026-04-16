@@ -18,6 +18,7 @@ require_relative "../../lib/companion/dashboard/view_schema_handler"
 require_relative "../../lib/companion/dashboard/view_schema_patch_handler"
 require_relative "../../lib/companion/dashboard/view_schemas_handler"
 require_relative "../../lib/companion/dashboard/view_schema_catalog"
+require_relative "../../lib/companion/dashboard/view_submission_handler"
 require_relative "../../lib/companion/dashboard/view_submission_store"
 
 module Companion
@@ -32,6 +33,7 @@ module Companion
     route "GET", %r{\A/api/views/(?<id>[^/]+)\z}, with: Companion::Dashboard::ViewSchemaHandler
     route "PATCH", %r{\A/api/views/(?<id>[^/]+)\z}, with: Companion::Dashboard::ViewSchemaPatchHandler
     route "DELETE", %r{\A/api/views/(?<id>[^/]+)\z}, with: Companion::Dashboard::ViewSchemaDeleteHandler
+    route "GET", %r{\A/submissions/(?<id>[^/]+)\z}, with: Companion::Dashboard::ViewSubmissionHandler
     route "GET", %r{\A/views/(?<id>[^/]+)\z}, with: Companion::Dashboard::SchemaPageHandler
     route "POST", "/reminders", with: Companion::Dashboard::ReminderCreateHandler
     route "POST", %r{\A/views/(?<id>[^/]+)/submissions\z}, with: Companion::Dashboard::SchemaSubmissionHandler

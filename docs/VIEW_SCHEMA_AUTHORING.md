@@ -170,6 +170,8 @@ surface for these schemas:
 - inspect raw schema payloads through `/api/views`
 - load a stored schema into create/patch editors before posting or patching it
 - review recent submissions on the same dashboard to confirm which action and processing path ran
+- open a submission detail page to inspect raw/normalized payloads and replay the stored request
+- use the submission detail diff to see which fields changed during normalization
 
 ## Practical Guidance
 

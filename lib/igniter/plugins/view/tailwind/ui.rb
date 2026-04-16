@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "json"
+
 module Igniter
   module Plugins
     module View
@@ -784,6 +786,114 @@ module Igniter
             end
           end
 
+          class PayloadDiff < View::Component
+            def initialize(raw_payload:, normalized_payload:, theme:, empty_message: nil)
+              @raw_payload = raw_payload
+              @normalized_payload = normalized_payload
+              @theme = theme
+              @empty_message = empty_message || "No payload differences detected."
+            end
+
+            def call(view)
+              entries = diff_entries
+
+              if entries.empty?
+                view.tag(:p, @empty_message, class: @theme.empty_state_class)
+                return
+              end
+
+              view.tag(:ul, class: @theme.list_class) do |list|
+                entries.each do |entry|
+                  list.tag(:li, class: @theme.list_item_class) do |item|
+                    item.tag(:strong, entry.fetch(:path), class: @theme.item_title_class)
+                    item.tag(:div, diff_summary(entry), class: @theme.body_text_class(extra: "mt-2"))
+                    item.tag(:div, class: "mt-3 grid gap-3 lg:grid-cols-2") do |grid|
+                      grid.tag(:div) do |column|
+                        column.tag(:div, "raw", class: @theme.muted_text_class)
+                        column.tag(:code, entry.fetch(:raw_label), class: "#{@theme.code_class} mt-2 block")
+                      end
+                      grid.tag(:div) do |column|
+                        column.tag(:div, "normalized", class: @theme.muted_text_class)
+                        column.tag(:code, entry.fetch(:normalized_label), class: "#{@theme.code_class} mt-2 block")
+                      end
+                    end
+                  end
+                end
+              end
+            end
+
+            private
+
+            def diff_entries
+              raw_index = flatten_payload(@raw_payload)
+              normalized_index = flatten_payload(@normalized_payload)
+              paths = (raw_index.keys + normalized_index.keys).uniq.sort
+
+              paths.filter_map do |path|
+                raw_value = raw_index[path]
+                normalized_value = normalized_index[path]
+                status = diff_status(raw_value, normalized_value)
+                next if status == :unchanged
+
+                {
+                  path: path,
+                  status: status,
+                  raw_label: value_label(raw_value),
+                  normalized_label: value_label(normalized_value)
+                }
+              end
+            end
+
+            def flatten_payload(payload, prefix = nil, result = {})
+              case payload
+              when Hash
+                payload.each do |key, value|
+                  next if key.to_s == "_action"
+
+                  path = [prefix, key.to_s].compact.join(".")
+                  flatten_payload(value, path, result)
+                end
+              when Array
+                payload.each_with_index do |value, index|
+                  path = [prefix, index].compact.join(".")
+                  flatten_payload(value, path, result)
+                end
+              else
+                result[prefix.to_s] = payload
+              end
+
+              result
+            end
+
+            def diff_status(raw_value, normalized_value)
+              return :added if raw_value.nil? && !normalized_value.nil?
+              return :removed if !raw_value.nil? && normalized_value.nil?
+              return :unchanged if raw_value == normalized_value && raw_value.class == normalized_value.class
+              return :type_changed if raw_value.to_s == normalized_value.to_s && raw_value.class != normalized_value.class
+
+              :changed
+            end
+
+            def diff_summary(entry)
+              case entry.fetch(:status)
+              when :type_changed
+                "Type changed during normalization."
+              when :added
+                "Field was added by normalization."
+              when :removed
+                "Field was removed during normalization."
+              else
+                "Field value changed during normalization."
+              end
+            end
+
+            def value_label(value)
+              return "(missing)" if value.nil?
+
+              JSON.generate(value)
+            end
+          end
+
           class StatusBadge < View::Component
             DEFAULT_BASE_CLASS = "status-badge inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]".freeze
 
@@ -1104,6 +1214,15 @@ module Igniter
                 empty_message: empty_message,
                 title_link_class: title_link_class,
                 action_link_class: action_link_class
+              )
+            end
+
+            def payload_diff(raw_payload:, normalized_payload:, empty_message: nil)
+              PayloadDiff.new(
+                raw_payload: raw_payload,
+                normalized_payload: normalized_payload,
+                theme: self,
+                empty_message: empty_message
               )
             end
 
