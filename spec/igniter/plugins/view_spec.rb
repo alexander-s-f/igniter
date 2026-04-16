@@ -739,7 +739,22 @@ RSpec.describe Igniter::Plugins::View::Tailwind::Surfaces do
     expect(preset.name).to eq(:ops_dashboard)
     expect(preset.theme_name).to eq(:ops)
     expect(preset.realtime_preset).not_to be_nil
-    expect(preset.components).to include(:metric_card, :bar_chart, :live_badge)
+    expect(preset.components).to include(
+      :metric_card,
+      :bar_chart,
+      :live_badge,
+      :ops_hero_actions,
+      :operations_pulse,
+      :realtime_feed,
+      :chat_prompt_bar,
+      :activity_filter_bar,
+      :timeline_focus_actions,
+      :device_inventory,
+      :notes_list,
+      :chat_transcript,
+      :camera_events_list,
+      :activity_timeline
+    )
     expect(preset.hooks.fetch(:realtime_feed)).to eq("realtime_feed")
     expect(html).to include('data-metric-value="devices-online"')
     expect(html).to include('data-notes-list="true"')
@@ -750,6 +765,99 @@ RSpec.describe Igniter::Plugins::View::Tailwind::Surfaces do
     expect(html).to include('data-device-status-badge="front_door_cam"')
     expect(html).to include('data-topology-overall-status="true"')
     expect(html).to include('data-topology-device-count="offline"')
+  end
+
+  it "renders semantic ops dashboard content blocks from the surface preset" do
+    preset = described_class.ops_dashboard
+
+    html = Igniter::Plugins::View.render do |view|
+      preset.ops_hero_actions(
+        view,
+        endpoints: [
+          { "label" => "Main health", "path" => "/health" }
+        ]
+      )
+      preset.operations_pulse(
+        view,
+        generated_at: "2026-04-16T12:00:00Z",
+        poll_interval_seconds: 5,
+        charts: {
+          device_status: [{ "label" => "Online", "value" => 1 }, { "label" => "Offline", "value" => 2 }],
+          activity_mix: [{ "label" => "Notes", "value" => 3 }],
+          app_roles: [{ "label" => "Admin", "value" => 1 }]
+        }
+      )
+      preset.realtime_feed(
+        view,
+        stream_path: "/api/overview/stream",
+        events: [{ "title" => "Heartbeat", "detail" => "front_door_cam online" }]
+      )
+      preset.chat_prompt_bar(view, prompts: ["Which devices are online right now?"])
+      preset.activity_filter_bar(
+        view,
+        items: [
+          { label: "All activity", href: "/", active: true },
+          { label: "Only notes", href: "/?timeline=note", active: false }
+        ]
+      )
+      preset.timeline_focus_actions(
+        view,
+        source_url: "/api/notes",
+        clear_path: "/?timeline=note"
+      )
+      preset.device_inventory(
+        view,
+        devices: [
+          {
+            id: :front_door_cam,
+            title: "front_door_cam",
+            href: "/devices/front_door_cam",
+            subtitle: "esp32_cam via http",
+            code: "routes_to=edge",
+            status: "online",
+            last_seen: "last_seen=just now",
+            telemetry: "battery=88 signal=-60 ip=192.168.0.10"
+          }
+        ],
+        empty_message: "No devices declared yet."
+      )
+      preset.notes_list(
+        view,
+        notes: [{ id: "note-1", title: "Top off the UPS rack", meta: "source=dashboard · created=2m ago" }],
+        empty_message: "No notes saved yet."
+      )
+      preset.chat_transcript(
+        view,
+        messages: [{ id: "chat-1", role: "assistant", meta: "operator_chat · just now", body: "Devices online: 1." }],
+        empty_message: "No chat turns yet."
+      )
+      preset.camera_events_list(
+        view,
+        events: [{ id: "cam-1", title: "front-door-cam", meta: "motion=true · source=esp32-cam", body: "Courier at the front door" }],
+        empty_message: "No camera events yet."
+      )
+      preset.activity_timeline(
+        view,
+        items: [{ id: "evt-1", type: "note", title: "note · UPS check", href: "/?timeline=note&focus=evt-1", detail: "Top off the UPS rack", age: "2m ago", source_url: "/api/notes" }],
+        empty_message: "No activity yet."
+      )
+    end
+
+    expect(html).to include("Main health")
+    expect(html).to include("Realtime overview")
+    expect(html).to include('data-chart-id="device-status"')
+    expect(html).to include("Stream source /api/overview/stream")
+    expect(html).to include('data-realtime-feed="true"')
+    expect(html).to include('data-chat-prompt="Which devices are online right now?"')
+    expect(html).to include("All activity")
+    expect(html).to include("Open source API")
+    expect(html).to include("Clear focus")
+    expect(html).to include('data-device-id="front_door_cam"')
+    expect(html).to include('data-notes-list="true"')
+    expect(html).to include('data-chat-list="true"')
+    expect(html).to include('data-camera-events-list="true"')
+    expect(html).to include('data-activity-timeline="true"')
+    expect(html).to include("Courier at the front door")
   end
 
   it "exposes schema-authoring and submission-inspection surface presets" do

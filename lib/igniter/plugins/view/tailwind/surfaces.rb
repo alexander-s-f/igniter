@@ -44,6 +44,224 @@ module Igniter
               theme.panel(title: title, subtitle: subtitle, &block)
             end
 
+            def ops_hero_actions(view, endpoints:)
+              view.component(
+                Tailwind::UI::ActionBar.new(
+                  class_name: theme.hero(:dashboard).fetch(:action_bar_class)
+                ) do |links|
+                  endpoints.each do |endpoint|
+                    label = endpoint[:label] || endpoint["label"]
+                    path = endpoint[:path] || endpoint["path"]
+                    links.tag(:a,
+                              label,
+                              href: path,
+                              class: Tailwind::UI::Tokens.action(
+                                variant: :soft,
+                                theme: :amber,
+                                size: :sm,
+                                extra: "pill-link font-medium"
+                              ))
+                  end
+                end
+              )
+            end
+
+            def operations_pulse(view, generated_at:, poll_interval_seconds:, charts:)
+              view.component(
+                theme.live_badge(
+                  label: "Realtime overview",
+                  value: generated_at,
+                  interval_seconds: poll_interval_seconds
+                )
+              )
+              view.tag(:h3, "Device Status", class: theme.section_heading_class)
+              view.component(theme.bar_chart(items: normalize_chart_items(charts.fetch(:device_status)), chart_id: "device-status"))
+              view.tag(:h3, "Activity Mix", class: theme.section_heading_class)
+              view.component(theme.bar_chart(items: normalize_chart_items(charts.fetch(:activity_mix)), chart_id: "activity-mix"))
+              view.tag(:h3, "App Role Spread", class: theme.section_heading_class)
+              view.component(theme.bar_chart(items: normalize_chart_items(charts.fetch(:app_roles)), chart_id: "app-roles"))
+            end
+
+            def realtime_feed(view, stream_path:, events:, waiting_message: "Waiting for live events...")
+              view.tag(:p,
+                       "Stream source #{stream_path}",
+                       class: "#{theme.muted_text_class(extra: "muted")} mb-3",
+                       data: { realtime_stream_path: stream_path })
+              view.tag(:ul, **realtime_feed_attributes(item_class: theme.compact_card_class)) do |list|
+                if events.empty?
+                  list.tag(:li, waiting_message, class: theme.compact_card_class)
+                else
+                  events.each do |entry|
+                    list.tag(:li,
+                             "#{entry.fetch("title")} · #{entry.fetch("detail")}",
+                             class: theme.compact_card_class)
+                  end
+                end
+              end
+            end
+
+            def chat_prompt_bar(view, prompts:)
+              view.tag(:div, class: "mb-5 flex flex-wrap gap-2") do |actions|
+                prompts.each do |prompt|
+                  actions.tag(:button,
+                              prompt,
+                              type: "button",
+                              class: Tailwind::UI::Tokens.action(
+                                variant: :ghost,
+                                theme: :amber,
+                                size: :sm,
+                                extra: "justify-start text-left"
+                              ),
+                              data: { chat_prompt: prompt })
+                end
+              end
+            end
+
+            def activity_filter_bar(view, items:)
+              view.component(
+                Tailwind::UI::ActionBar.new(class_name: "hero-links mb-4 flex flex-wrap gap-3") do |links|
+                  items.each do |item|
+                    links.tag(:a,
+                              item.fetch(:label),
+                              href: item.fetch(:href),
+                              class: item.fetch(:active) ? active_filter_class : filter_link_class)
+                  end
+                end
+              )
+            end
+
+            def timeline_focus_actions(view, source_url:, clear_path:)
+              view.component(
+                Tailwind::UI::ActionBar.new(
+                  tag: :p,
+                  class_name: "mt-4 flex flex-wrap gap-3"
+                ) do |paragraph|
+                  paragraph.tag(:a,
+                                "Open source API",
+                                href: source_url,
+                                class: Tailwind::UI::Tokens.action(variant: :soft, theme: :cyan, size: :sm))
+                  paragraph.tag(:a,
+                                "Clear focus",
+                                href: clear_path,
+                                class: Tailwind::UI::Tokens.action(variant: :ghost, theme: :amber, size: :sm))
+                end
+              )
+            end
+
+            def device_inventory(view, devices:, empty_message:)
+              if devices.empty?
+                view.tag(:p, empty_message, class: theme.empty_state_class(extra: "empty-state"))
+                return
+              end
+
+              view.tag(:ul, class: theme.list_class, data: { device_list: "true" }) do |list|
+                devices.each do |device|
+                  list.tag(:li,
+                           class: theme.list_item_class,
+                           **device_item_attributes(id: device.fetch(:id), status: device.fetch(:status))) do |item|
+                    item.tag(:strong, class: theme.item_title_class) do |heading|
+                      heading.tag(:a, device.fetch(:title), href: device.fetch(:href), class: ops_title_link_class)
+                    end
+                    item.tag(:div, device.fetch(:subtitle), class: theme.muted_text_class(extra: "muted"))
+                    item.tag(:code, device.fetch(:code), class: theme.code_class)
+                    item.tag(:div, class: "mt-3 flex flex-wrap items-center gap-2") do |meta|
+                      meta.component(
+                        Tailwind::UI::StatusBadge.new(
+                          label: device.fetch(:status),
+                          html_attributes: device_status_badge_attributes(device.fetch(:id))
+                        )
+                      )
+                      meta.tag(:span,
+                               device.fetch(:last_seen),
+                               class: theme.muted_text_class,
+                               **device_last_seen_attributes(device.fetch(:id)))
+                    end
+                    next unless device[:telemetry]
+
+                    item.tag(:div,
+                             device.fetch(:telemetry),
+                             class: "#{theme.muted_text_class(extra: "muted")} mt-2",
+                             **device_telemetry_attributes(device.fetch(:id)))
+                  end
+                end
+              end
+            end
+
+            def notes_list(view, notes:, empty_message:)
+              view.tag(:ul, class: theme.list_class, **notes_list_attributes) do |list|
+                if notes.empty?
+                  list.tag(:li, empty_message, class: theme.empty_state_class(extra: "empty-state"), data: { empty_state: "true" })
+                else
+                  notes.each do |note|
+                    list.tag(:li, class: theme.list_item_class, data: { note_id: note.fetch(:id) }) do |item|
+                      item.tag(:strong, note.fetch(:title), class: theme.item_title_class)
+                      item.tag(:div, note.fetch(:meta), class: "#{theme.muted_text_class(extra: "muted")} mt-2")
+                    end
+                  end
+                end
+              end
+            end
+
+            def chat_transcript(view, messages:, empty_message:)
+              view.tag(:ul, class: theme.list_class, **chat_list_attributes) do |list|
+                if messages.empty?
+                  list.tag(:li, empty_message, class: theme.empty_state_class(extra: "empty-state"), data: { empty_state: "true" })
+                else
+                  messages.each do |message|
+                    list.tag(:li, class: theme.list_item_class, data: { chat_turn_id: message.fetch(:id, "") }) do |item|
+                      item.tag(:div, class: "flex flex-wrap items-center gap-2") do |meta|
+                        meta.component(Tailwind::UI::StatusBadge.new(label: message.fetch(:role)))
+                        meta.tag(:span, message.fetch(:meta), class: theme.muted_text_class)
+                      end
+                      item.tag(:div, message.fetch(:body), class: theme.body_text_class(extra: "mt-3 whitespace-pre-wrap"))
+                    end
+                  end
+                end
+              end
+            end
+
+            def camera_events_list(view, events:, empty_message:)
+              view.tag(:ul, class: theme.list_class, **camera_events_list_attributes) do |list|
+                if events.empty?
+                  list.tag(:li, empty_message, class: theme.empty_state_class(extra: "empty-state"), data: { empty_state: "true" })
+                else
+                  events.each do |event|
+                    list.tag(:li, class: theme.list_item_class, data: { camera_event_id: event.fetch(:id) }) do |item|
+                      item.tag(:strong, event.fetch(:title), class: theme.item_title_class)
+                      item.tag(:div, event.fetch(:meta), class: "#{theme.muted_text_class(extra: "muted")} mt-2")
+                      item.tag(:div, event.fetch(:body), class: theme.body_text_class(extra: "mt-2 text-stone-200"))
+                    end
+                  end
+                end
+              end
+            end
+
+            def activity_timeline(view, items:, empty_message:)
+              view.tag(:ul, class: theme.list_class, **activity_timeline_attributes) do |list|
+                if items.empty?
+                  list.tag(:li, empty_message, class: theme.empty_state_class(extra: "empty-state"), data: { empty_state: "true" })
+                else
+                  items.each do |entry|
+                    list.tag(:li,
+                             class: theme.list_item_class,
+                             data: { timeline_entry_id: entry.fetch(:id), timeline_entry_type: entry.fetch(:type) }) do |item|
+                      item.tag(:strong, class: theme.item_title_class) do |heading|
+                        heading.tag(:a, entry.fetch(:title), href: entry.fetch(:href), class: ops_title_link_class)
+                      end
+                      item.tag(:div, entry.fetch(:detail), class: "#{theme.muted_text_class(extra: "muted")} mt-2")
+                      item.tag(:div, entry.fetch(:age), class: "#{theme.muted_text_class(extra: "muted")} mt-2")
+                      next unless entry[:source_url]
+
+                      item.tag(:a,
+                               "open source",
+                               href: entry.fetch(:source_url),
+                               class: Tailwind::UI::Tokens.underline_link(theme: :amber, extra: "mt-3 inline-flex text-sm"))
+                    end
+                  end
+                end
+              end
+            end
+
             def form_section(title:, subtitle:, action:, method: "post", **options, &block)
               theme.form_section(title: title, subtitle: subtitle, action: action, method: method, **options, &block)
             end
@@ -282,6 +500,35 @@ module Igniter
             def topology_device_count_attributes(status)
               { data: { topology_device_count: status.to_s } }
             end
+
+            private
+
+            def filter_link_class
+              Tailwind::UI::Tokens.action(variant: :ghost, theme: :amber, size: :sm, extra: "pill-link")
+            end
+
+            def active_filter_class
+              Tailwind::UI::Tokens.action(
+                variant: :primary,
+                theme: :amber,
+                size: :sm,
+                extra: "pill-link active-pill font-medium"
+              )
+            end
+
+            def normalize_chart_items(items)
+              items.map do |item|
+                {
+                  key: item[:key] || item["key"],
+                  label: item[:label] || item["label"],
+                  value: item[:value] || item["value"]
+                }.compact
+              end
+            end
+
+            def ops_title_link_class
+              "transition hover:text-amber-200"
+            end
           end
 
           module_function
@@ -301,6 +548,17 @@ module Igniter
                 status_badge
                 endpoint_list
                 timeline_list
+                ops_hero_actions
+                operations_pulse
+                realtime_feed
+                chat_prompt_bar
+                activity_filter_bar
+                timeline_focus_actions
+                device_inventory
+                notes_list
+                chat_transcript
+                camera_events_list
+                activity_timeline
               ],
               hooks: {
                 metrics: %w[apps public-apps devices devices-online heartbeats notes chat-turns camera-events motion-events],
