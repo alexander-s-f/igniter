@@ -263,6 +263,57 @@ RSpec.describe Igniter::Plugins::View::Tailwind do
     expect(script).to include("\"camera_event\":\"/api/camera_events\"")
   end
 
+  it "can build a reusable operator-surface preset and render it into the page head" do
+    preset = described_class::Realtime::Presets.operator_surface(
+      hook_name: "opsPresetHook",
+      projections: {
+        overview: {
+          metrics: { "devices-online" => "counts.devices_online" }
+        }
+      },
+      adapters: [
+        described_class::Realtime::Adapters.prompt_buttons(textarea_id: "chat-message")
+      ],
+      include_mermaid: true
+    )
+
+    html = described_class.render_page(
+      title: "Preset Page",
+      head_content: lambda { |head|
+        preset.render_head(
+          head,
+          config: {
+            overview_path: "/api/overview",
+            stream_path: "/api/overview/stream",
+            poll_interval_seconds: 5
+          }
+        )
+      }
+    ) do |main|
+      main.tag(:p, "Preset body")
+    end
+
+    expect(preset.hook_name).to eq("opsPresetHook")
+    expect(preset.projections.dig(:overview, :metrics, "devices-online")).to eq("counts.devices_online")
+    expect(preset.include_mermaid).to eq(true)
+    expect(preset.extra_script).to include("window[\"opsPresetHook\"]")
+    expect(html).to include(Igniter::Plugins::View::Tailwind::MERMAID_CDN_URL)
+    expect(html).to include("window[\"opsPresetHook\"]")
+    expect(html).to include("Preset body")
+  end
+
+  it "exposes a home-ops preset for dashboard-style operator surfaces" do
+    theme = described_class::UI::Theme.fetch(:ops)
+    preset = described_class::Realtime::Presets.home_ops(theme: theme)
+
+    expect(preset.hook_name).to eq("homeLabRealtimeProjector")
+    expect(preset.projections.dig(:overview, :charts, "device-status")).to eq("charts.device_status")
+    expect(preset.projections.dig(:activity, :cases, "chat_turn", :feed)).to eq(false)
+    expect(preset.extra_script).to include("[data-chat-list='true']")
+    expect(preset.extra_script).to include("[data-device-id]")
+    expect(preset.extra_script).to include("http://127.0.0.1:4570/v1/camera_events")
+  end
+
   it "renders a shared message page shell" do
     html = described_class.render_message_page(
       title: "Missing View",
@@ -664,6 +715,53 @@ RSpec.describe Igniter::Plugins::View::Tailwind::UI::Theme do
     expect(theme.schema_fieldset {}).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaFieldset)
     expect(theme.schema_section {}).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaSection)
     expect(theme.schema_card {}).to be_a(Igniter::Plugins::View::Tailwind::UI::SchemaCard)
+  end
+end
+
+RSpec.describe Igniter::Plugins::View::Tailwind::Surfaces do
+  it "builds an ops-dashboard surface preset with theme, realtime, and hook helpers" do
+    preset = described_class.ops_dashboard
+
+    metric = preset.metric_card(id: "devices-online", label: "Devices Online", value: 2, hint: "heartbeat within 5 min")
+
+    html = Igniter::Plugins::View.render do |view|
+      view.component(metric)
+      view.tag(:ul, **preset.notes_list_attributes) { |list| list.tag(:li, "note") }
+      view.tag(:ul, **preset.chat_list_attributes) { |list| list.tag(:li, "chat") }
+      view.tag(:ul, **preset.camera_events_list_attributes) { |list| list.tag(:li, "camera") }
+      view.tag(:ul, **preset.activity_timeline_attributes) { |list| list.tag(:li, "timeline") }
+      view.tag(:div, "device", **preset.device_item_attributes(id: "front_door_cam", status: "offline"))
+      view.component(Igniter::Plugins::View::Tailwind::UI::StatusBadge.new(label: "offline", html_attributes: preset.device_status_badge_attributes("front_door_cam")))
+      view.component(Igniter::Plugins::View::Tailwind::UI::StatusBadge.new(label: "degraded", html_attributes: preset.topology_overall_status_attributes))
+      view.tag(:span, "offline=1", **preset.topology_device_count_attributes("offline"))
+    end
+
+    expect(preset.name).to eq(:ops_dashboard)
+    expect(preset.theme_name).to eq(:ops)
+    expect(preset.realtime_preset).not_to be_nil
+    expect(preset.components).to include(:metric_card, :bar_chart, :live_badge)
+    expect(preset.hooks.fetch(:realtime_feed)).to eq("realtime_feed")
+    expect(html).to include('data-metric-value="devices-online"')
+    expect(html).to include('data-notes-list="true"')
+    expect(html).to include('data-chat-list="true"')
+    expect(html).to include('data-camera-events-list="true"')
+    expect(html).to include('data-activity-timeline="true"')
+    expect(html).to include('data-device-id="front_door_cam"')
+    expect(html).to include('data-device-status-badge="front_door_cam"')
+    expect(html).to include('data-topology-overall-status="true"')
+    expect(html).to include('data-topology-device-count="offline"')
+  end
+
+  it "exposes schema-authoring and submission-inspection surface presets" do
+    schema = described_class.schema_authoring
+    submission = described_class.submission_inspection
+
+    expect(schema.theme_name).to eq(:companion)
+    expect(schema.components).to include(:form_section, :banner, :action_bar)
+    expect(schema.hooks.dig(:catalog)).to include("view_schema_catalog")
+    expect(submission.theme_name).to eq(:companion)
+    expect(submission.components).to include(:payload_diff, :key_value_list, :message_page)
+    expect(submission.hooks.dig(:payloads)).to include("raw_payload")
   end
 end
 

@@ -3,6 +3,7 @@
 require "json"
 
 require_relative "realtime/adapters"
+require_relative "realtime/presets"
 
 module Igniter
   module Plugins
