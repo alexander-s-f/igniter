@@ -143,6 +143,8 @@ module Igniter
       end
 
       def write_response(socket, result) # rubocop:disable Metrics/MethodLength
+        return write_stream_response(socket, result) if result[:stream]
+
         body   = result[:body].to_s
         code   = result[:status].to_i
         phrase = STATUS_MESSAGES.fetch(code, "Unknown")
@@ -156,6 +158,27 @@ module Igniter
         response += body
 
         socket.write(response)
+      end
+
+      def write_stream_response(socket, result)
+        code = result[:status].to_i
+        phrase = STATUS_MESSAGES.fetch(code, "Unknown")
+        headers = result[:headers] || {}
+
+        response = +"HTTP/1.1 #{code} #{phrase}#{CRLF}"
+        headers.each do |key, value|
+          response << "#{key}: #{value}#{CRLF}"
+        end
+        response << "Connection: close#{CRLF}"
+        response << CRLF
+
+        socket.write(response)
+        Array(result[:body]).each { |chunk| socket.write(chunk.to_s) } unless result[:body].respond_to?(:each)
+        return unless result[:body].respond_to?(:each)
+
+        result[:body].each do |chunk|
+          socket.write(chunk.to_s)
+        end
       end
     end
   end

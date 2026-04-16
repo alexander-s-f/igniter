@@ -491,7 +491,8 @@ module Igniter
             DEFAULT_HINT_CLASS = "mt-2 block text-sm text-stone-400".freeze
 
             def initialize(label:, value:, hint: nil, wrapper_class: DEFAULT_WRAPPER_CLASS, label_class: DEFAULT_LABEL_CLASS,
-                           value_class: DEFAULT_VALUE_CLASS, hint_class: DEFAULT_HINT_CLASS)
+                           value_class: DEFAULT_VALUE_CLASS, hint_class: DEFAULT_HINT_CLASS,
+                           wrapper_attributes: {}, value_attributes: {})
               @label = label
               @value = value
               @hint = hint
@@ -499,12 +500,14 @@ module Igniter
               @label_class = label_class
               @value_class = value_class
               @hint_class = hint_class
+              @wrapper_attributes = wrapper_attributes
+              @value_attributes = value_attributes
             end
 
             def call(view)
-              view.tag(:article, class: @wrapper_class) do |card|
+              view.tag(:article, **@wrapper_attributes.merge(class: @wrapper_class)) do |card|
                 card.tag(:span, @label, class: @label_class)
-                card.tag(:strong, @value.to_s, class: @value_class)
+                card.tag(:strong, @value.to_s, **@value_attributes.merge(class: @value_class))
                 card.tag(:span, @hint, class: @hint_class) if @hint
               end
             end
@@ -986,14 +989,15 @@ module Igniter
           class StatusBadge < View::Component
             DEFAULT_BASE_CLASS = "status-badge inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]".freeze
 
-            def initialize(label:, tone: nil, base_class: DEFAULT_BASE_CLASS)
+            def initialize(label:, tone: nil, base_class: DEFAULT_BASE_CLASS, html_attributes: {})
               @label = label.to_s
               @tone = tone
               @base_class = base_class
+              @html_attributes = html_attributes
             end
 
             def call(view)
-              view.tag(:span, @label, class: [@base_class, tone_classes])
+              view.tag(:span, @label, **@html_attributes.merge(class: [@base_class, tone_classes]))
             end
 
             private

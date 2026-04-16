@@ -22,6 +22,14 @@ module Igniter
 
         result = @router.call(method, path, body_str, headers: request_headers(env), env: env)
 
+        if result[:stream]
+          return [
+            result[:status],
+            result[:headers],
+            result[:body]
+          ]
+        end
+
         [
           result[:status],
           result[:headers].merge("Content-Length" => result[:body].bytesize.to_s),

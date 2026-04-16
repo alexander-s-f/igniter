@@ -208,6 +208,30 @@ RSpec.describe Igniter::Server::Router do
       expect(result[:status]).to eq(202)
       expect(JSON.parse(result[:body])).to include("intercepted" => true, "path" => "/webhook")
     end
+
+    it "preserves streaming bodies for custom routes" do
+      config.custom_routes = [
+        {
+          method: "GET",
+          path: "/stream",
+          handler: lambda do |**|
+            {
+              status: 200,
+              stream: true,
+              body: ["event: ping\n", "data: {}\n\n"],
+              headers: { "Content-Type" => "text/event-stream" }
+            }
+          end
+        }
+      ]
+
+      result = router.call("GET", "/stream", "")
+
+      expect(result[:status]).to eq(200)
+      expect(result[:stream]).to be(true)
+      expect(result[:headers]["Content-Type"]).to eq("text/event-stream")
+      expect(result[:body].each.to_a.join).to include("event: ping")
+    end
   end
 
   describe "invalid JSON body" do

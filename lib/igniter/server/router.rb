@@ -195,10 +195,12 @@ module Igniter
 
       def coerce_custom_result(result)
         if custom_response_hash?(result)
+          stream = result[:stream] || result["stream"]
           {
             status: integer_or_default(result[:status] || result["status"], 200),
-            body: serialize_custom_body(result[:body] || result["body"]),
-            headers: (result[:headers] || result["headers"] || json_ct).transform_keys(&:to_s)
+            body: stream ? (result[:body] || result["body"]) : serialize_custom_body(result[:body] || result["body"]),
+            headers: (result[:headers] || result["headers"] || json_ct).transform_keys(&:to_s),
+            stream: !!stream
           }
         else
           { status: 200, body: serialize_custom_body(result), headers: json_ct }
