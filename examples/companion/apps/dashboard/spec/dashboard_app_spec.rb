@@ -169,6 +169,8 @@ RSpec.describe Companion::DashboardApp do
       expect(result[:body]).to include("/api/telegram/preferences")
       expect(result[:body]).to include("Mark Completed")
       expect(result[:body]).to include("/views/training-checkin")
+      expect(result[:body]).to include("@tailwindcss/browser@4")
+      expect(result[:body]).to include("font-display")
     end
   end
 

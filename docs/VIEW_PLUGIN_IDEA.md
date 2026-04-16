@@ -39,6 +39,13 @@ Possible future package names:
 - `igniter-arbre`
 - `Igniter::Plugins::View`
 
+The repo can keep this inside `Igniter::Plugins::View`, but expose separate
+opt-in adapter entrypoints:
+
+- base DSL: `igniter/plugins/view`
+- Arbre bridge: `igniter/plugins/view/arbre`
+- Tailwind helpers: `igniter/plugins/view/tailwind`
+
 The plugin would sit above `Igniter::App`, `Igniter::Stack`, and `Igniter::Server`:
 
 ```text
@@ -53,12 +60,15 @@ Core
 The first small slice of that plugin now exists:
 
 - `require "igniter/plugins/view"`
+- `require "igniter/plugins/view/arbre"`
+- `require "igniter/plugins/view/tailwind"`
 - `Igniter::Plugins::View.render { |view| ... }`
 - `Igniter::Plugins::View::Builder`
 - `Igniter::Plugins::View::Component`
 - `Igniter::Plugins::View::Page`
 - `Igniter::Plugins::View::FormBuilder`
 - `Igniter::Plugins::View::Response.html(...)`
+- `Igniter::Plugins::View::Tailwind::UI::*` reusable dashboard primitives
 
 This API is intentionally small.
 
@@ -73,6 +83,7 @@ It is still intentionally small, but it now has enough structure to explore:
 - page objects
 - reusable components
 - basic server-rendered forms
+- opt-in adapters for richer authoring/runtime choices without polluting core
 
 It is **not** yet a full component system or form framework.
 

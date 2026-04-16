@@ -49,6 +49,8 @@ layer folders.
 | Distributed runtime | `require "igniter/cluster"` |
 | Rails plugin | `require "igniter/plugins/rails"` |
 | View plugin | `require "igniter/plugins/view"` |
+| View + Arbre adapter | `require "igniter/plugins/view/arbre"` |
+| View + Tailwind helpers | `require "igniter/plugins/view/tailwind"` |
 
 ## Terminology
 
@@ -59,6 +61,14 @@ layer folders.
 - **Hosting layers**: `Igniter::Server` and `Igniter::Cluster`.
 - **Profile**: `Igniter::Stack` + `Igniter::App`, a packaged way to assemble an app and run it through host, loader, and scheduler adapters. The public entrypoint is `require "igniter/app"`. The defaults are `host :app`, `loader :filesystem`, and `scheduler :threaded`, and `require "igniter/cluster"` adds `host :cluster_app` for cluster-aware apps.
 - **Plugin**: framework or environment integration loaded from `igniter/plugins/*`, such as `Igniter::Rails` or `Igniter::Plugins::View`.
+
+`Igniter::Plugins::View` stays optional by design. Load the base plugin for the
+small built-in Ruby HTML DSL, then opt into adapters only where they help:
+
+- `require "igniter/plugins/view"` keeps the dependency surface minimal.
+- `require "igniter/plugins/view/arbre"` adds an Arbre integration boundary without making `arbre` a dependency of Igniter itself.
+- `require "igniter/plugins/view/tailwind"` adds a Tailwind-friendly page shell for dashboards and admin surfaces.
+- `Igniter::Plugins::View::Tailwind::UI` provides reusable dashboard primitives such as metric cards, panels, and status badges.
 
 ## Deployment Modes
 

@@ -41,7 +41,7 @@ the public API.
 | Plugin | Namespace | Require | Responsibility |
 |--------|-----------|---------|----------------|
 | `rails` | `Igniter::Rails` | `require "igniter/plugins/rails"` | Railtie, ActiveJob bridge, ActionCable adapter, webhook controller concern, generators |
-| `view` | `Igniter::Plugins::View` | `require "igniter/plugins/view"` | schema-driven page/view runtime, form handling, schema rendering, schema storage helpers |
+| `view` | `Igniter::Plugins::View` | `require "igniter/plugins/view"` | schema-driven page/view runtime, form handling, schema rendering, schema storage helpers, plus optional adapter entrypoints such as Arbre and Tailwind |
 
 ## Relationship To Other Layers
 
@@ -134,6 +134,21 @@ View runtime:
 ```ruby
 require "igniter/plugins/view"
 require "igniter/sdk/data"
+```
+
+Optional adapter entrypoints:
+
+```ruby
+require "igniter/plugins/view/arbre"
+require "igniter/plugins/view/tailwind"
+```
+
+Tailwind adapter primitives live under:
+
+```ruby
+Igniter::Plugins::View::Tailwind::UI::MetricCard
+Igniter::Plugins::View::Tailwind::UI::Panel
+Igniter::Plugins::View::Tailwind::UI::StatusBadge
 ```
 
 ## Mental Model
