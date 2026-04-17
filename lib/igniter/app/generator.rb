@@ -19,7 +19,7 @@ module Igniter
     #   │       │   └── skills/        — optional Skill subclasses
     #   │       ├── spec/              — app-local specs
     #   │       ├── app.rb             — leaf Igniter::App
-    #   │       └── app.yml            — app-local host config
+    #   │       └── app.yml            — app-local runtime defaults
     #   ├── lib/<project>/shared/      — shared libraries / helpers
     #   ├── config/
     #   │   ├── topology.yml           — deployment roles + wiring
@@ -107,7 +107,7 @@ module Igniter
         end
         puts "    bin/start          # ← launch apps/main"
         puts "    bin/dev            # ← launch the whole stack locally"
-        puts "    bin/start main     # ← explicit app selection"
+        puts "    bin/start --service main   # ← explicit service selection"
         puts
         puts "  Production (Puma):"
         puts "    bundle add puma && bundle exec puma config.ru"
@@ -172,6 +172,7 @@ module Igniter
         <<~YAML
           stack:
             default_app: main
+            default_service: main
             shared_lib_paths:
               - lib
 
@@ -187,6 +188,7 @@ module Igniter
           stack:
             name: #{@project_name}
             default_app: main
+            default_service: main
 
           topology:
             profile: local
@@ -201,15 +203,17 @@ module Igniter
               volume_name: #{namespace_path}_var
               volume_target: /app/var
 
-          apps:
+          services:
             main:
-              app: main
               role: api
+              apps:
+                - main
+              root_app: main
               replicas: 1
               public: true
               http:
                 port: 4567
-              command: bundle exec ruby stack.rb main
+              command: bundle exec ruby stack.rb --service main
 
           shared:
             persistence:
@@ -226,7 +230,7 @@ module Igniter
 
           topology:
             profile: development
-            apps:
+            services:
               main:
                 replicas: 1
         YAML
@@ -239,7 +243,7 @@ module Igniter
 
           topology:
             profile: production
-            apps:
+            services:
               main:
                 replicas: 2
         YAML
@@ -271,7 +275,6 @@ module Igniter
               end
 
               configure do |c|
-                # c.app_host.port = ENV.fetch("PORT", 4567).to_i
                 # c.store         = Igniter::Runtime::Stores::MemoryStore.new
               end
 
@@ -287,12 +290,6 @@ module Igniter
 
       def main_app_yml
         <<~YAML
-          app_host:
-            port: 4567
-            host: "0.0.0.0"
-            log_format: text   # text | json
-            drain_timeout: 30
-
           persistence:
             execution:
               adapter: memory   # memory | sqlite | redis
@@ -330,7 +327,8 @@ module Igniter
 
           require_relative "stack"
 
-          run #{stack_class_name}.rack_app(ENV.fetch("IGNITER_APP", "main"))
+          service = ENV["IGNITER_SERVICE"] || ENV["IGNITER_APP"] || "main"
+          run #{stack_class_name}.rack_service(service)
         RUBY
       end
 
@@ -412,7 +410,7 @@ module Igniter
           puts "  \#{hr}"
           puts "  Run  bin/start       →  start apps/main"
           puts "  Run  bin/dev         →  start the whole stack locally"
-          puts "  Run  bin/start main  →  explicit app selection"
+          puts "  Run  bin/start --service main  →  explicit service selection"
           puts "  \#{hr}"
           puts
         RUBY
@@ -429,13 +427,13 @@ module Igniter
           puts "#{module_name} stack — add your demo code here."
           puts "Run  bin/start       →  start apps/main"
           puts "Run  bin/dev         →  start the whole stack locally"
-          puts "Run  bin/start main  →  explicit app selection"
+          puts "Run  bin/start --service main  →  explicit service selection"
         RUBY
       end
 
       def procfile_dev
         <<~TEXT
-          main: IGNITER_APP=main PORT=4567 bundle exec ruby stack.rb main
+          main: IGNITER_SERVICE=main IGNITER_APP=main PORT=4567 bundle exec ruby stack.rb --service main
         TEXT
       end
 
@@ -466,8 +464,9 @@ module Igniter
           require_relative "spec_helper"
 
           RSpec.describe #{stack_class_name} do
-            it "registers apps/main as the default app" do
+            it "registers apps/main as the default app and service" do
               expect(described_class.default_app).to eq(:main)
+              expect(described_class.default_service).to eq(:main)
               expect(described_class.app(:main)).to be(#{module_name}::MainApp)
             end
           end

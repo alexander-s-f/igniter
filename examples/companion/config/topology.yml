@@ -1,6 +1,7 @@
 stack:
   name: companion
   default_app: main
+  default_service: main
 
 topology:
   profile: local-compose
@@ -17,15 +18,17 @@ deploy:
     volume_name: companion_var
     volume_target: /app/examples/companion/var
 
-apps:
+services:
   main:
-    app: main
     role: api
+    apps:
+      - main
+    root_app: main
     replicas: 1
     public: true
     http:
       port: 4567
-    command: bundle exec ruby stack.rb main
+    command: bundle exec ruby stack.rb --service main
     depends_on:
       - inference
     environment:
@@ -37,13 +40,15 @@ apps:
         path: var/main_executions.sqlite3
 
   inference:
-    app: inference
     role: worker
+    apps:
+      - inference
+    root_app: inference
     replicas: 1
     public: false
     http:
       port: 4568
-    command: bundle exec ruby stack.rb inference
+    command: bundle exec ruby stack.rb --service inference
     environment:
       COMPANION_EXECUTION_ADAPTER: sqlite
       COMPANION_EXECUTION_DB: var/inference_executions.sqlite3
@@ -53,13 +58,15 @@ apps:
         path: var/inference_executions.sqlite3
 
   dashboard:
-    app: dashboard
     role: admin
+    apps:
+      - dashboard
+    root_app: dashboard
     replicas: 1
     public: true
     http:
       port: 4569
-    command: bundle exec ruby stack.rb dashboard
+    command: bundle exec ruby stack.rb --service dashboard
     depends_on:
       - main
     environment:

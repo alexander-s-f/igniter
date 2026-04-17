@@ -13,6 +13,7 @@ Use this section when Igniter becomes the runtime shape of an application, not j
 
 ## Read First
 
+- [Stacks Next](../STACKS_NEXT.md)
 - [App v1](../APP_V1.md)
 - [Server v1](../SERVER_V1.md)
 - [Stacks v1](../STACKS_V1.md)
@@ -34,5 +35,6 @@ Use this section when Igniter becomes the runtime shape of an application, not j
 
 1. Start with core contracts.
 2. Wrap them in an app profile.
-3. Add only the SDK packs the app actually needs.
-4. Graduate to cluster only when distributed behavior is truly required.
+3. Group apps into runtime services only when isolation or deployment needs justify it.
+4. Add only the SDK packs the app actually needs.
+5. Graduate to cluster only when distributed behavior is truly required.

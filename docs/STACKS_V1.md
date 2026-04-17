@@ -9,8 +9,13 @@ It treats `apps/` as the primary unit of composition:
 - one or more leaf apps under `apps/<name>`
 - shared code under `lib/<project>/shared`
 
-`Igniter::App` remains the leaf runtime for a single deployable app.
-`Igniter::Stack` sits above it and decides which app to boot.
+Historically this often looked like “one app, one deployable process”.
+
+That is no longer the preferred direction.
+
+`Igniter::App` remains the leaf runtime for an app-shaped code boundary.
+`Igniter::Stack` is moving toward service-oriented runtime grouping. See
+[STACKS_NEXT.md](./STACKS_NEXT.md).
 
 ---
 
@@ -61,12 +66,12 @@ Rules:
 
 - `apps/<name>` is a real unit with its own code and specs.
 - shared code lives in `lib/<project>/shared`.
-- `config/topology.yml` is for deployment roles and multi-app wiring.
+- `config/topology.yml` is for runtime services, deployment roles, and multi-app wiring.
 - `config/deploy/*` is for operational artifacts such as Docker and Compose.
 - root `spec/` is for shared code, integration specs, and stack boot/config behavior.
 - `apps/<name>/spec` is for that app's contracts, executors, tools, agents, and boot behavior.
 - one app must not `require` code from another app directly.
-- the root stack may start any registered app, but app logic still lives inside leaf `Igniter::App` subclasses.
+- the root stack may start any registered app or service, but app logic still lives inside leaf `Igniter::App` subclasses.
 
 ---
 
@@ -104,20 +109,23 @@ Available methods:
 - `app_class(name = nil)` — explicit alias for fetching the registered leaf app class.
 - `start(name = nil)` — start a named app.
 - `rack_app(name = nil)` — return a Rack app for a named app.
+- `start_service(name = nil)` — start a named runtime service.
+- `rack_service(name = nil)` — return a Rack app for a named runtime service.
 
 `stack.yml` is the place for stack-level metadata and shared defaults such as
-data-store settings. Unlike `apps/<name>/app.yml`, it is not the leaf server
-config file; app-local server and execution settings still live inside each app.
+data-store settings. Unlike `apps/<name>/app.yml`, it is not the leaf app config;
+service/runtime grouping should increasingly live in topology.
 
 `config/topology.yml` is the place for deployment-time wiring:
 
-- which app plays which operational role
+- which service plays which operational role
+- which apps live inside which service
 - replica counts
 - cross-app dependencies
 - public vs internal services
 
-Keep this separate from `apps/<name>/app.yml`, which should stay focused on the
-leaf runtime itself.
+Keep this separate from `apps/<name>/app.yml`, which should stay focused on
+app-local runtime defaults rather than deployment ports.
 
 ---
 
@@ -165,7 +173,7 @@ This layout is the standard because it matches Igniter's strengths better than a
 In practice, this makes Igniter projects feel more like Lego:
 
 - add an app
-- wire it into the stack
+- group it into a service when runtime isolation is needed
 - keep it if it works
 - delete it cleanly if it does not
 
@@ -179,16 +187,17 @@ cd my_app
 bundle install
 bundle exec rspec   # stack + app-local specs
 bin/start         # starts apps/main
-bin/start main    # explicit app selection
+bin/start --service main    # explicit service selection
 ruby bin/demo
 ```
 
-`config.ru` also defaults to `apps/main` unless `IGNITER_APP` is set.
+`config.ru` now typically defaults to the stack's default service unless
+`IGNITER_SERVICE` is set.
 
 `stack.rb` and generated `bin/start` also understand deployment-aware launch options:
 
 ```bash
-bin/start main
+bin/start --service main
 bin/start --role api
 bin/start --role admin
 bin/start --env production --role api
@@ -206,7 +215,7 @@ ruby stack.rb --print-procfile-dev
 ruby stack.rb --write-procfile-dev
 ```
 
-`bin/dev` starts every registered app locally with prefixed logs, without Docker.
+`bin/dev` starts every registered service locally with prefixed logs, without Docker.
 `config/deploy/Procfile.dev` is the generated compatibility artifact for `foreman`,
 `overmind`, or similar process managers when you want them.
 
@@ -215,9 +224,10 @@ see [Cluster Debug v1](./CLUSTER_DEBUG_V1.md).
 
 Resolution rules:
 
-- explicit app name wins
-- otherwise `--role` resolves the first matching app from `config/topology.yml`
-- otherwise the stack default app is used
+- explicit service name wins when using `--service`
+- otherwise `--role` resolves the first matching service from `config/topology.yml`
+- otherwise the stack default service is used
+- legacy app-shaped topology continues to work
 - `--env` loads `config/environments/<name>.yml`
 - `--profile` validates against `topology.profile`
 - `--print-compose` renders a Docker Compose config from `config/topology.yml`
@@ -228,8 +238,8 @@ Resolution rules:
 ## Companion Direction
 
 `examples/companion` is now the authoritative stack-based demo for this standard.
-The previous pre-refresh voice-assistant demo lives in `examples/companion_legacy` as an archive.
+Older pre-refresh companion history should be treated as historical context rather
+than the current entrypoint.
 
 - `examples/companion` = main demo stand and canonical stack example
-- `examples/companion_legacy` = archived pre-refresh reference
-- remaining historical notes can still be ported from the legacy companion when useful
+- remaining historical notes can still be ported forward when useful

@@ -65,9 +65,9 @@ RSpec.describe Companion::Stack do
     it "generates local dev commands against stack.rb inside the example root" do
       procfile = described_class.procfile_dev
 
-      expect(procfile).to include("bundle exec ruby stack.rb main")
-      expect(procfile).to include("bundle exec ruby stack.rb inference")
-      expect(procfile).to include("bundle exec ruby stack.rb dashboard")
+      expect(procfile).to include("bundle exec ruby stack.rb --service main")
+      expect(procfile).to include("bundle exec ruby stack.rb --service inference")
+      expect(procfile).to include("bundle exec ruby stack.rb --service dashboard")
       expect(procfile).not_to include("examples/companion/stack.rb")
     end
 
@@ -93,11 +93,11 @@ RSpec.describe Companion::Stack do
       end.to output(
         a_string_including(
           "main:",
-          "bundle exec ruby stack.rb main",
+          "bundle exec ruby stack.rb --service main",
           "inference:",
-          "bundle exec ruby stack.rb inference",
+          "bundle exec ruby stack.rb --service inference",
           "dashboard:",
-          "bundle exec ruby stack.rb dashboard"
+          "bundle exec ruby stack.rb --service dashboard"
         )
       ).to_stdout
     end
@@ -108,9 +108,9 @@ RSpec.describe Companion::Stack do
       end.to output(
         a_string_including(
           "services:",
-          "command: bundle exec ruby stack.rb main",
-          "command: bundle exec ruby stack.rb inference",
-          "command: bundle exec ruby stack.rb dashboard",
+          "command: bundle exec ruby stack.rb --service main",
+          "command: bundle exec ruby stack.rb --service inference",
+          "command: bundle exec ruby stack.rb --service dashboard",
           "companion_var:"
         )
       ).to_stdout
@@ -122,9 +122,9 @@ RSpec.describe Companion::Stack do
       end.to output(
         a_string_including(
           "IGNITER_ENV=production",
-          "bundle exec ruby stack.rb main",
-          "bundle exec ruby stack.rb inference",
-          "bundle exec ruby stack.rb dashboard"
+          "bundle exec ruby stack.rb --service main",
+          "bundle exec ruby stack.rb --service inference",
+          "bundle exec ruby stack.rb --service dashboard"
         )
       ).to_stdout
     end

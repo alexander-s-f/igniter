@@ -4,7 +4,7 @@ services:
     build:
       context: "../../../../"
       dockerfile: examples/companion/config/deploy/Dockerfile
-    command: bundle exec ruby stack.rb main
+    command: bundle exec ruby stack.rb --service main
     working_dir: "/app/examples/companion"
     environment:
       COMPANION_DATA_ADAPTER: sqlite
@@ -12,6 +12,7 @@ services:
       COMPANION_EXECUTION_ADAPTER: sqlite
       COMPANION_EXECUTION_DB: var/main_executions.sqlite3
       IGNITER_APP: main
+      IGNITER_SERVICE: main
       PORT: '4567'
       IGNITER_TOPOLOGY_PROFILE: local-compose
     ports:
@@ -24,7 +25,7 @@ services:
     build:
       context: "../../../../"
       dockerfile: examples/companion/config/deploy/Dockerfile
-    command: bundle exec ruby stack.rb inference
+    command: bundle exec ruby stack.rb --service inference
     working_dir: "/app/examples/companion"
     environment:
       COMPANION_DATA_ADAPTER: sqlite
@@ -32,6 +33,7 @@ services:
       COMPANION_EXECUTION_ADAPTER: sqlite
       COMPANION_EXECUTION_DB: var/inference_executions.sqlite3
       IGNITER_APP: inference
+      IGNITER_SERVICE: inference
       PORT: '4568'
       IGNITER_TOPOLOGY_PROFILE: local-compose
     volumes:
@@ -40,7 +42,7 @@ services:
     build:
       context: "../../../../"
       dockerfile: examples/companion/config/deploy/Dockerfile
-    command: bundle exec ruby stack.rb dashboard
+    command: bundle exec ruby stack.rb --service dashboard
     working_dir: "/app/examples/companion"
     environment:
       COMPANION_DATA_ADAPTER: sqlite
@@ -48,6 +50,7 @@ services:
       COMPANION_EXECUTION_ADAPTER: sqlite
       COMPANION_EXECUTION_DB: var/dashboard_executions.sqlite3
       IGNITER_APP: dashboard
+      IGNITER_SERVICE: dashboard
       PORT: '4569'
       IGNITER_TOPOLOGY_PROFILE: local-compose
     ports:

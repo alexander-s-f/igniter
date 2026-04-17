@@ -3,7 +3,7 @@ stack:
 
 topology:
   profile: production
-  apps:
+  services:
     main:
       replicas: 2
     inference:

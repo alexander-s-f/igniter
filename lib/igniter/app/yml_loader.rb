@@ -8,6 +8,7 @@ module Igniter
     # YAML is loaded BEFORE the Ruby configure block, so blocks always win.
     #
     # Supported YAML structure:
+    #   # app_host is optional and represents app-local host defaults.
     #   app_host:
     #     port: 4567
     #     host: "0.0.0.0"

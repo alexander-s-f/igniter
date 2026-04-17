@@ -209,7 +209,7 @@ bundle exec rspec examples/companion/apps/dashboard/spec
 
 Companion now includes a canonical deployment layout under `config/`:
 
-- [config/topology.yml](/Users/alex/dev/projects/igniter/examples/companion/config/topology.yml) describes deployment roles and wiring
+- [config/topology.yml](/Users/alex/dev/projects/igniter/examples/companion/config/topology.yml) describes runtime services, deployment roles, and wiring
 - [config/environments/development.yml](/Users/alex/dev/projects/igniter/examples/companion/config/environments/development.yml) is the local overlay for dev-style boot
 - [config/environments/production.yml](/Users/alex/dev/projects/igniter/examples/companion/config/environments/production.yml) is the production-oriented overlay
 - [config/deploy/Dockerfile](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/Dockerfile) is the shared container image
@@ -224,16 +224,16 @@ docker compose -f examples/companion/config/deploy/compose.yml up --build
 
 This deployment config is intentionally separate from `apps/*/app.yml`:
 
-- `apps/*` defines the code and leaf runtime defaults
+- `apps/*` defines code boundaries and leaf runtime defaults
 - `stack.yml` defines stack-level metadata and shared persistence defaults
-- `config/topology.yml` defines how those apps are deployed together
+- `config/topology.yml` defines runtime services and how apps are deployed together
 - `config/environments/*` overlays topology/runtime intent per environment
 - `config/deploy/*` holds container/runtime artifacts
 
 Operational launch examples:
 
 ```bash
-bin/start main
+bin/start --service main
 bin/start --role api
 bin/start --role admin
 bin/start --env production --role api
@@ -251,7 +251,7 @@ Run the dashboard app:
 
 ```bash
 cd examples/companion
-bin/start dashboard
+bin/start --service dashboard
 ```
 
 Then open:
@@ -265,8 +265,8 @@ per-app execution-store summaries.
 
 ## Migration Note
 
-The previous pre-generator-refresh version of this example now lives in
-[`examples/companion_legacy`](../companion_legacy/README.md) as an archived reference.
+The previous pre-generator-refresh version of this example is intentionally treated
+as historical context rather than a current entrypoint.
 
 The current `examples/companion` is the clean baseline regenerated from the current
 stack/app scaffold and then selectively migrated forward. The legacy version is still

@@ -34,14 +34,17 @@ RSpec.describe Igniter::App::Generators::Playground do
 
         expect(stack).to include('require_relative "apps/dashboard/app"')
         expect(stack).to include('app :dashboard, path: "apps/dashboard", klass: MyLab::DashboardApp')
-        expect(topology_data.fetch("apps").keys).to contain_exactly("main", "dashboard")
-        expect(topology_data.dig("apps", "dashboard", "role")).to eq("admin")
-        expect(procfile).to include("dashboard: IGNITER_APP=dashboard PORT=4569 bundle exec ruby stack.rb dashboard")
+        expect(topology_data.dig("stack", "default_service")).to eq("main")
+        expect(topology_data.fetch("services").keys).to contain_exactly("main")
+        expect(topology_data.dig("services", "main", "apps")).to eq(%w[main dashboard])
+        expect(topology_data.dig("services", "main", "mounts", "dashboard")).to eq("/dashboard")
+        expect(procfile).to include("main: IGNITER_SERVICE=main IGNITER_APP=main PORT=4567 bundle exec ruby stack.rb --service main")
         expect(readme).to include("generated with the `playground` profile")
         expect(readme).to include("shared notes flow")
+        expect(readme).to include("http://127.0.0.1:4567/dashboard")
         expect(main_app).to include('route "POST", "/v1/notes"')
         expect(dashboard_app).to include('route "POST", "/notes"')
-        expect(dashboard_page).to include('action: "/notes"')
+        expect(dashboard_page).to include('action: route("/notes")')
       end
     end
   end

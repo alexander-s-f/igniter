@@ -3,7 +3,7 @@ stack:
 
 topology:
   profile: local-compose
-  apps:
+  services:
     main:
       replicas: 1
     inference:

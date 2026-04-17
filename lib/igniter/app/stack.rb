@@ -3,6 +3,7 @@
 require "fileutils"
 require "optparse"
 require "shellwords"
+require "stringio"
 require "yaml"
 
 module Igniter
@@ -16,6 +17,7 @@ module Igniter
   # Each registered app is still a regular Igniter::App subclass.
   class Stack
     AppDefinition = Struct.new(:name, :path, :klass, :default, keyword_init: true)
+    SERVICE_MOUNT_METHODS = %w[GET POST PUT PATCH DELETE OPTIONS HEAD].freeze
 
     class << self
       def root_dir(path = nil)
@@ -127,6 +129,55 @@ module Igniter
         app_class(resolve_app_name(name, role: role)).rack_app
       end
 
+      def service_names
+        return topology.fetch("services", {}).keys.map { |service_name| normalize_app_name(service_name) } if services_defined?
+
+        app_names
+      end
+
+      def default_service
+        configured = normalize_optional_name(stack_settings.dig("stack", "default_service"))
+        return configured if configured && service_names.include?(configured)
+
+        fallback = default_app
+        return fallback if service_names.include?(fallback)
+
+        service_names.first
+      end
+
+      def service_for_role(role)
+        desired = role.to_s
+
+        if services_defined?
+          topology.fetch("services", {}).each do |name, config|
+            return normalize_app_name(name) if config["role"].to_s == desired
+          end
+
+          return nil
+        end
+
+        app_for_role(role)
+      end
+
+      def start_service(name = nil, role: nil, environment: nil, profile: nil)
+        environment(environment) if environment
+        validate_profile!(profile) if profile
+
+        runtime = build_service_runtime(resolve_service_name(name, role: role))
+        schedulers = start_service_schedulers(runtime)
+        at_exit { stop_service_schedulers(schedulers) }
+        runtime.fetch(:root_app_class).host_adapter.start(config: runtime.fetch(:root_config))
+      end
+
+      def rack_service(name = nil, role: nil, environment: nil, profile: nil)
+        environment(environment) if environment
+        validate_profile!(profile) if profile
+
+        runtime = build_service_runtime(resolve_service_name(name, role: role))
+        start_service_schedulers(runtime)
+        runtime.fetch(:root_app_class).host_adapter.rack_app(config: runtime.fetch(:root_config))
+      end
+
       def start_cli(argv = ARGV)
         options = parse_cli_options(argv.dup)
         target = options.delete(:target)
@@ -167,12 +218,21 @@ module Igniter
           return
         end
 
-        start(
-          target,
-          role: options[:role],
-          environment: options[:environment],
-          profile: options[:profile]
-        )
+        if options[:service] || (services_defined? && options[:role])
+          start_service(
+            options[:service] || target,
+            role: options[:role],
+            environment: options[:environment],
+            profile: options[:profile]
+          )
+        else
+          start(
+            target,
+            role: options[:role],
+            environment: options[:environment],
+            profile: options[:profile]
+          )
+        end
       end
 
       def stack_settings(reload: false)
@@ -199,11 +259,12 @@ module Igniter
       end
 
       def deployment_snapshot
-        {
+        snapshot = {
           "stack" => {
             "root_dir" => @root_dir,
             "environment" => resolved_environment,
             "default_app" => default_app.to_s,
+            "default_service" => default_service.to_s,
             "topology_profile" => topology_profile.to_s
           },
           "apps" => app_names.each_with_object({}) do |app_name, result|
@@ -216,6 +277,15 @@ module Igniter
             )
           end
         }
+
+        snapshot["services"] = service_names.each_with_object({}) do |service_name, result|
+          result[service_name.to_s] = service_deployment(service_name).merge(
+            "service" => service_name.to_s,
+            "default" => (service_name == default_service)
+          )
+        end
+
+        snapshot
       end
 
       def compose_config
@@ -229,29 +299,29 @@ module Igniter
         shared_env = stringify_hash(compose["environment"] || {})
         volume_target = compose["volume_target"]
 
-        services = snapshot.fetch("apps").each_with_object({}) do |(app_name, app_config), result|
+        services = snapshot.fetch("services").each_with_object({}) do |(service_name, service_config), result|
           service = {}
           service["build"] = build_config(build_context, dockerfile) if build_context || dockerfile || build
           service["image"] = build if build.is_a?(String)
-          service["command"] = app_config["command"] || "bundle exec ruby stack.rb #{app_name}"
+          service["command"] = service_config["command"] || "bundle exec ruby stack.rb --service #{service_name}"
           service["working_dir"] = working_dir if present?(working_dir)
 
-          env = shared_env.merge(compose_environment_for(app_name, app_config))
+          env = shared_env.merge(compose_environment_for(service_name, service_config))
           service["environment"] = env unless env.empty?
 
-          port = app_config.dig("http", "port")
-          if app_config["public"] && port
+          port = service_config.dig("http", "port")
+          if service_config["public"] && port
             service["ports"] = ["#{port}:#{port}"]
           end
 
-          depends_on = Array(app_config["depends_on"]).map(&:to_s)
+          depends_on = Array(service_config["depends_on"]).map(&:to_s)
           service["depends_on"] = depends_on unless depends_on.empty?
 
           if volume_target
             service["volumes"] = ["#{volume_name}:#{volume_target}"]
           end
 
-          result[app_name] = service
+          result[service_name] = service
         end
 
         compose_config = { "services" => services }
@@ -273,12 +343,12 @@ module Igniter
       def dev_services
         snapshot = deployment_snapshot
 
-        app_names.map do |app_name|
-          app_config = snapshot.fetch("apps").fetch(app_name.to_s)
+        service_names.map do |service_name|
+          service_config = snapshot.fetch("services").fetch(service_name.to_s)
           {
-            name: app_name.to_s,
-            command: app_config["dev_command"] || app_config["command"] || "bundle exec ruby stack.rb #{app_name}",
-            environment: dev_runtime_environment_for(app_name, app_config)
+            name: service_name.to_s,
+            command: service_config["dev_command"] || service_config["command"] || "bundle exec ruby stack.rb --service #{service_name}",
+            environment: dev_runtime_environment_for(service_name, service_config)
           }
         end
       end
@@ -423,8 +493,12 @@ module Igniter
             options[:target] = value
           end
 
-          opts.on("--role NAME", "Start the first app matching a deployment role") do |value|
+          opts.on("--role NAME", "Start the first app or service matching a deployment role") do |value|
             options[:role] = value
+          end
+
+          opts.on("--service NAME", "Start a named runtime service") do |value|
+            options[:service] = value
           end
 
           opts.on("--env NAME", "Use config/environments/<NAME>.yml overlay") do |value|
@@ -443,7 +517,7 @@ module Igniter
             options[:write_compose] = value || true
           end
 
-          opts.on("--dev", "Start all stack apps locally with prefixed logs") do
+          opts.on("--dev", "Start all stack services locally with prefixed logs") do
             options[:dev] = true
           end
 
@@ -479,6 +553,24 @@ module Igniter
         normalize_app_name(name || default_app)
       end
 
+      def resolve_service_name(name = nil, role: nil)
+        return normalize_app_name(name) if name && service_names.include?(normalize_app_name(name))
+
+        if role
+          service_name = service_for_role(role)
+          return service_name if service_name
+
+          raise ArgumentError, "Unknown deployment role #{role.inspect}"
+        end
+
+        if name
+          role_match = service_for_role(name)
+          return role_match if role_match
+        end
+
+        normalize_app_name(name || default_service)
+      end
+
       def normalize_app_name(name)
         name.to_sym
       end
@@ -486,6 +578,10 @@ module Igniter
       def normalize_optional_name(name)
         value = name.to_s.strip
         value.empty? ? nil : value.to_sym
+      end
+
+      def services_defined?
+        !topology.fetch("services", {}).empty?
       end
 
       def resolved_environment
@@ -517,6 +613,167 @@ module Igniter
         raise ArgumentError, "Requested profile #{expected.inspect} does not match topology profile #{actual.inspect}"
       end
 
+      def service_deployment(name = nil)
+        service_name = normalize_app_name(name || default_service)
+
+        unless services_defined?
+          config = deployment(service_name)
+          config["apps"] = [service_name.to_s]
+          config["root_app"] = service_name.to_s
+          config["service"] = service_name.to_s
+          config["mounts"] = {}
+          return config
+        end
+
+        shared = topology.fetch("shared", {})
+        service = topology.fetch("services", {}).fetch(service_name.to_s) do
+          available = service_names.map(&:inspect).join(", ")
+          raise ArgumentError, "Unknown stack service #{service_name.inspect} (available: #{available})"
+        end
+
+        config = deep_merge(shared, service)
+        apps = Array(config["apps"] || config["app"]).map { |app| normalize_app_name(app).to_s }
+        raise ArgumentError, "Service #{service_name.inspect} must declare at least one app" if apps.empty?
+
+        apps.each { |app_name| app_definition(app_name) }
+
+        config["apps"] = apps
+        config["root_app"] = normalize_app_name(config["root_app"] || apps.first).to_s
+        config["mounts"] = stringify_hash(config.fetch("mounts", {}))
+        config["service"] = service_name.to_s
+        config
+      end
+
+      def build_service_runtime(name)
+        service_name = normalize_app_name(name)
+        service_config = service_deployment(service_name)
+        app_names_for_service = Array(service_config.fetch("apps")).map { |app_name| normalize_app_name(app_name) }
+        root_app_name = normalize_app_name(service_config.fetch("root_app"))
+        root_app_class = app_class(root_app_name)
+
+        mounted_apps = app_names_for_service.reject { |app_name| app_name == root_app_name }.map do |app_name|
+          build_mounted_service_app(
+            service_config: service_config,
+            app_name: app_name
+          )
+        end
+
+        root_app_class.host_adapter.activate_transport!
+        root_config = root_app_class.send(:build!)
+        apply_service_http_settings!(root_config, service_config.fetch("http", {}))
+        root_config.custom_routes = mounted_apps.flat_map { |app| app.fetch(:routes) } + Array(root_config.custom_routes)
+
+        {
+          service_name: service_name,
+          service_config: service_config,
+          root_app_name: root_app_name,
+          root_app_class: root_app_class,
+          root_config: root_config,
+          mounted_apps: mounted_apps
+        }
+      end
+
+      def build_mounted_service_app(service_config:, app_name:)
+        klass = app_class(app_name)
+        mount_path = normalize_mount_path(
+          service_config.fetch("mounts", {}).fetch(app_name.to_s, "/apps/#{app_name}")
+        )
+
+        klass.host_adapter.activate_transport!
+        config = klass.send(:build!)
+        rack_app = klass.host_adapter.rack_app(config: config)
+
+        {
+          app_name: app_name,
+          app_class: klass,
+          config: config,
+          rack_app: rack_app,
+          mount_path: mount_path,
+          routes: mounted_service_routes(mount_path, rack_app)
+        }
+      end
+
+      def mounted_service_routes(mount_path, rack_app)
+        pattern = %r{\A#{Regexp.escape(mount_path)}(?<rest>/.*)?\z}
+
+        SERVICE_MOUNT_METHODS.map do |method|
+          {
+            method: method,
+            path: pattern,
+            handler: lambda do |params:, body:, headers:, env:, raw_body:, config:| # rubocop:disable Lint/UnusedBlockArgument
+              forward_mounted_request(
+                rack_app: rack_app,
+                mount_path: mount_path,
+                rest: params[:rest],
+                env: env,
+                raw_body: raw_body
+              )
+            end
+          }
+        end
+      end
+
+      def forward_mounted_request(rack_app:, mount_path:, rest:, env:, raw_body:)
+        forwarded_env = env.to_h.merge(
+          "SCRIPT_NAME" => mount_path,
+          "PATH_INFO" => normalize_forwarded_path(rest),
+          "rack.input" => StringIO.new(raw_body.to_s)
+        )
+        status, headers, body = rack_app.call(forwarded_env)
+        response_body = +""
+        body.each { |chunk| response_body << chunk.to_s }
+        body.close if body.respond_to?(:close)
+
+        {
+          status: status.to_i,
+          headers: headers,
+          body: response_body
+        }
+      end
+
+      def normalize_forwarded_path(rest)
+        value = rest.to_s
+        value.empty? ? "/" : value
+      end
+
+      def normalize_mount_path(path)
+        value = path.to_s.strip
+        value = "/#{value}" unless value.start_with?("/")
+        value = value.sub(%r{/+\z}, "")
+        value.empty? ? "/" : value
+      end
+
+      def apply_service_http_settings!(config, http_settings)
+        return config unless http_settings.is_a?(Hash)
+
+        config.host = http_settings["host"].to_s if present?(http_settings["host"])
+        config.port = Integer(http_settings["port"]) if http_settings.key?("port") && !http_settings["port"].nil?
+        config.log_format = http_settings["log_format"].to_sym if present?(http_settings["log_format"])
+        config.drain_timeout = Integer(http_settings["drain_timeout"]) if http_settings.key?("drain_timeout") && !http_settings["drain_timeout"].nil?
+        config
+      end
+
+      def start_service_schedulers(runtime)
+        schedulers = []
+        root_app_class = runtime.fetch(:root_app_class)
+        root_config = runtime.fetch(:root_config)
+        scheduler = root_app_class.send(:start_scheduler, root_config)
+        schedulers << scheduler if scheduler
+
+        runtime.fetch(:mounted_apps).each do |mounted|
+          scheduler = mounted.fetch(:app_class).send(:start_scheduler, mounted.fetch(:config))
+          schedulers << scheduler if scheduler
+        end
+
+        schedulers
+      end
+
+      def stop_service_schedulers(schedulers)
+        Array(schedulers).each do |scheduler|
+          scheduler&.stop
+        end
+      end
+
       def build_config(context, dockerfile)
         config = {}
         config["context"] = context if present?(context)
@@ -535,7 +792,8 @@ module Igniter
         env.merge!(stringify_hash(app_config.fetch("environment", {})))
         env.merge!(
           {
-            "IGNITER_APP" => app_name.to_s,
+            "IGNITER_APP" => Array(app_config["apps"]).one? ? app_name.to_s : app_config["root_app"].to_s,
+            "IGNITER_SERVICE" => app_name.to_s,
             "PORT" => app_config.dig("http", "port").to_s
           }
         )

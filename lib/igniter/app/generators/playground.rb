@@ -141,11 +141,12 @@ module Igniter
             stack:
               name: #{project_name}
               default_app: main
+              default_service: main
 
             topology:
               profile: local
               notes:
-                - "playground profile: main + dashboard proving slice"
+                - "playground profile: one runtime service hosting main + dashboard"
 
             deploy:
               compose:
@@ -155,26 +156,20 @@ module Igniter
                 volume_name: #{namespace_path}_var
                 volume_target: /app/var
 
-            apps:
+            services:
               main:
-                app: main
                 role: api
+                apps:
+                  - main
+                  - dashboard
+                root_app: main
+                mounts:
+                  dashboard: /dashboard
                 replicas: 1
                 public: true
                 http:
                   port: 4567
-                command: bundle exec ruby stack.rb main
-
-              dashboard:
-                app: dashboard
-                role: admin
-                replicas: 1
-                public: true
-                http:
-                  port: 4569
-                command: bundle exec ruby stack.rb dashboard
-                depends_on:
-                  - main
+                command: bundle exec ruby stack.rb --service main
 
             shared:
               persistence:
@@ -191,10 +186,8 @@ module Igniter
 
             topology:
               profile: development
-              apps:
+              services:
                 main:
-                  replicas: 1
-                dashboard:
                   replicas: 1
           YAML
         end
@@ -206,18 +199,15 @@ module Igniter
 
             topology:
               profile: production
-              apps:
+              services:
                 main:
                   replicas: 2
-                dashboard:
-                  replicas: 1
           YAML
         end
 
         def procfile_dev
           <<~TEXT
-            main: IGNITER_APP=main PORT=4567 bundle exec ruby stack.rb main
-            dashboard: IGNITER_APP=dashboard PORT=4569 bundle exec ruby stack.rb dashboard
+            main: IGNITER_SERVICE=main IGNITER_APP=main PORT=4567 bundle exec ruby stack.rb --service main
           TEXT
         end
 
@@ -228,11 +218,12 @@ module Igniter
             require_relative "spec_helper"
 
             RSpec.describe #{stack_class_name} do
-              it "registers main and dashboard apps with main as default" do
+              it "registers main and dashboard apps with a service-first topology" do
                 expect(described_class.default_app).to eq(:main)
+                expect(described_class.default_service).to eq(:main)
                 expect(described_class.app(:main)).to be(#{module_name}::MainApp)
                 expect(described_class.app(:dashboard)).to be(#{module_name}::DashboardApp)
-                expect(described_class.app_for_role(:admin)).to eq(:dashboard)
+                expect(described_class.service_for_role(:api)).to eq(:main)
               end
             end
           RUBY
@@ -265,12 +256,6 @@ module Igniter
 
                 on_boot do
                   register "GreetContract", #{module_name}::GreetContract
-                end
-
-                configure do |c|
-                  c.app_host.host = "0.0.0.0"
-                  c.app_host.port = ENV.fetch("PORT", "4567").to_i
-                  c.app_host.log_format = ENV.fetch("LOG_FORMAT", "text").to_sym
                 end
               end
             end
@@ -309,7 +294,8 @@ module Igniter
                 expect(status).to eq(200)
                 expect(headers["Content-Type"]).to include("application/json")
                 expect(payload.dig("stack", "default_app")).to eq("main")
-                expect(payload.dig("apps", "dashboard", "role")).to eq("admin")
+                expect(payload.dig("stack", "default_service")).to eq("main")
+                expect(payload.dig("services", "main", "apps")).to eq(%w[main dashboard])
                 expect(payload.dig("counts", "notes")).to eq(0)
               end
 
@@ -376,6 +362,7 @@ module Igniter
                         generated_at: snapshot.fetch(:generated_at),
                         stack: snapshot.fetch(:stack),
                         apps: snapshot.fetch(:apps),
+                        services: snapshot.fetch(:services),
                         counts: snapshot.fetch(:counts),
                         notes: snapshot.fetch(:notes)
                       ),
@@ -477,12 +464,6 @@ module Igniter
                 route "GET", "/", with: #{module_name}::Dashboard::HomeHandler
                 route "GET", "/api/overview", with: #{module_name}::Dashboard::OverviewHandler
                 route "POST", "/notes", with: #{module_name}::Dashboard::NotesCreateHandler
-
-                configure do |c|
-                  c.app_host.host = "0.0.0.0"
-                  c.app_host.port = ENV.fetch("PORT", "4569").to_i
-                  c.app_host.log_format = ENV.fetch("LOG_FORMAT", "text").to_sym
-                end
               end
             end
           RUBY
@@ -490,12 +471,6 @@ module Igniter
 
         def dashboard_app_yml
           <<~YAML
-            app_host:
-              port: 4569
-              host: "0.0.0.0"
-              log_format: text
-              drain_timeout: 30
-
             persistence:
               execution:
                 adapter: memory
@@ -541,7 +516,8 @@ module Igniter
                 expect(status).to eq(200)
                 expect(headers["Content-Type"]).to include("application/json")
                 expect(payload.dig("stack", "default_app")).to eq("main")
-                expect(payload.dig("apps", "dashboard", "role")).to eq("admin")
+                expect(payload.dig("stack", "default_service")).to eq("main")
+                expect(payload.dig("services", "main", "apps")).to eq(%w[main dashboard])
                 expect(payload.dig("counts", "notes")).to eq(0)
               end
 
@@ -608,27 +584,40 @@ module Igniter
                   def build
                     deployment = #{stack_class_name}.deployment_snapshot
                     notes = #{module_name}::Shared::NoteStore.all
+                    services = deployment.fetch("services").transform_values do |config|
+                      {
+                        role: config["role"],
+                        public: config["public"],
+                        replicas: config["replicas"],
+                        port: config.dig("http", "port"),
+                        command: config["command"],
+                        apps: Array(config["apps"]),
+                        root_app: config["root_app"],
+                        mounts: config.fetch("mounts", {})
+                      }
+                    end
 
                     {
                       generated_at: Time.now.utc.iso8601,
                       stack: {
                         name: #{stack_class_name}.stack_settings.dig("stack", "name"),
                         default_app: deployment.dig("stack", "default_app"),
+                        default_service: deployment.dig("stack", "default_service"),
                         profile: deployment.dig("stack", "topology_profile"),
                         apps: #{stack_class_name}.app_names.map(&:to_s)
                       },
                       counts: {
+                        apps: #{stack_class_name}.app_names.size,
+                        services: services.size,
                         notes: notes.size
                       },
                       notes: notes.first(8),
+                      services: services,
                       apps: deployment.fetch("apps").transform_values do |config|
                         {
-                          role: config["role"],
-                          public: config["public"],
-                          replicas: config["replicas"],
-                          port: config.dig("http", "port"),
-                          command: config["command"],
-                          depends_on: Array(config["depends_on"])
+                          path: config["path"],
+                          class_name: config["class_name"],
+                          default: config["default"]
                         }
                       end
                     }
@@ -708,7 +697,16 @@ module Igniter
                   def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
                     snapshot = #{module_name}::Shared::StackOverview.build
 
-                    Igniter::Plugins::View::Response.html(Views::HomePage.render(snapshot: snapshot))
+                    Igniter::Plugins::View::Response.html(
+                      Views::HomePage.render(
+                        snapshot: snapshot,
+                        base_path: base_path_for(env)
+                      )
+                    )
+                  end
+
+                  def base_path_for(env)
+                    env["SCRIPT_NAME"].to_s.sub(%r{/+\z}, "")
                   end
                 end
               end
@@ -732,24 +730,31 @@ module Igniter
 
                   def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
                     text = body.fetch("text", body.fetch("note", "")).to_s.strip
+                    base_path = base_path_for(env)
 
                     if text.empty?
                       snapshot = #{module_name}::Shared::StackOverview.build
                       html = Views::HomePage.render(
                         snapshot: snapshot,
                         error_message: "Note text cannot be blank.",
-                        form_values: body
+                        form_values: body,
+                        base_path: base_path
                       )
                       return Igniter::Plugins::View::Response.html(html, status: 422)
                     end
 
                     #{module_name}::Shared::NoteStore.add(text, source: "dashboard")
+                    location = [base_path, ""].reject(&:empty?).join("/") + "/?note_created=1"
 
                     {
                       status: 303,
                       body: "",
-                      headers: { "Location" => "/?note_created=1" }
+                      headers: { "Location" => location }
                     }
+                  end
+
+                  def base_path_for(env)
+                    env["SCRIPT_NAME"].to_s.sub(%r{/+\z}, "")
                   end
                 end
               end
@@ -792,14 +797,20 @@ module Igniter
               module Dashboard
                 module Views
                   class HomePage < Igniter::Plugins::View::Page
-                    def self.render(snapshot:, error_message: nil, form_values: {})
-                      new(snapshot: snapshot, error_message: error_message, form_values: form_values).render
+                    def self.render(snapshot:, error_message: nil, form_values: {}, base_path: "")
+                      new(
+                        snapshot: snapshot,
+                        error_message: error_message,
+                        form_values: form_values,
+                        base_path: base_path
+                      ).render
                     end
 
-                    def initialize(snapshot:, error_message:, form_values:)
+                    def initialize(snapshot:, error_message:, form_values:, base_path:)
                       @snapshot = snapshot
                       @error_message = error_message
                       @form_values = form_values
+                      @base_path = base_path
                     end
 
                     def call(view)
@@ -818,6 +829,7 @@ module Igniter
                     attr_reader :snapshot
                     attr_reader :error_message
                     attr_reader :form_values
+                    attr_reader :base_path
 
                     def yield_head(head)
                       head.tag(:style) { |style| style.raw(stylesheet) }
@@ -830,12 +842,13 @@ module Igniter
                         hero.tag(:div, class: "meta") do |meta|
                           meta.text("generated=\#{snapshot.fetch(:generated_at)} · ")
                           meta.text("default=\#{snapshot.dig(:stack, :default_app)} · ")
+                          meta.text("service=\#{snapshot.dig(:stack, :default_service)} · ")
                           meta.text("profile=\#{snapshot.dig(:stack, :profile)}")
                         end
                         hero.tag(:p, class: "links") do |links|
-                          links.tag(:a, "Overview API", href: "/api/overview")
+                          links.tag(:a, "Overview API", href: route("/api/overview"))
                           links.text(" · ")
-                          links.tag(:a, "Main status", href: "http://127.0.0.1:4567/v1/home/status")
+                          links.tag(:a, "Main status", href: "/v1/home/status")
                         end
                       end
                     end
@@ -847,6 +860,11 @@ module Igniter
                         section.tag(:article, class: "metric-card") do |card|
                           card.tag(:span, "Apps", class: "metric-label")
                           card.tag(:strong, snapshot.dig(:stack, :apps).size.to_s, class: "metric-value")
+                        end
+
+                        section.tag(:article, class: "metric-card") do |card|
+                          card.tag(:span, "Services", class: "metric-label")
+                          card.tag(:strong, counts.fetch(:services).to_s, class: "metric-value")
                         end
 
                         section.tag(:article, class: "metric-card") do |card|
@@ -869,7 +887,7 @@ module Igniter
                           section.tag(:p, error_message, class: "error-banner")
                         end
 
-                        section.form(action: "/notes", method: "post", class: "stacked-form") do |form|
+                        section.form(action: route("/notes"), method: "post", class: "stacked-form") do |form|
                           form.label("note-text", "Add note")
                           form.textarea("text",
                                         id: "note-text",
@@ -898,18 +916,27 @@ module Igniter
 
                     def render_apps(view)
                       view.tag(:section, class: "grid") do |grid|
-                        snapshot.fetch(:apps).each do |name, app|
+                        snapshot.fetch(:services).each do |name, service|
                           grid.tag(:article, class: "card") do |card|
                             card.tag(:h2, name.to_s)
-                            card.tag(:p, "role=\#{app.fetch(:role)}")
-                            card.tag(:p, "port=\#{app.fetch(:port)} public=\#{app.fetch(:public)} replicas=\#{app.fetch(:replicas)}")
-                            card.tag(:code, app.fetch(:command))
-                            unless app.fetch(:depends_on).empty?
-                              card.tag(:p, "depends_on=\#{app.fetch(:depends_on).join(", ")}")
+                            card.tag(:p, "role=\#{service.fetch(:role)}")
+                            card.tag(:p, "port=\#{service.fetch(:port)} public=\#{service.fetch(:public)} replicas=\#{service.fetch(:replicas)}")
+                            card.tag(:p, "apps=\#{service.fetch(:apps).join(", ")}")
+                            mounts = service.fetch(:mounts)
+                            unless mounts.empty?
+                              card.tag(:p, "mounts=\#{mounts.map { |app, mount| "\#{app}: \#{mount}" }.join(", ")}")
                             end
+                            card.tag(:code, service.fetch(:command))
                           end
                         end
                       end
+                    end
+
+                    def route(path)
+                      prefix = base_path.to_s
+                      return path if prefix.empty?
+
+                      [prefix, path.sub(%r{\\A/}, "")].join("/")
                     end
 
                     def stylesheet
@@ -1117,9 +1144,14 @@ module Igniter
             bundle install
             ruby bin/demo
             bin/start
-            bin/start dashboard
+            bin/start --service main
             bin/dev
             ```
+
+            Then open:
+
+            - API status: `http://127.0.0.1:4567/v1/home/status`
+            - dashboard: `http://127.0.0.1:4567/dashboard`
 
             ## Current Direction
 
@@ -1130,7 +1162,7 @@ module Igniter
             playground or experiment:
 
             1. one topology or deployment concern
-            2. one app flow
+            2. one service-mounted app flow
             3. one device or channel edge
             4. one operator/dashboard surface
           MARKDOWN

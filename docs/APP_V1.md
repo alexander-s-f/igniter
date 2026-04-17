@@ -2,6 +2,11 @@
 
 `Igniter::App` is the leaf runtime for one app inside an Igniter stack.
 
+In the older reading this often implied “one app, one process”. That is no longer
+the preferred direction. An app is primarily a code/runtime package boundary,
+while service/process grouping is increasingly a stack concern. See
+[STACKS_NEXT.md](./STACKS_NEXT.md).
+
 It packages contracts, executors, YAML config, a background scheduler, and host
 startup into a single coherent entry point. By default that host is
 `Igniter::Server`, but the application layer now owns the assembly lifecycle and
@@ -66,7 +71,6 @@ module MyApp
     contracts_path "app/contracts"
 
     configure do |c|
-      c.app_host.port = ENV.fetch("PORT", 4567).to_i
       c.store = Igniter::Runtime::Stores::MemoryStore.new
     end
 
@@ -145,14 +149,14 @@ If it uses skills, providers, or `Igniter::AI.configure`, also load `require "ig
 
 ```bash
 bin/start
-bin/start main
+bin/start --service main
 
 # Rack / Puma
 bundle exec puma config.ru
 ```
 
-The generated root `stack.rb` is a stack coordinator; it selects the leaf app
-and calls `MainApp.start` under the hood.
+The generated root `stack.rb` is a stack coordinator; in the vNext model it
+selects a runtime service, which may host one or more apps.
 
 ---
 
@@ -244,6 +248,9 @@ configure do |c|
   c.metrics_collector = Igniter::Metrics::Collector.new
 end
 ```
+
+In service-first stacks, `app_host` should be treated as app-local host defaults,
+not as the canonical place to allocate deployment ports.
 
 ### `executors_path(path)` / `contracts_path(path)`
 
@@ -351,9 +358,9 @@ app_host:
   drain_timeout: 30     # seconds for graceful SIGTERM shutdown
 ```
 
-Keys under `app_host:` map 1-to-1 to the default app host settings. Values from
-YAML are applied first; the `configure` block runs afterwards and overrides
-anything.
+`app_host:` is optional. When present, its keys map 1-to-1 to the default app
+host settings. Values from YAML are applied first; the `configure` block runs
+afterwards and overrides anything.
 
 ENV variables are not expanded in YAML — read them in the `configure` block:
 
@@ -362,6 +369,10 @@ configure do |c|
   c.app_host.port = ENV.fetch("PORT", 4567).to_i
 end
 ```
+
+In the vNext Stack/App model, prefer stack/service topology for deployment ports
+and public exposure. Keep `app_host` for app-local defaults when the app truly
+needs them.
 
 ---
 
@@ -378,7 +389,8 @@ Same as `start` but returns a Rack-compatible application instead of blocking. U
 ```ruby
 # config.ru
 require_relative "stack"
-run MyApp::Stack.rack_app(:main)
+service = ENV["IGNITER_SERVICE"] || ENV["IGNITER_APP"] || "main"
+run MyApp::Stack.rack_service(service)
 ```
 
 ```bash
@@ -439,11 +451,10 @@ ruby examples/companion/bin/demo
 
 ```bash
 # Requires: ollama serve (llama3.1:8b pulled)
-bundle exec ruby examples/companion/stack.rb main
+bundle exec ruby examples/companion/stack.rb --service main
 ```
 
 **See also:** [`examples/companion/README.md`](../examples/companion/README.md)
-Archived migration reference: [`examples/companion_legacy/README.md`](../examples/companion_legacy/README.md)
 
 ---
 

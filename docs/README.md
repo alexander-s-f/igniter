@@ -26,14 +26,16 @@ If you want the shortest orientation:
 ### I want to build an app on Igniter
 
 1. [App](./app/README.md)
-2. [SDK](./sdk/README.md)
-3. [Companion example](../examples/companion/README.md)
+2. [Stacks Next](./STACKS_NEXT.md)
+3. [SDK](./sdk/README.md)
+4. [Companion example](../examples/companion/README.md)
 
 ### I want distributed or resilient execution
 
 1. [Cluster](./cluster/README.md)
-2. [SDK](./sdk/README.md)
-3. Cluster-oriented scripts in [examples](../examples/README.md)
+2. [Cluster Next](./cluster/ROADMAP_NEXT.md)
+3. [SDK](./sdk/README.md)
+4. Cluster-oriented scripts in [examples](../examples/README.md)
 
 ### I want to contribute to the framework itself
 

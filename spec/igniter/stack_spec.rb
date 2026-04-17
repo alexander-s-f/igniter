@@ -395,4 +395,145 @@ RSpec.describe Igniter::Stack do
       expect(File.read(path)).to include("main:")
     end
   end
+
+  it "builds service snapshots from topology services" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          default_app: main
+          default_service: core
+      YAML
+      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
+        services:
+          core:
+            role: api
+            apps:
+              - main
+              - dashboard
+            root_app: main
+            http:
+              port: 4567
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      snapshot = workspace.deployment_snapshot
+
+      expect(workspace.service_names).to eq([:core])
+      expect(workspace.default_service).to eq(:core)
+      expect(workspace.service_for_role(:api)).to eq(:core)
+      expect(snapshot.dig("services", "core")).to include(
+        "service" => "core",
+        "role" => "api",
+        "apps" => %w[main dashboard],
+        "root_app" => "main",
+        "default" => true
+      )
+    end
+  end
+
+  it "mounts multiple apps behind one rack service" do
+    root_app = Class.new(Igniter::App) do
+      route "GET", "/hello" do
+        { source: "main" }
+      end
+    end
+
+    mounted_app = Class.new(Igniter::App) do
+      route "GET", "/hello" do
+        { source: "dashboard" }
+      end
+    end
+
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          default_service: core
+      YAML
+      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
+        services:
+          core:
+            role: api
+            apps:
+              - main
+              - dashboard
+            root_app: main
+            mounts:
+              dashboard: /dashboard
+            http:
+              port: 4567
+      YAML
+
+      workspace = build_workspace(
+        root: tmp,
+        app_classes: { main: root_app, dashboard: mounted_app }
+      )
+
+      rack_app = workspace.rack_service(:core)
+      root_status, _root_headers, root_body = rack_app.call(
+        "REQUEST_METHOD" => "GET",
+        "PATH_INFO" => "/hello",
+        "rack.input" => StringIO.new("")
+      )
+      mounted_status, _mounted_headers, mounted_body = rack_app.call(
+        "REQUEST_METHOD" => "GET",
+        "PATH_INFO" => "/dashboard/hello",
+        "rack.input" => StringIO.new("")
+      )
+
+      expect(root_status).to eq(200)
+      expect(root_body.join).to include("\"source\":\"main\"")
+      expect(mounted_status).to eq(200)
+      expect(mounted_body.join).to include("\"source\":\"dashboard\"")
+    end
+  end
+
+  it "generates compose and dev commands from topology services" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: service_stack
+          default_service: core
+      YAML
+      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
+        topology:
+          profile: local
+        shared:
+          environment:
+            SHARED_FLAG: "1"
+        services:
+          core:
+            role: api
+            apps:
+              - main
+              - dashboard
+            root_app: main
+            public: true
+            http:
+              port: 4567
+            environment:
+              SERVICE_MODE: unified
+      YAML
+
+      workspace = build_workspace(root: tmp, environment: "development")
+      compose = workspace.compose_config
+      procfile = workspace.procfile_dev
+
+      expect(compose.dig("services", "core", "command")).to eq("bundle exec ruby stack.rb --service core")
+      expect(compose.dig("services", "core", "environment")).to include(
+        "IGNITER_SERVICE" => "core",
+        "IGNITER_APP" => "main",
+        "PORT" => "4567",
+        "SERVICE_MODE" => "unified",
+        "SHARED_FLAG" => "1",
+        "IGNITER_ENV" => "development",
+        "IGNITER_TOPOLOGY_PROFILE" => "local"
+      )
+      expect(compose.dig("services", "core", "ports")).to eq(["4567:4567"])
+      expect(procfile).to include("core:")
+      expect(procfile).to include("bundle exec ruby stack.rb --service core")
+    end
+  end
 end
