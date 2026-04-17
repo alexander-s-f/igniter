@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative "../cluster/identity/node_identity"
+require_relative "../cluster/trust/trust_store"
+
 module Igniter
   module Server
     class Config

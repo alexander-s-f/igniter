@@ -22,9 +22,7 @@ module Igniter
     #   │       └── app.yml            — app-local runtime defaults
     #   ├── lib/<project>/shared/      — shared libraries / helpers
     #   ├── config/
-    #   │   ├── topology.yml           — deployment roles + wiring
-    #   │   ├── environments/          — environment overlays
-    #   │   └── deploy/                — operational artifacts (Docker / Compose / etc.)
+    #   │   └── deploy/                — optional generated operational artifacts
     #   ├── spec/                      — shared + integration + stack-level specs
     #   ├── bin/
     #   │   ├── start                  — Launch a named app (default: main)
@@ -52,18 +50,13 @@ module Igniter
         create_dir "apps/main/app/skills"
         create_dir "apps/main/spec"
         create_dir "lib/#{namespace_path}/shared"
-        create_dir "config/environments"
         create_dir "config/deploy"
         create_dir "spec"
         create_dir "bin"
 
         write "stack.rb",                      stack_rb
         write "stack.yml",                     stack_yml
-        write "config/topology.yml",           topology_yml
-        write "config/environments/development.yml", development_yml
-        write "config/environments/production.yml",  production_yml
         write "config/deploy/.keep",           ""
-        write "config/deploy/Procfile.dev",    procfile_dev
         write "Gemfile",                       gemfile
         write "config.ru",                     config_ru
         write "bin/start",                     bin_start
@@ -103,11 +96,11 @@ module Igniter
         puts "    cd #{@name}"
         puts "    bundle install"
         unless @minimal
-          puts "    ruby bin/demo      # ← see it work immediately"
+        puts "    ruby bin/demo      # ← see it work immediately"
         end
-        puts "    bin/start          # ← launch apps/main"
+        puts "    bin/start          # ← launch the mounted stack"
         puts "    bin/dev            # ← launch the whole stack locally"
-        puts "    bin/start --service main   # ← explicit service selection"
+        puts "    bin/start --node main      # ← explicit node selection"
         puts
         puts "  Production (Puma):"
         puts "    bundle add puma && bundle exec puma config.ru"
@@ -171,81 +164,24 @@ module Igniter
       def stack_yml
         <<~YAML
           stack:
-            default_app: main
-            default_service: main
+            name: #{@project_name}
+            root_app: main
+            default_node: main
             shared_lib_paths:
               - lib
+
+          server:
+            host: 0.0.0.0
+
+          nodes:
+            main:
+              role: app
+              port: 4567
 
           persistence:
             data:
               adapter: memory   # memory | sqlite
               path: var/#{@project_name}_data.sqlite3
-        YAML
-      end
-
-      def topology_yml
-        <<~YAML
-          stack:
-            name: #{@project_name}
-            default_app: main
-            default_service: main
-
-          topology:
-            profile: local
-            notes:
-              - "apps/ define code roles; this file describes deployment roles and wiring"
-
-          deploy:
-            compose:
-              context: .
-              dockerfile: config/deploy/Dockerfile
-              working_dir: /app
-              volume_name: #{namespace_path}_var
-              volume_target: /app/var
-
-          services:
-            main:
-              role: api
-              apps:
-                - main
-              root_app: main
-              replicas: 1
-              public: true
-              http:
-                port: 4567
-              command: bundle exec ruby stack.rb --service main
-
-          shared:
-            persistence:
-              data:
-                adapter: sqlite
-                path: var/#{@project_name}_data.sqlite3
-        YAML
-      end
-
-      def development_yml
-        <<~YAML
-          stack:
-            environment: development
-
-          topology:
-            profile: development
-            services:
-              main:
-                replicas: 1
-        YAML
-      end
-
-      def production_yml
-        <<~YAML
-          stack:
-            environment: production
-
-          topology:
-            profile: production
-            services:
-              main:
-                replicas: 2
         YAML
       end
 
@@ -327,8 +263,8 @@ module Igniter
 
           require_relative "stack"
 
-          service = ENV["IGNITER_SERVICE"] || ENV["IGNITER_APP"] || "main"
-          run #{stack_class_name}.rack_service(service)
+          node = ENV["IGNITER_NODE"]
+          run #{stack_class_name}.rack_node(node)
         RUBY
       end
 
@@ -408,9 +344,9 @@ module Igniter
           puts
 
           puts "  \#{hr}"
-          puts "  Run  bin/start       →  start apps/main"
+          puts "  Run  bin/start       →  start the mounted stack"
           puts "  Run  bin/dev         →  start the whole stack locally"
-          puts "  Run  bin/start --service main  →  explicit service selection"
+          puts "  Run  bin/start --node main     →  explicit node selection"
           puts "  \#{hr}"
           puts
         RUBY
@@ -425,16 +361,10 @@ module Igniter
           # Replace this stub with your own demo script.
           # See examples/companion/bin/demo for a full example.
           puts "#{module_name} stack — add your demo code here."
-          puts "Run  bin/start       →  start apps/main"
+          puts "Run  bin/start       →  start the mounted stack"
           puts "Run  bin/dev         →  start the whole stack locally"
-          puts "Run  bin/start --service main  →  explicit service selection"
+          puts "Run  bin/start --node main     →  explicit node selection"
         RUBY
-      end
-
-      def procfile_dev
-        <<~TEXT
-          main: IGNITER_SERVICE=main IGNITER_APP=main PORT=4567 bundle exec ruby stack.rb --service main
-        TEXT
       end
 
       # ─── spec/spec_helper.rb ───────────────────────────────────────────────
@@ -464,9 +394,10 @@ module Igniter
           require_relative "spec_helper"
 
           RSpec.describe #{stack_class_name} do
-            it "registers apps/main as the default app and service" do
-              expect(described_class.default_app).to eq(:main)
-              expect(described_class.default_service).to eq(:main)
+            it "registers apps/main as the root app and default node" do
+              expect(described_class.root_app).to eq(:main)
+              expect(described_class.default_node).to eq(:main)
+              expect(described_class.node_names).to eq([:main])
               expect(described_class.app(:main)).to be(#{module_name}::MainApp)
             end
           end

@@ -70,14 +70,14 @@ module Igniter
         end
 
         def stack_snapshot
-          app = ENV["IGNITER_APP"]
-          profile = ENV["IGNITER_TOPOLOGY_PROFILE"]
+          root_app = ENV["IGNITER_ROOT_APP"]
+          node = ENV["IGNITER_NODE"]
           environment = ENV["IGNITER_ENV"]
-          return nil if [app, profile, environment].all? { |value| value.nil? || value.empty? }
+          return nil if [root_app, node, environment].all? { |value| value.nil? || value.empty? }
 
           {
-            app: presence(app),
-            topology_profile: presence(profile),
+            root_app: presence(root_app),
+            node: presence(node),
             environment: presence(environment)
           }.compact
         end

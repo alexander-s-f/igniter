@@ -3,6 +3,7 @@
 require "spec_helper"
 require "tmpdir"
 require "fileutils"
+require "ostruct"
 require "igniter/stack"
 require "igniter/app"
 
@@ -26,78 +27,58 @@ RSpec.describe Igniter::Stack do
     Class.new(described_class).tap do |workspace|
       workspace.root_dir(root)
       workspace.environment(environment) if environment
-      workspace.app :main, path: "apps/main", klass: app_classes.fetch(:main)
+      workspace.app :main, path: "apps/main", klass: app_classes.fetch(:main), default: true
       workspace.app :dashboard, path: "apps/dashboard", klass: app_classes.fetch(:dashboard)
     end
   end
 
-  it "loads workspace defaults and topology data from standard config files" do
+  it "loads root app and node defaults from stack.yml" do
     Dir.mktmpdir do |tmp|
-      FileUtils.mkdir_p(File.join(tmp, "config"))
       File.write(File.join(tmp, "stack.yml"), <<~YAML)
         stack:
-          default_app: dashboard
+          root_app: dashboard
+          default_node: edge
           shared_lib_paths:
             - lib/shared
-      YAML
-      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
-        shared:
-          persistence:
-            data:
-              adapter: sqlite
-        apps:
-          main:
-            role: api
-            replicas: 1
-          dashboard:
-            role: admin
-            replicas: 1
+        nodes:
+          edge:
+            port: 4668
       YAML
 
       workspace = build_workspace(root: tmp)
 
-      expect(workspace.default_app).to eq(:dashboard)
-      expect(workspace.app_for_role(:api)).to eq(:main)
-      expect(workspace.apps_for_role(:admin)).to eq([:dashboard])
-      expect(workspace.deployment(:main)).to include(
-        "role" => "api",
-        "replicas" => 1,
-        "persistence" => { "data" => { "adapter" => "sqlite" } }
-      )
+      expect(workspace.root_app).to eq(:dashboard)
+      expect(workspace.default_node).to eq(:edge)
+      expect(workspace.node_profile(:edge).fetch("port")).to eq(4668)
+      expect(workspace.stack_settings.dig("stack", "shared_lib_paths")).to eq(["lib/shared"])
     end
   end
 
-  it "merges environment overlays into workspace settings and topology" do
+  it "merges environment overlays into stack settings" do
     Dir.mktmpdir do |tmp|
       FileUtils.mkdir_p(File.join(tmp, "config", "environments"))
       File.write(File.join(tmp, "stack.yml"), <<~YAML)
         stack:
-          default_app: main
-          shared_lib_paths:
-            - lib/shared
-      YAML
-      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
-        apps:
+          root_app: main
+        nodes:
           main:
-            role: api
-            replicas: 1
+            port: 4567
       YAML
       File.write(File.join(tmp, "config", "environments", "production.yml"), <<~YAML)
         stack:
-          default_app: dashboard
-          shared_lib_paths:
-            - lib/prod_shared
-        topology:
-          apps:
-            main:
-              replicas: 3
+          root_app: dashboard
+        nodes:
+          main:
+            port: 5567
+          edge:
+            port: 5568
       YAML
 
       workspace = build_workspace(root: tmp, environment: "production")
 
-      expect(workspace.default_app).to eq(:dashboard)
-      expect(workspace.stack_settings.dig("stack", "shared_lib_paths")).to eq(["lib/prod_shared"])
-      expect(workspace.deployment(:main)).to include("role" => "api", "replicas" => 3)
+      expect(workspace.root_app).to eq(:dashboard)
+      expect(workspace.node_profile(:main).fetch("port")).to eq(5567)
+      expect(workspace.node_profile(:edge).fetch("port")).to eq(5568)
     end
   end
 
@@ -120,19 +101,8 @@ RSpec.describe Igniter::Stack do
     end
   end
 
-  it "starts an app by deployment role" do
+  it "starts a named app directly when requested" do
     Dir.mktmpdir do |tmp|
-      FileUtils.mkdir_p(File.join(tmp, "config"))
-      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
-        topology:
-          profile: local
-        apps:
-          main:
-            role: api
-          dashboard:
-            role: admin
-      YAML
-
       started = []
       main_app = Class.new(Igniter::App) do
         define_singleton_method(:start) { started << :main }
@@ -146,119 +116,108 @@ RSpec.describe Igniter::Stack do
         app_classes: { main: main_app, dashboard: dashboard_app }
       )
 
-      workspace.start(role: :admin)
+      workspace.start(:dashboard)
 
       expect(started).to eq([:dashboard])
     end
   end
 
-  it "starts from CLI args with env and role selection" do
+  it "starts a node from CLI args with env selection" do
     Dir.mktmpdir do |tmp|
       FileUtils.mkdir_p(File.join(tmp, "config", "environments"))
-      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
-        topology:
-          profile: local
-        apps:
-          main:
-            role: api
-          dashboard:
-            role: admin
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          root_app: main
+          default_node: seed
+        nodes:
+          seed:
+            port: 4667
+          edge:
+            port: 4668
       YAML
       File.write(File.join(tmp, "config", "environments", "production.yml"), <<~YAML)
-        stack:
-          default_app: dashboard
+        nodes:
+          edge:
+            port: 5668
       YAML
 
       started = []
-      main_app = Class.new(Igniter::App) do
-        define_singleton_method(:start) { started << :main }
-      end
-      dashboard_app = Class.new(Igniter::App) do
-        define_singleton_method(:start) { started << :dashboard }
+      fake_host = double("host", start: nil, activate_transport!: nil)
+      root_app = Class.new(Igniter::App) do
+        define_singleton_method(:host_adapter) { fake_host }
+        define_singleton_method(:send) do |method_name, *_args|
+          case method_name
+          when :build!
+            started << :build
+            OpenStruct.new(custom_routes: [], host_settings: {}, host: nil, port: nil, log_format: nil, drain_timeout: nil)
+          when :start_scheduler
+            nil
+          else
+            super(method_name)
+          end
+        end
       end
 
-      workspace = build_workspace(
-        root: tmp,
-        app_classes: { main: main_app, dashboard: dashboard_app }
-      )
-
-      workspace.start_cli(%w[--env production --profile local --role admin])
+      workspace = build_workspace(root: tmp, environment: "production", app_classes: { main: root_app, dashboard: Class.new(Igniter::App) })
+      workspace.start_cli(%w[--node edge])
 
       expect(workspace.environment).to eq("production")
-      expect(workspace.default_app).to eq(:dashboard)
-      expect(started).to eq([:dashboard])
+      expect(workspace.node_profile(:edge).fetch("port")).to eq(5668)
+      expect(started).to eq([:build])
     end
   end
 
-  it "raises when requested profile does not match topology profile" do
+  it "builds a deployment snapshot for registered apps and nodes" do
     Dir.mktmpdir do |tmp|
-      FileUtils.mkdir_p(File.join(tmp, "config"))
-      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
-        topology:
-          profile: local
-      YAML
-
-      workspace = build_workspace(root: tmp)
-
-      expect do
-        workspace.start(profile: "production")
-      end.to raise_error(ArgumentError, /does not match topology profile/)
-    end
-  end
-
-  it "builds a deployment snapshot for all registered apps" do
-    Dir.mktmpdir do |tmp|
-      FileUtils.mkdir_p(File.join(tmp, "config"))
       File.write(File.join(tmp, "stack.yml"), <<~YAML)
         stack:
           name: demo_workspace
-          default_app: dashboard
-      YAML
-      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
-        topology:
-          profile: local
-        shared:
-          persistence:
-            data:
-              adapter: sqlite
-        apps:
-          main:
-            role: api
-            replicas: 2
-          dashboard:
-            role: admin
-            replicas: 1
+          root_app: dashboard
+          default_node: edge
+        server:
+          host: 0.0.0.0
+        nodes:
+          edge:
+            port: 4668
+            role: edge
       YAML
 
       workspace = build_workspace(root: tmp)
+      workspace.mount(:main, at: "/main")
       snapshot = workspace.deployment_snapshot
 
-      expect(snapshot.dig("stack", "default_app")).to eq("dashboard")
-      expect(snapshot.dig("stack", "topology_profile")).to eq("local")
+      expect(snapshot.dig("stack", "root_app")).to eq("dashboard")
+      expect(snapshot.dig("stack", "default_node")).to eq("edge")
+      expect(snapshot.dig("stack", "mounts")).to eq("main" => "/main")
       expect(snapshot.dig("apps", "main")).to include(
         "app" => "main",
-        "role" => "api",
-        "replicas" => 2,
-        "default" => false
+        "root" => false
       )
       expect(snapshot.dig("apps", "dashboard")).to include(
         "app" => "dashboard",
-        "role" => "admin",
+        "root" => true
+      )
+      expect(snapshot.dig("nodes", "edge")).to include(
+        "node" => "edge",
+        "role" => "edge",
+        "port" => 4668,
         "default" => true
       )
     end
   end
 
-  it "generates a compose config from topology deploy settings" do
+  it "generates a compose config from stack node settings" do
     Dir.mktmpdir do |tmp|
-      FileUtils.mkdir_p(File.join(tmp, "config"))
       File.write(File.join(tmp, "stack.yml"), <<~YAML)
         stack:
           name: companion
-      YAML
-      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
-        topology:
-          profile: local-compose
+          root_app: main
+          default_node: seed
+        server:
+          host: 0.0.0.0
+        shared:
+          environment:
+            SHARED_FLAG: "1"
         deploy:
           compose:
             context: ../../../../
@@ -266,42 +225,40 @@ RSpec.describe Igniter::Stack do
             working_dir: /app/examples/companion
             volume_name: companion_var
             volume_target: /app/examples/companion/var
-        apps:
-          main:
-            role: api
-            public: true
-            command: bundle exec ruby stack.rb main
             environment:
-              APP_MODE: main
-            http:
-              port: 4567
-            depends_on:
-              - dashboard
-          dashboard:
-            role: admin
+              APP_MODE: mesh
+        nodes:
+          seed:
             public: true
-            command: bundle exec ruby stack.rb dashboard
-            http:
-              port: 4569
+            port: 4567
+            depends_on:
+              - edge
+            environment:
+              NODE_KIND: seed
+          edge:
+            public: false
+            port: 4568
       YAML
 
       workspace = build_workspace(root: tmp, environment: "production")
       compose = workspace.compose_config
 
-      expect(compose.dig("services", "main", "build")).to eq(
+      expect(compose.dig("services", "seed", "build")).to eq(
         "context" => "../../../../",
         "dockerfile" => "examples/companion/config/deploy/Dockerfile"
       )
-      expect(compose.dig("services", "main", "environment")).to include(
-        "APP_MODE" => "main",
-        "IGNITER_APP" => "main",
+      expect(compose.dig("services", "seed", "environment")).to include(
+        "APP_MODE" => "mesh",
+        "SHARED_FLAG" => "1",
+        "IGNITER_NODE" => "seed",
+        "IGNITER_ROOT_APP" => "main",
         "IGNITER_ENV" => "production",
-        "IGNITER_TOPOLOGY_PROFILE" => "local-compose",
-        "PORT" => "4567"
+        "PORT" => "4567",
+        "NODE_KIND" => "seed"
       )
-      expect(compose.dig("services", "main", "ports")).to eq(["4567:4567"])
-      expect(compose.dig("services", "main", "depends_on")).to eq(["dashboard"])
-      expect(compose.dig("services", "main", "volumes")).to eq(
+      expect(compose.dig("services", "seed", "ports")).to eq(["4567:4567"])
+      expect(compose.dig("services", "seed", "depends_on")).to eq(["edge"])
+      expect(compose.dig("services", "seed", "volumes")).to eq(
         ["companion_var:/app/examples/companion/var"]
       )
       expect(compose.fetch("volumes")).to include("companion_var" => {})
@@ -312,20 +269,13 @@ RSpec.describe Igniter::Stack do
 
   it "writes generated compose yaml to the configured path" do
     Dir.mktmpdir do |tmp|
-      FileUtils.mkdir_p(File.join(tmp, "config"))
       File.write(File.join(tmp, "stack.yml"), <<~YAML)
         stack:
           name: write_test
-      YAML
-      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
-        topology:
-          profile: local
-        apps:
+        nodes:
           main:
-            role: api
             public: true
-            http:
-              port: 4567
+            port: 4567
       YAML
 
       workspace = build_workspace(root: tmp)
@@ -337,55 +287,46 @@ RSpec.describe Igniter::Stack do
     end
   end
 
-  it "generates a Procfile.dev for local multi-app development" do
+  it "generates a Procfile.dev for local node-based development" do
     Dir.mktmpdir do |tmp|
-      FileUtils.mkdir_p(File.join(tmp, "config"))
       File.write(File.join(tmp, "stack.yml"), <<~YAML)
         stack:
           name: home_lab
-      YAML
-      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
-        topology:
-          profile: development
+          root_app: main
+          default_node: seed
         shared:
           environment:
             SHARED_FLAG: "1"
-        apps:
-          main:
-            role: api
-            http:
-              port: 4567
-          dashboard:
-            role: admin
-            command: bundle exec ruby stack.rb dashboard
+        nodes:
+          seed:
+            port: 4567
+          edge:
+            command: bundle exec ruby stack.rb --node edge
             environment:
-              DASHBOARD_MODE: enabled
-            http:
-              port: 4569
+              EDGE_MODE: enabled
+            port: 4569
       YAML
 
       workspace = build_workspace(root: tmp, environment: "development")
       procfile = workspace.procfile_dev
 
-      expect(procfile).to include("main:")
-      expect(procfile).to include("dashboard:")
+      expect(procfile).to include("seed:")
+      expect(procfile).to include("edge:")
       expect(procfile).to include("RUBYOPT=")
       expect(procfile).to include("dev_output_sync")
       expect(procfile).to include("SHARED_FLAG=1")
-      expect(procfile).to include("DASHBOARD_MODE=enabled")
-      expect(procfile).to include("bundle exec ruby stack.rb dashboard")
+      expect(procfile).to include("EDGE_MODE=enabled")
+      expect(procfile).to include("IGNITER_NODE=edge")
+      expect(procfile).to include("bundle exec ruby stack.rb --node edge")
     end
   end
 
   it "writes generated Procfile.dev to the configured path" do
     Dir.mktmpdir do |tmp|
-      FileUtils.mkdir_p(File.join(tmp, "config"))
-      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
-        apps:
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        nodes:
           main:
-            role: api
-            http:
-              port: 4567
+            port: 4567
       YAML
 
       workspace = build_workspace(root: tmp)
@@ -396,148 +337,7 @@ RSpec.describe Igniter::Stack do
     end
   end
 
-  it "builds service snapshots from topology services" do
-    Dir.mktmpdir do |tmp|
-      FileUtils.mkdir_p(File.join(tmp, "config"))
-      File.write(File.join(tmp, "stack.yml"), <<~YAML)
-        stack:
-          default_app: main
-          default_service: core
-      YAML
-      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
-        services:
-          core:
-            role: api
-            apps:
-              - main
-              - dashboard
-            root_app: main
-            http:
-              port: 4567
-      YAML
-
-      workspace = build_workspace(root: tmp)
-      snapshot = workspace.deployment_snapshot
-
-      expect(workspace.service_names).to eq([:core])
-      expect(workspace.default_service).to eq(:core)
-      expect(workspace.service_for_role(:api)).to eq(:core)
-      expect(snapshot.dig("services", "core")).to include(
-        "service" => "core",
-        "role" => "api",
-        "apps" => %w[main dashboard],
-        "root_app" => "main",
-        "default" => true
-      )
-    end
-  end
-
-  it "mounts multiple apps behind one rack service" do
-    root_app = Class.new(Igniter::App) do
-      route "GET", "/hello" do
-        { source: "main" }
-      end
-    end
-
-    mounted_app = Class.new(Igniter::App) do
-      route "GET", "/hello" do
-        { source: "dashboard" }
-      end
-    end
-
-    Dir.mktmpdir do |tmp|
-      FileUtils.mkdir_p(File.join(tmp, "config"))
-      File.write(File.join(tmp, "stack.yml"), <<~YAML)
-        stack:
-          default_service: core
-      YAML
-      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
-        services:
-          core:
-            role: api
-            apps:
-              - main
-              - dashboard
-            root_app: main
-            mounts:
-              dashboard: /dashboard
-            http:
-              port: 4567
-      YAML
-
-      workspace = build_workspace(
-        root: tmp,
-        app_classes: { main: root_app, dashboard: mounted_app }
-      )
-
-      rack_app = workspace.rack_service(:core)
-      root_status, _root_headers, root_body = rack_app.call(
-        "REQUEST_METHOD" => "GET",
-        "PATH_INFO" => "/hello",
-        "rack.input" => StringIO.new("")
-      )
-      mounted_status, _mounted_headers, mounted_body = rack_app.call(
-        "REQUEST_METHOD" => "GET",
-        "PATH_INFO" => "/dashboard/hello",
-        "rack.input" => StringIO.new("")
-      )
-
-      expect(root_status).to eq(200)
-      expect(root_body.join).to include("\"source\":\"main\"")
-      expect(mounted_status).to eq(200)
-      expect(mounted_body.join).to include("\"source\":\"dashboard\"")
-    end
-  end
-
-  it "generates compose and dev commands from topology services" do
-    Dir.mktmpdir do |tmp|
-      FileUtils.mkdir_p(File.join(tmp, "config"))
-      File.write(File.join(tmp, "stack.yml"), <<~YAML)
-        stack:
-          name: service_stack
-          default_service: core
-      YAML
-      File.write(File.join(tmp, "config", "topology.yml"), <<~YAML)
-        topology:
-          profile: local
-        shared:
-          environment:
-            SHARED_FLAG: "1"
-        services:
-          core:
-            role: api
-            apps:
-              - main
-              - dashboard
-            root_app: main
-            public: true
-            http:
-              port: 4567
-            environment:
-              SERVICE_MODE: unified
-      YAML
-
-      workspace = build_workspace(root: tmp, environment: "development")
-      compose = workspace.compose_config
-      procfile = workspace.procfile_dev
-
-      expect(compose.dig("services", "core", "command")).to eq("bundle exec ruby stack.rb --service core")
-      expect(compose.dig("services", "core", "environment")).to include(
-        "IGNITER_SERVICE" => "core",
-        "IGNITER_APP" => "main",
-        "PORT" => "4567",
-        "SERVICE_MODE" => "unified",
-        "SHARED_FLAG" => "1",
-        "IGNITER_ENV" => "development",
-        "IGNITER_TOPOLOGY_PROFILE" => "local"
-      )
-      expect(compose.dig("services", "core", "ports")).to eq(["4567:4567"])
-      expect(procfile).to include("core:")
-      expect(procfile).to include("bundle exec ruby stack.rb --service core")
-    end
-  end
-
-  it "mounts apps behind the stack runtime without topology services" do
+  it "mounts apps behind the stack runtime" do
     root_app = Class.new(Igniter::App) do
       route "GET", "/hello" do
         { source: "main" }
@@ -581,7 +381,7 @@ RSpec.describe Igniter::Stack do
     end
   end
 
-  it "builds local node profiles from stack.yml without topology services" do
+  it "builds local node profiles from stack.yml" do
     Dir.mktmpdir do |tmp|
       File.write(File.join(tmp, "stack.yml"), <<~YAML)
         stack:
@@ -605,6 +405,7 @@ RSpec.describe Igniter::Stack do
       snapshot = workspace.deployment_snapshot
       procfile = workspace.procfile_dev
 
+      expect(workspace.root_app).to eq(:main)
       expect(workspace.default_node).to eq(:seed)
       expect(workspace.node_names).to eq(%i[seed edge])
       expect(snapshot.dig("stack", "default_node")).to eq("seed")
@@ -614,6 +415,26 @@ RSpec.describe Igniter::Stack do
       expect(procfile).to include("IGNITER_NODE=seed")
       expect(procfile).to include("bundle exec ruby stack.rb --node seed")
       expect(procfile).to include("NODE_KIND=seed")
+    end
+  end
+
+  it "starts one mounted stack runtime in dev mode when nodes are absent" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          root_app: main
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      workspace.mount(:dashboard, at: "/dashboard")
+
+      expect(workspace.dev_services).to eq([
+        {
+          name: "main",
+          command: "bundle exec ruby stack.rb",
+          environment: { "IGNITER_ROOT_APP" => "main", "RUBYOPT" => workspace.send(:rubyopt_with_dev_output_sync) }
+        }
+      ])
     end
   end
 end

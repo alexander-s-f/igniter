@@ -39,7 +39,7 @@ module Igniter
             lines << "- Metrics: configured=#{app.dig(:metrics, :configured)}"
             lines << "- Store: configured=#{app.dig(:store, :configured)}"
             if app[:stack]
-              lines << "- Stack: app=#{app[:stack][:app] || "n/a"}, profile=#{app[:stack][:topology_profile] || "n/a"}, env=#{app[:stack][:environment] || "n/a"}"
+              lines << "- Stack: root_app=#{app[:stack][:root_app] || "n/a"}, node=#{app[:stack][:node] || "n/a"}, env=#{app[:stack][:environment] || "n/a"}"
             end
           end
 
@@ -56,8 +56,8 @@ module Igniter
             parts << "metrics=#{app.dig(:metrics, :configured)}"
             parts << "store=#{app.dig(:store, :configured)}"
             if app[:stack]
-              parts << "stack_app=#{app[:stack][:app]}" if app[:stack][:app]
-              parts << "profile=#{app[:stack][:topology_profile]}" if app[:stack][:topology_profile]
+              parts << "root_app=#{app[:stack][:root_app]}" if app[:stack][:root_app]
+              parts << "node=#{app[:stack][:node]}" if app[:stack][:node]
             end
             parts.join(", ")
           end

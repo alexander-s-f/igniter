@@ -31,10 +31,7 @@ module Igniter
           create_dir "apps/dashboard/spec"
           create_dir "lib/#{namespace_path}/dashboard/views"
           write "stack.rb", stack_rb
-          write "config/topology.yml", topology_yml
-          write "config/environments/development.yml", development_yml
-          write "config/environments/production.yml", production_yml
-          write "config/deploy/Procfile.dev", procfile_dev
+          write "stack.yml", stack_yml
           write "spec/stack_spec.rb", stack_spec
           write "lib/#{namespace_path}/shared/stack_overview.rb", shared_stack_overview
           write "lib/#{namespace_path}/shared/note_store.rb", shared_note_store
@@ -123,12 +120,13 @@ module Igniter
             module #{module_name}
               class Stack < Igniter::Stack
                 root_dir __dir__
-                shared_lib_path "lib"
+              shared_lib_path "lib"
 
-                app :main, path: "apps/main", klass: #{module_name}::MainApp, default: true
-                app :dashboard, path: "apps/dashboard", klass: #{module_name}::DashboardApp
-              end
+              app :main, path: "apps/main", klass: #{module_name}::MainApp, default: true
+              app :dashboard, path: "apps/dashboard", klass: #{module_name}::DashboardApp
+              mount :dashboard, at: "/dashboard"
             end
+          end
 
             if $PROGRAM_NAME == __FILE__
               #{stack_class_name}.start_cli(ARGV)
@@ -136,79 +134,28 @@ module Igniter
           RUBY
         end
 
-        def topology_yml
+        def stack_yml
           <<~YAML
             stack:
               name: #{project_name}
-              default_app: main
-              default_service: main
+              root_app: main
+              default_node: main
+              shared_lib_paths:
+                - lib
 
-            topology:
-              profile: local
-              notes:
-                - "playground profile: one runtime service hosting main + dashboard"
+            server:
+              host: 0.0.0.0
 
-            deploy:
-              compose:
-                context: .
-                dockerfile: config/deploy/Dockerfile
-                working_dir: /app
-                volume_name: #{namespace_path}_var
-                volume_target: /app/var
-
-            services:
+            nodes:
               main:
-                role: api
-                apps:
-                  - main
-                  - dashboard
-                root_app: main
-                mounts:
-                  dashboard: /dashboard
-                replicas: 1
+                role: playground
+                port: 4567
                 public: true
-                http:
-                  port: 4567
-                command: bundle exec ruby stack.rb --service main
-
-            shared:
-              persistence:
-                data:
-                  adapter: sqlite
-                  path: var/#{project_name}_data.sqlite3
+            persistence:
+              data:
+                adapter: sqlite
+                path: var/#{project_name}_data.sqlite3
           YAML
-        end
-
-        def development_yml
-          <<~YAML
-            stack:
-              environment: development
-
-            topology:
-              profile: development
-              services:
-                main:
-                  replicas: 1
-          YAML
-        end
-
-        def production_yml
-          <<~YAML
-            stack:
-              environment: production
-
-            topology:
-              profile: production
-              services:
-                main:
-                  replicas: 2
-          YAML
-        end
-
-        def procfile_dev
-          <<~TEXT
-            main: IGNITER_SERVICE=main IGNITER_APP=main PORT=4567 bundle exec ruby stack.rb --service main
-          TEXT
         end
 
         def stack_spec
@@ -218,12 +165,13 @@ module Igniter
             require_relative "spec_helper"
 
             RSpec.describe #{stack_class_name} do
-              it "registers main and dashboard apps with a service-first topology" do
-                expect(described_class.default_app).to eq(:main)
-                expect(described_class.default_service).to eq(:main)
+              it "registers main and dashboard apps with a mounted stack runtime" do
+                expect(described_class.root_app).to eq(:main)
+                expect(described_class.default_node).to eq(:main)
                 expect(described_class.app(:main)).to be(#{module_name}::MainApp)
                 expect(described_class.app(:dashboard)).to be(#{module_name}::DashboardApp)
-                expect(described_class.service_for_role(:api)).to eq(:main)
+                expect(described_class.mounts).to eq(dashboard: "/dashboard")
+                expect(described_class.node_names).to eq([:main])
               end
             end
           RUBY
@@ -293,9 +241,9 @@ module Igniter
 
                 expect(status).to eq(200)
                 expect(headers["Content-Type"]).to include("application/json")
-                expect(payload.dig("stack", "default_app")).to eq("main")
-                expect(payload.dig("stack", "default_service")).to eq("main")
-                expect(payload.dig("services", "main", "apps")).to eq(%w[main dashboard])
+                expect(payload.dig("stack", "root_app")).to eq("main")
+                expect(payload.dig("stack", "default_node")).to eq("main")
+                expect(payload.dig("nodes", "main", "mounts", "dashboard")).to eq("/dashboard")
                 expect(payload.dig("counts", "notes")).to eq(0)
               end
 
@@ -362,7 +310,7 @@ module Igniter
                         generated_at: snapshot.fetch(:generated_at),
                         stack: snapshot.fetch(:stack),
                         apps: snapshot.fetch(:apps),
-                        services: snapshot.fetch(:services),
+                        nodes: snapshot.fetch(:nodes),
                         counts: snapshot.fetch(:counts),
                         notes: snapshot.fetch(:notes)
                       ),
@@ -515,9 +463,9 @@ module Igniter
 
                 expect(status).to eq(200)
                 expect(headers["Content-Type"]).to include("application/json")
-                expect(payload.dig("stack", "default_app")).to eq("main")
-                expect(payload.dig("stack", "default_service")).to eq("main")
-                expect(payload.dig("services", "main", "apps")).to eq(%w[main dashboard])
+                expect(payload.dig("stack", "root_app")).to eq("main")
+                expect(payload.dig("stack", "default_node")).to eq("main")
+                expect(payload.dig("nodes", "main", "mounts", "dashboard")).to eq("/dashboard")
                 expect(payload.dig("counts", "notes")).to eq(0)
               end
 
@@ -584,15 +532,13 @@ module Igniter
                   def build
                     deployment = #{stack_class_name}.deployment_snapshot
                     notes = #{module_name}::Shared::NoteStore.all
-                    services = deployment.fetch("services").transform_values do |config|
+                    nodes = deployment.fetch("nodes").transform_values do |config|
                       {
                         role: config["role"],
                         public: config["public"],
-                        replicas: config["replicas"],
-                        port: config.dig("http", "port"),
+                        port: config["port"],
+                        host: config["host"],
                         command: config["command"],
-                        apps: Array(config["apps"]),
-                        root_app: config["root_app"],
                         mounts: config.fetch("mounts", {})
                       }
                     end
@@ -601,18 +547,18 @@ module Igniter
                       generated_at: Time.now.utc.iso8601,
                       stack: {
                         name: #{stack_class_name}.stack_settings.dig("stack", "name"),
-                        default_app: deployment.dig("stack", "default_app"),
-                        default_service: deployment.dig("stack", "default_service"),
-                        profile: deployment.dig("stack", "topology_profile"),
+                        root_app: deployment.dig("stack", "root_app"),
+                        default_node: deployment.dig("stack", "default_node"),
+                        mounts: deployment.dig("stack", "mounts"),
                         apps: #{stack_class_name}.app_names.map(&:to_s)
                       },
                       counts: {
                         apps: #{stack_class_name}.app_names.size,
-                        services: services.size,
+                        nodes: nodes.size,
                         notes: notes.size
                       },
                       notes: notes.first(8),
-                      services: services,
+                      nodes: nodes,
                       apps: deployment.fetch("apps").transform_values do |config|
                         {
                           path: config["path"],
@@ -841,9 +787,8 @@ module Igniter
                         hero.tag(:p, "Fresh proving ground for the rebuilt Igniter stack model.")
                         hero.tag(:div, class: "meta") do |meta|
                           meta.text("generated=\#{snapshot.fetch(:generated_at)} · ")
-                          meta.text("default=\#{snapshot.dig(:stack, :default_app)} · ")
-                          meta.text("service=\#{snapshot.dig(:stack, :default_service)} · ")
-                          meta.text("profile=\#{snapshot.dig(:stack, :profile)}")
+                          meta.text("root=\#{snapshot.dig(:stack, :root_app)} · ")
+                          meta.text("node=\#{snapshot.dig(:stack, :default_node)}")
                         end
                         hero.tag(:p, class: "links") do |links|
                           links.tag(:a, "Overview API", href: route("/api/overview"))
@@ -863,8 +808,8 @@ module Igniter
                         end
 
                         section.tag(:article, class: "metric-card") do |card|
-                          card.tag(:span, "Services", class: "metric-label")
-                          card.tag(:strong, counts.fetch(:services).to_s, class: "metric-value")
+                          card.tag(:span, "Nodes", class: "metric-label")
+                          card.tag(:strong, counts.fetch(:nodes).to_s, class: "metric-value")
                         end
 
                         section.tag(:article, class: "metric-card") do |card|
@@ -916,12 +861,11 @@ module Igniter
 
                     def render_apps(view)
                       view.tag(:section, class: "grid") do |grid|
-                        snapshot.fetch(:services).each do |name, service|
+                        snapshot.fetch(:nodes).each do |name, service|
                           grid.tag(:article, class: "card") do |card|
                             card.tag(:h2, name.to_s)
                             card.tag(:p, "role=\#{service.fetch(:role)}")
-                            card.tag(:p, "port=\#{service.fetch(:port)} public=\#{service.fetch(:public)} replicas=\#{service.fetch(:replicas)}")
-                            card.tag(:p, "apps=\#{service.fetch(:apps).join(", ")}")
+                            card.tag(:p, "host=\#{service.fetch(:host)} port=\#{service.fetch(:port)} public=\#{service.fetch(:public)}")
                             mounts = service.fetch(:mounts)
                             unless mounts.empty?
                               card.tag(:p, "mounts=\#{mounts.map { |app, mount| "\#{app}: \#{mount}" }.join(", ")}")
@@ -1144,7 +1088,7 @@ module Igniter
             bundle install
             ruby bin/demo
             bin/start
-            bin/start --service main
+            bin/start --node main
             bin/dev
             ```
 
@@ -1161,10 +1105,10 @@ module Igniter
             A good next move is to port one real capability at a time from a legacy
             playground or experiment:
 
-            1. one topology or deployment concern
-            2. one service-mounted app flow
-            3. one device or channel edge
-            4. one operator/dashboard surface
+            1. one mounted app flow
+            2. one device or channel edge
+            3. one operator/dashboard surface
+            4. one cluster-facing capability
           MARKDOWN
         end
       end

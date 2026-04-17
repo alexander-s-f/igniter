@@ -613,11 +613,7 @@ RSpec.describe Igniter::App do
           # Root files
           expect(File.exist?("my_app/stack.rb")).to be true
           expect(File.exist?("my_app/stack.yml")).to be true
-          expect(File.exist?("my_app/config/topology.yml")).to be true
-          expect(File.exist?("my_app/config/environments/development.yml")).to be true
-          expect(File.exist?("my_app/config/environments/production.yml")).to be true
           expect(File.exist?("my_app/config/deploy/.keep")).to be true
-          expect(File.exist?("my_app/config/deploy/Procfile.dev")).to be true
           expect(File.exist?("my_app/Gemfile")).to be true
           expect(File.exist?("my_app/config.ru")).to be true
 
@@ -658,13 +654,13 @@ RSpec.describe Igniter::App do
           expect(stack).to include('require "igniter/stack"')
           expect(stack).to include("app :main")
           expect(stack).to include("start_cli(ARGV)")
-          expect(File.read("my_app/config/topology.yml")).to include("role: api")
-          expect(File.read("my_app/config/topology.yml")).to include("dockerfile: config/deploy/Dockerfile")
-          expect(File.read("my_app/config/environments/production.yml")).to include("replicas: 2")
-          expect(File.read("my_app/config/deploy/Procfile.dev")).to include("main:")
+          expect(File.read("my_app/stack.yml")).to include("root_app: main")
+          expect(File.read("my_app/stack.yml")).to include("default_node: main")
+          expect(File.read("my_app/stack.yml")).to include("port: 4567")
           expect(File.read("my_app/Gemfile")).to include("gem \"sqlite3\"")
           expect(bin_start).to include("exec bundle exec ruby stack.rb \"$@\"")
           expect(bin_dev).to include("exec bundle exec ruby stack.rb --dev \"$@\"")
+          expect(File.read("my_app/config.ru")).to include("rack_node")
           expect(main_app).to include('require "igniter/app"')
           expect(main_app).to include("root_dir __dir__")
           expect(main_app).to include("executors_path")
@@ -709,6 +705,7 @@ RSpec.describe Igniter::App do
 
           expect(File.exist?("examples/companion/lib/companion/shared/.keep")).to be true
           expect(File.read("examples/companion/stack.rb")).to include("module Companion")
+          expect(File.read("examples/companion/stack.yml")).to include("default_node: main")
           expect(File.read("examples/companion/apps/main/app.rb")).to include("module Companion")
           expect(File.read("examples/companion/apps/main/spec/spec_helper.rb")).to include("Companion::MainApp.send(:build!)")
         end
@@ -1656,7 +1653,7 @@ RSpec.describe Igniter::Stack do
       end
 
       expect(stack.app).to be(app_class)
-      expect(stack.default_app).to eq(:main)
+      expect(stack.root_app).to eq(:main)
     end
 
     it "starts a named app" do

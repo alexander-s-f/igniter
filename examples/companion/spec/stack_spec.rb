@@ -4,7 +4,7 @@ require_relative "spec_helper"
 
 RSpec.describe Companion::Stack do
   it "registers apps, mounts, and local node profiles for the cluster-next sandbox" do
-    expect(described_class.default_app).to eq(:main)
+    expect(described_class.root_app).to eq(:main)
     expect(described_class.default_node).to eq(:seed)
     expect(described_class.app(:main)).to be(Companion::MainApp)
     expect(described_class.app(:dashboard)).to be(Companion::DashboardApp)

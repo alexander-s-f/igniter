@@ -36,8 +36,8 @@ module Igniter
   #
   # == YAML config (app.yml)
   #
-  #   # app_host is optional. In service-first stacks, host/port often live
-  #   # in stack topology/service config rather than in app-local YAML.
+  #   # app_host is optional. In stack-first projects, host/port often live
+  #   # in stack.yml node/server config rather than in app-local YAML.
   #   app_host:
   #     port: 4567
   #     host: "0.0.0.0"
@@ -48,7 +48,7 @@ module Igniter
   # runs afterwards and always wins.
   #
   # In Stack/App vNext, an app is primarily a code/runtime package boundary.
-  # Deployment ports and process grouping increasingly belong to stack services.
+  # Deployment ports and process grouping belong to stack nodes.
   class App
     class << self
       UNDEFINED_EVOLUTION_STORE = Object.new
