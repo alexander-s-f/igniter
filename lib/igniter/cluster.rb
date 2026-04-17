@@ -10,6 +10,7 @@ require_relative "cluster/ownership"
 require_relative "cluster/projection_store"
 require_relative "cluster/consensus"
 require_relative "cluster/replication"
+require_relative "cluster/diagnostics"
 
 module Igniter
   module Cluster

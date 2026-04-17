@@ -8,6 +8,14 @@ require "igniter/app/scaffold_pack"
 require "tmpdir"
 
 RSpec.describe Igniter::App do
+  around do |example|
+    previous_context = Igniter::App::RuntimeContext.current
+    Igniter::App::RuntimeContext.current = nil
+    example.run
+  ensure
+    Igniter::App::RuntimeContext.current = previous_context
+  end
+
   # Minimal contract for registration tests
   let(:sample_contract_class) do
     Class.new(Igniter::Contract) do
@@ -871,6 +879,61 @@ RSpec.describe Igniter::App do
         expect(sc.port).to eq(6123)
         expect(sc.registry.registered?("RootScopedContract")).to be true
       end
+    end
+
+    it "exposes app diagnostics through the contributor layer" do
+      klass = sample_contract_class
+      metrics_collector = Object.new
+      app = stub_const("SpecDiagnosticsApp", Class.new(Igniter::App))
+
+      app.class_eval do
+        register "SampleContract", klass
+        route "GET", "/health" do |**|
+          { status: 200, body: { ok: true } }
+        end
+        before_request {}
+        after_request {}
+        around_request { |request:, &inner| inner.call }
+        configure do |c|
+          c.metrics_collector = metrics_collector
+          c.store = Igniter::Runtime::Stores::MemoryStore.new
+        end
+      end
+
+      app.send(:build!)
+      contract = klass.new(x: 10)
+
+      report = contract.diagnostics.to_h
+      text = contract.diagnostics_text
+      markdown = contract.diagnostics_markdown
+
+      expect(report[:app]).to include(
+        app_name: "SpecDiagnosticsApp",
+        host: :app,
+        loader: :filesystem,
+        scheduler: :threaded,
+        registration_count: 1,
+        registrations: ["SampleContract"],
+        routes: 1
+      )
+      expect(report[:app][:hooks]).to eq(
+        before_request: 1,
+        after_request: 1,
+        around_request: 1
+      )
+      expect(report[:app][:metrics]).to include(
+        configured: true,
+        collector_class: "Object"
+      )
+      expect(report[:app][:store]).to include(
+        configured: true,
+        store_class: "Igniter::Runtime::Stores::MemoryStore"
+      )
+      expect(text).to include("App: runtime=SpecDiagnosticsApp")
+      expect(text).to include("contracts=1")
+      expect(markdown).to include("## App")
+      expect(markdown).to include("- Runtime: `SpecDiagnosticsApp` host=`app` loader=`filesystem` scheduler=`threaded`")
+      expect(markdown).to include("- Contracts: total=1, names=SampleContract")
     end
   end
 

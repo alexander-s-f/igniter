@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "app/runtime"
+require_relative "app/diagnostics"
 require_relative "stack"
 
 module Igniter
@@ -359,6 +360,14 @@ module Igniter
 
         host_config = cfg.to_host_config
         @registered.each { |name, klass| host_config.register(name, klass) }
+        RuntimeContext.capture(
+          app_class: self,
+          host_config: host_config,
+          host_name: host,
+          loader_name: loader,
+          scheduler_name: scheduler,
+          sdk_capabilities: sdk_capabilities
+        )
         host_adapter.build_config(host_config)
       end
 

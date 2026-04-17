@@ -430,7 +430,20 @@ RSpec.describe "Igniter diagnostics" do
         by_policy_key: { approvable: 1, permits: 1 },
         by_latest_event: { node_pending: 1 },
         by_incident: { peer_unreachable: 1 },
-        by_remediation_code: { restore_peer_connectivity: 1 }
+        by_remediation_code: { restore_peer_connectivity: 1 },
+        by_plan_action: { refresh_peer_health: 1 }
+      )
+      expect(report[:routing][:plans]).to contain_exactly(
+        include(
+          action: :refresh_peer_health,
+          scope: :mesh_health,
+          automated: true,
+          requires_approval: false,
+          params: {},
+          sources: [
+            include(node_name: :order_result, incident: :peer_unreachable, hint_code: :restore_peer_connectivity)
+          ]
+        )
       )
       expect(report[:routing][:entries]).to contain_exactly(
         include(
@@ -452,16 +465,23 @@ RSpec.describe "Igniter diagnostics" do
           remediation: [
             include(
               code: :restore_peer_connectivity,
+              plan: include(
+                action: :refresh_peer_health,
+                scope: :mesh_health,
+                automated: true,
+                requires_approval: false,
+                params: {}
+              ),
               details: {}
             )
           ],
           events: include(latest_type: :node_pending)
         )
       )
-      expect(text).to include("Routing: total=1, pending=1, failed=0, modes=capability=1, reasons=unreachable=1, incidents=peer_unreachable=1, hints=restore_peer_connectivity=1")
+      expect(text).to include("Routing: total=1, pending=1, failed=0, modes=capability=1, reasons=unreachable=1, incidents=peer_unreachable=1, hints=restore_peer_connectivity=1, plans=refresh_peer_health=1")
       expect(text).to include("hints=restore_peer_connectivity")
       expect(text).to include("routing=mode=capability query={:all_of=>[:orders], :tags=>[:linux], :policy=>{:permits=>[:shell_exec], :approvable=>[:deploy]}, :decision=>{:mode=>:approval_ok, :actions=>[:shell_exec]}} eligible=0 selected=none reasons=unreachable")
-      expect(markdown).to include("- Routing: total=1, pending=1, failed=0, modes=capability=1, reasons=unreachable=1, incidents=peer_unreachable=1, hints=restore_peer_connectivity=1")
+      expect(markdown).to include("- Routing: total=1, pending=1, failed=0, modes=capability=1, reasons=unreachable=1, incidents=peer_unreachable=1, hints=restore_peer_connectivity=1, plans=refresh_peer_health=1")
       expect(markdown).to include("## Routing")
       expect(markdown).to include("`order_result` `pending`")
       expect(markdown).to include("hints=`restore_peer_connectivity`")
@@ -497,7 +517,20 @@ RSpec.describe "Igniter diagnostics" do
         by_policy_key: {},
         by_latest_event: { node_failed: 1 },
         by_incident: { peer_unreachable: 1 },
-        by_remediation_code: { restore_peer_connectivity: 1 }
+        by_remediation_code: { restore_peer_connectivity: 1 },
+        by_plan_action: { refresh_peer_health: 1 }
+      )
+      expect(report[:routing][:plans]).to contain_exactly(
+        include(
+          action: :refresh_peer_health,
+          scope: :mesh_health,
+          automated: true,
+          requires_approval: false,
+          params: { peer_name: "audit-node", selected_url: "http://audit:4567" },
+          sources: [
+            include(node_name: :audit_result, incident: :peer_unreachable, hint_code: :restore_peer_connectivity)
+          ]
+        )
       )
       expect(report[:routing][:entries]).to contain_exactly(
         include(
@@ -514,6 +547,13 @@ RSpec.describe "Igniter diagnostics" do
           remediation: [
             include(
               code: :restore_peer_connectivity,
+              plan: include(
+                action: :refresh_peer_health,
+                scope: :mesh_health,
+                automated: true,
+                requires_approval: false,
+                params: { peer_name: "audit-node", selected_url: "http://audit:4567" }
+              ),
               details: include(peer_name: "audit-node", selected_url: "http://audit:4567")
             )
           ],
@@ -524,10 +564,10 @@ RSpec.describe "Igniter diagnostics" do
           )
         )
       )
-      expect(text).to include("Routing: total=1, pending=0, failed=1, modes=pinned=1, reasons=unreachable=1, incidents=peer_unreachable=1, hints=restore_peer_connectivity=1")
+      expect(text).to include("Routing: total=1, pending=0, failed=1, modes=pinned=1, reasons=unreachable=1, incidents=peer_unreachable=1, hints=restore_peer_connectivity=1, plans=refresh_peer_health=1")
       expect(text).to include("hints=restore_peer_connectivity")
-      expect(text).to include("audit_result=Igniter::ResolutionError[mode=pinned peer=audit-node selected=http://audit:4567 reachable=false reasons=unreachable]")
-      expect(markdown).to include("- Routing: total=1, pending=0, failed=1, modes=pinned=1, reasons=unreachable=1, incidents=peer_unreachable=1, hints=restore_peer_connectivity=1")
+      expect(text).to include("Errors: audit_result=Igniter::ResolutionError")
+      expect(markdown).to include("- Routing: total=1, pending=0, failed=1, modes=pinned=1, reasons=unreachable=1, incidents=peer_unreachable=1, hints=restore_peer_connectivity=1, plans=refresh_peer_health=1")
       expect(markdown).to include("## Routing")
       expect(markdown).to include("`audit_result` `failed`")
       expect(markdown).to include("hints=`restore_peer_connectivity`")
@@ -546,7 +586,24 @@ RSpec.describe "Igniter diagnostics" do
         by_policy_key: { permits: 1 },
         by_latest_event: { node_pending: 1 },
         by_incident: { policy_gate: 1 },
-        by_remediation_code: { adjust_policy_requirements: 1, request_approval_path: 1 }
+        by_remediation_code: { adjust_policy_requirements: 1, request_approval_path: 1 },
+        by_plan_action: { find_policy_compatible_peer: 1, retry_with_approval: 1 }
+      )
+      expect(report[:routing][:plans]).to contain_exactly(
+        include(
+          action: :retry_with_approval,
+          scope: :routing_decision,
+          automated: false,
+          requires_approval: true,
+          params: { mode: :approval_ok, actions: [:shell_exec] }
+        ),
+        include(
+          action: :find_policy_compatible_peer,
+          scope: :routing_policy,
+          automated: true,
+          requires_approval: false,
+          params: { policy_keys: [:permits] }
+        )
       )
       expect(report[:routing][:entries]).to contain_exactly(
         include(
@@ -556,8 +613,16 @@ RSpec.describe "Igniter diagnostics" do
             incident: :policy_gate
           ),
           remediation: contain_exactly(
-            include(code: :request_approval_path, details: include(decision_mode: :auto_only, actions: [:shell_exec])),
-            include(code: :adjust_policy_requirements, details: include(policy_keys: [:permits]))
+            include(
+              code: :request_approval_path,
+              details: include(decision_mode: :auto_only, actions: [:shell_exec]),
+              plan: include(action: :retry_with_approval, scope: :routing_decision, automated: false, requires_approval: true)
+            ),
+            include(
+              code: :adjust_policy_requirements,
+              details: include(policy_keys: [:permits]),
+              plan: include(action: :find_policy_compatible_peer, scope: :routing_policy, automated: true, requires_approval: false)
+            )
           ),
           events: include(latest_type: :node_pending)
         )
@@ -576,7 +641,24 @@ RSpec.describe "Igniter diagnostics" do
         by_policy_key: {},
         by_latest_event: { node_pending: 1 },
         by_incident: { capacity_shortage: 1 },
-        by_remediation_code: { add_capability_peer: 1, relax_tag_constraints: 1 }
+        by_remediation_code: { add_capability_peer: 1, relax_tag_constraints: 1 },
+        by_plan_action: { discover_capability_peers: 1, relax_route_tags: 1 }
+      )
+      expect(report[:routing][:plans]).to contain_exactly(
+        include(
+          action: :discover_capability_peers,
+          scope: :mesh_capacity,
+          automated: true,
+          requires_approval: false,
+          params: { all_of: [:gpu_inference], any_of: [] }
+        ),
+        include(
+          action: :relax_route_tags,
+          scope: :routing_query,
+          automated: false,
+          requires_approval: true,
+          params: { tags: [:cuda] }
+        )
       )
       expect(report[:routing][:entries]).to contain_exactly(
         include(
@@ -586,8 +668,16 @@ RSpec.describe "Igniter diagnostics" do
             incident: :capacity_shortage
           ),
           remediation: contain_exactly(
-            include(code: :add_capability_peer, details: include(all_of: [:gpu_inference])),
-            include(code: :relax_tag_constraints, details: include(tags: [:cuda]))
+            include(
+              code: :add_capability_peer,
+              details: include(all_of: [:gpu_inference]),
+              plan: include(action: :discover_capability_peers, scope: :mesh_capacity, automated: true, requires_approval: false)
+            ),
+            include(
+              code: :relax_tag_constraints,
+              details: include(tags: [:cuda]),
+              plan: include(action: :relax_route_tags, scope: :routing_query, automated: false, requires_approval: true)
+            )
           ),
           events: include(latest_type: :node_pending)
         )
