@@ -435,7 +435,11 @@ end
 
 ## Companion App Example
 
-`examples/companion/` is the main stack-based production-style demo. It implements a distributed voice AI assistant pipeline split across `apps/main` and `apps/inference`.
+`examples/companion/` is the fresh stack-based cluster sandbox for `Stack/App vNext` and
+`Cluster Next`.
+
+The older distributed voice AI assistant pipeline now lives in
+`examples/companion_legacy/`, split across `apps/main` and `apps/inference`.
 
 ```
 ESP32 microphone → ASR → Intent → Chat (LLM) → TTS → ESP32 speaker
@@ -450,11 +454,12 @@ ruby examples/companion/bin/demo
 **Orchestrator node (HP t740, real Ollama):**
 
 ```bash
-# Requires: ollama serve (llama3.1:8b pulled)
-bundle exec ruby examples/companion/stack.rb --service main
+# Fresh cluster sandbox:
+bundle exec ruby examples/companion/stack.rb --service seed
 ```
 
-**See also:** [`examples/companion/README.md`](../examples/companion/README.md)
+**See also:** [`examples/companion/README.md`](../examples/companion/README.md) and
+[`examples/companion_legacy/README.md`](../examples/companion_legacy/README.md)
 
 ---
 

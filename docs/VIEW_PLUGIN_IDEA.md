@@ -1,6 +1,6 @@
 # View Plugin Idea
 
-This document captures an emerging pattern from `examples/companion/apps/dashboard`:
+This document captures an emerging pattern from `examples/companion_legacy/apps/dashboard`:
 Igniter applications sometimes need lightweight HTML forms, internal dashboards, and
 public-facing questionnaires, but those concerns should remain optional and outside the
 core graph/runtime model.
@@ -142,7 +142,7 @@ Its current role is:
 
 - stop hardcoding large HTML strings
 - prove out Ruby-native rendering patterns in real apps
-- give `examples/companion/apps/dashboard` a cleaner shape
+- give `examples/companion_legacy/apps/dashboard` a cleaner shape
 
 It is still intentionally small, but it now has enough structure to explore:
 
@@ -167,7 +167,7 @@ That matches the “lego-style” philosophy well.
 
 ## Practical pattern we are already learning
 
-`examples/companion/apps/dashboard` currently uses:
+`examples/companion_legacy/apps/dashboard` currently uses:
 
 - HTTP routes declared at the app layer
 - JSON handlers for machine access
@@ -239,7 +239,7 @@ Do not add a general-purpose view layer to core yet.
 
 Instead:
 
-1. keep evolving `examples/companion/apps/dashboard`
+1. keep evolving `examples/companion_legacy/apps/dashboard`
 2. keep views isolated under a clear namespace
 3. keep growing `Igniter::Plugins::View` only where repetition becomes obvious
 4. watch for repeated patterns in handlers, actions, forms, and rendering

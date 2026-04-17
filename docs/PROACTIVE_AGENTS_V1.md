@@ -244,7 +244,7 @@ end
 
 ## Companion example
 
-`examples/companion/apps/main/app/agents/` shows proactive agents in the context of
+`examples/companion_legacy/apps/main/app/agents/` shows proactive agents in the context of
 the stack-based voice assistant companion:
 
 | File | Agent | Mission |
@@ -254,7 +254,7 @@ the stack-based voice assistant companion:
 | `bin/demo` | All four agents | Self-contained, runnable demonstration |
 
 ```bash
-ruby examples/companion/bin/demo
+ruby examples/companion_legacy/bin/demo
 ```
 
 ---

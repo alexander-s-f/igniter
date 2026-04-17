@@ -147,7 +147,7 @@ This is a good default for:
 ## Canonical Examples
 
 The current canonical schemas live in
-[examples/companion/lib/companion/dashboard/view_schema_catalog.rb](/Users/alex/dev/projects/igniter/examples/companion/lib/companion/dashboard/view_schema_catalog.rb).
+[examples/companion_legacy/lib/companion/dashboard/view_schema_catalog.rb](/Users/alex/dev/projects/igniter/examples/companion_legacy/lib/companion/dashboard/view_schema_catalog.rb).
 
 They intentionally show two different authoring styles:
 
