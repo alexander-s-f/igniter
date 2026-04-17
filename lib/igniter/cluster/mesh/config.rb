@@ -31,6 +31,35 @@ module Igniter
         @identity ||= Igniter::Cluster::Identity::NodeIdentity.generate(node_id: @peer_name || "anonymous-node")
       end
 
+      def governance_log(path, archive: nil, retain_events: nil, retention_policy: nil)
+        @governance_trail = Igniter::Cluster::Governance::Trail.new(
+          store: Igniter::Cluster::Governance::Stores::FileStore.new(
+            path: path,
+            max_events: retain_events,
+            archive_path: archive,
+            retention_policy: retention_policy
+          )
+        )
+        self
+      end
+
+      def reload_governance_trail!
+        return @governance_trail unless @governance_trail&.store
+
+        @governance_trail = Igniter::Cluster::Governance::Trail.new(store: @governance_trail.store)
+      end
+
+      def governance_checkpoint(limit: 10, checkpointed_at: Time.now.utc.iso8601)
+        identity = ensure_identity!
+        Igniter::Cluster::Governance::Checkpoint.build(
+          identity: identity,
+          peer_name: @peer_name || identity.node_id,
+          trail: @governance_trail,
+          limit: limit,
+          checkpointed_at: checkpointed_at
+        )
+      end
+
       # Register a remote peer by name.
       #
       #   Igniter::Cluster::Mesh.configure do |c|

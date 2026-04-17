@@ -2,6 +2,7 @@
 
 require "spec_helper"
 require "igniter/cluster"
+require "tmpdir"
 
 RSpec.describe "Igniter Cluster identity and trust" do
   let(:identity) { Igniter::Cluster::Identity::NodeIdentity.generate(node_id: "seed-node") }
@@ -25,6 +26,41 @@ RSpec.describe "Igniter Cluster identity and trust" do
       node_id: "seed-node",
       algorithm: "rsa-sha256",
       fingerprint: kind_of(String)
+    )
+  end
+
+  it "builds a signed governance checkpoint that verifies with the trust store" do
+    trust_store = Igniter::Cluster::Trust::TrustStore.new(
+      [
+        { node_id: "seed-node", public_key: identity.public_key_pem, label: "bootstrap" }
+      ]
+    )
+    trail = Igniter::Cluster::Governance::Trail.new
+    trail.record(:routing_plan_applied, source: :spec, payload: { step: 1 })
+
+    checkpoint = Igniter::Cluster::Governance::Checkpoint.build(
+      identity: identity,
+      peer_name: "seed-node",
+      trail: trail,
+      limit: 5
+    )
+    assessment = Igniter::Cluster::Trust::Verifier.assess_governance_checkpoint(
+      checkpoint,
+      trust_store: trust_store
+    )
+
+    expect(checkpoint.verify_signature).to be(true)
+    expect(checkpoint.crest).to include(
+      total: 1,
+      latest_type: :routing_plan_applied,
+      by_type: { routing_plan_applied: 1 }
+    )
+    expect(checkpoint.crest_digest).to be_a(String)
+    expect(assessment.to_h).to include(
+      status: :trusted,
+      trusted: true,
+      node_id: "seed-node",
+      peer_name: "seed-node"
     )
   end
 
@@ -213,6 +249,78 @@ RSpec.describe "Igniter Cluster identity and trust" do
         routing_plan_applied: 1
       )
     )
+  ensure
+    Igniter::Cluster::Mesh.reset!
+  end
+
+  it "persists and reloads the cluster governance crest with retention" do
+    Igniter::Cluster::Mesh.reset!
+
+    Dir.mktmpdir do |dir|
+      path = File.join(dir, "cluster/governance.jsonl")
+      archive_path = File.join(dir, "cluster/governance.archive.jsonl")
+
+      Igniter::Cluster::Mesh.configure do |c|
+        c.governance_log(
+          path,
+          archive: archive_path,
+          retain_events: 3,
+          retention_policy: {
+            blocked: 1,
+            applied: 1,
+            default: 1
+          }
+        )
+      end
+
+      trail = Igniter::Cluster::Mesh.config.governance_trail
+      trail.record(:routing_plan_blocked, source: :spec, payload: { step: 1 })
+      trail.record(:routing_plan_blocked, source: :spec, payload: { step: 2 })
+      trail.record(:trust_admission_applied, source: :spec, payload: { step: 3 })
+      trail.record(:routing_plan_applied, source: :spec, payload: { step: 4 })
+      trail.record(:governance_tick, source: :spec, payload: { step: 5 })
+      trail.record(:governance_tick, source: :spec, payload: { step: 6 })
+
+      snapshot = trail.snapshot(limit: 10)
+      expect(snapshot).to include(
+        total: 3,
+        latest_type: :governance_tick,
+        by_type: {
+          routing_plan_blocked: 1,
+          routing_plan_applied: 1,
+          governance_tick: 1
+        },
+        persistence: include(
+          enabled: true,
+          path: path,
+          max_events: 3,
+          archive_path: archive_path,
+          archived_events: 3,
+          retention_policy: {
+            blocked: 1,
+            applied: 1,
+            default: 1
+          },
+          retained_by_class: {
+            blocked: 1,
+            applied: 1,
+            other: 1
+          }
+        )
+      )
+      expect(snapshot[:events].map { |event| event.dig(:payload, :step) }).to eq([2, 4, 6])
+
+      reloaded = Igniter::Cluster::Mesh.config.reload_governance_trail!
+      expect(reloaded.snapshot(limit: 10)).to include(
+        total: 3,
+        latest_type: :governance_tick,
+        persistence: include(
+          path: path,
+          archived_events: 3
+        )
+      )
+      expect(reloaded.snapshot(limit: 10)[:events].map { |event| event.dig(:payload, :step) }).to eq([2, 4, 6])
+    end
   ensure
     Igniter::Cluster::Mesh.reset!
   end

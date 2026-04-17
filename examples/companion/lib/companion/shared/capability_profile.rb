@@ -96,7 +96,8 @@ module Companion
             entries: profile[:trust_store].to_h[:entries]
           },
           governance: {
-            trail: Igniter::Cluster::Mesh.config.governance_trail.snapshot(limit: 5)
+            trail: Igniter::Cluster::Mesh.config.governance_trail.snapshot(limit: 5),
+            checkpoint: governance_checkpoint_snapshot
           },
           capabilities: {
             declared: profile[:declared_capabilities],
@@ -143,6 +144,24 @@ module Companion
         config.auto_announce = profile[:auto_announce]
         config.identity = profile[:identity]
         config.trust_store = profile[:trust_store]
+      end
+
+      def governance_checkpoint_snapshot
+        checkpoint = Igniter::Cluster::Mesh.config.governance_checkpoint(limit: 5)
+        assessment = Igniter::Cluster::Trust::Verifier.assess_governance_checkpoint(
+          checkpoint,
+          trust_store: Igniter::Cluster::Mesh.config.trust_store
+        )
+
+        {
+          node_id: checkpoint.node_id,
+          fingerprint: checkpoint.fingerprint,
+          crest_digest: checkpoint.crest_digest,
+          checkpointed_at: checkpoint.checkpointed_at,
+          trust: assessment.to_h
+        }
+      rescue StandardError
+        nil
       end
 
       def csv(value, default: [])

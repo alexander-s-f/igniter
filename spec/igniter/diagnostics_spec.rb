@@ -113,15 +113,22 @@ RSpec.describe "Igniter diagnostics" do
     expect(report[:cluster_governance]).to include(
       total: 1,
       latest_type: :trust_admission_applied,
-      by_type: include(trust_admission_applied: 1)
+      by_type: include(trust_admission_applied: 1),
+      persistence: include(enabled: false),
+      checkpoint: include(
+        node_id: "diag-seed",
+        trust: include(status: :trusted, trusted: true),
+        crest_digest: kind_of(String)
+      )
     )
     expect(text).to include("Cluster Identity: local=diag-seed")
-    expect(text).to include("Cluster Governance: total=1 latest=trust_admission_applied")
+    expect(text).to include("Cluster Governance: total=1 latest=trust_admission_applied persisted=false retain=all archived=0 checkpoint=trusted")
     expect(text).to include("attested=1")
     expect(markdown).to include("- Cluster Identity: local=`diag-seed`")
-    expect(markdown).to include("- Cluster Governance: total=1 latest=trust_admission_applied")
+    expect(markdown).to include("- Cluster Governance: total=1 latest=trust_admission_applied persisted=false retain=all archived=0 checkpoint=trusted")
     expect(markdown).to include("## Cluster Identity")
     expect(markdown).to include("## Cluster Governance")
+    expect(markdown).to include("- Checkpoint: node_id=`diag-seed` trust=`trusted`")
   ensure
     Igniter::Cluster::Mesh.reset!
   end
