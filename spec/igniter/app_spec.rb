@@ -1014,7 +1014,31 @@ RSpec.describe Igniter::App do
         include(
           code: :activate_sdk_capability,
           capability: :network,
-          suggested_sdk_capabilities: %i[ai channels]
+          suggested_sdk_capabilities: %i[ai channels],
+          plan: include(
+            action: :activate_sdk_capability,
+            scope: :app_sdk,
+            automated: false,
+            requires_approval: true,
+            params: include(capability: :network, sdk_capabilities: %i[ai channels])
+          )
+        )
+      )
+      expect(report[:app_sdk][:coverage][:facets]).to include(
+        by_status: { covered: 2, uncovered: 1, intrinsic: 1 },
+        by_remediation_code: { activate_sdk_capability: 1 },
+        by_plan_action: { activate_sdk_capability: 1 }
+      )
+      expect(report[:app_sdk][:coverage][:plans]).to contain_exactly(
+        include(
+          action: :activate_sdk_capability,
+          scope: :app_sdk,
+          automated: false,
+          requires_approval: true,
+          params: include(capability: :network, sdk_capabilities: %i[ai channels]),
+          sources: contain_exactly(
+            include(capability: :network, suggested_sdk_capabilities: %i[ai channels])
+          )
         )
       )
       expect(report[:app_sdk][:packs]).to include(
@@ -1029,6 +1053,7 @@ RSpec.describe Igniter::App do
       expect(text).to include("SDK: requested=2, activated=2")
       expect(text).to include("coverage=required=database, filesystem, network, pure, covered=database, filesystem, uncovered=network, intrinsic=pure")
       expect(text).to include("remediation=network->ai, channels")
+      expect(text).to include("plans=activate_sdk_capability(ai, channels)")
       expect(text).to include("contracts=1")
       expect(markdown).to include("## App")
       expect(markdown).to include("## App Host")
@@ -1044,6 +1069,7 @@ RSpec.describe Igniter::App do
       expect(markdown).to include("- Executor Capability `network` status=uncovered providers=none suggestions=ai, channels")
       expect(markdown).to include("- Executor Capability `database` status=covered providers=data")
       expect(markdown).to include("- Coverage Remediation: network->ai, channels")
+      expect(markdown).to include("- Coverage Plans: activate_sdk_capability(ai, channels)")
       expect(markdown).to include("- Packs: hosts=")
       expect(markdown).to include("cluster_app")
       expect(markdown).to include("filesystem")
@@ -1127,6 +1153,86 @@ RSpec.describe Igniter::App do
       expect(markdown).to include("## Cluster App Host")
       expect(markdown).to include("- Peer: name=`orders-node` local_url=`http://orders-node:5678`")
       expect(markdown).to include("- Server: host=`127.0.0.1` port=`5678` log_format=`text`")
+    end
+
+    it "builds and applies app SDK evolution plans from coverage gaps" do
+      network_executor = Class.new(Igniter::Executor) do
+        capabilities :network
+
+        def call(x:) = x + 1
+      end
+
+      klass = Class.new(Igniter::Contract) do
+        define do
+          input :x
+          compute :net_value, depends_on: :x, call: network_executor
+          output :net_value
+        end
+      end
+
+      app = stub_const("SpecEvolutionApp", Class.new(Igniter::App))
+
+      app.class_eval do
+        use :data
+        register "NetworkContract", klass
+      end
+
+      app.send(:build!)
+      contract = klass.new(x: 10)
+
+      plan = app.evolution_plan(contract)
+
+      expect(plan).to be_a(Igniter::App::Evolution::Plan)
+      expect(plan.summary).to include(
+        total: 1,
+        automated: 0,
+        approval_required: 1,
+        constrained: 1,
+        uncovered_capabilities: [:network],
+        by_action: { activate_sdk_capability: 1 }
+      )
+      expect(plan.actions).to contain_exactly(
+        include(
+          id: "app_sdk:activate_sdk_capability:network",
+          action: :activate_sdk_capability,
+          scope: :app_sdk,
+          automated: false,
+          requires_approval: true,
+          constraints: [:selection_required],
+          params: include(capability: :network, sdk_capabilities: %i[ai channels])
+        )
+      )
+
+      blocked = app.apply_evolution!(plan)
+
+      expect(blocked.status).to eq(:blocked)
+      expect(blocked.applied).to eq([])
+      expect(blocked.blocked).to contain_exactly(
+        include(
+          action: :activate_sdk_capability,
+          status: :blocked,
+          reason: :approval_required,
+          params: include(capability: :network, sdk_capabilities: %i[ai channels])
+        )
+      )
+      expect(app.sdk_capabilities).to eq([:data])
+
+      applied = app.apply_evolution!(plan, approve: true, selections: { network: :ai })
+
+      expect(applied.status).to eq(:applied)
+      expect(applied.blocked).to eq([])
+      expect(applied.applied).to contain_exactly(
+        include(
+          action: :activate_sdk_capability,
+          status: :applied,
+          capability: :network,
+          applied_sdk_capabilities: [:ai]
+        )
+      )
+      expect(app.sdk_capabilities).to contain_exactly(:ai, :data)
+      expect(contract.diagnostics.to_h.dig(:app_sdk, :requested_capabilities)).to contain_exactly(:ai, :data)
+      expect(contract.diagnostics.to_h.dig(:app_sdk, :coverage, :covered_capabilities)).to include(:network)
+      expect(contract.diagnostics.to_h.dig(:app_sdk, :coverage, :uncovered_capabilities)).to eq([])
     end
   end
 

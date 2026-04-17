@@ -68,6 +68,7 @@ module Igniter
               lines << "- Executor Capability `#{entry[:capability]}` status=#{entry[:status]} providers=#{list_or_none(entry[:providers])} suggestions=#{list_or_none(entry[:suggested_sdk_capabilities])}"
             end
             lines << "- Coverage Remediation: #{coverage_remediation_text(sdk[:coverage])}"
+            lines << "- Coverage Plans: #{coverage_plan_text(sdk[:coverage])}"
             lines << "- Packs: hosts=#{list_or_none(sdk.dig(:packs, :hosts))}; loaders=#{list_or_none(sdk.dig(:packs, :loaders))}; schedulers=#{list_or_none(sdk.dig(:packs, :schedulers))}"
           end
 
@@ -127,7 +128,40 @@ module Igniter
               uncovered_capabilities: entries.filter_map { |entry| entry[:capability] if entry[:status] == :uncovered },
               intrinsic_capabilities: entries.filter_map { |entry| entry[:capability] if entry[:status] == :intrinsic },
               entries: entries,
-              remediation: entries.filter_map { |entry| entry[:remediation] if entry[:remediation] }
+              remediation: entries.filter_map { |entry| entry[:remediation] if entry[:remediation] },
+              plans: summarize_coverage_plans(entries),
+              facets: summarize_coverage_facets(entries)
+            }
+          end
+
+          def summarize_coverage_plans(entries)
+            plans = {}
+
+            entries.each do |entry|
+              remediation = entry[:remediation]
+              next unless remediation
+
+              plan = remediation[:plan]
+              next unless plan
+
+              key = [plan[:action], plan[:scope], plan[:automated], plan[:requires_approval], plan[:params]].hash
+              plans[key] ||= plan.merge(sources: [])
+              plans[key][:sources] << {
+                capability: entry[:capability],
+                suggested_sdk_capabilities: remediation[:suggested_sdk_capabilities]
+              }
+            end
+
+            plans.values.each { |plan| plan[:sources] = plan[:sources].uniq.freeze }
+            plans.values.freeze
+          end
+
+          def summarize_coverage_facets(entries)
+            remediations = entries.filter_map { |entry| entry[:remediation] }
+            {
+              by_status: count_many(entries) { |entry| entry[:status] },
+              by_remediation_code: count_many(remediations) { |remediation| remediation[:code] },
+              by_plan_action: count_many(remediations) { |remediation| remediation.dig(:plan, :action) }
             }
           end
 
@@ -160,6 +194,7 @@ module Igniter
               "available=#{sdk[:available_count]}",
               "coverage=#{coverage_summary_text(sdk[:coverage])}",
               "remediation=#{coverage_remediation_text(sdk[:coverage])}",
+              "plans=#{coverage_plan_text(sdk[:coverage])}",
               "packs=hosts(#{list_or_none(sdk.dig(:packs, :hosts))})/loaders(#{list_or_none(sdk.dig(:packs, :loaders))})/schedulers(#{list_or_none(sdk.dig(:packs, :schedulers))})"
             ].join(", ")
           end
@@ -184,6 +219,15 @@ module Igniter
             end.join("; ")
           end
 
+          def coverage_plan_text(coverage)
+            plans = Array(coverage[:plans])
+            return "none" if plans.empty?
+
+            plans.map do |plan|
+              "#{plan[:action]}(#{list_or_none(plan[:params][:sdk_capabilities])})"
+            end.join("; ")
+          end
+
           def remediation_for(capability:, status:, providers:, suggested_sdk_capabilities:)
             return nil unless status == :uncovered
             return nil unless providers.empty?
@@ -193,8 +237,38 @@ module Igniter
               code: :activate_sdk_capability,
               capability: capability,
               suggested_sdk_capabilities: suggested_sdk_capabilities,
-              message: "Activate an SDK capability that provides #{capability}."
+              message: "Activate an SDK capability that provides #{capability}.",
+              plan: build_plan(
+                :activate_sdk_capability,
+                scope: :app_sdk,
+                automated: false,
+                requires_approval: true,
+                params: {
+                  capability: capability,
+                  sdk_capabilities: suggested_sdk_capabilities
+                }
+              )
             }
+          end
+
+          def build_plan(action, scope:, automated:, requires_approval:, params: {})
+            {
+              action: action,
+              scope: scope,
+              automated: automated,
+              requires_approval: requires_approval,
+              params: params.compact
+            }
+          end
+
+          def count_many(entries)
+            entries.each_with_object(Hash.new(0)) do |entry, memo|
+              Array(yield(entry)).each do |key|
+                next if key.nil?
+
+                memo[key] += 1
+              end
+            end
           end
 
           def list_or_none(values)

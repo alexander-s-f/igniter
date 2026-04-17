@@ -2,6 +2,7 @@
 
 require_relative "app/runtime"
 require_relative "app/diagnostics"
+require_relative "app/evolution"
 require_relative "stack"
 
 module Igniter
@@ -250,6 +251,15 @@ module Igniter
         config = build!
         start_scheduler(config)
         host.rack_app(config: config)
+      end
+
+      def evolution_plan(target)
+        Evolution::Planner.new(app_class: self).plan(target)
+      end
+
+      def apply_evolution!(target, approve: false, selections: {})
+        plan = target.is_a?(Evolution::Plan) ? target : evolution_plan(target)
+        Evolution::Runner.new(app_class: self).run(plan, approve: approve, selections: selections)
       end
 
       # Expose the AppConfig (populated after the first build!).
