@@ -33,9 +33,10 @@ If you want the shortest orientation:
 ### I want distributed or resilient execution
 
 1. [Cluster](./cluster/README.md)
-2. [Cluster Next](./cluster/ROADMAP_NEXT.md)
-3. [SDK](./sdk/README.md)
-4. Cluster-oriented scripts in [examples](../examples/README.md)
+2. [Cluster State Snapshot](./cluster/STATE_NEXT.md)
+3. [Cluster Next](./cluster/ROADMAP_NEXT.md)
+4. [SDK](./sdk/README.md)
+5. Cluster-oriented scripts in [examples](../examples/README.md)
 
 ### I want to contribute to the framework itself
 

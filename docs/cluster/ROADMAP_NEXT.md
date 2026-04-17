@@ -4,6 +4,8 @@ This document fixes the current direction for `Igniter::Cluster`.
 
 It is not a frozen product roadmap. It is the architectural program for the next stage of cluster development while the codebase is still free to evolve aggressively.
 
+For the current implemented state, see [Cluster State Snapshot](./STATE_NEXT.md).
+
 ## Current Thesis
 
 `Igniter::Cluster` is a capability-driven, trust-aware, self-observing mesh.

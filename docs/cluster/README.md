@@ -14,6 +14,7 @@ The cluster layer should stay above `core` and `app`. It is not the place to red
 
 ## Read First
 
+- [Cluster State Snapshot](./STATE_NEXT.md)
 - [Cluster Next](./ROADMAP_NEXT.md)
 - [Distributed Contracts v1](../DISTRIBUTED_CONTRACTS_V1.md)
 - [Mesh v1](../MESH_V1.md)
@@ -40,4 +41,5 @@ The cluster layer should stay above `core` and `app`. It is not the place to red
 
 ## Direction
 
-If you want the current development direction rather than the historical reference, start with [Cluster Next](./ROADMAP_NEXT.md).
+If you want the current implemented state, start with [Cluster State Snapshot](./STATE_NEXT.md).
+If you want the development direction beyond that, continue to [Cluster Next](./ROADMAP_NEXT.md).
