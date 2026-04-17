@@ -8,14 +8,6 @@ require "igniter/app/scaffold_pack"
 require "tmpdir"
 
 RSpec.describe Igniter::App do
-  around do |example|
-    previous_context = Igniter::App::RuntimeContext.current
-    Igniter::App::RuntimeContext.current = nil
-    example.run
-  ensure
-    Igniter::App::RuntimeContext.current = previous_context
-  end
-
   # Minimal contract for registration tests
   let(:sample_contract_class) do
     Class.new(Igniter::Contract) do
@@ -929,11 +921,99 @@ RSpec.describe Igniter::App do
         configured: true,
         store_class: "Igniter::Runtime::Stores::MemoryStore"
       )
+      expect(report[:app_host]).to include(
+        host: "0.0.0.0",
+        port: 4567,
+        log_format: :text,
+        drain_timeout: 30,
+        routes: 1
+      )
       expect(text).to include("App: runtime=SpecDiagnosticsApp")
+      expect(text).to include("App Host: host=0.0.0.0, port=4567, log_format=text, routes=1")
       expect(text).to include("contracts=1")
       expect(markdown).to include("## App")
+      expect(markdown).to include("## App Host")
       expect(markdown).to include("- Runtime: `SpecDiagnosticsApp` host=`app` loader=`filesystem` scheduler=`threaded`")
       expect(markdown).to include("- Contracts: total=1, names=SampleContract")
+    end
+
+    it "exposes cluster host diagnostics through a dedicated contributor" do
+      klass = sample_contract_class
+      app = stub_const("SpecClusterDiagnosticsApp", Class.new(Igniter::App))
+
+      app.class_eval do
+        host :cluster_app
+        register "SampleContract", klass
+        configure do |c|
+          c.app_host.host = "127.0.0.1"
+          c.app_host.port = 5678
+          c.cluster_app_host.peer_name = "orders-node"
+          c.cluster_app_host.local_capabilities = %i[shell_exec orders]
+          c.cluster_app_host.local_tags = %i[linux gpu]
+          c.cluster_app_host.local_metadata = {
+            region: "eu-central",
+            trust: { score: 0.95 }
+          }
+          c.cluster_app_host.seeds = ["http://seed:4567"]
+          c.cluster_app_host.discovery_interval = 15
+          c.cluster_app_host.auto_announce = false
+          c.cluster_app_host.local_url = "http://orders-node:5678"
+          c.cluster_app_host.gossip_fanout = 5
+          c.cluster_app_host.start_discovery = true
+          c.cluster_app_host.add_peer(
+            "seed-a",
+            url: "http://seed-a:4567",
+            capabilities: [:orders],
+            tags: [:linux],
+            metadata: { region: "eu-central" }
+          )
+        end
+      end
+
+      app.send(:build!)
+      contract = klass.new(x: 10)
+
+      report = contract.diagnostics.to_h
+      text = contract.diagnostics_text
+      markdown = contract.diagnostics_markdown
+
+      expect(report[:app]).to include(
+        app_name: "SpecClusterDiagnosticsApp",
+        host: :cluster_app
+      )
+      expect(report[:cluster_app_host]).to include(
+        peer_name: "orders-node",
+        local_capabilities: %i[orders shell_exec],
+        local_tags: %i[gpu linux],
+        local_metadata_keys: %w[region trust],
+        seeds: ["http://seed:4567"],
+        seed_count: 1,
+        static_peer_count: 1,
+        discovery_interval: 15,
+        auto_announce: false,
+        local_url: "http://orders-node:5678",
+        gossip_fanout: 5,
+        start_discovery: true
+      )
+      expect(report[:cluster_app_host][:server]).to include(
+        host: "127.0.0.1",
+        port: 5678,
+        log_format: :text,
+        drain_timeout: 30
+      )
+      expect(report[:cluster_app_host][:static_peers]).to contain_exactly(
+        include(
+          name: "seed-a",
+          url: "http://seed-a:4567",
+          capabilities: [:orders],
+          tags: [:linux],
+          metadata_keys: ["region"]
+        )
+      )
+      expect(text).to include("Cluster Host: peer=orders-node, capabilities=2, tags=2, seeds=1, static_peers=1")
+      expect(markdown).to include("## Cluster App Host")
+      expect(markdown).to include("- Peer: name=`orders-node` local_url=`http://orders-node:5678`")
+      expect(markdown).to include("- Server: host=`127.0.0.1` port=`5678` log_format=`text`")
     end
   end
 
