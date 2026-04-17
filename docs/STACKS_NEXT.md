@@ -147,14 +147,12 @@ persistence:
 
 ## What Moves Out Of The Center
 
-These concepts are no longer the canonical center of stack architecture:
+These concepts are no longer part of the supported stack model:
 
 - `topology.yml`
 - `default_service`
 - `replicas`
 - deployment-role-driven app boot
-
-Some of them may continue to exist as compatibility or deployment helpers, but they should not define the mental model.
 
 ## Important Distinction
 
@@ -167,15 +165,13 @@ That means:
 - cluster behavior comes from runtime identity/capabilities/trust
 - not from a static topology document pretending to be the source of truth
 
-## Compatibility Direction
-
-We can keep legacy `services/topology` support temporarily where useful.
-
-But the preferred direction is now:
+The preferred direction is now:
 
 1. stack-mounted runtime by default
 2. node profiles in `stack.yml` for local multi-node boot
 3. apps as portable mounted modules
+
+Legacy `services/topology` compatibility has been removed from the canonical stack runtime.
 
 ## One-Line Rule
 

@@ -1,5 +1,13 @@
 # Igniter::Stack v1
 
+Historical note:
+
+- this document captures the older service/topology-oriented stack model
+- for the current preferred direction, start with [STACKS_NEXT.md](./STACKS_NEXT.md)
+- new stacks should prefer `stack.rb` + `stack.yml`, mounted apps, and optional node profiles
+- `config/topology.yml`, `default_service`, and `--service` below are historical only and no longer part of the supported stack runtime
+- this file remains useful when maintaining or migrating older stacks
+
 `Igniter::Stack` is the root coordinator for the standard Igniter app layout.
 
 It treats `apps/` as the primary unit of composition:
@@ -14,7 +22,7 @@ Historically this often looked like “one app, one deployable process”.
 That is no longer the preferred direction.
 
 `Igniter::App` remains the leaf runtime for an app-shaped code boundary.
-`Igniter::Stack` is moving toward service-oriented runtime grouping. See
+`Igniter::Stack` is now moving toward stack-first mounted runtime with node profiles. See
 [STACKS_NEXT.md](./STACKS_NEXT.md).
 
 ---
@@ -113,8 +121,8 @@ Available methods:
 - `rack_service(name = nil)` — return a Rack app for a named runtime service.
 
 `stack.yml` is the place for stack-level metadata and shared defaults such as
-data-store settings. Unlike `apps/<name>/app.yml`, it is not the leaf app config;
-service/runtime grouping should increasingly live in topology.
+data-store settings. In the current preferred model it also becomes the main place
+for node profiles, while `config/topology.yml` remains part of the historical model only.
 
 `config/topology.yml` is the place for deployment-time wiring:
 
@@ -187,12 +195,13 @@ cd my_app
 bundle install
 bundle exec rspec   # stack + app-local specs
 bin/start         # starts apps/main
-bin/start --service main    # explicit service selection
+bin/start --node main       # preferred explicit node selection
 ruby bin/demo
 ```
 
-`config.ru` now typically defaults to the stack's default service unless
-`IGNITER_SERVICE` is set.
+Newly generated `config.ru` files now typically default to the stack's default node unless
+`IGNITER_NODE` is set. The older service-based examples below remain relevant only for
+legacy topology-oriented stacks.
 
 `stack.rb` and generated `bin/start` also understand deployment-aware launch options:
 

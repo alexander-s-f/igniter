@@ -1,5 +1,12 @@
 # Igniter::App v1
 
+Historical note:
+
+- this document describes the older app/service reading
+- for the current preferred model, start with [Stacks Next](./STACKS_NEXT.md) and [docs/app/README.md](./app/README.md)
+- new stacks should prefer `stack.rb` + `stack.yml`, mounted apps, and optional node profiles
+- the `--service` / `rack_service` model below is historical and no longer part of the supported stack runtime
+
 `Igniter::App` is the leaf runtime for one app inside an Igniter stack.
 
 In the older reading this often implied “one app, one process”. That is no longer
@@ -149,14 +156,14 @@ If it uses skills, providers, or `Igniter::AI.configure`, also load `require "ig
 
 ```bash
 bin/start
-bin/start --service main
+bin/start --node main
 
 # Rack / Puma
 bundle exec puma config.ru
 ```
 
-The generated root `stack.rb` is a stack coordinator; in the vNext model it
-selects a runtime service, which may host one or more apps.
+The generated root `stack.rb` is a stack coordinator; in the current preferred model it
+owns the mounted runtime and may optionally be launched under one or more local node profiles.
 
 ---
 
@@ -249,8 +256,8 @@ configure do |c|
 end
 ```
 
-In service-first stacks, `app_host` should be treated as app-local host defaults,
-not as the canonical place to allocate deployment ports.
+In the current stack-first model, `app_host` should be treated as app-local host defaults,
+not as the canonical place to allocate deployment ports or runtime node identity.
 
 ### `executors_path(path)` / `contracts_path(path)`
 
@@ -370,9 +377,9 @@ configure do |c|
 end
 ```
 
-In the vNext Stack/App model, prefer stack/service topology for deployment ports
-and public exposure. Keep `app_host` for app-local defaults when the app truly
-needs them.
+In the current stack-first model, prefer stack-level server defaults and optional
+node profiles for deployment ports and public exposure. Keep `app_host` for
+app-local defaults when the app truly needs them.
 
 ---
 
@@ -389,8 +396,8 @@ Same as `start` but returns a Rack-compatible application instead of blocking. U
 ```ruby
 # config.ru
 require_relative "stack"
-service = ENV["IGNITER_SERVICE"] || ENV["IGNITER_APP"] || "main"
-run MyApp::Stack.rack_service(service)
+node = ENV["IGNITER_NODE"]
+run MyApp::Stack.rack_node(node)
 ```
 
 ```bash
@@ -455,7 +462,7 @@ ruby examples/companion/bin/demo
 
 ```bash
 # Fresh cluster sandbox:
-bundle exec ruby examples/companion/stack.rb --service seed
+bundle exec ruby examples/companion/stack.rb --node seed
 ```
 
 **See also:** [`examples/companion/README.md`](../examples/companion/README.md) and

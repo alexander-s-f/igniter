@@ -35,6 +35,18 @@ Use this section when Igniter becomes the runtime shape of an application, not j
 
 1. Start with core contracts.
 2. Wrap them in an app profile.
-3. Group apps into runtime services only when isolation or deployment needs justify it.
-4. Add only the SDK packs the app actually needs.
-5. Graduate to cluster only when distributed behavior is truly required.
+3. Mount apps into one stack runtime by default.
+4. Add local node profiles only when you actually need multi-instance local boot.
+5. Add only the SDK packs the app actually needs.
+6. Graduate to cluster only when distributed behavior is truly required.
+
+## Canonical Shape
+
+The preferred app/runtime shape is now:
+
+- `stack.rb` defines apps and mounts
+- `stack.yml` defines root app, persistence, and optional node profiles
+- `Igniter::Stack` owns the server/runtime container
+- `Igniter::App` stays a portable mounted module
+
+Legacy `service/topology` support has been removed from the canonical stack runtime. Read older V1 docs as historical context only.

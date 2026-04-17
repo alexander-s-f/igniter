@@ -16,7 +16,7 @@ Start here if you want the shortest accurate map of Igniter's structure.
 | Data SDK pack | `Igniter::Data` / `require "igniter/sdk/data"` | JSON-first stores for app records, notes, bindings, and lightweight app data |
 | Server | `Igniter::Server` / `require "igniter/server"` | HTTP hosting, Rack app, remote execution transport; activation is explicit |
 | App | `Igniter::App` / `require "igniter/app"` | single-node app runtime profile: config, autoloading, scheduler, host-adapter seam |
-| Stack | `Igniter::Stack` / `require "igniter/stack"` | stack coordinator: shared paths, app registry, topology-aware boot/rack routing |
+| Stack | `Igniter::Stack` / `require "igniter/stack"` | stack coordinator: shared paths, app registry, mounted runtime, optional node profiles |
 | App Runtime | `Igniter::App` / `require "igniter/app/runtime"` | narrow leaf runtime entrypoint without stack umbrella |
 | Cluster | `Igniter::Cluster` / `require "igniter/cluster"` | network runtime: consensus, mesh, replication, cluster-aware routing |
 | Plugins | `Igniter::Plugins::*` / `require "igniter/plugins/<name>"` | framework-specific integrations |
@@ -43,7 +43,7 @@ Practical rules:
 - `sdk/*` may depend on core, and must stay explicit.
 - `Server` may depend on core and optional upper capability layers.
 - `App` is a profile over `Server`, not a sibling capability layer.
-- `Igniter::Stack` coordinates leaf apps; `Igniter::App` remains the leaf runtime.
+- `Igniter::Stack` coordinates mounted apps and optional node profiles; `Igniter::App` remains the leaf runtime.
 - `Cluster` sits above `Server`.
 - Plugins adapt external frameworks into Igniter layers; they do not redefine the core.
 
