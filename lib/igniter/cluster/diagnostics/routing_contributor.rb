@@ -204,6 +204,7 @@ module Igniter
               reasons: reasons,
               mismatch_dimensions: mismatch_dimensions,
               trust_keys: normalized_hash_keys(trust),
+              candidate_peers: rejected_peer_names(trace),
               decision_mode: hash_value(decision || {}, :mode),
               decision_actions: Array(hash_value(decision || {}, :actions)).compact,
               risky_actions: Array(hash_value(decision || {}, :risky)).compact,
@@ -323,18 +324,19 @@ module Igniter
 
           def trust_gate_hints(classification)
             trust_keys = classification[:trust_keys]
+            peer_candidates = classification[:candidate_peers]
 
             [
               build_hint(
                 :admit_trusted_peer,
                 "Admit or bootstrap a peer whose identity and attestation satisfy the requested trust constraints.",
-                { trust_keys: trust_keys },
+                { trust_keys: trust_keys, peer_candidates: peer_candidates },
                 plan: build_plan(
                   :admit_trusted_peer,
                   scope: :routing_trust,
                   automated: false,
                   requires_approval: true,
-                  params: { trust_keys: trust_keys }
+                  params: { trust_keys: trust_keys, peer_candidates: peer_candidates }
                 )
               ),
               build_hint(
@@ -350,6 +352,14 @@ module Igniter
                 )
               )
             ]
+          end
+
+          def rejected_peer_names(trace)
+            Array(hash_value(trace, :peers)).filter_map do |peer|
+              next unless Array(hash_value(peer, :reasons)).map(&:to_sym).include?(:query_mismatch)
+
+              hash_value(peer, :name)
+            end.uniq.sort
           end
 
           def capacity_hints(classification, trace, query)

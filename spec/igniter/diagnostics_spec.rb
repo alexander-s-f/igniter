@@ -86,6 +86,11 @@ RSpec.describe "Igniter diagnostics" do
         )
       )
     end
+    Igniter::Cluster::Mesh.config.governance_trail.record(
+      :trust_admission_applied,
+      source: :spec,
+      payload: { peer_name: "diag-edge", node_id: "diag-edge" }
+    )
 
     contract = contract_class.new(order_total: 100, country: "UA")
     report = contract.diagnostics.to_h
@@ -105,10 +110,18 @@ RSpec.describe "Igniter diagnostics" do
         )
       )
     )
+    expect(report[:cluster_governance]).to include(
+      total: 1,
+      latest_type: :trust_admission_applied,
+      by_type: include(trust_admission_applied: 1)
+    )
     expect(text).to include("Cluster Identity: local=diag-seed")
+    expect(text).to include("Cluster Governance: total=1 latest=trust_admission_applied")
     expect(text).to include("attested=1")
     expect(markdown).to include("- Cluster Identity: local=`diag-seed`")
+    expect(markdown).to include("- Cluster Governance: total=1 latest=trust_admission_applied")
     expect(markdown).to include("## Cluster Identity")
+    expect(markdown).to include("## Cluster Governance")
   ensure
     Igniter::Cluster::Mesh.reset!
   end
@@ -887,7 +900,10 @@ RSpec.describe "Igniter diagnostics" do
           scope: :routing_trust,
           automated: false,
           requires_approval: true,
-          params: include(trust_keys: contain_exactly(:identity, :attestation))
+          params: include(
+            trust_keys: contain_exactly(:identity, :attestation),
+            peer_candidates: ["orders-unknown"]
+          )
         ),
         include(
           action: :relax_trust_requirements,
@@ -908,7 +924,10 @@ RSpec.describe "Igniter diagnostics" do
           remediation: contain_exactly(
             include(
               code: :admit_trusted_peer,
-              details: include(trust_keys: contain_exactly(:identity, :attestation)),
+              details: include(
+                trust_keys: contain_exactly(:identity, :attestation),
+                peer_candidates: ["orders-unknown"]
+              ),
               plan: include(action: :admit_trusted_peer, scope: :routing_trust, automated: false, requires_approval: true)
             ),
             include(

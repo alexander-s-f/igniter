@@ -37,6 +37,8 @@ RSpec.describe Companion::MainApp do
     expect(payload.dig("current_node", "node", "name")).to eq("companion-seed")
     expect(payload.dig("current_node", "identity", "node_id")).to eq("companion-seed")
     expect(payload.dig("current_node", "trust", "known_peers")).to eq(3)
+    expect(payload.dig("current_node", "trust", "entries").size).to eq(3)
+    expect(payload.dig("current_node", "governance", "trail", "total")).to eq(0)
     expect(payload.dig("current_node", "capabilities", "mocked")).to include("notifications")
     expect(payload.dig("services", "seed", "apps")).to eq(%w[main dashboard])
     expect(payload.dig("services", "edge", "port")).to eq(4668)

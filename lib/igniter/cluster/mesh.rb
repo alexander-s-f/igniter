@@ -53,6 +53,24 @@ module Igniter
           @discovery ||= Discovery.new(config)
         end
 
+        def trust_admission_plan(peer_name, label: nil)
+          Igniter::Cluster::Trust::AdmissionPlanner.new(config: config).plan(peer_name, label: label)
+        end
+
+        def admit_trusted_peer!(peer_name, approve: false, label: nil)
+          plan = trust_admission_plan(peer_name, label: label)
+          Igniter::Cluster::Trust::AdmissionRunner.new(config: config).run(plan, approve: approve)
+        end
+
+        def execute_routing_plan!(plan, approve: false, peer_name: nil, label: nil)
+          Igniter::Cluster::RoutingPlanExecutor.new(config: config).run(
+            plan,
+            approve: approve,
+            peer_name: peer_name,
+            label: label
+          )
+        end
+
         def reset!
           stop_discovery!
           @config = nil

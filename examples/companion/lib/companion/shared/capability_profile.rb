@@ -92,7 +92,11 @@ module Companion
             algorithm: profile[:identity].algorithm
           },
           trust: {
-            known_peers: profile[:trust_store].size
+            known_peers: profile[:trust_store].size,
+            entries: profile[:trust_store].to_h[:entries]
+          },
+          governance: {
+            trail: Igniter::Cluster::Mesh.config.governance_trail.snapshot(limit: 5)
           },
           capabilities: {
             declared: profile[:declared_capabilities],

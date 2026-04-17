@@ -7,7 +7,7 @@ module Igniter
     class Config
       attr_accessor :peer_name, :local_capabilities, :local_tags, :local_metadata,
                     :seeds, :discovery_interval, :auto_announce, :local_url, :gossip_fanout,
-                    :identity, :trust_store
+                    :identity, :trust_store, :governance_trail
       attr_reader   :peers, :peer_registry
 
       def initialize
@@ -24,6 +24,7 @@ module Igniter
         @gossip_fanout      = 3
         @identity           = nil
         @trust_store        = Igniter::Cluster::Trust::TrustStore.new
+        @governance_trail   = Igniter::Cluster::Governance::Trail.new
       end
 
       def ensure_identity!
