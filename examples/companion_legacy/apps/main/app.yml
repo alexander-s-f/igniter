@@ -1,0 +1,10 @@
+app_host:
+  port: 4567
+  host: "0.0.0.0"
+  log_format: text   # text | json
+  drain_timeout: 30
+
+persistence:
+  execution:
+    adapter: memory   # memory | sqlite | redis
+    path: var/main_executions.sqlite3
