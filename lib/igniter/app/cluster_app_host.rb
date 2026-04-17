@@ -39,10 +39,13 @@ module Igniter
         local_capabilities = Array(cluster_settings[:local_capabilities]).map(&:to_sym)
         local_tags = Array(cluster_settings[:local_tags]).map(&:to_sym)
         local_metadata = Hash(cluster_settings[:local_metadata] || {})
+        trust_store = cluster_settings[:trust_store] || Igniter::Cluster::Trust::TrustStore.new
         server_config.peer_name = cluster_settings[:peer_name]
         server_config.peer_capabilities = local_capabilities
         server_config.peer_tags = local_tags
         server_config.peer_metadata = local_metadata
+        server_config.peer_identity = cluster_settings[:identity]
+        server_config.peer_trust_store = trust_store
 
         Igniter::Cluster::Mesh.reset!
         Igniter::Cluster::Mesh.configure do |c|
@@ -55,6 +58,8 @@ module Igniter
           c.auto_announce = cluster_settings[:auto_announce]
           c.local_url = cluster_settings[:local_url]
           c.gossip_fanout = cluster_settings[:gossip_fanout]
+          c.identity = cluster_settings[:identity]
+          c.trust_store = trust_store
 
           Array(cluster_settings[:peers]).each do |peer|
             c.add_peer(

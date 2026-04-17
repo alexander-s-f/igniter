@@ -1,8 +1,9 @@
-# Companion — Stack Voice Assistant Demo
+# Companion Legacy — Voice Assistant Reference
 
-`examples/companion` is the canonical stack-style Igniter demo.
+`examples/companion_legacy` is the archived but still runnable voice-assistant
+reference workspace.
 
-It now combines both goals:
+It keeps the richer pre-refresh shape:
 
 - show the standard `Igniter::Stack` project shape
 - demonstrate a realistic voice assistant split into `apps/main` and `apps/inference`
@@ -13,20 +14,20 @@ It now combines both goals:
 From the repository root:
 
 ```bash
-bundle exec ruby examples/companion/bin/demo
-bundle exec ruby examples/companion/stack.rb main
-bundle exec ruby examples/companion/stack.rb inference
-bundle exec ruby examples/companion/stack.rb dashboard
+bundle exec ruby examples/companion_legacy/bin/demo
+bundle exec ruby examples/companion_legacy/stack.rb --service main
+bundle exec ruby examples/companion_legacy/stack.rb --service inference
+bundle exec ruby examples/companion_legacy/stack.rb --service dashboard
 ```
 
 Or from inside the example:
 
 ```bash
-cd examples/companion
+cd examples/companion_legacy
 bin/demo
 bin/dev
 bin/start
-bin/start inference
+bin/start --service inference
 bin/start --role admin
 bin/start --env production --role api
 ```
@@ -152,7 +153,7 @@ including a submission detail page with payload inspection, normalization diff, 
 ## Structure
 
 ```text
-examples/companion/
+examples/companion_legacy/
 ├── stack.rb
 ├── stack.yml
 ├── config/
@@ -199,27 +200,27 @@ Use the stack-level specs for shared and integration behavior, and the app-local
 for role-specific behavior:
 
 ```bash
-bundle exec rspec examples/companion/spec
-bundle exec rspec examples/companion/apps/main/spec
-bundle exec rspec examples/companion/apps/inference/spec
-bundle exec rspec examples/companion/apps/dashboard/spec
+bundle exec rspec examples/companion_legacy/spec
+bundle exec rspec examples/companion_legacy/apps/main/spec
+bundle exec rspec examples/companion_legacy/apps/inference/spec
+bundle exec rspec examples/companion_legacy/apps/dashboard/spec
 ```
 
 ## Deployment Reference
 
 Companion now includes a canonical deployment layout under `config/`:
 
-- [config/topology.yml](/Users/alex/dev/projects/igniter/examples/companion/config/topology.yml) describes runtime services, deployment roles, and wiring
-- [config/environments/development.yml](/Users/alex/dev/projects/igniter/examples/companion/config/environments/development.yml) is the local overlay for dev-style boot
-- [config/environments/production.yml](/Users/alex/dev/projects/igniter/examples/companion/config/environments/production.yml) is the production-oriented overlay
-- [config/deploy/Dockerfile](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/Dockerfile) is the shared container image
-- [config/deploy/Procfile.dev](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/Procfile.dev) is the generated local multi-process dev profile
-- [config/deploy/compose.yml](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/compose.yml) starts `main`, `inference`, and `dashboard` together
+- [config/topology.yml](/Users/alex/dev/projects/igniter/examples/companion_legacy/config/topology.yml) describes runtime services, deployment roles, and wiring
+- [config/environments/development.yml](/Users/alex/dev/projects/igniter/examples/companion_legacy/config/environments/development.yml) is the local overlay for dev-style boot
+- [config/environments/production.yml](/Users/alex/dev/projects/igniter/examples/companion_legacy/config/environments/production.yml) is the production-oriented overlay
+- [config/deploy/Dockerfile](/Users/alex/dev/projects/igniter/examples/companion_legacy/config/deploy/Dockerfile) is the shared container image
+- [config/deploy/Procfile.dev](/Users/alex/dev/projects/igniter/examples/companion_legacy/config/deploy/Procfile.dev) is the generated local multi-process dev profile
+- [config/deploy/compose.yml](/Users/alex/dev/projects/igniter/examples/companion_legacy/config/deploy/compose.yml) starts `main`, `inference`, and `dashboard` together
 
 From the repository root:
 
 ```bash
-docker compose -f examples/companion/config/deploy/compose.yml up --build
+docker compose -f examples/companion_legacy/config/deploy/compose.yml up --build
 ```
 
 This deployment config is intentionally separate from `apps/*/app.yml`:
@@ -250,7 +251,7 @@ bin/start --write-compose
 Run the dashboard app:
 
 ```bash
-cd examples/companion
+cd examples/companion_legacy
 bin/start --service dashboard
 ```
 
@@ -268,9 +269,8 @@ per-app execution-store summaries.
 The previous pre-generator-refresh version of this example is intentionally treated
 as historical context rather than a current entrypoint.
 
-The current `examples/companion` is the clean baseline regenerated from the current
-stack/app scaffold and then selectively migrated forward. The legacy version is still
-useful for:
+The current `examples/companion` is now the clean cluster-next sandbox. This legacy
+workspace was migrated forward only enough to stay runnable and useful for:
 
 - historical comparison during migration
 - checking older deployment and app-shape decisions

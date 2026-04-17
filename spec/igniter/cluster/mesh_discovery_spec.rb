@@ -152,18 +152,22 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
       expect(Igniter::Server::Client).to have_received(:new).with("http://seed1:4567", timeout: 5)
       expect(Igniter::Server::Client).to have_received(:new).with("http://seed2:4567", timeout: 5)
       expect(client_double).to have_received(:register_peer).twice.with(
-        name: "api-node",
-        url: "http://api.internal:4567",
-        capabilities: %i[api],
-        tags: %i[linux],
-        metadata: hash_including(
-          zone: "eu-1",
-          mesh: hash_including(
-            confidence: 1.0,
-            hops: 0,
-            origin: "api-node",
-            observed_at: kind_of(String)
-          )
+        manifest: an_object_having_attributes(
+          peer_name: "api-node",
+          node_id: "api-node",
+          url: "http://api.internal:4567",
+          capabilities: %i[api],
+          tags: %i[linux],
+          metadata: hash_including(
+            zone: "eu-1",
+            mesh: hash_including(
+              confidence: 1.0,
+              hops: 0,
+              origin: "api-node",
+              observed_at: kind_of(String)
+            )
+          ),
+          signature: kind_of(String)
         )
       )
     end

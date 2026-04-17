@@ -27,6 +27,7 @@ RSpec.describe Companion::DashboardApp do
     expect(payload.dig("stack", "default_service")).to eq("seed")
     expect(payload.dig("services", "seed", "apps")).to eq(%w[main dashboard])
     expect(payload.dig("current_node", "node", "service")).to eq("seed")
+    expect(payload.dig("current_node", "identity", "node_id")).to eq("companion-seed")
     expect(payload.dig("counts", "notes")).to eq(0)
   end
 

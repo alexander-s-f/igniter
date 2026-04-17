@@ -2,6 +2,7 @@
 
 require_relative "mesh/errors"
 require_relative "mesh/peer_metadata"
+require_relative "mesh/peer_identity_envelope"
 require_relative "mesh/peer"
 require_relative "mesh/peer_registry"
 require_relative "mesh/config"

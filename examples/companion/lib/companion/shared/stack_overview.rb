@@ -38,7 +38,8 @@ module Companion
             apps: Companion::Stack.app_names.size,
             services: services.size,
             notes: notes.size,
-            discovered_peers: CapabilityProfile.discovered_peers.size
+            discovered_peers: CapabilityProfile.discovered_peers.size,
+            trusted_peers: CapabilityProfile.discovered_peers.count { |peer| peer.dig(:trust, :status) == :trusted }
           },
           notes: notes.first(8),
           current_node: CapabilityProfile.discovery_snapshot,

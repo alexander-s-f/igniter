@@ -90,18 +90,30 @@ module Igniter
         def handle(params:, body:) # rubocop:disable Lint/UnusedMethodArgument, Metrics/AbcSize
           return json_error("Igniter::Cluster::Mesh is not loaded", status: 422) unless defined?(Igniter::Cluster::Mesh)
 
-          name = body["name"].to_s.strip
-          url  = body["url"].to_s.strip
+          attributes = Igniter::Cluster::Mesh::PeerIdentityEnvelope.build(
+            source: body,
+            trust_store: Igniter::Cluster::Mesh.config.trust_store
+          )
+
+          name = attributes[:name].to_s.strip
+          url = attributes[:url].to_s.strip
           return json_error("name is required", status: 400) if name.empty?
           return json_error("url is required",  status: 400) if url.empty?
 
-          caps = Array(body["capabilities"]).map(&:to_sym)
-          tags = Array(body["tags"]).map(&:to_sym)
-          metadata = body["metadata"].is_a?(Hash) ? body["metadata"] : {}
-          peer = Igniter::Cluster::Mesh::Peer.new(name: name, url: url, capabilities: caps, tags: tags, metadata: metadata)
+          peer = Igniter::Cluster::Mesh::Peer.new(
+            name: name,
+            url: url,
+            capabilities: attributes[:capabilities] || [],
+            tags: attributes[:tags] || [],
+            metadata: attributes[:metadata] || {}
+          )
           Igniter::Cluster::Mesh.config.peer_registry.register(peer)
 
-          json_ok({ "registered" => true, "name" => name })
+          json_ok({
+                    "registered" => true,
+                    "name" => name,
+                    "trust" => peer.metadata.dig(:mesh_trust, :status)&.to_s
+                  })
         end
       end
 

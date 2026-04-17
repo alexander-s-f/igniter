@@ -12,7 +12,7 @@ module Igniter
       # capabilities", "at least one of these", "none of these", and "with these
       # tags".
       class CapabilityQuery
-        attr_reader :name, :all_of, :any_of, :none_of, :tags, :metadata, :order_by, :policy, :decision
+        attr_reader :name, :all_of, :any_of, :none_of, :tags, :metadata, :order_by, :trust, :policy, :decision
 
         OPERATOR_KEYS = %i[eq min max in includes contains present].freeze
         DECISION_MODES = %i[auto_only approval_ok deny_risky].freeze
@@ -32,7 +32,7 @@ module Igniter
           end
         end
 
-        def initialize(name: nil, all_of: [], any_of: [], none_of: [], tags: [], metadata: {}, order_by: [], policy: {}, decision: {})
+        def initialize(name: nil, all_of: [], any_of: [], none_of: [], tags: [], metadata: {}, order_by: [], trust: {}, policy: {}, decision: {})
           @name     = name&.to_sym
           @all_of   = Array(all_of).map(&:to_sym).uniq.sort.freeze
           @any_of   = Array(any_of).map(&:to_sym).uniq.sort.freeze
@@ -40,6 +40,7 @@ module Igniter
           @tags     = Array(tags).map(&:to_sym).uniq.sort.freeze
           @metadata = normalize_metadata(metadata).freeze
           @order_by = normalize_order_by(order_by).freeze
+          @trust    = normalize_trust(trust).freeze
           @policy   = normalize_policy(policy).freeze
           @decision = normalize_decision(decision).freeze
           freeze
@@ -53,10 +54,11 @@ module Igniter
           none_match = @none_of.none? { |capability| profile.capability?(capability) }
           tags_match = @tags.all? { |tag| profile.tag?(tag) }
           metadata_match = metadata_matches?(profile)
+          trust_match = trust_matches?(profile)
           policy_match = policy_matches?(profile)
           decision_match = decision_matches?(profile)
 
-          all_match && any_match && none_match && tags_match && metadata_match && policy_match && decision_match
+          all_match && any_match && none_match && tags_match && metadata_match && trust_match && policy_match && decision_match
         end
 
         def label
@@ -68,6 +70,7 @@ module Igniter
           fragments << "none(#{@none_of.join(",")})" unless @none_of.empty?
           fragments << "tags(#{@tags.join(",")})" unless @tags.empty?
           fragments << "metadata(#{@metadata.keys.join(",")})" unless @metadata.empty?
+          fragments << "trust(#{@trust.keys.join(",")})" unless @trust.empty?
           fragments << "policy(#{@policy.keys.join(",")})" unless @policy.empty?
           fragments << "decision(#{@decision[:mode]})" unless @decision.empty?
           fragments << "order(#{@order_by.map { |clause| "#{clause[:metadata].join(".")}:#{clause[:direction]}" }.join(",")})" unless @order_by.empty?
@@ -91,6 +94,7 @@ module Igniter
             tags: @tags,
             metadata: @metadata,
             order_by: @order_by,
+            trust: @trust,
             policy: @policy,
             decision: @decision
           }
@@ -132,6 +136,7 @@ module Igniter
           capabilities = explain_capabilities(profile)
           tags = explain_tags(profile)
           metadata = explain_metadata(profile)
+          trust = explain_trust(profile)
           policy = explain_policy(profile)
           decision = explain_decision(profile)
 
@@ -139,6 +144,7 @@ module Igniter
           failed_dimensions << :capabilities unless capabilities[:matched]
           failed_dimensions << :tags unless tags[:matched]
           failed_dimensions << :metadata unless metadata[:matched]
+          failed_dimensions << :trust unless trust[:matched]
           failed_dimensions << :policy unless policy[:matched]
           failed_dimensions << :decision unless decision[:matched]
 
@@ -148,6 +154,7 @@ module Igniter
             capabilities: capabilities,
             tags: tags,
             metadata: metadata,
+            trust: trust,
             policy: policy,
             decision: decision
           }.freeze
@@ -191,6 +198,22 @@ module Igniter
           {
             matched: failed_paths.empty?,
             failed_paths: failed_paths
+          }.freeze
+        end
+
+        def explain_trust(profile)
+          return { matched: true, failed_keys: [].freeze, effective: {}.freeze }.freeze if @trust.empty?
+          return { matched: false, failed_keys: @trust.keys.freeze, effective: {}.freeze }.freeze unless profile.respond_to?(:metadata)
+
+          effective = effective_trust(profile)
+          failed_keys = @trust.each_with_object([]) do |(key, expected), memo|
+            memo << key unless trust_requirement_matches?(key, expected, effective)
+          end.freeze
+
+          {
+            matched: failed_keys.empty?,
+            failed_keys: failed_keys,
+            effective: effective.freeze
           }.freeze
         end
 
@@ -262,6 +285,10 @@ module Igniter
           Array(order_by).map do |clause|
             normalize_order_clause(clause)
           end
+        end
+
+        def normalize_trust(trust)
+          normalize_policy_value(trust)
         end
 
         def normalize_policy(policy)
@@ -366,6 +393,16 @@ module Igniter
           end
         end
 
+        def trust_matches?(profile)
+          return true if @trust.empty?
+          return false unless profile.respond_to?(:metadata)
+
+          effective = effective_trust(profile)
+          @trust.all? do |key, expected|
+            trust_requirement_matches?(key, expected, effective)
+          end
+        end
+
         def decision_matches?(profile)
           return true if @decision.empty?
 
@@ -414,6 +451,15 @@ module Igniter
           }
         end
 
+        def effective_trust(profile)
+          metadata = normalize_metadata(profile.metadata || {})
+          {
+            identity: metadata.dig(:mesh_trust, :status)&.to_sym,
+            attestation: metadata.dig(:mesh_capabilities, :trust, :status)&.to_sym,
+            attestation_freshness_seconds: metadata.dig(:mesh_capabilities, :freshness_seconds)
+          }
+        end
+
         def decision_outcome(profile)
           return :automatic if @decision.empty?
 
@@ -458,6 +504,31 @@ module Igniter
             values.subset?(effective.fetch(key))
           else
             false
+          end
+        end
+
+        def trust_requirement_matches?(key, expected, effective)
+          actual = effective[key]
+          case key
+          when :identity, :attestation
+            matches_metadata_requirement?(normalize_trust_requirement(expected), actual)
+          when :attestation_freshness_seconds
+            matches_metadata_requirement?(expected, actual)
+          else
+            false
+          end
+        end
+
+        def normalize_trust_requirement(expected)
+          case expected
+          when Symbol, String
+            expected.to_sym
+          when Array
+            expected.map { |value| value.is_a?(String) || value.is_a?(Symbol) ? value.to_sym : value }
+          when Hash
+            normalize_policy_value(expected)
+          else
+            expected
           end
         end
 

@@ -50,6 +50,69 @@ RSpec.describe "Igniter diagnostics" do
     expect(markdown).to include("- Status: `succeeded`")
   end
 
+  it "surfaces cluster identity and trust in diagnostics when mesh is configured" do
+    Igniter::Cluster::Mesh.reset!
+    identity = Igniter::Cluster::Identity::NodeIdentity.generate(node_id: "diag-seed")
+    trust_store = Igniter::Cluster::Trust::TrustStore.new(
+      [
+        { node_id: "diag-seed", public_key: identity.public_key_pem, label: "self" }
+      ]
+    )
+
+    peer_identity = Igniter::Cluster::Identity::NodeIdentity.generate(node_id: "diag-edge")
+    peer_manifest = Igniter::Cluster::Identity::Manifest.build(
+      identity: peer_identity,
+      peer_name: "diag-edge",
+      url: "http://edge:4567",
+      capabilities: [:speech_io],
+      tags: [:edge],
+      metadata: { region: "local" },
+      contracts: []
+    )
+
+    Igniter::Cluster::Mesh.configure do |c|
+      c.peer_name = "diag-seed"
+      c.identity = identity
+      c.trust_store = trust_store
+      c.peer_registry.register(
+        Igniter::Cluster::Mesh::Peer.new(
+          name: "diag-edge",
+          url: "http://edge:4567",
+          capabilities: [:speech_io],
+          metadata: Igniter::Cluster::Mesh::PeerIdentityEnvelope.build(
+            source: peer_manifest.to_h,
+            trust_store: trust_store
+          )[:metadata]
+        )
+      )
+    end
+
+    contract = contract_class.new(order_total: 100, country: "UA")
+    report = contract.diagnostics.to_h
+    text = contract.diagnostics_text
+    markdown = contract.diagnostics_markdown
+
+    expect(report[:cluster_identity]).to include(
+      local: include(node_id: "diag-seed"),
+      counts: include(peers: 1, unknown: 1, trusted: 0, invalid: 0, attested: 1, attested_trusted: 0)
+    )
+    expect(report[:cluster_identity][:peers]).to contain_exactly(
+      include(
+        name: "diag-edge",
+        trust: include(status: :unknown),
+        capabilities_attestation: include(
+          trust: include(status: :unknown)
+        )
+      )
+    )
+    expect(text).to include("Cluster Identity: local=diag-seed")
+    expect(text).to include("attested=1")
+    expect(markdown).to include("- Cluster Identity: local=`diag-seed`")
+    expect(markdown).to include("## Cluster Identity")
+  ensure
+    Igniter::Cluster::Mesh.reset!
+  end
+
   it "surfaces failed nodes in the diagnostics report" do
     failing_contract = Class.new(Igniter::Contract) do
       define do
@@ -373,6 +436,28 @@ RSpec.describe "Igniter diagnostics" do
       }
     end
 
+    let(:trust_gate_trace) do
+      {
+        routing_mode: :capability,
+        query: {
+          all_of: [:orders],
+          trust: { identity: :trusted, attestation: :trusted }
+        },
+        selected_url: nil,
+        eligible_count: 0,
+        matched_count: 0,
+        peer_count: 1,
+        peers: [
+          {
+            name: "orders-unknown",
+            matched: false,
+            reasons: [:query_mismatch],
+            match_details: { failed_dimensions: [:trust] }
+          }
+        ]
+      }
+    end
+
     let(:capacity_trace) do
       {
         routing_mode: :capability,
@@ -472,6 +557,27 @@ RSpec.describe "Igniter diagnostics" do
       end.new(trace)
     end
 
+    let(:trust_gate_adapter) do
+      trace = trust_gate_trace
+      Class.new do
+        define_method(:initialize) { |routing_trace| @routing_trace = routing_trace }
+
+        define_method(:call) do |node:, **|
+          raise Igniter::Cluster::Mesh::DeferredCapabilityError.new(
+            :orders,
+            Igniter::Runtime::DeferredResult.build(
+              token: "trust-order-42",
+              payload: { query: { all_of: [:orders] } },
+              source_node: node.name,
+              waiting_on: node.name
+            ),
+            query: { all_of: [:orders] },
+            explanation: @routing_trace
+          )
+        end
+      end.new(trace)
+    end
+
     let(:pending_contract_class) do
       adapter = pending_adapter
       Class.new(Igniter::Contract) do
@@ -513,6 +619,19 @@ RSpec.describe "Igniter diagnostics" do
 
     let(:capacity_contract_class) do
       adapter = capacity_adapter
+      Class.new(Igniter::Contract) do
+        runner :inline, remote_adapter: adapter
+
+        define do
+          input :order_id
+          remote :order_result, contract: "ProcessOrder", node: "http://unused.example", inputs: { id: :order_id }
+          output :order_result
+        end
+      end
+    end
+
+    let(:trust_gate_contract_class) do
+      adapter = trust_gate_adapter
       Class.new(Igniter::Contract) do
         runner :inline, remote_adapter: adapter
 
@@ -739,6 +858,63 @@ RSpec.describe "Igniter diagnostics" do
               code: :adjust_policy_requirements,
               details: include(policy_keys: [:permits]),
               plan: include(action: :find_policy_compatible_peer, scope: :routing_policy, automated: true, requires_approval: false)
+            )
+          ),
+          events: include(latest_type: :node_pending)
+        )
+      )
+    end
+
+    it "triages trust gates separately from policy and capacity incidents" do
+      contract = trust_gate_contract_class.new(order_id: 42)
+
+      report = contract.diagnostics.to_h
+
+      expect(report[:routing][:facets]).to include(
+        by_reason: { query_mismatch: 1 },
+        by_mismatch_dimension: { trust: 1 },
+        by_trust_key: { identity: 1, attestation: 1 },
+        by_decision_mode: {},
+        by_policy_key: {},
+        by_latest_event: { node_pending: 1 },
+        by_incident: { trust_gate: 1 },
+        by_remediation_code: { admit_trusted_peer: 1, relax_trust_requirements: 1 },
+        by_plan_action: { admit_trusted_peer: 1, relax_trust_requirements: 1 }
+      )
+      expect(report[:routing][:plans]).to contain_exactly(
+        include(
+          action: :admit_trusted_peer,
+          scope: :routing_trust,
+          automated: false,
+          requires_approval: true,
+          params: include(trust_keys: contain_exactly(:identity, :attestation))
+        ),
+        include(
+          action: :relax_trust_requirements,
+          scope: :routing_trust,
+          automated: false,
+          requires_approval: true,
+          params: include(trust_keys: contain_exactly(:identity, :attestation))
+        )
+      )
+      expect(report[:routing][:entries]).to contain_exactly(
+        include(
+          classification: include(
+            mismatch_dimensions: [:trust],
+            trust_keys: contain_exactly(:identity, :attestation),
+            latest_event_type: :node_pending,
+            incident: :trust_gate
+          ),
+          remediation: contain_exactly(
+            include(
+              code: :admit_trusted_peer,
+              details: include(trust_keys: contain_exactly(:identity, :attestation)),
+              plan: include(action: :admit_trusted_peer, scope: :routing_trust, automated: false, requires_approval: true)
+            ),
+            include(
+              code: :relax_trust_requirements,
+              details: include(trust_keys: contain_exactly(:identity, :attestation)),
+              plan: include(action: :relax_trust_requirements, scope: :routing_trust, automated: false, requires_approval: true)
             )
           ),
           events: include(latest_type: :node_pending)

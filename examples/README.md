@@ -339,9 +339,9 @@ ruby examples/companion/bin/demo
 Shows:
 
 - `Igniter::Stack` — root coordinator for `apps/*`
-- `Igniter::App` — leaf apps under `apps/main` and `apps/inference`
-- stack-shaped voice assistant demo
-- local end-to-end ASR → Intent → Chat → TTS pipeline using mock executors
+- `services` as local node instances over the same stack
+- capability-first local mesh with selective mocked capabilities
+- mounted dashboard surface per node
 
 ### `companion_legacy/bin/demo`
 
@@ -378,7 +378,7 @@ Expected output per turn:
   Audio:    4328 chars (Base64 WAV)
 ```
 
-See [`companion/README.md`](companion/README.md) for the workspace layout and ESP32 firmware, and [`companion_legacy/README.md`](companion_legacy/README.md) for the older flat-layout deployment notes.
+See [`companion/README.md`](companion/README.md) for the new cluster-next sandbox, and [`companion_legacy/README.md`](companion_legacy/README.md) for the older richer voice-assistant workspace and deployment notes.
 
 ## Validation
 

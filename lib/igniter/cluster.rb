@@ -2,6 +2,8 @@
 
 require_relative "sdk"
 require_relative "server"
+require_relative "cluster/identity"
+require_relative "cluster/trust"
 require_relative "cluster/app_host"
 require_relative "cluster/mesh"
 require_relative "cluster/remote_adapter"

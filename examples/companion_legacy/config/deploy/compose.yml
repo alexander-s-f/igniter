@@ -3,9 +3,9 @@ services:
   main:
     build:
       context: "../../../../"
-      dockerfile: examples/companion/config/deploy/Dockerfile
+      dockerfile: examples/companion_legacy/config/deploy/Dockerfile
     command: bundle exec ruby stack.rb --service main
-    working_dir: "/app/examples/companion"
+    working_dir: "/app/examples/companion_legacy"
     environment:
       COMPANION_DATA_ADAPTER: sqlite
       COMPANION_DATA_DB: var/companion_data.sqlite3
@@ -20,13 +20,13 @@ services:
     depends_on:
     - inference
     volumes:
-    - companion_var:/app/examples/companion/var
+    - companion_var:/app/examples/companion_legacy/var
   inference:
     build:
       context: "../../../../"
-      dockerfile: examples/companion/config/deploy/Dockerfile
+      dockerfile: examples/companion_legacy/config/deploy/Dockerfile
     command: bundle exec ruby stack.rb --service inference
-    working_dir: "/app/examples/companion"
+    working_dir: "/app/examples/companion_legacy"
     environment:
       COMPANION_DATA_ADAPTER: sqlite
       COMPANION_DATA_DB: var/companion_data.sqlite3
@@ -37,13 +37,13 @@ services:
       PORT: '4568'
       IGNITER_TOPOLOGY_PROFILE: local-compose
     volumes:
-    - companion_var:/app/examples/companion/var
+    - companion_var:/app/examples/companion_legacy/var
   dashboard:
     build:
       context: "../../../../"
-      dockerfile: examples/companion/config/deploy/Dockerfile
+      dockerfile: examples/companion_legacy/config/deploy/Dockerfile
     command: bundle exec ruby stack.rb --service dashboard
-    working_dir: "/app/examples/companion"
+    working_dir: "/app/examples/companion_legacy"
     environment:
       COMPANION_DATA_ADAPTER: sqlite
       COMPANION_DATA_DB: var/companion_data.sqlite3
@@ -58,6 +58,6 @@ services:
     depends_on:
     - main
     volumes:
-    - companion_var:/app/examples/companion/var
+    - companion_var:/app/examples/companion_legacy/var
 volumes:
   companion_var: {}

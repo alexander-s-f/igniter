@@ -68,14 +68,14 @@ RSpec.describe Companion::Stack do
       expect(procfile).to include("bundle exec ruby stack.rb --service main")
       expect(procfile).to include("bundle exec ruby stack.rb --service inference")
       expect(procfile).to include("bundle exec ruby stack.rb --service dashboard")
-      expect(procfile).not_to include("examples/companion/stack.rb")
+      expect(procfile).not_to include("examples/companion_legacy/stack.rb")
     end
 
     it "loads dashboard app with shared stores in a fresh Ruby process" do
       script = <<~RUBY
         $LOAD_PATH.unshift(File.expand_path("lib", #{Dir.pwd.inspect}))
-        $LOAD_PATH.unshift(File.expand_path("examples/companion/lib", #{Dir.pwd.inspect}))
-        require File.expand_path("examples/companion/apps/dashboard/app", #{Dir.pwd.inspect})
+        $LOAD_PATH.unshift(File.expand_path("examples/companion_legacy/lib", #{Dir.pwd.inspect}))
+        require File.expand_path("examples/companion_legacy/apps/dashboard/app", #{Dir.pwd.inspect})
         puts [defined?(Companion::NotesStore), defined?(Companion::ReminderStore), defined?(Companion::TelegramBindingsStore)].join(",")
       RUBY
 

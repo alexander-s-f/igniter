@@ -79,6 +79,28 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       )
     end
 
+    it "derives attestation freshness from mesh_capabilities observed_at in the runtime profile" do
+      now = Time.utc(2026, 4, 16, 12, 0, 0)
+      peer_with_attestation = described_class.new(
+        name: "orders-node",
+        url: "http://orders.internal:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_capabilities: {
+            observed_at: "2026-04-16T11:59:40Z",
+            trust: { status: :trusted }
+          }
+        }
+      )
+
+      allow(Time).to receive(:now).and_return(now)
+
+      expect(peer_with_attestation.profile.metadata[:mesh_capabilities]).to include(
+        observed_at: "2026-04-16T11:59:40Z",
+        freshness_seconds: 20
+      )
+    end
+
     it "coerces capabilities to symbols" do
       p = described_class.new(name: "x", url: "http://x", capabilities: %w[audit])
       expect(p.capabilities).to eq([:audit])
@@ -379,6 +401,75 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       expect(router.find_peer_for_query(query, deferred)).to eq("http://orders-unsafe:4567")
     end
 
+    it "supports explicit trust requirements in capability queries" do
+      config.add_peer(
+        "orders-trusted",
+        url: "http://orders-trusted:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_trust: { status: :trusted },
+          mesh_capabilities: {
+            trust: { status: :trusted },
+            observed_at: "2026-04-16T11:59:55Z"
+          }
+        }
+      )
+      config.add_peer(
+        "orders-unknown",
+        url: "http://orders-unknown:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_trust: { status: :unknown },
+          mesh_capabilities: {
+            trust: { status: :unknown },
+            observed_at: "2026-04-16T11:59:55Z"
+          }
+        }
+      )
+      stub_alive("http://orders-trusted:4567")
+      stub_alive("http://orders-unknown:4567")
+      allow(Time).to receive(:now).and_return(Time.utc(2026, 4, 16, 12, 0, 0))
+
+      query = {
+        all_of: [:orders],
+        trust: {
+          identity: :trusted,
+          attestation: :trusted,
+          attestation_freshness_seconds: { max: 30 }
+        }
+      }
+
+      expect(router.find_peer_for_query(query, deferred)).to eq("http://orders-trusted:4567")
+    end
+
+    it "explains trust mismatches for rejected peers" do
+      config.add_peer(
+        "orders-unknown",
+        url: "http://orders-unknown:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_trust: { status: :unknown },
+          mesh_capabilities: {
+            trust: { status: :unknown },
+            observed_at: "2026-04-16T11:59:55Z"
+          }
+        }
+      )
+
+      explanation = router.explain_peer_for_query(
+        {
+          all_of: [:orders],
+          trust: { identity: :trusted, attestation: :trusted }
+        }
+      )
+
+      candidate = explanation[:peers].find { |peer| peer[:name] == "orders-unknown" }
+
+      expect(candidate).to include(matched: false, reasons: [:query_mismatch])
+      expect(candidate[:match_details]).to include(failed_dimensions: [:trust])
+      expect(candidate[:match_details][:trust]).to include(failed_keys: %i[identity attestation])
+    end
+
     it "prefers automatic peers over approval-required peers in approval_ok mode" do
       config.add_peer(
         "orders-auto",
@@ -535,6 +626,76 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       expect(urls).to include("http://orders-1:4567", "http://orders-2:4567")
     end
 
+    it "prefers trusted peers over unknown peers when candidates are otherwise equal" do
+      config.add_peer(
+        "orders-trusted",
+        url: "http://orders-trusted:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_trust: { status: :trusted },
+          mesh_capabilities: {
+            trust: { status: :trusted },
+            observed_at: "2026-04-16T11:59:50Z"
+          }
+        }
+      )
+      config.add_peer(
+        "orders-unknown",
+        url: "http://orders-unknown:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_trust: { status: :unknown }
+        }
+      )
+      stub_alive("http://orders-trusted:4567")
+      stub_alive("http://orders-unknown:4567")
+      allow(Time).to receive(:now).and_return(Time.utc(2026, 4, 16, 12, 0, 0))
+
+      urls = 3.times.map { router.find_peer_for(:orders, deferred) }
+
+      expect(urls).to eq(["http://orders-trusted:4567"] * 3)
+    end
+
+    it "prefers fresher trusted attestations when query ranking is otherwise equal" do
+      now = Time.utc(2026, 4, 16, 12, 0, 0)
+      config.add_peer(
+        "orders-fresh",
+        url: "http://orders-fresh:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_trust: { status: :trusted },
+          mesh_capabilities: {
+            trust: { status: :trusted },
+            observed_at: "2026-04-16T11:59:50Z"
+          }
+        }
+      )
+      config.add_peer(
+        "orders-stale",
+        url: "http://orders-stale:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_trust: { status: :trusted },
+          mesh_capabilities: {
+            trust: { status: :trusted },
+            observed_at: "2026-04-16T11:57:00Z"
+          }
+        }
+      )
+      stub_alive("http://orders-fresh:4567")
+      stub_alive("http://orders-stale:4567")
+      allow(Time).to receive(:now).and_return(now)
+
+      expect(router.find_peer_for(:orders, deferred)).to eq("http://orders-fresh:4567")
+
+      explanation = router.explain_peer_for(:orders)
+      fresh = explanation[:peers].find { |peer| peer[:name] == "orders-fresh" }
+      stale = explanation[:peers].find { |peer| peer[:name] == "orders-stale" }
+
+      expect(fresh).to include(top_tier: true, selected: true)
+      expect(stale).to include(top_tier: false)
+    end
+
     it "resolve_pinned raises IncidentError for unknown peer" do
       expect {
         router.resolve_pinned("audit-node")
@@ -656,6 +817,20 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       )
     end
 
+    it "normalizes trust keys inside capability_query" do
+      node = make_node(
+        capability_query: {
+          all_of: ["orders"],
+          trust: { identity: "trusted", attestation: "trusted" }
+        }
+      )
+
+      expect(node.capability_query).to eq(
+        all_of: [:orders],
+        trust: { identity: :trusted, attestation: :trusted }
+      )
+    end
+
     it "stores pinned_to as string" do
       expect(make_node(pinned_to: :audit_node).pinned_to).to eq("audit_node")
     end
@@ -683,6 +858,18 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       expect {
         builder.remote(:x, contract: "Foo", inputs: {}, policy: { permits: [:system_read] })
       }.to raise_error(Igniter::CompileError, /policy: requires capability: or query:/)
+    end
+
+    it "raises CompileError when trust: is given without capability: or query:" do
+      expect {
+        builder.remote(:x, contract: "Foo", inputs: {}, trust: { identity: :trusted })
+      }.to raise_error(Igniter::CompileError, /trust: requires capability: or query:/)
+    end
+
+    it "raises CompileError when trust: is combined with pinned_to:" do
+      expect {
+        builder.remote(:x, contract: "Foo", inputs: {}, trust: { identity: :trusted }, pinned_to: "audit-node")
+      }.to raise_error(Igniter::CompileError, /trust: cannot be combined with pinned_to:/)
     end
 
     it "raises CompileError when policy: is combined with pinned_to:" do
@@ -729,6 +916,30 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       expect(node.routing_mode).to eq(:capability)
       expect(node.capability).to be_nil
       expect(node.capability_query).to eq({ all_of: [:orders], policy: { permits: [:system_read] } })
+    end
+
+    it "accepts capability: with trust: by lifting both into a capability query" do
+      builder.remote(:x, contract: "Foo", capability: :orders, trust: { identity: :trusted }, inputs: {})
+      node = builder.instance_variable_get(:@nodes).last
+      expect(node.routing_mode).to eq(:capability)
+      expect(node.capability).to be_nil
+      expect(node.capability_query).to eq({ all_of: [:orders], trust: { identity: :trusted } })
+    end
+
+    it "accepts query: with trust: by merging trust into the capability query" do
+      builder.remote(
+        :x,
+        contract: "Foo",
+        query: { all_of: [:orders], metadata: { region: "eu-central" } },
+        trust: { identity: :trusted, attestation: :trusted },
+        inputs: {}
+      )
+      node = builder.instance_variable_get(:@nodes).last
+      expect(node.capability_query).to eq(
+        all_of: [:orders],
+        metadata: { region: "eu-central" },
+        trust: { identity: :trusted, attestation: :trusted }
+      )
     end
 
     it "accepts query: with policy: by merging policy into the capability query" do
@@ -882,6 +1093,7 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       result = handler.call(params: {}, body: {})
       body = JSON.parse(result[:body])
       expect(body["peer_name"]).to eq("orders-node")
+      expect(body["node_id"]).to eq("orders-node")
     end
 
     it "includes capabilities as strings" do
@@ -894,7 +1106,12 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       result = handler.call(params: {}, body: {})
       body = JSON.parse(result[:body])
       expect(body["tags"]).to eq(["linux"])
-      expect(body["metadata"]).to eq({ "zone" => "eu-1" })
+      expect(body["metadata"]).to include("zone" => "eu-1")
+      expect(body.dig("metadata", "mesh")).to include(
+        "confidence" => 1.0,
+        "hops" => 0,
+        "origin" => "orders-node"
+      )
     end
 
     it "includes contract names" do
@@ -907,6 +1124,15 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       result = handler.call(params: {}, body: {})
       body = JSON.parse(result[:body])
       expect(body["url"]).to match(/http:\/\//)
+      expect(body["signature"]).to be_a(String)
+      expect(body["public_key"]).to include("BEGIN PUBLIC KEY")
+      expect(body["signed_at"]).to be_a(String)
+      expect(body["capability_attestation"]).to include(
+        "node_id" => "orders-node",
+        "peer_name" => "orders-node",
+        "url" => kind_of(String),
+        "signature" => kind_of(String)
+      )
     end
   end
 
@@ -922,11 +1148,21 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
                                  code: "200",
                                  body: JSON.generate({
                                    "peer_name" => "orders-node",
+                                   "node_id" => "orders-node",
+                                   "algorithm" => "rsa-sha256",
+                                   "public_key" => "pem",
                                    "capabilities" => %w[orders inventory],
                                    "tags" => %w[linux],
                                    "metadata" => { "zone" => "eu-1" },
                                    "contracts" => ["ProcessOrder"],
-                                   "url" => "http://orders:4567"
+                                    "url" => "http://orders:4567",
+                                   "capability_attestation" => {
+                                     "node_id" => "orders-node",
+                                     "peer_name" => "orders-node",
+                                     "signature" => "attestation123"
+                                   },
+                                   "signed_at" => "2026-04-17T10:00:00Z",
+                                   "signature" => "abc123"
                                  }))
       allow(response).to receive(:is_a?).with(Net::HTTPSuccess).and_return(true)
       http = instance_double(Net::HTTP)
@@ -940,11 +1176,17 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
     it "returns symbolized peer manifest" do
       manifest = client.manifest
       expect(manifest[:peer_name]).to eq("orders-node")
+      expect(manifest[:node_id]).to eq("orders-node")
       expect(manifest[:capabilities]).to eq(%i[orders inventory])
       expect(manifest[:tags]).to eq([:linux])
       expect(manifest[:metadata]).to eq({ "zone" => "eu-1" })
       expect(manifest[:contracts]).to include("ProcessOrder")
       expect(manifest[:url]).to eq("http://orders:4567")
+      expect(manifest[:signature]).to eq("abc123")
+      expect(manifest[:capability_attestation]).to include(
+        "node_id" => "orders-node",
+        "signature" => "attestation123"
+      )
     end
   end
 

@@ -56,11 +56,17 @@ module Igniter
         response = get("/v1/manifest")
         {
           peer_name: response["peer_name"],
+          node_id: response["node_id"],
+          algorithm: response["algorithm"],
+          public_key: response["public_key"],
           capabilities: (response["capabilities"] || []).map(&:to_sym),
           tags: (response["tags"] || []).map(&:to_sym),
           metadata: response["metadata"] || {},
           contracts: response["contracts"] || [],
-          url: response["url"]
+          url: response["url"],
+          capability_attestation: response["capability_attestation"],
+          signed_at: response["signed_at"],
+          signature: response["signature"]
         }
       end
 
@@ -79,15 +85,21 @@ module Igniter
       end
 
       # Register this node as a peer on the remote node.
-      def register_peer(name:, url:, capabilities: [], tags: [], metadata: {})
-        post("/v1/mesh/peers",
-             {
-               "name" => name,
-               "url" => url,
-               "capabilities" => capabilities.map(&:to_s),
-               "tags" => tags.map(&:to_s),
-               "metadata" => metadata
-             })
+      def register_peer(name: nil, url: nil, capabilities: [], tags: [], metadata: {}, manifest: nil)
+        body = if manifest
+                 candidate = manifest.respond_to?(:to_h) ? manifest.to_h : manifest
+                 Hash(candidate)
+               else
+                 {
+                   "name" => name,
+                   "url" => url,
+                   "capabilities" => capabilities.map(&:to_s),
+                   "tags" => tags.map(&:to_s),
+                   "metadata" => metadata
+                 }
+               end
+
+        post("/v1/mesh/peers", body)
       end
 
       # Remove a peer registration from the remote node. Best-effort.

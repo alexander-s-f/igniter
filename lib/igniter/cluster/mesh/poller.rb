@@ -63,16 +63,21 @@ module Igniter
       def fetch_peers_from(seed_url)
         peers = Igniter::Server::Client.new(seed_url, timeout: 5).list_peers
         peers.each do |pd|
-          next if pd[:name].nil? || pd[:url].nil?
-          next if pd[:name] == @config.peer_name
+          attributes = PeerIdentityEnvelope.build(
+            source: pd,
+            trust_store: @config.trust_store,
+            relayed_by: seed_url
+          )
+          next if attributes[:name].nil? || attributes[:url].nil?
+          next if attributes[:name] == @config.peer_name
 
           @config.peer_registry.register(
             Peer.new(
-              name: pd[:name],
-              url: pd[:url],
-              capabilities: pd[:capabilities] || [],
-              tags: pd[:tags] || [],
-              metadata: PeerMetadata.relay(pd[:metadata] || {}, relayed_by: seed_url)
+              name: attributes[:name],
+              url: attributes[:url],
+              capabilities: attributes[:capabilities] || [],
+              tags: attributes[:tags] || [],
+              metadata: attributes[:metadata] || {}
             )
           )
         end

@@ -13,10 +13,10 @@ topology:
 deploy:
   compose:
     context: ../../../../
-    dockerfile: examples/companion/config/deploy/Dockerfile
-    working_dir: /app/examples/companion
+    dockerfile: examples/companion_legacy/config/deploy/Dockerfile
+    working_dir: /app/examples/companion_legacy
     volume_name: companion_var
-    volume_target: /app/examples/companion/var
+    volume_target: /app/examples/companion_legacy/var
 
 services:
   main:

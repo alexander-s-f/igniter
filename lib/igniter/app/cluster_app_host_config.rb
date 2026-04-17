@@ -7,7 +7,8 @@ module Igniter
       Peer = Struct.new(:name, :url, :capabilities, :tags, :metadata, keyword_init: true)
 
       attr_accessor :peer_name, :local_capabilities, :local_tags, :local_metadata, :seeds,
-                    :discovery_interval, :auto_announce, :local_url, :gossip_fanout, :start_discovery
+                    :discovery_interval, :auto_announce, :local_url, :gossip_fanout, :start_discovery,
+                    :identity, :trust_store
 
       attr_reader :peers
 
@@ -22,6 +23,8 @@ module Igniter
         @local_url          = nil
         @gossip_fanout      = 3
         @start_discovery    = false
+        @identity           = nil
+        @trust_store        = nil
         @peers              = []
       end
 
@@ -48,6 +51,8 @@ module Igniter
           local_url: local_url,
           gossip_fanout: gossip_fanout,
           start_discovery: start_discovery,
+          identity: identity,
+          trust_store: trust_store,
           peers: peers.map do |peer|
             {
               name: peer.name,

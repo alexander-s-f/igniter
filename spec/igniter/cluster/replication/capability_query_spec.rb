@@ -64,6 +64,21 @@ RSpec.describe Igniter::Cluster::Replication::CapabilityQuery do
         risky: [:filesystem_write]
       )
     end
+
+    it "normalizes trust clauses to symbols" do
+      query = described_class.normalize(
+        all_of: [:local_llm],
+        trust: {
+          identity: "trusted",
+          attestation: "trusted"
+        }
+      )
+
+      expect(query.trust).to eq(
+        identity: :trusted,
+        attestation: :trusted
+      )
+    end
   end
 
   describe "#matches_profile?" do
@@ -220,6 +235,42 @@ RSpec.describe Igniter::Cluster::Replication::CapabilityQuery do
       expect(query.matches_profile?(safe_profile)).to be true
       expect(query.matches_profile?(risky_profile)).to be false
     end
+
+    it "matches explicit trust requirements for identity and attestation" do
+      trusted_profile = Igniter::Cluster::Replication::NodeProfile.new(
+        capabilities: %i[container_runtime local_llm ruby],
+        metadata: {
+          mesh_trust: { status: :trusted },
+          mesh_capabilities: {
+            trust: { status: :trusted },
+            freshness_seconds: 12
+          }
+        }
+      )
+
+      unknown_profile = Igniter::Cluster::Replication::NodeProfile.new(
+        capabilities: %i[container_runtime local_llm ruby],
+        metadata: {
+          mesh_trust: { status: :unknown },
+          mesh_capabilities: {
+            trust: { status: :unknown },
+            freshness_seconds: 12
+          }
+        }
+      )
+
+      query = described_class.new(
+        all_of: [:local_llm],
+        trust: {
+          identity: :trusted,
+          attestation: :trusted,
+          attestation_freshness_seconds: { max: 30 }
+        }
+      )
+
+      expect(query.matches_profile?(trusted_profile)).to be true
+      expect(query.matches_profile?(unknown_profile)).to be false
+    end
   end
 
   describe "#compare_profiles" do
@@ -323,6 +374,7 @@ RSpec.describe Igniter::Cluster::Replication::CapabilityQuery do
         all_of: %i[orders gpu],
         tags: %i[linux cuda],
         metadata: { trust: { score: { min: 0.9 } } },
+        trust: { identity: :trusted, attestation: :trusted },
         policy: { permits: [:shell_exec] },
         decision: { mode: :auto_only, actions: [:shell_exec] }
       )
@@ -331,11 +383,12 @@ RSpec.describe Igniter::Cluster::Replication::CapabilityQuery do
 
       expect(explanation).to include(
         matched: false,
-        failed_dimensions: %i[capabilities tags metadata policy decision]
+        failed_dimensions: %i[capabilities tags metadata trust policy decision]
       )
       expect(explanation[:capabilities]).to include(missing_all_of: [:gpu])
       expect(explanation[:tags]).to include(missing: [:cuda])
       expect(explanation[:metadata]).to include(failed_paths: [%i[trust score]])
+      expect(explanation[:trust]).to include(failed_keys: %i[identity attestation])
       expect(explanation[:policy]).to include(failed_keys: [:permits])
       expect(explanation[:decision]).to include(mode: :auto_only, outcome: :approval_required, matched: false)
     end

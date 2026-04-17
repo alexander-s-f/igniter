@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "node_identity_catalog"
+
 module Companion
   module Shared
     module CapabilityProfile
@@ -60,6 +62,8 @@ module Companion
           seeds: seeds,
           start_discovery: truthy?(env["COMPANION_START_DISCOVERY"]),
           auto_announce: !falsy?(env["COMPANION_AUTO_ANNOUNCE"]),
+          identity: NodeIdentityCatalog.identity_for(node_name),
+          trust_store: NodeIdentityCatalog.trust_store,
           metadata: {
             companion: {
               service: service_name,
@@ -81,6 +85,14 @@ module Companion
             role: profile[:node_role],
             port: profile[:port],
             url: profile[:local_url]
+          },
+          identity: {
+            node_id: profile[:identity].node_id,
+            fingerprint: profile[:identity].fingerprint,
+            algorithm: profile[:identity].algorithm
+          },
+          trust: {
+            known_peers: profile[:trust_store].size
           },
           capabilities: {
             declared: profile[:declared_capabilities],
@@ -105,7 +117,9 @@ module Companion
             url: peer.url,
             capabilities: peer.capabilities,
             tags: peer.tags,
-            metadata: peer.metadata
+            metadata: peer.metadata,
+            identity: peer.metadata[:mesh_identity],
+            trust: peer.metadata[:mesh_trust]
           }
         end.sort_by { |peer| peer.fetch(:name) }
       rescue StandardError
@@ -123,6 +137,8 @@ module Companion
         config.local_url = profile[:local_url]
         config.start_discovery = profile[:start_discovery]
         config.auto_announce = profile[:auto_announce]
+        config.identity = profile[:identity]
+        config.trust_store = profile[:trust_store]
       end
 
       def csv(value, default: [])

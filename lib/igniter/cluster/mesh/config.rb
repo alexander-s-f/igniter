@@ -6,7 +6,8 @@ module Igniter
     # Configuration for the local mesh node: registered peers and local identity.
     class Config
       attr_accessor :peer_name, :local_capabilities, :local_tags, :local_metadata,
-                    :seeds, :discovery_interval, :auto_announce, :local_url, :gossip_fanout
+                    :seeds, :discovery_interval, :auto_announce, :local_url, :gossip_fanout,
+                    :identity, :trust_store
       attr_reader   :peers, :peer_registry
 
       def initialize
@@ -21,6 +22,12 @@ module Igniter
         @auto_announce      = true
         @local_url          = nil
         @gossip_fanout      = 3
+        @identity           = nil
+        @trust_store        = Igniter::Cluster::Trust::TrustStore.new
+      end
+
+      def ensure_identity!
+        @identity ||= Igniter::Cluster::Identity::NodeIdentity.generate(node_id: @peer_name || "anonymous-node")
       end
 
       # Register a remote peer by name.

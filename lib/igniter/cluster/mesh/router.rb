@@ -170,13 +170,16 @@ module Igniter
 
       def top_ranked_candidates(query, candidates)
         return candidates if candidates.empty?
-        return candidates unless query.ordered? || query.decisioned?
+        return trust_ranked_candidates(candidates) unless query.ordered? || query.decisioned?
 
         ranked = candidates.sort do |left, right|
-          query.compare_profiles(left.profile, right.profile)
+          comparison = query.compare_profiles(left.profile, right.profile)
+          next comparison unless comparison.zero?
+
+          compare_trust_profiles(left.profile, right.profile)
         end
-        best_fingerprint = query.ranking_fingerprint(ranked.first.profile)
-        ranked.select { |peer| query.ranking_fingerprint(peer.profile) == best_fingerprint }
+        best_fingerprint = routing_fingerprint(query, ranked.first.profile)
+        ranked.select { |peer| routing_fingerprint(query, peer.profile) == best_fingerprint }
       end
 
       def evaluate_peer(query, peer)
@@ -191,8 +194,51 @@ module Igniter
           alive: alive,
           eligible: eligible,
           match_details: match_details,
-          ranking_fingerprint: eligible ? query.ranking_fingerprint(peer.profile) : nil
+          ranking_fingerprint: eligible ? routing_fingerprint(query, peer.profile) : nil
         }
+      end
+
+      def routing_fingerprint(query, profile)
+        Array(query.ranking_fingerprint(profile)) + trust_fingerprint(profile)
+      end
+
+      def trust_ranked_candidates(candidates)
+        ranked = candidates.sort do |left, right|
+          compare_trust_profiles(left.profile, right.profile)
+        end
+        best_fingerprint = trust_fingerprint(ranked.first.profile)
+        ranked.select { |peer| trust_fingerprint(peer.profile) == best_fingerprint }
+      end
+
+      def compare_trust_profiles(left, right)
+        left_fingerprint = trust_fingerprint(left)
+        right_fingerprint = trust_fingerprint(right)
+
+        left_fingerprint <=> right_fingerprint
+      end
+
+      def trust_fingerprint(profile)
+        metadata = profile.metadata || {}
+        identity_trust = metadata.dig(:mesh_trust, :status)
+        attestation_trust = metadata.dig(:mesh_capabilities, :trust, :status)
+        attestation_freshness = metadata.dig(:mesh_capabilities, :freshness_seconds)
+
+        [
+          trust_priority(identity_trust, missing_rank: 1, invalid_rank: 2),
+          trust_priority(attestation_trust, missing_rank: 2, invalid_rank: 3),
+          attestation_freshness.nil? ? 1_000_000_000 : attestation_freshness.to_i
+        ]
+      end
+
+      def trust_priority(status, missing_rank:, invalid_rank:)
+        case status&.to_sym
+        when :trusted
+          0
+        when nil, :unknown
+          missing_rank
+        else
+          invalid_rank
+        end
       end
 
       def evaluation_reasons(entry, top_tier_names, selected_peer)

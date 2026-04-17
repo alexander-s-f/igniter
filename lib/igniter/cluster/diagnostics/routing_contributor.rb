@@ -156,6 +156,7 @@ module Igniter
               by_mode: count_by(entries) { |entry| entry.dig(:classification, :routing_mode) },
               by_reason: count_many(entries) { |entry| entry.dig(:classification, :reasons) },
               by_mismatch_dimension: count_many(entries) { |entry| entry.dig(:classification, :mismatch_dimensions) },
+              by_trust_key: count_many(entries) { |entry| entry.dig(:classification, :trust_keys) },
               by_decision_mode: count_by(entries) { |entry| entry.dig(:classification, :decision_mode) },
               by_policy_key: count_many(entries) { |entry| entry.dig(:classification, :policy_keys) },
               by_latest_event: count_by(entries) { |entry| entry.dig(:classification, :latest_event_type) },
@@ -190,6 +191,7 @@ module Igniter
 
           def classify_routing_trace(status, trace, events = {})
             query = normalized_trace_query(trace)
+            trust = hash_value(query, :trust)
             policy = hash_value(query, :policy)
             decision = hash_value(query, :decision)
             reasons = routing_reasons(trace)
@@ -201,6 +203,7 @@ module Igniter
               routing_mode: hash_value(trace, :routing_mode) || (hash_value(trace, :peer_name) ? :pinned : :capability),
               reasons: reasons,
               mismatch_dimensions: mismatch_dimensions,
+              trust_keys: normalized_hash_keys(trust),
               decision_mode: hash_value(decision || {}, :mode),
               decision_actions: Array(hash_value(decision || {}, :actions)).compact,
               risky_actions: Array(hash_value(decision || {}, :risky)).compact,
@@ -213,6 +216,7 @@ module Igniter
           def classify_routing_incident(status, trace, reasons, mismatch_dimensions)
             return :unknown_peer if reasons.include?(:unknown_peer)
             return :peer_unreachable if reasons.include?(:unreachable)
+            return :trust_gate if mismatch_dimensions.include?(:trust)
             return :policy_gate if mismatch_dimensions.include?(:policy) || mismatch_dimensions.include?(:decision)
             return :capacity_shortage if mismatch_dimensions.include?(:capabilities) || mismatch_dimensions.include?(:tags) || mismatch_dimensions.include?(:metadata)
             return :capacity_shortage if status == :pending && hash_value(trace, :peer_count).to_i.zero?
@@ -259,6 +263,8 @@ module Igniter
                   }
                 )
               )]
+            when :trust_gate
+              trust_gate_hints(classification)
             when :policy_gate
               policy_gate_hints(classification)
             when :capacity_shortage
@@ -313,6 +319,37 @@ module Igniter
             end
 
             hints.empty? ? [build_hint(:review_policy_gate, "Review policy and decision constraints for this route.")] : hints
+          end
+
+          def trust_gate_hints(classification)
+            trust_keys = classification[:trust_keys]
+
+            [
+              build_hint(
+                :admit_trusted_peer,
+                "Admit or bootstrap a peer whose identity and attestation satisfy the requested trust constraints.",
+                { trust_keys: trust_keys },
+                plan: build_plan(
+                  :admit_trusted_peer,
+                  scope: :routing_trust,
+                  automated: false,
+                  requires_approval: true,
+                  params: { trust_keys: trust_keys }
+                )
+              ),
+              build_hint(
+                :relax_trust_requirements,
+                "Relax route trust requirements if unknown peers are acceptable for this operation.",
+                { trust_keys: trust_keys },
+                plan: build_plan(
+                  :relax_trust_requirements,
+                  scope: :routing_trust,
+                  automated: false,
+                  requires_approval: true,
+                  params: { trust_keys: trust_keys }
+                )
+              )
+            ]
           end
 
           def capacity_hints(classification, trace, query)

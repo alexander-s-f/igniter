@@ -37,12 +37,18 @@ module Igniter
       end
 
       def announce_to(seed_url)
-        Igniter::Server::Client.new(seed_url, timeout: 5).register_peer(
-          name: @config.peer_name,
+        manifest = Igniter::Cluster::Identity::Manifest.build(
+          identity: @config.ensure_identity!,
+          peer_name: @config.peer_name,
           url: @config.local_url,
           capabilities: @config.local_capabilities,
           tags: @config.local_tags,
-          metadata: PeerMetadata.authoritative(@config.local_metadata, origin: @config.peer_name)
+          metadata: PeerMetadata.authoritative(@config.local_metadata, origin: @config.peer_name),
+          contracts: []
+        )
+
+        Igniter::Server::Client.new(seed_url, timeout: 5).register_peer(
+          manifest: manifest
         )
       rescue Igniter::Server::Client::ConnectionError
         nil

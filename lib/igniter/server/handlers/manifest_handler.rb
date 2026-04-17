@@ -15,14 +15,29 @@ module Igniter
         private
 
         def handle(params:, body:) # rubocop:disable Lint/UnusedMethodArgument
-          json_ok({
-                    peer_name: @config&.peer_name,
-                    capabilities: (@config&.peer_capabilities || []).map(&:to_s),
-                    tags: (@config&.peer_tags || []).map(&:to_s),
-                    metadata: @config&.peer_metadata || {},
-                    contracts: @registry.names,
-                    url: node_url
-                  })
+          return json_ok({}) unless @config
+
+          identity = @config.ensure_peer_identity!
+          metadata = if defined?(Igniter::Cluster::Mesh::PeerMetadata)
+                       Igniter::Cluster::Mesh::PeerMetadata.authoritative(
+                         @config.peer_metadata || {},
+                         origin: @config.peer_name
+                       )
+                     else
+                       @config.peer_metadata || {}
+                     end
+
+          manifest = Igniter::Cluster::Identity::Manifest.build(
+            identity: identity,
+            peer_name: @config.peer_name,
+            url: node_url,
+            capabilities: @config.peer_capabilities || [],
+            tags: @config.peer_tags || [],
+            metadata: metadata,
+            contracts: @registry.names
+          )
+
+          json_ok(manifest.to_h)
         end
 
         def node_url

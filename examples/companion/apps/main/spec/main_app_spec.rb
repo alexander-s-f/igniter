@@ -14,6 +14,9 @@ RSpec.describe Companion::MainApp do
     expect(config.registry.registered?("GreetContract")).to be(true)
     expect(config.peer_name).to eq("companion-seed")
     expect(config.peer_capabilities).to include(:mesh_seed, :notifications, :notes_api, :routing)
+    expect(config.peer_identity).not_to be_nil
+    expect(config.peer_identity.node_id).to eq("companion-seed")
+    expect(config.peer_trust_store.size).to eq(3)
   end
 
   it "exposes a status endpoint for the stack snapshot" do
@@ -32,6 +35,8 @@ RSpec.describe Companion::MainApp do
     expect(payload.dig("stack", "default_app")).to eq("main")
     expect(payload.dig("stack", "default_service")).to eq("seed")
     expect(payload.dig("current_node", "node", "name")).to eq("companion-seed")
+    expect(payload.dig("current_node", "identity", "node_id")).to eq("companion-seed")
+    expect(payload.dig("current_node", "trust", "known_peers")).to eq(3)
     expect(payload.dig("current_node", "capabilities", "mocked")).to include("notifications")
     expect(payload.dig("services", "seed", "apps")).to eq(%w[main dashboard])
     expect(payload.dig("services", "edge", "port")).to eq(4668)

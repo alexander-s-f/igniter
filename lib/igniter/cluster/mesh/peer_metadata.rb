@@ -64,13 +64,26 @@ module Igniter
         def runtime(metadata, now: Time.now.utc)
           base = normalize(metadata)
           mesh = normalize(base[:mesh] || {})
-          return base if mesh.empty?
+          attestation = normalize(base[:mesh_capabilities] || {})
 
-          observed_at = parse_time(mesh[:observed_at])
+          base = if mesh.empty?
+                   base
+                 else
+                   observed_at = parse_time(mesh[:observed_at])
+                   freshness_seconds = observed_at ? [(now - observed_at).to_i, 0].max : nil
+
+                   base.merge(
+                     mesh: mesh.merge(freshness_seconds: freshness_seconds).compact
+                   )
+                 end
+
+          return base if attestation.empty?
+
+          observed_at = parse_time(attestation[:observed_at])
           freshness_seconds = observed_at ? [(now - observed_at).to_i, 0].max : nil
 
           base.merge(
-            mesh: mesh.merge(freshness_seconds: freshness_seconds).compact
+            mesh_capabilities: attestation.merge(freshness_seconds: freshness_seconds).compact
           )
         end
 
