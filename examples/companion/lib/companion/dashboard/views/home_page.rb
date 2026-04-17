@@ -30,7 +30,7 @@ module Companion
               render_node(main)
               render_self_heal(main)
               render_notes(main)
-              render_services(main)
+              render_nodes(main)
             end
           end
         end
@@ -52,9 +52,8 @@ module Companion
             hero.tag(:p, "Fresh proving ground for the rebuilt Igniter stack model.")
             hero.tag(:div, class: "meta") do |meta|
               meta.text("generated=#{snapshot.fetch(:generated_at)} · ")
-              meta.text("default=#{snapshot.dig(:stack, :default_app)} · ")
-              meta.text("service=#{snapshot.dig(:stack, :default_service)} · ")
-              meta.text("profile=#{snapshot.dig(:stack, :profile)}")
+              meta.text("root=#{snapshot.dig(:stack, :root_app)} · ")
+              meta.text("node=#{snapshot.dig(:stack, :default_node)}")
             end
             hero.tag(:p, class: "links") do |links|
               links.tag(:a, "Overview API", href: route("/api/overview"))
@@ -74,8 +73,8 @@ module Companion
             end
 
             section.tag(:article, class: "metric-card") do |card|
-              card.tag(:span, "Services", class: "metric-label")
-              card.tag(:strong, counts.fetch(:services).to_s, class: "metric-value")
+              card.tag(:span, "Nodes", class: "metric-label")
+              card.tag(:strong, counts.fetch(:nodes).to_s, class: "metric-value")
             end
 
             section.tag(:article, class: "metric-card") do |card|
@@ -103,12 +102,13 @@ module Companion
               head.tag(:p, "Capability envelope for this local Companion instance.")
             end
 
-            section.tag(:p, "name=#{node.dig(:node, :name)} role=#{node.dig(:node, :role)} service=#{node.dig(:node, :service)}")
+            section.tag(:p, "name=#{node.dig(:node, :name)} role=#{node.dig(:node, :role)} profile=#{node.dig(:node, :profile)}")
             section.tag(:p, "url=#{node.dig(:node, :url)}")
             section.tag(:p, "effective_capabilities=#{capabilities.join(", ")}")
             section.tag(:p, "mocked_capabilities=#{mocked.empty? ? "none" : mocked.join(", ")}")
             section.tag(:p, "tags=#{node.fetch(:tags).join(", ")}")
             section.tag(:p, "seeds=#{seeds.empty? ? "none" : seeds.join(", ")}")
+            section.tag(:p, "mounted_apps=#{snapshot.dig(:stack, :apps).join(", ")} mounts=#{inline_counts(snapshot.dig(:stack, :mounts))}")
 
             if peers.empty?
               section.tag(:p, "No discovered peers yet.", class: "empty-state")
@@ -212,19 +212,18 @@ module Companion
           end
         end
 
-        def render_services(view)
+        def render_nodes(view)
           view.tag(:section, class: "grid") do |grid|
-            snapshot.fetch(:services).each do |name, service|
+            snapshot.fetch(:nodes).each do |name, node|
               grid.tag(:article, class: "card") do |card|
                 card.tag(:h2, name.to_s)
-                card.tag(:p, "role=#{service.fetch(:role)}")
-                card.tag(:p, "port=#{service.fetch(:port)} public=#{service.fetch(:public)} replicas=#{service.fetch(:replicas)}")
-                card.tag(:p, "apps=#{service.fetch(:apps).join(", ")}")
-                mounts = service.fetch(:mounts)
+                card.tag(:p, "role=#{node.fetch(:role)}")
+                card.tag(:p, "host=#{node.fetch(:host)} port=#{node.fetch(:port)} public=#{node.fetch(:public)}")
+                mounts = node.fetch(:mounts)
                 unless mounts.empty?
                   card.tag(:p, "mounts=#{mounts.map { |app, mount| "#{app}: #{mount}" }.join(", ")}")
                 end
-                card.tag(:code, service.fetch(:command))
+                card.tag(:code, node.fetch(:command))
               end
             end
           end

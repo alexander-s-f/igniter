@@ -33,8 +33,8 @@ RSpec.describe Companion::MainApp do
 
     expect(status).to eq(200)
     expect(headers["Content-Type"]).to include("application/json")
-    expect(payload.dig("stack", "default_app")).to eq("main")
-    expect(payload.dig("stack", "default_service")).to eq("seed")
+    expect(payload.dig("stack", "root_app")).to eq("main")
+    expect(payload.dig("stack", "default_node")).to eq("seed")
     expect(payload.dig("current_node", "node", "name")).to eq("companion-seed")
     expect(payload.dig("current_node", "identity", "node_id")).to eq("companion-seed")
     expect(payload.dig("current_node", "trust", "known_peers")).to eq(3)
@@ -46,9 +46,9 @@ RSpec.describe Companion::MainApp do
     expect(payload.dig("current_node", "capabilities", "mocked")).to include("notifications")
     expect(payload.dig("routing", "active")).to eq(false)
     expect(payload.dig("counts", "routing_plans")).to eq(0)
-    expect(payload.dig("services", "seed", "apps")).to eq(%w[main dashboard])
-    expect(payload.dig("services", "edge", "port")).to eq(4668)
-    expect(payload.dig("services", "analyst", "port")).to eq(4669)
+    expect(payload.dig("nodes", "seed", "mounts", "dashboard")).to eq("/dashboard")
+    expect(payload.dig("nodes", "edge", "port")).to eq(4668)
+    expect(payload.dig("nodes", "analyst", "port")).to eq(4669)
     expect(payload.dig("counts", "notes")).to eq(0)
   end
 

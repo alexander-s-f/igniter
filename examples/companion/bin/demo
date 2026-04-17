@@ -51,17 +51,17 @@ puts
 
 puts "5 · Cluster Next sandbox — local capability mesh"
 snapshot = Companion::Shared::StackOverview.build
-puts "  ➜  default_service=#{snapshot.dig(:stack, :default_service)}"
-snapshot.fetch(:services).each do |name, service|
-  puts "     - #{name}: role=#{service[:role]} port=#{service[:port]} apps=#{service[:apps].join(", ")}"
+puts "  ➜  root_app=#{snapshot.dig(:stack, :root_app)} default_node=#{snapshot.dig(:stack, :default_node)}"
+snapshot.fetch(:nodes).each do |name, node|
+  puts "     - #{name}: role=#{node[:role]} port=#{node[:port]} mounts=#{node[:mounts].map { |app, path| "#{app}=#{path}" }.join(", ")}"
 end
 node = Companion::Shared::CapabilityProfile.discovery_snapshot
 puts "  ➜  current_node=#{node.dig(:node, :name)} effective_caps=#{node.dig(:capabilities, :effective).join(", ")}"
 puts
 
 puts "  #{hr}"
-puts "  Run  bin/start       →  start apps/main"
+puts "  Run  bin/start       →  start the mounted stack"
 puts "  Run  bin/dev         →  start seed + edge + analyst locally"
-puts "  Run  bin/start --service seed  →  explicit node selection"
+puts "  Run  bin/start --node seed     →  explicit node selection"
 puts "  #{hr}"
 puts

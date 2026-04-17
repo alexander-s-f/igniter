@@ -94,14 +94,36 @@ module Igniter
         app_class(name)
       end
 
+      def mount(name, at:)
+        app_definition(name)
+        @mounts[normalize_app_name(name)] = normalize_mount_path(at)
+      end
+
+      def mounts
+        @mounts.each_with_object({}) do |(name, path), result|
+          result[name] = path.dup
+        end
+      end
+
       def app_names
         @apps.keys
       end
 
       def default_app
         @default_app ||
+          normalize_optional_name(stack_settings.dig("stack", "root_app")) ||
           normalize_optional_name(stack_settings.dig("stack", "default_app")) ||
           @apps.keys.first
+      end
+
+      def default_node
+        configured = normalize_optional_name(stack_settings.dig("stack", "default_node"))
+        return configured if configured && node_names.include?(configured)
+
+        fallback = normalize_optional_name(ENV["IGNITER_NODE"])
+        return fallback if fallback && node_names.include?(fallback)
+
+        node_names.first
       end
 
       def app_definition(name = nil)
@@ -120,13 +142,48 @@ module Igniter
       def start(name = nil, role: nil, environment: nil, profile: nil)
         environment(environment) if environment
         validate_profile!(profile) if profile
+        return start_node(default_node) if use_stack_runtime_by_default?(name, role)
+
         app_class(resolve_app_name(name, role: role)).start
       end
 
       def rack_app(name = nil, role: nil, environment: nil, profile: nil)
         environment(environment) if environment
         validate_profile!(profile) if profile
+        return rack_node(default_node) if use_stack_runtime_by_default?(name, role)
+
         app_class(resolve_app_name(name, role: role)).rack_app
+      end
+
+      def node_names
+        stack_settings.fetch("nodes", {}).keys.map { |node_name| normalize_app_name(node_name) }
+      end
+
+      def node_profile(name = nil)
+        node_name = normalize_app_name(name || default_node)
+        stack_settings.fetch("nodes", {}).fetch(node_name.to_s) do
+          available = node_names.map(&:inspect).join(", ")
+          raise ArgumentError, "Unknown stack node #{node_name.inspect} (available: #{available})"
+        end
+      end
+
+      def start_node(name = nil, environment: nil, profile: nil)
+        environment(environment) if environment
+        validate_profile!(profile) if profile
+
+        runtime = build_stack_runtime(nodes_defined? ? resolve_node_name(name) : nil)
+        schedulers = start_service_schedulers(runtime)
+        at_exit { stop_service_schedulers(schedulers) }
+        runtime.fetch(:root_app_class).host_adapter.start(config: runtime.fetch(:root_config))
+      end
+
+      def rack_node(name = nil, environment: nil, profile: nil)
+        environment(environment) if environment
+        validate_profile!(profile) if profile
+
+        runtime = build_stack_runtime(nodes_defined? ? resolve_node_name(name) : nil)
+        start_service_schedulers(runtime)
+        runtime.fetch(:root_app_class).host_adapter.rack_app(config: runtime.fetch(:root_config))
       end
 
       def service_names
@@ -218,7 +275,13 @@ module Igniter
           return
         end
 
-        if options[:service] || (services_defined? && options[:role])
+        if options[:node]
+          start_node(
+            options[:node],
+            environment: options[:environment],
+            profile: options[:profile]
+          )
+        elsif options[:service] || (services_defined? && options[:role])
           start_service(
             options[:service] || target,
             role: options[:role],
@@ -264,8 +327,11 @@ module Igniter
             "root_dir" => @root_dir,
             "environment" => resolved_environment,
             "default_app" => default_app.to_s,
+            "root_app" => default_app.to_s,
+            "default_node" => default_node&.to_s,
             "default_service" => default_service.to_s,
-            "topology_profile" => topology_profile.to_s
+            "topology_profile" => topology_profile.to_s,
+            "mounts" => stringify_hash(mounts)
           },
           "apps" => app_names.each_with_object({}) do |app_name, result|
             definition = app_definition(app_name)
@@ -277,6 +343,13 @@ module Igniter
             )
           end
         }
+
+        snapshot["nodes"] = node_names.each_with_object({}) do |node_name, result|
+          result[node_name.to_s] = node_deployment(node_name).merge(
+            "node" => node_name.to_s,
+            "default" => (node_name == default_node)
+          )
+        end if nodes_defined?
 
         snapshot["services"] = service_names.each_with_object({}) do |service_name, result|
           result[service_name.to_s] = service_deployment(service_name).merge(
@@ -299,11 +372,17 @@ module Igniter
         shared_env = stringify_hash(compose["environment"] || {})
         volume_target = compose["volume_target"]
 
-        services = snapshot.fetch("services").each_with_object({}) do |(service_name, service_config), result|
+        runtime_units = if snapshot["nodes"]
+                          snapshot.fetch("nodes")
+                        else
+                          snapshot.fetch("services")
+                        end
+
+        services = runtime_units.each_with_object({}) do |(service_name, service_config), result|
           service = {}
           service["build"] = build_config(build_context, dockerfile) if build_context || dockerfile || build
           service["image"] = build if build.is_a?(String)
-          service["command"] = service_config["command"] || "bundle exec ruby stack.rb --service #{service_name}"
+          service["command"] = service_config["command"] || default_runtime_command(service_name)
           service["working_dir"] = working_dir if present?(working_dir)
 
           env = shared_env.merge(compose_environment_for(service_name, service_config))
@@ -341,6 +420,19 @@ module Igniter
       end
 
       def dev_services
+        if nodes_defined?
+          snapshot = deployment_snapshot
+
+          return node_names.map do |node_name|
+            node_config = snapshot.fetch("nodes").fetch(node_name.to_s)
+            {
+              name: node_name.to_s,
+              command: node_config["dev_command"] || node_config["command"] || "bundle exec ruby stack.rb --node #{node_name}",
+              environment: dev_runtime_environment_for_node(node_name, node_config)
+            }
+          end
+        end
+
         snapshot = deployment_snapshot
 
         service_names.map do |service_name|
@@ -477,6 +569,7 @@ module Igniter
         subclass.instance_variable_set(:@procfile_dev_path, "config/deploy/Procfile.dev")
         subclass.instance_variable_set(:@shared_lib_paths, [])
         subclass.instance_variable_set(:@apps, {})
+        subclass.instance_variable_set(:@mounts, {})
         subclass.instance_variable_set(:@default_app, nil)
         subclass.instance_variable_set(:@stack_settings, nil)
         subclass.instance_variable_set(:@topology_settings, nil)
@@ -499,6 +592,10 @@ module Igniter
 
           opts.on("--service NAME", "Start a named runtime service") do |value|
             options[:service] = value
+          end
+
+          opts.on("--node NAME", "Start a named local node profile") do |value|
+            options[:node] = value
           end
 
           opts.on("--env NAME", "Use config/environments/<NAME>.yml overlay") do |value|
@@ -571,6 +668,16 @@ module Igniter
         normalize_app_name(name || default_service)
       end
 
+      def resolve_node_name(name = nil)
+        raise ArgumentError, "No stack nodes configured" unless nodes_defined?
+
+        desired = normalize_app_name(name || default_node)
+        return desired if node_names.include?(desired)
+
+        available = node_names.map(&:inspect).join(", ")
+        raise ArgumentError, "Unknown stack node #{desired.inspect} (available: #{available})"
+      end
+
       def normalize_app_name(name)
         name.to_sym
       end
@@ -582,6 +689,14 @@ module Igniter
 
       def services_defined?
         !topology.fetch("services", {}).empty?
+      end
+
+      def nodes_defined?
+        !stack_settings.fetch("nodes", {}).empty?
+      end
+
+      def mounts_defined?
+        !@mounts.empty?
       end
 
       def resolved_environment
@@ -644,6 +759,51 @@ module Igniter
         config
       end
 
+      def node_deployment(name = nil)
+        node_name = normalize_app_name(name || default_node)
+        profile = deep_merge(stack_settings.fetch("shared", {}), node_profile(node_name))
+        config = stringify_hash(profile.fetch("mounts", {}))
+
+        {
+          "apps" => app_names.map(&:to_s),
+          "root_app" => default_app.to_s,
+          "mounts" => config.empty? ? stringify_hash(mounts) : config,
+          "host" => profile["host"] || stack_settings.dig("server", "host"),
+          "port" => profile["port"] || profile.dig("http", "port") || stack_settings.dig("server", "port"),
+          "public" => profile.key?("public") ? profile["public"] : true,
+          "command" => profile["command"] || "bundle exec ruby stack.rb --node #{node_name}",
+          "role" => profile["role"] || node_name.to_s,
+          "environment" => stringify_hash(profile.fetch("environment", {}))
+        }
+      end
+
+      def build_stack_runtime(node_name = nil)
+        selected_node = nodes_defined? ? resolve_node_name(node_name) : nil
+        root_app_name = default_app
+        root_app_class = app_class(root_app_name)
+        mounted_apps = mounted_stack_apps
+        root_app_class.host_adapter.activate_transport!
+        root_config = root_app_class.send(:build!)
+        apply_service_http_settings!(
+          root_config,
+          stack_http_settings(selected_node)
+        )
+        root_config.custom_routes = mounted_apps.flat_map { |app| app.fetch(:routes) } + Array(root_config.custom_routes)
+
+        {
+          service_name: selected_node || root_app_name,
+          service_config: {
+            "apps" => app_names.map(&:to_s),
+            "root_app" => root_app_name.to_s,
+            "mounts" => stringify_hash(mounts)
+          },
+          root_app_name: root_app_name,
+          root_app_class: root_app_class,
+          root_config: root_config,
+          mounted_apps: mounted_apps
+        }
+      end
+
       def build_service_runtime(name)
         service_name = normalize_app_name(name)
         service_config = service_deployment(service_name)
@@ -671,6 +831,15 @@ module Igniter
           root_config: root_config,
           mounted_apps: mounted_apps
         }
+      end
+
+      def mounted_stack_apps
+        mounts.map do |app_name, mount_path|
+          build_mounted_service_app(
+            service_config: { "mounts" => { app_name.to_s => mount_path } },
+            app_name: app_name
+          )
+        end
       end
 
       def build_mounted_service_app(service_config:, app_name:)
@@ -802,8 +971,24 @@ module Igniter
         env.reject { |_key, value| !present?(value) }
       end
 
+      def runtime_environment_for_node(node_name, node_config)
+        env = stringify_hash(node_config.fetch("environment", {}))
+        env.merge!(
+          {
+            "IGNITER_NODE" => node_name.to_s,
+            "PORT" => node_config["port"].to_s
+          }
+        )
+        env["IGNITER_ENV"] = resolved_environment unless resolved_environment.empty?
+        env.reject { |_key, value| !present?(value) }
+      end
+
       def dev_runtime_environment_for(app_name, app_config)
         runtime_environment_for(app_name, app_config).merge("RUBYOPT" => rubyopt_with_dev_output_sync)
+      end
+
+      def dev_runtime_environment_for_node(node_name, node_config)
+        runtime_environment_for_node(node_name, node_config).merge("RUBYOPT" => rubyopt_with_dev_output_sync)
       end
 
       def rubyopt_with_dev_output_sync
@@ -836,6 +1021,25 @@ module Igniter
 
       def present?(value)
         !value.to_s.strip.empty?
+      end
+
+      def use_stack_runtime_by_default?(name, role)
+        name.nil? && role.nil? && mounts_defined?
+      end
+
+      def stack_http_settings(node_name = nil)
+        settings = stringify_hash(stack_settings.fetch("server", {}))
+        settings = settings.merge(stringify_hash(node_profile(node_name).slice("host", "port", "log_format", "drain_timeout"))) if node_name
+        settings["port"] = settings["port"].to_i if settings["port"]
+        settings
+      end
+
+      def default_runtime_command(name)
+        if nodes_defined?
+          "bundle exec ruby stack.rb --node #{name}"
+        else
+          "bundle exec ruby stack.rb --service #{name}"
+        end
       end
 
       def load_yaml(path)

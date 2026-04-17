@@ -20,7 +20,7 @@ module Companion
             current_node: snapshot.fetch(:current_node),
             routing: snapshot.fetch(:routing),
             discovered_peers: snapshot.fetch(:discovered_peers),
-            services: snapshot.fetch(:services),
+            nodes: snapshot.fetch(:nodes),
             counts: snapshot.fetch(:counts),
             notes: snapshot.fetch(:notes)
           ),

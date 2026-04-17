@@ -1,35 +1,38 @@
 # Companion — Cluster Next Sandbox
 
-`examples/companion` is now the fresh proving ground for `Stack/App vNext` and
-`Igniter::Cluster Next`.
+`examples/companion` is the proving surface for the current `Stack/App` and `Cluster Next` direction.
 
-It is intentionally small and plastic:
+The intended reading order is now simple:
 
-- `apps/` stay code boundaries
-- `services:` act as local node instances
-- each node advertises a capability envelope
-- some capabilities can be mocked to simulate future hardware or software
-- the same stack can run several local nodes with one `bin/dev`
+1. [stack.rb](/Users/alex/dev/projects/igniter/examples/companion/stack.rb)
+2. [stack.yml](/Users/alex/dev/projects/igniter/examples/companion/stack.yml)
 
-The previous richer voice-assistant workspace now lives in
-[`examples/companion_legacy`](/Users/alex/dev/projects/igniter/examples/companion_legacy/README.md).
+That is the point.
 
-## Local Mesh
+## Mental Model
 
-The default topology boots three local nodes:
+- `Stack` is the server container
+- `main` is the root app
+- `dashboard` is mounted at `/dashboard`
+- local mesh nodes are launch profiles of the same stack
 
-| Service | Port | Intent | Effective capability shape |
+So companion is no longer modeled as “many app-servers”.
+It is one mounted stack that can be launched several times with different node profiles.
+
+## Local Nodes
+
+The default local mesh is declared in [stack.yml](/Users/alex/dev/projects/igniter/examples/companion/stack.yml):
+
+| Node | Port | Intent | Effective capability shape |
 |---|---:|---|---|
 | `seed` | `4667` | bootstrap / routing node | `notes_api`, `mesh_seed`, `routing`, mocked `notifications` |
 | `edge` | `4668` | edge / audio-facing node | `notes_api`, `speech_io`, mocked `whisper_asr`, `piper_tts` |
 | `analyst` | `4669` | reasoning / knowledge node | `notes_api`, `assistant_orchestration`, mocked `local_llm`, `rag` |
 
-Each service hosts:
+Each node runs the same stack:
 
-- `apps/main` on `/`
-- `apps/dashboard` on `/dashboard`
-
-So one service equals one local node instance, not one app.
+- `main` on `/`
+- `dashboard` on `/dashboard`
 
 ## Boot
 
@@ -43,9 +46,9 @@ bin/dev
 
 Then open:
 
-- seed status: [http://127.0.0.1:4667/v1/home/status](http://127.0.0.1:4667/v1/home/status)
-- edge status: [http://127.0.0.1:4668/v1/home/status](http://127.0.0.1:4668/v1/home/status)
-- analyst status: [http://127.0.0.1:4669/v1/home/status](http://127.0.0.1:4669/v1/home/status)
+- [http://127.0.0.1:4667/v1/home/status](http://127.0.0.1:4667/v1/home/status)
+- [http://127.0.0.1:4668/v1/home/status](http://127.0.0.1:4668/v1/home/status)
+- [http://127.0.0.1:4669/v1/home/status](http://127.0.0.1:4669/v1/home/status)
 - dashboards:
   `http://127.0.0.1:4667/dashboard`,
   `http://127.0.0.1:4668/dashboard`,
@@ -55,7 +58,7 @@ To run one node explicitly:
 
 ```bash
 PORT=4668 \
-IGNITER_SERVICE=edge \
+IGNITER_NODE=edge \
 COMPANION_NODE_NAME=companion-edge \
 COMPANION_NODE_ROLE=edge \
 COMPANION_NODE_URL=http://127.0.0.1:4668 \
@@ -63,37 +66,32 @@ COMPANION_LOCAL_CAPABILITIES=notes_api,speech_io \
 COMPANION_MOCK_CAPABILITIES=whisper_asr,piper_tts \
 COMPANION_SEEDS=http://127.0.0.1:4667 \
 COMPANION_START_DISCOVERY=true \
-bin/start --service edge
+bin/start --node edge
 ```
-
-## Selective Capability Mocking
-
-Capability envelopes are driven by environment variables in
-[config/topology.yml](/Users/alex/dev/projects/igniter/examples/companion/config/topology.yml).
-
-The key knobs are:
-
-- `COMPANION_LOCAL_CAPABILITIES`
-- `COMPANION_MOCK_CAPABILITIES`
-- `COMPANION_NODE_TAGS`
-- `COMPANION_SEEDS`
-- `COMPANION_START_DISCOVERY`
-
-This means you can simulate a node gaining or losing powers without changing app
-code. For example:
-
-```bash
-COMPANION_MOCK_CAPABILITIES=local_llm,rag,vector_store bin/start --service analyst
-```
-
-That is exactly the bridge toward capability-first cluster routing.
 
 ## What To Look At
 
-- [config/topology.yml](/Users/alex/dev/projects/igniter/examples/companion/config/topology.yml) defines the local mesh
+- [stack.rb](/Users/alex/dev/projects/igniter/examples/companion/stack.rb) defines mounted apps
+- [stack.yml](/Users/alex/dev/projects/igniter/examples/companion/stack.yml) defines server defaults, persistence, and local node profiles
 - [apps/main/app.rb](/Users/alex/dev/projects/igniter/examples/companion/apps/main/app.rb) turns `main` into a `cluster_app` host
 - [lib/companion/shared/capability_profile.rb](/Users/alex/dev/projects/igniter/examples/companion/lib/companion/shared/capability_profile.rb) derives effective and mocked capabilities from env
-- [lib/companion/shared/stack_overview.rb](/Users/alex/dev/projects/igniter/examples/companion/lib/companion/shared/stack_overview.rb) exposes node + service + peer state to the UI and status API
+- [lib/companion/shared/stack_overview.rb](/Users/alex/dev/projects/igniter/examples/companion/lib/companion/shared/stack_overview.rb) exposes stack/node/peer state to the UI and status API
+
+## Self-Heal Demo
+
+The dashboard now includes a small `Self-Heal Demo`.
+
+It can trigger:
+
+- a synthetic governance gate
+- a synthetic peer repair incident
+
+And then show:
+
+- the published routing report
+- plan actions
+- the latest repair tick
+- governance trail changes after automated remediation
 
 ## Validation
 

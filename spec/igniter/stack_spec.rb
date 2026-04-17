@@ -536,4 +536,84 @@ RSpec.describe Igniter::Stack do
       expect(procfile).to include("bundle exec ruby stack.rb --service core")
     end
   end
+
+  it "mounts apps behind the stack runtime without topology services" do
+    root_app = Class.new(Igniter::App) do
+      route "GET", "/hello" do
+        { source: "main" }
+      end
+    end
+
+    mounted_app = Class.new(Igniter::App) do
+      route "GET", "/hello" do
+        { source: "dashboard" }
+      end
+    end
+
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          root_app: main
+      YAML
+
+      workspace = build_workspace(
+        root: tmp,
+        app_classes: { main: root_app, dashboard: mounted_app }
+      )
+      workspace.mount(:dashboard, at: "/dashboard")
+
+      rack_app = workspace.rack_app
+      root_status, _root_headers, root_body = rack_app.call(
+        "REQUEST_METHOD" => "GET",
+        "PATH_INFO" => "/hello",
+        "rack.input" => StringIO.new("")
+      )
+      mounted_status, _mounted_headers, mounted_body = rack_app.call(
+        "REQUEST_METHOD" => "GET",
+        "PATH_INFO" => "/dashboard/hello",
+        "rack.input" => StringIO.new("")
+      )
+
+      expect(root_status).to eq(200)
+      expect(root_body.join).to include("\"source\":\"main\"")
+      expect(mounted_status).to eq(200)
+      expect(mounted_body.join).to include("\"source\":\"dashboard\"")
+    end
+  end
+
+  it "builds local node profiles from stack.yml without topology services" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          root_app: main
+          default_node: seed
+        server:
+          host: 0.0.0.0
+        nodes:
+          seed:
+            port: 4667
+            role: seed
+            environment:
+              NODE_KIND: seed
+          edge:
+            port: 4668
+            role: edge
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      workspace.mount(:dashboard, at: "/dashboard")
+      snapshot = workspace.deployment_snapshot
+      procfile = workspace.procfile_dev
+
+      expect(workspace.default_node).to eq(:seed)
+      expect(workspace.node_names).to eq(%i[seed edge])
+      expect(snapshot.dig("stack", "default_node")).to eq("seed")
+      expect(snapshot.dig("nodes", "seed", "port")).to eq(4667)
+      expect(snapshot.dig("nodes", "seed", "mounts")).to eq("dashboard" => "/dashboard")
+      expect(procfile).to include("seed:")
+      expect(procfile).to include("IGNITER_NODE=seed")
+      expect(procfile).to include("bundle exec ruby stack.rb --node seed")
+      expect(procfile).to include("NODE_KIND=seed")
+    end
+  end
 end

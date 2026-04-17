@@ -1,145 +1,182 @@
 # Igniter Stack/App Next
 
-This document defines the next model for `Igniter::Stack` and `Igniter::App`.
+This document fixes the current direction for `Igniter::Stack` and `Igniter::App`.
+
+It supersedes the more ceremony-heavy shape where runtime topology, ports, and process thinking were spread across too many files too early.
 
 ## Thesis
 
-`apps/` should remain code boundaries, not mandatory process boundaries.
+`Igniter::Stack` should be the server and composition root.
 
-The previous model leaned toward:
+`apps/` should be mountable pluggable modules that live under the stack umbrella.
 
-- one app
-- one process
-- one port
+The desired reading experience for a stack should be:
 
-That was reasonable when runtime roles were the dominant abstraction.
-It becomes increasingly awkward in a capability-first cluster model.
+- open `stack.rb`
+- open `stack.yml`
+- understand almost everything important
 
-## The New Separation
+## Core Rule
 
-There are now three different boundaries and they should stay distinct:
+### Stack
+
+The stack owns:
+
+- server lifecycle
+- app mounting
+- shared persistence and shared libraries
+- local node launch profiles for development and experiments
+
+The stack is the runtime container.
 
 ### App
 
-An app is a code boundary inside a stack.
-
-It owns:
+An app owns:
 
 - contracts
 - executors
 - tools
 - agents
 - skills
+- routes and handlers
 - app-local wiring
 
-An app does **not** automatically imply a dedicated server process.
+An app should be portable.
 
-### Service
+The ideal app story is:
 
-A service is a runtime boundary.
+- copy the app folder into another stack
+- register it in `stack.rb`
+- mount it
+- it works
 
-It owns:
-
-- one or more apps
-- one listener / host boundary
-- process-level environment
-- public/internal exposure
-- deployment intent
-
-If multiple apps can safely live together, they should be able to share one service.
+An app is not the deployable unit by default.
 
 ### Node
 
-A node is a running cluster participant.
+A node is a running copy of the stack inside the cluster.
 
-It owns:
+Node concerns include:
 
 - identity
-- trust state
+- trust
 - capability claims
-- live runtime metadata
+- discovery
+- governance
 
-This is the correct level for cluster thinking.
+This is cluster territory, not app territory.
 
-## Design Rule
+## Design Decision
 
-Use this rule when deciding where something belongs:
+We now prefer:
 
-- the number of **apps** should grow with bounded contexts
-- the number of **services** should grow with runtime isolation needs
-- the number of **nodes** should grow with topology, resilience, scale, and placement needs
+- one server container per stack process
+- many mounted apps inside that process
+- multiple local node instances created by launching the same stack with different node profiles
 
-These three quantities should not be forced to grow together.
+We explicitly do **not** want the architecture to imply:
 
-## Why This Matters
-
-If a stack has ten apps, that should not automatically mean:
-
-- ten processes in dev
-- ten ports locally
-- ten containers in deployment
-
-That coupling creates needless operational cost and discourages modularity.
-
-## vNext Runtime Model
-
-`Igniter::Stack` should be able to:
-
-- register many apps
-- define services separately from apps
-- run a service that hosts one or more apps
-- generate local dev and compose output from services rather than from apps
-
-The first practical shape of this model is:
-
-- one root app may own `/`
-- additional apps in the same service can be mounted under prefixes such as `/apps/<name>`
-
-This is not the final form forever, but it is a good compatibility-preserving step.
+- one app = one server
+- one app = one port
+- one app = one deployable
 
 ## Configuration Direction
 
-### `apps/<name>/app.yml`
+The strong configuration points should be:
 
-Should trend toward app-local concerns:
+- `stack.rb`
+- `stack.yml`
 
-- app-local defaults
-- packs
-- local persistence defaults
-- local feature/runtime wiring
+### `stack.rb`
 
-It should stop being the canonical place for service port allocation.
+Should answer:
 
-### `config/topology.yml`
+- which apps exist
+- which app is the root app
+- which apps are mounted
 
-Should become the home of runtime boundaries:
+Example shape:
 
-- services
-- which apps live inside each service
-- ports
-- exposure
-- replica and deployment intent
+```ruby
+class Stack < Igniter::Stack
+  root_dir __dir__
+  shared_lib_path "lib"
+
+  app :main, path: "apps/main", klass: MainApp, default: true
+  app :dashboard, path: "apps/dashboard", klass: DashboardApp
+
+  mount :dashboard, at: "/dashboard"
+end
+```
+
+### `stack.yml`
+
+Should answer:
+
+- stack metadata
+- server defaults
+- persistence
+- optional local node launch profiles for dev / demos / home-lab
+
+Example shape:
+
+```yaml
+stack:
+  name: companion
+  root_app: main
+  default_node: seed
+  shared_lib_paths:
+    - lib
+
+server:
+  host: 0.0.0.0
+
+nodes:
+  seed:
+    port: 4667
+  edge:
+    port: 4668
+  analyst:
+    port: 4669
+
+persistence:
+  data:
+    adapter: sqlite
+    path: var/companion_data.sqlite3
+```
+
+## What Moves Out Of The Center
+
+These concepts are no longer the canonical center of stack architecture:
+
+- `topology.yml`
+- `default_service`
+- `replicas`
+- deployment-role-driven app boot
+
+Some of them may continue to exist as compatibility or deployment helpers, but they should not define the mental model.
+
+## Important Distinction
+
+Local multi-node development is a harness, not the architecture.
+
+That means:
+
+- the stack stays the same
+- `bin/dev` can launch several node profiles
+- cluster behavior comes from runtime identity/capabilities/trust
+- not from a static topology document pretending to be the source of truth
 
 ## Compatibility Direction
 
-Legacy stacks where topology is app-shaped should continue to work.
+We can keep legacy `services/topology` support temporarily where useful.
 
-But the preferred model going forward is:
+But the preferred direction is now:
 
-- `apps:` for code registration
-- `services:` for runtime grouping
-
-## First Slice
-
-The first implementation slice of Stack/App Next should provide:
-
-1. topology-level `services`
-2. service-based `bin/dev` and compose generation
-3. `start_service` / `rack_service`
-4. ability for one service to mount multiple apps behind one listener
-
-That is enough to prove the model without forcing a full rewrite of hosting.
+1. stack-mounted runtime by default
+2. node profiles in `stack.yml` for local multi-node boot
+3. apps as portable mounted modules
 
 ## One-Line Rule
 
-`Apps are code boundaries. Services are runtime boundaries. Nodes are cluster boundaries.`
+`Stack owns the server. App owns mounted functionality. Node owns distributed identity and behavior.`

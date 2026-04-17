@@ -11,6 +11,8 @@ module Companion
 
     app :main, path: "apps/main", klass: Companion::MainApp, default: true
     app :dashboard, path: "apps/dashboard", klass: Companion::DashboardApp
+
+    mount :dashboard, at: "/dashboard"
   end
 end
 

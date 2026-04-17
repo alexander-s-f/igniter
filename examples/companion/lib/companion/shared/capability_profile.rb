@@ -7,7 +7,7 @@ module Companion
     module CapabilityProfile
       module_function
 
-      DEFAULT_SERVICE = "seed"
+      DEFAULT_NODE = "seed"
       DEFAULT_PORT = 4667
       DEFAULTS = {
         "seed" => {
@@ -37,10 +37,10 @@ module Companion
       }.freeze
 
       def current(env = ENV)
-        service_name = string(env["IGNITER_SERVICE"], default: DEFAULT_SERVICE)
-        defaults = DEFAULTS.fetch(service_name, {})
-        node_name = string(env["COMPANION_NODE_NAME"], default: "companion-#{service_name}")
-        node_role = string(env["COMPANION_NODE_ROLE"], default: defaults.fetch(:role, service_name))
+        node_profile = string(env["IGNITER_NODE"], default: DEFAULT_NODE)
+        defaults = DEFAULTS.fetch(node_profile, {})
+        node_name = string(env["COMPANION_NODE_NAME"], default: "companion-#{node_profile}")
+        node_role = string(env["COMPANION_NODE_ROLE"], default: defaults.fetch(:role, node_profile))
         port = integer(env["PORT"], default: defaults.fetch(:port, DEFAULT_PORT))
         local_url = string(env["COMPANION_NODE_URL"], default: "http://127.0.0.1:#{port}")
 
@@ -50,7 +50,7 @@ module Companion
         seeds = csv_strings(env["COMPANION_SEEDS"], default: defaults.fetch(:seeds, []))
 
         {
-          service_name: service_name,
+          node_profile: node_profile,
           node_name: node_name,
           node_role: node_role,
           port: port,
@@ -68,7 +68,7 @@ module Companion
           trust_store: NodeIdentityCatalog.trust_store,
           metadata: {
             companion: {
-              service: service_name,
+              node_profile: node_profile,
               role: node_role,
               declared_capabilities: declared,
               mocked_capabilities: mocked
@@ -83,7 +83,7 @@ module Companion
         {
           node: {
             name: profile[:node_name],
-            service: profile[:service_name],
+            profile: profile[:node_profile],
             role: profile[:node_role],
             port: profile[:port],
             url: profile[:local_url]
