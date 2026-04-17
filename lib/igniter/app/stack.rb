@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "fileutils"
+require "irb"
 require "optparse"
 require "shellwords"
 require "stringio"
@@ -19,6 +20,21 @@ module Igniter
   # stack. The stack itself owns the server/runtime boundary.
   class Stack
     AppDefinition = Struct.new(:name, :path, :klass, :root, keyword_init: true)
+    ConsoleContext = Struct.new(
+      :stack_class,
+      :root_app_name,
+      :root_app_class,
+      :app_name,
+      :app_class,
+      :node_name,
+      :node_profile,
+      :deployment,
+      :runtime,
+      :mounts,
+      :stack_settings,
+      :mesh,
+      keyword_init: true
+    )
     SERVICE_MOUNT_METHODS = %w[GET POST PUT PATCH DELETE OPTIONS HEAD].freeze
 
     class << self
@@ -176,6 +192,43 @@ module Igniter
         runtime.fetch(:root_app_class).host_adapter.rack_app(config: runtime.fetch(:root_config))
       end
 
+      def console_context(name = nil, node: nil, environment: nil)
+        self.environment(environment) if environment
+
+        selected_app_name = resolve_app_name(name)
+        selected_node_name = nodes_defined? ? resolve_node_name(node) : nil
+        selected_runtime = build_stack_runtime(selected_node_name)
+
+        ConsoleContext.new(
+          stack_class: self,
+          root_app_name: root_app,
+          root_app_class: app_class(root_app),
+          app_name: selected_app_name,
+          app_class: app_class(selected_app_name),
+          node_name: selected_node_name,
+          node_profile: selected_node_name ? node_profile(selected_node_name) : nil,
+          deployment: deployment_snapshot,
+          runtime: selected_runtime,
+          mounts: mounts,
+          stack_settings: stack_settings,
+          mesh: defined?(Igniter::Cluster::Mesh) ? Igniter::Cluster::Mesh : nil
+        )
+      end
+
+      def console_binding(name = nil, node: nil, environment: nil)
+        context = console_context(name, node: node, environment: environment)
+        console_locals_binding(context)
+      end
+
+      def start_console(name = nil, node: nil, environment: nil, output: $stdout, evaluate: nil)
+        context = console_context(name, node: node, environment: environment)
+        output.puts(console_banner(context))
+        bind = console_locals_binding(context)
+        return evaluate_console(bind, evaluate, output) if evaluate
+
+        bind.irb
+      end
+
       def start_cli(argv = ARGV)
         options = parse_cli_options(argv.dup)
         target = options.delete(:target)
@@ -206,6 +259,16 @@ module Igniter
         if options[:write_compose]
           self.environment(options[:environment]) if options[:environment]
           write_compose(options[:write_compose] == true ? nil : options[:write_compose])
+          return
+        end
+
+        if options[:console]
+          start_console(
+            target,
+            node: options[:node],
+            environment: options[:environment],
+            evaluate: options[:evaluate]
+          )
           return
         end
 
@@ -426,6 +489,14 @@ module Igniter
 
           opts.on("--node NAME", "Start a named local node profile") do |value|
             options[:node] = value
+          end
+
+          opts.on("--console", "Start an interactive stack console") do
+            options[:console] = true
+          end
+
+          opts.on("-e", "--eval CODE", "Evaluate Ruby inside the stack console and exit") do |value|
+            options[:evaluate] = value
           end
 
           opts.on("--env NAME", "Use config/environments/<NAME>.yml overlay") do |value|
@@ -731,6 +802,49 @@ module Igniter
           "#{Shellwords.escape(key)}=#{Shellwords.escape(value)}"
         end
         (assignments + [command]).join(" ").strip
+      end
+
+      def console_banner(context)
+        [
+          "Igniter Console",
+          "  stack=#{context.stack_class.name || "anonymous"}",
+          "  root_app=#{context.root_app_name}",
+          "  app=#{context.app_name}",
+          "  node=#{context.node_name || "none"}",
+          "  mounts=#{context.mounts.keys.map(&:to_s).join(", ")}",
+          "  helpers: stack, context, app, root_app, node, deployment, runtime, mesh"
+        ].join("\n")
+      end
+
+      def console_locals_binding(context)
+        bind = Object.new.instance_eval { binding }
+        {
+          stack: context.stack_class,
+          stack_class: context.stack_class,
+          context: context,
+          root_app: context.root_app_class,
+          root_app_name: context.root_app_name,
+          app: context.app_class,
+          app_class: context.app_class,
+          app_name: context.app_name,
+          node: context.node_name,
+          node_name: context.node_name,
+          node_profile: context.node_profile,
+          deployment: context.deployment,
+          runtime: context.runtime,
+          mounts: context.mounts,
+          mesh: context.mesh,
+          stack_settings: context.stack_settings
+        }.each do |name, value|
+          bind.local_variable_set(name, value)
+        end
+        bind
+      end
+
+      def evaluate_console(bind, code, output)
+        result = bind.eval(code)
+        output.puts("=> #{result.inspect}")
+        result
       end
 
       def stringify_hash(hash)

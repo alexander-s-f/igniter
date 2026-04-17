@@ -1087,6 +1087,7 @@ module Igniter
             cd #{@name}
             bundle install
             ruby bin/demo
+            bin/console
             bin/start
             bin/start --node main
             bin/dev

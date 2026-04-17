@@ -14,6 +14,7 @@ RSpec.describe Igniter::App::Generators::Playground do
         expect(File.exist?("my_lab/apps/dashboard/app.rb")).to be true
         expect(File.exist?("my_lab/apps/dashboard/app.yml")).to be true
         expect(File.exist?("my_lab/apps/dashboard/spec/dashboard_app_spec.rb")).to be true
+        expect(File.exist?("my_lab/bin/console")).to be true
         expect(File.exist?("my_lab/lib/my_lab/shared/stack_overview.rb")).to be true
         expect(File.exist?("my_lab/lib/my_lab/shared/note_store.rb")).to be true
         expect(File.exist?("my_lab/lib/my_lab/main/status_handler.rb")).to be true
@@ -40,6 +41,7 @@ RSpec.describe Igniter::App::Generators::Playground do
         expect(readme).to include("generated with the `playground` profile")
         expect(readme).to include("shared notes flow")
         expect(readme).to include("http://127.0.0.1:4567/dashboard")
+        expect(readme).to include("bin/console")
         expect(readme).to include("bin/start --node main")
         expect(main_app).to include('route "POST", "/v1/notes"')
         expect(dashboard_app).to include('route "POST", "/notes"')

@@ -41,6 +41,7 @@ From the repository root:
 ```bash
 cd examples/companion
 bundle install
+bin/console --node seed
 bin/dev
 ```
 

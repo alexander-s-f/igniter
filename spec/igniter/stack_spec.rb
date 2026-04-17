@@ -418,6 +418,76 @@ RSpec.describe Igniter::Stack do
     end
   end
 
+  it "builds a console context with stack, app, node, and runtime helpers" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          root_app: main
+          default_node: edge
+        nodes:
+          edge:
+            port: 4668
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      workspace.mount(:dashboard, at: "/dashboard")
+
+      context = workspace.console_context(:dashboard, node: :edge)
+      bind = workspace.console_binding(:dashboard, node: :edge)
+
+      expect(context.stack_class).to eq(workspace)
+      expect(context.root_app_name).to eq(:main)
+      expect(context.app_name).to eq(:dashboard)
+      expect(context.node_name).to eq(:edge)
+      expect(context.node_profile).to include("port" => 4668)
+      expect(context.deployment.dig("stack", "root_app")).to eq("main")
+      expect(context.mounts).to eq(dashboard: "/dashboard")
+      expect(bind.local_variable_get(:stack)).to eq(workspace)
+      expect(bind.local_variable_get(:app_name)).to eq(:dashboard)
+      expect(bind.local_variable_get(:node_name)).to eq(:edge)
+      expect(bind.local_variable_get(:deployment).dig("stack", "default_node")).to eq("edge")
+    end
+  end
+
+  it "routes CLI console mode into start_console" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          root_app: main
+          default_node: edge
+        nodes:
+          edge:
+            port: 4668
+      YAML
+
+      workspace = build_workspace(root: tmp)
+
+      expect(workspace).to receive(:start_console).with("dashboard", node: "edge", environment: "development", evaluate: nil)
+      workspace.start_cli(%w[--console --node edge --env development dashboard])
+    end
+  end
+
+  it "evaluates code inside the stack console and exits" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          root_app: main
+          default_node: seed
+        nodes:
+          seed:
+            port: 4667
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      output = StringIO.new
+      result = workspace.start_console(:dashboard, node: :seed, output: output, evaluate: "[app_name, node_name, root_app_name]")
+
+      expect(result).to eq(%i[dashboard seed main])
+      expect(output.string).to include("Igniter Console")
+      expect(output.string).to include("=> [:dashboard, :seed, :main]")
+    end
+  end
+
   it "starts one mounted stack runtime in dev mode when nodes are absent" do
     Dir.mktmpdir do |tmp|
       File.write(File.join(tmp, "stack.yml"), <<~YAML)

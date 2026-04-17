@@ -620,6 +620,7 @@ RSpec.describe Igniter::App do
           # bin/
           expect(File.exist?("my_app/bin/start")).to be true
           expect(File.exist?("my_app/bin/dev")).to be true
+          expect(File.exist?("my_app/bin/console")).to be true
           expect(File.exist?("my_app/bin/demo")).to be true
 
           # stack structure
@@ -649,6 +650,7 @@ RSpec.describe Igniter::App do
           main_app  = File.read("my_app/apps/main/app.rb")
           bin_start = File.read("my_app/bin/start")
           bin_dev   = File.read("my_app/bin/dev")
+          bin_console = File.read("my_app/bin/console")
 
           expect(stack).to include("Igniter::Stack")
           expect(stack).to include('require "igniter/stack"')
@@ -660,6 +662,7 @@ RSpec.describe Igniter::App do
           expect(File.read("my_app/Gemfile")).to include("gem \"sqlite3\"")
           expect(bin_start).to include("exec bundle exec ruby stack.rb \"$@\"")
           expect(bin_dev).to include("exec bundle exec ruby stack.rb --dev \"$@\"")
+          expect(bin_console).to include("exec bundle exec ruby stack.rb --console \"$@\"")
           expect(File.read("my_app/config.ru")).to include("rack_node")
           expect(main_app).to include('require "igniter/app"')
           expect(main_app).to include("root_dir __dir__")
@@ -712,12 +715,13 @@ RSpec.describe Igniter::App do
       end
     end
 
-    it "makes bin/start and bin/demo executable" do
+    it "makes bin/start, bin/dev, bin/console, and bin/demo executable" do
       Dir.mktmpdir do |tmp|
         Dir.chdir(tmp) do
           described_class.new("exectest").generate
           expect(File.executable?("exectest/bin/start")).to be true
           expect(File.executable?("exectest/bin/dev")).to be true
+          expect(File.executable?("exectest/bin/console")).to be true
           expect(File.executable?("exectest/bin/demo")).to be true
         end
       end

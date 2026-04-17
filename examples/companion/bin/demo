@@ -61,6 +61,7 @@ puts
 
 puts "  #{hr}"
 puts "  Run  bin/start       →  start the mounted stack"
+puts "  Run  bin/console     →  inspect stack, app, mesh, and runtime interactively"
 puts "  Run  bin/dev         →  start seed + edge + analyst locally"
 puts "  Run  bin/start --node seed     →  explicit node selection"
 puts "  #{hr}"

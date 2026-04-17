@@ -26,6 +26,7 @@ module Igniter
     #   ├── spec/                      — shared + integration + stack-level specs
     #   ├── bin/
     #   │   ├── start                  — Launch a named app (default: main)
+    #   │   ├── console                — Interactive stack console
     #   │   └── demo                   — Run a quick demo (no server needed)
     #   ├── stack.rb                   — Stack coordinator
     #   ├── stack.yml                  — Stack metadata
@@ -61,6 +62,7 @@ module Igniter
         write "config.ru",                     config_ru
         write "bin/start",                     bin_start
         write "bin/dev",                       bin_dev
+        write "bin/console",                   bin_console
         write "spec/spec_helper.rb",           root_spec_helper
         write "spec/stack_spec.rb",            stack_spec
         write "apps/main/spec/spec_helper.rb", main_spec_helper
@@ -87,6 +89,7 @@ module Igniter
 
         FileUtils.chmod(0o755, path("bin/start"))
         FileUtils.chmod(0o755, path("bin/dev"))
+        FileUtils.chmod(0o755, path("bin/console"))
         FileUtils.chmod(0o755, path("bin/demo"))
 
         puts
@@ -99,6 +102,7 @@ module Igniter
         puts "    ruby bin/demo      # ← see it work immediately"
         end
         puts "    bin/start          # ← launch the mounted stack"
+        puts "    bin/console        # ← open the igniter console"
         puts "    bin/dev            # ← launch the whole stack locally"
         puts "    bin/start --node main      # ← explicit node selection"
         puts
@@ -290,6 +294,16 @@ module Igniter
         BASH
       end
 
+      def bin_console
+        <<~BASH
+          #!/usr/bin/env bash
+          set -e
+          cd "$(dirname "$0")/.."
+
+          exec bundle exec ruby stack.rb --console "$@"
+        BASH
+      end
+
       # ─── bin/demo ────────────────────────────────────────────────────────────
 
       def bin_demo
@@ -345,6 +359,7 @@ module Igniter
 
           puts "  \#{hr}"
           puts "  Run  bin/start       →  start the mounted stack"
+          puts "  Run  bin/console     →  open the igniter console"
           puts "  Run  bin/dev         →  start the whole stack locally"
           puts "  Run  bin/start --node main     →  explicit node selection"
           puts "  \#{hr}"
@@ -362,6 +377,7 @@ module Igniter
           # See examples/companion/bin/demo for a full example.
           puts "#{module_name} stack — add your demo code here."
           puts "Run  bin/start       →  start the mounted stack"
+          puts "Run  bin/console     →  open the igniter console"
           puts "Run  bin/dev         →  start the whole stack locally"
           puts "Run  bin/start --node main     →  explicit node selection"
         RUBY
