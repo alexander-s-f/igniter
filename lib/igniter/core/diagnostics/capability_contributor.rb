@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../capabilities"
+
 module Igniter
   module Diagnostics
     module CapabilityContributor
@@ -17,7 +19,8 @@ module Igniter
             by_capability: unique_capabilities.each_with_object({}) do |capability, memo|
               memo[capability] = entries.count { |entry| entry[:capabilities].include?(capability) }
             end,
-            nodes: entries
+            nodes: entries,
+            policy: policy_summary(entries)
           }
           report
         end
@@ -27,6 +30,7 @@ module Igniter
           return unless capabilities
 
           lines << "Capabilities: #{summary(capabilities)}"
+          lines << "Capability Policy: #{policy_text_summary(capabilities[:policy])}"
         end
 
         def append_markdown_summary(report:, lines:)
@@ -34,6 +38,7 @@ module Igniter
           return unless capabilities
 
           lines << "- Capabilities: #{summary(capabilities)}"
+          lines << "- Capability Policy: #{policy_text_summary(capabilities[:policy])}"
         end
 
         def append_markdown_sections(report:, lines:)
@@ -45,6 +50,14 @@ module Igniter
           lines << "- Summary: nodes=#{capabilities[:total_nodes]}, pure=#{capabilities[:pure_nodes]}, impure=#{capabilities[:impure_nodes]}, unique=#{list_or_none(capabilities[:unique_capabilities])}"
           capabilities[:nodes].each do |entry|
             lines << "- `#{entry[:node_name]}` executor=`#{entry[:executor_class] || "anonymous"}` capabilities=#{entry[:capabilities].join(", ")} pure=#{entry[:pure]}"
+          end
+          lines << ""
+          lines << "## Capability Policy"
+          lines << "- Summary: #{policy_text_summary(capabilities[:policy])}"
+          return unless capabilities[:policy][:configured]
+
+          capabilities[:policy][:nodes].each do |entry|
+            lines << "- `#{entry[:node_name]}` status=#{entry[:status]} allowed=#{list_or_none(entry[:allowed_capabilities])} denied=#{list_or_none(entry[:denied_capabilities])} risky=#{list_or_none(entry[:risky_capabilities])}"
           end
         end
 
@@ -78,12 +91,62 @@ module Igniter
           callable
         end
 
+        def policy_summary(entries)
+          policy = Igniter::Capabilities.policy
+          return { configured: false } unless policy
+
+          nodes = entries.map { |entry| classify_entry(entry, policy) }
+          {
+            configured: true,
+            denied_capabilities: Array(policy.denied).map(&:to_sym).sort,
+            on_unknown: policy.on_unknown.to_sym,
+            allowed_nodes: nodes.count { |entry| entry[:status] == :allowed },
+            denied_nodes: nodes.count { |entry| entry[:status] == :denied },
+            risky_nodes: nodes.count { |entry| entry[:status] == :risky },
+            nodes: nodes
+          }
+        end
+
+        def classify_entry(entry, policy)
+          denied_capabilities = entry[:capabilities] & Array(policy.denied).map(&:to_sym)
+          unknown_capabilities = entry[:capabilities] - Igniter::Capabilities::KNOWN
+          risky_capabilities = policy.on_unknown.to_sym == :warn ? unknown_capabilities : []
+          allowed_capabilities = entry[:capabilities] - denied_capabilities - risky_capabilities
+          status = if denied_capabilities.any?
+                     :denied
+                   elsif risky_capabilities.any?
+                     :risky
+                   else
+                     :allowed
+                   end
+
+          {
+            node_name: entry[:node_name],
+            status: status,
+            allowed_capabilities: allowed_capabilities.sort,
+            denied_capabilities: denied_capabilities.sort,
+            risky_capabilities: risky_capabilities.sort
+          }
+        end
+
         def summary(capabilities)
           [
             "nodes=#{capabilities[:total_nodes]}",
             "pure=#{capabilities[:pure_nodes]}",
             "impure=#{capabilities[:impure_nodes]}",
             "unique=#{list_or_none(capabilities[:unique_capabilities])}"
+          ].join(", ")
+        end
+
+        def policy_text_summary(policy)
+          return "configured=false" unless policy[:configured]
+
+          [
+            "configured=true",
+            "allowed=#{policy[:allowed_nodes]}",
+            "denied=#{policy[:denied_nodes]}",
+            "risky=#{policy[:risky_nodes]}",
+            "on_unknown=#{policy[:on_unknown]}"
           ].join(", ")
         end
 

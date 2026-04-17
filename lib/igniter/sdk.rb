@@ -4,18 +4,19 @@ require_relative "../igniter"
 
 module Igniter
   module SDK
-    Capability = Struct.new(:name, :entrypoint, :allowed_layers, keyword_init: true)
+    Capability = Struct.new(:name, :entrypoint, :allowed_layers, :provides_capabilities, keyword_init: true)
 
     class Error < Igniter::Error; end
     class UnknownCapabilityError < Error; end
     class LayerViolationError < Error; end
 
     class << self
-      def register(name, entrypoint:, allowed_layers:)
+      def register(name, entrypoint:, allowed_layers:, provides_capabilities: [])
         capability = Capability.new(
           name: name.to_sym,
           entrypoint: entrypoint.to_s,
-          allowed_layers: Array(allowed_layers).map(&:to_sym).uniq.freeze
+          allowed_layers: Array(allowed_layers).map(&:to_sym).uniq.freeze,
+          provides_capabilities: Array(provides_capabilities).map(&:to_sym).uniq.sort.freeze
         )
 
         registry[capability.name] = capability
@@ -66,11 +67,11 @@ module Igniter
       end
 
       def register_builtin_capabilities!
-        register(:ai, entrypoint: "igniter/sdk/ai", allowed_layers: %i[app server cluster])
-        register(:agents, entrypoint: "igniter/sdk/agents", allowed_layers: %i[app server cluster])
-        register(:channels, entrypoint: "igniter/sdk/channels", allowed_layers: %i[app server cluster])
-        register(:tools, entrypoint: "igniter/sdk/tools", allowed_layers: %i[app server cluster])
-        register(:data, entrypoint: "igniter/sdk/data", allowed_layers: %i[core app server cluster])
+        register(:ai, entrypoint: "igniter/sdk/ai", allowed_layers: %i[app server cluster], provides_capabilities: %i[network external_api])
+        register(:agents, entrypoint: "igniter/sdk/agents", allowed_layers: %i[app server cluster], provides_capabilities: [])
+        register(:channels, entrypoint: "igniter/sdk/channels", allowed_layers: %i[app server cluster], provides_capabilities: %i[messaging network])
+        register(:tools, entrypoint: "igniter/sdk/tools", allowed_layers: %i[app server cluster], provides_capabilities: %i[filesystem])
+        register(:data, entrypoint: "igniter/sdk/data", allowed_layers: %i[core app server cluster], provides_capabilities: %i[cache database])
       end
 
       private

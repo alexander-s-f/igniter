@@ -874,7 +874,40 @@ RSpec.describe Igniter::App do
     end
 
     it "exposes app diagnostics through the contributor layer" do
-      klass = sample_contract_class
+      pure_executor = Class.new(Igniter::Executor) do
+        pure
+
+        def call(x:) = x
+      end
+
+      database_executor = Class.new(Igniter::Executor) do
+        capabilities :database
+
+        def call(x:) = x + 1
+      end
+
+      filesystem_executor = Class.new(Igniter::Executor) do
+        capabilities :filesystem
+
+        def call(x:) = x + 2
+      end
+
+      network_executor = Class.new(Igniter::Executor) do
+        capabilities :network
+
+        def call(x:) = x + 3
+      end
+
+      klass = Class.new(Igniter::Contract) do
+        define do
+          input :x
+          compute :pure_value, depends_on: :x, call: pure_executor
+          compute :db_value, depends_on: :x, call: database_executor
+          compute :file_value, depends_on: :x, call: filesystem_executor
+          compute :net_value, depends_on: :x, call: network_executor
+          output :pure_value
+        end
+      end
       metrics_collector = Object.new
       app = stub_const("SpecDiagnosticsApp", Class.new(Igniter::App))
 
@@ -962,8 +995,27 @@ RSpec.describe Igniter::App do
         activated_capabilities: %i[data tools]
       )
       expect(report[:app_sdk][:requested_details]).to contain_exactly(
-        include(name: :data, entrypoint: "igniter/sdk/data", allowed_layers: include(:core, :app, :server, :cluster)),
-        include(name: :tools, entrypoint: "igniter/sdk/tools", allowed_layers: include(:app, :server, :cluster))
+        include(name: :data, entrypoint: "igniter/sdk/data", allowed_layers: include(:core, :app, :server, :cluster), provides_capabilities: %i[cache database]),
+        include(name: :tools, entrypoint: "igniter/sdk/tools", allowed_layers: include(:app, :server, :cluster), provides_capabilities: [:filesystem])
+      )
+      expect(report[:app_sdk][:coverage]).to include(
+        required_capabilities: %i[database filesystem network pure],
+        covered_capabilities: %i[database filesystem],
+        uncovered_capabilities: [:network],
+        intrinsic_capabilities: [:pure]
+      )
+      expect(report[:app_sdk][:coverage][:entries]).to contain_exactly(
+        include(capability: :database, status: :covered, providers: [:data]),
+        include(capability: :filesystem, status: :covered, providers: [:tools]),
+        include(capability: :network, status: :uncovered, providers: [], suggested_sdk_capabilities: %i[ai channels]),
+        include(capability: :pure, status: :intrinsic, providers: [])
+      )
+      expect(report[:app_sdk][:coverage][:remediation]).to contain_exactly(
+        include(
+          code: :activate_sdk_capability,
+          capability: :network,
+          suggested_sdk_capabilities: %i[ai channels]
+        )
       )
       expect(report[:app_sdk][:packs]).to include(
         hosts: include(:app, :cluster_app),
@@ -975,6 +1027,8 @@ RSpec.describe Igniter::App do
       expect(text).to include("Loader: mode=filesystem, paths=3")
       expect(text).to include("Scheduler: mode=threaded, jobs=1, names=cleanup")
       expect(text).to include("SDK: requested=2, activated=2")
+      expect(text).to include("coverage=required=database, filesystem, network, pure, covered=database, filesystem, uncovered=network, intrinsic=pure")
+      expect(text).to include("remediation=network->ai, channels")
       expect(text).to include("contracts=1")
       expect(markdown).to include("## App")
       expect(markdown).to include("## App Host")
@@ -986,6 +1040,10 @@ RSpec.describe Igniter::App do
       expect(markdown).to include("- `contracts`: app/contracts")
       expect(markdown).to include("- `cleanup` every=1h")
       expect(markdown).to include("- Requested: total=2, names=data, tools")
+      expect(markdown).to include("- Coverage: required=database, filesystem, network, pure, covered=database, filesystem, uncovered=network, intrinsic=pure")
+      expect(markdown).to include("- Executor Capability `network` status=uncovered providers=none suggestions=ai, channels")
+      expect(markdown).to include("- Executor Capability `database` status=covered providers=data")
+      expect(markdown).to include("- Coverage Remediation: network->ai, channels")
       expect(markdown).to include("- Packs: hosts=")
       expect(markdown).to include("cluster_app")
       expect(markdown).to include("filesystem")

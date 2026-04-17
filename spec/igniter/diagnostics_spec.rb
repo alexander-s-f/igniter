@@ -257,6 +257,70 @@ RSpec.describe "Igniter diagnostics" do
     expect(markdown).to include("capabilities=external_api, network pure=false")
   end
 
+  it "surfaces policy-aware capability decisions in diagnostics" do
+    pure_executor = Class.new(Igniter::Executor) do
+      pure
+
+      def call(order_total:) = order_total * 2
+    end
+
+    denied_executor = Class.new(Igniter::Executor) do
+      capabilities :network, :external_api
+
+      def call(order_total:) = order_total
+    end
+
+    risky_executor = Class.new(Igniter::Executor) do
+      capabilities :custom_probe
+
+      def call(order_total:) = order_total
+    end
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :order_total
+        compute :doubled_total, depends_on: :order_total, call: pure_executor
+        compute :quoted_total, depends_on: :order_total, call: denied_executor
+        compute :probed_total, depends_on: :order_total, call: risky_executor
+        output :doubled_total
+      end
+    end
+
+    Igniter::Capabilities.policy = Igniter::Capabilities::Policy.new(
+      denied: [:network],
+      on_unknown: :warn
+    )
+
+    contract = contract_class.new(order_total: 100)
+
+    report = contract.diagnostics.to_h
+    text = contract.diagnostics_text
+    markdown = contract.diagnostics_markdown
+
+    expect(report[:capabilities][:policy]).to include(
+      configured: true,
+      denied_capabilities: [:network],
+      on_unknown: :warn,
+      allowed_nodes: 1,
+      denied_nodes: 1,
+      risky_nodes: 1
+    )
+    expect(report[:capabilities][:policy][:nodes]).to contain_exactly(
+      include(node_name: :doubled_total, status: :allowed, allowed_capabilities: [:pure]),
+      include(node_name: :quoted_total, status: :denied, denied_capabilities: [:network], allowed_capabilities: [:external_api]),
+      include(node_name: :probed_total, status: :risky, risky_capabilities: [:custom_probe])
+    )
+    expect(text).to include("Capability Policy: configured=true, allowed=1, denied=1, risky=1, on_unknown=warn")
+    expect(markdown).to include("- Capability Policy: configured=true, allowed=1, denied=1, risky=1, on_unknown=warn")
+    expect(markdown).to include("## Capability Policy")
+    expect(markdown).to include("`quoted_total` status=denied")
+    expect(markdown).to include("denied=network")
+    expect(markdown).to include("`probed_total` status=risky")
+    expect(markdown).to include("risky=custom_probe")
+  ensure
+    Igniter::Capabilities.policy = nil
+  end
+
   describe "distributed routing traces" do
     let(:pending_trace) do
       {

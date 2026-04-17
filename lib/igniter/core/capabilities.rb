@@ -41,6 +41,8 @@ module Igniter
     #   denied:  Array of capabilities that must NOT be used.
     #   on_unknown: :warn | :ignore (default :ignore) — what to do with undeclared capabilities.
     class Policy
+      attr_reader :denied, :on_unknown
+
       def initialize(denied: [], on_unknown: :ignore)
         @denied     = Array(denied).map(&:to_sym).freeze
         @on_unknown = on_unknown
@@ -49,7 +51,7 @@ module Igniter
       # Raise CapabilityViolationError if the executor uses a denied capability.
       def check!(node_name, executor_class)
         caps       = executor_class.declared_capabilities
-        violations = caps & @denied
+        violations = caps & denied
         return if violations.empty?
 
         raise CapabilityViolationError.new(
