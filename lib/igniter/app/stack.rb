@@ -500,6 +500,36 @@ module Igniter
         options = {}
 
         parser = OptionParser.new do |opts|
+          opts.banner = <<~TEXT
+            Usage: stack.rb [app] [options]
+
+            Stack-first runtime surface:
+              stack.rb                 Start the mounted stack runtime
+              stack.rb dashboard       Start one app directly
+
+            Canonical wrappers:
+              bin/start                Start the mounted stack runtime
+              bin/console              Open the igniter console
+              bin/dev                  Start all local node profiles
+          TEXT
+
+          opts.separator("")
+          opts.separator("Common flows:")
+          opts.separator("    --node NAME       Boot one named node profile")
+          opts.separator("    --console         Open the igniter console")
+          opts.separator("    --dev             Start all local node profiles with prefixed logs (+ var/log/dev/*.log)")
+          opts.separator("    --print-compose   Render compose config from stack nodes")
+          opts.separator("    --print-procfile-dev  Render Procfile.dev from stack nodes")
+          opts.separator("")
+          opts.separator("Examples:")
+          opts.separator("    stack.rb")
+          opts.separator("    stack.rb dashboard")
+          opts.separator("    stack.rb --node seed")
+          opts.separator("    stack.rb --console --node seed")
+          opts.separator("    stack.rb --console --node seed --eval 'context.node_name'")
+          opts.separator("    stack.rb --dev")
+          opts.separator("")
+
           opts.on("--app NAME", "Start a specific app by name") do |value|
             options[:target] = value
           end
@@ -508,7 +538,7 @@ module Igniter
             options[:node] = value
           end
 
-          opts.on("--console", "Start an interactive stack console") do
+          opts.on("--console", "Start an interactive stack console (same surface as bin/console)") do
             options[:console] = true
           end
 
@@ -528,7 +558,7 @@ module Igniter
             options[:write_compose] = value || true
           end
 
-          opts.on("--dev", "Start stack nodes locally with prefixed logs") do
+          opts.on("--dev", "Start stack nodes locally with prefixed logs and file logs") do
             options[:dev] = true
           end
 

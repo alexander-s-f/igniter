@@ -6,6 +6,7 @@ The intended reading order is now simple:
 
 1. [stack.rb](/Users/alex/dev/projects/igniter/examples/companion/stack.rb)
 2. [stack.yml](/Users/alex/dev/projects/igniter/examples/companion/stack.yml)
+3. [docs/CLI.md](/Users/alex/dev/projects/igniter/docs/CLI.md)
 
 That is the point.
 

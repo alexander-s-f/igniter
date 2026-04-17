@@ -179,7 +179,17 @@ If you are new to Igniter:
 If you want the standard app shape:
 
 1. Read [`docs/app/`](./docs/app/README.md)
-2. Explore [`examples/companion/README.md`](./examples/companion/README.md)
+2. Read [`docs/CLI.md`](./docs/CLI.md)
+3. Explore [`examples/companion/README.md`](./examples/companion/README.md)
+
+If you want to scaffold a new stack quickly:
+
+```bash
+bin/igniter-stack new my_app
+bin/igniter-stack new my_hub --profile dashboard
+bin/igniter-stack new mesh_lab --profile cluster
+bin/igniter-stack new playgrounds/home-lab --profile playground
+```
 
 If you want distributed ideas:
 

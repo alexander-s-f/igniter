@@ -14,6 +14,7 @@ Use this section when Igniter becomes the runtime shape of an application, not j
 ## Read First
 
 - [Stacks Next](../STACKS_NEXT.md)
+- [CLI](../CLI.md)
 - [App v1](../APP_V1.md)
 - [Server v1](../SERVER_V1.md)
 - [Stacks v1](../STACKS_V1.md)
@@ -40,12 +41,22 @@ Use this section when Igniter becomes the runtime shape of an application, not j
 5. Add only the SDK packs the app actually needs.
 6. Graduate to cluster only when distributed behavior is truly required.
 
+## Scaffold Direction
+
+The generator surface now has a small progression:
+
+- base scaffold for one root app
+- `dashboard` profile for a mounted second app and simple operational UI
+- `cluster` profile for a local capability mesh sandbox with node profiles
+- `playground` profile for a richer local proving surface
+
 ## Canonical Shape
 
 The preferred app/runtime shape is now:
 
 - `stack.rb` defines apps and mounts
 - `stack.yml` defines root app, persistence, and optional node profiles
+- `bin/start`, `bin/dev`, and `bin/console` are the canonical runtime entry points
 - `Igniter::Stack` owns the server/runtime container
 - `Igniter::App` stays a portable mounted module
 

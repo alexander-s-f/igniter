@@ -491,6 +491,31 @@ RSpec.describe Igniter::Stack do
     end
   end
 
+  it "prints stack-oriented CLI help" do
+    Dir.mktmpdir do |tmp|
+      workspace = build_workspace(root: tmp)
+
+      expect do
+        begin
+          workspace.start_cli(%w[--help])
+        rescue SystemExit
+          nil
+        end
+      end.to output(
+        include(
+          "Usage: stack.rb [app] [options]",
+          "Stack-first runtime surface:",
+          "Canonical wrappers:",
+          "bin/console",
+          "--console",
+          "--dev",
+          "stack.rb --console --node seed",
+          "var/log/dev/*.log"
+        )
+      ).to_stdout
+    end
+  end
+
   it "evaluates code inside the stack console and exits" do
     Dir.mktmpdir do |tmp|
       File.write(File.join(tmp, "stack.yml"), <<~YAML)

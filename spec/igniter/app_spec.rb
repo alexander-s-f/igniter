@@ -613,6 +613,7 @@ RSpec.describe Igniter::App do
           # Root files
           expect(File.exist?("my_app/stack.rb")).to be true
           expect(File.exist?("my_app/stack.yml")).to be true
+          expect(File.exist?("my_app/README.md")).to be true
           expect(File.exist?("my_app/config/deploy/.keep")).to be true
           expect(File.exist?("my_app/Gemfile")).to be true
           expect(File.exist?("my_app/config.ru")).to be true
@@ -659,6 +660,9 @@ RSpec.describe Igniter::App do
           expect(File.read("my_app/stack.yml")).to include("root_app: main")
           expect(File.read("my_app/stack.yml")).to include("default_node: main")
           expect(File.read("my_app/stack.yml")).to include("port: 4567")
+          expect(File.read("my_app/README.md")).to include("The intended reading order is simple:")
+          expect(File.read("my_app/README.md")).to include("bin/console --node main")
+          expect(File.read("my_app/README.md")).to include("var/log/dev/*.log")
           expect(File.read("my_app/Gemfile")).to include("gem \"sqlite3\"")
           expect(bin_start).to include("exec bundle exec ruby stack.rb \"$@\"")
           expect(bin_dev).to include("exec bundle exec ruby stack.rb --dev \"$@\"")

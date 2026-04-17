@@ -27,8 +27,9 @@ If you want the shortest orientation:
 
 1. [App](./app/README.md)
 2. [Stacks Next](./STACKS_NEXT.md)
-3. [SDK](./sdk/README.md)
-4. [Companion example](../examples/companion/README.md)
+3. [CLI](./CLI.md)
+4. [SDK](./sdk/README.md)
+5. [Companion example](../examples/companion/README.md)
 
 ### I want distributed or resilient execution
 

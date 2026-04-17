@@ -14,6 +14,7 @@ The desired reading experience for a stack should be:
 
 - open `stack.rb`
 - open `stack.yml`
+- open `bin/start` or `bin/console` if you want the runtime entrypoint
 - understand almost everything important
 
 ## Core Rule
@@ -144,6 +145,18 @@ persistence:
     adapter: sqlite
     path: var/companion_data.sqlite3
 ```
+
+## Runtime Entry Points
+
+The canonical stack-first boot surface is now:
+
+- `bin/start`
+- `bin/start --node NAME`
+- `bin/console`
+- `bin/console --node NAME`
+- `bin/dev`
+
+See [CLI](./CLI.md) for the short operational guide.
 
 ## What Moves Out Of The Center
 
