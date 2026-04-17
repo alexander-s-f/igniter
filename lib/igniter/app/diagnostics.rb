@@ -6,6 +6,7 @@ require_relative "diagnostics/app_host_contributor"
 require_relative "diagnostics/cluster_app_host_contributor"
 require_relative "diagnostics/loader_contributor"
 require_relative "diagnostics/scheduler_contributor"
+require_relative "diagnostics/sdk_contributor"
 
 module Igniter
   class App
@@ -29,6 +30,10 @@ module Igniter
       Igniter::Diagnostics.register_report_contributor(
         :app_scheduler,
         SchedulerContributor
+      )
+      Igniter::Diagnostics.register_report_contributor(
+        :app_sdk,
+        SdkContributor
       )
     end
   end

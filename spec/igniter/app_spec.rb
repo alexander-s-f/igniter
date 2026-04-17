@@ -883,6 +883,7 @@ RSpec.describe Igniter::App do
         executors_path "app/executors"
         contracts_path "app/contracts"
         tools_path "app/tools"
+        use :data, :tools
         register "SampleContract", klass
         schedule :cleanup, every: "1h" do
           :ok
@@ -956,19 +957,39 @@ RSpec.describe Igniter::App do
       expect(report[:app_scheduler][:jobs]).to contain_exactly(
         include(name: :cleanup, every: "1h", at: nil)
       )
+      expect(report[:app_sdk]).to include(
+        requested_capabilities: %i[data tools],
+        activated_capabilities: %i[data tools]
+      )
+      expect(report[:app_sdk][:requested_details]).to contain_exactly(
+        include(name: :data, entrypoint: "igniter/sdk/data", allowed_layers: include(:core, :app, :server, :cluster)),
+        include(name: :tools, entrypoint: "igniter/sdk/tools", allowed_layers: include(:app, :server, :cluster))
+      )
+      expect(report[:app_sdk][:packs]).to include(
+        hosts: include(:app, :cluster_app),
+        loaders: include(:filesystem),
+        schedulers: include(:threaded)
+      )
       expect(text).to include("App: runtime=SpecDiagnosticsApp")
       expect(text).to include("App Host: host=0.0.0.0, port=4567, log_format=text, routes=1")
       expect(text).to include("Loader: mode=filesystem, paths=3")
       expect(text).to include("Scheduler: mode=threaded, jobs=1, names=cleanup")
+      expect(text).to include("SDK: requested=2, activated=2")
       expect(text).to include("contracts=1")
       expect(markdown).to include("## App")
       expect(markdown).to include("## App Host")
       expect(markdown).to include("## Loader")
       expect(markdown).to include("## Scheduler")
+      expect(markdown).to include("## SDK")
       expect(markdown).to include("- Runtime: `SpecDiagnosticsApp` host=`app` loader=`filesystem` scheduler=`threaded`")
       expect(markdown).to include("- Contracts: total=1, names=SampleContract")
       expect(markdown).to include("- `contracts`: app/contracts")
       expect(markdown).to include("- `cleanup` every=1h")
+      expect(markdown).to include("- Requested: total=2, names=data, tools")
+      expect(markdown).to include("- Packs: hosts=")
+      expect(markdown).to include("cluster_app")
+      expect(markdown).to include("filesystem")
+      expect(markdown).to include("threaded")
     end
 
     it "exposes cluster host diagnostics through a dedicated contributor" do

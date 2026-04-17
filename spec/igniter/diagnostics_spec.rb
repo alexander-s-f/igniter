@@ -204,6 +204,59 @@ RSpec.describe "Igniter diagnostics" do
     expect(markdown).to include('- Outputs: rows={total: 2, company_ids: ["1", "2"]}')
   end
 
+  it "surfaces contract capability footprint in diagnostics" do
+    pure_executor = Class.new(Igniter::Executor) do
+      pure
+
+      def call(order_total:) = order_total * 2
+    end
+
+    network_executor = Class.new(Igniter::Executor) do
+      capabilities :network, :external_api
+
+      def call(order_total:) = order_total
+    end
+
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :order_total
+        compute :doubled_total, depends_on: :order_total, call: pure_executor
+        compute :quoted_total, depends_on: :order_total, call: network_executor
+        output :doubled_total
+        output :quoted_total
+      end
+    end
+
+    contract = contract_class.new(order_total: 100)
+
+    report = contract.diagnostics.to_h
+    text = contract.diagnostics_text
+    markdown = contract.diagnostics_markdown
+
+    expect(report[:capabilities]).to include(
+      total_nodes: 2,
+      pure_nodes: 1,
+      impure_nodes: 1,
+      unique_capabilities: %i[external_api network pure]
+    )
+    expect(report[:capabilities][:by_capability]).to include(
+      pure: 1,
+      network: 1,
+      external_api: 1
+    )
+    expect(report[:capabilities][:nodes]).to contain_exactly(
+      include(node_name: :doubled_total, capabilities: [:pure], pure: true),
+      include(node_name: :quoted_total, capabilities: %i[external_api network], pure: false)
+    )
+    expect(text).to include("Capabilities: nodes=2, pure=1, impure=1, unique=external_api|network|pure")
+    expect(markdown).to include("- Capabilities: nodes=2, pure=1, impure=1, unique=external_api|network|pure")
+    expect(markdown).to include("## Capabilities")
+    expect(markdown).to include("`doubled_total` executor=")
+    expect(markdown).to include("capabilities=pure pure=true")
+    expect(markdown).to include("`quoted_total` executor=")
+    expect(markdown).to include("capabilities=external_api, network pure=false")
+  end
+
   describe "distributed routing traces" do
     let(:pending_trace) do
       {

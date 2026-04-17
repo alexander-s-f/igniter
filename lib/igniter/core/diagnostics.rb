@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "diagnostics/report"
+require_relative "diagnostics/capability_contributor"
 
 module Igniter
   module Diagnostics
@@ -47,5 +48,7 @@ module Igniter
         end
       end
     end
+
+    register_report_contributor(:core_capabilities, CapabilityContributor)
   end
 end
