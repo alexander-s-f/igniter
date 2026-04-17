@@ -1046,7 +1046,15 @@ RSpec.describe Igniter::App do
         loaders: include(:filesystem),
         schedulers: include(:threaded)
       )
+      expect(report[:app_evolution]).to include(
+        total: 0,
+        latest_type: nil,
+        latest_at: nil,
+        by_type: {},
+        persistence: include(enabled: false)
+      )
       expect(text).to include("App: runtime=SpecDiagnosticsApp")
+      expect(text).to include("App Evolution: total=0, latest=none, persisted=false, retain=all, archived=0")
       expect(text).to include("App Host: host=0.0.0.0, port=4567, log_format=text, routes=1")
       expect(text).to include("Loader: mode=filesystem, paths=3")
       expect(text).to include("Scheduler: mode=threaded, jobs=1, names=cleanup")
@@ -1060,6 +1068,7 @@ RSpec.describe Igniter::App do
       expect(markdown).to include("## Loader")
       expect(markdown).to include("## Scheduler")
       expect(markdown).to include("## SDK")
+      expect(markdown).to include("## App Evolution")
       expect(markdown).to include("- Runtime: `SpecDiagnosticsApp` host=`app` loader=`filesystem` scheduler=`threaded`")
       expect(markdown).to include("- Contracts: total=1, names=SampleContract")
       expect(markdown).to include("- `contracts`: app/contracts")
@@ -1172,67 +1181,275 @@ RSpec.describe Igniter::App do
 
       app = stub_const("SpecEvolutionApp", Class.new(Igniter::App))
 
-      app.class_eval do
-        use :data
-        register "NetworkContract", klass
+      Dir.mktmpdir do |dir|
+        app.class_eval do
+          root_dir dir
+          evolution_log "var/evolution.jsonl"
+          use :data
+          register "NetworkContract", klass
+        end
+
+        app.send(:build!)
+        contract = klass.new(x: 10)
+
+        plan = app.evolution_plan(contract)
+        approval_request = app.evolution_approval(plan)
+
+        expect(plan).to be_a(Igniter::App::Evolution::Plan)
+        expect(plan.summary).to include(
+          total: 1,
+          automated: 0,
+          approval_required: 1,
+          constrained: 1,
+          uncovered_capabilities: [:network],
+          by_action: { activate_sdk_capability: 1 }
+        )
+        expect(plan.actions).to contain_exactly(
+          include(
+            id: "app_sdk:activate_sdk_capability:network",
+            action: :activate_sdk_capability,
+            scope: :app_sdk,
+            automated: false,
+            requires_approval: true,
+            constraints: [:selection_required],
+            params: include(capability: :network, sdk_capabilities: %i[ai channels])
+          )
+        )
+        expect(approval_request).to be_a(Igniter::App::Evolution::ApprovalRequest)
+        expect(approval_request.summary).to include(
+          total: 1,
+          constrained: 1,
+          by_action: { activate_sdk_capability: 1 }
+        )
+        expect(approval_request.actions).to contain_exactly(
+          include(
+            id: "app_sdk:activate_sdk_capability:network",
+            action: :activate_sdk_capability,
+            capability: :network,
+            candidates: %i[ai channels],
+            constraints: [:selection_required],
+            requires_approval: true
+          )
+        )
+        expect(app.evolution_trail.snapshot(limit: 10)).to include(
+          total: 2,
+          latest_type: :evolution_approval_requested,
+          by_type: {
+            evolution_plan_built: 1,
+            evolution_approval_requested: 1
+          },
+          persistence: include(enabled: true, path: File.join(dir, "var/evolution.jsonl"), archived_events: 0)
+        )
+
+        blocked = app.apply_evolution!(plan)
+
+        expect(blocked.status).to eq(:blocked)
+        expect(blocked.applied).to eq([])
+        expect(blocked.blocked).to contain_exactly(
+          include(
+            action: :activate_sdk_capability,
+            status: :blocked,
+            reason: :approval_required,
+            params: include(capability: :network, sdk_capabilities: %i[ai channels])
+          )
+        )
+        expect(app.sdk_capabilities).to eq([:data])
+
+        approval_decision = Igniter::App::Evolution::ApprovalDecision.build(
+          approved_action_ids: approval_request.action_ids,
+          selections: { network: :ai },
+          metadata: { actor: "operator" }
+        )
+
+        denied = app.apply_evolution!(
+          plan,
+          approval: approval_decision.to_h.merge(denied_action_ids: approval_request.action_ids)
+        )
+
+        expect(denied.status).to eq(:blocked)
+        expect(denied.blocked).to contain_exactly(
+          include(
+            action: :activate_sdk_capability,
+            status: :blocked,
+            reason: :approval_denied
+          )
+        )
+
+        applied = app.apply_evolution!(plan, approval: approval_decision)
+
+        expect(applied.status).to eq(:applied)
+        expect(applied.blocked).to eq([])
+        expect(applied.applied).to contain_exactly(
+          include(
+            action: :activate_sdk_capability,
+            status: :applied,
+            capability: :network,
+            applied_sdk_capabilities: [:ai]
+          )
+        )
+        expect(app.sdk_capabilities).to contain_exactly(:ai, :data)
+        expect(contract.diagnostics.to_h.dig(:app_sdk, :requested_capabilities)).to contain_exactly(:ai, :data)
+        expect(contract.diagnostics.to_h.dig(:app_sdk, :coverage, :covered_capabilities)).to include(:network)
+        expect(contract.diagnostics.to_h.dig(:app_sdk, :coverage, :uncovered_capabilities)).to eq([])
+        expect(contract.diagnostics.to_h[:app_evolution]).to include(
+          total: 7,
+          latest_type: :evolution_applied,
+          by_type: {
+            evolution_plan_built: 1,
+            evolution_approval_requested: 1,
+            evolution_blocked: 2,
+            evolution_approval_recorded: 2,
+            evolution_applied: 1
+          },
+          persistence: include(enabled: true, path: File.join(dir, "var/evolution.jsonl"), archived_events: 0)
+        )
+        expect(contract.diagnostics_text).to include("App Evolution: total=7, latest=evolution_applied, persisted=true, retain=all, archived=0")
+        expect(contract.diagnostics_markdown).to include("Persistence: enabled=true")
+        expect(contract.diagnostics_markdown).to include("`evolution_applied`")
+
+        reloaded = app.reload_evolution_trail!
+
+        expect(reloaded.snapshot(limit: 10)).to include(
+          total: 7,
+          latest_type: :evolution_applied,
+          by_type: {
+            evolution_plan_built: 1,
+            evolution_approval_requested: 1,
+            evolution_blocked: 2,
+            evolution_approval_recorded: 2,
+            evolution_applied: 1
+          },
+          persistence: include(enabled: true, path: File.join(dir, "var/evolution.jsonl"), archived_events: 0)
+        )
       end
+    end
 
-      app.send(:build!)
-      contract = klass.new(x: 10)
+    it "rotates persisted evolution events and retains only the live crest" do
+      app = stub_const("SpecEvolutionRetentionApp", Class.new(Igniter::App))
 
-      plan = app.evolution_plan(contract)
+      Dir.mktmpdir do |dir|
+        app.class_eval do
+          root_dir dir
+          evolution_log "var/evolution.jsonl", retain_events: 3, archive: "var/evolution.archive.jsonl"
+        end
 
-      expect(plan).to be_a(Igniter::App::Evolution::Plan)
-      expect(plan.summary).to include(
-        total: 1,
-        automated: 0,
-        approval_required: 1,
-        constrained: 1,
-        uncovered_capabilities: [:network],
-        by_action: { activate_sdk_capability: 1 }
-      )
-      expect(plan.actions).to contain_exactly(
-        include(
-          id: "app_sdk:activate_sdk_capability:network",
-          action: :activate_sdk_capability,
-          scope: :app_sdk,
-          automated: false,
-          requires_approval: true,
-          constraints: [:selection_required],
-          params: include(capability: :network, sdk_capabilities: %i[ai channels])
+        trail = app.evolution_trail
+        5.times do |index|
+          trail.record(:evolution_tick, source: :test, payload: { step: index + 1 })
+        end
+
+        snapshot = trail.snapshot(limit: 10)
+        expect(snapshot).to include(
+          total: 3,
+          latest_type: :evolution_tick,
+          by_type: { evolution_tick: 3 },
+          persistence: include(
+            enabled: true,
+            path: File.join(dir, "var/evolution.jsonl"),
+            max_events: 3,
+            archive_path: File.join(dir, "var/evolution.archive.jsonl"),
+            archived_events: 2
+          )
         )
-      )
+        expect(snapshot[:events].map { |event| event.dig(:payload, :step) }).to eq([3, 4, 5])
 
-      blocked = app.apply_evolution!(plan)
-
-      expect(blocked.status).to eq(:blocked)
-      expect(blocked.applied).to eq([])
-      expect(blocked.blocked).to contain_exactly(
-        include(
-          action: :activate_sdk_capability,
-          status: :blocked,
-          reason: :approval_required,
-          params: include(capability: :network, sdk_capabilities: %i[ai channels])
+        reloaded = app.reload_evolution_trail!
+        reloaded_snapshot = reloaded.snapshot(limit: 10)
+        expect(reloaded_snapshot[:events].map { |event| event.dig(:payload, :step) }).to eq([3, 4, 5])
+        expect(reloaded_snapshot[:persistence]).to include(
+          max_events: 3,
+          archived_events: 2
         )
-      )
-      expect(app.sdk_capabilities).to eq([:data])
+      end
+    end
 
-      applied = app.apply_evolution!(plan, approve: true, selections: { network: :ai })
+    it "retains the latest evolution crest per event class policy" do
+      app = stub_const("SpecEvolutionPolicyApp", Class.new(Igniter::App))
 
-      expect(applied.status).to eq(:applied)
-      expect(applied.blocked).to eq([])
-      expect(applied.applied).to contain_exactly(
-        include(
-          action: :activate_sdk_capability,
-          status: :applied,
-          capability: :network,
-          applied_sdk_capabilities: [:ai]
+      Dir.mktmpdir do |dir|
+        app.class_eval do
+          root_dir dir
+          evolution_log(
+            "var/evolution.jsonl",
+            archive: "var/evolution.archive.jsonl",
+            retention_policy: {
+              planning: 1,
+              approval: 1,
+              blocked: 2,
+              applied: 1,
+              default: 1
+            }
+          )
+        end
+
+        trail = app.evolution_trail
+        trail.record(:evolution_plan_built, source: :test, payload: { step: 1 })
+        trail.record(:evolution_plan_built, source: :test, payload: { step: 2 })
+        trail.record(:evolution_approval_requested, source: :test, payload: { step: 3 })
+        trail.record(:evolution_approval_recorded, source: :test, payload: { step: 4 })
+        trail.record(:evolution_blocked, source: :test, payload: { step: 5 })
+        trail.record(:evolution_blocked, source: :test, payload: { step: 6 })
+        trail.record(:evolution_blocked, source: :test, payload: { step: 7 })
+        trail.record(:evolution_applied, source: :test, payload: { step: 8 })
+        trail.record(:evolution_applied, source: :test, payload: { step: 9 })
+        trail.record(:evolution_tick, source: :test, payload: { step: 10 })
+        trail.record(:evolution_tick, source: :test, payload: { step: 11 })
+
+        snapshot = trail.snapshot(limit: 20)
+        expect(snapshot).to include(
+          total: 6,
+          latest_type: :evolution_tick,
+          by_type: {
+            evolution_plan_built: 1,
+            evolution_approval_recorded: 1,
+            evolution_blocked: 2,
+            evolution_applied: 1,
+            evolution_tick: 1
+          },
+          persistence: include(
+            enabled: true,
+            path: File.join(dir, "var/evolution.jsonl"),
+            archive_path: File.join(dir, "var/evolution.archive.jsonl"),
+            archived_events: 5,
+            retention_policy: {
+              planning: 1,
+              approval: 1,
+              blocked: 2,
+              applied: 1,
+              default: 1
+            },
+            retained_by_class: {
+              planning: 1,
+              approval: 1,
+              blocked: 2,
+              applied: 1,
+              other: 1
+            },
+            archived_by_class: {
+              planning: 1,
+              approval: 1,
+              blocked: 1,
+              applied: 1,
+              other: 1
+            }
+          )
         )
-      )
-      expect(app.sdk_capabilities).to contain_exactly(:ai, :data)
-      expect(contract.diagnostics.to_h.dig(:app_sdk, :requested_capabilities)).to contain_exactly(:ai, :data)
-      expect(contract.diagnostics.to_h.dig(:app_sdk, :coverage, :covered_capabilities)).to include(:network)
-      expect(contract.diagnostics.to_h.dig(:app_sdk, :coverage, :uncovered_capabilities)).to eq([])
+        expect(snapshot[:events].map { |event| event.dig(:payload, :step) }).to eq([2, 4, 6, 7, 9, 11])
+
+        reloaded = app.reload_evolution_trail!
+        reloaded_snapshot = reloaded.snapshot(limit: 20)
+        expect(reloaded_snapshot[:events].map { |event| event.dig(:payload, :step) }).to eq([2, 4, 6, 7, 9, 11])
+        expect(reloaded_snapshot[:persistence]).to include(
+          archived_events: 5,
+          retained_by_class: {
+            planning: 1,
+            approval: 1,
+            blocked: 2,
+            applied: 1,
+            other: 1
+          }
+        )
+      end
     end
   end
 

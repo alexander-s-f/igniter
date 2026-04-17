@@ -46,6 +46,8 @@ module Igniter
   # runs afterwards and always wins.
   class App
     class << self
+      UNDEFINED_EVOLUTION_STORE = Object.new
+
       # ─── DSL ─────────────────────────────────────────────────────────────────
 
       def host(name = nil)
@@ -89,6 +91,24 @@ module Igniter
         Igniter::SDK.activate!(*resolved_names, layer: :app)
         @sdk_capabilities |= resolved_names
         self
+      end
+
+      def evolution_store(store = UNDEFINED_EVOLUTION_STORE)
+        return @evolution_store if store.equal?(UNDEFINED_EVOLUTION_STORE)
+
+        @evolution_store = store
+        reload_evolution_trail!
+      end
+
+      def evolution_log(path, retain_events: nil, archive: nil, retention_policy: nil)
+        evolution_store(
+          Evolution::Stores::FileStore.new(
+            path: resolve_path(path),
+            max_events: retain_events,
+            archive_path: archive ? resolve_path(archive) : nil,
+            retention_policy: retention_policy
+          )
+        )
       end
 
       def sdk_capabilities
@@ -254,12 +274,73 @@ module Igniter
       end
 
       def evolution_plan(target)
-        Evolution::Planner.new(app_class: self).plan(target)
+        plan = Evolution::Planner.new(app_class: self).plan(target)
+        evolution_trail.record(
+          :evolution_plan_built,
+          source: plan.source,
+          payload: {
+            total_actions: plan.actions.size,
+            approval_required: plan.approval_required?,
+            action_ids: plan.actions.map { |action| action[:id] },
+            uncovered_capabilities: plan.summary[:uncovered_capabilities]
+          }
+        )
+        plan
       end
 
-      def apply_evolution!(target, approve: false, selections: {})
+      def evolution_approval(target)
         plan = target.is_a?(Evolution::Plan) ? target : evolution_plan(target)
-        Evolution::Runner.new(app_class: self).run(plan, approve: approve, selections: selections)
+        request = plan.approval_request
+        evolution_trail.record(
+          :evolution_approval_requested,
+          source: plan.source,
+          payload: {
+            total_actions: request.summary[:total],
+            action_ids: request.action_ids,
+            constrained: request.summary[:constrained]
+          }
+        )
+        request
+      end
+
+      def apply_evolution!(target, approval: nil, approve: false, selections: {})
+        plan = target.is_a?(Evolution::Plan) ? target : evolution_plan(target)
+        decision = Evolution::ApprovalDecision.normalize(approval.nil? ? approve : approval, selections: selections)
+        if plan.approval_required? && decision
+          evolution_trail.record(
+            :evolution_approval_recorded,
+            source: plan.source,
+            payload: decision.to_h.merge(action_ids: plan.actions.map { |action| action[:id] })
+          )
+        end
+        result = Evolution::Runner.new(app_class: self).run(
+          plan,
+          approval: decision,
+          approve: approve,
+          selections: selections
+        )
+        evolution_trail.record(
+          :"evolution_#{result.status}",
+          source: plan.source,
+          payload: {
+            applied_action_ids: result.applied.map { |entry| entry[:id] },
+            blocked_action_ids: result.blocked.map { |entry| entry[:id] },
+            blocked_reasons: result.blocked.map { |entry| entry[:reason] }.uniq
+          }
+        )
+        result
+      end
+
+      def evolution_trail
+        @evolution_trail ||= Evolution::Trail.new(app_class: self, store: evolution_store)
+      end
+
+      def reset_evolution_trail!
+        evolution_trail.clear!
+      end
+
+      def reload_evolution_trail!
+        @evolution_trail = Evolution::Trail.new(app_class: self, store: evolution_store)
       end
 
       # Expose the AppConfig (populated after the first build!).
@@ -292,6 +373,8 @@ module Igniter
         subclass.instance_variable_set(:@loader_adapter,   nil)
         subclass.instance_variable_set(:@scheduler_name,   nil)
         subclass.instance_variable_set(:@scheduler_adapter, nil)
+        subclass.instance_variable_set(:@evolution_store, nil)
+        subclass.instance_variable_set(:@evolution_trail, Evolution::Trail.new(app_class: subclass))
       end
 
       private

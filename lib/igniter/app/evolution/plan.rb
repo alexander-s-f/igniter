@@ -30,6 +30,34 @@ module Igniter
           @actions.reject { |action| action[:automated] }
         end
 
+        def approval_request
+          approval_actions = actions.select { |action| action[:requires_approval] }
+
+          ApprovalRequest.new(
+            app_class: app_class,
+            source: source,
+            actions: approval_actions.map do |action|
+              {
+                id: action[:id],
+                action: action[:action],
+                scope: action[:scope],
+                capability: action.dig(:params, :capability),
+                candidates: Array(action.dig(:params, :sdk_capabilities)).map(&:to_sym).uniq.sort,
+                constraints: action[:constraints],
+                automated: action[:automated],
+                requires_approval: action[:requires_approval]
+              }.freeze
+            end,
+            summary: {
+              total: approval_actions.size,
+              constrained: approval_actions.count { |action| Array(action[:constraints]).any? },
+              by_action: approval_actions.each_with_object(Hash.new(0)) do |action, memo|
+                memo[action[:action]] += 1
+              end
+            }
+          )
+        end
+
         def to_h
           {
             app: app_class.name,
