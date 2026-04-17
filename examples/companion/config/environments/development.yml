@@ -2,11 +2,11 @@ stack:
   environment: development
 
 topology:
-  profile: local-compose
+  profile: local-mesh
   services:
-    main:
+    seed:
       replicas: 1
-    inference:
+    edge:
       replicas: 1
-    dashboard:
+    analyst:
       replicas: 1

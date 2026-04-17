@@ -1,9 +1,10 @@
 stack:
   default_app: main
+  default_service: seed
   shared_lib_paths:
     - lib
 
 persistence:
   data:
-    adapter: memory   # memory | sqlite
+    adapter: sqlite   # memory | sqlite
     path: var/companion_data.sqlite3

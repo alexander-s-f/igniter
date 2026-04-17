@@ -1,281 +1,104 @@
-# Companion — Stack Voice Assistant Demo
+# Companion — Cluster Next Sandbox
 
-`examples/companion` is the canonical stack-style Igniter demo.
+`examples/companion` is now the fresh proving ground for `Stack/App vNext` and
+`Igniter::Cluster Next`.
 
-It now combines both goals:
+It is intentionally small and plastic:
 
-- show the standard `Igniter::Stack` project shape
-- demonstrate a realistic voice assistant split into `apps/main` and `apps/inference`
-- show how an Igniter app can ship user-facing communication via Telegram
+- `apps/` stay code boundaries
+- `services:` act as local node instances
+- each node advertises a capability envelope
+- some capabilities can be mocked to simulate future hardware or software
+- the same stack can run several local nodes with one `bin/dev`
 
-## Quick Start
+The previous richer voice-assistant workspace now lives in
+[`examples/companion_legacy`](/Users/alex/dev/projects/igniter/examples/companion_legacy/README.md).
 
-From the repository root:
+## Local Mesh
 
-```bash
-bundle exec ruby examples/companion/bin/demo
-bundle exec ruby examples/companion/stack.rb main
-bundle exec ruby examples/companion/stack.rb inference
-bundle exec ruby examples/companion/stack.rb dashboard
-```
+The default topology boots three local nodes:
 
-Or from inside the example:
+| Service | Port | Intent | Effective capability shape |
+|---|---:|---|---|
+| `seed` | `4667` | bootstrap / routing node | `notes_api`, `mesh_seed`, `routing`, mocked `notifications` |
+| `edge` | `4668` | edge / audio-facing node | `notes_api`, `speech_io`, mocked `whisper_asr`, `piper_tts` |
+| `analyst` | `4669` | reasoning / knowledge node | `notes_api`, `assistant_orchestration`, mocked `local_llm`, `rag` |
 
-```bash
-cd examples/companion
-bin/demo
-bin/dev
-bin/start
-bin/start inference
-bin/start --role admin
-bin/start --env production --role api
-```
+Each service hosts:
 
-## Roles
+- `apps/main` on `/`
+- `apps/dashboard` on `/dashboard`
 
-| App | Responsibility |
-|-----|----------------|
-| `apps/main` | orchestrator, tools, skills, chat executor, proactive agents |
-| `apps/inference` | ASR, intent classification, TTS executors and contracts |
-| `apps/dashboard` | stack monitoring, reminder/state overview, JSON status snapshot |
+So one service equals one local node instance, not one app.
 
-Single-process demo mode uses `Companion::LocalPipelineContract` and mock executors so it
-runs without hardware, Ollama, Whisper, or Piper.
-
-## Persistence
-
-Companion now splits persistence into two layers:
-
-- stack data in `stack.yml` → notes, chat bindings, conversation state
-- app execution store in `apps/<name>/app.yml` → pending/resumable executions
-
-Default example config stays on in-memory adapters so the demo works without extra gems.
-To persist data locally, add `sqlite3` and switch the adapters:
-
-```yaml
-# stack.yml
-persistence:
-  data:
-    adapter: sqlite
-    path: var/companion_data.sqlite3
-```
-
-```yaml
-# apps/main/app.yml
-persistence:
-  execution:
-    adapter: sqlite
-    path: var/main_executions.sqlite3
-```
-
-ENV still wins when needed:
-
-```bash
-export COMPANION_DATA_DB=var/companion_data.sqlite3
-export COMPANION_EXECUTION_DB=var/main_executions.sqlite3
-```
-
-## Telegram Delivery
-
-`apps/main` now includes a Telegram tool powered by `Igniter::Channels::Telegram`.
-
-Configure:
-
-```bash
-export TELEGRAM_BOT_TOKEN=123456:your-bot-token
-```
-
-Then the companion can forward summaries, reminders, or ad-hoc messages to Telegram
-through `Companion::SendTelegramTool`.
-
-You can still set `TELEGRAM_CHAT_ID` explicitly, but it is no longer required once a
-user has linked a chat through the inbound bot flow.
-
-## Telegram Inbound Bot Workflow
-
-`apps/main` also exposes a webhook endpoint for inbound Telegram updates:
-
-```text
-POST /telegram/webhook
-```
-
-Optional protection:
-
-```bash
-export TELEGRAM_WEBHOOK_SECRET=choose-a-random-secret
-```
-
-When configured, the companion expects the header
-`X-Telegram-Bot-Api-Secret-Token` to match that secret.
-
-The inbound MVP flow is:
-
-1. Telegram sends a text update to `/telegram/webhook`
-2. companion persists the chat binding and remembers the most recent / preferred chat
-3. `apps/main` builds a short per-chat conversation history
-4. `Companion::ChatContract` generates the reply
-5. `Igniter::Channels::Telegram` sends the response back to the same chat
-
-So after wiring your bot webhook to the running companion, you can talk to it
-directly in Telegram.
-
-Useful bot commands:
-
-- `/start` — link the current chat and reset its local conversation history
-- `/use_here` — make the current chat the default destination for future outbound Telegram messages
-- `/notifications on` — enable persisted Telegram notifications for this chat
-- `/notifications off` — disable persisted Telegram notifications for this chat
-- `/reminders` — list active reminders linked to the current chat
-
-Reminder requests are now persisted as structured records in companion data storage, not
-just as loose notes. When a reminder is created from a linked Telegram chat, companion
-also persists whether Telegram notifications are enabled for that chat, which gives us a
-clean base for the future `apps/dashboard`.
-
-## Seeded View Schemas
-
-The dashboard now seeds two canonical schema-driven pages through
-`Companion::Dashboard::ViewSchemaCatalog`:
-
-- `/views/training-checkin` — contract-backed check-in flow
-- `/views/weekly-review` — lightweight persisted review form
-
-They are the current reference examples for authoring semantic schema nodes such as
-`notice`, `fieldset`, and `actions`.
-
-The dashboard home page now also acts as a lightweight schema catalog/editor, so you
-can browse stored schemas, open their rendered pages, fetch `/api/views` JSON, and
-draft create/patch payloads from the same operator surface. It also shows recent
-view submissions so the authoring/runtime feedback loop stays visible in one place,
-including a submission detail page with payload inspection, normalization diff, and replay.
-
-## Structure
-
-```text
-examples/companion/
-├── stack.rb
-├── stack.yml
-├── config/
-│   ├── topology.yml
-│   ├── environments/
-│   └── deploy/
-│       ├── Dockerfile
-│       ├── Procfile.dev
-│       └── compose.yml
-├── apps/
-│   ├── dashboard/
-│   │   ├── app.rb
-│   │   ├── app.yml
-│   │   └── spec/
-│   ├── main/
-│   │   ├── app.rb
-│   │   ├── app.yml
-│   │   ├── app/
-│   │   │   ├── contracts/
-│   │   │   ├── executors/
-│   │   │   ├── tools/
-│   │   │   ├── agents/
-│   │   │   └── skills/
-│   │   └── spec/
-│   └── inference/
-│       ├── app.rb
-│       ├── app.yml
-│       ├── app/
-│       │   ├── contracts/
-│       │   └── executors/
-│       └── spec/
-├── bin/
-│   ├── demo
-│   └── start
-├── lib/
-│   └── companion/
-│       └── shared/
-└── spec/
-```
-
-## Testing
-
-Use the stack-level specs for shared and integration behavior, and the app-local specs
-for role-specific behavior:
-
-```bash
-bundle exec rspec examples/companion/spec
-bundle exec rspec examples/companion/apps/main/spec
-bundle exec rspec examples/companion/apps/inference/spec
-bundle exec rspec examples/companion/apps/dashboard/spec
-```
-
-## Deployment Reference
-
-Companion now includes a canonical deployment layout under `config/`:
-
-- [config/topology.yml](/Users/alex/dev/projects/igniter/examples/companion/config/topology.yml) describes runtime services, deployment roles, and wiring
-- [config/environments/development.yml](/Users/alex/dev/projects/igniter/examples/companion/config/environments/development.yml) is the local overlay for dev-style boot
-- [config/environments/production.yml](/Users/alex/dev/projects/igniter/examples/companion/config/environments/production.yml) is the production-oriented overlay
-- [config/deploy/Dockerfile](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/Dockerfile) is the shared container image
-- [config/deploy/Procfile.dev](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/Procfile.dev) is the generated local multi-process dev profile
-- [config/deploy/compose.yml](/Users/alex/dev/projects/igniter/examples/companion/config/deploy/compose.yml) starts `main`, `inference`, and `dashboard` together
+## Boot
 
 From the repository root:
 
 ```bash
-docker compose -f examples/companion/config/deploy/compose.yml up --build
-```
-
-This deployment config is intentionally separate from `apps/*/app.yml`:
-
-- `apps/*` defines code boundaries and leaf runtime defaults
-- `stack.yml` defines stack-level metadata and shared persistence defaults
-- `config/topology.yml` defines runtime services and how apps are deployed together
-- `config/environments/*` overlays topology/runtime intent per environment
-- `config/deploy/*` holds container/runtime artifacts
-
-Operational launch examples:
-
-```bash
-bin/start --service main
-bin/start --role api
-bin/start --role admin
-bin/start --env production --role api
-bin/dev
-bin/start --print-procfile-dev
-bin/start --write-procfile-dev
-bin/start --profile local-compose --role admin
-bin/start --print-compose
-bin/start --write-compose
-```
-
-## Dashboard
-
-Run the dashboard app:
-
-```bash
 cd examples/companion
-bin/start --service dashboard
+bundle install
+bin/dev
 ```
 
 Then open:
 
-- `http://localhost:4569/` for the HTML dashboard
-- `http://localhost:4569/api/overview` for the JSON snapshot
+- seed status: [http://127.0.0.1:4667/v1/home/status](http://127.0.0.1:4667/v1/home/status)
+- edge status: [http://127.0.0.1:4668/v1/home/status](http://127.0.0.1:4668/v1/home/status)
+- analyst status: [http://127.0.0.1:4669/v1/home/status](http://127.0.0.1:4669/v1/home/status)
+- dashboards:
+  `http://127.0.0.1:4667/dashboard`,
+  `http://127.0.0.1:4668/dashboard`,
+  `http://127.0.0.1:4669/dashboard`
 
-The dashboard reads the same persisted stack data used by `apps/main`, so it can
-show notes, active reminders, Telegram chat bindings, notification preferences, and
-per-app execution-store summaries.
+To run one node explicitly:
 
-## Migration Note
+```bash
+PORT=4668 \
+IGNITER_SERVICE=edge \
+COMPANION_NODE_NAME=companion-edge \
+COMPANION_NODE_ROLE=edge \
+COMPANION_NODE_URL=http://127.0.0.1:4668 \
+COMPANION_LOCAL_CAPABILITIES=notes_api,speech_io \
+COMPANION_MOCK_CAPABILITIES=whisper_asr,piper_tts \
+COMPANION_SEEDS=http://127.0.0.1:4667 \
+COMPANION_START_DISCOVERY=true \
+bin/start --service edge
+```
 
-The previous pre-generator-refresh version of this example is intentionally treated
-as historical context rather than a current entrypoint.
+## Selective Capability Mocking
 
-The current `examples/companion` is the clean baseline regenerated from the current
-stack/app scaffold and then selectively migrated forward. The legacy version is still
-useful for:
+Capability envelopes are driven by environment variables in
+[config/topology.yml](/Users/alex/dev/projects/igniter/examples/companion/config/topology.yml).
 
-- historical comparison during migration
-- checking older deployment and app-shape decisions
+The key knobs are:
 
-## ESP32 Client
+- `COMPANION_LOCAL_CAPABILITIES`
+- `COMPANION_MOCK_CAPABILITIES`
+- `COMPANION_NODE_TAGS`
+- `COMPANION_SEEDS`
+- `COMPANION_START_DISCOVERY`
 
-Firmware for the ESP32-A1S audio kit now lives in
-[`esp32/companion_client.ino`](./esp32/companion_client.ino).
+This means you can simulate a node gaining or losing powers without changing app
+code. For example:
+
+```bash
+COMPANION_MOCK_CAPABILITIES=local_llm,rag,vector_store bin/start --service analyst
+```
+
+That is exactly the bridge toward capability-first cluster routing.
+
+## What To Look At
+
+- [config/topology.yml](/Users/alex/dev/projects/igniter/examples/companion/config/topology.yml) defines the local mesh
+- [apps/main/app.rb](/Users/alex/dev/projects/igniter/examples/companion/apps/main/app.rb) turns `main` into a `cluster_app` host
+- [lib/companion/shared/capability_profile.rb](/Users/alex/dev/projects/igniter/examples/companion/lib/companion/shared/capability_profile.rb) derives effective and mocked capabilities from env
+- [lib/companion/shared/stack_overview.rb](/Users/alex/dev/projects/igniter/examples/companion/lib/companion/shared/stack_overview.rb) exposes node + service + peer state to the UI and status API
+
+## Validation
+
+```bash
+bundle exec rspec examples/companion/spec
+bundle exec rspec examples/companion/apps/main/spec
+bundle exec rspec examples/companion/apps/dashboard/spec
+```

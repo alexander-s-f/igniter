@@ -19,7 +19,7 @@ GEM
     sqlite3 (2.9.2-arm64-darwin)
 
 PLATFORMS
-  arm64-darwin-25
+  arm64-darwin
 
 DEPENDENCIES
   igniter

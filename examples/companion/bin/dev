@@ -1,53 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -e
 cd "$(dirname "$0")/.."
-
-main_port="${ORCHESTRATOR_PORT:-4567}"
-inference_port="${INFERENCE_PORT:-4568}"
-dashboard_port="${DASHBOARD_PORT:-4569}"
-
-port_in_use() {
-  local port="$1"
-
-  if ruby -rsocket -e 'port = Integer(ARGV.fetch(0)); server = TCPServer.new("0.0.0.0", port); server.close' "$port" >/dev/null 2>&1; then
-    return 1
-  fi
-
-  return 0
-}
-
-listener_hint() {
-  local port="$1"
-
-  if ! command -v lsof >/dev/null 2>&1; then
-    return 0
-  fi
-
-  local details
-  details="$(lsof -nP -iTCP:"$port" -sTCP:LISTEN 2>/dev/null | tail -n +2 | head -n 1)"
-  if [[ -n "$details" ]]; then
-    printf '  listener: %s\n' "$details" >&2
-  fi
-}
-
-abort_preflight() {
-  local app_name="$1"
-  local env_name="$2"
-  local port="$3"
-
-  printf 'companion/bin/dev preflight failed: %s port %s is already in use (%s).\n' "$app_name" "$port" "$env_name" >&2
-  listener_hint "$port"
-  printf '  hint: free the port or override %s before running bin/dev.\n' "$env_name" >&2
-  exit 1
-}
-
-if [[ "$main_port" == "$inference_port" || "$main_port" == "$dashboard_port" || "$inference_port" == "$dashboard_port" ]]; then
-  printf 'companion/bin/dev preflight failed: ORCHESTRATOR_PORT, INFERENCE_PORT, and DASHBOARD_PORT must be distinct.\n' >&2
-  exit 1
-fi
-
-port_in_use "$main_port" && abort_preflight "main" "ORCHESTRATOR_PORT" "$main_port"
-port_in_use "$inference_port" && abort_preflight "inference" "INFERENCE_PORT" "$inference_port"
-port_in_use "$dashboard_port" && abort_preflight "dashboard" "DASHBOARD_PORT" "$dashboard_port"
 
 exec bundle exec ruby stack.rb --dev "$@"

@@ -2,11 +2,11 @@ stack:
   environment: production
 
 topology:
-  profile: production
+  profile: cluster-staging
   services:
-    main:
+    seed:
+      replicas: 1
+    edge:
       replicas: 2
-    inference:
-      replicas: 1
-    dashboard:
-      replicas: 1
+    analyst:
+      replicas: 2

@@ -4,4 +4,5 @@
 
 require_relative "stack"
 
-run Companion::Stack.rack_app(ENV.fetch("IGNITER_APP", "main"))
+service = ENV["IGNITER_SERVICE"] || ENV["IGNITER_APP"] || "main"
+run Companion::Stack.rack_service(service)

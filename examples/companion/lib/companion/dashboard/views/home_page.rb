@@ -1,600 +1,354 @@
 # frozen_string_literal: true
 
 require "igniter/plugins/view"
-require "igniter/plugins/view/tailwind"
-require "json"
 
 module Companion
   module Dashboard
     module Views
-      class HomePage
-        def self.render(snapshot:)
-          new(snapshot: snapshot).render
+      class HomePage < Igniter::Plugins::View::Page
+        def self.render(snapshot:, error_message: nil, form_values: {}, base_path: "")
+          new(
+            snapshot: snapshot,
+            error_message: error_message,
+            form_values: form_values,
+            base_path: base_path
+          ).render
         end
 
-        def initialize(snapshot:)
+        def initialize(snapshot:, error_message:, form_values:, base_path:)
           @snapshot = snapshot
+          @error_message = error_message
+          @form_values = form_values
+          @base_path = base_path
         end
 
-        def render
-          Igniter::Plugins::View::Tailwind.render_page(
-            title: "Companion Dashboard",
-            theme: surface_preset.theme_name,
-            head_content: method(:render_head)
-          ) do |main|
-            render_hero(main)
-            render_metric_cards(main)
-            render_panels(main)
-            render_footer(main)
+        def call(view)
+          render_document(view, title: "Companion Dashboard") do |body|
+            body.tag(:main, class: "shell") do |main|
+              render_hero(main)
+              render_metrics(main)
+              render_node(main)
+              render_notes(main)
+              render_services(main)
+            end
           end
         end
 
         private
 
         attr_reader :snapshot
+        attr_reader :error_message
+        attr_reader :form_values
+        attr_reader :base_path
 
-        def render_head(head)
-          surface_preset.render_head(head, config: {})
-          head.tag(:script, type: "text/javascript") do |script|
-            script.raw(script_source)
-          end
+        def yield_head(head)
+          head.tag(:style) { |style| style.raw(stylesheet) }
         end
 
         def render_hero(view)
-          hero_theme = ui_theme.hero(:dashboard)
-
-          view.tag(:section,
-                   class: hero_theme.fetch(:wrapper_class)) do |hero|
-            hero.tag(:div, class: hero_theme.fetch(:glow_class))
-            hero.tag(:div, class: hero_theme.fetch(:content_class)) do |content|
-              content.tag(:p, "Operator Surface", class: hero_theme.fetch(:eyebrow_class))
-              content.tag(:h1, "Companion Dashboard", class: hero_theme.fetch(:title_class))
-              content.tag(:p,
-                          "Stack-level overview for reminders, Telegram bindings, notification preferences, notes, and execution-store state across companion apps.",
-                          class: hero_theme.fetch(:body_class))
-              content.tag(:div, class: hero_theme.fetch(:meta_class)) do |meta|
-                meta.tag(:span, "Generated #{snapshot.fetch(:generated_at)}")
-                meta.tag(:span, "apps=#{snapshot.dig(:stack, :apps).join(", ")}")
-                meta.tag(:span, "default=#{snapshot.dig(:stack, :default_app)}")
-              end
+          view.tag(:section, class: "hero") do |hero|
+            hero.tag(:h1, "Companion Dashboard")
+            hero.tag(:p, "Fresh proving ground for the rebuilt Igniter stack model.")
+            hero.tag(:div, class: "meta") do |meta|
+              meta.text("generated=#{snapshot.fetch(:generated_at)} · ")
+              meta.text("default=#{snapshot.dig(:stack, :default_app)} · ")
+              meta.text("service=#{snapshot.dig(:stack, :default_service)} · ")
+              meta.text("profile=#{snapshot.dig(:stack, :profile)}")
+            end
+            hero.tag(:p, class: "links") do |links|
+              links.tag(:a, "Overview API", href: route("/api/overview"))
+              links.text(" · ")
+              links.tag(:a, "Main status", href: "/v1/home/status")
             end
           end
         end
 
-        def render_metric_cards(view)
+        def render_metrics(view)
           counts = snapshot.fetch(:counts)
 
-          view.tag(:section, class: "grid gap-4 sm:grid-cols-2 xl:grid-cols-4") do |section|
-            section.component(metric_card(id: "notes", label: "Notes", value: counts[:notes], hint: "stored context"))
-            section.component(metric_card(id: "active-reminders", label: "Active Reminders", value: counts[:active_reminders], hint: "pending follow-ups"))
-            section.component(metric_card(id: "telegram-bindings", label: "Telegram Chats", value: counts[:telegram_bindings], hint: "linked users"))
-            section.component(metric_card(id: "notification-preferences", label: "Preferences", value: counts[:notification_preferences], hint: "persisted channel state"))
-            section.component(metric_card(id: "view-schemas", label: "View Schemas", value: counts[:view_schemas], hint: "authoring surfaces"))
-            section.component(metric_card(id: "view-submissions", label: "Submissions", value: counts[:view_submissions], hint: "runtime feedback loop"))
-          end
-        end
-
-        def render_panels(view)
-          view.tag(:section, class: "grid gap-5 xl:grid-cols-2") do |section|
-            section.component(create_reminder_form_section)
-            section.component(panel("Reminders", subtitle: "Recent active reminders and quick completion actions.") do |panel_view|
-              reminders_markup(panel_view, snapshot.fetch(:reminders))
-            end)
-            section.component(panel("Telegram", subtitle: "Linked chats, preferred routing, and notification toggles.") do |panel_view|
-              telegram_markup(panel_view, snapshot.fetch(:telegram), snapshot.fetch(:notification_preferences))
-            end)
-            section.component(panel("Notes", subtitle: "Small durable memory surface for the companion stack.") do |panel_view|
-              notes_markup(panel_view, snapshot.fetch(:notes))
-            end)
-            section.component(panel("Execution Stores", subtitle: "Execution persistence across companion apps.") do |panel_view|
-              execution_stores_markup(panel_view, snapshot.fetch(:execution_stores))
-            end)
-            section.component(surface_preset.authoring_catalog_panel do |panel_view|
-              view_schemas_markup(panel_view, snapshot.fetch(:view_schemas))
-            end)
-            section.component(surface_preset.recent_submissions_panel do |panel_view|
-              view_submissions_markup(panel_view, snapshot.fetch(:view_submissions))
-            end)
-          end
-        end
-
-        def render_footer(view)
-          view.component(
-            Igniter::Plugins::View::Tailwind::UI::ActionBar.new(
-              tag: :section,
-              class_name: ui_theme.surface(:footer_bar_class)
-            ) do |bar|
-              bar.tag(:span, "JSON API:")
-              bar.tag(:a,
-                      href: "/api/overview",
-                      class: tailwind_tokens.underline_link(theme: :orange)) do |anchor|
-                anchor.tag(:code, "/api/overview")
-              end
-              bar.tag(:a,
-                      "Open training check-in",
-                      href: "/views/training-checkin",
-                      class: tailwind_tokens.underline_link(theme: :orange))
-              bar.tag(:a,
-                      "Open weekly review",
-                      href: "/views/weekly-review",
-                      class: tailwind_tokens.underline_link(theme: :orange))
-            end
-          )
-        end
-
-        def panel(title, subtitle: nil, &block)
-          ui_theme.panel(title: title, subtitle: subtitle, &block)
-        end
-
-        def create_reminder_form_section
-          surface_preset.form_section(
-            title: "Create Reminder",
-            subtitle: "Quick operator flow for scheduling reminders.",
-            action: "/reminders"
-          ) do |form|
-            form.label("reminder-task", "Task", class: ui_theme.field_label_class)
-            form.input("task",
-                       id: "reminder-task",
-                       placeholder: "Pay rent",
-                       required: true,
-                        class: input_classes)
-
-            form.label("reminder-timing", "When", class: ui_theme.field_label_class)
-            form.input("timing",
-                       id: "reminder-timing",
-                       placeholder: "Tomorrow at 09:00",
-                       required: true,
-                       class: input_classes)
-
-            form.label("reminder-channel", "Channel", class: ui_theme.field_label_class)
-            form.select("channel",
-                        id: "reminder-channel",
-                        options: [["No channel", ""], ["Telegram", "telegram"]],
-                        class: input_classes)
-
-            form.label("reminder-chat-id", "Telegram chat", class: ui_theme.field_label_class)
-            form.select("chat_id",
-                        id: "reminder-chat-id",
-                        options: telegram_chat_options,
-                        class: input_classes)
-
-            form.label("reminder-notifications", class: ui_theme.checkbox_label_class) do |label|
-              label.raw(%(<input type="checkbox" name="notifications_enabled" value="1" checked class="#{ui_theme.checkbox_class}">))
-              label.text("Enable Telegram notifications")
+          view.tag(:section, class: "metrics") do |section|
+            section.tag(:article, class: "metric-card") do |card|
+              card.tag(:span, "Apps", class: "metric-label")
+              card.tag(:strong, snapshot.dig(:stack, :apps).size.to_s, class: "metric-value")
             end
 
-            form.submit("Create Reminder",
-                        class: primary_button_classes)
+            section.tag(:article, class: "metric-card") do |card|
+              card.tag(:span, "Services", class: "metric-label")
+              card.tag(:strong, counts.fetch(:services).to_s, class: "metric-value")
+            end
+
+            section.tag(:article, class: "metric-card") do |card|
+              card.tag(:span, "Notes", class: "metric-label")
+              card.tag(:strong, counts.fetch(:notes).to_s, class: "metric-value")
+            end
+
+            section.tag(:article, class: "metric-card") do |card|
+              card.tag(:span, "Peers", class: "metric-label")
+              card.tag(:strong, counts.fetch(:discovered_peers).to_s, class: "metric-value")
+            end
           end
         end
 
-        def reminders_markup(view, reminders)
-          return view.tag(:p, "No active reminders yet.", class: empty_state_classes) if reminders.empty?
+        def render_node(view)
+          node = snapshot.fetch(:current_node)
+          capabilities = node.dig(:capabilities, :effective)
+          mocked = node.dig(:capabilities, :mocked)
+          seeds = node.fetch(:seeds)
+          peers = snapshot.fetch(:discovered_peers)
 
-          view.tag(:ul, class: list_classes) do |list|
-            reminders.last(8).reverse.each do |reminder|
-              list.tag(:li, class: list_item_classes) do |item|
-                item.tag(:strong, reminder["task"], class: ui_theme.item_title_class)
-                item.tag(:span, reminder["timing"], class: pill_classes)
-                item.tag(:div, class: "mt-3") do |row|
-                  row.tag(:code, "channel=#{reminder["channel"] || "none"} chat=#{reminder["chat_id"] || "-"}", class: code_classes)
+          view.tag(:section, class: "notes-panel") do |section|
+            section.tag(:div, class: "panel-head") do |head|
+              head.tag(:h2, "Current Node")
+              head.tag(:p, "Capability envelope for this local Companion instance.")
+            end
+
+            section.tag(:p, "name=#{node.dig(:node, :name)} role=#{node.dig(:node, :role)} service=#{node.dig(:node, :service)}")
+            section.tag(:p, "url=#{node.dig(:node, :url)}")
+            section.tag(:p, "effective_capabilities=#{capabilities.join(", ")}")
+            section.tag(:p, "mocked_capabilities=#{mocked.empty? ? "none" : mocked.join(", ")}")
+            section.tag(:p, "tags=#{node.fetch(:tags).join(", ")}")
+            section.tag(:p, "seeds=#{seeds.empty? ? "none" : seeds.join(", ")}")
+
+            if peers.empty?
+              section.tag(:p, "No discovered peers yet.", class: "empty-state")
+            else
+              section.tag(:ul, class: "notes-list") do |list|
+                peers.each do |peer|
+                  list.tag(:li) do |item|
+                    item.tag(:strong, peer.fetch(:name))
+                    item.tag(:div, class: "note-meta") do |meta|
+                      meta.text("caps=#{peer.fetch(:capabilities).join(", ")} · tags=#{peer.fetch(:tags).join(", ")} · url=#{peer.fetch(:url)}")
+                    end
+                  end
                 end
-                item.button("Mark Completed",
-                            class: primary_button_classes,
-                            onclick: "postJson('/api/reminders/#{reminder["id"]}/complete', {})")
               end
             end
           end
         end
 
-        def telegram_markup(view, telegram, preferences)
-          bindings = Array(telegram[:bindings])
+        def render_notes(view)
+          notes = snapshot.fetch(:notes)
 
-          labelled_code(view, "Preferred chat:", telegram[:preferred_chat_id] || "-")
-          labelled_code(view, "Latest chat:", telegram[:latest_chat_id] || "-")
+          view.tag(:section, class: "notes-panel") do |section|
+            section.tag(:div, class: "panel-head") do |head|
+              head.tag(:h2, "Shared Notes")
+              head.tag(:p, "Simple cross-app proving slice shared by main and dashboard.")
+            end
 
-          return view.tag(:p, "No linked Telegram chats yet.", class: empty_state_classes) if bindings.empty?
+            if error_message
+              section.tag(:p, error_message, class: "error-banner")
+            end
 
-          view.tag(:ul, class: list_classes) do |list|
-            bindings.first(6).each do |binding|
-              name = binding["username"] || binding["first_name"] || binding["title"] || binding["chat_id"]
-              chat_id = binding["chat_id"]
-              enabled = telegram_notifications_enabled?(preferences, chat_id)
-              action_label = enabled ? "Disable Notifications" : "Enable Notifications"
-              action_value = enabled ? "false" : "true"
-              button_class = enabled ? secondary_button_classes : primary_button_classes
+            section.form(action: route("/notes"), method: "post", class: "stacked-form") do |form|
+              form.label("note-text", "Add note")
+              form.textarea("text",
+                            id: "note-text",
+                            rows: 3,
+                            placeholder: "Capture a lab observation or operator todo",
+                            value: form_values.fetch("text", ""))
+              form.submit("Save Note")
+            end
 
-              list.tag(:li, class: list_item_classes) do |item|
-                item.tag(:strong, name, class: ui_theme.item_title_class)
-                item.tag(:div, class: "mt-3") do |row|
-                  row.tag(:code, "chat_id=#{chat_id} type=#{binding["type"] || "unknown"}", class: code_classes)
+            if notes.empty?
+              section.tag(:p, "No notes saved yet.", class: "empty-state")
+            else
+              section.tag(:ul, class: "notes-list") do |list|
+                notes.each do |note|
+                  list.tag(:li) do |item|
+                    item.tag(:strong, note.fetch("text"))
+                    item.tag(:div, class: "note-meta") do |meta|
+                      meta.text("source=#{note.fetch("source")} · created=#{note.fetch("created_at")}")
+                    end
+                  end
                 end
-                item.tag(:span, "notifications=#{enabled}", class: "#{pill_classes} mt-3")
-                item.button(action_label,
-                            class: button_class,
-                            onclick: "postJson('/api/telegram/preferences', { chat_id: #{js_string(chat_id)}, enabled: #{action_value} })")
               end
             end
           end
         end
 
-        def notes_markup(view, notes)
-          return view.tag(:p, "No notes saved yet.", class: empty_state_classes) if notes.empty?
-
-          view.tag(:ul, class: list_classes) do |list|
-            notes.first(8).each do |key, value|
-              list.tag(:li, class: list_item_classes) do |item|
-                item.tag(:strong, key, class: ui_theme.item_title_class)
-                item.tag(:div, value, class: ui_theme.body_text_class(extra: "mt-2"))
-              end
-            end
-          end
-        end
-
-        def execution_stores_markup(view, execution_stores)
-          view.component(
-            ui_theme.resource_list(
-              items: execution_stores.map do |app_name, summary|
-                {
-                  title: app_name,
-                  meta: "total=#{summary[:total]} pending=#{summary[:pending]}",
-                  code: summary[:class]
-                }
-              end
-            )
-          )
-        end
-
-        def view_schemas_markup(view, schemas)
-          surface_preset.schema_catalog_intro(
-            view,
-            description: "Browse seeded schemas, open their rendered pages, fetch raw JSON, or draft create/patch payloads against the catalog API without leaving the dashboard.",
-            catalog_path: "/api/views",
-            featured_view_path: "/views/weekly-review",
-            featured_view_label: "Open weekly review"
-          )
-
-          view.tag(:div, class: "mt-4 #{surface_preset.schema_catalog_grid_class}") do |grid|
-            grid.tag(:div) do |column|
-              surface_preset.schema_catalog_list(
-                column,
-                items: schema_catalog_items(schemas),
-                empty_message: "No view schemas stored yet."
-              )
-            end
-
-            grid.tag(:div, class: "space-y-4") do |column|
-              render_schema_create_form(column)
-              render_schema_patch_form(column)
-            end
-          end
-        end
-
-        def view_submissions_markup(view, submissions)
-          surface_preset.submission_timeline(
-            view,
-            description: "Recent submissions make the authoring loop concrete: define a schema, run it, then inspect which action fired and how it was processed.",
-            items: submission_timeline_items(submissions),
-            empty_message: "No schema submissions yet. Open a seeded view and submit it once to populate this timeline."
-          )
-        end
-
-        def render_schema_create_form(view)
-          view.component(
-            surface_preset.schema_create_form_section(
-              wrapper_class: "#{ui_theme.surface(:schema_card_class)} p-5"
-            ) do |form|
-              form.label("schema-create-id", "Suggested id", class: ui_theme.field_label_class)
-              form.input("schema-create-id",
-                         id: "schema-create-id",
-                         value: "weekly-review-copy",
-                         class: input_classes)
-
-              form.label("schema-create-json", "Schema JSON", class: ui_theme.field_label_class)
-              form.textarea("schema-create-json",
-                            id: "schema-create-json",
-                            rows: 16,
-                            value: default_schema_payload,
-                            class: ui_theme.input_class(extra: "min-h-48 font-mono text-xs"))
-
-              form.view.tag(:p,
-                            "Create posts the full payload to /api/views and then reloads the dashboard.",
-                            class: ui_theme.muted_text_class)
-              form.button("Create Schema",
-                          type: "button",
-                          class: primary_button_classes,
-                          onclick: "createSchemaFromEditor()")
-            end
-          )
-        end
-
-        def render_schema_patch_form(view)
-          view.component(
-            surface_preset.schema_patch_form_section(
-              wrapper_class: "#{ui_theme.surface(:schema_card_class)} p-5"
-            ) do |form|
-              form.label("schema-patch-id", "Schema id", class: ui_theme.field_label_class)
-              form.input("schema-patch-id",
-                         id: "schema-patch-id",
-                         placeholder: "training-checkin",
-                         class: input_classes)
-
-              form.label("schema-patch-json", "Patch JSON", class: ui_theme.field_label_class)
-              form.textarea("schema-patch-json",
-                            id: "schema-patch-json",
-                            rows: 12,
-                            value: "{\n  \"title\": \"Weekly Review (Edited)\"\n}",
-                            class: ui_theme.input_class(extra: "min-h-40 font-mono text-xs"))
-
-              form.view.tag(:p,
-                            "Delete removes the currently selected schema id. Clone loads an existing schema into the create editor with a copied id.",
-                            class: ui_theme.muted_text_class)
-              form.view.component(
-                Igniter::Plugins::View::Tailwind::UI::ActionBar.new(class_name: "mt-3 flex flex-wrap gap-2") do |actions|
-                  actions.tag(:button,
-                              "Apply Patch",
-                              type: "button",
-                              class: tailwind_tokens.action(variant: :primary, theme: :orange, size: :sm),
-                              onclick: "patchSchemaFromEditor()")
-                  actions.tag(:button,
-                              "Delete Schema",
-                              type: "button",
-                              class: tailwind_tokens.action(variant: :ghost, theme: :orange, size: :sm),
-                              onclick: "deleteSchemaFromEditor()")
+        def render_services(view)
+          view.tag(:section, class: "grid") do |grid|
+            snapshot.fetch(:services).each do |name, service|
+              grid.tag(:article, class: "card") do |card|
+                card.tag(:h2, name.to_s)
+                card.tag(:p, "role=#{service.fetch(:role)}")
+                card.tag(:p, "port=#{service.fetch(:port)} public=#{service.fetch(:public)} replicas=#{service.fetch(:replicas)}")
+                card.tag(:p, "apps=#{service.fetch(:apps).join(", ")}")
+                mounts = service.fetch(:mounts)
+                unless mounts.empty?
+                  card.tag(:p, "mounts=#{mounts.map { |app, mount| "#{app}: #{mount}" }.join(", ")}")
                 end
-              )
+                card.tag(:code, service.fetch(:command))
+              end
             end
-          )
-        end
-
-        def labelled_code(view, label, value)
-          view.tag(:p, class: ui_theme.body_text_class(extra: "mb-3 flex flex-wrap items-center gap-2")) do |paragraph|
-            paragraph.tag(:strong, label, class: ui_theme.item_title_class)
-            paragraph.tag(:code, value, class: code_classes)
           end
         end
 
-        def schema_catalog_items(schemas)
-          schemas.map do |schema|
-            {
-              title: schema.fetch(:title),
-              id: schema.fetch(:id),
-              meta: "version=#{schema.fetch(:version)} · actions=#{schema.fetch(:action_ids).join(", ")}",
-              view_path: schema.fetch(:view_path),
-              api_path: schema.fetch(:api_path),
-              load_action: "loadSchemaIntoEditor(#{js_string(schema.fetch(:id))})",
-              clone_action: "cloneSchemaIntoEditor(#{js_string(schema.fetch(:id))})"
-            }
-          end
+        def route(path)
+          prefix = base_path.to_s
+          return path if prefix.empty?
+
+          [prefix, path.sub(%r{\A/}, "")].join("/")
         end
 
-        def submission_timeline_items(submissions)
-          submissions.map do |submission|
-            created_at = submission.fetch(:created_at)
-            processed_at = submission[:processed_at] || "pending"
-            processing_type = submission[:processing_type] || "pending"
-
-            {
-              title: submission.fetch(:view_title),
-              href: submission.fetch(:detail_path),
-              body: "action=#{submission.fetch(:action_id)} · status=#{submission.fetch(:status)} · type=#{processing_type}",
-              meta: "submission=#{submission.fetch(:id)} · schema_v=#{submission.fetch(:schema_version)} · created=#{created_at} · processed=#{processed_at}",
-              action_label: "Schema JSON",
-              action_href: submission.fetch(:api_path)
-            }
-          end
-        end
-
-        def js_string(value)
-          JSON.generate(value.to_s)
-        end
-
-        def telegram_notifications_enabled?(preferences, chat_id)
-          prefs = preferences["telegram:#{chat_id}"]
-          return true if prefs.nil?
-
-          prefs["telegram_enabled"] != false
-        end
-
-        def telegram_chat_options
-          preferred_chat_id = snapshot.dig(:telegram, :preferred_chat_id).to_s
-          bindings = Array(snapshot.dig(:telegram, :bindings))
-
-          options = [["Auto / none", ""]]
-          bindings.each do |binding|
-            chat_id = binding["chat_id"].to_s
-            name = binding["username"] || binding["first_name"] || binding["title"] || chat_id
-            suffix = chat_id == preferred_chat_id ? " (preferred)" : ""
-            options << ["#{name}#{suffix}", chat_id]
-          end
-          options.uniq
-        end
-
-        def input_classes
-          ui_theme.input_class
-        end
-
-        def primary_button_classes
-          tailwind_tokens.action(variant: :primary, theme: :orange, extra: "mt-3")
-        end
-
-        def secondary_button_classes
-          tailwind_tokens.action(variant: :secondary, extra: "mt-3")
-        end
-
-        def pill_classes
-          tailwind_tokens.badge(theme: :orange)
-        end
-
-        def tailwind_tokens
-          Igniter::Plugins::View::Tailwind::UI::Tokens
-        end
-
-        def ui_theme
-          surface_preset.theme
-        end
-
-        def surface_preset
-          @surface_preset ||= Igniter::Plugins::View::Tailwind::Surfaces.schema_authoring
-        end
-
-        def metric_card(id:, label:, value:, hint:)
-          surface_preset.metric_card(id: id, label: label, value: value, hint: hint)
-        end
-
-        def list_classes
-          ui_theme.list_class
-        end
-
-        def list_item_classes
-          ui_theme.list_item_class
-        end
-
-        def code_classes
-          ui_theme.code_class
-        end
-
-        def empty_state_classes
-          ui_theme.empty_state_class
-        end
-
-        def default_schema_payload
-          JSON.pretty_generate(
-            {
-              id: "weekly-review-copy",
-              version: 1,
-              kind: "page",
-              title: "Weekly Review Copy",
-              actions: {
-                save_review: {
-                  method: "post",
-                  path: "/views/weekly-review-copy/submissions"
-                }
-              },
-              layout: {
-                type: "stack",
-                children: [
-                  { type: "heading", level: 1, text: "Weekly Review Copy" },
-                  { type: "notice", message: "Adjust this draft, then create it.", tone: "notice" },
-                  {
-                    type: "form",
-                    action: "save_review",
-                    children: [
-                      {
-                        type: "fieldset",
-                        legend: "Signals",
-                        description: "Start from one strong signal.",
-                        children: [
-                          { type: "input", name: "focus", label: "Focus", required: true }
-                        ]
-                      },
-                      {
-                        type: "actions",
-                        children: [
-                          { type: "submit", label: "Save" }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            }
-          )
-        end
-
-        def script_source
-          <<~JS
-            async function requestJson(path, options) {
-              const response = await fetch(path, options || {});
-              const text = await response.text();
-              let parsed = {};
-
-              try {
-                parsed = text ? JSON.parse(text) : {};
-              } catch (error) {
-                parsed = { ok: false, error: text || "Invalid JSON response" };
-              }
-
-              if (!response.ok) {
-                throw new Error(parsed.error || "Request failed");
-              }
-
-              return parsed;
+        def stylesheet
+          <<~CSS
+            :root {
+              color-scheme: light;
+              --bg: #f3efe6;
+              --ink: #1f2520;
+              --muted: #5a665d;
+              --card: #fffaf2;
+              --line: #d4c9b8;
+              --accent: #2f6c5b;
             }
 
-            async function postJson(path, payload) {
-              await fetch(path, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload || {})
-              });
-              window.location.reload();
+            * { box-sizing: border-box; }
+            body {
+              margin: 0;
+              font-family: "Iowan Old Style", "Palatino Linotype", serif;
+              background:
+                radial-gradient(circle at top left, rgba(47, 108, 91, 0.12), transparent 28rem),
+                linear-gradient(180deg, #f8f4ec 0%, var(--bg) 100%);
+              color: var(--ink);
             }
 
-            async function loadSchemaIntoEditor(schemaId) {
-              const result = await requestJson(`/api/views/${encodeURIComponent(schemaId)}`);
-              const payload = result.schema || {};
-              document.getElementById("schema-patch-id").value = payload.id || schemaId;
-              document.getElementById("schema-create-id").value = `${payload.id || schemaId}-copy`;
-              document.getElementById("schema-create-json").value = JSON.stringify(payload, null, 2);
-              document.getElementById("schema-patch-json").value = JSON.stringify({
-                title: `${payload.title || schemaId} (Edited)`
-              }, null, 2);
+            .shell {
+              width: min(980px, calc(100vw - 32px));
+              margin: 0 auto;
+              padding: 40px 0 64px;
             }
 
-            async function cloneSchemaIntoEditor(schemaId) {
-              const result = await requestJson(`/api/views/${encodeURIComponent(schemaId)}`);
-              const payload = result.schema || {};
-              payload.id = `${payload.id || schemaId}-copy`;
-              payload.title = `${payload.title || schemaId} Copy`;
-
-              if (payload.actions) {
-                Object.entries(payload.actions).forEach(([actionId, action]) => {
-                  if (action && action.path) {
-                    action.path = action.path.replace(`/views/${schemaId}/`, `/views/${payload.id}/`);
-                  }
-                });
-              }
-
-              document.getElementById("schema-create-id").value = payload.id;
-              document.getElementById("schema-create-json").value = JSON.stringify(payload, null, 2);
+            .hero, .card, .notes-panel, .metric-card {
+              background: var(--card);
+              border: 1px solid var(--line);
+              border-radius: 20px;
+              box-shadow: 0 18px 40px rgba(31, 37, 32, 0.08);
             }
 
-            async function createSchemaFromEditor() {
-              const raw = document.getElementById("schema-create-json").value;
-              const payload = JSON.parse(raw);
-              const suggestedId = document.getElementById("schema-create-id").value.trim();
-              if (suggestedId.length > 0) {
-                payload.id = suggestedId;
-              }
-
-              await requestJson("/api/views", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-              });
-              window.location.reload();
+            .hero {
+              padding: 28px;
+              margin-bottom: 24px;
             }
 
-            async function patchSchemaFromEditor() {
-              const schemaId = document.getElementById("schema-patch-id").value.trim();
-              const patch = JSON.parse(document.getElementById("schema-patch-json").value);
-              await requestJson(`/api/views/${encodeURIComponent(schemaId)}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(patch)
-              });
-              window.location.reload();
+            .hero h1, .card h2 {
+              margin: 0 0 12px;
             }
 
-            async function deleteSchemaFromEditor() {
-              const schemaId = document.getElementById("schema-patch-id").value.trim();
-              await requestJson(`/api/views/${encodeURIComponent(schemaId)}`, {
-                method: "DELETE"
-              });
-              window.location.reload();
+            .meta, .links, .card p, .card code, .panel-head p, .note-meta, .metric-label {
+              color: var(--muted);
             }
-          JS
+
+            .links a {
+              color: var(--accent);
+              text-decoration: none;
+            }
+
+            .metrics {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+              gap: 16px;
+              margin-bottom: 24px;
+            }
+
+            .metric-card {
+              padding: 20px;
+            }
+
+            .metric-label, .metric-value {
+              display: block;
+            }
+
+            .metric-value {
+              margin-top: 8px;
+              font-size: 32px;
+            }
+
+            .notes-panel {
+              padding: 24px;
+              margin-bottom: 24px;
+            }
+
+            .panel-head h2, .panel-head p {
+              margin: 0 0 10px;
+            }
+
+            .stacked-form label,
+            .stacked-form textarea,
+            .stacked-form button {
+              display: block;
+              width: 100%;
+            }
+
+            .stacked-form label {
+              margin-bottom: 8px;
+            }
+
+            .stacked-form textarea {
+              min-height: 96px;
+              margin-bottom: 12px;
+              padding: 12px;
+              border-radius: 12px;
+              border: 1px solid var(--line);
+              background: #fffdf8;
+              font: inherit;
+              color: inherit;
+            }
+
+            .stacked-form button {
+              max-width: 220px;
+              padding: 12px 16px;
+              border: 0;
+              border-radius: 999px;
+              background: var(--accent);
+              color: white;
+              cursor: pointer;
+              font: inherit;
+            }
+
+            .error-banner {
+              margin: 0 0 16px;
+              padding: 12px 14px;
+              border-radius: 12px;
+              background: #fff0e8;
+              color: #8a3d1f;
+            }
+
+            .empty-state {
+              margin: 16px 0 0;
+            }
+
+            .notes-list {
+              margin: 18px 0 0;
+              padding-left: 20px;
+            }
+
+            .notes-list li + li {
+              margin-top: 12px;
+            }
+
+            .note-meta {
+              margin-top: 4px;
+              font-size: 14px;
+            }
+
+            .grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+              gap: 16px;
+            }
+
+            .card {
+              padding: 20px;
+            }
+
+            .card code {
+              display: block;
+              white-space: pre-wrap;
+              font-family: "SFMono-Regular", "Menlo", monospace;
+              font-size: 12px;
+            }
+          CSS
         end
       end
     end
