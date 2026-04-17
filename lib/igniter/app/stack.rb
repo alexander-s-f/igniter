@@ -5,6 +5,7 @@ require "irb"
 require "optparse"
 require "shellwords"
 require "stringio"
+require "time"
 require "yaml"
 
 module Igniter
@@ -385,6 +386,10 @@ module Igniter
         services = dev_services
         raise ArgumentError, "No apps registered for stack dev mode" if services.empty?
 
+        log_dir = resolve_dev_log_dir
+        FileUtils.mkdir_p(log_dir)
+        $stdout.puts("[stack:dev] writing logs to #{relative_to_root(log_dir)}")
+
         processes = {}
         readers = []
         stopping = false
@@ -408,6 +413,7 @@ module Igniter
 
         services.each do |service|
           reader, writer = IO.pipe
+          log_path = dev_log_path_for(service.fetch(:name), dir: log_dir)
           pid = Process.spawn(
             service.fetch(:environment),
             service.fetch(:command),
@@ -417,10 +423,21 @@ module Igniter
           )
           writer.close
 
-          processes[pid] = { name: service.fetch(:name), pid: pid }
-          readers << Thread.new(reader, service.fetch(:name)) do |io, name|
-            io.each_line do |line|
-              $stdout.print("[#{name}] #{line}")
+          processes[pid] = { name: service.fetch(:name), pid: pid, log_path: log_path }
+          readers << Thread.new(reader, service.fetch(:name), log_path) do |io, name, path|
+            FileUtils.mkdir_p(File.dirname(path))
+            File.open(path, "w") do |log|
+              log.sync = true
+              log.puts("# igniter dev log")
+              log.puts("# service=#{name}")
+              log.puts("# started_at=#{Time.now.utc.iso8601}")
+              log.puts
+
+              io.each_line do |line|
+                prefixed = "[#{name}] #{line}"
+                $stdout.print(prefixed)
+                log.print(prefixed)
+              end
             end
           ensure
             io.close unless io.closed?
@@ -886,6 +903,21 @@ module Igniter
         else
           "bundle exec ruby stack.rb"
         end
+      end
+
+      def resolve_dev_log_dir
+        configured = stack_settings.dig("development", "log_dir") || stack_settings.dig("dev", "log_dir")
+        resolve_path(configured || "var/log/dev")
+      end
+
+      def dev_log_path_for(name, dir: resolve_dev_log_dir)
+        File.join(dir, "#{name}.log")
+      end
+
+      def relative_to_root(path)
+        return path unless @root_dir && path.start_with?(@root_dir.to_s)
+
+        path.delete_prefix(@root_dir.to_s).sub(%r{\A/}, "")
       end
 
       def load_yaml(path)

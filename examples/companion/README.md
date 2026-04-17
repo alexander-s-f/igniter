@@ -45,6 +45,9 @@ bin/console --node seed
 bin/dev
 ```
 
+`bin/dev` keeps the prefixed terminal output and also writes per-node logs to
+`var/log/dev/*.log`.
+
 Then open:
 
 - [http://127.0.0.1:4667/v1/home/status](http://127.0.0.1:4667/v1/home/status)

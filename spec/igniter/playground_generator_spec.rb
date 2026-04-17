@@ -43,6 +43,7 @@ RSpec.describe Igniter::App::Generators::Playground do
         expect(readme).to include("http://127.0.0.1:4567/dashboard")
         expect(readme).to include("bin/console")
         expect(readme).to include("bin/start --node main")
+        expect(readme).to include("var/log/dev/*.log")
         expect(main_app).to include('route "POST", "/v1/notes"')
         expect(dashboard_app).to include('route "POST", "/notes"')
         expect(dashboard_page).to include('action: route("/notes")')

@@ -103,7 +103,7 @@ module Igniter
         end
         puts "    bin/start          # ← launch the mounted stack"
         puts "    bin/console        # ← open the igniter console"
-        puts "    bin/dev            # ← launch the whole stack locally"
+        puts "    bin/dev            # ← launch the whole stack locally (+ var/log/dev/*.log)"
         puts "    bin/start --node main      # ← explicit node selection"
         puts
         puts "  Production (Puma):"
@@ -360,7 +360,7 @@ module Igniter
           puts "  \#{hr}"
           puts "  Run  bin/start       →  start the mounted stack"
           puts "  Run  bin/console     →  open the igniter console"
-          puts "  Run  bin/dev         →  start the whole stack locally"
+          puts "  Run  bin/dev         →  start the whole stack locally (+ var/log/dev/*.log)"
           puts "  Run  bin/start --node main     →  explicit node selection"
           puts "  \#{hr}"
           puts
@@ -378,7 +378,7 @@ module Igniter
           puts "#{module_name} stack — add your demo code here."
           puts "Run  bin/start       →  start the mounted stack"
           puts "Run  bin/console     →  open the igniter console"
-          puts "Run  bin/dev         →  start the whole stack locally"
+          puts "Run  bin/dev         →  start the whole stack locally (+ var/log/dev/*.log)"
           puts "Run  bin/start --node main     →  explicit node selection"
         RUBY
       end

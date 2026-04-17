@@ -1093,6 +1093,8 @@ module Igniter
             bin/dev
             ```
 
+            `bin/dev` also writes per-node logs to `var/log/dev/*.log`.
+
             Then open:
 
             - API status: `http://127.0.0.1:4567/v1/home/status`

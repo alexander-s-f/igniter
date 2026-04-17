@@ -418,6 +418,30 @@ RSpec.describe Igniter::Stack do
     end
   end
 
+  it "writes per-node dev logs to var/log/dev by default" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          root_app: main
+        nodes:
+          seed:
+            command: ruby -e 'puts "hello from seed"; warn "warn from seed"'
+            port: 4667
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      workspace.start_dev
+
+      log_path = File.join(tmp, "var", "log", "dev", "seed.log")
+      expect(File.exist?(log_path)).to be(true)
+
+      log = File.read(log_path)
+      expect(log).to include("# igniter dev log")
+      expect(log).to include("[seed] hello from seed")
+      expect(log).to include("[seed] warn from seed")
+    end
+  end
+
   it "builds a console context with stack, app, node, and runtime helpers" do
     Dir.mktmpdir do |tmp|
       File.write(File.join(tmp, "stack.yml"), <<~YAML)
