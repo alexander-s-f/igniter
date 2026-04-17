@@ -7,7 +7,8 @@ module Igniter
     class Config
       attr_accessor :peer_name, :local_capabilities, :local_tags, :local_metadata,
                     :seeds, :discovery_interval, :auto_announce, :local_url, :gossip_fanout,
-                    :identity, :trust_store, :governance_trail
+                    :identity, :trust_store, :governance_trail, :auto_self_heal,
+                    :self_heal_interval, :self_heal_limit, :self_heal_report_provider
       attr_reader   :peers, :peer_registry
 
       def initialize
@@ -25,6 +26,11 @@ module Igniter
         @identity           = nil
         @trust_store        = Igniter::Cluster::Trust::TrustStore.new
         @governance_trail   = Igniter::Cluster::Governance::Trail.new
+        @auto_self_heal     = false
+        @self_heal_interval = 15
+        @self_heal_limit    = nil
+        @self_heal_report_provider = nil
+        @last_routing_report = nil
       end
 
       def ensure_identity!
@@ -60,6 +66,20 @@ module Igniter
         )
       end
 
+      def record_routing_report!(target)
+        @last_routing_report = normalize_routing_report(target)
+      end
+
+      def current_routing_report
+        provided = @self_heal_report_provider&.call
+        report = normalize_routing_report(provided)
+        return report if report
+
+        @last_routing_report
+      rescue StandardError
+        @last_routing_report
+      end
+
       # Register a remote peer by name.
       #
       #   Igniter::Cluster::Mesh.configure do |c|
@@ -84,6 +104,28 @@ module Igniter
       # Find a static peer by its registered name. Returns nil if not found.
       def peer_named(name)
         @peers.find { |p| p.name == name.to_s }
+      end
+
+      private
+
+      def normalize_routing_report(target)
+        return nil if target.nil?
+
+        report =
+          if target.respond_to?(:diagnostics)
+            target.diagnostics.to_h
+          elsif target.is_a?(Hash)
+            target
+          elsif target.respond_to?(:to_h)
+            target.to_h
+          end
+
+        return nil unless report.is_a?(Hash)
+        return nil unless report.dig(:routing, :plans).is_a?(Array)
+
+        report
+      rescue StandardError
+        nil
       end
     end
     end

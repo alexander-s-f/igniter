@@ -181,6 +181,44 @@ RSpec.describe "Igniter Mesh — Phase 3: Gossip Protocol" do
         expect(config.peer_registry.peer_named("node-e")).not_to be_nil
       end
 
+      it "relays signed governance checkpoints from discovered peers" do
+        identity = Igniter::Cluster::Identity::NodeIdentity.generate(node_id: "node-d")
+        trail = Igniter::Cluster::Governance::Trail.new
+        trail.record(:routing_plan_applied, source: :spec, payload: { step: 1 })
+        checkpoint = Igniter::Cluster::Governance::Checkpoint.build(
+          identity: identity,
+          peer_name: "node-d",
+          trail: trail
+        )
+
+        config.peer_registry.register(peer_a)
+        stub_list_peers(peer_a.url, [
+                          {
+                            name: "node-d",
+                            url: "http://node-d:4567",
+                            capabilities: [:payments],
+                            metadata: {
+                              mesh_governance: {
+                                checkpointed_at: checkpoint.checkpointed_at,
+                                crest_digest: checkpoint.crest_digest,
+                                checkpoint: checkpoint.to_h
+                              }
+                            }
+                          }
+                        ])
+
+        described_class.new(config).run
+
+        governance = config.peer_registry.peer_named("node-d").metadata[:mesh_governance]
+        expect(governance).to include(
+          node_id: "node-d",
+          crest_digest: checkpoint.crest_digest,
+          checkpointed_at: checkpoint.checkpointed_at,
+          checkpoint: hash_including(node_id: "node-d"),
+          trust: include(status: :unknown, trusted: false)
+        )
+      end
+
       it "skips entries with nil name" do
         config.peer_registry.register(peer_a)
         stub_list_peers(peer_a.url, [

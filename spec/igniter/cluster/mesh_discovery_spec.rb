@@ -120,6 +120,14 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
       expect(config.peer_registry).to be_a(Igniter::Cluster::Mesh::PeerRegistry)
     end
 
+    it "defaults auto_self_heal to false" do
+      expect(config.auto_self_heal).to be false
+    end
+
+    it "defaults self_heal_interval to 15" do
+      expect(config.self_heal_interval).to eq(15)
+    end
+
     it "allows configuring seeds" do
       config.seeds = %w[http://seed1:4567 http://seed2:4567]
       expect(config.seeds).to eq(%w[http://seed1:4567 http://seed2:4567])
@@ -165,6 +173,15 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
               hops: 0,
               origin: "api-node",
               observed_at: kind_of(String)
+            ),
+            mesh_governance: hash_including(
+              node_id: "api-node",
+              checkpointed_at: kind_of(String),
+              crest_digest: kind_of(String),
+              checkpoint: hash_including(
+                node_id: "api-node",
+                crest: hash_including(total: 0)
+              )
             )
           ),
           signature: kind_of(String)
@@ -294,6 +311,46 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
       )
     end
 
+    it "poll_once preserves signed governance checkpoints from seed peers" do
+      config.gossip_fanout = 0
+      identity = Igniter::Cluster::Identity::NodeIdentity.generate(node_id: "orders-node")
+      trail = Igniter::Cluster::Governance::Trail.new
+      trail.record(:routing_plan_applied, source: :spec, payload: { step: 1 })
+      checkpoint = Igniter::Cluster::Governance::Checkpoint.build(
+        identity: identity,
+        peer_name: "orders-node",
+        trail: trail
+      )
+
+      client_double = instance_double(Igniter::Server::Client)
+      allow(Igniter::Server::Client).to receive(:new).and_return(client_double)
+      allow(client_double).to receive(:list_peers).and_return([
+        {
+          name: "orders-node",
+          url: "http://orders:4567",
+          capabilities: [:orders],
+          metadata: {
+            mesh_governance: {
+              checkpointed_at: checkpoint.checkpointed_at,
+              crest_digest: checkpoint.crest_digest,
+              checkpoint: checkpoint.to_h
+            }
+          }
+        }
+      ])
+
+      poller.poll_once
+
+      governance = config.peer_registry.peer_named("orders-node").metadata[:mesh_governance]
+      expect(governance).to include(
+        node_id: "orders-node",
+        checkpointed_at: checkpoint.checkpointed_at,
+        crest_digest: checkpoint.crest_digest,
+        checkpoint: hash_including(node_id: "orders-node"),
+        trust: include(status: :unknown, trusted: false)
+      )
+    end
+
     it "poll_once swallows ConnectionError" do
       allow(Igniter::Server::Client).to receive(:new)
         .and_raise(Igniter::Server::Client::ConnectionError, "refused")
@@ -326,6 +383,84 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
     end
   end
 
+  describe Igniter::Cluster::Mesh::RepairLoop do
+    let(:config) do
+      Igniter::Cluster::Mesh::Config.new.tap do |c|
+        c.peer_name = "api-node"
+        c.self_heal_interval = 0.05
+      end
+    end
+    subject(:repair_loop) { described_class.new(config) }
+
+    after { repair_loop.stop }
+
+    it "starts not running" do
+      expect(repair_loop).not_to be_running
+    end
+
+    it "heal_once executes automated plans from the configured provider" do
+      config.self_heal_report_provider = lambda do
+        {
+          routing: {
+            plans: [
+              {
+                action: :refresh_peer_health,
+                scope: :mesh_health,
+                automated: true,
+                requires_approval: false,
+                params: {
+                  peer_name: "orders-node",
+                  selected_url: "http://orders:4567"
+                }
+              }
+            ]
+          }
+        }
+      end
+      client_double = instance_double(Igniter::Server::Client, health: { "status" => "ok" })
+      allow(Igniter::Server::Client).to receive(:new).with("http://orders:4567", timeout: 3).and_return(client_double)
+
+      result = repair_loop.heal_once
+
+      expect(result).to be_applied
+      expect(result.summary).to include(status: :applied, total: 1, applied: 1, automated_only: true)
+      expect(result.applied).to contain_exactly(
+        include(
+          action: :refresh_peer_health,
+          peer_name: "orders-node",
+          selected_url: "http://orders:4567",
+          reachable: true
+        )
+      )
+      expect(config.governance_trail.snapshot(limit: 10)).to include(
+        total: 3,
+        latest_type: :routing_self_heal_tick,
+        by_type: include(
+          peer_health_refreshed: 1,
+          routing_plan_applied: 1,
+          routing_self_heal_tick: 1
+        )
+      )
+    end
+
+    it "heal_once returns idle when no report is available" do
+      result = repair_loop.heal_once
+
+      expect(result.summary).to include(status: :idle, reason: :no_report, total: 0)
+    end
+
+    it "background thread calls heal_once periodically" do
+      call_count = 0
+      allow(repair_loop).to receive(:heal_once) { call_count += 1 }
+
+      repair_loop.start
+      sleep(0.25)
+      repair_loop.stop
+
+      expect(call_count).to be >= 2
+    end
+  end
+
   # ─────────────────────────────────────────────────────────────────────────────
   # Discovery
   # ─────────────────────────────────────────────────────────────────────────────
@@ -341,10 +476,12 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
 
     let(:announcer_double) { instance_double(Igniter::Cluster::Mesh::Announcer, announce_all: nil, deannounce_all: nil) }
     let(:poller_double)    { instance_double(Igniter::Cluster::Mesh::Poller, poll_once: nil, start: nil, stop: nil, running?: false) }
+    let(:repair_loop_double) { instance_double(Igniter::Cluster::Mesh::RepairLoop, start: nil, stop: nil, running?: false) }
 
     before do
       allow(Igniter::Cluster::Mesh::Announcer).to receive(:new).and_return(announcer_double)
       allow(Igniter::Cluster::Mesh::Poller).to receive(:new).and_return(poller_double)
+      allow(Igniter::Cluster::Mesh::RepairLoop).to receive(:new).and_return(repair_loop_double)
     end
 
     it "start triggers announce_all, poll_once, and poller.start" do
@@ -353,6 +490,15 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
       expect(announcer_double).to have_received(:announce_all)
       expect(poller_double).to have_received(:poll_once)
       expect(poller_double).to have_received(:start)
+      expect(repair_loop_double).not_to have_received(:start)
+    end
+
+    it "start also launches repair_loop when auto_self_heal is enabled" do
+      config.auto_self_heal = true
+
+      discovery.start
+
+      expect(repair_loop_double).to have_received(:start)
     end
 
     it "stop triggers deannounce_all and poller.stop" do
@@ -360,6 +506,7 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
 
       expect(announcer_double).to have_received(:deannounce_all)
       expect(poller_double).to have_received(:stop)
+      expect(repair_loop_double).to have_received(:stop)
     end
 
     it "running? delegates to poller" do
@@ -408,6 +555,27 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
       expect(disc).to have_received(:stop)
       expect(Igniter::Cluster::Mesh.instance_variable_get(:@config)).to be_nil
       expect(Igniter::Cluster::Mesh.instance_variable_get(:@router)).to be_nil
+    end
+
+    it "start_repair_loop! starts repair loop and returns self" do
+      loop_double = instance_double(Igniter::Cluster::Mesh::RepairLoop, start: nil, stop: nil, running?: true)
+      allow(Igniter::Cluster::Mesh::RepairLoop).to receive(:new).and_return(loop_double)
+
+      result = Igniter::Cluster::Mesh.start_repair_loop!
+
+      expect(loop_double).to have_received(:start)
+      expect(result).to be(Igniter::Cluster::Mesh)
+    end
+
+    it "stop_repair_loop! stops repair loop and clears the singleton" do
+      loop_double = instance_double(Igniter::Cluster::Mesh::RepairLoop, start: nil, stop: nil, running?: false)
+      allow(Igniter::Cluster::Mesh::RepairLoop).to receive(:new).and_return(loop_double)
+      Igniter::Cluster::Mesh.start_repair_loop!
+
+      Igniter::Cluster::Mesh.stop_repair_loop!
+
+      expect(loop_double).to have_received(:stop)
+      expect(Igniter::Cluster::Mesh.instance_variable_get(:@repair_loop)).to be_nil
     end
   end
 

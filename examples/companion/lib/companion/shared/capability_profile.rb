@@ -61,6 +61,8 @@ module Companion
           tags: tags,
           seeds: seeds,
           start_discovery: truthy?(env["COMPANION_START_DISCOVERY"]),
+          auto_self_heal: truthy?(env["COMPANION_AUTO_SELF_HEAL"]),
+          self_heal_interval: integer(env["COMPANION_SELF_HEAL_INTERVAL"], default: 15),
           auto_announce: !falsy?(env["COMPANION_AUTO_ANNOUNCE"]),
           identity: NodeIdentityCatalog.identity_for(node_name),
           trust_store: NodeIdentityCatalog.trust_store,
@@ -108,7 +110,9 @@ module Companion
           seeds: profile[:seeds],
           discovery: {
             start: profile[:start_discovery],
-            auto_announce: profile[:auto_announce]
+            auto_announce: profile[:auto_announce],
+            auto_self_heal: profile[:auto_self_heal],
+            self_heal_interval: profile[:self_heal_interval]
           }
         }
       end
@@ -142,6 +146,8 @@ module Companion
         config.local_url = profile[:local_url]
         config.start_discovery = profile[:start_discovery]
         config.auto_announce = profile[:auto_announce]
+        config.auto_self_heal = profile[:auto_self_heal]
+        config.self_heal_interval = profile[:self_heal_interval]
         config.identity = profile[:identity]
         config.trust_store = profile[:trust_store]
       end

@@ -478,6 +478,32 @@ RSpec.describe "Igniter diagnostics" do
       }
     end
 
+    let(:governance_gate_trace) do
+      {
+        routing_mode: :capability,
+        query: {
+          all_of: [:orders],
+          governance: {
+            trust: :trusted,
+            latest_type: :routing_plan_applied,
+            blocked_events: { max: 1 }
+          }
+        },
+        selected_url: nil,
+        eligible_count: 0,
+        matched_count: 0,
+        peer_count: 1,
+        peers: [
+          {
+            name: "orders-blocked",
+            matched: false,
+            reasons: [:query_mismatch],
+            match_details: { failed_dimensions: [:governance] }
+          }
+        ]
+      }
+    end
+
     let(:capacity_trace) do
       {
         routing_mode: :capability,
@@ -598,6 +624,27 @@ RSpec.describe "Igniter diagnostics" do
       end.new(trace)
     end
 
+    let(:governance_gate_adapter) do
+      trace = governance_gate_trace
+      Class.new do
+        define_method(:initialize) { |routing_trace| @routing_trace = routing_trace }
+
+        define_method(:call) do |node:, **|
+          raise Igniter::Cluster::Mesh::DeferredCapabilityError.new(
+            :orders,
+            Igniter::Runtime::DeferredResult.build(
+              token: "governance-order-42",
+              payload: { query: { all_of: [:orders] } },
+              source_node: node.name,
+              waiting_on: node.name
+            ),
+            query: { all_of: [:orders] },
+            explanation: @routing_trace
+          )
+        end
+      end.new(trace)
+    end
+
     let(:pending_contract_class) do
       adapter = pending_adapter
       Class.new(Igniter::Contract) do
@@ -652,6 +699,19 @@ RSpec.describe "Igniter diagnostics" do
 
     let(:trust_gate_contract_class) do
       adapter = trust_gate_adapter
+      Class.new(Igniter::Contract) do
+        runner :inline, remote_adapter: adapter
+
+        define do
+          input :order_id
+          remote :order_result, contract: "ProcessOrder", node: "http://unused.example", inputs: { id: :order_id }
+          output :order_result
+        end
+      end
+    end
+
+    let(:governance_gate_contract_class) do
+      adapter = governance_gate_adapter
       Class.new(Igniter::Contract) do
         runner :inline, remote_adapter: adapter
 
@@ -941,6 +1001,70 @@ RSpec.describe "Igniter diagnostics" do
               code: :relax_trust_requirements,
               details: include(trust_keys: contain_exactly(:identity, :attestation)),
               plan: include(action: :relax_trust_requirements, scope: :routing_trust, automated: false, requires_approval: true)
+            )
+          ),
+          events: include(latest_type: :node_pending)
+        )
+      )
+    end
+
+    it "triages governance gates separately from trust and policy incidents" do
+      contract = governance_gate_contract_class.new(order_id: 42)
+
+      report = contract.diagnostics.to_h
+
+      expect(report[:routing][:facets]).to include(
+        by_reason: { query_mismatch: 1 },
+        by_mismatch_dimension: { governance: 1 },
+        by_trust_key: {},
+        by_governance_key: { blocked_events: 1, latest_type: 1, trust: 1 },
+        by_decision_mode: {},
+        by_policy_key: {},
+        by_latest_event: { node_pending: 1 },
+        by_incident: { governance_gate: 1 },
+        by_remediation_code: { relax_governance_requirements: 1, wait_for_governance_crest: 1 },
+        by_plan_action: { refresh_governance_checkpoint: 1, relax_governance_requirements: 1 }
+      )
+      expect(report[:routing][:plans]).to contain_exactly(
+        include(
+          action: :refresh_governance_checkpoint,
+          scope: :mesh_governance,
+          automated: true,
+          requires_approval: false,
+          params: include(
+            governance_keys: contain_exactly(:blocked_events, :latest_type, :trust),
+            peer_candidates: ["orders-blocked"]
+          )
+        ),
+        include(
+          action: :relax_governance_requirements,
+          scope: :routing_governance,
+          automated: false,
+          requires_approval: true,
+          params: include(governance_keys: contain_exactly(:blocked_events, :latest_type, :trust))
+        )
+      )
+      expect(report[:routing][:entries]).to contain_exactly(
+        include(
+          classification: include(
+            mismatch_dimensions: [:governance],
+            governance_keys: contain_exactly(:blocked_events, :latest_type, :trust),
+            latest_event_type: :node_pending,
+            incident: :governance_gate
+          ),
+          remediation: contain_exactly(
+            include(
+              code: :wait_for_governance_crest,
+              details: include(
+                governance_keys: contain_exactly(:blocked_events, :latest_type, :trust),
+                peer_candidates: ["orders-blocked"]
+              ),
+              plan: include(action: :refresh_governance_checkpoint, scope: :mesh_governance, automated: true, requires_approval: false)
+            ),
+            include(
+              code: :relax_governance_requirements,
+              details: include(governance_keys: contain_exactly(:blocked_events, :latest_type, :trust)),
+              plan: include(action: :relax_governance_requirements, scope: :routing_governance, automated: false, requires_approval: true)
             )
           ),
           events: include(latest_type: :node_pending)

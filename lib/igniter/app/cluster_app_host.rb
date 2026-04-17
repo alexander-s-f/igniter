@@ -60,6 +60,10 @@ module Igniter
           c.gossip_fanout = cluster_settings[:gossip_fanout]
           c.identity = cluster_settings[:identity]
           c.trust_store = trust_store
+          c.auto_self_heal = cluster_settings[:auto_self_heal]
+          c.self_heal_interval = cluster_settings[:self_heal_interval] if cluster_settings.key?(:self_heal_interval)
+          c.self_heal_limit = cluster_settings[:self_heal_limit] if cluster_settings.key?(:self_heal_limit)
+          c.self_heal_report_provider = cluster_settings[:self_heal_report_provider] if cluster_settings.key?(:self_heal_report_provider)
 
           Array(cluster_settings[:peers]).each do |peer|
             c.add_peer(

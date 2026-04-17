@@ -17,23 +17,26 @@ module Igniter
         @config    = config
         @announcer = Announcer.new(config)
         @poller    = Poller.new(config)
+        @repair_loop = RepairLoop.new(config)
       end
 
       def start
         @announcer.announce_all
         @poller.poll_once
         @poller.start
+        @repair_loop.start if @config.auto_self_heal
         self
       end
 
       def stop
         @announcer.deannounce_all
         @poller.stop
+        @repair_loop.stop
         self
       end
 
       def running?
-        @poller.running?
+        @poller.running? || @repair_loop.running?
       end
     end
     end

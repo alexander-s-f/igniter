@@ -101,6 +101,28 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       )
     end
 
+    it "derives governance checkpoint freshness from mesh_governance checkpointed_at in the runtime profile" do
+      now = Time.utc(2026, 4, 16, 12, 0, 0)
+      peer_with_governance = described_class.new(
+        name: "orders-node",
+        url: "http://orders.internal:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_governance: {
+            checkpointed_at: "2026-04-16T11:59:45Z",
+            trust: { status: :trusted }
+          }
+        }
+      )
+
+      allow(Time).to receive(:now).and_return(now)
+
+      expect(peer_with_governance.profile.metadata[:mesh_governance]).to include(
+        checkpointed_at: "2026-04-16T11:59:45Z",
+        freshness_seconds: 15
+      )
+    end
+
     it "coerces capabilities to symbols" do
       p = described_class.new(name: "x", url: "http://x", capabilities: %w[audit])
       expect(p.capabilities).to eq([:audit])
@@ -411,6 +433,10 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
           mesh_capabilities: {
             trust: { status: :trusted },
             observed_at: "2026-04-16T11:59:55Z"
+          },
+          mesh_governance: {
+            trust: { status: :trusted },
+            checkpointed_at: "2026-04-16T11:59:58Z"
           }
         }
       )
@@ -423,6 +449,10 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
           mesh_capabilities: {
             trust: { status: :unknown },
             observed_at: "2026-04-16T11:59:55Z"
+          },
+          mesh_governance: {
+            trust: { status: :unknown },
+            checkpointed_at: "2026-04-16T11:59:58Z"
           }
         }
       )
@@ -435,7 +465,9 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
         trust: {
           identity: :trusted,
           attestation: :trusted,
-          attestation_freshness_seconds: { max: 30 }
+          attestation_freshness_seconds: { max: 30 },
+          governance: :trusted,
+          governance_freshness_seconds: { max: 30 }
         }
       }
 
@@ -452,6 +484,10 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
           mesh_capabilities: {
             trust: { status: :unknown },
             observed_at: "2026-04-16T11:59:55Z"
+          },
+          mesh_governance: {
+            trust: { status: :unknown },
+            checkpointed_at: "2026-04-16T11:59:58Z"
           }
         }
       )
@@ -459,7 +495,7 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       explanation = router.explain_peer_for_query(
         {
           all_of: [:orders],
-          trust: { identity: :trusted, attestation: :trusted }
+          trust: { identity: :trusted, attestation: :trusted, governance: :trusted }
         }
       )
 
@@ -467,7 +503,86 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
 
       expect(candidate).to include(matched: false, reasons: [:query_mismatch])
       expect(candidate[:match_details]).to include(failed_dimensions: [:trust])
-      expect(candidate[:match_details][:trust]).to include(failed_keys: %i[identity attestation])
+      expect(candidate[:match_details][:trust]).to include(failed_keys: %i[identity attestation governance])
+    end
+
+    it "supports explicit governance requirements in capability queries" do
+      config.add_peer(
+        "orders-governed",
+        url: "http://orders-governed:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_governance: {
+            trust: { status: :trusted },
+            checkpointed_at: "2026-04-16T11:59:58Z",
+            freshness_seconds: 2,
+            latest_type: :routing_plan_applied,
+            blocked_events: 1,
+            applied_events: 4
+          }
+        }
+      )
+      config.add_peer(
+        "orders-blocked",
+        url: "http://orders-blocked:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_governance: {
+            trust: { status: :trusted },
+            checkpointed_at: "2026-04-16T11:59:58Z",
+            freshness_seconds: 2,
+            latest_type: :routing_plan_blocked,
+            blocked_events: 4,
+            applied_events: 1
+          }
+        }
+      )
+      stub_alive("http://orders-governed:4567")
+      stub_alive("http://orders-blocked:4567")
+
+      query = {
+        all_of: [:orders],
+        governance: {
+          trust: :trusted,
+          latest_type: :routing_plan_applied,
+          blocked_events: { max: 1 },
+          applied_events: { min: 3 }
+        }
+      }
+
+      expect(router.find_peer_for_query(query, deferred)).to eq("http://orders-governed:4567")
+    end
+
+    it "explains governance mismatches for rejected peers" do
+      config.add_peer(
+        "orders-blocked",
+        url: "http://orders-blocked:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_governance: {
+            trust: { status: :trusted },
+            latest_type: :routing_plan_blocked,
+            blocked_events: 4,
+            applied_events: 1
+          }
+        }
+      )
+
+      explanation = router.explain_peer_for_query(
+        {
+          all_of: [:orders],
+          governance: {
+            latest_type: :routing_plan_applied,
+            blocked_events: { max: 1 }
+          }
+        }
+      )
+
+      candidate = explanation[:peers].find { |peer| peer[:name] == "orders-blocked" }
+
+      expect(candidate).to include(matched: false, reasons: [:query_mismatch])
+      expect(candidate[:match_details]).to include(failed_dimensions: [:governance])
+      expect(candidate[:match_details][:governance]).to include(failed_keys: %i[latest_type blocked_events])
     end
 
     it "prefers automatic peers over approval-required peers in approval_ok mode" do
@@ -696,6 +811,106 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       expect(stale).to include(top_tier: false)
     end
 
+    it "prefers peers with trusted fresher governance checkpoints when trust is otherwise equal" do
+      now = Time.utc(2026, 4, 16, 12, 0, 0)
+      config.add_peer(
+        "orders-governed-fresh",
+        url: "http://orders-governed-fresh:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_trust: { status: :trusted },
+          mesh_capabilities: {
+            trust: { status: :trusted },
+            observed_at: "2026-04-16T11:59:50Z"
+          },
+          mesh_governance: {
+            trust: { status: :trusted },
+            checkpointed_at: "2026-04-16T11:59:55Z"
+          }
+        }
+      )
+      config.add_peer(
+        "orders-governed-stale",
+        url: "http://orders-governed-stale:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_trust: { status: :trusted },
+          mesh_capabilities: {
+            trust: { status: :trusted },
+            observed_at: "2026-04-16T11:59:50Z"
+          },
+          mesh_governance: {
+            trust: { status: :trusted },
+            checkpointed_at: "2026-04-16T11:58:00Z"
+          }
+        }
+      )
+      stub_alive("http://orders-governed-fresh:4567")
+      stub_alive("http://orders-governed-stale:4567")
+      allow(Time).to receive(:now).and_return(now)
+
+      expect(router.find_peer_for(:orders, deferred)).to eq("http://orders-governed-fresh:4567")
+
+      explanation = router.explain_peer_for(:orders)
+      fresh = explanation[:peers].find { |peer| peer[:name] == "orders-governed-fresh" }
+      stale = explanation[:peers].find { |peer| peer[:name] == "orders-governed-stale" }
+
+      expect(fresh).to include(top_tier: true, selected: true)
+      expect(stale).to include(top_tier: false)
+    end
+
+    it "prefers healthier governance crest when governance trust and freshness are otherwise equal" do
+      now = Time.utc(2026, 4, 16, 12, 0, 0)
+      config.add_peer(
+        "orders-governed-healthy",
+        url: "http://orders-governed-healthy:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_trust: { status: :trusted },
+          mesh_capabilities: {
+            trust: { status: :trusted },
+            observed_at: "2026-04-16T11:59:50Z"
+          },
+          mesh_governance: {
+            trust: { status: :trusted },
+            checkpointed_at: "2026-04-16T11:59:55Z",
+            blocked_events: 1,
+            applied_events: 5
+          }
+        }
+      )
+      config.add_peer(
+        "orders-governed-unhealthy",
+        url: "http://orders-governed-unhealthy:4567",
+        capabilities: [:orders],
+        metadata: {
+          mesh_trust: { status: :trusted },
+          mesh_capabilities: {
+            trust: { status: :trusted },
+            observed_at: "2026-04-16T11:59:50Z"
+          },
+          mesh_governance: {
+            trust: { status: :trusted },
+            checkpointed_at: "2026-04-16T11:59:55Z",
+            blocked_events: 4,
+            applied_events: 1
+          }
+        }
+      )
+      stub_alive("http://orders-governed-healthy:4567")
+      stub_alive("http://orders-governed-unhealthy:4567")
+      allow(Time).to receive(:now).and_return(now)
+
+      expect(router.find_peer_for(:orders, deferred)).to eq("http://orders-governed-healthy:4567")
+
+      explanation = router.explain_peer_for(:orders)
+      healthy = explanation[:peers].find { |peer| peer[:name] == "orders-governed-healthy" }
+      unhealthy = explanation[:peers].find { |peer| peer[:name] == "orders-governed-unhealthy" }
+
+      expect(healthy).to include(top_tier: true, selected: true)
+      expect(unhealthy).to include(top_tier: false)
+    end
+
     it "resolve_pinned raises IncidentError for unknown peer" do
       expect {
         router.resolve_pinned("audit-node")
@@ -831,6 +1046,20 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       )
     end
 
+    it "normalizes governance keys inside capability_query" do
+      node = make_node(
+        capability_query: {
+          all_of: ["orders"],
+          governance: { trust: "trusted", latest_type: "routing_plan_applied" }
+        }
+      )
+
+      expect(node.capability_query).to eq(
+        all_of: [:orders],
+        governance: { trust: :trusted, latest_type: :routing_plan_applied }
+      )
+    end
+
     it "stores pinned_to as string" do
       expect(make_node(pinned_to: :audit_node).pinned_to).to eq("audit_node")
     end
@@ -860,6 +1089,12 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       }.to raise_error(Igniter::CompileError, /policy: requires capability: or query:/)
     end
 
+    it "raises CompileError when governance: is given without capability: or query:" do
+      expect {
+        builder.remote(:x, contract: "Foo", inputs: {}, governance: { trust: :trusted })
+      }.to raise_error(Igniter::CompileError, /governance: requires capability: or query:/)
+    end
+
     it "raises CompileError when trust: is given without capability: or query:" do
       expect {
         builder.remote(:x, contract: "Foo", inputs: {}, trust: { identity: :trusted })
@@ -870,6 +1105,24 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
       expect {
         builder.remote(:x, contract: "Foo", inputs: {}, trust: { identity: :trusted }, pinned_to: "audit-node")
       }.to raise_error(Igniter::CompileError, /trust: cannot be combined with pinned_to:/)
+    end
+
+    it "raises CompileError when governance: duplicates query governance" do
+      expect {
+        builder.remote(
+          :x,
+          contract: "Foo",
+          query: { all_of: [:orders], governance: { trust: :trusted } },
+          governance: { latest_type: :routing_plan_applied },
+          inputs: {}
+        )
+      }.to raise_error(Igniter::CompileError, /governance: duplicates query\[:governance\]/)
+    end
+
+    it "raises CompileError when governance: is combined with pinned_to:" do
+      expect {
+        builder.remote(:x, contract: "Foo", inputs: {}, governance: { trust: :trusted }, pinned_to: "audit-node")
+      }.to raise_error(Igniter::CompileError, /governance: cannot be combined with pinned_to:/)
     end
 
     it "raises CompileError when policy: is combined with pinned_to:" do
@@ -939,6 +1192,39 @@ RSpec.describe "Igniter Mesh — Phase 1: Static Mesh" do
         all_of: [:orders],
         metadata: { region: "eu-central" },
         trust: { identity: :trusted, attestation: :trusted }
+      )
+    end
+
+    it "accepts capability: with governance: by lifting both into a capability query" do
+      builder.remote(
+        :x,
+        contract: "Foo",
+        capability: :orders,
+        governance: { trust: :trusted, latest_type: :routing_plan_applied },
+        inputs: {}
+      )
+      node = builder.instance_variable_get(:@nodes).last
+      expect(node.routing_mode).to eq(:capability)
+      expect(node.capability).to be_nil
+      expect(node.capability_query).to eq(
+        all_of: [:orders],
+        governance: { trust: :trusted, latest_type: :routing_plan_applied }
+      )
+    end
+
+    it "accepts query: with governance: by merging governance into the capability query" do
+      builder.remote(
+        :x,
+        contract: "Foo",
+        query: { all_of: [:orders], metadata: { region: "eu-central" } },
+        governance: { trust: :trusted, blocked_events: { max: 1 } },
+        inputs: {}
+      )
+      node = builder.instance_variable_get(:@nodes).last
+      expect(node.capability_query).to eq(
+        all_of: [:orders],
+        metadata: { region: "eu-central" },
+        governance: { trust: :trusted, blocked_events: { max: 1 } }
       )
     end
 

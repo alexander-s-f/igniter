@@ -16,7 +16,7 @@ module Igniter
         permits approvable forbidden
         actions risky
       ].freeze
-      SYMBOL_SCALAR_KEYS = %i[name direction nulls mode identity attestation].freeze
+      SYMBOL_SCALAR_KEYS = %i[name direction nulls mode identity attestation governance trust latest_type].freeze
 
       attr_reader :contract_name, :node_url, :input_mapping, :timeout,
                   :capability, :capability_query, :pinned_to

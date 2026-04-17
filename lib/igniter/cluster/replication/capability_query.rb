@@ -12,7 +12,7 @@ module Igniter
       # capabilities", "at least one of these", "none of these", and "with these
       # tags".
       class CapabilityQuery
-        attr_reader :name, :all_of, :any_of, :none_of, :tags, :metadata, :order_by, :trust, :policy, :decision
+        attr_reader :name, :all_of, :any_of, :none_of, :tags, :metadata, :order_by, :trust, :governance, :policy, :decision
 
         OPERATOR_KEYS = %i[eq min max in includes contains present].freeze
         DECISION_MODES = %i[auto_only approval_ok deny_risky].freeze
@@ -32,7 +32,7 @@ module Igniter
           end
         end
 
-        def initialize(name: nil, all_of: [], any_of: [], none_of: [], tags: [], metadata: {}, order_by: [], trust: {}, policy: {}, decision: {})
+        def initialize(name: nil, all_of: [], any_of: [], none_of: [], tags: [], metadata: {}, order_by: [], trust: {}, governance: {}, policy: {}, decision: {})
           @name     = name&.to_sym
           @all_of   = Array(all_of).map(&:to_sym).uniq.sort.freeze
           @any_of   = Array(any_of).map(&:to_sym).uniq.sort.freeze
@@ -41,6 +41,7 @@ module Igniter
           @metadata = normalize_metadata(metadata).freeze
           @order_by = normalize_order_by(order_by).freeze
           @trust    = normalize_trust(trust).freeze
+          @governance = normalize_governance(governance).freeze
           @policy   = normalize_policy(policy).freeze
           @decision = normalize_decision(decision).freeze
           freeze
@@ -55,10 +56,11 @@ module Igniter
           tags_match = @tags.all? { |tag| profile.tag?(tag) }
           metadata_match = metadata_matches?(profile)
           trust_match = trust_matches?(profile)
+          governance_match = governance_matches?(profile)
           policy_match = policy_matches?(profile)
           decision_match = decision_matches?(profile)
 
-          all_match && any_match && none_match && tags_match && metadata_match && trust_match && policy_match && decision_match
+          all_match && any_match && none_match && tags_match && metadata_match && trust_match && governance_match && policy_match && decision_match
         end
 
         def label
@@ -71,6 +73,7 @@ module Igniter
           fragments << "tags(#{@tags.join(",")})" unless @tags.empty?
           fragments << "metadata(#{@metadata.keys.join(",")})" unless @metadata.empty?
           fragments << "trust(#{@trust.keys.join(",")})" unless @trust.empty?
+          fragments << "governance(#{@governance.keys.join(",")})" unless @governance.empty?
           fragments << "policy(#{@policy.keys.join(",")})" unless @policy.empty?
           fragments << "decision(#{@decision[:mode]})" unless @decision.empty?
           fragments << "order(#{@order_by.map { |clause| "#{clause[:metadata].join(".")}:#{clause[:direction]}" }.join(",")})" unless @order_by.empty?
@@ -95,6 +98,7 @@ module Igniter
             metadata: @metadata,
             order_by: @order_by,
             trust: @trust,
+            governance: @governance,
             policy: @policy,
             decision: @decision
           }
@@ -137,6 +141,7 @@ module Igniter
           tags = explain_tags(profile)
           metadata = explain_metadata(profile)
           trust = explain_trust(profile)
+          governance = explain_governance(profile)
           policy = explain_policy(profile)
           decision = explain_decision(profile)
 
@@ -145,6 +150,7 @@ module Igniter
           failed_dimensions << :tags unless tags[:matched]
           failed_dimensions << :metadata unless metadata[:matched]
           failed_dimensions << :trust unless trust[:matched]
+          failed_dimensions << :governance unless governance[:matched]
           failed_dimensions << :policy unless policy[:matched]
           failed_dimensions << :decision unless decision[:matched]
 
@@ -155,6 +161,7 @@ module Igniter
             tags: tags,
             metadata: metadata,
             trust: trust,
+            governance: governance,
             policy: policy,
             decision: decision
           }.freeze
@@ -208,6 +215,22 @@ module Igniter
           effective = effective_trust(profile)
           failed_keys = @trust.each_with_object([]) do |(key, expected), memo|
             memo << key unless trust_requirement_matches?(key, expected, effective)
+          end.freeze
+
+          {
+            matched: failed_keys.empty?,
+            failed_keys: failed_keys,
+            effective: effective.freeze
+          }.freeze
+        end
+
+        def explain_governance(profile)
+          return { matched: true, failed_keys: [].freeze, effective: {}.freeze }.freeze if @governance.empty?
+          return { matched: false, failed_keys: @governance.keys.freeze, effective: {}.freeze }.freeze unless profile.respond_to?(:metadata)
+
+          effective = effective_governance(profile)
+          failed_keys = @governance.each_with_object([]) do |(key, expected), memo|
+            memo << key unless governance_requirement_matches?(key, expected, effective)
           end.freeze
 
           {
@@ -289,6 +312,10 @@ module Igniter
 
         def normalize_trust(trust)
           normalize_policy_value(trust)
+        end
+
+        def normalize_governance(governance)
+          normalize_policy_value(governance)
         end
 
         def normalize_policy(policy)
@@ -403,6 +430,16 @@ module Igniter
           end
         end
 
+        def governance_matches?(profile)
+          return true if @governance.empty?
+          return false unless profile.respond_to?(:metadata)
+
+          effective = effective_governance(profile)
+          @governance.all? do |key, expected|
+            governance_requirement_matches?(key, expected, effective)
+          end
+        end
+
         def decision_matches?(profile)
           return true if @decision.empty?
 
@@ -456,7 +493,22 @@ module Igniter
           {
             identity: metadata.dig(:mesh_trust, :status)&.to_sym,
             attestation: metadata.dig(:mesh_capabilities, :trust, :status)&.to_sym,
-            attestation_freshness_seconds: metadata.dig(:mesh_capabilities, :freshness_seconds)
+            attestation_freshness_seconds: metadata.dig(:mesh_capabilities, :freshness_seconds),
+            governance: metadata.dig(:mesh_governance, :trust, :status)&.to_sym,
+            governance_freshness_seconds: metadata.dig(:mesh_governance, :freshness_seconds)
+          }
+        end
+
+        def effective_governance(profile)
+          metadata = normalize_metadata(profile.metadata || {})
+          governance = metadata.fetch(:mesh_governance, {})
+          {
+            trust: governance.dig(:trust, :status)&.to_sym,
+            freshness_seconds: governance[:freshness_seconds],
+            total: governance[:total],
+            latest_type: governance[:latest_type]&.to_sym,
+            blocked_events: governance[:blocked_events],
+            applied_events: governance[:applied_events]
           }
         end
 
@@ -510,9 +562,21 @@ module Igniter
         def trust_requirement_matches?(key, expected, effective)
           actual = effective[key]
           case key
-          when :identity, :attestation
+          when :identity, :attestation, :governance
             matches_metadata_requirement?(normalize_trust_requirement(expected), actual)
-          when :attestation_freshness_seconds
+          when :attestation_freshness_seconds, :governance_freshness_seconds
+            matches_metadata_requirement?(expected, actual)
+          else
+            false
+          end
+        end
+
+        def governance_requirement_matches?(key, expected, effective)
+          actual = effective[key]
+          case key
+          when :trust, :latest_type
+            matches_metadata_requirement?(normalize_trust_requirement(expected), actual)
+          when :freshness_seconds, :total, :blocked_events, :applied_events
             matches_metadata_requirement?(expected, actual)
           else
             false

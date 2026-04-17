@@ -28,6 +28,7 @@ module Companion
               render_hero(main)
               render_metrics(main)
               render_node(main)
+              render_self_heal(main)
               render_notes(main)
               render_services(main)
             end
@@ -166,6 +167,51 @@ module Companion
           end
         end
 
+        def render_self_heal(view)
+          routing = snapshot.fetch(:routing)
+          tick = routing[:latest_self_heal_tick]
+
+          view.tag(:section, class: "notes-panel") do |section|
+            section.tag(:div, class: "panel-head") do |head|
+              head.tag(:h2, "Self-Heal Demo")
+              head.tag(:p, "Trigger a synthetic routing incident and watch automated cluster remediation update the governance crest.")
+            end
+
+            section.tag(:div, class: "demo-actions") do |actions|
+              actions.form(action: route("/demo/self-heal?scenario=governance_gate"), method: "post", class: "inline-form") do |form|
+                form.submit("Trigger Governance Gate")
+              end
+              actions.form(action: route("/demo/self-heal?scenario=peer_unreachable"), method: "post", class: "inline-form") do |form|
+                form.submit("Trigger Peer Repair")
+              end
+            end
+
+            if routing[:active]
+              section.tag(:p, "routing_report=active total=#{routing[:total]} pending=#{routing[:pending]} failed=#{routing[:failed]} plans=#{routing[:plan_count]}")
+              section.tag(:p, "incidents=#{inline_counts(routing[:incidents])}")
+              section.tag(:p, "plan_actions=#{inline_counts(routing[:plan_actions])}")
+
+              if tick
+                section.tag(
+                  :p,
+                  "last_self_heal=#{tick[:timestamp]} applied=#{tick.dig(:payload, :applied)} blocked=#{tick.dig(:payload, :blocked)} skipped=#{tick.dig(:payload, :skipped)}"
+                )
+              end
+
+              section.tag(:ul, class: "notes-list") do |list|
+                routing[:entries].each do |entry|
+                  list.tag(:li) do |item|
+                    item.tag(:strong, "#{entry[:node_name]} (#{entry[:status]})")
+                    item.tag(:div, entry[:routing_trace_summary], class: "note-meta")
+                  end
+                end
+              end
+            else
+              section.tag(:p, "No routing incidents published yet.", class: "empty-state")
+            end
+          end
+        end
+
         def render_services(view)
           view.tag(:section, class: "grid") do |grid|
             snapshot.fetch(:services).each do |name, service|
@@ -189,6 +235,12 @@ module Companion
           return path if prefix.empty?
 
           [prefix, path.sub(%r{\A/}, "")].join("/")
+        end
+
+        def inline_counts(counts)
+          return "none" if counts.nil? || counts.empty?
+
+          counts.map { |key, value| "#{key}=#{value}" }.join(", ")
         end
 
         def stylesheet
@@ -275,7 +327,8 @@ module Companion
 
             .stacked-form label,
             .stacked-form textarea,
-            .stacked-form button {
+            .stacked-form button,
+            .inline-form button {
               display: block;
               width: 100%;
             }
@@ -301,6 +354,29 @@ module Companion
               border: 0;
               border-radius: 999px;
               background: var(--accent);
+              color: white;
+              cursor: pointer;
+              font: inherit;
+            }
+
+            .demo-actions {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 12px;
+              margin: 12px 0 18px;
+            }
+
+            .inline-form {
+              margin: 0;
+            }
+
+            .inline-form button {
+              max-width: none;
+              min-width: 220px;
+              padding: 12px 16px;
+              border: 0;
+              border-radius: 999px;
+              background: #214b7a;
               color: white;
               cursor: pointer;
               font: inherit;

@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-gem "igniter"
+gem "igniter", path: "../.."
 gem "sqlite3" # stack-local data + execution stores
 
 group :development, :test do

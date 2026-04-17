@@ -5,6 +5,7 @@ require "igniter/core"
 require_relative "../../lib/companion/dashboard/home_handler"
 require_relative "../../lib/companion/dashboard/overview_handler"
 require_relative "../../lib/companion/dashboard/notes_create_handler"
+require_relative "../../lib/companion/dashboard/self_heal_demo_handler"
 
 module Companion
   class DashboardApp < Igniter::App
@@ -14,5 +15,6 @@ module Companion
     route "GET", "/", with: Companion::Dashboard::HomeHandler
     route "GET", "/api/overview", with: Companion::Dashboard::OverviewHandler
     route "POST", "/notes", with: Companion::Dashboard::NotesCreateHandler
+    route "POST", "/demo/self-heal", with: Companion::Dashboard::SelfHealDemoHandler
   end
 end

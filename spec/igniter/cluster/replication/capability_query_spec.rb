@@ -70,13 +70,30 @@ RSpec.describe Igniter::Cluster::Replication::CapabilityQuery do
         all_of: [:local_llm],
         trust: {
           identity: "trusted",
-          attestation: "trusted"
+          attestation: "trusted",
+          governance: "trusted"
         }
       )
 
       expect(query.trust).to eq(
         identity: :trusted,
-        attestation: :trusted
+        attestation: :trusted,
+        governance: :trusted
+      )
+    end
+
+    it "normalizes governance clauses to symbols" do
+      query = described_class.normalize(
+        all_of: [:local_llm],
+        governance: {
+          trust: "trusted",
+          latest_type: "routing_plan_applied"
+        }
+      )
+
+      expect(query.governance).to eq(
+        trust: :trusted,
+        latest_type: :routing_plan_applied
       )
     end
   end
@@ -244,6 +261,10 @@ RSpec.describe Igniter::Cluster::Replication::CapabilityQuery do
           mesh_capabilities: {
             trust: { status: :trusted },
             freshness_seconds: 12
+          },
+          mesh_governance: {
+            trust: { status: :trusted },
+            freshness_seconds: 8
           }
         }
       )
@@ -255,6 +276,10 @@ RSpec.describe Igniter::Cluster::Replication::CapabilityQuery do
           mesh_capabilities: {
             trust: { status: :unknown },
             freshness_seconds: 12
+          },
+          mesh_governance: {
+            trust: { status: :unknown },
+            freshness_seconds: 8
           }
         }
       )
@@ -264,12 +289,56 @@ RSpec.describe Igniter::Cluster::Replication::CapabilityQuery do
         trust: {
           identity: :trusted,
           attestation: :trusted,
-          attestation_freshness_seconds: { max: 30 }
+          attestation_freshness_seconds: { max: 30 },
+          governance: :trusted,
+          governance_freshness_seconds: { max: 30 }
         }
       )
 
       expect(query.matches_profile?(trusted_profile)).to be true
       expect(query.matches_profile?(unknown_profile)).to be false
+    end
+
+    it "matches explicit governance requirements for checkpoint health" do
+      healthy_profile = Igniter::Cluster::Replication::NodeProfile.new(
+        capabilities: %i[container_runtime local_llm ruby],
+        metadata: {
+          mesh_governance: {
+            trust: { status: :trusted },
+            freshness_seconds: 8,
+            latest_type: :routing_plan_applied,
+            blocked_events: 1,
+            applied_events: 5
+          }
+        }
+      )
+
+      unhealthy_profile = Igniter::Cluster::Replication::NodeProfile.new(
+        capabilities: %i[container_runtime local_llm ruby],
+        metadata: {
+          mesh_governance: {
+            trust: { status: :trusted },
+            freshness_seconds: 120,
+            latest_type: :routing_plan_blocked,
+            blocked_events: 4,
+            applied_events: 1
+          }
+        }
+      )
+
+      query = described_class.new(
+        all_of: [:local_llm],
+        governance: {
+          trust: :trusted,
+          freshness_seconds: { max: 30 },
+          latest_type: :routing_plan_applied,
+          blocked_events: { max: 1 },
+          applied_events: { min: 3 }
+        }
+      )
+
+      expect(query.matches_profile?(healthy_profile)).to be true
+      expect(query.matches_profile?(unhealthy_profile)).to be false
     end
   end
 

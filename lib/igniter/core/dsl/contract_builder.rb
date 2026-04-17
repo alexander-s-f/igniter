@@ -264,7 +264,7 @@ module Igniter
       end
 
       def remote(name, contract:, inputs:, node: nil, timeout: 30, # rubocop:disable Metrics/MethodLength,Metrics/ParameterLists,Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-                 capability: nil, query: nil, trust: nil, policy: nil, decision: nil, pinned_to: nil, **metadata)
+                 capability: nil, query: nil, trust: nil, governance: nil, policy: nil, decision: nil, pinned_to: nil, **metadata)
         raise CompileError, "remote :#{name} requires inputs: Hash" unless inputs.is_a?(Hash)
         raise CompileError, "remote :#{name} requires a contract: name" if contract.nil? || contract.to_s.strip.empty?
 
@@ -274,6 +274,10 @@ module Igniter
 
         if trust && pinned_to
           raise CompileError, "remote :#{name}: trust: cannot be combined with pinned_to:"
+        end
+
+        if governance && pinned_to
+          raise CompileError, "remote :#{name}: governance: cannot be combined with pinned_to:"
         end
 
         if policy && pinned_to
@@ -288,6 +292,10 @@ module Igniter
           raise CompileError, "remote :#{name}: trust: requires capability: or query:"
         end
 
+        if governance && capability.nil? && query.nil?
+          raise CompileError, "remote :#{name}: governance: requires capability: or query:"
+        end
+
         if policy && capability.nil? && query.nil?
           raise CompileError, "remote :#{name}: policy: requires capability: or query:"
         end
@@ -298,6 +306,10 @@ module Igniter
 
         if trust && query.is_a?(Hash) && query.key?(:trust)
           raise CompileError, "remote :#{name}: trust: duplicates query[:trust]"
+        end
+
+        if governance && query.is_a?(Hash) && query.key?(:governance)
+          raise CompileError, "remote :#{name}: governance: duplicates query[:governance]"
         end
 
         if policy && query.is_a?(Hash) && query.key?(:policy)
@@ -313,9 +325,10 @@ module Igniter
         end
 
         capability_query =
-          if trust || policy || decision
+          if trust || governance || policy || decision
             base_query = query ? query.dup : { all_of: [capability] }
             base_query[:trust] = trust if trust
+            base_query[:governance] = governance if governance
             base_query[:policy] = policy if policy
             base_query[:decision] = decision if decision
             base_query
@@ -331,7 +344,7 @@ module Igniter
             node_url: node.to_s,
             input_mapping: inputs,
             timeout: timeout,
-            capability: (trust || policy || decision) ? nil : capability,
+            capability: (trust || governance || policy || decision) ? nil : capability,
             capability_query: capability_query,
             pinned_to: pinned_to,
             path: scoped_path(name),

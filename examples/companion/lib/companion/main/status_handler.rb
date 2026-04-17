@@ -18,6 +18,7 @@ module Companion
             stack: snapshot.fetch(:stack),
             apps: snapshot.fetch(:apps),
             current_node: snapshot.fetch(:current_node),
+            routing: snapshot.fetch(:routing),
             discovered_peers: snapshot.fetch(:discovered_peers),
             services: snapshot.fetch(:services),
             counts: snapshot.fetch(:counts),

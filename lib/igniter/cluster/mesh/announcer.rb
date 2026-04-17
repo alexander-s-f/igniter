@@ -37,13 +37,30 @@ module Igniter
       end
 
       def announce_to(seed_url)
+        metadata = PeerMetadata.authoritative(@config.local_metadata, origin: @config.peer_name)
+        checkpoint = @config.governance_checkpoint(limit: 10)
+        metadata = metadata.merge(
+          mesh_governance: {
+            node_id: checkpoint.node_id,
+            peer_name: checkpoint.peer_name,
+            fingerprint: checkpoint.fingerprint,
+            checkpointed_at: checkpoint.checkpointed_at,
+            crest_digest: checkpoint.crest_digest,
+            checkpoint: checkpoint.to_h,
+            trust: Igniter::Cluster::Trust::Verifier.assess_governance_checkpoint(
+              checkpoint,
+              trust_store: @config.trust_store
+            ).to_h
+          }
+        )
+
         manifest = Igniter::Cluster::Identity::Manifest.build(
           identity: @config.ensure_identity!,
           peer_name: @config.peer_name,
           url: @config.local_url,
           capabilities: @config.local_capabilities,
           tags: @config.local_tags,
-          metadata: PeerMetadata.authoritative(@config.local_metadata, origin: @config.peer_name),
+          metadata: metadata,
           contracts: []
         )
 

@@ -253,6 +253,282 @@ RSpec.describe "Igniter Cluster identity and trust" do
     Igniter::Cluster::Mesh.reset!
   end
 
+  it "executes governance checkpoint refresh routing plans through the mesh executor" do
+    Igniter::Cluster::Mesh.reset!
+
+    Igniter::Cluster::Mesh.configure do |c|
+      c.peer_name = "seed-node"
+      c.identity = identity
+      c.local_url = "http://seed:4567"
+    end
+    Igniter::Cluster::Mesh.config.governance_trail.record(
+      :trust_admission_applied,
+      source: :spec,
+      payload: { peer_name: "edge-node" }
+    )
+
+    routing_plan = {
+      action: :refresh_governance_checkpoint,
+      scope: :mesh_governance,
+      automated: true,
+      requires_approval: false,
+      params: {
+        governance_keys: %i[trust latest_type],
+        peer_candidates: ["edge-node"]
+      }
+    }
+
+    applied = Igniter::Cluster::Mesh.execute_routing_plan!(routing_plan)
+    expect(applied).to be_applied
+    expect(applied.summary).to include(
+      status: :applied,
+      source_plan_action: :refresh_governance_checkpoint,
+      announced_to: 0,
+      checkpoint: include(
+        node_id: "seed-node",
+        peer_name: "seed-node",
+        crest_digest: kind_of(String),
+        latest_type: :trust_admission_applied,
+        total: 1
+      )
+    )
+    expect(applied.applied).to contain_exactly(
+      include(
+        action: :refresh_governance_checkpoint,
+        status: :applied,
+        scope: :mesh_governance,
+        checkpoint: include(
+          node_id: "seed-node",
+          peer_name: "seed-node",
+          crest_digest: kind_of(String)
+        ),
+        announced_to: 0
+      )
+    )
+    expect(Igniter::Cluster::Mesh.config.governance_trail.snapshot(limit: 10)).to include(
+      total: 3,
+      latest_type: :routing_plan_applied,
+      by_type: include(
+        trust_admission_applied: 1,
+        governance_checkpoint_refreshed: 1,
+        routing_plan_applied: 1
+      )
+    )
+  ensure
+    Igniter::Cluster::Mesh.reset!
+  end
+
+  it "executes governance relaxation plans through the mesh executor with approval" do
+    Igniter::Cluster::Mesh.reset!
+
+    Igniter::Cluster::Mesh.configure do |c|
+      c.peer_name = "seed-node"
+      c.identity = identity
+    end
+
+    routing_plan = {
+      action: :relax_governance_requirements,
+      scope: :routing_governance,
+      automated: false,
+      requires_approval: true,
+      params: {
+        governance_keys: %i[blocked_events latest_type],
+        peer_candidates: ["orders-blocked"]
+      }
+    }
+
+    blocked = Igniter::Cluster::Mesh.execute_routing_plan!(routing_plan)
+    expect(blocked).to be_blocked
+    expect(blocked.summary).to include(status: :blocked, reason: :approval_required)
+
+    applied = Igniter::Cluster::Mesh.execute_routing_plan!(routing_plan, approve: true)
+    expect(applied).to be_applied
+    expect(applied.summary).to include(
+      status: :applied,
+      source_plan_action: :relax_governance_requirements,
+      governance_keys: %i[blocked_events latest_type],
+      peer_candidates: ["orders-blocked"],
+      advisory_only: true
+    )
+    expect(applied.applied).to contain_exactly(
+      include(
+        action: :relax_governance_requirements,
+        status: :applied,
+        advisory_only: true,
+        params: include(
+          governance_keys: %i[blocked_events latest_type],
+          peer_candidates: ["orders-blocked"]
+        )
+      )
+    )
+    expect(Igniter::Cluster::Mesh.config.governance_trail.snapshot(limit: 10)).to include(
+      total: 3,
+      latest_type: :routing_plan_applied,
+      by_type: include(
+        routing_plan_blocked: 1,
+        governance_requirements_relaxed: 1,
+        routing_plan_applied: 1
+      )
+    )
+  ensure
+    Igniter::Cluster::Mesh.reset!
+  end
+
+  it "executes only automated routing plans in batch self-heal mode" do
+    Igniter::Cluster::Mesh.reset!
+
+    Igniter::Cluster::Mesh.configure do |c|
+      c.peer_name = "seed-node"
+      c.identity = identity
+      c.local_url = "http://seed:4567"
+    end
+    allow_any_instance_of(Igniter::Server::Client).to receive(:health).and_return({ "status" => "ok" })
+
+    plans = [
+      {
+        action: :refresh_peer_health,
+        scope: :mesh_health,
+        automated: true,
+        requires_approval: false,
+        params: {
+          peer_name: "edge-node",
+          selected_url: "http://edge:4567"
+        }
+      },
+      {
+        action: :relax_governance_requirements,
+        scope: :routing_governance,
+        automated: false,
+        requires_approval: true,
+        params: {
+          governance_keys: %i[blocked_events latest_type],
+          peer_candidates: ["edge-node"]
+        }
+      }
+    ]
+
+    result = Igniter::Cluster::Mesh.execute_routing_plans!(plans, automated_only: true)
+
+    expect(result).to be_applied
+    expect(result).to be_skipped
+    expect(result.summary).to include(
+      status: :applied,
+      total: 2,
+      applied: 1,
+      blocked: 0,
+      skipped: 1,
+      automated_only: true
+    )
+    expect(result.applied).to contain_exactly(
+      include(
+        action: :refresh_peer_health,
+        status: :applied,
+        peer_name: "edge-node",
+        selected_url: "http://edge:4567",
+        reachable: true
+      )
+    )
+    expect(result.skipped).to contain_exactly(
+      include(
+        action: :relax_governance_requirements,
+        reason: :manual_plan
+      )
+    )
+    expect(Igniter::Cluster::Mesh.config.governance_trail.snapshot(limit: 10)).to include(
+      total: 2,
+      latest_type: :routing_plan_applied,
+      by_type: include(
+        peer_health_refreshed: 1,
+        routing_plan_applied: 1
+      )
+    )
+  ensure
+    Igniter::Cluster::Mesh.reset!
+  end
+
+  it "self-heals directly from reported routing plans" do
+    Igniter::Cluster::Mesh.reset!
+
+    Igniter::Cluster::Mesh.configure do |c|
+      c.peer_name = "seed-node"
+      c.identity = identity
+      c.local_url = "http://seed:4567"
+    end
+    Igniter::Cluster::Mesh.config.governance_trail.record(
+      :trust_admission_applied,
+      source: :spec,
+      payload: { peer_name: "edge-node" }
+    )
+
+    report = {
+      routing: {
+        plans: [
+          {
+            action: :refresh_governance_checkpoint,
+            scope: :mesh_governance,
+            automated: true,
+            requires_approval: false,
+            params: {
+              governance_keys: %i[trust latest_type],
+              peer_candidates: ["edge-node"]
+            }
+          },
+          {
+            action: :relax_governance_requirements,
+            scope: :routing_governance,
+            automated: false,
+            requires_approval: true,
+            params: {
+              governance_keys: %i[blocked_events latest_type],
+              peer_candidates: ["edge-node"]
+            }
+          }
+        ]
+      }
+    }
+
+    result = Igniter::Cluster::Mesh.self_heal_routing!(report)
+
+    expect(result).to be_applied
+    expect(result).to be_skipped
+    expect(result.summary).to include(
+      status: :applied,
+      total: 2,
+      applied: 1,
+      blocked: 0,
+      skipped: 1,
+      automated_only: true
+    )
+    expect(result.applied).to contain_exactly(
+      include(
+        action: :refresh_governance_checkpoint,
+        status: :applied,
+        checkpoint: include(
+          node_id: "seed-node",
+          peer_name: "seed-node",
+          crest_digest: kind_of(String)
+        )
+      )
+    )
+    expect(result.skipped).to contain_exactly(
+      include(
+        action: :relax_governance_requirements,
+        reason: :manual_plan
+      )
+    )
+    expect(Igniter::Cluster::Mesh.config.governance_trail.snapshot(limit: 10)).to include(
+      total: 3,
+      latest_type: :routing_plan_applied,
+      by_type: include(
+        trust_admission_applied: 1,
+        governance_checkpoint_refreshed: 1,
+        routing_plan_applied: 1
+      )
+    )
+  ensure
+    Igniter::Cluster::Mesh.reset!
+  end
+
   it "persists and reloads the cluster governance crest with retention" do
     Igniter::Cluster::Mesh.reset!
 

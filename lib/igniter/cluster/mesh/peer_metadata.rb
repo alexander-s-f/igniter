@@ -65,6 +65,7 @@ module Igniter
           base = normalize(metadata)
           mesh = normalize(base[:mesh] || {})
           attestation = normalize(base[:mesh_capabilities] || {})
+          governance = normalize(base[:mesh_governance] || {})
 
           base = if mesh.empty?
                    base
@@ -77,13 +78,24 @@ module Igniter
                    )
                  end
 
-          return base if attestation.empty?
+          base = if attestation.empty?
+                   base
+                 else
+                   observed_at = parse_time(attestation[:observed_at])
+                   freshness_seconds = observed_at ? [(now - observed_at).to_i, 0].max : nil
 
-          observed_at = parse_time(attestation[:observed_at])
-          freshness_seconds = observed_at ? [(now - observed_at).to_i, 0].max : nil
+                   base.merge(
+                     mesh_capabilities: attestation.merge(freshness_seconds: freshness_seconds).compact
+                   )
+                 end
+
+          return base if governance.empty?
+
+          checkpointed_at = parse_time(governance[:checkpointed_at])
+          freshness_seconds = checkpointed_at ? [(now - checkpointed_at).to_i, 0].max : nil
 
           base.merge(
-            mesh_capabilities: attestation.merge(freshness_seconds: freshness_seconds).compact
+            mesh_governance: governance.merge(freshness_seconds: freshness_seconds).compact
           )
         end
 

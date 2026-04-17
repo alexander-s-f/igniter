@@ -7,6 +7,7 @@ require "stringio"
 RSpec.describe Companion::MainApp do
   before do
     Companion::Shared::NoteStore.reset!
+    Igniter::Cluster::Mesh.reset!
   end
 
   it "builds and registers the greet contract" do
@@ -43,6 +44,8 @@ RSpec.describe Companion::MainApp do
     expect(payload.dig("current_node", "governance", "checkpoint", "trust", "status")).to eq("trusted")
     expect(payload.dig("current_node", "governance", "checkpoint", "crest_digest")).to be_a(String)
     expect(payload.dig("current_node", "capabilities", "mocked")).to include("notifications")
+    expect(payload.dig("routing", "active")).to eq(false)
+    expect(payload.dig("counts", "routing_plans")).to eq(0)
     expect(payload.dig("services", "seed", "apps")).to eq(%w[main dashboard])
     expect(payload.dig("services", "edge", "port")).to eq(4668)
     expect(payload.dig("services", "analyst", "port")).to eq(4669)

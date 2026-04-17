@@ -26,6 +26,7 @@ module Igniter
                      else
                        @config.peer_metadata || {}
                      end
+          metadata = attach_governance(metadata)
 
           manifest = Igniter::Cluster::Identity::Manifest.build(
             identity: identity,
@@ -44,6 +45,31 @@ module Igniter
           return nil unless @config
 
           "http://#{@config.host}:#{@config.port}"
+        end
+
+        def attach_governance(metadata)
+          return metadata unless defined?(Igniter::Cluster::Mesh)
+
+          mesh_config = Igniter::Cluster::Mesh.config
+          return metadata unless mesh_config.peer_name == @config.peer_name
+
+          checkpoint = mesh_config.governance_checkpoint(limit: 10)
+          metadata.merge(
+            mesh_governance: {
+              node_id: checkpoint.node_id,
+              peer_name: checkpoint.peer_name,
+              fingerprint: checkpoint.fingerprint,
+              checkpointed_at: checkpoint.checkpointed_at,
+              crest_digest: checkpoint.crest_digest,
+              checkpoint: checkpoint.to_h,
+              trust: Igniter::Cluster::Trust::Verifier.assess_governance_checkpoint(
+                checkpoint,
+                trust_store: mesh_config.trust_store
+              ).to_h
+            }
+          )
+        rescue StandardError
+          metadata
         end
       end
     end

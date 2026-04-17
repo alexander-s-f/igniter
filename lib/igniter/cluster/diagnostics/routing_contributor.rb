@@ -13,6 +13,31 @@ module Igniter
             report
           end
 
+          def report_for_trace(node_name:, status:, routing_trace:, path: nil, token: nil, waiting_on: nil, source_node: nil, error: nil, latest_event_type: nil)
+            entry = entry_for_trace(
+              node_name: node_name,
+              path: path,
+              status: status,
+              routing_trace: routing_trace,
+              token: token,
+              waiting_on: waiting_on,
+              source_node: source_node,
+              error: error,
+              latest_event_type: latest_event_type
+            )
+
+            {
+              routing: {
+                total: 1,
+                pending: status == :pending ? 1 : 0,
+                failed: status == :failed ? 1 : 0,
+                facets: summarize_routing_facets([entry]),
+                plans: summarize_routing_plans([entry]),
+                entries: [entry]
+              }
+            }
+          end
+
           def append_text(report:, lines:)
             routing = report[:routing] || empty_routing
             return if routing[:entries].empty?
@@ -50,6 +75,31 @@ module Igniter
           end
 
           private
+
+          def entry_for_trace(node_name:, status:, routing_trace:, path: nil, token: nil, waiting_on: nil, source_node: nil, error: nil, latest_event_type: nil)
+            events = {
+              total: latest_event_type ? 1 : 0,
+              latest_type: latest_event_type,
+              types: latest_event_type ? [latest_event_type] : []
+            }
+            classification = classify_routing_trace(status, routing_trace, events)
+            remediation = remediation_hints(classification, routing_trace)
+
+            {
+              node_name: node_name.to_sym,
+              path: path,
+              status: status,
+              token: token,
+              waiting_on: waiting_on,
+              source_node: source_node,
+              events: events,
+              error: error,
+              routing_trace: routing_trace,
+              routing_trace_summary: summarize_routing_trace(routing_trace),
+              classification: classification,
+              remediation: remediation
+            }.compact
+          end
 
           def augment_outputs(report:, execution:, routing:)
             routing_by_node = routing[:entries].each_with_object({}) do |entry, memo|
@@ -157,6 +207,7 @@ module Igniter
               by_reason: count_many(entries) { |entry| entry.dig(:classification, :reasons) },
               by_mismatch_dimension: count_many(entries) { |entry| entry.dig(:classification, :mismatch_dimensions) },
               by_trust_key: count_many(entries) { |entry| entry.dig(:classification, :trust_keys) },
+              by_governance_key: count_many(entries) { |entry| entry.dig(:classification, :governance_keys) },
               by_decision_mode: count_by(entries) { |entry| entry.dig(:classification, :decision_mode) },
               by_policy_key: count_many(entries) { |entry| entry.dig(:classification, :policy_keys) },
               by_latest_event: count_by(entries) { |entry| entry.dig(:classification, :latest_event_type) },
@@ -192,6 +243,7 @@ module Igniter
           def classify_routing_trace(status, trace, events = {})
             query = normalized_trace_query(trace)
             trust = hash_value(query, :trust)
+            governance = hash_value(query, :governance)
             policy = hash_value(query, :policy)
             decision = hash_value(query, :decision)
             reasons = routing_reasons(trace)
@@ -204,6 +256,7 @@ module Igniter
               reasons: reasons,
               mismatch_dimensions: mismatch_dimensions,
               trust_keys: normalized_hash_keys(trust),
+              governance_keys: normalized_hash_keys(governance),
               candidate_peers: rejected_peer_names(trace),
               decision_mode: hash_value(decision || {}, :mode),
               decision_actions: Array(hash_value(decision || {}, :actions)).compact,
@@ -218,6 +271,7 @@ module Igniter
             return :unknown_peer if reasons.include?(:unknown_peer)
             return :peer_unreachable if reasons.include?(:unreachable)
             return :trust_gate if mismatch_dimensions.include?(:trust)
+            return :governance_gate if mismatch_dimensions.include?(:governance)
             return :policy_gate if mismatch_dimensions.include?(:policy) || mismatch_dimensions.include?(:decision)
             return :capacity_shortage if mismatch_dimensions.include?(:capabilities) || mismatch_dimensions.include?(:tags) || mismatch_dimensions.include?(:metadata)
             return :capacity_shortage if status == :pending && hash_value(trace, :peer_count).to_i.zero?
@@ -266,6 +320,8 @@ module Igniter
               )]
             when :trust_gate
               trust_gate_hints(classification)
+            when :governance_gate
+              governance_gate_hints(classification)
             when :policy_gate
               policy_gate_hints(classification)
             when :capacity_shortage
@@ -349,6 +405,40 @@ module Igniter
                   automated: false,
                   requires_approval: true,
                   params: { trust_keys: trust_keys }
+                )
+              )
+            ]
+          end
+
+          def governance_gate_hints(classification)
+            governance_keys = classification[:governance_keys]
+
+            [
+              build_hint(
+                :wait_for_governance_crest,
+                "Wait for a fresher or healthier governance checkpoint, or relax governance requirements.",
+                { governance_keys: governance_keys, peer_candidates: classification[:candidate_peers] },
+                plan: build_plan(
+                  :refresh_governance_checkpoint,
+                  scope: :mesh_governance,
+                  automated: true,
+                  requires_approval: false,
+                  params: {
+                    governance_keys: governance_keys,
+                    peer_candidates: classification[:candidate_peers]
+                  }
+                )
+              ),
+              build_hint(
+                :relax_governance_requirements,
+                "Relax governance constraints if slightly stale or less healthy peers are acceptable.",
+                { governance_keys: governance_keys },
+                plan: build_plan(
+                  :relax_governance_requirements,
+                  scope: :routing_governance,
+                  automated: false,
+                  requires_approval: true,
+                  params: { governance_keys: governance_keys }
                 )
               )
             ]

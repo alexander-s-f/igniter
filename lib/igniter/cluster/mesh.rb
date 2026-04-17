@@ -9,6 +9,7 @@ require_relative "mesh/config"
 require_relative "mesh/router"
 require_relative "mesh/announcer"
 require_relative "mesh/poller"
+require_relative "mesh/repair_loop"
 require_relative "mesh/discovery"
 require_relative "mesh/gossip"
 
@@ -71,10 +72,99 @@ module Igniter
           )
         end
 
+        def execute_routing_plans!(plans, automated_only: false, approve: false, peer_name: nil, label: nil, limit: nil)
+          Igniter::Cluster::RoutingPlanExecutor.new(config: config).run_many(
+            plans,
+            automated_only: automated_only,
+            approve: approve,
+            peer_name: peer_name,
+            label: label,
+            limit: limit
+          )
+        end
+
+        def execute_reported_routing_plans!(target, automated_only: false, approve: false, peer_name: nil, label: nil, limit: nil)
+          config.record_routing_report!(target)
+
+          execute_routing_plans!(
+            extract_routing_plans(target),
+            automated_only: automated_only,
+            approve: approve,
+            peer_name: peer_name,
+            label: label,
+            limit: limit
+          )
+        end
+
+        def self_heal_routing!(target, limit: nil)
+          execute_reported_routing_plans!(target, automated_only: true, limit: limit)
+        end
+
+        def start_repair_loop!
+          repair_loop.start
+          self
+        end
+
+        def stop_repair_loop!
+          @repair_loop&.stop
+          @repair_loop = nil
+          self
+        end
+
+        def repair_loop
+          @repair_loop ||= RepairLoop.new(config)
+        end
+
+        def refresh_governance_checkpoint!
+          execute_routing_plan!(
+            {
+              action: :refresh_governance_checkpoint,
+              scope: :mesh_governance,
+              automated: true,
+              requires_approval: false,
+              params: {}
+            }
+          )
+        end
+
+        def relax_governance_requirements!(governance_keys:, peer_candidates: [], approve: false)
+          execute_routing_plan!(
+            {
+              action: :relax_governance_requirements,
+              scope: :routing_governance,
+              automated: false,
+              requires_approval: true,
+              params: {
+                governance_keys: Array(governance_keys),
+                peer_candidates: Array(peer_candidates)
+              }
+            },
+            approve: approve
+          )
+        end
+
         def reset!
           stop_discovery!
+          stop_repair_loop!
           @config = nil
           @router = nil
+        end
+
+        private
+
+        def extract_routing_plans(target)
+          report =
+            if target.respond_to?(:diagnostics)
+              target.diagnostics.to_h
+            elsif target.is_a?(Hash)
+              target
+            elsif target.respond_to?(:to_h)
+              target.to_h
+            else
+              {}
+            end
+
+          Array(report.dig(:routing, :plans))
         end
       end
     end

@@ -8,7 +8,8 @@ module Igniter
 
       attr_accessor :peer_name, :local_capabilities, :local_tags, :local_metadata, :seeds,
                     :discovery_interval, :auto_announce, :local_url, :gossip_fanout, :start_discovery,
-                    :identity, :trust_store
+                    :identity, :trust_store, :auto_self_heal, :self_heal_interval,
+                    :self_heal_limit, :self_heal_report_provider
 
       attr_reader :peers
 
@@ -23,6 +24,10 @@ module Igniter
         @local_url          = nil
         @gossip_fanout      = 3
         @start_discovery    = false
+        @auto_self_heal     = false
+        @self_heal_interval = 15
+        @self_heal_limit    = nil
+        @self_heal_report_provider = nil
         @identity           = nil
         @trust_store        = nil
         @peers              = []
@@ -51,6 +56,10 @@ module Igniter
           local_url: local_url,
           gossip_fanout: gossip_fanout,
           start_discovery: start_discovery,
+          auto_self_heal: auto_self_heal,
+          self_heal_interval: self_heal_interval,
+          self_heal_limit: self_heal_limit,
+          self_heal_report_provider: self_heal_report_provider,
           identity: identity,
           trust_store: trust_store,
           peers: peers.map do |peer|

@@ -222,11 +222,19 @@ module Igniter
         identity_trust = metadata.dig(:mesh_trust, :status)
         attestation_trust = metadata.dig(:mesh_capabilities, :trust, :status)
         attestation_freshness = metadata.dig(:mesh_capabilities, :freshness_seconds)
+        governance_trust = metadata.dig(:mesh_governance, :trust, :status)
+        governance_freshness = metadata.dig(:mesh_governance, :freshness_seconds)
+        governance_blocked_events = metadata.dig(:mesh_governance, :blocked_events)
+        governance_applied_events = metadata.dig(:mesh_governance, :applied_events)
 
         [
           trust_priority(identity_trust, missing_rank: 1, invalid_rank: 2),
           trust_priority(attestation_trust, missing_rank: 2, invalid_rank: 3),
-          attestation_freshness.nil? ? 1_000_000_000 : attestation_freshness.to_i
+          attestation_freshness.nil? ? 1_000_000_000 : attestation_freshness.to_i,
+          trust_priority(governance_trust, missing_rank: 2, invalid_rank: 3),
+          governance_freshness.nil? ? 1_000_000_000 : governance_freshness.to_i,
+          governance_blocked_events.nil? ? 1_000_000_000 : governance_blocked_events.to_i,
+          governance_applied_events.nil? ? 1_000_000_000 : -governance_applied_events.to_i
         ]
       end
 
