@@ -879,7 +879,14 @@ RSpec.describe Igniter::App do
       app = stub_const("SpecDiagnosticsApp", Class.new(Igniter::App))
 
       app.class_eval do
+        root_dir "/tmp/spec-diagnostics-app"
+        executors_path "app/executors"
+        contracts_path "app/contracts"
+        tools_path "app/tools"
         register "SampleContract", klass
+        schedule :cleanup, every: "1h" do
+          :ok
+        end
         route "GET", "/health" do |**|
           { status: 200, body: { ok: true } }
         end
@@ -928,13 +935,40 @@ RSpec.describe Igniter::App do
         drain_timeout: 30,
         routes: 1
       )
+      expect(report[:app_loader]).to include(
+        mode: :filesystem,
+        adapter_class: "Igniter::App::FilesystemLoaderAdapter",
+        root_dir: "/tmp/spec-diagnostics-app",
+        path_groups: %i[agents contracts executors skills tools],
+        total_paths: 3
+      )
+      expect(report[:app_loader][:code_paths]).to include(
+        executors: ["app/executors"],
+        contracts: ["app/contracts"],
+        tools: ["app/tools"],
+        agents: [],
+        skills: []
+      )
+      expect(report[:app_scheduler]).to include(
+        mode: :threaded,
+        job_count: 1
+      )
+      expect(report[:app_scheduler][:jobs]).to contain_exactly(
+        include(name: :cleanup, every: "1h", at: nil)
+      )
       expect(text).to include("App: runtime=SpecDiagnosticsApp")
       expect(text).to include("App Host: host=0.0.0.0, port=4567, log_format=text, routes=1")
+      expect(text).to include("Loader: mode=filesystem, paths=3")
+      expect(text).to include("Scheduler: mode=threaded, jobs=1, names=cleanup")
       expect(text).to include("contracts=1")
       expect(markdown).to include("## App")
       expect(markdown).to include("## App Host")
+      expect(markdown).to include("## Loader")
+      expect(markdown).to include("## Scheduler")
       expect(markdown).to include("- Runtime: `SpecDiagnosticsApp` host=`app` loader=`filesystem` scheduler=`threaded`")
       expect(markdown).to include("- Contracts: total=1, names=SampleContract")
+      expect(markdown).to include("- `contracts`: app/contracts")
+      expect(markdown).to include("- `cleanup` every=1h")
     end
 
     it "exposes cluster host diagnostics through a dedicated contributor" do

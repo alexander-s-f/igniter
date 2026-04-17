@@ -350,7 +350,7 @@ module Igniter
       def build!
         cfg = @app_config
         apply_yml!(cfg)
-        load_application_code!
+        resolved_loader_adapter = load_application_code!
         @boot_blocks.each(&:call)
         @configure_blocks.each { |b| b.call(cfg) }
         cfg.custom_routes = @custom_routes.dup
@@ -366,7 +366,10 @@ module Igniter
           host_name: host,
           loader_name: loader,
           scheduler_name: scheduler,
-          sdk_capabilities: sdk_capabilities
+          sdk_capabilities: sdk_capabilities,
+          loader_adapter: resolved_loader_adapter,
+          scheduled_jobs: @scheduled_jobs,
+          code_paths: code_paths_snapshot
         )
         host_adapter.build_config(host_config)
       end
@@ -379,16 +382,22 @@ module Igniter
       end
 
       def load_application_code!
-        loader_adapter.load!(
+        adapter = loader_adapter
+        adapter.load!(
           base_dir: @root_dir || Dir.pwd,
-          paths: {
-            executors: @executors_paths,
-            contracts: @contracts_paths,
-            tools: @tools_paths,
-            agents: @agents_paths,
-            skills: @skills_paths
-          }
+          paths: code_paths_snapshot
         )
+        adapter
+      end
+
+      def code_paths_snapshot
+        {
+          executors: @executors_paths.dup,
+          contracts: @contracts_paths.dup,
+          tools: @tools_paths.dup,
+          agents: @agents_paths.dup,
+          skills: @skills_paths.dup
+        }
       end
 
       def resolve_path(path)

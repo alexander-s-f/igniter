@@ -12,7 +12,8 @@ module Igniter
           Thread.current[:igniter_app_runtime_context] = value
         end
 
-        def capture(app_class:, host_config:, host_name:, loader_name:, scheduler_name:, sdk_capabilities:)
+        def capture(app_class:, host_config:, host_name:, loader_name:, scheduler_name:, sdk_capabilities:,
+                    loader_adapter:, scheduled_jobs:, code_paths:)
           self.current = {
             app_class: app_class,
             app_name: app_class.name,
@@ -21,6 +22,17 @@ module Igniter
             loader: loader_name,
             scheduler: scheduler_name,
             sdk_capabilities: Array(sdk_capabilities).map(&:to_sym).sort,
+            loader_runtime: {
+              adapter_class: loader_adapter&.class&.name,
+              code_paths: deep_dup(code_paths),
+              path_groups: code_paths.keys.map(&:to_sym).sort,
+              total_paths: code_paths.values.sum(&:size)
+            },
+            scheduler_runtime: {
+              adapter_class: nil,
+              scheduled_jobs: Array(scheduled_jobs).map { |job| serialize_job(job) },
+              job_count: Array(scheduled_jobs).size
+            },
             registrations: host_config.registrations.keys.sort,
             registration_count: host_config.registrations.size,
             routes: host_config.custom_routes.size,
@@ -74,6 +86,14 @@ module Igniter
           return nil if value.nil? || value.empty?
 
           value
+        end
+
+        def serialize_job(job)
+          {
+            name: job.fetch(:name).to_sym,
+            every: job.fetch(:every),
+            at: job[:at]
+          }
         end
       end
     end
