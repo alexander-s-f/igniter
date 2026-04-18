@@ -131,15 +131,15 @@ This matters because we now have a concrete, runnable surface for cluster ideas 
 
 The canonical observation envelope is now implemented:
 
-- `NodeObservation` — typed, frozen per-node snapshot with six OLAP dimensions
-- `Peer#to_observation(now:)` — produces a NodeObservation with freshness computed at call time
+- `NodeObservation` — typed, frozen per-node snapshot with seven OLAP dimensions
+- `Peer#to_observation(now:, workload_tracker:)` — produces a NodeObservation; if `workload_tracker` is supplied, the workload dimension is populated from live signals
 - `Peer#profile` now returns `NodeObservation` (backwards-compatible with `CapabilityQuery`)
-- `PeerRegistry#observation_for`, `#observations`, `#observations_matching_query` — typed query surface
+- `PeerRegistry#observation_for`, `#observations`, `#observations_matching_query` — all accept `workload_tracker:` kwarg
 - `Mesh::Config#local_state` / `#local_locality` — new dimension config
 - `Announcer` propagates state and locality in peer announcements
-- `NodeObservation#dimensions` — full OLAP Point summary across all six dimensions
+- `NodeObservation#dimensions` — full OLAP Point summary across all seven dimensions
 
-The six dimensions now live in typed readers: capabilities, trust, state, locality, governance, provenance.
+The seven dimensions live in typed readers: capabilities, trust, state, locality, governance, provenance, **workload**.
 `CapabilityQuery` works against `NodeObservation` without any change (same duck-type interface).
 
 ## Landed OLAP Point Query Surface (Phase 4b)
@@ -172,14 +172,15 @@ This is the OLAP Point query surface. MeshQL would be a grammar/parser on top.
 Multi-dimensional placement and ownership rebalancing are now implemented:
 
 - `PlacementPolicy` — declarative constraints (health, trust, load thresholds, locality affinity, degraded fallback)
-- `PlacementPlanner` — weighted scorer across 7 dimensions (health 30%, trust 20%, load_cpu 20%, load_memory 15%, locality 10%, confidence 3%, freshness 2%)
+- `PlacementPlanner` — weighted scorer across 8 dimensions (health 25%, trust 20%, load_cpu 18%, load_memory 12%, workload 15%, locality 7%, confidence 2%, freshness 1%)
 - `PlacementDecision` — typed result: chosen node, composite score, per-dimension breakdown, rejected candidates, degraded flag
 - `RebalancePlanner` — detects ownership skew across eligible nodes, generates greedy transfer plan
 - `RebalancePlan` — typed list of `:transfer_ownership` actions, `#to_routing_plans` for executor integration
-- `Mesh.place(capability, policy:)` — convenience entry point using live `PeerRegistry`
+- `Mesh.place(capability, policy:)` — convenience entry point using live `PeerRegistry` with workload_tracker
 - `Mesh.rebalance(ownership_registry, capabilities:, skew_threshold:)` — convenience entry point
 
 Scoring model: `score = Σ weight_i × dim_score_i`. Deterministic — ties broken by node name.
+Workload score: healthy=1.0, overloaded=0.3, degraded=0.2, both=0.0, no data=0.8 (neutral-positive).
 
 Degraded fallback: when primary candidate set is empty and `degraded_fallback: true`, placement retries with a fully relaxed policy and marks the `PlacementDecision` as degraded.
 
@@ -229,6 +230,16 @@ LIMIT 3
 ```
 
 All keywords are case-insensitive. Unquoted zone/region identifiers (e.g. `us-east-1a`) are supported.
+
+Workload clauses added in Phase 10:
+```
+  AND NOT DEGRADED               -- workload dimension: not in degraded state
+  AND NOT OVERLOADED             -- workload dimension: not overloaded
+  AND failure_rate < 0.1         -- workload metric (float)
+  AND avg_latency_ms < 200       -- workload metric (milliseconds)
+ORDER BY failure_rate ASC
+ORDER BY avg_latency_ms DESC
+```
 
 ## Landed Decentralized Knowledge Plane (Phase 5 v1)
 
@@ -309,113 +320,226 @@ rec2.checkpoint.chained?        # => true
 rec2.checkpoint.verify_signature # => true
 ```
 
-## What Is Not Done Yet
+## Landed Remote RAG Fan-out (Phase 7)
 
-Several pieces are still clearly incomplete:
+The knowledge plane is now genuinely distributed:
 
-- richer placement and rebalancing beyond routing-time preference
-- stronger topology and ownership transfer semantics
-- broader automatic runtime repair from real workload signals
-- peer admission / trust bootstrap UX beyond the current controlled workflow
-- decentralized knowledge plane / RAG layer
-- stronger signed replicated crest exchange between peers
+- `RAG::NetHttpAdapter` — production `Net::HTTP` client: `POST /rag/search` with JSON body, deserialises response into `RetrievalResult` objects with the caller's `NodeObservation` attached for composite scoring. All errors return `[]` (graceful degradation). Injectable for testing.
+- `RAG::FanoutRetriever` — parallel fan-out engine: discovers `:rag`-capable peers via `ObservationQuery`, spawns one Thread per peer (network I/O bound), merges local + remote results through trust-aware `Ranker`. `require_trust: true` (default) skips untrusted peers; `require_trust: false` includes them with reduced composite score.
+- `Mesh.retrieve(text, distributed: false)` — extended with `distributed:`, `require_trust:`, `timeout:`, `now:`, and `http_adapter:` kwargs. When `distributed: false` (default) behaviour is unchanged (local shard). When `distributed: true` delegates to `FanoutRetriever`.
+- `Companion::Main::RagSearchHandler` — route handler for `POST /v1/rag/search`, exposes the local shard over HTTP so peer nodes can fan out to it.
+- Route wired in `Companion::MainApp`: `route "POST", "/v1/rag/search", with: Companion::Main::RagSearchHandler`.
 
-So the base is real, but the cluster is not yet at the stage of fully adaptive distributed placement or decentralized knowledge.
+Wire format (request body): `{ "text": "...", "tags": [...], "limit": N, "min_score": 0.0 }`
+Wire format (response body): `{ "results": [...], "shard": "node-name", "count": N }`
 
-## My Current Development Insights
+Spec coverage: `spec/igniter/cluster/rag_fanout_spec.rb` + companion `main_app_spec.rb` — 25 new examples, 0 failures.
 
-These are the strongest next-step insights from the implementation work so far.
+Example:
+```ruby
+# On each node:
+Igniter::Cluster::Mesh.configure do |c|
+  c.peer_name          = "knowledge-node-a"
+  c.local_capabilities = [:rag]
+end
+Igniter::Cluster::Mesh.shard.add("Ruby closures capture their environment", tags: [:ruby])
 
-### 1. The next major value is placement, not more routing syntax
+# Local-only retrieval (default):
+Igniter::Cluster::Mesh.retrieve("closures", limit: 5)
 
-Routing is already expressive.
+# Distributed fan-out across all :rag peers:
+Igniter::Cluster::Mesh.retrieve("closures", distributed: true, require_trust: true, timeout: 3)
 
-The next big gain will come from:
+# Custom transport for testing:
+mock_adapter = ->(url, query, observation: nil) { [...] }
+Igniter::Cluster::Mesh.retrieve("closures", distributed: true, http_adapter: mock_adapter)
+```
 
-- ownership movement
-- rebalance
-- locality-aware placement
-- degraded-mode placement
-- preferred vs fallback placement
+## Landed Governance-Backed Peer Admission (Phase 8)
 
-In other words, the cluster should start deciding where work should live over time, not only which peer matches right now.
+Peer admission is now a formal governance workflow, not just a routing plan:
 
-### 2. Discovery needs to become a clearer protocol surface
+- `Governance::AdmissionRequest` — immutable `Data.define` value: `request_id` (UUID), `peer_name`, `node_id`, `public_key`, `capabilities`, `justification`, `requested_at`, `fingerprint` (24-hex SHA256 of public key)
+- `Governance::AdmissionDecision` — typed result: `outcome` (`:admitted / :rejected / :pending_approval / :already_trusted`), `request`, `rationale`, `decided_at`. Predicate readers: `admitted?`, `rejected?`, `pending_approval?`, `already_trusted?`
+- `Governance::AdmissionPolicy` — declarative evaluation rules. Evaluation order (first match wins): (1) `trust_store.known?(node_id)` → `:already_trusted`; (2) forbidden capability present → `:rejected`; (3) matching `known_keys` fingerprint → `:admitted`; (4) `require_approval: true` (default) → `:pending_approval`; (5) open policy → `:admitted`
+- `Governance::AdmissionQueue` — thread-safe `Mutex`-guarded in-memory store for pending requests. `enqueue`, `pending`, `find`, `dequeue`, `expire_stale!(ttl)`, `clear!`
+- `Governance::AdmissionWorkflow` — orchestrates the full lifecycle: evaluates policy, records governance trail events, updates `TrustStore` on admission, manages `AdmissionQueue`. Methods: `request_admission`, `approve_pending!`, `reject_pending!`, `approve_all_pending!`, `expire_stale!`, `pending_requests`
+- `Mesh::Config#admission_policy` / `#admission_queue` — new lazy attrs
+- `Mesh.request_admission(peer_name:, node_id:, public_key:, ...)` — submit request
+- `Mesh.approve_admission!(request_id)` — operator approval
+- `Mesh.reject_admission!(request_id, reason:)` — operator rejection
+- `Mesh.pending_admissions` — list pending requests
+- `Mesh.expire_stale_admissions!` — expire by policy TTL
 
-We already have manifests, attestations, freshness, and trust, but the model is still spread across runtime structures.
+Governance trail events recorded: `:admission_requested`, `:admission_admitted`, `:admission_pending`, `:admission_approved`, `:admission_rejected`, `:admission_expired`
 
-The next refactor should make discovery more explicit as a protocol:
+Spec coverage: `spec/igniter/cluster/governance_admission_spec.rb` — 54 examples, 0 failures.
 
-- canonical snapshot shape
-- canonical observation envelope
-- clearer distinction between self-claim and relayed observation
-- explicit conflict/staleness handling
+Example:
+```ruby
+Igniter::Cluster::Mesh.configure do |c|
+  c.peer_name = "seed-node"
+  c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(
+    known_keys:             { "trusted-node" => "known_fingerprint_hex" },
+    require_approval:       true,
+    forbidden_capabilities: [:admin]
+  )
+end
 
-### 3. Governance is now strong enough to become a general cluster action layer
+# Peer requests to join:
+decision = Igniter::Cluster::Mesh.request_admission(
+  peer_name: "new-node", node_id: "new-node",
+  public_key: pem, capabilities: [:rag, :database]
+)
+decision.pending_approval? # => true
 
-We should stop thinking of governance only as audit and begin treating it as the control plane for:
+# Operator approves:
+Igniter::Cluster::Mesh.approve_admission!(decision.request.request_id)
+# new-node is now in the TrustStore; governance trail has full audit record
+```
 
-- peer admission
-- risky capability enablement
-- topology-affecting changes
-- automated vs approval-required repair
+## Landed Workload Signal Tracker (Phase 9)
 
-This feels like the beginning of a proper cluster governance model, not a side feature.
+The self-heal loop is now reactive to real runtime signals, not just routing reports:
 
-### 4. Companion should keep pace with cluster internals
+- `Mesh::WorkloadSignal` — immutable `Data.define` per-event record: `peer_name`, `capability`, `success`, `duration_ms`, `error_class`, `recorded_at`. `failure?` predicate.
+- `Mesh::PeerCapacityReport` — typed aggregate: `total`, `successes`, `failures`, `failure_rate`, `avg_duration_ms`, `degraded?`, `overloaded?`, `healthy?`. `degraded?` ↔ `failure_rate >= threshold`; `overloaded?` ↔ `avg_duration_ms >= threshold_ms`.
+- `Mesh::WorkloadTracker` — thread-safe `Mutex`-guarded sliding window accumulator (bounded per peer-capability pair). Methods: `record`, `report_for`, `report_for_capability`, `all_reports`, `degraded_peers`, `overloaded_peers`, `known_peers`, `reset_peer!`, `reset!`, `total_signals`. Window overflow drops oldest signals — memory bounded by `window_size`.
+- `Mesh.workload_tracker` — lazily creates singleton tracker.
+- `Mesh.record_workload(peer_name, capability, success:, duration_ms:, error:)` — records a signal and automatically emits governance trail events on state transitions: `:peer_degraded` (first time failure_rate exceeds threshold), `:peer_recovered` (drops back below), `:peer_overloaded` (avg latency exceeds threshold).
+- `Mesh.repair_from_workload_signals!(degraded_threshold:, execute:)` — identifies degraded and overloaded peers (both static and registry peers), generates `:refresh_capabilities` routing plans, optionally executes automated ones. Returns `{ degraded:, overloaded:, plans:, results: }`.
 
-The biggest accelerant recently was having a runnable proving surface.
+Spec coverage: `spec/igniter/cluster/mesh_workload_tracker_spec.rb` — 42 examples, 0 failures.
 
-Companion should keep illustrating:
+Example:
+```ruby
+# During request handling:
+begin
+  result = route_request_to(:database)
+  Igniter::Cluster::Mesh.record_workload(result.peer_name, :database,
+    success: true, duration_ms: result.elapsed_ms)
+rescue => e
+  Igniter::Cluster::Mesh.record_workload("node-b", :database,
+    success: false, error: e)
+end
 
-- real runtime failure -> routing report publication
-- background repair loop activity
-- trust admission flows
-- governance checkpoint drift/refresh
+# Periodic self-heal tick:
+outcome = Igniter::Cluster::Mesh.repair_from_workload_signals!(
+  degraded_threshold: 0.25,
+  execute: true          # run automated plans immediately
+)
+# outcome[:degraded]  → ["node-b"]
+# outcome[:plans]     → [{ action: :refresh_capabilities, ... }]
+```
 
-If the cluster grows without companion narratives, comprehension cost will rise fast.
+## Landed Workload Dimension in NodeObservation (Phase 10)
 
-### 5. Signed crest is promising, but should stay compact
+The OLAP Point model now has a 7th live dimension — workload signals from `WorkloadTracker` are embedded directly into every `NodeObservation`. This closes the most expensive integration seam: runtime failure state now flows into every query surface simultaneously.
 
-The current governance checkpoint is useful precisely because it is small and inspectable.
+**What changed:**
 
-The next steps should preserve that property:
+- `NodeObservation` workload accessors: `workload_failure_rate`, `workload_avg_duration_ms`, `workload_total`, `workload_degraded?`, `workload_overloaded?`, `workload_healthy?`, `workload_observed?`
+- `WorkloadTracker#to_metadata_for(peer_name)` — builds `{ mesh_workload: {...} }` metadata hash from a `PeerCapacityReport`; returns nil when no signals recorded
+- `Peer#to_observation(now:, workload_tracker:)` — merges workload metadata when tracker is supplied
+- `PeerRegistry#observations(now:, workload_tracker:)`, `#query(now:, workload_tracker:)`, `#observation_for(now:, workload_tracker:)` — all propagate the tracker through
+- `Mesh.query`, `Mesh.meshql`, `Mesh.place`, `Mesh.rebalance`, `Mesh.repair_from_workload_signals!` — all automatically pass `config.workload_tracker` so workload data is always live in the observation layer
 
-- signed checkpoints
-- bounded crest
-- explicit compaction
-- clear provenance
+**ObservationQuery new filters:**
+- `.not_degraded` — exclude peers where `workload_degraded? == true`
+- `.not_overloaded` — exclude peers where `workload_overloaded? == true`
+- `.workload_healthy` — keep only peers that are neither degraded nor overloaded
+- `.max_failure_rate(threshold)` — filter by failure rate; nil passes through (no data = acceptable)
+- `.max_latency_ms(threshold)` — filter by avg latency; nil passes through
+- `ORDER BY :failure_rate`, `ORDER BY :avg_latency_ms` — added to ORDERABLE_DIMENSIONS
 
-The design should resist becoming a heavyweight chain-shaped subsystem.
+**PlacementPlanner scoring updated:**
+- Workload is now the 5th scoring dimension (weight 15%): healthy=1.0, overloaded=0.3, degraded=0.2, both=0.0, no data=0.8
+- Other weights rebalanced: health 25%, trust 20%, load_cpu 18%, load_memory 12%, locality 7%, confidence 2%, freshness 1%
 
-## OLAP Point — New Direction
+**MeshQL extended:**
+- `NOT DEGRADED`, `NOT OVERLOADED` — keyword conditions
+- `failure_rate`, `avg_latency_ms` — numeric metrics with full operator support
+- `ORDER BY failure_rate`, `ORDER BY avg_latency_ms` — orderable
+- `ParsedQuery#to_meshql` serialises all new conditions (round-trippable)
 
-The cluster nodes are now understood as **OLAP Points**: multi-dimensional queryable surfaces exposing capabilities, state, trust, locality, governance, and future knowledge dimensions.
+Spec coverage: 38 new examples across `mesh_node_observation_spec.rb`, `mesh_observation_query_spec.rb`, `mesh_placement_planner_spec.rb`, `mesh_ql_spec.rb`. Total cluster suite: 897 examples, 0 failures.
 
-The cluster is a distributed OLAP field over these points. This framing unifies routing (capability dimension), placement (multi-dimension ranking), diagnostics (explain by which dimension eliminated a peer), and gives MeshQL a clear query target.
+Example:
+```ruby
+# ObservationQuery with workload filters
+Igniter::Cluster::Mesh.query
+  .with(:database)
+  .not_degraded
+  .max_failure_rate(0.1)
+  .max_latency_ms(300)
+  .order_by(:failure_rate)
+  .first
 
-Key insight: every cluster phase so far has been adding a new dimension to the same per-node observable profile. OLAP Point names this pattern explicitly.
+# MeshQL workload clauses
+Igniter::Cluster::Mesh.meshql(
+  "SELECT :database WHERE NOT DEGRADED AND failure_rate < 0.1 AND avg_latency_ms < 300 ORDER BY failure_rate ASC LIMIT 1"
+)
 
-See [OLAP Point v1](../OLAP_POINT_V1.md) for the design document.
+# Placement automatically uses live workload data
+decision = Igniter::Cluster::Mesh.place(:database)
+decision.dimensions[:workload]  # => 1.0 (healthy) or 0.2 (degraded)
+```
 
-The natural implementation path:
+## Architectural Assessment (post Phase 10)
 
-1. Phase 2 (discovery protocol) delivers the canonical `NodeObservation` envelope — all existing dimensions in one structured value.
-2. Phase 3 (placement) uses the full envelope for multi-dimensional ranking.
-3. Phase 4b (OLAP Point query surface) adds a Ruby DSL query layer over observation arrays.
-4. MeshQL follows once the observation envelope is stable.
+### What is genuinely strong
+
+- **Dimensions-first model holds through 10 phases.** The OLAP Point shape has grown from 6 to 7 dimensions, each added without changing the duck-type interface. The pattern is proven.
+- **WorkloadTracker → PlacementPlanner integration seam is now closed.** Runtime failure rate and latency flow through the full observation pipeline: every `Mesh.query`, `Mesh.place`, `Mesh.meshql` call is automatically workload-aware.
+- **Governance trail is a real control plane.** Events from routing executor, admission workflow, workload tracker, compaction, trust admission, and self-heal make it a live cluster memory.
+- **Zero production dependencies at full functionality.** SHA256, OpenSSL, Net::HTTP, Mutex, Thread — all stdlib. This constraint held through 10 phases.
+- **Companion as proving surface** continues to expose real integration scenarios that unit tests alone would miss.
+
+### Where the remaining weaknesses are
+
+**Two integration seams still loose:**
+
+- `AdmissionWorkflow → PeerRegistry`: an admitted peer lands in `TrustStore` but not in `PeerRegistry` — invisible to routing until manual registration.
+- `RepairLoop → WorkloadTracker`: two separate signal sources with no unified tick.
+
+**Checkpoint gossip is one-directional.** Checkpoints are built, signed, stored — but not automatically propagated between peers.
+
+**Companion lags phases 6–10.** Dashboard has no workload signals, admission queue UI, distributed RAG demo, or compaction timeline.
+
+**RAG scoring is keyword-only.** `text_score = hits/words` is primitive. No BM25, no positional weight. Retrieval quality is limited for semantic queries.
+
+### Key insight (updated)
+
+Phase 10 closed the most expensive integration seam — the one between live runtime signals and the query/placement layer. The system now genuinely reacts to runtime conditions through the same query interface that already handled trust, locality, and health. The remaining seams (admission → registry, repair loop) are smaller in scope.
 
 ## Recommended Next Focus
 
-If we resume cluster work after a pause, the healthiest next focus looks like this:
+Prioritised by impact:
 
-1. Formalize the capability discovery/registry protocol (Phase 2) — delivers the `NodeObservation` envelope.
-2. Start placement and rebalancing primitives (Phase 3) — uses the envelope for multi-dimension ranking.
-3. Build the OLAP Point query surface (Phase 4b) — makes the field queryable as a unified DSL.
-4. Keep companion aligned so each new cluster slice has a visible proving story.
+### Level 1 — Close remaining integration seams
+
+**A. `AdmissionWorkflow → PeerRegistry` auto-registration** ← *start here*
+
+When a peer is admitted, automatically register it in `PeerRegistry` so it becomes routable without a manual step. One clear seam: `AdmissionWorkflow#request_admission` (admitted path) calls `config.peer_registry.register(peer)`.
+
+**B. Unified repair tick: `RepairLoop` + `WorkloadTracker`**
+
+Single periodic tick consults both routing reports and workload signals. Removes duplication, makes self-healing more responsive.
+
+### Level 2 — Close architectural gaps (medium priority)
+
+**C. Checkpoint gossip loop**
+
+Include `crest_digest` of the latest local checkpoint in `Announcer` payloads. `Poller` stores the latest digest per peer; if a remote checkpoint is newer than local, fetch and persist it. Closes "stronger signed replicated crest exchange".
+
+**D. Companion modernisation**
+
+Dashboard: workload heatmap per peer, admission queue panel, distributed RAG demo, compaction timeline.
+
+### Level 3 — Quality (when retrieval matters)
+
+**E. BM25 scoring for RAG** — replace `hits/words` with BM25 (pure math, no deps). Significantly better retrieval quality.
 
 ## Short Resume Prompt
 
-If we need to re-enter this work quickly later, the mental starting point is:
-
-`Igniter::Cluster` already has a real capability mesh, signed identity/trust, governance crest, routing remediation, and a first self-healing loop. The next likely leap is from smart routing to adaptive placement and clearer discovery protocol design, while keeping Companion as the visible proving surface.
+`Igniter::Cluster` has a full 10-phase implementation: capability mesh, signed identity/trust, OLAP Point observation (7 dimensions) with MeshQL, multi-dimensional placement and rebalancing, compacted governance trail with checkpoint chaining, governance-backed peer admission, distributed RAG fan-out, workload signal tracking, and workload dimension embedded in `NodeObservation`. The WorkloadTracker→PlacementPlanner integration seam is now closed — runtime failure rate and latency automatically flow into every query surface (ObservationQuery, MeshQL, PlacementPlanner, repair). Remaining gaps: admitted peers not auto-registered in PeerRegistry, RepairLoop not unified with WorkloadTracker tick, checkpoint gossip not implemented.

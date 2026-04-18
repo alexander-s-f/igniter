@@ -298,6 +298,89 @@ RSpec.describe Igniter::Cluster::Mesh::ObservationQuery do
     end
   end
 
+  # ── Workload dimension filters ────────────────────────────────────────────────
+
+  describe "workload dimension filters" do
+    def make_workload_obs(name:, caps: [], failure_rate: 0.0, avg_ms: nil, degraded: false, overloaded: false)
+      Igniter::Cluster::Mesh::NodeObservation.new(
+        name: name, url: "http://#{name}:4567",
+        capabilities: caps, tags: [],
+        metadata: {
+          mesh: { observed_at: observed_at, confidence: 1.0, hops: 0 },
+          mesh_workload: { failure_rate: failure_rate, avg_duration_ms: avg_ms,
+                           total: 10, degraded: degraded, overloaded: overloaded }.compact
+        }
+      )
+    end
+
+    let(:healthy_obs)   { make_workload_obs(name: "w-healthy",   caps: [:api], failure_rate: 0.05, avg_ms: 50) }
+    let(:degraded_obs)  { make_workload_obs(name: "w-degraded",  caps: [:api], failure_rate: 0.6,  avg_ms: 200, degraded: true) }
+    let(:overloaded_obs){ make_workload_obs(name: "w-overloaded",caps: [:api], failure_rate: 0.1,  avg_ms: 1200, overloaded: true) }
+    let(:workload_pool) { described_class.new([healthy_obs, degraded_obs, overloaded_obs]) }
+
+    describe "#not_degraded" do
+      it "excludes degraded peers" do
+        result = workload_pool.not_degraded.map(&:name)
+        expect(result).to include("w-healthy", "w-overloaded")
+        expect(result).not_to include("w-degraded")
+      end
+    end
+
+    describe "#not_overloaded" do
+      it "excludes overloaded peers" do
+        result = workload_pool.not_overloaded.map(&:name)
+        expect(result).to include("w-healthy", "w-degraded")
+        expect(result).not_to include("w-overloaded")
+      end
+    end
+
+    describe "#workload_healthy" do
+      it "keeps only peers that are neither degraded nor overloaded" do
+        result = workload_pool.workload_healthy.map(&:name)
+        expect(result).to eq(["w-healthy"])
+      end
+    end
+
+    describe "#max_failure_rate" do
+      it "filters by failure_rate threshold" do
+        result = workload_pool.max_failure_rate(0.1).map(&:name)
+        expect(result).to include("w-healthy")
+        expect(result).not_to include("w-degraded")
+      end
+
+      it "passes through peers with no workload data (nil rate)" do
+        no_workload = make_obs(name: "no-wl", caps: [:api])
+        q = described_class.new([no_workload, degraded_obs])
+        expect(q.max_failure_rate(0.1).map(&:name)).to include("no-wl")
+      end
+    end
+
+    describe "#max_latency_ms" do
+      it "filters out high-latency peers" do
+        result = workload_pool.max_latency_ms(500).map(&:name)
+        expect(result).not_to include("w-overloaded")
+      end
+
+      it "passes peers with no avg_duration_ms" do
+        result = workload_pool.max_latency_ms(500).map(&:name)
+        expect(result).to include("w-healthy", "w-degraded")
+      end
+    end
+
+    describe "ORDER BY failure_rate / avg_latency_ms" do
+      it "orders by failure_rate ascending" do
+        result = workload_pool.with(:api).order_by(:failure_rate).map(&:name)
+        expect(result.first).to eq("w-healthy")
+        expect(result.last).to eq("w-degraded")
+      end
+
+      it "orders by avg_latency_ms descending" do
+        result = workload_pool.with(:api).order_by(:avg_latency_ms, direction: :desc).map(&:name)
+        expect(result.first).to eq("w-overloaded")
+      end
+    end
+  end
+
   # ── PeerRegistry integration ──────────────────────────────────────────────────
 
   describe "PeerRegistry#query" do

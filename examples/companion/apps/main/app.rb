@@ -6,6 +6,7 @@ require "igniter/core"
 require_relative "../../lib/companion/main/status_handler"
 require_relative "../../lib/companion/main/notes_list_handler"
 require_relative "../../lib/companion/main/notes_create_handler"
+require_relative "../../lib/companion/main/rag_search_handler"
 require_relative "../../lib/companion/shared/capability_profile"
 
 module Companion
@@ -20,9 +21,10 @@ module Companion
     contracts_path "app/contracts"
     agents_path    "app/agents"
 
-    route "GET", "/v1/home/status", with: Companion::Main::StatusHandler
-    route "GET", "/v1/notes", with: Companion::Main::NotesListHandler
-    route "POST", "/v1/notes", with: Companion::Main::NotesCreateHandler
+    route "GET",  "/v1/home/status", with: Companion::Main::StatusHandler
+    route "GET",  "/v1/notes",       with: Companion::Main::NotesListHandler
+    route "POST", "/v1/notes",       with: Companion::Main::NotesCreateHandler
+    route "POST", "/v1/rag/search",  with: Companion::Main::RagSearchHandler
 
     on_boot do
       register "GreetContract", Companion::GreetContract

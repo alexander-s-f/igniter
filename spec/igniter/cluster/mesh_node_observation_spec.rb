@@ -207,12 +207,100 @@ RSpec.describe Igniter::Cluster::Mesh::NodeObservation do
     end
   end
 
+  # ── Workload dimension ────────────────────────────────────────────────────────
+
+  describe "workload dimension" do
+    let(:workload_meta) do
+      base_metadata.merge(
+        mesh_workload: {
+          failure_rate:    0.35,
+          avg_duration_ms: 620.0,
+          total:           40,
+          degraded:        true,
+          overloaded:      true
+        }
+      )
+    end
+
+    subject(:obs_with_workload) do
+      described_class.new(
+        name: "node-a", url: "http://node-a:4567",
+        capabilities: [:database], tags: [],
+        metadata: Igniter::Cluster::Mesh::PeerMetadata.runtime(workload_meta, now: now)
+      )
+    end
+
+    it "reads failure_rate" do
+      expect(obs_with_workload.workload_failure_rate).to eq(0.35)
+    end
+
+    it "reads avg_duration_ms" do
+      expect(obs_with_workload.workload_avg_duration_ms).to eq(620.0)
+    end
+
+    it "reads workload_total" do
+      expect(obs_with_workload.workload_total).to eq(40)
+    end
+
+    it "workload_degraded? is true when flagged" do
+      expect(obs_with_workload).to be_workload_degraded
+    end
+
+    it "workload_overloaded? is true when flagged" do
+      expect(obs_with_workload).to be_workload_overloaded
+    end
+
+    it "workload_healthy? is false when degraded or overloaded" do
+      expect(obs_with_workload).not_to be_workload_healthy
+    end
+
+    it "workload_observed? is true when mesh_workload key present" do
+      expect(obs_with_workload).to be_workload_observed
+    end
+
+    it "workload_observed? is false when no workload data" do
+      expect(obs).not_to be_workload_observed
+    end
+
+    it "workload_failure_rate returns nil when no workload data" do
+      expect(obs.workload_failure_rate).to be_nil
+    end
+
+    it "workload_total defaults to 0 when no data" do
+      expect(obs.workload_total).to eq(0)
+    end
+
+    it "workload_degraded? is false by default" do
+      expect(obs).not_to be_workload_degraded
+    end
+
+    it "workload_healthy? is true when not degraded and not overloaded" do
+      healthy = described_class.new(
+        name: "n", url: "http://n", capabilities: [], tags: [],
+        metadata: base_metadata.merge(
+          mesh_workload: { failure_rate: 0.05, total: 20, degraded: false, overloaded: false }
+        )
+      )
+      expect(healthy).to be_workload_healthy
+    end
+
+    it "WorkloadTracker#to_metadata_for populates mesh_workload via Peer#to_observation" do
+      tracker = Igniter::Cluster::Mesh::WorkloadTracker.new(degraded_threshold: 0.3)
+      5.times { tracker.record("node-a", :db, success: false, duration_ms: 900) }
+      peer = Igniter::Cluster::Mesh::Peer.new(name: "node-a", url: "http://n", capabilities: [:db], tags: [])
+      observation = peer.to_observation(now: now, workload_tracker: tracker)
+      expect(observation).to be_workload_observed
+      expect(observation).to be_workload_degraded
+      expect(observation.workload_total).to eq(5)
+    end
+  end
+
   # ── OLAP Point summary ────────────────────────────────────────────────────────
 
   describe "#dimensions" do
     it "returns a hash covering all OLAP dimensions" do
       d = obs.dimensions
-      expect(d.keys).to contain_exactly(:capabilities, :trust, :state, :locality, :governance, :provenance)
+      expect(d.keys).to contain_exactly(:capabilities, :trust, :state, :locality, :governance, :provenance, :workload)
     end
 
     it "capabilities dimension includes values and provenance" do

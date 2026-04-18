@@ -83,6 +83,54 @@ RSpec.describe Companion::MainApp do
   end
 end
 
+RSpec.describe Companion::Main::RagSearchHandler do
+  before do
+    Igniter::Cluster::Mesh.reset!
+    Igniter::Cluster::Mesh.configure { |c| c.peer_name = "companion-node" }
+    Igniter::Cluster::Mesh.shard.add("Ruby closures bind at creation time", tags: [:ruby])
+    Igniter::Cluster::Mesh.shard.add("Elixir pattern matching is powerful", tags: [:elixir])
+  end
+  after { Igniter::Cluster::Mesh.reset! }
+
+  def call_handler(body)
+    described_class.call(params: {}, body: body, headers: {}, env: {}, raw_body: nil, config: nil)
+  end
+
+  it "returns 200 and a results array" do
+    resp = call_handler("text" => "Ruby closures", "limit" => 5)
+    data = JSON.parse(resp[:body])
+    expect(resp[:status]).to eq(200)
+    expect(data["results"]).to be_an(Array)
+    expect(data["results"]).not_to be_empty
+  end
+
+  it "includes shard name and count" do
+    resp = call_handler("text" => "Ruby closures")
+    data = JSON.parse(resp[:body])
+    expect(data["shard"]).to eq("companion-node")
+    expect(data["count"]).to eq(data["results"].size)
+  end
+
+  it "filters by tags" do
+    resp = call_handler("text" => "", "tags" => ["elixir"])
+    data = JSON.parse(resp[:body])
+    expect(data["results"]).not_to be_empty
+    expect(data["results"].map { |r| r["tags"] }).to all(include("elixir"))
+  end
+
+  it "returns empty for blank query with no tags" do
+    resp = call_handler("text" => "", "tags" => [])
+    data = JSON.parse(resp[:body])
+    expect(data["results"]).to eq([])
+  end
+
+  it "respects limit" do
+    resp = call_handler("text" => "Ruby", "limit" => 1)
+    data = JSON.parse(resp[:body])
+    expect(data["results"].size).to be <= 1
+  end
+end
+
 RSpec.describe Companion::GreetContract do
   it "returns a greeting" do
     result = described_class.new(name: "Alice").result.greeting

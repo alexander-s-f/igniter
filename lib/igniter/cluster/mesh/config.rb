@@ -11,7 +11,9 @@ module Igniter
                     :identity, :trust_store, :governance_trail, :auto_self_heal,
                     :self_heal_interval, :self_heal_limit, :self_heal_report_provider,
                     :ownership_registry, :checkpoint_store,
-                    :knowledge_shard
+                    :knowledge_shard,
+                    :admission_policy, :admission_queue,
+                    :workload_tracker
       attr_reader   :peers, :peer_registry
 
       def initialize
@@ -38,6 +40,9 @@ module Igniter
         @ownership_registry = nil
         @checkpoint_store   = nil
         @knowledge_shard    = nil
+        @admission_policy   = nil
+        @admission_queue    = nil
+        @workload_tracker   = nil
         @last_routing_report = nil
       end
 

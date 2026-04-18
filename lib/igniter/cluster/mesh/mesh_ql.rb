@@ -25,15 +25,20 @@ module Igniter
       #   NOT :capability                 — capabilities dimension (exclusion)
       #   IN ZONE  "string-or-identifier" — locality dimension
       #   IN REGION "string-or-identifier"
-      #   load_cpu     < | <= | > | >= | = | != value
-      #   load_memory  ...
-      #   concurrency  ...
-      #   queue_depth  ...
-      #   confidence   ...
-      #   hops         ...
+      #   load_cpu      < | <= | > | >= | = | != value
+      #   load_memory   ...
+      #   concurrency   ...
+      #   queue_depth   ...
+      #   confidence    ...
+      #   hops          ...
+      #   failure_rate  ...  (workload dimension)
+      #   avg_latency_ms ... (workload dimension)
+      #   NOT DEGRADED        — workload: not in degraded state
+      #   NOT OVERLOADED      — workload: not in overloaded state
       #
       # Orderable metrics (ORDER BY):
-      #   load_cpu, load_memory, concurrency, queue_depth, confidence, hops
+      #   load_cpu, load_memory, concurrency, queue_depth, confidence, hops,
+      #   failure_rate, avg_latency_ms
       #
       # Examples:
       #   MeshQL.parse("SELECT :database WHERE trusted AND load_cpu < 0.5 LIMIT 3")
@@ -44,13 +49,14 @@ module Igniter
 
         METRICS = %w[
           load_cpu load_memory concurrency queue_depth confidence hops
+          failure_rate avg_latency_ms
         ].freeze
 
         OPERATORS = %w[<= >= != < > =].freeze
 
         KEYWORDS = %w[
           SELECT WHERE AND ORDER BY LIMIT NOT IN ZONE REGION
-          ASC DESC TRUSTED HEALTHY AUTHORITATIVE TAGGED
+          ASC DESC TRUSTED HEALTHY AUTHORITATIVE TAGGED DEGRADED OVERLOADED
         ].freeze
 
         module_function
@@ -224,7 +230,13 @@ module Igniter
               { type: :tagged, value: expect_capability }
             in [:word, "NOT"]
               advance
-              { type: :without, value: expect_capability }
+              if peek_keyword?("DEGRADED")
+                advance; { type: :not_degraded }
+              elsif peek_keyword?("OVERLOADED")
+                advance; { type: :not_overloaded }
+              else
+                { type: :without, value: expect_capability }
+              end
             in [:word, "IN"]
               advance
               dim = expect_dimension_keyword(%w[ZONE REGION])
@@ -382,11 +394,13 @@ module Igniter
 
           def apply_condition(query, cond)
             case cond[:type]
-            when :trusted       then query.trusted
-            when :healthy       then query.healthy
-            when :authoritative then query.authoritative
-            when :tagged        then query.tagged(cond[:value])
-            when :without       then query.without(cond[:value])
+            when :trusted        then query.trusted
+            when :healthy        then query.healthy
+            when :authoritative  then query.authoritative
+            when :tagged         then query.tagged(cond[:value])
+            when :without        then query.without(cond[:value])
+            when :not_degraded   then query.not_degraded
+            when :not_overloaded then query.not_overloaded
             when :locality
               case cond[:dimension]
               when :zone   then query.in_zone(cond[:value])
@@ -402,12 +416,14 @@ module Igniter
           def apply_metric(query, metric, op, value)
             query.where do |obs|
               actual = case metric
-                       when :load_cpu    then obs.load_cpu
-                       when :load_memory then obs.load_memory
-                       when :concurrency then obs.concurrency.to_f
-                       when :queue_depth then obs.queue_depth.to_f
-                       when :confidence  then obs.confidence
-                       when :hops        then obs.hops.to_f
+                       when :load_cpu       then obs.load_cpu
+                       when :load_memory    then obs.load_memory
+                       when :concurrency    then obs.concurrency.to_f
+                       when :queue_depth    then obs.queue_depth.to_f
+                       when :confidence     then obs.confidence
+                       when :hops           then obs.hops.to_f
+                       when :failure_rate   then obs.workload_failure_rate
+                       when :avg_latency_ms then obs.workload_avg_duration_ms
                        end
 
               next true if actual.nil? && op == "!="
@@ -432,13 +448,15 @@ module Igniter
 
           def condition_to_s(cond)
             case cond[:type]
-            when :trusted       then "TRUSTED"
-            when :healthy       then "HEALTHY"
-            when :authoritative then "AUTHORITATIVE"
-            when :tagged        then "TAGGED :#{cond[:value]}"
-            when :without       then "NOT :#{cond[:value]}"
-            when :locality      then "IN #{cond[:dimension].upcase} #{quote(cond[:value])}"
-            when :metric        then "#{cond[:metric]} #{cond[:op]} #{cond[:value]}"
+            when :trusted        then "TRUSTED"
+            when :healthy        then "HEALTHY"
+            when :authoritative  then "AUTHORITATIVE"
+            when :tagged         then "TAGGED :#{cond[:value]}"
+            when :without        then "NOT :#{cond[:value]}"
+            when :not_degraded   then "NOT DEGRADED"
+            when :not_overloaded then "NOT OVERLOADED"
+            when :locality       then "IN #{cond[:dimension].upcase} #{quote(cond[:value])}"
+            when :metric         then "#{cond[:metric]} #{cond[:op]} #{cond[:value]}"
             end
           end
 

@@ -7,7 +7,7 @@ module Igniter
       # a cluster peer at a point in time.
       #
       # Each NodeObservation is an OLAP Point — a slice through the cluster's
-      # observable field across six dimensions:
+      # observable field across seven dimensions:
       #
       #   capabilities  — what the node can do and how fresh/trusted that claim is
       #   trust         — identity, signing key, trust status
@@ -15,6 +15,7 @@ module Igniter
       #   locality      — region, zone, proximity tags
       #   governance    — signed checkpoint, trail crest, governance trust
       #   provenance    — who observed this, when, with what confidence, via how many hops
+      #   workload      — live failure rate, avg latency, degraded/overloaded flags
       #
       # Implements the duck-typed interface expected by CapabilityQuery:
       #   capability?(cap), tag?(tag), metadata (Hash)
@@ -152,6 +153,37 @@ module Igniter
           Array(@metadata.dig(:mesh_locality, :proximity_tags)).map(&:to_sym)
         end
 
+        # ── Workload dimension ────────────────────────────────────────────────
+
+        def workload_failure_rate
+          @metadata.dig(:mesh_workload, :failure_rate)
+        end
+
+        def workload_avg_duration_ms
+          @metadata.dig(:mesh_workload, :avg_duration_ms)
+        end
+
+        def workload_total
+          @metadata.dig(:mesh_workload, :total) || 0
+        end
+
+        def workload_degraded?
+          @metadata.dig(:mesh_workload, :degraded) == true
+        end
+
+        def workload_overloaded?
+          @metadata.dig(:mesh_workload, :overloaded) == true
+        end
+
+        def workload_healthy?
+          !workload_degraded? && !workload_overloaded?
+        end
+
+        # True only when the workload dimension was populated (tracker is present).
+        def workload_observed?
+          @metadata.key?(:mesh_workload)
+        end
+
         # ── Governance dimension ──────────────────────────────────────────────
 
         def governance_trust_status
@@ -208,6 +240,14 @@ module Igniter
               confidence:   confidence,
               hops:         hops,
               authoritative: authoritative?
+            },
+            workload: {
+              failure_rate:    workload_failure_rate,
+              avg_duration_ms: workload_avg_duration_ms,
+              total:           workload_total,
+              degraded:        workload_degraded?,
+              overloaded:      workload_overloaded?,
+              observed:        workload_observed?
             }
           }.freeze
         end

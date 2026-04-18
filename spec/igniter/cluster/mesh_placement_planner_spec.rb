@@ -327,6 +327,50 @@ RSpec.describe Igniter::Cluster::Mesh::PlacementPlanner do
       end
     end
 
+    it "includes workload dimension in per-dimension breakdown" do
+      decision = planner.place(:database)
+      expect(decision.dimensions.keys).to include(:workload)
+    end
+
+    context "with workload-enriched observations" do
+      def make_workload_obs(name:, caps:, failure_rate:, degraded:, overloaded: false)
+        Igniter::Cluster::Mesh::NodeObservation.new(
+          name: name, url: "http://#{name}:4567",
+          capabilities: caps, tags: [],
+          metadata: {
+            mesh: { observed_at: observed_at, confidence: 1.0, hops: 0 },
+            mesh_state: { health: "healthy" },
+            mesh_trust: { status: "trusted", trusted: true },
+            mesh_workload: { failure_rate: failure_rate, total: 20, degraded: degraded, overloaded: overloaded }
+          }
+        )
+      end
+
+      it "prefers workload-healthy node over degraded node" do
+        healthy_node  = make_workload_obs(name: "wl-healthy",  caps: [:api], failure_rate: 0.02, degraded: false)
+        degraded_node = make_workload_obs(name: "wl-degraded", caps: [:api], failure_rate: 0.7,  degraded: true)
+        decision = described_class.new([degraded_node, healthy_node]).place(:api)
+        expect(decision.name).to eq("wl-healthy")
+      end
+
+      it "workload_score is 0.2 when degraded, 0.3 when overloaded, 0.0 when both" do
+        degraded_obs  = make_workload_obs(name: "d",  caps: [:x], failure_rate: 0.8, degraded: true)
+        overloaded_obs= make_workload_obs(name: "ol", caps: [:x], failure_rate: 0.1, degraded: false, overloaded: true)
+        both_obs      = make_workload_obs(name: "b",  caps: [:x], failure_rate: 0.9, degraded: true,  overloaded: true)
+
+        planner_wl = described_class.new([degraded_obs, overloaded_obs, both_obs])
+        decision = planner_wl.place(:x)
+        expect(decision.name).to eq("ol")
+        expect(decision.dimensions[:workload]).to eq(0.3)
+      end
+
+      it "workload_score is 0.8 (neutral) when observation has no workload data" do
+        plain_obs = make_obs(name: "plain", caps: [:svc], state: { health: "healthy" }, trust_status: :trusted)
+        decision = described_class.new([plain_obs]).place(:svc)
+        expect(decision.dimensions[:workload]).to eq(0.8)
+      end
+    end
+
     it "breaks ties by node name (stable ordering)" do
       twin_a = make_obs(name: "twin-a",
                         caps: %i[cache],

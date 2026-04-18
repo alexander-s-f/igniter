@@ -29,6 +29,7 @@ module Igniter
         ORDERABLE_DIMENSIONS = %i[
           load_cpu load_memory concurrency queue_depth
           confidence hops governance_total capabilities_freshness
+          failure_rate avg_latency_ms
         ].freeze
 
         def initialize(observations)
@@ -113,6 +114,28 @@ module Igniter
 
         def governance_trusted
           add_filter { |o| o.governance_trust_status == :trusted }
+        end
+
+        # ── Workload dimension ──────────────────────────────────────────────
+
+        def not_degraded
+          add_filter { |o| !o.workload_degraded? }
+        end
+
+        def not_overloaded
+          add_filter { |o| !o.workload_overloaded? }
+        end
+
+        def workload_healthy
+          add_filter(&:workload_healthy?)
+        end
+
+        def max_failure_rate(threshold)
+          add_filter { |o| o.workload_failure_rate.nil? || o.workload_failure_rate <= threshold }
+        end
+
+        def max_latency_ms(threshold)
+          add_filter { |o| o.workload_avg_duration_ms.nil? || o.workload_avg_duration_ms <= threshold }
         end
 
         # ── Observation quality ─────────────────────────────────────────────
@@ -242,6 +265,8 @@ module Igniter
           when :hops                    then obs.hops
           when :governance_total        then obs.governance_total
           when :capabilities_freshness  then obs.capabilities_freshness_seconds
+          when :failure_rate            then obs.workload_failure_rate
+          when :avg_latency_ms          then obs.workload_avg_duration_ms
           end
         end
 

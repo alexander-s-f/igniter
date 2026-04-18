@@ -266,6 +266,90 @@ RSpec.describe Igniter::Cluster::Mesh::MeshQL do
     end
   end
 
+  # ── Workload dimension conditions ────────────────────────────────────────────
+
+  describe "workload dimension" do
+    def make_workload_obs(name:, caps:, failure_rate:, avg_ms: nil, degraded: false, overloaded: false)
+      Igniter::Cluster::Mesh::NodeObservation.new(
+        name: name, url: "http://#{name}:4567",
+        capabilities: caps, tags: [],
+        metadata: {
+          mesh: { observed_at: observed_at, confidence: 1.0, hops: 0 },
+          mesh_workload: { failure_rate: failure_rate, avg_duration_ms: avg_ms,
+                           total: 10, degraded: degraded, overloaded: overloaded }.compact
+        }
+      )
+    end
+
+    let(:wl_healthy)   { make_workload_obs(name: "wl-a", caps: [:api], failure_rate: 0.05, avg_ms: 80) }
+    let(:wl_degraded)  { make_workload_obs(name: "wl-b", caps: [:api], failure_rate: 0.7,  avg_ms: 300, degraded: true) }
+    let(:wl_overloaded){ make_workload_obs(name: "wl-c", caps: [:api], failure_rate: 0.1,  avg_ms: 1500, overloaded: true) }
+    let(:wl_pool)      { [wl_healthy, wl_degraded, wl_overloaded] }
+
+    it "filters failure_rate < threshold" do
+      result = described_class.run("SELECT :api WHERE failure_rate < 0.1", wl_pool)
+      expect(result.map(&:name)).to eq(["wl-a"])
+    end
+
+    it "filters failure_rate >= threshold" do
+      result = described_class.run("SELECT :api WHERE failure_rate >= 0.5", wl_pool)
+      expect(result.map(&:name)).to eq(["wl-b"])
+    end
+
+    it "filters avg_latency_ms < threshold" do
+      result = described_class.run("SELECT :api WHERE avg_latency_ms < 500", wl_pool)
+      expect(result.map(&:name)).to contain_exactly("wl-a", "wl-b")
+    end
+
+    it "filters NOT DEGRADED" do
+      result = described_class.run("SELECT :api WHERE NOT DEGRADED", wl_pool)
+      expect(result.map(&:name)).to contain_exactly("wl-a", "wl-c")
+    end
+
+    it "filters NOT OVERLOADED" do
+      result = described_class.run("SELECT :api WHERE NOT OVERLOADED", wl_pool)
+      expect(result.map(&:name)).to contain_exactly("wl-a", "wl-b")
+    end
+
+    it "combines NOT DEGRADED AND NOT OVERLOADED" do
+      result = described_class.run("SELECT :api WHERE NOT DEGRADED AND NOT OVERLOADED", wl_pool)
+      expect(result.map(&:name)).to eq(["wl-a"])
+    end
+
+    it "orders by failure_rate ASC" do
+      result = described_class.run("SELECT :api ORDER BY failure_rate ASC", wl_pool)
+      expect(result.first.name).to eq("wl-a")
+      expect(result.last.name).to eq("wl-b")
+    end
+
+    it "orders by avg_latency_ms DESC" do
+      result = described_class.run("SELECT :api ORDER BY avg_latency_ms DESC", wl_pool)
+      expect(result.first.name).to eq("wl-c")
+    end
+
+    it "ParsedQuery#to_meshql serializes NOT DEGRADED" do
+      pq = described_class.parse("SELECT :api WHERE NOT DEGRADED")
+      expect(pq.to_meshql).to include("NOT DEGRADED")
+    end
+
+    it "ParsedQuery#to_meshql serializes NOT OVERLOADED" do
+      pq = described_class.parse("SELECT :api WHERE NOT OVERLOADED")
+      expect(pq.to_meshql).to include("NOT OVERLOADED")
+    end
+
+    it "ParsedQuery#to_meshql serializes failure_rate condition" do
+      pq = described_class.parse("SELECT :api WHERE failure_rate < 0.2")
+      expect(pq.to_meshql).to include("failure_rate < 0.2")
+    end
+
+    it "round-trips workload conditions" do
+      source = "SELECT :api WHERE NOT DEGRADED AND failure_rate < 0.3"
+      pq1    = described_class.parse(source)
+      pq2    = described_class.parse(pq1.to_meshql)
+      expect(pq1.to_query(wl_pool).map(&:name)).to eq(pq2.to_query(wl_pool).map(&:name))
+    end
+  end
+
   # ── ParsedQuery#to_meshql (serialization) ────────────────────────────────────
 
   describe "ParsedQuery#to_meshql" do

@@ -55,24 +55,25 @@ module Igniter
 
       # NodeObservation for a peer by name at the given point in time.
       # Returns nil if the peer is not registered.
-      def observation_for(name, now: Time.now.utc)
-        peer_named(name)&.to_observation(now: now)
+      def observation_for(name, now: Time.now.utc, workload_tracker: nil)
+        peer_named(name)&.to_observation(now: now, workload_tracker: workload_tracker)
       end
 
       # All peers as NodeObservation snapshots at the given point in time.
-      def observations(now: Time.now.utc)
-        all.map { |p| p.to_observation(now: now) }
+      # Pass workload_tracker: to enrich each observation with live signal data.
+      def observations(now: Time.now.utc, workload_tracker: nil)
+        all.map { |p| p.to_observation(now: now, workload_tracker: workload_tracker) }
       end
 
       # Observations matching a capability query.
-      def observations_matching_query(query, now: Time.now.utc)
+      def observations_matching_query(query, now: Time.now.utc, workload_tracker: nil)
         normalized = Igniter::Cluster::Replication::CapabilityQuery.normalize(query)
-        observations(now: now).select { |obs| normalized.matches_profile?(obs) }
+        observations(now: now, workload_tracker: workload_tracker).select { |obs| normalized.matches_profile?(obs) }
       end
 
       # Returns an ObservationQuery builder over all current observations.
-      def query(now: Time.now.utc)
-        ObservationQuery.new(observations(now: now))
+      def query(now: Time.now.utc, workload_tracker: nil)
+        ObservationQuery.new(observations(now: now, workload_tracker: workload_tracker))
       end
     end
     end

@@ -27,13 +27,18 @@ module Igniter
         normalized.matches_profile?(to_observation)
       end
 
-      def to_observation(now: Time.now.utc)
+      def to_observation(now: Time.now.utc, workload_tracker: nil)
+        meta = PeerMetadata.runtime(@metadata, now: now)
+        if workload_tracker
+          workload_meta = workload_tracker.to_metadata_for(@name)
+          meta = meta.merge(workload_meta) if workload_meta
+        end
         NodeObservation.new(
           name:         @name,
           url:          @url,
           capabilities: @capabilities,
           tags:         @tags,
-          metadata:     PeerMetadata.runtime(@metadata, now: now)
+          metadata:     meta
         )
       end
 

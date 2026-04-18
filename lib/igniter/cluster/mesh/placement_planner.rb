@@ -8,7 +8,7 @@ module Igniter
       #
       # Placement proceeds in three stages:
       #   1. Filter  — apply PlacementPolicy hard constraints via ObservationQuery
-      #   2. Score   — compute a weighted composite score across seven dimensions
+      #   2. Score   — compute a weighted composite score across eight dimensions
       #   3. Select  — pick the highest-scoring candidate; ties broken by name (stable)
       #
       # When degraded_fallback is enabled in the policy and the primary candidate
@@ -16,26 +16,28 @@ module Igniter
       # result as degraded.
       #
       # Scoring weights:
-      #   health:      0.30  (healthy=1.0, degraded=0.3, unknown=0.0)
+      #   health:      0.25  (healthy=1.0, degraded=0.3, unknown=0.0)
       #   trust:       0.20  (trusted=1.0, else=0.0)
-      #   load_cpu:    0.20  (1 - load_cpu; nil → 0.5 neutral)
-      #   load_memory: 0.15  (1 - load_memory; nil → 0.5 neutral)
-      #   locality:    0.10  (zone match=1.0, region match=0.5, none=0.0)
-      #   confidence:  0.03  (0..1, defaults to 1.0 when unknown)
-      #   freshness:   0.02  (observed within 120s → 1.0, stale → 0.0)
+      #   load_cpu:    0.18  (1 - load_cpu; nil → 0.5 neutral)
+      #   load_memory: 0.12  (1 - load_memory; nil → 0.5 neutral)
+      #   workload:    0.15  (live signals: healthy=1.0, overloaded=0.3, degraded=0.2, both=0.0, unknown=0.8)
+      #   locality:    0.07  (zone match=1.0, region match=0.5, none=0.0)
+      #   confidence:  0.02  (0..1, defaults to 1.0 when unknown)
+      #   freshness:   0.01  (observed within 120s → 1.0, stale → 0.0)
       #
       # Entry points:
       #   PlacementPlanner.new(observations, policy: policy).place(:database)
       #   Igniter::Cluster::Mesh.place(:database, policy: policy)
       class PlacementPlanner
         WEIGHTS = {
-          health:      0.30,
+          health:      0.25,
           trust:       0.20,
-          load_cpu:    0.20,
-          load_memory: 0.15,
-          locality:    0.10,
-          confidence:  0.03,
-          freshness:   0.02
+          load_cpu:    0.18,
+          load_memory: 0.12,
+          workload:    0.15,
+          locality:    0.07,
+          confidence:  0.02,
+          freshness:   0.01
         }.freeze
 
         # @param observations [Array<NodeObservation>]
@@ -98,6 +100,7 @@ module Igniter
             trust:       trust_score(obs),
             load_cpu:    load_cpu_score(obs),
             load_memory: load_memory_score(obs),
+            workload:    workload_score(obs),
             locality:    locality_score(obs),
             confidence:  obs.confidence || 1.0,
             freshness:   obs.fresh?(max_seconds: 120) ? 1.0 : 0.0
@@ -124,6 +127,19 @@ module Igniter
 
         def load_memory_score(obs)
           obs.load_memory ? [1.0 - obs.load_memory, 0.0].max : 0.5
+        end
+
+        def workload_score(obs)
+          return 0.8 unless obs.workload_observed?
+
+          degraded   = obs.workload_degraded?
+          overloaded = obs.workload_overloaded?
+
+          if degraded && overloaded then 0.0
+          elsif degraded            then 0.2
+          elsif overloaded          then 0.3
+          else                           1.0
+          end
         end
 
         def locality_score(obs)
