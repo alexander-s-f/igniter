@@ -270,6 +270,45 @@ results.first.score       # => 0.75
 results.first.composite_score # => 0.75 (trusted local, confidence 1.0)
 ```
 
+## Landed Signed Crest & Compacted Replicated State (Phase 6)
+
+The governance trail now has a first-class compaction and checkpoint-chaining subsystem:
+
+- `Trail#compact!(keep_last:, identity:, peer_name:, previous:)` → `CompactionRecord` — collapses old events into a signed Checkpoint, retains `keep_last` recent events in memory and on disk, records a `:trail_compacted` event
+- `Trail#events_since(checkpoint)` — returns only events recorded after a checkpoint's timestamp, enabling incremental recovery on restart
+- `Trail#compaction_history` — ordered list of all CompactionRecord values produced in this Trail's lifetime
+- `CompactionRecord` — typed result: `checkpoint`, `removed_events`, `kept_events`, `checkpoint_digest`, `compacted?`, `signed?`
+- `Checkpoint#previous_digest` — optional field linking this checkpoint to the preceding one; included in the signed payload, forming a verifiable chain
+- `Checkpoint#chained?` — true when `previous_digest` is set
+- `Checkpoint.build(..., previous:)` — accepts a prior Checkpoint and embeds its `crest_digest` as `previous_digest`
+- `Stores::CheckpointStore` — file-backed store for a single signed Checkpoint (`save`, `load`, `load_verified`, `clear!`, `exists?`)
+- `Stores::FileStore#compact!(events)` — rewrites the NDJSON log to contain exactly the given events (used by `Trail#compact!`)
+- `Mesh::Config#checkpoint_store` — optional `CheckpointStore` for persisting compaction output
+- `Mesh.compact_governance!(keep_last:, identity:, previous:)` — convenience one-liner: compacts the trail, signs the checkpoint, saves to `CheckpointStore`, and chains to the previous checkpoint loaded from the store
+
+Spec coverage: `spec/igniter/cluster/governance_compaction_spec.rb` — 38 examples, 0 failures.
+
+Example:
+```ruby
+store = Igniter::Cluster::Governance::Stores::CheckpointStore.new(path: "var/governance/cp.json")
+Igniter::Cluster::Mesh.configure do |c|
+  c.peer_name        = "node-a"
+  c.checkpoint_store = store
+  c.governance_log   "var/governance/trail.ndjson", retain_events: 200
+end
+
+# First compaction
+rec1 = Igniter::Cluster::Mesh.compact_governance!(keep_last: 50)
+rec1.compacted?              # => true
+rec1.checkpoint.crest_digest # => "3a8f..."
+
+# Second compaction: automatically chained to rec1
+rec2 = Igniter::Cluster::Mesh.compact_governance!(keep_last: 50)
+rec2.checkpoint.previous_digest # => rec1.checkpoint.crest_digest
+rec2.checkpoint.chained?        # => true
+rec2.checkpoint.verify_signature # => true
+```
+
 ## What Is Not Done Yet
 
 Several pieces are still clearly incomplete:

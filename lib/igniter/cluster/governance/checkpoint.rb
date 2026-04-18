@@ -10,9 +10,9 @@ module Igniter
     module Governance
       class Checkpoint
         attr_reader :peer_name, :node_id, :algorithm, :public_key, :crest,
-                    :checkpointed_at, :signature
+                    :checkpointed_at, :signature, :previous_digest
 
-        def self.build(identity:, peer_name:, trail:, limit: 10, checkpointed_at: Time.now.utc.iso8601)
+        def self.build(identity:, peer_name:, trail:, limit: 10, checkpointed_at: Time.now.utc.iso8601, previous: nil)
           crest = trail.snapshot(limit: limit)
           payload = {
             peer_name: peer_name.to_s,
@@ -22,6 +22,7 @@ module Igniter
             crest: crest_payload(crest),
             checkpointed_at: checkpointed_at.to_s
           }
+          payload[:previous_digest] = previous.crest_digest if previous
 
           new(payload.merge(signature: identity.sign(payload)))
         end
@@ -51,11 +52,12 @@ module Igniter
           @crest = self.class.crest_payload(source[:crest]).freeze
           @checkpointed_at = source[:checkpointed_at].to_s.freeze
           @signature = source[:signature].to_s.freeze
+          @previous_digest = source[:previous_digest]&.to_s&.freeze
           freeze
         end
 
         def payload
-          {
+          base = {
             peer_name: peer_name,
             node_id: node_id,
             algorithm: algorithm,
@@ -63,6 +65,12 @@ module Igniter
             crest: crest,
             checkpointed_at: checkpointed_at
           }
+          base[:previous_digest] = previous_digest if previous_digest
+          base
+        end
+
+        def chained?
+          !previous_digest.nil?
         end
 
         def verify_signature

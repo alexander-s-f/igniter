@@ -7,12 +7,13 @@ module Igniter
   module Cluster
     module Governance
       class Trail
-        attr_reader :store
+        attr_reader :store, :compaction_history
 
         def initialize(store: nil, clock: -> { Time.now.utc.iso8601 })
           @store = store
           @clock = clock
           @events = Array(store&.load_events).map { |event| normalize_loaded_event(event).freeze }
+          @compaction_history = []
         end
 
         def record(type, source:, payload: {})
@@ -50,6 +51,65 @@ module Igniter
           @events.clear
           store&.clear!
           self
+        end
+
+        # Collapse old events into a signed Checkpoint, keeping only the most
+        # recent `keep_last` events in memory and on disk.
+        #
+        # @param keep_last  [Integer]  how many recent events to retain
+        # @param identity   [Identity, nil]  when provided, signs the checkpoint
+        # @param peer_name  [String, nil]
+        # @param previous   [Checkpoint, nil]  checkpoint to chain from
+        # @return [CompactionRecord]
+        def compact!(keep_last: 20, identity: nil, peer_name: nil, previous: nil)
+          removed_count = [@events.size - keep_last, 0].max
+          checkpoint = if identity
+                         Checkpoint.build(
+                           identity: identity,
+                           peer_name: peer_name || "unknown",
+                           trail: self,
+                           limit: keep_last,
+                           previous: previous
+                         )
+                       end
+
+          @events = @events.last(keep_last)
+          store.compact!(@events) if store.respond_to?(:compact!)
+
+          kept_count = @events.size
+          digest = checkpoint&.crest_digest
+
+          record(:trail_compacted, source: :trail, payload: {
+            removed_events: removed_count,
+            kept_events:    kept_count,
+            checkpoint_digest: digest
+          })
+
+          rec = CompactionRecord.new(
+            checkpoint:        checkpoint,
+            removed_events:    removed_count,
+            kept_events:       kept_count,
+            checkpoint_digest: digest
+          )
+          @compaction_history << rec
+          rec
+        end
+
+        # All events recorded after the given Checkpoint's timestamp.
+        # Returns all events when checkpoint is nil.
+        #
+        # @param checkpoint [Checkpoint, nil]
+        # @return [Array<Hash>]
+        def events_since(checkpoint)
+          return @events.dup unless checkpoint
+
+          since_ts = Time.parse(checkpoint.checkpointed_at.to_s) rescue nil
+          return @events.dup unless since_ts
+
+          @events.select do |e|
+            ts = Time.parse(e[:timestamp].to_s) rescue nil
+            ts && ts > since_ts
+          end
         end
 
         private

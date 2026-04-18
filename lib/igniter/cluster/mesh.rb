@@ -112,6 +112,33 @@ module Igniter
           [plan, result]
         end
 
+        # ── Governance compaction (Phase 6) ────────────────────────────────
+
+        # Compact the governance trail: collapse old events into a signed
+        # Checkpoint, keep only `keep_last` recent events in memory/on disk,
+        # and optionally persist the Checkpoint to the configured CheckpointStore.
+        #
+        # @param keep_last  [Integer]
+        # @param identity   [Identity, nil]  defaults to Mesh identity
+        # @param previous   [Checkpoint, nil] previous checkpoint to chain from
+        # @return [CompactionRecord]
+        def compact_governance!(keep_last: 20, identity: nil, previous: nil)
+          trail    = config.governance_trail
+          identity = identity || config.identity
+
+          previous ||= config.checkpoint_store&.load
+
+          rec = trail.compact!(
+            keep_last: keep_last,
+            identity:  identity,
+            peer_name: config.peer_name,
+            previous:  previous
+          )
+
+          config.checkpoint_store&.save(rec.checkpoint) if rec.checkpoint
+          rec
+        end
+
         # ── Knowledge shard (Phase 5) ───────────────────────────────────────
 
         # Return (or lazily create) the local knowledge shard for this node.

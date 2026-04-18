@@ -10,7 +10,7 @@ module Igniter
                     :seeds, :discovery_interval, :auto_announce, :local_url, :gossip_fanout,
                     :identity, :trust_store, :governance_trail, :auto_self_heal,
                     :self_heal_interval, :self_heal_limit, :self_heal_report_provider,
-                    :ownership_registry,
+                    :ownership_registry, :checkpoint_store,
                     :knowledge_shard
       attr_reader   :peers, :peer_registry
 
@@ -36,6 +36,7 @@ module Igniter
         @self_heal_limit    = nil
         @self_heal_report_provider = nil
         @ownership_registry = nil
+        @checkpoint_store   = nil
         @knowledge_shard    = nil
         @last_routing_report = nil
       end

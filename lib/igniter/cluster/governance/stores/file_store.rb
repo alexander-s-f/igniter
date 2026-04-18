@@ -49,6 +49,16 @@ module Igniter
             max_events
           end
 
+          # Rewrite the log file to contain exactly the given events (compaction).
+          #
+          # @param events [Array<Hash>]
+          # @return [self]
+          def compact!(events)
+            lines = Array(events).map { |e| JSON.generate(e) }
+            File.write(path, lines.empty? ? "" : "#{lines.join("\n")}\n")
+            self
+          end
+
           def prune_events(events)
             pruned = if retention_policy.empty?
                        prune_by_total_limit(Array(events))
