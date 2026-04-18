@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require_relative "monorepo_packages"
+require "igniter/core/errors"
+require "igniter/core/contract"
+require "igniter/core/runtime"
 require "igniter/sdk"
-require_relative "../igniter"
 require "json"
 
 # Define the top-level Server module and Error class first,
@@ -21,7 +22,6 @@ require_relative "server/http_server"
 require_relative "server/rack_app"
 require_relative "server/client"
 require_relative "server/remote_adapter"
-require_relative "server/app_host"
 require_relative "server/handlers/base"
 require_relative "server/handlers/health_handler"
 require_relative "server/handlers/contracts_handler"

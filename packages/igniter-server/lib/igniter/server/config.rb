@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../cluster/identity/node_identity"
-require_relative "../cluster/trust/trust_store"
-
 module Igniter
   module Server
     class Config
@@ -26,7 +23,7 @@ module Igniter
         @peer_tags         = []
         @peer_metadata     = {}
         @peer_identity     = nil
-        @peer_trust_store  = Igniter::Cluster::Trust::TrustStore.new
+        @peer_trust_store  = nil
         @custom_routes     = []
         @before_request_hooks = []
         @after_request_hooks = []
@@ -34,7 +31,15 @@ module Igniter
       end
 
       def ensure_peer_identity!
+        load_cluster_support!
         @peer_identity ||= Igniter::Cluster::Identity::NodeIdentity.generate(node_id: @peer_name || "anonymous-node")
+      end
+
+      def peer_trust_store
+        @peer_trust_store ||= begin
+          load_cluster_support!
+          Igniter::Cluster::Trust::TrustStore.new
+        end
       end
 
       def register(name, contract_class)
@@ -44,6 +49,18 @@ module Igniter
 
       def contracts=(hash)
         hash.each { |name, klass| register(name.to_s, klass) }
+      end
+
+      private
+
+      def load_cluster_support!
+        return if defined?(Igniter::Cluster::Identity::NodeIdentity) &&
+          defined?(Igniter::Cluster::Trust::TrustStore)
+
+        require "igniter/cluster"
+      rescue LoadError => e
+        raise LoadError,
+              "Igniter::Server cluster identity support requires `igniter/cluster` (#{e.message})"
       end
     end
   end

@@ -1059,6 +1059,8 @@ module Igniter
             gem "igniter-core", path: "#{relative_path_to_repo_root}/packages/igniter-core"
             gem "igniter-sdk", path: "#{relative_path_to_repo_root}/packages/igniter-sdk"
             gem "igniter-app", path: "#{relative_path_to_repo_root}/packages/igniter-app"
+            gem "igniter-server", path: "#{relative_path_to_repo_root}/packages/igniter-server"
+            gem "igniter-cluster", path: "#{relative_path_to_repo_root}/packages/igniter-cluster"
             gem "sqlite3" # stack-local data + execution stores
 
             group :development, :test do
