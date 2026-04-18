@@ -69,6 +69,11 @@ module Igniter
         normalized = Igniter::Cluster::Replication::CapabilityQuery.normalize(query)
         observations(now: now).select { |obs| normalized.matches_profile?(obs) }
       end
+
+      # Returns an ObservationQuery builder over all current observations.
+      def query(now: Time.now.utc)
+        ObservationQuery.new(observations(now: now))
+      end
     end
     end
   end

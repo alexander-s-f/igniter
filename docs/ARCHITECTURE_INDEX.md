@@ -168,3 +168,4 @@ Cluster direction:
 - [Cluster Next Roadmap](./cluster/ROADMAP_NEXT.md)
 - [Cluster State Snapshot](./cluster/STATE_NEXT.md)
 - [OLAP Point v1](./OLAP_POINT_V1.md) — each node as a multi-dimensional query surface
+- [MeshQL v1](./MESH_QL_V1.md) — declarative string query language for the cluster field

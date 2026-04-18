@@ -61,6 +61,8 @@ module Igniter
           execute_governance_refresh(routing_plan)
         when :relax_governance_requirements
           execute_governance_relaxation(routing_plan, approve: approve)
+        when :transfer_ownership
+          execute_ownership_transfer(routing_plan)
         else
           blocked(:unsupported_action, routing_plan)
         end
@@ -288,6 +290,61 @@ module Igniter
             governance_keys: governance_keys,
             peer_candidates: peer_candidates,
             advisory_only: true
+          }
+        )
+      end
+
+      def execute_ownership_transfer(plan)
+        registry = config.ownership_registry
+        return blocked(:no_ownership_registry, plan) unless registry
+
+        entity_type = plan.dig(:params, :entity_type).to_s
+        entity_id   = plan.dig(:params, :entity_id).to_s
+        from_owner  = plan.dig(:params, :from_owner).to_s
+        to_owner    = plan.dig(:params, :to_owner).to_s
+
+        existing = registry.lookup(entity_type, entity_id)
+        return blocked(:claim_not_found, plan) unless existing
+        return blocked(:owner_mismatch, plan) if existing.owner != from_owner
+
+        registry.claim(entity_type, entity_id, owner: to_owner)
+
+        config.governance_trail&.record(
+          :ownership_transferred,
+          source: :routing_plan_executor,
+          payload: {
+            action:      plan[:action],
+            entity_type: entity_type,
+            entity_id:   entity_id,
+            from_owner:  from_owner,
+            to_owner:    to_owner
+          }
+        )
+        config.governance_trail&.record(
+          :routing_plan_applied,
+          source: :routing_plan_executor,
+          payload: { action: plan[:action], status: :applied }
+        )
+
+        RoutingPlanResult.new(
+          applied: [{
+            action:      plan[:action],
+            status:      :applied,
+            scope:       plan[:scope],
+            params:      plan[:params],
+            entity_type: entity_type,
+            entity_id:   entity_id,
+            from_owner:  from_owner,
+            to_owner:    to_owner
+          }],
+          blocked: [],
+          summary: {
+            status:             :applied,
+            source_plan_action: plan[:action],
+            entity_type:        entity_type,
+            entity_id:          entity_id,
+            from_owner:         from_owner,
+            to_owner:           to_owner
           }
         )
       end

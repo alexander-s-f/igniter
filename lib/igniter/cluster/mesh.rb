@@ -4,6 +4,13 @@ require_relative "mesh/errors"
 require_relative "mesh/peer_metadata"
 require_relative "mesh/peer_identity_envelope"
 require_relative "mesh/node_observation"
+require_relative "mesh/observation_query"
+require_relative "mesh/mesh_ql"
+require_relative "mesh/placement_policy"
+require_relative "mesh/placement_decision"
+require_relative "mesh/placement_planner"
+require_relative "mesh/rebalance_plan"
+require_relative "mesh/rebalance_planner"
 require_relative "mesh/peer"
 require_relative "mesh/peer_registry"
 require_relative "mesh/config"
@@ -53,6 +60,83 @@ module Igniter
 
         def discovery
           @discovery ||= Discovery.new(config)
+        end
+
+        def query(now: Time.now.utc)
+          config.peer_registry.query(now: now)
+        end
+
+        def meshql(source, now: Time.now.utc)
+          MeshQL.parse(source).to_query(config.peer_registry.observations(now: now))
+        end
+
+        # Select the best peer for the given capabilities using multi-dimensional scoring.
+        # Returns a PlacementDecision (placed? / failed? / degraded?).
+        def place(capabilities = nil, policy: PlacementPolicy.new, now: Time.now.utc)
+          observations = config.peer_registry.observations(now: now)
+          PlacementPlanner.new(observations, policy: policy).place(capabilities)
+        end
+
+        # Analyse ownership distribution and recommend transfers to reduce skew.
+        # Returns a RebalancePlan (balanced? / transfers / to_routing_plans).
+        def rebalance(ownership_registry, capabilities: nil, skew_threshold: RebalancePlanner::DEFAULT_SKEW_THRESHOLD, now: Time.now.utc)
+          observations = config.peer_registry.observations(now: now)
+          RebalancePlanner.new(
+            ownership_registry: ownership_registry,
+            observations:       observations,
+            capabilities:       capabilities,
+            skew_threshold:     skew_threshold
+          ).plan
+        end
+
+        # Execute a RebalancePlan by transferring ownership claims via RoutingPlanExecutor.
+        # Sets config.ownership_registry to registry for the executor to pick up.
+        # Returns a RoutingPlanResult (or nil when the plan is already balanced).
+        def execute_rebalance_plan!(plan, ownership_registry:, approve: false, label: nil, limit: nil)
+          return nil if plan.balanced?
+
+          config.ownership_registry = ownership_registry
+          execute_routing_plans!(
+            plan.to_routing_plans,
+            approve:   approve,
+            label:     label,
+            limit:     limit
+          )
+        end
+
+        # Plan and execute rebalancing in one step.
+        # Returns [RebalancePlan, RoutingPlanResult | nil].
+        def rebalance_and_execute!(ownership_registry, capabilities: nil, skew_threshold: RebalancePlanner::DEFAULT_SKEW_THRESHOLD, approve: false, label: nil, limit: nil, now: Time.now.utc)
+          plan = rebalance(ownership_registry, capabilities: capabilities, skew_threshold: skew_threshold, now: now)
+          result = execute_rebalance_plan!(plan, ownership_registry: ownership_registry, approve: approve, label: label, limit: limit)
+          [plan, result]
+        end
+
+        # ── Knowledge shard (Phase 5) ───────────────────────────────────────
+
+        # Return (or lazily create) the local knowledge shard for this node.
+        def shard
+          config.knowledge_shard ||= Igniter::Cluster::RAG::KnowledgeShard.new(
+            name: config.peer_name || "local"
+          )
+        end
+
+        # Search the local shard and return ranked results.
+        # v1 — local only. v2 will fan-out to remote :rag-capable peers.
+        #
+        # @param text     [String]
+        # @param tags     [Array<Symbol>]
+        # @param limit    [Integer]
+        # @param min_score [Float]
+        # @return [Array<RAG::RetrievalResult>]
+        def retrieve(text, tags: [], limit: 10, min_score: 0.0)
+          query = Igniter::Cluster::RAG::RetrievalQuery.new(
+            text:      text,
+            tags:      tags,
+            limit:     limit,
+            min_score: min_score
+          )
+          shard.search(query)
         end
 
         def trust_admission_plan(peer_name, label: nil)

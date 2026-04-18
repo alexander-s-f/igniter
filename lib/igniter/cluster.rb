@@ -16,6 +16,7 @@ require_relative "cluster/routing_plan_executor"
 require_relative "cluster/consensus"
 require_relative "cluster/replication"
 require_relative "cluster/diagnostics"
+require_relative "cluster/rag"
 
 module Igniter
   module Cluster

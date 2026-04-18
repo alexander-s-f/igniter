@@ -127,11 +127,153 @@ The dashboard can now trigger synthetic cluster incidents and show:
 
 This matters because we now have a concrete, runnable surface for cluster ideas instead of only deep infrastructure and specs.
 
+## Landed Discovery Protocol (Phase 2)
+
+The canonical observation envelope is now implemented:
+
+- `NodeObservation` — typed, frozen per-node snapshot with six OLAP dimensions
+- `Peer#to_observation(now:)` — produces a NodeObservation with freshness computed at call time
+- `Peer#profile` now returns `NodeObservation` (backwards-compatible with `CapabilityQuery`)
+- `PeerRegistry#observation_for`, `#observations`, `#observations_matching_query` — typed query surface
+- `Mesh::Config#local_state` / `#local_locality` — new dimension config
+- `Announcer` propagates state and locality in peer announcements
+- `NodeObservation#dimensions` — full OLAP Point summary across all six dimensions
+
+The six dimensions now live in typed readers: capabilities, trust, state, locality, governance, provenance.
+`CapabilityQuery` works against `NodeObservation` without any change (same duck-type interface).
+
+## Landed OLAP Point Query Surface (Phase 4b)
+
+The OLAP field is now queryable via a Ruby DSL:
+
+- `ObservationQuery` — immutable, chainable query builder over `NodeObservation` collections
+- Dimension-native filter methods: `.with`, `.without`, `.tagged`, `.trusted`, `.healthy`, `.max_load_cpu`, `.in_region`, `.in_zone`, etc.
+- `.where { |o| ... }` — arbitrary predicate escape hatch
+- `.matching(query)` — passthrough to existing `CapabilityQuery`
+- `.order_by(:load_cpu)` / `.order_by(:concurrency, direction: :desc)` — multi-key ordering
+- `.limit(n)`, `.first`, `.count`, `.empty?`, full `Enumerable` support
+- `Igniter::Cluster::Mesh.query(now:)` and `registry.query(now:)` as entry points
+
+Example:
+```ruby
+Igniter::Cluster::Mesh.query
+  .with(:database)
+  .trusted
+  .in_zone("us-east-1a")
+  .max_load_cpu(0.5)
+  .order_by(:load_cpu)
+  .first
+```
+
+This is the OLAP Point query surface. MeshQL would be a grammar/parser on top.
+
+## Landed Placement & Rebalancing (Phase 3)
+
+Multi-dimensional placement and ownership rebalancing are now implemented:
+
+- `PlacementPolicy` — declarative constraints (health, trust, load thresholds, locality affinity, degraded fallback)
+- `PlacementPlanner` — weighted scorer across 7 dimensions (health 30%, trust 20%, load_cpu 20%, load_memory 15%, locality 10%, confidence 3%, freshness 2%)
+- `PlacementDecision` — typed result: chosen node, composite score, per-dimension breakdown, rejected candidates, degraded flag
+- `RebalancePlanner` — detects ownership skew across eligible nodes, generates greedy transfer plan
+- `RebalancePlan` — typed list of `:transfer_ownership` actions, `#to_routing_plans` for executor integration
+- `Mesh.place(capability, policy:)` — convenience entry point using live `PeerRegistry`
+- `Mesh.rebalance(ownership_registry, capabilities:, skew_threshold:)` — convenience entry point
+
+Scoring model: `score = Σ weight_i × dim_score_i`. Deterministic — ties broken by node name.
+
+Degraded fallback: when primary candidate set is empty and `degraded_fallback: true`, placement retries with a fully relaxed policy and marks the `PlacementDecision` as degraded.
+
+Rebalancing algorithm: floor-division target per node; ineligible (orphaned) owners prioritised as sources; stops when max-min count among eligible nodes is ≤ 1.
+
+Example:
+```ruby
+policy = Igniter::Cluster::Mesh::PlacementPolicy.new(
+  zone: "us-east-1a", locality_preference: :zone,
+  require_trust: true, max_load_cpu: 0.7, degraded_fallback: true
+)
+decision = Igniter::Cluster::Mesh.place(:database, policy: policy)
+decision.url      # => "http://node-a:4567"
+decision.score    # => 0.87
+decision.degraded? # => false
+
+plan = Igniter::Cluster::Mesh.rebalance(ownership_registry, capabilities: [:worker])
+plan.balanced?          # => false
+plan.skew               # => 4
+plan.to_routing_plans   # => [{action: :transfer_ownership, ...}, ...]
+```
+
+## Landed MeshQL v1
+
+A declarative string query language for the OLAP Point field is now implemented:
+
+- `MeshQL.parse(source)` → `ParsedQuery` (typed query specification)
+- `MeshQL.run(source, observations)` → `Array<NodeObservation>`
+- `Igniter::Cluster::Mesh.meshql(source, now:)` → `ObservationQuery`
+- `ParsedQuery#to_meshql` → canonical MeshQL string (round-trip)
+- Hand-written tokenizer (no external dependencies) + recursive descent parser
+
+**Supported syntax:**
+```
+SELECT :database, :orders       -- capabilities; * = any
+WHERE TRUSTED                   -- trust dimension
+  AND HEALTHY                   -- state dimension
+  AND load_cpu < 0.5            -- metric operators: < <= > >= = !=
+  AND concurrency <= 4
+  AND IN ZONE us-east-1a        -- locality dimension
+  AND IN REGION us-east-1
+  AND TAGGED :linux              -- tag filter
+  AND NOT :analytics             -- capability exclusion
+  AND AUTHORITATIVE              -- provenance dimension
+ORDER BY load_cpu ASC, concurrency DESC
+LIMIT 3
+```
+
+All keywords are case-insensitive. Unquoted zone/region identifiers (e.g. `us-east-1a`) are supported.
+
+## Landed Decentralized Knowledge Plane (Phase 5 v1)
+
+A cluster-native knowledge shard system is now implemented:
+
+- `RAG::Chunk` — content-addressed knowledge unit (SHA256 id, frozen, idempotent add)
+- `RAG::RetrievalQuery` — typed query spec (text, tags, limit, min_score)
+- `RAG::RetrievalResult` — result with provenance: raw score, source shard, NodeObservation
+- `RAG::KnowledgeShard` — thread-safe in-memory store with keyword relevance search
+- `RAG::Ranker` — trust-aware merger/deduplicator across multiple shards
+- `Mesh.shard` — lazily creates the local `KnowledgeShard` (name = peer_name)
+- `Mesh.retrieve(text, tags:, limit:, min_score:)` — convenience retrieval from local shard
+
+Keyword search scoring:
+- `text_score = matched_query_words / total_query_words`
+- `tag_bonus = 0.1 × matching_tag_count`
+- `raw_score = min(text_score + tag_bonus, 1.0)`
+- `composite_score = raw_score × trust_factor × confidence` (Ranker ranking key)
+
+Adding identical content is idempotent (same SHA256 id → same slot).
+Empty query with no tags returns [] (null-query guard).
+
+v2 direction: fan-out retrieval to remote `:rag`-capable peers via `ObservationQuery`, merge results through `Ranker`.
+
+Example:
+```ruby
+Igniter::Cluster::Mesh.configure do |c|
+  c.peer_name = "knowledge-node"
+  c.local_capabilities = [:rag]
+end
+
+shard = Igniter::Cluster::Mesh.shard
+shard.add("Ruby closures capture their surrounding environment", tags: [:ruby, :closures])
+shard.add("Elixir processes are isolated by default", tags: [:elixir])
+
+results = Igniter::Cluster::Mesh.retrieve("how closures work in Ruby", tags: [:ruby], limit: 5)
+results.first.content     # => "Ruby closures capture their surrounding environment"
+results.first.score       # => 0.75
+results.first.composite_score # => 0.75 (trusted local, confidence 1.0)
+```
+
 ## What Is Not Done Yet
 
 Several pieces are still clearly incomplete:
 
-- a more formal capability discovery/registry protocol
 - richer placement and rebalancing beyond routing-time preference
 - stronger topology and ownership transfer semantics
 - broader automatic runtime repair from real workload signals
