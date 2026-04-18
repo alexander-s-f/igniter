@@ -89,6 +89,27 @@ module Igniter
           template_locals
         end
 
+        def frontend_runtime_path(mount: Assets::DEFAULT_MOUNT_PATH)
+          frontend_route_for(Assets.runtime_path(mount_path: mount))
+        end
+
+        def frontend_javascript_path(logical_path, mount: Assets::DEFAULT_MOUNT_PATH)
+          frontend_route_for(Assets.javascript_path(logical_path, mount_path: mount))
+        end
+
+        def render_frontend_javascript(*entrypoints, runtime: true, mount: Assets::DEFAULT_MOUNT_PATH, defer: true)
+          target = current_arbre_context&.current_arbre_element
+          raise ArgumentError, "#{self.class} has no active Arbre context" unless target
+
+          target.script(src: frontend_runtime_path(mount: mount), defer: defer) if runtime
+
+          Array(entrypoints).flatten.compact.each do |entrypoint|
+            target.script(src: frontend_javascript_path(entrypoint, mount: mount), defer: defer)
+          end
+
+          nil
+        end
+
         private
 
         def current_arbre_context
@@ -141,6 +162,18 @@ module Igniter
 
         def absolute_template_path?(value)
           value.start_with?("/", "./", "../")
+        end
+
+        def frontend_route_for(suffix)
+          routeable_context = if respond_to?(:context, true)
+                              send(:context)
+                            elsif instance_variable_defined?(:@context)
+                              instance_variable_get(:@context)
+                            end
+
+          return suffix unless routeable_context&.respond_to?(:route)
+
+          routeable_context.route(suffix)
         end
       end
     end

@@ -333,4 +333,47 @@ RSpec.describe "Igniter::Frontend::Arbre page authoring" do
       expect(html).to include("summary")
     end
   end
+
+  it "renders mounted frontend javascript tags from the layout" do
+    stub_const("Arbre", build_fake_arbre)
+
+    route_context = Struct.new(:base_path) do
+      def route(suffix)
+        "#{base_path}#{suffix}"
+      end
+    end
+
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "layout.arb"), <<~ARB)
+        html do
+          body do
+            render_template_content
+            render_frontend_javascript "application"
+          end
+        end
+      ARB
+
+      File.write(File.join(dir, "home_page.arb"), <<~ARB)
+        article class: "summary" do
+          h2 "Frontend JS"
+        end
+      ARB
+
+      page_class = Class.new(Igniter::Frontend::ArbrePage) do
+        template_root dir
+        template "home_page"
+        layout "layout"
+
+        def initialize(context:)
+          @context = context
+        end
+      end
+
+      html = page_class.render(context: route_context.new("/dashboard"))
+
+      expect(html).to include("/dashboard/__frontend/runtime.js")
+      expect(html).to include("/dashboard/__frontend/assets/application.js")
+      expect(html).to include("summary")
+    end
+  end
 end

@@ -110,7 +110,7 @@ Use `page_context`, not `context`, inside `.arb` locals. In real Arbre runtime,
 ### 4. Keep layout in `.arb`
 
 Use a dedicated layout template for document shell concerns like `html`, `head`,
-`body`, inline CSS, and scripts.
+`body`, inline CSS, and script includes.
 
 Real example:
 [layout.arb](/Users/alex/dev/projects/igniter/playgrounds/home-lab/lib/home_lab/dashboard/views/layout.arb:1)
@@ -127,11 +127,46 @@ html lang: "en" do
     main do
       render_template_content
     end
+
+    render_frontend_javascript "application"
   end
 end
 ```
 
-### 5. Keep page composition in `.arb`
+### 5. Add JavaScript as an optional layer
+
+`igniter-frontend` stays HTML-first, but it now has an optional JavaScript lane
+for progressive enhancement and app-owned behavior.
+
+Configure it in the app:
+
+```ruby
+class DashboardApp < Igniter::App
+  include Igniter::Frontend::App
+
+  root_dir __dir__
+  frontend_assets path: "frontend"
+end
+```
+
+Put app-owned code here:
+
+```text
+apps/dashboard/
+  frontend/
+    application.js
+    controllers/
+```
+
+This gives the page:
+
+- the built-in runtime at `/__frontend/runtime.js`
+- your entrypoint at `/__frontend/assets/application.js`
+
+When the app is mounted under a sub-path, `render_frontend_javascript` emits the
+correct mounted URLs automatically.
+
+### 6. Keep page composition in `.arb`
 
 Use `.arb` for the high-level screen outline.
 
@@ -178,7 +213,7 @@ assembly.
 In `home-lab`, methods like
 [render_chat_panel](/Users/alex/dev/projects/igniter/playgrounds/home-lab/lib/home_lab/dashboard/views/human_home_page.rb:25)
 and
-[render_topology_health_panel](/Users/alex/dev/projects/igniter/playgrounds/home-lab/lib/home_lab/dashboard/views/human_home_page.rb:140)
+[render_cluster_state_panel](/Users/alex/dev/projects/igniter/playgrounds/home-lab/lib/home_lab/dashboard/views/human_home_page.rb:188)
 are a good example of the current sweet spot.
 
 ### Put in components

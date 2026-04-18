@@ -26,7 +26,7 @@ module Igniter
               options.merge(
                 id: @tabs_id,
                 class: merge_classes("panel tabs-panel", span_class, class_name),
-                "data-tabs": "true"
+                "data-ig-controller": "tabs"
               )
             )
 
@@ -82,8 +82,8 @@ module Igniter
                   "aria-controls": entry.fetch(:pane_id),
                   "aria-selected": entry.fetch(:active).to_s,
                   tabindex: entry.fetch(:active) ? "0" : "-1",
-                  "data-tab-button": "true",
-                  "data-tab-target": entry.fetch(:pane_id)
+                  "data-ig-tabs-target": "button",
+                  "data-ig-tabs-pane-id": entry.fetch(:pane_id)
                 )
               end
             end
@@ -96,7 +96,7 @@ module Igniter
                     class: merge_classes("tab-pane", entry.fetch(:active) ? "active" : nil),
                     role: "tabpanel",
                     "aria-labelledby": entry.fetch(:button_id),
-                    "data-tab-pane": "true"
+                    "data-ig-tabs-target": "pane"
                   ) do |pane|
                     render_tab_content(pane, entry[:block])
                   end

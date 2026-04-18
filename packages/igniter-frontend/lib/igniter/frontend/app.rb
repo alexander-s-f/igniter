@@ -8,6 +8,25 @@ module Igniter
       end
 
       module ClassMethods
+        def frontend_assets(path: Assets::DEFAULT_SOURCE_PATH, mount: Assets::DEFAULT_MOUNT_PATH)
+          @frontend_assets_config = Assets.build_config(
+            root_dir: root_dir || Dir.pwd,
+            source_path: path,
+            mount_path: mount
+          )
+
+          route("GET", Assets.runtime_path(mount_path: @frontend_assets_config.fetch(:mount_path)), with: Assets.runtime_handler)
+          route(
+            "GET",
+            Assets.javascript_route_pattern(mount_path: @frontend_assets_config.fetch(:mount_path)),
+            with: Assets.javascript_handler(@frontend_assets_config)
+          )
+        end
+
+        def frontend_assets_config
+          @frontend_assets_config
+        end
+
         def get(path, to: nil, with: nil, &block)
           frontend_route("GET", path, to: to || with, &block)
         end

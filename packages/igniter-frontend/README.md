@@ -10,6 +10,7 @@ It groups high-level concerns that belong together in app development:
 - mounted-app aware contexts
 - Arbre page rendering
 - semantic Arbre components
+- optional JavaScript runtime and app-owned entrypoints
 
 Schema-driven agent rendering intentionally lives outside this package. Use a
 separate package for that lane so the human-first app surface stays simple.
@@ -35,6 +36,7 @@ class WebApp < Igniter::App
 
   root_dir __dir__
   config_file "app.yml"
+  frontend_assets path: "frontend"
 
   get "/", to: Web::Handlers::HomeHandler
 
@@ -85,5 +87,46 @@ This package now owns the human-facing web surface directly inside the monorepo:
 - HTML builder/page abstractions
 - Arbre page pipeline
 - Tailwind shell and semantic UI components
+- optional frontend JavaScript runtime with app-owned assets under `frontend/`
 
 It is no longer just a facade over `lib/igniter/plugins/view`.
+
+## Optional JavaScript
+
+Use `frontend_assets` when the app wants a small built-in runtime plus its own
+JavaScript entrypoints.
+
+```ruby
+class DashboardApp < Igniter::App
+  include Igniter::Frontend::App
+
+  root_dir __dir__
+  frontend_assets path: "frontend"
+end
+```
+
+App structure:
+
+```text
+apps/dashboard/
+  app.rb
+  frontend/
+    application.js
+    controllers/
+```
+
+Layout usage:
+
+```ruby
+body do
+  render_template_content
+  render_frontend_javascript "application"
+end
+```
+
+This serves:
+
+- built-in runtime at `/__frontend/runtime.js`
+- app entrypoints like `/__frontend/assets/application.js`
+
+Both URLs stay mounted-app aware when rendered through `ArbrePage` helpers.

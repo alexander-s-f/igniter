@@ -3,6 +3,8 @@
 require "igniter/app"
 
 require_relative "frontend/version"
+require_relative "frontend/javascript"
+require_relative "frontend/assets"
 require_relative "frontend/builder"
 require_relative "frontend/component"
 require_relative "frontend/form_builder"
