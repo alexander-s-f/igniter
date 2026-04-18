@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../core"
+require "igniter/core"
 
 module Igniter
   module Agents

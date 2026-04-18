@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "../../igniter"
-require_relative "../core/tool"
+require "igniter/core/errors"
+require "igniter/core/tool"
 require_relative "ai/config"
 require_relative "ai/context"
 require_relative "ai/providers/base"

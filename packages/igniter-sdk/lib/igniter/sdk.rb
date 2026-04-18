@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../igniter"
+require "igniter/core/errors"
 
 module Igniter
   module SDK

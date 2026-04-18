@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "../../igniter"
+require "igniter/core/errors"
+require "igniter/core/effect"
 
 module Igniter
   module Channels
