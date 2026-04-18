@@ -207,13 +207,30 @@ The next steps should preserve that property:
 
 The design should resist becoming a heavyweight chain-shaped subsystem.
 
+## OLAP Point — New Direction
+
+The cluster nodes are now understood as **OLAP Points**: multi-dimensional queryable surfaces exposing capabilities, state, trust, locality, governance, and future knowledge dimensions.
+
+The cluster is a distributed OLAP field over these points. This framing unifies routing (capability dimension), placement (multi-dimension ranking), diagnostics (explain by which dimension eliminated a peer), and gives MeshQL a clear query target.
+
+Key insight: every cluster phase so far has been adding a new dimension to the same per-node observable profile. OLAP Point names this pattern explicitly.
+
+See [OLAP Point v1](../OLAP_POINT_V1.md) for the design document.
+
+The natural implementation path:
+
+1. Phase 2 (discovery protocol) delivers the canonical `NodeObservation` envelope — all existing dimensions in one structured value.
+2. Phase 3 (placement) uses the full envelope for multi-dimensional ranking.
+3. Phase 4b (OLAP Point query surface) adds a Ruby DSL query layer over observation arrays.
+4. MeshQL follows once the observation envelope is stable.
+
 ## Recommended Next Focus
 
 If we resume cluster work after a pause, the healthiest next focus looks like this:
 
-1. Formalize the capability discovery/registry protocol.
-2. Start placement and rebalancing primitives.
-3. Deepen self-healing from synthetic/demo and routing-level cases into more real workload-driven cases.
+1. Formalize the capability discovery/registry protocol (Phase 2) — delivers the `NodeObservation` envelope.
+2. Start placement and rebalancing primitives (Phase 3) — uses the envelope for multi-dimension ranking.
+3. Build the OLAP Point query surface (Phase 4b) — makes the field queryable as a unified DSL.
 4. Keep companion aligned so each new cluster slice has a visible proving story.
 
 ## Short Resume Prompt

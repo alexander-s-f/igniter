@@ -306,6 +306,63 @@ Loaded by `require "igniter/cluster"`.
 Cluster-aware remote routing becomes active when you call
 `Igniter::Cluster.activate_remote_adapter!` or run through a hosted cluster flow.
 
+The cluster is modeled as a **capability-driven, trust-aware, self-healing mesh** — not a set of fixed roles. Every routing and placement decision is expressed as a capability query over a live field of observable peer profiles.
+
+For the full cluster direction, see [Cluster Next Roadmap](./cluster/ROADMAP_NEXT.md) and [Cluster State Snapshot](./cluster/STATE_NEXT.md).
+
+### `Igniter::Cluster::Mesh`
+
+Gossip-based peer discovery and capability propagation.
+
+- Periodic peer exchange — no central registry required.
+- Prometheus SD endpoint (`/v1/prometheus/targets`).
+- Kubernetes health probes (`/v1/healthz`, `/v1/readyz`).
+- Node metadata and capability propagation via signed gossip envelopes.
+
+### `Igniter::Cluster::CapabilityMesh`
+
+Capability-first routing — the primary routing surface.
+
+- `CapabilityQuery` is the main primitive: filter by capabilities, tags, metadata, policy, decision, trust, and freshness.
+- Routing is explainable: structured trace output shows why each peer was selected or rejected.
+- Routing diagnostics include incidents, remediation hints, and executable repair plans.
+- Capability-space ranking instead of flat matching.
+
+The cluster does not route by role. It routes by what a peer **can do**, **is allowed to do**, and **is trusted to do**.
+
+### `Igniter::Cluster::Identity`
+
+Per-node stable identity primitives (Phase 1 — landed).
+
+- Stable `node_id` across restarts.
+- Per-node keypair.
+- Signed peer manifests and capability attestations.
+- Trust store and trust verifier.
+- Trust-aware routing preference and diagnostics.
+
+Capability claims are attributable and inspectable — not anonymous gossip observations.
+
+### `Igniter::Cluster::Governance`
+
+Cluster governance as a control plane (landed).
+
+- Governance trail — persisted, retention-compacted.
+- Signed governance checkpoint over the live crest.
+- Replicated governance checkpoint through mesh gossip.
+- Governance-aware routing and diagnostics.
+- Executable governance actions: trust admission, capability enablement, governance refresh/relaxation.
+
+Governance is not only an audit log. It is the approval layer for cluster actions that require controlled evolution.
+
+### `Igniter::Cluster::SelfHealing`
+
+Runtime repair loop (landed).
+
+- Executable routing plans: the repair loop can consume automated plans without human intervention.
+- Background repair loop processes pending plans continuously.
+- Runtime failure → routing report publication → automated plan → governance trail record.
+- Diagnostics distinguish: auto-repaired, approval-required, and forbidden paths.
+
 ### `Igniter::Cluster::Consensus`
 
 Raft-based cluster coordination.
@@ -314,15 +371,6 @@ Raft-based cluster coordination.
 - `StateMachine` DSL for replicated state machines.
 - `Cluster.start` bootstraps the node and connects to peers.
 - Read consistency: `:any` (low-latency) or `:quorum` (strongly consistent).
-
-### `Igniter::Cluster::Mesh`
-
-Gossip-based peer discovery.
-
-- Periodic peer exchange — no central registry required.
-- Prometheus SD endpoint (`/v1/prometheus/targets`).
-- Kubernetes health probes (`/v1/healthz`, `/v1/readyz`).
-- Node metadata propagation (available contracts, version, load).
 
 ### `Igniter::Cluster::Ownership`
 
@@ -337,6 +385,14 @@ Ownership is the bridge between local-first persistence and distributed routing.
 
 Distributed execution state replication across nodes so any node can
 continue a distributed workflow after a peer failure.
+
+### OLAP Point — Cluster Direction
+
+Each cluster node is an **OLAP Point**: a multi-dimensional queryable surface exposing capabilities, state, trust, locality, governance, and future knowledge dimensions.
+
+The cluster is a distributed OLAP field over these points. This framing unifies routing (filter over capability dimension), placement (rank over multiple dimensions), diagnostics (explain by which dimension eliminated a candidate), and the future query language.
+
+See [OLAP Point v1](./OLAP_POINT_V1.md) for the full concept and implementation path.
 
 ---
 

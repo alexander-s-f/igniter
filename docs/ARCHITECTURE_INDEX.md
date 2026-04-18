@@ -162,3 +162,9 @@ Read next:
 - [Deployment Scenarios v1](./DEPLOYMENT_V1.md)
 - [App v1](./APP_V1.md)
 - [Stacks v1](./STACKS_V1.md)
+
+Cluster direction:
+
+- [Cluster Next Roadmap](./cluster/ROADMAP_NEXT.md)
+- [Cluster State Snapshot](./cluster/STATE_NEXT.md)
+- [OLAP Point v1](./OLAP_POINT_V1.md) — each node as a multi-dimensional query surface

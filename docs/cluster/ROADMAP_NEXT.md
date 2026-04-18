@@ -207,6 +207,34 @@ Examples:
 - enabling risky capabilities
 - accepting topology-affecting replication
 
+## Phase 4b: OLAP Point Query Surface
+
+Priority: high
+Status: design — see OLAP_POINT_V1.md
+Depends on: Phase 2 (canonical observation envelope)
+
+Goal:
+
+Unify routing, placement, and diagnostics over a single multi-dimensional node profile.
+
+What this phase should add:
+
+- `NodeObservation` as the canonical per-node snapshot with all active dimensions
+- Multi-dimensional ranking in `CapabilityQuery`: capabilities + load + trust + locality
+- Diagnostics that explain peer rejections by which dimension eliminated them
+- Ruby DSL for expressing multi-dimension queries over observation arrays
+- Foundation for MeshQL
+
+Why here:
+
+OLAP Point is not a separate architectural layer. It is the naming and query model that unifies what Phases 0–4 have built. Phase 2 delivers the canonical envelope. Phase 3 uses it for placement. OLAP Point makes it queryable as a field.
+
+Important:
+
+This is a cluster-layer feature. Core must not know about observation envelopes.
+
+See [OLAP Point v1](../OLAP_POINT_V1.md) for the full concept.
+
 ## Phase 5: Decentralized Knowledge Plane
 
 Priority: medium-high

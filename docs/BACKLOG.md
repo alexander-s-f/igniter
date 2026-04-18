@@ -12,6 +12,126 @@ Implemented features should move out of the backlog and into stable docs.
 - `scope` / `namespace` are implemented as path-grouping tools for readability and
   introspection.
 
+## Cluster: Formal Capability Discovery Protocol (Phase 2)
+
+Status: next
+Priority: very high
+
+Problem:
+
+- The cluster already has capability queries, signed manifests, and trust-aware routing.
+- The model is still spread across runtime structures without a canonical snapshot shape.
+- Stale or conflicting observations have no explicit handling protocol.
+
+What this needs:
+
+- `NodeObservation` as a first-class value object in the cluster layer
+- Canonical observation envelope with all dimensions: capabilities, state, trust, locality, governance
+- Split between self-claimed and relayed observations
+- Explicit conflict and staleness resolution
+- Gossip propagates full observation envelopes, not raw capability hashes
+- `CapabilityQuery` accepts an `ObservationPoint` input
+
+Why now:
+
+- Phase 2 is the precondition for the OLAP Point query surface
+- Without a canonical envelope, each new dimension (load, locality, knowledge) adds ad hoc fields to gossip structures
+
+## Cluster: Placement And Rebalancing (Phase 3)
+
+Status: next
+Priority: high
+
+Problem:
+
+- Routing is already expressive: it finds a peer that matches right now.
+- The cluster has no concept of where work should live over time.
+- Degraded nodes stay overloaded; healthy nodes are under-used; ownership does not shift with load.
+
+What this needs:
+
+- Ownership transfer with capability awareness
+- Rebalancing by load, trust, locality, freshness, and policy
+- Graceful degradation paths when preferred placement is unavailable
+- Preferred vs fallback placement distinction
+- Replication planner as a cluster-native subsystem
+
+Why it matters:
+
+- The cluster should decide where work lives, not only which peer matches a query.
+- Self-healing is more valuable when the cluster can also redistribute work proactively.
+
+## Cluster: OLAP Point Query Surface
+
+Status: design — see OLAP_POINT_V1.md
+Priority: high
+
+Problem:
+
+- CapabilityQuery is one-dimensional: it filters by capability.
+- Routing, placement, and diagnostics each need multi-dimensional reasoning over the same peer data.
+- There is no unified model for "a node's observable profile".
+
+What this needs:
+
+- `NodeObservation` with canonical dimension fields (Phase 2 prerequisite)
+- Multi-dimensional ranking in CapabilityQuery: capabilities + load + trust + locality
+- Diagnostics that explain rejections by dimension
+- Foundation for MeshQL
+
+Why it matters:
+
+- Placement, routing, and diagnostics converge on the same observable surface instead of growing separate data paths.
+- MeshQL depends on this as its query target.
+
+See [OLAP Point v1](./OLAP_POINT_V1.md) for the full concept.
+
+## Cluster: Decentralized RAG (Phase 5)
+
+Status: idea — after trust foundation
+Priority: medium-high
+
+Problem:
+
+- Knowledge retrieval today is either centralized or outside the cluster.
+- Nodes with domain-specific knowledge have no way to advertise or share it through the mesh.
+- RAG-style retrieval needs to be trust-aware and capability-routed.
+
+What this needs:
+
+- Local knowledge shards on peers (`sdk/rag`)
+- Distributed retrieval via capability-routing (`:knowledge` capability)
+- Content-addressed references for shard identity
+- Trust-aware merge and rank of retrieved results from multiple peers
+
+Why later:
+
+- Decentralized RAG depends on stable identity (Phase 1, landed) and formal discovery protocol (Phase 2).
+- The knowledge dimension in the OLAP Point envelope is the integration point.
+
+## Cluster: MeshQL (future — after OLAP Point)
+
+Status: concept
+Priority: medium
+
+Problem:
+
+- As the cluster becomes a multi-dimensional OLAP field, routing queries expressed as Ruby keyword arguments become limiting.
+- Complex placement decisions need a composable, inspectable query language.
+
+What this needs:
+
+- A Ruby DSL over `NodeObservation` arrays (first step — no parser needed)
+- Formal grammar over the canonical observation envelope
+- Local evaluation for small clusters; distributed fan-out for larger topologies
+
+Why later:
+
+- MeshQL has no value before the OLAP Point observation envelope exists (Phase 2).
+- A query language built on an ad hoc gossip structure will need to be rewritten.
+
+See [OLAP Point v1](./OLAP_POINT_V1.md) for the preconditions.
+
 ## Branch Predicates vNext
 
 Status: idea
