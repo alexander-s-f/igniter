@@ -6,6 +6,7 @@ module Igniter
     # Configuration for the local mesh node: registered peers and local identity.
     class Config
       attr_accessor :peer_name, :local_capabilities, :local_tags, :local_metadata,
+                    :local_state, :local_locality,
                     :seeds, :discovery_interval, :auto_announce, :local_url, :gossip_fanout,
                     :identity, :trust_store, :governance_trail, :auto_self_heal,
                     :self_heal_interval, :self_heal_limit, :self_heal_report_provider
@@ -16,6 +17,8 @@ module Igniter
         @local_capabilities = []
         @local_tags         = []
         @local_metadata     = {}
+        @local_state        = {}
+        @local_locality     = {}
         @peers              = []
         @peer_registry      = PeerRegistry.new
         @seeds              = []

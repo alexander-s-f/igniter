@@ -54,6 +54,12 @@ module Igniter
           }
         )
 
+        state = @config.local_state
+        metadata = metadata.merge(mesh_state: state) if state && !state.empty?
+
+        locality = @config.local_locality
+        metadata = metadata.merge(mesh_locality: locality) if locality && !locality.empty?
+
         manifest = Igniter::Cluster::Identity::Manifest.build(
           identity: @config.ensure_identity!,
           peer_name: @config.peer_name,

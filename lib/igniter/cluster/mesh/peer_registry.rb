@@ -52,6 +52,23 @@ module Igniter
       def size
         @mutex.synchronize { @peers.size }
       end
+
+      # NodeObservation for a peer by name at the given point in time.
+      # Returns nil if the peer is not registered.
+      def observation_for(name, now: Time.now.utc)
+        peer_named(name)&.to_observation(now: now)
+      end
+
+      # All peers as NodeObservation snapshots at the given point in time.
+      def observations(now: Time.now.utc)
+        all.map { |p| p.to_observation(now: now) }
+      end
+
+      # Observations matching a capability query.
+      def observations_matching_query(query, now: Time.now.utc)
+        normalized = Igniter::Cluster::Replication::CapabilityQuery.normalize(query)
+        observations(now: now).select { |obs| normalized.matches_profile?(obs) }
+      end
     end
     end
   end

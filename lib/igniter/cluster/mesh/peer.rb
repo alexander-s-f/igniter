@@ -24,19 +24,21 @@ module Igniter
 
       def matches_query?(query)
         normalized = Igniter::Cluster::Replication::CapabilityQuery.normalize(query)
-        normalized.matches_profile?(profile)
+        normalized.matches_profile?(to_observation)
+      end
+
+      def to_observation(now: Time.now.utc)
+        NodeObservation.new(
+          name:         @name,
+          url:          @url,
+          capabilities: @capabilities,
+          tags:         @tags,
+          metadata:     PeerMetadata.runtime(@metadata, now: now)
+        )
       end
 
       def profile
-        Struct.new(:capabilities, :tags, :metadata, keyword_init: true) do
-          def capability?(capability)
-            capabilities.include?(capability.to_sym)
-          end
-
-          def tag?(tag)
-            tags.include?(tag.to_sym)
-          end
-        end.new(capabilities: @capabilities, tags: @tags, metadata: PeerMetadata.runtime(@metadata))
+        to_observation
       end
     end
     end
