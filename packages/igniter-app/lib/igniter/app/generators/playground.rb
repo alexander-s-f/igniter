@@ -1057,6 +1057,7 @@ module Igniter
 
             gem "igniter", path: "#{relative_path_to_repo_root}"
             gem "igniter-core", path: "#{relative_path_to_repo_root}/packages/igniter-core"
+            gem "igniter-ai", path: "#{relative_path_to_repo_root}/packages/igniter-ai"
             gem "igniter-sdk", path: "#{relative_path_to_repo_root}/packages/igniter-sdk"
             gem "igniter-extensions", path: "#{relative_path_to_repo_root}/packages/igniter-extensions"
             gem "igniter-app", path: "#{relative_path_to_repo_root}/packages/igniter-app"

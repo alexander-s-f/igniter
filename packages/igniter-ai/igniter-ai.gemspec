@@ -3,13 +3,13 @@
 require_relative "../igniter-core/lib/igniter/core/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "igniter-sdk"
+  spec.name = "igniter-ai"
   spec.version = Igniter::VERSION
   spec.authors = ["Alexander"]
   spec.email = ["alexander.s.fokin@gmail.com"]
 
-  spec.summary = "Optional SDK packs for Igniter"
-  spec.description = "SDK registry plus generic agents, channels, tools, and data capability packs for Igniter."
+  spec.summary = "AI runtime pack for Igniter"
+  spec.description = "LLM providers, AI executors, skills, tool registry, transcription, and AI agents for Igniter."
   spec.homepage = "https://github.com/alexander-s-f/igniter"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
@@ -22,5 +22,4 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "igniter-core", Igniter::VERSION
-  spec.add_dependency "igniter-ai", Igniter::VERSION
 end

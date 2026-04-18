@@ -2,6 +2,7 @@
 
 [
   File.expand_path("../../packages/igniter-core/lib", __dir__),
+  File.expand_path("../../packages/igniter-ai/lib", __dir__),
   File.expand_path("../../packages/igniter-sdk/lib", __dir__),
   File.expand_path("../../packages/igniter-extensions/lib", __dir__),
   File.expand_path("../../packages/igniter-app/lib", __dir__),

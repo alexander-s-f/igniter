@@ -37,4 +37,5 @@ reading.
 
 - [SDK](../sdk/README.md)
 - [AI And Tool Surfaces](./ai-and-tools.md)
+- [`packages/igniter-ai/README.md`](../../packages/igniter-ai/README.md)
 - [`packages/igniter-sdk/README.md`](../../packages/igniter-sdk/README.md)

@@ -48,6 +48,7 @@ Package-specific quick reference should live next to the gem that owns the
 surface:
 
 - [`packages/igniter-core/README.md`](../../packages/igniter-core/README.md)
+- [`packages/igniter-ai/README.md`](../../packages/igniter-ai/README.md)
 - [`packages/igniter-sdk/README.md`](../../packages/igniter-sdk/README.md)
 - [`packages/igniter-app/README.md`](../../packages/igniter-app/README.md)
 - [`packages/igniter-server/README.md`](../../packages/igniter-server/README.md)

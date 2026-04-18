@@ -14,7 +14,8 @@ Root should stay thin:
 ## Packages
 
 - `igniter-core` — contract/model/compiler/runtime kernel
-- `igniter-sdk` — optional capability packs such as AI, channels, tools, data
+- `igniter-ai` — AI runtime pack: providers, executors, skills, transcription, AI agents
+- `igniter-sdk` — SDK registry plus generic agents, channels, tools, and data packs
 - `igniter-extensions` — public `igniter/extensions/*` activation entrypoints
 - `igniter-app` — app runtime/profile, stack scaffolds, generators
 - `igniter-server` — HTTP server and transport layer

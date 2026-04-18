@@ -52,8 +52,13 @@ RSpec.describe "Igniter dependency boundaries" do
     MSG
   end
 
-  it "does not let sdk files require plugin code" do
-    files = ruby_files_for("packages/igniter-sdk/lib/igniter/sdk.rb", "packages/igniter-sdk/lib/igniter/sdk/**/*.rb")
+  it "does not let sdk or ai package files require plugin code" do
+    files = ruby_files_for(
+      "packages/igniter-sdk/lib/igniter/sdk.rb",
+      "packages/igniter-sdk/lib/igniter/sdk/**/*.rb",
+      "packages/igniter-ai/lib/igniter/sdk/ai.rb",
+      "packages/igniter-ai/lib/igniter/sdk/ai/**/*.rb"
+    )
     offenders = offenders_for(
       require_lines_for(files),
       [
@@ -63,7 +68,7 @@ RSpec.describe "Igniter dependency boundaries" do
     )
 
     expect(offenders).to eq({}), <<~MSG
-      sdk/* must not depend on plugins/*.
+      sdk/* and igniter-ai must not depend on plugins/*.
 
       Offending require statements:
       #{format_offenders(offenders)}

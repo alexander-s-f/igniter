@@ -29,6 +29,7 @@ surface area.
 Package-specific entrypoints live next to the owning gem:
 
 - [`packages/igniter-core/README.md`](../../packages/igniter-core/README.md)
+- [`packages/igniter-ai/README.md`](../../packages/igniter-ai/README.md)
 - [`packages/igniter-sdk/README.md`](../../packages/igniter-sdk/README.md)
 - [`packages/igniter-app/README.md`](../../packages/igniter-app/README.md)
 - [`packages/igniter-server/README.md`](../../packages/igniter-server/README.md)

@@ -22,6 +22,7 @@ SDK layer.
 - [SDK](../sdk/README.md)
 - [Guide: How-Tos](./how-tos.md)
 - [Guide: Integrations](./integrations.md)
+- [`packages/igniter-ai/README.md`](../../packages/igniter-ai/README.md)
 - [`packages/igniter-sdk/README.md`](../../packages/igniter-sdk/README.md)
 
 ## Historical Deep Reference

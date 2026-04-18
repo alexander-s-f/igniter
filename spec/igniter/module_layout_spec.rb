@@ -6,6 +6,7 @@ RSpec.describe "Igniter module layout" do
   MODULE_LAYOUT_ROOT = File.expand_path("../..", __dir__)
   IGNITER_LIB = File.join(MODULE_LAYOUT_ROOT, "lib/igniter")
   CORE_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-core/lib/igniter")
+  AI_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-ai/lib/igniter")
   SDK_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-sdk/lib/igniter")
   EXTENSIONS_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-extensions/lib/igniter")
   APP_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-app/lib/igniter")
@@ -141,12 +142,23 @@ RSpec.describe "Igniter module layout" do
     ])
   end
 
+  it "keeps AI SDK pack entrypoints inside the local ai package" do
+    expect(children_for(AI_LIB)).to eq(%w[
+      sdk
+    ])
+  end
+
+  it "keeps AI packs under the canonical sdk/ai namespace inside the package" do
+    expect(children_for(File.join(AI_LIB, "sdk"))).to eq(%w[
+      ai
+      ai.rb
+    ])
+  end
+
   it "keeps sdk packs under the canonical sdk namespace inside the package" do
     expect(children_for(File.join(SDK_LIB, "sdk"))).to eq(%w[
       agents
       agents.rb
-      ai
-      ai.rb
       channels
       channels.rb
       data
