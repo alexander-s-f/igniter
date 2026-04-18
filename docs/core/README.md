@@ -14,6 +14,8 @@ If a capability stops making sense without hosting, networking, or optional pack
 
 ## Read First
 
+- [Guide](../guide/README.md)
+- [Guide: API And Runtime](../guide/api-and-runtime.md)
 - [Igniter Concepts](../IGNITER_CONCEPTS.md)
 - [Architecture v2](../ARCHITECTURE_V2.md)
 - [Execution Model v2](../EXECUTION_MODEL_V2.md)
@@ -30,6 +32,11 @@ If a capability stops making sense without hosting, networking, or optional pack
 - [Content Addressing v1](../CONTENT_ADDRESSING_V1.md)
 - [Temporal v1](../TEMPORAL_V1.md)
 - [Capabilities v1](../CAPABILITIES_V1.md)
+
+## Legacy Reference Note
+
+Many focused topics here are still documented in `*_V1` files. Treat them as
+deep reference behind the guide/dev indexes, not as the primary onboarding path.
 
 ## When To Leave Core
 

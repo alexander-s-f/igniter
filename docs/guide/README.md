@@ -12,36 +12,24 @@ Igniter.
 - configuration and operational usage
 - examples and package selection guidance
 
-## Start Here
+## Canonical Guide Docs
 
 - [Top-level README](../../README.md)
+- [Getting Started](./getting-started.md)
+- [API And Runtime](./api-and-runtime.md)
+- [How-Tos](./how-tos.md)
+- [Configuration](./configuration.md)
 - [Core](../core/README.md)
 - [App](../app/README.md)
 - [Cluster](../cluster/README.md)
 - [SDK](../sdk/README.md)
 
-## Getting Started
+## Core Guide References
 
 - [Igniter Concepts](../IGNITER_CONCEPTS.md)
 - [Examples](../../examples/README.md)
 - [Companion example](../../examples/companion/README.md)
 - [CLI](../CLI.md)
-
-## API And Runtime Reference
-
-- [API v2](../API_V2.md)
-- [Execution Model v2](../EXECUTION_MODEL_V2.md)
-- [Patterns](../PATTERNS.md)
-- [Content Addressing v1](../CONTENT_ADDRESSING_V1.md)
-- [Dataflow v1](../DATAFLOW_V1.md)
-- [Store Adapters](../STORE_ADAPTERS.md)
-
-## Configuration And Operations
-
-- [Deployment v1](../DEPLOYMENT_V1.md)
-- [Stacks Next](../STACKS_NEXT.md)
-- [Stacks v1](../STACKS_V1.md)
-- [Server v1](../SERVER_V1.md)
 
 ## Package-Level Docs
 
@@ -59,3 +47,8 @@ surface:
 - [`packages/igniter-schema-rendering/README.md`](../../packages/igniter-schema-rendering/README.md)
 
 Cross-package narratives and tutorials stay here in `docs/guide/`.
+
+## Legacy Reference
+
+Older deep documents still exist, but they should usually be reached through the
+guide indexes above or the [legacy reference list](../dev/legacy-reference.md).

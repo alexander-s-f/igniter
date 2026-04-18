@@ -13,6 +13,9 @@ Use this section when Igniter becomes the runtime shape of an application, not j
 
 ## Read First
 
+- [Guide](../guide/README.md)
+- [Guide: How-Tos](../guide/how-tos.md)
+- [Guide: Configuration](../guide/configuration.md)
 - [Stacks Next](../STACKS_NEXT.md)
 - [CLI](../CLI.md)
 - [App v1](../APP_V1.md)

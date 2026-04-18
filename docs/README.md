@@ -14,34 +14,38 @@ Layer indexes still exist, but they now sit under a simpler top-level split.
 Start with:
 
 1. [Guide](./guide/README.md)
-2. [Core](./core/README.md)
-3. [Examples](../examples/README.md)
+2. [Getting Started](./guide/getting-started.md)
+3. [Core](./core/README.md)
+4. [Examples](../examples/README.md)
 
 ### I want to build an app or stack
 
 Start with:
 
 1. [Guide](./guide/README.md)
-2. [App](./app/README.md)
-3. [CLI](./CLI.md)
-4. [Companion example](../examples/companion/README.md)
+2. [How-Tos](./guide/how-tos.md)
+3. [App](./app/README.md)
+4. [CLI](./CLI.md)
+5. [Companion example](../examples/companion/README.md)
 
 ### I want distributed execution
 
 Start with:
 
 1. [Guide](./guide/README.md)
-2. [Cluster](./cluster/README.md)
-3. [cluster/STATE_NEXT.md](./cluster/STATE_NEXT.md)
-4. [cluster/ROADMAP_NEXT.md](./cluster/ROADMAP_NEXT.md)
+2. [Configuration](./guide/configuration.md)
+3. [Cluster](./cluster/README.md)
+4. [cluster/STATE_NEXT.md](./cluster/STATE_NEXT.md)
+5. [cluster/ROADMAP_NEXT.md](./cluster/ROADMAP_NEXT.md)
 
 ### I want to work on the framework
 
 Start with:
 
 1. [Dev](./dev/README.md)
-2. [Architecture Index](./ARCHITECTURE_INDEX.md)
-3. The relevant package/layer index below
+2. [Architecture](./dev/architecture.md)
+3. [Package Map](./dev/package-map.md)
+4. The relevant package/layer index below
 
 ## Layer Indexes
 
@@ -60,6 +64,9 @@ Cross-package guides, tutorials, and conceptual API maps belong in
 
 Internal architecture, placement decisions, migration plans, and backlog belong
 in [`dev/`](./dev/README.md).
+
+Legacy deep-reference documents are cataloged in
+[`dev/legacy-reference.md`](./dev/legacy-reference.md).
 
 ## Compatibility Notes
 

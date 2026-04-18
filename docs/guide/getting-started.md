@@ -1,0 +1,40 @@
+# Getting Started
+
+This is the shortest user-facing path into Igniter.
+
+## 1. Start With The Core Idea
+
+Read:
+
+- [Top-level README](../../README.md)
+- [Igniter Concepts](../IGNITER_CONCEPTS.md)
+- [Core](../core/README.md)
+
+## 2. Run Something Real
+
+Use:
+
+- [Examples](../../examples/README.md)
+- [Companion example](../../examples/companion/README.md)
+
+## 3. Pick The Runtime Shape
+
+- Stay in [Core](../core/README.md) if you only need contracts and execution.
+- Move to [App](../app/README.md) if Igniter becomes the runtime of an app.
+- Move to [Cluster](../cluster/README.md) if execution becomes distributed.
+- Add [SDK](../sdk/README.md) packs only when optional capabilities are needed.
+
+## 4. Scaffold When You Want The Standard Shape
+
+Read:
+
+- [CLI](../CLI.md)
+- [Stacks Next](../STACKS_NEXT.md)
+
+Then try:
+
+```bash
+bin/igniter-stack new my_app
+bin/igniter-stack new my_hub --profile dashboard
+bin/igniter-stack new mesh_lab --profile cluster
+```

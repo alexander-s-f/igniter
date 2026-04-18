@@ -12,6 +12,8 @@ The SDK is a capability plane, not the foundation itself.
 
 ## Read First
 
+- [Guide](../guide/README.md)
+- [Guide: How-Tos](../guide/how-tos.md)
 - [SDK v1](../SDK_V1.md)
 - [Module System v1](../MODULE_SYSTEM_V1.md)
 
@@ -32,3 +34,6 @@ The SDK is a capability plane, not the foundation itself.
 
 - If a feature must always exist for `require "igniter"`, it likely belongs in [Core](../core/README.md), not SDK.
 - If a feature is reusable but optional across apps or clusters, SDK is usually the right home.
+
+Most SDK deep docs are still V1 documents, so treat this layer index as the
+canonical way in and the individual topic docs as focused reference.

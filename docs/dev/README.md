@@ -11,8 +11,12 @@ a framework.
 - migration plans, implementation notes, and backlog
 - contributor-facing design constraints
 
-## Start Here
+## Canonical Dev Docs
 
+- [Architecture](./architecture.md)
+- [Package Map](./package-map.md)
+- [Roadmap And Change Work](./roadmap.md)
+- [Legacy Reference](./legacy-reference.md)
 - [Architecture Index](../ARCHITECTURE_INDEX.md)
 - [Architecture v2](../ARCHITECTURE_V2.md)
 - [Layers v1](../LAYERS_V1.md)

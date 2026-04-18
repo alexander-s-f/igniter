@@ -14,6 +14,8 @@ The cluster layer should stay above `core` and `app`. It is not the place to red
 
 ## Read First
 
+- [Guide](../guide/README.md)
+- [Guide: How-Tos](../guide/how-tos.md)
 - [Cluster State Snapshot](./STATE_NEXT.md)
 - [Cluster Next](./ROADMAP_NEXT.md)
 - [Distributed Contracts v1](../DISTRIBUTED_CONTRACTS_V1.md)
@@ -43,3 +45,5 @@ The cluster layer should stay above `core` and `app`. It is not the place to red
 
 If you want the current implemented state, start with [Cluster State Snapshot](./STATE_NEXT.md).
 If you want the development direction beyond that, continue to [Cluster Next](./ROADMAP_NEXT.md).
+
+Read V1 cluster docs as supporting reference, not as the first entrypoint.
