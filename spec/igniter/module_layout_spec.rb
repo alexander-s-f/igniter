@@ -19,6 +19,7 @@ RSpec.describe "Igniter module layout" do
       core
       core.rb
       extensions
+      monorepo_packages.rb
       plugins
       plugins.rb
       sdk
@@ -48,8 +49,6 @@ RSpec.describe "Igniter module layout" do
     expect(children_for(File.join(IGNITER_LIB, "plugins"))).to eq(%w[
       rails
       rails.rb
-      view
-      view.rb
     ])
   end
 end

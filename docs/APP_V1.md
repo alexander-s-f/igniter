@@ -445,13 +445,6 @@ end
 `examples/companion/` is the fresh stack-based cluster sandbox for `Stack/App vNext` and
 `Cluster Next`.
 
-The older distributed voice AI assistant pipeline now lives in
-`examples/companion_legacy/`, split across `apps/main` and `apps/inference`.
-
-```
-ESP32 microphone → ASR → Intent → Chat (LLM) → TTS → ESP32 speaker
-```
-
 **Single-process demo (mock executors, no hardware):**
 
 ```bash
@@ -465,8 +458,7 @@ ruby examples/companion/bin/demo
 bundle exec ruby examples/companion/stack.rb --node seed
 ```
 
-**See also:** [`examples/companion/README.md`](../examples/companion/README.md) and
-[`examples/companion_legacy/README.md`](../examples/companion_legacy/README.md)
+**See also:** [`examples/companion/README.md`](../examples/companion/README.md)
 
 ---
 

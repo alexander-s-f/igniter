@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
 require "json"
-require "igniter/plugins/view/response"
 
 module Igniter
   module Frontend
     class Response
       class << self
         def html(body, status: 200, headers: {})
-          Igniter::Plugins::View::Response.html(body, status: status, headers: headers)
+          {
+            status: status,
+            body: body,
+            headers: { "Content-Type" => "text/html; charset=utf-8" }.merge(stringify_keys(headers))
+          }
         end
 
         def json(body, status: 200, headers: {})

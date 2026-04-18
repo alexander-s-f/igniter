@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/plugins/view"
+require "igniter-frontend"
 require_relative "../shared/stack_overview"
 require_relative "views/home_page"
 
@@ -12,7 +12,7 @@ module Companion
       def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
         snapshot = Companion::Shared::StackOverview.build
 
-        Igniter::Plugins::View::Response.html(
+        Igniter::Frontend::Response.html(
           Views::HomePage.render(
             snapshot: snapshot,
             base_path: base_path_for(env)

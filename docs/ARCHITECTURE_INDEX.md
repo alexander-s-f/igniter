@@ -114,7 +114,8 @@ Prefer the smallest require that matches the feature you need.
 | App scaffold/profile | `require "igniter/app"` |
 | Distributed runtime | `require "igniter/cluster"` |
 | Rails plugin | `require "igniter/plugins/rails"` |
-| View plugin | `require "igniter/plugins/view"` |
+| Frontend package | `require "igniter-frontend"` |
+| Schema rendering package | `require "igniter-schema-rendering"` |
 
 ## Placement Heuristics
 
@@ -145,7 +146,7 @@ core foundation
 Read next:
 
 - [SDK v1](./SDK_V1.md)
-- [Plugins v1](./PLUGINS_V1.md)
+- [Integrations v1](./INTEGRATIONS_V1.md)
 - [Module System v1](./MODULE_SYSTEM_V1.md)
 - [Layers v1](./LAYERS_V1.md)
 - [Architecture v2](./ARCHITECTURE_V2.md)

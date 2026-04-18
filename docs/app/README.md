@@ -23,8 +23,8 @@ Use this section when Igniter becomes the runtime shape of an application, not j
 ## Useful Supporting Docs
 
 - [Store Adapters](../STORE_ADAPTERS.md)
-- [View Schema Authoring](../VIEW_SCHEMA_AUTHORING.md)
-- [Plugins v1](../PLUGINS_V1.md)
+- [Schema Rendering Authoring](../SCHEMA_RENDERING_AUTHORING.md)
+- [Integrations v1](../INTEGRATIONS_V1.md)
 
 ## Examples
 

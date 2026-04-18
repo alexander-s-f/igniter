@@ -11,6 +11,9 @@ It groups high-level concerns that belong together in app development:
 - Arbre page rendering
 - semantic Arbre components
 
+Schema-driven agent rendering intentionally lives outside this package. Use a
+separate package for that lane so the human-first app surface stays simple.
+
 The goal is not to re-create Rails.
 The goal is to give Igniter apps a small, coherent, HTML-first framework for
 building dashboards, chats, operator tools, decentralized personal apps, and
@@ -71,6 +74,11 @@ end
 
 ## Status
 
-This package currently acts as a high-level facade over the web-facing pieces
-that already exist in the main `igniter` gem. The intent is to migrate more of
-that implementation here over time without forcing a big bang rewrite.
+This package now owns the human-facing web surface directly inside the monorepo:
+
+- route DSL and handler lifecycle
+- HTML builder/page abstractions
+- Arbre page pipeline
+- Tailwind shell and semantic UI components
+
+It is no longer just a facade over `lib/igniter/plugins/view`.

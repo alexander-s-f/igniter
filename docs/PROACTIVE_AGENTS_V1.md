@@ -244,18 +244,13 @@ end
 
 ## Companion example
 
-`examples/companion_legacy/apps/main/app/agents/` shows proactive agents in the context of
-the stack-based voice assistant companion:
+The active proactive-agent examples now live in the test suite and generated app structure:
 
 | File | Agent | Mission |
 |---|---|---|
-| `apps/main/app/agents/conversation_nudge_agent.rb` | `ConversationNudgeAgent` | Detect silence and topic stagnation; propose conversation nudges |
-| `apps/main/app/agents/system_watch_agent.rb` | `SystemAlertAgent` / `DependencyHealthAgent` | Monitor API metrics and service liveness |
-| `bin/demo` | All four agents | Self-contained, runnable demonstration |
-
-```bash
-ruby examples/companion_legacy/bin/demo
-```
+| `spec/igniter/agent_spec.rb` | Example agents | Base lifecycle and triggering patterns |
+| `spec/igniter/stream_loop_spec.rb` | Loop agents | Long-running watch/trigger flows |
+| `apps/*/app/agents/` | App-local agents | Canonical placement inside a project |
 
 ---
 

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "monorepo_packages"
 require_relative "app/runtime"
 require_relative "app/diagnostics"
 require_relative "app/evolution"

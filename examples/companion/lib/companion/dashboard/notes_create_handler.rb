@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/plugins/view"
+require "igniter-frontend"
 require_relative "../shared/note_store"
 require_relative "../shared/stack_overview"
 require_relative "views/home_page"
@@ -22,7 +22,7 @@ module Companion
             form_values: body,
             base_path: base_path
           )
-          return Igniter::Plugins::View::Response.html(html, status: 422)
+          return Igniter::Frontend::Response.html(html, status: 422)
         end
 
         Companion::Shared::NoteStore.add(text, source: "dashboard")

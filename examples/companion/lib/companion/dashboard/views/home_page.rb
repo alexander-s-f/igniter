@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-require "igniter/plugins/view"
-require "igniter/plugins/view/tailwind"
+require "igniter-frontend"
 
 module Companion
   module Dashboard
     module Views
-      class HomePage < Igniter::Plugins::View::Page
+      class HomePage < Igniter::Frontend::Page
         def self.render(snapshot:, error_message: nil, form_values: {}, base_path: "")
           new(
             snapshot: snapshot,
@@ -25,7 +24,7 @@ module Companion
 
         def call(view)
           view.raw(
-            Igniter::Plugins::View::Tailwind.render_page(
+            Igniter::Frontend::Tailwind.render_page(
               title: "Companion Dashboard",
               theme: :companion
             ) do |main|
@@ -62,7 +61,7 @@ module Companion
                 meta.tag(:span, "node=#{snapshot.dig(:stack, :default_node)}")
               end
               content.component(
-                Igniter::Plugins::View::Tailwind::UI::ActionBar.new(
+                Igniter::Frontend::Tailwind::UI::ActionBar.new(
                   class_name: "mt-6 flex flex-wrap gap-3"
                 ) do |actions|
                   actions.tag(
@@ -95,7 +94,7 @@ module Companion
           view.tag(:section, class: "grid gap-4 sm:grid-cols-2 xl:grid-cols-4") do |section|
             metrics.each do |id, label, value, hint|
               section.component(
-                Igniter::Plugins::View::Tailwind::UI::MetricCard.new(
+                Igniter::Frontend::Tailwind::UI::MetricCard.new(
                   label: label,
                   value: value,
                   hint: hint,
@@ -122,7 +121,7 @@ module Companion
 
           ui_theme.panel(title: "Current Node", subtitle: "Capability envelope for this local Companion instance.") do |panel|
             panel.component(
-              Igniter::Plugins::View::Tailwind::UI::KeyValueList.new(rows: [
+              Igniter::Frontend::Tailwind::UI::KeyValueList.new(rows: [
                 ["name", node.dig(:node, :name)],
                 ["role", node.dig(:node, :role)],
                 ["profile", node.dig(:node, :profile)],
@@ -166,7 +165,7 @@ module Companion
             subtitle: "Trigger a synthetic routing incident and watch automated remediation update the governance trail."
           ) do |panel|
             panel.component(
-              Igniter::Plugins::View::Tailwind::UI::ActionBar.new(
+              Igniter::Frontend::Tailwind::UI::ActionBar.new(
                 class_name: "flex flex-wrap gap-3"
               ) do |actions|
                 actions.form(action: route("/demo/self-heal?scenario=governance_gate"), method: "post") do |form|
@@ -180,7 +179,7 @@ module Companion
 
             if routing[:active]
               panel.component(
-                Igniter::Plugins::View::Tailwind::UI::KeyValueList.new(rows: [
+                Igniter::Frontend::Tailwind::UI::KeyValueList.new(rows: [
                   ["status", "active"],
                   ["total", routing[:total]],
                   ["pending", routing[:pending]],
@@ -217,7 +216,7 @@ module Companion
           ui_theme.panel(title: "Shared Notes", subtitle: "Simple cross-app proving slice shared by main and dashboard.") do |panel|
             if error_message
               panel.component(
-                Igniter::Plugins::View::Tailwind::UI::Banner.new(
+                Igniter::Frontend::Tailwind::UI::Banner.new(
                   message: error_message,
                   tone: :error,
                   base_class: "mb-4 rounded-2xl border px-4 py-3 text-sm"
@@ -296,11 +295,11 @@ module Companion
         end
 
         def ui_theme
-          Igniter::Plugins::View::Tailwind::UI::Theme.fetch(:companion)
+          Igniter::Frontend::Tailwind::UI::Theme.fetch(:companion)
         end
 
         def token
-          Igniter::Plugins::View::Tailwind::UI::Tokens
+          Igniter::Frontend::Tailwind::UI::Tokens
         end
       end
     end

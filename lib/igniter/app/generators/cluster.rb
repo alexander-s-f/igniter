@@ -913,7 +913,7 @@ module Igniter
 
             require "cgi"
             require "json"
-            require "igniter/plugins/view/response"
+            require "igniter-frontend"
             require_relative "../shared/stack_overview"
 
             module #{module_name}
@@ -924,7 +924,7 @@ module Igniter
                   def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
                     snapshot = #{module_name}::Shared::StackOverview.build
 
-                    Igniter::Plugins::View::Response.html(render_page(snapshot: snapshot, base_path: env["SCRIPT_NAME"].to_s))
+                    Igniter::Frontend::Response.html(render_page(snapshot: snapshot, base_path: env["SCRIPT_NAME"].to_s))
                   end
 
                   def render_page(snapshot:, base_path:)

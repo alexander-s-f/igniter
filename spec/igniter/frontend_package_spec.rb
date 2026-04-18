@@ -85,8 +85,7 @@ RSpec.describe "igniter-frontend local gem facade" do
   end
 
   it "re-exports the current page and component lanes" do
-    expect(Igniter::Frontend::ArbrePage).to eq(Igniter::Plugins::View::ArbrePage)
-    expect(Igniter::Frontend::SchemaPage).to eq(Igniter::Plugins::View::SchemaPage)
-    expect(Igniter::Frontend::Components).to eq(Igniter::Plugins::View::Arbre::Components)
+    expect(Igniter::Frontend::ArbrePage).to eq(Igniter::Frontend::Arbre::TemplatePage)
+    expect(Igniter::Frontend::Components).to eq(Igniter::Frontend::Arbre::Components)
   end
 end

@@ -12,12 +12,16 @@ RSpec.describe "Igniter layer loading" do
     script = <<~RUBY
       require "json"
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-frontend/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-schema-rendering/lib", #{ROOT.inspect}))
       require #{entrypoint.inspect}
 
       features = $LOADED_FEATURES.filter_map do |feature|
-        next unless feature.include?("/lib/igniter") || feature.end_with?("/lib/igniter.rb")
+        next unless feature.start_with?(#{ROOT.inspect})
+        next unless feature.include?("/lib/igniter") || feature.include?("/packages/")
 
-        feature.sub(%r{.*?/lib/}, "")
+        relative = feature.sub("#{ROOT}/", "")
+        relative.start_with?("lib/") ? relative.delete_prefix("lib/") : relative
       end
 
       puts JSON.generate(features.sort.uniq)
@@ -32,6 +36,8 @@ RSpec.describe "Igniter layer loading" do
   def require_failure_for(entrypoint)
     script = <<~RUBY
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-frontend/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-schema-rendering/lib", #{ROOT.inspect}))
       require #{entrypoint.inspect}
     RUBY
 
@@ -45,6 +51,8 @@ RSpec.describe "Igniter layer loading" do
     script = <<~RUBY
       require "json"
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-frontend/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-schema-rendering/lib", #{ROOT.inspect}))
       require "igniter"
       before = Igniter::Runtime.remote_adapter.class.name
       require #{entrypoint.inspect}
@@ -63,6 +71,8 @@ RSpec.describe "Igniter layer loading" do
     script = <<~RUBY
       require "json"
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-frontend/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-schema-rendering/lib", #{ROOT.inspect}))
       require #{entrypoint.inspect}
       puts JSON.generate(Igniter::App::HostRegistry.names.map(&:to_s).sort)
     RUBY
@@ -77,6 +87,8 @@ RSpec.describe "Igniter layer loading" do
     script = <<~RUBY
       require "json"
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-frontend/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-schema-rendering/lib", #{ROOT.inspect}))
       require #{entrypoint.inspect}
       puts JSON.generate(Igniter::App::SchedulerRegistry.names.map(&:to_s).sort)
     RUBY
@@ -91,6 +103,8 @@ RSpec.describe "Igniter layer loading" do
     script = <<~RUBY
       require "json"
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-frontend/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-schema-rendering/lib", #{ROOT.inspect}))
       require #{entrypoint.inspect}
       puts JSON.generate(Igniter::App::LoaderRegistry.names.map(&:to_s).sort)
     RUBY
@@ -286,12 +300,22 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/plugins/rails.rb")
   end
 
-  it "`require \"igniter/plugins/view\"` loads the canonical view plugin directly" do
-    features = loaded_igniter_features("igniter/plugins/view")
+  it "`require \"igniter-frontend\"` loads the frontend package directly" do
+    features = loaded_igniter_features("igniter-frontend")
 
-    expect(features).to include("igniter/plugins/view.rb")
-    expect(features).to include("igniter/plugins/view/schema.rb")
+    expect(features).to include("packages/igniter-frontend/lib/igniter-frontend.rb")
+    expect(features).to include("packages/igniter-frontend/lib/igniter/frontend.rb")
+    expect(features).not_to include("igniter/plugins/view.rb")
     expect(features).not_to include("igniter/view.rb")
+    expect(features).not_to include("igniter/plugins/rails.rb")
+  end
+
+  it "`require \"igniter-schema-rendering\"` loads the schema rendering package directly" do
+    features = loaded_igniter_features("igniter-schema-rendering")
+
+    expect(features).to include("packages/igniter-schema-rendering/lib/igniter-schema-rendering.rb")
+    expect(features).to include("packages/igniter-schema-rendering/lib/igniter/schema_rendering.rb")
+    expect(features).not_to include("igniter/plugins/view.rb")
     expect(features).not_to include("igniter/plugins/rails.rb")
   end
 

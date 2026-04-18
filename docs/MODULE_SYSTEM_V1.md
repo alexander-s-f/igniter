@@ -76,7 +76,13 @@ Public entrypoints:
 | Plugin | Require | Namespace | Responsibility |
 |--------|---------|-----------|----------------|
 | Rails | `require "igniter/plugins/rails"` | `Igniter::Rails` | Railtie, ActiveJob, ActionCable, controller concerns, generators |
-| View | `require "igniter/plugins/view"` | `Igniter::Plugins::View` | schema-driven view/runtime integration |
+
+Related monorepo packages:
+
+| Package | Require | Namespace | Responsibility |
+|---------|---------|-----------|----------------|
+| Frontend | `require "igniter-frontend"` | `Igniter::Frontend` | human-authored web surfaces, Arbre pages, Tailwind UI, handlers, request/response |
+| Schema Rendering | `require "igniter-schema-rendering"` | `Igniter::SchemaRendering` | schema runtime, persisted page rendering, patching, submissions |
 
 Rules:
 
@@ -101,7 +107,8 @@ horizontal capability plane
 
 horizontal integration plane
   plugins/rails
-  plugins/view
+  packages/igniter-frontend
+  packages/igniter-schema-rendering
 ```
 
 Another way to see it:
@@ -206,5 +213,5 @@ require "igniter/plugins/rails"  # framework integration
 - [Architecture Index](./ARCHITECTURE_INDEX.md)
 - [Layers v1](./LAYERS_V1.md)
 - [SDK v1](./SDK_V1.md)
-- [Plugins v1](./PLUGINS_V1.md)
+- [Integrations v1](./INTEGRATIONS_V1.md)
 - [Architecture v2](./ARCHITECTURE_V2.md)

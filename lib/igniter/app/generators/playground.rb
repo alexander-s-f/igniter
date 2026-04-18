@@ -631,7 +631,7 @@ module Igniter
           <<~RUBY
             # frozen_string_literal: true
 
-            require "igniter/plugins/view"
+            require "igniter-frontend"
             require_relative "../shared/stack_overview"
             require_relative "views/home_page"
 
@@ -643,7 +643,7 @@ module Igniter
                   def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
                     snapshot = #{module_name}::Shared::StackOverview.build
 
-                    Igniter::Plugins::View::Response.html(
+                    Igniter::Frontend::Response.html(
                       Views::HomePage.render(
                         snapshot: snapshot,
                         base_path: base_path_for(env)
@@ -664,7 +664,7 @@ module Igniter
           <<~RUBY
             # frozen_string_literal: true
 
-            require "igniter/plugins/view"
+            require "igniter-frontend"
             require_relative "../shared/note_store"
             require_relative "../shared/stack_overview"
             require_relative "views/home_page"
@@ -686,7 +686,7 @@ module Igniter
                         form_values: body,
                         base_path: base_path
                       )
-                      return Igniter::Plugins::View::Response.html(html, status: 422)
+                      return Igniter::Frontend::Response.html(html, status: 422)
                     end
 
                     #{module_name}::Shared::NoteStore.add(text, source: "dashboard")
@@ -737,12 +737,12 @@ module Igniter
           <<~RUBY
             # frozen_string_literal: true
 
-            require "igniter/plugins/view"
+            require "igniter-frontend"
 
             module #{module_name}
               module Dashboard
                 module Views
-                  class HomePage < Igniter::Plugins::View::Page
+                  class HomePage < Igniter::Frontend::Page
                     def self.render(snapshot:, error_message: nil, form_values: {}, base_path: "")
                       new(
                         snapshot: snapshot,

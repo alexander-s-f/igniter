@@ -2,6 +2,6 @@
 
 module Igniter
   module Frontend
-    ArbrePage = Igniter::Plugins::View::ArbrePage unless const_defined?(:ArbrePage, false)
+    ArbrePage = Arbre::TemplatePage unless const_defined?(:ArbrePage, false)
   end
 end

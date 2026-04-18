@@ -272,9 +272,6 @@ end
 `examples/companion/` is now the current cluster-next sandbox: service-shaped local
 nodes, capability envelopes, and a proving ground for the new stack/runtime model.
 
-`examples/companion_legacy/` keeps the richer voice assistant pipeline, proactive
-agents, and Telegram-oriented reference flows as an archived but runnable example.
-
 See [`docs/APP_V1.md`](APP_V1.md), [`docs/STACKS_V1.md`](STACKS_V1.md), and [`docs/SERVER_V1.md`](SERVER_V1.md).
 
 ---

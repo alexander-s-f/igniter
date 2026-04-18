@@ -61,21 +61,34 @@ RSpec.describe "Igniter namespace ownership" do
         /module\s+Igniter\b\s*module\s+Rails\b/m
       ]
     },
-    "Igniter::Plugins::View" => {
+    "Igniter::Frontend" => {
       roots: [
-        "lib/igniter/plugins/view.rb",
-        "lib/igniter/plugins/view/"
+        "packages/igniter-frontend/lib/igniter-frontend.rb",
+        "packages/igniter-frontend/lib/igniter/frontend.rb",
+        "packages/igniter-frontend/lib/igniter/frontend/"
       ],
       patterns: [
-        /module\s+Igniter::Plugins::View\b/,
-        /class\s+Igniter::Plugins::View\b/,
-        /module\s+Igniter\b\s*module\s+Plugins\b\s*module\s+View\b/m
+        /module\s+Igniter::Frontend\b/,
+        /class\s+Igniter::Frontend\b/,
+        /module\s+Igniter\b\s*module\s+Frontend\b/m
+      ]
+    },
+    "Igniter::SchemaRendering" => {
+      roots: [
+        "packages/igniter-schema-rendering/lib/igniter-schema-rendering.rb",
+        "packages/igniter-schema-rendering/lib/igniter/schema_rendering.rb",
+        "packages/igniter-schema-rendering/lib/igniter/schema_rendering/"
+      ],
+      patterns: [
+        /module\s+Igniter::SchemaRendering\b/,
+        /class\s+Igniter::SchemaRendering\b/,
+        /module\s+Igniter\b\s*module\s+SchemaRendering\b/m
       ]
     }
   }.freeze
 
   def ruby_lib_files
-    Dir.glob(File.join(OWNERSHIP_ROOT, "lib/**/*.rb")).sort
+    Dir.glob(File.join(OWNERSHIP_ROOT, "{lib,packages}/**/*.rb")).sort
   end
 
   def relative_path(path)

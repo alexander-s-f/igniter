@@ -1,9 +1,0 @@
-stack:
-  default_app: main
-  shared_lib_paths:
-    - lib
-
-persistence:
-  data:
-    adapter: memory   # memory | sqlite
-    path: var/companion_data.sqlite3

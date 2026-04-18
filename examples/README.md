@@ -343,42 +343,16 @@ Shows:
 - capability-first local mesh with selective mocked capabilities
 - mounted dashboard surface per node
 
-### `companion_legacy/bin/demo`
+### `companion`
 
-Run:
+The active example is [`companion/README.md`](companion/README.md).
 
-```bash
-ruby examples/companion_legacy/bin/demo
-```
+It shows:
 
-Shows:
-
-- `Igniter::App` — unified entry point with `config_file`, `configure`, `register`, `schedule`
-- `compose` + `export` — four-stage pipeline (ASR → Intent → Chat → TTS) wired as one graph
-- Mock executors — runs end-to-end without hardware or API keys
-- Turn-by-turn interactive loop with session history
-
-For real Ollama inference:
-
-```bash
-COMPANION_REAL_LLM=1 ruby examples/companion_legacy/bin/demo
-```
-
-Expected output per turn:
-
-```text
-── Turn 1 ────────────────────────────────────────────
-  [ASR mock]    → "Hello, are you there?"
-  [Intent mock] → question
-  [Chat mock]   → "I'd need a moment to look that up..."
-  [TTS mock]    → synthesising 76 chars
-  Heard:    "Hello, are you there?"
-  Intent:   question (92%)
-  Response: "I'd need a moment to look that up..."
-  Audio:    4328 chars (Base64 WAV)
-```
-
-See [`companion/README.md`](companion/README.md) for the new cluster-next sandbox, and [`companion_legacy/README.md`](companion_legacy/README.md) for the older richer voice-assistant workspace and deployment notes.
+- `Igniter::Stack` coordinating multiple mounted apps
+- service-shaped local nodes
+- capability-first local mesh
+- dashboard-first operational UI
 
 ## Validation
 

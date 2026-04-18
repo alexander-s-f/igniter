@@ -26,7 +26,7 @@ The SDK is a capability plane, not the foundation itself.
 ## Related Reference
 
 - [Capabilities v1](../CAPABILITIES_V1.md)
-- [Plugins v1](../PLUGINS_V1.md)
+- [Integrations v1](../INTEGRATIONS_V1.md)
 
 ## Practical Heuristic
 
