@@ -1,217 +1,65 @@
 # Igniter Module System v1
 
-This document is the top-level map of Igniter's module system.
+Historical reference.
 
-Igniter now has three independent architectural axes:
+For the current canonical module-system reading, start with:
 
-1. **Runtime layers** — how execution is hosted and scaled
-2. **SDK packs** — optional shared capabilities
-3. **Plugins** — framework and environment integrations
+- [docs/dev/module-system.md](./dev/module-system.md)
+- [docs/dev/package-map.md](./dev/package-map.md)
+- [docs/sdk/README.md](./sdk/README.md)
 
-If you want the shortest accurate answer to "where should this code live?",
-start here.
+## What This Old Document Was Defining
 
-## The Three Axes
+The V1 module-system write-up introduced three axes:
 
-### 1. Runtime Pyramid
+1. runtime layers
+2. sdk packs
+3. plugins/integrations
 
-The runtime pyramid defines execution and hosting:
+That three-axis model is still the right high-level architectural intuition.
 
-```text
-core
-  -> server/app
-       -> cluster
-```
+## What Is Still Historically Useful
 
-Public entrypoints:
+### Runtime-vs-capability-vs-integration split
 
-| Layer | Require | Responsibility |
-|------|---------|----------------|
-| Core | `require "igniter"` | contracts, compiler, runtime, diagnostics, events |
-| Actor / tool foundation | `require "igniter/core"` | actors, tool primitives, memory, metrics, temporal support, caches |
-| Server | `require "igniter/server"` | HTTP hosting, remote execution transport |
-| App | `require "igniter/app"` | single-node runtime profile, host/loader/scheduler wiring |
-| Stack | `require "igniter/stack"` | multi-app stack coordination |
-| Cluster | `require "igniter/cluster"` | mesh, consensus, replication, distributed execution |
+The old document is still useful as background for these questions:
 
-Rules:
+- what belongs in the runtime pyramid
+- what belongs in sdk packs
+- what belongs in environment/framework integrations
 
-- lower layers must not know about upper layers
-- upper layers may compose lower layers explicitly
-- `require` must not silently mutate runtime state just because a layer loads
+### Earlier public entrypoint map
 
-## 2. SDK Packs
+It also captures the older public require story around:
 
-`sdk/*` is the optional capability plane.
+- `igniter`
+- `igniter/core`
+- `igniter/server`
+- `igniter/app`
+- `igniter/stack`
+- `igniter/cluster`
+- `igniter/sdk/*`
+- `igniter/plugins/rails`
 
-These are reusable packs that higher layers can opt into without inflating the
-embedded core.
+## What Changed Since V1
 
-Public entrypoints:
+The package-era filesystem and ownership model are now different.
 
-| Pack | Require | Namespace | Responsibility |
-|------|---------|-----------|----------------|
-| Agents | `require "igniter/sdk/agents"` | `Igniter::Agents` | reusable non-AI standard-library agents |
-| AI | `require "igniter/sdk/ai"` | `Igniter::AI` | providers, skills, AI executors, transcription, AI agents |
-| Channels | `require "igniter/sdk/channels"` | `Igniter::Channels` | communication and delivery adapters |
-| Data | `require "igniter/sdk/data"` | `Igniter::Data` | lightweight app-facing persistence |
-| Tools | `require "igniter/sdk/tools"` | `Igniter` | built-in operational tools |
+In particular:
 
-Rules:
+- root is intentionally thin
+- packages own most canonical implementation paths
+- integrations are no longer thought of primarily as `lib/igniter/plugins/*`
+- package-owned docs now live beside each gem README
 
-- SDK packs are the only public surface for optional shared capabilities
-- top-level optional shortcuts are not public API
-- SDK packs may depend downward on core and explicitly allowed runtime layers
-- SDK packs must not become hidden boot mechanisms
+So older root-layout examples in the V1 module-system write-up should be read as
+historical, not normative.
 
-## 3. Plugins
+## If You Are Reading Old Architecture Notes
 
-`plugins/*` is the integration plane.
+Use this file as background rationale only. For current placement and ownership
+rules, always prefer:
 
-Plugins adapt external environments into Igniter. They are not part of the
-runtime pyramid and they are not generic capability packs.
-
-Public entrypoints:
-
-| Plugin | Require | Namespace | Responsibility |
-|--------|---------|-----------|----------------|
-| Rails | `require "igniter/plugins/rails"` | `Igniter::Rails` | Railtie, ActiveJob, ActionCable, controller concerns, generators |
-
-Related monorepo packages:
-
-| Package | Require | Namespace | Responsibility |
-|---------|---------|-----------|----------------|
-| Frontend | `require "igniter-frontend"` | `Igniter::Frontend` | human-authored web surfaces, Arbre pages, Tailwind UI, handlers, request/response |
-| Schema Rendering | `require "igniter-schema-rendering"` | `Igniter::SchemaRendering` | schema runtime, persisted page rendering, patching, submissions |
-
-Rules:
-
-- plugins may depend on core and on the layer they integrate with
-- plugins may depend on `sdk/*` where the integration contract requires it
-- plugins must expose environment-facing integration code, not generic reusable primitives
-
-## Unified Mental Model
-
-All three axes together:
-
-```text
-runtime pyramid
-  core -> server/app -> cluster
-
-horizontal capability plane
-  sdk/agents
-  sdk/ai
-  sdk/channels
-  sdk/data
-  sdk/tools
-
-horizontal integration plane
-  plugins/rails
-  packages/igniter-frontend
-  packages/igniter-schema-rendering
-```
-
-Another way to see it:
-
-```text
-Igniter
-  = runtime foundation
-  + optional capability packs
-  + optional integration plugins
-```
-
-## Dependency Matrix
-
-### Runtime layers
-
-- `core` must not depend on `server`, `app`, `stack`, `cluster`, `sdk/*`, or `plugins/*`
-- `server` may depend on `core`
-- `app` may depend on `server` and `core`
-- `stack` may depend on `app`
-- `cluster` may depend on `server`, `app`, and `core`
-
-### SDK packs
-
-- `sdk/*` may depend on `core`
-- some packs may be allowed only for upper runtime layers via `Igniter::SDK`
-- `sdk/*` must not introduce hidden runtime-layer side effects
-
-### Plugins
-
-- `plugins/*` may depend on core and the layer they integrate with
-- `plugins/*` may depend on `sdk/*` if that is part of the plugin contract
-- `plugins/*` should not redefine the module system or bypass it
-
-## Placement Guide
-
-When adding new code:
-
-- put it in **core** if it is fundamental and embedding-friendly
-- put it in **server/app/stack/cluster** if it is runtime-hosting or distributed execution behavior
-- put it in **sdk/*** if it is optional, shared, and reusable across apps
-- put it in **plugins/*** if it adapts a framework, UI runtime, or host environment
-- put it in **extensions** if it enriches runtime behavior without becoming its own capability or plugin
-
-Quick heuristic:
-
-```text
-Is it fundamental execution machinery?
-  -> core / runtime layer
-
-Is it optional and reusable?
-  -> sdk/*
-
-Is it a framework or environment adapter?
-  -> plugins/*
-```
-
-## Filesystem Model
-
-Canonical root entrypoints:
-
-```text
-lib/igniter.rb
-lib/igniter/core.rb
-lib/igniter/app.rb
-lib/igniter/server.rb
-lib/igniter/cluster.rb
-lib/igniter/stack.rb
-lib/igniter/sdk.rb
-lib/igniter/plugins.rb
-```
-
-Canonical implementation roots:
-
-```text
-lib/igniter/core/
-lib/igniter/app/
-lib/igniter/server/
-lib/igniter/cluster/
-lib/igniter/sdk/
-lib/igniter/plugins/
-lib/igniter/extensions/
-```
-
-`lib/igniter/` root should not grow new shortcut entrypoints for optional packs
-or plugins.
-
-## Loading Rules
-
-Prefer the narrowest public require that matches the job:
-
-```ruby
-require "igniter"                # embedded core
-require "igniter/core"           # actor/tool foundation
-require "igniter/app"            # app runtime profile
-require "igniter/cluster"        # distributed runtime
-require "igniter/sdk/ai"         # optional capability
-require "igniter/plugins/rails"  # framework integration
-```
-
-## Recommended Reading
-
-- [Architecture Index](./ARCHITECTURE_INDEX.md)
-- [Layers v1](./LAYERS_V1.md)
-- [SDK v1](./SDK_V1.md)
-- [Integrations v1](./INTEGRATIONS_V1.md)
-- [Architecture v2](./ARCHITECTURE_V2.md)
+- [docs/dev/module-system.md](./dev/module-system.md)
+- [docs/dev/package-map.md](./dev/package-map.md)
+- [docs/dev/architecture.md](./dev/architecture.md)

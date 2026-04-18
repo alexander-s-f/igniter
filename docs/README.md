@@ -15,8 +15,9 @@ Start with:
 
 1. [Guide](./guide/README.md)
 2. [Getting Started](./guide/getting-started.md)
-3. [Core](./core/README.md)
-4. [Examples](../examples/README.md)
+3. [Core Runtime Features](./guide/core-runtime-features.md)
+4. [Core](./core/README.md)
+5. [Examples](../examples/README.md)
 
 ### I want to build an app or stack
 
@@ -24,19 +25,22 @@ Start with:
 
 1. [Guide](./guide/README.md)
 2. [How-Tos](./guide/how-tos.md)
-3. [App](./app/README.md)
-4. [CLI](./CLI.md)
-5. [Companion example](../examples/companion/README.md)
+3. [AI And Tool Surfaces](./guide/ai-and-tools.md)
+4. [App](./app/README.md)
+5. [CLI](./CLI.md)
+6. [Companion example](../examples/companion/README.md)
 
 ### I want distributed execution
 
 Start with:
 
 1. [Guide](./guide/README.md)
-2. [Configuration](./guide/configuration.md)
-3. [Cluster](./cluster/README.md)
-4. [cluster/STATE_NEXT.md](./cluster/STATE_NEXT.md)
-5. [cluster/ROADMAP_NEXT.md](./cluster/ROADMAP_NEXT.md)
+2. [Deployment Modes](./guide/deployment-modes.md)
+3. [Configuration](./guide/configuration.md)
+4. [Distributed Workflows](./guide/distributed-workflows.md)
+5. [Cluster](./cluster/README.md)
+6. [cluster/STATE_NEXT.md](./cluster/STATE_NEXT.md)
+7. [cluster/ROADMAP_NEXT.md](./cluster/ROADMAP_NEXT.md)
 
 ### I want to work on the framework
 
@@ -44,8 +48,10 @@ Start with:
 
 1. [Dev](./dev/README.md)
 2. [Architecture](./dev/architecture.md)
-3. [Package Map](./dev/package-map.md)
-4. The relevant package/layer index below
+3. [Module System](./dev/module-system.md)
+4. [Package Map](./dev/package-map.md)
+5. [Data Ownership](./dev/data-ownership.md)
+6. The relevant package/layer index below
 
 ## Layer Indexes
 
@@ -70,6 +76,6 @@ Legacy deep-reference documents are cataloged in
 
 ## Compatibility Notes
 
-- Existing V1/V2 docs remain as reference material.
+- Existing legacy docs remain as reference material.
 - Existing `docs/general/` and `docs/development/` paths remain as compatibility entrypoints.
 - The main change here is navigation and ownership, not a forced rewrite of every deep doc in one pass.

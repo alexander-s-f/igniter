@@ -11,17 +11,20 @@ Use this section when Igniter becomes the runtime shape of an application, not j
 
 `App` sits above the kernel. It should compose `core`, not reshape it.
 
-## Read First
+## Current First Reads
 
 - [Guide](../guide/README.md)
 - [Guide: How-Tos](../guide/how-tos.md)
 - [Guide: Configuration](../guide/configuration.md)
+- [Guide: Deployment Modes](../guide/deployment-modes.md)
 - [Stacks Next](../STACKS_NEXT.md)
 - [CLI](../CLI.md)
-- [App v1](../APP_V1.md)
-- [Server v1](../SERVER_V1.md)
-- [Stacks v1](../STACKS_V1.md)
-- [Deployment v1](../DEPLOYMENT_V1.md)
+
+## Supporting Reference
+
+- [Guide: Configuration](../guide/configuration.md)
+- [Guide: Integrations](../guide/integrations.md)
+- [Dev: Legacy Reference](../dev/legacy-reference.md)
 
 ## Useful Supporting Docs
 
@@ -29,7 +32,7 @@ Use this section when Igniter becomes the runtime shape of an application, not j
 - [Schema Rendering Authoring](../SCHEMA_RENDERING_AUTHORING.md)
 - [Frontend Authoring](../FRONTEND_AUTHORING.md)
 - [Frontend Components](../FRONTEND_COMPONENTS.md)
-- [Integrations v1](../INTEGRATIONS_V1.md)
+- [Guide: Integrations](../guide/integrations.md)
 
 ## Examples
 
@@ -65,4 +68,23 @@ The preferred app/runtime shape is now:
 - `Igniter::Stack` owns the server/runtime container
 - `Igniter::App` stays a portable mounted module
 
-Legacy `service/topology` support has been removed from the canonical stack runtime. Read older V1 docs as historical context only.
+## Current App Model
+
+Think of `Igniter::App` as a leaf runtime package inside a stack, not as the
+entire deployment topology.
+
+- `require "igniter/app"` is the canonical app umbrella
+- `require "igniter/app/runtime"` is the narrower leaf-runtime entrypoint
+- host choice is declarative at the app layer
+- scheduler choice is declarative at the app layer
+- loader choice is declarative at the app layer
+- scaffold APIs are an explicit pack, not part of the minimal runtime load path
+
+The main operational split is:
+
+- `Igniter::App` owns app profile and assembly
+- `Igniter::Stack` owns mounted coordination and stack runtime
+- `Igniter::Server` provides hosting/transport
+- `Igniter::Cluster` extends that into network-aware execution
+
+Legacy `service/topology` support has been removed from the canonical stack runtime. Read older historical docs only through [`../dev/legacy-reference.md`](../dev/legacy-reference.md).

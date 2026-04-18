@@ -17,7 +17,9 @@ Use this index for internal structure and dependency direction across Igniter.
 
 ## Package-Layer Perspective
 
+- [Module System](./module-system.md)
 - [Package Map](./package-map.md)
+- [Data Ownership](./data-ownership.md)
 - [Core](../core/README.md)
 - [App](../app/README.md)
 - [Cluster](../cluster/README.md)

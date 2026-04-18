@@ -12,31 +12,19 @@ Use this section when the thing you care about should still make sense in embedd
 
 If a capability stops making sense without hosting, networking, or optional packs, it probably does not belong in core.
 
-## Read First
+## Current First Reads
 
 - [Guide](../guide/README.md)
 - [Guide: API And Runtime](../guide/api-and-runtime.md)
+- [Guide: Core Runtime Features](../guide/core-runtime-features.md)
 - [Igniter Concepts](../IGNITER_CONCEPTS.md)
-- [Architecture v2](../ARCHITECTURE_V2.md)
-- [Execution Model v2](../EXECUTION_MODEL_V2.md)
-- [API v2](../API_V2.md)
+- [Dev: Architecture](../dev/architecture.md)
 
-## Focused Topics
+## Supporting Reference
 
 - [Patterns](../PATTERNS.md)
-- [Dataflow v1](../DATAFLOW_V1.md)
-- [Branches v1](../BRANCHES_V1.md)
-- [Collections v1](../COLLECTIONS_V1.md)
-- [Node Cache v1](../NODE_CACHE_V1.md)
-- [Persistence Model v1](../PERSISTENCE_MODEL_V1.md)
-- [Content Addressing v1](../CONTENT_ADDRESSING_V1.md)
-- [Temporal v1](../TEMPORAL_V1.md)
-- [Capabilities v1](../CAPABILITIES_V1.md)
-
-## Legacy Reference Note
-
-Many focused topics here are still documented in `*_V1` files. Treat them as
-deep reference behind the guide/dev indexes, not as the primary onboarding path.
+- [Guide: Core Runtime Features](../guide/core-runtime-features.md)
+- [Dev: Legacy Reference](../dev/legacy-reference.md)
 
 ## When To Leave Core
 

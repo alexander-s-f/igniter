@@ -1,221 +1,56 @@
 # Igniter Integrations v1
 
-This document defines the canonical model for framework and UI integration plugins.
+Historical reference.
 
-`plugins/*` is a horizontal integration layer, separate from both the runtime
-pyramid and `sdk/*` capability packs.
+For the current canonical integrations reading, start with:
 
-## What Plugins Mean
+- [docs/guide/integrations.md](./guide/integrations.md)
+- [docs/dev/module-system.md](./dev/module-system.md)
+- [docs/dev/package-map.md](./dev/package-map.md)
 
-Plugins adapt external environments into Igniter.
+## What This Old Document Was Defining
 
-Examples:
+The V1 integrations write-up explained the distinction between:
 
-- Rails integration
-- future adapters for other frameworks
+- runtime layers
+- sdk capability packs
+- framework/environment integrations
 
-Plugins are not part of the embedded kernel, and they are not generic shared
-capabilities like `sdk/*`. They are integration surfaces.
+That distinction is still useful.
 
-## Canonical Rule
+## What Is Still Historically Useful
 
-Plugins load only through:
+### Why integrations are not sdk packs
 
-```ruby
-require "igniter/plugins/<plugin>"
-```
+The old document is still valuable as rationale for keeping framework adapters
+separate from reusable optional capabilities.
 
-Examples:
+### Rails as the original plugin example
 
-```ruby
-require "igniter/plugins/rails"
-```
+It also preserves the original framing for:
 
-Top-level shortcuts such as `igniter/rails` and `igniter/view` are not part of
-the public API.
+- `require "igniter/plugins/rails"`
+- `Igniter::Rails`
+- framework-facing adapters and generators
 
-## Built-in Plugins
+### The earlier plugin/package language
 
-| Plugin | Namespace | Require | Responsibility |
-|--------|-----------|---------|----------------|
-| `rails` | `Igniter::Rails` | `require "igniter/plugins/rails"` | Railtie, ActiveJob bridge, ActionCable adapter, webhook controller concern, generators |
+The document captures the transition period where integrations were described
+partly as `plugins/*` and partly as higher-level monorepo packages.
 
-## Relationship To Other Layers
+## What Changed Since V1
 
-Think of Igniter as three orthogonal dimensions:
+The current package-era reading is now clearer:
 
-```text
-runtime pyramid
-  core -> server/app -> cluster
+- Rails remains the canonical plugin-style integration surface
+- frontend and schema rendering are package-owned integration surfaces
+- root `plugins` namespace is no longer treated as a broad home for all optional UI work
 
-capability packs
-  sdk/*
+## If You Are Reading Old Integration Notes
 
-integration plugins
-  plugins/*
-```
+Use this file as background rationale only. For current placement and public
+entrypoints, always prefer:
 
-Practical rules:
-
-- plugins may depend on core and on the layer they integrate with
-- plugins may depend on `sdk/*` when that is part of the integration contract
-- plugins must not silently rewrite runtime-layer boot behavior on `require`
-- plugins should expose framework-facing entrypoints, not generic reusable primitives
-
-## Placement Rules
-
-Put code in `plugins/*` when all of the following are true:
-
-- it adapts Igniter to an external framework, host environment, or UI runtime
-- it is not required for embedded core usage
-- it is not just an optional shared capability pack
-
-Do not put code in `plugins/*` when it belongs more naturally to:
-
-- **core**: fundamental runtime/compiler/model behavior
-- **sdk**: reusable optional capabilities
-- **app/server/cluster**: runtime lifecycle, transport, topology, host wiring
-
-## File Layout
-
-Canonical layout:
-
-```text
-lib/igniter/plugins.rb
-lib/igniter/plugins/
-  rails.rb
-  rails/
-```
-
-`lib/igniter/plugins.rb` should stay a neutral namespace entrypoint. It should
-not auto-load concrete plugins.
-
-## Pack Guidance
-
-### `plugins/rails`
-
-Use for Rails-specific integration:
-
-- Railtie boot hooks
-- ActiveJob wrappers
-- ActionCable adapters
-- controller concerns
-- Rails generators
-
-Do not put generic runtime or capability code here.
-
-## Monorepo Packages
-
-The former view plugin has been split into local monorepo packages:
-
-- `require "igniter-frontend"`
-  `Igniter::Frontend`
-  human-authored web surfaces, Arbre pages, Tailwind shell, request/response helpers
-- `require "igniter-schema-rendering"`
-  `Igniter::SchemaRendering`
-  schema runtime, storage, patching, and submission pipeline
-
-## Loading Examples
-
-Rails:
-
-```ruby
-require "igniter"
-require "igniter/plugins/rails"
-```
-
-Frontend package:
-
-```ruby
-require "igniter-frontend"
-```
-
-Schema rendering package:
-
-```ruby
-require "igniter-schema-rendering"
-require "igniter/sdk/data"
-```
-
-Tailwind adapter primitives live under:
-
-```ruby
-Igniter::Frontend::Tailwind::UI::MetricCard
-Igniter::Frontend::Tailwind::UI::Panel
-Igniter::Frontend::Tailwind::UI::StatusBadge
-Igniter::Frontend::Tailwind::UI::Banner
-Igniter::Frontend::Tailwind::UI::ActionBar
-Igniter::Frontend::Tailwind::UI::InlineActions
-Igniter::Frontend::Tailwind::UI::KeyValueList
-Igniter::Frontend::Tailwind::UI::PayloadDiff
-Igniter::Frontend::Tailwind::UI::Field
-Igniter::Frontend::Tailwind::UI::FormSection
-Igniter::Frontend::Tailwind::UI::MessagePage
-Igniter::Frontend::Tailwind::UI::SubmissionNotice
-Igniter::Frontend::Tailwind::UI::FieldGroup
-Igniter::Frontend::Tailwind::UI::ChoiceField
-Igniter::Frontend::Tailwind::UI::SchemaHero
-Igniter::Frontend::Tailwind::UI::SchemaIntro
-Igniter::Frontend::Tailwind::UI::SchemaForm
-Igniter::Frontend::Tailwind::UI::SchemaFieldset
-Igniter::Frontend::Tailwind::UI::SchemaStack
-Igniter::Frontend::Tailwind::UI::SchemaGrid
-Igniter::Frontend::Tailwind::UI::SchemaSection
-Igniter::Frontend::Tailwind::UI::SchemaCard
-Igniter::Frontend::Tailwind::UI::PropertyCard
-Igniter::Frontend::Tailwind::UI::ResourceList
-Igniter::Frontend::Tailwind::UI::EndpointList
-Igniter::Frontend::Tailwind::UI::TimelineList
-Igniter::Frontend::Tailwind::UI::Theme
-Igniter::Frontend::Tailwind::UI::Tokens
-```
-
-Tailwind page helpers also expose shared shell presets:
-
-```ruby
-Igniter::Frontend::Tailwind.render_page(title: "Home Lab", theme: :ops) { |main| ... }
-Igniter::Frontend::Tailwind.render_page(title: "Companion", theme: :companion) { |main| ... }
-Igniter::Frontend::Tailwind.render_page(title: "Schema", theme: :schema) { |main| ... }
-```
-
-These presets keep body classes, layout width, and Tailwind config aligned across
-apps while still allowing local overrides such as a narrower `main_class` for a
-detail page or message shell.
-
-For component-level styling, `Igniter::Frontend::Tailwind::UI::Theme.fetch(...)`
-exposes shared presets for:
-
-- panels
-- form sections
-- message pages
-- hero and surface chrome used by dashboards and detail pages
-- repeated field/input, checkbox, code-pill, muted-text, and empty-state styles
-- repeated list/card/heading/text styles used across dashboard sections
-- semantic server-rendered dashboard slices such as resource lists, endpoint lists, and timeline lists
-- semantic runtime inspection slices such as payload diffs for raw vs normalized submission data
-- semantic schema/runtime form blocks such as submission notices, grouped inputs, and choice fields
-- semantic schema layout blocks such as schema heroes, stacks, grids, sections, and cards
-- schema-aware composition blocks such as schema forms, fieldsets, and intro text blocks
-- direct schema node support for semantic runtime blocks such as `notice`, `fieldset`, and `actions`
-
-Authoring guide:
-
-- [Frontend Authoring](./FRONTEND_AUTHORING.md)
-- [Frontend Components](./FRONTEND_COMPONENTS.md)
-- [Schema Rendering Authoring](./SCHEMA_RENDERING_AUTHORING.md)
-
-## Mental Model
-
-```text
-core = kernel
-sdk/* = optional capabilities
-plugins/* = environment/framework integrations
-packages/* = higher-level optional product surfaces
-```
-
-Read next:
-
-- [Module System v1](./MODULE_SYSTEM_V1.md)
-- [SDK v1](./SDK_V1.md)
-- [Layers v1](./LAYERS_V1.md)
-- [Architecture Index](./ARCHITECTURE_INDEX.md)
+- [docs/guide/integrations.md](./guide/integrations.md)
+- [docs/dev/module-system.md](./dev/module-system.md)
+- [docs/dev/package-map.md](./dev/package-map.md)

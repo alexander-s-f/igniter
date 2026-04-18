@@ -24,14 +24,17 @@ reading.
 
 - [`packages/igniter-rails/README.md`](../../packages/igniter-rails/README.md)
 - [App](../app/README.md)
+- [Integrations](./integrations.md)
 
 ## Move To Distributed Execution
 
 - [Cluster](../cluster/README.md)
+- [Distributed Workflows](./distributed-workflows.md)
 - [cluster/STATE_NEXT.md](../cluster/STATE_NEXT.md)
 - [cluster/ROADMAP_NEXT.md](../cluster/ROADMAP_NEXT.md)
 
 ## Add Optional Capability Packs
 
 - [SDK](../sdk/README.md)
+- [AI And Tool Surfaces](./ai-and-tools.md)
 - [`packages/igniter-sdk/README.md`](../../packages/igniter-sdk/README.md)

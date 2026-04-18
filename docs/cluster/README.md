@@ -12,22 +12,21 @@ Use this section when execution is no longer single-node and the network itself 
 
 The cluster layer should stay above `core` and `app`. It is not the place to redefine the kernel.
 
-## Read First
+## Current First Reads
 
 - [Guide](../guide/README.md)
 - [Guide: How-Tos](../guide/how-tos.md)
 - [Cluster State Snapshot](./STATE_NEXT.md)
 - [Cluster Next](./ROADMAP_NEXT.md)
-- [Distributed Contracts v1](../DISTRIBUTED_CONTRACTS_V1.md)
-- [Mesh v1](../MESH_V1.md)
-- [Consensus v1](../CONSENSUS_V1.md)
-- [Deployment v1](../DEPLOYMENT_V1.md)
+
+## Supporting Reference
+
+- [Guide: Distributed Workflows](../guide/distributed-workflows.md)
+- [Dev: Legacy Reference](../dev/legacy-reference.md)
 
 ## Useful Supporting Docs
 
-- [Capabilities v1](../CAPABILITIES_V1.md)
-- [Cluster Debug v1](../CLUSTER_DEBUG_V1.md)
-- [Server v1](../SERVER_V1.md)
+- [Guide: Core Runtime Features](../guide/core-runtime-features.md)
 - [Backlog](../BACKLOG.md)
 
 ## Examples
@@ -46,4 +45,4 @@ The cluster layer should stay above `core` and `app`. It is not the place to red
 If you want the current implemented state, start with [Cluster State Snapshot](./STATE_NEXT.md).
 If you want the development direction beyond that, continue to [Cluster Next](./ROADMAP_NEXT.md).
 
-Read V1 cluster docs as supporting reference, not as the first entrypoint.
+Read older cluster docs only through [`../dev/legacy-reference.md`](../dev/legacy-reference.md), not as the first entrypoint.

@@ -10,30 +10,56 @@ Use this section when you need optional packs that extend Igniter without bloati
 
 The SDK is a capability plane, not the foundation itself.
 
-## Read First
+## Current First Reads
 
 - [Guide](../guide/README.md)
 - [Guide: How-Tos](../guide/how-tos.md)
-- [SDK v1](../SDK_V1.md)
-- [Module System v1](../MODULE_SYSTEM_V1.md)
+- [Guide: API And Runtime](../guide/api-and-runtime.md)
+- [Guide: AI And Tool Surfaces](../guide/ai-and-tools.md)
+- [Module System](../dev/module-system.md)
 
-## Capability Packs
+## Supporting Reference
 
-- [LLM v1](../LLM_V1.md)
-- [Channels v1](../CHANNELS_V1.md)
-- [Tools v1](../TOOLS_V1.md)
-- [Skills v1](../SKILLS_V1.md)
-- [Transcription v1](../TRANSCRIPTION_V1.md)
+- [Guide: AI And Tool Surfaces](../guide/ai-and-tools.md)
+- [Guide: Integrations](../guide/integrations.md)
+- [Dev: Legacy Reference](../dev/legacy-reference.md)
 
-## Related Reference
+## Current SDK Model
 
-- [Capabilities v1](../CAPABILITIES_V1.md)
-- [Integrations v1](../INTEGRATIONS_V1.md)
+`sdk/*` is the optional capability plane, not another runtime pyramid.
+
+- core stays minimal
+- runtime layers stay responsible for hosting/distribution
+- sdk packs provide optional shared capabilities that higher layers opt into explicitly
+
+Canonical public entrypoints:
+
+- `require "igniter/sdk/agents"`
+- `require "igniter/sdk/ai"`
+- `require "igniter/sdk/channels"`
+- `require "igniter/sdk/data"`
+- `require "igniter/sdk/tools"`
+
+Activation can happen either by explicit `require` or through `use`, which is
+just a thin declarative wrapper over normal loading.
+
+## Pack Placement Rule
+
+Put code in SDK when it is:
+
+- optional
+- shared
+- reusable across more than one app/runtime
+- not part of the minimal embedded kernel
+
+Do not put code in SDK when it is better described as:
+
+- core execution machinery
+- app/server/cluster hosting behavior
+- extension activation glue
+- framework integration
 
 ## Practical Heuristic
 
 - If a feature must always exist for `require "igniter"`, it likely belongs in [Core](../core/README.md), not SDK.
 - If a feature is reusable but optional across apps or clusters, SDK is usually the right home.
-
-Most SDK deep docs are still V1 documents, so treat this layer index as the
-canonical way in and the individual topic docs as focused reference.

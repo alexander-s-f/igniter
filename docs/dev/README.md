@@ -14,13 +14,11 @@ a framework.
 ## Canonical Dev Docs
 
 - [Architecture](./architecture.md)
+- [Module System](./module-system.md)
 - [Package Map](./package-map.md)
+- [Data Ownership](./data-ownership.md)
 - [Roadmap And Change Work](./roadmap.md)
 - [Legacy Reference](./legacy-reference.md)
-- [Architecture Index](../ARCHITECTURE_INDEX.md)
-- [Architecture v2](../ARCHITECTURE_V2.md)
-- [Layers v1](../LAYERS_V1.md)
-- [Module System v1](../MODULE_SYSTEM_V1.md)
 
 ## Package And Layer Boundaries
 
@@ -34,6 +32,7 @@ a framework.
 - [Namespace Migration Plan](../NAMESPACE_MIGRATION_PLAN.md)
 - [Backlog](../BACKLOG.md)
 - [Frontend Packages Idea](../FRONTEND_PACKAGES_IDEA.md)
+- [Data Ownership](./data-ownership.md)
 
 ## Working Heuristics
 

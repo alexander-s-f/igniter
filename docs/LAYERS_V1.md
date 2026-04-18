@@ -1,5 +1,10 @@
 # Igniter Layers v1
 
+Legacy reference note:
+
+- this document remains useful for historical separation rationale
+- for the current canonical reading, start with [docs/dev/module-system.md](./dev/module-system.md), [docs/dev/package-map.md](./dev/package-map.md), and [docs/dev/architecture.md](./dev/architecture.md)
+
 This document defines the intended separation between the three main Igniter
 deployment modes:
 

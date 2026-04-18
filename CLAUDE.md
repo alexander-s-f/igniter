@@ -58,4 +58,4 @@ The system has clear compile-time / runtime boundaries:
 
 ## Documentation
 
-Docs now split into `docs/guide/` and `docs/dev/`. Internal design reads start in `docs/dev/README.md`; key deep references remain `ARCHITECTURE_V2.md`, `EXECUTION_MODEL_V2.md`, `API_V2.md`, `PATTERNS.md`.
+Docs now split into `docs/guide/` and `docs/dev/`. Internal design reads should start with `docs/dev/README.md`, `docs/dev/architecture.md`, and `docs/dev/module-system.md`; user-facing API/runtime reads should start with `docs/guide/README.md` and `docs/guide/api-and-runtime.md`.

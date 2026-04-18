@@ -22,6 +22,7 @@ surface area.
 - [Dataflow v1](../DATAFLOW_V1.md)
 - [Store Adapters](../STORE_ADAPTERS.md)
 - [Server v1](../SERVER_V1.md)
+- [Deployment Modes](./deployment-modes.md)
 
 ## Package Quick Reference
 
