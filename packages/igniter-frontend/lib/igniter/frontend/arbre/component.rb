@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "json"
+
 module Igniter
   module Frontend
     module Arbre
@@ -50,6 +52,67 @@ module Igniter
 
         def humanize_label(label)
           label.to_s.gsub(/[_-]+/, " ").split.map(&:capitalize).join(" ")
+        end
+
+        def controller_target(controller, name, **attributes)
+          attributes.merge(:"data-ig-#{dashize(controller)}-target" => dashize(name))
+        end
+
+        def controller_scope(*controllers, **attributes)
+          names = [attributes.delete(:"data-ig-controller"), controllers]
+                  .flatten
+                  .compact
+                  .flat_map { |value| value.to_s.split(/\s+/) }
+                  .map { |value| dashize(value) }
+                  .reject(&:empty?)
+                  .uniq
+
+          attributes.merge(:"data-ig-controller" => names.join(" "))
+        end
+
+        def stream_scope(**attributes)
+          controller_scope(:stream, **attributes)
+        end
+
+        def stream_target(name, **attributes)
+          controller_target(:stream, name, **attributes)
+        end
+
+        def controller_value(controller, name, value, **attributes)
+          serialized = serialize_controller_value(value)
+          return attributes if serialized.nil?
+
+          attributes.merge(:"data-ig-#{dashize(controller)}-#{dashize(name)}-value" => serialized)
+        end
+
+        def stream_value(name, value, **attributes)
+          controller_value(:stream, name, value, **attributes)
+        end
+
+        def dashize(value)
+          value.to_s
+               .gsub(/([a-z0-9])([A-Z])/, '\1-\2')
+               .tr("_", "-")
+               .downcase
+        end
+
+        def serialize_controller_value(value)
+          case value
+          when nil
+            nil
+          when String
+            value
+          when Symbol, Numeric
+            value.to_s
+          when true
+            "true"
+          when false
+            "false"
+          when Array, Hash
+            JSON.generate(value)
+          else
+            value.to_s
+          end
         end
       end
     end

@@ -62,9 +62,10 @@ module Igniter
             }
           end
 
-          def json_tab(title, payload:, panel_id: nil, active: nil, id: nil)
+          def json_tab(title, payload:, panel_id: nil, panel_attributes: nil, active: nil, id: nil)
             tab(title, active: active, id: id) do |pane|
-              pane.pre(id: panel_id) { |code| code.text_node(JSON.pretty_generate(payload)) }
+              attributes = (panel_attributes || {}).merge(id: panel_id)
+              pane.pre(attributes) { |code| code.text_node(JSON.pretty_generate(payload)) }
             end
           end
 

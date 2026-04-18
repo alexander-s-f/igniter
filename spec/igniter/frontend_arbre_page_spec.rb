@@ -376,4 +376,122 @@ RSpec.describe "Igniter::Frontend::Arbre page authoring" do
       expect(html).to include("summary")
     end
   end
+
+  it "exposes stream target helper for templates and components" do
+    stub_const("Arbre", build_fake_arbre)
+
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "layout.arb"), <<~ARB)
+        html do
+          body do
+            render_template_content
+          end
+        end
+      ARB
+
+      File.write(File.join(dir, "home_page.arb"), <<~ARB)
+        article(**stream_target(:activity_feed, id: "activity-feed")) do
+          div "Live feed"
+        end
+      ARB
+
+      page_class = Class.new(Igniter::Frontend::ArbrePage) do
+        template_root dir
+        template "home_page"
+        layout "layout"
+
+        def initialize(context:)
+          @context = context
+        end
+      end
+
+      html = page_class.render(context: {})
+
+      expect(html).to include('id="activity-feed"')
+      expect(html).to include('data-ig-stream-target="activity-feed"')
+    end
+  end
+
+  it "exposes controller value helpers with JSON serialization for templates" do
+    stub_const("Arbre", build_fake_arbre)
+
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "layout.arb"), <<~ARB)
+        html do
+          body do
+            main(
+              "data-ig-controller": "stream",
+              **stream_value(:url, "/api/overview/stream"),
+              **stream_value(:events, %w[overview activity]),
+              **stream_value(:hook, "homeLabOverviewStream")
+            ) do
+              render_template_content
+            end
+          end
+        end
+      ARB
+
+      File.write(File.join(dir, "home_page.arb"), <<~ARB)
+        article do
+          div "Frontend values"
+        end
+      ARB
+
+      page_class = Class.new(Igniter::Frontend::ArbrePage) do
+        template_root dir
+        template "home_page"
+        layout "layout"
+
+        def initialize(context:)
+          @context = context
+        end
+      end
+
+      html = page_class.render(context: {})
+
+      expect(html).to include('data-ig-stream-url-value="/api/overview/stream"')
+      expect(html).to include('data-ig-stream-events-value="[&quot;overview&quot;,&quot;activity&quot;]"')
+      expect(html).to include('data-ig-stream-hook-value="homeLabOverviewStream"')
+    end
+  end
+
+  it "exposes controller scope helpers for templates" do
+    stub_const("Arbre", build_fake_arbre)
+
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "layout.arb"), <<~ARB)
+        html do
+          body do
+            main(
+              **controller_scope(:stream, :operator_panel),
+              **stream_value(:hook, "homeLabOverviewStream")
+            ) do
+              render_template_content
+            end
+          end
+        end
+      ARB
+
+      File.write(File.join(dir, "home_page.arb"), <<~ARB)
+        article do
+          div "Controller scope"
+        end
+      ARB
+
+      page_class = Class.new(Igniter::Frontend::ArbrePage) do
+        template_root dir
+        template "home_page"
+        layout "layout"
+
+        def initialize(context:)
+          @context = context
+        end
+      end
+
+      html = page_class.render(context: {})
+
+      expect(html).to include('data-ig-controller="stream operator-panel"')
+      expect(html).to include('data-ig-stream-hook-value="homeLabOverviewStream"')
+    end
+  end
 end

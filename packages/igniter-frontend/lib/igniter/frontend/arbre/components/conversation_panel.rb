@@ -28,8 +28,8 @@ module Igniter
             div(message, class: css_class)
           end
 
-          def transcript(messages:, id: nil, empty_role: "assistant", empty_message: "No chat yet.")
-            div(id: id, class: "chat-log") do |chat_log|
+          def transcript(messages:, id: nil, empty_role: "assistant", empty_message: "No chat yet.", class_name: nil, **attributes)
+            div(attributes.merge(id: id, class: merge_classes("chat-log", class_name))) do |chat_log|
               if Array(messages).empty?
                 chat_log.div class: "chat-turn" do |turn|
                   turn.strong empty_role

@@ -166,6 +166,75 @@ This gives the page:
 When the app is mounted under a sub-path, `render_frontend_javascript` emits the
 correct mounted URLs automatically.
 
+The built-in runtime already includes a few small controllers. Right now the
+most useful ones are:
+
+- `tabs`
+- `stream`
+
+`stream` is the first good example of the intended split:
+
+- the framework owns `EventSource`, connection lifecycle, and JSON parsing
+- the app owns only the rendering hook
+
+Example:
+
+```ruby
+main(
+  "data-ig-controller": "stream",
+  "data-ig-stream-url-value": page_context.route("/api/overview/stream"),
+  "data-ig-stream-events-value": "[\"overview\",\"activity\"]",
+  "data-ig-stream-hook-value": "homeLabOverviewStream"
+) do
+  render_template_content
+end
+```
+
+```js
+window.homeLabOverviewStream = {
+  overview({ controller, payload }) {
+    controller.setTextTarget("generatedAt", payload.generated_at);
+  }
+};
+```
+
+When a page has repeated live-update zones, mark them with
+`data-ig-stream-target` and prefer the small helper methods that the built-in
+`stream` controller exposes:
+
+- `setTextTarget`
+- `setHtmlTarget`
+- `setJsonTarget`
+- `prependHtmlTarget`
+
+In Arbre templates and components, avoid writing the raw attribute by hand.
+Prefer:
+
+```ruby
+span page_context.generated_at, **stream_target(:generated_at, id: "generated-at")
+```
+
+That keeps the template at the semantic level instead of leaking `data-ig-*`
+strings into every page.
+
+Do the same for controller values:
+
+```ruby
+main(
+  **stream_scope,
+  **stream_value(:url, page_context.route("/api/overview/stream")),
+  **stream_value(:events, %w[overview activity]),
+  **stream_value(:hook, "homeLabOverviewStream")
+) do
+  render_template_content
+end
+```
+
+`stream_value` is just the focused version of `controller_value`, so use
+`controller_value(:tabs, :active_id, "routing")` when you need the generic form.
+Likewise, use `stream_scope` or `controller_scope(:stream, :operator_panel)` for
+the controller name instead of raw `data-ig-controller` strings.
+
 ### 6. Keep page composition in `.arb`
 
 Use `.arb` for the high-level screen outline.

@@ -130,3 +130,65 @@ This serves:
 - app entrypoints like `/__frontend/assets/application.js`
 
 Both URLs stay mounted-app aware when rendered through `ArbrePage` helpers.
+
+Built-in controllers currently include:
+
+- `tabs` for semantic tab panels
+- `stream` for `EventSource` lifecycle, JSON parsing, and app-level hooks
+
+Example stream wiring:
+
+```ruby
+main(
+  "data-ig-controller": "stream",
+  "data-ig-stream-url-value": page_context.route("/api/overview/stream"),
+  "data-ig-stream-events-value": "[\"overview\",\"activity\"]",
+  "data-ig-stream-hook-value": "homeLabOverviewStream"
+) do
+  render_template_content
+end
+```
+
+```js
+window.homeLabOverviewStream = {
+  overview({ controller, payload }) {
+    controller.setTextTarget("generatedAt", payload.generated_at);
+  }
+};
+```
+
+For repeated updates, prefer marking DOM zones with `data-ig-stream-target` and
+using the small helpers exposed by `stream`:
+
+- `setTextTarget(name, value)`
+- `setHtmlTarget(name, html)`
+- `setJsonTarget(name, payload)`
+- `prependHtmlTarget(name, html, { limit: ... })`
+
+In Arbre pages and components, prefer the helper:
+
+```ruby
+span current_value, **stream_target(:generated_at, id: "generated-at")
+```
+
+That keeps `data-ig-*` details out of app templates.
+
+The same applies to controller values:
+
+```ruby
+main(
+  **stream_scope,
+  **stream_value(:url, page_context.route("/api/overview/stream")),
+  **stream_value(:events, %w[overview activity]),
+  **stream_value(:hook, "homeLabOverviewStream")
+) do
+  render_template_content
+end
+```
+
+Use `controller_value(:tabs, :active_id, "routing")` when you need the generic
+form outside the `stream` lane.
+
+For the controller name itself, prefer `stream_scope` or the generic
+`controller_scope(:stream, :operator_panel)` over raw `data-ig-controller`
+strings.

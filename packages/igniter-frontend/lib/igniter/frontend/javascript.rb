@@ -89,6 +89,18 @@ module Igniter
                 return this.element.hasAttribute(attr);
               }
 
+              find(selector) {
+                return this.element.querySelector(selector);
+              }
+
+              findAll(selector) {
+                return Array.from(this.element.querySelectorAll(selector));
+              }
+
+              findById(id) {
+                return this.find(`#${id}`);
+              }
+
               dispatch(name, detail = {}) {
                 this.element.dispatchEvent(new CustomEvent(`ig:${this.identifier}:${dashize(name)}`, {
                   bubbles: true,
@@ -136,6 +148,130 @@ module Igniter
                 this.panes.forEach((pane) => {
                   pane.classList.toggle("active", pane.id === targetId);
                 });
+              }
+            }
+
+            class StreamController extends Controller {
+              connect() {
+                this.url = this.value("url");
+                if (!this.url || !window.EventSource) return;
+
+                this.hook = this.resolveHook();
+                this.listenerMap = new Map();
+                this.source = new window.EventSource(this.url);
+
+                if (this.hook && typeof this.hook.connect === "function") {
+                  this.hook.connect({ controller: this, source: this.source });
+                }
+
+                this.eventNames().forEach((eventName) => {
+                  const listener = (event) => this.handleEvent(eventName, event);
+                  this.listenerMap.set(eventName, listener);
+                  this.source.addEventListener(eventName, listener);
+                });
+              }
+
+              disconnect() {
+                if (this.hook && typeof this.hook.disconnect === "function") {
+                  this.hook.disconnect({ controller: this, source: this.source });
+                }
+
+                if (this.source) this.source.close();
+                this.listenerMap = null;
+              }
+
+              eventNames() {
+                const value = this.value("events", ["message"]);
+                if (Array.isArray(value)) return value.map((entry) => String(entry)).filter(Boolean);
+
+                return String(value)
+                  .split(/\\s+/)
+                  .map((entry) => entry.trim())
+                  .filter(Boolean);
+              }
+
+              handleEvent(eventName, event) {
+                const detail = {
+                  controller: this,
+                  event,
+                  eventName,
+                  payload: this.parsePayload(event.data),
+                  source: this.source
+                };
+
+                if (typeof this.hook === "function") {
+                  this.hook(detail);
+                } else if (this.hook && typeof this.hook[eventName] === "function") {
+                  this.hook[eventName](detail);
+                }
+
+                this.dispatch("message", detail);
+                this.dispatch(eventName, detail);
+              }
+
+              parsePayload(raw) {
+                if (this.value("parseJson", true) === false) return raw;
+
+                try {
+                  return JSON.parse(raw);
+                } catch (_error) {
+                  return raw;
+                }
+              }
+
+              resolveHook() {
+                const hookName = this.value("hook");
+                if (!hookName) return null;
+
+                return String(hookName)
+                  .split(".")
+                  .filter(Boolean)
+                  .reduce((memo, segment) => (memo ? memo[segment] : undefined), window);
+              }
+
+              setTextTarget(name, value) {
+                const element = this.target(name);
+                if (!element) return null;
+
+                element.textContent = value == null ? "" : String(value);
+                return element;
+              }
+
+              setHtmlTarget(name, html) {
+                const element = this.target(name);
+                if (!element) return null;
+
+                element.innerHTML = html == null ? "" : String(html);
+                return element;
+              }
+
+              setJsonTarget(name, payload, spacing = 2) {
+                const element = this.target(name);
+                if (!element) return null;
+
+                element.textContent = JSON.stringify(payload == null ? {} : payload, null, spacing);
+                return element;
+              }
+
+              prependHtmlTarget(name, html, options = {}) {
+                const element = this.target(name);
+                if (!element) return null;
+
+                const wrapper = document.createElement("div");
+                wrapper.innerHTML = String(html);
+                const child = wrapper.firstElementChild;
+                if (!child) return null;
+
+                element.prepend(child);
+
+                const limit = Number(options.limit || 0);
+                if (limit > 0) {
+                  while (element.children.length > limit) {
+                    element.removeChild(element.lastElementChild);
+                  }
+                }
+
+                return child;
               }
             }
 
@@ -192,6 +328,7 @@ module Igniter
             }
 
             register("tabs", TabsController);
+            register("stream", StreamController);
 
             const api = {
               Controller,

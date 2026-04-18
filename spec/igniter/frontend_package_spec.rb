@@ -119,6 +119,9 @@ RSpec.describe "igniter-frontend local gem facade" do
       expect(runtime_headers["Content-Type"]).to include("text/javascript")
       expect(runtime_body.each.to_a.join).to include("window.IgniterFrontend")
       expect(runtime_body.each.to_a.join).to include('register("tabs"')
+      expect(runtime_body.each.to_a.join).to include('register("stream"')
+      expect(runtime_body.each.to_a.join).to include("setTextTarget(name, value)")
+      expect(runtime_body.each.to_a.join).to include("prependHtmlTarget(name, html, options = {})")
 
       expect(app_status).to eq(200)
       expect(app_headers["Content-Type"]).to include("text/javascript")
