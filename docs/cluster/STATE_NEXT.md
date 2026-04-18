@@ -485,61 +485,102 @@ decision = Igniter::Cluster::Mesh.place(:database)
 decision.dimensions[:workload]  # => 1.0 (healthy) or 0.2 (degraded)
 ```
 
-## Architectural Assessment (post Phase 10)
+## Landed AdmissionWorkflow → PeerRegistry Auto-Registration (Phase 11)
+
+The second major integration seam is now closed: admitted peers become immediately routable without any manual registration step.
+
+**What changed:**
+
+- `AdmissionRequest` gains a `url:` field (optional, defaults to `""`) and a `routable?` predicate (`true` when url is non-empty)
+- `AdmissionWorkflow#request_admission` accepts `url:` kwarg and propagates it into the request
+- `AdmissionWorkflow#register_in_peer_registry!(request)` — private method: builds a `Mesh::Peer` with capabilities + trust metadata and calls `config.peer_registry.register(peer)`. No-ops when `!request.routable?`
+- Registration fires at both auto-admit paths: `request_admission` (policy evaluates `:admitted`) and `approve_pending!` (operator approval)
+- `Mesh.request_admission` accepts `url:` kwarg; passes it through to the workflow
+
+**Behaviour:**
+- Peer provides `url:` → on admission, appears in `PeerRegistry`, routable via `Mesh.query`, `Mesh.place`, `Mesh.meshql`
+- Peer omits `url:` → trust-only admission (TrustStore updated, no routing registration); unchanged from Phase 8
+- `reject_pending!` and `expire_stale!` do NOT register — only admitted peers become routable
+
+Spec coverage: 16 new examples in `governance_admission_spec.rb`. Total cluster suite: 913 examples, 0 failures.
+
+Example:
+```ruby
+# Open-key policy: peer is auto-admitted and immediately routable
+Igniter::Cluster::Mesh.configure do |c|
+  c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(
+    known_keys: { "peer-b" => fp_b }
+  )
+end
+
+decision = Igniter::Cluster::Mesh.request_admission(
+  peer_name:    "node-b",
+  node_id:      "peer-b",
+  public_key:   pem,
+  url:          "http://node-b:4567",
+  capabilities: [:database, :rag]
+)
+decision.admitted?  # => true
+
+# Immediately routable — no manual add_peer required
+Igniter::Cluster::Mesh.query.with(:database).map(&:name)  # => ["node-b"]
+Igniter::Cluster::Mesh.place(:rag).url                    # => "http://node-b:4567"
+
+# Manual approval path also registers
+request_id = Igniter::Cluster::Mesh.pending_admissions.first.request_id
+Igniter::Cluster::Mesh.approve_admission!(request_id)
+# => peer is now in PeerRegistry
+```
+
+## Architectural Assessment (post Phase 11)
 
 ### What is genuinely strong
 
-- **Dimensions-first model holds through 10 phases.** The OLAP Point shape has grown from 6 to 7 dimensions, each added without changing the duck-type interface. The pattern is proven.
-- **WorkloadTracker → PlacementPlanner integration seam is now closed.** Runtime failure rate and latency flow through the full observation pipeline: every `Mesh.query`, `Mesh.place`, `Mesh.meshql` call is automatically workload-aware.
+- **Dimensions-first model holds through 11 phases.** Seven OLAP dimensions, all query surfaces consistent, workload data flows automatically.
+- **Two major integration seams now closed:** WorkloadTracker→PlacementPlanner (Phase 10) and AdmissionWorkflow→PeerRegistry (Phase 11). Admitted peers with URLs are immediately routable.
 - **Governance trail is a real control plane.** Events from routing executor, admission workflow, workload tracker, compaction, trust admission, and self-heal make it a live cluster memory.
-- **Zero production dependencies at full functionality.** SHA256, OpenSSL, Net::HTTP, Mutex, Thread — all stdlib. This constraint held through 10 phases.
+- **Zero production dependencies at full functionality.** SHA256, OpenSSL, Net::HTTP, Mutex, Thread — all stdlib. This constraint held through 11 phases.
 - **Companion as proving surface** continues to expose real integration scenarios that unit tests alone would miss.
 
 ### Where the remaining weaknesses are
 
-**Two integration seams still loose:**
-
-- `AdmissionWorkflow → PeerRegistry`: an admitted peer lands in `TrustStore` but not in `PeerRegistry` — invisible to routing until manual registration.
-- `RepairLoop → WorkloadTracker`: two separate signal sources with no unified tick.
+**One integration seam still loose:**
+- `RepairLoop → WorkloadTracker`: two separate signal sources with no unified tick. RepairLoop runs on a config interval; WorkloadTracker is consulted ad-hoc. A single tick would make self-healing more reactive.
 
 **Checkpoint gossip is one-directional.** Checkpoints are built, signed, stored — but not automatically propagated between peers.
 
-**Companion lags phases 6–10.** Dashboard has no workload signals, admission queue UI, distributed RAG demo, or compaction timeline.
+**Companion lags phases 6–11.** Dashboard has no workload signals, admission queue UI, distributed RAG demo, or compaction timeline.
 
 **RAG scoring is keyword-only.** `text_score = hits/words` is primitive. No BM25, no positional weight. Retrieval quality is limited for semantic queries.
 
 ### Key insight (updated)
 
-Phase 10 closed the most expensive integration seam — the one between live runtime signals and the query/placement layer. The system now genuinely reacts to runtime conditions through the same query interface that already handled trust, locality, and health. The remaining seams (admission → registry, repair loop) are smaller in scope.
+Three phases ago the architecture had three loose integration seams. Two are closed. The cluster can now admit a peer, immediately route to it, factor its runtime health into placement scoring, and self-heal from degradation — all through the same query interface. The remaining gap (unified repair tick) is operational quality, not a fundamental seam.
 
 ## Recommended Next Focus
 
 Prioritised by impact:
 
-### Level 1 — Close remaining integration seams
+### Level 1 — Unified repair tick
 
-**A. `AdmissionWorkflow → PeerRegistry` auto-registration** ← *start here*
+**A. `RepairLoop` + `WorkloadTracker` unified tick** ← *start here*
 
-When a peer is admitted, automatically register it in `PeerRegistry` so it becomes routable without a manual step. One clear seam: `AdmissionWorkflow#request_admission` (admitted path) calls `config.peer_registry.register(peer)`.
-
-**B. Unified repair tick: `RepairLoop` + `WorkloadTracker`**
-
-Single periodic tick consults both routing reports and workload signals. Removes duplication, makes self-healing more responsive.
+The `RepairLoop` background thread currently calls `Mesh.self_heal_routing!` from `config.self_heal_report_provider`. Extend it to also call `Mesh.repair_from_workload_signals!` on each tick. Single config flag (`auto_self_heal: true`) enables both.
 
 ### Level 2 — Close architectural gaps (medium priority)
 
-**C. Checkpoint gossip loop**
+**B. Checkpoint gossip loop**
 
 Include `crest_digest` of the latest local checkpoint in `Announcer` payloads. `Poller` stores the latest digest per peer; if a remote checkpoint is newer than local, fetch and persist it. Closes "stronger signed replicated crest exchange".
 
-**D. Companion modernisation**
+**C. Companion modernisation**
 
 Dashboard: workload heatmap per peer, admission queue panel, distributed RAG demo, compaction timeline.
 
 ### Level 3 — Quality (when retrieval matters)
 
-**E. BM25 scoring for RAG** — replace `hits/words` with BM25 (pure math, no deps). Significantly better retrieval quality.
+**D. BM25 scoring for RAG** — replace `hits/words` with BM25 (pure math, no deps). Significantly better retrieval quality.
 
 ## Short Resume Prompt
 
-`Igniter::Cluster` has a full 10-phase implementation: capability mesh, signed identity/trust, OLAP Point observation (7 dimensions) with MeshQL, multi-dimensional placement and rebalancing, compacted governance trail with checkpoint chaining, governance-backed peer admission, distributed RAG fan-out, workload signal tracking, and workload dimension embedded in `NodeObservation`. The WorkloadTracker→PlacementPlanner integration seam is now closed — runtime failure rate and latency automatically flow into every query surface (ObservationQuery, MeshQL, PlacementPlanner, repair). Remaining gaps: admitted peers not auto-registered in PeerRegistry, RepairLoop not unified with WorkloadTracker tick, checkpoint gossip not implemented.
+`Igniter::Cluster` has a full 11-phase implementation: capability mesh, signed identity/trust, OLAP Point observation (7 dimensions) with MeshQL, multi-dimensional placement and rebalancing, compacted governance trail with checkpoint chaining, governance-backed peer admission, distributed RAG fan-out, workload signal tracking, workload dimension in NodeObservation, and AdmissionWorkflow→PeerRegistry auto-registration. Two major integration seams are closed — admitted peers with URLs are immediately routable, and runtime workload data flows into every query surface. Remaining gaps: RepairLoop not unified with WorkloadTracker tick, checkpoint gossip not implemented, companion dashboard lags.

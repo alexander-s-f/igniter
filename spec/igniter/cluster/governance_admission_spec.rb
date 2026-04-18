@@ -51,6 +51,37 @@ RSpec.describe "Igniter::Cluster Governance Admission Workflow (Phase 8)" do
     it "is frozen" do
       expect(req).to be_frozen
     end
+
+    describe "url field" do
+      it "defaults url to empty string when not provided" do
+        expect(req.url).to eq("")
+      end
+
+      it "stores a provided url" do
+        r = described_class.build(peer_name: "n", node_id: "n",
+                                   public_key: identity_a.public_key_pem,
+                                   url: "http://node-a:4567")
+        expect(r.url).to eq("http://node-a:4567")
+      end
+
+      it "routable? is false when url is empty" do
+        expect(req.routable?).to be false
+      end
+
+      it "routable? is true when url is present" do
+        r = described_class.build(peer_name: "n", node_id: "n",
+                                   public_key: identity_a.public_key_pem,
+                                   url: "http://node-a:4567")
+        expect(r.routable?).to be true
+      end
+
+      it "includes url in to_h" do
+        r = described_class.build(peer_name: "n", node_id: "n",
+                                   public_key: identity_a.public_key_pem,
+                                   url: "http://node-a:4567")
+        expect(r.to_h[:url]).to eq("http://node-a:4567")
+      end
+    end
   end
 
   # ── AdmissionDecision ─────────────────────────────────────────────────────────
@@ -312,6 +343,45 @@ RSpec.describe "Igniter::Cluster Governance Admission Workflow (Phase 8)" do
         )
         expect(config.admission_queue&.size.to_i).to eq(0)
       end
+
+      it "registers peer in PeerRegistry when url is provided" do
+        workflow.request_admission(
+          peer_name: "node-b", node_id: "peer-b",
+          public_key: identity_b.public_key_pem,
+          url: "http://node-b:4567"
+        )
+        peer = config.peer_registry.peer_named("node-b")
+        expect(peer).not_to be_nil
+        expect(peer.url).to eq("http://node-b:4567")
+      end
+
+      it "peer in registry has correct capabilities" do
+        workflow.request_admission(
+          peer_name: "node-b", node_id: "peer-b",
+          public_key: identity_b.public_key_pem,
+          url: "http://node-b:4567",
+          capabilities: [:rag, :database]
+        )
+        peer = config.peer_registry.peer_named("node-b")
+        expect(peer.capabilities).to include(:rag, :database)
+      end
+
+      it "does NOT register in PeerRegistry when url is absent" do
+        workflow.request_admission(
+          peer_name: "node-b", node_id: "peer-b", public_key: identity_b.public_key_pem
+        )
+        expect(config.peer_registry.peer_named("node-b")).to be_nil
+      end
+
+      it "admitted peer observation is trust-aware" do
+        workflow.request_admission(
+          peer_name: "node-b", node_id: "peer-b",
+          public_key: identity_b.public_key_pem,
+          url: "http://node-b:4567"
+        )
+        obs = config.peer_registry.observation_for("node-b")
+        expect(obs).to be_trusted
+      end
     end
 
     context "rejection by forbidden capability" do
@@ -370,40 +440,72 @@ RSpec.describe "Igniter::Cluster Governance Admission Workflow (Phase 8)" do
     describe "#approve_pending!" do
       let(:config) { make_config }
 
-      before do
-        workflow.request_admission(
-          peer_name: "node-b", node_id: "peer-b", public_key: identity_b.public_key_pem
-        )
+      context "without url" do
+        before do
+          workflow.request_admission(
+            peer_name: "node-b", node_id: "peer-b", public_key: identity_b.public_key_pem
+          )
+        end
+
+        it "returns :admitted decision" do
+          request_id = config.admission_queue.pending.first.request_id
+          decision = workflow.approve_pending!(request_id)
+          expect(decision).to be_admitted
+        end
+
+        it "adds peer to trust store" do
+          request_id = config.admission_queue.pending.first.request_id
+          workflow.approve_pending!(request_id)
+          expect(config.trust_store.entry_for("peer-b")).not_to be_nil
+        end
+
+        it "removes from pending queue" do
+          request_id = config.admission_queue.pending.first.request_id
+          workflow.approve_pending!(request_id)
+          expect(config.admission_queue.empty?).to be true
+        end
+
+        it "records :admission_approved in the trail" do
+          request_id = config.admission_queue.pending.first.request_id
+          workflow.approve_pending!(request_id)
+          types = config.governance_trail.events.map { |e| e[:type] }
+          expect(types).to include(:admission_approved)
+        end
+
+        it "returns :rejected when request_id is unknown" do
+          decision = workflow.approve_pending!("nonexistent-uuid")
+          expect(decision).to be_rejected
+        end
       end
 
-      it "returns :admitted decision" do
-        request_id = config.admission_queue.pending.first.request_id
-        decision = workflow.approve_pending!(request_id)
-        expect(decision).to be_admitted
-      end
+      context "with url — auto-registration on operator approval" do
+        before do
+          workflow.request_admission(
+            peer_name: "node-b", node_id: "peer-b",
+            public_key: identity_b.public_key_pem,
+            url: "http://node-b:4567",
+            capabilities: [:database]
+          )
+        end
 
-      it "adds peer to trust store" do
-        request_id = config.admission_queue.pending.first.request_id
-        workflow.approve_pending!(request_id)
-        expect(config.trust_store.entry_for("peer-b")).not_to be_nil
-      end
+        it "registers peer in PeerRegistry after operator approval" do
+          request_id = config.admission_queue.pending.first.request_id
+          workflow.approve_pending!(request_id)
+          expect(config.peer_registry.peer_named("node-b")).not_to be_nil
+        end
 
-      it "removes from pending queue" do
-        request_id = config.admission_queue.pending.first.request_id
-        workflow.approve_pending!(request_id)
-        expect(config.admission_queue.empty?).to be true
-      end
+        it "registered peer is routable via observations" do
+          request_id = config.admission_queue.pending.first.request_id
+          workflow.approve_pending!(request_id)
+          obs = config.peer_registry.observations
+          expect(obs.map(&:name)).to include("node-b")
+        end
 
-      it "records :admission_approved in the trail" do
-        request_id = config.admission_queue.pending.first.request_id
-        workflow.approve_pending!(request_id)
-        types = config.governance_trail.events.map { |e| e[:type] }
-        expect(types).to include(:admission_approved)
-      end
-
-      it "returns :rejected when request_id is unknown" do
-        decision = workflow.approve_pending!("nonexistent-uuid")
-        expect(decision).to be_rejected
+        it "does not register when rejected" do
+          request_id = config.admission_queue.pending.first.request_id
+          workflow.reject_pending!(request_id)
+          expect(config.peer_registry.peer_named("node-b")).to be_nil
+        end
       end
     end
 
@@ -528,6 +630,69 @@ RSpec.describe "Igniter::Cluster Governance Admission Workflow (Phase 8)" do
       )
       trail_types = Igniter::Cluster::Mesh.config.governance_trail.events.map { |e| e[:type] }
       expect(trail_types).to include(:admission_requested, :admission_pending)
+    end
+
+    describe "PeerRegistry auto-registration (Phase 11)" do
+      it "auto-registers peer in PeerRegistry when url provided and auto-admitted" do
+        Igniter::Cluster::Mesh.configure do |c|
+          c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(
+            known_keys: { "peer-b" => fp_b }
+          )
+        end
+        Igniter::Cluster::Mesh.request_admission(
+          peer_name: "node-b", node_id: "peer-b",
+          public_key: identity_b.public_key_pem,
+          url: "http://node-b:4567",
+          capabilities: [:database, :rag]
+        )
+        peer = Igniter::Cluster::Mesh.config.peer_registry.peer_named("node-b")
+        expect(peer).not_to be_nil
+        expect(peer.url).to eq("http://node-b:4567")
+        expect(peer.capabilities).to include(:database, :rag)
+      end
+
+      it "peer becomes routable via Mesh.query after auto-registration" do
+        Igniter::Cluster::Mesh.configure do |c|
+          c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(
+            known_keys: { "peer-b" => fp_b }
+          )
+        end
+        Igniter::Cluster::Mesh.request_admission(
+          peer_name: "node-b", node_id: "peer-b",
+          public_key: identity_b.public_key_pem,
+          url: "http://node-b:4567",
+          capabilities: [:database]
+        )
+        result = Igniter::Cluster::Mesh.query.with(:database).map(&:name)
+        expect(result).to include("node-b")
+      end
+
+      it "auto-registers peer after operator approval via Mesh.approve_admission!" do
+        Igniter::Cluster::Mesh.request_admission(
+          peer_name: "node-b", node_id: "peer-b",
+          public_key: identity_b.public_key_pem,
+          url: "http://node-b:4567",
+          capabilities: [:rag]
+        )
+        expect(Igniter::Cluster::Mesh.config.peer_registry.peer_named("node-b")).to be_nil
+
+        request_id = Igniter::Cluster::Mesh.pending_admissions.first.request_id
+        Igniter::Cluster::Mesh.approve_admission!(request_id)
+
+        peer = Igniter::Cluster::Mesh.config.peer_registry.peer_named("node-b")
+        expect(peer).not_to be_nil
+        expect(peer.url).to eq("http://node-b:4567")
+      end
+
+      it "does not register when no url provided (stays pending/approved without routing)" do
+        Igniter::Cluster::Mesh.request_admission(
+          peer_name: "node-b", node_id: "peer-b",
+          public_key: identity_b.public_key_pem
+        )
+        request_id = Igniter::Cluster::Mesh.pending_admissions.first.request_id
+        Igniter::Cluster::Mesh.approve_admission!(request_id)
+        expect(Igniter::Cluster::Mesh.config.peer_registry.peer_named("node-b")).to be_nil
+      end
     end
   end
 end

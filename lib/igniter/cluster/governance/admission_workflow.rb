@@ -9,7 +9,8 @@ module Igniter
       #   2. Evaluate it against AdmissionPolicy + TrustStore
       #   3. Record the outcome in the Governance Trail
       #   4. Update the TrustStore on admission
-      #   5. Return a typed AdmissionDecision
+      #   5. Auto-register the peer in PeerRegistry when url is present
+      #   6. Return a typed AdmissionDecision
       #
       # Outcomes recorded in the governance trail:
       #   :admission_requested     — every inbound request
@@ -37,12 +38,13 @@ module Igniter
         # @param capabilities [Array<Symbol>]
         # @param justification [String, nil]
         # @return [AdmissionDecision]
-        def request_admission(peer_name:, node_id:, public_key:, capabilities: [], justification: nil)
+        def request_admission(peer_name:, node_id:, public_key:, url: nil, capabilities: [], justification: nil)
           request = AdmissionRequest.build(
-            peer_name:    peer_name,
-            node_id:      node_id,
-            public_key:   public_key,
-            capabilities: capabilities,
+            peer_name:     peer_name,
+            node_id:       node_id,
+            public_key:    public_key,
+            url:           url,
+            capabilities:  capabilities,
             justification: justification
           )
 
@@ -55,6 +57,7 @@ module Igniter
           case outcome
           when :admitted
             admit_to_trust_store!(request)
+            register_in_peer_registry!(request)
             trail_record(:admission_admitted, request: request)
           when :pending_approval
             queue.enqueue(request)
@@ -84,6 +87,7 @@ module Igniter
           end
 
           admit_to_trust_store!(request)
+          register_in_peer_registry!(request)
           trail_record(:admission_approved, request: request)
           AdmissionDecision.build(request: request, outcome: :admitted,
                                   rationale: "approved by operator")
@@ -159,6 +163,22 @@ module Igniter
           )
         end
 
+        def register_in_peer_registry!(request)
+          return unless request.routable?
+
+          peer = Igniter::Cluster::Mesh::Peer.new(
+            name:         request.peer_name,
+            url:          request.url,
+            capabilities: request.capabilities,
+            tags:         [],
+            metadata:     {
+              mesh_trust:    { status: "trusted", trusted: true },
+              mesh_identity: { node_id: request.node_id, fingerprint: request.fingerprint }
+            }
+          )
+          @config.peer_registry.register(peer)
+        end
+
         def trail_record(type, request:, extra: {})
           @config.governance_trail&.record(
             type,
@@ -185,7 +205,7 @@ module Igniter
         def stub_request(request_id)
           AdmissionRequest.new(
             request_id: request_id.to_s, peer_name: "unknown", node_id: "unknown",
-            public_key: "", capabilities: [], justification: nil, requested_at: Time.now.utc.iso8601
+            public_key: "", url: "", capabilities: [], justification: nil, requested_at: Time.now.utc.iso8601
           )
         end
       end

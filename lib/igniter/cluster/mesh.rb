@@ -147,14 +147,17 @@ module Igniter
 
         # Submit a peer admission request and receive an immediate decision.
         # The decision may be :admitted, :rejected, :pending_approval, or :already_trusted.
+        # When url: is provided and the peer is admitted, it is automatically registered
+        # in the PeerRegistry and becomes immediately routable.
         #
         # @return [Governance::AdmissionDecision]
-        def request_admission(peer_name:, node_id:, public_key:, capabilities: [], justification: nil)
+        def request_admission(peer_name:, node_id:, public_key:, url: nil, capabilities: [], justification: nil)
           Igniter::Cluster::Governance::AdmissionWorkflow.new(config: config)
             .request_admission(
               peer_name:     peer_name,
               node_id:       node_id,
               public_key:    public_key,
+              url:           url,
               capabilities:  capabilities,
               justification: justification
             )
