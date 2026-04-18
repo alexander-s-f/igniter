@@ -22,8 +22,8 @@ other rich mounted web surfaces.
 
 Authoring guide:
 
-- [Frontend Authoring](../../docs/FRONTEND_AUTHORING.md)
-- [Frontend Components](../../docs/FRONTEND_COMPONENTS.md)
+- [Frontend Authoring](../../docs/guide/frontend-authoring.md)
+- [Frontend Components](../../docs/guide/frontend-components.md)
 - [Guide](../../docs/guide/README.md)
 - [Dev](../../docs/dev/README.md)
 

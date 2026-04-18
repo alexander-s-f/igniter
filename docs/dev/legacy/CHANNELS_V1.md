@@ -5,7 +5,7 @@ Historical reference.
 For the current canonical reading, start with:
 
 - [docs/guide/ai-and-tools.md](./guide/ai-and-tools.md)
-- [docs/sdk/README.md](./sdk/README.md)
+- [docs/guide/sdk.md](../../guide/sdk.md)
 
 ## What This Old Document Was About
 

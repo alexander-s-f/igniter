@@ -4,9 +4,9 @@ Historical reference.
 
 For the current canonical module-system reading, start with:
 
-- [docs/dev/module-system.md](./dev/module-system.md)
-- [docs/dev/package-map.md](./dev/package-map.md)
-- [docs/sdk/README.md](./sdk/README.md)
+- [docs/dev/module-system.md](../module-system.md)
+- [docs/dev/package-map.md](../package-map.md)
+- [docs/guide/sdk.md](../../guide/sdk.md)
 
 ## What This Old Document Was Defining
 
@@ -60,6 +60,6 @@ historical, not normative.
 Use this file as background rationale only. For current placement and ownership
 rules, always prefer:
 
-- [docs/dev/module-system.md](./dev/module-system.md)
-- [docs/dev/package-map.md](./dev/package-map.md)
-- [docs/dev/architecture.md](./dev/architecture.md)
+- [docs/dev/module-system.md](../module-system.md)
+- [docs/dev/package-map.md](../package-map.md)
+- [docs/dev/architecture.md](../architecture.md)

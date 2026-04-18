@@ -16,7 +16,10 @@ From there, Igniter scales by layers instead of by reinvention:
 - **Cluster** for capability-based distributed execution
 - **SDK** for optional packs such as AI, channels, tools, and data
 
-This README is an entrypoint, not the full reference. The reference now lives in [`docs/`](./docs/README.md), split into [`guide`](./docs/guide/README.md) and [`dev`](./docs/dev/README.md).
+This README is an entrypoint, not the full reference. The reference now lives in
+[`docs/`](./docs/README.md), organized into [`guide`](./docs/guide/README.md),
+[`concepts`](./docs/concepts/README.md), [`current`](./docs/current/README.md),
+and [`dev`](./docs/dev/README.md).
 
 ## Why Igniter
 
@@ -125,7 +128,7 @@ Start here if you want the kernel:
 
 Read:
 
-- [`docs/core/`](./docs/core/README.md)
+- [`docs/guide/core.md`](./docs/guide/core.md)
 
 ### 2. App
 
@@ -138,7 +141,7 @@ Use this when you want Igniter to be the runtime shape of an application:
 
 Read:
 
-- [`docs/app/`](./docs/app/README.md)
+- [`docs/guide/app.md`](./docs/guide/app.md)
 
 ### 3. Cluster
 
@@ -151,7 +154,7 @@ Use this when execution stops being single-node:
 
 Read:
 
-- [`docs/cluster/`](./docs/cluster/README.md)
+- [`docs/guide/cluster.md`](./docs/guide/cluster.md)
 
 ### 4. SDK
 
@@ -165,33 +168,33 @@ Use SDK packs when the kernel needs optional capabilities:
 
 Read:
 
-- [`docs/sdk/`](./docs/sdk/README.md)
+- [`docs/guide/sdk.md`](./docs/guide/sdk.md)
 
 ## Suggested Reading Paths
 
 If you are new to Igniter:
 
 1. Read [`docs/guide/`](./docs/guide/README.md)
-2. Read [`docs/core/`](./docs/core/README.md)
+2. Read [`docs/concepts/`](./docs/concepts/README.md)
 3. Run one or two scripts from [`examples/README.md`](./examples/README.md)
 
 If you want to work on Igniter itself:
 
 1. Read [`docs/dev/`](./docs/dev/README.md)
-2. Read [`docs/ARCHITECTURE_INDEX.md`](./docs/ARCHITECTURE_INDEX.md)
+2. Read [`docs/dev/architecture-index.md`](./docs/dev/architecture-index.md)
 3. Then move to the relevant package or layer index
 
 If you want the standard app shape:
 
 1. Read [`docs/guide/`](./docs/guide/README.md)
-2. Read [`docs/app/`](./docs/app/README.md)
-3. Read [`docs/CLI.md`](./docs/CLI.md)
+2. Read [`docs/guide/app.md`](./docs/guide/app.md)
+3. Read [`docs/guide/cli.md`](./docs/guide/cli.md)
 4. Explore [`examples/companion/README.md`](./examples/companion/README.md)
 
 If you want distributed ideas:
 
 1. Read [`docs/guide/`](./docs/guide/README.md)
-2. Read [`docs/cluster/`](./docs/cluster/README.md)
+2. Read [`docs/guide/cluster.md`](./docs/guide/cluster.md)
 3. Run cluster-oriented scripts from [`examples/README.md`](./examples/README.md)
 
 If you are iterating on ideas locally:
@@ -202,9 +205,11 @@ If you are iterating on ideas locally:
 ## Documentation Layout
 
 - [`docs/guide/`](./docs/guide/README.md) — user-facing docs: getting started, API, how-tos, configuration
+- [`docs/concepts/`](./docs/concepts/README.md) — durable mental models and patterns
+- [`docs/current/`](./docs/current/README.md) — current-state notes and near-term direction
 - [`docs/dev/`](./docs/dev/README.md) — internal docs: architecture, package boundaries, migration plans, backlog
 - [`packages/*/README.md`](./packages/igniter-core/README.md) — package-local quick reference owned by each gem
-- [`docs/`](./docs/README.md) — top-level docs portal that routes between guide/dev and layer indexes
+- [`docs/`](./docs/README.md) — top-level docs portal that routes between sections
 
 If you want to scaffold a new stack quickly:
 

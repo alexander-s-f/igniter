@@ -4,9 +4,9 @@ Historical reference.
 
 For the current canonical app model, start with:
 
-- [docs/app/README.md](./app/README.md)
-- [docs/guide/deployment-modes.md](./guide/deployment-modes.md)
-- [docs/guide/configuration.md](./guide/configuration.md)
+- [docs/guide/app.md](../../guide/app.md)
+- [docs/guide/deployment-modes.md](../../guide/deployment-modes.md)
+- [docs/guide/configuration.md](../../guide/configuration.md)
 
 ## What This Old Document Was About
 
@@ -77,6 +77,6 @@ supported stack-runtime model going forward.
 Use this file only as a glossary for older app/service language. For behavior and
 entrypoints that should guide new work, always prefer:
 
-- [docs/app/README.md](./app/README.md)
-- [docs/STACKS_NEXT.md](./STACKS_NEXT.md)
-- [docs/CLI.md](./CLI.md)
+- [docs/guide/app.md](../../guide/app.md)
+- [docs/current/stacks.md](../../current/stacks.md)
+- [docs/guide/cli.md](../../guide/cli.md)

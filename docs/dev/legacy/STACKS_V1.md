@@ -4,9 +4,9 @@ Historical reference.
 
 For the current canonical stack reading, start with:
 
-- [docs/app/README.md](./app/README.md)
-- [docs/STACKS_NEXT.md](./STACKS_NEXT.md)
-- [docs/guide/configuration.md](./guide/configuration.md)
+- [docs/guide/app.md](../../guide/app.md)
+- [docs/current/stacks.md](../../current/stacks.md)
+- [docs/guide/configuration.md](../../guide/configuration.md)
 
 ## What This Old Document Was About
 
@@ -62,6 +62,6 @@ The current preferred reading is:
 Use this file as a glossary for legacy stack/service/topology language only. For
 new work, always prefer:
 
-- [docs/STACKS_NEXT.md](./STACKS_NEXT.md)
-- [docs/app/README.md](./app/README.md)
-- [docs/guide/configuration.md](./guide/configuration.md)
+- [docs/current/stacks.md](../../current/stacks.md)
+- [docs/guide/app.md](../../guide/app.md)
+- [docs/guide/configuration.md](../../guide/configuration.md)

@@ -5,7 +5,7 @@ Historical reference.
 For the current canonical distributed-workflow reading, start with:
 
 - [docs/guide/distributed-workflows.md](./guide/distributed-workflows.md)
-- [docs/cluster/README.md](./cluster/README.md)
+- [docs/guide/cluster.md](../../guide/cluster.md)
 - [docs/guide/deployment-modes.md](./guide/deployment-modes.md)
 
 ## What This Old Document Was Trying To Define
@@ -59,5 +59,5 @@ API or current implementation contract.
 Use this file as background rationale only. For new work, always prefer:
 
 - [docs/guide/distributed-workflows.md](./guide/distributed-workflows.md)
-- [docs/cluster/README.md](./cluster/README.md)
+- [docs/guide/cluster.md](../../guide/cluster.md)
 - [docs/cluster/STATE_NEXT.md](./cluster/STATE_NEXT.md)

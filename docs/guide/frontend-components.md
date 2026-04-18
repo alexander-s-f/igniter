@@ -3,7 +3,7 @@
 This guide shows how we write custom `Igniter::Frontend::Arbre` components
 today.
 
-If [Frontend Authoring](/Users/alex/dev/projects/igniter/docs/FRONTEND_AUTHORING.md)
+If [Frontend Authoring](./frontend-authoring.md)
 explains how to build a page, this guide explains how to grow the component
 vocabulary behind that page.
 

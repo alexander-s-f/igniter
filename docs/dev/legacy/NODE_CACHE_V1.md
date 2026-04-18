@@ -5,7 +5,7 @@ Historical reference.
 For the current canonical reading, start with:
 
 - [docs/guide/core-runtime-features.md](./guide/core-runtime-features.md)
-- [docs/core/README.md](./core/README.md)
+- [docs/guide/core.md](../../guide/core.md)
 
 ## What This Old Document Was About
 

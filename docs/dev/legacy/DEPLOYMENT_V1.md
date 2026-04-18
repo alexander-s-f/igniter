@@ -5,9 +5,9 @@ Historical reference.
 For the current canonical deployment reading, start with:
 
 - [docs/guide/deployment-modes.md](./guide/deployment-modes.md)
-- [docs/guide/configuration.md](./guide/configuration.md)
-- [docs/app/README.md](./app/README.md)
-- [docs/cluster/README.md](./cluster/README.md)
+- [docs/guide/configuration.md](../../guide/configuration.md)
+- [docs/guide/app.md](../../guide/app.md)
+- [docs/guide/cluster.md](../../guide/cluster.md)
 
 ## What This Old Document Contributed
 
@@ -62,6 +62,6 @@ Use this file as a source of older examples and deployment language only. For
 current entrypoints and package-era structure, always prefer:
 
 - [docs/guide/deployment-modes.md](./guide/deployment-modes.md)
-- [docs/guide/configuration.md](./guide/configuration.md)
-- [docs/app/README.md](./app/README.md)
-- [docs/cluster/README.md](./cluster/README.md)
+- [docs/guide/configuration.md](../../guide/configuration.md)
+- [docs/guide/app.md](../../guide/app.md)
+- [docs/guide/cluster.md](../../guide/cluster.md)

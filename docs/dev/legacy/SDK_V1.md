@@ -4,9 +4,9 @@ Historical reference.
 
 For the current canonical SDK reading, start with:
 
-- [docs/sdk/README.md](./sdk/README.md)
-- [docs/guide/api-and-runtime.md](./guide/api-and-runtime.md)
-- [docs/dev/module-system.md](./dev/module-system.md)
+- [docs/guide/sdk.md](../../guide/sdk.md)
+- [docs/guide/api-and-runtime.md](../../guide/api-and-runtime.md)
+- [docs/dev/module-system.md](../module-system.md)
 
 ## What This Old Document Was Trying To Define
 
@@ -68,6 +68,6 @@ Use this file only as background rationale for why SDK exists and how the packs
 were originally framed. For current package ownership, entrypoints, and loading
 rules, always prefer:
 
-- [docs/sdk/README.md](./sdk/README.md)
-- [docs/dev/module-system.md](./dev/module-system.md)
-- [docs/dev/package-map.md](./dev/package-map.md)
+- [docs/guide/sdk.md](../../guide/sdk.md)
+- [docs/dev/module-system.md](../module-system.md)
+- [docs/dev/package-map.md](../package-map.md)

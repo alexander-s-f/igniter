@@ -17,5 +17,5 @@ It also provides the package facade:
 Docs:
 
 - [Guide](../../docs/guide/README.md)
-- [Core layer](../../docs/core/README.md)
+- [Core guide](../../docs/guide/core.md)
 - [Dev](../../docs/dev/README.md)

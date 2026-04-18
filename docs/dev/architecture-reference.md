@@ -478,4 +478,5 @@ require "igniter/cluster"
 Do **not** `require "igniter/cluster"` in an embedded context — it is a cluster-tier
 component with its own operational requirements (quorum, persistent WAL, network ports).
 
-See [`docs/DEPLOYMENT_V1.md`](DEPLOYMENT_V1.md) for full scenario walkthroughs.
+See [`docs/dev/legacy/DEPLOYMENT_V1.md`](./legacy/DEPLOYMENT_V1.md) for full
+scenario walkthroughs.

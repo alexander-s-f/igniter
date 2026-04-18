@@ -15,5 +15,5 @@ Primary entrypoints:
 Docs:
 
 - [Guide](../../docs/guide/README.md)
-- [App layer](../../docs/app/README.md)
+- [App guide](../../docs/guide/app.md)
 - [Dev](../../docs/dev/README.md)

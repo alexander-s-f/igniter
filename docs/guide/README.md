@@ -24,17 +24,23 @@ Igniter.
 - [Distributed Workflows](./distributed-workflows.md)
 - [Core Runtime Features](./core-runtime-features.md)
 - [AI And Tool Surfaces](./ai-and-tools.md)
-- [Core](../core/README.md)
-- [App](../app/README.md)
-- [Cluster](../cluster/README.md)
-- [SDK](../sdk/README.md)
+- [Core](./core.md)
+- [App](./app.md)
+- [Cluster](./cluster.md)
+- [SDK](./sdk.md)
+- [CLI](./cli.md)
+- [Store Adapters](./store-adapters.md)
+- [Frontend Authoring](./frontend-authoring.md)
+- [Frontend Components](./frontend-components.md)
+- [Schema Rendering Authoring](./schema-rendering-authoring.md)
 
 ## Core Guide References
 
-- [Igniter Concepts](../IGNITER_CONCEPTS.md)
+- [Concepts](../concepts/README.md)
+- [Igniter Concepts](../concepts/igniter.md)
+- [Patterns](../concepts/patterns.md)
 - [Examples](../../examples/README.md)
 - [Companion example](../../examples/companion/README.md)
-- [CLI](../CLI.md)
 
 ## Package-Level Docs
 

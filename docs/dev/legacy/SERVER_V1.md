@@ -4,9 +4,9 @@ Historical reference.
 
 For the current canonical hosting reading, start with:
 
-- [docs/app/README.md](./app/README.md)
-- [docs/guide/deployment-modes.md](./guide/deployment-modes.md)
-- [docs/guide/configuration.md](./guide/configuration.md)
+- [docs/guide/app.md](../../guide/app.md)
+- [docs/guide/deployment-modes.md](../../guide/deployment-modes.md)
+- [docs/guide/configuration.md](../../guide/configuration.md)
 
 ## What This Old Document Was About
 
@@ -65,6 +65,6 @@ So this document should no longer be read as the main entrypoint to hosting.
 Use this file as historical API/operations context only. For current entrypoints
 and runtime shape, always prefer:
 
-- [docs/app/README.md](./app/README.md)
-- [docs/guide/deployment-modes.md](./guide/deployment-modes.md)
-- [docs/guide/configuration.md](./guide/configuration.md)
+- [docs/guide/app.md](../../guide/app.md)
+- [docs/guide/deployment-modes.md](../../guide/deployment-modes.md)
+- [docs/guide/configuration.md](../../guide/configuration.md)

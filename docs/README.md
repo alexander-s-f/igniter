@@ -1,81 +1,62 @@
 # Igniter Docs
 
-This directory now has two primary lanes:
+`docs/` is organized by section. Start here, then jump into the lane that matches
+what you are trying to do.
 
-- [Guide](./guide/README.md) for users of Igniter
-- [Dev](./dev/README.md) for contributors working on Igniter itself
+## Sections
 
-Layer indexes still exist, but they now sit under a simpler top-level split.
+- [Guide](./guide/README.md) for user-facing docs: getting started, API,
+  configuration, integrations, and how-tos
+- [Concepts](./concepts/README.md) for mental models and design language
+- [Current](./current/README.md) for active current-state notes and near-term
+  direction
+- [Dev](./dev/README.md) for internal architecture, package boundaries, and
+  roadmap work
+- [Assets](./assets/README.md) for shared documentation media such as logos
 
-## Choose Your Lane
+## Reading Paths
 
 ### I want to use Igniter
-
-Start with:
 
 1. [Guide](./guide/README.md)
 2. [Getting Started](./guide/getting-started.md)
 3. [Core Runtime Features](./guide/core-runtime-features.md)
-4. [Core](./core/README.md)
+4. [Concepts](./concepts/README.md)
 5. [Examples](../examples/README.md)
 
 ### I want to build an app or stack
 
-Start with:
-
 1. [Guide](./guide/README.md)
 2. [How-Tos](./guide/how-tos.md)
-3. [AI And Tool Surfaces](./guide/ai-and-tools.md)
-4. [App](./app/README.md)
-5. [CLI](./CLI.md)
-6. [Companion example](../examples/companion/README.md)
+3. [App](./guide/app.md)
+4. [CLI](./guide/cli.md)
+5. [Companion example](../examples/companion/README.md)
 
 ### I want distributed execution
 
-Start with:
-
 1. [Guide](./guide/README.md)
 2. [Deployment Modes](./guide/deployment-modes.md)
-3. [Configuration](./guide/configuration.md)
-4. [Distributed Workflows](./guide/distributed-workflows.md)
-5. [Cluster](./cluster/README.md)
-6. [cluster/STATE_NEXT.md](./cluster/STATE_NEXT.md)
-7. [cluster/ROADMAP_NEXT.md](./cluster/ROADMAP_NEXT.md)
+3. [Distributed Workflows](./guide/distributed-workflows.md)
+4. [Cluster](./guide/cluster.md)
+5. [Current](./current/README.md)
 
 ### I want to work on the framework
-
-Start with:
 
 1. [Dev](./dev/README.md)
 2. [Architecture](./dev/architecture.md)
 3. [Module System](./dev/module-system.md)
 4. [Package Map](./dev/package-map.md)
-5. [Data Ownership](./dev/data-ownership.md)
-6. The relevant package/layer index below
-
-## Layer Indexes
-
-- [Core](./core/README.md)
-- [App](./app/README.md)
-- [Cluster](./cluster/README.md)
-- [SDK](./sdk/README.md)
+5. [Roadmap](./dev/roadmap.md)
 
 ## Package Docs
 
-User-facing package quick reference belongs next to the owning gem under
+Package-local quick reference belongs next to the owning gem under
 `packages/<gem>/README.md`.
 
-Cross-package guides, tutorials, and conceptual API maps belong in
-[`guide/`](./guide/README.md).
+Cross-package product docs belong in [`guide/`](./guide/README.md),
+cross-package mental models in [`concepts/`](./concepts/README.md), active
+current-state notes in [`current/`](./current/README.md), and internal design
+work in [`dev/`](./dev/README.md).
 
-Internal architecture, placement decisions, migration plans, and backlog belong
-in [`dev/`](./dev/README.md).
-
-Legacy deep-reference documents are cataloged in
+Legacy deep reference is cataloged in
 [`dev/legacy-reference.md`](./dev/legacy-reference.md).
-
-## Compatibility Notes
-
-- Existing legacy docs remain as reference material.
-- Existing `docs/general/` and `docs/development/` paths remain as compatibility entrypoints.
-- The main change here is navigation and ownership, not a forced rewrite of every deep doc in one pass.

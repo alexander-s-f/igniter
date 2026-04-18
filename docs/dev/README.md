@@ -22,16 +22,19 @@ a framework.
 
 ## Package And Layer Boundaries
 
-- [Core](../core/README.md)
-- [App](../app/README.md)
-- [Cluster](../cluster/README.md)
-- [SDK](../sdk/README.md)
+- [Core](../guide/core.md)
+- [App](../guide/app.md)
+- [Cluster](../guide/cluster.md)
+- [SDK](../guide/sdk.md)
 
 ## Active Internal Context
 
-- [Namespace Migration Plan](../NAMESPACE_MIGRATION_PLAN.md)
-- [Backlog](../BACKLOG.md)
-- [Frontend Packages Idea](../FRONTEND_PACKAGES_IDEA.md)
+- [Architecture Index](./architecture-index.md)
+- [Architecture Reference](./architecture-reference.md)
+- [Execution Model](./execution-model.md)
+- [Namespace Migration Plan](./namespace-migration-plan.md)
+- [Backlog](./backlog.md)
+- [Frontend Packages Idea](./frontend-packages-idea.md)
 - [Data Ownership](./data-ownership.md)
 
 ## Working Heuristics

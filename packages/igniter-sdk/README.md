@@ -21,5 +21,5 @@ Primary entrypoints:
 Docs:
 
 - [Guide](../../docs/guide/README.md)
-- [SDK layer](../../docs/sdk/README.md)
+- [SDK guide](../../docs/guide/sdk.md)
 - [Dev](../../docs/dev/README.md)
