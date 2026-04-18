@@ -16,10 +16,11 @@ module Igniter
         autoload :Page, "igniter/plugins/view/arbre/page"
         autoload :RawTextNode, "igniter/plugins/view/arbre/raw_text_node"
         autoload :TemplatePage, "igniter/plugins/view/arbre/template_page"
+        Components.autoload :Badge, "igniter/plugins/view/arbre/components/badge"
         Components.autoload :Breadcrumbs, "igniter/plugins/view/arbre/components/breadcrumbs"
         Components.autoload :Card, "igniter/plugins/view/arbre/components/card"
-
-        View.const_set(:ArbrePage, TemplatePage) unless View.const_defined?(:ArbrePage, false)
+        Components.autoload :PageHeader, "igniter/plugins/view/arbre/components/page_header"
+        Components.autoload :Panel, "igniter/plugins/view/arbre/components/panel"
 
         module_function
 
@@ -51,6 +52,8 @@ module Igniter
                 "Arbre integration requires the `arbre` gem. Add it to your app and load " \
                 "`igniter/plugins/view/arbre` only where you need that adapter."
         end
+
+        View.const_set(:ArbrePage, TemplatePage) unless View.const_defined?(:ArbrePage, false)
       end
     end
   end

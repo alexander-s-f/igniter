@@ -4,6 +4,12 @@ module Igniter
   module Plugins
     module View
       module Arbre
+        require_relative "components/badge"
+        require_relative "components/breadcrumbs"
+        require_relative "components/card"
+        require_relative "components/page_header"
+        require_relative "components/panel"
+
         class TemplatePage
           UNSET = Object.new
 

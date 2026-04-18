@@ -12,14 +12,19 @@ module Igniter
 
             DEFAULT_LINE_LIST_CLASS = "mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-[minmax(140px,190px)_1fr]".freeze
 
-            def build(title: nil, subtitle: nil, theme: :companion, class_name: nil, **attributes, &block)
+            def build(*args, &block)
+              options = extract_options!(args)
+              title = options.delete(:title)
+              subtitle = options.delete(:subtitle)
+              theme = options.delete(:theme) || :companion
+              class_name = options.delete(:class_name)
               @theme = ui_theme(theme)
               wrapper_class = merge_classes(@theme.surface(:schema_card_class), class_name)
 
-              super(attributes.merge(class: wrapper_class))
+              super(options.merge(class: wrapper_class))
               render_header(title, subtitle)
               @lines = dl(class: DEFAULT_LINE_LIST_CLASS)
-              instance_exec(&block) if block
+              render_build_block(block)
             end
 
             def line(label, value = nil, as_code: false)

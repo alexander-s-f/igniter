@@ -17,17 +17,21 @@ module Igniter
             DEFAULT_CURRENT_CLASS = "font-medium text-white".freeze
             DEFAULT_SEPARATOR_CLASS = "text-stone-600".freeze
 
-            def build(theme: :companion, class_name: nil, list_class: nil, **attributes, &block)
+            def build(*args, &block)
+              options = extract_options!(args)
+              theme = options.delete(:theme) || :companion
+              class_name = options.delete(:class_name)
+              list_class = options.delete(:list_class)
               ui_theme(theme)
-              @item_class = merge_classes(DEFAULT_ITEM_CLASS, attributes.delete(:item_class))
-              @link_class = merge_classes(DEFAULT_LINK_CLASS, attributes.delete(:link_class))
-              @current_class = merge_classes(DEFAULT_CURRENT_CLASS, attributes.delete(:current_class))
-              @separator_class = merge_classes(DEFAULT_SEPARATOR_CLASS, attributes.delete(:separator_class))
+              @item_class = merge_classes(DEFAULT_ITEM_CLASS, options.delete(:item_class))
+              @link_class = merge_classes(DEFAULT_LINK_CLASS, options.delete(:link_class))
+              @current_class = merge_classes(DEFAULT_CURRENT_CLASS, options.delete(:current_class))
+              @separator_class = merge_classes(DEFAULT_SEPARATOR_CLASS, options.delete(:separator_class))
               @index = 0
 
-              super(attributes.merge(class: merge_classes(DEFAULT_NAV_CLASS, class_name), "aria-label": "Breadcrumb"))
+              super(options.merge(class: merge_classes(DEFAULT_NAV_CLASS, class_name), "aria-label": "Breadcrumb"))
               @crumbs = ol(class: merge_classes(DEFAULT_LIST_CLASS, list_class))
-              instance_exec(&block) if block
+              render_build_block(block)
             end
 
             def crumb(label, value = nil, current: false)

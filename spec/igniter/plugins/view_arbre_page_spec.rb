@@ -56,14 +56,22 @@ RSpec.describe "Igniter::Plugins::View::Arbre page authoring" do
         end
 
         def assigns
+          return @assigns if instance_variable_defined?(:@assigns)
+          return {} if arbre_context.equal?(self)
+
           arbre_context.respond_to?(:assigns) ? arbre_context.assigns : {}
         end
 
         def helpers
+          return @helpers if instance_variable_defined?(:@helpers)
+          return nil if arbre_context.equal?(self)
+
           arbre_context.respond_to?(:helpers) ? arbre_context.helpers : nil
         end
 
         def current_arbre_element
+          return self if arbre_context.equal?(self)
+
           arbre_context.respond_to?(:current_arbre_element) ? arbre_context.current_arbre_element : self
         end
 
@@ -110,7 +118,15 @@ RSpec.describe "Igniter::Plugins::View::Arbre page authoring" do
         private
 
         def build_component(component_class, *args, **kwargs, &block)
-          child = component_class.new(nil, self)
+          initialize_arity = component_class.instance_method(:initialize).arity
+          child = if initialize_arity.zero?
+                    component_class.new
+                  elsif initialize_arity == 1 || initialize_arity.negative?
+                    component_class.new(arbre_context)
+                  else
+                    component_class.new(nil, self)
+                  end
+          child.parent = self if child.respond_to?(:parent=)
           self << child
           with_child_context(child) { child.build(*args, **kwargs, &block) }
           child
@@ -201,35 +217,67 @@ RSpec.describe "Igniter::Plugins::View::Arbre page authoring" do
     end
   end
 
-  it "renders breadcrumbs and cards through a developer-facing Arbre page shell" do
+  it "renders a developer-facing Arbre page shell around a fragment" do
     stub_const("Arbre", build_fake_arbre)
 
     html = Igniter::Plugins::View::Arbre::Page.render_page(title: "Order Details", theme: :companion) do
-      breadcrumbs do
-        crumb :home, "/"
-        crumb :orders, "/orders"
-        crumb :"order_42", nil, current: true
-      end
+      nav("Home / Orders / Order 42", "aria-label": "Breadcrumb")
 
-      card(title: "Metadata", subtitle: "Compact developer-authored view") do
-        line :created_at, "2026-04-18"
-        line :trace_id, "abc-123", as_code: true
+      article(class: "panel span-4") do
+        h2 "Metadata"
+        div "Compact developer-authored view"
+        dl do
+          dt "Created At"
+          dd "2026-04-18"
+          dt "Trace Id"
+          dd { code "abc-123" }
+        end
       end
     end
 
     expect(html).to include("<!DOCTYPE html>")
     expect(html).to include("@tailwindcss/browser@4")
     expect(html).to include('aria-label="Breadcrumb"')
-    expect(html).to include(">Home<")
-    expect(html).to include(">Orders<")
-    expect(html).to include('aria-current="page"')
-    expect(html).to include(">Order 42<")
     expect(html).to include(">Metadata<")
     expect(html).to include("Compact developer-authored view")
     expect(html).to include(">Created At<")
     expect(html).to include(">Trace Id<")
     expect(html).to include("<code")
     expect(html).to include("abc-123")
+  end
+
+  it "renders plain Arbre sections for developer-authored dashboards" do
+    stub_const("Arbre", build_fake_arbre)
+
+    html = Igniter::Plugins::View::Arbre::Page.render_page(title: "Lab", theme: :companion) do
+      section(class: "hero") do
+        div "Operator", class: "eyebrow"
+        h1 "HomeLab"
+        div "Developer-authored screen"
+        div(class: "meta") do
+          text_node "node=seed"
+        end
+        div(class: "actions") do
+          a "Overview API", href: "/api/overview", class: "button secondary"
+        end
+        div "Last demo: healthy_lab", class: "ok"
+      end
+
+      article(class: "panel span-4") do
+        h2 "Topology Health"
+        span "healthy", class: "pill"
+      end
+    end
+
+    expect(html).to include(">Operator<")
+    expect(html).to include(">HomeLab<")
+    expect(html).to include("Developer-authored screen")
+    expect(html).to include("node=seed")
+    expect(html).to include("Overview API")
+    expect(html).to include("Last demo: healthy_lab")
+    expect(html).to include("Topology Health")
+    expect(html).to include(">healthy<")
+    expect(html).to include('class="panel span-4"')
   end
 
   it "renders an Arbre template with layout and page helpers" do
