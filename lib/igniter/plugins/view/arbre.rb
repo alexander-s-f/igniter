@@ -29,6 +29,7 @@ module Igniter
         Components.autoload :Panel, "igniter/plugins/view/arbre/components/panel"
         Components.autoload :ResourceList, "igniter/plugins/view/arbre/components/resource_list"
         Components.autoload :ScenarioCard, "igniter/plugins/view/arbre/components/scenario_card"
+        Components.autoload :Tabs, "igniter/plugins/view/arbre/components/tabs"
 
         module_function
 

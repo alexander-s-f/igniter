@@ -17,6 +17,7 @@ module Igniter
         require_relative "components/panel"
         require_relative "components/resource_list"
         require_relative "components/scenario_card"
+        require_relative "components/tabs"
 
         class TemplatePage
           UNSET = Object.new

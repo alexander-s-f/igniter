@@ -15,6 +15,7 @@ require_relative "components/page_header"
 require_relative "components/panel"
 require_relative "components/resource_list"
 require_relative "components/scenario_card"
+require_relative "components/tabs"
 
 module Igniter
   module Plugins
