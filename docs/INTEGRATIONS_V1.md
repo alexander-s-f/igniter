@@ -200,6 +200,8 @@ exposes shared presets for:
 
 Authoring guide:
 
+- [Frontend Authoring](./FRONTEND_AUTHORING.md)
+- [Frontend Components](./FRONTEND_COMPONENTS.md)
 - [Schema Rendering Authoring](./SCHEMA_RENDERING_AUTHORING.md)
 
 ## Mental Model

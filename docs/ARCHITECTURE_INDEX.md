@@ -117,6 +117,13 @@ Prefer the smallest require that matches the feature you need.
 | Frontend package | `require "igniter-frontend"` |
 | Schema rendering package | `require "igniter-schema-rendering"` |
 
+Frontend docs:
+
+- [Frontend Authoring](./FRONTEND_AUTHORING.md)
+- [Frontend Components](./FRONTEND_COMPONENTS.md)
+- [Schema Rendering Authoring](./SCHEMA_RENDERING_AUTHORING.md)
+- [Frontend Packages Idea](./FRONTEND_PACKAGES_IDEA.md)
+
 ## Placement Heuristics
 
 If you are adding new code:

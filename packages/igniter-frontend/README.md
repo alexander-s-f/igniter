@@ -19,6 +19,11 @@ The goal is to give Igniter apps a small, coherent, HTML-first framework for
 building dashboards, chats, operator tools, decentralized personal apps, and
 other rich mounted web surfaces.
 
+Authoring guide:
+
+- [Frontend Authoring](/Users/alex/dev/projects/igniter/docs/FRONTEND_AUTHORING.md)
+- [Frontend Components](/Users/alex/dev/projects/igniter/docs/FRONTEND_COMPONENTS.md)
+
 ## First-cut API
 
 ```ruby

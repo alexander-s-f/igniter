@@ -24,6 +24,8 @@ Use this section when Igniter becomes the runtime shape of an application, not j
 
 - [Store Adapters](../STORE_ADAPTERS.md)
 - [Schema Rendering Authoring](../SCHEMA_RENDERING_AUTHORING.md)
+- [Frontend Authoring](../FRONTEND_AUTHORING.md)
+- [Frontend Components](../FRONTEND_COMPONENTS.md)
 - [Integrations v1](../INTEGRATIONS_V1.md)
 
 ## Examples
