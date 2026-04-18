@@ -9,6 +9,18 @@ module Igniter
         class MissingDependencyError < LoadError
         end
 
+        module Components
+        end
+
+        autoload :Component, "igniter/plugins/view/arbre/component"
+        autoload :Page, "igniter/plugins/view/arbre/page"
+        autoload :RawTextNode, "igniter/plugins/view/arbre/raw_text_node"
+        autoload :TemplatePage, "igniter/plugins/view/arbre/template_page"
+        Components.autoload :Breadcrumbs, "igniter/plugins/view/arbre/components/breadcrumbs"
+        Components.autoload :Card, "igniter/plugins/view/arbre/components/card"
+
+        View.const_set(:ArbrePage, TemplatePage) unless View.const_defined?(:ArbrePage, false)
+
         module_function
 
         def available?
@@ -23,6 +35,10 @@ module Igniter
 
         def context_class
           dependency.const_get(:Context)
+        end
+
+        def ensure_available!
+          dependency
         end
 
         def dependency

@@ -5,6 +5,7 @@ require_relative "view/builder"
 require_relative "view/component"
 require_relative "view/form_builder"
 require_relative "view/page"
+require_relative "view/schema/page"
 require_relative "view/response"
 require_relative "view/schema"
 require_relative "view/schema_patcher"
@@ -17,6 +18,9 @@ require_relative "view/submission_validator"
 module Igniter
   module Plugins
     module View
+      ArbrePage = Arbre::TemplatePage if defined?(Arbre::TemplatePage) && !const_defined?(:ArbrePage, false)
+      SchemaPage = Schema::Page unless const_defined?(:SchemaPage, false)
+
       module_function
 
       def render(&block)

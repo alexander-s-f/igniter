@@ -165,6 +165,64 @@ Arbre is attractive here because it keeps the whole stack inside Ruby:
 
 That matches the “lego-style” philosophy well.
 
+## Two Authoring Lanes
+
+The view plugin is now clearly pulling in two different directions, and that is a
+good thing if the split stays explicit:
+
+- `schema` authoring for persisted, portable, machine-friendly UI/runtime flows
+- Arbre-style authoring for developer-written pages, dashboards, and app UI
+
+The key design rule should be:
+
+- do not make developers author normal app UI through schema-first JSON trees
+
+That schema lane is still very valuable for:
+
+- agent-created views
+- persisted/public form definitions
+- lightweight editors/catalogs
+- generic renderers and submission runtimes
+
+But the primary developer experience should stay Ruby-native and compact.
+
+### Practical interpretation
+
+- `Igniter::Plugins::View::SchemaRenderer` remains the runtime for persisted view schemas
+- `Igniter::Plugins::View::Arbre::*` becomes the developer-facing authoring layer
+- `Igniter::Plugins::View::Tailwind::UI::*` remains the semantic styling/component layer shared by both lanes
+
+This keeps the machine/runtime representation important without forcing it to be the
+main hand-authored representation.
+
+## Starter Arbre Slice
+
+The first developer-facing Arbre slice should stay intentionally small:
+
+- `Igniter::Plugins::View::Arbre::Page.render_page(...)`
+- `Igniter::Plugins::View::Arbre::Components::Breadcrumbs`
+- `Igniter::Plugins::View::Arbre::Components::Card`
+
+That enables a much simpler authoring story for early app UI:
+
+```ruby
+Igniter::Plugins::View::Arbre::Page.render_page(title: "Order") do
+  breadcrumbs do
+    crumb :home, "/"
+    crumb :orders, "/orders"
+    crumb :"order_42", nil, current: true
+  end
+
+  card(title: "Metadata") do
+    line :created_at, order.created_at
+    line :updated_at, order.updated_at
+  end
+end
+```
+
+This is the kind of API that helps developers learn Igniter itself, because it
+lowers the cost of sketching useful UI around contracts, stores, and stack apps.
+
 ## Practical pattern we are already learning
 
 `examples/companion_legacy/apps/dashboard` currently uses:
