@@ -8,6 +8,8 @@ RSpec.describe "Igniter module layout" do
   CORE_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-core/lib/igniter")
   SDK_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-sdk/lib/igniter")
   APP_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-app/lib/igniter")
+  SERVER_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-server/lib/igniter")
+  CLUSTER_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-cluster/lib/igniter")
 
   def children_for(path)
     Dir.children(path).sort
@@ -15,14 +17,10 @@ RSpec.describe "Igniter module layout" do
 
   it "keeps only canonical top-level runtime and registry entrypoints under lib/igniter" do
     expect(children_for(IGNITER_LIB)).to eq(%w[
-      cluster
-      cluster.rb
       extensions
       monorepo_packages.rb
       plugins
       plugins.rb
-      server
-      server.rb
       stack.rb
     ])
   end
@@ -48,6 +46,64 @@ RSpec.describe "Igniter module layout" do
       "scaffold_pack.rb",
       "stack.rb",
       "stack_pack.rb"
+    )
+  end
+
+  it "keeps server entrypoints inside the local server package" do
+    expect(children_for(SERVER_LIB)).to eq(%w[
+      server
+      server.rb
+    ])
+  end
+
+  it "keeps server packs under the canonical server namespace inside the package" do
+    expect(children_for(File.join(SERVER_LIB, "server"))).to include(
+      "app_host.rb",
+      "client.rb",
+      "config.rb",
+      "handlers",
+      "http_server.rb",
+      "rack_app.rb",
+      "registry.rb",
+      "remote_adapter.rb",
+      "router.rb",
+      "server_logger.rb"
+    )
+  end
+
+  it "keeps cluster entrypoints inside the local cluster package" do
+    expect(children_for(CLUSTER_LIB)).to eq(%w[
+      cluster
+      cluster.rb
+    ])
+  end
+
+  it "keeps cluster packs under the canonical cluster namespace inside the package" do
+    expect(children_for(File.join(CLUSTER_LIB, "cluster"))).to include(
+      "consensus",
+      "consensus.rb",
+      "diagnostics",
+      "diagnostics.rb",
+      "events",
+      "events.rb",
+      "governance",
+      "governance.rb",
+      "identity",
+      "identity.rb",
+      "mesh",
+      "mesh.rb",
+      "ownership",
+      "ownership.rb",
+      "projection_store.rb",
+      "rag",
+      "rag.rb",
+      "remote_adapter.rb",
+      "replication",
+      "replication.rb",
+      "routing_plan_executor.rb",
+      "routing_plan_result.rb",
+      "trust",
+      "trust.rb"
     )
   end
 

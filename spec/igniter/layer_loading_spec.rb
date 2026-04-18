@@ -15,6 +15,8 @@ RSpec.describe "Igniter layer loading" do
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-sdk/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-app/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-server/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-cluster/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-frontend/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-schema-rendering/lib", #{ROOT.inspect}))
       require #{entrypoint.inspect}
@@ -42,6 +44,8 @@ RSpec.describe "Igniter layer loading" do
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-sdk/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-app/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-server/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-cluster/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-frontend/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-schema-rendering/lib", #{ROOT.inspect}))
       require #{entrypoint.inspect}
@@ -60,6 +64,8 @@ RSpec.describe "Igniter layer loading" do
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-sdk/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-app/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-server/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-cluster/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-frontend/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-schema-rendering/lib", #{ROOT.inspect}))
       require "igniter"
@@ -83,10 +89,18 @@ RSpec.describe "Igniter layer loading" do
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-sdk/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-app/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-server/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-cluster/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-frontend/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-schema-rendering/lib", #{ROOT.inspect}))
       require #{entrypoint.inspect}
-      puts JSON.generate(Igniter::App::HostRegistry.names.map(&:to_s).sort)
+      names =
+        if defined?(Igniter::App::HostRegistry)
+          Igniter::App::HostRegistry.names.map(&:to_s).sort
+        else
+          []
+        end
+      puts JSON.generate(names)
     RUBY
 
     stdout, stderr, status = Open3.capture3(RbConfig.ruby, "-e", script, chdir: ROOT)
@@ -102,6 +116,8 @@ RSpec.describe "Igniter layer loading" do
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-sdk/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-app/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-server/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-cluster/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-frontend/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-schema-rendering/lib", #{ROOT.inspect}))
       require #{entrypoint.inspect}
@@ -121,6 +137,8 @@ RSpec.describe "Igniter layer loading" do
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-sdk/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-app/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-server/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-cluster/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-frontend/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-schema-rendering/lib", #{ROOT.inspect}))
       require #{entrypoint.inspect}
@@ -389,6 +407,44 @@ RSpec.describe "Igniter layer loading" do
     expect(error).to include("igniter/rails")
   end
 
+  it "`require \"igniter/server\"` loads the canonical server pack directly" do
+    features = loaded_igniter_features("igniter/server")
+
+    expect(features).to include("packages/igniter-server/lib/igniter/server.rb")
+    expect(features).to include("packages/igniter-server/lib/igniter/server/config.rb")
+    expect(features).to include("packages/igniter-server/lib/igniter/server/router.rb")
+    expect(features).to include("packages/igniter-server/lib/igniter/server/http_server.rb")
+    expect(features).not_to include("packages/igniter-app/lib/igniter/app/app_host_pack.rb")
+    expect(features).not_to include("igniter/cluster.rb")
+  end
+
+  it "`require \"igniter-server\"` loads the server package directly" do
+    features = loaded_igniter_features("igniter-server")
+
+    expect(features).to include("packages/igniter-server/lib/igniter-server.rb")
+    expect(features).to include("packages/igniter-server/lib/igniter/server.rb")
+    expect(features).not_to include("igniter/cluster.rb")
+    expect(features).not_to include("packages/igniter-app/lib/igniter/app.rb")
+  end
+
+  it "`require \"igniter/cluster\"` loads the canonical cluster pack directly" do
+    features = loaded_igniter_features("igniter/cluster")
+
+    expect(features).to include("packages/igniter-cluster/lib/igniter/cluster.rb")
+    expect(features).to include("packages/igniter-cluster/lib/igniter/cluster/mesh.rb")
+    expect(features).to include("packages/igniter-cluster/lib/igniter/cluster/remote_adapter.rb")
+    expect(features).to include("packages/igniter-server/lib/igniter/server.rb")
+    expect(features).not_to include("packages/igniter-app/lib/igniter/app.rb")
+  end
+
+  it "`require \"igniter-cluster\"` loads the cluster package directly" do
+    features = loaded_igniter_features("igniter-cluster")
+
+    expect(features).to include("packages/igniter-cluster/lib/igniter-cluster.rb")
+    expect(features).to include("packages/igniter-cluster/lib/igniter/cluster.rb")
+    expect(features).not_to include("packages/igniter-app/lib/igniter/app.rb")
+  end
+
   it "`require \"igniter/server\"` does not mutate the runtime remote adapter by itself" do
     adapter_classes = runtime_remote_adapter_classes_for("igniter/server")
 
@@ -480,9 +536,9 @@ RSpec.describe "Igniter layer loading" do
     })
   end
 
-  it "`require \"igniter/cluster\"` registers both app host profiles" do
+  it "`require \"igniter/cluster\"` does not register app host profiles by itself" do
     host_names = registered_host_names_for("igniter/cluster")
 
-    expect(host_names).to eq(["app", "cluster_app"])
+    expect(host_names).to eq([])
   end
 end

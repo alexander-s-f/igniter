@@ -62,6 +62,8 @@ RSpec.describe Igniter::App::Generators::Playground do
         expect(File.read("playgrounds/home-lab/Gemfile")).to include('gem "igniter-core", path: "../../packages/igniter-core"')
         expect(File.read("playgrounds/home-lab/Gemfile")).to include('gem "igniter-sdk", path: "../../packages/igniter-sdk"')
         expect(File.read("playgrounds/home-lab/Gemfile")).to include('gem "igniter-app", path: "../../packages/igniter-app"')
+        expect(File.read("playgrounds/home-lab/Gemfile")).to include('gem "igniter-server", path: "../../packages/igniter-server"')
+        expect(File.read("playgrounds/home-lab/Gemfile")).to include('gem "igniter-cluster", path: "../../packages/igniter-cluster"')
       end
     end
   end
