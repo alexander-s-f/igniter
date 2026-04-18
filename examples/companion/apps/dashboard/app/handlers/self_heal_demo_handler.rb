@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../shared/routing_demo"
+require_relative "../routing_demo"
 
 module Companion
   module Dashboard
@@ -9,7 +9,7 @@ module Companion
 
       def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
         scenario = params.fetch("scenario", body.fetch("scenario", "governance_gate")).to_s
-        Companion::Shared::RoutingDemo.run!(scenario: scenario)
+        Companion::Dashboard::RoutingDemo.run!(scenario: scenario)
         base_path = base_path_for(env)
         location = [base_path, ""].reject(&:empty?).join("/") + "/?demo=#{scenario}"
 

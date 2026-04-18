@@ -40,12 +40,17 @@ module Companion
             notes: notes.size,
             discovered_peers: CapabilityProfile.discovered_peers.size,
             trusted_peers: CapabilityProfile.discovered_peers.count { |peer| peer.dig(:trust, :status) == :trusted },
-            routing_plans: routing[:plan_count]
+            routing_plans: routing[:plan_count],
+            pending_admissions: admission_snapshot.size,
+            workload_peers: workload_snapshot.size
           },
           notes: notes.first(8),
           current_node: CapabilityProfile.discovery_snapshot,
           routing: routing,
           discovered_peers: CapabilityProfile.discovered_peers,
+          workload: workload_snapshot,
+          governance: governance_snapshot,
+          pending_admissions: admission_snapshot,
           nodes: nodes,
           apps: deployment.fetch("apps").transform_values do |config|
             {
@@ -60,8 +65,10 @@ module Companion
       def routing_snapshot
         report = Igniter::Cluster::Mesh.config.current_routing_report
         routing = Hash(report&.dig(:routing) || {})
-        trail = Igniter::Cluster::Mesh.config.governance_trail.snapshot(limit: 8)
-        latest_tick = Array(trail[:events]).reverse.find { |event| event[:type] == :routing_self_heal_tick }
+        trail = Igniter::Cluster::Mesh.config.governance_trail.snapshot(limit: 20)
+        events = Array(trail[:events]).reverse
+        latest_tick          = events.find { |e| e[:type] == :routing_self_heal_tick }
+        latest_workload_tick = events.find { |e| e[:type] == :workload_self_heal_tick }
 
         {
           active: !routing.empty?,
@@ -82,6 +89,11 @@ module Companion
             type: latest_tick[:type],
             timestamp: latest_tick[:timestamp],
             payload: latest_tick[:payload]
+          },
+          latest_workload_tick: latest_workload_tick && {
+            type: latest_workload_tick[:type],
+            timestamp: latest_workload_tick[:timestamp],
+            payload: latest_workload_tick[:payload]
           }
         }
       rescue StandardError
@@ -94,8 +106,69 @@ module Companion
           incidents: {},
           plan_actions: {},
           entries: [],
-          latest_self_heal_tick: nil
+          latest_self_heal_tick: nil,
+          latest_workload_tick: nil
         }
+      end
+
+      def workload_snapshot
+        tracker = Igniter::Cluster::Mesh.config.workload_tracker
+        return [] unless tracker
+
+        tracker.all_reports.map do |peer_name, report|
+          {
+            peer_name:    peer_name,
+            total:        report.total,
+            failure_rate: report.failure_rate.round(3),
+            avg_ms:       report.avg_duration_ms&.round(1),
+            degraded:     report.degraded?,
+            overloaded:   report.overloaded?,
+            healthy:      report.healthy?
+          }
+        end.sort_by { |r| [-r[:failure_rate].to_f, r[:peer_name]] }
+      rescue StandardError
+        []
+      end
+
+      def governance_snapshot
+        trail = Igniter::Cluster::Mesh.config.governance_trail
+        snap  = trail.snapshot(limit: 20)
+        store = Igniter::Cluster::Mesh.config.checkpoint_store
+        cp    = store&.load
+
+        {
+          total:         snap[:total],
+          by_type:       snap[:by_type] || {},
+          recent_events: Array(snap[:events]).last(8).reverse.map do |ev|
+            { type: ev[:type], source: ev[:source], timestamp: ev[:timestamp] }
+          end,
+          checkpoint: cp && {
+            peer_name:       cp.peer_name,
+            crest_digest:    cp.crest_digest,
+            checkpointed_at: cp.checkpointed_at,
+            chained:         cp.chained?
+          }
+        }
+      rescue StandardError
+        { total: 0, by_type: {}, recent_events: [], checkpoint: nil }
+      end
+
+      def admission_snapshot
+        queue = Igniter::Cluster::Mesh.config.admission_queue
+        return [] unless queue
+
+        queue.pending.map do |req|
+          {
+            request_id:   req.request_id,
+            peer_name:    req.peer_name,
+            node_id:      req.node_id,
+            capabilities: Array(req.capabilities),
+            requested_at: req.requested_at,
+            routable:     req.routable?
+          }
+        end
+      rescue StandardError
+        []
       end
     end
   end

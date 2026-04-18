@@ -3,11 +3,12 @@
 require "igniter/app"
 require "igniter/cluster"
 require "igniter/core"
-require_relative "../../lib/companion/main/status_handler"
-require_relative "../../lib/companion/main/notes_list_handler"
-require_relative "../../lib/companion/main/notes_create_handler"
-require_relative "../../lib/companion/main/rag_search_handler"
+require_relative "app/handlers/status_handler"
+require_relative "app/handlers/notes_list_handler"
+require_relative "app/handlers/notes_create_handler"
+require_relative "app/handlers/rag_search_handler"
 require_relative "../../lib/companion/shared/capability_profile"
+require_relative "../../lib/companion/shared/note_store"
 
 module Companion
   class MainApp < Igniter::App
@@ -20,6 +21,8 @@ module Companion
     executors_path "app/executors"
     contracts_path "app/contracts"
     agents_path    "app/agents"
+
+    expose :notes_api, Companion::Shared::NoteStore
 
     route "GET",  "/v1/home/status", with: Companion::Main::StatusHandler
     route "GET",  "/v1/notes",       with: Companion::Main::NotesListHandler

@@ -50,6 +50,8 @@ module Igniter
               metadata: attributes[:metadata] || {}
             )
           )
+
+          CheckpointGossip.sync(attributes[:metadata] || {}, config: @config, source: :gossip)
         end
       rescue Igniter::Server::Client::ConnectionError
         nil

@@ -110,6 +110,9 @@ module Companion
           view.tag(:section, class: "grid gap-5 xl:grid-cols-2") do |section|
             section.component(current_node_panel)
             section.component(self_heal_panel)
+            section.component(workload_panel)
+            section.component(governance_panel)
+            section.component(admission_panel)
             section.component(notes_panel)
             section.component(nodes_panel)
           end
@@ -158,7 +161,8 @@ module Companion
 
         def self_heal_panel
           routing = snapshot.fetch(:routing)
-          tick = routing[:latest_self_heal_tick]
+          tick    = routing[:latest_self_heal_tick]
+          wl_tick = routing[:latest_workload_tick]
 
           ui_theme.panel(
             title: "Self-Heal Demo",
@@ -187,7 +191,8 @@ module Companion
                   ["plans", routing[:plan_count]],
                   ["incidents", inline_counts(routing[:incidents])],
                   ["plan actions", inline_counts(routing[:plan_actions])],
-                  ["last self-heal", tick ? tick[:timestamp] : "pending"]
+                  ["last routing tick", tick ? tick[:timestamp] : "pending"],
+                  ["last workload tick", wl_tick ? wl_tick[:timestamp] : "none"]
                 ])
               )
 
@@ -206,6 +211,130 @@ module Companion
               )
             else
               panel.tag(:p, "No routing incidents published yet.", class: ui_theme.empty_state_class)
+            end
+          end
+        end
+
+        def workload_panel
+          workload = snapshot.fetch(:workload, [])
+
+          ui_theme.panel(
+            title: "Workload Health",
+            subtitle: "Per-peer failure rates and latency from the WorkloadTracker sliding window."
+          ) do |panel|
+            if workload.empty?
+              panel.tag(:p, "No workload signals recorded yet. Signals are collected automatically during request routing.", class: ui_theme.empty_state_class)
+            else
+              panel.component(
+                Igniter::Frontend::Tailwind::UI::KeyValueList.new(
+                  rows: workload.map do |r|
+                    status = if r[:degraded] && r[:overloaded]
+                               "degraded + overloaded"
+                             elsif r[:degraded]
+                               "DEGRADED"
+                             elsif r[:overloaded]
+                               "OVERLOADED"
+                             else
+                               "healthy"
+                             end
+                    [
+                      r[:peer_name],
+                      "signals=#{r[:total]} failure_rate=#{r[:failure_rate]} avg_ms=#{r[:avg_ms] || '-'} [#{status}]"
+                    ]
+                  end
+                )
+              )
+            end
+          end
+        end
+
+        def governance_panel
+          gov    = snapshot.fetch(:governance, {})
+          cp     = gov[:checkpoint]
+          events = gov[:recent_events] || []
+          by_type = gov[:by_type] || {}
+
+          ui_theme.panel(
+            title: "Governance Trail",
+            subtitle: "Live event stream, compaction state, and replicated checkpoint."
+          ) do |panel|
+            panel.component(
+              Igniter::Frontend::Tailwind::UI::KeyValueList.new(rows: [
+                ["total events", gov[:total] || 0],
+                ["checkpoint peer", cp ? cp[:peer_name] : "none"],
+                ["crest_digest", cp ? cp[:crest_digest] : "-"],
+                ["checkpointed_at", cp ? cp[:checkpointed_at] : "-"],
+                ["chained", cp ? cp[:chained].to_s : "-"]
+              ])
+            )
+
+            unless by_type.empty?
+              panel.tag(:h3, "Events by Type", class: ui_theme.section_heading_class)
+              panel.component(
+                Igniter::Frontend::Tailwind::UI::KeyValueList.new(
+                  rows: by_type.map { |type, count| [type.to_s, count] }.sort_by { |t, _| t }
+                )
+              )
+            end
+
+            unless events.empty?
+              panel.tag(:h3, "Recent Events", class: ui_theme.section_heading_class)
+              panel.component(
+                ui_theme.resource_list(
+                  items: events.map do |ev|
+                    {
+                      title: ev[:type].to_s,
+                      meta: "source=#{ev[:source]}",
+                      body: ev[:timestamp].to_s
+                    }
+                  end,
+                  compact: true
+                )
+              )
+            end
+          end
+        end
+
+        def admission_panel
+          pending = snapshot.fetch(:pending_admissions, [])
+
+          ui_theme.panel(
+            title: "Admission Queue",
+            subtitle: "Peers awaiting operator approval to join the cluster."
+          ) do |panel|
+            if pending.empty?
+              panel.tag(:p, "No pending admission requests.", class: ui_theme.empty_state_class)
+            else
+              pending.each do |req|
+                panel.component(
+                  ui_theme.resource_list(
+                    items: [
+                      {
+                        title: req[:peer_name],
+                        meta:  "node_id=#{req[:node_id]} routable=#{req[:routable]}",
+                        body:  "caps=#{req[:capabilities].join(', ')} requested=#{req[:requested_at]}"
+                      }
+                    ],
+                    compact: true
+                  )
+                )
+                panel.component(
+                  Igniter::Frontend::Tailwind::UI::ActionBar.new(class_name: "flex gap-2 mb-4") do |actions|
+                    actions.form(
+                      action: route("/admin/admission?action=admit&request_id=#{req[:request_id]}"),
+                      method: "post"
+                    ) do |form|
+                      form.submit("Approve", class: token.action(variant: :primary, theme: :orange, size: :sm))
+                    end
+                    actions.form(
+                      action: route("/admin/admission?action=reject&request_id=#{req[:request_id]}"),
+                      method: "post"
+                    ) do |form|
+                      form.submit("Reject", class: token.action(variant: :secondary, size: :sm))
+                    end
+                  end
+                )
+              end
             end
           end
         end

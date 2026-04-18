@@ -381,6 +381,178 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
 
       expect(call_count).to be >= 2
     end
+
+    context "checkpoint gossip (Poller)" do
+      let(:remote_identity) { Igniter::Cluster::Identity::NodeIdentity.generate(node_id: "orders-node") }
+      let(:remote_trail) do
+        Igniter::Cluster::Governance::Trail.new.tap do |t|
+          t.record(:routing_plan_applied, source: :spec, payload: {})
+        end
+      end
+      let(:remote_checkpoint) do
+        Igniter::Cluster::Governance::Checkpoint.build(
+          identity: remote_identity, peer_name: "orders-node", trail: remote_trail
+        )
+      end
+      let(:checkpoint_store) do
+        Igniter::Cluster::Governance::Stores::CheckpointStore.new(
+          path: File.join(Dir.tmpdir, "igniter_test_cp_poller_#{Process.pid}.json")
+        )
+      end
+
+      before do
+        config.gossip_fanout  = 0
+        config.checkpoint_store = checkpoint_store
+      end
+      after { checkpoint_store.clear! }
+
+      def stub_seed_with_checkpoint(cp)
+        client_double = instance_double(Igniter::Server::Client)
+        allow(Igniter::Server::Client).to receive(:new).and_return(client_double)
+        allow(client_double).to receive(:list_peers).and_return([
+          {
+            name: "orders-node",
+            url: "http://orders:4567",
+            capabilities: [:orders],
+            metadata: {
+              mesh_governance: {
+                peer_name:       cp.peer_name,
+                checkpointed_at: cp.checkpointed_at,
+                crest_digest:    cp.crest_digest,
+                checkpoint:      cp.to_h
+              }
+            }
+          }
+        ])
+      end
+
+      it "saves a newer remote checkpoint to the local store" do
+        stub_seed_with_checkpoint(remote_checkpoint)
+
+        poller.poll_once
+
+        saved = checkpoint_store.load
+        expect(saved).not_to be_nil
+        expect(saved.crest_digest).to eq(remote_checkpoint.crest_digest)
+      end
+
+      it "records :checkpoint_replicated in the governance trail" do
+        stub_seed_with_checkpoint(remote_checkpoint)
+
+        poller.poll_once
+
+        snap = config.governance_trail.snapshot(limit: 10)
+        expect(snap[:by_type]).to include(checkpoint_replicated: 1)
+      end
+
+      it "does not overwrite a local checkpoint that is equally or more recent" do
+        local_identity = Igniter::Cluster::Identity::NodeIdentity.generate(node_id: "local")
+        local_trail = Igniter::Cluster::Governance::Trail.new
+        # Build local checkpoint with a timestamp strictly after the remote one
+        future_ts = (Time.parse(remote_checkpoint.checkpointed_at) + 60).utc.iso8601
+        local_cp  = Igniter::Cluster::Governance::Checkpoint.build(
+          identity: local_identity, peer_name: "local", trail: local_trail,
+          checkpointed_at: future_ts
+        )
+        checkpoint_store.save(local_cp)
+
+        stub_seed_with_checkpoint(remote_checkpoint)
+        poller.poll_once
+
+        saved = checkpoint_store.load
+        expect(saved.crest_digest).to eq(local_cp.crest_digest)
+      end
+
+      it "does not save a checkpoint with an invalid signature" do
+        tampered = remote_checkpoint.to_h.merge(crest: { total: 999 })
+        client_double = instance_double(Igniter::Server::Client)
+        allow(Igniter::Server::Client).to receive(:new).and_return(client_double)
+        allow(client_double).to receive(:list_peers).and_return([
+          {
+            name: "orders-node", url: "http://orders:4567", capabilities: [],
+            metadata: { mesh_governance: { checkpoint: tampered } }
+          }
+        ])
+
+        poller.poll_once
+
+        expect(checkpoint_store.load).to be_nil
+      end
+
+      it "is a no-op when checkpoint_store is not configured" do
+        config.checkpoint_store = nil
+        stub_seed_with_checkpoint(remote_checkpoint)
+
+        expect { poller.poll_once }.not_to raise_error
+      end
+    end
+  end
+
+  describe Igniter::Cluster::Mesh::GossipRound do
+    let(:config) do
+      Igniter::Cluster::Mesh::Config.new.tap do |c|
+        c.peer_name    = "api-node"
+        c.local_url    = "http://api:4567"
+        c.gossip_fanout = 1
+      end
+    end
+    subject(:gossip_round) { described_class.new(config) }
+
+    let(:remote_identity) { Igniter::Cluster::Identity::NodeIdentity.generate(node_id: "orders-node") }
+    let(:remote_trail) do
+      Igniter::Cluster::Governance::Trail.new.tap do |t|
+        t.record(:routing_plan_applied, source: :spec, payload: {})
+      end
+    end
+    let(:remote_checkpoint) do
+      Igniter::Cluster::Governance::Checkpoint.build(
+        identity: remote_identity, peer_name: "orders-node", trail: remote_trail
+      )
+    end
+    let(:checkpoint_store) do
+      Igniter::Cluster::Governance::Stores::CheckpointStore.new(
+        path: File.join(Dir.tmpdir, "igniter_test_cp_gossip_#{Process.pid}.json")
+      )
+    end
+
+    before { config.checkpoint_store = checkpoint_store }
+    after  { checkpoint_store.clear! }
+
+    it "syncs a newer checkpoint received via gossip" do
+      # Register a peer so GossipRound has a candidate
+      peer = Igniter::Cluster::Mesh::Peer.new(
+        name: "orders-node", url: "http://orders:4567",
+        capabilities: [:orders], tags: [], metadata: {}
+      )
+      config.peer_registry.register(peer)
+
+      client_double = instance_double(Igniter::Server::Client)
+      allow(Igniter::Server::Client).to receive(:new).and_return(client_double)
+      allow(client_double).to receive(:list_peers).and_return([
+        {
+          name: "other-node",
+          url: "http://other:4567",
+          capabilities: [:api],
+          metadata: {
+            mesh_governance: {
+              peer_name:       remote_checkpoint.peer_name,
+              checkpointed_at: remote_checkpoint.checkpointed_at,
+              crest_digest:    remote_checkpoint.crest_digest,
+              checkpoint:      remote_checkpoint.to_h
+            }
+          }
+        }
+      ])
+
+      gossip_round.run
+
+      saved = checkpoint_store.load
+      expect(saved).not_to be_nil
+      expect(saved.crest_digest).to eq(remote_checkpoint.crest_digest)
+
+      snap = config.governance_trail.snapshot(limit: 10)
+      expect(snap[:by_type]).to include(checkpoint_replicated: 1)
+    end
   end
 
   describe Igniter::Cluster::Mesh::RepairLoop do

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "igniter-frontend"
-require_relative "../shared/note_store"
-require_relative "../shared/stack_overview"
-require_relative "views/home_page"
+require_relative "../../../../lib/companion/shared/note_store"
+require_relative "../../../../lib/companion/shared/stack_overview"
+require_relative "../views/home_page"
 
 module Companion
   module Dashboard

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "json"
-require_relative "../shared/stack_overview"
+require_relative "../../../../lib/companion/shared/stack_overview"
 
 module Companion
   module Dashboard

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "json"
-require_relative "../shared/note_store"
+require_relative "../../../../lib/companion/shared/note_store"
 
 module Companion
   module Main

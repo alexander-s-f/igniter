@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Companion
-  module Shared
+  module Dashboard
     module RoutingDemo
       module_function
 

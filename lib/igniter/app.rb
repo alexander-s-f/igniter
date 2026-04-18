@@ -99,6 +99,15 @@ module Igniter
         self
       end
 
+      def expose(name, callable)
+        @exposed_interfaces ||= {}
+        @exposed_interfaces[name.to_sym] = callable
+      end
+
+      def exposed_interfaces
+        @exposed_interfaces || {}
+      end
+
       def evolution_store(store = UNDEFINED_EVOLUTION_STORE)
         return @evolution_store if store.equal?(UNDEFINED_EVOLUTION_STORE)
 

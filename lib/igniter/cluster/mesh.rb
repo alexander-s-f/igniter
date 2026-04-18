@@ -21,6 +21,7 @@ require_relative "mesh/router"
 require_relative "mesh/announcer"
 require_relative "mesh/poller"
 require_relative "mesh/repair_loop"
+require_relative "mesh/checkpoint_gossip"
 require_relative "mesh/discovery"
 require_relative "mesh/gossip"
 

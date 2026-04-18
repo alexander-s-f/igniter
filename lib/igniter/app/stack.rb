@@ -20,7 +20,7 @@ module Igniter
   # Apps are pluggable mounted packages. Nodes are launch profiles of the same
   # stack. The stack itself owns the server/runtime boundary.
   class Stack
-    AppDefinition = Struct.new(:name, :path, :klass, :root, keyword_init: true)
+    AppDefinition = Struct.new(:name, :path, :klass, :root, :access_to, keyword_init: true)
     ConsoleContext = Struct.new(
       :stack_class,
       :root_app_name,
@@ -87,7 +87,7 @@ module Igniter
         @procfile_dev_path = path
       end
 
-      def app(name = nil, path: nil, klass: nil, default: false)
+      def app(name = nil, path: nil, klass: nil, default: false, access_to: [])
         if path || klass
           raise ArgumentError, "stack app registration requires both path: and klass:" unless path && klass
 
@@ -95,7 +95,8 @@ module Igniter
             name: name.to_sym,
             path: path.to_s,
             klass: klass,
-            root: default
+            root: default,
+            access_to: Array(access_to).map(&:to_sym)
           )
 
           @apps[definition.name] = definition
@@ -119,6 +120,20 @@ module Igniter
 
       def app_names
         @apps.keys
+      end
+
+      def interface(name)
+        @apps.each_value do |definition|
+          callable = definition.klass.exposed_interfaces[name.to_sym]
+          return callable if callable
+        end
+        raise KeyError, "No registered app exposes interface #{name.inspect}"
+      end
+
+      def interfaces
+        @apps.each_value.each_with_object({}) do |definition, hash|
+          definition.klass.exposed_interfaces.each { |iface_name, callable| hash[iface_name] = callable }
+        end
       end
 
       def root_app
@@ -496,6 +511,19 @@ module Igniter
 
       private
 
+      def validate_interface_access!
+        exposed = interfaces
+        @apps.each_value do |definition|
+          definition.access_to.each do |required|
+            next if exposed.key?(required)
+
+            raise ArgumentError,
+              "App #{definition.name.inspect} declares access_to #{required.inspect} " \
+              "but no registered app exposes it. Known interfaces: #{exposed.keys.inspect}"
+          end
+        end
+      end
+
       def parse_cli_options(argv)
         options = {}
 
@@ -686,6 +714,7 @@ module Igniter
       end
 
       def build_stack_runtime(node_name = nil)
+        validate_interface_access!
         selected_node = nodes_defined? ? resolve_node_name(node_name) : nil
         root_app_name = root_app
         root_app_class = app_class(root_app_name)

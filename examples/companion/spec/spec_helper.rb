@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require "rspec"
+
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+
 require_relative "../stack"
 
 Companion::Stack.setup_load_paths!

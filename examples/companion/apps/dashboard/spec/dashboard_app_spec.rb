@@ -111,4 +111,63 @@ RSpec.describe Companion::DashboardApp do
     expect(payload.dig("routing", "latest_self_heal_tick", "payload", "applied")).to eq(1)
     expect(payload.dig("routing", "latest_self_heal_tick", "payload", "skipped")).to eq(1)
   end
+
+  it "home page renders new workload, governance, and admission panels" do
+    app  = described_class.rack_app
+    _, _, body = app.call(
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/",
+      "rack.input" => StringIO.new
+    )
+    html = body.each.to_a.join
+
+    expect(html).to include("Workload Health")
+    expect(html).to include("Governance Trail")
+    expect(html).to include("Admission Queue")
+  end
+
+  it "overview includes workload, governance, and pending_admissions keys" do
+    app = described_class.rack_app
+    _, _, body = app.call(
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/api/overview",
+      "rack.input" => StringIO.new
+    )
+    payload = JSON.parse(body.each.to_a.join)
+
+    expect(payload).to have_key("workload")
+    expect(payload).to have_key("governance")
+    expect(payload).to have_key("pending_admissions")
+    expect(payload["workload"]).to be_an(Array)
+    expect(payload["governance"]).to include("total", "by_type", "recent_events")
+    expect(payload["pending_admissions"]).to be_an(Array)
+  end
+
+  it "admission action handler redirects after approve action" do
+    app = described_class.rack_app
+
+    status, headers, = app.call(
+      "REQUEST_METHOD" => "POST",
+      "PATH_INFO" => "/admin/admission",
+      "QUERY_STRING" => "action=admit&request_id=nonexistent-id",
+      "rack.input" => StringIO.new
+    )
+
+    expect(status).to eq(303)
+    expect(headers["Location"]).to eq("/?admission=admit")
+  end
+
+  it "admission action handler redirects after reject action" do
+    app = described_class.rack_app
+
+    status, headers, = app.call(
+      "REQUEST_METHOD" => "POST",
+      "PATH_INFO" => "/admin/admission",
+      "QUERY_STRING" => "action=reject&request_id=nonexistent-id",
+      "rack.input" => StringIO.new
+    )
+
+    expect(status).to eq(303)
+    expect(headers["Location"]).to eq("/?admission=reject")
+  end
 end

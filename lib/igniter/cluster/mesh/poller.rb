@@ -80,6 +80,8 @@ module Igniter
               metadata: attributes[:metadata] || {}
             )
           )
+
+          CheckpointGossip.sync(attributes[:metadata] || {}, config: @config, source: :poller)
         end
       rescue Igniter::Server::Client::ConnectionError
         nil

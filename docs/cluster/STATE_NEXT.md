@@ -569,46 +569,110 @@ Igniter::Cluster::Mesh.start_repair_loop!
 # { type: :workload_self_heal_tick, payload: { degraded: ["node-b"], plans: 1, applied: 1, ... } }
 ```
 
-## Architectural Assessment (post Phase 12)
+## Landed Checkpoint Gossip Loop (Phase 13)
+
+Governance checkpoints are now automatically replicated across the mesh during every peer discovery and gossip exchange. This closes the "one-directional checkpoint" gap: nodes receive peers' signed checkpoints passively during normal discovery, compare them to the local checkpoint, and persist any newer one.
+
+**What changed:**
+
+- `Mesh::CheckpointGossip` — new module with a single `sync(peer_metadata, config:, source:)` method:
+  1. Extracts `mesh_governance.checkpoint` hash from peer metadata (already embedded by `PeerIdentityEnvelope#attach_governance`)
+  2. Reconstructs a `Governance::Checkpoint` via `from_h`
+  3. Verifies the RSA/ECDSA signature — tampered or unsigned payloads are silently dropped
+  4. Compares `checkpointed_at` timestamps against the local `CheckpointStore`
+  5. Saves only when the remote checkpoint is strictly newer than the local one
+  6. Records `:checkpoint_replicated` governance trail event on save: `{ from_peer:, crest_digest:, checkpointed_at: }`
+  7. All errors swallowed via `rescue StandardError` — checkpoint sync is best-effort
+- `Poller#fetch_peers_from` — calls `CheckpointGossip.sync(attributes[:metadata], config: @config, source: :poller)` after each peer registration
+- `GossipRound#exchange_with` — calls `CheckpointGossip.sync(attributes[:metadata], config: @config, source: :gossip)` after each peer registration
+- Both paths are no-ops when `config.checkpoint_store` is nil
+
+**Security:**
+- Self-verifying: remote checkpoint carries its own `public_key`; signature is verified before acceptance
+- Timestamps compared as `Time` objects, not strings, preventing timezone-format edge cases
+- Tampered checkpoints (crest modified after signing) fail `verify_signature` and are dropped silently
+
+**New governance trail event:**
+- `:checkpoint_replicated` — recorded when a newer remote checkpoint is persisted locally; payload: `{ source: :poller|:gossip, from_peer:, crest_digest:, checkpointed_at: }`
+
+Spec coverage: 6 new examples — 5 in Poller checkpoint gossip context + 1 GossipRound describe block. Total cluster suite: **924 examples, 0 failures**.
+
+Example:
+```ruby
+Igniter::Cluster::Mesh.configure do |c|
+  c.peer_name       = "api-node"
+  c.seeds           = %w[http://seed1:4567]
+  c.checkpoint_store = Igniter::Cluster::Governance::Stores::CheckpointStore.new(
+    path: "var/governance/checkpoint.json"
+  )
+end
+
+# On every poll_once tick, if any peer carries a newer signed checkpoint:
+# 1. Checkpoint is verified and saved to checkpoint_store
+# 2. Governance trail records :checkpoint_replicated
+# 3. Next compact_governance! chains from the replicated checkpoint
+
+Igniter::Cluster::Mesh.start_discovery!
+
+# Later inspection:
+cp = Igniter::Cluster::Mesh.config.checkpoint_store.load
+cp.crest_digest    # => "3a8f..."
+cp.verify_signature # => true
+```
+
+## Landed Companion Modernisation (Phase 14)
+
+The companion dashboard now surfaces three new operational panels, bringing it in sync with the Phase 10–13 cluster infrastructure.
+
+**What changed:**
+
+**`StackOverview` additions:**
+- `workload_snapshot` — reads from `WorkloadTracker.all_reports`; returns sorted array of `{ peer_name, total, failure_rate, avg_ms, degraded, overloaded, healthy }` hashes; no-op when tracker not configured
+- `governance_snapshot` — reads `Trail#snapshot(limit: 20)`, `CheckpointStore#load`; returns `{ total, by_type, recent_events (last 8, newest-first), checkpoint (peer_name, crest_digest, checkpointed_at, chained) }`
+- `admission_snapshot` — reads `AdmissionQueue#pending`; returns array of `{ request_id, peer_name, node_id, capabilities, requested_at, routable }` hashes
+- `routing_snapshot` extended with `latest_workload_tick` field (mirrors `latest_self_heal_tick` for `:workload_self_heal_tick` events)
+- `counts` extended with `pending_admissions:` and `workload_peers:` metric counts
+
+**Three new `HomePage` panels:**
+- **Workload Health** — per-peer KeyValueList: `signals=N failure_rate=0.xxx avg_ms=NN [healthy|DEGRADED|OVERLOADED|degraded + overloaded]`; empty-state message when no signals recorded
+- **Governance Trail** — checkpoint summary (peer, digest, timestamp, chained flag), events-by-type counts, recent events resource list (type, source, timestamp); no-op sections when empty
+- **Admission Queue** — pending requests resource list with per-request Approve / Reject form buttons (POST to `/admin/admission?action=admit|reject&request_id=...`); empty-state when queue is clear
+
+**Self-Heal panel updated:** "last self-heal" row renamed to "last routing tick"; new "last workload tick" row shows `:workload_self_heal_tick` timestamp
+
+**New handler and route:**
+- `AdmissionActionHandler` — `POST /admin/admission`; reads `action` and `request_id` from query string (via `URI.decode_www_form`); calls `Mesh.approve_admission!` or `Mesh.reject_admission!`; redirects to `/?admission=admit|reject`
+- Route wired in `DashboardApp`: `route "POST", "/admin/admission", with: Companion::Dashboard::AdmissionActionHandler`
+
+Spec coverage: 4 new examples in `dashboard_app_spec.rb` (panel presence, overview keys, admit redirect, reject redirect). Companion suite: **8 examples, 0 failures**. Full cluster suite: **924 examples, 0 failures**.
+
+## Architectural Assessment (post Phase 14)
 
 ### What is genuinely strong
 
-- **Dimensions-first model holds through 12 phases.** Seven OLAP dimensions, all query surfaces consistent, workload data flows automatically.
-- **All three major integration seams now closed:** WorkloadTracker→PlacementPlanner (Phase 10), AdmissionWorkflow→PeerRegistry (Phase 11), RepairLoop→WorkloadTracker unified tick (Phase 12).
-- **Governance trail is a real control plane.** Events from routing executor, admission workflow, workload tracker, compaction, trust admission, and both self-heal paths make it a live cluster memory.
-- **Zero production dependencies at full functionality.** SHA256, OpenSSL, Net::HTTP, Mutex, Thread — all stdlib. This constraint held through 12 phases.
-- **Companion as proving surface** continues to expose real integration scenarios that unit tests alone would miss.
+- **Dimensions-first model holds through 14 phases.** Seven OLAP dimensions, all query surfaces consistent, workload data flows automatically.
+- **All integration seams closed.** WorkloadTracker→PlacementPlanner, AdmissionWorkflow→PeerRegistry, RepairLoop unified tick, passive checkpoint gossip — all landed.
+- **Companion is now a genuine proving surface.** Workload heatmap, governance trail, admission queue, and self-heal demo all visible and operable from the dashboard without code changes.
+- **Zero production dependencies at full functionality.** SHA256, OpenSSL, Net::HTTP, Mutex, Thread — all stdlib. This constraint held through 14 phases.
 
 ### Where the remaining weaknesses are
 
-**Checkpoint gossip is one-directional.** Checkpoints are built, signed, stored — but not automatically propagated between peers.
-
-**Companion lags phases 6–12.** Dashboard has no workload signals, admission queue UI, distributed RAG demo, or compaction timeline.
-
 **RAG scoring is keyword-only.** `text_score = hits/words` is primitive. No BM25, no positional weight. Retrieval quality is limited for semantic queries.
+
+**Checkpoint gossip is passive.** Checkpoints are synced when peers are discovered, but there is no active push. Good enough for most topologies; active push would be an edge-case improvement.
+
+**Companion RAG demo is absent.** The `RagSearchHandler` exists in the main app but the dashboard has no search UI for it.
 
 ### Key insight (updated)
 
-All three integration seams that were identified after Phase 9 are now closed. The cluster can admit a peer, immediately route to it, factor its runtime health into placement scoring, and self-heal from both routing diagnostics and workload degradation signals — all on a single background tick, all recorded in the governance trail. The system is now operationally complete at the self-healing layer.
+Fourteen phases in, and the cluster is operationally self-contained: admission, routing, workload health, self-healing, governance compaction, checkpoint replication, and now operator visibility through a live dashboard. The remaining work is retrieval quality (BM25) and the RAG demo UI — neither is a seam in the infrastructure.
 
 ## Recommended Next Focus
 
-Prioritised by impact:
+### Level 3 — Retrieval quality
 
-### Level 2 — Close architectural gaps (medium priority)
-
-**B. Checkpoint gossip loop**
-
-Include `crest_digest` of the latest local checkpoint in `Announcer` payloads. `Poller` stores the latest digest per peer; if a remote checkpoint is newer than local, fetch and persist it. Closes "stronger signed replicated crest exchange".
-
-**C. Companion modernisation**
-
-Dashboard: workload heatmap per peer, admission queue panel, distributed RAG demo, compaction timeline.
-
-### Level 3 — Quality (when retrieval matters)
-
-**D. BM25 scoring for RAG** — replace `hits/words` with BM25 (pure math, no deps). Significantly better retrieval quality.
+**D. BM25 scoring for RAG** — replace `hits/words` with BM25 (pure math, no deps). Significantly better retrieval quality for multi-word queries. Scoring formula: `TF × IDF` with length normalization; all math is stdlib Ruby arithmetic.
 
 ## Short Resume Prompt
 
-`Igniter::Cluster` has a full 12-phase implementation: capability mesh, signed identity/trust, OLAP Point observation (7 dimensions) with MeshQL, multi-dimensional placement and rebalancing, compacted governance trail with checkpoint chaining, governance-backed peer admission, distributed RAG fan-out, workload signal tracking, workload dimension in NodeObservation, AdmissionWorkflow→PeerRegistry auto-registration, and unified RepairLoop tick (routing + workload on every interval). All three major integration seams are closed. Remaining gaps: checkpoint gossip not implemented, companion dashboard lags phases 6–12, RAG scoring keyword-only.
+`Igniter::Cluster` has a full 14-phase implementation: capability mesh, signed identity/trust, OLAP Point observation (7 dimensions) with MeshQL, multi-dimensional placement and rebalancing, compacted governance trail with checkpoint chaining, governance-backed peer admission, distributed RAG fan-out, workload signal tracking, workload dimension in NodeObservation, AdmissionWorkflow→PeerRegistry auto-registration, unified RepairLoop tick (routing + workload), passive checkpoint gossip, and companion dashboard modernisation (workload heatmap, governance trail panel, admission queue with approve/reject UI). All integration seams closed. Remaining: BM25 for RAG scoring.
