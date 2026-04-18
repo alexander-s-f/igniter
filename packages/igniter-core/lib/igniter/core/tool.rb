@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require_relative "errors"
+require_relative "runtime/deferred_result"
+require_relative "executor"
+
 module Igniter
   # Base class for AI-callable tools.
   #

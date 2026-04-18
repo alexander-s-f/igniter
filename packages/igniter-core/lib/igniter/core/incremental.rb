@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../igniter"
+require_relative "errors"
 require_relative "incremental/result"
 require_relative "incremental/tracker"
 require_relative "incremental/formatter"

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "../../igniter"
-require_relative "../extensions/invariants"
+require_relative "contract"
+require_relative "extensions/invariants"
 require_relative "property_testing/generators"
 require_relative "property_testing/run"
 require_relative "property_testing/result"

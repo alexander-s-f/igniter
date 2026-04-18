@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "errors"
 require_relative "agent/message"
 require_relative "agent/mailbox"
 require_relative "agent/state_holder"
