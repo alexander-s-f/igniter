@@ -532,40 +532,68 @@ Igniter::Cluster::Mesh.approve_admission!(request_id)
 # => peer is now in PeerRegistry
 ```
 
-## Architectural Assessment (post Phase 11)
+## Landed Unified Repair Tick (Phase 12)
+
+The `RepairLoop` background thread is now a single, unified tick that consumes both signal sources simultaneously.
+
+**What changed:**
+
+- `RepairLoop#heal_once` is now the unified entry point: calls `execute_routing_heal` (existing path) and `execute_workload_heal` (new path) in sequence on every tick
+- `execute_routing_heal` — extracted from the former `heal_once` body; records `:routing_self_heal_tick` governance trail event; backward-compatible return type (`RoutingPlanResult`)
+- `execute_workload_heal` — new private method: reads `degraded_peers` and `overloaded_peers` from `config.workload_tracker`, builds observations from `PeerRegistry` + static peers, generates `:refresh_capabilities` plans for each problem peer, executes them via `RoutingPlanExecutor`, records `:workload_self_heal_tick` governance trail event with `{ degraded:, overloaded:, plans:, applied:, blocked: }` payload
+- `execute_workload_heal` is only called when `@config.workload_tracker` is set — zero overhead when workload tracking is not configured
+- Both repair paths are fully independent: a `StandardError` in workload heal returns nil (does not interrupt routing heal); a `StandardError` in routing heal returns `idle_result(:loop_error)` as before
+- Backward-compatible: `heal_once` still returns the `RoutingPlanResult` from the routing path
+
+**New governance trail event:**
+- `:workload_self_heal_tick` — recorded when at least one degraded or overloaded peer generates plans; payload: `{ source: :repair_loop, degraded: [...], overloaded: [...], plans: N, applied: N, blocked: N }`
+
+Spec coverage: 5 new examples in `mesh_discovery_spec.rb` (workload tick context). Total cluster suite: **918 examples, 0 failures**.
+
+Example:
+```ruby
+Igniter::Cluster::Mesh.configure do |c|
+  c.peer_name          = "api-node"
+  c.self_heal_interval = 30           # seconds between ticks
+  c.workload_tracker   = Igniter::Cluster::Mesh::WorkloadTracker.new
+end
+
+# On each background tick, both repair paths run:
+#   1. Routing diagnostics plans (from config.self_heal_report_provider)
+#   2. Workload-degraded peer plans (from config.workload_tracker)
+
+Igniter::Cluster::Mesh.start_repair_loop!
+
+# Governance trail captures both:
+# { type: :routing_self_heal_tick, payload: { plans: 2, applied: 2, ... } }
+# { type: :workload_self_heal_tick, payload: { degraded: ["node-b"], plans: 1, applied: 1, ... } }
+```
+
+## Architectural Assessment (post Phase 12)
 
 ### What is genuinely strong
 
-- **Dimensions-first model holds through 11 phases.** Seven OLAP dimensions, all query surfaces consistent, workload data flows automatically.
-- **Two major integration seams now closed:** WorkloadTracker→PlacementPlanner (Phase 10) and AdmissionWorkflow→PeerRegistry (Phase 11). Admitted peers with URLs are immediately routable.
-- **Governance trail is a real control plane.** Events from routing executor, admission workflow, workload tracker, compaction, trust admission, and self-heal make it a live cluster memory.
-- **Zero production dependencies at full functionality.** SHA256, OpenSSL, Net::HTTP, Mutex, Thread — all stdlib. This constraint held through 11 phases.
+- **Dimensions-first model holds through 12 phases.** Seven OLAP dimensions, all query surfaces consistent, workload data flows automatically.
+- **All three major integration seams now closed:** WorkloadTracker→PlacementPlanner (Phase 10), AdmissionWorkflow→PeerRegistry (Phase 11), RepairLoop→WorkloadTracker unified tick (Phase 12).
+- **Governance trail is a real control plane.** Events from routing executor, admission workflow, workload tracker, compaction, trust admission, and both self-heal paths make it a live cluster memory.
+- **Zero production dependencies at full functionality.** SHA256, OpenSSL, Net::HTTP, Mutex, Thread — all stdlib. This constraint held through 12 phases.
 - **Companion as proving surface** continues to expose real integration scenarios that unit tests alone would miss.
 
 ### Where the remaining weaknesses are
 
-**One integration seam still loose:**
-- `RepairLoop → WorkloadTracker`: two separate signal sources with no unified tick. RepairLoop runs on a config interval; WorkloadTracker is consulted ad-hoc. A single tick would make self-healing more reactive.
-
 **Checkpoint gossip is one-directional.** Checkpoints are built, signed, stored — but not automatically propagated between peers.
 
-**Companion lags phases 6–11.** Dashboard has no workload signals, admission queue UI, distributed RAG demo, or compaction timeline.
+**Companion lags phases 6–12.** Dashboard has no workload signals, admission queue UI, distributed RAG demo, or compaction timeline.
 
 **RAG scoring is keyword-only.** `text_score = hits/words` is primitive. No BM25, no positional weight. Retrieval quality is limited for semantic queries.
 
 ### Key insight (updated)
 
-Three phases ago the architecture had three loose integration seams. Two are closed. The cluster can now admit a peer, immediately route to it, factor its runtime health into placement scoring, and self-heal from degradation — all through the same query interface. The remaining gap (unified repair tick) is operational quality, not a fundamental seam.
+All three integration seams that were identified after Phase 9 are now closed. The cluster can admit a peer, immediately route to it, factor its runtime health into placement scoring, and self-heal from both routing diagnostics and workload degradation signals — all on a single background tick, all recorded in the governance trail. The system is now operationally complete at the self-healing layer.
 
 ## Recommended Next Focus
 
 Prioritised by impact:
-
-### Level 1 — Unified repair tick
-
-**A. `RepairLoop` + `WorkloadTracker` unified tick** ← *start here*
-
-The `RepairLoop` background thread currently calls `Mesh.self_heal_routing!` from `config.self_heal_report_provider`. Extend it to also call `Mesh.repair_from_workload_signals!` on each tick. Single config flag (`auto_self_heal: true`) enables both.
 
 ### Level 2 — Close architectural gaps (medium priority)
 
@@ -583,4 +611,4 @@ Dashboard: workload heatmap per peer, admission queue panel, distributed RAG dem
 
 ## Short Resume Prompt
 
-`Igniter::Cluster` has a full 11-phase implementation: capability mesh, signed identity/trust, OLAP Point observation (7 dimensions) with MeshQL, multi-dimensional placement and rebalancing, compacted governance trail with checkpoint chaining, governance-backed peer admission, distributed RAG fan-out, workload signal tracking, workload dimension in NodeObservation, and AdmissionWorkflow→PeerRegistry auto-registration. Two major integration seams are closed — admitted peers with URLs are immediately routable, and runtime workload data flows into every query surface. Remaining gaps: RepairLoop not unified with WorkloadTracker tick, checkpoint gossip not implemented, companion dashboard lags.
+`Igniter::Cluster` has a full 12-phase implementation: capability mesh, signed identity/trust, OLAP Point observation (7 dimensions) with MeshQL, multi-dimensional placement and rebalancing, compacted governance trail with checkpoint chaining, governance-backed peer admission, distributed RAG fan-out, workload signal tracking, workload dimension in NodeObservation, AdmissionWorkflow→PeerRegistry auto-registration, and unified RepairLoop tick (routing + workload on every interval). All three major integration seams are closed. Remaining gaps: checkpoint gossip not implemented, companion dashboard lags phases 6–12, RAG scoring keyword-only.

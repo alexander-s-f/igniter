@@ -459,6 +459,77 @@ RSpec.describe "Igniter Mesh — Phase 2: Dynamic Discovery" do
 
       expect(call_count).to be >= 2
     end
+
+    context "workload tick" do
+      let(:tracker) { Igniter::Cluster::Mesh::WorkloadTracker.new }
+      let(:orders_peer) do
+        Igniter::Cluster::Mesh::Peer.new(
+          name: "orders-node", url: "http://orders:4567",
+          capabilities: [:api], tags: [], metadata: {}
+        )
+      end
+      let(:config) do
+        Igniter::Cluster::Mesh::Config.new.tap do |c|
+          c.peer_name          = "api-node"
+          c.self_heal_interval = 0.05
+          c.workload_tracker   = tracker
+        end
+      end
+
+      before { config.peer_registry.register(orders_peer) }
+
+      it "records :workload_self_heal_tick when degraded peers exist" do
+        5.times { tracker.record("orders-node", :api, success: false) }
+
+        expect(tracker.degraded_peers).to include("orders-node")
+
+        repair_loop.heal_once
+
+        snap = config.governance_trail.snapshot(limit: 10)
+        expect(snap[:by_type]).to include(workload_self_heal_tick: 1)
+        expect(snap[:latest_type]).to eq(:workload_self_heal_tick)
+      end
+
+      it "workload_self_heal_tick payload lists degraded and overloaded peers" do
+        slow_peer = Igniter::Cluster::Mesh::Peer.new(
+          name: "slow-node", url: "http://slow:4567",
+          capabilities: [:api], tags: [], metadata: {}
+        )
+        config.peer_registry.register(slow_peer)
+        5.times { tracker.record("slow-node", :api, success: false) }
+
+        repair_loop.heal_once
+
+        event = config.governance_trail.events.find { |e| e[:type] == :workload_self_heal_tick }
+        expect(event).not_to be_nil
+        expect(event[:payload][:degraded]).to include("slow-node")
+        expect(event[:payload][:plans]).to be >= 1
+      end
+
+      it "does not record :workload_self_heal_tick when all peers are healthy" do
+        repair_loop.heal_once
+
+        snap = config.governance_trail.snapshot(limit: 10)
+        expect(snap[:by_type].keys).not_to include(:workload_self_heal_tick)
+      end
+
+      it "heal_once still returns routing RoutingPlanResult (backward-compat)" do
+        5.times { tracker.record("orders-node", :api, success: false) }
+
+        result = repair_loop.heal_once
+
+        expect(result).to be_a(Igniter::Cluster::RoutingPlanResult)
+        expect(result.summary).to include(status: :idle, reason: :no_report)
+      end
+
+      it "workload heal is skipped when workload_tracker is nil" do
+        config.workload_tracker = nil
+        repair_loop_no_wl = described_class.new(config)
+
+        expect { repair_loop_no_wl.heal_once }.not_to raise_error
+        repair_loop_no_wl.stop
+      end
+    end
   end
 
   # ─────────────────────────────────────────────────────────────────────────────
