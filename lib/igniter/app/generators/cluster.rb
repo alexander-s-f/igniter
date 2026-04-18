@@ -2,7 +2,7 @@
 
 require "cgi"
 require "json"
-require "igniter/cluster"
+require_relative "../../cluster"
 
 module Igniter
   class App
