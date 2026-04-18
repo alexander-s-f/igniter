@@ -16,11 +16,19 @@ module Igniter
         autoload :Page, "igniter/plugins/view/arbre/page"
         autoload :RawTextNode, "igniter/plugins/view/arbre/raw_text_node"
         autoload :TemplatePage, "igniter/plugins/view/arbre/template_page"
+        Components.autoload :ActionGroup, "igniter/plugins/view/arbre/components/action_group"
         Components.autoload :Badge, "igniter/plugins/view/arbre/components/badge"
         Components.autoload :Breadcrumbs, "igniter/plugins/view/arbre/components/breadcrumbs"
         Components.autoload :Card, "igniter/plugins/view/arbre/components/card"
+        Components.autoload :ConversationPanel, "igniter/plugins/view/arbre/components/conversation_panel"
+        Components.autoload :EventList, "igniter/plugins/view/arbre/components/event_list"
+        Components.autoload :JsonPanel, "igniter/plugins/view/arbre/components/json_panel"
+        Components.autoload :KeyValueList, "igniter/plugins/view/arbre/components/key_value_list"
+        Components.autoload :MetricGrid, "igniter/plugins/view/arbre/components/metric_grid"
         Components.autoload :PageHeader, "igniter/plugins/view/arbre/components/page_header"
         Components.autoload :Panel, "igniter/plugins/view/arbre/components/panel"
+        Components.autoload :ResourceList, "igniter/plugins/view/arbre/components/resource_list"
+        Components.autoload :ScenarioCard, "igniter/plugins/view/arbre/components/scenario_card"
 
         module_function
 
