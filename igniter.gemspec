@@ -39,9 +39,11 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "igniter-core", Igniter::VERSION
   spec.add_dependency "igniter-sdk", Igniter::VERSION
+  spec.add_dependency "igniter-extensions", Igniter::VERSION
   spec.add_dependency "igniter-app", Igniter::VERSION
   spec.add_dependency "igniter-server", Igniter::VERSION
   spec.add_dependency "igniter-cluster", Igniter::VERSION
+  spec.add_dependency "igniter-rails", Igniter::VERSION
 
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"

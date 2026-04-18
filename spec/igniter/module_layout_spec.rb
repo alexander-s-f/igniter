@@ -7,9 +7,11 @@ RSpec.describe "Igniter module layout" do
   IGNITER_LIB = File.join(MODULE_LAYOUT_ROOT, "lib/igniter")
   CORE_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-core/lib/igniter")
   SDK_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-sdk/lib/igniter")
+  EXTENSIONS_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-extensions/lib/igniter")
   APP_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-app/lib/igniter")
   SERVER_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-server/lib/igniter")
   CLUSTER_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-cluster/lib/igniter")
+  RAILS_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-rails/lib/igniter")
 
   def children_for(path)
     Dir.children(path).sort
@@ -17,10 +19,7 @@ RSpec.describe "Igniter module layout" do
 
   it "keeps only canonical top-level runtime and registry entrypoints under lib/igniter" do
     expect(children_for(IGNITER_LIB)).to eq(%w[
-      extensions
       monorepo_packages.rb
-      plugins
-      plugins.rb
       stack.rb
     ])
   end
@@ -157,8 +156,32 @@ RSpec.describe "Igniter module layout" do
     ])
   end
 
-  it "keeps plugins under the canonical plugins namespace" do
-    expect(children_for(File.join(IGNITER_LIB, "plugins"))).to eq(%w[
+  it "keeps extension entrypoints inside the local extensions package" do
+    expect(children_for(EXTENSIONS_LIB)).to eq(%w[
+      extensions
+      extensions.rb
+    ])
+  end
+
+  it "keeps public extension entrypoints under the canonical extensions namespace inside the package" do
+    expect(children_for(File.join(EXTENSIONS_LIB, "extensions"))).to eq(%w[
+      auditing.rb
+      capabilities.rb
+      content_addressing.rb
+      dataflow.rb
+      differential.rb
+      execution_report.rb
+      incremental.rb
+      introspection.rb
+      invariants.rb
+      provenance.rb
+      reactive.rb
+      saga.rb
+    ])
+  end
+
+  it "keeps rails plugin entrypoints inside the local rails package" do
+    expect(children_for(File.join(RAILS_LIB, "plugins"))).to eq(%w[
       rails
       rails.rb
     ])

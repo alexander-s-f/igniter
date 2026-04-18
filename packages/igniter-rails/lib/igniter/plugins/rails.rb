@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../igniter"
+require "igniter"
 require_relative "rails/railtie" if defined?(::Rails::Railtie)
 require_relative "rails/contract_job"
 require_relative "rails/webhook_concern"

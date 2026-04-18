@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../igniter"
+require "igniter"
 require "igniter/core/dataflow"
 
 # Activates incremental dataflow support for all contracts.

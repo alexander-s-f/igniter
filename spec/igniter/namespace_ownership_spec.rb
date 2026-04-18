@@ -50,6 +50,19 @@ RSpec.describe "Igniter namespace ownership" do
         /module\s+Igniter\b\s*module\s+Data\b/m
       ]
     },
+    "Igniter::Extensions" => {
+      roots: [
+        "packages/igniter-core/lib/igniter/core/extensions.rb",
+        "packages/igniter-core/lib/igniter/core/extensions/",
+        "packages/igniter-extensions/lib/igniter/extensions.rb",
+        "packages/igniter-extensions/lib/igniter/extensions/"
+      ],
+      patterns: [
+        /module\s+Igniter::Extensions\b/,
+        /class\s+Igniter::Extensions\b/,
+        /module\s+Igniter\b\s*module\s+Extensions\b/m
+      ]
+    },
     "Igniter::App" => {
       roots: [
         "packages/igniter-app/lib/igniter/app.rb",
@@ -85,8 +98,8 @@ RSpec.describe "Igniter namespace ownership" do
     },
     "Igniter::Rails" => {
       roots: [
-        "lib/igniter/plugins/rails.rb",
-        "lib/igniter/plugins/rails/"
+        "packages/igniter-rails/lib/igniter/plugins/rails.rb",
+        "packages/igniter-rails/lib/igniter/plugins/rails/"
       ],
       patterns: [
         /module\s+Igniter::Rails\b/,

@@ -6,9 +6,11 @@ source "https://rubygems.org"
 gemspec
 gem "igniter-core", path: "packages/igniter-core"
 gem "igniter-sdk", path: "packages/igniter-sdk"
+gem "igniter-extensions", path: "packages/igniter-extensions"
 gem "igniter-app", path: "packages/igniter-app"
 gem "igniter-server", path: "packages/igniter-server"
 gem "igniter-cluster", path: "packages/igniter-cluster"
+gem "igniter-rails", path: "packages/igniter-rails"
 
 gem "irb"
 gem "rake", "~> 13.0"

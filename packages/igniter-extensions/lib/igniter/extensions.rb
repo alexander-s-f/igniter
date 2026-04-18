@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+require "igniter"
+
 module Igniter
-  module Plugins
+  module Extensions
   end
 end
