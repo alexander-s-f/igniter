@@ -57,7 +57,7 @@ Primary entrypoints:
 require "igniter/app"
 require "igniter/core"
 require "igniter/sdk/agents"   # optional
-require "igniter/sdk/ai"        # optional
+require "igniter/ai"        # optional
 require "igniter/sdk/channels"  # optional
 ```
 

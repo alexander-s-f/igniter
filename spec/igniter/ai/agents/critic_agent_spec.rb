@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/sdk/ai/agents"
+require "igniter/ai/agents"
 
 RSpec.describe Igniter::AI::Agents::CriticAgent do
   def call_handler(type, state: described_class.default_state, payload: {})

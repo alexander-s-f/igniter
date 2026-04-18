@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "igniter"
-require "igniter/sdk/ai"
+require "igniter/ai"
 
 RSpec.describe Igniter::AI::ToolRegistry do
   # Tool fixtures

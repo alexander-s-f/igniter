@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/sdk/ai"
+require "igniter/ai"
 require "igniter/core/tool"
 
 RSpec.describe "Igniter::AI tool-use loop" do

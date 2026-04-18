@@ -14,7 +14,7 @@ RSpec.describe Igniter::SDK do
   describe ".capabilities" do
     it "registers built-in SDK capabilities with layer policies" do
       expect(described_class.fetch(:ai)).to have_attributes(
-        entrypoint: "igniter/sdk/ai",
+        entrypoint: "igniter/ai",
         allowed_layers: include(:app, :server, :cluster),
         provides_capabilities: include(:network, :external_api)
       )

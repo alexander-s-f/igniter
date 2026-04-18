@@ -14,7 +14,7 @@
 
 $LOAD_PATH.unshift File.join(__dir__, "../../lib")
 require "igniter"
-require "igniter/sdk/ai"
+require "igniter/ai"
 
 Igniter::AI.configure do |c|
   c.default_provider = :anthropic

@@ -21,7 +21,7 @@ The V1 SDK write-up established three ideas that are still directionally useful:
 The old built-in pack map was:
 
 - `igniter/sdk/agents`
-- `igniter/sdk/ai`
+- `igniter/ai`
 - `igniter/sdk/channels`
 - `igniter/sdk/data`
 - `igniter/sdk/tools`

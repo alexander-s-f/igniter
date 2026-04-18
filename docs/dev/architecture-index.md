@@ -11,7 +11,7 @@ Start here if you want the shortest accurate map of Igniter's structure.
 | SDK tools pack | `Igniter` / `require "igniter/sdk/tools"` | system discovery, workflow selection, bootstrap-planning tools |
 | Agents SDK pack | `Igniter::Agents` / `require "igniter/sdk/agents"` | generic built-in agents for reliability, pipeline, scheduling, proactive monitoring, and metrics |
 | Extensions | `require "igniter/extensions/<feature>"` | behavioral add-ons such as auditing, provenance, incremental, dataflow, invariants |
-| AI SDK pack | `Igniter::AI` / `require "igniter/sdk/ai"` | providers, AI executors, skills, transcription, AI tool registry |
+| AI SDK pack | `Igniter::AI` / `require "igniter/ai"` | providers, AI executors, skills, transcription, AI tool registry |
 | Channels SDK pack | `Igniter::Channels` / `require "igniter/sdk/channels"` | transport adapters such as webhook, Telegram, WhatsApp, email, SMS |
 | Data SDK pack | `Igniter::Data` / `require "igniter/sdk/data"` | JSON-first stores for app records, notes, bindings, and lightweight app data |
 | Server | `Igniter::Server` / `require "igniter/server"` | HTTP hosting, Rack app, remote execution transport; activation is explicit |
@@ -52,21 +52,24 @@ Practical rules:
 Canonical layout:
 
 ```text
-lib/igniter/
-  app.rb
-  cluster.rb
+packages/igniter-core/lib/igniter/
   core.rb
-  sdk.rb
-  plugins.rb
-  server.rb
-  app/
-  cluster/
   core/
-  extensions/
-  plugins/
-  rails/
+packages/igniter-ai/lib/igniter/
+  ai.rb
+  ai/
+packages/igniter-sdk/lib/igniter/
+  sdk.rb
   sdk/
+packages/igniter-app/lib/igniter/
+  app.rb
+  app/
+packages/igniter-server/lib/igniter/
+  server.rb
   server/
+packages/igniter-cluster/lib/igniter/
+  cluster.rb
+  cluster/
 ```
 
 Stack project layout:
@@ -90,8 +93,9 @@ Placement rules:
 - `lib/igniter/` keeps only top-level public entrypoints.
 - `lib/igniter/core/` holds substantive core implementation.
 - `lib/igniter/extensions/` holds extension entrypoints.
-- `lib/igniter/sdk/` holds canonical optional capability entrypoints and shared capability implementation packs.
-- `lib/igniter/sdk/ai/`, `server/`, `cluster/`, and `app/` hold the remaining layer implementation code.
+- `packages/igniter-sdk/lib/igniter/sdk/` holds the SDK registry plus non-AI sdk packs.
+- `packages/igniter-ai/lib/igniter/ai/` holds canonical AI implementation.
+- `packages/igniter-app/lib/igniter/app/`, `packages/igniter-server/lib/igniter/server/`, and `packages/igniter-cluster/lib/igniter/cluster/` hold the remaining layer implementation code.
 - `lib/igniter/plugins/` holds framework-specific integrations.
 
 ## Loading Rules
@@ -107,7 +111,7 @@ Prefer the smallest require that matches the feature you need.
 | Generic agents | `require "igniter/sdk/agents"` |
 | One core feature | `require "igniter/core/tool"` or `require "igniter/core/temporal"` |
 | One extension | `require "igniter/extensions/auditing"` |
-| AI | `require "igniter/sdk/ai"` |
+| AI | `require "igniter/ai"` |
 | Channels | `require "igniter/sdk/channels"` |
 | App data persistence | `require "igniter/sdk/data"` |
 | HTTP hosting | `require "igniter/server"` |

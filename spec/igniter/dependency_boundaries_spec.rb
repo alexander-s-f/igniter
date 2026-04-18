@@ -56,8 +56,8 @@ RSpec.describe "Igniter dependency boundaries" do
     files = ruby_files_for(
       "packages/igniter-sdk/lib/igniter/sdk.rb",
       "packages/igniter-sdk/lib/igniter/sdk/**/*.rb",
-      "packages/igniter-ai/lib/igniter/sdk/ai.rb",
-      "packages/igniter-ai/lib/igniter/sdk/ai/**/*.rb"
+      "packages/igniter-ai/lib/igniter/ai.rb",
+      "packages/igniter-ai/lib/igniter/ai/**/*.rb"
     )
     offenders = offenders_for(
       require_lines_for(files),

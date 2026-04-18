@@ -67,7 +67,7 @@ module Igniter
       end
 
       def register_builtin_capabilities!
-        register(:ai, entrypoint: "igniter/sdk/ai", allowed_layers: %i[app server cluster], provides_capabilities: %i[network external_api])
+        register(:ai, entrypoint: "igniter/ai", allowed_layers: %i[app server cluster], provides_capabilities: %i[network external_api])
         register(:agents, entrypoint: "igniter/sdk/agents", allowed_layers: %i[app server cluster], provides_capabilities: [])
         register(:channels, entrypoint: "igniter/sdk/channels", allowed_layers: %i[app server cluster], provides_capabilities: %i[messaging network])
         register(:tools, entrypoint: "igniter/sdk/tools", allowed_layers: %i[app server cluster], provides_capabilities: %i[filesystem])

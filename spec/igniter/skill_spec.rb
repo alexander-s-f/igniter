@@ -2,7 +2,7 @@
 
 require "spec_helper"
 require "igniter/core/tool"
-require "igniter/sdk/ai"
+require "igniter/ai"
 
 RSpec.describe Igniter::AI::Skill do
   # ── Minimal concrete skill (no LLM needed in unit tests) ──────────────────

@@ -1,3 +1,3 @@
 # frozen_string_literal: true
 
-require_relative "igniter/sdk/ai"
+require_relative "igniter/ai"

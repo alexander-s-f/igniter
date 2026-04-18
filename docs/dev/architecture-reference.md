@@ -67,7 +67,7 @@ or transport concerns without changing domain contracts.
 - Substantive core code lives under `lib/igniter/core/`.
 - Behavioral add-ons live under `lib/igniter/extensions/`.
 - Framework integrations live under `lib/igniter/plugins/`.
-- Layer-specific implementation lives under `lib/igniter/sdk/ai/`, `server/`,
+- Layer-specific implementation lives under `lib/igniter/ai/`, `server/`,
   `cluster/`, `app/`, and `channels/`.
 
 ## Terminology
@@ -209,7 +209,7 @@ Optional packages that enrich the core without modifying it.
 
 ## AI Layer
 
-Activated by `require "igniter/sdk/ai"`.
+Activated by `require "igniter/ai"`.
 
 ### `Igniter::AI`
 
@@ -440,8 +440,8 @@ Primary families:
 | `lib/igniter/app.rb` | App | App scaffold entry point |
 | `lib/igniter/core/agent.rb` | Core | Actor agent base class entry point |
 | `lib/igniter/core/tool.rb` | Core | Tool base class entry point |
-| `lib/igniter/sdk/ai/skill.rb` | AI | Skill base class |
-| `lib/igniter/sdk/ai.rb` | AI | AI integration entry point |
+| `lib/igniter/ai/skill.rb` | AI | Skill base class |
+| `lib/igniter/ai.rb` | AI | AI integration entry point |
 | `lib/igniter/cluster/consensus/cluster.rb` | Cluster | Raft cluster bootstrap |
 | `lib/igniter/cluster/mesh/gossip.rb` | Cluster | Gossip peer exchange |
 
@@ -468,7 +468,7 @@ require "igniter/extensions/saga"
 # Server: adds the server layer
 require "igniter/server"
 require "igniter/app"
-require "igniter/sdk/ai"
+require "igniter/ai"
 
 # Cluster: adds consensus and mesh on top of server
 require "igniter/cluster"

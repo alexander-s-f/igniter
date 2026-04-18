@@ -42,7 +42,7 @@ Add packs only when needed:
 
 ```ruby
 require "igniter/sdk/agents"
-require "igniter/sdk/ai"
+require "igniter/ai"
 require "igniter/sdk/channels"
 require "igniter/plugins/rails"
 ```
@@ -78,7 +78,7 @@ Prefer the smallest public require that matches the job:
 | Core contracts/runtime | `require "igniter"` |
 | Actor/tool foundation | `require "igniter/core"` |
 | Extensions | `require "igniter/extensions/<feature>"` |
-| SDK pack | `require "igniter/sdk/<pack>"` |
+| SDK pack | `require "igniter/sdk/<pack>"` or `require "igniter/ai"` for AI |
 | App runtime/profile | `require "igniter/app"` |
 | Stack coordination | `require "igniter/stack"` |
 | Cluster runtime | `require "igniter/cluster"` |

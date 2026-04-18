@@ -11,7 +11,7 @@ This is a namespace and dependency-boundary migration first, not a gem split.
 Completed so far:
 
 - core actor/tool foundation moved under `lib/igniter/core/*`
-- AI layer moved under `lib/igniter/sdk/ai/*`
+- AI layer moved under `lib/igniter/ai/*`
 - built-in AI agents moved under `Igniter::AI::Agents`
 - channels foundation introduced under `lib/igniter/sdk/channels/*`
 - first built-in transport added as `Igniter::Channels::Webhook`
@@ -27,7 +27,7 @@ Current public entrypoints:
 - `require "igniter/core"` — actor runtime and tool foundation
 - `require "igniter/core/<feature>"` — focused core features such as `tool`, `memory`, `temporal`, `metrics`
 - `require "igniter/extensions/<feature>"` — behavioral extensions such as `auditing`, `capabilities`, `content_addressing`
-- `require "igniter/sdk/ai"` — AI providers, executors, skills, transcription
+- `require "igniter/ai"` — AI providers, executors, skills, transcription
 - `require "igniter/sdk/channels"` — transport-neutral communication adapters
 - `require "igniter/server"` — HTTP/service hosting
 - `require "igniter/cluster"` — distributed runtime
@@ -41,7 +41,7 @@ Target filesystem rule:
 - `lib/igniter/` keeps only top-level layer entrypoints.
 - `lib/igniter/core/` holds the substantive core implementation.
 - `lib/igniter/extensions/` holds behavioral extension entrypoints.
-- `lib/igniter/sdk/ai/`, `server/`, `cluster/`, `sdk/channels/`, and `app/` hold their own authoritative code.
+- `lib/igniter/ai/`, `server/`, `cluster/`, `sdk/channels/`, and `app/` hold their own authoritative code.
 - `lib/igniter/plugins/` is the intended home for framework-specific integrations such as Rails.
 - Rails plugin relocation completed under `lib/igniter/plugins/rails/*`, with `igniter/plugins/rails` as the canonical public entrypoint.
 
@@ -159,7 +159,7 @@ AI tools and skills may call these adapters, but the adapters themselves should 
 Create target directories and move obvious code without changing behavior:
 
 - `lib/igniter/core/`
-- `lib/igniter/sdk/ai/`
+- `lib/igniter/ai/`
 - `lib/igniter/server/`
 - `lib/igniter/cluster/`
 - `lib/igniter/app/`
@@ -203,24 +203,24 @@ These files should move together because they are tightly coupled.
 
 | Current path | Target path | Target namespace |
 |-------------|-------------|------------------|
-| `lib/igniter/integrations/llm.rb` | `lib/igniter/sdk/ai.rb` | `Igniter::AI` entrypoint |
-| `lib/igniter/integrations/llm/config.rb` | `lib/igniter/sdk/ai/config.rb` | `Igniter::AI::Config` |
-| `lib/igniter/integrations/llm/context.rb` | `lib/igniter/sdk/ai/context.rb` | `Igniter::AI::Context` |
-| `lib/igniter/integrations/llm/executor.rb` | `lib/igniter/sdk/ai/executor.rb` | `Igniter::AI::Executor` |
-| `lib/igniter/integrations/llm/providers/base.rb` | `lib/igniter/sdk/ai/providers/base.rb` | `Igniter::AI::Providers::Base` |
-| `lib/igniter/integrations/llm/providers/openai.rb` | `lib/igniter/sdk/ai/providers/openai.rb` | `Igniter::AI::Providers::OpenAI` |
-| `lib/igniter/integrations/llm/providers/anthropic.rb` | `lib/igniter/sdk/ai/providers/anthropic.rb` | `Igniter::AI::Providers::Anthropic` |
-| `lib/igniter/integrations/llm/providers/ollama.rb` | `lib/igniter/sdk/ai/providers/ollama.rb` | `Igniter::AI::Providers::Ollama` |
-| `lib/igniter/integrations/llm/transcription/transcriber.rb` | `lib/igniter/sdk/ai/transcription/transcriber.rb` | `Igniter::AI::Transcription::Transcriber` |
-| `lib/igniter/integrations/llm/transcription/transcript_result.rb` | `lib/igniter/sdk/ai/transcription/transcript_result.rb` | `Igniter::AI::Transcription::TranscriptResult` |
-| `lib/igniter/integrations/llm/transcription/providers/base.rb` | `lib/igniter/sdk/ai/transcription/providers/base.rb` | `Igniter::AI::Transcription::Providers::Base` |
-| `lib/igniter/integrations/llm/transcription/providers/openai.rb` | `lib/igniter/sdk/ai/transcription/providers/openai.rb` | `Igniter::AI::Transcription::Providers::OpenAI` |
-| `lib/igniter/integrations/llm/transcription/providers/deepgram.rb` | `lib/igniter/sdk/ai/transcription/providers/deepgram.rb` | `Igniter::AI::Transcription::Providers::Deepgram` |
-| `lib/igniter/integrations/llm/transcription/providers/assemblyai.rb` | `lib/igniter/sdk/ai/transcription/providers/assemblyai.rb` | `Igniter::AI::Transcription::Providers::AssemblyAI` |
-| `lib/igniter/skill.rb` | `lib/igniter/sdk/ai/skill.rb` | `Igniter::AI::Skill` |
-| `lib/igniter/skill/output_schema.rb` | `lib/igniter/sdk/ai/skill/output_schema.rb` | `Igniter::AI::Skill::OutputSchema` |
-| `lib/igniter/skill/feedback.rb` | `lib/igniter/sdk/ai/skill/feedback.rb` | `Igniter::AI::Skill::*` |
-| `lib/igniter/tool_registry.rb` | `lib/igniter/sdk/ai/tool_registry.rb` | `Igniter::AI::ToolRegistry` |
+| `lib/igniter/integrations/llm.rb` | `lib/igniter/ai.rb` | `Igniter::AI` entrypoint |
+| `lib/igniter/integrations/llm/config.rb` | `lib/igniter/ai/config.rb` | `Igniter::AI::Config` |
+| `lib/igniter/integrations/llm/context.rb` | `lib/igniter/ai/context.rb` | `Igniter::AI::Context` |
+| `lib/igniter/integrations/llm/executor.rb` | `lib/igniter/ai/executor.rb` | `Igniter::AI::Executor` |
+| `lib/igniter/integrations/llm/providers/base.rb` | `lib/igniter/ai/providers/base.rb` | `Igniter::AI::Providers::Base` |
+| `lib/igniter/integrations/llm/providers/openai.rb` | `lib/igniter/ai/providers/openai.rb` | `Igniter::AI::Providers::OpenAI` |
+| `lib/igniter/integrations/llm/providers/anthropic.rb` | `lib/igniter/ai/providers/anthropic.rb` | `Igniter::AI::Providers::Anthropic` |
+| `lib/igniter/integrations/llm/providers/ollama.rb` | `lib/igniter/ai/providers/ollama.rb` | `Igniter::AI::Providers::Ollama` |
+| `lib/igniter/integrations/llm/transcription/transcriber.rb` | `lib/igniter/ai/transcription/transcriber.rb` | `Igniter::AI::Transcription::Transcriber` |
+| `lib/igniter/integrations/llm/transcription/transcript_result.rb` | `lib/igniter/ai/transcription/transcript_result.rb` | `Igniter::AI::Transcription::TranscriptResult` |
+| `lib/igniter/integrations/llm/transcription/providers/base.rb` | `lib/igniter/ai/transcription/providers/base.rb` | `Igniter::AI::Transcription::Providers::Base` |
+| `lib/igniter/integrations/llm/transcription/providers/openai.rb` | `lib/igniter/ai/transcription/providers/openai.rb` | `Igniter::AI::Transcription::Providers::OpenAI` |
+| `lib/igniter/integrations/llm/transcription/providers/deepgram.rb` | `lib/igniter/ai/transcription/providers/deepgram.rb` | `Igniter::AI::Transcription::Providers::Deepgram` |
+| `lib/igniter/integrations/llm/transcription/providers/assemblyai.rb` | `lib/igniter/ai/transcription/providers/assemblyai.rb` | `Igniter::AI::Transcription::Providers::AssemblyAI` |
+| `lib/igniter/skill.rb` | `lib/igniter/ai/skill.rb` | `Igniter::AI::Skill` |
+| `lib/igniter/skill/output_schema.rb` | `lib/igniter/ai/skill/output_schema.rb` | `Igniter::AI::Skill::OutputSchema` |
+| `lib/igniter/skill/feedback.rb` | `lib/igniter/ai/skill/feedback.rb` | `Igniter::AI::Skill::*` |
+| `lib/igniter/tool_registry.rb` | `lib/igniter/ai/tool_registry.rb` | `Igniter::AI::ToolRegistry` |
 
 Recommended constant shape after migration:
 
@@ -240,8 +240,8 @@ Split it into:
 | Current path | Target path | Target namespace |
 |-------------|-------------|------------------|
 | `lib/igniter/agents.rb` | removed | replaced by canonical `lib/igniter/sdk/agents.rb` |
-| `lib/igniter/sdk/ai/agents.rb` | `lib/igniter/sdk/ai/agents.rb` | AI/built-in AI agents entrypoint |
-| `lib/igniter/agents/ai/*` | `lib/igniter/sdk/ai/agents/*` | `Igniter::AI::Agents::*` |
+| `lib/igniter/ai/agents.rb` | `lib/igniter/ai/agents.rb` | AI/built-in AI agents entrypoint |
+| `lib/igniter/agents/ai/*` | `lib/igniter/ai/agents/*` | `Igniter::AI::Agents::*` |
 | `lib/igniter/agents/proactive/alert_agent.rb` | `lib/igniter/sdk/agents/proactive/alert_agent.rb` | `Igniter::Agents::AlertAgent` |
 | `lib/igniter/agents/proactive/health_check_agent.rb` | `lib/igniter/sdk/agents/proactive/health_check_agent.rb` | `Igniter::Agents::HealthCheckAgent` |
 | `lib/igniter/agents/proactive_agent.rb` | `lib/igniter/sdk/agents/proactive_agent.rb` | `Igniter::Agents::ProactiveAgent` |

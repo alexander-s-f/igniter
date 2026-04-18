@@ -31,7 +31,7 @@ This is the optional capability plane:
 
 ```text
 igniter/sdk/agents
-igniter/sdk/ai
+igniter/ai
 igniter/sdk/channels
 igniter/sdk/data
 igniter/sdk/tools

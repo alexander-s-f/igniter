@@ -144,15 +144,31 @@ RSpec.describe "Igniter module layout" do
 
   it "keeps AI SDK pack entrypoints inside the local ai package" do
     expect(children_for(AI_LIB)).to eq(%w[
-      sdk
-    ])
-  end
-
-  it "keeps AI packs under the canonical sdk/ai namespace inside the package" do
-    expect(children_for(File.join(AI_LIB, "sdk"))).to eq(%w[
       ai
       ai.rb
     ])
+  end
+
+  it "keeps AI packs under the canonical ai namespace inside the package" do
+    expect(children_for(File.join(AI_LIB, "ai"))).to include(
+      "agents",
+      "agents.rb",
+      "config.rb",
+      "context.rb",
+      "executor.rb",
+      "providers",
+      "skill",
+      "skill.rb",
+      "tool_registry.rb",
+      "transcription"
+    )
+  end
+
+  it "does not keep sdk/ai entrypoints inside the sdk package" do
+    expect(children_for(File.join(SDK_LIB, "sdk"))).not_to include(
+      "ai",
+      "ai.rb"
+    )
   end
 
   it "keeps sdk packs under the canonical sdk namespace inside the package" do

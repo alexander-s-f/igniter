@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/sdk/ai/agents"
+require "igniter/ai/agents"
 
 RSpec.describe Igniter::AI::Agents::EvolutionAgent do
   let(:h) { ->(type, state, payload = {}) { described_class.handlers[type].call(state: state, payload: payload) } }

@@ -8,8 +8,8 @@ RSpec.describe "Igniter namespace ownership" do
   NAMESPACE_RULES = {
     "Igniter::AI" => {
       roots: [
-        "packages/igniter-ai/lib/igniter/sdk/ai.rb",
-        "packages/igniter-ai/lib/igniter/sdk/ai/"
+        "packages/igniter-ai/lib/igniter/ai.rb",
+        "packages/igniter-ai/lib/igniter/ai/"
       ],
       patterns: [
         /module\s+Igniter::AI\b/,

@@ -12,8 +12,8 @@ Local monorepo gem that owns Igniter's AI capability pack:
 Primary entrypoints:
 
 - `require "igniter-ai"`
-- `require "igniter/sdk/ai"`
-- `require "igniter/sdk/ai/agents"`
+- `require "igniter/ai"`
+- `require "igniter/ai/agents"`
 
 Docs:
 

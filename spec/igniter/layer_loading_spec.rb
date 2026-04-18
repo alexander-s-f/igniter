@@ -260,35 +260,35 @@ RSpec.describe "Igniter layer loading" do
     expect(error).to include("igniter/tools")
   end
 
-  it "`require \"igniter/sdk/ai\"` loads the canonical AI SDK pack directly" do
-    features = loaded_igniter_features("igniter/sdk/ai")
+  it "`require \"igniter/ai\"` loads the canonical AI SDK pack directly" do
+    features = loaded_igniter_features("igniter/ai")
 
-    expect(features).to include("packages/igniter-ai/lib/igniter/sdk/ai.rb")
-    expect(features).to include("packages/igniter-ai/lib/igniter/sdk/ai/config.rb")
-    expect(features).to include("packages/igniter-ai/lib/igniter/sdk/ai/context.rb")
-    expect(features).to include("packages/igniter-ai/lib/igniter/sdk/ai/providers/base.rb")
-    expect(features).to include("packages/igniter-ai/lib/igniter/sdk/ai/transcription/transcript_result.rb")
-    expect(features).to include("packages/igniter-ai/lib/igniter/sdk/ai/executor.rb")
-    expect(features).to include("packages/igniter-ai/lib/igniter/sdk/ai/skill.rb")
-    expect(features).to include("packages/igniter-ai/lib/igniter/sdk/ai/tool_registry.rb")
-    expect(features).to include("packages/igniter-ai/lib/igniter/sdk/ai/agents.rb")
+    expect(features).to include("packages/igniter-ai/lib/igniter/ai.rb")
+    expect(features).to include("packages/igniter-ai/lib/igniter/ai/config.rb")
+    expect(features).to include("packages/igniter-ai/lib/igniter/ai/context.rb")
+    expect(features).to include("packages/igniter-ai/lib/igniter/ai/providers/base.rb")
+    expect(features).to include("packages/igniter-ai/lib/igniter/ai/transcription/transcript_result.rb")
+    expect(features).to include("packages/igniter-ai/lib/igniter/ai/executor.rb")
+    expect(features).to include("packages/igniter-ai/lib/igniter/ai/skill.rb")
+    expect(features).to include("packages/igniter-ai/lib/igniter/ai/tool_registry.rb")
+    expect(features).to include("packages/igniter-ai/lib/igniter/ai/agents.rb")
     expect(features).not_to include("igniter/ai.rb")
     expect(features).not_to include("igniter/server.rb")
     expect(features).not_to include("igniter/app.rb")
     expect(features).not_to include("igniter/cluster.rb")
   end
 
-  it "`require \"igniter/ai\"` is no longer a valid public entrypoint" do
-    error = require_failure_for("igniter/ai")
+  it "`require \"igniter/sdk/ai\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/sdk/ai")
 
     expect(error).to include("cannot load such file")
-    expect(error).to include("igniter/ai")
+    expect(error).to include("igniter/sdk/ai")
   end
 
-  it "`require \"igniter/sdk/ai/agents\"` loads the canonical AI agents SDK pack directly" do
-    features = loaded_igniter_features("igniter/sdk/ai/agents")
+  it "`require \"igniter/ai/agents\"` loads the canonical AI agents SDK pack directly" do
+    features = loaded_igniter_features("igniter/ai/agents")
 
-    expect(features).to include("packages/igniter-ai/lib/igniter/sdk/ai/agents.rb")
+    expect(features).to include("packages/igniter-ai/lib/igniter/ai/agents.rb")
     expect(features).not_to include("igniter/ai/agents.rb")
   end
 
@@ -311,11 +311,11 @@ RSpec.describe "Igniter layer loading" do
     expect(error).to include("igniter/agents")
   end
 
-  it "`require \"igniter/ai/agents\"` is no longer a valid public entrypoint" do
-    error = require_failure_for("igniter/ai/agents")
+  it "`require \"igniter/sdk/ai/agents\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/sdk/ai/agents")
 
     expect(error).to include("cannot load such file")
-    expect(error).to include("igniter/ai/agents")
+    expect(error).to include("igniter/sdk/ai/agents")
   end
 
   it "`require \"igniter/sdk/channels\"` loads the canonical channels SDK pack directly" do
@@ -379,7 +379,7 @@ RSpec.describe "Igniter layer loading" do
     features = loaded_igniter_features("igniter-ai")
 
     expect(features).to include("packages/igniter-ai/lib/igniter-ai.rb")
-    expect(features).to include("packages/igniter-ai/lib/igniter/sdk/ai.rb")
+    expect(features).to include("packages/igniter-ai/lib/igniter/ai.rb")
     expect(features).not_to include("packages/igniter-sdk/lib/igniter/sdk.rb")
     expect(features).not_to include("igniter/server.rb")
     expect(features).not_to include("igniter/app.rb")
