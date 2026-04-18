@@ -1,3 +1,3 @@
 # frozen_string_literal: true
 
-require_relative "../core/extensions/reactive"
+require "igniter/core/extensions/reactive"

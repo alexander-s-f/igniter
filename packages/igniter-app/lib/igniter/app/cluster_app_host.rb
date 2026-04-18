@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative "app_host"
-require_relative "../cluster"
 
 module Igniter
   class App
@@ -11,21 +10,25 @@ module Igniter
     # transport activation plus mesh/bootstrap configuration on the application side.
     class ClusterAppHost < AppHost
       def build_config(host_config)
+        ensure_cluster_loaded!
         config = super
         apply_cluster_settings!(config, host_config.host_settings_for(:cluster_app))
         config
       end
 
       def activate_transport!
+        ensure_cluster_loaded!
         Igniter::Cluster.activate_remote_adapter!
       end
 
       def start(config:)
+        ensure_cluster_loaded!
         start_discovery_if_needed!
         super
       end
 
       def rack_app(config:)
+        ensure_cluster_loaded!
         start_discovery_if_needed!
         super
       end
@@ -82,6 +85,10 @@ module Igniter
         return unless @cluster_settings[:start_discovery]
 
         Igniter::Cluster::Mesh.start_discovery!
+      end
+
+      def ensure_cluster_loaded!
+        require "igniter/cluster" unless defined?(Igniter::Cluster::Mesh)
       end
     end
   end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "sdk"
+require_relative "monorepo_packages"
+require "igniter/sdk"
 require_relative "../igniter"
 require "json"
 

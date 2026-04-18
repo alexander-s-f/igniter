@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../../igniter"
-require_relative "../core/execution_report"
+require "igniter/core/execution_report"
 
 module Igniter
   module Extensions

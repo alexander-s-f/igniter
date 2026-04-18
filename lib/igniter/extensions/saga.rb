@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../../igniter"
-require_relative "../core/saga"
+require "igniter/core/saga"
 
 module Igniter
   module Extensions

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../lib/igniter/core/version"
+require_relative "../igniter-core/lib/igniter/core/version"
 require_relative "lib/igniter/frontend/version"
 
 Gem::Specification.new do |spec|
@@ -22,5 +22,5 @@ Gem::Specification.new do |spec|
 
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "igniter", Igniter::VERSION
+  spec.add_dependency "igniter-app", Igniter::VERSION
 end

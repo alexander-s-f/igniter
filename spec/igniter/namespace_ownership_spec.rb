@@ -8,8 +8,8 @@ RSpec.describe "Igniter namespace ownership" do
   NAMESPACE_RULES = {
     "Igniter::AI" => {
       roots: [
-        "lib/igniter/sdk/ai.rb",
-        "lib/igniter/sdk/ai/"
+        "packages/igniter-sdk/lib/igniter/sdk/ai.rb",
+        "packages/igniter-sdk/lib/igniter/sdk/ai/"
       ],
       patterns: [
         /module\s+Igniter::AI\b/,
@@ -19,8 +19,8 @@ RSpec.describe "Igniter namespace ownership" do
     },
     "Igniter::Agents" => {
       roots: [
-        "lib/igniter/sdk/agents.rb",
-        "lib/igniter/sdk/agents/"
+        "packages/igniter-sdk/lib/igniter/sdk/agents.rb",
+        "packages/igniter-sdk/lib/igniter/sdk/agents/"
       ],
       patterns: [
         /module\s+Igniter::Agents\b/,
@@ -30,8 +30,8 @@ RSpec.describe "Igniter namespace ownership" do
     },
     "Igniter::Channels" => {
       roots: [
-        "lib/igniter/sdk/channels.rb",
-        "lib/igniter/sdk/channels/"
+        "packages/igniter-sdk/lib/igniter/sdk/channels.rb",
+        "packages/igniter-sdk/lib/igniter/sdk/channels/"
       ],
       patterns: [
         /module\s+Igniter::Channels\b/,
@@ -41,13 +41,24 @@ RSpec.describe "Igniter namespace ownership" do
     },
     "Igniter::Data" => {
       roots: [
-        "lib/igniter/sdk/data.rb",
-        "lib/igniter/sdk/data/"
+        "packages/igniter-sdk/lib/igniter/sdk/data.rb",
+        "packages/igniter-sdk/lib/igniter/sdk/data/"
       ],
       patterns: [
         /module\s+Igniter::Data\b/,
         /class\s+Igniter::Data\b/,
         /module\s+Igniter\b\s*module\s+Data\b/m
+      ]
+    },
+    "Igniter::App" => {
+      roots: [
+        "packages/igniter-app/lib/igniter/app.rb",
+        "packages/igniter-app/lib/igniter/app/"
+      ],
+      patterns: [
+        /class\s+Igniter::App\b/,
+        /module\s+Igniter\b\s*class\s+App\b/m,
+        /class\s+App\s*</
       ]
     },
     "Igniter::Rails" => {

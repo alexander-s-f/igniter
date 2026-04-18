@@ -33,7 +33,7 @@ RSpec.describe "Igniter dependency boundaries" do
   end
 
   it "does not let core files require sdk or plugin code" do
-    files = ruby_files_for("lib/igniter/core.rb", "lib/igniter/core/**/*.rb")
+    files = ruby_files_for("packages/igniter-core/lib/igniter/core.rb", "packages/igniter-core/lib/igniter/core/**/*.rb")
     offenders = offenders_for(
       require_lines_for(files),
       [
@@ -53,7 +53,7 @@ RSpec.describe "Igniter dependency boundaries" do
   end
 
   it "does not let sdk files require plugin code" do
-    files = ruby_files_for("lib/igniter/sdk.rb", "lib/igniter/sdk/**/*.rb")
+    files = ruby_files_for("packages/igniter-sdk/lib/igniter/sdk.rb", "packages/igniter-sdk/lib/igniter/sdk/**/*.rb")
     offenders = offenders_for(
       require_lines_for(files),
       [

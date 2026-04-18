@@ -11,6 +11,7 @@ module Igniter
     # expressed explicitly from the application side.
     class AppHost < HostAdapter
       def build_config(host_config)
+        ensure_server_loaded!
         app_settings = host_config.host_settings_for(:app)
 
         Igniter::Server::Config.new.tap do |config|
@@ -31,15 +32,24 @@ module Igniter
       end
 
       def activate_transport!
+        ensure_server_loaded!
         Igniter::Server.activate_remote_adapter!
       end
 
       def start(config:)
+        ensure_server_loaded!
         Igniter::Server::HttpServer.new(config).start
       end
 
       def rack_app(config:)
+        ensure_server_loaded!
         Igniter::Server::RackApp.new(config)
+      end
+
+      private
+
+      def ensure_server_loaded!
+        require "igniter/server" unless defined?(Igniter::Server::Config)
       end
     end
   end

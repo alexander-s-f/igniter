@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../core/metrics"
+require "igniter/core/metrics"
 
 module Igniter
   module Server

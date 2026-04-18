@@ -1,12 +1,3 @@
 # frozen_string_literal: true
 
-require_relative "../app/host_registry"
-require_relative "../app/cluster_app_host"
-
-module Igniter
-  module Cluster
-    Igniter::App::HostRegistry.register(:cluster_app) do
-      Igniter::App::ClusterAppHost.new
-    end
-  end
-end
+require "igniter/app/app_host_pack"

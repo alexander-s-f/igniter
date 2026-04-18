@@ -2,26 +2,26 @@
 
 require_relative "igniter/monorepo_packages"
 
-require_relative "igniter/core/version"
-require_relative "igniter/core/errors"
-require_relative "igniter/core/type_system"
-require_relative "igniter/core/executor"
-require_relative "igniter/core/executor_registry"
-require_relative "igniter/core/effect"
-require_relative "igniter/core/effect_registry"
-require_relative "igniter/core/model"
-require_relative "igniter/core/compiler"
-require_relative "igniter/core/events"
-require_relative "igniter/core/runtime"
-require_relative "igniter/core/dsl"
-require_relative "igniter/core/extensions"
-require_relative "igniter/core/diagnostics"
-require_relative "igniter/core/contract"
+require "igniter/core/version"
+require "igniter/core/errors"
+require "igniter/core/type_system"
+require "igniter/core/executor"
+require "igniter/core/executor_registry"
+require "igniter/core/effect"
+require "igniter/core/effect_registry"
+require "igniter/core/model"
+require "igniter/core/compiler"
+require "igniter/core/events"
+require "igniter/core/runtime"
+require "igniter/core/dsl"
+require "igniter/core/extensions"
+require "igniter/core/diagnostics"
+require "igniter/core/contract"
 
 module Igniter
   class << self
     def use(*names)
-      require_relative "igniter/sdk"
+      require "igniter/sdk"
 
       @sdk_capabilities ||= []
       resolved_names = names.flatten.map(&:to_sym)
@@ -53,13 +53,13 @@ module Igniter
     end
 
     def node_cache=(cache)
-      require_relative "igniter/core/node_cache"
+      require "igniter/core/node_cache"
       Igniter::NodeCache.cache = cache
     end
 
     # When true, auto-creates a CoalescingLock alongside the configured node cache.
     def node_coalescing=(enabled)
-      require_relative "igniter/core/node_cache"
+      require "igniter/core/node_cache"
       Igniter::NodeCache.coalescing_lock = enabled ? Igniter::NodeCache::CoalescingLock.new : nil
     end
 

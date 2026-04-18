@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "igniter/core/diagnostics"
+
 require_relative "runtime_context"
 require_relative "diagnostics/runtime_contributor"
 require_relative "diagnostics/app_host_contributor"

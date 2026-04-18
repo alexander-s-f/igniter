@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require_relative "monorepo_packages"
 require_relative "app/runtime"
 require_relative "app/diagnostics"
 require_relative "app/evolution"
-require_relative "stack"
+require "igniter/stack"
 
 module Igniter
   # Base class for Igniter apps.

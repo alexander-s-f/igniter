@@ -1,16 +1,15 @@
 # frozen_string_literal: true
 
 require_relative "../igniter-core/lib/igniter/core/version"
-require_relative "lib/igniter/schema_rendering/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "igniter-schema-rendering"
-  spec.version = Igniter::SchemaRendering::VERSION
+  spec.name = "igniter-app"
+  spec.version = Igniter::VERSION
   spec.authors = ["Alexander"]
   spec.email = ["alexander.s.fokin@gmail.com"]
 
-  spec.summary = "Schema-driven rendering lane for Igniter"
-  spec.description = "Agent-facing and schema-driven page rendering, storage, patching, and submission processing for Igniter."
+  spec.summary = "Application runtime layer for Igniter"
+  spec.description = "App runtime, hosts, schedulers, diagnostics, evolution, and scaffolding for Igniter."
   spec.homepage = "https://github.com/alexander-s-f/igniter"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
@@ -22,6 +21,6 @@ Gem::Specification.new do |spec|
 
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "igniter-frontend", Igniter::VERSION
+  spec.add_dependency "igniter-core", Igniter::VERSION
   spec.add_dependency "igniter-sdk", Igniter::VERSION
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../../igniter"
-require_relative "../core/incremental"
+require "igniter/core/incremental"
 
 module Igniter
   module Extensions

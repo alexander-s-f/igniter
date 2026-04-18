@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../../igniter"
-require_relative "../core"
+require "igniter/core"
 require_relative "consensus/errors"
 require_relative "consensus/state_machine"
 require_relative "consensus/node"

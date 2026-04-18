@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "lib/igniter/core/version"
+require_relative "packages/igniter-core/lib/igniter/core/version"
 
 Gem::Specification.new do |spec|
   spec.name = "igniter"
@@ -36,6 +36,10 @@ Gem::Specification.new do |spec|
   # spec.bindir = "exe"
   # spec.executables = ["igniter-stack"]
   spec.require_paths = ["lib"]
+
+  spec.add_dependency "igniter-core", Igniter::VERSION
+  spec.add_dependency "igniter-sdk", Igniter::VERSION
+  spec.add_dependency "igniter-app", Igniter::VERSION
 
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"

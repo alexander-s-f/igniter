@@ -1,4 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "sdk"
-require_relative "app/stack_pack"
+require_relative "monorepo_packages"
+require "igniter/sdk"
+require "igniter/app/stack_pack"

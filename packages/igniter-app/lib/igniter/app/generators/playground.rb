@@ -1056,6 +1056,9 @@ module Igniter
             source "https://rubygems.org"
 
             gem "igniter", path: "#{relative_path_to_repo_root}"
+            gem "igniter-core", path: "#{relative_path_to_repo_root}/packages/igniter-core"
+            gem "igniter-sdk", path: "#{relative_path_to_repo_root}/packages/igniter-sdk"
+            gem "igniter-app", path: "#{relative_path_to_repo_root}/packages/igniter-app"
             gem "sqlite3" # stack-local data + execution stores
 
             group :development, :test do
