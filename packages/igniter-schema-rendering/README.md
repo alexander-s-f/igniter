@@ -20,3 +20,8 @@ This package now owns the schema runtime directly inside the monorepo:
 - schema rendering
 - schema storage and patching
 - submission normalization, validation, and processing
+
+Docs:
+
+- [Guide](../../docs/guide/README.md)
+- [Dev](../../docs/dev/README.md)

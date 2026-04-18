@@ -58,4 +58,4 @@ The system has clear compile-time / runtime boundaries:
 
 ## Documentation
 
-Design docs live in `docs/` — key reads: `ARCHITECTURE_V2.md`, `EXECUTION_MODEL_V2.md`, `API_V2.md`, `PATTERNS.md`.
+Docs now split into `docs/guide/` and `docs/dev/`. Internal design reads start in `docs/dev/README.md`; key deep references remain `ARCHITECTURE_V2.md`, `EXECUTION_MODEL_V2.md`, `API_V2.md`, `PATTERNS.md`.

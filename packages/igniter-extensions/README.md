@@ -13,3 +13,9 @@ This package owns the `igniter/extensions/*` activation surface, including:
 It also provides the package facade:
 
 - `require "igniter-extensions"`
+
+Docs:
+
+- [Guide](../../docs/guide/README.md)
+- [Core layer](../../docs/core/README.md)
+- [Dev](../../docs/dev/README.md)

@@ -11,3 +11,9 @@ Primary entrypoints:
 - `require "igniter/app"`
 - `require "igniter/app/runtime"`
 - `require "igniter/app/scaffold_pack"`
+
+Docs:
+
+- [Guide](../../docs/guide/README.md)
+- [App layer](../../docs/app/README.md)
+- [Dev](../../docs/dev/README.md)

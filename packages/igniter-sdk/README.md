@@ -17,3 +17,9 @@ Primary entrypoints:
 - `require "igniter/sdk/channels"`
 - `require "igniter/sdk/data"`
 - `require "igniter/sdk/tools"`
+
+Docs:
+
+- [Guide](../../docs/guide/README.md)
+- [SDK layer](../../docs/sdk/README.md)
+- [Dev](../../docs/dev/README.md)

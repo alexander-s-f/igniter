@@ -16,7 +16,7 @@ From there, Igniter scales by layers instead of by reinvention:
 - **Cluster** for capability-based distributed execution
 - **SDK** for optional packs such as AI, channels, tools, and data
 
-This README is an entrypoint, not the full reference. The reference now lives in [`docs/`](./docs/README.md).
+This README is an entrypoint, not the full reference. The reference now lives in [`docs/`](./docs/README.md), split into [`guide`](./docs/guide/README.md) and [`dev`](./docs/dev/README.md).
 
 ## Why Igniter
 
@@ -171,16 +171,40 @@ Read:
 
 If you are new to Igniter:
 
-1. Read [`docs/README.md`](./docs/README.md)
-2. Read [`docs/general/`](./docs/general/README.md)
-3. Read [`docs/core/`](./docs/core/README.md)
-4. Run one or two scripts from [`examples/README.md`](./examples/README.md)
+1. Read [`docs/guide/`](./docs/guide/README.md)
+2. Read [`docs/core/`](./docs/core/README.md)
+3. Run one or two scripts from [`examples/README.md`](./examples/README.md)
+
+If you want to work on Igniter itself:
+
+1. Read [`docs/dev/`](./docs/dev/README.md)
+2. Read [`docs/ARCHITECTURE_INDEX.md`](./docs/ARCHITECTURE_INDEX.md)
+3. Then move to the relevant package or layer index
 
 If you want the standard app shape:
 
-1. Read [`docs/app/`](./docs/app/README.md)
-2. Read [`docs/CLI.md`](./docs/CLI.md)
-3. Explore [`examples/companion/README.md`](./examples/companion/README.md)
+1. Read [`docs/guide/`](./docs/guide/README.md)
+2. Read [`docs/app/`](./docs/app/README.md)
+3. Read [`docs/CLI.md`](./docs/CLI.md)
+4. Explore [`examples/companion/README.md`](./examples/companion/README.md)
+
+If you want distributed ideas:
+
+1. Read [`docs/guide/`](./docs/guide/README.md)
+2. Read [`docs/cluster/`](./docs/cluster/README.md)
+3. Run cluster-oriented scripts from [`examples/README.md`](./examples/README.md)
+
+If you are iterating on ideas locally:
+
+- keep public learning material in [`examples/`](./examples/README.md)
+- keep local-first experiments in [`playgrounds/`](./playgrounds/README.md)
+
+## Documentation Layout
+
+- [`docs/guide/`](./docs/guide/README.md) — user-facing docs: getting started, API, how-tos, configuration
+- [`docs/dev/`](./docs/dev/README.md) — internal docs: architecture, package boundaries, migration plans, backlog
+- [`packages/*/README.md`](./packages/igniter-core/README.md) — package-local quick reference owned by each gem
+- [`docs/`](./docs/README.md) — top-level docs portal that routes between guide/dev and layer indexes
 
 If you want to scaffold a new stack quickly:
 
@@ -190,16 +214,6 @@ bin/igniter-stack new my_hub --profile dashboard
 bin/igniter-stack new mesh_lab --profile cluster
 bin/igniter-stack new playgrounds/home-lab --profile playground
 ```
-
-If you want distributed ideas:
-
-1. Read [`docs/cluster/`](./docs/cluster/README.md)
-2. Run cluster-oriented scripts from [`examples/README.md`](./examples/README.md)
-
-If you are iterating on ideas locally:
-
-- keep public learning material in [`examples/`](./examples/README.md)
-- keep local-first experiments in [`playgrounds/`](./playgrounds/README.md)
 
 ## Installation
 
@@ -217,11 +231,13 @@ gem "igniter"
 | App runtime/profile | `require "igniter/app"` |
 | Cluster runtime | `require "igniter/cluster"` |
 
-The fuller map lives in [`docs/general/README.md`](./docs/general/README.md).
+The fuller map lives in [`docs/guide/README.md`](./docs/guide/README.md).
 
 ## Repository Landmarks
 
 - [`docs/`](./docs/README.md) — structured documentation portal
+- [`docs/guide/`](./docs/guide/README.md) — user-facing docs
+- [`docs/dev/`](./docs/dev/README.md) — contributor-facing docs
 - [`examples/`](./examples/README.md) — public runnable examples
 - [`examples/companion/`](./examples/companion/README.md) — canonical stack-style demo
 - [`playgrounds/`](./playgrounds/README.md) — local-first experiments such as home-lab work
@@ -233,6 +249,8 @@ Igniter is intentionally being shaped as layered infrastructure:
 - keep `core` small and strict
 - let `app` and `cluster` grow above it
 - move reusable optional capabilities into `sdk`
-- keep the top-level docs welcoming, and the reference material deeper in `docs/`
+- keep user docs in `docs/guide/`
+- keep internal architecture and planning docs in `docs/dev/`
+- keep package-local quick reference next to each package README
 
 For the full documentation map, start at [`docs/README.md`](./docs/README.md).

@@ -22,8 +22,10 @@ other rich mounted web surfaces.
 
 Authoring guide:
 
-- [Frontend Authoring](/Users/alex/dev/projects/igniter/docs/FRONTEND_AUTHORING.md)
-- [Frontend Components](/Users/alex/dev/projects/igniter/docs/FRONTEND_COMPONENTS.md)
+- [Frontend Authoring](../../docs/FRONTEND_AUTHORING.md)
+- [Frontend Components](../../docs/FRONTEND_COMPONENTS.md)
+- [Guide](../../docs/guide/README.md)
+- [Dev](../../docs/dev/README.md)
 
 ## First-cut API
 

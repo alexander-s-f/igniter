@@ -1,58 +1,68 @@
 # Igniter Docs
 
-This directory is the documentation portal for Igniter.
+This directory now has two primary lanes:
 
-The goal of this index is simple: help you find the right layer first, then the right document. The deep reference documents still exist, but they now sit behind a clearer map.
+- [Guide](./guide/README.md) for users of Igniter
+- [Dev](./dev/README.md) for contributors working on Igniter itself
 
-## Start Here
+Layer indexes still exist, but they now sit under a simpler top-level split.
 
-If you want the shortest orientation:
+## Choose Your Lane
 
-- [General](./general/README.md) — concepts, architecture map, layers, deployment context
-- [Core](./core/README.md) — contracts, runtime, diagnostics, dataflow kernel
-- [App](./app/README.md) — single-node runtime/profile and stack-shaped apps
-- [Cluster](./cluster/README.md) — mesh, consensus, capability-based distributed runtime
-- [SDK](./sdk/README.md) — optional packs such as AI, channels, tools, skills, data
-- [Development Context](./development/README.md) — framework boundaries, placement heuristics, contributor context
+### I want to use Igniter
 
-## Reading Paths
+Start with:
 
-### I am new to Igniter
-
-1. [General](./general/README.md)
+1. [Guide](./guide/README.md)
 2. [Core](./core/README.md)
 3. [Examples](../examples/README.md)
 
-### I want to build an app on Igniter
+### I want to build an app or stack
 
-1. [App](./app/README.md)
-2. [Stacks Next](./STACKS_NEXT.md)
+Start with:
+
+1. [Guide](./guide/README.md)
+2. [App](./app/README.md)
 3. [CLI](./CLI.md)
-4. [SDK](./sdk/README.md)
-5. [Companion example](../examples/companion/README.md)
+4. [Companion example](../examples/companion/README.md)
 
-### I want distributed or resilient execution
+### I want distributed execution
 
-1. [Cluster](./cluster/README.md)
-2. [Cluster State Snapshot](./cluster/STATE_NEXT.md)
-3. [Cluster Next](./cluster/ROADMAP_NEXT.md)
-4. [SDK](./sdk/README.md)
-5. Cluster-oriented scripts in [examples](../examples/README.md)
+Start with:
 
-### I want to contribute to the framework itself
+1. [Guide](./guide/README.md)
+2. [Cluster](./cluster/README.md)
+3. [cluster/STATE_NEXT.md](./cluster/STATE_NEXT.md)
+4. [cluster/ROADMAP_NEXT.md](./cluster/ROADMAP_NEXT.md)
 
-1. [Development Context](./development/README.md)
-2. [General](./general/README.md)
-3. The layer-specific indexes above
+### I want to work on the framework
 
-## Repo Context
+Start with:
 
-- [`../README.md`](../README.md) is the top-level soft introduction.
-- [`../examples/README.md`](../examples/README.md) is the public runnable learning surface.
-- [`../playgrounds/README.md`](../playgrounds/README.md) is the local-first experimentation surface.
+1. [Dev](./dev/README.md)
+2. [Architecture Index](./ARCHITECTURE_INDEX.md)
+3. The relevant package/layer index below
 
-## Notes
+## Layer Indexes
 
-- Existing V1/V2 documents remain valid reference material.
-- The new hierarchy is primarily a navigation layer, not a forced rewrite of every deep document.
-- When in doubt, start with the layer index rather than jumping straight into an old reference file.
+- [Core](./core/README.md)
+- [App](./app/README.md)
+- [Cluster](./cluster/README.md)
+- [SDK](./sdk/README.md)
+
+## Package Docs
+
+User-facing package quick reference belongs next to the owning gem under
+`packages/<gem>/README.md`.
+
+Cross-package guides, tutorials, and conceptual API maps belong in
+[`guide/`](./guide/README.md).
+
+Internal architecture, placement decisions, migration plans, and backlog belong
+in [`dev/`](./dev/README.md).
+
+## Compatibility Notes
+
+- Existing V1/V2 docs remain as reference material.
+- Existing `docs/general/` and `docs/development/` paths remain as compatibility entrypoints.
+- The main change here is navigation and ownership, not a forced rewrite of every deep doc in one pass.
