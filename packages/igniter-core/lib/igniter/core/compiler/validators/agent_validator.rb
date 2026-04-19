@@ -19,6 +19,7 @@ module Igniter
             validate_agent_name!(node)
             validate_message_name!(node)
             validate_timeout!(node)
+            validate_mode!(node)
           end
         end
 
@@ -48,6 +49,15 @@ module Igniter
           raise @context.validation_error(
             node,
             "agent :#{node.name} timeout must be positive"
+          )
+        end
+
+        def validate_mode!(node)
+          return if %i[call cast].include?(node.mode)
+
+          raise @context.validation_error(
+            node,
+            "agent :#{node.name} mode must be :call or :cast"
           )
         end
       end

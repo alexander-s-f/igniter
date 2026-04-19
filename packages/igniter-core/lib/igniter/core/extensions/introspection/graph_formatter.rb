@@ -40,6 +40,7 @@ module Igniter
               line += " via=#{node.agent_name.inspect}"
               line += " message=#{node.message_name.inspect}"
               line += " timeout=#{node.timeout}"
+              line += " mode=#{node.mode}"
             end
             if node.kind == :branch
               cases = node.cases.map do |entry|

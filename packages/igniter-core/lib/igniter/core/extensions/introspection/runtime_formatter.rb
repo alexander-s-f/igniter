@@ -73,6 +73,7 @@ module Igniter
             status: state.status,
             version: state.version,
             invalidated_by: invalidation_details(state),
+            details: state.details,
             value: serialize_value(state.value),
             error: state.error&.message
           }

@@ -278,7 +278,8 @@ module Igniter
             invalidated_by: state.invalidated_by,
             value: serialize_state_value(state.value),
             error: serialize_state_error(state.error),
-            dep_snapshot: state.dep_snapshot
+            dep_snapshot: state.dep_snapshot,
+            details: state.details
           }
         end
       end
@@ -297,7 +298,8 @@ module Igniter
             value_version: state_data[:value_version] || state_data["value_version"],
             resolved_at: deserialize_time(state_data[:resolved_at] || state_data["resolved_at"]),
             invalidated_by: (state_data[:invalidated_by] || state_data["invalidated_by"])&.to_sym,
-            dep_snapshot: dep_snapshot
+            dep_snapshot: dep_snapshot,
+            details: state_data[:details] || state_data["details"] || {}
           )
         end
       end

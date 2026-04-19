@@ -39,6 +39,10 @@ module Igniter
       def routing_trace
         payload[:routing_trace] || payload["routing_trace"]
       end
+
+      def agent_trace
+        payload[:agent_trace] || payload["agent_trace"]
+      end
     end
   end
 end

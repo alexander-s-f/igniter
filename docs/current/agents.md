@@ -40,15 +40,22 @@ The immediate goal is package honesty, not just file motion.
 
 ## What This Split Does Not Mean Yet
 
-This package split does **not** mean that agents are already a first-class contract node.
+This package split does **not** mean that agents are already a fully mature contract execution model.
 
-Not true yet:
+Still not true yet:
 
-- there is no canonical `AgentNode` in the contract model
-- there is no `agent` DSL primitive in the graph builder
-- `ProxyAdapter` / `AgentAdapter` is not yet the execution bridge for graph-native agents
+- there is no graph-native session or lifecycle model for long-lived agents
+- there is no generalized `ProxyAdapter` for remote or routed delivery
+- `agent` nodes do not yet cover streaming or deferred reply patterns
 
-Today, agents are still actor runtime primitives that can cooperate with contracts, not graph nodes inside the kernel.
+Today, agents are both actor runtime primitives and an early graph primitive through `AgentNode`, but the deeper execution model is still intentionally narrow.
+
+Even in that narrow form, agents are no longer opaque:
+
+- `agent` nodes support `call` and `cast`
+- deliveries surface structured traces in diagnostics
+- pending agent work is visible in provenance
+- successful deliveries retain sideband execution details instead of disappearing into a plain scalar result
 
 ## Near-Term Direction
 

@@ -353,11 +353,14 @@ module Igniter
         )
       end
 
-      def agent(name, via:, message:, inputs:, timeout: 5, **metadata)
+      def agent(name, via:, message:, inputs:, timeout: 5, mode: :call, **metadata)
+        normalized_mode = mode.respond_to?(:to_sym) ? mode.to_sym : mode
+
         raise CompileError, "agent :#{name} requires inputs: Hash" unless inputs.is_a?(Hash)
         raise CompileError, "agent :#{name} requires via:" if via.nil? || via.to_s.strip.empty?
         raise CompileError, "agent :#{name} requires message:" if message.nil? || message.to_s.strip.empty?
         raise CompileError, "agent :#{name} timeout must be positive" unless timeout.to_f.positive?
+        raise CompileError, "agent :#{name} mode must be :call or :cast" unless %i[call cast].include?(normalized_mode)
 
         add_node(
           Model::AgentNode.new(
@@ -367,6 +370,7 @@ module Igniter
             message_name: message,
             input_mapping: inputs,
             timeout: timeout,
+            mode: normalized_mode,
             path: scoped_path(name),
             metadata: with_source_location(metadata)
           )

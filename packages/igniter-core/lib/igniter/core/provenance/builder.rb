@@ -102,7 +102,8 @@ module Igniter
             pending: true,
             event: val.waiting_on,
             payload: val.payload,
-            routing_trace: val.routing_trace
+            routing_trace: val.routing_trace,
+            agent_trace: val.agent_trace
           }.compact
         else
           val

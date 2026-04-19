@@ -13,6 +13,13 @@ module Igniter
               "Require 'igniter/agent', pass `runner :inline, agent_adapter: ...`, " \
               "or set `Igniter::Runtime.agent_adapter`."
       end
+
+      def cast(node:, inputs:, execution: nil) # rubocop:disable Lint/UnusedMethodArgument
+        raise ResolutionError,
+              "agent :#{node.name} requires a configured agent adapter. " \
+              "Require 'igniter/agent', pass `runner :inline, agent_adapter: ...`, " \
+              "or set `Igniter::Runtime.agent_adapter`."
+      end
     end
 
     class << self

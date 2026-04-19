@@ -303,10 +303,12 @@ module Igniter
         waiting_on = hash_value(value, :waiting_on)
         payload = hash_value(value, :payload)
         routing_summary = hash_value(value, :routing_trace_summary)
+        agent_summary = hash_value(value, :agent_trace_summary)
 
         parts = ["token=#{token.inspect}", "waiting_on=#{waiting_on.inspect}"]
         parts << "payload_keys=#{payload.keys.inspect}" if payload.is_a?(Hash) && !payload.empty?
         parts << "routing=#{routing_summary}" if routing_summary
+        parts << "agent=#{agent_summary}" if agent_summary
         "{#{parts.join(', ')}}"
       end
 
@@ -319,9 +321,11 @@ module Igniter
         status = hash_value(value, :status)
         error = hash_value(value, :error)
         routing_summary = hash_value(value, :routing_trace_summary)
+        agent_summary = hash_value(value, :agent_trace_summary)
 
         parts = ["status=#{status.inspect}", "error=#{error.inspect}"]
         parts << "routing=#{routing_summary}" if routing_summary
+        parts << "agent=#{agent_summary}" if agent_summary
         "{#{parts.join(', ')}}"
       end
 

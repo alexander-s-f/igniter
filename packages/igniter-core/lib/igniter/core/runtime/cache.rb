@@ -27,7 +27,8 @@ module Igniter
             value_version: value_version,
             resolved_at: state.resolved_at,
             invalidated_by: state.invalidated_by,
-            dep_snapshot: state.dep_snapshot
+            dep_snapshot: state.dep_snapshot,
+            details: state.details
           )
           @condition.broadcast
         end
@@ -49,7 +50,8 @@ module Igniter
                 value_version: current&.value_version,
                 resolved_at: current&.resolved_at || Time.now.utc,
                 invalidated_by: nil,
-                dep_snapshot: current&.dep_snapshot
+                dep_snapshot: current&.dep_snapshot,
+                details: current&.details
               )
               return [:started, @states[node.name]]
             end
@@ -73,7 +75,8 @@ module Igniter
             value_version: current.value_version,
             resolved_at: current.resolved_at,
             invalidated_by: invalidated_by,
-            dep_snapshot: current.dep_snapshot
+            dep_snapshot: current.dep_snapshot,
+            details: current.details
           )
           @condition.broadcast
         end

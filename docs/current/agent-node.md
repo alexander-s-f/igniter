@@ -9,7 +9,7 @@ Igniter now has a first-pass `agent` node in the core graph model.
 Current shape:
 
 - `Igniter::Model::AgentNode`
-- DSL: `agent :name, via:, message:, inputs:, timeout:`
+- DSL: `agent :name, via:, message:, inputs:, timeout:, mode:`
 - runtime seam: `Igniter::Runtime::AgentAdapter`
 - default local implementation from `igniter-agents`: `Igniter::Runtime::RegistryAgentAdapter`
 
@@ -27,6 +27,7 @@ class GreetingContract < Igniter::Contract
           via: :greeter,
           message: :greet,
           inputs: { name: :name },
+          mode: :call,
           timeout: 2
 
     output :greeting
@@ -36,14 +37,27 @@ end
 
 ## Current Semantics
 
-This first pass is intentionally narrow.
+This first pass is intentionally small, but no longer request/reply only.
 
-- `agent` nodes are request/reply nodes
+- `agent` nodes support `mode: :call` and `mode: :cast`
 - they map contract dependencies into an agent message payload
 - they delegate delivery to an adapter instead of talking to the registry directly from core
-- the default adapter in `igniter-agents` resolves `via:` through `Igniter::Registry` and performs `ref.call(...)`
+- the default adapter in `igniter-agents` resolves `via:` through `Igniter::Registry`
+- `mode: :call` performs `ref.call(...)` and returns the reply as the node value
+- `mode: :cast` performs `ref.send(...)` and resolves the node with `nil` by default
 
-The result of the node is the reply payload returned by the agent handler.
+That gives contracts both synchronous request/reply and fire-and-forget delivery without coupling core to the actor runtime.
+
+## Diagnostics Surface
+
+`agent` nodes now participate in diagnostics as their own execution surface.
+
+- successful, pending, and failed agent deliveries produce structured `agent_trace`
+- traces are summarized under `report[:agents]`
+- pending and failed outputs include `agent_trace` and `agent_trace_summary`
+- execution state keeps sideband node details so successful agent deliveries remain visible after resolution
+
+This matters because it turns agents into observable graph participants rather than opaque adapter calls.
 
 ## Why This Shape
 
@@ -62,7 +76,6 @@ This is not the final agent model.
 Not covered yet:
 
 - graph-native long-lived sessions
-- fire-and-forget / cast semantics
 - streaming replies
 - capability-routed or cluster-routed agent delivery
 - explicit `AgentNode` lifecycle ownership
@@ -72,7 +85,7 @@ Not covered yet:
 
 The most natural next slices are:
 
-1. richer delivery modes such as `mode: :send` or deferred replies
-2. agent-node diagnostics and provenance formatting
+1. richer delivery modes such as deferred replies or streaming
+2. richer provenance for successful agent nodes, not just pending/failed traces
 3. support for agent targeting beyond the local registry
 4. deciding whether `AgentAdapter` stays specialized or becomes a more general `ProxyAdapter`

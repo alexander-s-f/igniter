@@ -73,6 +73,7 @@ module Igniter
               base[:message] = node.message_name
               base[:inputs] = node.input_mapping
               base[:timeout] = node.timeout
+              base[:mode] = node.mode
             end
             if node.kind == :branch
               base[:selector] = node.selector_dependency
@@ -142,6 +143,7 @@ module Igniter
               message: node.message_name,
               inputs: node.input_mapping,
               timeout: node.timeout,
+              mode: node.mode,
               metadata: node.metadata.reject { |key, _| key == :source_location }
             }
           end,

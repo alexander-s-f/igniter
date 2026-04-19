@@ -54,7 +54,8 @@ module Igniter
             payload: payload,
             source_node: e.deferred_result.source_node,
             waiting_on: e.deferred_result.waiting_on || node.name
-          )
+          ),
+          details: pending_details(node, payload)
         )
         @execution.cache.write(state)
         @execution.events.emit(:node_pending, node: node, status: :pending, payload: pending_payload(state))
@@ -62,7 +63,7 @@ module Igniter
       rescue StandardError => e
         state = NodeState.new(node: node, status: :failed, error: normalize_error(e, node))
         @execution.cache.write(state)
-        @execution.events.emit(:node_failed, node: node, status: :failed, payload: { error: state.error.message })
+        @execution.events.emit(:node_failed, node: node, status: :failed, payload: failure_payload(state))
         state
       end
 
@@ -110,27 +111,47 @@ module Igniter
           memo[message_input] = resolve_dependency_value(dep_name)
         end
 
-        response = @execution.agent_adapter.call(
-          node: node,
-          inputs: inputs,
-          execution: @execution
-        )
+        response =
+          if node.mode == :cast
+            @execution.agent_adapter.cast(
+              node: node,
+              inputs: inputs,
+              execution: @execution
+            )
+          else
+            @execution.agent_adapter.call(
+              node: node,
+              inputs: inputs,
+              execution: @execution
+            )
+          end
 
         case response[:status]
         when :succeeded
-          NodeState.new(node: node, status: :succeeded, value: response[:output])
+          NodeState.new(
+            node: node,
+            status: :succeeded,
+            value: response.fetch(:output, nil),
+            details: agent_details(response)
+          )
         when :pending
           deferred = response[:deferred_result] || Runtime::DeferredResult.build(
-            payload: response[:payload] || {},
+            payload: merge_agent_trace(response[:payload] || {}, response[:agent_trace]),
             source_node: node.name,
             waiting_on: node.name
           )
           raise PendingDependencyError.new(deferred, response[:message] || "Agent node '#{node.name}' is pending")
         when :failed
           error_message = response.dig(:error, :message) || response.dig(:error, "message") || "agent call failed"
-          raise ResolutionError, "Agent #{node.agent_name}: #{error_message}"
+          raise ResolutionError.new(
+            "Agent #{node.agent_name}: #{error_message}",
+            context: { agent_trace: response[:agent_trace] }.compact
+          )
         else
-          raise ResolutionError, "Agent #{node.agent_name}: unexpected status '#{response[:status]}'"
+          raise ResolutionError.new(
+            "Agent #{node.agent_name}: unexpected status '#{response[:status]}'",
+            context: { agent_trace: response[:agent_trace] }.compact
+          )
         end
       end
 
@@ -558,6 +579,13 @@ module Igniter
         state.value.to_h
       end
 
+      def pending_details(node, payload)
+        return {} unless node.kind == :agent
+
+        agent_trace = payload[:agent_trace] || payload["agent_trace"]
+        agent_trace ? { agent_trace: agent_trace } : {}
+      end
+
       def pending_context(node)
         {
           graph: @execution.compiled_graph.name,
@@ -569,13 +597,37 @@ module Igniter
       end
 
       def success_payload(node, state)
-        return {} unless %i[composition branch].include?(node.kind)
-        return {} unless state.value.is_a?(Igniter::Runtime::Result)
+        payload = {}
 
-        {
-          child_execution_id: state.value.execution.events.execution_id,
-          child_graph: state.value.execution.compiled_graph.name
-        }
+        if %i[composition branch].include?(node.kind) && state.value.is_a?(Igniter::Runtime::Result)
+          payload[:child_execution_id] = state.value.execution.events.execution_id
+          payload[:child_graph] = state.value.execution.compiled_graph.name
+        end
+
+        if node.kind == :agent && state.details[:agent_trace]
+          payload[:agent_trace] = state.details[:agent_trace]
+        end
+
+        payload
+      end
+
+      def failure_payload(state)
+        payload = { error: state.error.message }
+        context = state.error.respond_to?(:context) ? state.error.context : {}
+        payload[:routing_trace] = context[:routing_trace] if context[:routing_trace]
+        payload[:agent_trace] = context[:agent_trace] if context[:agent_trace]
+        payload
+      end
+
+      def agent_details(response)
+        trace = response[:agent_trace]
+        trace ? { agent_trace: trace } : {}
+      end
+
+      def merge_agent_trace(payload, agent_trace)
+        return payload unless agent_trace
+
+        payload.merge(agent_trace: agent_trace)
       end
 
       def normalize_error(error, node)
