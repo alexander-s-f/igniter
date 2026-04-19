@@ -43,6 +43,7 @@ module Igniter
               line += " mode=#{node.mode}"
               line += " reply=#{node.reply_mode}"
               line += " finalizer=#{node.finalizer.inspect}" if node.finalizer
+              line += " tool_loop_policy=#{node.tool_loop_policy.inspect}" if node.tool_loop_policy
             end
             if node.kind == :branch
               cases = node.cases.map do |entry|

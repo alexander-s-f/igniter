@@ -42,6 +42,7 @@ This first pass is intentionally small, but no longer request/reply only.
 - `agent` nodes support `mode: :call` and `mode: :cast`
 - `agent` call nodes now declare `reply: :single | :deferred | :stream`
 - stream call nodes may also declare `finalizer:`
+- stream call nodes may also declare `tool_loop_policy:`
 - `agent` cast nodes implicitly use `reply: :none`
 - they map contract dependencies into an agent message payload
 - they delegate delivery to an adapter instead of talking to the registry directly from core
@@ -55,6 +56,7 @@ Reply modes now have explicit meaning:
 - `reply: :deferred` means the agent may either resolve immediately or materialize a resumable session
 - `reply: :stream` means the agent must enter the session lifecycle and surfaces a `Runtime::StreamResult` while pending
 - `finalizer:` controls how a streaming session materializes its final value when resumed without an explicit `value:`
+- `tool_loop_policy:` controls when a streaming session is allowed to auto-finalize without an explicit `value:`
 
 That gives contracts both synchronous request/reply, resumable deferred work, and an honest place to grow streaming semantics without coupling core to the actor runtime.
 
@@ -64,6 +66,13 @@ Current stream finalizers:
 - built-ins `:join`, `:array`, `:last`, `:events`
 - custom contract methods via `finalizer: :method_name`
 - custom callables via `finalizer: ->(chunks:, events:, messages:, session:, contract:, execution:) { ... }`
+
+Current tool loop policies:
+
+- default `:complete`
+- `:complete` requires the tool loop to be `:idle` or `:complete`
+- `:resolved` requires all tool calls to be resolved, even if orphan results are still present
+- `:ignore` allows auto-finalization regardless of tool-loop state
 
 ## Diagnostics Surface
 
@@ -115,8 +124,8 @@ For user-facing runtime values this now means:
 - `reply: :deferred` pending outputs still appear as `DeferredResult`
 - `reply: :stream` pending outputs appear as `StreamResult`
 - `StreamResult` exposes current `phase`, typed `events`, accumulated `chunks`, and the backing session metadata
-- a stream node can be resumed without `value:` and will materialize through its configured finalizer only when its tool loop is `:idle` or `:complete`
-- open or orphaned tool loops now block auto-finalization unless the caller explicitly supplies `value:`
+- a stream node can be resumed without `value:` and will materialize through its configured finalizer according to its `tool_loop_policy:`
+- under the default `:complete` policy, open or orphaned tool loops block auto-finalization unless the caller explicitly supplies `value:`
 
 The current event model is intentionally small:
 

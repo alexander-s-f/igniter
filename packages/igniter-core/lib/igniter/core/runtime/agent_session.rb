@@ -340,15 +340,24 @@ module Igniter
         }.freeze
       end
 
-      def ready_to_finalize_stream?
-        %i[idle complete].include?(tool_loop_status)
+      def ready_to_finalize_stream?(policy: :complete)
+        case policy
+        when :ignore
+          true
+        when :resolved
+          all_tool_calls_resolved?
+        when :complete, nil
+          %i[idle complete].include?(tool_loop_status)
+        else
+          raise ResolutionError, "Unsupported tool loop policy #{policy.inspect} for agent session '#{node_name}'"
+        end
       end
 
-      def ensure_ready_to_finalize_stream!
-        return true if ready_to_finalize_stream?
+      def ensure_ready_to_finalize_stream!(policy: :complete)
+        return true if ready_to_finalize_stream?(policy: policy)
 
         raise ResolutionError,
-              "Streaming agent session '#{node_name}' cannot auto-finalize while tool loop is #{tool_loop_status.inspect}"
+              "Streaming agent session '#{node_name}' cannot auto-finalize while tool loop is #{tool_loop_status.inspect} under policy #{policy.inspect}"
       end
 
       def validate_stream_reply!(reply)

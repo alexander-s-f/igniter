@@ -22,6 +22,7 @@ module Igniter
             validate_mode!(node)
             validate_reply_mode!(node)
             validate_finalizer!(node)
+            validate_tool_loop_policy!(node)
           end
         end
 
@@ -86,6 +87,24 @@ module Igniter
           raise @context.validation_error(
             node,
             "agent :#{node.name} finalizer requires reply: :stream"
+          )
+        end
+
+        def validate_tool_loop_policy!(node)
+          return if node.tool_loop_policy.nil?
+
+          unless %i[ignore resolved complete].include?(node.tool_loop_policy)
+            raise @context.validation_error(
+              node,
+              "agent :#{node.name} tool_loop_policy must be :ignore, :resolved, or :complete"
+            )
+          end
+
+          return if node.reply_mode == :stream
+
+          raise @context.validation_error(
+            node,
+            "agent :#{node.name} tool_loop_policy requires reply: :stream"
           )
         end
       end

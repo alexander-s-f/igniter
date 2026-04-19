@@ -42,8 +42,9 @@ RSpec.describe "agent: DSL node" do
       expect(node.mode).to eq(:call)
       expect(node.reply_mode).to eq(:deferred)
       expect(node.finalizer).to be_nil
+      expect(node.tool_loop_policy).to be_nil
       expect(contract_class.graph.to_schema[:agents]).to include(
-        hash_including(name: :greeting, via: :greeter, message: :greet, inputs: { name: :name }, mode: :call, reply: :deferred, finalizer: nil)
+        hash_including(name: :greeting, via: :greeter, message: :greet, inputs: { name: :name }, mode: :call, reply: :deferred, finalizer: nil, tool_loop_policy: nil)
       )
     end
 
@@ -113,19 +114,43 @@ RSpec.describe "agent: DSL node" do
       end.to raise_error(Igniter::CompileError, /finalizer requires reply: :stream/)
     end
 
+    it "raises CompileError when tool_loop_policy is used without reply: :stream" do
+      expect do
+        Class.new(Igniter::Contract) do
+          define do
+            input :name
+            agent :greeting, via: :greeter, message: :greet, tool_loop_policy: :complete, inputs: { name: :name }
+          end
+        end
+      end.to raise_error(Igniter::CompileError, /tool_loop_policy requires reply: :stream/)
+    end
+
+    it "raises CompileError when tool_loop_policy is unsupported" do
+      expect do
+        Class.new(Igniter::Contract) do
+          define do
+            input :name
+            agent :greeting, via: :greeter, message: :greet, reply: :stream, tool_loop_policy: :strictest, inputs: { name: :name }
+          end
+        end
+      end.to raise_error(Igniter::CompileError, /tool_loop_policy must be :ignore, :resolved, or :complete/)
+    end
+
     it "compiles stream agents with default and custom finalizers" do
       contract_class = Class.new(Igniter::Contract) do
         define do
           input :name
           agent :default_summary, via: :writer, message: :summarize, reply: :stream, inputs: { name: :name }
-          agent :custom_summary, via: :writer, message: :summarize, reply: :stream, finalizer: :array, inputs: { name: :name }
+          agent :custom_summary, via: :writer, message: :summarize, reply: :stream, finalizer: :array, tool_loop_policy: :resolved, inputs: { name: :name }
           output :default_summary
           output :custom_summary
         end
       end
 
       expect(contract_class.compiled_graph.fetch_node(:default_summary).finalizer).to eq(:join)
+      expect(contract_class.compiled_graph.fetch_node(:default_summary).tool_loop_policy).to eq(:complete)
       expect(contract_class.compiled_graph.fetch_node(:custom_summary).finalizer).to eq(:array)
+      expect(contract_class.compiled_graph.fetch_node(:custom_summary).tool_loop_policy).to eq(:resolved)
     end
 
     it "raises ValidationError when dependency is not in graph" do
@@ -1030,7 +1055,136 @@ RSpec.describe "agent: DSL node" do
 
       expect do
         contract.execution.resume_agent_session(session.token)
-      end.to raise_error(Igniter::ResolutionError, /cannot auto-finalize while tool loop is :orphaned/)
+      end.to raise_error(Igniter::ResolutionError, /cannot auto-finalize while tool loop is :orphaned under policy :complete/)
+    end
+
+    it "allows orphaned tool loops to auto-finalize under policy :resolved" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, finalizer: :events, tool_loop_policy: :resolved, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      contract.execution.continue_agent_session(
+        session,
+        payload: {},
+        reply: {
+          turn: 2,
+          kind: :reply,
+          name: :summarize,
+          source: :agent,
+          payload: {
+            events: [
+              Igniter::Runtime::AgentSession.tool_result_event(name: :search, result: { orphan: true })
+            ]
+          }
+        },
+        phase: :streaming
+      )
+
+      contract.execution.resume_agent_session(session.token)
+
+      expect(contract.result.summary).to eq(
+        [
+          {
+            turn: 2,
+            source: :agent,
+            message_name: :summarize,
+            type: :tool_result,
+            name: :search,
+            result: { orphan: true }
+          }
+        ]
+      )
+    end
+
+    it "allows open tool loops to auto-finalize under policy :ignore" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, finalizer: :events, tool_loop_policy: :ignore, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      contract.execution.continue_agent_session(
+        session,
+        payload: {},
+        reply: {
+          turn: 2,
+          kind: :reply,
+          name: :summarize,
+          source: :agent,
+          payload: {
+            events: [
+              Igniter::Runtime::AgentSession.tool_call_event(name: :search, arguments: { q: "Alice" }, call_id: "search-1")
+            ]
+          }
+        },
+        phase: :streaming
+      )
+
+      contract.execution.resume_agent_session(session.token)
+
+      expect(contract.result.summary).to eq(
+        [
+          {
+            turn: 2,
+            source: :agent,
+            message_name: :summarize,
+            type: :tool_call,
+            name: :search,
+            arguments: { q: "Alice" },
+            call_id: "search-1"
+          }
+        ]
+      )
     end
 
     it "rejects unsupported stream event types" do

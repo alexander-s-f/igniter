@@ -8,9 +8,9 @@ module Igniter
     # delegated to a runtime adapter so core stays independent from any specific
     # actor runtime implementation or registry strategy.
     class AgentNode < Node
-      attr_reader :agent_name, :message_name, :input_mapping, :timeout, :mode, :reply_mode, :finalizer
+      attr_reader :agent_name, :message_name, :input_mapping, :timeout, :mode, :reply_mode, :finalizer, :tool_loop_policy
 
-      def initialize(id:, name:, agent_name:, message_name:, input_mapping:, timeout: 5, mode: :call, reply_mode: nil, finalizer: nil, path: nil, metadata: {}) # rubocop:disable Metrics/ParameterLists
+      def initialize(id:, name:, agent_name:, message_name:, input_mapping:, timeout: 5, mode: :call, reply_mode: nil, finalizer: nil, tool_loop_policy: nil, path: nil, metadata: {}) # rubocop:disable Metrics/ParameterLists
         super(
           id: id,
           kind: :agent,
@@ -26,6 +26,7 @@ module Igniter
         @mode = normalize_mode(mode)
         @reply_mode = normalize_reply_mode(reply_mode || default_reply_mode(@mode))
         @finalizer = normalize_finalizer(finalizer || default_finalizer(@reply_mode))
+        @tool_loop_policy = normalize_tool_loop_policy(tool_loop_policy || default_tool_loop_policy(@reply_mode))
       end
 
       private
@@ -60,6 +61,16 @@ module Igniter
 
       def default_finalizer(reply_mode)
         reply_mode == :stream ? :join : nil
+      end
+
+      def normalize_tool_loop_policy(tool_loop_policy)
+        return tool_loop_policy.to_sym if tool_loop_policy.is_a?(String) || tool_loop_policy.is_a?(Symbol)
+
+        tool_loop_policy
+      end
+
+      def default_tool_loop_policy(reply_mode)
+        reply_mode == :stream ? :complete : nil
       end
     end
   end

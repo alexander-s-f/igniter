@@ -353,10 +353,11 @@ module Igniter
         )
       end
 
-      def agent(name, via:, message:, inputs:, timeout: 5, mode: :call, reply: nil, finalizer: nil, **metadata)
+      def agent(name, via:, message:, inputs:, timeout: 5, mode: :call, reply: nil, finalizer: nil, tool_loop_policy: nil, **metadata)
         normalized_mode = mode.respond_to?(:to_sym) ? mode.to_sym : mode
         normalized_reply = reply.respond_to?(:to_sym) ? reply.to_sym : reply
         normalized_finalizer = finalizer.respond_to?(:to_sym) ? finalizer.to_sym : finalizer
+        normalized_tool_loop_policy = tool_loop_policy.respond_to?(:to_sym) ? tool_loop_policy.to_sym : tool_loop_policy
 
         raise CompileError, "agent :#{name} requires inputs: Hash" unless inputs.is_a?(Hash)
         raise CompileError, "agent :#{name} requires via:" if via.nil? || via.to_s.strip.empty?
@@ -378,6 +379,12 @@ module Igniter
         unless normalized_finalizer.nil? || normalized_finalizer.is_a?(Symbol) || normalized_finalizer.respond_to?(:call)
           raise CompileError, "agent :#{name} finalizer must be a Symbol, String, or callable"
         end
+        if !normalized_tool_loop_policy.nil? && normalized_reply != :stream
+          raise CompileError, "agent :#{name} tool_loop_policy requires reply: :stream"
+        end
+        unless normalized_tool_loop_policy.nil? || %i[ignore resolved complete].include?(normalized_tool_loop_policy)
+          raise CompileError, "agent :#{name} tool_loop_policy must be :ignore, :resolved, or :complete"
+        end
 
         add_node(
           Model::AgentNode.new(
@@ -390,6 +397,7 @@ module Igniter
             mode: normalized_mode,
             reply_mode: normalized_reply,
             finalizer: normalized_finalizer,
+            tool_loop_policy: normalized_tool_loop_policy,
             path: scoped_path(name),
             metadata: with_source_location(metadata)
           )
