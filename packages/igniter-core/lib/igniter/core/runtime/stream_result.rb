@@ -27,6 +27,14 @@ module Igniter
         session&.chunks || []
       end
 
+      def events
+        session&.events || []
+      end
+
+      def last_event
+        events.last
+      end
+
       def last_chunk
         chunks.last
       end
@@ -43,6 +51,8 @@ module Igniter
         super.merge(
           type: :stream,
           phase: phase,
+          events: events,
+          event_count: events.size,
           chunks: chunks,
           chunk_count: chunks.size
         )

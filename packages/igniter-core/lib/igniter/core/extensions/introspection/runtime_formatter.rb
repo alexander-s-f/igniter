@@ -100,6 +100,8 @@ module Igniter
               source_node: value.source_node,
               waiting_on: value.waiting_on,
               phase: value.phase,
+              events: value.events,
+              event_count: value.events.size,
               chunks: value.chunks,
               chunk_count: value.chunks.size
             }

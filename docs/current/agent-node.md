@@ -61,9 +61,9 @@ That gives contracts both synchronous request/reply, resumable deferred work, an
 Current stream finalizers:
 
 - default `:join`
-- built-ins `:join`, `:array`, `:last`
+- built-ins `:join`, `:array`, `:last`, `:events`
 - custom contract methods via `finalizer: :method_name`
-- custom callables via `finalizer: ->(chunks:, messages:, session:, contract:, execution:) { ... }`
+- custom callables via `finalizer: ->(chunks:, events:, messages:, session:, contract:, execution:) { ... }`
 
 ## Diagnostics Surface
 
@@ -114,8 +114,18 @@ For user-facing runtime values this now means:
 
 - `reply: :deferred` pending outputs still appear as `DeferredResult`
 - `reply: :stream` pending outputs appear as `StreamResult`
-- `StreamResult` exposes current `phase`, accumulated `chunks`, and the backing session metadata
+- `StreamResult` exposes current `phase`, typed `events`, accumulated `chunks`, and the backing session metadata
 - a stream node can be resumed without `value:` and will materialize through its configured finalizer
+
+The current event model is intentionally small:
+
+- legacy text-style replies may still send `payload[:chunk]`
+- richer streams may now send `payload[:event]` or `payload[:events]`
+- `chunks` are derived from stream events with `type: :chunk`
+- current canonical event types are `:chunk`, `:status`, `:tool_call`, `:tool_result`, `:artifact`, and `:final`
+- stream continuations are now runtime-validated against that event contract before they enter the persisted session log
+
+That keeps the text path easy while allowing stream semantics to grow into tool calls, status events, and artifacts.
 
 ## Why This Shape
 
@@ -134,7 +144,7 @@ This is not the final agent model.
 Not covered yet:
 
 - rich mailbox-style session state beyond request/reply envelopes
-- streaming replies
+- richer typed event contracts beyond today's first runtime validator pass
 - capability-routed or cluster-routed agent delivery
 - explicit `AgentNode` lifecycle ownership across long-running workflows
 - a generalized `ProxyAdapter`
@@ -144,6 +154,6 @@ Not covered yet:
 The most natural next slices are:
 
 1. richer session semantics beyond append-only request/reply envelopes
-2. richer stream chunk/result assembly beyond today's built-in finalizers
+2. richer stream event/result assembly beyond today's built-in finalizers
 3. support for agent targeting beyond the local registry
 4. deciding whether `AgentAdapter` stays specialized or becomes a more general `ProxyAdapter`

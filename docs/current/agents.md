@@ -44,9 +44,9 @@ This package split does **not** mean that agents are already a fully mature cont
 
 Still not true yet:
 
-- there is no graph-native session or lifecycle model for long-lived agents
+- agent lifecycle is not yet a fully planner-native execution category across the whole graph
 - there is no generalized `ProxyAdapter` for remote or routed delivery
-- `agent` nodes do not yet cover streaming or deferred reply patterns
+- richer typed stream events are not yet the only canonical stream surface
 
 Today, agents are both actor runtime primitives and an early graph primitive through `AgentNode`, but the deeper execution model is still intentionally narrow.
 
@@ -83,6 +83,7 @@ The current session model is intentionally simple but now explicit:
 - `reply: :stream` requires session-based delivery and opens a path toward partial replies
 - `reply: :stream` now also surfaces a dedicated `Runtime::StreamResult` while the node is still pending
 - stream nodes can now auto-materialize their final value through `finalizer:`
+- streaming is beginning to move from raw `chunk` payloads to typed stream events, with `chunks` kept as a derived convenience view
 - final completion preserves the completed session in node details for diagnostics/provenance
 - store-backed runners persist and restore that lifecycle instead of treating the session as caller-owned state
 
@@ -100,3 +101,4 @@ After the package split is stable, we can evaluate a deeper model:
 That is a separate architectural pass and should be designed intentionally rather than smuggled into the gem extraction.
 
 See also: [Agent Node](./agent-node.md)
+See also: [Contracts And Agents](./contracts-and-agents.md)

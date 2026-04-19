@@ -258,8 +258,122 @@ RSpec.describe "Igniter store-backed execution" do
 
     expect(stream_value).to be_a(Igniter::Runtime::StreamResult)
     expect(stream_value.chunks).to eq(["Hello"])
+    expect(stream_value.events).to eq(
+      [
+        {
+          turn: 2,
+          source: :agent,
+          message_name: :summarize,
+          type: :chunk,
+          chunk: "Hello"
+        }
+      ]
+    )
     expect(stream_value.phase).to eq(:streaming)
     expect(Igniter.execution_store.exist?(execution_id)).to eq(true)
+  end
+
+  it "restores typed stream events from store and keeps chunk views derived" do
+    trace = pending_agent_trace.merge(outcome: :streaming)
+    agent_adapter = Class.new do
+      define_method(:call) do |node:, **|
+        {
+          status: :pending,
+          payload: { queue: :stream },
+          agent_trace: trace,
+          session: {
+            node_name: node.name,
+            node_path: node.path,
+            agent_name: node.agent_name,
+            message_name: node.message_name,
+            mode: node.mode,
+            reply_mode: node.reply_mode,
+            waiting_on: node.name,
+            source_node: node.name,
+            trace: trace
+          }
+        }
+      end
+    end.new
+
+    contract_class = Class.new(Igniter::Contract) do
+      run_with runner: :store, agent_adapter: agent_adapter
+
+      define do
+        input :name
+        agent :summary, via: :writer, message: :summarize, reply: :stream, finalizer: :events, inputs: { name: :name }
+        output :summary
+      end
+    end
+
+    original = contract_class.new(name: "Alice")
+    original.result.summary
+    execution_id = original.execution.events.execution_id
+
+    restored = contract_class.restore_from_store(execution_id)
+    session = restored.execution.agent_sessions.first
+
+    continued = contract_class.continue_agent_session_from_store(
+      execution_id,
+      session: session,
+      payload: {},
+      reply: {
+        turn: 2,
+        kind: :reply,
+        name: :summarize,
+        source: :agent,
+        payload: {
+          events: [
+            { type: :status, status: "thinking" },
+            { type: :chunk, chunk: "Hello" }
+          ]
+        }
+      },
+      phase: :streaming
+    )
+
+    stream_value = continued.result.summary
+
+    expect(stream_value.events).to eq(
+      [
+        {
+          turn: 2,
+          source: :agent,
+          message_name: :summarize,
+          type: :status,
+          status: "thinking"
+        },
+        {
+          turn: 2,
+          source: :agent,
+          message_name: :summarize,
+          type: :chunk,
+          chunk: "Hello"
+        }
+      ]
+    )
+    expect(stream_value.chunks).to eq(["Hello"])
+
+    resumed = contract_class.resume_agent_session_from_store(execution_id, session: continued.execution.agent_sessions.first)
+
+    expect(resumed.result.summary).to eq(
+      [
+        {
+          turn: 2,
+          source: :agent,
+          message_name: :summarize,
+          type: :status,
+          status: "thinking"
+        },
+        {
+          turn: 2,
+          source: :agent,
+          message_name: :summarize,
+          type: :chunk,
+          chunk: "Hello"
+        }
+      ]
+    )
   end
 
   it "auto-finalizes streaming sessions from store when no explicit value is provided" do

@@ -11,6 +11,7 @@ while the architecture is still evolving.
 
 ## Current Docs
 
+- [Contracts And Agents](./contracts-and-agents.md)
 - [Agents](./agents.md)
 - [Agent Node](./agent-node.md)
 - [Stacks](./stacks.md)

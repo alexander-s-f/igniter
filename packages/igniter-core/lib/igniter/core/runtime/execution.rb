@@ -148,6 +148,7 @@ module Igniter
         session = resolve_agent_session(session_or_token)
         state = pending_state_for_token(session.token, source_only: true)
         raise ResolutionError, "No pending agent session found for token '#{session.token}'" unless state
+        session.validate_stream_reply!(reply) if state.node.reply_mode == :stream
 
         continued_session = session.continue(
           payload: payload,

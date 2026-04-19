@@ -296,13 +296,29 @@ RSpec.describe "agent: DSL node" do
 
       expect(stream_value).to be_a(Igniter::Runtime::StreamResult)
       expect(stream_value.chunks).to eq(["Hello"])
+      expect(stream_value.events).to eq(
+        [
+          {
+            turn: 2,
+            source: :agent,
+            message_name: :summarize,
+            type: :chunk,
+            chunk: "Hello"
+          }
+        ]
+      )
       expect(stream_value.phase).to eq(:streaming)
       expect(continued.last_reply).to include(kind: :reply, payload: { chunk: "Hello" })
+      expect(continued.last_event).to include(type: :chunk, chunk: "Hello")
       expect(continued.phase).to eq(:streaming)
-      expect(runtime_value).to include(type: :stream, phase: :streaming, chunks: ["Hello"])
+      expect(runtime_value).to include(type: :stream, phase: :streaming, chunks: ["Hello"], event_count: 1)
 
       contract.execution.resume_agent_session(continued, value: "Hello, Alice")
       expect(contract.result.summary).to eq("Hello, Alice")
+      expect(contract.execution.states[:summary].dig(:details, :agent_session, :last_reply)).to include(
+        kind: :reply,
+        payload: { event: :final, value: "Hello, Alice" }
+      )
     end
 
     it "auto-finalizes stream results with the default join policy" do
@@ -406,6 +422,227 @@ RSpec.describe "agent: DSL node" do
       contract.execution.resume_agent_session(session.token)
 
       expect(contract.result.summary).to eq(%w[HELLO ALICE])
+    end
+
+    it "surfaces typed stream events and can finalize them as events" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, finalizer: :events, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      contract.execution.continue_agent_session(
+        session,
+        payload: {},
+        reply: {
+          turn: 2,
+          kind: :reply,
+          name: :summarize,
+          source: :agent,
+          payload: {
+            event: :status,
+            status: "thinking"
+          }
+        },
+        phase: :streaming
+      )
+      contract.execution.continue_agent_session(
+        session.token,
+        payload: {},
+        reply: {
+          turn: 3,
+          kind: :reply,
+          name: :summarize,
+          source: :agent,
+          payload: {
+            events: [
+              { type: :tool_call, name: :search, arguments: { q: "Alice" } },
+              { type: :chunk, chunk: "Hello, Alice" }
+            ]
+          }
+        },
+        phase: :streaming
+      )
+
+      stream_value = contract.result.summary
+
+      expect(stream_value.events).to eq(
+        [
+          {
+            turn: 2,
+            source: :agent,
+            message_name: :summarize,
+            type: :status,
+            status: "thinking"
+          },
+          {
+            turn: 3,
+            source: :agent,
+            message_name: :summarize,
+            type: :tool_call,
+            name: :search,
+            arguments: { q: "Alice" }
+          },
+          {
+            turn: 3,
+            source: :agent,
+            message_name: :summarize,
+            type: :chunk,
+            chunk: "Hello, Alice"
+          }
+        ]
+      )
+      expect(stream_value.chunks).to eq(["Hello, Alice"])
+
+      contract.execution.resume_agent_session(session.token)
+
+      expect(contract.result.summary).to eq(
+        [
+          {
+            turn: 2,
+            source: :agent,
+            message_name: :summarize,
+            type: :status,
+            status: "thinking"
+          },
+          {
+            turn: 3,
+            source: :agent,
+            message_name: :summarize,
+            type: :tool_call,
+            name: :search,
+            arguments: { q: "Alice" }
+          },
+          {
+            turn: 3,
+            source: :agent,
+            message_name: :summarize,
+            type: :chunk,
+            chunk: "Hello, Alice"
+          }
+        ]
+      )
+      expect(contract.execution.states[:summary].dig(:details, :agent_session, :last_reply)).to include(
+        payload: { event: :final, value: stream_value.events }
+      )
+    end
+
+    it "rejects unsupported stream event types" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      expect do
+        contract.execution.continue_agent_session(
+          session,
+          payload: {},
+          reply: {
+            turn: 2,
+            kind: :reply,
+            name: :summarize,
+            source: :agent,
+            payload: { event: :unknown, value: "bad" }
+          },
+          phase: :streaming
+        )
+      end.to raise_error(Igniter::ResolutionError, /Unsupported stream event type/)
+    end
+
+    it "rejects malformed stream event payloads" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      expect do
+        contract.execution.continue_agent_session(
+          session,
+          payload: {},
+          reply: {
+            turn: 2,
+            kind: :reply,
+            name: :summarize,
+            source: :agent,
+            payload: { event: :status }
+          },
+          phase: :streaming
+        )
+      end.to raise_error(Igniter::ResolutionError, /Stream :status events/)
     end
 
     it "rejects synchronous success for reply: :stream" do

@@ -99,6 +99,7 @@ module Igniter
             stream: true,
             event: val.waiting_on,
             phase: val.phase,
+            events: val.events,
             chunks: val.chunks,
             payload: val.payload,
             routing_trace: val.routing_trace,

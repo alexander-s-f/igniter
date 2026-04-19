@@ -3,6 +3,8 @@
 module Igniter
   module Runtime
     class AgentSession
+      STREAM_EVENT_TYPES = %i[chunk status tool_call tool_result artifact final].freeze
+
       attr_reader :token, :node_name, :node_path, :agent_name, :message_name,
                   :mode, :reply_mode, :waiting_on, :source_node, :trace, :payload, :turn, :phase,
                   :messages, :last_request, :last_reply, :history,
@@ -167,14 +169,35 @@ module Igniter
       end
 
       def chunks
-        messages.filter_map do |message|
-          next unless message[:kind] == :reply
+        events.filter_map { |event| chunk_from_event(event) }
+      end
 
-          payload = message[:payload]
-          next unless payload.is_a?(Hash) && payload.key?(:chunk)
+      def events
+        messages.flat_map do |message|
+          next [] unless message[:kind] == :reply
 
-          payload[:chunk]
+          stream_events_for_message(message)
         end
+      end
+
+      def last_event
+        events.last
+      end
+
+      def validate_stream_reply!(reply)
+        return if reply.nil?
+
+        reply_message = normalize_message_entry(reply)
+        payload = reply_message[:payload]
+        unless payload.is_a?(Hash)
+          raise ResolutionError, "Streaming agent session '#{node_name}' reply payload must be a Hash"
+        end
+
+        if !payload.key?(:events) && !payload.key?(:event) && !payload.key?(:chunk)
+          raise ResolutionError, "Streaming agent session '#{node_name}' replies must use payload[:event], payload[:events], or payload[:chunk]"
+        end
+
+        stream_events_for_message(reply_message)
       end
 
       def finalized_value(finalizer:, contract: nil, execution: nil)
@@ -185,9 +208,12 @@ module Igniter
           chunks.dup
         when :last
           chunks.last
+        when :events
+          events.dup
         when Proc
           finalizer.call(
             chunks: chunks,
+            events: events,
             messages: messages,
             session: self,
             contract: contract,
@@ -199,6 +225,7 @@ module Igniter
           contract.public_send(
             finalizer.to_sym,
             chunks: chunks,
+            events: events,
             messages: messages,
             session: self,
             execution: execution
@@ -287,6 +314,10 @@ module Igniter
       end
 
       def normalize_reply_payload(value)
+        if reply_mode == :stream
+          return { event: :final, value: value }
+        end
+
         return value if value.is_a?(Hash)
 
         { value: value }
@@ -294,6 +325,103 @@ module Igniter
 
       def find_last_message(kind)
         messages.reverse.find { |entry| entry[:kind] == kind }
+      end
+
+      def stream_events_for_message(message)
+        payload = message[:payload]
+        return [] unless payload.is_a?(Hash)
+
+        if payload.key?(:events)
+          Array(payload[:events]).filter_map do |entry|
+            normalize_stream_event(entry, message: message)
+          end
+        elsif payload.key?(:event)
+          [normalize_stream_event(payload[:event], message: message, extra: hash_without(payload, :event))].compact
+        elsif payload.key?(:chunk)
+          [normalize_stream_event(payload, message: message, default_type: :chunk)].compact
+        else
+          []
+        end
+      end
+
+      def normalize_stream_event(entry, message:, extra: nil, default_type: nil)
+        case entry
+        when Hash
+          normalized = normalize_message_entry(entry)
+          type = normalized[:type] || normalized[:event] || default_type
+          return nil unless type
+
+          event = {
+            turn: message[:turn],
+            source: message[:source],
+            message_name: message[:name],
+            type: type.to_sym
+          }.merge(hash_without(normalized, :type, :event)).merge(extra || {})
+          validate_stream_event!(event)
+          event.freeze
+        when Symbol, String
+          event = {
+            turn: message[:turn],
+            source: message[:source],
+            message_name: message[:name],
+            type: entry.to_sym
+          }.merge(extra || {})
+          validate_stream_event!(event)
+          event.freeze
+        else
+          nil
+        end
+      end
+
+      def validate_stream_event!(event)
+        type = event[:type]&.to_sym
+        unless STREAM_EVENT_TYPES.include?(type)
+          raise ResolutionError, "Unsupported stream event type #{type.inspect} for agent session '#{node_name}'"
+        end
+
+        case type
+        when :chunk
+          return if event.key?(:chunk) || event.key?(:text) || event.key?(:value)
+
+          raise ResolutionError, "Stream :chunk events for agent session '#{node_name}' require :chunk, :text, or :value"
+        when :status
+          return if event.key?(:status)
+
+          raise ResolutionError, "Stream :status events for agent session '#{node_name}' require :status"
+        when :tool_call
+          return if event.key?(:name) || event.key?(:tool)
+
+          raise ResolutionError, "Stream :tool_call events for agent session '#{node_name}' require :name or :tool"
+        when :tool_result
+          return if event.key?(:name) || event.key?(:tool) || event.key?(:result) || event.key?(:value)
+
+          raise ResolutionError, "Stream :tool_result events for agent session '#{node_name}' require tool identity or result payload"
+        when :artifact
+          return if event.key?(:artifact) || event.key?(:name) || event.key?(:uri)
+
+          raise ResolutionError, "Stream :artifact events for agent session '#{node_name}' require :artifact, :name, or :uri"
+        when :final
+          return if event.key?(:value) || event.key?(:result) || event.key?(:output)
+
+          raise ResolutionError, "Stream :final events for agent session '#{node_name}' require :value, :result, or :output"
+        end
+      end
+
+      def hash_without(hash, *keys)
+        rejected = keys.map(&:to_sym)
+        hash.each_with_object({}) do |(key, value), memo|
+          memo[key] = value unless rejected.include?(key.to_sym)
+        end
+      end
+
+      def chunk_from_event(event)
+        return nil unless event[:type] == :chunk
+
+        return event[:chunk] if event.key?(:chunk)
+        return event[:text] if event.key?(:text)
+        return event[:value] if event.key?(:value)
+
+        nil
       end
 
       def self.value_from(data, key)
