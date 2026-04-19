@@ -65,18 +65,31 @@ Pending agent nodes now materialize as first-class runtime sessions.
 
 - `execution.agent_sessions` returns `Igniter::Runtime::AgentSession` objects for pending agent work
 - `execution.find_agent_session(token)` resolves a specific session
-- `execution.resume_agent_session(session_or_token, value:)` resumes through the session handle
-- store-backed flows can resume through `Contract.resume_agent_session_from_store(...)`
+- `execution.continue_agent_session(session_or_token, payload:, trace: ...)` advances a session without completing the node
+- `execution.resume_agent_session(session_or_token, value:)` completes the pending node through the session handle
+- store-backed flows can continue or resume through `Contract.continue_agent_session_from_store(...)` and `Contract.resume_agent_session_from_store(...)`
 
-An agent session is the bridge between graph execution and long-lived multi-step agent work. It carries:
+An agent session is the bridge between graph execution and long-lived agent work. It now carries:
 
 - the pending token
 - node identity and path
 - `via`, `message`, and `mode`
 - structured `agent_trace`
+- session `turn`
+- session `phase`
+- append-only `messages`
+- `last_request` and `last_reply` envelopes
+- session `history`
 - execution and graph identity
 
 That makes pending agent work addressable as a domain object rather than a loose token convention.
+
+The important shift is that the session is no longer just "a token plus payload". It is now the beginning of a conversation model:
+
+- the opening agent delivery becomes the first request envelope
+- each continuation appends another request envelope
+- final completion appends a reply envelope
+- diagnostics and persisted snapshots can now describe the conversation shape, not only the latest pending payload
 
 ## Why This Shape
 
@@ -94,17 +107,17 @@ This is not the final agent model.
 
 Not covered yet:
 
-- graph-native long-lived sessions
+- rich mailbox-style session state beyond request/reply envelopes
 - streaming replies
 - capability-routed or cluster-routed agent delivery
-- explicit `AgentNode` lifecycle ownership
+- explicit `AgentNode` lifecycle ownership across long-running workflows
 - a generalized `ProxyAdapter`
 
 ## Next Likely Steps
 
 The most natural next slices are:
 
-1. richer delivery modes such as deferred replies or streaming
-2. multi-turn agent sessions instead of single resume-only continuations
+1. richer session semantics beyond append-only request/reply envelopes
+2. deferred and streaming reply models on top of the session lifecycle
 3. support for agent targeting beyond the local registry
 4. deciding whether `AgentAdapter` stays specialized or becomes a more general `ProxyAdapter`

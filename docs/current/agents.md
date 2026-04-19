@@ -57,6 +57,8 @@ Even in that narrow form, agents are no longer opaque:
 - pending agent work is visible in provenance
 - successful deliveries retain sideband execution details instead of disappearing into a plain scalar result
 - pending agent work materializes as `Runtime::AgentSession`, not just a raw token
+- sessions can now continue across turns before final completion
+- store-backed executions preserve those sessions as part of the runtime model
 
 ## Near-Term Direction
 
@@ -67,6 +69,18 @@ Near-term work should preserve this separation:
 3. let `cluster` and app scaffolds depend on `igniter-agents` openly instead of via `core`
 4. continue moving canonical docs and examples to `igniter/agent` and `igniter/agents`
 5. evolve `agent node` as the first graph-level bridge into long-lived actors
+
+## Session Direction
+
+The current session model is intentionally simple but now explicit:
+
+- an `agent` node may stay pending across multiple turns
+- each continuation updates `turn`, `history`, `payload`, and `agent_trace`
+- sessions now also keep `phase`, `messages`, `last_request`, and `last_reply`
+- final completion preserves the completed session in node details for diagnostics/provenance
+- store-backed runners persist and restore that lifecycle instead of treating the session as caller-owned state
+
+This is the first step toward making agents a durable execution concept inside Igniter rather than a thin adapter callback.
 
 ## Next Architectural Pass
 

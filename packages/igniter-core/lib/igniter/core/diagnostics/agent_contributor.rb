@@ -21,6 +21,8 @@ module Igniter
           summaries = agents[:entries].map do |entry|
             summary = "#{entry[:node_name]}(#{entry[:status]} #{entry[:agent_trace_summary]})"
             summary += " token=#{entry[:token]}" if entry[:token]
+            summary += " phase=#{entry.dig(:agent_session, :phase)}" if entry.dig(:agent_session, :phase)
+            summary += " turn=#{entry.dig(:agent_session, :turn)}" if entry.dig(:agent_session, :turn)
             summary
           end
 
@@ -43,6 +45,8 @@ module Igniter
           agents[:entries].each do |entry|
             line = "- `#{entry[:node_name]}` `#{entry[:status]}`: `#{entry[:agent_trace_summary]}`"
             line += " token=`#{entry[:token]}`" if entry[:token]
+            line += " phase=`#{entry.dig(:agent_session, :phase)}`" if entry.dig(:agent_session, :phase)
+            line += " turn=`#{entry.dig(:agent_session, :turn)}`" if entry.dig(:agent_session, :turn)
             line += " error=`#{entry[:error][:message]}`" if entry[:error]
             lines << line
           end
@@ -78,6 +82,8 @@ module Igniter
             agent_trace: trace,
             agent_trace_summary: summarize_agent_trace(trace)
           }
+
+          entry[:agent_session] = state.details[:agent_session] if state.details[:agent_session]
 
           if state.pending? && state.value.is_a?(Igniter::Runtime::DeferredResult)
             entry[:token] = state.value.token

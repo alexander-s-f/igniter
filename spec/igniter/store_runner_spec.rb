@@ -126,4 +126,79 @@ RSpec.describe "Igniter store-backed execution" do
     expect(resumed.result.final_answer).to eq("approved: ok")
     expect(Igniter.execution_store.exist?(execution_id)).to eq(false)
   end
+
+  it "continues store-backed agent sessions before final completion" do
+    trace = pending_agent_trace
+    agent_adapter = Class.new do
+      define_method(:call) do |node:, **|
+        {
+          status: :pending,
+          payload: { queue: :review },
+          agent_trace: trace,
+          session: {
+            node_name: node.name,
+            node_path: node.path,
+            agent_name: node.agent_name,
+            message_name: node.message_name,
+            mode: node.mode,
+            waiting_on: node.name,
+            source_node: node.name,
+            trace: trace
+          }
+        }
+      end
+
+      define_method(:cast) do |**|
+        raise "unexpected cast"
+      end
+    end.new
+
+    contract_class = Class.new(Igniter::Contract) do
+      run_with runner: :store, agent_adapter: agent_adapter
+
+      define do
+        input :name
+        agent :approval, via: :reviewer, message: :review, inputs: { name: :name }
+        compute :final_answer, depends_on: :approval do |approval:|
+          "approved: #{approval}"
+        end
+        output :final_answer
+      end
+    end
+
+    original = contract_class.new(name: "Alice")
+    original.result.final_answer
+    execution_id = original.execution.events.execution_id
+
+    restored = contract_class.restore_from_store(execution_id)
+    session = restored.execution.agent_sessions.first
+
+    continued = contract_class.continue_agent_session_from_store(
+      execution_id,
+      session: session,
+      payload: { prompt: "Need human approval" },
+      trace: trace.merge(reason: :awaiting_human_reply)
+    )
+
+    continued_session = continued.execution.agent_sessions.first
+    expect(continued.result.pending?).to be true
+    expect(continued_session.turn).to eq(2)
+    expect(continued_session.phase).to eq(:waiting)
+    expect(continued_session.last_request).to include(
+      turn: 2,
+      kind: :request,
+      payload: { prompt: "Need human approval" }
+    )
+    expect(Igniter.execution_store.exist?(execution_id)).to eq(true)
+
+    resumed = contract_class.resume_agent_session_from_store(execution_id, session: continued_session, value: "ok")
+
+    expect(resumed.result.final_answer).to eq("approved: ok")
+    expect(resumed.diagnostics.to_h.dig(:agents, :entries, 0, :agent_session, :last_reply)).to include(
+      turn: 3,
+      kind: :reply,
+      payload: { value: "ok" }
+    )
+    expect(Igniter.execution_store.exist?(execution_id)).to eq(false)
+  end
 end

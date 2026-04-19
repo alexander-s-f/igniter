@@ -156,7 +156,14 @@ RSpec.describe "agent diagnostics and provenance" do
         node_name: :approval,
         agent_name: :reviewer,
         message_name: :review,
-        mode: :call
+        mode: :call,
+        phase: :waiting,
+        last_request: include(
+          turn: 1,
+          kind: :request,
+          name: :review,
+          payload: { queue: :review }
+        )
       ),
       agent_trace_summary: "adapter=queue mode=call via=reviewer message=review outcome=deferred reason=awaiting_review"
     )

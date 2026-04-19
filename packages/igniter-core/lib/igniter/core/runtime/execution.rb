@@ -86,7 +86,27 @@ module Igniter
         current = cache.fetch(node.name)
         raise ResolutionError, "Node '#{node_name}' is not pending" unless current&.pending?
 
-        cache.write(NodeState.new(node: node, status: :succeeded, value: value))
+        completed_session = completed_agent_session(current, value)
+        cache.write(
+          NodeState.new(
+            node: node,
+            status: :succeeded,
+            value: value,
+            details: resumed_node_details(current, completed_session)
+          )
+        )
+        if completed_session
+          @events.emit(
+            :agent_session_completed,
+            node: node,
+            status: :succeeded,
+            payload: {
+              token: completed_session.token,
+              turn: completed_session.turn,
+              agent_session: completed_session.to_h
+            }
+          )
+        end
         @events.emit(:node_resumed, node: node, status: :succeeded, payload: { resumed: true })
         @invalidator.invalidate_from(node.name)
         persist_runtime_state!
@@ -119,6 +139,47 @@ module Igniter
         raise ResolutionError, "Agent session token is required" if token.nil? || token.to_s.empty?
 
         resume_by_token(token, value: value)
+      end
+
+      def continue_agent_session(session_or_token, payload:, trace: nil, token: nil, waiting_on: nil)
+        session = resolve_agent_session(session_or_token)
+        state = pending_state_for_token(session.token, source_only: true)
+        raise ResolutionError, "No pending agent session found for token '#{session.token}'" unless state
+
+        continued_session = session.continue(
+          payload: payload,
+          trace: trace,
+          token: token,
+          waiting_on: waiting_on
+        )
+        deferred = deferred_for_continued_agent_session(state, continued_session)
+
+        cache.write(
+          NodeState.new(
+            node: state.node,
+            status: :pending,
+            value: deferred,
+            details: {
+              agent_trace: continued_session.trace,
+              agent_session: continued_session.to_h
+            }.compact
+          )
+        )
+        @events.emit(
+          :agent_session_continued,
+          node: state.node,
+          status: :pending,
+          payload: {
+            token: continued_session.token,
+            turn: continued_session.turn,
+            waiting_on: continued_session.waiting_on,
+            agent_trace: continued_session.trace,
+            agent_session: continued_session.to_h
+          }.compact
+        )
+        @events.emit(:node_pending, node: state.node, status: :pending, payload: deferred.to_h)
+        persist_runtime_state!
+        self
       end
 
       def success?
@@ -268,19 +329,10 @@ module Igniter
       end
 
       def pending_node_name_for_token(token)
-        source_match = cache.values.find do |state|
-          state.pending? &&
-            state.value.is_a?(Runtime::DeferredResult) &&
-            state.value.token == token &&
-            state.value.source_node == state.node.name
-        end
+        source_match = pending_state_for_token(token, source_only: true)
         return source_match.node.name if source_match
 
-        cache.values.find do |state|
-          state.pending? &&
-            state.value.is_a?(Runtime::DeferredResult) &&
-            state.value.token == token
-        end&.node&.name
+        pending_state_for_token(token)&.node&.name
       end
 
       def resolve_pending_safe
@@ -452,7 +504,7 @@ module Igniter
       def default_agent_session_data(state)
         trace = state.value.agent_trace || state.details[:agent_trace]
 
-        {
+        Runtime::AgentSession.new(
           token: state.value.token,
           node_name: state.node.name,
           node_path: state.node.path,
@@ -462,8 +514,86 @@ module Igniter
           waiting_on: state.value.waiting_on,
           source_node: state.value.source_node,
           trace: trace,
-          payload: state.value.payload
-        }.compact
+          payload: session_payload_from(state.value.payload),
+          turn: 1,
+          phase: :waiting,
+          history: [
+            {
+              turn: 1,
+              event: :opened,
+              token: state.value.token,
+              waiting_on: state.value.waiting_on,
+              payload: session_payload_from(state.value.payload),
+              phase: :waiting
+            }
+          ]
+        ).to_h
+      end
+
+      def resolve_agent_session(session_or_token)
+        return session_or_token if session_or_token.is_a?(Runtime::AgentSession)
+
+        session = find_agent_session(session_or_token)
+        raise ResolutionError, "No pending agent session found for token '#{session_or_token}'" unless session
+
+        session
+      end
+
+      def pending_state_for_token(token, source_only: false)
+        cache.values.find do |state|
+          next false unless state.pending? && state.value.is_a?(Runtime::DeferredResult)
+          next false unless state.value.token == token
+
+          !source_only || state.value.source_node == state.node.name
+        end
+      end
+
+      def deferred_for_continued_agent_session(state, session)
+        payload = strip_agent_keys(state.value.payload).merge(
+          agent_trace: session.trace,
+          agent_session: session.to_h
+        ).compact
+
+        Runtime::DeferredResult.build(
+          token: session.token,
+          payload: payload,
+          source_node: state.value.source_node || state.node.name,
+          waiting_on: session.waiting_on
+        )
+      end
+
+      def completed_agent_session(state, value)
+        return nil unless state.node.kind == :agent
+        return nil unless state.value.is_a?(Runtime::DeferredResult)
+
+        agent_session_for_state(state).complete(value: value)
+      end
+
+      def resumed_node_details(state, completed_session)
+        details = state.details.dup
+        details[:agent_session] = completed_session.to_h if completed_session
+        details[:agent_trace] = completed_session.trace if completed_session&.trace
+        details
+      end
+
+      def session_payload_from(payload)
+        return {} unless payload.is_a?(Hash)
+
+        payload.each_with_object({}) do |(key, value), memo|
+          next if %i[agent_trace agent_session].include?(key.to_sym)
+
+          memo[key] = value
+        end
+      end
+
+      def strip_agent_keys(payload)
+        return {} unless payload.is_a?(Hash)
+
+        payload.each_with_object({}) do |(key, value), memo|
+          next if %i[agent_trace agent_session].include?(key.to_sym)
+
+          memo[key] = value
+        end
       end
 
       alias_method :resolve_output_value, :resolve_exported_output

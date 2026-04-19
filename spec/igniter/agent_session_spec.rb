@@ -73,9 +73,86 @@ RSpec.describe "agent sessions" do
     expect(session.agent_name).to eq(:reviewer)
     expect(session.message_name).to eq(:review)
     expect(session.mode).to eq(:call)
+    expect(session.turn).to eq(1)
+    expect(session.phase).to eq(:waiting)
+    expect(session.messages).to contain_exactly(
+      include(turn: 1, kind: :request, name: :review, source: :contract, payload: { queue: :review })
+    )
+    expect(session.last_request).to include(
+      turn: 1,
+      kind: :request,
+      name: :review,
+      payload: { queue: :review }
+    )
+    expect(session.last_reply).to be_nil
+    expect(session.history).to contain_exactly(
+      include(turn: 1, event: :opened, token: session.token)
+    )
     expect(session.trace).to eq(trace)
     expect(session.execution_id).to eq(contract.execution.events.execution_id)
     expect(session.graph).to eq(contract.execution.compiled_graph.name)
+  end
+
+  it "continues agent work across multiple turns before final resume" do
+    contract = contract_class.new(name: "Alice")
+    contract.result.approval
+    session = contract.execution.agent_sessions.first
+    continued_trace = trace.merge(reason: :awaiting_human_reply)
+
+    contract.execution.continue_agent_session(
+      session,
+      payload: { prompt: "Need manager approval" },
+      trace: continued_trace
+    )
+
+    continued = contract.execution.agent_sessions.first
+
+    expect(contract.result.pending?).to be true
+    expect(continued.token).to eq(session.token)
+    expect(continued.turn).to eq(2)
+    expect(continued.phase).to eq(:waiting)
+    expect(continued.trace).to eq(continued_trace)
+    expect(continued.payload).to eq(prompt: "Need manager approval")
+    expect(continued.last_request).to include(
+      turn: 2,
+      kind: :request,
+      name: :review,
+      source: :continuation,
+      payload: { prompt: "Need manager approval" }
+    )
+    expect(continued.messages).to include(
+      include(turn: 1, kind: :request, name: :review),
+      include(turn: 2, kind: :request, name: :review, payload: { prompt: "Need manager approval" })
+    )
+    expect(continued.history).to include(
+      include(turn: 1, event: :opened, token: session.token),
+      include(turn: 2, event: :continued, token: session.token, payload: { prompt: "Need manager approval" })
+    )
+    expect(contract.events.map(&:type)).to include(:agent_session_continued, :node_pending)
+
+    contract.execution.resume_agent_session(continued, value: "ok")
+
+    report = contract.diagnostics.to_h
+    entry = report.dig(:agents, :entries)&.find { |item| item[:node_name] == :approval }
+
+    expect(contract.result.final_answer).to eq("approved: ok")
+    expect(entry[:agent_session]).to include(
+      token: session.token,
+      turn: 3,
+      phase: :completed
+    )
+    expect(entry[:agent_session][:last_reply]).to include(
+      turn: 3,
+      kind: :reply,
+      name: :review,
+      payload: { value: "ok" }
+    )
+    expect(entry[:agent_session][:messages]).to include(
+      include(turn: 3, kind: :reply, name: :review, payload: { value: "ok" })
+    )
+    expect(entry[:agent_session][:history]).to include(
+      include(turn: 3, event: :completed, token: session.token)
+    )
   end
 
   it "resumes pending agent work through the session handle" do
@@ -100,6 +177,8 @@ RSpec.describe "agent sessions" do
 
     expect(session.token).not_to be_nil
     expect(session.agent_name).to eq(:reviewer)
+    expect(session.turn).to eq(1)
+    expect(session.phase).to eq(:waiting)
     expect(session.trace).to eq(trace)
 
     restored.execution.resume_agent_session(session.token, value: "approved")

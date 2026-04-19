@@ -36,8 +36,9 @@ module Igniter
       end
 
       def restore_from_store(execution_id, store: nil)
-        snapshot = (store || Igniter.execution_store).fetch(execution_id)
-        restore(snapshot)
+        resolved_store = store || Igniter.execution_store
+        snapshot = resolved_store.fetch(execution_id)
+        restore(snapshot, store: resolved_store)
       end
 
       def resume_from_store(execution_id, token:, value:, store: nil)
@@ -53,6 +54,17 @@ module Igniter
           execution_id: execution_id,
           session: session,
           value: value
+        )
+      end
+
+      def continue_agent_session_from_store(execution_id, session:, payload:, trace: nil, token: nil, waiting_on: nil, store: nil)
+        Runtime::JobWorker.new(self, store: store || Igniter.execution_store).continue_agent_session(
+          execution_id: execution_id,
+          session: session,
+          payload: payload,
+          trace: trace,
+          token: token,
+          waiting_on: waiting_on
         )
       end
 
@@ -99,11 +111,12 @@ module Igniter
         instance
       end
 
-      def restore(snapshot)
+      def restore(snapshot, store: nil)
         instance = new(
           snapshot[:inputs] || snapshot["inputs"] || {},
           runner: snapshot[:runner] || snapshot["runner"],
-          max_workers: snapshot[:max_workers] || snapshot["max_workers"]
+          max_workers: snapshot[:max_workers] || snapshot["max_workers"],
+          store: store
         )
         instance.restore_execution(snapshot)
       end

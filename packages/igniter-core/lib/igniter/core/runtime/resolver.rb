@@ -643,23 +643,7 @@ module Igniter
 
       def normalize_agent_session(response, node, payload, token:)
         raw_session = response[:agent_session] || response[:session]
-        if raw_session.respond_to?(:to_h) || raw_session.is_a?(Hash)
-          session_hash = raw_session.respond_to?(:to_h) ? raw_session.to_h : raw_session
-          return {
-            token: token,
-            node_name: node.name,
-            node_path: node.path,
-            agent_name: node.agent_name,
-            message_name: node.message_name,
-            mode: node.mode,
-            waiting_on: node.name,
-            source_node: node.name,
-            trace: response[:agent_trace],
-            payload: payload
-          }.merge(session_hash)
-        end
-
-        {
+        default_session = Runtime::AgentSession.new(
           token: token,
           node_name: node.name,
           node_path: node.path,
@@ -669,8 +653,27 @@ module Igniter
           waiting_on: node.name,
           source_node: node.name,
           trace: response[:agent_trace],
-          payload: payload
-        }.compact
+          payload: session_payload_from(payload),
+          turn: 1,
+          phase: :waiting,
+          history: [
+            {
+              turn: 1,
+              event: :opened,
+              token: token,
+              waiting_on: node.name,
+              payload: session_payload_from(payload),
+              phase: :waiting
+            }
+          ]
+        )
+
+        if raw_session.respond_to?(:to_h) || raw_session.is_a?(Hash)
+          session_hash = raw_session.respond_to?(:to_h) ? raw_session.to_h : raw_session
+          return default_session.to_h.merge(session_hash.transform_keys(&:to_sym))
+        end
+
+        default_session.to_h
       end
 
       def normalize_agent_deferred(response, node, payload)
@@ -697,6 +700,16 @@ module Igniter
           source_node: deferred.source_node,
           waiting_on: deferred.waiting_on
         )
+      end
+
+      def session_payload_from(payload)
+        return {} unless payload.is_a?(Hash)
+
+        payload.each_with_object({}) do |(key, value), memo|
+          next if %i[agent_trace agent_session].include?(key.to_sym)
+
+          memo[key] = value
+        end
       end
 
       def normalize_error(error, node)
