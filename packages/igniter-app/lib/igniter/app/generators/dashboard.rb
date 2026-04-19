@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require "erb"
+
 module Igniter
   class App
     module Generators
       class Dashboard
+        TEMPLATE_ROOT = File.expand_path("templates/dashboard", __dir__)
+
         def initialize(name, minimal: false)
           @name = name.to_s
           @minimal = minimal
@@ -14,7 +18,7 @@ module Igniter
           @base.generate
           expand_stack_shape
           add_dashboard_app
-          write "README.md", dashboard_readme
+          write "README.md", render_template("README.md.erb")
         end
 
         private
@@ -25,19 +29,25 @@ module Igniter
           create_dir "apps/dashboard/spec"
           create_dir "apps/dashboard/web/handlers"
           create_dir "apps/dashboard/web/views"
+          create_dir "apps/dashboard/contexts"
           create_dir "apps/dashboard/support"
+          create_dir "apps/dashboard/frontend"
           write "stack.rb", stack_rb
           write "spec/stack_spec.rb", stack_spec
-          write "apps/dashboard/support/stack_overview.rb", dashboard_stack_overview
+          write "apps/dashboard/support/stack_overview.rb", render_template("support/stack_overview.rb.erb")
         end
 
         def add_dashboard_app
-          write "apps/dashboard/app.rb", dashboard_app_rb
+          write "apps/dashboard/app.rb", render_template("app.rb.erb")
           write "apps/dashboard/app.yml", dashboard_app_yml
           write "apps/dashboard/spec/spec_helper.rb", dashboard_spec_helper
-          write "apps/dashboard/spec/dashboard_app_spec.rb", dashboard_app_spec
-          write "apps/dashboard/web/handlers/home_handler.rb", dashboard_home_handler
-          write "apps/dashboard/web/views/home_page.rb", dashboard_home_page
+          write "apps/dashboard/spec/dashboard_app_spec.rb", render_template("spec/dashboard_app_spec.rb.erb")
+          write "apps/dashboard/contexts/home_context.rb", render_template("contexts/home_context.rb.erb")
+          write "apps/dashboard/web/handlers/home_handler.rb", render_template("web/handlers/home_handler.rb.erb")
+          write "apps/dashboard/web/views/home_page.rb", render_template("web/views/home_page.rb.erb")
+          write "apps/dashboard/web/views/layout.arb", render_template("web/views/layout.arb.erb")
+          write "apps/dashboard/web/views/home_page.arb", render_template("web/views/home_page.arb.erb")
+          write "apps/dashboard/frontend/application.js", render_template("frontend/application.js.erb")
         end
 
         def path(rel)
@@ -50,6 +60,11 @@ module Igniter
 
         def create_dir(rel)
           FileUtils.mkdir_p(path(rel))
+        end
+
+        def render_template(rel)
+          template_path = File.join(TEMPLATE_ROOT, rel)
+          ERB.new(File.read(template_path), trim_mode: "-").result(binding)
         end
 
         def module_name
@@ -113,52 +128,6 @@ module Igniter
           RUBY
         end
 
-        def dashboard_stack_overview
-          <<~RUBY
-            # frozen_string_literal: true
-
-            module #{module_name}
-              module Dashboard
-                module StackOverview
-                  module_function
-
-                  def build
-                    snapshot = #{stack_class_name}.deployment_snapshot
-                    current_node = ENV["IGNITER_NODE"].to_s
-
-                    {
-                      stack: snapshot.fetch("stack"),
-                      apps: snapshot.fetch("apps"),
-                      nodes: snapshot.fetch("nodes"),
-                      current_node: current_node.empty? ? snapshot.dig("stack", "default_node") : current_node
-                    }
-                  end
-                end
-              end
-            end
-          RUBY
-        end
-
-        def dashboard_app_rb
-          <<~RUBY
-            # frozen_string_literal: true
-
-            require "igniter/app"
-            require "igniter/core"
-            require_relative "web/handlers/home_handler"
-
-            module #{module_name}
-              class DashboardApp < Igniter::App
-                root_dir __dir__
-                config_file "app.yml"
-                mount_operator_surface
-
-                route "GET", "/", with: #{module_name}::Dashboard::HomeHandler
-              end
-            end
-          RUBY
-        end
-
         def dashboard_app_yml
           <<~YAML
             persistence:
@@ -176,281 +145,6 @@ module Igniter
 
             #{module_name}::DashboardApp.send(:build!)
           RUBY
-        end
-
-        def dashboard_app_spec
-          <<~RUBY
-            # frozen_string_literal: true
-
-            require_relative "spec_helper"
-            require "stringio"
-
-            RSpec.describe #{module_name}::DashboardApp do
-              it "renders the canonical operator endpoint" do
-                app = described_class.rack_app
-
-                status, headers, body = app.call(
-                  "REQUEST_METHOD" => "GET",
-                  "PATH_INFO" => "/api/operator",
-                  "rack.input" => StringIO.new
-                )
-
-                payload = JSON.parse(body.each.to_a.join)
-
-                expect(status).to eq(200)
-                expect(headers["Content-Type"]).to include("application/json")
-                expect(payload["app"]).to eq("#{module_name}::DashboardApp")
-                expect(payload["scope"]).to eq("mode" => "app")
-                expect(payload.dig("summary", "total")).to eq(0)
-              end
-
-              it "renders the built-in operator console" do
-                app = described_class.rack_app
-
-                status, headers, body = app.call(
-                  "REQUEST_METHOD" => "GET",
-                  "PATH_INFO" => "/operator",
-                  "rack.input" => StringIO.new
-                )
-
-                html = body.each.to_a.join
-
-                expect(status).to eq(200)
-                expect(headers["Content-Type"]).to include("text/html")
-                expect(html).to include("Operator Console")
-                expect(html).to include("/api/operator")
-              end
-
-              it "renders the mounted dashboard home page" do
-                app = described_class.rack_app
-
-                status, headers, body = app.call(
-                  "REQUEST_METHOD" => "GET",
-                  "PATH_INFO" => "/",
-                  "rack.input" => StringIO.new
-                )
-
-                html = body.each.to_a.join
-
-                expect(status).to eq(200)
-                expect(headers["Content-Type"]).to include("text/html")
-                expect(html).to include("#{module_name} Dashboard")
-                expect(html).to include("/dashboard")
-                expect(html).to include("/api/operator")
-                expect(html).to include("Mounted Apps")
-              end
-            end
-          RUBY
-        end
-
-        def dashboard_home_handler
-          <<~RUBY
-            # frozen_string_literal: true
-
-            require "igniter-frontend"
-            require_relative "../../support/stack_overview"
-            require_relative "../views/home_page"
-
-            module #{module_name}
-              module Dashboard
-                module HomeHandler
-                  module_function
-
-                  def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
-                    snapshot = #{module_name}::Dashboard::StackOverview.build
-
-                    Igniter::Frontend::Response.html(
-                      Views::HomePage.render(
-                        snapshot: snapshot,
-                        base_path: env["SCRIPT_NAME"].to_s
-                      )
-                    )
-                  end
-                end
-              end
-            end
-          RUBY
-        end
-
-        def dashboard_home_page
-          <<~RUBY
-            # frozen_string_literal: true
-
-            require "json"
-            require "igniter-frontend"
-
-            module #{module_name}
-              module Dashboard
-                module Views
-                  class HomePage < Igniter::Frontend::Page
-                    def self.render(snapshot:, base_path: "")
-                      new(snapshot: snapshot, base_path: base_path).render
-                    end
-
-                    def initialize(snapshot:, base_path:)
-                      @snapshot = snapshot
-                      @base_path = base_path.to_s.sub(%r{/+\z}, "")
-                    end
-
-                    def call(view)
-                      render_document(view, title: "#{module_name} Dashboard") do |body|
-                        body.tag(:main, class: "shell") do |main|
-                          render_hero(main)
-                          render_panels(main)
-                        end
-                      end
-                    end
-
-                    private
-
-                    attr_reader :snapshot
-                    attr_reader :base_path
-
-                    def yield_head(head)
-                      head.tag(:style) { |style| style.raw(stylesheet) }
-                    end
-
-                    def render_hero(view)
-                      stack = snapshot.fetch(:stack)
-
-                      view.tag(:section, class: "hero") do |hero|
-                        hero.tag(:h1, "#{module_name} Dashboard")
-                        hero.tag(:p, "Mounted stack overview generated by the dashboard scaffold profile.")
-                        hero.tag(:p, class: "meta") do |meta|
-                          meta.text("root_app=\#{stack["root_app"]} · ")
-                          meta.text("default_node=\#{stack["default_node"]} · ")
-                          meta.text("current_node=\#{snapshot[:current_node]}")
-                        end
-                        hero.tag(:p, class: "links") do |links|
-                          links.tag(:a, "Refresh", href: route("/"))
-                          links.text(" · ")
-                          links.tag(:a, "Operator Console", href: route("/operator"))
-                          links.text(" · ")
-                          links.tag(:a, "Operator API", href: route("/api/operator"))
-                        end
-                      end
-                    end
-
-                    def render_panels(view)
-                      stack = snapshot.fetch(:stack)
-
-                      view.tag(:section, class: "grid") do |grid|
-                        render_panel(grid, "Mounted Apps", snapshot.fetch(:apps))
-                        render_panel(grid, "Mounts", stack.fetch("mounts", {}))
-                        render_panel(grid, "Nodes", snapshot.fetch(:nodes))
-                      end
-                    end
-
-                    def render_panel(view, title, payload)
-                      view.tag(:article, class: "card") do |card|
-                        card.tag(:h2, title)
-                        card.tag(:pre, JSON.pretty_generate(payload))
-                      end
-                    end
-
-                    def route(path)
-                      return path if base_path.empty?
-
-                      [base_path, path.sub(%r{\\A/}, "")].join("/")
-                    end
-
-                    def stylesheet
-                      <<~CSS
-                        :root { color-scheme: light; }
-                        body {
-                          margin: 0;
-                          font-family: ui-sans-serif, system-ui, sans-serif;
-                          background: #f5f1e8;
-                          color: #1c1b18;
-                        }
-
-                        .shell {
-                          max-width: 960px;
-                          margin: 0 auto;
-                          padding: 32px 20px 48px;
-                        }
-
-                        .hero {
-                          background: linear-gradient(135deg, #fdf8ef, #efe0c8);
-                          border: 1px solid #d7c3a2;
-                          border-radius: 20px;
-                          padding: 24px;
-                        }
-
-                        .meta,
-                        .card pre {
-                          color: #5a5145;
-                        }
-
-                        .links a {
-                          color: #0b5f56;
-                          text-decoration: none;
-                        }
-
-                        .grid {
-                          display: grid;
-                          gap: 16px;
-                          margin-top: 20px;
-                          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-                        }
-
-                        .card {
-                          background: white;
-                          border: 1px solid #ded4c4;
-                          border-radius: 16px;
-                          padding: 18px;
-                          box-shadow: 0 8px 24px rgba(40, 24, 8, 0.06);
-                        }
-
-                        pre {
-                          white-space: pre-wrap;
-                          font-family: ui-monospace, SFMono-Regular, monospace;
-                          font-size: 13px;
-                        }
-                      CSS
-                    end
-                  end
-                end
-              end
-            end
-          RUBY
-        end
-
-        def dashboard_readme
-          <<~MARKDOWN
-            # #{module_name}
-
-            This stack was generated with the `dashboard` scaffold profile.
-
-            The intended reading order is simple:
-
-            1. `stack.rb`
-            2. `stack.yml`
-            3. `apps/dashboard/app.rb`
-
-            ## What This Profile Adds
-
-            - a mounted `dashboard` app at `/dashboard`
-            - a small HTML overview page for the current stack shape
-            - a second app that still lives under the same stack runtime
-
-            ## Boot
-
-            ```bash
-            bundle install
-            ruby bin/demo
-            bin/start
-            bin/console --node main
-            bin/dev
-            ```
-
-            Then open:
-
-            - `http://127.0.0.1:4567/`
-            - `http://127.0.0.1:4567/dashboard`
-
-            `bin/dev` also writes per-node logs to `var/log/dev/*.log`.
-          MARKDOWN
         end
       end
     end

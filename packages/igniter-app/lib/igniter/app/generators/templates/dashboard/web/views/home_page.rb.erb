@@ -1,0 +1,56 @@
+# frozen_string_literal: true
+
+require "json"
+require "igniter-frontend"
+
+module <%= module_name %>
+  module Dashboard
+    module Web
+      module Views
+        class HomePage < Igniter::Frontend::ArbrePage
+          template_root __dir__
+          template "home_page"
+          layout "layout"
+
+          def initialize(context:)
+            @context = context
+          end
+
+          def template_locals
+            { page_context: @context }
+          end
+
+          def page_title
+            @context.title
+          end
+
+          def body_class
+            ops_theme.fetch(:body_class)
+          end
+
+          def main_class
+            ops_theme.fetch(:main_class)
+          end
+
+          def tailwind_cdn_url
+            Igniter::Frontend::Tailwind::PLAY_CDN_URL
+          end
+
+          def tailwind_config_script
+            "tailwind.config = #{JSON.generate(ops_theme.fetch(:tailwind_config))};"
+          end
+
+          def pretty_json(payload)
+            JSON.pretty_generate(payload)
+          end
+
+          private
+
+          def ops_theme
+            @ops_theme ||= Igniter::Frontend::Tailwind.theme(:ops)
+          end
+        end
+      end
+    end
+  end
+end

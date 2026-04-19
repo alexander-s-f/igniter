@@ -1,0 +1,19 @@
+# frozen_string_literal: true
+
+require "igniter/app"
+require "igniter/core"
+require "igniter-frontend"
+require_relative "web/handlers/home_handler"
+
+module <%= module_name %>
+  class DashboardApp < Igniter::App
+    include Igniter::Frontend::App
+
+    root_dir __dir__
+    config_file "app.yml"
+    frontend_assets path: "frontend"
+    mount_operator_surface
+
+    get "/", to: <%= module_name %>::Dashboard::Web::Handlers::HomeHandler
+  end
+end
