@@ -124,6 +124,10 @@ The current event model is intentionally small:
 - `chunks` are derived from stream events with `type: :chunk`
 - current canonical event types are `:chunk`, `:status`, `:tool_call`, `:tool_result`, `:artifact`, and `:final`
 - stream continuations are now runtime-validated against that event contract before they enter the persisted session log
+- `Igniter::Runtime::AgentSession` now exposes canonical constructors like `status_event`, `tool_call_event`, `tool_result_event`, `artifact_event`, `chunk_event`, and `final_event`
+- `StreamResult` now exposes derived readers like `statuses`, `tool_calls`, `tool_results`, `artifacts`, and `final_event`
+- tool activity is now also correlated into `tool_interactions`, matching by `call_id` first and then by tool identity/order when `call_id` is absent
+- tool loops now expose higher-level execution signals: `all_tool_calls_resolved?`, `tool_loop_consistent?`, `tool_loop_complete?`, `tool_loop_status`, and `tool_loop_summary`
 
 That keeps the text path easy while allowing stream semantics to grow into tool calls, status events, and artifacts.
 

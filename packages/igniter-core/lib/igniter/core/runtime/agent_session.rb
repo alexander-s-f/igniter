@@ -5,6 +5,53 @@ module Igniter
     class AgentSession
       STREAM_EVENT_TYPES = %i[chunk status tool_call tool_result artifact final].freeze
 
+      class << self
+        def stream_event(type, **attributes)
+          { type: type.to_sym }.merge(compact_event_attributes(attributes))
+        end
+
+        def chunk_event(chunk: nil, text: nil, value: nil, **attributes)
+          stream_event(:chunk, chunk: chunk, text: text, value: value, **attributes)
+        end
+
+        def status_event(status:, **attributes)
+          stream_event(:status, status: status, **attributes)
+        end
+
+        def tool_call_event(name: nil, tool: nil, arguments: nil, call_id: nil, **attributes)
+          stream_event(:tool_call, name: name, tool: tool, arguments: arguments, call_id: call_id, **attributes)
+        end
+
+        def tool_result_event(name: nil, tool: nil, result: nil, value: nil, error: nil, call_id: nil, **attributes)
+          stream_event(
+            :tool_result,
+            name: name,
+            tool: tool,
+            result: result,
+            value: value,
+            error: error,
+            call_id: call_id,
+            **attributes
+          )
+        end
+
+        def artifact_event(artifact: nil, name: nil, uri: nil, **attributes)
+          stream_event(:artifact, artifact: artifact, name: name, uri: uri, **attributes)
+        end
+
+        def final_event(value: nil, result: nil, output: nil, **attributes)
+          stream_event(:final, value: value, result: result, output: output, **attributes)
+        end
+
+        private
+
+        def compact_event_attributes(attributes)
+          attributes.each_with_object({}) do |(key, value), memo|
+            memo[key] = value unless value.nil?
+          end
+        end
+      end
+
       attr_reader :token, :node_name, :node_path, :agent_name, :message_name,
                   :mode, :reply_mode, :waiting_on, :source_node, :trace, :payload, :turn, :phase,
                   :messages, :last_request, :last_reply, :history,
@@ -184,6 +231,115 @@ module Igniter
         events.last
       end
 
+      def tool_interactions
+        interactions = {}
+        sequence_by_tool = Hash.new(0)
+        open_keys_by_tool = Hash.new { |hash, key| hash[key] = [] }
+
+        events.each_with_index do |event, index|
+          next unless %i[tool_call tool_result].include?(event[:type])
+
+          tool_name = tool_name_for_event(event)
+          key = if event[:call_id]
+                  "call_id:#{event[:call_id]}"
+                elsif event[:type] == :tool_call
+                  sequence_by_tool[tool_name] += 1
+                  generated = "tool:#{tool_name}:#{sequence_by_tool[tool_name]}"
+                  open_keys_by_tool[tool_name] << generated
+                  generated
+                else
+                  open_keys_by_tool[tool_name].last || "orphan_result:#{tool_name}:#{index + 1}"
+                end
+
+          interaction = interactions[key] ||= {
+            key: key,
+            call_id: event[:call_id],
+            tool_name: tool_name,
+            call: nil,
+            results: []
+          }
+
+          if event[:type] == :tool_call
+            interaction[:call] ||= event
+            interaction[:call_id] ||= event[:call_id]
+            interaction[:tool_name] ||= tool_name
+          else
+            interaction[:results] << event
+            interaction[:tool_name] ||= tool_name
+          end
+        end
+
+        interactions.values.map do |interaction|
+          results = interaction[:results].freeze
+          call = interaction[:call]
+          status =
+            if call && !results.empty?
+              :completed
+            elsif call
+              :pending
+            else
+              :orphan_result
+            end
+
+          {
+            key: interaction[:key],
+            call_id: interaction[:call_id],
+            tool_name: interaction[:tool_name],
+            call: call,
+            results: results,
+            status: status,
+            complete: status == :completed
+          }.freeze
+        end.freeze
+      end
+
+      def pending_tool_interactions
+        tool_interactions.select { |interaction| interaction[:status] == :pending }
+      end
+
+      def completed_tool_interactions
+        tool_interactions.select { |interaction| interaction[:status] == :completed }
+      end
+
+      def orphan_tool_interactions
+        tool_interactions.select { |interaction| interaction[:status] == :orphan_result }
+      end
+
+      def all_tool_calls_resolved?
+        pending_tool_interactions.empty?
+      end
+
+      def tool_loop_consistent?
+        orphan_tool_interactions.empty?
+      end
+
+      def tool_loop_complete?
+        all_tool_calls_resolved? && tool_loop_consistent?
+      end
+
+      def tool_loop_status
+        return :idle if tool_interactions.empty?
+        return :orphaned unless tool_loop_consistent?
+        return :open unless all_tool_calls_resolved?
+
+        :complete
+      end
+
+      def tool_loop_summary
+        {
+          status: tool_loop_status,
+          total: tool_interactions.size,
+          pending: pending_tool_interactions.size,
+          completed: completed_tool_interactions.size,
+          orphaned: orphan_tool_interactions.size,
+          resolved: all_tool_calls_resolved?,
+          consistent: tool_loop_consistent?,
+          complete: tool_loop_complete?,
+          open_keys: pending_tool_interactions.map { |interaction| interaction[:key] },
+          orphan_keys: orphan_tool_interactions.map { |interaction| interaction[:key] }
+        }.freeze
+      end
+
       def validate_stream_reply!(reply)
         return if reply.nil?
 
@@ -315,7 +471,7 @@ module Igniter
 
       def normalize_reply_payload(value)
         if reply_mode == :stream
-          return { event: :final, value: value }
+          return { event: self.class.final_event(value: value) }
         end
 
         return value if value.is_a?(Hash)
@@ -422,6 +578,10 @@ module Igniter
         return event[:value] if event.key?(:value)
 
         nil
+      end
+
+      def tool_name_for_event(event)
+        (event[:tool] || event[:name] || :unknown_tool).to_sym
       end
 
       def self.value_from(data, key)

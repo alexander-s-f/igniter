@@ -317,7 +317,7 @@ RSpec.describe "agent: DSL node" do
       expect(contract.result.summary).to eq("Hello, Alice")
       expect(contract.execution.states[:summary].dig(:details, :agent_session, :last_reply)).to include(
         kind: :reply,
-        payload: { event: :final, value: "Hello, Alice" }
+        payload: { event: Igniter::Runtime::AgentSession.final_event(value: "Hello, Alice") }
       )
     end
 
@@ -464,8 +464,7 @@ RSpec.describe "agent: DSL node" do
           name: :summarize,
           source: :agent,
           payload: {
-            event: :status,
-            status: "thinking"
+            event: Igniter::Runtime::AgentSession.status_event(status: "thinking")
           }
         },
         phase: :streaming
@@ -480,8 +479,8 @@ RSpec.describe "agent: DSL node" do
           source: :agent,
           payload: {
             events: [
-              { type: :tool_call, name: :search, arguments: { q: "Alice" } },
-              { type: :chunk, chunk: "Hello, Alice" }
+              Igniter::Runtime::AgentSession.tool_call_event(name: :search, arguments: { q: "Alice" }),
+              Igniter::Runtime::AgentSession.chunk_event(chunk: "Hello, Alice")
             ]
           }
         },
@@ -547,7 +546,364 @@ RSpec.describe "agent: DSL node" do
         ]
       )
       expect(contract.execution.states[:summary].dig(:details, :agent_session, :last_reply)).to include(
-        payload: { event: :final, value: stream_value.events }
+        payload: { event: Igniter::Runtime::AgentSession.final_event(value: stream_value.events) }
+      )
+    end
+
+    it "exposes canonical tool-loop helpers on stream results" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, finalizer: :events, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      contract.execution.continue_agent_session(
+        session,
+        payload: {},
+        reply: {
+          turn: 2,
+          kind: :reply,
+          name: :summarize,
+          source: :agent,
+          payload: {
+            events: [
+              Igniter::Runtime::AgentSession.status_event(status: "planning"),
+              Igniter::Runtime::AgentSession.tool_call_event(name: :search, arguments: { q: "Alice" }, call_id: "call-1"),
+              Igniter::Runtime::AgentSession.tool_result_event(name: :search, result: { hits: 3 }, call_id: "call-1"),
+              Igniter::Runtime::AgentSession.artifact_event(name: :notes, uri: "memory://notes/1"),
+              Igniter::Runtime::AgentSession.chunk_event(chunk: "Hello, Alice")
+            ]
+          }
+        },
+        phase: :streaming
+      )
+
+      stream_value = contract.result.summary
+      runtime_value = contract.execution.states[:summary][:value]
+
+      expect(stream_value.statuses).to eq(["planning"])
+      expect(stream_value.tool_calls).to eq(
+        [
+          {
+            turn: 2,
+            source: :agent,
+            message_name: :summarize,
+            type: :tool_call,
+            name: :search,
+            arguments: { q: "Alice" },
+            call_id: "call-1"
+          }
+        ]
+      )
+      expect(stream_value.tool_results).to eq(
+        [
+          {
+            turn: 2,
+            source: :agent,
+            message_name: :summarize,
+            type: :tool_result,
+            name: :search,
+            result: { hits: 3 },
+            call_id: "call-1"
+          }
+        ]
+      )
+      expect(stream_value.artifacts).to eq(
+        [
+          {
+            turn: 2,
+            source: :agent,
+            message_name: :summarize,
+            type: :artifact,
+            name: :notes,
+            uri: "memory://notes/1"
+          }
+        ]
+      )
+      expect(stream_value.final_event).to be_nil
+      expect(runtime_value).to include(
+        status_count: 1,
+        tool_call_count: 1,
+        tool_result_count: 1,
+        artifact_count: 1
+      )
+
+      contract.execution.resume_agent_session(session.token)
+
+      final_value = contract.result.summary
+      expect(final_value.last).to include(type: :chunk, chunk: "Hello, Alice")
+      expect(contract.execution.states[:summary].dig(:details, :agent_session, :last_reply)).to include(
+        payload: {
+          event: Igniter::Runtime::AgentSession.final_event(value: stream_value.events)
+        }
+      )
+    end
+
+    it "correlates tool interactions by call_id and tool-name fallback" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, finalizer: :events, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      contract.execution.continue_agent_session(
+        session,
+        payload: {},
+        reply: {
+          turn: 2,
+          kind: :reply,
+          name: :summarize,
+          source: :agent,
+          payload: {
+            events: [
+              Igniter::Runtime::AgentSession.tool_call_event(name: :search, arguments: { q: "Alice" }, call_id: "search-1"),
+              Igniter::Runtime::AgentSession.tool_result_event(name: :search, result: { hits: 3 }, call_id: "search-1"),
+              Igniter::Runtime::AgentSession.tool_call_event(name: :fetch, arguments: { url: "https://example.test" }),
+              Igniter::Runtime::AgentSession.tool_result_event(name: :fetch, result: { status: 200 }),
+              Igniter::Runtime::AgentSession.tool_result_event(name: :summarize, result: { orphan: true })
+            ]
+          }
+        },
+        phase: :streaming
+      )
+
+      stream_value = contract.result.summary
+      runtime_value = contract.execution.states[:summary][:value]
+
+      expect(stream_value.tool_interactions).to eq(
+        [
+          {
+            key: "call_id:search-1",
+            call_id: "search-1",
+            tool_name: :search,
+            call: {
+              turn: 2,
+              source: :agent,
+              message_name: :summarize,
+              type: :tool_call,
+              name: :search,
+              arguments: { q: "Alice" },
+              call_id: "search-1"
+            },
+            results: [
+              {
+                turn: 2,
+                source: :agent,
+                message_name: :summarize,
+                type: :tool_result,
+                name: :search,
+                result: { hits: 3 },
+                call_id: "search-1"
+              }
+            ],
+            status: :completed,
+            complete: true
+          },
+          {
+            key: "tool:fetch:1",
+            call_id: nil,
+            tool_name: :fetch,
+            call: {
+              turn: 2,
+              source: :agent,
+              message_name: :summarize,
+              type: :tool_call,
+              name: :fetch,
+              arguments: { url: "https://example.test" }
+            },
+            results: [
+              {
+                turn: 2,
+                source: :agent,
+                message_name: :summarize,
+                type: :tool_result,
+                name: :fetch,
+                result: { status: 200 }
+              }
+            ],
+            status: :completed,
+            complete: true
+          },
+          {
+            key: "orphan_result:summarize:5",
+            call_id: nil,
+            tool_name: :summarize,
+            call: nil,
+            results: [
+              {
+                turn: 2,
+                source: :agent,
+                message_name: :summarize,
+                type: :tool_result,
+                name: :summarize,
+                result: { orphan: true }
+              }
+            ],
+            status: :orphan_result,
+            complete: false
+          }
+        ]
+      )
+      expect(stream_value.completed_tool_interactions.map { |interaction| interaction[:tool_name] }).to eq(%i[search fetch])
+      expect(stream_value.pending_tool_interactions).to eq([])
+      expect(stream_value.orphan_tool_interactions.map { |interaction| interaction[:key] }).to eq(["orphan_result:summarize:5"])
+      expect(stream_value.all_tool_calls_resolved?).to be true
+      expect(stream_value.tool_loop_consistent?).to be false
+      expect(stream_value.tool_loop_complete?).to be false
+      expect(stream_value.tool_loop_status).to eq(:orphaned)
+      expect(stream_value.tool_loop_summary).to eq(
+        {
+          status: :orphaned,
+          total: 3,
+          pending: 0,
+          completed: 2,
+          orphaned: 1,
+          resolved: true,
+          consistent: false,
+          complete: false,
+          open_keys: [],
+          orphan_keys: ["orphan_result:summarize:5"]
+        }
+      )
+      expect(runtime_value).to include(
+        tool_interaction_count: 3,
+        completed_tool_interaction_count: 2,
+        pending_tool_interaction_count: 0,
+        orphan_tool_interaction_count: 1,
+        tool_loop_status: :orphaned,
+        tool_loop_complete: false,
+        tool_call_count: 2,
+        tool_result_count: 3
+      )
+    end
+
+    it "reports open tool loops when calls do not yet have results" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, finalizer: :events, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      contract.execution.continue_agent_session(
+        session,
+        payload: {},
+        reply: {
+          turn: 2,
+          kind: :reply,
+          name: :summarize,
+          source: :agent,
+          payload: {
+            events: [
+              Igniter::Runtime::AgentSession.tool_call_event(name: :search, arguments: { q: "Alice" }, call_id: "search-1")
+            ]
+          }
+        },
+        phase: :streaming
+      )
+
+      stream_value = contract.result.summary
+      runtime_value = contract.execution.states[:summary][:value]
+
+      expect(stream_value.pending_tool_interactions.map { |interaction| interaction[:key] }).to eq(["call_id:search-1"])
+      expect(stream_value.completed_tool_interactions).to eq([])
+      expect(stream_value.orphan_tool_interactions).to eq([])
+      expect(stream_value.all_tool_calls_resolved?).to be false
+      expect(stream_value.tool_loop_consistent?).to be true
+      expect(stream_value.tool_loop_complete?).to be false
+      expect(stream_value.tool_loop_status).to eq(:open)
+      expect(stream_value.tool_loop_summary).to eq(
+        {
+          status: :open,
+          total: 1,
+          pending: 1,
+          completed: 0,
+          orphaned: 0,
+          resolved: false,
+          consistent: true,
+          complete: false,
+          open_keys: ["call_id:search-1"],
+          orphan_keys: []
+        }
+      )
+      expect(runtime_value).to include(
+        tool_interaction_count: 1,
+        pending_tool_interaction_count: 1,
+        completed_tool_interaction_count: 0,
+        orphan_tool_interaction_count: 0,
+        tool_loop_status: :open,
+        tool_loop_complete: false
       )
     end
 

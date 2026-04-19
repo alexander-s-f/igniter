@@ -102,6 +102,17 @@ module Igniter
               phase: value.phase,
               events: value.events,
               event_count: value.events.size,
+              status_count: value.status_events.size,
+              tool_call_count: value.tool_calls.size,
+              tool_result_count: value.tool_results.size,
+              tool_interaction_count: value.tool_interactions.size,
+              pending_tool_interaction_count: value.pending_tool_interactions.size,
+              completed_tool_interaction_count: value.completed_tool_interactions.size,
+              orphan_tool_interaction_count: value.orphan_tool_interactions.size,
+              tool_loop_status: value.tool_loop_status,
+              tool_loop_complete: value.tool_loop_complete?,
+              tool_loop_summary: value.tool_loop_summary,
+              artifact_count: value.artifacts.size,
               chunks: value.chunks,
               chunk_count: value.chunks.size
             }

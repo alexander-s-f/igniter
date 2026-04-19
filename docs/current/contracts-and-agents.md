@@ -68,6 +68,12 @@ Current events are intentionally small, but the direction is clear:
 
 The first runtime slice now validates those event types before stream continuations are accepted into `AgentSession`, so the event model is already beginning to act like a language contract rather than an informal convention.
 
+The next practical layer is tool-loop honesty: stream events should have canonical constructors and readers for tool activity, so `tool_call` and `tool_result` become first-class runtime language, not just arbitrary hashes buried in payloads.
+
+That now includes correlation helpers as well: tool activity can be read back as matched interactions instead of a flat event list, which makes tool loops much closer to a real execution model.
+
+It also now carries explicit completion semantics. That matters because planner/diagnostics-friendly signals such as `open`, `complete`, and `orphaned` are much closer to how real agent orchestration needs to reason about tool work.
+
 That keeps text streaming simple while leaving room for richer agent execution and observability.
 
 ## Practical Boundary
