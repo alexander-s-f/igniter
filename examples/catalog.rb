@@ -56,6 +56,16 @@ module IgniterExamples
       expected_fragments: ["=== Supervised agents ===", "done=true"]
     ),
     Example.new(
+      id: "agent_orchestration",
+      path: "examples/agent_orchestration.rb",
+      summary: "Current agent-node orchestration, deferred replies, and provenance.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["contract_status=pending", "lineage_reason=awaiting_review"]
+    ),
+    Example.new(
       id: "async_store",
       path: "examples/async_store.rb",
       summary: "Store-backed deferred execution and resume flow.",
@@ -189,6 +199,16 @@ module IgniterExamples
       expected_fragments: ["Igniter Incremental Computation Demo", "fully_memoized? true"]
     ),
     Example.new(
+      id: "introspection",
+      path: "examples/introspection.rb",
+      summary: "Compiled graph text, Mermaid output, plans, and runtime explain output.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["=== Graph Text ===", "runtime_state={:status=>:succeeded, :value=>120.0}"]
+    ),
+    Example.new(
       id: "invariants",
       path: "examples/invariants.rb",
       summary: "Invariant checks plus property-based testing.",
@@ -277,6 +297,16 @@ module IgniterExamples
       runnable: true,
       timeout: 10,
       expected_fragments: ["Provenance Demo"]
+    ),
+    Example.new(
+      id: "reactive_auditing",
+      path: "examples/reactive_auditing.rb",
+      summary: "Reactive hooks plus audit timeline snapshots.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["effect_values=[120.0, 180.0]", "invalidations=[:order_total]"]
     ),
     Example.new(
       id: "ringcentral_routing",

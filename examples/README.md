@@ -30,6 +30,7 @@ For higher-level guidance on when to use each orchestration style, see
 ## Smoke Examples
 
 - `agents.rb` — supervision, registry lookups, and stream loops.
+- `agent_orchestration.rb` — current `agent` node orchestration, deferred replies, and provenance.
 - `async_store.rb` — deferred execution with store-backed resume.
 - `basic_pricing.rb` — smallest end-to-end contract example.
 - `collection.rb` — `collection` fan-out and `CollectionResult`.
@@ -43,6 +44,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `distributed_workflow.rb` — correlated external events merged into one report.
 - `effects.rb` — effect nodes, effect registry, and saga compensation.
 - `incremental.rb` — incremental recomputation and memoization.
+- `introspection.rb` — graph text, Mermaid output, plan explanation, and runtime explain output.
 - `invariants.rb` — invariants plus property-based testing.
 - `llm/research_agent.rb` — LLM planning + awaited tool results with mock fallback.
 - `llm/tool_use.rb` — offline tool-use pipeline with a mock provider.
@@ -52,6 +54,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `mesh_gossip.rb` — peer convergence through gossip.
 - `order_pipeline.rb` — guard + collection + branch + export.
 - `provenance.rb` — provenance and output traceability.
+- `reactive_auditing.rb` — reactive hooks plus audit timeline snapshots.
 - `ringcentral_routing.rb` — webhook routing with nested collections.
 - `saga.rb` — saga rollback walkthrough.
 
