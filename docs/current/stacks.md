@@ -204,5 +204,8 @@ The current structure doctrine is now stricter than the older stack notes:
 - `lib/<project>/shared` is only for genuinely shared stack-level code
 - `igniter-frontend` with Arbre + Tailwind is the recommended app UI path
 - hardcoded HTML strings in Ruby are an anti-pattern, even if some transitional generator output still uses them today
+- explicit cross-app access already exists through `app ..., access_to: [...]`
+  plus `App.expose`; mounted apps can read allowed interfaces through
+  `App.interface(:name)`, while the stack still provides `Stack.interface(:name)`
 
 See also [App Structure](./app-structure.md).

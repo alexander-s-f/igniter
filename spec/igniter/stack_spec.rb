@@ -206,6 +206,37 @@ RSpec.describe Igniter::Stack do
     end
   end
 
+  it "supports explicit cross-app access through expose, access_to, and interface" do
+    Dir.mktmpdir do |tmp|
+      notes_interface = -> { { "ok" => true } }
+      main_app = Class.new(Igniter::App) do
+        provide :notes_api, notes_interface
+      end
+      dashboard_app = Class.new(Igniter::App)
+
+      workspace = Class.new(described_class).tap do |stack|
+        stack.root_dir(tmp)
+        stack.app :main, path: "apps/main", klass: main_app, default: true
+        stack.app :dashboard, path: "apps/dashboard", klass: dashboard_app, access_to: [:notes_api]
+      end
+
+      expect { workspace.send(:validate_interface_access!) }.not_to raise_error
+      expect(workspace.interface(:notes_api)).to be(notes_interface)
+      expect(workspace.interface(:notes_api).call).to eq("ok" => true)
+      expect(workspace.interfaces).to include(notes_api: notes_interface)
+    end
+  end
+
+  it "fails fast when access_to declares an interface that no app exposes" do
+    Dir.mktmpdir do |tmp|
+      workspace = build_workspace(root: tmp)
+      workspace.app :dashboard, path: "apps/dashboard", klass: Class.new(Igniter::App), access_to: [:notes_api]
+
+      expect { workspace.send(:validate_interface_access!) }
+        .to raise_error(ArgumentError, /declares access_to :notes_api .*Known interfaces: \[\]/)
+    end
+  end
+
   it "generates a compose config from stack node settings" do
     Dir.mktmpdir do |tmp|
       File.write(File.join(tmp, "stack.yml"), <<~YAML)

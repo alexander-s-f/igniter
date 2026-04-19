@@ -11,12 +11,12 @@ module Igniter
     #   my_app/
     #   ├── apps/
     #   │   └── main/
-    #   │       ├── app/
-    #   │       │   ├── contracts/     — Contract subclasses
-    #   │       │   ├── executors/     — Executor subclasses
-    #   │       │   ├── tools/         — optional Tool subclasses
-    #   │       │   ├── agents/        — optional Agent subclasses
-    #   │       │   └── skills/        — optional Skill subclasses
+    #   │       ├── contracts/         — Contract subclasses
+    #   │       ├── executors/         — Executor subclasses
+    #   │       ├── tools/             — optional Tool subclasses
+    #   │       ├── agents/            — optional Agent subclasses
+    #   │       ├── skills/            — optional Skill subclasses
+    #   │       └── web/               — optional handlers/views/components
     #   │       ├── spec/              — app-local specs
     #   │       ├── app.rb             — leaf Igniter::App
     #   │       └── app.yml            — app-local runtime defaults
@@ -44,11 +44,11 @@ module Igniter
 
       def generate # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
         create_dir ""
-        create_dir "apps/main/app/contracts"
-        create_dir "apps/main/app/executors"
-        create_dir "apps/main/app/tools"
-        create_dir "apps/main/app/agents"
-        create_dir "apps/main/app/skills"
+        create_dir "apps/main/contracts"
+        create_dir "apps/main/executors"
+        create_dir "apps/main/tools"
+        create_dir "apps/main/agents"
+        create_dir "apps/main/skills"
         create_dir "apps/main/spec"
         create_dir "lib/#{namespace_path}/shared"
         create_dir "config/deploy"
@@ -72,20 +72,20 @@ module Igniter
         write "lib/#{namespace_path}/shared/.keep", ""
 
         if @minimal
-          write "apps/main/app/executors/.keep", ""
-          write "apps/main/app/contracts/.keep", ""
-          write "apps/main/app/tools/.keep",     ""
-          write "apps/main/app/agents/.keep",    ""
-          write "apps/main/app/skills/.keep",    ""
+          write "apps/main/executors/.keep", ""
+          write "apps/main/contracts/.keep", ""
+          write "apps/main/tools/.keep",     ""
+          write "apps/main/agents/.keep",    ""
+          write "apps/main/skills/.keep",    ""
           write "bin/demo",                      bin_demo_stub
         else
           write "bin/demo",                                     bin_demo
           write "apps/main/spec/main_app_spec.rb",              main_app_spec
-          write "apps/main/app/executors/greeter.rb",           executor_greeter
-          write "apps/main/app/contracts/greet_contract.rb",    contract_greet
-          write "apps/main/app/tools/greet_tool.rb",            tool_greet
-          write "apps/main/app/agents/host_agent.rb",           agent_host
-          write "apps/main/app/skills/concierge_skill.rb",      skill_concierge
+          write "apps/main/executors/greeter.rb",               executor_greeter
+          write "apps/main/contracts/greet_contract.rb",        contract_greet
+          write "apps/main/tools/greet_tool.rb",                tool_greet
+          write "apps/main/agents/host_agent.rb",               agent_host
+          write "apps/main/skills/concierge_skill.rb",          skill_concierge
         end
 
         FileUtils.chmod(0o755, path("bin/start"))
@@ -206,11 +206,11 @@ module Igniter
               config_file "app.yml"
 
               # Eagerly load app code in dependency order.
-              tools_path     "app/tools"
-              skills_path    "app/skills"
-              executors_path "app/executors"
-              contracts_path "app/contracts"
-              agents_path    "app/agents"
+              tools_path     "tools"
+              skills_path    "skills"
+              executors_path "executors"
+              contracts_path "contracts"
+              agents_path    "agents"
 
               on_boot do
                 register "GreetContract", #{module_name}::GreetContract
@@ -372,7 +372,7 @@ module Igniter
           require_relative "../apps/main/app"
 
           %w[tools skills executors contracts agents].each do |dir|
-            Dir[File.join(root, "apps/main/app/\#{dir}/**/*.rb")].sort.each { |f| require f }
+            Dir[File.join(root, "apps/main/\#{dir}/**/*.rb")].sort.each { |f| require f }
           end
 
           hr = "─" * 48
@@ -405,7 +405,7 @@ module Igniter
           puts
 
           puts "4 · Skill — LLM reasoning loop (stub — add API key to activate)"
-          puts "  ➜  See apps/main/app/skills/concierge_skill.rb"
+          puts "  ➜  See apps/main/skills/concierge_skill.rb"
           puts
 
           puts "  \#{hr}"
@@ -509,7 +509,7 @@ module Igniter
         RUBY
       end
 
-      # ─── apps/main/app/executors/greeter.rb ────────────────────────────────
+      # ─── apps/main/executors/greeter.rb ────────────────────────────────────
 
       def executor_greeter
         <<~RUBY
@@ -527,7 +527,7 @@ module Igniter
         RUBY
       end
 
-      # ─── apps/main/app/contracts/greet_contract.rb ─────────────────────────
+      # ─── apps/main/contracts/greet_contract.rb ─────────────────────────────
 
       def contract_greet
         <<~RUBY
@@ -547,7 +547,7 @@ module Igniter
         RUBY
       end
 
-      # ─── apps/main/app/tools/greet_tool.rb ─────────────────────────────────
+      # ─── apps/main/tools/greet_tool.rb ─────────────────────────────────────
 
       def tool_greet
         <<~RUBY
@@ -570,7 +570,7 @@ module Igniter
         RUBY
       end
 
-      # ─── apps/main/app/agents/host_agent.rb ────────────────────────────────
+      # ─── apps/main/agents/host_agent.rb ────────────────────────────────────
 
       def agent_host
         <<~RUBY
@@ -606,7 +606,7 @@ module Igniter
         RUBY
       end
 
-      # ─── apps/main/app/skills/concierge_skill.rb ───────────────────────────
+      # ─── apps/main/skills/concierge_skill.rb ───────────────────────────────
 
       def skill_concierge
         <<~RUBY

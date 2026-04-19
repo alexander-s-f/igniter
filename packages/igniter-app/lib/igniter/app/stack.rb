@@ -100,6 +100,11 @@ module Igniter
           )
 
           @apps[definition.name] = definition
+          definition.klass.bind_stack_context(
+            stack_class: self,
+            app_name: definition.name,
+            access_to: definition.access_to
+          ) if definition.klass.respond_to?(:bind_stack_context)
           @root_app = definition.name if default
           return definition.klass
         end

@@ -59,6 +59,18 @@ The generator surface now has a small progression:
 - `cluster` profile for a local capability mesh sandbox with node profiles
 - `playground` profile for a richer local proving surface
 
+Current scaffold direction:
+
+- app-local code should be emitted inside the owning app without an extra
+  mandatory `app/` wrapper
+- runtime-first folders `contracts/`, `executors/`, `agents/`, `tools/`, and
+  `skills/` should stay top-level inside the app
+- web/UI surfaces should live under optional `web/handlers`, `web/views`, and
+  `web/components`
+- only genuinely shared stack code should land in `lib/<project>/shared`
+- generated operator/dashboard surfaces should prefer `igniter-frontend` page
+  classes over raw HTML string assembly
+
 ## Canonical Shape
 
 The preferred app/runtime shape is now:
@@ -76,7 +88,17 @@ The current direction is:
 - app-local code lives inside the app
 - stack-level `lib` is only for code that is truly shared
 - apps should be portable and mountable across stacks
-- cross-app access should move toward explicit app-to-app APIs, not implicit shared constants
+- cross-app access should use explicit app-to-app APIs, not implicit shared constants
+
+Current cross-app contract:
+
+- provider app exposes an interface with `expose`
+- or, more readably for app-to-app contracts, `provide`
+- stack registration declares dependency with `access_to: [...]`
+- mounted consumer apps resolve it through `App.interface(:name)` / `App.interfaces`
+- the stack still exposes `Stack.interface(:name)` / `Stack.interfaces` as the lower-level surface
+- the generated `playground` and `cluster` profiles both demonstrate this
+  pattern directly in scaffolded code
 
 For frontend authoring, the recommended path is:
 

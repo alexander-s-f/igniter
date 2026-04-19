@@ -66,8 +66,10 @@ module Igniter
 
         def expand_stack_shape
           create_dir "apps/dashboard/spec"
-          create_dir "apps/main/app/handlers"
-          create_dir "apps/dashboard/app/handlers"
+          create_dir "apps/main/web/handlers"
+          create_dir "apps/main/support"
+          create_dir "apps/dashboard/web/handlers"
+          create_dir "apps/dashboard/web/views"
           create_dir "lib/#{namespace_path}/shared"
           write "stack.rb", stack_rb
           write "stack.yml", stack_yml
@@ -81,7 +83,8 @@ module Igniter
         def expand_main_surface
           write "apps/main/app.rb", main_app_rb
           write "apps/main/spec/main_app_spec.rb", main_app_spec
-          write "apps/main/app/handlers/status_handler.rb", main_status_handler_rb
+          write "apps/main/web/handlers/status_handler.rb", main_status_handler_rb
+          write "apps/main/support/cluster_ops_api.rb", main_cluster_ops_api_rb
         end
 
         def add_dashboard_app
@@ -89,9 +92,10 @@ module Igniter
           write "apps/dashboard/app.yml", dashboard_app_yml
           write "apps/dashboard/spec/spec_helper.rb", dashboard_spec_helper
           write "apps/dashboard/spec/dashboard_app_spec.rb", dashboard_app_spec
-          write "apps/dashboard/app/handlers/home_handler.rb", dashboard_home_handler_rb
-          write "apps/dashboard/app/handlers/overview_handler.rb", dashboard_overview_handler_rb
-          write "apps/dashboard/app/handlers/self_heal_demo_handler.rb", dashboard_self_heal_demo_handler_rb
+          write "apps/dashboard/web/handlers/home_handler.rb", dashboard_home_handler_rb
+          write "apps/dashboard/web/handlers/overview_handler.rb", dashboard_overview_handler_rb
+          write "apps/dashboard/web/handlers/self_heal_demo_handler.rb", dashboard_self_heal_demo_handler_rb
+          write "apps/dashboard/web/views/home_page.rb", dashboard_home_page_rb
         end
 
         def path(rel)
@@ -144,7 +148,7 @@ module Igniter
                 shared_lib_path "lib"
 
                 app :main, path: "apps/main", klass: #{module_name}::MainApp, default: true
-                app :dashboard, path: "apps/dashboard", klass: #{module_name}::DashboardApp
+                app :dashboard, path: "apps/dashboard", klass: #{module_name}::DashboardApp, access_to: [:cluster_ops_api]
 
                 mount :dashboard, at: "/dashboard"
               end
@@ -739,7 +743,8 @@ module Igniter
             require "igniter/cluster"
             require "igniter/core"
             require "igniter/agent"
-            require_relative "app/handlers/status_handler"
+            require_relative "web/handlers/status_handler"
+            require_relative "support/cluster_ops_api"
             require_relative "../../lib/#{namespace_path}/shared/capability_profile"
 
             module #{module_name}
@@ -748,11 +753,11 @@ module Igniter
                 config_file "app.yml"
                 host :cluster_app
 
-                tools_path     "app/tools"
-                skills_path    "app/skills"
-                executors_path "app/executors"
-                contracts_path "app/contracts"
-                agents_path    "app/agents"
+                tools_path     "tools"
+                skills_path    "skills"
+                executors_path "executors"
+                contracts_path "contracts"
+                agents_path    "agents"
 
                 route "GET", "/v1/home/status", with: #{module_name}::Main::StatusHandler
 
@@ -760,11 +765,40 @@ module Igniter
                   register "GreetContract", #{module_name}::GreetContract
                 end
 
+                provide :cluster_ops_api, #{module_name}::Main::Support::ClusterOpsAPI
+
                 configure do |c|
                   c.app_host.host = "0.0.0.0"
                   c.app_host.port = Integer(ENV.fetch("PORT", "4667"))
                   c.app_host.log_format = ENV.fetch("LOG_FORMAT", "text").to_sym
                   #{module_name}::Shared::CapabilityProfile.configure_cluster!(c.cluster_app_host)
+                end
+              end
+            end
+          RUBY
+        end
+
+        def main_cluster_ops_api_rb
+          <<~RUBY
+            # frozen_string_literal: true
+
+            require_relative "../../../lib/#{namespace_path}/shared/stack_overview"
+            require_relative "../../../lib/#{namespace_path}/shared/routing_demo"
+
+            module #{module_name}
+              module Main
+                module Support
+                  module ClusterOpsAPI
+                    module_function
+
+                    def overview
+                      #{module_name}::Shared::StackOverview.build
+                    end
+
+                    def run_self_heal_demo!(scenario:)
+                      #{module_name}::Shared::RoutingDemo.run!(scenario: scenario)
+                    end
+                  end
                 end
               end
             end
@@ -872,9 +906,9 @@ module Igniter
 
             require "igniter/app"
             require "igniter/core"
-            require_relative "app/handlers/home_handler"
-            require_relative "app/handlers/overview_handler"
-            require_relative "app/handlers/self_heal_demo_handler"
+            require_relative "web/handlers/home_handler"
+            require_relative "web/handlers/overview_handler"
+            require_relative "web/handlers/self_heal_demo_handler"
 
             module #{module_name}
               class DashboardApp < Igniter::App
@@ -913,10 +947,8 @@ module Igniter
           <<~RUBY
             # frozen_string_literal: true
 
-            require "cgi"
-            require "json"
             require "igniter-frontend"
-            require_relative "../../../../lib/#{namespace_path}/shared/stack_overview"
+            require_relative "../views/home_page"
 
             module #{module_name}
               module Dashboard
@@ -924,95 +956,193 @@ module Igniter
                   module_function
 
                   def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
-                    snapshot = #{module_name}::Shared::StackOverview.build
+                    snapshot = #{module_name}::DashboardApp.interface(:cluster_ops_api).overview
 
-                    Igniter::Frontend::Response.html(render_page(snapshot: snapshot, base_path: env["SCRIPT_NAME"].to_s))
+                    Igniter::Frontend::Response.html(
+                      Views::HomePage.render(
+                        snapshot: snapshot,
+                        base_path: env["SCRIPT_NAME"].to_s
+                      )
+                    )
                   end
+                end
+              end
+            end
+          RUBY
+        end
 
-                  def render_page(snapshot:, base_path:)
-                    current = snapshot.fetch(:current_node)
-                    routing = snapshot.fetch(:routing)
-                    peers = snapshot.fetch(:discovered_peers)
+        def dashboard_home_page_rb
+          <<~RUBY
+            # frozen_string_literal: true
 
-                    <<~HTML
-                      <!doctype html>
-                      <html lang="en">
-                        <head>
-                          <meta charset="utf-8">
-                          <meta name="viewport" content="width=device-width, initial-scale=1">
-                          <title>#{module_name} Cluster Dashboard</title>
-                          <style>
-                            body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 0; background: #f4efe5; color: #1f1c18; }
-                            main { max-width: 1040px; margin: 0 auto; padding: 32px 20px 48px; }
-                            .hero, .panel { background: white; border: 1px solid #dfd1bb; border-radius: 18px; padding: 20px; margin-bottom: 18px; }
-                            .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-                            .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
-                            form { margin: 0; }
-                            button { background: #145f56; color: white; border: 0; border-radius: 999px; padding: 10px 14px; cursor: pointer; }
-                            code, pre { font-family: ui-monospace, SFMono-Regular, monospace; }
-                            pre { white-space: pre-wrap; font-size: 13px; margin: 0; }
-                            .meta { color: #5f574a; }
-                          </style>
-                        </head>
-                        <body>
-                          <main>
-                            <section class="hero">
-                              <h1>#{module_name} Cluster Dashboard</h1>
-                              <p>Cluster-ready scaffold with mounted apps, local node profiles, mocked capabilities, and a self-heal demo.</p>
-                              <p class="meta">
-                                current_node=\#{h(current.dig(:node, :name))} ·
-                                profile=\#{h(current.dig(:node, :profile))} ·
-                                role=\#{h(current.dig(:node, :role))}
-                              </p>
-                              <p class="meta">
-                                capabilities=\#{h(current.dig(:capabilities, :effective).join(", "))} ·
-                                peers=\#{peers.size} ·
-                                routing_active=\#{routing[:active]}
-                              </p>
-                            </section>
+            require "json"
+            require "igniter-frontend"
 
-                            <section class="panel">
-                              <h2>Self-Heal Demo</h2>
-                              <p>Trigger a synthetic routing incident and watch automated remediation update the governance trail.</p>
-                              <div class="actions">
-                                <form action="\#{route(base_path, "/demo/self-heal?scenario=governance_gate")}" method="post">
-                                  <button type="submit">Trigger Governance Gate</button>
-                                </form>
-                                <form action="\#{route(base_path, "/demo/self-heal?scenario=peer_unreachable")}" method="post">
-                                  <button type="submit">Trigger Peer Repair</button>
-                                </form>
-                                <a href="\#{route(base_path, "/api/overview")}">Overview API</a>
-                                <a href="\#{route(base_path, "/operator")}">Operator Console</a>
-                                <a href="\#{route(base_path, "/api/operator")}">Operator API</a>
-                              </div>
-                            </section>
+            module #{module_name}
+              module Dashboard
+                module Views
+                  class HomePage < Igniter::Frontend::Page
+                    def self.render(snapshot:, base_path: "")
+                      new(snapshot: snapshot, base_path: base_path).render
+                    end
 
-                            <section class="grid">
-                              <article class="panel">
-                                <h2>Current Node</h2>
-                                <pre>\#{h(JSON.pretty_generate(current))}</pre>
-                              </article>
-                              <article class="panel">
-                                <h2>Routing</h2>
-                                <pre>\#{h(JSON.pretty_generate(routing))}</pre>
-                              </article>
-                              <article class="panel">
-                                <h2>Peers</h2>
-                                <pre>\#{h(JSON.pretty_generate(peers))}</pre>
-                              </article>
-                            </section>
-                          </main>
-                        </body>
-                      </html>
-                    HTML
-                  end
+                    def initialize(snapshot:, base_path:)
+                      @snapshot = snapshot
+                      @base_path = base_path.to_s.sub(%r{/+\z}, "")
+                    end
 
-                  def route(base_path, suffix)
-                    [base_path.to_s.sub(%r{/+\z}, ""), suffix].join
-                  end
+                    def call(view)
+                      render_document(view, title: "#{module_name} Cluster Dashboard") do |body|
+                        body.tag(:main, class: "shell") do |main|
+                          render_hero(main)
+                          render_self_heal(main)
+                          render_panels(main)
+                        end
+                      end
+                    end
 
-                  def h(value)
-                    CGI.escapeHTML(value.to_s)
+                    private
+
+                    attr_reader :snapshot
+                    attr_reader :base_path
+
+                    def yield_head(head)
+                      head.tag(:style) { |style| style.raw(stylesheet) }
+                    end
+
+                    def render_hero(view)
+                      current = snapshot.fetch(:current_node)
+                      routing = snapshot.fetch(:routing)
+                      peers = snapshot.fetch(:discovered_peers)
+
+                      view.tag(:section, class: "hero") do |hero|
+                        hero.tag(:h1, "#{module_name} Cluster Dashboard")
+                        hero.tag(:p, "Cluster-ready scaffold with mounted apps, local node profiles, mocked capabilities, and a self-heal demo.")
+                        hero.tag(:p, class: "meta") do |meta|
+                          meta.text("current_node=\#{current.dig(:node, :name)} · ")
+                          meta.text("profile=\#{current.dig(:node, :profile)} · ")
+                          meta.text("role=\#{current.dig(:node, :role)}")
+                        end
+                        hero.tag(:p, class: "meta") do |meta|
+                          meta.text("capabilities=\#{current.dig(:capabilities, :effective).join(", ")} · ")
+                          meta.text("peers=\#{peers.size} · ")
+                          meta.text("routing_active=\#{routing[:active]}")
+                        end
+                      end
+                    end
+
+                    def render_self_heal(view)
+                      view.tag(:section, class: "panel") do |section|
+                        section.tag(:h2, "Self-Heal Demo")
+                        section.tag(:p, "Trigger a synthetic routing incident and watch automated remediation update the governance trail.")
+                        section.tag(:div, class: "actions") do |actions|
+                          actions.form(action: route("/demo/self-heal?scenario=governance_gate"), method: "post") do |form|
+                            form.submit("Trigger Governance Gate")
+                          end
+                          actions.form(action: route("/demo/self-heal?scenario=peer_unreachable"), method: "post") do |form|
+                            form.submit("Trigger Peer Repair")
+                          end
+                          actions.tag(:a, "Overview API", href: route("/api/overview"))
+                          actions.tag(:a, "Operator Console", href: route("/operator"))
+                          actions.tag(:a, "Operator API", href: route("/api/operator"))
+                        end
+                      end
+                    end
+
+                    def render_panels(view)
+                      current = snapshot.fetch(:current_node)
+                      routing = snapshot.fetch(:routing)
+                      peers = snapshot.fetch(:discovered_peers)
+
+                      view.tag(:section, class: "grid") do |grid|
+                        render_panel(grid, "Current Node", current)
+                        render_panel(grid, "Routing", routing)
+                        render_panel(grid, "Peers", peers)
+                      end
+                    end
+
+                    def render_panel(view, title, payload)
+                      view.tag(:article, class: "panel") do |panel|
+                        panel.tag(:h2, title)
+                        panel.tag(:pre, JSON.pretty_generate(payload))
+                      end
+                    end
+
+                    def route(path)
+                      return path if base_path.empty?
+
+                      [base_path, path.sub(%r{\\A/}, "")].join("/")
+                    end
+
+                    def stylesheet
+                      <<~CSS
+                        body {
+                          margin: 0;
+                          font-family: ui-sans-serif, system-ui, sans-serif;
+                          background: #f4efe5;
+                          color: #1f1c18;
+                        }
+
+                        .shell {
+                          max-width: 1040px;
+                          margin: 0 auto;
+                          padding: 32px 20px 48px;
+                        }
+
+                        .hero,
+                        .panel {
+                          background: white;
+                          border: 1px solid #dfd1bb;
+                          border-radius: 18px;
+                          padding: 20px;
+                          margin-bottom: 18px;
+                        }
+
+                        .grid {
+                          display: grid;
+                          gap: 16px;
+                          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+                        }
+
+                        .actions {
+                          display: flex;
+                          gap: 12px;
+                          flex-wrap: wrap;
+                          margin-top: 12px;
+                          align-items: center;
+                        }
+
+                        .actions form {
+                          margin: 0;
+                        }
+
+                        .actions button {
+                          background: #145f56;
+                          color: white;
+                          border: 0;
+                          border-radius: 999px;
+                          padding: 10px 14px;
+                          cursor: pointer;
+                          font: inherit;
+                        }
+
+                        .actions a {
+                          color: #145f56;
+                          text-decoration: none;
+                        }
+
+                        pre {
+                          white-space: pre-wrap;
+                          font-family: ui-monospace, SFMono-Regular, monospace;
+                          font-size: 13px;
+                          margin: 0;
+                        }
+
+                        .meta {
+                          color: #5f574a;
+                        }
+                      CSS
+                    end
                   end
                 end
               end
@@ -1025,7 +1155,6 @@ module Igniter
             # frozen_string_literal: true
 
             require "json"
-            require_relative "../../../../lib/#{namespace_path}/shared/stack_overview"
 
             module #{module_name}
               module Dashboard
@@ -1033,7 +1162,7 @@ module Igniter
                   module_function
 
                   def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
-                    snapshot = #{module_name}::Shared::StackOverview.build
+                    snapshot = #{module_name}::DashboardApp.interface(:cluster_ops_api).overview
 
                     {
                       status: 200,
@@ -1051,8 +1180,6 @@ module Igniter
           <<~RUBY
             # frozen_string_literal: true
 
-            require_relative "../../../../lib/#{namespace_path}/shared/routing_demo"
-
             module #{module_name}
               module Dashboard
                 module SelfHealDemoHandler
@@ -1060,7 +1187,7 @@ module Igniter
 
                   def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
                     scenario = params.fetch("scenario", body.fetch("scenario", "governance_gate")).to_s
-                    #{module_name}::Shared::RoutingDemo.run!(scenario: scenario)
+                    #{module_name}::DashboardApp.interface(:cluster_ops_api).run_self_heal_demo!(scenario: scenario)
                     base_path = env["SCRIPT_NAME"].to_s.sub(%r{/+\z}, "")
                     location = [base_path, ""].reject(&:empty?).join("/") + "/?demo=\#{scenario}"
 

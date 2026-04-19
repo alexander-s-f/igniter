@@ -17,10 +17,14 @@ That means:
 - and still work without depending on hidden stack-local glue
 
 If an app needs another app, that dependency should be explicit.
-The direction is:
+The current contract is:
 
-- declare the relationship explicitly
-- use a unified cross-app surface such as `access_to`
+- provider app exposes a named interface with `expose`
+- provider app can declare it more explicitly with `provide`
+- stack registration declares that dependency with `access_to: [...]`
+- consumers can resolve the interface through `App.interface(:name)` /
+  `App.interfaces` once the app is mounted in a stack
+- stack still exposes the lower-level `Stack.interface(:name)` and `Stack.interfaces`
 - avoid hidden coupling through shared constants or shared helper files
 
 ## Placement Rules
@@ -36,10 +40,10 @@ Examples:
 - agents
 - tools
 - skills
-- handlers
-- views
-- components
-- app-private support objects
+- optional `web/handlers`
+- optional `web/views`
+- optional `web/components`
+- optional app-private `support/`
 
 If the code only exists because one app needs it, it should not live in
 stack-level `lib`.
@@ -64,8 +68,7 @@ Bad candidates:
 
 ## Current Anti-Patterns
 
-These are current anti-patterns, even if some generators still produce them
-today:
+These are current anti-patterns:
 
 - app-local code in `lib/<project>/shared`
 - app-local code in `lib/<project>/<app>/...` when it should live under `apps/<app>/`
@@ -81,24 +84,59 @@ For frontend authoring, the default recommended path is:
 We should not treat raw HTML string assembly in Ruby as the preferred style.
 It is an anti-pattern and should be migrated away from over time.
 
+The scaffold direction is now aligned with this rule:
+
+- app-local handlers/views/support objects are generated inside the owning app
+- stack-level `lib/<project>/shared` is reserved for genuinely shared stack code
+- generated dashboard/operator pages should prefer `igniter-frontend` page classes
+  over raw HTML string assembly
+- generated `playground` and `cluster` stacks now show cross-app composition through
+  `provide + access_to + App.interface(...)`, not through direct sibling reach-in
+
 ## App Structure Options
 
 There are three realistic structure directions.
 
-### Option 1. Flat app buckets
+### Option 1. Minimal top-level runtime buckets
 
 ```text
 apps/<app>/
-  app/
-    contracts/
-    executors/
-    agents/
-    tools/
-    skills/
+  contracts/
+  executors/
+  agents/
+  tools/
+  skills/
+  spec/
+  app.rb
+  app.yml
+```
+
+Pros:
+
+- matches Igniter's first-class primitives directly
+- very small and easy to scan
+- no unnecessary nesting
+- ideal as the default scaffold shape
+
+Cons:
+
+- web/UI surfaces need an extra convention
+- larger apps may still want one more organizing layer
+
+### Option 2. Top-level runtime buckets plus optional web
+
+```text
+apps/<app>/
+  contracts/
+  executors/
+  agents/
+  tools/
+  skills/
+  web/
     handlers/
     views/
     components/
-    support/
+  support/
   spec/
   app.rb
   app.yml
@@ -108,29 +146,28 @@ Pros:
 
 - simple
 - readable
-- easy to scaffold
-- keeps all app-local code inside the app
+- makes web an optional surface instead of a mandatory assumption
+- keeps Igniter runtime primitives top-level and obvious
 
 Cons:
 
 - can become broad for large apps
-- feature boundaries are weaker than they could be
+- still leaves feature boundaries implicit unless the app introduces them
 
-### Option 2. Feature slices
+### Option 3. Feature slices
 
 ```text
 apps/<app>/
-  app/
-    features/
-      orders/
-        contracts/
-        handlers/
-        views/
-      dashboard/
-        handlers/
-        views/
-        components/
-    support/
+  features/
+    orders/
+      contracts/
+      handlers/
+      views/
+    dashboard/
+      handlers/
+      views/
+      components/
+  support/
   spec/
   app.rb
   app.yml
@@ -146,22 +183,21 @@ Cons:
 - heavier to teach and scaffold
 - too much ceremony for small/medium stacks
 
-### Option 3. Hybrid app buckets plus feature slices
+### Option 4. Hybrid runtime buckets plus feature slices
 
 ```text
 apps/<app>/
-  app/
-    contracts/
-    executors/
-    agents/
-    tools/
-    skills/
-    web/
-      handlers/
-      views/
-      components/
-    support/
-    features/
+  contracts/
+  executors/
+  agents/
+  tools/
+  skills/
+  web/
+    handlers/
+    views/
+    components/
+  support/
+  features/
   spec/
   app.rb
   app.yml
@@ -180,22 +216,36 @@ Cons:
 
 ## Recommended Direction
 
-The current best target is a hybrid that stays simple by default.
+The current best target is the minimal top-level runtime layout, with optional
+`web/` when the app actually exposes a web surface.
 
 Recommended shape:
 
 ```text
 apps/<app>/
-  app/
-    contracts/
-    executors/
-    agents/
-    tools/
-    skills/
+  contracts/
+  executors/
+  agents/
+  tools/
+  skills/
+  spec/
+  app.rb
+  app.yml
+```
+
+If the app has a web surface, add:
+
+```text
+apps/<app>/
+  contracts/
+  executors/
+  agents/
+  tools/
+  skills/
+  web/
     handlers/
     views/
     components/
-    support/
   spec/
   app.rb
   app.yml
@@ -203,13 +253,14 @@ apps/<app>/
 
 Rules:
 
-- start with flat app-owned buckets
-- use `support/` for app-private shared code
+- keep `contracts`, `executors`, `agents`, `tools`, and `skills` top-level
+- add `web/` only when the app really has a web/UI surface
+- use optional top-level `support/` for app-private shared code
 - only introduce deeper feature slices when the app actually becomes large
 - keep stack-level `lib/<project>/shared` for code that is truly stack-shared
 
-This gives us a clean default without forcing early feature-architecture
-ceremony.
+This gives us a clean default without forcing early architectural ceremony or a
+mandatory `app/` wrapper directory.
 
 ## Frontend Direction
 
@@ -220,25 +271,17 @@ The recommended human UI path is:
 - Arbre components
 - Tailwind UI surfaces
 
-Preferred structure inside an app:
+Preferred structure for a web-capable app:
 
 ```text
-apps/<app>/app/
-  handlers/
-  views/
-  components/
+apps/<app>/
+  web/
+    handlers/
+    views/
+    components/
 ```
 
-If we later want a more explicit web split, that can evolve into:
-
-```text
-apps/<app>/app/web/
-  handlers/
-  views/
-  components/
-```
-
-But the important rule comes first:
+The important rule comes first:
 
 - no hardcoded HTML strings as the recommended style
 - prefer frontend objects/templates/components
@@ -257,7 +300,26 @@ If an app needs another app:
 - keep the access surface narrow
 - prefer a stable app-to-app API over direct constant sharing
 
-`access_to` is the right direction for that principle.
+`access_to` is not just a future direction now. It already exists at the stack
+registration layer and is validated against exposed interfaces.
+
+Current example:
+
+```ruby
+class MainApp < Igniter::App
+  provide :notes_api, NotesAPI
+end
+
+class Workspace < Igniter::Stack
+  app :main, path: "apps/main", klass: MainApp, default: true
+  app :dashboard, path: "apps/dashboard", klass: DashboardApp, access_to: [:notes_api]
+end
+
+Workspace.interface(:notes_api)
+DashboardApp.interface(:notes_api)
+```
+
+That is the current canonical path for explicit cross-app access.
 
 ## Compatibility Policy Before v1
 

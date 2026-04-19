@@ -107,8 +107,81 @@ module Igniter
         @exposed_interfaces[name.to_sym] = callable
       end
 
+      def provide(name, callable = nil, &block)
+        resolved = callable || block
+        raise ArgumentError, "provide requires a callable or block" unless resolved
+        raise ArgumentError, "provide cannot use both a callable and a block" if callable && block
+
+        expose(name, resolved)
+      end
+
       def exposed_interfaces
         @exposed_interfaces || {}
+      end
+
+      def provided_interfaces
+        exposed_interfaces
+      end
+
+      def bind_stack_context(stack_class:, app_name:, access_to: [])
+        @stack_bindings ||= {}
+        @stack_bindings[stack_class] = {
+          app_name: app_name.to_sym,
+          access_to: Array(access_to).map(&:to_sym).freeze
+        }.freeze
+        @preferred_stack_class = stack_class
+        self
+      end
+
+      def stack_bindings
+        (@stack_bindings || {}).dup
+      end
+
+      def stack_class(stack = nil)
+        return stack if stack
+        return @preferred_stack_class if defined?(@preferred_stack_class) && @preferred_stack_class
+
+        bindings = @stack_bindings || {}
+        return bindings.keys.first if bindings.size == 1
+
+        nil
+      end
+
+      def app_name_in_stack(stack = nil)
+        stack_binding_for!(stack).fetch(:app_name)
+      end
+
+      def declared_access_to(stack = nil)
+        stack_binding_for!(stack).fetch(:access_to)
+      end
+
+      def can_access_interface?(name, stack: nil)
+        declared_access_to(stack).include?(name.to_sym)
+      rescue ArgumentError
+        false
+      end
+
+      def interfaces(stack: nil)
+        resolved_stack = stack_context_for!(stack)
+        allowed = declared_access_to(resolved_stack)
+        resolved_stack.interfaces.each_with_object({}) do |(name, callable), hash|
+          hash[name] = callable if allowed.include?(name)
+        end
+      end
+
+      def interface(name, stack: nil)
+        iface_name = name.to_sym
+        return exposed_interfaces.fetch(iface_name) if exposed_interfaces.key?(iface_name)
+
+        resolved_stack = stack_context_for!(stack)
+        allowed = declared_access_to(resolved_stack)
+        unless allowed.include?(iface_name)
+          raise KeyError,
+                "App #{self} does not declare access_to #{iface_name.inspect} on #{resolved_stack}. " \
+                "Declared interfaces: #{allowed.inspect}"
+        end
+
+        resolved_stack.interface(iface_name)
       end
 
       def evolution_store(store = UNDEFINED_EVOLUTION_STORE)
@@ -688,9 +761,27 @@ module Igniter
         subclass.instance_variable_set(:@evolution_store, nil)
         subclass.instance_variable_set(:@evolution_trail, Evolution::Trail.new(app_class: subclass))
         subclass.instance_variable_set(:@orchestration_inbox, nil)
+        subclass.instance_variable_set(:@stack_bindings, {})
+        subclass.instance_variable_set(:@preferred_stack_class, nil)
       end
 
       private
+
+      def stack_context_for!(stack = nil)
+        resolved_stack = stack_class(stack)
+        return resolved_stack if resolved_stack
+
+        raise ArgumentError,
+              "App #{self} is not bound to a stack context. Pass stack: explicitly or register it through Igniter::Stack.app."
+      end
+
+      def stack_binding_for!(stack = nil)
+        resolved_stack = stack_context_for!(stack)
+        binding = (@stack_bindings || {})[resolved_stack]
+        return binding if binding
+
+        raise ArgumentError, "App #{self} is not registered in stack #{resolved_stack}."
+      end
 
       def normalize_host_name(name)
         name.to_sym

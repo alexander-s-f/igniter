@@ -26,10 +26,11 @@ module Igniter
         attr_reader :base
 
         def expand_stack_shape
-          create_dir "apps/main/app/handlers"
+          create_dir "apps/main/web/handlers"
+          create_dir "apps/main/support"
           create_dir "apps/dashboard/spec"
-          create_dir "apps/dashboard/app/handlers"
-          create_dir "apps/dashboard/app/views"
+          create_dir "apps/dashboard/web/handlers"
+          create_dir "apps/dashboard/web/views"
           write "stack.rb", stack_rb
           write "stack.yml", stack_yml
           write "spec/stack_spec.rb", stack_spec
@@ -40,9 +41,11 @@ module Igniter
         def expand_main_surface
           write "apps/main/app.rb", main_app_rb
           write "apps/main/spec/main_app_spec.rb", main_app_spec
-          write "apps/main/app/handlers/status_handler.rb", main_status_handler
-          write "apps/main/app/handlers/notes_list_handler.rb", main_notes_list_handler
-          write "apps/main/app/handlers/notes_create_handler.rb", main_notes_create_handler
+          write "apps/main/support/notes_api.rb", main_notes_api
+          write "apps/main/support/playground_ops_api.rb", main_playground_ops_api
+          write "apps/main/web/handlers/status_handler.rb", main_status_handler
+          write "apps/main/web/handlers/notes_list_handler.rb", main_notes_list_handler
+          write "apps/main/web/handlers/notes_create_handler.rb", main_notes_create_handler
         end
 
         def add_dashboard_app
@@ -50,10 +53,10 @@ module Igniter
           write "apps/dashboard/app.yml", dashboard_app_yml
           write "apps/dashboard/spec/spec_helper.rb", dashboard_spec_helper
           write "apps/dashboard/spec/dashboard_app_spec.rb", dashboard_app_spec
-          write "apps/dashboard/app/handlers/home_handler.rb", dashboard_home_handler
-          write "apps/dashboard/app/handlers/notes_create_handler.rb", dashboard_notes_create_handler
-          write "apps/dashboard/app/handlers/overview_handler.rb", dashboard_overview_handler
-          write "apps/dashboard/app/views/home_page.rb", dashboard_home_page
+          write "apps/dashboard/web/handlers/home_handler.rb", dashboard_home_handler
+          write "apps/dashboard/web/handlers/notes_create_handler.rb", dashboard_notes_create_handler
+          write "apps/dashboard/web/handlers/overview_handler.rb", dashboard_overview_handler
+          write "apps/dashboard/web/views/home_page.rb", dashboard_home_page
         end
 
         def rewrite_gemfile_for_local_playground
@@ -123,7 +126,7 @@ module Igniter
               shared_lib_path "lib"
 
               app :main, path: "apps/main", klass: #{module_name}::MainApp, default: true
-              app :dashboard, path: "apps/dashboard", klass: #{module_name}::DashboardApp
+              app :dashboard, path: "apps/dashboard", klass: #{module_name}::DashboardApp, access_to: [:notes_api, :playground_ops_api]
               mount :dashboard, at: "/dashboard"
             end
           end
@@ -170,6 +173,7 @@ module Igniter
                 expect(described_class.default_node).to eq(:main)
                 expect(described_class.app(:main)).to be(#{module_name}::MainApp)
                 expect(described_class.app(:dashboard)).to be(#{module_name}::DashboardApp)
+                expect(described_class.app_definition(:dashboard).access_to).to eq([:notes_api, :playground_ops_api])
                 expect(described_class.mounts).to eq(dashboard: "/dashboard")
                 expect(described_class.node_names).to eq([:main])
               end
@@ -184,24 +188,29 @@ module Igniter
             require "igniter/app"
             require "igniter/core"
             require "igniter/agent"
-            require_relative "app/handlers/status_handler"
-            require_relative "app/handlers/notes_list_handler"
-            require_relative "app/handlers/notes_create_handler"
+            require_relative "support/notes_api"
+            require_relative "support/playground_ops_api"
+            require_relative "web/handlers/status_handler"
+            require_relative "web/handlers/notes_list_handler"
+            require_relative "web/handlers/notes_create_handler"
 
             module #{module_name}
               class MainApp < Igniter::App
                 root_dir __dir__
                 config_file "app.yml"
 
-                tools_path     "app/tools"
-                skills_path    "app/skills"
-                executors_path "app/executors"
-                contracts_path "app/contracts"
-                agents_path    "app/agents"
+                tools_path     "tools"
+                skills_path    "skills"
+                executors_path "executors"
+                contracts_path "contracts"
+                agents_path    "agents"
 
                 route "GET", "/v1/home/status", with: #{module_name}::Main::StatusHandler
                 route "GET", "/v1/notes", with: #{module_name}::Main::NotesListHandler
                 route "POST", "/v1/notes", with: #{module_name}::Main::NotesCreateHandler
+
+                provide :notes_api, #{module_name}::Main::Support::NotesAPI
+                provide :playground_ops_api, #{module_name}::Main::Support::PlaygroundOpsAPI
 
                 on_boot do
                   register "GreetContract", #{module_name}::GreetContract
@@ -227,6 +236,14 @@ module Igniter
               it "builds and registers the greet contract" do
                 config = described_class.send(:build!)
                 expect(config.registry.registered?("GreetContract")).to be(true)
+              end
+
+              it "exposes the canonical notes interface for sibling apps" do
+                expect(described_class.interface(:notes_api)).to be(#{module_name}::Main::Support::NotesAPI)
+              end
+
+              it "exposes the playground ops interface for sibling apps" do
+                expect(described_class.interface(:playground_ops_api)).to be(#{module_name}::Main::Support::PlaygroundOpsAPI)
               end
 
               it "exposes a status endpoint for the stack snapshot" do
@@ -324,12 +341,68 @@ module Igniter
           RUBY
         end
 
+        def main_notes_api
+          <<~RUBY
+            # frozen_string_literal: true
+
+            require_relative "../../../lib/#{namespace_path}/shared/note_store"
+
+            module #{module_name}
+              module Main
+                module Support
+                  module NotesAPI
+                    module_function
+
+                    def all
+                      #{module_name}::Shared::NoteStore.all
+                    end
+
+                    def count
+                      #{module_name}::Shared::NoteStore.count
+                    end
+
+                    def add(text, source: "operator")
+                      #{module_name}::Shared::NoteStore.add(text, source: source)
+                    end
+
+                    def reset!
+                      #{module_name}::Shared::NoteStore.reset!
+                    end
+                  end
+                end
+              end
+            end
+          RUBY
+        end
+
+        def main_playground_ops_api
+          <<~RUBY
+            # frozen_string_literal: true
+
+            require_relative "../../../lib/#{namespace_path}/shared/stack_overview"
+
+            module #{module_name}
+              module Main
+                module Support
+                  module PlaygroundOpsAPI
+                    module_function
+
+                    def overview
+                      #{module_name}::Shared::StackOverview.build
+                    end
+                  end
+                end
+              end
+            end
+          RUBY
+        end
+
         def main_notes_list_handler
           <<~RUBY
             # frozen_string_literal: true
 
             require "json"
-            require_relative "../../../../lib/#{namespace_path}/shared/note_store"
+            require_relative "../support/notes_api"
 
             module #{module_name}
               module Main
@@ -337,7 +410,7 @@ module Igniter
                   module_function
 
                   def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
-                    notes = #{module_name}::Shared::NoteStore.all
+                    notes = #{module_name}::Main::Support::NotesAPI.all
 
                     {
                       status: 200,
@@ -359,7 +432,7 @@ module Igniter
             # frozen_string_literal: true
 
             require "json"
-            require_relative "../../../../lib/#{namespace_path}/shared/note_store"
+            require_relative "../support/notes_api"
 
             module #{module_name}
               module Main
@@ -377,14 +450,14 @@ module Igniter
                       }
                     end
 
-                    note = #{module_name}::Shared::NoteStore.add(text, source: "main")
+                    note = #{module_name}::Main::Support::NotesAPI.add(text, source: "main")
 
                     {
                       status: 201,
                       body: JSON.generate(
                         ok: true,
                         note: note,
-                        count: #{module_name}::Shared::NoteStore.count
+                        count: #{module_name}::Main::Support::NotesAPI.count
                       ),
                       headers: { "Content-Type" => "application/json" }
                     }
@@ -401,9 +474,9 @@ module Igniter
 
             require "igniter/app"
             require "igniter/core"
-            require_relative "app/handlers/home_handler"
-            require_relative "app/handlers/overview_handler"
-            require_relative "app/handlers/notes_create_handler"
+            require_relative "web/handlers/home_handler"
+            require_relative "web/handlers/overview_handler"
+            require_relative "web/handlers/notes_create_handler"
 
             module #{module_name}
               class DashboardApp < Igniter::App
@@ -670,7 +743,6 @@ module Igniter
             # frozen_string_literal: true
 
             require "igniter-frontend"
-            require_relative "../../../../lib/#{namespace_path}/shared/stack_overview"
             require_relative "../views/home_page"
 
             module #{module_name}
@@ -679,7 +751,7 @@ module Igniter
                   module_function
 
                   def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
-                    snapshot = #{module_name}::Shared::StackOverview.build
+                    snapshot = #{module_name}::DashboardApp.interface(:playground_ops_api).overview
 
                     Igniter::Frontend::Response.html(
                       Views::HomePage.render(
@@ -703,8 +775,6 @@ module Igniter
             # frozen_string_literal: true
 
             require "igniter-frontend"
-            require_relative "../../../../lib/#{namespace_path}/shared/note_store"
-            require_relative "../../../../lib/#{namespace_path}/shared/stack_overview"
             require_relative "../views/home_page"
 
             module #{module_name}
@@ -717,7 +787,7 @@ module Igniter
                     base_path = base_path_for(env)
 
                     if text.empty?
-                      snapshot = #{module_name}::Shared::StackOverview.build
+                      snapshot = #{module_name}::DashboardApp.interface(:playground_ops_api).overview
                       html = Views::HomePage.render(
                         snapshot: snapshot,
                         error_message: "Note text cannot be blank.",
@@ -727,7 +797,7 @@ module Igniter
                       return Igniter::Frontend::Response.html(html, status: 422)
                     end
 
-                    #{module_name}::Shared::NoteStore.add(text, source: "dashboard")
+                    #{module_name}::DashboardApp.interface(:notes_api).add(text, source: "dashboard")
                     location = [base_path, ""].reject(&:empty?).join("/") + "/?note_created=1"
 
                     {
@@ -751,7 +821,6 @@ module Igniter
             # frozen_string_literal: true
 
             require "json"
-            require_relative "../../../../lib/#{namespace_path}/shared/stack_overview"
 
             module #{module_name}
               module Dashboard
@@ -761,7 +830,7 @@ module Igniter
                   def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
                     {
                       status: 200,
-                      body: JSON.generate(#{module_name}::Shared::StackOverview.build),
+                      body: JSON.generate(#{module_name}::DashboardApp.interface(:playground_ops_api).overview),
                       headers: { "Content-Type" => "application/json" }
                     }
                   end

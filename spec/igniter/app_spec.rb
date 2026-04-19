@@ -151,6 +151,77 @@ RSpec.describe Igniter::App do
       expect(app2.instance_variable_get(:@after_request_hooks)).to be_empty
       expect(app2.instance_variable_get(:@around_request_hooks)).to be_empty
     end
+
+    it "does not leak stack bindings between subclasses" do
+      stack = Class.new(Igniter::Stack)
+      app1 = fresh_app { bind_stack_context(stack_class: stack, app_name: :main, access_to: [:notes_api]) }
+      app2 = fresh_app
+
+      expect(app1.stack_bindings).to include(stack)
+      expect(app2.stack_bindings).to eq({})
+    end
+  end
+
+  describe "cross-app interface access" do
+    it "provides interfaces through the readable provider alias" do
+      notes_api = -> { { "notes" => [] } }
+      app = fresh_app { provide :notes_api, notes_api }
+
+      expect(app.provided_interfaces).to eq(notes_api: notes_api)
+      expect(app.interface(:notes_api)).to be(notes_api)
+    end
+
+    it "resolves declared interfaces through the bound stack context" do
+      notes_api = -> { { "notes" => [] } }
+      main_app = fresh_app { provide :notes_api, notes_api }
+      dashboard_app = fresh_app
+
+      stack = Class.new(Igniter::Stack)
+      stack.app :main, path: "apps/main", klass: main_app, default: true
+      stack.app :dashboard, path: "apps/dashboard", klass: dashboard_app, access_to: [:notes_api]
+
+      expect(dashboard_app.stack_class).to be(stack)
+      expect(dashboard_app.app_name_in_stack).to eq(:dashboard)
+      expect(dashboard_app.declared_access_to).to eq([:notes_api])
+      expect(dashboard_app.can_access_interface?(:notes_api)).to be(true)
+      expect(dashboard_app.interface(:notes_api)).to be(notes_api)
+      expect(dashboard_app.interface(:notes_api).call).to eq("notes" => [])
+      expect(dashboard_app.interfaces).to eq(notes_api: notes_api)
+    end
+
+    it "allows an app to resolve its own exposed interfaces directly" do
+      notes_api = -> { { "notes" => [] } }
+      app = fresh_app { provide :notes_api, notes_api }
+
+      expect(app.interface(:notes_api)).to be(notes_api)
+    end
+
+    it "raises when an app asks for an interface it did not declare access_to" do
+      notes_api = -> { { "notes" => [] } }
+      main_app = fresh_app { provide :notes_api, notes_api }
+      dashboard_app = fresh_app
+
+      stack = Class.new(Igniter::Stack)
+      stack.app :main, path: "apps/main", klass: main_app, default: true
+      stack.app :dashboard, path: "apps/dashboard", klass: dashboard_app
+
+      expect { dashboard_app.interface(:notes_api) }
+        .to raise_error(KeyError, /does not declare access_to :notes_api/)
+    end
+
+    it "raises a helpful error when no stack context is available" do
+      app = fresh_app
+
+      expect { app.interfaces }
+        .to raise_error(ArgumentError, /is not bound to a stack context/)
+    end
+
+    it "validates provider declaration arguments" do
+      app = fresh_app
+
+      expect { app.provide(:notes_api) }
+        .to raise_error(ArgumentError, /requires a callable or block/)
+    end
   end
 
   # ─── AppConfig ────────────────────────────────────────────────────────────
@@ -581,20 +652,20 @@ RSpec.describe Igniter::App do
       adapter.load!(
         base_dir: "/tmp/app",
         paths: {
-          tools: ["app/tools"],
-          contracts: ["app/contracts"],
-          executors: ["app/executors"],
-          skills: ["app/skills"],
-          agents: ["app/agents"]
+          tools: ["tools"],
+          contracts: ["contracts"],
+          executors: ["executors"],
+          skills: ["skills"],
+          agents: ["agents"]
         }
       )
 
       expect(calls).to eq([
-        "app/executors",
-        "app/contracts",
-        "app/tools",
-        "app/agents",
-        "app/skills"
+        "executors",
+        "contracts",
+        "tools",
+        "agents",
+        "skills"
       ])
     end
   end
@@ -635,11 +706,11 @@ RSpec.describe Igniter::App do
 
           # apps/main example source files
           expect(File.exist?("my_app/apps/main/spec/main_app_spec.rb")).to be true
-          expect(File.exist?("my_app/apps/main/app/executors/greeter.rb")).to be true
-          expect(File.exist?("my_app/apps/main/app/contracts/greet_contract.rb")).to be true
-          expect(File.exist?("my_app/apps/main/app/tools/greet_tool.rb")).to be true
-          expect(File.exist?("my_app/apps/main/app/agents/host_agent.rb")).to be true
-          expect(File.exist?("my_app/apps/main/app/skills/concierge_skill.rb")).to be true
+          expect(File.exist?("my_app/apps/main/executors/greeter.rb")).to be true
+          expect(File.exist?("my_app/apps/main/contracts/greet_contract.rb")).to be true
+          expect(File.exist?("my_app/apps/main/tools/greet_tool.rb")).to be true
+          expect(File.exist?("my_app/apps/main/agents/host_agent.rb")).to be true
+          expect(File.exist?("my_app/apps/main/skills/concierge_skill.rb")).to be true
         end
       end
     end
@@ -687,10 +758,10 @@ RSpec.describe Igniter::App do
       Dir.mktmpdir do |tmp|
         Dir.chdir(tmp) do
           described_class.new("my_app").generate
-          expect(File.read("my_app/apps/main/app/executors/greeter.rb")).to include("Igniter::Executor")
-          expect(File.read("my_app/apps/main/app/contracts/greet_contract.rb")).to include("Igniter::Contract")
-          expect(File.read("my_app/apps/main/app/tools/greet_tool.rb")).to include("Igniter::Tool")
-          expect(File.read("my_app/apps/main/app/agents/host_agent.rb")).to include("Igniter::Agent")
+          expect(File.read("my_app/apps/main/executors/greeter.rb")).to include("Igniter::Executor")
+          expect(File.read("my_app/apps/main/contracts/greet_contract.rb")).to include("Igniter::Contract")
+          expect(File.read("my_app/apps/main/tools/greet_tool.rb")).to include("Igniter::Tool")
+          expect(File.read("my_app/apps/main/agents/host_agent.rb")).to include("Igniter::Agent")
         end
       end
     end
@@ -808,11 +879,11 @@ RSpec.describe Igniter::App do
 
       app = fresh_app do
         root_dir "/tmp/loader-app"
-        executors_path "app/executors"
-        contracts_path "app/contracts"
-        tools_path "app/tools"
-        agents_path "app/agents"
-        skills_path "app/skills"
+        executors_path "executors"
+        contracts_path "contracts"
+        tools_path "tools"
+        agents_path "agents"
+        skills_path "skills"
         loader_adapter fake_loader
         on_boot { events << :boot }
       end
@@ -824,11 +895,11 @@ RSpec.describe Igniter::App do
           :load,
           "/tmp/loader-app",
           {
-            executors: ["app/executors"],
-            contracts: ["app/contracts"],
-            tools: ["app/tools"],
-            agents: ["app/agents"],
-            skills: ["app/skills"]
+            executors: ["executors"],
+            contracts: ["contracts"],
+            tools: ["tools"],
+            agents: ["agents"],
+            skills: ["skills"]
           }
         ],
         :boot
@@ -852,9 +923,9 @@ RSpec.describe Igniter::App do
 
     it "resolves config_file and autoload paths relative to root_dir" do
       Dir.mktmpdir do |tmp|
-        FileUtils.mkdir_p(File.join(tmp, "app/contracts"))
+        FileUtils.mkdir_p(File.join(tmp, "contracts"))
         File.write(
-          File.join(tmp, "app/contracts/root_scoped_contract.rb"),
+          File.join(tmp, "contracts/root_scoped_contract.rb"),
           <<~RUBY
             class RootScopedContract < Igniter::Contract
               define do
@@ -869,7 +940,7 @@ RSpec.describe Igniter::App do
         app = fresh_app do
           root_dir tmp
           config_file "app.yml"
-          contracts_path "app/contracts"
+          contracts_path "contracts"
           on_boot { register "RootScopedContract", RootScopedContract }
         end
 
@@ -919,9 +990,9 @@ RSpec.describe Igniter::App do
 
       app.class_eval do
         root_dir "/tmp/spec-diagnostics-app"
-        executors_path "app/executors"
-        contracts_path "app/contracts"
-        tools_path "app/tools"
+        executors_path "executors"
+        contracts_path "contracts"
+        tools_path "tools"
         use :data, :tools
         register "SampleContract", klass
         schedule :cleanup, every: "1h" do
@@ -983,9 +1054,9 @@ RSpec.describe Igniter::App do
         total_paths: 3
       )
       expect(report[:app_loader][:code_paths]).to include(
-        executors: ["app/executors"],
-        contracts: ["app/contracts"],
-        tools: ["app/tools"],
+        executors: ["executors"],
+        contracts: ["contracts"],
+        tools: ["tools"],
         agents: [],
         skills: []
       )
@@ -1077,7 +1148,7 @@ RSpec.describe Igniter::App do
       expect(markdown).to include("## App Evolution")
       expect(markdown).to include("- Runtime: `SpecDiagnosticsApp` host=`app` loader=`filesystem` scheduler=`threaded`")
       expect(markdown).to include("- Contracts: total=1, names=SampleContract")
-      expect(markdown).to include("- `contracts`: app/contracts")
+      expect(markdown).to include("- `contracts`: contracts")
       expect(markdown).to include("- `cleanup` every=1h")
       expect(markdown).to include("- Requested: total=2, names=data, tools")
       expect(markdown).to include("- Coverage: required=database, filesystem, network, pure, covered=database, filesystem, uncovered=network, intrinsic=pure")
