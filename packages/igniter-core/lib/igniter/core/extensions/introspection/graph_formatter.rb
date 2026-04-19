@@ -44,6 +44,7 @@ module Igniter
               line += " reply=#{node.reply_mode}"
               line += " finalizer=#{node.finalizer.inspect}" if node.finalizer
               line += " tool_loop_policy=#{node.tool_loop_policy.inspect}" if node.tool_loop_policy
+              line += " session_policy=#{node.session_policy.inspect}" if node.session_policy
             end
             if node.kind == :branch
               cases = node.cases.map do |entry|

@@ -160,4 +160,245 @@ RSpec.describe "Igniter introspection" do
     expect(calls).to eq(0)
     expect(contract.events).to be_empty
   end
+
+  it "exposes agent execution profiles in plan and explain output" do
+    contract_class = Class.new(Igniter::Contract) do
+      define do
+        input :name, type: :string
+
+        agent :interactive_summary,
+              via: :writer,
+              message: :summarize,
+              reply: :stream,
+              inputs: { name: :name }
+
+        agent :manual_summary,
+              via: :writer,
+              message: :summarize,
+              reply: :stream,
+              session_policy: :manual,
+              finalizer: :events,
+              inputs: { name: :name }
+
+        agent :single_turn_summary,
+              via: :writer,
+              message: :summarize,
+              reply: :stream,
+              session_policy: :single_turn,
+              tool_loop_policy: :resolved,
+              inputs: { name: :name }
+
+        agent :approval,
+              via: :reviewer,
+              message: :review,
+              inputs: { name: :name }
+
+        output :interactive_summary
+        output :manual_summary
+        output :single_turn_summary
+        output :approval
+      end
+    end
+
+    contract = contract_class.new(name: "Alice")
+
+    plan = contract.execution.plan
+
+    expect(plan[:agent_profiles]).to eq(
+      total: 4,
+      interactive: 1,
+      manual: 1,
+      single_turn: 1,
+      streaming: 3,
+      deferred: 1
+    )
+    expect(plan[:orchestration]).to include(
+      total: 4,
+      attention_required: 3,
+      resumable: 4,
+      interactive_sessions: 1,
+      manual_sessions: 1,
+      single_turn_sessions: 1,
+      deferred_calls: 1,
+      single_reply_calls: 0,
+      delivery_only: 0,
+      attention_nodes: %i[interactive_summary manual_summary approval],
+      by_action: {
+        open_interactive_session: 1,
+        require_manual_completion: 1,
+        await_single_turn_completion: 1,
+        await_deferred_reply: 1
+      }
+    )
+    expect(contract.orchestration_plan).to eq(plan[:orchestration])
+    expect(plan[:orchestration][:actions]).to contain_exactly(
+      include(
+        id: "agent_orchestration:open_interactive_session:interactive_summary",
+        action: :open_interactive_session,
+        node: :interactive_summary,
+        interaction: :interactive_session,
+        reason: :interactive_session,
+        attention_required: true,
+        resumable: true
+      ),
+      include(
+        id: "agent_orchestration:require_manual_completion:manual_summary",
+        action: :require_manual_completion,
+        node: :manual_summary,
+        interaction: :manual_session,
+        reason: :manual_session,
+        attention_required: true,
+        resumable: true
+      ),
+      include(
+        id: "agent_orchestration:await_single_turn_completion:single_turn_summary",
+        action: :await_single_turn_completion,
+        node: :single_turn_summary,
+        interaction: :single_turn_session,
+        reason: :single_turn_session,
+        attention_required: false,
+        resumable: true
+      ),
+      include(
+        id: "agent_orchestration:await_deferred_reply:approval",
+        action: :await_deferred_reply,
+        node: :approval,
+        interaction: :deferred_call,
+        reason: :deferred_call,
+        attention_required: true,
+        resumable: true
+      )
+    )
+
+    expect(plan[:nodes][:interactive_summary]).to include(
+      kind: :agent,
+      via: :writer,
+      message: :summarize,
+      mode: :call,
+      reply_mode: :stream,
+      finalizer: :join,
+      session_policy: :interactive,
+      tool_loop_policy: :complete
+    )
+    expect(plan[:nodes][:interactive_summary][:execution_profile]).to include(
+      delivery: :call,
+      streaming: true,
+      deferred: false,
+      resumable: true,
+      interactive: true,
+      manual_completion: false,
+      single_turn: false
+    )
+    expect(plan[:nodes][:interactive_summary][:orchestration]).to include(
+      node: :interactive_summary,
+      interaction: :interactive_session,
+      attention_required: true,
+      resumable: true,
+      allows_continuation: true,
+      requires_explicit_completion: false,
+      auto_finalization: :complete
+    )
+    expect(plan[:nodes][:interactive_summary][:orchestration][:guidance]).to include("multi-turn continuation")
+
+    expect(plan[:nodes][:manual_summary]).to include(
+      session_policy: :manual,
+      tool_loop_policy: :complete,
+      finalizer: :events
+    )
+    expect(plan[:nodes][:manual_summary][:execution_profile]).to include(
+      streaming: true,
+      manual_completion: true,
+      interactive: false,
+      single_turn: false
+    )
+    expect(plan[:nodes][:manual_summary][:orchestration]).to include(
+      node: :manual_summary,
+      interaction: :manual_session,
+      attention_required: true,
+      resumable: true,
+      allows_continuation: true,
+      requires_explicit_completion: true,
+      auto_finalization: :disabled
+    )
+
+    expect(plan[:nodes][:single_turn_summary]).to include(
+      session_policy: :single_turn,
+      tool_loop_policy: :resolved,
+      finalizer: :join
+    )
+    expect(plan[:nodes][:single_turn_summary][:execution_profile]).to include(
+      streaming: true,
+      single_turn: true,
+      interactive: false,
+      manual_completion: false
+    )
+    expect(plan[:nodes][:single_turn_summary][:orchestration]).to include(
+      node: :single_turn_summary,
+      interaction: :single_turn_session,
+      attention_required: false,
+      resumable: true,
+      allows_continuation: false,
+      requires_explicit_completion: false,
+      auto_finalization: :resolved
+    )
+
+    expect(plan[:nodes][:approval]).to include(
+      reply_mode: :deferred,
+      session_policy: nil,
+      tool_loop_policy: nil,
+      finalizer: nil
+    )
+    expect(plan[:nodes][:approval][:execution_profile]).to include(
+      delivery: :call,
+      streaming: false,
+      deferred: true,
+      resumable: true,
+      interactive: false,
+      manual_completion: false,
+      single_turn: false
+    )
+    expect(plan[:nodes][:approval][:orchestration]).to include(
+      node: :approval,
+      interaction: :deferred_call,
+      attention_required: true,
+      resumable: true,
+      allows_continuation: false,
+      requires_explicit_completion: false,
+      auto_finalization: :not_applicable
+    )
+
+    explanation = contract.explain_plan
+
+    expect(explanation).to include("Agents: total=4, interactive=1, manual=1, single_turn=1, streaming=3, deferred=1")
+    expect(explanation).to include("Orchestration: attention_required=3, resumable=4, interactive_sessions=1, manual_sessions=1, single_turn_sessions=1, deferred_calls=1, single_reply_calls=0, delivery_only=0")
+    expect(explanation).to include("Attention Nodes: interactive_summary,manual_summary,approval")
+    expect(explanation).to include("Orchestration Actions: interactive_summary(open_interactive_session), manual_summary(require_manual_completion), single_turn_summary(await_single_turn_completion), approval(await_deferred_reply)")
+    expect(explanation).to include("agent interactive_summary")
+    expect(explanation).to include("via=:writer")
+    expect(explanation).to include("message=:summarize")
+    expect(explanation).to include("reply=stream")
+    expect(explanation).to include("session_policy=interactive")
+    expect(explanation).to include("tool_loop_policy=complete")
+    expect(explanation).to include("finalizer=:join")
+    expect(explanation).to include("orchestration=interactive_session")
+    expect(explanation).to include('guidance="streaming session; multi-turn continuation is allowed"')
+    expect(explanation).to include("attention_required=true")
+    expect(explanation).to include("resumable=true")
+    expect(explanation).to include("allows_continuation=true")
+    expect(explanation).to include("auto_finalization=complete")
+    expect(explanation).to include("agent manual_summary")
+    expect(explanation).to include("session_policy=manual")
+    expect(explanation).to include("finalizer=:events")
+    expect(explanation).to include("orchestration=manual_session")
+    expect(explanation).to include("requires_explicit_completion=true")
+    expect(explanation).to include("auto_finalization=disabled")
+    expect(explanation).to include("agent single_turn_summary")
+    expect(explanation).to include("session_policy=single_turn")
+    expect(explanation).to include("tool_loop_policy=resolved")
+    expect(explanation).to include("orchestration=single_turn_session")
+    expect(explanation).to include("auto_finalization=resolved")
+    expect(explanation).to include("agent approval")
+    expect(explanation).to include("reply=deferred")
+    expect(explanation).to include("orchestration=deferred_call")
+  end
 end

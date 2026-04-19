@@ -338,6 +338,10 @@ module Igniter
       execution.explain_plan(output_names)
     end
 
+    def orchestration_plan(output_names = nil)
+      execution.orchestration_plan(output_names)
+    end
+
     def success?
       execution.success?
     end

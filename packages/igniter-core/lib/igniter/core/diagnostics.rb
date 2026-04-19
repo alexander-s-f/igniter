@@ -3,6 +3,7 @@
 require_relative "diagnostics/report"
 require_relative "diagnostics/agent_contributor"
 require_relative "diagnostics/capability_contributor"
+require_relative "diagnostics/orchestration_contributor"
 
 module Igniter
   module Diagnostics
@@ -52,5 +53,6 @@ module Igniter
 
     register_report_contributor(:core_agents, AgentContributor)
     register_report_contributor(:core_capabilities, CapabilityContributor)
+    register_report_contributor(:core_orchestration, OrchestrationContributor)
   end
 end

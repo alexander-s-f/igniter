@@ -2,6 +2,7 @@
 
 require "spec_helper"
 require "igniter/cluster"
+require "igniter/agent"
 
 RSpec.describe "Igniter diagnostics" do
   let(:contract_class) do
@@ -48,6 +49,96 @@ RSpec.describe "Igniter diagnostics" do
     expect(text).to include("Status: succeeded")
     expect(markdown).to include("# Diagnostics AnonymousContract")
     expect(markdown).to include("- Status: `succeeded`")
+  end
+
+  it "surfaces orchestration summaries and actions for agent-backed workflows" do
+    previous_adapter = Igniter::Runtime.agent_adapter
+    Igniter::Runtime.activate_agent_adapter!
+    Igniter::Registry.clear
+    writer_ref = nil
+    reviewer_ref = nil
+
+    writer_class = Class.new(Igniter::Agent) do
+      on :summarize do |payload:, **|
+        raise Igniter::PendingDependencyError.new("continue", token: "writer-session", source_node: :summary)
+      end
+    end
+
+    reviewer_class = Class.new(Igniter::Agent) do
+      on :review do |payload:, **|
+        raise Igniter::PendingDependencyError.new("wait", token: "review-session", source_node: :approval)
+      end
+    end
+
+    writer_ref = writer_class.start(name: :writer)
+    reviewer_ref = reviewer_class.start(name: :reviewer)
+
+    agent_contract = Class.new(Igniter::Contract) do
+      define do
+        input :name
+
+        agent :interactive_summary,
+              via: :writer,
+              message: :summarize,
+              reply: :stream,
+              inputs: { name: :name }
+
+        agent :manual_summary,
+              via: :writer,
+              message: :summarize,
+              reply: :stream,
+              session_policy: :manual,
+              finalizer: :events,
+              inputs: { name: :name }
+
+        agent :approval,
+              via: :reviewer,
+              message: :review,
+              inputs: { name: :name }
+
+        output :interactive_summary
+        output :manual_summary
+        output :approval
+      end
+    end
+
+    contract = agent_contract.new(name: "Alice")
+
+    report = contract.diagnostics.to_h
+    text = contract.diagnostics_text
+    markdown = contract.diagnostics_markdown
+
+    expect(report[:orchestration]).to include(
+      total: 3,
+      attention_required: 3,
+      resumable: 3,
+      interactive_sessions: 1,
+      manual_sessions: 1,
+      single_turn_sessions: 0,
+      deferred_calls: 1,
+      attention_nodes: %i[interactive_summary manual_summary approval],
+      by_action: {
+        open_interactive_session: 1,
+        require_manual_completion: 1,
+        await_deferred_reply: 1
+      }
+    )
+    expect(report[:orchestration][:actions]).to contain_exactly(
+      include(action: :open_interactive_session, node: :interactive_summary, interaction: :interactive_session),
+      include(action: :require_manual_completion, node: :manual_summary, interaction: :manual_session),
+      include(action: :await_deferred_reply, node: :approval, interaction: :deferred_call)
+    )
+    expect(text).to include("Orchestration: total=3, attention_required=3, resumable=3, interactive_sessions=1, manual_sessions=1, single_turn_sessions=0, deferred_calls=1, actions=3")
+    expect(text).to include("Orchestration Actions: interactive_summary(open_interactive_session reason=interactive_session), manual_summary(require_manual_completion reason=manual_session), approval(await_deferred_reply reason=deferred_call)")
+    expect(markdown).to include("## Orchestration")
+    expect(markdown).to include("- Summary: total=3, attention_required=3, resumable=3, interactive_sessions=1, manual_sessions=1, single_turn_sessions=0, deferred_calls=1, actions=3")
+    expect(markdown).to include("`open_interactive_session`(interactive_summary)")
+    expect(markdown).to include("`manual_summary` `require_manual_completion`")
+  ensure
+    writer_ref&.stop
+    reviewer_ref&.stop
+    Igniter::Registry.clear
+    Igniter::Runtime.agent_adapter = previous_adapter
   end
 
   it "surfaces cluster identity and trust in diagnostics when mesh is configured" do

@@ -148,6 +148,9 @@ module Igniter
         session = resolve_agent_session(session_or_token)
         state = pending_state_for_token(session.token, source_only: true)
         raise ResolutionError, "No pending agent session found for token '#{session.token}'" unless state
+        if state.node.reply_mode == :stream && state.node.session_policy == :single_turn
+          raise ResolutionError, "Streaming agent session '#{session.node_name}' does not allow continuation under session_policy :single_turn"
+        end
         session.validate_stream_reply!(reply) if state.node.reply_mode == :stream
 
         continued_session = session.continue(
@@ -219,6 +222,10 @@ module Igniter
 
       def plan(output_names = nil)
         @planner.plan(output_names)
+      end
+
+      def orchestration_plan(output_names = nil)
+        plan(output_names)[:orchestration]
       end
 
       def explain_plan(output_names = nil)
@@ -585,6 +592,9 @@ module Igniter
 
         if state.node.kind == :agent && state.node.reply_mode == :stream
           session = agent_session_for_state(state)
+          if state.node.session_policy == :manual
+            raise ResolutionError, "Streaming agent session '#{state.node.name}' requires explicit value under session_policy :manual"
+          end
           session.ensure_ready_to_finalize_stream!(policy: state.node.tool_loop_policy)
           return session.finalized_value(
             finalizer: state.node.finalizer,

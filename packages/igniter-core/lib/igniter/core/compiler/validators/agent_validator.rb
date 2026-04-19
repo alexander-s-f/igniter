@@ -23,6 +23,7 @@ module Igniter
             validate_reply_mode!(node)
             validate_finalizer!(node)
             validate_tool_loop_policy!(node)
+            validate_session_policy!(node)
           end
         end
 
@@ -105,6 +106,24 @@ module Igniter
           raise @context.validation_error(
             node,
             "agent :#{node.name} tool_loop_policy requires reply: :stream"
+          )
+        end
+
+        def validate_session_policy!(node)
+          return if node.session_policy.nil?
+
+          unless %i[interactive single_turn manual].include?(node.session_policy)
+            raise @context.validation_error(
+              node,
+              "agent :#{node.name} session_policy must be :interactive, :single_turn, or :manual"
+            )
+          end
+
+          return if node.reply_mode == :stream
+
+          raise @context.validation_error(
+            node,
+            "agent :#{node.name} session_policy requires reply: :stream"
           )
         end
       end

@@ -43,8 +43,9 @@ RSpec.describe "agent: DSL node" do
       expect(node.reply_mode).to eq(:deferred)
       expect(node.finalizer).to be_nil
       expect(node.tool_loop_policy).to be_nil
+      expect(node.session_policy).to be_nil
       expect(contract_class.graph.to_schema[:agents]).to include(
-        hash_including(name: :greeting, via: :greeter, message: :greet, inputs: { name: :name }, mode: :call, reply: :deferred, finalizer: nil, tool_loop_policy: nil)
+        hash_including(name: :greeting, via: :greeter, message: :greet, inputs: { name: :name }, mode: :call, reply: :deferred, finalizer: nil, tool_loop_policy: nil, session_policy: nil)
       )
     end
 
@@ -136,12 +137,34 @@ RSpec.describe "agent: DSL node" do
       end.to raise_error(Igniter::CompileError, /tool_loop_policy must be :ignore, :resolved, or :complete/)
     end
 
+    it "raises CompileError when session_policy is used without reply: :stream" do
+      expect do
+        Class.new(Igniter::Contract) do
+          define do
+            input :name
+            agent :greeting, via: :greeter, message: :greet, session_policy: :manual, inputs: { name: :name }
+          end
+        end
+      end.to raise_error(Igniter::CompileError, /session_policy requires reply: :stream/)
+    end
+
+    it "raises CompileError when session_policy is unsupported" do
+      expect do
+        Class.new(Igniter::Contract) do
+          define do
+            input :name
+            agent :greeting, via: :greeter, message: :greet, reply: :stream, session_policy: :durable, inputs: { name: :name }
+          end
+        end
+      end.to raise_error(Igniter::CompileError, /session_policy must be :interactive, :single_turn, or :manual/)
+    end
+
     it "compiles stream agents with default and custom finalizers" do
       contract_class = Class.new(Igniter::Contract) do
         define do
           input :name
           agent :default_summary, via: :writer, message: :summarize, reply: :stream, inputs: { name: :name }
-          agent :custom_summary, via: :writer, message: :summarize, reply: :stream, finalizer: :array, tool_loop_policy: :resolved, inputs: { name: :name }
+          agent :custom_summary, via: :writer, message: :summarize, reply: :stream, finalizer: :array, tool_loop_policy: :resolved, session_policy: :manual, inputs: { name: :name }
           output :default_summary
           output :custom_summary
         end
@@ -149,8 +172,10 @@ RSpec.describe "agent: DSL node" do
 
       expect(contract_class.compiled_graph.fetch_node(:default_summary).finalizer).to eq(:join)
       expect(contract_class.compiled_graph.fetch_node(:default_summary).tool_loop_policy).to eq(:complete)
+      expect(contract_class.compiled_graph.fetch_node(:default_summary).session_policy).to eq(:interactive)
       expect(contract_class.compiled_graph.fetch_node(:custom_summary).finalizer).to eq(:array)
       expect(contract_class.compiled_graph.fetch_node(:custom_summary).tool_loop_policy).to eq(:resolved)
+      expect(contract_class.compiled_graph.fetch_node(:custom_summary).session_policy).to eq(:manual)
     end
 
     it "raises ValidationError when dependency is not in graph" do
@@ -1185,6 +1210,93 @@ RSpec.describe "agent: DSL node" do
           }
         ]
       )
+    end
+
+    it "blocks auto-finalization under session_policy :manual even when tool loop is complete" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, session_policy: :manual, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      contract.execution.continue_agent_session(
+        session,
+        payload: {},
+        reply: { turn: 2, kind: :reply, name: :summarize, source: :agent, payload: { chunk: "Hello" } },
+        phase: :streaming
+      )
+
+      expect do
+        contract.execution.resume_agent_session(session.token)
+      end.to raise_error(Igniter::ResolutionError, /requires explicit value under session_policy :manual/)
+
+      contract.execution.resume_agent_session(session.token, value: "Hello")
+      expect(contract.result.summary).to eq("Hello")
+    end
+
+    it "blocks continuation under session_policy :single_turn" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, session_policy: :single_turn, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      expect do
+        contract.execution.continue_agent_session(
+          session,
+          payload: {},
+          reply: { turn: 2, kind: :reply, name: :summarize, source: :agent, payload: { chunk: "Hello" } },
+          phase: :streaming
+        )
+      end.to raise_error(Igniter::ResolutionError, /does not allow continuation under session_policy :single_turn/)
     end
 
     it "rejects unsupported stream event types" do

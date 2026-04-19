@@ -353,11 +353,12 @@ module Igniter
         )
       end
 
-      def agent(name, via:, message:, inputs:, timeout: 5, mode: :call, reply: nil, finalizer: nil, tool_loop_policy: nil, **metadata)
+      def agent(name, via:, message:, inputs:, timeout: 5, mode: :call, reply: nil, finalizer: nil, tool_loop_policy: nil, session_policy: nil, **metadata)
         normalized_mode = mode.respond_to?(:to_sym) ? mode.to_sym : mode
         normalized_reply = reply.respond_to?(:to_sym) ? reply.to_sym : reply
         normalized_finalizer = finalizer.respond_to?(:to_sym) ? finalizer.to_sym : finalizer
         normalized_tool_loop_policy = tool_loop_policy.respond_to?(:to_sym) ? tool_loop_policy.to_sym : tool_loop_policy
+        normalized_session_policy = session_policy.respond_to?(:to_sym) ? session_policy.to_sym : session_policy
 
         raise CompileError, "agent :#{name} requires inputs: Hash" unless inputs.is_a?(Hash)
         raise CompileError, "agent :#{name} requires via:" if via.nil? || via.to_s.strip.empty?
@@ -385,6 +386,12 @@ module Igniter
         unless normalized_tool_loop_policy.nil? || %i[ignore resolved complete].include?(normalized_tool_loop_policy)
           raise CompileError, "agent :#{name} tool_loop_policy must be :ignore, :resolved, or :complete"
         end
+        if !normalized_session_policy.nil? && normalized_reply != :stream
+          raise CompileError, "agent :#{name} session_policy requires reply: :stream"
+        end
+        unless normalized_session_policy.nil? || %i[interactive single_turn manual].include?(normalized_session_policy)
+          raise CompileError, "agent :#{name} session_policy must be :interactive, :single_turn, or :manual"
+        end
 
         add_node(
           Model::AgentNode.new(
@@ -398,6 +405,7 @@ module Igniter
             reply_mode: normalized_reply,
             finalizer: normalized_finalizer,
             tool_loop_policy: normalized_tool_loop_policy,
+            session_policy: normalized_session_policy,
             path: scoped_path(name),
             metadata: with_source_location(metadata)
           )

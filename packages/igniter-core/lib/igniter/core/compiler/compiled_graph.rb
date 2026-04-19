@@ -77,6 +77,7 @@ module Igniter
               base[:reply] = node.reply_mode
               base[:finalizer] = serialized_agent_finalizer(node.finalizer)
               base[:tool_loop_policy] = node.tool_loop_policy
+              base[:session_policy] = node.session_policy
             end
             if node.kind == :branch
               base[:selector] = node.selector_dependency
@@ -150,6 +151,7 @@ module Igniter
               reply: node.reply_mode,
               finalizer: serialized_agent_finalizer(node.finalizer),
               tool_loop_policy: node.tool_loop_policy,
+              session_policy: node.session_policy,
               metadata: node.metadata.reject { |key, _| key == :source_location }
             }
           end,

@@ -43,6 +43,7 @@ This first pass is intentionally small, but no longer request/reply only.
 - `agent` call nodes now declare `reply: :single | :deferred | :stream`
 - stream call nodes may also declare `finalizer:`
 - stream call nodes may also declare `tool_loop_policy:`
+- stream call nodes may also declare `session_policy:`
 - `agent` cast nodes implicitly use `reply: :none`
 - they map contract dependencies into an agent message payload
 - they delegate delivery to an adapter instead of talking to the registry directly from core
@@ -55,6 +56,7 @@ Reply modes now have explicit meaning:
 - `reply: :single` means the agent must resolve in the current execution turn
 - `reply: :deferred` means the agent may either resolve immediately or materialize a resumable session
 - `reply: :stream` means the agent must enter the session lifecycle and surfaces a `Runtime::StreamResult` while pending
+- `session_policy:` controls the broader lifecycle rules for a streaming session
 - `finalizer:` controls how a streaming session materializes its final value when resumed without an explicit `value:`
 - `tool_loop_policy:` controls when a streaming session is allowed to auto-finalize without an explicit `value:`
 
@@ -74,6 +76,13 @@ Current tool loop policies:
 - `:resolved` requires all tool calls to be resolved, even if orphan results are still present
 - `:ignore` allows auto-finalization regardless of tool-loop state
 
+Current session policies:
+
+- default `:interactive`
+- `:interactive` allows multi-turn continuation and built-in auto-finalization rules
+- `:single_turn` forbids continuation after the initial pending session is opened
+- `:manual` allows the session lifecycle but requires explicit `value:` for final completion
+
 ## Diagnostics Surface
 
 `agent` nodes now participate in diagnostics as their own execution surface.
@@ -84,6 +93,27 @@ Current tool loop policies:
 - execution state keeps sideband node details so successful agent deliveries remain visible after resolution
 
 This matters because it turns agents into observable graph participants rather than opaque adapter calls.
+
+Planning and explain surfaces now expose agent orchestration hints too:
+
+- `execution.plan` includes top-level `orchestration` summary for agent-backed work
+- `execution.orchestration_plan` exposes that orchestration summary directly
+- each agent node now exposes an `orchestration` hint with:
+  - `interaction` such as `:interactive_session`, `:manual_session`, `:single_turn_session`, `:deferred_call`, `:single_reply_call`, or `:delivery_only`
+  - `attention_required`
+  - `resumable`
+  - `allows_continuation`
+  - `requires_explicit_completion`
+  - `auto_finalization`
+- orchestration summaries now also include recommended actions for higher layers:
+  - `:open_interactive_session`
+  - `:require_manual_completion`
+  - `:await_single_turn_completion`
+  - `:await_deferred_reply`
+- diagnostics now surface that same orchestration view, so app/runtime tooling can consume it without separately asking for `plan`
+- `explain_plan` now renders those hints directly for human review
+
+That gives higher layers a stable place to reason about agent workflow shape without re-deriving it from low-level reply/session/tool-loop flags.
 
 ## Agent Sessions
 
@@ -126,6 +156,7 @@ For user-facing runtime values this now means:
 - `StreamResult` exposes current `phase`, typed `events`, accumulated `chunks`, and the backing session metadata
 - a stream node can be resumed without `value:` and will materialize through its configured finalizer according to its `tool_loop_policy:`
 - under the default `:complete` policy, open or orphaned tool loops block auto-finalization unless the caller explicitly supplies `value:`
+- `session_policy:` sits above that rule: `:manual` disables auto-finalization entirely, while `:single_turn` forbids follow-up continuations
 
 The current event model is intentionally small:
 
