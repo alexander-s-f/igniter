@@ -21,6 +21,7 @@ module Igniter
           summaries = agents[:entries].map do |entry|
             summary = "#{entry[:node_name]}(#{entry[:status]} #{entry[:agent_trace_summary]})"
             summary += " token=#{entry[:token]}" if entry[:token]
+            summary += " reply=#{entry[:reply_mode]}" if entry[:reply_mode]
             summary += " phase=#{entry.dig(:agent_session, :phase)}" if entry.dig(:agent_session, :phase)
             summary += " turn=#{entry.dig(:agent_session, :turn)}" if entry.dig(:agent_session, :turn)
             summary
@@ -45,6 +46,7 @@ module Igniter
           agents[:entries].each do |entry|
             line = "- `#{entry[:node_name]}` `#{entry[:status]}`: `#{entry[:agent_trace_summary]}`"
             line += " token=`#{entry[:token]}`" if entry[:token]
+            line += " reply=`#{entry[:reply_mode]}`" if entry[:reply_mode]
             line += " phase=`#{entry.dig(:agent_session, :phase)}`" if entry.dig(:agent_session, :phase)
             line += " turn=`#{entry.dig(:agent_session, :turn)}`" if entry.dig(:agent_session, :turn)
             line += " error=`#{entry[:error][:message]}`" if entry[:error]
@@ -78,6 +80,7 @@ module Igniter
             node_name: state.node.name,
             path: state.node.path,
             status: state.status,
+            reply_mode: state.node.reply_mode,
             events: events,
             agent_trace: trace,
             agent_trace_summary: summarize_agent_trace(trace)
@@ -148,6 +151,7 @@ module Igniter
         def summarize_agent_facets(entries)
           {
             by_status: count_by(entries) { |entry| entry[:status] },
+            by_reply_mode: count_by(entries) { |entry| entry[:reply_mode] },
             by_mode: count_by(entries) { |entry| hash_value(entry[:agent_trace], :mode) },
             by_adapter: count_by(entries) { |entry| hash_value(entry[:agent_trace], :adapter) },
             by_outcome: count_by(entries) { |entry| hash_value(entry[:agent_trace], :outcome) },
@@ -199,6 +203,7 @@ module Igniter
             "failed=#{agents[:failed]}"
           ]
           parts << "modes=#{inline_counts(facets[:by_mode])}" if present_counts?(facets[:by_mode])
+          parts << "replies=#{inline_counts(facets[:by_reply_mode])}" if present_counts?(facets[:by_reply_mode])
           parts << "adapters=#{inline_counts(facets[:by_adapter])}" if present_counts?(facets[:by_adapter])
           parts << "outcomes=#{inline_counts(facets[:by_outcome])}" if present_counts?(facets[:by_outcome])
           parts << "reasons=#{inline_counts(facets[:by_reason])}" if present_counts?(facets[:by_reason])

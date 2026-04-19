@@ -20,14 +20,17 @@ module Igniter
         contract
       end
 
-      def continue_agent_session(execution_id:, session:, payload:, trace: nil, token: nil, waiting_on: nil)
+      def continue_agent_session(execution_id:, session:, payload:, trace: nil, token: nil, waiting_on: nil, request: nil, reply: nil, phase: nil)
         contract = @contract_class.restore_from_store(execution_id, store: @store)
         contract.execution.continue_agent_session(
           session,
           payload: payload,
           trace: trace,
           token: token,
-          waiting_on: waiting_on
+          waiting_on: waiting_on,
+          request: request,
+          reply: reply,
+          phase: phase
         )
         @contract_class.restore_from_store(execution_id, store: @store)
       end

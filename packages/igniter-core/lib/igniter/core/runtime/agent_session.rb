@@ -4,12 +4,12 @@ module Igniter
   module Runtime
     class AgentSession
       attr_reader :token, :node_name, :node_path, :agent_name, :message_name,
-                  :mode, :waiting_on, :source_node, :trace, :payload, :turn, :phase,
+                  :mode, :reply_mode, :waiting_on, :source_node, :trace, :payload, :turn, :phase,
                   :messages, :last_request, :last_reply, :history,
                   :execution_id, :graph
 
       def initialize(token:, node_name:, node_path: nil, agent_name:, message_name:, mode:, # rubocop:disable Metrics/ParameterLists
-                     waiting_on: nil, source_node: nil, trace: nil, payload: {}, turn: 1, phase: nil,
+                     reply_mode: nil, waiting_on: nil, source_node: nil, trace: nil, payload: {}, turn: 1, phase: nil,
                      messages: nil, last_request: nil, last_reply: nil, history: nil, execution_id: nil, graph: nil)
         @token = token
         @node_name = node_name&.to_sym
@@ -17,6 +17,7 @@ module Igniter
         @agent_name = agent_name&.to_sym
         @message_name = message_name&.to_sym
         @mode = mode&.to_sym
+        @reply_mode = reply_mode&.to_sym
         @waiting_on = waiting_on&.to_sym
         @source_node = source_node&.to_sym
         @trace = trace
@@ -40,6 +41,7 @@ module Igniter
           agent_name: value_from(data, :agent_name),
           message_name: value_from(data, :message_name),
           mode: value_from(data, :mode),
+          reply_mode: value_from(data, :reply_mode),
           waiting_on: value_from(data, :waiting_on),
           source_node: value_from(data, :source_node),
           trace: value_from(data, :trace),
@@ -63,6 +65,7 @@ module Igniter
           agent_name: agent_name,
           message_name: message_name,
           mode: mode,
+          reply_mode: reply_mode,
           waiting_on: waiting_on,
           source_node: source_node,
           trace: trace,
@@ -82,12 +85,16 @@ module Igniter
         to_h
       end
 
-      def continue(payload: {}, trace: nil, token: nil, waiting_on: nil, request: nil)
+      def continue(payload: {}, trace: nil, token: nil, waiting_on: nil, request: nil, reply: nil, phase: nil)
         next_token = token || self.token
         next_waiting_on = waiting_on || self.waiting_on || node_name
         next_trace = trace || self.trace
         next_turn = turn + 1
-        request_message = normalize_message_entry(request || default_request_message(turn: next_turn, payload: payload, source: :continuation))
+        request_message = build_request_message(turn: next_turn, payload: payload, request: request)
+        reply_message = normalize_message_entry(reply)
+        next_messages = messages.dup
+        next_messages << request_message if request_message
+        next_messages << reply_message if reply_message
 
         self.class.new(
           token: next_token,
@@ -96,15 +103,16 @@ module Igniter
           agent_name: agent_name,
           message_name: message_name,
           mode: mode,
+          reply_mode: reply_mode,
           waiting_on: next_waiting_on,
           source_node: source_node || node_name,
           trace: next_trace,
           payload: payload,
           turn: next_turn,
-          phase: :waiting,
-          messages: messages + [request_message],
-          last_request: request_message,
-          last_reply: last_reply,
+          phase: normalize_phase(phase || default_continue_phase(reply_message)),
+          messages: next_messages,
+          last_request: request_message || last_request,
+          last_reply: reply_message || last_reply,
           history: history + [
             {
               turn: next_turn,
@@ -112,8 +120,9 @@ module Igniter
               token: next_token,
               waiting_on: next_waiting_on,
               payload: payload,
-              phase: :waiting,
-              request: request_message
+              phase: normalize_phase(phase || default_continue_phase(reply_message)),
+              request: request_message,
+              reply: reply_message
             }
           ],
           execution_id: execution_id,
@@ -132,6 +141,7 @@ module Igniter
           agent_name: agent_name,
           message_name: message_name,
           mode: mode,
+          reply_mode: reply_mode,
           waiting_on: waiting_on,
           source_node: source_node || node_name,
           trace: trace || self.trace,
@@ -189,6 +199,7 @@ module Igniter
 
       def default_phase
         return :completed if history.last.is_a?(Hash) && history.last[:event] == :completed
+        return :streaming if reply_mode == :stream
 
         :waiting
       end
@@ -203,6 +214,7 @@ module Igniter
           kind: :request,
           name: message_name,
           source: source,
+          reply_mode: reply_mode,
           payload: payload
         }
       end
@@ -213,8 +225,23 @@ module Igniter
           kind: :reply,
           name: message_name,
           source: :agent,
+          reply_mode: reply_mode,
           payload: normalize_reply_payload(value)
         }
+      end
+
+      def build_request_message(turn:, payload:, request:)
+        return normalize_message_entry(request) if request
+        return nil if payload.nil? || payload.empty?
+
+        default_request_message(turn: turn, payload: payload, source: :continuation)
+      end
+
+      def default_continue_phase(reply_message)
+        return :streaming if reply_mode == :stream
+        return :responding if reply_message
+
+        :waiting
       end
 
       def normalize_reply_payload(value)

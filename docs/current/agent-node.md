@@ -9,7 +9,7 @@ Igniter now has a first-pass `agent` node in the core graph model.
 Current shape:
 
 - `Igniter::Model::AgentNode`
-- DSL: `agent :name, via:, message:, inputs:, timeout:, mode:`
+- DSL: `agent :name, via:, message:, inputs:, timeout:, mode:, reply:`
 - runtime seam: `Igniter::Runtime::AgentAdapter`
 - default local implementation from `igniter-agents`: `Igniter::Runtime::RegistryAgentAdapter`
 
@@ -40,13 +40,21 @@ end
 This first pass is intentionally small, but no longer request/reply only.
 
 - `agent` nodes support `mode: :call` and `mode: :cast`
+- `agent` call nodes now declare `reply: :single | :deferred | :stream`
+- `agent` cast nodes implicitly use `reply: :none`
 - they map contract dependencies into an agent message payload
 - they delegate delivery to an adapter instead of talking to the registry directly from core
 - the default adapter in `igniter-agents` resolves `via:` through `Igniter::Registry`
 - `mode: :call` performs `ref.call(...)` and returns the reply as the node value
 - `mode: :cast` performs `ref.send(...)` and resolves the node with `nil` by default
 
-That gives contracts both synchronous request/reply and fire-and-forget delivery without coupling core to the actor runtime.
+Reply modes now have explicit meaning:
+
+- `reply: :single` means the agent must resolve in the current execution turn
+- `reply: :deferred` means the agent may either resolve immediately or materialize a resumable session
+- `reply: :stream` means the agent must enter the session lifecycle and cannot pretend to be a plain synchronous scalar
+
+That gives contracts both synchronous request/reply, resumable deferred work, and an honest place to grow streaming semantics without coupling core to the actor runtime.
 
 ## Diagnostics Surface
 
@@ -77,6 +85,7 @@ An agent session is the bridge between graph execution and long-lived agent work
 - structured `agent_trace`
 - session `turn`
 - session `phase`
+- session `reply_mode`
 - append-only `messages`
 - `last_request` and `last_reply` envelopes
 - session `history`
@@ -88,6 +97,7 @@ The important shift is that the session is no longer just "a token plus payload"
 
 - the opening agent delivery becomes the first request envelope
 - each continuation appends another request envelope
+- stream continuations may append partial reply envelopes while staying pending
 - final completion appends a reply envelope
 - diagnostics and persisted snapshots can now describe the conversation shape, not only the latest pending payload
 
@@ -118,6 +128,6 @@ Not covered yet:
 The most natural next slices are:
 
 1. richer session semantics beyond append-only request/reply envelopes
-2. deferred and streaming reply models on top of the session lifecycle
+2. real stream chunk/result assembly on top of `reply: :stream`
 3. support for agent targeting beyond the local registry
 4. deciding whether `AgentAdapter` stays specialized or becomes a more general `ProxyAdapter`

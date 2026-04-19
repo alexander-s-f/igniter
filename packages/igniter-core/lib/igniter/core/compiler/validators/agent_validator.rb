@@ -20,6 +20,7 @@ module Igniter
             validate_message_name!(node)
             validate_timeout!(node)
             validate_mode!(node)
+            validate_reply_mode!(node)
           end
         end
 
@@ -58,6 +59,22 @@ module Igniter
           raise @context.validation_error(
             node,
             "agent :#{node.name} mode must be :call or :cast"
+          )
+        end
+
+        def validate_reply_mode!(node)
+          unless %i[single deferred stream none].include?(node.reply_mode)
+            raise @context.validation_error(
+              node,
+              "agent :#{node.name} reply must be :single, :deferred, :stream, or :none"
+            )
+          end
+
+          return unless node.mode == :cast && node.reply_mode != :none
+
+          raise @context.validation_error(
+            node,
+            "agent :#{node.name} mode :cast only supports reply: :none"
           )
         end
       end

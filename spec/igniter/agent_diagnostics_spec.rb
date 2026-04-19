@@ -157,11 +157,13 @@ RSpec.describe "agent diagnostics and provenance" do
         agent_name: :reviewer,
         message_name: :review,
         mode: :call,
+        reply_mode: :deferred,
         phase: :waiting,
         last_request: include(
           turn: 1,
           kind: :request,
           name: :review,
+          reply_mode: :deferred,
           payload: { queue: :review }
         )
       ),
@@ -170,6 +172,7 @@ RSpec.describe "agent diagnostics and provenance" do
     expect(report[:agents]).to include(total: 1, succeeded: 0, pending: 1, failed: 0)
     expect(report[:agents][:facets]).to include(
       by_status: { pending: 1 },
+      by_reply_mode: { deferred: 1 },
       by_adapter: { queue: 1 },
       by_reason: { awaiting_review: 1 }
     )

@@ -128,6 +128,7 @@ module Igniter
 
         case response[:status]
         when :succeeded
+          validate_agent_success_mode!(node)
           NodeState.new(
             node: node,
             status: :succeeded,
@@ -135,6 +136,7 @@ module Igniter
             details: agent_details(response)
           )
         when :pending
+          validate_agent_pending_mode!(node)
           payload = merge_agent_trace(response[:payload] || {}, response[:agent_trace])
           deferred = normalize_agent_deferred(response, node, payload)
           raise PendingDependencyError.new(deferred, response[:message] || "Agent node '#{node.name}' is pending")
@@ -650,12 +652,13 @@ module Igniter
           agent_name: node.agent_name,
           message_name: node.message_name,
           mode: node.mode,
+          reply_mode: node.reply_mode,
           waiting_on: node.name,
           source_node: node.name,
           trace: response[:agent_trace],
           payload: session_payload_from(payload),
           turn: 1,
-          phase: :waiting,
+          phase: default_agent_session_phase(node),
           history: [
             {
               turn: 1,
@@ -663,7 +666,7 @@ module Igniter
               token: token,
               waiting_on: node.name,
               payload: session_payload_from(payload),
-              phase: :waiting
+              phase: default_agent_session_phase(node)
             }
           ]
         )
@@ -710,6 +713,38 @@ module Igniter
 
           memo[key] = value
         end
+      end
+
+      def validate_agent_pending_mode!(node)
+        return unless node.reply_mode == :single
+
+        raise ResolutionError.new(
+          "Agent #{node.agent_name}: reply mode :single cannot return pending. Use reply: :deferred or :stream.",
+          context: {
+            graph: @execution.compiled_graph.name,
+            node_name: node.name,
+            node_path: node.path,
+            agent_reply_mode: node.reply_mode
+          }
+        )
+      end
+
+      def validate_agent_success_mode!(node)
+        return unless node.reply_mode == :stream
+
+        raise ResolutionError.new(
+          "Agent #{node.agent_name}: reply mode :stream requires session-based pending delivery before completion.",
+          context: {
+            graph: @execution.compiled_graph.name,
+            node_name: node.name,
+            node_path: node.path,
+            agent_reply_mode: node.reply_mode
+          }
+        )
+      end
+
+      def default_agent_session_phase(node)
+        node.reply_mode == :stream ? :streaming : :waiting
       end
 
       def normalize_error(error, node)

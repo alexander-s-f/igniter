@@ -14,6 +14,10 @@ RSpec.describe Igniter::Runtime::AgentAdapter do
     )
   end
 
+  it "defaults call nodes to reply: :deferred" do
+    expect(node.reply_mode).to eq(:deferred)
+  end
+
   it "raises a helpful error when no agent adapter is configured" do
     expect {
       adapter.call(node: node, inputs: { name: "Alice" })
@@ -29,6 +33,8 @@ RSpec.describe Igniter::Runtime::AgentAdapter do
       input_mapping: { name: :data },
       mode: :cast
     )
+
+    expect(cast_node.reply_mode).to eq(:none)
 
     expect {
       adapter.cast(node: cast_node, inputs: { name: "Alice" })

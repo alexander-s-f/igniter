@@ -141,7 +141,7 @@ module Igniter
         resume_by_token(token, value: value)
       end
 
-      def continue_agent_session(session_or_token, payload:, trace: nil, token: nil, waiting_on: nil)
+      def continue_agent_session(session_or_token, payload:, trace: nil, token: nil, waiting_on: nil, request: nil, reply: nil, phase: nil)
         session = resolve_agent_session(session_or_token)
         state = pending_state_for_token(session.token, source_only: true)
         raise ResolutionError, "No pending agent session found for token '#{session.token}'" unless state
@@ -150,7 +150,10 @@ module Igniter
           payload: payload,
           trace: trace,
           token: token,
-          waiting_on: waiting_on
+          waiting_on: waiting_on,
+          request: request,
+          reply: reply,
+          phase: phase
         )
         deferred = deferred_for_continued_agent_session(state, continued_session)
 
@@ -172,6 +175,7 @@ module Igniter
           payload: {
             token: continued_session.token,
             turn: continued_session.turn,
+            phase: continued_session.phase,
             waiting_on: continued_session.waiting_on,
             agent_trace: continued_session.trace,
             agent_session: continued_session.to_h
@@ -511,12 +515,13 @@ module Igniter
           agent_name: state.node.agent_name,
           message_name: state.node.message_name,
           mode: state.node.mode,
+          reply_mode: state.node.reply_mode,
           waiting_on: state.value.waiting_on,
           source_node: state.value.source_node,
           trace: trace,
           payload: session_payload_from(state.value.payload),
           turn: 1,
-          phase: :waiting,
+          phase: default_agent_session_phase(state.node),
           history: [
             {
               turn: 1,
@@ -524,7 +529,7 @@ module Igniter
               token: state.value.token,
               waiting_on: state.value.waiting_on,
               payload: session_payload_from(state.value.payload),
-              phase: :waiting
+              phase: default_agent_session_phase(state.node)
             }
           ]
         ).to_h
@@ -594,6 +599,10 @@ module Igniter
 
           memo[key] = value
         end
+      end
+
+      def default_agent_session_phase(node)
+        node.reply_mode == :stream ? :streaming : :waiting
       end
 
       alias_method :resolve_output_value, :resolve_exported_output

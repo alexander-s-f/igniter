@@ -40,8 +40,9 @@ RSpec.describe "agent: DSL node" do
       expect(node.message_name).to eq(:greet)
       expect(node.input_mapping).to eq(name: :name)
       expect(node.mode).to eq(:call)
+      expect(node.reply_mode).to eq(:deferred)
       expect(contract_class.graph.to_schema[:agents]).to include(
-        hash_including(name: :greeting, via: :greeter, message: :greet, inputs: { name: :name }, mode: :call)
+        hash_including(name: :greeting, via: :greeter, message: :greet, inputs: { name: :name }, mode: :call, reply: :deferred)
       )
     end
 
@@ -76,6 +77,28 @@ RSpec.describe "agent: DSL node" do
           end
         end
       end.to raise_error(Igniter::CompileError, /mode must be :call or :cast/)
+    end
+
+    it "raises CompileError when reply mode is unsupported" do
+      expect do
+        Class.new(Igniter::Contract) do
+          define do
+            input :name
+            agent :greeting, via: :greeter, message: :greet, reply: :many, inputs: { name: :name }
+          end
+        end
+      end.to raise_error(Igniter::CompileError, /reply must be :single, :deferred, :stream, or :none/)
+    end
+
+    it "raises CompileError when cast uses a reply mode other than none" do
+      expect do
+        Class.new(Igniter::Contract) do
+          define do
+            input :name
+            agent :greeting, via: :greeter, message: :greet, mode: :cast, reply: :deferred, inputs: { name: :name }
+          end
+        end
+      end.to raise_error(Igniter::CompileError, /mode :cast only supports reply: :none/)
     end
 
     it "raises ValidationError when dependency is not in graph" do
@@ -161,6 +184,113 @@ RSpec.describe "agent: DSL node" do
       expect(contract.result.notify).to be_nil
       expect(ref.state[:names]).to eq(["Alice"])
       ref.stop
+    end
+
+    it "rejects pending delivery for reply: :single" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :review },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :deferred
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :approval, via: :reviewer, message: :review, reply: :single, inputs: { name: :name }
+          output :approval
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+
+      expect { contract.resolve_all }
+        .to raise_error(Igniter::ResolutionError, /reply mode :single cannot return pending/)
+    end
+
+    it "opens streaming agent sessions for reply: :stream" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      expect(session).not_to be_nil
+      expect(contract.result.summary).to be_a(Igniter::Runtime::DeferredResult)
+      expect(session.reply_mode).to eq(:stream)
+      expect(session.phase).to eq(:streaming)
+
+      contract.execution.continue_agent_session(
+        session,
+        payload: {},
+        reply: { turn: 2, kind: :reply, name: :summarize, source: :agent, payload: { chunk: "Hello" } },
+        phase: :streaming
+      )
+
+      continued = contract.execution.agent_sessions.first
+      expect(continued.last_reply).to include(kind: :reply, payload: { chunk: "Hello" })
+      expect(continued.phase).to eq(:streaming)
+
+      contract.execution.resume_agent_session(continued, value: "Hello, Alice")
+      expect(contract.result.summary).to eq("Hello, Alice")
+    end
+
+    it "rejects synchronous success for reply: :stream" do
+      adapter = Class.new do
+        define_method(:call) do |**|
+          { status: :succeeded, output: "done" }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+
+      expect { contract.resolve_all }
+        .to raise_error(Igniter::ResolutionError, /reply mode :stream requires session-based pending delivery/)
     end
   end
 end

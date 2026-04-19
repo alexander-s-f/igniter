@@ -184,9 +184,11 @@ RSpec.describe "Igniter store-backed execution" do
     expect(continued.result.pending?).to be true
     expect(continued_session.turn).to eq(2)
     expect(continued_session.phase).to eq(:waiting)
+    expect(continued_session.reply_mode).to eq(:deferred)
     expect(continued_session.last_request).to include(
       turn: 2,
       kind: :request,
+      reply_mode: :deferred,
       payload: { prompt: "Need human approval" }
     )
     expect(Igniter.execution_store.exist?(execution_id)).to eq(true)
@@ -197,6 +199,7 @@ RSpec.describe "Igniter store-backed execution" do
     expect(resumed.diagnostics.to_h.dig(:agents, :entries, 0, :agent_session, :last_reply)).to include(
       turn: 3,
       kind: :reply,
+      reply_mode: :deferred,
       payload: { value: "ok" }
     )
     expect(Igniter.execution_store.exist?(execution_id)).to eq(false)

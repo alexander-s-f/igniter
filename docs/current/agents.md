@@ -53,6 +53,7 @@ Today, agents are both actor runtime primitives and an early graph primitive thr
 Even in that narrow form, agents are no longer opaque:
 
 - `agent` nodes support `call` and `cast`
+- call nodes now declare an explicit reply contract: `single`, `deferred`, or `stream`
 - deliveries surface structured traces in diagnostics
 - pending agent work is visible in provenance
 - successful deliveries retain sideband execution details instead of disappearing into a plain scalar result
@@ -77,6 +78,9 @@ The current session model is intentionally simple but now explicit:
 - an `agent` node may stay pending across multiple turns
 - each continuation updates `turn`, `history`, `payload`, and `agent_trace`
 - sessions now also keep `phase`, `messages`, `last_request`, and `last_reply`
+- `reply: :single` forbids pending delivery
+- `reply: :deferred` preserves the current resumable single-reply lifecycle
+- `reply: :stream` requires session-based delivery and opens a path toward partial replies
 - final completion preserves the completed session in node details for diagnostics/provenance
 - store-backed runners persist and restore that lifecycle instead of treating the session as caller-owned state
 

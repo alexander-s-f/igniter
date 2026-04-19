@@ -57,14 +57,18 @@ module Igniter
         )
       end
 
-      def continue_agent_session_from_store(execution_id, session:, payload:, trace: nil, token: nil, waiting_on: nil, store: nil)
+      def continue_agent_session_from_store(execution_id, session:, payload:, trace: nil, token: nil, waiting_on: nil,
+                                            request: nil, reply: nil, phase: nil, store: nil)
         Runtime::JobWorker.new(self, store: store || Igniter.execution_store).continue_agent_session(
           execution_id: execution_id,
           session: session,
           payload: payload,
           trace: trace,
           token: token,
-          waiting_on: waiting_on
+          waiting_on: waiting_on,
+          request: request,
+          reply: reply,
+          phase: phase
         )
       end
 

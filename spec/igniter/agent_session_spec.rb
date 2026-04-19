@@ -73,15 +73,17 @@ RSpec.describe "agent sessions" do
     expect(session.agent_name).to eq(:reviewer)
     expect(session.message_name).to eq(:review)
     expect(session.mode).to eq(:call)
+    expect(session.reply_mode).to eq(:deferred)
     expect(session.turn).to eq(1)
     expect(session.phase).to eq(:waiting)
     expect(session.messages).to contain_exactly(
-      include(turn: 1, kind: :request, name: :review, source: :contract, payload: { queue: :review })
+      include(turn: 1, kind: :request, name: :review, source: :contract, reply_mode: :deferred, payload: { queue: :review })
     )
     expect(session.last_request).to include(
       turn: 1,
       kind: :request,
       name: :review,
+      reply_mode: :deferred,
       payload: { queue: :review }
     )
     expect(session.last_reply).to be_nil
@@ -118,6 +120,7 @@ RSpec.describe "agent sessions" do
       kind: :request,
       name: :review,
       source: :continuation,
+      reply_mode: :deferred,
       payload: { prompt: "Need manager approval" }
     )
     expect(continued.messages).to include(
@@ -145,10 +148,11 @@ RSpec.describe "agent sessions" do
       turn: 3,
       kind: :reply,
       name: :review,
+      reply_mode: :deferred,
       payload: { value: "ok" }
     )
     expect(entry[:agent_session][:messages]).to include(
-      include(turn: 3, kind: :reply, name: :review, payload: { value: "ok" })
+      include(turn: 3, kind: :reply, name: :review, reply_mode: :deferred, payload: { value: "ok" })
     )
     expect(entry[:agent_session][:history]).to include(
       include(turn: 3, event: :completed, token: session.token)

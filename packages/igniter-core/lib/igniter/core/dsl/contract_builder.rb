@@ -353,14 +353,24 @@ module Igniter
         )
       end
 
-      def agent(name, via:, message:, inputs:, timeout: 5, mode: :call, **metadata)
+      def agent(name, via:, message:, inputs:, timeout: 5, mode: :call, reply: nil, **metadata)
         normalized_mode = mode.respond_to?(:to_sym) ? mode.to_sym : mode
+        normalized_reply = reply.respond_to?(:to_sym) ? reply.to_sym : reply
 
         raise CompileError, "agent :#{name} requires inputs: Hash" unless inputs.is_a?(Hash)
         raise CompileError, "agent :#{name} requires via:" if via.nil? || via.to_s.strip.empty?
         raise CompileError, "agent :#{name} requires message:" if message.nil? || message.to_s.strip.empty?
         raise CompileError, "agent :#{name} timeout must be positive" unless timeout.to_f.positive?
         raise CompileError, "agent :#{name} mode must be :call or :cast" unless %i[call cast].include?(normalized_mode)
+        unless normalized_reply.nil? || %i[single deferred stream none].include?(normalized_reply)
+          raise CompileError, "agent :#{name} reply must be :single, :deferred, :stream, or :none"
+        end
+        if normalized_mode == :cast && !normalized_reply.nil? && normalized_reply != :none
+          raise CompileError, "agent :#{name} mode :cast only supports reply: :none"
+        end
+        if normalized_mode == :call && normalized_reply == :none
+          raise CompileError, "agent :#{name} mode :call cannot use reply: :none"
+        end
 
         add_node(
           Model::AgentNode.new(
@@ -371,6 +381,7 @@ module Igniter
             input_mapping: inputs,
             timeout: timeout,
             mode: normalized_mode,
+            reply_mode: normalized_reply,
             path: scoped_path(name),
             metadata: with_source_location(metadata)
           )
