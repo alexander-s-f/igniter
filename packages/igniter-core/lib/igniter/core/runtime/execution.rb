@@ -585,6 +585,7 @@ module Igniter
 
         if state.node.kind == :agent && state.node.reply_mode == :stream
           session = agent_session_for_state(state)
+          session.ensure_ready_to_finalize_stream!
           return session.finalized_value(
             finalizer: state.node.finalizer,
             contract: contract_instance,

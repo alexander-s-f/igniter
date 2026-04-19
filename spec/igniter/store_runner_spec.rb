@@ -436,4 +436,68 @@ RSpec.describe "Igniter store-backed execution" do
     expect(resumed.result.summary).to eq("Hello, Alice")
     expect(Igniter.execution_store.exist?(execution_id)).to eq(false)
   end
+
+  it "blocks store-backed auto-finalization while the tool loop is open" do
+    trace = pending_agent_trace.merge(outcome: :streaming)
+    agent_adapter = Class.new do
+      define_method(:call) do |node:, **|
+        {
+          status: :pending,
+          payload: { queue: :stream },
+          agent_trace: trace,
+          session: {
+            node_name: node.name,
+            node_path: node.path,
+            agent_name: node.agent_name,
+            message_name: node.message_name,
+            mode: node.mode,
+            reply_mode: node.reply_mode,
+            waiting_on: node.name,
+            source_node: node.name,
+            trace: trace
+          }
+        }
+      end
+    end.new
+
+    contract_class = Class.new(Igniter::Contract) do
+      run_with runner: :store, agent_adapter: agent_adapter
+
+      define do
+        input :name
+        agent :summary, via: :writer, message: :summarize, reply: :stream, finalizer: :events, inputs: { name: :name }
+        output :summary
+      end
+    end
+
+    original = contract_class.new(name: "Alice")
+    original.result.summary
+    execution_id = original.execution.events.execution_id
+
+    restored = contract_class.restore_from_store(execution_id)
+    session = restored.execution.agent_sessions.first
+
+    contract_class.continue_agent_session_from_store(
+      execution_id,
+      session: session,
+      payload: {},
+      reply: {
+        turn: 2,
+        kind: :reply,
+        name: :summarize,
+        source: :agent,
+        payload: {
+          events: [
+            Igniter::Runtime::AgentSession.tool_call_event(name: :search, arguments: { q: "Alice" }, call_id: "search-1")
+          ]
+        }
+      },
+      phase: :streaming
+    )
+
+    expect do
+      contract_class.resume_agent_session_from_store(execution_id, session: session.token)
+    end.to raise_error(Igniter::ResolutionError, /cannot auto-finalize while tool loop is :open/)
+    expect(Igniter.execution_store.exist?(execution_id)).to eq(true)
+  end
 end

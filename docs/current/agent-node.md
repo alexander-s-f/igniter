@@ -115,7 +115,8 @@ For user-facing runtime values this now means:
 - `reply: :deferred` pending outputs still appear as `DeferredResult`
 - `reply: :stream` pending outputs appear as `StreamResult`
 - `StreamResult` exposes current `phase`, typed `events`, accumulated `chunks`, and the backing session metadata
-- a stream node can be resumed without `value:` and will materialize through its configured finalizer
+- a stream node can be resumed without `value:` and will materialize through its configured finalizer only when its tool loop is `:idle` or `:complete`
+- open or orphaned tool loops now block auto-finalization unless the caller explicitly supplies `value:`
 
 The current event model is intentionally small:
 

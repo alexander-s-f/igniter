@@ -340,6 +340,17 @@ module Igniter
         }.freeze
       end
 
+      def ready_to_finalize_stream?
+        %i[idle complete].include?(tool_loop_status)
+      end
+
+      def ensure_ready_to_finalize_stream!
+        return true if ready_to_finalize_stream?
+
+        raise ResolutionError,
+              "Streaming agent session '#{node_name}' cannot auto-finalize while tool loop is #{tool_loop_status.inspect}"
+      end
+
       def validate_stream_reply!(reply)
         return if reply.nil?
 

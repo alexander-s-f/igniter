@@ -74,6 +74,8 @@ That now includes correlation helpers as well: tool activity can be read back as
 
 It also now carries explicit completion semantics. That matters because planner/diagnostics-friendly signals such as `open`, `complete`, and `orphaned` are much closer to how real agent orchestration needs to reason about tool work.
 
+That signal is now active in runtime behavior too: stream sessions no longer auto-finalize through built-in finalizers while tool work is still open or orphaned. In other words, the tool-loop model is no longer only descriptive; it is beginning to constrain execution.
+
 That keeps text streaming simple while leaving room for richer agent execution and observability.
 
 ## Practical Boundary

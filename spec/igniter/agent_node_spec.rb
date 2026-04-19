@@ -480,6 +480,7 @@ RSpec.describe "agent: DSL node" do
           payload: {
             events: [
               Igniter::Runtime::AgentSession.tool_call_event(name: :search, arguments: { q: "Alice" }),
+              Igniter::Runtime::AgentSession.tool_result_event(name: :search, result: { hits: 1 }),
               Igniter::Runtime::AgentSession.chunk_event(chunk: "Hello, Alice")
             ]
           }
@@ -510,6 +511,14 @@ RSpec.describe "agent: DSL node" do
             turn: 3,
             source: :agent,
             message_name: :summarize,
+            type: :tool_result,
+            name: :search,
+            result: { hits: 1 }
+          },
+          {
+            turn: 3,
+            source: :agent,
+            message_name: :summarize,
             type: :chunk,
             chunk: "Hello, Alice"
           }
@@ -535,6 +544,14 @@ RSpec.describe "agent: DSL node" do
             type: :tool_call,
             name: :search,
             arguments: { q: "Alice" }
+          },
+          {
+            turn: 3,
+            source: :agent,
+            message_name: :summarize,
+            type: :tool_result,
+            name: :search,
+            result: { hits: 1 }
           },
           {
             turn: 3,
@@ -905,6 +922,115 @@ RSpec.describe "agent: DSL node" do
         tool_loop_status: :open,
         tool_loop_complete: false
       )
+    end
+
+    it "blocks auto-finalization while the tool loop is still open" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, finalizer: :events, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      contract.execution.continue_agent_session(
+        session,
+        payload: {},
+        reply: {
+          turn: 2,
+          kind: :reply,
+          name: :summarize,
+          source: :agent,
+          payload: {
+            events: [
+              Igniter::Runtime::AgentSession.tool_call_event(name: :search, arguments: { q: "Alice" }, call_id: "search-1")
+            ]
+          }
+        },
+        phase: :streaming
+      )
+
+      expect do
+        contract.execution.resume_agent_session(session.token)
+      end.to raise_error(Igniter::ResolutionError, /cannot auto-finalize while tool loop is :open/)
+
+      contract.execution.resume_agent_session(session.token, value: [{ forced: true }])
+      expect(contract.result.summary).to eq([{ forced: true }])
+    end
+
+    it "blocks auto-finalization while the tool loop is orphaned" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, finalizer: :events, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      contract.execution.continue_agent_session(
+        session,
+        payload: {},
+        reply: {
+          turn: 2,
+          kind: :reply,
+          name: :summarize,
+          source: :agent,
+          payload: {
+            events: [
+              Igniter::Runtime::AgentSession.tool_result_event(name: :search, result: { orphan: true })
+            ]
+          }
+        },
+        phase: :streaming
+      )
+
+      expect do
+        contract.execution.resume_agent_session(session.token)
+      end.to raise_error(Igniter::ResolutionError, /cannot auto-finalize while tool loop is :orphaned/)
     end
 
     it "rejects unsupported stream event types" do
