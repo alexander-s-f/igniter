@@ -421,47 +421,48 @@ module Igniter
         )
       end
 
-      def acknowledge_orchestration_item(id, note: nil)
-        orchestration_inbox.acknowledge(id, note: note)
+      def acknowledge_orchestration_item(id, note: nil, audit: nil)
+        orchestration_inbox.acknowledge(id, note: note, audit: audit)
       end
 
-      def resolve_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil)
+      def resolve_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil, audit: nil)
         item = orchestration_inbox.find(id)
         return nil unless item
 
         metadata = resume_orchestration_item_runtime(item, target: target, value: value)
-        orchestration_inbox.resolve(id, note: note, metadata: metadata)
+        orchestration_inbox.resolve(id, note: note, metadata: metadata, audit: audit)
       end
 
-      def dismiss_orchestration_item(id, note: nil)
-        orchestration_inbox.dismiss(id, note: note)
+      def dismiss_orchestration_item(id, note: nil, audit: nil)
+        orchestration_inbox.dismiss(id, note: note, audit: audit)
       end
 
-      def wake_orchestration_item(id, note: nil)
-        handle_orchestration_item(id, operation: :wake, note: note)
+      def wake_orchestration_item(id, note: nil, audit: nil)
+        handle_orchestration_item(id, operation: :wake, note: note, audit: audit)
       end
 
-      def handoff_orchestration_item(id, assignee: nil, queue: nil, channel: nil, note: nil)
-        orchestration_inbox.handoff(id, assignee: assignee, queue: queue, channel: channel, note: note)
+      def handoff_orchestration_item(id, assignee: nil, queue: nil, channel: nil, note: nil, audit: nil)
+        orchestration_inbox.handoff(id, assignee: assignee, queue: queue, channel: channel, note: note, audit: audit)
       end
 
-      def complete_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil)
-        handle_orchestration_item(id, operation: :complete, target: target, value: value, note: note)
+      def complete_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil, audit: nil)
+        handle_orchestration_item(id, operation: :complete, target: target, value: value, note: note, audit: audit)
       end
 
-      def approve_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil)
-        handle_orchestration_item(id, operation: :approve, target: target, value: value, note: note)
+      def approve_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil, audit: nil)
+        handle_orchestration_item(id, operation: :approve, target: target, value: value, note: note, audit: audit)
       end
 
-      def reply_to_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil)
-        handle_orchestration_item(id, operation: :reply, target: target, value: value, note: note)
+      def reply_to_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil, audit: nil)
+        handle_orchestration_item(id, operation: :reply, target: target, value: value, note: note, audit: audit)
       end
 
-      def handle_orchestration_item(id, operation: nil, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, assignee: nil, queue: nil, channel: nil, note: nil)
+      def handle_orchestration_item(id, operation: nil, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, assignee: nil, queue: nil, channel: nil, note: nil, audit: nil)
         item = orchestration_inbox.find(id)
         return nil unless item
 
-        orchestration_handler(item).call(
+        handler = orchestration_handler(item)
+        kwargs = {
           app_class: self,
           item: item,
           operation: operation,
@@ -470,8 +471,12 @@ module Igniter
           assignee: assignee,
           queue: queue,
           channel: channel,
-          note: note
-        )
+          note: note,
+          audit: audit
+        }
+        kwargs.delete(:audit) unless callable_accepts_keyword?(handler, :audit)
+
+        handler.call(**kwargs)
       end
 
       def evolution_approval(target)
@@ -626,19 +631,28 @@ module Igniter
         mount_operator_overview(path: path, limit: limit, store: store)
       end
 
-      def mount_operator_surface(path: "/operator", api_path: "/api/operator", limit: 20, store: nil, title: nil)
+      def mount_operator_actions(path: "/api/operator/actions", store: nil)
+        ObservabilityPack.install_actions(
+          self,
+          path: path,
+          store: store
+        )
+      end
+
+      def mount_operator_surface(path: "/operator", api_path: "/api/operator", action_path: "/api/operator/actions", limit: 20, store: nil, title: nil)
         ObservabilityPack.install_surface(
           self,
           path: path,
           api_path: api_path,
+          action_path: action_path,
           limit: limit,
           store: store,
           title: title
         )
       end
 
-      def mount_operator_console(path: "/operator", api_path: "/api/operator", limit: 20, store: nil, title: nil)
-        mount_operator_surface(path: path, api_path: api_path, limit: limit, store: store, title: title)
+      def mount_operator_console(path: "/operator", api_path: "/api/operator", action_path: "/api/operator/actions", limit: 20, store: nil, title: nil)
+        mount_operator_surface(path: path, api_path: api_path, action_path: action_path, limit: limit, store: store, title: title)
       end
 
       # Expose the AppConfig (populated after the first build!).
@@ -946,6 +960,9 @@ module Igniter
           channel: item&.dig(:channel) || item&.dig(:routing, :channel) || action&.dig(:routing, :channel),
           handoff_count: item&.fetch(:handoff_count, 0) || 0,
           handoff_history: Array(item&.dig(:handoff_history)).map(&:dup).freeze,
+          action_history_count: Array(item&.dig(:action_history)).size,
+          latest_action_event: item&.dig(:action_history)&.last&.dup,
+          action_history: Array(item&.dig(:action_history)).map(&:dup).freeze,
           token: session&.token || item&.dig(:token),
           phase: session&.phase || item&.dig(:phase),
           reply_mode: session&.reply_mode || item&.dig(:reply_mode),
@@ -1051,6 +1068,21 @@ module Igniter
         return value.empty? if value.respond_to?(:empty?)
 
         false
+      end
+
+      def callable_accepts_keyword?(callable, keyword)
+        parameters =
+          if callable.respond_to?(:parameters)
+            callable.parameters
+          elsif callable.respond_to?(:method)
+            callable.method(:call).parameters
+          else
+            []
+          end
+
+        parameters.any? do |kind, name|
+          kind == :keyrest || (kind == :key && name == keyword)
+        end
       end
 
       def registered_contract_class_for_graph(graph)

@@ -1626,13 +1626,27 @@ RSpec.describe Igniter::App do
         status: :acknowledged,
         note: "picked up"
       )
+      expect(acknowledged[:action_history]).to include(
+        include(event: :opened, status: :open, source: :agent_orchestration),
+        include(event: :acknowledged, status: :acknowledged, note: "picked up")
+      )
       expect(resolved).to include(
         id: "agent_orchestration:require_manual_completion:manual_summary",
         status: :resolved,
         note: "done"
       )
+      expect(resolved[:action_history].last).to include(
+        event: :resolved,
+        status: :resolved,
+        note: "done"
+      )
       expect(dismissed).to include(
         id: "agent_orchestration:await_deferred_reply:approval",
+        status: :dismissed,
+        note: "not needed"
+      )
+      expect(dismissed[:action_history].last).to include(
+        event: :dismissed,
         status: :dismissed,
         note: "not needed"
       )
@@ -1664,6 +1678,7 @@ RSpec.describe Igniter::App do
         latest_queue: "deferred-replies",
         latest_channel: "inbox://deferred-replies",
         latest_status: :open,
+        latest_action_event: include(event: :opened, status: :open, source: :agent_orchestration),
         by_action: {
           open_interactive_session: 1,
           require_manual_completion: 2,
@@ -2270,6 +2285,7 @@ RSpec.describe Igniter::App do
         handled_policy: :interactive_session,
         handled_operation: :handoff,
         handled_lifecycle_operation: :acknowledge,
+        handled_audit_source: :orchestration_handler,
         handled_assignee: "ops:alice",
         handled_queue: "manual-review",
         handled_channel: "slack://ops/review",
@@ -2306,6 +2322,16 @@ RSpec.describe Igniter::App do
           channel: "slack://ops/review",
           note: "routed to reviewer"
         )
+      )
+      expect(app.orchestration_inbox.find("agent_orchestration:open_interactive_session:interactive_summary")[:action_history].last).to include(
+        event: :handoff,
+        status: :acknowledged,
+        source: :orchestration_handler,
+        requested_operation: :handoff,
+        lifecycle_operation: :acknowledge,
+        assignee: "ops:alice",
+        queue: "manual-review",
+        channel: "slack://ops/review"
       )
       expect(app.orchestration_inbox.snapshot).to include(
         by_assignee: { "ops:alice" => 1 },
@@ -3375,10 +3401,13 @@ RSpec.describe Igniter::App do
 
       config = app.send(:build!)
       routes = config.custom_routes.select { |route| route[:method] == "GET" }
+      action_route = config.custom_routes.find { |route| route[:method] == "POST" && route[:path] == "/api/operator/actions" }
 
       expect(routes.map { |route| route[:path] }).to include("/operator", "/api/operator")
       expect(routes.find { |route| route[:path] == "/operator" }[:handler]).to be_a(Igniter::App::Observability::OperatorConsoleHandler)
       expect(routes.find { |route| route[:path] == "/api/operator" }[:handler]).to be_a(Igniter::App::Observability::OperatorOverviewHandler)
+      expect(action_route).not_to be_nil
+      expect(action_route[:handler]).to be_a(Igniter::App::Observability::OperatorActionHandler)
 
       router = Igniter::Server::Router.new(config)
 
@@ -3387,6 +3416,7 @@ RSpec.describe Igniter::App do
       expect(page[:headers]["Content-Type"]).to include("text/html")
       expect(page[:body]).to include("Operations Console")
       expect(page[:body]).to include("/api/operator")
+      expect(page[:body]).to include("/api/operator/actions")
       expect(page[:body]).to include("Load Overview")
 
       api = router.call("GET", "/api/operator", "")
@@ -3394,6 +3424,212 @@ RSpec.describe Igniter::App do
       expect(JSON.parse(api[:body])).to include(
         "app" => "SpecMountedOperatorConsoleApp",
         "scope" => { "mode" => "app" }
+      )
+    ensure
+      Igniter.execution_store = previous_store
+    end
+
+    it "handles operator actions through a mounted observability action endpoint" do
+      previous_store = Igniter.execution_store
+      Igniter.execution_store = Igniter::Runtime::Stores::MemoryStore.new
+
+      writer_trace = {
+        adapter: :queue,
+        mode: :call,
+        via: :writer,
+        message: :summarize,
+        outcome: :streaming
+      }
+
+      reviewer_trace = {
+        adapter: :queue,
+        mode: :call,
+        via: :reviewer,
+        message: :review,
+        outcome: :deferred
+      }
+
+      agent_adapter = Class.new do
+        define_method(:call) do |node:, **|
+          trace = node.name == :interactive_summary ? writer_trace : reviewer_trace
+          {
+            status: :pending,
+            payload: { queue: :review },
+            agent_trace: trace,
+            session: {
+              node_name: node.name,
+              node_path: node.path,
+              agent_name: node.agent_name,
+              message_name: node.message_name,
+              mode: node.mode,
+              waiting_on: node.name,
+              source_node: node.name,
+              reply_mode: node.reply_mode,
+              trace: trace
+            }
+          }
+        end
+
+        define_method(:cast) do |**|
+          raise "unexpected cast"
+        end
+      end.new
+
+      klass = Class.new(Igniter::Contract) do
+        run_with runner: :store, agent_adapter: agent_adapter
+
+        define do
+          input :name
+
+          agent :interactive_summary,
+                via: :writer,
+                message: :summarize,
+                reply: :stream,
+                inputs: { name: :name }
+
+          agent :approval,
+                via: :reviewer,
+                message: :review,
+                inputs: { name: :name }
+
+          output :interactive_summary
+          output :approval
+        end
+      end
+
+      app = stub_const("SpecOperatorActionHandlerApp", Class.new(Igniter::App))
+      app.class_eval do
+        register "AgentContract", klass
+
+        configure do |c|
+          c.store = Igniter.execution_store
+        end
+
+        register_orchestration_routing(
+          :open_interactive_session,
+          queue: "spec-operator-interactive",
+          channel: "inbox://spec-operator-interactive"
+        )
+        register_orchestration_routing(
+          :await_deferred_reply,
+          queue: "spec-operator-deferred",
+          channel: "inbox://spec-operator-deferred"
+        )
+
+        mount_operator_surface(path: "/operator", api_path: "/api/operator", action_path: "/api/operator/actions", title: "Operations Console")
+      end
+
+      config = app.send(:build!)
+      app.reset_orchestration_inbox!
+      contract = klass.new(name: "Alice")
+      execution_id = contract.execution.events.execution_id
+      app.open_orchestration_followups(contract)
+
+      router = Igniter::Server::Router.new(config)
+
+      handoff = router.call(
+        "POST",
+        "/api/operator/actions",
+        JSON.generate(
+          id: "agent_orchestration:open_interactive_session:interactive_summary",
+          operation: :handoff,
+          assignee: "ops:alice",
+          queue: "manual-review",
+          channel: "slack://ops/review",
+          note: "routed from console"
+        ),
+        headers: { "Content-Type" => "application/json" }
+      )
+
+      expect(handoff[:status]).to eq(200)
+      expect(JSON.parse(handoff[:body])).to include(
+        "app" => "SpecOperatorActionHandlerApp",
+        "scope" => {
+          "mode" => "execution",
+          "graph" => "AnonymousContract",
+          "execution_id" => execution_id
+        },
+        "action" => include(
+          "id" => "agent_orchestration:open_interactive_session:interactive_summary",
+          "handled_operation" => "handoff",
+          "handled_lifecycle_operation" => "acknowledge",
+          "handled_audit_source" => "operator_action_api",
+          "handled_assignee" => "ops:alice",
+          "handled_queue" => "manual-review",
+          "handled_channel" => "slack://ops/review",
+          "status" => "acknowledged",
+          "action_history" => include(
+            include("event" => "opened", "status" => "open"),
+            include(
+              "event" => "handoff",
+              "status" => "acknowledged",
+              "source" => "operator_action_api",
+              "requested_operation" => "handoff",
+              "lifecycle_operation" => "acknowledge"
+            )
+          )
+        ),
+        "record" => include(
+          "id" => "agent_orchestration:open_interactive_session:interactive_summary",
+          "status" => "acknowledged",
+          "assignee" => "ops:alice",
+          "queue" => "manual-review",
+          "channel" => "slack://ops/review",
+          "action_history_count" => 2,
+          "latest_action_event" => include(
+            "event" => "handoff",
+            "source" => "operator_action_api"
+          )
+        )
+      )
+
+      reply = router.call(
+        "POST",
+        "/api/operator/actions",
+        JSON.generate(
+          id: "agent_orchestration:await_deferred_reply:approval",
+          operation: :reply,
+          value: "approved",
+          note: "completed from console"
+        ),
+        headers: { "Content-Type" => "application/json" }
+      )
+
+      expect(reply[:status]).to eq(200)
+      expect(JSON.parse(reply[:body])).to include(
+        "app" => "SpecOperatorActionHandlerApp",
+        "scope" => {
+          "mode" => "execution",
+          "graph" => "AnonymousContract",
+          "execution_id" => execution_id
+        },
+        "action" => include(
+          "id" => "agent_orchestration:await_deferred_reply:approval",
+          "handled_operation" => "reply",
+          "handled_lifecycle_operation" => "resolve",
+          "handled_audit_source" => "operator_action_api",
+          "runtime_resumed" => true,
+          "status" => "resolved",
+          "resolved_execution_id" => execution_id,
+          "action_history" => include(
+            include(
+              "event" => "resolved",
+              "status" => "resolved",
+              "source" => "operator_action_api",
+              "requested_operation" => "reply",
+              "lifecycle_operation" => "resolve"
+            )
+          )
+        ),
+        "record" => include(
+          "id" => "agent_orchestration:await_deferred_reply:approval",
+          "status" => "resolved",
+          "combined_state" => "inbox_only",
+          "latest_action_event" => include(
+            "event" => "resolved",
+            "source" => "operator_action_api"
+          )
+        )
       )
     ensure
       Igniter.execution_store = previous_store

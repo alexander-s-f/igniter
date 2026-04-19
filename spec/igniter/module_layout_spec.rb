@@ -55,6 +55,7 @@ RSpec.describe "Igniter module layout" do
 
   it "keeps observability handlers under the canonical app observability namespace" do
     expect(children_for(File.join(APP_LIB, "app", "observability"))).to eq(%w[
+      operator_action_handler.rb
       operator_console_handler.rb
       operator_overview_handler.rb
     ])

@@ -35,9 +35,11 @@ Already landed:
 - diagnostics now also expose that unified operator plane as `app_operator`
 - `App.operator_overview_for_execution(graph:, execution_id:)` now restores a durable execution and projects that same operator plane without a live contract object
 - `Igniter::App::Observability::OperatorOverviewHandler` now makes that plane directly mountable as a custom JSON route for dashboard/admin surfaces
+- `Igniter::App::Observability::OperatorActionHandler` now makes the same mounted operator surface writable for common orchestration transitions
 - `mount_operator_overview(...)` and `mount_operator_observability(...)` now make that endpoint a first-class app DSL pack instead of a repeated custom route snippet
 - that mounted operator endpoint now also supports stable filter/order query params and reflects the applied query contract back in the response payload
-- `mount_operator_surface(...)` now adds a built-in operator console over that same queryable plane, including execution-scoped drill-down
+- `mount_operator_surface(...)` now adds a built-in operator console over that same queryable plane, including execution-scoped drill-down and row-level operator actions
+- operator items now also expose canonical `action_history`, so the surface has a real audit trail instead of only latest-state observability
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
 

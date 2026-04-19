@@ -70,9 +70,11 @@ Even in that narrow form, agents are no longer opaque:
 - diagnostics now also expose the same joined operator read model through `app_operator`
 - app now also exposes `App.operator_overview_for_execution(graph:, execution_id:)`, so the same operator plane can be restored from durable store state without keeping a live contract instance around
 - `igniter-app` now ships `Igniter::App::Observability::OperatorOverviewHandler` as a reusable custom-route adapter for that operator plane
+- `igniter-app` now also ships `Igniter::App::Observability::OperatorActionHandler`, so mounted operator surfaces can drive orchestration transitions through the same app-facing plane
 - apps can now mount that operator endpoint declaratively with `mount_operator_overview(...)` or `mount_operator_observability(...)`
 - that mounted operator endpoint is now query-aware too, so operator surfaces can ask for focused slices like `status=acknowledged`, `queue=manual-review`, or `assignee=ops:alice` instead of always fetching the full record set
-- `mount_operator_surface(...)` now also gives apps a built-in operator console page with those same filters and execution drill-down links
+- `mount_operator_surface(...)` now also gives apps a built-in operator console page with those same filters, execution drill-down links, and row-level operator actions
+- operator items now also carry `action_history`, so agent-facing workflows have a canonical audit trail at the app/operator layer, not only a current inbox status
 
 ## Near-Term Direction
 

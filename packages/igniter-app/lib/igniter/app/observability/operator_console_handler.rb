@@ -7,9 +7,10 @@ module Igniter
   class App
     module Observability
       class OperatorConsoleHandler
-        def initialize(app_class:, api_path: "/api/operator", title: nil)
+        def initialize(app_class:, api_path: "/api/operator", action_path: "/api/operator/actions", title: nil)
           @app_class = app_class
           @api_path = api_path
+          @action_path = action_path
           @title = title
         end
 
@@ -25,10 +26,11 @@ module Igniter
 
         private
 
-        attr_reader :app_class, :api_path, :title
+        attr_reader :app_class, :api_path, :action_path, :title
 
         def render_page(base_path:, request_params:)
           resolved_api_path = route(base_path, api_path)
+          resolved_action_path = route(base_path, action_path)
           initial = initial_values(request_params)
 
           <<~HTML
@@ -72,7 +74,7 @@ module Igniter
                   <section class="hero">
                     <h1>#{h(page_title)}</h1>
                     <p>Operator-facing view over agent sessions and orchestration inbox state.</p>
-                    <p class="meta">app=#{h(app_class.name)} · api=#{h(resolved_api_path)}</p>
+                    <p class="meta">app=#{h(app_class.name)} · api=#{h(resolved_api_path)} · actions=#{h(resolved_action_path)}</p>
                   </section>
 
                   <section class="panel">
@@ -127,6 +129,11 @@ module Igniter
                     <p class="hint">Leave graph and execution id empty for the app-wide operator field, or provide both to inspect one durable execution. Filters apply to both the API and this console.</p>
                   </section>
 
+                  <section class="panel" style="margin-bottom: 20px;">
+                    <h2>Operator Actions</h2>
+                    <p class="hint">Use row actions to `wake`, `approve`, `reply`, `complete`, `handoff`, or `dismiss` orchestration items. Runtime-completing actions try to resume through durable store state when available.</p>
+                  </section>
+
                   <section class="grid">
                     <article class="panel stat">
                       <span class="hint">Total</span>
@@ -162,11 +169,12 @@ module Igniter
                           <th>Lane / Queue</th>
                           <th>Assignee</th>
                           <th>Execution</th>
+                          <th>History</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody id="records_body">
-                        <tr><td colspan="7" class="empty">waiting for data…</td></tr>
+                        <tr><td colspan="8" class="empty">waiting for data…</td></tr>
                       </tbody>
                     </table>
                   </section>
@@ -224,6 +232,8 @@ module Igniter
                       openApiLink.href = query ? `${apiPath}?${query}` : apiPath;
                     }
 
+                    const actionPath = #{resolved_action_path.inspect};
+
                     function setSummary(payload) {
                       total.textContent = String(payload.summary?.total ?? 0);
                       joined.textContent = String(payload.summary?.joined_records ?? 0);
@@ -232,10 +242,32 @@ module Igniter
                       summary.textContent = JSON.stringify(payload.summary ?? {}, null, 2);
                     }
 
+                    function actionButtons(record) {
+                      if (!record.has_inbox_item) {
+                        return "";
+                      }
+
+                      const allowed = Array.isArray(record.policy?.allowed_operations) ? record.policy.allowed_operations : [];
+                      if (allowed.length === 0) {
+                        return "";
+                      }
+
+                      return allowed.map((operation) => {
+                        const attrs = [
+                          ["data-operator-id", String(record.id || "")],
+                          ["data-operator-operation", String(operation || "")],
+                          ["data-operator-graph", String(record.graph || "")],
+                          ["data-operator-execution", String(record.execution_id || "")]
+                        ].map(([name, value]) => `${name}="${escapeHtml(value)}"`).join(" ");
+
+                        return `<button type="button" class="secondary" ${attrs}>${escapeHtml(String(operation))}</button>`;
+                      }).join(" ");
+                    }
+
                     function renderRecords(payload) {
                       const records = Array.isArray(payload.records) ? payload.records : [];
                       if (records.length === 0) {
-                        recordsBody.innerHTML = '<tr><td colspan="7" class="empty">no records</td></tr>';
+                        recordsBody.innerHTML = '<tr><td colspan="8" class="empty">no records</td></tr>';
                         return;
                       }
 
@@ -245,6 +277,10 @@ module Igniter
                         const assignee = record.assignee || "—";
                         const execution = record.graph && record.execution_id
                           ? `${record.graph} / ${record.execution_id}`
+                          : "—";
+                        const latestEvent = record.latest_action_event || {};
+                        const history = record.action_history_count
+                          ? `${record.action_history_count} events · ${String(latestEvent.event || "unknown")} · ${String(latestEvent.source || "unspecified")}`
                           : "—";
                         const scopedParams = new URLSearchParams();
                         if (record.graph && record.execution_id) {
@@ -263,9 +299,13 @@ module Igniter
                         const inspectApiPath = scopedParams.toString()
                           ? `${apiPath}?${scopedParams.toString()}`
                           : apiPath;
-                        const actions = record.graph && record.execution_id
+                        const inspectLinks = record.graph && record.execution_id
                           ? `<a href="${escapeHtml(inspectPath)}">Inspect</a> · <a href="${escapeHtml(inspectApiPath)}">JSON</a>`
                           : "—";
+                        const operatorButtons = actionButtons(record);
+                        const actions = operatorButtons
+                          ? `${inspectLinks}<br>${operatorButtons}`
+                          : inspectLinks;
                         return `<tr>
                           <td><code>${escapeHtml(String(record.node || "—"))}</code></td>
                           <td>${escapeHtml(String(record.combined_state || "—"))}</td>
@@ -273,6 +313,7 @@ module Igniter
                           <td>${escapeHtml(`${lane} / ${queue}`)}</td>
                           <td>${escapeHtml(String(assignee))}</td>
                           <td>${escapeHtml(execution)}</td>
+                          <td>${escapeHtml(history)}</td>
                           <td>${actions}</td>
                         </tr>`;
                       }).join("");
@@ -300,10 +341,77 @@ module Igniter
                       renderRecords(payload);
                     }
 
+                    async function postAction(payload) {
+                      const response = await fetch(actionPath, {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          "Accept": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                      });
+                      const result = await response.json();
+                      if (!response.ok) {
+                        throw new Error(result.error || `action failed with status ${response.status}`);
+                      }
+
+                      return result;
+                    }
+
+                    async function runOperatorAction(button) {
+                      const payload = {
+                        id: button.dataset.operatorId,
+                        operation: button.dataset.operatorOperation
+                      };
+
+                      if (button.dataset.operatorGraph && button.dataset.operatorExecution) {
+                        payload.graph = button.dataset.operatorGraph;
+                        payload.execution_id = button.dataset.operatorExecution;
+                      }
+
+                      const operation = payload.operation;
+                      let note = "";
+
+                      if (["approve", "reply", "complete"].includes(operation)) {
+                        const rawValue = window.prompt(`Value for ${operation} (JSON or plain text)`, "");
+                        if (rawValue === null) {
+                          return;
+                        }
+                        if (rawValue !== "") {
+                          try {
+                            payload.value = JSON.parse(rawValue);
+                          } catch (error) {
+                            payload.value = rawValue;
+                          }
+                        }
+                        note = window.prompt(`Note for ${operation} (optional)`, "") || "";
+                      } else if (operation === "handoff") {
+                        const assignee = window.prompt("Assignee (optional)", "") || "";
+                        const queue = window.prompt("Queue (optional)", "") || "";
+                        const channel = window.prompt("Channel (optional)", "") || "";
+                        if (!assignee && !queue && !channel) {
+                          throw new Error("handoff requires assignee, queue, or channel");
+                        }
+                        payload.assignee = assignee;
+                        payload.queue = queue;
+                        payload.channel = channel;
+                        note = window.prompt("Note for handoff (optional)", "") || "";
+                      } else {
+                        note = window.prompt(`Note for ${operation} (optional)`, "") || "";
+                      }
+
+                      if (note) {
+                        payload.note = note;
+                      }
+
+                      await postAction(payload);
+                      await loadOverview();
+                    }
+
                     document.getElementById("refresh").addEventListener("click", () => {
                       loadOverview().catch((error) => {
                         summary.textContent = error.message;
-                        recordsBody.innerHTML = '<tr><td colspan="7" class="empty">failed to load records</td></tr>';
+                        recordsBody.innerHTML = '<tr><td colspan="8" class="empty">failed to load records</td></tr>';
                       });
                     });
 
@@ -319,13 +427,24 @@ module Igniter
                       directionInput.value = "asc";
                       loadOverview().catch((error) => {
                         summary.textContent = error.message;
-                        recordsBody.innerHTML = '<tr><td colspan="7" class="empty">failed to load records</td></tr>';
+                        recordsBody.innerHTML = '<tr><td colspan="8" class="empty">failed to load records</td></tr>';
+                      });
+                    });
+
+                    recordsBody.addEventListener("click", (event) => {
+                      const button = event.target.closest("button[data-operator-operation]");
+                      if (!button) {
+                        return;
+                      }
+
+                      runOperatorAction(button).catch((error) => {
+                        summary.textContent = error.message;
                       });
                     });
 
                     loadOverview().catch((error) => {
                       summary.textContent = error.message;
-                      recordsBody.innerHTML = '<tr><td colspan="7" class="empty">failed to load records</td></tr>';
+                      recordsBody.innerHTML = '<tr><td colspan="8" class="empty">failed to load records</td></tr>';
                     });
                   })();
                 </script>
