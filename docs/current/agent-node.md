@@ -154,6 +154,7 @@ Planning and explain surfaces now expose agent orchestration hints too:
 - app orchestration now also exposes `App.orchestration_query`, a read-only operator view over inbox items with filters like `lane`, `queue`, `channel`, `assignee`, `status`, `interaction`, and `attention_required`
 - that operator view also supports `facet`, `facets`, and `summary`, so queue/lane/operator state can be inspected as an aggregate field instead of only as a filtered list
 - app orchestration now also exposes `App.operator_query(target)`, which joins live `AgentSession` state with inbox/operator state into one read model with `joined`, `session_only`, and `inbox_only` records
+- diagnostics now also expose that joined plane through `diagnostics[:app_operator]`, so the same operator-facing model is available to reports, dashboards, and app-level observability without recomputing joins
 - `lane` and current `queue/channel` are intentionally not the same thing: lane identifies the orchestration surface the item belongs to, while a later `handoff` may move the item to a different queue or channel without erasing its lane identity
 - deduplication only applies to active items, so resolved or dismissed actions can be reopened later if the workflow becomes pending again
 - `explain_plan` now renders those hints directly for human review

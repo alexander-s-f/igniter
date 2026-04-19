@@ -1795,14 +1795,41 @@ RSpec.describe Igniter::App do
         include(action: :require_manual_completion, node: :manual_summary, policy: include(name: :manual_completion), routing: include(queue: "manual-completions", channel: "inbox://manual-completions")),
         include(action: :await_deferred_reply, node: :approval, policy: include(name: :deferred_reply), routing: include(queue: "deferred-replies", channel: "inbox://deferred-replies"))
       )
+      expect(report[:app_operator]).to include(
+        app: "SpecOrchestrationApp",
+        summary: include(
+          total: 5,
+          live_sessions: 3,
+          inbox_items: 5,
+          joined_records: 3,
+          session_only: 0,
+          inbox_only: 2,
+          handed_off: 0,
+          by_combined_state: {
+            joined: 3,
+            inbox_only: 2
+          }
+        )
+      )
+      expect(report[:app_operator][:records]).to include(
+        include(node: :interactive_summary, combined_state: :joined, status: :acknowledged, phase: :streaming),
+        include(node: :manual_summary, combined_state: :inbox_only, status: :resolved, phase: :streaming),
+        include(node: :approval, combined_state: :inbox_only, status: :dismissed, phase: :waiting),
+        include(node: :manual_summary, combined_state: :joined, status: :open, phase: :streaming),
+        include(node: :approval, combined_state: :joined, status: :open, phase: :waiting)
+      )
       expect(text).to include("App Orchestration: total=3, attention_required=3, manual_completion=1, deferred_replies=1, interactive_sessions=1, single_turn_sessions=0, followups=3")
       expect(text).to include("by_policy=deferred_reply=1, interactive_session=1, manual_completion=1")
       expect(text).to include("by_lane=deferred_replies=1, interactive_sessions=1, manual_completions=1")
       expect(text).to include("by_queue=deferred-replies=1, interactive-sessions=1, manual-completions=1")
       expect(text).to include("App Orchestration Inbox: total=5, open=2, acknowledged=1, resolved=1, dismissed=1, actionable=3, latest_action=await_deferred_reply, latest_node=approval, latest_policy=deferred_reply, latest_lane=deferred_replies, latest_assignee=none, latest_queue=deferred-replies, latest_channel=inbox://deferred-replies, latest_status=open")
+      expect(text).to include("App Operator: total=5, live_sessions=3, inbox_items=5, joined=3, session_only=0, inbox_only=2")
       expect(markdown).to include("## App Orchestration")
+      expect(markdown).to include("## App Operator")
       expect(markdown).to include("- Follow-up: total=3, manual_completion=1, deferred_replies=1, interactive_sessions=1, by_policy=deferred_reply=1, interactive_session=1, manual_completion=1, by_lane=deferred_replies=1, interactive_sessions=1, manual_completions=1, by_queue=deferred-replies=1, interactive-sessions=1, manual-completions=1")
       expect(markdown).to include("- Inbox: total=5, open=2, acknowledged=1, resolved=1, dismissed=1, actionable=3, latest_action=await_deferred_reply, latest_node=approval, latest_policy=deferred_reply, latest_lane=deferred_replies, latest_assignee=none, latest_queue=deferred-replies, latest_channel=inbox://deferred-replies, latest_status=open")
+      expect(markdown).to include("state=`joined`")
+      expect(markdown).to include("state=`inbox_only`")
       expect(markdown).to include("`manual_summary` `require_manual_completion`")
       expect(markdown).to include("policy=`manual_completion`")
       expect(markdown).to include("lane=`manual_completions`")
@@ -2947,6 +2974,15 @@ RSpec.describe Igniter::App do
       )
       expect(query.summary[:by_phase]).to eq(streaming: 2, waiting: 1)
       expect(app.operator_summary(contract)).to include(total: 3, joined_records: 2)
+      expect(app.operator_overview(contract)).to include(
+        app: "SpecUnifiedOperatorQueryApp",
+        summary: include(total: 3, joined_records: 2, inbox_only: 1)
+      )
+      expect(app.operator_overview(contract)[:records]).to include(
+        include(node: :interactive_summary, combined_state: :joined),
+        include(node: :manual_summary, combined_state: :inbox_only),
+        include(node: :approval, combined_state: :joined)
+      )
       expect(query.order_by(:phase, direction: :asc).first[:node]).to eq(:interactive_summary)
       expect(query.limit(2).to_a.size).to eq(2)
       expect(query.explain).to include("OperatorQuery(3 candidates)")

@@ -99,6 +99,7 @@ That app-level follow-up path is now tied back into runtime truth too:
 - app-level operator tooling now has a read-only query surface too, so inbox state can be sliced by lane, queue, channel, assignee, status, and interaction without reaching directly into snapshots
 - that operator view now also supports `facet`, `facets`, and `summary`, so orchestration state can already be treated as a small aggregate field rather than only a list of inbox items
 - app-level operator tooling now also has a unified read model through `App.operator_query(target)`, which joins live agent sessions with inbox items into one observable plane
+- that same unified plane now also shows up in diagnostics as `app_operator`, which makes it a canonical observability surface instead of only a direct API
 
 There is also now a clearer direction for OLAP-like query semantics in agents:
 

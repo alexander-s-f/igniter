@@ -67,6 +67,7 @@ Even in that narrow form, agents are no longer opaque:
 - runtime now also exposes `execution.agent_session_query`, a read-only query surface over live agent sessions and derived orchestration metadata
 - that query surface includes `facet`, `facets`, and `summary`, so agent work can already be inspected as a small local field before any richer distributed query layer exists
 - app now also exposes `App.operator_query(target)`, which joins live agent sessions with orchestration inbox items into one operator-facing read model
+- diagnostics now also expose the same joined operator read model through `app_operator`
 
 ## Near-Term Direction
 

@@ -556,6 +556,16 @@ module Igniter
         operator_query(target).summary
       end
 
+      def operator_overview(target = nil, limit: 20)
+        query = operator_query(target)
+
+        {
+          app: name,
+          summary: query.summary,
+          records: query.limit(limit).to_a
+        }.freeze
+      end
+
       # Expose the AppConfig (populated after the first build!).
       def config = @app_config
 
