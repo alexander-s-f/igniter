@@ -155,6 +155,11 @@ Planning and explain surfaces now expose agent orchestration hints too:
 - that operator view also supports `facet`, `facets`, and `summary`, so queue/lane/operator state can be inspected as an aggregate field instead of only as a filtered list
 - app orchestration now also exposes `App.operator_query(target)`, which joins live `AgentSession` state with inbox/operator state into one read model with `joined`, `session_only`, and `inbox_only` records
 - diagnostics now also expose that joined plane through `diagnostics[:app_operator]`, so the same operator-facing model is available to reports, dashboards, and app-level observability without recomputing joins
+- `igniter-app` now also exposes `App.operator_overview_for_execution(graph:, execution_id:)`, which restores a durable execution from store and projects the same joined operator plane without requiring a live contract instance
+- `Igniter::App::Observability::OperatorOverviewHandler` now packages that read model as a reusable custom-route handler, so mounted admin or dashboard surfaces can serve operator overview JSON without hand-writing store-restore glue
+- apps can now mount that surface declaratively through `mount_operator_overview` or `mount_operator_observability`, which turns the handler into a small observability pack instead of another per-app route snippet
+- the mounted operator overview API is now query-aware too: it accepts filters like `status`, `node`, `lane`, `queue`, `assignee`, plus `order_by` and `direction`, and returns those applied query settings in the overview payload
+- `mount_operator_surface` now gives a built-in operator console page above that same API, including execution drill-down and filter-driven inspection without adding a frontend dependency
 - `lane` and current `queue/channel` are intentionally not the same thing: lane identifies the orchestration surface the item belongs to, while a later `handoff` may move the item to a different queue or channel without erasing its lane identity
 - deduplication only applies to active items, so resolved or dismissed actions can be reopened later if the workflow becomes pending again
 - `explain_plan` now renders those hints directly for human review

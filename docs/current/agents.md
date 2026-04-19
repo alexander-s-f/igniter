@@ -68,6 +68,11 @@ Even in that narrow form, agents are no longer opaque:
 - that query surface includes `facet`, `facets`, and `summary`, so agent work can already be inspected as a small local field before any richer distributed query layer exists
 - app now also exposes `App.operator_query(target)`, which joins live agent sessions with orchestration inbox items into one operator-facing read model
 - diagnostics now also expose the same joined operator read model through `app_operator`
+- app now also exposes `App.operator_overview_for_execution(graph:, execution_id:)`, so the same operator plane can be restored from durable store state without keeping a live contract instance around
+- `igniter-app` now ships `Igniter::App::Observability::OperatorOverviewHandler` as a reusable custom-route adapter for that operator plane
+- apps can now mount that operator endpoint declaratively with `mount_operator_overview(...)` or `mount_operator_observability(...)`
+- that mounted operator endpoint is now query-aware too, so operator surfaces can ask for focused slices like `status=acknowledged`, `queue=manual-review`, or `assignee=ops:alice` instead of always fetching the full record set
+- `mount_operator_surface(...)` now also gives apps a built-in operator console page with those same filters and execution drill-down links
 
 ## Near-Term Direction
 

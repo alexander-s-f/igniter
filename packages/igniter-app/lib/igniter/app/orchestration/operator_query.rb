@@ -89,6 +89,11 @@ module Igniter
           add_filter { |record| normalized.include?(record[:node]) }
         end
 
+        def combined_state(*states)
+          normalized = states.map(&:to_sym)
+          add_filter { |record| normalized.include?(record[:combined_state]) }
+        end
+
         def interaction(*interactions)
           normalized = interactions.map(&:to_sym)
           add_filter { |record| normalized.include?(record[:interaction]) }

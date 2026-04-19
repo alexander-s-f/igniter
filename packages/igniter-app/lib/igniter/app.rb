@@ -3,6 +3,8 @@
 require_relative "app/runtime"
 require_relative "app/diagnostics"
 require_relative "app/evolution"
+require_relative "app/observability"
+require_relative "app/observability_pack"
 require_relative "app/orchestration"
 require "igniter/stack"
 
@@ -543,27 +545,100 @@ module Igniter
         orchestration_query.summary
       end
 
-      def operator_query(target = nil)
+      def operator_query(target = nil, filters: nil, order_by: nil, direction: :asc)
         execution = orchestration_execution_for(target)
-        Orchestration::OperatorQuery.new(operator_records_for(execution))
+        query = Orchestration::OperatorQuery.new(operator_records_for(execution))
+        apply_operator_query_options(query, filters: filters, order_by: order_by, direction: direction)
       end
 
-      def orchestration_operator_query(target = nil)
-        operator_query(target)
+      def orchestration_operator_query(target = nil, filters: nil, order_by: nil, direction: :asc)
+        operator_query(target, filters: filters, order_by: order_by, direction: direction)
       end
 
-      def operator_summary(target = nil)
-        operator_query(target).summary
+      def operator_summary(target = nil, filters: nil, order_by: nil, direction: :asc)
+        operator_query(target, filters: filters, order_by: order_by, direction: direction).summary
       end
 
-      def operator_overview(target = nil, limit: 20)
-        query = operator_query(target)
+      def operator_overview(target = nil, limit: 20, filters: nil, order_by: nil, direction: :asc)
+        query = operator_query(target, filters: filters, order_by: order_by, direction: direction)
 
         {
           app: name,
+          query: operator_query_metadata(filters: filters, order_by: order_by, direction: direction, limit: limit),
           summary: query.summary,
           records: query.limit(limit).to_a
         }.freeze
+      end
+
+      def operator_query_for_execution(graph:, execution_id:, store: nil, filters: nil, order_by: nil, direction: :asc)
+        operator_query(
+          operator_target_for_execution(graph: graph, execution_id: execution_id, store: store),
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )
+      end
+
+      def operator_summary_for_execution(graph:, execution_id:, store: nil, filters: nil, order_by: nil, direction: :asc)
+        operator_query_for_execution(
+          graph: graph,
+          execution_id: execution_id,
+          store: store,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        ).summary
+      end
+
+      def operator_overview_for_execution(graph:, execution_id:, limit: 20, store: nil, filters: nil, order_by: nil, direction: :asc)
+        query = operator_query_for_execution(
+          graph: graph,
+          execution_id: execution_id,
+          store: store,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )
+
+        {
+          app: name,
+          scope: {
+            mode: :execution,
+            graph: graph,
+            execution_id: execution_id
+          }.freeze,
+          query: operator_query_metadata(filters: filters, order_by: order_by, direction: direction, limit: limit),
+          summary: query.summary,
+          records: query.limit(limit).to_a
+        }.freeze
+      end
+
+      def mount_operator_overview(path: "/api/operator", limit: 20, store: nil)
+        ObservabilityPack.install(
+          self,
+          path: path,
+          limit: limit,
+          store: store
+        )
+      end
+
+      def mount_operator_observability(path: "/api/operator", limit: 20, store: nil)
+        mount_operator_overview(path: path, limit: limit, store: store)
+      end
+
+      def mount_operator_surface(path: "/operator", api_path: "/api/operator", limit: 20, store: nil, title: nil)
+        ObservabilityPack.install_surface(
+          self,
+          path: path,
+          api_path: api_path,
+          limit: limit,
+          store: store,
+          title: title
+        )
+      end
+
+      def mount_operator_console(path: "/operator", api_path: "/api/operator", limit: 20, store: nil, title: nil)
+        mount_operator_surface(path: path, api_path: api_path, limit: limit, store: store, title: title)
       end
 
       # Expose the AppConfig (populated after the first build!).
@@ -915,6 +990,67 @@ module Igniter
           resumed_token: item[:token],
           resumed_node: item[:node]
         }
+      end
+
+      def operator_target_for_execution(graph:, execution_id:, store: nil)
+        contract_class = registered_contract_class_for_graph(graph)
+        raise ArgumentError, "no registered contract class found for graph #{graph.inspect}" unless contract_class
+
+        contract_class.restore_from_store(execution_id, store: store || Igniter.execution_store)
+      end
+
+      def apply_operator_query_options(query, filters:, order_by:, direction:)
+        applied = query
+
+        filters.to_h.each do |key, value|
+          next if blank_operator_filter_value?(value)
+
+          applied =
+            case key.to_sym
+            when :actionable
+              value ? applied.actionable : applied
+            when :attention_required, :resumable, :with_session, :with_inbox_item
+              applied.public_send(key.to_sym, value)
+            when :with_token
+              value ? applied.with_token : applied
+            when :handed_off
+              value ? applied.handed_off : applied
+            when :status, :action, :node, :combined_state, :interaction, :reason, :policy,
+                 :lane, :queue, :channel, :assignee, :graph, :execution_id, :phase,
+                 :reply_mode, :mode, :tool_loop_status
+              applied.public_send(key.to_sym, *Array(value))
+            else
+              raise ArgumentError, "unsupported operator filter #{key.inspect}"
+            end
+        end
+
+        return applied if order_by.nil? || order_by.to_s.empty?
+
+        applied.order_by(order_by.to_sym, direction: direction.to_sym)
+      end
+
+      def operator_query_metadata(filters:, order_by:, direction:, limit:)
+        {
+          filters: compact_operator_filters(filters),
+          order_by: order_by&.to_sym,
+          direction: direction&.to_sym,
+          limit: limit
+        }.freeze
+      end
+
+      def compact_operator_filters(filters)
+        filters.to_h.each_with_object({}) do |(key, value), memo|
+          next if blank_operator_filter_value?(value)
+
+          memo[key.to_sym] = value
+        end.freeze
+      end
+
+      def blank_operator_filter_value?(value)
+        return true if value.nil?
+        return value.empty? if value.respond_to?(:empty?)
+
+        false
       end
 
       def registered_contract_class_for_graph(graph)

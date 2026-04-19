@@ -76,6 +76,8 @@ RSpec.describe "Cluster scaffold smoke" do
           status_response = nil
           dashboard_response = nil
           overview_response = nil
+          operator_response = nil
+          operator_page_response = nil
 
           Timeout.timeout(20) do
             loop do
@@ -87,6 +89,8 @@ RSpec.describe "Cluster scaffold smoke" do
                 status_response = http_get(seed_port, "/v1/home/status")
                 dashboard_response = http_get(seed_port, "/dashboard")
                 overview_response = http_get(seed_port, "/dashboard/api/overview")
+                operator_response = http_get(seed_port, "/dashboard/api/operator")
+                operator_page_response = http_get(seed_port, "/dashboard/operator")
                 break
               rescue Errno::ECONNREFUSED, EOFError, Net::ReadTimeout
                 sleep 0.1
@@ -111,6 +115,18 @@ RSpec.describe "Cluster scaffold smoke" do
           overview_payload = JSON.parse(overview_response.body)
           expect(overview_payload.dig("stack", "default_node")).to eq("seed")
           expect(overview_payload.dig("nodes", "analyst", "port")).to eq(seed_port + 2)
+
+          expect(operator_response.code).to eq("200")
+          expect(operator_response["Content-Type"]).to include("application/json")
+          operator_payload = JSON.parse(operator_response.body)
+          expect(operator_payload["scope"]).to eq("mode" => "app")
+          expect(operator_payload["app"]).to eq("MeshLab::DashboardApp")
+          expect(operator_payload.dig("summary", "total")).to eq(0)
+
+          expect(operator_page_response.code).to eq("200")
+          expect(operator_page_response["Content-Type"]).to include("text/html")
+          expect(operator_page_response.body).to include("Operator Console")
+          expect(operator_page_response.body).to include("/dashboard/api/operator")
 
           demo_response = http_post(seed_port, "/dashboard/demo/self-heal?scenario=governance_gate")
           expect(demo_response.code).to eq("303")

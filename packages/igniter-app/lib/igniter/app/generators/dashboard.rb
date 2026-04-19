@@ -149,6 +149,7 @@ module Igniter
               class DashboardApp < Igniter::App
                 root_dir __dir__
                 config_file "app.yml"
+                mount_operator_surface
 
                 route "GET", "/", with: #{module_name}::Dashboard::HomeHandler
               end
@@ -183,6 +184,41 @@ module Igniter
             require "stringio"
 
             RSpec.describe #{module_name}::DashboardApp do
+              it "renders the canonical operator endpoint" do
+                app = described_class.rack_app
+
+                status, headers, body = app.call(
+                  "REQUEST_METHOD" => "GET",
+                  "PATH_INFO" => "/api/operator",
+                  "rack.input" => StringIO.new
+                )
+
+                payload = JSON.parse(body.each.to_a.join)
+
+                expect(status).to eq(200)
+                expect(headers["Content-Type"]).to include("application/json")
+                expect(payload["app"]).to eq("#{module_name}::DashboardApp")
+                expect(payload["scope"]).to eq("mode" => "app")
+                expect(payload.dig("summary", "total")).to eq(0)
+              end
+
+              it "renders the built-in operator console" do
+                app = described_class.rack_app
+
+                status, headers, body = app.call(
+                  "REQUEST_METHOD" => "GET",
+                  "PATH_INFO" => "/operator",
+                  "rack.input" => StringIO.new
+                )
+
+                html = body.each.to_a.join
+
+                expect(status).to eq(200)
+                expect(headers["Content-Type"]).to include("text/html")
+                expect(html).to include("Operator Console")
+                expect(html).to include("/api/operator")
+              end
+
               it "renders the mounted dashboard home page" do
                 app = described_class.rack_app
 
@@ -198,6 +234,7 @@ module Igniter
                 expect(headers["Content-Type"]).to include("text/html")
                 expect(html).to include("#{module_name} Dashboard")
                 expect(html).to include("/dashboard")
+                expect(html).to include("/api/operator")
                 expect(html).to include("Mounted Apps")
               end
             end
@@ -260,7 +297,7 @@ module Igniter
                                 default_node=\#{h(stack["default_node"])} ·
                                 current_node=\#{h(snapshot[:current_node])}
                               </p>
-                              <p><a href="\#{route(base_path, "/")}">Refresh</a></p>
+                              <p><a href="\#{route(base_path, "/")}">Refresh</a> · <a href="\#{route(base_path, "/operator")}">Operator Console</a> · <a href="\#{route(base_path, "/api/operator")}">Operator API</a></p>
                             </section>
 
                             <section class="grid">

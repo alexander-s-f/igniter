@@ -33,6 +33,11 @@ Already landed:
 - that app operator query surface now also supports `facet`, `facets`, and `summary`
 - `App.operator_query(target)` now joins live sessions and inbox items into one operator-facing query surface
 - diagnostics now also expose that unified operator plane as `app_operator`
+- `App.operator_overview_for_execution(graph:, execution_id:)` now restores a durable execution and projects that same operator plane without a live contract object
+- `Igniter::App::Observability::OperatorOverviewHandler` now makes that plane directly mountable as a custom JSON route for dashboard/admin surfaces
+- `mount_operator_overview(...)` and `mount_operator_observability(...)` now make that endpoint a first-class app DSL pack instead of a repeated custom route snippet
+- that mounted operator endpoint now also supports stable filter/order query params and reflects the applied query contract back in the response payload
+- `mount_operator_surface(...)` now adds a built-in operator console over that same queryable plane, including execution-scoped drill-down
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
 

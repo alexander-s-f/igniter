@@ -880,6 +880,7 @@ module Igniter
               class DashboardApp < Igniter::App
                 root_dir __dir__
                 config_file "app.yml"
+                mount_operator_surface
 
                 route "GET", "/", with: #{module_name}::Dashboard::HomeHandler
                 route "GET", "/api/overview", with: #{module_name}::Dashboard::OverviewHandler
@@ -981,6 +982,8 @@ module Igniter
                                   <button type="submit">Trigger Peer Repair</button>
                                 </form>
                                 <a href="\#{route(base_path, "/api/overview")}">Overview API</a>
+                                <a href="\#{route(base_path, "/operator")}">Operator Console</a>
+                                <a href="\#{route(base_path, "/api/operator")}">Operator API</a>
                               </div>
                             </section>
 
@@ -1086,6 +1089,41 @@ module Igniter
                 Igniter::Cluster::Mesh.reset!
               end
 
+              it "renders the canonical operator endpoint" do
+                app = described_class.rack_app
+
+                status, headers, body = app.call(
+                  "REQUEST_METHOD" => "GET",
+                  "PATH_INFO" => "/api/operator",
+                  "rack.input" => StringIO.new
+                )
+
+                payload = JSON.parse(body.each.to_a.join)
+
+                expect(status).to eq(200)
+                expect(headers["Content-Type"]).to include("application/json")
+                expect(payload["app"]).to eq("#{module_name}::DashboardApp")
+                expect(payload["scope"]).to eq("mode" => "app")
+                expect(payload.dig("summary", "total")).to eq(0)
+              end
+
+              it "renders the built-in operator console" do
+                app = described_class.rack_app
+
+                status, headers, body = app.call(
+                  "REQUEST_METHOD" => "GET",
+                  "PATH_INFO" => "/operator",
+                  "rack.input" => StringIO.new
+                )
+
+                html = body.each.to_a.join
+
+                expect(status).to eq(200)
+                expect(headers["Content-Type"]).to include("text/html")
+                expect(html).to include("Operator Console")
+                expect(html).to include("/api/operator")
+              end
+
               it "renders the overview endpoint" do
                 app = described_class.rack_app
 
@@ -1120,6 +1158,7 @@ module Igniter
                 expect(headers["Content-Type"]).to include("text/html")
                 expect(html).to include("#{module_name} Cluster Dashboard")
                 expect(html).to include("Self-Heal Demo")
+                expect(html).to include("Operator API")
                 expect(html).to include("/demo/self-heal?scenario=governance_gate")
               end
 

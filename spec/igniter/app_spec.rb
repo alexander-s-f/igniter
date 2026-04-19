@@ -2976,12 +2976,50 @@ RSpec.describe Igniter::App do
       expect(app.operator_summary(contract)).to include(total: 3, joined_records: 2)
       expect(app.operator_overview(contract)).to include(
         app: "SpecUnifiedOperatorQueryApp",
+        query: include(limit: 20),
         summary: include(total: 3, joined_records: 2, inbox_only: 1)
       )
       expect(app.operator_overview(contract)[:records]).to include(
         include(node: :interactive_summary, combined_state: :joined),
         include(node: :manual_summary, combined_state: :inbox_only),
         include(node: :approval, combined_state: :joined)
+      )
+      expect(
+        app.operator_overview(
+          contract,
+          filters: {
+            status: :acknowledged,
+            queue: "manual-review",
+            assignee: "ops:alice"
+          },
+          order_by: :assignee,
+          direction: :desc,
+          limit: 5
+        )
+      ).to include(
+        query: {
+          filters: {
+            status: :acknowledged,
+            queue: "manual-review",
+            assignee: "ops:alice"
+          },
+          order_by: :assignee,
+          direction: :desc,
+          limit: 5
+        },
+        summary: include(total: 1, joined_records: 1)
+      )
+      expect(
+        app.operator_overview(
+          contract,
+          filters: {
+            status: :acknowledged,
+            queue: "manual-review",
+            assignee: "ops:alice"
+          }
+        )[:records]
+      ).to contain_exactly(
+        include(node: :interactive_summary, assignee: "ops:alice", queue: "manual-review")
       )
       expect(query.order_by(:phase, direction: :asc).first[:node]).to eq(:interactive_summary)
       expect(query.limit(2).to_a.size).to eq(2)
@@ -2991,6 +3029,374 @@ RSpec.describe Igniter::App do
       reviewer_ref&.stop
       Igniter::Registry.clear
       Igniter::Runtime.agent_adapter = previous_adapter
+    end
+
+    it "restores operator overviews for stored executions and exposes a reusable overview handler" do
+      previous_store = Igniter.execution_store
+      Igniter.execution_store = Igniter::Runtime::Stores::MemoryStore.new
+
+      agent_adapter = Class.new do
+        def call(node:, **)
+          raise Igniter::PendingDependencyError.new("wait", token: "review-session", source_node: node.name)
+        end
+
+        def cast(**)
+          raise "unexpected cast"
+        end
+      end.new
+
+      klass = Class.new(Igniter::Contract) do
+        run_with runner: :store, agent_adapter: agent_adapter
+
+        define do
+          input :name
+
+          agent :approval,
+                via: :reviewer,
+                message: :review,
+                inputs: { name: :name }
+
+          output :approval
+        end
+      end
+
+      app = stub_const("SpecOperatorOverviewHandlerApp", Class.new(Igniter::App))
+      app.class_eval do
+        register "AgentContract", klass
+
+        configure do |c|
+          c.store = Igniter.execution_store
+        end
+
+        route "GET",
+              "/api/operator",
+              with: Igniter::App::Observability::OperatorOverviewHandler.new(app_class: self)
+      end
+
+      config = app.send(:build!)
+      app.reset_orchestration_inbox!
+
+      contract = klass.new(name: "Alice")
+      execution_id = contract.execution.events.execution_id
+
+      app.open_orchestration_followups(contract)
+
+      overview = app.operator_overview_for_execution(
+        graph: "AnonymousContract",
+        execution_id: execution_id
+      )
+
+      expect(overview).to include(
+        app: "SpecOperatorOverviewHandlerApp",
+        scope: {
+          mode: :execution,
+          graph: "AnonymousContract",
+          execution_id: execution_id
+        },
+        summary: include(
+          total: 1,
+          live_sessions: 1,
+          inbox_items: 1,
+          joined_records: 1
+        )
+      )
+      expect(overview[:records]).to contain_exactly(
+        include(
+          id: "agent_orchestration:await_deferred_reply:approval",
+          node: :approval,
+          combined_state: :joined,
+          status: :open,
+          phase: :waiting,
+          reply_mode: :deferred
+        )
+      )
+
+      router = Igniter::Server::Router.new(config)
+      response = router.call(
+        "GET",
+        "/api/operator?graph=AnonymousContract&execution_id=#{execution_id}&limit=1",
+        ""
+      )
+
+      expect(response[:status]).to eq(200)
+      expect(response[:headers]["Content-Type"]).to include("application/json")
+      expect(JSON.parse(response[:body])).to include(
+        "app" => "SpecOperatorOverviewHandlerApp",
+        "scope" => {
+          "mode" => "execution",
+          "graph" => "AnonymousContract",
+          "execution_id" => execution_id
+        },
+        "query" => include(
+          "limit" => 1
+        ),
+        "summary" => include(
+          "total" => 1,
+          "live_sessions" => 1,
+          "inbox_items" => 1,
+          "joined_records" => 1
+        )
+      )
+
+      app_wide_response = router.call("GET", "/api/operator?limit=5", "")
+      expect(app_wide_response[:status]).to eq(200)
+      expect(JSON.parse(app_wide_response[:body])).to include(
+        "app" => "SpecOperatorOverviewHandlerApp",
+        "scope" => { "mode" => "app" }
+      )
+
+      bad_request = router.call("GET", "/api/operator?graph=AnonymousContract", "")
+      expect(bad_request[:status]).to eq(400)
+      expect(JSON.parse(bad_request[:body])).to include(
+        "error" => "graph and execution_id must be provided together"
+      )
+    ensure
+      Igniter.execution_store = previous_store
+    end
+
+    it "supports operator api filters and ordering through query params" do
+      previous_adapter = Igniter::Runtime.agent_adapter
+      Igniter::Runtime.activate_agent_adapter!
+      Igniter::Registry.clear
+      writer_ref = nil
+      reviewer_ref = nil
+
+      writer_class = Class.new(Igniter::Agent) do
+        on :summarize do |payload:, **|
+          raise Igniter::PendingDependencyError.new("continue", token: "writer-session", source_node: payload[:node] || :interactive_summary)
+        end
+      end
+
+      reviewer_class = Class.new(Igniter::Agent) do
+        on :review do |payload:, **|
+          raise Igniter::PendingDependencyError.new("continue", token: "review-session", source_node: :approval)
+        end
+      end
+
+      writer_ref = writer_class.start(name: :writer)
+      reviewer_ref = reviewer_class.start(name: :reviewer)
+
+      klass = Class.new(Igniter::Contract) do
+        define do
+          input :name
+
+          agent :interactive_summary,
+                via: :writer,
+                message: :summarize,
+                reply: :stream,
+                inputs: { name: :name }
+
+          agent :approval,
+                via: :reviewer,
+                message: :review,
+                inputs: { name: :name }
+
+          output :interactive_summary
+          output :approval
+        end
+      end
+
+      app = stub_const("SpecFilteredOperatorOverviewApp", Class.new(Igniter::App))
+      app.class_eval do
+        register "AgentContract", klass
+        mount_operator_surface(path: "/operator", api_path: "/api/operator", title: "Operations Console")
+      end
+
+      config = app.send(:build!)
+      app.reset_orchestration_inbox!
+
+      contract = klass.new(name: "Alice")
+      app.open_orchestration_followups(contract)
+      app.handoff_orchestration_item(
+        "agent_orchestration:open_interactive_session:interactive_summary",
+        assignee: "ops:alice",
+        queue: "manual-review",
+        channel: "slack://ops/review",
+        note: "routed to reviewer"
+      )
+      app.dismiss_orchestration_item(
+        "agent_orchestration:await_deferred_reply:approval",
+        note: "ignored"
+      )
+
+      router = Igniter::Server::Router.new(config)
+      api = router.call(
+        "GET",
+        "/api/operator?status=acknowledged&queue=manual-review&assignee=ops:alice&order_by=assignee&direction=desc",
+        ""
+      )
+
+      expect(api[:status]).to eq(200)
+      expect(JSON.parse(api[:body])).to include(
+        "app" => "SpecFilteredOperatorOverviewApp",
+        "scope" => { "mode" => "app" },
+        "query" => {
+          "filters" => {
+            "status" => ["acknowledged"],
+            "queue" => ["manual-review"],
+            "assignee" => ["ops:alice"]
+          },
+          "order_by" => "assignee",
+          "direction" => "desc",
+          "limit" => 20
+        },
+        "summary" => include(
+          "total" => 1,
+          "by_status" => { "acknowledged" => 1 }
+        ),
+        "records" => [
+          include(
+            "node" => "interactive_summary",
+            "status" => "acknowledged",
+            "queue" => "manual-review",
+            "assignee" => "ops:alice"
+          )
+        ]
+      )
+
+      page = router.call(
+        "GET",
+        "/operator?graph=AnonymousContract&execution_id=#{contract.execution.events.execution_id}&status=acknowledged&queue=manual-review&assignee=ops:alice&node=interactive_summary",
+        ""
+      )
+
+      expect(page[:status]).to eq(200)
+      expect(page[:body]).to include('name="status"')
+      expect(page[:body]).to include('value="acknowledged"')
+      expect(page[:body]).to include('name="queue"')
+      expect(page[:body]).to include('value="manual-review"')
+      expect(page[:body]).to include('name="assignee"')
+      expect(page[:body]).to include('value="ops:alice"')
+      expect(page[:body]).to include("Open JSON API")
+      expect(page[:body]).to include("Inspect")
+    ensure
+      writer_ref&.stop
+      reviewer_ref&.stop
+      Igniter::Registry.clear
+      Igniter::Runtime.agent_adapter = previous_adapter
+    end
+
+    it "mounts the operator overview endpoint through a declarative observability pack" do
+      previous_store = Igniter.execution_store
+      Igniter.execution_store = Igniter::Runtime::Stores::MemoryStore.new
+
+      agent_adapter = Class.new do
+        def call(node:, **)
+          raise Igniter::PendingDependencyError.new("wait", token: "review-session", source_node: node.name)
+        end
+
+        def cast(**)
+          raise "unexpected cast"
+        end
+      end.new
+
+      klass = Class.new(Igniter::Contract) do
+        run_with runner: :store, agent_adapter: agent_adapter
+
+        define do
+          input :name
+
+          agent :approval,
+                via: :reviewer,
+                message: :review,
+                inputs: { name: :name }
+
+          output :approval
+        end
+      end
+
+      app = stub_const("SpecMountedOperatorOverviewApp", Class.new(Igniter::App))
+      app.class_eval do
+        register "AgentContract", klass
+
+        configure do |c|
+          c.store = Igniter.execution_store
+        end
+
+        mount_operator_overview(path: "/api/operator", limit: 3)
+      end
+
+      config = app.send(:build!)
+      app.reset_orchestration_inbox!
+
+      contract = klass.new(name: "Alice")
+      execution_id = contract.execution.events.execution_id
+      app.open_orchestration_followups(contract)
+
+      mounted_route = config.custom_routes.find { |route| route[:method] == "GET" && route[:path] == "/api/operator" }
+      expect(mounted_route).not_to be_nil
+      expect(mounted_route[:handler]).to be_a(Igniter::App::Observability::OperatorOverviewHandler)
+
+      router = Igniter::Server::Router.new(config)
+      response = router.call(
+        "GET",
+        "/api/operator?graph=AnonymousContract&execution_id=#{execution_id}",
+        ""
+      )
+
+      expect(response[:status]).to eq(200)
+      expect(JSON.parse(response[:body])).to include(
+        "app" => "SpecMountedOperatorOverviewApp",
+        "scope" => {
+          "mode" => "execution",
+          "graph" => "AnonymousContract",
+          "execution_id" => execution_id
+        },
+        "summary" => include(
+          "total" => 1,
+          "joined_records" => 1
+        )
+      )
+
+      app.class_eval do
+        mount_operator_observability(path: "/ops/operator", limit: 2)
+      end
+
+      remounted_config = app.send(:build!)
+      remounted_paths = remounted_config.custom_routes.select { |route| route[:handler].is_a?(Igniter::App::Observability::OperatorOverviewHandler) }
+                                              .map { |route| route[:path] }
+      expect(remounted_paths).to contain_exactly("/api/operator", "/ops/operator")
+    ensure
+      Igniter.execution_store = previous_store
+    end
+
+    it "mounts an operator console surface with paired html and api routes" do
+      previous_store = Igniter.execution_store
+      Igniter.execution_store = Igniter::Runtime::Stores::MemoryStore.new
+
+      app = stub_const("SpecMountedOperatorConsoleApp", Class.new(Igniter::App))
+      app.class_eval do
+        configure do |c|
+          c.store = Igniter.execution_store
+        end
+
+        mount_operator_surface(path: "/operator", api_path: "/api/operator", title: "Operations Console")
+      end
+
+      config = app.send(:build!)
+      routes = config.custom_routes.select { |route| route[:method] == "GET" }
+
+      expect(routes.map { |route| route[:path] }).to include("/operator", "/api/operator")
+      expect(routes.find { |route| route[:path] == "/operator" }[:handler]).to be_a(Igniter::App::Observability::OperatorConsoleHandler)
+      expect(routes.find { |route| route[:path] == "/api/operator" }[:handler]).to be_a(Igniter::App::Observability::OperatorOverviewHandler)
+
+      router = Igniter::Server::Router.new(config)
+
+      page = router.call("GET", "/operator", "")
+      expect(page[:status]).to eq(200)
+      expect(page[:headers]["Content-Type"]).to include("text/html")
+      expect(page[:body]).to include("Operations Console")
+      expect(page[:body]).to include("/api/operator")
+      expect(page[:body]).to include("Load Overview")
+
+      api = router.call("GET", "/api/operator", "")
+      expect(api[:status]).to eq(200)
+      expect(JSON.parse(api[:body])).to include(
+        "app" => "SpecMountedOperatorConsoleApp",
+        "scope" => { "mode" => "app" }
+      )
+    ensure
+      Igniter.execution_store = previous_store
     end
 
     it "rejects orchestration operations that violate the action policy" do

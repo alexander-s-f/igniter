@@ -30,7 +30,10 @@ RSpec.describe Igniter::App::Generators::Dashboard do
         expect(readme).to include("generated with the `dashboard` scaffold profile")
         expect(readme).to include("http://127.0.0.1:4567/dashboard")
         expect(dashboard_app).to include('route "GET", "/", with: MyHub::Dashboard::HomeHandler')
+        expect(dashboard_app).to include("mount_operator_surface")
         expect(dashboard_handler).to include("Mounted Apps")
+        expect(dashboard_handler).to include("Operator Console")
+        expect(dashboard_handler).to include("Operator API")
         expect(dashboard_handler).to include("Igniter::Frontend::Response.html")
       end
     end

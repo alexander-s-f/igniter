@@ -42,12 +42,22 @@ RSpec.describe "Igniter module layout" do
       "evolution.rb",
       "generator.rb",
       "generators",
+      "observability",
+      "observability.rb",
+      "observability_pack.rb",
       "runtime.rb",
       "runtime_pack.rb",
       "scaffold_pack.rb",
       "stack.rb",
       "stack_pack.rb"
     )
+  end
+
+  it "keeps observability handlers under the canonical app observability namespace" do
+    expect(children_for(File.join(APP_LIB, "app", "observability"))).to eq(%w[
+      operator_console_handler.rb
+      operator_overview_handler.rb
+    ])
   end
 
   it "keeps server entrypoints inside the local server package" do

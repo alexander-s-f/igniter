@@ -409,6 +409,7 @@ module Igniter
               class DashboardApp < Igniter::App
                 root_dir __dir__
                 config_file "app.yml"
+                mount_operator_surface
 
                 route "GET", "/", with: #{module_name}::Dashboard::HomeHandler
                 route "GET", "/api/overview", with: #{module_name}::Dashboard::OverviewHandler
@@ -451,6 +452,41 @@ module Igniter
                 #{module_name}::Shared::NoteStore.reset!
               end
 
+              it "renders the canonical operator endpoint" do
+                app = described_class.rack_app
+
+                status, headers, body = app.call(
+                  "REQUEST_METHOD" => "GET",
+                  "PATH_INFO" => "/api/operator",
+                  "rack.input" => StringIO.new
+                )
+
+                payload = JSON.parse(body.each.to_a.join)
+
+                expect(status).to eq(200)
+                expect(headers["Content-Type"]).to include("application/json")
+                expect(payload["app"]).to eq("#{module_name}::DashboardApp")
+                expect(payload["scope"]).to eq("mode" => "app")
+                expect(payload.dig("summary", "total")).to eq(0)
+              end
+
+              it "renders the built-in operator console" do
+                app = described_class.rack_app
+
+                status, headers, body = app.call(
+                  "REQUEST_METHOD" => "GET",
+                  "PATH_INFO" => "/operator",
+                  "rack.input" => StringIO.new
+                )
+
+                html = body.each.to_a.join
+
+                expect(status).to eq(200)
+                expect(headers["Content-Type"]).to include("text/html")
+                expect(html).to include("Operator Console")
+                expect(html).to include("/api/operator")
+              end
+
               it "renders the overview endpoint" do
                 app = described_class.rack_app
 
@@ -485,6 +521,7 @@ module Igniter
                 expect(headers["Content-Type"]).to include("text/html")
                 expect(html).to include("#{project_label} Dashboard")
                 expect(html).to include("Overview API")
+                expect(html).to include("Operator API")
                 expect(html).to include('action="/notes"')
                 expect(html).to include("Shared Notes")
               end
@@ -793,6 +830,10 @@ module Igniter
                         end
                         hero.tag(:p, class: "links") do |links|
                           links.tag(:a, "Overview API", href: route("/api/overview"))
+                          links.text(" · ")
+                          links.tag(:a, "Operator Console", href: route("/operator"))
+                          links.text(" · ")
+                          links.tag(:a, "Operator API", href: route("/api/operator"))
                           links.text(" · ")
                           links.tag(:a, "Main status", href: "/v1/home/status")
                         end

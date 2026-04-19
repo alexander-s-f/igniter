@@ -35,6 +35,7 @@ RSpec.describe Igniter::App::Generators::Cluster do
         expect(readme).to include("bin/console --node seed")
         expect(main_app).to include("host :cluster_app")
         expect(main_app).to include("CapabilityProfile.configure_cluster!")
+        expect(dashboard_app).to include("mount_operator_surface")
         expect(dashboard_app).to include('route "POST", "/demo/self-heal"')
       end
     end

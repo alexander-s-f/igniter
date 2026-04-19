@@ -45,7 +45,10 @@ RSpec.describe Igniter::App::Generators::Playground do
         expect(readme).to include("bin/start --node main")
         expect(readme).to include("var/log/dev/*.log")
         expect(main_app).to include('route "POST", "/v1/notes"')
+        expect(dashboard_app).to include("mount_operator_surface")
+        expect(dashboard_page).to include("Operator Console")
         expect(dashboard_app).to include('route "POST", "/notes"')
+        expect(dashboard_page).to include("Operator API")
         expect(dashboard_page).to include('action: route("/notes")')
       end
     end

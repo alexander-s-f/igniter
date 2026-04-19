@@ -100,6 +100,11 @@ That app-level follow-up path is now tied back into runtime truth too:
 - that operator view now also supports `facet`, `facets`, and `summary`, so orchestration state can already be treated as a small aggregate field rather than only a list of inbox items
 - app-level operator tooling now also has a unified read model through `App.operator_query(target)`, which joins live agent sessions with inbox items into one observable plane
 - that same unified plane now also shows up in diagnostics as `app_operator`, which makes it a canonical observability surface instead of only a direct API
+- app-level observability can now also be projected durably by `graph + execution_id` through `App.operator_overview_for_execution(...)`, which means operator read models no longer depend on holding a live contract object in memory
+- `igniter-app` now ships a reusable `Igniter::App::Observability::OperatorOverviewHandler`, so mounted dashboard/admin routes can expose that same plane directly instead of rebuilding store lookup and JSON shaping by hand
+- apps can now mount that endpoint as a declarative pack through `mount_operator_overview(...)` or `mount_operator_observability(...)`, which makes operator observability part of the app DSL instead of only a handler class
+- that mounted operator plane is now queryable too, with stable filter/order inputs over `status`, `node`, `lane`, `queue`, `assignee`, and related dimensions instead of forcing dashboards to post-filter raw record arrays
+- `mount_operator_surface(...)` now adds a built-in HTML operator console over the same query contract, so dashboard-style apps can ship a usable operator view without a separate frontend layer
 
 There is also now a clearer direction for OLAP-like query semantics in agents:
 
