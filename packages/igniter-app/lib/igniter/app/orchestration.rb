@@ -11,6 +11,7 @@ require_relative "orchestration/handler_registry"
 require_relative "orchestration/handlers"
 require_relative "orchestration/inbox"
 require_relative "orchestration/inbox_query"
+require_relative "orchestration/operator_query"
 require_relative "orchestration/result"
 require_relative "orchestration/runner"
 

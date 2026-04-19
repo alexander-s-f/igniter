@@ -2805,6 +2805,158 @@ RSpec.describe Igniter::App do
       Igniter::Runtime.agent_adapter = previous_adapter
     end
 
+    it "supports a unified operator query over live sessions and inbox state" do
+      previous_adapter = Igniter::Runtime.agent_adapter
+      Igniter::Runtime.activate_agent_adapter!
+      Igniter::Registry.clear
+      writer_ref = nil
+      reviewer_ref = nil
+
+      writer_class = Class.new(Igniter::Agent) do
+        on :summarize do |payload:, **|
+          raise Igniter::PendingDependencyError.new("continue", token: "writer-session", source_node: :summary)
+        end
+      end
+
+      reviewer_class = Class.new(Igniter::Agent) do
+        on :review do |payload:, **|
+          raise Igniter::PendingDependencyError.new("wait", token: "review-session", source_node: :approval)
+        end
+      end
+
+      writer_ref = writer_class.start(name: :writer)
+      reviewer_ref = reviewer_class.start(name: :reviewer)
+
+      klass = Class.new(Igniter::Contract) do
+        define do
+          input :name
+
+          agent :interactive_summary,
+                via: :writer,
+                message: :summarize,
+                reply: :stream,
+                inputs: { name: :name }
+
+          agent :manual_summary,
+                via: :writer,
+                message: :summarize,
+                reply: :stream,
+                session_policy: :manual,
+                finalizer: :events,
+                inputs: { name: :name }
+
+          agent :approval,
+                via: :reviewer,
+                message: :review,
+                inputs: { name: :name }
+
+          output :interactive_summary
+          output :manual_summary
+          output :approval
+        end
+      end
+
+      app = stub_const("SpecUnifiedOperatorQueryApp", Class.new(Igniter::App))
+      app.class_eval { register "AgentContract", klass }
+
+      app.send(:build!)
+      app.reset_orchestration_inbox!
+      contract = klass.new(name: "Alice")
+
+      app.open_orchestration_followups(contract)
+      app.handoff_orchestration_item(
+        "agent_orchestration:open_interactive_session:interactive_summary",
+        assignee: "ops:alice",
+        queue: "manual-review",
+        channel: "slack://ops/review",
+        note: "routed to reviewer"
+      )
+      app.approve_orchestration_item(
+        "agent_orchestration:require_manual_completion:manual_summary",
+        target: contract,
+        value: [{ kind: :manual, value: "approved" }],
+        note: "approved"
+      )
+      app.dismiss_orchestration_item(
+        "agent_orchestration:await_deferred_reply:approval",
+        note: "ignored"
+      )
+
+      query = app.operator_query(contract)
+
+      expect(query).to be_a(Igniter::App::Orchestration::OperatorQuery)
+      expect(query.count).to eq(3)
+      expect(query.joined.node(:interactive_summary).to_a).to contain_exactly(
+        include(
+          id: "agent_orchestration:open_interactive_session:interactive_summary",
+          combined_state: :joined,
+          status: :acknowledged,
+          phase: :streaming,
+          reply_mode: :stream,
+          queue: "manual-review",
+          channel: "slack://ops/review",
+          assignee: "ops:alice",
+          has_session: true,
+          has_inbox_item: true
+        )
+      )
+      expect(query.joined.node(:approval).to_a).to contain_exactly(
+        include(
+          id: "agent_orchestration:await_deferred_reply:approval",
+          combined_state: :joined,
+          status: :dismissed,
+          phase: :waiting,
+          reply_mode: :deferred,
+          has_session: true,
+          has_inbox_item: true
+        )
+      )
+      expect(query.inbox_only.node(:manual_summary).resolved.to_a).to contain_exactly(
+        include(
+          id: "agent_orchestration:require_manual_completion:manual_summary",
+          combined_state: :inbox_only,
+          status: :resolved,
+          has_session: false,
+          has_inbox_item: true
+        )
+      )
+      expect(query.with_session.phase(:streaming, :waiting).to_a.map { |entry| entry[:node] }).to contain_exactly(:interactive_summary, :approval)
+      expect(query.facet(:combined_state)).to eq(joined: 2, inbox_only: 1)
+      expect(query.facets(:lane, :phase)).to eq(
+        lane: {
+          manual_completions: 1,
+          ops_review: 1
+        },
+        phase: {
+          streaming: 2,
+          waiting: 1
+        }
+      )
+      expect(query.summary).to include(
+        total: 3,
+        live_sessions: 2,
+        inbox_items: 3,
+        joined_records: 2,
+        inbox_only: 1,
+        session_only: 0,
+        handed_off: 1,
+        by_combined_state: {
+          joined: 2,
+          inbox_only: 1
+        }
+      )
+      expect(query.summary[:by_phase]).to eq(streaming: 2, waiting: 1)
+      expect(app.operator_summary(contract)).to include(total: 3, joined_records: 2)
+      expect(query.order_by(:phase, direction: :asc).first[:node]).to eq(:interactive_summary)
+      expect(query.limit(2).to_a.size).to eq(2)
+      expect(query.explain).to include("OperatorQuery(3 candidates)")
+    ensure
+      writer_ref&.stop
+      reviewer_ref&.stop
+      Igniter::Registry.clear
+      Igniter::Runtime.agent_adapter = previous_adapter
+    end
+
     it "rejects orchestration operations that violate the action policy" do
       previous_adapter = Igniter::Runtime.agent_adapter
       Igniter::Runtime.activate_agent_adapter!

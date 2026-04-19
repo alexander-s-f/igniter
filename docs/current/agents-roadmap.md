@@ -31,6 +31,7 @@ Already landed:
 - that runtime query surface now also supports `facet`, `facets`, and `summary`
 - `App.orchestration_query` now gives a read-only operator query surface over inbox items, including lane, queue, channel, assignee, and lifecycle filters
 - that app operator query surface now also supports `facet`, `facets`, and `summary`
+- `App.operator_query(target)` now joins live sessions and inbox items into one operator-facing query surface
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
 

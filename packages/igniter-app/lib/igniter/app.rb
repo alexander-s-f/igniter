@@ -543,6 +543,19 @@ module Igniter
         orchestration_query.summary
       end
 
+      def operator_query(target = nil)
+        execution = orchestration_execution_for(target)
+        Orchestration::OperatorQuery.new(operator_records_for(execution))
+      end
+
+      def orchestration_operator_query(target = nil)
+        operator_query(target)
+      end
+
+      def operator_summary(target = nil)
+        operator_query(target).summary
+      end
+
       # Expose the AppConfig (populated after the first build!).
       def config = @app_config
 
@@ -759,6 +772,113 @@ module Igniter
         plan.followup_request.actions.map { |action| action[:node] }.uniq.each do |node_name|
           execution.resolve(node_name)
         end
+      end
+
+      def operator_records_for(execution)
+        graph, execution_id =
+          if execution
+            [execution.compiled_graph.name, execution.events.execution_id]
+          else
+            [nil, nil]
+          end
+
+        items = orchestration_inbox.items
+        items = items.select { |item| operator_item_matches_execution?(item, graph: graph, execution_id: execution_id) } if execution
+        actions_by_node = operator_actions_by_node(execution)
+        pending_sessions = execution ? execution.agent_sessions.dup : []
+        records = []
+
+        items.reverse_each do |item|
+          session = consume_matching_operator_session!(pending_sessions, item)
+          records << build_operator_record(item: item, session: session, action: actions_by_node[item[:node]&.to_sym])
+        end
+
+        pending_sessions.each do |session|
+          records << build_operator_record(item: nil, session: session, action: actions_by_node[session.node_name.to_sym])
+        end
+
+        records.reverse.freeze
+      end
+
+      def operator_actions_by_node(execution)
+        return {} unless execution
+
+        Array(execution.orchestration_plan[:actions]).each_with_object({}) do |action, memo|
+          memo[action[:node].to_sym] = action.freeze
+        end
+      end
+
+      def operator_item_matches_execution?(item, graph:, execution_id:)
+        return true if graph.nil? || execution_id.nil?
+
+        item[:graph].to_s == graph.to_s && item[:execution_id].to_s == execution_id.to_s
+      end
+
+      def consume_matching_operator_session!(pending_sessions, item)
+        index =
+          pending_sessions.index do |session|
+            session.node_name == item[:node]&.to_sym &&
+              session.graph.to_s == item[:graph].to_s &&
+              session.execution_id.to_s == item[:execution_id].to_s &&
+              (!item[:token] || session.token.to_s == item[:token].to_s)
+          end
+
+        index ||= pending_sessions.index do |session|
+          session.node_name == item[:node]&.to_sym &&
+            session.graph.to_s == item[:graph].to_s &&
+            session.execution_id.to_s == item[:execution_id].to_s
+        end
+
+        index ? pending_sessions.delete_at(index) : nil
+      end
+
+      def build_operator_record(item:, session:, action:)
+        combined_state =
+          if item && session
+            :joined
+          elsif session
+            :session_only
+          else
+            :inbox_only
+          end
+
+        {
+          id: item&.fetch(:id, nil) || "agent_session:#{session.node_name}:#{session.token}",
+          item_id: item&.dig(:item_id),
+          action: item&.dig(:action) || action&.dig(:action),
+          node: item&.dig(:node) || session&.node_name || action&.dig(:node),
+          interaction: item&.dig(:interaction) || action&.dig(:interaction),
+          reason: item&.dig(:reason) || action&.dig(:reason),
+          guidance: item&.dig(:guidance) || action&.dig(:guidance),
+          attention_required: item&.key?(:attention_required) ? !!item[:attention_required] : !!action&.dig(:attention_required),
+          resumable: item&.key?(:resumable) ? !!item[:resumable] : !!action&.dig(:resumable),
+          status: item&.dig(:status) || (session ? :live_session : nil),
+          policy: (item&.dig(:policy) || action&.dig(:policy))&.dup,
+          lane: (item&.dig(:lane) || action&.dig(:lane))&.dup,
+          routing: (item&.dig(:routing) || action&.dig(:routing))&.dup,
+          assignee: item&.dig(:assignee),
+          queue: item&.dig(:queue) || item&.dig(:routing, :queue) || action&.dig(:routing, :queue),
+          channel: item&.dig(:channel) || item&.dig(:routing, :channel) || action&.dig(:routing, :channel),
+          handoff_count: item&.fetch(:handoff_count, 0) || 0,
+          handoff_history: Array(item&.dig(:handoff_history)).map(&:dup).freeze,
+          token: session&.token || item&.dig(:token),
+          phase: session&.phase || item&.dig(:phase),
+          reply_mode: session&.reply_mode || item&.dig(:reply_mode),
+          mode: session&.mode,
+          waiting_on: session&.waiting_on || item&.dig(:waiting_on),
+          source_node: session&.source_node || item&.dig(:source_node),
+          turn: session&.turn || item&.dig(:turn),
+          tool_loop_status: session&.tool_loop_status,
+          graph: session&.graph || item&.dig(:graph),
+          execution_id: session&.execution_id || item&.dig(:execution_id),
+          source: item&.dig(:source),
+          note: item&.dig(:note),
+          combined_state: combined_state,
+          has_session: !session.nil?,
+          has_inbox_item: !item.nil?,
+          session: session&.to_h,
+          inbox_item: item&.dup
+        }.freeze
       end
 
       def resume_orchestration_item_from_store(item, value:)

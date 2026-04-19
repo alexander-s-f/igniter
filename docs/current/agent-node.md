@@ -153,6 +153,7 @@ Planning and explain surfaces now expose agent orchestration hints too:
 - planner, follow-up, inbox, and diagnostics surfaces now carry `lane` metadata explicitly, so operator workflows can reason about lanes without reverse-engineering queue strings
 - app orchestration now also exposes `App.orchestration_query`, a read-only operator view over inbox items with filters like `lane`, `queue`, `channel`, `assignee`, `status`, `interaction`, and `attention_required`
 - that operator view also supports `facet`, `facets`, and `summary`, so queue/lane/operator state can be inspected as an aggregate field instead of only as a filtered list
+- app orchestration now also exposes `App.operator_query(target)`, which joins live `AgentSession` state with inbox/operator state into one read model with `joined`, `session_only`, and `inbox_only` records
 - `lane` and current `queue/channel` are intentionally not the same thing: lane identifies the orchestration surface the item belongs to, while a later `handoff` may move the item to a different queue or channel without erasing its lane identity
 - deduplication only applies to active items, so resolved or dismissed actions can be reopened later if the workflow becomes pending again
 - `explain_plan` now renders those hints directly for human review
@@ -163,6 +164,8 @@ The next safe query-oriented step for agents is not a full `MeshQL` port yet. Th
 
 That first slice is now in place at runtime level through `execution.agent_session_query`, which gives a chainable read-only query surface over live `AgentSession` objects and derived orchestration metadata like `interaction`, `reason`, `attention_required`, and `resumable`.
 It also now supports `facet`, `facets`, and `summary`, which makes the local agent runtime usable as a small OLAP-like field before any richer distributed query language exists.
+
+The next layer above that is now also in place in `igniter-app`: `App.operator_query(target)` joins the live session field with the app inbox field, so operators can inspect runtime/session state and workflow/ownership state without hand-joining on `node`, `token`, `graph`, or `execution_id`.
 
 ## Agent Sessions
 
