@@ -10,6 +10,7 @@ require_relative "diagnostics/loader_contributor"
 require_relative "diagnostics/scheduler_contributor"
 require_relative "diagnostics/sdk_contributor"
 require_relative "diagnostics/evolution_contributor"
+require_relative "diagnostics/orchestration_contributor"
 
 module Igniter
   class App
@@ -41,6 +42,10 @@ module Igniter
       Igniter::Diagnostics.register_report_contributor(
         :app_evolution,
         EvolutionContributor
+      )
+      Igniter::Diagnostics.register_report_contributor(
+        :app_orchestration,
+        OrchestrationContributor
       )
     end
   end

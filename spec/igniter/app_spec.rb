@@ -3,6 +3,7 @@
 require "spec_helper"
 require "igniter/server"
 require "igniter/app"
+require "igniter/agent"
 require "igniter/cluster"
 require "igniter/app/scaffold_pack"
 require "tmpdir"
@@ -1455,6 +1456,235 @@ RSpec.describe Igniter::App do
           }
         )
       end
+    end
+
+    it "builds app orchestration plans and surfaces follow-ups in diagnostics" do
+      previous_adapter = Igniter::Runtime.agent_adapter
+      Igniter::Runtime.activate_agent_adapter!
+      Igniter::Registry.clear
+      writer_ref = nil
+      reviewer_ref = nil
+
+      writer_class = Class.new(Igniter::Agent) do
+        on :summarize do |payload:, **|
+          raise Igniter::PendingDependencyError.new("continue", token: "writer-session", source_node: :summary)
+        end
+      end
+
+      reviewer_class = Class.new(Igniter::Agent) do
+        on :review do |payload:, **|
+          raise Igniter::PendingDependencyError.new("wait", token: "review-session", source_node: :approval)
+        end
+      end
+
+      writer_ref = writer_class.start(name: :writer)
+      reviewer_ref = reviewer_class.start(name: :reviewer)
+
+      klass = Class.new(Igniter::Contract) do
+        define do
+          input :name
+
+          agent :interactive_summary,
+                via: :writer,
+                message: :summarize,
+                reply: :stream,
+                inputs: { name: :name }
+
+          agent :manual_summary,
+                via: :writer,
+                message: :summarize,
+                reply: :stream,
+                session_policy: :manual,
+                finalizer: :events,
+                inputs: { name: :name }
+
+          agent :approval,
+                via: :reviewer,
+                message: :review,
+                inputs: { name: :name }
+
+          output :interactive_summary
+          output :manual_summary
+          output :approval
+        end
+      end
+
+      app = stub_const("SpecOrchestrationApp", Class.new(Igniter::App))
+
+      app.class_eval do
+        register "AgentContract", klass
+      end
+
+      app.send(:build!)
+      app.reset_orchestration_inbox!
+      contract = klass.new(name: "Alice")
+
+      plan = app.orchestration_plan(contract)
+      followup = app.orchestration_followup(plan)
+      opened = app.open_orchestration_followups(contract)
+      reopened = app.open_orchestration_followups(contract)
+      acknowledged = app.acknowledge_orchestration_item("agent_orchestration:open_interactive_session:interactive_summary", note: "picked up")
+      resolved = app.resolve_orchestration_item("agent_orchestration:require_manual_completion:manual_summary", note: "done")
+      dismissed = app.dismiss_orchestration_item("agent_orchestration:await_deferred_reply:approval", note: "not needed")
+      reopened_after_close = app.open_orchestration_followups(contract)
+      report = contract.diagnostics.to_h
+      text = contract.diagnostics_text
+      markdown = contract.diagnostics_markdown
+
+      expect(plan).to be_a(Igniter::App::Orchestration::Plan)
+      expect(plan.summary).to include(
+        total: 3,
+        attention_required: 3,
+        manual_completion: 1,
+        deferred_replies: 1,
+        interactive_sessions: 1,
+        single_turn_sessions: 0,
+        attention_nodes: %i[interactive_summary manual_summary approval],
+        by_action: {
+          open_interactive_session: 1,
+          require_manual_completion: 1,
+          await_deferred_reply: 1
+        }
+      )
+      expect(plan.actions).to contain_exactly(
+        include(action: :open_interactive_session, node: :interactive_summary, interaction: :interactive_session, attention_required: true),
+        include(action: :require_manual_completion, node: :manual_summary, interaction: :manual_session, attention_required: true),
+        include(action: :await_deferred_reply, node: :approval, interaction: :deferred_call, attention_required: true)
+      )
+
+      expect(followup).to be_a(Igniter::App::Orchestration::FollowupRequest)
+      expect(followup.summary).to include(
+        total: 3,
+        manual_completion: 1,
+        deferred_replies: 1,
+        interactive_sessions: 1,
+        by_action: {
+          open_interactive_session: 1,
+          require_manual_completion: 1,
+          await_deferred_reply: 1
+        }
+      )
+      expect(followup.action_ids).to contain_exactly(
+        "agent_orchestration:open_interactive_session:interactive_summary",
+        "agent_orchestration:require_manual_completion:manual_summary",
+        "agent_orchestration:await_deferred_reply:approval"
+      )
+      expect(opened.status).to eq(:opened)
+      expect(opened.opened).to contain_exactly(
+        include(action: :open_interactive_session, node: :interactive_summary, graph: "AnonymousContract", status: :open),
+        include(action: :require_manual_completion, node: :manual_summary, graph: "AnonymousContract", status: :open),
+        include(action: :await_deferred_reply, node: :approval, graph: "AnonymousContract", status: :open)
+      )
+      expect(reopened.status).to eq(:existing)
+      expect(reopened.existing).to contain_exactly(
+        include(id: "agent_orchestration:open_interactive_session:interactive_summary", status: :existing),
+        include(id: "agent_orchestration:require_manual_completion:manual_summary", status: :existing),
+        include(id: "agent_orchestration:await_deferred_reply:approval", status: :existing)
+      )
+      expect(acknowledged).to include(
+        id: "agent_orchestration:open_interactive_session:interactive_summary",
+        status: :acknowledged,
+        note: "picked up"
+      )
+      expect(resolved).to include(
+        id: "agent_orchestration:require_manual_completion:manual_summary",
+        status: :resolved,
+        note: "done"
+      )
+      expect(dismissed).to include(
+        id: "agent_orchestration:await_deferred_reply:approval",
+        status: :dismissed,
+        note: "not needed"
+      )
+      expect(reopened_after_close.status).to eq(:partial)
+      expect(reopened_after_close.opened).to contain_exactly(
+        include(id: "agent_orchestration:require_manual_completion:manual_summary", status: :open),
+        include(id: "agent_orchestration:await_deferred_reply:approval", status: :open)
+      )
+      expect(reopened_after_close.existing).to contain_exactly(
+        include(id: "agent_orchestration:open_interactive_session:interactive_summary", status: :existing)
+      )
+      expect(app.orchestration_inbox.snapshot).to include(
+        total: 5,
+        open: 2,
+        acknowledged: 1,
+        resolved: 1,
+        dismissed: 1,
+        actionable: 3,
+        by_status: {
+          acknowledged: 1,
+          resolved: 1,
+          dismissed: 1,
+          open: 2
+        },
+        latest_action: :await_deferred_reply,
+        latest_node: :approval,
+        latest_status: :open,
+        by_action: {
+          open_interactive_session: 1,
+          require_manual_completion: 2,
+          await_deferred_reply: 2
+        }
+      )
+
+      expect(report[:app_orchestration]).to include(
+        app: "SpecOrchestrationApp",
+        source: :agent_orchestration,
+        summary: include(
+          total: 3,
+          attention_required: 3,
+          manual_completion: 1,
+          deferred_replies: 1,
+          interactive_sessions: 1
+        ),
+        followup: include(
+          summary: include(
+            total: 3,
+            manual_completion: 1,
+            deferred_replies: 1,
+            interactive_sessions: 1
+          )
+        ),
+        inbox: include(
+          total: 5,
+          open: 2,
+          acknowledged: 1,
+          resolved: 1,
+          dismissed: 1,
+          actionable: 3,
+          latest_action: :await_deferred_reply,
+          latest_node: :approval,
+          latest_status: :open,
+          by_action: {
+            open_interactive_session: 1,
+            require_manual_completion: 2,
+            await_deferred_reply: 2
+          },
+          by_status: {
+            acknowledged: 1,
+            resolved: 1,
+            dismissed: 1,
+            open: 2
+          }
+        )
+      )
+      expect(report[:app_orchestration][:actions]).to contain_exactly(
+        include(action: :open_interactive_session, node: :interactive_summary),
+        include(action: :require_manual_completion, node: :manual_summary),
+        include(action: :await_deferred_reply, node: :approval)
+      )
+      expect(text).to include("App Orchestration: total=3, attention_required=3, manual_completion=1, deferred_replies=1, interactive_sessions=1, single_turn_sessions=0, followups=3")
+      expect(text).to include("App Orchestration Inbox: total=5, open=2, acknowledged=1, resolved=1, dismissed=1, actionable=3, latest_action=await_deferred_reply, latest_node=approval, latest_status=open")
+      expect(markdown).to include("## App Orchestration")
+      expect(markdown).to include("- Follow-up: total=3, manual_completion=1, deferred_replies=1, interactive_sessions=1")
+      expect(markdown).to include("- Inbox: total=5, open=2, acknowledged=1, resolved=1, dismissed=1, actionable=3, latest_action=await_deferred_reply, latest_node=approval, latest_status=open")
+      expect(markdown).to include("`manual_summary` `require_manual_completion`")
+      expect(markdown).to include("`approval` `await_deferred_reply`")
+    ensure
+      writer_ref&.stop
+      reviewer_ref&.stop
+      Igniter::Registry.clear
+      Igniter::Runtime.agent_adapter = previous_adapter
     end
   end
 

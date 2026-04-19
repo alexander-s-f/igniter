@@ -3,6 +3,7 @@
 require_relative "app/runtime"
 require_relative "app/diagnostics"
 require_relative "app/evolution"
+require_relative "app/orchestration"
 require "igniter/stack"
 
 module Igniter
@@ -52,6 +53,7 @@ module Igniter
   class App
     class << self
       UNDEFINED_EVOLUTION_STORE = Object.new
+      UNDEFINED_ORCHESTRATION_INBOX = Object.new
 
       # ─── DSL ─────────────────────────────────────────────────────────────────
 
@@ -123,6 +125,12 @@ module Igniter
             retention_policy: retention_policy
           )
         )
+      end
+
+      def orchestration_inbox(inbox = UNDEFINED_ORCHESTRATION_INBOX)
+        return (@orchestration_inbox ||= Orchestration::Inbox.new) if inbox.equal?(UNDEFINED_ORCHESTRATION_INBOX)
+
+        @orchestration_inbox = inbox
       end
 
       def sdk_capabilities
@@ -302,6 +310,33 @@ module Igniter
         plan
       end
 
+      def orchestration_plan(target)
+        Orchestration::Planner.new(app_class: self).plan(target)
+      end
+
+      def orchestration_followup(target)
+        plan = target.is_a?(Orchestration::Plan) ? target : orchestration_plan(target)
+        plan.followup_request
+      end
+
+      def open_orchestration_followups(target)
+        plan = target.is_a?(Orchestration::Plan) ? target : orchestration_plan(target)
+        graph, execution_id = orchestration_runtime_identity_for(target)
+        Orchestration::Runner.new(app_class: self).run(plan, graph: graph, execution_id: execution_id)
+      end
+
+      def acknowledge_orchestration_item(id, note: nil)
+        orchestration_inbox.acknowledge(id, note: note)
+      end
+
+      def resolve_orchestration_item(id, note: nil)
+        orchestration_inbox.resolve(id, note: note)
+      end
+
+      def dismiss_orchestration_item(id, note: nil)
+        orchestration_inbox.dismiss(id, note: note)
+      end
+
       def evolution_approval(target)
         plan = target.is_a?(Evolution::Plan) ? target : evolution_plan(target)
         request = plan.approval_request
@@ -357,6 +392,10 @@ module Igniter
         @evolution_trail = Evolution::Trail.new(app_class: self, store: evolution_store)
       end
 
+      def reset_orchestration_inbox!
+        orchestration_inbox.clear!
+      end
+
       # Expose the AppConfig (populated after the first build!).
       def config = @app_config
 
@@ -389,6 +428,7 @@ module Igniter
         subclass.instance_variable_set(:@scheduler_adapter, nil)
         subclass.instance_variable_set(:@evolution_store, nil)
         subclass.instance_variable_set(:@evolution_trail, Evolution::Trail.new(app_class: subclass))
+        subclass.instance_variable_set(:@orchestration_inbox, nil)
       end
 
       private
@@ -523,6 +563,18 @@ module Igniter
 
       def stop_scheduler(adapter)
         adapter&.stop
+      end
+
+      def orchestration_runtime_identity_for(target)
+        execution = if target.respond_to?(:execution)
+          target.execution
+        elsif target.class.name == "Igniter::Diagnostics::Report"
+          target.instance_variable_get(:@execution)
+        end
+
+        return [nil, nil] unless execution
+
+        [execution.compiled_graph.name, execution.events.execution_id]
       end
 
       def normalize_request_hook!(callable, block, name)

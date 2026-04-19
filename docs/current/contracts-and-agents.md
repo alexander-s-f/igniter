@@ -76,7 +76,7 @@ It also now carries explicit completion semantics. That matters because planner/
 
 That signal is now active in runtime behavior too: stream sessions no longer auto-finalize through built-in finalizers while tool work is still open or orphaned. In other words, the tool-loop model is no longer only descriptive; it is beginning to constrain execution.
 
-The planner now sees some of that distinction as well. Agent-backed plans expose orchestration hints for things like interactive streaming sessions, manual completion, deferred resumable calls, and delivery-only casts. They also now expose recommended orchestration actions such as opening an interactive session, requiring manual completion, or awaiting a deferred reply. That matters because higher-level orchestration should not have to rediscover those semantics by reverse-engineering low-level node flags.
+The planner now sees some of that distinction as well. Agent-backed plans expose orchestration hints for things like interactive streaming sessions, manual completion, deferred resumable calls, and delivery-only casts. They also now expose recommended orchestration actions such as opening an interactive session, requiring manual completion, or awaiting a deferred reply. `igniter-app` already consumes that surface to open deduplicated orchestration inbox items, and those items now have their own small lifecycle (`acknowledge`, `resolve`, `dismiss`). That is the first concrete step from "planner semantics" toward actual runtime follow-up handling.
 
 That keeps text streaming simple while leaving room for richer agent execution and observability.
 

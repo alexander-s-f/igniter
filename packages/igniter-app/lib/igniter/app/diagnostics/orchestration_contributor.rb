@@ -1,0 +1,96 @@
+# frozen_string_literal: true
+
+module Igniter
+  class App
+    module Diagnostics
+      module OrchestrationContributor
+        class << self
+          def augment(report:, execution:) # rubocop:disable Lint/UnusedMethodArgument
+            context = Igniter::App::RuntimeContext.current
+            return report unless context
+            return report unless report[:orchestration]
+
+            plan = context.fetch(:app_class).orchestration_plan(report)
+            report[:app_orchestration] = plan.to_h.merge(
+              inbox: context.fetch(:app_class).orchestration_inbox.snapshot(limit: 20)
+            )
+            report
+          end
+
+          def append_text(report:, lines:)
+            orchestration = report[:app_orchestration]
+            return unless orchestration
+
+            lines << "App Orchestration: #{summary(orchestration)}"
+            lines << "App Orchestration Inbox: #{inbox_summary(orchestration[:inbox])}" if orchestration[:inbox]
+          end
+
+          def append_markdown_summary(report:, lines:)
+            orchestration = report[:app_orchestration]
+            return unless orchestration
+
+            lines << "- App Orchestration: #{summary(orchestration)}"
+            lines << "- App Orchestration Inbox: #{inbox_summary(orchestration[:inbox])}" if orchestration[:inbox]
+          end
+
+          def append_markdown_sections(report:, lines:)
+            orchestration = report[:app_orchestration]
+            return unless orchestration
+
+            followup = orchestration[:followup]
+
+            lines << ""
+            lines << "## App Orchestration"
+            lines << "- Summary: #{summary(orchestration)}"
+            lines << "- Inbox: #{inbox_summary(orchestration[:inbox])}" if orchestration[:inbox]
+            return if followup[:actions].empty?
+
+            lines << "- Follow-up: total=#{followup.dig(:summary, :total)}, manual_completion=#{followup.dig(:summary, :manual_completion)}, deferred_replies=#{followup.dig(:summary, :deferred_replies)}, interactive_sessions=#{followup.dig(:summary, :interactive_sessions)}"
+            followup[:actions].each do |action|
+              lines << "- `#{action[:node]}` `#{action[:action]}`: #{action[:guidance]} reason=`#{action[:reason]}`"
+            end
+          end
+
+          private
+
+          def summary(orchestration)
+            summary = orchestration[:summary]
+            followup = orchestration[:followup]
+
+            parts = []
+            parts << "total=#{summary[:total]}"
+            parts << "attention_required=#{summary[:attention_required]}"
+            parts << "manual_completion=#{summary[:manual_completion]}"
+            parts << "deferred_replies=#{summary[:deferred_replies]}"
+            parts << "interactive_sessions=#{summary[:interactive_sessions]}"
+            parts << "single_turn_sessions=#{summary[:single_turn_sessions]}"
+            parts << "followups=#{followup.dig(:summary, :total)}"
+            parts << "attention_nodes=#{Array(summary[:attention_nodes]).join(",")}" if Array(summary[:attention_nodes]).any?
+            parts << "by_action=#{inline_counts(summary[:by_action])}" unless summary[:by_action].empty?
+            parts.join(", ")
+          end
+
+          def inbox_summary(inbox)
+            parts = []
+            parts << "total=#{inbox[:total]}"
+            parts << "open=#{inbox[:open]}"
+            parts << "acknowledged=#{inbox[:acknowledged]}"
+            parts << "resolved=#{inbox[:resolved]}"
+            parts << "dismissed=#{inbox[:dismissed]}"
+            parts << "actionable=#{inbox[:actionable]}"
+            parts << "latest_action=#{inbox[:latest_action] || "none"}"
+            parts << "latest_node=#{inbox[:latest_node] || "none"}"
+            parts << "latest_status=#{inbox[:latest_status] || "none"}"
+            parts << "by_status=#{inline_counts(inbox[:by_status])}" unless inbox[:by_status].empty?
+            parts << "by_action=#{inline_counts(inbox[:by_action])}" unless inbox[:by_action].empty?
+            parts.join(", ")
+          end
+
+          def inline_counts(counts)
+            counts.sort_by { |key, _count| key.to_s }.map { |key, count| "#{key}=#{count}" }.join(", ")
+          end
+        end
+      end
+    end
+  end
+end

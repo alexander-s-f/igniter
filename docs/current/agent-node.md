@@ -111,6 +111,10 @@ Planning and explain surfaces now expose agent orchestration hints too:
   - `:await_single_turn_completion`
   - `:await_deferred_reply`
 - diagnostics now surface that same orchestration view, so app/runtime tooling can consume it without separately asking for `plan`
+- `igniter-app` now uses that surface to open app-level orchestration inbox items via `App.open_orchestration_followups(...)`
+- those inbox items are deduplicated by action id and show up in `diagnostics[:app_orchestration][:inbox]`
+- inbox items now support lifecycle transitions through `acknowledge`, `resolve`, and `dismiss`
+- deduplication only applies to active items, so resolved or dismissed actions can be reopened later if the workflow becomes pending again
 - `explain_plan` now renders those hints directly for human review
 
 That gives higher layers a stable place to reason about agent workflow shape without re-deriving it from low-level reply/session/tool-loop flags.
