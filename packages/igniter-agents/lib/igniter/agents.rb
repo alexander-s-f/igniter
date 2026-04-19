@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/core"
+require "igniter/agent"
 require_relative "agents/reliability/retry_agent"
 require_relative "agents/pipeline/batch_processor_agent"
 require_relative "agents/scheduling/cron_agent"

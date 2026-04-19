@@ -1,6 +1,6 @@
 # Module System
 
-Igniter currently has three architectural axes.
+Igniter currently has four architectural axes.
 
 ## 1. Runtime Layers
 
@@ -25,12 +25,29 @@ Rules:
 - upper layers may compose lower layers explicitly
 - loading a layer should not silently mutate unrelated runtime state
 
-## 2. SDK Packs
+## 2. Actor Runtime
+
+This is the actor/agent domain:
+
+```text
+igniter/agent
+igniter/registry
+igniter/supervisor
+igniter/agents
+igniter/ai/agents
+```
+
+Rules:
+
+- actor runtime depends on core, never the other way around
+- reusable agents belong here, not under `sdk/*`
+- moving agents into their own gem does not yet mean they are graph nodes
+
+## 3. SDK Packs
 
 This is the optional capability plane:
 
 ```text
-igniter/sdk/agents
 igniter/ai
 igniter/sdk/channels
 igniter/sdk/data
@@ -44,7 +61,7 @@ Rules:
 - packs may depend downward, never upward
 - packs must not become hidden boot mechanisms
 
-## 3. Integrations
+## 4. Integrations
 
 This is the environment/framework integration plane:
 

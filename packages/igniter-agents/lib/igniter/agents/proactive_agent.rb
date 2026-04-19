@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/core"
+require "igniter/agent"
 
 module Igniter
   module Agents

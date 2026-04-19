@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ["alexander.s.fokin@gmail.com"]
 
   spec.summary = "AI runtime pack for Igniter"
-  spec.description = "LLM providers, AI executors, skills, tool registry, transcription, and AI agents for Igniter."
+  spec.description = "LLM providers, AI executors, skills, tool registry, and transcription support for Igniter."
   spec.homepage = "https://github.com/alexander-s-f/igniter"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"

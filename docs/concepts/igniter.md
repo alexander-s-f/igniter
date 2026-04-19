@@ -108,7 +108,8 @@ The building blocks of the graph. Common DSL node types are:
 Igniter is intentionally layered:
 
 - **Core**: DSL, model, compiler, runtime, events, diagnostics
-- **Core features**: actors, tools, memory, metrics, temporal support, caches
+- **Agents**: actor runtime, supervision, registry, reusable agent implementations
+- **Core features**: tools, memory, metrics, temporal support, caches
 - **Extensions**: auditing, provenance, incremental, dataflow, invariants, and similar behavioral add-ons
 - **Capability layers**: AI and Channels
 - **Hosting/profile layers**: Server, App, Cluster

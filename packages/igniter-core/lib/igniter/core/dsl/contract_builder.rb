@@ -353,6 +353,26 @@ module Igniter
         )
       end
 
+      def agent(name, via:, message:, inputs:, timeout: 5, **metadata)
+        raise CompileError, "agent :#{name} requires inputs: Hash" unless inputs.is_a?(Hash)
+        raise CompileError, "agent :#{name} requires via:" if via.nil? || via.to_s.strip.empty?
+        raise CompileError, "agent :#{name} requires message:" if message.nil? || message.to_s.strip.empty?
+        raise CompileError, "agent :#{name} timeout must be positive" unless timeout.to_f.positive?
+
+        add_node(
+          Model::AgentNode.new(
+            id: next_id,
+            name: name.to_sym,
+            agent_name: via,
+            message_name: message,
+            input_mapping: inputs,
+            timeout: timeout,
+            path: scoped_path(name),
+            metadata: with_source_location(metadata)
+          )
+        )
+      end
+
       def effect(name, uses:, depends_on: nil, with: nil, **metadata)
         adapter_class = resolve_effect_adapter(name, uses)
 

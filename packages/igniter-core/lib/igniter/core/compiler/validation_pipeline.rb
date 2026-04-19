@@ -10,6 +10,7 @@ module Igniter
         Validators::TypeCompatibilityValidator,
         Validators::CallableValidator,
         Validators::AwaitValidator,
+        Validators::AgentValidator,
         Validators::RemoteValidator
       ].freeze
 

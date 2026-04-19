@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/core"
+require "igniter/agent"
 require_relative "agents/router_agent"
 require_relative "agents/critic_agent"
 require_relative "agents/planner_agent"

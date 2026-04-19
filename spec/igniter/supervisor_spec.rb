@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/core"
+require "igniter/supervisor"
 
 RSpec.describe Igniter::Supervisor do
   def wait_until(timeout: 1.5, interval: 0.01)

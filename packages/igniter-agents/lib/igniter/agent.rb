@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
-require_relative "errors"
+require "igniter/core/errors"
+require "igniter/core/runtime/agent_adapter"
+require_relative "registry"
 require_relative "agent/message"
 require_relative "agent/mailbox"
 require_relative "agent/state_holder"
 require_relative "agent/runner"
 require_relative "agent/ref"
+require_relative "runtime/registry_agent_adapter"
 
 module Igniter
   # Base class for stateful, message-driven actors.
@@ -154,3 +157,5 @@ module Igniter
     end
   end
 end
+
+Igniter::Runtime.activate_agent_adapter! if Igniter::Runtime.agent_adapter.instance_of?(Igniter::Runtime::AgentAdapter)

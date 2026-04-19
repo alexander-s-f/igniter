@@ -10,21 +10,25 @@ This is a namespace and dependency-boundary migration first, not a gem split.
 
 Completed so far:
 
-- core actor/tool foundation moved under `lib/igniter/core/*`
-- AI layer moved under `lib/igniter/ai/*`
-- built-in AI agents moved under `Igniter::AI::Agents`
-- channels foundation introduced under `lib/igniter/sdk/channels/*`
-- first built-in transport added as `Igniter::Channels::Webhook`
+- core graph/runtime kernel moved under `packages/igniter-core/lib/igniter/core/*`
+- actor runtime moved into `packages/igniter-agents/lib/igniter/*`
+- generic agents moved under `packages/igniter-agents/lib/igniter/agents/*`
+- built-in AI agents moved under `packages/igniter-agents/lib/igniter/ai/agents/*`
+- AI runtime moved under `packages/igniter-ai/lib/igniter/ai/*`
+- channels foundation introduced under `packages/igniter-sdk/lib/igniter/sdk/channels/*`
 - remote execution split into `Igniter::Server::RemoteAdapter` and `Igniter::Cluster::RemoteAdapter`
 - mesh moved to `Igniter::Cluster::Mesh`
 - consensus moved to `Igniter::Cluster::Consensus`
 - replication moved to `Igniter::Cluster::Replication`
-- legacy `integrations/llm`, `integrations/agents`, top-level `skill`, `tool_registry`, and duplicate `agent/*` files removed
+- legacy `integrations/llm`, `integrations/agents`, top-level `skill`, `tool_registry`, and duplicate root-owned `agent/*` files removed
 
 Current public entrypoints:
 
 - `require "igniter"` — contract/model/compiler/runtime core
-- `require "igniter/core"` — actor runtime and tool foundation
+- `require "igniter/core"` — graph/runtime kernel and core support features
+- `require "igniter/agent"` — actor runtime primitives
+- `require "igniter/agents"` — built-in generic agents
+- `require "igniter/ai/agents"` — built-in AI agent implementations
 - `require "igniter/core/<feature>"` — focused core features such as `tool`, `memory`, `temporal`, `metrics`
 - `require "igniter/extensions/<feature>"` — behavioral extensions such as `auditing`, `capabilities`, `content_addressing`
 - `require "igniter/ai"` — AI providers, executors, skills, transcription
@@ -39,19 +43,20 @@ Current public entrypoints:
 Target filesystem rule:
 
 - `lib/igniter/` keeps only top-level layer entrypoints.
-- `lib/igniter/core/` holds the substantive core implementation.
+- `packages/igniter-core/lib/igniter/core/` holds the substantive core implementation.
+- `packages/igniter-agents/lib/igniter/` holds the actor runtime and built-in agent implementations.
 - `lib/igniter/extensions/` holds behavioral extension entrypoints.
-- `lib/igniter/ai/`, `server/`, `cluster/`, `sdk/channels/`, and `app/` hold their own authoritative code.
+- `packages/igniter-ai/lib/igniter/ai/`, `packages/igniter-server/lib/igniter/server/`, `packages/igniter-cluster/lib/igniter/cluster/`, `packages/igniter-sdk/lib/igniter/sdk/channels/`, and `packages/igniter-app/lib/igniter/app/` hold their own authoritative code.
 - `lib/igniter/plugins/` is the intended home for framework-specific integrations such as Rails.
 - Rails plugin relocation completed under `lib/igniter/plugins/rails/*`, with `igniter/plugins/rails` as the canonical public entrypoint.
 
 Keep in `lib/igniter/`:
 
 - `igniter.rb`
-- layer entrypoints like `core.rb`, `ai.rb`, `channels.rb`, `server.rb`, `cluster.rb`, `app.rb`, `plugins.rb`, `rails.rb`, `agents.rb`
-- nested public entrypoint folders such as `core/`, `extensions/`, and `rails/`
+- top-level shell entrypoints such as `stack.rb`
+- nested public entrypoint folders only where the root shell still owns them
 
-Completed implementation relocation into `lib/igniter/core/`:
+Completed implementation relocation into `packages/igniter-core/lib/igniter/core/`:
 
 - `compiler/`
 - `model/`
@@ -105,7 +110,8 @@ Igniter::Channels       # communication adapters (Telegram, WhatsApp, email, web
 
 | Namespace | Responsibility |
 |----------|----------------|
-| `Igniter` | contract DSL, model, compiler, runtime, events, diagnostics, capabilities, caches, effects, core actor runtime |
+| `Igniter` | contract DSL, model, compiler, runtime, events, diagnostics, capabilities, caches, effects |
+| `Igniter::Agents` / `Igniter::Agent` | actor runtime, registry, supervision, generic built-in agents, AI agent implementations |
 | `Igniter::AI` | LLM providers, LLM executors, skills, transcription, AI discovery/registry |
 | `Igniter::Server` | HTTP server, Rack app, API handlers, client, remote execution transport |
 | `Igniter::Cluster` | consensus, mesh, replication, cluster routing |
@@ -114,23 +120,25 @@ Igniter::Channels       # communication adapters (Telegram, WhatsApp, email, web
 
 ## Important Architecture Decisions
 
-### Keep in core
+### Move out of core into agents
 
 - `Igniter::Agent`
 - `Igniter::Supervisor`
 - `Igniter::Registry`
+
+### Keep in core
+
 - `Igniter::StreamLoop`
 - `Igniter::Tool`
 - core DSL/model/compiler/runtime
 
-### Move to AI
+### Keep AI runtime separate from agents
 
 - `Igniter::AI`
 - `Igniter::AI::Executor`
 - `Igniter::AI::Skill`
 - `Igniter::AI::ToolRegistry`
 - transcription providers and result objects
-- AI-oriented built-in agents
 
 ### Keep App above Server
 
@@ -167,20 +175,20 @@ Create target directories and move obvious code without changing behavior:
 
 This phase is mostly physical reorganization plus namespace cleanup.
 
-## Phase 2: Move core actor and tool foundation
+## Phase 2: Extract actor runtime into a separate package
 
-These files are structurally core and should move first.
+These files are actor-runtime infrastructure and should not stay owned by core.
 
 | Current path | Target path | Target namespace |
 |-------------|-------------|------------------|
-| `lib/igniter/agent.rb` | `lib/igniter/core/agent.rb` | `Igniter::Agent` |
-| `lib/igniter/agent/message.rb` | `lib/igniter/core/agent/message.rb` | `Igniter::Agent::Message` |
-| `lib/igniter/agent/mailbox.rb` | `lib/igniter/core/agent/mailbox.rb` | `Igniter::Agent::Mailbox` |
-| `lib/igniter/agent/state_holder.rb` | `lib/igniter/core/agent/state_holder.rb` | `Igniter::Agent::StateHolder` |
-| `lib/igniter/agent/runner.rb` | `lib/igniter/core/agent/runner.rb` | `Igniter::Agent::Runner` |
-| `lib/igniter/agent/ref.rb` | `lib/igniter/core/agent/ref.rb` | `Igniter::Agent::Ref` |
-| `lib/igniter/supervisor.rb` | `lib/igniter/core/supervisor.rb` | `Igniter::Supervisor` |
-| `lib/igniter/registry.rb` | `lib/igniter/core/registry.rb` | `Igniter::Registry` |
+| `lib/igniter/agent.rb` | `packages/igniter-agents/lib/igniter/agent.rb` | `Igniter::Agent` |
+| `lib/igniter/agent/message.rb` | `packages/igniter-agents/lib/igniter/agent/message.rb` | `Igniter::Agent::Message` |
+| `lib/igniter/agent/mailbox.rb` | `packages/igniter-agents/lib/igniter/agent/mailbox.rb` | `Igniter::Agent::Mailbox` |
+| `lib/igniter/agent/state_holder.rb` | `packages/igniter-agents/lib/igniter/agent/state_holder.rb` | `Igniter::Agent::StateHolder` |
+| `lib/igniter/agent/runner.rb` | `packages/igniter-agents/lib/igniter/agent/runner.rb` | `Igniter::Agent::Runner` |
+| `lib/igniter/agent/ref.rb` | `packages/igniter-agents/lib/igniter/agent/ref.rb` | `Igniter::Agent::Ref` |
+| `lib/igniter/supervisor.rb` | `packages/igniter-agents/lib/igniter/supervisor.rb` | `Igniter::Supervisor` |
+| `lib/igniter/registry.rb` | `packages/igniter-agents/lib/igniter/registry.rb` | `Igniter::Registry` |
 | `lib/igniter/stream_loop.rb` | `lib/igniter/core/stream_loop.rb` | `Igniter::StreamLoop` |
 | `lib/igniter/tool.rb` | `lib/igniter/core/tool.rb` | `Igniter::Tool` |
 | `lib/igniter/tool/discoverable.rb` | `lib/igniter/core/tool/discoverable.rb` | `Igniter::Tool::Discoverable` |
@@ -189,13 +197,7 @@ Notes:
 
 - Public constants stay the same.
 - Directory layout changes first; namespace churn should be minimized during this step.
-- `lib/igniter/integrations/agents.rb` should stop feeling like an integration and become a core entry point.
-
-Recommended target:
-
-| Current path | Target path | Target namespace |
-|-------------|-------------|------------------|
-| `lib/igniter/integrations/agents.rb` | `lib/igniter/core/agents.rb` | core entrypoint |
+- `igniter/core` should stop being the implicit actor-runtime umbrella.
 
 ## Phase 3: Extract AI into its own area
 
@@ -239,22 +241,22 @@ Split it into:
 
 | Current path | Target path | Target namespace |
 |-------------|-------------|------------------|
-| `lib/igniter/agents.rb` | removed | replaced by canonical `lib/igniter/sdk/agents.rb` |
-| `lib/igniter/ai/agents.rb` | `lib/igniter/ai/agents.rb` | AI/built-in AI agents entrypoint |
-| `lib/igniter/agents/ai/*` | `lib/igniter/ai/agents/*` | `Igniter::AI::Agents::*` |
-| `lib/igniter/agents/proactive/alert_agent.rb` | `lib/igniter/sdk/agents/proactive/alert_agent.rb` | `Igniter::Agents::AlertAgent` |
-| `lib/igniter/agents/proactive/health_check_agent.rb` | `lib/igniter/sdk/agents/proactive/health_check_agent.rb` | `Igniter::Agents::HealthCheckAgent` |
-| `lib/igniter/agents/proactive_agent.rb` | `lib/igniter/sdk/agents/proactive_agent.rb` | `Igniter::Agents::ProactiveAgent` |
-| `lib/igniter/agents/observability/*` | `lib/igniter/sdk/agents/observability/*` | `Igniter::Agents::*` |
-| `lib/igniter/agents/reliability/*` | `lib/igniter/sdk/agents/reliability/*` | `Igniter::Agents::*` |
-| `lib/igniter/agents/pipeline/*` | `lib/igniter/sdk/agents/pipeline/*` | `Igniter::Agents::*` |
-| `lib/igniter/agents/scheduling/*` | `lib/igniter/sdk/agents/scheduling/*` | `Igniter::Agents::*` |
+| `lib/igniter/agents.rb` | `packages/igniter-agents/lib/igniter/agents.rb` | `Igniter::Agents` |
+| `lib/igniter/ai/agents.rb` | `packages/igniter-agents/lib/igniter/ai/agents.rb` | `Igniter::AI::Agents` |
+| `lib/igniter/agents/ai/*` | `packages/igniter-agents/lib/igniter/ai/agents/*` | `Igniter::AI::Agents::*` |
+| `lib/igniter/agents/proactive/alert_agent.rb` | `packages/igniter-agents/lib/igniter/agents/proactive/alert_agent.rb` | `Igniter::Agents::AlertAgent` |
+| `lib/igniter/agents/proactive/health_check_agent.rb` | `packages/igniter-agents/lib/igniter/agents/proactive/health_check_agent.rb` | `Igniter::Agents::HealthCheckAgent` |
+| `lib/igniter/agents/proactive_agent.rb` | `packages/igniter-agents/lib/igniter/agents/proactive_agent.rb` | `Igniter::Agents::ProactiveAgent` |
+| `lib/igniter/agents/observability/*` | `packages/igniter-agents/lib/igniter/agents/observability/*` | `Igniter::Agents::*` |
+| `lib/igniter/agents/reliability/*` | `packages/igniter-agents/lib/igniter/agents/reliability/*` | `Igniter::Agents::*` |
+| `lib/igniter/agents/pipeline/*` | `packages/igniter-agents/lib/igniter/agents/pipeline/*` | `Igniter::Agents::*` |
+| `lib/igniter/agents/scheduling/*` | `packages/igniter-agents/lib/igniter/agents/scheduling/*` | `Igniter::Agents::*` |
 
 Decision rule:
 
-- If an agent is generic mailbox/state/thread logic, it may live near core.
+- If an agent is generic mailbox/state/thread logic, it belongs in `igniter-agents`.
 - If an agent assumes LLMs or AI workflows, keep it under `Igniter::AI::Agents`.
-- If an agent is proactive/monitoring behavior without AI coupling, keep it under `Igniter::Agents` and load it from `igniter/sdk/agents`.
+- If an agent is proactive/monitoring behavior without AI coupling, keep it under `Igniter::Agents` and load it from `igniter/agents`.
 
 ## Phase 5: Keep App as a profile over Server
 

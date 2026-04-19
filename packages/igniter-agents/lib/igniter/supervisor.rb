@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "igniter/core/errors"
+require_relative "agent"
+
 module Igniter
   # Supervises a group of agents and restarts them when they crash.
   #

@@ -68,6 +68,12 @@ module Igniter
               base[:contract] = node.contract_class.name
               base[:inputs] = node.input_mapping
             end
+            if node.kind == :agent
+              base[:via] = node.agent_name
+              base[:message] = node.message_name
+              base[:inputs] = node.input_mapping
+              base[:timeout] = node.timeout
+            end
             if node.kind == :branch
               base[:selector] = node.selector_dependency
               base[:depends_on] = node.context_dependencies if node.context_dependencies.any?
@@ -126,6 +132,16 @@ module Igniter
             {
               name: node.name,
               event: node.event_name,
+              metadata: node.metadata.reject { |key, _| key == :source_location }
+            }
+          end,
+          agents: nodes.select { |node| node.kind == :agent }.map do |node|
+            {
+              name: node.name,
+              via: node.agent_name,
+              message: node.message_name,
+              inputs: node.input_mapping,
+              timeout: node.timeout,
               metadata: node.metadata.reject { |key, _| key == :source_location }
             }
           end,

@@ -13,6 +13,7 @@ RSpec.describe "Igniter layer loading" do
       require "json"
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-agents/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-ai/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-sdk/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-extensions/lib", #{ROOT.inspect}))
@@ -45,6 +46,7 @@ RSpec.describe "Igniter layer loading" do
     script = <<~RUBY
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-agents/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-ai/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-sdk/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-extensions/lib", #{ROOT.inspect}))
@@ -68,6 +70,7 @@ RSpec.describe "Igniter layer loading" do
       require "json"
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-agents/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-ai/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-sdk/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-extensions/lib", #{ROOT.inspect}))
@@ -96,6 +99,7 @@ RSpec.describe "Igniter layer loading" do
       require "json"
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-agents/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-ai/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-sdk/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-extensions/lib", #{ROOT.inspect}))
@@ -126,6 +130,7 @@ RSpec.describe "Igniter layer loading" do
       require "json"
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-agents/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-ai/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-sdk/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-extensions/lib", #{ROOT.inspect}))
@@ -150,6 +155,7 @@ RSpec.describe "Igniter layer loading" do
       require "json"
       $LOAD_PATH.unshift(File.expand_path("lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", #{ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("packages/igniter-agents/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-ai/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-sdk/lib", #{ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-extensions/lib", #{ROOT.inspect}))
@@ -183,11 +189,14 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/channels.rb")
   end
 
-  it "`require \"igniter/core\"` loads actor/tool primitives without built-in operational tools" do
+  it "`require \"igniter/core\"` loads the contract/tool kernel without actor runtime or operational tools" do
     features = loaded_igniter_features("igniter/core")
 
     expect(features).to include("packages/igniter-core/lib/igniter/core.rb")
     expect(features).to include("packages/igniter-core/lib/igniter/core/tool.rb")
+    expect(features).not_to include("packages/igniter-agents/lib/igniter/agent.rb")
+    expect(features).not_to include("packages/igniter-agents/lib/igniter/registry.rb")
+    expect(features).not_to include("packages/igniter-agents/lib/igniter/supervisor.rb")
     expect(features).not_to include("igniter/tools.rb")
     expect(features).not_to include("packages/igniter-core/lib/igniter/core/tool/system_discovery_tool.rb")
     expect(features).not_to include("packages/igniter-core/lib/igniter/core/tool/local_workflow_selector_tool.rb")
@@ -206,6 +215,27 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/server.rb")
     expect(features).not_to include("igniter/app.rb")
     expect(features).not_to include("igniter/cluster.rb")
+  end
+
+  it "`require \"igniter/agent\"` loads the actor runtime directly from the agents package" do
+    features = loaded_igniter_features("igniter/agent")
+
+    expect(features).to include("packages/igniter-agents/lib/igniter/agent.rb")
+    expect(features).to include("packages/igniter-agents/lib/igniter/registry.rb")
+    expect(features).to include("packages/igniter-agents/lib/igniter/agent/mailbox.rb")
+    expect(features).not_to include("packages/igniter-core/lib/igniter/core.rb")
+    expect(features).not_to include("igniter/server.rb")
+    expect(features).not_to include("igniter/app.rb")
+    expect(features).not_to include("igniter/cluster.rb")
+  end
+
+  it "`require \"igniter-agents\"` loads the agents package directly" do
+    features = loaded_igniter_features("igniter-agents")
+
+    expect(features).to include("packages/igniter-agents/lib/igniter-agents.rb")
+    expect(features).to include("packages/igniter-agents/lib/igniter/agent.rb")
+    expect(features).to include("packages/igniter-agents/lib/igniter/agents.rb")
+    expect(features).to include("packages/igniter-agents/lib/igniter/ai/agents.rb")
   end
 
   it "`require \"igniter/stack\"` loads stack support without the app runtime pack" do
@@ -271,7 +301,7 @@ RSpec.describe "Igniter layer loading" do
     expect(features).to include("packages/igniter-ai/lib/igniter/ai/executor.rb")
     expect(features).to include("packages/igniter-ai/lib/igniter/ai/skill.rb")
     expect(features).to include("packages/igniter-ai/lib/igniter/ai/tool_registry.rb")
-    expect(features).to include("packages/igniter-ai/lib/igniter/ai/agents.rb")
+    expect(features).not_to include("packages/igniter-agents/lib/igniter/ai/agents.rb")
     expect(features).not_to include("igniter/ai.rb")
     expect(features).not_to include("igniter/server.rb")
     expect(features).not_to include("igniter/app.rb")
@@ -288,27 +318,27 @@ RSpec.describe "Igniter layer loading" do
   it "`require \"igniter/ai/agents\"` loads the canonical AI agents SDK pack directly" do
     features = loaded_igniter_features("igniter/ai/agents")
 
-    expect(features).to include("packages/igniter-ai/lib/igniter/ai/agents.rb")
+    expect(features).to include("packages/igniter-agents/lib/igniter/ai/agents.rb")
     expect(features).not_to include("igniter/ai/agents.rb")
   end
 
-  it "`require \"igniter/sdk/agents\"` loads the canonical generic agents SDK pack directly" do
-    features = loaded_igniter_features("igniter/sdk/agents")
+  it "`require \"igniter/agents\"` loads the canonical generic agents SDK pack directly" do
+    features = loaded_igniter_features("igniter/agents")
 
-    expect(features).to include("packages/igniter-sdk/lib/igniter/sdk/agents.rb")
-    expect(features).to include("packages/igniter-sdk/lib/igniter/sdk/agents/reliability/retry_agent.rb")
-    expect(features).to include("packages/igniter-sdk/lib/igniter/sdk/agents/proactive_agent.rb")
-    expect(features).not_to include("igniter/agents.rb")
+    expect(features).to include("packages/igniter-agents/lib/igniter/agents.rb")
+    expect(features).to include("packages/igniter-agents/lib/igniter/agents/reliability/retry_agent.rb")
+    expect(features).to include("packages/igniter-agents/lib/igniter/agents/proactive_agent.rb")
+    expect(features).not_to include("igniter/sdk/agents.rb")
     expect(features).not_to include("igniter/server.rb")
     expect(features).not_to include("igniter/app.rb")
     expect(features).not_to include("igniter/cluster.rb")
   end
 
-  it "`require \"igniter/agents\"` is no longer a valid public entrypoint" do
-    error = require_failure_for("igniter/agents")
+  it "`require \"igniter/sdk/agents\"` is no longer a valid public entrypoint" do
+    error = require_failure_for("igniter/sdk/agents")
 
     expect(error).to include("cannot load such file")
-    expect(error).to include("igniter/agents")
+    expect(error).to include("igniter/sdk/agents")
   end
 
   it "`require \"igniter/sdk/ai/agents\"` is no longer a valid public entrypoint" do

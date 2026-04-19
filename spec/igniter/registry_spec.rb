@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/core"
+require "igniter/agent"
+require "igniter/registry"
 
 RSpec.describe Igniter::Registry do
   let(:agent_class) do

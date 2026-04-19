@@ -38,6 +38,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "igniter-core", Igniter::VERSION
+  spec.add_dependency "igniter-agents", Igniter::VERSION
   spec.add_dependency "igniter-ai", Igniter::VERSION
   spec.add_dependency "igniter-sdk", Igniter::VERSION
   spec.add_dependency "igniter-extensions", Igniter::VERSION

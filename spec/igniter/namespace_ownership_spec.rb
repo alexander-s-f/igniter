@@ -9,7 +9,9 @@ RSpec.describe "Igniter namespace ownership" do
     "Igniter::AI" => {
       roots: [
         "packages/igniter-ai/lib/igniter/ai.rb",
-        "packages/igniter-ai/lib/igniter/ai/"
+        "packages/igniter-ai/lib/igniter/ai/",
+        "packages/igniter-agents/lib/igniter/ai/agents.rb",
+        "packages/igniter-agents/lib/igniter/ai/agents/"
       ],
       patterns: [
         /module\s+Igniter::AI\b/,
@@ -19,8 +21,8 @@ RSpec.describe "Igniter namespace ownership" do
     },
     "Igniter::Agents" => {
       roots: [
-        "packages/igniter-sdk/lib/igniter/sdk/agents.rb",
-        "packages/igniter-sdk/lib/igniter/sdk/agents/"
+        "packages/igniter-agents/lib/igniter/agents.rb",
+        "packages/igniter-agents/lib/igniter/agents/"
       ],
       patterns: [
         /module\s+Igniter::Agents\b/,

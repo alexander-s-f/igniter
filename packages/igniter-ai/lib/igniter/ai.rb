@@ -15,7 +15,6 @@ require_relative "ai/transcription/providers/openai"
 require_relative "ai/transcription/providers/deepgram"
 require_relative "ai/transcription/providers/assemblyai"
 require_relative "ai/transcription/transcriber"
-require_relative "ai/agents"
 require_relative "ai/skill"
 require_relative "ai/tool_registry"
 

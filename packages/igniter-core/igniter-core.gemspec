@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ["alexander.s.fokin@gmail.com"]
 
   spec.summary = "Core runtime and graph kernel for Igniter"
-  spec.description = "Contracts, compiler, runtime, diagnostics, agents, tools, and shared primitives for Igniter."
+  spec.description = "Contracts, compiler, runtime, diagnostics, tools, and shared graph primitives for Igniter."
   spec.homepage = "https://github.com/alexander-s-f/igniter"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"

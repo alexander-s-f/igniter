@@ -6,6 +6,7 @@ RSpec.describe "Igniter module layout" do
   MODULE_LAYOUT_ROOT = File.expand_path("../..", __dir__)
   IGNITER_LIB = File.join(MODULE_LAYOUT_ROOT, "lib/igniter")
   CORE_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-core/lib/igniter")
+  AGENTS_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-agents/lib/igniter")
   AI_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-ai/lib/igniter")
   SDK_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-sdk/lib/igniter")
   EXTENSIONS_LIB = File.join(MODULE_LAYOUT_ROOT, "packages/igniter-extensions/lib/igniter")
@@ -116,8 +117,6 @@ RSpec.describe "Igniter module layout" do
 
   it "keeps core packs under the canonical core namespace inside the package" do
     expect(children_for(File.join(CORE_LIB, "core"))).to include(
-      "agent",
-      "agent.rb",
       "compiler",
       "compiler.rb",
       "contract.rb",
@@ -133,6 +132,47 @@ RSpec.describe "Igniter module layout" do
       "type_system.rb",
       "version.rb"
     )
+  end
+
+  it "keeps actor runtime entrypoints inside the local agents package" do
+    expect(children_for(AGENTS_LIB)).to eq(%w[
+      agent
+      agent.rb
+      agents
+      agents.rb
+      ai
+      registry.rb
+      runtime
+      supervisor.rb
+    ])
+  end
+
+  it "keeps actor runtime packs under the canonical agents namespaces inside the package" do
+    expect(children_for(File.join(AGENTS_LIB, "agent"))).to eq(%w[
+      mailbox.rb
+      message.rb
+      ref.rb
+      runner.rb
+      state_holder.rb
+    ])
+
+    expect(children_for(File.join(AGENTS_LIB, "agents"))).to include(
+      "observability",
+      "pipeline",
+      "proactive",
+      "proactive_agent.rb",
+      "reliability",
+      "scheduling"
+    )
+
+    expect(children_for(File.join(AGENTS_LIB, "ai"))).to eq(%w[
+      agents
+      agents.rb
+    ])
+
+    expect(children_for(File.join(AGENTS_LIB, "runtime"))).to eq(%w[
+      registry_agent_adapter.rb
+    ])
   end
 
   it "keeps sdk entrypoints inside the local sdk package" do
@@ -151,8 +191,6 @@ RSpec.describe "Igniter module layout" do
 
   it "keeps AI packs under the canonical ai namespace inside the package" do
     expect(children_for(File.join(AI_LIB, "ai"))).to include(
-      "agents",
-      "agents.rb",
       "config.rb",
       "context.rb",
       "executor.rb",
@@ -173,8 +211,6 @@ RSpec.describe "Igniter module layout" do
 
   it "keeps sdk packs under the canonical sdk namespace inside the package" do
     expect(children_for(File.join(SDK_LIB, "sdk"))).to eq(%w[
-      agents
-      agents.rb
       channels
       channels.rb
       data

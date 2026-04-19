@@ -34,8 +34,9 @@ The SDK is a capability plane, not the foundation itself.
 
 Canonical public entrypoints:
 
-- `require "igniter/sdk/agents"`
+- `require "igniter/agents"`
 - `require "igniter/ai"`
+- `require "igniter/ai/agents"`
 - `require "igniter/sdk/channels"`
 - `require "igniter/sdk/data"`
 - `require "igniter/sdk/tools"`

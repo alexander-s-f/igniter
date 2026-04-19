@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/core"
 require "igniter/cluster"
 
 RSpec.describe Igniter::Cluster::Replication::ReplicationAgent do

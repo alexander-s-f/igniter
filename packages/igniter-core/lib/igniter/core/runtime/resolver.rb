@@ -25,6 +25,8 @@ module Igniter
                   resolve_branch(node)
                 when :collection
                   resolve_collection(node)
+                when :agent
+                  resolve_agent(node)
                 when :effect
                   resolve_effect(node)
                 when :await
@@ -101,6 +103,35 @@ module Igniter
         ).call(**dependencies)
 
         NodeState.new(node: node, status: :succeeded, value: value)
+      end
+
+      def resolve_agent(node)
+        inputs = node.input_mapping.each_with_object({}) do |(message_input, dep_name), memo|
+          memo[message_input] = resolve_dependency_value(dep_name)
+        end
+
+        response = @execution.agent_adapter.call(
+          node: node,
+          inputs: inputs,
+          execution: @execution
+        )
+
+        case response[:status]
+        when :succeeded
+          NodeState.new(node: node, status: :succeeded, value: response[:output])
+        when :pending
+          deferred = response[:deferred_result] || Runtime::DeferredResult.build(
+            payload: response[:payload] || {},
+            source_node: node.name,
+            waiting_on: node.name
+          )
+          raise PendingDependencyError.new(deferred, response[:message] || "Agent node '#{node.name}' is pending")
+        when :failed
+          error_message = response.dig(:error, :message) || response.dig(:error, "message") || "agent call failed"
+          raise ResolutionError, "Agent #{node.agent_name}: #{error_message}"
+        else
+          raise ResolutionError, "Agent #{node.agent_name}: unexpected status '#{response[:status]}'"
+        end
       end
 
       def resolve_await(node)

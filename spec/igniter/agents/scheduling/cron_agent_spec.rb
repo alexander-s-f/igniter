@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/sdk/agents"
+require "igniter/agents"
 
 RSpec.describe Igniter::Agents::CronAgent do
   def call_handler(type, state: described_class.default_state, payload: {})

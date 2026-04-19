@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     igniter (0.5.0)
+      igniter-agents (= 0.5.0)
       igniter-ai (= 0.5.0)
       igniter-app (= 0.5.0)
       igniter-cluster (= 0.5.0)
@@ -10,6 +11,12 @@ PATH
       igniter-rails (= 0.5.0)
       igniter-sdk (= 0.5.0)
       igniter-server (= 0.5.0)
+
+PATH
+  remote: packages/igniter-agents
+  specs:
+    igniter-agents (0.5.0)
+      igniter-core (= 0.5.0)
 
 PATH
   remote: packages/igniter-ai
@@ -30,6 +37,7 @@ PATH
   remote: packages/igniter-cluster
   specs:
     igniter-cluster (0.5.0)
+      igniter-agents (= 0.5.0)
       igniter-core (= 0.5.0)
       igniter-sdk (= 0.5.0)
       igniter-server (= 0.5.0)
@@ -55,6 +63,7 @@ PATH
   remote: packages/igniter-sdk
   specs:
     igniter-sdk (0.5.0)
+      igniter-agents (= 0.5.0)
       igniter-ai (= 0.5.0)
       igniter-core (= 0.5.0)
 
@@ -161,6 +170,7 @@ PLATFORMS
 
 DEPENDENCIES
   igniter!
+  igniter-agents!
   igniter-ai!
   igniter-app!
   igniter-cluster!

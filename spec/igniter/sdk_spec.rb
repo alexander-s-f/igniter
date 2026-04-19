@@ -20,7 +20,7 @@ RSpec.describe Igniter::SDK do
       )
 
       expect(described_class.fetch(:agents)).to have_attributes(
-        entrypoint: "igniter/sdk/agents",
+        entrypoint: "igniter/agents",
         allowed_layers: include(:app, :server, :cluster),
         provides_capabilities: eq([])
       )
@@ -57,7 +57,7 @@ RSpec.describe Igniter::SDK do
 
       expect(described_class.activated?(:agents)).to be(true)
       expect(defined?(Igniter::Agents)).to eq("constant")
-      expect($LOADED_FEATURES.grep(/igniter\/sdk\/agents\.rb$/)).not_to be_empty
+      expect($LOADED_FEATURES.grep(/igniter\/agents\.rb$/)).not_to be_empty
     end
 
     it "rejects capabilities that are forbidden for a layer" do

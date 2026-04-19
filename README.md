@@ -231,7 +231,8 @@ gem "igniter"
 | Need | Require |
 |------|---------|
 | Core contracts/runtime | `require "igniter"` |
-| Actor/tool foundation | `require "igniter/core"` |
+| Contract/tool kernel | `require "igniter/core"` |
+| Actor runtime and built-in agents | `require "igniter/agent"` or `require "igniter/agents"` |
 | SDK registry | `require "igniter/sdk"` |
 | App runtime/profile | `require "igniter/app"` |
 | Cluster runtime | `require "igniter/cluster"` |

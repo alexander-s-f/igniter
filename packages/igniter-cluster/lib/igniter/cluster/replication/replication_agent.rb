@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/core/agent"
+require "igniter/agent"
 
 module Igniter
   module Cluster

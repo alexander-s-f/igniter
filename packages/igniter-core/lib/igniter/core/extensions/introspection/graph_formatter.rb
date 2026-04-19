@@ -36,6 +36,11 @@ module Igniter
             if node.kind == :composition
               line += " contract=#{node.contract_class.name || 'AnonymousContract'}"
             end
+            if node.kind == :agent
+              line += " via=#{node.agent_name.inspect}"
+              line += " message=#{node.message_name.inspect}"
+              line += " timeout=#{node.timeout}"
+            end
             if node.kind == :branch
               cases = node.cases.map do |entry|
                 "#{format_branch_case(entry)}:#{entry[:contract].name || 'AnonymousContract'}"

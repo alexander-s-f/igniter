@@ -3,19 +3,17 @@
 Local monorepo gem that owns Igniter's SDK registry plus non-AI optional packs:
 
 - `Igniter::SDK`
-- `Igniter::Agents`
 - `Igniter::Channels`
 - `Igniter::Data`
 - built-in tools under `require "igniter/sdk/tools"`
 
-AI now lives in `igniter-ai`, while `igniter-sdk` remains the capability
-registry and umbrella for pack activation.
+AI now lives in `igniter-ai`, agents live in `igniter-agents`, and
+`igniter-sdk` remains the capability registry and umbrella for pack activation.
 
 Primary entrypoints:
 
 - `require "igniter-sdk"`
 - `require "igniter/sdk"`
-- `require "igniter/sdk/agents"`
 - `require "igniter/sdk/channels"`
 - `require "igniter/sdk/data"`
 - `require "igniter/sdk/tools"`

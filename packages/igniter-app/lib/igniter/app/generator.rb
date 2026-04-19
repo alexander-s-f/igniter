@@ -198,6 +198,7 @@ module Igniter
 
           require "igniter/app"
           require "igniter/core"
+          require "igniter/agent"
 
           module #{module_name}
             class MainApp < Igniter::App
@@ -367,6 +368,7 @@ module Igniter
 
           require "igniter"
           require "igniter/core"
+          require "igniter/agent"
           require_relative "../apps/main/app"
 
           %w[tools skills executors contracts agents].each do |dir|

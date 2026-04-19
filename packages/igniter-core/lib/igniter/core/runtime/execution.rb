@@ -4,16 +4,17 @@ module Igniter
   module Runtime
     class Execution
       attr_reader :compiled_graph, :contract_instance, :inputs, :cache, :events, :audit,
-                  :runner_strategy, :max_workers, :store, :remote_adapter
+                  :runner_strategy, :max_workers, :store, :remote_adapter, :agent_adapter
 
       def initialize(compiled_graph:, contract_instance:, inputs:, runner: :inline, max_workers: nil,
-                     store: nil, remote_adapter: nil)
+                     store: nil, remote_adapter: nil, agent_adapter: nil)
         @compiled_graph = compiled_graph
         @contract_instance = contract_instance
         @runner_strategy = runner
         @max_workers = max_workers
         @store = store
         @remote_adapter = remote_adapter || Runtime.remote_adapter
+        @agent_adapter = agent_adapter || Runtime.agent_adapter
         @events = Events::Bus.new
         @input_validator = InputValidator.new(compiled_graph, execution_id: @events.execution_id)
         @inputs = @input_validator.normalize_initial_inputs(inputs)

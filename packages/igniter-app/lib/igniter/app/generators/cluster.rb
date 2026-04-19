@@ -738,6 +738,7 @@ module Igniter
             require "igniter/app"
             require "igniter/cluster"
             require "igniter/core"
+            require "igniter/agent"
             require_relative "../../lib/#{namespace_path}/main/status_handler"
             require_relative "../../lib/#{namespace_path}/shared/capability_profile"
 

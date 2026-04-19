@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "igniter/core"
+require "igniter/agent"
 require "igniter/core/contract"
 require "igniter/core/dsl"
 require "igniter/core/model"

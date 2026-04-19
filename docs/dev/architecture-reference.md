@@ -1,6 +1,6 @@
 # Igniter — Architecture
 
-For the shortest operational overview, start with [Architecture Index](./ARCHITECTURE_INDEX.md).
+For the shortest operational overview, start with [Architecture Index](./architecture-index.md).
 
 For the intended persistence direction across local apps and distributed clusters,
 see [Persistence Model v1](./PERSISTENCE_MODEL_V1.md).
@@ -45,10 +45,14 @@ see [Persistence Model v1](./PERSISTENCE_MODEL_V1.md).
 │  Igniter::AI · Igniter::Channels                                   │
 │  providers · skills · transcription · webhook / messaging adapters │
 ├─────────────────────────────────────────────────────────────────────┤
+│  Agents Runtime                                                    │
+│  Igniter::Agent · Igniter::Agents · Igniter::AI::Agents           │
+│  actor runtime · registry · supervision · reusable agents          │
+├─────────────────────────────────────────────────────────────────────┤
 │  Core Library                                                      │
-│  Igniter                                                            │
+│  Igniter                                                           │
 │  contract DSL · model · compiler · runtime · events · diagnostics  │
-│  actor runtime · tool foundation · memory · metrics · caches       │
+│  tool foundation · memory · metrics · caches                       │
 │  temporal · capabilities · fingerprint · property testing          │
 │  extensions: auditing, reactive, introspection, saga, provenance,  │
 │              incremental, dataflow, differential, invariants,      │
@@ -87,7 +91,10 @@ or transport concerns without changing domain contracts.
 Primary entrypoints:
 
 - `require "igniter"` — contract DSL, model, compiler, runtime, events, diagnostics
-- `require "igniter/core"` — actor runtime and tool foundation
+- `require "igniter/core"` — graph/runtime kernel and core support features
+- `require "igniter/agent"` — actor runtime primitives
+- `require "igniter/agents"` — built-in generic agents
+- `require "igniter/ai/agents"` — built-in AI agent implementations
 - `require "igniter/core/<feature>"` — focused core feature loading
 - `require "igniter/extensions/<feature>"` — opt-in behavioral extensions
 
@@ -165,17 +172,17 @@ Runners:
 - `:thread_pool` — concurrent via `pool_size` threads
 - `:store` — async / deferred nodes with snapshot / restore
 
-### Core actor runtime and tool foundation
+### Agents runtime and tool foundation
 
-These abstractions are part of the core, not the server layer.
+Actor runtime now lives in `igniter-agents`, while tools remain part of the core kernel.
 
 | Object | Responsibility |
 |--------|----------------|
 | `Igniter::Agent` | Stateful mailbox-driven process |
 | `Igniter::Supervisor` | Worker lifecycle / restart policy |
 | `Igniter::Registry` | Named actor lookup |
-| `Igniter::StreamLoop` | Long-lived pull / poll loop |
 | `Igniter::Tool` | Executor + schema + discoverability for machine-usable operations |
+| `Igniter::StreamLoop` | Long-lived pull / poll loop |
 
 ### `Igniter::Events`
 
@@ -438,7 +445,7 @@ Primary families:
 | `lib/igniter/core/errors.rb` | Core | Error hierarchy |
 | `lib/igniter/server/rack_app.rb` | Server | HTTP request handling |
 | `lib/igniter/app.rb` | App | App scaffold entry point |
-| `lib/igniter/core/agent.rb` | Core | Actor agent base class entry point |
+| `packages/igniter-agents/lib/igniter/agent.rb` | Agents | Actor agent base class entry point |
 | `lib/igniter/core/tool.rb` | Core | Tool base class entry point |
 | `lib/igniter/ai/skill.rb` | AI | Skill base class |
 | `lib/igniter/ai.rb` | AI | AI integration entry point |

@@ -7,13 +7,11 @@ Local monorepo gem that owns Igniter's AI capability pack:
 - tool registry and tool-use loop support
 - LLM providers
 - transcription providers and result types
-- built-in AI agents
 
 Primary entrypoints:
 
 - `require "igniter-ai"`
 - `require "igniter/ai"`
-- `require "igniter/ai/agents"`
 
 Docs:
 

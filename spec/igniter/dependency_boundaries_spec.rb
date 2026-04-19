@@ -37,23 +37,27 @@ RSpec.describe "Igniter dependency boundaries" do
     offenders = offenders_for(
       require_lines_for(files),
       [
+        /require\s+["']igniter\/agent(?:s|["'])/,
         /require\s+["']igniter\/sdk\//,
         /require\s+["']igniter\/plugins\//,
+        /require_relative\s+["'][^"']*agent(?:s)?(?:\/|["'])/,
         /require_relative\s+["'][^"']*sdk(?:\/|["'])/,
         /require_relative\s+["'][^"']*plugins(?:\/|["'])/
       ]
     )
 
     expect(offenders).to eq({}), <<~MSG
-      Core must not depend on sdk/* or plugins/*.
+      Core must not depend on agents/*, sdk/*, or plugins/*.
 
       Offending require statements:
       #{format_offenders(offenders)}
     MSG
   end
 
-  it "does not let sdk or ai package files require plugin code" do
+  it "does not let agents, sdk, or ai package files require plugin code" do
     files = ruby_files_for(
+      "packages/igniter-agents/lib/igniter-agents.rb",
+      "packages/igniter-agents/lib/igniter/**/*.rb",
       "packages/igniter-sdk/lib/igniter/sdk.rb",
       "packages/igniter-sdk/lib/igniter/sdk/**/*.rb",
       "packages/igniter-ai/lib/igniter/ai.rb",
@@ -68,7 +72,7 @@ RSpec.describe "Igniter dependency boundaries" do
     )
 
     expect(offenders).to eq({}), <<~MSG
-      sdk/* and igniter-ai must not depend on plugins/*.
+      agents/*, sdk/*, and igniter-ai must not depend on plugins/*.
 
       Offending require statements:
       #{format_offenders(offenders)}

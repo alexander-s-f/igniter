@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "igniter/sdk/agents/proactive/alert_agent"
+require "igniter/agents/proactive/alert_agent"
 
 RSpec.describe Igniter::Agents::AlertAgent do
   let(:h) { ->(klass, type, state, payload = {}) { klass.handlers[type].call(state: state, payload: payload) } }

@@ -7,9 +7,9 @@ Start here if you want the shortest accurate map of Igniter's structure.
 | Layer | Namespace / Require | Responsibility |
 |------|----------------------|----------------|
 | Embed kernel | `Igniter` / `require "igniter"` | contract DSL, model, compiler, runtime, events, diagnostics |
-| Actor / tool kit | `Igniter` / `require "igniter/core"` or `require "igniter/core/<feature>"` | actors, tool base classes, memory, metrics, temporal support, caches |
+| Core kernel | `Igniter` / `require "igniter/core"` or `require "igniter/core/<feature>"` | tool base classes, memory, metrics, temporal support, caches, graph runtime |
+| Agents runtime | `Igniter::Agent` / `require "igniter/agent"` and `require "igniter/agents"` | actor primitives, registry, supervision, generic built-in agents, AI agent implementations |
 | SDK tools pack | `Igniter` / `require "igniter/sdk/tools"` | system discovery, workflow selection, bootstrap-planning tools |
-| Agents SDK pack | `Igniter::Agents` / `require "igniter/sdk/agents"` | generic built-in agents for reliability, pipeline, scheduling, proactive monitoring, and metrics |
 | Extensions | `require "igniter/extensions/<feature>"` | behavioral add-ons such as auditing, provenance, incremental, dataflow, invariants |
 | AI SDK pack | `Igniter::AI` / `require "igniter/ai"` | providers, AI executors, skills, transcription, AI tool registry |
 | Channels SDK pack | `Igniter::Channels` / `require "igniter/sdk/channels"` | transport adapters such as webhook, Telegram, WhatsApp, email, SMS |
@@ -29,6 +29,9 @@ Allowed direction of dependencies:
 runtime pyramid
   core -> server/app -> cluster
 
+actor runtime
+  igniter-agents
+
 horizontal capability plane
   sdk/*
 
@@ -38,7 +41,8 @@ horizontal integration plane
 
 Practical rules:
 
-- Core must not know about `Server`, `Cluster`, `sdk/*`, or `plugins/*`.
+- Core must not know about `Agents`, `Server`, `Cluster`, `sdk/*`, or `plugins/*`.
+- `igniter-agents` may depend on core, but core must not regain ownership of actor runtime.
 - Extensions may build on core, but should not become a grab-bag for unrelated features.
 - `sdk/*` may depend on core, and must stay explicit.
 - `Server` may depend on core and optional upper capability layers.
@@ -55,6 +59,15 @@ Canonical layout:
 packages/igniter-core/lib/igniter/
   core.rb
   core/
+packages/igniter-agents/lib/igniter/
+  agent.rb
+  agents.rb
+  registry.rb
+  supervisor.rb
+  agent/
+  agents/
+  ai/agents.rb
+  ai/agents/
 packages/igniter-ai/lib/igniter/
   ai.rb
   ai/
@@ -92,8 +105,9 @@ Placement rules:
 
 - `lib/igniter/` keeps only top-level public entrypoints.
 - `lib/igniter/core/` holds substantive core implementation.
+- `packages/igniter-agents/lib/igniter/` holds actor runtime and agent implementations.
 - `lib/igniter/extensions/` holds extension entrypoints.
-- `packages/igniter-sdk/lib/igniter/sdk/` holds the SDK registry plus non-AI sdk packs.
+- `packages/igniter-sdk/lib/igniter/sdk/` holds the SDK registry plus non-AI, non-agent sdk packs.
 - `packages/igniter-ai/lib/igniter/ai/` holds canonical AI implementation.
 - `packages/igniter-app/lib/igniter/app/`, `packages/igniter-server/lib/igniter/server/`, and `packages/igniter-cluster/lib/igniter/cluster/` hold the remaining layer implementation code.
 - `lib/igniter/plugins/` holds framework-specific integrations.
@@ -105,13 +119,15 @@ Prefer the smallest require that matches the feature you need.
 | Need | Require |
 |------|---------|
 | Contracts, DSL, runtime | `require "igniter"` |
-| Actors and tools | `require "igniter/core"` |
+| Core kernel and tools | `require "igniter/core"` |
+| Actor runtime primitives | `require "igniter/agent"` |
+| Generic agents | `require "igniter/agents"` |
 | SDK registry / capability activation | `require "igniter/sdk"` |
 | Built-in operational tools | `require "igniter/sdk/tools"` |
-| Generic agents | `require "igniter/sdk/agents"` |
 | One core feature | `require "igniter/core/tool"` or `require "igniter/core/temporal"` |
 | One extension | `require "igniter/extensions/auditing"` |
 | AI | `require "igniter/ai"` |
+| AI agents | `require "igniter/ai/agents"` |
 | Channels | `require "igniter/sdk/channels"` |
 | App data persistence | `require "igniter/sdk/data"` |
 | HTTP hosting | `require "igniter/server"` |
@@ -133,9 +149,9 @@ Frontend docs:
 If you are adding new code:
 
 - Put it in **core** if it is useful in embedded mode and does not require hosting, distribution, providers, or frameworks.
+- Put it in **agents** if it is actor runtime infrastructure or a reusable long-lived agent implementation.
 - Put it in **extensions** if it changes or enriches runtime behavior without belonging to a separate capability layer.
 - Put it in **AI** if it depends on providers, prompts, skills, transcription, or AI tool orchestration.
-- Put it in **Agents** if it is a reusable non-AI actor/agent standard-library pack.
 - Put it in **Channels** if it is a communication or delivery transport.
 - Put it in **Server** if it is about HTTP hosting or remote transport.
 - Put it in **App** if it is about project layout, boot lifecycle, or scheduler/profile behavior.

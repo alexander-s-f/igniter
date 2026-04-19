@@ -183,6 +183,7 @@ module Igniter
 
             require "igniter/app"
             require "igniter/core"
+            require "igniter/agent"
             require_relative "../../lib/#{namespace_path}/main/status_handler"
             require_relative "../../lib/#{namespace_path}/main/notes_list_handler"
             require_relative "../../lib/#{namespace_path}/main/notes_create_handler"
@@ -1057,6 +1058,7 @@ module Igniter
 
             gem "igniter", path: "#{relative_path_to_repo_root}"
             gem "igniter-core", path: "#{relative_path_to_repo_root}/packages/igniter-core"
+            gem "igniter-agents", path: "#{relative_path_to_repo_root}/packages/igniter-agents"
             gem "igniter-ai", path: "#{relative_path_to_repo_root}/packages/igniter-ai"
             gem "igniter-sdk", path: "#{relative_path_to_repo_root}/packages/igniter-sdk"
             gem "igniter-extensions", path: "#{relative_path_to_repo_root}/packages/igniter-extensions"

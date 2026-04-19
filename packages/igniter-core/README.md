@@ -4,7 +4,7 @@ Local monorepo gem that owns Igniter's core kernel:
 
 - contract/model/compiler/runtime primitives
 - diagnostics and extensions foundations
-- actor, supervisor, registry, stream-loop, and tool base classes
+- stream-loop and tool base classes
 
 Primary entrypoints:
 

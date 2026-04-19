@@ -11,6 +11,8 @@ while the architecture is still evolving.
 
 ## Current Docs
 
+- [Agents](./agents.md)
+- [Agent Node](./agent-node.md)
 - [Stacks](./stacks.md)
 - [Cluster State](./cluster-state.md)
 - [Cluster Roadmap](./cluster-roadmap.md)
