@@ -36,6 +36,15 @@ module Igniter
               interactive_sessions: followup_actions.count { |action| action[:action] == :open_interactive_session },
               by_action: followup_actions.each_with_object(Hash.new(0)) do |action, memo|
                 memo[action[:action]] += 1
+              end,
+              by_policy: followup_actions.each_with_object(Hash.new(0)) do |action, memo|
+                memo[action.dig(:policy, :name)] += 1
+              end,
+              by_queue: followup_actions.each_with_object(Hash.new(0)) do |action, memo|
+                memo[action.dig(:routing, :queue)] += 1 if action.dig(:routing, :queue)
+              end,
+              by_channel: followup_actions.each_with_object(Hash.new(0)) do |action, memo|
+                memo[action.dig(:routing, :channel)] += 1 if action.dig(:routing, :channel)
               end
             }
           )

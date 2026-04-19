@@ -38,7 +38,9 @@ module Igniter
       end
 
       def resolve(name)
-        @resolver.resolve(name)
+        state = @resolver.resolve(name)
+        persist_runtime_state!
+        state
       end
 
       def resolve_all

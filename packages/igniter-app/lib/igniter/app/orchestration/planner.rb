@@ -37,6 +37,9 @@ module Igniter
         end
 
         def normalize_action(action)
+          policy = app_class.orchestration_policy(action[:action])
+          routing = app_class.orchestration_routing(action[:action], policy: policy)
+
           {
             id: action[:id].to_s,
             action: action[:action].to_sym,
@@ -45,7 +48,9 @@ module Igniter
             reason: action[:reason].to_sym,
             guidance: action[:guidance].to_s,
             attention_required: !!action[:attention_required],
-            resumable: !!action[:resumable]
+            resumable: !!action[:resumable],
+            policy: policy.to_h,
+            routing: routing
           }.freeze
         end
 
@@ -60,6 +65,15 @@ module Igniter
             attention_nodes: Array(orchestration[:attention_nodes]).map(&:to_sym),
             by_action: actions.each_with_object(Hash.new(0)) do |action, memo|
               memo[action[:action]] += 1
+            end,
+            by_policy: actions.each_with_object(Hash.new(0)) do |action, memo|
+              memo[action.dig(:policy, :name)] += 1
+            end,
+            by_queue: actions.each_with_object(Hash.new(0)) do |action, memo|
+              memo[action.dig(:routing, :queue)] += 1 if action.dig(:routing, :queue)
+            end,
+            by_channel: actions.each_with_object(Hash.new(0)) do |action, memo|
+              memo[action.dig(:routing, :channel)] += 1 if action.dig(:routing, :channel)
             end
           }
         end

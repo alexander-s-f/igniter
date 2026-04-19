@@ -133,6 +133,48 @@ module Igniter
         @orchestration_inbox = inbox
       end
 
+      def register_orchestration_handler(action, handler = nil, &block)
+        Orchestration::HandlerRegistry.register(action, handler, &block)
+      end
+
+      def orchestration_handler(action)
+        Orchestration::HandlerRegistry.fetch(action)
+      end
+
+      def register_orchestration_policy(action, policy = nil, &block)
+        Orchestration::PolicyRegistry.register(action, policy, &block)
+      end
+
+      def orchestration_policy(action_or_item)
+        action =
+          if action_or_item.is_a?(Hash)
+            action_or_item.fetch(:action)
+          else
+            action_or_item
+          end
+
+        Orchestration::PolicyRegistry.fetch(action)
+      end
+
+      def register_orchestration_routing(action, routing = nil, &block)
+        Orchestration::RoutingRegistry.register(action, routing, &block)
+      end
+
+      def orchestration_routing(action_or_item, policy: nil)
+        action =
+          if action_or_item.is_a?(Hash)
+            action_or_item.fetch(:action)
+          else
+            action_or_item
+          end
+
+        resolved_policy = policy || orchestration_policy(action)
+        default_routing = resolved_policy.default_routing
+        override_routing = Orchestration::RoutingRegistry.registered?(action) ? Orchestration::RoutingRegistry.fetch(action) : {}
+
+        default_routing.merge(override_routing).freeze
+      end
+
       def sdk_capabilities
         @sdk_capabilities ||= []
       end
@@ -249,6 +291,10 @@ module Igniter
         @registered[name.to_s] = contract_class
       end
 
+      def registered_contracts
+        @registered.dup
+      end
+
       # Register a block to run after all paths are autoloaded but before the
       # server starts. Use this for registrations that reference autoloaded
       # constants, e.g.:
@@ -349,6 +395,43 @@ module Igniter
 
       def dismiss_orchestration_item(id, note: nil)
         orchestration_inbox.dismiss(id, note: note)
+      end
+
+      def wake_orchestration_item(id, note: nil)
+        handle_orchestration_item(id, operation: :wake, note: note)
+      end
+
+      def handoff_orchestration_item(id, assignee: nil, queue: nil, channel: nil, note: nil)
+        orchestration_inbox.handoff(id, assignee: assignee, queue: queue, channel: channel, note: note)
+      end
+
+      def complete_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil)
+        handle_orchestration_item(id, operation: :complete, target: target, value: value, note: note)
+      end
+
+      def approve_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil)
+        handle_orchestration_item(id, operation: :approve, target: target, value: value, note: note)
+      end
+
+      def reply_to_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil)
+        handle_orchestration_item(id, operation: :reply, target: target, value: value, note: note)
+      end
+
+      def handle_orchestration_item(id, operation: nil, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, assignee: nil, queue: nil, channel: nil, note: nil)
+        item = orchestration_inbox.find(id)
+        return nil unless item
+
+        orchestration_handler(item[:action]).call(
+          app_class: self,
+          item: item,
+          operation: operation,
+          target: target,
+          value: value,
+          assignee: assignee,
+          queue: queue,
+          channel: channel,
+          note: note
+        )
       end
 
       def evolution_approval(target)
@@ -597,7 +680,8 @@ module Igniter
       end
 
       def resume_orchestration_item_runtime(item, target:, value:)
-        return {} if target.nil?
+        return {} if target.nil? && value.equal?(Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE)
+        return resume_orchestration_item_from_store(item, value: value) if target.nil?
         raise ArgumentError, "orchestration item #{item[:id].inspect} does not carry a runtime token" unless item[:token]
 
         execution = orchestration_execution_for(target)
@@ -614,6 +698,7 @@ module Igniter
         execution.resume_agent_session(item[:token], node_name: item[:node], value: value)
         {
           runtime_resumed: true,
+          runtime_resume_mode: :live,
           resolved_execution_id: execution.events.execution_id,
           resolved_graph: execution.compiled_graph.name,
           resumed_token: item[:token]
@@ -623,6 +708,41 @@ module Igniter
       def materialize_orchestration_sessions(plan, execution)
         plan.followup_request.actions.map { |action| action[:node] }.uniq.each do |node_name|
           execution.resolve(node_name)
+        end
+      end
+
+      def resume_orchestration_item_from_store(item, value:)
+        raise ArgumentError, "orchestration item #{item[:id].inspect} does not carry a runtime token" unless item[:token]
+        raise ArgumentError, "orchestration item #{item[:id].inspect} does not carry an execution id" unless item[:execution_id]
+        raise ArgumentError, "orchestration item #{item[:id].inspect} does not carry a graph name" unless item[:graph]
+
+        contract_class = registered_contract_class_for_graph(item[:graph])
+        raise ArgumentError, "no registered contract class found for graph #{item[:graph].inspect}" unless contract_class
+
+        resumed = contract_class.resume_agent_session_from_store(
+          item[:execution_id],
+          session: item[:token],
+          node_name: item[:node],
+          value: value,
+          store: Igniter.execution_store
+        )
+
+        {
+          runtime_resumed: true,
+          runtime_resume_mode: :store,
+          resolved_execution_id: item[:execution_id],
+          resolved_graph: item[:graph],
+          resumed_token: item[:token],
+          resumed_node: item[:node]
+        }
+      end
+
+      def registered_contract_class_for_graph(graph)
+        registered_contracts.values.find do |contract_class|
+          next true if contract_class.respond_to?(:compiled_graph) && contract_class.compiled_graph&.name == graph
+          next true if contract_class.respond_to?(:graph) && contract_class.graph&.name == graph
+
+          contract_class.respond_to?(:contract_name) && contract_class.contract_name == graph
         end
       end
 

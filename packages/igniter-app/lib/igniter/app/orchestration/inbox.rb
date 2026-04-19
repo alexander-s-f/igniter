@@ -22,15 +22,22 @@ module Igniter
             item_id: SecureRandom.uuid,
             id: action[:id],
             action: action[:action],
+            policy: action[:policy],
             node: action[:node],
             interaction: action[:interaction],
             reason: action[:reason],
             guidance: action[:guidance],
             attention_required: action[:attention_required],
             resumable: action[:resumable],
+            routing: action[:routing],
             source: source.to_sym,
             graph: graph,
             execution_id: execution_id,
+            assignee: action.dig(:routing, :assignee),
+            queue: action.dig(:routing, :queue),
+            channel: action.dig(:routing, :channel),
+            handoff_count: 0,
+            handoff_history: [].freeze,
             status: :open,
             created_at: @clock.call
           }.merge(session_item_attributes(session)).compact.freeze
@@ -49,6 +56,39 @@ module Igniter
 
         def acknowledge(id, note: nil)
           transition(id, to: :acknowledged, timestamp_key: :acknowledged_at, note: note)
+        end
+
+        def handoff(id, assignee: nil, queue: nil, channel: nil, note: nil)
+          current = find(id)
+          return nil unless current
+
+          validate_handoff_target!(assignee: assignee, queue: queue, channel: channel, id: id)
+
+          timestamp = @clock.call
+          handoff_entry = {
+            at: timestamp,
+            assignee: assignee,
+            queue: queue,
+            channel: channel
+          }
+          handoff_entry[:note] = note unless note.nil? || note.to_s.empty?
+
+          updated = current.merge(
+            status: :acknowledged,
+            acknowledged_at: current[:acknowledged_at] || timestamp,
+            handed_off_at: timestamp,
+            assignee: assignee || current[:assignee],
+            queue: queue || current[:queue],
+            channel: channel || current[:channel],
+            handoff_count: current.fetch(:handoff_count, 0) + 1,
+            handoff_history: (Array(current[:handoff_history]) + [handoff_entry.freeze]).freeze
+          )
+          updated[:note] = note unless note.nil? || note.to_s.empty?
+          updated = updated.freeze
+
+          index = @items.index(current)
+          @items[index] = updated
+          updated
         end
 
         def resolve(id, note: nil, metadata: {})
@@ -81,8 +121,24 @@ module Igniter
             actionable: @items.count { |item| !RESOLVED_STATUSES.include?(item[:status]) },
             by_status: @items.each_with_object(Hash.new(0)) { |item, memo| memo[item[:status]] += 1 },
             by_action: @items.each_with_object(Hash.new(0)) { |item, memo| memo[item[:action]] += 1 },
+            by_policy: @items.each_with_object(Hash.new(0)) do |item, memo|
+              memo[item.dig(:policy, :name)] += 1 if item[:policy]
+            end,
+            by_assignee: @items.each_with_object(Hash.new(0)) do |item, memo|
+              memo[item[:assignee]] += 1 if item[:assignee]
+            end,
+            by_queue: @items.each_with_object(Hash.new(0)) do |item, memo|
+              memo[item[:queue]] += 1 if item[:queue]
+            end,
+            by_channel: @items.each_with_object(Hash.new(0)) do |item, memo|
+              memo[item[:channel]] += 1 if item[:channel]
+            end,
             latest_action: @items.last&.dig(:action),
             latest_node: @items.last&.dig(:node),
+            latest_policy: @items.last&.dig(:policy, :name),
+            latest_assignee: @items.last&.dig(:assignee),
+            latest_queue: @items.last&.dig(:queue),
+            latest_channel: @items.last&.dig(:channel),
             latest_status: @items.last&.dig(:status),
             items: selected.map(&:dup)
           }
@@ -122,6 +178,12 @@ module Igniter
             graph: session.graph,
             execution_id: session.execution_id
           }
+        end
+
+        def validate_handoff_target!(assignee:, queue:, channel:, id:)
+          return if assignee || queue || channel
+
+          raise ArgumentError, "orchestration item #{id.inspect} handoff requires assignee:, queue:, or channel:"
         end
       end
     end

@@ -116,6 +116,37 @@ Planning and explain surfaces now expose agent orchestration hints too:
 - inbox items now support lifecycle transitions through `acknowledge`, `resolve`, and `dismiss`
 - opening follow-ups against a live contract now materializes the relevant pending agent nodes first, so inbox items carry real runtime session metadata instead of planner-only action ids
 - resolving a follow-up item can now resume the underlying agent session directly from the app layer
+- `igniter-app` now also exposes `App.handle_orchestration_item(...)`, which routes a follow-up item through a built-in handler for its action semantics instead of forcing callers to choose inbox verbs manually
+- the same handler path can now resume store-backed agent sessions when only `graph + execution_id + token + node` are available, so live and durable orchestration follow-ups share one app-level API
+- orchestration actions now also carry explicit app-level policy metadata, including:
+  - policy name
+  - default operation
+  - allowed operations
+  - lifecycle operations
+  - operation aliases from domain verbs to inbox lifecycle verbs
+  - default routing
+  - runtime completion expectation
+- actions also now carry resolved routing metadata, so plan/follow-up surfaces can see initial `queue/channel` assignment before any handoff happens
+- inbox items preserve that policy shape, so policy is visible in diagnostics and follow-up handling
+- built-in handlers now enforce those policies instead of relying on action-specific defaults hidden in handler classes
+- the canonical app-level operations are now domain-oriented:
+  - interactive sessions prefer `wake`, may be `handoff`ed, can be `complete`d, and may still be `dismiss`ed
+  - manual completion steps prefer `approve`
+  - deferred replies prefer `reply`
+  - single-turn steps prefer `complete`
+- low-level `acknowledge`, `resolve`, and `dismiss` still exist as lifecycle verbs, but they are now secondary to the domain-oriented orchestration surface
+- `igniter-app` now exposes helper entrypoints like `wake_orchestration_item`, `approve_orchestration_item`, `reply_to_orchestration_item`, `complete_orchestration_item`, and `handoff_orchestration_item`
+- `handoff` is now a real ownership transition, not only an alias:
+  - inbox items can now carry `assignee`, `queue`, and `channel`
+  - handoffs increment `handoff_count`
+  - handoffs append to `handoff_history`
+  - diagnostics expose assignment summaries through inbox snapshots
+- policies now also provide initial routing for new follow-ups:
+  - interactive sessions default to `interactive-sessions`
+  - manual completions default to `manual-completions`
+  - deferred replies default to `deferred-replies`
+  - single-turn completions default to `single-turn-completions`
+- apps may override that routing with `register_orchestration_routing(...)`, so default queues and channels are configurable without replacing the policy itself
 - deduplication only applies to active items, so resolved or dismissed actions can be reopened later if the workflow becomes pending again
 - `explain_plan` now renders those hints directly for human review
 

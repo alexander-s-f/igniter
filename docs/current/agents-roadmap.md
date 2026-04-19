@@ -19,6 +19,11 @@ Already landed:
 - `igniter-app` can open orchestration follow-ups into an inbox
 - inbox items can now `acknowledge`, `resolve`, and `dismiss`
 - resolving an inbox item can resume the underlying runtime session
+- orchestration actions now carry explicit policy metadata for default and allowed handling
+- built-in handlers enforce those policies through one app-level entrypoint
+- app-level orchestration now has domain verbs like `wake`, `approve`, `reply`, `complete`, and `handoff`, instead of speaking only in inbox lifecycle verbs
+- `handoff` now preserves ownership metadata (`assignee`, `queue`, `channel`) and handoff history on inbox items
+- policies now also seed default queue/channel routing for newly opened follow-ups, with app-level overrides available through `register_orchestration_routing(...)`
 - local registry-backed agents now propagate `PendingDependencyError` as honest runtime `pending`, not timeout failure
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
@@ -35,10 +40,18 @@ Goal:
 
 What this likely means:
 
-- explicit orchestration policies for approval, wakeup, and follow-up handling
 - app-level adapters/handlers for `require_manual_completion`, `await_deferred_reply`, and interactive sessions
 - cleaner bridges between inbox lifecycle and runtime session lifecycle
 - durable store-backed orchestration handling, not only in-memory app state
+
+First slice is now in place:
+
+- built-in orchestration handlers back current planner actions
+- `App.handle_orchestration_item(...)` gives a single runtime entrypoint over those handlers
+- default handler semantics are now explicit instead of being spread across ad hoc inbox calls
+- those handler semantics are now backed by explicit orchestration policies, not only action names
+- durable store-backed session resume now goes through that same handler surface when an inbox item carries runtime identity
+- convenience helpers now exist for the most common domain operations, so higher layers do not have to remember raw action ids plus low-level lifecycle verbs
 
 Why this comes first:
 

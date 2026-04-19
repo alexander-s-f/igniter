@@ -84,6 +84,16 @@ That app-level follow-up path is now tied back into runtime truth too:
 - inbox items carry runtime identity such as graph, execution id, node, token, and reply shape when a live session exists
 - resolving an inbox item can now resume the underlying agent session instead of only changing inbox state
 - resume is now node-aware, not only token-aware, so parallel agent nodes do not get conflated when session tokens are reused
+- orchestration actions now carry explicit app-level policy metadata rather than only raw action names
+- built-in handlers enforce those policies, so allowed operations and default behavior now come from one visible contract
+- that contract is now also starting to speak the language of agent workflows rather than only inbox lifecycle:
+  - `wake`
+  - `handoff`
+  - `approve`
+  - `reply`
+  - `complete`
+- `handoff` is now also ownership-aware: orchestration items can carry assignee, queue, and channel metadata plus a small handoff history, which is the first real step from "runtime inbox" toward operator workflow
+- initial queue/channel routing is now planner-visible too, and apps can override it per orchestration action without rewriting the policy surface
 
 The local agent runtime also crossed an important threshold: `PendingDependencyError` raised inside a local registry-backed agent no longer degrades into a timeout. It now propagates back through the registry adapter as an honest runtime `pending` result, which means local actor delivery and graph-level resumable semantics are finally aligned.
 
