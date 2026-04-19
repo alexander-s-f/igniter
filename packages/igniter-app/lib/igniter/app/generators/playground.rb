@@ -26,10 +26,10 @@ module Igniter
         attr_reader :base
 
         def expand_stack_shape
-          create_dir "lib/#{namespace_path}/main"
-          create_dir "lib/#{namespace_path}/dashboard"
+          create_dir "apps/main/app/handlers"
           create_dir "apps/dashboard/spec"
-          create_dir "lib/#{namespace_path}/dashboard/views"
+          create_dir "apps/dashboard/app/handlers"
+          create_dir "apps/dashboard/app/views"
           write "stack.rb", stack_rb
           write "stack.yml", stack_yml
           write "spec/stack_spec.rb", stack_spec
@@ -40,9 +40,9 @@ module Igniter
         def expand_main_surface
           write "apps/main/app.rb", main_app_rb
           write "apps/main/spec/main_app_spec.rb", main_app_spec
-          write "lib/#{namespace_path}/main/status_handler.rb", main_status_handler
-          write "lib/#{namespace_path}/main/notes_list_handler.rb", main_notes_list_handler
-          write "lib/#{namespace_path}/main/notes_create_handler.rb", main_notes_create_handler
+          write "apps/main/app/handlers/status_handler.rb", main_status_handler
+          write "apps/main/app/handlers/notes_list_handler.rb", main_notes_list_handler
+          write "apps/main/app/handlers/notes_create_handler.rb", main_notes_create_handler
         end
 
         def add_dashboard_app
@@ -50,10 +50,10 @@ module Igniter
           write "apps/dashboard/app.yml", dashboard_app_yml
           write "apps/dashboard/spec/spec_helper.rb", dashboard_spec_helper
           write "apps/dashboard/spec/dashboard_app_spec.rb", dashboard_app_spec
-          write "lib/#{namespace_path}/dashboard/home_handler.rb", dashboard_home_handler
-          write "lib/#{namespace_path}/dashboard/notes_create_handler.rb", dashboard_notes_create_handler
-          write "lib/#{namespace_path}/dashboard/overview_handler.rb", dashboard_overview_handler
-          write "lib/#{namespace_path}/dashboard/views/home_page.rb", dashboard_home_page
+          write "apps/dashboard/app/handlers/home_handler.rb", dashboard_home_handler
+          write "apps/dashboard/app/handlers/notes_create_handler.rb", dashboard_notes_create_handler
+          write "apps/dashboard/app/handlers/overview_handler.rb", dashboard_overview_handler
+          write "apps/dashboard/app/views/home_page.rb", dashboard_home_page
         end
 
         def rewrite_gemfile_for_local_playground
@@ -184,9 +184,9 @@ module Igniter
             require "igniter/app"
             require "igniter/core"
             require "igniter/agent"
-            require_relative "../../lib/#{namespace_path}/main/status_handler"
-            require_relative "../../lib/#{namespace_path}/main/notes_list_handler"
-            require_relative "../../lib/#{namespace_path}/main/notes_create_handler"
+            require_relative "app/handlers/status_handler"
+            require_relative "app/handlers/notes_list_handler"
+            require_relative "app/handlers/notes_create_handler"
 
             module #{module_name}
               class MainApp < Igniter::App
@@ -295,7 +295,7 @@ module Igniter
             # frozen_string_literal: true
 
             require "json"
-            require_relative "../shared/stack_overview"
+            require_relative "../../../../lib/#{namespace_path}/shared/stack_overview"
 
             module #{module_name}
               module Main
@@ -329,7 +329,7 @@ module Igniter
             # frozen_string_literal: true
 
             require "json"
-            require_relative "../shared/note_store"
+            require_relative "../../../../lib/#{namespace_path}/shared/note_store"
 
             module #{module_name}
               module Main
@@ -359,7 +359,7 @@ module Igniter
             # frozen_string_literal: true
 
             require "json"
-            require_relative "../shared/note_store"
+            require_relative "../../../../lib/#{namespace_path}/shared/note_store"
 
             module #{module_name}
               module Main
@@ -401,9 +401,9 @@ module Igniter
 
             require "igniter/app"
             require "igniter/core"
-            require_relative "../../lib/#{namespace_path}/dashboard/home_handler"
-            require_relative "../../lib/#{namespace_path}/dashboard/overview_handler"
-            require_relative "../../lib/#{namespace_path}/dashboard/notes_create_handler"
+            require_relative "app/handlers/home_handler"
+            require_relative "app/handlers/overview_handler"
+            require_relative "app/handlers/notes_create_handler"
 
             module #{module_name}
               class DashboardApp < Igniter::App
@@ -670,8 +670,8 @@ module Igniter
             # frozen_string_literal: true
 
             require "igniter-frontend"
-            require_relative "../shared/stack_overview"
-            require_relative "views/home_page"
+            require_relative "../../../../lib/#{namespace_path}/shared/stack_overview"
+            require_relative "../views/home_page"
 
             module #{module_name}
               module Dashboard
@@ -703,9 +703,9 @@ module Igniter
             # frozen_string_literal: true
 
             require "igniter-frontend"
-            require_relative "../shared/note_store"
-            require_relative "../shared/stack_overview"
-            require_relative "views/home_page"
+            require_relative "../../../../lib/#{namespace_path}/shared/note_store"
+            require_relative "../../../../lib/#{namespace_path}/shared/stack_overview"
+            require_relative "../views/home_page"
 
             module #{module_name}
               module Dashboard
@@ -751,7 +751,7 @@ module Igniter
             # frozen_string_literal: true
 
             require "json"
-            require_relative "../shared/stack_overview"
+            require_relative "../../../../lib/#{namespace_path}/shared/stack_overview"
 
             module #{module_name}
               module Dashboard

@@ -23,11 +23,11 @@ module Igniter
 
         def expand_stack_shape
           create_dir "apps/dashboard/spec"
-          create_dir "lib/#{namespace_path}/dashboard"
-          create_dir "lib/#{namespace_path}/shared"
+          create_dir "apps/dashboard/app/handlers"
+          create_dir "apps/dashboard/app/support"
           write "stack.rb", stack_rb
           write "spec/stack_spec.rb", stack_spec
-          write "lib/#{namespace_path}/shared/stack_overview.rb", shared_stack_overview
+          write "apps/dashboard/app/support/stack_overview.rb", dashboard_stack_overview
         end
 
         def add_dashboard_app
@@ -35,7 +35,7 @@ module Igniter
           write "apps/dashboard/app.yml", dashboard_app_yml
           write "apps/dashboard/spec/spec_helper.rb", dashboard_spec_helper
           write "apps/dashboard/spec/dashboard_app_spec.rb", dashboard_app_spec
-          write "lib/#{namespace_path}/dashboard/home_handler.rb", dashboard_home_handler
+          write "apps/dashboard/app/handlers/home_handler.rb", dashboard_home_handler
         end
 
         def path(rel)
@@ -111,12 +111,12 @@ module Igniter
           RUBY
         end
 
-        def shared_stack_overview
+        def dashboard_stack_overview
           <<~RUBY
             # frozen_string_literal: true
 
             module #{module_name}
-              module Shared
+              module Dashboard
                 module StackOverview
                   module_function
 
@@ -143,7 +143,7 @@ module Igniter
 
             require "igniter/app"
             require "igniter/core"
-            require_relative "../../lib/#{namespace_path}/dashboard/home_handler"
+            require_relative "app/handlers/home_handler"
 
             module #{module_name}
               class DashboardApp < Igniter::App
@@ -248,7 +248,7 @@ module Igniter
             require "cgi"
             require "json"
             require "igniter-frontend"
-            require_relative "../shared/stack_overview"
+            require_relative "../support/stack_overview"
 
             module #{module_name}
               module Dashboard
@@ -256,7 +256,7 @@ module Igniter
                   module_function
 
                   def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
-                    snapshot = #{module_name}::Shared::StackOverview.build
+                    snapshot = #{module_name}::Dashboard::StackOverview.build
 
                     Igniter::Frontend::Response.html(render_page(snapshot: snapshot, base_path: env["SCRIPT_NAME"].to_s))
                   end

@@ -17,6 +17,7 @@ Use this section when Igniter becomes the runtime shape of an application, not j
 - [Guide: How-Tos](../guide/how-tos.md)
 - [Guide: Configuration](../guide/configuration.md)
 - [Guide: Deployment Modes](../guide/deployment-modes.md)
+- [Current: App Structure](../current/app-structure.md)
 - [Stacks Next](../STACKS_NEXT.md)
 - [CLI](../CLI.md)
 
@@ -67,6 +68,25 @@ The preferred app/runtime shape is now:
 - `bin/start`, `bin/dev`, and `bin/console` are the canonical runtime entry points
 - `Igniter::Stack` owns the server/runtime container
 - `Igniter::App` stays a portable mounted module
+
+## Current App Structure Direction
+
+The current direction is:
+
+- app-local code lives inside the app
+- stack-level `lib` is only for code that is truly shared
+- apps should be portable and mountable across stacks
+- cross-app access should move toward explicit app-to-app APIs, not implicit shared constants
+
+For frontend authoring, the recommended path is:
+
+- `igniter-frontend`
+- Arbre
+- Tailwind surfaces
+
+Hardcoded HTML strings in Ruby are not the preferred authoring model.
+See [Current: App Structure](../current/app-structure.md) for the active
+structure doctrine and migration direction.
 
 ## Current App Model
 

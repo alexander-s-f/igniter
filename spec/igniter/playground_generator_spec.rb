@@ -17,20 +17,22 @@ RSpec.describe Igniter::App::Generators::Playground do
         expect(File.exist?("my_lab/bin/console")).to be true
         expect(File.exist?("my_lab/lib/my_lab/shared/stack_overview.rb")).to be true
         expect(File.exist?("my_lab/lib/my_lab/shared/note_store.rb")).to be true
-        expect(File.exist?("my_lab/lib/my_lab/main/status_handler.rb")).to be true
-        expect(File.exist?("my_lab/lib/my_lab/main/notes_list_handler.rb")).to be true
-        expect(File.exist?("my_lab/lib/my_lab/main/notes_create_handler.rb")).to be true
-        expect(File.exist?("my_lab/lib/my_lab/dashboard/home_handler.rb")).to be true
-        expect(File.exist?("my_lab/lib/my_lab/dashboard/notes_create_handler.rb")).to be true
-        expect(File.exist?("my_lab/lib/my_lab/dashboard/overview_handler.rb")).to be true
-        expect(File.exist?("my_lab/lib/my_lab/dashboard/views/home_page.rb")).to be true
+        expect(File.exist?("my_lab/apps/main/app/handlers/status_handler.rb")).to be true
+        expect(File.exist?("my_lab/apps/main/app/handlers/notes_list_handler.rb")).to be true
+        expect(File.exist?("my_lab/apps/main/app/handlers/notes_create_handler.rb")).to be true
+        expect(File.exist?("my_lab/apps/dashboard/app/handlers/home_handler.rb")).to be true
+        expect(File.exist?("my_lab/apps/dashboard/app/handlers/notes_create_handler.rb")).to be true
+        expect(File.exist?("my_lab/apps/dashboard/app/handlers/overview_handler.rb")).to be true
+        expect(File.exist?("my_lab/apps/dashboard/app/views/home_page.rb")).to be true
 
         stack = File.read("my_lab/stack.rb")
         stack_data = YAML.load_file("my_lab/stack.yml")
         readme = File.read("my_lab/README.md")
         main_app = File.read("my_lab/apps/main/app.rb")
         dashboard_app = File.read("my_lab/apps/dashboard/app.rb")
-        dashboard_page = File.read("my_lab/lib/my_lab/dashboard/views/home_page.rb")
+        main_status_handler = File.read("my_lab/apps/main/app/handlers/status_handler.rb")
+        dashboard_handler = File.read("my_lab/apps/dashboard/app/handlers/home_handler.rb")
+        dashboard_page = File.read("my_lab/apps/dashboard/app/views/home_page.rb")
 
         expect(stack).to include('require_relative "apps/dashboard/app"')
         expect(stack).to include('app :dashboard, path: "apps/dashboard", klass: MyLab::DashboardApp')
@@ -45,7 +47,11 @@ RSpec.describe Igniter::App::Generators::Playground do
         expect(readme).to include("bin/start --node main")
         expect(readme).to include("var/log/dev/*.log")
         expect(main_app).to include('route "POST", "/v1/notes"')
+        expect(main_app).to include('require_relative "app/handlers/status_handler"')
+        expect(main_status_handler).to include('require_relative "../../../../lib/my_lab/shared/stack_overview"')
         expect(dashboard_app).to include("mount_operator_surface")
+        expect(dashboard_app).to include('require_relative "app/handlers/home_handler"')
+        expect(dashboard_handler).to include('require_relative "../views/home_page"')
         expect(dashboard_page).to include("Operator Console")
         expect(dashboard_app).to include('route "POST", "/notes"')
         expect(dashboard_page).to include("Operator API")

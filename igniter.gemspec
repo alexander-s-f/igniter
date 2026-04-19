@@ -3,6 +3,20 @@
 require_relative "packages/igniter-core/lib/igniter/core/version"
 
 Gem::Specification.new do |spec|
+  package_libs = %w[
+    packages/igniter-core/lib
+    packages/igniter-agents/lib
+    packages/igniter-ai/lib
+    packages/igniter-sdk/lib
+    packages/igniter-extensions/lib
+    packages/igniter-app/lib
+    packages/igniter-server/lib
+    packages/igniter-cluster/lib
+    packages/igniter-rails/lib
+    packages/igniter-frontend/lib
+    packages/igniter-schema-rendering/lib
+  ].freeze
+
   spec.name = "igniter"
   spec.version = Igniter::VERSION
   spec.authors = ["Alexander"]
@@ -22,6 +36,28 @@ Gem::Specification.new do |spec|
   spec.files = Dir[
     "lib/igniter.rb",
     "lib/igniter/**/*.rb",
+    "packages/igniter-core/lib/**/*.rb",
+    "packages/igniter-core/README.md",
+    "packages/igniter-agents/lib/**/*.rb",
+    "packages/igniter-agents/README.md",
+    "packages/igniter-ai/lib/**/*.rb",
+    "packages/igniter-ai/README.md",
+    "packages/igniter-sdk/lib/**/*.rb",
+    "packages/igniter-sdk/README.md",
+    "packages/igniter-extensions/lib/**/*.rb",
+    "packages/igniter-extensions/README.md",
+    "packages/igniter-app/lib/**/*.rb",
+    "packages/igniter-app/README.md",
+    "packages/igniter-server/lib/**/*.rb",
+    "packages/igniter-server/README.md",
+    "packages/igniter-cluster/lib/**/*.rb",
+    "packages/igniter-cluster/README.md",
+    "packages/igniter-rails/lib/**/*",
+    "packages/igniter-rails/README.md",
+    "packages/igniter-frontend/lib/**/*.rb",
+    "packages/igniter-frontend/README.md",
+    "packages/igniter-schema-rendering/lib/**/*.rb",
+    "packages/igniter-schema-rendering/README.md",
     "sig/*.rbs",
     "README.md",
     "LICENSE.txt",
@@ -33,19 +69,7 @@ Gem::Specification.new do |spec|
 
   spec.bindir = "bin"
   spec.executables = ["igniter-stack"]
-  # spec.bindir = "exe"
-  # spec.executables = ["igniter-stack"]
-  spec.require_paths = ["lib"]
-
-  spec.add_dependency "igniter-core", Igniter::VERSION
-  spec.add_dependency "igniter-agents", Igniter::VERSION
-  spec.add_dependency "igniter-ai", Igniter::VERSION
-  spec.add_dependency "igniter-sdk", Igniter::VERSION
-  spec.add_dependency "igniter-extensions", Igniter::VERSION
-  spec.add_dependency "igniter-app", Igniter::VERSION
-  spec.add_dependency "igniter-server", Igniter::VERSION
-  spec.add_dependency "igniter-cluster", Igniter::VERSION
-  spec.add_dependency "igniter-rails", Igniter::VERSION
+  spec.require_paths = ["lib", *package_libs]
 
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"

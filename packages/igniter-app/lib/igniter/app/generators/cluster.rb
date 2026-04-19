@@ -66,8 +66,8 @@ module Igniter
 
         def expand_stack_shape
           create_dir "apps/dashboard/spec"
-          create_dir "lib/#{namespace_path}/dashboard"
-          create_dir "lib/#{namespace_path}/main"
+          create_dir "apps/main/app/handlers"
+          create_dir "apps/dashboard/app/handlers"
           create_dir "lib/#{namespace_path}/shared"
           write "stack.rb", stack_rb
           write "stack.yml", stack_yml
@@ -81,7 +81,7 @@ module Igniter
         def expand_main_surface
           write "apps/main/app.rb", main_app_rb
           write "apps/main/spec/main_app_spec.rb", main_app_spec
-          write "lib/#{namespace_path}/main/status_handler.rb", main_status_handler_rb
+          write "apps/main/app/handlers/status_handler.rb", main_status_handler_rb
         end
 
         def add_dashboard_app
@@ -89,9 +89,9 @@ module Igniter
           write "apps/dashboard/app.yml", dashboard_app_yml
           write "apps/dashboard/spec/spec_helper.rb", dashboard_spec_helper
           write "apps/dashboard/spec/dashboard_app_spec.rb", dashboard_app_spec
-          write "lib/#{namespace_path}/dashboard/home_handler.rb", dashboard_home_handler_rb
-          write "lib/#{namespace_path}/dashboard/overview_handler.rb", dashboard_overview_handler_rb
-          write "lib/#{namespace_path}/dashboard/self_heal_demo_handler.rb", dashboard_self_heal_demo_handler_rb
+          write "apps/dashboard/app/handlers/home_handler.rb", dashboard_home_handler_rb
+          write "apps/dashboard/app/handlers/overview_handler.rb", dashboard_overview_handler_rb
+          write "apps/dashboard/app/handlers/self_heal_demo_handler.rb", dashboard_self_heal_demo_handler_rb
         end
 
         def path(rel)
@@ -739,7 +739,7 @@ module Igniter
             require "igniter/cluster"
             require "igniter/core"
             require "igniter/agent"
-            require_relative "../../lib/#{namespace_path}/main/status_handler"
+            require_relative "app/handlers/status_handler"
             require_relative "../../lib/#{namespace_path}/shared/capability_profile"
 
             module #{module_name}
@@ -776,7 +776,7 @@ module Igniter
             # frozen_string_literal: true
 
             require "json"
-            require_relative "../shared/stack_overview"
+            require_relative "../../../../lib/#{namespace_path}/shared/stack_overview"
 
             module #{module_name}
               module Main
@@ -872,9 +872,9 @@ module Igniter
 
             require "igniter/app"
             require "igniter/core"
-            require_relative "../../lib/#{namespace_path}/dashboard/home_handler"
-            require_relative "../../lib/#{namespace_path}/dashboard/overview_handler"
-            require_relative "../../lib/#{namespace_path}/dashboard/self_heal_demo_handler"
+            require_relative "app/handlers/home_handler"
+            require_relative "app/handlers/overview_handler"
+            require_relative "app/handlers/self_heal_demo_handler"
 
             module #{module_name}
               class DashboardApp < Igniter::App
@@ -916,7 +916,7 @@ module Igniter
             require "cgi"
             require "json"
             require "igniter-frontend"
-            require_relative "../shared/stack_overview"
+            require_relative "../../../../lib/#{namespace_path}/shared/stack_overview"
 
             module #{module_name}
               module Dashboard
@@ -1025,7 +1025,7 @@ module Igniter
             # frozen_string_literal: true
 
             require "json"
-            require_relative "../shared/stack_overview"
+            require_relative "../../../../lib/#{namespace_path}/shared/stack_overview"
 
             module #{module_name}
               module Dashboard
@@ -1051,7 +1051,7 @@ module Igniter
           <<~RUBY
             # frozen_string_literal: true
 
-            require_relative "../shared/routing_demo"
+            require_relative "../../../../lib/#{namespace_path}/shared/routing_demo"
 
             module #{module_name}
               module Dashboard

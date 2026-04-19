@@ -17,6 +17,7 @@ Right now the most active Igniter line is:
 - `agent node`
 - `AgentSession` and stream/tool-loop semantics
 - app orchestration policies and operator surfaces
+- app/stack structure cleanup and pluggable app doctrine
 
 That line has already crossed from pure runtime semantics into:
 
@@ -34,6 +35,13 @@ The choice is between:
 
 At the moment, the safest shortest continuation is operator timeline/drill-down.
 The strongest architectural continuation is remote/routed agents.
+
+In parallel, app structure is now an active design line too:
+
+- make apps portable mounted modules
+- stop normalizing app-local code in stack-level `lib/.../shared`
+- move generated UI authoring toward `igniter-frontend` instead of raw HTML strings
+- keep cross-app access explicit instead of implicit through shared helpers
 
 ## Reading Heuristic
 

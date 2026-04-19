@@ -32,6 +32,7 @@ a framework.
 - [Architecture Index](./architecture-index.md)
 - [Architecture Reference](./architecture-reference.md)
 - [Execution Model](./execution-model.md)
+- [Current: App Structure](../current/app-structure.md)
 - [Namespace Migration Plan](./namespace-migration-plan.md)
 - [Backlog](./backlog.md)
 - [Frontend Packages Idea](./frontend-packages-idea.md)
@@ -44,3 +45,5 @@ a framework.
 - Keep internal design, placement decisions, and rewrite plans in `docs/dev/`.
 - Prefer updating a package README and a guide index before writing new deep
   internal prose.
+- Before `v1`, do not preserve weak structure for compatibility alone; prefer
+  moving toward the target architecture when a better shape is clear.

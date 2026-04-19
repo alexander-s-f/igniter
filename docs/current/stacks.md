@@ -51,6 +51,12 @@ The ideal app story is:
 - mount it
 - it works
 
+That also means:
+
+- app-local code should live inside the app
+- stack-level `lib` should not become the default home for app code
+- if an app needs another app, that relationship should be explicit rather than hidden in shared helpers
+
 An app is not the deployable unit by default.
 
 ### Node
@@ -189,3 +195,14 @@ Legacy `services/topology` compatibility has been removed from the canonical sta
 ## One-Line Rule
 
 `Stack owns the server. App owns mounted functionality. Node owns distributed identity and behavior.`
+
+## Current Structure Note
+
+The current structure doctrine is now stricter than the older stack notes:
+
+- `apps/<app>/` should own its own code
+- `lib/<project>/shared` is only for genuinely shared stack-level code
+- `igniter-frontend` with Arbre + Tailwind is the recommended app UI path
+- hardcoded HTML strings in Ruby are an anti-pattern, even if some transitional generator output still uses them today
+
+See also [App Structure](./app-structure.md).

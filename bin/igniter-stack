@@ -33,7 +33,7 @@ global = OptionParser.new do |opts|
     exit
   end
   opts.on("-v", "--version", "Show version") do
-    require_relative "../lib/igniter/version"
+    require "igniter/core/version"
     puts "igniter-stack #{Igniter::VERSION}"
     exit
   end
@@ -48,8 +48,8 @@ when "start"
   options[:requires].each { |f| require File.expand_path(f) }
   load File.expand_path(options[:config]) if options[:config]
 
-  require_relative "../lib/igniter/server"
-  require_relative "../lib/igniter/version"
+  require "igniter/server"
+  require "igniter/core/version"
 
   Igniter::Server.start(port: options[:port], host: options[:host])
 
@@ -65,7 +65,7 @@ when "new"
     exit 1
   end
 
-  require_relative "../lib/igniter/app/scaffold_pack"
+  require "igniter/app/scaffold_pack"
 
   mode = options[:minimal] ? " (minimal)" : ""
   puts "Creating Igniter stack '#{app_name}'#{mode}..."

@@ -20,7 +20,7 @@ module Igniter
     #   │       ├── spec/              — app-local specs
     #   │       ├── app.rb             — leaf Igniter::App
     #   │       └── app.yml            — app-local runtime defaults
-    #   ├── lib/<project>/shared/      — shared libraries / helpers
+    #   ├── lib/<project>/shared/      — stack-level code that is truly shared across apps
     #   ├── config/
     #   │   └── deploy/                — optional generated operational artifacts
     #   ├── spec/                      — shared + integration + stack-level specs

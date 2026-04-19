@@ -36,6 +36,15 @@ The system has clear compile-time / runtime boundaries:
 - Frozen/immutable objects throughout model and compiler layers
 - Version lives in `lib/igniter/version.rb`
 
+## Current Development Policy
+
+- Before `v1`, Igniter does **not** guarantee backward compatibility.
+- Do not preserve weak or transitional structure just because it already exists.
+- Prefer moving directly toward the target architecture when the better shape is clear.
+- App-local code should live inside the app; stack-level `lib/.../shared` is only for code that is truly shared.
+- `igniter-frontend` with Arbre + Tailwind is the recommended frontend authoring path.
+- Hardcoded HTML strings in Ruby are an anti-pattern, even if some transitional code still uses them today.
+
 ## Key Files
 
 | File | Purpose |
