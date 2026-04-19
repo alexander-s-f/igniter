@@ -24,7 +24,13 @@ Already landed:
 - app-level orchestration now has domain verbs like `wake`, `approve`, `reply`, `complete`, and `handoff`, instead of speaking only in inbox lifecycle verbs
 - `handoff` now preserves ownership metadata (`assignee`, `queue`, `channel`) and handoff history on inbox items
 - policies now also seed default queue/channel routing for newly opened follow-ups, with app-level overrides available through `register_orchestration_routing(...)`
+- orchestration policies are now queue-aware too, so different operator lanes can change default and allowed handling semantics without replacing the action itself
+- orchestration lanes are now first-class bundles over routing, policy, and handler semantics, so higher layers can reason about named operator lanes instead of only queue strings
 - local registry-backed agents now propagate `PendingDependencyError` as honest runtime `pending`, not timeout failure
+- `execution.agent_session_query` now gives a read-only query surface over live agent sessions and derived orchestration metadata
+- that runtime query surface now also supports `facet`, `facets`, and `summary`
+- `App.orchestration_query` now gives a read-only operator query surface over inbox items, including lane, queue, channel, assignee, and lifecycle filters
+- that app operator query surface now also supports `facet`, `facets`, and `summary`
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
 
@@ -52,6 +58,7 @@ First slice is now in place:
 - those handler semantics are now backed by explicit orchestration policies, not only action names
 - durable store-backed session resume now goes through that same handler surface when an inbox item carries runtime identity
 - convenience helpers now exist for the most common domain operations, so higher layers do not have to remember raw action ids plus low-level lifecycle verbs
+- lane metadata is now explicit in plan, follow-up, inbox, and diagnostics surfaces, and apps can register bundled lane semantics through `register_orchestration_lane(...)`
 
 Why this comes first:
 
@@ -80,7 +87,33 @@ Why it matters:
 - `AgentSession` is already the bridge between graph execution and long-lived agents
 - if that bridge stays thin, higher layers will start inventing parallel session models
 
-### 3. Remote And Routed Agents
+### 3. Agent Query Surface
+
+Priority: high
+
+Goal:
+
+- bring the `OLAP Point like` idea into agents in a safe, read-only form
+
+What this likely means:
+
+- treat `AgentSession` and app orchestration items as the first queryable observation field
+- add an `AgentSessionQuery` style surface before attempting a full `MeshQL`-like language
+- query dimensions like `phase`, `reply_mode`, `tool_loop_status`, `queue`, `channel`, `assignee`, `interaction`, and `attention_required`
+
+Why this comes before full agent MeshQL:
+
+- the typed dimensions already exist in runtime and app orchestration
+- registry-level agent capability metadata does not exist yet
+- a read-only query surface can deliver immediate value without changing delivery or supervision semantics
+
+First slice is now in place:
+
+- runtime exposes `execution.agent_session_query`
+- the query surface is chainable and read-only, similar in spirit to `ObservationQuery`
+- it currently joins live session state with orchestration metadata already present in execution planning
+
+### 4. Remote And Routed Agents
 
 Priority: high
 
@@ -101,7 +134,7 @@ Why it matters:
 
 ## Later
 
-### 4. Self-Application
+### 5. Self-Application
 
 Priority: high, but after orchestration and session hardening
 
@@ -123,7 +156,7 @@ Rule of thumb:
 - keep the kernel direct and small
 - move orchestration layers onto `contracts & agents` when the primitives are strong enough
 
-### 5. Unified Execution Profiles
+### 6. Unified Execution Profiles
 
 Priority: medium
 

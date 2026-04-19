@@ -189,4 +189,91 @@ RSpec.describe "agent sessions" do
 
     expect(restored.result.final_answer).to eq("approved: approved")
   end
+
+  it "supports read-only queries over live agent sessions" do
+    trace_copy = trace
+    adapter = Class.new do
+      define_method(:call) do |node:, **|
+        payload =
+          if node.reply_mode == :stream
+            { event: Igniter::Runtime::AgentSession.status_event(status: "thinking") }
+          else
+            { queue: :review }
+          end
+
+        {
+          status: :pending,
+          payload: payload,
+          agent_trace: trace_copy,
+          session: {
+            node_name: node.name,
+            node_path: node.path,
+            agent_name: node.agent_name,
+            message_name: node.message_name,
+            mode: node.mode,
+            waiting_on: node.name,
+            source_node: node.name,
+            trace: trace_copy
+          }
+        }
+      end
+
+      define_method(:cast) do |**|
+        raise "unexpected cast"
+      end
+    end.new
+
+    contract_class = Class.new(Igniter::Contract) do
+      runner :inline, agent_adapter: adapter
+
+      define do
+        input :name
+
+        agent :interactive_summary,
+              via: :writer,
+              message: :summarize,
+              reply: :stream,
+              inputs: { name: :name }
+
+        agent :approval,
+              via: :reviewer,
+              message: :review,
+              inputs: { name: :name }
+
+        output :interactive_summary
+        output :approval
+      end
+    end
+
+    contract = contract_class.new(name: "Alice")
+    contract.result.interactive_summary
+    contract.result.approval
+
+    query = contract.execution.agent_session_query
+
+    expect(query).to be_a(Igniter::Runtime::AgentSessionQuery)
+    expect(query.count).to eq(2)
+    expect(query.with_agent(:writer).for_node(:interactive_summary).reply_mode(:stream).phase(:streaming).tool_loop_status(:idle).to_a.map(&:node_name)).to eq([:interactive_summary])
+    expect(query.interaction(:interactive_session).attention_required.to_a.map(&:node_name)).to eq([:interactive_summary])
+    expect(query.interaction(:deferred_call).reason(:deferred_call).resumable.to_a.map(&:node_name)).to eq([:approval])
+    expect(query.order_by(:node_name, direction: :asc).first.node_name).to eq(:approval)
+    expect(query.limit(1).to_a.size).to eq(1)
+    expect(query.facet(:reply_mode)).to eq(stream: 1, deferred: 1)
+    expect(query.facet(:interaction)).to eq(interactive_session: 1, deferred_call: 1)
+    expect(query.facets(:agent_name, :reason)).to eq(
+      agent_name: { writer: 1, reviewer: 1 },
+      reason: { interactive_session: 1, deferred_call: 1 }
+    )
+    expect(query.summary).to include(
+      total: 2,
+      by_agent: { writer: 1, reviewer: 1 },
+      by_reply_mode: { stream: 1, deferred: 1 },
+      by_interaction: { interactive_session: 1, deferred_call: 1 },
+      attention_required: 2,
+      resumable: 2
+    )
+    expect(contract.agent_session_summary).to include(total: 2)
+    expect(query.explain).to include("AgentSessionQuery(2 candidates)")
+    expect(query.explain).to include("filters: 0")
+  end
 end

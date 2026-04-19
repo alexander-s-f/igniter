@@ -343,6 +343,14 @@ module Igniter
       execution.orchestration_plan(output_names)
     end
 
+    def agent_session_query
+      execution.agent_session_query
+    end
+
+    def agent_session_summary
+      execution.agent_session_summary
+    end
+
     def success?
       execution.success?
     end

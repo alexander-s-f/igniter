@@ -45,9 +45,9 @@ module Igniter
             lines << "- Inbox: #{inbox_summary(orchestration[:inbox])}" if orchestration[:inbox]
             return if followup[:actions].empty?
 
-            lines << "- Follow-up: total=#{followup.dig(:summary, :total)}, manual_completion=#{followup.dig(:summary, :manual_completion)}, deferred_replies=#{followup.dig(:summary, :deferred_replies)}, interactive_sessions=#{followup.dig(:summary, :interactive_sessions)}, by_policy=#{inline_counts(followup.dig(:summary, :by_policy) || {})}, by_queue=#{inline_counts(followup.dig(:summary, :by_queue) || {})}"
+            lines << "- Follow-up: total=#{followup.dig(:summary, :total)}, manual_completion=#{followup.dig(:summary, :manual_completion)}, deferred_replies=#{followup.dig(:summary, :deferred_replies)}, interactive_sessions=#{followup.dig(:summary, :interactive_sessions)}, by_policy=#{inline_counts(followup.dig(:summary, :by_policy) || {})}, by_lane=#{inline_counts(followup.dig(:summary, :by_lane) || {})}, by_queue=#{inline_counts(followup.dig(:summary, :by_queue) || {})}"
             followup[:actions].each do |action|
-              lines << "- `#{action[:node]}` `#{action[:action]}`: #{action[:guidance]} reason=`#{action[:reason]}` policy=`#{action.dig(:policy, :name)}` default=`#{action.dig(:policy, :default_operation)}` queue=`#{action.dig(:routing, :queue) || "none"}` channel=`#{action.dig(:routing, :channel) || "none"}`"
+              lines << "- `#{action[:node]}` `#{action[:action]}`: #{action[:guidance]} reason=`#{action[:reason]}` policy=`#{action.dig(:policy, :name)}` lane=`#{action.dig(:lane, :name) || "none"}` default=`#{action.dig(:policy, :default_operation)}` queue=`#{action.dig(:routing, :queue) || "none"}` channel=`#{action.dig(:routing, :channel) || "none"}`"
             end
           end
 
@@ -68,6 +68,7 @@ module Igniter
             parts << "attention_nodes=#{Array(summary[:attention_nodes]).join(",")}" if Array(summary[:attention_nodes]).any?
             parts << "by_action=#{inline_counts(summary[:by_action])}" unless summary[:by_action].empty?
             parts << "by_policy=#{inline_counts(summary[:by_policy])}" unless summary[:by_policy].empty?
+            parts << "by_lane=#{inline_counts(summary[:by_lane])}" unless summary[:by_lane].empty?
             parts << "by_queue=#{inline_counts(summary[:by_queue])}" unless summary[:by_queue].empty?
             parts << "by_channel=#{inline_counts(summary[:by_channel])}" unless summary[:by_channel].empty?
             parts.join(", ")
@@ -84,6 +85,7 @@ module Igniter
             parts << "latest_action=#{inbox[:latest_action] || "none"}"
             parts << "latest_node=#{inbox[:latest_node] || "none"}"
             parts << "latest_policy=#{inbox[:latest_policy] || "none"}"
+            parts << "latest_lane=#{inbox[:latest_lane] || "none"}"
             parts << "latest_assignee=#{inbox[:latest_assignee] || "none"}"
             parts << "latest_queue=#{inbox[:latest_queue] || "none"}"
             parts << "latest_channel=#{inbox[:latest_channel] || "none"}"
@@ -91,6 +93,7 @@ module Igniter
             parts << "by_status=#{inline_counts(inbox[:by_status])}" unless inbox[:by_status].empty?
             parts << "by_action=#{inline_counts(inbox[:by_action])}" unless inbox[:by_action].empty?
             parts << "by_policy=#{inline_counts(inbox[:by_policy])}" unless inbox[:by_policy].empty?
+            parts << "by_lane=#{inline_counts(inbox[:by_lane])}" unless inbox[:by_lane].empty?
             parts << "by_assignee=#{inline_counts(inbox[:by_assignee])}" unless inbox[:by_assignee].empty?
             parts << "by_queue=#{inline_counts(inbox[:by_queue])}" unless inbox[:by_queue].empty?
             parts << "by_channel=#{inline_counts(inbox[:by_channel])}" unless inbox[:by_channel].empty?

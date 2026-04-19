@@ -32,6 +32,33 @@ module Igniter
             lifecycle_operation_for(default_operation)
           end
 
+          def with(**overrides)
+            merged_operation_aliases =
+              if overrides.key?(:operation_aliases)
+                operation_aliases.merge(normalize_aliases(overrides[:operation_aliases]))
+              else
+                operation_aliases
+              end
+
+            merged_default_routing =
+              if overrides.key?(:default_routing)
+                default_routing.merge(normalize_routing(overrides[:default_routing]))
+              else
+                default_routing
+              end
+
+            Base.new(
+              name: overrides.fetch(:name, name),
+              default_operation: overrides.fetch(:default_operation, default_operation),
+              allowed_operations: overrides.fetch(:allowed_operations, allowed_operations),
+              lifecycle_operations: overrides.fetch(:lifecycle_operations, lifecycle_operations),
+              operation_aliases: merged_operation_aliases,
+              default_routing: merged_default_routing,
+              runtime_completion: overrides.fetch(:runtime_completion, runtime_completion),
+              description: overrides.fetch(:description, description)
+            )
+          end
+
           def to_h
             {
               name: name,

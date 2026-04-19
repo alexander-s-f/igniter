@@ -37,8 +37,10 @@ module Igniter
         end
 
         def normalize_action(action)
-          policy = app_class.orchestration_policy(action[:action])
-          routing = app_class.orchestration_routing(action[:action], policy: policy)
+          base_policy = app_class.orchestration_policy(action[:action])
+          routing = app_class.orchestration_routing(action[:action], policy: base_policy)
+          lane = app_class.orchestration_lane(action[:action], queue: routing[:queue])
+          policy = app_class.orchestration_policy(action[:action], queue: routing[:queue])
 
           {
             id: action[:id].to_s,
@@ -49,6 +51,7 @@ module Igniter
             guidance: action[:guidance].to_s,
             attention_required: !!action[:attention_required],
             resumable: !!action[:resumable],
+            lane: lane,
             policy: policy.to_h,
             routing: routing
           }.freeze
@@ -68,6 +71,9 @@ module Igniter
             end,
             by_policy: actions.each_with_object(Hash.new(0)) do |action, memo|
               memo[action.dig(:policy, :name)] += 1
+            end,
+            by_lane: actions.each_with_object(Hash.new(0)) do |action, memo|
+              memo[action.dig(:lane, :name)] += 1 if action.dig(:lane, :name)
             end,
             by_queue: actions.each_with_object(Hash.new(0)) do |action, memo|
               memo[action.dig(:routing, :queue)] += 1 if action.dig(:routing, :queue)

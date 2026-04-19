@@ -40,6 +40,8 @@ module Igniter
               handled_operation: requested_operation,
               handled_lifecycle_operation: lifecycle_operation,
               handled_policy: policy.name,
+              handled_lane: item.dig(:lane, :name),
+              handled_handler_queue: item[:queue],
               handled_assignee: updated_item[:assignee],
               handled_queue: updated_item[:queue],
               handled_channel: updated_item[:channel]

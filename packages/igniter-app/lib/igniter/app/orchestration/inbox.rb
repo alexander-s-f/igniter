@@ -29,6 +29,7 @@ module Igniter
             guidance: action[:guidance],
             attention_required: action[:attention_required],
             resumable: action[:resumable],
+            lane: action[:lane],
             routing: action[:routing],
             source: source.to_sym,
             graph: graph,
@@ -104,6 +105,10 @@ module Igniter
           selected.map(&:dup)
         end
 
+        def query
+          InboxQuery.new(items)
+        end
+
         def clear!
           @items.clear
           self
@@ -124,6 +129,9 @@ module Igniter
             by_policy: @items.each_with_object(Hash.new(0)) do |item, memo|
               memo[item.dig(:policy, :name)] += 1 if item[:policy]
             end,
+            by_lane: @items.each_with_object(Hash.new(0)) do |item, memo|
+              memo[item.dig(:lane, :name)] += 1 if item[:lane]
+            end,
             by_assignee: @items.each_with_object(Hash.new(0)) do |item, memo|
               memo[item[:assignee]] += 1 if item[:assignee]
             end,
@@ -136,6 +144,7 @@ module Igniter
             latest_action: @items.last&.dig(:action),
             latest_node: @items.last&.dig(:node),
             latest_policy: @items.last&.dig(:policy, :name),
+            latest_lane: @items.last&.dig(:lane, :name),
             latest_assignee: @items.last&.dig(:assignee),
             latest_queue: @items.last&.dig(:queue),
             latest_channel: @items.last&.dig(:channel),

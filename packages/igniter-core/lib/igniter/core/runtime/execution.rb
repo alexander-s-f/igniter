@@ -135,6 +135,14 @@ module Igniter
         end
       end
 
+      def agent_session_query
+        Runtime::AgentSessionQuery.new(agent_sessions, execution: self)
+      end
+
+      def agent_session_summary
+        agent_session_query.summary
+      end
+
       def find_agent_session(token)
         agent_sessions.find { |session| session.token == token }
       end

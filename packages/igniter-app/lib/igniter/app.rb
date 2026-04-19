@@ -133,27 +133,65 @@ module Igniter
         @orchestration_inbox = inbox
       end
 
-      def register_orchestration_handler(action, handler = nil, &block)
-        Orchestration::HandlerRegistry.register(action, handler, &block)
+      def register_orchestration_handler(action, handler = nil, queue: nil, &block)
+        Orchestration::HandlerRegistry.register(action, handler, queue: queue, &block)
       end
 
-      def orchestration_handler(action)
-        Orchestration::HandlerRegistry.fetch(action)
+      def register_orchestration_lane(action, lane:, policy: nil, handler: nil, routing: nil, queue: nil, channel: nil, description: nil, default: false, &block)
+        resolved_handler = handler || block
+        lane_routing = (routing || {}).dup
+        lane_routing[:queue] = queue if queue
+        lane_routing[:channel] = channel if channel
+
+        Orchestration::LaneRegistry.register(
+          action,
+          lane: lane,
+          queue: lane_routing[:queue],
+          channel: lane_routing[:channel],
+          routing: lane_routing,
+          policy: policy,
+          handler: resolved_handler,
+          description: description
+        )
+
+        register_orchestration_policy(action, policy, queue: lane_routing[:queue]) if policy
+        register_orchestration_handler(action, resolved_handler, queue: lane_routing[:queue]) if resolved_handler
+        register_orchestration_routing(action, lane_routing) if default && !lane_routing.empty?
       end
 
-      def register_orchestration_policy(action, policy = nil, &block)
-        Orchestration::PolicyRegistry.register(action, policy, &block)
+      def orchestration_handler(action_or_item)
+        if action_or_item.is_a?(Hash)
+          action = action_or_item.fetch(:action)
+          queue = action_or_item[:queue] || action_or_item.dig(:routing, :queue)
+          return Orchestration::HandlerRegistry.fetch(action, queue: queue)
+        end
+
+        Orchestration::HandlerRegistry.fetch(action_or_item)
       end
 
-      def orchestration_policy(action_or_item)
-        action =
-          if action_or_item.is_a?(Hash)
-            action_or_item.fetch(:action)
-          else
-            action_or_item
-          end
+      def register_orchestration_policy(action, policy = nil, queue: nil, &block)
+        Orchestration::PolicyRegistry.register(action, policy, queue: queue, &block)
+      end
 
-        Orchestration::PolicyRegistry.fetch(action)
+      def orchestration_policy(action_or_item, queue: nil)
+        if action_or_item.is_a?(Hash)
+          action = action_or_item.fetch(:action)
+          resolved_queue = queue || action_or_item[:queue] || action_or_item.dig(:routing, :queue)
+          return Orchestration::PolicyRegistry.fetch(action, queue: resolved_queue)
+        end
+
+        Orchestration::PolicyRegistry.fetch(action_or_item, queue: queue)
+      end
+
+      def orchestration_lane(action_or_item, lane: nil, queue: nil)
+        if action_or_item.is_a?(Hash)
+          action = action_or_item.fetch(:action)
+          resolved_lane = lane || action_or_item.dig(:lane, :name)
+          resolved_queue = queue || action_or_item[:queue] || action_or_item.dig(:routing, :queue)
+          return Orchestration::LaneRegistry.find(action, lane: resolved_lane, queue: resolved_queue)
+        end
+
+        Orchestration::LaneRegistry.find(action_or_item, lane: lane, queue: queue)
       end
 
       def register_orchestration_routing(action, routing = nil, &block)
@@ -421,7 +459,7 @@ module Igniter
         item = orchestration_inbox.find(id)
         return nil unless item
 
-        orchestration_handler(item[:action]).call(
+        orchestration_handler(item).call(
           app_class: self,
           item: item,
           operation: operation,
@@ -491,6 +529,18 @@ module Igniter
 
       def reset_orchestration_inbox!
         orchestration_inbox.clear!
+      end
+
+      def orchestration_query
+        orchestration_inbox.query
+      end
+
+      def orchestration_inbox_query
+        orchestration_query
+      end
+
+      def orchestration_summary
+        orchestration_query.summary
       end
 
       # Expose the AppConfig (populated after the first build!).

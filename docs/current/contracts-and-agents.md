@@ -94,6 +94,18 @@ That app-level follow-up path is now tied back into runtime truth too:
   - `complete`
 - `handoff` is now also ownership-aware: orchestration items can carry assignee, queue, and channel metadata plus a small handoff history, which is the first real step from "runtime inbox" toward operator workflow
 - initial queue/channel routing is now planner-visible too, and apps can override it per orchestration action without rewriting the policy surface
+- queue selection is now also policy-aware: apps can register queue-specific orchestration policies, so operator lanes may change default behavior and allowed operations, not only assignment metadata
+- orchestration lanes are now explicit too: apps can register first-class lane bundles that carry routing, policy, and handler semantics together instead of treating queues as plain strings
+- app-level operator tooling now has a read-only query surface too, so inbox state can be sliced by lane, queue, channel, assignee, status, and interaction without reaching directly into snapshots
+- that operator view now also supports `facet`, `facets`, and `summary`, so orchestration state can already be treated as a small aggregate field rather than only a list of inbox items
+
+There is also now a clearer direction for OLAP-like query semantics in agents:
+
+- `cluster` already has the mature path `NodeObservation -> ObservationQuery -> MeshQL`
+- `agents` already have most of the raw dimensions through `AgentSession`, stream events, and orchestration inbox state
+- the safest next step is a read-only query surface over live agent sessions and orchestration items, not an immediate distributed `MeshQL for agents`
+- runtime now has that first query slice through `execution.agent_session_query`, which keeps the work local and observational instead of forcing early registry/discovery changes
+- the runtime query slice now also supports `facet`, `facets`, and `summary`, which is the first honest OLAP-like surface for agents without introducing a new language yet
 
 The local agent runtime also crossed an important threshold: `PendingDependencyError` raised inside a local registry-backed agent no longer degrades into a timeout. It now propagates back through the registry adapter as an honest runtime `pending` result, which means local actor delivery and graph-level resumable semantics are finally aligned.
 

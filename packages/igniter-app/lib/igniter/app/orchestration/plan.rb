@@ -40,6 +40,9 @@ module Igniter
               by_policy: followup_actions.each_with_object(Hash.new(0)) do |action, memo|
                 memo[action.dig(:policy, :name)] += 1
               end,
+              by_lane: followup_actions.each_with_object(Hash.new(0)) do |action, memo|
+                memo[action.dig(:lane, :name)] += 1 if action.dig(:lane, :name)
+              end,
               by_queue: followup_actions.each_with_object(Hash.new(0)) do |action, memo|
                 memo[action.dig(:routing, :queue)] += 1 if action.dig(:routing, :queue)
               end,

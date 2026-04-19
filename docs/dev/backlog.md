@@ -114,6 +114,11 @@ Why later:
 Status: concept
 Priority: medium
 
+Naming note:
+
+- `MeshQL` should be renamed in a separate cleanup pass before it becomes more public, because the name collides with an existing external technology and will create avoidable confusion
+- treat that rename as low-priority but explicit work, not as part of the current agents/runtime line
+
 Problem:
 
 - As the cluster becomes a multi-dimensional OLAP field, routing queries expressed as Ruby keyword arguments become limiting.

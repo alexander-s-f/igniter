@@ -63,6 +63,9 @@ Even in that narrow form, agents are no longer opaque:
 - local registry-backed agents can now surface `PendingDependencyError` back into the contract runtime as honest pending state
 - app-level orchestration inbox items can now reopen, acknowledge, dismiss, and resolve against the underlying runtime session
 - runtime resume is now node-aware as well as token-aware, which matters once multiple agent nodes share similar session identity
+- app orchestration lanes are now explicit too, so queue-like operator flows can carry named lane semantics instead of only string assignment metadata
+- runtime now also exposes `execution.agent_session_query`, a read-only query surface over live agent sessions and derived orchestration metadata
+- that query surface includes `facet`, `facets`, and `summary`, so agent work can already be inspected as a small local field before any richer distributed query layer exists
 
 ## Near-Term Direction
 
@@ -101,6 +104,7 @@ After the package split is stable, we can evaluate a deeper model:
 - a core-side adapter for bridging contracts to long-lived actors
 - clearer semantics for mailbox state versus graph state
 - higher-level orchestration handlers built on top of planner-visible agent actions
+- a read-only query surface over live `AgentSession` and orchestration state before attempting a full `MeshQL`-style language for agents
 
 That is a separate architectural pass and should be designed intentionally rather than smuggled into the gem extraction.
 
