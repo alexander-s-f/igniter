@@ -30,7 +30,12 @@ module Igniter
             queue: present_value(request_params[:queue]),
             channel: present_value(request_params[:channel]),
             note: present_value(request_params[:note]),
-            audit: { source: :operator_action_api }
+            audit: {
+              source: :operator_action_api,
+              actor: present_value(request_params[:actor]),
+              origin: normalize_identity_value(request_params[:origin]),
+              actor_channel: present_value(request_params[:actor_channel])
+            }
           )
 
           record = app_class.operator_query(target || nil).where { |entry| entry[:id] == id }.first
@@ -99,6 +104,13 @@ module Igniter
 
           string = value.to_s
           string.empty? ? nil : string
+        end
+
+        def normalize_identity_value(value)
+          string = present_value(value)
+          return nil unless string
+
+          string.tr(" ", "_").to_sym
         end
 
         def action_scope(item)

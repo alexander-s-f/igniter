@@ -2260,7 +2260,12 @@ RSpec.describe Igniter::App do
         assignee: "ops:alice",
         queue: "manual-review",
         channel: "slack://ops/review",
-        note: "routed to reviewer"
+        note: "routed to reviewer",
+        audit: {
+          actor: "alice",
+          origin: :operator_console,
+          actor_channel: "/operator"
+        }
       )
       approved = app.approve_orchestration_item(
         "agent_orchestration:require_manual_completion:manual_summary",
@@ -2327,6 +2332,9 @@ RSpec.describe Igniter::App do
         event: :handoff,
         status: :acknowledged,
         source: :orchestration_handler,
+        actor: "alice",
+        origin: :operator_console,
+        actor_channel: "/operator",
         requested_operation: :handoff,
         lifecycle_operation: :acknowledge,
         assignee: "ops:alice",
@@ -2778,17 +2786,34 @@ RSpec.describe Igniter::App do
         assignee: "ops:alice",
         queue: "manual-review",
         channel: "slack://ops/review",
-        note: "routed to reviewer"
+        note: "routed to reviewer",
+        audit: {
+          source: :orchestration_handler,
+          actor: "ops:alice",
+          origin: "review_lane",
+          actor_channel: "slack://ops/review"
+        }
       )
       app.approve_orchestration_item(
         "agent_orchestration:require_manual_completion:manual_summary",
         target: contract,
         value: [{ kind: :manual, value: "approved" }],
-        note: "approved"
+        note: "approved",
+        audit: {
+          actor: "ops:manual",
+          origin: "manual_console",
+          actor_channel: "/ops/manual"
+        }
       )
       app.dismiss_orchestration_item(
         "agent_orchestration:await_deferred_reply:approval",
-        note: "ignored"
+        note: "ignored",
+        audit: {
+          source: :orchestration_handler,
+          actor: "ops:triage",
+          origin: "triage_console",
+          actor_channel: "/ops/triage"
+        }
       )
 
       query = app.orchestration_query
@@ -2922,17 +2947,34 @@ RSpec.describe Igniter::App do
         assignee: "ops:alice",
         queue: "manual-review",
         channel: "slack://ops/review",
-        note: "routed to reviewer"
+        note: "routed to reviewer",
+        audit: {
+          source: :orchestration_handler,
+          actor: "ops:alice",
+          origin: "review_lane",
+          actor_channel: "slack://ops/review"
+        }
       )
       app.approve_orchestration_item(
         "agent_orchestration:require_manual_completion:manual_summary",
         target: contract,
         value: [{ kind: :manual, value: "approved" }],
-        note: "approved"
+        note: "approved",
+        audit: {
+          actor: "ops:manual",
+          origin: "manual_console",
+          actor_channel: "/ops/manual"
+        }
       )
       app.dismiss_orchestration_item(
         "agent_orchestration:await_deferred_reply:approval",
-        note: "ignored"
+        note: "ignored",
+        audit: {
+          source: :orchestration_handler,
+          actor: "ops:triage",
+          origin: "triage_console",
+          actor_channel: "/ops/triage"
+        }
       )
 
       query = app.operator_query(contract)
@@ -2974,8 +3016,19 @@ RSpec.describe Igniter::App do
         )
       )
       expect(query.with_session.phase(:streaming, :waiting).to_a.map { |entry| entry[:node] }).to contain_exactly(:interactive_summary, :approval)
+      expect(query.latest_action_actor("ops:alice").to_a).to contain_exactly(
+        include(node: :interactive_summary, latest_action_actor: "ops:alice")
+      )
+      expect(query.latest_action_origin("manual_console").to_a).to contain_exactly(
+        include(node: :manual_summary, latest_action_origin: "manual_console")
+      )
+      expect(query.latest_action_source("orchestration_handler").to_a.map { |entry| entry[:node] }).to contain_exactly(
+        :interactive_summary,
+        :manual_summary,
+        :approval
+      )
       expect(query.facet(:combined_state)).to eq(joined: 2, inbox_only: 1)
-      expect(query.facets(:lane, :phase)).to eq(
+      expect(query.facets(:lane, :phase, :latest_action_actor)).to eq(
         lane: {
           manual_completions: 1,
           ops_review: 1
@@ -2983,6 +3036,11 @@ RSpec.describe Igniter::App do
         phase: {
           streaming: 2,
           waiting: 1
+        },
+        latest_action_actor: {
+          "ops:alice" => 1,
+          "ops:manual" => 1,
+          "ops:triage" => 1
         }
       )
       expect(query.summary).to include(
@@ -2996,9 +3054,23 @@ RSpec.describe Igniter::App do
         by_combined_state: {
           joined: 2,
           inbox_only: 1
+        },
+        by_latest_action_actor: {
+          "ops:alice" => 1,
+          "ops:manual" => 1,
+          "ops:triage" => 1
+        },
+        by_latest_action_origin: {
+          "manual_console" => 1,
+          "review_lane" => 1,
+          "triage_console" => 1
+        },
+        by_latest_action_source: {
+          orchestration_handler: 3
         }
       )
       expect(query.summary[:by_phase]).to eq(streaming: 2, waiting: 1)
+      expect(query.order_by(:latest_action_actor, direction: :asc).first[:node]).to eq(:interactive_summary)
       expect(app.operator_summary(contract)).to include(total: 3, joined_records: 2)
       expect(app.operator_overview(contract)).to include(
         app: "SpecUnifiedOperatorQueryApp",
@@ -3016,7 +3088,8 @@ RSpec.describe Igniter::App do
           filters: {
             status: :acknowledged,
             queue: "manual-review",
-            assignee: "ops:alice"
+            assignee: "ops:alice",
+            latest_action_actor: "ops:alice"
           },
           order_by: :assignee,
           direction: :desc,
@@ -3027,7 +3100,8 @@ RSpec.describe Igniter::App do
           filters: {
             status: :acknowledged,
             queue: "manual-review",
-            assignee: "ops:alice"
+            assignee: "ops:alice",
+            latest_action_actor: "ops:alice"
           },
           order_by: :assignee,
           direction: :desc,
@@ -3041,11 +3115,17 @@ RSpec.describe Igniter::App do
           filters: {
             status: :acknowledged,
             queue: "manual-review",
-            assignee: "ops:alice"
+            assignee: "ops:alice",
+            latest_action_actor: "ops:alice"
           }
         )[:records]
       ).to contain_exactly(
-        include(node: :interactive_summary, assignee: "ops:alice", queue: "manual-review")
+        include(
+          node: :interactive_summary,
+          assignee: "ops:alice",
+          queue: "manual-review",
+          latest_action_actor: "ops:alice"
+        )
       )
       expect(query.order_by(:phase, direction: :asc).first[:node]).to eq(:interactive_summary)
       expect(query.limit(2).to_a.size).to eq(2)
@@ -3238,17 +3318,29 @@ RSpec.describe Igniter::App do
         assignee: "ops:alice",
         queue: "manual-review",
         channel: "slack://ops/review",
-        note: "routed to reviewer"
+        note: "routed to reviewer",
+        audit: {
+          source: :orchestration_handler,
+          actor: "ops:alice",
+          origin: "review_lane",
+          actor_channel: "slack://ops/review"
+        }
       )
       app.dismiss_orchestration_item(
         "agent_orchestration:await_deferred_reply:approval",
-        note: "ignored"
+        note: "ignored",
+        audit: {
+          source: :orchestration_handler,
+          actor: "ops:triage",
+          origin: "triage_console",
+          actor_channel: "/ops/triage"
+        }
       )
 
       router = Igniter::Server::Router.new(config)
       api = router.call(
         "GET",
-        "/api/operator?status=acknowledged&queue=manual-review&assignee=ops:alice&order_by=assignee&direction=desc",
+        "/api/operator?status=acknowledged&queue=manual-review&assignee=ops:alice&latest_action_actor=ops:alice&latest_action_origin=review_lane&latest_action_source=orchestration_handler&order_by=latest_action_actor&direction=desc",
         ""
       )
 
@@ -3260,29 +3352,38 @@ RSpec.describe Igniter::App do
           "filters" => {
             "status" => ["acknowledged"],
             "queue" => ["manual-review"],
-            "assignee" => ["ops:alice"]
+            "assignee" => ["ops:alice"],
+            "latest_action_actor" => ["ops:alice"],
+            "latest_action_origin" => ["review_lane"],
+            "latest_action_source" => ["orchestration_handler"]
           },
-          "order_by" => "assignee",
+          "order_by" => "latest_action_actor",
           "direction" => "desc",
           "limit" => 20
         },
         "summary" => include(
           "total" => 1,
-          "by_status" => { "acknowledged" => 1 }
+          "by_status" => { "acknowledged" => 1 },
+          "by_latest_action_actor" => { "ops:alice" => 1 },
+          "by_latest_action_origin" => { "review_lane" => 1 },
+          "by_latest_action_source" => { "orchestration_handler" => 1 }
         ),
         "records" => [
           include(
             "node" => "interactive_summary",
             "status" => "acknowledged",
             "queue" => "manual-review",
-            "assignee" => "ops:alice"
+            "assignee" => "ops:alice",
+            "latest_action_actor" => "ops:alice",
+            "latest_action_origin" => "review_lane",
+            "latest_action_source" => "orchestration_handler"
           )
         ]
       )
 
       page = router.call(
         "GET",
-        "/operator?graph=AnonymousContract&execution_id=#{contract.execution.events.execution_id}&status=acknowledged&queue=manual-review&assignee=ops:alice&node=interactive_summary",
+        "/operator?graph=AnonymousContract&execution_id=#{contract.execution.events.execution_id}&status=acknowledged&queue=manual-review&assignee=ops:alice&latest_action_actor=ops:alice&latest_action_origin=review_lane&latest_action_source=orchestration_handler&node=interactive_summary",
         ""
       )
 
@@ -3293,6 +3394,14 @@ RSpec.describe Igniter::App do
       expect(page[:body]).to include('value="manual-review"')
       expect(page[:body]).to include('name="assignee"')
       expect(page[:body]).to include('value="ops:alice"')
+      expect(page[:body]).to include('name="latest_action_actor"')
+      expect(page[:body]).to include('value="ops:alice"')
+      expect(page[:body]).to include('name="latest_action_origin"')
+      expect(page[:body]).to include('value="review_lane"')
+      expect(page[:body]).to include('name="latest_action_source"')
+      expect(page[:body]).to include('value="orchestration_handler"')
+      expect(page[:body]).to include('name="action_actor"')
+      expect(page[:body]).to include('value="operator-console"')
       expect(page[:body]).to include("Open JSON API")
       expect(page[:body]).to include("Inspect")
     ensure
@@ -3533,6 +3642,9 @@ RSpec.describe Igniter::App do
         JSON.generate(
           id: "agent_orchestration:open_interactive_session:interactive_summary",
           operation: :handoff,
+          actor: "alex",
+          origin: "dashboard_ui",
+          actor_channel: "/operator",
           assignee: "ops:alice",
           queue: "manual-review",
           channel: "slack://ops/review",
@@ -3564,6 +3676,9 @@ RSpec.describe Igniter::App do
               "event" => "handoff",
               "status" => "acknowledged",
               "source" => "operator_action_api",
+              "actor" => "alex",
+              "origin" => "dashboard_ui",
+              "actor_channel" => "/operator",
               "requested_operation" => "handoff",
               "lifecycle_operation" => "acknowledge"
             )
@@ -3576,9 +3691,14 @@ RSpec.describe Igniter::App do
           "queue" => "manual-review",
           "channel" => "slack://ops/review",
           "action_history_count" => 2,
+          "latest_action_actor" => "alex",
+          "latest_action_origin" => "dashboard_ui",
+          "latest_action_source" => "operator_action_api",
           "latest_action_event" => include(
             "event" => "handoff",
-            "source" => "operator_action_api"
+            "source" => "operator_action_api",
+            "actor" => "alex",
+            "origin" => "dashboard_ui"
           )
         )
       )
@@ -3589,6 +3709,9 @@ RSpec.describe Igniter::App do
         JSON.generate(
           id: "agent_orchestration:await_deferred_reply:approval",
           operation: :reply,
+          actor: "alex",
+          origin: "dashboard_ui",
+          actor_channel: "/operator",
           value: "approved",
           note: "completed from console"
         ),
@@ -3616,6 +3739,9 @@ RSpec.describe Igniter::App do
               "event" => "resolved",
               "status" => "resolved",
               "source" => "operator_action_api",
+              "actor" => "alex",
+              "origin" => "dashboard_ui",
+              "actor_channel" => "/operator",
               "requested_operation" => "reply",
               "lifecycle_operation" => "resolve"
             )
@@ -3625,9 +3751,14 @@ RSpec.describe Igniter::App do
           "id" => "agent_orchestration:await_deferred_reply:approval",
           "status" => "resolved",
           "combined_state" => "inbox_only",
+          "latest_action_actor" => "alex",
+          "latest_action_origin" => "dashboard_ui",
+          "latest_action_source" => "operator_action_api",
           "latest_action_event" => include(
             "event" => "resolved",
-            "source" => "operator_action_api"
+            "source" => "operator_action_api",
+            "actor" => "alex",
+            "origin" => "dashboard_ui"
           )
         )
       )

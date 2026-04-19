@@ -19,6 +19,14 @@ while the architecture is still evolving.
 - [Cluster State](./cluster-state.md)
 - [Cluster Roadmap](./cluster-roadmap.md)
 
+## Current Reading Heuristic
+
+- Read `Contracts And Agents` first for the current doctrine: `contract` is fundamental, `agent` is first-class.
+- Read `Agent Node` for the concrete runtime shape: sessions, stream events, orchestration, and operator surfaces.
+- Read `Agents Roadmap` for the real next-cycle options rather than older speculative notes.
+- Treat the agent query/operator work as active.
+- Treat the cluster `MeshQL` line as separate and low-priority for now; the naming cleanup is intentionally deferred and should not drive the current agents roadmap.
+
 ## Related Sections
 
 - [Guide](../guide/README.md) for current user-facing guidance

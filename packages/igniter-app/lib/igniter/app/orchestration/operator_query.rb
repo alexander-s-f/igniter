@@ -9,12 +9,14 @@ module Igniter
         ORDERABLE_DIMENSIONS = %i[
           id action node status interaction reason attention_required resumable
           assignee queue channel phase reply_mode mode tool_loop_status
+          latest_action_actor latest_action_origin latest_action_source
           handoff_count combined_state
         ].freeze
         FACETABLE_DIMENSIONS = %i[
           status action node interaction reason attention_required resumable
           assignee queue channel phase reply_mode mode tool_loop_status
-          policy lane combined_state
+          policy lane combined_state latest_action_actor latest_action_origin
+          latest_action_source
         ].freeze
 
         def initialize(records)
@@ -82,6 +84,21 @@ module Igniter
         def assignee(*assignees)
           normalized = assignees.map(&:to_s)
           add_filter { |record| normalized.include?(record[:assignee].to_s) }
+        end
+
+        def latest_action_actor(*actors)
+          normalized = actors.map(&:to_s)
+          add_filter { |record| normalized.include?(record[:latest_action_actor].to_s) }
+        end
+
+        def latest_action_origin(*origins)
+          normalized = origins.map(&:to_s)
+          add_filter { |record| normalized.include?(record[:latest_action_origin].to_s) }
+        end
+
+        def latest_action_source(*sources)
+          normalized = sources.map(&:to_s)
+          add_filter { |record| normalized.include?(record[:latest_action_source].to_s) }
         end
 
         def node(*nodes)
@@ -254,6 +271,9 @@ module Igniter
             by_queue: facet(:queue),
             by_channel: facet(:channel),
             by_assignee: facet(:assignee),
+            by_latest_action_actor: facet(:latest_action_actor),
+            by_latest_action_origin: facet(:latest_action_origin),
+            by_latest_action_source: facet(:latest_action_source),
             by_interaction: facet(:interaction),
             by_reason: facet(:reason),
             by_phase: facet(:phase),

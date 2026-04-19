@@ -39,9 +39,43 @@ Already landed:
 - `mount_operator_overview(...)` and `mount_operator_observability(...)` now make that endpoint a first-class app DSL pack instead of a repeated custom route snippet
 - that mounted operator endpoint now also supports stable filter/order query params and reflects the applied query contract back in the response payload
 - `mount_operator_surface(...)` now adds a built-in operator console over that same queryable plane, including execution-scoped drill-down and row-level operator actions
-- operator items now also expose canonical `action_history`, so the surface has a real audit trail instead of only latest-state observability
+- operator items now also expose canonical `action_history` with explicit operator identity like `actor`, `origin`, and `actor_channel`, so the surface has a real audit trail instead of only latest-state observability
+- latest audit identity is now also filterable/facetable/orderable through `latest_action_actor`, `latest_action_origin`, and `latest_action_source`
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
+
+## Planning Snapshot
+
+If we pause after the current operator/audit/query work, the realistic near-term choices are:
+
+1. Operator timeline and drill-down
+
+- make `action_history` not only queryable by latest dimensions, but readable as a first-class per-item timeline
+- add item detail / timeline surface in the built-in operator console and mounted API
+- keep this local to `igniter-app` and the operator read model
+
+2. Operator workflow semantics
+
+- deepen policy/handler semantics around `approve`, `reply`, `wake`, `handoff`, and completion rules
+- make operator-facing workflow states richer without weakening the current runtime/session model
+- likely touches app policies and mounted operator actions more than core runtime
+
+3. Remote and routed agents
+
+- move the current `agent node -> session -> orchestration` model beyond the local registry
+- preserve the same session/orchestration semantics for remote delivery
+- likely the strongest next architecture move once the operator surface feels “good enough”
+
+For now, option 1 is the smallest and cleanest continuation from the current landed state.
+Option 3 is the larger architectural continuation.
+
+## Deferred Line
+
+The agent/query work should stay separate from the cluster query-language naming track.
+
+- do not let `MeshQL` naming cleanup drive the current agents/runtime plan
+- keep the cluster query language as a low-priority separate line
+- rename work should happen before that language becomes more public, but not in the middle of the current agents/operator iteration
 
 ## Next
 

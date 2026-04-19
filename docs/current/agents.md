@@ -74,7 +74,7 @@ Even in that narrow form, agents are no longer opaque:
 - apps can now mount that operator endpoint declaratively with `mount_operator_overview(...)` or `mount_operator_observability(...)`
 - that mounted operator endpoint is now query-aware too, so operator surfaces can ask for focused slices like `status=acknowledged`, `queue=manual-review`, or `assignee=ops:alice` instead of always fetching the full record set
 - `mount_operator_surface(...)` now also gives apps a built-in operator console page with those same filters, execution drill-down links, and row-level operator actions
-- operator items now also carry `action_history`, so agent-facing workflows have a canonical audit trail at the app/operator layer, not only a current inbox status
+- operator items now also carry `action_history`, including explicit operator identity like `actor`, `origin`, and `actor_channel`, so agent-facing workflows have a canonical audit trail at the app/operator layer, not only a current inbox status
 
 ## Near-Term Direction
 

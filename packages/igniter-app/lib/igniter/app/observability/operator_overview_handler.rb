@@ -11,6 +11,7 @@ module Igniter
         LIST_FILTERS = %i[
           status action node combined_state interaction reason policy lane queue
           channel assignee phase reply_mode mode tool_loop_status
+          latest_action_actor latest_action_origin latest_action_source
         ].freeze
         BOOLEAN_FILTERS = %i[
           actionable attention_required resumable with_session
@@ -112,7 +113,10 @@ module Igniter
         end
 
         def symbol_filter?(name)
-          !%i[queue channel assignee].include?(name)
+          !%i[
+            queue channel assignee latest_action_actor latest_action_origin
+            latest_action_source
+          ].include?(name)
         end
 
         def normalize_list(value, symbolize: false)

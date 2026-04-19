@@ -108,6 +108,18 @@ module Igniter
                         <input id="assignee" name="assignee" placeholder="ops:alice" value="#{h(initial[:assignee])}">
                       </label>
                       <label>
+                        Latest Action Actor
+                        <input id="latest_action_actor" name="latest_action_actor" placeholder="alex" value="#{h(initial[:latest_action_actor])}">
+                      </label>
+                      <label>
+                        Latest Action Origin
+                        <input id="latest_action_origin" name="latest_action_origin" placeholder="dashboard_ui" value="#{h(initial[:latest_action_origin])}">
+                      </label>
+                      <label>
+                        Latest Action Source
+                        <input id="latest_action_source" name="latest_action_source" placeholder="operator_action_api" value="#{h(initial[:latest_action_source])}">
+                      </label>
+                      <label>
                         Order By
                         <input id="order_by" name="order_by" placeholder="status" value="#{h(initial[:order_by])}">
                       </label>
@@ -132,6 +144,12 @@ module Igniter
                   <section class="panel" style="margin-bottom: 20px;">
                     <h2>Operator Actions</h2>
                     <p class="hint">Use row actions to `wake`, `approve`, `reply`, `complete`, `handoff`, or `dismiss` orchestration items. Runtime-completing actions try to resume through durable store state when available.</p>
+                    <div class="filters" style="margin-top: 16px;">
+                      <label>
+                        Action Actor
+                        <input id="action_actor" name="action_actor" placeholder="operator-console" value="#{h(initial[:action_actor])}">
+                      </label>
+                    </div>
                   </section>
 
                   <section class="grid">
@@ -190,6 +208,10 @@ module Igniter
                     const laneInput = document.getElementById("lane");
                     const queueInput = document.getElementById("queue");
                     const assigneeInput = document.getElementById("assignee");
+                    const latestActionActorInput = document.getElementById("latest_action_actor");
+                    const latestActionOriginInput = document.getElementById("latest_action_origin");
+                    const latestActionSourceInput = document.getElementById("latest_action_source");
+                    const actionActorInput = document.getElementById("action_actor");
                     const orderByInput = document.getElementById("order_by");
                     const directionInput = document.getElementById("direction");
                     const limitInput = document.getElementById("limit");
@@ -215,6 +237,9 @@ module Igniter
                         [laneInput, "lane"],
                         [queueInput, "queue"],
                         [assigneeInput, "assignee"],
+                        [latestActionActorInput, "latest_action_actor"],
+                        [latestActionOriginInput, "latest_action_origin"],
+                        [latestActionSourceInput, "latest_action_source"],
                         [orderByInput, "order_by"],
                         [directionInput, "direction"],
                         [limitInput, "limit"]
@@ -280,7 +305,7 @@ module Igniter
                           : "—";
                         const latestEvent = record.latest_action_event || {};
                         const history = record.action_history_count
-                          ? `${record.action_history_count} events · ${String(latestEvent.event || "unknown")} · ${String(latestEvent.source || "unspecified")}`
+                          ? `${record.action_history_count} events · ${String(latestEvent.event || "unknown")} · ${String(latestEvent.actor || latestEvent.source || "unspecified")}`
                           : "—";
                         const scopedParams = new URLSearchParams();
                         if (record.graph && record.execution_id) {
@@ -369,6 +394,12 @@ module Igniter
                         payload.execution_id = button.dataset.operatorExecution;
                       }
 
+                      if (actionActorInput.value.trim()) {
+                        payload.actor = actionActorInput.value.trim();
+                      }
+                      payload.origin = "operator_console";
+                      payload.actor_channel = window.location.pathname;
+
                       const operation = payload.operation;
                       let note = "";
 
@@ -423,6 +454,9 @@ module Igniter
                       laneInput.value = "";
                       queueInput.value = "";
                       assigneeInput.value = "";
+                      latestActionActorInput.value = "";
+                      latestActionOriginInput.value = "";
+                      latestActionSourceInput.value = "";
                       orderByInput.value = "";
                       directionInput.value = "asc";
                       loadOverview().catch((error) => {
@@ -478,6 +512,10 @@ module Igniter
             lane: request_params[:lane].to_s,
             queue: request_params[:queue].to_s,
             assignee: request_params[:assignee].to_s,
+            latest_action_actor: request_params[:latest_action_actor].to_s,
+            latest_action_origin: request_params[:latest_action_origin].to_s,
+            latest_action_source: request_params[:latest_action_source].to_s,
+            action_actor: request_params[:action_actor].to_s.empty? ? "operator-console" : request_params[:action_actor].to_s,
             order_by: request_params[:order_by].to_s,
             direction: request_params[:direction].to_s.empty? ? "asc" : request_params[:direction].to_s,
             limit: request_params[:limit].to_s.empty? ? "20" : request_params[:limit].to_s

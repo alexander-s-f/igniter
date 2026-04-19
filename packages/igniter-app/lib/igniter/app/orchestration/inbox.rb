@@ -171,6 +171,9 @@ module Igniter
             latest_queue: @items.last&.dig(:queue),
             latest_channel: @items.last&.dig(:channel),
             latest_status: @items.last&.dig(:status),
+            latest_action_source: @items.last&.dig(:action_history)&.last&.dig(:source),
+            latest_action_actor: @items.last&.dig(:action_history)&.last&.dig(:actor),
+            latest_action_origin: @items.last&.dig(:action_history)&.last&.dig(:origin),
             latest_action_event: @items.last&.dig(:action_history)&.last&.dup,
             items: selected.map(&:dup)
           }
@@ -253,6 +256,9 @@ module Igniter
           }
           payload[:note] = note unless note.nil? || note.to_s.empty?
           payload[:source] = normalized_audit[:source] if normalized_audit[:source]
+          payload[:actor] = normalized_audit[:actor] if normalized_audit[:actor]
+          payload[:origin] = normalized_audit[:origin] if normalized_audit[:origin]
+          payload[:actor_channel] = normalized_audit[:actor_channel] if normalized_audit[:actor_channel]
           payload[:requested_operation] = normalized_audit[:requested_operation] if normalized_audit[:requested_operation]
           payload[:lifecycle_operation] = normalized_audit[:lifecycle_operation] if normalized_audit[:lifecycle_operation]
           payload[:handler] = normalized_audit[:handler] if normalized_audit[:handler]

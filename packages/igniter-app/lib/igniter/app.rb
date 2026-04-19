@@ -961,6 +961,9 @@ module Igniter
           handoff_count: item&.fetch(:handoff_count, 0) || 0,
           handoff_history: Array(item&.dig(:handoff_history)).map(&:dup).freeze,
           action_history_count: Array(item&.dig(:action_history)).size,
+          latest_action_source: item&.dig(:action_history)&.last&.dig(:source),
+          latest_action_actor: item&.dig(:action_history)&.last&.dig(:actor),
+          latest_action_origin: item&.dig(:action_history)&.last&.dig(:origin),
           latest_action_event: item&.dig(:action_history)&.last&.dup,
           action_history: Array(item&.dig(:action_history)).map(&:dup).freeze,
           token: session&.token || item&.dig(:token),
@@ -1034,7 +1037,8 @@ module Igniter
               value ? applied.handed_off : applied
             when :status, :action, :node, :combined_state, :interaction, :reason, :policy,
                  :lane, :queue, :channel, :assignee, :graph, :execution_id, :phase,
-                 :reply_mode, :mode, :tool_loop_status
+                 :reply_mode, :mode, :tool_loop_status, :latest_action_actor,
+                 :latest_action_origin, :latest_action_source
               applied.public_send(key.to_sym, *Array(value))
             else
               raise ArgumentError, "unsupported operator filter #{key.inspect}"

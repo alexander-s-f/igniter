@@ -106,7 +106,8 @@ That app-level follow-up path is now tied back into runtime truth too:
 - apps can now mount that endpoint as a declarative pack through `mount_operator_overview(...)` or `mount_operator_observability(...)`, which makes operator observability part of the app DSL instead of only a handler class
 - that mounted operator plane is now queryable too, with stable filter/order inputs over `status`, `node`, `lane`, `queue`, `assignee`, and related dimensions instead of forcing dashboards to post-filter raw record arrays
 - `mount_operator_surface(...)` now adds a built-in HTML operator console over the same query contract, including write-actions for common operator workflow transitions, so dashboard-style apps can ship a usable operator view without a separate frontend layer
-- that same surface now also exposes item-level `action_history`, which gives contracts-and-agents a first honest operator audit trail instead of only latest-state snapshots
+- that same surface now also exposes item-level `action_history`, including explicit operator identity like `actor`, `origin`, and `actor_channel`, which gives contracts-and-agents a first honest operator audit trail instead of only latest-state snapshots
+- latest audit identity is now queryable too through `latest_action_actor`, `latest_action_origin`, and `latest_action_source`, which starts to make operator history behave like an OLAP-style dimension instead of only a rendered timeline
 
 There is also now a clearer direction for OLAP-like query semantics in agents:
 

@@ -118,6 +118,7 @@ Naming note:
 
 - `MeshQL` should be renamed in a separate cleanup pass before it becomes more public, because the name collides with an existing external technology and will create avoidable confusion
 - treat that rename as low-priority but explicit work, not as part of the current agents/runtime line
+- do not mix that rename with the current `contracts & agents` / operator-surface cycle; it is a separate cluster-facing cleanup track
 
 Problem:
 
