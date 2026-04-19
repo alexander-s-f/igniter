@@ -137,7 +137,20 @@ module Igniter
         agent_sessions.find { |session| session.token == token }
       end
 
-      def resume_agent_session(session_or_token, value: UNDEFINED_RESUME_VALUE)
+      def resume_agent_session(session_or_token, node_name: nil, value: UNDEFINED_RESUME_VALUE)
+        if node_name
+          token = session_or_token.is_a?(Runtime::AgentSession) ? session_or_token.token : session_or_token
+          state = cache.fetch(node_name.to_sym)
+          raise ResolutionError, "Agent session node '#{node_name}' is not pending" unless state&.pending?
+          raise ResolutionError, "Node '#{node_name}' is not an agent session" unless state.node.kind == :agent
+          raise ResolutionError, "Node '#{node_name}' does not carry a deferred agent result" unless state.value.is_a?(Runtime::DeferredResult)
+          if token && state.value.token != token
+            raise ResolutionError, "Pending agent node '#{node_name}' does not match token '#{token}'"
+          end
+
+          return resume(node_name, value: value)
+        end
+
         token = session_or_token.is_a?(Runtime::AgentSession) ? session_or_token.token : session_or_token
         raise ResolutionError, "Agent session token is required" if token.nil? || token.to_s.empty?
 

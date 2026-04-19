@@ -78,7 +78,29 @@ That signal is now active in runtime behavior too: stream sessions no longer aut
 
 The planner now sees some of that distinction as well. Agent-backed plans expose orchestration hints for things like interactive streaming sessions, manual completion, deferred resumable calls, and delivery-only casts. They also now expose recommended orchestration actions such as opening an interactive session, requiring manual completion, or awaiting a deferred reply. `igniter-app` already consumes that surface to open deduplicated orchestration inbox items, and those items now have their own small lifecycle (`acknowledge`, `resolve`, `dismiss`). That is the first concrete step from "planner semantics" toward actual runtime follow-up handling.
 
+That app-level follow-up path is now tied back into runtime truth too:
+
+- opening follow-ups against a live contract materializes the relevant pending agent sessions before inbox items are created
+- inbox items carry runtime identity such as graph, execution id, node, token, and reply shape when a live session exists
+- resolving an inbox item can now resume the underlying agent session instead of only changing inbox state
+- resume is now node-aware, not only token-aware, so parallel agent nodes do not get conflated when session tokens are reused
+
+The local agent runtime also crossed an important threshold: `PendingDependencyError` raised inside a local registry-backed agent no longer degrades into a timeout. It now propagates back through the registry adapter as an honest runtime `pending` result, which means local actor delivery and graph-level resumable semantics are finally aligned.
+
 That keeps text streaming simple while leaving room for richer agent execution and observability.
+
+## Current Development Priorities
+
+The next likely development order is:
+
+1. harden orchestration as an end-to-end runtime surface, not only a planner/introspection surface
+2. deepen `AgentSession` into a stronger conversational lifecycle model
+3. extend agent delivery beyond the local registry without losing the same graph/session semantics
+4. increasingly move Igniter's own orchestration layers onto contracts and agents
+
+See also:
+
+- [Agents Roadmap](./agents-roadmap.md)
 
 ## Practical Boundary
 

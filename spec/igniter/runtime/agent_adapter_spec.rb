@@ -109,4 +109,48 @@ RSpec.describe Igniter::Runtime::AgentAdapter do
     )
     expect(contract.result.notify).to be_nil
   end
+
+  it "maps local agent pending replies to a runtime pending response" do
+    previous_adapter = Igniter::Runtime.agent_adapter
+    Igniter::Runtime.activate_agent_adapter!
+    Igniter::Registry.clear
+    ref = nil
+
+    agent_class = Class.new(Igniter::Agent) do
+      on :greet do |payload:, **|
+        raise Igniter::PendingDependencyError.new(
+          "continue",
+          token: "greeter-session",
+          source_node: :greeting,
+          payload: { requested_name: payload[:name] }
+        )
+      end
+    end
+
+    ref = agent_class.start(name: :greeter)
+    registry_adapter = Igniter::Runtime::RegistryAgentAdapter.new
+
+    response = registry_adapter.call(node: node, inputs: { name: "Alice" })
+
+    expect(response).to include(
+      status: :pending,
+      message: "continue",
+      payload: { requested_name: "Alice" }
+    )
+    expect(response[:deferred_result]).to have_attributes(
+      token: "greeter-session",
+      source_node: :greeting,
+      waiting_on: :greeting
+    )
+    expect(response[:agent_trace]).to include(
+      adapter: :registry,
+      via: :greeter,
+      message: :greet,
+      outcome: :pending
+    )
+  ensure
+    ref&.stop
+    Igniter::Registry.clear
+    Igniter::Runtime.agent_adapter = previous_adapter
+  end
 end

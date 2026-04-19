@@ -114,6 +114,8 @@ Planning and explain surfaces now expose agent orchestration hints too:
 - `igniter-app` now uses that surface to open app-level orchestration inbox items via `App.open_orchestration_followups(...)`
 - those inbox items are deduplicated by action id and show up in `diagnostics[:app_orchestration][:inbox]`
 - inbox items now support lifecycle transitions through `acknowledge`, `resolve`, and `dismiss`
+- opening follow-ups against a live contract now materializes the relevant pending agent nodes first, so inbox items carry real runtime session metadata instead of planner-only action ids
+- resolving a follow-up item can now resume the underlying agent session directly from the app layer
 - deduplication only applies to active items, so resolved or dismissed actions can be reopened later if the workflow becomes pending again
 - `explain_plan` now renders those hints directly for human review
 
@@ -127,6 +129,7 @@ Pending agent nodes now materialize as first-class runtime sessions.
 - `execution.find_agent_session(token)` resolves a specific session
 - `execution.continue_agent_session(session_or_token, payload:, trace: ...)` advances a session without completing the node
 - `execution.resume_agent_session(session_or_token, value:)` completes the pending node through the session handle
+- `execution.resume_agent_session(session_or_token, node_name:, value:)` can now resume a specific pending agent node even when several sessions share a token
 - store-backed flows can continue or resume through `Contract.continue_agent_session_from_store(...)` and `Contract.resume_agent_session_from_store(...)`
 
 An agent session is the bridge between graph execution and long-lived agent work. It now carries:
@@ -176,6 +179,8 @@ The current event model is intentionally small:
 
 That keeps the text path easy while allowing stream semantics to grow into tool calls, status events, and artifacts.
 
+One subtle but important runtime fix also landed under this model: local registry-backed agents now propagate `PendingDependencyError` back to the graph as `pending`. In other words, a local actor that wants to stay open no longer falls through to a reply timeout first.
+
 ## Why This Shape
 
 The goal is to make agents visible in the graph without collapsing layers again.
@@ -202,7 +207,9 @@ Not covered yet:
 
 The most natural next slices are:
 
-1. richer session semantics beyond append-only request/reply envelopes
-2. richer stream event/result assembly beyond today's built-in finalizers
+1. harden orchestration handling above planner/inbox level
+2. richer session semantics beyond today's append-only conversational envelopes
 3. support for agent targeting beyond the local registry
 4. deciding whether `AgentAdapter` stays specialized or becomes a more general `ProxyAdapter`
+
+See also: [Agents Roadmap](./agents-roadmap.md)

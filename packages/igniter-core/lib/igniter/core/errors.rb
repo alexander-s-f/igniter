@@ -62,9 +62,32 @@ module Igniter
   class PendingDependencyError < Error
     attr_reader :deferred_result
 
-    def initialize(deferred_result, message = "Dependency is pending", context: {})
-      @deferred_result = deferred_result
-      super(message, context: context)
+    def initialize(deferred_result, message = "Dependency is pending", context: {}, token: nil, source_node: nil, waiting_on: nil, payload: nil)
+      @deferred_result, resolved_message = normalize_pending_deferred(
+        deferred_result,
+        message,
+        token: token,
+        source_node: source_node,
+        waiting_on: waiting_on,
+        payload: payload
+      )
+      super(resolved_message, context: context)
+    end
+
+    private
+
+    def normalize_pending_deferred(deferred_result, message, token:, source_node:, waiting_on:, payload:)
+      deferred_class = defined?(Igniter::Runtime::DeferredResult) ? Igniter::Runtime::DeferredResult : nil
+      return [deferred_result, message] if deferred_class && deferred_result.is_a?(deferred_class)
+
+      built_deferred = deferred_class&.build(
+        token: token,
+        source_node: source_node,
+        waiting_on: waiting_on || source_node,
+        payload: payload || {}
+      )
+
+      [built_deferred || deferred_result, deferred_result]
     end
   end
 

@@ -14,6 +14,7 @@ while the architecture is still evolving.
 - [Contracts And Agents](./contracts-and-agents.md)
 - [Agents](./agents.md)
 - [Agent Node](./agent-node.md)
+- [Agents Roadmap](./agents-roadmap.md)
 - [Stacks](./stacks.md)
 - [Cluster State](./cluster-state.md)
 - [Cluster Roadmap](./cluster-roadmap.md)

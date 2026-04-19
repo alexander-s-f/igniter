@@ -65,6 +65,10 @@ module Igniter
 
         state  = @state_holder.get
         result = handler.call(state: state, payload: message.payload)
+      rescue Igniter::PendingDependencyError => e
+        send_error_reply(message, e)
+        return
+      else
 
         case result
         when Hash
@@ -86,6 +90,14 @@ module Igniter
 
         message.reply_to.push(
           Message.new(type: :reply, payload: { value: value })
+        )
+      end
+
+      def send_error_reply(message, error)
+        return unless message.reply_to
+
+        message.reply_to.push(
+          Message.new(type: :reply, payload: { error: error })
         )
       end
 

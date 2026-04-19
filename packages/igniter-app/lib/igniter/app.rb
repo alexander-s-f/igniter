@@ -321,16 +321,30 @@ module Igniter
 
       def open_orchestration_followups(target)
         plan = target.is_a?(Orchestration::Plan) ? target : orchestration_plan(target)
+        execution = orchestration_execution_for(target)
+        if execution && !target.is_a?(Orchestration::Plan)
+          materialize_orchestration_sessions(plan, execution)
+          plan = orchestration_plan(target)
+        end
         graph, execution_id = orchestration_runtime_identity_for(target)
-        Orchestration::Runner.new(app_class: self).run(plan, graph: graph, execution_id: execution_id)
+        Orchestration::Runner.new(app_class: self).run(
+          plan,
+          graph: graph,
+          execution_id: execution_id,
+          execution: execution
+        )
       end
 
       def acknowledge_orchestration_item(id, note: nil)
         orchestration_inbox.acknowledge(id, note: note)
       end
 
-      def resolve_orchestration_item(id, note: nil)
-        orchestration_inbox.resolve(id, note: note)
+      def resolve_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil)
+        item = orchestration_inbox.find(id)
+        return nil unless item
+
+        metadata = resume_orchestration_item_runtime(item, target: target, value: value)
+        orchestration_inbox.resolve(id, note: note, metadata: metadata)
       end
 
       def dismiss_orchestration_item(id, note: nil)
@@ -566,15 +580,50 @@ module Igniter
       end
 
       def orchestration_runtime_identity_for(target)
-        execution = if target.respond_to?(:execution)
-          target.execution
-        elsif target.class.name == "Igniter::Diagnostics::Report"
-          target.instance_variable_get(:@execution)
-        end
+        execution = orchestration_execution_for(target)
 
         return [nil, nil] unless execution
 
         [execution.compiled_graph.name, execution.events.execution_id]
+      end
+
+      def orchestration_execution_for(target)
+        return nil if target.nil?
+        return target if target.is_a?(Igniter::Runtime::Execution)
+        return target.execution if target.respond_to?(:execution)
+        return target.instance_variable_get(:@execution) if target.class.name == "Igniter::Diagnostics::Report"
+
+        nil
+      end
+
+      def resume_orchestration_item_runtime(item, target:, value:)
+        return {} if target.nil?
+        raise ArgumentError, "orchestration item #{item[:id].inspect} does not carry a runtime token" unless item[:token]
+
+        execution = orchestration_execution_for(target)
+        raise ArgumentError, "target must provide an execution to resume orchestration item #{item[:id].inspect}" unless execution
+        if item[:execution_id] && execution.events.execution_id != item[:execution_id]
+          raise ArgumentError,
+                "orchestration item #{item[:id].inspect} belongs to execution #{item[:execution_id].inspect}, got #{execution.events.execution_id.inspect}"
+        end
+        if item[:graph] && execution.compiled_graph.name != item[:graph]
+          raise ArgumentError,
+                "orchestration item #{item[:id].inspect} belongs to graph #{item[:graph].inspect}, got #{execution.compiled_graph.name.inspect}"
+        end
+
+        execution.resume_agent_session(item[:token], node_name: item[:node], value: value)
+        {
+          runtime_resumed: true,
+          resolved_execution_id: execution.events.execution_id,
+          resolved_graph: execution.compiled_graph.name,
+          resumed_token: item[:token]
+        }
+      end
+
+      def materialize_orchestration_sessions(plan, execution)
+        plan.followup_request.actions.map { |action| action[:node] }.uniq.each do |node_name|
+          execution.resolve(node_name)
+        end
       end
 
       def normalize_request_hook!(callable, block, name)

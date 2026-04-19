@@ -14,7 +14,7 @@ module Igniter
           @items = []
         end
 
-        def open(action, source:, graph: nil, execution_id: nil)
+        def open(action, source:, graph: nil, execution_id: nil, session: nil)
           existing = find_active(action[:id])
           return existing if existing
 
@@ -33,7 +33,7 @@ module Igniter
             execution_id: execution_id,
             status: :open,
             created_at: @clock.call
-          }.compact.freeze
+          }.merge(session_item_attributes(session)).compact.freeze
 
           @items << item
           item
@@ -51,8 +51,8 @@ module Igniter
           transition(id, to: :acknowledged, timestamp_key: :acknowledged_at, note: note)
         end
 
-        def resolve(id, note: nil)
-          transition(id, to: :resolved, timestamp_key: :resolved_at, note: note)
+        def resolve(id, note: nil, metadata: {})
+          transition(id, to: :resolved, timestamp_key: :resolved_at, note: note, metadata: metadata)
         end
 
         def dismiss(id, note: nil)
@@ -90,7 +90,7 @@ module Igniter
 
         private
 
-        def transition(id, to:, timestamp_key:, note:)
+        def transition(id, to:, timestamp_key:, note:, metadata: {})
           current = find(id)
           return nil unless current
 
@@ -99,11 +99,29 @@ module Igniter
             timestamp_key => @clock.call
           )
           updated[:note] = note unless note.nil? || note.to_s.empty?
+          metadata.each do |key, value|
+            updated[key] = value unless value.nil?
+          end
           updated = updated.freeze
 
           index = @items.index(current)
           @items[index] = updated
           updated
+        end
+
+        def session_item_attributes(session)
+          return {} unless session
+
+          {
+            token: session.token,
+            reply_mode: session.reply_mode,
+            waiting_on: session.waiting_on,
+            source_node: session.source_node,
+            phase: session.phase,
+            turn: session.turn,
+            graph: session.graph,
+            execution_id: session.execution_id
+          }
         end
       end
     end

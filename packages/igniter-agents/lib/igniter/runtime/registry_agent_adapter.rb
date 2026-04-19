@@ -18,6 +18,8 @@ module Igniter
           output: ref.call(node.message_name, inputs, timeout: node.timeout),
           agent_trace: success_trace(node, outcome: :replied)
         }
+      rescue Igniter::PendingDependencyError => e
+        pending(node, e)
       rescue Igniter::Agent::TimeoutError => e
         failure(node, e.message, reason: :timeout)
       end
@@ -67,6 +69,16 @@ module Igniter
             alive: alive,
             reason: reason
           })
+        }
+      end
+
+      def pending(node, error)
+        {
+          status: :pending,
+          message: error.message,
+          deferred_result: error.deferred_result,
+          payload: error.deferred_result&.payload || {},
+          agent_trace: success_trace(node, outcome: :pending)
         }
       end
 

@@ -28,6 +28,7 @@ module Igniter
         mailbox.push(Message.new(type: type.to_sym, payload: payload, reply_to: reply_box))
         reply = reply_box.pop(timeout: timeout)
         raise TimeoutError, "Agent did not reply within #{timeout}s" unless reply
+        raise reply.payload[:error] if reply.payload[:error]
 
         reply.payload[:value]
       end

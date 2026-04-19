@@ -1686,6 +1686,124 @@ RSpec.describe Igniter::App do
       Igniter::Registry.clear
       Igniter::Runtime.agent_adapter = previous_adapter
     end
+
+    it "can resolve orchestration items by resuming the underlying agent session" do
+      previous_adapter = Igniter::Runtime.agent_adapter
+      Igniter::Runtime.activate_agent_adapter!
+      Igniter::Registry.clear
+      writer_ref = nil
+      reviewer_ref = nil
+
+      writer_class = Class.new(Igniter::Agent) do
+        on :summarize do |payload:, **|
+          raise Igniter::PendingDependencyError.new("continue", token: "writer-session", source_node: :summary)
+        end
+      end
+
+      reviewer_class = Class.new(Igniter::Agent) do
+        on :review do |payload:, **|
+          raise Igniter::PendingDependencyError.new("wait", token: "review-session", source_node: :approval)
+        end
+      end
+
+      writer_ref = writer_class.start(name: :writer)
+      reviewer_ref = reviewer_class.start(name: :reviewer)
+
+      klass = Class.new(Igniter::Contract) do
+        define do
+          input :name
+
+          agent :interactive_summary,
+                via: :writer,
+                message: :summarize,
+                reply: :stream,
+                inputs: { name: :name }
+
+          agent :manual_summary,
+                via: :writer,
+                message: :summarize,
+                reply: :stream,
+                session_policy: :manual,
+                finalizer: :events,
+                inputs: { name: :name }
+
+          agent :approval,
+                via: :reviewer,
+                message: :review,
+                inputs: { name: :name }
+
+          output :interactive_summary
+          output :manual_summary
+          output :approval
+        end
+      end
+
+      app = stub_const("SpecOrchestrationResumeApp", Class.new(Igniter::App))
+      app.class_eval { register "AgentContract", klass }
+
+      app.send(:build!)
+      app.reset_orchestration_inbox!
+      contract = klass.new(name: "Alice")
+
+      app.open_orchestration_followups(contract)
+
+      resolved_manual = app.resolve_orchestration_item(
+        "agent_orchestration:require_manual_completion:manual_summary",
+        target: contract,
+        value: [{ kind: :manual, value: "done" }],
+        note: "completed in app"
+      )
+      resolved_approval = app.resolve_orchestration_item(
+        "agent_orchestration:await_deferred_reply:approval",
+        target: contract,
+        value: "approved",
+        note: "reply received"
+      )
+
+      expect(resolved_manual).to include(
+        id: "agent_orchestration:require_manual_completion:manual_summary",
+        status: :resolved,
+        runtime_resumed: true,
+        resolved_graph: "AnonymousContract",
+        note: "completed in app"
+      )
+      expect(resolved_approval).to include(
+        id: "agent_orchestration:await_deferred_reply:approval",
+        status: :resolved,
+        runtime_resumed: true,
+        resolved_graph: "AnonymousContract",
+        note: "reply received"
+      )
+
+      expect(contract.execution.cache.fetch(:manual_summary)).to be_succeeded
+      expect(contract.execution.cache.fetch(:approval)).to be_succeeded
+      expect(contract.execution.cache.fetch(:interactive_summary)).to be_pending
+      expect(contract.result.manual_summary).to eq([{ kind: :manual, value: "done" }])
+      expect(contract.result.approval).to eq("approved")
+
+      expect(app.orchestration_inbox.snapshot).to include(
+        total: 3,
+        open: 1,
+        resolved: 2,
+        actionable: 1,
+        by_status: {
+          open: 1,
+          resolved: 2
+        }
+      )
+
+      reopened = app.open_orchestration_followups(contract)
+      expect(reopened.status).to eq(:existing)
+      expect(reopened.opened).to eq([])
+      expect(reopened.existing).to contain_exactly(
+        include(id: "agent_orchestration:open_interactive_session:interactive_summary", status: :existing)
+      )
+    ensure
+      writer_ref&.stop
+      reviewer_ref&.stop
+      Igniter::Registry.clear
+      Igniter::Runtime.agent_adapter = previous_adapter
+    end
   end
 
   describe "hosting" do

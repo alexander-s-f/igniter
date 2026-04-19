@@ -105,7 +105,7 @@ module Igniter
           session_policy: node.session_policy,
           tool_loop_policy: node.tool_loop_policy,
           execution_profile: agent_execution_profile(node),
-          orchestration: orchestration_hint(node)
+          orchestration: orchestration_hint(node, status: entry[:status])
         )
       end
 
@@ -147,6 +147,8 @@ module Igniter
 
       def orchestration_actions_for(entries)
         entries.filter_map do |entry|
+          next unless orchestration_actionable?(entry)
+
           action, reason = orchestration_action_for(entry)
           next unless action
 
@@ -161,6 +163,10 @@ module Igniter
             resumable: entry[:resumable]
           }.freeze
         end
+      end
+
+      def orchestration_actionable?(entry)
+        !%i[succeeded failed].include?(entry[:status])
       end
 
       def orchestration_action_for(entry)
@@ -178,11 +184,12 @@ module Igniter
         end
       end
 
-      def orchestration_hint(node)
+      def orchestration_hint(node, status:)
         interaction, guidance = orchestration_profile_for(node)
 
         {
           node: node.name,
+          status: status,
           interaction: interaction,
           guidance: guidance,
           attention_required: attention_required_for?(node, interaction),

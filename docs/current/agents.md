@@ -60,6 +60,9 @@ Even in that narrow form, agents are no longer opaque:
 - pending agent work materializes as `Runtime::AgentSession`, not just a raw token
 - sessions can now continue across turns before final completion
 - store-backed executions preserve those sessions as part of the runtime model
+- local registry-backed agents can now surface `PendingDependencyError` back into the contract runtime as honest pending state
+- app-level orchestration inbox items can now reopen, acknowledge, dismiss, and resolve against the underlying runtime session
+- runtime resume is now node-aware as well as token-aware, which matters once multiple agent nodes share similar session identity
 
 ## Near-Term Direction
 
@@ -69,7 +72,7 @@ Near-term work should preserve this separation:
 2. make `igniter-ai` depend on `igniter-agents` only where AI agents are explicitly loaded
 3. let `cluster` and app scaffolds depend on `igniter-agents` openly instead of via `core`
 4. continue moving canonical docs and examples to `igniter/agent` and `igniter/agents`
-5. evolve `agent node` as the first graph-level bridge into long-lived actors
+5. evolve `agent node` and app orchestration as the first graph-level bridge into long-lived actors
 
 ## Session Direction
 
@@ -97,8 +100,10 @@ After the package split is stable, we can evaluate a deeper model:
 - graph-visible agent/proxy nodes
 - a core-side adapter for bridging contracts to long-lived actors
 - clearer semantics for mailbox state versus graph state
+- higher-level orchestration handlers built on top of planner-visible agent actions
 
 That is a separate architectural pass and should be designed intentionally rather than smuggled into the gem extraction.
 
 See also: [Agent Node](./agent-node.md)
 See also: [Contracts And Agents](./contracts-and-agents.md)
+See also: [Agents Roadmap](./agents-roadmap.md)
