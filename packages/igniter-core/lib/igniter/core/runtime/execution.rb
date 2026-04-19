@@ -3,6 +3,8 @@
 module Igniter
   module Runtime
     class Execution
+      UNDEFINED_RESUME_VALUE = Object.new
+
       attr_reader :compiled_graph, :contract_instance, :inputs, :cache, :events, :audit,
                   :runner_strategy, :max_workers, :store, :remote_adapter, :agent_adapter
 
@@ -81,17 +83,18 @@ module Igniter
         end
       end
 
-      def resume(node_name, value:)
+      def resume(node_name, value: UNDEFINED_RESUME_VALUE)
         node = compiled_graph.fetch_node(node_name)
         current = cache.fetch(node.name)
         raise ResolutionError, "Node '#{node_name}' is not pending" unless current&.pending?
 
-        completed_session = completed_agent_session(current, value)
+        resolved_value = resolved_resume_value(current, value)
+        completed_session = completed_agent_session(current, resolved_value)
         cache.write(
           NodeState.new(
             node: node,
             status: :succeeded,
-            value: value,
+            value: resolved_value,
             details: resumed_node_details(current, completed_session)
           )
         )
@@ -113,7 +116,7 @@ module Igniter
         self
       end
 
-      def resume_by_token(token, value:)
+      def resume_by_token(token, value: UNDEFINED_RESUME_VALUE)
         node_name = pending_node_name_for_token(token)
         raise ResolutionError, "No pending node found for token '#{token}'" unless node_name
 
@@ -134,7 +137,7 @@ module Igniter
         agent_sessions.find { |session| session.token == token }
       end
 
-      def resume_agent_session(session_or_token, value:)
+      def resume_agent_session(session_or_token, value: UNDEFINED_RESUME_VALUE)
         token = session_or_token.is_a?(Runtime::AgentSession) ? session_or_token.token : session_or_token
         raise ResolutionError, "Agent session token is required" if token.nil? || token.to_s.empty?
 
@@ -423,7 +426,8 @@ module Igniter
       def deserialize_state_value(node, value)
         if value.is_a?(Hash) && (value[:type] || value["type"])&.to_sym == :deferred
           data = value[:data] || value["data"] || {}
-          return Runtime::DeferredResult.build(
+          return build_pending_value(
+            node,
             token: data[:token] || data["token"],
             payload: data[:payload] || data["payload"] || {},
             source_node: data[:source_node] || data["source_node"],
@@ -559,7 +563,8 @@ module Igniter
           agent_session: session.to_h
         ).compact
 
-        Runtime::DeferredResult.build(
+        build_pending_value(
+          state.node,
           token: session.token,
           payload: payload,
           source_node: state.value.source_node || state.node.name,
@@ -572,6 +577,21 @@ module Igniter
         return nil unless state.value.is_a?(Runtime::DeferredResult)
 
         agent_session_for_state(state).complete(value: value)
+      end
+
+      def resolved_resume_value(state, value)
+        return value unless value.equal?(UNDEFINED_RESUME_VALUE)
+
+        if state.node.kind == :agent && state.node.reply_mode == :stream
+          session = agent_session_for_state(state)
+          return session.finalized_value(
+            finalizer: state.node.finalizer,
+            contract: contract_instance,
+            execution: self
+          )
+        end
+
+        raise ResolutionError, "A resume value is required for node '#{state.node.name}'"
       end
 
       def resumed_node_details(state, completed_session)
@@ -603,6 +623,17 @@ module Igniter
 
       def default_agent_session_phase(node)
         node.reply_mode == :stream ? :streaming : :waiting
+      end
+
+      def build_pending_value(node, token:, payload:, source_node:, waiting_on:)
+        result_class = node.kind == :agent && node.reply_mode == :stream ? Runtime::StreamResult : Runtime::DeferredResult
+
+        result_class.build(
+          token: token,
+          payload: payload,
+          source_node: source_node,
+          waiting_on: waiting_on
+        )
       end
 
       alias_method :resolve_output_value, :resolve_exported_output

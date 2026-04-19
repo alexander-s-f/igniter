@@ -166,6 +166,48 @@ module Igniter
         )
       end
 
+      def chunks
+        messages.filter_map do |message|
+          next unless message[:kind] == :reply
+
+          payload = message[:payload]
+          next unless payload.is_a?(Hash) && payload.key?(:chunk)
+
+          payload[:chunk]
+        end
+      end
+
+      def finalized_value(finalizer:, contract: nil, execution: nil)
+        case finalizer
+        when nil, :join
+          chunks.map(&:to_s).join
+        when :array
+          chunks.dup
+        when :last
+          chunks.last
+        when Proc
+          finalizer.call(
+            chunks: chunks,
+            messages: messages,
+            session: self,
+            contract: contract,
+            execution: execution
+          )
+        when Symbol, String
+          raise ResolutionError, "Stream finalizer #{finalizer.inspect} requires a contract instance" unless contract
+
+          contract.public_send(
+            finalizer.to_sym,
+            chunks: chunks,
+            messages: messages,
+            session: self,
+            execution: execution
+          )
+        else
+          raise ResolutionError, "Unsupported stream finalizer #{finalizer.inspect}"
+        end
+      end
+
       private
 
       def normalize_messages(messages)

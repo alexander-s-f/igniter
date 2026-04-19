@@ -353,9 +353,10 @@ module Igniter
         )
       end
 
-      def agent(name, via:, message:, inputs:, timeout: 5, mode: :call, reply: nil, **metadata)
+      def agent(name, via:, message:, inputs:, timeout: 5, mode: :call, reply: nil, finalizer: nil, **metadata)
         normalized_mode = mode.respond_to?(:to_sym) ? mode.to_sym : mode
         normalized_reply = reply.respond_to?(:to_sym) ? reply.to_sym : reply
+        normalized_finalizer = finalizer.respond_to?(:to_sym) ? finalizer.to_sym : finalizer
 
         raise CompileError, "agent :#{name} requires inputs: Hash" unless inputs.is_a?(Hash)
         raise CompileError, "agent :#{name} requires via:" if via.nil? || via.to_s.strip.empty?
@@ -371,6 +372,12 @@ module Igniter
         if normalized_mode == :call && normalized_reply == :none
           raise CompileError, "agent :#{name} mode :call cannot use reply: :none"
         end
+        if !normalized_finalizer.nil? && normalized_reply != :stream
+          raise CompileError, "agent :#{name} finalizer requires reply: :stream"
+        end
+        unless normalized_finalizer.nil? || normalized_finalizer.is_a?(Symbol) || normalized_finalizer.respond_to?(:call)
+          raise CompileError, "agent :#{name} finalizer must be a Symbol, String, or callable"
+        end
 
         add_node(
           Model::AgentNode.new(
@@ -382,6 +389,7 @@ module Igniter
             timeout: timeout,
             mode: normalized_mode,
             reply_mode: normalized_reply,
+            finalizer: normalized_finalizer,
             path: scoped_path(name),
             metadata: with_source_location(metadata)
           )

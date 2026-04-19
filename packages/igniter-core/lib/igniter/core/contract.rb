@@ -49,7 +49,7 @@ module Igniter
         )
       end
 
-      def resume_agent_session_from_store(execution_id, session:, value:, store: nil)
+      def resume_agent_session_from_store(execution_id, session:, value: Runtime::Execution::UNDEFINED_RESUME_VALUE, store: nil)
         Runtime::JobWorker.new(self, store: store || Igniter.execution_store).resume_agent_session(
           execution_id: execution_id,
           session: session,

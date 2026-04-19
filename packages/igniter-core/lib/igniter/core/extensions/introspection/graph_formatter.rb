@@ -42,6 +42,7 @@ module Igniter
               line += " timeout=#{node.timeout}"
               line += " mode=#{node.mode}"
               line += " reply=#{node.reply_mode}"
+              line += " finalizer=#{node.finalizer.inspect}" if node.finalizer
             end
             if node.kind == :branch
               cases = node.cases.map do |entry|

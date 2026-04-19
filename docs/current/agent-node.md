@@ -9,7 +9,7 @@ Igniter now has a first-pass `agent` node in the core graph model.
 Current shape:
 
 - `Igniter::Model::AgentNode`
-- DSL: `agent :name, via:, message:, inputs:, timeout:, mode:, reply:`
+- DSL: `agent :name, via:, message:, inputs:, timeout:, mode:, reply:, finalizer:`
 - runtime seam: `Igniter::Runtime::AgentAdapter`
 - default local implementation from `igniter-agents`: `Igniter::Runtime::RegistryAgentAdapter`
 
@@ -41,6 +41,7 @@ This first pass is intentionally small, but no longer request/reply only.
 
 - `agent` nodes support `mode: :call` and `mode: :cast`
 - `agent` call nodes now declare `reply: :single | :deferred | :stream`
+- stream call nodes may also declare `finalizer:`
 - `agent` cast nodes implicitly use `reply: :none`
 - they map contract dependencies into an agent message payload
 - they delegate delivery to an adapter instead of talking to the registry directly from core
@@ -52,9 +53,17 @@ Reply modes now have explicit meaning:
 
 - `reply: :single` means the agent must resolve in the current execution turn
 - `reply: :deferred` means the agent may either resolve immediately or materialize a resumable session
-- `reply: :stream` means the agent must enter the session lifecycle and cannot pretend to be a plain synchronous scalar
+- `reply: :stream` means the agent must enter the session lifecycle and surfaces a `Runtime::StreamResult` while pending
+- `finalizer:` controls how a streaming session materializes its final value when resumed without an explicit `value:`
 
 That gives contracts both synchronous request/reply, resumable deferred work, and an honest place to grow streaming semantics without coupling core to the actor runtime.
+
+Current stream finalizers:
+
+- default `:join`
+- built-ins `:join`, `:array`, `:last`
+- custom contract methods via `finalizer: :method_name`
+- custom callables via `finalizer: ->(chunks:, messages:, session:, contract:, execution:) { ... }`
 
 ## Diagnostics Surface
 
@@ -101,6 +110,13 @@ The important shift is that the session is no longer just "a token plus payload"
 - final completion appends a reply envelope
 - diagnostics and persisted snapshots can now describe the conversation shape, not only the latest pending payload
 
+For user-facing runtime values this now means:
+
+- `reply: :deferred` pending outputs still appear as `DeferredResult`
+- `reply: :stream` pending outputs appear as `StreamResult`
+- `StreamResult` exposes current `phase`, accumulated `chunks`, and the backing session metadata
+- a stream node can be resumed without `value:` and will materialize through its configured finalizer
+
 ## Why This Shape
 
 The goal is to make agents visible in the graph without collapsing layers again.
@@ -128,6 +144,6 @@ Not covered yet:
 The most natural next slices are:
 
 1. richer session semantics beyond append-only request/reply envelopes
-2. real stream chunk/result assembly on top of `reply: :stream`
+2. richer stream chunk/result assembly beyond today's built-in finalizers
 3. support for agent targeting beyond the local registry
 4. deciding whether `AgentAdapter` stays specialized or becomes a more general `ProxyAdapter`

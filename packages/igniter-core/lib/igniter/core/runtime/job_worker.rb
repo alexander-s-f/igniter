@@ -14,7 +14,7 @@ module Igniter
         contract
       end
 
-      def resume_agent_session(execution_id:, session:, value:)
+      def resume_agent_session(execution_id:, session:, value: Execution::UNDEFINED_RESUME_VALUE)
         contract = @contract_class.restore_from_store(execution_id, store: @store)
         contract.execution.resume_agent_session(session, value: value)
         contract

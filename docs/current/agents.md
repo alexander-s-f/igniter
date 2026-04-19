@@ -81,6 +81,8 @@ The current session model is intentionally simple but now explicit:
 - `reply: :single` forbids pending delivery
 - `reply: :deferred` preserves the current resumable single-reply lifecycle
 - `reply: :stream` requires session-based delivery and opens a path toward partial replies
+- `reply: :stream` now also surfaces a dedicated `Runtime::StreamResult` while the node is still pending
+- stream nodes can now auto-materialize their final value through `finalizer:`
 - final completion preserves the completed session in node details for diagnostics/provenance
 - store-backed runners persist and restore that lifecycle instead of treating the session as caller-owned state
 

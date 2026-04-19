@@ -21,6 +21,7 @@ module Igniter
             validate_timeout!(node)
             validate_mode!(node)
             validate_reply_mode!(node)
+            validate_finalizer!(node)
           end
         end
 
@@ -75,6 +76,16 @@ module Igniter
           raise @context.validation_error(
             node,
             "agent :#{node.name} mode :cast only supports reply: :none"
+          )
+        end
+
+        def validate_finalizer!(node)
+          return if node.finalizer.nil?
+          return if node.reply_mode == :stream
+
+          raise @context.validation_error(
+            node,
+            "agent :#{node.name} finalizer requires reply: :stream"
           )
         end
       end

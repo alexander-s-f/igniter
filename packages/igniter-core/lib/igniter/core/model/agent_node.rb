@@ -8,9 +8,9 @@ module Igniter
     # delegated to a runtime adapter so core stays independent from any specific
     # actor runtime implementation or registry strategy.
     class AgentNode < Node
-      attr_reader :agent_name, :message_name, :input_mapping, :timeout, :mode, :reply_mode
+      attr_reader :agent_name, :message_name, :input_mapping, :timeout, :mode, :reply_mode, :finalizer
 
-      def initialize(id:, name:, agent_name:, message_name:, input_mapping:, timeout: 5, mode: :call, reply_mode: nil, path: nil, metadata: {}) # rubocop:disable Metrics/ParameterLists
+      def initialize(id:, name:, agent_name:, message_name:, input_mapping:, timeout: 5, mode: :call, reply_mode: nil, finalizer: nil, path: nil, metadata: {}) # rubocop:disable Metrics/ParameterLists
         super(
           id: id,
           kind: :agent,
@@ -25,6 +25,7 @@ module Igniter
         @timeout = Float(timeout)
         @mode = normalize_mode(mode)
         @reply_mode = normalize_reply_mode(reply_mode || default_reply_mode(@mode))
+        @finalizer = normalize_finalizer(finalizer || default_finalizer(@reply_mode))
       end
 
       private
@@ -49,6 +50,16 @@ module Igniter
 
       def default_reply_mode(mode)
         mode == :cast ? :none : :deferred
+      end
+
+      def normalize_finalizer(finalizer)
+        return finalizer.to_sym if finalizer.is_a?(String) || finalizer.is_a?(Symbol)
+
+        finalizer
+      end
+
+      def default_finalizer(reply_mode)
+        reply_mode == :stream ? :join : nil
       end
     end
   end

@@ -41,8 +41,9 @@ RSpec.describe "agent: DSL node" do
       expect(node.input_mapping).to eq(name: :name)
       expect(node.mode).to eq(:call)
       expect(node.reply_mode).to eq(:deferred)
+      expect(node.finalizer).to be_nil
       expect(contract_class.graph.to_schema[:agents]).to include(
-        hash_including(name: :greeting, via: :greeter, message: :greet, inputs: { name: :name }, mode: :call, reply: :deferred)
+        hash_including(name: :greeting, via: :greeter, message: :greet, inputs: { name: :name }, mode: :call, reply: :deferred, finalizer: nil)
       )
     end
 
@@ -99,6 +100,32 @@ RSpec.describe "agent: DSL node" do
           end
         end
       end.to raise_error(Igniter::CompileError, /mode :cast only supports reply: :none/)
+    end
+
+    it "raises CompileError when finalizer is used without reply: :stream" do
+      expect do
+        Class.new(Igniter::Contract) do
+          define do
+            input :name
+            agent :greeting, via: :greeter, message: :greet, finalizer: :join, inputs: { name: :name }
+          end
+        end
+      end.to raise_error(Igniter::CompileError, /finalizer requires reply: :stream/)
+    end
+
+    it "compiles stream agents with default and custom finalizers" do
+      contract_class = Class.new(Igniter::Contract) do
+        define do
+          input :name
+          agent :default_summary, via: :writer, message: :summarize, reply: :stream, inputs: { name: :name }
+          agent :custom_summary, via: :writer, message: :summarize, reply: :stream, finalizer: :array, inputs: { name: :name }
+          output :default_summary
+          output :custom_summary
+        end
+      end
+
+      expect(contract_class.compiled_graph.fetch_node(:default_summary).finalizer).to eq(:join)
+      expect(contract_class.compiled_graph.fetch_node(:custom_summary).finalizer).to eq(:array)
     end
 
     it "raises ValidationError when dependency is not in graph" do
@@ -251,7 +278,8 @@ RSpec.describe "agent: DSL node" do
       session = contract.execution.agent_sessions.first
 
       expect(session).not_to be_nil
-      expect(contract.result.summary).to be_a(Igniter::Runtime::DeferredResult)
+      expect(contract.result.summary).to be_a(Igniter::Runtime::StreamResult)
+      expect(contract.result.summary.chunks).to eq([])
       expect(session.reply_mode).to eq(:stream)
       expect(session.phase).to eq(:streaming)
 
@@ -263,11 +291,121 @@ RSpec.describe "agent: DSL node" do
       )
 
       continued = contract.execution.agent_sessions.first
+      stream_value = contract.result.summary
+      runtime_value = contract.execution.states[:summary][:value]
+
+      expect(stream_value).to be_a(Igniter::Runtime::StreamResult)
+      expect(stream_value.chunks).to eq(["Hello"])
+      expect(stream_value.phase).to eq(:streaming)
       expect(continued.last_reply).to include(kind: :reply, payload: { chunk: "Hello" })
       expect(continued.phase).to eq(:streaming)
+      expect(runtime_value).to include(type: :stream, phase: :streaming, chunks: ["Hello"])
 
       contract.execution.resume_agent_session(continued, value: "Hello, Alice")
       expect(contract.result.summary).to eq("Hello, Alice")
+    end
+
+    it "auto-finalizes stream results with the default join policy" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      contract.execution.continue_agent_session(
+        session,
+        payload: {},
+        reply: { turn: 2, kind: :reply, name: :summarize, source: :agent, payload: { chunk: "Hello, " } },
+        phase: :streaming
+      )
+      contract.execution.continue_agent_session(
+        session.token,
+        payload: {},
+        reply: { turn: 3, kind: :reply, name: :summarize, source: :agent, payload: { chunk: "Alice" } },
+        phase: :streaming
+      )
+
+      continued = contract.execution.agent_sessions.first
+      contract.execution.resume_agent_session(continued)
+
+      expect(contract.result.summary).to eq("Hello, Alice")
+    end
+
+    it "supports custom stream finalizers on the contract instance" do
+      adapter = Class.new do
+        define_method(:call) do |node:, **|
+          {
+            status: :pending,
+            payload: { queue: :stream },
+            agent_trace: {
+              adapter: :queue,
+              mode: node.mode,
+              via: node.agent_name,
+              message: node.message_name,
+              outcome: :streaming
+            }
+          }
+        end
+      end.new
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: adapter
+
+        define_method(:finalize_words) do |chunks:, **|
+          chunks.map(&:upcase)
+        end
+
+        define do
+          input :name
+          agent :summary, via: :writer, message: :summarize, reply: :stream, finalizer: :finalize_words, inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      contract = contract_class.new(name: "Alice")
+      contract.result.summary
+      session = contract.execution.agent_sessions.first
+
+      contract.execution.continue_agent_session(
+        session,
+        payload: {},
+        reply: { turn: 2, kind: :reply, name: :summarize, source: :agent, payload: { chunk: "hello" } },
+        phase: :streaming
+      )
+      contract.execution.continue_agent_session(
+        session.token,
+        payload: {},
+        reply: { turn: 3, kind: :reply, name: :summarize, source: :agent, payload: { chunk: "alice" } },
+        phase: :streaming
+      )
+
+      contract.execution.resume_agent_session(session.token)
+
+      expect(contract.result.summary).to eq(%w[HELLO ALICE])
     end
 
     it "rejects synchronous success for reply: :stream" do

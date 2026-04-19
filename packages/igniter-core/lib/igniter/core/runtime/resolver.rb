@@ -49,7 +49,8 @@ module Igniter
         state = NodeState.new(
           node: node,
           status: :pending,
-          value: Runtime::DeferredResult.build(
+          value: build_pending_value(
+            node,
             token: e.deferred_result.token,
             payload: payload,
             source_node: e.deferred_result.source_node,
@@ -542,7 +543,8 @@ module Igniter
       end
 
       def normalize_deferred_result(value, node)
-        Runtime::DeferredResult.build(
+        build_pending_value(
+          node,
           token: value.token,
           payload: value.payload,
           source_node: value.source_node || node.name,
@@ -687,7 +689,8 @@ module Igniter
         base_payload = base_deferred&.payload || payload
         merged_payload = merge_agent_trace(base_payload, response[:agent_trace])
 
-        deferred = Runtime::DeferredResult.build(
+        deferred = build_pending_value(
+          node,
           token: token,
           payload: merged_payload,
           source_node: source_node,
@@ -697,7 +700,8 @@ module Igniter
         session = normalize_agent_session(response, node, deferred.payload, token: deferred.token)
         final_payload = merge_agent_session(deferred.payload, session)
 
-        Runtime::DeferredResult.build(
+        build_pending_value(
+          node,
           token: deferred.token,
           payload: final_payload,
           source_node: deferred.source_node,
@@ -745,6 +749,17 @@ module Igniter
 
       def default_agent_session_phase(node)
         node.reply_mode == :stream ? :streaming : :waiting
+      end
+
+      def build_pending_value(node, token:, payload:, source_node:, waiting_on:)
+        result_class = node.kind == :agent && node.reply_mode == :stream ? Runtime::StreamResult : Runtime::DeferredResult
+
+        result_class.build(
+          token: token,
+          payload: payload,
+          source_node: source_node,
+          waiting_on: waiting_on
+        )
       end
 
       def normalize_error(error, node)

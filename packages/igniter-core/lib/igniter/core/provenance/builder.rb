@@ -93,6 +93,17 @@ module Igniter
 
         val = state.value
         case val
+        when Runtime::StreamResult
+          {
+            pending: true,
+            stream: true,
+            event: val.waiting_on,
+            phase: val.phase,
+            chunks: val.chunks,
+            payload: val.payload,
+            routing_trace: val.routing_trace,
+            agent_trace: val.agent_trace
+          }.compact
         when Runtime::Result
           val.to_h
         when Runtime::CollectionResult

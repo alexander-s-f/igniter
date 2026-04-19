@@ -75,6 +75,7 @@ module Igniter
               base[:timeout] = node.timeout
               base[:mode] = node.mode
               base[:reply] = node.reply_mode
+              base[:finalizer] = serialized_agent_finalizer(node.finalizer)
             end
             if node.kind == :branch
               base[:selector] = node.selector_dependency
@@ -146,6 +147,7 @@ module Igniter
               timeout: node.timeout,
               mode: node.mode,
               reply: node.reply_mode,
+              finalizer: serialized_agent_finalizer(node.finalizer),
               metadata: node.metadata.reject { |key, _| key == :source_location }
             }
           end,
@@ -212,6 +214,13 @@ module Igniter
         else
           { matcher: entry[:matcher], value: entry[:value], contract: contract_value }
         end
+      end
+
+      def serialized_agent_finalizer(finalizer)
+        return nil if finalizer.nil?
+        return finalizer if finalizer.is_a?(Symbol)
+
+        :proc
       end
     end
   end

@@ -90,6 +90,8 @@ module Igniter
 
       def serialize_output_value(value)
         case value
+        when StreamResult
+          value.as_json
         when DeferredResult
           value.as_json
         when Result

@@ -92,6 +92,17 @@ module Igniter
 
         def serialize_value(value)
           case value
+          when Igniter::Runtime::StreamResult
+            {
+              type: :stream,
+              token: value.token,
+              payload: value.payload,
+              source_node: value.source_node,
+              waiting_on: value.waiting_on,
+              phase: value.phase,
+              chunks: value.chunks,
+              chunk_count: value.chunks.size
+            }
           when Igniter::Runtime::DeferredResult
             {
               type: :deferred,

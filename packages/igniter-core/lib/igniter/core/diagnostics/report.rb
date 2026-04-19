@@ -235,6 +235,8 @@ module Igniter
 
       def serialize_value(value)
         case value
+        when Runtime::StreamResult
+          value.as_json
         when Runtime::DeferredResult
           value.as_json
         when Runtime::Result
@@ -302,10 +304,16 @@ module Igniter
         token = hash_value(value, :token)
         waiting_on = hash_value(value, :waiting_on)
         payload = hash_value(value, :payload)
+        type = hash_value(value, :type)
+        phase = hash_value(value, :phase)
+        chunks = hash_value(value, :chunks)
         routing_summary = hash_value(value, :routing_trace_summary)
         agent_summary = hash_value(value, :agent_trace_summary)
 
         parts = ["token=#{token.inspect}", "waiting_on=#{waiting_on.inspect}"]
+        parts << "type=#{type.inspect}" if type
+        parts << "phase=#{phase.inspect}" if phase
+        parts << "chunks=#{chunks.inspect}" if chunks.is_a?(Array) && !chunks.empty?
         parts << "payload_keys=#{payload.keys.inspect}" if payload.is_a?(Hash) && !payload.empty?
         parts << "routing=#{routing_summary}" if routing_summary
         parts << "agent=#{agent_summary}" if agent_summary
