@@ -20,8 +20,9 @@
 #
 # Run with: bundle exec ruby examples/dataflow.rb
 
-require_relative "../lib/igniter"
-require_relative "../lib/igniter/extensions/dataflow"
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+require "igniter"
+require "igniter/extensions/dataflow"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PART 1 — Incremental Collection + Sliding Window

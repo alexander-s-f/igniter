@@ -7,7 +7,9 @@
 #
 # This example uses in-process stubs so no real HTTP servers are needed.
 
-require_relative "../lib/igniter/cluster"
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+require "igniter"
+require "igniter/cluster"
 
 # ─── Shared contract ──────────────────────────────────────────────────────────
 class ProcessOrder < Igniter::Contract
@@ -85,8 +87,22 @@ module ClientStubs
         end
       end
 
-      def register_peer(name:, url:, capabilities: [])
-        puts "  [seed] registered peer: #{name} @ #{url} caps=#{capabilities}"
+      def register_peer(name: nil, url: nil, capabilities: [], tags: [], metadata: {}, manifest: nil)
+        if manifest
+          peer_name = manifest.respond_to?(:peer_name) ? manifest.peer_name : manifest[:peer_name] || manifest["peer_name"]
+          peer_url = manifest.respond_to?(:url) ? manifest.url : manifest[:url] || manifest["url"]
+          peer_caps = manifest.respond_to?(:capabilities) ? manifest.capabilities : manifest[:capabilities] || manifest["capabilities"]
+          peer_tags = manifest.respond_to?(:tags) ? manifest.tags : manifest[:tags] || manifest["tags"]
+          peer_metadata = manifest.respond_to?(:metadata) ? manifest.metadata : manifest[:metadata] || manifest["metadata"]
+        else
+          peer_name = name
+          peer_url = url
+          peer_caps = capabilities
+          peer_tags = tags
+          peer_metadata = metadata
+        end
+
+        puts "  [seed] registered peer: #{peer_name} @ #{peer_url} caps=#{peer_caps} tags=#{peer_tags} metadata=#{peer_metadata}"
         { "registered" => true }
       end
     end
@@ -122,6 +138,9 @@ end
 puts "=" * 60
 puts "Scenario 1: Dynamic discovery from seed"
 puts "=" * 60
+
+previous_remote_adapter = Igniter::Runtime.remote_adapter
+Igniter::Cluster.activate_remote_adapter!
 
 Igniter::Cluster::Mesh.configure do |c|
   c.peer_name          = "api-node"
@@ -236,6 +255,7 @@ puts "=" * 60
 
 Igniter::Cluster::Mesh.stop_discovery!
 Igniter::Cluster::Mesh.reset!
+Igniter::Runtime.remote_adapter = previous_remote_adapter
 
 Igniter::Cluster::Mesh.configure do |c|
   c.peer_name = "api-node"

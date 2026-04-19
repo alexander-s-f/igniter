@@ -8,9 +8,10 @@
 #
 # Run with: bundle exec ruby examples/invariants.rb
 
-require_relative "../lib/igniter"
-require_relative "../lib/igniter/extensions/invariants"
-require_relative "../lib/igniter/property_testing"
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+require "igniter"
+require "igniter/extensions/invariants"
+require "igniter/core/property_testing"
 
 # ── 1. Define a contract with invariants ──────────────────────────────────────
 

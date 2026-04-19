@@ -15,7 +15,7 @@ class LeadWorkflow < Igniter::Contract
     await :crm_data, event: :crm_webhook_received
     await :billing_data, event: :billing_data_fetched
 
-    aggregate :report, with: %i[crm_data billing_data] do |crm_data:, billing_data:|
+    compute :report, with: %i[crm_data billing_data] do |crm_data:, billing_data:|
       { crm: crm_data, billing: billing_data }
     end
 

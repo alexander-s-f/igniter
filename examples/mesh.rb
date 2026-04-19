@@ -18,6 +18,8 @@
 # actual servers.
 # ─────────────────────────────────────────────────────────────────────────────
 
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+require "igniter"
 require "igniter/cluster"
 require "json"
 

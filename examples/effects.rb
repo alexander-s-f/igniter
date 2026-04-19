@@ -7,9 +7,10 @@
 #
 # Run with: bundle exec ruby examples/effects.rb
 
-require_relative "../lib/igniter"
-require_relative "../lib/igniter/extensions/saga"
-require_relative "../lib/igniter/extensions/execution_report"
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+require "igniter"
+require "igniter/extensions/saga"
+require "igniter/extensions/execution_report"
 
 # ── 1. Define effect adapters ──────────────────────────────────────────────────
 
@@ -34,7 +35,7 @@ class AuditLogger < Igniter::Effect
   effect_type :audit
   idempotent  true
 
-  def call(user_id:, action:)
+  def call(user_id:, action: "lookup")
     puts "  [audit] #{action} performed for user #{user_id}"
     { logged_at: Time.now.iso8601, action: action }
   end
@@ -43,11 +44,12 @@ end
 class EmailNotifier < Igniter::Effect
   effect_type :notification
 
-  def call(user:, message:)
+  def call(user:, action: "welcome")
     raise "Email delivery failed" if user[:tier] == "suspended"
 
+    message = "#{action.to_s.tr("_", " ")} for #{user[:name]}"
     puts "  [email] Sending '#{message}' to #{user[:name]}"
-    { delivered: true, recipient: user[:name] }
+    { delivered: true, recipient: user[:name], message: message }
   end
 
   compensate do |inputs:, **|
@@ -137,9 +139,7 @@ class FailingWorkflow < Igniter::Contract
     input :user_id
 
     effect :user,    uses: UserRepository, depends_on: :user_id
-    effect :notify,  uses: EmailNotifier,  depends_on: :user do
-      # notify depends on user
-    end
+    effect :notify,  uses: EmailNotifier,  depends_on: :user
 
     output :user
   end
@@ -166,6 +166,7 @@ class FailingWorkflow2 < Igniter::Contract
     effect :notify, uses: EmailNotifier,     depends_on: :user
 
     output :user
+    output :notify
   end
 end
 

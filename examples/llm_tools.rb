@@ -14,6 +14,7 @@
 #
 # Run: bundle exec ruby examples/llm_tools.rb
 
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
 require "igniter"
 require "igniter/core/tool"
 require "igniter/ai"

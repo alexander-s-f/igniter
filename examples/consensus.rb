@@ -15,6 +15,8 @@
 #
 # Run: bundle exec ruby examples/consensus.rb
 
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+require "igniter"
 require "igniter/cluster"
 
 puts "=" * 62

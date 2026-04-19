@@ -9,8 +9,9 @@
 #
 # Run with: bundle exec ruby examples/incremental.rb
 
-require_relative "../lib/igniter"
-require_relative "../lib/igniter/extensions/incremental"
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+require "igniter"
+require "igniter/extensions/incremental"
 
 # ─── Contract ──────────────────────────────────────────────────────────────
 #
@@ -129,7 +130,7 @@ puts "outputs_changed? #{result3.outputs_changed?}"
 
 puts "\n" + "=" * 60
 puts "Scenario 4: base_price changes 100 → 100 (same value)"
-puts "(demonstrates value-equality backdating in adjusted_price)")
+puts "(demonstrates value-equality backdating in adjusted_price)"
 puts "=" * 60
 
 contract2 = PricingContract.new(base_price: 100.0, user_tier: "gold", exchange_rate: 1.0)

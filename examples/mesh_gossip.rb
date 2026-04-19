@@ -8,7 +8,9 @@
 #
 # This example uses in-process stubs so no real HTTP servers are needed.
 
-require_relative "../lib/igniter/cluster"
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+require "igniter"
+require "igniter/cluster"
 
 # ─── Shared contract ──────────────────────────────────────────────────────────
 class CheckInventory < Igniter::Contract

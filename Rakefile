@@ -19,4 +19,8 @@ RSpec::Core::RakeTask.new(:architecture) do |t|
   ].join(",")
 end
 
+task :examples do
+  ruby "examples/run.rb", "smoke"
+end
+
 task default: %i[spec rubocop]

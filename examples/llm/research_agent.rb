@@ -16,6 +16,7 @@
 $LOAD_PATH.unshift File.join(__dir__, "../../lib")
 require "igniter"
 require "igniter/ai"
+require "json"
 
 # Configure LLM
 Igniter::AI.configure do |config|
@@ -39,8 +40,10 @@ class QuestionAnalyzer < Igniter::AI::Executor
     raw = complete("Question: #{question}")
     # Parse JSON from LLM output
     start = raw.index("{")
-    stop  = raw.rindex("}") + 1
-    JSON.parse(raw[start...stop]) if start && stop
+    finish = raw.rindex("}")
+    return({ "topic" => question, "queries" => [question] }) unless start && finish
+
+    JSON.parse(raw[start..finish])
   rescue JSON::ParserError
     { "topic" => question, "queries" => [question] }
   end
@@ -72,7 +75,7 @@ class DirectAnswerContract < Igniter::Contract
   define do
     input :question
 
-    compute :analysis, depends_on: :question, with: QuestionAnalyzer
+    compute :analysis, depends_on: :question, call: QuestionAnalyzer
 
     compute :answer, depends_on: %i[question analysis] do |question:, analysis:|
       # In a real scenario, QuestionAnalyzer gives us queries.
@@ -97,12 +100,12 @@ class ResearchWithToolsContract < Igniter::Contract
     input :session_id
     input :question
 
-    compute :plan, depends_on: :question, with: QuestionAnalyzer
+    compute :plan, depends_on: :question, call: QuestionAnalyzer
 
     # External search tool — application calls deliver_event when results arrive
     await :search_results, event: :search_completed
 
-    compute :final_answer, depends_on: %i[question search_results], with: AnswerSynthesizer
+    compute :final_answer, depends_on: %i[question search_results], call: AnswerSynthesizer
 
     output :final_answer
   end
