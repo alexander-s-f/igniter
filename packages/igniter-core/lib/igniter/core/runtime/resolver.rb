@@ -135,11 +135,8 @@ module Igniter
             details: agent_details(response)
           )
         when :pending
-          deferred = response[:deferred_result] || Runtime::DeferredResult.build(
-            payload: merge_agent_trace(response[:payload] || {}, response[:agent_trace]),
-            source_node: node.name,
-            waiting_on: node.name
-          )
+          payload = merge_agent_trace(response[:payload] || {}, response[:agent_trace])
+          deferred = normalize_agent_deferred(response, node, payload)
           raise PendingDependencyError.new(deferred, response[:message] || "Agent node '#{node.name}' is pending")
         when :failed
           error_message = response.dig(:error, :message) || response.dig(:error, "message") || "agent call failed"
@@ -583,7 +580,11 @@ module Igniter
         return {} unless node.kind == :agent
 
         agent_trace = payload[:agent_trace] || payload["agent_trace"]
-        agent_trace ? { agent_trace: agent_trace } : {}
+        agent_session = payload[:agent_session] || payload["agent_session"]
+        {
+          agent_trace: agent_trace,
+          agent_session: agent_session
+        }.compact
       end
 
       def pending_context(node)
@@ -621,13 +622,81 @@ module Igniter
 
       def agent_details(response)
         trace = response[:agent_trace]
-        trace ? { agent_trace: trace } : {}
+        session = response[:agent_session] || response[:session]
+        {
+          agent_trace: trace,
+          agent_session: session
+        }.compact
       end
 
       def merge_agent_trace(payload, agent_trace)
         return payload unless agent_trace
 
         payload.merge(agent_trace: agent_trace)
+      end
+
+      def merge_agent_session(payload, agent_session)
+        return payload unless agent_session
+
+        payload.merge(agent_session: agent_session)
+      end
+
+      def normalize_agent_session(response, node, payload, token:)
+        raw_session = response[:agent_session] || response[:session]
+        if raw_session.respond_to?(:to_h) || raw_session.is_a?(Hash)
+          session_hash = raw_session.respond_to?(:to_h) ? raw_session.to_h : raw_session
+          return {
+            token: token,
+            node_name: node.name,
+            node_path: node.path,
+            agent_name: node.agent_name,
+            message_name: node.message_name,
+            mode: node.mode,
+            waiting_on: node.name,
+            source_node: node.name,
+            trace: response[:agent_trace],
+            payload: payload
+          }.merge(session_hash)
+        end
+
+        {
+          token: token,
+          node_name: node.name,
+          node_path: node.path,
+          agent_name: node.agent_name,
+          message_name: node.message_name,
+          mode: node.mode,
+          waiting_on: node.name,
+          source_node: node.name,
+          trace: response[:agent_trace],
+          payload: payload
+        }.compact
+      end
+
+      def normalize_agent_deferred(response, node, payload)
+        base_deferred = response[:deferred_result]
+        token = base_deferred&.token
+        source_node = base_deferred&.source_node || node.name
+        waiting_on = base_deferred&.waiting_on || node.name
+        base_payload = base_deferred&.payload || payload
+        merged_payload = merge_agent_trace(base_payload, response[:agent_trace])
+
+        deferred = Runtime::DeferredResult.build(
+          token: token,
+          payload: merged_payload,
+          source_node: source_node,
+          waiting_on: waiting_on
+        )
+
+        session = normalize_agent_session(response, node, deferred.payload, token: deferred.token)
+        final_payload = merge_agent_session(deferred.payload, session)
+
+        Runtime::DeferredResult.build(
+          token: deferred.token,
+          payload: final_payload,
+          source_node: deferred.source_node,
+          waiting_on: deferred.waiting_on
+        )
       end
 
       def normalize_error(error, node)

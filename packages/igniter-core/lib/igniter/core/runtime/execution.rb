@@ -100,6 +100,27 @@ module Igniter
         resume(node_name, value: value)
       end
 
+      def agent_sessions
+        cache.values.filter_map do |state|
+          next unless state.pending?
+          next unless state.node.kind == :agent
+          next unless state.value.is_a?(Runtime::DeferredResult)
+
+          agent_session_for_state(state)
+        end
+      end
+
+      def find_agent_session(token)
+        agent_sessions.find { |session| session.token == token }
+      end
+
+      def resume_agent_session(session_or_token, value:)
+        token = session_or_token.is_a?(Runtime::AgentSession) ? session_or_token.token : session_or_token
+        raise ResolutionError, "Agent session token is required" if token.nil? || token.to_s.empty?
+
+        resume_by_token(token, value: value)
+      end
+
       def success?
         resolve_all
         !failed? && !pending?
@@ -268,6 +289,18 @@ module Igniter
         nil
       end
 
+      def agent_session_for_state(state)
+        data = state.value.agent_session_data
+        data = default_agent_session_data(state) if data.nil? || data.empty?
+
+        Runtime::AgentSession.from_h(
+          data.merge(
+            execution_id: events.execution_id,
+            graph: compiled_graph.name
+          )
+        )
+      end
+
       def serialize_states
         cache.to_h.each_with_object({}) do |(node_name, state), memo|
           memo[node_name] = {
@@ -414,6 +447,23 @@ module Igniter
 
       def value_from(data, key)
         data[key] || data[key.to_s]
+      end
+
+      def default_agent_session_data(state)
+        trace = state.value.agent_trace || state.details[:agent_trace]
+
+        {
+          token: state.value.token,
+          node_name: state.node.name,
+          node_path: state.node.path,
+          agent_name: state.node.agent_name,
+          message_name: state.node.message_name,
+          mode: state.node.mode,
+          waiting_on: state.value.waiting_on,
+          source_node: state.value.source_node,
+          trace: trace,
+          payload: state.value.payload
+        }.compact
       end
 
       alias_method :resolve_output_value, :resolve_exported_output

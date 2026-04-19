@@ -43,6 +43,10 @@ module Igniter
       def agent_trace
         payload[:agent_trace] || payload["agent_trace"]
       end
+
+      def agent_session_data
+        payload[:agent_session] || payload["agent_session"]
+      end
     end
   end
 end

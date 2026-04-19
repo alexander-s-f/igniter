@@ -83,6 +83,7 @@ module Igniter
             entry[:token] = state.value.token
             entry[:waiting_on] = state.value.waiting_on
             entry[:source_node] = state.value.source_node
+            entry[:agent_session] = state.value.agent_session_data if state.value.agent_session_data
           end
 
           if state.failed?
@@ -116,7 +117,8 @@ module Igniter
 
             report[:outputs][output_node.name] = value.merge(
               agent_trace: entry[:agent_trace],
-              agent_trace_summary: entry[:agent_trace_summary]
+              agent_trace_summary: entry[:agent_trace_summary],
+              agent_session: entry[:agent_session]
             )
           end
         end

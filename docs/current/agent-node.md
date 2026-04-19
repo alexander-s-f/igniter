@@ -59,6 +59,25 @@ That gives contracts both synchronous request/reply and fire-and-forget delivery
 
 This matters because it turns agents into observable graph participants rather than opaque adapter calls.
 
+## Agent Sessions
+
+Pending agent nodes now materialize as first-class runtime sessions.
+
+- `execution.agent_sessions` returns `Igniter::Runtime::AgentSession` objects for pending agent work
+- `execution.find_agent_session(token)` resolves a specific session
+- `execution.resume_agent_session(session_or_token, value:)` resumes through the session handle
+- store-backed flows can resume through `Contract.resume_agent_session_from_store(...)`
+
+An agent session is the bridge between graph execution and long-lived multi-step agent work. It carries:
+
+- the pending token
+- node identity and path
+- `via`, `message`, and `mode`
+- structured `agent_trace`
+- execution and graph identity
+
+That makes pending agent work addressable as a domain object rather than a loose token convention.
+
 ## Why This Shape
 
 The goal is to make agents visible in the graph without collapsing layers again.
@@ -86,6 +105,6 @@ Not covered yet:
 The most natural next slices are:
 
 1. richer delivery modes such as deferred replies or streaming
-2. richer provenance for successful agent nodes, not just pending/failed traces
+2. multi-turn agent sessions instead of single resume-only continuations
 3. support for agent targeting beyond the local registry
 4. deciding whether `AgentAdapter` stays specialized or becomes a more general `ProxyAdapter`

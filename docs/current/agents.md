@@ -56,6 +56,7 @@ Even in that narrow form, agents are no longer opaque:
 - deliveries surface structured traces in diagnostics
 - pending agent work is visible in provenance
 - successful deliveries retain sideband execution details instead of disappearing into a plain scalar result
+- pending agent work materializes as `Runtime::AgentSession`, not just a raw token
 
 ## Near-Term Direction
 

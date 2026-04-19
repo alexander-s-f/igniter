@@ -19,8 +19,8 @@ module Igniter
         )
       end
 
-      def run_with(runner:, max_workers: nil)
-        @execution_options = { runner: runner, max_workers: max_workers }.compact
+      def run_with(runner:, max_workers: nil, **opts)
+        @execution_options = { runner: runner, max_workers: max_workers }.merge(opts).compact
       end
 
       # Ergonomic alias for run_with. Accepts pool_size: as a clearer name for
@@ -44,6 +44,14 @@ module Igniter
         Runtime::JobWorker.new(self, store: store || Igniter.execution_store).resume(
           execution_id: execution_id,
           token: token,
+          value: value
+        )
+      end
+
+      def resume_agent_session_from_store(execution_id, session:, value:, store: nil)
+        Runtime::JobWorker.new(self, store: store || Igniter.execution_store).resume_agent_session(
+          execution_id: execution_id,
+          session: session,
           value: value
         )
       end

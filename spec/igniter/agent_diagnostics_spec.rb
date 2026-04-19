@@ -151,6 +151,13 @@ RSpec.describe "agent diagnostics and provenance" do
     expect(report[:status]).to eq(:pending)
     expect(report[:outputs][:approval]).to include(
       agent_trace: trace,
+      agent_session: include(
+        token: kind_of(String),
+        node_name: :approval,
+        agent_name: :reviewer,
+        message_name: :review,
+        mode: :call
+      ),
       agent_trace_summary: "adapter=queue mode=call via=reviewer message=review outcome=deferred reason=awaiting_review"
     )
     expect(report[:agents]).to include(total: 1, succeeded: 0, pending: 1, failed: 0)
