@@ -65,13 +65,14 @@ The first code slice has now landed:
 - `Igniter::Ignite::*` normalized value objects
 - `Igniter::Stack#ignition_plan`
 - local `ignite.replicas` folded into stack runtime shaping
+- minimal `Igniter::Stack#ignite` agent/report surface
 
 So the next cluster-ignite move is no longer config modeling.
 It is agent-driven execution:
 
-- minimal `IgnitionAgent`
-- local replica orchestration/reporting
+- deepen local replica orchestration/reporting
 - then admission-aware join lifecycle
+- then remote SSH bootstrap
 
 ## Reading Heuristic
 

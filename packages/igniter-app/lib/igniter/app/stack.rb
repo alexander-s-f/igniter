@@ -321,6 +321,25 @@ module Igniter
         @ignition_plan ||= build_ignition_plan
       end
 
+      def ignite(plan: ignition_plan, approved: false, timeout: 5)
+        agent = Igniter::Ignite::IgnitionAgent.start
+        agent.call(
+          :execute,
+          {
+            plan: plan,
+            runtime_units: runtime_units_snapshot,
+            approved: approved
+          },
+          timeout: timeout
+        )
+      ensure
+        agent&.stop(timeout: 1)
+      end
+
+      def ignition_report(**options)
+        ignite(**options)
+      end
+
       def deployment_snapshot
         {
           "stack" => {

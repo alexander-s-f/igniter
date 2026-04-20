@@ -145,6 +145,111 @@ RSpec.describe Igniter::Stack do
     end
   end
 
+  it "returns an ignition report that awaits approval by default when approval is required" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: required
+          replicas:
+            - name: edge-1
+              port: 4568
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite
+
+      expect(report).to be_a(Igniter::Ignite::IgnitionReport)
+      expect(report).to be_awaiting_approval
+      expect(report.by_status).to include(awaiting_approval: 1)
+      expect(report.entries.first).to include(
+        target_id: "edge-1",
+        status: :awaiting_approval,
+        action: :approve_ignition
+      )
+    end
+  end
+
+  it "prepares local replica launch entries once ignition is approved" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: required
+          replicas:
+            - name: edge-1
+              port: 4568
+              capabilities:
+                - audio_ingest
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite(approved: true)
+      entry = report.entries.first
+
+      expect(report).to be_prepared
+      expect(report.by_status).to include(prepared: 1)
+      expect(entry).to include(
+        target_id: "edge-1",
+        kind: :local_replica,
+        status: :prepared,
+        action: :start_local_runtime_unit,
+        host: "0.0.0.0",
+        port: 4568,
+        capabilities: [:audio_ingest]
+      )
+      expect(entry.fetch(:environment)).to include(
+        IGNITER_IGNITE_REPLICA: "true",
+        IGNITER_IGNITE_TARGET: "edge-1"
+      )
+    end
+  end
+
+  it "marks remote targets as deferred after approval until remote bootstrap exists" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          servers:
+            - target: config/ssh_hp.yml
+              name: hp-call-analysis
+              capabilities:
+                - call_analysis
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite
+      entry = report.entries.first
+
+      expect(report).to be_pending_remote
+      expect(report.by_status).to include(deferred: 1)
+      expect(entry).to include(
+        target_id: "hp-call-analysis",
+        kind: :ssh_server,
+        status: :deferred,
+        action: :await_remote_bootstrap,
+        capabilities: [:call_analysis]
+      )
+      expect(entry.fetch(:locator)).to include(config_path: "config/ssh_hp.yml")
+    end
+  end
+
   it "adds shared lib paths from both DSL and stack.yml" do
     Dir.mktmpdir do |tmp|
       FileUtils.mkdir_p(File.join(tmp, "dsl_shared"))

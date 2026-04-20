@@ -308,14 +308,18 @@ Current landed state:
 - `Igniter::Ignite::BootstrapTarget` exists
 - `Igniter::Ignite::DeploymentIntent` exists
 - `Igniter::Ignite::IgnitionPlan` exists
+- `Igniter::Ignite::IgnitionAgent` exists
+- `Igniter::Ignite::IgnitionReport` exists
 - `Igniter::Stack#ignition_plan` normalizes `ignite` config into these objects
+- `Igniter::Stack#ignite` executes the minimal agent-owned ignition flow
 - local `ignite.replicas` already participate in stack `dev` / compose-style
   runtime shaping as synthetic local runtime units
 
 This is still an early implementation slice.
 
-It gives us normalized value objects and local replica boot semantics, but not
-yet agent-driven orchestration or remote bootstrap execution.
+It gives us normalized value objects, minimal agent-driven orchestration, and
+local replica boot semantics, but not yet remote bootstrap execution or
+admission-aware ignition lifecycle.
 
 ## `BootstrapTarget`
 
@@ -577,8 +581,10 @@ Status:
 - normalization is landed
 - local replica runtime shaping is landed
 - `PORT`-driven per-replica local boot is landed
-- `IgnitionAgent` orchestration is not landed yet
+- minimal `IgnitionAgent` orchestration is landed
+- `IgnitionReport` status/event surface is landed
 - admission-aware ignition lifecycle is not landed yet
+- remote SSH bootstrap is not landed yet
 
 ## Remote Bootstrap After The First Slice
 

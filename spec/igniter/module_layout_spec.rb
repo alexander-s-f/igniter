@@ -39,7 +39,9 @@ RSpec.describe "Igniter module layout" do
     expect(children_for(File.join(APP_LIB, "ignite"))).to eq(%w[
       bootstrap_target.rb
       deployment_intent.rb
+      ignition_agent.rb
       ignition_plan.rb
+      ignition_report.rb
     ])
   end
 
