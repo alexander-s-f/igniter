@@ -154,3 +154,139 @@ RSpec.describe Igniter::Runtime::AgentAdapter do
     Igniter::Runtime.agent_adapter = previous_adapter
   end
 end
+
+RSpec.describe Igniter::Runtime::AgentRouteResolver do
+  it "returns a local route for default agent delivery" do
+    node = Igniter::Model::AgentNode.new(
+      id: "test:local",
+      name: :greeting,
+      agent_name: :greeter,
+      message_name: :greet,
+      input_mapping: { name: :data }
+    )
+
+    route = described_class.new.resolve(node: node)
+
+    expect(route.to_h).to include(
+      routing_mode: :local,
+      via: :greeter,
+      message: :greet
+    )
+    expect(route).to be_local
+  end
+
+  it "returns a static route when node: is configured" do
+    node = Igniter::Model::AgentNode.new(
+      id: "test:static",
+      name: :greeting,
+      agent_name: :greeter,
+      message_name: :greet,
+      input_mapping: { name: :data },
+      node_url: "http://agents:4567"
+    )
+
+    route = described_class.new.resolve(node: node)
+
+    expect(route.to_h).to include(
+      routing_mode: :static,
+      via: :greeter,
+      message: :greet,
+      url: "http://agents:4567"
+    )
+    expect(route).to be_remote
+  end
+
+  it "raises a helpful error for cluster-only routing modes" do
+    node = Igniter::Model::AgentNode.new(
+      id: "test:capability",
+      name: :greeting,
+      agent_name: :greeter,
+      message_name: :greet,
+      input_mapping: { name: :data },
+      capability: :review
+    )
+
+    expect {
+      described_class.new.resolve(node: node)
+    }.to raise_error(Igniter::ResolutionError, /add `require 'igniter\/cluster'`/)
+  end
+end
+
+RSpec.describe Igniter::Runtime::ProxyAgentAdapter do
+  let(:local_adapter) { instance_double("LocalAgentAdapter") }
+  let(:route_resolver) { instance_double("AgentRouteResolver") }
+  let(:transport) { instance_double("AgentTransport") }
+  let(:adapter) do
+    described_class.new(
+      local_adapter: local_adapter,
+      route_resolver: route_resolver,
+      transport: transport
+    )
+  end
+  let(:node) do
+    Igniter::Model::AgentNode.new(
+      id: "test:proxy",
+      name: :greeting,
+      agent_name: :greeter,
+      message_name: :greet,
+      input_mapping: { name: :data }
+    )
+  end
+
+  it "delegates local routes to the local adapter" do
+    route = Igniter::Runtime::AgentRoute.local(via: :greeter, message: :greet)
+    allow(route_resolver).to receive(:resolve).and_return(route)
+    allow(local_adapter).to receive(:call).and_return(
+      status: :succeeded,
+      output: "Hello, Alice",
+      agent_trace: { adapter: :registry, outcome: :replied }
+    )
+
+    response = adapter.call(node: node, inputs: { name: "Alice" })
+
+    expect(local_adapter).to have_received(:call).with(
+      node: node,
+      inputs: { name: "Alice" },
+      execution: nil
+    )
+    expect(response).to include(status: :succeeded, output: "Hello, Alice")
+    expect(response[:agent_trace]).to include(
+      adapter: :registry,
+      routing_mode: :local,
+      remote: false,
+      outcome: :replied
+    )
+  end
+
+  it "delegates remote routes to the transport" do
+    route = Igniter::Runtime::AgentRoute.static(
+      via: :greeter,
+      message: :greet,
+      url: "http://agents:4567",
+      capability: :review
+    )
+    allow(route_resolver).to receive(:resolve).and_return(route)
+    allow(transport).to receive(:call).and_return(
+      status: :succeeded,
+      output: "Hello remotely",
+      agent_trace: { adapter: :http_agent, outcome: :replied }
+    )
+
+    response = adapter.call(node: node, inputs: { name: "Alice" })
+
+    expect(transport).to have_received(:call).with(
+      route: route,
+      node: node,
+      inputs: { name: "Alice" },
+      execution: nil
+    )
+    expect(response).to include(status: :succeeded, output: "Hello remotely")
+    expect(response[:agent_trace]).to include(
+      adapter: :http_agent,
+      routing_mode: :static,
+      route_url: "http://agents:4567",
+      capability: :review,
+      remote: true
+    )
+  end
+end

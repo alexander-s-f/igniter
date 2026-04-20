@@ -45,7 +45,6 @@ This package split does **not** mean that agents are already a fully mature cont
 Still not true yet:
 
 - agent lifecycle is not yet a fully planner-native execution category across the whole graph
-- there is no generalized `ProxyAdapter` for remote or routed delivery
 - richer typed stream events are not yet the only canonical stream surface
 
 Today, agents are both actor runtime primitives and an early graph primitive through `AgentNode`, but the deeper execution model is still intentionally narrow.
@@ -75,6 +74,20 @@ Even in that narrow form, agents are no longer opaque:
 - that mounted operator endpoint is now query-aware too, so operator surfaces can ask for focused slices like `status=acknowledged`, `queue=manual-review`, or `assignee=ops:alice` instead of always fetching the full record set
 - `mount_operator_surface(...)` now also gives apps a built-in operator console page with those same filters, execution drill-down links, and row-level operator actions
 - operator items now also carry `action_history`, including explicit operator identity like `actor`, `origin`, and `actor_channel`, so agent-facing workflows have a canonical audit trail at the app/operator layer, not only a current inbox status
+- `agent` nodes now also support routed delivery metadata beyond the local registry:
+  - `node:` for static remote delivery
+  - `capability:` and `query:` for capability-routed delivery
+  - `pinned_to:` for explicit peer routing
+- core runtime now also exposes a generalized routed-agent seam:
+  - `Igniter::Runtime::AgentRoute`
+  - `Igniter::Runtime::AgentRouteResolver`
+  - `Igniter::Runtime::AgentTransport`
+  - `Igniter::Runtime::ProxyAgentAdapter`
+- cluster now also provides the first routed-agent implementation:
+  - `Igniter::Cluster::AgentRouteResolver`
+  - `Igniter::Cluster::RoutedAgentAdapter`
+  - capability and pinned routing already resolve through mesh semantics and preserve pending/failure behavior
+- this is still intentionally transport-light: the route/adapter foundation is landed, but a fully canonical remote network protocol for agents is still a later step
 
 ## Near-Term Direction
 
@@ -114,6 +127,7 @@ After the package split is stable, we can evaluate a deeper model:
 - clearer semantics for mailbox state versus graph state
 - higher-level orchestration handlers built on top of planner-visible agent actions
 - a read-only query surface over live `AgentSession` and orchestration state before attempting a full `MeshQL`-style language for agents
+- a canonical remote agent transport and lifecycle contract above the new routed-agent seam
 
 That is a separate architectural pass and should be designed intentionally rather than smuggled into the gem extraction.
 

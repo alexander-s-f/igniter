@@ -74,6 +74,11 @@ module Igniter
               base[:inputs] = node.input_mapping
               base[:timeout] = node.timeout
               base[:mode] = node.mode
+              base[:routing_mode] = node.routing_mode
+              base[:node] = node.node_url if node.routing_mode == :static
+              base[:capability] = node.capability if node.capability
+              base[:query] = node.capability_query if node.capability_query
+              base[:pinned_to] = node.pinned_to if node.pinned_to
               base[:reply] = node.reply_mode
               base[:finalizer] = serialized_agent_finalizer(node.finalizer)
               base[:tool_loop_policy] = node.tool_loop_policy
@@ -148,6 +153,11 @@ module Igniter
               inputs: node.input_mapping,
               timeout: node.timeout,
               mode: node.mode,
+              routing_mode: node.routing_mode,
+              node: (node.node_url if node.routing_mode == :static),
+              capability: node.capability,
+              query: node.capability_query,
+              pinned_to: node.pinned_to,
               reply: node.reply_mode,
               finalizer: serialized_agent_finalizer(node.finalizer),
               tool_loop_policy: node.tool_loop_policy,

@@ -353,7 +353,7 @@ module Igniter
         )
       end
 
-      def agent(name, via:, message:, inputs:, timeout: 5, mode: :call, reply: nil, finalizer: nil, tool_loop_policy: nil, session_policy: nil, **metadata)
+      def agent(name, via:, message:, inputs:, timeout: 5, mode: :call, reply: nil, finalizer: nil, tool_loop_policy: nil, session_policy: nil, node: nil, capability: nil, query: nil, pinned_to: nil, **metadata) # rubocop:disable Metrics/ParameterLists
         normalized_mode = mode.respond_to?(:to_sym) ? mode.to_sym : mode
         normalized_reply = reply.respond_to?(:to_sym) ? reply.to_sym : reply
         normalized_finalizer = finalizer.respond_to?(:to_sym) ? finalizer.to_sym : finalizer
@@ -392,6 +392,12 @@ module Igniter
         unless normalized_session_policy.nil? || %i[interactive single_turn manual].include?(normalized_session_policy)
           raise CompileError, "agent :#{name} session_policy must be :interactive, :single_turn, or :manual"
         end
+        if [capability, query, pinned_to].count { |value| !value.nil? } > 1
+          raise CompileError, "agent :#{name}: capability:, query:, and pinned_to: are mutually exclusive"
+        end
+        if capability.nil? && query.nil? && pinned_to.nil? && !node.nil? && node.to_s.strip.empty?
+          raise CompileError, "agent :#{name} requires a non-empty node: URL"
+        end
 
         add_node(
           Model::AgentNode.new(
@@ -406,6 +412,10 @@ module Igniter
             finalizer: normalized_finalizer,
             tool_loop_policy: normalized_tool_loop_policy,
             session_policy: normalized_session_policy,
+            node_url: node,
+            capability: capability,
+            capability_query: query,
+            pinned_to: pinned_to,
             path: scoped_path(name),
             metadata: with_source_location(metadata)
           )

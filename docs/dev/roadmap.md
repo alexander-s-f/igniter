@@ -56,6 +56,14 @@ See [Current: Ignite](../current/ignite.md) for the current specification draft.
 
 That draft is now specific enough to guide implementation:
 
+- routed-agent delivery foundation is now also in place:
+  - `AgentRoute`
+  - `AgentRouteResolver`
+  - `AgentTransport`
+  - `ProxyAgentAdapter`
+  - cluster `AgentRouteResolver`
+  - cluster `RoutedAgentAdapter`
+
 - normalized `BootstrapTarget`
 - normalized `DeploymentIntent`
 - plan-level `IgnitionPlan`

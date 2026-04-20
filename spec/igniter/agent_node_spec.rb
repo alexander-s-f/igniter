@@ -40,13 +40,78 @@ RSpec.describe "agent: DSL node" do
       expect(node.message_name).to eq(:greet)
       expect(node.input_mapping).to eq(name: :name)
       expect(node.mode).to eq(:call)
+      expect(node.routing_mode).to eq(:local)
       expect(node.reply_mode).to eq(:deferred)
       expect(node.finalizer).to be_nil
       expect(node.tool_loop_policy).to be_nil
       expect(node.session_policy).to be_nil
       expect(contract_class.graph.to_schema[:agents]).to include(
-        hash_including(name: :greeting, via: :greeter, message: :greet, inputs: { name: :name }, mode: :call, reply: :deferred, finalizer: nil, tool_loop_policy: nil, session_policy: nil)
+        hash_including(name: :greeting, via: :greeter, message: :greet, inputs: { name: :name }, mode: :call, routing_mode: :local, reply: :deferred, finalizer: nil, tool_loop_policy: nil, session_policy: nil)
       )
+    end
+
+    it "compiles static routed agents" do
+      contract_class = Class.new(Igniter::Contract) do
+        define do
+          input :name
+          agent :review,
+                via: :reviewer,
+                message: :review,
+                node: "http://agents:4567",
+                inputs: { name: :name }
+          output :review
+        end
+      end
+
+      node = contract_class.compiled_graph.fetch_node(:review)
+
+      expect(node.routing_mode).to eq(:static)
+      expect(node.node_url).to eq("http://agents:4567")
+      expect(contract_class.graph.to_schema[:agents]).to include(
+        hash_including(name: :review, routing_mode: :static, node: "http://agents:4567")
+      )
+    end
+
+    it "compiles capability-routed agents" do
+      contract_class = Class.new(Igniter::Contract) do
+        define do
+          input :name
+          agent :review,
+                via: :reviewer,
+                message: :review,
+                query: { all_of: [:review], trust: { identity: :trusted } },
+                inputs: { name: :name }
+          output :review
+        end
+      end
+
+      node = contract_class.compiled_graph.fetch_node(:review)
+
+      expect(node.routing_mode).to eq(:capability)
+      expect(node.capability_query).to eq(all_of: [:review], trust: { identity: :trusted })
+      expect(contract_class.graph.to_schema[:agents]).to include(
+        hash_including(
+          name: :review,
+          routing_mode: :capability,
+          query: { all_of: [:review], trust: { identity: :trusted } }
+        )
+      )
+    end
+
+    it "raises CompileError when query: and pinned_to: are combined" do
+      expect do
+        Class.new(Igniter::Contract) do
+          define do
+            input :name
+            agent :review,
+                  via: :reviewer,
+                  message: :review,
+                  query: { all_of: [:review] },
+                  pinned_to: "audit-node",
+                  inputs: { name: :name }
+          end
+        end
+      end.to raise_error(Igniter::CompileError, /capability:, query:, and pinned_to: are mutually exclusive/)
     end
 
     it "raises CompileError when inputs: is not a Hash" do

@@ -41,6 +41,11 @@ module Igniter
               line += " message=#{node.message_name.inspect}"
               line += " timeout=#{node.timeout}"
               line += " mode=#{node.mode}"
+              line += " routing=#{node.routing_mode}"
+              line += " node=#{node.node_url.inspect}" if node.routing_mode == :static
+              line += " capability=#{node.capability.inspect}" if node.capability
+              line += " query=#{node.capability_query.inspect}" if node.capability_query
+              line += " pinned_to=#{node.pinned_to.inspect}" if node.pinned_to
               line += " reply=#{node.reply_mode}"
               line += " finalizer=#{node.finalizer.inspect}" if node.finalizer
               line += " tool_loop_policy=#{node.tool_loop_policy.inspect}" if node.tool_loop_policy

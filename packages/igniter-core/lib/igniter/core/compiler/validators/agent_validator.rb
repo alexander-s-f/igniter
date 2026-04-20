@@ -24,6 +24,7 @@ module Igniter
             validate_finalizer!(node)
             validate_tool_loop_policy!(node)
             validate_session_policy!(node)
+            validate_routing!(node)
           end
         end
 
@@ -124,6 +125,15 @@ module Igniter
           raise @context.validation_error(
             node,
             "agent :#{node.name} session_policy requires reply: :stream"
+          )
+        end
+
+        def validate_routing!(node)
+          return if %i[local static capability pinned].include?(node.routing_mode)
+
+          raise @context.validation_error(
+            node,
+            "agent :#{node.name} routing mode must be :local, :static, :capability, or :pinned"
           )
         end
       end

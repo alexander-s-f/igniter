@@ -16,6 +16,8 @@ require_relative "cluster/identity"
 require_relative "cluster/trust"
 require_relative "cluster/mesh"
 require_relative "cluster/remote_adapter"
+require_relative "cluster/agent_route_resolver"
+require_relative "cluster/routed_agent_adapter"
 require_relative "cluster/events"
 require_relative "cluster/ownership"
 require_relative "cluster/projection_store"
@@ -37,8 +39,20 @@ module Igniter
         Igniter::Runtime.remote_adapter = remote_adapter
       end
 
+      def agent_adapter
+        @agent_adapter ||= RoutedAgentAdapter.new
+      end
+
+      def activate_agent_adapter!
+        Igniter::Runtime.agent_adapter = agent_adapter
+      end
+
       def deactivate_remote_adapter!
         Igniter::Runtime.remote_adapter = Igniter::Runtime::RemoteAdapter.new
+      end
+
+      def deactivate_agent_adapter!
+        Igniter::Runtime.agent_adapter = Igniter::Runtime::RegistryAgentAdapter.new
       end
 
       def use(*names)

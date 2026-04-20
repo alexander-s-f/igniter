@@ -48,6 +48,20 @@ Already landed:
 - orchestration handlers and ignite handling now also share a more explicit `Igniter::App::Operator` layer, so policy resolution, result shape, and action dispatch are beginning to converge structurally instead of only by convention
 - `App.handle_operator_item(...)` now routes through an explicit shared operator dispatcher/registry, which means orchestration and ignite are converging not only on policy and result shape but also on handler selection
 - operator records now also expose explicit `record_kind` and shared `lifecycle` schema, which means convergence is no longer only about how records are handled, but also about how they are described to query/API/UI layers
+- `agent` nodes now also support routed delivery metadata:
+  - `node:`
+  - `capability:`
+  - `query:`
+  - `pinned_to:`
+- core runtime now also ships the first routed-agent delivery foundation:
+  - `AgentRoute`
+  - `AgentRouteResolver`
+  - `AgentTransport`
+  - `ProxyAgentAdapter`
+- cluster now also ships:
+  - `AgentRouteResolver`
+  - `RoutedAgentAdapter`
+  so capability/pinned routing already works at route-resolution/runtime-semantics level, even though a fully canonical remote transport protocol is still a later step
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
 
@@ -71,6 +85,7 @@ If we pause after the current operator/audit/query/ignite convergence work, the 
 
 - move the current `agent node -> session -> orchestration` model beyond the local registry
 - preserve the same session/orchestration semantics for remote delivery
+- harden the new route/transport seam into a canonical remote delivery contract
 - likely the strongest next architecture move once the operator surface feels “good enough”
 
 For now, option 1 is the smallest and cleanest continuation from the current landed state.

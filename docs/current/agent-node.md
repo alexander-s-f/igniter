@@ -254,9 +254,8 @@ Not covered yet:
 
 - rich mailbox-style session state beyond request/reply envelopes
 - richer typed event contracts beyond today's first runtime validator pass
-- capability-routed or cluster-routed agent delivery
 - explicit `AgentNode` lifecycle ownership across long-running workflows
-- a generalized `ProxyAdapter`
+- a fully canonical remote transport contract for agents
 
 ## Next Likely Steps
 
@@ -264,7 +263,34 @@ The most natural next slices are:
 
 1. harden orchestration handling above planner/inbox level
 2. richer session semantics beyond today's append-only conversational envelopes
-3. support for agent targeting beyond the local registry
-4. deciding whether `AgentAdapter` stays specialized or becomes a more general `ProxyAdapter`
+3. harden routed-agent delivery beyond today's first route/transport seam
+4. turn remote agent delivery into a canonical network/runtime contract
+
+## Routed Delivery Foundation
+
+The first routed-agent slice has now landed.
+
+- `agent` nodes now support:
+  - `node:` for static remote targeting
+  - `capability:` shorthand
+  - `query:` capability queries
+  - `pinned_to:` explicit peer routing
+- `Igniter::Model::AgentNode` now exposes `routing_mode`
+- core runtime now ships:
+  - `Igniter::Runtime::AgentRoute`
+  - `Igniter::Runtime::AgentRouteResolver`
+  - `Igniter::Runtime::AgentTransport`
+  - `Igniter::Runtime::ProxyAgentAdapter`
+- cluster now ships:
+  - `Igniter::Cluster::AgentRouteResolver`
+  - `Igniter::Cluster::RoutedAgentAdapter`
+
+That means remote/routed agent work is no longer only an idea. Route grammar, route resolution, and pending/failure semantics are now real.
+
+What is intentionally still not claimed:
+
+- there is not yet one canonical remote transport protocol for agent delivery
+- static/capability/pinned routing is now real, but transport execution is still a seam that higher layers can provide
+- this is the first distributed delivery foundation, not the finished distributed agent runtime
 
 See also: [Agents Roadmap](./agents-roadmap.md)
