@@ -221,6 +221,10 @@ RSpec.describe Igniter::AI::Skill do
         child = Class.new(skill_class)
         expect(child.feedback_enabled).to be true
       end
+
+      it "is reflected in the runtime contract" do
+        expect(skill_class.runtime_contract.feedback?).to be true
+      end
     end
 
     describe ".feedback_store :memory" do
@@ -237,6 +241,12 @@ RSpec.describe Igniter::AI::Skill do
         custom = double("store")
         klass  = Class.new(described_class) { feedback_store(custom) }
         expect(klass.feedback_store).to be(custom)
+      end
+
+      it "is reflected in the runtime contract" do
+        contract = skill_class.runtime_contract
+        expect(contract.feedback_store).to be_a(Igniter::AI::Skill::FeedbackStore::Memory)
+        expect(contract.to_h[:feedback_store]).to include(:class_name, :size)
       end
     end
   end

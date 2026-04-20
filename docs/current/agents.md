@@ -144,6 +144,12 @@ The current session model is intentionally simple but now explicit:
   - `finalizer`
   - `session_policy`
   - `tool_loop_policy`
+- `igniter-ai` skills now also expose one canonical runtime contract instead of scattering those semantics across separate class methods:
+  - `Igniter::AI::Skill::RuntimeContract`
+  - `structured_output`
+  - `feedback_enabled`
+  - `required_capabilities`
+  - nested `tool_names`
 - stream/runtime surfaces now also project a first-class tool runtime contract instead of only flat `tool_loop_status`:
   - `tool_runtime`
   - `interaction_count`

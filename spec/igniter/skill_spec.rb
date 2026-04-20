@@ -84,6 +84,60 @@ RSpec.describe Igniter::AI::Skill do
     end
   end
 
+  describe ".runtime_contract" do
+    it "collects structured output, feedback, capabilities, and nested tools in one object" do
+      calculator_tool = Class.new(Igniter::Tool) do
+        description "Calculate"
+      end
+      skill_class = Class.new(described_class) do
+        requires_capability :network
+        tools calculator_tool
+        feedback_enabled true
+        feedback_store :memory
+
+        output_schema do
+          field :answer, String
+        end
+      end
+
+      contract = skill_class.runtime_contract
+
+      expect(contract).to be_a(Igniter::AI::Skill::RuntimeContract)
+      expect(contract.structured_output?).to be true
+      expect(contract.feedback?).to be true
+      expect(contract.required_capabilities).to eq([:network])
+      expect(contract.tool_classes).to eq([calculator_tool])
+      expect(contract.tool_names).to eq(["anonymous"])
+      expect(contract.to_h).to include(
+        structured_output: true,
+        feedback_enabled: true,
+        required_capabilities: [:network],
+        tool_names: ["anonymous"],
+        tool_count: 1
+      )
+    end
+
+    it "reflects inherited skill semantics without sharing feedback store" do
+      parent = Class.new(described_class) do
+        requires_capability :network
+        feedback_enabled true
+        feedback_store :memory
+
+        output_schema do
+          field :summary, String
+        end
+      end
+      child = Class.new(parent)
+
+      contract = child.runtime_contract
+
+      expect(contract.structured_output?).to be true
+      expect(contract.feedback?).to be true
+      expect(contract.required_capabilities).to eq([:network])
+      expect(contract.feedback_store).to be_nil
+    end
+  end
+
   # ── Schema generation ──────────────────────────────────────────────────────
 
   describe ".to_schema" do

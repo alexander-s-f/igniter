@@ -39,12 +39,23 @@ module Igniter
 
           @feedback_store = val == :memory ? Skill::FeedbackStore::Memory.new : val
         end
+
+        def runtime_contract
+          Skill::RuntimeContract.new(
+            output_schema: output_schema,
+            feedback_enabled: feedback_enabled,
+            feedback_store: feedback_store,
+            required_capabilities: required_capabilities,
+            tools: tools
+          )
+        end
       end
 
       protected
 
       def complete(prompt, context: nil)
-        schema = self.class.output_schema
+        contract = self.class.runtime_contract
+        schema = contract.output_schema
 
         adjusted = if schema.is_a?(Skill::OutputSchema)
                      "#{prompt}\n\nRespond ONLY with valid JSON matching this schema: #{schema.to_json_description}"
@@ -59,9 +70,10 @@ module Igniter
       public
 
       def feedback(output, rating:, notes: nil) # rubocop:disable Metrics/MethodLength
-        return self unless self.class.feedback_enabled
+        contract = self.class.runtime_contract
+        return self unless contract.feedback?
 
-        store = self.class.feedback_store
+        store = contract.feedback_store
         return self unless store
 
         output_str = output.to_s
@@ -92,3 +104,4 @@ end
 
 require_relative "skill/output_schema"
 require_relative "skill/feedback"
+require_relative "skill/runtime_contract"

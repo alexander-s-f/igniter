@@ -151,6 +151,15 @@ RSpec.describe Igniter::AI::Skill do
       expect(skill_class.output_schema).to be_a(Igniter::AI::Skill::OutputSchema)
     end
 
+    it "exposes structured output through the runtime contract" do
+      contract = skill_class.runtime_contract
+      expect(contract.structured_output?).to be true
+      expect(contract.to_h[:output_schema]).to include(
+        type: "structured",
+        fields: [hash_including(name: :answer, type: "String"), hash_including(name: :score, type: "Float")]
+      )
+    end
+
     it "propagates output_schema to subclasses" do
       child = Class.new(skill_class)
       expect(child.output_schema).to be_a(Igniter::AI::Skill::OutputSchema)

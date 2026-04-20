@@ -262,6 +262,14 @@ RSpec.describe "Igniter module layout" do
     )
   end
 
+  it "keeps skill runtime helpers under the canonical ai skill namespace" do
+    expect(children_for(File.join(AI_LIB, "ai", "skill"))).to eq(%w[
+      feedback.rb
+      output_schema.rb
+      runtime_contract.rb
+    ])
+  end
+
   it "does not keep sdk/ai entrypoints inside the sdk package" do
     expect(children_for(File.join(SDK_LIB, "sdk"))).not_to include(
       "ai",

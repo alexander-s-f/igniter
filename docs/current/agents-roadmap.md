@@ -57,6 +57,7 @@ Already landed:
   - `Igniter::Model::AgentInteractionContract`
 - that interaction contract now also flows through live/store-backed session and runtime surfaces, so higher layers can read one canonical interaction vocabulary instead of reconstructing it from `reply_mode`, `session_policy`, and `tool_loop_policy`
 - tool-loop semantics now also flow through a first-class `tool_runtime` projection in session, stream, orchestration, and operator runtime surfaces, so higher layers can reason about open/completed/orphaned tool work without rebuilding that state from raw events
+- skills now also expose one canonical runtime-facing contract through `Igniter::AI::Skill::RuntimeContract`, so structured output, feedback/refinement, capability requirements, and nested tool affordances stop living only as scattered skill class methods
 - core runtime now also ships the first routed-agent delivery foundation:
   - `AgentRoute`
   - `AgentRouteResolver`
