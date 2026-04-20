@@ -34,7 +34,17 @@ The active work is now about convergence and hardening:
 
 - converge operator semantics across orchestration and ignition
 - deepen remote/routed execution beyond one process
+- extend `ignite` beyond bootstrap/join into `detach / re-ignite / teardown`
 - keep moving stack/app structure and deployment bootstrap toward one coherent model
+
+That said, the current `ignite` line is now strong enough that it should no
+longer dominate every next cycle by default.
+
+The healthier near-term posture is:
+
+- keep `ignite` moving in bounded hardening slices when it unlocks something real
+- rebalance attention back toward the broader `contracts & agents` and app/stack lines
+- avoid overfitting the roadmap around deployment lifecycle alone
 
 ## Current Reading Heuristic
 

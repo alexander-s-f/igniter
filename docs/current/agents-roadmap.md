@@ -71,6 +71,22 @@ Already landed:
   so routed delivery now already has a canonical HTTP protocol plus a first server-owned remote session runtime for continuation/resume
 - routed sessions now also expose explicit ownership metadata (`ownership`, `owner_url`, `delivery_route`)
 - core runtime now also has opt-in continuation/resume hooks above routed delivery, and the server transport is the first concrete implementation of that seam
+- remote owner state is now persisted by token in the server-side `AgentSessionStore`, which means continuation/resume can resolve against stored owner state and become durable when the server runtime store is durable
+- `AgentSession` now also exposes a clearer lifecycle contract through:
+  - `lifecycle_state`
+  - `interactive?`
+  - `terminal?`
+  - `continuable?`
+  - `routed?`
+- runtime and app query surfaces now also treat session ownership/lifecycle as first-class dimensions:
+  - `ownership`
+  - `lifecycle_state`
+  - `interactive`
+  - `terminal`
+  - `continuable`
+  - `routed`
+- the joined operator plane now projects those same runtime semantics, so ownership and session state are no longer hidden behind only inbox or ignite workflow metadata
+- store-backed executions now also expose that same runtime query truth through `Contract.agent_session_query_from_store(...)` and `Contract.agent_session_summary_from_store(...)`, which closes the main durable-runtime gap for this session model line
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
 
@@ -90,15 +106,44 @@ If we pause after the current operator/audit/query/ignite convergence work, the 
 - keep strengthening the runtime truth that the operator plane sits on top of
 - likely touches core runtime more than app/operator surfaces
 
+This line has moved forward again:
+
+- `AgentSession` now has an explicit lifecycle contract instead of only implicit phase booleans
+- runtime query and joined operator query now expose session ownership and lifecycle as stable filter/facet/order dimensions
+- the next session-heavy work should therefore bias toward deeper persistence/restore and richer remote continuity, not toward inventing a second parallel session model
+
 3. Remote and routed agents
 
 - move the current `agent node -> session -> orchestration` model beyond the local registry
 - preserve the same session/orchestration semantics for remote delivery
-- harden the new route/transport seam into a fuller remote-owned session protocol above the newly landed ownership/hooks layer
+- harden the new route/transport seam beyond the first landed remote-owned session runtime, especially around persistence hardening, ownership continuity, and operator/runtime visibility across process boundaries
 - likely the strongest next architecture move once the operator surface feels “good enough”
+
+This line has now crossed its main foundation threshold:
+
+- routed delivery grammar is landed
+- canonical server transport is landed
+- remote continuation/resume protocol is landed
+- first durable owner-side session runtime is landed through `AgentSessionStore`
+
+That means the next strongest platform move is no longer another basic routed seam.
+The recommended next major lifecycle line is now `ignite: detach / re-ignite / teardown`.
+The first slice of that line is now landed too:
+
+- durable `detached` / `torn_down` lifecycle states
+- stack-facing `detach_ignite_target(...)`, `reignite_target(...)`, and `teardown_ignite_target(...)`
+- operator-side `detach`, `teardown`, and `reignite` handling
+- first remote decommission transport behind `detach / teardown`
+- trust-preserving `detach` and trust-removing `teardown`
 
 For now, option 1 is the smallest and cleanest continuation from the current landed state.
 Option 3 is still the larger architectural continuation.
+
+The important planning correction now is balance:
+
+- `ignite` has crossed the threshold where it is real enough and should not monopolize every next iteration
+- the next cycles should intentionally pull the rest of the track forward too, especially richer runtime/session semantics and broader agent/app convergence
+- `ignite` should continue in bounded slices, not as the only foreground line
 
 ## Deferred Line
 

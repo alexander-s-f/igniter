@@ -29,14 +29,22 @@ That line has already crossed from pure runtime semantics into:
 - ignition history, diagnostics, and operator lifecycle handling
 
 So the next planning choice is no longer “make agents real” in the abstract.
-The choice is now more like:
+That foundation is now strong enough that the practical next lifecycle move is:
 
-1. converging operator workflow semantics across orchestration and ignition
-2. deepening runtime/session semantics
-3. pushing the same model outward into remote/routed agents
+1. extend `ignite` from bootstrap/join into `detach / re-ignite / teardown`
+2. continue deepening runtime/session semantics where that new lifecycle needs it
+3. keep hardening remote/routed agents as a supporting distributed execution layer rather than as the only foreground track
 
-At the moment, the safest shortest continuation is operator workflow convergence.
-The strongest architectural continuation is still remote/routed agents.
+That `ignite` lifecycle line is now far enough along that the roadmap should be
+rebalanced deliberately:
+
+- keep hardening `ignite`, but in bounded slices
+- bring more attention back to the rest of the `contracts & agents` track
+- continue improving app/operator/runtime coherence instead of letting deployment work dominate the whole plan
+- one active part of that rebalancing is richer `AgentSession` truth:
+  - explicit session lifecycle state
+  - explicit routed ownership semantics
+  - runtime/app query surfaces that can filter, facet, and summarize those dimensions directly
 
 In parallel, app structure is now an active design line too:
 
@@ -70,6 +78,7 @@ That draft is now specific enough to guide implementation:
   - `/v1/agent-sessions/:token/continue`
   - `/v1/agent-sessions/:token/resume`
   - explicit routed session ownership metadata plus opt-in continuation/resume hooks above the initial transport seam
+  - server-owned session state persisted by token in `AgentSessionStore`, backed by the configured server runtime store when available
 
 - normalized `BootstrapTarget`
 - normalized `DeploymentIntent`
@@ -98,9 +107,19 @@ The first code slice has now landed:
 So the next cluster-ignite move is no longer config modeling.
 It is hardening the agent-driven execution that now exists:
 
-- deepen retry/approval/reconcile operator semantics
-- strengthen deployment/package/runtime bootstrap strategy
-- extend from bootstrap/join into fuller deployment lifecycle such as detach/re-ignite/teardown
+- preserve the current bootstrap/admission/join lifecycle as the first phase
+- extend it into fuller deployment lifecycle such as `detach / re-ignite / teardown`
+- keep those new transitions visible through the same durable trail and operator surface
+- only then deepen remote shutdown/decommission transport behavior where needed
+
+That lifecycle extension has now started:
+
+- `detach`
+- single-target `re-ignite`
+- terminal `torn_down` state foundation
+
+So the next move inside `ignite` is no longer naming the lifecycle.
+It is hardening the transport and cluster-offboarding semantics underneath those new lifecycle truths.
 
 ## Reading Heuristic
 

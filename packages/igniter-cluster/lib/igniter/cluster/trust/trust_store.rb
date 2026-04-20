@@ -19,6 +19,11 @@ module Igniter
           self
         end
 
+        def remove(node_id)
+          @entries.delete(node_id.to_s)
+          self
+        end
+
         def entry_for(node_id)
           @entries[node_id.to_s]
         end

@@ -259,16 +259,28 @@ RSpec.describe "agent sessions" do
     expect(query.order_by(:node_name, direction: :asc).first.node_name).to eq(:approval)
     expect(query.limit(1).to_a.size).to eq(1)
     expect(query.facet(:reply_mode)).to eq(stream: 1, deferred: 1)
+    expect(query.facet(:ownership)).to eq(local: 2)
+    expect(query.facet(:lifecycle_state)).to eq(streaming: 1, waiting: 1)
     expect(query.facet(:interaction)).to eq(interactive_session: 1, deferred_call: 1)
-    expect(query.facets(:agent_name, :reason)).to eq(
+    expect(query.interactive.to_a.map(&:node_name)).to eq([:interactive_summary])
+    expect(query.continuable.to_a.map(&:node_name)).to contain_exactly(:interactive_summary, :approval)
+    expect(query.routed(false).count).to eq(2)
+    expect(query.facets(:agent_name, :reason, :ownership)).to eq(
       agent_name: { writer: 1, reviewer: 1 },
-      reason: { interactive_session: 1, deferred_call: 1 }
+      reason: { interactive_session: 1, deferred_call: 1 },
+      ownership: { local: 2 }
     )
     expect(query.summary).to include(
       total: 2,
       by_agent: { writer: 1, reviewer: 1 },
       by_reply_mode: { stream: 1, deferred: 1 },
+      by_ownership: { local: 2 },
+      by_lifecycle_state: { streaming: 1, waiting: 1 },
       by_interaction: { interactive_session: 1, deferred_call: 1 },
+      interactive: 1,
+      terminal: 0,
+      continuable: 2,
+      routed: 0,
       attention_required: 2,
       resumable: 2
     )
@@ -296,6 +308,17 @@ RSpec.describe "agent sessions" do
 
     expect(session).to be_remote_owned
     expect(session.owner_url).to eq("http://agents:4567")
+    expect(session).to be_routed
+    expect(session.lifecycle).to include(
+      state: :streaming,
+      ownership: :remote,
+      owner_url: "http://agents:4567",
+      routed: true,
+      interactive: true,
+      terminal: false,
+      continuable: true,
+      tool_loop_status: :idle
+    )
     expect(session.delivery_route).to include(
       routing_mode: :static,
       url: "http://agents:4567",
@@ -304,6 +327,10 @@ RSpec.describe "agent sessions" do
     expect(Igniter::Runtime::AgentSession.from_h(session.to_h)).to have_attributes(
       ownership: :remote,
       owner_url: "http://agents:4567"
+    )
+    expect(Igniter::Runtime::AgentSession.from_h(session.to_h).lifecycle).to include(
+      ownership: :remote,
+      routed: true
     )
   end
 end

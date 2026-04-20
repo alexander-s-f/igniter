@@ -819,6 +819,445 @@ RSpec.describe Igniter::Stack do
     end
   end
 
+  it "can detach a joined remote ignition target through ssh decommission without dropping trust" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          servers:
+            - target: config/ssh_hp.yml
+              name: hp-call-analysis
+              capabilities:
+                - call_analysis
+      YAML
+      File.write(File.join(tmp, "config", "ssh_hp.yml"), <<~YAML)
+        host: 10.0.0.50
+        user: deploy
+        target_path: /srv/igniter/spark-crm
+        drain_command: systemctl stop spark-crm-drain
+      YAML
+
+      fake_session_class = Class.new do
+        class << self
+          attr_reader :commands, :verifications
+
+          def reset!
+            @commands = []
+            @verifications = []
+          end
+        end
+
+        def initialize(host:, user:, key:, port:) = nil
+
+        def test_connection
+          true
+        end
+
+        def exec!(command)
+          self.class.commands << command
+          true
+        end
+
+        def exec(command)
+          self.class.verifications << command
+          { success: true, stdout: "", stderr: "", exit_code: 0 }
+        end
+      end
+      fake_session_class.reset!
+
+      noop_bootstrapper = Class.new do
+        def install(session:, manifest:, env:, target_path:) = nil
+
+        def start(session:, manifest:, target_path:) = nil
+
+        def verify(session:, target_path:)
+          true
+        end
+      end.new
+
+      Igniter::Cluster::Mesh.configure do |c|
+        c.peer_name = "seed-node"
+        c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(require_approval: true)
+      end
+
+      workspace = build_workspace(root: tmp)
+      admitted = workspace.ignite(
+        mesh: Igniter::Cluster::Mesh,
+        request_admission: true,
+        approve_pending_admission: true,
+        bootstrap_remote: true,
+        session_factory: ->(host:, user:, key:, port:) { fake_session_class.new(host: host, user: user, key: key, port: port) },
+        bootstrapper_factory: ->(_strategy, **_options) { noop_bootstrapper }
+      )
+      joined = workspace.confirm_ignite_join(
+        report: admitted,
+        target_id: "hp-call-analysis",
+        url: "http://10.0.0.50:4567",
+        mesh: Igniter::Cluster::Mesh
+      )
+
+      detached = workspace.detach_ignite_target(
+        report: joined,
+        target_id: "hp-call-analysis",
+        mesh: Igniter::Cluster::Mesh,
+        metadata: { reason: "operator detach" },
+        session_factory: ->(host:, user:, key:, port:) { fake_session_class.new(host: host, user: user, key: key, port: port) }
+      )
+      entry = detached.entries.first
+
+      expect(detached).to be_detached
+      expect(entry).to include(
+        target_id: "hp-call-analysis",
+        status: :detached,
+        action: :remote_detached
+      )
+      expect(entry.fetch(:join)).to include(required: false, status: :detached)
+      expect(entry.fetch(:detach)).to include(reason: "operator detach")
+      expect(entry.dig(:detach, :transport)).to include(
+        host: "10.0.0.50",
+        port: 22,
+        target_path: "/srv/igniter/spark-crm",
+        drain_command: "systemctl stop spark-crm-drain",
+        verified_shutdown: true
+      )
+      expect(entry.dig(:detach, :acknowledged)).to be(true)
+      expect(fake_session_class.commands.first).to eq("systemctl stop spark-crm-drain")
+      expect(fake_session_class.commands.last).to include("igniter.pid")
+      expect(fake_session_class.commands.last).not_to include("rm -rf")
+      expect(fake_session_class.verifications.last).to include("pgrep -f /srv/igniter/spark-crm")
+      expect(Igniter::Cluster::Mesh.config.peer_registry.peer_named("hp-call-analysis")).to be_nil
+      expect(Igniter::Cluster::Mesh.config.trust_store.known?("hp-call-analysis")).to be(true)
+    end
+  end
+
+  it "keeps a joined remote ignition target active when ssh detach transport fails" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          servers:
+            - target: config/ssh_hp.yml
+              name: hp-call-analysis
+      YAML
+      File.write(File.join(tmp, "config", "ssh_hp.yml"), <<~YAML)
+        host: 10.0.0.50
+        user: deploy
+        target_path: /srv/igniter/spark-crm
+      YAML
+
+      bootstrap_session_class = Class.new do
+        def initialize(host:, user:, key:, port:) = nil
+
+        def test_connection
+          true
+        end
+      end
+
+      failing_session_class = Class.new do
+        def initialize(host:, user:, key:, port:) = nil
+
+        def test_connection
+          true
+        end
+
+        def exec!(_command)
+          raise Igniter::Cluster::Replication::SSHSession::SSHError, "remote stop failed"
+        end
+      end
+
+      noop_bootstrapper = Class.new do
+        def install(session:, manifest:, env:, target_path:) = nil
+
+        def start(session:, manifest:, target_path:) = nil
+
+        def verify(session:, target_path:)
+          true
+        end
+      end.new
+
+      Igniter::Cluster::Mesh.configure do |c|
+        c.peer_name = "seed-node"
+        c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(require_approval: true)
+      end
+
+      workspace = build_workspace(root: tmp)
+      admitted = workspace.ignite(
+        mesh: Igniter::Cluster::Mesh,
+        request_admission: true,
+        approve_pending_admission: true,
+        bootstrap_remote: true,
+        session_factory: ->(host:, user:, key:, port:) { bootstrap_session_class.new(host: host, user: user, key: key, port: port) },
+        bootstrapper_factory: ->(_strategy, **_options) { noop_bootstrapper }
+      )
+      joined = workspace.confirm_ignite_join(
+        report: admitted,
+        target_id: "hp-call-analysis",
+        url: "http://10.0.0.50:4567",
+        mesh: Igniter::Cluster::Mesh
+      )
+
+      blocked = workspace.detach_ignite_target(
+        report: joined,
+        target_id: "hp-call-analysis",
+        mesh: Igniter::Cluster::Mesh,
+        metadata: { reason: "operator detach" },
+        session_factory: ->(host:, user:, key:, port:) { failing_session_class.new(host: host, user: user, key: key, port: port) }
+      )
+      entry = blocked.entries.first
+
+      expect(blocked).to be_blocked
+      expect(entry).to include(
+        target_id: "hp-call-analysis",
+        status: :blocked,
+        action: :remote_detach_failed
+      )
+      expect(entry.fetch(:decommission_error)).to include("remote stop failed")
+      expect(Igniter::Cluster::Mesh.config.peer_registry.peer_named("hp-call-analysis")).not_to be_nil
+      expect(Igniter::Cluster::Mesh.config.trust_store.known?("hp-call-analysis")).to be(true)
+    end
+  end
+
+  it "keeps a joined remote ignition target active when shutdown verification never acknowledges detach" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          servers:
+            - target: config/ssh_hp.yml
+              name: hp-call-analysis
+      YAML
+      File.write(File.join(tmp, "config", "ssh_hp.yml"), <<~YAML)
+        host: 10.0.0.50
+        user: deploy
+        target_path: /srv/igniter/spark-crm
+        shutdown_timeout: 0
+      YAML
+
+      bootstrap_session_class = Class.new do
+        def initialize(host:, user:, key:, port:) = nil
+
+        def test_connection
+          true
+        end
+      end
+
+      unverified_session_class = Class.new do
+        class << self
+          attr_reader :commands, :verifications
+
+          def reset!
+            @commands = []
+            @verifications = []
+          end
+        end
+
+        def initialize(host:, user:, key:, port:) = nil
+
+        def test_connection
+          true
+        end
+
+        def exec!(command)
+          self.class.commands << command
+          true
+        end
+
+        def exec(command)
+          self.class.verifications << command
+          { success: false, stdout: "", stderr: "still running", exit_code: 1 }
+        end
+      end
+      unverified_session_class.reset!
+
+      noop_bootstrapper = Class.new do
+        def install(session:, manifest:, env:, target_path:) = nil
+
+        def start(session:, manifest:, target_path:) = nil
+
+        def verify(session:, target_path:)
+          true
+        end
+      end.new
+
+      Igniter::Cluster::Mesh.configure do |c|
+        c.peer_name = "seed-node"
+        c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(require_approval: true)
+      end
+
+      workspace = build_workspace(root: tmp)
+      admitted = workspace.ignite(
+        mesh: Igniter::Cluster::Mesh,
+        request_admission: true,
+        approve_pending_admission: true,
+        bootstrap_remote: true,
+        session_factory: ->(host:, user:, key:, port:) { bootstrap_session_class.new(host: host, user: user, key: key, port: port) },
+        bootstrapper_factory: ->(_strategy, **_options) { noop_bootstrapper }
+      )
+      joined = workspace.confirm_ignite_join(
+        report: admitted,
+        target_id: "hp-call-analysis",
+        url: "http://10.0.0.50:4567",
+        mesh: Igniter::Cluster::Mesh
+      )
+
+      blocked = workspace.detach_ignite_target(
+        report: joined,
+        target_id: "hp-call-analysis",
+        mesh: Igniter::Cluster::Mesh,
+        metadata: { reason: "operator detach" },
+        session_factory: ->(host:, user:, key:, port:) { unverified_session_class.new(host: host, user: user, key: key, port: port) }
+      )
+      entry = blocked.entries.first
+
+      expect(blocked).to be_blocked
+      expect(entry).to include(
+        target_id: "hp-call-analysis",
+        status: :blocked,
+        action: :remote_detach_failed
+      )
+      expect(entry.fetch(:decommission_error)).to include("remote shutdown verification failed")
+      expect(entry.fetch(:detach)).to include(reason: "operator detach", acknowledged: false)
+      expect(unverified_session_class.commands.last).to include("igniter.pid")
+      expect(unverified_session_class.verifications.last).to include("pgrep -f /srv/igniter/spark-crm")
+      expect(Igniter::Cluster::Mesh.config.peer_registry.peer_named("hp-call-analysis")).not_to be_nil
+      expect(Igniter::Cluster::Mesh.config.trust_store.known?("hp-call-analysis")).to be(true)
+    end
+  end
+
+  it "can tear down a joined remote ignition target and remove cluster trust" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          servers:
+            - target: config/ssh_hp.yml
+              name: hp-call-analysis
+              capabilities:
+                - call_analysis
+      YAML
+      File.write(File.join(tmp, "config", "ssh_hp.yml"), <<~YAML)
+        host: 10.0.0.50
+        user: deploy
+        target_path: /srv/igniter/spark-crm
+      YAML
+
+      fake_session_class = Class.new do
+        class << self
+          attr_reader :commands, :verifications
+
+          def reset!
+            @commands = []
+            @verifications = []
+          end
+        end
+
+        def initialize(host:, user:, key:, port:) = nil
+
+        def test_connection
+          true
+        end
+
+        def exec!(command)
+          self.class.commands << command
+          true
+        end
+
+        def exec(command)
+          self.class.verifications << command
+          { success: true, stdout: "", stderr: "", exit_code: 0 }
+        end
+      end
+      fake_session_class.reset!
+
+      noop_bootstrapper = Class.new do
+        def install(session:, manifest:, env:, target_path:) = nil
+
+        def start(session:, manifest:, target_path:) = nil
+
+        def verify(session:, target_path:)
+          true
+        end
+      end.new
+
+      Igniter::Cluster::Mesh.configure do |c|
+        c.peer_name = "seed-node"
+        c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(require_approval: true)
+      end
+
+      workspace = build_workspace(root: tmp)
+      admitted = workspace.ignite(
+        mesh: Igniter::Cluster::Mesh,
+        request_admission: true,
+        approve_pending_admission: true,
+        bootstrap_remote: true,
+        session_factory: ->(host:, user:, key:, port:) { fake_session_class.new(host: host, user: user, key: key, port: port) },
+        bootstrapper_factory: ->(_strategy, **_options) { noop_bootstrapper }
+      )
+      joined = workspace.confirm_ignite_join(
+        report: admitted,
+        target_id: "hp-call-analysis",
+        url: "http://10.0.0.50:4567",
+        mesh: Igniter::Cluster::Mesh
+      )
+
+      torn_down = workspace.teardown_ignite_target(
+        report: joined,
+        target_id: "hp-call-analysis",
+        mesh: Igniter::Cluster::Mesh,
+        metadata: { reason: "retire host" },
+        session_factory: ->(host:, user:, key:, port:) { fake_session_class.new(host: host, user: user, key: key, port: port) }
+      )
+      entry = torn_down.entries.first
+
+      expect(torn_down).to be_torn_down
+      expect(entry).to include(
+        target_id: "hp-call-analysis",
+        status: :torn_down,
+        action: :remote_torn_down
+      )
+      expect(entry.fetch(:teardown)).to include(reason: "retire host")
+      expect(entry.dig(:teardown, :transport)).to include(
+        host: "10.0.0.50",
+        port: 22,
+        target_path: "/srv/igniter/spark-crm",
+        verified_shutdown: true
+      )
+      expect(entry.dig(:teardown, :acknowledged)).to be(true)
+      expect(fake_session_class.commands.last).to include("rm -rf /srv/igniter/spark-crm")
+      expect(fake_session_class.verifications.last).to include("pgrep -f /srv/igniter/spark-crm")
+      expect(Igniter::Cluster::Mesh.config.peer_registry.peer_named("hp-call-analysis")).to be_nil
+      expect(Igniter::Cluster::Mesh.config.trust_store.known?("hp-call-analysis")).to be(false)
+    end
+  end
+
   it "can route local ignition through the real mesh admission workflow" do
     Dir.mktmpdir do |tmp|
       File.write(File.join(tmp, "stack.yml"), <<~YAML)
@@ -1030,6 +1469,108 @@ RSpec.describe Igniter::Stack do
       expect(peer.metadata.dig(:mesh_ignite, :target_id)).to eq("edge-1")
       expect(peer.metadata[:role_hint]).to eq("analytics-edge")
       expect(trail.fetch(:by_type)).to include(ignite_join_confirmed: 1)
+    end
+  end
+
+  it "can detach a joined ignition target and unregister it from the active mesh" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          replicas:
+            - name: edge-1
+              port: 4568
+              capabilities:
+                - audio_ingest
+      YAML
+
+      Igniter::Cluster::Mesh.configure do |c|
+        c.peer_name = "seed-node"
+        c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(require_approval: true)
+      end
+
+      workspace = build_workspace(root: tmp)
+      admitted = workspace.ignite(
+        mesh: Igniter::Cluster::Mesh,
+        request_admission: true,
+        approve_pending_admission: true
+      )
+      joined = workspace.confirm_ignite_join(
+        report: admitted,
+        target_id: "edge-1",
+        url: "http://127.0.0.1:4568",
+        mesh: Igniter::Cluster::Mesh
+      )
+
+      detached = workspace.detach_ignite_target(
+        report: joined,
+        target_id: "edge-1",
+        mesh: Igniter::Cluster::Mesh,
+        metadata: { reason: "operator detach" }
+      )
+      entry = detached.entries.first
+
+      expect(detached).to be_detached
+      expect(entry).to include(
+        target_id: "edge-1",
+        status: :detached,
+        action: :detached_from_cluster
+      )
+      expect(entry.fetch(:join)).to include(
+        required: false,
+        status: :detached
+      )
+      expect(entry.fetch(:detach)).to include(reason: "operator detach")
+      expect(Igniter::Cluster::Mesh.config.peer_registry.peer_named("edge-1")).to be_nil
+      expect(workspace.ignition_history(limit: 20).fetch(:by_type)).to include(intent_detached: 1)
+    end
+  end
+
+  it "can reignite a detached target through a single-target ignition plan" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          replicas:
+            - name: edge-1
+              port: 4568
+            - name: edge-2
+              port: 4569
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      joined = workspace.confirm_ignite_join(
+        report: workspace.ignite,
+        target_id: "edge-1",
+        url: "http://127.0.0.1:4568"
+      )
+      detached = workspace.detach_ignite_target(report: joined, target_id: "edge-1")
+      reignited = workspace.reignite_target(target_id: "edge-1")
+
+      expect(detached.entries.find { |entry| entry[:target_id] == "edge-1" }).to include(
+        status: :detached,
+        action: :detached_from_cluster
+      )
+      expect(reignited.plan_id).to include(":expand:edge-1:")
+      expect(reignited.entries.size).to eq(1)
+      expect(reignited.entries.first).to include(
+        target_id: "edge-1",
+        status: :prepared,
+        action: :start_local_runtime_unit
+      )
+      expect(reignited.summary).to include(total: 1, local_replicas: 1, remote_targets: 0)
     end
   end
 

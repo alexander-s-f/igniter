@@ -4,7 +4,7 @@ module Igniter
   class App
     module Operator
       class LifecycleContract
-        TERMINAL_STATUSES = %i[resolved dismissed joined failed].freeze
+        TERMINAL_STATUSES = %i[resolved dismissed joined failed torn_down].freeze
 
         attr_reader :record_kind, :status, :combined_state, :default_operation,
                     :allowed_operations, :runtime_completion, :attention_required,

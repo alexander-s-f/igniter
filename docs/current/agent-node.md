@@ -200,6 +200,16 @@ An agent session is the bridge between graph execution and long-lived agent work
 - `last_request` and `last_reply` envelopes
 - session `history`
 - execution and graph identity
+- explicit routed/session ownership semantics:
+  - `ownership`
+  - `owner_url`
+  - `delivery_route`
+- explicit lifecycle semantics:
+  - `lifecycle_state`
+  - `interactive?`
+  - `terminal?`
+  - `continuable?`
+  - `routed?`
 
 That makes pending agent work addressable as a domain object rather than a loose token convention.
 
@@ -233,6 +243,20 @@ The current event model is intentionally small:
 - tool loops now expose higher-level execution signals: `all_tool_calls_resolved?`, `tool_loop_consistent?`, `tool_loop_complete?`, `tool_loop_status`, and `tool_loop_summary`
 
 That keeps the text path easy while allowing stream semantics to grow into tool calls, status events, and artifacts.
+
+Those lifecycle semantics are now also visible through query and operator surfaces instead of staying hidden inside the raw session object:
+
+- `execution.agent_session_query` now supports filters/facets/summary over:
+  - `ownership`
+  - `lifecycle_state`
+  - `interactive`
+  - `terminal`
+  - `continuable`
+  - `routed`
+- store-backed executions now also expose that same read model without a manual restore dance through:
+  - `Contract.agent_session_query_from_store(...)`
+  - `Contract.agent_session_summary_from_store(...)`
+- `App.operator_query(target)` now projects the same session truth into joined operator records, so runtime ownership and operator workflow no longer have to be reasoned about separately
 
 One subtle but important runtime fix also landed under this model: local registry-backed agents now propagate `PendingDependencyError` back to the graph as `pending`. In other words, a local actor that wants to stay open no longer falls through to a reply timeout first.
 
@@ -324,7 +348,8 @@ Continuity model:
 - the server transport now uses those hooks through a server-owned session runtime:
   - initial pending remote deliveries persist `AgentSession` by token in `AgentSessionStore`
   - `/v1/agent-sessions/:token/...` resolves continuation/resume against that stored session
+  - that owner state now sits behind the server runtime store, so remote session ownership can be durable when the server is configured with a durable store
   - the wire format still returns the next session snapshot in the standard agent response shape
-- that means the remote lifecycle seam now exists explicitly, but it is still not forced on every transport before a more durable remote-owned session runtime is ready
+- that means the remote lifecycle seam now exists explicitly, but it is still not forced on every transport even though the first durable remote-owned runtime is now in place for the server transport
 
 See also: [Agents Roadmap](./agents-roadmap.md)

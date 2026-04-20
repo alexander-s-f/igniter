@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "shellwords"
+
 module Igniter
   module Cluster
     module Replication
@@ -24,8 +26,11 @@ module Igniter
 
         def start(session:, manifest:, target_path: "/opt/igniter") # rubocop:disable Lint/UnusedMethodArgument
           log_path = "#{target_path}/igniter.log"
+          pid_path = "#{target_path}/igniter.pid"
           script   = @startup_script || "igniter-stack"
-          session.exec!("nohup #{script} >> #{log_path} 2>&1 &")
+          session.exec!(
+            "sh -lc 'nohup #{script} >> #{Shellwords.escape(log_path)} 2>&1 & echo $! > #{Shellwords.escape(pid_path)}'"
+          )
         end
       end
     end

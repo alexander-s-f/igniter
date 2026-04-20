@@ -135,6 +135,7 @@ module Igniter
           ownership: ownership,
           owner_url: owner_url,
           delivery_route: delivery_route,
+          lifecycle: lifecycle,
           execution_id: execution_id,
           graph: graph
         }.compact
@@ -237,6 +238,59 @@ module Igniter
 
       def remote_owned?
         ownership == :remote
+      end
+
+      def waiting?
+        phase == :waiting
+      end
+
+      def streaming?
+        phase == :streaming
+      end
+
+      def completed?
+        phase == :completed
+      end
+
+      def interactive?
+        reply_mode == :stream
+      end
+
+      def terminal?
+        completed?
+      end
+
+      def continuable?
+        !terminal?
+      end
+
+      def routed?
+        remote_owned? || !delivery_route.empty?
+      end
+
+      def lifecycle_state
+        return :completed if completed?
+        return :streaming if streaming?
+        return :waiting if waiting?
+
+        phase
+      end
+
+      def lifecycle
+        {
+          state: lifecycle_state,
+          ownership: ownership,
+          owner_url: owner_url,
+          routed: routed?,
+          interactive: interactive?,
+          terminal: terminal?,
+          continuable: continuable?,
+          tool_loop_status: tool_loop_status,
+          waiting_on: waiting_on,
+          turn: turn,
+          mode: mode,
+          reply_mode: reply_mode
+        }.compact.freeze
       end
 
       def chunks

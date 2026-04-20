@@ -414,6 +414,53 @@ module Igniter
         agent&.stop(timeout: 1)
       end
 
+      def detach_ignite_target(report:, target_id:, mesh: nil, metadata: {}, timeout: 5, persist: true, session_factory: nil, decommission_timeout: 30)
+        agent = Igniter::Ignite::IgnitionAgent.start
+        updated = agent.call(
+          :detach,
+          {
+            report: report,
+            target_id: target_id,
+            mesh: mesh,
+            metadata: metadata,
+            root_dir: @root_dir,
+            session_factory: session_factory,
+            decommission_timeout: decommission_timeout
+          },
+          timeout: timeout
+        )
+        persist_ignition_report!(updated, source: :detach) if persist
+        updated
+      ensure
+        agent&.stop(timeout: 1)
+      end
+
+      def teardown_ignite_target(report:, target_id:, mesh: nil, metadata: {}, timeout: 5, persist: true, session_factory: nil, decommission_timeout: 30)
+        agent = Igniter::Ignite::IgnitionAgent.start
+        updated = agent.call(
+          :teardown,
+          {
+            report: report,
+            target_id: target_id,
+            mesh: mesh,
+            metadata: metadata,
+            root_dir: @root_dir,
+            session_factory: session_factory,
+            decommission_timeout: decommission_timeout
+          },
+          timeout: timeout
+        )
+        persist_ignition_report!(updated, source: :teardown) if persist
+        updated
+      ensure
+        agent&.stop(timeout: 1)
+      end
+
+      def reignite_target(target_id:, timeout: 5, persist: true, **options)
+        plan = ignition_plan_for_target(target_id, mode: :expand)
+        ignite(plan: plan, timeout: timeout, persist: persist, **options)
+      end
+
       def ignition_trail
         @ignition_trail ||= Igniter::Ignite::Trail.new(store: ignition_store)
       end
@@ -1459,6 +1506,25 @@ module Igniter
         Igniter::Ignite::Stores::FileStore.new(
           path: resolve_path(File.join("var", "ignite", "#{stack_slug}.ndjson")),
           archive_path: resolve_path(File.join("var", "ignite", "#{stack_slug}.archive.ndjson"))
+        )
+      end
+
+      def ignition_plan_for_target(target_id, mode: :expand)
+        target = target_id.to_s
+        base_plan = ignition_plan
+        intent = base_plan.intents.find { |candidate| candidate.target.id == target }
+        raise KeyError, "Unknown ignition target #{target.inspect}" unless intent
+
+        Igniter::Ignite::IgnitionPlan.new(
+          id: "#{base_plan.id}:#{mode}:#{target}:#{Time.now.utc.strftime('%Y%m%d%H%M%S%6N')}",
+          ignite_mode: mode,
+          strategy: base_plan.strategy,
+          approval_mode: base_plan.approval_mode,
+          intents: [intent],
+          requested_by: base_plan.requested_by,
+          requested_from: base_plan.requested_from,
+          seed_node: base_plan.seed_node,
+          metadata: base_plan.metadata.merge("lifecycle_operation" => mode.to_s, "target_id" => target)
         )
       end
 

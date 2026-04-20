@@ -27,12 +27,29 @@ Current implementation status:
 - ignite handling now also goes through the shared `Igniter::App::Operator` layer (`Policy`, `HandlerResult`, `Handlers::Base`, `Handlers::IgniteHandler`) instead of a one-off branch in `App`, which makes convergence with orchestration more structural than cosmetic
 - operator dispatch is now also explicit through `Igniter::App::Operator::Dispatcher` and `HandlerRegistry`, so ignite is chosen through the same canonical dispatch surface as orchestration records instead of special branching in `App.handle_operator_item`
 - operator records now also carry explicit `record_kind` and a shared `lifecycle` contract (`status`, `combined_state`, `default_operation`, `allowed_operations`, `runtime_completion`, `actionable`, `terminal`, `history_count`), so mounted API/UI and handler dispatch can rely on one canonical schema instead of inferring lifecycle from scattered fields
+- the first post-bootstrap lifecycle slice is now landed too:
+  - `Stack#detach_ignite_target(...)`
+  - `Stack#reignite_target(...)`
+  - `Stack#teardown_ignite_target(...)`
+  - durable `detached` and `torn_down` lifecycle states in `IgnitionReport`
+  - operator-side `detach`, `teardown`, and `reignite` handling through the unified operator surface
+  - remote `ssh_server` targets now use explicit decommission transport for `detach` / `teardown`
+    with a first acknowledged contract: optional drain, stop, and shutdown verification
+  - `detach` now removes active cluster presence without removing trust
+  - `teardown` now removes active cluster presence and trust together
 
 This means the current `ignite` line has crossed an important boundary:
 
 - `ignite` is no longer only a config/specification draft
 - it is now also a real execution surface with lifecycle, persistence, diagnostics, and operator handling
 - the remaining work is mostly about hardening and convergence, not about inventing the basic shape
+
+The next practical `ignite` step is no longer bootstrap-only.
+It is the broader deployment lifecycle:
+
+- `detach`
+- `re-ignite`
+- `teardown`
 
 It is a specification draft, not a frozen public API.
 
@@ -205,6 +222,108 @@ At the moment, the landed ignition lifecycle already covers:
 - diagnostics and unified operator visibility
 - mounted operator actions for common ignition lifecycle transitions
 - app-facing generic operator verbs and audit dimensions that align more closely with orchestration records
+
+What is still intentionally incomplete is the deeper transport and shutdown behavior after a peer has already been brought up:
+
+- richer remote decommission behavior beyond the first drain/stop/verify shutdown contract
+- stronger semantics around cluster-side offboarding beyond peer-registry removal plus trust-store removal
+- richer retry/re-ignite policy for more complex multi-target ignition plans
+
+## Next Lifecycle Extension
+
+The next `ignite` slice should extend the lifecycle beyond bootstrap/join into:
+
+1. `detach`
+2. `re-ignite`
+3. `teardown`
+
+These should be treated as first-class deployment lifecycle operations, not as ad-hoc shell side-effects.
+
+### `detach`
+
+Intent:
+
+- take a known node out of active cluster participation
+- preserve the fact that the node existed and had prior ignition history
+- make the operator and audit surfaces reflect that the node is intentionally no longer attached
+
+Expected semantics:
+
+- cluster/operator surfaces should stop treating the target as actively joined
+- durable ignition history should append a new lifecycle event rather than overwriting prior bootstrap/join facts
+- this should be approval-aware for non-local targets
+- the operation may be graceful-first, but the important part is the lifecycle truth, not the exact shutdown transport
+
+### `re-ignite`
+
+Intent:
+
+- bring a previously known target back through the ignition workflow
+- reuse an existing target identity where appropriate
+- preserve previous history while clearly marking the new ignition attempt as a new lifecycle pass
+
+Expected semantics:
+
+- a detached or failed target should be able to move back into planning/bootstrap/admission/join
+- the ignition trail should show that this is another ignition attempt, not a brand new unrelated target unless identity has truly changed
+- operator actions should be able to trigger this through the same canonical surface rather than through separate bootstrap-only APIs
+
+### `teardown`
+
+Intent:
+
+- explicitly decommission a target
+- make that choice terminal in the deployment lifecycle unless a new target is later introduced
+
+Expected semantics:
+
+- the target should become terminal from the operator point of view
+- trail/history should retain the full prior lifecycle
+- teardown should be clearly distinct from `detach`
+  - `detach` means "not currently attached"
+  - `teardown` means "intentionally removed/decommissioned"
+- remote teardown should be approval-sensitive by default
+
+## Proposed Operator Language
+
+The mounted operator surface should keep speaking the unified operator language where possible.
+
+That means the likely operator-facing verbs are still:
+
+- `complete`
+- `approve`
+- `retry`
+- `dismiss`
+
+But the `ignite` execution layer should grow more explicit lifecycle operations underneath them, for example:
+
+- `detach`
+- `reignite`
+- `teardown`
+
+As with earlier ignite convergence work, we should keep separating:
+
+- operator-facing action language
+- lifecycle meaning
+- deployment execution operation
+
+That keeps UI/API/operator semantics stable even if the underlying deployment operation set grows.
+
+## Minimal First Implementation Slice
+
+The first implementation slice should stay narrow:
+
+1. durable lifecycle states and trail events for `detached` and `torn_down`
+2. operator actions for `detach` and `re-ignite`
+3. stack-facing APIs that can transition a known ignition target into those states
+4. only after that, real remote shutdown/decommission transport behavior
+
+The important principle is:
+
+- lifecycle truth first
+- transport completeness second
+
+That mirrors the earlier ignition work, where planning/reporting/operator shape landed before the full remote bootstrap and join automation became mature.
 
 ## Two Main Scenarios
 

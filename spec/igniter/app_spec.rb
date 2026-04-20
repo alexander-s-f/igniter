@@ -3186,6 +3186,12 @@ RSpec.describe Igniter::App do
         )
       )
       expect(query.with_session.phase(:streaming, :waiting).to_a.map { |entry| entry[:node] }).to contain_exactly(:interactive_summary, :approval)
+      expect(query.with_session.ownership(:local).count).to eq(2)
+      expect(query.with_session.session_lifecycle_state(:streaming, :waiting).to_a.map { |entry| entry[:node] }).to contain_exactly(:interactive_summary, :approval)
+      expect(query.with_session.interactive.to_a).to contain_exactly(
+        include(node: :interactive_summary, ownership: :local, session_lifecycle_state: :streaming, routed: false)
+      )
+      expect(query.with_session.continuable.count).to eq(2)
       expect(query.latest_action_actor("ops:alice").to_a).to contain_exactly(
         include(node: :interactive_summary, latest_action_actor: "ops:alice")
       )
@@ -3198,7 +3204,7 @@ RSpec.describe Igniter::App do
         :approval
       )
       expect(query.facet(:combined_state)).to eq(joined: 2, inbox_only: 1)
-      expect(query.facets(:lane, :phase, :latest_action_actor)).to eq(
+      expect(query.facets(:lane, :phase, :latest_action_actor, :ownership, :session_lifecycle_state)).to eq(
         lane: {
           manual_completions: 1,
           ops_review: 1
@@ -3211,6 +3217,13 @@ RSpec.describe Igniter::App do
           "ops:alice" => 1,
           "ops:manual" => 1,
           "ops:triage" => 1
+        },
+        ownership: {
+          local: 2
+        },
+        session_lifecycle_state: {
+          streaming: 1,
+          waiting: 1
         }
       )
       expect(query.summary).to include(
@@ -3237,7 +3250,13 @@ RSpec.describe Igniter::App do
         },
         by_latest_action_source: {
           orchestration_handler: 3
-        }
+        },
+        by_ownership: { local: 2 },
+        by_session_lifecycle_state: { streaming: 1, waiting: 1 },
+        interactive: 1,
+        terminal: 0,
+        continuable: 2,
+        routed: 0
       )
       expect(query.summary[:by_phase]).to eq(streaming: 2, waiting: 1)
       expect(query.order_by(:latest_action_actor, direction: :asc).first[:node]).to eq(:interactive_summary)
@@ -3252,6 +3271,18 @@ RSpec.describe Igniter::App do
           node: :interactive_summary,
           record_kind: :orchestration,
           combined_state: :joined,
+          ownership: :local,
+          session_lifecycle_state: :streaming,
+          interactive: true,
+          continuable: true,
+          routed: false,
+          session_lifecycle: include(
+            state: :streaming,
+            ownership: :local,
+            interactive: true,
+            continuable: true,
+            routed: false
+          ),
           lifecycle: include(
             record_kind: :orchestration,
             combined_state: :joined,
@@ -3501,7 +3532,7 @@ RSpec.describe Igniter::App do
               status: :prepared,
               combined_state: :ignition,
               default_operation: :retry,
-              allowed_operations: %i[retry dismiss],
+              allowed_operations: %i[retry detach teardown dismiss],
               runtime_completion: :external,
               actionable: true,
               terminal: false
@@ -3662,7 +3693,7 @@ RSpec.describe Igniter::App do
             "policy" => include(
               "name" => "ignite_bootstrap",
               "default_operation" => "retry",
-              "allowed_operations" => ["retry", "dismiss"]
+              "allowed_operations" => ["retry", "detach", "teardown", "dismiss"]
             ),
             "ignition_timeline" => include(
               include(
@@ -3848,12 +3879,160 @@ RSpec.describe Igniter::App do
             policy: include(
               name: :ignite_bootstrap,
               default_operation: :retry,
-              allowed_operations: %i[retry dismiss],
+              allowed_operations: %i[retry detach teardown dismiss],
               operation_aliases: { retry_bootstrap: :retry },
               default_routing: { queue: "ignite" },
               runtime_completion: :external
             )
           )
+        )
+      end
+    end
+
+    it "supports detach and reignite through the unified operator surface for ignition records" do
+      stack_class = Class.new(Igniter::Stack)
+
+      Dir.mktmpdir do |tmp|
+        File.write(File.join(tmp, "stack.yml"), <<~YAML)
+          stack:
+            name: operator_ignite_lifecycle_actions
+            root_app: main
+          server:
+            host: 0.0.0.0
+            port: 4567
+          ignite:
+            approval: auto
+            replicas:
+              - name: edge-1
+                port: 4568
+        YAML
+
+        app = stub_const("SpecIgniteLifecycleOperatorVerbApp", Class.new(Igniter::App))
+        app.class_eval do
+          root_dir tmp
+        end
+
+        stack_class.root_dir(tmp)
+        stack_class.app :main, path: "apps/main", klass: app, default: true
+
+        joined = stack_class.confirm_ignite_join(
+          report: stack_class.ignite,
+          target_id: "edge-1",
+          url: "http://127.0.0.1:4568"
+        )
+
+        expect(joined).to be_joined
+
+        detached = app.detach_operator_item(
+          "ignite:edge-1",
+          note: "take edge-1 out of the active cluster",
+          audit: {
+            source: :operator_console,
+            actor: "alex",
+            origin: "operator_surface",
+            actor_channel: "/operator"
+          }
+        )
+
+        expect(detached).to include(
+          id: "ignite:edge-1",
+          handled_operation: :detach,
+          handled_lifecycle_operation: :dismiss,
+          handled_execution_operation: :detach,
+          handled_policy: :ignite_join,
+          report_status: :detached,
+          status: :detached
+        )
+
+        reignited = app.reignite_operator_item(
+          "ignite:edge-1",
+          note: "bring edge-1 back through ignition",
+          audit: {
+            source: :operator_console,
+            actor: "alex",
+            origin: "operator_surface",
+            actor_channel: "/operator"
+          }
+        )
+
+        expect(reignited).to include(
+          id: "ignite:edge-1",
+          handled_operation: :retry,
+          handled_lifecycle_operation: :retry,
+          handled_execution_operation: :reignite,
+          handled_policy: :ignite_detached,
+          report_status: :prepared,
+          status: :prepared
+        )
+
+        overview = app.operator_overview(filters: { id: "ignite:edge-1" })
+
+        expect(overview[:records]).to contain_exactly(
+          include(
+            id: "ignite:edge-1",
+            status: :prepared,
+            policy: include(
+              name: :ignite_bootstrap,
+              allowed_operations: %i[retry detach teardown dismiss]
+            )
+          )
+        )
+      end
+    end
+
+    it "supports teardown through the unified operator surface for ignition records" do
+      stack_class = Class.new(Igniter::Stack)
+
+      Dir.mktmpdir do |tmp|
+        File.write(File.join(tmp, "stack.yml"), <<~YAML)
+          stack:
+            name: operator_ignite_teardown_actions
+            root_app: main
+          server:
+            host: 0.0.0.0
+            port: 4567
+          ignite:
+            approval: auto
+            replicas:
+              - name: edge-1
+                port: 4568
+        YAML
+
+        app = stub_const("SpecIgniteTeardownOperatorVerbApp", Class.new(Igniter::App))
+        app.class_eval do
+          root_dir tmp
+        end
+
+        stack_class.root_dir(tmp)
+        stack_class.app :main, path: "apps/main", klass: app, default: true
+
+        joined = stack_class.confirm_ignite_join(
+          report: stack_class.ignite,
+          target_id: "edge-1",
+          url: "http://127.0.0.1:4568"
+        )
+
+        expect(joined).to be_joined
+
+        torn_down = app.teardown_operator_item(
+          "ignite:edge-1",
+          note: "retire edge-1 permanently",
+          audit: {
+            source: :operator_console,
+            actor: "alex",
+            origin: "operator_surface",
+            actor_channel: "/operator"
+          }
+        )
+
+        expect(torn_down).to include(
+          id: "ignite:edge-1",
+          handled_operation: :teardown,
+          handled_lifecycle_operation: :dismiss,
+          handled_execution_operation: :teardown,
+          handled_policy: :ignite_join,
+          report_status: :torn_down,
+          status: :torn_down
         )
       end
     end

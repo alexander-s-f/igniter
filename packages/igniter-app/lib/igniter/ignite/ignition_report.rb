@@ -36,6 +36,14 @@ module Igniter
         status == :joined
       end
 
+      def detached?
+        status == :detached
+      end
+
+      def torn_down?
+        status == :torn_down
+      end
+
       def blocked?
         status == :blocked
       end

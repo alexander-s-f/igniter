@@ -41,6 +41,14 @@ module Igniter
         restore(snapshot, store: resolved_store)
       end
 
+      def agent_session_query_from_store(execution_id, store: nil)
+        restore_from_store(execution_id, store: store).execution.agent_session_query
+      end
+
+      def agent_session_summary_from_store(execution_id, store: nil)
+        agent_session_query_from_store(execution_id, store: store).summary
+      end
+
       def resume_from_store(execution_id, token:, value:, store: nil)
         Runtime::JobWorker.new(self, store: store || Igniter.execution_store).resume(
           execution_id: execution_id,

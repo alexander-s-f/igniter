@@ -8,10 +8,12 @@ module Igniter
       ORDERABLE_DIMENSIONS = %i[
         node_name agent_name message_name mode reply_mode waiting_on source_node
         turn phase tool_loop_status interaction attention_required reason resumable
+        ownership lifecycle_state
       ].freeze
       FACETABLE_DIMENSIONS = %i[
         node_name agent_name message_name mode reply_mode waiting_on source_node
         phase tool_loop_status interaction attention_required reason resumable
+        ownership lifecycle_state interactive terminal continuable routed
       ].freeze
 
       def initialize(sessions, execution: nil)
@@ -76,6 +78,36 @@ module Igniter
       def tool_loop_status(*statuses)
         normalized = statuses.map(&:to_sym)
         add_filter { |session| normalized.include?(session.tool_loop_status) }
+      end
+
+      def ownership(*values)
+        normalized = values.map(&:to_sym)
+        add_filter { |session| normalized.include?(session.ownership) }
+      end
+
+      def lifecycle_state(*states)
+        normalized = states.map(&:to_sym)
+        add_filter { |session| normalized.include?(session.lifecycle_state) }
+      end
+
+      def interactive(value = true)
+        expected = !!value
+        add_filter { |session| session.interactive? == expected }
+      end
+
+      def terminal(value = true)
+        expected = !!value
+        add_filter { |session| session.terminal? == expected }
+      end
+
+      def continuable(value = true)
+        expected = !!value
+        add_filter { |session| session.continuable? == expected }
+      end
+
+      def routed(value = true)
+        expected = !!value
+        add_filter { |session| session.routed? == expected }
       end
 
       def interaction(*interactions)
@@ -178,9 +210,15 @@ module Igniter
           by_mode: facet(:mode),
           by_reply_mode: facet(:reply_mode),
           by_phase: facet(:phase),
+          by_ownership: facet(:ownership),
+          by_lifecycle_state: facet(:lifecycle_state),
           by_tool_loop_status: facet(:tool_loop_status),
           by_interaction: facet(:interaction),
           by_reason: facet(:reason),
+          interactive: interactive.count,
+          terminal: terminal.count,
+          continuable: continuable.count,
+          routed: routed.count,
           attention_required: attention_required.count,
           resumable: resumable.count
         }.freeze
@@ -256,6 +294,12 @@ module Igniter
         when :turn then session.turn
         when :phase then session.phase
         when :tool_loop_status then session.tool_loop_status
+        when :ownership then session.ownership
+        when :lifecycle_state then session.lifecycle_state
+        when :interactive then session.interactive?
+        when :terminal then session.terminal?
+        when :continuable then session.continuable?
+        when :routed then session.routed?
         when :interaction then metadata[:interaction]
         when :attention_required then metadata[:attention_required]
         when :reason then metadata[:reason]

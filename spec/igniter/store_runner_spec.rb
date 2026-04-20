@@ -205,6 +205,89 @@ RSpec.describe "Igniter store-backed execution" do
     expect(Igniter.execution_store.exist?(execution_id)).to eq(false)
   end
 
+  it "exposes remote-owned agent session query and summary directly from store" do
+    trace = pending_agent_trace.merge(
+      route: {
+        routing_mode: :static,
+        remote: true,
+        url: "http://agents:4567"
+      }
+    )
+
+    agent_adapter = Class.new do
+      define_method(:call) do |node:, **|
+        {
+          status: :pending,
+          payload: { queue: :review },
+          agent_trace: trace,
+          session: {
+            node_name: node.name,
+            node_path: node.path,
+            agent_name: node.agent_name,
+            message_name: node.message_name,
+            mode: node.mode,
+            reply_mode: node.reply_mode,
+            waiting_on: node.name,
+            source_node: node.name,
+            trace: trace,
+            ownership: :remote,
+            owner_url: "http://agents:4567",
+            delivery_route: { routing_mode: :static, remote: true, url: "http://agents:4567" }
+          }
+        }
+      end
+
+      define_method(:cast) do |**|
+        raise "unexpected cast"
+      end
+    end.new
+
+    contract_class = Class.new(Igniter::Contract) do
+      run_with runner: :store, agent_adapter: agent_adapter
+
+      define do
+        input :name
+        agent :approval, via: :reviewer, message: :review, inputs: { name: :name }
+        output :approval
+      end
+    end
+
+    original = contract_class.new(name: "Alice")
+    original.result.approval
+    execution_id = original.execution.events.execution_id
+
+    query = contract_class.agent_session_query_from_store(execution_id)
+    session = query.first
+
+    expect(session).to have_attributes(
+      token: session.token,
+      ownership: :remote,
+      owner_url: "http://agents:4567",
+      reply_mode: :deferred,
+      phase: :waiting
+    )
+    expect(session.delivery_route).to include(routing_mode: :static, remote: true, url: "http://agents:4567")
+    expect(session.lifecycle).to include(
+      state: :waiting,
+      ownership: :remote,
+      routed: true,
+      interactive: false,
+      terminal: false,
+      continuable: true
+    )
+    expect(query.ownership(:remote).lifecycle_state(:waiting).routed.count).to eq(1)
+
+    expect(contract_class.agent_session_summary_from_store(execution_id)).to include(
+      total: 1,
+      by_ownership: { remote: 1 },
+      by_lifecycle_state: { waiting: 1 },
+      interactive: 0,
+      terminal: 0,
+      continuable: 1,
+      routed: 1
+    )
+  end
+
   it "restores streaming agent results with accumulated chunks from store" do
     trace = pending_agent_trace.merge(outcome: :streaming)
     agent_adapter = Class.new do

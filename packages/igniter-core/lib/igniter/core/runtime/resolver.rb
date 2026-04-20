@@ -675,7 +675,8 @@ module Igniter
 
         if raw_session.respond_to?(:to_h) || raw_session.is_a?(Hash)
           session_hash = raw_session.respond_to?(:to_h) ? raw_session.to_h : raw_session
-          return default_session.to_h.merge(session_hash.transform_keys(&:to_sym))
+          merged = default_session.to_h.merge(session_hash.transform_keys(&:to_sym))
+          return Runtime::AgentSession.from_h(merged).to_h
         end
 
         default_session.to_h

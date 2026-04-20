@@ -172,6 +172,118 @@ module Igniter
         )
       end
 
+      on :detach do |payload:, **|
+        report = payload.fetch(:report)
+        target_id = payload.fetch(:target_id).to_s
+        mesh = payload[:mesh]
+        metadata = normalize_metadata(payload[:metadata] || {})
+        root_dir = payload[:root_dir]
+        session_factory = payload[:session_factory]
+        decommission_timeout = payload[:decommission_timeout] || 30
+        now = Time.now.utc.iso8601
+
+        raise ArgumentError, "ignite detach requires an Igniter::Ignite::IgnitionReport" unless report.is_a?(IgnitionReport)
+
+        updated_entries = report.entries.map do |entry|
+          next entry unless entry.fetch(:target_id).to_s == target_id
+
+          detach_entry(
+            entry,
+            report: report,
+            mesh: mesh,
+            metadata: metadata,
+            root_dir: root_dir,
+            session_factory: session_factory,
+            decommission_timeout: decommission_timeout,
+            timestamp: now
+          )
+        end
+
+        raise KeyError, "Unknown ignition target #{target_id.inspect}" if updated_entries.none? { |entry| entry.fetch(:target_id).to_s == target_id }
+
+        summary = build_summary(updated_entries)
+        events = report.events + [
+          {
+            type: :intent_detached,
+            plan_id: report.plan_id,
+            target_id: target_id,
+            timestamp: now
+          },
+          {
+            type: :ignition_reconciled,
+            plan_id: report.plan_id,
+            status: overall_status_for_summary(summary),
+            timestamp: now
+          }
+        ]
+
+        IgnitionReport.new(
+          plan_id: report.plan_id,
+          status: overall_status_for_summary(summary),
+          strategy: report.strategy,
+          approval_mode: report.approval_mode,
+          entries: updated_entries,
+          events: events,
+          summary: summary
+        )
+      end
+
+      on :teardown do |payload:, **|
+        report = payload.fetch(:report)
+        target_id = payload.fetch(:target_id).to_s
+        mesh = payload[:mesh]
+        metadata = normalize_metadata(payload[:metadata] || {})
+        root_dir = payload[:root_dir]
+        session_factory = payload[:session_factory]
+        decommission_timeout = payload[:decommission_timeout] || 30
+        now = Time.now.utc.iso8601
+
+        raise ArgumentError, "ignite teardown requires an Igniter::Ignite::IgnitionReport" unless report.is_a?(IgnitionReport)
+
+        updated_entries = report.entries.map do |entry|
+          next entry unless entry.fetch(:target_id).to_s == target_id
+
+          teardown_entry(
+            entry,
+            report: report,
+            mesh: mesh,
+            metadata: metadata,
+            root_dir: root_dir,
+            session_factory: session_factory,
+            decommission_timeout: decommission_timeout,
+            timestamp: now
+          )
+        end
+
+        raise KeyError, "Unknown ignition target #{target_id.inspect}" if updated_entries.none? { |entry| entry.fetch(:target_id).to_s == target_id }
+
+        summary = build_summary(updated_entries)
+        events = report.events + [
+          {
+            type: :intent_torn_down,
+            plan_id: report.plan_id,
+            target_id: target_id,
+            timestamp: now
+          },
+          {
+            type: :ignition_reconciled,
+            plan_id: report.plan_id,
+            status: overall_status_for_summary(summary),
+            timestamp: now
+          }
+        ]
+
+        IgnitionReport.new(
+          plan_id: report.plan_id,
+          status: overall_status_for_summary(summary),
+          strategy: report.strategy,
+          approval_mode: report.approval_mode,
+          entries: updated_entries,
+          events: events,
+          summary: summary
+        )
+      end
+
       class << self
         private
 
@@ -462,6 +574,8 @@ module Igniter
           return :admitted if summary.fetch(:by_status, {}).fetch(:admitted, 0).positive?
           return :prepared if summary.fetch(:by_status, {}).fetch(:prepared, 0).positive?
           return :joined if summary.fetch(:by_status, {}).fetch(:joined, 0).positive?
+          return :detached if summary.fetch(:by_status, {}).fetch(:detached, 0).positive?
+          return :torn_down if summary.fetch(:by_status, {}).fetch(:torn_down, 0).positive?
 
           :prepared
         end
@@ -662,6 +776,7 @@ module Igniter
 
         def reconcile_entry_from_mesh(entry, mesh:, timestamp:)
           return entry unless mesh
+          return entry if %i[detached torn_down].include?(entry.fetch(:status).to_sym)
           return entry if entry.fetch(:status).to_sym == :joined
 
           peer_name = entry.dig(:join, :peer_name) || entry.fetch(:target_id).to_s
@@ -696,6 +811,126 @@ module Igniter
             timestamp: timestamp
           }
           updated_entry
+        end
+
+        def detach_entry(entry, report:, mesh:, metadata:, root_dir:, session_factory:, decommission_timeout:, timestamp:)
+          updated_entry = deep_dup(entry)
+
+          if updated_entry.fetch(:kind).to_sym == :ssh_server
+            decommission_result = apply_remote_decommission!(
+              updated_entry,
+              mode: :detach,
+              root_dir: root_dir,
+              session_factory: session_factory,
+              timeout: decommission_timeout
+            )
+            return blocked_decommission_entry(updated_entry, metadata: metadata, decommission_result: decommission_result, timestamp: timestamp) if decommission_result.status == :blocked
+
+            updated_entry[:action] = decommission_result.action if decommission_result.action
+            updated_entry[:transport] = deep_dup(decommission_result.transport) if decommission_result.transport
+            updated_entry[:decommission_acknowledged] = decommission_result.acknowledged
+          end
+
+          unregister_ignite_peer!(
+            mesh: mesh,
+            report: report,
+            entry: updated_entry,
+            event_type: :ignite_detached,
+            metadata: metadata,
+            remove_trust: false
+          )
+
+          updated_entry[:status] = :detached
+          updated_entry[:action] = :detached_from_cluster unless updated_entry[:action] == :remote_detached
+          updated_entry[:detached_at] = timestamp
+          updated_entry[:detach] = {
+            detached_at: timestamp,
+            reason: metadata[:reason],
+            transport: updated_entry[:transport],
+            acknowledged: updated_entry[:decommission_acknowledged]
+          }.compact
+          updated_entry[:join] = deep_dup(updated_entry[:join] || {}).merge(
+            required: false,
+            status: :detached,
+            detached_at: timestamp
+          )
+          updated_entry
+        end
+
+        def teardown_entry(entry, report:, mesh:, metadata:, root_dir:, session_factory:, decommission_timeout:, timestamp:)
+          updated_entry = deep_dup(entry)
+
+          if updated_entry.fetch(:kind).to_sym == :ssh_server
+            decommission_result = apply_remote_decommission!(
+              updated_entry,
+              mode: :teardown,
+              root_dir: root_dir,
+              session_factory: session_factory,
+              timeout: decommission_timeout
+            )
+            return blocked_decommission_entry(updated_entry, metadata: metadata, decommission_result: decommission_result, timestamp: timestamp) if decommission_result.status == :blocked
+
+            updated_entry[:action] = decommission_result.action if decommission_result.action
+            updated_entry[:transport] = deep_dup(decommission_result.transport) if decommission_result.transport
+            updated_entry[:decommission_acknowledged] = decommission_result.acknowledged
+          end
+
+          unregister_ignite_peer!(
+            mesh: mesh,
+            report: report,
+            entry: updated_entry,
+            event_type: :ignite_torn_down,
+            metadata: metadata,
+            remove_trust: true
+          )
+
+          updated_entry[:status] = :torn_down
+          updated_entry[:action] = :torn_down unless updated_entry[:action] == :remote_torn_down
+          updated_entry[:detached_at] = timestamp
+          updated_entry[:torn_down_at] = timestamp
+          updated_entry[:detach] = {
+            detached_at: timestamp,
+            reason: metadata[:reason],
+            transport: updated_entry[:transport],
+            acknowledged: updated_entry[:decommission_acknowledged]
+          }.compact
+          updated_entry[:teardown] = {
+            torn_down_at: timestamp,
+            reason: metadata[:reason],
+            transport: updated_entry[:transport],
+            acknowledged: updated_entry[:decommission_acknowledged]
+          }.compact
+          updated_entry[:join] = deep_dup(updated_entry[:join] || {}).merge(
+            required: false,
+            status: :torn_down,
+            detached_at: timestamp,
+            torn_down_at: timestamp
+          )
+
+          updated_entry
+        end
+
+        def unregister_ignite_peer!(mesh:, report:, entry:, event_type:, metadata:, remove_trust:)
+          return unless mesh
+
+          target_id = entry.fetch(:target_id).to_s
+          node_id = entry.dig(:join, :node_id) || entry.dig(:admission_request, :node_id) || target_id
+          peer_name = entry.dig(:join, :peer_name) || target_id
+          mesh.config.peer_registry.unregister(peer_name)
+          mesh.config.trust_store&.remove(node_id) if remove_trust
+          mesh.config.governance_trail&.record(
+            event_type,
+            source: :ignition_agent,
+            payload: {
+              plan_id: report.plan_id,
+              intent_id: entry.fetch(:intent_id),
+              target_id: target_id,
+              peer_name: peer_name,
+              node_id: node_id,
+              trust_removed: remove_trust,
+              metadata: metadata
+            }.compact
+          )
         end
 
         def deep_dup(value)
@@ -737,6 +972,38 @@ module Igniter
           updated_entry
         ensure
           agent&.stop(timeout: 1)
+        end
+
+        def apply_remote_decommission!(entry, mode:, root_dir:, session_factory:, timeout:)
+          agent = Igniter::Ignite::BootstrapAgent.start
+          agent.call(
+            mode,
+            {
+              entry: entry,
+              root_dir: root_dir,
+              session_factory: session_factory
+            },
+            timeout: timeout
+          )
+        ensure
+          agent&.stop(timeout: 1)
+        end
+
+        def blocked_decommission_entry(entry, metadata:, decommission_result:, timestamp:)
+          updated_entry = deep_dup(entry)
+          updated_entry[:status] = :blocked
+          updated_entry[:action] = decommission_result.action
+          updated_entry[:decommission_error] = decommission_result.error if decommission_result.error
+          updated_entry[:transport] = deep_dup(decommission_result.transport) if decommission_result.transport
+          updated_entry[:decommission_acknowledged] = decommission_result.acknowledged
+          updated_entry[:detach] = {
+            attempted_at: timestamp,
+            reason: metadata[:reason],
+            transport: updated_entry[:transport],
+            acknowledged: updated_entry[:decommission_acknowledged],
+            error: decommission_result.error
+          }.compact
+          updated_entry
         end
       end
     end

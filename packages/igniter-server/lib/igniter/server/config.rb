@@ -14,7 +14,7 @@ module Igniter
         @host              = "0.0.0.0"
         @port              = 4567
         @store             = Igniter::Runtime::Stores::MemoryStore.new
-        @agent_session_store = Igniter::Server::AgentSessionStore.new
+        @agent_session_store = Igniter::Server::AgentSessionStore.new(store: -> { @store })
         @registry          = Registry.new
         @logger            = nil
         @metrics_collector = nil

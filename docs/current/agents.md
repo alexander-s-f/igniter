@@ -105,6 +105,7 @@ Even in that narrow form, agents are no longer opaque:
 - the server transport now declares that support and uses a real owner-driven remote session protocol:
   - initial pending remote calls persist their session in `AgentSessionStore`
   - continuation and resume resolve by token against that server-owned store
+  - that owner state now lives behind the server's configured runtime store, so remote session ownership becomes durable when the server store is durable
   - the wire format still carries full `AgentSession` snapshots, but the remote owner is now the source of truth once the session is opened
 
 ## Near-Term Direction
@@ -124,6 +125,12 @@ The current session model is intentionally simple but now explicit:
 - an `agent` node may stay pending across multiple turns
 - each continuation updates `turn`, `history`, `payload`, and `agent_trace`
 - sessions now also keep `phase`, `messages`, `last_request`, and `last_reply`
+- sessions now also expose an explicit lifecycle contract instead of only ad hoc booleans:
+  - `lifecycle_state`
+  - `interactive?`
+  - `terminal?`
+  - `continuable?`
+  - `routed?`
 - sessions now also carry explicit routed ownership metadata when delivery is remote:
   - `ownership`
   - `owner_url`
@@ -138,6 +145,27 @@ The current session model is intentionally simple but now explicit:
 - store-backed runners persist and restore that lifecycle instead of treating the session as caller-owned state
 - routed sessions may now opt into adapter-owned continuation/resume handling through the new session lifecycle hooks, while still falling back to the existing graph-owned continuity model by default
 - the first concrete transport that uses that seam is now `Igniter::Server::AgentTransport`, which handles remote continuation/resume over `/v1/agent-sessions/:token/...`
+- on the server side those continuation/resume calls now resolve against stored owner state by token, rather than relying only on the caller to resend the current session snapshot every turn
+- the runtime query plane now also treats those routed/session semantics as first-class dimensions:
+  - `ownership`
+  - `lifecycle_state`
+  - `interactive`
+  - `terminal`
+  - `continuable`
+  - `routed`
+- the same query truth is now also available directly from durable store-backed executions through:
+  - `Contract.agent_session_query_from_store(execution_id, ...)`
+  - `Contract.agent_session_summary_from_store(execution_id, ...)`
+- store-backed pending agent snapshots now also normalize their embedded session lifecycle from the merged routed ownership/session fields, so persisted `lifecycle` truth stays aligned with `ownership`, `owner_url`, and `delivery_route`
+- app operator records now also project the same session truth into the joined operator plane through fields like:
+  - `session_lifecycle_state`
+  - `ownership`
+  - `owner_url`
+  - `delivery_route`
+  - `interactive`
+  - `terminal`
+  - `continuable`
+  - `routed`
 
 This is the first step toward making agents a durable execution concept inside Igniter rather than a thin adapter callback.
 

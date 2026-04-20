@@ -567,6 +567,18 @@ module Igniter
         handle_operator_item(id, operation: :retry_bootstrap, note: note, audit: audit)
       end
 
+      def detach_operator_item(id, note: nil, audit: nil)
+        handle_operator_item(id, operation: :detach, note: note, audit: audit)
+      end
+
+      def reignite_operator_item(id, note: nil, audit: nil)
+        handle_operator_item(id, operation: :reignite, note: note, audit: audit)
+      end
+
+      def teardown_operator_item(id, note: nil, audit: nil)
+        handle_operator_item(id, operation: :teardown, note: note, audit: audit)
+      end
+
       def reconcile_operator_item(id, note: nil, audit: nil)
         handle_operator_item(id, operation: :reconcile_join, note: note, audit: audit)
       end
@@ -1163,8 +1175,16 @@ module Igniter
           action_history: action_history,
           token: session&.token || item&.dig(:token),
           phase: session&.phase || item&.dig(:phase),
+          session_lifecycle_state: session&.lifecycle_state,
           reply_mode: session&.reply_mode || item&.dig(:reply_mode),
           mode: session&.mode,
+          ownership: session&.ownership,
+          owner_url: session&.owner_url,
+          delivery_route: session&.delivery_route,
+          interactive: session ? session.interactive? : false,
+          terminal: session ? session.terminal? : false,
+          continuable: session ? session.continuable? : false,
+          routed: session ? session.routed? : false,
           waiting_on: session&.waiting_on || item&.dig(:waiting_on),
           source_node: session&.source_node || item&.dig(:source_node),
           turn: session&.turn || item&.dig(:turn),
@@ -1177,6 +1197,7 @@ module Igniter
           lifecycle: lifecycle,
           has_session: !session.nil?,
           has_inbox_item: !item.nil?,
+          session_lifecycle: session&.lifecycle,
           session: session&.to_h,
           inbox_item: item&.dup
         }.freeze
@@ -1284,16 +1305,22 @@ module Igniter
           case status
           when :awaiting_approval, :awaiting_admission_approval
             %i[approve dismiss]
+          when :detached
+            %i[retry teardown dismiss]
+          when :torn_down
+            %i[dismiss]
           when :bootstrapped, :awaiting_join, :joined
-            %i[complete dismiss]
+            %i[complete detach teardown dismiss]
           else
-            %i[retry dismiss]
+            %i[retry detach teardown dismiss]
           end
 
         operation_aliases =
           case status
           when :awaiting_approval, :awaiting_admission_approval
             {}.freeze
+          when :detached
+            { retry_bootstrap: :retry, reignite: :retry }.freeze
           when :bootstrapped, :awaiting_join, :joined
             { reconcile_join: :complete }.freeze
           else
@@ -1304,20 +1331,28 @@ module Igniter
           case status
           when :awaiting_approval, :awaiting_admission_approval
             { approve: :resolve, dismiss: :dismiss }.freeze
+          when :detached
+            { retry: :retry, teardown: :dismiss, dismiss: :dismiss }.freeze
+          when :torn_down
+            { dismiss: :dismiss }.freeze
           when :bootstrapped, :awaiting_join, :joined
-            { complete: :resolve, dismiss: :dismiss }.freeze
+            { complete: :resolve, detach: :dismiss, teardown: :dismiss, dismiss: :dismiss }.freeze
           else
-            { retry: :retry, dismiss: :dismiss }.freeze
+            { retry: :retry, detach: :dismiss, teardown: :dismiss, dismiss: :dismiss }.freeze
           end
 
         execution_operations =
           case status
           when :awaiting_approval, :awaiting_admission_approval
             { approve: :approve, dismiss: :dismiss }.freeze
+          when :detached
+            { retry: :reignite, teardown: :teardown, dismiss: :dismiss }.freeze
+          when :torn_down
+            { dismiss: :dismiss }.freeze
           when :bootstrapped, :awaiting_join, :joined
-            { complete: :reconcile_join, dismiss: :dismiss }.freeze
+            { complete: :reconcile_join, detach: :detach, teardown: :teardown, dismiss: :dismiss }.freeze
           else
-            { retry: :retry_bootstrap, dismiss: :dismiss }.freeze
+            { retry: :retry_bootstrap, detach: :detach, teardown: :teardown, dismiss: :dismiss }.freeze
           end
 
         Igniter::App::Operator::Policy.new(
@@ -1338,6 +1373,10 @@ module Igniter
         case status
         when :awaiting_approval, :awaiting_admission_approval
           :ignite_approval
+        when :detached
+          :ignite_detached
+        when :torn_down
+          :ignite_torn_down
         when :bootstrapped, :awaiting_join, :joined
           :ignite_join
         else
@@ -1351,6 +1390,8 @@ module Igniter
           :approval_required
         when :joined
           :complete
+        when :torn_down
+          :complete
         else
           :external
         end
@@ -1360,12 +1401,16 @@ module Igniter
         case status
         when :awaiting_approval, :awaiting_admission_approval
           "ignite target is waiting for explicit approval before bootstrap can continue"
+        when :detached
+          "ignite target is detached from the active cluster and can be ignited again"
+        when :torn_down
+          "ignite target was intentionally torn down and remains as terminal lifecycle history"
         when :joined
-          "ignite target completed bootstrap and joined the cluster"
+          "ignite target completed bootstrap, joined the cluster, and may now be detached"
         when :bootstrapped, :awaiting_join
-          "ignite target finished bootstrap and is waiting for runtime join confirmation"
+          "ignite target finished bootstrap, is waiting for runtime join confirmation, and may be detached"
         when :prepared, :admitted
-          "ignite target is prepared for runtime start and join confirmation"
+          "ignite target is prepared for runtime start and join confirmation, and may be detached"
         when :deferred, :blocked, :failed
           "ignite target is in bootstrap lifecycle and may need retry or dismissal"
         else
@@ -1388,7 +1433,7 @@ module Igniter
       end
 
       def ignite_resumable?(payload)
-        %i[awaiting_approval awaiting_admission_approval deferred awaiting_join bootstrapped prepared admitted].include?(payload[:status]&.to_sym)
+        %i[awaiting_approval awaiting_admission_approval deferred awaiting_join bootstrapped prepared admitted detached].include?(payload[:status]&.to_sym)
       end
 
       def ignite_waiting_on_for(payload)
@@ -1407,6 +1452,10 @@ module Igniter
           "Awaiting ignition approval"
         when :deferred
           "Remote bootstrap is pending"
+        when :detached
+          "Ignition target is detached and can be ignited again"
+        when :torn_down
+          "Ignition target was torn down"
         when :bootstrapped, :awaiting_join
           "Waiting for runtime join confirmation"
         when :joined

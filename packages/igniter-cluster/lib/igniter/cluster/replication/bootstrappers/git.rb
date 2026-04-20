@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "shellwords"
+
 module Igniter
   module Cluster
     module Replication
@@ -31,8 +33,11 @@ module Igniter
         def start(session:, manifest:, target_path: "/opt/igniter")
           app_path = "#{target_path}/app"
           log_path = "#{target_path}/igniter.log"
+          pid_path = "#{target_path}/igniter.pid"
           cmd      = manifest.startup_command
-          session.exec!("cd #{app_path} && nohup ruby #{cmd} >> #{log_path} 2>&1 &")
+          session.exec!(
+            "sh -lc 'cd #{Shellwords.escape(app_path)} && nohup ruby #{cmd} >> #{Shellwords.escape(log_path)} 2>&1 & echo $! > #{Shellwords.escape(pid_path)}'"
+          )
         end
       end
     end

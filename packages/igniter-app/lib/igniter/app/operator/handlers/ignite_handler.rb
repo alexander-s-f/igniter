@@ -35,7 +35,8 @@ module Igniter
               app_class,
               payload,
               action_resolution.fetch(:handled_execution_operation),
-              action_resolution.fetch(:handled_operation)
+              action_resolution.fetch(:handled_operation),
+              note: note
             )
 
             build_result(
@@ -55,7 +56,7 @@ module Igniter
 
           private
 
-          def execute_operation(app_class, payload, execution_operation, handled_operation)
+          def execute_operation(app_class, payload, execution_operation, handled_operation, note: nil)
             stack = app_class.send(:stack_context_for!)
 
             case execution_operation
@@ -63,6 +64,31 @@ module Igniter
               stack.latest_ignition_report
             when :approve, :retry_bootstrap
               stack.ignite(**app_class.send(:ignite_operator_options, payload, operation: handled_operation))
+            when :detach
+              report = stack.latest_ignition_report
+              raise ArgumentError, "no persisted ignition report is available for detach" unless report
+
+              stack.detach_ignite_target(
+                report: report,
+                target_id: payload.fetch(:target_id),
+                mesh: app_class.send(:default_ignite_mesh),
+                metadata: { reason: note }.compact
+              )
+            when :teardown
+              report = stack.latest_ignition_report
+              raise ArgumentError, "no persisted ignition report is available for teardown" unless report
+
+              stack.teardown_ignite_target(
+                report: report,
+                target_id: payload.fetch(:target_id),
+                mesh: app_class.send(:default_ignite_mesh),
+                metadata: { reason: note }.compact
+              )
+            when :reignite
+              stack.reignite_target(
+                target_id: payload.fetch(:target_id),
+                **app_class.send(:ignite_operator_options, payload, operation: handled_operation)
+              )
             when :reconcile_join
               report = stack.latest_ignition_report
               raise ArgumentError, "no persisted ignition report is available for reconcile" unless report

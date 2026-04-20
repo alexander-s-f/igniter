@@ -10,13 +10,15 @@ module Igniter
           id record_kind action node status interaction reason attention_required resumable
           assignee queue channel phase reply_mode mode tool_loop_status
           latest_action_actor latest_action_origin latest_action_source
+          ownership session_lifecycle_state
           handoff_count combined_state
         ].freeze
         FACETABLE_DIMENSIONS = %i[
           id record_kind status action node interaction reason attention_required resumable
           assignee queue channel phase reply_mode mode tool_loop_status
           policy lane combined_state latest_action_actor latest_action_origin
-          latest_action_source
+          latest_action_source ownership session_lifecycle_state
+          interactive terminal continuable routed
         ].freeze
 
         def initialize(records)
@@ -171,6 +173,36 @@ module Igniter
           add_filter { |record| normalized.include?(record[:tool_loop_status]) }
         end
 
+        def ownership(*values)
+          normalized = values.map(&:to_sym)
+          add_filter { |record| normalized.include?(record[:ownership]) }
+        end
+
+        def session_lifecycle_state(*states)
+          normalized = states.map(&:to_sym)
+          add_filter { |record| normalized.include?(record[:session_lifecycle_state]) }
+        end
+
+        def interactive(value = true)
+          expected = !!value
+          add_filter { |record| record[:interactive] == expected }
+        end
+
+        def terminal(value = true)
+          expected = !!value
+          add_filter { |record| record[:terminal] == expected }
+        end
+
+        def continuable(value = true)
+          expected = !!value
+          add_filter { |record| record[:continuable] == expected }
+        end
+
+        def routed(value = true)
+          expected = !!value
+          add_filter { |record| record[:routed] == expected }
+        end
+
         def with_session(value = true)
           expected = !!value
           add_filter { |record| record[:has_session] == expected }
@@ -294,8 +326,14 @@ module Igniter
             by_reason: facet(:reason),
             by_phase: facet(:phase),
             by_reply_mode: facet(:reply_mode),
+            by_ownership: facet(:ownership),
+            by_session_lifecycle_state: facet(:session_lifecycle_state),
             by_tool_loop_status: facet(:tool_loop_status),
             by_combined_state: facet(:combined_state),
+            interactive: interactive.count,
+            terminal: terminal.count,
+            continuable: continuable.count,
+            routed: routed.count,
             attention_required: attention_required.count,
             resumable: resumable.count
           }.freeze
