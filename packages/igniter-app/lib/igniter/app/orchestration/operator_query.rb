@@ -10,7 +10,7 @@ module Igniter
           id record_kind action node status interaction reason attention_required resumable
           assignee queue channel phase reply_mode mode tool_loop_status
           latest_action_actor latest_action_origin latest_action_source
-          ownership session_lifecycle_state
+          ownership session_lifecycle_state routing_mode session_policy tool_loop_policy finalizer
           handoff_count combined_state
         ].freeze
         FACETABLE_DIMENSIONS = %i[
@@ -18,6 +18,7 @@ module Igniter
           assignee queue channel phase reply_mode mode tool_loop_status
           policy lane combined_state latest_action_actor latest_action_origin
           latest_action_source ownership session_lifecycle_state
+          routing_mode session_policy tool_loop_policy finalizer
           interactive terminal continuable routed
         ].freeze
 
@@ -178,6 +179,26 @@ module Igniter
           add_filter { |record| normalized.include?(record[:ownership]) }
         end
 
+        def routing_mode(*values)
+          normalized = values.map(&:to_sym)
+          add_filter { |record| normalized.include?(record[:routing_mode]) }
+        end
+
+        def session_policy(*values)
+          normalized = values.map(&:to_sym)
+          add_filter { |record| normalized.include?(record[:session_policy]) }
+        end
+
+        def tool_loop_policy(*values)
+          normalized = values.map(&:to_sym)
+          add_filter { |record| normalized.include?(record[:tool_loop_policy]) }
+        end
+
+        def finalizer(*values)
+          normalized = values.map(&:to_sym)
+          add_filter { |record| normalized.include?(record[:finalizer]) }
+        end
+
         def session_lifecycle_state(*states)
           normalized = states.map(&:to_sym)
           add_filter { |record| normalized.include?(record[:session_lifecycle_state]) }
@@ -327,7 +348,11 @@ module Igniter
             by_phase: facet(:phase),
             by_reply_mode: facet(:reply_mode),
             by_ownership: facet(:ownership),
+            by_routing_mode: facet(:routing_mode),
             by_session_lifecycle_state: facet(:session_lifecycle_state),
+            by_session_policy: facet(:session_policy),
+            by_tool_loop_policy: facet(:tool_loop_policy),
+            by_finalizer: facet(:finalizer),
             by_tool_loop_status: facet(:tool_loop_status),
             by_combined_state: facet(:combined_state),
             interactive: interactive.count,

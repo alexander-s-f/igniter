@@ -2000,13 +2000,82 @@ RSpec.describe Igniter::App do
           by_runtime_status: {
             pending_session: 3
           },
+          by_runtime_state: {
+            streaming: 2,
+            awaiting_reply: 1
+          },
+          by_runtime_state_class: {
+            session: 3
+          },
           by_inbox_status: {
             acknowledged: 1,
             open: 2
           }
         ),
+        results: include(
+          terminal_records: 0,
+          completed_runtime_records: 0,
+          failed_runtime_records: 0,
+          latest_records: include(
+            include(
+              node: :interactive_summary,
+              runtime_status: :pending_session,
+              runtime_state: :streaming,
+              runtime_state_class: :session,
+              inbox_status: :acknowledged,
+              latest_event: :acknowledged,
+              latest_event_class: :operator,
+              latest_lifecycle_operation: :acknowledge
+            ),
+            include(
+              node: :manual_summary,
+              runtime_status: :pending_session,
+              inbox_status: :open,
+              latest_event: :opened,
+              latest_event_class: :operator
+            ),
+            include(
+              node: :approval,
+              runtime_status: :pending_session,
+              inbox_status: :open,
+              latest_event: :opened,
+              latest_event_class: :operator
+            )
+          )
+        ),
+        events: include(
+          summary: include(
+            total: 10,
+            runtime_events: 6,
+            operator_events: 4,
+            by_event_class: { runtime: 6, operator: 4 },
+            by_lifecycle_operation: { acknowledge: 1 },
+            latest_event: include(node: :approval, event: :opened, event_class: :operator)
+          ),
+          recent_events: include(
+            include(node: :interactive_summary, event_class: :operator, event: :acknowledged, lifecycle_operation: :acknowledge),
+            include(node: :approval, event_class: :operator, event: :opened)
+          )
+        ),
         records: include(
-          include(node: :interactive_summary, runtime_status: :pending_session, inbox_status: :acknowledged),
+          include(
+            node: :interactive_summary,
+            runtime_status: :pending_session,
+            runtime_state: :streaming,
+            runtime_state_class: :session,
+            inbox_status: :acknowledged,
+            event_summary: include(
+              total: 4,
+              runtime_events: 2,
+              operator_events: 2,
+              by_lifecycle_operation: { acknowledge: 1 }
+            ),
+            latest_event: include(node: :interactive_summary, event_class: :operator, event: :acknowledged, lifecycle_operation: :acknowledge),
+            combined_timeline: include(
+              include(source: :runtime, event_class: :runtime, node: :interactive_summary),
+              include(source: :inbox, event_class: :operator, node: :interactive_summary, lifecycle_operation: :acknowledge)
+            )
+          ),
           include(node: :manual_summary, runtime_status: :pending_session, inbox_status: :open),
           include(node: :approval, runtime_status: :pending_session, inbox_status: :open)
         )
@@ -2040,6 +2109,7 @@ RSpec.describe Igniter::App do
       expect(text).to include("by_queue=deferred-replies=1, interactive-sessions=1, manual-completions=1")
       expect(text).to include("App Orchestration Inbox: total=5, open=2, acknowledged=1, resolved=1, dismissed=1, actionable=3, latest_action=await_deferred_reply, latest_node=approval, latest_policy=deferred_reply, latest_lane=deferred_replies, latest_assignee=none, latest_queue=deferred-replies, latest_channel=inbox://deferred-replies, latest_status=open")
       expect(text).to include("App Orchestration Runtime: total=3, with_session=3, with_inbox_items=3, attention_required=3, resumable=3, interactive_sessions=1, manual_sessions=1, deferred_calls=1")
+      expect(text).to include("Results: terminal_records=0, completed_runtime_records=0, failed_runtime_records=0")
       expect(text).to include("App Operator: total=5, live_sessions=3, inbox_items=5, joined=3, ignite=0, session_only=0, inbox_only=2")
       expect(markdown).to include("## App Orchestration")
       expect(markdown).to include("## App Orchestration Runtime")
@@ -2047,6 +2117,7 @@ RSpec.describe Igniter::App do
       expect(markdown).to include("- Follow-up: total=3, manual_completion=1, deferred_replies=1, interactive_sessions=1, by_policy=deferred_reply=1, interactive_session=1, manual_completion=1, by_lane=deferred_replies=1, interactive_sessions=1, manual_completions=1, by_queue=deferred-replies=1, interactive-sessions=1, manual-completions=1")
       expect(markdown).to include("- Inbox: total=5, open=2, acknowledged=1, resolved=1, dismissed=1, actionable=3, latest_action=await_deferred_reply, latest_node=approval, latest_policy=deferred_reply, latest_lane=deferred_replies, latest_assignee=none, latest_queue=deferred-replies, latest_channel=inbox://deferred-replies, latest_status=open")
       expect(markdown).to include("- Summary: total=3, with_session=3, with_inbox_items=3, attention_required=3, resumable=3, interactive_sessions=1, manual_sessions=1, deferred_calls=1")
+      expect(markdown).to include("- Results: terminal_records=0, completed_runtime_records=0, failed_runtime_records=0")
       expect(markdown).to include("runtime=`pending_session`")
       expect(markdown).to include("state=`joined`")
       expect(markdown).to include("state=`inbox_only`")
@@ -2141,6 +2212,35 @@ RSpec.describe Igniter::App do
         status: :resolved,
         runtime_resumed: true,
         resolved_graph: "AnonymousContract",
+        orchestration_runtime_status: :completed,
+        orchestration_runtime_latest_transition: include(
+          state: :completed,
+          state_class: :terminal,
+          event: :node_resumed
+        ),
+        orchestration_runtime_result: include(
+          node: :manual_summary,
+          runtime_status: :completed,
+          runtime_state: :completed,
+          runtime_state_class: :terminal,
+          inbox_status: :resolved,
+          terminal: true,
+          latest_runtime_transition: include(state: :completed, state_class: :terminal, event: :node_resumed),
+          latest_event: include(source: :inbox, event_class: :operator, event: :resolved, lifecycle_operation: :resolve)
+        ),
+        orchestration_runtime_latest_event: include(
+          source: :inbox,
+          event_class: :operator,
+          event: :resolved,
+          lifecycle_operation: :resolve
+        ),
+        orchestration_runtime_record: include(
+          node: :manual_summary,
+          runtime_status: :completed,
+          inbox_status: :resolved,
+          combined_timeline: include(include(source: :inbox, event_class: :operator, event: :resolved))
+        ),
+        orchestration_runtime_summary: include(total: 2),
         note: "completed in app"
       )
       expect(resolved_approval).to include(
@@ -2148,6 +2248,35 @@ RSpec.describe Igniter::App do
         status: :resolved,
         runtime_resumed: true,
         resolved_graph: "AnonymousContract",
+        orchestration_runtime_status: :completed,
+        orchestration_runtime_latest_transition: include(
+          state: :completed,
+          state_class: :terminal,
+          event: :node_resumed
+        ),
+        orchestration_runtime_result: include(
+          node: :approval,
+          runtime_status: :completed,
+          runtime_state: :completed,
+          runtime_state_class: :terminal,
+          inbox_status: :resolved,
+          terminal: true,
+          latest_runtime_transition: include(state: :completed, state_class: :terminal, event: :node_resumed),
+          latest_event: include(source: :inbox, event_class: :operator, event: :resolved, lifecycle_operation: :resolve)
+        ),
+        orchestration_runtime_latest_event: include(
+          source: :inbox,
+          event_class: :operator,
+          event: :resolved,
+          lifecycle_operation: :resolve
+        ),
+        orchestration_runtime_record: include(
+          node: :approval,
+          runtime_status: :completed,
+          inbox_status: :resolved,
+          combined_timeline: include(include(source: :inbox, event_class: :operator, event: :resolved))
+        ),
+        orchestration_runtime_summary: include(total: 1),
         note: "reply received"
       )
 
@@ -2388,6 +2517,35 @@ RSpec.describe Igniter::App do
         resolved_execution_id: execution_id,
         resolved_graph: "AnonymousContract",
         resumed_node: :approval,
+        orchestration_runtime_status: :completed,
+        orchestration_runtime_latest_transition: include(
+          state: :completed,
+          state_class: :terminal,
+          event: :node_resumed
+        ),
+        orchestration_runtime_result: include(
+          node: :approval,
+          runtime_status: :completed,
+          runtime_state: :completed,
+          runtime_state_class: :terminal,
+          inbox_status: :resolved,
+          terminal: true,
+          latest_runtime_transition: include(state: :completed, state_class: :terminal, event: :node_resumed),
+          latest_event: include(source: :inbox, event_class: :operator, event: :resolved, lifecycle_operation: :resolve)
+        ),
+        orchestration_runtime_latest_event: include(
+          source: :inbox,
+          event_class: :operator,
+          event: :resolved,
+          lifecycle_operation: :resolve
+        ),
+        orchestration_runtime_record: include(
+          node: :approval,
+          runtime_status: :completed,
+          inbox_status: :resolved,
+          combined_timeline: include(include(source: :inbox, event_class: :operator, event: :resolved))
+        ),
+        orchestration_runtime_summary: include(total: 0),
         note: "resumed from store"
       )
       expect(Igniter.execution_store.exist?(execution_id)).to eq(false)
@@ -3308,10 +3466,39 @@ RSpec.describe Igniter::App do
       )
       expect(app.orchestration_runtime_overview(contract)).to include(
         summary: include(total: 2, with_session: 2, with_inbox_items: 2),
+        transitions: include(
+          query: {
+            filters: {},
+            order_by: :timestamp,
+            direction: :asc,
+            limit: 20
+          },
+          summary: include(
+            total: 4,
+            by_state: { running: 2, streaming: 1, awaiting_reply: 1 },
+            by_state_class: { active: 2, session: 2 }
+          )
+        ),
+        events: include(
+          query: {
+            filters: {},
+            order_by: nil,
+            direction: :asc,
+            limit: 20
+          },
+          summary: include(
+            total: 8,
+            runtime_events: 4,
+            operator_events: 4,
+            by_event_class: { runtime: 4, operator: 4 }
+          )
+        ),
         records: include(
           include(
             node: :interactive_summary,
             inbox_status: :acknowledged,
+            event_summary: include(total: 4, operator_events: 2),
+            latest_event: include(node: :interactive_summary, event_class: :operator, event: :handoff, lifecycle_operation: :acknowledge),
             combined_timeline: include(include(source: :runtime), include(source: :inbox, event: :handoff))
           ),
           include(
@@ -3321,6 +3508,49 @@ RSpec.describe Igniter::App do
           )
         )
       )
+      expect(
+        app.orchestration_runtime_event_overview(
+          contract,
+          filters: {
+            event_class: :operator,
+            node: :interactive_summary
+          },
+          order_by: :timestamp,
+          direction: :asc,
+          limit: 3
+        )
+      ).to include(
+        query: {
+          filters: {
+            event_class: :operator,
+            node: :interactive_summary
+          },
+          order_by: :timestamp,
+          direction: :asc,
+          limit: 3
+        },
+        summary: include(
+          total: 2,
+          runtime_events: 0,
+          operator_events: 2,
+          by_event_class: { operator: 2 },
+          by_node: { interactive_summary: 2 },
+          by_lifecycle_operation: { acknowledge: 1 }
+        ),
+        events: contain_exactly(
+          include(node: :interactive_summary, event_class: :operator, event: :opened),
+          include(node: :interactive_summary, event_class: :operator, event: :handoff, lifecycle_operation: :acknowledge)
+        )
+      )
+      expect(
+        app.orchestration_runtime_event_summary(
+          contract,
+          filters: {
+            event_class: :operator,
+            node: :interactive_summary
+          }
+        )
+      ).to include(total: 2, operator_events: 2)
       expect(app.operator_overview(contract)).to include(
         app: "SpecUnifiedOperatorQueryApp",
         query: include(limit: 20),
@@ -3340,6 +3570,19 @@ RSpec.describe Igniter::App do
               dismissed: 1
             }
           ),
+          transitions: include(
+            summary: include(
+              total: 4,
+              by_state: { running: 2, streaming: 1, awaiting_reply: 1 }
+            )
+          ),
+          events: include(
+            summary: include(
+              total: 8,
+              runtime_events: 4,
+              operator_events: 4
+            )
+          ),
           records: include(
             include(
               node: :interactive_summary,
@@ -3356,6 +3599,96 @@ RSpec.describe Igniter::App do
               combined_timeline: include(include(source: :runtime), include(source: :inbox, event: :dismissed))
             )
           )
+        ),
+        orchestration_events: include(
+          query: {
+            filters: {},
+            order_by: nil,
+            direction: :asc,
+            limit: 20
+          },
+          summary: include(
+            total: 8,
+            runtime_events: 4,
+            operator_events: 4
+          )
+        ),
+        orchestration_transitions: include(
+          query: {
+            filters: {},
+            order_by: :timestamp,
+            direction: :asc,
+            limit: 20
+          },
+          summary: include(
+            total: 4,
+            by_state: { running: 2, streaming: 1, awaiting_reply: 1 }
+          )
+        )
+      )
+      expect(
+        app.operator_overview(
+          contract,
+          event_filters: {
+            event_class: :operator,
+            node: :approval
+          },
+          event_order_by: :timestamp,
+          event_direction: :asc,
+          event_limit: 2
+        )
+      ).to include(
+        orchestration_events: include(
+          query: {
+            filters: {
+              event_class: :operator,
+              node: :approval
+            },
+            order_by: :timestamp,
+            direction: :asc,
+            limit: 2
+          },
+          summary: include(
+            total: 2,
+            operator_events: 2,
+            by_node: { approval: 2 }
+          )
+        )
+      )
+      expect(
+        app.operator_overview(
+          contract,
+          filters: {
+            id: "agent_orchestration:open_interactive_session:interactive_summary"
+          },
+          event_filters: {
+            event_class: :operator
+          },
+          event_order_by: :timestamp,
+          event_direction: :asc,
+          event_limit: 2
+        )
+      ).to include(
+        record_events: include(
+          id: "agent_orchestration:open_interactive_session:interactive_summary",
+          node: :interactive_summary,
+          query: {
+            filters: {
+              event_class: :operator
+            },
+            order_by: :timestamp,
+            direction: :asc,
+            limit: 2
+          },
+          summary: include(
+            total: 2,
+            operator_events: 2,
+            by_node: { interactive_summary: 2 }
+          ),
+          events: contain_exactly(
+            include(node: :interactive_summary, event_class: :operator, event: :opened),
+            include(node: :interactive_summary, event_class: :operator, event: :handoff)
+          )
         )
       )
       expect(app.operator_overview(contract)[:records]).to include(
@@ -3366,6 +3699,8 @@ RSpec.describe Igniter::App do
           ownership: :local,
           session_lifecycle_state: :streaming,
           orchestration_inbox_status: :acknowledged,
+          orchestration_event_summary: include(total: 4, operator_events: 2),
+          orchestration_latest_event: include(event_class: :operator, event: :handoff, lifecycle_operation: :acknowledge),
           interactive: true,
           continuable: true,
           routed: false,
@@ -3518,6 +3853,18 @@ RSpec.describe Igniter::App do
       expect(app.orchestration_runtime_summary_for_execution(graph: "AnonymousContract", execution_id: execution_id)).to eq(
         orchestration_runtime[:summary]
       )
+      expect(
+        app.orchestration_runtime_transition_summary_for_execution(
+          graph: "AnonymousContract",
+          execution_id: execution_id
+        )
+      ).to include(total: 2, by_state: { running: 1, awaiting_reply: 1 })
+      expect(
+        app.orchestration_runtime_event_summary_for_execution(
+          graph: "AnonymousContract",
+          execution_id: execution_id
+        )
+      ).to include(total: 3, operator_events: 1, runtime_events: 2)
       expect(orchestration_runtime).to include(
         summary: include(
           total: 1,
@@ -3527,6 +3874,19 @@ RSpec.describe Igniter::App do
           by_runtime_status: { pending_session: 1 },
           by_inbox_status: { open: 1 }
         ),
+        transitions: include(
+          summary: include(
+            total: 2,
+            by_state: { running: 1, awaiting_reply: 1 }
+          )
+        ),
+        events: include(
+          summary: include(
+            total: 3,
+            runtime_events: 2,
+            operator_events: 1
+          )
+        ),
         records: contain_exactly(
           include(
             node: :approval,
@@ -3535,6 +3895,35 @@ RSpec.describe Igniter::App do
             inbox_status: :open,
             combined_timeline: include(include(source: :runtime), include(source: :inbox, event: :opened))
           )
+        )
+      )
+      expect(
+        app.orchestration_runtime_event_overview_for_execution(
+          graph: "AnonymousContract",
+          execution_id: execution_id,
+          filters: {
+            event_class: :operator
+          },
+          order_by: :timestamp,
+          direction: :asc,
+          limit: 1
+        )
+      ).to include(
+        query: {
+          filters: {
+            event_class: :operator
+          },
+          order_by: :timestamp,
+          direction: :asc,
+          limit: 1
+        },
+        summary: include(
+          total: 1,
+          operator_events: 1,
+          runtime_events: 0
+        ),
+        events: contain_exactly(
+          include(node: :approval, event_class: :operator, event: :opened)
         )
       )
       expect(overview[:records]).to contain_exactly(
@@ -3551,7 +3940,7 @@ RSpec.describe Igniter::App do
       router = Igniter::Server::Router.new(config)
       response = router.call(
         "GET",
-        "/api/operator?graph=AnonymousContract&execution_id=#{execution_id}&limit=1",
+        "/api/operator?graph=AnonymousContract&execution_id=#{execution_id}&limit=1&event_event_class=operator&event_node=approval&event_limit=1&event_order_by=timestamp",
         ""
       )
 
@@ -3566,6 +3955,54 @@ RSpec.describe Igniter::App do
         },
         "query" => include(
           "limit" => 1
+        ),
+        "orchestration_transitions" => include(
+          "query" => {
+            "filters" => {},
+            "order_by" => "timestamp",
+            "direction" => "asc",
+            "limit" => 1
+          },
+          "summary" => include(
+            "total" => 2,
+            "by_state" => include("running" => 1, "awaiting_reply" => 1)
+          )
+        ),
+        "orchestration_events" => include(
+          "query" => {
+            "filters" => {
+              "event_class" => ["operator"],
+              "node" => ["approval"]
+            },
+            "order_by" => "timestamp",
+            "direction" => "asc",
+            "limit" => 1
+          },
+          "summary" => include(
+            "total" => 1,
+            "operator_events" => 1,
+            "runtime_events" => 0
+          ),
+          "events" => contain_exactly(
+            include("node" => "approval", "event_class" => "operator", "event" => "opened")
+          )
+        ),
+        "record_events" => include(
+          "id" => "agent_orchestration:await_deferred_reply:approval",
+          "node" => "approval",
+          "query" => {
+            "filters" => {
+              "event_class" => ["operator"],
+              "node" => ["approval"]
+            },
+            "order_by" => "timestamp",
+            "direction" => "asc",
+            "limit" => 1
+          },
+          "summary" => include(
+            "total" => 1,
+            "operator_events" => 1
+          )
         ),
         "summary" => include(
           "total" => 1,
@@ -4289,7 +4726,11 @@ RSpec.describe Igniter::App do
         continuable_sessions: 1,
         routed_sessions: 0,
         by_ownership: { local: 1 },
+        by_routing_mode: { local: 1 },
         by_session_lifecycle_state: { streaming: 1 },
+        by_session_policy: { interactive: 1 },
+        by_tool_loop_policy: { complete: 1 },
+        by_finalizer: { join: 1 },
         by_phase: { streaming: 1 },
         by_reply_mode: { stream: 1 }
       )
@@ -4299,6 +4740,18 @@ RSpec.describe Igniter::App do
           node: :interactive_summary,
           session_lifecycle_state: :streaming,
           ownership: :local,
+          routing_mode: :local,
+          session_policy: :interactive,
+          tool_loop_policy: :complete,
+          finalizer: :join,
+          interaction_contract: include(
+            mode: :call,
+            routing_mode: :local,
+            reply: :stream,
+            finalizer: :join,
+            tool_loop_policy: :complete,
+            session_policy: :interactive
+          ),
           continuable: true,
           routed: false
         )
@@ -4690,6 +5143,48 @@ RSpec.describe Igniter::App do
           "handled_lifecycle_operation" => "resolve",
           "handled_audit_source" => "operator_action_api",
           "runtime_resumed" => true,
+          "orchestration_runtime_status" => "completed",
+          "orchestration_runtime_latest_transition" => include(
+            "state" => "completed",
+            "state_class" => "terminal",
+            "event" => "node_resumed"
+          ),
+          "orchestration_runtime_result" => include(
+            "node" => "approval",
+            "runtime_status" => "completed",
+            "runtime_state" => "completed",
+            "runtime_state_class" => "terminal",
+            "inbox_status" => "resolved",
+            "terminal" => true,
+            "latest_runtime_transition" => include(
+              "state" => "completed",
+              "state_class" => "terminal",
+              "event" => "node_resumed"
+            ),
+            "latest_event" => include(
+              "source" => "inbox",
+              "event_class" => "operator",
+              "event" => "resolved",
+              "lifecycle_operation" => "resolve"
+            )
+          ),
+          "orchestration_runtime_latest_event" => include(
+            "source" => "inbox",
+            "event_class" => "operator",
+            "event" => "resolved",
+            "lifecycle_operation" => "resolve"
+          ),
+          "orchestration_runtime_record" => include(
+            "node" => "approval",
+            "runtime_status" => "completed",
+            "inbox_status" => "resolved",
+            "combined_timeline" => include(include("source" => "inbox", "event_class" => "operator", "event" => "resolved"))
+          ),
+          "orchestration_runtime_summary" => include(
+            "total" => 1,
+            "with_inbox_items" => 1,
+            "by_action" => include("open_interactive_session" => 1)
+          ),
           "status" => "resolved",
           "resolved_execution_id" => execution_id,
           "action_history" => include(
@@ -4717,6 +5212,29 @@ RSpec.describe Igniter::App do
             "source" => "operator_action_api",
             "actor" => "alex",
             "origin" => "dashboard_ui"
+          )
+        ),
+        "orchestration_runtime" => include(
+          "summary" => include("total" => 1),
+          "events" => include(
+            "summary" => include(
+              "total" => 4,
+              "runtime_events" => 2,
+              "operator_events" => 2
+            )
+          ),
+          "results" => include(
+            "terminal_records" => 0,
+            "completed_runtime_records" => 0,
+            "latest_records" => include(
+              include(
+                "node" => "interactive_summary",
+                "runtime_status" => "pending_session",
+                "inbox_status" => "acknowledged",
+                "latest_event_class" => "operator",
+                "latest_lifecycle_operation" => "acknowledge"
+              )
+            )
           )
         )
       )

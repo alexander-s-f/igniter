@@ -45,6 +45,15 @@ RSpec.describe "agent: DSL node" do
       expect(node.finalizer).to be_nil
       expect(node.tool_loop_policy).to be_nil
       expect(node.session_policy).to be_nil
+      expect(node.interaction_contract).to be_a(Igniter::Model::AgentInteractionContract)
+      expect(node.interaction_contract.to_h).to eq(
+        mode: :call,
+        routing_mode: :local,
+        reply: :deferred,
+        finalizer: nil,
+        tool_loop_policy: nil,
+        session_policy: nil
+      )
       expect(contract_class.graph.to_schema[:agents]).to include(
         hash_including(name: :greeting, via: :greeter, message: :greet, inputs: { name: :name }, mode: :call, routing_mode: :local, reply: :deferred, finalizer: nil, tool_loop_policy: nil, session_policy: nil)
       )
@@ -241,6 +250,14 @@ RSpec.describe "agent: DSL node" do
       expect(contract_class.compiled_graph.fetch_node(:custom_summary).finalizer).to eq(:array)
       expect(contract_class.compiled_graph.fetch_node(:custom_summary).tool_loop_policy).to eq(:resolved)
       expect(contract_class.compiled_graph.fetch_node(:custom_summary).session_policy).to eq(:manual)
+      expect(contract_class.compiled_graph.fetch_node(:custom_summary).interaction_contract.to_h).to include(
+        mode: :call,
+        routing_mode: :local,
+        reply: :stream,
+        finalizer: :array,
+        tool_loop_policy: :resolved,
+        session_policy: :manual
+      )
     end
 
     it "raises ValidationError when dependency is not in graph" do

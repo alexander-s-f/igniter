@@ -261,6 +261,7 @@ module Igniter
           payload[:actor_channel] = normalized_audit[:actor_channel] if normalized_audit[:actor_channel]
           payload[:requested_operation] = normalized_audit[:requested_operation] if normalized_audit[:requested_operation]
           payload[:lifecycle_operation] = normalized_audit[:lifecycle_operation] if normalized_audit[:lifecycle_operation]
+          payload[:execution_operation] = normalized_audit[:execution_operation] if normalized_audit[:execution_operation]
           payload[:handler] = normalized_audit[:handler] if normalized_audit[:handler]
           payload[:assignee] = assignee if assignee
           payload[:queue] = queue if queue

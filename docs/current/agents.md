@@ -78,6 +78,9 @@ Even in that narrow form, agents are no longer opaque:
   - `node:` for static remote delivery
   - `capability:` and `query:` for capability-routed delivery
   - `pinned_to:` for explicit peer routing
+- agent node interaction semantics now also live behind one explicit model-level value object:
+  - `Igniter::Model::AgentInteractionContract`
+  - it now owns delivery mode, reply semantics, stream finalization, tool-loop policy, session policy, and routed delivery metadata as one canonical shape
 - core runtime now also exposes a generalized routed-agent seam:
   - `Igniter::Runtime::AgentRoute`
   - `Igniter::Runtime::AgentRouteResolver`
@@ -135,6 +138,12 @@ The current session model is intentionally simple but now explicit:
   - `ownership`
   - `owner_url`
   - `delivery_route`
+- session/runtime surfaces now also project the same canonical agent interaction vocabulary instead of only scattered reply/session/tool-loop fields:
+  - `interaction_contract`
+  - `routing_mode`
+  - `finalizer`
+  - `session_policy`
+  - `tool_loop_policy`
 - `reply: :single` forbids pending delivery
 - `reply: :deferred` preserves the current resumable single-reply lifecycle
 - `reply: :stream` requires session-based delivery and opens a path toward partial replies
@@ -159,11 +168,27 @@ The current session model is intentionally simple but now explicit:
 - orchestration now also has a runtime-owned overview layer instead of living only as planner output and app inbox projection:
   - `Execution#orchestration_overview`
   - `Execution#orchestration_summary`
+  - `Execution#orchestration_transition_query`
+  - `Execution#orchestration_transition_summary`
+  - `Execution#orchestration_transition_overview`
   - `Contract#orchestration_overview`
   - `Contract#orchestration_summary`
   - `Contract.orchestration_overview_from_store(execution_id, ...)`
   - `Contract.orchestration_summary_from_store(execution_id, ...)`
-- that overview carries live runtime records and timeline over orchestration actions, including session-backed fields like `runtime_status`, `session_lifecycle_state`, `ownership`, `turn`, and per-node event history
+  - `Contract.orchestration_transition_overview_from_store(execution_id, ...)`
+  - `Contract.orchestration_transition_summary_from_store(execution_id, ...)`
+- that overview now also carries an explicit orchestration runtime contract, not only ad hoc status strings:
+  - `runtime_status`
+  - `runtime_state`
+  - `runtime_state_class`
+  - `runtime_terminal`
+  - `latest_runtime_transition`
+  - `runtime_transitions`
+- that runtime contract is derived from execution state plus runtime events, so live and store-backed orchestration views can speak one execution-owned vocabulary for session-backed, active, pending, blocked, and terminal states
+- orchestration runtime now also has a first-class transition surface over that contract:
+  - top-level `transitions` overview
+  - filterable/orderable transition query
+  - durable store-backed transition summary/restore path
 - store-backed pending agent snapshots now also normalize their embedded session lifecycle from the merged routed ownership/session fields, so persisted `lifecycle` truth stays aligned with `ownership`, `owner_url`, and `delivery_route`
 - app operator records now also project the same session truth into the joined operator plane through fields like:
   - `session_lifecycle_state`
@@ -182,9 +207,22 @@ The current session model is intentionally simple but now explicit:
 - app now also exposes that merged orchestration runtime truth directly through:
   - `App.orchestration_runtime_overview(target)`
   - `App.orchestration_runtime_summary(target)`
+  - `App.orchestration_runtime_transition_overview(target)`
+  - `App.orchestration_runtime_transition_summary(target)`
   - `App.orchestration_runtime_overview_for_execution(graph:, execution_id:)`
   - `App.orchestration_runtime_summary_for_execution(graph:, execution_id:)`
+- and the same transition surface is now available for restored executions too:
+  - `App.orchestration_runtime_transition_overview_for_execution(...)`
+  - `App.orchestration_runtime_transition_summary_for_execution(...)`
 - diagnostics now also surface that same execution-owned orchestration runtime as `app_orchestration_runtime`, so follow-up workflow visibility is no longer hidden only inside the operator overview payload
+- orchestration resume/resolve results now also carry a post-operation runtime snapshot contract instead of only `runtime_resumed` flags:
+  - `orchestration_runtime_summary`
+  - `orchestration_runtime_record`
+  - `orchestration_runtime_status`
+  - `orchestration_runtime_state`
+  - `orchestration_runtime_state_class`
+  - `orchestration_runtime_timeline`
+- that same contract now comes back from both live and store-backed orchestration resume paths, so app handlers and mounted operator actions no longer have to infer runtime truth from inbox status alone
   - the built-in operator console now round-trips those filters, renders runtime session cards, and shows the same session lifecycle/ownership/timeline fields in record detail
 
 This is the first step toward making agents a durable execution concept inside Igniter rather than a thin adapter callback.

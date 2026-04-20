@@ -97,6 +97,15 @@ RSpec.describe "Igniter module layout" do
     ])
   end
 
+  it "keeps orchestration runtime builders and queries under the canonical app orchestration namespace" do
+    expect(children_for(File.join(APP_LIB, "app", "orchestration"))).to include(
+      "runtime_event_query.rb",
+      "runtime_query_overview_builder.rb",
+      "runtime_overview_builder.rb",
+      "runtime_result_builder.rb"
+    )
+  end
+
   it "keeps server entrypoints inside the local server package" do
     expect(children_for(SERVER_LIB)).to eq(%w[
       server

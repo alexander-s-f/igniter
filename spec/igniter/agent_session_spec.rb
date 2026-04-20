@@ -79,6 +79,14 @@ RSpec.describe "agent sessions" do
     expect(session.messages).to contain_exactly(
       include(turn: 1, kind: :request, name: :review, source: :contract, reply_mode: :deferred, payload: { queue: :review })
     )
+    expect(session.interaction_contract.to_h).to eq(
+      mode: :call,
+      routing_mode: :local,
+      reply: :deferred,
+      finalizer: nil,
+      tool_loop_policy: nil,
+      session_policy: nil
+    )
     expect(session.last_request).to include(
       turn: 1,
       kind: :request,
@@ -259,9 +267,14 @@ RSpec.describe "agent sessions" do
     expect(query.order_by(:node_name, direction: :asc).first.node_name).to eq(:approval)
     expect(query.limit(1).to_a.size).to eq(1)
     expect(query.facet(:reply_mode)).to eq(stream: 1, deferred: 1)
+    expect(query.facet(:routing_mode)).to eq(local: 2)
+    expect(query.facet(:session_policy)).to eq(interactive: 1)
+    expect(query.facet(:tool_loop_policy)).to eq(complete: 1)
+    expect(query.facet(:finalizer)).to eq(join: 1)
     expect(query.facet(:ownership)).to eq(local: 2)
     expect(query.facet(:lifecycle_state)).to eq(streaming: 1, waiting: 1)
     expect(query.facet(:interaction)).to eq(interactive_session: 1, deferred_call: 1)
+    expect(query.routing_mode(:local).session_policy(:interactive).tool_loop_policy(:complete).finalizer(:join).to_a.map(&:node_name)).to eq([:interactive_summary])
     expect(query.interactive.to_a.map(&:node_name)).to eq([:interactive_summary])
     expect(query.continuable.to_a.map(&:node_name)).to contain_exactly(:interactive_summary, :approval)
     expect(query.routed(false).count).to eq(2)
@@ -274,6 +287,10 @@ RSpec.describe "agent sessions" do
       total: 2,
       by_agent: { writer: 1, reviewer: 1 },
       by_reply_mode: { stream: 1, deferred: 1 },
+      by_routing_mode: { local: 2 },
+      by_session_policy: { interactive: 1 },
+      by_tool_loop_policy: { complete: 1 },
+      by_finalizer: { join: 1 },
       by_ownership: { local: 2 },
       by_lifecycle_state: { streaming: 1, waiting: 1 },
       by_interaction: { interactive_session: 1, deferred_call: 1 },
@@ -309,6 +326,15 @@ RSpec.describe "agent sessions" do
     expect(session).to be_remote_owned
     expect(session.owner_url).to eq("http://agents:4567")
     expect(session).to be_routed
+    expect(session.interaction_contract.to_h).to include(
+      mode: :call,
+      routing_mode: :static,
+      reply: :stream,
+      finalizer: :join,
+      tool_loop_policy: :complete,
+      session_policy: :interactive,
+      node: "http://agents:4567"
+    )
     expect(session.lifecycle).to include(
       state: :streaming,
       ownership: :remote,

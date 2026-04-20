@@ -329,6 +329,14 @@ RSpec.describe "Igniter store-backed execution" do
     expect(restored.result.summary).to be_a(Igniter::Runtime::StreamResult)
 
     session = restored.execution.agent_sessions.first
+    expect(session.interaction_contract.to_h).to include(
+      mode: :call,
+      routing_mode: :local,
+      reply: :stream,
+      finalizer: :join,
+      tool_loop_policy: :complete,
+      session_policy: :interactive
+    )
     continued = contract_class.continue_agent_session_from_store(
       execution_id,
       session: session,
@@ -627,6 +635,7 @@ RSpec.describe "Igniter store-backed execution" do
     overview = contract_class.orchestration_overview_from_store(execution_id)
 
     expect(contract_class.orchestration_summary_from_store(execution_id)).to eq(overview[:summary])
+    expect(contract_class.orchestration_transition_summary_from_store(execution_id)).to eq(overview[:transitions][:summary])
     expect(overview[:summary]).to include(
       total: 1,
       attention_required: 1,
@@ -634,8 +643,23 @@ RSpec.describe "Igniter store-backed execution" do
       deferred_calls: 1,
       by_action: { await_deferred_reply: 1 },
       by_runtime_status: { pending_session: 1 },
+      by_runtime_state: { awaiting_reply: 1 },
+      by_runtime_state_class: { session: 1 },
       by_session_lifecycle_state: { waiting: 1 },
       by_ownership: { local: 1 }
+    )
+    expect(overview[:transitions]).to include(
+      summary: include(
+        total: 2,
+        by_node: { approval: 2 },
+        by_action: { await_deferred_reply: 2 },
+        by_state: { running: 1, awaiting_reply: 1 },
+        by_state_class: { active: 1, session: 1 }
+      ),
+      transitions: contain_exactly(
+        include(node: :approval, action: :await_deferred_reply, event: :node_started, state: :running, state_class: :active),
+        include(node: :approval, action: :await_deferred_reply, event: :node_pending, state: :awaiting_reply, state_class: :session)
+      )
     )
     expect(overview[:records]).to contain_exactly(
       include(
@@ -643,6 +667,10 @@ RSpec.describe "Igniter store-backed execution" do
         action: :await_deferred_reply,
         interaction: :deferred_call,
         runtime_status: :pending_session,
+        runtime_state: :awaiting_reply,
+        runtime_state_class: :session,
+        runtime_terminal: false,
+        latest_runtime_transition: include(state: :awaiting_reply, state_class: :session),
         session_lifecycle_state: :waiting,
         ownership: :local,
         waiting_on: :approval

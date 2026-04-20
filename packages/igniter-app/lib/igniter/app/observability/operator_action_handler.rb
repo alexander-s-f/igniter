@@ -40,13 +40,15 @@ module Igniter
           )
 
           record = app_class.operator_query(target || nil, filters: { id: id }).first
+          orchestration_runtime = target ? app_class.orchestration_runtime_overview(target) : nil
 
           json_response(
             200,
             app: app_class.name,
             scope: action_scope(record, item),
             action: result,
-            record: record
+            record: record,
+            orchestration_runtime: orchestration_runtime
           )
         rescue ArgumentError => e
           json_response(400, error: e.message)

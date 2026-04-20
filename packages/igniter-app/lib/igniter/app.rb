@@ -496,19 +496,51 @@ module Igniter
       end
 
       def acknowledge_orchestration_item(id, note: nil, audit: nil)
-        orchestration_inbox.acknowledge(id, note: note, audit: audit)
+        orchestration_inbox.acknowledge(
+          id,
+          note: note,
+          audit: canonical_orchestration_audit(
+            audit,
+            requested_operation: :acknowledge,
+            lifecycle_operation: :acknowledge,
+            execution_operation: :acknowledge
+          )
+        )
       end
 
       def resolve_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil, audit: nil)
         item = orchestration_inbox.find(id)
         return nil unless item
 
-        metadata = resume_orchestration_item_runtime(item, target: target, value: value)
-        orchestration_inbox.resolve(id, note: note, metadata: metadata, audit: audit)
+        resume_result = resume_orchestration_item_runtime(item, target: target, value: value)
+        resolved_item = orchestration_inbox.resolve(
+          id,
+          note: note,
+          metadata: resume_result[:metadata],
+          audit: canonical_orchestration_audit(
+            audit,
+            requested_operation: :resolve,
+            lifecycle_operation: :resolve,
+            execution_operation: :resolve
+          )
+        )
+        augment_orchestration_runtime_result(
+          resolved_item,
+          execution: resume_result[:execution]
+        )
       end
 
       def dismiss_orchestration_item(id, note: nil, audit: nil)
-        orchestration_inbox.dismiss(id, note: note, audit: audit)
+        orchestration_inbox.dismiss(
+          id,
+          note: note,
+          audit: canonical_orchestration_audit(
+            audit,
+            requested_operation: :dismiss,
+            lifecycle_operation: :dismiss,
+            execution_operation: :dismiss
+          )
+        )
       end
 
       def wake_orchestration_item(id, note: nil, audit: nil)
@@ -516,7 +548,19 @@ module Igniter
       end
 
       def handoff_orchestration_item(id, assignee: nil, queue: nil, channel: nil, note: nil, audit: nil)
-        orchestration_inbox.handoff(id, assignee: assignee, queue: queue, channel: channel, note: note, audit: audit)
+        orchestration_inbox.handoff(
+          id,
+          assignee: assignee,
+          queue: queue,
+          channel: channel,
+          note: note,
+          audit: canonical_orchestration_audit(
+            audit,
+            requested_operation: :handoff,
+            lifecycle_operation: :acknowledge,
+            execution_operation: :handoff
+          )
+        )
       end
 
       def complete_orchestration_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil, audit: nil)
@@ -701,13 +745,142 @@ module Igniter
         merged_orchestration_runtime_overview(execution)
       end
 
+      def orchestration_runtime_event_query(target = nil, filters: nil, order_by: nil, direction: :asc)
+        overview = orchestration_runtime_overview(target)
+        return nil unless overview
+
+        query = Orchestration::RuntimeEventQuery.new(overview[:combined_timeline])
+        apply_orchestration_runtime_event_query_options(
+          query,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )
+      end
+
+      def orchestration_runtime_transition_query(target = nil, filters: nil, order_by: nil, direction: :asc)
+        execution = orchestration_execution_for(target)
+        return nil unless execution
+
+        query = execution.orchestration_transition_query
+        apply_orchestration_runtime_transition_query_options(
+          query,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )
+      end
+
       def orchestration_runtime_summary(target = nil)
         orchestration_runtime_overview(target)&.fetch(:summary, nil)
+      end
+
+      def orchestration_runtime_event_summary(target = nil, filters: nil, order_by: nil, direction: :asc)
+        orchestration_runtime_event_query(
+          target,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )&.summary
+      end
+
+      def orchestration_runtime_transition_summary(target = nil, filters: nil, order_by: nil, direction: :asc)
+        orchestration_runtime_transition_query(
+          target,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )&.summary
+      end
+
+      def orchestration_runtime_event_overview(target = nil, filters: nil, order_by: nil, direction: :asc, limit: 20)
+        query = orchestration_runtime_event_query(
+          target,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )
+        return nil unless query
+
+        Orchestration::RuntimeQueryOverviewBuilder.build(
+          query: query,
+          filters: compact_operator_filters(filters),
+          order_by: order_by,
+          direction: direction,
+          limit: limit
+        )
+      end
+
+      def orchestration_runtime_transition_overview(target = nil, filters: nil, order_by: nil, direction: :asc, limit: 20)
+        query = orchestration_runtime_transition_query(
+          target,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )
+        return nil unless query
+
+        Orchestration::RuntimeQueryOverviewBuilder.build(
+          query: query,
+          filters: compact_operator_filters(filters),
+          order_by: order_by,
+          direction: direction,
+          limit: limit
+        )
+      end
+
+      def orchestration_runtime_record_event_overview(target = nil, id: nil, node: nil, filters: nil, order_by: nil, direction: :asc, limit: 20)
+        record = orchestration_runtime_record_for(target, id: id, node: node)
+        return nil unless record
+
+        query = Orchestration::RuntimeEventQuery.new(record[:combined_timeline])
+        query = apply_orchestration_runtime_event_query_options(
+          query,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )
+        Orchestration::RuntimeQueryOverviewBuilder.build(
+          query: query,
+          filters: compact_operator_filters(filters),
+          order_by: order_by,
+          direction: direction,
+          limit: limit
+        ).merge(
+          id: record[:id],
+          node: record[:node]
+        ).freeze
       end
 
       def orchestration_runtime_overview_for_execution(graph:, execution_id:, store: nil)
         target = operator_target_for_execution(graph: graph, execution_id: execution_id, store: store)
         merged_orchestration_runtime_overview(target.execution)
+      end
+
+      def orchestration_runtime_event_query_for_execution(graph:, execution_id:, store: nil, filters: nil, order_by: nil, direction: :asc)
+        query = Orchestration::RuntimeEventQuery.new(
+          orchestration_runtime_overview_for_execution(
+            graph: graph,
+            execution_id: execution_id,
+            store: store
+          )[:combined_timeline]
+        )
+        apply_orchestration_runtime_event_query_options(
+          query,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )
+      end
+
+      def orchestration_runtime_transition_query_for_execution(graph:, execution_id:, store: nil, filters: nil, order_by: nil, direction: :asc)
+        query = operator_target_for_execution(graph: graph, execution_id: execution_id, store: store).execution.orchestration_transition_query
+        apply_orchestration_runtime_transition_query_options(
+          query,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )
       end
 
       def orchestration_runtime_summary_for_execution(graph:, execution_id:, store: nil)
@@ -716,6 +889,77 @@ module Igniter
           execution_id: execution_id,
           store: store
         ).fetch(:summary)
+      end
+
+      def orchestration_runtime_event_summary_for_execution(graph:, execution_id:, store: nil, filters: nil, order_by: nil, direction: :asc)
+        orchestration_runtime_event_query_for_execution(
+          graph: graph,
+          execution_id: execution_id,
+          store: store,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        ).summary
+      end
+
+      def orchestration_runtime_transition_summary_for_execution(graph:, execution_id:, store: nil, filters: nil, order_by: nil, direction: :asc)
+        orchestration_runtime_transition_query_for_execution(
+          graph: graph,
+          execution_id: execution_id,
+          store: store,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        ).summary
+      end
+
+      def orchestration_runtime_event_overview_for_execution(graph:, execution_id:, store: nil, filters: nil, order_by: nil, direction: :asc, limit: 20)
+        query = orchestration_runtime_event_query_for_execution(
+          graph: graph,
+          execution_id: execution_id,
+          store: store,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )
+        Orchestration::RuntimeQueryOverviewBuilder.build(
+          query: query,
+          filters: compact_operator_filters(filters),
+          order_by: order_by,
+          direction: direction,
+          limit: limit
+        )
+      end
+
+      def orchestration_runtime_transition_overview_for_execution(graph:, execution_id:, store: nil, filters: nil, order_by: nil, direction: :asc, limit: 20)
+        query = orchestration_runtime_transition_query_for_execution(
+          graph: graph,
+          execution_id: execution_id,
+          store: store,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )
+        Orchestration::RuntimeQueryOverviewBuilder.build(
+          query: query,
+          filters: compact_operator_filters(filters),
+          order_by: order_by,
+          direction: direction,
+          limit: limit
+        )
+      end
+
+      def orchestration_runtime_record_event_overview_for_execution(graph:, execution_id:, store: nil, id: nil, node: nil, filters: nil, order_by: nil, direction: :asc, limit: 20)
+        target = operator_target_for_execution(graph: graph, execution_id: execution_id, store: store)
+        orchestration_runtime_record_event_overview(
+          target.execution,
+          id: id,
+          node: node,
+          filters: filters,
+          order_by: order_by,
+          direction: direction,
+          limit: limit
+        )
       end
 
       def operator_query(target = nil, filters: nil, order_by: nil, direction: :asc)
@@ -732,10 +976,34 @@ module Igniter
         operator_query(target, filters: filters, order_by: order_by, direction: direction).summary
       end
 
-      def operator_overview(target = nil, limit: 20, filters: nil, order_by: nil, direction: :asc)
+      def operator_overview(target = nil, limit: 20, filters: nil, order_by: nil, direction: :asc, event_filters: nil, event_order_by: nil, event_direction: :asc, event_limit: nil)
         query = operator_query(target, filters: filters, order_by: order_by, direction: direction)
         execution = orchestration_execution_for(target)
         orchestration_runtime = execution ? orchestration_runtime_overview(execution) : nil
+        orchestration_transitions =
+          execution ? orchestration_runtime_transition_overview(
+            execution,
+            order_by: :timestamp,
+            direction: :asc,
+            limit: event_limit || limit
+          ) : nil
+        orchestration_events =
+          execution ? orchestration_runtime_event_overview(
+            execution,
+            filters: event_filters,
+            order_by: event_order_by,
+            direction: event_direction,
+            limit: event_limit || limit
+          ) : nil
+        record_events = operator_record_event_overview(
+          execution,
+          query: query,
+          filters: filters,
+          event_filters: event_filters,
+          event_order_by: event_order_by,
+          event_direction: event_direction,
+          event_limit: event_limit || limit
+        )
 
         {
           app: name,
@@ -743,6 +1011,9 @@ module Igniter
           summary: query.summary,
           runtime: operator_runtime_overview(query),
           orchestration_runtime: orchestration_runtime,
+          orchestration_transitions: orchestration_transitions,
+          orchestration_events: orchestration_events,
+          record_events: record_events,
           records: query.limit(limit).to_a
         }.freeze
       end
@@ -767,7 +1038,7 @@ module Igniter
         ).summary
       end
 
-      def operator_overview_for_execution(graph:, execution_id:, limit: 20, store: nil, filters: nil, order_by: nil, direction: :asc)
+      def operator_overview_for_execution(graph:, execution_id:, limit: 20, store: nil, filters: nil, order_by: nil, direction: :asc, event_filters: nil, event_order_by: nil, event_direction: :asc, event_limit: nil)
         query = operator_query_for_execution(
           graph: graph,
           execution_id: execution_id,
@@ -778,6 +1049,32 @@ module Igniter
         )
         target = operator_target_for_execution(graph: graph, execution_id: execution_id, store: store)
         orchestration_runtime = orchestration_runtime_overview(target.execution)
+        orchestration_transitions = orchestration_runtime_transition_overview_for_execution(
+          graph: graph,
+          execution_id: execution_id,
+          store: store,
+          order_by: :timestamp,
+          direction: :asc,
+          limit: event_limit || limit
+        )
+        orchestration_events = orchestration_runtime_event_overview_for_execution(
+          graph: graph,
+          execution_id: execution_id,
+          store: store,
+          filters: event_filters,
+          order_by: event_order_by,
+          direction: event_direction,
+          limit: event_limit || limit
+        )
+        record_events = operator_record_event_overview(
+          target.execution,
+          query: query,
+          filters: filters,
+          event_filters: event_filters,
+          event_order_by: event_order_by,
+          event_direction: event_direction,
+          event_limit: event_limit || limit
+        )
 
         {
           app: name,
@@ -790,6 +1087,9 @@ module Igniter
           summary: query.summary,
           runtime: operator_runtime_overview(query),
           orchestration_runtime: orchestration_runtime,
+          orchestration_transitions: orchestration_transitions,
+          orchestration_events: orchestration_events,
+          record_events: record_events,
           records: query.limit(limit).to_a
         }.freeze
       end
@@ -1036,7 +1336,9 @@ module Igniter
       end
 
       def resume_orchestration_item_runtime(item, target:, value:)
-        return {} if target.nil? && value.equal?(Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE)
+        if target.nil? && value.equal?(Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE)
+          return { metadata: {}, execution: nil }.freeze
+        end
         return resume_orchestration_item_from_store(item, value: value) if target.nil?
         raise ArgumentError, "orchestration item #{item[:id].inspect} does not carry a runtime token" unless item[:token]
 
@@ -1053,12 +1355,15 @@ module Igniter
 
         execution.resume_agent_session(item[:token], node_name: item[:node], value: value)
         {
-          runtime_resumed: true,
-          runtime_resume_mode: :live,
-          resolved_execution_id: execution.events.execution_id,
-          resolved_graph: execution.compiled_graph.name,
-          resumed_token: item[:token]
-        }
+          metadata: {
+            runtime_resumed: true,
+            runtime_resume_mode: :live,
+            resolved_execution_id: execution.events.execution_id,
+            resolved_graph: execution.compiled_graph.name,
+            resumed_token: item[:token]
+          }.freeze,
+          execution: execution
+        }.freeze
       end
 
       def materialize_orchestration_sessions(plan, execution)
@@ -1209,11 +1514,18 @@ module Igniter
           orchestration_runtime_status: action&.dig(:runtime_status),
           orchestration_timeline: Array(action&.dig(:timeline)).map(&:dup).freeze,
           orchestration_combined_timeline: Array(action&.dig(:combined_timeline)).map(&:dup).freeze,
+          orchestration_event_summary: action&.dig(:event_summary),
+          orchestration_latest_event: action&.dig(:latest_event),
           orchestration_inbox_status: action&.dig(:inbox_status),
           phase: session&.phase || item&.dig(:phase),
           session_lifecycle_state: session&.lifecycle_state,
           reply_mode: session&.reply_mode || item&.dig(:reply_mode),
           mode: session&.mode,
+          finalizer: session&.finalizer || item&.dig(:finalizer),
+          session_policy: session&.session_policy || item&.dig(:session_policy),
+          tool_loop_policy: session&.tool_loop_policy || item&.dig(:tool_loop_policy),
+          routing_mode: session&.routing_mode || item&.dig(:routing_mode),
+          interaction_contract: session&.interaction_contract&.to_h || item&.dig(:interaction_contract),
           ownership: session&.ownership,
           owner_url: session&.owner_url,
           delivery_route: session&.delivery_route,
@@ -1349,6 +1661,11 @@ module Igniter
             node: record[:node],
             session_lifecycle_state: record[:session_lifecycle_state],
             ownership: record[:ownership],
+            routing_mode: record[:routing_mode],
+            session_policy: record[:session_policy],
+            tool_loop_policy: record[:tool_loop_policy],
+            finalizer: record[:finalizer],
+            interaction_contract: record[:interaction_contract],
             tool_loop_status: record[:tool_loop_status],
             waiting_on: waiting_value,
             continuable: record[:continuable],
@@ -1363,7 +1680,11 @@ module Igniter
           continuable_sessions: runtime_query.continuable.count,
           routed_sessions: runtime_query.routed.count,
           by_ownership: runtime_query.facet(:ownership),
+          by_routing_mode: runtime_query.facet(:routing_mode),
           by_session_lifecycle_state: runtime_query.facet(:session_lifecycle_state),
+          by_session_policy: runtime_query.facet(:session_policy),
+          by_tool_loop_policy: runtime_query.facet(:tool_loop_policy),
+          by_finalizer: runtime_query.facet(:finalizer),
           by_tool_loop_status: runtime_query.facet(:tool_loop_status),
           by_phase: runtime_query.facet(:phase),
           by_reply_mode: runtime_query.facet(:reply_mode),
@@ -1576,71 +1897,29 @@ module Igniter
       end
 
       def merged_orchestration_runtime_overview(execution)
-        overview = execution.orchestration_overview
-        graph = execution.compiled_graph.name
-        execution_id = execution.events.execution_id
-        inbox_items = orchestration_inbox.items.select do |item|
-          operator_item_matches_execution?(item, graph: graph, execution_id: execution_id)
-        end
-        inbox_by_id = inbox_items.each_with_object({}) { |item, memo| memo[item[:id].to_s] = item }
-        combined_events = []
-
-        records = Array(overview[:records]).map do |record|
-          inbox_item = inbox_by_id[record[:id].to_s]
-          combined_timeline = merge_orchestration_timelines(
-            runtime_timeline: record[:timeline],
-            inbox_history: inbox_item&.dig(:action_history)
-          )
-          combined_events.concat(combined_timeline)
-
-          record.merge(
-            inbox_item_id: inbox_item&.dig(:item_id),
-            inbox_status: inbox_item&.dig(:status),
-            inbox_queue: inbox_item&.dig(:queue),
-            inbox_channel: inbox_item&.dig(:channel),
-            inbox_assignee: inbox_item&.dig(:assignee),
-            inbox_action_history: Array(inbox_item&.dig(:action_history)).map(&:dup).freeze,
-            combined_timeline: combined_timeline
-          ).freeze
-        end.freeze
-
-        summary = overview[:summary].merge(
-          with_inbox_items: records.count { |record| !record[:inbox_item_id].nil? },
-          by_inbox_status: records.each_with_object(Hash.new(0)) do |record, memo|
-            memo[record[:inbox_status]] += 1 if record[:inbox_status]
-          end.freeze,
-          by_combined_event_type: combined_events.each_with_object(Hash.new(0)) do |event, memo|
-            memo[event[:event]] += 1 if event[:event]
-          end.freeze,
-          recent_combined_events: combined_events.sort_by { |event| event[:timestamp].to_s }.last(10).freeze
-        ).freeze
+        overview = orchestration_runtime_overview_builder(execution).overview
 
         {
-          summary: summary,
-          records: records,
+          summary: overview[:summary],
+          results: overview[:results],
+          transitions: Orchestration::RuntimeQueryOverviewBuilder.build(
+            query: overview[:transition_query],
+            filters: {},
+            order_by: :timestamp,
+            direction: :asc,
+            limit: 20
+          ),
+          events: Orchestration::RuntimeQueryOverviewBuilder.build(
+            query: overview[:event_query],
+            filters: {},
+            order_by: nil,
+            direction: :asc,
+            limit: 20
+          ),
+          records: overview[:records],
           timeline: overview[:timeline],
-          combined_timeline: combined_events.sort_by { |event| event[:timestamp].to_s }.freeze
+          combined_timeline: overview[:combined_timeline]
         }.freeze
-      end
-
-      def merge_orchestration_timelines(runtime_timeline:, inbox_history:)
-        runtime_entries = Array(runtime_timeline).map do |entry|
-          entry.merge(source: :runtime).freeze
-        end
-        inbox_entries = Array(inbox_history).map do |entry|
-          {
-            source: :inbox,
-            event: entry[:event],
-            status: entry[:status],
-            timestamp: entry[:at],
-            actor: entry[:actor],
-            origin: entry[:origin],
-            note: entry[:note],
-            payload: entry.dup
-          }.compact.freeze
-        end
-
-        (runtime_entries + inbox_entries).sort_by { |entry| entry[:timestamp].to_s }.freeze
       end
 
       def resume_orchestration_item_from_store(item, value:)
@@ -1660,13 +1939,57 @@ module Igniter
         )
 
         {
-          runtime_resumed: true,
-          runtime_resume_mode: :store,
-          resolved_execution_id: item[:execution_id],
-          resolved_graph: item[:graph],
-          resumed_token: item[:token],
-          resumed_node: item[:node]
-        }
+          metadata: {
+            runtime_resumed: true,
+            runtime_resume_mode: :store,
+            resolved_execution_id: item[:execution_id],
+            resolved_graph: item[:graph],
+            resumed_token: item[:token],
+            resumed_node: item[:node]
+          }.freeze,
+          execution: resumed.execution
+        }.freeze
+      end
+
+      def augment_orchestration_runtime_result(item, execution:)
+        return item unless execution
+
+        runtime_result = orchestration_runtime_result_for(item, execution)
+        item.merge(runtime_result).freeze
+      end
+
+      def orchestration_runtime_result_for(item, execution)
+        overview = merged_orchestration_runtime_overview(execution)
+        record = Array(overview[:records]).find do |entry|
+          entry[:id].to_s == item[:id].to_s || entry[:node].to_sym == item[:node].to_sym
+        end
+        record ||= orchestration_runtime_overview_builder(execution).fallback_record_for(item)
+
+        Orchestration::RuntimeResultBuilder.build(
+          summary: overview[:summary],
+          record: record
+        )
+      end
+
+      def orchestration_runtime_overview_builder(execution)
+        graph = execution.compiled_graph.name
+        execution_id = execution.events.execution_id
+        inbox_items = orchestration_inbox.items.select do |item|
+          operator_item_matches_execution?(item, graph: graph, execution_id: execution_id)
+        end
+
+        Orchestration::RuntimeOverviewBuilder.new(
+          execution: execution,
+          inbox_items: inbox_items
+        )
+      end
+
+      def canonical_orchestration_audit(audit, requested_operation:, lifecycle_operation:, execution_operation:)
+        payload = (audit || {}).dup
+        payload[:requested_operation] ||= requested_operation
+        payload[:lifecycle_operation] ||= lifecycle_operation
+        payload[:execution_operation] ||= execution_operation
+        payload
       end
 
       def operator_target_for_execution(graph:, execution_id:, store: nil)
@@ -1715,6 +2038,87 @@ module Igniter
           direction: direction&.to_sym,
           limit: limit
         }.freeze
+      end
+
+      def apply_orchestration_runtime_event_query_options(query, filters:, order_by:, direction:)
+        applied = query
+
+        filters.to_h.each do |key, value|
+          next if blank_operator_filter_value?(value)
+
+          applied =
+            case key.to_sym
+            when :terminal
+              applied.terminal(value)
+            when :node, :event, :event_class, :source, :status,
+                 :actor, :origin, :requested_operation,
+                 :lifecycle_operation, :execution_operation
+              applied.public_send(key.to_sym, *Array(value))
+            else
+              raise ArgumentError, "unsupported orchestration runtime event filter #{key.inspect}"
+            end
+        end
+
+        return applied if order_by.nil? || order_by.to_s.empty?
+
+        applied.order_by(order_by.to_sym, direction: direction.to_sym)
+      end
+
+      def apply_orchestration_runtime_transition_query_options(query, filters:, order_by:, direction:)
+        applied = query
+
+        filters.to_h.each do |key, value|
+          next if blank_operator_filter_value?(value)
+
+          applied =
+            case key.to_sym
+            when :terminal
+              applied.terminal(value)
+            when :id, :node, :action, :interaction, :state, :state_class, :event, :status,
+                 :phase, :waiting_on, :source_status
+              applied.public_send(key.to_sym, *Array(value))
+            else
+              raise ArgumentError, "unsupported orchestration runtime transition filter #{key.inspect}"
+            end
+        end
+
+        return applied if order_by.nil? || order_by.to_s.empty?
+
+        applied.order_by(order_by.to_sym, direction: direction.to_sym)
+      end
+
+      def orchestration_runtime_record_for(target, id:, node:)
+        overview = orchestration_runtime_overview(target)
+        return nil unless overview
+
+        records = Array(overview[:records])
+        if id
+          records.find { |record| record[:id].to_s == id.to_s }
+        elsif node
+          records.find { |record| record[:node].to_s == node.to_s }
+        end
+      end
+
+      def operator_record_event_overview(execution, query:, filters:, event_filters:, event_order_by:, event_direction:, event_limit:)
+        return nil unless execution
+
+        selected_id = filters.to_h[:id]
+        selected_node = filters.to_h[:node] if selected_id.nil?
+        records = query.limit(2).to_a
+        return nil unless records.size == 1
+
+        record = records.first
+        return nil unless record[:record_kind] == :orchestration
+
+        orchestration_runtime_record_event_overview(
+          execution,
+          id: selected_id || record[:id],
+          node: selected_node || record[:node],
+          filters: event_filters,
+          order_by: event_order_by,
+          direction: event_direction,
+          limit: event_limit
+        )
       end
 
       def compact_operator_filters(filters)

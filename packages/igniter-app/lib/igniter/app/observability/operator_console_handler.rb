@@ -221,6 +221,11 @@ module Igniter
                   </section>
 
                   <section class="panel" style="margin-bottom: 20px;">
+                    <h2>Orchestration Events</h2>
+                    <pre id="orchestration_events">waiting for data…</pre>
+                  </section>
+
+                  <section class="panel" style="margin-bottom: 20px;">
                     <h2>Summary</h2>
                     <pre id="summary">waiting for data…</pre>
                   </section>
@@ -286,6 +291,7 @@ module Igniter
                     const continuableSessions = document.getElementById("continuable_sessions");
                     const inboxItems = document.getElementById("inbox_items");
                     const runtime = document.getElementById("runtime");
+                    const orchestrationEvents = document.getElementById("orchestration_events");
                     const summary = document.getElementById("summary");
                     const recordDetail = document.getElementById("record_detail");
                     const recordsBody = document.getElementById("records_body");
@@ -343,6 +349,7 @@ module Igniter
                       continuableSessions.textContent = String(payload.runtime?.continuable_sessions ?? 0);
                       inboxItems.textContent = String(payload.summary?.inbox_items ?? 0);
                       runtime.textContent = JSON.stringify(payload.runtime ?? {}, null, 2);
+                      orchestrationEvents.textContent = JSON.stringify(payload.orchestration_events ?? {}, null, 2);
                       summary.textContent = JSON.stringify(payload.summary ?? {}, null, 2);
                     }
 
@@ -372,7 +379,7 @@ module Igniter
                         return;
                       }
 
-                      renderRecordDetail(records[0]);
+                      renderRecordDetail(records[0], payload.record_events || null);
                       recordsBody.innerHTML = records.map((record) => {
                         const lane = record.lane?.name || record.lane || "—";
                         const queue = record.queue || "—";
@@ -426,7 +433,7 @@ module Igniter
                       }).join("");
                     }
 
-                    function renderRecordDetail(record) {
+                    function renderRecordDetail(record, recordEvents) {
                       const lines = [];
                       const detailLine = (label, value) => {
                         if (value === null || value === undefined || value === "") {
@@ -473,6 +480,16 @@ module Igniter
                         detailLine("  routed", record.routed);
                       }
 
+                      if (record.orchestration_event_summary || record.orchestration_latest_event) {
+                        lines.push("");
+                        lines.push("Orchestration Events");
+                        detailLine("  latest", record.orchestration_latest_event || null);
+                        detailLine("  summary", record.orchestration_event_summary || null);
+                        if (recordEvents) {
+                          detailLine("  drilldown", recordEvents.summary || null);
+                        }
+                      }
+
                       lines.push("");
                       lines.push("Latest Action");
                       detailLine("  actor", record.latest_action_actor || null);
@@ -492,6 +509,22 @@ module Igniter
                             event.source || null,
                             payload.status || event.status || null,
                             payload.actor || event.actor || event.source || null
+                          ].filter(Boolean);
+                          lines.push(`  - ${parts.join(" · ")}`);
+                        });
+                      }
+
+                      if (recordEvents && Array.isArray(recordEvents.events)) {
+                        lines.push("");
+                        lines.push(`Record Events (${recordEvents.events.length})`);
+                        recordEvents.events.forEach((event) => {
+                          const parts = [
+                            event.event || "event",
+                            event.event_class || null,
+                            event.source || null,
+                            event.lifecycle_operation || null,
+                            event.execution_operation || null,
+                            event.status || null
                           ].filter(Boolean);
                           lines.push(`  - ${parts.join(" · ")}`);
                         });

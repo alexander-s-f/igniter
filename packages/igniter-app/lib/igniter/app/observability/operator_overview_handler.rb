@@ -19,6 +19,11 @@ module Igniter
           with_inbox_item with_token handed_off interactive
           terminal continuable routed
         ].freeze
+        EVENT_LIST_FILTERS = %i[
+          node event event_class source status actor origin
+          requested_operation lifecycle_operation execution_operation
+        ].freeze
+        EVENT_BOOLEAN_FILTERS = %i[terminal].freeze
 
         def initialize(app_class:, limit: DEFAULT_LIMIT, store: nil)
           @app_class = app_class
@@ -32,6 +37,10 @@ module Igniter
           filters = extract_filters(request_params)
           order_by = normalize_order_by(request_params.delete(:order_by))
           direction = normalize_direction(request_params.delete(:direction))
+          event_limit = normalize_limit(request_params.delete(:event_limit) || limit)
+          event_filters = extract_event_filters(request_params)
+          event_order_by = normalize_event_order_by(request_params.delete(:event_order_by))
+          event_direction = normalize_direction(request_params.delete(:event_direction))
 
           overview =
             if request_params.key?(:graph) || request_params.key?(:execution_id)
@@ -46,14 +55,22 @@ module Igniter
                 store: resolved_store(config),
                 filters: filters,
                 order_by: order_by,
-                direction: direction
+                direction: direction,
+                event_filters: event_filters,
+                event_order_by: event_order_by,
+                event_direction: event_direction,
+                event_limit: event_limit
               )
             else
               app_class.operator_overview(
                 limit: limit,
                 filters: filters,
                 order_by: order_by,
-                direction: direction
+                direction: direction,
+                event_filters: event_filters,
+                event_order_by: event_order_by,
+                event_direction: event_direction,
+                event_limit: event_limit
               ).merge(
                 scope: { mode: :app }.freeze
               ).freeze
@@ -114,11 +131,36 @@ module Igniter
           filters.freeze
         end
 
+        def extract_event_filters(request_params)
+          filters = {}
+
+          EVENT_LIST_FILTERS.each do |name|
+            param_name = :"event_#{name}"
+            next unless request_params.key?(param_name)
+
+            values = normalize_list(request_params.delete(param_name), symbolize: event_symbol_filter?(name))
+            filters[name] = values if values.any?
+          end
+
+          EVENT_BOOLEAN_FILTERS.each do |name|
+            param_name = :"event_#{name}"
+            next unless request_params.key?(param_name)
+
+            filters[name] = normalize_boolean(request_params.delete(param_name), param_name)
+          end
+
+          filters.freeze
+        end
+
         def symbol_filter?(name)
           !%i[
             id queue channel assignee latest_action_actor latest_action_origin
             latest_action_source
           ].include?(name)
+        end
+
+        def event_symbol_filter?(name)
+          !%i[actor origin].include?(name)
         end
 
         def normalize_list(value, symbolize: false)
@@ -157,6 +199,16 @@ module Igniter
           raise ArgumentError, "direction must be asc or desc" unless %i[asc desc].include?(direction)
 
           direction
+        end
+
+        def normalize_event_order_by(value)
+          return nil if value.nil? || value.to_s.strip.empty?
+
+          order_by = value.to_s.strip.tr(" ", "_").to_sym
+          allowed = Igniter::App::Orchestration::RuntimeEventQuery::ORDERABLE_DIMENSIONS
+          raise ArgumentError, "event_order_by must be one of #{allowed.inspect}" unless allowed.include?(order_by)
+
+          order_by
         end
 
         def validate_execution_scope!(graph:, execution_id:)

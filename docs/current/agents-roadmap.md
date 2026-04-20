@@ -53,6 +53,9 @@ Already landed:
   - `capability:`
   - `query:`
   - `pinned_to:`
+- `agent` nodes now also normalize delivery, reply, stream, tool-loop, session, and routing semantics through one explicit model-level value object:
+  - `Igniter::Model::AgentInteractionContract`
+- that interaction contract now also flows through live/store-backed session and runtime surfaces, so higher layers can read one canonical interaction vocabulary instead of reconstructing it from `reply_mode`, `session_policy`, and `tool_loop_policy`
 - core runtime now also ships the first routed-agent delivery foundation:
   - `AgentRoute`
   - `AgentRouteResolver`
@@ -94,6 +97,9 @@ Already landed:
 - that `orchestration_runtime` projection now also merges matching inbox/operator history back into runtime records, so the next runtime/app work can build on one linked orchestration truth instead of two parallel histories
 - app-facing runtime APIs now also expose that same merged orchestration truth directly through `App.orchestration_runtime_overview(...)` and `App.orchestration_runtime_overview_for_execution(...)`
 - diagnostics now also surface `app_orchestration_runtime`, so execution-owned orchestration state can be inspected without going through the broader operator overview surface
+- live and store-backed orchestration resume paths now also return the same post-operation runtime snapshot shape (`orchestration_runtime_summary`, `orchestration_runtime_record`, `orchestration_runtime_status`, `orchestration_runtime_timeline`), which makes handler/result semantics less dependent on inbox-only status transitions
+- orchestration runtime now also has an explicit execution-owned state contract (`runtime_state`, `runtime_state_class`, `runtime_terminal`, `latest_runtime_transition`, `runtime_transitions`) derived from cache state plus runtime events, so deeper runtime work can build on something stronger than ad hoc `runtime_status` strings alone
+- orchestration runtime now also has a reusable transition query/overview layer in both live and store-backed paths, which means the next runtime work can converge around one durable transition model instead of synthesizing ad hoc action history in each higher layer
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
 

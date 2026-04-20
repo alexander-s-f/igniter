@@ -30,6 +30,7 @@ module Igniter
             lines << "App Orchestration: #{summary(orchestration)}" if orchestration
             lines << "App Orchestration Inbox: #{inbox_summary(orchestration[:inbox])}" if orchestration[:inbox]
             lines << "App Orchestration Runtime: #{runtime_summary(orchestration_runtime)}" if orchestration_runtime
+            lines << "App Orchestration Runtime Results: #{runtime_results_summary(orchestration_runtime[:results])}" if orchestration_runtime&.dig(:results)
             lines << "App Operator: #{operator_summary(operator)}" if operator
           end
 
@@ -42,6 +43,7 @@ module Igniter
             lines << "- App Orchestration: #{summary(orchestration)}" if orchestration
             lines << "- App Orchestration Inbox: #{inbox_summary(orchestration[:inbox])}" if orchestration[:inbox]
             lines << "- App Orchestration Runtime: #{runtime_summary(orchestration_runtime)}" if orchestration_runtime
+            lines << "- App Orchestration Runtime Results: #{runtime_results_summary(orchestration_runtime[:results])}" if orchestration_runtime&.dig(:results)
             lines << "- App Operator: #{operator_summary(operator)}" if operator
           end
 
@@ -71,6 +73,7 @@ module Igniter
               lines << ""
               lines << "## App Orchestration Runtime"
               lines << "- Summary: #{runtime_summary(orchestration_runtime)}"
+              lines << "- Results: #{runtime_results_summary(orchestration_runtime[:results])}" if orchestration_runtime[:results]
               Array(orchestration_runtime[:records]).each do |record|
                 lines << "- `#{record[:node]}` action=`#{record[:action]}` runtime=`#{record[:runtime_status]}` session=`#{record[:session_lifecycle_state] || "none"}` inbox=`#{record[:inbox_status] || "none"}` waiting_on=`#{record[:waiting_on] || "none"}`"
               end
@@ -151,6 +154,18 @@ module Igniter
             parts << "by_runtime_status=#{inline_counts(summary[:by_runtime_status])}" unless summary[:by_runtime_status].empty?
             parts << "by_inbox_status=#{inline_counts(summary[:by_inbox_status])}" unless summary[:by_inbox_status].empty?
             parts << "by_session_lifecycle_state=#{inline_counts(summary[:by_session_lifecycle_state])}" unless summary[:by_session_lifecycle_state].empty?
+            parts.join(", ")
+          end
+
+          def runtime_results_summary(results)
+            parts = []
+            parts << "terminal_records=#{results[:terminal_records]}"
+            parts << "completed_runtime_records=#{results[:completed_runtime_records]}"
+            parts << "failed_runtime_records=#{results[:failed_runtime_records]}"
+            latest = Array(results[:latest_records]).map do |record|
+              "#{record[:node]}:#{record[:runtime_status] || "none"}/#{record[:inbox_status] || "none"}@#{record[:latest_event]}"
+            end
+            parts << "latest_records=#{latest.join(",")}" if latest.any?
             parts.join(", ")
           end
 
