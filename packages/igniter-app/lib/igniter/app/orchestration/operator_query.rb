@@ -13,7 +13,7 @@ module Igniter
           handoff_count combined_state
         ].freeze
         FACETABLE_DIMENSIONS = %i[
-          status action node interaction reason attention_required resumable
+          id status action node interaction reason attention_required resumable
           assignee queue channel phase reply_mode mode tool_loop_status
           policy lane combined_state latest_action_actor latest_action_origin
           latest_action_source
@@ -59,6 +59,11 @@ module Igniter
         def action(*actions)
           normalized = actions.map(&:to_sym)
           add_filter { |record| normalized.include?(record[:action]) }
+        end
+
+        def id(*ids)
+          normalized = ids.map(&:to_s)
+          add_filter { |record| normalized.include?(record[:id].to_s) }
         end
 
         def policy(*names)
@@ -175,6 +180,10 @@ module Igniter
           add_filter { |record| record[:combined_state] == :joined }
         end
 
+        def ignition
+          add_filter { |record| record[:combined_state] == :ignition }
+        end
+
         def session_only
           add_filter { |record| record[:combined_state] == :session_only }
         end
@@ -261,6 +270,7 @@ module Igniter
             live_sessions: with_session.count,
             inbox_items: with_inbox_item.count,
             joined_records: joined.count,
+            ignition_records: ignition.count,
             session_only: session_only.count,
             inbox_only: inbox_only.count,
             handed_off: handed_off.count,

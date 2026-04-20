@@ -127,6 +127,7 @@ module Igniter
             parts << "live_sessions=#{summary[:live_sessions]}"
             parts << "inbox_items=#{summary[:inbox_items]}"
             parts << "joined=#{summary[:joined_records]}"
+            parts << "ignite=#{summary[:ignition_records]}"
             parts << "session_only=#{summary[:session_only]}"
             parts << "inbox_only=#{summary[:inbox_only]}"
             parts << "handed_off=#{summary[:handed_off]}"

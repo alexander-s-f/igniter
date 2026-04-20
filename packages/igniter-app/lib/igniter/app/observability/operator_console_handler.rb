@@ -73,12 +73,16 @@ module Igniter
                 <main>
                   <section class="hero">
                     <h1>#{h(page_title)}</h1>
-                    <p>Operator-facing view over agent sessions and orchestration inbox state.</p>
+                    <p>Operator-facing view over agent sessions, orchestration inbox state, and persisted ignite targets.</p>
                     <p class="meta">app=#{h(app_class.name)} · api=#{h(resolved_api_path)} · actions=#{h(resolved_action_path)}</p>
                   </section>
 
                   <section class="panel">
                     <div class="filters">
+                      <label>
+                        Record ID
+                        <input id="record_id" name="id" placeholder="ignite:edge-1" value="#{h(initial[:id])}">
+                      </label>
                       <label>
                         Graph
                         <input id="graph" name="graph" placeholder="AnonymousContract" value="#{h(initial[:graph])}">
@@ -94,6 +98,10 @@ module Igniter
                       <label>
                         Status
                         <input id="status" name="status" placeholder="open,resolved" value="#{h(initial[:status])}">
+                      </label>
+                      <label>
+                        Combined State
+                        <input id="combined_state" name="combined_state" placeholder="joined,ignition" value="#{h(initial[:combined_state])}">
                       </label>
                       <label>
                         Lane
@@ -176,6 +184,11 @@ module Igniter
                     <pre id="summary">waiting for data…</pre>
                   </section>
 
+                  <section class="panel" style="margin-bottom: 20px;">
+                    <h2>Record Detail</h2>
+                    <pre id="record_detail">select a record…</pre>
+                  </section>
+
                   <section class="panel" id="records">
                     <h2>Records</h2>
                     <table>
@@ -201,10 +214,12 @@ module Igniter
                 <script>
                   (() => {
                     const apiPath = #{resolved_api_path.inspect};
+                    const recordIdInput = document.getElementById("record_id");
                     const graphInput = document.getElementById("graph");
                     const executionInput = document.getElementById("execution_id");
                     const nodeInput = document.getElementById("node");
                     const statusInput = document.getElementById("status");
+                    const combinedStateInput = document.getElementById("combined_state");
                     const laneInput = document.getElementById("lane");
                     const queueInput = document.getElementById("queue");
                     const assigneeInput = document.getElementById("assignee");
@@ -221,6 +236,7 @@ module Igniter
                     const liveSessions = document.getElementById("live_sessions");
                     const inboxItems = document.getElementById("inbox_items");
                     const summary = document.getElementById("summary");
+                    const recordDetail = document.getElementById("record_detail");
                     const recordsBody = document.getElementById("records_body");
 
                     function buildParams(includeExecutionScope = true) {
@@ -232,8 +248,10 @@ module Igniter
                       }
 
                       [
+                        [recordIdInput, "id"],
                         [nodeInput, "node"],
                         [statusInput, "status"],
+                        [combinedStateInput, "combined_state"],
                         [laneInput, "lane"],
                         [queueInput, "queue"],
                         [assigneeInput, "assignee"],
@@ -268,10 +286,6 @@ module Igniter
                     }
 
                     function actionButtons(record) {
-                      if (!record.has_inbox_item) {
-                        return "";
-                      }
-
                       const allowed = Array.isArray(record.policy?.allowed_operations) ? record.policy.allowed_operations : [];
                       if (allowed.length === 0) {
                         return "";
@@ -293,9 +307,11 @@ module Igniter
                       const records = Array.isArray(payload.records) ? payload.records : [];
                       if (records.length === 0) {
                         recordsBody.innerHTML = '<tr><td colspan="8" class="empty">no records</td></tr>';
+                        recordDetail.textContent = "no record selected";
                         return;
                       }
 
+                      renderRecordDetail(records[0]);
                       recordsBody.innerHTML = records.map((record) => {
                         const lane = record.lane?.name || record.lane || "—";
                         const queue = record.queue || "—";
@@ -308,6 +324,9 @@ module Igniter
                           ? `${record.action_history_count} events · ${String(latestEvent.event || "unknown")} · ${String(latestEvent.actor || latestEvent.source || "unspecified")}`
                           : "—";
                         const scopedParams = new URLSearchParams();
+                        if (record.id) {
+                          scopedParams.set("id", String(record.id));
+                        }
                         if (record.graph && record.execution_id) {
                           scopedParams.set("graph", String(record.graph));
                           scopedParams.set("execution_id", String(record.execution_id));
@@ -324,7 +343,7 @@ module Igniter
                         const inspectApiPath = scopedParams.toString()
                           ? `${apiPath}?${scopedParams.toString()}`
                           : apiPath;
-                        const inspectLinks = record.graph && record.execution_id
+                        const inspectLinks = record.id
                           ? `<a href="${escapeHtml(inspectPath)}">Inspect</a> · <a href="${escapeHtml(inspectApiPath)}">JSON</a>`
                           : "—";
                         const operatorButtons = actionButtons(record);
@@ -342,6 +361,26 @@ module Igniter
                           <td>${actions}</td>
                         </tr>`;
                       }).join("");
+                    }
+
+                    function renderRecordDetail(record) {
+                      const detail = {
+                        id: record.id || null,
+                        node: record.node || null,
+                        combined_state: record.combined_state || null,
+                        status: record.status || null,
+                        action: record.action || null,
+                        queue: record.queue || null,
+                        assignee: record.assignee || null,
+                        phase: record.phase || null,
+                        reply_mode: record.reply_mode || null,
+                        graph: record.graph || null,
+                        execution_id: record.execution_id || null,
+                        latest_action_event: record.latest_action_event || null,
+                        timeline: record.ignition_timeline || record.action_history || []
+                      };
+
+                      recordDetail.textContent = JSON.stringify(detail, null, 2);
                     }
 
                     function escapeHtml(value) {
@@ -449,6 +488,7 @@ module Igniter
                     document.getElementById("clear").addEventListener("click", () => {
                       graphInput.value = "";
                       executionInput.value = "";
+                      recordIdInput.value = "";
                       nodeInput.value = "";
                       statusInput.value = "";
                       laneInput.value = "";
@@ -506,9 +546,11 @@ module Igniter
         def initial_values(request_params)
           {
             graph: request_params[:graph].to_s,
+            id: request_params[:id].to_s,
             execution_id: request_params[:execution_id].to_s,
             node: request_params[:node].to_s,
             status: request_params[:status].to_s,
+            combined_state: request_params[:combined_state].to_s,
             lane: request_params[:lane].to_s,
             queue: request_params[:queue].to_s,
             assignee: request_params[:assignee].to_s,

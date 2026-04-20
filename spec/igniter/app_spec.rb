@@ -1299,6 +1299,27 @@ RSpec.describe Igniter::App do
             by_join_status: { awaiting_approval: 1 }
           )
         )
+        expect(report[:app_ignite][:progress]).to include(
+          total_events: 3,
+          latest_event: include(type: :ignition_finished),
+          by_event_type: include(
+            ignition_started: 1,
+            approval_required: 1,
+            ignition_finished: 1
+          ),
+          targets: include(
+            "edge-1" => include(
+              target_id: "edge-1",
+              status: :awaiting_approval,
+              action: :approve_ignition
+            )
+          )
+        )
+        expect(report[:app_ignite][:history]).to include(
+          total: 0,
+          latest_type: nil,
+          persistence: include(enabled: true)
+        )
         expect(report[:app_ignite][:entries]).to contain_exactly(
           include(
             target_id: "edge-1",
@@ -1309,8 +1330,13 @@ RSpec.describe Igniter::App do
           )
         )
         expect(text).to include("App Ignite: status=awaiting_approval, total=1, actionable=1, local_replicas=1, remote_targets=0, admission_required=1, join_required=1")
+        expect(text).to include("App Ignite Progress: events=3, latest=ignition_finished, targets=1")
+        expect(text).to include("App Ignite History: events=0, persisted=true")
         expect(markdown).to include("## App Ignite")
+        expect(markdown).to include("- Progress: events=3, latest=ignition_finished, targets=1")
+        expect(markdown).to include("- History: events=0, persisted=true")
         expect(markdown).to include("`edge-1` `approve_ignition`")
+        expect(markdown).to include("Event `ignition_finished`")
       end
     end
 
@@ -1982,7 +2008,7 @@ RSpec.describe Igniter::App do
       expect(text).to include("by_lane=deferred_replies=1, interactive_sessions=1, manual_completions=1")
       expect(text).to include("by_queue=deferred-replies=1, interactive-sessions=1, manual-completions=1")
       expect(text).to include("App Orchestration Inbox: total=5, open=2, acknowledged=1, resolved=1, dismissed=1, actionable=3, latest_action=await_deferred_reply, latest_node=approval, latest_policy=deferred_reply, latest_lane=deferred_replies, latest_assignee=none, latest_queue=deferred-replies, latest_channel=inbox://deferred-replies, latest_status=open")
-      expect(text).to include("App Operator: total=5, live_sessions=3, inbox_items=5, joined=3, session_only=0, inbox_only=2")
+      expect(text).to include("App Operator: total=5, live_sessions=3, inbox_items=5, joined=3, ignite=0, session_only=0, inbox_only=2")
       expect(markdown).to include("## App Orchestration")
       expect(markdown).to include("## App Operator")
       expect(markdown).to include("- Follow-up: total=3, manual_completion=1, deferred_replies=1, interactive_sessions=1, by_policy=deferred_reply=1, interactive_session=1, manual_completion=1, by_lane=deferred_replies=1, interactive_sessions=1, manual_completions=1, by_queue=deferred-replies=1, interactive-sessions=1, manual-completions=1")
@@ -3402,6 +3428,224 @@ RSpec.describe Igniter::App do
       )
     ensure
       Igniter.execution_store = previous_store
+    end
+
+    it "surfaces persisted ignite targets through the app-wide operator plane" do
+      stack_class = Class.new(Igniter::Stack)
+
+      Dir.mktmpdir do |tmp|
+        File.write(File.join(tmp, "stack.yml"), <<~YAML)
+          stack:
+            name: operator_ignite
+            root_app: main
+          server:
+            host: 0.0.0.0
+            port: 4567
+          ignite:
+            approval: auto
+            replicas:
+              - name: edge-1
+                port: 4568
+        YAML
+
+        app = stub_const("SpecIgniteOperatorPlaneApp", Class.new(Igniter::App))
+        app.class_eval do
+          root_dir tmp
+        end
+
+        stack_class.root_dir(tmp)
+        stack_class.app :main, path: "apps/main", klass: app, default: true
+
+        report = stack_class.ignite
+        overview = app.operator_overview
+
+        expect(report).to be_prepared
+        expect(overview).to include(
+          app: "SpecIgniteOperatorPlaneApp",
+          summary: include(
+            total: 1,
+            ignition_records: 1,
+            by_combined_state: { ignition: 1 },
+            by_lane: { ignite: 1 },
+            by_queue: { "ignite" => 1 }
+          )
+        )
+        expect(overview[:records]).to contain_exactly(
+          include(
+            id: "ignite:edge-1",
+            node: :"edge-1",
+            combined_state: :ignition,
+            status: :prepared,
+            action: :start_local_runtime_unit,
+            interaction: :ignite,
+            queue: "ignite",
+            lane: include(name: :ignite),
+            source: :ignite,
+            has_session: false,
+            has_inbox_item: false,
+            guidance: "Ignition target is prepared for runtime start"
+          )
+        )
+
+        filtered = app.operator_overview(
+          filters: {
+            combined_state: :ignition,
+            queue: "ignite"
+          }
+        )
+        expect(filtered).to include(
+          summary: include(
+            total: 1,
+            ignition_records: 1
+          )
+        )
+      end
+    end
+
+    it "supports ignite record drill-down through operator api and console" do
+      stack_class = Class.new(Igniter::Stack)
+
+      Dir.mktmpdir do |tmp|
+        File.write(File.join(tmp, "stack.yml"), <<~YAML)
+          stack:
+            name: operator_ignite_console
+            root_app: main
+          server:
+            host: 0.0.0.0
+            port: 4567
+          ignite:
+            approval: auto
+            replicas:
+              - name: edge-1
+                port: 4568
+        YAML
+
+        app = stub_const("SpecIgniteOperatorConsoleApp", Class.new(Igniter::App))
+        app.class_eval do
+          root_dir tmp
+          mount_operator_surface(path: "/operator", api_path: "/api/operator", title: "Operations Console")
+        end
+
+        stack_class.root_dir(tmp)
+        stack_class.app :main, path: "apps/main", klass: app, default: true
+        stack_class.ignite
+
+        config = app.send(:build!)
+        router = Igniter::Server::Router.new(config)
+
+        api = router.call("GET", "/api/operator?id=ignite:edge-1&combined_state=ignition", "")
+        expect(api[:status]).to eq(200)
+        expect(JSON.parse(api[:body])).to include(
+          "summary" => include(
+            "total" => 1,
+            "ignition_records" => 1,
+            "by_combined_state" => { "ignition" => 1 }
+          ),
+          "records" => [
+            include(
+              "id" => "ignite:edge-1",
+              "combined_state" => "ignition",
+              "status" => "prepared",
+              "interaction" => "ignite"
+            )
+          ]
+        )
+
+        page = router.call("GET", "/operator?id=ignite:edge-1&combined_state=ignition", "")
+        expect(page[:status]).to eq(200)
+        expect(page[:body]).to include('name="id"')
+        expect(page[:body]).to include('value="ignite:edge-1"')
+        expect(page[:body]).to include('name="combined_state"')
+        expect(page[:body]).to include('value="ignition"')
+        expect(page[:body]).to include("Record Detail")
+        expect(page[:body]).to include("ignite:edge-1")
+        expect(page[:body]).to include("Inspect")
+      end
+    end
+
+    it "handles ignite operator actions through the mounted action api" do
+      stack_class = Class.new(Igniter::Stack)
+
+      Dir.mktmpdir do |tmp|
+        File.write(File.join(tmp, "stack.yml"), <<~YAML)
+          stack:
+            name: operator_ignite_actions
+            root_app: main
+          server:
+            host: 0.0.0.0
+            port: 4567
+          ignite:
+            approval: required
+            replicas:
+              - name: edge-1
+                port: 4568
+        YAML
+
+        app = stub_const("SpecIgniteOperatorActionApp", Class.new(Igniter::App))
+        app.class_eval do
+          root_dir tmp
+          mount_operator_surface(path: "/operator", api_path: "/api/operator", action_path: "/api/operator/actions", title: "Operations Console")
+        end
+
+        stack_class.root_dir(tmp)
+        stack_class.app :main, path: "apps/main", klass: app, default: true
+        stack_class.ignite
+
+        config = app.send(:build!)
+        router = Igniter::Server::Router.new(config)
+
+        response = router.call(
+          "POST",
+          "/api/operator/actions",
+          JSON.generate(
+            id: "ignite:edge-1",
+            operation: :approve,
+            actor: "alex",
+            origin: "dashboard_ui",
+            actor_channel: "/operator",
+            note: "approved from operator console"
+          ),
+          headers: { "Content-Type" => "application/json" }
+        )
+
+        expect(response[:status]).to eq(200)
+        expect(JSON.parse(response[:body])).to include(
+          "app" => "SpecIgniteOperatorActionApp",
+          "scope" => { "mode" => "app" },
+          "action" => include(
+            "id" => "ignite:edge-1",
+            "handled_operation" => "approve",
+            "handled_audit_source" => "operator_action_api",
+            "handled_actor" => "alex",
+            "handled_origin" => "dashboard_ui",
+            "handled_actor_channel" => "/operator",
+            "report_status" => "admitted",
+            "status" => "admitted"
+          ),
+          "record" => include(
+            "id" => "ignite:edge-1",
+            "combined_state" => "ignition",
+            "status" => "admitted",
+            "action" => "start_local_runtime_unit",
+            "policy" => include(
+              "name" => "ignite"
+            ),
+            "ignition_timeline" => include(
+              include(
+                "type" => "ignition_operator_approve",
+                "source" => "operator_action_api",
+                "payload" => include(
+                  "target_id" => "edge-1",
+                  "operation" => "approve",
+                  "actor" => "alex",
+                  "origin" => "dashboard_ui",
+                  "actor_channel" => "/operator"
+                )
+              )
+            )
+          )
+        )
+      end
     end
 
     it "supports operator api filters and ordering through query params" do

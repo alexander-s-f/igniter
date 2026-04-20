@@ -21,6 +21,7 @@ module Igniter
   # Apps are pluggable mounted packages. Nodes are launch profiles of the same
   # stack. The stack itself owns the server/runtime boundary.
   class Stack
+    UNDEFINED_IGNITION_STORE = Object.new
     AppDefinition = Struct.new(:name, :path, :klass, :root, :access_to, keyword_init: true)
     ConsoleContext = Struct.new(
       :stack_class,
@@ -80,6 +81,23 @@ module Igniter
         return @compose_yml_path unless path
 
         @compose_yml_path = path
+      end
+
+      def ignition_store(store = UNDEFINED_IGNITION_STORE)
+        return (@ignition_store ||= default_ignition_store) if store.equal?(UNDEFINED_IGNITION_STORE)
+
+        @ignition_store = store
+        reload_ignition_trail!
+      end
+
+      def ignition_log(path, retain_events: nil, archive: nil)
+        ignition_store(
+          Igniter::Ignite::Stores::FileStore.new(
+            path: resolve_path(path),
+            max_events: retain_events,
+            archive_path: archive ? resolve_path(archive) : nil
+          )
+        )
       end
 
       def procfile_dev_file(path = nil)
@@ -321,7 +339,7 @@ module Igniter
         @ignition_plan ||= build_ignition_plan
       end
 
-      def ignite(plan: ignition_plan, approved: false, timeout: 5, mesh: nil, request_admission: false, approve_pending_admission: false, bootstrap_remote: false, bootstrap_timeout: 30, session_factory: nil, bootstrapper_factory: nil, await_join: nil, join_timeout: 5, join_poll_interval: 0.1)
+      def ignite(plan: ignition_plan, approved: false, timeout: 5, mesh: nil, request_admission: false, approve_pending_admission: false, bootstrap_remote: false, bootstrap_timeout: 30, session_factory: nil, bootstrapper_factory: nil, await_join: nil, join_timeout: 5, join_poll_interval: 0.1, persist: true)
         agent = Igniter::Ignite::IgnitionAgent.start
         report = agent.call(
           :execute,
@@ -340,25 +358,30 @@ module Igniter
           },
           timeout: timeout
         )
-        return report unless should_await_ignite_join?(report, mesh: mesh, await_join: await_join, bootstrap_remote: bootstrap_remote)
+        unless should_await_ignite_join?(report, mesh: mesh, await_join: await_join, bootstrap_remote: bootstrap_remote)
+          persist_ignition_report!(report, source: :ignite) if persist
+          return report
+        end
 
-        await_ignite_join(
+        report = await_ignite_join(
           report: report,
           mesh: mesh,
           timeout: join_timeout,
           poll_interval: join_poll_interval
         )
+        persist_ignition_report!(report, source: :ignite) if persist
+        report
       ensure
         agent&.stop(timeout: 1)
       end
 
       def ignition_report(**options)
-        ignite(**options)
+        ignite(**options, persist: false)
       end
 
-      def confirm_ignite_join(report:, target_id:, url:, mesh: nil, metadata: {}, timeout: 5)
+      def confirm_ignite_join(report:, target_id:, url:, mesh: nil, metadata: {}, timeout: 5, persist: true)
         agent = Igniter::Ignite::IgnitionAgent.start
-        agent.call(
+        updated = agent.call(
           :confirm_join,
           {
             report: report,
@@ -369,13 +392,15 @@ module Igniter
           },
           timeout: timeout
         )
+        persist_ignition_report!(updated, source: :confirm_join) if persist
+        updated
       ensure
         agent&.stop(timeout: 1)
       end
 
-      def reconcile_ignite(report:, mesh:, timeout: 5)
+      def reconcile_ignite(report:, mesh:, timeout: 5, persist: true)
         agent = Igniter::Ignite::IgnitionAgent.start
-        agent.call(
+        updated = agent.call(
           :reconcile,
           {
             report: report,
@@ -383,8 +408,30 @@ module Igniter
           },
           timeout: timeout
         )
+        persist_ignition_report!(updated, source: :reconcile) if persist
+        updated
       ensure
         agent&.stop(timeout: 1)
+      end
+
+      def ignition_trail
+        @ignition_trail ||= Igniter::Ignite::Trail.new(store: ignition_store)
+      end
+
+      def ignition_history(limit: 10)
+        ignition_trail.snapshot(limit: limit)
+      end
+
+      def latest_ignition_report
+        ignition_trail.latest_report
+      end
+
+      def reset_ignition_trail!
+        ignition_trail.clear!
+      end
+
+      def reload_ignition_trail!
+        @ignition_trail = Igniter::Ignite::Trail.new(store: ignition_store)
       end
 
       def deployment_snapshot
@@ -592,6 +639,8 @@ module Igniter
         subclass.instance_variable_set(:@root_app, nil)
         subclass.instance_variable_set(:@stack_settings, nil)
         subclass.instance_variable_set(:@environment_settings, nil)
+        subclass.instance_variable_set(:@ignition_store, nil)
+        subclass.instance_variable_set(:@ignition_trail, nil)
       end
 
       private
@@ -1037,7 +1086,7 @@ module Igniter
         current = report
 
         loop do
-          current = reconcile_ignite(report: current, mesh: mesh)
+          current = reconcile_ignite(report: current, mesh: mesh, persist: false)
           return current unless current.awaiting_join? || current.by_status.fetch(:bootstrapped, 0).positive?
           break if Time.now >= deadline
 
@@ -1406,6 +1455,17 @@ module Igniter
         File.expand_path(path, @root_dir || Dir.pwd)
       end
 
+      def default_ignition_store
+        Igniter::Ignite::Stores::FileStore.new(
+          path: resolve_path(File.join("var", "ignite", "#{stack_slug}.ndjson")),
+          archive_path: resolve_path(File.join("var", "ignite", "#{stack_slug}.archive.ndjson"))
+        )
+      end
+
+      def persist_ignition_report!(report, source:)
+        ignition_trail.ingest_report(report, source: source)
+      end
+
       def deep_merge(base, override)
         base.merge(override) do |_key, left, right|
           if left.is_a?(Hash) && right.is_a?(Hash)
@@ -1420,6 +1480,7 @@ module Igniter
         @stack_settings = nil
         @environment_settings = nil
         @ignition_plan = nil
+        @ignition_trail = nil
       end
     end
   end

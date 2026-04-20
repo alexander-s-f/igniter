@@ -12,6 +12,11 @@ Current implementation status:
 - built-in server startup now exposes `after_start` hooks, which Igniter uses to emit a runtime-owned ignite join signal after bind/listen
 - remote join closure can now be reconciled from real mesh discovery instead of relying only on an external manual confirmation step
 - `Stack#ignite(...)` can now run a bounded seed-side watcher and auto-close `bootstrapped -> joined` when the peer appears in mesh discovery during the ignition window
+- `IgnitionReport` now exposes progress/timeline shape (`latest_event`, `by_event_type`, `recent_events`, `target_timelines`)
+- app diagnostics now surface ignition progress, not only final summary
+- stack runtime now also keeps a durable ignition trail under `var/ignite/`, so ignition history survives process boundaries and can be surfaced separately from the current in-memory report
+- persisted ignition targets can now also appear in the unified app operator surface, so operator overview can show agent/orchestration state and ignition lifecycle in one plane
+- mounted operator actions can now drive ignition lifecycle too (`approve`, `retry_bootstrap`, `reconcile_join`, `dismiss`) through the same operator action API used by orchestration records
 
 It is a specification draft, not a frozen public API.
 
@@ -155,12 +160,14 @@ Runtime confirmation phase:
 - stack runtime derives its join URL and re-announces through `Mesh::Announcer`
 - seed/operator side can call `Stack.reconcile_ignite(...)` to fold real mesh discovery back into the ignition report
 - `Stack#ignite(...)` itself can also run a short bounded watcher that repeatedly reconciles against mesh and returns `joined` when discovery lands in time
+- every explicit ignition lifecycle action can now also be persisted into a durable ignition trail, which is intentionally separate from the ephemeral `IgnitionReport`
 
 This is an intentional compromise:
 
 - the new node now signals join from its actual runtime boot path
 - we avoid pretending that one process can mutate another process's in-memory ignition report directly
 - report closure is now based on observable cluster state, not only imperative side-effects
+- operator-facing history can survive process restarts without pretending that one in-memory report is the whole deployment record
 
 ## Two Main Scenarios
 

@@ -9,7 +9,7 @@ module Igniter
       class OperatorOverviewHandler
         DEFAULT_LIMIT = 20
         LIST_FILTERS = %i[
-          status action node combined_state interaction reason policy lane queue
+          id status action node combined_state interaction reason policy lane queue
           channel assignee phase reply_mode mode tool_loop_status
           latest_action_actor latest_action_origin latest_action_source
         ].freeze
@@ -114,7 +114,7 @@ module Igniter
 
         def symbol_filter?(name)
           !%i[
-            queue channel assignee latest_action_actor latest_action_origin
+            id queue channel assignee latest_action_actor latest_action_origin
             latest_action_source
           ].include?(name)
         end

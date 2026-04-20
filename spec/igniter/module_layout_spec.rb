@@ -43,6 +43,9 @@ RSpec.describe "Igniter module layout" do
       ignition_agent.rb
       ignition_plan.rb
       ignition_report.rb
+      store.rb
+      stores
+      trail.rb
     ])
   end
 

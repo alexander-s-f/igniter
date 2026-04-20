@@ -17,11 +17,12 @@ module Igniter
           id = request_params[:id].to_s
           raise ArgumentError, "id is required" if id.empty?
 
-          item = app_class.orchestration_inbox.find(id)
-          return json_response(404, error: "orchestration item #{id.inspect} was not found") unless item
+          record = app_class.operator_query(filters: { id: id }).first
+          return json_response(404, error: "operator item #{id.inspect} was not found") unless record
 
-          target = resolve_target(item, config: config)
-          result = app_class.handle_orchestration_item(
+          item = record[:inbox_item]
+          target = item ? resolve_target(item, config: config) : nil
+          result = app_class.handle_operator_item(
             id,
             operation: request_params[:operation],
             target: target,
@@ -38,12 +39,12 @@ module Igniter
             }
           )
 
-          record = app_class.operator_query(target || nil).where { |entry| entry[:id] == id }.first
+          record = app_class.operator_query(target || nil, filters: { id: id }).first
 
           json_response(
             200,
             app: app_class.name,
-            scope: action_scope(item),
+            scope: action_scope(record, item),
             action: result,
             record: record
           )
@@ -113,12 +114,18 @@ module Igniter
           string.tr(" ", "_").to_sym
         end
 
-        def action_scope(item)
-          if item[:graph] && item[:execution_id]
+        def action_scope(record, item)
+          if item && item[:graph] && item[:execution_id]
             {
               mode: :execution,
               graph: item[:graph],
               execution_id: item[:execution_id]
+            }.freeze
+          elsif record && record[:graph] && record[:execution_id]
+            {
+              mode: :execution,
+              graph: record[:graph],
+              execution_id: record[:execution_id]
             }.freeze
           else
             { mode: :app }.freeze

@@ -73,6 +73,10 @@ The first code slice has now landed:
 - built-in server `after_start` hooks for runtime-owned ignite join signaling
 - `Igniter::Stack#reconcile_ignite(...)` for closing remote join from real mesh discovery
 - bounded automatic join watching in `Igniter::Stack#ignite(...)`
+- ignition progress/timeline surface in `IgnitionReport` and diagnostics
+- durable ignition trail/history under `var/ignite/` with stack-facing `ignition_history`
+- ignition records folded into the app-wide operator surface for one-plane visibility
+- operator action API now starts covering ignition lifecycle, not only orchestration inbox items
 
 So the next cluster-ignite move is no longer config modeling.
 It is agent-driven execution:
@@ -80,6 +84,7 @@ It is agent-driven execution:
 - deepen local replica orchestration/reporting
 - deepen remote runtime-owned join orchestration beyond `after_start + reconcile + bounded watcher`
 - richer ignition progress/history and operator surfaces
+- durable ignition event store and operator-facing ignition history
 - then approval/retry/detach operator workflows
 
 ## Reading Heuristic

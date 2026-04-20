@@ -231,6 +231,53 @@ RSpec.describe Igniter::Stack do
     end
   end
 
+  it "persists ignition history and can reload the durable trail" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          replicas:
+            - name: edge-1
+              port: 4568
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite
+      history = workspace.ignition_history(limit: 10)
+      log_path = File.join(tmp, "var", "ignite", "spark_crm.ndjson")
+
+      expect(report).to be_prepared
+      expect(history).to include(
+        total: be >= 1,
+        latest_type: :ignition_report_snapshot,
+        persistence: include(enabled: true, path: log_path)
+      )
+      expect(history[:by_type]).to include(
+        ignition_started: 1,
+        intent_prepared: 1,
+        ignition_finished: 1,
+        ignition_report_snapshot: 1
+      )
+      expect(File).to exist(log_path)
+
+      workspace.reload_ignition_trail!
+      reloaded = workspace.ignition_history(limit: 10)
+
+      expect(reloaded).to include(
+        total: history[:total],
+        latest_type: :ignition_report_snapshot,
+        persistence: include(enabled: true, path: log_path)
+      )
+      expect(reloaded[:by_type]).to eq(history[:by_type])
+    end
+  end
+
   it "marks remote targets as deferred after approval until remote bootstrap exists" do
     Dir.mktmpdir do |tmp|
       File.write(File.join(tmp, "stack.yml"), <<~YAML)
