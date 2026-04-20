@@ -17,6 +17,16 @@ Current implementation status:
 - stack runtime now also keeps a durable ignition trail under `var/ignite/`, so ignition history survives process boundaries and can be surfaced separately from the current in-memory report
 - persisted ignition targets can now also appear in the unified app operator surface, so operator overview can show agent/orchestration state and ignition lifecycle in one plane
 - mounted operator actions can now drive ignition lifecycle too (`approve`, `retry_bootstrap`, `reconcile_join`, `dismiss`) through the same operator action API used by orchestration records
+- app-level generic operator verbs can now also dispatch to ignite records, so mounted operator workflows are starting to converge on one app-facing action surface instead of separate ignite-only and orchestration-only entrypoints
+- ignite records now also expose richer policy-shaped metadata and latest operator identity dimensions, which makes audit filters and operator summaries more honest across both orchestration and ignition
+- ignition policy/action language is now starting to separate:
+  - operator-facing action language (`approve`, `retry`, `complete`, `dismiss`)
+  - lifecycle meaning (`resolve`, `retry`, `dismiss`)
+  - ignite execution operations (`approve`, `retry_bootstrap`, `reconcile_join`, `dismiss`)
+- legacy ignite-specific action names are still accepted as aliases, but the mounted operator surface can now speak a more unified workflow language
+- ignite handling now also goes through the shared `Igniter::App::Operator` layer (`Policy`, `HandlerResult`, `Handlers::Base`, `Handlers::IgniteHandler`) instead of a one-off branch in `App`, which makes convergence with orchestration more structural than cosmetic
+- operator dispatch is now also explicit through `Igniter::App::Operator::Dispatcher` and `HandlerRegistry`, so ignite is chosen through the same canonical dispatch surface as orchestration records instead of special branching in `App.handle_operator_item`
+- operator records now also carry explicit `record_kind` and a shared `lifecycle` contract (`status`, `combined_state`, `default_operation`, `allowed_operations`, `runtime_completion`, `actionable`, `terminal`, `history_count`), so mounted API/UI and handler dispatch can rely on one canonical schema instead of inferring lifecycle from scattered fields
 
 This means the current `ignite` line has crossed an important boundary:
 
@@ -194,6 +204,7 @@ At the moment, the landed ignition lifecycle already covers:
 - durable event/history trail under `var/ignite/`
 - diagnostics and unified operator visibility
 - mounted operator actions for common ignition lifecycle transitions
+- app-facing generic operator verbs and audit dimensions that align more closely with orchestration records
 
 ## Two Main Scenarios
 

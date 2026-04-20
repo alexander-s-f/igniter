@@ -7,13 +7,13 @@ module Igniter
         include Enumerable
 
         ORDERABLE_DIMENSIONS = %i[
-          id action node status interaction reason attention_required resumable
+          id record_kind action node status interaction reason attention_required resumable
           assignee queue channel phase reply_mode mode tool_loop_status
           latest_action_actor latest_action_origin latest_action_source
           handoff_count combined_state
         ].freeze
         FACETABLE_DIMENSIONS = %i[
-          id status action node interaction reason attention_required resumable
+          id record_kind status action node interaction reason attention_required resumable
           assignee queue channel phase reply_mode mode tool_loop_status
           policy lane combined_state latest_action_actor latest_action_origin
           latest_action_source
@@ -59,6 +59,11 @@ module Igniter
         def action(*actions)
           normalized = actions.map(&:to_sym)
           add_filter { |record| normalized.include?(record[:action]) }
+        end
+
+        def record_kind(*kinds)
+          normalized = kinds.map(&:to_sym)
+          add_filter { |record| normalized.include?(record[:record_kind]) }
         end
 
         def id(*ids)
@@ -274,6 +279,7 @@ module Igniter
             session_only: session_only.count,
             inbox_only: inbox_only.count,
             handed_off: handed_off.count,
+            by_record_kind: facet(:record_kind),
             by_status: facet(:status),
             by_action: facet(:action),
             by_policy: facet(:policy),

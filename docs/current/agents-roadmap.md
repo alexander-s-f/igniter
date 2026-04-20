@@ -43,6 +43,11 @@ Already landed:
 - latest audit identity is now also filterable/facetable/orderable through `latest_action_actor`, `latest_action_origin`, and `latest_action_source`
 - the unified operator plane now also includes ignition records from the durable ignite trail, so operator visibility is no longer limited to agent sessions and orchestration inbox items
 - mounted operator actions now also handle ignition lifecycle transitions through the same operator action API, so the operator plane is beginning to converge around one writable workflow surface
+- app-facing generic operator verbs now also dispatch across orchestration and ignite records, and ignite records now expose policy-shaped metadata plus latest operator identity dimensions, so the operator plane is getting closer to one honest workflow language
+- ignite records now also distinguish operator-facing action language, lifecycle meaning, and execution operation more explicitly, which is an important foundation for further convergence work with orchestration policies/handlers
+- orchestration handlers and ignite handling now also share a more explicit `Igniter::App::Operator` layer, so policy resolution, result shape, and action dispatch are beginning to converge structurally instead of only by convention
+- `App.handle_operator_item(...)` now routes through an explicit shared operator dispatcher/registry, which means orchestration and ignite are converging not only on policy and result shape but also on handler selection
+- operator records now also expose explicit `record_kind` and shared `lifecycle` schema, which means convergence is no longer only about how records are handled, but also about how they are described to query/API/UI layers
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
 

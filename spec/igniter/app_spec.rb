@@ -3245,12 +3245,22 @@ RSpec.describe Igniter::App do
       expect(app.operator_overview(contract)).to include(
         app: "SpecUnifiedOperatorQueryApp",
         query: include(limit: 20),
-        summary: include(total: 3, joined_records: 2, inbox_only: 1)
+        summary: include(total: 3, joined_records: 2, inbox_only: 1, by_record_kind: { orchestration: 3 })
       )
       expect(app.operator_overview(contract)[:records]).to include(
-        include(node: :interactive_summary, combined_state: :joined),
-        include(node: :manual_summary, combined_state: :inbox_only),
-        include(node: :approval, combined_state: :joined)
+        include(
+          node: :interactive_summary,
+          record_kind: :orchestration,
+          combined_state: :joined,
+          lifecycle: include(
+            record_kind: :orchestration,
+            combined_state: :joined,
+            actionable: true,
+            terminal: false
+          )
+        ),
+        include(node: :manual_summary, record_kind: :orchestration, combined_state: :inbox_only),
+        include(node: :approval, record_kind: :orchestration, combined_state: :joined)
       )
       expect(
         app.operator_overview(
@@ -3465,6 +3475,7 @@ RSpec.describe Igniter::App do
           summary: include(
             total: 1,
             ignition_records: 1,
+            by_record_kind: { ignition: 1 },
             by_combined_state: { ignition: 1 },
             by_lane: { ignite: 1 },
             by_queue: { "ignite" => 1 }
@@ -3473,6 +3484,7 @@ RSpec.describe Igniter::App do
         expect(overview[:records]).to contain_exactly(
           include(
             id: "ignite:edge-1",
+            record_kind: :ignition,
             node: :"edge-1",
             combined_state: :ignition,
             status: :prepared,
@@ -3483,7 +3495,17 @@ RSpec.describe Igniter::App do
             source: :ignite,
             has_session: false,
             has_inbox_item: false,
-            guidance: "Ignition target is prepared for runtime start"
+            guidance: "Ignition target is prepared for runtime start",
+            lifecycle: include(
+              record_kind: :ignition,
+              status: :prepared,
+              combined_state: :ignition,
+              default_operation: :retry,
+              allowed_operations: %i[retry dismiss],
+              runtime_completion: :external,
+              actionable: true,
+              terminal: false
+            )
           )
         )
 
@@ -3539,14 +3561,24 @@ RSpec.describe Igniter::App do
           "summary" => include(
             "total" => 1,
             "ignition_records" => 1,
+            "by_record_kind" => { "ignition" => 1 },
             "by_combined_state" => { "ignition" => 1 }
           ),
           "records" => [
             include(
               "id" => "ignite:edge-1",
+              "record_kind" => "ignition",
               "combined_state" => "ignition",
               "status" => "prepared",
-              "interaction" => "ignite"
+              "interaction" => "ignite",
+              "lifecycle" => include(
+                "record_kind" => "ignition",
+                "status" => "prepared",
+                "combined_state" => "ignition",
+                "default_operation" => "retry",
+                "actionable" => true,
+                "terminal" => false
+              )
             )
           ]
         )
@@ -3628,7 +3660,9 @@ RSpec.describe Igniter::App do
             "status" => "admitted",
             "action" => "start_local_runtime_unit",
             "policy" => include(
-              "name" => "ignite"
+              "name" => "ignite_bootstrap",
+              "default_operation" => "retry",
+              "allowed_operations" => ["retry", "dismiss"]
             ),
             "ignition_timeline" => include(
               include(
@@ -3642,6 +3676,182 @@ RSpec.describe Igniter::App do
                   "actor_channel" => "/operator"
                 )
               )
+            )
+          )
+        )
+      end
+    end
+
+    it "dispatches generic operator verbs to orchestration items" do
+      previous_adapter = Igniter::Runtime.agent_adapter
+      Igniter::Runtime.activate_agent_adapter!
+      Igniter::Registry.clear
+      reviewer_ref = nil
+
+      reviewer_class = Class.new(Igniter::Agent) do
+        on :review do |payload:, **|
+          raise Igniter::PendingDependencyError.new("continue", token: "review-session", source_node: :approval)
+        end
+      end
+
+      reviewer_ref = reviewer_class.start(name: :reviewer)
+
+      klass = Class.new(Igniter::Contract) do
+        define do
+          input :name
+
+          agent :approval,
+                via: :reviewer,
+                message: :review,
+                inputs: { name: :name }
+
+          output :approval
+        end
+      end
+
+      app = stub_const("SpecGenericOperatorVerbApp", Class.new(Igniter::App))
+      app.class_eval do
+        register "AgentContract", klass
+      end
+
+      app.send(:build!)
+      app.reset_orchestration_inbox!
+
+      contract = klass.new(name: "Alice")
+      app.open_orchestration_followups(contract)
+
+      dismissed = app.dismiss_operator_item(
+        "agent_orchestration:await_deferred_reply:approval",
+        note: "closed from generic operator verb",
+        audit: {
+          source: :operator_console,
+          actor: "alex",
+          origin: "operator_surface",
+          actor_channel: "/operator"
+        }
+      )
+
+      expect(dismissed).to include(
+        id: "agent_orchestration:await_deferred_reply:approval",
+        status: :dismissed,
+        handled_operation: :dismiss,
+        handled_lifecycle_operation: :dismiss,
+        handled_audit_source: :orchestration_handler
+      )
+      expect(dismissed[:action_history].last).to include(
+        event: :dismissed,
+        source: :orchestration_handler
+      )
+    ensure
+      reviewer_ref&.stop
+      Igniter::Registry.clear
+      Igniter::Runtime.agent_adapter = previous_adapter
+    end
+
+    it "dispatches generic operator verbs to ignite items and exposes latest action identity" do
+      stack_class = Class.new(Igniter::Stack)
+
+      Dir.mktmpdir do |tmp|
+        File.write(File.join(tmp, "stack.yml"), <<~YAML)
+          stack:
+            name: operator_ignite_generic_actions
+            root_app: main
+          server:
+            host: 0.0.0.0
+            port: 4567
+          ignite:
+            approval: required
+            replicas:
+              - name: edge-1
+                port: 4568
+        YAML
+
+        app = stub_const("SpecIgniteGenericOperatorVerbApp", Class.new(Igniter::App))
+        app.class_eval do
+          root_dir tmp
+        end
+
+        stack_class.root_dir(tmp)
+        stack_class.app :main, path: "apps/main", klass: app, default: true
+        stack_class.ignite
+
+        approved = app.approve_operator_item(
+          "ignite:edge-1",
+          note: "approved from generic operator verb",
+          audit: {
+            source: :operator_console,
+            actor: "alex",
+            origin: "operator_surface",
+            actor_channel: "/operator"
+          }
+        )
+
+        expect(approved).to include(
+          id: "ignite:edge-1",
+          handled_operation: :approve,
+          handled_lifecycle_operation: :resolve,
+          handled_execution_operation: :approve,
+          handled_policy: :ignite_approval,
+          handled_lane: :ignite,
+          handled_queue: "ignite",
+          handled_audit_source: :operator_console,
+          handled_actor: "alex",
+          handled_origin: :operator_surface,
+          handled_actor_channel: "/operator",
+          report_status: :admitted,
+          status: :admitted
+        )
+
+        retried = app.handle_operator_item(
+          "ignite:edge-1",
+          operation: :retry_bootstrap,
+          note: "legacy alias still accepted",
+          audit: {
+            source: :operator_console,
+            actor: "alex",
+            origin: "operator_surface",
+            actor_channel: "/operator"
+          }
+        )
+
+        expect(retried).to include(
+          id: "ignite:edge-1",
+          handled_operation: :retry,
+          handled_lifecycle_operation: :retry,
+          handled_execution_operation: :retry_bootstrap,
+          handled_policy: :ignite_bootstrap
+        )
+
+        overview = app.operator_overview(
+          filters: {
+            id: "ignite:edge-1",
+            latest_action_actor: "alex",
+            latest_action_origin: "operator_surface",
+            latest_action_source: "operator_console"
+          }
+        )
+
+        expect(overview[:summary]).to include(
+          total: 1,
+          ignition_records: 1,
+          by_latest_action_actor: { "alex" => 1 },
+          by_latest_action_origin: { operator_surface: 1 },
+          by_latest_action_source: { operator_console: 1 }
+        )
+        expect(overview[:records]).to contain_exactly(
+          include(
+            id: "ignite:edge-1",
+            status: :prepared,
+            latest_action_actor: "alex",
+            latest_action_origin: :operator_surface,
+            latest_action_source: :operator_console,
+            policy: include(
+              name: :ignite_bootstrap,
+              default_operation: :retry,
+              allowed_operations: %i[retry dismiss],
+              operation_aliases: { retry_bootstrap: :retry },
+              default_routing: { queue: "ignite" },
+              runtime_completion: :external
             )
           )
         )

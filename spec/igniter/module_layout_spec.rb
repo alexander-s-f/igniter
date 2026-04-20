@@ -60,6 +60,8 @@ RSpec.describe "Igniter module layout" do
       "generators",
       "observability",
       "observability.rb",
+      "operator",
+      "operator.rb",
       "observability_pack.rb",
       "runtime.rb",
       "runtime_pack.rb",
@@ -74,6 +76,24 @@ RSpec.describe "Igniter module layout" do
       operator_action_handler.rb
       operator_console_handler.rb
       operator_overview_handler.rb
+    ])
+  end
+
+  it "keeps shared operator vocabulary under the canonical app operator namespace" do
+    expect(children_for(File.join(APP_LIB, "app", "operator"))).to eq(%w[
+      dispatcher.rb
+      handler_registry.rb
+      handler_result.rb
+      handlers
+      handlers.rb
+      lifecycle_contract.rb
+      policy.rb
+    ])
+
+    expect(children_for(File.join(APP_LIB, "app", "operator", "handlers"))).to eq(%w[
+      base.rb
+      ignite_handler.rb
+      orchestration_handler.rb
     ])
   end
 

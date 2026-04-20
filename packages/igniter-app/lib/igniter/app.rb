@@ -3,6 +3,7 @@
 require_relative "app/runtime"
 require_relative "app/diagnostics"
 require_relative "app/evolution"
+require_relative "app/operator"
 require_relative "app/observability"
 require_relative "app/observability_pack"
 require_relative "app/orchestration"
@@ -530,27 +531,62 @@ module Igniter
         handle_orchestration_item(id, operation: :reply, target: target, value: value, note: note, audit: audit)
       end
 
+      def wake_operator_item(id, target: nil, note: nil, audit: nil)
+        handle_operator_item(id, operation: :wake, target: target, note: note, audit: audit)
+      end
+
+      def handoff_operator_item(id, assignee: nil, queue: nil, channel: nil, note: nil, audit: nil)
+        handle_operator_item(
+          id,
+          operation: :handoff,
+          assignee: assignee,
+          queue: queue,
+          channel: channel,
+          note: note,
+          audit: audit
+        )
+      end
+
+      def complete_operator_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil, audit: nil)
+        handle_operator_item(id, operation: :complete, target: target, value: value, note: note, audit: audit)
+      end
+
+      def approve_operator_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil, audit: nil)
+        handle_operator_item(id, operation: :approve, target: target, value: value, note: note, audit: audit)
+      end
+
+      def reply_to_operator_item(id, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, note: nil, audit: nil)
+        handle_operator_item(id, operation: :reply, target: target, value: value, note: note, audit: audit)
+      end
+
+      def dismiss_operator_item(id, note: nil, audit: nil)
+        handle_operator_item(id, operation: :dismiss, note: note, audit: audit)
+      end
+
+      def retry_operator_item(id, note: nil, audit: nil)
+        handle_operator_item(id, operation: :retry_bootstrap, note: note, audit: audit)
+      end
+
+      def reconcile_operator_item(id, note: nil, audit: nil)
+        handle_operator_item(id, operation: :reconcile_join, note: note, audit: audit)
+      end
+
       def handle_operator_item(id, operation: nil, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, assignee: nil, queue: nil, channel: nil, note: nil, audit: nil)
         record = operator_query(target, filters: { id: id }).first
         return nil unless record
 
-        if record[:has_inbox_item]
-          return handle_orchestration_item(
-            id,
-            operation: operation,
-            target: target,
-            value: value,
-            assignee: assignee,
-            queue: queue,
-            channel: channel,
-            note: note,
-            audit: audit
-          )
-        end
-
-        return handle_ignite_operator_item(record, operation: operation, note: note, audit: audit) if record[:combined_state] == :ignition
-
-        raise ArgumentError, "operator item #{id.inspect} is not actionable"
+        operator_dispatcher.call(
+          app_class: self,
+          record: record,
+          operation: operation,
+          target: target,
+          value: value,
+          assignee: assignee,
+          queue: queue,
+          channel: channel,
+          note: note,
+          audit: audit
+        )
       end
 
       def handle_orchestration_item(id, operation: nil, target: nil, value: Igniter::Runtime::Execution::UNDEFINED_RESUME_VALUE, assignee: nil, queue: nil, channel: nil, note: nil, audit: nil)
@@ -1085,7 +1121,22 @@ module Igniter
             :inbox_only
           end
 
+        status = item&.dig(:status) || (session ? :live_session : nil)
+        policy = (item&.dig(:policy) || action&.dig(:policy))&.dup
+        action_history = Array(item&.dig(:action_history)).map(&:dup).freeze
+        lifecycle = build_operator_lifecycle_contract(
+          record_kind: :orchestration,
+          status: status,
+          combined_state: combined_state,
+          policy: policy,
+          attention_required: item&.key?(:attention_required) ? !!item[:attention_required] : !!action&.dig(:attention_required),
+          resumable: item&.key?(:resumable) ? !!item[:resumable] : !!action&.dig(:resumable),
+          has_inbox_item: !item.nil?,
+          history_count: action_history.size
+        )
+
         {
+          record_kind: :orchestration,
           id: item&.fetch(:id, nil) || "agent_session:#{session.node_name}:#{session.token}",
           item_id: item&.dig(:item_id),
           action: item&.dig(:action) || action&.dig(:action),
@@ -1093,10 +1144,10 @@ module Igniter
           interaction: item&.dig(:interaction) || action&.dig(:interaction),
           reason: item&.dig(:reason) || action&.dig(:reason),
           guidance: item&.dig(:guidance) || action&.dig(:guidance),
-          attention_required: item&.key?(:attention_required) ? !!item[:attention_required] : !!action&.dig(:attention_required),
-          resumable: item&.key?(:resumable) ? !!item[:resumable] : !!action&.dig(:resumable),
-          status: item&.dig(:status) || (session ? :live_session : nil),
-          policy: (item&.dig(:policy) || action&.dig(:policy))&.dup,
+          attention_required: lifecycle[:attention_required],
+          resumable: lifecycle[:resumable],
+          status: status,
+          policy: policy,
           lane: (item&.dig(:lane) || action&.dig(:lane))&.dup,
           routing: (item&.dig(:routing) || action&.dig(:routing))&.dup,
           assignee: item&.dig(:assignee),
@@ -1104,12 +1155,12 @@ module Igniter
           channel: item&.dig(:channel) || item&.dig(:routing, :channel) || action&.dig(:routing, :channel),
           handoff_count: item&.fetch(:handoff_count, 0) || 0,
           handoff_history: Array(item&.dig(:handoff_history)).map(&:dup).freeze,
-          action_history_count: Array(item&.dig(:action_history)).size,
+          action_history_count: action_history.size,
           latest_action_source: item&.dig(:action_history)&.last&.dig(:source),
           latest_action_actor: item&.dig(:action_history)&.last&.dig(:actor),
           latest_action_origin: item&.dig(:action_history)&.last&.dig(:origin),
           latest_action_event: item&.dig(:action_history)&.last&.dup,
-          action_history: Array(item&.dig(:action_history)).map(&:dup).freeze,
+          action_history: action_history,
           token: session&.token || item&.dig(:token),
           phase: session&.phase || item&.dig(:phase),
           reply_mode: session&.reply_mode || item&.dig(:reply_mode),
@@ -1123,6 +1174,7 @@ module Igniter
           source: item&.dig(:source),
           note: item&.dig(:note),
           combined_state: combined_state,
+          lifecycle: lifecycle,
           has_session: !session.nil?,
           has_inbox_item: !item.nil?,
           session: session&.to_h,
@@ -1133,8 +1185,23 @@ module Igniter
       def build_ignite_operator_record(target_id:, event:, timeline:)
         payload = event.fetch(:payload)
         latest_timeline_event = timeline.last
+        latest_action_event = timeline.reverse_each.find { |timeline_event| ignite_operator_event?(timeline_event) } || latest_timeline_event
+        latest_action_payload = latest_action_event&.dig(:payload) || {}
+        ignite_policy = ignite_policy_for(payload)
+        ignite_routing = ignite_policy.default_routing
+        lifecycle = build_operator_lifecycle_contract(
+          record_kind: :ignition,
+          status: payload[:status]&.to_sym,
+          combined_state: :ignition,
+          policy: ignite_policy.to_h,
+          attention_required: ignite_attention_required?(payload),
+          resumable: ignite_resumable?(payload),
+          has_inbox_item: false,
+          history_count: timeline.size
+        )
 
         {
+          record_kind: :ignition,
           id: "ignite:#{target_id}",
           item_id: nil,
           action: payload[:action]&.to_sym,
@@ -1142,22 +1209,22 @@ module Igniter
           interaction: :ignite,
           reason: payload[:kind]&.to_sym || :ignite,
           guidance: ignite_guidance_for(payload),
-          attention_required: ignite_attention_required?(payload),
-          resumable: ignite_resumable?(payload),
+          attention_required: lifecycle[:attention_required],
+          resumable: lifecycle[:resumable],
           status: payload[:status]&.to_sym,
-          policy: ignite_policy_for(payload),
-          lane: { name: :ignite }.freeze,
-          routing: { queue: "ignite" }.freeze,
+          policy: ignite_policy.to_h,
+          lane: { name: :ignite, queue: ignite_routing[:queue], channel: ignite_routing[:channel] }.compact.freeze,
+          routing: ignite_routing,
           assignee: nil,
-          queue: "ignite",
-          channel: nil,
+          queue: ignite_routing[:queue],
+          channel: ignite_routing[:channel],
           handoff_count: 0,
           handoff_history: [].freeze,
           action_history_count: timeline.size,
-          latest_action_source: latest_timeline_event&.dig(:source),
-          latest_action_actor: nil,
-          latest_action_origin: nil,
-          latest_action_event: latest_timeline_event&.dup,
+          latest_action_source: latest_action_event&.dig(:source),
+          latest_action_actor: latest_action_payload[:actor],
+          latest_action_origin: latest_action_payload[:origin],
+          latest_action_event: latest_action_event&.dup,
           action_history: timeline.map(&:dup).freeze,
           token: nil,
           phase: payload.dig(:join, :status) || payload.dig(:admission, :status),
@@ -1172,6 +1239,7 @@ module Igniter
           source: :ignite,
           note: nil,
           combined_state: :ignition,
+          lifecycle: lifecycle,
           has_session: false,
           has_inbox_item: false,
           session: nil,
@@ -1181,22 +1249,138 @@ module Igniter
         }.freeze
       end
 
-      def ignite_policy_for(payload)
-        allowed_operations =
-          case payload[:status]&.to_sym
-          when :awaiting_approval, :awaiting_admission_approval
-            %i[approve dismiss]
-          when :joined
-            %i[reconcile_join dismiss]
-          else
-            %i[retry_bootstrap reconcile_join dismiss]
+      def build_operator_lifecycle_contract(record_kind:, status:, combined_state:, policy:, attention_required:, resumable:, has_inbox_item:, history_count:)
+        resolved_policy =
+          if policy.is_a?(Igniter::App::Operator::Policy)
+            policy
+          elsif policy
+            Igniter::App::Operator::Policy.from_h(policy)
           end
 
-        {
-          name: :ignite,
+        actionable =
+          if record_kind.to_sym == :orchestration
+            has_inbox_item && !Igniter::App::Orchestration::Inbox::RESOLVED_STATUSES.include?(status&.to_sym)
+          else
+            resolved_policy && !Igniter::App::Operator::LifecycleContract::TERMINAL_STATUSES.include?(status&.to_sym)
+          end
+
+        Igniter::App::Operator::LifecycleContract.new(
+          record_kind: record_kind,
+          status: status,
+          combined_state: combined_state,
+          default_operation: resolved_policy&.default_operation,
+          allowed_operations: resolved_policy&.allowed_operations || [],
+          runtime_completion: resolved_policy&.runtime_completion,
+          attention_required: attention_required,
+          resumable: resumable,
+          actionable: actionable,
+          history_count: history_count
+        ).to_h
+      end
+
+      def ignite_policy_for(payload)
+        status = payload[:status]&.to_sym
+        allowed_operations =
+          case status
+          when :awaiting_approval, :awaiting_admission_approval
+            %i[approve dismiss]
+          when :bootstrapped, :awaiting_join, :joined
+            %i[complete dismiss]
+          else
+            %i[retry dismiss]
+          end
+
+        operation_aliases =
+          case status
+          when :awaiting_approval, :awaiting_admission_approval
+            {}.freeze
+          when :bootstrapped, :awaiting_join, :joined
+            { reconcile_join: :complete }.freeze
+          else
+            { retry_bootstrap: :retry }.freeze
+          end
+
+        operation_lifecycle =
+          case status
+          when :awaiting_approval, :awaiting_admission_approval
+            { approve: :resolve, dismiss: :dismiss }.freeze
+          when :bootstrapped, :awaiting_join, :joined
+            { complete: :resolve, dismiss: :dismiss }.freeze
+          else
+            { retry: :retry, dismiss: :dismiss }.freeze
+          end
+
+        execution_operations =
+          case status
+          when :awaiting_approval, :awaiting_admission_approval
+            { approve: :approve, dismiss: :dismiss }.freeze
+          when :bootstrapped, :awaiting_join, :joined
+            { complete: :reconcile_join, dismiss: :dismiss }.freeze
+          else
+            { retry: :retry_bootstrap, dismiss: :dismiss }.freeze
+          end
+
+        Igniter::App::Operator::Policy.new(
+          name: ignite_policy_name_for(status),
           default_operation: allowed_operations.first,
-          allowed_operations: allowed_operations.freeze
-        }.freeze
+          allowed_operations: allowed_operations.freeze,
+          lifecycle_operations: operation_lifecycle.values.uniq.freeze,
+          operation_aliases: operation_aliases,
+          operation_lifecycle: operation_lifecycle,
+          execution_operations: execution_operations,
+          default_routing: { queue: "ignite" }.freeze,
+          runtime_completion: ignite_runtime_completion_for(status),
+          description: ignite_policy_description_for(status)
+        )
+      end
+
+      def ignite_policy_name_for(status)
+        case status
+        when :awaiting_approval, :awaiting_admission_approval
+          :ignite_approval
+        when :bootstrapped, :awaiting_join, :joined
+          :ignite_join
+        else
+          :ignite_bootstrap
+        end
+      end
+
+      def ignite_runtime_completion_for(status)
+        case status
+        when :awaiting_approval, :awaiting_admission_approval
+          :approval_required
+        when :joined
+          :complete
+        else
+          :external
+        end
+      end
+
+      def ignite_policy_description_for(status)
+        case status
+        when :awaiting_approval, :awaiting_admission_approval
+          "ignite target is waiting for explicit approval before bootstrap can continue"
+        when :joined
+          "ignite target completed bootstrap and joined the cluster"
+        when :bootstrapped, :awaiting_join
+          "ignite target finished bootstrap and is waiting for runtime join confirmation"
+        when :prepared, :admitted
+          "ignite target is prepared for runtime start and join confirmation"
+        when :deferred, :blocked, :failed
+          "ignite target is in bootstrap lifecycle and may need retry or dismissal"
+        else
+          "ignite target lifecycle managed through the unified operator surface"
+        end
+      end
+
+      def ignite_operator_event?(timeline_event)
+        return false unless timeline_event
+
+        type = timeline_event[:type]&.to_s
+        return true if type&.start_with?("ignition_operator_")
+
+        payload = timeline_event[:payload] || {}
+        payload.key?(:actor) || payload.key?(:origin) || payload.key?(:operation)
       end
 
       def ignite_attention_required?(payload)
@@ -1236,66 +1420,6 @@ module Igniter
         end
       end
 
-      def handle_ignite_operator_item(record, operation:, note:, audit:)
-        payload = record[:ignition_target] || {}
-        id = record.fetch(:id)
-        resolved_operation = (operation || record.dig(:policy, :default_operation) || :reconcile_join).to_sym
-        allowed = Array(record.dig(:policy, :allowed_operations)).map(&:to_sym)
-
-        unless allowed.include?(resolved_operation)
-          raise ArgumentError,
-                "operation #{resolved_operation.inspect} is not allowed for ignition item #{id.inspect}. " \
-                "Allowed operations: #{allowed.inspect}"
-        end
-
-        stack = stack_context_for!
-        audit_payload = normalize_ignite_operator_audit(audit)
-        stack.ignition_trail.record(
-          :"ignition_operator_#{resolved_operation}",
-          source: audit_payload[:source],
-          payload: {
-            target_id: payload[:target_id],
-            operation: resolved_operation,
-            note: note,
-            actor: audit_payload[:actor],
-            origin: audit_payload[:origin],
-            actor_channel: audit_payload[:actor_channel]
-          }.compact
-        )
-
-        updated_report =
-          case resolved_operation
-          when :dismiss
-            stack.latest_ignition_report
-          when :approve
-            stack.ignite(**ignite_operator_options(payload, operation: resolved_operation))
-          when :retry_bootstrap
-            stack.ignite(**ignite_operator_options(payload, operation: resolved_operation))
-          when :reconcile_join
-            report = stack.latest_ignition_report
-            raise ArgumentError, "no persisted ignition report is available for reconcile" unless report
-
-            mesh = default_ignite_mesh
-            raise ArgumentError, "reconcile_join requires an active mesh" unless mesh
-
-            stack.reconcile_ignite(report: report, mesh: mesh)
-          else
-            raise ArgumentError, "unsupported ignition operation #{resolved_operation.inspect}"
-          end
-
-        {
-          id: id,
-          handled_operation: resolved_operation,
-          handled_audit_source: audit_payload[:source],
-          handled_actor: audit_payload[:actor],
-          handled_origin: audit_payload[:origin],
-          handled_actor_channel: audit_payload[:actor_channel],
-          note: note,
-          status: operator_query(filters: { id: id }).first&.dig(:status) || payload[:status],
-          report_status: updated_report&.status
-        }.compact.freeze
-      end
-
       def ignite_operator_options(payload, operation:)
         options = { approved: true }
         mesh = default_ignite_mesh
@@ -1317,6 +1441,10 @@ module Igniter
         payload[:source] = (payload[:source] || :operator_action_api).to_sym
         payload[:origin] = payload[:origin]&.to_sym if payload[:origin]
         payload
+      end
+
+      def operator_dispatcher
+        @operator_dispatcher ||= Igniter::App::Operator::Dispatcher.new
       end
 
       def default_ignite_mesh
@@ -1374,7 +1502,7 @@ module Igniter
               value ? applied.with_token : applied
             when :handed_off
               value ? applied.handed_off : applied
-            when :id, :status, :action, :node, :combined_state, :interaction, :reason, :policy,
+            when :id, :record_kind, :status, :action, :node, :combined_state, :interaction, :reason, :policy,
                  :lane, :queue, :channel, :assignee, :graph, :execution_id, :phase,
                  :reply_mode, :mode, :tool_loop_status, :latest_action_actor,
                  :latest_action_origin, :latest_action_source
