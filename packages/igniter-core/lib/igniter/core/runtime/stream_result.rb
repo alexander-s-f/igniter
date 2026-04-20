@@ -106,6 +106,27 @@ module Igniter
         }
       end
 
+      def tool_runtime
+        session&.tool_runtime || {
+          status: :idle,
+          policy: nil,
+          finalizer: nil,
+          waiting_on: waiting_on,
+          interaction_count: 0,
+          pending_count: 0,
+          completed_count: 0,
+          orphaned_count: 0,
+          resolved: true,
+          consistent: true,
+          complete: true,
+          open_keys: [],
+          orphan_keys: [],
+          open_tools: [],
+          completed_tools: [],
+          orphan_tools: []
+        }.freeze
+      end
+
       def last_chunk
         chunks.last
       end
@@ -134,6 +155,7 @@ module Igniter
           tool_loop_status: tool_loop_status,
           tool_loop_complete: tool_loop_complete?,
           tool_loop_summary: tool_loop_summary,
+          tool_runtime: tool_runtime,
           artifact_count: artifacts.size,
           chunks: chunks,
           chunk_count: chunks.size

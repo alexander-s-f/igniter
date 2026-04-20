@@ -1187,6 +1187,26 @@ RSpec.describe "agent: DSL node" do
           orphan_keys: ["orphan_result:summarize:5"]
         }
       )
+      expect(stream_value.tool_runtime).to eq(
+        {
+          status: :orphaned,
+          policy: :complete,
+          finalizer: :events,
+          waiting_on: :tool_reconciliation,
+          interaction_count: 3,
+          pending_count: 0,
+          completed_count: 2,
+          orphaned_count: 1,
+          resolved: true,
+          consistent: false,
+          complete: false,
+          open_keys: [],
+          orphan_keys: ["orphan_result:summarize:5"],
+          open_tools: [],
+          completed_tools: %i[search fetch],
+          orphan_tools: [:summarize]
+        }
+      )
       expect(runtime_value).to include(
         tool_interaction_count: 3,
         completed_tool_interaction_count: 2,
@@ -1194,6 +1214,12 @@ RSpec.describe "agent: DSL node" do
         orphan_tool_interaction_count: 1,
         tool_loop_status: :orphaned,
         tool_loop_complete: false,
+        tool_runtime: include(
+          status: :orphaned,
+          waiting_on: :tool_reconciliation,
+          completed_tools: %i[search fetch],
+          orphan_tools: [:summarize]
+        ),
         tool_call_count: 2,
         tool_result_count: 3
       )
@@ -1271,13 +1297,38 @@ RSpec.describe "agent: DSL node" do
           orphan_keys: []
         }
       )
+      expect(stream_value.tool_runtime).to eq(
+        {
+          status: :open,
+          policy: :complete,
+          finalizer: :events,
+          waiting_on: :tool_result,
+          interaction_count: 1,
+          pending_count: 1,
+          completed_count: 0,
+          orphaned_count: 0,
+          resolved: false,
+          consistent: true,
+          complete: false,
+          open_keys: ["call_id:search-1"],
+          orphan_keys: [],
+          open_tools: [:search],
+          completed_tools: [],
+          orphan_tools: []
+        }
+      )
       expect(runtime_value).to include(
         tool_interaction_count: 1,
         pending_tool_interaction_count: 1,
         completed_tool_interaction_count: 0,
         orphan_tool_interaction_count: 0,
         tool_loop_status: :open,
-        tool_loop_complete: false
+        tool_loop_complete: false,
+        tool_runtime: include(
+          status: :open,
+          waiting_on: :tool_result,
+          open_tools: [:search]
+        )
       )
     end
 

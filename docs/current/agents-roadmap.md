@@ -56,6 +56,7 @@ Already landed:
 - `agent` nodes now also normalize delivery, reply, stream, tool-loop, session, and routing semantics through one explicit model-level value object:
   - `Igniter::Model::AgentInteractionContract`
 - that interaction contract now also flows through live/store-backed session and runtime surfaces, so higher layers can read one canonical interaction vocabulary instead of reconstructing it from `reply_mode`, `session_policy`, and `tool_loop_policy`
+- tool-loop semantics now also flow through a first-class `tool_runtime` projection in session, stream, orchestration, and operator runtime surfaces, so higher layers can reason about open/completed/orphaned tool work without rebuilding that state from raw events
 - core runtime now also ships the first routed-agent delivery foundation:
   - `AgentRoute`
   - `AgentRouteResolver`

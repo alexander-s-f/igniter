@@ -112,6 +112,7 @@ module Igniter
               tool_loop_status: value.tool_loop_status,
               tool_loop_complete: value.tool_loop_complete?,
               tool_loop_summary: value.tool_loop_summary,
+              tool_runtime: value.tool_runtime,
               artifact_count: value.artifacts.size,
               chunks: value.chunks,
               chunk_count: value.chunks.size

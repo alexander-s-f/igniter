@@ -144,6 +144,14 @@ The current session model is intentionally simple but now explicit:
   - `finalizer`
   - `session_policy`
   - `tool_loop_policy`
+- stream/runtime surfaces now also project a first-class tool runtime contract instead of only flat `tool_loop_status`:
+  - `tool_runtime`
+  - `interaction_count`
+  - `pending_count`
+  - `completed_count`
+  - `orphaned_count`
+  - `open_tools`
+  - `orphan_tools`
 - `reply: :single` forbids pending delivery
 - `reply: :deferred` preserves the current resumable single-reply lifecycle
 - `reply: :stream` requires session-based delivery and opens a path toward partial replies

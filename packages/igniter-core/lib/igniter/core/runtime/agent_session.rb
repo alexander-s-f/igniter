@@ -219,7 +219,8 @@ module Igniter
           owner_url: owner_url,
           delivery_route: delivery_route,
           execution_id: execution_id,
-          graph: graph
+          graph: graph,
+          interaction_contract: interaction_contract
         )
       end
 
@@ -258,7 +259,8 @@ module Igniter
           owner_url: owner_url,
           delivery_route: delivery_route,
           execution_id: execution_id,
-          graph: graph
+          graph: graph,
+          interaction_contract: interaction_contract
         )
       end
 
@@ -348,6 +350,7 @@ module Igniter
           terminal: terminal?,
           continuable: continuable?,
           tool_loop_status: tool_loop_status,
+          tool_runtime: tool_runtime,
           waiting_on: waiting_on,
           turn: turn,
           mode: mode,
@@ -478,6 +481,29 @@ module Igniter
           complete: tool_loop_complete?,
           open_keys: pending_tool_interactions.map { |interaction| interaction[:key] },
           orphan_keys: orphan_tool_interactions.map { |interaction| interaction[:key] }
+        }.freeze
+      end
+
+      def tool_runtime
+        summary = tool_loop_summary
+
+        {
+          status: summary[:status],
+          policy: tool_loop_policy,
+          finalizer: finalizer,
+          waiting_on: tool_runtime_waiting_on(summary),
+          interaction_count: summary[:total],
+          pending_count: summary[:pending],
+          completed_count: summary[:completed],
+          orphaned_count: summary[:orphaned],
+          resolved: summary[:resolved],
+          consistent: summary[:consistent],
+          complete: summary[:complete],
+          open_keys: summary[:open_keys],
+          orphan_keys: summary[:orphan_keys],
+          open_tools: pending_tool_interactions.map { |interaction| interaction[:tool_name] }.uniq.freeze,
+          completed_tools: completed_tool_interactions.map { |interaction| interaction[:tool_name] }.uniq.freeze,
+          orphan_tools: orphan_tool_interactions.map { |interaction| interaction[:tool_name] }.uniq.freeze
         }.freeze
       end
 
@@ -650,6 +676,13 @@ module Igniter
 
       def normalize_phase(value)
         (value || :waiting).to_sym
+      end
+
+      def tool_runtime_waiting_on(summary)
+        return :tool_result if summary[:status] == :open
+        return :tool_reconciliation if summary[:status] == :orphaned
+
+        waiting_on
       end
 
       def normalize_interaction_contract(contract, mode:, reply_mode:, finalizer:, tool_loop_policy:, session_policy:, node_url:, capability:, capability_query:, pinned_to:) # rubocop:disable Metrics/ParameterLists

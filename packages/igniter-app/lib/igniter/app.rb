@@ -1526,6 +1526,7 @@ module Igniter
           tool_loop_policy: session&.tool_loop_policy || item&.dig(:tool_loop_policy),
           routing_mode: session&.routing_mode || item&.dig(:routing_mode),
           interaction_contract: session&.interaction_contract&.to_h || item&.dig(:interaction_contract),
+          tool_runtime: session&.tool_runtime,
           ownership: session&.ownership,
           owner_url: session&.owner_url,
           delivery_route: session&.delivery_route,
@@ -1667,6 +1668,7 @@ module Igniter
             finalizer: record[:finalizer],
             interaction_contract: record[:interaction_contract],
             tool_loop_status: record[:tool_loop_status],
+            tool_runtime: record[:tool_runtime],
             waiting_on: waiting_value,
             continuable: record[:continuable],
             routed: record[:routed]
@@ -1686,6 +1688,7 @@ module Igniter
           by_tool_loop_policy: runtime_query.facet(:tool_loop_policy),
           by_finalizer: runtime_query.facet(:finalizer),
           by_tool_loop_status: runtime_query.facet(:tool_loop_status),
+          tool_runtime_status: runtime_query.facet(:tool_loop_status),
           by_phase: runtime_query.facet(:phase),
           by_reply_mode: runtime_query.facet(:reply_mode),
           by_waiting_on: waiting_on.freeze,

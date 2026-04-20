@@ -4732,7 +4732,8 @@ RSpec.describe Igniter::App do
         by_tool_loop_policy: { complete: 1 },
         by_finalizer: { join: 1 },
         by_phase: { streaming: 1 },
-        by_reply_mode: { stream: 1 }
+        by_reply_mode: { stream: 1 },
+        tool_runtime_status: { idle: 1 }
       )
       expect(overview[:runtime][:active_nodes]).to contain_exactly(
         include(
@@ -4751,6 +4752,12 @@ RSpec.describe Igniter::App do
             finalizer: :join,
             tool_loop_policy: :complete,
             session_policy: :interactive
+          ),
+          tool_runtime: include(
+            status: :idle,
+            policy: :complete,
+            finalizer: :join,
+            waiting_on: :interactive_summary
           ),
           continuable: true,
           routed: false
