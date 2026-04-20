@@ -20,6 +20,14 @@ module Igniter
               "Require 'igniter/agent', pass `runner :inline, agent_adapter: ...`, " \
               "or set `Igniter::Runtime.agent_adapter`."
       end
+
+      def continue_session(session:, payload:, execution: nil, trace: nil, token: nil, waiting_on: nil, request: nil, reply: nil, phase: nil) # rubocop:disable Metrics/ParameterLists, Lint/UnusedMethodArgument
+        nil
+      end
+
+      def resume_session(session:, execution: nil, value: nil) # rubocop:disable Lint/UnusedMethodArgument
+        nil
+      end
     end
 
     class << self

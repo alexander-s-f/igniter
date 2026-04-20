@@ -51,6 +51,29 @@ module Igniter
         get("/v1/health")
       end
 
+      def call_agent(via:, message:, inputs: {}, timeout: 5, reply_mode: nil)
+        response = post(
+          "/v1/agents/#{uri_encode(via)}/messages/#{uri_encode(message)}/call",
+          {
+            inputs: inputs,
+            timeout: timeout,
+            reply_mode: reply_mode
+          }.compact
+        )
+        symbolize_agent_response(response)
+      end
+
+      def cast_agent(via:, message:, inputs: {}, timeout: 5)
+        response = post(
+          "/v1/agents/#{uri_encode(via)}/messages/#{uri_encode(message)}/cast",
+          {
+            inputs: inputs,
+            timeout: timeout
+          }
+        )
+        symbolize_agent_response(response)
+      end
+
       # Fetch peer manifest: peer_name, capabilities, contracts, url.
       def manifest
         response = get("/v1/manifest")
@@ -172,6 +195,19 @@ module Igniter
           waiting_for: hash["waiting_for"] || [],
           error: hash["error"]
         }
+      end
+
+      def symbolize_agent_response(hash)
+        {
+          status: hash["status"]&.to_sym,
+          output: hash["output"],
+          payload: symbolize_keys(hash["payload"] || {}),
+          deferred_result: (symbolize_keys(hash["deferred_result"]) if hash.key?("deferred_result")),
+          agent_trace: symbolize_keys(hash["agent_trace"] || {}),
+          agent_session: (symbolize_keys(hash["agent_session"]) if hash.key?("agent_session")),
+          error: hash["error"],
+          message: hash["message"]
+        }.compact
       end
 
       def symbolize_keys(hash)

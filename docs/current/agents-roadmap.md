@@ -61,7 +61,13 @@ Already landed:
 - cluster now also ships:
   - `AgentRouteResolver`
   - `RoutedAgentAdapter`
-  so capability/pinned routing already works at route-resolution/runtime-semantics level, even though a fully canonical remote transport protocol is still a later step
+- server now also ships:
+  - `AgentTransport`
+  - `/v1/agents/:via/messages/:message/call`
+  - `/v1/agents/:via/messages/:message/cast`
+  so routed delivery now already has a canonical HTTP protocol for initial remote agent execution
+- routed sessions now also expose explicit ownership metadata (`ownership`, `owner_url`, `delivery_route`)
+- core runtime now also has opt-in continuation/resume hooks above routed delivery, so the lifecycle seam is explicit even though local graph-owned continuity remains the default
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
 
@@ -85,7 +91,7 @@ If we pause after the current operator/audit/query/ignite convergence work, the 
 
 - move the current `agent node -> session -> orchestration` model beyond the local registry
 - preserve the same session/orchestration semantics for remote delivery
-- harden the new route/transport seam into a canonical remote delivery contract
+- harden the new route/transport seam into a fuller remote-owned session protocol above the newly landed ownership/hooks layer
 - likely the strongest next architecture move once the operator surface feels “good enough”
 
 For now, option 1 is the smallest and cleanest continuation from the current landed state.

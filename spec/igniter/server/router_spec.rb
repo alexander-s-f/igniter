@@ -4,6 +4,11 @@ require "spec_helper"
 require "igniter/server"
 
 RSpec.describe Igniter::Server::Router do
+  def wait_until(timeout: 1.0, interval: 0.01)
+    deadline = Time.now + timeout
+    sleep(interval) until yield || Time.now >= deadline
+  end
+
   let(:store)    { Igniter::Runtime::Stores::MemoryStore.new }
   let(:config) do
     cfg = Igniter::Server::Config.new
@@ -19,6 +24,12 @@ RSpec.describe Igniter::Server::Router do
   end
 
   before { config.register("AddOne", contract_class) }
+
+  around do |example|
+    Igniter::Registry.clear if defined?(Igniter::Registry)
+    example.run
+    Igniter::Registry.clear if defined?(Igniter::Registry)
+  end
 
   describe "GET /v1/health" do
     it "returns 200 with health data" do
@@ -53,6 +64,82 @@ RSpec.describe Igniter::Server::Router do
       body = JSON.generate({ "inputs" => {} })
       result = router.call("POST", "/v1/contracts/Unknown/execute", body)
       expect(result[:status]).to eq(404)
+    end
+  end
+
+  describe "POST /v1/agents/:via/messages/:message/call" do
+    let(:agent_class) do
+      Class.new(Igniter::Agent) do
+        on :greet do |payload:, **|
+          "Hello, #{payload.fetch(:name)}"
+        end
+
+        on :review do |payload:, **|
+          raise Igniter::PendingDependencyError.new(
+            "continue",
+            token: "review-session",
+            source_node: :review,
+            payload: { requested_name: payload.fetch(:name) }
+          )
+        end
+      end
+    end
+
+    it "delivers a synchronous agent call over the server protocol" do
+      ref = agent_class.start(name: :greeter)
+
+      body = JSON.generate({ "inputs" => { "name" => "Alice" }, "timeout" => 3 })
+      result = router.call("POST", "/v1/agents/greeter/messages/greet/call", body)
+
+      expect(result[:status]).to eq(200)
+      data = JSON.parse(result[:body])
+      expect(data).to include("status" => "succeeded", "output" => "Hello, Alice")
+      expect(data.fetch("agent_trace")).to include("adapter" => "registry", "outcome" => "replied")
+      ref.stop
+    end
+
+    it "returns pending when a routed agent defers" do
+      ref = agent_class.start(name: :reviewer)
+
+      body = JSON.generate({ "inputs" => { "name" => "Alice" }, "timeout" => 3 })
+      result = router.call("POST", "/v1/agents/reviewer/messages/review/call", body)
+
+      expect(result[:status]).to eq(200)
+      data = JSON.parse(result[:body])
+      expect(data).to include("status" => "pending", "message" => "continue")
+      expect(data.fetch("deferred_result")).to include(
+        "token" => "review-session",
+        "source_node" => "review",
+        "waiting_on" => "review"
+      )
+      expect(data.fetch("payload")).to include("requested_name" => "Alice")
+      ref.stop
+    end
+  end
+
+  describe "POST /v1/agents/:via/messages/:message/cast" do
+    let(:agent_class) do
+      Class.new(Igniter::Agent) do
+        initial_state names: []
+
+        on :remember do |state:, payload:, **|
+          state.merge(names: state[:names] + [payload.fetch(:name)])
+        end
+      end
+    end
+
+    it "delivers a cast over the server protocol" do
+      ref = agent_class.start(name: :greeter)
+
+      body = JSON.generate({ "inputs" => { "name" => "Alice" }, "timeout" => 3 })
+      result = router.call("POST", "/v1/agents/greeter/messages/remember/cast", body)
+
+      expect(result[:status]).to eq(200)
+      data = JSON.parse(result[:body])
+      expect(data).to include("status" => "succeeded")
+      wait_until { ref.state[:names] == ["Alice"] }
+      expect(ref.state[:names]).to eq(["Alice"])
+      ref.stop
     end
   end
 

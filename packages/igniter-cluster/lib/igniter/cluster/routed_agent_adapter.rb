@@ -6,7 +6,7 @@ module Igniter
     class RoutedAgentAdapter < Igniter::Runtime::ProxyAgentAdapter
       def initialize(local_adapter: Igniter::Runtime::RegistryAgentAdapter.new,
                      route_resolver: AgentRouteResolver.new,
-                     transport: Igniter::Runtime::AgentTransport.new)
+                     transport: Igniter::Server.agent_transport)
         super(local_adapter: local_adapter, route_resolver: route_resolver, transport: transport)
       end
 

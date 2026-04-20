@@ -23,6 +23,8 @@ module Igniter
         { method: "GET",    pattern: %r{\A/v1/contracts\z},                        handler: :contracts },
         { method: "POST",   pattern: %r{\A/v1/contracts/(?<name>[^/]+)/execute\z}, handler: :execute },
         { method: "POST",   pattern: %r{\A/v1/contracts/(?<name>[^/]+)/events\z},  handler: :event },
+        { method: "POST",   pattern: %r{\A/v1/agents/(?<via>[^/]+)/messages/(?<message>[^/]+)/call\z}, handler: :agent_call },
+        { method: "POST",   pattern: %r{\A/v1/agents/(?<via>[^/]+)/messages/(?<message>[^/]+)/cast\z}, handler: :agent_cast },
         { method: "GET",    pattern: %r{\A/v1/executions/(?<id>[^/]+)\z},          handler: :status }
       ].freeze
 
@@ -94,6 +96,8 @@ module Igniter
         when :contracts          then Handlers::ContractsHandler.new(registry, store)
         when :execute            then Handlers::ExecuteHandler.new(registry, store, collector: collector)
         when :event              then Handlers::EventHandler.new(registry, store, collector: collector)
+        when :agent_call         then Handlers::AgentMessageHandler.new(registry, store, mode: :call)
+        when :agent_cast         then Handlers::AgentMessageHandler.new(registry, store, mode: :cast)
         when :status             then Handlers::StatusHandler.new(registry, store)
         end
       end

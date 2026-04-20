@@ -158,13 +158,24 @@ module Igniter
             raise ResolutionError, "Pending agent node '#{node_name}' does not match token '#{token}'"
           end
 
+          session = agent_session_for_state(state)
+          handled = handle_remote_agent_session_resume(state, session, value)
+          return handled if handled
+
           return resume(node_name, value: value)
         end
 
-        token = session_or_token.is_a?(Runtime::AgentSession) ? session_or_token.token : session_or_token
-        raise ResolutionError, "Agent session token is required" if token.nil? || token.to_s.empty?
+        session = resolve_agent_session(session_or_token)
+        handled = handle_remote_agent_session_resume(
+          pending_state_for_token(session.token, source_only: true),
+          session,
+          value
+        )
+        return handled if handled
 
-        resume_by_token(token, value: value)
+        raise ResolutionError, "Agent session token is required" if session.token.nil? || session.token.to_s.empty?
+
+        resume_by_token(session.token, value: value)
       end
 
       def continue_agent_session(session_or_token, payload:, trace: nil, token: nil, waiting_on: nil, request: nil, reply: nil, phase: nil)
@@ -175,6 +186,19 @@ module Igniter
           raise ResolutionError, "Streaming agent session '#{session.node_name}' does not allow continuation under session_policy :single_turn"
         end
         session.validate_stream_reply!(reply) if state.node.reply_mode == :stream
+
+        handled = handle_remote_agent_session_continue(
+          state,
+          session,
+          payload: payload,
+          trace: trace,
+          token: token,
+          waiting_on: waiting_on,
+          request: request,
+          reply: reply,
+          phase: phase
+        )
+        return handled if handled
 
         continued_session = session.continue(
           payload: payload,
@@ -586,6 +610,191 @@ module Igniter
 
           !source_only || state.value.source_node == state.node.name
         end
+      end
+
+      def handle_remote_agent_session_continue(state, session, payload:, trace:, token:, waiting_on:, request:, reply:, phase:) # rubocop:disable Metrics/ParameterLists
+        return nil unless state
+        return nil unless session.remote_owned?
+
+        response = @agent_adapter.continue_session(
+          session: session,
+          payload: payload,
+          execution: self,
+          trace: trace,
+          token: token,
+          waiting_on: waiting_on,
+          request: request,
+          reply: reply,
+          phase: phase
+        )
+        return nil unless response
+
+        apply_remote_agent_session_response(
+          state,
+          session,
+          response,
+          payload: payload,
+          trace: trace,
+          token: token,
+          waiting_on: waiting_on,
+          request: request,
+          reply: reply,
+          phase: phase
+        )
+      end
+
+      def handle_remote_agent_session_resume(state, session, value)
+        return nil unless state
+        return nil unless session.remote_owned?
+
+        response = @agent_adapter.resume_session(
+          session: session,
+          execution: self,
+          value: value.equal?(UNDEFINED_RESUME_VALUE) ? nil : value
+        )
+        return nil unless response
+
+        apply_remote_agent_session_response(state, session, response)
+      end
+
+      def apply_remote_agent_session_response(state, session, response, payload: nil, trace: nil, token: nil, waiting_on: nil, request: nil, reply: nil, phase: nil) # rubocop:disable Metrics/ParameterLists
+        status = value_from(response, :status)&.to_sym
+
+        case status
+        when :pending
+          apply_remote_pending_agent_session_response(
+            state,
+            session,
+            response,
+            payload: payload,
+            trace: trace,
+            token: token,
+            waiting_on: waiting_on,
+            request: request,
+            reply: reply,
+            phase: phase
+          )
+        when :succeeded
+          apply_remote_completed_agent_session_response(state, session, response)
+        when :failed
+          error = value_from(response, :error) || {}
+          message = value_from(error, :message) || value_from(response, :message) || "remote agent session failed"
+          raise ResolutionError.new(message, context: { agent_trace: value_from(response, :agent_trace) }.compact)
+        else
+          raise ResolutionError, "Remote agent session '#{session.token}' returned unexpected status '#{status}'"
+        end
+      end
+
+      def apply_remote_pending_agent_session_response(state, session, response, payload:, trace:, token:, waiting_on:, request:, reply:, phase:) # rubocop:disable Metrics/ParameterLists
+        continued_session =
+          if (raw_session = value_from(response, :agent_session) || value_from(response, :session))
+            normalize_remote_agent_session(raw_session, session)
+          else
+            session.continue(
+              payload: payload || session.payload,
+              trace: value_from(response, :agent_trace) || trace,
+              token: token,
+              waiting_on: waiting_on,
+              request: request,
+              reply: reply,
+              phase: phase
+            )
+          end
+
+        deferred = deferred_for_remote_agent_session_response(state, continued_session, response)
+
+        cache.write(
+          NodeState.new(
+            node: state.node,
+            status: :pending,
+            value: deferred,
+            details: {
+              agent_trace: continued_session.trace,
+              agent_session: continued_session.to_h
+            }.compact
+          )
+        )
+        @events.emit(
+          :agent_session_continued,
+          node: state.node,
+          status: :pending,
+          payload: {
+            token: continued_session.token,
+            turn: continued_session.turn,
+            phase: continued_session.phase,
+            waiting_on: continued_session.waiting_on,
+            agent_trace: continued_session.trace,
+            agent_session: continued_session.to_h
+          }.compact
+        )
+        @events.emit(:node_pending, node: state.node, status: :pending, payload: deferred.to_h)
+        persist_runtime_state!
+        self
+      end
+
+      def apply_remote_completed_agent_session_response(state, session, response)
+        resolved_value =
+          if response.respond_to?(:key?) && (response.key?(:output) || response.key?("output"))
+            value_from(response, :output)
+          else
+            value_from(response, :value)
+          end
+
+        completed_session =
+          if (raw_session = value_from(response, :agent_session) || value_from(response, :session))
+            normalize_remote_agent_session(raw_session, session)
+          else
+            session.complete(
+              value: resolved_value,
+              reply: value_from(response, :reply),
+              trace: value_from(response, :agent_trace)
+            )
+          end
+
+        cache.write(
+          NodeState.new(
+            node: state.node,
+            status: :succeeded,
+            value: resolved_value,
+            details: resumed_node_details(state, completed_session)
+          )
+        )
+        @events.emit(
+          :agent_session_completed,
+          node: state.node,
+          status: :succeeded,
+          payload: {
+            token: completed_session.token,
+            turn: completed_session.turn,
+            agent_session: completed_session.to_h
+          }
+        )
+        @events.emit(:node_resumed, node: state.node, status: :succeeded, payload: { resumed: true })
+        @invalidator.invalidate_from(state.node.name)
+        persist_runtime_state!
+        self
+      end
+
+      def normalize_remote_agent_session(raw_session, session)
+        data = raw_session.respond_to?(:to_h) ? raw_session.to_h : raw_session
+        Runtime::AgentSession.from_h(session.to_h.merge(data.transform_keys(&:to_sym)))
+      end
+
+      def deferred_for_remote_agent_session_response(state, session, response)
+        base_deferred = value_from(response, :deferred_result)
+        base_payload = value_from(response, :payload) || strip_agent_keys(state.value.payload)
+        payload = strip_agent_keys(base_payload).merge(
+          agent_trace: session.trace,
+          agent_session: session.to_h
+        ).compact
+
+        build_pending_value(
+          state.node,
+          token: base_deferred&.token || session.token,
+          payload: payload,
+          source_node: base_deferred&.source_node || state.value.source_node || state.node.name,
+          waiting_on: base_deferred&.waiting_on || session.waiting_on
+        )
       end
 
       def deferred_for_continued_agent_session(state, session)

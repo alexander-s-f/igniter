@@ -87,7 +87,18 @@ Even in that narrow form, agents are no longer opaque:
   - `Igniter::Cluster::AgentRouteResolver`
   - `Igniter::Cluster::RoutedAgentAdapter`
   - capability and pinned routing already resolve through mesh semantics and preserve pending/failure behavior
-- this is still intentionally transport-light: the route/adapter foundation is landed, but a fully canonical remote network protocol for agents is still a later step
+- server now also provides the first canonical remote agent protocol:
+  - `Igniter::Server::AgentTransport`
+  - `POST /v1/agents/:via/messages/:message/call`
+  - `POST /v1/agents/:via/messages/:message/cast`
+- routed delivery now already has one honest HTTP transport path
+- routed `AgentSession` objects now also carry explicit ownership and delivery metadata like `ownership`, `owner_url`, and `delivery_route`
+- core runtime now also exposes optional continuation/resume hooks above the initial routed seam:
+  - `AgentAdapter#continue_session`
+  - `AgentAdapter#resume_session`
+  - `AgentTransport#continue_session`
+  - `AgentTransport#resume_session`
+- those hooks are intentionally opt-in today, so graph-owned local continuity remains the default until a transport explicitly declares session lifecycle support
 
 ## Near-Term Direction
 
@@ -106,6 +117,10 @@ The current session model is intentionally simple but now explicit:
 - an `agent` node may stay pending across multiple turns
 - each continuation updates `turn`, `history`, `payload`, and `agent_trace`
 - sessions now also keep `phase`, `messages`, `last_request`, and `last_reply`
+- sessions now also carry explicit routed ownership metadata when delivery is remote:
+  - `ownership`
+  - `owner_url`
+  - `delivery_route`
 - `reply: :single` forbids pending delivery
 - `reply: :deferred` preserves the current resumable single-reply lifecycle
 - `reply: :stream` requires session-based delivery and opens a path toward partial replies
@@ -114,6 +129,7 @@ The current session model is intentionally simple but now explicit:
 - streaming is beginning to move from raw `chunk` payloads to typed stream events, with `chunks` kept as a derived convenience view
 - final completion preserves the completed session in node details for diagnostics/provenance
 - store-backed runners persist and restore that lifecycle instead of treating the session as caller-owned state
+- routed sessions may now opt into adapter-owned continuation/resume handling through the new session lifecycle hooks, while still falling back to the existing graph-owned continuity model by default
 
 This is the first step toward making agents a durable execution concept inside Igniter rather than a thin adapter callback.
 
@@ -127,7 +143,7 @@ After the package split is stable, we can evaluate a deeper model:
 - clearer semantics for mailbox state versus graph state
 - higher-level orchestration handlers built on top of planner-visible agent actions
 - a read-only query surface over live `AgentSession` and orchestration state before attempting a full `MeshQL`-style language for agents
-- a canonical remote agent transport and lifecycle contract above the new routed-agent seam
+- deeper remote agent lifecycle ownership above the new routed-agent seam, rather than only initial remote delivery
 
 That is a separate architectural pass and should be designed intentionally rather than smuggled into the gem extraction.
 

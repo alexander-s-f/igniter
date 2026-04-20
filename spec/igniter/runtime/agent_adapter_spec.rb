@@ -289,4 +289,79 @@ RSpec.describe Igniter::Runtime::ProxyAgentAdapter do
       remote: true
     )
   end
+
+  it "delegates remote session continuation to the transport" do
+    session = Igniter::Runtime::AgentSession.new(
+      token: "remote-1",
+      node_name: :greeting,
+      agent_name: :greeter,
+      message_name: :greet,
+      mode: :call,
+      ownership: :remote,
+      owner_url: "http://agents:4567",
+      delivery_route: { routing_mode: :static, url: "http://agents:4567", remote: true }
+    )
+
+    allow(transport).to receive(:continue_session).and_return(
+      status: :pending,
+      agent_trace: { adapter: :http_agent, outcome: :continued }
+    )
+    allow(transport).to receive(:session_lifecycle?).and_return(true)
+
+    response = adapter.continue_session(session: session, payload: { step: 2 })
+
+    expect(transport).to have_received(:continue_session).with(
+      route: have_attributes(routing_mode: :static, url: "http://agents:4567", via: :greeter, message: :greet),
+      session: session,
+      payload: { step: 2 },
+      execution: nil,
+      trace: nil,
+      token: nil,
+      waiting_on: nil,
+      request: nil,
+      reply: nil,
+      phase: nil
+    )
+    expect(response[:agent_trace]).to include(
+      adapter: :http_agent,
+      routing_mode: :static,
+      route_url: "http://agents:4567",
+      remote: true
+    )
+  end
+
+  it "delegates remote session resume to the transport" do
+    session = Igniter::Runtime::AgentSession.new(
+      token: "remote-1",
+      node_name: :greeting,
+      agent_name: :greeter,
+      message_name: :greet,
+      mode: :call,
+      ownership: :remote,
+      owner_url: "http://agents:4567",
+      delivery_route: { routing_mode: :static, url: "http://agents:4567", remote: true }
+    )
+
+    allow(transport).to receive(:resume_session).and_return(
+      status: :succeeded,
+      output: "done",
+      agent_trace: { adapter: :http_agent, outcome: :completed }
+    )
+    allow(transport).to receive(:session_lifecycle?).and_return(true)
+
+    response = adapter.resume_session(session: session, value: "done")
+
+    expect(transport).to have_received(:resume_session).with(
+      route: have_attributes(routing_mode: :static, url: "http://agents:4567", via: :greeter, message: :greet),
+      session: session,
+      execution: nil,
+      value: "done"
+    )
+    expect(response[:agent_trace]).to include(
+      adapter: :http_agent,
+      routing_mode: :static,
+      route_url: "http://agents:4567",
+      remote: true
+    )
+  end
 end

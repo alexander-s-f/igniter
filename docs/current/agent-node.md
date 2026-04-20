@@ -289,8 +289,33 @@ That means remote/routed agent work is no longer only an idea. Route grammar, ro
 
 What is intentionally still not claimed:
 
-- there is not yet one canonical remote transport protocol for agent delivery
-- static/capability/pinned routing is now real, but transport execution is still a seam that higher layers can provide
+- the first canonical remote transport protocol now exists through the server package
+- static/capability/pinned routing is now real and can already execute over HTTP
 - this is the first distributed delivery foundation, not the finished distributed agent runtime
+
+Current remote transport path:
+
+- `Igniter::Server::AgentTransport`
+- `Igniter::Server::Client#call_agent`
+- `Igniter::Server::Client#cast_agent`
+- server routes:
+  - `POST /v1/agents/:via/messages/:message/call`
+  - `POST /v1/agents/:via/messages/:message/cast`
+
+Continuity model:
+
+- remote agent delivery may still return `pending`
+- that pending reply still materializes as a local `AgentSession`
+- routed sessions now also carry explicit ownership metadata:
+  - `ownership`
+  - `owner_url`
+  - `delivery_route`
+- continuation and resume still remain graph-owned by default, so the same session/orchestration model keeps working after routed delivery instead of branching into a second remote-only session abstraction
+- core runtime now also exposes opt-in continuation/resume hooks above that default:
+  - `AgentAdapter#continue_session`
+  - `AgentAdapter#resume_session`
+  - `AgentTransport#continue_session`
+  - `AgentTransport#resume_session`
+- that means the remote lifecycle seam now exists explicitly, but it is not forced on every transport before a real remote-owned session protocol is ready
 
 See also: [Agents Roadmap](./agents-roadmap.md)

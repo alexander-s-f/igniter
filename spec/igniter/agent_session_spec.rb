@@ -276,4 +276,34 @@ RSpec.describe "agent sessions" do
     expect(query.explain).to include("AgentSessionQuery(2 candidates)")
     expect(query.explain).to include("filters: 0")
   end
+
+  it "infers remote ownership and delivery route from agent trace" do
+    session = Igniter::Runtime::AgentSession.new(
+      token: "remote-1",
+      node_name: :summary,
+      agent_name: :writer,
+      message_name: :summarize,
+      mode: :call,
+      reply_mode: :stream,
+      trace: {
+        adapter: :remote_agent,
+        routing_mode: :static,
+        route_url: "http://agents:4567",
+        remote: true
+      },
+      payload: { requested_name: "Alice" }
+    )
+
+    expect(session).to be_remote_owned
+    expect(session.owner_url).to eq("http://agents:4567")
+    expect(session.delivery_route).to include(
+      routing_mode: :static,
+      url: "http://agents:4567",
+      remote: true
+    )
+    expect(Igniter::Runtime::AgentSession.from_h(session.to_h)).to have_attributes(
+      ownership: :remote,
+      owner_url: "http://agents:4567"
+    )
+  end
 end

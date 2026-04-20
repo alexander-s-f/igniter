@@ -63,6 +63,10 @@ That draft is now specific enough to guide implementation:
   - `ProxyAgentAdapter`
   - cluster `AgentRouteResolver`
   - cluster `RoutedAgentAdapter`
+  - server `AgentTransport`
+  - `/v1/agents/:via/messages/:message/call`
+  - `/v1/agents/:via/messages/:message/cast`
+  - explicit routed session ownership metadata plus opt-in continuation/resume hooks above the initial transport seam
 
 - normalized `BootstrapTarget`
 - normalized `DeploymentIntent`

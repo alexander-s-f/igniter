@@ -22,11 +22,13 @@ require_relative "server/http_server"
 require_relative "server/rack_app"
 require_relative "server/client"
 require_relative "server/remote_adapter"
+require_relative "server/agent_transport"
 require_relative "server/handlers/base"
 require_relative "server/handlers/health_handler"
 require_relative "server/handlers/contracts_handler"
 require_relative "server/handlers/execute_handler"
 require_relative "server/handlers/event_handler"
+require_relative "server/handlers/agent_message_handler"
 require_relative "server/handlers/status_handler"
 require_relative "server/handlers/liveness_handler"
 require_relative "server/handlers/readiness_handler"
@@ -41,12 +43,33 @@ module Igniter
         @remote_adapter ||= RemoteAdapter.new
       end
 
+      def agent_transport
+        @agent_transport ||= AgentTransport.new
+      end
+
+      def agent_adapter
+        require "igniter/agent"
+        Igniter::Runtime::ProxyAgentAdapter.new(
+          local_adapter: Igniter::Runtime::RegistryAgentAdapter.new,
+          transport: agent_transport
+        )
+      end
+
       def activate_remote_adapter!
         Igniter::Runtime.remote_adapter = remote_adapter
       end
 
+      def activate_agent_adapter!
+        Igniter::Runtime.agent_adapter = agent_adapter
+      end
+
       def deactivate_remote_adapter!
         Igniter::Runtime.remote_adapter = Igniter::Runtime::RemoteAdapter.new
+      end
+
+      def deactivate_agent_adapter!
+        require "igniter/agent"
+        Igniter::Runtime.agent_adapter = Igniter::Runtime::RegistryAgentAdapter.new
       end
 
       def use(*names)
@@ -73,6 +96,7 @@ module Igniter
       # Start the built-in HTTP server (blocking).
       def start(**options)
         activate_remote_adapter!
+        activate_agent_adapter!
         apply_options!(options)
         HttpServer.new(config).start
       end
@@ -80,6 +104,7 @@ module Igniter
       # Return a Rack-compatible application for use with Puma/Unicorn/etc.
       def rack_app
         activate_remote_adapter!
+        activate_agent_adapter!
         RackApp.new(config)
       end
 

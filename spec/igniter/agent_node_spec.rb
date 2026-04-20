@@ -328,6 +328,231 @@ RSpec.describe "agent: DSL node" do
       ref.stop
     end
 
+    it "preserves local session continuity for pending remote agent delivery" do
+      local_adapter = instance_double("LocalAgentAdapter")
+      transport = instance_double("AgentTransport")
+      proxy_adapter = Igniter::Runtime::ProxyAgentAdapter.new(
+        local_adapter: local_adapter,
+        route_resolver: Igniter::Runtime::AgentRouteResolver.new,
+        transport: transport
+      )
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: proxy_adapter
+
+        define do
+          input :name
+          agent :summary,
+                via: :writer,
+                message: :summarize,
+                node: "http://agents:4567",
+                reply: :stream,
+                inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      allow(local_adapter).to receive(:call)
+      allow(transport).to receive(:session_lifecycle?).and_return(false)
+      allow(transport).to receive(:call).and_return(
+        status: :pending,
+        message: "continue",
+        deferred_result: Igniter::Runtime::DeferredResult.build(
+          token: "remote-summary-session",
+          payload: { requested_name: "Alice" },
+          source_node: :summary,
+          waiting_on: :summary
+        ),
+        payload: { requested_name: "Alice" },
+        agent_trace: {
+          adapter: :remote_agent,
+          remote: true,
+          outcome: :pending
+        }
+      )
+
+      contract = contract_class.new(name: "Alice")
+      contract.resolve_all
+
+      session = contract.execution.agent_sessions.first
+      expect(session.token).to eq("remote-summary-session")
+      expect(session.payload).to eq(requested_name: "Alice")
+      expect(session).to be_remote_owned
+      expect(session.owner_url).to eq("http://agents:4567")
+      expect(session.delivery_route).to include(
+        routing_mode: :static,
+        url: "http://agents:4567",
+        remote: true
+      )
+      expect(session.trace).to include(
+        adapter: :remote_agent,
+        remote: true,
+        routing_mode: :static,
+        route_url: "http://agents:4567"
+      )
+
+      contract.execution.continue_agent_session(
+        session.token,
+        payload: { requested_name: "Alice", step: 2 },
+        reply: { turn: 2, kind: :reply, name: :summarize, source: :agent, payload: { chunk: "Hello, Alice" } }
+      )
+
+      continued = contract.execution.agent_sessions.first
+      expect(continued.turn).to eq(2)
+      expect(continued.payload).to eq(requested_name: "Alice", step: 2)
+
+      contract.execution.resume_agent_session(continued.token)
+
+      expect(contract.result.summary).to eq("Hello, Alice")
+    end
+
+    it "uses adapter continuation and resume hooks for remote-owned sessions when available" do
+      local_adapter = instance_double("LocalAgentAdapter")
+      transport = instance_double("AgentTransport")
+      proxy_adapter = Igniter::Runtime::ProxyAgentAdapter.new(
+        local_adapter: local_adapter,
+        route_resolver: Igniter::Runtime::AgentRouteResolver.new,
+        transport: transport
+      )
+
+      contract_class = Class.new(Igniter::Contract) do
+        runner :inline, agent_adapter: proxy_adapter
+
+        define do
+          input :name
+          agent :summary,
+                via: :writer,
+                message: :summarize,
+                node: "http://agents:4567",
+                reply: :stream,
+                inputs: { name: :name }
+          output :summary
+        end
+      end
+
+      allow(local_adapter).to receive(:call)
+      allow(transport).to receive(:call).and_return(
+        status: :pending,
+        message: "continue",
+        deferred_result: Igniter::Runtime::DeferredResult.build(
+          token: "remote-summary-session",
+          payload: { requested_name: "Alice" },
+          source_node: :summary,
+          waiting_on: :summary
+        ),
+        payload: { requested_name: "Alice" },
+        agent_trace: {
+          adapter: :remote_agent,
+          remote: true,
+          outcome: :pending
+        }
+      )
+      allow(transport).to receive(:session_lifecycle?).and_return(true)
+      allow(transport).to receive(:continue_session).and_return(
+        status: :pending,
+        deferred_result: Igniter::Runtime::DeferredResult.build(
+          token: "remote-summary-session",
+          payload: { requested_name: "Alice", delegated: true },
+          source_node: :summary,
+          waiting_on: :summary
+        ),
+        payload: { requested_name: "Alice", delegated: true },
+        agent_trace: {
+          adapter: :remote_agent,
+          remote: true,
+          outcome: :continued
+        },
+        agent_session: {
+          token: "remote-summary-session",
+          node_name: :summary,
+          agent_name: :writer,
+          message_name: :summarize,
+          mode: :call,
+          reply_mode: :stream,
+          turn: 2,
+          phase: :streaming,
+          waiting_on: :summary,
+          source_node: :summary,
+          payload: { requested_name: "Alice", delegated: true },
+          ownership: :remote,
+          owner_url: "http://agents:4567",
+          delivery_route: { routing_mode: :static, url: "http://agents:4567", remote: true },
+          trace: {
+            adapter: :remote_agent,
+            remote: true,
+            outcome: :continued
+          },
+          messages: [
+            { turn: 1, kind: :request, name: :summarize, source: :contract, reply_mode: :stream, payload: { requested_name: "Alice" } },
+            { turn: 2, kind: :request, name: :summarize, source: :continuation, reply_mode: :stream, payload: { requested_name: "Alice", delegated: true } }
+          ],
+          history: [
+            { turn: 1, event: :opened, token: "remote-summary-session", waiting_on: :summary, payload: { requested_name: "Alice" }, phase: :streaming },
+            { turn: 2, event: :continued, token: "remote-summary-session", waiting_on: :summary, payload: { requested_name: "Alice", delegated: true }, phase: :streaming }
+          ]
+        }
+      )
+      allow(transport).to receive(:resume_session).and_return(
+        status: :succeeded,
+        output: "Hello remotely",
+        agent_trace: {
+          adapter: :remote_agent,
+          remote: true,
+          outcome: :completed
+        },
+        agent_session: {
+          token: "remote-summary-session",
+          node_name: :summary,
+          agent_name: :writer,
+          message_name: :summarize,
+          mode: :call,
+          reply_mode: :stream,
+          turn: 3,
+          phase: :completed,
+          waiting_on: :summary,
+          source_node: :summary,
+          payload: { requested_name: "Alice", delegated: true },
+          ownership: :remote,
+          owner_url: "http://agents:4567",
+          delivery_route: { routing_mode: :static, url: "http://agents:4567", remote: true },
+          trace: {
+            adapter: :remote_agent,
+            remote: true,
+            outcome: :completed
+          },
+          messages: [
+            { turn: 1, kind: :request, name: :summarize, source: :contract, reply_mode: :stream, payload: { requested_name: "Alice" } },
+            { turn: 2, kind: :request, name: :summarize, source: :continuation, reply_mode: :stream, payload: { requested_name: "Alice", delegated: true } },
+            { turn: 3, kind: :reply, name: :summarize, source: :agent, reply_mode: :stream, payload: { event: Igniter::Runtime::AgentSession.final_event(value: "Hello remotely") } }
+          ],
+          history: [
+            { turn: 1, event: :opened, token: "remote-summary-session", waiting_on: :summary, payload: { requested_name: "Alice" }, phase: :streaming },
+            { turn: 2, event: :continued, token: "remote-summary-session", waiting_on: :summary, payload: { requested_name: "Alice", delegated: true }, phase: :streaming },
+            { turn: 3, event: :completed, token: "remote-summary-session", waiting_on: :summary, phase: :completed }
+          ]
+        }
+      )
+
+      contract = contract_class.new(name: "Alice")
+      contract.resolve_all
+
+      contract.execution.continue_agent_session(
+        "remote-summary-session",
+        payload: { requested_name: "Alice", step: 2 }
+      )
+
+      continued = contract.execution.agent_sessions.first
+      expect(transport).to have_received(:continue_session)
+      expect(continued.turn).to eq(2)
+      expect(continued.payload).to eq(requested_name: "Alice", delegated: true)
+      expect(continued).to be_remote_owned
+
+      contract.execution.resume_agent_session("remote-summary-session")
+
+      expect(transport).to have_received(:resume_session)
+      expect(contract.result.summary).to eq("Hello remotely")
+    end
+
     it "rejects pending delivery for reply: :single" do
       adapter = Class.new do
         define_method(:call) do |node:, **|

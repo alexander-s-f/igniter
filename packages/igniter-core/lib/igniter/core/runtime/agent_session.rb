@@ -54,12 +54,13 @@ module Igniter
 
       attr_reader :token, :node_name, :node_path, :agent_name, :message_name,
                   :mode, :reply_mode, :waiting_on, :source_node, :trace, :payload, :turn, :phase,
-                  :messages, :last_request, :last_reply, :history,
+                  :messages, :last_request, :last_reply, :history, :ownership, :owner_url, :delivery_route,
                   :execution_id, :graph
 
       def initialize(token:, node_name:, node_path: nil, agent_name:, message_name:, mode:, # rubocop:disable Metrics/ParameterLists
                      reply_mode: nil, waiting_on: nil, source_node: nil, trace: nil, payload: {}, turn: 1, phase: nil,
-                     messages: nil, last_request: nil, last_reply: nil, history: nil, execution_id: nil, graph: nil)
+                     messages: nil, last_request: nil, last_reply: nil, history: nil, ownership: nil, owner_url: nil,
+                     delivery_route: nil, execution_id: nil, graph: nil)
         @token = token
         @node_name = node_name&.to_sym
         @node_path = node_path
@@ -77,6 +78,9 @@ module Igniter
         @last_request = normalize_message_entry(last_request || find_last_message(:request))
         @last_reply = normalize_message_entry(last_reply || find_last_message(:reply))
         @phase = normalize_phase(phase || default_phase)
+        @delivery_route = normalize_delivery_route(delivery_route || delivery_route_from_trace(trace))
+        @owner_url = (owner_url || @delivery_route[:url])&.to_s
+        @ownership = normalize_ownership(ownership || default_ownership(@delivery_route, trace))
         @execution_id = execution_id
         @graph = graph
         freeze
@@ -101,6 +105,9 @@ module Igniter
           last_request: value_from(data, :last_request),
           last_reply: value_from(data, :last_reply),
           history: value_from(data, :history) || [],
+          ownership: value_from(data, :ownership),
+          owner_url: value_from(data, :owner_url),
+          delivery_route: value_from(data, :delivery_route),
           execution_id: value_from(data, :execution_id),
           graph: value_from(data, :graph)
         )
@@ -125,6 +132,9 @@ module Igniter
           last_request: last_request,
           last_reply: last_reply,
           history: history,
+          ownership: ownership,
+          owner_url: owner_url,
+          delivery_route: delivery_route,
           execution_id: execution_id,
           graph: graph
         }.compact
@@ -174,6 +184,9 @@ module Igniter
               reply: reply_message
             }
           ],
+          ownership: ownership,
+          owner_url: owner_url,
+          delivery_route: delivery_route,
           execution_id: execution_id,
           graph: graph
         )
@@ -210,9 +223,20 @@ module Igniter
               reply: reply_message
             }
           ],
+          ownership: ownership,
+          owner_url: owner_url,
+          delivery_route: delivery_route,
           execution_id: execution_id,
           graph: graph
         )
+      end
+
+      def local_owned?
+        ownership == :local
+      end
+
+      def remote_owned?
+        ownership == :remote
       end
 
       def chunks
@@ -412,6 +436,75 @@ module Igniter
       end
 
       private
+
+      def normalize_ownership(value)
+        (value || :local).to_sym
+      end
+
+      def normalize_delivery_route(route)
+        return {}.freeze unless route.is_a?(Hash)
+
+        route.each_with_object({}) do |(key, value), memo|
+          next if value.nil?
+
+          normalized_key = key.to_sym
+          memo[normalized_key] =
+            case normalized_key
+            when :routing_mode
+              value.to_sym
+            when :remote
+              truthy?(value)
+            when :capability
+              value.to_sym
+            when :query
+              value.is_a?(Hash) ? deep_symbolize_hash(value) : value
+            else
+              value
+            end
+        end.freeze
+      end
+
+      def default_ownership(route, trace)
+        return :remote if route[:remote]
+        return :remote if route[:routing_mode] && route[:routing_mode] != :local
+        return :remote if route[:url]
+        return :remote if trace.is_a?(Hash) && truthy?(trace[:remote] || trace["remote"])
+
+        :local
+      end
+
+      def delivery_route_from_trace(trace)
+        return {} unless trace.is_a?(Hash)
+
+        {
+          routing_mode: trace[:routing_mode] || trace["routing_mode"],
+          url: trace[:route_url] || trace["route_url"],
+          capability: trace[:capability] || trace["capability"],
+          query: trace[:capability_query] || trace["capability_query"],
+          pinned_to: trace[:pinned_to] || trace["pinned_to"],
+          remote: trace.key?(:remote) || trace.key?("remote") ? truthy?(trace[:remote] || trace["remote"]) : nil
+        }.reject { |_key, value| value.nil? }
+      end
+
+      def deep_symbolize_hash(value)
+        return value unless value.is_a?(Hash)
+
+        value.each_with_object({}) do |(key, nested_value), memo|
+          memo[key.to_sym] =
+            case nested_value
+            when Hash
+              deep_symbolize_hash(nested_value)
+            when Array
+              nested_value.map { |item| item.is_a?(Hash) ? deep_symbolize_hash(item) : item }
+            else
+              nested_value
+            end
+        end
+      end
+
+      def truthy?(value)
+        value == true || value.to_s == "true"
+      end
 
       def normalize_messages(messages)
         base_messages = Array(messages || default_messages)
