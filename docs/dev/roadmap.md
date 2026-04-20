@@ -43,6 +43,15 @@ In parallel, app structure is now an active design line too:
 - move generated UI authoring toward `igniter-frontend` instead of raw HTML strings
 - keep cross-app access explicit instead of implicit through shared helpers
 
+Another active design line is emerging around cluster ignition:
+
+- define `node` as a running stack umbrella, not as an app or static machine role
+- define `cluster` as a dynamic set of stack nodes
+- move cluster bring-up toward `ignite` intent executed by built-in deployment agents
+- keep bootstrap, approval, trust, and join as one coherent workflow rather than scattered scripts
+
+See [Current: Ignite](../current/ignite.md) for the current specification draft.
+
 ## Reading Heuristic
 
 - Read `Agents Roadmap` for the current `contracts & agents` execution direction.

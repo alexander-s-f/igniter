@@ -24,6 +24,32 @@ The cluster should be modeled as:
 - a trust and policy layer over what nodes can do and what they are allowed to do
 - a resilient network that can degrade gracefully and recover plasticity as peers come and go
 
+## Additional Current Direction
+
+Two points are now important enough to state explicitly:
+
+### 1. Node Means Running Stack
+
+A node should be understood as:
+
+- one running stack runtime
+- one stack umbrella
+- potentially several mounted apps inside it
+
+Apps remain code boundaries.
+Nodes remain cluster/runtime boundaries.
+
+### 2. Cluster Boot Should Be Ignite-Driven
+
+The likely next boot direction is:
+
+- start one live stack node
+- give it an `ignite` instruction describing how to light more peers
+- let those peers join as stack nodes
+- let capability publication and routing differentiate the mesh afterwards
+
+This direction is intentionally capability-first, not role-first.
+
 ## What Is Already True
 
 The following direction is already established in the codebase:

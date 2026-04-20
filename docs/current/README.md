@@ -16,6 +16,7 @@ while the architecture is still evolving.
 - [Agent Node](./agent-node.md)
 - [Agents Roadmap](./agents-roadmap.md)
 - [App Structure](./app-structure.md)
+- [Ignite](./ignite.md)
 - [Stacks](./stacks.md)
 - [Cluster State](./cluster-state.md)
 - [Cluster Roadmap](./cluster-roadmap.md)
@@ -24,6 +25,7 @@ while the architecture is still evolving.
 
 - Read `Contracts And Agents` first for the current doctrine: `contract` is fundamental, `agent` is first-class.
 - Read `App Structure` when you are touching stack/app layout, generators, or frontend authoring shape.
+- Read `Ignite` when you are thinking about cluster bootstrap, deployment agents, or seed-to-peer bring-up.
 - Read `Agent Node` for the concrete runtime shape: sessions, stream events, orchestration, and operator surfaces.
 - Read `Agents Roadmap` for the real next-cycle options rather than older speculative notes.
 - Treat the agent query/operator work as active.
