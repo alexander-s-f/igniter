@@ -52,6 +52,27 @@ Another active design line is emerging around cluster ignition:
 
 See [Current: Ignite](../current/ignite.md) for the current specification draft.
 
+That draft is now specific enough to guide implementation:
+
+- normalized `BootstrapTarget`
+- normalized `DeploymentIntent`
+- plan-level `IgnitionPlan`
+- explicit ignition lifecycle and correlation model
+- local-replica-first implementation ordering before remote SSH bootstrap
+
+The first code slice has now landed:
+
+- `Igniter::Ignite::*` normalized value objects
+- `Igniter::Stack#ignition_plan`
+- local `ignite.replicas` folded into stack runtime shaping
+
+So the next cluster-ignite move is no longer config modeling.
+It is agent-driven execution:
+
+- minimal `IgnitionAgent`
+- local replica orchestration/reporting
+- then admission-aware join lifecycle
+
 ## Reading Heuristic
 
 - Read `Agents Roadmap` for the current `contracts & agents` execution direction.

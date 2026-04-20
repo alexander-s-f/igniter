@@ -282,6 +282,320 @@ Potential meanings:
 - `capabilities`
   - desired post-join capability intent, not static role identity
 
+## Normalized Runtime Objects
+
+The YAML shape is only the authoring surface.
+
+Ignition should not execute directly from raw config hashes.
+
+The next implementation step should normalize config into explicit runtime value
+objects:
+
+- `Igniter::Ignite::BootstrapTarget`
+- `Igniter::Ignite::DeploymentIntent`
+- `Igniter::Ignite::IgnitionPlan`
+
+The rule should be:
+
+- config is user-authored intent
+- normalized objects are execution intent
+- agents operate on normalized objects, not raw YAML
+
+That keeps validation, approval, idempotency, and reporting in one place.
+
+Current landed state:
+
+- `Igniter::Ignite::BootstrapTarget` exists
+- `Igniter::Ignite::DeploymentIntent` exists
+- `Igniter::Ignite::IgnitionPlan` exists
+- `Igniter::Stack#ignition_plan` normalizes `ignite` config into these objects
+- local `ignite.replicas` already participate in stack `dev` / compose-style
+  runtime shaping as synthetic local runtime units
+
+This is still an early implementation slice.
+
+It gives us normalized value objects and local replica boot semantics, but not
+yet agent-driven orchestration or remote bootstrap execution.
+
+## `BootstrapTarget`
+
+`BootstrapTarget` should represent one concrete place where a node may be
+brought up.
+
+It should not mean:
+
+- a logical capability need
+- a static cluster role
+- a routing preference
+
+It should mean:
+
+- one local replica target
+- or one remote machine / environment target
+
+Recommended minimum fields:
+
+- `id`
+- `kind`
+- `locator`
+- `base_server`
+- `capability_intent`
+- `bootstrap_requirements`
+- `metadata`
+
+### Target Kinds
+
+The first useful kinds are:
+
+- `local_replica`
+- `ssh_server`
+
+Later we may add:
+
+- `container_runtime`
+- `vm_template`
+- `kubernetes_target`
+
+But the first slice should stay small and concrete.
+
+### Example: Local Replica Target
+
+```yaml
+id: edge-1
+kind: local_replica
+locator:
+  port: 4568
+base_server:
+  host: 0.0.0.0
+  port: 4567
+capability_intent:
+  - audio_ingest
+  - whisper_asr
+bootstrap_requirements: {}
+metadata: {}
+```
+
+### Example: Remote SSH Target
+
+```yaml
+id: hp-call-analysis
+kind: ssh_server
+locator:
+  config_path: config/ssh_hp.yml
+base_server:
+  host: 0.0.0.0
+  port: 4567
+capability_intent:
+  - call_analysis
+  - local_llm
+bootstrap_requirements:
+  ruby: "3.2"
+  bundler: true
+metadata: {}
+```
+
+### Notes
+
+- `locator` is transport-specific
+- `capability_intent` describes what we want the node to be good at after join
+- `bootstrap_requirements` describes what setup may be required before the node
+  can run
+- `base_server` lets replicas inherit the seed stack's runtime defaults without
+  duplicating the whole stack config
+
+## `DeploymentIntent`
+
+`DeploymentIntent` should represent one ignition operation against one
+`BootstrapTarget`.
+
+It should be the unit that:
+
+- gets approved
+- gets delegated to a bootstrap agent
+- emits progress
+- becomes part of the final ignition report
+
+Recommended minimum fields:
+
+- `id`
+- `ignite_mode`
+- `strategy`
+- `approval_mode`
+- `target`
+- `requested_capabilities`
+- `requested_by`
+- `requested_from`
+- `seed_node`
+- `join_policy`
+- `correlation`
+- `metadata`
+
+### Semantics
+
+- `id`
+  - stable intent identifier
+- `ignite_mode`
+  - `cold_start` or `expand`
+- `strategy`
+  - `serial` or `parallel`
+- `approval_mode`
+  - `required` or `auto`
+- `target`
+  - one normalized `BootstrapTarget`
+- `requested_capabilities`
+  - final desired capability intent for the joining node
+- `requested_by`
+  - operator, agent, workflow, or system surface that created the intent
+- `requested_from`
+  - seed graph / stack / execution context
+- `seed_node`
+  - the live node that is coordinating ignition
+- `join_policy`
+  - trust / admission expectations
+- `correlation`
+  - ids that tie the lifecycle together across agents and reports
+
+### Example Shape
+
+```yaml
+id: ignite-expand-hp-call-analysis
+ignite_mode: expand
+strategy: parallel
+approval_mode: required
+target: hp-call-analysis
+requested_capabilities:
+  - call_analysis
+  - local_llm
+requested_by:
+  kind: operator
+  actor: alex
+requested_from:
+  stack: spark_crm
+  environment: prod
+seed_node:
+  host: crm-seed-1
+  port: 4567
+join_policy:
+  admission: required
+  trust: cluster_default
+correlation:
+  ignite_request_id: ignite-20260420-01
+metadata: {}
+```
+
+## `IgnitionPlan`
+
+`IgnitionPlan` should be the normalized collection of deployment intents plus
+plan-level policy.
+
+Recommended responsibilities:
+
+- hold the seed-node ignition request
+- hold ordered or parallelized `DeploymentIntent` entries
+- expose approval summary
+- expose dry-run / explain output
+- provide final result grouping
+
+The plan should be what `IgnitionAgent` receives first.
+
+The agent should then fan out into per-target `DeploymentIntent` execution.
+
+## Lifecycle Draft
+
+The lifecycle should be explicit and auditable.
+
+Recommended plan-level phases:
+
+1. `planned`
+2. `awaiting_approval`
+3. `bootstrapping`
+4. `awaiting_join`
+5. `publishing_capabilities`
+6. `completed`
+7. `failed`
+8. `cancelled`
+
+Recommended per-intent phases:
+
+1. `pending`
+2. `approved`
+3. `connecting`
+4. `preparing_runtime`
+5. `transferring_stack`
+6. `starting_node`
+7. `awaiting_admission`
+8. `awaiting_capabilities`
+9. `succeeded`
+10. `failed`
+11. `cancelled`
+
+The exact labels may evolve, but the important part is that ignition becomes a
+real long-running workflow with observable state, not an opaque side effect.
+
+## Idempotency And Correlation
+
+Ignition should assume retries and partial failure from day one.
+
+So the design should include:
+
+- stable `ignite_request_id`
+- stable `DeploymentIntent#id`
+- target identity separate from human display name
+- final reports correlated back to the original seed request
+- join/admission events tied to the intent that caused them
+
+This matters for both:
+
+- cold-start retries
+- dynamic expansion initiated by operators or LLM-assisted workflows
+
+Without this, approval, audit, and recovery will become fragile very quickly.
+
+## Minimal First Implementation
+
+The first implementation slice should stay intentionally narrow.
+
+Recommended minimum:
+
+1. local `ignite.replicas`
+2. one live seed node
+3. normalization into `BootstrapTarget` and `DeploymentIntent`
+4. `IgnitionAgent` orchestrating local sibling boot
+5. admission/join confirmation
+6. ignition report
+
+That gives us:
+
+- real agent-driven ignition
+- real lifecycle/state
+- real join confirmation
+
+without yet taking on full SSH automation.
+
+Status:
+
+- normalization is landed
+- local replica runtime shaping is landed
+- `PORT`-driven per-replica local boot is landed
+- `IgnitionAgent` orchestration is not landed yet
+- admission-aware ignition lifecycle is not landed yet
+
+## Remote Bootstrap After The First Slice
+
+Remote bootstrap should come next, not first.
+
+The next slice after local replicas should introduce:
+
+- `ssh_server` `BootstrapTarget`
+- `BootstrapAgent` SSH execution path
+- target environment inspection
+- package/runtime installation
+- stack transfer or package install
+- remote node start
+- admission confirmation
+
+That keeps the architecture honest while still moving quickly.
+
 ## Execution Contract Draft
 
 The likely execution contract is:
@@ -317,18 +631,19 @@ We should avoid these anti-patterns:
 The main questions still open are:
 
 - exact `ignite` schema
-- whether local replicas should fully replace current node-profile-heavy dev boot
 - how much remote bootstrap belongs in `igniter-cluster` vs a deployment package/layer
 - whether deployment agents should live in `igniter-agents`, `igniter-cluster`, or a future deployment package
-- what the stable `DeploymentIntent` value object should look like
 - how much approval semantics should reuse the existing operator/orchestration surface
+- whether local replicas should fully replace current node-profile-heavy dev boot
+- whether `IgnitionPlan` should live as a separate value object or as part of agent execution state
+- where the stable home of deployment value objects should be before `v1`
 
 ## Recommended Next Step
 
 The next concrete design slice should define:
 
-1. `DeploymentIntent`
-2. `IgnitionAgent`
-3. `BootstrapTarget` schema
-4. `Admission / join` handshake contract
-5. minimal local `ignite.replicas` flow before remote SSH automation
+1. stable normalized value objects in code
+2. `IgnitionAgent` minimal local replica orchestration
+3. `Admission / join` handshake contract
+4. ignition result/report shape
+5. only then remote SSH bootstrap

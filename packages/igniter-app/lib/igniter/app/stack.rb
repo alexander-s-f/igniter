@@ -7,6 +7,7 @@ require "shellwords"
 require "stringio"
 require "time"
 require "yaml"
+require "igniter/ignite"
 
 module Igniter
   # Root coordinator for mounted multi-app stacks.
@@ -304,10 +305,20 @@ module Igniter
 
       def stack_settings(reload: false)
         @stack_settings = nil if reload
+        @ignition_plan = nil if reload
         @stack_settings ||= deep_merge(
           load_yaml(resolve_path(@stack_yml_path)),
           environment_settings
         )
+      end
+
+      def ignite_settings
+        stack_settings.fetch("ignite", {})
+      end
+
+      def ignition_plan(reload: false)
+        @ignition_plan = nil if reload
+        @ignition_plan ||= build_ignition_plan
       end
 
       def deployment_snapshot
@@ -329,7 +340,8 @@ module Igniter
               "root" => (app_name == root_app)
             )
           end,
-          "nodes" => runtime_units_snapshot
+          "nodes" => runtime_units_snapshot,
+          "ignite" => stringify_nested_keys(ignition_plan.to_h)
         }
       end
 
@@ -677,14 +689,28 @@ module Igniter
             )
           end
         else
-          root_name = root_app.to_s
-          {
-            root_name => standalone_runtime_deployment(root_name).merge(
-              "node" => root_name,
-              "default" => true
-            )
-          }
+          standalone_runtime_units_snapshot
         end
+      end
+
+      def standalone_runtime_units_snapshot
+        root_name = root_app.to_s
+        units = {
+          root_name => standalone_runtime_deployment(root_name).merge(
+            "node" => root_name,
+            "default" => true
+          )
+        }
+
+        ignition_plan.local_replica_intents.each do |intent|
+          target = intent.target
+          units[target.id] = local_replica_runtime_deployment(target, intent).merge(
+            "node" => target.id,
+            "default" => false
+          )
+        end
+
+        units
       end
 
       def standalone_runtime_deployment(name)
@@ -699,6 +725,27 @@ module Igniter
           "role" => name.to_s,
           "environment" => shared_runtime_environment
         }
+      end
+
+      def local_replica_runtime_deployment(target, intent)
+        base = standalone_runtime_deployment(root_app.to_s)
+        server_settings = target.server_settings
+
+        base.merge(
+          "host" => server_settings["host"] || base["host"],
+          "port" => server_settings["port"] || base["port"],
+          "environment" => base.fetch("environment", {}).merge(
+            "IGNITER_NODE" => target.id,
+            "IGNITER_IGNITE_REPLICA" => "true",
+            "IGNITER_IGNITE_TARGET" => target.id,
+            "IGNITER_IGNITE_INTENT" => intent.id
+          ),
+          "ignite" => {
+            "intent_id" => intent.id,
+            "target_id" => target.id,
+            "kind" => target.kind.to_s
+          }
+        )
       end
 
       def node_deployment(name = nil)
@@ -936,6 +983,19 @@ module Igniter
         end
       end
 
+      def stringify_nested_keys(value)
+        case value
+        when Hash
+          value.each_with_object({}) do |(key, nested_value), result|
+            result[key.to_s] = stringify_nested_keys(nested_value)
+          end
+        when Array
+          value.map { |item| stringify_nested_keys(item) }
+        else
+          value
+        end
+      end
+
       def shared_runtime_environment
         stringify_hash(stack_settings.dig("shared", "environment") || {})
       end
@@ -959,8 +1019,185 @@ module Igniter
         if node_name && nodes_defined?
           settings = settings.merge(stringify_hash(node_profile(node_name).slice("host", "port", "log_format", "drain_timeout")))
         end
+        settings["port"] = ENV["PORT"] if present?(ENV["PORT"])
         settings["port"] = settings["port"].to_i if settings["port"]
         settings
+      end
+
+      def build_ignition_plan
+        settings = ignite_settings
+        mode = normalize_ignite_mode(settings["mode"])
+        strategy = normalize_ignite_strategy(settings["strategy"])
+        approval_mode = normalize_ignite_approval(settings["approval"])
+        request_id = settings["request_id"] || "ignite-#{stack_slug}-#{resolved_environment.empty? ? "default" : resolved_environment}"
+        requested_from = {
+          "stack" => stack_slug,
+          "environment" => resolved_environment,
+          "root_app" => root_app.to_s
+        }
+        requested_by = {
+          "kind" => "stack_config",
+          "source" => "ignite"
+        }
+        seed_node = {
+          "stack" => stack_slug,
+          "root_app" => root_app.to_s,
+          "host" => stack_settings.dig("server", "host"),
+          "port" => stack_settings.dig("server", "port")
+        }
+
+        intents = []
+        Array(settings["replicas"]).each_with_index do |replica, index|
+          intents << build_local_replica_intent(
+            config: replica,
+            index: index + 1,
+            request_id: request_id,
+            mode: mode,
+            strategy: strategy,
+            approval_mode: approval_mode,
+            requested_by: requested_by,
+            requested_from: requested_from,
+            seed_node: seed_node
+          )
+        end
+
+        Array(settings["servers"]).each_with_index do |server, index|
+          intents << build_remote_server_intent(
+            config: server,
+            index: index + 1,
+            request_id: request_id,
+            mode: mode,
+            strategy: strategy,
+            approval_mode: approval_mode,
+            requested_by: requested_by,
+            requested_from: requested_from,
+            seed_node: seed_node
+          )
+        end
+
+        Igniter::Ignite::IgnitionPlan.new(
+          id: request_id,
+          ignite_mode: mode,
+          strategy: strategy,
+          approval_mode: approval_mode,
+          intents: intents,
+          requested_by: requested_by,
+          requested_from: requested_from,
+          seed_node: seed_node,
+          metadata: {}
+        )
+      end
+
+      def build_local_replica_intent(config:, index:, request_id:, mode:, strategy:, approval_mode:, requested_by:, requested_from:, seed_node:)
+        replica = Hash(config)
+        replica_id = (replica["name"] || "replica-#{index}").to_s
+        target = Igniter::Ignite::BootstrapTarget.new(
+          id: replica_id,
+          kind: :local_replica,
+          locator: select_hash_keys(replica, %w[host port]),
+          base_server: select_hash_keys(stack_settings.fetch("server", {}), %w[host port]),
+          capability_intent: Array(replica["capabilities"]),
+          bootstrap_requirements: Hash(replica["bootstrap"] || {}),
+          metadata: reject_hash_keys(replica, %w[name host port capabilities bootstrap])
+        )
+
+        Igniter::Ignite::DeploymentIntent.new(
+          id: "#{request_id}-#{replica_id}",
+          ignite_mode: mode,
+          strategy: strategy,
+          approval_mode: approval_mode,
+          target: target,
+          requested_capabilities: target.capability_intent,
+          requested_by: requested_by,
+          requested_from: requested_from,
+          seed_node: seed_node,
+          join_policy: {
+            "admission" => "required",
+            "trust" => "cluster_default"
+          },
+          correlation: {
+            "ignite_request_id" => request_id,
+            "target_id" => replica_id
+          },
+          metadata: {}
+        )
+      end
+
+      def build_remote_server_intent(config:, index:, request_id:, mode:, strategy:, approval_mode:, requested_by:, requested_from:, seed_node:)
+        server = normalize_remote_server_config(config, index)
+        server_id = server.fetch("id")
+        target = Igniter::Ignite::BootstrapTarget.new(
+          id: server_id,
+          kind: :ssh_server,
+          locator: { "config_path" => server.fetch("config_path") },
+          base_server: select_hash_keys(stack_settings.fetch("server", {}), %w[host port]),
+          capability_intent: Array(server["capabilities"]),
+          bootstrap_requirements: Hash(server["bootstrap"] || {}),
+          metadata: reject_hash_keys(server, %w[id config_path capabilities bootstrap])
+        )
+
+        Igniter::Ignite::DeploymentIntent.new(
+          id: "#{request_id}-#{server_id}",
+          ignite_mode: mode,
+          strategy: strategy,
+          approval_mode: approval_mode,
+          target: target,
+          requested_capabilities: target.capability_intent,
+          requested_by: requested_by,
+          requested_from: requested_from,
+          seed_node: seed_node,
+          join_policy: {
+            "admission" => "required",
+            "trust" => "cluster_default"
+          },
+          correlation: {
+            "ignite_request_id" => request_id,
+            "target_id" => server_id
+          },
+          metadata: {}
+        )
+      end
+
+      def normalize_remote_server_config(config, index)
+        case config
+        when String
+          {
+            "id" => "server-#{index}",
+            "config_path" => config
+          }
+        else
+          hash = Hash(config)
+          {
+            "id" => (hash["name"] || hash["id"] || "server-#{index}").to_s,
+            "config_path" => hash["target"] || hash.fetch("config_path"),
+            "capabilities" => Array(hash["capabilities"]),
+            "bootstrap" => Hash(hash["bootstrap"] || {})
+          }.merge(reject_hash_keys(hash, %w[name id target config_path capabilities bootstrap]))
+        end
+      end
+
+      def normalize_ignite_mode(value)
+        (value || "cold_start").to_sym
+      end
+
+      def normalize_ignite_strategy(value)
+        (value || "parallel").to_sym
+      end
+
+      def normalize_ignite_approval(value)
+        (value || "required").to_sym
+      end
+
+      def select_hash_keys(hash, allowed_keys)
+        Hash(hash).each_with_object({}) do |(key, value), result|
+          result[key.to_s] = value if allowed_keys.include?(key.to_s)
+        end
+      end
+
+      def reject_hash_keys(hash, rejected_keys)
+        Hash(hash).each_with_object({}) do |(key, value), result|
+          result[key.to_s] = value unless rejected_keys.include?(key.to_s)
+        end
       end
 
       def default_runtime_command(name)
@@ -1012,6 +1249,7 @@ module Igniter
       def reset_stack_state!
         @stack_settings = nil
         @environment_settings = nil
+        @ignition_plan = nil
       end
     end
   end

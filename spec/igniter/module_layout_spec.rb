@@ -30,6 +30,16 @@ RSpec.describe "Igniter module layout" do
     expect(children_for(APP_LIB)).to eq(%w[
       app
       app.rb
+      ignite
+      ignite.rb
+    ])
+  end
+
+  it "keeps ignite value objects under the canonical ignite namespace inside the app package" do
+    expect(children_for(File.join(APP_LIB, "ignite"))).to eq(%w[
+      bootstrap_target.rb
+      deployment_intent.rb
+      ignition_plan.rb
     ])
   end
 

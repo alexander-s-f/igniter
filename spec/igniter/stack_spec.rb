@@ -11,11 +11,13 @@ RSpec.describe Igniter::Stack do
   around do |example|
     original_load_path = $LOAD_PATH.dup
     original_env = ENV["IGNITER_ENV"]
+    original_port = ENV["PORT"]
 
     example.run
   ensure
     $LOAD_PATH.replace(original_load_path)
     ENV["IGNITER_ENV"] = original_env
+    ENV["PORT"] = original_port
   end
 
   def build_workspace(root:, environment: nil, app_classes: nil)
@@ -79,6 +81,67 @@ RSpec.describe Igniter::Stack do
       expect(workspace.root_app).to eq(:dashboard)
       expect(workspace.node_profile(:main).fetch("port")).to eq(5567)
       expect(workspace.node_profile(:edge).fetch("port")).to eq(5568)
+    end
+  end
+
+  it "normalizes ignite config into an ignition plan with local and remote targets" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config", "environments"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+      YAML
+      File.write(File.join(tmp, "config", "environments", "production.yml"), <<~YAML)
+        ignite:
+          mode: expand
+          strategy: parallel
+          approval: required
+          replicas:
+            - name: edge-1
+              port: 4568
+              capabilities:
+                - audio_ingest
+                - whisper_asr
+          servers:
+            - target: config/ssh_hp.yml
+              name: hp-call-analysis
+              capabilities:
+                - call_analysis
+                - local_llm
+              bootstrap:
+                ruby: "3.2"
+      YAML
+
+      workspace = build_workspace(root: tmp, environment: "production")
+      plan = workspace.ignition_plan
+
+      expect(plan).to be_a(Igniter::Ignite::IgnitionPlan)
+      expect(plan.ignite_mode).to eq(:expand)
+      expect(plan.strategy).to eq(:parallel)
+      expect(plan.approval_mode).to eq(:required)
+      expect(plan.local_replica_intents.size).to eq(1)
+      expect(plan.remote_intents.size).to eq(1)
+
+      local_target = plan.local_replica_intents.first.target
+      remote_target = plan.remote_intents.first.target
+
+      expect(local_target).to be_local_replica
+      expect(local_target.server_settings).to include("host" => "0.0.0.0", "port" => 4568)
+      expect(local_target.capability_intent).to eq(%i[audio_ingest whisper_asr])
+
+      expect(remote_target).to be_ssh_server
+      expect(remote_target.locator).to include("config_path" => "config/ssh_hp.yml")
+      expect(remote_target.capability_intent).to eq(%i[call_analysis local_llm])
+
+      expect(workspace.deployment_snapshot.dig("ignite", "summary")).to include(
+        "total_intents" => 2,
+        "local_replicas" => 1,
+        "remote_targets" => 1
+      )
     end
   end
 
@@ -352,6 +415,46 @@ RSpec.describe Igniter::Stack do
     end
   end
 
+  it "treats ignite replicas as synthetic local runtime units when nodes are absent" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          replicas:
+            - name: edge-1
+              port: 4568
+            - name: edge-2
+              port: 4569
+      YAML
+
+      workspace = build_workspace(root: tmp, environment: "development")
+      services = workspace.dev_services
+      procfile = workspace.procfile_dev
+      snapshot = workspace.deployment_snapshot
+
+      expect(services.map { |service| service.fetch(:name) }).to eq(%w[main edge-1 edge-2])
+      expect(services[1].fetch(:environment)).to include(
+        "IGNITER_NODE" => "edge-1",
+        "IGNITER_IGNITE_REPLICA" => "true",
+        "PORT" => "4568"
+      )
+      expect(services[2].fetch(:environment)).to include(
+        "IGNITER_NODE" => "edge-2",
+        "IGNITER_IGNITE_REPLICA" => "true",
+        "PORT" => "4569"
+      )
+      expect(procfile).to include("edge-1:")
+      expect(procfile).to include("edge-2:")
+      expect(snapshot.dig("nodes", "edge-1", "port")).to eq(4568)
+      expect(snapshot.dig("nodes", "edge-2", "port")).to eq(4569)
+    end
+  end
+
   it "writes generated Procfile.dev to the configured path" do
     Dir.mktmpdir do |tmp|
       File.write(File.join(tmp, "stack.yml"), <<~YAML)
@@ -585,6 +688,21 @@ RSpec.describe Igniter::Stack do
           environment: { "IGNITER_ROOT_APP" => "main", "RUBYOPT" => workspace.send(:rubyopt_with_dev_output_sync) }
         }
       ])
+    end
+  end
+
+  it "lets PORT override stack server port for runtime boot" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        server:
+          host: 0.0.0.0
+          port: 4567
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      ENV["PORT"] = "5567"
+
+      expect(workspace.send(:stack_http_settings)).to include("host" => "0.0.0.0", "port" => 5567)
     end
   end
 end
