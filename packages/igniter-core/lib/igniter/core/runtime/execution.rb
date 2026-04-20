@@ -275,6 +275,14 @@ module Igniter
         plan(output_names)[:orchestration]
       end
 
+      def orchestration_overview(output_names = nil)
+        Runtime::OrchestrationOverview.new(execution: self, plan: plan(output_names)).to_h
+      end
+
+      def orchestration_summary(output_names = nil)
+        orchestration_overview(output_names)[:summary]
+      end
+
       def explain_plan(output_names = nil)
         Extensions::Introspection::PlanFormatter.to_text(self, output_names)
       end

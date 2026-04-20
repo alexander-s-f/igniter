@@ -10,12 +10,14 @@ module Igniter
         DEFAULT_LIMIT = 20
         LIST_FILTERS = %i[
           id status action node combined_state interaction reason policy lane queue
-          channel assignee phase reply_mode mode tool_loop_status
+          channel assignee phase reply_mode mode tool_loop_status ownership
+          session_lifecycle_state
           latest_action_actor latest_action_origin latest_action_source
         ].freeze
         BOOLEAN_FILTERS = %i[
           actionable attention_required resumable with_session
-          with_inbox_item with_token handed_off
+          with_inbox_item with_token handed_off interactive
+          terminal continuable routed
         ].freeze
 
         def initialize(app_class:, limit: DEFAULT_LIMIT, store: nil)

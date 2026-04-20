@@ -583,4 +583,70 @@ RSpec.describe "Igniter store-backed execution" do
     end.to raise_error(Igniter::ResolutionError, /cannot auto-finalize while tool loop is :open/)
     expect(Igniter.execution_store.exist?(execution_id)).to eq(true)
   end
+
+  it "exposes orchestration overview directly from store" do
+    trace = pending_agent_trace
+    agent_adapter = Class.new do
+      define_method(:call) do |node:, **|
+        {
+          status: :pending,
+          payload: { queue: :review },
+          agent_trace: trace,
+          session: {
+            node_name: node.name,
+            node_path: node.path,
+            agent_name: node.agent_name,
+            message_name: node.message_name,
+            mode: node.mode,
+            waiting_on: node.name,
+            source_node: node.name,
+            trace: trace
+          }
+        }
+      end
+
+      define_method(:cast) do |**|
+        raise "unexpected cast"
+      end
+    end.new
+
+    contract_class = Class.new(Igniter::Contract) do
+      run_with runner: :store, agent_adapter: agent_adapter
+
+      define do
+        input :name
+        agent :approval, via: :reviewer, message: :review, inputs: { name: :name }
+        output :approval
+      end
+    end
+
+    original = contract_class.new(name: "Alice")
+    original.result.approval
+    execution_id = original.execution.events.execution_id
+
+    overview = contract_class.orchestration_overview_from_store(execution_id)
+
+    expect(contract_class.orchestration_summary_from_store(execution_id)).to eq(overview[:summary])
+    expect(overview[:summary]).to include(
+      total: 1,
+      attention_required: 1,
+      with_session: 1,
+      deferred_calls: 1,
+      by_action: { await_deferred_reply: 1 },
+      by_runtime_status: { pending_session: 1 },
+      by_session_lifecycle_state: { waiting: 1 },
+      by_ownership: { local: 1 }
+    )
+    expect(overview[:records]).to contain_exactly(
+      include(
+        node: :approval,
+        action: :await_deferred_reply,
+        interaction: :deferred_call,
+        runtime_status: :pending_session,
+        session_lifecycle_state: :waiting,
+        ownership: :local,
+        waiting_on: :approval
+      )
+    )
+  end
 end

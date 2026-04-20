@@ -156,6 +156,14 @@ The current session model is intentionally simple but now explicit:
 - the same query truth is now also available directly from durable store-backed executions through:
   - `Contract.agent_session_query_from_store(execution_id, ...)`
   - `Contract.agent_session_summary_from_store(execution_id, ...)`
+- orchestration now also has a runtime-owned overview layer instead of living only as planner output and app inbox projection:
+  - `Execution#orchestration_overview`
+  - `Execution#orchestration_summary`
+  - `Contract#orchestration_overview`
+  - `Contract#orchestration_summary`
+  - `Contract.orchestration_overview_from_store(execution_id, ...)`
+  - `Contract.orchestration_summary_from_store(execution_id, ...)`
+- that overview carries live runtime records and timeline over orchestration actions, including session-backed fields like `runtime_status`, `session_lifecycle_state`, `ownership`, `turn`, and per-node event history
 - store-backed pending agent snapshots now also normalize their embedded session lifecycle from the merged routed ownership/session fields, so persisted `lifecycle` truth stays aligned with `ownership`, `owner_url`, and `delivery_route`
 - app operator records now also project the same session truth into the joined operator plane through fields like:
   - `session_lifecycle_state`
@@ -166,6 +174,18 @@ The current session model is intentionally simple but now explicit:
   - `terminal`
   - `continuable`
   - `routed`
+- mounted operator surfaces now also expose those session dimensions directly:
+  - operator overview/API filters support `ownership`, `session_lifecycle_state`, `interactive`, `terminal`, `continuable`, and `routed`
+  - `App.operator_overview(...)` now also carries an explicit `runtime` block with session-focused counts/facets like `total_sessions`, `interactive_sessions`, `routed_sessions`, `by_ownership`, and `by_session_lifecycle_state`
+- execution-scoped `App.operator_overview(...)` now also carries `orchestration_runtime`, which projects the runtime-owned orchestration overview alongside the operator record plane
+- that app-level `orchestration_runtime` projection now also merges inbox/operator history back into the runtime records through fields like `inbox_status`, `inbox_action_history`, and `combined_timeline`, so orchestration workflow visibility is no longer split into unrelated runtime and inbox histories
+- app now also exposes that merged orchestration runtime truth directly through:
+  - `App.orchestration_runtime_overview(target)`
+  - `App.orchestration_runtime_summary(target)`
+  - `App.orchestration_runtime_overview_for_execution(graph:, execution_id:)`
+  - `App.orchestration_runtime_summary_for_execution(graph:, execution_id:)`
+- diagnostics now also surface that same execution-owned orchestration runtime as `app_orchestration_runtime`, so follow-up workflow visibility is no longer hidden only inside the operator overview payload
+  - the built-in operator console now round-trips those filters, renders runtime session cards, and shows the same session lifecycle/ownership/timeline fields in record detail
 
 This is the first step toward making agents a durable execution concept inside Igniter rather than a thin adapter callback.
 

@@ -12,37 +12,44 @@ module Igniter
 
             app_class = context.fetch(:app_class)
             plan = app_class.orchestration_plan(report)
+            orchestration_runtime = app_class.orchestration_runtime_overview(execution)
             report[:app_orchestration] = plan.to_h.merge(
               inbox: app_class.orchestration_inbox.snapshot(limit: 20)
             )
+            report[:app_orchestration_runtime] = orchestration_runtime if orchestration_runtime
             report[:app_operator] = app_class.operator_overview(execution, limit: 20)
             report
           end
 
           def append_text(report:, lines:)
             orchestration = report[:app_orchestration]
+            orchestration_runtime = report[:app_orchestration_runtime]
             operator = report[:app_operator]
-            return unless orchestration || operator
+            return unless orchestration || orchestration_runtime || operator
 
             lines << "App Orchestration: #{summary(orchestration)}" if orchestration
             lines << "App Orchestration Inbox: #{inbox_summary(orchestration[:inbox])}" if orchestration[:inbox]
+            lines << "App Orchestration Runtime: #{runtime_summary(orchestration_runtime)}" if orchestration_runtime
             lines << "App Operator: #{operator_summary(operator)}" if operator
           end
 
           def append_markdown_summary(report:, lines:)
             orchestration = report[:app_orchestration]
+            orchestration_runtime = report[:app_orchestration_runtime]
             operator = report[:app_operator]
-            return unless orchestration || operator
+            return unless orchestration || orchestration_runtime || operator
 
             lines << "- App Orchestration: #{summary(orchestration)}" if orchestration
             lines << "- App Orchestration Inbox: #{inbox_summary(orchestration[:inbox])}" if orchestration[:inbox]
+            lines << "- App Orchestration Runtime: #{runtime_summary(orchestration_runtime)}" if orchestration_runtime
             lines << "- App Operator: #{operator_summary(operator)}" if operator
           end
 
           def append_markdown_sections(report:, lines:)
             orchestration = report[:app_orchestration]
+            orchestration_runtime = report[:app_orchestration_runtime]
             operator = report[:app_operator]
-            return unless orchestration || operator
+            return unless orchestration || orchestration_runtime || operator
 
             followup = orchestration[:followup] if orchestration
 
@@ -57,6 +64,15 @@ module Igniter
                 followup[:actions].each do |action|
                   lines << "- `#{action[:node]}` `#{action[:action]}`: #{action[:guidance]} reason=`#{action[:reason]}` policy=`#{action.dig(:policy, :name)}` lane=`#{action.dig(:lane, :name) || "none"}` default=`#{action.dig(:policy, :default_operation)}` queue=`#{action.dig(:routing, :queue) || "none"}` channel=`#{action.dig(:routing, :channel) || "none"}`"
                 end
+              end
+            end
+
+            if orchestration_runtime
+              lines << ""
+              lines << "## App Orchestration Runtime"
+              lines << "- Summary: #{runtime_summary(orchestration_runtime)}"
+              Array(orchestration_runtime[:records]).each do |record|
+                lines << "- `#{record[:node]}` action=`#{record[:action]}` runtime=`#{record[:runtime_status]}` session=`#{record[:session_lifecycle_state] || "none"}` inbox=`#{record[:inbox_status] || "none"}` waiting_on=`#{record[:waiting_on] || "none"}`"
               end
             end
 
@@ -116,6 +132,25 @@ module Igniter
             parts << "by_assignee=#{inline_counts(inbox[:by_assignee])}" unless inbox[:by_assignee].empty?
             parts << "by_queue=#{inline_counts(inbox[:by_queue])}" unless inbox[:by_queue].empty?
             parts << "by_channel=#{inline_counts(inbox[:by_channel])}" unless inbox[:by_channel].empty?
+            parts.join(", ")
+          end
+
+          def runtime_summary(orchestration_runtime)
+            summary = orchestration_runtime[:summary]
+
+            parts = []
+            parts << "total=#{summary[:total]}"
+            parts << "with_session=#{summary[:with_session]}"
+            parts << "with_inbox_items=#{summary[:with_inbox_items]}"
+            parts << "attention_required=#{summary[:attention_required]}"
+            parts << "resumable=#{summary[:resumable]}"
+            parts << "interactive_sessions=#{summary[:interactive_sessions]}"
+            parts << "manual_sessions=#{summary[:manual_sessions]}"
+            parts << "deferred_calls=#{summary[:deferred_calls]}"
+            parts << "by_action=#{inline_counts(summary[:by_action])}" unless summary[:by_action].empty?
+            parts << "by_runtime_status=#{inline_counts(summary[:by_runtime_status])}" unless summary[:by_runtime_status].empty?
+            parts << "by_inbox_status=#{inline_counts(summary[:by_inbox_status])}" unless summary[:by_inbox_status].empty?
+            parts << "by_session_lifecycle_state=#{inline_counts(summary[:by_session_lifecycle_state])}" unless summary[:by_session_lifecycle_state].empty?
             parts.join(", ")
           end
 

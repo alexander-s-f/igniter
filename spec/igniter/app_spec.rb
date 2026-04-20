@@ -1651,6 +1651,8 @@ RSpec.describe Igniter::App do
       reviewer_ref = reviewer_class.start(name: :reviewer)
 
       klass = Class.new(Igniter::Contract) do
+        run_with runner: :store
+
         define do
           input :name
 
@@ -1980,6 +1982,35 @@ RSpec.describe Igniter::App do
         include(action: :require_manual_completion, node: :manual_summary, policy: include(name: :manual_completion), routing: include(queue: "manual-completions", channel: "inbox://manual-completions")),
         include(action: :await_deferred_reply, node: :approval, policy: include(name: :deferred_reply), routing: include(queue: "deferred-replies", channel: "inbox://deferred-replies"))
       )
+      expect(report[:app_orchestration_runtime]).to include(
+        summary: include(
+          total: 3,
+          with_session: 3,
+          with_inbox_items: 3,
+          attention_required: 3,
+          resumable: 3,
+          interactive_sessions: 1,
+          manual_sessions: 1,
+          deferred_calls: 1,
+          by_action: {
+            open_interactive_session: 1,
+            require_manual_completion: 1,
+            await_deferred_reply: 1
+          },
+          by_runtime_status: {
+            pending_session: 3
+          },
+          by_inbox_status: {
+            acknowledged: 1,
+            open: 2
+          }
+        ),
+        records: include(
+          include(node: :interactive_summary, runtime_status: :pending_session, inbox_status: :acknowledged),
+          include(node: :manual_summary, runtime_status: :pending_session, inbox_status: :open),
+          include(node: :approval, runtime_status: :pending_session, inbox_status: :open)
+        )
+      )
       expect(report[:app_operator]).to include(
         app: "SpecOrchestrationApp",
         summary: include(
@@ -2008,11 +2039,15 @@ RSpec.describe Igniter::App do
       expect(text).to include("by_lane=deferred_replies=1, interactive_sessions=1, manual_completions=1")
       expect(text).to include("by_queue=deferred-replies=1, interactive-sessions=1, manual-completions=1")
       expect(text).to include("App Orchestration Inbox: total=5, open=2, acknowledged=1, resolved=1, dismissed=1, actionable=3, latest_action=await_deferred_reply, latest_node=approval, latest_policy=deferred_reply, latest_lane=deferred_replies, latest_assignee=none, latest_queue=deferred-replies, latest_channel=inbox://deferred-replies, latest_status=open")
+      expect(text).to include("App Orchestration Runtime: total=3, with_session=3, with_inbox_items=3, attention_required=3, resumable=3, interactive_sessions=1, manual_sessions=1, deferred_calls=1")
       expect(text).to include("App Operator: total=5, live_sessions=3, inbox_items=5, joined=3, ignite=0, session_only=0, inbox_only=2")
       expect(markdown).to include("## App Orchestration")
+      expect(markdown).to include("## App Orchestration Runtime")
       expect(markdown).to include("## App Operator")
       expect(markdown).to include("- Follow-up: total=3, manual_completion=1, deferred_replies=1, interactive_sessions=1, by_policy=deferred_reply=1, interactive_session=1, manual_completion=1, by_lane=deferred_replies=1, interactive_sessions=1, manual_completions=1, by_queue=deferred-replies=1, interactive-sessions=1, manual-completions=1")
       expect(markdown).to include("- Inbox: total=5, open=2, acknowledged=1, resolved=1, dismissed=1, actionable=3, latest_action=await_deferred_reply, latest_node=approval, latest_policy=deferred_reply, latest_lane=deferred_replies, latest_assignee=none, latest_queue=deferred-replies, latest_channel=inbox://deferred-replies, latest_status=open")
+      expect(markdown).to include("- Summary: total=3, with_session=3, with_inbox_items=3, attention_required=3, resumable=3, interactive_sessions=1, manual_sessions=1, deferred_calls=1")
+      expect(markdown).to include("runtime=`pending_session`")
       expect(markdown).to include("state=`joined`")
       expect(markdown).to include("state=`inbox_only`")
       expect(markdown).to include("`manual_summary` `require_manual_completion`")
@@ -3261,10 +3296,67 @@ RSpec.describe Igniter::App do
       expect(query.summary[:by_phase]).to eq(streaming: 2, waiting: 1)
       expect(query.order_by(:latest_action_actor, direction: :asc).first[:node]).to eq(:interactive_summary)
       expect(app.operator_summary(contract)).to include(total: 3, joined_records: 2)
+      expect(app.orchestration_runtime_summary(contract)).to include(
+        total: 2,
+        with_session: 2,
+        with_inbox_items: 2,
+        by_runtime_status: { pending_session: 2 },
+        by_inbox_status: {
+          acknowledged: 1,
+          dismissed: 1
+        }
+      )
+      expect(app.orchestration_runtime_overview(contract)).to include(
+        summary: include(total: 2, with_session: 2, with_inbox_items: 2),
+        records: include(
+          include(
+            node: :interactive_summary,
+            inbox_status: :acknowledged,
+            combined_timeline: include(include(source: :runtime), include(source: :inbox, event: :handoff))
+          ),
+          include(
+            node: :approval,
+            inbox_status: :dismissed,
+            combined_timeline: include(include(source: :runtime), include(source: :inbox, event: :dismissed))
+          )
+        )
+      )
       expect(app.operator_overview(contract)).to include(
         app: "SpecUnifiedOperatorQueryApp",
         query: include(limit: 20),
-        summary: include(total: 3, joined_records: 2, inbox_only: 1, by_record_kind: { orchestration: 3 })
+        summary: include(total: 3, joined_records: 2, inbox_only: 1, by_record_kind: { orchestration: 3 }),
+        orchestration_runtime: include(
+          summary: include(
+            total: 2,
+            with_session: 2,
+            with_inbox_items: 2,
+            by_action: {
+              open_interactive_session: 1,
+              await_deferred_reply: 1
+            },
+            by_runtime_status: { pending_session: 2 },
+            by_inbox_status: {
+              acknowledged: 1,
+              dismissed: 1
+            }
+          ),
+          records: include(
+            include(
+              node: :interactive_summary,
+              runtime_status: :pending_session,
+              session_lifecycle_state: :streaming,
+              inbox_status: :acknowledged,
+              combined_timeline: include(include(source: :runtime), include(source: :inbox, event: :handoff))
+            ),
+            include(
+              node: :approval,
+              runtime_status: :pending_session,
+              session_lifecycle_state: :waiting,
+              inbox_status: :dismissed,
+              combined_timeline: include(include(source: :runtime), include(source: :inbox, event: :dismissed))
+            )
+          )
+        )
       )
       expect(app.operator_overview(contract)[:records]).to include(
         include(
@@ -3273,9 +3365,11 @@ RSpec.describe Igniter::App do
           combined_state: :joined,
           ownership: :local,
           session_lifecycle_state: :streaming,
+          orchestration_inbox_status: :acknowledged,
           interactive: true,
           continuable: true,
           routed: false,
+          orchestration_combined_timeline: include(include(source: :runtime), include(source: :inbox, event: :handoff)),
           session_lifecycle: include(
             state: :streaming,
             ownership: :local,
@@ -3402,6 +3496,10 @@ RSpec.describe Igniter::App do
         graph: "AnonymousContract",
         execution_id: execution_id
       )
+      orchestration_runtime = app.orchestration_runtime_overview_for_execution(
+        graph: "AnonymousContract",
+        execution_id: execution_id
+      )
 
       expect(overview).to include(
         app: "SpecOperatorOverviewHandlerApp",
@@ -3415,6 +3513,28 @@ RSpec.describe Igniter::App do
           live_sessions: 1,
           inbox_items: 1,
           joined_records: 1
+        )
+      )
+      expect(app.orchestration_runtime_summary_for_execution(graph: "AnonymousContract", execution_id: execution_id)).to eq(
+        orchestration_runtime[:summary]
+      )
+      expect(orchestration_runtime).to include(
+        summary: include(
+          total: 1,
+          with_session: 1,
+          with_inbox_items: 1,
+          by_action: { await_deferred_reply: 1 },
+          by_runtime_status: { pending_session: 1 },
+          by_inbox_status: { open: 1 }
+        ),
+        records: contain_exactly(
+          include(
+            node: :approval,
+            action: :await_deferred_reply,
+            runtime_status: :pending_session,
+            inbox_status: :open,
+            combined_timeline: include(include(source: :runtime), include(source: :inbox, event: :opened))
+          )
         )
       )
       expect(overview[:records]).to contain_exactly(
@@ -4081,7 +4201,7 @@ RSpec.describe Igniter::App do
 
       app = stub_const("SpecFilteredOperatorOverviewApp", Class.new(Igniter::App))
       app.class_eval do
-        register "AgentContract", klass
+        register "AnonymousContract", klass
         mount_operator_surface(path: "/operator", api_path: "/api/operator", title: "Operations Console")
       end
 
@@ -4114,53 +4234,98 @@ RSpec.describe Igniter::App do
         }
       )
 
-      router = Igniter::Server::Router.new(config)
-      api = router.call(
-        "GET",
-        "/api/operator?status=acknowledged&queue=manual-review&assignee=ops:alice&latest_action_actor=ops:alice&latest_action_origin=review_lane&latest_action_source=orchestration_handler&order_by=latest_action_actor&direction=desc",
-        ""
+      overview = app.operator_overview(
+        contract,
+        filters: {
+          status: :acknowledged,
+          queue: "manual-review",
+          assignee: "ops:alice",
+          ownership: :local,
+          session_lifecycle_state: :streaming,
+          interactive: true,
+          continuable: true,
+          routed: false,
+          terminal: false,
+          latest_action_actor: "ops:alice",
+          latest_action_origin: "review_lane",
+          latest_action_source: "orchestration_handler"
+        },
+        order_by: :latest_action_actor,
+        direction: :desc
       )
 
-      expect(api[:status]).to eq(200)
-      expect(JSON.parse(api[:body])).to include(
-        "app" => "SpecFilteredOperatorOverviewApp",
-        "scope" => { "mode" => "app" },
-        "query" => {
-          "filters" => {
-            "status" => ["acknowledged"],
-            "queue" => ["manual-review"],
-            "assignee" => ["ops:alice"],
-            "latest_action_actor" => ["ops:alice"],
-            "latest_action_origin" => ["review_lane"],
-            "latest_action_source" => ["orchestration_handler"]
-          },
-          "order_by" => "latest_action_actor",
-          "direction" => "desc",
-          "limit" => 20
+      expect(overview[:app]).to eq("SpecFilteredOperatorOverviewApp")
+      expect(overview[:query]).to eq(
+        filters: {
+          status: :acknowledged,
+          queue: "manual-review",
+          assignee: "ops:alice",
+          ownership: :local,
+          session_lifecycle_state: :streaming,
+          interactive: true,
+          continuable: true,
+          routed: false,
+          terminal: false,
+          latest_action_actor: "ops:alice",
+          latest_action_origin: "review_lane",
+          latest_action_source: "orchestration_handler"
         },
-        "summary" => include(
-          "total" => 1,
-          "by_status" => { "acknowledged" => 1 },
-          "by_latest_action_actor" => { "ops:alice" => 1 },
-          "by_latest_action_origin" => { "review_lane" => 1 },
-          "by_latest_action_source" => { "orchestration_handler" => 1 }
-        ),
-        "records" => [
-          include(
-            "node" => "interactive_summary",
-            "status" => "acknowledged",
-            "queue" => "manual-review",
-            "assignee" => "ops:alice",
-            "latest_action_actor" => "ops:alice",
-            "latest_action_origin" => "review_lane",
-            "latest_action_source" => "orchestration_handler"
-          )
-        ]
+        order_by: :latest_action_actor,
+        direction: :desc,
+        limit: 20
       )
+      expect(overview[:summary]).to include(
+        total: 1,
+        by_status: { acknowledged: 1 },
+        by_ownership: { local: 1 },
+        by_session_lifecycle_state: { streaming: 1 },
+        by_latest_action_actor: { "ops:alice" => 1 },
+        by_latest_action_origin: { "review_lane" => 1 },
+        by_latest_action_source: { orchestration_handler: 1 }
+      )
+      expect(overview[:runtime]).to include(
+        total_sessions: 1,
+        interactive_sessions: 1,
+        continuable_sessions: 1,
+        routed_sessions: 0,
+        by_ownership: { local: 1 },
+        by_session_lifecycle_state: { streaming: 1 },
+        by_phase: { streaming: 1 },
+        by_reply_mode: { stream: 1 }
+      )
+      expect(overview[:runtime][:active_nodes]).to contain_exactly(
+        include(
+          id: "agent_orchestration:open_interactive_session:interactive_summary",
+          node: :interactive_summary,
+          session_lifecycle_state: :streaming,
+          ownership: :local,
+          continuable: true,
+          routed: false
+        )
+      )
+      expect(overview[:records]).to contain_exactly(
+        include(
+          node: :interactive_summary,
+          status: :acknowledged,
+          queue: "manual-review",
+          assignee: "ops:alice",
+          ownership: :local,
+          session_lifecycle_state: :streaming,
+          interactive: true,
+          continuable: true,
+          routed: false,
+          terminal: false,
+          latest_action_actor: "ops:alice",
+          latest_action_origin: "review_lane",
+          latest_action_source: :orchestration_handler
+        )
+      )
+
+      router = Igniter::Server::Router.new(config)
 
       page = router.call(
         "GET",
-        "/operator?graph=AnonymousContract&execution_id=#{contract.execution.events.execution_id}&status=acknowledged&queue=manual-review&assignee=ops:alice&latest_action_actor=ops:alice&latest_action_origin=review_lane&latest_action_source=orchestration_handler&node=interactive_summary",
+        "/operator?graph=AnonymousContract&execution_id=#{contract.execution.events.execution_id}&status=acknowledged&queue=manual-review&assignee=ops:alice&ownership=local&session_lifecycle_state=streaming&interactive=true&continuable=true&routed=false&terminal=false&latest_action_actor=ops:alice&latest_action_origin=review_lane&latest_action_source=orchestration_handler&node=interactive_summary",
         ""
       )
 
@@ -4171,6 +4336,18 @@ RSpec.describe Igniter::App do
       expect(page[:body]).to include('value="manual-review"')
       expect(page[:body]).to include('name="assignee"')
       expect(page[:body]).to include('value="ops:alice"')
+      expect(page[:body]).to include('name="ownership"')
+      expect(page[:body]).to include('value="local"')
+      expect(page[:body]).to include('name="session_lifecycle_state"')
+      expect(page[:body]).to include('value="streaming"')
+      expect(page[:body]).to include('name="interactive"')
+      expect(page[:body]).to include('value="true"')
+      expect(page[:body]).to include('name="continuable"')
+      expect(page[:body]).to include('value="true"')
+      expect(page[:body]).to include('name="routed"')
+      expect(page[:body]).to include('value="false"')
+      expect(page[:body]).to include('name="terminal"')
+      expect(page[:body]).to include('value="false"')
       expect(page[:body]).to include('name="latest_action_actor"')
       expect(page[:body]).to include('value="ops:alice"')
       expect(page[:body]).to include('name="latest_action_origin"')
@@ -4179,6 +4356,10 @@ RSpec.describe Igniter::App do
       expect(page[:body]).to include('value="orchestration_handler"')
       expect(page[:body]).to include('name="action_actor"')
       expect(page[:body]).to include('value="operator-console"')
+      expect(page[:body]).to include("Runtime")
+      expect(page[:body]).to include("Interactive Sessions")
+      expect(page[:body]).to include("Routed Sessions")
+      expect(page[:body]).to include("Continuable Sessions")
       expect(page[:body]).to include("Open JSON API")
       expect(page[:body]).to include("Inspect")
     ensure

@@ -49,6 +49,14 @@ module Igniter
         agent_session_query_from_store(execution_id, store: store).summary
       end
 
+      def orchestration_overview_from_store(execution_id, store: nil)
+        restore_from_store(execution_id, store: store).execution.orchestration_overview
+      end
+
+      def orchestration_summary_from_store(execution_id, store: nil)
+        orchestration_overview_from_store(execution_id, store: store)[:summary]
+      end
+
       def resume_from_store(execution_id, token:, value:, store: nil)
         Runtime::JobWorker.new(self, store: store || Igniter.execution_store).resume(
           execution_id: execution_id,
@@ -349,6 +357,14 @@ module Igniter
 
     def orchestration_plan(output_names = nil)
       execution.orchestration_plan(output_names)
+    end
+
+    def orchestration_overview(output_names = nil)
+      execution.orchestration_overview(output_names)
+    end
+
+    def orchestration_summary(output_names = nil)
+      execution.orchestration_summary(output_names)
     end
 
     def agent_session_query

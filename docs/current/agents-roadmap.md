@@ -87,6 +87,13 @@ Already landed:
   - `routed`
 - the joined operator plane now projects those same runtime semantics, so ownership and session state are no longer hidden behind only inbox or ignite workflow metadata
 - store-backed executions now also expose that same runtime query truth through `Contract.agent_session_query_from_store(...)` and `Contract.agent_session_summary_from_store(...)`, which closes the main durable-runtime gap for this session model line
+- orchestration now also has a first runtime-owned overview layer through `Execution#orchestration_overview` and `Contract.orchestration_overview_from_store(...)`, so richer orchestration truth no longer has to originate only from app inbox state
+- mounted operator/API surfaces now also accept and display those same session dimensions, so the next operator work can focus on richer UX and workflow semantics instead of basic filter parity
+- `App.operator_overview(...)` now also exposes an explicit runtime/session summary block, and the built-in operator console now renders those runtime session counts plus richer session/timeline drill-down for individual records
+- execution-scoped operator overview now also projects `orchestration_runtime`, which makes live orchestration timeline/records visible beside the operator workflow plane instead of being hidden behind only app-level inbox projections
+- that `orchestration_runtime` projection now also merges matching inbox/operator history back into runtime records, so the next runtime/app work can build on one linked orchestration truth instead of two parallel histories
+- app-facing runtime APIs now also expose that same merged orchestration truth directly through `App.orchestration_runtime_overview(...)` and `App.orchestration_runtime_overview_for_execution(...)`
+- diagnostics now also surface `app_orchestration_runtime`, so execution-owned orchestration state can be inspected without going through the broader operator overview surface
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
 

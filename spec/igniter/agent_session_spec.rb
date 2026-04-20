@@ -333,4 +333,139 @@ RSpec.describe "agent sessions" do
       routed: true
     )
   end
+
+  it "exposes a runtime-owned orchestration overview over live execution state" do
+    trace_copy = trace
+    adapter = Class.new do
+      define_method(:call) do |node:, **|
+        payload =
+          if node.reply_mode == :stream
+            { event: Igniter::Runtime::AgentSession.status_event(status: "thinking") }
+          else
+            { queue: :review }
+          end
+
+        {
+          status: :pending,
+          payload: payload,
+          agent_trace: trace_copy,
+          session: {
+            node_name: node.name,
+            node_path: node.path,
+            agent_name: node.agent_name,
+            message_name: node.message_name,
+            mode: node.mode,
+            waiting_on: node.name,
+            source_node: node.name,
+            trace: trace_copy
+          }
+        }
+      end
+
+      define_method(:cast) do |**|
+        raise "unexpected cast"
+      end
+    end.new
+
+    contract_class = Class.new(Igniter::Contract) do
+      runner :inline, agent_adapter: adapter
+
+      define do
+        input :name
+
+        agent :interactive_summary,
+              via: :writer,
+              message: :summarize,
+              reply: :stream,
+              inputs: { name: :name }
+
+        agent :approval,
+              via: :reviewer,
+              message: :review,
+              inputs: { name: :name }
+
+        output :interactive_summary
+        output :approval
+      end
+    end
+
+    contract = contract_class.new(name: "Alice")
+    contract.result.interactive_summary
+    contract.result.approval
+
+    approval_session = contract.execution.agent_sessions.find { |session| session.node_name == :approval }
+    contract.execution.continue_agent_session(
+      approval_session,
+      payload: { prompt: "Need manager approval" },
+      trace: trace.merge(reason: :awaiting_manager)
+    )
+
+    overview = contract.execution.orchestration_overview
+
+    expect(contract.orchestration_overview).to eq(overview)
+    expect(contract.execution.orchestration_summary).to eq(overview[:summary])
+    expect(overview[:summary]).to include(
+      total: 2,
+      attention_required: 2,
+      resumable: 2,
+      with_session: 2,
+      interactive_sessions: 1,
+      deferred_calls: 1,
+      by_action: {
+        open_interactive_session: 1,
+        await_deferred_reply: 1
+      },
+      by_interaction: {
+        interactive_session: 1,
+        deferred_call: 1
+      },
+      by_runtime_status: { pending_session: 2 },
+      by_session_lifecycle_state: {
+        streaming: 1,
+        waiting: 1
+      },
+      by_ownership: { local: 2 },
+      by_phase: {
+        streaming: 1,
+        waiting: 1
+      },
+      by_reply_mode: {
+        stream: 1,
+        deferred: 1
+      }
+    )
+    expect(overview[:summary][:by_event_type]).to include(
+      node_pending: 3,
+      agent_session_continued: 1
+    )
+    expect(overview[:records]).to contain_exactly(
+      include(
+        node: :interactive_summary,
+        action: :open_interactive_session,
+        interaction: :interactive_session,
+        runtime_status: :pending_session,
+        session_lifecycle_state: :streaming,
+        ownership: :local,
+        interactive: true,
+        continuable: true,
+        routed: false
+      ),
+      include(
+        node: :approval,
+        action: :await_deferred_reply,
+        interaction: :deferred_call,
+        runtime_status: :pending_session,
+        session_lifecycle_state: :waiting,
+        ownership: :local,
+        waiting_on: :approval,
+        interactive: false,
+        continuable: true,
+        routed: false
+      )
+    )
+    expect(overview[:timeline]).to include(
+      include(node: :interactive_summary, event: :node_pending),
+      include(node: :approval, event: :agent_session_continued, turn: 2)
+    )
+  end
 end

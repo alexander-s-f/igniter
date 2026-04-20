@@ -116,6 +116,30 @@ module Igniter
                         <input id="assignee" name="assignee" placeholder="ops:alice" value="#{h(initial[:assignee])}">
                       </label>
                       <label>
+                        Ownership
+                        <input id="ownership" name="ownership" placeholder="local,remote" value="#{h(initial[:ownership])}">
+                      </label>
+                      <label>
+                        Session Lifecycle
+                        <input id="session_lifecycle_state" name="session_lifecycle_state" placeholder="waiting,streaming,completed" value="#{h(initial[:session_lifecycle_state])}">
+                      </label>
+                      <label>
+                        Interactive
+                        <input id="interactive" name="interactive" placeholder="true" value="#{h(initial[:interactive])}">
+                      </label>
+                      <label>
+                        Continuable
+                        <input id="continuable" name="continuable" placeholder="true" value="#{h(initial[:continuable])}">
+                      </label>
+                      <label>
+                        Routed
+                        <input id="routed" name="routed" placeholder="false" value="#{h(initial[:routed])}">
+                      </label>
+                      <label>
+                        Terminal
+                        <input id="terminal" name="terminal" placeholder="false" value="#{h(initial[:terminal])}">
+                      </label>
+                      <label>
                         Latest Action Actor
                         <input id="latest_action_actor" name="latest_action_actor" placeholder="alex" value="#{h(initial[:latest_action_actor])}">
                       </label>
@@ -174,9 +198,26 @@ module Igniter
                       <strong id="live_sessions">0</strong>
                     </article>
                     <article class="panel stat">
+                      <span class="hint">Interactive Sessions</span>
+                      <strong id="interactive_sessions">0</strong>
+                    </article>
+                    <article class="panel stat">
+                      <span class="hint">Routed Sessions</span>
+                      <strong id="routed_sessions">0</strong>
+                    </article>
+                    <article class="panel stat">
+                      <span class="hint">Continuable Sessions</span>
+                      <strong id="continuable_sessions">0</strong>
+                    </article>
+                    <article class="panel stat">
                       <span class="hint">Inbox Items</span>
                       <strong id="inbox_items">0</strong>
                     </article>
+                  </section>
+
+                  <section class="panel" style="margin-bottom: 20px;">
+                    <h2>Runtime</h2>
+                    <pre id="runtime">waiting for data…</pre>
                   </section>
 
                   <section class="panel" style="margin-bottom: 20px;">
@@ -223,6 +264,12 @@ module Igniter
                     const laneInput = document.getElementById("lane");
                     const queueInput = document.getElementById("queue");
                     const assigneeInput = document.getElementById("assignee");
+                    const ownershipInput = document.getElementById("ownership");
+                    const sessionLifecycleStateInput = document.getElementById("session_lifecycle_state");
+                    const interactiveInput = document.getElementById("interactive");
+                    const continuableInput = document.getElementById("continuable");
+                    const routedInput = document.getElementById("routed");
+                    const terminalInput = document.getElementById("terminal");
                     const latestActionActorInput = document.getElementById("latest_action_actor");
                     const latestActionOriginInput = document.getElementById("latest_action_origin");
                     const latestActionSourceInput = document.getElementById("latest_action_source");
@@ -234,7 +281,11 @@ module Igniter
                     const total = document.getElementById("total");
                     const joined = document.getElementById("joined");
                     const liveSessions = document.getElementById("live_sessions");
+                    const interactiveSessions = document.getElementById("interactive_sessions");
+                    const routedSessions = document.getElementById("routed_sessions");
+                    const continuableSessions = document.getElementById("continuable_sessions");
                     const inboxItems = document.getElementById("inbox_items");
+                    const runtime = document.getElementById("runtime");
                     const summary = document.getElementById("summary");
                     const recordDetail = document.getElementById("record_detail");
                     const recordsBody = document.getElementById("records_body");
@@ -255,6 +306,12 @@ module Igniter
                         [laneInput, "lane"],
                         [queueInput, "queue"],
                         [assigneeInput, "assignee"],
+                        [ownershipInput, "ownership"],
+                        [sessionLifecycleStateInput, "session_lifecycle_state"],
+                        [interactiveInput, "interactive"],
+                        [continuableInput, "continuable"],
+                        [routedInput, "routed"],
+                        [terminalInput, "terminal"],
                         [latestActionActorInput, "latest_action_actor"],
                         [latestActionOriginInput, "latest_action_origin"],
                         [latestActionSourceInput, "latest_action_source"],
@@ -281,7 +338,11 @@ module Igniter
                       total.textContent = String(payload.summary?.total ?? 0);
                       joined.textContent = String(payload.summary?.joined_records ?? 0);
                       liveSessions.textContent = String(payload.summary?.live_sessions ?? 0);
+                      interactiveSessions.textContent = String(payload.runtime?.interactive_sessions ?? 0);
+                      routedSessions.textContent = String(payload.runtime?.routed_sessions ?? 0);
+                      continuableSessions.textContent = String(payload.runtime?.continuable_sessions ?? 0);
                       inboxItems.textContent = String(payload.summary?.inbox_items ?? 0);
+                      runtime.textContent = JSON.stringify(payload.runtime ?? {}, null, 2);
                       summary.textContent = JSON.stringify(payload.summary ?? {}, null, 2);
                     }
 
@@ -316,6 +377,8 @@ module Igniter
                         const lane = record.lane?.name || record.lane || "—";
                         const queue = record.queue || "—";
                         const assignee = record.assignee || "—";
+                        const sessionState = record.session_lifecycle_state || "—";
+                        const ownership = record.ownership || "—";
                         const execution = record.graph && record.execution_id
                           ? `${record.graph} / ${record.execution_id}`
                           : "—";
@@ -352,7 +415,7 @@ module Igniter
                           : inspectLinks;
                         return `<tr>
                           <td><code>${escapeHtml(String(record.node || "—"))}</code></td>
-                          <td>${escapeHtml(String(record.combined_state || "—"))}</td>
+                          <td>${escapeHtml(`${String(record.combined_state || "—")} / ${String(sessionState)} / ${String(ownership)}`)}</td>
                           <td>${escapeHtml(String(record.status || "—"))}</td>
                           <td>${escapeHtml(`${lane} / ${queue}`)}</td>
                           <td>${escapeHtml(String(assignee))}</td>
@@ -364,23 +427,77 @@ module Igniter
                     }
 
                     function renderRecordDetail(record) {
-                      const detail = {
-                        id: record.id || null,
-                        node: record.node || null,
-                        combined_state: record.combined_state || null,
-                        status: record.status || null,
-                        action: record.action || null,
-                        queue: record.queue || null,
-                        assignee: record.assignee || null,
-                        phase: record.phase || null,
-                        reply_mode: record.reply_mode || null,
-                        graph: record.graph || null,
-                        execution_id: record.execution_id || null,
-                        latest_action_event: record.latest_action_event || null,
-                        timeline: record.ignition_timeline || record.action_history || []
-                      };
+                      const lines = [];
+                      const detailLine = (label, value) => {
+                        if (value === null || value === undefined || value === "") {
+                          return;
+                        }
 
-                      recordDetail.textContent = JSON.stringify(detail, null, 2);
+                        if (typeof value === "object") {
+                          lines.push(`${label}: ${JSON.stringify(value)}`);
+                        } else {
+                          lines.push(`${label}: ${String(value)}`);
+                        }
+                      };
+                      const timeline = Array.isArray(record.ignition_timeline)
+                        ? record.ignition_timeline
+                        : (Array.isArray(record.orchestration_combined_timeline) && record.orchestration_combined_timeline.length > 0
+                          ? record.orchestration_combined_timeline
+                          : (record.action_history || []));
+
+                      lines.push("Record");
+                      detailLine("  id", record.id || null);
+                      detailLine("  node", record.node || null);
+                      detailLine("  kind", record.record_kind || null);
+                      detailLine("  state", [record.combined_state, record.status].filter(Boolean).join(" / "));
+                      detailLine("  action", record.action || null);
+                      detailLine("  execution", record.graph && record.execution_id ? `${record.graph} / ${record.execution_id}` : null);
+                      detailLine("  queue", record.queue || null);
+                      detailLine("  assignee", record.assignee || null);
+
+                      if (record.has_session) {
+                        lines.push("");
+                        lines.push("Session");
+                        detailLine("  lifecycle", record.session_lifecycle_state || null);
+                        detailLine("  ownership", record.ownership || null);
+                        detailLine("  owner_url", record.owner_url || null);
+                        detailLine("  delivery_route", record.delivery_route || null);
+                        detailLine("  phase", record.phase || null);
+                        detailLine("  reply_mode", record.reply_mode || null);
+                        detailLine("  mode", record.mode || null);
+                        detailLine("  waiting_on", record.waiting_on || null);
+                        detailLine("  tool_loop_status", record.tool_loop_status || null);
+                        detailLine("  interactive", record.interactive);
+                        detailLine("  terminal", record.terminal);
+                        detailLine("  continuable", record.continuable);
+                        detailLine("  routed", record.routed);
+                      }
+
+                      lines.push("");
+                      lines.push("Latest Action");
+                      detailLine("  actor", record.latest_action_actor || null);
+                      detailLine("  origin", record.latest_action_origin || null);
+                      detailLine("  source", record.latest_action_source || null);
+                      detailLine("  event", record.latest_action_event || null);
+
+                      lines.push("");
+                      lines.push(`Timeline (${timeline.length})`);
+                      if (timeline.length === 0) {
+                        lines.push("  no events");
+                      } else {
+                        timeline.slice(-5).forEach((event) => {
+                          const payload = event && typeof event === "object" ? (event.payload || {}) : {};
+                          const parts = [
+                            event.event || event.type || "event",
+                            event.source || null,
+                            payload.status || event.status || null,
+                            payload.actor || event.actor || event.source || null
+                          ].filter(Boolean);
+                          lines.push(`  - ${parts.join(" · ")}`);
+                        });
+                      }
+
+                      recordDetail.textContent = lines.join("\n");
                     }
 
                     function escapeHtml(value) {
@@ -554,6 +671,12 @@ module Igniter
             lane: request_params[:lane].to_s,
             queue: request_params[:queue].to_s,
             assignee: request_params[:assignee].to_s,
+            ownership: request_params[:ownership].to_s,
+            session_lifecycle_state: request_params[:session_lifecycle_state].to_s,
+            interactive: request_params[:interactive].to_s,
+            continuable: request_params[:continuable].to_s,
+            routed: request_params[:routed].to_s,
+            terminal: request_params[:terminal].to_s,
             latest_action_actor: request_params[:latest_action_actor].to_s,
             latest_action_origin: request_params[:latest_action_origin].to_s,
             latest_action_source: request_params[:latest_action_source].to_s,
