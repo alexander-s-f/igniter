@@ -66,6 +66,8 @@ That draft is now specific enough to guide implementation:
   - server `AgentTransport`
   - `/v1/agents/:via/messages/:message/call`
   - `/v1/agents/:via/messages/:message/cast`
+  - `/v1/agent-sessions/:token/continue`
+  - `/v1/agent-sessions/:token/resume`
   - explicit routed session ownership metadata plus opt-in continuation/resume hooks above the initial transport seam
 
 - normalized `BootstrapTarget`

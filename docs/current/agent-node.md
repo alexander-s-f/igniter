@@ -298,9 +298,13 @@ Current remote transport path:
 - `Igniter::Server::AgentTransport`
 - `Igniter::Server::Client#call_agent`
 - `Igniter::Server::Client#cast_agent`
+- `Igniter::Server::Client#continue_agent_session`
+- `Igniter::Server::Client#resume_agent_session`
 - server routes:
   - `POST /v1/agents/:via/messages/:message/call`
   - `POST /v1/agents/:via/messages/:message/cast`
+  - `POST /v1/agent-sessions/:token/continue`
+  - `POST /v1/agent-sessions/:token/resume`
 
 Continuity model:
 
@@ -316,6 +320,7 @@ Continuity model:
   - `AgentAdapter#resume_session`
   - `AgentTransport#continue_session`
   - `AgentTransport#resume_session`
-- that means the remote lifecycle seam now exists explicitly, but it is not forced on every transport before a real remote-owned session protocol is ready
+- the server transport now uses those hooks through a stateless session protocol, where the current session snapshot is shipped to the remote side and the next session snapshot comes back in the standard agent response shape
+- that means the remote lifecycle seam now exists explicitly, but it is still not forced on every transport before a more durable remote-owned session runtime is ready
 
 See also: [Agents Roadmap](./agents-roadmap.md)

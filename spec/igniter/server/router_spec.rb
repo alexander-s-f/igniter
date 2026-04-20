@@ -143,6 +143,94 @@ RSpec.describe Igniter::Server::Router do
     end
   end
 
+  describe "POST /v1/agent-sessions/:token/continue" do
+    it "continues a remote-owned agent session through the server protocol" do
+      session = Igniter::Runtime::AgentSession.new(
+        token: "review-session",
+        node_name: :review,
+        agent_name: :reviewer,
+        message_name: :review,
+        mode: :call,
+        reply_mode: :deferred,
+        ownership: :remote,
+        owner_url: "http://seed:4567",
+        delivery_route: { routing_mode: :static, url: "http://seed:4567", remote: true },
+        payload: { requested_name: "Alice" }
+      )
+
+      body = JSON.generate({
+        "session" => session.to_h,
+        "payload" => { "step" => 2 }
+      })
+      result = router.call("POST", "/v1/agent-sessions/review-session/continue", body)
+
+      expect(result[:status]).to eq(200)
+      data = JSON.parse(result[:body])
+      expect(data).to include("status" => "pending", "message" => "continue")
+      expect(data.fetch("deferred_result")).to include(
+        "token" => "review-session",
+        "source_node" => "review",
+        "waiting_on" => "review"
+      )
+      expect(data.fetch("agent_session")).to include(
+        "token" => "review-session",
+        "turn" => 2,
+        "ownership" => "remote",
+        "owner_url" => "http://seed:4567"
+      )
+      expect(data.fetch("payload")).to include("step" => 2)
+    end
+  end
+
+  describe "POST /v1/agent-sessions/:token/resume" do
+    it "completes a remote-owned agent session through the server protocol" do
+      session = Igniter::Runtime::AgentSession.new(
+        token: "review-session",
+        node_name: :review,
+        agent_name: :reviewer,
+        message_name: :review,
+        mode: :call,
+        reply_mode: :deferred,
+        ownership: :remote,
+        owner_url: "http://seed:4567",
+        delivery_route: { routing_mode: :static, url: "http://seed:4567", remote: true },
+        payload: { requested_name: "Alice" }
+      )
+
+      body = JSON.generate({
+        "session" => session.to_h,
+        "value" => "approved"
+      })
+      result = router.call("POST", "/v1/agent-sessions/review-session/resume", body)
+
+      expect(result[:status]).to eq(200)
+      data = JSON.parse(result[:body])
+      expect(data).to include("status" => "succeeded", "output" => "approved")
+      expect(data.fetch("agent_session")).to include(
+        "token" => "review-session",
+        "turn" => 2,
+        "phase" => "completed",
+        "ownership" => "remote"
+      )
+    end
+
+    it "rejects a token mismatch" do
+      session = Igniter::Runtime::AgentSession.new(
+        token: "review-session",
+        node_name: :review,
+        agent_name: :reviewer,
+        message_name: :review,
+        mode: :call
+      )
+
+      body = JSON.generate({ "session" => session.to_h, "value" => "approved" })
+      result = router.call("POST", "/v1/agent-sessions/other-session/resume", body)
+
+      expect(result[:status]).to eq(422)
+      expect(JSON.parse(result[:body])["error"]).to include("token mismatch")
+    end
+  end
+
   describe "unknown routes" do
     it "returns 404" do
       result = router.call("GET", "/v1/unknown", "")

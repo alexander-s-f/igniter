@@ -65,9 +65,11 @@ Already landed:
   - `AgentTransport`
   - `/v1/agents/:via/messages/:message/call`
   - `/v1/agents/:via/messages/:message/cast`
-  so routed delivery now already has a canonical HTTP protocol for initial remote agent execution
+  - `/v1/agent-sessions/:token/continue`
+  - `/v1/agent-sessions/:token/resume`
+  so routed delivery now already has a canonical HTTP protocol for initial remote execution and for routed session continuation/resume
 - routed sessions now also expose explicit ownership metadata (`ownership`, `owner_url`, `delivery_route`)
-- core runtime now also has opt-in continuation/resume hooks above routed delivery, so the lifecycle seam is explicit even though local graph-owned continuity remains the default
+- core runtime now also has opt-in continuation/resume hooks above routed delivery, and the server transport is the first concrete implementation of that seam
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
 

@@ -25,6 +25,8 @@ module Igniter
         { method: "POST",   pattern: %r{\A/v1/contracts/(?<name>[^/]+)/events\z},  handler: :event },
         { method: "POST",   pattern: %r{\A/v1/agents/(?<via>[^/]+)/messages/(?<message>[^/]+)/call\z}, handler: :agent_call },
         { method: "POST",   pattern: %r{\A/v1/agents/(?<via>[^/]+)/messages/(?<message>[^/]+)/cast\z}, handler: :agent_cast },
+        { method: "POST",   pattern: %r{\A/v1/agent-sessions/(?<token>[^/]+)/continue\z}, handler: :agent_session_continue },
+        { method: "POST",   pattern: %r{\A/v1/agent-sessions/(?<token>[^/]+)/resume\z}, handler: :agent_session_resume },
         { method: "GET",    pattern: %r{\A/v1/executions/(?<id>[^/]+)\z},          handler: :status }
       ].freeze
 
@@ -98,6 +100,8 @@ module Igniter
         when :event              then Handlers::EventHandler.new(registry, store, collector: collector)
         when :agent_call         then Handlers::AgentMessageHandler.new(registry, store, mode: :call)
         when :agent_cast         then Handlers::AgentMessageHandler.new(registry, store, mode: :cast)
+        when :agent_session_continue then Handlers::AgentSessionHandler.new(registry, store, mode: :continue)
+        when :agent_session_resume then Handlers::AgentSessionHandler.new(registry, store, mode: :resume)
         when :status             then Handlers::StatusHandler.new(registry, store)
         end
       end

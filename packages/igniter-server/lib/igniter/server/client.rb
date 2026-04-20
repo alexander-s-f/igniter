@@ -74,6 +74,38 @@ module Igniter
         symbolize_agent_response(response)
       end
 
+      def continue_agent_session(token:, session:, payload: {}, trace: nil, next_token: nil, waiting_on: nil, request: nil, reply: nil, phase: nil)
+        response = post(
+          "/v1/agent-sessions/#{uri_encode(token)}/continue",
+          {
+            session: session,
+            payload: payload,
+            trace: trace,
+            token: next_token,
+            waiting_on: waiting_on,
+            request: request,
+            reply: reply,
+            phase: phase
+          }.compact
+        )
+        symbolize_agent_response(response)
+      end
+
+      def resume_agent_session(token:, session:, value: nil, trace: nil, reply: nil)
+        body = {
+          session: session,
+          trace: trace,
+          reply: reply
+        }.compact
+        body[:value] = value if !value.nil? || body.empty?
+
+        response = post(
+          "/v1/agent-sessions/#{uri_encode(token)}/resume",
+          body
+        )
+        symbolize_agent_response(response)
+      end
+
       # Fetch peer manifest: peer_name, capabilities, contracts, url.
       def manifest
         response = get("/v1/manifest")

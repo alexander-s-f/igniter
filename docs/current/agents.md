@@ -91,6 +91,8 @@ Even in that narrow form, agents are no longer opaque:
   - `Igniter::Server::AgentTransport`
   - `POST /v1/agents/:via/messages/:message/call`
   - `POST /v1/agents/:via/messages/:message/cast`
+  - `POST /v1/agent-sessions/:token/continue`
+  - `POST /v1/agent-sessions/:token/resume`
 - routed delivery now already has one honest HTTP transport path
 - routed `AgentSession` objects now also carry explicit ownership and delivery metadata like `ownership`, `owner_url`, and `delivery_route`
 - core runtime now also exposes optional continuation/resume hooks above the initial routed seam:
@@ -99,6 +101,7 @@ Even in that narrow form, agents are no longer opaque:
   - `AgentTransport#continue_session`
   - `AgentTransport#resume_session`
 - those hooks are intentionally opt-in today, so graph-owned local continuity remains the default until a transport explicitly declares session lifecycle support
+- the server transport now declares that support and uses a stateless session protocol: the current `AgentSession` snapshot is sent over the wire and the remote side returns the next session snapshot
 
 ## Near-Term Direction
 
@@ -130,6 +133,7 @@ The current session model is intentionally simple but now explicit:
 - final completion preserves the completed session in node details for diagnostics/provenance
 - store-backed runners persist and restore that lifecycle instead of treating the session as caller-owned state
 - routed sessions may now opt into adapter-owned continuation/resume handling through the new session lifecycle hooks, while still falling back to the existing graph-owned continuity model by default
+- the first concrete transport that uses that seam is now `Igniter::Server::AgentTransport`, which handles remote continuation/resume over `/v1/agent-sessions/:token/...`
 
 This is the first step toward making agents a durable execution concept inside Igniter rather than a thin adapter callback.
 
