@@ -41,6 +41,7 @@ module Igniter
 
         @logger.info("igniter-stack started",
                      host: @config.host, port: @config.port, pid: Process.pid)
+        run_after_start_hooks!
 
         loop do
           break unless @running
@@ -207,6 +208,14 @@ module Igniter
         result[:body].each do |chunk|
           socket.write(chunk.to_s)
         end
+      end
+
+      def run_after_start_hooks!
+        Array(@config.after_start_hooks).each do |hook|
+          hook.call(config: @config, server: self)
+        end
+      rescue StandardError => e
+        @logger.error("after_start hook failed", error: e.message)
       end
     end
   end

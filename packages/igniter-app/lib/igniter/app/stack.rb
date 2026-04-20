@@ -321,9 +321,9 @@ module Igniter
         @ignition_plan ||= build_ignition_plan
       end
 
-      def ignite(plan: ignition_plan, approved: false, timeout: 5, mesh: nil, request_admission: false, approve_pending_admission: false)
+      def ignite(plan: ignition_plan, approved: false, timeout: 5, mesh: nil, request_admission: false, approve_pending_admission: false, bootstrap_remote: false, bootstrap_timeout: 30, session_factory: nil, bootstrapper_factory: nil, await_join: nil, join_timeout: 5, join_poll_interval: 0.1)
         agent = Igniter::Ignite::IgnitionAgent.start
-        agent.call(
+        report = agent.call(
           :execute,
           {
             plan: plan,
@@ -331,9 +331,22 @@ module Igniter
             approved: approved,
             mesh: mesh,
             request_admission: request_admission,
-            approve_pending_admission: approve_pending_admission
+            approve_pending_admission: approve_pending_admission,
+            bootstrap_remote: bootstrap_remote,
+            bootstrap_timeout: bootstrap_timeout,
+            session_factory: session_factory,
+            bootstrapper_factory: bootstrapper_factory,
+            root_dir: @root_dir
           },
           timeout: timeout
+        )
+        return report unless should_await_ignite_join?(report, mesh: mesh, await_join: await_join, bootstrap_remote: bootstrap_remote)
+
+        await_ignite_join(
+          report: report,
+          mesh: mesh,
+          timeout: join_timeout,
+          poll_interval: join_poll_interval
         )
       ensure
         agent&.stop(timeout: 1)
@@ -353,6 +366,20 @@ module Igniter
             url: url,
             mesh: mesh,
             metadata: metadata
+          },
+          timeout: timeout
+        )
+      ensure
+        agent&.stop(timeout: 1)
+      end
+
+      def reconcile_ignite(report:, mesh:, timeout: 5)
+        agent = Igniter::Ignite::IgnitionAgent.start
+        agent.call(
+          :reconcile,
+          {
+            report: report,
+            mesh: mesh
           },
           timeout: timeout
         )
@@ -815,6 +842,7 @@ module Igniter
         root_app_class.host_adapter.activate_transport!
         root_config = root_app_class.send(:build!)
         apply_http_settings!(root_config, stack_http_settings(selected_node))
+        attach_ignite_runtime_hook!(root_config)
         root_config.custom_routes = mounted_apps.flat_map { |app| app.fetch(:routes) } + Array(root_config.custom_routes)
 
         {
@@ -914,6 +942,109 @@ module Igniter
         config.log_format = http_settings["log_format"].to_sym if present?(http_settings["log_format"])
         config.drain_timeout = Integer(http_settings["drain_timeout"]) if http_settings.key?("drain_timeout") && !http_settings["drain_timeout"].nil?
         config
+      end
+
+      def attach_ignite_runtime_hook!(config)
+        context = ignite_runtime_boot_context
+        return config unless context
+        return config unless config.respond_to?(:after_start_hooks)
+
+        config.after_start_hooks << lambda do |config:, server:|
+          complete_ignite_runtime_boot!(config: config, server: server, context: context)
+        end
+        config
+      end
+
+      def ignite_runtime_boot_context
+        target_id = ENV["IGNITER_IGNITE_TARGET"].to_s.strip
+        return nil if target_id.empty?
+
+        {
+          target_id: target_id,
+          intent_id: ENV["IGNITER_IGNITE_INTENT"].to_s.strip,
+          mode: ENV["IGNITER_IGNITE_MODE"].to_s.strip
+        }
+      end
+
+      def complete_ignite_runtime_boot!(config:, server:, context:)
+        mesh = defined?(Igniter::Cluster::Mesh) ? Igniter::Cluster::Mesh : nil
+        url = ignite_runtime_join_url(config, mesh: mesh)
+        return if url.nil?
+
+        if mesh
+          mesh.config.local_url = url if mesh.config.local_url.to_s.strip.empty?
+          if mesh.config.seeds.any?
+            Igniter::Cluster::Mesh::Announcer.new(mesh.config).announce_all
+          elsif mesh.config.peer_name
+            peer = Igniter::Cluster::Mesh::Peer.new(
+              name: mesh.config.peer_name,
+              url: url,
+              capabilities: Array(mesh.config.local_capabilities),
+              tags: Array(mesh.config.local_tags),
+              metadata: Igniter::Cluster::Mesh::PeerMetadata.authoritative(
+                mesh.config.local_metadata.merge(
+                  mesh_ignite: {
+                    target_id: context[:target_id],
+                    intent_id: context[:intent_id],
+                    mode: context[:mode],
+                    joined_at: Time.now.utc.iso8601
+                  }.compact
+                ),
+                origin: mesh.config.peer_name
+              )
+            )
+            mesh.config.peer_registry.register(peer)
+          end
+
+          mesh.config.governance_trail&.record(
+            :ignite_runtime_joined,
+            source: :stack_runtime,
+            payload: {
+              target_id: context[:target_id],
+              intent_id: context[:intent_id],
+              mode: context[:mode],
+              url: url,
+              server: server.class.name
+            }.compact
+          )
+        end
+
+        { target_id: context[:target_id], url: url }
+      end
+
+      def ignite_runtime_join_url(config, mesh:)
+        local_url = mesh&.config&.local_url.to_s.strip
+        return local_url unless local_url.empty?
+
+        host = config.host.to_s.strip
+        host = "127.0.0.1" if host.empty? || host == "0.0.0.0"
+        return nil if config.port.nil?
+
+        "http://#{host}:#{config.port}"
+      end
+
+      def should_await_ignite_join?(report, mesh:, await_join:, bootstrap_remote:)
+        enabled = await_join.nil? ? (mesh && bootstrap_remote) : await_join
+        return false unless enabled
+        return false unless mesh
+        return false unless report.is_a?(Igniter::Ignite::IgnitionReport)
+
+        report.awaiting_join? || report.by_status.fetch(:bootstrapped, 0).positive?
+      end
+
+      def await_ignite_join(report:, mesh:, timeout:, poll_interval:)
+        deadline = Time.now + timeout.to_f
+        current = report
+
+        loop do
+          current = reconcile_ignite(report: current, mesh: mesh)
+          return current unless current.awaiting_join? || current.by_status.fetch(:bootstrapped, 0).positive?
+          break if Time.now >= deadline
+
+          sleep poll_interval.to_f
+        end
+
+        current
       end
 
       def start_stack_schedulers(runtime)

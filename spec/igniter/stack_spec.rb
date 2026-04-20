@@ -13,12 +13,18 @@ RSpec.describe Igniter::Stack do
     original_load_path = $LOAD_PATH.dup
     original_env = ENV["IGNITER_ENV"]
     original_port = ENV["PORT"]
+    original_ignite_target = ENV["IGNITER_IGNITE_TARGET"]
+    original_ignite_intent = ENV["IGNITER_IGNITE_INTENT"]
+    original_ignite_mode = ENV["IGNITER_IGNITE_MODE"]
 
     example.run
   ensure
     $LOAD_PATH.replace(original_load_path)
     ENV["IGNITER_ENV"] = original_env
     ENV["PORT"] = original_port
+    ENV["IGNITER_IGNITE_TARGET"] = original_ignite_target
+    ENV["IGNITER_IGNITE_INTENT"] = original_ignite_intent
+    ENV["IGNITER_IGNITE_MODE"] = original_ignite_mode
     Igniter::Cluster::Mesh.reset!
   end
 
@@ -259,6 +265,510 @@ RSpec.describe Igniter::Stack do
       expect(entry.fetch(:locator)).to include(config_path: "config/ssh_hp.yml")
       expect(entry.fetch(:admission)).to include(required: true, status: :pending_bootstrap)
       expect(entry.fetch(:join)).to include(required: true, status: :pending_bootstrap)
+    end
+  end
+
+  it "can bootstrap remote ssh targets through the ignition bootstrap agent" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          servers:
+            - target: config/ssh_hp.yml
+              name: hp-call-analysis
+              capabilities:
+                - call_analysis
+      YAML
+      File.write(File.join(tmp, "config", "ssh_hp.yml"), <<~YAML)
+        host: 10.0.0.50
+        user: deploy
+        strategy: tarball
+        target_path: /srv/igniter/spark-crm
+      YAML
+
+      fake_session_class = Class.new do
+        attr_reader :host, :user, :key, :port
+
+        def initialize(host:, user:, key:, port:)
+          @host = host
+          @user = user
+          @key = key
+          @port = port
+        end
+
+        def test_connection
+          true
+        end
+      end
+
+      fake_bootstrapper = Class.new do
+        attr_reader :events
+
+        def initialize
+          @events = []
+        end
+
+        def install(session:, manifest:, env:, target_path:)
+          @events << [:install, session.host, manifest.instance_id.class.name, env["IGNITER_IGNITE_TARGET"], target_path]
+        end
+
+        def start(session:, manifest:, target_path:)
+          @events << [:start, session.host, manifest.startup_command.class.name, target_path]
+        end
+
+        def verify(session:, target_path:)
+          @events << [:verify, session.host, target_path]
+          true
+        end
+      end.new
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite(
+        bootstrap_remote: true,
+        session_factory: ->(host:, user:, key:, port:) { fake_session_class.new(host: host, user: user, key: key, port: port) },
+        bootstrapper_factory: ->(strategy, **_options) do
+          expect(strategy).to eq(:tarball)
+          fake_bootstrapper
+        end
+      )
+      entry = report.entries.first
+
+      expect(report.status).to eq(:awaiting_join)
+      expect(entry).to include(
+        target_id: "hp-call-analysis",
+        kind: :ssh_server,
+        status: :bootstrapped,
+        action: :await_remote_join,
+        host: "10.0.0.50",
+        port: 22
+      )
+      expect(entry.fetch(:bootstrap)).to include(
+        strategy: :tarball,
+        target_path: "/srv/igniter/spark-crm",
+        host: "10.0.0.50",
+        user: "deploy",
+        port: 22,
+        verified: true
+      )
+      expect(entry.fetch(:admission)).to include(required: true, status: :pending_bootstrap)
+      expect(entry.fetch(:join)).to include(required: true, status: :awaiting_join)
+      expect(fake_bootstrapper.events.map(&:first)).to eq(%i[install start verify])
+    end
+  end
+
+  it "can route remote ignition through the real mesh admission workflow" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          servers:
+            - target: config/ssh_hp.yml
+              name: hp-call-analysis
+              capabilities:
+                - call_analysis
+      YAML
+      File.write(File.join(tmp, "config", "ssh_hp.yml"), <<~YAML)
+        host: 10.0.0.50
+        user: deploy
+      YAML
+
+      Igniter::Cluster::Mesh.configure do |c|
+        c.peer_name = "seed-node"
+        c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(require_approval: true)
+      end
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite(
+        mesh: Igniter::Cluster::Mesh,
+        request_admission: true
+      )
+      entry = report.entries.first
+
+      expect(report.status).to eq(:awaiting_admission)
+      expect(entry).to include(
+        target_id: "hp-call-analysis",
+        status: :awaiting_admission_approval,
+        action: :approve_cluster_admission
+      )
+      expect(entry.fetch(:admission)).to include(
+        required: true,
+        status: :awaiting_approval,
+        outcome: :pending_approval
+      )
+      expect(entry.fetch(:join)).to include(
+        required: true,
+        status: :blocked_by_admission,
+        node_id: "hp-call-analysis",
+        peer_name: "hp-call-analysis"
+      )
+      expect(Igniter::Cluster::Mesh.pending_admissions.size).to eq(1)
+    end
+  end
+
+  it "can auto-approve remote admission before bootstrap and await join" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          servers:
+            - target: config/ssh_hp.yml
+              name: hp-call-analysis
+              capabilities:
+                - call_analysis
+      YAML
+      File.write(File.join(tmp, "config", "ssh_hp.yml"), <<~YAML)
+        host: 10.0.0.50
+        user: deploy
+      YAML
+
+      Igniter::Cluster::Mesh.configure do |c|
+        c.peer_name = "seed-node"
+        c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(require_approval: true)
+      end
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite(
+        mesh: Igniter::Cluster::Mesh,
+        request_admission: true,
+        approve_pending_admission: true,
+        bootstrap_remote: true,
+        session_factory: ->(host:, user:, key:, port:) do
+          Class.new do
+            def initialize(host:, user:, key:, port:) = nil
+
+            def test_connection
+              true
+            end
+          end.new(host: host, user: user, key: key, port: port)
+        end,
+        bootstrapper_factory: ->(_strategy, **_options) do
+          Class.new do
+            def install(session:, manifest:, env:, target_path:) = nil
+
+            def start(session:, manifest:, target_path:) = nil
+
+            def verify(session:, target_path:)
+              true
+            end
+          end.new
+        end
+      )
+      entry = report.entries.first
+
+      expect(report.status).to eq(:awaiting_join)
+      expect(entry).to include(
+        target_id: "hp-call-analysis",
+        status: :bootstrapped,
+        action: :await_remote_join
+      )
+      expect(entry.fetch(:admission)).to include(required: true, status: :admitted, outcome: :admitted)
+      expect(entry.fetch(:join)).to include(
+        required: true,
+        status: :awaiting_join,
+        node_id: "hp-call-analysis",
+        peer_name: "hp-call-analysis"
+      )
+      expect(Igniter::Cluster::Mesh.pending_admissions).to be_empty
+      expect(Igniter::Cluster::Mesh.config.trust_store.known?("hp-call-analysis")).to be(true)
+    end
+  end
+
+  it "blocks remote ignition targets when bootstrap fails" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          servers:
+            - target: config/ssh_hp.yml
+              name: hp-call-analysis
+      YAML
+      File.write(File.join(tmp, "config", "ssh_hp.yml"), <<~YAML)
+        host: 10.0.0.50
+        user: deploy
+      YAML
+
+      failing_session_class = Class.new do
+        def initialize(host:, user:, key:, port:) = nil
+
+        def test_connection
+          false
+        end
+      end
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite(
+        bootstrap_remote: true,
+        session_factory: ->(host:, user:, key:, port:) { failing_session_class.new(host: host, user: user, key: key, port: port) }
+      )
+      entry = report.entries.first
+
+      expect(report.status).to eq(:blocked)
+      expect(entry).to include(
+        target_id: "hp-call-analysis",
+        status: :blocked,
+        action: :remote_bootstrap_failed
+      )
+      expect(entry.fetch(:bootstrap_error)).to include("SSH connectivity test failed")
+      expect(entry.fetch(:admission)).to include(required: true, status: :blocked)
+      expect(entry.fetch(:join)).to include(required: true, status: :blocked)
+    end
+  end
+
+  it "can confirm join for bootstrapped remote ssh targets" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          servers:
+            - target: config/ssh_hp.yml
+              name: hp-call-analysis
+      YAML
+      File.write(File.join(tmp, "config", "ssh_hp.yml"), <<~YAML)
+        host: 10.0.0.50
+        user: deploy
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite(
+        bootstrap_remote: true,
+        session_factory: ->(host:, user:, key:, port:) do
+          Class.new do
+            def initialize(host:, user:, key:, port:) = nil
+
+            def test_connection
+              true
+            end
+          end.new(host: host, user: user, key: key, port: port)
+        end,
+        bootstrapper_factory: ->(_strategy, **_options) do
+          Class.new do
+            def install(session:, manifest:, env:, target_path:) = nil
+
+            def start(session:, manifest:, target_path:) = nil
+
+            def verify(session:, target_path:)
+              true
+            end
+          end.new
+        end
+      )
+      joined = workspace.confirm_ignite_join(
+        report: report,
+        target_id: "hp-call-analysis",
+        url: "http://10.0.0.50:4567"
+      )
+      entry = joined.entries.first
+
+      expect(joined).to be_joined
+      expect(entry).to include(
+        target_id: "hp-call-analysis",
+        status: :joined,
+        action: :runtime_joined,
+        url: "http://10.0.0.50:4567"
+      )
+      expect(entry.fetch(:admission)).to include(
+        required: false,
+        status: :implicit_remote
+      )
+      expect(entry.fetch(:join)).to include(
+        required: true,
+        status: :joined,
+        url: "http://10.0.0.50:4567"
+      )
+    end
+  end
+
+  it "can reconcile bootstrapped remote ignition targets from mesh peer discovery" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          servers:
+            - target: config/ssh_hp.yml
+              name: hp-call-analysis
+      YAML
+      File.write(File.join(tmp, "config", "ssh_hp.yml"), <<~YAML)
+        host: 10.0.0.50
+        user: deploy
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite(
+        bootstrap_remote: true,
+        session_factory: ->(host:, user:, key:, port:) do
+          Class.new do
+            def initialize(host:, user:, key:, port:) = nil
+
+            def test_connection
+              true
+            end
+          end.new(host: host, user: user, key: key, port: port)
+        end,
+        bootstrapper_factory: ->(_strategy, **_options) do
+          Class.new do
+            def install(session:, manifest:, env:, target_path:) = nil
+
+            def start(session:, manifest:, target_path:) = nil
+
+            def verify(session:, target_path:)
+              true
+            end
+          end.new
+        end
+      )
+
+      Igniter::Cluster::Mesh.configure do |c|
+        c.peer_name = "seed-node"
+      end
+      Igniter::Cluster::Mesh.config.peer_registry.register(
+        Igniter::Cluster::Mesh::Peer.new(
+          name: "hp-call-analysis",
+          url: "http://10.0.0.50:4567",
+          capabilities: [:call_analysis],
+          tags: [],
+          metadata: {
+            mesh_trust: { status: "trusted", trusted: true }
+          }
+        )
+      )
+
+      reconciled = workspace.reconcile_ignite(report: report, mesh: Igniter::Cluster::Mesh)
+      entry = reconciled.entries.first
+
+      expect(reconciled).to be_joined
+      expect(entry).to include(
+        target_id: "hp-call-analysis",
+        status: :joined,
+        action: :runtime_joined,
+        url: "http://10.0.0.50:4567"
+      )
+      expect(entry.fetch(:admission)).to include(status: :admitted)
+      expect(entry.fetch(:join)).to include(status: :joined, url: "http://10.0.0.50:4567")
+      expect(entry.fetch(:reconciled_from_mesh)).to include(peer_name: "hp-call-analysis")
+    end
+  end
+
+  it "can automatically await mesh join for bootstrapped remote targets" do
+    Dir.mktmpdir do |tmp|
+      FileUtils.mkdir_p(File.join(tmp, "config"))
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          servers:
+            - target: config/ssh_hp.yml
+              name: hp-call-analysis
+      YAML
+      File.write(File.join(tmp, "config", "ssh_hp.yml"), <<~YAML)
+        host: 10.0.0.50
+        user: deploy
+      YAML
+
+      Igniter::Cluster::Mesh.configure do |c|
+        c.peer_name = "seed-node"
+      end
+
+      join_thread = Thread.new do
+        sleep 0.05
+        Igniter::Cluster::Mesh.config.peer_registry.register(
+          Igniter::Cluster::Mesh::Peer.new(
+            name: "hp-call-analysis",
+            url: "http://10.0.0.50:4567",
+            capabilities: [:call_analysis],
+            tags: [],
+            metadata: {
+              mesh_trust: { status: "trusted", trusted: true }
+            }
+          )
+        )
+      end
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite(
+        mesh: Igniter::Cluster::Mesh,
+        bootstrap_remote: true,
+        await_join: true,
+        join_timeout: 1,
+        join_poll_interval: 0.01,
+        session_factory: ->(host:, user:, key:, port:) do
+          Class.new do
+            def initialize(host:, user:, key:, port:) = nil
+
+            def test_connection
+              true
+            end
+          end.new(host: host, user: user, key: key, port: port)
+        end,
+        bootstrapper_factory: ->(_strategy, **_options) do
+          Class.new do
+            def install(session:, manifest:, env:, target_path:) = nil
+
+            def start(session:, manifest:, target_path:) = nil
+
+            def verify(session:, target_path:)
+              true
+            end
+          end.new
+        end
+      )
+      entry = report.entries.first
+
+      expect(report).to be_joined
+      expect(entry).to include(
+        target_id: "hp-call-analysis",
+        status: :joined,
+        action: :runtime_joined,
+        url: "http://10.0.0.50:4567"
+      )
+    ensure
+      join_thread&.join
     end
   end
 

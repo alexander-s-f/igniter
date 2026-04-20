@@ -6,7 +6,7 @@ module Igniter
       attr_accessor :host, :port, :store, :logger,
                     :metrics_collector, :log_format, :drain_timeout,
                     :peer_name, :peer_capabilities, :peer_tags, :peer_metadata, :peer_identity, :peer_trust_store, :custom_routes,
-                    :before_request_hooks, :after_request_hooks, :around_request_hooks
+                    :before_request_hooks, :after_request_hooks, :around_request_hooks, :after_start_hooks
       attr_reader   :registry
 
       def initialize
@@ -28,6 +28,7 @@ module Igniter
         @before_request_hooks = []
         @after_request_hooks = []
         @around_request_hooks = []
+        @after_start_hooks = []
       end
 
       def ensure_peer_identity!

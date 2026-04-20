@@ -3,6 +3,16 @@
 This note captures the current direction for cluster ignition and deployment
 bootstrap.
 
+Current implementation status:
+
+- normalized `Igniter::Ignite::*` value objects are landed
+- `Igniter::Stack#ignition_plan`, `#ignite`, `#confirm_ignite_join`, and `#reconcile_ignite` are landed
+- local replicas already go through agent-owned ignition planning
+- remote `ssh_server` targets can now go through admission-aware bootstrap
+- built-in server startup now exposes `after_start` hooks, which Igniter uses to emit a runtime-owned ignite join signal after bind/listen
+- remote join closure can now be reconciled from real mesh discovery instead of relying only on an external manual confirmation step
+- `Stack#ignite(...)` can now run a bounded seed-side watcher and auto-close `bootstrapped -> joined` when the peer appears in mesh discovery during the ignition window
+
 It is a specification draft, not a frozen public API.
 
 The goal is to make the next cluster boot model explicit before we implement
@@ -124,6 +134,33 @@ Responsibilities:
 
 This may remain part of the existing admission workflow rather than becoming a
 separate standalone agent, but conceptually it is a distinct stage.
+
+## Current Runtime-Owned Join Model
+
+The current remote join model is intentionally split into two honest phases:
+
+1. bootstrap phase
+2. runtime confirmation phase
+
+Bootstrap phase:
+
+- `IgnitionAgent` prepares or admits the target
+- `BootstrapAgent` performs SSH bootstrap
+- the ignition report moves the target to `bootstrapped`
+
+Runtime confirmation phase:
+
+- bootstrap seeds `IGNITER_IGNITE_*` env into the new node
+- the built-in HTTP server runs `after_start` hooks after `TCPServer` is bound
+- stack runtime derives its join URL and re-announces through `Mesh::Announcer`
+- seed/operator side can call `Stack.reconcile_ignite(...)` to fold real mesh discovery back into the ignition report
+- `Stack#ignite(...)` itself can also run a short bounded watcher that repeatedly reconciles against mesh and returns `joined` when discovery lands in time
+
+This is an intentional compromise:
+
+- the new node now signals join from its actual runtime boot path
+- we avoid pretending that one process can mutate another process's in-memory ignition report directly
+- report closure is now based on observable cluster state, not only imperative side-effects
 
 ## Two Main Scenarios
 
@@ -593,23 +630,30 @@ Status:
 - join confirmation can now transition admitted/prepared targets into `joined`
 - mesh-backed join confirmation now registers the peer in `peer_registry`
 - local no-mesh join confirmation falls back to `admission: implicit_local`
-- remote SSH bootstrap is not landed yet
+- remote `ssh_server` bootstrap through `BootstrapAgent` is landed
+- remote targets can now transition `deferred -> bootstrapped -> joined`
+- remote targets can optionally use `Mesh.request_admission` before bootstrap
+- no-mesh remote join confirmation falls back to `admission: implicit_remote`
 
 ## Remote Bootstrap After The First Slice
 
-Remote bootstrap should come next, not first.
+Remote bootstrap is now started, but still intentionally narrow.
 
-The next slice after local replicas should introduce:
+What is landed:
 
 - `ssh_server` `BootstrapTarget`
 - `BootstrapAgent` SSH execution path
-- target environment inspection
-- package/runtime installation
-- stack transfer or package install
-- remote node start
-- admission confirmation
+- remote admission-aware orchestration before bootstrap
+- target config loading from `config_path`
+- package/runtime installation via existing replication bootstrappers
+- remote node start + verify
+- `bootstrapped` ignition state before final join
 
-That keeps the architecture honest while still moving quickly.
+What still comes next:
+
+- deepen runtime-owned remote join closure beyond `after_start + reconcile + bounded watcher`
+- richer progress/history surfaces for bootstrap phases
+- stronger operator controls around approval / retry / detach
 
 ## Execution Contract Draft
 

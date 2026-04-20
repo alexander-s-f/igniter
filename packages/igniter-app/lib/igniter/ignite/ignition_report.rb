@@ -28,6 +28,10 @@ module Igniter
         status == :pending_remote
       end
 
+      def awaiting_join?
+        status == :awaiting_join
+      end
+
       def joined?
         status == :joined
       end

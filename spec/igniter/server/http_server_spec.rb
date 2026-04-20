@@ -108,4 +108,29 @@ RSpec.describe Igniter::Server::HttpServer do
       expect(payload).to include("Location: /?note_created=1")
     end
   end
+
+  describe "#start" do
+    it "runs after_start hooks after the listener binds" do
+      tcp_server = instance_double(TCPServer)
+      logger = instance_double(Igniter::Server::ServerLogger, info: nil, error: nil)
+      seen = []
+
+      config.port = 4667
+      config.after_start_hooks << lambda do |config:, server:|
+        seen << [config.port, server.class.name]
+        server.stop
+      end
+
+      server.instance_variable_set(:@logger, logger)
+
+      allow(TCPServer).to receive(:new).with(config.host, config.port).and_return(tcp_server)
+      allow(server).to receive(:trap)
+      allow(server).to receive(:accept_connection).and_return(nil)
+      allow(tcp_server).to receive(:close)
+
+      server.start
+
+      expect(seen).to eq([[4667, "Igniter::Server::HttpServer"]])
+    end
+  end
 end

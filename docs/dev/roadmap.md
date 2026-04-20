@@ -68,13 +68,19 @@ The first code slice has now landed:
 - minimal `Igniter::Stack#ignite` agent/report surface
 - optional mesh-backed admission handshake for local ignition
 - explicit `Igniter::Stack#confirm_ignite_join(...)` for real post-boot join confirmation
+- remote `ssh_server` bootstrap through `Igniter::Ignite::BootstrapAgent`
+- remote mesh-backed admission orchestration before bootstrap
+- built-in server `after_start` hooks for runtime-owned ignite join signaling
+- `Igniter::Stack#reconcile_ignite(...)` for closing remote join from real mesh discovery
+- bounded automatic join watching in `Igniter::Stack#ignite(...)`
 
 So the next cluster-ignite move is no longer config modeling.
 It is agent-driven execution:
 
 - deepen local replica orchestration/reporting
-- remote SSH bootstrap
-- then richer ignition progress/history and operator surfaces
+- deepen remote runtime-owned join orchestration beyond `after_start + reconcile + bounded watcher`
+- richer ignition progress/history and operator surfaces
+- then approval/retry/detach operator workflows
 
 ## Reading Heuristic
 

@@ -14,6 +14,11 @@ module Igniter
         mesh = payload[:mesh]
         request_admission = payload[:request_admission] == true
         approve_pending_admission = payload[:approve_pending_admission] == true
+        bootstrap_remote = payload[:bootstrap_remote] == true
+        bootstrap_timeout = payload[:bootstrap_timeout] || 30
+        session_factory = payload[:session_factory]
+        bootstrapper_factory = payload[:bootstrapper_factory]
+        root_dir = payload[:root_dir]
         now = Time.now.utc.iso8601
 
         raise ArgumentError, "ignite execution requires an Igniter::Ignite::IgnitionPlan" unless plan.is_a?(IgnitionPlan)
@@ -43,7 +48,12 @@ module Igniter
                 now,
                 mesh: mesh,
                 request_admission: request_admission,
-                approve_pending_admission: approve_pending_admission
+                approve_pending_admission: approve_pending_admission,
+                bootstrap_remote: bootstrap_remote,
+                bootstrap_timeout: bootstrap_timeout,
+                session_factory: session_factory,
+                bootstrapper_factory: bootstrapper_factory,
+                root_dir: root_dir
               ).tap do |entry|
                 events << {
                   type: :"intent_#{entry.fetch(:status)}",
@@ -130,6 +140,38 @@ module Igniter
         )
       end
 
+      on :reconcile do |payload:, **|
+        report = payload.fetch(:report)
+        mesh = payload.fetch(:mesh)
+        now = Time.now.utc.iso8601
+
+        raise ArgumentError, "ignite reconciliation requires an Igniter::Ignite::IgnitionReport" unless report.is_a?(IgnitionReport)
+
+        updated_entries = report.entries.map do |entry|
+          reconcile_entry_from_mesh(entry, mesh: mesh, timestamp: now)
+        end
+
+        summary = build_summary(updated_entries)
+        events = report.events + [
+          {
+            type: :ignition_reconciled,
+            plan_id: report.plan_id,
+            status: overall_status_for_summary(summary),
+            timestamp: now
+          }
+        ]
+
+        IgnitionReport.new(
+          plan_id: report.plan_id,
+          status: overall_status_for_summary(summary),
+          strategy: report.strategy,
+          approval_mode: report.approval_mode,
+          entries: updated_entries,
+          events: events,
+          summary: summary
+        )
+      end
+
       class << self
         private
 
@@ -153,7 +195,7 @@ module Igniter
           }
         end
 
-        def build_execution_entry(intent, runtime_units, timestamp, mesh:, request_admission:, approve_pending_admission:)
+        def build_execution_entry(intent, runtime_units, timestamp, mesh:, request_admission:, approve_pending_admission:, bootstrap_remote:, bootstrap_timeout:, session_factory:, bootstrapper_factory:, root_dir:)
           if intent.local_replica?
             build_local_replica_entry(
               intent,
@@ -164,7 +206,18 @@ module Igniter
               approve_pending_admission: approve_pending_admission
             )
           else
-            build_remote_entry(intent, timestamp)
+            build_remote_entry(
+              intent,
+              timestamp,
+              mesh: mesh,
+              request_admission: request_admission,
+              approve_pending_admission: approve_pending_admission,
+              bootstrap_remote: bootstrap_remote,
+              bootstrap_timeout: bootstrap_timeout,
+              session_factory: session_factory,
+              bootstrapper_factory: bootstrapper_factory,
+              root_dir: root_dir
+            )
           end
         end
 
@@ -222,8 +275,8 @@ module Igniter
           )
         end
 
-        def build_remote_entry(intent, timestamp)
-          {
+        def build_remote_entry(intent, timestamp, mesh:, request_admission:, approve_pending_admission:, bootstrap_remote:, bootstrap_timeout:, session_factory:, bootstrapper_factory:, root_dir:)
+          entry = {
             intent_id: intent.id,
             target_id: intent.target.id,
             kind: intent.target.kind,
@@ -241,6 +294,27 @@ module Igniter
             },
             timestamp: timestamp
           }
+
+          if request_admission && mesh
+            apply_remote_admission_handshake!(
+              entry,
+              intent: intent,
+              mesh: mesh,
+              approve_pending_admission: approve_pending_admission
+            )
+            return entry unless %i[deferred admitted].include?(entry[:status])
+          end
+
+          return entry unless bootstrap_remote
+
+          apply_remote_bootstrap!(
+            entry,
+            intent: intent,
+            root_dir: root_dir,
+            bootstrap_timeout: bootstrap_timeout,
+            session_factory: session_factory,
+            bootstrapper_factory: bootstrapper_factory
+          )
         end
 
         def apply_admission_handshake!(entry, intent:, runtime_unit:, mesh:, approve_pending_admission:)
@@ -290,6 +364,67 @@ module Igniter
           entry
         end
 
+        def apply_remote_admission_handshake!(entry, intent:, mesh:, approve_pending_admission:)
+          decision = mesh.request_admission(
+            peer_name: intent.target.id,
+            node_id: intent.target.id,
+            public_key: synthetic_public_key_for(intent),
+            url: nil,
+            capabilities: intent.requested_capabilities,
+            justification: "ignite:#{intent.id}"
+          )
+
+          if decision.pending_approval? && approve_pending_admission
+            decision = mesh.approve_admission!(decision.request.request_id)
+          end
+
+          entry[:admission] = {
+            required: true,
+            status: admission_status_for(decision),
+            outcome: decision.outcome,
+            request_id: decision.request.request_id,
+            rationale: decision.rationale
+          }
+          entry[:join] = {
+            required: true,
+            status: remote_join_status_for(decision),
+            node_id: decision.request.node_id,
+            peer_name: decision.request.peer_name
+          }
+          entry[:admission_request] = decision.request.to_h
+          entry[:admission_decision] = decision.to_h
+
+          case decision.outcome
+          when :pending_approval
+            entry[:status] = :awaiting_admission_approval
+            entry[:action] = :approve_cluster_admission
+          when :rejected
+            entry[:status] = :blocked
+            entry[:action] = :cluster_admission_rejected
+          when :admitted, :already_trusted
+            entry[:status] = :admitted
+            entry[:action] = :await_remote_bootstrap
+          else
+            entry[:status] = :blocked
+            entry[:action] = :admission_failed
+          end
+
+          entry
+        rescue StandardError => e
+          entry[:status] = :blocked
+          entry[:action] = :admission_failed
+          entry[:admission] = {
+            required: true,
+            status: :failed,
+            error: "#{e.class}: #{e.message}"
+          }
+          entry[:join] = {
+            required: true,
+            status: :blocked
+          }
+          entry
+        end
+
         def build_summary(entries)
           by_status = entries.each_with_object(Hash.new(0)) do |entry, result|
             result[entry.fetch(:status)] += 1
@@ -323,6 +458,7 @@ module Igniter
           return :blocked if summary.fetch(:by_status, {}).fetch(:blocked, 0).positive?
           return :awaiting_admission if summary.fetch(:by_status, {}).fetch(:awaiting_admission_approval, 0).positive?
           return :pending_remote if summary.fetch(:by_status, {}).fetch(:deferred, 0).positive?
+          return :awaiting_join if summary.fetch(:by_status, {}).fetch(:bootstrapped, 0).positive?
           return :admitted if summary.fetch(:by_status, {}).fetch(:admitted, 0).positive?
           return :prepared if summary.fetch(:by_status, {}).fetch(:prepared, 0).positive?
           return :joined if summary.fetch(:by_status, {}).fetch(:joined, 0).positive?
@@ -357,6 +493,19 @@ module Igniter
           case decision.outcome
           when :admitted, :already_trusted
             :pending_runtime_boot
+          when :pending_approval
+            :blocked_by_admission
+          when :rejected
+            :blocked
+          else
+            :unknown
+          end
+        end
+
+        def remote_join_status_for(decision)
+          case decision.outcome
+          when :admitted, :already_trusted
+            :pending_bootstrap
           when :pending_approval
             :blocked_by_admission
           when :rejected
@@ -420,7 +569,7 @@ module Igniter
           elsif updated_entry.dig(:admission, :status) != :admitted
             updated_entry[:admission] = deep_dup(updated_entry[:admission] || {}).merge(
               required: false,
-              status: :implicit_local
+              status: updated_entry.fetch(:kind) == :local_replica ? :implicit_local : :implicit_remote
             )
           end
 
@@ -435,7 +584,7 @@ module Igniter
           raise ArgumentError, "cannot confirm join before admission approval for #{entry.fetch(:target_id).inspect}" if mesh && entry.dig(:admission, :status)&.to_sym != :admitted
           raise ArgumentError, "ignition target #{entry.fetch(:target_id).inspect} is waiting for operator approval" if status == :awaiting_approval
           raise ArgumentError, "ignition target #{entry.fetch(:target_id).inspect} is waiting for admission approval" if status == :awaiting_admission_approval
-          raise ArgumentError, "ignition target #{entry.fetch(:target_id).inspect} is not joinable from status #{status.inspect}" unless %i[prepared admitted joined].include?(status) || %i[pending_runtime_boot pending_bootstrap joined].include?(join_status)
+          raise ArgumentError, "ignition target #{entry.fetch(:target_id).inspect} is not joinable from status #{status.inspect}" unless %i[prepared admitted bootstrapped joined].include?(status) || %i[pending_runtime_boot pending_bootstrap awaiting_join joined].include?(join_status)
         end
 
         def register_joined_peer!(mesh:, report:, entry:, url:, metadata:, timestamp:)
@@ -511,6 +660,44 @@ module Igniter
           end
         end
 
+        def reconcile_entry_from_mesh(entry, mesh:, timestamp:)
+          return entry unless mesh
+          return entry if entry.fetch(:status).to_sym == :joined
+
+          peer_name = entry.dig(:join, :peer_name) || entry.fetch(:target_id).to_s
+          peer = mesh.config.peer_registry.peer_named(peer_name)
+          return entry unless peer&.url
+
+          updated_entry = deep_dup(entry)
+          updated_entry[:status] = :joined
+          updated_entry[:action] = :runtime_joined
+          updated_entry[:joined_at] = timestamp
+          updated_entry[:url] = peer.url
+          updated_entry[:join] = deep_dup(updated_entry[:join] || {}).merge(
+            required: true,
+            status: :joined,
+            url: peer.url,
+            joined_at: timestamp
+          )
+
+          trust_status = peer.metadata.dig(:mesh_trust, :status)
+          trusted = peer.metadata.dig(:mesh_trust, :trusted)
+          if trusted || trust_status.to_s == "trusted"
+            updated_entry[:admission] = deep_dup(updated_entry[:admission] || {}).merge(
+              required: true,
+              status: :admitted,
+              outcome: updated_entry.dig(:admission, :outcome) || :admitted
+            )
+          end
+
+          updated_entry[:reconciled_from_mesh] = {
+            peer_name: peer.name,
+            url: peer.url,
+            timestamp: timestamp
+          }
+          updated_entry
+        end
+
         def deep_dup(value)
           case value
           when Hash
@@ -522,6 +709,34 @@ module Igniter
           else
             value
           end
+        end
+
+        def apply_remote_bootstrap!(entry, intent:, root_dir:, bootstrap_timeout:, session_factory:, bootstrapper_factory:)
+          agent = Igniter::Ignite::BootstrapAgent.start
+          result = agent.call(
+            :bootstrap,
+            {
+              intent: intent,
+              root_dir: root_dir,
+              session_factory: session_factory,
+              bootstrapper_factory: bootstrapper_factory
+            },
+            timeout: bootstrap_timeout
+          )
+
+          bootstrap_data = result.to_h
+          updated_entry = deep_dup(entry)
+          updated_entry[:status] = bootstrap_data[:status] if bootstrap_data.key?(:status)
+          updated_entry[:action] = bootstrap_data[:action] if bootstrap_data.key?(:action)
+          updated_entry[:bootstrap_error] = bootstrap_data[:bootstrap_error] if bootstrap_data[:bootstrap_error]
+          updated_entry[:bootstrap] = bootstrap_data[:bootstrap] if bootstrap_data[:bootstrap]
+          updated_entry[:host] = bootstrap_data[:host] if bootstrap_data[:host]
+          updated_entry[:port] = bootstrap_data[:port] if bootstrap_data[:port]
+          updated_entry[:admission] = deep_dup(updated_entry[:admission] || {}).merge(bootstrap_data[:admission] || {})
+          updated_entry[:join] = deep_dup(updated_entry[:join] || {}).merge(bootstrap_data[:join] || {})
+          updated_entry
+        ensure
+          agent&.stop(timeout: 1)
         end
       end
     end
