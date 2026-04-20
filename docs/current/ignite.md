@@ -18,6 +18,12 @@ Current implementation status:
 - persisted ignition targets can now also appear in the unified app operator surface, so operator overview can show agent/orchestration state and ignition lifecycle in one plane
 - mounted operator actions can now drive ignition lifecycle too (`approve`, `retry_bootstrap`, `reconcile_join`, `dismiss`) through the same operator action API used by orchestration records
 
+This means the current `ignite` line has crossed an important boundary:
+
+- `ignite` is no longer only a config/specification draft
+- it is now also a real execution surface with lifecycle, persistence, diagnostics, and operator handling
+- the remaining work is mostly about hardening and convergence, not about inventing the basic shape
+
 It is a specification draft, not a frozen public API.
 
 The goal is to make the next cluster boot model explicit before we implement
@@ -73,6 +79,15 @@ The likely split is:
 - environment-specific ignite intent in `config/environments/<env>.yml`
 - execution through a built-in deployment/ignition agent
 - cluster join through one admission/trust path
+
+That is also consistent with the broader stack doctrine:
+
+- stack runtime has one connection point
+- app composition has one connection point
+- ignite intent should also have one connection point
+
+We should not end up with deployment behavior scattered between ad-hoc shell
+scripts, separate topology files, and runtime-only conventions.
 
 ## Why An Agent Should Execute Ignition
 
@@ -169,6 +184,17 @@ This is an intentional compromise:
 - report closure is now based on observable cluster state, not only imperative side-effects
 - operator-facing history can survive process restarts without pretending that one in-memory report is the whole deployment record
 
+At the moment, the landed ignition lifecycle already covers:
+
+- normalized planning (`BootstrapTarget`, `DeploymentIntent`, `IgnitionPlan`)
+- execution (`Stack#ignite`, `IgnitionAgent`, `BootstrapAgent`)
+- admission-aware local and remote boot
+- runtime-owned join signaling
+- reconciliation and bounded auto-watch for join closure
+- durable event/history trail under `var/ignite/`
+- diagnostics and unified operator visibility
+- mounted operator actions for common ignition lifecycle transitions
+
 ## Two Main Scenarios
 
 ### 1. Cold Start / Static Ignite
@@ -227,6 +253,12 @@ That means an LLM or orchestration agent may say:
 But the actual remote bootstrap should usually require approval unless the
 environment explicitly opts into automation.
 
+That approval idea is now reflected in real runtime/operator shape too:
+
+- ignition reports can surface awaiting approval/admission states honestly
+- operator tooling can now approve or retry ignition through the same mounted action surface used for orchestration work
+- approval is therefore no longer only a design note; it is becoming part of the actual runtime contract
+
 ## Proposed Config Direction
 
 The current recommendation is to avoid putting environment roots like `dev:` and
@@ -258,6 +290,26 @@ ignite:
     - port: 4568
     - port: 4569
 ```
+
+## Current Next
+
+The next realistic `ignite` moves are now:
+
+1. harden operator-facing ignition workflow semantics
+
+- align ignition actions more closely with the operator model already used for orchestration items
+- deepen retry/approval/reconcile/dismiss semantics and audit visibility
+
+2. strengthen deployment packaging/runtime strategy
+
+- decide how code/package transfer should stabilize beyond the current bootstrap seam
+- make remote bootstrap less dependent on ad-hoc environmental assumptions
+
+3. extend ignition beyond bootstrap into fuller deployment lifecycle
+
+- detach / teardown / re-ignite flows
+- richer failure classification and retry policy
+- stronger relationship between ignition trail and long-lived cluster state
 
 Meaning:
 

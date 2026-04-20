@@ -41,24 +41,26 @@ Already landed:
 - `mount_operator_surface(...)` now adds a built-in operator console over that same queryable plane, including execution-scoped drill-down and row-level operator actions
 - operator items now also expose canonical `action_history` with explicit operator identity like `actor`, `origin`, and `actor_channel`, so the surface has a real audit trail instead of only latest-state observability
 - latest audit identity is now also filterable/facetable/orderable through `latest_action_actor`, `latest_action_origin`, and `latest_action_source`
+- the unified operator plane now also includes ignition records from the durable ignite trail, so operator visibility is no longer limited to agent sessions and orchestration inbox items
+- mounted operator actions now also handle ignition lifecycle transitions through the same operator action API, so the operator plane is beginning to converge around one writable workflow surface
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
 
 ## Planning Snapshot
 
-If we pause after the current operator/audit/query work, the realistic near-term choices are:
+If we pause after the current operator/audit/query/ignite convergence work, the realistic near-term choices are:
 
-1. Operator timeline and drill-down
+1. Operator workflow convergence
 
-- make `action_history` not only queryable by latest dimensions, but readable as a first-class per-item timeline
-- add item detail / timeline surface in the built-in operator console and mounted API
-- keep this local to `igniter-app` and the operator read model
+- keep converging orchestration and ignition toward one honest operator workflow surface
+- make action semantics, retry/approval handling, and audit/history behavior feel consistent across both kinds of records
+- keep this mostly in `igniter-app` and the operator read/write model
 
-2. Operator workflow semantics
+2. Runtime/session semantics
 
-- deepen policy/handler semantics around `approve`, `reply`, `wake`, `handoff`, and completion rules
-- make operator-facing workflow states richer without weakening the current runtime/session model
-- likely touches app policies and mounted operator actions more than core runtime
+- deepen `AgentSession`, session persistence, and execution semantics further
+- keep strengthening the runtime truth that the operator plane sits on top of
+- likely touches core runtime more than app/operator surfaces
 
 3. Remote and routed agents
 
@@ -67,7 +69,7 @@ If we pause after the current operator/audit/query work, the realistic near-term
 - likely the strongest next architecture move once the operator surface feels “good enough”
 
 For now, option 1 is the smallest and cleanest continuation from the current landed state.
-Option 3 is the larger architectural continuation.
+Option 3 is still the larger architectural continuation.
 
 ## Deferred Line
 

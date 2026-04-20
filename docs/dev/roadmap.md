@@ -18,6 +18,7 @@ Right now the most active Igniter line is:
 - `AgentSession` and stream/tool-loop semantics
 - app orchestration policies and operator surfaces
 - app/stack structure cleanup and pluggable app doctrine
+- `ignite` as an agent-driven deployment/bootstrap surface
 
 That line has already crossed from pure runtime semantics into:
 
@@ -25,16 +26,17 @@ That line has already crossed from pure runtime semantics into:
 - mounted operator API and console
 - audit history with operator identity
 - query/facet/order support over latest audit dimensions
+- ignition history, diagnostics, and operator lifecycle handling
 
 So the next planning choice is no longer “make agents real” in the abstract.
-The choice is between:
+The choice is now more like:
 
-1. deepening the operator surface
+1. converging operator workflow semantics across orchestration and ignition
 2. deepening runtime/session semantics
 3. pushing the same model outward into remote/routed agents
 
-At the moment, the safest shortest continuation is operator timeline/drill-down.
-The strongest architectural continuation is remote/routed agents.
+At the moment, the safest shortest continuation is operator workflow convergence.
+The strongest architectural continuation is still remote/routed agents.
 
 In parallel, app structure is now an active design line too:
 
@@ -79,13 +81,11 @@ The first code slice has now landed:
 - operator action API now starts covering ignition lifecycle, not only orchestration inbox items
 
 So the next cluster-ignite move is no longer config modeling.
-It is agent-driven execution:
+It is hardening the agent-driven execution that now exists:
 
-- deepen local replica orchestration/reporting
-- deepen remote runtime-owned join orchestration beyond `after_start + reconcile + bounded watcher`
-- richer ignition progress/history and operator surfaces
-- durable ignition event store and operator-facing ignition history
-- then approval/retry/detach operator workflows
+- deepen retry/approval/reconcile operator semantics
+- strengthen deployment/package/runtime bootstrap strategy
+- extend from bootstrap/join into fuller deployment lifecycle such as detach/re-ignite/teardown
 
 ## Reading Heuristic
 
