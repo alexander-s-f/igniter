@@ -283,6 +283,18 @@ module Igniter
         orchestration_overview(output_names)[:summary]
       end
 
+      def orchestration_transition_query(output_names = nil)
+        Runtime::OrchestrationOverview.new(execution: self, plan: plan(output_names)).transition_query
+      end
+
+      def orchestration_transition_summary(output_names = nil)
+        orchestration_transition_query(output_names).summary
+      end
+
+      def orchestration_transition_overview(output_names = nil, limit: 20)
+        orchestration_transition_query(output_names).to_h(limit: limit)
+      end
+
       def explain_plan(output_names = nil)
         Extensions::Introspection::PlanFormatter.to_text(self, output_names)
       end
@@ -583,6 +595,13 @@ module Igniter
           message_name: state.node.message_name,
           mode: state.node.mode,
           reply_mode: state.node.reply_mode,
+          finalizer: state.node.finalizer,
+          tool_loop_policy: state.node.tool_loop_policy,
+          session_policy: state.node.session_policy,
+          node_url: state.node.node_url,
+          capability: state.node.capability,
+          capability_query: state.node.capability_query,
+          pinned_to: state.node.pinned_to,
           waiting_on: state.value.waiting_on,
           source_node: state.value.source_node,
           trace: trace,

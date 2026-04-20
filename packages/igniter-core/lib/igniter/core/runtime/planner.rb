@@ -109,20 +109,24 @@ module Igniter
           finalizer: serialized_agent_finalizer(node.finalizer),
           session_policy: node.session_policy,
           tool_loop_policy: node.tool_loop_policy,
+          interaction_contract: node.interaction_contract.to_h,
           execution_profile: agent_execution_profile(node),
           orchestration: orchestration_hint(node, status: entry[:status])
         )
       end
 
       def agent_execution_profile(node)
+        interaction = node.interaction_contract
+
         {
-          delivery: node.mode,
-          streaming: node.reply_mode == :stream,
-          deferred: node.reply_mode == :deferred,
-          resumable: %i[deferred stream].include?(node.reply_mode),
-          interactive: node.reply_mode == :stream && node.session_policy == :interactive,
-          manual_completion: node.reply_mode == :stream && node.session_policy == :manual,
-          single_turn: node.reply_mode == :stream && node.session_policy == :single_turn
+          delivery: interaction.mode,
+          routing_mode: interaction.routing_mode,
+          streaming: interaction.reply_mode == :stream,
+          deferred: interaction.reply_mode == :deferred,
+          resumable: %i[deferred stream].include?(interaction.reply_mode),
+          interactive: interaction.reply_mode == :stream && interaction.session_policy == :interactive,
+          manual_completion: interaction.reply_mode == :stream && interaction.session_policy == :manual,
+          single_turn: interaction.reply_mode == :stream && interaction.session_policy == :single_turn
         }
       end
 

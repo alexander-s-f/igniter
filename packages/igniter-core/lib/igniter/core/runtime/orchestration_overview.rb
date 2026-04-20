@@ -21,6 +21,12 @@ module Igniter
             state = execution.cache.fetch(node_name)
             timeline = timeline_for(node_name)
             orchestration = node_entry[:orchestration] || {}
+            runtime_state = Runtime::OrchestrationRuntimeState.build(
+              node_entry: node_entry,
+              state: state,
+              session: session,
+              timeline: timeline
+            )
 
             {
               id: action[:id],
@@ -32,11 +38,19 @@ module Igniter
               attention_required: !!action[:attention_required],
               resumable: !!action[:resumable],
               status: node_entry[:status] || state&.status,
-              runtime_status: runtime_status_for(node_entry: node_entry, state: state, session: session),
+              runtime_status: runtime_state.runtime_status,
+              runtime_state: runtime_state.state,
+              runtime_state_class: runtime_state.state_class,
+              runtime_terminal: runtime_state.terminal?,
+              latest_runtime_transition: runtime_state.latest_transition,
+              runtime_transitions: runtime_state.transitions,
               waiting_on: session&.waiting_on || Array(node_entry[:waiting_on]).first,
               reply_mode: node_entry[:reply_mode],
               session_policy: node_entry[:session_policy],
               tool_loop_policy: node_entry[:tool_loop_policy],
+              finalizer: session&.finalizer || node_entry[:finalizer],
+              routing_mode: session&.routing_mode || node_entry[:routing_mode],
+              interaction_contract: session&.interaction_contract&.to_h || node_entry[:interaction_contract],
               session_lifecycle_state: session&.lifecycle_state,
               phase: session&.phase,
               ownership: session&.ownership,
@@ -45,7 +59,7 @@ module Igniter
               token: session&.token,
               turn: session&.turn,
               interactive: session ? session.interactive? : false,
-              terminal: session ? session.terminal? : terminal_runtime_status?(node_entry, state),
+              terminal: runtime_state.terminal?,
               continuable: session ? session.continuable? : false,
               routed: session ? session.routed? : false,
               allows_continuation: !!orchestration[:allows_continuation],
@@ -60,6 +74,31 @@ module Igniter
 
       def timeline
         @timeline ||= actions.flat_map { |action| timeline_for(action[:node]) }.sort_by { |entry| entry[:timestamp].to_s }.freeze
+      end
+
+      def transitions
+        @transitions ||= records.flat_map do |record|
+          Array(record[:runtime_transitions]).map do |transition|
+            {
+              id: record[:id],
+              node: record[:node],
+              action: record[:action],
+              interaction: record[:interaction],
+              reason: record[:reason],
+              runtime_status: record[:runtime_status],
+              runtime_state: record[:runtime_state],
+              runtime_state_class: record[:runtime_state_class]
+            }.merge(transition).freeze
+          end
+        end.sort_by { |entry| entry[:timestamp].to_s }.freeze
+      end
+
+      def transition_query
+        @transition_query ||= Runtime::OrchestrationTransitionQuery.new(transitions)
+      end
+
+      def transition_summary
+        transition_query.summary
       end
 
       def summary
@@ -82,12 +121,15 @@ module Igniter
             by_action: facet(records, :action),
             by_interaction: facet(records, :interaction),
             by_runtime_status: facet(records, :runtime_status),
+            by_runtime_state: facet(records, :runtime_state),
+            by_runtime_state_class: facet(records, :runtime_state_class),
             by_status: facet(records, :status),
             by_session_lifecycle_state: facet(records, :session_lifecycle_state),
             by_ownership: facet(records, :ownership),
             by_phase: facet(records, :phase),
             by_reply_mode: facet(records, :reply_mode),
             by_waiting_on: waiting_on.freeze,
+            terminal_runtime_records: records.count { |record| record[:runtime_terminal] },
             by_event_type: facet(timeline, :event),
             recent_events: timeline.last(5).freeze
           }.freeze
@@ -98,7 +140,8 @@ module Igniter
         {
           summary: summary,
           records: records,
-          timeline: timeline
+          timeline: timeline,
+          transitions: transition_query.to_h
         }.freeze
       end
 
@@ -152,24 +195,6 @@ module Igniter
           waiting_on: payload[:waiting_on],
           payload: payload
         }.compact.freeze
-      end
-
-      def runtime_status_for(node_entry:, state:, session:)
-        return :pending_session if session
-        return :completed if state&.succeeded?
-        return :failed if state&.failed?
-        return :running if state&.running?
-        return :pending if state&.pending?
-        return :ready if node_entry[:ready]
-        return :blocked if node_entry[:blocked]
-
-        (node_entry[:status] || state&.status || :unknown).to_sym
-      end
-
-      def terminal_runtime_status?(node_entry, state)
-        return true if state&.succeeded? || state&.failed?
-
-        %i[succeeded failed completed].include?((node_entry[:status] || state&.status)&.to_sym)
       end
 
       def facet(entries, key)

@@ -37,19 +37,20 @@ module Igniter
               line += " contract=#{node.contract_class.name || 'AnonymousContract'}"
             end
             if node.kind == :agent
+              interaction = node.interaction_contract
               line += " via=#{node.agent_name.inspect}"
               line += " message=#{node.message_name.inspect}"
               line += " timeout=#{node.timeout}"
-              line += " mode=#{node.mode}"
-              line += " routing=#{node.routing_mode}"
-              line += " node=#{node.node_url.inspect}" if node.routing_mode == :static
-              line += " capability=#{node.capability.inspect}" if node.capability
-              line += " query=#{node.capability_query.inspect}" if node.capability_query
-              line += " pinned_to=#{node.pinned_to.inspect}" if node.pinned_to
-              line += " reply=#{node.reply_mode}"
-              line += " finalizer=#{node.finalizer.inspect}" if node.finalizer
-              line += " tool_loop_policy=#{node.tool_loop_policy.inspect}" if node.tool_loop_policy
-              line += " session_policy=#{node.session_policy.inspect}" if node.session_policy
+              line += " mode=#{interaction.mode}"
+              line += " routing=#{interaction.routing_mode}"
+              line += " node=#{interaction.node_url.inspect}" if interaction.routing_mode == :static
+              line += " capability=#{interaction.capability.inspect}" if interaction.capability
+              line += " query=#{interaction.capability_query.inspect}" if interaction.capability_query
+              line += " pinned_to=#{interaction.pinned_to.inspect}" if interaction.pinned_to
+              line += " reply=#{interaction.reply_mode}"
+              line += " finalizer=#{interaction.finalizer.inspect}" if interaction.finalizer
+              line += " tool_loop_policy=#{interaction.tool_loop_policy.inspect}" if interaction.tool_loop_policy
+              line += " session_policy=#{interaction.session_policy.inspect}" if interaction.session_policy
             end
             if node.kind == :branch
               cases = node.cases.map do |entry|

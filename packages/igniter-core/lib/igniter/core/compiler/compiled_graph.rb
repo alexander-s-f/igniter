@@ -69,20 +69,12 @@ module Igniter
               base[:inputs] = node.input_mapping
             end
             if node.kind == :agent
+              interaction = node.interaction_contract.to_h
               base[:via] = node.agent_name
               base[:message] = node.message_name
               base[:inputs] = node.input_mapping
               base[:timeout] = node.timeout
-              base[:mode] = node.mode
-              base[:routing_mode] = node.routing_mode
-              base[:node] = node.node_url if node.routing_mode == :static
-              base[:capability] = node.capability if node.capability
-              base[:query] = node.capability_query if node.capability_query
-              base[:pinned_to] = node.pinned_to if node.pinned_to
-              base[:reply] = node.reply_mode
-              base[:finalizer] = serialized_agent_finalizer(node.finalizer)
-              base[:tool_loop_policy] = node.tool_loop_policy
-              base[:session_policy] = node.session_policy
+              base.merge!(interaction)
             end
             if node.kind == :branch
               base[:selector] = node.selector_dependency
@@ -152,16 +144,7 @@ module Igniter
               message: node.message_name,
               inputs: node.input_mapping,
               timeout: node.timeout,
-              mode: node.mode,
-              routing_mode: node.routing_mode,
-              node: (node.node_url if node.routing_mode == :static),
-              capability: node.capability,
-              query: node.capability_query,
-              pinned_to: node.pinned_to,
-              reply: node.reply_mode,
-              finalizer: serialized_agent_finalizer(node.finalizer),
-              tool_loop_policy: node.tool_loop_policy,
-              session_policy: node.session_policy,
+              **node.interaction_contract.to_h,
               metadata: node.metadata.reject { |key, _| key == :source_location }
             }
           end,
@@ -230,12 +213,6 @@ module Igniter
         end
       end
 
-      def serialized_agent_finalizer(finalizer)
-        return nil if finalizer.nil?
-        return finalizer if finalizer.is_a?(Symbol)
-
-        :proc
-      end
     end
   end
 end

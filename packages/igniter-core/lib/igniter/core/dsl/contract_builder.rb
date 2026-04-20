@@ -364,8 +364,8 @@ module Igniter
         raise CompileError, "agent :#{name} requires via:" if via.nil? || via.to_s.strip.empty?
         raise CompileError, "agent :#{name} requires message:" if message.nil? || message.to_s.strip.empty?
         raise CompileError, "agent :#{name} timeout must be positive" unless timeout.to_f.positive?
-        raise CompileError, "agent :#{name} mode must be :call or :cast" unless %i[call cast].include?(normalized_mode)
-        unless normalized_reply.nil? || %i[single deferred stream none].include?(normalized_reply)
+        raise CompileError, "agent :#{name} mode must be :call or :cast" unless Model::AgentInteractionContract::MODES.include?(normalized_mode)
+        unless normalized_reply.nil? || Model::AgentInteractionContract::REPLY_MODES.include?(normalized_reply)
           raise CompileError, "agent :#{name} reply must be :single, :deferred, :stream, or :none"
         end
         if normalized_mode == :cast && !normalized_reply.nil? && normalized_reply != :none
@@ -383,13 +383,13 @@ module Igniter
         if !normalized_tool_loop_policy.nil? && normalized_reply != :stream
           raise CompileError, "agent :#{name} tool_loop_policy requires reply: :stream"
         end
-        unless normalized_tool_loop_policy.nil? || %i[ignore resolved complete].include?(normalized_tool_loop_policy)
+        unless normalized_tool_loop_policy.nil? || Model::AgentInteractionContract::TOOL_LOOP_POLICIES.include?(normalized_tool_loop_policy)
           raise CompileError, "agent :#{name} tool_loop_policy must be :ignore, :resolved, or :complete"
         end
         if !normalized_session_policy.nil? && normalized_reply != :stream
           raise CompileError, "agent :#{name} session_policy requires reply: :stream"
         end
-        unless normalized_session_policy.nil? || %i[interactive single_turn manual].include?(normalized_session_policy)
+        unless normalized_session_policy.nil? || Model::AgentInteractionContract::SESSION_POLICIES.include?(normalized_session_policy)
           raise CompileError, "agent :#{name} session_policy must be :interactive, :single_turn, or :manual"
         end
         if [capability, query, pinned_to].count { |value| !value.nil? } > 1

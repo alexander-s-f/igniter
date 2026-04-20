@@ -8,12 +8,13 @@ module Igniter
       ORDERABLE_DIMENSIONS = %i[
         node_name agent_name message_name mode reply_mode waiting_on source_node
         turn phase tool_loop_status interaction attention_required reason resumable
-        ownership lifecycle_state
+        ownership lifecycle_state routing_mode session_policy finalizer
       ].freeze
       FACETABLE_DIMENSIONS = %i[
         node_name agent_name message_name mode reply_mode waiting_on source_node
         phase tool_loop_status interaction attention_required reason resumable
         ownership lifecycle_state interactive terminal continuable routed
+        routing_mode session_policy tool_loop_policy finalizer
       ].freeze
 
       def initialize(sessions, execution: nil)
@@ -83,6 +84,26 @@ module Igniter
       def ownership(*values)
         normalized = values.map(&:to_sym)
         add_filter { |session| normalized.include?(session.ownership) }
+      end
+
+      def routing_mode(*values)
+        normalized = values.map(&:to_sym)
+        add_filter { |session| normalized.include?(session.routing_mode) }
+      end
+
+      def session_policy(*values)
+        normalized = values.map(&:to_sym)
+        add_filter { |session| normalized.include?(session.session_policy) }
+      end
+
+      def tool_loop_policy(*values)
+        normalized = values.map(&:to_sym)
+        add_filter { |session| normalized.include?(session.tool_loop_policy) }
+      end
+
+      def finalizer(*values)
+        normalized = values.map(&:to_sym)
+        add_filter { |session| normalized.include?(session.finalizer) }
       end
 
       def lifecycle_state(*states)
@@ -212,6 +233,10 @@ module Igniter
           by_phase: facet(:phase),
           by_ownership: facet(:ownership),
           by_lifecycle_state: facet(:lifecycle_state),
+          by_routing_mode: facet(:routing_mode),
+          by_session_policy: facet(:session_policy),
+          by_tool_loop_policy: facet(:tool_loop_policy),
+          by_finalizer: facet(:finalizer),
           by_tool_loop_status: facet(:tool_loop_status),
           by_interaction: facet(:interaction),
           by_reason: facet(:reason),
@@ -296,6 +321,10 @@ module Igniter
         when :tool_loop_status then session.tool_loop_status
         when :ownership then session.ownership
         when :lifecycle_state then session.lifecycle_state
+        when :routing_mode then session.routing_mode
+        when :session_policy then session.session_policy
+        when :tool_loop_policy then session.tool_loop_policy
+        when :finalizer then session.finalizer
         when :interactive then session.interactive?
         when :terminal then session.terminal?
         when :continuable then session.continuable?

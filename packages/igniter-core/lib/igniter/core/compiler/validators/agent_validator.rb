@@ -58,7 +58,7 @@ module Igniter
         end
 
         def validate_mode!(node)
-          return if %i[call cast].include?(node.mode)
+          return if Model::AgentInteractionContract::MODES.include?(node.mode)
 
           raise @context.validation_error(
             node,
@@ -67,7 +67,7 @@ module Igniter
         end
 
         def validate_reply_mode!(node)
-          unless %i[single deferred stream none].include?(node.reply_mode)
+          unless Model::AgentInteractionContract::REPLY_MODES.include?(node.reply_mode)
             raise @context.validation_error(
               node,
               "agent :#{node.name} reply must be :single, :deferred, :stream, or :none"
@@ -95,7 +95,7 @@ module Igniter
         def validate_tool_loop_policy!(node)
           return if node.tool_loop_policy.nil?
 
-          unless %i[ignore resolved complete].include?(node.tool_loop_policy)
+          unless Model::AgentInteractionContract::TOOL_LOOP_POLICIES.include?(node.tool_loop_policy)
             raise @context.validation_error(
               node,
               "agent :#{node.name} tool_loop_policy must be :ignore, :resolved, or :complete"
@@ -113,7 +113,7 @@ module Igniter
         def validate_session_policy!(node)
           return if node.session_policy.nil?
 
-          unless %i[interactive single_turn manual].include?(node.session_policy)
+          unless Model::AgentInteractionContract::SESSION_POLICIES.include?(node.session_policy)
             raise @context.validation_error(
               node,
               "agent :#{node.name} session_policy must be :interactive, :single_turn, or :manual"
@@ -129,7 +129,7 @@ module Igniter
         end
 
         def validate_routing!(node)
-          return if %i[local static capability pinned].include?(node.routing_mode)
+          return if Model::AgentInteractionContract::ROUTING_MODES.include?(node.routing_mode)
 
           raise @context.validation_error(
             node,

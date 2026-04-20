@@ -55,12 +55,14 @@ module Igniter
       attr_reader :token, :node_name, :node_path, :agent_name, :message_name,
                   :mode, :reply_mode, :waiting_on, :source_node, :trace, :payload, :turn, :phase,
                   :messages, :last_request, :last_reply, :history, :ownership, :owner_url, :delivery_route,
-                  :execution_id, :graph
+                  :execution_id, :graph, :interaction_contract
 
       def initialize(token:, node_name:, node_path: nil, agent_name:, message_name:, mode:, # rubocop:disable Metrics/ParameterLists
                      reply_mode: nil, waiting_on: nil, source_node: nil, trace: nil, payload: {}, turn: 1, phase: nil,
                      messages: nil, last_request: nil, last_reply: nil, history: nil, ownership: nil, owner_url: nil,
-                     delivery_route: nil, execution_id: nil, graph: nil)
+                     delivery_route: nil, execution_id: nil, graph: nil, interaction_contract: nil,
+                     finalizer: nil, tool_loop_policy: nil, session_policy: nil, node_url: nil,
+                     capability: nil, capability_query: nil, pinned_to: nil)
         @token = token
         @node_name = node_name&.to_sym
         @node_path = node_path
@@ -83,6 +85,18 @@ module Igniter
         @ownership = normalize_ownership(ownership || default_ownership(@delivery_route, trace))
         @execution_id = execution_id
         @graph = graph
+        @interaction_contract = normalize_interaction_contract(
+          interaction_contract,
+          mode: @mode,
+          reply_mode: @reply_mode,
+          finalizer: finalizer,
+          tool_loop_policy: tool_loop_policy,
+          session_policy: session_policy,
+          node_url: node_url,
+          capability: capability,
+          capability_query: capability_query,
+          pinned_to: pinned_to
+        )
         freeze
       end
 
@@ -109,7 +123,15 @@ module Igniter
           owner_url: value_from(data, :owner_url),
           delivery_route: value_from(data, :delivery_route),
           execution_id: value_from(data, :execution_id),
-          graph: value_from(data, :graph)
+          graph: value_from(data, :graph),
+          interaction_contract: value_from(data, :interaction_contract) || value_from(data, :interaction),
+          finalizer: value_from(data, :finalizer),
+          tool_loop_policy: value_from(data, :tool_loop_policy),
+          session_policy: value_from(data, :session_policy),
+          node_url: value_from(data, :node_url) || value_from(data, :node),
+          capability: value_from(data, :capability),
+          capability_query: value_from(data, :capability_query) || value_from(data, :query),
+          pinned_to: value_from(data, :pinned_to)
         )
       end
 
@@ -135,6 +157,14 @@ module Igniter
           ownership: ownership,
           owner_url: owner_url,
           delivery_route: delivery_route,
+          interaction_contract: interaction_contract.to_h,
+          finalizer: finalizer,
+          tool_loop_policy: tool_loop_policy,
+          session_policy: session_policy,
+          node_url: node_url,
+          capability: capability,
+          capability_query: capability_query,
+          pinned_to: pinned_to,
           lifecycle: lifecycle,
           execution_id: execution_id,
           graph: graph
@@ -264,6 +294,38 @@ module Igniter
         !terminal?
       end
 
+      def finalizer
+        interaction_contract.finalizer
+      end
+
+      def tool_loop_policy
+        interaction_contract.tool_loop_policy
+      end
+
+      def session_policy
+        interaction_contract.session_policy
+      end
+
+      def routing_mode
+        interaction_contract.routing_mode
+      end
+
+      def node_url
+        interaction_contract.node_url
+      end
+
+      def capability
+        interaction_contract.capability
+      end
+
+      def capability_query
+        interaction_contract.capability_query
+      end
+
+      def pinned_to
+        interaction_contract.pinned_to
+      end
+
       def routed?
         remote_owned? || !delivery_route.empty?
       end
@@ -289,7 +351,8 @@ module Igniter
           waiting_on: waiting_on,
           turn: turn,
           mode: mode,
-          reply_mode: reply_mode
+          reply_mode: reply_mode,
+          interaction_contract: interaction_contract.to_h
         }.compact.freeze
       end
 
@@ -587,6 +650,45 @@ module Igniter
 
       def normalize_phase(value)
         (value || :waiting).to_sym
+      end
+
+      def normalize_interaction_contract(contract, mode:, reply_mode:, finalizer:, tool_loop_policy:, session_policy:, node_url:, capability:, capability_query:, pinned_to:) # rubocop:disable Metrics/ParameterLists
+        return contract if contract.is_a?(Model::AgentInteractionContract)
+
+        interaction_data =
+          if contract.is_a?(Hash)
+            symbolize_hash(contract)
+          else
+            {}
+          end
+
+        resolved_route = interaction_route_defaults
+        Model::AgentInteractionContract.new(
+          mode: interaction_data.fetch(:mode, mode),
+          reply_mode: interaction_data.fetch(:reply, interaction_data.fetch(:reply_mode, reply_mode)),
+          finalizer: interaction_data.fetch(:finalizer, finalizer),
+          tool_loop_policy: interaction_data.fetch(:tool_loop_policy, tool_loop_policy),
+          session_policy: interaction_data.fetch(:session_policy, session_policy),
+          node_url: interaction_data.fetch(:node, interaction_data.fetch(:node_url, node_url || resolved_route[:node_url])),
+          capability: interaction_data.fetch(:capability, capability || resolved_route[:capability]),
+          capability_query: interaction_data.fetch(:query, interaction_data.fetch(:capability_query, capability_query || resolved_route[:capability_query])),
+          pinned_to: interaction_data.fetch(:pinned_to, pinned_to || resolved_route[:pinned_to])
+        )
+      end
+
+      def interaction_route_defaults
+        {
+          node_url: delivery_route[:url],
+          capability: delivery_route[:capability],
+          capability_query: delivery_route[:query],
+          pinned_to: delivery_route[:pinned_to]
+        }.freeze
+      end
+
+      def symbolize_hash(value)
+        value.each_with_object({}) do |(key, nested_value), memo|
+          memo[key.to_sym] = nested_value
+        end
       end
 
       def default_phase

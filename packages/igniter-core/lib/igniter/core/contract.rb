@@ -57,6 +57,14 @@ module Igniter
         orchestration_overview_from_store(execution_id, store: store)[:summary]
       end
 
+      def orchestration_transition_overview_from_store(execution_id, store: nil, limit: 20)
+        restore_from_store(execution_id, store: store).execution.orchestration_transition_overview(limit: limit)
+      end
+
+      def orchestration_transition_summary_from_store(execution_id, store: nil)
+        restore_from_store(execution_id, store: store).execution.orchestration_transition_summary
+      end
+
       def resume_from_store(execution_id, token:, value:, store: nil)
         Runtime::JobWorker.new(self, store: store || Igniter.execution_store).resume(
           execution_id: execution_id,
