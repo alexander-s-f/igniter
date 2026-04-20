@@ -46,7 +46,7 @@ Gem::Specification.new do |spec|
     "packages/igniter-sdk/README.md",
     "packages/igniter-extensions/lib/**/*.rb",
     "packages/igniter-extensions/README.md",
-    "packages/igniter-app/lib/**/*.rb",
+    "packages/igniter-app/lib/**/*",
     "packages/igniter-app/README.md",
     "packages/igniter-server/lib/**/*.rb",
     "packages/igniter-server/README.md",

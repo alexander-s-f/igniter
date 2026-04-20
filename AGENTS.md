@@ -12,6 +12,7 @@ rake architecture # Run architectural boundary guards
 rake spec     # Run tests only
 rake rubocop  # Lint only
 rake build    # Build gem
+rake local:install # Rebuild + reinstall the local igniter gem and clean .gem artifacts
 rake release  # Release to rubygems.org
 ```
 
