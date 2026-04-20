@@ -6,13 +6,15 @@ module Igniter
       attr_accessor :host, :port, :store, :logger,
                     :metrics_collector, :log_format, :drain_timeout,
                     :peer_name, :peer_capabilities, :peer_tags, :peer_metadata, :peer_identity, :peer_trust_store, :custom_routes,
-                    :before_request_hooks, :after_request_hooks, :around_request_hooks, :after_start_hooks
+                    :before_request_hooks, :after_request_hooks, :around_request_hooks, :after_start_hooks,
+                    :agent_session_store
       attr_reader   :registry
 
       def initialize
         @host              = "0.0.0.0"
         @port              = 4567
         @store             = Igniter::Runtime::Stores::MemoryStore.new
+        @agent_session_store = Igniter::Server::AgentSessionStore.new
         @registry          = Registry.new
         @logger            = nil
         @metrics_collector = nil

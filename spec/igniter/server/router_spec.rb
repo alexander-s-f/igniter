@@ -2,6 +2,7 @@
 
 require "spec_helper"
 require "igniter/server"
+require "igniter/agent"
 
 RSpec.describe Igniter::Server::Router do
   def wait_until(timeout: 1.0, interval: 0.01)
@@ -113,6 +114,11 @@ RSpec.describe Igniter::Server::Router do
         "waiting_on" => "review"
       )
       expect(data.fetch("payload")).to include("requested_name" => "Alice")
+      expect(data.fetch("agent_session")).to include(
+        "token" => "review-session",
+        "ownership" => "remote"
+      )
+      expect(config.agent_session_store.exist?("review-session")).to be(true)
       ref.stop
     end
   end
@@ -144,7 +150,42 @@ RSpec.describe Igniter::Server::Router do
   end
 
   describe "POST /v1/agent-sessions/:token/continue" do
-    it "continues a remote-owned agent session through the server protocol" do
+    it "continues a stored remote-owned agent session through the server protocol" do
+      config.agent_session_store.save(
+        Igniter::Runtime::AgentSession.new(
+          token: "review-session",
+          node_name: :review,
+          agent_name: :reviewer,
+          message_name: :review,
+          mode: :call,
+          reply_mode: :deferred,
+          ownership: :remote,
+          owner_url: "http://seed:4567",
+          delivery_route: { routing_mode: :static, url: "http://seed:4567", remote: true },
+          payload: { requested_name: "Alice" }
+        )
+      )
+
+      body = JSON.generate({
+        "payload" => { "step" => 2 }
+      })
+      result = router.call("POST", "/v1/agent-sessions/review-session/continue", body)
+
+      expect(result[:status]).to eq(200)
+      data = JSON.parse(result[:body])
+      expect(data).to include("status" => "pending", "message" => "continue")
+      expect(data.fetch("agent_session")).to include(
+        "token" => "review-session",
+        "turn" => 2,
+        "ownership" => "remote",
+        "owner_url" => "http://seed:4567"
+      )
+      stored = config.agent_session_store.fetch("review-session")
+      expect(stored.turn).to eq(2)
+      expect(stored.payload).to eq("step" => 2)
+    end
+
+    it "bootstraps the store from an incoming session when one is provided" do
       session = Igniter::Runtime::AgentSession.new(
         token: "review-session",
         node_name: :review,
@@ -183,7 +224,40 @@ RSpec.describe Igniter::Server::Router do
   end
 
   describe "POST /v1/agent-sessions/:token/resume" do
-    it "completes a remote-owned agent session through the server protocol" do
+    it "completes and clears a stored remote-owned agent session through the server protocol" do
+      config.agent_session_store.save(
+        Igniter::Runtime::AgentSession.new(
+          token: "review-session",
+          node_name: :review,
+          agent_name: :reviewer,
+          message_name: :review,
+          mode: :call,
+          reply_mode: :deferred,
+          ownership: :remote,
+          owner_url: "http://seed:4567",
+          delivery_route: { routing_mode: :static, url: "http://seed:4567", remote: true },
+          payload: { requested_name: "Alice" }
+        )
+      )
+
+      body = JSON.generate({
+        "value" => "approved"
+      })
+      result = router.call("POST", "/v1/agent-sessions/review-session/resume", body)
+
+      expect(result[:status]).to eq(200)
+      data = JSON.parse(result[:body])
+      expect(data).to include("status" => "succeeded", "output" => "approved")
+      expect(data.fetch("agent_session")).to include(
+        "token" => "review-session",
+        "turn" => 2,
+        "phase" => "completed",
+        "ownership" => "remote"
+      )
+      expect(config.agent_session_store.exist?("review-session")).to be(false)
+    end
+
+    it "can still resume from an explicit incoming session" do
       session = Igniter::Runtime::AgentSession.new(
         token: "review-session",
         node_name: :review,

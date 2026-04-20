@@ -106,6 +106,7 @@ RSpec.describe "Igniter module layout" do
 
   it "keeps server packs under the canonical server namespace inside the package" do
     expect(children_for(File.join(SERVER_LIB, "server"))).to include(
+      "agent_session_store.rb",
       "agent_transport.rb",
       "app_host.rb",
       "client.rb",

@@ -4,8 +4,9 @@ module Igniter
   module Server
     module Handlers
       class AgentSessionHandler < Base
-        def initialize(registry, store, mode:) # rubocop:disable Lint/UnusedMethodArgument
+        def initialize(registry, store, session_store:, mode:) # rubocop:disable Lint/UnusedMethodArgument
           super(registry, store)
+          @session_store = session_store
           @mode = mode.to_sym
         end
 
@@ -15,8 +16,7 @@ module Igniter
           require "igniter/agent"
 
           token = params.fetch(:token).to_s
-          session = build_session(body)
-          raise ResolutionError, "Agent session token mismatch for '#{token}'" unless session.token.to_s == token
+          session = load_session(token, body)
 
           response =
             case @mode
@@ -31,11 +31,16 @@ module Igniter
           json_ok(serialize_agent_response(response))
         end
 
-        def build_session(body)
+        def load_session(token, body)
+          return @session_store.fetch(token) if @session_store.exist?(token)
+
           raw = body["session"] || body[:session]
           raise ResolutionError, "Agent session payload is required" unless raw
 
-          Igniter::Runtime::AgentSession.from_h(raw)
+          session = Igniter::Runtime::AgentSession.from_h(raw)
+          raise ResolutionError, "Agent session token mismatch for '#{token}'" unless session.token.to_s == token
+
+          @session_store.save(session)
         end
 
         def continue_session(session, body)
@@ -56,6 +61,7 @@ module Igniter
             reply: reply,
             phase: phase
           )
+          @session_store.save(continued)
 
           {
             status: :pending,
@@ -82,6 +88,7 @@ module Igniter
                   end
 
           completed = session.complete(value: value, reply: reply, trace: trace)
+          @session_store.delete(session.token)
 
           {
             status: :succeeded,

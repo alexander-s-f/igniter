@@ -98,10 +98,10 @@ module Igniter
         when :contracts          then Handlers::ContractsHandler.new(registry, store)
         when :execute            then Handlers::ExecuteHandler.new(registry, store, collector: collector)
         when :event              then Handlers::EventHandler.new(registry, store, collector: collector)
-        when :agent_call         then Handlers::AgentMessageHandler.new(registry, store, mode: :call)
-        when :agent_cast         then Handlers::AgentMessageHandler.new(registry, store, mode: :cast)
-        when :agent_session_continue then Handlers::AgentSessionHandler.new(registry, store, mode: :continue)
-        when :agent_session_resume then Handlers::AgentSessionHandler.new(registry, store, mode: :resume)
+        when :agent_call         then Handlers::AgentMessageHandler.new(registry, store, session_store: @config.agent_session_store, mode: :call)
+        when :agent_cast         then Handlers::AgentMessageHandler.new(registry, store, session_store: @config.agent_session_store, mode: :cast)
+        when :agent_session_continue then Handlers::AgentSessionHandler.new(registry, store, session_store: @config.agent_session_store, mode: :continue)
+        when :agent_session_resume then Handlers::AgentSessionHandler.new(registry, store, session_store: @config.agent_session_store, mode: :resume)
         when :status             then Handlers::StatusHandler.new(registry, store)
         end
       end

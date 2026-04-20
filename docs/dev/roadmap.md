@@ -64,6 +64,7 @@ That draft is now specific enough to guide implementation:
   - cluster `AgentRouteResolver`
   - cluster `RoutedAgentAdapter`
   - server `AgentTransport`
+  - server `AgentSessionStore`
   - `/v1/agents/:via/messages/:message/call`
   - `/v1/agents/:via/messages/:message/cast`
   - `/v1/agent-sessions/:token/continue`

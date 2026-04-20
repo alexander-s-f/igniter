@@ -63,11 +63,12 @@ Already landed:
   - `RoutedAgentAdapter`
 - server now also ships:
   - `AgentTransport`
+  - `AgentSessionStore`
   - `/v1/agents/:via/messages/:message/call`
   - `/v1/agents/:via/messages/:message/cast`
   - `/v1/agent-sessions/:token/continue`
   - `/v1/agent-sessions/:token/resume`
-  so routed delivery now already has a canonical HTTP protocol for initial remote execution and for routed session continuation/resume
+  so routed delivery now already has a canonical HTTP protocol plus a first server-owned remote session runtime for continuation/resume
 - routed sessions now also expose explicit ownership metadata (`ownership`, `owner_url`, `delivery_route`)
 - core runtime now also has opt-in continuation/resume hooks above routed delivery, and the server transport is the first concrete implementation of that seam
 

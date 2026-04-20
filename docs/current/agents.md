@@ -89,6 +89,7 @@ Even in that narrow form, agents are no longer opaque:
   - capability and pinned routing already resolve through mesh semantics and preserve pending/failure behavior
 - server now also provides the first canonical remote agent protocol:
   - `Igniter::Server::AgentTransport`
+  - `Igniter::Server::AgentSessionStore`
   - `POST /v1/agents/:via/messages/:message/call`
   - `POST /v1/agents/:via/messages/:message/cast`
   - `POST /v1/agent-sessions/:token/continue`
@@ -101,7 +102,10 @@ Even in that narrow form, agents are no longer opaque:
   - `AgentTransport#continue_session`
   - `AgentTransport#resume_session`
 - those hooks are intentionally opt-in today, so graph-owned local continuity remains the default until a transport explicitly declares session lifecycle support
-- the server transport now declares that support and uses a stateless session protocol: the current `AgentSession` snapshot is sent over the wire and the remote side returns the next session snapshot
+- the server transport now declares that support and uses a real owner-driven remote session protocol:
+  - initial pending remote calls persist their session in `AgentSessionStore`
+  - continuation and resume resolve by token against that server-owned store
+  - the wire format still carries full `AgentSession` snapshots, but the remote owner is now the source of truth once the session is opened
 
 ## Near-Term Direction
 
