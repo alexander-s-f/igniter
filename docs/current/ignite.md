@@ -314,6 +314,7 @@ Current landed state:
 - `Igniter::Stack#ignite` executes the minimal agent-owned ignition flow
 - `IgnitionReport` now carries explicit admission/join semantics per target
 - app diagnostics expose ignition through `app_ignite`
+- local ignition can optionally use the real `Mesh` admission workflow
 - local `ignite.replicas` already participate in stack `dev` / compose-style
   runtime shaping as synthetic local runtime units
 
@@ -587,7 +588,11 @@ Status:
 - `IgnitionReport` status/event surface is landed
 - ignition is visible in app diagnostics/operator-facing observability
 - admission-aware ignition summary is partially landed
-- admission-aware ignition handshake is not landed yet
+- optional admission handshake through `Mesh.request_admission` is landed
+- explicit `Stack#confirm_ignite_join(...)` is landed
+- join confirmation can now transition admitted/prepared targets into `joined`
+- mesh-backed join confirmation now registers the peer in `peer_registry`
+- local no-mesh join confirmation falls back to `admission: implicit_local`
 - remote SSH bootstrap is not landed yet
 
 ## Remote Bootstrap After The First Slice

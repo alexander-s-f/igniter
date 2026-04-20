@@ -6,6 +6,7 @@ require "fileutils"
 require "ostruct"
 require "igniter/stack"
 require "igniter/app"
+require "igniter/cluster"
 
 RSpec.describe Igniter::Stack do
   around do |example|
@@ -18,6 +19,7 @@ RSpec.describe Igniter::Stack do
     $LOAD_PATH.replace(original_load_path)
     ENV["IGNITER_ENV"] = original_env
     ENV["PORT"] = original_port
+    Igniter::Cluster::Mesh.reset!
   end
 
   def build_workspace(root:, environment: nil, app_classes: nil)
@@ -257,6 +259,220 @@ RSpec.describe Igniter::Stack do
       expect(entry.fetch(:locator)).to include(config_path: "config/ssh_hp.yml")
       expect(entry.fetch(:admission)).to include(required: true, status: :pending_bootstrap)
       expect(entry.fetch(:join)).to include(required: true, status: :pending_bootstrap)
+    end
+  end
+
+  it "can route local ignition through the real mesh admission workflow" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          replicas:
+            - name: edge-1
+              port: 4568
+              capabilities:
+                - audio_ingest
+      YAML
+
+      Igniter::Cluster::Mesh.configure do |c|
+        c.peer_name = "seed-node"
+        c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(require_approval: true)
+      end
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite(mesh: Igniter::Cluster::Mesh, request_admission: true)
+      entry = report.entries.first
+
+      expect(report.status).to eq(:awaiting_admission)
+      expect(entry).to include(
+        target_id: "edge-1",
+        status: :awaiting_admission_approval,
+        action: :approve_cluster_admission
+      )
+      expect(entry.fetch(:admission)).to include(
+        required: true,
+        status: :awaiting_approval,
+        outcome: :pending_approval
+      )
+      expect(entry.fetch(:join)).to include(
+        required: true,
+        status: :blocked_by_admission,
+        node_id: "edge-1",
+        peer_name: "edge-1"
+      )
+      expect(Igniter::Cluster::Mesh.pending_admissions.size).to eq(1)
+      expect(Igniter::Cluster::Mesh.config.trust_store.known?("edge-1")).to be(false)
+    end
+  end
+
+  it "can auto-approve cluster admission for local ignition targets when requested" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          replicas:
+            - name: edge-1
+              port: 4568
+              capabilities:
+                - audio_ingest
+      YAML
+
+      Igniter::Cluster::Mesh.configure do |c|
+        c.peer_name = "seed-node"
+        c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(require_approval: true)
+      end
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite(
+        mesh: Igniter::Cluster::Mesh,
+        request_admission: true,
+        approve_pending_admission: true
+      )
+      entry = report.entries.first
+
+      expect(report.status).to eq(:admitted)
+      expect(entry).to include(
+        target_id: "edge-1",
+        status: :admitted,
+        action: :start_local_runtime_unit
+      )
+      expect(entry.fetch(:admission)).to include(
+        required: true,
+        status: :admitted,
+        outcome: :admitted
+      )
+      expect(entry.fetch(:join)).to include(
+        required: true,
+        status: :pending_runtime_boot
+      )
+      expect(Igniter::Cluster::Mesh.pending_admissions).to be_empty
+      expect(Igniter::Cluster::Mesh.config.trust_store.known?("edge-1")).to be(true)
+    end
+  end
+
+  it "can confirm a local ignition join for implicit local replicas" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          replicas:
+            - name: edge-1
+              port: 4568
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite
+      joined = workspace.confirm_ignite_join(
+        report: report,
+        target_id: "edge-1",
+        url: "http://127.0.0.1:4568"
+      )
+      entry = joined.entries.first
+
+      expect(joined).to be_joined
+      expect(entry).to include(
+        target_id: "edge-1",
+        status: :joined,
+        action: :runtime_joined,
+        url: "http://127.0.0.1:4568"
+      )
+      expect(entry.fetch(:admission)).to include(
+        required: false,
+        status: :implicit_local
+      )
+      expect(entry.fetch(:join)).to include(
+        required: true,
+        status: :joined,
+        url: "http://127.0.0.1:4568"
+      )
+      expect(joined.by_join_status).to include(joined: 1)
+    end
+  end
+
+  it "can confirm a cluster join after ignition admission and register the peer" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+        server:
+          host: 0.0.0.0
+          port: 4567
+        ignite:
+          approval: auto
+          replicas:
+            - name: edge-1
+              port: 4568
+              capabilities:
+                - audio_ingest
+      YAML
+
+      Igniter::Cluster::Mesh.configure do |c|
+        c.peer_name = "seed-node"
+        c.admission_policy = Igniter::Cluster::Governance::AdmissionPolicy.new(require_approval: true)
+      end
+
+      workspace = build_workspace(root: tmp)
+      report = workspace.ignite(
+        mesh: Igniter::Cluster::Mesh,
+        request_admission: true,
+        approve_pending_admission: true
+      )
+      joined = workspace.confirm_ignite_join(
+        report: report,
+        target_id: "edge-1",
+        url: "http://127.0.0.1:4568",
+        mesh: Igniter::Cluster::Mesh,
+        metadata: { role_hint: "analytics-edge" }
+      )
+      entry = joined.entries.first
+      peer = Igniter::Cluster::Mesh.config.peer_registry.peer_named("edge-1")
+      trail = Igniter::Cluster::Mesh.config.governance_trail.snapshot(limit: 5)
+
+      expect(joined).to be_joined
+      expect(entry).to include(
+        target_id: "edge-1",
+        status: :joined,
+        action: :runtime_joined,
+        url: "http://127.0.0.1:4568"
+      )
+      expect(entry.fetch(:admission)).to include(
+        required: true,
+        status: :admitted,
+        outcome: :admitted
+      )
+      expect(entry.fetch(:join)).to include(
+        required: true,
+        status: :joined,
+        url: "http://127.0.0.1:4568",
+        peer_name: "edge-1",
+        node_id: "edge-1"
+      )
+      expect(peer).not_to be_nil
+      expect(peer.url).to eq("http://127.0.0.1:4568")
+      expect(peer.capabilities).to eq([:audio_ingest])
+      expect(peer.metadata.dig(:mesh_identity, :node_id)).to eq("edge-1")
+      expect(peer.metadata.dig(:mesh_ignite, :target_id)).to eq("edge-1")
+      expect(peer.metadata[:role_hint]).to eq("analytics-edge")
+      expect(trail.fetch(:by_type)).to include(ignite_join_confirmed: 1)
     end
   end
 

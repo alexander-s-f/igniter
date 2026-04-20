@@ -321,14 +321,17 @@ module Igniter
         @ignition_plan ||= build_ignition_plan
       end
 
-      def ignite(plan: ignition_plan, approved: false, timeout: 5)
+      def ignite(plan: ignition_plan, approved: false, timeout: 5, mesh: nil, request_admission: false, approve_pending_admission: false)
         agent = Igniter::Ignite::IgnitionAgent.start
         agent.call(
           :execute,
           {
             plan: plan,
             runtime_units: runtime_units_snapshot,
-            approved: approved
+            approved: approved,
+            mesh: mesh,
+            request_admission: request_admission,
+            approve_pending_admission: approve_pending_admission
           },
           timeout: timeout
         )
@@ -338,6 +341,23 @@ module Igniter
 
       def ignition_report(**options)
         ignite(**options)
+      end
+
+      def confirm_ignite_join(report:, target_id:, url:, mesh: nil, metadata: {}, timeout: 5)
+        agent = Igniter::Ignite::IgnitionAgent.start
+        agent.call(
+          :confirm_join,
+          {
+            report: report,
+            target_id: target_id,
+            url: url,
+            mesh: mesh,
+            metadata: metadata
+          },
+          timeout: timeout
+        )
+      ensure
+        agent&.stop(timeout: 1)
       end
 
       def deployment_snapshot

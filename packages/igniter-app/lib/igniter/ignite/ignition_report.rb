@@ -28,12 +28,20 @@ module Igniter
         status == :pending_remote
       end
 
+      def joined?
+        status == :joined
+      end
+
       def blocked?
         status == :blocked
       end
 
       def by_status
         summary.fetch(:by_status, {})
+      end
+
+      def by_join_status
+        summary.fetch(:by_join_status, {})
       end
 
       def to_h
