@@ -36,8 +36,9 @@ RSpec.describe Igniter::App::Generators::Dashboard do
 
         expect(stack).to include('require_relative "apps/dashboard/app"')
         expect(stack).to include('mount :dashboard, at: "/dashboard"')
-        expect(stack_data.dig("stack", "default_node")).to eq("main")
-        expect(stack_data.fetch("nodes").keys).to contain_exactly("main")
+        expect(stack_data).not_to have_key("stack")
+        expect(stack_data).not_to have_key("nodes")
+        expect(stack_data.dig("server", "port")).to eq(4567)
         expect(readme).to include("generated with the `dashboard` scaffold profile")
         expect(readme).to include("http://127.0.0.1:4567/dashboard")
         expect(readme).to include("contexts/home_context.rb")

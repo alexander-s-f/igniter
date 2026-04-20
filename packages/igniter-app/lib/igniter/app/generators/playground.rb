@@ -139,21 +139,10 @@ module Igniter
 
         def stack_yml
           <<~YAML
-            stack:
-              name: #{project_name}
-              root_app: main
-              default_node: main
-              shared_lib_paths:
-                - lib
-
             server:
               host: 0.0.0.0
+              port: 4567
 
-            nodes:
-              main:
-                role: playground
-                port: 4567
-                public: true
             persistence:
               data:
                 adapter: sqlite
@@ -175,7 +164,7 @@ module Igniter
                 expect(described_class.app(:dashboard)).to be(#{module_name}::DashboardApp)
                 expect(described_class.app_definition(:dashboard).access_to).to eq([:notes_api, :playground_ops_api])
                 expect(described_class.mounts).to eq(dashboard: "/dashboard")
-                expect(described_class.node_names).to eq([:main])
+                expect(described_class.node_names).to eq([])
               end
             end
           RUBY
@@ -1209,7 +1198,6 @@ module Igniter
             ruby bin/demo
             bin/console
             bin/start
-            bin/start --node main
             bin/dev
             ```
 

@@ -187,12 +187,10 @@ module Igniter
 
             <<~YAML.chomp
                 #{profile_name}:
-                  role: #{profile.fetch(:role)}
                   port: #{profile.fetch(:port)}
                   public: true
                   environment:
                     #{env_prefix}_NODE_NAME: #{generated_node_name(profile_name)}
-                    #{env_prefix}_NODE_ROLE: #{profile.fetch(:role)}
                     #{env_prefix}_NODE_URL: http://127.0.0.1:#{profile.fetch(:port)}
                     #{env_prefix}_LOCAL_CAPABILITIES: #{profile.fetch(:declared_capabilities).join(",")}
                     #{env_prefix}_MOCK_CAPABILITIES: #{profile.fetch(:mocked_capabilities).join(",")}

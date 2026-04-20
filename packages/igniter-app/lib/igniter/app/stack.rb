@@ -148,6 +148,8 @@ module Igniter
       end
 
       def default_node
+        return root_app unless nodes_defined?
+
         configured = normalize_optional_name(stack_settings.dig("stack", "default_node"))
         return configured if configured && node_names.include?(configured)
 

@@ -105,7 +105,6 @@ module Igniter
         puts "    bin/start          # ← launch the mounted stack"
         puts "    bin/console        # ← open the igniter console"
         puts "    bin/dev            # ← launch the whole stack locally (+ var/log/dev/*.log)"
-        puts "    bin/start --node main      # ← explicit node selection"
         puts
         puts "  Production (Puma):"
         puts "    bundle add puma && bundle exec puma config.ru"
@@ -168,20 +167,9 @@ module Igniter
 
       def stack_yml
         <<~YAML
-          stack:
-            name: #{@project_name}
-            root_app: main
-            default_node: main
-            shared_lib_paths:
-              - lib
-
           server:
             host: 0.0.0.0
-
-          nodes:
-            main:
-              role: app
-              port: 4567
+            port: 4567
 
           persistence:
             data:
@@ -277,8 +265,8 @@ module Igniter
 
           - `Stack` owns the server/runtime container
           - `apps/main` is the root app
-          - `stack.yml` holds persistence and local node profiles
-          - `bin/dev` boots local node profiles, not separate app-servers
+          - `stack.yml` holds server defaults and persistence
+          - local node profiles are optional, not required for the default scaffold
 
           ## Boot
 
@@ -286,7 +274,7 @@ module Igniter
           bundle install
           ruby bin/demo
           bin/start
-          bin/console --node main
+          bin/console
           bin/dev
           ```
 
@@ -295,7 +283,7 @@ module Igniter
           ## Files To Know
 
           - `stack.rb` defines mounted apps and boot surface
-          - `stack.yml` defines root app, persistence, and node profiles
+          - `stack.yml` defines server defaults, persistence, and optional node profiles
           - `apps/main/app.rb` defines the root Igniter app
           - `apps/main/app.yml` keeps app-local runtime defaults
 
@@ -412,7 +400,6 @@ module Igniter
           puts "  Run  bin/start       →  start the mounted stack"
           puts "  Run  bin/console     →  open the igniter console"
           puts "  Run  bin/dev         →  start the whole stack locally (+ var/log/dev/*.log)"
-          puts "  Run  bin/start --node main     →  explicit node selection"
           puts "  \#{hr}"
           puts
         RUBY
@@ -430,7 +417,6 @@ module Igniter
           puts "Run  bin/start       →  start the mounted stack"
           puts "Run  bin/console     →  open the igniter console"
           puts "Run  bin/dev         →  start the whole stack locally (+ var/log/dev/*.log)"
-          puts "Run  bin/start --node main     →  explicit node selection"
         RUBY
       end
 
@@ -461,10 +447,10 @@ module Igniter
           require_relative "spec_helper"
 
           RSpec.describe #{stack_class_name} do
-            it "registers apps/main as the root app and default node" do
+            it "registers apps/main as the root app and default runtime target" do
               expect(described_class.root_app).to eq(:main)
               expect(described_class.default_node).to eq(:main)
-              expect(described_class.node_names).to eq([:main])
+              expect(described_class.node_names).to eq([])
               expect(described_class.app(:main)).to be(#{module_name}::MainApp)
             end
           end

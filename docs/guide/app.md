@@ -76,7 +76,7 @@ Current scaffold direction:
 The preferred app/runtime shape is now:
 
 - `stack.rb` defines apps and mounts
-- `stack.yml` defines root app, persistence, and optional node profiles
+- `stack.yml` defines server defaults, persistence, and optional node profiles
 - `bin/start`, `bin/dev`, and `bin/console` are the canonical runtime entry points
 - `Igniter::Stack` owns the server/runtime container
 - `Igniter::App` stays a portable mounted module

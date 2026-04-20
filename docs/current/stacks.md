@@ -19,6 +19,33 @@ The desired reading experience for a stack should be:
 
 ## Core Rule
 
+### One Connection Point
+
+If something is connected, it should be connected in one place.
+If something is configured, it should be configured in one place.
+If something can be disconnected, it should be disconnected from that same place.
+
+The practical meaning is:
+
+- app mounting belongs in `stack.rb`
+- stack/runtime configuration belongs in `stack.yml`
+- app-local configuration belongs in `apps/<app>/app.yml`
+- cross-app access belongs in `app ..., access_to: [...]`
+- shared stack code belongs in `lib/<project>/shared`
+
+What we do **not** want:
+
+- the same concern repeated in DSL + YAML + helper constants
+- hidden second entrypoints for the same runtime feature
+- “almost the same” configuration duplicated across several files
+- coupling that is easy to add but hard to remove
+
+The mental model should feel like one plug and one socket:
+
+- easy to see where a thing is attached
+- easy to remove it again
+- no hunting across the repo to understand one runtime concern
+
 ### Stack
 
 The stack owns:
@@ -63,6 +90,12 @@ An app is not the deployable unit by default.
 
 A node is a running copy of the stack inside the cluster.
 
+More concretely:
+
+- a node is not an app
+- a node is a stack umbrella with one or more mounted apps inside it
+- a node is the cluster/runtime boundary, not the code-organization boundary
+
 Node concerns include:
 
 - identity
@@ -72,6 +105,22 @@ Node concerns include:
 - governance
 
 This is cluster territory, not app territory.
+
+### Cluster
+
+A cluster is a dynamic set of running stack nodes.
+
+At bootstrap time, those nodes should be treated as equal peers.
+
+Differentiation should happen dynamically from:
+
+- capabilities
+- trust
+- availability
+- policy
+- current workload
+
+Static node “roles” should not become the primary execution model.
 
 ## Design Decision
 
@@ -120,21 +169,27 @@ end
 
 Should answer:
 
-- stack metadata
 - server defaults
 - persistence
 - optional local node launch profiles for dev / demos / home-lab
+- advanced stack overrides only when they are actually needed
 
-Example shape:
+Minimal default shape:
 
 ```yaml
-stack:
-  name: companion
-  root_app: main
-  default_node: seed
-  shared_lib_paths:
-    - lib
+server:
+  host: 0.0.0.0
+  port: 4567
 
+persistence:
+  data:
+    adapter: sqlite
+    path: var/companion_data.sqlite3
+```
+
+When a stack really needs local multi-node boot, add node profiles explicitly:
+
+```yaml
 server:
   host: 0.0.0.0
 
@@ -189,6 +244,95 @@ The preferred direction is now:
 1. stack-mounted runtime by default
 2. node profiles in `stack.yml` for local multi-node boot
 3. apps as portable mounted modules
+
+## Cluster Ignition Proposal
+
+The next cluster boot model should likely move away from “fully pre-described
+node topology” and toward “ignite from one live stack node”.
+
+The intended metaphor is:
+
+- one candle is lit first
+- that candle lights the next ones
+- the cluster grows from a seed runtime rather than from a static role map
+
+The proposal direction is:
+
+- one stack node can be started directly
+- that node receives an `ignite` instruction
+- the instruction tells it how to create or reach peer runtimes
+- peers join as stack nodes
+- differentiation happens later through capability publication and routing
+
+That means the cluster bootstrap question becomes:
+
+- where can the first node bind?
+- how does it replicate locally or remotely?
+- how do new peers obtain enough config to start and join?
+
+Not:
+
+- what fixed role does each machine have forever?
+
+### Local Development Shape
+
+A promising local shape looks like:
+
+```yaml
+dev:
+  host: 0.0.0.0
+  port: 4567
+  ignite:
+    replicas:
+      - 4568
+      - 4569
+```
+
+Meaning:
+
+- start one stack node on `4567`
+- ask it to ignite sibling local replicas on `4568` and `4569`
+- let capability/trust/discovery establish the real runtime field after boot
+
+### Remote / Production Shape
+
+A promising remote shape looks like:
+
+```yaml
+prod:
+  host: 0.0.0.0
+  port: 4567
+  ignite:
+    servers:
+      - config/ssh_rpi5_16gb_1.yml
+      - config/ssh_rpi5_16gb_2.yml
+      - config/ssh_hp.yml
+```
+
+Meaning:
+
+- start or target one initial stack node
+- give it a list of remote bootstrap targets
+- let the runtime bring up peer stack nodes there
+- let the cluster become differentiated through capabilities, not static role labels
+
+### Important Status
+
+This is a **proposal direction**, not yet the canonical config contract.
+
+What is already settled:
+
+- node = running stack umbrella
+- cluster = dynamic set of stack nodes
+- capabilities are the real differentiator
+- static role-first cluster modeling is the wrong center
+
+What is still open:
+
+- exact `ignite:` schema
+- whether `ignite` lives under `dev/prod` environments or another deployment section
+- how much of remote bootstrap belongs to core stack runtime vs cluster replication tooling
+- whether local `replicas:` should become the main replacement for current node-profile-heavy dev boot
 
 Legacy `services/topology` compatibility has been removed from the canonical stack runtime.
 

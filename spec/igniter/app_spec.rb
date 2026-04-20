@@ -729,11 +729,13 @@ RSpec.describe Igniter::App do
           expect(stack).to include('require "igniter/stack"')
           expect(stack).to include("app :main")
           expect(stack).to include("start_cli(ARGV)")
-          expect(File.read("my_app/stack.yml")).to include("root_app: main")
-          expect(File.read("my_app/stack.yml")).to include("default_node: main")
+          expect(File.read("my_app/stack.yml")).not_to include("root_app:")
+          expect(File.read("my_app/stack.yml")).not_to include("default_node:")
+          expect(File.read("my_app/stack.yml")).to include("host: 0.0.0.0")
           expect(File.read("my_app/stack.yml")).to include("port: 4567")
           expect(File.read("my_app/README.md")).to include("The intended reading order is simple:")
-          expect(File.read("my_app/README.md")).to include("bin/console --node main")
+          expect(File.read("my_app/README.md")).to include("bin/console")
+          expect(File.read("my_app/README.md")).not_to include("bin/console --node main")
           expect(File.read("my_app/README.md")).to include("var/log/dev/*.log")
           expect(File.read("my_app/Gemfile")).to include("gem \"sqlite3\"")
           expect(bin_start).to include("exec bundle exec ruby stack.rb \"$@\"")
@@ -784,7 +786,7 @@ RSpec.describe Igniter::App do
 
           expect(File.exist?("examples/companion/lib/companion/shared/.keep")).to be true
           expect(File.read("examples/companion/stack.rb")).to include("module Companion")
-          expect(File.read("examples/companion/stack.yml")).to include("default_node: main")
+          expect(File.read("examples/companion/stack.yml")).not_to include("default_node:")
           expect(File.read("examples/companion/apps/main/app.rb")).to include("module Companion")
           expect(File.read("examples/companion/apps/main/spec/spec_helper.rb")).to include("Companion::MainApp.send(:build!)")
         end

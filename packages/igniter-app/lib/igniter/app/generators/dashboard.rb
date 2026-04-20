@@ -122,7 +122,7 @@ module Igniter
                 expect(described_class.app(:main)).to be(#{module_name}::MainApp)
                 expect(described_class.app(:dashboard)).to be(#{module_name}::DashboardApp)
                 expect(described_class.mounts).to eq(dashboard: "/dashboard")
-                expect(described_class.node_names).to eq([:main])
+                expect(described_class.node_names).to eq([])
               end
             end
           RUBY
