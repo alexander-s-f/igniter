@@ -312,6 +312,8 @@ Current landed state:
 - `Igniter::Ignite::IgnitionReport` exists
 - `Igniter::Stack#ignition_plan` normalizes `ignite` config into these objects
 - `Igniter::Stack#ignite` executes the minimal agent-owned ignition flow
+- `IgnitionReport` now carries explicit admission/join semantics per target
+- app diagnostics expose ignition through `app_ignite`
 - local `ignite.replicas` already participate in stack `dev` / compose-style
   runtime shaping as synthetic local runtime units
 
@@ -583,7 +585,9 @@ Status:
 - `PORT`-driven per-replica local boot is landed
 - minimal `IgnitionAgent` orchestration is landed
 - `IgnitionReport` status/event surface is landed
-- admission-aware ignition lifecycle is not landed yet
+- ignition is visible in app diagnostics/operator-facing observability
+- admission-aware ignition summary is partially landed
+- admission-aware ignition handshake is not landed yet
 - remote SSH bootstrap is not landed yet
 
 ## Remote Bootstrap After The First Slice

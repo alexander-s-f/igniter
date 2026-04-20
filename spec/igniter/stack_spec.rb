@@ -212,6 +212,14 @@ RSpec.describe Igniter::Stack do
         IGNITER_IGNITE_REPLICA: "true",
         IGNITER_IGNITE_TARGET: "edge-1"
       )
+      expect(entry.fetch(:admission)).to include(required: true, status: :pending_bootstrap)
+      expect(entry.fetch(:join)).to include(required: true, status: :pending_bootstrap)
+      expect(report.summary).to include(
+        admission_required: 1,
+        join_required: 1,
+        by_admission_status: { pending_bootstrap: 1 },
+        by_join_status: { pending_bootstrap: 1 }
+      )
     end
   end
 
@@ -247,6 +255,8 @@ RSpec.describe Igniter::Stack do
         capabilities: [:call_analysis]
       )
       expect(entry.fetch(:locator)).to include(config_path: "config/ssh_hp.yml")
+      expect(entry.fetch(:admission)).to include(required: true, status: :pending_bootstrap)
+      expect(entry.fetch(:join)).to include(required: true, status: :pending_bootstrap)
     end
   end
 

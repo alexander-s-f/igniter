@@ -1243,6 +1243,77 @@ RSpec.describe Igniter::App do
       expect(markdown).to include("- Server: host=`127.0.0.1` port=`5678` log_format=`text`")
     end
 
+    it "surfaces stack ignition diagnostics through the app contributor layer" do
+      klass = Class.new(Igniter::Contract) do
+        define do
+          input :x
+          output :x
+        end
+      end
+
+      stack_class = Class.new(Igniter::Stack)
+      Dir.mktmpdir do |tmp|
+        File.write(File.join(tmp, "stack.yml"), <<~YAML)
+          stack:
+            name: diagnostics_stack
+            root_app: main
+          server:
+            host: 0.0.0.0
+            port: 4567
+          ignite:
+            approval: required
+            replicas:
+              - name: edge-1
+                port: 4568
+                capabilities:
+                  - audio_ingest
+        YAML
+
+        app = stub_const("SpecIgniteDiagnosticsApp", Class.new(Igniter::App))
+        app.class_eval do
+          root_dir tmp
+          register "SampleContract", klass
+        end
+
+        stack_class.root_dir(tmp)
+        stack_class.app :main, path: "apps/main", klass: app, default: true
+        app.send(:build!)
+
+        contract = klass.new(x: 10)
+        report = contract.diagnostics.to_h
+        text = contract.diagnostics_text
+        markdown = contract.diagnostics_markdown
+
+        expect(report[:app_ignite]).to include(
+          app: "SpecIgniteDiagnosticsApp",
+          status: :awaiting_approval,
+          summary: include(
+            total: 1,
+            actionable: 1,
+            local_replicas: 1,
+            remote_targets: 0,
+            admission_required: 1,
+            join_required: 1,
+            by_status: { awaiting_approval: 1 },
+            by_admission_status: { awaiting_approval: 1 },
+            by_join_status: { awaiting_approval: 1 }
+          )
+        )
+        expect(report[:app_ignite][:entries]).to contain_exactly(
+          include(
+            target_id: "edge-1",
+            status: :awaiting_approval,
+            action: :approve_ignition,
+            admission: include(required: true, status: :awaiting_approval),
+            join: include(required: true, status: :awaiting_approval)
+          )
+        )
+        expect(text).to include("App Ignite: status=awaiting_approval, total=1, actionable=1, local_replicas=1, remote_targets=0, admission_required=1, join_required=1")
+        expect(markdown).to include("## App Ignite")
+        expect(markdown).to include("`edge-1` `approve_ignition`")
+      end
+    end
+
     it "builds and applies app SDK evolution plans from coverage gaps" do
       network_executor = Class.new(Igniter::Executor) do
         capabilities :network

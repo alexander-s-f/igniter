@@ -75,6 +75,14 @@ module Igniter
             status: :awaiting_approval,
             action: :approve_ignition,
             capabilities: intent.requested_capabilities,
+            admission: {
+              required: true,
+              status: :awaiting_approval
+            },
+            join: {
+              required: true,
+              status: :awaiting_approval
+            },
             timestamp: timestamp
           }
         end
@@ -97,6 +105,14 @@ module Igniter
             status: :blocked,
             action: :missing_local_runtime_unit,
             capabilities: intent.requested_capabilities,
+            admission: {
+              required: true,
+              status: :blocked
+            },
+            join: {
+              required: true,
+              status: :blocked
+            },
             timestamp: timestamp
           } unless runtime_unit
 
@@ -111,6 +127,14 @@ module Igniter
             port: runtime_unit["port"],
             environment: runtime_unit["environment"] || {},
             capabilities: intent.requested_capabilities,
+            admission: {
+              required: true,
+              status: :pending_bootstrap
+            },
+            join: {
+              required: true,
+              status: :pending_bootstrap
+            },
             timestamp: timestamp
           }
         end
@@ -124,6 +148,14 @@ module Igniter
             action: :await_remote_bootstrap,
             locator: intent.target.locator,
             capabilities: intent.requested_capabilities,
+            admission: {
+              required: true,
+              status: :pending_bootstrap
+            },
+            join: {
+              required: true,
+              status: :pending_bootstrap
+            },
             timestamp: timestamp
           }
         end
@@ -132,13 +164,23 @@ module Igniter
           by_status = entries.each_with_object(Hash.new(0)) do |entry, result|
             result[entry.fetch(:status)] += 1
           end
+          by_admission_status = entries.each_with_object(Hash.new(0)) do |entry, result|
+            result[entry.dig(:admission, :status)] += 1 if entry.dig(:admission, :status)
+          end
+          by_join_status = entries.each_with_object(Hash.new(0)) do |entry, result|
+            result[entry.dig(:join, :status)] += 1 if entry.dig(:join, :status)
+          end
 
           {
             total: entries.size,
             by_status: by_status.freeze,
+            by_admission_status: by_admission_status.freeze,
+            by_join_status: by_join_status.freeze,
             actionable: entries.count { |entry| %i[prepared awaiting_approval].include?(entry.fetch(:status)) },
             local_replicas: entries.count { |entry| entry.fetch(:kind) == :local_replica },
-            remote_targets: entries.count { |entry| entry.fetch(:kind) == :ssh_server }
+            remote_targets: entries.count { |entry| entry.fetch(:kind) == :ssh_server },
+            admission_required: entries.count { |entry| entry.dig(:admission, :required) },
+            join_required: entries.count { |entry| entry.dig(:join, :required) }
           }
         end
 
