@@ -19,6 +19,10 @@ module Igniter
         Runtime::AgentSession.from_h(data)
       end
 
+      def agent_result_contract
+        Runtime::AgentResultContract.from_result(self, kind: :stream)
+      end
+
       def phase
         session&.phase || :streaming
       end
@@ -142,6 +146,7 @@ module Igniter
       def to_h
         super.merge(
           type: :stream,
+          agent_result_contract: agent_result_contract&.to_h,
           phase: phase,
           events: events,
           event_count: events.size,

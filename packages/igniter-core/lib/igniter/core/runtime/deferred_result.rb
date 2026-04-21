@@ -28,7 +28,8 @@ module Igniter
           token: token,
           payload: payload,
           source_node: source_node,
-          waiting_on: waiting_on
+          waiting_on: waiting_on,
+          agent_result_contract: agent_result_contract&.to_h
         }.compact
       end
 
@@ -47,6 +48,19 @@ module Igniter
       def agent_session_data
         payload[:agent_session] || payload["agent_session"]
       end
+
+      def session
+        data = agent_session_data
+        return nil unless data
+
+        Runtime::AgentSession.from_h(data)
+      end
+
+      def agent_result_contract
+        Runtime::AgentResultContract.from_result(self, kind: :deferred)
+      end
+
+      alias_method :interaction_result_contract, :agent_result_contract
     end
   end
 end

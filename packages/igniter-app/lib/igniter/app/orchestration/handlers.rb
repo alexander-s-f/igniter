@@ -44,6 +44,31 @@ module Igniter
 
             return nil unless updated_item
 
+            payload = updated_item.reject do |key, _|
+              %i[
+                id handled_action handled_operation handled_lifecycle_operation
+                handled_execution_operation handled_policy handled_lane handled_queue
+                handled_channel handled_handler_queue handled_audit_source handled_actor
+                handled_origin handled_actor_channel handled_assignee note status
+                report_status
+              ].include?(key)
+            end
+            payload[:orchestration_action_result] = ActionResultBuilder.build(
+              item: updated_item,
+              requested_operation: action_resolution[:requested_operation],
+              handled_operation: action_resolution[:handled_operation],
+              handled_lifecycle_operation: action_resolution[:handled_lifecycle_operation],
+              handled_execution_operation: action_resolution[:handled_execution_operation],
+              handled_policy: policy.name,
+              handled_lane: item.dig(:lane, :name),
+              handled_queue: updated_item[:queue],
+              handled_channel: updated_item[:channel],
+              handled_handler_queue: item[:queue],
+              handled_assignee: updated_item[:assignee],
+              note: note,
+              audit: applied_audit
+            )
+
             build_result(
               id: item[:id],
               policy: policy,
@@ -57,15 +82,7 @@ module Igniter
               note: note,
               audit: applied_audit,
               status: updated_item[:status],
-              payload: updated_item.reject do |key, _|
-                %i[
-                  id handled_action handled_operation handled_lifecycle_operation
-                  handled_execution_operation handled_policy handled_lane handled_queue
-                  handled_channel handled_handler_queue handled_audit_source handled_actor
-                  handled_origin handled_actor_channel handled_assignee note status
-                  report_status
-                ].include?(key)
-              end
+              payload: payload
             )
           end
 

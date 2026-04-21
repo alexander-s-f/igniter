@@ -2212,6 +2212,24 @@ RSpec.describe Igniter::App do
         status: :resolved,
         runtime_resumed: true,
         resolved_graph: "AnonymousContract",
+        orchestration_action_result: include(
+          action: :require_manual_completion,
+          operation: include(
+            requested: :resolve,
+            handled: :resolve,
+            lifecycle: :resolve,
+            execution: :resolve
+          ),
+          workflow: include(
+            status: :resolved,
+            latest_event: :resolved
+          ),
+          runtime: include(
+            status: :completed,
+            state: :completed,
+            state_class: :terminal
+          )
+        ),
         orchestration_runtime_status: :completed,
         orchestration_runtime_latest_transition: include(
           state: :completed,
@@ -2876,7 +2894,26 @@ RSpec.describe Igniter::App do
         handled_lifecycle_operation: :resolve,
         handled_queue: "auto-interactive",
         runtime_resumed: true,
-        status: :resolved
+        status: :resolved,
+        orchestration_action_result: include(
+          action: :open_interactive_session,
+          operation: include(
+            requested: :complete,
+            handled: :complete,
+            lifecycle: :resolve,
+            execution: :resolve
+          ),
+          policy: include(
+            name: :auto_interactive_session,
+            queue: "auto-interactive",
+            channel: "queue://auto-interactive"
+          ),
+          runtime: include(
+            status: :completed,
+            state: :completed,
+            state_class: :terminal
+          )
+        )
       )
       expect(contract.result.interactive_summary).to eq("auto complete")
     ensure
@@ -4745,6 +4782,24 @@ RSpec.describe Igniter::App do
           session_policy: :interactive,
           tool_loop_policy: :complete,
           finalizer: :join,
+          agent_result_contract: include(
+            kind: :stream,
+            session_lifecycle_state: :streaming,
+            interaction_contract: include(
+              mode: :call,
+              routing_mode: :local,
+              reply: :stream
+            ),
+            tool_runtime: include(
+              status: :idle,
+              policy: :complete,
+              finalizer: :join
+            ),
+            ownership: :local,
+            interactive: true,
+            continuable: true,
+            routed: false
+          ),
           interaction_contract: include(
             mode: :call,
             routing_mode: :local,
@@ -5186,6 +5241,23 @@ RSpec.describe Igniter::App do
             "runtime_status" => "completed",
             "inbox_status" => "resolved",
             "combined_timeline" => include(include("source" => "inbox", "event_class" => "operator", "event" => "resolved"))
+          ),
+          "orchestration_action_result" => include(
+            "action" => "await_deferred_reply",
+            "operation" => include(
+              "requested" => "reply",
+              "handled" => "reply",
+              "lifecycle" => "resolve",
+              "execution" => "resolve"
+            ),
+            "policy" => include(
+              "name" => "deferred_reply"
+            ),
+            "runtime" => include(
+              "status" => "completed",
+              "state" => "completed",
+              "state_class" => "terminal"
+            )
           ),
           "orchestration_runtime_summary" => include(
             "total" => 1,

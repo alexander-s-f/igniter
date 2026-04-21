@@ -312,6 +312,25 @@ module Igniter
         interaction_contract.routing_mode
       end
 
+      def agent_result_contract(kind: nil)
+        Runtime::AgentResultContract.new(
+          kind: kind || infer_result_kind,
+          waiting_on: waiting_on,
+          source_node: source_node,
+          session_lifecycle_state: lifecycle_state,
+          phase: phase,
+          interaction_contract: interaction_contract.to_h,
+          tool_runtime: tool_runtime,
+          ownership: ownership,
+          owner_url: owner_url,
+          delivery_route: delivery_route,
+          interactive: interactive?,
+          terminal: terminal?,
+          continuable: continuable?,
+          routed: routed?
+        )
+      end
+
       def node_url
         interaction_contract.node_url
       end
@@ -579,6 +598,10 @@ module Igniter
       end
 
       private
+
+      def infer_result_kind
+        reply_mode == :stream ? :stream : :deferred
+      end
 
       def normalize_ownership(value)
         (value || :local).to_sym

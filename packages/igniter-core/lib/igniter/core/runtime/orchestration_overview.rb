@@ -51,6 +51,7 @@ module Igniter
               finalizer: session&.finalizer || node_entry[:finalizer],
               routing_mode: session&.routing_mode || node_entry[:routing_mode],
               interaction_contract: session&.interaction_contract&.to_h || node_entry[:interaction_contract],
+              agent_result_contract: session&.agent_result_contract&.to_h,
               session_lifecycle_state: session&.lifecycle_state,
               phase: session&.phase,
               ownership: session&.ownership,

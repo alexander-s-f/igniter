@@ -1025,6 +1025,43 @@ RSpec.describe "agent: DSL node" do
         tool_result_count: 1,
         artifact_count: 1
       )
+      expect(stream_value.agent_result_contract.to_h).to include(
+        kind: :stream,
+        session_lifecycle_state: :streaming,
+        phase: :streaming,
+        interaction_contract: include(
+          mode: :call,
+          routing_mode: :local,
+          reply: :stream,
+          finalizer: :events
+        ),
+        tool_runtime: include(
+          status: :complete,
+          policy: :complete,
+          finalizer: :events,
+          completed_tools: [:search]
+        ),
+        ownership: :local,
+        interactive: true,
+        continuable: true
+      )
+      expect(stream_value.to_h).to include(
+        agent_result_contract: include(
+          kind: :stream,
+          session_lifecycle_state: :streaming,
+          interaction_contract: include(
+            mode: :call,
+            routing_mode: :local,
+            reply: :stream,
+            finalizer: :events
+          ),
+          tool_runtime: include(
+            status: :complete,
+            policy: :complete,
+            finalizer: :events
+          )
+        )
+      )
 
       contract.execution.resume_agent_session(session.token)
 

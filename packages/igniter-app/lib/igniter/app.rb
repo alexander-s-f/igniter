@@ -496,15 +496,26 @@ module Igniter
       end
 
       def acknowledge_orchestration_item(id, note: nil, audit: nil)
-        orchestration_inbox.acknowledge(
+        applied_audit = canonical_orchestration_audit(
+          audit,
+          requested_operation: :acknowledge,
+          lifecycle_operation: :acknowledge,
+          execution_operation: :acknowledge
+        )
+        item = orchestration_inbox.acknowledge(
           id,
           note: note,
-          audit: canonical_orchestration_audit(
-            audit,
-            requested_operation: :acknowledge,
-            lifecycle_operation: :acknowledge,
-            execution_operation: :acknowledge
-          )
+          audit: applied_audit
+        )
+        augment_orchestration_action_result(
+          item,
+          requested_operation: :acknowledge,
+          handled_operation: :acknowledge,
+          handled_lifecycle_operation: :acknowledge,
+          handled_execution_operation: :acknowledge,
+          handled_policy: nil,
+          note: note,
+          audit: applied_audit
         )
       end
 
@@ -513,33 +524,55 @@ module Igniter
         return nil unless item
 
         resume_result = resume_orchestration_item_runtime(item, target: target, value: value)
+        applied_audit = canonical_orchestration_audit(
+          audit,
+          requested_operation: :resolve,
+          lifecycle_operation: :resolve,
+          execution_operation: :resolve
+        )
         resolved_item = orchestration_inbox.resolve(
           id,
           note: note,
           metadata: resume_result[:metadata],
-          audit: canonical_orchestration_audit(
-            audit,
-            requested_operation: :resolve,
-            lifecycle_operation: :resolve,
-            execution_operation: :resolve
-          )
+          audit: applied_audit
         )
-        augment_orchestration_runtime_result(
+        result = augment_orchestration_runtime_result(
           resolved_item,
           execution: resume_result[:execution]
+        )
+        augment_orchestration_action_result(
+          result,
+          requested_operation: :resolve,
+          handled_operation: :resolve,
+          handled_lifecycle_operation: :resolve,
+          handled_execution_operation: :resolve,
+          handled_policy: nil,
+          note: note,
+          audit: applied_audit
         )
       end
 
       def dismiss_orchestration_item(id, note: nil, audit: nil)
-        orchestration_inbox.dismiss(
+        applied_audit = canonical_orchestration_audit(
+          audit,
+          requested_operation: :dismiss,
+          lifecycle_operation: :dismiss,
+          execution_operation: :dismiss
+        )
+        item = orchestration_inbox.dismiss(
           id,
           note: note,
-          audit: canonical_orchestration_audit(
-            audit,
-            requested_operation: :dismiss,
-            lifecycle_operation: :dismiss,
-            execution_operation: :dismiss
-          )
+          audit: applied_audit
+        )
+        augment_orchestration_action_result(
+          item,
+          requested_operation: :dismiss,
+          handled_operation: :dismiss,
+          handled_lifecycle_operation: :dismiss,
+          handled_execution_operation: :dismiss,
+          handled_policy: nil,
+          note: note,
+          audit: applied_audit
         )
       end
 
@@ -548,18 +581,32 @@ module Igniter
       end
 
       def handoff_orchestration_item(id, assignee: nil, queue: nil, channel: nil, note: nil, audit: nil)
-        orchestration_inbox.handoff(
+        applied_audit = canonical_orchestration_audit(
+          audit,
+          requested_operation: :handoff,
+          lifecycle_operation: :acknowledge,
+          execution_operation: :handoff
+        )
+        item = orchestration_inbox.handoff(
           id,
           assignee: assignee,
           queue: queue,
           channel: channel,
           note: note,
-          audit: canonical_orchestration_audit(
-            audit,
-            requested_operation: :handoff,
-            lifecycle_operation: :acknowledge,
-            execution_operation: :handoff
-          )
+          audit: applied_audit
+        )
+        augment_orchestration_action_result(
+          item,
+          requested_operation: :handoff,
+          handled_operation: :handoff,
+          handled_lifecycle_operation: :acknowledge,
+          handled_execution_operation: :handoff,
+          handled_policy: nil,
+          note: note,
+          audit: applied_audit,
+          handled_queue: item[:queue],
+          handled_channel: item[:channel],
+          handled_assignee: item[:assignee]
         )
       end
 
@@ -1525,6 +1572,7 @@ module Igniter
           session_policy: session&.session_policy || item&.dig(:session_policy),
           tool_loop_policy: session&.tool_loop_policy || item&.dig(:tool_loop_policy),
           routing_mode: session&.routing_mode || item&.dig(:routing_mode),
+          agent_result_contract: session&.agent_result_contract&.to_h,
           interaction_contract: session&.interaction_contract&.to_h || item&.dig(:interaction_contract),
           tool_runtime: session&.tool_runtime,
           ownership: session&.ownership,
@@ -1666,6 +1714,7 @@ module Igniter
             session_policy: record[:session_policy],
             tool_loop_policy: record[:tool_loop_policy],
             finalizer: record[:finalizer],
+            agent_result_contract: record[:agent_result_contract],
             interaction_contract: record[:interaction_contract],
             tool_loop_status: record[:tool_loop_status],
             tool_runtime: record[:tool_runtime],
@@ -1959,6 +2008,32 @@ module Igniter
 
         runtime_result = orchestration_runtime_result_for(item, execution)
         item.merge(runtime_result).freeze
+      end
+
+      def augment_orchestration_action_result(item, requested_operation:, handled_operation:,
+                                             handled_lifecycle_operation:, handled_execution_operation:,
+                                             handled_policy:, note:, audit:, handled_lane: nil,
+                                             handled_queue: nil, handled_channel: nil,
+                                             handled_handler_queue: nil, handled_assignee: nil)
+        return item unless item
+
+        action_result = Orchestration::ActionResultBuilder.build(
+          item: item,
+          requested_operation: requested_operation,
+          handled_operation: handled_operation,
+          handled_lifecycle_operation: handled_lifecycle_operation,
+          handled_execution_operation: handled_execution_operation,
+          handled_policy: handled_policy,
+          handled_lane: handled_lane,
+          handled_queue: handled_queue,
+          handled_channel: handled_channel,
+          handled_handler_queue: handled_handler_queue,
+          handled_assignee: handled_assignee,
+          note: note,
+          audit: audit
+        )
+
+        item.merge(orchestration_action_result: action_result).freeze
       end
 
       def orchestration_runtime_result_for(item, execution)

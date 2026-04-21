@@ -99,6 +99,7 @@ RSpec.describe "Igniter module layout" do
 
   it "keeps orchestration runtime builders and queries under the canonical app orchestration namespace" do
     expect(children_for(File.join(APP_LIB, "app", "orchestration"))).to include(
+      "action_result_builder.rb",
       "runtime_event_query.rb",
       "runtime_query_overview_builder.rb",
       "runtime_overview_builder.rb",

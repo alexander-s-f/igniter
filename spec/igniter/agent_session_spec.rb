@@ -101,6 +101,22 @@ RSpec.describe "agent sessions" do
     expect(session.trace).to eq(trace)
     expect(session.execution_id).to eq(contract.execution.events.execution_id)
     expect(session.graph).to eq(contract.execution.compiled_graph.name)
+    expect(contract.result.approval.agent_result_contract.to_h).to include(
+      kind: :deferred,
+      waiting_on: :approval,
+      source_node: :approval,
+      session_lifecycle_state: :waiting,
+      phase: :waiting,
+      interaction_contract: include(
+        mode: :call,
+        routing_mode: :local,
+        reply: :deferred
+      ),
+      ownership: :local,
+      interactive: false,
+      continuable: true,
+      routed: false
+    )
   end
 
   it "continues agent work across multiple turns before final resume" do

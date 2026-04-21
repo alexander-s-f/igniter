@@ -158,6 +158,12 @@ The current session model is intentionally simple but now explicit:
   - `orphaned_count`
   - `open_tools`
   - `orphan_tools`
+- deferred and stream agent results now also expose one canonical runtime-facing result contract instead of making higher layers reconstruct it from session fragments:
+  - `agent_result_contract`
+  - `kind`
+  - `session_lifecycle_state`
+  - `interaction_contract`
+  - `tool_runtime`
 - `reply: :single` forbids pending delivery
 - `reply: :deferred` preserves the current resumable single-reply lifecycle
 - `reply: :stream` requires session-based delivery and opens a path toward partial replies
