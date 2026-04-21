@@ -88,18 +88,18 @@ RSpec.describe Igniter::Frontend do
 end
 
 RSpec.describe Igniter::Frontend::Arbre do
-  it "keeps the Arbre adapter optional" do
+  it "treats Arbre as the standard frontend authoring dependency" do
     expect([true, false]).to include(described_class.available?)
   end
 
-  it "either exposes Arbre classes or raises a friendly missing dependency error" do
+  it "either exposes Arbre classes or raises a bundled-dependency installation error" do
     if described_class.available?
       expect(described_class.component_class.name).to eq("Arbre::Component")
       expect(described_class.context_class.name).to eq("Arbre::Context")
     else
       expect do
         described_class.component_class
-      end.to raise_error(described_class::MissingDependencyError, /arbre/)
+      end.to raise_error(described_class::MissingDependencyError, /ships with a required `arbre` dependency/)
     end
   end
 end

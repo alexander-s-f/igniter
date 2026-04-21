@@ -2,6 +2,13 @@
 
 `igniter-frontend` is a local monorepo gem for developer-facing app web surfaces on top of Igniter.
 
+It now ships with `arbre` as a standard dependency. The intent is simple:
+
+- `Igniter Frontend` should feel as simple and powerful for Ruby-authored app UI
+  as `ActiveAdmin` feels for admin UI
+- Arbre is no longer a side adapter you add by hand later
+- Arbre is part of the default developer-authoring lane for `igniter-frontend`
+
 It groups high-level concerns that belong together in app development:
 
 - route authoring
@@ -19,6 +26,12 @@ The goal is not to re-create Rails.
 The goal is to give Igniter apps a small, coherent, HTML-first framework for
 building dashboards, chats, operator tools, decentralized personal apps, and
 other rich mounted web surfaces.
+
+The frontend direction is now explicitly:
+
+- Arbre for developer-authored page composition
+- Tailwind surfaces for shared UI language
+- stronger UX/UI semantics on top of that Arbre lane over time
 
 Authoring guide:
 

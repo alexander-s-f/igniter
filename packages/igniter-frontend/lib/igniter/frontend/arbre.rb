@@ -35,8 +35,8 @@ module Igniter
         ::Arbre
       rescue LoadError
         raise MissingDependencyError,
-              "Arbre integration requires the `arbre` gem. Add it to your app and load " \
-              "`igniter-frontend` only where you need that adapter."
+              "`igniter-frontend` now ships with a required `arbre` dependency. " \
+              "If it is missing in this environment, run bundle install or reinstall the gem."
       end
     end
   end

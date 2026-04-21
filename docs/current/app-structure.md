@@ -81,6 +81,9 @@ For frontend authoring, the default recommended path is:
 - Arbre pages/templates/components
 - Tailwind surfaces
 
+`igniter-frontend` should now be treated as shipping with Arbre, not as an
+optional Arbre adapter you wire in later.
+
 We should not treat raw HTML string assembly in Ruby as the preferred style.
 It is an anti-pattern and should be migrated away from over time.
 

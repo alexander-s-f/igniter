@@ -7,6 +7,11 @@ It is based on the active `playgrounds/home-lab` implementation, not on an old
 prototype. If you want the shortest path to "how do I build a page today?",
 start here.
 
+`igniter-frontend` now ships with `arbre` as part of the standard authoring
+lane. The intended experience is: Ruby-authored app UI should feel as simple
+and powerful as working with `ActiveAdmin`, but for Igniter apps and operator
+surfaces.
+
 ## Mental Model
 
 The current frontend lane is intentionally split into four small roles:

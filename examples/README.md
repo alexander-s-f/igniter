@@ -3,6 +3,13 @@
 These scripts are the runnable showcase for Igniter's core APIs, runtime flows,
 and package boundaries.
 
+For a higher-level public stack consumer, see
+[examples/companion](/Users/alex/dev/projects/igniter/examples/companion/README.md).
+`examples/` keeps both:
+
+- small runnable scripts for focused API/runtime slices
+- larger public proving grounds like `companion`
+
 ## Runner
 
 From the project root:

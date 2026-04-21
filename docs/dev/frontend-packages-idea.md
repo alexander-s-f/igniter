@@ -47,6 +47,12 @@ The developer-facing package exposes:
 - Arbre bridge: `igniter-frontend`
 - Tailwind helpers: `igniter-frontend`
 
+Current decision:
+
+- `igniter-frontend` should ship with Arbre as a standard dependency
+- the default authoring promise is: `Igniter Frontend` should feel as simple
+  and powerful as `ActiveAdmin`, but for assistant, operator, and app surfaces
+
 The schema lane now lives separately in `igniter-schema-rendering`.
 
 These packages sit above `Igniter::App`, `Igniter::Stack`, and `Igniter::Server`:
@@ -165,6 +171,18 @@ Arbre is attractive here because it keeps the whole stack inside Ruby:
 - easy to keep close to app logic and persistence
 
 That matches the “lego-style” philosophy well.
+
+## Next Frontend Track
+
+The next explicit frontend track should not be “replace Arbre”.
+It should be:
+
+- strengthen UX/UI on top of the Arbre lane
+- make Arbre-authored pages feel richer, more semantic, and more intentional
+- keep improving reusable page, panel, list, timeline, operator, and assistant
+  components
+- make the default Igniter frontend experience feel product-grade, not only
+  technically convenient
 
 ## Two Authoring Lanes
 
