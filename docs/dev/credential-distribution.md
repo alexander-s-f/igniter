@@ -39,6 +39,7 @@ only inside `companion`:
 - `Igniter::App::Credentials::CredentialPolicy`
 - `Igniter::App::Credentials::Policies::LocalOnlyPolicy`
 - `Igniter::App::Credentials::Policies::EphemeralLeasePolicy`
+- `Igniter::App::Credentials::Events::CredentialEvent`
 
 That is intentionally still conservative.
 
@@ -46,6 +47,8 @@ That is intentionally still conservative.
   propagation policy
 - it now also gives apps the first shared policy family, instead of forcing
   every product to reinvent `local_only`
+- it now also gives apps one canonical audit/event envelope for future
+  credential lease and replication flows
 - it does not yet pretend cluster-wide secret transport is solved
 - app-specific products may adapt and subclass these objects, but should not
   invent unrelated credential/policy vocabularies when the shared layer fits
@@ -249,6 +252,20 @@ These are still unresolved and should stay explicit:
 - `credential_lease_used`
 - `credential_replication_denied`
 - `credential_revoked`
+
+The shared app-level foundation now explicitly recognizes one canonical event
+shape through `Igniter::App::Credentials::Events::CredentialEvent`, with the
+current vocabulary:
+
+- `lease_requested`
+- `lease_issued`
+- `lease_denied`
+- `lease_used`
+- `lease_revoked`
+- `replication_requested`
+- `replication_denied`
+- `replication_revoked`
+- `access_denied`
 
 4. How should rotation and revocation work across already-running nodes?
 

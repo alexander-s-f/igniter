@@ -125,4 +125,48 @@ RSpec.describe Igniter::App::Credentials do
       expect(policy.metadata[:declared_only]).to be(true)
     end
   end
+
+  describe Igniter::App::Credentials::Events::CredentialEvent do
+    it "serializes and restores canonical lease events" do
+      event = described_class.new(
+        event: :lease_issued,
+        credential_key: :openai_api,
+        policy_name: :ephemeral_lease,
+        node: "main",
+        target_node: "replica-1",
+        lease_id: "lease-123",
+        actor: "operator",
+        origin: "dashboard",
+        source: :credential_runtime,
+        metadata: { ttl_seconds: 300 }
+      )
+
+      restored = described_class.from_h(event.to_h)
+
+      expect(restored.to_h).to eq(event.to_h)
+      expect(restored.lease_event?).to be(true)
+      expect(restored.replication_event?).to be(false)
+      expect(restored.granted?).to be(true)
+    end
+
+    it "derives denied status for denial events and preserves event subclasses through overrides" do
+      subclass = Class.new(described_class)
+      event = subclass.new(
+        event: :replication_denied,
+        credential_key: :openai_api,
+        policy_name: :local_only,
+        node: "main",
+        target_node: "office-edge",
+        source: :credential_policy,
+        reason: :weak_trust_denied
+      )
+
+      derived = event.with(metadata: { trust_class: :weak })
+
+      expect(derived).to be_a(subclass)
+      expect(derived.denied?).to be(true)
+      expect(derived.replication_event?).to be(true)
+      expect(derived.metadata[:trust_class]).to eq(:weak)
+    end
+  end
 end

@@ -90,6 +90,7 @@ Another active cross-cutting design line now needs to stay explicit:
   - `Igniter::App::Credentials::CredentialPolicy`
   - `Igniter::App::Credentials::Policies::LocalOnlyPolicy`
   - `Igniter::App::Credentials::Policies::EphemeralLeasePolicy`
+  - `Igniter::App::Credentials::Events::CredentialEvent`
 - do not let `ignite` or cluster convenience silently normalize “copy secrets to every node”
 
 See [Current: Ignite](../current/ignite.md) for the current specification draft.
