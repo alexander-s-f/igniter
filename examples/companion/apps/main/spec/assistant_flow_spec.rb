@@ -454,4 +454,71 @@ RSpec.describe "Companion assistant flow" do
     expect(overview.dig(:evaluation, :summary, :by_action, :reopened_manual_action)).to eq(1)
     expect(overview.dig(:evaluation, :recent)).not_to be_empty
   end
+
+  it "derives lightweight learning insights from evaluation memory" do
+    result = Companion::Main::Support::AssistantAPI.submit_request(
+      requester: "Alex",
+      scenario: "research_synthesis",
+      request: "Prepare a research synthesis brief"
+    )
+
+    record = result.fetch(:request)
+    Companion::Main::Support::AssistantAPI.approve_request(
+      request_id: record.fetch(:id),
+      briefing: "Operator-approved research synthesis."
+    )
+    Companion::Main::Support::AssistantAPI.observe_request(
+      request_id: record.fetch(:id),
+      action: :feedback_useful,
+      source: :spec,
+      metadata: { feedback: "useful" }
+    )
+    Companion::Main::Support::AssistantAPI.observe_request(
+      request_id: record.fetch(:id),
+      action: :feedback_too_verbose,
+      source: :spec,
+      metadata: { feedback: "too_verbose" }
+    )
+
+    overview = Companion::Main::Support::AssistantAPI.overview
+    insights = overview.dig(:evaluation, :insights)
+
+    expect(insights).not_to be_empty
+    expect(insights.join(" ")).to include("Research Synthesis")
+    expect(insights.join(" ")).to include("too verbose")
+  end
+
+  it "derives learned defaults for scenario and model from evaluation memory" do
+    result = Companion::Main::Support::AssistantAPI.submit_request(
+      requester: "Alex",
+      scenario: "research_synthesis",
+      request: "Prepare a research synthesis brief"
+    )
+
+    record = result.fetch(:request)
+    Companion::Main::Support::AssistantAPI.approve_request(
+      request_id: record.fetch(:id),
+      briefing: "Operator-approved research synthesis."
+    )
+    Companion::Main::Support::AssistantAPI.observe_request(
+      request_id: record.fetch(:id),
+      action: :feedback_useful,
+      source: :spec,
+      metadata: { feedback: "useful" }
+    )
+    Companion::Main::Support::AssistantAPI.observe_request(
+      request_id: record.fetch(:id),
+      action: :saved_as_note,
+      source: :spec,
+      metadata: {}
+    )
+
+    overview = Companion::Main::Support::AssistantAPI.overview
+    recommendation = overview.dig(:evaluation, :recommendations)
+
+    expect(recommendation[:scenario_key]).to eq(:research_synthesis)
+    expect(recommendation[:scenario_label]).to eq("Research Synthesis")
+    expect(recommendation[:model]).to eq(record.fetch(:runtime_model))
+    expect(recommendation[:summary]).to include("Research Synthesis")
+  end
 end

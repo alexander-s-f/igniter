@@ -68,7 +68,7 @@ module Companion
         def assistant_form_defaults
           {
             "requester" => assistant_form_values.fetch("requester", ""),
-            "scenario" => assistant_form_values.fetch("scenario", "general_brief"),
+            "scenario" => assistant_form_values.fetch("scenario", learned_default_scenario_key),
             "target_environment" => assistant_form_values.fetch("target_environment", ""),
             "change_scope" => assistant_form_values.fetch("change_scope", ""),
             "verification_plan" => assistant_form_values.fetch("verification_plan", ""),
@@ -287,6 +287,28 @@ module Companion
           assistant_evaluation.fetch(:insights, [])
         end
 
+        def assistant_evaluation_recommendation
+          assistant_evaluation.fetch(:recommendations, {})
+        end
+
+        def assistant_evaluation_recommendation_rows
+          recommendation = assistant_evaluation_recommendation
+          return [] if recommendation.empty?
+
+          [
+            { label: :scenario, value: recommendation.fetch(:scenario_label, "--"), as: :badge },
+            { label: :model, value: recommendation.fetch(:model, "--"), as: :code }
+          ]
+        end
+
+        def assistant_evaluation_recommendation_summary
+          assistant_evaluation_recommendation.fetch(:summary, "--")
+        end
+
+        def assistant_evaluation_recommendation_notes
+          assistant_evaluation_recommendation.fetch(:notes, [])
+        end
+
         def assistant_recommendation_rows
           recommendation = assistant_recommendation
           return [] if recommendation.empty?
@@ -472,7 +494,7 @@ module Companion
         def compare_form_defaults
           {
             "requester" => compare_form_values.fetch("requester", assistant_form_defaults.fetch("requester", "")),
-            "scenario" => compare_form_values.fetch("scenario", assistant_form_defaults.fetch("scenario", "general_brief")),
+            "scenario" => compare_form_values.fetch("scenario", assistant_form_defaults.fetch("scenario", learned_default_scenario_key)),
             "target_environment" => compare_form_values.fetch("target_environment", assistant_form_defaults.fetch("target_environment", "")),
             "change_scope" => compare_form_values.fetch("change_scope", assistant_form_defaults.fetch("change_scope", "")),
             "verification_plan" => compare_form_values.fetch("verification_plan", assistant_form_defaults.fetch("verification_plan", "")),
@@ -546,11 +568,17 @@ module Companion
 
         def default_compare_models
           models = available_model_badges.first(3)
-          models = [assistant_runtime_config.fetch(:model, "qwen3:latest")] if models.empty?
-          models
+          learned = assistant_evaluation_recommendation.fetch(:model, nil)
+          models.unshift(learned) if learned
+          models = [assistant_runtime_config.fetch(:model, "qwen3:latest")] if models.compact.empty?
+          models.compact.map(&:to_s).reject(&:empty?).uniq.first(3)
         end
 
         private
+
+        def learned_default_scenario_key
+          assistant_evaluation_recommendation.fetch(:scenario_key, "general_brief").to_s
+        end
 
         def completed_briefing_rollout_artifacts(record)
           lines = [

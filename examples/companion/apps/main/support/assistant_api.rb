@@ -636,6 +636,7 @@ module Companion
               by_scenario: count_many(all_entries) { |entry| entry["scenario_key"] },
               by_model: count_many(all_entries) { |entry| entry["runtime_model"] }
             },
+            recommendations: evaluation_recommendations(all_entries),
             insights: evaluation_insights(all_entries),
             recent: recent_entries.map { |entry| normalize_prompt_package(entry) }
           }
@@ -685,6 +686,77 @@ module Companion
           end
 
           insights.first(4)
+        end
+
+        def evaluation_recommendations(entries)
+          scenario_key = recommended_scenario_key(entries)
+          model = recommended_model(entries)
+          scenario = scenario_key ? Companion::Main::Support::AssistantScenarios.resolve(key: scenario_key) : nil
+
+          {
+            scenario_key: scenario&.fetch(:key),
+            scenario_label: scenario&.fetch(:label),
+            model: model,
+            summary: recommendation_summary_for(scenario, model),
+            notes: recommendation_notes_for(scenario, model, entries)
+          }.compact
+        end
+
+        def recommended_scenario_key(entries)
+          score_map = Hash.new(0)
+
+          entries.each do |entry|
+            scenario_key = entry["scenario_key"]
+            next if scenario_key.to_s.empty?
+
+            case entry.fetch("action", nil).to_s
+            when "feedback_useful", "saved_as_note"
+              score_map[scenario_key] += 2
+            when "reopened_manual_action"
+              score_map[scenario_key] += 1
+            when "feedback_wrong_lane"
+              score_map[scenario_key] -= 2
+            end
+          end
+
+          score_map.max_by { |_key, score| score }&.first
+        end
+
+        def recommended_model(entries)
+          score_map = Hash.new(0)
+
+          entries.each do |entry|
+            model = entry["runtime_model"]
+            next if model.to_s.empty?
+
+            case entry.fetch("action", nil).to_s
+            when "feedback_useful", "saved_as_note", "completed_local_draft", "completed_external_delivery"
+              score_map[model] += 2
+            when "feedback_too_verbose", "feedback_too_slow"
+              score_map[model] -= 2
+            when "reopened_manual_action"
+              score_map[model] -= 1
+            end
+          end
+
+          score_map.max_by { |_key, score| score }&.first
+        end
+
+        def recommendation_summary_for(scenario, model)
+          parts = []
+          parts << "Prefer #{scenario.fetch(:label)} as the next default lane." if scenario
+          parts << "Prefer #{model} for local prep." if model
+          return "No learned defaults yet." if parts.empty?
+
+          parts.join(" ")
+        end
+
+        def recommendation_notes_for(scenario, model, entries)
+          notes = []
+          notes << "#{scenario.fetch(:label)} has the strongest positive recent signal." if scenario
+          notes << "#{model} currently has the best net evaluation score." if model
+          notes << "Signals are derived from operator actions and explicit feedback." unless entries.empty?
+          notes
         end
 
         def top_entry(entries, action:, field:)

@@ -869,6 +869,48 @@ RSpec.describe Igniter::App do
       end
     end
 
+    it "exposes non-secret credentials status after build" do
+      Dir.mktmpdir do |tmp|
+        original_openai = ENV["OPENAI_API_KEY"]
+        original_anthropic = ENV["ANTHROPIC_API_KEY"]
+        ENV.delete("OPENAI_API_KEY")
+        ENV["ANTHROPIC_API_KEY"] = "already-set"
+
+        FileUtils.mkdir_p(File.join(tmp, "config"))
+        File.write(
+          File.join(tmp, "config", "credentials.local.yml"),
+          <<~YAML
+            openai:
+              api_key: sk-openai-local
+          YAML
+        )
+
+        app = fresh_app do
+          root_dir tmp
+        end
+
+        app.send(:build!)
+        status = app.credentials_status
+
+        expect(status).to include(
+          loaded: true,
+          override: false
+        )
+        expect(status.dig(:providers, :openai)).to include(
+          source: :local_file,
+          configured_in_file: true,
+          env_present: true
+        )
+        expect(status.dig(:providers, :anthropic)).to include(
+          source: :environment,
+          env_present: true
+        )
+      ensure
+        ENV["OPENAI_API_KEY"] = original_openai
+        ENV["ANTHROPIC_API_KEY"] = original_anthropic
+      end
+    end
+
     it "registers contracts on the built host config" do
       klass = sample_contract_class
       app   = fresh_app { register "SampleContract", klass }

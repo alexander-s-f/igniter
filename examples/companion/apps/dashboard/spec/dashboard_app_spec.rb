@@ -607,6 +607,80 @@ RSpec.describe Companion::DashboardApp do
     expect(html).to include("Feedback Useful")
   end
 
+  it "shows learning insights derived from evaluation memory" do
+    result = Companion::Main::Support::AssistantAPI.submit_request(
+      requester: "Alex",
+      scenario: "research_synthesis",
+      request: "Prepare a research synthesis brief"
+    )
+    request_record = result.fetch(:request)
+    Companion::Main::Support::AssistantAPI.approve_request(
+      request_id: request_record.fetch(:id),
+      briefing: "Operator-approved research synthesis."
+    )
+    Companion::Main::Support::AssistantAPI.observe_request(
+      request_id: request_record.fetch(:id),
+      action: :feedback_useful,
+      source: :spec,
+      metadata: { feedback: "useful" }
+    )
+
+    app = described_class.rack_app
+
+    status, _headers, body = app.call(
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/assistant",
+      "rack.input" => StringIO.new
+    )
+
+    html = body.each.to_a.join
+
+    expect(status).to eq(200)
+    expect(html).to include("Evaluation Memory")
+    expect(html).to include("Research Synthesis is getting useful operator feedback.")
+  end
+
+  it "uses learned defaults on the assistant page when evaluation memory has a clear winner" do
+    result = Companion::Main::Support::AssistantAPI.submit_request(
+      requester: "Alex",
+      scenario: "research_synthesis",
+      request: "Prepare a research synthesis brief"
+    )
+    request_record = result.fetch(:request)
+    Companion::Main::Support::AssistantAPI.approve_request(
+      request_id: request_record.fetch(:id),
+      briefing: "Operator-approved research synthesis."
+    )
+    Companion::Main::Support::AssistantAPI.observe_request(
+      request_id: request_record.fetch(:id),
+      action: :feedback_useful,
+      source: :spec,
+      metadata: { feedback: "useful" }
+    )
+    Companion::Main::Support::AssistantAPI.observe_request(
+      request_id: request_record.fetch(:id),
+      action: :saved_as_note,
+      source: :spec,
+      metadata: {}
+    )
+
+    app = described_class.rack_app
+
+    status, _headers, body = app.call(
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/assistant",
+      "rack.input" => StringIO.new
+    )
+
+    html = body.each.to_a.join
+
+    expect(status).to eq(200)
+    expect(html).to include("Learned Defaults")
+    expect(html).to include("Research Synthesis")
+    expect(html).to include('value="research_synthesis" selected')
+    expect(html).to include(request_record.fetch(:runtime_model))
+  end
+
   it "updates the assistant runtime configuration from the dashboard" do
     app = described_class.rack_app
 

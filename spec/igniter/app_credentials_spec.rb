@@ -69,6 +69,38 @@ RSpec.describe Igniter::App::Credentials do
         expect(ENV["OPENAI_API_KEY"]).to eq("already-set")
       end
     end
+
+    it "reports non-secret credential source status" do
+      Dir.mktmpdir do |tmp|
+        path = File.join(tmp, "credentials.local.yml")
+        File.write(path, <<~YAML)
+          openai:
+            api_key: sk-openai-local
+        YAML
+        ENV["ANTHROPIC_API_KEY"] = "already-set"
+
+        described_class.apply(path)
+        status = described_class.status(path, applied_keys: ["OPENAI_API_KEY"])
+
+        expect(status).to include(
+          path: path,
+          loaded: true,
+          override: false,
+          applied_keys: ["OPENAI_API_KEY"]
+        )
+        expect(status.dig(:providers, :openai)).to include(
+          env_key: "OPENAI_API_KEY",
+          configured_in_file: true,
+          env_present: true,
+          source: :local_file
+        )
+        expect(status.dig(:providers, :anthropic)).to include(
+          env_key: "ANTHROPIC_API_KEY",
+          env_present: true,
+          source: :environment
+        )
+      end
+    end
   end
 
   describe Igniter::App::Credentials::CredentialPolicy do

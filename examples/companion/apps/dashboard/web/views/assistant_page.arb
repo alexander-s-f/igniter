@@ -703,6 +703,18 @@ shell_columns do |columns|
           line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
         end
 
+        unless page_context.assistant_evaluation_recommendation_rows.empty?
+          card title: "Learned Defaults", subtitle: "Safe defaults inferred from recent operator behavior" do
+            page_context.assistant_evaluation_recommendation_rows.each do |row|
+              line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
+            end
+            line :summary, page_context.assistant_evaluation_recommendation_summary, as: :code
+            unless page_context.assistant_evaluation_recommendation_notes.empty?
+              line :notes, page_context.assistant_evaluation_recommendation_notes, as: :badge
+            end
+          end
+        end
+
         unless page_context.assistant_evaluation_insights.empty?
           resource_list class_name: "mt-4 space-y-3" do
             page_context.assistant_evaluation_insights.each do |insight|
