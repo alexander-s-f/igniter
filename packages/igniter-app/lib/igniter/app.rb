@@ -333,6 +333,14 @@ module Igniter
         @credentials_override = override
       end
 
+      def credentials_status
+        Credentials::ConfigLoader.status(
+          resolved_credentials_path,
+          applied_keys: @last_credentials_apply_result&.fetch(:applied, {})&.keys || [],
+          override: !!@credentials_override
+        )
+      end
+
       # Configure the application. Block receives an AppConfig instance.
       # May be called multiple times; blocks are applied in order.
       def configure(&block)
@@ -1410,9 +1418,12 @@ module Igniter
 
       def apply_credentials!
         path = resolved_credentials_path
-        return unless path && File.exist?(path)
-
-        Credentials::ConfigLoader.apply(path, override: !!@credentials_override)
+        @last_credentials_apply_result =
+          if path && File.exist?(path)
+            Credentials::ConfigLoader.apply(path, override: !!@credentials_override)
+          else
+            { path: path, applied: {}, loaded: false }.freeze
+          end
       end
 
       def load_application_code!
