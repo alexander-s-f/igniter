@@ -1,0 +1,17 @@
+html lang: "en" do
+  head do
+    meta charset: "utf-8"
+    meta name: "viewport", content: "width=device-width, initial-scale=1"
+    title page_title
+    script src: tailwind_cdn_url
+    script(type: "text/javascript") { raw_text tailwind_config_script }
+  end
+
+  body class: body_class do
+    main class: main_class do
+      render_template_content
+    end
+
+    render_frontend_javascript "application"
+  end
+end

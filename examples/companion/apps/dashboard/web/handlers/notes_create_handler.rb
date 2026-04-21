@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "igniter-frontend"
+require_relative "../../contexts/home_context"
 require_relative "../views/home_page"
 
 module Companion
@@ -16,10 +17,12 @@ module Companion
         if text.empty?
           snapshot = Companion::DashboardApp.interface(:playground_ops_api).overview
           html = Views::HomePage.render(
-            snapshot: snapshot,
-            error_message: "Note text cannot be blank.",
-            form_values: body,
-            base_path: base_path
+            context: Contexts::HomeContext.build(
+              snapshot: snapshot,
+              base_path: base_path,
+              error_message: "Note text cannot be blank.",
+              form_values: body
+            )
           )
           return Igniter::Frontend::Response.html(html, status: 422)
         end
@@ -35,7 +38,7 @@ module Companion
       end
 
       def base_path_for(env)
-        env["SCRIPT_NAME"].to_s.sub(%r{/+z}, "")
+        env["SCRIPT_NAME"].to_s.sub(%r{/+\z}, "")
       end
     end
   end

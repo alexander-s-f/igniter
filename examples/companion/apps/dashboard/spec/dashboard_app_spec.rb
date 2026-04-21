@@ -77,11 +77,11 @@ RSpec.describe Companion::DashboardApp do
 
     expect(status).to eq(200)
     expect(headers["Content-Type"]).to include("text/html")
-    expect(html).to include("Companion Dashboard")
+    expect(html).to include("Companion Operator Desk")
     expect(html).to include("Overview API")
     expect(html).to include("Operator API")
     expect(html).to include('action="/notes"')
-    expect(html).to include("Shared Notes")
+    expect(html).to include("Operator Notes")
   end
 
   it "creates a note from the dashboard form and exposes it in the overview" do

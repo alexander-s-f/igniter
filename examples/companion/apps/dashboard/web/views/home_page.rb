@@ -1,313 +1,49 @@
 # frozen_string_literal: true
 
+require "json"
 require "igniter-frontend"
+require_relative "../../contexts/home_context"
 
 module Companion
   module Dashboard
     module Views
-      class HomePage < Igniter::Frontend::Page
-        def self.render(snapshot:, error_message: nil, form_values: {}, base_path: "")
-          new(
-            snapshot: snapshot,
-            error_message: error_message,
-            form_values: form_values,
-            base_path: base_path
-          ).render
+      class HomePage < Igniter::Frontend::ArbrePage
+        template_root __dir__
+        template "home_page"
+        layout "layout"
+
+        def initialize(context:)
+          @context = context
         end
 
-        def initialize(snapshot:, error_message:, form_values:, base_path:)
-          @snapshot = snapshot
-          @error_message = error_message
-          @form_values = form_values
-          @base_path = base_path
+        def template_locals
+          { page_context: @context }
         end
 
-        def call(view)
-          render_document(view, title: "Companion Operator Desk") do |body|
-            body.tag(:main, class: "shell") do |main|
-              render_hero(main)
-              render_metrics(main)
-              render_notes(main)
-              render_apps(main)
-            end
-          end
+        def page_title
+          @context.title
+        end
+
+        def body_class
+          companion_theme.fetch(:body_class)
+        end
+
+        def main_class
+          companion_theme.fetch(:main_class)
+        end
+
+        def tailwind_cdn_url
+          Igniter::Frontend::Tailwind::PLAY_CDN_URL
+        end
+
+        def tailwind_config_script
+          "tailwind.config = #{JSON.generate(companion_theme.fetch(:tailwind_config))};"
         end
 
         private
 
-        attr_reader :snapshot
-        attr_reader :error_message
-        attr_reader :form_values
-        attr_reader :base_path
-
-        def yield_head(head)
-          head.tag(:style) { |style| style.raw(stylesheet) }
-        end
-
-        def render_hero(view)
-          view.tag(:section, class: "hero") do |hero|
-            hero.tag(:h1, "Companion Operator Desk")
-            hero.tag(:p, "Public proving ground for the Igniter assistant and operator workflow.")
-            hero.tag(:div, class: "meta") do |meta|
-              meta.text("generated=#{snapshot.fetch(:generated_at)} · ")
-              meta.text("root=#{snapshot.dig(:stack, :root_app)} · ")
-              meta.text("node=#{snapshot.dig(:stack, :default_node)}")
-            end
-            hero.tag(:p, class: "links") do |links|
-              links.tag(:a, "Overview API", href: route("/api/overview"))
-              links.text(" · ")
-              links.tag(:a, "Operator Console", href: route("/operator"))
-              links.text(" · ")
-              links.tag(:a, "Operator API", href: route("/api/operator"))
-              links.text(" · ")
-              links.tag(:a, "Main status", href: "/v1/home/status")
-            end
-          end
-        end
-
-        def render_metrics(view)
-          counts = snapshot.fetch(:counts)
-
-          view.tag(:section, class: "metrics") do |section|
-            section.tag(:article, class: "metric-card") do |card|
-              card.tag(:span, "Apps", class: "metric-label")
-              card.tag(:strong, snapshot.dig(:stack, :apps).size.to_s, class: "metric-value")
-            end
-
-            section.tag(:article, class: "metric-card") do |card|
-              card.tag(:span, "Nodes", class: "metric-label")
-              card.tag(:strong, counts.fetch(:nodes).to_s, class: "metric-value")
-            end
-
-            section.tag(:article, class: "metric-card") do |card|
-              card.tag(:span, "Notes", class: "metric-label")
-              card.tag(:strong, counts.fetch(:notes).to_s, class: "metric-value")
-            end
-          end
-        end
-
-        def render_notes(view)
-          notes = snapshot.fetch(:notes)
-
-          view.tag(:section, class: "notes-panel") do |section|
-            section.tag(:div, class: "panel-head") do |head|
-              head.tag(:h2, "Operator Notes")
-              head.tag(:p, "First thin slice of cross-app assistant and operator coordination.")
-            end
-
-            if error_message
-              section.tag(:p, error_message, class: "error-banner")
-            end
-
-            section.form(action: route("/notes"), method: "post", class: "stacked-form") do |form|
-              form.label("note-text", "Add note")
-              form.textarea("text",
-                            id: "note-text",
-                            rows: 3,
-                            placeholder: "Capture a follow-up, operator observation, or assistant todo",
-                            value: form_values.fetch("text", ""))
-              form.submit("Save Note")
-            end
-
-            if notes.empty?
-              section.tag(:p, "No notes saved yet.", class: "empty-state")
-            else
-              section.tag(:ul, class: "notes-list") do |list|
-                notes.each do |note|
-                  list.tag(:li) do |item|
-                    item.tag(:strong, note.fetch("text"))
-                    item.tag(:div, class: "note-meta") do |meta|
-                      meta.text("source=#{note.fetch("source")} · created=#{note.fetch("created_at")}")
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
-
-        def render_apps(view)
-          view.tag(:section, class: "grid") do |grid|
-            snapshot.fetch(:nodes).each do |name, service|
-              grid.tag(:article, class: "card") do |card|
-                card.tag(:h2, name.to_s)
-                card.tag(:p, "role=#{service.fetch(:role)}")
-                card.tag(:p, "host=#{service.fetch(:host)} port=#{service.fetch(:port)} public=#{service.fetch(:public)}")
-                mounts = service.fetch(:mounts)
-                unless mounts.empty?
-                  card.tag(:p, "mounts=#{mounts.map { |app, mount| "#{app}: #{mount}" }.join(", ")}")
-                end
-                card.tag(:code, service.fetch(:command))
-              end
-            end
-          end
-        end
-
-        def route(path)
-          prefix = base_path.to_s
-          return path if prefix.empty?
-
-          [ prefix, path.sub(%r{\A/}, "") ].join("/")
-        end
-
-        def stylesheet
-          <<~CSS
-            :root {
-              color-scheme: light;
-              --bg: #f3efe6;
-              --ink: #1f2520;
-              --muted: #5a665d;
-              --card: #fffaf2;
-              --line: #d4c9b8;
-              --accent: #2f6c5b;
-            }
-
-            * { box-sizing: border-box; }
-            body {
-              margin: 0;
-              font-family: "Iowan Old Style", "Palatino Linotype", serif;
-              background:
-                radial-gradient(circle at top left, rgba(47, 108, 91, 0.12), transparent 28rem),
-                linear-gradient(180deg, #f8f4ec 0%, var(--bg) 100%);
-              color: var(--ink);
-            }
-
-            .shell {
-              width: min(980px, calc(100vw - 32px));
-              margin: 0 auto;
-              padding: 40px 0 64px;
-            }
-
-            .hero, .card, .notes-panel, .metric-card {
-              background: var(--card);
-              border: 1px solid var(--line);
-              border-radius: 20px;
-              box-shadow: 0 18px 40px rgba(31, 37, 32, 0.08);
-            }
-
-            .hero {
-              padding: 28px;
-              margin-bottom: 24px;
-            }
-
-            .hero h1, .card h2 {
-              margin: 0 0 12px;
-            }
-
-            .meta, .links, .card p, .card code, .panel-head p, .note-meta, .metric-label {
-              color: var(--muted);
-            }
-
-            .links a {
-              color: var(--accent);
-              text-decoration: none;
-            }
-
-            .metrics {
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-              gap: 16px;
-              margin-bottom: 24px;
-            }
-
-            .metric-card {
-              padding: 20px;
-            }
-
-            .metric-label, .metric-value {
-              display: block;
-            }
-
-            .metric-value {
-              margin-top: 8px;
-              font-size: 32px;
-            }
-
-            .notes-panel {
-              padding: 24px;
-              margin-bottom: 24px;
-            }
-
-            .panel-head h2, .panel-head p {
-              margin: 0 0 10px;
-            }
-
-            .stacked-form label,
-            .stacked-form textarea,
-            .stacked-form button {
-              display: block;
-              width: 100%;
-            }
-
-            .stacked-form label {
-              margin-bottom: 8px;
-            }
-
-            .stacked-form textarea {
-              min-height: 96px;
-              margin-bottom: 12px;
-              padding: 12px;
-              border-radius: 12px;
-              border: 1px solid var(--line);
-              background: #fffdf8;
-              font: inherit;
-              color: inherit;
-            }
-
-            .stacked-form button {
-              max-width: 220px;
-              padding: 12px 16px;
-              border: 0;
-              border-radius: 999px;
-              background: var(--accent);
-              color: white;
-              cursor: pointer;
-              font: inherit;
-            }
-
-            .error-banner {
-              margin: 0 0 16px;
-              padding: 12px 14px;
-              border-radius: 12px;
-              background: #fff0e8;
-              color: #8a3d1f;
-            }
-
-            .empty-state {
-              margin: 16px 0 0;
-            }
-
-            .notes-list {
-              margin: 18px 0 0;
-              padding-left: 20px;
-            }
-
-            .notes-list li + li {
-              margin-top: 12px;
-            }
-
-            .note-meta {
-              margin-top: 4px;
-              font-size: 14px;
-            }
-
-            .grid {
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-              gap: 16px;
-            }
-
-            .card {
-              padding: 20px;
-            }
-
-            .card code {
-              display: block;
-              white-space: pre-wrap;
-              font-family: "SFMono-Regular", "Menlo", monospace;
-              font-size: 12px;
-            }
-          CSS
+        def companion_theme
+          @companion_theme ||= Igniter::Frontend::Tailwind.theme(:companion)
         end
       end
     end

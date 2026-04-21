@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "igniter-frontend"
+require_relative "../../contexts/home_context"
 require_relative "../views/home_page"
 
 module Companion
@@ -14,14 +15,16 @@ module Companion
 
         Igniter::Frontend::Response.html(
           Views::HomePage.render(
-            snapshot: snapshot,
-            base_path: base_path_for(env)
+            context: Contexts::HomeContext.build(
+              snapshot: snapshot,
+              base_path: base_path_for(env)
+            )
           )
         )
       end
 
       def base_path_for(env)
-        env["SCRIPT_NAME"].to_s.sub(%r{/+z}, "")
+        env["SCRIPT_NAME"].to_s.sub(%r{/+\z}, "")
       end
     end
   end
