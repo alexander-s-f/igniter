@@ -9,6 +9,7 @@ require_relative "web/handlers/overview_handler"
 require_relative "web/handlers/notes_create_handler"
 require_relative "web/handlers/assistant_request_create_handler"
 require_relative "web/handlers/assistant_followup_approve_handler"
+require_relative "web/handlers/assistant_redeliver_handler"
 require_relative "web/handlers/assistant_runtime_update_handler"
 require_relative "web/handlers/assistant_compare_handler"
 
@@ -29,6 +30,7 @@ module Companion
     route "POST", "/assistant/runtime", with: Companion::Dashboard::AssistantRuntimeUpdateHandler
     route "POST", "/assistant/compare", with: Companion::Dashboard::AssistantCompareHandler
     route "POST", "/assistant/requests", with: Companion::Dashboard::AssistantRequestCreateHandler
+    route "POST", "/assistant/requests/redeliver", with: Companion::Dashboard::AssistantRedeliverHandler
     route "POST", "/assistant/followups/approve", with: Companion::Dashboard::AssistantFollowupApproveHandler
   end
 end

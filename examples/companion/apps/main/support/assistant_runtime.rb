@@ -25,6 +25,7 @@ module Companion
               model: raw.fetch("model", "qwen2.5-coder:latest").to_s,
               base_url: raw.fetch("base_url", "http://127.0.0.1:11434").to_s,
               timeout_seconds: raw.fetch("timeout_seconds", 20).to_i,
+              delivery_mode: raw.fetch("delivery_mode", "simulate").to_sym,
               delivery_strategy: raw.fetch("delivery_strategy", "prefer_openai").to_sym,
               openai_model: raw.fetch("openai_model", Igniter::AI::Config.new.openai.default_model).to_s,
               anthropic_model: raw.fetch("anthropic_model", Igniter::AI::Config.new.anthropic.default_model).to_s,
@@ -33,12 +34,14 @@ module Companion
           end
 
           def configure(mode:, model:, base_url:, provider: "ollama", timeout_seconds: 20,
-                        delivery_strategy: "prefer_openai", openai_model: nil, anthropic_model: nil)
+                        delivery_mode: "simulate", delivery_strategy: "prefer_openai",
+                        openai_model: nil, anthropic_model: nil)
             normalized_mode = mode.to_s.strip
             normalized_model = model.to_s.strip
             normalized_base_url = base_url.to_s.strip
             normalized_provider = provider.to_s.strip
             normalized_timeout = timeout_seconds.to_i
+            normalized_delivery_mode = delivery_mode.to_s.strip
             normalized_delivery_strategy = delivery_strategy.to_s.strip
             normalized_openai_model = openai_model.to_s.strip
             normalized_anthropic_model = anthropic_model.to_s.strip
@@ -48,6 +51,7 @@ module Companion
             raise ArgumentError, "model is required" if normalized_model.empty?
             raise ArgumentError, "base_url is required" if normalized_base_url.empty?
             raise ArgumentError, "timeout_seconds must be between 5 and 300" unless normalized_timeout.between?(5, 300)
+            raise ArgumentError, "delivery_mode must be simulate or live" unless %w[simulate live].include?(normalized_delivery_mode)
             unless Companion::Main::Support::AssistantDeliveryChannels::DELIVERY_STRATEGIES
                      .map(&:to_s).include?(normalized_delivery_strategy)
               raise ArgumentError, "delivery_strategy is invalid"
@@ -68,6 +72,7 @@ module Companion
               model: normalized_model,
               base_url: normalized_base_url,
               timeout_seconds: normalized_timeout,
+              delivery_mode: normalized_delivery_mode,
               delivery_strategy: normalized_delivery_strategy,
               openai_model: normalized_openai_model,
               anthropic_model: normalized_anthropic_model
@@ -93,6 +98,7 @@ module Companion
                 model: config.fetch(:model),
                 base_url: config.fetch(:base_url),
                 timeout_seconds: config.fetch(:timeout_seconds),
+                delivery_mode: config.fetch(:delivery_mode),
                 delivery_strategy: config.fetch(:delivery_strategy),
                 openai_model: config.fetch(:openai_model),
                 anthropic_model: config.fetch(:anthropic_model),

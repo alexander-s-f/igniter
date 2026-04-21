@@ -199,6 +199,7 @@ module Companion
         def assistant_notice
           return "Assistant request opened." if @filter_values["assistant_created"] == "1"
           return "Assistant follow-up completed." if @filter_values["assistant_completed"] == "1"
+          return "Assistant request re-delivered." if @filter_values["assistant_redelivered"] == "1"
           return "Assistant runtime updated." if @filter_values["runtime_updated"] == "1"
 
           nil
@@ -211,6 +212,7 @@ module Companion
             "model" => assistant_runtime_config.fetch(:model, "qwen2.5-coder:latest").to_s,
             "base_url" => assistant_runtime_config.fetch(:base_url, "http://127.0.0.1:11434").to_s,
             "timeout_seconds" => assistant_runtime_config.fetch(:timeout_seconds, 20).to_s,
+            "delivery_mode" => assistant_runtime_config.fetch(:delivery_mode, :simulate).to_s,
             "delivery_strategy" => assistant_runtime_config.fetch(:delivery_strategy, :prefer_openai).to_s,
             "openai_model" => assistant_runtime_config.fetch(:openai_model, "gpt-4o").to_s,
             "anthropic_model" => assistant_runtime_config.fetch(:anthropic_model, "claude-sonnet-4-6").to_s

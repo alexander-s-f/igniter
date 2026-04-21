@@ -19,6 +19,7 @@ module Companion
           model: body.fetch("model", ""),
           base_url: body.fetch("base_url", ""),
           timeout_seconds: body.fetch("timeout_seconds", 20),
+          delivery_mode: body.fetch("delivery_mode", "simulate"),
           delivery_strategy: body.fetch("delivery_strategy", "prefer_openai"),
           openai_model: body.fetch("openai_model", ""),
           anthropic_model: body.fetch("anthropic_model", "")

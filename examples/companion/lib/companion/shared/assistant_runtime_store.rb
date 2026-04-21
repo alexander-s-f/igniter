@@ -15,6 +15,7 @@ module Companion
         "model" => "qwen2.5-coder:latest",
         "base_url" => "http://127.0.0.1:11434",
         "timeout_seconds" => 20,
+        "delivery_mode" => "simulate",
         "delivery_strategy" => "prefer_openai",
         "openai_model" => Igniter::AI::Config.new.openai.default_model,
         "anthropic_model" => Igniter::AI::Config.new.anthropic.default_model

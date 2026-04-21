@@ -113,6 +113,24 @@ shell_columns do |columns|
                 end
                 viz page_context.prompt_package_preview(record), compact: true
               end
+
+              unless page_context.delivery_rows(record).empty?
+                card title: "Delivery Outcome", subtitle: "What happened on the selected external channel" do
+                  page_context.delivery_rows(record).each do |row|
+                    line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
+                  end
+                  unless page_context.delivery_preview(record).empty?
+                    viz page_context.delivery_preview(record), compact: true
+                  end
+                end
+              end
+
+              form action: page_context.route("/assistant/requests/redeliver"), method: "post", class: "mt-4" do
+                input type: "hidden", name: "request_id", value: record.fetch(:id)
+                button "Re-deliver",
+                       type: "submit",
+                       class: "inline-flex w-fit items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-stone-100 transition hover:border-orange-300/50 hover:text-orange-200"
+              end
             end
           end
         end
@@ -259,6 +277,18 @@ shell_columns do |columns|
               max: "300",
               value: page_context.assistant_runtime_form_defaults.fetch("timeout_seconds"),
               class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+
+        label "Delivery Mode",
+              for: "assistant-runtime-delivery-mode",
+              class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+        select id: "assistant-runtime-delivery-mode",
+               name: "delivery_mode",
+               class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white focus:border-orange-300/50 focus:outline-none" do
+          option "Simulate", value: "simulate",
+                             selected: page_context.assistant_runtime_form_defaults.fetch("delivery_mode") == "simulate"
+          option "Live", value: "live",
+                        selected: page_context.assistant_runtime_form_defaults.fetch("delivery_mode") == "live"
+        end
 
         label "Delivery Strategy",
               for: "assistant-runtime-delivery-strategy",

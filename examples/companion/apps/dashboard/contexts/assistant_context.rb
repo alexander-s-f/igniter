@@ -80,6 +80,7 @@ module Companion
             { label: :model, value: assistant_runtime_config.fetch(:model, "qwen2.5-coder:latest"), as: :code },
             { label: :base_url, value: assistant_runtime_config.fetch(:base_url, "http://127.0.0.1:11434"), as: :code },
             { label: :timeout_seconds, value: assistant_runtime_config.fetch(:timeout_seconds, 20), as: :number },
+            { label: :delivery_mode, value: assistant_runtime_config.fetch(:delivery_mode, :simulate), as: :badge },
             { label: :delivery_strategy, value: assistant_runtime_config.fetch(:delivery_strategy, :prefer_openai), as: :badge },
             { label: :openai_model, value: assistant_runtime_config.fetch(:openai_model, "gpt-4o"), as: :code },
             { label: :anthropic_model, value: assistant_runtime_config.fetch(:anthropic_model, "claude-sonnet-4-6"), as: :code },
@@ -100,8 +101,32 @@ module Companion
             { label: :prep_model, value: prep.fetch(:model, "--"), as: :code },
             { label: :delivery_channel, value: delivery.fetch(:label, "--"), as: :badge },
             { label: :delivery_model, value: delivery.fetch(:model, "--"), as: :code },
+            { label: :delivery_mode, value: assistant_runtime_config.fetch(:delivery_mode, :simulate), as: :badge },
             { label: :external_delivery_ready, value: assistant_runtime_routing.fetch(:external_delivery_ready, false), as: :boolean }
           ]
+        end
+
+        def delivery_rows(record)
+          delivery = record.fetch(:delivery, {})
+          return [] if delivery.empty?
+
+          [
+            { label: :status, value: delivery.fetch(:status, "--"), as: :badge },
+            { label: :channel, value: delivery.fetch(:channel_label, delivery.fetch(:channel, "--")), as: :badge },
+            { label: :model, value: delivery.fetch(:model, "--"), as: :code },
+            { label: :mode, value: delivery.fetch(:mode, "--"), as: :badge },
+            { label: :reason, value: delivery.fetch(:reason, "--"), as: :badge }
+          ]
+        end
+
+        def delivery_preview(record)
+          delivery = record.fetch(:delivery, {})
+          return {} if delivery.empty?
+
+          {
+            output: delivery[:output],
+            error: delivery[:error]
+          }.compact
         end
 
         def assistant_channel_rows

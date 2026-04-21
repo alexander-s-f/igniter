@@ -9,6 +9,17 @@ RSpec.describe Companion::DashboardApp do
   before do
     Companion::Shared::NoteStore.reset!
     Companion::Main::Support::AssistantAPI.reset!
+    Companion::Main::Support::AssistantAPI.configure_runtime(
+      mode: "manual",
+      provider: "ollama",
+      model: "qwen2.5-coder:latest",
+      base_url: "http://127.0.0.1:11434",
+      timeout_seconds: 20,
+      delivery_mode: "simulate",
+      delivery_strategy: "manual_only",
+      openai_model: "gpt-4o",
+      anthropic_model: "claude-sonnet-4-6"
+    )
   end
 
   it "renders the canonical operator endpoint" do
@@ -224,6 +235,51 @@ RSpec.describe Companion::DashboardApp do
     expect(refreshed.fetch(:briefing)).to include("one seed")
   end
 
+  it "re-delivers a completed assistant request from the dashboard" do
+    result = Companion::Main::Support::AssistantAPI.submit_request(
+      requester: "Alex",
+      request: "Prepare a cluster rollout brief"
+    )
+    request_record = result.fetch(:request)
+    Companion::Main::Support::AssistantAPI.approve_request(
+      request_id: request_record.fetch(:id),
+      briefing: "Operator-approved rollout brief."
+    )
+
+    allow(Companion::Main::Support::AssistantExternalDelivery).to receive(:deliver).and_return(
+      {
+        status: :simulated,
+        channel: :openai_api,
+        channel_label: "OpenAI API",
+        provider: :openai,
+        model: "gpt-4o",
+        mode: :simulate,
+        output: "Simulated external delivery result.",
+        reason: :simulation_mode
+      }
+    )
+
+    app = described_class.rack_app
+
+    redeliver_status, redeliver_headers, = app.call(
+      "REQUEST_METHOD" => "POST",
+      "PATH_INFO" => "/assistant/requests/redeliver",
+      "CONTENT_TYPE" => "application/x-www-form-urlencoded",
+      "rack.input" => StringIO.new(
+        URI.encode_www_form(
+          "request_id" => request_record.fetch(:id)
+        )
+      )
+    )
+
+    refreshed = Companion::Main::Support::AssistantAPI.all.first
+
+    expect(redeliver_status).to eq(303)
+    expect(redeliver_headers["Location"]).to eq("/assistant?assistant_redelivered=1")
+    expect(refreshed.dig(:delivery, :status)).to eq(:simulated)
+    expect(refreshed.dig(:delivery, :output)).to eq("Simulated external delivery result.")
+  end
+
   it "updates the assistant runtime configuration from the dashboard" do
     app = described_class.rack_app
 
@@ -237,6 +293,7 @@ RSpec.describe Companion::DashboardApp do
           "provider" => "ollama",
           "model" => "qwen3:latest",
           "base_url" => "http://127.0.0.1:11434",
+          "delivery_mode" => "simulate",
           "delivery_strategy" => "prefer_openai",
           "openai_model" => "gpt-4o",
           "anthropic_model" => "claude-sonnet-4-6"
@@ -257,6 +314,7 @@ RSpec.describe Companion::DashboardApp do
     expect(overview_status).to eq(200)
     expect(payload.dig("assistant", "runtime", "config", "mode")).to eq("ollama")
     expect(payload.dig("assistant", "runtime", "config", "model")).to eq("qwen3:latest")
+    expect(payload.dig("assistant", "runtime", "config", "delivery_mode")).to eq("simulate")
     expect(payload.dig("assistant", "runtime", "config", "delivery_strategy")).to eq("prefer_openai")
   end
 

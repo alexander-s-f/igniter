@@ -51,6 +51,7 @@ The assistant lane now supports a local runtime mode switch:
 - model-aware prompt profiles now adapt draft posture for lanes like `qwen3`, `qwen2.5-coder`, and `gpt-oss`
 - the assistant lane also includes a `Model Lab` for side-by-side comparisons across several local models
 - delivery routing now shows which external channel is currently preferred and whether credentials are actually ready
+- external delivery now supports `simulate` and `live` modes for the selected channel
 - prompt packages are now prepared as explicit handoff artifacts for the selected external delivery lane rather than pretending the local model is the final production brain
 
 Current local default bias is `qwen2.5-coder:latest`, because it has shown the

@@ -12,7 +12,7 @@ module Companion
       class << self
         def add(requester:, request:, graph:, execution_id:, followup_ids:, status: "open", completed_at: nil,
                 completed_briefing: nil, runtime_mode: nil, runtime_provider: nil, runtime_model: nil,
-                runtime_profile_key: nil, runtime_profile_label: nil, prompt_package: nil)
+                runtime_profile_key: nil, runtime_profile_label: nil, prompt_package: nil, delivery: nil)
           entry = {
             "id" => "assistant-request-#{Time.now.utc.strftime("%Y%m%d%H%M%S%6N")}",
             "requester" => requester.to_s.strip,
@@ -29,7 +29,8 @@ module Companion
             "runtime_model" => runtime_model,
             "runtime_profile_key" => runtime_profile_key&.to_s,
             "runtime_profile_label" => runtime_profile_label,
-            "prompt_package" => prompt_package
+            "prompt_package" => prompt_package,
+            "delivery" => delivery
           }.compact
 
           save(entry)

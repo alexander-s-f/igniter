@@ -4,6 +4,7 @@ require "time"
 require_relative "../contracts/briefing_request_contract"
 require_relative "../../../lib/companion/shared/assistant_request_store"
 require_relative "../../../lib/companion/shared/runtime_profile"
+require_relative "assistant_external_delivery"
 require_relative "assistant_runtime"
 require_relative "assistant_prompt_package"
 
@@ -33,6 +34,40 @@ module Companion
             profile: runtime_configuration.fetch(:profile),
             delivery_target: runtime.dig(:routing, :delivery_channel)
           )
+          prompt_package = runtime_attempt[:prompt_package] || base_prompt_package
+          delivery = Companion::Main::Support::AssistantExternalDelivery.deliver(
+            prompt_package: prompt_package,
+            runtime_overview: runtime
+          )
+
+          if %i[succeeded simulated].include?(delivery.fetch(:status))
+            record = Companion::Shared::AssistantRequestStore.add(
+              requester: requester_text,
+              request: request_text,
+              graph: "Companion::AssistantDelivery",
+              execution_id: "assistant-delivery-#{Time.now.utc.strftime("%Y%m%d%H%M%S%6N")}",
+              followup_ids: [],
+              status: "completed",
+              completed_at: Time.now.utc.iso8601,
+              completed_briefing: delivery.fetch(:output),
+              runtime_mode: runtime_configuration.fetch(:mode),
+              runtime_provider: runtime_configuration.fetch(:provider),
+              runtime_model: runtime_configuration.fetch(:model),
+              runtime_profile_key: runtime_configuration.dig(:profile, :key),
+              runtime_profile_label: runtime_configuration.dig(:profile, :label),
+              prompt_package: prompt_package,
+              delivery: delivery
+            )
+
+            return {
+              request: request_record(record),
+              followup: {
+                opened: [],
+                existing: [],
+                summary: { total: 0, manual_completion: 0 }
+              }
+            }
+          end
 
           if runtime_attempt.fetch(:status) == :succeeded
             record = Companion::Shared::AssistantRequestStore.add(
@@ -49,7 +84,8 @@ module Companion
               runtime_model: runtime_attempt.dig(:config, :model),
               runtime_profile_key: runtime_attempt.dig(:config, :profile, :key),
               runtime_profile_label: runtime_attempt.dig(:config, :profile, :label),
-              prompt_package: runtime_attempt[:prompt_package] || base_prompt_package
+              prompt_package: prompt_package,
+              delivery: delivery
             )
 
             return {
@@ -80,7 +116,8 @@ module Companion
             runtime_model: runtime.dig(:config, :model),
             runtime_profile_key: runtime.dig(:config, :profile, :key),
             runtime_profile_label: runtime.dig(:config, :profile, :label),
-            prompt_package: base_prompt_package
+            prompt_package: prompt_package,
+            delivery: delivery
           )
 
           {
@@ -115,11 +152,34 @@ module Companion
               "status" => "completed",
               "completed_at" => Time.now.utc.iso8601,
               "completed_briefing" => briefing_text,
+              "delivery" => record["delivery"],
               "prompt_package" => build_prompt_package(
                 record,
                 local_draft: record.dig("prompt_package", "local_draft"),
                 final_briefing: briefing_text
               )
+            )
+          )
+
+          request_record(updated_record)
+        end
+
+        def redeliver_request(request_id:)
+          record = Companion::Shared::AssistantRequestStore.fetch(request_id)
+          prompt_package = normalize_prompt_package(record["prompt_package"] || build_prompt_package(record))
+          runtime = Companion::Main::Support::AssistantRuntime.overview
+          delivery = Companion::Main::Support::AssistantExternalDelivery.deliver(
+            prompt_package: prompt_package,
+            runtime_overview: runtime
+          )
+
+          updated_record = Companion::Shared::AssistantRequestStore.save(
+            record.merge(
+              "delivery" => delivery,
+              "prompt_package" => prompt_package,
+              "status" => record.fetch("status", "completed"),
+              "completed_at" => record["completed_at"] || Time.now.utc.iso8601,
+              "completed_briefing" => record["completed_briefing"] || delivery[:output]
             )
           )
 
@@ -146,13 +206,15 @@ module Companion
         end
 
         def configure_runtime(mode:, model:, base_url:, provider: "ollama", timeout_seconds: 20,
-                              delivery_strategy: "prefer_openai", openai_model: nil, anthropic_model: nil)
+                              delivery_mode: "simulate", delivery_strategy: "prefer_openai",
+                              openai_model: nil, anthropic_model: nil)
           Companion::Main::Support::AssistantRuntime.configure(
             mode: mode,
             model: model,
             base_url: base_url,
             provider: provider,
             timeout_seconds: timeout_seconds,
+            delivery_mode: delivery_mode,
             delivery_strategy: delivery_strategy,
             openai_model: openai_model,
             anthropic_model: anthropic_model
@@ -204,6 +266,7 @@ module Companion
               runtime_model: record["runtime_model"],
               runtime_profile_key: record["runtime_profile_key"]&.to_sym,
               runtime_profile_label: record["runtime_profile_label"],
+              delivery: normalize_delivery(record["delivery"]),
               prompt_package: normalize_prompt_package(record["prompt_package"] || build_prompt_package(
                 record,
                 local_draft: record["completed_briefing"],
@@ -239,6 +302,7 @@ module Companion
             runtime_model: record["runtime_model"],
             runtime_profile_key: record["runtime_profile_key"]&.to_sym,
             runtime_profile_label: record["runtime_profile_label"],
+            delivery: normalize_delivery(record["delivery"]),
             prompt_package: normalize_prompt_package(record["prompt_package"] || build_prompt_package(record)),
             briefing: briefing_value
           }
@@ -257,6 +321,7 @@ module Companion
             runtime_model: record["runtime_model"],
             runtime_profile_key: record["runtime_profile_key"]&.to_sym,
             runtime_profile_label: record["runtime_profile_label"],
+            delivery: normalize_delivery(record["delivery"]),
             prompt_package: normalize_prompt_package(record["prompt_package"]),
             error: e.message
           }
@@ -315,6 +380,17 @@ module Companion
           else
             package
           end
+        end
+
+        def normalize_delivery(delivery)
+          normalized = normalize_prompt_package(delivery)
+          return normalized unless normalized.is_a?(Hash)
+
+          %i[status channel provider reason mode].each do |key|
+            normalized[key] = normalized[key].to_sym if normalized[key].is_a?(String)
+          end
+
+          normalized
         end
 
       end
