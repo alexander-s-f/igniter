@@ -280,6 +280,70 @@ RSpec.describe "Igniter::Frontend::Arbre page authoring" do
     expect(html).to include('class="panel span-4"')
   end
 
+  it "provides semantic action links and buttons inside action groups" do
+    builder_calls = []
+    builder = Object.new
+    builder.define_singleton_method(:tag) do |name, content = nil, **attributes, &block|
+      builder_calls << [name, content, attributes]
+      block&.call
+    end
+
+    group = Igniter::Frontend::Arbre::Components::ActionGroup.new
+    group.define_singleton_method(:current_builder) { builder }
+
+    group.link "Overview API", href: "/api/overview", class_name: "pill-link"
+    group.button "Refresh", type: "submit", class_name: "pill-button"
+
+    expect(builder_calls).to include([:a, "Overview API", { href: "/api/overview", class: "pill-link" }])
+    expect(builder_calls).to include([:button, "Refresh", { class: "pill-button", type: "submit" }])
+  end
+
+  it "renders semantic badges with inferred tones and compact sizes" do
+    html = Igniter::Frontend::Arbre::Page.render_page(title: "Badges", theme: :companion) do
+      div class: "stack" do
+        badge :active
+        badge false
+        badge "degraded", size: :sm
+        badge "mesh route", tone: :accent, titleize: false, size: :xs
+      end
+    end
+
+    expect(html).to include(">Active<")
+    expect(html).to include(">No<")
+    expect(html).to include(">Degraded<")
+    expect(html).to include(">mesh route<")
+    expect(html).to include("emerald-300/20")
+    expect(html).to include("rose-300/20")
+    expect(html).to include("amber-300/20")
+    expect(html).to include("orange-300/20")
+    expect(html).to include("text-[10px]")
+  end
+
+  it "renders card lines as badges, code, placeholders, and nested subcards" do
+    html = Igniter::Frontend::Arbre::Page.render_page(title: "Cards", theme: :companion) do
+      card title: "Session", subtitle: "Runtime contract" do
+        line :status, "joined", as: :badge
+        line :capabilities, %w[memory routing], as: :badge, badge: { size: :sm }
+        line :owner_url, nil, placeholder: "--"
+        line :delivery_route, "mesh://edge-1", as: :code
+        subcard "Details" do
+          line :mode, :interactive
+        end
+      end
+    end
+
+    expect(html).to include(">Session<")
+    expect(html).to include("Runtime contract")
+    expect(html).to include(">Status<")
+    expect(html).to include(">Joined<")
+    expect(html).to include(">Memory<")
+    expect(html).to include(">Routing<")
+    expect(html).to include(">--<")
+    expect(html).to include("mesh://edge-1")
+    expect(html).to include(">Details<")
+    expect(html).to include(">Interactive<")
+  end
+
   it "renders an Arbre template with layout and page helpers" do
     stub_const("Arbre", build_fake_arbre)
 

@@ -28,6 +28,14 @@ The current frontend lane is intentionally split into four small roles:
 
 That keeps request handling, state shaping, and UI authoring separate.
 
+The current semantic primitive lane is intentionally small, but it is getting
+more expressive. For example:
+
+- `badge` can infer a tone from values like `:active`, `false`, or `"pending"`
+- `card#line` can render values as `:badge` or `:code`
+- `card#subcard` lets a page nest compact schema sections without dropping back
+  to raw layout markup
+
 ## Canonical Shape
 
 ### 1. Build a page context

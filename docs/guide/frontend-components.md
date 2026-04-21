@@ -79,6 +79,14 @@ That lets page authors write:
 badge "online", tone: :ok
 ```
 
+The current `badge` primitive is intentionally a little smarter than that
+minimal sketch:
+
+- it can infer tone from values such as `:active`, `false`, `"pending"`, or
+  `"failed"`
+- it supports compact sizes such as `:xs` and `:sm`
+- it still lets the page override tone explicitly when needed
+
 ## Primitive vs Domain Component
 
 This is the most important design choice.
@@ -179,6 +187,10 @@ end
 without trying to become a generic table engine.
 
 Many of our best components should stay this small.
+
+Another good example is `card#line`: the primitive stays compact, but it now
+knows how to render schema values as badges or code and how to provide
+placeholder-safe rows without pushing that repetition into every page template.
 
 ## Child Routing
 

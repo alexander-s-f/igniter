@@ -33,6 +33,12 @@ The frontend direction is now explicitly:
 - Tailwind surfaces for shared UI language
 - stronger UX/UI semantics on top of that Arbre lane over time
 
+That “stronger semantics” line now includes richer Arbre primitives such as:
+
+- `badge` with inferred status tone and compact sizing
+- `card#line` with `as: :badge` / `as: :code`
+- placeholder-aware schema rows and nested `subcard` composition
+
 Authoring guide:
 
 - [Frontend Authoring](../../docs/guide/frontend-authoring.md)
