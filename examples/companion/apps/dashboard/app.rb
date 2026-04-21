@@ -10,6 +10,9 @@ require_relative "web/handlers/notes_create_handler"
 require_relative "web/handlers/assistant_request_create_handler"
 require_relative "web/handlers/assistant_followup_approve_handler"
 require_relative "web/handlers/assistant_redeliver_handler"
+require_relative "web/handlers/assistant_note_create_handler"
+require_relative "web/handlers/assistant_reopen_handler"
+require_relative "web/handlers/assistant_feedback_handler"
 require_relative "web/handlers/assistant_runtime_update_handler"
 require_relative "web/handlers/assistant_compare_handler"
 
@@ -31,6 +34,9 @@ module Companion
     route "POST", "/assistant/compare", with: Companion::Dashboard::AssistantCompareHandler
     route "POST", "/assistant/requests", with: Companion::Dashboard::AssistantRequestCreateHandler
     route "POST", "/assistant/requests/redeliver", with: Companion::Dashboard::AssistantRedeliverHandler
+    route "POST", "/assistant/requests/note", with: Companion::Dashboard::AssistantNoteCreateHandler
+    route "POST", "/assistant/requests/reopen", with: Companion::Dashboard::AssistantReopenHandler
+    route "POST", "/assistant/requests/feedback", with: Companion::Dashboard::AssistantFeedbackHandler
     route "POST", "/assistant/followups/approve", with: Companion::Dashboard::AssistantFollowupApproveHandler
   end
 end

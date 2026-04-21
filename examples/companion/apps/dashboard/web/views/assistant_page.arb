@@ -56,6 +56,127 @@ shell_columns do |columns|
               value: page_context.assistant_form_defaults.fetch("requester"),
               placeholder: "Alex",
               class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+        label "Scenario",
+              for: "assistant-request-scenario",
+              class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+        select id: "assistant-request-scenario",
+               name: "scenario",
+               class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white focus:border-orange-300/50 focus:outline-none" do
+          page_context.assistant_scenario_cards.each do |scenario|
+            option scenario.fetch(:label),
+                   value: scenario.fetch(:key),
+                   selected: page_context.assistant_form_defaults.fetch("scenario") == scenario.fetch(:key).to_s
+          end
+        end
+        card title: "Incident Triage Details",
+             subtitle: "These fields are especially useful when the scenario is Incident Triage." do
+          label "Affected System",
+                for: "assistant-affected-system",
+                class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          input type: "text",
+                id: "assistant-affected-system",
+                name: "affected_system",
+                value: page_context.assistant_form_defaults.fetch("affected_system"),
+                placeholder: "dashboard-api, cluster mesh, auth webhook",
+                class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+          label "Urgency",
+                for: "assistant-urgency",
+                class: "mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          select id: "assistant-urgency",
+                 name: "urgency",
+                 class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white focus:border-orange-300/50 focus:outline-none" do
+            %w[critical high medium low].each do |value|
+              option value.capitalize, value: value, selected: page_context.assistant_form_defaults.fetch("urgency") == value
+            end
+          end
+          label "Symptoms",
+                for: "assistant-symptoms",
+                class: "mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          textarea page_context.assistant_form_defaults.fetch("symptoms", ""),
+                   id: "assistant-symptoms",
+                   name: "symptoms",
+                   rows: 3,
+                   placeholder: "timeouts, 5xx spikes, missing events, delayed replies",
+                   class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+        end
+        card title: "Technical Rollout Details",
+             subtitle: "Use these when the scenario is Technical Rollout or when a change needs clear rollout gates." do
+          label "Target Environment",
+                for: "assistant-target-environment",
+                class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          input type: "text",
+                id: "assistant-target-environment",
+                name: "target_environment",
+                value: page_context.assistant_form_defaults.fetch("target_environment"),
+                placeholder: "staging, production-eu, cluster-seed-a",
+                class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+          label "Change Scope",
+                for: "assistant-change-scope",
+                class: "mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          textarea page_context.assistant_form_defaults.fetch("change_scope", ""),
+                   id: "assistant-change-scope",
+                   name: "change_scope",
+                   rows: 3,
+                   placeholder: "what is being rolled out, migrated, or changed",
+                   class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+          label "Verification Plan",
+                for: "assistant-verification-plan",
+                class: "mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          textarea page_context.assistant_form_defaults.fetch("verification_plan", ""),
+                   id: "assistant-verification-plan",
+                   name: "verification_plan",
+                   rows: 3,
+                   placeholder: "health checks, smoke tests, success signals",
+                   class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+          label "Rollback Plan",
+                for: "assistant-rollback-plan",
+                class: "mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          textarea page_context.assistant_form_defaults.fetch("rollback_plan", ""),
+                   id: "assistant-rollback-plan",
+                   name: "rollback_plan",
+                   rows: 3,
+                   placeholder: "rollback trigger, fallback path, blast-radius limit",
+                   class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+        end
+        card title: "Research Synthesis Details",
+             subtitle: "Use these when the scenario is Research Synthesis or when a brief should be evidence-driven." do
+          label "Sources",
+                for: "assistant-sources",
+                class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          textarea page_context.assistant_form_defaults.fetch("sources", ""),
+                   id: "assistant-sources",
+                   name: "sources",
+                   rows: 3,
+                   placeholder: "links, notes, docs, datasets, interviews",
+                   class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+          label "Decision Focus",
+                for: "assistant-decision-focus",
+                class: "mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          input type: "text",
+                id: "assistant-decision-focus",
+                name: "decision_focus",
+                value: page_context.assistant_form_defaults.fetch("decision_focus"),
+                placeholder: "Which option should we choose next?",
+                class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+          label "Constraints",
+                for: "assistant-constraints",
+                class: "mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          textarea page_context.assistant_form_defaults.fetch("constraints", ""),
+                   id: "assistant-constraints",
+                   name: "constraints",
+                   rows: 3,
+                   placeholder: "budget, time, compliance, platform limits",
+                   class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+        end
+        card title: "Artifacts",
+             subtitle: "Attach evidence as one item per line. Prefix with `url:`, `file:`, `log:`, or leave plain text for notes." do
+          textarea page_context.assistant_form_defaults.fetch("artifacts", ""),
+                   id: "assistant-artifacts",
+                   name: "artifacts",
+                   rows: 4,
+                   placeholder: "url: https://example.com/report\nfile: logs/deploy.log\nnote: operator note",
+                   class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+        end
         label "Request",
               for: "assistant-request",
               class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
@@ -69,16 +190,39 @@ shell_columns do |columns|
                type: "submit",
                class: "inline-flex w-fit items-center rounded-full bg-orange-400 px-5 py-2 text-sm font-semibold text-stone-950 transition hover:bg-orange-300"
       end
+
+      card title: "Scenario Presets", subtitle: "Companion should shape the brief around a real working lane, not just generic text." do
+        resource_list class_name: "space-y-3" do
+          page_context.assistant_scenario_cards.each do |scenario|
+            li class: "rounded-2xl border border-white/10 bg-white/5 p-4" do
+              div class: "flex flex-wrap items-center gap-3" do
+                strong scenario.fetch(:label), class: "font-semibold text-white"
+                badge scenario.fetch(:key), size: :sm
+              end
+              div class: "mt-2 text-sm leading-6 text-stone-300" do
+                text_node scenario.fetch(:summary)
+              end
+              card title: "Expected Shape", subtitle: scenario.fetch(:prompt_hint) do
+                line :sections, scenario.fetch(:output_sections), as: :badge
+                line :handoff, scenario.fetch(:operator_handoff), as: :code
+              end
+            end
+          end
+        end
+      end
     end
 
     panel title: "Assistant Requests",
           subtitle: "Durable request records and their current workflow state.",
           class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
-      table_with page_context.assistant_request_rows, compact: true, empty_message: "No assistant requests opened yet." do |table|
-        table.column :requester
-        table.column :status, as: :badge, badge: { size: :sm }
-        table.column :runtime_mode, as: :badge, badge: { size: :sm }
-        table.column :runtime_model, as: :code
+        table_with page_context.assistant_request_rows, compact: true, empty_message: "No assistant requests opened yet." do |table|
+          table.column :requester
+          table.column :scenario, as: :badge, badge: { size: :sm }, placeholder: "--"
+          table.column :scenario_summary, as: :code, placeholder: "--"
+          table.column :artifacts, as: :number, placeholder: "--"
+          table.column :status, as: :badge, badge: { size: :sm }
+          table.column :runtime_mode, as: :badge, badge: { size: :sm }
+          table.column :runtime_model, as: :code
         table.column :submitted_at, as: :datetime
         table.column :request, placeholder: "--"
       end
@@ -98,10 +242,41 @@ shell_columns do |columns|
               div class: "flex flex-wrap items-center gap-3" do
                 strong record.fetch(:requester), class: "font-semibold text-white"
                 badge record.fetch(:status), size: :sm
+                badge(record.dig(:scenario, :label) || record.fetch(:scenario_label, "General Brief"), size: :sm)
                 badge(record.fetch(:runtime_profile_label, "Operator Brief"), size: :sm)
                 code record.fetch(:runtime_model, "--"), class: "rounded-xl bg-black/25 px-2 py-1 text-xs text-stone-300"
               end
               p record.fetch(:request), class: "mt-3 text-sm leading-6 text-stone-300"
+              if record[:scenario].is_a?(Hash)
+                card title: "Scenario", subtitle: "What kind of assistant outcome this request is aiming for" do
+                  line :summary, record.dig(:scenario, :summary), as: :code
+                  line :sections, record.dig(:scenario, :output_sections), as: :badge
+                  line :handoff, record.dig(:scenario, :operator_handoff), as: :code
+                end
+              end
+              unless page_context.scenario_context_rows(record).empty?
+                card title: "Scenario Context", subtitle: "Structured context captured with the request" do
+                  page_context.scenario_context_rows(record).each do |row|
+                    line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
+                  end
+                end
+              end
+              unless page_context.artifact_rows(record).empty?
+                card title: "Artifacts", subtitle: "Evidence carried with the request" do
+                  table_with page_context.artifact_rows(record), compact: true do |table|
+                    table.column :kind, as: :badge, badge: { size: :sm }
+                    table.column :label, as: :badge, badge: { size: :sm }
+                    table.column :value, as: :code
+                  end
+                end
+              end
+              unless page_context.operator_checklist_rows(record).empty?
+                card title: "Operator Checklist", subtitle: "Practical next checks for this lane" do
+                  page_context.operator_checklist_rows(record).each do |row|
+                    line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
+                  end
+                end
+              end
               card title: "Briefing Preview", subtitle: "Stored result" do
                 line :briefing, record.fetch(:briefing, "--"), placeholder: "--"
                 line :completed_at, record.fetch(:completed_at, nil), as: :datetime, placeholder: "--"
@@ -125,7 +300,43 @@ shell_columns do |columns|
                 end
               end
 
-              form action: page_context.route("/assistant/requests/redeliver"), method: "post", class: "mt-4" do
+              action_group class_name: "mt-4 flex flex-wrap gap-3" do |actions|
+                actions.link "Promote to Rollout",
+                             href: page_context.completed_briefing_rollout_href(record),
+                             class_name: "rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-stone-100 transition hover:border-orange-300/50 hover:text-orange-200"
+              end
+
+              form action: page_context.route("/assistant/requests/reopen"), method: "post", class: "mt-3" do
+                input type: "hidden", name: "request_id", value: record.fetch(:id)
+                button "Re-open as Manual Action",
+                       type: "submit",
+                       class: "inline-flex w-fit items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-stone-100 transition hover:border-orange-300/50 hover:text-orange-200"
+              end
+
+              form action: page_context.route("/assistant/requests/note"), method: "post", class: "mt-3" do
+                input type: "hidden", name: "request_id", value: record.fetch(:id)
+                button "Save as Note",
+                       type: "submit",
+                       class: "inline-flex w-fit items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-stone-100 transition hover:border-orange-300/50 hover:text-orange-200"
+              end
+
+              form action: page_context.route("/assistant/requests/feedback"), method: "post", class: "mt-3 grid gap-3" do
+                input type: "hidden", name: "request_id", value: record.fetch(:id)
+                div class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300" do
+                  text_node "Quick Feedback"
+                end
+                div class: "flex flex-wrap gap-3" do
+                  page_context.feedback_options.each do |option|
+                    button option.fetch(:label),
+                           type: "submit",
+                           name: "feedback",
+                           value: option.fetch(:value),
+                           class: "rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-stone-100 transition hover:border-orange-300/50 hover:text-orange-200"
+                  end
+                end
+              end
+
+              form action: page_context.route("/assistant/requests/redeliver"), method: "post", class: "mt-3" do
                 input type: "hidden", name: "request_id", value: record.fetch(:id)
                 button "Re-deliver",
                        type: "submit",
@@ -161,6 +372,96 @@ shell_columns do |columns|
               value: page_context.compare_form_defaults.fetch("requester"),
               placeholder: "Alex",
               class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+        label "Scenario",
+              for: "assistant-compare-scenario",
+              class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+        select id: "assistant-compare-scenario",
+               name: "scenario",
+               class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white focus:border-orange-300/50 focus:outline-none" do
+          page_context.assistant_scenario_cards.each do |scenario|
+            option scenario.fetch(:label),
+                   value: scenario.fetch(:key),
+                   selected: page_context.compare_form_defaults.fetch("scenario") == scenario.fetch(:key).to_s
+          end
+        end
+        card title: "Research Inputs",
+             subtitle: "Optional research context for comparing model output quality on the same evidence set." do
+          label "Sources",
+                for: "assistant-compare-sources",
+                class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          textarea page_context.compare_form_defaults.fetch("sources", ""),
+                   id: "assistant-compare-sources",
+                   name: "sources",
+                   rows: 3,
+                   placeholder: "links, notes, docs, datasets, interviews",
+                   class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+          label "Decision Focus",
+                for: "assistant-compare-decision-focus",
+                class: "mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          input type: "text",
+                id: "assistant-compare-decision-focus",
+                name: "decision_focus",
+                value: page_context.compare_form_defaults.fetch("decision_focus"),
+                placeholder: "Which option should we choose next?",
+                class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+          label "Constraints",
+                for: "assistant-compare-constraints",
+                class: "mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          textarea page_context.compare_form_defaults.fetch("constraints", ""),
+                   id: "assistant-compare-constraints",
+                   name: "constraints",
+                   rows: 3,
+                   placeholder: "budget, time, compliance, platform limits",
+                   class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+        end
+        card title: "Rollout Inputs",
+             subtitle: "Optional rollout context for comparing how models sequence and de-risk the same change." do
+          label "Target Environment",
+                for: "assistant-compare-target-environment",
+                class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          input type: "text",
+                id: "assistant-compare-target-environment",
+                name: "target_environment",
+                value: page_context.compare_form_defaults.fetch("target_environment"),
+                placeholder: "staging, production-eu, cluster-seed-a",
+                class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+          label "Change Scope",
+                for: "assistant-compare-change-scope",
+                class: "mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          textarea page_context.compare_form_defaults.fetch("change_scope", ""),
+                   id: "assistant-compare-change-scope",
+                   name: "change_scope",
+                   rows: 3,
+                   placeholder: "what is being rolled out, migrated, or changed",
+                   class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+          label "Verification Plan",
+                for: "assistant-compare-verification-plan",
+                class: "mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          textarea page_context.compare_form_defaults.fetch("verification_plan", ""),
+                   id: "assistant-compare-verification-plan",
+                   name: "verification_plan",
+                   rows: 3,
+                   placeholder: "health checks, smoke tests, success signals",
+                   class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+          label "Rollback Plan",
+                for: "assistant-compare-rollback-plan",
+                class: "mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+          textarea page_context.compare_form_defaults.fetch("rollback_plan", ""),
+                   id: "assistant-compare-rollback-plan",
+                   name: "rollback_plan",
+                   rows: 3,
+                   placeholder: "rollback trigger, fallback path, blast-radius limit",
+                   class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+        end
+        card title: "Artifacts",
+             subtitle: "Use the same artifacts across several local models for a fair comparison." do
+          textarea page_context.compare_form_defaults.fetch("artifacts", ""),
+                   id: "assistant-compare-artifacts",
+                   name: "artifacts",
+                   rows: 4,
+                   placeholder: "url: https://example.com/report\nfile: logs/deploy.log\nnote: operator note",
+                   class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+        end
 
         label "Request",
               for: "assistant-compare-request",
@@ -364,6 +665,27 @@ shell_columns do |columns|
         end
       end
 
+      card title: "Credential Source",
+           subtitle: "Why an external API lane is ready or still missing credentials" do
+        page_context.assistant_credential_status_rows.each do |row|
+          line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
+        end
+        line :summary, page_context.assistant_credential_source_summary, as: :code
+        line :notes, page_context.assistant_credential_source_notes, as: :badge
+
+        unless page_context.assistant_credential_provider_rows.empty?
+          table_with page_context.assistant_credential_provider_rows, compact: true do |table|
+            table.column :provider, as: :badge, badge: { size: :sm }
+            table.column :env_key, as: :code
+            table.column :configured_in_file, as: :boolean
+            table.column :env_present, as: :boolean
+            table.column :source, as: :badge, badge: { size: :sm }
+            table.column :scope, as: :badge, badge: { size: :sm }
+            table.column :node, as: :badge, badge: { size: :sm }
+          end
+        end
+      end
+
       card title: page_context.assistant_recommendation.fetch(:title, "Best Current Lane"),
            subtitle: "What Companion would use right now based on local prep, delivery readiness, and configured policy" do
         page_context.assistant_recommendation_rows.each do |row|
@@ -372,6 +694,34 @@ shell_columns do |columns|
         line :summary, page_context.assistant_recommendation_summary, as: :code
         unless page_context.assistant_recommendation_notes.empty?
           line :notes, page_context.assistant_recommendation_notes, as: :badge
+        end
+      end
+
+      card title: "Evaluation Memory",
+           subtitle: "Lightweight observations from what operators actually did with assistant outputs" do
+        page_context.assistant_evaluation_rows.each do |row|
+          line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
+        end
+
+        unless page_context.assistant_evaluation_insights.empty?
+          resource_list class_name: "mt-4 space-y-3" do
+            page_context.assistant_evaluation_insights.each do |insight|
+              li class: "rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-6 text-stone-200" do
+                text_node insight
+              end
+            end
+          end
+        end
+
+        unless page_context.assistant_evaluation_recent_rows.empty?
+          table_with page_context.assistant_evaluation_recent_rows, compact: true do |table|
+            table.column :created_at, as: :datetime
+            table.column :action, as: :badge, badge: { size: :sm }
+            table.column :scenario, as: :badge, badge: { size: :sm }, placeholder: "--"
+            table.column :model, as: :code, placeholder: "--"
+            table.column :status, as: :badge, badge: { size: :sm }, placeholder: "--"
+            table.column :source, as: :badge, badge: { size: :sm }, placeholder: "--"
+          end
         end
       end
 
@@ -391,6 +741,9 @@ shell_columns do |columns|
           table.column :model, as: :code, placeholder: "--"
           table.column :available, as: :boolean
           table.column :credentials_ready, as: :boolean
+          table.column :credential_source, as: :badge, badge: { size: :sm }, placeholder: "--"
+          table.column :credential_scope, as: :badge, badge: { size: :sm }, placeholder: "--"
+          table.column :credential_node, as: :badge, badge: { size: :sm }, placeholder: "--"
           table.column :credential_policy, as: :badge, badge: { size: :sm }, placeholder: "--"
           table.column :policy_allowed, as: :boolean
           table.column :reason, as: :badge, badge: { size: :sm }
@@ -420,6 +773,20 @@ shell_columns do |columns|
                 badge record.fetch(:status), size: :sm
               end
               p record.fetch(:request), class: "mt-2 text-sm leading-6 text-stone-300"
+              unless page_context.scenario_context_rows(record).empty?
+                card title: "Incident Snapshot", subtitle: "Structured triage context carried into the operator lane" do
+                  page_context.scenario_context_rows(record).each do |row|
+                    line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
+                  end
+                end
+              end
+              unless page_context.operator_checklist_rows(record).empty?
+                card title: "Suggested Checklist", subtitle: "Use this to drive the first operator move" do
+                  page_context.operator_checklist_rows(record).each do |row|
+                    line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
+                  end
+                end
+              end
               form action: page_context.route("/assistant/followups/approve"), method: "post", class: "mt-4 grid gap-3" do
                 input type: "hidden", name: "request_id", value: record.fetch(:id)
                 textarea "",

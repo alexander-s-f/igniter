@@ -29,7 +29,27 @@ module Companion
       def create_request(body)
         requester = body.fetch("requester", "")
         request = body.fetch("request", body.fetch("brief", ""))
-        result = Companion::Main::Support::AssistantAPI.submit_request(requester: requester, request: request)
+        scenario = body.fetch("scenario", "")
+        scenario_context = {
+          target_environment: body.fetch("target_environment", ""),
+          change_scope: body.fetch("change_scope", ""),
+          verification_plan: body.fetch("verification_plan", ""),
+          rollback_plan: body.fetch("rollback_plan", ""),
+          affected_system: body.fetch("affected_system", ""),
+          urgency: body.fetch("urgency", ""),
+          symptoms: body.fetch("symptoms", ""),
+          sources: body.fetch("sources", ""),
+          decision_focus: body.fetch("decision_focus", ""),
+          constraints: body.fetch("constraints", "")
+        }
+        artifacts = body.fetch("artifacts", "")
+        result = Companion::Main::Support::AssistantAPI.submit_request(
+          requester: requester,
+          request: request,
+          scenario: scenario,
+          scenario_context: scenario_context,
+          artifacts: artifacts
+        )
 
         {
           status: 201,

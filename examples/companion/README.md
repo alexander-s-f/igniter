@@ -62,7 +62,24 @@ The assistant lane now supports a local runtime mode switch:
 - `ollama` tries to auto-draft a briefing locally and falls back to manual if the model is not ready yet
 - model-aware prompt profiles now adapt draft posture for lanes like `qwen3`, `qwen2.5-coder`, and `gpt-oss`
 - the assistant lane also includes a `Model Lab` for side-by-side comparisons across several local models
+- assistant requests are now scenario-aware, with presets like `Technical Rollout`, `Incident Triage`, `Research Synthesis`, and `Executive Update`
+- completed briefings now keep the scenario shape alongside the prompt package, so Companion can stay grounded in the kind of work it is doing
+- `Incident Triage` now has a first real scenario-specific lane with structured context like affected system, urgency, symptoms, and an operator checklist carried through the request lifecycle
+- `Research Synthesis` now has a parallel structured lane with evidence inputs like sources, decision focus, and constraints, so Companion can build decision-ready synthesis briefs instead of generic summaries
+- `Technical Rollout` now has its own structured lane with target environment, change scope, verification plan, and rollback plan, so rollout briefs carry real execution gates instead of vague implementation advice
 - delivery routing now shows which external channel is currently preferred and whether credentials are actually ready
+
+That gives `Companion` three honest product lanes already:
+
+- incident stabilization
+- research-to-decision synthesis
+- technical rollout planning
+
+All three lanes now also share a first-class artifact input layer, so requests can carry URLs, files, logs, and notes as explicit evidence instead of hiding everything inside one large text prompt.
+- the operator desk can now push notes, orchestration follow-ups, runtime nodes, runtime signals, and snapshot preview data directly into the assistant lane as prefilled evidence
+- completed briefings now support reverse operator actions like `Save as Note`, `Promote to Rollout`, and `Re-open as Manual Action`, so assistant output can become the next working slice instead of a dead-end result
+- Companion now keeps lightweight evaluation memory from real operator actions, so the assistant lane can surface which scenarios, models, and outcome paths are actually getting used
+- completed briefings also support explicit quick feedback like `Useful`, `Too Verbose`, `Too Slow`, and `Wrong Lane`, so evaluation memory is no longer only implicit
 - external delivery now supports `simulate` and `live` modes for the selected channel
 - credential policy is now first-class in the runtime surface, with a conservative `local_only` default for external API secrets
 - prompt packages are now prepared as explicit handoff artifacts for the selected external delivery lane rather than pretending the local model is the final production brain

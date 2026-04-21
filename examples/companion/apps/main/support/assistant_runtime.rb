@@ -7,9 +7,12 @@ require "timeout"
 require "uri"
 require "igniter/ai"
 require_relative "../../../lib/companion/shared/assistant_runtime_store"
+require_relative "assistant_artifacts"
 require_relative "assistant_delivery_channels"
 require_relative "assistant_prompt_profiles"
 require_relative "assistant_prompt_package"
+require_relative "assistant_scenarios"
+require_relative "assistant_scenario_context"
 
 module Companion
   module Main
@@ -112,9 +115,15 @@ module Companion
             }
           end
 
-          def auto_draft(requester:, request:)
+          def auto_draft(requester:, request:, scenario: nil, scenario_context: {}, artifacts: nil)
             config = configuration
             status = runtime_status(config)
+            resolved_scenario = Companion::Main::Support::AssistantScenarios.resolve(key: scenario, request: request)
+            resolved_context = Companion::Main::Support::AssistantScenarioContext.normalize(
+              scenario: resolved_scenario,
+              context: scenario_context
+            )
+            resolved_artifacts = Companion::Main::Support::AssistantArtifacts.normalize(raw: artifacts)
 
             if config.fetch(:mode) != :ollama
               return { status: :manual, reason: :manual_mode, config: config, runtime: status }
@@ -134,14 +143,24 @@ module Companion
               timeout: config.fetch(:timeout_seconds)
             )
             response = Timeout.timeout(config.fetch(:timeout_seconds)) do
-              provider.chat(
-                model: config.fetch(:model),
-                messages: [
-                  { role: :system, content: config.dig(:profile, :system_prompt) },
-                  { role: :user, content: draft_prompt(config.fetch(:profile), requester: requester, request: request) }
-                ],
-                num_predict: config.dig(:profile, :num_predict)
-              )
+                  provider.chat(
+                    model: config.fetch(:model),
+                    messages: [
+                      { role: :system, content: config.dig(:profile, :system_prompt) },
+                      {
+                        role: :user,
+                        content: draft_prompt(
+                          config.fetch(:profile),
+                          scenario: resolved_scenario,
+                          scenario_context: resolved_context,
+                          artifacts: resolved_artifacts,
+                          requester: requester,
+                          request: request
+                        )
+                      }
+                    ],
+                    num_predict: config.dig(:profile, :num_predict)
+                  )
             end
 
             content = response.fetch(:content, "").to_s.strip
@@ -155,6 +174,9 @@ module Companion
                 request: request,
                 runtime_config: config,
                 profile: config.fetch(:profile),
+                scenario: resolved_scenario,
+                scenario_context: resolved_context,
+                artifacts: resolved_artifacts,
                 delivery_target: Companion::Main::Support::AssistantDeliveryChannels.delivery_target(
                   config: config,
                   runtime_status: status
@@ -196,9 +218,15 @@ module Companion
             }
           end
 
-          def compare_drafts(requester:, request:, models:)
+          def compare_drafts(requester:, request:, models:, scenario: nil, scenario_context: {}, artifacts: nil)
             normalized_models = Array(models).map(&:to_s).map(&:strip).reject(&:empty?).uniq
             normalized_models = [configuration.fetch(:model)] if normalized_models.empty?
+            resolved_scenario = Companion::Main::Support::AssistantScenarios.resolve(key: scenario, request: request)
+            resolved_context = Companion::Main::Support::AssistantScenarioContext.normalize(
+              scenario: resolved_scenario,
+              context: scenario_context
+            )
+            resolved_artifacts = Companion::Main::Support::AssistantArtifacts.normalize(raw: artifacts)
 
             results = normalized_models.map do |model_name|
               config = configuration.merge(
@@ -219,7 +247,17 @@ module Companion
                       model: model_name,
                       messages: [
                         { role: :system, content: config.dig(:profile, :system_prompt) },
-                        { role: :user, content: draft_prompt(config.fetch(:profile), requester: requester, request: request) }
+                        {
+                          role: :user,
+                          content: draft_prompt(
+                            config.fetch(:profile),
+                            scenario: resolved_scenario,
+                            scenario_context: resolved_context,
+                            artifacts: resolved_artifacts,
+                            requester: requester,
+                            request: request
+                          )
+                        }
                       ],
                       num_predict: config.dig(:profile, :num_predict)
                     )
@@ -240,6 +278,9 @@ module Companion
                       request: request,
                       runtime_config: config,
                       profile: config.fetch(:profile),
+                      scenario: resolved_scenario,
+                      scenario_context: resolved_context,
+                      artifacts: resolved_artifacts,
                       delivery_target: Companion::Main::Support::AssistantDeliveryChannels.delivery_target(
                         config: config,
                         runtime_status: status
@@ -287,6 +328,10 @@ module Companion
 
             {
               generated_at: Time.now.utc.iso8601,
+              scenario_key: resolved_scenario.fetch(:key),
+              scenario_label: resolved_scenario.fetch(:label),
+              scenario_context: resolved_context,
+              artifacts: resolved_artifacts,
               summary: {
                 requested_models: normalized_models.size,
                 completed: results.count { |entry| entry[:status] == :completed },
@@ -382,16 +427,28 @@ module Companion
             []
           end
 
-          def draft_prompt(profile, requester:, request:)
+          def draft_prompt(profile, scenario:, scenario_context:, artifacts:, requester:, request:)
+            context_lines = Companion::Main::Support::AssistantScenarioContext.prompt_lines(
+              scenario: scenario,
+              context: scenario_context
+            )
+            artifact_lines = Companion::Main::Support::AssistantArtifacts.prompt_lines(artifacts)
+
             <<~PROMPT
               Draft Style: #{profile.fetch(:label)}
               Guidance: #{profile.fetch(:guidance)}
+              Scenario: #{scenario.fetch(:label)}
+              Scenario Goal: #{scenario.fetch(:summary)}
+              Output Sections: #{Array(scenario[:output_sections]).join(" | ")}
               Output Budget: Keep the briefing short, scannable, and under #{profile.fetch(:num_predict)} tokens.
 
               Requester: #{requester}
               Request: #{request}
+              #{context_lines.empty? ? "" : "Scenario Context:\n#{context_lines.join("\n")}"}
+              #{artifact_lines.empty? ? "" : "Artifacts:\n#{artifact_lines.join("\n")}"}
 
               Draft an operator-ready assistant briefing with short sections and no filler.
+              End with: #{scenario.fetch(:operator_handoff)}
             PROMPT
           end
         end

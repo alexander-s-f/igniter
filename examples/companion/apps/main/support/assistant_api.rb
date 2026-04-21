@@ -2,11 +2,15 @@
 
 require "time"
 require_relative "../contracts/briefing_request_contract"
+require_relative "../../../lib/companion/shared/assistant_evaluation_store"
 require_relative "../../../lib/companion/shared/assistant_request_store"
 require_relative "../../../lib/companion/shared/runtime_profile"
 require_relative "assistant_external_delivery"
 require_relative "assistant_runtime"
+require_relative "assistant_artifacts"
 require_relative "assistant_prompt_package"
+require_relative "assistant_scenarios"
+require_relative "assistant_scenario_context"
 
 module Companion
   module Main
@@ -14,16 +18,25 @@ module Companion
       module AssistantAPI
         module_function
 
-        def submit_request(requester:, request:)
+        def submit_request(requester:, request:, scenario: nil, scenario_context: {}, artifacts: nil)
           requester_text = requester.to_s.strip
           request_text = request.to_s.strip
+          resolved_scenario = Companion::Main::Support::AssistantScenarios.resolve(key: scenario, request: request_text)
+          resolved_context = Companion::Main::Support::AssistantScenarioContext.normalize(
+            scenario: resolved_scenario,
+            context: scenario_context
+          )
+          resolved_artifacts = Companion::Main::Support::AssistantArtifacts.normalize(raw: artifacts)
 
           raise ArgumentError, "requester is required" if requester_text.empty?
           raise ArgumentError, "request is required" if request_text.empty?
 
           runtime_attempt = Companion::Main::Support::AssistantRuntime.auto_draft(
             requester: requester_text,
-            request: request_text
+            request: request_text,
+            scenario: resolved_scenario.fetch(:key),
+            scenario_context: resolved_context,
+            artifacts: resolved_artifacts
           )
           runtime = Companion::Main::Support::AssistantRuntime.overview
           runtime_configuration = Companion::Main::Support::AssistantRuntime.configuration
@@ -32,6 +45,9 @@ module Companion
             request: request_text,
             runtime_config: runtime_configuration,
             profile: runtime_configuration.fetch(:profile),
+            scenario: resolved_scenario,
+            scenario_context: resolved_context,
+            artifacts: resolved_artifacts,
             delivery_target: runtime.dig(:routing, :delivery_channel)
           )
           prompt_package = runtime_attempt[:prompt_package] || base_prompt_package
@@ -55,6 +71,10 @@ module Companion
               runtime_model: runtime_configuration.fetch(:model),
               runtime_profile_key: runtime_configuration.dig(:profile, :key),
               runtime_profile_label: runtime_configuration.dig(:profile, :label),
+              scenario_key: resolved_scenario.fetch(:key),
+              scenario_label: resolved_scenario.fetch(:label),
+              scenario_context: resolved_context,
+              artifacts: resolved_artifacts,
               prompt_package: prompt_package,
               delivery: delivery
             )
@@ -66,7 +86,14 @@ module Companion
                 existing: [],
                 summary: { total: 0, manual_completion: 0 }
               }
-            }
+            }.tap do
+              record_observation(
+                request: request_record(record),
+                action: :completed_external_delivery,
+                source: :assistant_api,
+                metadata: { delivery_status: delivery[:status], channel: delivery[:channel] }
+              )
+            end
           end
 
           if runtime_attempt.fetch(:status) == :succeeded
@@ -84,6 +111,10 @@ module Companion
               runtime_model: runtime_attempt.dig(:config, :model),
               runtime_profile_key: runtime_attempt.dig(:config, :profile, :key),
               runtime_profile_label: runtime_attempt.dig(:config, :profile, :label),
+              scenario_key: resolved_scenario.fetch(:key),
+              scenario_label: resolved_scenario.fetch(:label),
+              scenario_context: resolved_context,
+              artifacts: resolved_artifacts,
               prompt_package: prompt_package,
               delivery: delivery
             )
@@ -95,39 +126,26 @@ module Companion
                 existing: [],
                 summary: { total: 0, manual_completion: 0 }
               }
-            }
+            }.tap do
+              record_observation(
+                request: request_record(record),
+                action: :completed_local_draft,
+                source: :assistant_api,
+                metadata: { runtime_mode: runtime_attempt.dig(:config, :mode) }
+              )
+            end
           end
 
-          store = Companion::Shared::RuntimeProfile.execution_store(:main)
-          contract = Companion::BriefingRequestContract.start(
-            { requester: requester_text, request: request_text },
-            store: store
-          )
-          followups = Companion::MainApp.open_orchestration_followups(contract)
-
-          record = Companion::Shared::AssistantRequestStore.add(
+          open_manual_followup(
             requester: requester_text,
             request: request_text,
-            graph: contract.execution.compiled_graph.name,
-            execution_id: contract.execution.events.execution_id,
-            followup_ids: followups.opened.map { |entry| entry[:id] } + followups.existing.map { |entry| entry[:id] },
-            runtime_mode: runtime.dig(:config, :mode),
-            runtime_provider: runtime.dig(:config, :provider),
-            runtime_model: runtime.dig(:config, :model),
-            runtime_profile_key: runtime.dig(:config, :profile, :key),
-            runtime_profile_label: runtime.dig(:config, :profile, :label),
+            resolved_scenario: resolved_scenario,
+            resolved_context: resolved_context,
+            resolved_artifacts: resolved_artifacts,
+            runtime: runtime,
             prompt_package: prompt_package,
             delivery: delivery
           )
-
-          {
-            request: request_record(record),
-            followup: {
-              opened: followups.opened,
-              existing: followups.existing,
-              summary: Companion::MainApp.orchestration_followup(contract).summary
-            }
-          }
         end
 
         def approve_request(request_id:, briefing:, note: nil)
@@ -161,7 +179,14 @@ module Companion
             )
           )
 
-          request_record(updated_record)
+          request_record(updated_record).tap do |request|
+            record_observation(
+              request: request,
+              action: :completed_manual_followup,
+              source: :assistant_api,
+              metadata: { note: note.to_s.strip }
+            )
+          end
         end
 
         def redeliver_request(request_id:)
@@ -183,12 +208,77 @@ module Companion
             )
           )
 
-          request_record(updated_record)
+          request_record(updated_record).tap do |request|
+            record_observation(
+              request: request,
+              action: :redelivered,
+              source: :assistant_api,
+              metadata: { delivery_status: delivery[:status], channel: delivery[:channel] }
+            )
+          end
+        end
+
+        def fetch_request(request_id)
+          request_record(Companion::Shared::AssistantRequestStore.fetch(request_id))
+        end
+
+        def reopen_request_as_followup(request_id:, request: nil)
+          original_record = Companion::Shared::AssistantRequestStore.fetch(request_id)
+          original = request_record(original_record)
+          runtime_configuration = Companion::Main::Support::AssistantRuntime.configuration
+          runtime = { config: runtime_configuration }
+          request_text = request.to_s.strip
+          request_text = "Use the attached completed briefing as evidence and propose the next concrete operator follow-up." if request_text.empty?
+          resolved_scenario = original.fetch(:scenario, nil) || resolve_scenario(original_record)
+          resolved_context = normalize_prompt_package(original_record["scenario_context"] || {})
+          resolved_artifacts = reopen_artifacts_for(original)
+          prompt_package = Companion::Main::Support::AssistantPromptPackage.build(
+            requester: original.fetch(:requester),
+            request: request_text,
+            runtime_config: runtime_configuration,
+            profile: runtime_configuration.fetch(:profile),
+            scenario: resolved_scenario,
+            scenario_context: resolved_context,
+            artifacts: resolved_artifacts,
+            delivery_target: manual_delivery_target,
+            final_briefing: original.fetch(:briefing, nil)
+          )
+
+          open_manual_followup(
+            requester: original.fetch(:requester),
+            request: request_text,
+            resolved_scenario: resolved_scenario,
+            resolved_context: resolved_context,
+            resolved_artifacts: resolved_artifacts,
+            runtime: runtime,
+            prompt_package: prompt_package,
+            delivery: {
+              status: :skipped,
+              channel: :manual_completion,
+              channel_label: "Manual Completion",
+              mode: :manual,
+              reason: :reopened_manual_followup,
+              source_request_id: original.fetch(:id)
+            }
+          ).tap do |result|
+            record_observation(
+              request: result.fetch(:request),
+              action: :reopened_manual_action,
+              source: :assistant_api,
+              metadata: { source_request_id: original.fetch(:id) }
+            )
+          end
+        end
+
+        def observe_request(request_id:, action:, source: nil, metadata: {})
+          request = fetch_request(request_id)
+          record_observation(request: request, action: action, source: source, metadata: metadata)
         end
 
         def overview(limit: 6)
           records = Companion::Shared::AssistantRequestStore.all.first(limit).map { |record| request_record(record) }
           operator_records = Companion::MainApp.operator_query.limit(limit).to_a
+          evaluations = evaluation_overview(limit: limit)
 
           {
             summary: {
@@ -201,7 +291,8 @@ module Companion
             },
             runtime: Companion::Main::Support::AssistantRuntime.overview,
             requests: records,
-            followups: operator_records.select { |record| record[:record_kind] == :orchestration }
+            followups: operator_records.select { |record| record[:record_kind] == :orchestration },
+            evaluation: evaluations
           }
         end
 
@@ -221,11 +312,14 @@ module Companion
           )
         end
 
-        def compare_runtime_outputs(requester:, request:, models:)
+        def compare_runtime_outputs(requester:, request:, models:, scenario: nil, scenario_context: {}, artifacts: nil)
           Companion::Main::Support::AssistantRuntime.compare_drafts(
             requester: requester,
             request: request,
-            models: models
+            models: models,
+            scenario: scenario,
+            scenario_context: scenario_context,
+            artifacts: artifacts
           )
         end
 
@@ -240,6 +334,7 @@ module Companion
         def reset!
           Companion::Shared::AssistantRequestStore.reset!
           Companion::Shared::AssistantRuntimeStore.reset!
+          Companion::Shared::AssistantEvaluationStore.reset!
           Companion::MainApp.reset_orchestration_inbox!
         end
 
@@ -266,6 +361,14 @@ module Companion
               runtime_model: record["runtime_model"],
               runtime_profile_key: record["runtime_profile_key"]&.to_sym,
               runtime_profile_label: record["runtime_profile_label"],
+              scenario_key: record["scenario_key"]&.to_sym,
+              scenario_label: record["scenario_label"],
+              scenario: resolve_scenario(record),
+              scenario_context: normalize_prompt_package(record["scenario_context"] || {}),
+              scenario_summary: scenario_summary(record),
+              artifacts: normalize_prompt_package(record["artifacts"] || []),
+              artifact_summary: artifact_summary(record),
+              operator_checklist: operator_checklist(record),
               delivery: normalize_delivery(record["delivery"]),
               prompt_package: normalize_prompt_package(record["prompt_package"] || build_prompt_package(
                 record,
@@ -302,6 +405,14 @@ module Companion
             runtime_model: record["runtime_model"],
             runtime_profile_key: record["runtime_profile_key"]&.to_sym,
             runtime_profile_label: record["runtime_profile_label"],
+            scenario_key: record["scenario_key"]&.to_sym,
+            scenario_label: record["scenario_label"],
+            scenario: resolve_scenario(record),
+            scenario_context: normalize_prompt_package(record["scenario_context"] || {}),
+            scenario_summary: scenario_summary(record),
+            artifacts: normalize_prompt_package(record["artifacts"] || []),
+            artifact_summary: artifact_summary(record),
+            operator_checklist: operator_checklist(record),
             delivery: normalize_delivery(record["delivery"]),
             prompt_package: normalize_prompt_package(record["prompt_package"] || build_prompt_package(record)),
             briefing: briefing_value
@@ -321,6 +432,14 @@ module Companion
             runtime_model: record["runtime_model"],
             runtime_profile_key: record["runtime_profile_key"]&.to_sym,
             runtime_profile_label: record["runtime_profile_label"],
+            scenario_key: record["scenario_key"]&.to_sym,
+            scenario_label: record["scenario_label"],
+            scenario: resolve_scenario(record),
+            scenario_context: normalize_prompt_package(record["scenario_context"] || {}),
+            scenario_summary: scenario_summary(record),
+            artifacts: normalize_prompt_package(record["artifacts"] || []),
+            artifact_summary: artifact_summary(record),
+            operator_checklist: operator_checklist(record),
             delivery: normalize_delivery(record["delivery"]),
             prompt_package: normalize_prompt_package(record["prompt_package"]),
             error: e.message
@@ -363,10 +482,38 @@ module Companion
             requester: record.fetch("requester"),
             request: record.fetch("request"),
             runtime_config: runtime_config,
+            scenario: resolve_scenario(record),
+            scenario_context: record["scenario_context"],
+            artifacts: record["artifacts"],
             delivery_target: nil,
             local_draft: local_draft,
             final_briefing: final_briefing
           )
+        end
+
+        def resolve_scenario(record)
+          Companion::Main::Support::AssistantScenarios.resolve(
+            key: record["scenario_key"],
+            request: record["request"]
+          )
+        end
+
+        def scenario_summary(record)
+          Companion::Main::Support::AssistantScenarioContext.summary(
+            scenario: resolve_scenario(record),
+            context: record["scenario_context"] || {}
+          )
+        end
+
+        def operator_checklist(record)
+          Companion::Main::Support::AssistantScenarioContext.operator_checklist(
+            scenario: resolve_scenario(record),
+            context: record["scenario_context"] || {}
+          )
+        end
+
+        def artifact_summary(record)
+          Companion::Main::Support::AssistantArtifacts.summary(record["artifacts"] || [])
         end
 
         def normalize_prompt_package(package)
@@ -391,6 +538,168 @@ module Companion
           end
 
           normalized
+        end
+
+        def open_manual_followup(requester:, request:, resolved_scenario:, resolved_context:, resolved_artifacts:, runtime:, prompt_package:, delivery:)
+          store = Companion::Shared::RuntimeProfile.execution_store(:main)
+          contract = Companion::BriefingRequestContract.start(
+            { requester: requester, request: request },
+            store: store
+          )
+          followups = Companion::MainApp.open_orchestration_followups(contract)
+
+          record = Companion::Shared::AssistantRequestStore.add(
+            requester: requester,
+            request: request,
+            graph: contract.execution.compiled_graph.name,
+            execution_id: contract.execution.events.execution_id,
+            followup_ids: followups.opened.map { |entry| entry[:id] } + followups.existing.map { |entry| entry[:id] },
+            runtime_mode: runtime.dig(:config, :mode),
+            runtime_provider: runtime.dig(:config, :provider),
+            runtime_model: runtime.dig(:config, :model),
+            runtime_profile_key: runtime.dig(:config, :profile, :key),
+            runtime_profile_label: runtime.dig(:config, :profile, :label),
+            scenario_key: resolved_scenario.fetch(:key),
+            scenario_label: resolved_scenario.fetch(:label),
+            scenario_context: resolved_context,
+            artifacts: resolved_artifacts,
+            prompt_package: prompt_package,
+            delivery: delivery
+          )
+
+          {
+            request: request_record(record),
+            followup: {
+              opened: followups.opened,
+              existing: followups.existing,
+              summary: Companion::MainApp.orchestration_followup(contract).summary
+            }
+          }.tap do |result|
+            record_observation(
+              request: result.fetch(:request),
+              action: :opened_manual_followup,
+              source: :assistant_api,
+              metadata: {
+                delivery_reason: delivery[:reason],
+                queue: result.dig(:request, :queue)
+              }
+            )
+          end
+        end
+
+        def reopen_artifacts_for(record)
+          artifacts = [
+            {
+              kind: :note,
+              label: "Completed Briefing",
+              value: record.fetch(:briefing, "").to_s
+            },
+            {
+              kind: :note,
+              label: "Original Request",
+              value: record.fetch(:request, "").to_s
+            }
+          ]
+
+          artifacts.concat(Array(record[:artifacts]))
+          Companion::Main::Support::AssistantArtifacts.normalize(raw: artifacts)
+        end
+
+        def manual_delivery_target
+          {
+            key: :manual_completion,
+            label: "Manual Completion"
+          }
+        end
+
+        def record_observation(request:, action:, source:, metadata: {})
+          Companion::Shared::AssistantEvaluationStore.add(
+            request_id: request.fetch(:id),
+            action: action,
+            requester: request.fetch(:requester, nil),
+            scenario_key: request.fetch(:scenario_key, nil),
+            scenario_label: request.fetch(:scenario_label, nil) || request.dig(:scenario, :label),
+            runtime_model: request.fetch(:runtime_model, nil),
+            status: request.fetch(:status, nil),
+            source: source,
+            metadata: metadata
+          )
+        end
+
+        def evaluation_overview(limit:)
+          all_entries = Companion::Shared::AssistantEvaluationStore.all
+          recent_entries = all_entries.first(limit)
+          {
+            summary: {
+              total: Companion::Shared::AssistantEvaluationStore.count,
+              by_action: count_many(all_entries) { |entry| entry.fetch("action", nil) },
+              by_scenario: count_many(all_entries) { |entry| entry["scenario_key"] },
+              by_model: count_many(all_entries) { |entry| entry["runtime_model"] }
+            },
+            insights: evaluation_insights(all_entries),
+            recent: recent_entries.map { |entry| normalize_prompt_package(entry) }
+          }
+        end
+
+        def count_many(entries)
+          entries.each_with_object(Hash.new(0)) do |entry, memo|
+            key = yield(entry)
+            next if key.nil? || key.to_s.empty?
+
+            normalized_key =
+              begin
+                key.to_sym
+              rescue StandardError
+                key
+              end
+
+            memo[normalized_key] += 1
+          end
+        end
+
+        def evaluation_insights(entries)
+          insights = []
+
+          if (entry = top_entry(entries, action: "feedback_useful", field: "scenario_label"))
+            insights << "#{entry.fetch("scenario_label")} is getting useful operator feedback."
+          end
+
+          if (entry = top_entry(entries, action: "feedback_too_verbose", field: "runtime_model"))
+            insights << "#{entry.fetch("runtime_model")} tends to be marked too verbose."
+          end
+
+          if (entry = top_entry(entries, action: "feedback_too_slow", field: "runtime_model"))
+            insights << "#{entry.fetch("runtime_model")} tends to be marked too slow."
+          end
+
+          if (entry = top_entry(entries, action: "feedback_wrong_lane", field: "scenario_label"))
+            insights << "#{entry.fetch("scenario_label")} is getting wrong-lane feedback and may need better routing."
+          end
+
+          if (entry = top_entry(entries, action: "reopened_manual_action", field: "scenario_label"))
+            insights << "#{entry.fetch("scenario_label")} often returns to the manual action lane."
+          end
+
+          if count_for(entries, "saved_as_note").positive?
+            insights << "Operators are saving assistant outputs as notes, which is a good signal for durable usefulness."
+          end
+
+          insights.first(4)
+        end
+
+        def top_entry(entries, action:, field:)
+          filtered = entries.select do |entry|
+            entry.fetch("action", nil).to_s == action && !entry[field].to_s.empty?
+          end
+          return nil if filtered.empty?
+
+          grouped = filtered.group_by { |entry| entry[field] }
+          top_key, _entries = grouped.max_by { |_key, group| group.size }
+          filtered.find { |entry| entry[field] == top_key }
+        end
+
+        def count_for(entries, action)
+          entries.count { |entry| entry.fetch("action", nil).to_s == action }
         end
 
       end

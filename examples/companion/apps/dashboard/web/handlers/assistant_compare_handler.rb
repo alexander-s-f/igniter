@@ -13,6 +13,20 @@ module Companion
       def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
         requester = body.fetch("requester", "").to_s.strip
         request = body.fetch("request", "").to_s.strip
+        scenario = body.fetch("scenario", "").to_s.strip
+        scenario_context = {
+          target_environment: body.fetch("target_environment", "").to_s.strip,
+          change_scope: body.fetch("change_scope", "").to_s.strip,
+          verification_plan: body.fetch("verification_plan", "").to_s.strip,
+          rollback_plan: body.fetch("rollback_plan", "").to_s.strip,
+          affected_system: body.fetch("affected_system", "").to_s.strip,
+          urgency: body.fetch("urgency", "").to_s.strip,
+          symptoms: body.fetch("symptoms", "").to_s.strip,
+          sources: body.fetch("sources", "").to_s.strip,
+          decision_focus: body.fetch("decision_focus", "").to_s.strip,
+          constraints: body.fetch("constraints", "").to_s.strip
+        }
+        artifacts = body.fetch("artifacts", "").to_s
         models = parse_models(body.fetch("models", body.fetch("models_csv", "")))
         base_path = Handlers::Support.base_path_for(env)
 
@@ -23,7 +37,10 @@ module Companion
         comparison = Companion::DashboardApp.interface(:assistant_api).compare_runtime_outputs(
           requester: requester,
           request: request,
-          models: models
+          models: models,
+          scenario: scenario,
+          scenario_context: scenario_context,
+          artifacts: artifacts
         )
 
         html = Views::AssistantPage.render(
@@ -35,6 +52,15 @@ module Companion
             compare_form_values: {
               "requester" => requester,
               "request" => request,
+              "scenario" => scenario,
+              "target_environment" => scenario_context[:target_environment],
+              "change_scope" => scenario_context[:change_scope],
+              "verification_plan" => scenario_context[:verification_plan],
+              "rollback_plan" => scenario_context[:rollback_plan],
+              "sources" => scenario_context[:sources],
+              "decision_focus" => scenario_context[:decision_focus],
+              "constraints" => scenario_context[:constraints],
+              "artifacts" => artifacts,
               "models_csv" => models.join(", ")
             },
             compare_results: comparison

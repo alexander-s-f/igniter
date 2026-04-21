@@ -13,6 +13,20 @@ module Companion
       def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
         requester = body.fetch("requester", "").to_s.strip
         request = body.fetch("request", "").to_s.strip
+        scenario = body.fetch("scenario", "").to_s.strip
+        scenario_context = {
+          target_environment: body.fetch("target_environment", "").to_s.strip,
+          change_scope: body.fetch("change_scope", "").to_s.strip,
+          verification_plan: body.fetch("verification_plan", "").to_s.strip,
+          rollback_plan: body.fetch("rollback_plan", "").to_s.strip,
+          affected_system: body.fetch("affected_system", "").to_s.strip,
+          urgency: body.fetch("urgency", "").to_s.strip,
+          symptoms: body.fetch("symptoms", "").to_s.strip,
+          sources: body.fetch("sources", "").to_s.strip,
+          decision_focus: body.fetch("decision_focus", "").to_s.strip,
+          constraints: body.fetch("constraints", "").to_s.strip
+        }
+        artifacts = body.fetch("artifacts", "").to_s
         base_path = base_path_for(env)
 
         if requester.empty? || request.empty?
@@ -24,7 +38,13 @@ module Companion
           )
         end
 
-        Companion::DashboardApp.interface(:assistant_api).submit_request(requester: requester, request: request)
+        Companion::DashboardApp.interface(:assistant_api).submit_request(
+          requester: requester,
+          request: request,
+          scenario: scenario,
+          scenario_context: scenario_context,
+          artifacts: artifacts
+        )
 
         {
           status: 303,

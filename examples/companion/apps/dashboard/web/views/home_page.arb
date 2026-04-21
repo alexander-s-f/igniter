@@ -67,6 +67,11 @@ shell_columns do |columns|
               strong note.fetch("text"), class: "font-semibold text-white"
               div "source=#{note.fetch("source")} · created=#{note.fetch("created_at")}",
                   class: "mt-2 text-sm leading-6 text-stone-400"
+              action_group class_name: "mt-3 flex flex-wrap gap-3" do |actions|
+                actions.link "Use in Assistant",
+                             href: page_context.note_to_assistant_href(note),
+                             class_name: "rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-stone-100 transition hover:border-orange-300/50 hover:text-orange-200"
+              end
             end
           end
         end
@@ -90,6 +95,11 @@ shell_columns do |columns|
         table.column :action, as: :badge, badge: { size: :sm }
         table.column :status, as: :badge, badge: { size: :sm }
         table.column :queue, placeholder: "--"
+        table.actions do |row, actions|
+          actions.link "Use in Assistant",
+                       href: page_context.followup_to_assistant_href(row),
+                       class_name: "pill-link font-medium"
+        end
       end
     end
   end
@@ -98,6 +108,11 @@ shell_columns do |columns|
     panel title: "Runtime Signals",
           subtitle: "Semantic value primitives over the current stack snapshot.",
           class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
+      action_group class_name: "mb-4 flex flex-wrap gap-3" do |actions|
+        actions.link "Use in Assistant",
+                     href: page_context.runtime_signals_to_assistant_href,
+                     class_name: "rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-stone-100 transition hover:border-orange-300/50 hover:text-orange-200"
+      end
       card title: "Current State", subtitle: "Operator-facing runtime summary" do
         page_context.runtime_signal_rows.each do |row|
           line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
@@ -129,8 +144,11 @@ shell_columns do |columns|
         table.column :public, as: :boolean
         table.column :mounts, placeholder: "--"
         table.column :command, as: :code
-        table.actions do |_row, actions|
+        table.actions do |row, actions|
           actions.link "Inspect", href: "/v1/home/status", class_name: "pill-link font-medium"
+          actions.link "Use in Assistant",
+                       href: page_context.node_to_assistant_href(row),
+                       class_name: "pill-link font-medium"
         end
       end
     end
@@ -138,6 +156,11 @@ shell_columns do |columns|
     panel title: "Snapshot Preview",
           subtitle: "Raw structured runtime payloads for operator and debugging surfaces.",
           class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
+      action_group class_name: "mb-4 flex flex-wrap gap-3" do |actions|
+        actions.link "Use in Assistant",
+                     href: page_context.snapshot_preview_to_assistant_href,
+                     class_name: "rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-stone-100 transition hover:border-orange-300/50 hover:text-orange-200"
+      end
       viz page_context.snapshot_preview, compact: true, open: true
     end
   end

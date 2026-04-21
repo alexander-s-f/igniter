@@ -15,6 +15,18 @@ RSpec.describe Companion::MainApp do
     expect(config.registry.registered?("GreetContract")).to be(true)
   end
 
+  it "exposes non-secret credentials loader status" do
+    status = described_class.credentials_status
+    openai = status.dig(:providers, :openai)
+
+    expect(status[:path]).to include("credentials.local.yml")
+    expect([true, false]).to include(status[:loaded])
+    expect(status[:override]).to be(false)
+    expect(status.fetch(:providers)).to include(:openai, :anthropic)
+    expect(openai[:env_key]).to eq("OPENAI_API_KEY")
+    expect(%i[local_file environment file_present_not_loaded missing]).to include(openai[:source])
+  end
+
   it "exposes the canonical notes interface for sibling apps" do
     expect(described_class.interface(:notes_api)).to be(Companion::Main::Support::NotesAPI)
   end

@@ -14,6 +14,7 @@ module Companion
           def overview(config:, runtime_status:)
             ai_config = Igniter::AI::Config.new
             credential_policy = Companion::Main::Support::AssistantCredentialPolicy.current
+            credential_status = Companion::MainApp.credentials_status
 
             channels = {
               manual_completion: manual_channel,
@@ -26,7 +27,8 @@ module Companion
                   model: config.fetch(:openai_model),
                   policy: credential_policy
                 ),
-                credentials_ready: api_key_present?(ai_config.openai.api_key)
+                credentials_ready: api_key_present?(ai_config.openai.api_key),
+                credential_source: credential_status.dig(:providers, :openai, :source)
               ),
               anthropic_api: external_channel(
                 credential: external_credential(
@@ -36,11 +38,13 @@ module Companion
                   model: config.fetch(:anthropic_model),
                   policy: credential_policy
                 ),
-                credentials_ready: api_key_present?(ai_config.anthropic.api_key)
+                credentials_ready: api_key_present?(ai_config.anthropic.api_key),
+                credential_source: credential_status.dig(:providers, :anthropic, :source)
               )
             }
 
             {
+              credential_status: credential_status,
               credential_policy: Companion::Main::Support::AssistantCredentialPolicy.serialize(credential_policy),
               channels: channels.values,
               routing: {
@@ -102,7 +106,7 @@ module Companion
             )
           end
 
-          def external_channel(credential:, credentials_ready:)
+          def external_channel(credential:, credentials_ready:, credential_source:)
             policy_allowed = credential.allowed_in_scope?(:local)
 
             {
@@ -113,6 +117,9 @@ module Companion
               model: credential.metadata[:model],
               available: credentials_ready && !credential.metadata[:model].to_s.strip.empty? && policy_allowed,
               credentials_ready: credentials_ready,
+              credential_source: credential_source,
+              credential_scope: credential.scope,
+              credential_node: credential.node,
               credential: credential.to_h,
               credential_policy: credential.policy.name,
               policy_allowed: policy_allowed,

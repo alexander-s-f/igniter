@@ -204,6 +204,9 @@ module Companion
           return "Assistant request opened." if @filter_values["assistant_created"] == "1"
           return "Assistant follow-up completed." if @filter_values["assistant_completed"] == "1"
           return "Assistant request re-delivered." if @filter_values["assistant_redelivered"] == "1"
+          return "Assistant briefing saved as an operator note." if @filter_values["assistant_noted"] == "1"
+          return "Assistant briefing reopened as a manual action." if @filter_values["assistant_reopened"] == "1"
+          return "Assistant feedback recorded." if @filter_values["assistant_feedback"] == "1"
           return "Assistant runtime updated." if @filter_values["runtime_updated"] == "1"
 
           nil
@@ -342,6 +345,42 @@ module Companion
           notes.slice(note_offset, notes_per_page) || []
         end
 
+        def note_to_assistant_href(note)
+          params = URI.encode_www_form(
+            "scenario" => "general_brief",
+            "request" => "Use the attached operator note as evidence and prepare the next best operator follow-up.",
+            "artifacts" => note_artifact_value(note)
+          )
+
+          "#{route("/assistant")}?#{params}"
+        end
+
+        def followup_to_assistant_href(followup)
+          params = URI.encode_www_form(
+            "scenario" => "incident_triage",
+            "affected_system" => followup.fetch(:node, "").to_s,
+            "urgency" => followup_urgency(followup),
+            "symptoms" => followup_symptoms(followup),
+            "request" => "Use the attached orchestration follow-up as evidence and propose the next best operator action.",
+            "artifacts" => followup_artifact_value(followup)
+          )
+
+          "#{route("/assistant")}?#{params}"
+        end
+
+        def node_to_assistant_href(row)
+          params = URI.encode_www_form(
+            "scenario" => "technical_rollout",
+            "target_environment" => row.fetch(:name, ""),
+            "change_scope" => "Inspect runtime node #{row.fetch(:name)} and its mounted surfaces.",
+            "verification_plan" => "Verify endpoint reachability, mounted apps, and command wiring.",
+            "request" => "Use the attached runtime node snippet and prepare the next operator follow-up.",
+            "artifacts" => node_artifact_value(row)
+          )
+
+          "#{route("/assistant")}?#{params}"
+        end
+
         def notes_total_count
           notes.size
         end
@@ -398,7 +437,87 @@ module Companion
           }
         end
 
+        def runtime_signals_to_assistant_href
+          params = URI.encode_www_form(
+            "scenario" => "incident_triage",
+            "affected_system" => stack.fetch(:default_node, "").to_s,
+            "urgency" => runtime_status == :ready ? "medium" : "high",
+            "symptoms" => "runtime_status=#{runtime_status} · notes=#{notes_total_count} · nodes=#{nodes.size}",
+            "request" => "Use the attached runtime signal snapshot as evidence and propose the next best operator follow-up.",
+            "artifacts" => runtime_signal_artifact_value
+          )
+
+          "#{route("/assistant")}?#{params}"
+        end
+
+        def snapshot_preview_to_assistant_href
+          params = URI.encode_www_form(
+            "scenario" => "research_synthesis",
+            "sources" => "operator snapshot preview",
+            "decision_focus" => "What should the operator do next based on the current runtime snapshot?",
+            "constraints" => "Stay grounded in the attached snapshot artifacts.",
+            "request" => "Synthesize the attached runtime snapshot and recommend the next best operator action.",
+            "artifacts" => snapshot_preview_artifact_value
+          )
+
+          "#{route("/assistant")}?#{params}"
+        end
+
         private
+
+        def note_artifact_value(note)
+          "note: #{note.fetch("text")}"
+        end
+
+        def followup_artifact_value(followup)
+          [
+            "note: followup_id=#{followup.fetch(:id, "--")}",
+            "note: node=#{followup.fetch(:node, "--")} action=#{followup.fetch(:action, "--")} status=#{followup.fetch(:status, "--")}",
+            "note: queue=#{followup.fetch(:queue, "--")} channel=#{followup.fetch(:channel, "--")}"
+          ].join("\n")
+        end
+
+        def followup_symptoms(followup)
+          [
+            "action=#{followup.fetch(:action, "--")}",
+            "status=#{followup.fetch(:status, "--")}",
+            "queue=#{followup.fetch(:queue, "--")}"
+          ].join(" · ")
+        end
+
+        def followup_urgency(followup)
+          status = followup.fetch(:status, "").to_s
+          return "critical" if %w[failed blocked].include?(status)
+          return "high" if %w[pending open acknowledged].include?(status)
+
+          "medium"
+        end
+
+        def node_artifact_value(row)
+          [
+            "note: node=#{row.fetch(:name)} role=#{row.fetch(:role)} public=#{row.fetch(:public)}",
+            "note: endpoint=#{row.fetch(:endpoint)}",
+            "note: mounts=#{row.fetch(:mounts).join(", ")}",
+            "note: command=#{row.fetch(:command)}"
+          ].join("\n")
+        end
+
+        def runtime_signal_artifact_value
+          runtime_signal_rows.map do |row|
+            "note: #{row.fetch(:label)}=#{row.fetch(:value)}"
+          end.join("\n")
+        end
+
+        def snapshot_preview_artifact_value
+          preview = snapshot_preview
+
+          [
+            "note: stack_root_app=#{preview.dig(:stack, :root_app)} default_node=#{preview.dig(:stack, :default_node)}",
+            "note: counts_apps=#{preview.dig(:counts, :apps)} counts_nodes=#{preview.dig(:counts, :nodes)} counts_notes=#{preview.dig(:counts, :notes)} counts_requests=#{preview.dig(:counts, :assistant_requests)}",
+            "note: assistant_summary=#{preview.fetch(:assistant_summary, {}).map { |key, value| "#{key}=#{value}" }.join(", ")}",
+            "note: nodes=#{preview.fetch(:nodes, {}).map { |name, data| "#{name}(role=#{data[:role]}, endpoint=#{data[:endpoint]}, public=#{data[:public]})" }.join("; ")}"
+          ].join("\n")
+        end
 
         def note_offset
           (notes_page - 1) * notes_per_page
