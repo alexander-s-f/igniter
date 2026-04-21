@@ -82,6 +82,27 @@ RSpec.describe Companion::DashboardApp do
     expect(html).to include("Operator API")
     expect(html).to include('action="/notes"')
     expect(html).to include("Operator Notes")
+    expect(html).to include("Snapshot Preview")
+    expect(html).to include("Node Filters")
+    expect(html).to include('name="q"')
+  end
+
+  it "preserves node filter query values on the home page" do
+    app = described_class.rack_app
+
+    status, _headers, body = app.call(
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/",
+      "QUERY_STRING" => URI.encode_www_form("q" => "main", "public" => "false"),
+      "rack.input" => StringIO.new
+    )
+
+    html = body.each.to_a.join
+
+    expect(status).to eq(200)
+    expect(html).to include('value="main"')
+    expect(html).to include('name="public"')
+    expect(html).to include('value="false" selected')
   end
 
   it "creates a note from the dashboard form and exposes it in the overview" do

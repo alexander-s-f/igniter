@@ -38,6 +38,9 @@ That “stronger semantics” line now includes richer Arbre primitives such as:
 - `badge` with inferred status tone and compact sizing
 - `card#line` with `as: :badge` / `as: :code`
 - placeholder-aware schema rows and nested `subcard` composition
+- `table_with` for logs, events, history, and other collection-heavy operator views
+- `viz` for raw hashes, arrays, objects, and runtime payload inspection
+- `filters` for mounted-safe search and narrowing lanes above tables and feeds
 
 Authoring guide:
 

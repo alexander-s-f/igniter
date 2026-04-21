@@ -192,6 +192,68 @@ Another good example is `card#line`: the primitive stays compact, but it now
 knows how to render schema values as badges or code and how to provide
 placeholder-safe rows without pushing that repetition into every page template.
 
+The next tier after that is `table_with`: a compact collection primitive for
+screens that naturally revolve around rows, such as:
+
+- event history
+- execution logs
+- operator records
+- runtime inventories
+
+The intent is still semantic, not “mini React grid in Ruby”. A good
+`table_with` should feel close to:
+
+```ruby
+table_with events, compact: true do |table|
+  table.column :event
+  table.column :status, as: :badge
+  table.column :payload, as: :code
+  table.actions do |row, actions|
+    actions.link "Inspect", href: "/events/#{row[:id]}"
+  end
+end
+```
+
+That gives Igniter a real collection lane without dropping back to raw `table`
+markup for every operator page.
+
+For raw structured payloads, the sibling primitive is `viz`.
+
+That lane is for:
+
+- hashes
+- arrays
+- simple value objects that can expose `to_h`
+- runtime/debug payloads where a table is the wrong shape
+
+The intent is not a huge inspector framework. The intent is to give Arbre pages
+one honest semantic primitive for:
+
+```ruby
+viz execution_snapshot, compact: true, open: true
+```
+
+so operator/debug pages can stay Ruby-authored and readable even when the data
+is still raw.
+
+For collection-driven pages, `filters` is the sibling primitive above
+`table_with`.
+
+Use it when the page needs mounted-safe GET controls like:
+
+```ruby
+filters action: page_context.route("/"), values: page_context.node_filter_values do |filter|
+  filter.search "q", label: "Search"
+  filter.select "status", label: "Status", options: %w[pending joined blocked]
+  filter.clear "Reset", href: page_context.route("/")
+  filter.submit "Apply"
+end
+```
+
+That keeps search/select/reset/apply semantics out of raw form markup and gives
+operator/admin pages one honest filtering lane before we go deeper into richer
+query-builder territory.
+
 ## Child Routing
 
 Some components should send arbitrary child content into a specific internal

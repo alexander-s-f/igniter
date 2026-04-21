@@ -9,6 +9,7 @@ require_relative "components/breadcrumbs"
 require_relative "components/card"
 require_relative "components/conversation_panel"
 require_relative "components/event_list"
+require_relative "components/filters"
 require_relative "components/json_panel"
 require_relative "components/key_value_list"
 require_relative "components/metric_grid"
@@ -16,7 +17,9 @@ require_relative "components/page_header"
 require_relative "components/panel"
 require_relative "components/resource_list"
 require_relative "components/scenario_card"
+require_relative "components/table_with"
 require_relative "components/tabs"
+require_relative "components/viz"
 
 module Igniter
   module Frontend

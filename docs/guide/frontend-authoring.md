@@ -35,6 +35,12 @@ more expressive. For example:
 - `card#line` can render values as `:badge` or `:code`
 - `card#subcard` lets a page nest compact schema sections without dropping back
   to raw layout markup
+- `table_with` gives collection-heavy screens a first-class Arbre path for
+  events, history, logs, and operator records
+- `viz` gives raw structured payloads a first-class path for snapshots,
+  diagnostics, and debug-oriented operator surfaces
+- `filters` gives collection-heavy pages a semantic GET-form lane for search,
+  select narrowing, and reset/apply actions
 
 ## Canonical Shape
 

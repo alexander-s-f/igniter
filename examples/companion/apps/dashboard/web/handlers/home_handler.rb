@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "igniter-frontend"
+require "uri"
 require_relative "../../contexts/home_context"
 require_relative "../views/home_page"
 
@@ -17,7 +18,8 @@ module Companion
           Views::HomePage.render(
             context: Contexts::HomeContext.build(
               snapshot: snapshot,
-              base_path: base_path_for(env)
+              base_path: base_path_for(env),
+              filter_values: query_params_for(env)
             )
           )
         )
@@ -25,6 +27,12 @@ module Companion
 
       def base_path_for(env)
         env["SCRIPT_NAME"].to_s.sub(%r{/+\z}, "")
+      end
+
+      def query_params_for(env)
+        URI.decode_www_form(env.fetch("QUERY_STRING", "").to_s).each_with_object({}) do |(key, value), memo|
+          memo[key.to_s] = value
+        end
       end
     end
   end
