@@ -1,0 +1,56 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+# Quick demo — no server needed. Run: ruby bin/demo
+
+root = File.expand_path("..", __dir__)
+$LOAD_PATH.unshift(File.join(root, "lib"))
+Dir.chdir(root)
+
+require "igniter"
+require "igniter/core"
+require "igniter/agent"
+require_relative "../apps/main/app"
+
+%w[tools skills executors contracts agents].each do |dir|
+  Dir[File.join(root, "apps/main/#{dir}/**/*.rb")].sort.each { |f| require f }
+end
+
+hr = "─" * 48
+
+puts
+puts "  #{hr}"
+puts "  Companion Stack  ·  apps/main powered by Igniter ⚡"
+puts "  #{hr}"
+puts
+
+puts "1 · Contract — validated dependency graph"
+greeting = Companion::GreetContract.new(name: "Alice").result.greeting
+puts "  ➜  #{greeting[:message]}"
+puts "     resolved at #{greeting[:greeted_at]}"
+puts
+
+puts "2 · Agent — stateful actor"
+ref = Companion::HostAgent.start
+ref.call(:greet, { name: "Bob" })
+ref.call(:greet, { name: "Carol" })
+stats = ref.call(:stats)
+puts "  ➜  Greeted #{stats.total} visitors: #{stats.recent.map { |v| v[:name] }.join(", ")}"
+ref.stop
+puts
+
+puts "3 · Tool — LLM-callable (Anthropic / OpenAI compatible)"
+schema = Companion::GreetTool.to_schema
+params = schema[:parameters]["properties"].keys.join(", ")
+puts "  ➜  #{schema[:name]}(#{params}) — #{schema[:description]}"
+puts
+
+puts "4 · Skill — LLM reasoning loop (stub — add API key to activate)"
+puts "  ➜  See apps/main/skills/concierge_skill.rb"
+puts
+
+puts "  #{hr}"
+puts "  Run  bin/start       →  start the mounted stack"
+puts "  Run  bin/console     →  open the igniter console"
+puts "  Run  bin/dev         →  start the whole stack locally (+ var/log/dev/*.log)"
+puts "  #{hr}"
+puts

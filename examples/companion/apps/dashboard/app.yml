@@ -1,0 +1,4 @@
+persistence:
+  execution:
+    adapter: memory
+    path: var/dashboard_executions.sqlite3

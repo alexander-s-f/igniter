@@ -1,0 +1,13 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+gem "igniter", path: "../.."
+gem "sqlite3" # stack-local data + execution stores
+
+group :development, :test do
+  gem "rspec"
+end
+
+# Optional:
+# gem "puma"   # production HTTP server  →  bundle exec puma config.ru
