@@ -4,6 +4,8 @@ require "time"
 require_relative "../contracts/briefing_request_contract"
 require_relative "../../../lib/companion/shared/assistant_request_store"
 require_relative "../../../lib/companion/shared/runtime_profile"
+require_relative "assistant_runtime"
+require_relative "assistant_prompt_package"
 
 module Companion
   module Main
@@ -18,6 +20,48 @@ module Companion
           raise ArgumentError, "requester is required" if requester_text.empty?
           raise ArgumentError, "request is required" if request_text.empty?
 
+          runtime_attempt = Companion::Main::Support::AssistantRuntime.auto_draft(
+            requester: requester_text,
+            request: request_text
+          )
+          runtime = Companion::Main::Support::AssistantRuntime.overview
+          runtime_configuration = Companion::Main::Support::AssistantRuntime.configuration
+          base_prompt_package = Companion::Main::Support::AssistantPromptPackage.build(
+            requester: requester_text,
+            request: request_text,
+            runtime_config: runtime_configuration,
+            profile: runtime_configuration.fetch(:profile),
+            delivery_target: runtime.dig(:routing, :delivery_channel)
+          )
+
+          if runtime_attempt.fetch(:status) == :succeeded
+            record = Companion::Shared::AssistantRequestStore.add(
+              requester: requester_text,
+              request: request_text,
+              graph: "Companion::AssistantRuntime",
+              execution_id: "assistant-runtime-#{Time.now.utc.strftime("%Y%m%d%H%M%S%6N")}",
+              followup_ids: [],
+              status: "completed",
+              completed_at: Time.now.utc.iso8601,
+              completed_briefing: runtime_attempt.fetch(:briefing),
+              runtime_mode: runtime_attempt.dig(:config, :mode),
+              runtime_provider: runtime_attempt.dig(:config, :provider),
+              runtime_model: runtime_attempt.dig(:config, :model),
+              runtime_profile_key: runtime_attempt.dig(:config, :profile, :key),
+              runtime_profile_label: runtime_attempt.dig(:config, :profile, :label),
+              prompt_package: runtime_attempt[:prompt_package] || base_prompt_package
+            )
+
+            return {
+              request: request_record(record),
+              followup: {
+                opened: [],
+                existing: [],
+                summary: { total: 0, manual_completion: 0 }
+              }
+            }
+          end
+
           store = Companion::Shared::RuntimeProfile.execution_store(:main)
           contract = Companion::BriefingRequestContract.start(
             { requester: requester_text, request: request_text },
@@ -30,7 +74,13 @@ module Companion
             request: request_text,
             graph: contract.execution.compiled_graph.name,
             execution_id: contract.execution.events.execution_id,
-            followup_ids: followups.opened.map { |entry| entry[:id] } + followups.existing.map { |entry| entry[:id] }
+            followup_ids: followups.opened.map { |entry| entry[:id] } + followups.existing.map { |entry| entry[:id] },
+            runtime_mode: runtime.dig(:config, :mode),
+            runtime_provider: runtime.dig(:config, :provider),
+            runtime_model: runtime.dig(:config, :model),
+            runtime_profile_key: runtime.dig(:config, :profile, :key),
+            runtime_profile_label: runtime.dig(:config, :profile, :label),
+            prompt_package: base_prompt_package
           )
 
           {
@@ -64,7 +114,12 @@ module Companion
             record.merge(
               "status" => "completed",
               "completed_at" => Time.now.utc.iso8601,
-              "completed_briefing" => briefing_text
+              "completed_briefing" => briefing_text,
+              "prompt_package" => build_prompt_package(
+                record,
+                local_draft: record.dig("prompt_package", "local_draft"),
+                final_briefing: briefing_text
+              )
             )
           )
 
@@ -84,9 +139,32 @@ module Companion
                 record[:record_kind] == :orchestration && !%i[resolved dismissed].include?(record[:status])
               end
             },
+            runtime: Companion::Main::Support::AssistantRuntime.overview,
             requests: records,
             followups: operator_records.select { |record| record[:record_kind] == :orchestration }
           }
+        end
+
+        def configure_runtime(mode:, model:, base_url:, provider: "ollama", timeout_seconds: 20,
+                              delivery_strategy: "prefer_openai", openai_model: nil, anthropic_model: nil)
+          Companion::Main::Support::AssistantRuntime.configure(
+            mode: mode,
+            model: model,
+            base_url: base_url,
+            provider: provider,
+            timeout_seconds: timeout_seconds,
+            delivery_strategy: delivery_strategy,
+            openai_model: openai_model,
+            anthropic_model: anthropic_model
+          )
+        end
+
+        def compare_runtime_outputs(requester:, request:, models:)
+          Companion::Main::Support::AssistantRuntime.compare_drafts(
+            requester: requester,
+            request: request,
+            models: models
+          )
         end
 
         def all
@@ -99,6 +177,7 @@ module Companion
 
         def reset!
           Companion::Shared::AssistantRequestStore.reset!
+          Companion::Shared::AssistantRuntimeStore.reset!
           Companion::MainApp.reset_orchestration_inbox!
         end
 
@@ -120,6 +199,16 @@ module Companion
               queue: "manual-completions",
               channel: "inbox://manual-completions",
               runtime_state: :completed,
+              runtime_mode: record["runtime_mode"]&.to_sym,
+              runtime_provider: record["runtime_provider"]&.to_sym,
+              runtime_model: record["runtime_model"],
+              runtime_profile_key: record["runtime_profile_key"]&.to_sym,
+              runtime_profile_label: record["runtime_profile_label"],
+              prompt_package: normalize_prompt_package(record["prompt_package"] || build_prompt_package(
+                record,
+                local_draft: record["completed_briefing"],
+                final_briefing: record["completed_briefing"]
+              )),
               briefing: record["completed_briefing"],
               completed_at: record["completed_at"]
             }
@@ -145,6 +234,12 @@ module Companion
             queue: operator_record&.fetch(:queue, nil),
             channel: operator_record&.fetch(:channel, nil),
             runtime_state: contract.orchestration_overview[:summary][:by_state]&.keys&.first,
+            runtime_mode: record["runtime_mode"]&.to_sym,
+            runtime_provider: record["runtime_provider"]&.to_sym,
+            runtime_model: record["runtime_model"],
+            runtime_profile_key: record["runtime_profile_key"]&.to_sym,
+            runtime_profile_label: record["runtime_profile_label"],
+            prompt_package: normalize_prompt_package(record["prompt_package"] || build_prompt_package(record)),
             briefing: briefing_value
           }
         rescue StandardError => e
@@ -157,6 +252,12 @@ module Companion
             execution_id: record.fetch("execution_id"),
             followup_ids: Array(record["followup_ids"]),
             status: :unavailable,
+            runtime_mode: record["runtime_mode"]&.to_sym,
+            runtime_provider: record["runtime_provider"]&.to_sym,
+            runtime_model: record["runtime_model"],
+            runtime_profile_key: record["runtime_profile_key"]&.to_sym,
+            runtime_profile_label: record["runtime_profile_label"],
+            prompt_package: normalize_prompt_package(record["prompt_package"]),
             error: e.message
           }
         end
@@ -183,6 +284,39 @@ module Companion
 
           :pending
         end
+
+        def build_prompt_package(record, local_draft: nil, final_briefing: nil)
+          runtime_config = {
+            model: record["runtime_model"],
+            profile: {
+              key: record["runtime_profile_key"]&.to_sym,
+              label: record["runtime_profile_label"]
+            }
+          }
+
+          Companion::Main::Support::AssistantPromptPackage.build(
+            requester: record.fetch("requester"),
+            request: record.fetch("request"),
+            runtime_config: runtime_config,
+            delivery_target: nil,
+            local_draft: local_draft,
+            final_briefing: final_briefing
+          )
+        end
+
+        def normalize_prompt_package(package)
+          case package
+          when Hash
+            package.each_with_object({}) do |(key, value), normalized|
+              normalized[key.to_sym] = normalize_prompt_package(value)
+            end
+          when Array
+            package.map { |value| normalize_prompt_package(value) }
+          else
+            package
+          end
+        end
+
       end
     end
   end

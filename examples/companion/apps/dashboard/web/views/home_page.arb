@@ -33,46 +33,6 @@ end
 
 shell_columns do |columns|
   columns.main do
-    panel title: "Assistant Intake",
-          subtitle: "Open a real assistant workflow and push the next step into the operator loop.",
-          class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
-      if page_context.assistant_notice
-        p page_context.assistant_notice,
-          class: "mb-4 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-100"
-      end
-
-      form action: page_context.route("/assistant/requests"), method: "post", class: "grid gap-3" do
-        label "Requester",
-              for: "assistant-requester",
-              class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
-        input type: "text",
-              id: "assistant-requester",
-              name: "requester",
-              value: page_context.assistant_form_defaults.fetch("requester"),
-              placeholder: "Alex",
-              class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
-        label "Request",
-              for: "assistant-request",
-              class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
-        textarea page_context.assistant_form_defaults.fetch("request", ""),
-                 id: "assistant-request",
-                 name: "request",
-                 rows: 3,
-                 placeholder: "Prepare a concise assistant brief with the next best operator follow-up.",
-                 class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
-        button "Open Assistant Request",
-               type: "submit",
-               class: "inline-flex w-fit items-center rounded-full bg-orange-400 px-5 py-2 text-sm font-semibold text-stone-950 transition hover:bg-orange-300"
-      end
-
-      table_with page_context.assistant_request_rows, compact: true, empty_message: "No assistant requests opened yet." do |table|
-        table.column :requester
-        table.column :status, as: :badge, badge: { size: :sm }
-        table.column :submitted_at, as: :datetime
-        table.column :request, placeholder: "--"
-      end
-    end
-
     panel title: "Operator Notes",
           subtitle: "First thin slice of cross-app assistant and operator coordination.",
           class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
@@ -122,51 +82,19 @@ shell_columns do |columns|
                  class_name: "mt-5"
     end
 
-    panel title: "Snapshot Preview",
-          subtitle: "Raw structured runtime payloads for operator and debugging surfaces.",
+    panel title: "Orchestration Feed",
+          subtitle: "Recent orchestration records projected from assistant workflows.",
           class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
-      viz page_context.snapshot_preview, compact: true, open: true
+      table_with page_context.assistant_followups, compact: true, empty_message: "No orchestration activity yet." do |table|
+        table.column :node
+        table.column :action, as: :badge, badge: { size: :sm }
+        table.column :status, as: :badge, badge: { size: :sm }
+        table.column :queue, placeholder: "--"
+      end
     end
   end
 
   columns.aside do
-    panel title: "Assistant Activity",
-          subtitle: "Open follow-ups that the operator can complete directly from the desk.",
-          class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
-      if page_context.actionable_assistant_requests.empty?
-        empty_state "No assistant follow-ups waiting",
-                    message: "Open a request and Companion will push the next operator action into this lane.",
-                    class_name: "mt-1"
-      else
-        resource_list class_name: "space-y-4" do
-          page_context.actionable_assistant_requests.each do |record|
-            li class: "rounded-3xl border border-white/10 bg-white/5 p-4" do
-              div class: "flex items-center justify-between gap-3" do
-                strong record.fetch(:requester), class: "font-semibold text-white"
-                badge record.fetch(:status), size: :sm
-              end
-              p record.fetch(:request), class: "mt-2 text-sm leading-6 text-stone-300"
-              form action: page_context.route("/assistant/followups/approve"), method: "post", class: "mt-4 grid gap-3" do
-                input type: "hidden", name: "request_id", value: record.fetch(:id)
-                textarea "",
-                         name: "briefing",
-                         rows: 4,
-                         placeholder: "Write the operator-approved assistant brief",
-                         class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
-                input type: "text",
-                      name: "note",
-                      value: "Completed from Companion operator desk",
-                      class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
-                button "Complete Follow-up",
-                       type: "submit",
-                       class: "inline-flex w-fit items-center rounded-full bg-orange-400 px-5 py-2 text-sm font-semibold text-stone-950 transition hover:bg-orange-300"
-              end
-            end
-          end
-        end
-      end
-    end
-
     panel title: "Runtime Signals",
           subtitle: "Semantic value primitives over the current stack snapshot.",
           class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
@@ -207,15 +135,10 @@ shell_columns do |columns|
       end
     end
 
-    panel title: "Orchestration Feed",
-          subtitle: "Recent orchestration records projected from the assistant workflow.",
+    panel title: "Snapshot Preview",
+          subtitle: "Raw structured runtime payloads for operator and debugging surfaces.",
           class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
-      table_with page_context.assistant_followups, compact: true, empty_message: "No orchestration activity yet." do |table|
-        table.column :node
-        table.column :action, as: :badge, badge: { size: :sm }
-        table.column :status, as: :badge, badge: { size: :sm }
-        table.column :queue, placeholder: "--"
-      end
+      viz page_context.snapshot_preview, compact: true, open: true
     end
   end
 end

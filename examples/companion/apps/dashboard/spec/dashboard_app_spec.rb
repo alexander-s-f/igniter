@@ -79,21 +79,48 @@ RSpec.describe Companion::DashboardApp do
 
     expect(status).to eq(200)
     expect(headers["Content-Type"]).to include("text/html")
-    expect(html).to include("Assistant and operator proving ground")
+    expect(html).to include("Operator desk and runtime visibility")
     expect(html).to include("Operator Desk")
     expect(html).to include("Companion Operator Desk")
     expect(html).to include("Dashboard")
+    expect(html).to include("Assistant")
     expect(html).to include("Overview API")
     expect(html).to include("Operator API")
-    expect(html).to include("Assistant Intake")
-    expect(html).to include('action="/assistant/requests"')
     expect(html).to include('action="/notes"')
     expect(html).to include("Operator Notes")
     expect(html).to include("Runtime Signals")
-    expect(html).to include("Assistant Activity")
     expect(html).to include("Snapshot Preview")
+    expect(html).to include("Orchestration Feed")
     expect(html).to include("Node Filters")
     expect(html).to include('name="q"')
+  end
+
+  it "renders the assistant page" do
+    app = described_class.rack_app
+
+    status, headers, body = app.call(
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/assistant",
+      "rack.input" => StringIO.new
+    )
+
+    html = body.each.to_a.join
+
+    expect(status).to eq(200)
+    expect(headers["Content-Type"]).to include("text/html")
+    expect(html).to include("Companion Assistant")
+    expect(html).to include("Assistant intake and follow-up lane")
+    expect(html).to include("Assistant Requests")
+    expect(html).to include("Assistant Runtime")
+    expect(html).to include("Prompt Profile")
+    expect(html).to include("Prompt Package")
+    expect(html).to include("Routing")
+    expect(html).to include("Available Channels")
+    expect(html).to include("Actionable Follow-ups")
+    expect(html).to include("Completed Briefings")
+    expect(html).to include("Workflow Feed")
+    expect(html).to include('action="/assistant/requests"')
+    expect(html).to include('action="/assistant/runtime"')
   end
 
   it "preserves node filter query values on the home page" do
@@ -190,10 +217,117 @@ RSpec.describe Companion::DashboardApp do
     refreshed = Companion::Main::Support::AssistantAPI.all.first
 
     expect(create_status).to eq(303)
-    expect(create_headers["Location"]).to eq("/?assistant_created=1")
+    expect(create_headers["Location"]).to eq("/assistant?assistant_created=1")
     expect(complete_status).to eq(303)
-    expect(complete_headers["Location"]).to eq("/?assistant_completed=1")
+    expect(complete_headers["Location"]).to eq("/assistant?assistant_completed=1")
     expect(refreshed.fetch(:status)).to eq(:completed)
     expect(refreshed.fetch(:briefing)).to include("one seed")
+  end
+
+  it "updates the assistant runtime configuration from the dashboard" do
+    app = described_class.rack_app
+
+    update_status, update_headers, = app.call(
+      "REQUEST_METHOD" => "POST",
+      "PATH_INFO" => "/assistant/runtime",
+      "CONTENT_TYPE" => "application/x-www-form-urlencoded",
+      "rack.input" => StringIO.new(
+        URI.encode_www_form(
+          "mode" => "ollama",
+          "provider" => "ollama",
+          "model" => "qwen3:latest",
+          "base_url" => "http://127.0.0.1:11434",
+          "delivery_strategy" => "prefer_openai",
+          "openai_model" => "gpt-4o",
+          "anthropic_model" => "claude-sonnet-4-6"
+        )
+      )
+    )
+
+    overview_status, _overview_headers, overview_body = app.call(
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/api/overview",
+      "rack.input" => StringIO.new
+    )
+
+    payload = JSON.parse(overview_body.each.to_a.join)
+
+    expect(update_status).to eq(303)
+    expect(update_headers["Location"]).to eq("/assistant?runtime_updated=1")
+    expect(overview_status).to eq(200)
+    expect(payload.dig("assistant", "runtime", "config", "mode")).to eq("ollama")
+    expect(payload.dig("assistant", "runtime", "config", "model")).to eq("qwen3:latest")
+    expect(payload.dig("assistant", "runtime", "config", "delivery_strategy")).to eq("prefer_openai")
+  end
+
+  it "renders a model comparison on the assistant page" do
+    allow(Companion::Main::Support::AssistantAPI).to receive(:compare_runtime_outputs).and_return(
+      {
+        generated_at: "2026-04-21T10:00:00Z",
+        summary: {
+          requested_models: 2,
+          completed: 1,
+          unavailable: 1
+        },
+        results: [
+          {
+            model: "qwen3:latest",
+            profile_key: :reasoned_ops,
+            profile_label: "Reasoned Ops",
+            status: :completed,
+            reason: :ready,
+            ready: true,
+            briefing: "Draft from qwen3",
+            prompt_package: {
+              target: :openai_api,
+              target_label: "OpenAI API",
+              target_model: "gpt-4o",
+              mode: :prompt_prep,
+              profile_label: "Reasoned Ops",
+              prefix_warmup: "Act as Companion in Reasoned Ops mode.",
+              system_prompt: "System prompt",
+              user_prompt: "User prompt"
+            },
+            checked_at: "2026-04-21T10:00:00Z"
+          },
+          {
+            model: "gpt-oss:latest",
+            profile_key: :executive_summary,
+            profile_label: "Executive Summary",
+            status: :unavailable,
+            reason: :model_missing,
+            ready: false,
+            briefing: "Model not ready for drafting yet.",
+            checked_at: "2026-04-21T10:00:00Z"
+          }
+        ]
+      }
+    )
+
+    app = described_class.rack_app
+
+    status, headers, body = app.call(
+      "REQUEST_METHOD" => "POST",
+      "PATH_INFO" => "/assistant/compare",
+      "CONTENT_TYPE" => "application/x-www-form-urlencoded",
+      "rack.input" => StringIO.new(
+        URI.encode_www_form(
+          "requester" => "Alex",
+          "request" => "Compare rollout briefings",
+          "models_csv" => "qwen3:latest, gpt-oss:latest"
+        )
+      )
+    )
+
+    html = body.each.to_a.join
+
+    expect(status).to eq(200)
+    expect(headers["Content-Type"]).to include("text/html")
+    expect(html).to include("Model Lab")
+    expect(html).to include("Comparison Summary")
+    expect(html).to include("qwen3:latest")
+    expect(html).to include("gpt-oss:latest")
+    expect(html).to include("Draft from qwen3")
+    expect(html).to include("What Companion would hand off to the external API lane")
   end
 end

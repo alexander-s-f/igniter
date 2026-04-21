@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "igniter-frontend"
-require_relative "../../contexts/home_context"
-require_relative "../views/home_page"
-require_relative "home_handler"
+require_relative "../../contexts/assistant_context"
+require_relative "../views/assistant_page"
+require_relative "support"
 
 module Companion
   module Dashboard
@@ -29,7 +29,7 @@ module Companion
         {
           status: 303,
           body: "",
-          headers: { "Location" => [base_path, ""].reject(&:empty?).join("/") + "/?assistant_completed=1" }
+          headers: { "Location" => Handlers::Support.route_for(base_path, "/assistant") + "?assistant_completed=1" }
         }
       rescue StandardError => e
         render_error(env: env, base_path: base_path, error_message: e.message)
@@ -37,19 +37,19 @@ module Companion
 
       def render_error(env:, base_path:, error_message:)
         snapshot = Companion::DashboardApp.interface(:playground_ops_api).overview
-        html = Views::HomePage.render(
-          context: Contexts::HomeContext.build(
+        html = Views::AssistantPage.render(
+          context: Contexts::AssistantContext.build(
             snapshot: snapshot,
             base_path: base_path,
             error_message: error_message,
-            filter_values: HomeHandler.query_params_for(env)
+            filter_values: Handlers::Support.query_params_for(env)
           )
         )
         Igniter::Frontend::Response.html(html, status: 422)
       end
 
       def base_path_for(env)
-        env["SCRIPT_NAME"].to_s.sub(%r{/+\z}, "")
+        Handlers::Support.base_path_for(env)
       end
     end
   end

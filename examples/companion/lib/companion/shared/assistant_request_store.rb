@@ -10,7 +10,9 @@ module Companion
       COLLECTION = "companion_assistant_requests"
 
       class << self
-        def add(requester:, request:, graph:, execution_id:, followup_ids:)
+        def add(requester:, request:, graph:, execution_id:, followup_ids:, status: "open", completed_at: nil,
+                completed_briefing: nil, runtime_mode: nil, runtime_provider: nil, runtime_model: nil,
+                runtime_profile_key: nil, runtime_profile_label: nil, prompt_package: nil)
           entry = {
             "id" => "assistant-request-#{Time.now.utc.strftime("%Y%m%d%H%M%S%6N")}",
             "requester" => requester.to_s.strip,
@@ -19,8 +21,16 @@ module Companion
             "execution_id" => execution_id.to_s,
             "followup_ids" => Array(followup_ids).map(&:to_s),
             "submitted_at" => Time.now.utc.iso8601,
-            "status" => "open"
-          }
+            "status" => status.to_s,
+            "completed_at" => completed_at,
+            "completed_briefing" => completed_briefing,
+            "runtime_mode" => runtime_mode&.to_s,
+            "runtime_provider" => runtime_provider&.to_s,
+            "runtime_model" => runtime_model,
+            "runtime_profile_key" => runtime_profile_key&.to_s,
+            "runtime_profile_label" => runtime_profile_label,
+            "prompt_package" => prompt_package
+          }.compact
 
           save(entry)
         end

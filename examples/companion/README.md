@@ -41,7 +41,23 @@ Then open:
 
 - API status: `http://127.0.0.1:4567/v1/home/status`
 - assistant requests API: `http://127.0.0.1:4567/v1/assistant/requests`
-- dashboard: `http://127.0.0.1:4567/dashboard`
+- operator desk: `http://127.0.0.1:4567/dashboard`
+- assistant lane: `http://127.0.0.1:4567/dashboard/assistant`
+
+The assistant lane now supports a local runtime mode switch:
+
+- `manual` keeps the current operator follow-up flow
+- `ollama` tries to auto-draft a briefing locally and falls back to manual if the model is not ready yet
+- model-aware prompt profiles now adapt draft posture for lanes like `qwen3`, `qwen2.5-coder`, and `gpt-oss`
+- the assistant lane also includes a `Model Lab` for side-by-side comparisons across several local models
+- delivery routing now shows which external channel is currently preferred and whether credentials are actually ready
+- prompt packages are now prepared as explicit handoff artifacts for the selected external delivery lane rather than pretending the local model is the final production brain
+
+Current local default bias is `qwen2.5-coder:latest`, because it has shown the
+best interactive behavior so far in the Companion model lab.
+
+That makes it safe to point Companion at a model that is still downloading: the
+workflow stays usable while runtime readiness catches up.
 
 Local cluster mode also starts:
 

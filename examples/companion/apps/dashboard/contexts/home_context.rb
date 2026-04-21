@@ -8,24 +8,29 @@ module Companion
       class HomeContext
         NOTES_PER_PAGE = 3
 
-        def self.build(snapshot:, base_path:, error_message: nil, form_values: {}, assistant_form_values: {}, filter_values: {})
+        def self.build(snapshot:, base_path:, error_message: nil, form_values: {}, assistant_form_values: {}, filter_values: {},
+                       compare_form_values: {}, compare_results: nil)
           new(
             snapshot: snapshot,
             base_path: base_path,
             error_message: error_message,
             form_values: form_values,
             assistant_form_values: assistant_form_values,
-            filter_values: filter_values
+            filter_values: filter_values,
+            compare_form_values: compare_form_values,
+            compare_results: compare_results
           )
         end
 
-        def initialize(snapshot:, base_path:, error_message:, form_values:, assistant_form_values:, filter_values:)
+        def initialize(snapshot:, base_path:, error_message:, form_values:, assistant_form_values:, filter_values:, compare_form_values:, compare_results:)
           @snapshot = snapshot
           @base_path = base_path.to_s
           @error_message = error_message
           @form_values = form_values
           @assistant_form_values = assistant_form_values
           @filter_values = filter_values
+          @compare_form_values = compare_form_values
+          @compare_results = compare_results
         end
 
         attr_reader :snapshot
@@ -33,13 +38,15 @@ module Companion
         attr_reader :form_values
         attr_reader :assistant_form_values
         attr_reader :filter_values
+        attr_reader :compare_form_values
+        attr_reader :compare_results
 
         def title
           "Companion Operator Desk"
         end
 
         def description
-          "Public proving ground for the Igniter assistant and operator workflow."
+          "Runtime, notes, and cluster visibility for the Companion operator surface."
         end
 
         def generated_at
@@ -82,7 +89,19 @@ module Companion
         end
 
         def shell_subtitle
-          "Assistant and operator proving ground"
+          "Operator desk and runtime visibility"
+        end
+
+        def operator_desk_href
+          route("/")
+        end
+
+        def assistant_href
+          route("/assistant")
+        end
+
+        def current_nav_key
+          :desk
         end
 
         def shell_summary_items
@@ -98,7 +117,8 @@ module Companion
             {
               title: "Workspace",
               items: [
-                { label: "Operator Desk", href: route("/"), current: true, meta: "home" },
+                { label: "Operator Desk", href: operator_desk_href, current: current_nav_key == :desk, meta: "home" },
+                { label: "Assistant", href: assistant_href, current: current_nav_key == :assistant, meta: "workflow" },
                 { label: "Operator Console", href: route("/operator"), meta: "built-in" }
               ]
             },
@@ -116,14 +136,15 @@ module Companion
 
         def breadcrumbs
           [
-            { label: "Companion", href: route("/") },
-            { label: "Dashboard", href: route("/") },
+            { label: "Companion", href: operator_desk_href },
+            { label: "Dashboard", href: operator_desk_href },
             { label: "Operator Desk", current: true }
           ]
         end
 
         def operator_links
           [
+            { label: "Assistant Lane", href: assistant_href },
             { label: "Overview API", href: route("/api/overview") },
             { label: "Operator Console", href: route("/operator") },
             { label: "Operator API", href: route("/api/operator") },
@@ -138,6 +159,26 @@ module Companion
 
         def assistant_summary
           assistant.fetch(:summary, {})
+        end
+
+        def assistant_runtime
+          assistant.fetch(:runtime, {})
+        end
+
+        def assistant_runtime_config
+          assistant_runtime.fetch(:config, {})
+        end
+
+        def assistant_runtime_status
+          assistant_runtime.fetch(:status, {})
+        end
+
+        def assistant_runtime_channels
+          assistant_runtime.fetch(:channels, [])
+        end
+
+        def assistant_runtime_routing
+          assistant_runtime.fetch(:routing, {})
         end
 
         def assistant_requests
@@ -158,8 +199,22 @@ module Companion
         def assistant_notice
           return "Assistant request opened." if @filter_values["assistant_created"] == "1"
           return "Assistant follow-up completed." if @filter_values["assistant_completed"] == "1"
+          return "Assistant runtime updated." if @filter_values["runtime_updated"] == "1"
 
           nil
+        end
+
+        def assistant_runtime_form_defaults
+          {
+            "mode" => assistant_runtime_config.fetch(:mode, :manual).to_s,
+            "provider" => assistant_runtime_config.fetch(:provider, :ollama).to_s,
+            "model" => assistant_runtime_config.fetch(:model, "qwen2.5-coder:latest").to_s,
+            "base_url" => assistant_runtime_config.fetch(:base_url, "http://127.0.0.1:11434").to_s,
+            "timeout_seconds" => assistant_runtime_config.fetch(:timeout_seconds, 20).to_s,
+            "delivery_strategy" => assistant_runtime_config.fetch(:delivery_strategy, :prefer_openai).to_s,
+            "openai_model" => assistant_runtime_config.fetch(:openai_model, "gpt-4o").to_s,
+            "anthropic_model" => assistant_runtime_config.fetch(:anthropic_model, "claude-sonnet-4-6").to_s
+          }
         end
 
         def assistant_request_rows
