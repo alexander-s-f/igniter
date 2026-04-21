@@ -117,6 +117,9 @@ RSpec.describe "Igniter module layout" do
       events.rb
       policies
       policies.rb
+      store.rb
+      stores
+      trail.rb
     ])
 
     expect(children_for(File.join(APP_LIB, "app", "credentials", "events"))).to eq(%w[
@@ -126,6 +129,10 @@ RSpec.describe "Igniter module layout" do
     expect(children_for(File.join(APP_LIB, "app", "credentials", "policies"))).to eq(%w[
       ephemeral_lease_policy.rb
       local_only_policy.rb
+    ])
+
+    expect(children_for(File.join(APP_LIB, "app", "credentials", "stores"))).to eq(%w[
+      file_store.rb
     ])
   end
 

@@ -22,6 +22,7 @@ module Igniter
   # stack. The stack itself owns the server/runtime boundary.
   class Stack
     UNDEFINED_IGNITION_STORE = Object.new
+    UNDEFINED_CREDENTIAL_STORE = Object.new
     AppDefinition = Struct.new(:name, :path, :klass, :root, :access_to, keyword_init: true)
     ConsoleContext = Struct.new(
       :stack_class,
@@ -93,6 +94,23 @@ module Igniter
       def ignition_log(path, retain_events: nil, archive: nil)
         ignition_store(
           Igniter::Ignite::Stores::FileStore.new(
+            path: resolve_path(path),
+            max_events: retain_events,
+            archive_path: archive ? resolve_path(archive) : nil
+          )
+        )
+      end
+
+      def credential_store(store = UNDEFINED_CREDENTIAL_STORE)
+        return (@credential_store ||= default_credential_store) if store.equal?(UNDEFINED_CREDENTIAL_STORE)
+
+        @credential_store = store
+        reload_credential_trail!
+      end
+
+      def credential_log(path, retain_events: nil, archive: nil)
+        credential_store(
+          Igniter::App::Credentials::Stores::FileStore.new(
             path: resolve_path(path),
             max_events: retain_events,
             archive_path: archive ? resolve_path(archive) : nil
@@ -473,6 +491,26 @@ module Igniter
         ignition_trail.latest_report
       end
 
+      def credential_trail
+        @credential_trail ||= Igniter::App::Credentials::Trail.new(store: credential_store)
+      end
+
+      def credential_history(limit: 10)
+        credential_trail.snapshot(limit: limit)
+      end
+
+      def record_credential_event(event = nil, **attributes)
+        credential_trail.record(event, **attributes)
+      end
+
+      def reset_credential_trail!
+        credential_trail.clear!
+      end
+
+      def reload_credential_trail!
+        @credential_trail = Igniter::App::Credentials::Trail.new(store: credential_store)
+      end
+
       def reset_ignition_trail!
         ignition_trail.clear!
       end
@@ -688,6 +726,8 @@ module Igniter
         subclass.instance_variable_set(:@environment_settings, nil)
         subclass.instance_variable_set(:@ignition_store, nil)
         subclass.instance_variable_set(:@ignition_trail, nil)
+        subclass.instance_variable_set(:@credential_store, nil)
+        subclass.instance_variable_set(:@credential_trail, nil)
       end
 
       private
@@ -1509,6 +1549,13 @@ module Igniter
         )
       end
 
+      def default_credential_store
+        Igniter::App::Credentials::Stores::FileStore.new(
+          path: resolve_path(File.join("var", "credentials", "#{stack_slug}.ndjson")),
+          archive_path: resolve_path(File.join("var", "credentials", "#{stack_slug}.archive.ndjson"))
+        )
+      end
+
       def ignition_plan_for_target(target_id, mode: :expand)
         target = target_id.to_s
         base_plan = ignition_plan
@@ -1547,6 +1594,7 @@ module Igniter
         @environment_settings = nil
         @ignition_plan = nil
         @ignition_trail = nil
+        @credential_trail = nil
       end
     end
   end

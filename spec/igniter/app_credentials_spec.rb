@@ -169,4 +169,40 @@ RSpec.describe Igniter::App::Credentials do
       expect(derived.metadata[:trust_class]).to eq(:weak)
     end
   end
+
+  describe Igniter::App::Credentials::Trail do
+    it "records canonical credential events and summarizes them" do
+      trail = described_class.new
+
+      trail.record(
+        event: :lease_requested,
+        credential_key: :openai_api,
+        policy_name: :ephemeral_lease,
+        node: "main",
+        target_node: "replica-1",
+        source: :credential_runtime
+      )
+      trail.record(
+        event: :lease_denied,
+        credential_key: :openai_api,
+        policy_name: :local_only,
+        node: "main",
+        target_node: "office-edge",
+        source: :credential_policy,
+        reason: :weak_trust_denied
+      )
+
+      snapshot = trail.snapshot(limit: 10)
+
+      expect(snapshot).to include(
+        total: 2,
+        latest_type: :lease_denied,
+        latest_status: :denied
+      )
+      expect(snapshot[:by_event]).to include(lease_requested: 1, lease_denied: 1)
+      expect(snapshot[:by_policy]).to include(ephemeral_lease: 1, local_only: 1)
+      expect(snapshot[:by_credential]).to include(openai_api: 2)
+      expect(snapshot[:by_target_node]).to include("replica-1" => 1, "office-edge" => 1)
+    end
+  end
 end

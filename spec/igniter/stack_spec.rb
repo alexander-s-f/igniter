@@ -278,6 +278,60 @@ RSpec.describe Igniter::Stack do
     end
   end
 
+  it "persists credential history and can reload the durable trail" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      log_path = File.join(tmp, "var", "credentials", "spark_crm.ndjson")
+
+      workspace.record_credential_event(
+        event: :lease_requested,
+        credential_key: :openai_api,
+        policy_name: :ephemeral_lease,
+        node: "main",
+        target_node: "replica-1",
+        source: :credential_runtime
+      )
+      workspace.record_credential_event(
+        event: :lease_denied,
+        credential_key: :openai_api,
+        policy_name: :local_only,
+        node: "main",
+        target_node: "office-edge",
+        source: :credential_policy,
+        reason: :weak_trust_denied
+      )
+
+      history = workspace.credential_history(limit: 10)
+
+      expect(history).to include(
+        total: 2,
+        latest_type: :lease_denied,
+        latest_status: :denied,
+        persistence: include(enabled: true, path: log_path)
+      )
+      expect(history[:by_event]).to include(lease_requested: 1, lease_denied: 1)
+      expect(File).to exist(log_path)
+
+      workspace.reload_credential_trail!
+      reloaded = workspace.credential_history(limit: 10)
+
+      expect(reloaded).to include(
+        total: 2,
+        latest_type: :lease_denied,
+        latest_status: :denied,
+        persistence: include(enabled: true, path: log_path)
+      )
+      expect(reloaded[:by_event]).to eq(history[:by_event])
+      expect(reloaded[:by_policy]).to eq(history[:by_policy])
+    end
+  end
+
   it "marks remote targets as deferred after approval until remote bootstrap exists" do
     Dir.mktmpdir do |tmp|
       File.write(File.join(tmp, "stack.yml"), <<~YAML)

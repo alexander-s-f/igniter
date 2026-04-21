@@ -40,6 +40,7 @@ only inside `companion`:
 - `Igniter::App::Credentials::Policies::LocalOnlyPolicy`
 - `Igniter::App::Credentials::Policies::EphemeralLeasePolicy`
 - `Igniter::App::Credentials::Events::CredentialEvent`
+- `Igniter::App::Credentials::Trail`
 
 That is intentionally still conservative.
 
@@ -49,6 +50,8 @@ That is intentionally still conservative.
   every product to reinvent `local_only`
 - it now also gives apps one canonical audit/event envelope for future
   credential lease and replication flows
+- it now also gives stacks one durable credential trail seam before full
+  cross-node transport exists
 - it does not yet pretend cluster-wide secret transport is solved
 - app-specific products may adapt and subclass these objects, but should not
   invent unrelated credential/policy vocabularies when the shared layer fits
@@ -266,6 +269,10 @@ current vocabulary:
 - `replication_denied`
 - `replication_revoked`
 - `access_denied`
+
+Those events can now also land in a durable app/stack-side trail through
+`Igniter::App::Credentials::Trail`, so future lease and propagation work
+already has a canonical audit destination.
 
 4. How should rotation and revocation work across already-running nodes?
 
