@@ -39,7 +39,12 @@ module Companion
                 delivery_channel: select_delivery_channel(channels, config),
                 prep_ready: channels.fetch(:ollama_prep).fetch(:available),
                 external_delivery_ready: select_delivery_channel(channels, config).fetch(:available)
-              }
+              },
+              recommendation: build_recommendation(
+                channels: channels,
+                config: config,
+                runtime_status: runtime_status
+              )
             }
           end
 
@@ -120,6 +125,51 @@ module Companion
 
           def api_key_present?(value)
             !value.to_s.strip.empty?
+          end
+
+          def build_recommendation(channels:, config:, runtime_status:)
+            prep_channel = select_prep_channel(channels, config)
+            delivery_channel = select_delivery_channel(channels, config)
+            available_models = Array(runtime_status[:available_models]).map(&:to_s)
+            selected_model = config.fetch(:model).to_s
+
+            prep_summary =
+              if prep_channel[:key] == :manual_completion
+                "Use the operator lane directly while local prep is disabled."
+              elsif prep_channel[:available]
+                "Use #{selected_model} for prompt prep."
+              else
+                "Local prep is configured but not ready yet."
+              end
+
+            delivery_summary =
+              if delivery_channel[:key] == :manual_completion
+                "Keep final delivery in the manual operator lane."
+              else
+                "Send outward through #{delivery_channel[:label]} using #{delivery_channel[:model]}."
+              end
+
+            notes = []
+            if available_models.any? { |name| name.match?(/gpt-oss/i) }
+              notes << "gpt-oss looks usable for lightweight local prompt prep."
+            end
+            if available_models.any? { |name| name.match?(/qwen2\.?5-coder/i) }
+              notes << "qwen2.5-coder remains the strongest default for practical technical prep."
+            end
+            if delivery_channel[:key] == :manual_completion && config.fetch(:delivery_strategy) != :manual_only
+              notes << "External delivery is not ready yet, so Companion is falling back to manual completion."
+            end
+            notes << "Live external delivery is enabled." if config.fetch(:delivery_mode) == :live
+
+            {
+              title: "Best Current Lane",
+              prep: prep_channel[:label],
+              prep_model: prep_channel[:model],
+              delivery: delivery_channel[:label],
+              delivery_model: delivery_channel[:model],
+              summary: "#{prep_summary} #{delivery_summary}",
+              notes: notes.uniq
+            }
           end
         end
       end

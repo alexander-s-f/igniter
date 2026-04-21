@@ -353,6 +353,17 @@ shell_columns do |columns|
         end
       end
 
+      card title: page_context.assistant_recommendation.fetch(:title, "Best Current Lane"),
+           subtitle: "What Companion would use right now based on local prep, delivery readiness, and configured policy" do
+        page_context.assistant_recommendation_rows.each do |row|
+          line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
+        end
+        line :summary, page_context.assistant_recommendation_summary, as: :code
+        unless page_context.assistant_recommendation_notes.empty?
+          line :notes, page_context.assistant_recommendation_notes, as: :badge
+        end
+      end
+
       card title: "Prompt Package", subtitle: "Local models prepare handoff inputs for the external ChatGPT API lane" do
         line :target, page_context.assistant_runtime_routing.dig(:delivery_channel, :key) || :chatgpt_api, as: :badge
         line :target_label, page_context.assistant_runtime_routing.dig(:delivery_channel, :label) || "ChatGPT API", as: :badge

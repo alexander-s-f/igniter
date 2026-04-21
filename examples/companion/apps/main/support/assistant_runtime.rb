@@ -106,7 +106,8 @@ module Companion
               },
               status: status,
               channels: delivery.fetch(:channels),
-              routing: delivery.fetch(:routing)
+              routing: delivery.fetch(:routing),
+              recommendation: delivery.fetch(:recommendation)
             }
           end
 

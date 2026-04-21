@@ -106,6 +106,30 @@ module Companion
           ]
         end
 
+        def assistant_recommendation
+          assistant_runtime.fetch(:recommendation, {})
+        end
+
+        def assistant_recommendation_rows
+          recommendation = assistant_recommendation
+          return [] if recommendation.empty?
+
+          [
+            { label: :prep, value: recommendation.fetch(:prep, "--"), as: :badge },
+            { label: :prep_model, value: recommendation.fetch(:prep_model, "--"), as: :code },
+            { label: :delivery, value: recommendation.fetch(:delivery, "--"), as: :badge },
+            { label: :delivery_model, value: recommendation.fetch(:delivery_model, "--"), as: :code }
+          ]
+        end
+
+        def assistant_recommendation_summary
+          assistant_recommendation.fetch(:summary, "--")
+        end
+
+        def assistant_recommendation_notes
+          assistant_recommendation.fetch(:notes, [])
+        end
+
         def delivery_rows(record)
           delivery = record.fetch(:delivery, {})
           return [] if delivery.empty?
