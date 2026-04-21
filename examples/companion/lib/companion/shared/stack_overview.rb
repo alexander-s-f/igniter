@@ -2,6 +2,7 @@
 
 require "time"
 require_relative "note_store"
+require_relative "../../../apps/main/support/assistant_api"
 
 module Companion
   module Shared
@@ -11,6 +12,7 @@ module Companion
       def build
         deployment = Companion::Stack.deployment_snapshot
         notes = Companion::Shared::NoteStore.all
+        assistant = Companion::Main::Support::AssistantAPI.overview
         nodes = deployment.fetch("nodes").transform_values do |config|
           {
             role: config["role"],
@@ -34,9 +36,12 @@ module Companion
           counts: {
             apps: Companion::Stack.app_names.size,
             nodes: nodes.size,
-            notes: notes.size
+            notes: notes.size,
+            assistant_requests: assistant.dig(:summary, :total_requests),
+            assistant_followups: assistant.dig(:summary, :actionable_followups)
           },
           notes: notes.first(8),
+          assistant: assistant,
           nodes: nodes,
           apps: deployment.fetch("apps").transform_values do |config|
             {

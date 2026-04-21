@@ -46,6 +46,12 @@ module Companion
           File.join(storage_root, "notes.json")
         end
 
+        def assistant_request_store_path
+          return File.join(root_dir, "var", "assistant_requests.json") unless cluster_mode?
+
+          File.join(storage_root, "assistant_requests.json")
+        end
+
         def stack_data_path
           return File.join(root_dir, "var", "companion_data.sqlite3") unless cluster_mode?
 

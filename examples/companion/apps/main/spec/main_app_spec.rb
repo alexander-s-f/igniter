@@ -7,6 +7,7 @@ require "stringio"
 RSpec.describe Companion::MainApp do
   before do
     Companion::Shared::NoteStore.reset!
+    Companion::Main::Support::AssistantAPI.reset!
   end
 
   it "builds and registers the greet contract" do
@@ -20,6 +21,10 @@ RSpec.describe Companion::MainApp do
 
   it "exposes the playground ops interface for sibling apps" do
     expect(described_class.interface(:playground_ops_api)).to be(Companion::Main::Support::PlaygroundOpsAPI)
+  end
+
+  it "exposes the assistant interface for sibling apps" do
+    expect(described_class.interface(:assistant_api)).to be(Companion::Main::Support::AssistantAPI)
   end
 
   it "exposes a status endpoint for the stack snapshot" do

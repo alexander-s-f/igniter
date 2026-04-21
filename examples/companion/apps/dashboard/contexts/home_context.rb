@@ -8,27 +8,30 @@ module Companion
       class HomeContext
         NOTES_PER_PAGE = 3
 
-        def self.build(snapshot:, base_path:, error_message: nil, form_values: {}, filter_values: {})
+        def self.build(snapshot:, base_path:, error_message: nil, form_values: {}, assistant_form_values: {}, filter_values: {})
           new(
             snapshot: snapshot,
             base_path: base_path,
             error_message: error_message,
             form_values: form_values,
+            assistant_form_values: assistant_form_values,
             filter_values: filter_values
           )
         end
 
-        def initialize(snapshot:, base_path:, error_message:, form_values:, filter_values:)
+        def initialize(snapshot:, base_path:, error_message:, form_values:, assistant_form_values:, filter_values:)
           @snapshot = snapshot
           @base_path = base_path.to_s
           @error_message = error_message
           @form_values = form_values
+          @assistant_form_values = assistant_form_values
           @filter_values = filter_values
         end
 
         attr_reader :snapshot
         attr_reader :error_message
         attr_reader :form_values
+        attr_reader :assistant_form_values
         attr_reader :filter_values
 
         def title
@@ -70,7 +73,7 @@ module Companion
           [
             { label: "Apps", value: stack.fetch(:apps).size, hint: "mounted stack apps" },
             { label: "Nodes", value: counts.fetch(:nodes), hint: "runtime targets in snapshot" },
-            { label: "Notes", value: counts.fetch(:notes), hint: "shared assistant/operator scratchpad" }
+            { label: "Requests", value: counts.fetch(:assistant_requests, 0), hint: "assistant workflows opened from the desk" }
           ]
         end
 
@@ -104,7 +107,8 @@ module Companion
               items: [
                 { label: "Overview API", href: route("/api/overview"), meta: "snapshot" },
                 { label: "Operator API", href: route("/api/operator"), meta: "actions" },
-                { label: "Main Status", href: "/v1/home/status", meta: "runtime" }
+                { label: "Main Status", href: "/v1/home/status", meta: "runtime" },
+                { label: "Assistant API", href: "/v1/assistant/requests", meta: "workflow" }
               ]
             }
           ]
@@ -123,8 +127,57 @@ module Companion
             { label: "Overview API", href: route("/api/overview") },
             { label: "Operator Console", href: route("/operator") },
             { label: "Operator API", href: route("/api/operator") },
-            { label: "Main Status", href: "/v1/home/status" }
+            { label: "Main Status", href: "/v1/home/status" },
+            { label: "Assistant API", href: "/v1/assistant/requests" }
           ]
+        end
+
+        def assistant
+          snapshot.fetch(:assistant, {})
+        end
+
+        def assistant_summary
+          assistant.fetch(:summary, {})
+        end
+
+        def assistant_requests
+          assistant.fetch(:requests, [])
+        end
+
+        def assistant_followups
+          assistant.fetch(:followups, [])
+        end
+
+        def assistant_form_defaults
+          {
+            "requester" => assistant_form_values.fetch("requester", ""),
+            "request" => assistant_form_values.fetch("request", "")
+          }
+        end
+
+        def assistant_notice
+          return "Assistant request opened." if @filter_values["assistant_created"] == "1"
+          return "Assistant follow-up completed." if @filter_values["assistant_completed"] == "1"
+
+          nil
+        end
+
+        def assistant_request_rows
+          assistant_requests.map do |record|
+            {
+              id: record.fetch(:id),
+              requester: record.fetch(:requester),
+              status: record.fetch(:status),
+              submitted_at: record.fetch(:submitted_at),
+              request: record.fetch(:request)
+            }
+          end
+        end
+
+        def actionable_assistant_requests
+          assistant_requests.select do |record|
+            %i[pending open acknowledged].include?(record.fetch(:status))
+          end
         end
 
         def node_cards
@@ -272,6 +325,7 @@ module Companion
             stack: stack,
             counts: counts,
             notes: notes.first(3).map { |note| note.slice("text", "source", "created_at") },
+            assistant_summary: assistant_summary,
             nodes: nodes.transform_values do |service|
               {
                 role: service.fetch(:role),

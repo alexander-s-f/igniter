@@ -16,6 +16,8 @@ The current slice is intentionally small, but honest:
 - `dashboard` owns the operator desk
 - one shared overview API feeds the operator surface
 - one shared note flow proves cross-app persistence and explicit app-to-app access
+- one real assistant request flow now opens a durable operator follow-up
+- one real operator completion loop now closes that request back into a finished brief
 
 This is the starting point, not the finished vision.
 
@@ -38,6 +40,7 @@ directory by using the `dev-cluster` environment profile.
 Then open:
 
 - API status: `http://127.0.0.1:4567/v1/home/status`
+- assistant requests API: `http://127.0.0.1:4567/v1/assistant/requests`
 - dashboard: `http://127.0.0.1:4567/dashboard`
 
 Local cluster mode also starts:
@@ -65,10 +68,10 @@ rather than copying a whole production-shaped system up front.
 
 Good next moves are:
 
-1. one real assistant workflow
-2. one real operator follow-up loop
-3. one useful tool or skill slice
-4. one restored execution path
+1. richer assistant workflows beyond the first briefing loop
+2. stronger operator drill-down and action history inside the desk
+3. one useful tool or skill slice that materially improves assistant output quality
+4. one restored execution path visible as a first-class product behavior
 
 Only after those feel coherent should Companion pull in deeper distributed
 capabilities like routed remote agents or `ignite`-driven expansion.

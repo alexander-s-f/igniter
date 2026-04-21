@@ -8,6 +8,7 @@ require "uri"
 RSpec.describe Companion::DashboardApp do
   before do
     Companion::Shared::NoteStore.reset!
+    Companion::Main::Support::AssistantAPI.reset!
   end
 
   it "renders the canonical operator endpoint" do
@@ -62,6 +63,7 @@ RSpec.describe Companion::DashboardApp do
     expect(payload.dig("stack", "default_node")).to eq("main")
     expect(payload.dig("nodes", "main", "mounts", "dashboard")).to eq("/dashboard")
     expect(payload.dig("counts", "notes")).to eq(0)
+    expect(payload.dig("counts", "assistant_requests")).to eq(0)
   end
 
   it "renders the home page" do
@@ -83,6 +85,8 @@ RSpec.describe Companion::DashboardApp do
     expect(html).to include("Dashboard")
     expect(html).to include("Overview API")
     expect(html).to include("Operator API")
+    expect(html).to include("Assistant Intake")
+    expect(html).to include('action="/assistant/requests"')
     expect(html).to include('action="/notes"')
     expect(html).to include("Operator Notes")
     expect(html).to include("Runtime Signals")
@@ -156,5 +160,40 @@ RSpec.describe Companion::DashboardApp do
     expect(overview_headers["Content-Type"]).to include("application/json")
     expect(payload.dig("counts", "notes")).to eq(1)
     expect(payload.dig("notes", 0, "text")).to eq("Top off the UPS rack")
+  end
+
+  it "creates and completes an assistant request from the dashboard" do
+    app = described_class.rack_app
+
+    create_status, create_headers, = app.call(
+      "REQUEST_METHOD" => "POST",
+      "PATH_INFO" => "/assistant/requests",
+      "CONTENT_TYPE" => "application/x-www-form-urlencoded",
+      "rack.input" => StringIO.new(URI.encode_www_form("requester" => "Alex", "request" => "Prepare a cluster rollout brief"))
+    )
+
+    request_record = Companion::Main::Support::AssistantAPI.all.first
+
+    complete_status, complete_headers, = app.call(
+      "REQUEST_METHOD" => "POST",
+      "PATH_INFO" => "/assistant/followups/approve",
+      "CONTENT_TYPE" => "application/x-www-form-urlencoded",
+      "rack.input" => StringIO.new(
+        URI.encode_www_form(
+          "request_id" => request_record.fetch(:id),
+          "briefing" => "Roll out with one seed, verify operator visibility, then add replicas.",
+          "note" => "done"
+        )
+      )
+    )
+
+    refreshed = Companion::Main::Support::AssistantAPI.all.first
+
+    expect(create_status).to eq(303)
+    expect(create_headers["Location"]).to eq("/?assistant_created=1")
+    expect(complete_status).to eq(303)
+    expect(complete_headers["Location"]).to eq("/?assistant_completed=1")
+    expect(refreshed.fetch(:status)).to eq(:completed)
+    expect(refreshed.fetch(:briefing)).to include("one seed")
   end
 end

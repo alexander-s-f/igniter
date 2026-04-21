@@ -5,10 +5,12 @@ require "igniter/core"
 require "igniter/agent"
 require_relative "../../lib/companion/shared/runtime_profile"
 require_relative "support/notes_api"
+require_relative "support/assistant_api"
 require_relative "support/playground_ops_api"
 require_relative "web/handlers/status_handler"
 require_relative "web/handlers/notes_list_handler"
 require_relative "web/handlers/notes_create_handler"
+require_relative "web/handlers/assistant_requests_handler"
 
 module Companion
   class MainApp < Igniter::App
@@ -28,12 +30,16 @@ module Companion
     route "GET", "/v1/home/status", with: Companion::Main::StatusHandler
     route "GET", "/v1/notes", with: Companion::Main::NotesListHandler
     route "POST", "/v1/notes", with: Companion::Main::NotesCreateHandler
+    route "GET", "/v1/assistant/requests", with: Companion::Main::AssistantRequestsHandler
+    route "POST", "/v1/assistant/requests", with: Companion::Main::AssistantRequestsHandler
 
     provide :notes_api, Companion::Main::Support::NotesAPI
+    provide :assistant_api, Companion::Main::Support::AssistantAPI
     provide :playground_ops_api, Companion::Main::Support::PlaygroundOpsAPI
 
     on_boot do
       register "GreetContract", Companion::GreetContract
+      register "BriefingRequestContract", Companion::BriefingRequestContract
     end
   end
 end

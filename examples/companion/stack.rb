@@ -10,7 +10,7 @@ module Companion
     shared_lib_path "lib"
 
     app :main, path: "apps/main", klass: Companion::MainApp, default: true
-    app :dashboard, path: "apps/dashboard", klass: Companion::DashboardApp, access_to: [ :notes_api, :playground_ops_api ]
+    app :dashboard, path: "apps/dashboard", klass: Companion::DashboardApp, access_to: [ :notes_api, :assistant_api, :playground_ops_api ]
     mount :dashboard, at: "/dashboard"
   end
 end

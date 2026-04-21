@@ -1,0 +1,68 @@
+# frozen_string_literal: true
+
+require "igniter/sdk/data"
+require "time"
+require_relative "runtime_profile"
+
+module Companion
+  module Shared
+    module AssistantRequestStore
+      COLLECTION = "companion_assistant_requests"
+
+      class << self
+        def add(requester:, request:, graph:, execution_id:, followup_ids:)
+          entry = {
+            "id" => "assistant-request-#{Time.now.utc.strftime("%Y%m%d%H%M%S%6N")}",
+            "requester" => requester.to_s.strip,
+            "request" => request.to_s.strip,
+            "graph" => graph.to_s,
+            "execution_id" => execution_id.to_s,
+            "followup_ids" => Array(followup_ids).map(&:to_s),
+            "submitted_at" => Time.now.utc.iso8601,
+            "status" => "open"
+          }
+
+          save(entry)
+        end
+
+        def save(entry)
+          store.put(collection: COLLECTION, key: entry.fetch("id"), value: entry)
+          entry
+        end
+
+        def all
+          store
+            .all(collection: COLLECTION)
+            .values
+            .sort_by { |entry| entry.fetch("submitted_at", "") }
+            .reverse
+        end
+
+        def fetch(id)
+          value = store.get(collection: COLLECTION, key: id.to_s)
+          raise KeyError, "Unknown assistant request #{id.inspect}" unless value
+
+          value
+        end
+
+        def count
+          all.size
+        end
+
+        def reset!
+          store.clear(collection: COLLECTION)
+        end
+
+        private
+
+        def store
+          path = Companion::Shared::RuntimeProfile.assistant_request_store_path
+          return @store if defined?(@store_path) && @store_path == path && @store
+
+          @store_path = path
+          @store = Igniter::Data::Stores::File.new(path: path)
+        end
+      end
+    end
+  end
+end
