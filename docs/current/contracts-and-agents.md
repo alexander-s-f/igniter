@@ -142,6 +142,45 @@ Near-term architectural rule:
 - move richer orchestration semantics upward into contracts and agents
 - avoid hiding new execution concepts in adapters or package internals when they deserve first-class runtime shape
 
+## DTO Direction
+
+Igniter still uses plain `Hash` payloads in many places today. That has been
+useful, but it should be treated as a transitional convenience, not the target
+architecture.
+
+Why hashes have been used so often:
+
+- they are low-ceremony while the model is still moving quickly
+- they are easy to serialize across runtime, app, operator, and HTTP boundaries
+- they make merging and restoring store-backed snapshots easy during exploration
+
+Why they are not enough as the final shape:
+
+- they are easy to drift silently
+- they do not make runtime contracts explicit
+- they push semantic truth into key-name conventions instead of objects
+- they make convergence harder because every layer can reshape the payload again
+
+Current direction:
+
+- use explicit value objects for stable runtime and domain contracts
+- allow plain hashes at transport edges, JSON projections, and flexible snapshot surfaces
+- do not introduce a generic “one DTO type for everything” abstraction unless it proves it simplifies the model rather than hiding it
+
+That direction is already visible in current Igniter runtime work:
+
+- `Igniter::Model::AgentInteractionContract`
+- `Igniter::AI::Skill::RuntimeContract`
+- `Igniter::Runtime::AgentResultContract`
+- `Igniter::App::Operator::Policy`
+- `Igniter::App::Operator::LifecycleContract`
+- `Igniter::App::Operator::HandlerResult`
+
+Practical rule:
+
+- if the shape is canonical and multiple layers rely on the same semantics, prefer a class/value object
+- if the shape is a projection, response envelope, or loose transport payload, a hash is still acceptable
+
 See also:
 
 - [Agents](./agents.md)

@@ -41,10 +41,27 @@ rebalanced deliberately:
 - keep hardening `ignite`, but in bounded slices
 - bring more attention back to the rest of the `contracts & agents` track
 - continue improving app/operator/runtime coherence instead of letting deployment work dominate the whole plan
+- add a product-facing applied track so new runtime contracts are exercised by a real consumer and not only by internal convergence work
 - one active part of that rebalancing is richer `AgentSession` truth:
   - explicit session lifecycle state
   - explicit routed ownership semantics
   - runtime/app query surfaces that can filter, facet, and summarize those dimensions directly
+
+The current recommended applied consumer is:
+
+- a small assistant + operator desk style stack
+- single-stack first, multi-app second, distributed later
+- designed to pressure-test orchestration, sessions, tools, skills, and operator follow-up in one real workflow
+
+That applied line now also has a recommended consumer order:
+
+- public `examples/companion` as the flagship proving ground
+- private `playgrounds/home-lab` as a downstream personalized adopter
+
+The practical bias should be:
+
+- prove reusable product/runtime ideas in `companion`
+- only then port the genuinely useful ones into `home-lab`
 
 In parallel, app structure is now an active design line too:
 

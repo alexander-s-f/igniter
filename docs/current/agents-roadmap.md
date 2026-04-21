@@ -103,6 +103,16 @@ Already landed:
 - live and store-backed orchestration resume paths now also return the same post-operation runtime snapshot shape (`orchestration_runtime_summary`, `orchestration_runtime_record`, `orchestration_runtime_status`, `orchestration_runtime_timeline`), which makes handler/result semantics less dependent on inbox-only status transitions
 - orchestration runtime now also has an explicit execution-owned state contract (`runtime_state`, `runtime_state_class`, `runtime_terminal`, `latest_runtime_transition`, `runtime_transitions`) derived from cache state plus runtime events, so deeper runtime work can build on something stronger than ad hoc `runtime_status` strings alone
 - orchestration runtime now also has a reusable transition query/overview layer in both live and store-backed paths, which means the next runtime work can converge around one durable transition model instead of synthesizing ad hoc action history in each higher layer
+- orchestration actions now also return a more explicit runtime-facing action outcome contract through `orchestration_action_result`, so direct app verbs and mounted operator actions no longer need separate result semantics
+
+That means the current baseline is now stronger and more explicit than it was a
+few cycles ago:
+
+- `Igniter::Model::AgentInteractionContract`
+- `tool_runtime`
+- `Igniter::AI::Skill::RuntimeContract`
+- `Igniter::Runtime::AgentResultContract`
+- `orchestration_action_result`
 
 That is enough to treat agents as a real execution surface, not only an adapter seam.
 
@@ -160,6 +170,7 @@ The important planning correction now is balance:
 - `ignite` has crossed the threshold where it is real enough and should not monopolize every next iteration
 - the next cycles should intentionally pull the rest of the track forward too, especially richer runtime/session semantics and broader agent/app convergence
 - `ignite` should continue in bounded slices, not as the only foreground line
+- the best way to keep that balance honest is to add an applied product track that uses these runtime contracts in a real assistant/operator workflow
 
 ## Deferred Line
 
@@ -170,6 +181,10 @@ The agent/query work should stay separate from the cluster query-language naming
 - rename work should happen before that language becomes more public, but not in the middle of the current agents/operator iteration
 
 ## Next
+
+Before choosing another deep internal pass, prefer checking whether the next
+slice should instead serve the current applied product track in
+[Product Track](./product-track.md).
 
 ### 1. Orchestration Runtime
 
