@@ -44,6 +44,18 @@ Then open:
 - operator desk: `http://127.0.0.1:4567/dashboard`
 - assistant lane: `http://127.0.0.1:4567/dashboard/assistant`
 
+## Local Credentials
+
+`Companion` now supports a local gitignored credentials file for external API keys:
+
+1. copy [`/Users/alex/dev/projects/igniter/examples/companion/apps/main/config/credentials.local.example.yml`](/Users/alex/dev/projects/igniter/examples/companion/apps/main/config/credentials.local.example.yml) to `examples/companion/apps/main/config/credentials.local.yml`
+2. put your real keys there
+3. start `Companion` normally
+
+That file is ignored by git, and `Igniter::App` loads it during app build via
+the new credentials loader. By default existing shell env vars still win, so a
+locally exported `OPENAI_API_KEY` will not be overwritten accidentally.
+
 The assistant lane now supports a local runtime mode switch:
 
 - `manual` keeps the current operator follow-up flow

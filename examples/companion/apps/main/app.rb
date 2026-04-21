@@ -16,6 +16,7 @@ module Companion
   class MainApp < Igniter::App
     root_dir __dir__
     config_file "app.yml"
+    credentials_file "config/credentials.local.yml"
 
     tools_path "tools"
     skills_path "skills"

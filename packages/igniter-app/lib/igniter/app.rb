@@ -326,6 +326,13 @@ module Igniter
         @yml_path = path
       end
 
+      def credentials_file(path = nil, override: false)
+        return @credentials_path if path.nil?
+
+        @credentials_path = path
+        @credentials_override = override
+      end
+
       # Configure the application. Block receives an AppConfig instance.
       # May be called multiple times; blocks are applied in order.
       def configure(&block)
@@ -1369,6 +1376,7 @@ module Igniter
       def build!
         cfg = @app_config
         apply_yml!(cfg)
+        apply_credentials!
         resolved_loader_adapter = load_application_code!
         @boot_blocks.each(&:call)
         @configure_blocks.each { |b| b.call(cfg) }
@@ -1400,6 +1408,13 @@ module Igniter
         YmlLoader.apply(cfg, yml)
       end
 
+      def apply_credentials!
+        path = resolved_credentials_path
+        return unless path && File.exist?(path)
+
+        Credentials::ConfigLoader.apply(path, override: !!@credentials_override)
+      end
+
       def load_application_code!
         adapter = loader_adapter
         adapter.load!(
@@ -1423,6 +1438,11 @@ module Igniter
         return path if path.nil? || File.absolute_path(path) == path
 
         File.expand_path(path, @root_dir || Dir.pwd)
+      end
+
+      def resolved_credentials_path
+        configured = @credentials_path || File.join("config", "credentials.local.yml")
+        resolve_path(configured)
       end
 
       def start_scheduler(config)

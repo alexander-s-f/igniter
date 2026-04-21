@@ -111,6 +111,7 @@ RSpec.describe "Igniter module layout" do
 
   it "keeps credential foundations under the canonical app credentials namespace" do
     expect(children_for(File.join(APP_LIB, "app", "credentials"))).to eq(%w[
+      config_loader.rb
       credential.rb
       credential_policy.rb
       events

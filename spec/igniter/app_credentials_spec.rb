@@ -4,6 +4,73 @@ require "spec_helper"
 require "igniter/app"
 
 RSpec.describe Igniter::App::Credentials do
+  describe Igniter::App::Credentials::ConfigLoader do
+    around do |example|
+      original_openai = ENV["OPENAI_API_KEY"]
+      original_anthropic = ENV["ANTHROPIC_API_KEY"]
+      original_openai_model = ENV["OPENAI_DEFAULT_MODEL"]
+      original_custom = ENV["CUSTOM_SECRET"]
+      ENV.delete("OPENAI_API_KEY")
+      ENV.delete("ANTHROPIC_API_KEY")
+      ENV.delete("OPENAI_DEFAULT_MODEL")
+      ENV.delete("CUSTOM_SECRET")
+      example.run
+    ensure
+      ENV["OPENAI_API_KEY"] = original_openai
+      ENV["ANTHROPIC_API_KEY"] = original_anthropic
+      ENV["OPENAI_DEFAULT_MODEL"] = original_openai_model
+      ENV["CUSTOM_SECRET"] = original_custom
+    end
+
+    it "loads provider and env mappings from a local credentials file" do
+      Dir.mktmpdir do |tmp|
+        path = File.join(tmp, "credentials.local.yml")
+        File.write(path, <<~YAML)
+          openai:
+            api_key: sk-openai-local
+            default_model: gpt-4.1-mini
+          anthropic:
+            api_key: sk-ant-local
+          env:
+            CUSTOM_SECRET: local-value
+        YAML
+
+        result = described_class.apply(path)
+
+        expect(result).to include(
+          path: path,
+          loaded: true,
+          applied: {
+            "OPENAI_API_KEY" => "sk-openai-local",
+            "OPENAI_DEFAULT_MODEL" => "gpt-4.1-mini",
+            "ANTHROPIC_API_KEY" => "sk-ant-local",
+            "CUSTOM_SECRET" => "local-value"
+          }
+        )
+        expect(ENV["OPENAI_API_KEY"]).to eq("sk-openai-local")
+        expect(ENV["OPENAI_DEFAULT_MODEL"]).to eq("gpt-4.1-mini")
+        expect(ENV["ANTHROPIC_API_KEY"]).to eq("sk-ant-local")
+        expect(ENV["CUSTOM_SECRET"]).to eq("local-value")
+      end
+    end
+
+    it "does not override an existing environment variable by default" do
+      Dir.mktmpdir do |tmp|
+        path = File.join(tmp, "credentials.local.yml")
+        File.write(path, <<~YAML)
+          openai:
+            api_key: sk-openai-local
+        YAML
+        ENV["OPENAI_API_KEY"] = "already-set"
+
+        result = described_class.apply(path)
+
+        expect(result[:applied]).to eq({})
+        expect(ENV["OPENAI_API_KEY"]).to eq("already-set")
+      end
+    end
+  end
+
   describe Igniter::App::Credentials::CredentialPolicy do
     it "serializes and restores a canonical local-only policy" do
       policy = described_class.new(

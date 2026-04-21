@@ -9,3 +9,4 @@
 .idea
 /playgrounds/*
 !/playgrounds/README.md
+**/config/credentials.local.yml

@@ -833,6 +833,42 @@ RSpec.describe Igniter::App do
       end
     end
 
+    it "loads local credentials from config/credentials.local.yml during build without overriding existing env" do
+      Dir.mktmpdir do |tmp|
+        original_openai = ENV["OPENAI_API_KEY"]
+        original_model = ENV["OPENAI_DEFAULT_MODEL"]
+        ENV.delete("OPENAI_API_KEY")
+        ENV.delete("OPENAI_DEFAULT_MODEL")
+
+        FileUtils.mkdir_p(File.join(tmp, "config"))
+        File.write(
+          File.join(tmp, "config", "credentials.local.yml"),
+          <<~YAML
+            openai:
+              api_key: sk-openai-local
+              default_model: gpt-4.1-mini
+          YAML
+        )
+
+        app = fresh_app do
+          root_dir tmp
+        end
+
+        app.send(:build!)
+
+        expect(ENV["OPENAI_API_KEY"]).to eq("sk-openai-local")
+        expect(ENV["OPENAI_DEFAULT_MODEL"]).to eq("gpt-4.1-mini")
+
+        ENV["OPENAI_API_KEY"] = "already-set"
+        app.send(:build!)
+
+        expect(ENV["OPENAI_API_KEY"]).to eq("already-set")
+      ensure
+        ENV["OPENAI_API_KEY"] = original_openai
+        ENV["OPENAI_DEFAULT_MODEL"] = original_model
+      end
+    end
+
     it "registers contracts on the built host config" do
       klass = sample_contract_class
       app   = fresh_app { register "SampleContract", klass }
