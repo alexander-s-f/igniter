@@ -8,7 +8,8 @@ module Companion
     module NotesCreateHandler
       module_function
 
-      def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+      def call(params:, body:, headers:, env:, raw_body:, config:)
+        # rubocop:disable Lint/UnusedMethodArgument
         text = body.fetch("text", body.fetch("note", "")).to_s.strip
 
         if text.empty?

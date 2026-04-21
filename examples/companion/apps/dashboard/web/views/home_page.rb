@@ -147,7 +147,7 @@ module Companion
           prefix = base_path.to_s
           return path if prefix.empty?
 
-          [prefix, path.sub(%r{\A/}, "")].join("/")
+          [ prefix, path.sub(%r{\A/}, "") ].join("/")
         end
 
         def stylesheet

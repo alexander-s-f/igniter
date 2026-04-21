@@ -14,11 +14,11 @@ module Companion
     root_dir __dir__
     config_file "app.yml"
 
-    tools_path     "tools"
-    skills_path    "skills"
+    tools_path "tools"
+    skills_path "skills"
     executors_path "executors"
     contracts_path "contracts"
-    agents_path    "agents"
+    agents_path "agents"
 
     route "GET", "/v1/home/status", with: Companion::Main::StatusHandler
     route "GET", "/v1/notes", with: Companion::Main::NotesListHandler

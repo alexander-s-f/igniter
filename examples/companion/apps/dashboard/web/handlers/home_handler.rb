@@ -8,7 +8,8 @@ module Companion
     module HomeHandler
       module_function
 
-      def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+      def call(params:, body:, headers:, env:, raw_body:, config:)
+        # rubocop:disable Lint/UnusedMethodArgument
         snapshot = Companion::DashboardApp.interface(:playground_ops_api).overview
 
         Igniter::Frontend::Response.html(

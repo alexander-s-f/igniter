@@ -5,7 +5,7 @@ module Companion
   # Igniter resolves execution order and validates edges at compile time.
   class GreetContract < Igniter::Contract
     define do
-      input  :name
+      input :name
       compute :greeting, depends_on: :name, call: Companion::Greeter
       output :greeting
     end

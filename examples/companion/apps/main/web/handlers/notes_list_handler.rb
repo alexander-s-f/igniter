@@ -8,7 +8,8 @@ module Companion
     module NotesListHandler
       module_function
 
-      def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+      def call(params:, body:, headers:, env:, raw_body:, config:)
+        # rubocop:disable Lint/UnusedMethodArgument
         notes = Companion::Main::Support::NotesAPI.all
 
         {

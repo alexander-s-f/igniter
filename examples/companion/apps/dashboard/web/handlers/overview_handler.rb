@@ -7,7 +7,8 @@ module Companion
     module OverviewHandler
       module_function
 
-      def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+      def call(params:, body:, headers:, env:, raw_body:, config:)
+        # rubocop:disable Lint/UnusedMethodArgument
         {
           status: 200,
           body: JSON.generate(Companion::DashboardApp.interface(:playground_ops_api).overview),

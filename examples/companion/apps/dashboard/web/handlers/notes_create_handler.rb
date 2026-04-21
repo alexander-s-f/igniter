@@ -8,7 +8,8 @@ module Companion
     module NotesCreateHandler
       module_function
 
-      def call(params:, body:, headers:, env:, raw_body:, config:) # rubocop:disable Lint/UnusedMethodArgument
+      def call(params:, body:, headers:, env:, raw_body:, config:)
+        # rubocop:disable Lint/UnusedMethodArgument
         text = body.fetch("text", body.fetch("note", "")).to_s.strip
         base_path = base_path_for(env)
 
@@ -24,7 +25,7 @@ module Companion
         end
 
         Companion::DashboardApp.interface(:notes_api).add(text, source: "dashboard")
-        location = [base_path, ""].reject(&:empty?).join("/") + "/?note_created=1"
+        location = [ base_path, "" ].reject(&:empty?).join("/") + "/?note_created=1"
 
         {
           status: 303,

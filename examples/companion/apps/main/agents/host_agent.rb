@@ -12,13 +12,13 @@ module Companion
     initial_state visitors: [], count: 0
 
     on :greet do |state:, payload:|
-      name     = payload.fetch(:name, "stranger")
+      name = payload.fetch(:name, "stranger")
       greeting = Companion::GreetContract.new(name:).result.greeting
       puts "  [HostAgent] #{greeting[:message]}"
 
       state.merge(
-        visitors: (state[:visitors] + [{ name: name, at: Time.now.iso8601 }]).last(10),
-        count:    state[:count] + 1
+        visitors: (state[:visitors] + [ { name: name, at: Time.now.iso8601 } ]).last(10),
+        count: state[:count] + 1
       )
     end
 
