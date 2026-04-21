@@ -344,6 +344,118 @@ RSpec.describe "Igniter::Frontend::Arbre page authoring" do
     expect(html).to include(">Interactive<")
   end
 
+  it "renders compact semantic tables for collection-heavy operator views" do
+    html = Igniter::Frontend::Arbre::Page.render_page(title: "Events", theme: :companion) do
+      table_with [
+        { id: "evt-1", event: "ignite_joined", status: "joined", target: "edge-1", payload: "mesh://edge-1" },
+        { id: "evt-2", event: "ignite_pending", status: "pending", target: "edge-2", payload: "mesh://edge-2" }
+      ], title: "Recent Events", subtitle: "Operator-visible timeline", compact: true do |table|
+        table.column :event
+        table.column :status, as: :badge, badge: { size: :sm }
+        table.column :target
+        table.column :payload, as: :code
+        table.actions do |row, actions|
+          actions.link "Inspect", href: "/events/#{row.fetch(:id)}", class_name: "pill-link font-medium"
+        end
+      end
+    end
+
+    expect(html).to include(">Recent Events<")
+    expect(html).to include("Operator-visible timeline")
+    expect(html).to include(">ignite_joined<")
+    expect(html).to include(">Joined<")
+    expect(html).to include("mesh://edge-1")
+    expect(html).to include('href="/events/evt-1"')
+    expect(html).to include(">Inspect<")
+  end
+
+  it "renders an empty state row for semantic tables" do
+    html = Igniter::Frontend::Arbre::Page.render_page(title: "Empty", theme: :companion) do
+      table_with [], empty_message: "No records yet." do |table|
+        table.column :event
+        table.column :status, as: :badge
+      end
+    end
+
+    expect(html).to include("No records yet.")
+    expect(html).to include("colspan=\"2\"")
+  end
+
+  it "renders structured viz views for hash, array, and object payloads" do
+    value_object = Struct.new(:status, :target, keyword_init: true) do
+      def to_h
+        { status: status, target: target }
+      end
+    end
+
+    html = Igniter::Frontend::Arbre::Page.render_page(title: "Viz", theme: :companion) do
+      viz(
+        {
+          summary: value_object.new(status: :joined, target: "edge-1"),
+          events: [{ id: "evt-1", state: "ready" }, { id: "evt-2", state: "pending" }],
+          empty: [],
+          enabled: true
+        },
+        title: "Snapshot",
+        open: true,
+        compact: true
+      )
+    end
+
+    expect(html).to include(">Snapshot<")
+    expect(html).to include("Hash")
+    expect(html).to include("Array")
+    expect(html).to include(">summary<")
+    expect(html).to include(">events<")
+    expect(html).to include(">enabled<")
+    expect(html).to include(">Joined<")
+    expect(html).to include("edge-1")
+    expect(html).to include("Empty Array")
+    expect(html).to include(">Yes<")
+  end
+
+  it "renders semantic filters with search, select, clear, and submit actions" do
+    html = Igniter::Frontend::Arbre::Page.render_page(title: "Filters", theme: :companion) do
+      filters action: "/operator", method: "get", title: "Event Filters",
+              subtitle: "Narrow noisy event streams.", values: { "q" => "ignite", "status" => "pending" },
+              compact: true do |filter|
+        filter.search "q", label: "Search", placeholder: "event or target"
+        filter.select "status", label: "Status", options: %w[pending joined blocked]
+        filter.clear "Reset", href: "/operator"
+        filter.submit "Apply"
+      end
+    end
+
+    expect(html).to include(">Event Filters<")
+    expect(html).to include("Narrow noisy event streams.")
+    expect(html).to include('action="/operator"')
+    expect(html).to include('name="q"')
+    expect(html).to include('value="ignite"')
+    expect(html).to include('name="status"')
+    expect(html).to include(">Reset<")
+    expect(html).to include(">Apply<")
+  end
+
+  it "renders semantic pagination with summary and page links" do
+    html = Igniter::Frontend::Arbre::Page.render_page(title: "Pagination", theme: :companion) do
+      pagination current_page: 2,
+                 total_pages: 4,
+                 total_count: 11,
+                 per_page: 3,
+                 item_name: "events",
+                 href_builder: ->(page) { "/operator?events_page=#{page}" },
+                 compact: true
+    end
+
+    expect(html).to include("Showing 4-6 of 11 events")
+    expect(html).to include('href="/operator?events_page=1"')
+    expect(html).to include('href="/operator?events_page=3"')
+    expect(html).to include('aria-current="page"')
+    expect(html).to include(">2<")
+    expect(html).to include(">Previous<")
+    expect(html).to include(">Next<")
+  end
+
   it "renders an Arbre template with layout and page helpers" do
     stub_const("Arbre", build_fake_arbre)
 

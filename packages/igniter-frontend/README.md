@@ -41,6 +41,7 @@ That “stronger semantics” line now includes richer Arbre primitives such as:
 - `table_with` for logs, events, history, and other collection-heavy operator views
 - `viz` for raw hashes, arrays, objects, and runtime payload inspection
 - `filters` for mounted-safe search and narrowing lanes above tables and feeds
+- `pagination` for mounted-safe browsing lanes across notes, history, logs, and other long collections
 
 Authoring guide:
 

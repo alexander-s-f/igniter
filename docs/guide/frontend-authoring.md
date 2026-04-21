@@ -41,6 +41,8 @@ more expressive. For example:
   diagnostics, and debug-oriented operator surfaces
 - `filters` gives collection-heavy pages a semantic GET-form lane for search,
   select narrowing, and reset/apply actions
+- `pagination` gives long lists a mounted-safe browsing lane without dropping
+  back to ad-hoc link markup
 
 ## Canonical Shape
 

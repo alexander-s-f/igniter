@@ -254,6 +254,29 @@ That keeps search/select/reset/apply semantics out of raw form markup and gives
 operator/admin pages one honest filtering lane before we go deeper into richer
 query-builder territory.
 
+For longer collections, the sibling primitive below `table_with` or
+`resource_list` is `pagination`.
+
+Use it when the page already knows:
+
+- current page
+- total pages
+- how to build mounted-safe links
+
+```ruby
+pagination current_page: page_context.notes_page,
+           total_pages: page_context.notes_total_pages,
+           total_count: page_context.notes_total_count,
+           per_page: page_context.notes_per_page,
+           item_name: "notes",
+           href_builder: ->(page) { page_context.notes_page_href(page) },
+           compact: true
+```
+
+That keeps page math and link generation in the page context while giving Arbre
+templates one honest semantic primitive for browsing history, notes, logs, and
+other long collections.
+
 ## Child Routing
 
 Some components should send arbitrary child content into a specific internal

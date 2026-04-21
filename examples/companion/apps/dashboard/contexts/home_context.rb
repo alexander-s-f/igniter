@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require "uri"
+
 module Companion
   module Dashboard
     module Contexts
       class HomeContext
+        NOTES_PER_PAGE = 3
+
         def self.build(snapshot:, base_path:, error_message: nil, form_values: {}, filter_values: {})
           new(
             snapshot: snapshot,
@@ -145,6 +149,49 @@ module Companion
           [["Public", "true"], ["Private", "false"]]
         end
 
+        def paginated_notes
+          notes.slice(note_offset, notes_per_page) || []
+        end
+
+        def notes_total_count
+          notes.size
+        end
+
+        def notes_per_page
+          NOTES_PER_PAGE
+        end
+
+        def notes_page
+          requested = @filter_values.fetch("notes_page", "1").to_i
+          requested = 1 unless requested.positive?
+
+          [requested, notes_total_pages].min
+        end
+
+        def notes_total_pages
+          total = (notes_total_count.to_f / notes_per_page).ceil
+          total.positive? ? total : 1
+        end
+
+        def notes_page_href(page)
+          page = page.to_i
+          page = 1 unless page.positive?
+
+          params = @filter_values.each_with_object({}) do |(key, value), memo|
+            next if value.nil? || value.to_s.empty?
+            memo[key.to_s] = value
+          end
+
+          if page == 1
+            params.delete("notes_page")
+          else
+            params["notes_page"] = page.to_s
+          end
+
+          query = URI.encode_www_form(params)
+          query.empty? ? route("/") : "#{route("/")}?" + query
+        end
+
         def snapshot_preview
           {
             stack: stack,
@@ -159,6 +206,12 @@ module Companion
               }
             end
           }
+        end
+
+        private
+
+        def note_offset
+          (notes_page - 1) * notes_per_page
         end
       end
     end

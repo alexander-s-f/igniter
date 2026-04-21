@@ -50,11 +50,11 @@ div class: "grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]" do
     end
 
     resource_list class_name: "mt-5 space-y-4" do
-      if page_context.notes.empty?
+      if page_context.paginated_notes.empty?
         li "No notes saved yet.",
            class: "rounded-3xl border border-white/10 bg-white/5 p-4 text-sm leading-6 text-stone-400"
       else
-        page_context.notes.each do |note|
+        page_context.paginated_notes.each do |note|
           li class: "rounded-3xl border border-white/10 bg-white/5 p-4" do
             strong note.fetch("text"), class: "font-semibold text-white"
             div "source=#{note.fetch("source")} · created=#{note.fetch("created_at")}",
@@ -63,6 +63,15 @@ div class: "grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]" do
         end
       end
     end
+
+    pagination current_page: page_context.notes_page,
+               total_pages: page_context.notes_total_pages,
+               total_count: page_context.notes_total_count,
+               per_page: page_context.notes_per_page,
+               item_name: "notes",
+               compact: true,
+               href_builder: ->(page) { page_context.notes_page_href(page) },
+               class_name: "mt-5"
   end
 
   panel title: "Stack Nodes",

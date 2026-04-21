@@ -105,6 +105,28 @@ RSpec.describe Companion::DashboardApp do
     expect(html).to include('value="false" selected')
   end
 
+  it "paginates operator notes while preserving other query params" do
+    4.times do |index|
+      Companion::Shared::NoteStore.add("Follow-up ##{index + 1}")
+    end
+
+    app = described_class.rack_app
+
+    status, _headers, body = app.call(
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/",
+      "QUERY_STRING" => URI.encode_www_form("q" => "main", "notes_page" => "2"),
+      "rack.input" => StringIO.new
+    )
+
+    html = body.each.to_a.join
+
+    expect(status).to eq(200)
+    expect(html).to include("Showing 4-4 of 4 notes")
+    expect(html).to include("Follow-up #1")
+    expect(html).to include('/?q=main')
+  end
+
   it "creates a note from the dashboard form and exposes it in the overview" do
     app = described_class.rack_app
 
