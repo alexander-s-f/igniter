@@ -2,6 +2,7 @@
 
 require "igniter/sdk/data"
 require "time"
+require_relative "runtime_profile"
 
 module Companion
   module Shared
@@ -40,7 +41,11 @@ module Companion
         private
 
         def store
-          @store ||= Igniter::Data::Stores::File.new(path: File.expand_path("../../../var/notes.json", __dir__))
+          path = Companion::Shared::RuntimeProfile.note_store_path
+          return @store if defined?(@store_path) && @store_path == path && @store
+
+          @store_path = path
+          @store = Companion::Shared::RuntimeProfile.note_store
         end
       end
     end

@@ -1,0 +1,10 @@
+shared:
+  environment:
+    COMPANION_DEV_CLUSTER: "true"
+
+ignite:
+  replicas:
+    - name: replica-1
+      port: 4568
+    - name: replica-2
+      port: 4569

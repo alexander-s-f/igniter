@@ -3,6 +3,7 @@
 require "igniter/app"
 require "igniter/core"
 require "igniter/agent"
+require_relative "../../lib/companion/shared/runtime_profile"
 require_relative "support/notes_api"
 require_relative "support/playground_ops_api"
 require_relative "web/handlers/status_handler"
@@ -19,6 +20,10 @@ module Companion
     executors_path "executors"
     contracts_path "contracts"
     agents_path "agents"
+
+    configure do |c|
+      c.store = Companion::Shared::RuntimeProfile.execution_store(:main)
+    end
 
     route "GET", "/v1/home/status", with: Companion::Main::StatusHandler
     route "GET", "/v1/notes", with: Companion::Main::NotesListHandler

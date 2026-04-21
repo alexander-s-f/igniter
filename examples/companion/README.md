@@ -28,14 +28,35 @@ ruby bin/demo
 bin/console
 bin/start
 bin/dev
+bin/dev-cluster
 ```
 
 `bin/dev` also writes per-node logs to `var/log/dev/*.log`.
+`bin/dev-cluster` starts a local multi-replica cluster simulation from the same
+directory by using the `dev-cluster` environment profile.
 
 Then open:
 
 - API status: `http://127.0.0.1:4567/v1/home/status`
 - dashboard: `http://127.0.0.1:4567/dashboard`
+
+Local cluster mode also starts:
+
+- replica-1: `http://127.0.0.1:4568/dashboard`
+- replica-2: `http://127.0.0.1:4569/dashboard`
+
+## Local Cluster Persistence
+
+`Companion` keeps local cluster persistence separate per node even when all
+replicas run from the same repo checkout.
+
+- single-node mode uses `examples/companion/var`
+- `bin/dev-cluster` uses `examples/companion/var/dev-cluster/nodes/<node>`
+- each node gets its own execution stores and note store
+- replicas do not share one SQLite file
+
+That means the local cluster imitation is honest about the default storage
+boundary: one node, one local persistence root.
 
 ## Current Direction
 
