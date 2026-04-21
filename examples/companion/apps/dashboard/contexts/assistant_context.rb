@@ -55,6 +55,7 @@ module Companion
         def operator_links
           [
             { label: "Operator Desk", href: operator_desk_href },
+            { label: "Cluster View", href: cluster_href },
             { label: "Assistant API", href: "/v1/assistant/requests" },
             { label: "Operator Console", href: route("/operator") },
             { label: "Overview API", href: route("/api/overview") }
@@ -313,12 +314,22 @@ module Companion
           recommendation = assistant_recommendation
           return [] if recommendation.empty?
 
-          [
+          rows = [
             { label: :prep, value: recommendation.fetch(:prep, "--"), as: :badge },
             { label: :prep_model, value: recommendation.fetch(:prep_model, "--"), as: :code },
             { label: :delivery, value: recommendation.fetch(:delivery, "--"), as: :badge },
             { label: :delivery_model, value: recommendation.fetch(:delivery_model, "--"), as: :code }
           ]
+
+          if recommendation[:learned_scenario_label]
+            rows << { label: :learned_scenario, value: recommendation.fetch(:learned_scenario_label), as: :badge }
+          end
+
+          if recommendation[:learned_model]
+            rows << { label: :learned_model, value: recommendation.fetch(:learned_model), as: :code }
+          end
+
+          rows
         end
 
         def assistant_recommendation_summary

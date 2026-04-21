@@ -278,6 +278,7 @@ module Companion
         def overview(limit: 6)
           records = Companion::Shared::AssistantRequestStore.all.first(limit).map { |record| request_record(record) }
           operator_records = Companion::MainApp.operator_query.limit(limit).to_a
+          runtime = Companion::Main::Support::AssistantRuntime.overview
           evaluations = evaluation_overview(limit: limit)
 
           {
@@ -289,7 +290,12 @@ module Companion
                 record[:record_kind] == :orchestration && !%i[resolved dismissed].include?(record[:status])
               end
             },
-            runtime: Companion::Main::Support::AssistantRuntime.overview,
+            runtime: runtime.merge(
+              recommendation: merge_runtime_recommendation(
+                runtime.fetch(:recommendation, {}),
+                evaluations.fetch(:recommendations, {})
+              )
+            ),
             requests: records,
             followups: operator_records.select { |record| record[:record_kind] == :orchestration },
             evaluation: evaluations
@@ -757,6 +763,31 @@ module Companion
           notes << "#{model} currently has the best net evaluation score." if model
           notes << "Signals are derived from operator actions and explicit feedback." unless entries.empty?
           notes
+        end
+
+        def merge_runtime_recommendation(runtime_recommendation, evaluation_recommendation)
+          runtime = runtime_recommendation || {}
+          evaluation = evaluation_recommendation || {}
+          learned_scenario_label = evaluation[:scenario_label]
+          learned_model = evaluation[:model]
+
+          summary_parts = [runtime[:summary]]
+          if learned_scenario_label
+            summary_parts << "Learned default lane is #{learned_scenario_label}."
+          end
+          if learned_model
+            summary_parts << "Learned default prep model is #{learned_model}."
+          end
+
+          notes = Array(runtime[:notes]) + Array(evaluation[:notes])
+
+          runtime.merge(
+            learned_scenario_key: evaluation[:scenario_key],
+            learned_scenario_label: learned_scenario_label,
+            learned_model: learned_model,
+            summary: summary_parts.compact.join(" "),
+            notes: notes.uniq
+          )
         end
 
         def top_entry(entries, action:, field:)

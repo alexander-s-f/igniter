@@ -37,8 +37,8 @@ shell_columns do |columns|
           subtitle: "First thin slice of cross-app assistant and operator coordination.",
           class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
       if page_context.error_message
-        p page_context.error_message,
-          class: "mb-4 rounded-2xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
+        div page_context.error_message,
+            class: "mb-4 rounded-2xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
       end
 
       form action: page_context.route("/notes"), method: "post", class: "grid gap-3" do

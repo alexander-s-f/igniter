@@ -37,13 +37,13 @@ shell_columns do |columns|
           subtitle: "Open a real assistant workflow and send the next step into the operator loop.",
           class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
       if page_context.assistant_notice
-        p page_context.assistant_notice,
-          class: "mb-4 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-100"
+        div page_context.assistant_notice,
+            class: "mb-4 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-100"
       end
 
       if page_context.error_message
-        p page_context.error_message,
-          class: "mb-4 rounded-2xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
+        div page_context.error_message,
+            class: "mb-4 rounded-2xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
       end
 
       form action: page_context.route("/assistant/requests"), method: "post", class: "grid gap-3" do
@@ -246,7 +246,7 @@ shell_columns do |columns|
                 badge(record.fetch(:runtime_profile_label, "Operator Brief"), size: :sm)
                 code record.fetch(:runtime_model, "--"), class: "rounded-xl bg-black/25 px-2 py-1 text-xs text-stone-300"
               end
-              p record.fetch(:request), class: "mt-3 text-sm leading-6 text-stone-300"
+              div record.fetch(:request), class: "mt-3 text-sm leading-6 text-stone-300"
               if record[:scenario].is_a?(Hash)
                 card title: "Scenario", subtitle: "What kind of assistant outcome this request is aiming for" do
                   line :summary, record.dig(:scenario, :summary), as: :code
@@ -784,7 +784,7 @@ shell_columns do |columns|
                 strong record.fetch(:requester), class: "font-semibold text-white"
                 badge record.fetch(:status), size: :sm
               end
-              p record.fetch(:request), class: "mt-2 text-sm leading-6 text-stone-300"
+              div record.fetch(:request), class: "mt-2 text-sm leading-6 text-stone-300"
               unless page_context.scenario_context_rows(record).empty?
                 card title: "Incident Snapshot", subtitle: "Structured triage context carried into the operator lane" do
                   page_context.scenario_context_rows(record).each do |row|

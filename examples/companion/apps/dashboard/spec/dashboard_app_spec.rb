@@ -75,6 +75,10 @@ RSpec.describe Companion::DashboardApp do
     expect(payload.dig("nodes", "main", "mounts", "dashboard")).to eq("/dashboard")
     expect(payload.dig("counts", "notes")).to eq(0)
     expect(payload.dig("counts", "assistant_requests")).to eq(0)
+    expect(payload.dig("visualization", "summary", "node_count")).to eq(1)
+    expect(payload.dig("visualization", "graph", "nodes")).not_to be_empty
+    expect(payload.dig("visualization", "graph", "edges")).not_to be_empty
+    expect(payload.dig("visualization", "timeline_entry", "summary")).to include("nodes")
   end
 
   it "renders the home page" do
@@ -95,6 +99,7 @@ RSpec.describe Companion::DashboardApp do
     expect(html).to include("Companion Operator Desk")
     expect(html).to include("Dashboard")
     expect(html).to include("Assistant")
+    expect(html).to include("Cluster View")
     expect(html).to include("Overview API")
     expect(html).to include("Operator API")
     expect(html).to include('action="/notes"')
@@ -121,6 +126,7 @@ RSpec.describe Companion::DashboardApp do
     expect(headers["Content-Type"]).to include("text/html")
     expect(html).to include("Companion Assistant")
     expect(html).to include("Assistant intake and follow-up lane")
+    expect(html).to include("Cluster View")
     expect(html).to include("Assistant Requests")
     expect(html).to include("Assistant Runtime")
     expect(html).to include("Scenario Presets")
@@ -144,6 +150,30 @@ RSpec.describe Companion::DashboardApp do
     expect(html).to include('action="/assistant/requests"')
     expect(html).to include('action="/assistant/runtime"')
     expect(html).to include('name="scenario"')
+  end
+
+  it "renders the cluster page" do
+    app = described_class.rack_app
+
+    status, headers, body = app.call(
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/cluster",
+      "rack.input" => StringIO.new
+    )
+
+    html = body.each.to_a.join
+
+    expect(status).to eq(200)
+    expect(headers["Content-Type"]).to include("text/html")
+    expect(html).to include("Companion Cluster View")
+    expect(html).to include("Realtime cluster and agent visualization")
+    expect(html).to include("Live Topology")
+    expect(html).to include("History Buffer")
+    expect(html).to include("Focused Node")
+    expect(html).to include('id="cluster-view-root"')
+    expect(html).to include('data-overview-path="/api/overview"')
+    expect(html).to include("cluster-view-bootstrap")
+    expect(html).to include("cluster-view-canvas")
   end
 
   it "preserves node filter query values on the home page" do
@@ -679,6 +709,9 @@ RSpec.describe Companion::DashboardApp do
     expect(html).to include("Research Synthesis")
     expect(html).to include('value="research_synthesis" selected')
     expect(html).to include(request_record.fetch(:runtime_model))
+    expect(html).to include("Best Current Lane")
+    expect(html).to include("Learned Scenario")
+    expect(html).to include("Learned Model")
   end
 
   it "updates the assistant runtime configuration from the dashboard" do

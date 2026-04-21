@@ -100,6 +100,10 @@ module Companion
           route("/assistant")
         end
 
+        def cluster_href
+          route("/cluster")
+        end
+
         def current_nav_key
           :desk
         end
@@ -119,6 +123,7 @@ module Companion
               items: [
                 { label: "Operator Desk", href: operator_desk_href, current: current_nav_key == :desk, meta: "home" },
                 { label: "Assistant", href: assistant_href, current: current_nav_key == :assistant, meta: "workflow" },
+                { label: "Cluster View", href: cluster_href, current: current_nav_key == :cluster, meta: "live" },
                 { label: "Operator Console", href: route("/operator"), meta: "built-in" }
               ]
             },
@@ -145,6 +150,7 @@ module Companion
         def operator_links
           [
             { label: "Assistant Lane", href: assistant_href },
+            { label: "Cluster View", href: cluster_href },
             { label: "Overview API", href: route("/api/overview") },
             { label: "Operator Console", href: route("/operator") },
             { label: "Operator API", href: route("/api/operator") },

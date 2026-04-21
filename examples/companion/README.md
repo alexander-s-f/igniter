@@ -43,6 +43,7 @@ Then open:
 - assistant requests API: `http://127.0.0.1:4567/v1/assistant/requests`
 - operator desk: `http://127.0.0.1:4567/dashboard`
 - assistant lane: `http://127.0.0.1:4567/dashboard/assistant`
+- cluster view: `http://127.0.0.1:4567/dashboard/cluster`
 
 ## Local Credentials
 
@@ -80,6 +81,7 @@ All three lanes now also share a first-class artifact input layer, so requests c
 - completed briefings now support reverse operator actions like `Save as Note`, `Promote to Rollout`, and `Re-open as Manual Action`, so assistant output can become the next working slice instead of a dead-end result
 - Companion now keeps lightweight evaluation memory from real operator actions, so the assistant lane can surface which scenarios, models, and outcome paths are actually getting used
 - completed briefings also support explicit quick feedback like `Useful`, `Too Verbose`, `Too Slow`, and `Wrong Lane`, so evaluation memory is no longer only implicit
+- the dashboard now includes a live `Cluster View` with a graph projection over stack nodes, mounted apps, assistant requests, and follow-ups, plus a small in-browser rewind buffer for recent snapshots
 - external delivery now supports `simulate` and `live` modes for the selected channel
 - credential policy is now first-class in the runtime surface, with a conservative `local_only` default for external API secrets
 - prompt packages are now prepared as explicit handoff artifacts for the selected external delivery lane rather than pretending the local model is the final production brain

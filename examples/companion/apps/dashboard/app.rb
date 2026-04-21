@@ -5,6 +5,7 @@ require "igniter/core"
 require_relative "../../lib/companion/shared/runtime_profile"
 require_relative "web/handlers/home_handler"
 require_relative "web/handlers/assistant_handler"
+require_relative "web/handlers/cluster_handler"
 require_relative "web/handlers/overview_handler"
 require_relative "web/handlers/notes_create_handler"
 require_relative "web/handlers/assistant_request_create_handler"
@@ -28,6 +29,7 @@ module Companion
 
     route "GET", "/", with: Companion::Dashboard::HomeHandler
     route "GET", "/assistant", with: Companion::Dashboard::AssistantHandler
+    route "GET", "/cluster", with: Companion::Dashboard::ClusterHandler
     route "GET", "/api/overview", with: Companion::Dashboard::OverviewHandler
     route "POST", "/notes", with: Companion::Dashboard::NotesCreateHandler
     route "POST", "/assistant/runtime", with: Companion::Dashboard::AssistantRuntimeUpdateHandler

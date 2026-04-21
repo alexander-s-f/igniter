@@ -521,4 +521,39 @@ RSpec.describe "Companion assistant flow" do
     expect(recommendation[:model]).to eq(record.fetch(:runtime_model))
     expect(recommendation[:summary]).to include("Research Synthesis")
   end
+
+  it "merges learned defaults into the best-current-lane recommendation" do
+    result = Companion::Main::Support::AssistantAPI.submit_request(
+      requester: "Alex",
+      scenario: "research_synthesis",
+      request: "Prepare a research synthesis brief"
+    )
+
+    record = result.fetch(:request)
+    Companion::Main::Support::AssistantAPI.approve_request(
+      request_id: record.fetch(:id),
+      briefing: "Operator-approved research synthesis."
+    )
+    Companion::Main::Support::AssistantAPI.observe_request(
+      request_id: record.fetch(:id),
+      action: :feedback_useful,
+      source: :spec,
+      metadata: { feedback: "useful" }
+    )
+    Companion::Main::Support::AssistantAPI.observe_request(
+      request_id: record.fetch(:id),
+      action: :saved_as_note,
+      source: :spec,
+      metadata: {}
+    )
+
+    overview = Companion::Main::Support::AssistantAPI.overview
+    recommendation = overview.dig(:runtime, :recommendation)
+
+    expect(recommendation[:title]).to eq("Best Current Lane")
+    expect(recommendation[:learned_scenario_label]).to eq("Research Synthesis")
+    expect(recommendation[:learned_model]).to eq(record.fetch(:runtime_model))
+    expect(recommendation[:summary]).to include("Learned default lane is Research Synthesis.")
+    expect(recommendation[:notes]).to include("#{record.fetch(:runtime_model)} currently has the best net evaluation score.")
+  end
 end

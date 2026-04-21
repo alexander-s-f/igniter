@@ -1,0 +1,170 @@
+breadcrumbs class_name: "mb-5" do |trail|
+  page_context.breadcrumbs.each do |entry|
+    trail.crumb entry.fetch(:label), entry[:href], current: entry[:current]
+  end
+end
+
+page_header title: page_context.title,
+            eyebrow: "Visualization",
+            description: page_context.description,
+            class_name: "relative overflow-hidden rounded-[34px] border border-orange-200/15 bg-[radial-gradient(circle_at_top_left,_rgba(194,107,61,0.24),_transparent_18rem),linear-gradient(145deg,rgba(60,33,21,0.96),rgba(22,15,13,0.98))] px-6 py-8 shadow-2xl shadow-black/25 sm:px-8 lg:px-10" do
+  meta do
+    text_node "generated=#{page_context.generated_at} · "
+    text_node "root=#{page_context.stack.fetch(:root_app)} · "
+    text_node "node=#{page_context.stack.fetch(:default_node)}"
+  end
+
+  actions do
+    action_group class_name: "mt-4 flex flex-wrap gap-3" do |actions|
+      page_context.operator_links.each do |entry|
+        actions.link entry.fetch(:label),
+                     href: entry.fetch(:href),
+                     class_name: "rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-stone-100 transition hover:border-orange-300/50 hover:text-orange-200"
+      end
+    end
+  end
+end
+
+metric_grid class_name: "grid gap-4 md:grid-cols-3" do
+  page_context.summary_metrics.each do |metric|
+    metric metric.fetch(:label), metric.fetch(:value), hint: metric.fetch(:hint)
+  end
+end
+
+shell_columns do |columns|
+  columns.main do
+    panel title: "Live Topology",
+          subtitle: "Realtime cluster, apps, assistant requests, and follow-up edges over the current runtime snapshot.",
+          class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
+      div class: "mb-4 flex flex-wrap items-center gap-3" do
+        span "Live",
+             id: "cluster-live-mode",
+             class: "inline-flex items-center rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-200"
+        button "Pause / Resume",
+               type: "button",
+               id: "cluster-live-toggle",
+               class: "rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-stone-100 transition hover:border-orange-300/50 hover:text-orange-200"
+        button "Return to Live",
+               type: "button",
+               id: "cluster-return-live",
+               class: "rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-stone-100 transition hover:border-orange-300/50 hover:text-orange-200"
+      end
+
+      div id: "cluster-view-root",
+          "data-overview-path": page_context.cluster_overview_path,
+          "data-poll-interval-seconds": page_context.cluster_poll_interval_seconds do
+        div id: "cluster-view-canvas",
+            class: "rounded-[28px] border border-white/10 bg-[#160f0d] p-2" do
+          loading_state "Rendering cluster topology",
+                        message: "Bootstrap the first snapshot and start polling the overview surface.",
+                        class_name: "py-16"
+        end
+      end
+
+      div class: "mt-4 text-sm leading-6 text-stone-300" do
+        text_node "This view keeps a small local history buffer in the browser so we can watch the cluster live, pause, and scrub back through recent snapshots before investing in deeper time-travel."
+      end
+    end
+
+    panel title: "History Buffer",
+          subtitle: "Local in-browser snapshot history for lightweight rewind and comparison.",
+          class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
+      card title: "Timeline Controls", subtitle: "Pause the live lane and scrub recent snapshots" do
+        div class: "grid gap-3" do
+          div class: "flex flex-wrap items-center justify-between gap-3 text-sm text-stone-300" do
+            span "snapshot 1/1 · captured=#{page_context.generated_at}", id: "cluster-snapshot-meta"
+            span "latest=#{page_context.generated_at}", id: "cluster-buffer-meta"
+          end
+
+          input type: "range",
+                id: "cluster-history-slider",
+                min: "0",
+                max: "0",
+                value: "0",
+                class: "w-full accent-orange-300"
+        end
+      end
+
+      resource_list id: "cluster-history-feed", class_name: "mt-4 space-y-3" do
+        li do
+          button page_context.cluster_visualization.dig(:timeline_entry, :summary) || "Current snapshot",
+                 type: "button",
+                 "data-history-index": "0",
+                 class: "w-full rounded-2xl border border-orange-300/45 bg-orange-300/10 px-3 py-2 text-left text-xs text-orange-100"
+        end
+      end
+    end
+  end
+
+  columns.aside do
+    panel title: "Current Snapshot",
+          subtitle: "Live summary fields driven from the current visualization payload.",
+          class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
+      card title: "Cluster Signals", subtitle: "Read-only live diagnostics" do
+        page_context.cluster_summary_rows.each do |row|
+          div class: "flex items-center justify-between gap-3 border-b border-white/5 py-2 text-sm last:border-b-0" do
+            span row.fetch(:label), class: "font-medium uppercase tracking-[0.12em] text-stone-400"
+            span row.fetch(:value),
+                 class: "text-right text-stone-100",
+                 "data-cluster-field": row.fetch(:field)
+          end
+        end
+      end
+
+      card title: "Timeline Entry", subtitle: "Current point-in-time snapshot summary", class_name: "mt-4" do
+        page_context.cluster_timeline_rows.each do |row|
+          div class: "flex items-center justify-between gap-3 border-b border-white/5 py-2 text-sm last:border-b-0" do
+            span row.fetch(:label), class: "font-medium uppercase tracking-[0.12em] text-stone-400"
+            span row.fetch(:value),
+                 class: "text-right text-stone-100",
+                 "data-cluster-field": row.fetch(:field)
+          end
+        end
+      end
+    end
+
+    panel title: "Focused Node",
+          subtitle: "Click any graph node to inspect its current detail and graph connections.",
+          class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
+      div id: "cluster-focus-panel" do
+        card title: page_context.cluster_initial_focus.fetch(:label, "No node"),
+             subtitle: page_context.cluster_initial_focus.fetch(:kind, "cluster node") do
+          line :status, page_context.cluster_initial_focus.fetch(:status, "--"), as: :badge
+          line :detail, page_context.cluster_initial_focus.fetch(:detail, "--"), as: :code
+        end
+      end
+    end
+
+    panel title: "Legend",
+          subtitle: "Current graph vocabulary for cluster and agent surfaces.",
+          class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
+      resource_list class_name: "space-y-3" do
+        page_context.cluster_legend_entries.each do |entry|
+          li class: "rounded-2xl border border-white/10 bg-white/5 p-4" do
+            div class: "flex items-center gap-3" do
+              badge entry.fetch(:kind), size: :sm
+              strong entry.fetch(:label), class: "font-semibold text-white"
+            end
+            div entry.fetch(:description), class: "mt-2 text-sm leading-6 text-stone-300"
+          end
+        end
+      end
+    end
+
+    panel title: "Raw Snapshot",
+          subtitle: "Structured preview of the live visualization payload for debugging.",
+          class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
+      pre JSON.pretty_generate(page_context.cluster_raw_preview),
+          id: "cluster-raw-snapshot",
+          class: "overflow-x-auto rounded-3xl border border-white/10 bg-[#160f0d] p-4 text-xs leading-6 text-stone-300"
+    end
+  end
+end
+
+script type: "application/json", id: "cluster-view-bootstrap" do
+  raw_text cluster_bootstrap_json
+end
+
+script type: "text/javascript" do
+  raw_text cluster_view_script
+end
