@@ -10,7 +10,7 @@ module Igniter
     class BootstrapAgent < Igniter::Agent
       DEFAULT_REMOTE_STRATEGY = :tarball
       DEFAULT_TARGET_PATH = "/opt/igniter"
-      BootstrapResult = Data.define(
+      BootstrapResult = ::Data.define(
         :status,
         :action,
         :admission,
@@ -20,7 +20,7 @@ module Igniter
         :host,
         :port
       )
-      DecommissionResult = Data.define(
+      DecommissionResult = ::Data.define(
         :status,
         :action,
         :transport,

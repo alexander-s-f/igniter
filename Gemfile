@@ -14,6 +14,7 @@ gem "igniter-server", path: "packages/igniter-server"
 gem "igniter-cluster", path: "packages/igniter-cluster"
 gem "igniter-rails", path: "packages/igniter-rails"
 gem "arbre"
+gem "sqlite3"
 
 gem "irb"
 gem "rake", "~> 13.0"

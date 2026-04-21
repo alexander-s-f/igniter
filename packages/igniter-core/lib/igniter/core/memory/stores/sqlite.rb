@@ -6,8 +6,9 @@ module Igniter
       # SQLite-backed persistent Store implementation.
       #
       # Uses SQLite3 with FTS5 for fast full-text search on episode content.
-      # Requires the +sqlite3+ gem (soft dependency — not declared in the gemspec).
-      # Raises +Igniter::Memory::ConfigurationError+ if the gem is not available.
+      # Igniter ships with the +sqlite3+ gem as a standard dependency.
+      # Raises +Igniter::Memory::ConfigurationError+ if the runtime environment
+      # is incomplete and the gem cannot be loaded.
       #
       # @example In-memory SQLite (for tests)
       #   store = Igniter::Memory::Stores::SQLite.new(path: ":memory:")
@@ -20,7 +21,8 @@ module Igniter
           require "sqlite3"
         rescue LoadError
           raise ConfigurationError,
-                "SQLite store requires the 'sqlite3' gem. Add it to your Gemfile: gem 'sqlite3'"
+                "`igniter` now ships with a required `sqlite3` dependency. " \
+                "If it is missing in this environment, run bundle install or reinstall the gem."
         else
           @mutex = Mutex.new
           @db    = ::SQLite3::Database.new(path)

@@ -737,7 +737,7 @@ RSpec.describe Igniter::App do
           expect(File.read("my_app/README.md")).to include("bin/console")
           expect(File.read("my_app/README.md")).not_to include("bin/console --node main")
           expect(File.read("my_app/README.md")).to include("var/log/dev/*.log")
-          expect(File.read("my_app/Gemfile")).to include("gem \"sqlite3\"")
+          expect(File.read("my_app/Gemfile")).not_to include("gem \"sqlite3\"")
           expect(bin_start).to include("exec bundle exec ruby stack.rb \"$@\"")
           expect(bin_dev).to include("exec bundle exec ruby stack.rb --dev \"$@\"")
           expect(bin_console).to include("exec bundle exec ruby stack.rb --console \"$@\"")

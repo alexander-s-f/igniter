@@ -11,7 +11,7 @@ module Igniter
       #
       # Immutable — created by the requesting peer (or operator) and submitted
       # to AdmissionWorkflow for policy evaluation.
-      AdmissionRequest = Data.define(
+      AdmissionRequest = ::Data.define(
         :request_id,
         :peer_name,
         :node_id,

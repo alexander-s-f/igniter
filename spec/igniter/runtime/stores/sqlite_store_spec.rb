@@ -4,12 +4,6 @@ require "spec_helper"
 require "igniter"
 
 RSpec.describe Igniter::Runtime::Stores::SQLiteStore do
-  before(:all) do
-    require "sqlite3"
-  rescue LoadError
-    skip "sqlite3 gem not available"
-  end
-
   subject(:store) { described_class.new(path: ":memory:") }
 
   let(:pending_snapshot) do

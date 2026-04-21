@@ -24,4 +24,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "igniter-core", Igniter::VERSION
   spec.add_dependency "igniter-agents", Igniter::VERSION
   spec.add_dependency "igniter-ai", Igniter::VERSION
+  spec.add_dependency "sqlite3"
 end

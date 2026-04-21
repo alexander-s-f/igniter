@@ -1165,7 +1165,6 @@ module Igniter
             gem "igniter-server", path: "#{relative_path_to_repo_root}/packages/igniter-server"
             gem "igniter-cluster", path: "#{relative_path_to_repo_root}/packages/igniter-cluster"
             gem "igniter-rails", path: "#{relative_path_to_repo_root}/packages/igniter-rails"
-            gem "sqlite3" # stack-local data + execution stores
 
             group :development, :test do
               gem "rspec"

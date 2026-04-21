@@ -20,4 +20,6 @@ Gem::Specification.new do |spec|
   ].sort
 
   spec.require_paths = ["lib"]
+
+  spec.add_dependency "sqlite3"
 end

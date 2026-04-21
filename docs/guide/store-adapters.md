@@ -43,17 +43,14 @@ Igniter.execution_store = Igniter::Runtime::Stores::FileStore.new(
 Useful for single-node application profiles that want durable local execution
 snapshots without pulling in Redis or ActiveRecord.
 
-`SQLiteStore` is a soft dependency. Add `sqlite3` in the app that uses it:
-
-```ruby
-gem "sqlite3"
-```
-
 ```ruby
 Igniter.execution_store = Igniter::Runtime::Stores::SQLiteStore.new(
   path: "var/igniter_executions.sqlite3"
 )
 ```
+
+`sqlite3` now ships as a standard Igniter dependency, so this path works out of
+the box in the default stack and gem installation shape.
 
 The store keeps one row per execution snapshot and secondary indexes for:
 

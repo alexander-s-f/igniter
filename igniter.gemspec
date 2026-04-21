@@ -72,6 +72,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib", *package_libs]
 
   spec.add_dependency "arbre"
+  spec.add_dependency "sqlite3"
 
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"

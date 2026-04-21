@@ -12,7 +12,7 @@ module Igniter
       #   :rejected         — request was refused by policy or operator
       #   :pending_approval — enqueued; awaits explicit operator approval
       #   :already_trusted  — peer's node_id was already in the TrustStore
-      AdmissionDecision = Data.define(:request, :outcome, :rationale, :decided_at) do
+      AdmissionDecision = ::Data.define(:request, :outcome, :rationale, :decided_at) do
         def self.build(request:, outcome:, rationale: nil, decided_at: Time.now.utc.iso8601)
           new(
             request:    request,

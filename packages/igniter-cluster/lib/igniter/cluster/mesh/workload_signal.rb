@@ -7,7 +7,7 @@ module Igniter
     module Mesh
       # A single recorded runtime event for one peer-capability interaction.
       # Immutable — produced by WorkloadTracker#record.
-      WorkloadSignal = Data.define(
+      WorkloadSignal = ::Data.define(
         :peer_name,
         :capability,
         :success,

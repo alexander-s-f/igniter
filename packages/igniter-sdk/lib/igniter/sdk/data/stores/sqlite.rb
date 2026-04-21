@@ -13,7 +13,8 @@ module Igniter
           require "sqlite3"
         rescue LoadError
           raise ConfigurationError,
-                "SQLite data store requires the 'sqlite3' gem. Add it to your Gemfile: gem 'sqlite3'"
+                "`igniter` now ships with a required `sqlite3` dependency. " \
+                "If it is missing in this environment, run bundle install or reinstall the gem."
         else
           @path = path
           prepare_path!(path)

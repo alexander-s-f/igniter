@@ -8,7 +8,7 @@ module Igniter
       # Describes what happened during a compaction: how many events were
       # removed, how many were kept, and the signed Checkpoint built over
       # the crest at compaction time (when an identity was provided).
-      CompactionRecord = Data.define(:checkpoint, :removed_events, :kept_events, :checkpoint_digest) do
+      CompactionRecord = ::Data.define(:checkpoint, :removed_events, :kept_events, :checkpoint_digest) do
         # True when events were actually removed.
         def compacted?
           removed_events > 0

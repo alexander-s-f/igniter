@@ -236,7 +236,6 @@ module Igniter
           source "https://rubygems.org"
 
           gem "igniter"
-          gem "sqlite3" # stack-local data + execution stores
 
           group :development, :test do
             gem "rspec"

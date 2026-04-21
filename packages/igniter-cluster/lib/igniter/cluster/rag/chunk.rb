@@ -11,7 +11,7 @@ module Igniter
       # making adds idempotent: storing the same text twice yields the same id.
       #
       # Chunk is a frozen value object — use KnowledgeShard to build and store chunks.
-      Chunk = Data.define(:id, :content, :tags, :metadata, :indexed_at) do
+      Chunk = ::Data.define(:id, :content, :tags, :metadata, :indexed_at) do
         # Build a Chunk from raw content. Computes the content-addressed id.
         #
         # @param content    [String]

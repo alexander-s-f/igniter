@@ -7,7 +7,7 @@ module Igniter
       #
       # degraded?   — failure_rate >= degraded_threshold (default 0.3)
       # overloaded? — avg_duration_ms >= overload_threshold_ms (default 500)
-      PeerCapacityReport = Data.define(
+      PeerCapacityReport = ::Data.define(
         :peer_name,
         :total,
         :successes,

@@ -3,12 +3,6 @@
 require "igniter/core/memory"
 
 RSpec.describe Igniter::Memory::Stores::SQLite do
-  before(:all) do
-    require "sqlite3"
-  rescue LoadError
-    skip "sqlite3 gem not available"
-  end
-
   subject(:store) { described_class.new(path: ":memory:") }
 
   let(:agent_id) { "SQLiteAgent:1" }
@@ -249,14 +243,12 @@ RSpec.describe Igniter::Memory::Stores::SQLite do
     end
   end
 
-  # ── soft dependency ───────────────────────────────────────────────────────
-
-  describe "soft dependency on sqlite3" do
+  describe "dependency error messaging" do
     it "raises ConfigurationError with helpful message when sqlite3 is unavailable" do
       # We stub Kernel#require to simulate a missing gem
       allow_any_instance_of(described_class).to receive(:require).with("sqlite3").and_raise(LoadError)
       expect { described_class.new(path: ":memory:") }
-        .to raise_error(Igniter::Memory::ConfigurationError, /sqlite3/)
+        .to raise_error(Igniter::Memory::ConfigurationError, /now ships with a required `sqlite3` dependency/)
     end
   end
 end

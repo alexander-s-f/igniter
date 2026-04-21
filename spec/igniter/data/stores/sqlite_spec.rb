@@ -4,12 +4,6 @@ require "spec_helper"
 require "igniter/sdk/data"
 
 RSpec.describe Igniter::Data::Stores::SQLite do
-  before(:all) do
-    require "sqlite3"
-  rescue LoadError
-    skip "sqlite3 gem not available"
-  end
-
   subject(:store) { described_class.new(path: ":memory:") }
 
   it "stores and retrieves JSON values" do
