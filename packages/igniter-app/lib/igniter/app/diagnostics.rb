@@ -11,6 +11,7 @@ require_relative "diagnostics/scheduler_contributor"
 require_relative "diagnostics/sdk_contributor"
 require_relative "diagnostics/evolution_contributor"
 require_relative "diagnostics/ignite_contributor"
+require_relative "diagnostics/credential_contributor"
 require_relative "diagnostics/orchestration_contributor"
 
 module Igniter
@@ -47,6 +48,10 @@ module Igniter
       Igniter::Diagnostics.register_report_contributor(
         :app_ignite,
         IgniteContributor
+      )
+      Igniter::Diagnostics.register_report_contributor(
+        :app_credentials,
+        CredentialContributor
       )
       Igniter::Diagnostics.register_report_contributor(
         :app_orchestration,

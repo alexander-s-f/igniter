@@ -221,6 +221,16 @@ module Igniter
                   </section>
 
                   <section class="panel" style="margin-bottom: 20px;">
+                    <h2>Credential Audit</h2>
+                    <pre id="credential_audit">waiting for data…</pre>
+                  </section>
+
+                  <section class="panel" style="margin-bottom: 20px;">
+                    <h2>Credential Requests</h2>
+                    <pre id="credential_requests">waiting for data…</pre>
+                  </section>
+
+                  <section class="panel" style="margin-bottom: 20px;">
                     <h2>Orchestration Events</h2>
                     <pre id="orchestration_events">waiting for data…</pre>
                   </section>
@@ -291,6 +301,8 @@ module Igniter
                     const continuableSessions = document.getElementById("continuable_sessions");
                     const inboxItems = document.getElementById("inbox_items");
                     const runtime = document.getElementById("runtime");
+                    const credentialAudit = document.getElementById("credential_audit");
+                    const credentialRequests = document.getElementById("credential_requests");
                     const orchestrationEvents = document.getElementById("orchestration_events");
                     const summary = document.getElementById("summary");
                     const recordDetail = document.getElementById("record_detail");
@@ -349,6 +361,8 @@ module Igniter
                       continuableSessions.textContent = String(payload.runtime?.continuable_sessions ?? 0);
                       inboxItems.textContent = String(payload.summary?.inbox_items ?? 0);
                       runtime.textContent = JSON.stringify(payload.runtime ?? {}, null, 2);
+                      credentialAudit.textContent = JSON.stringify(payload.credential_audit ?? {}, null, 2);
+                      credentialRequests.textContent = JSON.stringify(payload.credential_requests ?? {}, null, 2);
                       orchestrationEvents.textContent = JSON.stringify(payload.orchestration_events ?? {}, null, 2);
                       summary.textContent = JSON.stringify(payload.summary ?? {}, null, 2);
                     }

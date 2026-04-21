@@ -24,6 +24,28 @@ module Igniter
           requested_operation lifecycle_operation execution_operation
         ].freeze
         EVENT_BOOLEAN_FILTERS = %i[terminal].freeze
+        CREDENTIAL_LIST_FILTERS = %i[
+          event status credential_key policy_name source reason
+          node target_node actor origin
+        ].freeze
+        CREDENTIAL_FILTER_ALIASES = {
+          policy_name: :credential_policy
+        }.freeze
+        CREDENTIAL_ORDERABLE_FIELDS = %i[
+          timestamp event status credential_key policy_name source reason
+          node target_node actor origin
+        ].freeze
+        CREDENTIAL_REQUEST_LIST_FILTERS = %i[
+          latest_event status credential_key policy_name source reason
+          node target_node actor origin request_id lease_id requested_scope credential_provider
+        ].freeze
+        CREDENTIAL_REQUEST_FILTER_ALIASES = {
+          policy_name: :credential_request_policy
+        }.freeze
+        CREDENTIAL_REQUEST_ORDERABLE_FIELDS = %i[
+          latest_at latest_event status credential_key policy_name source reason
+          node target_node actor origin request_id lease_id requested_scope credential_provider requested_at
+        ].freeze
 
         def initialize(app_class:, limit: DEFAULT_LIMIT, store: nil)
           @app_class = app_class
@@ -41,6 +63,14 @@ module Igniter
           event_filters = extract_event_filters(request_params)
           event_order_by = normalize_event_order_by(request_params.delete(:event_order_by))
           event_direction = normalize_direction(request_params.delete(:event_direction))
+          credential_limit = normalize_limit(request_params.delete(:credential_limit) || event_limit)
+          credential_filters = extract_credential_filters(request_params)
+          credential_order_by = normalize_credential_order_by(request_params.delete(:credential_order_by))
+          credential_direction = normalize_direction(request_params.delete(:credential_direction))
+          credential_request_limit = normalize_limit(request_params.delete(:credential_request_limit) || credential_limit)
+          credential_request_filters = extract_credential_request_filters(request_params)
+          credential_request_order_by = normalize_credential_request_order_by(request_params.delete(:credential_request_order_by))
+          credential_request_direction = normalize_direction(request_params.delete(:credential_request_direction))
 
           overview =
             if request_params.key?(:graph) || request_params.key?(:execution_id)
@@ -59,7 +89,15 @@ module Igniter
                 event_filters: event_filters,
                 event_order_by: event_order_by,
                 event_direction: event_direction,
-                event_limit: event_limit
+                event_limit: event_limit,
+                credential_filters: credential_filters,
+                credential_order_by: credential_order_by,
+                credential_direction: credential_direction,
+                credential_limit: credential_limit,
+                credential_request_filters: credential_request_filters,
+                credential_request_order_by: credential_request_order_by,
+                credential_request_direction: credential_request_direction,
+                credential_request_limit: credential_request_limit
               )
             else
               app_class.operator_overview(
@@ -70,7 +108,15 @@ module Igniter
                 event_filters: event_filters,
                 event_order_by: event_order_by,
                 event_direction: event_direction,
-                event_limit: event_limit
+                event_limit: event_limit,
+                credential_filters: credential_filters,
+                credential_order_by: credential_order_by,
+                credential_direction: credential_direction,
+                credential_limit: credential_limit,
+                credential_request_filters: credential_request_filters,
+                credential_request_order_by: credential_request_order_by,
+                credential_request_direction: credential_request_direction,
+                credential_request_limit: credential_request_limit
               ).merge(
                 scope: { mode: :app }.freeze
               ).freeze
@@ -152,6 +198,46 @@ module Igniter
           filters.freeze
         end
 
+        def extract_credential_filters(request_params)
+          filters = {}
+
+          CREDENTIAL_LIST_FILTERS.each do |name|
+            param_name =
+              if CREDENTIAL_FILTER_ALIASES.key?(name)
+                alias_name = CREDENTIAL_FILTER_ALIASES.fetch(name)
+                request_params.key?(alias_name) ? alias_name : :"credential_#{name}"
+              else
+                :"credential_#{name}"
+              end
+            next unless request_params.key?(param_name)
+
+            values = normalize_list(request_params.delete(param_name), symbolize: credential_symbol_filter?(name))
+            filters[name] = values if values.any?
+          end
+
+          filters.freeze
+        end
+
+        def extract_credential_request_filters(request_params)
+          filters = {}
+
+          CREDENTIAL_REQUEST_LIST_FILTERS.each do |name|
+            param_name =
+              if CREDENTIAL_REQUEST_FILTER_ALIASES.key?(name)
+                alias_name = CREDENTIAL_REQUEST_FILTER_ALIASES.fetch(name)
+                request_params.key?(alias_name) ? alias_name : :"credential_request_#{name}"
+              else
+                :"credential_request_#{name}"
+              end
+            next unless request_params.key?(param_name)
+
+            values = normalize_list(request_params.delete(param_name), symbolize: credential_request_symbol_filter?(name))
+            filters[name] = values if values.any?
+          end
+
+          filters.freeze
+        end
+
         def symbol_filter?(name)
           !%i[
             id queue channel assignee latest_action_actor latest_action_origin
@@ -161,6 +247,14 @@ module Igniter
 
         def event_symbol_filter?(name)
           !%i[actor origin].include?(name)
+        end
+
+        def credential_symbol_filter?(name)
+          !%i[node target_node actor origin].include?(name)
+        end
+
+        def credential_request_symbol_filter?(name)
+          !%i[node target_node actor origin request_id lease_id].include?(name)
         end
 
         def normalize_list(value, symbolize: false)
@@ -207,6 +301,24 @@ module Igniter
           order_by = value.to_s.strip.tr(" ", "_").to_sym
           allowed = Igniter::App::Orchestration::RuntimeEventQuery::ORDERABLE_DIMENSIONS
           raise ArgumentError, "event_order_by must be one of #{allowed.inspect}" unless allowed.include?(order_by)
+
+          order_by
+        end
+
+        def normalize_credential_order_by(value)
+          return nil if value.nil? || value.to_s.strip.empty?
+
+          order_by = value.to_s.strip.tr(" ", "_").to_sym
+          raise ArgumentError, "credential_order_by must be one of #{CREDENTIAL_ORDERABLE_FIELDS.inspect}" unless CREDENTIAL_ORDERABLE_FIELDS.include?(order_by)
+
+          order_by
+        end
+
+        def normalize_credential_request_order_by(value)
+          return nil if value.nil? || value.to_s.strip.empty?
+
+          order_by = value.to_s.strip.tr(" ", "_").to_sym
+          raise ArgumentError, "credential_request_order_by must be one of #{CREDENTIAL_REQUEST_ORDERABLE_FIELDS.inspect}" unless CREDENTIAL_REQUEST_ORDERABLE_FIELDS.include?(order_by)
 
           order_by
         end

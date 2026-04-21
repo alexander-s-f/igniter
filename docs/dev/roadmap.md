@@ -90,8 +90,13 @@ Another active cross-cutting design line now needs to stay explicit:
   - `Igniter::App::Credentials::CredentialPolicy`
   - `Igniter::App::Credentials::Policies::LocalOnlyPolicy`
   - `Igniter::App::Credentials::Policies::EphemeralLeasePolicy`
+  - `Igniter::App::Credentials::LeaseRequest`
   - `Igniter::App::Credentials::Events::CredentialEvent`
   - `Igniter::App::Credentials::Trail`
+- keep credential audit visible through a read-only operator query surface
+  before attempting real cluster secret propagation
+- keep credential lease requests visible as logical request flows, not only
+  as raw event lines
 - do not let `ignite` or cluster convenience silently normalize “copy secrets to every node”
 
 See [Current: Ignite](../current/ignite.md) for the current specification draft.

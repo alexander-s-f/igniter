@@ -1024,10 +1024,65 @@ module Igniter
         operator_query(target, filters: filters, order_by: order_by, direction: direction).summary
       end
 
-      def operator_overview(target = nil, limit: 20, filters: nil, order_by: nil, direction: :asc, event_filters: nil, event_order_by: nil, event_direction: :asc, event_limit: nil)
+      def request_credential_lease(...)
+        resolved_stack = stack_class
+        raise ArgumentError, "App #{self} is not bound to a stack" unless resolved_stack
+
+        resolved_stack.request_credential_lease(...)
+      end
+
+      def issue_credential_lease(...)
+        resolved_stack = stack_class
+        raise ArgumentError, "App #{self} is not bound to a stack" unless resolved_stack
+
+        resolved_stack.issue_credential_lease(...)
+      end
+
+      def deny_credential_lease(...)
+        resolved_stack = stack_class
+        raise ArgumentError, "App #{self} is not bound to a stack" unless resolved_stack
+
+        resolved_stack.deny_credential_lease(...)
+      end
+
+      def revoke_credential_lease(...)
+        resolved_stack = stack_class
+        raise ArgumentError, "App #{self} is not bound to a stack" unless resolved_stack
+
+        resolved_stack.revoke_credential_lease(...)
+      end
+
+      def credential_request_overview(limit: 20, filters: nil, order_by: nil, direction: :asc)
+        resolved_stack = stack_class
+        return nil unless resolved_stack
+
+        resolved_stack.credential_request_history(
+          limit: limit,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        ).merge(
+          app: name,
+          stack: resolved_stack.name || "anonymous"
+        ).freeze
+      end
+
+      def operator_overview(target = nil, limit: 20, filters: nil, order_by: nil, direction: :asc, event_filters: nil, event_order_by: nil, event_direction: :asc, event_limit: nil, credential_filters: nil, credential_order_by: nil, credential_direction: :asc, credential_limit: nil, credential_request_filters: nil, credential_request_order_by: nil, credential_request_direction: :asc, credential_request_limit: nil)
         query = operator_query(target, filters: filters, order_by: order_by, direction: direction)
         execution = orchestration_execution_for(target)
         orchestration_runtime = execution ? orchestration_runtime_overview(execution) : nil
+        credential_audit = credential_audit_overview(
+          limit: credential_limit || event_limit || limit,
+          filters: credential_filters,
+          order_by: credential_order_by,
+          direction: credential_direction
+        )
+        credential_requests = credential_request_overview(
+          limit: credential_request_limit || credential_limit || event_limit || limit,
+          filters: credential_request_filters,
+          order_by: credential_request_order_by,
+          direction: credential_request_direction
+        )
         orchestration_transitions =
           execution ? orchestration_runtime_transition_overview(
             execution,
@@ -1058,6 +1113,8 @@ module Igniter
           query: operator_query_metadata(filters: filters, order_by: order_by, direction: direction, limit: limit),
           summary: query.summary,
           runtime: operator_runtime_overview(query),
+          credential_audit: credential_audit,
+          credential_requests: credential_requests,
           orchestration_runtime: orchestration_runtime,
           orchestration_transitions: orchestration_transitions,
           orchestration_events: orchestration_events,
@@ -1086,7 +1143,7 @@ module Igniter
         ).summary
       end
 
-      def operator_overview_for_execution(graph:, execution_id:, limit: 20, store: nil, filters: nil, order_by: nil, direction: :asc, event_filters: nil, event_order_by: nil, event_direction: :asc, event_limit: nil)
+      def operator_overview_for_execution(graph:, execution_id:, limit: 20, store: nil, filters: nil, order_by: nil, direction: :asc, event_filters: nil, event_order_by: nil, event_direction: :asc, event_limit: nil, credential_filters: nil, credential_order_by: nil, credential_direction: :asc, credential_limit: nil, credential_request_filters: nil, credential_request_order_by: nil, credential_request_direction: :asc, credential_request_limit: nil)
         query = operator_query_for_execution(
           graph: graph,
           execution_id: execution_id,
@@ -1097,6 +1154,18 @@ module Igniter
         )
         target = operator_target_for_execution(graph: graph, execution_id: execution_id, store: store)
         orchestration_runtime = orchestration_runtime_overview(target.execution)
+        credential_audit = credential_audit_overview(
+          limit: credential_limit || event_limit || limit,
+          filters: credential_filters,
+          order_by: credential_order_by,
+          direction: credential_direction
+        )
+        credential_requests = credential_request_overview(
+          limit: credential_request_limit || credential_limit || event_limit || limit,
+          filters: credential_request_filters,
+          order_by: credential_request_order_by,
+          direction: credential_request_direction
+        )
         orchestration_transitions = orchestration_runtime_transition_overview_for_execution(
           graph: graph,
           execution_id: execution_id,
@@ -1134,6 +1203,8 @@ module Igniter
           query: operator_query_metadata(filters: filters, order_by: order_by, direction: direction, limit: limit),
           summary: query.summary,
           runtime: operator_runtime_overview(query),
+          credential_audit: credential_audit,
+          credential_requests: credential_requests,
           orchestration_runtime: orchestration_runtime,
           orchestration_transitions: orchestration_transitions,
           orchestration_events: orchestration_events,
@@ -1744,6 +1815,21 @@ module Igniter
           by_waiting_on: waiting_on.freeze,
           active_nodes: active_nodes.first(10).freeze
         }.freeze
+      end
+
+      def credential_audit_overview(limit: 20, filters: nil, order_by: nil, direction: :asc)
+        resolved_stack = stack_class
+        return nil unless resolved_stack
+
+        resolved_stack.credential_history(
+          limit: limit,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        ).merge(
+          app: name,
+          stack: resolved_stack.name || "anonymous"
+        ).freeze
       end
 
       def ignite_policy_for(payload)

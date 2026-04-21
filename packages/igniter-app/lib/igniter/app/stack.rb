@@ -3,6 +3,7 @@
 require "fileutils"
 require "irb"
 require "optparse"
+require "securerandom"
 require "shellwords"
 require "stringio"
 require "time"
@@ -495,8 +496,121 @@ module Igniter
         @credential_trail ||= Igniter::App::Credentials::Trail.new(store: credential_store)
       end
 
-      def credential_history(limit: 10)
-        credential_trail.snapshot(limit: limit)
+      def credential_history(limit: 10, filters: nil, order_by: nil, direction: :asc)
+        credential_trail.snapshot(limit: limit, filters: filters, order_by: order_by, direction: direction)
+      end
+
+      def credential_request_history(limit: 10, filters: nil, order_by: nil, direction: :asc)
+        credential_trail.lease_request_snapshot(
+          limit: limit,
+          filters: filters,
+          order_by: order_by,
+          direction: direction
+        )
+      end
+
+      def build_credential_lease_request(credential:, target_node:, request_id: nil, requested_scope: :remote, node: nil,
+                                         actor: nil, origin: nil, source:, reason: nil,
+                                         lease_id: nil, requested_at: Time.now.utc.iso8601, metadata: {})
+        Igniter::App::Credentials::LeaseRequest.new(
+          credential: credential,
+          request_id: request_id || SecureRandom.uuid,
+          requested_scope: requested_scope,
+          node: node,
+          target_node: target_node,
+          actor: actor,
+          origin: origin,
+          source: source,
+          reason: reason,
+          lease_id: lease_id,
+          requested_at: requested_at,
+          metadata: metadata
+        )
+      end
+
+      def request_credential_lease(credential:, target_node:, request_id: nil, requested_scope: :remote, node: nil,
+                                   actor: nil, origin: nil, source:, reason: nil, lease_id: nil,
+                                   requested_at: Time.now.utc.iso8601, metadata: {})
+        request = build_credential_lease_request(
+          credential: credential,
+          request_id: request_id,
+          requested_scope: requested_scope,
+          node: node,
+          target_node: target_node,
+          actor: actor,
+          origin: origin,
+          source: source,
+          reason: reason,
+          lease_id: lease_id,
+          requested_at: requested_at,
+          metadata: metadata
+        )
+
+        {
+          request: request.to_h,
+          policy_allowed: request.policy_allows_request?,
+          next_operation: request.policy_allows_request? ? :issue_or_deny : :deny,
+          event: record_credential_event(request.request_event)
+        }.freeze
+      end
+
+      def issue_credential_lease(request, lease_id: SecureRandom.uuid, actor: nil, origin: nil, source: nil, metadata: {}, timestamp: Time.now.utc.iso8601)
+        canonical_request = normalize_credential_lease_request(request).with(lease_id: lease_id)
+
+        {
+          request: canonical_request.to_h,
+          policy_allowed: canonical_request.policy_allows_request?,
+          event: record_credential_event(
+            canonical_request.issue_event(
+              lease_id: lease_id,
+              actor: actor,
+              origin: origin,
+              source: source,
+              metadata: metadata,
+              timestamp: timestamp
+            )
+          )
+        }.freeze
+      end
+
+      def deny_credential_lease(request, reason:, actor: nil, origin: nil, source: nil, metadata: {}, timestamp: Time.now.utc.iso8601)
+        canonical_request = normalize_credential_lease_request(request).with(reason: reason)
+
+        {
+          request: canonical_request.to_h,
+          policy_allowed: canonical_request.policy_allows_request?,
+          event: record_credential_event(
+            canonical_request.deny_event(
+              reason: reason,
+              actor: actor,
+              origin: origin,
+              source: source,
+              metadata: metadata,
+              timestamp: timestamp
+            )
+          )
+        }.freeze
+      end
+
+      def revoke_credential_lease(request, lease_id: nil, reason: nil, actor: nil, origin: nil, source: nil, metadata: {}, timestamp: Time.now.utc.iso8601)
+        canonical_request = normalize_credential_lease_request(request)
+        resolved_lease_id = lease_id || canonical_request.lease_id
+
+        {
+          request: canonical_request.with(lease_id: resolved_lease_id, reason: reason || canonical_request.reason).to_h,
+          policy_allowed: canonical_request.policy_allows_request?,
+          event: record_credential_event(
+            canonical_request.revoke_event(
+              lease_id: resolved_lease_id,
+              reason: reason,
+              actor: actor,
+              origin: origin,
+              source: source,
+              metadata: metadata,
+              timestamp: timestamp
+            )
+          )
+        }.freeze
       end
 
       def record_credential_event(event = nil, **attributes)
@@ -731,6 +845,17 @@ module Igniter
       end
 
       private
+
+      def normalize_credential_lease_request(value)
+        case value
+        when Igniter::App::Credentials::LeaseRequest
+          value
+        when Hash
+          Igniter::App::Credentials::LeaseRequest.from_h(value)
+        else
+          raise ArgumentError, "request must be a LeaseRequest or Hash"
+        end
+      end
 
       def validate_interface_access!
         exposed = interfaces

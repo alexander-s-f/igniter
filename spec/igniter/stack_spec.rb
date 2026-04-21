@@ -332,6 +332,139 @@ RSpec.describe Igniter::Stack do
     end
   end
 
+  it "supports a canonical credential lease request flow on top of the audit trail" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      credential = Igniter::App::Credentials::Credential.new(
+        key: :openai_api,
+        label: "OpenAI API",
+        provider: :openai,
+        scope: :local,
+        node: "main",
+        policy: Igniter::App::Credentials::Policies::EphemeralLeasePolicy.new
+      )
+
+      requested = workspace.request_credential_lease(
+        credential: credential,
+        target_node: "replica-1",
+        actor: "ops:alex",
+        origin: "operator_console",
+        source: :credential_runtime,
+        metadata: { ttl_seconds: 300 }
+      )
+      issued = workspace.issue_credential_lease(
+        requested.fetch(:request),
+        lease_id: "lease-123",
+        actor: "ops:alex",
+        origin: "operator_console",
+        source: :credential_runtime
+      )
+      revoked = workspace.revoke_credential_lease(
+        issued.fetch(:request),
+        actor: "ops:alex",
+        origin: "operator_console",
+        source: :credential_runtime,
+        reason: :completed
+      )
+
+      expect(requested).to include(
+        policy_allowed: true,
+        next_operation: :issue_or_deny,
+        event: include(
+          event: :lease_requested,
+          credential_key: :openai_api,
+          policy_name: :ephemeral_lease,
+          target_node: "replica-1"
+        )
+      )
+      expect(issued).to include(
+        policy_allowed: true,
+        event: include(
+          event: :lease_issued,
+          lease_id: "lease-123",
+          status: :issued
+        )
+      )
+      expect(revoked).to include(
+        event: include(
+          event: :lease_revoked,
+          lease_id: "lease-123",
+          reason: :completed,
+          status: :revoked
+        )
+      )
+
+      history = workspace.credential_history(limit: 10, order_by: :timestamp, direction: :asc)
+
+      expect(history).to include(
+        total: 3,
+        latest_type: :lease_revoked,
+        latest_status: :revoked
+      )
+      expect(history[:by_event]).to include(
+        lease_requested: 1,
+        lease_issued: 1,
+        lease_revoked: 1
+      )
+    end
+  end
+
+  it "surfaces denied credential lease requests when policy does not allow remote scope" do
+    Dir.mktmpdir do |tmp|
+      File.write(File.join(tmp, "stack.yml"), <<~YAML)
+        stack:
+          name: spark_crm
+          root_app: main
+      YAML
+
+      workspace = build_workspace(root: tmp)
+      credential = Igniter::App::Credentials::Credential.new(
+        key: :anthropic_api,
+        label: "Anthropic API",
+        provider: :anthropic,
+        scope: :local,
+        node: "main",
+        policy: Igniter::App::Credentials::Policies::LocalOnlyPolicy.new
+      )
+
+      requested = workspace.request_credential_lease(
+        credential: credential,
+        target_node: "office-edge",
+        actor: "ops:alex",
+        origin: "operator_console",
+        source: :credential_policy
+      )
+      denied = workspace.deny_credential_lease(
+        requested.fetch(:request),
+        reason: :policy_denied,
+        actor: "ops:alex",
+        origin: "operator_console",
+        source: :credential_policy
+      )
+
+      expect(requested).to include(
+        policy_allowed: false,
+        next_operation: :deny
+      )
+      expect(denied).to include(
+        policy_allowed: false,
+        event: include(
+          event: :lease_denied,
+          credential_key: :anthropic_api,
+          policy_name: :local_only,
+          reason: :policy_denied,
+          status: :denied
+        )
+      )
+    end
+  end
+
   it "marks remote targets as deferred after approval until remote bootstrap exists" do
     Dir.mktmpdir do |tmp|
       File.write(File.join(tmp, "stack.yml"), <<~YAML)

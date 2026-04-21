@@ -2,6 +2,7 @@
 
 require_relative "credentials/credential_policy"
 require_relative "credentials/credential"
+require_relative "credentials/lease_request"
 require_relative "credentials/policies"
 require_relative "credentials/events"
 require_relative "credentials/trail"

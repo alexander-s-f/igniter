@@ -40,22 +40,55 @@ module Igniter
           @events.last&.dup
         end
 
-        def snapshot(limit: 10)
-          selected = events(limit: limit)
+        def snapshot(limit: 10, filters: nil, order_by: nil, direction: :asc)
+          selected = apply_query(filters: filters, order_by: order_by, direction: direction)
+          limited = selected.first(limit)
 
           {
-            total: @events.size,
-            latest_type: @events.last&.dig(:event),
-            latest_status: @events.last&.dig(:status),
-            latest_at: @events.last&.dig(:timestamp),
-            by_event: @events.each_with_object(Hash.new(0)) { |event, memo| memo[event[:event]] += 1 },
-            by_status: @events.each_with_object(Hash.new(0)) { |event, memo| memo[event[:status]] += 1 },
-            by_policy: counts_for(:policy_name),
-            by_credential: counts_for(:credential_key),
-            by_target_node: counts_for(:target_node),
+            query: {
+              filters: compact_filters(filters),
+              order_by: order_by&.to_sym,
+              direction: direction&.to_sym,
+              limit: limit
+            }.freeze,
+            total: selected.size,
+            latest_type: selected.last&.dig(:event),
+            latest_status: selected.last&.dig(:status),
+            latest_at: selected.last&.dig(:timestamp),
+            by_event: counts_for(:event, selected),
+            by_status: counts_for(:status, selected),
+            by_policy: counts_for(:policy_name, selected),
+            by_credential: counts_for(:credential_key, selected),
+            by_target_node: counts_for(:target_node, selected),
             persistence: persistence_metadata,
-            events: selected
+            events: limited.map(&:dup)
           }
+        end
+
+        def lease_request_snapshot(limit: 10, filters: nil, order_by: nil, direction: :asc)
+          requests = apply_request_query(filters: filters, order_by: order_by, direction: direction)
+          limited = requests.first(limit)
+
+          {
+            query: {
+              filters: compact_filters(filters),
+              order_by: order_by&.to_sym,
+              direction: direction&.to_sym,
+              limit: limit
+            }.freeze,
+            total: requests.size,
+            latest_request_id: requests.last&.dig(:request_id),
+            latest_event: requests.last&.dig(:latest_event),
+            latest_status: requests.last&.dig(:status),
+            latest_at: requests.last&.dig(:latest_at),
+            by_event: counts_for(:latest_event, requests),
+            by_status: counts_for(:status, requests),
+            by_policy: counts_for(:policy_name, requests),
+            by_credential: counts_for(:credential_key, requests),
+            by_target_node: counts_for(:target_node, requests),
+            persistence: persistence_metadata,
+            requests: limited.map(&:dup)
+          }.freeze
         end
 
         def clear!
@@ -93,13 +126,55 @@ module Igniter
           canonical
         end
 
-        def counts_for(key)
-          @events.each_with_object(Hash.new(0)) do |event, memo|
+        def counts_for(key, events)
+          Array(events).each_with_object(Hash.new(0)) do |event, memo|
             value = event[key]
             next if value.nil?
 
             memo[value] += 1
           end
+        end
+
+        def apply_query(filters:, order_by:, direction:)
+          filtered = apply_filters(@events, filters)
+          apply_order(filtered, order_by: order_by, direction: direction)
+        end
+
+        def apply_request_query(filters:, order_by:, direction:)
+          filtered = apply_filters(lease_request_records, filters)
+          apply_order(filtered, order_by: order_by, direction: direction)
+        end
+
+        def apply_filters(events, filters)
+          return Array(events) if filters.nil? || filters.empty?
+
+          filters.each_with_object(Array(events)) do |(key, value), memo|
+            next if value.nil? || (value.respond_to?(:empty?) && value.empty?)
+
+            allowed = Array(value)
+            memo.select! do |event|
+              event_value = event[key.to_sym]
+              allowed.include?(event_value)
+            end
+          end
+        end
+
+        def apply_order(events, order_by:, direction:)
+          return Array(events) if order_by.nil?
+
+          sorted = Array(events).sort_by do |event|
+            value = event[order_by.to_sym]
+            value.is_a?(Symbol) ? value.to_s : value.to_s
+          end
+          direction.to_sym == :desc ? sorted.reverse : sorted
+        end
+
+        def compact_filters(filters)
+          (filters || {}).each_with_object({}) do |(key, value), memo|
+            next if value.nil? || (value.respond_to?(:empty?) && value.empty?)
+
+            memo[key.to_sym] = Array(value)
+          end.freeze
         end
 
         def persistence_metadata
@@ -125,6 +200,53 @@ module Igniter
           return if @events.size <= limit
 
           @events.shift(@events.size - limit)
+        end
+
+        def lease_request_records
+          grouped = Hash.new { |hash, key| hash[key] = [] }
+
+          @events.each do |event|
+            next unless event[:event].to_s.start_with?("lease_")
+
+            grouped[request_id_for(event)] << event
+          end
+
+          grouped.each_value.map do |events|
+            build_request_record(events)
+          end
+        end
+
+        def build_request_record(events)
+          ordered_events = Array(events).sort_by { |event| event[:timestamp].to_s }
+          latest = ordered_events.last || {}
+          first = ordered_events.first || {}
+          metadata = latest.fetch(:metadata, {})
+
+          {
+            request_id: request_id_for(latest),
+            credential_key: latest[:credential_key],
+            policy_name: latest[:policy_name],
+            node: latest[:node] || first[:node],
+            target_node: latest[:target_node] || first[:target_node],
+            actor: latest[:actor],
+            origin: latest[:origin],
+            source: latest[:source],
+            reason: latest[:reason],
+            lease_id: latest[:lease_id],
+            requested_scope: metadata[:requested_scope],
+            credential_provider: metadata[:credential_provider],
+            latest_event: latest[:event],
+            status: latest[:status],
+            latest_at: latest[:timestamp],
+            requested_at: first[:timestamp],
+            events_count: ordered_events.size,
+            events: ordered_events.map(&:dup)
+          }.compact.freeze
+        end
+
+        def request_id_for(event)
+          metadata = event.fetch(:metadata, {})
+          metadata[:request_id] || event[:lease_id] || "#{event[:timestamp]}:#{event[:credential_key]}:#{event[:target_node]}"
         end
       end
     end

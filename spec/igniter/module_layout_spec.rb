@@ -115,6 +115,7 @@ RSpec.describe "Igniter module layout" do
       credential_policy.rb
       events
       events.rb
+      lease_request.rb
       policies
       policies.rb
       store.rb

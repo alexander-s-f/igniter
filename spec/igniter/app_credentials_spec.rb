@@ -170,6 +170,75 @@ RSpec.describe Igniter::App::Credentials do
     end
   end
 
+  describe Igniter::App::Credentials::LeaseRequest do
+    it "serializes and restores canonical lease requests" do
+      credential = Igniter::App::Credentials::Credential.new(
+        key: :openai_api,
+        label: "OpenAI API",
+        provider: :openai,
+        scope: :local,
+        node: "main",
+        policy: Igniter::App::Credentials::Policies::EphemeralLeasePolicy.new,
+        metadata: { model: "gpt-4o" }
+      )
+
+      request = described_class.new(
+        credential: credential,
+        requested_scope: :remote,
+        target_node: "replica-1",
+        actor: "ops:alex",
+        origin: "operator_console",
+        source: :credential_runtime,
+        metadata: { ttl_seconds: 300 }
+      )
+
+      restored = described_class.from_h(request.to_h)
+
+      expect(restored.to_h).to eq(request.to_h)
+      expect(restored.policy_allows_request?).to be(true)
+      expect(restored.remote_request?).to be(true)
+    end
+
+    it "builds canonical lease request lifecycle events" do
+      credential = Igniter::App::Credentials::Credential.new(
+        key: :openai_api,
+        label: "OpenAI API",
+        provider: :openai,
+        scope: :local,
+        node: "main",
+        policy: Igniter::App::Credentials::Policies::LocalOnlyPolicy.new
+      )
+
+      request = described_class.new(
+        credential: credential,
+        target_node: "office-edge",
+        actor: "ops:alex",
+        origin: "operator_console",
+        source: :credential_policy,
+        metadata: { approval_required: true }
+      )
+
+      expect(request.policy_allows_request?).to be(false)
+      expect(request.request_event.to_h).to include(
+        event: :lease_requested,
+        credential_key: :openai_api,
+        policy_name: :local_only,
+        target_node: "office-edge"
+      )
+      expect(request.deny_event(reason: :weak_trust_denied).to_h).to include(
+        event: :lease_denied,
+        status: :denied,
+        reason: :weak_trust_denied
+      )
+      expect(request.revoke_event(lease_id: "lease-123", reason: :expired).to_h).to include(
+        event: :lease_revoked,
+        status: :revoked,
+        lease_id: "lease-123",
+        reason: :expired
+      )
+    end
+  end
+
   describe Igniter::App::Credentials::Trail do
     it "records canonical credential events and summarizes them" do
       trail = described_class.new
@@ -203,6 +272,62 @@ RSpec.describe Igniter::App::Credentials do
       expect(snapshot[:by_policy]).to include(ephemeral_lease: 1, local_only: 1)
       expect(snapshot[:by_credential]).to include(openai_api: 2)
       expect(snapshot[:by_target_node]).to include("replica-1" => 1, "office-edge" => 1)
+    end
+
+    it "supports filtered credential audit snapshots with query metadata" do
+      trail = described_class.new
+
+      trail.record(
+        event: :lease_requested,
+        credential_key: :openai_api,
+        policy_name: :ephemeral_lease,
+        node: "main",
+        target_node: "replica-1",
+        source: :credential_runtime
+      )
+      trail.record(
+        event: :lease_denied,
+        credential_key: :openai_api,
+        policy_name: :local_only,
+        node: "main",
+        target_node: "office-edge",
+        source: :credential_policy,
+        reason: :weak_trust_denied
+      )
+
+      snapshot = trail.snapshot(
+        limit: 1,
+        filters: {
+          status: :denied,
+          policy_name: :local_only,
+          target_node: "office-edge"
+        },
+        order_by: :target_node,
+        direction: :desc
+      )
+
+      expect(snapshot[:query]).to eq(
+        filters: {
+          status: [:denied],
+          policy_name: [:local_only],
+          target_node: ["office-edge"]
+        },
+        order_by: :target_node,
+        direction: :desc,
+        limit: 1
+      )
+      expect(snapshot).to include(
+        total: 1,
+        latest_type: :lease_denied,
+        latest_status: :denied
+      )
+      expect(snapshot[:events]).to contain_exactly(
+        include(
+          event: :lease_denied,
+          policy_name: :local_only,
+          target_node: "office-edge"
+        )
+      )
     end
   end
 end

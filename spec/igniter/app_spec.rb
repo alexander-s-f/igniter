@@ -1277,6 +1277,15 @@ RSpec.describe Igniter::App do
 
         stack_class.root_dir(tmp)
         stack_class.app :main, path: "apps/main", klass: app, default: true
+        stack_class.record_credential_event(
+          event: :lease_denied,
+          credential_key: :openai_api,
+          policy_name: :local_only,
+          node: "main",
+          target_node: "office-edge",
+          source: :credential_policy,
+          reason: :weak_trust_denied
+        )
         app.send(:build!)
 
         contract = klass.new(x: 10)
@@ -1329,12 +1338,25 @@ RSpec.describe Igniter::App do
             join: include(required: true, status: :awaiting_approval)
           )
         )
+        expect(report[:app_credentials]).to include(
+          app: "SpecIgniteDiagnosticsApp",
+          total: 1,
+          latest_type: :lease_denied,
+          latest_status: :denied,
+          by_event: { lease_denied: 1 },
+          by_policy: { local_only: 1 },
+          persistence: include(enabled: true)
+        )
         expect(text).to include("App Ignite: status=awaiting_approval, total=1, actionable=1, local_replicas=1, remote_targets=0, admission_required=1, join_required=1")
         expect(text).to include("App Ignite Progress: events=3, latest=ignition_finished, targets=1")
         expect(text).to include("App Ignite History: events=0, persisted=true")
+        expect(text).to include("App Credentials: events=1, latest=lease_denied, status=denied, by_event=lease_denied=1, by_policy=local_only=1, persisted=true")
         expect(markdown).to include("## App Ignite")
+        expect(markdown).to include("## App Credentials")
         expect(markdown).to include("- Progress: events=3, latest=ignition_finished, targets=1")
         expect(markdown).to include("- History: events=0, persisted=true")
+        expect(markdown).to include("- Summary: events=1, latest=lease_denied, status=denied, by_event=lease_denied=1, by_policy=local_only=1, persisted=true")
+        expect(markdown).to include("`lease_denied` credential=`openai_api` policy=`local_only` status=`denied` target=`office-edge` reason=`weak_trust_denied`")
         expect(markdown).to include("`edge-1` `approve_ignition`")
         expect(markdown).to include("Event `ignition_finished`")
       end
@@ -4149,6 +4171,215 @@ RSpec.describe Igniter::App do
       end
     end
 
+    it "surfaces credential audit through the app-wide operator plane" do
+      stack_class = Class.new(Igniter::Stack)
+
+      Dir.mktmpdir do |tmp|
+        File.write(File.join(tmp, "stack.yml"), <<~YAML)
+          stack:
+            name: operator_credentials
+            root_app: main
+        YAML
+
+        app = stub_const("SpecCredentialOperatorPlaneApp", Class.new(Igniter::App))
+        app.class_eval do
+          root_dir tmp
+        end
+
+        stack_class.root_dir(tmp)
+        stack_class.app :main, path: "apps/main", klass: app, default: true
+        stack_class.record_credential_event(
+          event: :lease_requested,
+          credential_key: :openai_api,
+          policy_name: :ephemeral_lease,
+          node: "main",
+          target_node: "replica-1",
+          source: :credential_runtime
+        )
+
+        overview = app.operator_overview(limit: 10)
+
+        expect(overview).to include(
+          app: "SpecCredentialOperatorPlaneApp",
+          credential_audit: include(
+            app: "SpecCredentialOperatorPlaneApp",
+            total: 1,
+            latest_type: :lease_requested,
+            latest_status: :requested,
+            by_event: { lease_requested: 1 },
+            by_policy: { ephemeral_lease: 1 },
+            by_credential: { openai_api: 1 },
+            by_target_node: { "replica-1" => 1 }
+          )
+        )
+      end
+    end
+
+    it "supports credential audit filters and ordering through the app operator plane" do
+      stack_class = Class.new(Igniter::Stack)
+
+      Dir.mktmpdir do |tmp|
+        File.write(File.join(tmp, "stack.yml"), <<~YAML)
+          stack:
+            name: credential_operator_filters
+            root_app: main
+          server:
+            host: 0.0.0.0
+            port: 4567
+        YAML
+
+        app = stub_const("SpecCredentialOperatorFilterApp", Class.new(Igniter::App))
+        app.class_eval do
+          root_dir tmp
+        end
+
+        stack_class.root_dir(tmp)
+        stack_class.app :main, path: "apps/main", klass: app, default: true
+        stack_class.record_credential_event(
+          event: :lease_requested,
+          credential_key: :openai_api,
+          policy_name: :ephemeral_lease,
+          node: "main",
+          target_node: "replica-1",
+          source: :credential_runtime
+        )
+        stack_class.record_credential_event(
+          event: :lease_denied,
+          credential_key: :openai_api,
+          policy_name: :local_only,
+          node: "main",
+          target_node: "office-edge",
+          source: :credential_policy,
+          reason: :weak_trust_denied
+        )
+
+        overview = app.operator_overview(
+          limit: 10,
+          credential_filters: {
+            status: :denied,
+            policy_name: :local_only,
+            target_node: "office-edge"
+          },
+          credential_order_by: :target_node,
+          credential_direction: :desc,
+          credential_limit: 1
+        )
+
+        expect(overview[:credential_audit]).to include(
+          app: "SpecCredentialOperatorFilterApp",
+          total: 1,
+          latest_type: :lease_denied,
+          latest_status: :denied,
+          by_policy: { local_only: 1 },
+          by_target_node: { "office-edge" => 1 },
+          query: {
+            filters: {
+              status: [:denied],
+              policy_name: [:local_only],
+              target_node: ["office-edge"]
+            },
+            order_by: :target_node,
+            direction: :desc,
+            limit: 1
+          }
+        )
+        expect(overview[:credential_audit][:events]).to contain_exactly(
+          include(
+            event: :lease_denied,
+            policy_name: :local_only,
+            target_node: "office-edge"
+          )
+        )
+      end
+    end
+
+    it "supports credential lease request flow through the app surface" do
+      stack_class = Class.new(Igniter::Stack)
+
+      Dir.mktmpdir do |tmp|
+        File.write(File.join(tmp, "stack.yml"), <<~YAML)
+          stack:
+            name: credential_lease_app_flow
+            root_app: main
+        YAML
+
+        app = stub_const("SpecCredentialLeaseFlowApp", Class.new(Igniter::App))
+        app.class_eval do
+          root_dir tmp
+        end
+
+        stack_class.root_dir(tmp)
+        stack_class.app :main, path: "apps/main", klass: app, default: true
+
+        credential = Igniter::App::Credentials::Credential.new(
+          key: :openai_api,
+          label: "OpenAI API",
+          provider: :openai,
+          scope: :local,
+          node: "main",
+          policy: Igniter::App::Credentials::Policies::EphemeralLeasePolicy.new
+        )
+
+        requested = app.request_credential_lease(
+          credential: credential,
+          request_id: "request-123",
+          target_node: "replica-1",
+          actor: "ops:alex",
+          origin: "operator_console",
+          source: :credential_runtime
+        )
+        issued = app.issue_credential_lease(
+          requested[:request],
+          lease_id: "lease-123",
+          actor: "ops:alex",
+          origin: "operator_console",
+          source: :credential_runtime
+        )
+
+        expect(requested).to include(
+          policy_allowed: true,
+          next_operation: :issue_or_deny,
+          event: include(
+            event: :lease_requested,
+            credential_key: :openai_api
+          )
+        )
+        expect(issued).to include(
+          policy_allowed: true,
+          event: include(
+            event: :lease_issued,
+            lease_id: "lease-123",
+            status: :issued
+          )
+        )
+
+        overview = app.operator_overview(
+          credential_request_filters: { request_id: "request-123" },
+          credential_request_order_by: :latest_at,
+          credential_request_direction: :asc,
+          credential_request_limit: 5
+        )
+
+        expect(overview[:credential_requests]).to include(
+          app: "SpecCredentialLeaseFlowApp",
+          total: 1,
+          latest_event: :lease_issued,
+          latest_status: :issued
+        )
+        expect(overview[:credential_requests][:requests]).to contain_exactly(
+          include(
+            request_id: "request-123",
+            credential_key: :openai_api,
+            policy_name: :ephemeral_lease,
+            target_node: "replica-1",
+            latest_event: :lease_issued,
+            status: :issued,
+            lease_id: "lease-123"
+          )
+        )
+      end
+    end
+
     it "supports ignite record drill-down through operator api and console" do
       stack_class = Class.new(Igniter::Stack)
 
@@ -4966,6 +5197,167 @@ RSpec.describe Igniter::App do
       expect(remounted_paths).to contain_exactly("/api/operator", "/ops/operator")
     ensure
       Igniter.execution_store = previous_store
+    end
+
+    it "supports credential audit filters through mounted operator api query params" do
+      stack_class = Class.new(Igniter::Stack)
+
+      Dir.mktmpdir do |tmp|
+        File.write(File.join(tmp, "stack.yml"), <<~YAML)
+          stack:
+            name: mounted_credential_operator_filters
+            root_app: main
+          server:
+            host: 0.0.0.0
+            port: 4567
+        YAML
+
+        app = stub_const("SpecMountedCredentialOverviewApp", Class.new(Igniter::App))
+        app.class_eval do
+          root_dir tmp
+          mount_operator_overview(path: "/api/operator", limit: 3)
+        end
+
+        stack_class.root_dir(tmp)
+        stack_class.app :main, path: "apps/main", klass: app, default: true
+        stack_class.record_credential_event(
+          event: :lease_requested,
+          credential_key: :openai_api,
+          policy_name: :ephemeral_lease,
+          node: "main",
+          target_node: "replica-1",
+          source: :credential_runtime
+        )
+        stack_class.record_credential_event(
+          event: :lease_denied,
+          credential_key: :openai_api,
+          policy_name: :local_only,
+          node: "main",
+          target_node: "office-edge",
+          source: :credential_policy,
+          reason: :weak_trust_denied
+        )
+
+        config = app.send(:build!)
+        router = Igniter::Server::Router.new(config)
+        response = router.call(
+          "GET",
+          "/api/operator?credential_status=denied&credential_policy=local_only&credential_target_node=office-edge&credential_order_by=target_node&credential_direction=desc&credential_limit=1",
+          ""
+        )
+
+        expect(response[:status]).to eq(200)
+
+        payload = JSON.parse(response[:body])
+        expect(payload["credential_audit"]).to include(
+          "total" => 1,
+          "latest_type" => "lease_denied",
+          "latest_status" => "denied",
+          "by_policy" => { "local_only" => 1 },
+          "by_target_node" => { "office-edge" => 1 },
+          "query" => {
+            "filters" => {
+              "status" => ["denied"],
+              "policy_name" => ["local_only"],
+              "target_node" => ["office-edge"]
+            },
+            "order_by" => "target_node",
+            "direction" => "desc",
+            "limit" => 1
+          }
+        )
+        expect(payload.dig("credential_audit", "events")).to contain_exactly(
+          include(
+            "event" => "lease_denied",
+            "policy_name" => "local_only",
+            "target_node" => "office-edge"
+          )
+        )
+      end
+    end
+
+    it "supports credential request filters through mounted operator api query params" do
+      stack_class = Class.new(Igniter::Stack)
+
+      Dir.mktmpdir do |tmp|
+        File.write(File.join(tmp, "stack.yml"), <<~YAML)
+          stack:
+            name: mounted_credential_request_filters
+            root_app: main
+          server:
+            host: 0.0.0.0
+            port: 4567
+        YAML
+
+        app = stub_const("SpecMountedCredentialRequestOverviewApp", Class.new(Igniter::App))
+        app.class_eval do
+          root_dir tmp
+          mount_operator_overview(path: "/api/operator", limit: 3)
+        end
+
+        stack_class.root_dir(tmp)
+        stack_class.app :main, path: "apps/main", klass: app, default: true
+
+        credential = Igniter::App::Credentials::Credential.new(
+          key: :openai_api,
+          label: "OpenAI API",
+          provider: :openai,
+          scope: :local,
+          node: "main",
+          policy: Igniter::App::Credentials::Policies::EphemeralLeasePolicy.new
+        )
+
+        requested = app.request_credential_lease(
+          credential: credential,
+          request_id: "request-123",
+          target_node: "replica-1",
+          actor: "ops:alex",
+          origin: "operator_console",
+          source: :credential_runtime
+        )
+        app.issue_credential_lease(
+          requested[:request],
+          lease_id: "lease-123",
+          actor: "ops:alex",
+          origin: "operator_console",
+          source: :credential_runtime
+        )
+
+        config = app.send(:build!)
+        router = Igniter::Server::Router.new(config)
+        response = router.call(
+          "GET",
+          "/api/operator?credential_request_policy=ephemeral_lease&credential_request_target_node=replica-1&credential_request_order_by=latest_at&credential_request_direction=asc&credential_request_limit=1",
+          ""
+        )
+
+        expect(response[:status]).to eq(200)
+
+        payload = JSON.parse(response[:body])
+        expect(payload["credential_requests"]).to include(
+          "total" => 1,
+          "latest_event" => "lease_issued",
+          "latest_status" => "issued",
+          "query" => {
+            "filters" => {
+              "policy_name" => ["ephemeral_lease"],
+              "target_node" => ["replica-1"]
+            },
+            "order_by" => "latest_at",
+            "direction" => "asc",
+            "limit" => 1
+          }
+        )
+        expect(payload.dig("credential_requests", "requests")).to contain_exactly(
+          include(
+            "request_id" => "request-123",
+            "policy_name" => "ephemeral_lease",
+            "target_node" => "replica-1",
+            "latest_event" => "lease_issued",
+            "lease_id" => "lease-123"
+          )
+        )
+      end
     end
 
     it "mounts an operator console surface with paired html and api routes" do
