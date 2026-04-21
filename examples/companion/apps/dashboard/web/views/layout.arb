@@ -9,7 +9,12 @@ html lang: "en" do
 
   body class: body_class do
     main class: main_class do
-      render_template_content
+      sidebar_shell title: page_context.shell_title,
+                    subtitle: page_context.shell_subtitle,
+                    sections: page_context.shell_sections,
+                    summary_items: page_context.shell_summary_items do
+        render_template_content
+      end
     end
 
     render_frontend_javascript "application"

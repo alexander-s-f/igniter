@@ -456,6 +456,38 @@ RSpec.describe "Igniter::Frontend::Arbre page authoring" do
     expect(html).to include(">Next<")
   end
 
+  it "renders a sidebar shell with sections and routed content" do
+    html = Igniter::Frontend::Arbre::Page.render_page(title: "Shell", theme: :companion) do
+      sidebar_shell title: "Companion",
+                    subtitle: "Operator proving ground",
+                    summary_items: [
+                      { label: "Root App", value: "main" },
+                      { label: "Generated", value: "2026-04-21T08:00:00Z" }
+                    ],
+                    sections: [
+                      {
+                        title: "Workspace",
+                        items: [
+                          { label: "Operator Desk", href: "/", current: true, meta: "home" },
+                          { label: "Operator Console", href: "/operator", meta: "built-in" }
+                        ]
+                      }
+                    ] do
+        panel title: "Main Content" do
+          div "Shell-routed content"
+        end
+      end
+    end
+
+    expect(html).to include(">Companion<")
+    expect(html).to include("Operator proving ground")
+    expect(html).to include(">Workspace<")
+    expect(html).to include('href="/operator"')
+    expect(html).to include('aria-current="page"')
+    expect(html).to include(">Main Content<")
+    expect(html).to include("Shell-routed content")
+  end
+
   it "renders an Arbre template with layout and page helpers" do
     stub_const("Arbre", build_fake_arbre)
 

@@ -74,6 +74,42 @@ module Companion
           ]
         end
 
+        def shell_title
+          "Companion"
+        end
+
+        def shell_subtitle
+          "Assistant and operator proving ground"
+        end
+
+        def shell_summary_items
+          [
+            { label: "Root App", value: stack.fetch(:root_app) },
+            { label: "Default Node", value: stack.fetch(:default_node) },
+            { label: "Generated", value: generated_at }
+          ]
+        end
+
+        def shell_sections
+          [
+            {
+              title: "Workspace",
+              items: [
+                { label: "Operator Desk", href: route("/"), current: true, meta: "home" },
+                { label: "Operator Console", href: route("/operator"), meta: "built-in" }
+              ]
+            },
+            {
+              title: "APIs",
+              items: [
+                { label: "Overview API", href: route("/api/overview"), meta: "snapshot" },
+                { label: "Operator API", href: route("/api/operator"), meta: "actions" },
+                { label: "Main Status", href: "/v1/home/status", meta: "runtime" }
+              ]
+            }
+          ]
+        end
+
         def operator_links
           [
             { label: "Overview API", href: route("/api/overview") },

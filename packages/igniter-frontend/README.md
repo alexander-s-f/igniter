@@ -42,6 +42,7 @@ That “stronger semantics” line now includes richer Arbre primitives such as:
 - `viz` for raw hashes, arrays, objects, and runtime payload inspection
 - `filters` for mounted-safe search and narrowing lanes above tables and feeds
 - `pagination` for mounted-safe browsing lanes across notes, history, logs, and other long collections
+- `sidebar_shell` for app-level operator/admin navigation and stable content chrome
 
 Authoring guide:
 

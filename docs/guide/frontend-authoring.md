@@ -43,6 +43,8 @@ more expressive. For example:
   select narrowing, and reset/apply actions
 - `pagination` gives long lists a mounted-safe browsing lane without dropping
   back to ad-hoc link markup
+- `sidebar_shell` gives operator/admin apps a reusable left-nav shell without
+  moving layout chrome back into custom template plumbing
 
 ## Canonical Shape
 

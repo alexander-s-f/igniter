@@ -277,6 +277,27 @@ That keeps page math and link generation in the page context while giving Arbre
 templates one honest semantic primitive for browsing history, notes, logs, and
 other long collections.
 
+For app-level navigation chrome, the sibling primitive around page content is
+`sidebar_shell`.
+
+Use it when the app wants:
+
+- a stable left navigation lane
+- a small summary block
+- content routed into one main area
+
+```ruby
+sidebar_shell title: page_context.shell_title,
+              subtitle: page_context.shell_subtitle,
+              sections: page_context.shell_sections,
+              summary_items: page_context.shell_summary_items do
+  render_template_content
+end
+```
+
+That keeps operator/admin shell structure semantic and reusable instead of
+rebuilding ad-hoc sidebars in every layout.
+
 ## Child Routing
 
 Some components should send arbitrary child content into a specific internal

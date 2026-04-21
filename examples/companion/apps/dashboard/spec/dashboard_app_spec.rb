@@ -77,6 +77,8 @@ RSpec.describe Companion::DashboardApp do
 
     expect(status).to eq(200)
     expect(headers["Content-Type"]).to include("text/html")
+    expect(html).to include("Assistant and operator proving ground")
+    expect(html).to include("Operator Desk")
     expect(html).to include("Companion Operator Desk")
     expect(html).to include("Overview API")
     expect(html).to include("Operator API")
