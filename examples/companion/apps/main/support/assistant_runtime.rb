@@ -105,6 +105,7 @@ module Companion
                 profile: config.fetch(:profile).reject { |key, _| key == :system_prompt }
               },
               status: status,
+              credential_policy: delivery.fetch(:credential_policy),
               channels: delivery.fetch(:channels),
               routing: delivery.fetch(:routing),
               recommendation: delivery.fetch(:recommendation)

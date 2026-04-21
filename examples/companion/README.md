@@ -52,6 +52,7 @@ The assistant lane now supports a local runtime mode switch:
 - the assistant lane also includes a `Model Lab` for side-by-side comparisons across several local models
 - delivery routing now shows which external channel is currently preferred and whether credentials are actually ready
 - external delivery now supports `simulate` and `live` modes for the selected channel
+- credential policy is now first-class in the runtime surface, with a conservative `local_only` default for external API secrets
 - prompt packages are now prepared as explicit handoff artifacts for the selected external delivery lane rather than pretending the local model is the final production brain
 
 Current local default bias is `qwen2.5-coder:latest`, because it has shown the

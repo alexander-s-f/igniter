@@ -54,6 +54,8 @@ RSpec.describe "Igniter module layout" do
       "app_config.rb",
       "app_host.rb",
       "app_host_pack.rb",
+      "credentials",
+      "credentials.rb",
       "diagnostics.rb",
       "evolution.rb",
       "generator.rb",
@@ -105,6 +107,20 @@ RSpec.describe "Igniter module layout" do
       "runtime_overview_builder.rb",
       "runtime_result_builder.rb"
     )
+  end
+
+  it "keeps credential foundations under the canonical app credentials namespace" do
+    expect(children_for(File.join(APP_LIB, "app", "credentials"))).to eq(%w[
+      credential.rb
+      credential_policy.rb
+      policies
+      policies.rb
+    ])
+
+    expect(children_for(File.join(APP_LIB, "app", "credentials", "policies"))).to eq(%w[
+      ephemeral_lease_policy.rb
+      local_only_policy.rb
+    ])
   end
 
   it "keeps server entrypoints inside the local server package" do

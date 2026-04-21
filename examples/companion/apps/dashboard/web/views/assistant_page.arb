@@ -353,6 +353,17 @@ shell_columns do |columns|
         end
       end
 
+      card title: "Credential Policy",
+           subtitle: "Current default stance before any future cluster secret sharing" do
+        page_context.assistant_credential_policy_rows.each do |row|
+          line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
+        end
+        line :summary, page_context.assistant_credential_policy_summary, as: :code
+        unless page_context.assistant_credential_policy_notes.empty?
+          line :notes, page_context.assistant_credential_policy_notes, as: :badge
+        end
+      end
+
       card title: page_context.assistant_recommendation.fetch(:title, "Best Current Lane"),
            subtitle: "What Companion would use right now based on local prep, delivery readiness, and configured policy" do
         page_context.assistant_recommendation_rows.each do |row|
@@ -380,6 +391,8 @@ shell_columns do |columns|
           table.column :model, as: :code, placeholder: "--"
           table.column :available, as: :boolean
           table.column :credentials_ready, as: :boolean
+          table.column :credential_policy, as: :badge, badge: { size: :sm }, placeholder: "--"
+          table.column :policy_allowed, as: :boolean
           table.column :reason, as: :badge, badge: { size: :sm }
         end
       end

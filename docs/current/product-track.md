@@ -99,6 +99,35 @@ This keeps the relationship healthy:
 - private specialization stays private
 - core Igniter only absorbs what proves generally useful
 
+## Security And Credential Bias
+
+For the assistant product track, the current safe bias should stay explicit:
+
+- external provider credentials are node-local by default
+- multi-node behavior should prefer routing to a credential-owning node over copying secrets to more nodes
+- local cluster simulation must not accidentally normalize shared credentials just because all replicas run from one checkout
+- any future cross-node secret propagation should be policy-driven, auditable, and tied to stronger trust/admission semantics
+
+This matters especially for:
+
+- `companion`
+- `home-lab`
+- future `ignite`-driven cluster bring-up
+
+The current implementation bias should stay aligned with the shared app layer:
+
+- use `Igniter::App::Credentials::Credential`
+- use `Igniter::App::Credentials::CredentialPolicy`
+- prefer shared policy types such as:
+  - `Igniter::App::Credentials::Policies::LocalOnlyPolicy`
+  - `Igniter::App::Credentials::Policies::EphemeralLeasePolicy`
+- keep product-specific credential behavior as adaptation on top of that shared
+  contract, not as a separate ad hoc DTO model
+
+The short version is:
+
+- prove assistant and cluster behavior without assuming secret fan-out as the default convenience path
+
 ## Working Cycle
 
 Recommended cycle:

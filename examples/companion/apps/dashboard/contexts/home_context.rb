@@ -181,6 +181,10 @@ module Companion
           assistant_runtime.fetch(:routing, {})
         end
 
+        def assistant_credential_policy
+          assistant_runtime.fetch(:credential_policy, {})
+        end
+
         def assistant_requests
           assistant.fetch(:requests, [])
         end

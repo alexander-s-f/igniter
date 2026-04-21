@@ -6,6 +6,7 @@ Use this index for active internal change streams and planning material.
 
 - [Agents Roadmap](../current/agents-roadmap.md)
 - [Namespace Migration Plan](./namespace-migration-plan.md)
+- [Credential Distribution And Propagation](./credential-distribution.md)
 - [Backlog](./backlog.md)
 - [Frontend Packages Idea](./frontend-packages-idea.md)
 
@@ -76,6 +77,20 @@ Another active design line is emerging around cluster ignition:
 - define `cluster` as a dynamic set of stack nodes
 - move cluster bring-up toward `ignite` intent executed by built-in deployment agents
 - keep bootstrap, approval, trust, and join as one coherent workflow rather than scattered scripts
+
+Another active cross-cutting design line now needs to stay explicit:
+
+- credential distribution and secret propagation across nodes
+- keep the current doctrine conservative:
+  - node-local credentials by default
+  - prefer capability routing over secret copying
+  - weakly trusted nodes should not receive long-lived external API credentials by default
+- start from explicit app-level value objects in `igniter-app`:
+  - `Igniter::App::Credentials::Credential`
+  - `Igniter::App::Credentials::CredentialPolicy`
+  - `Igniter::App::Credentials::Policies::LocalOnlyPolicy`
+  - `Igniter::App::Credentials::Policies::EphemeralLeasePolicy`
+- do not let `ignite` or cluster convenience silently normalize “copy secrets to every node”
 
 See [Current: Ignite](../current/ignite.md) for the current specification draft.
 

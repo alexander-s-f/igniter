@@ -17,18 +17,44 @@ $LOAD_PATH.unshift File.join(__dir__, "../../lib")
 require "igniter"
 require "igniter/ai"
 require "json"
+require "net/http"
+require "uri"
+
+OLLAMA_URL = ENV.fetch("OLLAMA_URL", "http://localhost:11434")
+PREFERRED_OLLAMA_MODEL = ENV.fetch("OLLAMA_MODEL", "llama3.2")
+
+def detect_ollama_model(base_url:, preferred:)
+  uri = URI.join("#{base_url.chomp("/")}/", "api/tags")
+  response = Net::HTTP.get_response(uri)
+  return preferred unless response.is_a?(Net::HTTPSuccess)
+
+  payload = JSON.parse(response.body)
+  models = Array(payload["models"]).filter_map do |entry|
+    name = entry["name"].to_s.strip
+    name = entry["model"].to_s.strip if name.empty?
+    name unless name.empty?
+  end
+  return preferred if models.empty?
+  return preferred if models.include?(preferred)
+
+  models.first
+rescue StandardError
+  preferred
+end
+
+OLLAMA_MODEL = detect_ollama_model(base_url: OLLAMA_URL, preferred: PREFERRED_OLLAMA_MODEL)
 
 # Configure LLM
 Igniter::AI.configure do |config|
   config.default_provider = :ollama
-  config.ollama.default_model = "llama3.2"
-  config.ollama.base_url = ENV.fetch("OLLAMA_URL", "http://localhost:11434")
+  config.ollama.default_model = OLLAMA_MODEL
+  config.ollama.base_url = OLLAMA_URL
 end
 
 # ─── Executors ───────────────────────────────────────────────────────────────
 
 class QuestionAnalyzer < Igniter::AI::Executor
-  model "llama3.2"
+  model OLLAMA_MODEL
   system_prompt <<~SYSTEM
     You are a research planner. Given a question, extract:
     1. The core topic
@@ -50,7 +76,7 @@ class QuestionAnalyzer < Igniter::AI::Executor
 end
 
 class AnswerSynthesizer < Igniter::AI::Executor
-  model "llama3.2"
+  model OLLAMA_MODEL
   system_prompt "You are a research assistant. Synthesize information into clear, accurate answers."
 
   def call(question:, search_results:)
@@ -122,6 +148,7 @@ begin
   provider = Igniter::AI.provider_instance(:ollama)
   models = provider.models
   puts "\nOllama models available: #{models.first(3).join(", ")}"
+  puts "Using Ollama model: #{OLLAMA_MODEL}"
 rescue => e
   puts "\nOllama not available (#{e.class}: #{e.message.slice(0, 60)})"
   puts "Running with mock answers instead...\n"

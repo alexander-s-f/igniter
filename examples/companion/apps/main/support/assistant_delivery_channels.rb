@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "igniter/ai"
+require "igniter/app"
+require_relative "assistant_credential_policy"
 
 module Companion
   module Main
@@ -11,27 +13,35 @@ module Companion
         class << self
           def overview(config:, runtime_status:)
             ai_config = Igniter::AI::Config.new
+            credential_policy = Companion::Main::Support::AssistantCredentialPolicy.current
 
             channels = {
               manual_completion: manual_channel,
               ollama_prep: ollama_prep_channel(config, runtime_status),
               openai_api: external_channel(
-                key: :openai_api,
-                label: "OpenAI API",
-                provider: :openai,
-                model: config.fetch(:openai_model),
+                credential: external_credential(
+                  key: :openai_api,
+                  label: "OpenAI API",
+                  provider: :openai,
+                  model: config.fetch(:openai_model),
+                  policy: credential_policy
+                ),
                 credentials_ready: api_key_present?(ai_config.openai.api_key)
               ),
               anthropic_api: external_channel(
-                key: :anthropic_api,
-                label: "Anthropic API",
-                provider: :anthropic,
-                model: config.fetch(:anthropic_model),
+                credential: external_credential(
+                  key: :anthropic_api,
+                  label: "Anthropic API",
+                  provider: :anthropic,
+                  model: config.fetch(:anthropic_model),
+                  policy: credential_policy
+                ),
                 credentials_ready: api_key_present?(ai_config.anthropic.api_key)
               )
             }
 
             {
+              credential_policy: Companion::Main::Support::AssistantCredentialPolicy.serialize(credential_policy),
               channels: channels.values,
               routing: {
                 strategy: config.fetch(:delivery_strategy),
@@ -80,16 +90,39 @@ module Companion
             }
           end
 
-          def external_channel(key:, label:, provider:, model:, credentials_ready:)
-            {
+          def external_credential(key:, label:, provider:, model:, policy:)
+            Igniter::App::Credentials::Credential.new(
               key: key,
               label: label,
-              kind: :delivery,
               provider: provider,
-              model: model,
-              available: credentials_ready && !model.to_s.strip.empty?,
+              scope: :local,
+              node: "current",
+              policy: policy,
+              metadata: { model: model }
+            )
+          end
+
+          def external_channel(credential:, credentials_ready:)
+            policy_allowed = credential.allowed_in_scope?(:local)
+
+            {
+              key: credential.key,
+              label: credential.label,
+              kind: :delivery,
+              provider: credential.provider,
+              model: credential.metadata[:model],
+              available: credentials_ready && !credential.metadata[:model].to_s.strip.empty? && policy_allowed,
               credentials_ready: credentials_ready,
-              reason: credentials_ready ? :ready : :credentials_missing
+              credential: credential.to_h,
+              credential_policy: credential.policy.name,
+              policy_allowed: policy_allowed,
+              reason: if !policy_allowed
+                        :policy_denied
+                      elsif credentials_ready
+                        :ready
+                      else
+                        :credentials_missing
+                      end
             }
           end
 
@@ -160,6 +193,7 @@ module Companion
               notes << "External delivery is not ready yet, so Companion is falling back to manual completion."
             end
             notes << "Live external delivery is enabled." if config.fetch(:delivery_mode) == :live
+            notes << "Credential policy is local-only: route work before considering any secret sharing."
 
             {
               title: "Best Current Lane",

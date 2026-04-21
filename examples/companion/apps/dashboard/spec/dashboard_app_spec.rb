@@ -126,6 +126,7 @@ RSpec.describe Companion::DashboardApp do
     expect(html).to include("Prompt Profile")
     expect(html).to include("Prompt Package")
     expect(html).to include("Routing")
+    expect(html).to include("Credential Policy")
     expect(html).to include("Best Current Lane")
     expect(html).to include("Available Channels")
     expect(html).to include("Actionable Follow-ups")
@@ -317,6 +318,7 @@ RSpec.describe Companion::DashboardApp do
     expect(payload.dig("assistant", "runtime", "config", "model")).to eq("qwen3:latest")
     expect(payload.dig("assistant", "runtime", "config", "delivery_mode")).to eq("simulate")
     expect(payload.dig("assistant", "runtime", "config", "delivery_strategy")).to eq("prefer_openai")
+    expect(payload.dig("assistant", "runtime", "credential_policy", "key")).to eq("local_only")
     expect(payload.dig("assistant", "runtime", "recommendation", "title")).to eq("Best Current Lane")
   end
 

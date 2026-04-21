@@ -2,6 +2,7 @@
 
 require_relative "app/runtime"
 require_relative "app/diagnostics"
+require_relative "app/credentials"
 require_relative "app/evolution"
 require_relative "app/operator"
 require_relative "app/observability"

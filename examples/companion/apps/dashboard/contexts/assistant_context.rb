@@ -106,6 +106,28 @@ module Companion
           ]
         end
 
+        def assistant_credential_policy_rows
+          policy = assistant_credential_policy
+          return [] if policy.empty?
+
+          [
+            { label: :policy, value: policy.fetch(:label, "--"), as: :badge },
+            { label: :secret_class, value: policy.fetch(:secret_class, "--"), as: :badge },
+            { label: :propagation, value: policy.fetch(:propagation, "--"), as: :badge },
+            { label: :route_over_replicate, value: policy.fetch(:route_over_replicate, false), as: :boolean },
+            { label: :weak_trust_behavior, value: policy.fetch(:weak_trust_behavior, "--"), as: :badge },
+            { label: :operator_approval_for_replication, value: policy.fetch(:operator_approval_for_replication, false), as: :boolean }
+          ]
+        end
+
+        def assistant_credential_policy_summary
+          assistant_credential_policy.fetch(:summary, "--")
+        end
+
+        def assistant_credential_policy_notes
+          assistant_credential_policy.fetch(:notes, [])
+        end
+
         def assistant_recommendation
           assistant_runtime.fetch(:recommendation, {})
         end
@@ -162,6 +184,8 @@ module Companion
               model: channel[:model],
               available: channel.fetch(:available),
               credentials_ready: channel.fetch(:credentials_ready),
+              credential_policy: channel.fetch(:credential_policy, nil),
+              policy_allowed: channel.fetch(:policy_allowed, true),
               reason: channel.fetch(:reason)
             }
           end
