@@ -45,6 +45,13 @@ more expressive. For example:
   back to ad-hoc link markup
 - `sidebar_shell` gives operator/admin apps a reusable left-nav shell without
   moving layout chrome back into custom template plumbing
+- `breadcrumbs` gives the page itself a compact location trail inside that shell
+- `shell_columns` gives shell content a clean main/aside layout lane
+- semantic display primitives such as `boolean`, `datetime`, `indicator`,
+  `number`, and `percentage` keep runtime data readable without falling back to
+  raw strings
+- `empty_state` and `loading_state` give operator pages honest placeholder and
+  transitional surfaces
 
 ## Canonical Shape
 

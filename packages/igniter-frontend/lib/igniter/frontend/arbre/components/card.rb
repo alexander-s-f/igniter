@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../component"
+require_relative "display_value_support"
 
 module Igniter
   module Frontend
@@ -8,6 +9,7 @@ module Igniter
       module Components
         class Card < Arbre::Component
           builder_method :card
+          include DisplayValueSupport
 
           DEFAULT_LINE_LIST_CLASS = "mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-[minmax(140px,190px)_1fr]".freeze
 
@@ -87,15 +89,7 @@ module Igniter
           def render_scalar(value, as:, badge_options:)
             return if value.nil?
 
-            case as
-            when :badge
-              badge(value, **(badge_options || {}))
-            when :code
-              code(value.to_s, class: @theme.code_class)
-            else
-              display = value.is_a?(Symbol) ? humanize_label(value) : value.to_s
-              text_node(display)
-            end
+            render_semantic_scalar(self, value, as: as, badge_options: badge_options, theme: @theme)
           end
 
           def render_header(title, subtitle)

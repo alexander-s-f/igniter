@@ -110,6 +110,14 @@ module Companion
           ]
         end
 
+        def breadcrumbs
+          [
+            { label: "Companion", href: route("/") },
+            { label: "Dashboard", href: route("/") },
+            { label: "Operator Desk", current: true }
+          ]
+        end
+
         def operator_links
           [
             { label: "Overview API", href: route("/api/overview") },
@@ -183,6 +191,37 @@ module Companion
 
         def node_public_options
           [["Public", "true"], ["Private", "false"]]
+        end
+
+        def runtime_status
+          nodes.empty? ? :pending : :ready
+        end
+
+        def primary_node_public?
+          nodes.values.first&.fetch(:public, nil)
+        end
+
+        def notes_per_node_ratio
+          return 0 if nodes.empty?
+
+          notes_total_count.to_f / nodes.size
+        end
+
+        def public_node_share
+          return 0 if nodes.empty?
+
+          nodes.values.count { |service| service.fetch(:public) }.to_f / nodes.size
+        end
+
+        def runtime_signal_rows
+          [
+            { label: :status, value: runtime_status, as: :indicator },
+            { label: :generated_at, value: generated_at, as: :datetime },
+            { label: :public_surface, value: primary_node_public?, as: :boolean },
+            { label: :mounted_apps, value: stack.fetch(:apps).size, as: :number },
+            { label: :notes_per_node, value: notes_per_node_ratio, as: :number },
+            { label: :public_node_share, value: public_node_share, as: :percentage }
+          ]
         end
 
         def paginated_notes

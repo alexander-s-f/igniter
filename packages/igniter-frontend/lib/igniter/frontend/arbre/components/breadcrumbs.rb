@@ -10,10 +10,10 @@ module Igniter
           builder_method :breadcrumbs
 
           DEFAULT_NAV_CLASS = "mb-4".freeze
-          DEFAULT_LIST_CLASS = "inline-flex items-center gap-2 text-sm text-stone-400".freeze
+          DEFAULT_LIST_CLASS = "inline-flex flex-wrap items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-stone-400".freeze
           DEFAULT_ITEM_CLASS = "inline-flex items-center gap-2".freeze
-          DEFAULT_LINK_CLASS = "transition hover:text-white".freeze
-          DEFAULT_CURRENT_CLASS = "font-medium text-white".freeze
+          DEFAULT_LINK_CLASS = "transition hover:text-orange-100".freeze
+          DEFAULT_CURRENT_CLASS = "font-medium text-stone-100".freeze
           DEFAULT_SEPARATOR_CLASS = "text-stone-600".freeze
 
           def build(*args, &block)
@@ -29,8 +29,9 @@ module Igniter
             @index = 0
 
             super(options.merge(class: merge_classes(DEFAULT_NAV_CLASS, class_name), "aria-label": "Breadcrumb"))
-            @crumbs = ol(class: merge_classes(DEFAULT_LIST_CLASS, list_class))
-            render_build_block(block)
+            @list_class = merge_classes(DEFAULT_LIST_CLASS, list_class)
+            @crumbs = ol(class: @list_class)
+            render_build_block(block) if block&.arity.to_i <= 0
           end
 
           def crumb(label, value = nil, current: false)
@@ -41,7 +42,7 @@ module Igniter
             link_class = @link_class
             item_class = @item_class
 
-            @crumbs.li(class: item_class) do
+            ensure_crumbs!.li(class: item_class) do
               span("/", class: separator_class) if index.positive?
 
               if current || value.nil?
@@ -55,6 +56,10 @@ module Igniter
           end
 
           private
+
+          def ensure_crumbs!
+            @crumbs ||= ol(class: @list_class || DEFAULT_LIST_CLASS)
+          end
 
           def tag_name
             "nav"

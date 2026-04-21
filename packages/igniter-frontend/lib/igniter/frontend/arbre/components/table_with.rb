@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../component"
+require_relative "display_value_support"
 
 module Igniter
   module Frontend
@@ -8,6 +9,7 @@ module Igniter
       module Components
         class TableWith < Arbre::Component
           builder_method :table_with
+          include DisplayValueSupport
 
           Column = ::Data.define(
             :title,
@@ -163,14 +165,7 @@ module Igniter
           end
 
           def render_scalar_value(cell, value, as:, badge_options:)
-            case as
-            when :badge
-              cell.badge(value, **(badge_options || {}))
-            when :code
-              cell.code(value.to_s, class: @theme.code_class)
-            else
-              cell.text_node(display_text(value))
-            end
+            render_semantic_scalar(cell, value, as: as, badge_options: badge_options, theme: @theme)
           end
 
           def extract_value(entry, column)
@@ -184,10 +179,6 @@ module Igniter
             elsif entry.respond_to?(:[])
               entry[key] || entry[key.to_s]
             end
-          end
-
-          def display_text(value)
-            value.is_a?(Symbol) ? humanize_label(value) : value.to_s
           end
 
           def normalize_rows(collection)

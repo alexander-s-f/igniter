@@ -488,6 +488,101 @@ RSpec.describe "Igniter::Frontend::Arbre page authoring" do
     expect(html).to include("Shell-routed content")
   end
 
+  it "renders polished breadcrumbs for app navigation" do
+    html = Igniter::Frontend::Arbre::Page.render_page(title: "Breadcrumbs", theme: :companion) do
+      breadcrumbs class_name: "mb-5" do |trail|
+        trail.crumb "Companion", "/"
+        trail.crumb "Dashboard", "/dashboard"
+        trail.crumb "Operator Desk", current: true
+      end
+    end
+
+    expect(html).to include('aria-label="Breadcrumb"')
+    expect(html).to include('href="/dashboard"')
+    expect(html).to include(">Operator Desk<")
+    expect(html).to include("rounded-full border border-white/10 bg-white/[0.04]")
+  end
+
+  it "renders semantic value primitives for booleans, dates, indicators, numbers, and percentages" do
+    html = Igniter::Frontend::Arbre::Page.render_page(title: "Values", theme: :companion) do
+      div class: "grid gap-3" do
+        boolean true
+        datetime "2026-04-21T10:30:00Z"
+        indicator :ready
+        number 12_345
+        percentage 0.825
+      end
+    end
+
+    expect(html).to include(">Yes<")
+    expect(html).to include("2026-04-21 10:30 UTC")
+    expect(html).to include(">Ready<")
+    expect(html).to include("12,345")
+    expect(html).to include("82.5%")
+  end
+
+  it "renders empty and loading state primitives" do
+    html = Igniter::Frontend::Arbre::Page.render_page(title: "States", theme: :companion) do
+      empty_state "No events yet", message: "Live runtime activity will appear here."
+      loading_state "Loading activity", message: "Connecting to stream.", lines: 2
+    end
+
+    expect(html).to include(">No events yet<")
+    expect(html).to include("Live runtime activity will appear here.")
+    expect(html).to include(">Loading activity<")
+    expect(html).to include("Connecting to stream.")
+    expect(html).to include("animate-pulse")
+  end
+
+  it "renders card and table values through semantic display types" do
+    html = Igniter::Frontend::Arbre::Page.render_page(title: "Typed Values", theme: :companion) do
+      card title: "Signals" do
+        line :status, :ready, as: :indicator
+        line :public, true, as: :boolean
+        line :generated_at, "2026-04-21T10:30:00Z", as: :datetime
+        line :notes_count, 42, as: :number
+        line :coverage, 0.5, as: :percentage
+      end
+
+      table_with [{ name: "main", public: true, coverage: 0.75 }], compact: true do |table|
+        table.column :name
+        table.column :public, as: :boolean
+        table.column :coverage, as: :percentage
+      end
+    end
+
+    expect(html).to include(">Signals<")
+    expect(html).to include(">Ready<")
+    expect(html).to include(">Yes<")
+    expect(html).to include("42")
+    expect(html).to include("50.0%")
+    expect(html).to include("75.0%")
+  end
+
+  it "renders shell columns with explicit main and aside lanes" do
+    html = Igniter::Frontend::Arbre::Page.render_page(title: "Columns", theme: :companion) do
+      shell_columns do |columns|
+        columns.main do
+          panel title: "Main Lane" do
+            div "Primary content"
+          end
+        end
+
+        columns.aside do
+          panel title: "Aside Lane" do
+            div "Secondary content"
+          end
+        end
+      end
+    end
+
+    expect(html).to include("xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]")
+    expect(html).to include(">Main Lane<")
+    expect(html).to include(">Aside Lane<")
+    expect(html).to include("Primary content")
+    expect(html).to include("Secondary content")
+  end
+
   it "renders an Arbre template with layout and page helpers" do
     stub_const("Arbre", build_fake_arbre)
 

@@ -43,6 +43,10 @@ That “stronger semantics” line now includes richer Arbre primitives such as:
 - `filters` for mounted-safe search and narrowing lanes above tables and feeds
 - `pagination` for mounted-safe browsing lanes across notes, history, logs, and other long collections
 - `sidebar_shell` for app-level operator/admin navigation and stable content chrome
+- `breadcrumbs` for compact in-app location trails above operator/admin content
+- semantic value primitives such as `boolean`, `datetime`, `indicator`, `number`, and `percentage`
+- state primitives such as `empty_state` and `loading_state`
+- `shell_columns` for main/aside dashboard composition inside an app shell
 
 Authoring guide:
 

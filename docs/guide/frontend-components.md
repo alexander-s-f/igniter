@@ -298,6 +298,74 @@ end
 That keeps operator/admin shell structure semantic and reusable instead of
 rebuilding ad-hoc sidebars in every layout.
 
+Inside a page or shell, the sibling primitive for lightweight location context
+is `breadcrumbs`.
+
+```ruby
+breadcrumbs class_name: "mb-5" do |trail|
+  trail.crumb "Companion", page_context.route("/")
+  trail.crumb "Dashboard", page_context.route("/")
+  trail.crumb "Operator Desk", current: true
+end
+```
+
+That keeps location trails semantic and consistent instead of scattering raw
+slash-separated links through templates.
+
+For content layout inside a shell, the sibling primitive is `shell_columns`.
+
+```ruby
+shell_columns do |columns|
+  columns.main do
+    panel title: "Primary" do
+      div "Main content"
+    end
+  end
+
+  columns.aside do
+    panel title: "Context" do
+      div "Secondary content"
+    end
+  end
+end
+```
+
+That gives dashboard pages one honest main/aside layout lane instead of
+repeating `grid-cols-[...]` markup in every template.
+
+For typed runtime values, the primitive lane now also includes:
+
+- `boolean`
+- `datetime`
+- `indicator`
+- `number`
+- `percentage`
+
+These are also supported in semantic collection/schema primitives such as
+`card#line` and `table_with` through `as:`.
+
+```ruby
+card title: "Signals" do
+  line :status, :ready, as: :indicator
+  line :public_surface, true, as: :boolean
+  line :generated_at, snapshot[:generated_at], as: :datetime
+  line :coverage, 0.82, as: :percentage
+end
+```
+
+For placeholder and transitional surfaces, the state lane now includes:
+
+- `empty_state`
+- `loading_state`
+
+```ruby
+empty_state "No events yet", message: "Live runtime activity will appear here."
+loading_state "Loading activity", message: "Connecting to stream.", lines: 3
+```
+
+That keeps operator/admin pages semantic even when data is absent or still in
+flight.
+
 ## Child Routing
 
 Some components should send arbitrary child content into a specific internal

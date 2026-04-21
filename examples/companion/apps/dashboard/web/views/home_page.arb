@@ -1,3 +1,9 @@
+breadcrumbs class_name: "mb-5" do |trail|
+  page_context.breadcrumbs.each do |entry|
+    trail.crumb entry.fetch(:label), entry[:href], current: entry[:current]
+  end
+end
+
 page_header title: page_context.title,
             eyebrow: "Operator Surface",
             description: page_context.description,
@@ -25,88 +31,111 @@ metric_grid class_name: "grid gap-4 md:grid-cols-3" do
   end
 end
 
-div class: "grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]" do
-  panel title: "Operator Notes",
-        subtitle: "First thin slice of cross-app assistant and operator coordination.",
-        class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
-    if page_context.error_message
-      p page_context.error_message,
-        class: "mb-4 rounded-2xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
-    end
+shell_columns do |columns|
+  columns.main do
+    panel title: "Operator Notes",
+          subtitle: "First thin slice of cross-app assistant and operator coordination.",
+          class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
+      if page_context.error_message
+        p page_context.error_message,
+          class: "mb-4 rounded-2xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm text-rose-100"
+      end
 
-    form action: page_context.route("/notes"), method: "post", class: "grid gap-3" do
-      label "Add note",
-            for: "note-text",
-            class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
-      textarea page_context.form_values.fetch("text", ""),
-               id: "note-text",
-               name: "text",
-               rows: 3,
-               placeholder: "Capture a follow-up, operator observation, or assistant todo",
-               class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
-      button "Save Note",
-             type: "submit",
-             class: "inline-flex w-fit items-center rounded-full bg-orange-400 px-5 py-2 text-sm font-semibold text-stone-950 transition hover:bg-orange-300"
-    end
+      form action: page_context.route("/notes"), method: "post", class: "grid gap-3" do
+        label "Add note",
+              for: "note-text",
+              class: "text-sm font-semibold uppercase tracking-[0.18em] text-stone-300"
+        textarea page_context.form_values.fetch("text", ""),
+                 id: "note-text",
+                 name: "text",
+                 rows: 3,
+                 placeholder: "Capture a follow-up, operator observation, or assistant todo",
+                 class: "w-full rounded-2xl border border-white/10 bg-[#160f0d] px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-orange-300/50 focus:outline-none"
+        button "Save Note",
+               type: "submit",
+               class: "inline-flex w-fit items-center rounded-full bg-orange-400 px-5 py-2 text-sm font-semibold text-stone-950 transition hover:bg-orange-300"
+      end
 
-    resource_list class_name: "mt-5 space-y-4" do
       if page_context.paginated_notes.empty?
-        li "No notes saved yet.",
-           class: "rounded-3xl border border-white/10 bg-white/5 p-4 text-sm leading-6 text-stone-400"
+        empty_state "No notes saved yet",
+                    message: "Capture assistant follow-ups, operator observations, or next-step reminders here.",
+                    class_name: "mt-5"
       else
-        page_context.paginated_notes.each do |note|
-          li class: "rounded-3xl border border-white/10 bg-white/5 p-4" do
-            strong note.fetch("text"), class: "font-semibold text-white"
-            div "source=#{note.fetch("source")} · created=#{note.fetch("created_at")}",
-                class: "mt-2 text-sm leading-6 text-stone-400"
+        resource_list class_name: "mt-5 space-y-4" do
+          page_context.paginated_notes.each do |note|
+            li class: "rounded-3xl border border-white/10 bg-white/5 p-4" do
+              strong note.fetch("text"), class: "font-semibold text-white"
+              div "source=#{note.fetch("source")} · created=#{note.fetch("created_at")}",
+                  class: "mt-2 text-sm leading-6 text-stone-400"
+            end
           end
+        end
+      end
+
+      pagination current_page: page_context.notes_page,
+                 total_pages: page_context.notes_total_pages,
+                 total_count: page_context.notes_total_count,
+                 per_page: page_context.notes_per_page,
+                 item_name: "notes",
+                 compact: true,
+                 href_builder: ->(page) { page_context.notes_page_href(page) },
+                 class_name: "mt-5"
+    end
+
+    panel title: "Snapshot Preview",
+          subtitle: "Raw structured runtime payloads for operator and debugging surfaces.",
+          class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
+      viz page_context.snapshot_preview, compact: true, open: true
+    end
+  end
+
+  columns.aside do
+    panel title: "Runtime Signals",
+          subtitle: "Semantic value primitives over the current stack snapshot.",
+          class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
+      card title: "Current State", subtitle: "Operator-facing runtime summary" do
+        page_context.runtime_signal_rows.each do |row|
+          line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
         end
       end
     end
 
-    pagination current_page: page_context.notes_page,
-               total_pages: page_context.notes_total_pages,
-               total_count: page_context.notes_total_count,
-               per_page: page_context.notes_per_page,
-               item_name: "notes",
-               compact: true,
-               href_builder: ->(page) { page_context.notes_page_href(page) },
-               class_name: "mt-5"
-  end
+    panel title: "Stack Nodes",
+          subtitle: "Current runtime snapshot and public surface wiring.",
+          class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
+      filters action: page_context.route("/"),
+              method: "get",
+              title: "Node Filters",
+              subtitle: "Search and narrow runtime targets without leaving the operator desk.",
+              values: page_context.node_filter_values,
+              compact: true,
+              class_name: "mb-5" do |filter|
+        filter.search "q", label: "Search", placeholder: "node, mount, command"
+        filter.select "role", label: "Role", options: page_context.node_role_options
+        filter.select "public", label: "Visibility", options: page_context.node_public_options
+        filter.clear "Reset", href: page_context.route("/")
+        filter.submit "Apply"
+      end
 
-  panel title: "Stack Nodes",
-        subtitle: "Current runtime snapshot and public surface wiring.",
-        class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
-    filters action: page_context.route("/"),
-            method: "get",
-            title: "Node Filters",
-            subtitle: "Search and narrow runtime targets without leaving the operator desk.",
-            values: page_context.node_filter_values,
-            compact: true,
-            class_name: "mb-5" do |filter|
-      filter.search "q", label: "Search", placeholder: "node, mount, command"
-      filter.select "role", label: "Role", options: page_context.node_role_options
-      filter.select "public", label: "Visibility", options: page_context.node_public_options
-      filter.clear "Reset", href: page_context.route("/")
-      filter.submit "Apply"
-    end
-
-    table_with page_context.node_rows, compact: true, empty_message: "No stack nodes in the snapshot yet." do |table|
-      table.column :name
-      table.column :role, as: :badge, badge: { size: :sm }
-      table.column("Endpoint", :endpoint, as: :code)
-      table.column :public, as: :badge, badge: { size: :sm }
-      table.column :mounts, placeholder: "--"
-      table.column :command, as: :code
-      table.actions do |row, actions|
-        actions.link "Inspect", href: "/v1/home/status", class_name: "pill-link font-medium"
+      table_with page_context.node_rows, compact: true, empty_message: "No stack nodes in the snapshot yet." do |table|
+        table.column :name
+        table.column :role, as: :badge, badge: { size: :sm }
+        table.column("Endpoint", :endpoint, as: :code)
+        table.column :public, as: :boolean
+        table.column :mounts, placeholder: "--"
+        table.column :command, as: :code
+        table.actions do |_row, actions|
+          actions.link "Inspect", href: "/v1/home/status", class_name: "pill-link font-medium"
+        end
       end
     end
-  end
-end
 
-panel title: "Snapshot Preview",
-      subtitle: "Raw structured runtime payloads for operator and debugging surfaces.",
-      class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
-  viz page_context.snapshot_preview, compact: true, open: true
+    panel title: "Assistant Activity",
+          subtitle: "Reserved lane for upcoming live assistant and operator feed.",
+          class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
+      loading_state "Warming up activity feed",
+                    message: "This slot will host live assistant progress, follow-ups, and stream-driven updates.",
+                    lines: 4
+    end
+  end
 end
