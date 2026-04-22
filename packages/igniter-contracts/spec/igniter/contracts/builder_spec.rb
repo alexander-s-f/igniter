@@ -12,10 +12,10 @@ RSpec.describe Igniter::Contracts::Builder do
       output :tax
     end
 
-    expect(compiled.operations.map { |op| op[:kind] }).to eq(%i[input compute output])
-    expect(compiled.operations.map { |op| op[:name] }).to eq(%i[amount tax tax])
+    expect(compiled.operations.map(&:kind)).to eq(%i[input compute output])
+    expect(compiled.operations.map(&:name)).to eq(%i[amount tax tax])
     expect(compiled.profile_fingerprint).to eq(Igniter::Contracts.default_profile.fingerprint)
-    expect(compiled.operations[1].dig(:attributes, :callable)).to respond_to(:call)
+    expect(compiled.operations[1].attributes[:callable]).to respond_to(:call)
   end
 
   it "raises a contracts-owned error for unknown keywords" do
@@ -36,7 +36,7 @@ RSpec.describe Igniter::Contracts::Builder do
     end
 
     expect(profile.supports_node_kind?(:const)).to be(true)
-    expect(compiled.operations.map { |op| op[:kind] }).to eq(%i[const output])
-    expect(compiled.operations.first[:attributes]).to eq({ value: 0.2 })
+    expect(compiled.operations.map(&:kind)).to eq(%i[const output])
+    expect(compiled.operations.first.attributes).to eq({ value: 0.2 })
   end
 end

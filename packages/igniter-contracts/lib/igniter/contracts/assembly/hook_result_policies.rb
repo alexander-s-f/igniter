@@ -24,13 +24,10 @@ module Igniter
         end
 
         def validate_operation(operation)
-          return "is not a Hash" unless operation.is_a?(Hash)
-          return "must include :kind" unless operation.key?(:kind)
-          return "must include :name" unless operation.key?(:name)
-          return "must include :attributes" unless operation.key?(:attributes)
-          return "must use Symbol :kind" unless operation[:kind].is_a?(Symbol)
-          return "must use Symbol :name" unless operation[:name].is_a?(Symbol)
-          return "must use Hash :attributes" unless operation[:attributes].is_a?(Hash)
+          return "must be an Execution::Operation" unless operation.is_a?(Execution::Operation)
+          return "must use Symbol kind" unless operation.kind.is_a?(Symbol)
+          return "must use Symbol name" unless operation.name.is_a?(Symbol)
+          return "must use Hash attributes" unless operation.attributes.is_a?(Hash)
 
           nil
         end

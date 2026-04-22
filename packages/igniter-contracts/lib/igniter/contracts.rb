@@ -35,6 +35,7 @@ module Igniter
     ProjectValidators = Execution::ProjectValidators
     ProjectRuntime = Execution::ProjectRuntime
     InlineExecutor = Execution::InlineExecutor
+    Operation = Execution::Operation
   end
 end
 

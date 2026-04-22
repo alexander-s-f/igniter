@@ -7,9 +7,9 @@ module Igniter
         module_function
 
         def validate_project_sources(operations:, profile: nil) # rubocop:disable Lint/UnusedMethodArgument
-          available = operations.reject { |operation| operation.fetch(:kind) == :output }.map { |operation| operation.fetch(:name) }
-          missing = operations.select { |operation| operation.fetch(:kind) == :project }
-                              .map { |operation| operation.dig(:attributes, :from).to_sym }
+          available = operations.reject(&:output?).map(&:name)
+          missing = operations.select { |operation| operation.kind == :project }
+                              .map { |operation| operation.attributes.fetch(:from).to_sym }
                               .reject { |name| available.include?(name) }
                               .uniq
           return if missing.empty?

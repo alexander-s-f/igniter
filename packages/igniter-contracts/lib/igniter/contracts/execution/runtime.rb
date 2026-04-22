@@ -12,10 +12,10 @@ module Igniter
             outputs = {}
 
             compiled_graph.operations.each do |operation|
-              handler = profile.runtime_handler(operation.fetch(:kind))
+              handler = profile.runtime_handler(operation.kind)
               value = handler.call(operation: operation, state: state, outputs: outputs, inputs: inputs, profile: profile)
-              state[operation.fetch(:name)] = value unless operation.fetch(:kind) == :output
-              outputs[operation.fetch(:name)] = value if operation.fetch(:kind) == :output
+              state[operation.name] = value unless operation.output?
+              outputs[operation.name] = value if operation.output?
             end
 
             ExecutionResult.new(

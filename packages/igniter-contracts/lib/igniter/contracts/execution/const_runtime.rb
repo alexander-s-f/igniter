@@ -7,7 +7,7 @@ module Igniter
         module_function
 
         def handle_const(operation:, **)
-          operation.dig(:attributes, :value)
+          operation.attributes[:value]
         end
       end
     end

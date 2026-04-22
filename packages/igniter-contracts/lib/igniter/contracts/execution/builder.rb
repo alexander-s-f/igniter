@@ -21,7 +21,7 @@ module Igniter
           normalized_kind = kind.to_sym
           raise UnknownNodeKindError, "unknown node kind #{normalized_kind}" unless profile.supports_node_kind?(normalized_kind)
 
-          operations << { kind: normalized_kind, name: name.to_sym, attributes: attributes.freeze }.freeze
+          operations << Operation.new(kind: normalized_kind, name: name, attributes: attributes)
         end
 
         def method_missing(name, *args, **kwargs, &block)

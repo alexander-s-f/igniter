@@ -42,7 +42,7 @@ RSpec.describe Igniter::Contracts::Compiler do
       output :tax
     end
 
-    expect(compiled.operations[1].dig(:attributes, :depends_on)).to eq([:amount])
+    expect(compiled.operations[1].attributes[:depends_on]).to eq([:amount])
   end
 
   it "rejects baseline node kinds that do not have runtime semantics yet" do

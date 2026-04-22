@@ -7,12 +7,12 @@ module Igniter
         module_function
 
         def handle_input(operation:, inputs:, **)
-          inputs.fetch(operation.fetch(:name))
+          inputs.fetch(operation.name)
         end
 
         def handle_compute(operation:, state:, **)
-          callable = operation.dig(:attributes, :callable)
-          dependencies = Array(operation.dig(:attributes, :depends_on))
+          callable = operation.attributes[:callable]
+          dependencies = Array(operation.attributes[:depends_on])
           kwargs = dependencies.each_with_object({}) do |dependency, memo|
             memo[dependency.to_sym] = state.fetch(dependency.to_sym)
           end
@@ -20,7 +20,7 @@ module Igniter
         end
 
         def handle_output(operation:, state:, **)
-          state.fetch(operation.fetch(:name))
+          state.fetch(operation.name)
         end
 
         def unsupported(kind)

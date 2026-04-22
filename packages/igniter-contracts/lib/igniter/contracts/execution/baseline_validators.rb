@@ -9,7 +9,7 @@ module Igniter
         UNSUPPORTED_BASELINE_RUNTIME_KINDS = %i[composition branch collection].freeze
 
         def validate_uniqueness(operations:, profile: nil) # rubocop:disable Lint/UnusedMethodArgument
-          names = operations.reject { |operation| operation.fetch(:kind) == :output }.map { |operation| operation.fetch(:name) }
+          names = operations.reject(&:output?).map(&:name)
           duplicates = names.group_by(&:itself).select { |_name, entries| entries.length > 1 }.keys
           return if duplicates.empty?
 
@@ -17,9 +17,9 @@ module Igniter
         end
 
         def validate_outputs(operations:, profile: nil) # rubocop:disable Lint/UnusedMethodArgument
-          available = operations.reject { |operation| operation.fetch(:kind) == :output }.map { |operation| operation.fetch(:name) }
-          missing = operations.select { |operation| operation.fetch(:kind) == :output }
-                              .map { |operation| operation.fetch(:name) }
+          available = operations.reject(&:output?).map(&:name)
+          missing = operations.select(&:output?)
+                              .map(&:name)
                               .reject { |name| available.include?(name) }
           return if missing.empty?
 
@@ -27,9 +27,9 @@ module Igniter
         end
 
         def validate_dependencies(operations:, profile: nil) # rubocop:disable Lint/UnusedMethodArgument
-          available = operations.reject { |operation| operation.fetch(:kind) == :output }.map { |operation| operation.fetch(:name) }
-          missing = operations.select { |operation| operation.fetch(:kind) == :compute }
-                              .flat_map { |operation| Array(operation.dig(:attributes, :depends_on)) }
+          available = operations.reject(&:output?).map(&:name)
+          missing = operations.select { |operation| operation.kind == :compute }
+                              .flat_map { |operation| Array(operation.attributes[:depends_on]) }
                               .map(&:to_sym)
                               .reject { |name| available.include?(name) }
                               .uniq
@@ -39,9 +39,9 @@ module Igniter
         end
 
         def validate_callables(operations:, profile: nil) # rubocop:disable Lint/UnusedMethodArgument
-          missing = operations.select { |operation| operation.fetch(:kind) == :compute }
-                              .reject { |operation| operation.dig(:attributes, :callable).respond_to?(:call) }
-                              .map { |operation| operation.fetch(:name) }
+          missing = operations.select { |operation| operation.kind == :compute }
+                              .reject { |operation| operation.attributes[:callable].respond_to?(:call) }
+                              .map(&:name)
           return if missing.empty?
 
           raise ValidationError, "compute nodes require a callable: #{missing.map(&:to_s).join(', ')}"
@@ -52,8 +52,8 @@ module Igniter
         end
 
         def validate_supported_baseline_runtime(operations:, profile: nil) # rubocop:disable Lint/UnusedMethodArgument
-          unsupported = operations.select { |operation| UNSUPPORTED_BASELINE_RUNTIME_KINDS.include?(operation.fetch(:kind)) }
-                                  .map { |operation| operation.fetch(:kind) }
+          unsupported = operations.select { |operation| UNSUPPORTED_BASELINE_RUNTIME_KINDS.include?(operation.kind) }
+                                  .map(&:kind)
                                   .uniq
           return if unsupported.empty?
 

@@ -7,8 +7,8 @@ module Igniter
         module_function
 
         def handle_project(operation:, state:, **)
-          from = operation.dig(:attributes, :from).to_sym
-          key = operation.dig(:attributes, :key).to_sym
+          from = operation.attributes.fetch(:from).to_sym
+          key = operation.attributes.fetch(:key).to_sym
           source = state.fetch(from)
 
           if source.respond_to?(:key?) && source.key?(key)
