@@ -56,6 +56,16 @@ module Igniter
 
       private
 
+      REGISTRY_LABELS = {
+        dsl_keywords: "DSL keywords",
+        validators: "validators",
+        normalizers: "normalizers",
+        runtime_handlers: "runtime handlers",
+        diagnostics_contributors: "diagnostics contributors",
+        effects: "effects",
+        executors: "executors"
+      }.freeze
+
       def register_pack_manifest(pack)
         return unless pack.respond_to?(:manifest)
 
@@ -77,14 +87,55 @@ module Igniter
         missing_node_definitions = manifest_contracts.map(&:kind).reject { |kind| nodes.registered?(kind) }
         missing_dsl = contracts.select(&:requires_dsl).map(&:kind).reject { |kind| dsl_keywords.registered?(kind) }
         missing_runtime = contracts.select(&:requires_runtime).map(&:kind).reject { |kind| runtime_handlers.registered?(kind) }
-        return if missing_node_definitions.empty? && missing_dsl.empty? && missing_runtime.empty?
+        missing_registry_contracts = collect_missing_registry_contracts
+        return if missing_node_definitions.empty? &&
+                  missing_dsl.empty? &&
+                  missing_runtime.empty? &&
+                  missing_registry_contracts.empty?
 
         parts = []
         parts << "missing node definitions for: #{missing_node_definitions.map(&:to_s).join(', ')}" unless missing_node_definitions.empty?
         parts << "missing DSL keywords for: #{missing_dsl.map(&:to_s).join(', ')}" unless missing_dsl.empty?
         parts << "missing runtime handlers for: #{missing_runtime.map(&:to_s).join(', ')}" unless missing_runtime.empty?
+        parts.concat(missing_registry_contracts)
 
         raise IncompletePackError, parts.join("; ")
+      end
+
+      def collect_missing_registry_contracts
+        pack_manifests
+          .flat_map(&:registry_contracts)
+          .group_by(&:registry)
+          .filter_map do |registry_name, contracts|
+            registry = registry_for(registry_name)
+            next if registry.nil?
+
+            missing = contracts.map(&:key).reject { |key| registry.registered?(key) }
+            next if missing.empty?
+
+            "missing #{REGISTRY_LABELS.fetch(registry_name, registry_name.to_s.tr('_', ' '))} for: #{missing.map(&:to_s).join(', ')}"
+          end
+      end
+
+      def registry_for(name)
+        case name.to_sym
+        when :dsl_keywords
+          dsl_keywords
+        when :validators
+          validators
+        when :normalizers
+          normalizers
+        when :runtime_handlers
+          runtime_handlers
+        when :diagnostics_contributors
+          diagnostics_contributors
+        when :effects
+          effects
+        when :executors
+          executors
+        else
+          nil
+        end
       end
 
       def freeze_registries!

@@ -8,7 +8,8 @@ module Igniter
       def manifest
         PackManifest.new(
           name: :project,
-          node_contracts: [PackManifest.node(:project)]
+          node_contracts: [PackManifest.node(:project)],
+          registry_contracts: [PackManifest.validator(:project_sources)]
         )
       end
 

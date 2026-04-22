@@ -16,6 +16,13 @@ RSpec.describe Igniter::Contracts::Diagnostics do
       end
     end
 
+    def manifest
+      Igniter::Contracts::PackManifest.new(
+        name: :extra_diagnostics,
+        registry_contracts: [Igniter::Contracts::PackManifest.diagnostic(:extra_diagnostics)]
+      )
+    end
+
     def install_into(kernel)
       kernel.diagnostics_contributors.register(:extra_diagnostics, CONTRIBUTOR)
     end

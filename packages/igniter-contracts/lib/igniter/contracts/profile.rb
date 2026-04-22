@@ -91,6 +91,16 @@ module Igniter
       def pack_names
         pack_manifests.map(&:name)
       end
+
+      def pack_manifest(name)
+        pack_manifests.find { |manifest| manifest.name == name.to_sym }
+      end
+
+      def declared_registry_keys(registry)
+        pack_manifests
+          .flat_map { |manifest| manifest.declared_keys_for(registry) }
+          .uniq
+      end
     end
   end
 end

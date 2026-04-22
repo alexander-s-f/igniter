@@ -236,6 +236,18 @@ supports decoration or replacement.
 
 Packs are the preferred unit of extension.
 
+Each pack should expose a `manifest` in addition to `install_into`.
+
+The manifest is the pack's explicit capability declaration:
+
+- which node kinds it owns
+- which registry seams it contributes to
+- which compile/runtime/diagnostics hooks it expects to be present after
+  installation
+
+That keeps capability validation host-owned instead of inferred entirely from
+side effects.
+
 Example:
 
 ```ruby
@@ -244,12 +256,23 @@ module Igniter
     module RemotePack
       module_function
 
+      def manifest
+        Igniter::Contracts::PackManifest.new(
+          name: :remote,
+          node_contracts: [Igniter::Contracts::PackManifest.node(:remote)],
+          registry_contracts: [
+            Igniter::Contracts::PackManifest.validator(:remote_shape),
+            Igniter::Contracts::PackManifest.diagnostic(:remote_summary)
+          ]
+        )
+      end
+
       def install_into(kernel)
         kernel.nodes.register(:remote, Igniter::Machine::RemoteNode)
         kernel.dsl_keywords.register(:remote, Igniter::Machine::DSL::RemoteKeyword)
         kernel.validators.register(:remote_shape, Igniter::Machine::Compiler::RemoteValidator)
         kernel.runtime_handlers.register(:remote, Igniter::Machine::Runtime::RemoteHandler)
-        kernel.diagnostics.register(:remote, Igniter::Machine::Diagnostics::RemoteContributor)
+        kernel.diagnostics_contributors.register(:remote_summary, Igniter::Machine::Diagnostics::RemoteContributor)
       end
     end
   end
@@ -521,6 +544,7 @@ Suggested responsibilities:
 - expose frozen resolved registries
 - provide fingerprinting
 - answer capability lookups
+- expose installed pack manifests
 - validate compiled graph compatibility at runtime
 
 Suggested shape:
@@ -558,6 +582,12 @@ module Igniter
 
       def supports_node_kind?(kind)
         nodes.key?(kind.to_sym)
+      end
+
+      def pack_manifest(name)
+      end
+
+      def declared_registry_keys(registry)
       end
     end
   end
@@ -763,6 +793,10 @@ Recommended compile pipeline:
 
 This lets upper packs register validators without changing the compiler core.
 
+The related pack manifest should declare those validators explicitly, so
+`finalize` can fail fast when a pack advertises a compile seam but does not
+actually register it.
+
 ### Runtime Registration Model
 
 Runtime should dispatch by node kind through the profile.
@@ -792,6 +826,9 @@ end
 
 Baseline contributors should describe only baseline execution. Upper layers can
 append richer diagnostics through packs.
+
+Diagnostics contributors should also be listed in the pack manifest so profile
+capabilities remain inspectable after finalization.
 
 ### Error Classes
 

@@ -9,7 +9,16 @@ module Igniter
         PackManifest.new(
           name: :baseline,
           node_contracts: BASELINE_NODE_KINDS.keys.map { |kind| PackManifest.node(kind) },
-          diagnostics: BASELINE_DIAGNOSTICS.keys
+          registry_contracts: [
+            PackManifest.normalizer(:normalize_operation_attributes),
+            PackManifest.validator(:uniqueness),
+            PackManifest.validator(:outputs),
+            PackManifest.validator(:dependencies),
+            PackManifest.validator(:callables),
+            PackManifest.validator(:types),
+            PackManifest.validator(:supported_baseline_runtime),
+            PackManifest.diagnostic(:baseline_summary)
+          ]
         )
       end
 

@@ -15,12 +15,18 @@ RSpec.describe Igniter::Contracts::PackManifest do
     manifest = described_class.new(
       name: "project",
       node_contracts: [described_class.node(:project)],
+      registry_contracts: [
+        described_class.validator("project_sources"),
+        described_class.normalizer(:normalize_projection)
+      ],
       diagnostics: ["projection_summary"],
       metadata: { category: :data }
     )
 
     expect(manifest.name).to eq(:project)
     expect(manifest.diagnostics).to eq([:projection_summary])
+    expect(manifest.declared_keys_for(:validators)).to eq([:project_sources])
+    expect(manifest.declared_keys_for(:normalizers)).to eq([:normalize_projection])
     expect(manifest.metadata).to eq({ category: :data })
     expect(manifest).to be_frozen
   end

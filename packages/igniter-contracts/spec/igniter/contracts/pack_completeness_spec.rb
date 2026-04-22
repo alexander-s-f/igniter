@@ -18,6 +18,21 @@ RSpec.describe "Igniter::Contracts pack completeness" do
     end
   end
 
+  module MissingDeclaredValidatorPack
+    module_function
+
+    def manifest
+      Igniter::Contracts::PackManifest.new(
+        name: :missing_declared_validator,
+        registry_contracts: [Igniter::Contracts::PackManifest.validator(:ghost_validator)]
+      )
+    end
+
+    def install_into(kernel)
+      kernel
+    end
+  end
+
   module IncompleteDslPack
     module_function
 
@@ -74,6 +89,13 @@ RSpec.describe "Igniter::Contracts pack completeness" do
 
     expect { kernel.finalize }
       .to raise_error(Igniter::Contracts::IncompletePackError, /missing node definitions for: ghost/)
+  end
+
+  it "rejects manifests that declare registry capabilities without registering them" do
+    kernel = Igniter::Contracts.build_kernel.install(MissingDeclaredValidatorPack)
+
+    expect { kernel.finalize }
+      .to raise_error(Igniter::Contracts::IncompletePackError, /missing validators for: ghost_validator/)
   end
 
   it "allows internal-only node kinds to skip DSL and runtime registration" do
