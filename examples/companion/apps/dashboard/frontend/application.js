@@ -1,0 +1,3 @@
+(() => {
+  window.CompanionDashboard = window.CompanionDashboard || {};
+})();

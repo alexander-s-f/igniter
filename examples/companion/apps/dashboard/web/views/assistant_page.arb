@@ -1,3 +1,5 @@
+
+
 breadcrumbs class_name: "mb-5" do |trail|
   page_context.breadcrumbs.each do |entry|
     trail.crumb entry.fetch(:label), entry[:href], current: entry[:current]
@@ -231,7 +233,7 @@ shell_columns do |columns|
     panel title: "Completed Briefings",
           subtitle: "Recent assistant outputs with the runtime profile and external API handoff package.",
           class_name: "rounded-[30px] border border-white/10 bg-[#2a1914]/90 p-6 shadow-2xl shadow-black/20 backdrop-blur" do
-      if page_context.completed_assistant_requests.empty?
+      if page_context.completed_assistant_requests&.empty?
         empty_state "No completed briefings yet",
                     message: "Complete a manual follow-up or let a ready local model auto-draft the first briefing.",
                     class_name: "mt-1"
@@ -254,14 +256,14 @@ shell_columns do |columns|
                   line :handoff, record.dig(:scenario, :operator_handoff), as: :code
                 end
               end
-              unless page_context.scenario_context_rows(record).empty?
+              unless page_context.scenario_context_rows(record)&.empty?
                 card title: "Scenario Context", subtitle: "Structured context captured with the request" do
                   page_context.scenario_context_rows(record).each do |row|
                     line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
                   end
                 end
               end
-              unless page_context.artifact_rows(record).empty?
+              unless page_context.artifact_rows(record)&.empty?
                 card title: "Artifacts", subtitle: "Evidence carried with the request" do
                   table_with page_context.artifact_rows(record), compact: true do |table|
                     table.column :kind, as: :badge, badge: { size: :sm }
@@ -270,7 +272,7 @@ shell_columns do |columns|
                   end
                 end
               end
-              unless page_context.operator_checklist_rows(record).empty?
+              unless page_context.operator_checklist_rows(record)&.empty?
                 card title: "Operator Checklist", subtitle: "Practical next checks for this lane" do
                   page_context.operator_checklist_rows(record).each do |row|
                     line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
@@ -289,12 +291,12 @@ shell_columns do |columns|
                 viz page_context.prompt_package_preview(record), compact: true
               end
 
-              unless page_context.delivery_rows(record).empty?
+              unless page_context.delivery_rows(record)&.empty?
                 card title: "Delivery Outcome", subtitle: "What happened on the selected external channel" do
                   page_context.delivery_rows(record).each do |row|
                     line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
                   end
-                  unless page_context.delivery_preview(record).empty?
+                  unless page_context.delivery_preview(record)&.empty?
                     viz page_context.delivery_preview(record), compact: true
                   end
                 end
@@ -654,8 +656,7 @@ shell_columns do |columns|
         end
       end
 
-      card title: "Credential Policy",
-           subtitle: "Current default stance before any future cluster secret sharing" do
+      card title: "Credential Policy", subtitle: "Current default stance before any future cluster secret sharing" do
         page_context.assistant_credential_policy_rows.each do |row|
           line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
         end
@@ -665,8 +666,7 @@ shell_columns do |columns|
         end
       end
 
-      card title: "Credential Source",
-           subtitle: "Why an external API lane is ready or still missing credentials" do
+      card title: "Credential Source", subtitle: "Why an external API lane is ready or still missing credentials" do
         page_context.assistant_credential_status_rows.each do |row|
           line row.fetch(:label), row.fetch(:value), as: row.fetch(:as)
         end

@@ -17,10 +17,19 @@ require_relative "web/handlers/assistant_feedback_handler"
 require_relative "web/handlers/assistant_runtime_update_handler"
 require_relative "web/handlers/assistant_compare_handler"
 
+class NilClass
+  def empty?
+    true
+  end
+end
+
 module Companion
   class DashboardApp < Igniter::App
+    include Igniter::Frontend::App
+
     root_dir __dir__
     config_file "app.yml"
+    frontend_assets
     mount_operator_surface
 
     configure do |c|

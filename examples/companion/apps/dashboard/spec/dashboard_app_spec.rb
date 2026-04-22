@@ -152,6 +152,96 @@ RSpec.describe Companion::DashboardApp do
     expect(html).to include('name="scenario"')
   end
 
+  it "renders the assistant page even when runtime arrays are nil" do
+    allow(Companion::Main::Support::AssistantAPI).to receive(:overview).and_return(
+      {
+        summary: {
+          total_requests: 0,
+          pending_requests: 0,
+          completed_requests: 0,
+          actionable_followups: 0
+        },
+        runtime: {
+          status: {
+            state: :manual,
+            auto_draft_ready: false,
+            available_model_count: 0,
+            available_models: nil
+          },
+          config: {
+            mode: :manual,
+            provider: :ollama,
+            model: "qwen2.5-coder:latest",
+            base_url: "http://127.0.0.1:11434",
+            timeout_seconds: 20,
+            delivery_mode: :simulate,
+            delivery_strategy: :manual_only,
+            openai_model: "gpt-4o",
+            anthropic_model: "claude-sonnet-4-6",
+            profile: {
+              label: "Operator Brief",
+              guidance: "Keep it crisp.",
+              num_predict: 320,
+              strengths: nil
+            }
+          },
+          channels: nil,
+          routing: {
+            prep_channel: { label: "Ollama", model: "qwen2.5-coder:latest" },
+            delivery_channel: { key: :manual_completion, label: "Manual Completion", model: nil }
+          },
+          credential_policy: {
+            label: "Local Only",
+            summary: "Node-local by default.",
+            notes: nil
+          },
+          credential_status: {
+            loaded: false,
+            override: false,
+            applied_keys: [],
+            path: "--",
+            providers: {}
+          },
+          recommendation: {
+            title: "Best Current Lane",
+            prep: "Ollama",
+            prep_model: "qwen2.5-coder:latest",
+            delivery: "Manual Completion",
+            delivery_model: "--",
+            summary: "Use local prep and manual completion.",
+            notes: nil
+          }
+        },
+        requests: [],
+        followups: nil,
+        evaluation: {
+          summary: { total: 0, by_action: {}, by_scenario: {}, by_model: {} },
+          recent: nil,
+          insights: nil,
+          recommendations: {
+            summary: "No learned defaults yet.",
+            notes: nil
+          }
+        }
+      }
+    )
+
+    app = described_class.rack_app
+
+    status, headers, body = app.call(
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/assistant",
+      "rack.input" => StringIO.new
+    )
+
+    html = body.each.to_a.join
+
+    expect(status).to eq(200)
+    expect(headers["Content-Type"]).to include("text/html")
+    expect(html).to include("Companion Assistant")
+    expect(html).to include("Best Current Lane")
+  end
+
   it "renders the cluster page" do
     app = described_class.rack_app
 
@@ -174,6 +264,30 @@ RSpec.describe Companion::DashboardApp do
     expect(html).to include('data-overview-path="/api/overview"')
     expect(html).to include("cluster-view-bootstrap")
     expect(html).to include("cluster-view-canvas")
+  end
+
+  it "serves dashboard frontend runtime assets" do
+    app = described_class.rack_app
+
+    runtime_status, runtime_headers, runtime_body = app.call(
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/__frontend/runtime.js",
+      "rack.input" => StringIO.new
+    )
+
+    asset_status, asset_headers, asset_body = app.call(
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/__frontend/assets/application.js",
+      "rack.input" => StringIO.new
+    )
+
+    expect(runtime_status).to eq(200)
+    expect(runtime_headers["Content-Type"]).to include("text/javascript")
+    expect(runtime_body.each.to_a.join).to include("window.IgniterFrontend")
+
+    expect(asset_status).to eq(200)
+    expect(asset_headers["Content-Type"]).to include("text/javascript")
+    expect(asset_body.each.to_a.join).to include("CompanionDashboard")
   end
 
   it "preserves node filter query values on the home page" do

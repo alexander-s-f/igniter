@@ -37,7 +37,7 @@ module Companion
         end
 
         def tailwind_config_script
-          "tailwind.config = #{JSON.generate(companion_theme.fetch(:tailwind_config))};"
+          "window.tailwind = window.tailwind || {}; window.tailwind.config = #{JSON.generate(companion_theme.fetch(:tailwind_config))};"
         end
 
         private

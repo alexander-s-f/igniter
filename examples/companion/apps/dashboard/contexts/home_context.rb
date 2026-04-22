@@ -160,43 +160,43 @@ module Companion
         end
 
         def assistant
-          snapshot.fetch(:assistant, {})
+          hash_or_empty(snapshot.fetch(:assistant, {}))
         end
 
         def assistant_summary
-          assistant.fetch(:summary, {})
+          hash_or_empty(assistant.fetch(:summary, {}))
         end
 
         def assistant_runtime
-          assistant.fetch(:runtime, {})
+          hash_or_empty(assistant.fetch(:runtime, {}))
         end
 
         def assistant_runtime_config
-          assistant_runtime.fetch(:config, {})
+          hash_or_empty(assistant_runtime.fetch(:config, {}))
         end
 
         def assistant_runtime_status
-          assistant_runtime.fetch(:status, {})
+          hash_or_empty(assistant_runtime.fetch(:status, {}))
         end
 
         def assistant_runtime_channels
-          assistant_runtime.fetch(:channels, [])
+          array_or_empty(assistant_runtime.fetch(:channels, []))
         end
 
         def assistant_runtime_routing
-          assistant_runtime.fetch(:routing, {})
+          hash_or_empty(assistant_runtime.fetch(:routing, {}))
         end
 
         def assistant_credential_policy
-          assistant_runtime.fetch(:credential_policy, {})
+          hash_or_empty(assistant_runtime.fetch(:credential_policy, {}))
         end
 
         def assistant_requests
-          assistant.fetch(:requests, [])
+          array_or_empty(assistant.fetch(:requests, []))
         end
 
         def assistant_followups
-          assistant.fetch(:followups, [])
+          array_or_empty(assistant.fetch(:followups, []))
         end
 
         def assistant_form_defaults
@@ -527,6 +527,14 @@ module Companion
 
         def note_offset
           (notes_page - 1) * notes_per_page
+        end
+
+        def hash_or_empty(value)
+          value.is_a?(Hash) ? value : {}
+        end
+
+        def array_or_empty(value)
+          value.is_a?(Array) ? value : []
         end
       end
     end

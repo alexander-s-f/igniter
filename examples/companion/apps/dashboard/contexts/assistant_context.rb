@@ -199,11 +199,11 @@ module Companion
         end
 
         def assistant_credential_policy_notes
-          assistant_credential_policy.fetch(:notes, [])
+          array_or_empty(assistant_credential_policy.fetch(:notes, []))
         end
 
         def assistant_credential_status
-          assistant_runtime.fetch(:credential_status, {})
+          hash_or_empty(assistant_runtime.fetch(:credential_status, {}))
         end
 
         def assistant_credential_status_rows
@@ -238,7 +238,7 @@ module Companion
         end
 
         def assistant_credential_provider_rows
-          assistant_credential_status.fetch(:providers, {}).map do |provider, entry|
+          hash_or_empty(assistant_credential_status.fetch(:providers, {})).map do |provider, entry|
             {
               provider: provider,
               env_key: entry.fetch(:env_key),
@@ -252,11 +252,11 @@ module Companion
         end
 
         def assistant_recommendation
-          assistant_runtime.fetch(:recommendation, {})
+          hash_or_empty(assistant_runtime.fetch(:recommendation, {}))
         end
 
         def assistant_evaluation
-          assistant.fetch(:evaluation, {})
+          hash_or_empty(assistant.fetch(:evaluation, {}))
         end
 
         def assistant_evaluation_rows
@@ -272,7 +272,7 @@ module Companion
         end
 
         def assistant_evaluation_recent_rows
-          assistant_evaluation.fetch(:recent, []).map do |entry|
+          array_or_empty(assistant_evaluation.fetch(:recent, [])).map do |entry|
             {
               created_at: entry.fetch(:created_at, nil),
               action: entry.fetch(:action, nil),
@@ -285,11 +285,11 @@ module Companion
         end
 
         def assistant_evaluation_insights
-          assistant_evaluation.fetch(:insights, [])
+          array_or_empty(assistant_evaluation.fetch(:insights, []))
         end
 
         def assistant_evaluation_recommendation
-          assistant_evaluation.fetch(:recommendations, {})
+          hash_or_empty(assistant_evaluation.fetch(:recommendations, {}))
         end
 
         def assistant_evaluation_recommendation_rows
@@ -307,7 +307,7 @@ module Companion
         end
 
         def assistant_evaluation_recommendation_notes
-          assistant_evaluation_recommendation.fetch(:notes, [])
+          array_or_empty(assistant_evaluation_recommendation.fetch(:notes, []))
         end
 
         def assistant_recommendation_rows
@@ -337,7 +337,7 @@ module Companion
         end
 
         def assistant_recommendation_notes
-          assistant_recommendation.fetch(:notes, [])
+          array_or_empty(assistant_recommendation.fetch(:notes, []))
         end
 
         def delivery_rows(record)
@@ -364,7 +364,7 @@ module Companion
         end
 
         def assistant_channel_rows
-          assistant_runtime_channels.map do |channel|
+          array_or_empty(assistant_runtime_channels).map do |channel|
             {
               label: channel.fetch(:label),
               kind: channel.fetch(:kind),
@@ -383,11 +383,11 @@ module Companion
         end
 
         def available_model_badges
-          assistant_runtime_status.fetch(:available_models, [])
+          array_or_empty(assistant_runtime_status.fetch(:available_models, []))
         end
 
         def assistant_profile
-          assistant_runtime_config.fetch(:profile, {})
+          hash_or_empty(assistant_runtime_config.fetch(:profile, {}))
         end
 
         def assistant_profile_rows
@@ -399,7 +399,7 @@ module Companion
         end
 
         def assistant_profile_strengths
-          assistant_profile.fetch(:strengths, [])
+          array_or_empty(assistant_profile.fetch(:strengths, []))
         end
 
         def assistant_request_rows
