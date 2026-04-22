@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/provenance")
 require_relative "provenance/node_trace"
 require_relative "provenance/text_formatter"
 require_relative "provenance/lineage"

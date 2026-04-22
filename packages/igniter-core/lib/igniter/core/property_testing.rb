@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/property_testing")
 require_relative "contract"
 require_relative "extensions/invariants"
 require_relative "property_testing/generators"

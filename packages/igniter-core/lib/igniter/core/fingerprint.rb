@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/fingerprint")
 module Igniter
   # Mixin that enables stable cross-execution cache keys for objects used as
   # compute node dependencies (e.g. ActiveRecord models).

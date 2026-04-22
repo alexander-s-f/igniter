@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/effect_registry")
 module Igniter
   # Registry for named effect adapters.
   #

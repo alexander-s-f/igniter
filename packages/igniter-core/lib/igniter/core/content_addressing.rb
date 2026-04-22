@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/content_addressing")
 require "digest"
 
 module Igniter

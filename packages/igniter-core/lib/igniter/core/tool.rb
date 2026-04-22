@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/tool")
 require_relative "errors"
 require_relative "runtime/deferred_result"
 require_relative "executor"

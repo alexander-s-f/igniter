@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/metrics")
 require_relative "errors"
 require_relative "metrics/snapshot"
 require_relative "metrics/collector"

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/differential")
 require_relative "errors"
 require_relative "differential/divergence"
 require_relative "differential/report"

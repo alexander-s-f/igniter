@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/invariant")
 module Igniter
   # Represents a named condition that must always hold for a contract's outputs.
   #

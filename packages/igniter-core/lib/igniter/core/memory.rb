@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/memory")
 require_relative "errors"
 require_relative "memory/episode"
 require_relative "memory/fact"

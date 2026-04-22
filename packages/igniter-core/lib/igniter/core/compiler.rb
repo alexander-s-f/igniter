@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/compiler")
 require_relative "compiler/compiled_graph"
 require_relative "compiler/validation_context"
 require_relative "compiler/type_resolver"

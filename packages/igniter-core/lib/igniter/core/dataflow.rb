@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/dataflow")
 require_relative "dataflow/diff"
 require_relative "dataflow/diff_state"
 require_relative "dataflow/window_filter"

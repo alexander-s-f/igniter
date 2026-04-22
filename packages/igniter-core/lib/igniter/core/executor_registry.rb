@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/executor_registry")
 module Igniter
   class ExecutorRegistry
     Definition = Struct.new(:key, :executor_class, :metadata, keyword_init: true)

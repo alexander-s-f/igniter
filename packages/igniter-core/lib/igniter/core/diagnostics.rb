@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/diagnostics")
 require_relative "diagnostics/report"
 require_relative "diagnostics/agent_contributor"
 require_relative "diagnostics/capability_contributor"

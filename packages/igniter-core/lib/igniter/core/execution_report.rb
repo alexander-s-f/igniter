@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/execution_report")
 require_relative "errors"
 require_relative "execution_report/node_entry"
 require_relative "execution_report/formatter"

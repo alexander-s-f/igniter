@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/temporal")
 module Igniter
   # Mixin for time-aware contracts.
   #

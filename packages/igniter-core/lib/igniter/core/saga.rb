@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/saga")
 require_relative "errors"
 require_relative "saga/compensation"
 require_relative "saga/compensation_record"

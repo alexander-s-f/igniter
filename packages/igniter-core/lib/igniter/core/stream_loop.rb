@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/stream_loop")
 module Igniter
   # Runs an Igniter contract in a continuous tick-loop.
   #

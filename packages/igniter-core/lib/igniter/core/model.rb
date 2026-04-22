@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Core::Legacy.require!("igniter/core/model")
 require_relative "model/node"
 require_relative "model/graph"
 require_relative "model/input_node"
