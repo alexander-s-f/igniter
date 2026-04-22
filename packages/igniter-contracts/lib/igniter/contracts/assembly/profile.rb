@@ -85,8 +85,24 @@ module Igniter
           runtime_handlers.fetch(kind.to_sym)
         end
 
+        def effect(name)
+          effects.fetch(name.to_sym)
+        end
+
+        def executor(name)
+          executors.fetch(name.to_sym)
+        end
+
         def supports_node_kind?(kind)
           nodes.key?(kind.to_sym)
+        end
+
+        def supports_effect?(name)
+          effects.key?(name.to_sym)
+        end
+
+        def supports_executor?(name)
+          executors.key?(name.to_sym)
         end
 
         def pack_names

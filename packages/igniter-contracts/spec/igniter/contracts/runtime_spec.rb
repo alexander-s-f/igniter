@@ -33,6 +33,17 @@ RSpec.describe Igniter::Contracts::Runtime do
     expect(result.output(:tax_rate)).to eq(0.2)
   end
 
+  it "executes through the explicit inline executor seam" do
+    compiled = Igniter::Contracts.compile do
+      input :amount
+      output :amount
+    end
+
+    result = Igniter::Contracts.execute_with(:inline, compiled, inputs: { amount: 15 })
+
+    expect(result.output(:amount)).to eq(15)
+  end
+
   it "executes an explicit profile with the project pack" do
     profile = Igniter::Contracts.build_kernel.install(Igniter::Contracts::ProjectPack).finalize
 

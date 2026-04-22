@@ -42,6 +42,21 @@ module Igniter
             required_keywords: %i[report result profile],
             role: :diagnostics_contributor,
             return_policy: :ignored
+          ),
+          effects: HookSpec.new(
+            registry: :effects,
+            method_name: :call,
+            required_keywords: %i[payload context profile],
+            role: :effect_adapter,
+            return_policy: :opaque
+          ),
+          executors: HookSpec.new(
+            registry: :executors,
+            method_name: :call,
+            required_keywords: %i[compiled_graph inputs profile runtime],
+            role: :executor,
+            return_policy: :execution_result,
+            result_validator: HookResultPolicies.method(:execution_result)
           )
         }.freeze
 

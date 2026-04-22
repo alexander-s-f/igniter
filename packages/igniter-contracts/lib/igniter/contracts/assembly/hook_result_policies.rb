@@ -17,6 +17,12 @@ module Igniter
           nil
         end
 
+        def execution_result(result)
+          return "must return an ExecutionResult" unless result.is_a?(Execution::ExecutionResult)
+
+          nil
+        end
+
         def validate_operation(operation)
           return "is not a Hash" unless operation.is_a?(Hash)
           return "must include :kind" unless operation.key?(:kind)

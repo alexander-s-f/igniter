@@ -34,6 +34,7 @@ module Igniter
     ConstRuntime = Execution::ConstRuntime
     ProjectValidators = Execution::ProjectValidators
     ProjectRuntime = Execution::ProjectRuntime
+    InlineExecutor = Execution::InlineExecutor
   end
 end
 

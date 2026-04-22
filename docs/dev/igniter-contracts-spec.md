@@ -251,6 +251,15 @@ Recommended registries:
 - `effects`
 - `executors`
 
+Intended meanings:
+
+- `effects`
+  named side-effect adapters that can be invoked explicitly through the
+  finalized profile
+- `executors`
+  named graph execution strategies that turn a compiled graph plus inputs into
+  an execution result
+
 Each registry should have a small explicit interface:
 
 - `register`
@@ -394,6 +403,9 @@ That means:
   and `profile:`
 - `diagnostics_contributors` must implement `augment(report:, result:, profile:)`
 - `dsl_keywords` must accept `builder:` even if they also accept free-form args
+- `effects` must accept `payload:`, `context:`, and `profile:`
+- `executors` must accept `compiled_graph:`, `inputs:`, `profile:`, and
+  `runtime:`
 
 This pushes extension failures into profile assembly instead of letting them
 surface later as ad-hoc `ArgumentError` or `NoMethodError`.
@@ -410,6 +422,8 @@ Example:
   operations
 - `validators` are validation hooks whose return value is ignored
 - `runtime_handlers` are value-producing handlers
+- `effects` are named effect adapters with opaque return values
+- `executors` should return an `ExecutionResult`
 
 This makes the extension contract describe not just how a hook is called, but
 what category of behavior the host expects from it.
@@ -608,6 +622,9 @@ Suggested responsibilities:
 - answer capability lookups
 - expose installed pack manifests
 - validate compiled graph compatibility at runtime
+
+It should also expose effect and executor lookup helpers so upper layers do not
+reach into raw registry hashes directly.
 
 Suggested shape:
 
@@ -916,6 +933,20 @@ capabilities remain inspectable after finalization.
 
 They should additionally be hookspec-validated during finalization so packs
 cannot register contributors that omit required execution context keywords.
+
+### Effects / Executors
+
+Effects and executors should no longer be placeholder registries.
+
+Recommended baseline:
+
+- baseline installs an `:inline` executor
+- public `execute` delegates to `execute_with(:inline, ...)`
+- public `apply_effect(name, ...)` resolves named effects through the finalized
+  profile
+
+This keeps execution strategy selection explicit and gives effect adapters a
+real contracts-owned entrypoint instead of leaving them as inert future seams.
 
 ### Error Classes
 

@@ -9,6 +9,8 @@ module Igniter
     DuplicateRegistrationError = Class.new(Error)
     UnknownDslKeywordError = Class.new(Error)
     UnknownNodeKindError = Class.new(Error)
+    UnknownEffectError = Class.new(Error)
+    UnknownExecutorError = Class.new(Error)
     ProfileMismatchError = Class.new(Error)
     IncompletePackError = Class.new(Error)
     InvalidHookImplementationError = Class.new(Error)

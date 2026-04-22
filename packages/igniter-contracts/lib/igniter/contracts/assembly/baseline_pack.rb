@@ -18,6 +18,7 @@ module Igniter
               PackManifest.validator(:callables),
               PackManifest.validator(:types),
               PackManifest.validator(:supported_baseline_runtime),
+              PackManifest.executor(:inline),
               PackManifest.diagnostic(:baseline_summary)
             ]
           )
@@ -72,6 +73,7 @@ module Igniter
           install_normalizers(kernel)
           install_validators(kernel)
           install_runtime_handlers(kernel)
+          install_executors(kernel)
           install_diagnostics(kernel)
           kernel
         end
@@ -108,6 +110,10 @@ module Igniter
           kernel.runtime_handlers.register(:composition, Execution::BaselineRuntime.unsupported(:composition))
           kernel.runtime_handlers.register(:branch, Execution::BaselineRuntime.unsupported(:branch))
           kernel.runtime_handlers.register(:collection, Execution::BaselineRuntime.unsupported(:collection))
+        end
+
+        def install_executors(kernel)
+          kernel.executors.register(:inline, Execution::InlineExecutor.method(:call))
         end
 
         def install_diagnostics(kernel)
