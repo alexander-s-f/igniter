@@ -19,6 +19,14 @@ module Igniter
         Execution::Compiler.compile(profile: profile, &block)
       end
 
+      def validation_report(profile: default_profile, &block)
+        Execution::Compiler.validation_report(profile: profile, &block)
+      end
+
+      def compilation_report(profile: default_profile, &block)
+        Execution::Compiler.compilation_report(profile: profile, &block)
+      end
+
       def execute(compiled_graph, inputs:, profile: default_profile)
         execute_with(:inline, compiled_graph, inputs: inputs, profile: profile)
       end

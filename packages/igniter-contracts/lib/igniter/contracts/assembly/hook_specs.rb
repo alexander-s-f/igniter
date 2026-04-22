@@ -27,7 +27,8 @@ module Igniter
             method_name: :call,
             required_keywords: %i[operations profile],
             role: :validator,
-            return_policy: :ignored
+            return_policy: :validation_findings,
+            result_validator: HookResultPolicies.method(:validation_findings)
           ),
           runtime_handlers: HookSpec.new(
             registry: :runtime_handlers,

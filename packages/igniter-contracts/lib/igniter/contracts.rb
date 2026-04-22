@@ -41,6 +41,8 @@ module Igniter
     ExecutionRequest = Execution::ExecutionRequest
     DiagnosticsSection = Execution::DiagnosticsSection
     ValidationFinding = Execution::ValidationFinding
+    ValidationReport = Execution::ValidationReport
+    CompilationReport = Execution::CompilationReport
   end
 end
 

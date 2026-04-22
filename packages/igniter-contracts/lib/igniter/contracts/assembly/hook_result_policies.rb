@@ -23,6 +23,16 @@ module Igniter
           nil
         end
 
+        def validation_findings(result)
+          return nil if result.nil?
+          return "must return an Array of ValidationFinding entries" unless result.is_a?(Array)
+
+          invalid_index = result.find_index { |entry| !entry.is_a?(Execution::ValidationFinding) }
+          return nil if invalid_index.nil?
+
+          "must return an Array of ValidationFinding entries; element #{invalid_index} is invalid"
+        end
+
         def validate_operation(operation)
           return "must be an Execution::Operation" unless operation.is_a?(Execution::Operation)
           return "must use Symbol kind" unless operation.kind.is_a?(Symbol)

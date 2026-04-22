@@ -12,15 +12,13 @@ module Igniter
                               .map { |operation| operation.attributes.fetch(:from).to_sym }
                               .reject { |name| available.include?(name) }
                               .uniq
-          return if missing.empty?
+          return [] if missing.empty?
 
-          raise ValidationError.new(
-            findings: [ValidationFinding.new(
-              code: :missing_project_sources,
-              message: "project sources are not defined: #{missing.map(&:to_s).join(', ')}",
-              subjects: missing
-            )]
-          )
+          [ValidationFinding.new(
+            code: :missing_project_sources,
+            message: "project sources are not defined: #{missing.map(&:to_s).join(', ')}",
+            subjects: missing
+          )]
         end
       end
     end

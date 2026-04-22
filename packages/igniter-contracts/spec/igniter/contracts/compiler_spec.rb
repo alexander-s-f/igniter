@@ -56,6 +56,34 @@ RSpec.describe Igniter::Contracts::Compiler do
     expect(compiled.operations[1].attributes[:depends_on]).to eq([:amount])
   end
 
+  it "builds a structured validation report without raising" do
+    report = Igniter::Contracts.validation_report do
+      compute :tax, depends_on: [:amount] do |amount:|
+        amount * 0.2
+      end
+      output :missing_total
+    end
+
+    expect(report).to be_a(Igniter::Contracts::ValidationReport)
+    expect(report).to be_invalid
+    expect(report.findings.map(&:code)).to eq(%i[missing_output_targets missing_compute_dependencies])
+  end
+
+  it "builds a compilation report with normalized operations and compiled graph on success" do
+    report = Igniter::Contracts.compilation_report do
+      input :amount
+      compute :tax, depends_on: ["amount"] do |amount:|
+        amount * 0.2
+      end
+      output :tax
+    end
+
+    expect(report).to be_a(Igniter::Contracts::CompilationReport)
+    expect(report).to be_ok
+    expect(report.operations[1].attributes[:depends_on]).to eq([:amount])
+    expect(report.compiled_graph).to be_a(Igniter::Contracts::CompiledGraph)
+  end
+
   it "rejects baseline node kinds that do not have runtime semantics yet" do
     expect do
       Igniter::Contracts.compile do

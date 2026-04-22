@@ -13,7 +13,7 @@ RSpec.describe Igniter::Contracts::HookSpecs do
     expect(normalizer.role).to eq(:graph_transformer)
     expect(normalizer.return_policy).to eq(:operations_array)
     expect(validator.role).to eq(:validator)
-    expect(validator.return_policy).to eq(:ignored)
+    expect(validator.return_policy).to eq(:validation_findings)
     expect(runtime_handler.role).to eq(:runtime_handler)
     expect(runtime_handler.return_policy).to eq(:value)
     expect(effect.role).to eq(:effect_adapter)
