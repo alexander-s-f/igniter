@@ -129,4 +129,33 @@ RSpec.describe "Igniter dependency boundaries" do
       #{format_offenders(offenders)}
     MSG
   end
+
+  it "keeps the contracts-facing igniter-extensions surface free from legacy core requires" do
+    files = ruby_files_for(
+      "packages/igniter-extensions/lib/igniter-extensions.rb",
+      "packages/igniter-extensions/lib/igniter/extensions.rb",
+      "packages/igniter-extensions/lib/igniter/extensions/contracts.rb",
+      "packages/igniter-extensions/lib/igniter/extensions/contracts/**/*.rb"
+    )
+    offenders = offenders_for(
+      require_lines_for(files),
+      [
+        /require\s+["']igniter\/core(?:\/|["'])/,
+        /require\s+["']igniter-core["']/,
+        /require\s+["']igniter["']/,
+        /require_relative\s+["'][^"']*igniter\/core(?:\/|["'])/,
+        /require_relative\s+["'][^"']*igniter-core["']/,
+        /require_relative\s+["'][^"']*igniter["']/
+      ]
+    )
+
+    expect(offenders).to eq({}), <<~MSG
+      The contracts-facing igniter-extensions surface must stay on top of
+      igniter-contracts only and must not pull the legacy core or umbrella
+      runtime implicitly.
+
+      Offending require statements:
+      #{format_offenders(offenders)}
+    MSG
+  end
 end

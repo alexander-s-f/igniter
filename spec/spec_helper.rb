@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+ENV["IGNITER_LEGACY_CORE_REQUIRE"] ||= "off"
+
 require "igniter"
 
 RSpec.configure do |config|

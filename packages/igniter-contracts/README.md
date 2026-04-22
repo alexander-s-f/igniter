@@ -45,6 +45,10 @@ stay in the monorepo, but with different roles:
   the legacy reference implementation used for comparison, parity checks, and
   migration confidence while the rewrite is still in flight
 
+The legacy package now warns on public runtime entrypoints by default to make
+that architectural direction explicit. It can be switched to fail-fast mode
+with `IGNITER_LEGACY_CORE_REQUIRE=error`.
+
 ## Current Shape
 
 `igniter-contracts` is now starting from its own internal primitives instead of

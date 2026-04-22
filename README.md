@@ -233,11 +233,16 @@ gem "igniter"
 | Need | Require |
 |------|---------|
 | Core contracts/runtime | `require "igniter"` |
-| Contract/tool kernel | `require "igniter/core"` |
+| Legacy contract/tool kernel | `require "igniter/core"` |
+| Embedded contracts kernel | `require "igniter/contracts"` or `require "igniter-contracts"` |
 | Actor runtime and built-in agents | `require "igniter/agent"` or `require "igniter/agents"` |
 | SDK registry | `require "igniter/sdk"` |
 | App runtime/profile | `require "igniter/app"` |
 | Cluster runtime | `require "igniter/cluster"` |
+
+`igniter/core` remains available as a legacy reference surface during the
+contracts migration and now emits a legacy notice on public runtime entrypoints
+by default.
 
 The fuller map lives in [`docs/guide/README.md`](./docs/guide/README.md).
 

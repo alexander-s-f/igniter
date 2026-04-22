@@ -6,6 +6,15 @@ The point of the package is not just a new gem name. It is the chance to build
 the embedded kernel as a clean composition root while `igniter-core` remains
 available as the legacy implementation package during the transition.
 
+Transition rule:
+
+- `igniter-core` is now legacy architecture, not the target kernel shape
+- public legacy core runtime entrypoints should warn by default and may be
+  escalated to hard failures with `IGNITER_LEGACY_CORE_REQUIRE=error`
+- `igniter-extensions` may still carry legacy core-backed activators during the
+  migration window, but its contracts-facing surface should stay independent
+  from those activators and from the root `igniter` umbrella
+
 ## Goals
 
 - make `igniter-contracts` the canonical embedded dependency for Rails and other

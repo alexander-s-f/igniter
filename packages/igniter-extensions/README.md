@@ -2,6 +2,14 @@
 
 Public extension entrypoints for Igniter.
 
+This package currently contains two architectural lanes:
+
+- contracts-facing packs built on `Igniter::Contracts`
+- legacy extension activators that still bridge into `igniter-core`
+
+The legacy lane remains for migration. Those entrypoints will surface the
+`igniter-core` legacy notice when loaded.
+
 This package owns the `igniter/extensions/*` activation surface, including:
 
 - `require "igniter/extensions/dataflow"`
@@ -15,7 +23,10 @@ It also provides the package facade:
 
 - `require "igniter-extensions"`
 
-The first contracts-facing external pack now lives here too:
+The package facade itself stays lightweight and does not eagerly load legacy
+core runtime files.
+
+Contracts-facing external packs now live here too:
 
 - `Igniter::Extensions::Contracts::ExecutionReportPack`
 - `Igniter::Extensions::Contracts::LookupPack`
@@ -52,6 +63,17 @@ Applied presets can sit on top of those packs too:
 ```ruby
 environment = Igniter::Extensions::Contracts.with_preset(:commerce)
 ```
+
+Legacy extension activators still exist for migration scenarios:
+
+- `require "igniter/extensions/dataflow"`
+- `require "igniter/extensions/saga"`
+- `require "igniter/extensions/provenance"`
+- `require "igniter/extensions/differential"`
+- `require "igniter/extensions/incremental"`
+
+Those activators still route through `igniter-core` and should be treated as
+legacy architecture, not as the long-term extension model.
 
 Docs:
 

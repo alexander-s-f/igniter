@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors = ["Alexander"]
   spec.email = ["alexander.s.fokin@gmail.com"]
 
-  spec.summary = "Optional public extension entrypoints for Igniter"
-  spec.description = "Public extension activation entrypoints for Igniter, including core runtime opt-in behaviors and contracts-facing extension packs built on the public Igniter::Contracts surface."
+  spec.summary = "Public extension entrypoints for contracts and legacy Igniter extensions"
+  spec.description = "Public extension activation entrypoints for Igniter, including legacy core-backed extension activators kept for migration and contracts-facing extension packs built on the public Igniter::Contracts surface."
   spec.homepage = "https://github.com/alexander-s-f/igniter"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
