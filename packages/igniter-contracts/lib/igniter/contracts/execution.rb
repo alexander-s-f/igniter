@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative "execution/baseline_normalizers"
+require_relative "execution/baseline_validators"
+require_relative "execution/baseline_runtime"
 require_relative "execution/compiled_graph"
 require_relative "execution/builder"
 require_relative "execution/compiler"

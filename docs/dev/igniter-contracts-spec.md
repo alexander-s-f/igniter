@@ -93,8 +93,8 @@ Allowed concepts:
 
 The primary architecture should be:
 
-- `Kernel` or `Builder` for mutable assembly
-- `Profile` for the finalized immutable runtime shape
+- `Assembly` for mutable kernel/profile construction
+- `Execution` for compile/runtime behavior on a finalized profile
 - `Pack` for extension bundles installed into a kernel during assembly
 - host-owned registries for phase-specific extension points
 
@@ -126,6 +126,17 @@ Why this is preferred over plain global `register`:
 - lets compile and runtime share the same frozen capability snapshot
 - makes behavior comparable across profiles
 - keeps the public extension API explicit
+
+Recommended namespace split:
+
+- `Igniter::Contracts::Assembly`
+  `Kernel`, `Profile`, `Pack`, `PackManifest`, registries, descriptors,
+  hookspecs
+- `Igniter::Contracts::Execution`
+  `Builder`, `Compiler`, `CompiledGraph`, `Runtime`, `ExecutionResult`,
+  diagnostics/reporting
+- `Igniter::Contracts`
+  thin public facade and compatibility aliases
 
 ## Layering Spec
 
@@ -205,6 +216,25 @@ The compile/runtime rule should be strict:
 - runtime requires a compatible profile
 
 This keeps extension registration from becoming implicit mutable ambient state.
+
+## Assembly / Execution Split
+
+The contracts package should now be organized around two internal layers:
+
+- `Assembly`
+  infrastructure for building and validating a profile before execution
+- `Execution`
+  functional behavior that compiles and runs graphs against that profile
+
+This split is intentionally not just cosmetic. It prevents future drift where
+kernel assembly concerns and runtime concerns start depending on each other in
+both directions.
+
+Practical rule:
+
+- `Assembly` may define capabilities and contracts that `Execution` consumes
+- `Execution` should not become the place where pack registration or kernel
+  mutation logic lives
 
 ## Registries
 
@@ -367,6 +397,22 @@ That means:
 
 This pushes extension failures into profile assembly instead of letting them
 surface later as ad-hoc `ArgumentError` or `NoMethodError`.
+
+The next layer above that should be typed hook metadata:
+
+- each seam has a `role` such as `dsl_keyword`, `graph_transformer`,
+  `validator`, `runtime_handler`, or `diagnostics_contributor`
+- each seam may also define a `return_policy`
+
+Example:
+
+- `normalizers` are `graph_transformer`s and should return an Array of
+  operations
+- `validators` are validation hooks whose return value is ignored
+- `runtime_handlers` are value-producing handlers
+
+This makes the extension contract describe not just how a hook is called, but
+what category of behavior the host expects from it.
 
 This is where `pluggy` is especially relevant: the host defines the spec first,
 and extension packs implement it.
@@ -731,6 +777,18 @@ Recommended pack rules:
 The default embedded kernel should be installed through one explicit baseline
 pack.
 
+With the `Assembly` / `Execution` split in place, baseline should also follow
+that boundary:
+
+- `Igniter::Contracts::Assembly::BaselinePack`
+  owns node kinds, DSL keywords, manifest, and registry installation
+- `Igniter::Contracts::Execution::BaselineNormalizers`
+  owns baseline graph transformation helpers
+- `Igniter::Contracts::Execution::BaselineValidators`
+  owns baseline compile-time validation
+- `Igniter::Contracts::Execution::BaselineRuntime`
+  owns baseline runtime handlers
+
 Suggested contents:
 
 - node kinds:
@@ -746,15 +804,17 @@ Suggested shape:
 ```ruby
 module Igniter
   module Contracts
-    module BaselinePack
-      module_function
+    module Assembly
+      module BaselinePack
+        module_function
 
-      def install_into(kernel)
-        install_nodes(kernel)
-        install_dsl(kernel)
-        install_validation(kernel)
-        install_runtime(kernel)
-        install_diagnostics(kernel)
+        def install_into(kernel)
+          install_nodes(kernel)
+          install_dsl(kernel)
+          install_validation(kernel)
+          install_runtime(kernel)
+          install_diagnostics(kernel)
+        end
       end
     end
   end
@@ -815,6 +875,11 @@ actually register it.
 
 `finalize` should also validate that each registered validator matches the
 contracts hookspec, not just that it exists under the expected key.
+
+Normalizers are the first place where return policy should be enforced during
+execution as well as registration. A normalizer that returns something other
+than a valid operations array should fail immediately with a contracts-owned
+error instead of silently corrupting the compiler pipeline.
 
 ### Runtime Registration Model
 

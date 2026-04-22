@@ -17,6 +17,7 @@ module Igniter
     HookSpecs = Assembly::HookSpecs
     Profile = Assembly::Profile
     Kernel = Assembly::Kernel
+    BaselinePack = Assembly::BaselinePack
 
     CompiledGraph = Execution::CompiledGraph
     Builder = Execution::Builder
@@ -25,13 +26,12 @@ module Igniter
     Runtime = Execution::Runtime
     DiagnosticsReport = Execution::DiagnosticsReport
     Diagnostics = Execution::Diagnostics
+    BaselineNormalizers = Execution::BaselineNormalizers
+    BaselineValidators = Execution::BaselineValidators
+    BaselineRuntime = Execution::BaselineRuntime
   end
 end
 
-require_relative "contracts/baseline_normalizers"
-require_relative "contracts/baseline_validators"
-require_relative "contracts/baseline_runtime"
-require_relative "contracts/baseline_pack"
 require_relative "contracts/const_pack"
 require_relative "contracts/project_pack"
 require_relative "contracts/api"
