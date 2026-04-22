@@ -6,5 +6,7 @@ module Igniter
     FrozenKernelError = Class.new(Error)
     FrozenRegistryError = Class.new(Error)
     DuplicateRegistrationError = Class.new(Error)
+    UnknownDslKeywordError = Class.new(Error)
+    UnknownNodeKindError = Class.new(Error)
   end
 end

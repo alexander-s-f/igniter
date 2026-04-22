@@ -6,8 +6,9 @@ RSpec.describe Igniter::Contracts::Kernel do
   it "installs the baseline pack through build_kernel" do
     kernel = Igniter::Contracts.build_kernel
 
-    expect(kernel.nodes.fetch(:input)).to eq(:baseline_input_node)
-    expect(kernel.dsl_keywords.fetch(:compute)).to eq(:baseline_compute_keyword)
+    expect(kernel.nodes.fetch(:input)).to be_a(Igniter::Contracts::NodeType)
+    expect(kernel.nodes.fetch(:input).kind).to eq(:input)
+    expect(kernel.dsl_keywords.fetch(:compute)).to be_a(Igniter::Contracts::DslKeyword)
     expect(kernel.runtime_handlers.fetch(:output)).to eq(:baseline_output_runtime_handler)
   end
 
@@ -41,5 +42,12 @@ RSpec.describe Igniter::Contracts::Kernel do
 
     expect(Igniter::Contracts.default_kernel).not_to equal(first_kernel)
     expect(Igniter::Contracts.default_profile).not_to equal(first_profile)
+  end
+
+  it "allows explicit kernels to install additional packs before finalization" do
+    kernel = Igniter::Contracts.build_kernel.install(Igniter::Contracts::ConstPack)
+
+    expect(kernel.nodes.fetch(:const).kind).to eq(:const)
+    expect(kernel.dsl_keywords.fetch(:const)).to be_a(Igniter::Contracts::DslKeyword)
   end
 end

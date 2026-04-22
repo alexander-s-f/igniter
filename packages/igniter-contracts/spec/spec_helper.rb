@@ -2,7 +2,7 @@
 
 require "rspec"
 
-CONTRACTS_SPEC_ROOT = File.expand_path("../../..", __dir__)
+CONTRACTS_SPEC_ROOT = File.expand_path("../../..", __dir__) unless defined?(CONTRACTS_SPEC_ROOT)
 $LOAD_PATH.unshift(File.expand_path("packages/igniter-contracts/lib", CONTRACTS_SPEC_ROOT))
 $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", CONTRACTS_SPEC_ROOT))
 

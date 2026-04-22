@@ -6,21 +6,33 @@ module Igniter
       module_function
 
       BASELINE_NODE_KINDS = {
-        input: :baseline_input_node,
-        compute: :baseline_compute_node,
-        composition: :baseline_composition_node,
-        branch: :baseline_branch_node,
-        collection: :baseline_collection_node,
-        output: :baseline_output_node
+        input: NodeType.new(kind: :input, metadata: { category: :data }),
+        compute: NodeType.new(kind: :compute, metadata: { category: :data }),
+        composition: NodeType.new(kind: :composition, metadata: { category: :structural }),
+        branch: NodeType.new(kind: :branch, metadata: { category: :control_flow }),
+        collection: NodeType.new(kind: :collection, metadata: { category: :control_flow }),
+        output: NodeType.new(kind: :output, metadata: { category: :terminal })
       }.freeze
 
       BASELINE_DSL_KEYWORDS = {
-        input: :baseline_input_keyword,
-        compute: :baseline_compute_keyword,
-        composition: :baseline_composition_keyword,
-        branch: :baseline_branch_keyword,
-        collection: :baseline_collection_keyword,
-        output: :baseline_output_keyword
+        input: DslKeyword.new(:input, lambda { |name, builder:, **attributes|
+          builder.add_operation(kind: :input, name: name, **attributes)
+        }),
+        compute: DslKeyword.new(:compute, lambda { |name, builder:, **attributes, &block|
+          builder.add_operation(kind: :compute, name: name, **attributes.merge(block: !block.nil?))
+        }),
+        composition: DslKeyword.new(:composition, lambda { |name, builder:, **attributes|
+          builder.add_operation(kind: :composition, name: name, **attributes)
+        }),
+        branch: DslKeyword.new(:branch, lambda { |name, builder:, **attributes|
+          builder.add_operation(kind: :branch, name: name, **attributes)
+        }),
+        collection: DslKeyword.new(:collection, lambda { |name, builder:, **attributes|
+          builder.add_operation(kind: :collection, name: name, **attributes)
+        }),
+        output: DslKeyword.new(:output, lambda { |name, builder:, **attributes|
+          builder.add_operation(kind: :output, name: name, **attributes)
+        })
       }.freeze
 
       BASELINE_VALIDATORS = {

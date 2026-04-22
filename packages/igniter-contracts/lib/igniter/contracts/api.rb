@@ -15,6 +15,10 @@ module Igniter
         @default_profile ||= default_kernel.finalize
       end
 
+      def compile(profile: default_profile, &block)
+        Builder.compile(profile: profile, &block)
+      end
+
       def reset_defaults!
         @default_kernel = nil
         @default_profile = nil
