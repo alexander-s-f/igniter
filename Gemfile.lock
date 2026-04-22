@@ -36,6 +36,11 @@ PATH
       igniter-server (= 0.5.1)
 
 PATH
+  remote: packages/igniter-contracts
+  specs:
+    igniter-contracts (0.5.1)
+
+PATH
   remote: packages/igniter-core
   specs:
     igniter-core (0.5.1)
@@ -45,6 +50,7 @@ PATH
   remote: packages/igniter-extensions
   specs:
     igniter-extensions (0.5.1)
+      igniter-contracts (= 0.5.1)
       igniter-core (= 0.5.1)
 
 PATH
@@ -208,6 +214,7 @@ DEPENDENCIES
   igniter-ai!
   igniter-app!
   igniter-cluster!
+  igniter-contracts!
   igniter-core!
   igniter-extensions!
   igniter-rails!

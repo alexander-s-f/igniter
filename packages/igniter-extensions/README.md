@@ -9,10 +9,25 @@ This package owns the `igniter/extensions/*` activation surface, including:
 - `require "igniter/extensions/provenance"`
 - `require "igniter/extensions/differential"`
 - `require "igniter/extensions/incremental"`
+- `require "igniter/extensions/contracts"`
 
 It also provides the package facade:
 
 - `require "igniter-extensions"`
+
+The first contracts-facing external pack now lives here too:
+
+- `Igniter::Extensions::Contracts::ExecutionReportPack`
+
+That pack installs into `Igniter::Contracts` through the public facade only:
+
+```ruby
+require "igniter/extensions/contracts"
+
+profile = Igniter::Contracts.build_kernel
+  .install(Igniter::Extensions::Contracts::ExecutionReportPack)
+  .finalize
+```
 
 Docs:
 

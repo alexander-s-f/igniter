@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ["alexander.s.fokin@gmail.com"]
 
   spec.summary = "Optional public extension entrypoints for Igniter"
-  spec.description = "Public extension activation entrypoints for Igniter, including dataflow, saga, provenance, differential execution, and other runtime opt-in behaviors."
+  spec.description = "Public extension activation entrypoints for Igniter, including core runtime opt-in behaviors and contracts-facing extension packs built on the public Igniter::Contracts surface."
   spec.homepage = "https://github.com/alexander-s-f/igniter"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
@@ -22,4 +22,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "igniter-core", Igniter::VERSION
+  spec.add_dependency "igniter-contracts", Igniter::VERSION
 end

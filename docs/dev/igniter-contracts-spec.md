@@ -236,6 +236,19 @@ Practical rule:
 - `Execution` should not become the place where pack registration or kernel
   mutation logic lives
 
+The first external proof pack should live outside `igniter-contracts` and
+depend only on the public facade:
+
+- `packages/igniter-extensions/lib/igniter/extensions/contracts.rb`
+- `Igniter::Extensions::Contracts::ExecutionReportPack`
+
+That pack is intentionally diagnostics-only. It proves that another package can:
+
+- depend on `require "igniter/contracts"` instead of internal files
+- install a pack through `Igniter::Contracts.build_kernel.install(...)`
+- contribute diagnostics without reaching into `Assembly::` or `Execution::`
+  internals
+
 ## Registries
 
 Registries should be phase-specific instead of one generic bucket.
