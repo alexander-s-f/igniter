@@ -39,6 +39,7 @@ module Igniter
     NamedValues = Execution::NamedValues
     EffectInvocation = Execution::EffectInvocation
     ExecutionRequest = Execution::ExecutionRequest
+    DiagnosticsSection = Execution::DiagnosticsSection
   end
 end
 

@@ -37,6 +37,7 @@ RSpec.describe Igniter::Contracts::Diagnostics do
     result = Igniter::Contracts.execute(compiled, inputs: { amount: 10 })
     report = Igniter::Contracts.diagnose(result)
 
+    expect(report.section_object(:baseline_summary)).to be_a(Igniter::Contracts::DiagnosticsSection)
     expect(report.section(:baseline_summary)).to eq({
       outputs: [:amount],
       state: [:amount]
@@ -55,6 +56,7 @@ RSpec.describe Igniter::Contracts::Diagnostics do
     result = Igniter::Contracts.execute(compiled, inputs: { amount: 10 }, profile: profile)
     report = Igniter::Contracts.diagnose(result, profile: profile)
 
+    expect(report.section_object(:extra)).to be_a(Igniter::Contracts::DiagnosticsSection)
     expect(report.section(:extra)).to eq({ output_count: 1 })
   end
 end

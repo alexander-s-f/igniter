@@ -11,11 +11,22 @@ module Igniter
         end
 
         def add_section(name, value)
-          sections[name.to_sym] = value
+          section = DiagnosticsSection.new(name: name, value: value)
+          sections[section.name] = section
+          section
         end
 
         def section(name)
+          value = section_object(name).value
+          value.is_a?(NamedValues) ? value.to_h : value
+        end
+
+        def section_object(name)
           sections.fetch(name.to_sym)
+        end
+
+        def section_names
+          sections.keys
         end
       end
     end
