@@ -119,6 +119,56 @@ module IgniterExamples
       expected_fragments: ["pricing={:pricing=>{:gross_total=>120.0}}"]
     ),
     Example.new(
+      id: "contracts/aggregates",
+      path: "examples/contracts/aggregates.rb",
+      summary: "External lookup + aggregate packs composed in igniter-contracts.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["aggregate_total_amount=60", "aggregate_average_amount=20.0"]
+    ),
+    Example.new(
+      id: "contracts/build_your_own_pack",
+      path: "examples/contracts/build_your_own_pack.rb",
+      summary: "Inline custom pack authoring over the public igniter-contracts API.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["custom_pack_slug=hello-igniter-contracts", "custom_pack_findings=missing_slug_sources"]
+    ),
+    Example.new(
+      id: "contracts/commerce",
+      path: "examples/contracts/commerce.rb",
+      summary: "Applied commerce preset on top of igniter-contracts and external packs.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["commerce_grand_total=38.0", "execution_report_sections=baseline_summary,execution_report"]
+    ),
+    Example.new(
+      id: "contracts/journal",
+      path: "examples/contracts/journal.rb",
+      summary: "External effect/executor operational pack on igniter-contracts.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["journal_execution_output=15", "journal_result_entries=1"]
+    ),
+    Example.new(
+      id: "contracts/migration",
+      path: "examples/contracts/migration.rb",
+      summary: "Side-by-side legacy core vs igniter-contracts migration comparison.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["migration_match=true", "updated_match=true"]
+    ),
+    Example.new(
       id: "consensus",
       path: "examples/consensus.rb",
       summary: "Consensus-style bid selection across competing vendors.",

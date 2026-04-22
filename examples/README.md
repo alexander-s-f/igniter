@@ -43,6 +43,11 @@ For higher-level guidance on when to use each orchestration style, see
 - `collection.rb` — `collection` fan-out and `CollectionResult`.
 - `collection_partial_failure.rb` — partial-failure collection diagnostics.
 - `composition.rb` — nested contracts via `compose`.
+- `contracts/aggregates.rb` — external `lookup` + `aggregate` packs composed together.
+- `contracts/build_your_own_pack.rb` — inline pack authoring over the public contracts API.
+- `contracts/commerce.rb` — applied `igniter-contracts` commerce preset with public external packs.
+- `contracts/journal.rb` — external effect/executor pack as a runnable operational demo.
+- `contracts/migration.rb` — side-by-side legacy `igniter-core` reference vs `igniter-contracts` target.
 - `consensus.rb` — consensus-style vendor bid selection.
 - `dataflow.rb` — incremental collections and maintained aggregates.
 - `diagnostics.rb` — text diagnostics and `as_json` output.
@@ -93,3 +98,14 @@ Both [run.rb](/Users/alex/dev/projects/igniter/examples/run.rb) and the specs
 [example_scripts_spec.rb](/Users/alex/dev/projects/igniter/spec/igniter/example_scripts_spec.rb)
 and [example_runner_spec.rb](/Users/alex/dev/projects/igniter/spec/igniter/example_runner_spec.rb)
 use that same source of truth.
+
+## Contracts Migration Track
+
+The new `examples/contracts/` lane is where the public migration story should
+grow:
+
+- show `igniter-core` only as a reference implementation
+- show `igniter-contracts` as the target embedded kernel
+- show external packs as first-class runnable building blocks
+- show how to author a new pack without reaching into internal namespaces
+- keep richer domain packs runnable and easy to copy into host apps
