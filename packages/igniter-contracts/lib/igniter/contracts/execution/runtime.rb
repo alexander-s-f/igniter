@@ -8,19 +8,20 @@ module Igniter
           def execute(compiled_graph, inputs:, profile:)
             validate_profile!(compiled_graph, profile: profile)
 
-            state = {}
-            outputs = {}
+            normalized_inputs = NamedValues.new(inputs)
+            state = MutableNamedValues.new
+            outputs = MutableNamedValues.new
 
             compiled_graph.operations.each do |operation|
               handler = profile.runtime_handler(operation.kind)
-              value = handler.call(operation: operation, state: state, outputs: outputs, inputs: inputs, profile: profile)
-              state[operation.name] = value unless operation.output?
-              outputs[operation.name] = value if operation.output?
+              value = handler.call(operation: operation, state: state, outputs: outputs, inputs: normalized_inputs, profile: profile)
+              state.write(operation.name, value) unless operation.output?
+              outputs.write(operation.name, value) if operation.output?
             end
 
             ExecutionResult.new(
-              state: state,
-              outputs: outputs,
+              state: state.snapshot,
+              outputs: outputs.snapshot,
               profile_fingerprint: profile.fingerprint
             )
           end

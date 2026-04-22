@@ -7,8 +7,8 @@ module Igniter
         attr_reader :state, :outputs, :profile_fingerprint
 
         def initialize(state:, outputs:, profile_fingerprint:)
-          @state = state.freeze
-          @outputs = outputs.freeze
+          @state = state
+          @outputs = outputs
           @profile_fingerprint = profile_fingerprint
           freeze
         end

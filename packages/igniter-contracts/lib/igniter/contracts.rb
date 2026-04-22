@@ -36,6 +36,7 @@ module Igniter
     ProjectRuntime = Execution::ProjectRuntime
     InlineExecutor = Execution::InlineExecutor
     Operation = Execution::Operation
+    NamedValues = Execution::NamedValues
   end
 end
 
