@@ -20,6 +20,7 @@ The first contracts-facing external pack now lives here too:
 - `Igniter::Extensions::Contracts::ExecutionReportPack`
 - `Igniter::Extensions::Contracts::LookupPack`
 - `Igniter::Extensions::Contracts::AggregatePack`
+- `Igniter::Extensions::Contracts::CommercePack`
 - `Igniter::Extensions::Contracts::JournalPack`
 
 Those packs install into `Igniter::Contracts` through the public facade only:
@@ -44,6 +45,12 @@ like `JournalPack` stay opt-in:
 environment = Igniter::Extensions::Contracts.with(
   Igniter::Extensions::Contracts::JournalPack
 )
+```
+
+Applied presets can sit on top of those packs too:
+
+```ruby
+environment = Igniter::Extensions::Contracts.with_preset(:commerce)
 ```
 
 Docs:

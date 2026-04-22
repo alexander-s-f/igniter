@@ -274,6 +274,19 @@ as one functional module, and that those node kinds can compose with other
 external packs such as `LookupPack` without reaching into legacy core
 implementation files.
 
+Applied presets should then sit one level above packs:
+
+- `Igniter::Extensions::Contracts::CommercePack`
+- `Igniter::Extensions::Contracts.with_preset(:commerce)`
+
+That proves that:
+
+- external packages can install dependent packs through the public kernel API
+- domain DSL can be layered on top of baseline `compute` plus external
+  `lookup`/`aggregate` packs
+- scenario-oriented presets can stay ergonomic without making the default
+  contracts environment heavy or implicit
+
 Operational seams should be proven externally too:
 
 - `Igniter::Extensions::Contracts::JournalPack`
