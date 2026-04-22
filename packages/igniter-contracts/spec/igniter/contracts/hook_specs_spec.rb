@@ -21,5 +21,6 @@ RSpec.describe Igniter::Contracts::HookSpecs do
     expect(effect.required_keywords).to eq([:invocation])
     expect(executor.role).to eq(:executor)
     expect(executor.return_policy).to eq(:execution_result)
+    expect(executor.required_keywords).to eq([:invocation])
   end
 end

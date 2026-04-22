@@ -6,8 +6,12 @@ module Igniter
       module InlineExecutor
         module_function
 
-        def call(compiled_graph:, inputs:, profile:, runtime:)
-          runtime.execute(compiled_graph, inputs: inputs, profile: profile)
+        def call(invocation:)
+          invocation.runtime.execute(
+            invocation.compiled_graph,
+            inputs: invocation.inputs,
+            profile: invocation.profile
+          )
         end
       end
     end

@@ -53,7 +53,7 @@ module Igniter
           executors: HookSpec.new(
             registry: :executors,
             method_name: :call,
-            required_keywords: %i[compiled_graph inputs profile runtime],
+            required_keywords: %i[invocation],
             role: :executor,
             return_policy: :execution_result,
             result_validator: HookResultPolicies.method(:execution_result)

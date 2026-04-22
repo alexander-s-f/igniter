@@ -5,7 +5,17 @@ module Igniter
     module Execution
       class NamedValues
         def initialize(values = {})
-          @values = values.transform_keys(&:to_sym).freeze
+          normalized_values =
+            case values
+            when NamedValues
+              values.to_h
+            when MutableNamedValues
+              values.snapshot.to_h
+            else
+              values
+            end
+
+          @values = normalized_values.transform_keys(&:to_sym).freeze
           freeze
         end
 

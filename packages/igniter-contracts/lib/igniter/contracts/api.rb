@@ -26,7 +26,13 @@ module Igniter
       def execute_with(executor_name, compiled_graph, inputs:, profile: default_profile, runtime: Execution::Runtime)
         executor = profile.executor(executor_name)
         hook_spec = Assembly::HookSpecs.fetch(:executors)
-        result = executor.call(compiled_graph: compiled_graph, inputs: inputs, profile: profile, runtime: runtime)
+        invocation = Execution::ExecutionRequest.new(
+          compiled_graph: compiled_graph,
+          inputs: inputs,
+          profile: profile,
+          runtime: runtime
+        )
+        result = executor.call(invocation: invocation)
         hook_spec.validate_result!(executor_name, result)
       rescue KeyError
         raise UnknownExecutorError, "unknown executor #{executor_name}"

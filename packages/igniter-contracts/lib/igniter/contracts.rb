@@ -38,6 +38,7 @@ module Igniter
     Operation = Execution::Operation
     NamedValues = Execution::NamedValues
     EffectInvocation = Execution::EffectInvocation
+    ExecutionRequest = Execution::ExecutionRequest
   end
 end
 

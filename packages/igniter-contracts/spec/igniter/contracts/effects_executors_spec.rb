@@ -30,7 +30,7 @@ RSpec.describe "Igniter::Contracts effects and executors" do
   module InvalidExecutorPack
     module_function
 
-    INVALID_EXECUTOR = lambda do |compiled_graph:, inputs:, profile:| # rubocop:disable Lint/UnusedMethodArgument
+    INVALID_EXECUTOR = lambda do |compiled_graph:| # rubocop:disable Lint/UnusedMethodArgument
       compiled_graph
     end
 
@@ -50,8 +50,13 @@ RSpec.describe "Igniter::Contracts effects and executors" do
   module BadResultExecutorPack
     module_function
 
-    BAD_EXECUTOR = lambda do |compiled_graph:, inputs:, profile:, runtime:| # rubocop:disable Lint/UnusedMethodArgument
-      { compiled_graph: compiled_graph, inputs: inputs, profile: profile, runtime: runtime }
+    BAD_EXECUTOR = lambda do |invocation:|
+      {
+        compiled_graph: invocation.compiled_graph,
+        inputs: invocation.inputs,
+        profile: invocation.profile,
+        runtime: invocation.runtime
+      }
     end
 
     def manifest
@@ -94,7 +99,7 @@ RSpec.describe "Igniter::Contracts effects and executors" do
     kernel = Igniter::Contracts.build_kernel.install(InvalidExecutorPack)
 
     expect { kernel.finalize }
-      .to raise_error(Igniter::Contracts::InvalidHookImplementationError, /executors entry invalid_executor.*runtime:/)
+      .to raise_error(Igniter::Contracts::InvalidHookImplementationError, /executors entry invalid_executor.*invocation:/)
   end
 
   it "rejects executor results that violate the execution_result policy" do
