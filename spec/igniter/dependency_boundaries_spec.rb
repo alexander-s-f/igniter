@@ -104,4 +104,29 @@ RSpec.describe "Igniter dependency boundaries" do
       #{format_offenders(offenders)}
     MSG
   end
+
+  it "does not let igniter-contracts require igniter-core implementation entrypoints" do
+    files = ruby_files_for(
+      "packages/igniter-contracts/lib/igniter-contracts.rb",
+      "packages/igniter-contracts/lib/igniter/**/*.rb"
+    )
+    offenders = offenders_for(
+      require_lines_for(files),
+      [
+        /require\s+["']igniter\/core(?:\/|["'])/,
+        /require\s+["']igniter-core["']/,
+        /require_relative\s+["'][^"']*igniter\/core(?:\/|["'])/,
+        /require_relative\s+["'][^"']*igniter-core["']/
+      ]
+    )
+
+    expect(offenders).to eq({}), <<~MSG
+      igniter-contracts must not depend on igniter-core implementation entrypoints.
+      The legacy core stays in the monorepo only as a reference implementation
+      and parity baseline while igniter-contracts matures into the replacement.
+
+      Offending require statements:
+      #{format_offenders(offenders)}
+    MSG
+  end
 end

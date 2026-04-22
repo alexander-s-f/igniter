@@ -36,6 +36,15 @@ build on top of. It should not pull:
 - `igniter/cluster`
 - frontend or schema-rendering packages
 
+It also should not depend on `igniter-core`. During the rewrite, both packages
+stay in the monorepo, but with different roles:
+
+- `igniter-contracts`
+  the new implementation that is expected to replace `igniter-core` at maturity
+- `igniter-core`
+  the legacy reference implementation used for comparison, parity checks, and
+  migration confidence while the rewrite is still in flight
+
 ## Current Shape
 
 `igniter-contracts` is now starting from its own internal primitives instead of

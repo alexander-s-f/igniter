@@ -14,6 +14,9 @@ available as the legacy implementation package during the transition.
 - let upper layers extend the kernel through explicit registration seams
 - compare behavior against the legacy `igniter-core` package while the rewrite
   is in progress
+- keep `igniter-contracts` independent from `igniter-core`; the old package
+  stays in the monorepo only as a reference implementation and comparison
+  baseline
 - design the extension pattern first, then grow functionality inside it
 
 ## Non-Goals
@@ -34,6 +37,8 @@ itself.
 - it should not route through `require "igniter-core"`
 - the package should explicitly choose which lower-level files make up the
   contracts kernel
+- legacy `igniter-core` may still be loaded in comparative tests, but not as a
+  dependency of the package implementation
 
 That keeps the package boundary visible and lets us replace internals
 incrementally instead of inheriting the entire historical umbrella.
@@ -1044,14 +1049,16 @@ After that, `remote` becomes a much safer second or third pack.
 
 ## Migration Strategy
 
-1. keep `igniter-core` intact as the legacy implementation package
-2. build `igniter-contracts` as a separate composition root
+1. keep `igniter-core` intact in the monorepo as the legacy reference package
+2. build `igniter-contracts` as a separate composition root with no dependency
+   on `igniter-core`
 3. define the baseline contracts profile and its allowed node kinds
 4. introduce kernel/profile/pack abstractions
 5. strengthen behavioral parity specs between baseline `igniter/contracts` and
    the current embedded subset of `igniter/core`
 6. move knowledge of upper-layer concerns behind registries/seams
 7. gradually replace the contracts composition with native contracts-owned code
+   until it fully supersedes `igniter-core`
 8. leave the umbrella `igniter` gem as a convenience layer, not the architectural source of truth
 
 ## Current Checks

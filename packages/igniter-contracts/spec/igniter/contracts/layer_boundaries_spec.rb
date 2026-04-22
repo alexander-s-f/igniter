@@ -71,4 +71,32 @@ RSpec.describe "Igniter::Contracts assembly/execution boundaries" do
       expect(namespace_references(relative_path, "Assembly")).to eq(allowed_references.sort), relative_path
     end
   end
+
+  it "does not reference legacy Core namespaces from the new contracts implementation" do
+    contract_files = Dir.glob(File.join(CONTRACTS_ROOT, "**/*.rb"))
+                        .map { |path| path.delete_prefix("#{CONTRACTS_ROOT}/") }
+                        .sort
+
+    contract_files.each do |relative_path|
+      expect(namespace_references(relative_path, "Core")).to eq([]), relative_path
+    end
+  end
+
+  it "does not require igniter-core from contracts implementation files" do
+    contract_files = Dir.glob(File.join(CONTRACTS_ROOT, "**/*.rb")).sort
+
+    offenders = contract_files.each_with_object({}) do |path, memo|
+      lines = File.readlines(path, chomp: true).filter_map do |line|
+        stripped = line.strip
+        next unless stripped.start_with?("require ", "require_relative ")
+        next unless stripped.match?(/igniter\/core|igniter-core/)
+
+        stripped
+      end
+
+      memo[path.delete_prefix("#{CONTRACTS_ROOT}/")] = lines unless lines.empty?
+    end
+
+    expect(offenders).to eq({})
+  end
 end
