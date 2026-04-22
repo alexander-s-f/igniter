@@ -265,6 +265,18 @@ That second pack proves that an outside package can add:
 - a compile validator through `Igniter::Contracts::ValidationFinding`
 - a runtime handler through the public hook contract
 
+Operational seams should be proven externally too:
+
+- `Igniter::Extensions::Contracts::JournalPack`
+
+That pack proves that an outside package can add:
+
+- an effect adapter through the public `effects` registry
+- an executor through the public `executors` registry
+- operational behavior that delegates back into `invocation.runtime`
+  without reaching into internal `Assembly` or `Execution` implementation
+  files
+
 ## Registries
 
 Registries should be phase-specific instead of one generic bucket.
