@@ -139,6 +139,16 @@ module IgniterExamples
       expected_fragments: ["custom_pack_slug=hello-igniter-contracts", "custom_pack_findings=missing_slug_sources"]
     ),
     Example.new(
+      id: "contracts/build_effect_executor_pack",
+      path: "examples/contracts/build_effect_executor_pack.rb",
+      summary: "Inline custom effect/executor pack authoring over the public contracts API.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["custom_executor_output=15", "custom_result_entries=1"]
+    ),
+    Example.new(
       id: "contracts/commerce",
       path: "examples/contracts/commerce.rb",
       summary: "Applied commerce preset on top of igniter-contracts and external packs.",
@@ -167,6 +177,16 @@ module IgniterExamples
       runnable: true,
       timeout: 10,
       expected_fragments: ["migration_match=true", "updated_match=true"]
+    ),
+    Example.new(
+      id: "contracts/three_layer_migration",
+      path: "examples/contracts/three_layer_migration.rb",
+      summary: "Legacy core, raw contracts, and preset-based contracts compared on one use case.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["preset_grand_total=38.0", "three_layer_match=true"]
     ),
     Example.new(
       id: "consensus",

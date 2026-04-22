@@ -44,10 +44,12 @@ For higher-level guidance on when to use each orchestration style, see
 - `collection_partial_failure.rb` — partial-failure collection diagnostics.
 - `composition.rb` — nested contracts via `compose`.
 - `contracts/aggregates.rb` — external `lookup` + `aggregate` packs composed together.
+- `contracts/build_effect_executor_pack.rb` — inline effect/executor pack authoring over the public contracts API.
 - `contracts/build_your_own_pack.rb` — inline pack authoring over the public contracts API.
 - `contracts/commerce.rb` — applied `igniter-contracts` commerce preset with public external packs.
 - `contracts/journal.rb` — external effect/executor pack as a runnable operational demo.
 - `contracts/migration.rb` — side-by-side legacy `igniter-core` reference vs `igniter-contracts` target.
+- `contracts/three_layer_migration.rb` — one use case shown as legacy core, raw contracts, and applied preset.
 - `consensus.rb` — consensus-style vendor bid selection.
 - `dataflow.rb` — incremental collections and maintained aggregates.
 - `diagnostics.rb` — text diagnostics and `as_json` output.
@@ -108,4 +110,6 @@ grow:
 - show `igniter-contracts` as the target embedded kernel
 - show external packs as first-class runnable building blocks
 - show how to author a new pack without reaching into internal namespaces
+- show both authoring paths: graph semantics packs and operational effect/executor packs
+- show the same use case evolving across legacy core, raw contracts, and domain preset layers
 - keep richer domain packs runnable and easy to copy into host apps
