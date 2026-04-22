@@ -12,6 +12,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
     expect(Igniter::Extensions::Contracts.available_packs).to eq([
       Igniter::Extensions::Contracts::ExecutionReportPack,
       Igniter::Extensions::Contracts::LookupPack,
+      Igniter::Extensions::Contracts::AggregatePack,
       Igniter::Extensions::Contracts::JournalPack
     ])
 

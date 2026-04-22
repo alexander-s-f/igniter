@@ -265,6 +265,15 @@ That second pack proves that an outside package can add:
 - a compile validator through `Igniter::Contracts::ValidationFinding`
 - a runtime handler through the public hook contract
 
+Pack composition should be proven externally too:
+
+- `Igniter::Extensions::Contracts::AggregatePack`
+
+That pack proves that an outside package can ship multiple related node kinds
+as one functional module, and that those node kinds can compose with other
+external packs such as `LookupPack` without reaching into legacy core
+implementation files.
+
 Operational seams should be proven externally too:
 
 - `Igniter::Extensions::Contracts::JournalPack`

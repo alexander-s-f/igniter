@@ -19,6 +19,7 @@ The first contracts-facing external pack now lives here too:
 
 - `Igniter::Extensions::Contracts::ExecutionReportPack`
 - `Igniter::Extensions::Contracts::LookupPack`
+- `Igniter::Extensions::Contracts::AggregatePack`
 - `Igniter::Extensions::Contracts::JournalPack`
 
 Those packs install into `Igniter::Contracts` through the public facade only:
