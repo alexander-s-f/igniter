@@ -11,5 +11,6 @@ module Igniter
     UnknownNodeKindError = Class.new(Error)
     ProfileMismatchError = Class.new(Error)
     IncompletePackError = Class.new(Error)
+    InvalidHookImplementationError = Class.new(Error)
   end
 end

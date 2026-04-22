@@ -354,6 +354,20 @@ Likely hookspec-style seams:
 - runtime event observation
 - execution planning callbacks
 
+In the current contracts kernel direction, the first concrete use of this idea
+should be hook signature validation during `Kernel#finalize`.
+
+That means:
+
+- `validators` and `normalizers` must accept `operations:` and `profile:`
+- `runtime_handlers` must accept `operation:`, `state:`, `outputs:`, `inputs:`,
+  and `profile:`
+- `diagnostics_contributors` must implement `augment(report:, result:, profile:)`
+- `dsl_keywords` must accept `builder:` even if they also accept free-form args
+
+This pushes extension failures into profile assembly instead of letting them
+surface later as ad-hoc `ArgumentError` or `NoMethodError`.
+
 This is where `pluggy` is especially relevant: the host defines the spec first,
 and extension packs implement it.
 
@@ -367,6 +381,8 @@ Examples:
 - node kind registered without runtime handler: incomplete pack installation
 - compiled graph profile mismatch at runtime: wrong runtime profile
 - validator references unknown node kind: invalid extension registration
+- registered hook has an incompatible callable signature: invalid hook
+  implementation
 
 Errors should name:
 
@@ -797,6 +813,9 @@ The related pack manifest should declare those validators explicitly, so
 `finalize` can fail fast when a pack advertises a compile seam but does not
 actually register it.
 
+`finalize` should also validate that each registered validator matches the
+contracts hookspec, not just that it exists under the expected key.
+
 ### Runtime Registration Model
 
 Runtime should dispatch by node kind through the profile.
@@ -829,6 +848,9 @@ append richer diagnostics through packs.
 
 Diagnostics contributors should also be listed in the pack manifest so profile
 capabilities remain inspectable after finalization.
+
+They should additionally be hookspec-validated during finalization so packs
+cannot register contributors that omit required execution context keywords.
 
 ### Error Classes
 

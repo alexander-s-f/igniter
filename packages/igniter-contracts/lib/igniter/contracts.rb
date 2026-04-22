@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "contracts/errors"
+require_relative "contracts/hook_spec"
+require_relative "contracts/hook_specs"
 require_relative "contracts/registry"
 require_relative "contracts/ordered_registry"
 require_relative "contracts/pack"

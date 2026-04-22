@@ -45,6 +45,7 @@ module Igniter
 
       def finalize
         validate_completeness!
+        validate_hook_implementations!
         freeze_registries!
         @finalized = true
         Profile.build_from(self)
@@ -102,6 +103,16 @@ module Igniter
         raise IncompletePackError, parts.join("; ")
       end
 
+      def validate_hook_implementations!
+        HookSpecs.registry_names.each do |registry_name|
+          hook_spec = HookSpecs.fetch(registry_name)
+
+          each_registry_entry(registry_name) do |key, implementation|
+            hook_spec.validate!(key, implementation)
+          end
+        end
+      end
+
       def collect_missing_registry_contracts
         pack_manifests
           .flat_map(&:registry_contracts)
@@ -135,6 +146,22 @@ module Igniter
           executors
         else
           nil
+        end
+      end
+
+      def each_registry_entry(registry_name)
+        registry = registry_for(registry_name)
+        return unless registry
+
+        case registry
+        when Registry
+          registry.to_h.each do |key, value|
+            yield(key, value)
+          end
+        when OrderedRegistry
+          registry.entries.each do |entry|
+            yield(entry.key, entry.value)
+          end
         end
       end
 
