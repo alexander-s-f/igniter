@@ -46,7 +46,7 @@ module Igniter
           effects: HookSpec.new(
             registry: :effects,
             method_name: :call,
-            required_keywords: %i[payload context profile],
+            required_keywords: %i[invocation],
             role: :effect_adapter,
             return_policy: :opaque
           ),

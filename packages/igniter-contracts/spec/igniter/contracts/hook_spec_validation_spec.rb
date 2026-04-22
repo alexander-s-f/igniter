@@ -88,6 +88,26 @@ RSpec.describe "Igniter::Contracts hook spec validation" do
     end
   end
 
+  module InvalidEffectPack
+    module_function
+
+    INVALID_EFFECT = lambda do |payload:|
+      payload
+    end
+
+    def manifest
+      Igniter::Contracts::PackManifest.new(
+        name: :invalid_effect,
+        registry_contracts: [Igniter::Contracts::PackManifest.effect(:invalid_effect)]
+      )
+    end
+
+    def install_into(kernel)
+      kernel.effects.register(:invalid_effect, INVALID_EFFECT)
+      kernel
+    end
+  end
+
   it "rejects validators whose callable signature does not match the hookspec" do
     kernel = Igniter::Contracts.build_kernel.install(InvalidValidatorPack)
 
@@ -107,6 +127,13 @@ RSpec.describe "Igniter::Contracts hook spec validation" do
 
     expect { kernel.finalize }
       .to raise_error(Igniter::Contracts::InvalidHookImplementationError, /dsl_keywords entry bad_keyword.*builder:/)
+  end
+
+  it "rejects effects that do not accept the invocation keyword" do
+    kernel = Igniter::Contracts.build_kernel.install(InvalidEffectPack)
+
+    expect { kernel.finalize }
+      .to raise_error(Igniter::Contracts::InvalidHookImplementationError, /effects entry invalid_effect.*invocation:/)
   end
 
   it "rejects normalizer results that violate the graph transformer policy" do

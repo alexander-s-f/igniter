@@ -18,6 +18,7 @@ RSpec.describe Igniter::Contracts::HookSpecs do
     expect(runtime_handler.return_policy).to eq(:value)
     expect(effect.role).to eq(:effect_adapter)
     expect(effect.return_policy).to eq(:opaque)
+    expect(effect.required_keywords).to eq([:invocation])
     expect(executor.role).to eq(:executor)
     expect(executor.return_policy).to eq(:execution_result)
   end

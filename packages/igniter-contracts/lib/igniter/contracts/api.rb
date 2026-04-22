@@ -38,7 +38,12 @@ module Igniter
 
       def apply_effect(effect_name, payload:, context: {}, profile: default_profile)
         effect = profile.effect(effect_name)
-        effect.call(payload: payload, context: context, profile: profile)
+        invocation = Execution::EffectInvocation.new(
+          payload: payload,
+          context: context,
+          profile: profile
+        )
+        effect.call(invocation: invocation)
       rescue KeyError
         raise UnknownEffectError, "unknown effect #{effect_name}"
       end

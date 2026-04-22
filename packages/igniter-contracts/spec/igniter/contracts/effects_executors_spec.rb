@@ -6,11 +6,11 @@ RSpec.describe "Igniter::Contracts effects and executors" do
   module AuditEffectPack
     module_function
 
-    AUDIT_EFFECT = lambda do |payload:, context:, profile:|
+    AUDIT_EFFECT = lambda do |invocation:|
       {
-        payload: payload,
-        context: context,
-        profile: profile.fingerprint
+        payload: invocation.payload,
+        context: invocation.context.to_h,
+        profile: invocation.profile.fingerprint
       }
     end
 
