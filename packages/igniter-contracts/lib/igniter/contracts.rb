@@ -1,27 +1,37 @@
 # frozen_string_literal: true
 
 require_relative "contracts/errors"
-require_relative "contracts/hook_spec"
-require_relative "contracts/hook_specs"
-require_relative "contracts/registry"
-require_relative "contracts/ordered_registry"
-require_relative "contracts/pack"
-require_relative "contracts/pack_manifest"
-require_relative "contracts/node_type"
-require_relative "contracts/dsl_keyword"
+require_relative "contracts/assembly"
+require_relative "contracts/execution"
+
+module Igniter
+  module Contracts
+    Registry = Assembly::Registry
+    OrderedRegistry = Assembly::OrderedRegistry
+    Pack = Assembly::Pack
+    PackManifest = Assembly::PackManifest
+    NodeType = Assembly::NodeType
+    DslKeyword = Assembly::DslKeyword
+    HookResultPolicies = Assembly::HookResultPolicies
+    HookSpec = Assembly::HookSpec
+    HookSpecs = Assembly::HookSpecs
+    Profile = Assembly::Profile
+    Kernel = Assembly::Kernel
+
+    CompiledGraph = Execution::CompiledGraph
+    Builder = Execution::Builder
+    Compiler = Execution::Compiler
+    ExecutionResult = Execution::ExecutionResult
+    Runtime = Execution::Runtime
+    DiagnosticsReport = Execution::DiagnosticsReport
+    Diagnostics = Execution::Diagnostics
+  end
+end
+
 require_relative "contracts/baseline_normalizers"
 require_relative "contracts/baseline_validators"
 require_relative "contracts/baseline_runtime"
 require_relative "contracts/baseline_pack"
 require_relative "contracts/const_pack"
 require_relative "contracts/project_pack"
-require_relative "contracts/profile"
-require_relative "contracts/kernel"
-require_relative "contracts/compiled_graph"
-require_relative "contracts/builder"
-require_relative "contracts/compiler"
-require_relative "contracts/execution_result"
-require_relative "contracts/runtime"
-require_relative "contracts/diagnostics_report"
-require_relative "contracts/diagnostics"
 require_relative "contracts/api"

@@ -3,6 +3,26 @@
 require_relative "../../spec_helper"
 
 RSpec.describe "Igniter::Contracts hook spec validation" do
+  module InvalidNormalizerResultPack
+    module_function
+
+    INVALID_NORMALIZER = lambda do |operations:, profile:| # rubocop:disable Lint/UnusedMethodArgument
+      operations.first
+    end
+
+    def manifest
+      Igniter::Contracts::PackManifest.new(
+        name: :invalid_normalizer_result,
+        registry_contracts: [Igniter::Contracts::PackManifest.normalizer(:invalid_normalizer_result)]
+      )
+    end
+
+    def install_into(kernel)
+      kernel.normalizers.register(:invalid_normalizer_result, INVALID_NORMALIZER)
+      kernel
+    end
+  end
+
   module InvalidValidatorPack
     module_function
 
@@ -87,5 +107,19 @@ RSpec.describe "Igniter::Contracts hook spec validation" do
 
     expect { kernel.finalize }
       .to raise_error(Igniter::Contracts::InvalidHookImplementationError, /dsl_keywords entry bad_keyword.*builder:/)
+  end
+
+  it "rejects normalizer results that violate the graph transformer policy" do
+    profile = Igniter::Contracts.build_kernel.install(InvalidNormalizerResultPack).finalize
+
+    expect do
+      Igniter::Contracts.compile(profile: profile) do
+        input :amount
+        output :amount
+      end
+    end.to raise_error(
+      Igniter::Contracts::InvalidHookResultError,
+      /normalizers entry invalid_normalizer_result \(graph_transformer\) must return an Array of operations/
+    )
   end
 end

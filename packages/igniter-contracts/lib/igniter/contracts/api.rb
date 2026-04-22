@@ -4,7 +4,7 @@ module Igniter
   module Contracts
     class << self
       def build_kernel
-        Kernel.new.install(BaselinePack)
+        Assembly::Kernel.new.install(BaselinePack)
       end
 
       def default_kernel
@@ -16,15 +16,15 @@ module Igniter
       end
 
       def compile(profile: default_profile, &block)
-        Compiler.compile(profile: profile, &block)
+        Execution::Compiler.compile(profile: profile, &block)
       end
 
       def execute(compiled_graph, inputs:, profile: default_profile)
-        Runtime.execute(compiled_graph, inputs: inputs, profile: profile)
+        Execution::Runtime.execute(compiled_graph, inputs: inputs, profile: profile)
       end
 
       def diagnose(result, profile: default_profile)
-        Diagnostics.build_report(result: result, profile: profile)
+        Execution::Diagnostics.build_report(result: result, profile: profile)
       end
 
       def reset_defaults!

@@ -12,5 +12,6 @@ module Igniter
     ProfileMismatchError = Class.new(Error)
     IncompletePackError = Class.new(Error)
     InvalidHookImplementationError = Class.new(Error)
+    InvalidHookResultError = Class.new(Error)
   end
 end
