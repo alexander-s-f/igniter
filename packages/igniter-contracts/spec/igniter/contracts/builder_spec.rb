@@ -15,6 +15,7 @@ RSpec.describe Igniter::Contracts::Builder do
     expect(compiled.operations.map { |op| op[:kind] }).to eq(%i[input compute output])
     expect(compiled.operations.map { |op| op[:name] }).to eq(%i[amount tax tax])
     expect(compiled.profile_fingerprint).to eq(Igniter::Contracts.default_profile.fingerprint)
+    expect(compiled.operations[1].dig(:attributes, :callable)).to respond_to(:call)
   end
 
   it "raises a contracts-owned error for unknown keywords" do

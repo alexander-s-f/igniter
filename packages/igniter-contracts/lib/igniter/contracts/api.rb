@@ -16,7 +16,11 @@ module Igniter
       end
 
       def compile(profile: default_profile, &block)
-        Builder.compile(profile: profile, &block)
+        Compiler.compile(profile: profile, &block)
+      end
+
+      def execute(compiled_graph, inputs:, profile: default_profile)
+        Runtime.execute(compiled_graph, inputs: inputs, profile: profile)
       end
 
       def reset_defaults!

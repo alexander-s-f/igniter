@@ -19,7 +19,7 @@ module Igniter
           builder.add_operation(kind: :input, name: name, **attributes)
         }),
         compute: DslKeyword.new(:compute, lambda { |name, builder:, **attributes, &block|
-          builder.add_operation(kind: :compute, name: name, **attributes.merge(block: !block.nil?))
+          builder.add_operation(kind: :compute, name: name, **attributes.merge(callable: block))
         }),
         composition: DslKeyword.new(:composition, lambda { |name, builder:, **attributes|
           builder.add_operation(kind: :composition, name: name, **attributes)
@@ -33,23 +33,6 @@ module Igniter
         output: DslKeyword.new(:output, lambda { |name, builder:, **attributes|
           builder.add_operation(kind: :output, name: name, **attributes)
         })
-      }.freeze
-
-      BASELINE_VALIDATORS = {
-        uniqueness: :baseline_uniqueness_validator,
-        outputs: :baseline_outputs_validator,
-        dependencies: :baseline_dependencies_validator,
-        callables: :baseline_callable_validator,
-        types: :baseline_type_validator
-      }.freeze
-
-      BASELINE_RUNTIME_HANDLERS = {
-        input: :baseline_input_runtime_handler,
-        compute: :baseline_compute_runtime_handler,
-        composition: :baseline_composition_runtime_handler,
-        branch: :baseline_branch_runtime_handler,
-        collection: :baseline_collection_runtime_handler,
-        output: :baseline_output_runtime_handler
       }.freeze
 
       BASELINE_DIAGNOSTICS = {
@@ -78,15 +61,20 @@ module Igniter
       end
 
       def install_validators(kernel)
-        BASELINE_VALIDATORS.each do |key, value|
-          kernel.validators.register(key, value)
-        end
+        kernel.validators.register(:uniqueness, BaselineValidators.method(:validate_uniqueness))
+        kernel.validators.register(:outputs, BaselineValidators.method(:validate_outputs))
+        kernel.validators.register(:dependencies, BaselineValidators.method(:validate_dependencies))
+        kernel.validators.register(:callables, BaselineValidators.method(:validate_callables))
+        kernel.validators.register(:types, BaselineValidators.method(:validate_types))
       end
 
       def install_runtime_handlers(kernel)
-        BASELINE_RUNTIME_HANDLERS.each do |key, value|
-          kernel.runtime_handlers.register(key, value)
-        end
+        kernel.runtime_handlers.register(:input, BaselineRuntime.method(:handle_input))
+        kernel.runtime_handlers.register(:compute, BaselineRuntime.method(:handle_compute))
+        kernel.runtime_handlers.register(:output, BaselineRuntime.method(:handle_output))
+        kernel.runtime_handlers.register(:composition, BaselineRuntime.unsupported(:composition))
+        kernel.runtime_handlers.register(:branch, BaselineRuntime.unsupported(:branch))
+        kernel.runtime_handlers.register(:collection, BaselineRuntime.unsupported(:collection))
       end
 
       def install_diagnostics(kernel)

@@ -9,7 +9,7 @@ RSpec.describe Igniter::Contracts::Kernel do
     expect(kernel.nodes.fetch(:input)).to be_a(Igniter::Contracts::NodeType)
     expect(kernel.nodes.fetch(:input).kind).to eq(:input)
     expect(kernel.dsl_keywords.fetch(:compute)).to be_a(Igniter::Contracts::DslKeyword)
-    expect(kernel.runtime_handlers.fetch(:output)).to eq(:baseline_output_runtime_handler)
+    expect(kernel.runtime_handlers.fetch(:output)).to respond_to(:call)
   end
 
   it "finalizes into an immutable profile" do

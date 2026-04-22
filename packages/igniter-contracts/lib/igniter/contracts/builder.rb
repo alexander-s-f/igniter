@@ -3,10 +3,10 @@
 module Igniter
   module Contracts
     class Builder
-      def self.compile(profile:, &block)
+      def self.build(profile:, &block)
         builder = new(profile: profile)
         builder.instance_eval(&block)
-        builder.compile
+        builder
       end
 
       attr_reader :profile, :operations
@@ -21,10 +21,6 @@ module Igniter
         raise UnknownNodeKindError, "unknown node kind #{normalized_kind}" unless profile.supports_node_kind?(normalized_kind)
 
         operations << { kind: normalized_kind, name: name.to_sym, attributes: attributes.freeze }.freeze
-      end
-
-      def compile
-        CompiledGraph.new(operations: operations, profile_fingerprint: profile.fingerprint)
       end
 
       def method_missing(name, *args, **kwargs, &block)
