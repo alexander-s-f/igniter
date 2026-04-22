@@ -16,6 +16,7 @@ Current implementation focus:
 
 - `Kernel`
 - `Profile`
+- `Environment`
 - `Registry` / `OrderedRegistry`
 - `Pack` / `BaselinePack`
 
@@ -43,5 +44,26 @@ extensibility foundation:
 
 - registries
 - kernel/profile lifecycle
+- environment sugar over a finalized profile
 - packs
 - a tiny baseline pack
+
+## Ergonomics
+
+You can still work directly with `Kernel` and `Profile`, but the public facade
+now gives a lighter path too:
+
+```ruby
+environment = Igniter::Contracts.with(Igniter::Contracts::ConstPack)
+
+result = environment.run(inputs: {}) do
+  const :tax_rate, 0.2
+  output :tax_rate
+end
+```
+
+Additional helpers:
+
+- `Igniter::Contracts.build_kernel(*packs)`
+- `Igniter::Contracts.build_profile(*packs)`
+- `Igniter::Contracts.with(*packs)`

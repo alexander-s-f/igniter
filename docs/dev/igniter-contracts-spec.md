@@ -541,8 +541,16 @@ Suggested public module:
 module Igniter
   module Contracts
     class << self
-      def build_kernel
-        Kernel.new.install(BaselinePack)
+      def build_kernel(*packs)
+        # installs BaselinePack plus any explicit packs
+      end
+
+      def build_profile(*packs)
+        build_kernel(*packs).finalize
+      end
+
+      def with(*packs)
+        Environment.new(profile: build_profile(*packs))
       end
 
       def default_kernel
@@ -564,6 +572,13 @@ module Igniter
   end
 end
 ```
+
+Recommended ergonomics:
+
+- keep `Kernel` and `Profile` as the architectural truth
+- expose `Environment` as a thin convenience object over a finalized profile
+- let external packages like `igniter-extensions` offer `with`/`build_profile`
+  helpers that are composed only from the public facade
 
 Rules:
 

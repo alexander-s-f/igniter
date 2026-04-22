@@ -12,6 +12,13 @@ RSpec.describe Igniter::Contracts::Kernel do
     expect(kernel.runtime_handlers.fetch(:output)).to respond_to(:call)
   end
 
+  it "installs additional packs directly through build_kernel" do
+    kernel = Igniter::Contracts.build_kernel(Igniter::Contracts::ConstPack, Igniter::Contracts::ProjectPack)
+
+    expect(kernel.nodes.fetch(:const).kind).to eq(:const)
+    expect(kernel.nodes.fetch(:project).kind).to eq(:project)
+  end
+
   it "finalizes into an immutable profile" do
     kernel = Igniter::Contracts.build_kernel
 
@@ -51,5 +58,12 @@ RSpec.describe Igniter::Contracts::Kernel do
 
     expect(kernel.nodes.fetch(:const).kind).to eq(:const)
     expect(kernel.dsl_keywords.fetch(:const)).to be_a(Igniter::Contracts::DslKeyword)
+  end
+
+  it "builds a finalized profile through build_profile" do
+    profile = Igniter::Contracts.build_profile(Igniter::Contracts::ConstPack)
+
+    expect(profile).to be_a(Igniter::Contracts::Profile)
+    expect(profile.pack_names).to eq(%i[baseline const])
   end
 end

@@ -20,15 +20,18 @@ The first contracts-facing external pack now lives here too:
 - `Igniter::Extensions::Contracts::ExecutionReportPack`
 - `Igniter::Extensions::Contracts::LookupPack`
 
-That pack installs into `Igniter::Contracts` through the public facade only:
+Those packs install into `Igniter::Contracts` through the public facade only:
 
 ```ruby
 require "igniter/extensions/contracts"
 
-profile = Igniter::Contracts.build_kernel
-  .install(Igniter::Extensions::Contracts::ExecutionReportPack)
-  .install(Igniter::Extensions::Contracts::LookupPack)
-  .finalize
+environment = Igniter::Extensions::Contracts.with
+
+result = environment.run(inputs: { rates: { ua: 0.2 } }) do
+  input :rates
+  lookup :tax_rate, from: :rates, key: :ua
+  output :tax_rate
+end
 ```
 
 Docs:

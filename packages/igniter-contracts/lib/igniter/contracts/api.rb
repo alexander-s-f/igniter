@@ -3,8 +3,16 @@
 module Igniter
   module Contracts
     class << self
-      def build_kernel
-        Assembly::Kernel.new.install(BaselinePack)
+      def build_kernel(*packs)
+        install_packs(Assembly::Kernel.new.install(BaselinePack), packs)
+      end
+
+      def build_profile(*packs)
+        build_kernel(*packs).finalize
+      end
+
+      def with(*packs)
+        Environment.new(profile: build_profile(*packs))
       end
 
       def default_kernel
@@ -65,6 +73,19 @@ module Igniter
       def reset_defaults!
         @default_kernel = nil
         @default_profile = nil
+      end
+
+      private
+
+      def install_packs(kernel, packs)
+        normalize_packs(packs).each do |pack|
+          kernel.install(pack)
+        end
+        kernel
+      end
+
+      def normalize_packs(packs)
+        packs.flatten.compact.uniq
       end
     end
   end

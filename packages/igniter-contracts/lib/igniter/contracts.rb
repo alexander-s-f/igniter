@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "contracts/errors"
+require_relative "contracts/environment"
 require_relative "contracts/assembly"
 require_relative "contracts/execution"
 
