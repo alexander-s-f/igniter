@@ -19,6 +19,7 @@ The first contracts-facing external pack now lives here too:
 
 - `Igniter::Extensions::Contracts::ExecutionReportPack`
 - `Igniter::Extensions::Contracts::LookupPack`
+- `Igniter::Extensions::Contracts::JournalPack`
 
 Those packs install into `Igniter::Contracts` through the public facade only:
 
@@ -32,6 +33,16 @@ result = environment.run(inputs: { rates: { ua: 0.2 } }) do
   lookup :tax_rate, from: :rates, key: :ua
   output :tax_rate
 end
+```
+
+Default helpers like `Igniter::Extensions::Contracts.with` currently install the
+safe default packs (`ExecutionReportPack` and `LookupPack`). Operational packs
+like `JournalPack` stay opt-in:
+
+```ruby
+environment = Igniter::Extensions::Contracts.with(
+  Igniter::Extensions::Contracts::JournalPack
+)
 ```
 
 Docs:

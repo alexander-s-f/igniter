@@ -2,17 +2,27 @@
 
 require "igniter/contracts"
 require_relative "contracts/execution_report_pack"
+require_relative "contracts/journal_pack"
 require_relative "contracts/lookup_pack"
 
 module Igniter
   module Extensions
     module Contracts
-      AVAILABLE_PACKS = [
+      DEFAULT_PACKS = [
         ExecutionReportPack,
         LookupPack
       ].freeze
 
+      AVAILABLE_PACKS = (
+        DEFAULT_PACKS +
+        [JournalPack]
+      ).freeze
+
       class << self
+        def default_packs
+          DEFAULT_PACKS
+        end
+
         def available_packs
           AVAILABLE_PACKS
         end
@@ -29,7 +39,7 @@ module Igniter
 
         def normalize_packs(packs)
           normalized = packs.flatten.compact
-          normalized.empty? ? available_packs : normalized
+          normalized.empty? ? default_packs : normalized
         end
       end
     end
