@@ -19,6 +19,15 @@ module Igniter
 
         findings.map(&:message).join("; ")
       end
+
+      public
+
+      def to_h
+        {
+          message: message,
+          findings: findings.map(&:to_h)
+        }
+      end
     end
 
     FrozenKernelError = Class.new(Error)

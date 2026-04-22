@@ -13,6 +13,15 @@ module Igniter
           @metadata = metadata.freeze
           freeze
         end
+
+        def to_h
+          {
+            code: code,
+            message: message,
+            subjects: subjects,
+            metadata: StructuredDump.dump(metadata)
+          }
+        end
       end
     end
   end

@@ -30,6 +30,16 @@ module Igniter
           validation_report.raise_if_invalid!
           compiled_graph
         end
+
+        def to_h
+          {
+            operations: StructuredDump.dump(operations),
+            validation_report: validation_report.to_h,
+            compiled_graph: StructuredDump.dump(compiled_graph),
+            profile_fingerprint: profile_fingerprint,
+            ok: ok?
+          }
+        end
       end
     end
   end

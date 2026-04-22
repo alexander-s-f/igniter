@@ -28,6 +28,12 @@ module Igniter
         def section_names
           sections.keys
         end
+
+        def to_h
+          {
+            sections: sections.transform_values(&:to_h)
+          }
+        end
       end
     end
   end

@@ -28,6 +28,14 @@ module Igniter
         def output?
           kind == :output
         end
+
+        def to_h
+          {
+            kind: kind,
+            name: name,
+            attributes: StructuredDump.dump(attributes)
+          }
+        end
       end
     end
   end

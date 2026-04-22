@@ -13,6 +13,15 @@ module Igniter
           @runtime = runtime
           freeze
         end
+
+        def to_h
+          {
+            compiled_graph: StructuredDump.dump(compiled_graph),
+            inputs: inputs.to_h,
+            profile_fingerprint: profile.fingerprint,
+            runtime: runtime.name
+          }
+        end
       end
     end
   end

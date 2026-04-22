@@ -16,6 +16,14 @@ module Igniter
         def output(name)
           outputs.fetch(name.to_sym)
         end
+
+        def to_h
+          {
+            state: state.to_h,
+            outputs: outputs.to_h,
+            profile_fingerprint: profile_fingerprint
+          }
+        end
       end
     end
   end

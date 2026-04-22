@@ -40,7 +40,7 @@ module Igniter
         end
 
         def to_h
-          @values.dup
+          @values.to_h { |key, value| [key, StructuredDump.dump(value)] }
         end
       end
     end

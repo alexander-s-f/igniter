@@ -31,6 +31,15 @@ module Igniter
           raise_if_invalid!
           CompiledGraph.new(operations: operations, profile_fingerprint: profile_fingerprint)
         end
+
+        def to_h
+          {
+            operations: StructuredDump.dump(operations),
+            findings: StructuredDump.dump(findings),
+            profile_fingerprint: profile_fingerprint,
+            ok: ok?
+          }
+        end
       end
     end
   end

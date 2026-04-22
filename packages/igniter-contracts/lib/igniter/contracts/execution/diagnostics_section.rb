@@ -12,6 +12,13 @@ module Igniter
           freeze
         end
 
+        def to_h
+          {
+            name: name,
+            value: StructuredDump.dump(value)
+          }
+        end
+
         private
 
         def normalize_value(value)

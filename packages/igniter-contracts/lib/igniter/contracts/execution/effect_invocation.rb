@@ -12,6 +12,14 @@ module Igniter
           @profile = profile
           freeze
         end
+
+        def to_h
+          {
+            payload: StructuredDump.dump(payload),
+            context: context.to_h,
+            profile_fingerprint: profile.fingerprint
+          }
+        end
       end
     end
   end
