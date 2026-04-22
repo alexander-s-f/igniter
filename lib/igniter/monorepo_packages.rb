@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 [
+  File.expand_path("../../packages/igniter-contracts/lib", __dir__),
   File.expand_path("../../packages/igniter-core/lib", __dir__),
   File.expand_path("../../packages/igniter-agents/lib", __dir__),
   File.expand_path("../../packages/igniter-ai/lib", __dir__),

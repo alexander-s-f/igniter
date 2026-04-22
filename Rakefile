@@ -10,7 +10,7 @@ require_relative "packages/igniter-core/lib/igniter/core/version"
 RuboCop::RakeTask.new
 
 RSpec::Core::RakeTask.new(:spec) do |t|
-  t.pattern = "{spec,examples/companion/spec}/**/*_spec.rb"
+  t.pattern = "{spec,packages/*/spec,examples/companion/spec}/**/*_spec.rb"
 end
 
 RSpec::Core::RakeTask.new(:architecture) do |t|

@@ -4,6 +4,7 @@ require_relative "packages/igniter-core/lib/igniter/core/version"
 
 Gem::Specification.new do |spec|
   package_libs = %w[
+    packages/igniter-contracts/lib
     packages/igniter-core/lib
     packages/igniter-agents/lib
     packages/igniter-ai/lib
@@ -36,6 +37,8 @@ Gem::Specification.new do |spec|
   spec.files = Dir[
     "lib/igniter.rb",
     "lib/igniter/**/*.rb",
+    "packages/igniter-contracts/lib/**/*.rb",
+    "packages/igniter-contracts/README.md",
     "packages/igniter-core/lib/**/*.rb",
     "packages/igniter-core/README.md",
     "packages/igniter-agents/lib/**/*.rb",
