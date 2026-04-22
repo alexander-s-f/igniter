@@ -19,6 +19,7 @@ RSpec.describe Igniter::Contracts::Kernel do
 
     expect(profile).to be_a(Igniter::Contracts::Profile)
     expect(profile.supports_node_kind?(:branch)).to be(true)
+    expect(profile.normalizers.map(&:key)).to include(:normalize_operation_attributes)
     expect(profile.fingerprint).not_to be_empty
     expect(kernel).to be_finalized
   end

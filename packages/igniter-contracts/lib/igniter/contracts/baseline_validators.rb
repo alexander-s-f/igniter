@@ -5,6 +5,8 @@ module Igniter
     module BaselineValidators
       module_function
 
+      UNSUPPORTED_BASELINE_RUNTIME_KINDS = %i[composition branch collection].freeze
+
       def validate_uniqueness(operations:, profile: nil) # rubocop:disable Lint/UnusedMethodArgument
         names = operations.reject { |operation| operation.fetch(:kind) == :output }.map { |operation| operation.fetch(:name) }
         duplicates = names.group_by(&:itself).select { |_name, entries| entries.length > 1 }.keys
@@ -46,6 +48,16 @@ module Igniter
 
       def validate_types(operations:, profile: nil) # rubocop:disable Lint/UnusedMethodArgument
         operations
+      end
+
+      def validate_supported_baseline_runtime(operations:, profile: nil) # rubocop:disable Lint/UnusedMethodArgument
+        unsupported = operations.select { |operation| UNSUPPORTED_BASELINE_RUNTIME_KINDS.include?(operation.fetch(:kind)) }
+                                .map { |operation| operation.fetch(:kind) }
+                                .uniq
+        return if unsupported.empty?
+
+        raise ValidationError,
+              "baseline runtime does not support node kinds yet: #{unsupported.map(&:to_s).join(', ')}"
       end
     end
   end

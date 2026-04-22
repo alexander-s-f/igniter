@@ -42,6 +42,7 @@ module Igniter
       def install_into(kernel)
         install_nodes(kernel)
         install_dsl_keywords(kernel)
+        install_normalizers(kernel)
         install_validators(kernel)
         install_runtime_handlers(kernel)
         install_diagnostics(kernel)
@@ -60,12 +61,17 @@ module Igniter
         end
       end
 
+      def install_normalizers(kernel)
+        kernel.normalizers.register(:normalize_operation_attributes, BaselineNormalizers.method(:normalize_operation_attributes))
+      end
+
       def install_validators(kernel)
         kernel.validators.register(:uniqueness, BaselineValidators.method(:validate_uniqueness))
         kernel.validators.register(:outputs, BaselineValidators.method(:validate_outputs))
         kernel.validators.register(:dependencies, BaselineValidators.method(:validate_dependencies))
         kernel.validators.register(:callables, BaselineValidators.method(:validate_callables))
         kernel.validators.register(:types, BaselineValidators.method(:validate_types))
+        kernel.validators.register(:supported_baseline_runtime, BaselineValidators.method(:validate_supported_baseline_runtime))
       end
 
       def install_runtime_handlers(kernel)

@@ -41,6 +41,7 @@ module Igniter
       end
 
       def finalize
+        validate_completeness!
         freeze_registries!
         @finalized = true
         Profile.build_from(self)
@@ -51,6 +52,18 @@ module Igniter
       end
 
       private
+
+      def validate_completeness!
+        missing_dsl = nodes.to_h.keys.reject { |kind| dsl_keywords.registered?(kind) }
+        missing_runtime = nodes.to_h.keys.reject { |kind| runtime_handlers.registered?(kind) }
+        return if missing_dsl.empty? && missing_runtime.empty?
+
+        parts = []
+        parts << "missing DSL keywords for: #{missing_dsl.map(&:to_s).join(', ')}" unless missing_dsl.empty?
+        parts << "missing runtime handlers for: #{missing_runtime.map(&:to_s).join(', ')}" unless missing_runtime.empty?
+
+        raise IncompletePackError, parts.join("; ")
+      end
 
       def freeze_registries!
         [
