@@ -249,6 +249,17 @@ That pack is intentionally diagnostics-only. It proves that another package can:
 - contribute diagnostics without reaching into `Assembly::` or `Execution::`
   internals
 
+The next external proof should exercise the full extension path:
+
+- `Igniter::Extensions::Contracts::LookupPack`
+
+That second pack proves that an outside package can add:
+
+- a node kind through `Igniter::Contracts::NodeType`
+- a DSL keyword through `Igniter::Contracts::DslKeyword`
+- a compile validator through `Igniter::Contracts::ValidationFinding`
+- a runtime handler through the public hook contract
+
 ## Registries
 
 Registries should be phase-specific instead of one generic bucket.

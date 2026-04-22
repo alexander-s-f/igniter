@@ -18,6 +18,7 @@ It also provides the package facade:
 The first contracts-facing external pack now lives here too:
 
 - `Igniter::Extensions::Contracts::ExecutionReportPack`
+- `Igniter::Extensions::Contracts::LookupPack`
 
 That pack installs into `Igniter::Contracts` through the public facade only:
 
@@ -26,6 +27,7 @@ require "igniter/extensions/contracts"
 
 profile = Igniter::Contracts.build_kernel
   .install(Igniter::Extensions::Contracts::ExecutionReportPack)
+  .install(Igniter::Extensions::Contracts::LookupPack)
   .finalize
 ```
 

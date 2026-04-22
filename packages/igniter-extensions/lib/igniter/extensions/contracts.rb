@@ -10,3 +10,4 @@ module Igniter
 end
 
 require_relative "contracts/execution_report_pack"
+require_relative "contracts/lookup_pack"
