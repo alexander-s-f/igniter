@@ -14,7 +14,13 @@ module Igniter
                               .uniq
           return if missing.empty?
 
-          raise ValidationError, "project sources are not defined: #{missing.map(&:to_s).join(', ')}"
+          raise ValidationError.new(
+            findings: [ValidationFinding.new(
+              code: :missing_project_sources,
+              message: "project sources are not defined: #{missing.map(&:to_s).join(', ')}",
+              subjects: missing
+            )]
+          )
         end
       end
     end

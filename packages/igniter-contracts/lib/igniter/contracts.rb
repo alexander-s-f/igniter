@@ -40,6 +40,7 @@ module Igniter
     EffectInvocation = Execution::EffectInvocation
     ExecutionRequest = Execution::ExecutionRequest
     DiagnosticsSection = Execution::DiagnosticsSection
+    ValidationFinding = Execution::ValidationFinding
   end
 end
 

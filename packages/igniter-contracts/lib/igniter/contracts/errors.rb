@@ -3,7 +3,24 @@
 module Igniter
   module Contracts
     Error = Class.new(StandardError)
-    ValidationError = Class.new(Error)
+
+    class ValidationError < Error
+      attr_reader :findings
+
+      def initialize(message = nil, findings: [])
+        @findings = Array(findings).freeze
+        super(message || default_message)
+      end
+
+      private
+
+      def default_message
+        return "validation failed" if findings.empty?
+
+        findings.map(&:message).join("; ")
+      end
+    end
+
     FrozenKernelError = Class.new(Error)
     FrozenRegistryError = Class.new(Error)
     DuplicateRegistrationError = Class.new(Error)

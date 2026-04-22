@@ -22,6 +22,17 @@ RSpec.describe Igniter::Contracts::Compiler do
     end.to raise_error(Igniter::Contracts::ValidationError, /output targets are not defined: missing_total/)
   end
 
+  it "exposes structured validation findings on compiler errors" do
+    expect do
+      Igniter::Contracts.compile do
+        output :missing_total
+      end
+    end.to raise_error(Igniter::Contracts::ValidationError) { |error|
+      expect(error.findings.map(&:code)).to eq([:missing_output_targets])
+      expect(error.findings.first.subjects).to eq([:missing_total])
+    }
+  end
+
   it "rejects compute dependencies that are not defined" do
     expect do
       Igniter::Contracts.compile do
