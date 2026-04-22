@@ -40,6 +40,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `agent_orchestration.rb` — current `agent` node orchestration, deferred replies, and provenance.
 - `async_store.rb` — deferred execution with store-backed resume.
 - `basic_pricing.rb` — smallest end-to-end contract example.
+- `contracts/basic_pricing.rb` — new-world `igniter-contracts` counterpart to the classic pricing example.
 - `collection.rb` — `collection` fan-out and `CollectionResult`.
 - `collection_partial_failure.rb` — partial-failure collection diagnostics.
 - `composition.rb` — nested contracts via `compose`.
@@ -48,6 +49,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/build_your_own_pack.rb` — inline pack authoring over the public contracts API.
 - `contracts/compose_your_own_packs.rb` — inline pack composition where one custom pack depends on another.
 - `contracts/commerce.rb` — applied `igniter-contracts` commerce preset with public external packs.
+- `contracts/diagnostics.rb` — new-world diagnostics report counterpart to the legacy diagnostics example.
 - `contracts/journal.rb` — external effect/executor pack as a runnable operational demo.
 - `contracts/migration.rb` — side-by-side legacy `igniter-core` reference vs `igniter-contracts` target.
 - `contracts/three_layer_migration.rb` — one use case shown as legacy core, raw contracts, and applied preset.
@@ -114,4 +116,5 @@ grow:
 - show both authoring paths: graph semantics packs and operational effect/executor packs
 - show how one custom pack can depend on another through the public kernel API
 - show the same use case evolving across legacy core, raw contracts, and domain preset layers
+- provide new-world counterparts for older root examples as migration waypoints
 - keep richer domain packs runnable and easy to copy into host apps

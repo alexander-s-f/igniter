@@ -86,6 +86,16 @@ module IgniterExamples
       expected_fragments: ["gross_total=120.0", "updated_gross_total=180.0"]
     ),
     Example.new(
+      id: "contracts/basic_pricing",
+      path: "examples/contracts/basic_pricing.rb",
+      summary: "New-world contracts replacement for the classic basic pricing example.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["contracts_basic_gross_total=120.0", "contracts_basic_updated_gross_total=180.0"]
+    ),
+    Example.new(
       id: "collection",
       path: "examples/collection.rb",
       summary: "Collection fan-out with per-item child results.",
@@ -227,6 +237,16 @@ module IgniterExamples
       runnable: true,
       timeout: 10,
       expected_fragments: ["Diagnostics PriceContract", ":outputs=>{:gross_total=>120.0}"]
+    ),
+    Example.new(
+      id: "contracts/diagnostics",
+      path: "examples/contracts/diagnostics.rb",
+      summary: "New-world contracts diagnostics report and structured dump output.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["contracts_diagnostics_output=120.0", "contracts_diagnostics_sections=baseline_summary,execution_report"]
     ),
     Example.new(
       id: "differential",

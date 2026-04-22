@@ -11,6 +11,7 @@ Use this when the flow is a straight dependency chain with no routing or fan-out
 Example:
 
 - [basic_pricing.rb](../examples/basic_pricing.rb)
+- [contracts/basic_pricing.rb](../examples/contracts/basic_pricing.rb)
 
 Use:
 
