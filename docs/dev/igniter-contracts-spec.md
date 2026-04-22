@@ -959,6 +959,11 @@ Good candidates:
 - `aggregate`
 - a synthetic `audit_marker` diagnostics contributor
 
+These experimental packs should follow the same layering rules as baseline:
+
+- `Assembly::<PackName>Pack` owns manifest, node registration, and DSL keywords
+- `Execution::<PackName>...` owns validators, normalizers, and runtime helpers
+
 Why:
 
 - lower operational risk

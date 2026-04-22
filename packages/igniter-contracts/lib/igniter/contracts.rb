@@ -18,6 +18,8 @@ module Igniter
     Profile = Assembly::Profile
     Kernel = Assembly::Kernel
     BaselinePack = Assembly::BaselinePack
+    ConstPack = Assembly::ConstPack
+    ProjectPack = Assembly::ProjectPack
 
     CompiledGraph = Execution::CompiledGraph
     Builder = Execution::Builder
@@ -29,9 +31,10 @@ module Igniter
     BaselineNormalizers = Execution::BaselineNormalizers
     BaselineValidators = Execution::BaselineValidators
     BaselineRuntime = Execution::BaselineRuntime
+    ConstRuntime = Execution::ConstRuntime
+    ProjectValidators = Execution::ProjectValidators
+    ProjectRuntime = Execution::ProjectRuntime
   end
 end
 
-require_relative "contracts/const_pack"
-require_relative "contracts/project_pack"
 require_relative "contracts/api"
