@@ -23,6 +23,10 @@ module Igniter
         Runtime.execute(compiled_graph, inputs: inputs, profile: profile)
       end
 
+      def diagnose(result, profile: default_profile)
+        Diagnostics.build_report(result: result, profile: profile)
+      end
+
       def reset_defaults!
         @default_kernel = nil
         @default_profile = nil

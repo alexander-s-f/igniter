@@ -23,6 +23,23 @@ RSpec.describe "Igniter::Contracts pack completeness" do
     end
   end
 
+  module InternalOnlyPack
+    module_function
+
+    def install_into(kernel)
+      kernel.nodes.register(
+        :internal_marker,
+        Igniter::Contracts::NodeType.new(
+          kind: :internal_marker,
+          metadata: {
+            requires_dsl: false,
+            requires_runtime: false
+          }
+        )
+      )
+    end
+  end
+
   it "rejects packs that register a node without a DSL keyword" do
     kernel = Igniter::Contracts.build_kernel.install(IncompleteDslPack)
 
@@ -35,5 +52,13 @@ RSpec.describe "Igniter::Contracts pack completeness" do
 
     expect { kernel.finalize }
       .to raise_error(Igniter::Contracts::IncompletePackError, /missing runtime handlers for: half_baked/)
+  end
+
+  it "allows internal-only node kinds to skip DSL and runtime registration" do
+    kernel = Igniter::Contracts.build_kernel.install(InternalOnlyPack)
+
+    profile = kernel.finalize
+
+    expect(profile.supports_node_kind?(:internal_marker)).to be(true)
   end
 end

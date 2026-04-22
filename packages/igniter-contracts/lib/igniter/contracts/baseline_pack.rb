@@ -36,7 +36,16 @@ module Igniter
       }.freeze
 
       BASELINE_DIAGNOSTICS = {
-        baseline_summary: :baseline_summary_diagnostics
+        baseline_summary: Module.new do
+          module_function
+
+          def augment(report:, result:, profile:) # rubocop:disable Lint/UnusedMethodArgument
+            report.add_section(:baseline_summary, {
+              outputs: result.outputs.keys.sort,
+              state: result.state.keys.sort
+            })
+          end
+        end
       }.freeze
 
       def install_into(kernel)

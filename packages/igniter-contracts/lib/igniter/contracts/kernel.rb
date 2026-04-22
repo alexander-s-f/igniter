@@ -54,8 +54,8 @@ module Igniter
       private
 
       def validate_completeness!
-        missing_dsl = nodes.to_h.keys.reject { |kind| dsl_keywords.registered?(kind) }
-        missing_runtime = nodes.to_h.keys.reject { |kind| runtime_handlers.registered?(kind) }
+        missing_dsl = nodes.to_h.values.select(&:requires_dsl?).map(&:kind).reject { |kind| dsl_keywords.registered?(kind) }
+        missing_runtime = nodes.to_h.values.select(&:requires_runtime?).map(&:kind).reject { |kind| runtime_handlers.registered?(kind) }
         return if missing_dsl.empty? && missing_runtime.empty?
 
         parts = []
