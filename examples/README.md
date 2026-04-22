@@ -46,6 +46,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/aggregates.rb` — external `lookup` + `aggregate` packs composed together.
 - `contracts/build_effect_executor_pack.rb` — inline effect/executor pack authoring over the public contracts API.
 - `contracts/build_your_own_pack.rb` — inline pack authoring over the public contracts API.
+- `contracts/compose_your_own_packs.rb` — inline pack composition where one custom pack depends on another.
 - `contracts/commerce.rb` — applied `igniter-contracts` commerce preset with public external packs.
 - `contracts/journal.rb` — external effect/executor pack as a runnable operational demo.
 - `contracts/migration.rb` — side-by-side legacy `igniter-core` reference vs `igniter-contracts` target.
@@ -111,5 +112,6 @@ grow:
 - show external packs as first-class runnable building blocks
 - show how to author a new pack without reaching into internal namespaces
 - show both authoring paths: graph semantics packs and operational effect/executor packs
+- show how one custom pack can depend on another through the public kernel API
 - show the same use case evolving across legacy core, raw contracts, and domain preset layers
 - keep richer domain packs runnable and easy to copy into host apps

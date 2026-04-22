@@ -149,6 +149,16 @@ module IgniterExamples
       expected_fragments: ["custom_executor_output=15", "custom_result_entries=1"]
     ),
     Example.new(
+      id: "contracts/compose_your_own_packs",
+      path: "examples/contracts/compose_your_own_packs.rb",
+      summary: "Inline pack composition with one custom pack depending on another.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["composed_pack_has_slug=true", "composed_pack_url=https://docs.example.test/hello-pack-composition"]
+    ),
+    Example.new(
       id: "contracts/commerce",
       path: "examples/contracts/commerce.rb",
       summary: "Applied commerce preset on top of igniter-contracts and external packs.",
