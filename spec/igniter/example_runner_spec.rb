@@ -14,6 +14,7 @@ RSpec.describe "examples runner" do
     expect(stdout).to include("manual")
     expect(stdout).to include("unsupported")
     expect(stdout).to include("basic_pricing")
+    expect(stdout).to include("replaces basic_pricing")
     expect(stdout).to include("mesh_discovery")
   end
 

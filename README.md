@@ -177,6 +177,8 @@ If you are new to Igniter:
 1. Read [`docs/guide/`](./docs/guide/README.md)
 2. Read [`docs/concepts/`](./docs/concepts/README.md)
 3. Run one or two scripts from [`examples/README.md`](./examples/README.md)
+   If you are specifically evaluating the new contracts migration path, start at the
+   `Contracts Migration Track` section in [`examples/README.md`](./examples/README.md).
 
 If you want to work on Igniter itself:
 

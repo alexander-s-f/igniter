@@ -96,7 +96,10 @@ end
 
 def print_list
   IgniterExamples.all.each do |example|
-    suffix = example.skip_reason ? " (#{example.skip_reason})" : ""
+    notes = []
+    notes << example.migration_note if example.migration_note
+    notes << example.skip_reason if example.skip_reason
+    suffix = notes.empty? ? "" : " (#{notes.join('; ')})"
     puts "#{example.status.to_s.ljust(11)} #{example.id.ljust(24)} #{example.summary}#{suffix}"
   end
 end

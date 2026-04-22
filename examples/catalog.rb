@@ -7,6 +7,7 @@ module IgniterExamples
     :id,
     :path,
     :summary,
+    :migration_of,
     :smoke,
     :autonomous,
     :runnable,
@@ -41,6 +42,16 @@ module IgniterExamples
       return :manual if runnable?
 
       :unsupported
+    end
+
+    def migration_target?
+      !migration_of.nil?
+    end
+
+    def migration_note
+      return nil unless migration_target?
+
+      "replaces #{migration_of}"
     end
   end
 
@@ -89,6 +100,7 @@ module IgniterExamples
       id: "contracts/basic_pricing",
       path: "examples/contracts/basic_pricing.rb",
       summary: "New-world contracts replacement for the classic basic pricing example.",
+      migration_of: "basic_pricing",
       smoke: true,
       autonomous: true,
       runnable: true,
@@ -242,6 +254,7 @@ module IgniterExamples
       id: "contracts/diagnostics",
       path: "examples/contracts/diagnostics.rb",
       summary: "New-world contracts diagnostics report and structured dump output.",
+      migration_of: "diagnostics",
       smoke: true,
       autonomous: true,
       runnable: true,
@@ -252,6 +265,7 @@ module IgniterExamples
       id: "contracts/effects",
       path: "examples/contracts/effects.rb",
       summary: "New-world contracts counterpart to the legacy effects example.",
+      migration_of: "effects",
       smoke: true,
       autonomous: true,
       runnable: true,
@@ -317,6 +331,17 @@ module IgniterExamples
       runnable: true,
       timeout: 10,
       expected_fragments: ["=== Graph Text ===", "runtime_state={:status=>:succeeded, :value=>120.0}"]
+    ),
+    Example.new(
+      id: "contracts/introspection",
+      path: "examples/contracts/introspection.rb",
+      summary: "New-world structured introspection via compilation, result, and diagnostics reports.",
+      migration_of: "introspection",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["contracts_introspection_ok=true", "contracts_introspection_sections=baseline_summary,execution_report"]
     ),
     Example.new(
       id: "invariants",
@@ -518,5 +543,14 @@ module IgniterExamples
     value = value.delete_prefix("./")
     value = value.sub(/\.rb\z/, "")
     value
+  end
+
+  def self.migration_examples
+    ALL.select(&:migration_target?)
+  end
+
+  def self.counterpart_for(legacy_id)
+    normalized = normalize(legacy_id)
+    migration_examples.find { |example| normalize(example.migration_of) == normalized }
   end
 end
