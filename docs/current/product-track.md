@@ -45,6 +45,9 @@ It also helps reveal architectural weaknesses honestly:
 - if runtime contracts are too vague, the product will feel brittle
 - if operator surfaces are too ad hoc, workflows will feel fragmented
 - if app boundaries are weak, the stack will become muddy quickly
+- if frontend/template failures are opaque, product iteration will slow down fast
+- if large Arbre pages cannot be split into partials, product surfaces will become
+  harder to evolve than the runtime beneath them
 
 ## Recommended Shape
 
@@ -181,6 +184,25 @@ more distributed parts:
 - routed remote agents
 - `ignite`-based bring-up and expansion
 - multi-node workers or capability-routed execution
+
+## Immediate UX/Frontend Backlog
+
+Two product-adjacent platform gaps now need to stay explicit while `companion`
+grows:
+
+- detailed dev-quality stack traces for frontend/template failures
+- first-class Arbre template partials for breaking large pages into reusable sections
+
+These are not cosmetic extras. They are part of keeping the product track
+healthy as pages become more stateful, more visual, and more deeply connected to
+runtime contracts.
+
+Another adjacent foundation line now matters for product health too:
+
+- move product/runtime contracts away from ad hoc `Hash` DTOs and toward a
+  canonical immutable DTO layer with defaults and declared fields
+- keep UI-facing transport projections flexible where needed, but avoid letting
+  large app/runtime surfaces depend on nil-tolerant hash juggling as the long-term shape
 
 Those are important, but they are not the right first product proof.
 

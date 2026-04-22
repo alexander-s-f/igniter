@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "igniter/core"
+
 require_relative "credentials/credential_policy"
 require_relative "credentials/credential"
 require_relative "credentials/config_loader"

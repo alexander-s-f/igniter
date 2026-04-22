@@ -78,4 +78,30 @@ RSpec.describe "Igniter dependency boundaries" do
       #{format_offenders(offenders)}
     MSG
   end
+
+  it "does not let rails integration files require app, server, or cluster layers" do
+    files = ruby_files_for(
+      "packages/igniter-rails/lib/igniter-rails.rb",
+      "packages/igniter-rails/lib/igniter/**/*.rb"
+    )
+    offenders = offenders_for(
+      require_lines_for(files),
+      [
+        /require\s+["']igniter\/app(?:\/|["'])/,
+        /require\s+["']igniter\/server(?:\/|["'])/,
+        /require\s+["']igniter\/cluster(?:\/|["'])/,
+        /require\s+["']igniter-app["']/,
+        /require\s+["']igniter-server["']/,
+        /require\s+["']igniter-cluster["']/
+      ]
+    )
+
+    expect(offenders).to eq({}), <<~MSG
+      igniter-rails must stay an integration over the embedded kernel and must
+      not depend on app/server/cluster layers.
+
+      Offending require statements:
+      #{format_offenders(offenders)}
+    MSG
+  end
 end

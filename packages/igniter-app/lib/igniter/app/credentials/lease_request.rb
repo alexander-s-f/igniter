@@ -6,47 +6,28 @@ require "time"
 module Igniter
   class App
     module Credentials
-      class LeaseRequest
-        attr_reader :request_id, :credential, :requested_scope, :node, :target_node, :actor, :origin,
-                    :source, :reason, :lease_id, :requested_at, :metadata
+      class LeaseRequest < Igniter::DTO::Record
+        field :request_id, default: -> { SecureRandom.uuid }, coerce: ->(value) { value.to_s }
+        field :credential, required: true, coerce: :normalize_credential
+        field :requested_scope, default: :remote, coerce: ->(value) { value.to_sym }
+        field :node, coerce: ->(value) { value&.to_s }
+        field :target_node, required: true, coerce: ->(value) { value.to_s }
+        field :actor, coerce: ->(value) { value&.to_s }
+        field :origin, coerce: ->(value) { value&.to_s }
+        field :source, required: true, coerce: ->(value) { value&.to_sym }
+        field :reason, coerce: ->(value) { value&.to_sym }
+        field :lease_id, coerce: ->(value) { value&.to_s }
+        field :requested_at, default: -> { Time.now.utc.iso8601 }, coerce: :normalize_timestamp
+        field :metadata, default: -> { {} }, coerce: :normalize_metadata, merge: true
 
-        def initialize(credential:, target_node:, request_id: SecureRandom.uuid, requested_scope: :remote, node: nil,
-                       actor: nil, origin: nil, source:, reason: nil, lease_id: nil,
-                       requested_at: Time.now.utc.iso8601, metadata: {})
-          @request_id = request_id.to_s
-          @credential = normalize_credential(credential)
-          @requested_scope = requested_scope.to_sym
-          @node = (node || @credential.node)&.to_s
-          @target_node = target_node.to_s
-          @actor = actor&.to_s
-          @origin = origin&.to_s
-          @source = source&.to_sym
-          @reason = reason&.to_sym
-          @lease_id = lease_id&.to_s
-          @requested_at = normalize_timestamp(requested_at)
-          @metadata = normalize_metadata(metadata)
-          freeze
-        end
-
-        def self.from_h(request_hash)
-          normalized = (request_hash || {}).each_with_object({}) do |(key, value), memo|
-            memo[key.to_sym] = value
+        def initialize(**attributes)
+          normalized = self.class.send(:normalize_input_attributes, attributes)
+          normalized[:credential] = self.class.send(:normalize_credential, normalized[:credential]) if normalized.key?(:credential)
+          if normalized[:node].nil? && normalized[:credential].respond_to?(:node)
+            normalized[:node] = normalized[:credential].node
           end
 
-          new(
-            credential: normalized.fetch(:credential),
-            request_id: normalized.fetch(:request_id),
-            requested_scope: normalized.fetch(:requested_scope, :remote),
-            node: normalized[:node],
-            target_node: normalized.fetch(:target_node),
-            actor: normalized[:actor],
-            origin: normalized[:origin],
-            source: normalized.fetch(:source),
-            reason: normalized[:reason],
-            lease_id: normalized[:lease_id],
-            requested_at: normalized[:requested_at],
-            metadata: normalized.fetch(:metadata, {})
-          )
+          super(**normalized)
         end
 
         def credential_key
@@ -84,7 +65,7 @@ module Igniter
             actor: actor || self.actor,
             origin: origin || self.origin,
             source: source || self.source,
-            metadata: self.metadata.merge(normalize_metadata(metadata)),
+            metadata: self.metadata.merge(self.class.send(:normalize_metadata, metadata)),
             timestamp: timestamp
           )
         end
@@ -96,7 +77,7 @@ module Igniter
             origin: origin || self.origin,
             source: source || self.source,
             reason: reason,
-            metadata: self.metadata.merge(normalize_metadata(metadata)),
+            metadata: self.metadata.merge(self.class.send(:normalize_metadata, metadata)),
             timestamp: timestamp
           )
         end
@@ -109,43 +90,9 @@ module Igniter
             origin: origin || self.origin,
             source: source || self.source,
             reason: reason || self.reason,
-            metadata: self.metadata.merge(normalize_metadata(metadata)),
+            metadata: self.metadata.merge(self.class.send(:normalize_metadata, metadata)),
             timestamp: timestamp
           )
-        end
-
-        def with(**overrides)
-          self.class.new(
-            credential: overrides.fetch(:credential, credential),
-            request_id: overrides.fetch(:request_id, request_id),
-            requested_scope: overrides.fetch(:requested_scope, requested_scope),
-            node: overrides.fetch(:node, node),
-            target_node: overrides.fetch(:target_node, target_node),
-            actor: overrides.fetch(:actor, actor),
-            origin: overrides.fetch(:origin, origin),
-            source: overrides.fetch(:source, source),
-            reason: overrides.fetch(:reason, reason),
-            lease_id: overrides.fetch(:lease_id, lease_id),
-            requested_at: overrides.fetch(:requested_at, requested_at),
-            metadata: metadata.merge(normalize_metadata(overrides.fetch(:metadata, {})))
-          )
-        end
-
-        def to_h
-          {
-            request_id: request_id,
-            credential: credential.to_h,
-            requested_scope: requested_scope,
-            node: node,
-            target_node: target_node,
-            actor: actor,
-            origin: origin,
-            source: source,
-            reason: reason,
-            lease_id: lease_id,
-            requested_at: requested_at,
-            metadata: metadata
-          }.compact.freeze
         end
 
         private
@@ -173,7 +120,7 @@ module Igniter
           )
         end
 
-        def normalize_credential(value)
+        def self.normalize_credential(value)
           case value
           when Credential
             value
@@ -184,7 +131,7 @@ module Igniter
           end
         end
 
-        def normalize_timestamp(value)
+        def self.normalize_timestamp(value)
           case value
           when Time
             value.utc.iso8601
@@ -195,7 +142,7 @@ module Igniter
           Time.now.utc.iso8601
         end
 
-        def normalize_metadata(hash)
+        def self.normalize_metadata(hash)
           (hash || {}).each_with_object({}) do |(key, value), memo|
             memo[key.to_sym] = value
           end.freeze

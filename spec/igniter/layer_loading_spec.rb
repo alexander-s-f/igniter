@@ -471,6 +471,10 @@ RSpec.describe "Igniter layer loading" do
     expect(features).to include("packages/igniter-rails/lib/igniter/plugins/rails.rb")
     expect(features).to include("packages/igniter-rails/lib/igniter/plugins/rails/contract_job.rb")
     expect(features).to include("packages/igniter-rails/lib/igniter/plugins/rails/webhook_concern.rb")
+    expect(features).not_to include("packages/igniter-app/lib/igniter/app.rb")
+    expect(features).not_to include("packages/igniter-app/lib/igniter/app/runtime_pack.rb")
+    expect(features).not_to include("packages/igniter-server/lib/igniter/server.rb")
+    expect(features).not_to include("packages/igniter-cluster/lib/igniter/cluster.rb")
     expect(features).not_to include("igniter/rails.rb")
   end
 
@@ -534,6 +538,21 @@ RSpec.describe "Igniter layer loading" do
       "before" => "Igniter::Runtime::RemoteAdapter",
       "after" => "Igniter::Runtime::RemoteAdapter"
     })
+  end
+
+  it "`require \"igniter/plugins/rails\"` does not mutate the runtime remote adapter by itself" do
+    adapter_classes = runtime_remote_adapter_classes_for("igniter/plugins/rails")
+
+    expect(adapter_classes).to eq({
+      "before" => "Igniter::Runtime::RemoteAdapter",
+      "after" => "Igniter::Runtime::RemoteAdapter"
+    })
+  end
+
+  it "`require \"igniter/plugins/rails\"` does not register app host profiles by itself" do
+    host_names = registered_host_names_for("igniter/plugins/rails")
+
+    expect(host_names).to eq([])
   end
 
   it "`require \"igniter/app\"` registers the app-owned host profiles" do

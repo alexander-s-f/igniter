@@ -99,6 +99,20 @@ Another active cross-cutting design line now needs to stay explicit:
   as raw event lines
 - do not let `ignite` or cluster convenience silently normalize “copy secrets to every node”
 
+Another active foundation line should now become explicit too:
+
+- move stable runtime/app transport shapes toward a canonical DTO layer instead of
+  letting `Hash` remain the long-term default carrier
+- keep edge projections flexible, but move domain/runtime contracts toward
+  declarative immutable records with defaults, coercion, round-trip serialization,
+  and subclass-preserving `with(...)`
+- the first landed DTO foundation now lives in `igniter-core` as:
+  - `Igniter::DTO::Record`
+- the first migrated family is in `igniter-app` credentials:
+  - `CredentialPolicy`
+  - `Credential`
+  - `LeaseRequest`
+
 See [Current: Ignite](../current/ignite.md) for the current specification draft.
 
 That draft is now specific enough to guide implementation:

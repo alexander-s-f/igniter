@@ -12,6 +12,58 @@ Implemented features should move out of the backlog and into stable docs.
 - `scope` / `namespace` are implemented as path-grouping tools for readability and
   introspection.
 
+## Frontend: Dev-Quality Template Failures
+
+Status: next
+Priority: high
+
+Problem:
+
+- frontend/template failures can still collapse into shallow `500` responses without
+  enough context to localize the broken node quickly
+- Arbre-heavy pages are now complex enough that "undefined method on nil" is not a
+  usable debugging surface by itself
+- local stopgaps like monkey-patching `NilClass#empty?` must never become the way we
+  recover from template faults
+
+What this needs:
+
+- detailed dev-mode stack traces for mounted frontend pages
+- template path, line, and local context surfaced clearly in the error response/logs
+- better separation between app/runtime failure and template-render failure
+- an explicit safe production-mode error surface that does not leak internals
+
+Why now:
+
+- `Companion` is now a real product surface, not only a toy demo
+- richer dashboard/assistant/cluster pages make template debugging a first-class DX issue
+- this is also a prerequisite for moving confidently into stronger DTO-backed UI contracts
+
+## Frontend: Arbre Template Partials
+
+Status: next
+Priority: high
+
+Problem:
+
+- large Arbre templates are growing into long single files with repeated cards,
+  sections, and workflow panels
+- without partials/composable template fragments, debugging and reuse both degrade
+- current page complexity makes local fixes harder than they should be
+
+What this needs:
+
+- first-class partial/template fragment support in the frontend authoring lane
+- a clean way to pass locals/assigns into partials
+- page-level composition that keeps layout and sections explicit without pushing
+  authors back toward raw HTML strings
+
+Why now:
+
+- `Companion` now has several substantial operator/assistant screens
+- cluster visualization and richer assistant surfaces will keep increasing view complexity
+- partials are the natural companion to stronger DTO/view-model contracts
+
 ## Cluster: Formal Capability Discovery Protocol (Phase 2)
 
 Status: next

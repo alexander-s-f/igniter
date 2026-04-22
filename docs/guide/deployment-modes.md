@@ -22,11 +22,24 @@ require "igniter/extensions/saga"
 require "igniter/sdk/data"
 ```
 
+Common embedded Rails profile:
+
+```ruby
+require "igniter"
+require "igniter/plugins/rails"
+```
+
 Choose this when:
 
 - contracts are called directly from Rails, jobs, scripts, or services
 - you want compile-time validation and lazy execution without hosting
 - HTTP, stack scaffolding, and cluster behavior are not needed
+
+Rails note:
+
+- `require "igniter/plugins/rails"` keeps you in embedded mode
+- it adds Rails adapters, not the app/server/cluster runtime layers
+- if you later need app hosting or cluster behavior, require those layers explicitly
 
 ## 2. App / Server
 
@@ -46,6 +59,9 @@ require "igniter/ai"
 require "igniter/sdk/channels"
 require "igniter/plugins/rails"
 ```
+
+The Rails plugin remains an integration surface here too; it does not replace
+`igniter/app` or `igniter/server`.
 
 Choose this when:
 

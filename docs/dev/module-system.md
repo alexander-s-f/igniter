@@ -74,6 +74,23 @@ Rules:
 - integrations adapt Igniter to an environment or UI surface
 - integrations are not the core runtime pyramid
 - integrations are not generic capability packs
+- integrations must not silently pull higher runtime layers as a side effect
+
+### Embedded Rails Scenario
+
+Rails is the canonical example of an integration that should stay outside the
+hosting pyramid.
+
+- `require "igniter/plugins/rails"` means embedded kernel + Rails adapter
+- it should not implicitly load `igniter/app`, `igniter/server`, or `igniter/cluster`
+- moving from embedded Rails to hosted/distributed runtime should require an
+  explicit additional `require`
+
+That keeps the framework adapter boundary clear:
+
+- Rails glue belongs in `igniter-rails`
+- hosting/profile code belongs in `igniter-app` / `igniter-server`
+- distributed behavior belongs in `igniter-cluster`
 
 ## Current Practical Heuristic
 

@@ -213,6 +213,8 @@ RSpec.describe "Igniter module layout" do
       "compiler.rb",
       "contract.rb",
       "diagnostics.rb",
+      "dto",
+      "dto.rb",
       "dsl.rb",
       "errors.rb",
       "events.rb",
