@@ -9,6 +9,7 @@ module Igniter
                   :normalizers,
                   :runtime_handlers,
                   :diagnostics_contributors,
+                  :pack_manifests,
                   :effects,
                   :executors
 
@@ -28,6 +29,7 @@ module Igniter
         @normalizers = normalizers
         @runtime_handlers = runtime_handlers
         @diagnostics_contributors = diagnostics_contributors
+        @pack_manifests = []
         @effects = effects
         @executors = executors
         @finalized = false
@@ -36,6 +38,7 @@ module Igniter
       def install(pack)
         raise FrozenKernelError, "kernel already finalized" if finalized?
 
+        register_pack_manifest(pack)
         pack.install_into(self)
         self
       end
@@ -53,12 +56,31 @@ module Igniter
 
       private
 
+      def register_pack_manifest(pack)
+        return unless pack.respond_to?(:manifest)
+
+        pack_manifests << pack.manifest
+      end
+
       def validate_completeness!
-        missing_dsl = nodes.to_h.values.select(&:requires_dsl?).map(&:kind).reject { |kind| dsl_keywords.registered?(kind) }
-        missing_runtime = nodes.to_h.values.select(&:requires_runtime?).map(&:kind).reject { |kind| runtime_handlers.registered?(kind) }
-        return if missing_dsl.empty? && missing_runtime.empty?
+        manifest_contracts = pack_manifests.flat_map(&:node_contracts)
+        undeclared_contracts = nodes.to_h.values.reject { |node| manifest_contracts.any? { |contract| contract.kind == node.kind } }
+                                    .map do |node|
+          PackManifest.node(
+            node.kind,
+            requires_dsl: node.requires_dsl?,
+            requires_runtime: node.requires_runtime?
+          )
+        end
+        contracts = manifest_contracts + undeclared_contracts
+
+        missing_node_definitions = manifest_contracts.map(&:kind).reject { |kind| nodes.registered?(kind) }
+        missing_dsl = contracts.select(&:requires_dsl).map(&:kind).reject { |kind| dsl_keywords.registered?(kind) }
+        missing_runtime = contracts.select(&:requires_runtime).map(&:kind).reject { |kind| runtime_handlers.registered?(kind) }
+        return if missing_node_definitions.empty? && missing_dsl.empty? && missing_runtime.empty?
 
         parts = []
+        parts << "missing node definitions for: #{missing_node_definitions.map(&:to_s).join(', ')}" unless missing_node_definitions.empty?
         parts << "missing DSL keywords for: #{missing_dsl.map(&:to_s).join(', ')}" unless missing_dsl.empty?
         parts << "missing runtime handlers for: #{missing_runtime.map(&:to_s).join(', ')}" unless missing_runtime.empty?
 

@@ -5,6 +5,13 @@ module Igniter
     module ConstPack
       module_function
 
+      def manifest
+        PackManifest.new(
+          name: :const,
+          node_contracts: [PackManifest.node(:const)]
+        )
+      end
+
       def handle_const(operation:, **)
         operation.dig(:attributes, :value)
       end

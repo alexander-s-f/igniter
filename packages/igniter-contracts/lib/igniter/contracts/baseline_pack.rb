@@ -5,6 +5,14 @@ module Igniter
     module BaselinePack
       module_function
 
+      def manifest
+        PackManifest.new(
+          name: :baseline,
+          node_contracts: BASELINE_NODE_KINDS.keys.map { |kind| PackManifest.node(kind) },
+          diagnostics: BASELINE_DIAGNOSTICS.keys
+        )
+      end
+
       BASELINE_NODE_KINDS = {
         input: NodeType.new(kind: :input, metadata: { category: :data }),
         compute: NodeType.new(kind: :compute, metadata: { category: :data }),

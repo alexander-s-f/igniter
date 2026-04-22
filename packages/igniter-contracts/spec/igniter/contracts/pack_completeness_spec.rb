@@ -3,6 +3,21 @@
 require_relative "../../spec_helper"
 
 RSpec.describe "Igniter::Contracts pack completeness" do
+  module ManifestWithoutNodesPack
+    module_function
+
+    def manifest
+      Igniter::Contracts::PackManifest.new(
+        name: :manifest_without_nodes,
+        node_contracts: [Igniter::Contracts::PackManifest.node(:ghost)]
+      )
+    end
+
+    def install_into(kernel)
+      kernel
+    end
+  end
+
   module IncompleteDslPack
     module_function
 
@@ -52,6 +67,13 @@ RSpec.describe "Igniter::Contracts pack completeness" do
 
     expect { kernel.finalize }
       .to raise_error(Igniter::Contracts::IncompletePackError, /missing runtime handlers for: half_baked/)
+  end
+
+  it "rejects manifests that declare node contracts without node definitions" do
+    kernel = Igniter::Contracts.build_kernel.install(ManifestWithoutNodesPack)
+
+    expect { kernel.finalize }
+      .to raise_error(Igniter::Contracts::IncompletePackError, /missing node definitions for: ghost/)
   end
 
   it "allows internal-only node kinds to skip DSL and runtime registration" do

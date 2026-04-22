@@ -33,6 +33,25 @@ RSpec.describe Igniter::Contracts::Runtime do
     expect(result.output(:tax_rate)).to eq(0.2)
   end
 
+  it "executes an explicit profile with the project pack" do
+    profile = Igniter::Contracts.build_kernel.install(Igniter::Contracts::ProjectPack).finalize
+
+    compiled = Igniter::Contracts.compile(profile: profile) do
+      input :pricing
+      project :country, from: :pricing, key: :country
+      output :country
+    end
+
+    result = Igniter::Contracts.execute(
+      compiled,
+      inputs: { pricing: { country: "UA" } },
+      profile: profile
+    )
+
+    expect(result.output(:country)).to eq("UA")
+    expect(result.state.fetch(:country)).to eq("UA")
+  end
+
   it "rejects execution against a different profile fingerprint" do
     compiled = Igniter::Contracts.compile do
       input :amount

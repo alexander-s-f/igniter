@@ -54,4 +54,15 @@ RSpec.describe Igniter::Contracts::Compiler do
       end
     end.to raise_error(Igniter::Contracts::ValidationError, /baseline runtime does not support node kinds yet: branch/)
   end
+
+  it "rejects project nodes whose source is not defined" do
+    profile = Igniter::Contracts.build_kernel.install(Igniter::Contracts::ProjectPack).finalize
+
+    expect do
+      Igniter::Contracts.compile(profile: profile) do
+        project :country, from: :pricing, key: :country
+        output :country
+      end
+    end.to raise_error(Igniter::Contracts::ValidationError, /project sources are not defined: pricing/)
+  end
 end
