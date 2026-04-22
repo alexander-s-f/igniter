@@ -50,6 +50,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/compose_your_own_packs.rb` — inline pack composition where one custom pack depends on another.
 - `contracts/commerce.rb` — applied `igniter-contracts` commerce preset with public external packs.
 - `contracts/diagnostics.rb` — new-world diagnostics report counterpart to the legacy diagnostics example.
+- `contracts/effects.rb` — new-world effect/executor counterpart to the legacy effects example.
 - `contracts/journal.rb` — external effect/executor pack as a runnable operational demo.
 - `contracts/migration.rb` — side-by-side legacy `igniter-core` reference vs `igniter-contracts` target.
 - `contracts/three_layer_migration.rb` — one use case shown as legacy core, raw contracts, and applied preset.

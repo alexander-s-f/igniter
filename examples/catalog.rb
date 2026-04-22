@@ -249,6 +249,16 @@ module IgniterExamples
       expected_fragments: ["contracts_diagnostics_output=120.0", "contracts_diagnostics_sections=baseline_summary,execution_report"]
     ),
     Example.new(
+      id: "contracts/effects",
+      path: "examples/contracts/effects.rb",
+      summary: "New-world contracts counterpart to the legacy effects example.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: ["contracts_executor_output=120", "contracts_effect_sections=baseline_summary"]
+    ),
+    Example.new(
       id: "differential",
       path: "examples/differential.rb",
       summary: "Primary-vs-shadow differential execution.",
