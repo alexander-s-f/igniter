@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/core/errors"
+require "igniter/errors"
 
 module Igniter
   # Thread-safe process registry mapping names to agent Refs.

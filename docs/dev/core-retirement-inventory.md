@@ -75,6 +75,8 @@ One small peel is now already in place:
   directly
 - they now go through stable root entrypoints:
   `igniter/errors`, `igniter/tool`, `igniter/effect`
+- `igniter-agents` and `igniter-server` no longer require
+  `igniter/core/errors` directly and instead use `igniter/errors`
 
 That does not remove the runtime dependency yet, but it does remove direct
 knowledge of legacy core file layout from those upper packages.

@@ -108,6 +108,28 @@ RSpec.describe "Igniter dependency boundaries" do
     MSG
   end
 
+  it "keeps agents and server packages on stable root error entrypoints" do
+    files = ruby_files_for(
+      "packages/igniter-agents/lib/igniter/**/*.rb",
+      "packages/igniter-server/lib/igniter/**/*.rb"
+    )
+    offenders = offenders_for(
+      require_lines_for(files),
+      [
+        /require\s+["']igniter\/core\/errors["']/,
+        /require_relative\s+["'][^"']*igniter\/core\/errors["']/
+      ]
+    )
+
+    expect(offenders).to eq({}), <<~MSG
+      agents/* and server/* should use the stable root error entrypoint
+      (`igniter/errors`) instead of reaching directly into igniter/core/errors.
+
+      Offending require statements:
+      #{format_offenders(offenders)}
+    MSG
+  end
+
   it "does not let rails integration files require app, server, or cluster layers" do
     files = ruby_files_for(
       "packages/igniter-rails/lib/igniter-rails.rb",

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/core/errors"
+require "igniter/errors"
 require "igniter/core/runtime/agent_adapter"
 require_relative "registry"
 require_relative "agent/message"
