@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "igniter/monorepo_packages"
+require_relative "igniter/version"
 
-require "igniter/core/version"
 require "igniter/core/errors"
 require "igniter/core/type_system"
 require "igniter/core/executor"

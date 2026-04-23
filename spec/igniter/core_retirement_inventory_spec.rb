@@ -51,12 +51,8 @@ RSpec.describe "Igniter core retirement inventory" do
       igniter-ai
       igniter-app
       igniter-cluster
-      igniter-contracts
       igniter-extensions
-      igniter-frontend
-      igniter-mcp-adapter
       igniter-rails
-      igniter-schema-rendering
       igniter-sdk
       igniter-server
     ].freeze
@@ -77,10 +73,7 @@ RSpec.describe "Igniter core retirement inventory" do
   end
 
   it "keeps lib-level core version loading isolated to the current retirement whitelist" do
-    expected = %w[
-      igniter-frontend
-      igniter-schema-rendering
-    ].freeze
+    expected = [].freeze
 
     actual = Dir.glob(File.join(ROOT, "packages/*/lib/**/*.rb")).filter_map do |path|
       package_name_for(path) if file_text(path).include?('require "igniter/core/version"')

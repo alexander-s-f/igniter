@@ -38,17 +38,27 @@ gemspecs:
 - `igniter-sdk`
 - `igniter-server`
 
-These packages do not currently declare `igniter-core` as a dependency, but
-they still load the version constant from the core package path in metadata:
+These packages still load the version constant from the core package path in
+metadata:
+
+- `igniter-agents`
+- `igniter-ai`
+- `igniter-app`
+- `igniter-cluster`
+- `igniter-extensions`
+- `igniter-rails`
+- `igniter-sdk`
+- `igniter-server`
+
+The safer packages that only needed version metadata have already been detached:
 
 - `igniter-contracts`
-- `igniter-frontend`
 - `igniter-mcp-adapter`
-- `igniter-schema-rendering`
+- `igniter-frontend`
 - `igniter-schema-rendering`
 
-So even where the runtime architecture has moved on, package metadata has not
-fully detached from `packages/igniter-core`.
+So package metadata is no longer universally coupled to `packages/igniter-core`,
+but the main runtime-oriented packages still are.
 
 ### 2. Runtime / Lib Surfaces Still Reach Into Core
 
@@ -114,8 +124,15 @@ Move package version loading away from:
 - `require_relative "../igniter-core/lib/igniter/core/version"`
 - `require "igniter/core/version"`
 
-This is a good early retirement win because it reduces coupling without forcing
-runtime behavior changes.
+This work is now partially done:
+
+- done for `igniter-contracts`
+- done for `igniter-mcp-adapter`
+- done for `igniter-frontend`
+- done for `igniter-schema-rendering`
+
+The remaining packages should follow once their packaging/runtime boundaries are
+being rewritten anyway.
 
 ### Step 3: Rework Remaining Runtime Consumers Package By Package
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "packages/igniter-core/lib/igniter/core/version"
+require_relative "lib/igniter/version"
 
 Gem::Specification.new do |spec|
   package_libs = %w[

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../igniter-core/lib/igniter/core/version"
+require_relative "../../lib/igniter/version"
 require_relative "lib/igniter/schema_rendering/version"
 
 Gem::Specification.new do |spec|

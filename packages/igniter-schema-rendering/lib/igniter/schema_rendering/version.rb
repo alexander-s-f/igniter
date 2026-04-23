@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require "igniter/core/version"
-
 module Igniter
   module SchemaRendering
-    VERSION = Igniter::VERSION
+    VERSION = "0.5.1"
   end
 end
