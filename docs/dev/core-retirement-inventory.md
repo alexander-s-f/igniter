@@ -22,6 +22,13 @@ The extension-boundary migration backlog is closed:
 What remains is retirement cleanup across package metadata, public docs, and
 legacy-only runtime surfaces.
 
+An explicit `igniter/legacy` loading lane now exists. The intended direction is:
+
+- `igniter/core` remains a deprecated warning alias
+- `igniter/legacy` is the explicit quiet lane for the old implementation
+- stable root entrypoints should prefer `igniter/legacy/*` over direct
+  `igniter/core/*` paths while we finish retirement
+
 ## Blocker Inventory
 
 ### 1. Package Metadata Still Coupled To Core
@@ -85,6 +92,9 @@ One small peel is now already in place:
   `igniter/runtime`, and `igniter/diagnostics` instead of requiring
   `igniter/core/contract`, `igniter/core/runtime`, and
   `igniter/core/diagnostics` directly
+- `igniter-cluster`, `igniter-sdk/tools`, `igniter-app/credentials`, and the
+  server metrics handler now prefer explicit `igniter/legacy` and
+  `igniter/legacy/*` wrappers over direct `igniter/core*` feature paths
 
 That does not remove the runtime dependency yet, but it does remove direct
 knowledge of legacy core file layout from those upper packages.

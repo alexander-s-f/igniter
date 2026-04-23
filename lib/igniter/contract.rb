@@ -1,5 +1,4 @@
 # frozen_string_literal: true
 
 require "igniter/errors"
-
-require "igniter/core/contract"
+require "igniter/legacy/contract"

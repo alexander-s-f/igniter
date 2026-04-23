@@ -3,20 +3,7 @@
 require_relative "igniter/monorepo_packages"
 require_relative "igniter/version"
 
-require "igniter/core/errors"
-require "igniter/core/type_system"
-require "igniter/core/executor"
-require "igniter/core/executor_registry"
-require "igniter/core/effect"
-require "igniter/core/effect_registry"
-require "igniter/core/model"
-require "igniter/core/compiler"
-require "igniter/core/events"
-require "igniter/runtime"
-require "igniter/core/dsl"
-require "igniter/core/extensions"
-require "igniter/diagnostics"
-require "igniter/contract"
+require "igniter/legacy"
 
 module Igniter
   class << self

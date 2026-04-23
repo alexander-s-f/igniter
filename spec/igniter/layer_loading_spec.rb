@@ -175,10 +175,11 @@ RSpec.describe "Igniter layer loading" do
     JSON.parse(stdout)
   end
 
-  it "`require \"igniter\"` stays inside the core package without loading the core umbrella" do
+  it "`require \"igniter\"` stays inside the core package through the explicit legacy lane without loading the core umbrella" do
     features = loaded_igniter_features("igniter")
 
     expect(features).to include("igniter.rb")
+    expect(features).to include("packages/igniter-core/lib/igniter/legacy.rb")
     expect(features).to include("packages/igniter-core/lib/igniter/core/version.rb")
     expect(features).not_to include("packages/igniter-core/lib/igniter/core.rb")
     expect(features).not_to include("igniter/tools.rb")
@@ -211,7 +212,8 @@ RSpec.describe "Igniter layer loading" do
     features = loaded_igniter_features("igniter-core")
 
     expect(features).to include("packages/igniter-core/lib/igniter-core.rb")
-    expect(features).to include("packages/igniter-core/lib/igniter/core.rb")
+    expect(features).to include("packages/igniter-core/lib/igniter/legacy.rb")
+    expect(features).not_to include("packages/igniter-core/lib/igniter/core.rb")
     expect(features).not_to include("igniter/server.rb")
     expect(features).not_to include("igniter/app.rb")
     expect(features).not_to include("igniter/cluster.rb")

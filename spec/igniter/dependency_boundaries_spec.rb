@@ -182,6 +182,36 @@ RSpec.describe "Igniter dependency boundaries" do
     MSG
   end
 
+  it "keeps upper packages off direct igniter/core feature paths when legacy wrappers exist" do
+    files = ruby_files_for(
+      "packages/igniter-cluster/lib/igniter/**/*.rb",
+      "packages/igniter-server/lib/igniter/**/*.rb",
+      "packages/igniter-sdk/lib/igniter/**/*.rb",
+      "packages/igniter-app/lib/igniter/**/*.rb"
+    )
+    offenders = offenders_for(
+      require_lines_for(files),
+      [
+        /require\s+["']igniter\/core["']/,
+        /require\s+["']igniter\/core\/dsl["']/,
+        /require\s+["']igniter\/core\/model["']/,
+        /require\s+["']igniter\/core\/compiler["']/,
+        /require\s+["']igniter\/core\/type_system["']/,
+        /require\s+["']igniter\/core\/memory["']/,
+        /require\s+["']igniter\/core\/metrics["']/,
+        /require_relative\s+["'][^"']*igniter\/core["']/
+      ]
+    )
+
+    expect(offenders).to eq({}), <<~MSG
+      Upper packages should prefer `igniter/legacy` and focused
+      `igniter/legacy/*` wrappers over direct `igniter/core*` feature paths.
+
+      Offending require statements:
+      #{format_offenders(offenders)}
+    MSG
+  end
+
   it "does not let rails integration files require app, server, or cluster layers" do
     files = ruby_files_for(
       "packages/igniter-rails/lib/igniter-rails.rb",

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/core/metrics"
+require "igniter/legacy/metrics"
 
 module Igniter
   module Server

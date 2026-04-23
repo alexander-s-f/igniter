@@ -739,7 +739,7 @@ module Igniter
 
             require "igniter/app"
             require "igniter/cluster"
-            require "igniter/core"
+            require "igniter/legacy"
             require "igniter/agent"
             require_relative "web/handlers/status_handler"
             require_relative "support/cluster_ops_api"
@@ -903,7 +903,7 @@ module Igniter
             # frozen_string_literal: true
 
             require "igniter/app"
-            require "igniter/core"
+            require "igniter/legacy"
             require_relative "web/handlers/home_handler"
             require_relative "web/handlers/overview_handler"
             require_relative "web/handlers/self_heal_demo_handler"

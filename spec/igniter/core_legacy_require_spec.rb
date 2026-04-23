@@ -39,6 +39,17 @@ RSpec.describe "Igniter legacy core entrypoints" do
     expect(stderr).to include("igniter-contracts")
   end
 
+  it "does not emit a legacy core warning for the explicit igniter/legacy lane" do
+    _stdout, stderr, status = capture_require(
+      "igniter/legacy",
+      env: { "IGNITER_LEGACY_CORE_REQUIRE" => nil }
+    )
+
+    expect(status.success?).to eq(true)
+    expect(stderr).not_to include("legacy reference implementation")
+    expect(stderr).not_to include("igniter-core")
+  end
+
   it "can fail fast for legacy core entrypoints in strict mode" do
     _stdout, stderr, status = capture_require(
       "igniter/core/tool",
@@ -147,6 +158,28 @@ RSpec.describe "Igniter legacy core entrypoints" do
   it "does not emit a legacy core warning for the package root facade alone" do
     _stdout, stderr, status = capture_require(
       "igniter-extensions",
+      env: { "IGNITER_LEGACY_CORE_REQUIRE" => nil }
+    )
+
+    expect(status.success?).to eq(true)
+    expect(stderr).not_to include("legacy reference implementation")
+    expect(stderr).not_to include("igniter-core")
+  end
+
+  it "does not emit a legacy core warning for require \"igniter\"" do
+    _stdout, stderr, status = capture_require(
+      "igniter",
+      env: { "IGNITER_LEGACY_CORE_REQUIRE" => nil }
+    )
+
+    expect(status.success?).to eq(true)
+    expect(stderr).not_to include("legacy reference implementation")
+    expect(stderr).not_to include("igniter-core")
+  end
+
+  it "does not emit a legacy core warning for upper package entrypoints that use the explicit legacy lane" do
+    _stdout, stderr, status = capture_require(
+      "igniter/cluster",
       env: { "IGNITER_LEGACY_CORE_REQUIRE" => nil }
     )
 

@@ -175,7 +175,7 @@ module Igniter
             # frozen_string_literal: true
 
             require "igniter/app"
-            require "igniter/core"
+            require "igniter/legacy"
             require "igniter/agent"
             require_relative "support/notes_api"
             require_relative "support/playground_ops_api"
@@ -462,7 +462,7 @@ module Igniter
             # frozen_string_literal: true
 
             require "igniter/app"
-            require "igniter/core"
+            require "igniter/legacy"
             require_relative "web/handlers/home_handler"
             require_relative "web/handlers/overview_handler"
             require_relative "web/handlers/notes_create_handler"

@@ -185,7 +185,7 @@ module Igniter
           # frozen_string_literal: true
 
           require "igniter/app"
-          require "igniter/core"
+          require "igniter/legacy"
           require "igniter/agent"
 
           module #{module_name}
@@ -354,7 +354,7 @@ module Igniter
           Dir.chdir(root)
 
           require "igniter"
-          require "igniter/core"
+          require "igniter/legacy"
           require "igniter/agent"
           require_relative "../apps/main/app"
 

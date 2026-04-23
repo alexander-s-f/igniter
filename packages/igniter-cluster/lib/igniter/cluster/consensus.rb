@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/core"
+require "igniter/legacy"
 require "igniter/agent"
 require_relative "consensus/errors"
 require_relative "consensus/state_machine"

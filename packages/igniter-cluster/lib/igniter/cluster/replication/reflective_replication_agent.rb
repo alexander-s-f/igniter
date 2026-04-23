@@ -63,7 +63,7 @@ module Igniter
         # @param store [Memory::Store, nil] backing store; defaults to global default
         # @return [void]
         def enable_class_memory(store: nil)
-          require "igniter/core/memory"
+          require "igniter/legacy/memory"
           @class_memory_store   = store || Igniter::Memory.default_store
           @class_memory_enabled = true
         end

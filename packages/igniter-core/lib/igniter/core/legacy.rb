@@ -11,6 +11,8 @@ module Igniter
 
       class << self
         def require!(entrypoint)
+          return nil if warning_suppressed?
+
           case mode
           when :off
             nil
@@ -19,6 +21,13 @@ module Igniter
           else
             warn_once(entrypoint)
           end
+        end
+
+        def without_warning
+          Thread.current[:igniter_legacy_warning_depth] = Thread.current[:igniter_legacy_warning_depth].to_i + 1
+          yield
+        ensure
+          Thread.current[:igniter_legacy_warning_depth] = Thread.current[:igniter_legacy_warning_depth].to_i - 1
         end
 
         def mode
@@ -45,6 +54,10 @@ module Igniter
         end
 
         private
+
+        def warning_suppressed?
+          Thread.current[:igniter_legacy_warning_depth].to_i.positive?
+        end
 
         def warn_once(entrypoint)
           return if @warning_emitted
