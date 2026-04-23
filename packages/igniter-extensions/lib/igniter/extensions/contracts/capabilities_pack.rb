@@ -58,7 +58,9 @@ module Igniter
 
         def profile_capabilities(profile)
           profile.pack_manifests
-                 .flat_map { |manifest_entry| Array(manifest_entry.metadata[:capabilities]) }
+                 .flat_map do |manifest_entry|
+                   manifest_entry.provides_capabilities.empty? ? Array(manifest_entry.metadata[:capabilities]) : manifest_entry.provides_capabilities
+                 end
                  .map(&:to_sym)
                  .uniq
         end

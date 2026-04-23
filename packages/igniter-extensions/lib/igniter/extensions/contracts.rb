@@ -3,6 +3,7 @@
 require "igniter/contracts"
 require_relative "contracts/aggregate_pack"
 require_relative "contracts/audit_pack"
+require_relative "contracts/branch_pack"
 require_relative "contracts/capabilities_pack"
 require_relative "contracts/commerce_pack"
 require_relative "contracts/content_addressing_pack"
@@ -30,7 +31,7 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, AuditPack, CapabilitiesPack, CommercePack, ContentAddressingPack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, InvariantsPack, JournalPack, McpPack, ProvenancePack, ReactivePack, SagaPack]
+        [AggregatePack, AuditPack, BranchPack, CapabilitiesPack, CommercePack, ContentAddressingPack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, InvariantsPack, JournalPack, McpPack, ProvenancePack, ReactivePack, SagaPack]
       ).freeze
 
       PRESETS = {

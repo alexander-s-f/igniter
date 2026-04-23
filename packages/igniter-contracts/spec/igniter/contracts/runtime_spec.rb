@@ -112,6 +112,27 @@ RSpec.describe Igniter::Contracts::Runtime do
     expect(compiled.operations.map(&:kind)).to eq(%i[input compute output])
   end
 
+  it "supports project dig: paths and default: lowering through compute semantics" do
+    profile = Igniter::Contracts.build_kernel.install(Igniter::Contracts::ProjectPack).finalize
+
+    compiled = Igniter::Contracts.compile(profile: profile) do
+      input :pricing
+      project :country, from: :pricing, dig: %i[billing address country]
+      project :postal_code, from: :pricing, dig: %i[billing address postal_code], default: "unknown"
+      output :country
+      output :postal_code
+    end
+
+    result = Igniter::Contracts.execute(
+      compiled,
+      inputs: { pricing: { billing: { address: { country: "UA" } } } },
+      profile: profile
+    )
+
+    expect(result.output(:country)).to eq("UA")
+    expect(result.output(:postal_code)).to eq("unknown")
+  end
+
   it "rejects execution against a different profile fingerprint" do
     compiled = Igniter::Contracts.compile do
       input :amount

@@ -6,8 +6,6 @@ module Igniter
       module LookupPack
         module_function
 
-        NO_FALLBACK = Object.new.freeze
-
         def manifest
           Igniter::Contracts::PackManifest.new(
             name: :extensions_lookup,
@@ -21,9 +19,13 @@ module Igniter
         end
 
         def lookup_keyword
-          Igniter::Contracts::DslKeyword.new(:lookup) do |name, from:, key:, fallback: NO_FALLBACK, builder:|
+          Igniter::Contracts::DslKeyword.new(:lookup) do |name, from:, key: nil, dig: nil, default: Igniter::Contracts::PathAccess::NO_DEFAULT, builder:|
             source_name = from.to_sym
-            key_name = key.to_sym
+            path = Igniter::Contracts::PathAccess.normalize_path(
+              keyword_name: :lookup,
+              key: key,
+              dig: dig
+            )
 
             builder.add_operation(
               kind: :compute,
@@ -31,16 +33,13 @@ module Igniter
               depends_on: [source_name],
               callable: lambda do |**values|
                 source = values.fetch(source_name)
-
-                if source.respond_to?(:key?) && source.key?(key_name)
-                  source.fetch(key_name)
-                elsif source.respond_to?(:key?) && source.key?(key_name.to_s)
-                  source.fetch(key_name.to_s)
-                elsif !fallback.equal?(NO_FALLBACK)
-                  fallback
-                else
-                  raise KeyError, "lookup key #{key_name} not present in #{source_name}"
-                end
+                Igniter::Contracts::PathAccess.fetch_path(
+                  source,
+                  path,
+                  source_name: source_name,
+                  keyword_name: :lookup,
+                  default: default
+                )
               end
             )
           end

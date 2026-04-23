@@ -313,6 +313,62 @@ That proves that:
 - scenario-oriented presets can stay ergonomic without making the default
   contracts environment heavy or implicit
 
+The same logic should guide `collection` and `composition`:
+
+- `collection` is still a strong user-facing need, especially for incremental
+  keyed processing, but it should be rebuilt above the kernel around explicit
+  sessions and collection results
+- `composition` is also a strong user-facing need, but it should be rebuilt as
+  explicit subgraph/application invocation rather than as a baseline node kind
+- neither should return to baseline merely because the legacy core modeled them
+  that way
+
+### Pack Dependencies vs Capabilities
+
+The contracts-native package model should distinguish explicit pack
+dependencies from semantic capabilities.
+
+Current roughness:
+
+- pack dependencies are mostly resolved manually inside `install_into`
+- profile checks sometimes rely on `pack_names.include?(...)`
+
+That should evolve into a first-class manifest model.
+
+Recommended manifest direction:
+
+- `requires_packs`
+  hard dependency edges by pack name
+- `provides_capabilities`
+  traits the pack adds to the finalized profile
+- `requires_capabilities`
+  optional semantic requirements for audits, presets, or host planning
+
+Why not capabilities alone:
+
+- capabilities are many-to-many and intentionally abstract
+- installation needs deterministic concrete edges
+- cycle detection, install ordering, and duplicate suppression work best on pack
+  identities, not only on semantic tags
+
+So:
+
+- use pack dependencies for assembly correctness
+- use capabilities for semantic planning, policy, and profile matching
+
+Example direction:
+
+- `CommercePack`
+  `requires_packs`: `LookupPack`, `AggregatePack`
+- future `CollectionPack`
+  `requires_capabilities`: `:incremental`
+  or, if coupled concretely to one implementation,
+  `requires_packs`: `IncrementalPack`
+- future `ComposePack`
+  may `provide_capabilities`: `:subgraph_invocation`, `:nested_contracts`
+  while still keeping explicit pack dependencies for any concrete lowering or
+  diagnostics support it needs
+
 Operational seams should be proven externally too:
 
 - `Igniter::Extensions::Contracts::JournalPack`
@@ -1082,6 +1138,20 @@ Those belong in packs or upper runtime layers, not in the baseline node itself.
 - lower it into `compute` semantics
 - do not preserve it forever as a dedicated kernel node kind unless it proves a
   real semantic/runtime distinction
+- align `project` and `lookup` on one lowered path-access semantics:
+  `key:` or `dig:`, plus optional `default:`
+
+`branch` should not come back as the old composition-like primitive. The
+contracts-native direction should be:
+
+- keep `branch` outside baseline
+- model it as an extension-level decision DSL
+- lower it into `compute` semantics that return explicit selection data such as
+  selected case, matcher, selector value, and resolved value
+- let downstream nodes consume that decision object through regular contracts
+  data access (`project`, `lookup`, plain `compute`)
+- avoid reviving child-contract execution, implicit export merging, or hidden
+  control-flow runtimes inside the kernel
 
 ### Error Classes
 

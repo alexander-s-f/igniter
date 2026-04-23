@@ -23,6 +23,15 @@ module Igniter
           end
         end
 
+        PackDependency = Struct.new(:name, :pack, keyword_init: true) do
+          def initialize(name:, pack: nil)
+            super(
+              name: name.to_sym,
+              pack: pack
+            )
+          end
+        end
+
         class << self
           def node(kind, requires_dsl: true, requires_runtime: true)
             NodeContract.new(
@@ -63,11 +72,23 @@ module Igniter
           def executor(key)
             registry(:executors, key)
           end
+
+          def pack_dependency(pack_or_name, pack: nil)
+            return PackDependency.new(name: pack_or_name, pack: pack) if pack
+
+            if pack_or_name.respond_to?(:manifest)
+              manifest = pack_or_name.manifest
+              return PackDependency.new(name: manifest.name, pack: pack_or_name)
+            end
+
+            PackDependency.new(name: pack_or_name)
+          end
         end
 
-        attr_reader :name, :node_contracts, :registry_contracts, :metadata
+        attr_reader :name, :node_contracts, :registry_contracts, :metadata,
+                    :requires_packs, :provides_capabilities, :requires_capabilities
 
-        def initialize(name:, node_contracts: [], registry_contracts: [], diagnostics: [], metadata: {})
+        def initialize(name:, node_contracts: [], registry_contracts: [], diagnostics: [], metadata: {}, requires_packs: [], provides_capabilities: [], requires_capabilities: [])
           @name = name.to_sym
           @node_contracts = node_contracts.freeze
           @registry_contracts = (
@@ -75,6 +96,9 @@ module Igniter
             diagnostics.map { |key| self.class.diagnostic(key) }
           ).uniq.freeze
           @metadata = metadata.freeze
+          @requires_packs = normalize_pack_dependencies(requires_packs)
+          @provides_capabilities = normalize_capabilities(provides_capabilities)
+          @requires_capabilities = normalize_capabilities(requires_capabilities)
           freeze
         end
 
@@ -86,6 +110,19 @@ module Igniter
 
         def diagnostics
           declared_keys_for(:diagnostics_contributors)
+        end
+
+        private
+
+        def normalize_pack_dependencies(dependencies)
+          Array(dependencies)
+            .map { |entry| entry.is_a?(PackDependency) ? entry : self.class.pack_dependency(entry) }
+            .uniq { |dependency| dependency.name }
+            .freeze
+        end
+
+        def normalize_capabilities(capabilities)
+          Array(capabilities).flatten.compact.map(&:to_sym).uniq.freeze
         end
       end
     end

@@ -25,6 +25,7 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
     profile = Igniter::Extensions::Contracts.build_profile(described_class)
 
     expect(profile.pack_names).to include(:extensions_creator, :extensions_debug)
+    expect(profile.pack_manifest(:extensions_creator).requires_packs.map(&:name)).to eq([:extensions_debug])
   end
 
   it "publishes available authoring profiles" do
@@ -70,6 +71,7 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
 
     expect(scaffold.files.fetch("lib/acme/igniter_packs/audit_trail_pack.rb")).to include("PackManifest.effect(:audit_trail)")
     expect(scaffold.files.fetch("lib/acme/igniter_packs/audit_trail_pack.rb")).to include("PackManifest.executor(:audit_trail_inline)")
+    expect(scaffold.files.fetch("lib/acme/igniter_packs/audit_trail_pack.rb")).not_to include("install_dependency_pack")
   end
 
   it "builds a diagnostic bundle scaffold with dependency and diagnostics hints" do
@@ -91,7 +93,8 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
       "Igniter::Extensions::Contracts::DebugPack"
     )
     expect(template).to include("PackManifest.diagnostic(:developer_console_summary)")
-    expect(template).to include("install_dependency_pack(kernel, Igniter::Extensions::Contracts::ExecutionReportPack)")
+    expect(template).to include("requires_packs: [Igniter::Extensions::Contracts::ExecutionReportPack, Igniter::Extensions::Contracts::ProvenancePack]")
+    expect(template).not_to include("install_dependency_pack")
   end
 
   it "adapts generated paths for app-local scope" do

@@ -192,6 +192,9 @@ These should live in `igniter-extensions` packs rather than baseline:
   projection sugar over data extraction; useful, but not baseline-defining
 - `count`, `sum`, `avg`
   aggregate/domain operators
+- `branch`
+  decision/routing DSL when modeled as lowered selection data rather than as a
+  child-runtime primitive
 
 Current direction for all of the above:
 
@@ -250,6 +253,12 @@ Recommended direction:
   kernel IR node forever
 - keep `ProjectPack` as an ergonomic extension-level DSL pack, not as a kernel
   semantic expansion
+- prefer one shared lowered data-access shape across `project` and `lookup`:
+  `key:` or `dig:`, with optional `default:`
+- redesign `branch` as an extension-level decision layer that lowers into
+  observable selection data
+- do not carry forward branch-as-composition, child-contract exports, or hidden
+  runtime branching as baseline semantics
 
 Current rule:
 
@@ -257,6 +266,88 @@ Current rule:
 - if they are useful only as ergonomic graph sugar, move them to packs
 - if they need a richer execution model, redesign them intentionally instead of
   inheriting the old node taxonomy
+
+### Collection And Composition
+
+These two shapes are still likely important for real user-facing contracts, but
+that does not mean they belong in the baseline kernel.
+
+Recommended split:
+
+- `collection`
+  keep it out of baseline and rebuild it as an orchestration/session layer over
+  `CompiledGraph`, `IncrementalPack`, and dataflow-style keyed results
+- `composition`
+  keep it out of baseline and rebuild it as explicit subgraph/application
+  invocation rather than as a hidden child-runtime primitive inside the kernel
+
+Reasoning:
+
+- active `IncrementalPack` and `DataflowPack` already prove that incremental
+  keyed fan-out can live above the kernel without a baseline `collection` node
+- user need is real, but the semantic center is reusable keyed sessions and
+  collection results, not a special baseline opcode
+- composition is also a real user need, but it is closer to subgraph reuse,
+  application boundaries, and host invocation than to the minimal contracts IR
+
+Target direction:
+
+- future `CollectionPack`
+  explicit item graph + keyed result + diff-aware orchestration
+- future `ComposePack` or application-native invocation layer
+  explicit nested graph/application call with clear input/output boundaries
+- neither should be restored as baseline just because the old model had them
+
+`ComposePack` is still a strong fit for extension-level usage, especially in
+embedded Rails-style host scenarios where local subgraph reuse should stay near
+the packs layer rather than being forced upward into cluster/server concerns.
+
+## Pack Dependency Graph
+
+The current codebase resolves pack dependencies manually:
+
+- some packs call `kernel.install(other_pack)` inside `install_into`
+- some orchestration helpers call `ensure_installed!` against `profile.pack_names`
+
+That works, but it is not yet the canonical model.
+
+Recommended direction:
+
+- add an explicit pack dependency graph at the manifest level
+- do not treat capabilities as a replacement for hard pack dependencies
+
+Why:
+
+- pack dependency edges answer "what must be installed so this pack is valid?"
+- capabilities answer "what semantic or policy traits does this profile or
+  graph expose?"
+
+Those are different questions.
+
+Canonical split:
+
+- hard dependencies
+  `requires_packs`
+  explicit pack-name edges used for install ordering, cycle detection, and
+  deterministic profile assembly
+- provided traits
+  `provides_capabilities`
+  semantic tags such as `:incremental`, `:dataflow`, `:decision_routing`,
+  `:diagnostics`, `:content_addressed`
+- optional soft requirements
+  `requires_capabilities`
+  useful for presets, audits, compatibility checks, and host planning, but not
+  sufficient for deterministic installation by themselves
+
+Rule of thumb:
+
+- if a pack literally depends on DSL keywords, registries, helpers, or result
+  shapes from another pack, model that as a pack dependency edge
+- if a pack or profile wants to advertise semantic traits for policy or host
+  planning, model that as capabilities
+
+So the target should be "dependency graph plus capabilities", not "dependency
+graph replaced by capabilities".
 
 ## Default Extension Story
 

@@ -39,6 +39,7 @@ All active runnable examples live in `examples/contracts/`:
 - `contracts/basic_pricing.rb`
 - `contracts/aggregates.rb`
 - `contracts/auditing.rb`
+- `contracts/branching.rb`
 - `contracts/build_effect_executor_pack.rb`
 - `contracts/build_your_own_pack.rb`
 - `contracts/capabilities.rb`

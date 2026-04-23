@@ -39,6 +39,8 @@ module Igniter
     UnknownExecutorError = Class.new(Error)
     ProfileMismatchError = Class.new(Error)
     IncompletePackError = Class.new(Error)
+    UnknownPackDependencyError = Class.new(Error)
+    CircularPackDependencyError = Class.new(Error)
     InvalidHookImplementationError = Class.new(Error)
     InvalidHookResultError = Class.new(Error)
   end

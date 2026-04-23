@@ -14,13 +14,12 @@ module Igniter
         def manifest
           Igniter::Contracts::PackManifest.new(
             name: :extensions_mcp,
+            requires_packs: [DebugPack, CreatorPack],
             metadata: { category: :tooling }
           )
         end
 
         def install_into(kernel)
-          install_dependency_pack(kernel, DebugPack)
-          install_dependency_pack(kernel, CreatorPack)
           kernel
         end
 
@@ -225,13 +224,6 @@ module Igniter
             raise ArgumentError, "unsupported MCP tool #{tool_name.inspect}"
           end
         end
-
-        def install_dependency_pack(kernel, pack)
-          return if kernel.pack_manifests.any? { |manifest| manifest.name == pack.manifest.name }
-
-          kernel.install(pack)
-        end
-
         def profile_from(target, optional: false)
           profile =
             case target

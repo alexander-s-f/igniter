@@ -75,6 +75,15 @@ module IgniterExamples
       ]
     ),
     example(
+      "contracts/branching",
+      "Decision-style branch routing lowered into compute semantics.",
+      expected_fragments: [
+        "contracts_branch_case=international",
+        "contracts_branch_value=priority_international",
+        "contracts_branch_matcher=matches"
+      ]
+    ),
+    example(
       "contracts/basic_pricing",
       "Smallest end-to-end pricing flow over igniter-contracts.",
       expected_fragments: ["contracts_basic_gross_total=120.0", "contracts_basic_updated_gross_total=180.0"]

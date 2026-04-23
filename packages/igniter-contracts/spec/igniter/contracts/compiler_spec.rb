@@ -120,6 +120,32 @@ RSpec.describe Igniter::Contracts::Compiler do
     expect(compiled.operations[1].attributes[:callable]).to respond_to(:call)
   end
 
+  it "compiles project dig paths into a compute operation" do
+    profile = Igniter::Contracts.build_kernel.install(Igniter::Contracts::ProjectPack).finalize
+
+    compiled = Igniter::Contracts.compile(profile: profile) do
+      input :pricing
+      project :country, from: :pricing, dig: %i[billing address country]
+      output :country
+    end
+
+    expect(compiled.operations.map(&:kind)).to eq(%i[input compute output])
+    expect(compiled.operations[1].attributes[:depends_on]).to eq([:pricing])
+    expect(compiled.operations[1].attributes[:callable]).to respond_to(:call)
+  end
+
+  it "rejects project declarations that pass both key: and dig:" do
+    profile = Igniter::Contracts.build_kernel.install(Igniter::Contracts::ProjectPack).finalize
+
+    expect do
+      Igniter::Contracts.compile(profile: profile) do
+        input :pricing
+        project :country, from: :pricing, key: :country, dig: %i[billing country]
+        output :country
+      end
+    end.to raise_error(ArgumentError, /either key: or dig:/)
+  end
+
   it "rejects effect nodes whose dependencies are not defined" do
     effect_pack = Module.new do
       extend Igniter::Contracts::Pack

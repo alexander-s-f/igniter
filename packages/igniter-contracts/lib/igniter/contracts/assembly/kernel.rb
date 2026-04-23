@@ -36,10 +36,21 @@ module Igniter
           @finalized = false
         end
 
-        def install(pack)
+        def install(pack, installing: [])
           raise FrozenKernelError, "kernel already finalized" if finalized?
 
-          register_pack_manifest(pack)
+          manifest = pack.respond_to?(:manifest) ? pack.manifest : nil
+          pack_name = manifest&.name
+
+          return self if pack_name && pack_installed?(pack_name)
+
+          if pack_name && installing.include?(pack_name)
+            cycle = (installing + [pack_name]).join(" -> ")
+            raise CircularPackDependencyError, "circular pack dependency detected: #{cycle}"
+          end
+
+          install_required_packs(manifest, installing: [*installing, pack_name].compact) if manifest
+          register_pack_manifest(pack, manifest: manifest)
           pack.install_into(self)
           self
         end
@@ -68,10 +79,28 @@ module Igniter
           executors: "executors"
         }.freeze
 
-        def register_pack_manifest(pack)
-          return unless pack.respond_to?(:manifest)
+        def register_pack_manifest(pack, manifest: nil)
+          manifest ||= pack.respond_to?(:manifest) ? pack.manifest : nil
+          return unless manifest
 
-          pack_manifests << pack.manifest
+          pack_manifests << manifest
+        end
+
+        def pack_installed?(name)
+          pack_manifests.any? { |manifest| manifest.name == name.to_sym }
+        end
+
+        def install_required_packs(manifest, installing:)
+          manifest.requires_packs.each do |dependency|
+            next if pack_installed?(dependency.name)
+
+            unless dependency.pack
+              raise UnknownPackDependencyError,
+                    "pack #{manifest.name} requires pack #{dependency.name}, but no pack implementation was provided"
+            end
+
+            install(dependency.pack, installing: installing)
+          end
         end
 
         def validate_completeness!

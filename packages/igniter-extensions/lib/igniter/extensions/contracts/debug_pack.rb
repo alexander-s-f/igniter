@@ -29,14 +29,13 @@ module Igniter
         def manifest
           Igniter::Contracts::PackManifest.new(
             name: :extensions_debug,
+            requires_packs: [ExecutionReportPack, ProvenancePack],
             registry_contracts: [Igniter::Contracts::PackManifest.diagnostic(:debug)],
             metadata: { category: :developer }
           )
         end
 
         def install_into(kernel)
-          install_dependency_pack(kernel, ExecutionReportPack)
-          install_dependency_pack(kernel, ProvenancePack)
           kernel.diagnostics_contributors.register(:debug, REPORT_CONTRIBUTOR)
           kernel
         end
@@ -106,12 +105,6 @@ module Igniter
               trace: lineage.to_h
             }
           end
-        end
-
-        def install_dependency_pack(kernel, pack)
-          return if kernel.pack_manifests.any? { |manifest| manifest.name == pack.manifest.name }
-
-          kernel.install(pack)
         end
       end
     end

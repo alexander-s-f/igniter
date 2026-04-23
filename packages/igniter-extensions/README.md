@@ -1,35 +1,13 @@
 # igniter-extensions
 
-Public extension entrypoints for Igniter.
+Contracts-native extension packs for Igniter.
 
-This package currently contains two architectural lanes:
+This package now focuses only on packs built on top of `Igniter::Contracts`.
 
-- contracts-facing packs built on `Igniter::Contracts`
-- legacy extension activators that still bridge into `igniter-core`
-
-The legacy lane remains for migration. Those entrypoints will surface the
-`igniter-core` / legacy-extension notice when loaded. Use
-`IGNITER_LEGACY_CORE_REQUIRE=error` to make those loads fail fast during
-migration cleanup.
-
-This package owns the `igniter/extensions/*` activation surface, including:
-
-- `require "igniter/extensions/dataflow"`
-- `require "igniter/extensions/saga"`
-- `require "igniter/extensions/provenance"`
-- `require "igniter/extensions/content_addressing"`
-- `require "igniter/extensions/differential"`
-- `require "igniter/extensions/incremental"`
-- `require "igniter/extensions/reactive"`
-- `require "igniter/extensions/invariants"`
-- `require "igniter/extensions/contracts"`
-
-It also provides the package facade:
+Primary entrypoints:
 
 - `require "igniter-extensions"`
-
-The package facade itself stays lightweight and does not eagerly load legacy
-core runtime files.
+- `require "igniter/extensions/contracts"`
 
 Contracts-facing external packs now live here too:
 
@@ -37,6 +15,7 @@ Contracts-facing external packs now live here too:
 - `Igniter::Extensions::Contracts::LookupPack`
 - `Igniter::Extensions::Contracts::AggregatePack`
 - `Igniter::Extensions::Contracts::AuditPack`
+- `Igniter::Extensions::Contracts::BranchPack`
 - `Igniter::Extensions::Contracts::CapabilitiesPack`
 - `Igniter::Extensions::Contracts::CommercePack`
 - `Igniter::Extensions::Contracts::ContentAddressingPack`
@@ -60,7 +39,7 @@ environment = Igniter::Extensions::Contracts.with
 
 result = environment.run(inputs: { rates: { ua: 0.2 } }) do
   input :rates
-  lookup :tax_rate, from: :rates, key: :ua
+  lookup :tax_rate, from: :rates, dig: %i[eu ua], default: 0.2
   output :tax_rate
 end
 ```
@@ -73,6 +52,32 @@ like `JournalPack` stay opt-in:
 environment = Igniter::Extensions::Contracts.with(
   Igniter::Extensions::Contracts::JournalPack
 )
+```
+
+`BranchPack` adds a contracts-native decision DSL that still lowers to ordinary
+`compute` semantics:
+
+```ruby
+environment = Igniter::Contracts.with(
+  Igniter::Contracts::ProjectPack,
+  Igniter::Extensions::Contracts::BranchPack
+)
+
+result = environment.run(inputs: { country: "DE", vip: true }) do
+  input :country
+  input :vip
+
+  branch :delivery_strategy, on: :country, depends_on: [:vip] do
+    on "UA", id: :local, value: :local
+    on matches: /\A[A-Z]{2}\z/, id: :international do |vip:|
+      vip ? :priority_international : :international
+    end
+    default value: :fallback
+  end
+
+  project :delivery_mode, from: :delivery_strategy, key: :value
+  output :delivery_mode
+end
 ```
 
 Applied presets can sit on top of those packs too:

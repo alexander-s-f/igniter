@@ -7,8 +7,10 @@ require_relative "../../../spec_helper"
 RSpec.describe Igniter::Extensions::Contracts::McpPack do
   it "installs debug and creator dependency packs" do
     profile = Igniter::Extensions::Contracts.build_profile(described_class)
+    manifest = profile.pack_manifest(:extensions_mcp)
 
     expect(profile.pack_names).to include(:extensions_mcp, :extensions_debug, :extensions_creator)
+    expect(manifest.requires_packs.map(&:name)).to eq(%i[extensions_debug extensions_creator])
   end
 
   it "publishes a tooling catalog" do

@@ -113,6 +113,14 @@ module Igniter
           pack_manifests.find { |manifest| manifest.name == name.to_sym }
         end
 
+        def provided_capabilities
+          pack_manifests.flat_map(&:provides_capabilities).uniq
+        end
+
+        def required_capabilities
+          pack_manifests.flat_map(&:requires_capabilities).uniq
+        end
+
         def declared_registry_keys(registry)
           pack_manifests
             .flat_map { |manifest| manifest.declared_keys_for(registry) }

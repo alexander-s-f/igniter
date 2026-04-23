@@ -169,15 +169,10 @@ module Igniter
                 module #{pack_class_name}
                   class << self
                     def manifest
-                      Igniter::Contracts::PackManifest.new(
-                        name: :#{name},
-                        node_contracts: [Igniter::Contracts::PackManifest.node(:#{name})],
-                        registry_contracts: [Igniter::Contracts::PackManifest.validator(:#{name}_sources)]
-                      )
+                      Igniter::Contracts::PackManifest.new(#{feature_manifest_body})
                     end
 
                     def install_into(kernel)
-                      #{install_dependency_hint_lines}
                       kernel.nodes.register(:#{name}, Igniter::Contracts::NodeType.new(kind: :#{name}, metadata: { category: :custom }))
                       kernel.dsl_keywords.register(:#{name}, #{name}_keyword)
                       kernel.validators.register(:#{name}_sources, method(:validate_#{name}_sources))
@@ -212,17 +207,10 @@ module Igniter
                 module #{pack_class_name}
                   class << self
                     def manifest
-                      Igniter::Contracts::PackManifest.new(
-                        name: :#{name},
-                        registry_contracts: [
-                          Igniter::Contracts::PackManifest.effect(:#{name}),
-                          Igniter::Contracts::PackManifest.executor(:#{name}_inline)
-                        ]
-                      )
+                      Igniter::Contracts::PackManifest.new(#{operational_manifest_body})
                     end
 
                     def install_into(kernel)
-                      #{install_dependency_hint_lines}
                       kernel.effects.register(:#{name}, method(:apply_#{name}))
                       kernel.executors.register(:#{name}_inline, method(:execute_#{name}_inline))
                       kernel
@@ -260,18 +248,11 @@ module Igniter
                     end
 
                     def install_into(kernel)
-                      #{bundle_dependency_template_lines}
                       #{bundle_diagnostic_install_lines}
                       kernel
                     end
 
                     #{bundle_diagnostic_contributor_template}
-
-                    def install_dependency_pack(kernel, pack)
-                      return if kernel.pack_manifests.any? { |manifest| manifest.name == pack.manifest.name }
-
-                      kernel.install(pack)
-                    end
                   end
                 end
               end
@@ -414,22 +395,41 @@ module Igniter
 
           def bundle_manifest_body
             lines = ["metadata: { category: :bundle }"]
+            append_runtime_dependency_manifest_line(lines)
             if profile.capability?(:diagnostic)
               lines << "registry_contracts: [Igniter::Contracts::PackManifest.diagnostic(:#{name}_summary)]"
             end
             lines.join(",\n                        ")
           end
 
-          def install_dependency_hint_lines
-            return "# no dependency pack hints for this profile" if profile.runtime_dependency_hints.empty?
-
-            profile.runtime_dependency_hints.map { |hint| "# install_dependency_pack(kernel, #{hint})" }.join("\n                      ")
+          def feature_manifest_body
+            lines = [
+              "name: :#{name}",
+              "node_contracts: [Igniter::Contracts::PackManifest.node(:#{name})]",
+              "registry_contracts: [Igniter::Contracts::PackManifest.validator(:#{name}_sources)]"
+            ]
+            append_runtime_dependency_manifest_line(lines)
+            lines.join(",\n                        ")
           end
 
-          def bundle_dependency_template_lines
-            return "# install_dependency_pack(kernel, SomeOtherPack)" if profile.runtime_dependency_hints.empty?
+          def operational_manifest_body
+            lines = [
+              "name: :#{name}",
+              <<~RUBY.chomp
+                registry_contracts: [
+                          Igniter::Contracts::PackManifest.effect(:#{name}),
+                          Igniter::Contracts::PackManifest.executor(:#{name}_inline)
+                        ]
+              RUBY
+            ]
+            append_runtime_dependency_manifest_line(lines)
+            lines.join(",\n                        ")
+          end
 
-            profile.runtime_dependency_hints.map { |hint| "install_dependency_pack(kernel, #{hint})" }.join("\n                      ")
+          def append_runtime_dependency_manifest_line(lines)
+            return lines if profile.runtime_dependency_hints.empty?
+
+            lines << "requires_packs: [#{profile.runtime_dependency_hints.join(', ')}]"
           end
 
           def bundle_diagnostic_install_lines

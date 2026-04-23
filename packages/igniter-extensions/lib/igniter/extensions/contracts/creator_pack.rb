@@ -16,12 +16,12 @@ module Igniter
         def manifest
           Igniter::Contracts::PackManifest.new(
             name: :extensions_creator,
+            requires_packs: [DebugPack],
             metadata: { category: :developer }
           )
         end
 
         def install_into(kernel)
-          install_dependency_pack(kernel, DebugPack)
           kernel
         end
 
@@ -116,12 +116,6 @@ module Igniter
             root: root,
             mode: mode
           ).write
-        end
-
-        def install_dependency_pack(kernel, pack)
-          return if kernel.pack_manifests.any? { |manifest| manifest.name == pack.manifest.name }
-
-          kernel.install(pack)
         end
       end
     end

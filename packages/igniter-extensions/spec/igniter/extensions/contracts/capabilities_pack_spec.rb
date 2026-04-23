@@ -67,14 +67,14 @@ RSpec.describe Igniter::Extensions::Contracts::CapabilitiesPack do
     expect(report.violations.map(&:kind)).to include(:undeclared_capabilities)
   end
 
-  it "surfaces pack-level profile capabilities from manifest metadata" do
+  it "surfaces pack-level profile capabilities from manifest capability declarations" do
     pack = Module.new do
       module_function
 
       def manifest
         Igniter::Contracts::PackManifest.new(
           name: :ops_pack,
-          metadata: { capabilities: %i[network messaging] }
+          provides_capabilities: %i[network messaging]
         )
       end
 

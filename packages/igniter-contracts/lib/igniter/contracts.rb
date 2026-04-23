@@ -18,6 +18,7 @@ module Igniter
     HookSpecs = Assembly::HookSpecs
     Profile = Assembly::Profile
     Kernel = Assembly::Kernel
+    PathAccess = Assembly::PathAccess
     BaselinePack = Assembly::BaselinePack
     ConstPack = Assembly::ConstPack
     ProjectPack = Assembly::ProjectPack

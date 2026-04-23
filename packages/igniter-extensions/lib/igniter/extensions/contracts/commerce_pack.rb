@@ -8,6 +8,7 @@ module Igniter
           def manifest
             Igniter::Contracts::PackManifest.new(
               name: :extensions_commerce,
+              requires_packs: [LookupPack, AggregatePack],
               registry_contracts: [
                 Igniter::Contracts::PackManifest.dsl_keyword(:order_items),
                 Igniter::Contracts::PackManifest.dsl_keyword(:subtotal),
@@ -18,16 +19,8 @@ module Igniter
           end
 
           def install_into(kernel)
-            install_dependency_pack(kernel, LookupPack)
-            install_dependency_pack(kernel, AggregatePack)
             install_dsl_keywords(kernel)
             kernel
-          end
-
-          def install_dependency_pack(kernel, pack)
-            return if kernel.pack_manifests.any? { |manifest| manifest.name == pack.manifest.name }
-
-            kernel.install(pack)
           end
 
           def install_dsl_keywords(kernel)

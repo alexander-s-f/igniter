@@ -41,10 +41,10 @@ RSpec.describe "Igniter::Extensions::Contracts public boundaries" do
   end
 
   it "does not hardcode lowered extension DSL as raw operation kinds" do
-    lowered_kinds = %w[lookup count sum avg].freeze
+    lowered_kinds = %w[branch lookup count sum avg].freeze
 
     offenders = contracts_surface_files.each_with_object({}) do |file, memo|
-      matches = File.read(file).scan(/add_operation\(\s*kind:\s*:(lookup|count|sum|avg)/).flatten.uniq.sort
+      matches = File.read(file).scan(/add_operation\(\s*kind:\s*:(branch|lookup|count|sum|avg)/).flatten.uniq.sort
       memo[file] = matches if (matches & lowered_kinds).any?
     end
 

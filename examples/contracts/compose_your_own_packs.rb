@@ -66,6 +66,7 @@ module ExampleSeoPack
     def manifest
       Igniter::Contracts::PackManifest.new(
         name: :example_seo,
+        requires_packs: [ExampleSlugPack],
         registry_contracts: [
           Igniter::Contracts::PackManifest.dsl_keyword(:canonical_page)
         ]
@@ -73,15 +74,8 @@ module ExampleSeoPack
     end
 
     def install_into(kernel)
-      install_dependency_pack(kernel, ExampleSlugPack)
       kernel.dsl_keywords.register(:canonical_page, canonical_page_keyword)
       kernel
-    end
-
-    def install_dependency_pack(kernel, pack)
-      return if kernel.pack_manifests.any? { |manifest| manifest.name == pack.manifest.name }
-
-      kernel.install(pack)
     end
 
     def canonical_page_keyword

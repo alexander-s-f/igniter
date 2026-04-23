@@ -14,6 +14,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::LookupPack,
       Igniter::Extensions::Contracts::AggregatePack,
       Igniter::Extensions::Contracts::AuditPack,
+      Igniter::Extensions::Contracts::BranchPack,
       Igniter::Extensions::Contracts::CapabilitiesPack,
       Igniter::Extensions::Contracts::CommercePack,
       Igniter::Extensions::Contracts::ContentAddressingPack,

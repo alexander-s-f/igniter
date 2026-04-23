@@ -71,4 +71,82 @@ RSpec.describe Igniter::Contracts::Kernel do
     expect(profile).to be_a(Igniter::Contracts::Profile)
     expect(profile.pack_names).to eq(%i[baseline project])
   end
+
+  it "auto-installs manifest-declared pack dependencies" do
+    dependency_pack = Module.new do
+      define_singleton_method(:manifest) do
+        Igniter::Contracts::PackManifest.new(
+          name: :dependency_pack,
+          registry_contracts: [Igniter::Contracts::PackManifest.dsl_keyword(:dependency_marker)]
+        )
+      end
+
+      define_singleton_method(:install_into) do |kernel|
+        kernel.dsl_keywords.register(:dependency_marker, Igniter::Contracts::DslKeyword.new(:dependency_marker) { |_name, builder:| builder })
+        kernel
+      end
+    end
+
+    dependent_pack = Module.new do
+      define_singleton_method(:manifest) do
+        Igniter::Contracts::PackManifest.new(
+          name: :dependent_pack,
+          requires_packs: [dependency_pack]
+        )
+      end
+
+      define_singleton_method(:install_into) do |kernel|
+        kernel
+      end
+    end
+
+    profile = Igniter::Contracts.build_profile(dependent_pack)
+
+    expect(profile.pack_names).to include(:dependency_pack, :dependent_pack)
+    expect(profile.dsl_keyword(:dependency_marker)).to be_a(Igniter::Contracts::DslKeyword)
+  end
+
+  it "rejects missing concrete implementations for unknown dependency edges" do
+    dependent_pack = Module.new do
+      define_singleton_method(:manifest) do
+        Igniter::Contracts::PackManifest.new(
+          name: :dependent_pack,
+          requires_packs: [:missing_pack]
+        )
+      end
+
+      define_singleton_method(:install_into) do |kernel|
+        kernel
+      end
+    end
+
+    expect do
+      Igniter::Contracts.build_kernel.install(dependent_pack)
+    end.to raise_error(Igniter::Contracts::UnknownPackDependencyError, /requires pack missing_pack/)
+  end
+
+  it "rejects circular pack dependencies" do
+    first_pack = Module.new
+    second_pack = Module.new
+
+    first_pack.define_singleton_method(:manifest) do
+      Igniter::Contracts::PackManifest.new(
+        name: :first_pack,
+        requires_packs: [Igniter::Contracts::PackManifest.pack_dependency(:second_pack, pack: second_pack)]
+      )
+    end
+    first_pack.define_singleton_method(:install_into) { |kernel| kernel }
+
+    second_pack.define_singleton_method(:manifest) do
+      Igniter::Contracts::PackManifest.new(
+        name: :second_pack,
+        requires_packs: [Igniter::Contracts::PackManifest.pack_dependency(:first_pack, pack: first_pack)]
+      )
+    end
+    second_pack.define_singleton_method(:install_into) { |kernel| kernel }
+
+    expect do
+      Igniter::Contracts.build_kernel.install(first_pack)
+    end.to raise_error(Igniter::Contracts::CircularPackDependencyError, /first_pack -> second_pack -> first_pack/)
+  end
 end

@@ -14,9 +14,9 @@ module Igniter
         end
 
         def install_into(kernel)
-          kernel.dsl_keywords.register(:project, DslKeyword.new(:project) do |name, from:, key:, builder:|
+          kernel.dsl_keywords.register(:project, DslKeyword.new(:project) do |name, from:, key: nil, dig: nil, default: PathAccess::NO_DEFAULT, builder:|
             source_name = from.to_sym
-            key_name = key.to_sym
+            path = PathAccess.normalize_path(keyword_name: :project, key: key, dig: dig)
 
             builder.add_operation(
               kind: :compute,
@@ -24,14 +24,13 @@ module Igniter
               depends_on: [source_name],
               callable: lambda do |**values|
                 source = values.fetch(source_name)
-
-                if source.respond_to?(:key?) && source.key?(key_name)
-                  source.fetch(key_name)
-                elsif source.respond_to?(:key?) && source.key?(key_name.to_s)
-                  source.fetch(key_name.to_s)
-                else
-                  raise KeyError, "project key #{key_name} not present in #{source_name}"
-                end
+                PathAccess.fetch_path(
+                  source,
+                  path,
+                  source_name: source_name,
+                  keyword_name: :project,
+                  default: default
+                )
               end
             )
           end)

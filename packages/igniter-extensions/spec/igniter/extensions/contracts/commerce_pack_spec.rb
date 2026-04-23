@@ -37,6 +37,7 @@ RSpec.describe Igniter::Extensions::Contracts::CommercePack do
 
   it "installs its dependent packs and exposes a coherent profile story" do
     profile = Igniter::Contracts.build_profile(described_class)
+    manifest = profile.pack_manifest(:extensions_commerce)
 
     expect(profile.pack_names).to contain_exactly(
       :baseline,
@@ -44,6 +45,7 @@ RSpec.describe Igniter::Extensions::Contracts::CommercePack do
       :extensions_aggregate,
       :extensions_commerce
     )
+    expect(manifest.requires_packs.map(&:name)).to eq(%i[extensions_lookup extensions_aggregate])
     expect(profile.dsl_keyword(:lookup)).to be_a(Igniter::Contracts::DslKeyword)
     expect(profile.supports_node_kind?(:lookup)).to be(false)
     expect(profile.dsl_keyword(:sum)).to be_a(Igniter::Contracts::DslKeyword)

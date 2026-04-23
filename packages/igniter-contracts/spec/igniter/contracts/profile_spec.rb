@@ -23,4 +23,29 @@ RSpec.describe Igniter::Contracts::Profile do
     expect(profile.declared_registry_keys(:executors)).to include(:inline)
     expect(profile.supports_executor?(:inline)).to be(true)
   end
+
+  it "aggregates provided and required capabilities from installed pack manifests" do
+    capability_pack = Module.new do
+      module_function
+
+      def manifest
+        Igniter::Contracts::PackManifest.new(
+          name: :capability_pack,
+          provides_capabilities: %i[incremental traceable],
+          requires_capabilities: %i[pure dataflow]
+        )
+      end
+
+      def install_into(kernel)
+        kernel
+      end
+    end
+
+    profile = Igniter::Contracts.build_kernel
+                               .install(capability_pack)
+                               .finalize
+
+    expect(profile.provided_capabilities).to eq(%i[incremental traceable])
+    expect(profile.required_capabilities).to eq(%i[pure dataflow])
+  end
 end

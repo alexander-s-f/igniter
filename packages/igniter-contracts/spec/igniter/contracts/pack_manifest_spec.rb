@@ -30,4 +30,38 @@ RSpec.describe Igniter::Contracts::PackManifest do
     expect(manifest.metadata).to eq({ category: :data })
     expect(manifest).to be_frozen
   end
+
+  it "normalizes pack dependencies and capabilities" do
+    dependency_pack = Module.new do
+      define_singleton_method(:manifest) do
+        Igniter::Contracts::PackManifest.new(name: :dependency_pack)
+      end
+    end
+
+    manifest = described_class.new(
+      name: :dependent_pack,
+      requires_packs: [dependency_pack, :other_pack],
+      provides_capabilities: %w[incremental diagnostics],
+      requires_capabilities: [:pure, "dataflow"]
+    )
+
+    expect(manifest.requires_packs.map(&:name)).to eq(%i[dependency_pack other_pack])
+    expect(manifest.requires_packs.first.pack).to eq(dependency_pack)
+    expect(manifest.provides_capabilities).to eq(%i[incremental diagnostics])
+    expect(manifest.requires_capabilities).to eq(%i[pure dataflow])
+  end
+
+  it "allows explicit dependency names for forward references and cycles" do
+    dependency_pack = Module.new
+
+    manifest = described_class.new(
+      name: :dependent_pack,
+      requires_packs: [
+        described_class.pack_dependency(:dependency_pack, pack: dependency_pack)
+      ]
+    )
+
+    expect(manifest.requires_packs.map(&:name)).to eq([:dependency_pack])
+    expect(manifest.requires_packs.first.pack).to eq(dependency_pack)
+  end
 end
