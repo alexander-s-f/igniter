@@ -3,6 +3,7 @@
 require "igniter/contracts"
 require_relative "contracts/aggregate_pack"
 require_relative "contracts/audit_pack"
+require_relative "contracts/capabilities_pack"
 require_relative "contracts/commerce_pack"
 require_relative "contracts/creator_pack"
 require_relative "contracts/dataflow_pack"
@@ -28,7 +29,7 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, AuditPack, CommercePack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, InvariantsPack, JournalPack, McpPack, ProvenancePack, ReactivePack, SagaPack]
+        [AggregatePack, AuditPack, CapabilitiesPack, CommercePack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, InvariantsPack, JournalPack, McpPack, ProvenancePack, ReactivePack, SagaPack]
       ).freeze
 
       PRESETS = {
@@ -180,6 +181,39 @@ module Igniter
 
         def verify_invariant_cases(environment, cases:, invariants:, compiled_graph: nil, &block)
           InvariantsPack.verify_cases(environment, cases: cases, invariants: invariants, compiled_graph: compiled_graph, &block)
+        end
+
+        def declare_capabilities(*capabilities, callable: nil, &block)
+          CapabilitiesPack.declare(*capabilities, callable: callable, &block)
+        end
+
+        def pure_callable(callable: nil, &block)
+          CapabilitiesPack.pure(callable: callable, &block)
+        end
+
+        def capability_policy(denied: [], required: [], on_undeclared: :ignore)
+          CapabilitiesPack.policy(denied: denied, required: required, on_undeclared: on_undeclared)
+        end
+
+        def required_capabilities(compiled_graph)
+          CapabilitiesPack.required_capabilities(compiled_graph)
+        end
+
+        def capabilities_for(compiled_graph, node_name)
+          CapabilitiesPack.capabilities_for(compiled_graph, node_name)
+        end
+
+        def profile_capabilities(profile_or_environment)
+          profile = profile_or_environment.respond_to?(:profile) ? profile_or_environment.profile : profile_or_environment
+          CapabilitiesPack.profile_capabilities(profile)
+        end
+
+        def capability_report(compiled_graph, profile: nil, policy: nil)
+          CapabilitiesPack.report(compiled_graph, profile: profile, policy: policy)
+        end
+
+        def check_capabilities!(compiled_graph, profile: nil, policy:)
+          CapabilitiesPack.check!(compiled_graph, profile: profile, policy: policy)
         end
 
         def debug_profile(target)

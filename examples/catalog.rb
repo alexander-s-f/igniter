@@ -108,6 +108,20 @@ module IgniterExamples
       expected_fragments: ["contracts_basic_gross_total=120.0", "contracts_basic_updated_gross_total=180.0"]
     ),
     Example.new(
+      id: "contracts/capabilities",
+      path: "examples/contracts/capabilities.rb",
+      summary: "New-world capability declarations, graph requirements, and preflight policy checks.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_capabilities_required={:fetched=>[:network, :database]}",
+        "contracts_capabilities_invalid=true",
+        "contracts_capabilities_violation_kinds=[:denied_capability]"
+      ]
+    ),
+    Example.new(
       id: "collection",
       path: "examples/collection.rb",
       summary: "Collection fan-out with per-item child results.",

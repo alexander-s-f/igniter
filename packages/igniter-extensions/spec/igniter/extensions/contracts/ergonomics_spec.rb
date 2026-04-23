@@ -14,6 +14,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::LookupPack,
       Igniter::Extensions::Contracts::AggregatePack,
       Igniter::Extensions::Contracts::AuditPack,
+      Igniter::Extensions::Contracts::CapabilitiesPack,
       Igniter::Extensions::Contracts::CommercePack,
       Igniter::Extensions::Contracts::CreatorPack,
       Igniter::Extensions::Contracts::DataflowPack,
@@ -283,6 +284,27 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
 
     expect(report.valid?).to eq(true)
     expect(cases.valid?).to eq(false)
+  end
+
+  it "exposes explicit capability declaration and policy helpers" do
+    environment = Igniter::Contracts.with(Igniter::Extensions::Contracts::CapabilitiesPack)
+
+    wrapped = Igniter::Extensions::Contracts.declare_capabilities(:database) { |sku:| sku.upcase }
+    compiled = environment.compile do
+      input :sku
+      compute :fetched, depends_on: [:sku], capabilities: [:network], callable: wrapped
+      output :fetched
+    end
+
+    report = Igniter::Extensions::Contracts.capability_report(
+      compiled,
+      profile: environment.profile,
+      policy: Igniter::Extensions::Contracts.capability_policy(denied: [:network])
+    )
+
+    expect(Igniter::Extensions::Contracts.required_capabilities(compiled)).to eq(fetched: %i[network database])
+    expect(report.invalid?).to eq(true)
+    expect(Igniter::Extensions::Contracts.profile_capabilities(environment)).to eq([])
   end
 
   it "exposes debug helpers over environments and profiles" do

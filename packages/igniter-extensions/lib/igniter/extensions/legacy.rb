@@ -5,7 +5,7 @@ module Igniter
     module Legacy
       REPLACEMENTS = {
         "igniter/extensions/auditing" => "Igniter::Extensions::Contracts::AuditPack",
-        "igniter/extensions/capabilities" => "contracts-side validation or diagnostics packs instead of patching CompiledGraph globally",
+        "igniter/extensions/capabilities" => "Igniter::Extensions::Contracts::CapabilitiesPack",
         "igniter/extensions/content_addressing" => "a dedicated contracts effect/runtime pack for content-addressed reuse",
         "igniter/extensions/dataflow" => "Igniter::Extensions::Contracts::DataflowPack",
         "igniter/extensions/differential" => "Igniter::Extensions::Contracts::DifferentialPack",

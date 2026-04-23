@@ -50,6 +50,8 @@ These legacy activators now have a clear contracts-side replacement:
   `Igniter::Extensions::Contracts::ExecutionReportPack`
 - `igniter/extensions/auditing`
   `Igniter::Extensions::Contracts::AuditPack`
+- `igniter/extensions/capabilities`
+  `Igniter::Extensions::Contracts::CapabilitiesPack`
 - `igniter/extensions/dataflow`
   `Igniter::Extensions::Contracts::DataflowPack`
 - `igniter/extensions/differential`
@@ -101,7 +103,6 @@ still weaker than for the explicit replacement packs above.
 
 These entrypoints still point to a direction, not a finished replacement:
 
-- `igniter/extensions/capabilities`
 - `igniter/extensions/content_addressing`
 
 Those are the main remaining migration backlog at the extension boundary.
@@ -168,7 +169,6 @@ The end state should be very explicit:
 
 Close the remaining legacy extension surfaces:
 
-- `capabilities`
 - `content_addressing`
 
 For each one:
@@ -308,9 +308,7 @@ That keeps the architecture honest.
 
 If we continue on migration value instead of novelty, I would prioritize:
 
-1. `capabilities`
-   because it likely wants compile-time contracts over global graph patching
-2. `content_addressing`
+1. `content_addressing`
    because it may need a more opinionated effect/runtime cache seam
 
 After those are closed, the priority should switch from "new capability" to

@@ -38,7 +38,9 @@ module Igniter
             builder.add_operation(kind: :input, name: name, **attributes)
           }),
           compute: DslKeyword.new(:compute, lambda { |name, builder:, **attributes, &block|
-            builder.add_operation(kind: :compute, name: name, **attributes.merge(callable: block))
+            normalized_attributes = attributes.dup
+            normalized_attributes[:callable] = block if block
+            builder.add_operation(kind: :compute, name: name, **normalized_attributes)
           }),
           composition: DslKeyword.new(:composition, lambda { |name, builder:, **attributes|
             builder.add_operation(kind: :composition, name: name, **attributes)
