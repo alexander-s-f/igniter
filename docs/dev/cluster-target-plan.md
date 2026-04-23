@@ -164,6 +164,19 @@ Current direction:
 - capability queries should be able to express richer intent than plain names:
   traits, labels, and region/zone locality should be part of the canonical
   routing and placement contract
+- peer locality should live in an explicit topology value object, so placement
+  and future rebalancing can depend on canonical topology data rather than
+  loose profile fields
+- cluster movement should be explicit and explainable: topology-driven
+  redistribution should produce first-class rebalance plans rather than hidden
+  runtime behavior
+- ownership should be planned explicitly too: workload/entity ownership should
+  come from first-class ownership plans rather than implicit peer selection
+- leases and renewals should be explicit planning/results too, so coordination
+  can evolve from explainable contracts instead of hidden timeout logic
+- degraded and failed peers should be handled through explicit health and
+  failover plans, so recovery paths are visible and testable instead of being
+  buried inside transport/runtime branching
 
 ### 3. Ownership And Placement
 

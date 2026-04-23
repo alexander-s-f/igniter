@@ -6,7 +6,7 @@ module Igniter
       attr_reader :profile, :transport
 
       def initialize(name:, capabilities:, transport:, metadata: {}, roles: [], labels: {}, region: nil, zone: nil,
-                     profile: nil, capability_catalog: nil)
+                     profile: nil, capability_catalog: nil, health: nil, health_status: :healthy, health_checks: {})
         raise ArgumentError, "peer transport must respond to call(request:)" unless transport.respond_to?(:call)
 
         @profile = profile || PeerProfile.new(
@@ -17,7 +17,10 @@ module Igniter
           region: region,
           zone: zone,
           metadata: metadata,
-          capability_catalog: capability_catalog
+          capability_catalog: capability_catalog,
+          health: health,
+          health_status: health_status,
+          health_checks: health_checks
         )
         @transport = transport
         freeze
@@ -49,6 +52,10 @@ module Igniter
 
       def metadata
         profile.metadata
+      end
+
+      def health
+        profile.health
       end
 
       def supports_capabilities?(required_capabilities)

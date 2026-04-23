@@ -99,6 +99,11 @@ RSpec.describe Igniter::Cluster::Environment do
     expect(entry.payload.fetch(:transport).dig(:cluster, :route, :metadata, :selected_peer_profile)).to include(
       name: :pricing_node,
       roles: %i[compute pricing],
+      topology: include(
+        region: "eu_west",
+        zone: "eu_west_1a",
+        labels: { tier: "gold" }
+      ),
       labels: { tier: "gold" },
       region: "eu_west",
       zone: "eu_west_1a",
@@ -303,7 +308,11 @@ RSpec.describe Igniter::Cluster::Environment do
     expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :mode)).to eq(:capability_filtered)
     expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :candidates)).to eq([:pricing_node])
     expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :metadata, :candidate_profiles)).to contain_exactly(
-      include(name: :pricing_node, capabilities: %i[compose pricing])
+      include(
+        name: :pricing_node,
+        capabilities: %i[compose pricing],
+        topology: include(region: nil, zone: nil, labels: {})
+      )
     )
     expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :metadata, :policy)).to include(
       name: :targeted,
@@ -377,6 +386,241 @@ RSpec.describe Igniter::Cluster::Environment do
     expect(entry.payload.fetch(:transport).dig(:cluster, :route, :peer)).to eq(:pricing_node)
     expect(entry.payload.fetch(:transport).dig(:cluster, :route, :explanation)).to include(
       code: :intent_route
+    )
+  end
+
+  it "builds explicit rebalance plans from topology policy" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .topology_policy(
+                                :locality,
+                                required_labels: { tier: "gold" },
+                                preferred_zone: :eu_west_1a
+                              )
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :fallback_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "silver" },
+      region: :eu_west,
+      zone: :eu_west_1b,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+    environment.register_peer(
+      :pricing_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+
+    plan = environment.plan_rebalance(
+      capabilities: [:pricing],
+      traits: [:financial],
+      metadata: { source: :cluster_spec }
+    )
+
+    expect(plan.to_h).to include(
+      mode: :rebalance,
+      source_names: [:fallback_node],
+      destination_names: [:pricing_node],
+      metadata: include(
+        source: :cluster_spec,
+        policy: include(name: :locality),
+        query: include(required_traits: [:financial], preferred_zone: "eu_west_1a")
+      ),
+      explanation: include(code: :topology_rebalance)
+    )
+    expect(plan.moves.map(&:to_h)).to contain_exactly(
+      include(
+        source: :fallback_node,
+        destination: :pricing_node,
+        reason: include(code: :topology_move)
+      )
+    )
+  end
+
+  it "builds explicit ownership plans from ownership policy" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .topology_policy(
+                                :locality,
+                                required_labels: { tier: "gold" },
+                                preferred_zone: :eu_west_1a
+                              )
+                              .ownership_policy(:distributed, owner_limit: 1)
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :fallback_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "silver" },
+      region: :eu_west,
+      zone: :eu_west_1b,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+    environment.register_peer(
+      :pricing_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+
+    plan = environment.plan_ownership(
+      target: "order-42",
+      capabilities: [:pricing],
+      traits: [:financial],
+      metadata: { source: :cluster_spec }
+    )
+
+    expect(plan.to_h).to include(
+      mode: :assigned,
+      owner_names: [:pricing_node],
+      targets: ["order-42"],
+      metadata: include(
+        source: :cluster_spec,
+        policy: include(name: :distributed, owner_limit: 1),
+        target: "order-42",
+        candidate_owner_names: [:pricing_node]
+      ),
+      explanation: include(code: :ownership_plan)
+    )
+    expect(plan.claims.map(&:to_h)).to contain_exactly(
+      include(
+        target: "order-42",
+        owner: :pricing_node,
+        reason: include(code: :ownership_assigned)
+      )
+    )
+  end
+
+  it "builds explicit lease plans from lease policy over ownership" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .topology_policy(
+                                :locality,
+                                required_labels: { tier: "gold" },
+                                preferred_zone: :eu_west_1a
+                              )
+                              .ownership_policy(:distributed, owner_limit: 1)
+                              .lease_policy(:ephemeral, ttl_seconds: 120, renewable: true)
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :fallback_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "silver" },
+      region: :eu_west,
+      zone: :eu_west_1b,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+    environment.register_peer(
+      :pricing_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+
+    plan = environment.plan_lease(
+      target: "order-42",
+      capabilities: [:pricing],
+      traits: [:financial],
+      metadata: { source: :cluster_spec }
+    )
+
+    expect(plan.to_h).to include(
+      mode: :granted,
+      owner_names: [:pricing_node],
+      targets: ["order-42"],
+      metadata: include(
+        source: :cluster_spec,
+        policy: include(name: :ephemeral, ttl_seconds: 120, renewable: true),
+        ownership: include(
+          mode: :assigned,
+          owner_names: [:pricing_node],
+          targets: ["order-42"]
+        )
+      ),
+      explanation: include(code: :lease_plan)
+    )
+    expect(plan.grants.map(&:to_h)).to contain_exactly(
+      include(
+        target: "order-42",
+        owner: :pricing_node,
+        ttl_seconds: 120,
+        renewable: true,
+        reason: include(code: :lease_granted)
+      )
+    )
+  end
+
+  it "builds explicit failover plans from health policy over ownership and topology" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .topology_policy(
+                                :locality,
+                                required_labels: { tier: "gold" },
+                                preferred_zone: :eu_west_1a
+                              )
+                              .ownership_policy(:distributed, owner_limit: 1)
+                              .health_policy(:availability_aware, trigger_statuses: %i[degraded unhealthy])
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :fallback_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "silver" },
+      region: :eu_west,
+      zone: :eu_west_1b,
+      health_status: :degraded,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+    environment.register_peer(
+      :pricing_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      health_status: :healthy,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+
+    plan = environment.plan_failover(
+      target: "order-42",
+      capabilities: [:pricing],
+      traits: [:financial],
+      metadata: { source: :cluster_spec }
+    )
+
+    expect(plan.to_h).to include(
+      mode: :failover,
+      source_names: [:fallback_node],
+      destination_names: [:pricing_node],
+      targets: ["order-42"],
+      metadata: include(
+        source: :cluster_spec,
+        policy: include(name: :availability_aware, trigger_statuses: %i[degraded unhealthy]),
+        ownership: include(
+          mode: :assigned,
+          owner_names: [:pricing_node],
+          targets: ["order-42"]
+        )
+      ),
+      explanation: include(code: :failover_plan)
+    )
+    expect(plan.steps.map(&:to_h)).to contain_exactly(
+      include(
+        target: "order-42",
+        source: :fallback_node,
+        destination: :pricing_node,
+        reason: include(code: :failover_assignment)
+      )
     )
   end
 
@@ -477,6 +721,10 @@ RSpec.describe Igniter::Cluster::Environment do
       admission_policy: include(name: :permissive),
       placement: :direct,
       placement_policy: include(name: :direct),
+      topology_policy: include(name: :locality_aware),
+      ownership_policy: include(name: :distributed),
+      lease_policy: include(name: :ephemeral),
+      health_policy: include(name: :availability_aware),
       peer_registry: :memory
     )
     expect(profile.to_h.fetch(:capability_catalog)).to eq(definitions: [])
@@ -487,6 +735,8 @@ RSpec.describe Igniter::Cluster::Environment do
         capabilities: [:pricing],
         capability_definitions: [],
         roles: [],
+        topology: { region: nil, zone: nil, labels: {}, metadata: {} },
+        health: include(status: :healthy),
         labels: {},
         region: nil,
         zone: nil

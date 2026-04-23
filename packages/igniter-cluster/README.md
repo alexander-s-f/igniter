@@ -24,8 +24,17 @@ Primary API:
 The first active slice is intentionally narrow:
 
 - explicit `PeerProfile` identity model over name/capabilities/roles/labels
+- explicit `PeerTopology` model for region/zone/labels locality
 - richer `CapabilityQuery` intent over capabilities, traits, labels, region,
   and zone
+- explicit `TopologyPolicy` and `RebalancePlan` for movement/rebalancing
+  semantics
+- explicit `OwnershipPolicy` and `OwnershipPlan` for workload/entity ownership
+  planning
+- explicit `LeasePolicy` and `LeasePlan` for TTL/renewal-aware coordination
+  planning
+- explicit `HealthPolicy` and `FailoverPlan` for degraded/failure transition
+  planning
 - explicit `Peer` registry
 - explicit `placement` seam
 - declarative `PlacementPolicy` default

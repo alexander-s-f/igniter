@@ -43,6 +43,34 @@ module Igniter
         self
       end
 
+      def topology_policy(name = nil, policy: nil, **attributes)
+        return @topology_policy if policy_query?(name, policy, attributes)
+
+        @topology_policy = policy || TopologyPolicy.new(name: name || :topology_policy, **attributes)
+        self
+      end
+
+      def ownership_policy(name = nil, policy: nil, **attributes)
+        return @ownership_policy if policy_query?(name, policy, attributes)
+
+        @ownership_policy = policy || OwnershipPolicy.new(name: name || :ownership_policy, **attributes)
+        self
+      end
+
+      def lease_policy(name = nil, policy: nil, **attributes)
+        return @lease_policy if policy_query?(name, policy, attributes)
+
+        @lease_policy = policy || LeasePolicy.new(name: name || :lease_policy, **attributes)
+        self
+      end
+
+      def health_policy(name = nil, policy: nil, **attributes)
+        return @health_policy if policy_query?(name, policy, attributes)
+
+        @health_policy = policy || HealthPolicy.new(name: name || :health_policy, **attributes)
+        self
+      end
+
       def transport(name = nil, seam: nil, &block)
         return @transport_name if seam_query?(name, seam, block)
 
@@ -90,6 +118,10 @@ module Igniter
         configure_default_seam(:admission, @admission_policy.name, PolicyAdmission.new(policy: @admission_policy))
         @placement_policy = PlacementPolicy.direct
         configure_default_seam(:placement, @placement_policy.name, PolicyPlacement.new(policy: @placement_policy))
+        @topology_policy = TopologyPolicy.locality_aware
+        @ownership_policy = OwnershipPolicy.distributed
+        @lease_policy = LeasePolicy.ephemeral
+        @health_policy = HealthPolicy.availability_aware
         configure_default_seam(:peer_registry, :memory, MemoryPeerRegistry.new)
       end
 
@@ -117,7 +149,11 @@ module Igniter
         {
           route: @route_policy,
           admission: @admission_policy,
-          placement: @placement_policy
+          placement: @placement_policy,
+          topology: @topology_policy,
+          ownership: @ownership_policy,
+          lease: @lease_policy,
+          health: @health_policy
         }
       end
 

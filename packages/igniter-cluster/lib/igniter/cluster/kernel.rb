@@ -25,7 +25,8 @@ module Igniter
         self
       end
 
-      def register_peer(name, capabilities:, transport:, metadata: {}, roles: [], labels: {}, region: nil, zone: nil)
+      def register_peer(name, capabilities:, transport:, metadata: {}, roles: [], labels: {}, region: nil, zone: nil,
+                        health: nil, health_status: :healthy, health_checks: {})
         peer_registry_seam.register(
           Peer.new(
             name: name,
@@ -36,7 +37,10 @@ module Igniter
             labels: labels,
             region: region,
             zone: zone,
-            capability_catalog: capability_catalog
+            capability_catalog: capability_catalog,
+            health: health,
+            health_status: health_status,
+            health_checks: health_checks
           )
         )
         self

@@ -3,18 +3,17 @@
 module Igniter
   module Cluster
     class PeerProfile
-      attr_reader :name, :capabilities, :roles, :labels, :region, :zone, :metadata, :capability_catalog
+      attr_reader :name, :capabilities, :roles, :topology, :health, :metadata, :capability_catalog
 
       def initialize(name:, capabilities:, roles: [], labels: {}, region: nil, zone: nil, metadata: {},
-                     capability_catalog: nil)
+                     capability_catalog: nil, topology: nil, health: nil, health_status: :healthy, health_checks: {})
         @name = name.to_sym
         @capabilities = normalize_names(capabilities)
         @roles = normalize_names(roles)
-        @labels = normalize_labels(labels)
-        @region = region&.to_s
-        @zone = zone&.to_s
         @metadata = metadata.dup.freeze
         @capability_catalog = capability_catalog
+        @topology = topology || PeerTopology.new(region: region, zone: zone, labels: labels)
+        @health = health || PeerHealth.new(status: health_status, checks: health_checks)
         freeze
       end
 
@@ -27,13 +26,11 @@ module Igniter
       end
 
       def label(name)
-        labels[name.to_sym]
+        topology.label(name)
       end
 
       def tagged?(name, value = nil)
-        return labels.key?(name.to_sym) if value.nil?
-
-        label(name) == value
+        topology.tagged?(name, value)
       end
 
       def capability_definitions
@@ -47,21 +44,15 @@ module Igniter
       end
 
       def matches_labels?(required_labels)
-        required_labels.all? do |key, value|
-          tagged?(key, value)
-        end
+        topology.matches_labels?(required_labels)
       end
 
       def matches_region?(preferred_region)
-        return true if preferred_region.nil?
-
-        region == preferred_region.to_s
+        topology.matches_region?(preferred_region)
       end
 
       def matches_zone?(preferred_zone)
-        return true if preferred_zone.nil?
-
-        zone == preferred_zone.to_s
+        topology.matches_zone?(preferred_zone)
       end
 
       def satisfies_query?(query, require_capabilities: true)
@@ -80,6 +71,8 @@ module Igniter
           capability_definitions: capability_definitions.map(&:to_h),
           capability_traits: capability_traits,
           roles: roles.dup,
+          topology: topology.to_h,
+          health: health.to_h,
           labels: labels.dup,
           region: region,
           zone: zone,
@@ -87,16 +80,22 @@ module Igniter
         }
       end
 
+      def labels
+        topology.labels
+      end
+
+      def region
+        topology.region
+      end
+
+      def zone
+        topology.zone
+      end
+
       private
 
       def normalize_names(values)
         Array(values).map(&:to_sym).uniq.sort.freeze
-      end
-
-      def normalize_labels(labels)
-        labels.each_with_object({}) do |(key, value), memo|
-          memo[key.to_sym] = value
-        end.freeze
       end
     end
   end

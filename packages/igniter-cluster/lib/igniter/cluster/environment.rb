@@ -29,7 +29,8 @@ module Igniter
         application.diagnose(result)
       end
 
-      def register_peer(name, capabilities:, transport:, metadata: {}, roles: [], labels: {}, region: nil, zone: nil)
+      def register_peer(name, capabilities:, transport:, metadata: {}, roles: [], labels: {}, region: nil, zone: nil,
+                        health: nil, health_status: :healthy, health_checks: {})
         peer_registry.register(
           Peer.new(
             name: name,
@@ -40,7 +41,10 @@ module Igniter
             labels: labels,
             region: region,
             zone: zone,
-            capability_catalog: profile.capability_catalog
+            capability_catalog: profile.capability_catalog,
+            health: health,
+            health_status: health_status,
+            health_checks: health_checks
           )
         )
       end
@@ -51,6 +55,85 @@ module Igniter
 
       def peers
         peer_registry.peers
+      end
+
+      def plan_rebalance(capabilities: [], traits: [], labels: {}, peer: nil, region: nil, zone: nil, query: nil,
+                         policy: nil, metadata: {})
+        effective_query = build_capability_query(
+          query: query,
+          capabilities: capabilities,
+          traits: traits,
+          labels: labels,
+          peer: peer,
+          region: region,
+          zone: zone
+        )
+        effective_policy = policy || profile.topology_policy
+        effective_policy.plan(peers: peers, query: effective_query, metadata: metadata)
+      end
+
+      def plan_ownership(target:, capabilities: [], traits: [], labels: {}, peer: nil, region: nil, zone: nil,
+                         query: nil, policy: nil, metadata: {})
+        effective_query = build_capability_query(
+          query: query,
+          capabilities: capabilities,
+          traits: traits,
+          labels: labels,
+          peer: peer,
+          region: region,
+          zone: zone
+        )
+        effective_policy = policy || profile.ownership_policy
+        effective_policy.plan(
+          peers: peers,
+          query: effective_query,
+          target: target,
+          topology_policy: profile.topology_policy,
+          metadata: metadata
+        )
+      end
+
+      def plan_lease(target:, capabilities: [], traits: [], labels: {}, peer: nil, region: nil, zone: nil,
+                     query: nil, ownership_plan: nil, ownership_policy: nil, policy: nil, metadata: {})
+        effective_ownership_plan = ownership_plan || plan_ownership(
+          target: target,
+          capabilities: capabilities,
+          traits: traits,
+          labels: labels,
+          peer: peer,
+          region: region,
+          zone: zone,
+          query: query,
+          policy: ownership_policy
+        )
+        effective_policy = policy || profile.lease_policy
+        effective_policy.plan(
+          target: target,
+          ownership_plan: effective_ownership_plan,
+          metadata: metadata
+        )
+      end
+
+      def plan_failover(target:, capabilities: [], traits: [], labels: {}, peer: nil, region: nil, zone: nil,
+                        query: nil, ownership_policy: nil, topology_policy: nil, policy: nil, metadata: {})
+        effective_query = build_capability_query(
+          query: query,
+          capabilities: capabilities,
+          traits: traits,
+          labels: labels,
+          peer: peer,
+          region: region,
+          zone: zone
+        )
+        effective_policy = policy || profile.health_policy
+        effective_policy.plan(
+          peers: peers,
+          query: effective_query,
+          target: target,
+          ownership_policy: ownership_policy || profile.ownership_policy,
+          topology_policy: topology_policy || profile.topology_policy,
+          metadata: metadata
+        )
       end
 
       def compose_invoker(capabilities: [], traits: [], labels: {}, peer: nil, region: nil, zone: nil, query: nil,

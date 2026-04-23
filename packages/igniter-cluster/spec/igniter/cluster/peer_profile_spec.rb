@@ -30,6 +30,12 @@ RSpec.describe Igniter::Cluster::PeerProfile do
       capability_definitions: [include(name: :pricing, traits: [:financial], labels: { domain: "commerce" })],
       capability_traits: [:financial],
       roles: %i[compute pricing],
+      topology: {
+        region: "eu_west",
+        zone: "eu_west_1a",
+        labels: { tier: "gold", zone: "eu-west-1a" },
+        metadata: {}
+      },
       labels: { tier: "gold", zone: "eu-west-1a" },
       region: "eu_west",
       zone: "eu_west_1a",
