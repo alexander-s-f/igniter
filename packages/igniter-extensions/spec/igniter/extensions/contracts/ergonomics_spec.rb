@@ -20,6 +20,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::DebugPack,
       Igniter::Extensions::Contracts::DifferentialPack,
       Igniter::Extensions::Contracts::IncrementalPack,
+      Igniter::Extensions::Contracts::InvariantsPack,
       Igniter::Extensions::Contracts::JournalPack,
       Igniter::Extensions::Contracts::McpPack,
       Igniter::Extensions::Contracts::ProvenancePack,
@@ -251,6 +252,37 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
     expect(dispatch.success?).to eq(true)
     expect(produced.last).to eq(180.0)
     expect(changed.last).to eq(180.0)
+  end
+
+  it "exposes explicit invariants helpers over execution results and case verification" do
+    environment = Igniter::Contracts.with(Igniter::Extensions::Contracts::InvariantsPack)
+
+    suite = Igniter::Extensions::Contracts.build_invariants do
+      invariant(:total_non_negative) { |total:, **| total >= 0 }
+    end
+
+    report = Igniter::Extensions::Contracts.run_invariants(
+      environment,
+      inputs: { price: 10.0, quantity: 2 },
+      invariants: suite
+    ) do
+      input :price
+      input :quantity
+      compute :total, depends_on: %i[price quantity] do |price:, quantity:|
+        price * quantity
+      end
+      output :total
+    end
+
+    cases = Igniter::Extensions::Contracts.verify_invariant_cases(
+      environment,
+      cases: [{ price: 10.0, quantity: 2 }, { price: -5.0, quantity: 3 }],
+      invariants: suite,
+      compiled_graph: report.execution_result.compiled_graph
+    )
+
+    expect(report.valid?).to eq(true)
+    expect(cases.valid?).to eq(false)
   end
 
   it "exposes debug helpers over environments and profiles" do

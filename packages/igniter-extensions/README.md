@@ -20,6 +20,7 @@ This package owns the `igniter/extensions/*` activation surface, including:
 - `require "igniter/extensions/differential"`
 - `require "igniter/extensions/incremental"`
 - `require "igniter/extensions/reactive"`
+- `require "igniter/extensions/invariants"`
 - `require "igniter/extensions/contracts"`
 
 It also provides the package facade:
@@ -41,6 +42,7 @@ Contracts-facing external packs now live here too:
 - `Igniter::Extensions::Contracts::DebugPack`
 - `Igniter::Extensions::Contracts::DifferentialPack`
 - `Igniter::Extensions::Contracts::JournalPack`
+- `Igniter::Extensions::Contracts::InvariantsPack`
 - `Igniter::Extensions::Contracts::McpPack`
 - `Igniter::Extensions::Contracts::ProvenancePack`
 - `Igniter::Extensions::Contracts::ReactivePack`
@@ -239,6 +241,8 @@ Legacy extension activators still exist for migration scenarios:
 - `require "igniter/extensions/provenance"`
 - `require "igniter/extensions/differential"`
 - `require "igniter/extensions/incremental"`
+- `require "igniter/extensions/reactive"`
+- `require "igniter/extensions/invariants"`
 
 Those activators still route through `igniter-core` and should be treated as
 legacy architecture, not as the long-term extension model.
@@ -261,11 +265,14 @@ The first canonical activator-to-pack migration target is now explicit:
   -> `Igniter::Extensions::Contracts::DifferentialPack`
 - `require "igniter/extensions/reactive"`
   -> `Igniter::Extensions::Contracts::ReactivePack`
+- `require "igniter/extensions/invariants"`
+  -> `Igniter::Extensions::Contracts::InvariantsPack`
 
 See [examples/contracts/execution_report_migration.rb](../../examples/contracts/execution_report_migration.rb)
 and [examples/contracts/auditing.rb](../../examples/contracts/auditing.rb)
 and [examples/contracts/dataflow.rb](../../examples/contracts/dataflow.rb)
 and [examples/contracts/differential.rb](../../examples/contracts/differential.rb)
+and [examples/contracts/invariants.rb](../../examples/contracts/invariants.rb)
 and [examples/contracts/provenance.rb](../../examples/contracts/provenance.rb)
 and [examples/contracts/reactive.rb](../../examples/contracts/reactive.rb)
 and [examples/contracts/saga.rb](../../examples/contracts/saga.rb)

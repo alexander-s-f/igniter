@@ -12,6 +12,7 @@ RSpec.describe "Igniter contracts migration examples" do
     "effects" => "contracts/effects",
     "incremental" => "contracts/incremental",
     "introspection" => "contracts/introspection",
+    "invariants" => "contracts/invariants",
     "provenance" => "contracts/provenance",
     "reactive_auditing" => "contracts/reactive",
     "saga" => "contracts/saga"

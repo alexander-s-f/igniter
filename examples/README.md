@@ -59,9 +59,11 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/effects.rb` — new-world effect/executor counterpart to the legacy effects example.
 - `contracts/execution_report_migration.rb` — side-by-side migration from the legacy `execution_report` activator to `ExecutionReportPack`.
 - `contracts/incremental.rb` — new-world incremental session counterpart over `IncrementalPack`.
+- `contracts/invariants.rb` — explicit invariant suites and multi-case verification over output contracts.
 - `contracts/introspection.rb` — new-world structured introspection counterpart to the legacy introspection example.
 - `contracts/journal.rb` — external effect/executor pack as a runnable operational demo.
 - `contracts/mcp.rb` — `McpPack` tooling adapter over debug and creator surfaces.
+- `contracts/reactive.rb` — explicit reactive subscriptions over output, lifecycle, and incremental change events.
 - `contracts/mcp_server.rb` — transport-ready MCP server wrapper over the adapter package.
 - `contracts/mcp_host.rb` — JSON-RPC stdio host entrypoint over the MCP adapter server wrapper.
 - `contracts/migration.rb` — side-by-side legacy `igniter-core` reference vs `igniter-contracts` target.
@@ -146,6 +148,7 @@ grow:
 | `differential.rb` | `contracts/differential.rb` | moves from global `shadow_with` / `diff_against` patching to explicit `DifferentialPack` compare and shadow helpers |
 | `effects.rb` | `contracts/effects.rb` | moves from legacy effect nodes to explicit effect/executor seams |
 | `incremental.rb` | `contracts/incremental.rb` | moves from patched contract mutation to explicit incremental sessions over `CompiledGraph` |
+| `invariants.rb` | `contracts/invariants.rb` | moves from auto-raise invariant patching to explicit invariant suites, checks, and multi-case verification |
 | `introspection.rb` | `contracts/introspection.rb` | moves from text/Mermaid explainers to structured compilation/result/diagnostics reports |
 | `provenance.rb` | `contracts/provenance.rb` | moves from legacy contract patching to explicit lineage over `ExecutionResult` + `ProvenancePack` |
 | `reactive_auditing.rb` | `contracts/reactive.rb` | moves from global reactive hooks plus audit patching to explicit subscriptions over execution and incremental change events |

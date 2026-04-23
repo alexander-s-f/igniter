@@ -10,6 +10,7 @@ require_relative "contracts/debug_pack"
 require_relative "contracts/differential_pack"
 require_relative "contracts/execution_report_pack"
 require_relative "contracts/incremental_pack"
+require_relative "contracts/invariants_pack"
 require_relative "contracts/journal_pack"
 require_relative "contracts/lookup_pack"
 require_relative "contracts/mcp_pack"
@@ -27,7 +28,7 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, AuditPack, CommercePack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, JournalPack, McpPack, ProvenancePack, ReactivePack, SagaPack]
+        [AggregatePack, AuditPack, CommercePack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, InvariantsPack, JournalPack, McpPack, ProvenancePack, ReactivePack, SagaPack]
       ).freeze
 
       PRESETS = {
@@ -159,6 +160,26 @@ module Igniter
 
         def run_incremental_reactive(session, inputs:, reactions:)
           ReactivePack.run_incremental(session, inputs: inputs, reactions: reactions)
+        end
+
+        def build_invariants(&block)
+          InvariantsPack.build(&block)
+        end
+
+        def check_invariants(target, invariants:)
+          InvariantsPack.check(target, invariants: invariants)
+        end
+
+        def validate_invariants!(target, invariants:)
+          InvariantsPack.validate!(target, invariants: invariants)
+        end
+
+        def run_invariants(environment, inputs:, invariants:, compiled_graph: nil, &block)
+          InvariantsPack.run(environment, inputs: inputs, invariants: invariants, compiled_graph: compiled_graph, &block)
+        end
+
+        def verify_invariant_cases(environment, cases:, invariants:, compiled_graph: nil, &block)
+          InvariantsPack.verify_cases(environment, cases: cases, invariants: invariants, compiled_graph: compiled_graph, &block)
         end
 
         def debug_profile(target)

@@ -103,6 +103,16 @@ RSpec.describe "Igniter legacy core entrypoints" do
     expect(stderr).to include("Igniter::Extensions::Contracts::ReactivePack")
   end
 
+  it "mentions the contracts replacement for legacy invariants activators" do
+    _stdout, stderr, status = capture_require(
+      "igniter/extensions/invariants",
+      env: { "IGNITER_LEGACY_CORE_REQUIRE" => nil }
+    )
+
+    expect(status.success?).to eq(true)
+    expect(stderr).to include("Igniter::Extensions::Contracts::InvariantsPack")
+  end
+
   it "does not emit a legacy core warning for the contracts-facing extensions facade" do
     _stdout, stderr, status = capture_require(
       "igniter/extensions/contracts",

@@ -543,6 +543,21 @@ module IgniterExamples
       ]
     ),
     Example.new(
+      id: "contracts/invariants",
+      path: "examples/contracts/invariants.rb",
+      summary: "New-world explicit invariant suites over outputs plus multi-case verification.",
+      migration_of: "invariants",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_invariants_valid=true",
+        "contracts_invariants_cases_valid=false",
+        "contracts_invariants_invalid_case_count=1"
+      ]
+    ),
+    Example.new(
       id: "invariants",
       path: "examples/invariants.rb",
       summary: "Invariant checks plus property-based testing.",
