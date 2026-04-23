@@ -241,6 +241,21 @@ module IgniterExamples
       expected_fragments: ["PART 1", "PART 2"]
     ),
     Example.new(
+      id: "contracts/dataflow",
+      path: "examples/contracts/dataflow.rb",
+      summary: "New-world dataflow session counterpart over DataflowPack and IncrementalPack.",
+      migration_of: "dataflow",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_dataflow_round1=added(3)",
+        "contracts_dataflow_total=3",
+        "contracts_dataflow_window_keys=s2,s3,s4"
+      ]
+    ),
+    Example.new(
       id: "diagnostics",
       path: "examples/diagnostics.rb",
       summary: "Text diagnostics and machine-readable result output.",

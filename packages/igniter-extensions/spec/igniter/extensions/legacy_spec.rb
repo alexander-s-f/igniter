@@ -15,6 +15,8 @@ RSpec.describe Igniter::Extensions::Legacy do
       .to eq("Igniter::Extensions::Contracts::ExecutionReportPack")
     expect(described_class.replacement_for("igniter/extensions/execution_report.rb"))
       .to eq("Igniter::Extensions::Contracts::ExecutionReportPack")
+    expect(described_class.replacement_for("igniter/extensions/dataflow"))
+      .to eq("Igniter::Extensions::Contracts::DataflowPack")
   end
 
   it "bakes the replacement guidance into the warning message" do

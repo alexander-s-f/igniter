@@ -271,6 +271,7 @@ The next external proof should exercise the full extension path:
 - `Igniter::Extensions::Contracts::ProvenancePack`
 - `Igniter::Extensions::Contracts::SagaPack`
 - `Igniter::Extensions::Contracts::IncrementalPack`
+- `Igniter::Extensions::Contracts::DataflowPack`
 
 Those next packs prove that an outside package can add:
 
@@ -282,6 +283,8 @@ Those next packs prove that an outside package can add:
   legacy core implementation
 - orchestration helpers such as saga compensation over `CompiledGraph` and
   partial `ExecutionResult` without reintroducing global contract patching
+- host-side incremental collection sessions and maintained aggregates without
+  routing back through the legacy core dataflow runtime
 - stateful host-side sessions such as incremental reruns over `CompiledGraph`
   without restoring the old mutable contract runtime API
 

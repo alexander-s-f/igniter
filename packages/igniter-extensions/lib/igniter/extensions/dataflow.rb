@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "legacy"
-Igniter::Extensions::Legacy.require!("igniter/extensions/dataflow", replacement: "a contracts pack that registers incremental collection node kinds and runtime handlers")
+Igniter::Extensions::Legacy.require!("igniter/extensions/dataflow", replacement: "Igniter::Extensions::Contracts::DataflowPack")
 require "igniter"
 require "igniter/core/dataflow"
 

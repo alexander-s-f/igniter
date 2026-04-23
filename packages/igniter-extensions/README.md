@@ -34,6 +34,7 @@ Contracts-facing external packs now live here too:
 - `Igniter::Extensions::Contracts::LookupPack`
 - `Igniter::Extensions::Contracts::AggregatePack`
 - `Igniter::Extensions::Contracts::CommercePack`
+- `Igniter::Extensions::Contracts::DataflowPack`
 - `Igniter::Extensions::Contracts::JournalPack`
 
 Those packs install into `Igniter::Contracts` through the public facade only:
@@ -81,6 +82,8 @@ The first canonical activator-to-pack migration target is now explicit:
 
 - `require "igniter/extensions/execution_report"`
   -> `Igniter::Extensions::Contracts::ExecutionReportPack`
+- `require "igniter/extensions/dataflow"`
+  -> `Igniter::Extensions::Contracts::DataflowPack`
 - `require "igniter/extensions/provenance"`
   -> `Igniter::Extensions::Contracts::ProvenancePack`
 - `require "igniter/extensions/saga"`
@@ -89,6 +92,7 @@ The first canonical activator-to-pack migration target is now explicit:
   -> `Igniter::Extensions::Contracts::IncrementalPack`
 
 See [examples/contracts/execution_report_migration.rb](../../examples/contracts/execution_report_migration.rb)
+and [examples/contracts/dataflow.rb](../../examples/contracts/dataflow.rb)
 and [examples/contracts/provenance.rb](../../examples/contracts/provenance.rb)
 and [examples/contracts/saga.rb](../../examples/contracts/saga.rb)
 and [examples/contracts/incremental.rb](../../examples/contracts/incremental.rb)

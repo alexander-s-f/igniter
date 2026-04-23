@@ -14,6 +14,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::LookupPack,
       Igniter::Extensions::Contracts::AggregatePack,
       Igniter::Extensions::Contracts::CommercePack,
+      Igniter::Extensions::Contracts::DataflowPack,
       Igniter::Extensions::Contracts::IncrementalPack,
       Igniter::Extensions::Contracts::JournalPack,
       Igniter::Extensions::Contracts::ProvenancePack,
@@ -131,5 +132,31 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
 
     expect(result.fully_memoized?).to eq(true)
     expect(result.output(:tax)).to eq(2.0)
+  end
+
+  it "exposes dataflow session helpers over environments" do
+    environment = Igniter::Extensions::Contracts.with(
+      Igniter::Extensions::Contracts::DataflowPack,
+      Igniter::Extensions::Contracts::IncrementalPack
+    )
+
+    session = Igniter::Extensions::Contracts.build_dataflow_session(
+      environment,
+      source: :readings,
+      key: :sensor_id
+    ) do
+      item do
+        input :sensor_id
+        input :value
+        output :value
+      end
+
+      count :total
+    end
+
+    result = session.run(inputs: { readings: [{ sensor_id: "s1", value: 10 }] })
+
+    expect(result.total).to eq(1)
+    expect(result.processed.keys).to eq(["s1"])
   end
 end

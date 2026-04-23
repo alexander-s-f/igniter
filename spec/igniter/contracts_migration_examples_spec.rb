@@ -6,6 +6,7 @@ require_relative "../../examples/catalog"
 RSpec.describe "Igniter contracts migration examples" do
   expected_map = {
     "basic_pricing" => "contracts/basic_pricing",
+    "dataflow" => "contracts/dataflow",
     "diagnostics" => "contracts/diagnostics",
     "effects" => "contracts/effects",
     "incremental" => "contracts/incremental",

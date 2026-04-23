@@ -49,6 +49,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/build_your_own_pack.rb` — inline pack authoring over the public contracts API.
 - `contracts/compose_your_own_packs.rb` — inline pack composition where one custom pack depends on another.
 - `contracts/commerce.rb` — applied `igniter-contracts` commerce preset with public external packs.
+- `contracts/dataflow.rb` — new-world dataflow session counterpart over `DataflowPack` + `IncrementalPack`.
 - `contracts/diagnostics.rb` — new-world diagnostics report counterpart to the legacy diagnostics example.
 - `contracts/effects.rb` — new-world effect/executor counterpart to the legacy effects example.
 - `contracts/execution_report_migration.rb` — side-by-side migration from the legacy `execution_report` activator to `ExecutionReportPack`.
@@ -131,6 +132,7 @@ grow:
 | Legacy example | Contracts counterpart | Migration note |
 | --- | --- | --- |
 | `basic_pricing.rb` | `contracts/basic_pricing.rb` | same smallest pricing flow, but through `Igniter::Contracts.with` |
+| `dataflow.rb` | `contracts/dataflow.rb` | moves from legacy incremental collection patching to explicit `DataflowPack` sessions over `IncrementalPack` |
 | `diagnostics.rb` | `contracts/diagnostics.rb` | moves from text/as_json diagnostics to typed `DiagnosticsReport` |
 | `effects.rb` | `contracts/effects.rb` | moves from legacy effect nodes to explicit effect/executor seams |
 | `incremental.rb` | `contracts/incremental.rb` | moves from patched contract mutation to explicit incremental sessions over `CompiledGraph` |

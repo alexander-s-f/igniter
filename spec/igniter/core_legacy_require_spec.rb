@@ -73,6 +73,16 @@ RSpec.describe "Igniter legacy core entrypoints" do
     expect(stderr).to include("igniter/extensions/dataflow")
   end
 
+  it "mentions the contracts replacement for legacy dataflow activators" do
+    _stdout, stderr, status = capture_require(
+      "igniter/extensions/dataflow",
+      env: { "IGNITER_LEGACY_CORE_REQUIRE" => nil }
+    )
+
+    expect(status.success?).to eq(true)
+    expect(stderr).to include("Igniter::Extensions::Contracts::DataflowPack")
+  end
+
   it "does not emit a legacy core warning for the contracts-facing extensions facade" do
     _stdout, stderr, status = capture_require(
       "igniter/extensions/contracts",
