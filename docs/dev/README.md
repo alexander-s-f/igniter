@@ -19,6 +19,7 @@ a framework.
 - [Data Ownership](./data-ownership.md)
 - [Roadmap And Change Work](./roadmap.md)
 - [Legacy Reference](./legacy-reference.md)
+- [Contracts Migration Roadmap](./contracts-migration-roadmap.md)
 
 ## Package And Layer Boundaries
 

@@ -2,6 +2,9 @@
 
 This document defines the target architecture for `igniter-contracts`.
 
+For the practical migration status and next pack/distribution steps, see
+[Contracts Migration Roadmap](./contracts-migration-roadmap.md).
+
 The point of the package is not just a new gem name. It is the chance to build
 the embedded kernel as a clean composition root while `igniter-core` remains
 available as the legacy implementation package during the transition.
