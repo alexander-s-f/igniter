@@ -129,17 +129,22 @@ module Igniter
           CreatorPack.available_profiles
         end
 
-        def scaffold_pack(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil)
+        def creator_scopes
+          CreatorPack.available_scopes
+        end
+
+        def scaffold_pack(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package)
           CreatorPack.scaffold(
             name: name,
             kind: kind,
             namespace: namespace,
             profile: profile,
-            capabilities: capabilities
+            capabilities: capabilities,
+            scope: scope
           )
         end
 
-        def creator_report(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, pack: nil, target: nil)
+        def creator_report(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target: nil)
           runtime_profile =
             case target
             when nil
@@ -154,6 +159,7 @@ module Igniter
             namespace: namespace,
             profile: profile,
             capabilities: capabilities,
+            scope: scope,
             pack: pack,
             target_profile: runtime_profile
           )

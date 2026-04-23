@@ -43,7 +43,7 @@ module Igniter
             }
           }.freeze
 
-          attr_reader :name, :kind, :capabilities, :dependency_hints, :summary
+          attr_reader :name, :kind, :capabilities, :dependency_hints, :development_hints, :summary
 
           def self.available
             PRESETS.keys
@@ -62,6 +62,7 @@ module Igniter
               kind: preset.fetch(:kind),
               capabilities: effective_capabilities,
               dependency_hints: preset.fetch(:dependency_hints),
+              development_hints: development_hints_for(effective_capabilities, preset.fetch(:dependency_hints)),
               summary: preset.fetch(:summary)
             )
           end
@@ -74,9 +75,36 @@ module Igniter
               name: :custom,
               kind: normalized_kind,
               capabilities: inferred_capabilities,
-              dependency_hints: [],
+              dependency_hints: dependency_hints_for(inferred_capabilities),
+              development_hints: development_hints_for(inferred_capabilities, dependency_hints_for(inferred_capabilities)),
               summary: "custom #{normalized_kind} authoring profile"
             )
+          end
+
+          def self.dependency_hints_for(capabilities)
+            caps = capabilities.map(&:to_sym)
+            hints = []
+            if caps.include?(:diagnostic)
+              hints.concat([
+                "Igniter::Extensions::Contracts::ExecutionReportPack",
+                "Igniter::Extensions::Contracts::ProvenancePack"
+              ])
+            end
+            if caps.include?(:dependency_pack) && caps.include?(:diagnostic)
+              hints << "Igniter::Extensions::Contracts::DebugPack"
+            end
+
+            hints.uniq
+          end
+
+          def self.development_hints_for(capabilities, dependency_hints)
+            caps = capabilities.map(&:to_sym)
+            hints = []
+            hints << "use Igniter::Extensions::Contracts::DebugPack while authoring and validating the pack"
+            hints << "consider Igniter::Extensions::Contracts::JournalPack while developing effect/executor adapters" if (caps & %i[effect executor]).any?
+            hints << "bundle diagnostics contributors only when they are truly additive and non-semantic" if caps.include?(:diagnostic)
+            hints << "review dependency pack composition carefully: #{dependency_hints.join(', ')}" unless dependency_hints.empty?
+            hints.uniq
           end
 
           def self.default_capabilities_for(kind)
@@ -100,11 +128,12 @@ module Igniter
             :feature
           end
 
-          def initialize(name:, kind:, capabilities:, dependency_hints:, summary:)
+          def initialize(name:, kind:, capabilities:, dependency_hints:, development_hints:, summary:)
             @name = name.to_sym
             @kind = kind.to_sym
             @capabilities = capabilities.map(&:to_sym).uniq.freeze
             @dependency_hints = dependency_hints.dup.freeze
+            @development_hints = development_hints.dup.freeze
             @summary = summary
             freeze
           end
@@ -124,6 +153,7 @@ module Igniter
               capabilities: capabilities,
               registry_capabilities: registry_capabilities,
               dependency_hints: dependency_hints,
+              development_hints: development_hints,
               summary: summary
             }
           end

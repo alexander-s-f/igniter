@@ -104,6 +104,7 @@ audit.finalize_error
 scaffold = Igniter::Extensions::Contracts.scaffold_pack(
   name: :slug,
   profile: :feature_node,
+  scope: :app_local,
   namespace: "MyCompany::IgniterPacks"
 )
 
@@ -119,6 +120,12 @@ Available authoring profiles:
 - `:operational_adapter`
 - `:diagnostic_bundle`
 - `:bundle_pack`
+
+Available target scopes:
+
+- `:app_local`
+- `:monorepo_package`
+- `:standalone_gem`
 
 You can also drive scaffolding directly from capabilities:
 

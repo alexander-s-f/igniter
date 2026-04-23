@@ -46,6 +46,14 @@ module Igniter
               steps << "review dependency hints: #{scaffold.profile.dependency_hints.join(', ')}"
             end
 
+            scaffold.profile.development_hints.each do |hint|
+              steps << hint
+            end
+
+            scaffold.scope.packaging_hints.each do |hint|
+              steps << hint
+            end
+
             steps
           end
 
@@ -57,6 +65,7 @@ module Igniter
               includes_readme: true,
               audit_ok: audit&.ok?,
               authoring_profile: scaffold.profile.name,
+              target_scope: scaffold.scope.name,
               dependency_hints: scaffold.profile.dependency_hints
             }
           end

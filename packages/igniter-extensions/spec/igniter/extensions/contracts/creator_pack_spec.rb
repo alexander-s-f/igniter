@@ -31,15 +31,23 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
     )
   end
 
+  it "publishes available authoring scopes" do
+    expect(Igniter::Extensions::Contracts.creator_scopes).to eq(
+      %i[app_local monorepo_package standalone_gem]
+    )
+  end
+
   it "builds a feature scaffold with pack/spec/example/readme templates" do
     scaffold = Igniter::Extensions::Contracts.scaffold_pack(
       name: :slug,
       profile: :feature_node,
+      scope: :monorepo_package,
       namespace: "Acme::IgniterPacks"
     )
 
     expect(scaffold.pack_constant).to eq("Acme::IgniterPacks::SlugPack")
     expect(scaffold.profile.name).to eq(:feature_node)
+    expect(scaffold.scope.name).to eq(:monorepo_package)
     expect(scaffold.files.keys).to eq([
       "lib/acme/igniter_packs/slug_pack.rb",
       "spec/acme/igniter_packs/slug_pack_spec.rb",
@@ -54,6 +62,7 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
     scaffold = Igniter::Extensions::Contracts.scaffold_pack(
       name: :audit_trail,
       profile: :operational_adapter,
+      scope: :standalone_gem,
       namespace: "Acme::IgniterPacks"
     )
 
@@ -65,6 +74,7 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
     scaffold = Igniter::Extensions::Contracts.scaffold_pack(
       name: :developer_console,
       profile: :diagnostic_bundle,
+      scope: :monorepo_package,
       namespace: "Acme::IgniterPacks"
     )
 
@@ -77,6 +87,19 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
     )
     expect(template).to include("PackManifest.diagnostic(:developer_console_summary)")
     expect(template).to include("install_dependency_pack(kernel, Igniter::Extensions::Contracts::ExecutionReportPack)")
+  end
+
+  it "adapts generated paths for app-local scope" do
+    scaffold = Igniter::Extensions::Contracts.scaffold_pack(
+      name: :slug,
+      profile: :feature_node,
+      scope: :app_local,
+      namespace: "Acme::IgniterPacks"
+    )
+
+    expect(scaffold.pack_file_path).to eq("app/lib/acme/igniter_packs/slug_pack.rb")
+    expect(scaffold.spec_file_path).to eq("spec/lib/acme/igniter_packs/slug_pack_spec.rb")
+    expect(scaffold.readme_file_path).to eq("docs/igniter-packs/README.md")
   end
 
   it "infers an operational scaffold from capabilities" do
@@ -96,6 +119,7 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
     report = Igniter::Extensions::Contracts.creator_report(
       name: :draft,
       profile: :feature_node,
+      scope: :standalone_gem,
       namespace: "Acme::IgniterPacks",
       pack: DraftCreatorPack,
       target: environment
@@ -105,6 +129,7 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
     expect(report.audit.ok?).to eq(false)
     expect(report.next_steps).to include("use Igniter::Extensions::Contracts.audit_pack(...) before finalize")
     expect(report.next_steps.grep(/implement node kind/)).not_to be_empty
+    expect(report.next_steps.grep(/distributable gem/)).not_to be_empty
     expect(report.to_h.fetch(:quality_bar).fetch(:includes_example)).to eq(true)
   end
 end

@@ -2,6 +2,7 @@
 
 require_relative "creator/profile"
 require_relative "creator/scaffold"
+require_relative "creator/scope"
 require_relative "creator/report"
 
 module Igniter
@@ -26,24 +27,31 @@ module Igniter
           Creator::Profile.available
         end
 
-        def scaffold(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil)
+        def available_scopes
+          Creator::Scope.available
+        end
+
+        def scaffold(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package)
           authoring_profile = Creator::Profile.build(profile: profile, kind: kind, capabilities: capabilities)
+          target_scope = Creator::Scope.build(scope)
           generated = Creator::Scaffold.new(
             name: name,
             kind: authoring_profile.kind,
             namespace: namespace,
-            profile: authoring_profile
+            profile: authoring_profile,
+            scope: target_scope
           )
           generated
         end
 
-        def report(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, pack: nil, target_profile: nil)
+        def report(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target_profile: nil)
           generated = scaffold(
             name: name,
             kind: kind,
             namespace: namespace,
             profile: profile,
-            capabilities: capabilities
+            capabilities: capabilities,
+            scope: scope
           )
           audit = pack ? DebugPack.audit(pack, profile: target_profile) : nil
 

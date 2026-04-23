@@ -7,13 +7,14 @@ module Igniter
         class Scaffold
           SUPPORTED_KINDS = %i[feature operational bundle].freeze
 
-          attr_reader :name, :kind, :namespace, :profile
+          attr_reader :name, :kind, :namespace, :profile, :scope
 
-          def initialize(name:, kind:, namespace:, profile:)
+          def initialize(name:, kind:, namespace:, profile:, scope:)
             @name = normalize_name(name)
             @kind = normalize_kind(kind)
             @namespace = normalize_namespace(namespace)
             @profile = profile
+            @scope = scope
             freeze
           end
 
@@ -30,19 +31,19 @@ module Igniter
           end
 
           def pack_file_path
-            "lib/#{namespace_path}/#{name}_pack.rb"
+            "#{scope.root}/#{namespace_path}/#{name}_pack.rb"
           end
 
           def spec_file_path
-            "spec/#{namespace_path}/#{name}_pack_spec.rb"
+            "#{scope.spec_root}/#{namespace_path}/#{name}_pack_spec.rb"
           end
 
           def example_file_path
-            "examples/#{name}_pack.rb"
+            "#{scope.example_root}/#{name}_pack.rb"
           end
 
           def readme_file_path
-            "README.md"
+            scope.readme_path
           end
 
           def files
@@ -60,6 +61,7 @@ module Igniter
               kind: kind,
               namespace: namespace,
               profile: profile.to_h,
+              scope: scope.to_h,
               pack_constant: pack_constant,
               files: files.keys
             }
@@ -139,6 +141,15 @@ module Igniter
               - capabilities: `#{profile.capabilities.join("`, `")}`
               - registry seams: `#{profile.registry_capabilities.join("`, `")}`
               #{dependency_hints_markdown}
+              #{development_hints_markdown}
+
+              ## Target Scope
+
+              - `#{scope.name}`
+              - pack root: `#{scope.root}`
+              - spec root: `#{scope.spec_root}`
+              - example root: `#{scope.example_root}`
+              #{packaging_hints_markdown}
 
               ## Recommended Workflow
 
@@ -380,6 +391,18 @@ module Igniter
             return "" if profile.dependency_hints.empty?
 
             "              - dependency hints: `#{profile.dependency_hints.join("`, `")}`"
+          end
+
+          def development_hints_markdown
+            return "" if profile.development_hints.empty?
+
+            "              - development hints: `#{profile.development_hints.join("`; `")}`"
+          end
+
+          def packaging_hints_markdown
+            return "" if scope.packaging_hints.empty?
+
+            "              - packaging hints: `#{scope.packaging_hints.join("`; `")}`"
           end
 
           def bundle_manifest_body
