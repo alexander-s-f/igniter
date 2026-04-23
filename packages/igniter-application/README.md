@@ -22,3 +22,7 @@ Primary API:
 - `Igniter::Application::Environment`
 - `Igniter::Application::Snapshot`
 - `Igniter::Application::BootReport`
+
+First clean external host adapter:
+
+- `Igniter::Server::ApplicationHost`

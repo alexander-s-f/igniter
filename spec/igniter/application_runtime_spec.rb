@@ -129,6 +129,8 @@ RSpec.describe "Igniter::Application clean contracts-native runtime" do
     expect(profile.supports_service?(:notes_api)).to be(true)
     expect(profile.service(:notes_api).call).to eq(["n1", "n2"])
     expect(profile.supports_contract?("HelloContract")).to be(true)
+    expect(profile.service_registry).to be_a(Igniter::Application::ServiceRegistry)
+    expect(profile.contract_registry).to be_a(Igniter::Application::ContractRegistry)
     expect(profile.application_pack_names).not_to be_empty
     expect(profile.provider_names).to eq([:analytics])
     expect(profile.interface_names).to eq([:public_notes_api])
@@ -145,6 +147,7 @@ RSpec.describe "Igniter::Application clean contracts-native runtime" do
     expect(profile.to_h.fetch(:services)).to include(:notes_api, :public_notes_api)
     expect(profile.to_h.fetch(:config)).to include(runtime: { mode: :test })
     expect(profile.interface_definition(:public_notes_api).metadata).to include(audience: :external)
+    expect(profile.contract_registry.names).to eq(["HelloContract"])
   end
 
   it "executes contracts through igniter-contracts without touching legacy app runtime" do

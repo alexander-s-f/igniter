@@ -52,19 +52,19 @@ module Igniter
       end
 
       def service_definition(name)
-        return profile.service_definition(name) if profile.service_definitions.key?(name.to_sym)
+        return profile.service_definition(name) if profile.service_registry.service?(name)
 
         resolved_provider_service_definitions.fetch(name.to_sym)
       end
 
       def interface(name)
-        return profile.interface_definition(name).callable if profile.interfaces.key?(name.to_sym)
+        return profile.interface_definition(name).callable if profile.service_registry.interface?(name)
 
         resolved_provider_interfaces.fetch(name.to_sym)
       end
 
       def interface_definition(name)
-        return profile.interface_definition(name) if profile.interfaces.key?(name.to_sym)
+        return profile.interface_definition(name) if profile.service_registry.interface?(name)
 
         resolved_provider_interface_definitions.fetch(name.to_sym)
       end
@@ -161,6 +161,7 @@ module Igniter
       end
 
       def start_host
+        activate_transport!
         host_seam.start(environment: self)
       end
 

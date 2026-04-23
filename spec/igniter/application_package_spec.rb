@@ -15,6 +15,8 @@ RSpec.describe "igniter-application local gem facade" do
     expect(Igniter::Application::ProviderRegistration).to be_a(Class)
     expect(Igniter::Application::ServiceDefinition).to be_a(Class)
     expect(Igniter::Application::Interface).to be_a(Class)
+    expect(Igniter::Application::ServiceRegistry).to be_a(Class)
+    expect(Igniter::Application::ContractRegistry).to be_a(Class)
     expect(Igniter::Application::BootPhase).to be_a(Class)
     expect(Igniter::Application::Snapshot).to be_a(Class)
     expect(Igniter::Application::BootReport).to be_a(Class)

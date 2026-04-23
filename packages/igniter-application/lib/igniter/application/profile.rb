@@ -6,8 +6,8 @@ module Igniter
       attr_reader :contracts_profile, :contracts_packs, :application_packs,
                   :host_name, :loader_name, :scheduler_name,
                   :host_seam, :loader_seam, :scheduler_seam,
-                  :config, :providers, :services, :service_definitions, :interfaces,
-                  :registrations, :scheduled_jobs, :code_paths
+                  :config, :providers, :service_registry, :contract_registry,
+                  :scheduled_jobs, :code_paths
 
       def initialize(contracts_profile:, contracts_packs:, application_packs:,
                      host_name:, loader_name:, scheduler_name:,
@@ -25,10 +25,12 @@ module Igniter
         @scheduler_seam = scheduler_seam
         @config = config
         @providers = providers.dup.freeze
-        @services = services.dup.freeze
-        @service_definitions = service_definitions.dup.freeze
-        @interfaces = interfaces.dup.freeze
-        @registrations = registrations.dup.freeze
+        @service_registry = ServiceRegistry.new(
+          services: services,
+          service_definitions: service_definitions,
+          interfaces: interfaces
+        )
+        @contract_registry = ContractRegistry.new(registrations)
         @scheduled_jobs = scheduled_jobs.map(&:dup).freeze
         @code_paths = code_paths.each_with_object({}) do |(group, paths), memo|
           memo[group.to_sym] = Array(paths).map(&:dup).freeze
@@ -37,27 +39,27 @@ module Igniter
       end
 
       def service(name)
-        services.fetch(name.to_sym)
+        service_registry.fetch(name)
       end
 
       def service_definition(name)
-        service_definitions.fetch(name.to_sym)
+        service_registry.service_definition(name)
       end
 
       def interface_definition(name)
-        interfaces.fetch(name.to_sym)
+        service_registry.interface_definition(name)
       end
 
       def contract(name)
-        registrations.fetch(name.to_s)
+        contract_registry.fetch(name)
       end
 
       def supports_service?(name)
-        services.key?(name.to_sym)
+        service_registry.service?(name)
       end
 
       def supports_contract?(name)
-        registrations.key?(name.to_s)
+        contract_registry.key?(name)
       end
 
       def path_groups
@@ -73,11 +75,11 @@ module Igniter
       end
 
       def service_names
-        services.keys.sort
+        service_registry.service_names
       end
 
       def interface_names
-        interfaces.keys.sort
+        service_registry.interface_names
       end
 
       def provider_names
@@ -85,7 +87,7 @@ module Igniter
       end
 
       def contract_names
-        registrations.keys.sort
+        contract_registry.names
       end
 
       def scheduled_job_names
@@ -102,8 +104,8 @@ module Igniter
           scheduler: scheduler_name,
           config: config.to_h,
           providers: providers.map(&:to_h),
-          services: service_names,
-          interfaces: interface_names,
+          services: service_registry.service_names,
+          interfaces: service_registry.interface_names,
           contracts: contract_names,
           scheduled_jobs: scheduled_jobs.map do |job|
             {
