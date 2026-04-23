@@ -3,6 +3,48 @@
 require_relative "../../spec_helper"
 
 RSpec.describe Igniter::Cluster::Environment do
+  def build_mesh_transport
+    lambda do |request:|
+      if request.is_a?(Igniter::Cluster::MeshExecutionRequest)
+        Igniter::Cluster::MeshExecutionResponse.new(
+          status: :completed,
+          metadata: {
+            accepted_by: request.metadata.fetch(:peer).fetch(:name),
+            trace_id: request.trace_id
+          },
+          explanation: Igniter::Cluster::DecisionExplanation.new(
+            code: :mesh_peer_accept,
+            message: "mesh peer accepted #{request.plan_kind}",
+            metadata: { peer: request.metadata.fetch(:peer).fetch(:name) }
+          )
+        )
+      else
+        build_peer_transport(nil).call(request:)
+      end
+    end
+  end
+
+  def build_failing_mesh_transport
+    lambda do |request:|
+      if request.is_a?(Igniter::Cluster::MeshExecutionRequest)
+        Igniter::Cluster::MeshExecutionResponse.new(
+          status: :failed,
+          metadata: {
+            rejected_by: request.metadata.fetch(:peer).fetch(:name),
+            trace_id: request.trace_id
+          },
+          explanation: Igniter::Cluster::DecisionExplanation.new(
+            code: :mesh_peer_reject,
+            message: "mesh peer rejected #{request.plan_kind}",
+            metadata: { peer: request.metadata.fetch(:peer).fetch(:name) }
+          )
+        )
+      else
+        build_peer_transport(nil).call(request:)
+      end
+    end
+  end
+
   def build_peer_transport(contracts_profile)
     lambda do |request:|
       result =
@@ -442,6 +484,59 @@ RSpec.describe Igniter::Cluster::Environment do
     )
   end
 
+  it "executes rebalance plans through the cluster plan executor" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .topology_policy(
+                                :locality,
+                                required_labels: { tier: "gold" },
+                                preferred_zone: :eu_west_1a
+                              )
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :fallback_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "silver" },
+      region: :eu_west,
+      zone: :eu_west_1b,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+    environment.register_peer(
+      :pricing_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+
+    plan = environment.plan_rebalance(capabilities: [:pricing], traits: [:financial])
+    report = environment.execute_rebalance_plan(plan)
+
+    expect(report).to be_a(Igniter::Cluster::PlanExecutionReport)
+    expect(report.completed?).to be(true)
+    expect(report.to_h).to include(
+      plan_kind: :rebalance,
+      status: :completed,
+      action_types: [:rebalance_action],
+      explanation: include(code: :rebalance_execution)
+    )
+    expect(report.action_results).to contain_exactly(
+      have_attributes(
+        action_type: :rebalance_action,
+        status: :completed
+      )
+    )
+    expect(report.action_results.first.to_h).to include(
+      subject: {
+        source: :fallback_node,
+        destination: :pricing_node
+      },
+      metadata: include(simulated: true)
+    )
+  end
+
   it "builds explicit ownership plans from ownership policy" do
     cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
                               .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
@@ -495,6 +590,58 @@ RSpec.describe Igniter::Cluster::Environment do
         owner: :pricing_node,
         reason: include(code: :ownership_assigned)
       )
+    )
+  end
+
+  it "executes ownership and lease plans through explicit cluster execution reports" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .topology_policy(
+                                :locality,
+                                required_labels: { tier: "gold" },
+                                preferred_zone: :eu_west_1a
+                              )
+                              .ownership_policy(:distributed, owner_limit: 1)
+                              .lease_policy(:ephemeral, ttl_seconds: 120, renewable: true)
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :pricing_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+
+    ownership_plan = environment.plan_ownership(target: "order-42", capabilities: [:pricing], traits: [:financial])
+    ownership_report = environment.execute_ownership_plan(ownership_plan)
+    lease_plan = environment.plan_lease(target: "order-42", ownership_plan: ownership_plan)
+    lease_report = environment.execute_lease_plan(lease_plan) do |plan_kind:, action:, environment:|
+      _unused_plan_kind = plan_kind
+      {
+        executed_by: :spec_handler,
+        owner: action.owner.name,
+        cluster: environment.profile.to_h.fetch(:placement)
+      }
+    end
+
+    expect(ownership_report.to_h).to include(
+      plan_kind: :ownership,
+      status: :completed,
+      action_types: [:ownership_action]
+    )
+    expect(lease_report.to_h).to include(
+      plan_kind: :lease,
+      status: :completed,
+      action_types: [:lease_action]
+    )
+    expect(lease_report.action_results.first.to_h).to include(
+      subject: {
+        target: "order-42",
+        owner: :pricing_node
+      },
+      metadata: include(simulated: false, executed_by: :spec_handler)
     )
   end
 
@@ -557,6 +704,212 @@ RSpec.describe Igniter::Cluster::Environment do
         renewable: true,
         reason: include(code: :lease_granted)
       )
+    )
+  end
+
+  it "executes failover plans through the generic cluster execute_plan entrypoint" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .topology_policy(
+                                :locality,
+                                required_labels: { tier: "gold" },
+                                preferred_zone: :eu_west_1a
+                              )
+                              .ownership_policy(:distributed, owner_limit: 1)
+                              .health_policy(:availability_aware, trigger_statuses: [:unhealthy])
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :fallback_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "silver" },
+      region: :eu_west,
+      zone: :eu_west_1b,
+      health_status: :unhealthy,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+    environment.register_peer(
+      :pricing_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+
+    plan = environment.plan_failover(target: "order-42", capabilities: [:pricing], traits: [:financial])
+    report = environment.execute_plan(plan)
+
+    expect(report.to_h).to include(
+      plan_kind: :failover,
+      status: :completed,
+      action_types: [:failover_action],
+      explanation: include(code: :failover_execution)
+    )
+    expect(report.action_results.first.to_h).to include(
+      subject: {
+        target: "order-42",
+        source: :fallback_node,
+        destination: :pricing_node
+      }
+    )
+  end
+
+  it "routes cluster plan execution through a mesh executor with explicit trace metadata" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .topology_policy(
+                                :locality,
+                                required_labels: { tier: "gold" },
+                                preferred_zone: :eu_west_1a
+                              )
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :fallback_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "silver" },
+      region: :eu_west,
+      zone: :eu_west_1b,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+    environment.register_peer(
+      :pricing_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      transport: build_mesh_transport
+    )
+
+    plan = environment.plan_rebalance(capabilities: [:pricing], traits: [:financial])
+    report = environment.execute_plan_via_mesh(plan, metadata: { source: :cluster_spec })
+
+    expect(report.to_h).to include(
+      plan_kind: :rebalance,
+      status: :completed,
+      action_types: [:rebalance_action]
+    )
+    expect(report.action_results.first.to_h).to include(
+      metadata: include(
+        simulated: false,
+        accepted_by: :pricing_node
+      ),
+      explanation: include(code: :mesh_rebalance_action)
+    )
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh)).to include(
+      plan_kind: :rebalance,
+      explanation: include(code: :mesh_rebalance_execution)
+    )
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh, :attempts)).to contain_exactly(
+      include(
+        peer: :pricing_node,
+        status: :completed,
+        request: include(
+          trace_id: "mesh/rebalance/pricing_node/1",
+          action_type: :rebalance_action
+        )
+      )
+    )
+  end
+
+  it "retries mesh plan execution across discovered peers and accumulates attempts in trace" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .topology_policy(
+                                :locality,
+                                required_labels: { tier: "gold" },
+                                preferred_zone: :eu_west_1a
+                              )
+                              .ownership_policy(:distributed, owner_limit: 1)
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :pricing_node_a,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      transport: build_failing_mesh_transport
+    )
+    environment.register_peer(
+      :pricing_node_b,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      transport: build_mesh_transport
+    )
+
+    plan = environment.plan_ownership(target: "order-42", capabilities: [:pricing], traits: [:financial])
+    report = environment.execute_plan_via_mesh(
+      plan,
+      executor: environment.mesh_executor(
+        retry_policy: Igniter::Cluster::MeshRetryPolicy.new(name: :fallback, max_attempts: 2)
+      ),
+      metadata: { source: :cluster_spec }
+    )
+
+    expect(report.completed?).to be(true)
+    expect(report.action_results.first.to_h).to include(
+      metadata: include(
+        simulated: false,
+        accepted_by: :pricing_node_b
+      )
+    )
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh, :attempts)).to contain_exactly(
+      include(peer: :pricing_node_a, status: :failed),
+      include(peer: :pricing_node_b, status: :completed)
+    )
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh, :metadata)).to include(
+      retry_policy: include(name: :fallback, max_attempts: 2)
+    )
+  end
+
+  it "filters mesh candidates through trust admission and records denied peers in trace" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .ownership_policy(:distributed, owner_limit: 2)
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :pricing_node_a,
+      capabilities: %i[pricing compose],
+      roles: [:untrusted],
+      labels: { tier: "gold" },
+      metadata: { trust: :low },
+      transport: build_mesh_transport
+    )
+    environment.register_peer(
+      :pricing_node_b,
+      capabilities: %i[pricing compose],
+      roles: [:trusted],
+      labels: { tier: "gold" },
+      metadata: { trust: :high },
+      transport: build_mesh_transport
+    )
+
+    plan = environment.plan_ownership(target: "order-42", capabilities: [:pricing])
+    report = environment.execute_plan_via_mesh(
+      plan,
+      executor: environment.mesh_executor(
+        trust_policy: Igniter::Cluster::MeshTrustPolicy.new(
+          name: :trusted_only,
+          required_roles: [:trusted],
+          required_metadata: { trust: :high }
+        )
+      )
+    )
+
+    expect(report.completed?).to be(true)
+    expect(report.action_results.first.to_h).to include(
+      metadata: include(
+        accepted_by: :pricing_node_b
+      )
+    )
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh, :metadata, :admission_results)).to include(
+      include(peer: :pricing_node_a, allowed: false, code: :missing_roles),
+      include(peer: :pricing_node_b, allowed: true, code: :mesh_trust_accept)
     )
   end
 

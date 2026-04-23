@@ -13,6 +13,24 @@ module Igniter
         @application ||= Igniter::Application::Environment.new(profile: profile.application_profile)
       end
 
+      def plan_executor
+        @plan_executor ||= PlanExecutor.new(environment: self)
+      end
+
+      def mesh_executor(metadata: {}, id_generator: nil, discovery: nil, retry_policy: nil,
+                        trust_policy: nil, admission: nil, membership_source: nil)
+        MeshExecutor.new(
+          environment: self,
+          metadata: metadata,
+          id_generator: id_generator,
+          discovery: discovery,
+          retry_policy: retry_policy,
+          trust_policy: trust_policy,
+          admission: admission,
+          membership_source: membership_source
+        )
+      end
+
       def compile(&block)
         application.compile(&block)
       end
@@ -72,6 +90,14 @@ module Igniter
         effective_policy.plan(peers: peers, query: effective_query, metadata: metadata)
       end
 
+      def execute_plan(plan, handler: nil, metadata: {}, &block)
+        plan_executor.execute(plan, handler: resolve_execution_handler(handler, block), metadata: metadata)
+      end
+
+      def execute_rebalance_plan(plan, handler: nil, metadata: {}, &block)
+        plan_executor.execute_rebalance(plan, handler: resolve_execution_handler(handler, block), metadata: metadata)
+      end
+
       def plan_ownership(target:, capabilities: [], traits: [], labels: {}, peer: nil, region: nil, zone: nil,
                          query: nil, policy: nil, metadata: {})
         effective_query = build_capability_query(
@@ -91,6 +117,10 @@ module Igniter
           topology_policy: profile.topology_policy,
           metadata: metadata
         )
+      end
+
+      def execute_ownership_plan(plan, handler: nil, metadata: {}, &block)
+        plan_executor.execute_ownership(plan, handler: resolve_execution_handler(handler, block), metadata: metadata)
       end
 
       def plan_lease(target:, capabilities: [], traits: [], labels: {}, peer: nil, region: nil, zone: nil,
@@ -114,6 +144,10 @@ module Igniter
         )
       end
 
+      def execute_lease_plan(plan, handler: nil, metadata: {}, &block)
+        plan_executor.execute_lease(plan, handler: resolve_execution_handler(handler, block), metadata: metadata)
+      end
+
       def plan_failover(target:, capabilities: [], traits: [], labels: {}, peer: nil, region: nil, zone: nil,
                         query: nil, ownership_policy: nil, topology_policy: nil, policy: nil, metadata: {})
         effective_query = build_capability_query(
@@ -133,6 +167,21 @@ module Igniter
           ownership_policy: ownership_policy || profile.ownership_policy,
           topology_policy: topology_policy || profile.topology_policy,
           metadata: metadata
+        )
+      end
+
+      def execute_failover_plan(plan, handler: nil, metadata: {}, &block)
+        plan_executor.execute_failover(plan, handler: resolve_execution_handler(handler, block), metadata: metadata)
+      end
+
+      def execute_plan_via_mesh(plan, executor: nil, metadata: {})
+        resolved_executor = executor || mesh_executor(metadata: metadata)
+        execute_plan(
+          plan,
+          handler: lambda do |plan_kind:, action:, environment:|
+            resolved_executor.call(plan: plan, plan_kind: plan_kind, action: action, environment: environment)
+          end,
+          metadata: metadata.merge(mesh: true)
         )
       end
 
@@ -201,6 +250,10 @@ module Igniter
       end
 
       private
+
+      def resolve_execution_handler(handler, block)
+        handler || block
+      end
 
       def build_remote_invoker(factory:, query:, namespace:, metadata:, id_generator:)
         application.public_send(

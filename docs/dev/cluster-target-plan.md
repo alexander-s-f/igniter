@@ -177,6 +177,17 @@ Current direction:
 - degraded and failed peers should be handled through explicit health and
   failover plans, so recovery paths are visible and testable instead of being
   buried inside transport/runtime branching
+- cluster plans should also have a first-class execution seam, so rebalance,
+  ownership, lease, and failover can move through a canonical
+  `plan -> executor -> report` path before richer real handlers are attached
+- mesh-specific execution should sit on top of that executor seam, with
+  explicit mesh request/response/attempt/trace values instead of ad-hoc peer
+  transport side effects
+- membership, peer discovery, and retry/fallback should also be explicit
+  mesh-layer values, so future gossip/discovery/trust systems can plug in
+  without changing cluster plan semantics
+- mesh trust/admission should be explicit too, so candidate peers can be
+  denied before execution with structured reasons that show up in mesh traces
 
 ### 3. Ownership And Placement
 
