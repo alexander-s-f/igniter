@@ -2,6 +2,7 @@
 
 require_relative "mcp/tool_definition"
 require_relative "mcp/tool_result"
+require_relative "mcp/creator_session"
 
 module Igniter
   module Extensions
@@ -15,6 +16,11 @@ module Igniter
           Mcp::ToolDefinition.new(name: :audit_pack, summary: "Audit a custom pack against creator/debug quality seams."),
           Mcp::ToolDefinition.new(name: :debug_report, summary: "Compile or execute and return a structured debug report."),
           Mcp::ToolDefinition.new(name: :creator_wizard, summary: "Build a stateful creator wizard payload."),
+          Mcp::ToolDefinition.new(name: :creator_session_start, summary: "Create a serialized creator session payload."),
+          Mcp::ToolDefinition.new(name: :creator_session_apply, summary: "Apply updates to a serialized creator session payload."),
+          Mcp::ToolDefinition.new(name: :creator_session_workflow, summary: "Build workflow payload from a serialized creator session."),
+          Mcp::ToolDefinition.new(name: :creator_session_write_plan, summary: "Build writer plan payload from a serialized creator session."),
+          Mcp::ToolDefinition.new(name: :creator_session_write, summary: "Write scaffold files from a serialized creator session.", mutating: true),
           Mcp::ToolDefinition.new(name: :creator_workflow, summary: "Build a creator workflow payload."),
           Mcp::ToolDefinition.new(name: :creator_write_plan, summary: "Build a creator writer plan payload."),
           Mcp::ToolDefinition.new(name: :creator_write, summary: "Write a creator scaffold to disk.", mutating: true)
@@ -86,6 +92,17 @@ module Igniter
               pack: arguments[:pack],
               target_profile: profile_from(target, optional: true)
             ).to_h
+          when :creator_session_start
+            creator_session_from(arguments, target: target).to_h
+          when :creator_session_apply
+            session = session_from(arguments.fetch(:session) { arguments.fetch("session") }, target: target)
+            session.apply(**symbolize_keys(arguments.fetch(:updates) { arguments.fetch("updates") })).to_h
+          when :creator_session_workflow
+            session_from(arguments.fetch(:session) { arguments.fetch("session") }, target: target).workflow_payload
+          when :creator_session_write_plan
+            session_from(arguments.fetch(:session) { arguments.fetch("session") }, target: target).write_plan_payload
+          when :creator_session_write
+            session_from(arguments.fetch(:session) { arguments.fetch("session") }, target: target).write_payload
           when :creator_workflow
             CreatorPack.workflow(
               name: arguments.fetch(:name),
@@ -152,6 +169,41 @@ module Igniter
           return target if target.respond_to?(:profile) && target.respond_to?(:execute)
 
           raise ArgumentError, "McpPack debug_report requires an environment target"
+        end
+
+        def creator_session_from(arguments, target:)
+          Mcp::CreatorSession.new(
+            name: arguments[:name],
+            kind: arguments[:kind],
+            namespace: arguments.fetch(:namespace, "MyCompany::IgniterPacks"),
+            profile: arguments[:profile],
+            capabilities: arguments[:capabilities],
+            scope: arguments[:scope],
+            root: arguments[:root],
+            mode: arguments.fetch(:mode, :skip_existing),
+            pack: arguments[:pack],
+            target_profile: profile_from(target, optional: true)
+          )
+        end
+
+        def session_from(payload, target:)
+          Mcp::CreatorSession.from_h(
+            symbolize_keys(payload),
+            target_profile: profile_from(target, optional: true)
+          )
+        end
+
+        def symbolize_keys(value)
+          case value
+          when Hash
+            value.each_with_object({}) do |(key, nested), memo|
+              memo[key.respond_to?(:to_sym) ? key.to_sym : key] = symbolize_keys(nested)
+            end
+          when Array
+            value.map { |item| symbolize_keys(item) }
+          else
+            value
+          end
         end
       end
     end

@@ -18,6 +18,11 @@ RSpec.describe Igniter::Extensions::Contracts::McpPack do
       :inspect_profile,
       :audit_pack,
       :creator_wizard,
+      :creator_session_start,
+      :creator_session_apply,
+      :creator_session_workflow,
+      :creator_session_write_plan,
+      :creator_session_write,
       :creator_workflow,
       :creator_write_plan,
       :creator_write
@@ -69,5 +74,33 @@ RSpec.describe Igniter::Extensions::Contracts::McpPack do
       expect(write.to_h.fetch(:mutating)).to eq(true)
       expect(write.to_h.fetch(:payload).fetch(:files_written)).to eq(4)
     end
+  end
+
+  it "supports a serialized creator session flow for stepwise tooling" do
+    environment = Igniter::Extensions::Contracts.with(described_class)
+
+    started = Igniter::Extensions::Contracts.mcp_call(
+      :creator_session_start,
+      target: environment,
+      name: :delivery,
+      capabilities: %i[effect executor]
+    )
+
+    updated = Igniter::Extensions::Contracts.mcp_call(
+      :creator_session_apply,
+      target: environment,
+      session: started.to_h.fetch(:payload).fetch(:session),
+      updates: { scope: :standalone_gem }
+    )
+
+    workflow = Igniter::Extensions::Contracts.mcp_call(
+      :creator_session_workflow,
+      target: environment,
+      session: updated.to_h.fetch(:payload).fetch(:session)
+    )
+
+    expect(started.to_h.fetch(:payload).fetch(:pending_decisions).first.fetch(:key)).to eq(:scope)
+    expect(updated.to_h.fetch(:payload).fetch(:ready_for_writer)).to eq(true)
+    expect(workflow.to_h.fetch(:payload).fetch(:current_stage).fetch(:key)).to eq(:implement_pack)
   end
 end

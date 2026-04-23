@@ -18,6 +18,19 @@ wizard = Igniter::Extensions::Contracts.mcp_call(
   capabilities: %i[effect executor]
 )
 
+session = Igniter::Extensions::Contracts.mcp_creator_session(
+  target: environment,
+  name: :delivery,
+  capabilities: %i[effect executor]
+)
+
+completed_session = Igniter::Extensions::Contracts.mcp_call(
+  :creator_session_apply,
+  target: environment,
+  session: session.to_h.fetch(:payload).fetch(:session),
+  updates: { scope: :standalone_gem }
+)
+
 debug = Igniter::Extensions::Contracts.mcp_call(
   :debug_report,
   target: environment,
@@ -40,5 +53,6 @@ end
 
 puts "contracts_mcp_tools=#{tool_names.join(',')}"
 puts "contracts_mcp_wizard_decision=#{wizard.to_h.fetch(:payload).fetch(:pending_decisions).first.fetch(:key)}"
+puts "contracts_mcp_session_ready=#{completed_session.to_h.fetch(:payload).fetch(:ready_for_writer)}"
 puts "contracts_mcp_debug_output=#{debug.to_h.fetch(:payload).fetch(:execution).fetch(:outputs).fetch(:amount)}"
 puts "contracts_mcp_write_files=#{write_payload.fetch(:files_written)}"

@@ -235,5 +235,10 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
 
     expect(tools.map { |tool| tool.fetch(:name) }).to include(:creator_wizard, :debug_report)
     expect(result.to_h.fetch(:payload).fetch(:pending_decisions).first.fetch(:key)).to eq(:scope)
+    expect(Igniter::Extensions::Contracts.mcp_creator_session(
+      target: environment,
+      name: :delivery,
+      capabilities: %i[effect executor]
+    ).to_h.fetch(:payload).fetch(:pending_decisions).first.fetch(:key)).to eq(:scope)
   end
 end

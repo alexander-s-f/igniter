@@ -264,6 +264,10 @@ module Igniter
           McpPack.call(tool_name, target: target, **arguments, &block)
         end
 
+        def mcp_creator_session(target: nil, **arguments)
+          mcp_call(:creator_session_start, target: target, **arguments)
+        end
+
         def debug_snapshot(result, profile:)
           DebugPack.snapshot(result, profile: profile)
         end

@@ -311,6 +311,7 @@ module IgniterExamples
       timeout: 10,
       expected_fragments: [
         "contracts_mcp_wizard_decision=scope",
+        "contracts_mcp_session_ready=true",
         "contracts_mcp_debug_output=12",
         "contracts_mcp_write_files=4"
       ]

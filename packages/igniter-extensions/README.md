@@ -198,6 +198,24 @@ result = Igniter::Extensions::Contracts.mcp_call(
 The goal is to adapt existing debug/creator primitives for external tools, not
 to invent a second authoring stack.
 
+For stepwise external tooling, `McpPack` also exposes a serialized
+`creator_session` flow:
+
+```ruby
+session = Igniter::Extensions::Contracts.mcp_creator_session(
+  target: environment,
+  name: :delivery,
+  capabilities: %i[effect executor]
+)
+
+updated = Igniter::Extensions::Contracts.mcp_call(
+  :creator_session_apply,
+  target: environment,
+  session: session.to_h.fetch(:payload).fetch(:session),
+  updates: { scope: :standalone_gem }
+)
+```
+
 You can also drive scaffolding directly from capabilities:
 
 ```ruby
