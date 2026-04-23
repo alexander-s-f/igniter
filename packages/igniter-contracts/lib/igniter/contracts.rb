@@ -33,8 +33,6 @@ module Igniter
     BaselineValidators = Execution::BaselineValidators
     BaselineRuntime = Execution::BaselineRuntime
     ConstRuntime = Execution::ConstRuntime
-    ProjectValidators = Execution::ProjectValidators
-    ProjectRuntime = Execution::ProjectRuntime
     InlineExecutor = Execution::InlineExecutor
     Operation = Execution::Operation
     NamedValues = Execution::NamedValues

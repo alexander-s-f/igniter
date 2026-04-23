@@ -3,7 +3,7 @@
 require_relative "../../../spec_helper"
 
 RSpec.describe Igniter::Extensions::Contracts::LookupPack do
-  it "adds an external node kind with compile and runtime semantics" do
+  it "adds external lookup DSL that lowers into compute semantics" do
     profile = Igniter::Contracts.build_kernel.install(described_class).finalize
 
     compiled = Igniter::Contracts.compile(profile: profile) do
@@ -19,6 +19,9 @@ RSpec.describe Igniter::Extensions::Contracts::LookupPack do
     )
 
     expect(profile.pack_names).to include(:baseline, :extensions_lookup)
+    expect(profile.dsl_keyword(:lookup)).to be_a(Igniter::Contracts::DslKeyword)
+    expect(profile.supports_node_kind?(:lookup)).to be(false)
+    expect(compiled.operations.map(&:kind)).to eq(%i[input compute output])
     expect(result.output(:tax_rate)).to eq(0.2)
     expect(result.state.fetch(:tax_rate)).to eq(0.2)
   end
@@ -41,7 +44,7 @@ RSpec.describe Igniter::Extensions::Contracts::LookupPack do
     expect(result.output(:tax_rate)).to eq(0.23)
   end
 
-  it "raises structured validation findings when the lookup source is missing" do
+  it "uses baseline dependency validation when the lookup source is missing" do
     profile = Igniter::Contracts.build_kernel.install(described_class).finalize
 
     expect do
@@ -50,7 +53,7 @@ RSpec.describe Igniter::Extensions::Contracts::LookupPack do
         output :tax_rate
       end
     end.to raise_error(Igniter::Contracts::ValidationError) { |error|
-      expect(error.findings.map(&:code)).to eq([:missing_lookup_sources])
+      expect(error.findings.map(&:code)).to eq([:missing_compute_dependencies])
       expect(error.findings.first.subjects).to eq([:rates])
     }
   end

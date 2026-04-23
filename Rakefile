@@ -5,20 +5,18 @@ require "fileutils"
 require "open3"
 require "rspec/core/rake_task"
 require "rubocop/rake_task"
-require_relative "packages/igniter-core/lib/igniter/core/version"
+require_relative "lib/igniter/version"
 
 RuboCop::RakeTask.new
 
 RSpec::Core::RakeTask.new(:spec) do |t|
-  t.pattern = "{spec,packages/*/spec,examples/companion/spec}/**/*_spec.rb"
+  t.pattern = "{spec/current,packages/igniter-contracts/spec,packages/igniter-extensions/spec,packages/igniter-mcp-adapter/spec}/**/*_spec.rb"
 end
 
 RSpec::Core::RakeTask.new(:architecture) do |t|
   t.pattern = %w[
-    spec/igniter/layer_loading_spec.rb
-    spec/igniter/module_layout_spec.rb
-    spec/igniter/dependency_boundaries_spec.rb
-    spec/igniter/namespace_ownership_spec.rb
+    packages/igniter-contracts/spec/igniter/contracts/layer_boundaries_spec.rb
+    packages/igniter-extensions/spec/igniter/extensions/contracts/public_boundary_spec.rb
   ].join(",")
 end
 

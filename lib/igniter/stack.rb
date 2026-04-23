@@ -1,5 +1,3 @@
 # frozen_string_literal: true
 
-require_relative "monorepo_packages"
-require "igniter/sdk"
-require "igniter/app/stack_pack"
+raise LoadError, "igniter/stack has been archived. Recreate application and server surfaces on top of igniter-application instead."

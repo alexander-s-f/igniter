@@ -8,9 +8,7 @@ RSpec.describe "Igniter::Contracts extension layering" do
     expect(Igniter::Contracts::Assembly::ProjectPack).to equal(Igniter::Contracts::ProjectPack)
   end
 
-  it "locates extension execution helpers under Execution" do
+  it "locates extension execution helpers under Execution when the pack extends runtime semantics" do
     expect(Igniter::Contracts::Execution::ConstRuntime).to equal(Igniter::Contracts::ConstRuntime)
-    expect(Igniter::Contracts::Execution::ProjectValidators).to equal(Igniter::Contracts::ProjectValidators)
-    expect(Igniter::Contracts::Execution::ProjectRuntime).to equal(Igniter::Contracts::ProjectRuntime)
   end
 end

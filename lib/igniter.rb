@@ -2,76 +2,61 @@
 
 require_relative "igniter/monorepo_packages"
 require_relative "igniter/version"
-
-require "igniter/legacy"
+require "igniter/contracts"
+require "igniter/application"
 
 module Igniter
   class << self
-    def use(*names)
-      require "igniter/sdk"
-
-      @sdk_capabilities ||= []
-      resolved_names = names.flatten.map(&:to_sym)
-      SDK.activate!(*resolved_names, layer: :core)
-      @sdk_capabilities |= resolved_names
-      self
+    def build_kernel(*packs)
+      Contracts.build_kernel(*packs)
     end
 
-    def sdk_capabilities
-      @sdk_capabilities ||= []
+    def build_profile(*packs)
+      Contracts.build_profile(*packs)
     end
 
-    def executor_registry
-      @executor_registry ||= ExecutorRegistry.new
+    def with(*packs)
+      Contracts.with(*packs)
     end
 
-    def execution_store
-      @execution_store ||= Runtime::Stores::MemoryStore.new
+    def compile(...)
+      Contracts.compile(...)
     end
 
-    def execution_store=(store)
-      @execution_store = store
+    def validation_report(...)
+      Contracts.validation_report(...)
     end
 
-    # TTL cache backend for compute nodes. nil = disabled (default).
-    # Set to Igniter::NodeCache::Memory.new (or a Redis-backed equivalent).
-    def node_cache
-      defined?(Igniter::NodeCache) ? Igniter::NodeCache.cache : nil
+    def compilation_report(...)
+      Contracts.compilation_report(...)
     end
 
-    def node_cache=(cache)
-      require "igniter/core/node_cache"
-      Igniter::NodeCache.cache = cache
+    def execute(...)
+      Contracts.execute(...)
     end
 
-    # When true, auto-creates a CoalescingLock alongside the configured node cache.
-    def node_coalescing=(enabled)
-      require "igniter/core/node_cache"
-      Igniter::NodeCache.coalescing_lock = enabled ? Igniter::NodeCache::CoalescingLock.new : nil
+    def execute_with(...)
+      Contracts.execute_with(...)
     end
 
-    def register_executor(key, executor_class, **metadata)
-      executor_registry.register(key, executor_class, **metadata)
+    def diagnose(...)
+      Contracts.diagnose(...)
     end
 
-    def effect_registry
-      @effect_registry ||= EffectRegistry.new
+    def apply_effect(...)
+      Contracts.apply_effect(...)
     end
 
-    def register_effect(key, adapter_class, **metadata)
-      effect_registry.register(key, adapter_class, **metadata)
+    def build_application_kernel(*packs)
+      Application.build_kernel(*packs)
     end
 
-    def compile(&block)
-      DSL::ContractBuilder.compile(&block)
+    def build_application_profile(*packs)
+      Application.build_profile(*packs)
     end
 
-    def compile_schema(schema, name: nil)
-      DSL::SchemaBuilder.compile(schema, name: name)
-    end
-
-    def configure
-      yield self
+    def application(*packs)
+      Application.with(*packs)
     end
   end
 end

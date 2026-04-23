@@ -14,6 +14,8 @@ module Igniter
         end
 
         def install_into(kernel)
+          return kernel if kernel.nodes.registered?(:const)
+
           kernel.nodes.register(:const, NodeType.new(kind: :const, metadata: { category: :value }))
           kernel.dsl_keywords.register(:const, DslKeyword.new(:const) do |name, value, builder:|
             builder.add_operation(kind: :const, name: name, value: value)

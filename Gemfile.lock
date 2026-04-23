@@ -2,30 +2,6 @@ PATH
   remote: .
   specs:
     igniter (0.5.1)
-      arbre
-      sqlite3
-
-PATH
-  remote: packages/igniter-agents
-  specs:
-    igniter-agents (0.5.1)
-      igniter-legacy (= 0.5.1)
-
-PATH
-  remote: packages/igniter-ai
-  specs:
-    igniter-ai (0.5.1)
-      igniter-legacy (= 0.5.1)
-
-PATH
-  remote: packages/igniter-app
-  specs:
-    igniter-app (0.5.1)
-      igniter-cluster (= 0.5.1)
-      igniter-contracts (= 0.5.1)
-      igniter-core (= 0.5.1)
-      igniter-sdk (= 0.5.1)
-      igniter-server (= 0.5.1)
 
 PATH
   remote: packages/igniter-application
@@ -34,86 +10,32 @@ PATH
       igniter-contracts (= 0.5.1)
 
 PATH
-  remote: packages/igniter-cluster
-  specs:
-    igniter-cluster (0.5.1)
-      igniter-agents (= 0.5.1)
-      igniter-core (= 0.5.1)
-      igniter-sdk (= 0.5.1)
-      igniter-server (= 0.5.1)
-
-PATH
   remote: packages/igniter-contracts
   specs:
     igniter-contracts (0.5.1)
-
-PATH
-  remote: packages/igniter-core
-  specs:
-    igniter-core (0.5.1)
-      sqlite3
-    igniter-legacy (0.5.1)
 
 PATH
   remote: packages/igniter-extensions
   specs:
     igniter-extensions (0.5.1)
       igniter-contracts (= 0.5.1)
-      igniter-core (= 0.5.1)
 
 PATH
-  remote: packages/igniter-rails
+  remote: packages/igniter-mcp-adapter
   specs:
-    igniter-rails (0.5.1)
-      igniter-core (= 0.5.1)
-
-PATH
-  remote: packages/igniter-sdk
-  specs:
-    igniter-sdk (0.5.1)
-      igniter-agents (= 0.5.1)
-      igniter-ai (= 0.5.1)
-      igniter-legacy (= 0.5.1)
-      sqlite3
-
-PATH
-  remote: packages/igniter-server
-  specs:
-    igniter-server (0.5.1)
-      igniter-core (= 0.5.1)
-      igniter-sdk (= 0.5.1)
+    igniter-mcp-adapter (0.5.1)
+      igniter-extensions (= 0.5.1)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (8.1.3)
-      base64
-      bigdecimal
-      concurrent-ruby (~> 1.0, >= 1.3.1)
-      connection_pool (>= 2.2.5)
-      drb
-      i18n (>= 1.6, < 2)
-      json
-      logger (>= 1.4.2)
-      minitest (>= 5.1)
-      securerandom (>= 0.3)
-      tzinfo (~> 2.0, >= 2.0.5)
-      uri (>= 0.13.1)
     addressable (2.8.9)
       public_suffix (>= 2.0.2, < 8.0)
-    arbre (2.2.1)
-      activesupport (>= 7.0)
     ast (2.4.3)
-    base64 (0.3.0)
     bigdecimal (4.0.1)
-    concurrent-ruby (1.3.6)
-    connection_pool (3.0.2)
     date (3.5.1)
     diff-lcs (1.6.2)
-    drb (2.2.3)
     erb (6.0.2)
-    i18n (1.14.8)
-      concurrent-ruby (~> 1.0)
     io-console (0.8.2)
     irb (1.17.0)
       pp (>= 0.6.0)
@@ -126,12 +48,8 @@ GEM
       bigdecimal (>= 3.1, < 5)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
-    logger (1.7.0)
     mcp (0.8.0)
       json-schema (>= 4.1)
-    minitest (6.0.4)
-      drb (~> 2.0)
-      prism (~> 1.5)
     parallel (1.27.0)
     parser (3.3.10.2)
       ast (~> 2.4.1)
@@ -183,39 +101,25 @@ GEM
       parser (>= 3.3.7.2)
       prism (~> 1.7)
     ruby-progressbar (1.13.0)
-    securerandom (0.4.1)
-    sqlite3 (2.9.3-arm64-darwin)
     stringio (3.2.0)
     tsort (0.2.0)
-    tzinfo (2.0.6)
-      concurrent-ruby (~> 1.0)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.2.0)
-    uri (1.1.1)
 
 PLATFORMS
   arm64-darwin
 
 DEPENDENCIES
-  arbre
   igniter!
-  igniter-agents!
-  igniter-ai!
-  igniter-app!
   igniter-application!
-  igniter-cluster!
   igniter-contracts!
-  igniter-core!
   igniter-extensions!
-  igniter-rails!
-  igniter-sdk!
-  igniter-server!
+  igniter-mcp-adapter!
   irb
   rake (~> 13.0)
   rspec (~> 3.0)
   rubocop (~> 1.21)
-  sqlite3
 
 BUNDLED WITH
    2.7.2

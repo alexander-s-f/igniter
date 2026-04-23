@@ -18,7 +18,7 @@ RSpec.describe Igniter::Contracts::Profile do
                                .finalize
 
     expect(profile.pack_manifest(:project)).not_to be_nil
-    expect(profile.declared_registry_keys(:validators)).to include(:project_sources)
+    expect(profile.declared_registry_keys(:dsl_keywords)).to include(:project)
     expect(profile.declared_registry_keys(:diagnostics_contributors)).to include(:baseline_summary)
     expect(profile.declared_registry_keys(:executors)).to include(:inline)
     expect(profile.supports_executor?(:inline)).to be(true)

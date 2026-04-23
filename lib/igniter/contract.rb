@@ -1,4 +1,3 @@
 # frozen_string_literal: true
 
-require "igniter/errors"
-require "igniter/legacy/contract"
+raise LoadError, "igniter/contract has been archived. Use require \"igniter/contracts\" and Igniter::Contracts instead."

@@ -8,15 +8,18 @@ RSpec.describe Igniter::Contracts::Kernel do
 
     expect(kernel.nodes.fetch(:input)).to be_a(Igniter::Contracts::NodeType)
     expect(kernel.nodes.fetch(:input).kind).to eq(:input)
+    expect(kernel.nodes.fetch(:const).kind).to eq(:const)
+    expect(kernel.nodes.fetch(:effect).kind).to eq(:effect)
     expect(kernel.dsl_keywords.fetch(:compute)).to be_a(Igniter::Contracts::DslKeyword)
+    expect(kernel.dsl_keywords.fetch(:effect)).to be_a(Igniter::Contracts::DslKeyword)
     expect(kernel.runtime_handlers.fetch(:output)).to respond_to(:call)
   end
 
   it "installs additional packs directly through build_kernel" do
-    kernel = Igniter::Contracts.build_kernel(Igniter::Contracts::ConstPack, Igniter::Contracts::ProjectPack)
+    kernel = Igniter::Contracts.build_kernel(Igniter::Contracts::ProjectPack)
 
     expect(kernel.nodes.fetch(:const).kind).to eq(:const)
-    expect(kernel.nodes.fetch(:project).kind).to eq(:project)
+    expect(kernel.dsl_keywords.fetch(:project)).to be_a(Igniter::Contracts::DslKeyword)
   end
 
   it "finalizes into an immutable profile" do
@@ -25,7 +28,8 @@ RSpec.describe Igniter::Contracts::Kernel do
     profile = kernel.finalize
 
     expect(profile).to be_a(Igniter::Contracts::Profile)
-    expect(profile.supports_node_kind?(:branch)).to be(true)
+    expect(profile.supports_node_kind?(:const)).to be(true)
+    expect(profile.supports_node_kind?(:branch)).to be(false)
     expect(profile.normalizers.map(&:key)).to include(:normalize_operation_attributes)
     expect(profile.pack_names).to eq([:baseline])
     expect(profile.fingerprint).not_to be_empty
@@ -54,16 +58,17 @@ RSpec.describe Igniter::Contracts::Kernel do
   end
 
   it "allows explicit kernels to install additional packs before finalization" do
-    kernel = Igniter::Contracts.build_kernel.install(Igniter::Contracts::ConstPack)
+    kernel = Igniter::Contracts.build_kernel.install(Igniter::Contracts::ProjectPack)
 
-    expect(kernel.nodes.fetch(:const).kind).to eq(:const)
+    expect(kernel.nodes.registered?(:project)).to be(false)
+    expect(kernel.dsl_keywords.fetch(:project)).to be_a(Igniter::Contracts::DslKeyword)
     expect(kernel.dsl_keywords.fetch(:const)).to be_a(Igniter::Contracts::DslKeyword)
   end
 
   it "builds a finalized profile through build_profile" do
-    profile = Igniter::Contracts.build_profile(Igniter::Contracts::ConstPack)
+    profile = Igniter::Contracts.build_profile(Igniter::Contracts::ProjectPack)
 
     expect(profile).to be_a(Igniter::Contracts::Profile)
-    expect(profile.pack_names).to eq(%i[baseline const])
+    expect(profile.pack_names).to eq(%i[baseline project])
   end
 end

@@ -3,10 +3,10 @@
 require_relative "../../../spec_helper"
 
 RSpec.describe Igniter::Extensions::Contracts::AggregatePack do
-  it "adds count, sum, and avg as external aggregation node kinds" do
+  it "adds count, sum, and avg as external aggregation DSL lowered into compute semantics" do
     environment = Igniter::Contracts.with(described_class)
 
-    result = environment.run(inputs: { items: [1, 2, 3, 4] }) do
+    compiled = environment.compile do
       input :items
       count :item_count, from: :items
       sum :total, from: :items
@@ -15,7 +15,13 @@ RSpec.describe Igniter::Extensions::Contracts::AggregatePack do
       output :total
       output :average
     end
+    result = environment.execute(compiled, inputs: { items: [1, 2, 3, 4] })
 
+    expect(environment.profile.dsl_keyword(:count)).to be_a(Igniter::Contracts::DslKeyword)
+    expect(environment.profile.supports_node_kind?(:count)).to be(false)
+    expect(environment.profile.supports_node_kind?(:sum)).to be(false)
+    expect(environment.profile.supports_node_kind?(:avg)).to be(false)
+    expect(compiled.operations.map(&:kind)).to eq(%i[input compute compute compute output output output])
     expect(result.output(:item_count)).to eq(4)
     expect(result.output(:total)).to eq(10)
     expect(result.output(:average)).to eq(2.5)
@@ -72,7 +78,7 @@ RSpec.describe Igniter::Extensions::Contracts::AggregatePack do
     expect(result.output(:taxable_total)).to eq(40)
   end
 
-  it "raises structured validation findings when aggregate sources are missing" do
+  it "uses baseline dependency validation when aggregate sources are missing" do
     environment = Igniter::Contracts.with(described_class)
 
     expect do
@@ -81,7 +87,7 @@ RSpec.describe Igniter::Extensions::Contracts::AggregatePack do
         output :total
       end
     end.to raise_error(Igniter::Contracts::ValidationError) { |error|
-      expect(error.findings.map(&:code)).to eq([:missing_aggregate_sources])
+      expect(error.findings.map(&:code)).to eq([:missing_compute_dependencies])
       expect(error.findings.first.subjects).to eq([:items])
     }
   end

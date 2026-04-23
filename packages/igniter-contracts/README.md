@@ -67,7 +67,7 @@ You can still work directly with `Kernel` and `Profile`, but the public facade
 now gives a lighter path too:
 
 ```ruby
-environment = Igniter::Contracts.with(Igniter::Contracts::ConstPack)
+environment = Igniter::Contracts.with
 
 result = environment.run(inputs: {}) do
   const :tax_rate, 0.2

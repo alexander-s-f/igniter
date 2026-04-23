@@ -10,14 +10,11 @@ RSpec.describe "Igniter::Contracts assembly/execution boundaries" do
       Execution::BaselineNormalizers
       Execution::BaselineRuntime
       Execution::BaselineValidators
+      Execution::ConstRuntime
       Execution::InlineExecutor
     ],
     "assembly/const_pack.rb" => %w[
       Execution::ConstRuntime
-    ],
-    "assembly/project_pack.rb" => %w[
-      Execution::ProjectRuntime
-      Execution::ProjectValidators
     ],
     "assembly/hook_result_policies.rb" => %w[
       Execution::ExecutionResult

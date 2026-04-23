@@ -423,10 +423,8 @@ default.
 That baseline should include only truly embedded concepts:
 
 - `input`
+- `const`
 - `compute`
-- `composition`
-- `branch`
-- `collection`
 - `output`
 - local execution/runtime
 - base diagnostics and errors
@@ -913,7 +911,7 @@ that boundary:
 Suggested contents:
 
 - node kinds:
-  `input`, `compute`, `composition`, `branch`, `collection`, `output`
+  `input`, `const`, `compute`, `output`
 - DSL keywords for those node kinds
 - baseline validators:
   uniqueness, outputs, dependencies, callables, types
@@ -1052,6 +1050,39 @@ Recommended baseline:
 This keeps execution strategy selection explicit and gives effect adapters a
 real contracts-owned entrypoint instead of leaving them as inert future seams.
 
+Recommended baseline `effect` node:
+
+```ruby
+effect :audit_entry, using: :journal, depends_on: [:total] do |total:|
+  { total: total }
+end
+```
+
+Target semantics:
+
+- `using:` names a finalized-profile effect adapter
+- dependencies resolve exactly like `compute`
+- the block or callable builds the effect payload
+- runtime invokes the named effect adapter through the profile seam
+- the adapter return value becomes the node value in state
+
+Important exclusions from the baseline primitive:
+
+- retries
+- saga compensation
+- journaling bundles
+- reactive dispatch
+- remote routing/transport policy
+
+Those belong in packs or upper runtime layers, not in the baseline node itself.
+
+`project` should move in the opposite direction:
+
+- keep it as extension-level DSL
+- lower it into `compute` semantics
+- do not preserve it forever as a dedicated kernel node kind unless it proves a
+  real semantic/runtime distinction
+
 ### Error Classes
 
 Suggested baseline error additions:
@@ -1089,7 +1120,6 @@ small extension to prove the architecture.
 
 Good candidates:
 
-- `const`
 - `project`
 - `aggregate`
 - a synthetic `audit_marker` diagnostics contributor

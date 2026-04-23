@@ -84,17 +84,17 @@ RSpec.describe Igniter::Contracts::Compiler do
     expect(report.compiled_graph).to be_a(Igniter::Contracts::CompiledGraph)
   end
 
-  it "rejects baseline node kinds that do not have runtime semantics yet" do
+  it "rejects branch as a non-baseline DSL keyword" do
     expect do
       Igniter::Contracts.compile do
         input :amount
         branch :tax_logic, on: :amount
         output :amount
       end
-    end.to raise_error(Igniter::Contracts::ValidationError, /baseline runtime does not support node kinds yet: branch/)
+    end.to raise_error(Igniter::Contracts::UnknownDslKeywordError, /unknown DSL keyword branch/)
   end
 
-  it "rejects project nodes whose source is not defined" do
+  it "lowers project nodes into compute semantics and uses baseline dependency validation" do
     profile = Igniter::Contracts.build_kernel.install(Igniter::Contracts::ProjectPack).finalize
 
     expect do
@@ -102,6 +102,88 @@ RSpec.describe Igniter::Contracts::Compiler do
         project :country, from: :pricing, key: :country
         output :country
       end
-    end.to raise_error(Igniter::Contracts::ValidationError, /project sources are not defined: pricing/)
+    end.to raise_error(Igniter::Contracts::ValidationError, /compute dependencies are not defined: pricing/)
+  end
+
+  it "compiles project DSL into a compute operation" do
+    profile = Igniter::Contracts.build_kernel.install(Igniter::Contracts::ProjectPack).finalize
+
+    compiled = Igniter::Contracts.compile(profile: profile) do
+      input :pricing
+      project :country, from: :pricing, key: :country
+      output :country
+    end
+
+    expect(compiled.operations.map(&:kind)).to eq(%i[input compute output])
+    expect(compiled.operations[1].name).to eq(:country)
+    expect(compiled.operations[1].attributes[:depends_on]).to eq([:pricing])
+    expect(compiled.operations[1].attributes[:callable]).to respond_to(:call)
+  end
+
+  it "rejects effect nodes whose dependencies are not defined" do
+    effect_pack = Module.new do
+      extend Igniter::Contracts::Pack
+
+      define_singleton_method(:manifest) do
+        Igniter::Contracts::PackManifest.new(
+          name: :audit_effect,
+          registry_contracts: [Igniter::Contracts::PackManifest.effect(:audit)]
+        )
+      end
+
+      define_singleton_method(:install_into) do |kernel|
+        kernel.effects.register(:audit, lambda { |invocation:| invocation.payload })
+        kernel
+      end
+    end
+    profile = Igniter::Contracts.build_kernel.install(effect_pack).finalize
+
+    expect do
+      Igniter::Contracts.compile(profile: profile) do
+        effect :audit_entry, using: :audit, depends_on: [:amount] do |amount:|
+          { amount: amount }
+        end
+        output :audit_entry
+      end
+    end.to raise_error(Igniter::Contracts::ValidationError, /effect dependencies are not defined: amount/)
+  end
+
+  it "rejects effect nodes without a payload callable" do
+    effect_pack = Module.new do
+      extend Igniter::Contracts::Pack
+
+      define_singleton_method(:manifest) do
+        Igniter::Contracts::PackManifest.new(
+          name: :audit_effect,
+          registry_contracts: [Igniter::Contracts::PackManifest.effect(:audit)]
+        )
+      end
+
+      define_singleton_method(:install_into) do |kernel|
+        kernel.effects.register(:audit, lambda { |invocation:| invocation.payload })
+        kernel
+      end
+    end
+    profile = Igniter::Contracts.build_kernel.install(effect_pack).finalize
+
+    expect do
+      Igniter::Contracts.compile(profile: profile) do
+        input :amount
+        effect :audit_entry, using: :audit, depends_on: [:amount]
+        output :audit_entry
+      end
+    end.to raise_error(Igniter::Contracts::ValidationError, /effect nodes require a payload callable: audit_entry/)
+  end
+
+  it "rejects effect nodes whose named adapter is not installed in the profile" do
+    expect do
+      Igniter::Contracts.compile do
+        input :amount
+        effect :audit_entry, using: :audit, depends_on: [:amount] do |amount:|
+          { amount: amount }
+        end
+        output :audit_entry
+      end
+    end.to raise_error(Igniter::Contracts::ValidationError, /effect adapters are not registered in profile: audit/)
   end
 end

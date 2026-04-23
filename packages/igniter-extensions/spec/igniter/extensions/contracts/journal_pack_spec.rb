@@ -24,6 +24,29 @@ RSpec.describe Igniter::Extensions::Contracts::JournalPack do
     }])
   end
 
+  it "works as a graph-native baseline effect adapter" do
+    environment = Igniter::Contracts.with(described_class)
+
+    result = environment.run(inputs: { amount: 10 }) do
+      input :amount
+      effect :journal_entry, using: :journal, depends_on: [:amount] do |amount:|
+        { amount: amount, source: :graph }
+      end
+      output :journal_entry
+    end
+
+    expect(result.output(:journal_entry)).to eq(amount: 10, source: :graph)
+    expect(described_class.journal[:effects]).to eq([{
+      payload: { amount: 10, source: :graph },
+      context: {
+        node_name: :journal_entry,
+        effect_name: :journal,
+        dependencies: { amount: 10 }
+      },
+      profile_fingerprint: environment.profile.fingerprint
+    }])
+  end
+
   it "executes through an external executor and records request and result" do
     environment = Igniter::Contracts.with(described_class)
 

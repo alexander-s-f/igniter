@@ -4,10 +4,10 @@ require_relative "../../spec_helper"
 
 RSpec.describe Igniter::Contracts::Environment do
   it "builds a finalized profile through the public with helper" do
-    environment = Igniter::Contracts.with(Igniter::Contracts::ConstPack)
+    environment = Igniter::Contracts.with
 
     expect(environment).to be_a(described_class)
-    expect(environment.profile.pack_names).to eq(%i[baseline const])
+    expect(environment.profile.pack_names).to eq([:baseline])
   end
 
   it "compiles and executes against its captured profile" do

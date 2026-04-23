@@ -16,8 +16,10 @@ module Igniter
               PackManifest.validator(:outputs),
               PackManifest.validator(:dependencies),
               PackManifest.validator(:callables),
+              PackManifest.validator(:effect_dependencies),
+              PackManifest.validator(:effect_payload_builders),
+              PackManifest.validator(:effect_adapters),
               PackManifest.validator(:types),
-              PackManifest.validator(:supported_baseline_runtime),
               PackManifest.executor(:inline),
               PackManifest.diagnostic(:baseline_summary)
             ]
@@ -26,10 +28,9 @@ module Igniter
 
         BASELINE_NODE_KINDS = {
           input: NodeType.new(kind: :input, metadata: { category: :data }),
+          const: NodeType.new(kind: :const, metadata: { category: :value }),
           compute: NodeType.new(kind: :compute, metadata: { category: :data }),
-          composition: NodeType.new(kind: :composition, metadata: { category: :structural }),
-          branch: NodeType.new(kind: :branch, metadata: { category: :control_flow }),
-          collection: NodeType.new(kind: :collection, metadata: { category: :control_flow }),
+          effect: NodeType.new(kind: :effect, metadata: { category: :effect }),
           output: NodeType.new(kind: :output, metadata: { category: :terminal })
         }.freeze
 
@@ -37,19 +38,20 @@ module Igniter
           input: DslKeyword.new(:input, lambda { |name, builder:, **attributes|
             builder.add_operation(kind: :input, name: name, **attributes)
           }),
+          const: DslKeyword.new(:const, lambda { |name, value, builder:|
+            builder.add_operation(kind: :const, name: name, value: value)
+          }),
           compute: DslKeyword.new(:compute, lambda { |name, builder:, **attributes, &block|
             normalized_attributes = attributes.dup
             normalized_attributes[:callable] = block if block
             builder.add_operation(kind: :compute, name: name, **normalized_attributes)
           }),
-          composition: DslKeyword.new(:composition, lambda { |name, builder:, **attributes|
-            builder.add_operation(kind: :composition, name: name, **attributes)
-          }),
-          branch: DslKeyword.new(:branch, lambda { |name, builder:, **attributes|
-            builder.add_operation(kind: :branch, name: name, **attributes)
-          }),
-          collection: DslKeyword.new(:collection, lambda { |name, builder:, **attributes|
-            builder.add_operation(kind: :collection, name: name, **attributes)
+          effect: DslKeyword.new(:effect, lambda { |name, using:, callable: nil, builder:, **attributes, &block|
+            normalized_attributes = attributes.dup
+            normalized_attributes[:using] = using.to_sym
+            normalized_attributes[:callable] = block if block
+            normalized_attributes[:callable] = callable if callable && !block
+            builder.add_operation(kind: :effect, name: name, **normalized_attributes)
           }),
           output: DslKeyword.new(:output, lambda { |name, builder:, **attributes|
             builder.add_operation(kind: :output, name: name, **attributes)
@@ -101,17 +103,18 @@ module Igniter
           kernel.validators.register(:outputs, Execution::BaselineValidators.method(:validate_outputs))
           kernel.validators.register(:dependencies, Execution::BaselineValidators.method(:validate_dependencies))
           kernel.validators.register(:callables, Execution::BaselineValidators.method(:validate_callables))
+          kernel.validators.register(:effect_dependencies, Execution::BaselineValidators.method(:validate_effect_dependencies))
+          kernel.validators.register(:effect_payload_builders, Execution::BaselineValidators.method(:validate_effect_payload_builders))
+          kernel.validators.register(:effect_adapters, Execution::BaselineValidators.method(:validate_effect_adapters))
           kernel.validators.register(:types, Execution::BaselineValidators.method(:validate_types))
-          kernel.validators.register(:supported_baseline_runtime, Execution::BaselineValidators.method(:validate_supported_baseline_runtime))
         end
 
         def install_runtime_handlers(kernel)
           kernel.runtime_handlers.register(:input, Execution::BaselineRuntime.method(:handle_input))
+          kernel.runtime_handlers.register(:const, Execution::ConstRuntime.method(:handle_const))
           kernel.runtime_handlers.register(:compute, Execution::BaselineRuntime.method(:handle_compute))
+          kernel.runtime_handlers.register(:effect, Execution::BaselineRuntime.method(:handle_effect))
           kernel.runtime_handlers.register(:output, Execution::BaselineRuntime.method(:handle_output))
-          kernel.runtime_handlers.register(:composition, Execution::BaselineRuntime.unsupported(:composition))
-          kernel.runtime_handlers.register(:branch, Execution::BaselineRuntime.unsupported(:branch))
-          kernel.runtime_handlers.register(:collection, Execution::BaselineRuntime.unsupported(:collection))
         end
 
         def install_executors(kernel)

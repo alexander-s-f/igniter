@@ -11,29 +11,24 @@ Igniter::Extensions::Contracts::JournalPack.reset_journal!
 
 environment = Igniter::Contracts.with(Igniter::Extensions::Contracts::JournalPack)
 
-compiled = environment.compile do
+execution_result = environment.run(inputs: { quote_total: 120 }) do
   input :quote_total
-  output :quote_total
+  effect :journal_entry, using: :journal, depends_on: [:quote_total] do |quote_total:|
+    { quote_total: quote_total, event: "quote_requested" }
+  end
+  output :journal_entry
 end
 
 effect_result = environment.apply_effect(
   :journal,
-  payload: { quote_total: 120, event: "quote_requested" },
+  payload: { quote_total: 120, event: "quote_requested_direct" },
   context: { source: :contracts_example }
-)
-
-execution_result = environment.execute_with(
-  :journaled_inline,
-  compiled,
-  inputs: { quote_total: 120 }
 )
 
 diagnostics = environment.diagnose(execution_result)
 journal = Igniter::Extensions::Contracts::JournalPack.journal
 
 puts "contracts_effect_payload=#{effect_result.inspect}"
-puts "contracts_executor_output=#{execution_result.output(:quote_total)}"
+puts "contracts_graph_effect_output=#{execution_result.output(:journal_entry).inspect}"
 puts "contracts_effect_entries=#{journal[:effects].length}"
-puts "contracts_execution_entries=#{journal[:executions].length}"
-puts "contracts_result_entries=#{journal[:results].length}"
 puts "contracts_effect_sections=#{diagnostics.section_names.join(',')}"

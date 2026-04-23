@@ -21,6 +21,7 @@ a framework.
 - [Legacy Reference](./legacy-reference.md)
 - [Contracts Migration Roadmap](./contracts-migration-roadmap.md)
 - [Post-Core Target Plan](./post-core-target-plan.md)
+- [Canonical Runtime Shapes](./canonical-runtime-shapes.md)
 - [Embed Target Plan](./embed-target-plan.md)
 - [Application Target Plan](./application-target-plan.md)
 - [Cluster Target Plan](./cluster-target-plan.md)

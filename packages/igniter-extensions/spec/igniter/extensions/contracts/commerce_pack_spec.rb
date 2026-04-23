@@ -44,8 +44,10 @@ RSpec.describe Igniter::Extensions::Contracts::CommercePack do
       :extensions_aggregate,
       :extensions_commerce
     )
-    expect(profile.supports_node_kind?(:lookup)).to be(true)
-    expect(profile.supports_node_kind?(:sum)).to be(true)
+    expect(profile.dsl_keyword(:lookup)).to be_a(Igniter::Contracts::DslKeyword)
+    expect(profile.supports_node_kind?(:lookup)).to be(false)
+    expect(profile.dsl_keyword(:sum)).to be_a(Igniter::Contracts::DslKeyword)
+    expect(profile.supports_node_kind?(:sum)).to be(false)
     expect(profile.dsl_keyword(:grand_total)).to be_a(Igniter::Contracts::DslKeyword)
   end
 

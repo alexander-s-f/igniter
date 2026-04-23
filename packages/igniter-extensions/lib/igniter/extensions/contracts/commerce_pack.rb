@@ -39,13 +39,23 @@ module Igniter
 
           def order_items_keyword
             Igniter::Contracts::DslKeyword.new(:order_items) do |name = :items, from:, key: :items, builder:|
-              builder.add_operation(kind: :lookup, name: name, from: from.to_sym, key: key.to_sym)
+              builder.profile.dsl_keyword(:lookup).call(
+                name,
+                from: from.to_sym,
+                key: key.to_sym,
+                builder: builder
+              )
             end
           end
 
           def subtotal_keyword
             Igniter::Contracts::DslKeyword.new(:subtotal) do |name = :subtotal, from:, amount_key: :amount, builder:|
-              builder.add_operation(kind: :sum, name: name, from: from.to_sym, using: amount_key.to_sym)
+              builder.profile.dsl_keyword(:sum).call(
+                name,
+                from: from.to_sym,
+                using: amount_key.to_sym,
+                builder: builder
+              )
             end
           end
 
