@@ -3,10 +3,11 @@
 module Igniter
   module Cluster
     class PlanExecutor
-      attr_reader :environment
+      attr_reader :environment, :incident_executor
 
       def initialize(environment:)
         @environment = environment
+        @incident_executor = IncidentExecutor.new(metadata: { scope: :plan_execution })
       end
 
       def execute(plan, handler: nil, metadata: {})
@@ -72,6 +73,13 @@ module Igniter
         end
 
         status = derive_status(action_results)
+        incident_artifacts = incident_executor.execute(
+          plan_kind: plan_kind,
+          plan: plan,
+          action_results: action_results,
+          status: status,
+          metadata: metadata
+        )
         details = {
           plan_mode: plan.mode,
           action_count: action_results.length,
@@ -83,6 +91,8 @@ module Igniter
           status: status,
           plan: plan,
           action_results: action_results,
+          incident: incident_artifacts.fetch(:incident),
+          recovery_timeline: incident_artifacts.fetch(:recovery_timeline),
           metadata: details,
           explanation: DecisionExplanation.new(
             code: :"#{plan_kind}_execution",

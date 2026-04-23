@@ -767,12 +767,50 @@ RSpec.describe Igniter::Cluster::Environment do
     expect(ownership_report.to_h).to include(
       plan_kind: :ownership,
       status: :completed,
-      action_types: [:ownership_action]
+      action_types: [:ownership_action],
+      incident: include(
+        kind: :ownership_shift,
+        status: :completed,
+        severity: :medium,
+        owner_names: [:pricing_node],
+        targets: ["order-42"]
+      ),
+      recovery_timeline: include(
+        kind: :ownership_shift,
+        status: :completed,
+        event_count: 3,
+        event_log: include(
+          events: include(
+            include(kind: :incident_detected),
+            include(kind: :ownership_action, status: :completed),
+            include(kind: :recovery_outcome, status: :recovered)
+          )
+        )
+      )
     )
     expect(lease_report.to_h).to include(
       plan_kind: :lease,
       status: :completed,
-      action_types: [:lease_action]
+      action_types: [:lease_action],
+      incident: include(
+        kind: :lease,
+        status: :completed,
+        severity: :medium,
+        owner_names: [:pricing_node],
+        targets: ["order-42"]
+      ),
+      recovery_timeline: include(
+        kind: :lease,
+        status: :completed,
+        event_count: 3,
+        event_log: include(
+          events: include(
+            include(kind: :incident_detected),
+            include(kind: :lease_action, status: :completed),
+            include(kind: :recovery_outcome, status: :recovered)
+          )
+        )
+      )
     )
     expect(lease_report.action_results.first.to_h).to include(
       subject: {
@@ -882,6 +920,26 @@ RSpec.describe Igniter::Cluster::Environment do
       plan_kind: :failover,
       status: :completed,
       action_types: [:failover_action],
+      incident: include(
+        kind: :degraded_health,
+        status: :completed,
+        severity: :high,
+        source_names: [:fallback_node],
+        destination_names: [:pricing_node],
+        targets: ["order-42"]
+      ),
+      recovery_timeline: include(
+        kind: :degraded_health,
+        status: :completed,
+        event_count: 3,
+        event_log: include(
+          events: include(
+            include(kind: :incident_detected),
+            include(kind: :failover_action, status: :completed),
+            include(kind: :recovery_outcome, status: :recovered)
+          )
+        )
+      ),
       explanation: include(code: :failover_execution)
     )
     expect(report.action_results.first.to_h).to include(
