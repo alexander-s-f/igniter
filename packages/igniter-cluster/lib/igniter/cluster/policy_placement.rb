@@ -17,7 +17,8 @@ module Igniter
           candidates: selected_peers,
           metadata: {
             policy: policy.to_h,
-            query: request.query.to_h
+            query: request.query.to_h,
+            candidate_profiles: selected_peers.map { |peer| peer.profile.to_h }
           },
           explanation: policy.explanation_for(query: request.query, candidates: selected_peers)
         )

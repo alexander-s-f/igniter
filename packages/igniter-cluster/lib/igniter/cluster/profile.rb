@@ -9,11 +9,13 @@ module Igniter
       attr_reader :application_profile, :cluster_packs, :transport_name, :router_name,
                   :admission_name, :placement_name, :peer_registry_name,
                   :transport_seam, :router_seam, :admission_seam, :placement_seam,
-                  :peer_registry_seam, :route_policy, :admission_policy, :placement_policy
+                  :peer_registry_seam, :route_policy, :admission_policy, :placement_policy,
+                  :capability_catalog
 
-      def initialize(application_profile:, cluster_packs:, names:, seams:, policies:)
+      def initialize(application_profile:, cluster_packs:, names:, seams:, policies:, capability_catalog:)
         @application_profile = application_profile
         @cluster_packs = cluster_packs.dup.freeze
+        @capability_catalog = capability_catalog
         assign_names!(names)
         assign_seams!(seams)
         assign_policies!(policies)
@@ -40,6 +42,7 @@ module Igniter
           placement: placement_name,
           placement_policy: placement_policy&.to_h,
           peer_registry: peer_registry_name,
+          capability_catalog: capability_catalog.to_h,
           peers: peers.map(&:to_h)
         }
       end

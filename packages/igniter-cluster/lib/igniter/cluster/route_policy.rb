@@ -21,7 +21,7 @@ module Igniter
 
       def route_mode_for(query)
         return :pinned if honor_preferred_peer && query.pinned?
-        return :capability if require_capabilities && !query.required_capabilities.empty?
+        return :capability if query.capability_constraints? || query.topology_constraints?
         return :first_available if allow_first_available
 
         :unroutable
@@ -48,12 +48,17 @@ module Igniter
             }
           )
         when :capability
+          explanation_code, explanation_message = capability_explanation_for(query, peer)
           DecisionExplanation.new(
-            code: :capability_route,
-            message: "capability route to #{peer.name}",
+            code: explanation_code,
+            message: explanation_message,
             metadata: {
               peer: peer.name,
               required_capabilities: query.required_capabilities,
+              required_traits: query.required_traits,
+              required_labels: query.required_labels,
+              preferred_region: query.preferred_region,
+              preferred_zone: query.preferred_zone,
               policy: name
             }
           )
@@ -82,10 +87,17 @@ module Igniter
       private
 
       def matches_peer?(query, peer)
-        return false if honor_preferred_peer && query.pinned? && peer.name != query.preferred_peer
-        return true unless require_capabilities
+        query.matches_peer?(
+          peer,
+          honor_preferred_peer: honor_preferred_peer,
+          require_capabilities: require_capabilities
+        )
+      end
 
-        peer.supports_capabilities?(query.required_capabilities)
+      def capability_explanation_for(query, peer)
+        return [:capability_route, "capability route to #{peer.name}"] unless query.topology_constraints? || !query.required_traits.empty?
+
+        [:intent_route, "intent route to #{peer.name}"]
       end
     end
   end

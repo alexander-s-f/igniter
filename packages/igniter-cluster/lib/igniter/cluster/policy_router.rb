@@ -32,7 +32,8 @@ module Igniter
           policy: policy.to_h,
           query: request.query.to_h,
           candidate_names: candidates.map(&:name),
-          selected_capabilities: selected_peer.capabilities
+          selected_capabilities: selected_peer.capabilities,
+          selected_peer_profile: selected_peer.profile.to_h
         }
       end
 

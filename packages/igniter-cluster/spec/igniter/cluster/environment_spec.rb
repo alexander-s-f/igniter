@@ -41,13 +41,20 @@ RSpec.describe Igniter::Cluster::Environment do
   end
 
   it "routes compose sessions through capability-aware peers" do
-    cluster = Igniter::Cluster.with(Igniter::Extensions::Contracts::ComposePack)
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .finalize
+    cluster = described_class.new(profile: cluster)
 
     cluster.register_peer(
       :pricing_node,
       capabilities: %i[pricing compose],
       transport: build_peer_transport(cluster.application.profile.contracts_profile),
-      metadata: { zone: "eu-west" }
+      metadata: { owner: :mesh },
+      roles: %i[pricing compute],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a
     )
 
     result = cluster.run(inputs: { subtotal: 100, rate: 0.2 }) do
@@ -80,14 +87,32 @@ RSpec.describe Igniter::Cluster::Environment do
     expect(result.output(:pricing_total)).to eq(120.0)
     expect(entry.payload.fetch(:transport)).to include(adapter: :in_memory_peer)
     expect(entry.payload.fetch(:transport).dig(:cluster, :query, :required_capabilities)).to eq([:pricing])
+    expect(entry.payload.fetch(:transport).dig(:cluster, :query, :required_capability_definitions)).to contain_exactly(
+      include(name: :pricing, traits: [:financial], labels: { domain: "commerce" })
+    )
     expect(entry.payload.fetch(:transport).dig(:cluster, :route, :peer)).to eq(:pricing_node)
     expect(entry.payload.fetch(:transport).dig(:cluster, :route, :mode)).to eq(:capability)
     expect(entry.payload.fetch(:transport).dig(:cluster, :route, :explanation)).to include(
       code: :capability_route,
       message: "capability route to pricing_node"
     )
+    expect(entry.payload.fetch(:transport).dig(:cluster, :route, :metadata, :selected_peer_profile)).to include(
+      name: :pricing_node,
+      roles: %i[compute pricing],
+      labels: { tier: "gold" },
+      region: "eu_west",
+      zone: "eu_west_1a",
+      metadata: { owner: :mesh }
+    )
+    expect(entry.payload.fetch(:transport).dig(:cluster, :route, :metadata, :selected_peer_profile,
+                                               :capability_definitions))
+      .to contain_exactly(include(name: :pricing, traits: [:financial], labels: { domain: "commerce" }))
     expect(entry.payload.fetch(:transport).dig(:cluster, :admission, :reason)).to include(
       code: :permissive_accept
+    )
+    expect(entry.payload.fetch(:transport).dig(:cluster, :admission, :metadata, :peer_profile)).to include(
+      name: :pricing_node,
+      roles: %i[compute pricing]
     )
   end
 
@@ -229,7 +254,7 @@ RSpec.describe Igniter::Cluster::Environment do
 
     expect(result.output(:pricing_total)).to eq(120.0)
     expect(entry.payload.fetch(:transport).dig(:cluster, :route, :peer)).to eq(:fallback_node)
-    expect(entry.payload.fetch(:transport).dig(:cluster, :route, :mode)).to eq(:first_available)
+    expect(entry.payload.fetch(:transport).dig(:cluster, :route, :mode)).to eq(:capability)
     expect(entry.payload.fetch(:transport).dig(:cluster, :route, :metadata, :policy)).to include(
       name: :loose,
       require_capabilities: false
@@ -277,12 +302,82 @@ RSpec.describe Igniter::Cluster::Environment do
     expect(result.output(:pricing_total)).to eq(120.0)
     expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :mode)).to eq(:capability_filtered)
     expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :candidates)).to eq([:pricing_node])
+    expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :metadata, :candidate_profiles)).to contain_exactly(
+      include(name: :pricing_node, capabilities: %i[compose pricing])
+    )
     expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :metadata, :policy)).to include(
       name: :targeted,
       filter_capabilities: true,
       candidate_limit: 1
     )
     expect(entry.payload.fetch(:transport).dig(:cluster, :route, :peer)).to eq(:pricing_node)
+  end
+
+  it "routes and places using richer query intent over traits, labels, and zone" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .placement_policy(:targeted, filter_capabilities: true)
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :fallback_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "silver" },
+      region: :eu_west,
+      zone: :eu_west_1b,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+    environment.register_peer(
+      :pricing_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+
+    result = environment.run(inputs: { subtotal: 100, rate: 0.2 }) do
+      input :subtotal
+      input :rate
+
+      compose :pricing_total,
+              inputs: { amount: :subtotal, tax_rate: :rate },
+              output: :total,
+              via: environment.compose_invoker(
+                capabilities: [:pricing],
+                traits: [:financial],
+                labels: { tier: "gold" },
+                region: :eu_west,
+                zone: :eu_west_1a,
+                namespace: :mesh
+              ) do
+        input :amount
+        input :tax_rate
+        compute :total, depends_on: %i[amount tax_rate] do |amount:, tax_rate:|
+          amount + (amount * tax_rate)
+        end
+        output :total
+      end
+
+      output :pricing_total
+    end
+
+    entry = environment.application.fetch_session("mesh/pricing_total/1")
+
+    expect(result.output(:pricing_total)).to eq(120.0)
+    expect(entry.payload.fetch(:transport).dig(:cluster, :query)).to include(
+      required_capabilities: [:pricing],
+      required_traits: [:financial],
+      required_labels: { tier: "gold" },
+      preferred_region: "eu_west",
+      preferred_zone: "eu_west_1a"
+    )
+    expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :mode)).to eq(:capability_filtered)
+    expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :candidates)).to eq([:pricing_node])
+    expect(entry.payload.fetch(:transport).dig(:cluster, :route, :peer)).to eq(:pricing_node)
+    expect(entry.payload.fetch(:transport).dig(:cluster, :route, :explanation)).to include(
+      code: :intent_route
+    )
   end
 
   it "surfaces admission failures before transport dispatch" do
@@ -384,9 +479,18 @@ RSpec.describe Igniter::Cluster::Environment do
       placement_policy: include(name: :direct),
       peer_registry: :memory
     )
+    expect(profile.to_h.fetch(:capability_catalog)).to eq(definitions: [])
     expect(profile.to_h.fetch(:application_profile).fetch(:contracts_packs)).to include("Igniter::Extensions::Contracts::ComposePack")
     expect(profile.to_h.fetch(:peers)).to contain_exactly(
-      include(name: :pricing_node, capabilities: [:pricing])
+      include(
+        name: :pricing_node,
+        capabilities: [:pricing],
+        capability_definitions: [],
+        roles: [],
+        labels: {},
+        region: nil,
+        zone: nil
+      )
     )
   end
 end

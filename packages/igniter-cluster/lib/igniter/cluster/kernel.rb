@@ -25,9 +25,19 @@ module Igniter
         self
       end
 
-      def register_peer(name, capabilities:, transport:, metadata: {})
+      def register_peer(name, capabilities:, transport:, metadata: {}, roles: [], labels: {}, region: nil, zone: nil)
         peer_registry_seam.register(
-          Peer.new(name: name, capabilities: capabilities, transport: transport, metadata: metadata)
+          Peer.new(
+            name: name,
+            capabilities: capabilities,
+            transport: transport,
+            metadata: metadata,
+            roles: roles,
+            labels: labels,
+            region: region,
+            zone: zone,
+            capability_catalog: capability_catalog
+          )
         )
         self
       end
@@ -38,7 +48,8 @@ module Igniter
           cluster_packs: cluster_packs,
           names: profile_names,
           seams: profile_seams,
-          policies: profile_policies
+          policies: profile_policies,
+          capability_catalog: CapabilityCatalog.new(definitions: capability_catalog.definitions).freeze
         )
       end
 

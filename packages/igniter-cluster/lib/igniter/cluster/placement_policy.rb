@@ -21,6 +21,7 @@ module Igniter
       def mode_for(query)
         return :pinned if honor_preferred_peer && query.pinned?
         return :capability_filtered if filter_capabilities && !query.required_capabilities.empty?
+        return :intent_filtered if query.topology_constraints? || (filter_capabilities && !query.required_traits.empty?)
 
         :direct
       end
@@ -28,6 +29,7 @@ module Igniter
       def select_candidates(query:, peers:)
         candidates = Array(peers)
         candidates = filter_preferred_peer(query, candidates)
+        candidates = filter_by_topology(query, candidates)
         candidates = filter_by_capabilities(query, candidates)
         candidates = limit_candidates(candidates)
         candidates.freeze
@@ -50,6 +52,19 @@ module Igniter
             message: "capability-filtered placement across #{candidates.length} peer(s)",
             metadata: {
               required_capabilities: query.required_capabilities,
+              candidate_count: candidates.length,
+              policy: name
+            }
+          )
+        when :intent_filtered
+          DecisionExplanation.new(
+            code: :intent_filtered_placement,
+            message: "intent-filtered placement across #{candidates.length} peer(s)",
+            metadata: {
+              required_traits: query.required_traits,
+              required_labels: query.required_labels,
+              preferred_region: query.preferred_region,
+              preferred_zone: query.preferred_zone,
               candidate_count: candidates.length,
               policy: name
             }
@@ -91,10 +106,18 @@ module Igniter
       end
 
       def filter_by_capabilities(query, candidates)
-        return candidates unless filter_capabilities && !query.required_capabilities.empty?
+        return candidates unless filter_capabilities && query.capability_constraints?
 
         candidates.select do |peer|
-          peer.supports_capabilities?(query.required_capabilities)
+          query.matches_capabilities?(peer)
+        end
+      end
+
+      def filter_by_topology(query, candidates)
+        return candidates unless query.topology_constraints?
+
+        candidates.select do |peer|
+          query.matches_topology?(peer)
         end
       end
 

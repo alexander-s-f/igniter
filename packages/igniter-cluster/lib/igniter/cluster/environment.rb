@@ -29,9 +29,19 @@ module Igniter
         application.diagnose(result)
       end
 
-      def register_peer(name, capabilities:, transport:, metadata: {})
+      def register_peer(name, capabilities:, transport:, metadata: {}, roles: [], labels: {}, region: nil, zone: nil)
         peer_registry.register(
-          Peer.new(name: name, capabilities: capabilities, transport: transport, metadata: metadata)
+          Peer.new(
+            name: name,
+            capabilities: capabilities,
+            transport: transport,
+            metadata: metadata,
+            roles: roles,
+            labels: labels,
+            region: region,
+            zone: zone,
+            capability_catalog: profile.capability_catalog
+          )
         )
       end
 
@@ -43,11 +53,19 @@ module Igniter
         peer_registry.peers
       end
 
-      def compose_invoker(capabilities: [], peer: nil, query: nil, namespace: :cluster_compose, metadata: {},
-                          id_generator: nil)
+      def compose_invoker(capabilities: [], traits: [], labels: {}, peer: nil, region: nil, zone: nil, query: nil,
+                          namespace: :cluster_compose, metadata: {}, id_generator: nil)
         build_remote_invoker(
           factory: :remote_compose_invoker,
-          query: build_capability_query(query: query, capabilities: capabilities, peer: peer),
+          query: build_capability_query(
+            query: query,
+            capabilities: capabilities,
+            traits: traits,
+            labels: labels,
+            peer: peer,
+            region: region,
+            zone: zone
+          ),
           namespace: namespace,
           metadata: metadata,
           id_generator: id_generator
@@ -56,7 +74,11 @@ module Igniter
 
       def collection_invoker(
         capabilities: [],
+        traits: [],
+        labels: {},
         peer: nil,
+        region: nil,
+        zone: nil,
         query: nil,
         namespace: :cluster_collection,
         metadata: {},
@@ -64,7 +86,15 @@ module Igniter
       )
         build_remote_invoker(
           factory: :remote_collection_invoker,
-          query: build_capability_query(query: query, capabilities: capabilities, peer: peer),
+          query: build_capability_query(
+            query: query,
+            capabilities: capabilities,
+            traits: traits,
+            labels: labels,
+            peer: peer,
+            region: region,
+            zone: zone
+          ),
           namespace: namespace,
           metadata: metadata,
           id_generator: id_generator
@@ -72,7 +102,7 @@ module Igniter
       end
 
       def dispatch(request)
-        route_request = RouteRequest.from_transport_request(request)
+        route_request = RouteRequest.from_transport_request(request, capability_catalog: profile.capability_catalog)
         placement = placement_seam.place(request: route_request, peers: peers)
         route = router_seam.route(request: route_request, placement: placement)
         admission = admission_seam.admit(request: route_request, route: route)
@@ -99,12 +129,18 @@ module Igniter
         )
       end
 
-      def build_capability_query(query: nil, capabilities: [], peer: nil)
+      def build_capability_query(query: nil, capabilities: [], traits: [], labels: {}, peer: nil, region: nil,
+                                 zone: nil)
         return query if query.is_a?(CapabilityQuery)
 
         CapabilityQuery.new(
           required_capabilities: capabilities,
-          preferred_peer: peer
+          required_traits: traits,
+          required_labels: labels,
+          preferred_peer: peer,
+          preferred_region: region,
+          preferred_zone: zone,
+          capability_catalog: profile.capability_catalog
         )
       end
 

@@ -3,6 +3,22 @@
 module Igniter
   module Cluster
     module KernelSeams
+      def capability(name = nil, definition: nil, **attributes)
+        return capability_catalog.fetch(name) if definition_query?(name, definition, attributes)
+
+        capability_catalog.register(
+          definition || CapabilityDefinition.new(name: name, **attributes)
+        )
+        self
+      end
+
+      def capability_catalog(catalog = nil)
+        return @capability_catalog if catalog.nil?
+
+        @capability_catalog = catalog
+        self
+      end
+
       def route_policy(name = nil, policy: nil, **attributes)
         return @route_policy if policy_query?(name, policy, attributes)
 
@@ -66,6 +82,7 @@ module Igniter
       end
 
       def initialize_defaults
+        @capability_catalog = CapabilityCatalog.new
         configure_default_seam(:transport, :direct, TransportAdapter.new)
         @route_policy = RoutePolicy.capability
         configure_default_seam(:router, @route_policy.name, PolicyRouter.new(policy: @route_policy))
@@ -105,6 +122,10 @@ module Igniter
       end
 
       private
+
+      def definition_query?(name, definition, attributes)
+        !name.nil? && definition.nil? && attributes.empty?
+      end
 
       def policy_query?(name, policy, attributes)
         name.nil? && policy.nil? && attributes.empty?

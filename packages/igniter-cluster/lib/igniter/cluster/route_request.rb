@@ -15,8 +15,8 @@ module Igniter
         freeze
       end
 
-      def self.from_transport_request(request)
-        new(attributes_from_transport_request(request))
+      def self.from_transport_request(request, capability_catalog: nil)
+        new(attributes_from_transport_request(request, capability_catalog: capability_catalog))
       end
 
       def to_h
@@ -45,12 +45,12 @@ module Igniter
           request.metadata.fetch(:routing, request.metadata.fetch("routing", {}))
         end
 
-        def attributes_from_transport_request(request)
+        def attributes_from_transport_request(request, capability_catalog:)
           {
             session_id: request.session_id,
             kind: request.kind,
             operation_name: request.operation_name,
-            query: CapabilityQuery.from_routing(routing_metadata(request)),
+            query: CapabilityQuery.from_routing(routing_metadata(request), capability_catalog: capability_catalog),
             metadata: request.metadata,
             profile_fingerprint: request.profile_fingerprint
           }

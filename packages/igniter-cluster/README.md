@@ -23,6 +23,9 @@ Primary API:
 
 The first active slice is intentionally narrow:
 
+- explicit `PeerProfile` identity model over name/capabilities/roles/labels
+- richer `CapabilityQuery` intent over capabilities, traits, labels, region,
+  and zone
 - explicit `Peer` registry
 - explicit `placement` seam
 - declarative `PlacementPolicy` default

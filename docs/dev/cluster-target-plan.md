@@ -158,6 +158,12 @@ Current direction:
 - the default cluster control surface should be declarative policy objects such
   as `RoutePolicy`, `AdmissionPolicy`, and `PlacementPolicy`, with raw seam
   overrides treated as lower-level escape hatches
+- peer identity should be explicit and structured, so policies and diagnostics
+  can consume a canonical peer profile instead of loose capability arrays and
+  ad-hoc metadata hashes
+- capability queries should be able to express richer intent than plain names:
+  traits, labels, and region/zone locality should be part of the canonical
+  routing and placement contract
 
 ### 3. Ownership And Placement
 
