@@ -9,10 +9,10 @@ RSpec.describe "Igniter legacy core entrypoints" do
 
   def bundled_load_path_script(entrypoint)
     <<~RUBY
-      $LOAD_PATH.unshift(File.expand_path("lib", #{LEGACY_ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-core/lib", #{LEGACY_ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-contracts/lib", #{LEGACY_ROOT.inspect}))
       $LOAD_PATH.unshift(File.expand_path("packages/igniter-extensions/lib", #{LEGACY_ROOT.inspect}))
+      $LOAD_PATH.unshift(File.expand_path("lib", #{LEGACY_ROOT.inspect}))
       require #{entrypoint.inspect}
     RUBY
   end
@@ -147,6 +147,28 @@ RSpec.describe "Igniter legacy core entrypoints" do
   it "does not emit a legacy core warning for the package root facade alone" do
     _stdout, stderr, status = capture_require(
       "igniter-extensions",
+      env: { "IGNITER_LEGACY_CORE_REQUIRE" => nil }
+    )
+
+    expect(status.success?).to eq(true)
+    expect(stderr).not_to include("legacy reference implementation")
+    expect(stderr).not_to include("igniter-core")
+  end
+
+  it "does not emit a legacy core warning for stable shared entrypoints" do
+    _stdout, stderr, status = capture_require(
+      "igniter/tool",
+      env: { "IGNITER_LEGACY_CORE_REQUIRE" => nil }
+    )
+
+    expect(status.success?).to eq(true)
+    expect(stderr).not_to include("legacy reference implementation")
+    expect(stderr).not_to include("igniter-core")
+  end
+
+  it "does not emit a legacy core warning for sdk and ai entrypoints that use stable shared primitives" do
+    _stdout, stderr, status = capture_require(
+      "igniter/ai",
       env: { "IGNITER_LEGACY_CORE_REQUIRE" => nil }
     )
 
