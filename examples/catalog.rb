@@ -318,6 +318,37 @@ module IgniterExamples
       ]
     ),
     Example.new(
+      id: "contracts/mcp_server",
+      path: "examples/contracts/mcp_server.rb",
+      summary: "Transport-ready MCP server wrapper over the adapter package.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_mcp_server_required=session,updates",
+        "contracts_mcp_server_tool=creator_session_apply",
+        "contracts_mcp_server_error=false",
+        "contracts_mcp_server_decision=scope"
+      ]
+    ),
+    Example.new(
+      id: "contracts/mcp_host",
+      path: "examples/contracts/mcp_host.rb",
+      summary: "JSON-RPC host entrypoint over the MCP adapter server wrapper.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_mcp_host_protocol=2024-11-05",
+        "contracts_mcp_host_tools=true",
+        "contracts_mcp_host_decision=scope",
+        "contracts_mcp_host_error=false",
+        "contracts_mcp_host_invalid_code=-32602"
+      ]
+    ),
+    Example.new(
       id: "diagnostics",
       path: "examples/diagnostics.rb",
       summary: "Text diagnostics and machine-readable result output.",

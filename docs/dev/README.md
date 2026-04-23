@@ -21,6 +21,7 @@ a framework.
 - [Legacy Reference](./legacy-reference.md)
 - [Contracts Migration Roadmap](./contracts-migration-roadmap.md)
 - [DebugPack Spec](./debug-pack-spec.md)
+- [MCP Adapter Package](./mcp-adapter-package-spec.md)
 
 ## Package And Layer Boundaries
 

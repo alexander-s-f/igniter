@@ -262,8 +262,19 @@ module Igniter
             Mcp::ToolArgument.new(name: :pack, type: :pack_reference, summary: "Custom pack module for audit-aware creator flows."),
             Mcp::ToolArgument.new(name: :mode, type: :symbol, summary: "Writer behavior when files already exist.", default: :skip_existing, enum: %i[skip_existing overwrite])
           ]
-          arguments << Mcp::ToolArgument.new(name: :scope, type: :symbol, summary: "Target packaging scope.", required: include_scope, enum: CreatorPack.available_scopes) if include_scope
+          arguments << Mcp::ToolArgument.new(name: :scope, type: :symbol, summary: "Target packaging scope.", required: false, enum: CreatorPack.available_scopes) if include_scope
           arguments << Mcp::ToolArgument.new(name: :root, type: :string, summary: "Filesystem root for generated files.", required: require_root) if include_root
+          if include_scope && require_root
+            arguments.find { |argument| argument.name == :scope }&.tap do |argument|
+              arguments[arguments.index(argument)] = Mcp::ToolArgument.new(
+                name: :scope,
+                type: :symbol,
+                summary: "Target packaging scope.",
+                required: true,
+                enum: CreatorPack.available_scopes
+              )
+            end
+          end
           arguments
         end
 
