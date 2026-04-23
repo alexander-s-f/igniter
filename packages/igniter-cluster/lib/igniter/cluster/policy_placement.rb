@@ -3,11 +3,12 @@
 module Igniter
   module Cluster
     class PolicyPlacement
-      attr_reader :policy
+      attr_reader :policy, :projection_policy, :projection_executor
 
       def initialize(policy:)
         @policy = policy
         @projection_policy = ProjectionPolicy.new(name: :"placement_#{policy.name}")
+        @projection_executor = ProjectionExecutor.new(metadata: { scope: :placement })
         freeze
       end
 
@@ -18,6 +19,7 @@ module Igniter
           mode: policy.mode_for(request.query),
           candidates: selected_peers,
           projection: projection,
+          projection_report: projection_executor.execute(projection, metadata: { policy: policy.to_h }),
           metadata: {
             policy: policy.to_h,
             projection_policy: projection_policy.to_h,
@@ -31,8 +33,6 @@ module Igniter
       end
 
       private
-
-      attr_reader :projection_policy
 
       def build_projection(request:, peers:)
         selected_peers = policy.select_candidates(query: request.query, peers: peers)

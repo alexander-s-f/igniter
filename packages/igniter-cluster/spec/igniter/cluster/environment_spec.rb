@@ -230,6 +230,12 @@ RSpec.describe Igniter::Cluster::Environment do
         include(name: :candidate_limit)
       )
     )
+    expect(entry.payload.fetch(:transport).dig(:cluster, :route, :metadata, :route_projection_report)).to include(
+      mode: :capability,
+      status: :resolved,
+      candidate_names: [:pricing_node],
+      selected_peer_view: include(peer: :pricing_node, included: true)
+    )
     expect(entry.payload.fetch(:transport).dig(:cluster, :admission, :reason)).to include(
       code: :permissive_accept
     )
@@ -241,6 +247,31 @@ RSpec.describe Igniter::Cluster::Environment do
     expect(entry.payload.fetch(:transport).dig(:cluster, :admission, :metadata, :peer_profile)).to include(
       name: :pricing_node,
       roles: %i[compute pricing]
+    )
+    expect(entry.payload.fetch(:transport).dig(:cluster, :projection_report)).to include(
+      mode: :capability,
+      status: :resolved,
+      candidate_names: [:pricing_node],
+      selected_peer_view: include(peer: :pricing_node)
+    )
+    expect(entry.payload.fetch(:transport).dig(:cluster, :diagnostics_report)).to include(
+      kind: :transport,
+      status: :completed,
+      query: include(required_capabilities: [:pricing]),
+      route: include(peer: :pricing_node, mode: :capability),
+      placement: include(mode: :direct),
+      projection_report: include(mode: :capability, candidate_names: [:pricing_node]),
+      admission: include(allowed: true),
+      event_log: include(
+        event_count: 4,
+        events: include(
+          include(kind: :placement, status: :resolved),
+          include(kind: :projection, status: :resolved),
+          include(kind: :route, status: :resolved),
+          include(kind: :admission, status: :allowed)
+        )
+      ),
+      operator_timeline: include(kind: :transport, status: :completed, event_count: 4)
     )
   end
 
@@ -457,6 +488,11 @@ RSpec.describe Igniter::Cluster::Environment do
         include(name: :capabilities),
         include(name: :candidate_limit)
       )
+    )
+    expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :projection_report)).to include(
+      mode: :capability_filtered,
+      status: :resolved,
+      candidate_names: [:pricing_node]
     )
     expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :metadata, :policy)).to include(
       name: :targeted,
@@ -910,6 +946,28 @@ RSpec.describe Igniter::Cluster::Environment do
         include(name: :discovery),
         include(name: :admission)
       )
+    )
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh, :metadata, :candidate_projection_report)).to include(
+      mode: :mesh_candidates,
+      status: :resolved,
+      candidate_names: [:pricing_node],
+      stages: include(include(name: :membership_health), include(name: :discovery), include(name: :admission))
+    )
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh, :metadata, :diagnostics_report)).to include(
+      kind: :mesh,
+      status: :completed,
+      query: include(preferred_peer: :pricing_node),
+      projection_report: include(mode: :mesh_candidates, candidate_names: [:pricing_node]),
+      mesh: include(plan_kind: :rebalance, attempt_count: 1, attempt_statuses: [:completed]),
+      event_log: include(
+        event_count: 3,
+        events: include(
+          include(kind: :projection, status: :resolved),
+          include(kind: :mesh_attempt, status: :completed),
+          include(kind: :mesh, status: :completed)
+        )
+      ),
+      operator_timeline: include(kind: :mesh, status: :completed, event_count: 3)
     )
     expect(report.action_results.first.to_h.dig(:metadata, :mesh, :attempts)).to contain_exactly(
       include(

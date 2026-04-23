@@ -4,7 +4,7 @@ module Igniter
   module Cluster
     class MeshExecutor
       attr_reader :environment, :metadata, :discovery, :retry_policy, :admission, :membership_source,
-                  :projection_policy
+                  :projection_policy, :projection_executor, :diagnostics_executor
 
       def initialize(environment:, metadata: {}, id_generator: nil, discovery: nil, retry_policy: nil,
                      admission: nil, trust_policy: nil, membership_source: nil)
@@ -16,6 +16,8 @@ module Igniter
         @admission = admission || MeshAdmission.new(policy: trust_policy || MeshTrustPolicy.permissive)
         @membership_source = membership_source || RegistryMembershipSource.new
         @projection_policy = ProjectionPolicy.new(name: :mesh_candidates)
+        @projection_executor = ProjectionExecutor.new(metadata: { scope: :mesh_candidates })
+        @diagnostics_executor = ClusterDiagnosticsExecutor.new(metadata: { scope: :mesh })
         @sequence = 0
       end
 
@@ -261,6 +263,28 @@ module Igniter
             admission_results: admission_results.map(&:to_h),
             candidate_projection: candidate_projections.last&.to_h,
             candidate_projections: candidate_projections.map(&:to_h),
+            candidate_projection_report: candidate_projections.last && projection_executor.execute(
+              candidate_projections.last,
+              metadata: { policy: projection_policy.to_h }
+            ).to_h,
+            candidate_projection_reports: candidate_projections.map do |projection|
+              projection_executor.execute(projection, metadata: { policy: projection_policy.to_h }).to_h
+            end,
+            diagnostics_report: diagnostics_executor.execute_mesh(
+              query: candidate_projections.last&.query&.to_h,
+              projection_report: candidate_projections.last && projection_executor.execute(
+                candidate_projections.last,
+                metadata: { policy: projection_policy.to_h }
+              ).to_h,
+              mesh: mesh_summary(
+                trace_id: trace_id,
+                plan_kind: plan_kind,
+                attempts: attempts,
+                candidate_projection: candidate_projections.last
+              ),
+              status: final_status(attempts),
+              metadata: { policy: projection_policy.to_h }
+            ).to_h,
             projection_policy: projection_policy.to_h,
             membership_source: membership_source.to_h,
             mesh_executor: metadata.dup,
@@ -305,6 +329,28 @@ module Igniter
               admission_results: admission_results.map(&:to_h),
               candidate_projection: candidate_projections.last&.to_h,
               candidate_projections: candidate_projections.map(&:to_h),
+              candidate_projection_report: candidate_projections.last && projection_executor.execute(
+                candidate_projections.last,
+                metadata: { policy: projection_policy.to_h }
+              ).to_h,
+              candidate_projection_reports: candidate_projections.map do |projection|
+                projection_executor.execute(projection, metadata: { policy: projection_policy.to_h }).to_h
+              end,
+              diagnostics_report: diagnostics_executor.execute_mesh(
+                query: candidate_projections.last&.query&.to_h,
+                projection_report: candidate_projections.last && projection_executor.execute(
+                  candidate_projections.last,
+                  metadata: { policy: projection_policy.to_h }
+                ).to_h,
+                mesh: mesh_summary(
+                  trace_id: nil,
+                  plan_kind: plan_kind,
+                  attempts: [],
+                  candidate_projection: candidate_projections.last
+                ),
+                status: :failed,
+                metadata: { policy: projection_policy.to_h }
+              ).to_h,
               projection_policy: projection_policy.to_h,
               membership_source: membership_source.to_h,
               plan: plan.to_h,
@@ -358,6 +404,16 @@ module Igniter
 
       def mesh_message(plan_kind, peer_name, status)
         "#{status} #{plan_kind} mesh action via #{peer_name}"
+      end
+
+      def mesh_summary(trace_id:, plan_kind:, attempts:, candidate_projection:)
+        {
+          trace_id: trace_id,
+          plan_kind: plan_kind.to_sym,
+          attempt_count: Array(attempts).length,
+          attempt_statuses: Array(attempts).map(&:status),
+          candidate_names: candidate_projection&.candidate_names || []
+        }
       end
 
       def membership_deltas_for(memberships)
