@@ -68,6 +68,17 @@ Typical patterns still present:
 This means `igniter-core` is already semantically demoted, but not yet isolated
 to a legacy compatibility island.
 
+One small peel is now already in place:
+
+- `igniter-sdk` and `igniter-ai` no longer require
+  `igniter/core/errors`, `igniter/core/tool`, or `igniter/core/effect`
+  directly
+- they now go through stable root entrypoints:
+  `igniter/errors`, `igniter/tool`, `igniter/effect`
+
+That does not remove the runtime dependency yet, but it does remove direct
+knowledge of legacy core file layout from those upper packages.
+
 ### 3. Docs Still Treat Core As A Public First-Class Lane
 
 Public and dev docs still contain core-first or extension-activator-first

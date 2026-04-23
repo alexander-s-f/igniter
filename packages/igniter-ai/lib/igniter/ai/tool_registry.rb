@@ -2,8 +2,8 @@
 
 require "set"
 
-require "igniter/core/errors"
-require "igniter/core/tool"
+require "igniter/errors"
+require "igniter/tool"
 require_relative "skill"
 
 module Igniter

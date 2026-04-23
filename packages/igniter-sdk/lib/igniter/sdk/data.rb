@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/core/errors"
+require "igniter/errors"
 
 module Igniter
   module Data

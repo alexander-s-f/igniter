@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "igniter/core/errors"
-require "igniter/core/tool"
+require "igniter/errors"
+require "igniter/tool"
 require_relative "executor"
 
 module Igniter

@@ -79,6 +79,35 @@ RSpec.describe "Igniter dependency boundaries" do
     MSG
   end
 
+  it "keeps sdk and ai packages on stable root entrypoints for shared primitives" do
+    files = ruby_files_for(
+      "packages/igniter-sdk/lib/igniter/sdk.rb",
+      "packages/igniter-sdk/lib/igniter/sdk/**/*.rb",
+      "packages/igniter-ai/lib/igniter/ai.rb",
+      "packages/igniter-ai/lib/igniter/ai/**/*.rb"
+    )
+    offenders = offenders_for(
+      require_lines_for(files),
+      [
+        /require\s+["']igniter\/core\/errors["']/,
+        /require\s+["']igniter\/core\/tool["']/,
+        /require\s+["']igniter\/core\/effect["']/,
+        /require_relative\s+["'][^"']*igniter\/core\/errors["']/,
+        /require_relative\s+["'][^"']*igniter\/core\/tool["']/,
+        /require_relative\s+["'][^"']*igniter\/core\/effect["']/
+      ]
+    )
+
+    expect(offenders).to eq({}), <<~MSG
+      sdk/* and igniter-ai should depend on stable root entrypoints for shared
+      primitives (`igniter/errors`, `igniter/tool`, `igniter/effect`) rather
+      than reaching directly into core file paths.
+
+      Offending require statements:
+      #{format_offenders(offenders)}
+    MSG
+  end
+
   it "does not let rails integration files require app, server, or cluster layers" do
     files = ruby_files_for(
       "packages/igniter-rails/lib/igniter-rails.rb",
