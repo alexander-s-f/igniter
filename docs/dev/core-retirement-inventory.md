@@ -36,22 +36,30 @@ An explicit `igniter/legacy` loading lane now exists. The intended direction is:
 These packages still declare a runtime dependency on `igniter-core` in their
 gemspecs:
 
-- `igniter-agents`
-- `igniter-ai`
 - `igniter-app`
 - `igniter-cluster`
 - `igniter-extensions`
 - `igniter-rails`
-- `igniter-sdk`
 - `igniter-server`
+
+These packages have now moved onto the explicit compatibility package
+`igniter-legacy` instead:
+
+- `igniter-agents`
+- `igniter-ai`
+- `igniter-sdk`
 
 Package metadata version loading has now been detached from `packages/igniter-core`.
 
 All gemspecs that still need `Igniter::VERSION` now load it from the neutral
 root version source instead of from `packages/igniter-core/lib/igniter/core/version.rb`.
 
-That means the remaining core coupling is now about real runtime/package
-dependencies, not shared version metadata.
+That means the remaining retirement work is now split into two kinds of package
+edges:
+
+- direct `igniter-core` runtime dependencies that still need demotion
+- `igniter-legacy` compatibility dependencies that are acceptable mid-migration
+  but should eventually be removed too
 
 ### 2. Runtime / Lib Surfaces Still Reach Into Core
 

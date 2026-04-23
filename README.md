@@ -11,7 +11,7 @@ At the center is a small, strict idea:
 
 From there, Igniter scales by layers instead of by reinvention:
 
-- **Core** for contracts, compilation, execution, diagnostics
+- **Embedded / Legacy kernel** for contracts, compilation, execution, diagnostics
 - **App** for a single-node runtime/profile
 - **Cluster** for capability-based distributed execution
 - **SDK** for optional packs such as AI, channels, tools, and data
@@ -117,14 +117,25 @@ That is the general Igniter idea: keep the business graph stable, let the runtim
 
 ## The Levels
 
-### 1. Core
+### 1. Embedded Kernel
 
-Start here if you want the kernel:
+Start here if you want the embedded kernel:
 
 - contract DSL
 - compiler and graph validation
 - lazy runtime and invalidation
 - diagnostics, events, introspection
+
+Preferred loading lane:
+
+- `require "igniter"` for the quiet embedded/default path
+- `require "igniter/legacy"` only when you want to be explicit about the
+  legacy implementation lane during migration
+
+Deprecated compatibility alias:
+
+- `require "igniter/core"` still works, but it is now a warning alias for the
+  legacy/reference implementation and should not be the default recommendation
 
 Read:
 
@@ -213,6 +224,20 @@ If you are iterating on ideas locally:
 - [`packages/*/README.md`](./packages/igniter-core/README.md) — package-local quick reference owned by each gem
 - [`docs/`](./docs/README.md) — top-level docs portal that routes between sections
 
+## Legacy Note
+
+`igniter-core` now exists as a legacy/reference implementation during the
+retirement track. Prefer:
+
+- `require "igniter"` for embedded usage
+- `require "igniter/legacy"` only when you intentionally want the explicit
+  compatibility lane
+- `require "igniter-contracts"` and contracts-facing packs for the migration
+  path
+
+Treat `require "igniter/core"` as a deprecated compatibility alias rather than
+the canonical onboarding path.
+
 If you want to scaffold a new stack quickly:
 
 ```bash
@@ -233,16 +258,16 @@ gem "igniter"
 | Need | Require |
 |------|---------|
 | Core contracts/runtime | `require "igniter"` |
-| Legacy contract/tool kernel | `require "igniter/core"` |
+| Explicit legacy kernel lane | `require "igniter/legacy"` |
 | Embedded contracts kernel | `require "igniter/contracts"` or `require "igniter-contracts"` |
 | Actor runtime and built-in agents | `require "igniter/agent"` or `require "igniter/agents"` |
 | SDK registry | `require "igniter/sdk"` |
 | App runtime/profile | `require "igniter/app"` |
 | Cluster runtime | `require "igniter/cluster"` |
 
-`igniter/core` remains available as a legacy reference surface during the
-contracts migration and now emits a legacy notice on public runtime entrypoints
-by default.
+`igniter/core` remains available only as a deprecated compatibility alias during
+the retirement track and now emits a legacy notice on public runtime
+entrypoints by default.
 
 The fuller map lives in [`docs/guide/README.md`](./docs/guide/README.md).
 

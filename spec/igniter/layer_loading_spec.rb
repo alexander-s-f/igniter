@@ -219,6 +219,17 @@ RSpec.describe "Igniter layer loading" do
     expect(features).not_to include("igniter/cluster.rb")
   end
 
+  it "`require \"igniter-legacy\"` loads the explicit legacy package facade without the core umbrella" do
+    features = loaded_igniter_features("igniter-legacy")
+
+    expect(features).to include("packages/igniter-core/lib/igniter-legacy.rb")
+    expect(features).to include("packages/igniter-core/lib/igniter/legacy.rb")
+    expect(features).not_to include("packages/igniter-core/lib/igniter/core.rb")
+    expect(features).not_to include("igniter/server.rb")
+    expect(features).not_to include("igniter/app.rb")
+    expect(features).not_to include("igniter/cluster.rb")
+  end
+
   it "`require \"igniter/agent\"` loads the actor runtime directly from the agents package" do
     features = loaded_igniter_features("igniter/agent")
 

@@ -20,13 +20,10 @@ RSpec.describe "Igniter core retirement inventory" do
 
   it "keeps package-level igniter-core runtime dependencies on an explicit retirement whitelist" do
     expected = %w[
-      igniter-agents
-      igniter-ai
       igniter-app
       igniter-cluster
       igniter-extensions
       igniter-rails
-      igniter-sdk
       igniter-server
     ].freeze
 
@@ -41,6 +38,28 @@ RSpec.describe "Igniter core retirement inventory" do
       docs/dev/core-retirement-inventory.md
 
       Current packages depending on igniter-core:
+      #{actual.join("\n")}
+    MSG
+  end
+
+  it "keeps package-level igniter-legacy runtime dependencies on an explicit migration whitelist" do
+    expected = %w[
+      igniter-agents
+      igniter-ai
+      igniter-sdk
+    ].freeze
+
+    actual = gemspecs.filter_map do |path|
+      package_name_for(path) if file_text(path).include?('add_dependency "igniter-legacy"')
+    end.sort
+
+    expect(actual).to eq(expected), <<~MSG
+      The igniter-legacy migration whitelist changed.
+
+      If this was intentional, update the whitelist and the retirement inventory:
+      docs/dev/core-retirement-inventory.md
+
+      Current packages depending on igniter-legacy:
       #{actual.join("\n")}
     MSG
   end

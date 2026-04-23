@@ -7,6 +7,9 @@ It is intentionally more tactical than
 [igniter-contracts-spec.md](./igniter-contracts-spec.md): it answers "where are
 we now, what is still open, and what should come next?"
 
+For the design reset that defines the target after core removal, see
+[Post-Core Target Plan](./post-core-target-plan.md).
+
 ## Current State
 
 The new target shape is now real, not hypothetical:
@@ -39,6 +42,13 @@ phase is:
 - finish the remaining migration away from `igniter-core`
 - then delete `igniter-core`
 - then clean the repo and docs around the post-core world
+
+Important correction:
+
+- `igniter-legacy` / legacy-core compatibility is transitional only
+- it should not become a new long-term product layer
+- architecture decisions should now be evaluated against the post-core target,
+  not against the convenience of wrapping the old kernel
 
 ## Migration Snapshot
 
@@ -130,7 +140,7 @@ The current scope should be considered complete in these areas:
   package-local MCP host surface
 
 So the next work should not reopen these foundations casually. It should focus
-on migration closure and repo cleanup.
+on migration closure, target-model design, and repo cleanup.
 
 ## What Still Remains Beyond Activators
 
@@ -148,11 +158,18 @@ There are still a few deeper tracks:
   upper-layer machine/cluster stories,
   or intentionally legacy-only references
 
-In practice this means the next phase should probably focus less on generic
-infrastructure and more on finishing the remaining migration candidates one by
-one.
+In practice this means the next phase should focus less on generic transitional
+infrastructure and more on:
+
+- the canonical contracts-first DSL/runtime target
+- the contracts-native `Application` target
+- the contracts-native `Cluster` target
+- then retirement cleanup against those targets
 
 ## Core Retirement Track
+
+The retirement track should now be read together with the
+[Post-Core Target Plan](./post-core-target-plan.md).
 
 The end state should be very explicit:
 

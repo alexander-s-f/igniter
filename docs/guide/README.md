@@ -4,6 +4,14 @@ Use this section for user-facing documentation: learning the framework, choosing
 entrypoints, configuring runtime behavior, and building applications on top of
 Igniter.
 
+Current loading guidance:
+
+- prefer `require "igniter"` for embedded/default usage
+- prefer contracts-facing entrypoints when you are evaluating the migration path
+- treat `require "igniter/core"` as a deprecated compatibility alias
+- use `require "igniter/legacy"` only when you intentionally want the explicit
+  legacy/reference lane
+
 ## What Belongs Here
 
 - getting started and first contract/app flows
@@ -24,7 +32,7 @@ Igniter.
 - [Distributed Workflows](./distributed-workflows.md)
 - [Core Runtime Features](./core-runtime-features.md)
 - [AI And Tool Surfaces](./ai-and-tools.md)
-- [Core](./core.md)
+- [Embedded Kernel](./core.md)
 - [App](./app.md)
 - [Cluster](./cluster.md)
 - [SDK](./sdk.md)
@@ -47,6 +55,7 @@ Igniter.
 Package-specific quick reference should live next to the gem that owns the
 surface:
 
+- [`packages/igniter-contracts/README.md`](../../packages/igniter-contracts/README.md)
 - [`packages/igniter-core/README.md`](../../packages/igniter-core/README.md)
 - [`packages/igniter-ai/README.md`](../../packages/igniter-ai/README.md)
 - [`packages/igniter-sdk/README.md`](../../packages/igniter-sdk/README.md)
@@ -64,3 +73,5 @@ Cross-package narratives and tutorials stay here in `docs/guide/`.
 
 Older deep documents still exist, but they should usually be reached through the
 guide indexes above or the [legacy reference list](../dev/legacy-reference.md).
+`packages/igniter-core/README.md` should now be read as reference/compatibility
+material rather than the default path for new onboarding.

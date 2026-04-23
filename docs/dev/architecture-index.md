@@ -7,7 +7,8 @@ Start here if you want the shortest accurate map of Igniter's structure.
 | Layer | Namespace / Require | Responsibility |
 |------|----------------------|----------------|
 | Embed kernel | `Igniter` / `require "igniter"` | contract DSL, model, compiler, runtime, events, diagnostics |
-| Core kernel | `Igniter` / `require "igniter/core"` or `require "igniter/core/<feature>"` | tool base classes, memory, metrics, temporal support, caches, graph runtime |
+| Legacy kernel lane | `Igniter` / `require "igniter/legacy"` or `require "igniter/legacy/<feature>"` | explicit compatibility/reference lane over the old kernel implementation |
+| Deprecated core alias | `Igniter` / `require "igniter/core"` or `require "igniter/core/<feature>"` | warning alias kept for migration parity; not the preferred loading surface |
 | Agents runtime | `Igniter::Agent` / `require "igniter/agent"` and `require "igniter/agents"` | actor primitives, registry, supervision, generic built-in agents, AI agent implementations |
 | SDK tools pack | `Igniter` / `require "igniter/sdk/tools"` | system discovery, workflow selection, bootstrap-planning tools |
 | Extensions | `require "igniter/extensions/<feature>"` | behavioral add-ons such as auditing, provenance, incremental, dataflow, invariants |
@@ -105,6 +106,8 @@ Placement rules:
 
 - `lib/igniter/` keeps only top-level public entrypoints.
 - `lib/igniter/core/` holds substantive core implementation.
+- `packages/igniter-core/lib/igniter/legacy/` is the explicit compatibility lane
+  that stable entrypoints should prefer over direct `igniter/core/*` feature paths.
 - `packages/igniter-agents/lib/igniter/` holds actor runtime and agent implementations.
 - `lib/igniter/extensions/` holds extension entrypoints.
 - `packages/igniter-sdk/lib/igniter/sdk/` holds the SDK registry plus non-AI, non-agent sdk packs.
@@ -119,12 +122,12 @@ Prefer the smallest require that matches the feature you need.
 | Need | Require |
 |------|---------|
 | Contracts, DSL, runtime | `require "igniter"` |
-| Core kernel and tools | `require "igniter/core"` |
+| Explicit legacy kernel lane | `require "igniter/legacy"` |
 | Actor runtime primitives | `require "igniter/agent"` |
 | Generic agents | `require "igniter/agents"` |
 | SDK registry / capability activation | `require "igniter/sdk"` |
 | Built-in operational tools | `require "igniter/sdk/tools"` |
-| One core feature | `require "igniter/core/tool"` or `require "igniter/core/temporal"` |
+| One legacy feature | `require "igniter/legacy/tool"` or `require "igniter/legacy/temporal"` |
 | One extension | `require "igniter/extensions/auditing"` |
 | AI | `require "igniter/ai"` |
 | AI agents | `require "igniter/ai/agents"` |
@@ -136,6 +139,9 @@ Prefer the smallest require that matches the feature you need.
 | Rails plugin | `require "igniter/plugins/rails"` |
 | Frontend package | `require "igniter-frontend"` |
 | Schema rendering package | `require "igniter-schema-rendering"` |
+
+`require "igniter/core"` remains available only as a deprecated warning alias
+for the retirement window.
 
 Frontend docs:
 

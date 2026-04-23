@@ -16,7 +16,7 @@ require "igniter"
 Optional additions:
 
 ```ruby
-require "igniter/core"
+require "igniter/legacy"
 require "igniter/extensions/dataflow"
 require "igniter/extensions/saga"
 require "igniter/sdk/data"
@@ -92,7 +92,7 @@ Prefer the smallest public require that matches the job:
 | Need | Require |
 |------|---------|
 | Core contracts/runtime | `require "igniter"` |
-| Contract/tool kernel | `require "igniter/core"` |
+| Explicit legacy kernel lane | `require "igniter/legacy"` |
 | Actor runtime and built-in agents | `require "igniter/agent"` or `require "igniter/agents"` |
 | Extensions | `require "igniter/extensions/<feature>"` |
 | SDK pack | `require "igniter/sdk/<pack>"`, `require "igniter/ai"`, or `require "igniter/agents"` |
@@ -100,6 +100,9 @@ Prefer the smallest public require that matches the job:
 | Stack coordination | `require "igniter/stack"` |
 | Cluster runtime | `require "igniter/cluster"` |
 | Rails integration | `require "igniter/plugins/rails"` |
+
+`require "igniter/core"` still works as a compatibility alias, but it should no
+longer be the recommended onboarding path.
 
 ## See Also
 
