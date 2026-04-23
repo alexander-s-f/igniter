@@ -11,7 +11,7 @@ module Igniter
             @tolerance = tolerance
           end
 
-          def compare( # rubocop:disable Metrics/ParameterLists
+          def compare(
             inputs:,
             primary_environment: nil,
             primary_compiled_graph: nil,
@@ -53,17 +53,18 @@ module Igniter
             return [result, nil] if result
 
             if environment.nil? || compiled_graph.nil?
-              raise ArgumentError, "#{label} comparison requires either an execution result or environment + compiled_graph"
+              raise ArgumentError,
+                    "#{label} comparison requires either an execution result or environment + compiled_graph"
             end
 
             begin
               [environment.execute(compiled_graph, inputs: inputs), nil]
-            rescue StandardError => error
-              [nil, serialize_error(error)]
+            rescue StandardError => e
+              [nil, serialize_error(e)]
             end
           end
 
-          def build_report(inputs:, primary_outputs:, candidate_outputs:, primary_error:, candidate_error:) # rubocop:disable Metrics/MethodLength
+          def build_report(inputs:, primary_outputs:, candidate_outputs:, primary_error:, candidate_error:)
             common = primary_outputs.keys & candidate_outputs.keys
             divergences = compare_common(primary_outputs, candidate_outputs, common)
 

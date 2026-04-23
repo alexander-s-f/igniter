@@ -28,4 +28,4 @@ updated_result = environment.execute(compiled, inputs: { order_total: 150, count
 
 puts "contracts_basic_gross_total=#{first_result.output(:gross_total)}"
 puts "contracts_basic_updated_gross_total=#{updated_result.output(:gross_total)}"
-puts "contracts_basic_profile=#{environment.profile.pack_names.join(',')}"
+puts "contracts_basic_profile=#{environment.profile.pack_names.join(",")}"

@@ -6,7 +6,7 @@ RSpec.describe "Igniter::Contracts hook spec validation" do
   module InvalidNormalizerResultPack
     module_function
 
-    INVALID_NORMALIZER = lambda do |operations:, profile:| # rubocop:disable Lint/UnusedMethodArgument
+    INVALID_NORMALIZER = lambda do |operations:, profile:| # rubocop:disable Lint/UnusedBlockArgument
       operations.first
     end
 
@@ -82,7 +82,8 @@ RSpec.describe "Igniter::Contracts hook spec validation" do
     end
 
     def install_into(kernel)
-      kernel.nodes.register(:bad_keyword, Igniter::Contracts::NodeType.new(kind: :bad_keyword, metadata: { requires_runtime: false }))
+      kernel.nodes.register(:bad_keyword,
+                            Igniter::Contracts::NodeType.new(kind: :bad_keyword, metadata: { requires_runtime: false }))
       kernel.dsl_keywords.register(:bad_keyword, INVALID_KEYWORD)
       kernel
     end
@@ -112,14 +113,16 @@ RSpec.describe "Igniter::Contracts hook spec validation" do
     kernel = Igniter::Contracts.build_kernel.install(InvalidValidatorPack)
 
     expect { kernel.finalize }
-      .to raise_error(Igniter::Contracts::InvalidHookImplementationError, /validators entry invalid_validator.*profile:/)
+      .to raise_error(Igniter::Contracts::InvalidHookImplementationError,
+                      /validators entry invalid_validator.*profile:/)
   end
 
   it "rejects diagnostics contributors whose augment signature does not match the hookspec" do
     kernel = Igniter::Contracts.build_kernel.install(InvalidDiagnosticsPack)
 
     expect { kernel.finalize }
-      .to raise_error(Igniter::Contracts::InvalidHookImplementationError, /diagnostics_contributors entry invalid_diagnostics.*profile:/)
+      .to raise_error(Igniter::Contracts::InvalidHookImplementationError,
+                      /diagnostics_contributors entry invalid_diagnostics.*profile:/)
   end
 
   it "rejects DSL keywords that do not accept the builder keyword" do

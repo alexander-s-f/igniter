@@ -3,7 +3,7 @@
 module Igniter
   module Application
     class ManualLoader
-      def load!(base_dir:, paths:, environment:)
+      def load!(_base_dir:, _paths:, _environment:)
         self
       end
     end

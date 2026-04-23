@@ -9,7 +9,7 @@ module Igniter
         float: "number", number: "number",
         boolean: "boolean", bool: "boolean",
         array: "array",
-        object: "object",
+        object: "object"
       }.freeze
 
       def self.included(base)
@@ -29,7 +29,7 @@ module Igniter
             type: type.to_sym,
             required: required,
             default: default,
-            desc: desc.to_s,
+            desc: desc.to_s
           }.freeze
         end
 
@@ -61,7 +61,7 @@ module Igniter
           when :openai
             {
               type: "function",
-              function: { name: tool_name, description: description.to_s, parameters: json_schema },
+              function: { name: tool_name, description: description.to_s, parameters: json_schema }
             }
           else
             { name: tool_name, description: description.to_s, parameters: json_schema }

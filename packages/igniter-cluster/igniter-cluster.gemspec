@@ -9,7 +9,11 @@ Gem::Specification.new do |spec|
   spec.email = ["alexander.s.fokin@gmail.com"]
 
   spec.summary = "Contracts-native distributed runtime for Igniter"
-  spec.description = "Clean-slate distributed runtime package for Igniter built over igniter-application transport/session seams with explicit routing, admission, placement, and peer registry boundaries."
+  spec.description = [
+    "Clean-slate distributed runtime package for Igniter built over",
+    "igniter-application transport/session seams with explicit routing,",
+    "admission, placement, and peer registry boundaries."
+  ].join(" ")
   spec.homepage = "https://github.com/alexander-s-f/igniter"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"

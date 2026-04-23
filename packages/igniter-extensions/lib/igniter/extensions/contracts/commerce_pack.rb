@@ -31,7 +31,7 @@ module Igniter
           end
 
           def order_items_keyword
-            Igniter::Contracts::DslKeyword.new(:order_items) do |name = :items, from:, key: :items, builder:|
+            Igniter::Contracts::DslKeyword.new(:order_items) do |name = :items, from:, builder:, key: :items|
               builder.profile.dsl_keyword(:lookup).call(
                 name,
                 from: from.to_sym,
@@ -42,7 +42,7 @@ module Igniter
           end
 
           def subtotal_keyword
-            Igniter::Contracts::DslKeyword.new(:subtotal) do |name = :subtotal, from:, amount_key: :amount, builder:|
+            Igniter::Contracts::DslKeyword.new(:subtotal) do |name = :subtotal, from:, builder:, amount_key: :amount|
               builder.profile.dsl_keyword(:sum).call(
                 name,
                 from: from.to_sym,
@@ -67,7 +67,7 @@ module Igniter
           end
 
           def grand_total_keyword
-            Igniter::Contracts::DslKeyword.new(:grand_total) do |name = :grand_total, subtotal:, tax: nil, shipping: nil, discount: nil, builder:|
+            Igniter::Contracts::DslKeyword.new(:grand_total) do |name = :grand_total, subtotal:, builder:, tax: nil, shipping: nil, discount: nil|
               dependency_names = [subtotal, tax, shipping, discount].compact.map(&:to_sym)
 
               builder.add_operation(

@@ -59,7 +59,8 @@ module Igniter
           end
         end
 
-        def initialize(nodes:, dsl_keywords:, validators:, normalizers:, runtime_handlers:, diagnostics_contributors:, pack_manifests:, effects:, executors:, fingerprint:)
+        def initialize(nodes:, dsl_keywords:, validators:, normalizers:, runtime_handlers:, diagnostics_contributors:,
+                       pack_manifests:, effects:, executors:, fingerprint:)
           @nodes = nodes
           @dsl_keywords = dsl_keywords
           @validators = validators

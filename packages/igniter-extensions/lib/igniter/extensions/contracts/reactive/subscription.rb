@@ -7,7 +7,7 @@ module Igniter
         class Subscription
           attr_reader :event_type, :path, :action, :once_per_dispatch
 
-          def initialize(event_type:, path: nil, action:, once_per_dispatch: false)
+          def initialize(event_type:, action:, path: nil, once_per_dispatch: false)
             @event_type = event_type.to_sym
             @path = path&.to_sym
             @action = action

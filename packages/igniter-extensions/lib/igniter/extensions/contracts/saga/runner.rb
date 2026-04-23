@@ -40,13 +40,13 @@ module Igniter
               success: true,
               execution_result: execution_result_for(state, outputs)
             )
-          rescue StandardError => error
+          rescue StandardError => e
             execution_result = execution_result_for(state, outputs)
 
             Result.new(
               success: false,
               execution_result: execution_result,
-              error: error,
+              error: e,
               failed_node: failed_operation&.name,
               compensations: run_compensations(
                 completed_operations.reverse,
@@ -96,8 +96,8 @@ module Igniter
               value: execution_result.state[operation.name]
             )
             CompensationRecord.new(node_name: compensation.node_name, success: true)
-          rescue StandardError => error
-            CompensationRecord.new(node_name: compensation.node_name, success: false, error: error)
+          rescue StandardError => e
+            CompensationRecord.new(node_name: compensation.node_name, success: false, error: e)
           end
 
           def compensation_inputs_for(operation, execution_result:, inputs:)

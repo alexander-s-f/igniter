@@ -82,7 +82,9 @@ RSpec.describe Igniter::Contracts::Kernel do
       end
 
       define_singleton_method(:install_into) do |kernel|
-        kernel.dsl_keywords.register(:dependency_marker, Igniter::Contracts::DslKeyword.new(:dependency_marker) { |_name, builder:| builder })
+        kernel.dsl_keywords.register(:dependency_marker, Igniter::Contracts::DslKeyword.new(:dependency_marker) do |_name, builder:|
+          builder
+        end)
         kernel
       end
     end

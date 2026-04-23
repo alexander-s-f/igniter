@@ -115,11 +115,11 @@ RSpec.describe Igniter::Extensions::Contracts::ComposePack do
 
     expect(result.output(:pricing_total)).to eq(55.0)
     expect(invocations).to eq([
-      {
-        operation: :pricing_total,
-        inputs: { amount: 50, tax_rate: 0.1 }
-      }
-    ])
+                                {
+                                  operation: :pricing_total,
+                                  inputs: { amount: 50, tax_rate: 0.1 }
+                                }
+                              ])
   end
 
   it "publishes profile capabilities for nested invocation" do
@@ -193,7 +193,8 @@ RSpec.describe Igniter::Extensions::Contracts::ComposePack do
         compose :pricing, contract: compiled_elsewhere, inputs: { amount: :subtotal }, output: :amount
         output :pricing
       end
-    end.to raise_error(Igniter::Contracts::ValidationError, /compose contracts were compiled against a different profile/)
+    end.to raise_error(Igniter::Contracts::ValidationError,
+                       /compose contracts were compiled against a different profile/)
   end
 
   it "raises when a custom invoker returns a non-execution result" do

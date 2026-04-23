@@ -36,7 +36,7 @@ module Igniter
 
       private
 
-      def format_message(message, context) # rubocop:disable Metrics/AbcSize
+      def format_message(message, context)
         details = []
         details << "graph=#{context[:graph]}" if context[:graph]
         details << "node=#{context[:node_name]}" if context[:node_name]
@@ -63,7 +63,8 @@ module Igniter
     class PendingDependencyError < Error
       attr_reader :deferred_result
 
-      def initialize(deferred_result, message = "Dependency is pending", context: {}, token: nil, source_node: nil, waiting_on: nil, payload: nil)
+      def initialize(deferred_result, message = "Dependency is pending", context: {}, token: nil, source_node: nil,
+                     waiting_on: nil, payload: nil)
         @deferred_result, resolved_message = normalize_pending_deferred(
           deferred_result,
           message,

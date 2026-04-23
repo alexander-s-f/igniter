@@ -9,7 +9,7 @@ module Igniter
 
           VALUE_MAX = 60
 
-          def format(report) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+          def format(report)
             lines = []
             lines << "Primary:    #{report.primary_name}"
             lines << "Candidate:  #{report.candidate_name}"
@@ -39,7 +39,7 @@ module Igniter
             lines.join("\n")
           end
 
-          def append_divergences(report, lines) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+          def append_divergences(report, lines)
             return if report.divergences.empty?
 
             lines << "DIVERGENCES (#{report.divergences.size}):"
@@ -65,7 +65,7 @@ module Igniter
             lines << ""
           end
 
-          def fmt(value) # rubocop:disable Metrics/CyclomaticComplexity
+          def fmt(value)
             string =
               case value
               when nil then "nil"

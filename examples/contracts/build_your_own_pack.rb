@@ -40,14 +40,14 @@ module SlugPack
     def validate_slug_sources(operations:, profile: nil) # rubocop:disable Lint/UnusedMethodArgument
       available = operations.reject(&:output?).map(&:name)
       missing = operations.select { |operation| operation.kind == :slug }
-                        .map { |operation| operation.attributes.fetch(:from).to_sym }
-                        .reject { |name| available.include?(name) }
-                        .uniq
+                          .map { |operation| operation.attributes.fetch(:from).to_sym }
+                          .reject { |name| available.include?(name) }
+                          .uniq
       return [] if missing.empty?
 
       [Igniter::Contracts::ValidationFinding.new(
         code: :missing_slug_sources,
-        message: "slug sources are not defined: #{missing.map(&:to_s).join(', ')}",
+        message: "slug sources are not defined: #{missing.map(&:to_s).join(", ")}",
         subjects: missing
       )]
     end
@@ -77,6 +77,6 @@ report = environment.validation_report do
   output :permalink
 end
 
-puts "custom_pack_profile=#{environment.profile.pack_names.join(',')}"
+puts "custom_pack_profile=#{environment.profile.pack_names.join(",")}"
 puts "custom_pack_slug=#{result.output(:permalink)}"
-puts "custom_pack_findings=#{report.findings.map(&:code).join(',')}"
+puts "custom_pack_findings=#{report.findings.map(&:code).join(",")}"

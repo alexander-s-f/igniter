@@ -14,7 +14,7 @@ module Igniter
         end
 
         def install_into(kernel)
-          kernel.dsl_keywords.register(:project, DslKeyword.new(:project) do |name, from:, key: nil, dig: nil, default: PathAccess::NO_DEFAULT, builder:|
+          kernel.dsl_keywords.register(:project, DslKeyword.new(:project) do |name, from:, builder:, key: nil, dig: nil, default: PathAccess::NO_DEFAULT|
             source_name = from.to_sym
             path = PathAccess.normalize_path(keyword_name: :project, key: key, dig: dig)
 

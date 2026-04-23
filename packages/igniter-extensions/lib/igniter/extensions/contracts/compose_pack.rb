@@ -43,7 +43,9 @@ module Igniter
           end
 
           def install_into(kernel)
-            kernel.nodes.register(:compose, Igniter::Contracts::NodeType.new(kind: :compose, metadata: { category: :orchestration }))
+            kernel.nodes.register(:compose,
+                                  Igniter::Contracts::NodeType.new(kind: :compose,
+                                                                   metadata: { category: :orchestration }))
             kernel.dsl_keywords.register(:compose, compose_keyword)
             kernel.validators.register(:compose_dependencies, method(:validate_compose_dependencies))
             kernel.validators.register(:compose_contracts, method(:validate_compose_contracts))
@@ -53,7 +55,7 @@ module Igniter
           end
 
           def compose_keyword
-            Igniter::Contracts::DslKeyword.new(:compose) do |name, contract: nil, inputs: {}, output: nil, via: nil, builder:, &block|
+            Igniter::Contracts::DslKeyword.new(:compose) do |name, builder:, contract: nil, inputs: {}, output: nil, via: nil, &block|
               compiled_graph = compile_contract(name: name, contract: contract, profile: builder.profile, block: block)
               input_map = normalize_inputs(inputs)
 
@@ -72,15 +74,15 @@ module Igniter
           def validate_compose_dependencies(operations:, profile: nil) # rubocop:disable Lint/UnusedMethodArgument
             available = operations.reject(&:output?).map(&:name)
             missing = operations.select { |operation| operation.kind == :compose }
-                              .flat_map { |operation| Array(operation.attributes[:depends_on]) }
-                              .map(&:to_sym)
-                              .reject { |name| available.include?(name) }
-                              .uniq
+                                .flat_map { |operation| Array(operation.attributes[:depends_on]) }
+                                .map(&:to_sym)
+                                .reject { |name| available.include?(name) }
+                                .uniq
             return [] if missing.empty?
 
             [Igniter::Contracts::ValidationFinding.new(
               code: :missing_compose_dependencies,
-              message: "compose dependencies are not defined: #{missing.map(&:to_s).join(', ')}",
+              message: "compose dependencies are not defined: #{missing.map(&:to_s).join(", ")}",
               subjects: missing
             )]
           end
@@ -95,7 +97,7 @@ module Igniter
             if invalid_contracts.any?
               findings << Igniter::Contracts::ValidationFinding.new(
                 code: :invalid_compose_contract,
-                message: "compose nodes require a compiled contract graph: #{invalid_contracts.map(&:name).join(', ')}",
+                message: "compose nodes require a compiled contract graph: #{invalid_contracts.map(&:name).join(", ")}",
                 subjects: invalid_contracts.map(&:name)
               )
             end
@@ -108,7 +110,7 @@ module Igniter
             if mismatched.any?
               findings << Igniter::Contracts::ValidationFinding.new(
                 code: :compose_profile_mismatch,
-                message: "compose contracts were compiled against a different profile: #{mismatched.map(&:name).join(', ')}",
+                message: "compose contracts were compiled against a different profile: #{mismatched.map(&:name).join(", ")}",
                 subjects: mismatched.map(&:name)
               )
             end
@@ -125,7 +127,7 @@ module Igniter
             if missing_outputs.any?
               findings << Igniter::Contracts::ValidationFinding.new(
                 code: :unknown_compose_output,
-                message: "compose output selections are not defined in the nested contract: #{missing_outputs.map(&:to_s).join(', ')}",
+                message: "compose output selections are not defined in the nested contract: #{missing_outputs.map(&:to_s).join(", ")}",
                 subjects: missing_outputs
               )
             end
@@ -143,7 +145,7 @@ module Igniter
 
             [Igniter::Contracts::ValidationFinding.new(
               code: :invalid_compose_invoker,
-              message: "compose via: must be callable: #{invalid.map(&:name).join(', ')}",
+              message: "compose via: must be callable: #{invalid.map(&:name).join(", ")}",
               subjects: invalid.map(&:name)
             )]
           end
@@ -187,7 +189,7 @@ module Igniter
             raise ArgumentError, "compose inputs: must be a Hash" unless inputs.is_a?(Hash)
 
             inputs.each_with_object({}) do |(key, value), memo|
-              memo[key.to_sym] = value.is_a?(String) ? value : value
+              memo[key.to_sym] = value
             end.freeze
           end
 

@@ -46,7 +46,7 @@ module Igniter
             normalized_attributes[:callable] = block if block
             builder.add_operation(kind: :compute, name: name, **normalized_attributes)
           }),
-          effect: DslKeyword.new(:effect, lambda { |name, using:, callable: nil, builder:, **attributes, &block|
+          effect: DslKeyword.new(:effect, lambda { |name, using:, builder:, callable: nil, **attributes, &block|
             normalized_attributes = attributes.dup
             normalized_attributes[:using] = using.to_sym
             normalized_attributes[:callable] = block if block
@@ -64,9 +64,9 @@ module Igniter
 
             def augment(report:, result:, profile:) # rubocop:disable Lint/UnusedMethodArgument
               report.add_section(:baseline_summary, {
-                outputs: result.outputs.keys.sort,
-                state: result.state.keys.sort
-              })
+                                   outputs: result.outputs.keys.sort,
+                                   state: result.state.keys.sort
+                                 })
             end
           end
         }.freeze

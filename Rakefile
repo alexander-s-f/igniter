@@ -7,10 +7,37 @@ require "rspec/core/rake_task"
 require "rubocop/rake_task"
 require_relative "lib/igniter/version"
 
-RuboCop::RakeTask.new
+RuboCop::RakeTask.new do |task|
+  active_ruby_paths = %w[
+    Gemfile
+    Rakefile
+    igniter.gemspec
+    lib/igniter.rb
+    lib/igniter/cluster.rb
+    lib/igniter/errors.rb
+    lib/igniter/monorepo_packages.rb
+    lib/igniter/version.rb
+    spec/current/**/*_spec.rb
+    packages/igniter-contracts/**/*.rb
+    packages/igniter-extensions/**/*.rb
+    packages/igniter-application/**/*.rb
+    packages/igniter-cluster/**/*.rb
+    packages/igniter-mcp-adapter/**/*.rb
+  ]
+  task.patterns = active_ruby_paths
+  task.options = ["--cache-root", File.expand_path(".rubocop_cache", __dir__)]
+end
 
 RSpec::Core::RakeTask.new(:spec) do |t|
-  t.pattern = "{spec/current,packages/igniter-contracts/spec,packages/igniter-extensions/spec,packages/igniter-application/spec,packages/igniter-cluster/spec,packages/igniter-mcp-adapter/spec}/**/*_spec.rb"
+  active_spec_roots = %w[
+    spec/current
+    packages/igniter-contracts/spec
+    packages/igniter-extensions/spec
+    packages/igniter-application/spec
+    packages/igniter-cluster/spec
+    packages/igniter-mcp-adapter/spec
+  ]
+  t.pattern = "{#{active_spec_roots.join(",")}}/**/*_spec.rb"
 end
 
 RSpec::Core::RakeTask.new(:architecture) do |t|

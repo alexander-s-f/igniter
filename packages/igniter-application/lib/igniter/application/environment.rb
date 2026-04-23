@@ -82,7 +82,9 @@ module Igniter
       end
 
       def provider(name)
-        providers.find { |entry| entry.name == name.to_sym }&.provider || raise(KeyError, "unknown provider #{name.inspect}")
+        providers.find do |entry|
+          entry.name == name.to_sym
+        end&.provider || raise(KeyError, "unknown provider #{name.inspect}")
       end
 
       def host_seam
@@ -101,7 +103,8 @@ module Igniter
         profile.session_store_seam
       end
 
-      def compose_invoker(invoker: Igniter::Extensions::Contracts::ComposePack::LocalInvoker, namespace: :compose, metadata: {}, id_generator: nil)
+      def compose_invoker(invoker: Igniter::Extensions::Contracts::ComposePack::LocalInvoker, namespace: :compose,
+                          metadata: {}, id_generator: nil)
         ComposeInvoker.new(
           environment: self,
           invoker: invoker,
@@ -123,7 +126,8 @@ module Igniter
         )
       end
 
-      def collection_invoker(invoker: Igniter::Extensions::Contracts::CollectionPack::LocalInvoker, namespace: :collection, metadata: {}, id_generator: nil)
+      def collection_invoker(invoker: Igniter::Extensions::Contracts::CollectionPack::LocalInvoker,
+                             namespace: :collection, metadata: {}, id_generator: nil)
         CollectionInvoker.new(
           environment: self,
           invoker: invoker,
@@ -182,12 +186,11 @@ module Igniter
         resolve_providers!
         phases << BootPhase.new(name: :resolve_providers, status: :completed)
 
-        if start_scheduler
-          start_scheduler()
-          phases << BootPhase.new(name: :start_scheduler, status: :completed)
-        else
-          phases << BootPhase.new(name: :start_scheduler, status: :skipped)
-        end
+        phases << if start_scheduler
+                    BootPhase.new(name: :start_scheduler, status: :completed)
+                  else
+                    BootPhase.new(name: :start_scheduler, status: :skipped)
+                  end
 
         if activate_transport
           activate_transport!
@@ -216,7 +219,8 @@ module Igniter
         session_store.entries
       end
 
-      def run_compose_session(session_id:, compiled_graph:, inputs:, invoker: Igniter::Extensions::Contracts::ComposePack::LocalInvoker, operation_name: nil, metadata: {})
+      def run_compose_session(session_id:, compiled_graph:, inputs:,
+                              invoker: Igniter::Extensions::Contracts::ComposePack::LocalInvoker, operation_name: nil, metadata: {})
         session_metadata = metadata.merge(
           operation_name: (operation_name || session_id).to_sym,
           profile_fingerprint: profile.contracts_profile.fingerprint
@@ -230,7 +234,8 @@ module Igniter
         )
         session_store.write(running_entry)
 
-        operation = Igniter::Contracts::Operation.new(kind: :compose, name: operation_name || session_id, attributes: {})
+        operation = Igniter::Contracts::Operation.new(kind: :compose, name: operation_name || session_id,
+                                                      attributes: {})
         invocation = Igniter::Extensions::Contracts::ComposePack::Invocation.new(
           operation: operation,
           compiled_graph: compiled_graph,
@@ -256,15 +261,15 @@ module Igniter
           )
         )
         result
-      rescue StandardError => error
+      rescue StandardError => e
         session_store.write(
           running_entry.with_update(
             status: :failed,
             payload: {
               inputs: inputs,
               error: {
-                class: error.class.name,
-                message: error.message
+                class: e.class.name,
+                message: e.message
               }
             }
           )
@@ -272,7 +277,8 @@ module Igniter
         raise
       end
 
-      def run_collection_session(session_id:, items:, compiled_graph:, key:, inputs: {}, invoker: Igniter::Extensions::Contracts::CollectionPack::LocalInvoker, window: nil, operation_name: nil, metadata: {})
+      def run_collection_session(session_id:, items:, compiled_graph:, key:, inputs: {},
+                                 invoker: Igniter::Extensions::Contracts::CollectionPack::LocalInvoker, window: nil, operation_name: nil, metadata: {})
         session_metadata = metadata.merge(
           operation_name: (operation_name || session_id).to_sym,
           key: key.to_sym,
@@ -290,7 +296,8 @@ module Igniter
         )
         session_store.write(running_entry)
 
-        operation = Igniter::Contracts::Operation.new(kind: :collection, name: operation_name || session_id, attributes: {})
+        operation = Igniter::Contracts::Operation.new(kind: :collection, name: operation_name || session_id,
+                                                      attributes: {})
         invocation = Igniter::Extensions::Contracts::CollectionPack::Invocation.new(
           operation: operation,
           items: items,
@@ -320,7 +327,7 @@ module Igniter
           )
         )
         result
-      rescue StandardError => error
+      rescue StandardError => e
         session_store.write(
           running_entry.with_update(
             status: :failed,
@@ -328,8 +335,8 @@ module Igniter
               inputs: inputs,
               item_count: Array(items).size,
               error: {
-                class: error.class.name,
-                message: error.message
+                class: e.class.name,
+                message: e.message
               }
             }
           )

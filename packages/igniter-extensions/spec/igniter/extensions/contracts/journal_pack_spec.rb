@@ -18,10 +18,10 @@ RSpec.describe Igniter::Extensions::Contracts::JournalPack do
 
     expect(result).to eq(amount: 10)
     expect(described_class.journal[:effects]).to eq([{
-      payload: { amount: 10 },
-      context: { source: :spec },
-      profile_fingerprint: environment.profile.fingerprint
-    }])
+                                                      payload: { amount: 10 },
+                                                      context: { source: :spec },
+                                                      profile_fingerprint: environment.profile.fingerprint
+                                                    }])
   end
 
   it "works as a graph-native baseline effect adapter" do
@@ -37,14 +37,14 @@ RSpec.describe Igniter::Extensions::Contracts::JournalPack do
 
     expect(result.output(:journal_entry)).to eq(amount: 10, source: :graph)
     expect(described_class.journal[:effects]).to eq([{
-      payload: { amount: 10, source: :graph },
-      context: {
-        node_name: :journal_entry,
-        effect_name: :journal,
-        dependencies: { amount: 10 }
-      },
-      profile_fingerprint: environment.profile.fingerprint
-    }])
+                                                      payload: { amount: 10, source: :graph },
+                                                      context: {
+                                                        node_name: :journal_entry,
+                                                        effect_name: :journal,
+                                                        dependencies: { amount: 10 }
+                                                      },
+                                                      profile_fingerprint: environment.profile.fingerprint
+                                                    }])
   end
 
   it "executes through an external executor and records request and result" do
@@ -59,28 +59,28 @@ RSpec.describe Igniter::Extensions::Contracts::JournalPack do
 
     expect(result.output(:amount)).to eq(15)
     expect(described_class.journal[:executions]).to eq([{
-      compiled_graph: {
-        operations: [
-          { kind: :input, name: :amount, attributes: {} },
-          { kind: :output, name: :amount, attributes: {} }
-        ],
-        profile_fingerprint: environment.profile.fingerprint
-      },
-      inputs: { amount: 15 },
-      profile_fingerprint: environment.profile.fingerprint,
-      runtime: "Igniter::Contracts::Execution::Runtime"
-    }])
+                                                         compiled_graph: {
+                                                           operations: [
+                                                             { kind: :input, name: :amount, attributes: {} },
+                                                             { kind: :output, name: :amount, attributes: {} }
+                                                           ],
+                                                           profile_fingerprint: environment.profile.fingerprint
+                                                         },
+                                                         inputs: { amount: 15 },
+                                                         profile_fingerprint: environment.profile.fingerprint,
+                                                         runtime: "Igniter::Contracts::Execution::Runtime"
+                                                       }])
     expect(described_class.journal[:results]).to eq([{
-      state: { amount: 15 },
-      outputs: { amount: 15 },
-      profile_fingerprint: environment.profile.fingerprint,
-      compiled_graph: {
-        operations: [
-          { kind: :input, name: :amount, attributes: {} },
-          { kind: :output, name: :amount, attributes: {} }
-        ],
-        profile_fingerprint: environment.profile.fingerprint
-      }
-    }])
+                                                      state: { amount: 15 },
+                                                      outputs: { amount: 15 },
+                                                      profile_fingerprint: environment.profile.fingerprint,
+                                                      compiled_graph: {
+                                                        operations: [
+                                                          { kind: :input, name: :amount, attributes: {} },
+                                                          { kind: :output, name: :amount, attributes: {} }
+                                                        ],
+                                                        profile_fingerprint: environment.profile.fingerprint
+                                                      }
+                                                    }])
   end
 end

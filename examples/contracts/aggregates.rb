@@ -13,14 +13,14 @@ environment = Igniter::Contracts.with(
 )
 
 result = environment.run(inputs: {
-  order: {
-    items: [
-      { amount: 10, taxable: true },
-      { amount: 20, taxable: false },
-      { amount: 30, taxable: true }
-    ]
-  }
-}) do
+                           order: {
+                             items: [
+                               { amount: 10, taxable: true },
+                               { amount: 20, taxable: false },
+                               { amount: 30, taxable: true }
+                             ]
+                           }
+                         }) do
   input :order
   lookup :items, from: :order, key: :items
   count :item_count, from: :items

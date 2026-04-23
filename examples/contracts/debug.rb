@@ -8,9 +8,9 @@ require "igniter/extensions/contracts"
 environment = Igniter::Extensions::Contracts.with(Igniter::Extensions::Contracts::DebugPack)
 
 report = Igniter::Extensions::Contracts.debug_report(environment, inputs: {
-  amount: 100.0,
-  quantity: 2
-}) do
+                                                       amount: 100.0,
+                                                       quantity: 2
+                                                     }) do
   input :amount
   input :quantity
 
@@ -26,7 +26,7 @@ report = Igniter::Extensions::Contracts.debug_report(environment, inputs: {
 end
 
 puts "contracts_debug_ok=#{report.ok?}"
-puts "contracts_debug_packs=#{report.profile_snapshot.pack_names.join(',')}"
+puts "contracts_debug_packs=#{report.profile_snapshot.pack_names.join(",")}"
 puts "contracts_debug_output=#{report.execution_result.output(:tax)}"
-puts "contracts_debug_sections=#{report.diagnostics_report.section_names.join(',')}"
-puts "contracts_debug_registry_keys=#{report.profile_snapshot.registry_keys.fetch(:diagnostics_contributors).join(',')}"
+puts "contracts_debug_sections=#{report.diagnostics_report.section_names.join(",")}"
+puts "contracts_debug_registry_keys=#{report.profile_snapshot.registry_keys.fetch(:diagnostics_contributors).join(",")}"

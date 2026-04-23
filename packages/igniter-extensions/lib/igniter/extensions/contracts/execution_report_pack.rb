@@ -11,13 +11,13 @@ module Igniter
 
           def augment(report:, result:, profile:)
             report.add_section(:execution_report, {
-              profile_fingerprint: profile.fingerprint,
-              pack_names: profile.pack_names.sort,
-              output_count: result.outputs.length,
-              state_count: result.state.length,
-              outputs: result.outputs.to_h,
-              state_keys: result.state.keys.sort
-            })
+                                 profile_fingerprint: profile.fingerprint,
+                                 pack_names: profile.pack_names.sort,
+                                 output_count: result.outputs.length,
+                                 state_count: result.state.length,
+                                 outputs: result.outputs.to_h,
+                                 state_keys: result.state.keys.sort
+                               })
           end
         end
 

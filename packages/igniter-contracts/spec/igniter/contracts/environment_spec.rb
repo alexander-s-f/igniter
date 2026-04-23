@@ -55,9 +55,9 @@ RSpec.describe Igniter::Contracts::Environment do
     report = environment.diagnose(result)
 
     expect(report.section(:baseline_summary)).to eq({
-      outputs: [:amount],
-      state: [:amount]
-    })
+                                                      outputs: [:amount],
+                                                      state: [:amount]
+                                                    })
     expect(environment.apply_effect(:audit, payload: { amount: 10 }, context: { request_id: "req-1" })).to eq(:ok)
     expect(effect_pack.invocation_log.first).to include(
       payload: { amount: 10 },

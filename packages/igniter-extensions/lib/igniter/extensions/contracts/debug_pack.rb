@@ -16,13 +16,13 @@ module Igniter
           def augment(report:, result:, profile:)
             snapshot = DebugPack.profile_snapshot(profile)
             report.add_section(:debug, {
-              profile_fingerprint: profile.fingerprint,
-              pack_names: snapshot.pack_names,
-              registry_keys: snapshot.registry_keys,
-              output_names: result.outputs.keys.sort,
-              state_keys: result.state.keys.sort,
-              operation_count: result.compiled_graph.operations.length
-            })
+                                 profile_fingerprint: profile.fingerprint,
+                                 pack_names: snapshot.pack_names,
+                                 registry_keys: snapshot.registry_keys,
+                                 output_names: result.outputs.keys.sort,
+                                 state_keys: result.state.keys.sort,
+                                 operation_count: result.compiled_graph.operations.length
+                               })
           end
         end
 
@@ -82,7 +82,10 @@ module Igniter
             end
 
           graph = compiled_graph || compilation&.compiled_graph
-          return Debug::Report.new(profile_snapshot: profile_snapshot(environment.profile), compilation_report: compilation) if inputs.nil? || (compilation && compilation.invalid?)
+          if inputs.nil? || compilation&.invalid?
+            return Debug::Report.new(profile_snapshot: profile_snapshot(environment.profile),
+                                     compilation_report: compilation)
+          end
 
           result = environment.execute(graph, inputs: inputs)
           diagnostics = environment.diagnose(result)

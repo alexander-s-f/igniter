@@ -13,7 +13,7 @@ module Igniter
             added.size + changed.size
           end
 
-          def explain # rubocop:disable Metrics/AbcSize
+          def explain
             parts = []
             parts << "added(#{added.size}): #{added.inspect}" unless added.empty?
             parts << "removed(#{removed.size}): #{removed.inspect}" unless removed.empty?

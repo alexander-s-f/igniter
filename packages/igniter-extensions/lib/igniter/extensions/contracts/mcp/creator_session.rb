@@ -20,7 +20,8 @@ module Igniter
 
           attr_reader(*ATTRIBUTES)
 
-          def initialize(name: nil, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: nil, root: nil, mode: :skip_existing, pack: nil, target_profile: nil)
+          def initialize(name: nil, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil,
+                         scope: nil, root: nil, mode: :skip_existing, pack: nil, target_profile: nil)
             @name = name
             @kind = kind
             @namespace = namespace

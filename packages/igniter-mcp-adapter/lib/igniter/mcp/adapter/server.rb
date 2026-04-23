@@ -44,13 +44,14 @@ module Igniter
 
         def input_schema(tool)
           arguments = tool.fetch(:arguments)
+          required_arguments = arguments.select { |argument| argument.fetch(:required) }
 
           {
             type: "object",
             properties: arguments.to_h do |argument|
               [argument.fetch(:name).to_s, argument_schema(argument)]
             end,
-            required: arguments.select { |argument| argument.fetch(:required) }.map { |argument| argument.fetch(:name).to_s },
+            required: required_arguments.map { |argument| argument.fetch(:name).to_s },
             additionalProperties: false
           }
         end
@@ -80,9 +81,7 @@ module Igniter
           end
 
           argument_enum = argument[:enum] || []
-          unless argument_enum.empty?
-            schema[:enum] = argument_enum.map(&:to_s)
-          end
+          schema[:enum] = argument_enum.map(&:to_s) unless argument_enum.empty?
 
           default = argument[:default]
           schema[:default] = default.is_a?(Symbol) ? default.to_s : default unless default.nil?

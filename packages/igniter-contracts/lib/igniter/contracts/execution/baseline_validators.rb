@@ -13,7 +13,7 @@ module Igniter
 
           [ValidationFinding.new(
             code: :duplicate_node_names,
-            message: "duplicate node names: #{duplicates.map(&:to_s).join(', ')}",
+            message: "duplicate node names: #{duplicates.map(&:to_s).join(", ")}",
             subjects: duplicates
           )]
         end
@@ -27,7 +27,7 @@ module Igniter
 
           [ValidationFinding.new(
             code: :missing_output_targets,
-            message: "output targets are not defined: #{missing.map(&:to_s).join(', ')}",
+            message: "output targets are not defined: #{missing.map(&:to_s).join(", ")}",
             subjects: missing
           )]
         end
@@ -43,7 +43,7 @@ module Igniter
 
           [ValidationFinding.new(
             code: :missing_compute_dependencies,
-            message: "compute dependencies are not defined: #{missing.map(&:to_s).join(', ')}",
+            message: "compute dependencies are not defined: #{missing.map(&:to_s).join(", ")}",
             subjects: missing
           )]
         end
@@ -56,7 +56,7 @@ module Igniter
 
           [ValidationFinding.new(
             code: :missing_compute_callable,
-            message: "compute nodes require a callable: #{missing.map(&:to_s).join(', ')}",
+            message: "compute nodes require a callable: #{missing.map(&:to_s).join(", ")}",
             subjects: missing
           )]
         end
@@ -72,7 +72,7 @@ module Igniter
 
           [ValidationFinding.new(
             code: :missing_effect_dependencies,
-            message: "effect dependencies are not defined: #{missing.map(&:to_s).join(', ')}",
+            message: "effect dependencies are not defined: #{missing.map(&:to_s).join(", ")}",
             subjects: missing
           )]
         end
@@ -85,7 +85,7 @@ module Igniter
 
           [ValidationFinding.new(
             code: :missing_effect_payload_builder,
-            message: "effect nodes require a payload callable: #{missing.map(&:to_s).join(', ')}",
+            message: "effect nodes require a payload callable: #{missing.map(&:to_s).join(", ")}",
             subjects: missing
           )]
         end
@@ -99,7 +99,7 @@ module Igniter
 
           [ValidationFinding.new(
             code: :unknown_effect_adapters,
-            message: "effect adapters are not registered in profile: #{missing.map(&:to_s).join(', ')}",
+            message: "effect adapters are not registered in profile: #{missing.map(&:to_s).join(", ")}",
             subjects: missing
           )]
         end

@@ -47,7 +47,7 @@ RSpec.describe "Igniter::Contracts pack completeness" do
 
     def install_into(kernel)
       kernel.nodes.register(:half_baked, Igniter::Contracts::NodeType.new(kind: :half_baked))
-      kernel.dsl_keywords.register(:half_baked, Igniter::Contracts::DslKeyword.new(:half_baked, ->(name, builder:, **) {
+      kernel.dsl_keywords.register(:half_baked, Igniter::Contracts::DslKeyword.new(:half_baked, lambda { |name, builder:, **|
         builder.add_operation(kind: :half_baked, name: name)
       }))
     end

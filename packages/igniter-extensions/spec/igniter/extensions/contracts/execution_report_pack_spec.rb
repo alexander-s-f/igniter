@@ -19,12 +19,12 @@ RSpec.describe Igniter::Extensions::Contracts::ExecutionReportPack do
 
     expect(profile.pack_names).to include(:baseline, :extensions_execution_report)
     expect(report.section(:execution_report)).to eq({
-      profile_fingerprint: profile.fingerprint,
-      pack_names: %i[baseline extensions_execution_report],
-      output_count: 1,
-      state_count: 2,
-      outputs: { tax: 2.0 },
-      state_keys: %i[amount tax]
-    })
+                                                      profile_fingerprint: profile.fingerprint,
+                                                      pack_names: %i[baseline extensions_execution_report],
+                                                      output_count: 1,
+                                                      state_count: 2,
+                                                      outputs: { tax: 2.0 },
+                                                      state_keys: %i[amount tax]
+                                                    })
   end
 end

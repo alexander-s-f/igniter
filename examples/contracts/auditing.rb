@@ -32,4 +32,4 @@ diagnostics = environment.diagnose(result.execution_result)
 puts "contracts_auditing_event_types=#{snapshot.event_types.inspect}"
 puts "contracts_auditing_state=#{snapshot.state(:gross_total).slice(:status, :value).inspect}"
 puts "contracts_auditing_event_count=#{snapshot.event_count}"
-puts "contracts_auditing_sections=#{diagnostics.section_names.join(',')}"
+puts "contracts_auditing_sections=#{diagnostics.section_names.join(",")}"

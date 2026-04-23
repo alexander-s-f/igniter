@@ -5,9 +5,9 @@ require_relative "../../../spec_helper"
 RSpec.describe Igniter::Extensions::Contracts::BranchPack do
   it "adds branch DSL that lowers into compute semantics" do
     profile = Igniter::Contracts.build_kernel
-                               .install(Igniter::Contracts::ProjectPack)
-                               .install(described_class)
-                               .finalize
+                                .install(Igniter::Contracts::ProjectPack)
+                                .install(described_class)
+                                .finalize
 
     compiled = Igniter::Contracts.compile(profile: profile) do
       input :country

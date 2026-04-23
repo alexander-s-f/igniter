@@ -38,14 +38,14 @@ module ExampleSlugPack
     def validate_slug_sources(operations:, profile: nil) # rubocop:disable Lint/UnusedMethodArgument
       available = operations.reject(&:output?).map(&:name)
       missing = operations.select { |operation| operation.kind == :slug }
-                        .map { |operation| operation.attributes.fetch(:from).to_sym }
-                        .reject { |name| available.include?(name) }
-                        .uniq
+                          .map { |operation| operation.attributes.fetch(:from).to_sym }
+                          .reject { |name| available.include?(name) }
+                          .uniq
       return [] if missing.empty?
 
       [Igniter::Contracts::ValidationFinding.new(
         code: :missing_slug_sources,
-        message: "slug sources are not defined: #{missing.map(&:to_s).join(', ')}",
+        message: "slug sources are not defined: #{missing.map(&:to_s).join(", ")}",
         subjects: missing
       )]
     end
@@ -79,7 +79,7 @@ module ExampleSeoPack
     end
 
     def canonical_page_keyword
-      Igniter::Contracts::DslKeyword.new(:canonical_page) do |name = :canonical_url, title:, host:, slug_name: :slug, builder:|
+      Igniter::Contracts::DslKeyword.new(:canonical_page) do |name = :canonical_url, title:, host:, builder:, slug_name: :slug|
         slug_name = slug_name.to_sym
         host = host.to_s
 
@@ -105,6 +105,6 @@ result = environment.run(inputs: { title: "Hello, Pack Composition!" }) do
   output :canonical_url
 end
 
-puts "composed_pack_profile=#{environment.profile.pack_names.join(',')}"
+puts "composed_pack_profile=#{environment.profile.pack_names.join(",")}"
 puts "composed_pack_has_slug=#{environment.profile.supports_node_kind?(:slug)}"
 puts "composed_pack_url=#{result.output(:canonical_url)}"

@@ -25,9 +25,7 @@ module IgniterExamples
     end
 
     def run(example, extra_args: nil)
-      unless example.runnable?
-        return Result.new(example: example, status: :skipped, reason: example.skip_reason)
-      end
+      return Result.new(example: example, status: :skipped, reason: example.skip_reason) unless example.runnable?
 
       argv = extra_args.nil? ? example.command_args : extra_args
       if !example.autonomous? && argv.empty?
@@ -76,7 +74,7 @@ module IgniterExamples
     private
 
     def validate_output(example, stdout, exit_status)
-      return "exited with status #{exit_status}" unless exit_status == 0
+      return "exited with status #{exit_status}" unless exit_status.zero?
 
       missing = Array(example.expected_fragments).reject { |fragment| stdout.include?(fragment) }
       return nil if missing.empty?
@@ -98,7 +96,7 @@ def print_list
   IgniterExamples.all.each do |example|
     notes = []
     notes << example.skip_reason if example.skip_reason
-    suffix = notes.empty? ? "" : " (#{notes.join('; ')})"
+    suffix = notes.empty? ? "" : " (#{notes.join("; ")})"
     puts "#{example.status.to_s.ljust(11)} #{example.id.ljust(24)} #{example.summary}#{suffix}"
   end
 end
@@ -112,10 +110,10 @@ def print_result(result)
 
   return unless result.status == :failed
 
-  unless result.stderr.to_s.empty?
-    first_error = result.stderr.lines.first.to_s.strip
-    puts "        stderr: #{first_error}" unless first_error.empty?
-  end
+  return if result.stderr.to_s.empty?
+
+  first_error = result.stderr.lines.first.to_s.strip
+  puts "        stderr: #{first_error}" unless first_error.empty?
 end
 
 def run_examples(examples, extra_args: nil)

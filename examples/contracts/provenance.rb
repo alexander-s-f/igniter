@@ -50,6 +50,6 @@ diagnostics = environment.diagnose(result)
 puts "contracts_provenance_output=#{result.output(:grand_total)}"
 puts "contracts_provenance_inputs=#{lineage.contributing_inputs.inspect}"
 puts "contracts_provenance_path=#{lineage.path_to(:base_price).inspect}"
-puts "contracts_provenance_sections=#{diagnostics.section_names.join(',')}"
+puts "contracts_provenance_sections=#{diagnostics.section_names.join(",")}"
 puts "---"
 puts Igniter::Extensions::Contracts.explain(result, :grand_total)

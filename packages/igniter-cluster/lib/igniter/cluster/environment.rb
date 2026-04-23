@@ -44,19 +44,27 @@ module Igniter
       end
 
       def compose_invoker(capabilities: [], peer: nil, namespace: :cluster_compose, metadata: {}, id_generator: nil)
-        application.remote_compose_invoker(
-          transport: remote_transport,
+        build_remote_invoker(
+          factory: :remote_compose_invoker,
+          routing: routing_metadata(capabilities: capabilities, peer: peer),
           namespace: namespace,
-          metadata: metadata.merge(routing: routing_metadata(capabilities: capabilities, peer: peer)),
+          metadata: metadata,
           id_generator: id_generator
         )
       end
 
-      def collection_invoker(capabilities: [], peer: nil, namespace: :cluster_collection, metadata: {}, id_generator: nil)
-        application.remote_collection_invoker(
-          transport: remote_transport,
+      def collection_invoker(
+        capabilities: [],
+        peer: nil,
+        namespace: :cluster_collection,
+        metadata: {},
+        id_generator: nil
+      )
+        build_remote_invoker(
+          factory: :remote_collection_invoker,
+          routing: routing_metadata(capabilities: capabilities, peer: peer),
           namespace: namespace,
-          metadata: metadata.merge(routing: routing_metadata(capabilities: capabilities, peer: peer)),
+          metadata: metadata,
           id_generator: id_generator
         )
       end
@@ -78,6 +86,16 @@ module Igniter
       end
 
       private
+
+      def build_remote_invoker(factory:, routing:, namespace:, metadata:, id_generator:)
+        application.public_send(
+          factory,
+          transport: remote_transport,
+          namespace: namespace,
+          metadata: metadata.merge(routing: routing),
+          id_generator: id_generator
+        )
+      end
 
       def routing_metadata(capabilities:, peer:)
         {

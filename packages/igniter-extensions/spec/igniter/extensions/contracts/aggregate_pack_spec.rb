@@ -34,14 +34,14 @@ RSpec.describe Igniter::Extensions::Contracts::AggregatePack do
     )
 
     result = environment.run(inputs: {
-      order: {
-        items: [
-          { amount: 10 },
-          { amount: 20 },
-          { amount: 30 }
-        ]
-      }
-    }) do
+                               order: {
+                                 items: [
+                                   { amount: 10 },
+                                   { amount: 20 },
+                                   { amount: 30 }
+                                 ]
+                               }
+                             }) do
       input :order
       lookup :items, from: :order, key: :items
       count :item_count, from: :items
@@ -61,12 +61,12 @@ RSpec.describe Igniter::Extensions::Contracts::AggregatePack do
     environment = Igniter::Contracts.with(described_class)
 
     result = environment.run(inputs: {
-      items: [
-        { amount: 10, taxable: true },
-        { amount: 20, taxable: false },
-        { amount: 30, taxable: true }
-      ]
-    }) do
+                               items: [
+                                 { amount: 10, taxable: true },
+                                 { amount: 20, taxable: false },
+                                 { amount: 30, taxable: true }
+                               ]
+                             }) do
       input :items
       count :taxable_count, from: :items, matching: ->(item) { item.fetch(:taxable) }
       sum :taxable_total, from: :items, using: ->(item) { item.fetch(:taxable) ? item.fetch(:amount) : 0 }

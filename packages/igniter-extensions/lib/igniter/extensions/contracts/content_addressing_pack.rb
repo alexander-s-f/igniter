@@ -37,7 +37,7 @@ module Igniter
           cache.stats
         end
 
-        def content_key(fingerprint: nil, callable: nil, inputs:)
+        def content_key(inputs:, fingerprint: nil, callable: nil)
           resolved_fingerprint =
             if fingerprint
               fingerprint

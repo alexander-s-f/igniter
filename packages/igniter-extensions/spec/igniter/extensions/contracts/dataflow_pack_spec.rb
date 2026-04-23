@@ -10,9 +10,9 @@ RSpec.describe Igniter::Extensions::Contracts::DataflowPack do
     )
   end
 
-  def sensor(id, value, zone: "north", ts: nil)
+  def sensor(id, value, zone: "north", timestamp: nil)
     payload = { sensor_id: id, value: value, zone: zone }
-    payload[:ts] = ts if ts
+    payload[:ts] = timestamp if timestamp
     payload
   end
 
@@ -36,14 +36,14 @@ RSpec.describe Igniter::Extensions::Contracts::DataflowPack do
     end
 
     first = session.run(inputs: {
-      readings: [sensor("s1", 10), sensor("s2", 80)]
-    })
+                          readings: [sensor("s1", 10), sensor("s2", 80)]
+                        })
     second = session.run(inputs: {
-      readings: [sensor("s1", 99), sensor("s2", 80), sensor("s3", 20)]
-    })
+                           readings: [sensor("s1", 99), sensor("s2", 80), sensor("s3", 20)]
+                         })
     third = session.run(inputs: {
-      readings: [sensor("s1", 99), sensor("s3", 20)]
-    })
+                          readings: [sensor("s1", 99), sensor("s3", 20)]
+                        })
 
     expect(first.diff.added).to eq(%w[s1 s2])
     expect(second.diff.changed).to eq(["s1"])
@@ -70,8 +70,8 @@ RSpec.describe Igniter::Extensions::Contracts::DataflowPack do
     end
 
     first = session.run(inputs: {
-      readings: [sensor("s1", 10), sensor("s2", 20), sensor("s3", 30)]
-    })
+                          readings: [sensor("s1", 10), sensor("s2", 20), sensor("s3", 30)]
+                        })
     second = session.feed_diff(add: [sensor("s4", 40)])
 
     expect(first.processed.keys).to eq(%w[s2 s3])
@@ -108,8 +108,8 @@ RSpec.describe Igniter::Extensions::Contracts::DataflowPack do
     end
 
     session.run(inputs: {
-      readings: [sensor("s1", 10, zone: "north"), sensor("s2", 80, zone: "south")]
-    })
+                  readings: [sensor("s1", 10, zone: "north"), sensor("s2", 80, zone: "south")]
+                })
     updated = session.feed_diff(
       add: [sensor("s3", 90, zone: "south")],
       update: [sensor("s1", 70, zone: "north")]

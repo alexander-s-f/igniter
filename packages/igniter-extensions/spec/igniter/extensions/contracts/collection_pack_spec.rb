@@ -7,12 +7,12 @@ RSpec.describe Igniter::Extensions::Contracts::CollectionPack do
     environment = Igniter::Contracts.with(described_class)
 
     result = environment.run(inputs: {
-      items: [
-        { sku: "a", amount: 10 },
-        { sku: "b", amount: 20 }
-      ],
-      tax_rate: 0.2
-    }) do
+                               items: [
+                                 { sku: "a", amount: 10 },
+                                 { sku: "b", amount: 20 }
+                               ],
+                               tax_rate: 0.2
+                             }) do
       input :items
       input :tax_rate
 
@@ -57,16 +57,17 @@ RSpec.describe Igniter::Extensions::Contracts::CollectionPack do
     end
 
     result = environment.run(inputs: {
-      items: [
-        { sku: "a", amount: 5 },
-        { sku: "b", amount: 15 }
-      ],
-      multiplier: 3
-    }) do
+                               items: [
+                                 { sku: "a", amount: 5 },
+                                 { sku: "b", amount: 15 }
+                               ],
+                               multiplier: 3
+                             }) do
       input :items
       input :multiplier
 
-      collection :scaled_items, from: :items, key: :sku, inputs: { multiplier: :multiplier }, via: remote_like_invoker do
+      collection :scaled_items, from: :items, key: :sku, inputs: { multiplier: :multiplier },
+                                via: remote_like_invoker do
         input :sku
         input :amount
         input :multiplier
@@ -83,12 +84,12 @@ RSpec.describe Igniter::Extensions::Contracts::CollectionPack do
 
     expect(result.output(:scaled_items).fetch("b").output(:scaled_amount)).to eq(45)
     expect(invocations).to eq([
-      {
-        operation: :scaled_items,
-        item_count: 2,
-        inputs: { multiplier: 3 }
-      }
-    ])
+                                {
+                                  operation: :scaled_items,
+                                  item_count: 2,
+                                  inputs: { multiplier: 3 }
+                                }
+                              ])
   end
 
   it "publishes profile capabilities and auto-installs orchestration dependencies" do
@@ -152,7 +153,8 @@ RSpec.describe Igniter::Extensions::Contracts::CollectionPack do
         collection :priced_items, from: :items, key: :sku, contract: compiled_elsewhere
         output :priced_items
       end
-    end.to raise_error(Igniter::Contracts::ValidationError, /collection item graphs were compiled against a different profile/)
+    end.to raise_error(Igniter::Contracts::ValidationError,
+                       /collection item graphs were compiled against a different profile/)
   end
 
   it "raises when a custom invoker returns a non-collection result" do

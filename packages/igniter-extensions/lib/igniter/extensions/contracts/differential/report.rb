@@ -10,7 +10,7 @@ module Igniter
                       :divergences, :primary_only, :candidate_only,
                       :primary_error, :candidate_error
 
-          def initialize( # rubocop:disable Metrics/ParameterLists
+          def initialize(
             primary_name:,
             candidate_name:,
             inputs:,
@@ -43,7 +43,7 @@ module Igniter
               candidate_error.nil?
           end
 
-          def summary # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+          def summary
             return "match" if match?
 
             parts = []

@@ -24,7 +24,7 @@ module Igniter
                 "or set `Igniter::Runtime.agent_adapter`."
         end
 
-        def continue_session(session:, payload:, execution: nil, trace: nil, token: nil, waiting_on: nil, request: nil, reply: nil, phase: nil) # rubocop:disable Metrics/ParameterLists, Lint/UnusedMethodArgument
+        def continue_session(session:, payload:, execution: nil, trace: nil, token: nil, waiting_on: nil, request: nil, reply: nil, phase: nil) # rubocop:disable Lint/UnusedMethodArgument
           nil
         end
 

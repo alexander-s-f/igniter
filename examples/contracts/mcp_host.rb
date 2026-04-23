@@ -49,7 +49,7 @@ invalid_response = host.handle_message(
 )
 
 puts "contracts_mcp_host_protocol=#{initialize_response.fetch(:result).fetch(:protocolVersion)}"
-puts "contracts_mcp_host_tools=#{tools_response.fetch(:result).fetch(:tools).length > 0}"
+puts "contracts_mcp_host_tools=#{tools_response.fetch(:result).fetch(:tools).length.positive?}"
 puts "contracts_mcp_host_decision=#{call_response.fetch(:result).fetch(:structuredContent).fetch(:pending_decisions).first.fetch(:key)}"
 puts "contracts_mcp_host_error=#{call_response.key?(:error)}"
 puts "contracts_mcp_host_invalid_code=#{invalid_response.fetch(:error).fetch(:code)}"

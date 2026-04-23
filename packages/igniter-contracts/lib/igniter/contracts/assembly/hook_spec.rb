@@ -6,7 +6,8 @@ module Igniter
       class HookSpec
         attr_reader :registry, :method_name, :required_keywords, :role, :return_policy
 
-        def initialize(registry:, method_name:, required_keywords:, role:, return_policy: :opaque, result_validator: nil)
+        def initialize(registry:, method_name:, required_keywords:, role:, return_policy: :opaque,
+                       result_validator: nil)
           @registry = registry.to_sym
           @method_name = method_name.to_sym
           @required_keywords = required_keywords.map(&:to_sym).freeze
@@ -26,9 +27,11 @@ module Igniter
           return if accepts_required_keywords?(parameters)
 
           missing = missing_keywords(parameters)
+          expected_keywords = required_keywords.map { |name| "#{name}:" }.join(", ")
+          missing_labels = missing.map { |name| "#{name}:" }.join(", ")
 
           raise InvalidHookImplementationError,
-                "#{registry} entry #{key} must accept keywords #{required_keywords.map { |name| "#{name}:" }.join(', ')}; missing #{missing.map { |name| "#{name}:" }.join(', ')}"
+                "#{registry} entry #{key} must accept keywords #{expected_keywords}; missing #{missing_labels}"
         end
 
         def validate_result!(key, result)

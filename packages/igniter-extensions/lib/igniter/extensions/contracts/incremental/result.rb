@@ -8,7 +8,8 @@ module Igniter
           attr_reader :execution_result, :changed_nodes, :skipped_nodes, :backdated_nodes,
                       :changed_outputs, :recomputed_count
 
-          def initialize(execution_result:, changed_nodes:, skipped_nodes:, backdated_nodes:, changed_outputs:, recomputed_count:)
+          def initialize(execution_result:, changed_nodes:, skipped_nodes:, backdated_nodes:, changed_outputs:,
+                         recomputed_count:)
             @execution_result = execution_result
             @changed_nodes = changed_nodes.freeze
             @skipped_nodes = skipped_nodes.freeze

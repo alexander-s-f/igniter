@@ -82,14 +82,14 @@ RSpec.describe Igniter::Contracts::Runtime do
     expect(result.output(:audit_entry)).to eq(amount: 10, event: "quoted", status: "logged")
     expect(result.state.fetch(:audit_entry)).to eq(amount: 10, event: "quoted", status: "logged")
     expect(effect_pack.invocation_log).to eq([{
-      payload: { amount: 10, event: "quoted" },
-      context: {
-        node_name: :audit_entry,
-        effect_name: :audit,
-        dependencies: { amount: 10 }
-      },
-      profile_fingerprint: profile.fingerprint
-    }])
+                                               payload: { amount: 10, event: "quoted" },
+                                               context: {
+                                                 node_name: :audit_entry,
+                                                 effect_name: :audit,
+                                                 dependencies: { amount: 10 }
+                                               },
+                                               profile_fingerprint: profile.fingerprint
+                                             }])
   end
 
   it "executes an explicit profile with the project pack" do

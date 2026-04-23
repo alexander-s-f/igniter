@@ -6,7 +6,8 @@ module Igniter
       attr_reader :session_id, :kind, :operation_name, :compiled_graph,
                   :inputs, :items, :key_name, :window, :metadata, :profile_fingerprint
 
-      def initialize(session_id:, kind:, operation_name:, compiled_graph:, inputs:, profile_fingerprint:, items: nil, key_name: nil, window: nil, metadata: {})
+      def initialize(session_id:, kind:, operation_name:, compiled_graph:, inputs:, profile_fingerprint:, items: nil,
+                     key_name: nil, window: nil, metadata: {})
         @session_id = session_id.to_s
         @kind = kind.to_sym
         @operation_name = operation_name.to_sym

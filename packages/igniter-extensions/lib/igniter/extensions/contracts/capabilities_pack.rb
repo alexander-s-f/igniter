@@ -79,7 +79,7 @@ module Igniter
           )
         end
 
-        def check!(compiled_graph, profile: nil, policy:)
+        def check!(compiled_graph, policy:, profile: nil)
           result = report(compiled_graph, profile: profile, policy: policy)
           raise Capabilities::CapabilityViolationError.new(nil, report: result) if result.invalid?
 
@@ -89,9 +89,7 @@ module Igniter
         def capabilities_for_operation(operation)
           capabilities = Array(operation.attributes[:capabilities]).map(&:to_sym)
           callable = operation.attributes[:callable]
-          if callable&.respond_to?(:declared_capabilities)
-            capabilities.concat(Array(callable.declared_capabilities).map(&:to_sym))
-          end
+          capabilities.concat(Array(callable.declared_capabilities).map(&:to_sym)) if callable.respond_to?(:declared_capabilities)
           capabilities.uniq
         end
 
@@ -102,20 +100,24 @@ module Igniter
 
           requirements.each do |node_name, capabilities|
             denied = capabilities & policy.denied
-            violations << Capabilities::Violation.new(
-              kind: :denied_capability,
-              node_name: node_name,
-              capabilities: denied,
-              message: "node #{node_name} uses denied capabilities: #{denied.join(', ')}"
-            ) if denied.any?
+            if denied.any?
+              violations << Capabilities::Violation.new(
+                kind: :denied_capability,
+                node_name: node_name,
+                capabilities: denied,
+                message: "node #{node_name} uses denied capabilities: #{denied.join(", ")}"
+              )
+            end
 
             missing = policy.required - capabilities
+            next unless missing.any?
+
             violations << Capabilities::Violation.new(
               kind: :missing_required_capability,
               node_name: node_name,
               capabilities: missing,
-              message: "node #{node_name} is missing required capabilities: #{missing.join(', ')}"
-            ) if missing.any?
+              message: "node #{node_name} is missing required capabilities: #{missing.join(", ")}"
+            )
           end
 
           if policy.on_undeclared == :error
@@ -136,7 +138,7 @@ module Igniter
           return unless policy&.on_undeclared == :warn
           return if undeclared_nodes.empty?
 
-          Warning.warn("WARNING: undeclared capabilities for nodes: #{undeclared_nodes.join(', ')}\n")
+          Warning.warn("WARNING: undeclared capabilities for nodes: #{undeclared_nodes.join(", ")}\n")
         end
       end
     end

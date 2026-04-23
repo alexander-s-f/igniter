@@ -32,11 +32,11 @@ module Igniter
                   status: event.status,
                   outputs: execution_result&.outputs&.to_h
                 )
-              rescue StandardError => error
+              rescue StandardError => e
                 errors << {
                   event: event,
                   subscription: subscription,
-                  error: error
+                  error: e
                 }
               end
             end

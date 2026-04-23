@@ -396,9 +396,7 @@ module Igniter
           def bundle_manifest_body
             lines = ["metadata: { category: :bundle }"]
             append_runtime_dependency_manifest_line(lines)
-            if profile.capability?(:diagnostic)
-              lines << "registry_contracts: [Igniter::Contracts::PackManifest.diagnostic(:#{name}_summary)]"
-            end
+            lines << "registry_contracts: [Igniter::Contracts::PackManifest.diagnostic(:#{name}_summary)]" if profile.capability?(:diagnostic)
             lines.join(",\n                        ")
           end
 
@@ -429,7 +427,7 @@ module Igniter
           def append_runtime_dependency_manifest_line(lines)
             return lines if profile.runtime_dependency_hints.empty?
 
-            lines << "requires_packs: [#{profile.runtime_dependency_hints.join(', ')}]"
+            lines << "requires_packs: [#{profile.runtime_dependency_hints.join(", ")}]"
           end
 
           def bundle_diagnostic_install_lines

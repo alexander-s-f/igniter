@@ -156,12 +156,12 @@ RSpec.describe Igniter::Application::Environment do
     environment = Igniter::Application.with(Igniter::Extensions::Contracts::CollectionPack)
 
     result = environment.run(inputs: {
-      items: [
-        { sku: "a", amount: 10 },
-        { sku: "b", amount: 20 }
-      ],
-      tax_rate: 0.2
-    }) do
+                               items: [
+                                 { sku: "a", amount: 10 },
+                                 { sku: "b", amount: 20 }
+                               ],
+                               tax_rate: 0.2
+                             }) do
       input :items
       input :tax_rate
 
@@ -285,12 +285,12 @@ RSpec.describe Igniter::Application::Environment do
     end
 
     result = environment.run(inputs: {
-      items: [
-        { sku: "a", amount: 10 },
-        { sku: "b", amount: 20 }
-      ],
-      tax_rate: 0.2
-    }) do
+                               items: [
+                                 { sku: "a", amount: 10 },
+                                 { sku: "b", amount: 20 }
+                               ],
+                               tax_rate: 0.2
+                             }) do
       input :items
       input :tax_rate
 

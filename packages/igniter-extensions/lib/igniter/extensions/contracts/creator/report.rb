@@ -42,9 +42,7 @@ module Igniter
               end
             end
 
-            unless scaffold.profile.dependency_hints.empty?
-              steps << "review dependency hints: #{scaffold.profile.dependency_hints.join(', ')}"
-            end
+            steps << "review dependency hints: #{scaffold.profile.dependency_hints.join(", ")}" unless scaffold.profile.dependency_hints.empty?
 
             scaffold.profile.development_hints.each do |hint|
               steps << hint

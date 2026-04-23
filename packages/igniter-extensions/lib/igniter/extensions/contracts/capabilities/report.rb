@@ -8,7 +8,9 @@ module Igniter
           attr_reader :required_capabilities, :profile_capabilities, :violations, :undeclared_nodes
 
           def initialize(required_capabilities:, profile_capabilities:, violations:, undeclared_nodes:)
-            @required_capabilities = required_capabilities.transform_keys(&:to_sym).transform_values { |value| Array(value).map(&:to_sym).freeze }.freeze
+            @required_capabilities = required_capabilities.transform_keys(&:to_sym).transform_values do |value|
+              Array(value).map(&:to_sym).freeze
+            end.freeze
             @profile_capabilities = Array(profile_capabilities).map(&:to_sym).uniq.freeze
             @violations = Array(violations).freeze
             @undeclared_nodes = Array(undeclared_nodes).map(&:to_sym).freeze

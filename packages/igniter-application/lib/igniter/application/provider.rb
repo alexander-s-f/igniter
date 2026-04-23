@@ -3,17 +3,17 @@
 module Igniter
   module Application
     class Provider
-      def services(environment:)
+      def services(_environment:)
         {}
       end
 
-      def interfaces(environment:)
+      def interfaces(_environment:)
         {}
       end
 
-      def boot(environment:); end
+      def boot(_environment:); end
 
-      def shutdown(environment:); end
+      def shutdown(_environment:); end
     end
   end
 end

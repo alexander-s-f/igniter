@@ -11,7 +11,7 @@ module Igniter
             @name = name.to_sym
             @type = type.to_sym
             @summary = summary
-            @required = !!required
+            @required = required == true
             @default = default
             @enum = Array(enum).map(&:to_sym).freeze
             freeze

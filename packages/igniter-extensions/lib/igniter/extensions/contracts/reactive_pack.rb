@@ -57,8 +57,8 @@ module Igniter
           begin
             result = environment.execute(graph, inputs: inputs)
             dispatch(result, reactions: reactions)
-          rescue StandardError => error
-            dispatch_failure(error, reactions: reactions)
+          rescue StandardError => e
+            dispatch_failure(e, reactions: reactions)
           end
         end
 

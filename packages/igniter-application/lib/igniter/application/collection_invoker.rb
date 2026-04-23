@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-require "thread"
-
 module Igniter
   module Application
     class CollectionInvoker
-      def initialize(environment:, invoker: Igniter::Extensions::Contracts::CollectionPack::LocalInvoker, namespace: :collection, metadata: {}, id_generator: nil)
+      def initialize(environment:, invoker: Igniter::Extensions::Contracts::CollectionPack::LocalInvoker,
+                     namespace: :collection, metadata: {}, id_generator: nil)
         @environment = environment
         @invoker = invoker
         @namespace = namespace.to_s

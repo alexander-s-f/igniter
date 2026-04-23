@@ -3,11 +3,11 @@
 module Igniter
   module Application
     class ManualScheduler
-      def start(environment:)
+      def start(_environment:)
         self
       end
 
-      def stop(environment:)
+      def stop(_environment:)
         self
       end
     end

@@ -88,7 +88,8 @@ module Igniter
         attr_reader :name, :node_contracts, :registry_contracts, :metadata,
                     :requires_packs, :provides_capabilities, :requires_capabilities
 
-        def initialize(name:, node_contracts: [], registry_contracts: [], diagnostics: [], metadata: {}, requires_packs: [], provides_capabilities: [], requires_capabilities: [])
+        def initialize(name:, node_contracts: [], registry_contracts: [], diagnostics: [], metadata: {},
+                       requires_packs: [], provides_capabilities: [], requires_capabilities: [])
           @name = name.to_sym
           @node_contracts = node_contracts.freeze
           @registry_contracts = (
@@ -117,7 +118,7 @@ module Igniter
         def normalize_pack_dependencies(dependencies)
           Array(dependencies)
             .map { |entry| entry.is_a?(PackDependency) ? entry : self.class.pack_dependency(entry) }
-            .uniq { |dependency| dependency.name }
+            .uniq(&:name)
             .freeze
         end
 

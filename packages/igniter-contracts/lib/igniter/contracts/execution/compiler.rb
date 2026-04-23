@@ -18,7 +18,10 @@ module Igniter
               findings: findings,
               profile_fingerprint: profile.fingerprint
             )
-            compiled_graph = validation_report.ok? ? CompiledGraph.new(operations: operations, profile_fingerprint: profile.fingerprint) : nil
+            compiled_graph = if validation_report.ok?
+                               CompiledGraph.new(operations: operations,
+                                                 profile_fingerprint: profile.fingerprint)
+                             end
 
             CompilationReport.new(
               operations: operations,

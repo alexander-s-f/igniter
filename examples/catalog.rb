@@ -44,7 +44,8 @@ module IgniterExamples
     end
   end
 
-  def self.example(id, summary, expected_fragments:, timeout: 10, args: nil, autonomous: true, runnable: true, smoke: true, skip_reason: nil)
+  def self.example(id, summary, expected_fragments:, timeout: 10, args: nil, autonomous: true, runnable: true,
+                   smoke: true, skip_reason: nil)
     Example.new(
       id: id,
       path: "examples/#{id}.rb",
@@ -197,7 +198,8 @@ module IgniterExamples
     example(
       "contracts/diagnostics",
       "Structured diagnostics report for contracts execution.",
-      expected_fragments: ["contracts_diagnostics_output=120.0", "contracts_diagnostics_sections=baseline_summary,execution_report"]
+      expected_fragments: ["contracts_diagnostics_output=120.0",
+                           "contracts_diagnostics_sections=baseline_summary,execution_report"]
     ),
     example(
       "contracts/differential",
@@ -232,7 +234,8 @@ module IgniterExamples
     example(
       "contracts/introspection",
       "Structured compilation, result, and diagnostics reports.",
-      expected_fragments: ["contracts_introspection_ok=true", "contracts_introspection_sections=baseline_summary,execution_report"]
+      expected_fragments: ["contracts_introspection_ok=true",
+                           "contracts_introspection_sections=baseline_summary,execution_report"]
     ),
     example(
       "contracts/invariants",
@@ -336,7 +339,6 @@ module IgniterExamples
     value = name.to_s
     value = value.sub(%r{\Aexamples/}, "")
     value = value.delete_prefix("./")
-    value = value.sub(/\.rb\z/, "")
-    value
+    value.sub(/\.rb\z/, "")
   end
 end

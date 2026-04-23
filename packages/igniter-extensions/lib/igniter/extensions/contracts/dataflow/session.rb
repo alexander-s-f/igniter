@@ -5,9 +5,10 @@ module Igniter
     module Contracts
       module Dataflow
         class Session
-          attr_reader :environment, :compiled_graph, :source, :key_name, :window, :context
+          attr_reader :environment, :compiled_graph, :source, :key_name, :window, :context, :last_result
 
-          def initialize(environment:, compiled_graph:, source:, key:, window: nil, context: [], aggregate_operators: {})
+          def initialize(environment:, compiled_graph:, source:, key:, window: nil, context: [],
+                         aggregate_operators: {})
             @environment = environment
             @compiled_graph = compiled_graph
             @source = source.to_sym
@@ -43,7 +44,7 @@ module Igniter
           end
 
           def feed_diff(add: [], remove: [], update: [], inputs: {})
-            current_inputs = @last_inputs&.to_h || {}
+            current_inputs = @last_inputs.to_h
             current_items = Array(current_inputs.fetch(source, []))
             merged_items = apply_diff(current_items, add: add, remove: remove, update: update)
 
@@ -52,10 +53,6 @@ module Igniter
 
           def collection_diff
             @last_result&.diff
-          end
-
-          def last_result
-            @last_result
           end
 
           private
@@ -154,7 +151,9 @@ module Igniter
           end
 
           def apply_diff(items, add:, remove:, update:)
-            remove_keys = Array(remove).map { |entry| entry.is_a?(Hash) ? normalize_item(entry).fetch(key_name) : entry }
+            remove_keys = Array(remove).map do |entry|
+              entry.is_a?(Hash) ? normalize_item(entry).fetch(key_name) : entry
+            end
             result = items.map { |item| normalize_item(item) }
                           .reject { |item| remove_keys.include?(item.fetch(key_name)) }
 

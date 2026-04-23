@@ -17,7 +17,11 @@ Gem::Specification.new do |spec|
   spec.email = ["alexander.s.fokin@gmail.com"]
 
   spec.summary = "Contracts-native runtime umbrella for Igniter"
-  spec.description = "Igniter provides a contracts-native embedded kernel, extension packs, local application runtime, and MCP adapter surfaces without shipping archived legacy layers."
+  spec.description = [
+    "Igniter provides a contracts-native embedded kernel, extension packs,",
+    "local application runtime, cluster runtime, and MCP adapter surfaces",
+    "without shipping archived legacy layers."
+  ].join(" ")
   spec.homepage = "https://github.com/alexander-s-f/igniter"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"

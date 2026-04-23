@@ -10,7 +10,7 @@ module Igniter
           LINE = "─" * 42
           VALUE_MAX = 60
 
-          def format(result) # rubocop:disable Metrics/MethodLength
+          def format(result)
             lines = []
             lines << "Contracts Incremental Report"
             lines << LINE
@@ -29,9 +29,21 @@ module Igniter
             end
 
             lines << ""
-            lines << "SKIPPED:   #{result.skipped_nodes.map { |name| ":#{name}" }.join("  ")}" if result.skipped_nodes.any?
-            lines << "BACKDATED: #{result.backdated_nodes.map { |name| ":#{name}" }.join("  ")}" if result.backdated_nodes.any?
-            lines << "CHANGED:   #{result.changed_nodes.map { |name| ":#{name}" }.join("  ")}" if result.changed_nodes.any?
+            if result.skipped_nodes.any?
+              lines << "SKIPPED:   #{result.skipped_nodes.map do |name|
+                ":#{name}"
+              end.join("  ")}"
+            end
+            if result.backdated_nodes.any?
+              lines << "BACKDATED: #{result.backdated_nodes.map do |name|
+                ":#{name}"
+              end.join("  ")}"
+            end
+            if result.changed_nodes.any?
+              lines << "CHANGED:   #{result.changed_nodes.map do |name|
+                ":#{name}"
+              end.join("  ")}"
+            end
             lines.compact.join("\n")
           end
 

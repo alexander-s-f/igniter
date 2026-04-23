@@ -36,6 +36,7 @@ module Igniter
 
             if @options.key?(:seconds)
               raise ArgumentError, "window { seconds: } requires a :field key" unless @options.key?(:field)
+
               return
             end
 

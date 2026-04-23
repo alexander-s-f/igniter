@@ -21,10 +21,15 @@ module Igniter
             output_name = output_name.to_sym
 
             raise Igniter::Contracts::Error, "execution result does not carry a compiled graph" unless @compiled_graph
-            raise Igniter::Contracts::Error, "no output named '#{output_name}' in compiled graph" unless output_names.include?(output_name)
+
+            unless output_names.include?(output_name)
+              raise Igniter::Contracts::Error,
+                    "no output named '#{output_name}' in compiled graph"
+            end
 
             source_operation = @operations.fetch(output_name) do
-              raise Igniter::Contracts::Error, "source node '#{output_name}' for output '#{output_name}' not found in compiled graph"
+              raise Igniter::Contracts::Error,
+                    "source node '#{output_name}' for output '#{output_name}' not found in compiled graph"
             end
 
             Lineage.new(build_trace(source_operation, {}))

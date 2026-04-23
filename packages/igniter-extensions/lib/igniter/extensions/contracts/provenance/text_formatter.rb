@@ -15,7 +15,7 @@ module Igniter
             lines.join("\n")
           end
 
-          def render(trace, lines, prefix:, is_root:, is_last:) # rubocop:disable Metrics/MethodLength
+          def render(trace, lines, prefix:, is_root:, is_last:)
             if is_root
               connector = ""
               child_padding = ""

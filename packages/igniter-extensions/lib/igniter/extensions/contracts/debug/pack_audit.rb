@@ -114,7 +114,8 @@ module Igniter
             end
           end
 
-          def initialize(pack_snapshot:, installed_in_target_profile:, target_profile_fingerprint:, draft_registered_keys:, missing_node_definitions:, missing_dsl_keywords:, missing_runtime_handlers:, missing_registry_contracts:, install_error:, finalize_error:)
+          def initialize(pack_snapshot:, installed_in_target_profile:, target_profile_fingerprint:,
+                         draft_registered_keys:, missing_node_definitions:, missing_dsl_keywords:, missing_runtime_handlers:, missing_registry_contracts:, install_error:, finalize_error:)
             @pack_snapshot = pack_snapshot
             @installed_in_target_profile = installed_in_target_profile
             @target_profile_fingerprint = target_profile_fingerprint
@@ -164,11 +165,11 @@ module Igniter
 
             parts = []
             parts << "install_error=#{install_error}" if install_error
-            parts << "missing node definitions: #{missing_node_definitions.join(', ')}" unless missing_node_definitions.empty?
-            parts << "missing DSL keywords: #{missing_dsl_keywords.join(', ')}" unless missing_dsl_keywords.empty?
-            parts << "missing runtime handlers: #{missing_runtime_handlers.join(', ')}" unless missing_runtime_handlers.empty?
+            parts << "missing node definitions: #{missing_node_definitions.join(", ")}" unless missing_node_definitions.empty?
+            parts << "missing DSL keywords: #{missing_dsl_keywords.join(", ")}" unless missing_dsl_keywords.empty?
+            parts << "missing runtime handlers: #{missing_runtime_handlers.join(", ")}" unless missing_runtime_handlers.empty?
             missing_registry_contracts.each do |registry, keys|
-              parts << "missing #{registry}: #{keys.join(', ')}"
+              parts << "missing #{registry}: #{keys.join(", ")}"
             end
             parts << "finalize_error=#{finalize_error}" if finalize_error
             parts.join("; ")

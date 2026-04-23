@@ -75,12 +75,8 @@ module Igniter
 
           def design_stage
             hints = []
-            unless profile.runtime_dependency_hints.empty?
-              hints << "runtime pack recommendations: #{profile.runtime_dependency_hints.join(', ')}"
-            end
-            unless profile.development_dependency_hints.empty?
-              hints << "development pack recommendations: #{profile.development_dependency_hints.join(', ')}"
-            end
+            hints << "runtime pack recommendations: #{profile.runtime_dependency_hints.join(", ")}" unless profile.runtime_dependency_hints.empty?
+            hints << "development pack recommendations: #{profile.development_dependency_hints.join(", ")}" unless profile.development_dependency_hints.empty?
 
             WorkflowStep.new(
               key: :select_profile,
@@ -177,11 +173,11 @@ module Igniter
 
           def implementation_hints
             hints = []
-            hints << "define node kinds: #{audit.missing_node_definitions.join(', ')}" unless audit.missing_node_definitions.empty?
-            hints << "register DSL keywords: #{audit.missing_dsl_keywords.join(', ')}" unless audit.missing_dsl_keywords.empty?
-            hints << "register runtime handlers: #{audit.missing_runtime_handlers.join(', ')}" unless audit.missing_runtime_handlers.empty?
+            hints << "define node kinds: #{audit.missing_node_definitions.join(", ")}" unless audit.missing_node_definitions.empty?
+            hints << "register DSL keywords: #{audit.missing_dsl_keywords.join(", ")}" unless audit.missing_dsl_keywords.empty?
+            hints << "register runtime handlers: #{audit.missing_runtime_handlers.join(", ")}" unless audit.missing_runtime_handlers.empty?
             audit.missing_registry_contracts.each do |registry, keys|
-              hints << "register #{registry}: #{keys.join(', ')}"
+              hints << "register #{registry}: #{keys.join(", ")}"
             end
             hints << "resolve finalize error: #{audit.finalize_error}" if audit.finalize_error
             hints

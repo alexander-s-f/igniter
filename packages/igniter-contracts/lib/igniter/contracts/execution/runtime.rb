@@ -14,7 +14,8 @@ module Igniter
 
             compiled_graph.operations.each do |operation|
               handler = profile.runtime_handler(operation.kind)
-              value = handler.call(operation: operation, state: state, outputs: outputs, inputs: normalized_inputs, profile: profile)
+              value = handler.call(operation: operation, state: state, outputs: outputs, inputs: normalized_inputs,
+                                   profile: profile)
               state.write(operation.name, value) unless operation.output?
               outputs.write(operation.name, value) if operation.output?
             end

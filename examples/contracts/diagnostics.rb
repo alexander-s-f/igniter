@@ -27,7 +27,7 @@ end
 report = environment.diagnose(result)
 
 puts "contracts_diagnostics_output=#{result.output(:gross_total)}"
-puts "contracts_diagnostics_sections=#{report.section_names.join(',')}"
+puts "contracts_diagnostics_sections=#{report.section_names.join(",")}"
 puts "contracts_diagnostics_baseline=#{report.section(:baseline_summary).inspect}"
 puts "---"
 puts report.to_h.inspect

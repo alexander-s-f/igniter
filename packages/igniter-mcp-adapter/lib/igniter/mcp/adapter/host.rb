@@ -33,17 +33,17 @@ module Igniter
           case method
           when "initialize"
             success(id, {
-              protocolVersion: PROTOCOL_VERSION,
-              serverInfo: {
-                name: "igniter-mcp-adapter",
-                version: adapter_version
-              },
-              capabilities: {
-                tools: {
-                  listChanged: false
-                }
-              }
-            })
+                      protocolVersion: PROTOCOL_VERSION,
+                      serverInfo: {
+                        name: "igniter-mcp-adapter",
+                        version: adapter_version
+                      },
+                      capabilities: {
+                        tools: {
+                          listChanged: false
+                        }
+                      }
+                    })
           when "notifications/initialized"
             nil
           when "ping"
@@ -119,7 +119,7 @@ module Igniter
           missing = required.reject { |key| arguments.key?(key) }
           return if missing.empty?
 
-          raise ArgumentError, "missing required arguments: #{missing.join(', ')}"
+          raise ArgumentError, "missing required arguments: #{missing.join(", ")}"
         end
 
         def validate_unknown_keys!(schema, arguments)
@@ -129,7 +129,7 @@ module Igniter
           unknown = arguments.keys.reject { |key| allowed.include?(key) }
           return if unknown.empty?
 
-          raise ArgumentError, "unknown arguments: #{unknown.join(', ')}"
+          raise ArgumentError, "unknown arguments: #{unknown.join(", ")}"
         end
 
         def validate_argument_values!(schema, arguments)
@@ -146,7 +146,7 @@ module Igniter
 
         def validate_argument_type!(key, schema, value)
           any_of = schema[:anyOf]
-          return if any_of && any_of.any? { |candidate| valid_type?(candidate[:type], value) }
+          return if any_of&.any? { |candidate| valid_type?(candidate[:type], value) }
           return unless schema.key?(:type)
           return if valid_type?(schema[:type], value)
 
@@ -167,7 +167,7 @@ module Igniter
 
           return if enum.include?(comparable)
 
-          raise ArgumentError, "argument #{key} must be one of: #{enum.join(', ')}"
+          raise ArgumentError, "argument #{key} must be one of: #{enum.join(", ")}"
         end
 
         def valid_type?(type, value)

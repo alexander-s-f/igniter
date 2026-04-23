@@ -31,4 +31,4 @@ journal = Igniter::Extensions::Contracts::JournalPack.journal
 puts "contracts_effect_payload=#{effect_result.inspect}"
 puts "contracts_graph_effect_output=#{execution_result.output(:journal_entry).inspect}"
 puts "contracts_effect_entries=#{journal[:effects].length}"
-puts "contracts_effect_sections=#{diagnostics.section_names.join(',')}"
+puts "contracts_effect_sections=#{diagnostics.section_names.join(",")}"

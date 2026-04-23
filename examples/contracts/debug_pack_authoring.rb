@@ -26,6 +26,6 @@ audit = Igniter::Extensions::Contracts.audit_pack(ExampleIncompletePack, environ
 
 puts "contracts_pack_audit_ok=#{audit.ok?}"
 puts "contracts_pack_audit_installed=#{audit.installed_in_target_profile}"
-puts "contracts_pack_audit_missing_nodes=#{audit.missing_node_definitions.join(',')}"
-puts "contracts_pack_audit_missing_validators=#{audit.missing_registry_contracts.fetch(:validators).join(',')}"
-puts "contracts_pack_audit_finalize_error=#{audit.finalize_error.include?('IncompletePackError')}"
+puts "contracts_pack_audit_missing_nodes=#{audit.missing_node_definitions.join(",")}"
+puts "contracts_pack_audit_missing_validators=#{audit.missing_registry_contracts.fetch(:validators).join(",")}"
+puts "contracts_pack_audit_finalize_error=#{audit.finalize_error.include?("IncompletePackError")}"

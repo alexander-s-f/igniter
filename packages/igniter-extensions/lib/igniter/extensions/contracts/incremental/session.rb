@@ -40,7 +40,10 @@ module Igniter
               end
 
               dependency_versions = dependency_names_for(operation).each_with_object({}) do |dependency_name, memo|
-                memo[dependency_name] = current_states.fetch(dependency_name).value_version if current_states.key?(dependency_name)
+                if current_states.key?(dependency_name)
+                  memo[dependency_name] =
+                    current_states.fetch(dependency_name).value_version
+                end
               end
 
               previous = @node_states[operation.name]

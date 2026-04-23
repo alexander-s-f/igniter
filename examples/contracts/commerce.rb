@@ -10,16 +10,16 @@ require "igniter/extensions/contracts"
 environment = Igniter::Extensions::Contracts.with_preset(:commerce)
 
 result = environment.run(inputs: {
-  order: {
-    items: [
-      { amount: 10 },
-      { amount: 20 }
-    ]
-  },
-  tax_rate: 0.2,
-  shipping: 5,
-  discount: 3
-}) do
+                           order: {
+                             items: [
+                               { amount: 10 },
+                               { amount: 20 }
+                             ]
+                           },
+                           tax_rate: 0.2,
+                           shipping: 5,
+                           discount: 3
+                         }) do
   input :order
   input :tax_rate
   input :shipping
@@ -40,5 +40,5 @@ diagnostics = environment.diagnose(result)
 puts "commerce_subtotal=#{result.output(:subtotal)}"
 puts "commerce_tax=#{result.output(:tax)}"
 puts "commerce_grand_total=#{result.output(:grand_total)}"
-puts "commerce_packs=#{environment.profile.pack_names.join(',')}"
-puts "execution_report_sections=#{diagnostics.sections.keys.join(',')}"
+puts "commerce_packs=#{environment.profile.pack_names.join(",")}"
+puts "execution_report_sections=#{diagnostics.sections.keys.join(",")}"

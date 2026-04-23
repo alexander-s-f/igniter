@@ -5,44 +5,44 @@ require_relative "../../../spec_helper"
 RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
   it "exposes available packs and builds a profile with them by default" do
     expect(Igniter::Extensions::Contracts.default_packs).to eq([
-      Igniter::Extensions::Contracts::ExecutionReportPack,
-      Igniter::Extensions::Contracts::LookupPack
-    ])
+                                                                 Igniter::Extensions::Contracts::ExecutionReportPack,
+                                                                 Igniter::Extensions::Contracts::LookupPack
+                                                               ])
 
     expect(Igniter::Extensions::Contracts.available_packs).to eq([
-      Igniter::Extensions::Contracts::ExecutionReportPack,
-      Igniter::Extensions::Contracts::LookupPack,
-      Igniter::Extensions::Contracts::AggregatePack,
-      Igniter::Extensions::Contracts::AuditPack,
-      Igniter::Extensions::Contracts::BranchPack,
-      Igniter::Extensions::Contracts::CapabilitiesPack,
-      Igniter::Extensions::Contracts::CollectionPack,
-      Igniter::Extensions::Contracts::CommercePack,
-      Igniter::Extensions::Contracts::ComposePack,
-      Igniter::Extensions::Contracts::ContentAddressingPack,
-      Igniter::Extensions::Contracts::CreatorPack,
-      Igniter::Extensions::Contracts::DataflowPack,
-      Igniter::Extensions::Contracts::DebugPack,
-      Igniter::Extensions::Contracts::DifferentialPack,
-      Igniter::Extensions::Contracts::IncrementalPack,
-      Igniter::Extensions::Contracts::InvariantsPack,
-      Igniter::Extensions::Contracts::JournalPack,
-      Igniter::Extensions::Contracts::McpPack,
-      Igniter::Extensions::Contracts::ProvenancePack,
-      Igniter::Extensions::Contracts::ReactivePack,
-      Igniter::Extensions::Contracts::SagaPack
-    ])
+                                                                   Igniter::Extensions::Contracts::ExecutionReportPack,
+                                                                   Igniter::Extensions::Contracts::LookupPack,
+                                                                   Igniter::Extensions::Contracts::AggregatePack,
+                                                                   Igniter::Extensions::Contracts::AuditPack,
+                                                                   Igniter::Extensions::Contracts::BranchPack,
+                                                                   Igniter::Extensions::Contracts::CapabilitiesPack,
+                                                                   Igniter::Extensions::Contracts::CollectionPack,
+                                                                   Igniter::Extensions::Contracts::CommercePack,
+                                                                   Igniter::Extensions::Contracts::ComposePack,
+                                                                   Igniter::Extensions::Contracts::ContentAddressingPack,
+                                                                   Igniter::Extensions::Contracts::CreatorPack,
+                                                                   Igniter::Extensions::Contracts::DataflowPack,
+                                                                   Igniter::Extensions::Contracts::DebugPack,
+                                                                   Igniter::Extensions::Contracts::DifferentialPack,
+                                                                   Igniter::Extensions::Contracts::IncrementalPack,
+                                                                   Igniter::Extensions::Contracts::InvariantsPack,
+                                                                   Igniter::Extensions::Contracts::JournalPack,
+                                                                   Igniter::Extensions::Contracts::McpPack,
+                                                                   Igniter::Extensions::Contracts::ProvenancePack,
+                                                                   Igniter::Extensions::Contracts::ReactivePack,
+                                                                   Igniter::Extensions::Contracts::SagaPack
+                                                                 ])
 
     expect(Igniter::Extensions::Contracts.presets).to eq({
-      default: [
-        Igniter::Extensions::Contracts::ExecutionReportPack,
-        Igniter::Extensions::Contracts::LookupPack
-      ],
-      commerce: [
-        Igniter::Extensions::Contracts::ExecutionReportPack,
-        Igniter::Extensions::Contracts::CommercePack
-      ]
-    })
+                                                           default: [
+                                                             Igniter::Extensions::Contracts::ExecutionReportPack,
+                                                             Igniter::Extensions::Contracts::LookupPack
+                                                           ],
+                                                           commerce: [
+                                                             Igniter::Extensions::Contracts::ExecutionReportPack,
+                                                             Igniter::Extensions::Contracts::CommercePack
+                                                           ]
+                                                         })
 
     profile = Igniter::Extensions::Contracts.build_profile
 
@@ -77,9 +77,9 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
     environment = Igniter::Extensions::Contracts.with_preset(:commerce)
 
     result = environment.run(inputs: {
-      order: { items: [{ amount: 10 }, { amount: 20 }] },
-      tax_rate: 0.2
-    }) do
+                               order: { items: [{ amount: 10 }, { amount: 20 }] },
+                               tax_rate: 0.2
+                             }) do
       input :order
       input :tax_rate
       order_items from: :order
@@ -218,7 +218,8 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
 
     result = environment.execute(compiled, inputs: { amount: 10 })
     snapshot = Igniter::Extensions::Contracts.audit_snapshot(result)
-    report_snapshot = Igniter::Extensions::Contracts.audit_report(environment, compiled_graph: compiled, inputs: { amount: 10 })
+    report_snapshot = Igniter::Extensions::Contracts.audit_report(environment, compiled_graph: compiled,
+                                                                               inputs: { amount: 10 })
 
     expect(snapshot.state(:tax)).to include(value: 2.0)
     expect(report_snapshot.event_types).to include(:compute_observed)
@@ -252,7 +253,8 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
     end
 
     Igniter::Extensions::Contracts.run_incremental_reactive(session, inputs: { order_total: 100 }, reactions: reactions)
-    dispatch = Igniter::Extensions::Contracts.run_incremental_reactive(session, inputs: { order_total: 150 }, reactions: reactions)
+    dispatch = Igniter::Extensions::Contracts.run_incremental_reactive(session, inputs: { order_total: 150 },
+                                                                                reactions: reactions)
 
     expect(dispatch.success?).to eq(true)
     expect(produced.last).to eq(180.0)
@@ -380,11 +382,15 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
   it "exposes creator scaffold and report helpers" do
     environment = Igniter::Extensions::Contracts.with(Igniter::Extensions::Contracts::CreatorPack)
 
-    scaffold = Igniter::Extensions::Contracts.scaffold_pack(name: :slug, profile: :feature_node, scope: :monorepo_package)
-    report = Igniter::Extensions::Contracts.creator_report(name: :slug, profile: :feature_node, scope: :monorepo_package, target: environment)
-    workflow = Igniter::Extensions::Contracts.creator_workflow(name: :slug, profile: :feature_node, scope: :monorepo_package, target: environment)
+    scaffold = Igniter::Extensions::Contracts.scaffold_pack(name: :slug, profile: :feature_node,
+                                                            scope: :monorepo_package)
+    report = Igniter::Extensions::Contracts.creator_report(name: :slug, profile: :feature_node,
+                                                           scope: :monorepo_package, target: environment)
+    workflow = Igniter::Extensions::Contracts.creator_workflow(name: :slug, profile: :feature_node,
+                                                               scope: :monorepo_package, target: environment)
     wizard = Igniter::Extensions::Contracts.creator_wizard(name: :slug, profile: :feature_node, target: environment)
-    writer = Igniter::Extensions::Contracts.creator_writer(name: :slug, profile: :feature_node, scope: :monorepo_package, root: Dir.pwd)
+    writer = Igniter::Extensions::Contracts.creator_writer(name: :slug, profile: :feature_node,
+                                                           scope: :monorepo_package, root: Dir.pwd)
 
     expect(scaffold.pack_constant).to eq("MyCompany::IgniterPacks::SlugPack")
     expect(Igniter::Extensions::Contracts.creator_profiles).to include(:feature_node)

@@ -86,7 +86,7 @@ RSpec.describe "Igniter::Contracts assembly/execution boundaries" do
       lines = File.readlines(path, chomp: true).filter_map do |line|
         stripped = line.strip
         next unless stripped.start_with?("require ", "require_relative ")
-        next unless stripped.match?(/igniter\/core|igniter-core/)
+        next unless stripped.match?(%r{igniter/core|igniter-core})
 
         stripped
       end

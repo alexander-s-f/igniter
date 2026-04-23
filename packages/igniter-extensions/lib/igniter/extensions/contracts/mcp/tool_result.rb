@@ -10,7 +10,7 @@ module Igniter
           def initialize(tool_name:, payload:, mutating:)
             @tool_name = tool_name.to_sym
             @payload = payload
-            @mutating = !!mutating
+            @mutating = mutating == true
             freeze
           end
 

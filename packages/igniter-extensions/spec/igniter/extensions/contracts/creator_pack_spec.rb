@@ -52,11 +52,11 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
     expect(scaffold.profile.name).to eq(:feature_node)
     expect(scaffold.scope.name).to eq(:monorepo_package)
     expect(scaffold.files.keys).to eq([
-      "lib/acme/igniter_packs/slug_pack.rb",
-      "spec/acme/igniter_packs/slug_pack_spec.rb",
-      "examples/slug_pack.rb",
-      "README.md"
-    ])
+                                        "lib/acme/igniter_packs/slug_pack.rb",
+                                        "spec/acme/igniter_packs/slug_pack_spec.rb",
+                                        "examples/slug_pack.rb",
+                                        "README.md"
+                                      ])
     expect(scaffold.files.fetch("lib/acme/igniter_packs/slug_pack.rb")).to include("PackManifest.node(:slug)")
     expect(scaffold.files.fetch("examples/slug_pack.rb")).to include("audit_pack")
   end

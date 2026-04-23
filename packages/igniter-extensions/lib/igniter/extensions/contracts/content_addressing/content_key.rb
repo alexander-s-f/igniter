@@ -36,15 +36,15 @@ module Igniter
 
             private
 
-            def stable_serialize(value) # rubocop:disable Metrics/CyclomaticComplexity
+            def stable_serialize(value)
               case value
               when Hash
                 pairs = value.sort_by { |key, _entry| key.to_s }.map do |key, entry|
                   "#{key}:#{stable_serialize(entry)}"
                 end
-                "{#{pairs.join(',')}}"
+                "{#{pairs.join(",")}}"
               when Array
-                "[#{value.map { |entry| stable_serialize(entry) }.join(',')}]"
+                "[#{value.map { |entry| stable_serialize(entry) }.join(",")}]"
               when String
                 value.inspect
               when Symbol

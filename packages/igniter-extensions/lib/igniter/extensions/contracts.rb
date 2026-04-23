@@ -33,7 +33,8 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, AuditPack, BranchPack, CapabilitiesPack, CollectionPack, CommercePack, ComposePack, ContentAddressingPack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, InvariantsPack, JournalPack, McpPack, ProvenancePack, ReactivePack, SagaPack]
+        [AggregatePack, AuditPack, BranchPack, CapabilitiesPack, CollectionPack, CommercePack, ComposePack,
+         ContentAddressingPack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, InvariantsPack, JournalPack, McpPack, ProvenancePack, ReactivePack, SagaPack]
       ).freeze
 
       PRESETS = {
@@ -113,7 +114,7 @@ module Igniter
           )
         end
 
-        def compare_differential( # rubocop:disable Metrics/ParameterLists
+        def compare_differential(
           inputs:,
           primary_environment: nil,
           primary_compiled_graph: nil,
@@ -180,11 +181,13 @@ module Igniter
         end
 
         def run_invariants(environment, inputs:, invariants:, compiled_graph: nil, &block)
-          InvariantsPack.run(environment, inputs: inputs, invariants: invariants, compiled_graph: compiled_graph, &block)
+          InvariantsPack.run(environment, inputs: inputs, invariants: invariants, compiled_graph: compiled_graph,
+                             &block)
         end
 
         def verify_invariant_cases(environment, cases:, invariants:, compiled_graph: nil, &block)
-          InvariantsPack.verify_cases(environment, cases: cases, invariants: invariants, compiled_graph: compiled_graph, &block)
+          InvariantsPack.verify_cases(environment,
+                                      cases: cases, invariants: invariants, compiled_graph: compiled_graph, &block)
         end
 
         def declare_capabilities(*capabilities, callable: nil, &block)
@@ -216,11 +219,12 @@ module Igniter
           CapabilitiesPack.report(compiled_graph, profile: profile, policy: policy)
         end
 
-        def check_capabilities!(compiled_graph, profile: nil, policy:)
+        def check_capabilities!(compiled_graph, policy:, profile: nil)
           CapabilitiesPack.check!(compiled_graph, profile: profile, policy: policy)
         end
 
-        def content_addressed(callable: nil, fingerprint: nil, capabilities: [:pure], cache: ContentAddressingPack.cache, &block)
+        def content_addressed(callable: nil, fingerprint: nil, capabilities: [:pure],
+                              cache: ContentAddressingPack.cache, &block)
           ContentAddressingPack.content_addressed(
             callable: callable,
             fingerprint: fingerprint,
@@ -234,7 +238,7 @@ module Igniter
           ContentAddressingPack.pure(callable: callable, fingerprint: fingerprint, cache: cache, &block)
         end
 
-        def content_key(fingerprint: nil, callable: nil, inputs:)
+        def content_key(inputs:, fingerprint: nil, callable: nil)
           ContentAddressingPack.content_key(fingerprint: fingerprint, callable: callable, inputs: inputs)
         end
 
@@ -276,7 +280,8 @@ module Igniter
           CreatorPack.available_scopes
         end
 
-        def scaffold_pack(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package)
+        def scaffold_pack(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil,
+                          scope: :monorepo_package)
           CreatorPack.scaffold(
             name: name,
             kind: kind,
@@ -287,7 +292,8 @@ module Igniter
           )
         end
 
-        def creator_report(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target: nil)
+        def creator_report(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil,
+                           scope: :monorepo_package, pack: nil, target: nil)
           runtime_profile =
             case target
             when nil
@@ -308,7 +314,8 @@ module Igniter
           )
         end
 
-        def creator_workflow(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target: nil)
+        def creator_workflow(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil,
+                             scope: :monorepo_package, pack: nil, target: nil)
           runtime_profile =
             case target
             when nil
@@ -329,7 +336,8 @@ module Igniter
           )
         end
 
-        def creator_wizard(name: nil, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: nil, root: nil, mode: :skip_existing, pack: nil, target: nil)
+        def creator_wizard(name: nil, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil,
+                           scope: nil, root: nil, mode: :skip_existing, pack: nil, target: nil)
           runtime_profile =
             case target
             when nil
@@ -352,7 +360,8 @@ module Igniter
           )
         end
 
-        def creator_writer(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target: nil, root:, mode: :skip_existing)
+        def creator_writer(name:, root:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil,
+                           scope: :monorepo_package, pack: nil, target: nil, mode: :skip_existing)
           runtime_profile =
             case target
             when nil
@@ -375,7 +384,8 @@ module Igniter
           )
         end
 
-        def write_pack_scaffold(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target: nil, root:, mode: :skip_existing)
+        def write_pack_scaffold(name:, root:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil,
+                                capabilities: nil, scope: :monorepo_package, pack: nil, target: nil, mode: :skip_existing)
           runtime_profile =
             case target
             when nil

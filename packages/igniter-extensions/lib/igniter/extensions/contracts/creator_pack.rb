@@ -33,20 +33,21 @@ module Igniter
           Creator::Scope.available
         end
 
-        def scaffold(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package)
+        def scaffold(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil,
+                     scope: :monorepo_package)
           authoring_profile = Creator::Profile.build(profile: profile, kind: kind, capabilities: capabilities)
           target_scope = Creator::Scope.build(scope)
-          generated = Creator::Scaffold.new(
+          Creator::Scaffold.new(
             name: name,
             kind: authoring_profile.kind,
             namespace: namespace,
             profile: authoring_profile,
             scope: target_scope
           )
-          generated
         end
 
-        def report(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target_profile: nil)
+        def report(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil,
+                   scope: :monorepo_package, pack: nil, target_profile: nil)
           generated = scaffold(
             name: name,
             kind: kind,
@@ -60,7 +61,8 @@ module Igniter
           Creator::Report.new(scaffold: generated, audit: audit)
         end
 
-        def workflow(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target_profile: nil)
+        def workflow(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil,
+                     scope: :monorepo_package, pack: nil, target_profile: nil)
           Creator::Workflow.new(
             report: report(
               name: name,
@@ -75,7 +77,8 @@ module Igniter
           )
         end
 
-        def wizard(name: nil, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: nil, root: nil, mode: :skip_existing, pack: nil, target_profile: nil)
+        def wizard(name: nil, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil,
+                   scope: nil, root: nil, mode: :skip_existing, pack: nil, target_profile: nil)
           Creator::Wizard.new(
             name: name,
             kind: kind,
@@ -90,7 +93,8 @@ module Igniter
           )
         end
 
-        def writer(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target_profile: nil, root:, mode: :skip_existing)
+        def writer(name:, root:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil,
+                   scope: :monorepo_package, pack: nil, target_profile: nil, mode: :skip_existing)
           workflow(
             name: name,
             kind: kind,
@@ -103,7 +107,8 @@ module Igniter
           ).writer(root: root, mode: mode)
         end
 
-        def write(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target_profile: nil, root:, mode: :skip_existing)
+        def write(name:, root:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil,
+                  scope: :monorepo_package, pack: nil, target_profile: nil, mode: :skip_existing)
           writer(
             name: name,
             kind: kind,

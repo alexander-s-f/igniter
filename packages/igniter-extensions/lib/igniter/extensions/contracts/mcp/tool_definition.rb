@@ -10,7 +10,7 @@ module Igniter
           def initialize(name:, summary:, mutating: false, target: nil, arguments: [])
             @name = name.to_sym
             @summary = summary
-            @mutating = !!mutating
+            @mutating = mutating == true
             @target = target&.to_sym
             @arguments = arguments.freeze
             freeze

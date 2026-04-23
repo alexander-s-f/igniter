@@ -11,7 +11,7 @@ module Igniter
         environment.snapshot
       end
 
-      def rack_app(environment:)
+      def rack_app(_environment:)
         ->(_env) { [200, { "content-type" => "text/plain" }, ["Igniter::Application embedded host"]] }
       end
     end

@@ -40,7 +40,8 @@ module Igniter
           contracts_kernel.install(pack)
           @contracts_packs |= [pack]
         else
-          raise ArgumentError, "application pack #{pack.inspect} must implement install_into_application_kernel or install_into"
+          raise ArgumentError,
+                "application pack #{pack.inspect} must implement install_into_application_kernel or install_into"
         end
 
         self
@@ -58,7 +59,8 @@ module Igniter
         return @host_name if name.nil? && seam.nil? && !block
 
         @host_name = name.to_sym unless name.nil?
-        @host_seam = resolve_seam(seam, block, current: @host_seam, required_methods: %i[activate! start rack_app], label: "host")
+        @host_seam = resolve_seam(seam, block, current: @host_seam, required_methods: %i[activate! start rack_app],
+                                               label: "host")
         self
       end
 
@@ -74,7 +76,8 @@ module Igniter
         return @scheduler_name if name.nil? && seam.nil? && !block
 
         @scheduler_name = name.to_sym unless name.nil?
-        @scheduler_seam = resolve_seam(seam, block, current: @scheduler_seam, required_methods: %i[start], label: "scheduler")
+        @scheduler_seam = resolve_seam(seam, block, current: @scheduler_seam, required_methods: %i[start],
+                                                    label: "scheduler")
         self
       end
 
@@ -127,16 +130,20 @@ module Igniter
 
       def register_provider(name, provider = nil)
         raise ArgumentError, "register_provider requires a provider object" if provider.nil?
-        raise ArgumentError, "provider #{provider.inspect} must respond to services(environment:)" unless provider.respond_to?(:services)
+
+        unless provider.respond_to?(:services)
+          raise ArgumentError,
+                "provider #{provider.inspect} must respond to services(environment:)"
+        end
 
         @providers.reject! { |entry| entry.name == name.to_sym }
         @providers << ProviderRegistration.new(name: name, provider: provider)
         self
       end
 
-      def configure(values = nil)
+      def configure(values = nil, &block)
         config_builder.merge!(values) if values
-        config_builder.configure { |builder| yield builder } if block_given?
+        config_builder.configure(&block) if block_given?
         self
       end
 
@@ -214,7 +221,7 @@ module Igniter
         normalized = group.to_sym
         return normalized if PATH_GROUPS.include?(normalized)
 
-        raise ArgumentError, "unknown path group #{group.inspect}; expected one of: #{PATH_GROUPS.join(', ')}"
+        raise ArgumentError, "unknown path group #{group.inspect}; expected one of: #{PATH_GROUPS.join(", ")}"
       end
 
       def resolve_seam(explicit_seam, block, current:, required_methods:, label:)
@@ -222,7 +229,7 @@ module Igniter
         missing = required_methods.reject { |method_name| resolved.respond_to?(method_name) }
         return resolved if missing.empty?
 
-        raise ArgumentError, "#{label} seam #{resolved.inspect} must respond to: #{required_methods.join(', ')}"
+        raise ArgumentError, "#{label} seam #{resolved.inspect} must respond to: #{required_methods.join(", ")}"
       end
     end
   end

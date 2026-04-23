@@ -19,7 +19,7 @@ response = Igniter::MCP::Adapter::Server.call(
   }
 )
 
-puts "contracts_mcp_server_required=#{tool.fetch(:inputSchema).fetch(:required).join(',')}"
+puts "contracts_mcp_server_required=#{tool.fetch(:inputSchema).fetch(:required).join(",")}"
 puts "contracts_mcp_server_tool=#{tool.fetch(:name)}"
 puts "contracts_mcp_server_error=#{response.fetch(:isError)}"
 puts "contracts_mcp_server_decision=#{response.fetch(:structuredContent).fetch(:pending_decisions).first.fetch(:key)}"

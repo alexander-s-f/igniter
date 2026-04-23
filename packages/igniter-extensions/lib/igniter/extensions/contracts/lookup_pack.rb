@@ -19,7 +19,7 @@ module Igniter
         end
 
         def lookup_keyword
-          Igniter::Contracts::DslKeyword.new(:lookup) do |name, from:, key: nil, dig: nil, default: Igniter::Contracts::PathAccess::NO_DEFAULT, builder:|
+          Igniter::Contracts::DslKeyword.new(:lookup) do |name, from:, builder:, key: nil, dig: nil, default: Igniter::Contracts::PathAccess::NO_DEFAULT|
             source_name = from.to_sym
             path = Igniter::Contracts::PathAccess.normalize_path(
               keyword_name: :lookup,

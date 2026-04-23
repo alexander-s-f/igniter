@@ -26,7 +26,7 @@ module Igniter
           def summary
             return "valid" if valid?
 
-            "invalid - #{violations.length} invariant(s) violated: #{violations.map(&:name).join(', ')}"
+            "invalid - #{violations.length} invariant(s) violated: #{violations.map(&:name).join(", ")}"
           end
 
           def to_h

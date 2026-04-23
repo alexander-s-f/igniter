@@ -92,7 +92,8 @@ module Igniter
             return item.output(key) if item.outputs.key?(key)
             return item.input(key) if item.inputs.key?(key)
 
-            raise KeyError, "aggregate projection #{projection.inspect} not present on dataflow item #{item.key.inspect}"
+            raise KeyError,
+                  "aggregate projection #{projection.inspect} not present on dataflow item #{item.key.inspect}"
           end
 
           def recomputed_projection(projection, &finalizer)

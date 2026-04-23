@@ -34,7 +34,7 @@ diagnostics = environment.diagnose(result)
 
 puts "=== Compilation Report ==="
 puts "contracts_introspection_ok=#{report.ok?}"
-puts "contracts_introspection_operations=#{report.operations.map(&:name).join(',')}"
+puts "contracts_introspection_operations=#{report.operations.map(&:name).join(",")}"
 
 puts "\n=== Compiled Graph ==="
 puts "contracts_introspection_graph=#{compiled.to_h.inspect}"
@@ -44,5 +44,5 @@ puts "contracts_introspection_output=#{result.output(:grand_total)}"
 puts "contracts_introspection_result=#{result.to_h.inspect}"
 
 puts "\n=== Diagnostics Report ==="
-puts "contracts_introspection_sections=#{diagnostics.section_names.join(',')}"
+puts "contracts_introspection_sections=#{diagnostics.section_names.join(",")}"
 puts diagnostics.to_h.inspect

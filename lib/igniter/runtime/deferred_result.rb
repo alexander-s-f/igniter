@@ -61,7 +61,7 @@ module Igniter
           Runtime::AgentResultContract.from_result(self, kind: :deferred)
         end
 
-        alias_method :interaction_result_contract, :agent_result_contract
+        alias interaction_result_contract agent_result_contract
       end
     end
   end

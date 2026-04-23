@@ -19,7 +19,10 @@ module Igniter
 
         def add_operation(kind:, name:, **attributes)
           normalized_kind = kind.to_sym
-          raise UnknownNodeKindError, "unknown node kind #{normalized_kind}" unless profile.supports_node_kind?(normalized_kind)
+          unless profile.supports_node_kind?(normalized_kind)
+            raise UnknownNodeKindError,
+                  "unknown node kind #{normalized_kind}"
+          end
 
           operations << Operation.new(kind: normalized_kind, name: name, attributes: attributes)
         end

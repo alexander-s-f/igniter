@@ -20,8 +20,8 @@ module Igniter
             return nil if passed
 
             Violation.new(name: name, outputs: outputs)
-          rescue StandardError => error
-            Violation.new(name: name, outputs: outputs, error: error)
+          rescue StandardError => e
+            Violation.new(name: name, outputs: outputs, error: e)
           end
         end
       end

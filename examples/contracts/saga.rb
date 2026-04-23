@@ -51,6 +51,6 @@ puts "contracts_saga_success=#{result.success?}"
 puts "contracts_saga_failed_node=#{result.failed_node.inspect}"
 puts "contracts_saga_compensations=#{result.compensations.map(&:node_name).inspect}"
 puts "contracts_saga_log=#{compensation_log.inspect}"
-puts "contracts_saga_sections=#{diagnostics.section_names.join(',')}"
+puts "contracts_saga_sections=#{diagnostics.section_names.join(",")}"
 puts "---"
 puts result.explain

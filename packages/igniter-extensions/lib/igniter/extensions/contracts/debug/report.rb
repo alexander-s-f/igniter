@@ -13,7 +13,8 @@ module Igniter
                       :diagnostics_report,
                       :provenance_summary
 
-          def initialize(profile_snapshot:, compilation_report: nil, execution_result: nil, diagnostics_report: nil, provenance_summary: nil)
+          def initialize(profile_snapshot:, compilation_report: nil, execution_result: nil, diagnostics_report: nil,
+                         provenance_summary: nil)
             @profile_snapshot = profile_snapshot
             @compilation_report = compilation_report
             @execution_result = execution_result

@@ -16,7 +16,11 @@ RSpec.describe Igniter::Cluster::Environment do
         when :collection
           Igniter::Extensions::Contracts::CollectionPack::LocalInvoker.call(
             invocation: Igniter::Extensions::Contracts::CollectionPack::Invocation.new(
-              operation: Igniter::Contracts::Operation.new(kind: :collection, name: request.operation_name, attributes: {}),
+              operation: Igniter::Contracts::Operation.new(
+                kind: :collection,
+                name: request.operation_name,
+                attributes: {}
+              ),
               items: request.items,
               inputs: request.inputs,
               compiled_graph: request.compiled_graph,
@@ -53,7 +57,11 @@ RSpec.describe Igniter::Cluster::Environment do
       compose :pricing_total,
               inputs: { amount: :subtotal, tax_rate: :rate },
               output: :total,
-              via: cluster.compose_invoker(capabilities: [:pricing], namespace: :mesh, metadata: { source: :cluster_spec }) do
+              via: cluster.compose_invoker(
+                capabilities: [:pricing],
+                namespace: :mesh,
+                metadata: { source: :cluster_spec }
+              ) do
         input :amount
         input :tax_rate
 
@@ -84,13 +92,15 @@ RSpec.describe Igniter::Cluster::Environment do
       transport: build_peer_transport(cluster.application.profile.contracts_profile)
     )
 
-    result = cluster.run(inputs: {
-      items: [
-        { sku: "a", amount: 10 },
-        { sku: "b", amount: 20 }
-      ],
-      tax_rate: 0.2
-    }) do
+    result = cluster.run(
+      inputs: {
+        items: [
+          { sku: "a", amount: 10 },
+          { sku: "b", amount: 20 }
+        ],
+        tax_rate: 0.2
+      }
+    ) do
       input :items
       input :tax_rate
 
@@ -165,7 +175,11 @@ RSpec.describe Igniter::Cluster::Environment do
 
   it "finalizes cluster profiles over application profiles and peers" do
     cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
-    cluster.register_peer(:pricing_node, capabilities: [:pricing], transport: build_peer_transport(cluster.application_kernel.finalize.contracts_profile))
+    cluster.register_peer(
+      :pricing_node,
+      capabilities: [:pricing],
+      transport: build_peer_transport(cluster.application_kernel.finalize.contracts_profile)
+    )
     profile = cluster.finalize
 
     expect(profile.to_h).to include(

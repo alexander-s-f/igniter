@@ -33,7 +33,7 @@ module Igniter
             operation_names = compiled_graph.operations.reject(&:output?).map(&:name)
             return "contracts_graph" if operation_names.empty?
 
-            "contracts_graph(#{operation_names.join(',')})"
+            "contracts_graph(#{operation_names.join(",")})"
           end
 
           def build_events(compiled_graph, state_values:, outputs:)

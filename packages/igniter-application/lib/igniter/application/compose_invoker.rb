@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-require "thread"
-
 module Igniter
   module Application
     class ComposeInvoker
-      def initialize(environment:, invoker: Igniter::Extensions::Contracts::ComposePack::LocalInvoker, namespace: :compose, metadata: {}, id_generator: nil)
+      def initialize(environment:, invoker: Igniter::Extensions::Contracts::ComposePack::LocalInvoker,
+                     namespace: :compose, metadata: {}, id_generator: nil)
         @environment = environment
         @invoker = invoker
         @namespace = namespace.to_s

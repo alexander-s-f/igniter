@@ -158,7 +158,7 @@ RSpec.describe Igniter::Contracts::Compiler do
       end
 
       define_singleton_method(:install_into) do |kernel|
-        kernel.effects.register(:audit, lambda { |invocation:| invocation.payload })
+        kernel.effects.register(:audit, ->(invocation:) { invocation.payload })
         kernel
       end
     end
@@ -186,7 +186,7 @@ RSpec.describe Igniter::Contracts::Compiler do
       end
 
       define_singleton_method(:install_into) do |kernel|
-        kernel.effects.register(:audit, lambda { |invocation:| invocation.payload })
+        kernel.effects.register(:audit, ->(invocation:) { invocation.payload })
         kernel
       end
     end

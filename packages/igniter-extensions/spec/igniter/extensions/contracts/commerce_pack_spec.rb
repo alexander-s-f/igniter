@@ -7,16 +7,16 @@ RSpec.describe Igniter::Extensions::Contracts::CommercePack do
     environment = Igniter::Contracts.with(described_class)
 
     result = environment.run(inputs: {
-      order: {
-        items: [
-          { amount: 10 },
-          { amount: 20 }
-        ]
-      },
-      tax_rate: 0.2,
-      shipping: 5,
-      discount: 3
-    }) do
+                               order: {
+                                 items: [
+                                   { amount: 10 },
+                                   { amount: 20 }
+                                 ]
+                               },
+                               tax_rate: 0.2,
+                               shipping: 5,
+                               discount: 3
+                             }) do
       input :order
       input :tax_rate
       input :shipping
@@ -57,14 +57,14 @@ RSpec.describe Igniter::Extensions::Contracts::CommercePack do
     environment = Igniter::Contracts.with(described_class)
 
     result = environment.run(inputs: {
-      invoice: {
-        lines: [
-          { cents: 1500 },
-          { cents: 2500 }
-        ]
-      },
-      vat_rate: 0.1
-    }) do
+                               invoice: {
+                                 lines: [
+                                   { cents: 1500 },
+                                   { cents: 2500 }
+                                 ]
+                               },
+                               vat_rate: 0.1
+                             }) do
       input :invoice
       input :vat_rate
       order_items :lines, from: :invoice, key: :lines

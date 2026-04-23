@@ -16,12 +16,12 @@ module Igniter
           def augment(report:, result:, profile:) # rubocop:disable Lint/UnusedMethodArgument
             snapshot = AuditPack.snapshot(result)
             report.add_section(:audit_summary, {
-              graph: snapshot.graph,
-              event_count: snapshot.event_count,
-              event_types: snapshot.event_types,
-              state_count: snapshot.states.length,
-              output_names: snapshot.output_names
-            })
+                                 graph: snapshot.graph,
+                                 event_count: snapshot.event_count,
+                                 event_types: snapshot.event_types,
+                                 state_count: snapshot.states.length,
+                                 output_names: snapshot.output_names
+                               })
           end
         end
 

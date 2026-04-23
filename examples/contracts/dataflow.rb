@@ -37,12 +37,12 @@ session = Igniter::Extensions::Contracts.build_dataflow_session(
 end
 
 round1 = session.run(inputs: {
-  readings: [
-    { sensor_id: "s1", value: 10, zone: "north" },
-    { sensor_id: "s2", value: 70, zone: "north" },
-    { sensor_id: "s3", value: 90, zone: "south" }
-  ]
-})
+                       readings: [
+                         { sensor_id: "s1", value: 10, zone: "north" },
+                         { sensor_id: "s2", value: 70, zone: "north" },
+                         { sensor_id: "s3", value: 90, zone: "south" }
+                       ]
+                     })
 
 round2 = session.feed_diff(
   update: [{ sensor_id: "s2", value: 40, zone: "north" }],
@@ -53,5 +53,5 @@ puts "contracts_dataflow_round1=#{round1.diff.explain}"
 puts "contracts_dataflow_round2=#{round2.diff.explain}"
 puts "contracts_dataflow_total=#{round2.total}"
 puts "contracts_dataflow_alerts=#{round2.alerts}"
-puts "contracts_dataflow_window_keys=#{round2.processed.keys.join(',')}"
+puts "contracts_dataflow_window_keys=#{round2.processed.keys.join(",")}"
 puts "contracts_dataflow_by_zone=#{round2.by_zone.inspect}"

@@ -10,12 +10,12 @@ require "igniter/extensions/contracts"
 environment = Igniter::Contracts.with(Igniter::Extensions::Contracts::CollectionPack)
 
 result = environment.run(inputs: {
-  items: [
-    { sku: "a", amount: 10 },
-    { sku: "b", amount: 20 }
-  ],
-  tax_rate: 0.2
-}) do
+                           items: [
+                             { sku: "a", amount: 10 },
+                             { sku: "b", amount: 20 }
+                           ],
+                           tax_rate: 0.2
+                         }) do
   input :items
   input :tax_rate
 
@@ -40,5 +40,5 @@ result = environment.run(inputs: {
 end
 
 puts "contracts_collection_total=#{result.output(:grand_total)}"
-puts "contracts_collection_keys=#{result.output(:priced_items).keys.join(',')}"
+puts "contracts_collection_keys=#{result.output(:priced_items).keys.join(",")}"
 puts "contracts_collection_summary=#{result.output(:priced_items).summary}"

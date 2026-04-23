@@ -11,8 +11,8 @@ RSpec.describe Igniter::Contracts::Diagnostics do
 
       def augment(report:, result:, profile:) # rubocop:disable Lint/UnusedMethodArgument
         report.add_section(:extra, {
-          output_count: result.outputs.length
-        })
+                             output_count: result.outputs.length
+                           })
       end
     end
 
@@ -39,9 +39,9 @@ RSpec.describe Igniter::Contracts::Diagnostics do
 
     expect(report.section_object(:baseline_summary)).to be_a(Igniter::Contracts::DiagnosticsSection)
     expect(report.section(:baseline_summary)).to eq({
-      outputs: [:amount],
-      state: [:amount]
-    })
+                                                      outputs: [:amount],
+                                                      state: [:amount]
+                                                    })
   end
 
   it "lets packs append diagnostics contributors through the profile" do

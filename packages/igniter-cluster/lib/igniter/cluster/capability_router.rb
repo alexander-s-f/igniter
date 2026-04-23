@@ -7,6 +7,18 @@ module Igniter
         candidates = placement.candidates
         raise RoutingError, "no peers available for #{request.session_id}" if candidates.empty?
 
+        selected_peer = select_peer(request, candidates)
+        Route.new(
+          peer: selected_peer,
+          mode: routing_mode_for(request),
+          metadata: route_metadata(request, candidates, selected_peer),
+          explanation: explanation_for(request, selected_peer)
+        )
+      end
+
+      private
+
+      def select_peer(request, candidates)
         selected_peer =
           if request.pinned_peer
             candidates.find { |peer| peer.name == request.pinned_peer }
@@ -14,24 +26,26 @@ module Igniter
             candidates.find { |peer| peer.supports_capabilities?(request.capabilities) }
           end
 
-        if selected_peer.nil?
-          raise RoutingError,
-                "no route for #{request.session_id} with capabilities=#{request.capabilities.inspect} peer=#{request.pinned_peer.inspect}"
-        end
+        return selected_peer unless selected_peer.nil?
 
-        Route.new(
-          peer: selected_peer,
-          mode: routing_mode_for(request),
-          metadata: {
-            required_capabilities: request.capabilities,
-            candidate_names: candidates.map(&:name),
-            selected_capabilities: selected_peer.capabilities
-          },
-          explanation: explanation_for(request, selected_peer)
-        )
+        raise RoutingError, missing_route_message(request)
       end
 
-      private
+      def route_metadata(request, candidates, selected_peer)
+        {
+          required_capabilities: request.capabilities,
+          candidate_names: candidates.map(&:name),
+          selected_capabilities: selected_peer.capabilities
+        }
+      end
+
+      def missing_route_message(request)
+        [
+          "no route for #{request.session_id}",
+          "capabilities=#{request.capabilities.inspect}",
+          "peer=#{request.pinned_peer.inspect}"
+        ].join(" ")
+      end
 
       def routing_mode_for(request)
         return :pinned if request.pinned_peer

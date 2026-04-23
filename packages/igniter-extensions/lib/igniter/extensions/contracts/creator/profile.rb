@@ -99,13 +99,11 @@ module Igniter
             hints = []
             if caps.include?(:diagnostic)
               hints.concat([
-                "Igniter::Extensions::Contracts::ExecutionReportPack",
-                "Igniter::Extensions::Contracts::ProvenancePack"
-              ])
+                             "Igniter::Extensions::Contracts::ExecutionReportPack",
+                             "Igniter::Extensions::Contracts::ProvenancePack"
+                           ])
             end
-            if caps.include?(:dependency_pack) && caps.include?(:diagnostic)
-              hints << "Igniter::Extensions::Contracts::DebugPack"
-            end
+            hints << "Igniter::Extensions::Contracts::DebugPack" if caps.include?(:dependency_pack) && caps.include?(:diagnostic)
 
             hints.uniq
           end
@@ -123,10 +121,12 @@ module Igniter
             caps = capabilities.map(&:to_sym)
             hints = []
             hints << "use Igniter::Extensions::Contracts::DebugPack while authoring and validating the pack"
-            hints << "consider Igniter::Extensions::Contracts::JournalPack while developing effect/executor adapters" if (caps & %i[effect executor]).any?
+            hints << "consider Igniter::Extensions::Contracts::JournalPack while developing effect/executor adapters" if (caps & %i[
+              effect executor
+            ]).any?
             hints << "bundle diagnostics contributors only when they are truly additive and non-semantic" if caps.include?(:diagnostic)
-            hints << "review runtime dependency pack composition carefully: #{dependency_hints.join(', ')}" unless dependency_hints.empty?
-            hints << "keep development-only helper packs out of the runtime bundle surface: #{development_dependency_hints.join(', ')}" unless development_dependency_hints.empty?
+            hints << "review runtime dependency pack composition carefully: #{dependency_hints.join(", ")}" unless dependency_hints.empty?
+            hints << "keep development-only helper packs out of the runtime bundle surface: #{development_dependency_hints.join(", ")}" unless development_dependency_hints.empty?
             hints.uniq
           end
 
@@ -146,12 +146,14 @@ module Igniter
           def self.infer_kind(capabilities)
             caps = capabilities.map(&:to_sym)
             return :operational if (caps & %i[effect executor]).any?
-            return :bundle if caps.include?(:dependency_pack) && (caps & %i[node dsl_keyword runtime_handler effect executor]).empty?
+            return :bundle if caps.include?(:dependency_pack) && (caps & %i[node dsl_keyword runtime_handler effect
+                                                                            executor]).empty?
 
             :feature
           end
 
-          def initialize(name:, kind:, capabilities:, runtime_dependency_hints:, development_dependency_hints:, development_hints:, summary:)
+          def initialize(name:, kind:, capabilities:, runtime_dependency_hints:, development_dependency_hints:,
+                         development_hints:, summary:)
             @name = name.to_sym
             @kind = kind.to_sym
             @capabilities = capabilities.map(&:to_sym).uniq.freeze

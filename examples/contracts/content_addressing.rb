@@ -23,7 +23,7 @@ compiled = environment.compile do
   output :tax
 end
 
-first = environment.execute(compiled, inputs: { country: :ua, amount: 100 })
+environment.execute(compiled, inputs: { country: :ua, amount: 100 })
 second = environment.execute(compiled, inputs: { amount: 100, country: :ua })
 key = Igniter::Extensions::Contracts.content_key(callable: tax, inputs: { amount: 100, country: :ua })
 

@@ -26,13 +26,14 @@ module Igniter
           end
 
           def count_keyword
-            Igniter::Contracts::DslKeyword.new(:count) do |name, from:, matching: nil, builder:|
+            Igniter::Contracts::DslKeyword.new(:count) do |name, from:, builder:, matching: nil|
               builder.add_operation(
                 kind: :compute,
                 name: name,
                 depends_on: [from.to_sym],
                 callable: lambda do |**values|
-                  items = AggregatePack.enumerable_source(values.fetch(from.to_sym), source_name: from.to_sym, operation_name: :count)
+                  items = AggregatePack.enumerable_source(values.fetch(from.to_sym), source_name: from.to_sym,
+                                                                                     operation_name: :count)
 
                   if matching
                     items.count { |item| matching.call(item) }
@@ -45,13 +46,14 @@ module Igniter
           end
 
           def sum_keyword
-            Igniter::Contracts::DslKeyword.new(:sum) do |name, from:, using: nil, builder:|
+            Igniter::Contracts::DslKeyword.new(:sum) do |name, from:, builder:, using: nil|
               builder.add_operation(
                 kind: :compute,
                 name: name,
                 depends_on: [from.to_sym],
                 callable: lambda do |**values|
-                  items = AggregatePack.enumerable_source(values.fetch(from.to_sym), source_name: from.to_sym, operation_name: :sum)
+                  items = AggregatePack.enumerable_source(values.fetch(from.to_sym), source_name: from.to_sym,
+                                                                                     operation_name: :sum)
                   items.reduce(0) do |total, item|
                     total + AggregatePack.extract_value(item, using)
                   end
@@ -61,13 +63,14 @@ module Igniter
           end
 
           def avg_keyword
-            Igniter::Contracts::DslKeyword.new(:avg) do |name, from:, using: nil, builder:|
+            Igniter::Contracts::DslKeyword.new(:avg) do |name, from:, builder:, using: nil|
               builder.add_operation(
                 kind: :compute,
                 name: name,
                 depends_on: [from.to_sym],
                 callable: lambda do |**values|
-                  items = AggregatePack.enumerable_source(values.fetch(from.to_sym), source_name: from.to_sym, operation_name: :avg)
+                  items = AggregatePack.enumerable_source(values.fetch(from.to_sym), source_name: from.to_sym,
+                                                                                     operation_name: :avg)
                   projected = items.map { |item| AggregatePack.extract_value(item, using) }
                   next nil if projected.empty?
 

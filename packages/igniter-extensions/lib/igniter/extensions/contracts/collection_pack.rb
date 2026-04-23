@@ -4,9 +4,10 @@ module Igniter
   module Extensions
     module Contracts
       module CollectionPack
-        INTERNAL_SOURCE = :__collection_items__.freeze
+        INTERNAL_SOURCE = :__collection_items__
 
-        Invocation = Struct.new(:operation, :items, :inputs, :compiled_graph, :profile, :key_name, :window, keyword_init: true) do
+        Invocation = Struct.new(:operation, :items, :inputs, :compiled_graph, :profile, :key_name, :window,
+                                keyword_init: true) do
           def initialize(operation:, items:, inputs:, compiled_graph:, profile:, key_name:, window:)
             super(
               operation: operation,
@@ -56,7 +57,9 @@ module Igniter
           end
 
           def install_into(kernel)
-            kernel.nodes.register(:collection, Igniter::Contracts::NodeType.new(kind: :collection, metadata: { category: :orchestration }))
+            kernel.nodes.register(:collection,
+                                  Igniter::Contracts::NodeType.new(kind: :collection,
+                                                                   metadata: { category: :orchestration }))
             kernel.dsl_keywords.register(:collection, collection_keyword)
             kernel.validators.register(:collection_dependencies, method(:validate_collection_dependencies))
             kernel.validators.register(:collection_contracts, method(:validate_collection_contracts))
@@ -66,7 +69,7 @@ module Igniter
           end
 
           def collection_keyword
-            Igniter::Contracts::DslKeyword.new(:collection) do |name, from:, key:, inputs: {}, window: nil, contract: nil, via: nil, builder:, &block|
+            Igniter::Contracts::DslKeyword.new(:collection) do |name, from:, key:, builder:, inputs: {}, window: nil, contract: nil, via: nil, &block|
               compiled_graph = compile_contract(name: name, contract: contract, profile: builder.profile, block: block)
               input_map = normalize_inputs(inputs)
               source_name = from.to_sym
@@ -88,15 +91,15 @@ module Igniter
           def validate_collection_dependencies(operations:, profile: nil) # rubocop:disable Lint/UnusedMethodArgument
             available = operations.reject(&:output?).map(&:name)
             missing = operations.select { |operation| operation.kind == :collection }
-                              .flat_map { |operation| Array(operation.attributes[:depends_on]) }
-                              .map(&:to_sym)
-                              .reject { |name| available.include?(name) }
-                              .uniq
+                                .flat_map { |operation| Array(operation.attributes[:depends_on]) }
+                                .map(&:to_sym)
+                                .reject { |name| available.include?(name) }
+                                .uniq
             return [] if missing.empty?
 
             [Igniter::Contracts::ValidationFinding.new(
               code: :missing_collection_dependencies,
-              message: "collection dependencies are not defined: #{missing.map(&:to_s).join(', ')}",
+              message: "collection dependencies are not defined: #{missing.map(&:to_s).join(", ")}",
               subjects: missing
             )]
           end
@@ -111,7 +114,7 @@ module Igniter
             if invalid_contracts.any?
               findings << Igniter::Contracts::ValidationFinding.new(
                 code: :invalid_collection_contract,
-                message: "collection nodes require a compiled item graph: #{invalid_contracts.map(&:name).join(', ')}",
+                message: "collection nodes require a compiled item graph: #{invalid_contracts.map(&:name).join(", ")}",
                 subjects: invalid_contracts.map(&:name)
               )
             end
@@ -124,7 +127,7 @@ module Igniter
             if mismatched.any?
               findings << Igniter::Contracts::ValidationFinding.new(
                 code: :collection_profile_mismatch,
-                message: "collection item graphs were compiled against a different profile: #{mismatched.map(&:name).join(', ')}",
+                message: "collection item graphs were compiled against a different profile: #{mismatched.map(&:name).join(", ")}",
                 subjects: mismatched.map(&:name)
               )
             end
@@ -142,7 +145,7 @@ module Igniter
 
             [Igniter::Contracts::ValidationFinding.new(
               code: :invalid_collection_invoker,
-              message: "collection via: must be callable: #{invalid.map(&:name).join(', ')}",
+              message: "collection via: must be callable: #{invalid.map(&:name).join(", ")}",
               subjects: invalid.map(&:name)
             )]
           end
@@ -171,7 +174,10 @@ module Igniter
           private
 
           def compile_contract(name:, contract:, profile:, block:)
-            raise ArgumentError, "collection :#{name} accepts either contract: or a block, not both" if contract && block
+            if contract && block
+              raise ArgumentError,
+                    "collection :#{name} accepts either contract: or a block, not both"
+            end
 
             source = contract || block
             raise ArgumentError, "collection :#{name} requires contract: or a block" unless source

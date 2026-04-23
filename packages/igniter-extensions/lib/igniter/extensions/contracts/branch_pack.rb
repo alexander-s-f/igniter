@@ -20,7 +20,7 @@ module Igniter
           end
 
           def branch_keyword
-            Igniter::Contracts::DslKeyword.new(:branch) do |name, on:, depends_on: [], builder:, &block|
+            Igniter::Contracts::DslKeyword.new(:branch) do |name, on:, builder:, depends_on: [], &block|
               raise ArgumentError, "branch :#{name} requires a block" unless block
 
               selector_name = on.to_sym
@@ -90,12 +90,16 @@ module Igniter
                               .group_by { |id| id }
                               .select { |_id, group| group.length > 1 }
                               .keys
-              raise ArgumentError, "branch :#{@name} has duplicate case ids: #{duplicate_ids.join(', ')}" unless duplicate_ids.empty?
+              unless duplicate_ids.empty?
+                raise ArgumentError,
+                      "branch :#{@name} has duplicate case ids: #{duplicate_ids.join(", ")}"
+              end
 
               overlapping = overlapping_literals
               return if overlapping.empty?
 
-              raise ArgumentError, "branch :#{@name} has overlapping literal matches: #{overlapping.map(&:inspect).join(', ')}"
+              raise ArgumentError,
+                    "branch :#{@name} has overlapping literal matches: #{overlapping.map(&:inspect).join(", ")}"
             end
 
             def resolve(kwargs)
@@ -118,15 +122,14 @@ module Igniter
               matcher_options = options.slice(:eq, :in, :matches)
               provided = matcher_options.reject { |_key, value| value.equal?(UNSET) || value.nil? }
 
-              if !match.equal?(UNSET) && !provided.empty?
-                raise ArgumentError, "branch :#{@name} on cannot combine positional match with eq:, in:, or matches:"
-              end
+              raise ArgumentError, "branch :#{@name} on cannot combine positional match with eq:, in:, or matches:" if !match.equal?(UNSET) && !provided.empty?
 
-              if match.equal?(UNSET) && provided.empty?
-                raise ArgumentError, "branch :#{@name} on requires a positional match or one of eq:, in:, or matches:"
-              end
+              raise ArgumentError, "branch :#{@name} on requires a positional match or one of eq:, in:, or matches:" if match.equal?(UNSET) && provided.empty?
 
-              raise ArgumentError, "branch :#{@name} on supports only one matcher option at a time" if provided.length > 1
+              if provided.length > 1
+                raise ArgumentError,
+                      "branch :#{@name} on supports only one matcher option at a time"
+              end
 
               return [:eq, match] unless match.equal?(UNSET)
 
@@ -150,7 +153,10 @@ module Igniter
             end
 
             def normalize_value(value, block)
-              raise ArgumentError, "branch :#{@name} case cannot combine value: with a block" if !value.equal?(UNSET) && block
+              if !value.equal?(UNSET) && block
+                raise ArgumentError,
+                      "branch :#{@name} case cannot combine value: with a block"
+              end
               raise ArgumentError, "branch :#{@name} case requires value: or a block" if value.equal?(UNSET) && !block
 
               block || value

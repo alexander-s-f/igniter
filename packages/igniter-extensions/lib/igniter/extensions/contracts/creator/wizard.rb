@@ -14,7 +14,8 @@ module Igniter
 
           attr_reader :name, :kind, :namespace, :profile, :capabilities, :scope, :root, :mode, :pack, :target_profile
 
-          def initialize(name: nil, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: nil, root: nil, mode: :skip_existing, pack: nil, target_profile: nil)
+          def initialize(name: nil, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil,
+                         scope: nil, root: nil, mode: :skip_existing, pack: nil, target_profile: nil)
             @name = normalize_name(name)
             @kind = kind&.to_sym
             @namespace = normalize_namespace(namespace)
@@ -80,8 +81,6 @@ module Igniter
               name ? "./#{name}" : "./my_pack"
             when :app_local, :monorepo_package
               "."
-            else
-              nil
             end
           end
 
@@ -169,7 +168,11 @@ module Igniter
           end
 
           def workflow
-            raise ArgumentError, "creator wizard is missing decisions: #{pending_decisions.map { |decision| decision.fetch(:key) }.join(', ')}" unless ready_for_workflow?
+            unless ready_for_workflow?
+              raise ArgumentError, "creator wizard is missing decisions: #{pending_decisions.map do |decision|
+                decision.fetch(:key)
+              end.join(", ")}"
+            end
 
             CreatorPack.workflow(
               name: name,

@@ -22,7 +22,7 @@ module Igniter
           kernel
         end
 
-        def compare( # rubocop:disable Metrics/ParameterLists
+        def compare(
           inputs:,
           primary_environment: nil,
           primary_compiled_graph: nil,

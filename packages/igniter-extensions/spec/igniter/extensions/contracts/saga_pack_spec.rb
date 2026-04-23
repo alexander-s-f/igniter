@@ -43,10 +43,10 @@ RSpec.describe Igniter::Extensions::Contracts::SagaPack do
     expect(result.error.message).to include("declined ord-1")
     expect(result.compensations.map(&:node_name)).to eq([:reserve_stock])
     expect(compensation_log).to eq([{
-      node: :reserve_stock,
-      inputs: { order_id: "ord-1" },
-      value: { reservation_id: "rsv-ord-1" }
-    }])
+                                     node: :reserve_stock,
+                                     inputs: { order_id: "ord-1" },
+                                     value: { reservation_id: "rsv-ord-1" }
+                                   }])
   end
 
   it "returns a successful result without compensations when execution completes" do

@@ -58,4 +58,4 @@ end
 
 puts "contracts_compose_tax=#{result.output(:pricing).output(:tax)}"
 puts "contracts_compose_total=#{result.output(:pricing_total)}"
-puts "contracts_compose_nested_outputs=#{result.output(:pricing).outputs.keys.sort.join(',')}"
+puts "contracts_compose_nested_outputs=#{result.output(:pricing).outputs.keys.sort.join(",")}"
