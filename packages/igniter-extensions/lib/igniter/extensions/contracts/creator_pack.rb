@@ -5,6 +5,7 @@ require_relative "creator/scaffold"
 require_relative "creator/scope"
 require_relative "creator/report"
 require_relative "creator/workflow"
+require_relative "creator/wizard"
 
 module Igniter
   module Extensions
@@ -71,6 +72,21 @@ module Igniter
               pack: pack,
               target_profile: target_profile
             )
+          )
+        end
+
+        def wizard(name: nil, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: nil, root: nil, mode: :skip_existing, pack: nil, target_profile: nil)
+          Creator::Wizard.new(
+            name: name,
+            kind: kind,
+            namespace: namespace,
+            profile: profile,
+            capabilities: capabilities,
+            scope: scope,
+            root: root,
+            mode: mode,
+            pack: pack,
+            target_profile: target_profile
           )
         end
 

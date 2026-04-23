@@ -159,6 +159,25 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
     )
   end
 
+  it "builds a creator wizard with pending decisions and upgrades into a writer" do
+    environment = Igniter::Extensions::Contracts.with(described_class)
+
+    wizard = Igniter::Extensions::Contracts.creator_wizard(
+      name: :slug,
+      capabilities: %i[effect executor],
+      target: environment
+    )
+
+    completed = wizard.apply(scope: :standalone_gem)
+
+    expect(wizard.ready_for_workflow?).to eq(false)
+    expect(wizard.current_decision.fetch(:key)).to eq(:scope)
+    expect(wizard.authoring_profile.kind).to eq(:operational)
+    expect(completed.ready_for_workflow?).to eq(true)
+    expect(completed.ready_for_writer?).to eq(true)
+    expect(completed.writer.plan.steps.any? { |step| step.kind == :file }).to eq(true)
+  end
+
   it "writes a scaffold through a multi-step writer and preserves existing files in safe mode" do
     Dir.mktmpdir("igniter-creator-writer") do |dir|
       writer = Igniter::Extensions::Contracts.creator_writer(

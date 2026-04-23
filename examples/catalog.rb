@@ -282,6 +282,7 @@ module IgniterExamples
         "creator_report_audit_ok=false",
         "creator_report_missing_nodes=draft_slug",
         "creator_workflow_stage=implement_pack",
+        "creator_wizard_current_decision=scope",
         "creator_writer_files_written=4"
       ]
     ),

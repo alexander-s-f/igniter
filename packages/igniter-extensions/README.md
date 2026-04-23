@@ -145,6 +145,19 @@ It also separates recommended runtime dependency packs from development-only
 tooling packs, so authoring guidance does not accidentally become runtime
 bundle surface.
 
+There is also a stateful wizard layer that can hold partial decisions before
+you are ready to generate files:
+
+```ruby
+wizard = Igniter::Extensions::Contracts.creator_wizard(
+  name: :delivery,
+  capabilities: %i[effect executor]
+)
+
+wizard.current_decision
+completed = wizard.apply(scope: :standalone_gem)
+```
+
 For file generation, `CreatorPack` also exposes a multi-step writer with
 explicit planning:
 

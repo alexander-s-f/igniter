@@ -186,6 +186,29 @@ module Igniter
           )
         end
 
+        def creator_wizard(name: nil, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: nil, root: nil, mode: :skip_existing, pack: nil, target: nil)
+          runtime_profile =
+            case target
+            when nil
+              nil
+            else
+              target.respond_to?(:profile) ? target.profile : target
+            end
+
+          CreatorPack.wizard(
+            name: name,
+            kind: kind,
+            namespace: namespace,
+            profile: profile,
+            capabilities: capabilities,
+            scope: scope,
+            root: root,
+            mode: mode,
+            pack: pack,
+            target_profile: runtime_profile
+          )
+        end
+
         def creator_writer(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target: nil, root:, mode: :skip_existing)
           runtime_profile =
             case target
