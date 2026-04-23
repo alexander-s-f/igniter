@@ -217,6 +217,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
     expect(report.to_h.fetch(:quality_bar).fetch(:includes_spec)).to eq(true)
     expect(workflow.current_stage.key).to eq(:implement_pack)
     expect(wizard.current_decision.fetch(:key)).to eq(:scope)
+    expect(wizard.to_h.fetch(:recommended_examples)).to include("examples/contracts/build_your_own_pack.rb")
     expect(writer.plan.to_h.fetch(:steps).any? { |step| step.fetch(:kind) == :file }).to eq(true)
     expect(environment.profile.pack_names).to include(:extensions_creator, :extensions_debug)
   end

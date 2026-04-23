@@ -5,6 +5,13 @@ module Igniter
     module Contracts
       module Creator
         class Wizard
+          PROFILE_EXAMPLES = {
+            feature_node: ["examples/contracts/build_your_own_pack.rb"],
+            diagnostic_bundle: ["examples/contracts/debug.rb", "examples/contracts/debug_pack_authoring.rb"],
+            operational_adapter: ["examples/contracts/build_effect_executor_pack.rb", "examples/contracts/journal.rb"],
+            bundle_pack: ["examples/contracts/compose_your_own_packs.rb", "examples/contracts/commerce.rb"]
+          }.freeze
+
           attr_reader :name, :kind, :namespace, :profile, :capabilities, :scope, :root, :mode, :pack, :target_profile
 
           def initialize(name: nil, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: nil, root: nil, mode: :skip_existing, pack: nil, target_profile: nil)
@@ -84,7 +91,8 @@ module Igniter
               decisions << {
                 key: :name,
                 prompt: "Choose a short pack name",
-                options: []
+                options: [],
+                hints: ["pick the public noun you want pack users to reach for"]
               }
             end
 
@@ -92,7 +100,8 @@ module Igniter
               decisions << {
                 key: :profile,
                 prompt: "Choose an authoring profile or provide capabilities",
-                options: Profile.available
+                options: profile_options,
+                hints: ["feature packs add graph semantics; operational packs add effect/executor behavior; bundles compose packs without semantic mutation"]
               }
             end
 
@@ -100,7 +109,8 @@ module Igniter
               decisions << {
                 key: :scope,
                 prompt: "Choose the target scope for the pack",
-                options: Scope.available
+                options: scope_options,
+                hints: branching_hints
               }
             end
 
@@ -108,7 +118,8 @@ module Igniter
               decisions << {
                 key: :root,
                 prompt: "Choose the filesystem root for generated files",
-                options: [suggested_root].compact
+                options: [suggested_root].compact,
+                hints: ["default root follows the chosen scope; override it only if the host repo layout needs it"]
               }
             end
 
@@ -117,6 +128,44 @@ module Igniter
 
           def current_decision
             pending_decisions.first
+          end
+
+          def recommended_packs
+            return { runtime: [], development: [] } unless authoring_profile
+
+            {
+              runtime: authoring_profile.runtime_dependency_hints,
+              development: authoring_profile.development_dependency_hints
+            }
+          end
+
+          def recommended_examples
+            return [] unless authoring_profile
+
+            PROFILE_EXAMPLES.fetch(authoring_profile.name, PROFILE_EXAMPLES.fetch(fallback_profile_name, []))
+          end
+
+          def branching_hints
+            return [] unless authoring_profile
+
+            hints = []
+            case authoring_profile.kind
+            when :operational
+              hints << "operational adapters usually want dev-time help from Igniter::Extensions::Contracts::JournalPack"
+              hints << "prefer standalone_gem when the adapter will be reused across hosts"
+            when :bundle
+              if authoring_profile.capability?(:diagnostic)
+                hints << "diagnostic bundles usually compose Igniter::Extensions::Contracts::ExecutionReportPack and Igniter::Extensions::Contracts::ProvenancePack"
+                hints << "keep DebugPack as a development helper unless the bundle truly needs a runtime-facing debug surface"
+              else
+                hints << "bundle packs should stay thin and explicit about which packs they compose"
+              end
+            when :feature
+              hints << "feature node packs often start app-local before being promoted into a monorepo package or gem"
+            end
+
+            hints.concat(authoring_profile.development_hints)
+            hints.uniq
           end
 
           def workflow
@@ -156,11 +205,48 @@ module Igniter
               ready_for_writer: ready_for_writer?,
               authoring_profile: authoring_profile&.to_h,
               target_scope: target_scope&.to_h,
+              recommended_packs: recommended_packs,
+              recommended_examples: recommended_examples,
+              branching_hints: branching_hints,
               pending_decisions: pending_decisions
             }
           end
 
           private
+
+          def fallback_profile_name
+            case authoring_profile&.kind
+            when :operational
+              :operational_adapter
+            when :bundle
+              authoring_profile&.capability?(:diagnostic) ? :diagnostic_bundle : :bundle_pack
+            else
+              :feature_node
+            end
+          end
+
+          def profile_options
+            Profile.available.map do |available_profile|
+              built = Profile.build(profile: available_profile)
+              {
+                key: available_profile,
+                kind: built.kind,
+                summary: built.summary,
+                capabilities: built.capabilities
+              }
+            end
+          end
+
+          def scope_options
+            Scope.available.map do |available_scope|
+              built = Scope.build(available_scope)
+              {
+                key: available_scope,
+                root: built.root,
+                summary: built.packaging_hints.first
+              }
+            end
+          end
 
           def normalize_name(value)
             return nil if value.nil?

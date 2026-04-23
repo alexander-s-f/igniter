@@ -155,6 +155,8 @@ wizard = Igniter::Extensions::Contracts.creator_wizard(
 )
 
 wizard.current_decision
+wizard.branching_hints
+wizard.recommended_examples
 completed = wizard.apply(scope: :standalone_gem)
 ```
 

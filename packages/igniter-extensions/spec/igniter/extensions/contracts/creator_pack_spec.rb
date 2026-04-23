@@ -172,10 +172,26 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
 
     expect(wizard.ready_for_workflow?).to eq(false)
     expect(wizard.current_decision.fetch(:key)).to eq(:scope)
+    expect(wizard.branching_hints.grep(/JournalPack/)).not_to be_empty
+    expect(wizard.recommended_examples).to include("examples/contracts/build_effect_executor_pack.rb")
     expect(wizard.authoring_profile.kind).to eq(:operational)
     expect(completed.ready_for_workflow?).to eq(true)
     expect(completed.ready_for_writer?).to eq(true)
     expect(completed.writer.plan.steps.any? { |step| step.kind == :file }).to eq(true)
+  end
+
+  it "surfaces diagnostic bundle branching hints and runtime pack recommendations" do
+    wizard = Igniter::Extensions::Contracts.creator_wizard(
+      name: :developer_console,
+      profile: :diagnostic_bundle
+    )
+
+    expect(wizard.recommended_packs.fetch(:runtime)).to include(
+      "Igniter::Extensions::Contracts::ExecutionReportPack",
+      "Igniter::Extensions::Contracts::ProvenancePack"
+    )
+    expect(wizard.branching_hints.grep(/DebugPack/)).not_to be_empty
+    expect(wizard.recommended_examples).to include("examples/contracts/debug.rb")
   end
 
   it "writes a scaffold through a multi-step writer and preserves existing files in safe mode" do
