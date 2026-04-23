@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "tmpdir"
+
 $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-contracts/lib", __dir__))
 $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-extensions/lib", __dir__))
 
@@ -48,6 +50,26 @@ workflow = Igniter::Extensions::Contracts.creator_workflow(
   target: environment
 )
 
+write_summary = nil
+Dir.mktmpdir("igniter_creator_example") do |dir|
+  writer = Igniter::Extensions::Contracts.creator_writer(
+    name: :slug,
+    profile: :feature_node,
+    scope: :app_local,
+    namespace: "Acme::IgniterPacks",
+    root: dir
+  )
+
+  plan = writer.plan
+  result = writer.write
+
+  write_summary = {
+    plan_steps: plan.steps.length,
+    files_written: result.files_written,
+    directories_created: result.directories_created
+  }
+end
+
 bundle_scaffold = Igniter::Extensions::Contracts.scaffold_pack(
   name: :developer_console,
   profile: :diagnostic_bundle,
@@ -65,5 +87,7 @@ puts "creator_bundle_dependency_hints=#{bundle_scaffold.profile.dependency_hints
 puts "creator_workflow_stage=#{workflow.current_stage.key}"
 puts "creator_workflow_status=#{workflow.current_stage.status}"
 puts "creator_workflow_development_packs=#{workflow.recommended_packs.fetch(:development).join(',')}"
+puts "creator_writer_plan_steps=#{write_summary.fetch(:plan_steps)}"
+puts "creator_writer_files_written=#{write_summary.fetch(:files_written)}"
 puts "creator_scope_root=#{scaffold.scope.root}"
 puts "creator_report_next_steps=#{report.next_steps.length}"

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "tmpdir"
+
 require_relative "../../../spec_helper"
 
 RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
@@ -155,5 +157,31 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
     expect(workflow.to_h.fetch(:stages).map { |stage| stage.fetch(:key) }).to eq(
       %i[select_profile generate_scaffold implement_pack validate_pack package_pack]
     )
+  end
+
+  it "writes a scaffold through a multi-step writer and preserves existing files in safe mode" do
+    Dir.mktmpdir("igniter-creator-writer") do |dir|
+      writer = Igniter::Extensions::Contracts.creator_writer(
+        name: :slug,
+        profile: :feature_node,
+        scope: :monorepo_package,
+        namespace: "Acme::IgniterPacks",
+        root: dir
+      )
+
+      plan = writer.plan
+      result = writer.write
+
+      pack_path = File.join(dir, "lib/acme/igniter_packs/slug_pack.rb")
+      File.write(pack_path, "# custom\n")
+
+      second_result = writer.write
+
+      expect(plan.steps.any? { |step| step.kind == :directory && step.status == :pending }).to eq(true)
+      expect(result.success?).to eq(true)
+      expect(File.exist?(pack_path)).to eq(true)
+      expect(second_result.files_skipped).to be >= 1
+      expect(File.read(pack_path)).to eq("# custom\n")
+    end
   end
 end

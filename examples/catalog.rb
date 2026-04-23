@@ -281,7 +281,8 @@ module IgniterExamples
         "creator_pack_constant=Acme::IgniterPacks::SlugPack",
         "creator_report_audit_ok=false",
         "creator_report_missing_nodes=draft_slug",
-        "creator_workflow_stage=implement_pack"
+        "creator_workflow_stage=implement_pack",
+        "creator_writer_files_written=4"
       ]
     ),
     Example.new(

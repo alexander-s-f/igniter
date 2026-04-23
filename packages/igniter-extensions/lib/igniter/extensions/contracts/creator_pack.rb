@@ -74,6 +74,34 @@ module Igniter
           )
         end
 
+        def writer(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target_profile: nil, root:, mode: :skip_existing)
+          workflow(
+            name: name,
+            kind: kind,
+            namespace: namespace,
+            profile: profile,
+            capabilities: capabilities,
+            scope: scope,
+            pack: pack,
+            target_profile: target_profile
+          ).writer(root: root, mode: mode)
+        end
+
+        def write(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target_profile: nil, root:, mode: :skip_existing)
+          writer(
+            name: name,
+            kind: kind,
+            namespace: namespace,
+            profile: profile,
+            capabilities: capabilities,
+            scope: scope,
+            pack: pack,
+            target_profile: target_profile,
+            root: root,
+            mode: mode
+          ).write
+        end
+
         def install_dependency_pack(kernel, pack)
           return if kernel.pack_manifests.any? { |manifest| manifest.name == pack.manifest.name }
 

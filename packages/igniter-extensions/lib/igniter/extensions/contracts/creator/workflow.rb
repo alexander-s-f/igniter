@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "workflow_step"
+require_relative "writer"
 
 module Igniter
   module Extensions
@@ -53,6 +54,10 @@ module Igniter
 
           def ready_for_packaging?
             packaging_stage.status == :ready
+          end
+
+          def writer(root:, mode: :skip_existing)
+            Writer.new(workflow: self, root: root, mode: mode)
           end
 
           def to_h

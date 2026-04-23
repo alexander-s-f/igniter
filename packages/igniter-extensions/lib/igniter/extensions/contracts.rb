@@ -186,6 +186,52 @@ module Igniter
           )
         end
 
+        def creator_writer(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target: nil, root:, mode: :skip_existing)
+          runtime_profile =
+            case target
+            when nil
+              nil
+            else
+              target.respond_to?(:profile) ? target.profile : target
+            end
+
+          CreatorPack.writer(
+            name: name,
+            kind: kind,
+            namespace: namespace,
+            profile: profile,
+            capabilities: capabilities,
+            scope: scope,
+            pack: pack,
+            target_profile: runtime_profile,
+            root: root,
+            mode: mode
+          )
+        end
+
+        def write_pack_scaffold(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target: nil, root:, mode: :skip_existing)
+          runtime_profile =
+            case target
+            when nil
+              nil
+            else
+              target.respond_to?(:profile) ? target.profile : target
+            end
+
+          CreatorPack.write(
+            name: name,
+            kind: kind,
+            namespace: namespace,
+            profile: profile,
+            capabilities: capabilities,
+            scope: scope,
+            pack: pack,
+            target_profile: runtime_profile,
+            root: root,
+            mode: mode
+          )
+        end
+
         def debug_snapshot(result, profile:)
           DebugPack.snapshot(result, profile: profile)
         end

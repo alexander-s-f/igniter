@@ -145,6 +145,24 @@ It also separates recommended runtime dependency packs from development-only
 tooling packs, so authoring guidance does not accidentally become runtime
 bundle surface.
 
+For file generation, `CreatorPack` also exposes a multi-step writer with
+explicit planning:
+
+```ruby
+writer = Igniter::Extensions::Contracts.creator_writer(
+  name: :slug,
+  profile: :feature_node,
+  scope: :app_local,
+  root: "/tmp/my_pack"
+)
+
+plan = writer.plan
+result = writer.write
+```
+
+By default the writer uses `:skip_existing`, so existing files are preserved
+unless you explicitly opt into `mode: :overwrite`.
+
 You can also drive scaffolding directly from capabilities:
 
 ```ruby
