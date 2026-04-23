@@ -77,6 +77,11 @@ One small peel is now already in place:
   `igniter/errors`, `igniter/tool`, `igniter/effect`
 - `igniter-agents` and `igniter-server` no longer require
   `igniter/core/errors` directly and instead use `igniter/errors`
+- the root facade, `igniter-server`, `igniter-cluster`, and app diagnostics
+  now use stable root entrypoints for `igniter/contract`,
+  `igniter/runtime`, and `igniter/diagnostics` instead of requiring
+  `igniter/core/contract`, `igniter/core/runtime`, and
+  `igniter/core/diagnostics` directly
 
 That does not remove the runtime dependency yet, but it does remove direct
 knowledge of legacy core file layout from those upper packages.

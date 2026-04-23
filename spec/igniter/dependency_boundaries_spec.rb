@@ -130,6 +130,36 @@ RSpec.describe "Igniter dependency boundaries" do
     MSG
   end
 
+  it "keeps root, server, cluster, and app layers on stable root contract/runtime/diagnostics entrypoints" do
+    files = ruby_files_for(
+      "lib/igniter.rb",
+      "packages/igniter-server/lib/igniter/**/*.rb",
+      "packages/igniter-cluster/lib/igniter/**/*.rb",
+      "packages/igniter-app/lib/igniter/**/*.rb"
+    )
+    offenders = offenders_for(
+      require_lines_for(files),
+      [
+        /require\s+["']igniter\/core\/contract["']/,
+        /require\s+["']igniter\/core\/runtime["']/,
+        /require\s+["']igniter\/core\/diagnostics["']/,
+        /require_relative\s+["'][^"']*igniter\/core\/contract["']/,
+        /require_relative\s+["'][^"']*igniter\/core\/runtime["']/,
+        /require_relative\s+["'][^"']*igniter\/core\/diagnostics["']/
+      ]
+    )
+
+    expect(offenders).to eq({}), <<~MSG
+      The root facade and upper runtime-hosting packages should depend on
+      stable root entrypoints (`igniter/contract`, `igniter/runtime`,
+      `igniter/diagnostics`) instead of reaching directly into
+      `igniter/core/*` file paths.
+
+      Offending require statements:
+      #{format_offenders(offenders)}
+    MSG
+  end
+
   it "does not let rails integration files require app, server, or cluster layers" do
     files = ruby_files_for(
       "packages/igniter-rails/lib/igniter-rails.rb",

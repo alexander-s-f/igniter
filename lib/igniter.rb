@@ -12,11 +12,11 @@ require "igniter/core/effect_registry"
 require "igniter/core/model"
 require "igniter/core/compiler"
 require "igniter/core/events"
-require "igniter/core/runtime"
+require "igniter/runtime"
 require "igniter/core/dsl"
 require "igniter/core/extensions"
-require "igniter/core/diagnostics"
-require "igniter/core/contract"
+require "igniter/diagnostics"
+require "igniter/contract"
 
 module Igniter
   class << self

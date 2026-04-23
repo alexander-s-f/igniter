@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/core/diagnostics"
+require "igniter/diagnostics"
 
 require_relative "runtime_context"
 require_relative "diagnostics/runtime_contributor"

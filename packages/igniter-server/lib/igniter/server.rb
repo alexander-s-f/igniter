@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require "igniter/errors"
-require "igniter/core/contract"
-require "igniter/core/runtime"
+require "igniter/contract"
+require "igniter/runtime"
 require "igniter/sdk"
 require "json"
 
