@@ -43,7 +43,9 @@ All active runnable examples live in `examples/contracts/`:
 - `contracts/build_effect_executor_pack.rb`
 - `contracts/build_your_own_pack.rb`
 - `contracts/capabilities.rb`
+- `contracts/collection.rb`
 - `contracts/commerce.rb`
+- `contracts/composition.rb`
 - `contracts/compose_your_own_packs.rb`
 - `contracts/content_addressing.rb`
 - `contracts/create_pack.rb`

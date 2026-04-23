@@ -302,6 +302,25 @@ Target direction:
 embedded Rails-style host scenarios where local subgraph reuse should stay near
 the packs layer rather than being forced upward into cluster/server concerns.
 
+Current implementation direction:
+
+- `CollectionPack` lives in `igniter-extensions`
+- it owns explicit keyed collection execution over item graphs and returns
+  collection results rather than introducing a baseline primitive
+- local collection execution is the default, but the pack should preserve an
+  invocation adapter seam so future remote/distributed collection execution can
+  be added by application/cluster layers without redesigning the DSL
+- `ComposePack` lives in `igniter-extensions`
+- it owns explicit nested contract invocation with declared input mapping
+- it may return either the nested execution result or one selected nested output
+- it should be treated as a real extension semantic layer, not as lowered
+  `compute`, because it owns a genuine nested execution boundary
+- local nested execution is the default, but the pack should preserve an
+  invocation adapter seam so future remote compose can be added by
+  application/cluster layers without redesigning the DSL
+- that means remote compose should arrive as an upper-layer invoker/transport
+  concern, not as baseline kernel knowledge
+
 ## Pack Dependency Graph
 
 The current codebase resolves pack dependencies manually:

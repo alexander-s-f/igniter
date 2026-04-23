@@ -361,13 +361,21 @@ Example direction:
 - `CommercePack`
   `requires_packs`: `LookupPack`, `AggregatePack`
 - future `CollectionPack`
-  `requires_capabilities`: `:incremental`
-  or, if coupled concretely to one implementation,
-  `requires_packs`: `IncrementalPack`
+  now fits as an extension-level keyed collection pack with
+  `provides_capabilities`: `:collection`, `:keyed_sessions`,
+  `:incremental_collection`
+  and concrete `requires_packs`: `DataflowPack`, `IncrementalPack`
 - future `ComposePack`
-  may `provide_capabilities`: `:subgraph_invocation`, `:nested_contracts`
+  now fits as an extension-level subgraph invocation pack with
+  `provides_capabilities`: `:subgraph_invocation`, `:nested_contracts`
   while still keeping explicit pack dependencies for any concrete lowering or
   diagnostics support it needs
+- local compose should be the default implementation, but the pack contract
+  should preserve an invocation adapter seam so application/cluster layers can
+  add remote compose later without changing the user-facing DSL shape
+- local collection should follow the same rule: local keyed execution first, but
+  preserve an invocation adapter seam so application/cluster layers can later
+  add remote/distributed collection execution without changing the user DSL
 
 Operational seams should be proven externally too:
 

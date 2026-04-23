@@ -17,7 +17,9 @@ Contracts-facing external packs now live here too:
 - `Igniter::Extensions::Contracts::AuditPack`
 - `Igniter::Extensions::Contracts::BranchPack`
 - `Igniter::Extensions::Contracts::CapabilitiesPack`
+- `Igniter::Extensions::Contracts::CollectionPack`
 - `Igniter::Extensions::Contracts::CommercePack`
+- `Igniter::Extensions::Contracts::ComposePack`
 - `Igniter::Extensions::Contracts::ContentAddressingPack`
 - `Igniter::Extensions::Contracts::CreatorPack`
 - `Igniter::Extensions::Contracts::DataflowPack`
@@ -79,6 +81,74 @@ result = environment.run(inputs: { country: "DE", vip: true }) do
   output :delivery_mode
 end
 ```
+
+`ComposePack` adds explicit nested contract invocation without restoring legacy
+composition semantics into the kernel:
+
+```ruby
+environment = Igniter::Contracts.with(
+  Igniter::Extensions::Contracts::ComposePack
+)
+
+pricing_contract = environment.compile do
+  input :amount
+  input :tax_rate
+  compute :total, depends_on: %i[amount tax_rate] do |amount:, tax_rate:|
+    amount + (amount * tax_rate)
+  end
+  output :total
+end
+
+result = environment.run(inputs: { subtotal: 100, rate: 0.2 }) do
+  input :subtotal
+  input :rate
+
+  compose :pricing_total,
+          contract: pricing_contract,
+          inputs: { amount: :subtotal, tax_rate: :rate },
+          output: :total
+
+  output :pricing_total
+end
+```
+
+The important forward-compatibility rule is that `ComposePack` keeps local
+execution as the default, but also exposes `via:` for a custom invocation
+adapter. That gives `igniter-application` or `igniter-cluster` room to add
+remote compose later without rewriting the DSL contract.
+
+`CollectionPack` follows the same idea for keyed collection execution:
+
+```ruby
+environment = Igniter::Contracts.with(
+  Igniter::Extensions::Contracts::CollectionPack
+)
+
+result = environment.run(inputs: {
+  items: [{ sku: "a", amount: 10 }, { sku: "b", amount: 20 }],
+  tax_rate: 0.2
+}) do
+  input :items
+  input :tax_rate
+
+  collection :priced_items, from: :items, key: :sku, inputs: { tax_rate: :tax_rate } do
+    input :sku
+    input :amount
+    input :tax_rate
+
+    compute :total, depends_on: %i[amount tax_rate] do |amount:, tax_rate:|
+      amount + (amount * tax_rate)
+    end
+
+    output :total
+  end
+
+  output :priced_items
+end
+```
+
+It returns a `CollectionResult` keyed by item identity, and keeps `via:` open
+for a future remote/distributed collection invoker without changing the user DSL.
 
 Applied presets can sit on top of those packs too:
 

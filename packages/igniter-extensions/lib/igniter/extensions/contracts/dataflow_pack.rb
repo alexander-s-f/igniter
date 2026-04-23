@@ -28,13 +28,20 @@ module Igniter
           kernel
         end
 
-        def session(environment, source:, key:, window: nil, context: [], &block)
+        def session(environment, source:, key:, window: nil, context: [], compiled_graph: nil, &block)
           ensure_installed!(environment.profile)
           Igniter::Extensions::Contracts::IncrementalPack.ensure_installed!(environment.profile)
 
-          builder = Dataflow::Builder.new(source: source, key: key, window: window, context: context)
-          builder.instance_eval(&block) if block
-          item_graph, aggregate_operators = builder.build!(environment)
+          item_graph, aggregate_operators =
+            if compiled_graph
+              raise ArgumentError, "DataflowPack.session accepts either compiled_graph: or a block, not both" if block
+
+              [compiled_graph, {}]
+            else
+              builder = Dataflow::Builder.new(source: source, key: key, window: window, context: context)
+              builder.instance_eval(&block) if block
+              builder.build!(environment)
+            end
 
           Dataflow::Session.new(
             environment: environment,

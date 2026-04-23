@@ -113,9 +113,27 @@ module IgniterExamples
       expected_fragments: ["commerce_grand_total=38.0", "execution_report_sections=baseline_summary,execution_report"]
     ),
     example(
+      "contracts/collection",
+      "Explicit keyed collection execution over Dataflow and Incremental sessions.",
+      expected_fragments: [
+        "contracts_collection_total=36.0",
+        "contracts_collection_keys=a,b",
+        "contracts_collection_summary={:mode=>:incremental, :total=>2"
+      ]
+    ),
+    example(
       "contracts/compose_your_own_packs",
       "One custom pack depending on another through the public kernel API.",
       expected_fragments: ["composed_pack_has_slug=true", "composed_pack_url=https://docs.example.test/hello-pack-composition"]
+    ),
+    example(
+      "contracts/composition",
+      "Explicit nested contract invocation through ComposePack.",
+      expected_fragments: [
+        "contracts_compose_tax=20.0",
+        "contracts_compose_total=120.0",
+        "contracts_compose_nested_outputs=tax,total"
+      ]
     ),
     example(
       "contracts/content_addressing",
