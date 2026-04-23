@@ -43,10 +43,11 @@ module Igniter
         peer_registry.peers
       end
 
-      def compose_invoker(capabilities: [], peer: nil, namespace: :cluster_compose, metadata: {}, id_generator: nil)
+      def compose_invoker(capabilities: [], peer: nil, query: nil, namespace: :cluster_compose, metadata: {},
+                          id_generator: nil)
         build_remote_invoker(
           factory: :remote_compose_invoker,
-          routing: routing_metadata(capabilities: capabilities, peer: peer),
+          query: build_capability_query(query: query, capabilities: capabilities, peer: peer),
           namespace: namespace,
           metadata: metadata,
           id_generator: id_generator
@@ -56,13 +57,14 @@ module Igniter
       def collection_invoker(
         capabilities: [],
         peer: nil,
+        query: nil,
         namespace: :cluster_collection,
         metadata: {},
         id_generator: nil
       )
         build_remote_invoker(
           factory: :remote_collection_invoker,
-          routing: routing_metadata(capabilities: capabilities, peer: peer),
+          query: build_capability_query(query: query, capabilities: capabilities, peer: peer),
           namespace: namespace,
           metadata: metadata,
           id_generator: id_generator
@@ -87,21 +89,23 @@ module Igniter
 
       private
 
-      def build_remote_invoker(factory:, routing:, namespace:, metadata:, id_generator:)
+      def build_remote_invoker(factory:, query:, namespace:, metadata:, id_generator:)
         application.public_send(
           factory,
           transport: remote_transport,
           namespace: namespace,
-          metadata: metadata.merge(routing: routing),
+          metadata: metadata.merge(routing: query.to_h),
           id_generator: id_generator
         )
       end
 
-      def routing_metadata(capabilities:, peer:)
-        {
-          all_of: Array(capabilities).map(&:to_sym),
-          peer: peer&.to_sym
-        }.compact
+      def build_capability_query(query: nil, capabilities: [], peer: nil)
+        return query if query.is_a?(CapabilityQuery)
+
+        CapabilityQuery.new(
+          required_capabilities: capabilities,
+          preferred_peer: peer
+        )
       end
 
       def transport_seam

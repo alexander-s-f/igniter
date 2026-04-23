@@ -31,6 +31,11 @@ cluster.register_peer(
   metadata: { zone: "eu-west" }
 )
 
+query = Igniter::Cluster::CapabilityQuery.new(
+  required_capabilities: [:pricing],
+  metadata: { region: "eu-west" }
+)
+
 result = cluster.run(inputs: { subtotal: 100, rate: 0.2 }) do
   input :subtotal
   input :rate
@@ -38,7 +43,7 @@ result = cluster.run(inputs: { subtotal: 100, rate: 0.2 }) do
   compose :pricing_total,
           inputs: { amount: :subtotal, tax_rate: :rate },
           output: :total,
-          via: cluster.compose_invoker(capabilities: [:pricing], namespace: :mesh) do
+          via: cluster.compose_invoker(query: query, namespace: :mesh) do
     input :amount
     input :tax_rate
 
@@ -55,5 +60,6 @@ end
 entry = cluster.application.fetch_session("mesh/pricing_total/1")
 
 puts "cluster_compose_total=#{result.output(:pricing_total)}"
+puts "cluster_query_capabilities=#{entry.payload.fetch(:transport).dig(:cluster, :query, :required_capabilities).inspect}"
 puts "cluster_route_peer=#{entry.payload.fetch(:transport).dig(:cluster, :route, :peer)}"
 puts "cluster_route_mode=#{entry.payload.fetch(:transport).dig(:cluster, :route, :mode)}"

@@ -19,12 +19,7 @@ module Igniter
       private
 
       def select_peer(request, candidates)
-        selected_peer =
-          if request.pinned_peer
-            candidates.find { |peer| peer.name == request.pinned_peer }
-          else
-            candidates.find { |peer| peer.supports_capabilities?(request.capabilities) }
-          end
+        selected_peer = candidates.find { |peer| request.query.matches_peer?(peer) }
 
         return selected_peer unless selected_peer.nil?
 
@@ -33,7 +28,7 @@ module Igniter
 
       def route_metadata(request, candidates, selected_peer)
         {
-          required_capabilities: request.capabilities,
+          query: request.query.to_h,
           candidate_names: candidates.map(&:name),
           selected_capabilities: selected_peer.capabilities
         }
@@ -42,21 +37,17 @@ module Igniter
       def missing_route_message(request)
         [
           "no route for #{request.session_id}",
-          "capabilities=#{request.capabilities.inspect}",
-          "peer=#{request.pinned_peer.inspect}"
+          "query=#{request.query.to_h.inspect}"
         ].join(" ")
       end
 
       def routing_mode_for(request)
-        return :pinned if request.pinned_peer
-        return :capability unless request.capabilities.empty?
-
-        :first_available
+        request.query.routing_mode
       end
 
       def explanation_for(request, peer)
-        return "pinned route to #{peer.name}" if request.pinned_peer
-        return "capability route to #{peer.name}" unless request.capabilities.empty?
+        return "pinned route to #{peer.name}" if request.query.pinned?
+        return "capability route to #{peer.name}" unless request.query.required_capabilities.empty?
 
         "first available peer #{peer.name}"
       end

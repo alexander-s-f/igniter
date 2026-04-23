@@ -79,8 +79,55 @@ RSpec.describe Igniter::Cluster::Environment do
 
     expect(result.output(:pricing_total)).to eq(120.0)
     expect(entry.payload.fetch(:transport)).to include(adapter: :in_memory_peer)
+    expect(entry.payload.fetch(:transport).dig(:cluster, :query, :required_capabilities)).to eq([:pricing])
     expect(entry.payload.fetch(:transport).dig(:cluster, :route, :peer)).to eq(:pricing_node)
     expect(entry.payload.fetch(:transport).dig(:cluster, :route, :mode)).to eq(:capability)
+  end
+
+  it "accepts an explicit capability query object for compose routing" do
+    cluster = Igniter::Cluster.with(Igniter::Extensions::Contracts::ComposePack)
+    query = Igniter::Cluster::CapabilityQuery.new(
+      required_capabilities: [:pricing],
+      preferred_peer: :pricing_node,
+      metadata: { region: "eu-west" }
+    )
+
+    cluster.register_peer(
+      :pricing_node,
+      capabilities: %i[pricing compose],
+      transport: build_peer_transport(cluster.application.profile.contracts_profile)
+    )
+
+    result = cluster.run(inputs: { subtotal: 100, rate: 0.2 }) do
+      input :subtotal
+      input :rate
+
+      compose :pricing_total,
+              inputs: { amount: :subtotal, tax_rate: :rate },
+              output: :total,
+              via: cluster.compose_invoker(query: query, namespace: :mesh) do
+        input :amount
+        input :tax_rate
+
+        compute :total, depends_on: %i[amount tax_rate] do |amount:, tax_rate:|
+          amount + (amount * tax_rate)
+        end
+
+        output :total
+      end
+
+      output :pricing_total
+    end
+
+    entry = cluster.application.fetch_session("mesh/pricing_total/1")
+
+    expect(result.output(:pricing_total)).to eq(120.0)
+    expect(entry.payload.fetch(:transport).dig(:cluster, :query)).to include(
+      required_capabilities: [:pricing],
+      preferred_peer: :pricing_node,
+      metadata: { region: "eu-west" }
+    )
+    expect(entry.payload.fetch(:transport).dig(:cluster, :route, :mode)).to eq(:pinned)
   end
 
   it "routes collection sessions through a pinned peer" do

@@ -25,6 +25,7 @@ module Igniter
 
       def cluster_metadata(placement, route, admission)
         {
+          query: route.metadata[:query],
           placement: placement.to_h,
           route: route.to_h,
           admission: admission.to_h

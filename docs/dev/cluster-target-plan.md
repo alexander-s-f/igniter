@@ -145,6 +145,15 @@ Questions:
 - how should capabilities participate in admission and placement?
 - how do we make routing explanations first-class for diagnostics and tooling?
 
+Current direction:
+
+- cluster routing should be expressed through an explicit `CapabilityQuery`
+  value object
+- ergonomic APIs may still accept `capabilities:` / `peer:`, but those are
+  only sugar over the query object
+- routing, placement, admission, and transport diagnostics should consume the
+  same query shape instead of ad-hoc metadata fields
+
 ### 3. Ownership And Placement
 
 This subdomain owns:
