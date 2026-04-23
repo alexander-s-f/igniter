@@ -61,6 +61,15 @@ module IgniterExamples
 
   ALL = [
     example(
+      "cluster/routing",
+      "Cluster routing and remote compose over application transport seams.",
+      expected_fragments: [
+        "cluster_compose_total=120.0",
+        "cluster_route_peer=pricing_node",
+        "cluster_route_mode=capability"
+      ]
+    ),
+    example(
       "contracts/aggregates",
       "Lookup and aggregate packs lowered over the contracts kernel.",
       expected_fragments: ["aggregate_total_amount=60", "aggregate_average_amount=20.0"]

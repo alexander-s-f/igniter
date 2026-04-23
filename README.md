@@ -93,6 +93,7 @@ Use this for:
   - [packages/igniter-contracts/README.md](/Users/alex/dev/projects/igniter/packages/igniter-contracts/README.md)
   - [packages/igniter-extensions/README.md](/Users/alex/dev/projects/igniter/packages/igniter-extensions/README.md)
   - [packages/igniter-application/README.md](/Users/alex/dev/projects/igniter/packages/igniter-application/README.md)
+  - [packages/igniter-cluster/README.md](/Users/alex/dev/projects/igniter/packages/igniter-cluster/README.md)
   - [packages/igniter-mcp-adapter/README.md](/Users/alex/dev/projects/igniter/packages/igniter-mcp-adapter/README.md)
 | Explicit legacy kernel lane | `require "igniter/legacy"` |
 | Embedded contracts kernel | `require "igniter/contracts"` or `require "igniter-contracts"` |

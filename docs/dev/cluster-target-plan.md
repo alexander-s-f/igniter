@@ -314,6 +314,25 @@ through stable structured reports.
 
 This order helps avoid rebuilding the old umbrella in a different folder.
 
+## Current First Slice
+
+The new package can now start from a much narrower first implementation:
+
+- reuse `Igniter::Application::TransportRequest`
+- reuse `Igniter::Application::TransportResponse`
+- add explicit cluster seams for:
+  - `peer_registry`
+  - `placement`
+  - `router`
+  - `admission`
+  - `transport`
+- expose cluster-owned `compose_invoker` / `collection_invoker` that feed those
+  seams without changing contracts DSL
+
+That gives `igniter-cluster` a real substrate for routed remote execution
+without prematurely importing legacy mesh, consensus, replication, or
+governance models.
+
 ## Success Criteria
 
 The target is successful when:

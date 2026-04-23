@@ -10,7 +10,7 @@ require_relative "lib/igniter/version"
 RuboCop::RakeTask.new
 
 RSpec::Core::RakeTask.new(:spec) do |t|
-  t.pattern = "{spec/current,packages/igniter-contracts/spec,packages/igniter-extensions/spec,packages/igniter-application/spec,packages/igniter-mcp-adapter/spec}/**/*_spec.rb"
+  t.pattern = "{spec/current,packages/igniter-contracts/spec,packages/igniter-extensions/spec,packages/igniter-application/spec,packages/igniter-cluster/spec,packages/igniter-mcp-adapter/spec}/**/*_spec.rb"
 end
 
 RSpec::Core::RakeTask.new(:architecture) do |t|

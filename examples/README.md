@@ -7,6 +7,7 @@ Active examples are limited to:
 - `igniter-contracts`
 - `igniter-extensions`
 - `igniter-application`
+- `igniter-cluster`
 - `igniter-mcp-adapter`
 
 Older legacy-root demos were moved out of the active tree and should not be
@@ -34,7 +35,9 @@ rake examples
 
 ## Active Example Lane
 
-All active runnable examples live in `examples/contracts/`:
+Active runnable examples live in `examples/contracts/` and `examples/cluster/`:
+
+- `cluster/routing.rb`
 
 - `contracts/basic_pricing.rb`
 - `contracts/aggregates.rb`

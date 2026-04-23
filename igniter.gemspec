@@ -7,6 +7,7 @@ Gem::Specification.new do |spec|
     packages/igniter-contracts/lib
     packages/igniter-extensions/lib
     packages/igniter-application/lib
+    packages/igniter-cluster/lib
     packages/igniter-mcp-adapter/lib
   ].freeze
 
@@ -29,6 +30,7 @@ Gem::Specification.new do |spec|
   spec.files = Dir[
     "lib/igniter.rb",
     "lib/igniter/contract.rb",
+    "lib/igniter/cluster.rb",
     "lib/igniter/diagnostics.rb",
     "lib/igniter/monorepo_packages.rb",
     "lib/igniter/runtime.rb",
@@ -39,6 +41,8 @@ Gem::Specification.new do |spec|
     "packages/igniter-extensions/README.md",
     "packages/igniter-application/lib/**/*.rb",
     "packages/igniter-application/README.md",
+    "packages/igniter-cluster/lib/**/*.rb",
+    "packages/igniter-cluster/README.md",
     "packages/igniter-mcp-adapter/lib/**/*.rb",
     "packages/igniter-mcp-adapter/exe/*",
     "packages/igniter-mcp-adapter/README.md",
@@ -47,6 +51,7 @@ Gem::Specification.new do |spec|
     "LICENSE.txt",
     "CHANGELOG.md",
     "examples/README.md",
+    "examples/cluster/*.rb",
     "examples/contracts/*.rb",
     "examples/run.rb",
     "examples/catalog.rb",

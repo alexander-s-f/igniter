@@ -24,7 +24,7 @@ Root should stay thin:
   schedulers, host adapters, boot lifecycle
 - `igniter-cluster`
   contracts-native distributed runtime: remote execution, routing, admission,
-  placement, topology, distributed diagnostics
+  placement, peer registry, topology, distributed diagnostics
 
 ## Supporting Lanes
 
