@@ -17,6 +17,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::CreatorPack,
       Igniter::Extensions::Contracts::DataflowPack,
       Igniter::Extensions::Contracts::DebugPack,
+      Igniter::Extensions::Contracts::DifferentialPack,
       Igniter::Extensions::Contracts::IncrementalPack,
       Igniter::Extensions::Contracts::JournalPack,
       Igniter::Extensions::Contracts::McpPack,
@@ -161,6 +162,39 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
 
     expect(result.total).to eq(1)
     expect(result.processed.keys).to eq(["s1"])
+  end
+
+  it "exposes differential helpers over explicit contracts environments" do
+    environment = Igniter::Contracts.with(Igniter::Extensions::Contracts::DifferentialPack)
+
+    primary = environment.compile do
+      input :amount
+      compute :tax, depends_on: [:amount] do |amount:|
+        amount * 0.2
+      end
+      output :tax
+    end
+
+    candidate = environment.compile do
+      input :amount
+      compute :tax, depends_on: [:amount] do |amount:|
+        amount * 0.25
+      end
+      output :tax
+    end
+
+    report = Igniter::Extensions::Contracts.compare_differential(
+      inputs: { amount: 10 },
+      primary_environment: environment,
+      primary_compiled_graph: primary,
+      candidate_environment: environment,
+      candidate_compiled_graph: candidate,
+      primary_name: "primary",
+      candidate_name: "candidate"
+    )
+
+    expect(report.match?).to eq(false)
+    expect(report.divergences.map(&:output_name)).to eq([:tax])
   end
 
   it "exposes debug helpers over environments and profiles" do

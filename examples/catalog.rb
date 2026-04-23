@@ -405,6 +405,23 @@ module IgniterExamples
       expected_fragments: ["Differential Execution Demo"]
     ),
     Example.new(
+      id: "contracts/differential",
+      path: "examples/contracts/differential.rb",
+      summary: "New-world differential comparison and explicit shadow execution over DifferentialPack.",
+      migration_of: "differential",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_differential_match=false",
+        "contracts_differential_diverged=[:tax, :total]",
+        "contracts_differential_candidate_only=[:discount]",
+        "contracts_differential_tax_tolerated=true",
+        "contracts_shadow_match=false"
+      ]
+    ),
+    Example.new(
       id: "distributed_server",
       path: "examples/distributed_server.rb",
       summary: "Distributed await/deliver_event workflow over a store.",

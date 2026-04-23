@@ -54,6 +54,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/debug.rb` — `DebugPack` report over profile seams, execution, diagnostics, and provenance.
 - `contracts/debug_pack_authoring.rb` — `DebugPack` audit for an incomplete custom pack before finalize.
 - `contracts/diagnostics.rb` — new-world diagnostics report counterpart to the legacy diagnostics example.
+- `contracts/differential.rb` — new-world differential comparison and explicit shadow counterpart to the legacy differential example.
 - `contracts/effects.rb` — new-world effect/executor counterpart to the legacy effects example.
 - `contracts/execution_report_migration.rb` — side-by-side migration from the legacy `execution_report` activator to `ExecutionReportPack`.
 - `contracts/incremental.rb` — new-world incremental session counterpart over `IncrementalPack`.
@@ -140,6 +141,7 @@ grow:
 | `basic_pricing.rb` | `contracts/basic_pricing.rb` | same smallest pricing flow, but through `Igniter::Contracts.with` |
 | `dataflow.rb` | `contracts/dataflow.rb` | moves from legacy incremental collection patching to explicit `DataflowPack` sessions over `IncrementalPack` |
 | `diagnostics.rb` | `contracts/diagnostics.rb` | moves from text/as_json diagnostics to typed `DiagnosticsReport` |
+| `differential.rb` | `contracts/differential.rb` | moves from global `shadow_with` / `diff_against` patching to explicit `DifferentialPack` compare and shadow helpers |
 | `effects.rb` | `contracts/effects.rb` | moves from legacy effect nodes to explicit effect/executor seams |
 | `incremental.rb` | `contracts/incremental.rb` | moves from patched contract mutation to explicit incremental sessions over `CompiledGraph` |
 | `introspection.rb` | `contracts/introspection.rb` | moves from text/Mermaid explainers to structured compilation/result/diagnostics reports |

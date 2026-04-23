@@ -8,6 +8,7 @@ RSpec.describe "Igniter contracts migration examples" do
     "basic_pricing" => "contracts/basic_pricing",
     "dataflow" => "contracts/dataflow",
     "diagnostics" => "contracts/diagnostics",
+    "differential" => "contracts/differential",
     "effects" => "contracts/effects",
     "incremental" => "contracts/incremental",
     "introspection" => "contracts/introspection",

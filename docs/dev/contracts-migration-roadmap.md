@@ -50,6 +50,8 @@ These legacy activators now have a clear contracts-side replacement:
   `Igniter::Extensions::Contracts::ExecutionReportPack`
 - `igniter/extensions/dataflow`
   `Igniter::Extensions::Contracts::DataflowPack`
+- `igniter/extensions/differential`
+  `Igniter::Extensions::Contracts::DifferentialPack`
 - `igniter/extensions/incremental`
   `Igniter::Extensions::Contracts::IncrementalPack`
 - `igniter/extensions/provenance`
@@ -95,7 +97,6 @@ These entrypoints still point to a direction, not a finished replacement:
 - `igniter/extensions/auditing`
 - `igniter/extensions/capabilities`
 - `igniter/extensions/content_addressing`
-- `igniter/extensions/differential`
 - `igniter/extensions/invariants`
 - `igniter/extensions/reactive`
 
@@ -166,7 +167,6 @@ Close the remaining legacy extension surfaces:
 - `auditing`
 - `capabilities`
 - `content_addressing`
-- `differential`
 - `invariants`
 - `reactive`
 
@@ -307,19 +307,16 @@ That keeps the architecture honest.
 
 If we continue on migration value instead of novelty, I would prioritize:
 
-1. `differential`
-   because it fits naturally with debugging, validation, and side-by-side
-   comparison
-2. `auditing`
+1. `auditing`
    because a clean contracts-side diagnostics/audit story is now close
-3. `reactive`
+2. `reactive`
    because it likely wants explicit subscription/report hooks, not runtime
    patching
-4. `invariants`
+3. `invariants`
    because it should probably become validator/diagnostics-oriented
-5. `capabilities`
+4. `capabilities`
    because it likely wants compile-time contracts over global graph patching
-6. `content_addressing`
+5. `content_addressing`
    because it may need a more opinionated effect/runtime cache seam
 
 After those are closed, the priority should switch from "new capability" to

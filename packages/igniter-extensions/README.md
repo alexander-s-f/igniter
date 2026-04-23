@@ -248,9 +248,12 @@ The first canonical activator-to-pack migration target is now explicit:
   -> `Igniter::Extensions::Contracts::SagaPack`
 - `require "igniter/extensions/incremental"`
   -> `Igniter::Extensions::Contracts::IncrementalPack`
+- `require "igniter/extensions/differential"`
+  -> `Igniter::Extensions::Contracts::DifferentialPack`
 
 See [examples/contracts/execution_report_migration.rb](../../examples/contracts/execution_report_migration.rb)
 and [examples/contracts/dataflow.rb](../../examples/contracts/dataflow.rb)
+and [examples/contracts/differential.rb](../../examples/contracts/differential.rb)
 and [examples/contracts/provenance.rb](../../examples/contracts/provenance.rb)
 and [examples/contracts/saga.rb](../../examples/contracts/saga.rb)
 and [examples/contracts/incremental.rb](../../examples/contracts/incremental.rb)

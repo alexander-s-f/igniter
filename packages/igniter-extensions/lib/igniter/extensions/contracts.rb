@@ -6,6 +6,7 @@ require_relative "contracts/commerce_pack"
 require_relative "contracts/creator_pack"
 require_relative "contracts/dataflow_pack"
 require_relative "contracts/debug_pack"
+require_relative "contracts/differential_pack"
 require_relative "contracts/execution_report_pack"
 require_relative "contracts/incremental_pack"
 require_relative "contracts/journal_pack"
@@ -24,7 +25,7 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, CommercePack, CreatorPack, DataflowPack, DebugPack, IncrementalPack, JournalPack, McpPack, ProvenancePack, SagaPack]
+        [AggregatePack, CommercePack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, JournalPack, McpPack, ProvenancePack, SagaPack]
       ).freeze
 
       PRESETS = {
@@ -102,6 +103,36 @@ module Igniter
             context: context,
             &block
           )
+        end
+
+        def compare_differential( # rubocop:disable Metrics/ParameterLists
+          inputs:,
+          primary_environment: nil,
+          primary_compiled_graph: nil,
+          primary_result: nil,
+          candidate_environment: nil,
+          candidate_compiled_graph: nil,
+          candidate_result: nil,
+          tolerance: nil,
+          primary_name: "primary",
+          candidate_name: "candidate"
+        )
+          DifferentialPack.compare(
+            inputs: inputs,
+            primary_environment: primary_environment,
+            primary_compiled_graph: primary_compiled_graph,
+            primary_result: primary_result,
+            candidate_environment: candidate_environment,
+            candidate_compiled_graph: candidate_compiled_graph,
+            candidate_result: candidate_result,
+            tolerance: tolerance,
+            primary_name: primary_name,
+            candidate_name: candidate_name
+          )
+        end
+
+        def shadow_differential(**arguments)
+          DifferentialPack.shadow(**arguments)
         end
 
         def debug_profile(target)

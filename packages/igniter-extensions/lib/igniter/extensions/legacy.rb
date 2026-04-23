@@ -8,7 +8,7 @@ module Igniter
         "igniter/extensions/capabilities" => "contracts-side validation or diagnostics packs instead of patching CompiledGraph globally",
         "igniter/extensions/content_addressing" => "a dedicated contracts effect/runtime pack for content-addressed reuse",
         "igniter/extensions/dataflow" => "Igniter::Extensions::Contracts::DataflowPack",
-        "igniter/extensions/differential" => "a contracts diagnostics/runtime pack for shadow execution and divergence reporting",
+        "igniter/extensions/differential" => "Igniter::Extensions::Contracts::DifferentialPack",
         "igniter/extensions/execution_report" => "Igniter::Extensions::Contracts::ExecutionReportPack",
         "igniter/extensions/incremental" => "Igniter::Extensions::Contracts::IncrementalPack",
         "igniter/extensions/introspection" => "structured contracts introspection via CompilationReport/DiagnosticsReport",
