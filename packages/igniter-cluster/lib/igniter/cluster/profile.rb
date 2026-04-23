@@ -9,13 +9,14 @@ module Igniter
       attr_reader :application_profile, :cluster_packs, :transport_name, :router_name,
                   :admission_name, :placement_name, :peer_registry_name,
                   :transport_seam, :router_seam, :admission_seam, :placement_seam,
-                  :peer_registry_seam
+                  :peer_registry_seam, :route_policy, :admission_policy, :placement_policy
 
-      def initialize(application_profile:, cluster_packs:, names:, seams:)
+      def initialize(application_profile:, cluster_packs:, names:, seams:, policies:)
         @application_profile = application_profile
         @cluster_packs = cluster_packs.dup.freeze
         assign_names!(names)
         assign_seams!(seams)
+        assign_policies!(policies)
         freeze
       end
 
@@ -33,8 +34,11 @@ module Igniter
           cluster_packs: cluster_pack_names,
           transport: transport_name,
           router: router_name,
+          route_policy: route_policy&.to_h,
           admission: admission_name,
+          admission_policy: admission_policy&.to_h,
           placement: placement_name,
+          placement_policy: placement_policy&.to_h,
           peer_registry: peer_registry_name,
           peers: peers.map(&:to_h)
         }
@@ -52,6 +56,12 @@ module Igniter
         SEAM_KEYS.each do |seam_key|
           instance_variable_set("@#{seam_key}_seam", seams.fetch(seam_key))
         end
+      end
+
+      def assign_policies!(policies)
+        @route_policy = policies[:route]
+        @admission_policy = policies[:admission]
+        @placement_policy = policies[:placement]
       end
     end
   end

@@ -9,7 +9,11 @@ module Igniter
         @peer = peer
         @mode = mode.to_sym
         @metadata = metadata.dup.freeze
-        @explanation = explanation
+        @explanation = DecisionExplanation.normalize(
+          explanation,
+          default_code: mode,
+          metadata: @metadata
+        )
         freeze
       end
 
@@ -18,7 +22,7 @@ module Igniter
           peer: peer.name,
           mode: mode,
           metadata: metadata.dup,
-          explanation: explanation
+          explanation: explanation&.to_h
         }
       end
     end

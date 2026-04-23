@@ -25,8 +25,10 @@ The first active slice is intentionally narrow:
 
 - explicit `Peer` registry
 - explicit `placement` seam
-- explicit `router` seam
-- explicit `admission` seam
+- declarative `PlacementPolicy` default
+- declarative `RoutePolicy` and `AdmissionPolicy` defaults
+- raw `router` and `admission` seams as low-level escape hatches
+- raw `placement` seam as a low-level escape hatch
 - explicit `transport` seam
 - cluster-owned `compose_invoker`
 - cluster-owned `collection_invoker`

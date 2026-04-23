@@ -153,6 +153,11 @@ Current direction:
   only sugar over the query object
 - routing, placement, admission, and transport diagnostics should consume the
   same query shape instead of ad-hoc metadata fields
+- route, placement, and admission explanations should be explicit
+  `DecisionExplanation` values instead of free-form strings
+- the default cluster control surface should be declarative policy objects such
+  as `RoutePolicy`, `AdmissionPolicy`, and `PlacementPolicy`, with raw seam
+  overrides treated as lower-level escape hatches
 
 ### 3. Ownership And Placement
 

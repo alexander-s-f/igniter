@@ -3,6 +3,30 @@
 module Igniter
   module Cluster
     module KernelSeams
+      def route_policy(name = nil, policy: nil, **attributes)
+        return @route_policy if policy_query?(name, policy, attributes)
+
+        @route_policy = policy || RoutePolicy.new(name: name || :route_policy, **attributes)
+        configure_default_seam(:router, @route_policy.name, PolicyRouter.new(policy: @route_policy))
+        self
+      end
+
+      def admission_policy(name = nil, policy: nil, **attributes)
+        return @admission_policy if policy_query?(name, policy, attributes)
+
+        @admission_policy = policy || AdmissionPolicy.new(name: name || :admission_policy, **attributes)
+        configure_default_seam(:admission, @admission_policy.name, PolicyAdmission.new(policy: @admission_policy))
+        self
+      end
+
+      def placement_policy(name = nil, policy: nil, **attributes)
+        return @placement_policy if policy_query?(name, policy, attributes)
+
+        @placement_policy = policy || PlacementPolicy.new(name: name || :placement_policy, **attributes)
+        configure_default_seam(:placement, @placement_policy.name, PolicyPlacement.new(policy: @placement_policy))
+        self
+      end
+
       def transport(name = nil, seam: nil, &block)
         return @transport_name if seam_query?(name, seam, block)
 
@@ -14,6 +38,7 @@ module Igniter
         return @router_name if seam_query?(name, seam, block)
 
         configure_named_seam(:router, name, seam, block, %i[route])
+        @route_policy = nil if seam || block
         self
       end
 
@@ -21,6 +46,7 @@ module Igniter
         return @admission_name if seam_query?(name, seam, block)
 
         configure_named_seam(:admission, name, seam, block, %i[admit])
+        @admission_policy = nil if seam || block
         self
       end
 
@@ -28,6 +54,7 @@ module Igniter
         return @placement_name if seam_query?(name, seam, block)
 
         configure_named_seam(:placement, name, seam, block, %i[place])
+        @placement_policy = nil if seam || block
         self
       end
 
@@ -40,9 +67,12 @@ module Igniter
 
       def initialize_defaults
         configure_default_seam(:transport, :direct, TransportAdapter.new)
-        configure_default_seam(:router, :capability, CapabilityRouter.new)
-        configure_default_seam(:admission, :permissive, PermissiveAdmission.new)
-        configure_default_seam(:placement, :direct, DirectPlacement.new)
+        @route_policy = RoutePolicy.capability
+        configure_default_seam(:router, @route_policy.name, PolicyRouter.new(policy: @route_policy))
+        @admission_policy = AdmissionPolicy.permissive
+        configure_default_seam(:admission, @admission_policy.name, PolicyAdmission.new(policy: @admission_policy))
+        @placement_policy = PlacementPolicy.direct
+        configure_default_seam(:placement, @placement_policy.name, PolicyPlacement.new(policy: @placement_policy))
         configure_default_seam(:peer_registry, :memory, MemoryPeerRegistry.new)
       end
 
@@ -66,7 +96,19 @@ module Igniter
         }
       end
 
+      def profile_policies
+        {
+          route: @route_policy,
+          admission: @admission_policy,
+          placement: @placement_policy
+        }
+      end
+
       private
+
+      def policy_query?(name, policy, attributes)
+        name.nil? && policy.nil? && attributes.empty?
+      end
 
       def seam_query?(name, seam, block)
         name.nil? && seam.nil? && !block

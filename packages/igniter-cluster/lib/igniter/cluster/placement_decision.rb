@@ -9,7 +9,11 @@ module Igniter
         @mode = mode.to_sym
         @candidates = Array(candidates).freeze
         @metadata = metadata.dup.freeze
-        @explanation = explanation
+        @explanation = DecisionExplanation.normalize(
+          explanation,
+          default_code: mode,
+          metadata: @metadata
+        )
         freeze
       end
 
@@ -22,7 +26,7 @@ module Igniter
           mode: mode,
           candidates: candidate_names,
           metadata: metadata.dup,
-          explanation: explanation
+          explanation: explanation&.to_h
         }
       end
     end

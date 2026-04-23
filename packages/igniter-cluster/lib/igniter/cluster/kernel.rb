@@ -37,7 +37,8 @@ module Igniter
           application_profile: application_kernel.finalize,
           cluster_packs: cluster_packs,
           names: profile_names,
-          seams: profile_seams
+          seams: profile_seams,
+          policies: profile_policies
         )
       end
 

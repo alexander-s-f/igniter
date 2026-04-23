@@ -2,16 +2,9 @@
 
 module Igniter
   module Cluster
-    class PermissiveAdmission
-      def admit(request:, route:)
-        AdmissionResult.allowed(
-          code: :accepted,
-          metadata: {
-            session_id: request.session_id,
-            peer: route.peer.name
-          },
-          explanation: "permissive admission accepted #{request.session_id}"
-        )
+    class PermissiveAdmission < PolicyAdmission
+      def initialize(policy: AdmissionPolicy.permissive)
+        super(policy: policy)
       end
     end
   end
