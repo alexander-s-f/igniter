@@ -3,10 +3,11 @@
 module Igniter
   module Cluster
     class Route
-      attr_reader :peer, :mode, :metadata, :explanation
+      attr_reader :peer, :peer_view, :mode, :metadata, :explanation
 
-      def initialize(peer:, mode:, metadata: {}, explanation: nil)
+      def initialize(peer:, mode:, peer_view: nil, metadata: {}, explanation: nil)
         @peer = peer
+        @peer_view = peer_view
         @mode = mode.to_sym
         @metadata = metadata.dup.freeze
         @explanation = DecisionExplanation.normalize(
@@ -20,6 +21,7 @@ module Igniter
       def to_h
         {
           peer: peer.name,
+          peer_view: peer_view&.to_h,
           mode: mode,
           metadata: metadata.dup,
           explanation: explanation&.to_h

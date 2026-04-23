@@ -149,6 +149,7 @@ module Igniter
           policy: name,
           session_id: request.session_id,
           peer: route&.peer&.name,
+          peer_view: route&.peer_view&.to_h,
           peer_profile: route&.peer&.profile&.to_h
         }.compact
       end

@@ -3,11 +3,12 @@
 module Igniter
   module Cluster
     class PlacementDecision
-      attr_reader :mode, :candidates, :metadata, :explanation
+      attr_reader :mode, :candidates, :projection, :metadata, :explanation
 
-      def initialize(mode:, candidates:, metadata: {}, explanation: nil)
+      def initialize(mode:, candidates:, projection: nil, metadata: {}, explanation: nil)
         @mode = mode.to_sym
         @candidates = Array(candidates).freeze
+        @projection = projection
         @metadata = metadata.dup.freeze
         @explanation = DecisionExplanation.normalize(
           explanation,
@@ -25,6 +26,7 @@ module Igniter
         {
           mode: mode,
           candidates: candidate_names,
+          projection: projection&.to_h,
           metadata: metadata.dup,
           explanation: explanation&.to_h
         }

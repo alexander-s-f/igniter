@@ -17,21 +17,26 @@ module Igniter
         selected_peer = policy.select_peer(query: request.query, candidates: candidates)
         raise RoutingError, missing_route_message(request) if selected_peer.nil?
 
+        selected_peer_view = placement.projection&.candidate_views&.find { |view| view.peer == selected_peer }
+
         Route.new(
           peer: selected_peer,
+          peer_view: selected_peer_view,
           mode: policy.route_mode_for(request.query),
-          metadata: route_metadata(request, candidates, selected_peer),
+          metadata: route_metadata(request, placement, candidates, selected_peer, selected_peer_view),
           explanation: policy.explanation_for(query: request.query, peer: selected_peer)
         )
       end
 
       private
 
-      def route_metadata(request, candidates, selected_peer)
+      def route_metadata(request, placement, candidates, selected_peer, selected_peer_view)
         {
           policy: policy.to_h,
           query: request.query.to_h,
           candidate_names: candidates.map(&:name),
+          membership_projection: placement.projection&.to_h,
+          selected_peer_view: selected_peer_view&.to_h,
           selected_capabilities: selected_peer.capabilities,
           selected_peer_profile: selected_peer.profile.to_h
         }

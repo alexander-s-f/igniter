@@ -45,6 +45,63 @@ RSpec.describe Igniter::Cluster::Environment do
     end
   end
 
+  class DynamicMembershipSource
+    def feed
+      Igniter::Cluster::MembershipFeed.new(
+        name: :dynamic_membership_source,
+        discovery_feed: Igniter::Cluster::DiscoveryFeed.new(
+          name: :dynamic_discovery_source,
+          metadata: {
+            strategy: :scripted
+          }
+        ),
+        metadata: {
+          first_peers: @first_peers.dup,
+          second_peers: @second_peers.dup
+        }
+      )
+    end
+
+    def to_h
+      feed.to_h
+    end
+
+    def initialize(first_peers:, second_peers:)
+      @first_peers = Array(first_peers).map(&:to_sym)
+      @second_peers = Array(second_peers).map(&:to_sym)
+      @calls = 0
+    end
+
+    def call(environment:, allow_degraded:, metadata: {}, previous_membership: nil)
+      @calls += 1
+      selected_names = @calls == 1 ? @first_peers : @second_peers
+      selected_peers = environment.peers.select { |peer| selected_names.include?(peer.name) }
+      version = @calls
+      joined_names = selected_names - Array(previous_membership&.peers).map(&:name)
+      events = joined_names.map do |peer_name|
+        Igniter::Cluster::MeshMembershipEvent.new(
+          version: version,
+          type: :peer_joined,
+          peer_name: peer_name,
+          metadata: { source: :dynamic_spec }
+        )
+      end
+      Igniter::Cluster::MeshMembership.new(
+        peers: selected_peers,
+        allow_degraded: allow_degraded,
+        metadata: metadata.merge(source: :dynamic_spec),
+        version: version,
+        epoch: "dynamic/#{version}",
+        events: events,
+        source: :dynamic_spec,
+        snapshot_id: "dynamic_spec/#{version}",
+        previous_snapshot_id: previous_membership&.snapshot_id,
+        lineage: Array(previous_membership&.lineage) + ["dynamic_spec/#{version}"],
+        feed: feed
+      )
+    end
+  end
+
   def build_peer_transport(contracts_profile)
     lambda do |request:|
       result =
@@ -154,8 +211,32 @@ RSpec.describe Igniter::Cluster::Environment do
     expect(entry.payload.fetch(:transport).dig(:cluster, :route, :metadata, :selected_peer_profile,
                                                :capability_definitions))
       .to contain_exactly(include(name: :pricing, traits: [:financial], labels: { domain: "commerce" }))
+    expect(entry.payload.fetch(:transport).dig(:cluster, :route, :metadata, :selected_peer_view)).to include(
+      peer: :pricing_node,
+      included: true,
+      capability_match: true,
+      topology_match: true,
+      preferred_peer_match: true,
+      profile: include(name: :pricing_node, roles: %i[compute pricing])
+    )
+    expect(entry.payload.fetch(:transport).dig(:cluster, :route, :metadata, :membership_projection)).to include(
+      candidate_names: [:pricing_node],
+      candidate_views: include(include(peer: :pricing_node, included: true)),
+      stages: include(
+        include(name: :source),
+        include(name: :preferred_peer),
+        include(name: :topology),
+        include(name: :capabilities),
+        include(name: :candidate_limit)
+      )
+    )
     expect(entry.payload.fetch(:transport).dig(:cluster, :admission, :reason)).to include(
       code: :permissive_accept
+    )
+    expect(entry.payload.fetch(:transport).dig(:cluster, :admission, :metadata, :peer_view)).to include(
+      peer: :pricing_node,
+      included: true,
+      capability_match: true
     )
     expect(entry.payload.fetch(:transport).dig(:cluster, :admission, :metadata, :peer_profile)).to include(
       name: :pricing_node,
@@ -354,6 +435,27 @@ RSpec.describe Igniter::Cluster::Environment do
         name: :pricing_node,
         capabilities: %i[compose pricing],
         topology: include(region: nil, zone: nil, labels: {})
+      )
+    )
+    expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :metadata, :candidate_peer_views)).to contain_exactly(
+      include(
+        peer: :pricing_node,
+        included: true,
+        capability_match: true,
+        topology_match: true,
+        preferred_peer_match: true,
+        profile: include(name: :pricing_node)
+      )
+    )
+    expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :metadata, :membership_projection)).to include(
+      candidate_names: [:pricing_node],
+      candidate_views: include(include(peer: :pricing_node, included: true)),
+      stages: include(
+        include(name: :source),
+        include(name: :preferred_peer),
+        include(name: :topology),
+        include(name: :capabilities),
+        include(name: :candidate_limit)
       )
     )
     expect(entry.payload.fetch(:transport).dig(:cluster, :placement, :metadata, :policy)).to include(
@@ -801,10 +903,19 @@ RSpec.describe Igniter::Cluster::Environment do
       plan_kind: :rebalance,
       explanation: include(code: :mesh_rebalance_execution)
     )
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh, :metadata, :candidate_projection)).to include(
+      candidate_names: [:pricing_node],
+      stages: include(
+        include(name: :membership_health),
+        include(name: :discovery),
+        include(name: :admission)
+      )
+    )
     expect(report.action_results.first.to_h.dig(:metadata, :mesh, :attempts)).to contain_exactly(
       include(
         peer: :pricing_node,
         status: :completed,
+        membership_delta: include(joined_peer_names: []),
         request: include(
           trace_id: "mesh/rebalance/pricing_node/1",
           action_type: :rebalance_action
@@ -862,7 +973,17 @@ RSpec.describe Igniter::Cluster::Environment do
       include(peer: :pricing_node_b, status: :completed)
     )
     expect(report.action_results.first.to_h.dig(:metadata, :mesh, :metadata)).to include(
-      retry_policy: include(name: :fallback, max_attempts: 2)
+      retry_policy: include(name: :fallback, max_attempts: 2),
+      candidate_projections: include(
+        include(
+          candidate_names: %i[pricing_node_a pricing_node_b],
+          stages: include(include(name: :membership_health), include(name: :discovery), include(name: :admission))
+        ),
+        include(
+          candidate_names: [:pricing_node_b],
+          stages: include(include(name: :membership_health), include(name: :discovery), include(name: :admission))
+        )
+      )
     )
   end
 
@@ -910,6 +1031,140 @@ RSpec.describe Igniter::Cluster::Environment do
     expect(report.action_results.first.to_h.dig(:metadata, :mesh, :metadata, :admission_results)).to include(
       include(peer: :pricing_node_a, allowed: false, code: :missing_roles),
       include(peer: :pricing_node_b, allowed: true, code: :mesh_trust_accept)
+    )
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh, :metadata, :candidate_projection)).to include(
+      candidate_names: [:pricing_node_b],
+      stages: include(
+        include(name: :membership_health, output_peer_names: %i[pricing_node_a pricing_node_b]),
+        include(name: :discovery, output_peer_names: %i[pricing_node_a pricing_node_b]),
+        include(name: :admission, output_peer_names: [:pricing_node_b])
+      )
+    )
+  end
+
+  it "tracks membership versions and events across mesh retry attempts" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .ownership_policy(:distributed, owner_limit: 1)
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :pricing_node_a,
+      capabilities: %i[pricing compose],
+      roles: [:trusted],
+      metadata: { trust: :high },
+      transport: build_failing_mesh_transport
+    )
+    environment.register_peer(
+      :pricing_node_b,
+      capabilities: %i[pricing compose],
+      roles: [:trusted],
+      metadata: { trust: :high },
+      transport: build_mesh_transport
+    )
+
+    plan = environment.plan_ownership(target: "order-42", capabilities: [:pricing])
+    report = environment.execute_plan_via_mesh(
+      plan,
+      executor: environment.mesh_executor(
+        retry_policy: Igniter::Cluster::MeshRetryPolicy.new(name: :fallback, max_attempts: 2),
+        membership_source: DynamicMembershipSource.new(
+          first_peers: [:pricing_node_a],
+          second_peers: %i[pricing_node_a pricing_node_b]
+        )
+      )
+    )
+
+    expect(report.completed?).to be(true)
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh, :attempts)).to contain_exactly(
+      include(
+        peer: :pricing_node_a,
+        status: :failed,
+        membership: include(
+          source: :dynamic_spec,
+          snapshot_id: "dynamic_spec/1",
+          version: 1,
+          epoch: "dynamic/1",
+          lineage: ["dynamic_spec/1"]
+        )
+      ),
+      include(
+        peer: :pricing_node_b,
+        status: :completed,
+        membership: include(
+          source: :dynamic_spec,
+          snapshot_id: "dynamic_spec/2",
+          previous_snapshot_id: "dynamic_spec/1",
+          version: 2,
+          epoch: "dynamic/2",
+          lineage: %w[dynamic_spec/1 dynamic_spec/2]
+        )
+      )
+    )
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh, :metadata, :memberships)).to include(
+      include(
+        source: :dynamic_spec,
+        snapshot_id: "dynamic_spec/1",
+        version: 1,
+        epoch: "dynamic/1"
+      ),
+      include(
+        source: :dynamic_spec,
+        snapshot_id: "dynamic_spec/2",
+        previous_snapshot_id: "dynamic_spec/1",
+        version: 2,
+        epoch: "dynamic/2",
+        lineage: %w[dynamic_spec/1 dynamic_spec/2],
+        events: include(include(type: :peer_joined, peer: :pricing_node_b))
+      )
+    )
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh, :metadata)).to include(
+      membership_feed: include(
+        name: :dynamic_membership_source,
+        discovery_feed: include(name: :dynamic_discovery_source)
+      ),
+      membership_delta: include(
+        feed: include(name: :dynamic_membership_source),
+        joined_peer_names: [:pricing_node_b]
+      ),
+      membership_deltas: include(
+        include(
+          feed: include(name: :dynamic_membership_source),
+          to_snapshot_ref: include(snapshot_id: "dynamic_spec/1")
+        ),
+        include(
+          feed: include(name: :dynamic_membership_source),
+          from_snapshot_ref: include(snapshot_id: "dynamic_spec/1"),
+          to_snapshot_ref: include(snapshot_id: "dynamic_spec/2"),
+          joined_peer_names: [:pricing_node_b]
+        )
+      ),
+      membership_snapshot_ref: include(
+        feed: include(name: :dynamic_membership_source),
+        snapshot_id: "dynamic_spec/2",
+        previous_snapshot_id: "dynamic_spec/1"
+      ),
+      membership_snapshot_refs: include(
+        include(feed: include(name: :dynamic_membership_source), snapshot_id: "dynamic_spec/1"),
+        include(feed: include(name: :dynamic_membership_source), snapshot_id: "dynamic_spec/2")
+      ),
+      membership_snapshots: include(
+        include(feed: include(name: :dynamic_membership_source), snapshot_id: "dynamic_spec/1"),
+        include(feed: include(name: :dynamic_membership_source), snapshot_id: "dynamic_spec/2")
+      )
+    )
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh, :metadata, :membership_source)).to include(
+      name: :dynamic_membership_source
+    )
+    expect(report.action_results.first.to_h.dig(:metadata, :mesh, :metadata, :candidate_projections)).to include(
+      include(
+        candidate_names: [:pricing_node_a],
+        stages: include(include(name: :discovery, output_peer_names: [:pricing_node_a]))
+      ),
+      include(
+        candidate_names: [:pricing_node_b],
+        stages: include(include(name: :discovery, output_peer_names: [:pricing_node_b]))
+      )
     )
   end
 
