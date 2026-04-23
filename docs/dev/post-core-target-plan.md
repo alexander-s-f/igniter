@@ -167,7 +167,9 @@ The next design sequence should be:
 
 1. freeze legacy/core as reference-only architecture
 2. define the canonical contracts DSL/runtime target
+   see [Embed Target Plan](./embed-target-plan.md)
 3. define the contracts-native `Application` target
+   see [Application Target Plan](./application-target-plan.md)
 4. define the contracts-native `Cluster` target
 5. only then continue package deletion and final cleanup
 
@@ -179,6 +181,7 @@ ambiguity somewhere else.
 This reset is successful when all of these are true:
 
 - `igniter-contracts` is clearly the canonical embedded kernel
+- `Embed` is clearly understood as the foundation operating mode
 - `igniter-app` has a target model that does not assume legacy core semantics
 - `igniter-cluster` has a target model that does not assume legacy core
   semantics

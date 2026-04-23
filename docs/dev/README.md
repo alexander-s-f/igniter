@@ -21,6 +21,8 @@ a framework.
 - [Legacy Reference](./legacy-reference.md)
 - [Contracts Migration Roadmap](./contracts-migration-roadmap.md)
 - [Post-Core Target Plan](./post-core-target-plan.md)
+- [Embed Target Plan](./embed-target-plan.md)
+- [Application Target Plan](./application-target-plan.md)
 - [Core Retirement Inventory](./core-retirement-inventory.md)
 - [DebugPack Spec](./debug-pack-spec.md)
 - [MCP Adapter Package](./mcp-adapter-package-spec.md)

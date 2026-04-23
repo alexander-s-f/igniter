@@ -18,6 +18,7 @@ Use this section when Igniter becomes the runtime shape of an application, not j
 - [Guide: Configuration](../guide/configuration.md)
 - [Guide: Deployment Modes](../guide/deployment-modes.md)
 - [Current: App Structure](../current/app-structure.md)
+- [Dev: Application Target Plan](../dev/application-target-plan.md)
 - [Stacks Next](../STACKS_NEXT.md)
 - [CLI](../CLI.md)
 
@@ -130,3 +131,11 @@ The main operational split is:
 - `Igniter::Cluster` extends that into network-aware execution
 
 Legacy `service/topology` support has been removed from the canonical stack runtime. Read older historical docs only through [`../dev/legacy-reference.md`](../dev/legacy-reference.md).
+
+Current design direction:
+
+- `Application` is being reset as a contracts-native host/profile layer
+- legacy `Igniter::App` behavior should be treated as transitional, not as the
+  target architecture
+- new design work should follow the
+  [Application Target Plan](../dev/application-target-plan.md)

@@ -1,5 +1,8 @@
 # Core
 
+This document currently describes the embedded/kernel role. In the target
+architecture, the clearer name for that role is `Embed`.
+
 Use this section when the thing you care about should still make sense in embedded mode with `require "igniter"`.
 
 ## Core Means
@@ -17,6 +20,7 @@ If a capability stops making sense without hosting, networking, or optional pack
 - [Guide](../guide/README.md)
 - [Guide: API And Runtime](../guide/api-and-runtime.md)
 - [Guide: Core Runtime Features](../guide/core-runtime-features.md)
+- [Dev: Embed Target Plan](../dev/embed-target-plan.md)
 - [Igniter Concepts](../IGNITER_CONCEPTS.md)
 - [Dev: Architecture](../dev/architecture.md)
 
@@ -31,3 +35,9 @@ If a capability stops making sense without hosting, networking, or optional pack
 - Move to [App](../app/README.md) when you need app runtime/profile concerns.
 - Move to [Cluster](../cluster/README.md) when you need networking, mesh, routing, replication, or resilience.
 - Move to [SDK](../sdk/README.md) when you need optional packs such as AI, channels, tools, skills, or data.
+
+Current design direction:
+
+- treat this layer as the canonical embedded/contracts-first operating mode
+- do not let it absorb application or cluster concerns by default
+- for the target model, follow the [Embed Target Plan](../dev/embed-target-plan.md)

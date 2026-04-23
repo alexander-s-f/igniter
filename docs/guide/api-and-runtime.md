@@ -16,6 +16,12 @@ surface area.
 - [Cluster](../cluster/README.md)
 - [SDK](../sdk/README.md)
 
+Operating modes to keep in mind:
+
+- `Embed` / contracts-first local runtime
+- `Application` / local host profile over embed
+- `Cluster` / distributed runtime over embed/application
+
 ## Focused Topics
 
 - [Content Addressing v1](../CONTENT_ADDRESSING_V1.md) — legacy reference for the pre-contracts activation model

@@ -19,10 +19,16 @@ Use:
 
 ## 3. Pick The Runtime Shape
 
-- Stay in [Core](../core/README.md) if you only need contracts and execution.
+- Stay in [Core](../core/README.md) if you only need embedded contracts and execution.
 - Move to [App](../app/README.md) if Igniter becomes the runtime of an app.
 - Move to [Cluster](../cluster/README.md) if execution becomes distributed.
 - Add [SDK](../sdk/README.md) packs only when optional capabilities are needed.
+
+Current architecture note:
+
+- `Core` here really means the embedded/contracts-first operating mode
+- `App` builds on top of that embedded mode
+- `Cluster` builds on top of embedded/application runtime
 
 ## 4. Scaffold When You Want The Standard Shape
 
