@@ -25,20 +25,28 @@ environment = Igniter::Extensions::Contracts.with(Igniter::Extensions::Contracts
 
 scaffold = Igniter::Extensions::Contracts.scaffold_pack(
   name: :slug,
-  kind: :feature,
+  profile: :feature_node,
   namespace: "Acme::IgniterPacks"
 )
 
 report = Igniter::Extensions::Contracts.creator_report(
   name: :draft_slug,
-  kind: :feature,
+  profile: :feature_node,
   namespace: "Acme::IgniterPacks",
   pack: ExampleDraftPack,
   target: environment
 )
 
+bundle_scaffold = Igniter::Extensions::Contracts.scaffold_pack(
+  name: :developer_console,
+  profile: :diagnostic_bundle,
+  namespace: "Acme::IgniterPacks"
+)
+
 puts "creator_pack_constant=#{scaffold.pack_constant}"
 puts "creator_pack_files=#{scaffold.files.keys.join(',')}"
+puts "creator_profiles=#{Igniter::Extensions::Contracts.creator_profiles.join(',')}"
 puts "creator_report_audit_ok=#{report.audit.ok?}"
 puts "creator_report_missing_nodes=#{report.audit.missing_node_definitions.join(',')}"
+puts "creator_bundle_dependency_hints=#{bundle_scaffold.profile.dependency_hints.join(',')}"
 puts "creator_report_next_steps=#{report.next_steps.length}"

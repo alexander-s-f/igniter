@@ -7,12 +7,13 @@ module Igniter
         class Scaffold
           SUPPORTED_KINDS = %i[feature operational bundle].freeze
 
-          attr_reader :name, :kind, :namespace
+          attr_reader :name, :kind, :namespace, :profile
 
-          def initialize(name:, kind:, namespace:)
+          def initialize(name:, kind:, namespace:, profile:)
             @name = normalize_name(name)
             @kind = normalize_kind(kind)
             @namespace = normalize_namespace(namespace)
+            @profile = profile
             freeze
           end
 
@@ -58,6 +59,7 @@ module Igniter
               name: name,
               kind: kind,
               namespace: namespace,
+              profile: profile.to_h,
               pack_constant: pack_constant,
               files: files.keys
             }
@@ -131,6 +133,13 @@ module Igniter
               - `#{spec_file_path}` — package-owned spec
               - `#{example_file_path}` — runnable example
 
+              ## Authoring Profile
+
+              - `#{profile.name}`
+              - capabilities: `#{profile.capabilities.join("`, `")}`
+              - registry seams: `#{profile.registry_capabilities.join("`, `")}`
+              #{dependency_hints_markdown}
+
               ## Recommended Workflow
 
               1. Fill in the pack implementation using only public `Igniter::Contracts` APIs.
@@ -156,6 +165,7 @@ module Igniter
                     end
 
                     def install_into(kernel)
+                      #{install_dependency_hint_lines}
                       kernel.nodes.register(:#{name}, Igniter::Contracts::NodeType.new(kind: :#{name}, metadata: { category: :custom }))
                       kernel.dsl_keywords.register(:#{name}, #{name}_keyword)
                       kernel.validators.register(:#{name}_sources, method(:validate_#{name}_sources))
@@ -200,6 +210,7 @@ module Igniter
                     end
 
                     def install_into(kernel)
+                      #{install_dependency_hint_lines}
                       kernel.effects.register(:#{name}, method(:apply_#{name}))
                       kernel.executors.register(:#{name}_inline, method(:execute_#{name}_inline))
                       kernel
@@ -232,15 +243,17 @@ module Igniter
                     def manifest
                       Igniter::Contracts::PackManifest.new(
                         name: :#{name},
-                        metadata: { category: :bundle }
+                        #{bundle_manifest_body}
                       )
                     end
 
                     def install_into(kernel)
-                      # Example:
-                      # install_dependency_pack(kernel, SomeOtherPack)
+                      #{bundle_dependency_template_lines}
+                      #{bundle_diagnostic_install_lines}
                       kernel
                     end
+
+                    #{bundle_diagnostic_contributor_template}
 
                     def install_dependency_pack(kernel, pack)
                       return if kernel.pack_manifests.any? { |manifest| manifest.name == pack.manifest.name }
@@ -360,6 +373,57 @@ module Igniter
               profile = Igniter::Contracts.build_profile(#{pack_constant})
 
               puts "creator_bundle_profile=\#{profile.pack_names.join(',')}"
+            RUBY
+          end
+
+          def dependency_hints_markdown
+            return "" if profile.dependency_hints.empty?
+
+            "              - dependency hints: `#{profile.dependency_hints.join("`, `")}`"
+          end
+
+          def bundle_manifest_body
+            lines = ["metadata: { category: :bundle }"]
+            if profile.capability?(:diagnostic)
+              lines << "registry_contracts: [Igniter::Contracts::PackManifest.diagnostic(:#{name}_summary)]"
+            end
+            lines.join(",\n                        ")
+          end
+
+          def install_dependency_hint_lines
+            return "# no dependency pack hints for this profile" if profile.dependency_hints.empty?
+
+            profile.dependency_hints.map { |hint| "# install_dependency_pack(kernel, #{hint})" }.join("\n                      ")
+          end
+
+          def bundle_dependency_template_lines
+            return "# install_dependency_pack(kernel, SomeOtherPack)" if profile.dependency_hints.empty?
+
+            profile.dependency_hints.map { |hint| "install_dependency_pack(kernel, #{hint})" }.join("\n                      ")
+          end
+
+          def bundle_diagnostic_install_lines
+            return "# no diagnostics contributor for this profile" unless profile.capability?(:diagnostic)
+
+            "kernel.diagnostics_contributors.register(:#{name}_summary, #{name}_summary)"
+          end
+
+          def bundle_diagnostic_contributor_template
+            return "" unless profile.capability?(:diagnostic)
+
+            <<~RUBY.chomp
+              def #{name}_summary
+                Module.new do
+                  module_function
+
+                  def augment(report:, result:, profile:) # rubocop:disable Lint/UnusedMethodArgument
+                    report.add_section(:#{name}_summary, {
+                      output_names: result.outputs.keys.sort,
+                      pack_names: profile.pack_names.sort
+                    })
+                  end
+                end
+              end
             RUBY
           end
         end

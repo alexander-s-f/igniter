@@ -125,12 +125,22 @@ module Igniter
           DebugPack.audit(pack, profile: profile)
         end
 
-        def scaffold_pack(name:, kind: :feature, namespace: "MyCompany::IgniterPacks")
-          CreatorPack.scaffold(name: name, kind: kind, namespace: namespace)
+        def creator_profiles
+          CreatorPack.available_profiles
         end
 
-        def creator_report(name:, kind: :feature, namespace: "MyCompany::IgniterPacks", pack: nil, target: nil)
-          profile =
+        def scaffold_pack(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil)
+          CreatorPack.scaffold(
+            name: name,
+            kind: kind,
+            namespace: namespace,
+            profile: profile,
+            capabilities: capabilities
+          )
+        end
+
+        def creator_report(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, pack: nil, target: nil)
+          runtime_profile =
             case target
             when nil
               nil
@@ -138,7 +148,15 @@ module Igniter
               target.respond_to?(:profile) ? target.profile : target
             end
 
-          CreatorPack.report(name: name, kind: kind, namespace: namespace, pack: pack, profile: profile)
+          CreatorPack.report(
+            name: name,
+            kind: kind,
+            namespace: namespace,
+            profile: profile,
+            capabilities: capabilities,
+            pack: pack,
+            target_profile: runtime_profile
+          )
         end
 
         def debug_snapshot(result, profile:)

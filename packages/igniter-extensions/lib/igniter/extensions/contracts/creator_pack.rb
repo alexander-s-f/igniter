@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "creator/profile"
 require_relative "creator/scaffold"
 require_relative "creator/report"
 
@@ -21,13 +22,30 @@ module Igniter
           kernel
         end
 
-        def scaffold(name:, kind: :feature, namespace: "MyCompany::IgniterPacks")
-          Creator::Scaffold.new(name: name, kind: kind, namespace: namespace)
+        def available_profiles
+          Creator::Profile.available
         end
 
-        def report(name:, kind: :feature, namespace: "MyCompany::IgniterPacks", pack: nil, profile: nil)
-          generated = scaffold(name: name, kind: kind, namespace: namespace)
-          audit = pack ? DebugPack.audit(pack, profile: profile) : nil
+        def scaffold(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil)
+          authoring_profile = Creator::Profile.build(profile: profile, kind: kind, capabilities: capabilities)
+          generated = Creator::Scaffold.new(
+            name: name,
+            kind: authoring_profile.kind,
+            namespace: namespace,
+            profile: authoring_profile
+          )
+          generated
+        end
+
+        def report(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, pack: nil, target_profile: nil)
+          generated = scaffold(
+            name: name,
+            kind: kind,
+            namespace: namespace,
+            profile: profile,
+            capabilities: capabilities
+          )
+          audit = pack ? DebugPack.audit(pack, profile: target_profile) : nil
 
           Creator::Report.new(scaffold: generated, audit: audit)
         end

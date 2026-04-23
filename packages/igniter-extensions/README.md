@@ -103,13 +103,29 @@ audit.finalize_error
 ```ruby
 scaffold = Igniter::Extensions::Contracts.scaffold_pack(
   name: :slug,
-  kind: :feature,
+  profile: :feature_node,
   namespace: "MyCompany::IgniterPacks"
 )
 
 report = Igniter::Extensions::Contracts.creator_report(
   name: :slug,
-  kind: :feature
+  profile: :feature_node
+)
+```
+
+Available authoring profiles:
+
+- `:feature_node`
+- `:operational_adapter`
+- `:diagnostic_bundle`
+- `:bundle_pack`
+
+You can also drive scaffolding directly from capabilities:
+
+```ruby
+Igniter::Extensions::Contracts.scaffold_pack(
+  name: :delivery,
+  capabilities: %i[effect executor]
 )
 ```
 

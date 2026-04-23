@@ -22,13 +22,28 @@ module Igniter
               "use Igniter::Extensions::Contracts.audit_pack(...) before finalize"
             ]
 
-            case scaffold.kind
-            when :feature
+            case scaffold.profile.name
+            when :feature_node
               steps << "implement node kind, DSL keyword, validator, and runtime handler"
-            when :operational
+            when :operational_adapter
               steps << "implement effect and executor handlers with typed invocation contracts"
-            when :bundle
+            when :diagnostic_bundle
+              steps << "compose the suggested diagnostic dependency packs and add one pack-specific diagnostics contributor"
+            when :bundle_pack
               steps << "install dependency packs and keep the bundle free of hidden runtime mutation"
+            else
+              case scaffold.kind
+              when :feature
+                steps << "make sure declared node contracts, DSL, validators, and runtime handlers stay aligned"
+              when :operational
+                steps << "make sure executor/effect contracts stay aligned with typed invocation objects"
+              when :bundle
+                steps << "prefer explicit dependency installation over hidden runtime mutation"
+              end
+            end
+
+            unless scaffold.profile.dependency_hints.empty?
+              steps << "review dependency hints: #{scaffold.profile.dependency_hints.join(', ')}"
             end
 
             steps
@@ -40,7 +55,9 @@ module Igniter
               includes_spec: true,
               includes_example: true,
               includes_readme: true,
-              audit_ok: audit&.ok?
+              audit_ok: audit&.ok?,
+              authoring_profile: scaffold.profile.name,
+              dependency_hints: scaffold.profile.dependency_hints
             }
           end
 
