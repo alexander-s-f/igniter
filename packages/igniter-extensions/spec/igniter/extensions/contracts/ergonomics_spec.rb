@@ -23,6 +23,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::JournalPack,
       Igniter::Extensions::Contracts::McpPack,
       Igniter::Extensions::Contracts::ProvenancePack,
+      Igniter::Extensions::Contracts::ReactivePack,
       Igniter::Extensions::Contracts::SagaPack
     ])
 
@@ -215,6 +216,41 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
 
     expect(snapshot.state(:tax)).to include(value: 2.0)
     expect(report_snapshot.event_types).to include(:compute_observed)
+  end
+
+  it "exposes reactive helpers over environments and incremental sessions" do
+    environment = Igniter::Contracts.with(
+      Igniter::Extensions::Contracts::ReactivePack,
+      Igniter::Extensions::Contracts::IncrementalPack
+    )
+
+    produced = []
+    changed = []
+
+    reactions = Igniter::Extensions::Contracts.build_reactions do
+      effect :gross_total do |value:, **|
+        produced << value
+      end
+
+      react_to :output_changed, path: :gross_total do |event:, **|
+        changed << event.payload[:current_value]
+      end
+    end
+
+    session = Igniter::Extensions::Contracts.build_incremental_session(environment) do
+      input :order_total
+      compute :gross_total, depends_on: [:order_total] do |order_total:|
+        order_total * 1.2
+      end
+      output :gross_total
+    end
+
+    Igniter::Extensions::Contracts.run_incremental_reactive(session, inputs: { order_total: 100 }, reactions: reactions)
+    dispatch = Igniter::Extensions::Contracts.run_incremental_reactive(session, inputs: { order_total: 150 }, reactions: reactions)
+
+    expect(dispatch.success?).to eq(true)
+    expect(produced.last).to eq(180.0)
+    expect(changed.last).to eq(180.0)
   end
 
   it "exposes debug helpers over environments and profiles" do

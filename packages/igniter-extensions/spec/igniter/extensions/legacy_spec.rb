@@ -10,6 +10,7 @@ RSpec.describe Igniter::Extensions::Legacy do
       "igniter/extensions/differential",
       "igniter/extensions/execution_report",
       "igniter/extensions/dataflow",
+      "igniter/extensions/reactive",
       "igniter/extensions/saga"
     )
 
@@ -23,6 +24,8 @@ RSpec.describe Igniter::Extensions::Legacy do
       .to eq("Igniter::Extensions::Contracts::AuditPack")
     expect(described_class.replacement_for("igniter/extensions/differential"))
       .to eq("Igniter::Extensions::Contracts::DifferentialPack")
+    expect(described_class.replacement_for("igniter/extensions/reactive"))
+      .to eq("Igniter::Extensions::Contracts::ReactivePack")
   end
 
   it "bakes the replacement guidance into the warning message" do

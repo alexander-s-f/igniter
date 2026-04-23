@@ -14,6 +14,7 @@ require_relative "contracts/journal_pack"
 require_relative "contracts/lookup_pack"
 require_relative "contracts/mcp_pack"
 require_relative "contracts/provenance_pack"
+require_relative "contracts/reactive_pack"
 require_relative "contracts/saga_pack"
 
 module Igniter
@@ -26,7 +27,7 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, AuditPack, CommercePack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, JournalPack, McpPack, ProvenancePack, SagaPack]
+        [AggregatePack, AuditPack, CommercePack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, JournalPack, McpPack, ProvenancePack, ReactivePack, SagaPack]
       ).freeze
 
       PRESETS = {
@@ -142,6 +143,22 @@ module Igniter
 
         def audit_report(environment, inputs: nil, compiled_graph: nil, &block)
           AuditPack.report(environment, inputs: inputs, compiled_graph: compiled_graph, &block)
+        end
+
+        def build_reactions(&block)
+          ReactivePack.build(&block)
+        end
+
+        def dispatch_reactive(target, reactions:)
+          ReactivePack.dispatch(target, reactions: reactions)
+        end
+
+        def run_reactive(environment, inputs:, reactions:, compiled_graph: nil, &block)
+          ReactivePack.run(environment, inputs: inputs, reactions: reactions, compiled_graph: compiled_graph, &block)
+        end
+
+        def run_incremental_reactive(session, inputs:, reactions:)
+          ReactivePack.run_incremental(session, inputs: inputs, reactions: reactions)
         end
 
         def debug_profile(target)

@@ -643,6 +643,21 @@ module IgniterExamples
       expected_fragments: ["effect_values=[120.0, 180.0]", "invalidations=[:order_total]"]
     ),
     Example.new(
+      id: "contracts/reactive",
+      path: "examples/contracts/reactive.rb",
+      summary: "New-world reactive subscriptions over explicit execution and incremental change events.",
+      migration_of: "reactive_auditing",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_reactive_status=succeeded",
+        "contracts_reactive_produced=[120.0, 180.0]",
+        "contracts_reactive_event_types=[:execution_succeeded, :output_produced, :output_changed, :execution_exited]"
+      ]
+    ),
+    Example.new(
       id: "ringcentral_routing",
       path: "examples/ringcentral_routing.rb",
       summary: "Webhook routing via branch plus nested collection fan-out.",

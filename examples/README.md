@@ -66,6 +66,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/mcp_host.rb` — JSON-RPC stdio host entrypoint over the MCP adapter server wrapper.
 - `contracts/migration.rb` — side-by-side legacy `igniter-core` reference vs `igniter-contracts` target.
 - `contracts/provenance.rb` — new-world lineage and provenance counterpart to the legacy provenance example.
+- `contracts/reactive.rb` — explicit reactive subscriptions over output, lifecycle, and incremental change events.
 - `contracts/saga.rb` — new-world saga counterpart with explicit compensation registry over `SagaPack`.
 - `contracts/three_layer_migration.rb` — one use case shown as legacy core, raw contracts, and applied preset.
 - `consensus.rb` — consensus-style vendor bid selection.
@@ -147,6 +148,7 @@ grow:
 | `incremental.rb` | `contracts/incremental.rb` | moves from patched contract mutation to explicit incremental sessions over `CompiledGraph` |
 | `introspection.rb` | `contracts/introspection.rb` | moves from text/Mermaid explainers to structured compilation/result/diagnostics reports |
 | `provenance.rb` | `contracts/provenance.rb` | moves from legacy contract patching to explicit lineage over `ExecutionResult` + `ProvenancePack` |
+| `reactive_auditing.rb` | `contracts/reactive.rb` | moves from global reactive hooks plus audit patching to explicit subscriptions over execution and incremental change events |
 | `saga.rb` | `contracts/saga.rb` | moves from global `resolve_saga` patching to explicit `SagaPack` + compensation registry |
 | n/a | `contracts/migration.rb` | direct core-vs-contracts side-by-side comparison |
 | n/a | `contracts/three_layer_migration.rb` | legacy core vs raw contracts vs preset/domain layer |

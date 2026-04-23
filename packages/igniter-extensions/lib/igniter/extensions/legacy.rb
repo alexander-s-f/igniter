@@ -14,7 +14,7 @@ module Igniter
         "igniter/extensions/introspection" => "structured contracts introspection via CompilationReport/DiagnosticsReport",
         "igniter/extensions/invariants" => "contracts validators or diagnostics contributors instead of global runtime patching",
         "igniter/extensions/provenance" => "Igniter::Extensions::Contracts::ProvenancePack",
-        "igniter/extensions/reactive" => "contracts-side subscriptions or diagnostics packs instead of core extension hooks",
+        "igniter/extensions/reactive" => "Igniter::Extensions::Contracts::ReactivePack",
         "igniter/extensions/saga" => "Igniter::Extensions::Contracts::SagaPack"
       }.freeze
 

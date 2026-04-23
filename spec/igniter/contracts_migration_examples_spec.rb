@@ -13,6 +13,7 @@ RSpec.describe "Igniter contracts migration examples" do
     "incremental" => "contracts/incremental",
     "introspection" => "contracts/introspection",
     "provenance" => "contracts/provenance",
+    "reactive_auditing" => "contracts/reactive",
     "saga" => "contracts/saga"
   }.freeze
 

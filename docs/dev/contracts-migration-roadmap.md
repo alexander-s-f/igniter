@@ -58,6 +58,8 @@ These legacy activators now have a clear contracts-side replacement:
   `Igniter::Extensions::Contracts::IncrementalPack`
 - `igniter/extensions/provenance`
   `Igniter::Extensions::Contracts::ProvenancePack`
+- `igniter/extensions/reactive`
+  `Igniter::Extensions::Contracts::ReactivePack`
 - `igniter/extensions/saga`
   `Igniter::Extensions::Contracts::SagaPack`
 
@@ -100,7 +102,6 @@ These entrypoints still point to a direction, not a finished replacement:
 - `igniter/extensions/capabilities`
 - `igniter/extensions/content_addressing`
 - `igniter/extensions/invariants`
-- `igniter/extensions/reactive`
 
 Those are the main remaining migration backlog at the extension boundary.
 
@@ -169,7 +170,6 @@ Close the remaining legacy extension surfaces:
 - `capabilities`
 - `content_addressing`
 - `invariants`
-- `reactive`
 
 For each one:
 
@@ -308,14 +308,11 @@ That keeps the architecture honest.
 
 If we continue on migration value instead of novelty, I would prioritize:
 
-1. `reactive`
-   because it likely wants explicit subscription/report hooks, not runtime
-   patching
-2. `invariants`
+1. `invariants`
    because it should probably become validator/diagnostics-oriented
-3. `capabilities`
+2. `capabilities`
    because it likely wants compile-time contracts over global graph patching
-4. `content_addressing`
+3. `content_addressing`
    because it may need a more opinionated effect/runtime cache seam
 
 After those are closed, the priority should switch from "new capability" to
