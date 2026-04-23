@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "igniter/core/runtime/agent_adapter"
+require "igniter/runtime/agent_adapter"
 
 module Igniter
   module Runtime

@@ -130,6 +130,28 @@ RSpec.describe "Igniter dependency boundaries" do
     MSG
   end
 
+  it "keeps agents on the stable root agent-adapter entrypoint" do
+    files = ruby_files_for(
+      "packages/igniter-agents/lib/igniter/**/*.rb"
+    )
+    offenders = offenders_for(
+      require_lines_for(files),
+      [
+        /require\s+["']igniter\/core\/runtime\/agent_adapter["']/,
+        /require_relative\s+["'][^"']*igniter\/core\/runtime\/agent_adapter["']/
+      ]
+    )
+
+    expect(offenders).to eq({}), <<~MSG
+      agents/* should use the stable root agent-adapter entrypoint
+      (`igniter/runtime/agent_adapter`) instead of reaching directly into
+      `igniter/core/runtime/agent_adapter`.
+
+      Offending require statements:
+      #{format_offenders(offenders)}
+    MSG
+  end
+
   it "keeps root, server, cluster, and app layers on stable root contract/runtime/diagnostics entrypoints" do
     files = ruby_files_for(
       "lib/igniter.rb",

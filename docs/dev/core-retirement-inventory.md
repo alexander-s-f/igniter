@@ -77,6 +77,9 @@ One small peel is now already in place:
   `igniter/errors`, `igniter/tool`, `igniter/effect`
 - `igniter-agents` and `igniter-server` no longer require
   `igniter/core/errors` directly and instead use `igniter/errors`
+- `igniter-agents` no longer requires
+  `igniter/core/runtime/agent_adapter` directly and instead uses the stable
+  root seam `igniter/runtime/agent_adapter`
 - the root facade, `igniter-server`, `igniter-cluster`, and app diagnostics
   now use stable root entrypoints for `igniter/contract`,
   `igniter/runtime`, and `igniter/diagnostics` instead of requiring

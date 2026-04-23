@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require "igniter/errors"
+
 module Igniter
   module Runtime
     unless const_defined?(:AgentAdapter, false)
       # Base transport seam for agent nodes.
       #
-      # Core runtime delegates agent-node delivery to this adapter instead of
+      # Runtime delegates agent-node delivery to this adapter instead of
       # directly depending on the actor runtime package.
       class AgentAdapter
         def call(node:, inputs:, execution: nil) # rubocop:disable Lint/UnusedMethodArgument

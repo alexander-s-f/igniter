@@ -176,4 +176,15 @@ RSpec.describe "Igniter legacy core entrypoints" do
     expect(stderr).not_to include("legacy reference implementation")
     expect(stderr).not_to include("igniter-core")
   end
+
+  it "does not emit a legacy core warning for agent entrypoints that use stable runtime seams" do
+    _stdout, stderr, status = capture_require(
+      "igniter/agent",
+      env: { "IGNITER_LEGACY_CORE_REQUIRE" => nil }
+    )
+
+    expect(status.success?).to eq(true)
+    expect(stderr).not_to include("legacy reference implementation")
+    expect(stderr).not_to include("igniter-core")
+  end
 end
