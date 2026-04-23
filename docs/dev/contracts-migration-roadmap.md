@@ -307,6 +307,9 @@ That keeps the architecture honest.
 The extension migration backlog is now closed, so priority should switch from
 "new capability" to "core retirement and cleanup."
 
+See also [Core Retirement Inventory](./core-retirement-inventory.md) for the
+current package/dependency blocker list.
+
 ## Track For User-Created Packs
 
 This now deserves an explicit product/developer story, not just internal
