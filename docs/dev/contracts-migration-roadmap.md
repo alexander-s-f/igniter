@@ -20,6 +20,26 @@ The new target shape is now real, not hypothetical:
 - `igniter-extensions` now has a contracts-facing lane that installs packs only
   through public `Igniter::Contracts` APIs
 
+The current developer-tooling stack is also now real:
+
+- `DebugPack`
+  contracts-side observability and pack diagnostics
+- `CreatorPack`
+  scaffold, workflow, writer, and stateful wizard flow for custom packs
+- `McpPack`
+  tooling semantics over debug/creator surfaces
+- `igniter-mcp-adapter`
+  separate transport-facing adapter package over that tooling catalog
+- MCP server wrapper and stdio host entrypoint
+  in `igniter-mcp-adapter`
+
+That means the current phase is no longer "prove the architecture". The current
+phase is:
+
+- finish the remaining migration away from `igniter-core`
+- then delete `igniter-core`
+- then clean the repo and docs around the post-core world
+
 ## Migration Snapshot
 
 ### Closed Or Explicitly Replaced
@@ -36,6 +56,17 @@ These legacy activators now have a clear contracts-side replacement:
   `Igniter::Extensions::Contracts::ProvenancePack`
 - `igniter/extensions/saga`
   `Igniter::Extensions::Contracts::SagaPack`
+
+These developer-facing lanes are also now established as first-class packages:
+
+- debug / observability
+  `Igniter::Extensions::Contracts::DebugPack`
+- creator / pack authoring
+  `Igniter::Extensions::Contracts::CreatorPack`
+- tooling semantics
+  `Igniter::Extensions::Contracts::McpPack`
+- transport adapter
+  `Igniter::MCP::Adapter`
 
 These are already reflected in:
 
@@ -70,6 +101,29 @@ These entrypoints still point to a direction, not a finished replacement:
 
 Those are the main remaining migration backlog at the extension boundary.
 
+## Scope Finalization Snapshot
+
+The current scope should be considered complete in these areas:
+
+- `igniter-contracts`
+  independent implementation package with its own compile/runtime spine
+- external packs in `igniter-extensions`
+  execution report, provenance, saga, incremental, dataflow, journal, aggregates,
+  commerce, creator/debug/tooling
+- migration examples
+  `examples/contracts/*` now form a real public migration lane
+- creator ergonomics
+  scaffold, report, workflow, writer, wizard
+- MCP-facing tooling
+  tool catalog, invocation, creator session flow
+- separate adapter package
+  `igniter-mcp-adapter`
+- transport-ready server wrapper and stdio host
+  package-local MCP host surface
+
+So the next work should not reopen these foundations casually. It should focus
+on migration closure and repo cleanup.
+
 ## What Still Remains Beyond Activators
 
 The migration is not finished just because the activator map is improving.
@@ -89,6 +143,85 @@ There are still a few deeper tracks:
 In practice this means the next phase should probably focus less on generic
 infrastructure and more on finishing the remaining migration candidates one by
 one.
+
+## Core Retirement Track
+
+The end state should be very explicit:
+
+- `igniter-core` is fully removed
+- all surviving public stories are expressed through:
+  `igniter-contracts`,
+  `igniter-extensions`,
+  upper-layer machine/cluster/app packages,
+  and adapter packages like `igniter-mcp-adapter`
+- no package in the target architecture treats `igniter-core` as a dependency
+  or implementation crutch
+
+### Retirement Phases
+
+#### Phase 1: Finish Remaining Replacements
+
+Close the remaining legacy extension surfaces:
+
+- `auditing`
+- `capabilities`
+- `content_addressing`
+- `differential`
+- `invariants`
+- `reactive`
+
+For each one:
+
+- define the contracts-side replacement
+- add or extend runnable `examples/contracts/*`
+- update `packages/igniter-extensions/lib/igniter/extensions/legacy.rb`
+- keep the legacy activator warning message pointing at the replacement
+
+#### Phase 2: Eliminate Remaining Core-Only Public Stories
+
+After activator replacements, inventory the remaining root examples and docs:
+
+- which examples are still intentionally legacy reference only?
+- which examples should become contracts/machine/cluster stories instead?
+- which docs still describe `igniter-core` as if it were the target package?
+
+The goal of this phase is:
+
+- no important public learning path depends on core-first onboarding
+- legacy examples become reference-only or disappear
+
+#### Phase 3: Tighten Boundary Guards
+
+Before deletion, strengthen the repo checks:
+
+- no runtime dependency on `igniter-core` outside the legacy package itself
+- no `require "igniter/core"` from target packages
+- no `require "igniter-core"` from target packages
+- no internal references that quietly reach into core for behavior
+
+At this point `igniter-core` should already be semantically dead, even if the
+files still exist.
+
+#### Phase 4: Remove Core Package
+
+Once the previous phases are complete:
+
+- delete `packages/igniter-core`
+- remove `igniter-core` dependency edges from gemspecs
+- remove remaining legacy activator shims that only existed for transition
+- remove `IGNITER_LEGACY_CORE_REQUIRE` compatibility behavior
+- update package maps, docs, and READMEs to reflect the post-core package graph
+
+This should be treated as a cleanup phase, not as a design phase.
+
+#### Phase 5: Post-Removal Cleanup
+
+After deletion:
+
+- remove stale migration docs that only explained temporary compatibility
+- compress or archive legacy reference material
+- simplify examples and README navigation around the new package graph
+- rerun architecture docs so they describe the actual repo, not the transitional one
 
 ## DebugPack Idea
 
@@ -189,6 +322,9 @@ If we continue on migration value instead of novelty, I would prioritize:
 6. `content_addressing`
    because it may need a more opinionated effect/runtime cache seam
 
+After those are closed, the priority should switch from "new capability" to
+"core retirement and cleanup."
+
 ## Track For User-Created Packs
 
 This now deserves an explicit product/developer story, not just internal
@@ -272,6 +408,9 @@ The next documentation layer should likely be:
 2. add a dedicated user-facing guide for authoring custom packs
 3. add a packaging/distribution guide for publishing pack gems
 4. add a debugging guide if `DebugPack` becomes real
+5. once the remaining legacy surfaces are replaced, write a short
+   `core retirement checklist` and use it as the deletion gate for
+   `igniter-core`
 
 That would give us:
 

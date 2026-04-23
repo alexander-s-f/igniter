@@ -47,6 +47,21 @@ The ordering matters.
 We should not freeze an external protocol before the internal debug and author
 experience are coherent.
 
+This ordering has now largely been realized in the repo:
+
+1. `DebugPack`
+   implemented as the developer observability and diagnostics bundle
+2. `CreatorPack`
+   implemented with scaffold, workflow, writer, and wizard layers
+3. `McpPack`
+   implemented as the tooling semantics surface
+4. `igniter-mcp-adapter`
+   implemented as the transport-facing adapter package over that surface
+
+That means the design question is no longer "should we build this stack?".
+The design question is now "how do we finish migration and retire core cleanly
+without reopening the stack design?".
+
 ## DebugPack
 
 ### Purpose

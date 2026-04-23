@@ -59,9 +59,23 @@ Near-term public surface:
 
 This is intentionally thin. It keeps the adapter package honest.
 
+## Current State
+
+This is already real in the monorepo:
+
+- `Igniter::MCP::Adapter`
+  thin delegation over the semantic tooling surface
+- `Igniter::MCP::Adapter::Server`
+  transport-ready tool definitions and tool result envelopes
+- `Igniter::MCP::Adapter::Host`
+  stdio JSON-RPC host over the server wrapper
+
+So this package is no longer only a design placeholder.
+
 ## Next Likely Steps
 
-1. add a server-facing wrapper that maps `tool_catalog` into real MCP tool definitions
-2. expose JSON-schema-like request metadata derived from the existing argument catalog
-3. add request/response validation at the adapter boundary
-4. only then add transport runtime concerns like sessions, IO, or long-lived server state
+1. decide whether we want additional MCP surfaces like `resources/list` or
+   `prompts/list`, or whether tools-only is the right first stable contract
+2. keep request validation aligned with generated schemas
+3. only add transport/runtime concerns that do not create a second semantic source
+4. use this package as the only place where MCP transport specifics evolve
