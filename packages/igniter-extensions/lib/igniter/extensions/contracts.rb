@@ -5,6 +5,7 @@ require_relative "contracts/aggregate_pack"
 require_relative "contracts/audit_pack"
 require_relative "contracts/capabilities_pack"
 require_relative "contracts/commerce_pack"
+require_relative "contracts/content_addressing_pack"
 require_relative "contracts/creator_pack"
 require_relative "contracts/dataflow_pack"
 require_relative "contracts/debug_pack"
@@ -29,7 +30,7 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, AuditPack, CapabilitiesPack, CommercePack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, InvariantsPack, JournalPack, McpPack, ProvenancePack, ReactivePack, SagaPack]
+        [AggregatePack, AuditPack, CapabilitiesPack, CommercePack, ContentAddressingPack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, InvariantsPack, JournalPack, McpPack, ProvenancePack, ReactivePack, SagaPack]
       ).freeze
 
       PRESETS = {
@@ -214,6 +215,32 @@ module Igniter
 
         def check_capabilities!(compiled_graph, profile: nil, policy:)
           CapabilitiesPack.check!(compiled_graph, profile: profile, policy: policy)
+        end
+
+        def content_addressed(callable: nil, fingerprint: nil, capabilities: [:pure], cache: ContentAddressingPack.cache, &block)
+          ContentAddressingPack.content_addressed(
+            callable: callable,
+            fingerprint: fingerprint,
+            capabilities: capabilities,
+            cache: cache,
+            &block
+          )
+        end
+
+        def pure_content_callable(callable: nil, fingerprint: nil, cache: ContentAddressingPack.cache, &block)
+          ContentAddressingPack.pure(callable: callable, fingerprint: fingerprint, cache: cache, &block)
+        end
+
+        def content_key(fingerprint: nil, callable: nil, inputs:)
+          ContentAddressingPack.content_key(fingerprint: fingerprint, callable: callable, inputs: inputs)
+        end
+
+        def content_cache
+          ContentAddressingPack.cache
+        end
+
+        def reset_content_cache!
+          ContentAddressingPack.reset_cache!
         end
 
         def debug_profile(target)

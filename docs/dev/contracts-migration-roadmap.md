@@ -52,6 +52,8 @@ These legacy activators now have a clear contracts-side replacement:
   `Igniter::Extensions::Contracts::AuditPack`
 - `igniter/extensions/capabilities`
   `Igniter::Extensions::Contracts::CapabilitiesPack`
+- `igniter/extensions/content_addressing`
+  `Igniter::Extensions::Contracts::ContentAddressingPack`
 - `igniter/extensions/dataflow`
   `Igniter::Extensions::Contracts::DataflowPack`
 - `igniter/extensions/differential`
@@ -101,11 +103,10 @@ still weaker than for the explicit replacement packs above.
 
 ### Still Open Legacy Surfaces
 
-These entrypoints still point to a direction, not a finished replacement:
+There are no remaining open legacy extension activators at this layer.
 
-- `igniter/extensions/content_addressing`
-
-Those are the main remaining migration backlog at the extension boundary.
+The extension-boundary migration backlog is now closed. The remaining work is
+core retirement and transitional cleanup.
 
 ## Scope Finalization Snapshot
 
@@ -114,8 +115,9 @@ The current scope should be considered complete in these areas:
 - `igniter-contracts`
   independent implementation package with its own compile/runtime spine
 - external packs in `igniter-extensions`
-  execution report, provenance, saga, incremental, dataflow, journal, aggregates,
-  commerce, creator/debug/tooling
+  execution report, provenance, saga, incremental, dataflow, capabilities,
+  content addressing, invariants, reactive, journal, aggregates, commerce,
+  creator/debug/tooling
 - migration examples
   `examples/contracts/*` now form a real public migration lane
 - creator ergonomics
@@ -167,16 +169,12 @@ The end state should be very explicit:
 
 #### Phase 1: Finish Remaining Replacements
 
-Close the remaining legacy extension surfaces:
+This phase is now complete.
 
-- `content_addressing`
-
-For each one:
-
-- define the contracts-side replacement
-- add or extend runnable `examples/contracts/*`
-- update `packages/igniter-extensions/lib/igniter/extensions/legacy.rb`
-- keep the legacy activator warning message pointing at the replacement
+Every legacy `igniter/extensions/*` activator in the current migration scope now
+has a contracts-side replacement and runnable example coverage. The next work is
+to stop treating `igniter-core` as a living public lane and move into
+retirement/cleanup.
 
 #### Phase 2: Eliminate Remaining Core-Only Public Stories
 
@@ -306,13 +304,8 @@ That keeps the architecture honest.
 
 ## Suggested Next Migration Order
 
-If we continue on migration value instead of novelty, I would prioritize:
-
-1. `content_addressing`
-   because it may need a more opinionated effect/runtime cache seam
-
-After those are closed, the priority should switch from "new capability" to
-"core retirement and cleanup."
+The extension migration backlog is now closed, so priority should switch from
+"new capability" to "core retirement and cleanup."
 
 ## Track For User-Created Packs
 

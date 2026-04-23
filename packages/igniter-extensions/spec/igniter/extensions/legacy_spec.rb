@@ -8,6 +8,7 @@ RSpec.describe Igniter::Extensions::Legacy do
     expect(described_class.entrypoints).to include(
       "igniter/extensions/auditing",
       "igniter/extensions/capabilities",
+      "igniter/extensions/content_addressing",
       "igniter/extensions/differential",
       "igniter/extensions/execution_report",
       "igniter/extensions/dataflow",
@@ -26,6 +27,8 @@ RSpec.describe Igniter::Extensions::Legacy do
       .to eq("Igniter::Extensions::Contracts::AuditPack")
     expect(described_class.replacement_for("igniter/extensions/capabilities"))
       .to eq("Igniter::Extensions::Contracts::CapabilitiesPack")
+    expect(described_class.replacement_for("igniter/extensions/content_addressing"))
+      .to eq("Igniter::Extensions::Contracts::ContentAddressingPack")
     expect(described_class.replacement_for("igniter/extensions/differential"))
       .to eq("Igniter::Extensions::Contracts::DifferentialPack")
     expect(described_class.replacement_for("igniter/extensions/invariants"))

@@ -122,6 +122,21 @@ module IgniterExamples
       ]
     ),
     Example.new(
+      id: "contracts/content_addressing",
+      path: "examples/contracts/content_addressing.rb",
+      summary: "New-world content-addressed pure callable reuse over explicit contracts execution.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_content_addressing_tax=20.0",
+        "contracts_content_addressing_calls=1",
+        "contracts_content_addressing_key=ca:",
+        "contracts_content_addressing_stats={:size=>1, :hits=>1, :misses=>1}"
+      ]
+    ),
+    Example.new(
       id: "collection",
       path: "examples/collection.rb",
       summary: "Collection fan-out with per-item child results.",

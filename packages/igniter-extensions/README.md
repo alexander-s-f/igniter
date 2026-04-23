@@ -17,6 +17,7 @@ This package owns the `igniter/extensions/*` activation surface, including:
 - `require "igniter/extensions/dataflow"`
 - `require "igniter/extensions/saga"`
 - `require "igniter/extensions/provenance"`
+- `require "igniter/extensions/content_addressing"`
 - `require "igniter/extensions/differential"`
 - `require "igniter/extensions/incremental"`
 - `require "igniter/extensions/reactive"`
@@ -38,6 +39,7 @@ Contracts-facing external packs now live here too:
 - `Igniter::Extensions::Contracts::AuditPack`
 - `Igniter::Extensions::Contracts::CapabilitiesPack`
 - `Igniter::Extensions::Contracts::CommercePack`
+- `Igniter::Extensions::Contracts::ContentAddressingPack`
 - `Igniter::Extensions::Contracts::CreatorPack`
 - `Igniter::Extensions::Contracts::DataflowPack`
 - `Igniter::Extensions::Contracts::DebugPack`
@@ -77,6 +79,21 @@ Applied presets can sit on top of those packs too:
 
 ```ruby
 environment = Igniter::Extensions::Contracts.with_preset(:commerce)
+```
+
+For explicit content-addressed reuse, the contracts-side replacement is
+`ContentAddressingPack`:
+
+```ruby
+environment = Igniter::Contracts.with(
+  Igniter::Extensions::Contracts::ContentAddressingPack
+)
+
+tax = Igniter::Extensions::Contracts.content_addressed(
+  fingerprint: "tax_v1"
+) do |country:, amount:|
+  { ua: 0.2, us: 0.1 }.fetch(country) * amount
+end
 ```
 
 For developer-focused observability, `DebugPack` can bundle profile,

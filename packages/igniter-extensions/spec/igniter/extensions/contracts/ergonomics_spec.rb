@@ -16,6 +16,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::AuditPack,
       Igniter::Extensions::Contracts::CapabilitiesPack,
       Igniter::Extensions::Contracts::CommercePack,
+      Igniter::Extensions::Contracts::ContentAddressingPack,
       Igniter::Extensions::Contracts::CreatorPack,
       Igniter::Extensions::Contracts::DataflowPack,
       Igniter::Extensions::Contracts::DebugPack,
@@ -305,6 +306,32 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
     expect(Igniter::Extensions::Contracts.required_capabilities(compiled)).to eq(fetched: %i[network database])
     expect(report.invalid?).to eq(true)
     expect(Igniter::Extensions::Contracts.profile_capabilities(environment)).to eq([])
+  end
+
+  it "exposes content-addressed pure callable helpers" do
+    Igniter::Extensions::Contracts.reset_content_cache!
+    calls = []
+
+    wrapped = Igniter::Extensions::Contracts.content_addressed(fingerprint: "tax_v1") do |amount:|
+      calls << :called
+      amount * 0.2
+    end
+
+    environment = Igniter::Contracts.with(Igniter::Extensions::Contracts::ContentAddressingPack)
+    compiled = environment.compile do
+      input :amount
+      compute :tax, depends_on: [:amount], callable: wrapped
+      output :tax
+    end
+
+    first = environment.execute(compiled, inputs: { amount: 100 })
+    second = environment.execute(compiled, inputs: { amount: 100 })
+
+    expect(first.output(:tax)).to eq(20.0)
+    expect(second.output(:tax)).to eq(20.0)
+    expect(calls.length).to eq(1)
+    expect(Igniter::Extensions::Contracts.content_key(callable: wrapped, inputs: { amount: 100 }).to_s)
+      .to start_with("ca:")
   end
 
   it "exposes debug helpers over environments and profiles" do

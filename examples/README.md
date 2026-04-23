@@ -47,6 +47,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/aggregates.rb` — external `lookup` + `aggregate` packs composed together.
 - `contracts/auditing.rb` — explicit audit snapshots over `ExecutionResult` and incremental session wrappers.
 - `contracts/capabilities.rb` — explicit capability declarations, graph requirements, and preflight policy checks.
+- `contracts/content_addressing.rb` — explicit content-addressed pure callable reuse over contracts-side execution.
 - `contracts/build_effect_executor_pack.rb` — inline effect/executor pack authoring over the public contracts API.
 - `contracts/build_your_own_pack.rb` — inline pack authoring over the public contracts API.
 - `contracts/compose_your_own_packs.rb` — inline pack composition where one custom pack depends on another.

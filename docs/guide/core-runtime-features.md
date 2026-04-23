@@ -5,11 +5,15 @@ to public core/extension activation surfaces.
 
 ## Current Feature Set
 
-- incremental dataflow via `require "igniter/extensions/dataflow"`
-- capability policy via `require "igniter/extensions/capabilities"`
-- content-addressed reuse via `require "igniter/extensions/content_addressing"`
+- incremental dataflow via `Igniter::Extensions::Contracts::DataflowPack`
+- capability policy via `Igniter::Extensions::Contracts::CapabilitiesPack`
+- content-addressed reuse via `Igniter::Extensions::Contracts::ContentAddressingPack`
 - cross-execution node caching via `require "igniter/core/node_cache"`
 - temporal replay via `require "igniter/core/temporal"`
+
+The legacy `require "igniter/extensions/*"` activators still exist during
+retirement, but they are now migration shims rather than the preferred public
+path.
 
 ## Practical Heuristic
 

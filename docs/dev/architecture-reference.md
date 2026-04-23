@@ -210,7 +210,7 @@ Optional packages that enrich the core without modifying it.
 | Dataflow | `igniter/extensions/dataflow` | O(change) incremental collections |
 | Differential | `igniter/extensions/differential` | Contract version comparison |
 | Invariants | `igniter/extensions/invariants` | Runtime invariant enforcement |
-| Content addressing | `igniter/extensions/content_addressing` | Universal input-fingerprint cache |
+| Content addressing | `Igniter::Extensions::Contracts::ContentAddressingPack` (legacy activator: `igniter/extensions/content_addressing`) | Universal input-fingerprint cache |
 
 ---
 
