@@ -389,6 +389,21 @@ module IgniterExamples
       ]
     ),
     Example.new(
+      id: "contracts/incremental",
+      path: "examples/contracts/incremental.rb",
+      summary: "New-world incremental session counterpart over IncrementalPack.",
+      migration_of: "incremental",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_incremental_output=89.6",
+        "contracts_incremental_skipped=[:tier_discount, :adjusted_price]",
+        "contracts_incremental_recomputed=1"
+      ]
+    ),
+    Example.new(
       id: "invariants",
       path: "examples/invariants.rb",
       summary: "Invariant checks plus property-based testing.",

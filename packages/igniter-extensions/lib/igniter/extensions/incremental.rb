@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "legacy"
-Igniter::Extensions::Legacy.require!("igniter/extensions/incremental", replacement: "a contracts pack that exposes incremental execution as executor/runtime behavior")
+Igniter::Extensions::Legacy.require!("igniter/extensions/incremental", replacement: "Igniter::Extensions::Contracts::IncrementalPack")
 require "igniter"
 require "igniter/core/incremental"
 

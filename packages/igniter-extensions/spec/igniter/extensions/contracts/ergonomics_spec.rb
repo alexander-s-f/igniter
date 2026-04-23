@@ -14,6 +14,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::LookupPack,
       Igniter::Extensions::Contracts::AggregatePack,
       Igniter::Extensions::Contracts::CommercePack,
+      Igniter::Extensions::Contracts::IncrementalPack,
       Igniter::Extensions::Contracts::JournalPack,
       Igniter::Extensions::Contracts::ProvenancePack,
       Igniter::Extensions::Contracts::SagaPack
@@ -112,5 +113,23 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
 
     expect(result.success?).to eq(true)
     expect(result.output(:amount)).to eq(10)
+  end
+
+  it "exposes incremental session helpers over environments" do
+    environment = Igniter::Extensions::Contracts.with(Igniter::Extensions::Contracts::IncrementalPack)
+
+    session = Igniter::Extensions::Contracts.build_incremental_session(environment) do
+      input :amount
+      compute :tax, depends_on: [:amount] do |amount:|
+        amount * 0.2
+      end
+      output :tax
+    end
+
+    session.run(inputs: { amount: 10 })
+    result = session.run(inputs: { amount: 10 })
+
+    expect(result.fully_memoized?).to eq(true)
+    expect(result.output(:tax)).to eq(2.0)
   end
 end

@@ -52,6 +52,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/diagnostics.rb` — new-world diagnostics report counterpart to the legacy diagnostics example.
 - `contracts/effects.rb` — new-world effect/executor counterpart to the legacy effects example.
 - `contracts/execution_report_migration.rb` — side-by-side migration from the legacy `execution_report` activator to `ExecutionReportPack`.
+- `contracts/incremental.rb` — new-world incremental session counterpart over `IncrementalPack`.
 - `contracts/introspection.rb` — new-world structured introspection counterpart to the legacy introspection example.
 - `contracts/journal.rb` — external effect/executor pack as a runnable operational demo.
 - `contracts/migration.rb` — side-by-side legacy `igniter-core` reference vs `igniter-contracts` target.
@@ -132,6 +133,7 @@ grow:
 | `basic_pricing.rb` | `contracts/basic_pricing.rb` | same smallest pricing flow, but through `Igniter::Contracts.with` |
 | `diagnostics.rb` | `contracts/diagnostics.rb` | moves from text/as_json diagnostics to typed `DiagnosticsReport` |
 | `effects.rb` | `contracts/effects.rb` | moves from legacy effect nodes to explicit effect/executor seams |
+| `incremental.rb` | `contracts/incremental.rb` | moves from patched contract mutation to explicit incremental sessions over `CompiledGraph` |
 | `introspection.rb` | `contracts/introspection.rb` | moves from text/Mermaid explainers to structured compilation/result/diagnostics reports |
 | `provenance.rb` | `contracts/provenance.rb` | moves from legacy contract patching to explicit lineage over `ExecutionResult` + `ProvenancePack` |
 | `saga.rb` | `contracts/saga.rb` | moves from global `resolve_saga` patching to explicit `SagaPack` + compensation registry |

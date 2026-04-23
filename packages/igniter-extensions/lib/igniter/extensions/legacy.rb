@@ -10,7 +10,7 @@ module Igniter
         "igniter/extensions/dataflow" => "a contracts pack that registers incremental collection node kinds and runtime handlers",
         "igniter/extensions/differential" => "a contracts diagnostics/runtime pack for shadow execution and divergence reporting",
         "igniter/extensions/execution_report" => "Igniter::Extensions::Contracts::ExecutionReportPack",
-        "igniter/extensions/incremental" => "a contracts pack that exposes incremental execution as executor/runtime behavior",
+        "igniter/extensions/incremental" => "Igniter::Extensions::Contracts::IncrementalPack",
         "igniter/extensions/introspection" => "structured contracts introspection via CompilationReport/DiagnosticsReport",
         "igniter/extensions/invariants" => "contracts validators or diagnostics contributors instead of global runtime patching",
         "igniter/extensions/provenance" => "Igniter::Extensions::Contracts::ProvenancePack",

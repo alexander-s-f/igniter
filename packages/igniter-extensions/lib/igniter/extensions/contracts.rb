@@ -4,6 +4,7 @@ require "igniter/contracts"
 require_relative "contracts/aggregate_pack"
 require_relative "contracts/commerce_pack"
 require_relative "contracts/execution_report_pack"
+require_relative "contracts/incremental_pack"
 require_relative "contracts/journal_pack"
 require_relative "contracts/lookup_pack"
 require_relative "contracts/provenance_pack"
@@ -19,7 +20,7 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, CommercePack, JournalPack, ProvenancePack, SagaPack]
+        [AggregatePack, CommercePack, IncrementalPack, JournalPack, ProvenancePack, SagaPack]
       ).freeze
 
       PRESETS = {
@@ -82,6 +83,10 @@ module Igniter
             compiled_graph: compiled_graph,
             &block
           )
+        end
+
+        def build_incremental_session(environment, compiled_graph: nil, &block)
+          IncrementalPack.session(environment, compiled_graph: compiled_graph, &block)
         end
 
         private

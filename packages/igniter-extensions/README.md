@@ -85,10 +85,13 @@ The first canonical activator-to-pack migration target is now explicit:
   -> `Igniter::Extensions::Contracts::ProvenancePack`
 - `require "igniter/extensions/saga"`
   -> `Igniter::Extensions::Contracts::SagaPack`
+- `require "igniter/extensions/incremental"`
+  -> `Igniter::Extensions::Contracts::IncrementalPack`
 
 See [examples/contracts/execution_report_migration.rb](../../examples/contracts/execution_report_migration.rb)
 and [examples/contracts/provenance.rb](../../examples/contracts/provenance.rb)
 and [examples/contracts/saga.rb](../../examples/contracts/saga.rb)
+and [examples/contracts/incremental.rb](../../examples/contracts/incremental.rb)
 for runnable migration walkthroughs.
 
 Docs:
