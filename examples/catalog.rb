@@ -62,6 +62,29 @@ module IgniterExamples
 
   ALL = [
     example(
+      "cluster/incidents",
+      "Failover planning plus durable incident history and active incident state.",
+      expected_fragments: [
+        "cluster_incident_plan_targets=order-42",
+        "cluster_incident_failed_status=failed",
+        "cluster_incident_history=2",
+        "cluster_incident_last_resolution=recovered",
+        "cluster_active_incidents_after=0"
+      ]
+    ),
+    example(
+      "cluster/mesh_diagnostics",
+      "Mesh execution retry trace, projection report, and operator-facing diagnostics.",
+      expected_fragments: [
+        "cluster_mesh_plan_kind=ownership",
+        "cluster_mesh_status=completed",
+        "cluster_mesh_attempts=pricing_node_a:failed,pricing_node_b:completed",
+        "cluster_mesh_projection_mode=mesh_candidates",
+        "cluster_mesh_diagnostics_events=projection,mesh_attempt,mesh_attempt,mesh",
+        "cluster_mesh_trace_id=mesh/ownership/pricing_node_a/1"
+      ]
+    ),
+    example(
       "cluster/routing",
       "Cluster routing and remote compose over application transport seams.",
       expected_fragments: [
