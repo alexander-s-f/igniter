@@ -6,6 +6,7 @@ require_relative "contracts/commerce_pack"
 require_relative "contracts/execution_report_pack"
 require_relative "contracts/journal_pack"
 require_relative "contracts/lookup_pack"
+require_relative "contracts/provenance_pack"
 
 module Igniter
   module Extensions
@@ -17,7 +18,7 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, CommercePack, JournalPack]
+        [AggregatePack, CommercePack, JournalPack, ProvenancePack]
       ).freeze
 
       PRESETS = {
@@ -58,6 +59,14 @@ module Igniter
 
         def with_preset(name)
           with(*packs_for(name))
+        end
+
+        def lineage(result, output_name)
+          ProvenancePack.lineage(result, output_name)
+        end
+
+        def explain(result, output_name)
+          ProvenancePack.explain(result, output_name)
         end
 
         private

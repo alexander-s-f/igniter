@@ -4,12 +4,13 @@ module Igniter
   module Contracts
     module Execution
       class ExecutionResult
-        attr_reader :state, :outputs, :profile_fingerprint
+        attr_reader :state, :outputs, :profile_fingerprint, :compiled_graph
 
-        def initialize(state:, outputs:, profile_fingerprint:)
+        def initialize(state:, outputs:, profile_fingerprint:, compiled_graph:)
           @state = state
           @outputs = outputs
           @profile_fingerprint = profile_fingerprint
+          @compiled_graph = compiled_graph
           freeze
         end
 
@@ -21,7 +22,8 @@ module Igniter
           {
             state: state.to_h,
             outputs: outputs.to_h,
-            profile_fingerprint: profile_fingerprint
+            profile_fingerprint: profile_fingerprint,
+            compiled_graph: compiled_graph.to_h
           }
         end
       end

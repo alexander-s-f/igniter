@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Extensions::Legacy.require!("igniter/extensions/differential", replacement: "a contracts diagnostics/runtime pack for shadow execution and divergence reporting")
 require "igniter"
 require "igniter/core/differential"
 

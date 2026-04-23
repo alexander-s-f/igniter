@@ -17,6 +17,7 @@ RSpec.describe Igniter::Contracts::Runtime do
     expect(result.output(:tax)).to eq(2.0)
     expect(result.state).to be_a(Igniter::Contracts::NamedValues)
     expect(result.outputs).to be_a(Igniter::Contracts::NamedValues)
+    expect(result.compiled_graph).to eq(compiled)
     expect(result.state.fetch(:amount)).to eq(10)
     expect(result.state.fetch(:tax)).to eq(2.0)
   end

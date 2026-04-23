@@ -8,7 +8,8 @@ RSpec.describe "Igniter contracts migration examples" do
     "basic_pricing" => "contracts/basic_pricing",
     "diagnostics" => "contracts/diagnostics",
     "effects" => "contracts/effects",
-    "introspection" => "contracts/introspection"
+    "introspection" => "contracts/introspection",
+    "provenance" => "contracts/provenance"
   }.freeze
 
   it "tracks direct legacy -> contracts counterparts in the examples catalog" do

@@ -14,6 +14,8 @@ Transition rule:
 - `igniter-extensions` may still carry legacy core-backed activators during the
   migration window, but its contracts-facing surface should stay independent
   from those activators and from the root `igniter` umbrella
+- legacy `igniter/extensions/*` activators should warn or fail with the same
+  policy, so migration pressure is visible at the extension boundary too
 
 ## Goals
 
@@ -266,13 +268,16 @@ That pack is intentionally diagnostics-only. It proves that another package can:
 The next external proof should exercise the full extension path:
 
 - `Igniter::Extensions::Contracts::LookupPack`
+- `Igniter::Extensions::Contracts::ProvenancePack`
 
-That second pack proves that an outside package can add:
+Those next packs prove that an outside package can add:
 
 - a node kind through `Igniter::Contracts::NodeType`
 - a DSL keyword through `Igniter::Contracts::DslKeyword`
 - a compile validator through `Igniter::Contracts::ValidationFinding`
 - a runtime handler through the public hook contract
+- lineage/provenance tooling over `ExecutionResult` without falling back to the
+  legacy core implementation
 
 Pack composition should be proven externally too:
 

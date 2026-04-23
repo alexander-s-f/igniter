@@ -273,6 +273,20 @@ module IgniterExamples
       expected_fragments: ["contracts_executor_output=120", "contracts_effect_sections=baseline_summary"]
     ),
     Example.new(
+      id: "contracts/execution_report_migration",
+      path: "examples/contracts/execution_report_migration.rb",
+      summary: "Legacy execution_report activator vs ExecutionReportPack migration walkthrough.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "legacy_execution_report_output=120.0",
+        "contracts_execution_report_sections=baseline_summary,execution_report",
+        "execution_report_migration_match=true"
+      ]
+    ),
+    Example.new(
       id: "differential",
       path: "examples/differential.rb",
       summary: "Primary-vs-shadow differential execution.",
@@ -342,6 +356,21 @@ module IgniterExamples
       runnable: true,
       timeout: 10,
       expected_fragments: ["contracts_introspection_ok=true", "contracts_introspection_sections=baseline_summary,execution_report"]
+    ),
+    Example.new(
+      id: "contracts/provenance",
+      path: "examples/contracts/provenance.rb",
+      summary: "New-world provenance and lineage counterpart over contracts execution results.",
+      migration_of: "provenance",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_provenance_output=360.0",
+        "contracts_provenance_path=[:grand_total, :subtotal, :base_price]",
+        "contracts_provenance_sections=baseline_summary,provenance"
+      ]
     ),
     Example.new(
       id: "invariants",

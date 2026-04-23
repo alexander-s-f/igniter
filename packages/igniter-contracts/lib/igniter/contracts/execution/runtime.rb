@@ -22,7 +22,8 @@ module Igniter
             ExecutionResult.new(
               state: state.snapshot,
               outputs: outputs.snapshot,
-              profile_fingerprint: profile.fingerprint
+              profile_fingerprint: profile.fingerprint,
+              compiled_graph: compiled_graph
             )
           end
 

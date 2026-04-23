@@ -50,7 +50,14 @@ RSpec.describe Igniter::Extensions::Contracts::JournalPack do
     expect(described_class.journal[:results]).to eq([{
       state: { amount: 15 },
       outputs: { amount: 15 },
-      profile_fingerprint: environment.profile.fingerprint
+      profile_fingerprint: environment.profile.fingerprint,
+      compiled_graph: {
+        operations: [
+          { kind: :input, name: :amount, attributes: {} },
+          { kind: :output, name: :amount, attributes: {} }
+        ],
+        profile_fingerprint: environment.profile.fingerprint
+      }
     }])
   end
 end

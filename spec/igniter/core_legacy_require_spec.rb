@@ -50,6 +50,29 @@ RSpec.describe "Igniter legacy core entrypoints" do
     expect(stderr).to include("igniter/core/tool")
   end
 
+  it "warns when loading a legacy core-backed extension activator" do
+    _stdout, stderr, status = capture_require(
+      "igniter/extensions/execution_report",
+      env: { "IGNITER_LEGACY_CORE_REQUIRE" => nil }
+    )
+
+    expect(status.success?).to eq(true)
+    expect(stderr).to include("legacy core-backed extension activator")
+    expect(stderr).to include("igniter/extensions/execution_report")
+    expect(stderr).to include("Igniter::Extensions::Contracts::ExecutionReportPack")
+  end
+
+  it "can fail fast for legacy extension activators in strict mode" do
+    _stdout, stderr, status = capture_require(
+      "igniter/extensions/dataflow",
+      env: { "IGNITER_LEGACY_CORE_REQUIRE" => "error" }
+    )
+
+    expect(status.success?).to eq(false)
+    expect(stderr).to include("Igniter::Extensions::Legacy::RequireError")
+    expect(stderr).to include("igniter/extensions/dataflow")
+  end
+
   it "does not emit a legacy core warning for the contracts-facing extensions facade" do
     _stdout, stderr, status = capture_require(
       "igniter/extensions/contracts",

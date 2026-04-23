@@ -76,4 +76,26 @@ RSpec.describe "Igniter::Contracts structured serialization" do
       ]
     )
   end
+
+  it "serializes execution results together with their compiled graph for tooling" do
+    compiled = Igniter::Contracts.compile do
+      input :amount
+      output :amount
+    end
+
+    result = Igniter::Contracts.execute(compiled, inputs: { amount: 10 })
+
+    expect(result.to_h).to eq(
+      state: { amount: 10 },
+      outputs: { amount: 10 },
+      profile_fingerprint: result.profile_fingerprint,
+      compiled_graph: {
+        operations: [
+          { kind: :input, name: :amount, attributes: {} },
+          { kind: :output, name: :amount, attributes: {} }
+        ],
+        profile_fingerprint: result.profile_fingerprint
+      }
+    )
+  end
 end

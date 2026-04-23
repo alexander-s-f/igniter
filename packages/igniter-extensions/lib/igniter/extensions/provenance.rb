@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Extensions::Legacy.require!("igniter/extensions/provenance", replacement: "Igniter::Extensions::Contracts::ProvenancePack")
 require "igniter/core/provenance"
 
 module Igniter

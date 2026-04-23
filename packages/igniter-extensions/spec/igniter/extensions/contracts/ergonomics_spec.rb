@@ -14,7 +14,8 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::LookupPack,
       Igniter::Extensions::Contracts::AggregatePack,
       Igniter::Extensions::Contracts::CommercePack,
-      Igniter::Extensions::Contracts::JournalPack
+      Igniter::Extensions::Contracts::JournalPack,
+      Igniter::Extensions::Contracts::ProvenancePack
     ])
 
     expect(Igniter::Extensions::Contracts.presets).to eq({
@@ -74,5 +75,22 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
     end
 
     expect(result.output(:grand_total)).to eq(36.0)
+  end
+
+  it "exposes provenance helpers over execution results" do
+    environment = Igniter::Extensions::Contracts.with(Igniter::Extensions::Contracts::ProvenancePack)
+
+    result = environment.run(inputs: { amount: 10 }) do
+      input :amount
+      compute :tax, depends_on: [:amount] do |amount:|
+        amount * 0.2
+      end
+      output :tax
+    end
+
+    lineage = Igniter::Extensions::Contracts.lineage(result, :tax)
+
+    expect(lineage.contributing_inputs).to eq(amount: 10)
+    expect(Igniter::Extensions::Contracts.explain(result, :tax)).to include("tax = 2.0  [compute]")
   end
 end

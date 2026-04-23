@@ -8,7 +8,9 @@ This package currently contains two architectural lanes:
 - legacy extension activators that still bridge into `igniter-core`
 
 The legacy lane remains for migration. Those entrypoints will surface the
-`igniter-core` legacy notice when loaded.
+`igniter-core` / legacy-extension notice when loaded. Use
+`IGNITER_LEGACY_CORE_REQUIRE=error` to make those loads fail fast during
+migration cleanup.
 
 This package owns the `igniter/extensions/*` activation surface, including:
 
@@ -74,6 +76,17 @@ Legacy extension activators still exist for migration scenarios:
 
 Those activators still route through `igniter-core` and should be treated as
 legacy architecture, not as the long-term extension model.
+
+The first canonical activator-to-pack migration target is now explicit:
+
+- `require "igniter/extensions/execution_report"`
+  -> `Igniter::Extensions::Contracts::ExecutionReportPack`
+- `require "igniter/extensions/provenance"`
+  -> `Igniter::Extensions::Contracts::ProvenancePack`
+
+See [examples/contracts/execution_report_migration.rb](../../examples/contracts/execution_report_migration.rb)
+and [examples/contracts/provenance.rb](../../examples/contracts/provenance.rb)
+for runnable migration walkthroughs.
 
 Docs:
 

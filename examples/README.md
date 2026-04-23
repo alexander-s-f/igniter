@@ -51,9 +51,11 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/commerce.rb` — applied `igniter-contracts` commerce preset with public external packs.
 - `contracts/diagnostics.rb` — new-world diagnostics report counterpart to the legacy diagnostics example.
 - `contracts/effects.rb` — new-world effect/executor counterpart to the legacy effects example.
+- `contracts/execution_report_migration.rb` — side-by-side migration from the legacy `execution_report` activator to `ExecutionReportPack`.
 - `contracts/introspection.rb` — new-world structured introspection counterpart to the legacy introspection example.
 - `contracts/journal.rb` — external effect/executor pack as a runnable operational demo.
 - `contracts/migration.rb` — side-by-side legacy `igniter-core` reference vs `igniter-contracts` target.
+- `contracts/provenance.rb` — new-world lineage and provenance counterpart to the legacy provenance example.
 - `contracts/three_layer_migration.rb` — one use case shown as legacy core, raw contracts, and applied preset.
 - `consensus.rb` — consensus-style vendor bid selection.
 - `dataflow.rb` — incremental collections and maintained aggregates.
@@ -119,6 +121,7 @@ grow:
 - show how one custom pack can depend on another through the public kernel API
 - show the same use case evolving across legacy core, raw contracts, and domain preset layers
 - provide new-world counterparts for older root examples as migration waypoints
+- provide activator-to-pack migration examples for legacy `igniter/extensions/*` surfaces
 - keep richer domain packs runnable and easy to copy into host apps
 
 ### Migration Map
@@ -129,8 +132,10 @@ grow:
 | `diagnostics.rb` | `contracts/diagnostics.rb` | moves from text/as_json diagnostics to typed `DiagnosticsReport` |
 | `effects.rb` | `contracts/effects.rb` | moves from legacy effect nodes to explicit effect/executor seams |
 | `introspection.rb` | `contracts/introspection.rb` | moves from text/Mermaid explainers to structured compilation/result/diagnostics reports |
+| `provenance.rb` | `contracts/provenance.rb` | moves from legacy contract patching to explicit lineage over `ExecutionResult` + `ProvenancePack` |
 | n/a | `contracts/migration.rb` | direct core-vs-contracts side-by-side comparison |
 | n/a | `contracts/three_layer_migration.rb` | legacy core vs raw contracts vs preset/domain layer |
+| n/a | `contracts/execution_report_migration.rb` | legacy `igniter/extensions/execution_report` activator vs `ExecutionReportPack` |
 
 Use the `contracts/` examples when you want the target embedded-kernel story.
 Use the legacy root examples when you need to compare behavior during migration.

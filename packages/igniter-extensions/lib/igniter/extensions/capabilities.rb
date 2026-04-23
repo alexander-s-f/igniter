@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "legacy"
+Igniter::Extensions::Legacy.require!("igniter/extensions/capabilities", replacement: "contracts-side validation or diagnostics packs instead of patching CompiledGraph globally")
 require "igniter/core/capabilities"
 
 # Patches CompiledGraph with capability introspection methods.
