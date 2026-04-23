@@ -7,6 +7,7 @@ Gem::Specification.new do |spec|
     packages/igniter-contracts/lib
     packages/igniter-extensions/lib
     packages/igniter-application/lib
+    packages/igniter-web/lib
     packages/igniter-cluster/lib
     packages/igniter-mcp-adapter/lib
   ].freeze
@@ -19,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Contracts-native runtime umbrella for Igniter"
   spec.description = [
     "Igniter provides a contracts-native embedded kernel, extension packs,",
-    "local application runtime, cluster runtime, and MCP adapter surfaces",
+    "local application runtime, web runtime, cluster runtime, and MCP adapter surfaces",
     "without shipping archived legacy layers."
   ].join(" ")
   spec.homepage = "https://github.com/alexander-s-f/igniter"
@@ -39,12 +40,15 @@ Gem::Specification.new do |spec|
     "lib/igniter/monorepo_packages.rb",
     "lib/igniter/runtime.rb",
     "lib/igniter/version.rb",
+    "lib/igniter/web.rb",
     "packages/igniter-contracts/lib/**/*.rb",
     "packages/igniter-contracts/README.md",
     "packages/igniter-extensions/lib/**/*.rb",
     "packages/igniter-extensions/README.md",
     "packages/igniter-application/lib/**/*.rb",
     "packages/igniter-application/README.md",
+    "packages/igniter-web/lib/**/*.rb",
+    "packages/igniter-web/README.md",
     "packages/igniter-cluster/lib/**/*.rb",
     "packages/igniter-cluster/README.md",
     "packages/igniter-mcp-adapter/lib/**/*.rb",

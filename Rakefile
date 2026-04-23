@@ -21,6 +21,7 @@ RuboCop::RakeTask.new do |task|
     packages/igniter-contracts/**/*.rb
     packages/igniter-extensions/**/*.rb
     packages/igniter-application/**/*.rb
+    packages/igniter-web/**/*.rb
     packages/igniter-cluster/**/*.rb
     packages/igniter-mcp-adapter/**/*.rb
   ]
@@ -34,6 +35,7 @@ RSpec::Core::RakeTask.new(:spec) do |t|
     packages/igniter-contracts/spec
     packages/igniter-extensions/spec
     packages/igniter-application/spec
+    packages/igniter-web/spec
     packages/igniter-cluster/spec
     packages/igniter-mcp-adapter/spec
   ]

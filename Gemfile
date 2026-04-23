@@ -7,6 +7,7 @@ gemspec
 gem "igniter-application", path: "packages/igniter-application"
 gem "igniter-contracts", path: "packages/igniter-contracts"
 gem "igniter-extensions", path: "packages/igniter-extensions"
+gem "igniter-web", path: "packages/igniter-web"
 gem "igniter-mcp-adapter", path: "packages/igniter-mcp-adapter"
 
 gem "irb"

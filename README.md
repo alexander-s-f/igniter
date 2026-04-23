@@ -5,6 +5,8 @@ Igniter is being rebuilt around a contracts-native package graph:
 - `igniter-contracts` — canonical embedded kernel
 - `igniter-extensions` — packs, tooling, and domain behavior
 - `igniter-application` — contracts-native app runtime
+- `igniter-web` — contracts-first web runtime and authoring lane
+- `igniter-cluster` — distributed runtime
 - `igniter-mcp-adapter` — transport-facing MCP surface
 
 The active repository surface is intentionally limited to those packages. Older
@@ -77,6 +79,15 @@ Use this for:
 - providers, services, contracts, and boot flow
 - application profiles and embedded host runtime
 
+### `igniter-web`
+
+Use this for:
+
+- contracts-first web ingress and transport surfaces
+- higher-level web application authoring DSL
+- streams, dashboards, chats, wizards, and operator-facing UI workflows
+- optional record-style persistence facade
+
 ### `igniter-mcp-adapter`
 
 Use this for:
@@ -93,6 +104,7 @@ Use this for:
   - [packages/igniter-contracts/README.md](/Users/alex/dev/projects/igniter/packages/igniter-contracts/README.md)
   - [packages/igniter-extensions/README.md](/Users/alex/dev/projects/igniter/packages/igniter-extensions/README.md)
   - [packages/igniter-application/README.md](/Users/alex/dev/projects/igniter/packages/igniter-application/README.md)
+  - [packages/igniter-web/README.md](/Users/alex/dev/projects/igniter/packages/igniter-web/README.md)
   - [packages/igniter-cluster/README.md](/Users/alex/dev/projects/igniter/packages/igniter-cluster/README.md)
   - [packages/igniter-mcp-adapter/README.md](/Users/alex/dev/projects/igniter/packages/igniter-mcp-adapter/README.md)
 | Explicit legacy kernel lane | `require "igniter/legacy"` |

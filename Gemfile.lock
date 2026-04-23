@@ -27,6 +27,12 @@ PATH
     igniter-mcp-adapter (0.5.1)
       igniter-extensions (= 0.5.1)
 
+PATH
+  remote: packages/igniter-web
+  specs:
+    igniter-web (0.5.1)
+      igniter-application (= 0.5.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -117,6 +123,7 @@ DEPENDENCIES
   igniter-contracts!
   igniter-extensions!
   igniter-mcp-adapter!
+  igniter-web!
   irb
   rake (~> 13.0)
   rspec (~> 3.0)

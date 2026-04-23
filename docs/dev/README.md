@@ -25,6 +25,7 @@ a framework.
 - [Embed Target Plan](./embed-target-plan.md)
 - [Application Target Plan](./application-target-plan.md)
 - [Cluster Target Plan](./cluster-target-plan.md)
+- [Igniter Web Target Plan](./igniter-web-target-plan.md)
 - [Core Retirement Inventory](./core-retirement-inventory.md)
 - [DebugPack Spec](./debug-pack-spec.md)
 - [MCP Adapter Package](./mcp-adapter-package-spec.md)
@@ -45,6 +46,7 @@ a framework.
 - [Namespace Migration Plan](./namespace-migration-plan.md)
 - [Backlog](./backlog.md)
 - [Frontend Packages Idea](./frontend-packages-idea.md)
+- [Igniter Web Target Plan](./igniter-web-target-plan.md)
 - [Data Ownership](./data-ownership.md)
 
 ## Working Heuristics

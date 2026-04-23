@@ -17,6 +17,7 @@ RSpec.describe "gemspec packaging" do
     expect(spec.files).to include("packages/igniter-contracts/lib/igniter/contracts.rb")
     expect(spec.files).to include("packages/igniter-extensions/lib/igniter/extensions/contracts.rb")
     expect(spec.files).to include("packages/igniter-application/lib/igniter/application.rb")
+    expect(spec.files).to include("packages/igniter-web/lib/igniter/web.rb")
     expect(spec.files).to include("packages/igniter-cluster/lib/igniter/cluster.rb")
     expect(spec.files).to include("packages/igniter-mcp-adapter/lib/igniter/mcp/adapter.rb")
     expect(spec.files.grep(%r{examples/archive})).to eq([])
@@ -39,6 +40,13 @@ RSpec.describe "gemspec packaging" do
 
   it "declares igniter-cluster runtime dependency through igniter-application only" do
     spec = load_gemspec("packages/igniter-cluster/igniter-cluster.gemspec")
+
+    dependency_names = spec.dependencies.select { |dependency| dependency.type == :runtime }.map(&:name)
+    expect(dependency_names).to eq(["igniter-application"])
+  end
+
+  it "declares igniter-web runtime dependency through igniter-application only" do
+    spec = load_gemspec("packages/igniter-web/igniter-web.gemspec")
 
     dependency_names = spec.dependencies.select { |dependency| dependency.type == :runtime }.map(&:name)
     expect(dependency_names).to eq(["igniter-application"])
