@@ -22,6 +22,50 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  class LifecycleLoader
+    attr_reader :loads
+
+    def initialize
+      @loads = []
+    end
+
+    def load!(base_dir:, paths:, environment:)
+      @loads << {
+        base_dir: base_dir.to_s,
+        paths: paths,
+        loader: environment.profile.loader_name
+      }
+      self
+    end
+  end
+
+  class LifecycleHost
+    attr_reader :activations, :deactivations
+
+    def initialize
+      @activations = 0
+      @deactivations = 0
+    end
+
+    def activate!(environment:)
+      @activations += 1
+      environment
+    end
+
+    def deactivate!(environment:)
+      @deactivations += 1
+      environment
+    end
+
+    def start(environment:)
+      environment.snapshot
+    end
+
+    def rack_app(_environment:)
+      ->(_env) { [200, { "content-type" => "text/plain" }, ["LifecycleHost"]] }
+    end
+  end
+
   class LifecycleProvider < Igniter::Application::Provider
     attr_reader :boot_calls, :shutdown_calls
 
@@ -398,26 +442,112 @@ RSpec.describe Igniter::Application::Environment do
     )
   end
 
+  it "builds a boot plan before execution" do
+    environment = Igniter::Application.build_kernel
+                                      .register_provider(:analytics, LifecycleProvider.new)
+                                      .set(:services, :analytics, :endpoint, value: "memory://analytics")
+                                      .contracts_path("contracts")
+                                      .then { |kernel| described_class.new(profile: kernel.finalize) }
+
+    plan = environment.plan_boot(base_dir: Dir.pwd, load_code: true, start_scheduler: false, activate_transport: false)
+
+    expect(plan).to be_a(Igniter::Application::BootPlan)
+    expect(plan.actions).to eq(%i[load_code resolve_providers boot_providers])
+    expect(plan.load_code_step.to_h).to include(
+      seam: :loader,
+      action: :load,
+      status: :planned
+    )
+    expect(plan.scheduler_step.to_h).to include(
+      seam: :scheduler,
+      action: :start,
+      status: :skipped,
+      reason: "start_scheduler disabled"
+    )
+    expect(plan.host_step.to_h).to include(
+      seam: :host,
+      action: :activate_transport,
+      status: :skipped,
+      reason: "activate_transport disabled"
+    )
+  end
+
+  it "executes an explicit boot plan through the plan executor" do
+    provider = LifecycleProvider.new
+    scheduler = LifecycleScheduler.new
+    loader = LifecycleLoader.new
+    host = LifecycleHost.new
+    environment = Igniter::Application.build_kernel
+                                      .register_provider(:analytics, provider)
+                                      .loader(:filesystem, seam: loader)
+                                      .scheduler(:threaded, seam: scheduler)
+                                      .host(:rack, seam: host)
+                                      .set(:runtime, :mode, value: :test)
+                                      .set(:services, :analytics, :endpoint, value: "memory://analytics")
+                                      .contracts_path("contracts")
+                                      .then { |kernel| described_class.new(profile: kernel.finalize) }
+
+    plan = environment.plan_boot(base_dir: Dir.pwd, activate_transport: true)
+    report = environment.execute_boot_plan(plan)
+
+    expect(report.plan).to equal(plan)
+    expect(environment.booted?).to be(true)
+    expect(loader.loads.length).to eq(1)
+    expect(scheduler.starts).to eq([:threaded])
+    expect(host.activations).to eq(1)
+    expect(provider.boot_calls).to eq(1)
+  end
+
   it "boots through explicit provider lifecycle and returns structured reports" do
     provider = LifecycleProvider.new
     scheduler = LifecycleScheduler.new
+    loader = LifecycleLoader.new
+    host = LifecycleHost.new
     environment = Igniter::Application.build_kernel
                                       .register_provider(:analytics, provider)
+                                      .loader(:filesystem, seam: loader)
                                       .scheduler(:threaded, seam: scheduler)
+                                      .host(:rack, seam: host)
                                       .set(:runtime, :mode, value: :test)
                                       .set(:services, :analytics, :endpoint, value: "memory://analytics")
+                                      .contracts_path("contracts")
                                       .then { |kernel| described_class.new(profile: kernel.finalize) }
 
-    report = environment.boot(load_code: false)
+    report = environment.boot(base_dir: Dir.pwd, activate_transport: true)
 
     expect(report).to be_a(Igniter::Application::BootReport)
+    expect(report.plan).to be_a(Igniter::Application::BootPlan)
+    expect(report.loaded_code?).to be(true)
     expect(report.providers_resolved?).to be(true)
     expect(report.providers_booted?).to be(true)
     expect(report.scheduler_started?).to be(true)
     expect(provider.boot_calls).to eq(1)
+    expect(loader.loads.first).to include(
+      base_dir: Dir.pwd,
+      loader: :filesystem
+    )
     expect(scheduler.starts).to eq([:threaded])
+    expect(host.activations).to eq(1)
     expect(environment.service(:analytics_api).call).to eq("memory://analytics")
     expect(environment.interface(:public_analytics_api).call).to eq("memory://analytics")
+    expect(report.loader_result.to_h).to include(
+      seam: :loader,
+      action: :load,
+      status: :completed
+    )
+    expect(report.scheduler_result.to_h).to include(
+      seam: :scheduler,
+      action: :start,
+      status: :completed
+    )
+    expect(report.host_result.to_h).to include(
+      seam: :host,
+      action: :activate_transport,
+      status: :completed
+    )
+    expect(report.to_h.fetch(:plan).fetch(:actions)).to eq(
+      %i[load_code resolve_providers boot_providers start_scheduler activate_transport]
+    )
     expect(report.provider_resolution_report.to_h).to include(
       providers: [:analytics],
       services: %i[analytics_api public_analytics_api],
@@ -432,28 +562,110 @@ RSpec.describe Igniter::Application::Environment do
       providers_resolved: true,
       providers_booted: true,
       providers_shutdown: false,
-      scheduler_running: true
+      scheduler_running: true,
+      transport_activated: true
     )
+  end
+
+  it "builds a shutdown plan from current runtime state" do
+    provider = LifecycleProvider.new
+    scheduler = LifecycleScheduler.new
+    host = LifecycleHost.new
+    environment = Igniter::Application.build_kernel
+                                      .register_provider(:analytics, provider)
+                                      .scheduler(:threaded, seam: scheduler)
+                                      .host(:rack, seam: host)
+                                      .set(:runtime, :mode, value: :test)
+                                      .set(:services, :analytics, :endpoint, value: "memory://analytics")
+                                      .then { |kernel| described_class.new(profile: kernel.finalize) }
+
+    pre_boot_plan = environment.plan_shutdown
+    expect(pre_boot_plan.actions).to eq([])
+    expect(pre_boot_plan.host_step.to_h).to include(status: :skipped, reason: "transport not active")
+    expect(pre_boot_plan.scheduler_step.to_h).to include(status: :skipped, reason: "scheduler not running")
+    expect(pre_boot_plan.provider_shutdown_step.to_h).to include(status: :skipped, reason: "providers not booted")
+
+    environment.boot(load_code: false, activate_transport: true)
+    plan = environment.plan_shutdown
+
+    expect(plan).to be_a(Igniter::Application::ShutdownPlan)
+    expect(plan.actions).to eq(%i[deactivate_transport stop_scheduler shutdown_providers])
+    expect(plan.host_step.to_h).to include(
+      seam: :host,
+      action: :deactivate_transport,
+      status: :planned
+    )
+    expect(plan.scheduler_step.to_h).to include(
+      seam: :scheduler,
+      action: :stop,
+      status: :planned
+    )
+    expect(plan.provider_shutdown_step.to_h).to include(
+      seam: :providers,
+      action: :shutdown,
+      status: :planned
+    )
+  end
+
+  it "executes an explicit shutdown plan through the plan executor" do
+    provider = LifecycleProvider.new
+    scheduler = LifecycleScheduler.new
+    host = LifecycleHost.new
+    environment = Igniter::Application.build_kernel
+                                      .register_provider(:analytics, provider)
+                                      .scheduler(:threaded, seam: scheduler)
+                                      .host(:rack, seam: host)
+                                      .set(:runtime, :mode, value: :test)
+                                      .set(:services, :analytics, :endpoint, value: "memory://analytics")
+                                      .then { |kernel| described_class.new(profile: kernel.finalize) }
+
+    environment.boot(load_code: false, activate_transport: true)
+    plan = environment.plan_shutdown
+    report = environment.execute_shutdown_plan(plan)
+
+    expect(report.plan).to equal(plan)
+    expect(environment.booted?).to be(false)
+    expect(host.deactivations).to eq(1)
+    expect(scheduler.stops).to eq([:threaded])
+    expect(provider.shutdown_calls).to eq(1)
   end
 
   it "shuts down providers through an explicit lifecycle report" do
     provider = LifecycleProvider.new
     scheduler = LifecycleScheduler.new
+    host = LifecycleHost.new
     environment = Igniter::Application.build_kernel
                                       .register_provider(:analytics, provider)
                                       .scheduler(:threaded, seam: scheduler)
+                                      .host(:rack, seam: host)
                                       .set(:runtime, :mode, value: :test)
                                       .set(:services, :analytics, :endpoint, value: "memory://analytics")
                                       .then { |kernel| described_class.new(profile: kernel.finalize) }
 
-    environment.boot(load_code: false)
+    environment.boot(load_code: false, activate_transport: true)
     report = environment.shutdown
 
     expect(report).to be_a(Igniter::Application::ShutdownReport)
+    expect(report.plan).to be_a(Igniter::Application::ShutdownPlan)
+    expect(report.transport_deactivated?).to be(true)
     expect(report.scheduler_stopped?).to be(true)
     expect(report.providers_shutdown?).to be(true)
     expect(provider.shutdown_calls).to eq(1)
+    expect(host.deactivations).to eq(1)
     expect(scheduler.stops).to eq([:threaded])
+    expect(report.host_result.to_h).to include(
+      seam: :host,
+      action: :deactivate_transport,
+      status: :completed
+    )
+    expect(report.scheduler_result.to_h).to include(
+      seam: :scheduler,
+      action: :stop,
+      status: :completed
+    )
+    expect(report.to_h.fetch(:plan).fetch(:actions)).to eq(
+      %i[deactivate_transport stop_scheduler shutdown_providers]
+    )
     expect(report.provider_shutdown_report.to_h).to include(
       phase: :shutdown,
       status: :completed,
@@ -463,7 +675,8 @@ RSpec.describe Igniter::Application::Environment do
       booted: false,
       providers_booted: false,
       providers_shutdown: true,
-      scheduler_running: false
+      scheduler_running: false,
+      transport_activated: false
     )
   end
 end

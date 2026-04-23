@@ -103,6 +103,10 @@ module Igniter
         profile.session_store_seam
       end
 
+      def plan_executor
+        @plan_executor ||= PlanExecutor.new(environment: self)
+      end
+
       def compose_invoker(invoker: Igniter::Extensions::Contracts::ComposePack::LocalInvoker, namespace: :compose,
                           metadata: {}, id_generator: nil)
         ComposeInvoker.new(
@@ -174,72 +178,76 @@ module Igniter
       end
 
       def boot(base_dir: Dir.pwd, load_code: true, start_scheduler: true, activate_transport: false)
-        phases = []
-
-        if load_code
-          load_code!(base_dir: base_dir)
-          phases << BootPhase.new(name: :load_code, status: :completed)
-        else
-          phases << BootPhase.new(name: :load_code, status: :skipped)
-        end
-
-        resolution_report = resolve_providers!
-        phases << BootPhase.new(name: :resolve_providers, status: resolution_report.status)
-
-        boot_report = boot_providers!
-        phases << BootPhase.new(name: :boot_providers, status: boot_report.status)
-
-        phases << if start_scheduler
-                    self.start_scheduler
-                    BootPhase.new(name: :start_scheduler, status: :completed)
-                  else
-                    BootPhase.new(name: :start_scheduler, status: :skipped)
-                  end
-
-        if activate_transport
-          activate_transport!
-          phases << BootPhase.new(name: :activate_transport, status: :completed)
-        else
-          phases << BootPhase.new(name: :activate_transport, status: :skipped)
-        end
-
-        @booted = true
-        BootReport.new(
-          base_dir: base_dir.to_s,
-          phases: phases,
-          provider_resolution_report: resolution_report,
-          provider_boot_report: boot_report,
-          snapshot: snapshot
+        plan = plan_boot(
+          base_dir: base_dir,
+          load_code: load_code,
+          start_scheduler: start_scheduler,
+          activate_transport: activate_transport
         )
+        execute_boot_plan(plan)
       end
 
       def booted?
         @booted == true
       end
 
-      def shutdown(stop_scheduler: true)
-        phases = []
-
-        phases << if stop_scheduler && @scheduler_running == true
-                    self.stop_scheduler
-                    BootPhase.new(name: :stop_scheduler, status: :completed)
-                  else
-                    BootPhase.new(name: :stop_scheduler, status: :skipped)
-                  end
-
-        shutdown_report = shutdown_providers!
-        phases << BootPhase.new(name: :shutdown_providers, status: shutdown_report.status)
-
-        @booted = false
-        ShutdownReport.new(
-          phases: phases,
-          provider_shutdown_report: shutdown_report,
-          snapshot: snapshot
+      def shutdown(stop_scheduler: true, deactivate_transport: true)
+        plan = plan_shutdown(
+          stop_scheduler: stop_scheduler,
+          deactivate_transport: deactivate_transport
         )
+        execute_shutdown_plan(plan)
       end
 
       def snapshot
         Snapshot.new(profile: profile, runtime_state: runtime_state)
+      end
+
+      def plan_boot(base_dir: Dir.pwd, load_code: true, start_scheduler: true, activate_transport: false)
+        BootPlan.new(
+          base_dir: base_dir,
+          steps: [
+            build_boot_load_code_step(base_dir: base_dir, enabled: load_code),
+            planned_plan_step(
+              name: :resolve_providers,
+              seam_name: :providers,
+              action: :resolve,
+              metadata: {
+                providers: profile.provider_names
+              }
+            ),
+            planned_plan_step(
+              name: :boot_providers,
+              seam_name: :providers,
+              action: :boot,
+              metadata: {
+                providers: profile.provider_names
+              }
+            ),
+            build_boot_scheduler_step(enabled: start_scheduler),
+            build_boot_host_step(enabled: activate_transport)
+          ],
+          snapshot: snapshot
+        )
+      end
+
+      def plan_shutdown(stop_scheduler: true, deactivate_transport: true)
+        ShutdownPlan.new(
+          steps: [
+            build_shutdown_host_step(enabled: deactivate_transport),
+            build_shutdown_scheduler_step(enabled: stop_scheduler),
+            build_shutdown_provider_step
+          ],
+          snapshot: snapshot
+        )
+      end
+
+      def execute_boot_plan(plan)
+        plan_executor.boot(plan)
+      end
+
+      def execute_shutdown_plan(plan)
+        plan_executor.shutdown(plan)
       end
 
       def fetch_session(id)
@@ -387,6 +395,14 @@ module Igniter
 
       private
 
+      def mark_booted!
+        @booted = true
+      end
+
+      def mark_shutdown!
+        @booted = false
+      end
+
       def resolve_providers!
         return @provider_resolution_report if @providers_resolved == true
 
@@ -440,6 +456,70 @@ module Igniter
         @resolved_provider_interface_definitions.freeze
         @providers_resolved = true
         @provider_resolution_report = ProviderLifecycleReport.new(phase: :resolve, results: results)
+      end
+
+      def load_code_with_report(base_dir:)
+        metadata = {
+          base_dir: base_dir.to_s,
+          path_groups: profile.path_groups
+        }
+        execute_seam_action(seam_name: :loader, action: :load, metadata: metadata) do
+          load_code!(base_dir: base_dir)
+        end
+      end
+
+      def start_scheduler_with_report
+        metadata = {
+          scheduler: profile.scheduler_name,
+          scheduled_jobs: profile.scheduled_job_names
+        }
+        execute_seam_action(seam_name: :scheduler, action: :start, metadata: metadata) do
+          start_scheduler
+        end
+      end
+
+      def stop_scheduler_with_report
+        if @scheduler_running != true
+          return skipped_seam_result(
+            seam_name: :scheduler,
+            action: :stop,
+            metadata: {
+              scheduler: profile.scheduler_name,
+              scheduled_jobs: profile.scheduled_job_names
+            }
+          )
+        end
+
+        metadata = {
+          scheduler: profile.scheduler_name,
+          scheduled_jobs: profile.scheduled_job_names
+        }
+        execute_seam_action(seam_name: :scheduler, action: :stop, metadata: metadata) do
+          stop_scheduler
+        end
+      end
+
+      def activate_transport_with_report
+        metadata = {
+          host: profile.host_name
+        }
+        execute_seam_action(seam_name: :host, action: :activate_transport, metadata: metadata) do
+          activate_transport!
+        end
+      end
+
+      def deactivate_transport_with_report
+        metadata = {
+          host: profile.host_name
+        }
+        return skipped_seam_result(seam_name: :host, action: :deactivate_transport, metadata: metadata) unless @transport_activated == true
+        return skipped_seam_result(seam_name: :host, action: :deactivate_transport, metadata: metadata) unless host_seam.respond_to?(:deactivate!)
+
+        execute_seam_action(seam_name: :host, action: :deactivate_transport, metadata: metadata) do
+          host_seam.deactivate!(environment: self)
+          @transport_activated = false
+          self
+        end
       end
 
       def boot_providers!
@@ -571,6 +651,236 @@ module Igniter
         end
       end
 
+      def execute_seam_action(seam_name:, action:, metadata:)
+        yield
+        SeamLifecycleResult.new(
+          seam_name: seam_name,
+          action: action,
+          status: :completed,
+          metadata: metadata
+        )
+      rescue StandardError => e
+        result = SeamLifecycleResult.new(
+          seam_name: seam_name,
+          action: action,
+          status: :failed,
+          metadata: metadata,
+          error: e
+        )
+        store_failed_seam_result(result)
+        raise
+      end
+
+      def skipped_seam_result(seam_name:, action:, metadata:)
+        SeamLifecycleResult.new(
+          seam_name: seam_name,
+          action: action,
+          status: :skipped,
+          metadata: metadata
+        )
+      end
+
+      def skipped_seam_result_from_step(step)
+        skipped_seam_result(
+          seam_name: step.seam_name,
+          action: step.action,
+          metadata: step.metadata
+        )
+      end
+
+      def planned_plan_step(name:, seam_name:, action:, metadata:)
+        LifecyclePlanStep.new(
+          name: name,
+          seam_name: seam_name,
+          action: action,
+          status: :planned,
+          metadata: metadata
+        )
+      end
+
+      def skipped_plan_step(name:, seam_name:, action:, metadata:, reason:)
+        LifecyclePlanStep.new(
+          name: name,
+          seam_name: seam_name,
+          action: action,
+          status: :skipped,
+          metadata: metadata,
+          reason: reason
+        )
+      end
+
+      def build_boot_load_code_step(base_dir:, enabled:)
+        metadata = {
+          base_dir: base_dir.to_s,
+          path_groups: profile.path_groups
+        }
+        return planned_plan_step(name: :load_code, seam_name: :loader, action: :load, metadata: metadata) if enabled
+
+        skipped_plan_step(
+          name: :load_code,
+          seam_name: :loader,
+          action: :load,
+          metadata: metadata,
+          reason: "load_code disabled"
+        )
+      end
+
+      def build_boot_scheduler_step(enabled:)
+        metadata = {
+          scheduler: profile.scheduler_name,
+          scheduled_jobs: profile.scheduled_job_names
+        }
+        return planned_plan_step(name: :start_scheduler, seam_name: :scheduler, action: :start, metadata: metadata) if enabled
+
+        skipped_plan_step(
+          name: :start_scheduler,
+          seam_name: :scheduler,
+          action: :start,
+          metadata: metadata,
+          reason: "start_scheduler disabled"
+        )
+      end
+
+      def build_boot_host_step(enabled:)
+        metadata = {
+          host: profile.host_name
+        }
+        return planned_plan_step(name: :activate_transport, seam_name: :host, action: :activate_transport, metadata: metadata) if enabled
+
+        skipped_plan_step(
+          name: :activate_transport,
+          seam_name: :host,
+          action: :activate_transport,
+          metadata: metadata,
+          reason: "activate_transport disabled"
+        )
+      end
+
+      def build_shutdown_host_step(enabled:)
+        metadata = {
+          host: profile.host_name,
+          transport_activated: @transport_activated == true
+        }
+        unless enabled
+          return skipped_plan_step(
+            name: :deactivate_transport,
+            seam_name: :host,
+            action: :deactivate_transport,
+            metadata: metadata,
+            reason: "deactivate_transport disabled"
+          )
+        end
+
+        unless @transport_activated == true
+          return skipped_plan_step(
+            name: :deactivate_transport,
+            seam_name: :host,
+            action: :deactivate_transport,
+            metadata: metadata,
+            reason: "transport not active"
+          )
+        end
+
+        unless host_seam.respond_to?(:deactivate!)
+          return skipped_plan_step(
+            name: :deactivate_transport,
+            seam_name: :host,
+            action: :deactivate_transport,
+            metadata: metadata,
+            reason: "host seam does not support deactivate!"
+          )
+        end
+
+        planned_plan_step(
+          name: :deactivate_transport,
+          seam_name: :host,
+          action: :deactivate_transport,
+          metadata: metadata
+        )
+      end
+
+      def build_shutdown_scheduler_step(enabled:)
+        metadata = {
+          scheduler: profile.scheduler_name,
+          scheduled_jobs: profile.scheduled_job_names,
+          scheduler_running: @scheduler_running == true
+        }
+        unless enabled
+          return skipped_plan_step(
+            name: :stop_scheduler,
+            seam_name: :scheduler,
+            action: :stop,
+            metadata: metadata,
+            reason: "stop_scheduler disabled"
+          )
+        end
+
+        unless @scheduler_running == true
+          return skipped_plan_step(
+            name: :stop_scheduler,
+            seam_name: :scheduler,
+            action: :stop,
+            metadata: metadata,
+            reason: "scheduler not running"
+          )
+        end
+
+        planned_plan_step(
+          name: :stop_scheduler,
+          seam_name: :scheduler,
+          action: :stop,
+          metadata: metadata
+        )
+      end
+
+      def build_shutdown_provider_step
+        metadata = {
+          providers: profile.provider_names,
+          providers_booted: @providers_booted == true
+        }
+        if profile.provider_names.empty?
+          return skipped_plan_step(
+            name: :shutdown_providers,
+            seam_name: :providers,
+            action: :shutdown,
+            metadata: metadata,
+            reason: "no providers registered"
+          )
+        end
+
+        unless @providers_booted == true
+          return skipped_plan_step(
+            name: :shutdown_providers,
+            seam_name: :providers,
+            action: :shutdown,
+            metadata: metadata,
+            reason: "providers not booted"
+          )
+        end
+
+        planned_plan_step(
+          name: :shutdown_providers,
+          seam_name: :providers,
+          action: :shutdown,
+          metadata: metadata
+        )
+      end
+
+      def store_failed_seam_result(result)
+        case [result.seam_name, result.action]
+        when %i[loader load]
+          @loader_result = result
+        when %i[scheduler start]
+          @scheduler_start_result = result
+        when %i[scheduler stop]
+          @scheduler_stop_result = result
+        when %i[host activate_transport]
+          @host_activation_result = result
+        when %i[host deactivate_transport]
+          @host_deactivation_result = result
+        end
+      end
+
       def provider_service_names(provider_name)
         return [] unless defined?(@resolved_provider_service_definitions)
 
@@ -600,6 +910,7 @@ module Igniter
           booted: booted?,
           code_loaded: !@loaded_base_dir.nil?,
           loaded_base_dir: @loaded_base_dir,
+          loader: @loader_result&.to_h,
           providers_resolved: @providers_resolved == true,
           providers_booted: @providers_booted == true,
           providers_shutdown: @providers_shutdown == true,
@@ -607,7 +918,11 @@ module Igniter
           provider_boot: @provider_boot_report&.to_h,
           provider_shutdown: @provider_shutdown_report&.to_h,
           scheduler_running: @scheduler_running == true,
+          scheduler_start: @scheduler_start_result&.to_h,
+          scheduler_stop: @scheduler_stop_result&.to_h,
           transport_activated: @transport_activated == true,
+          host_activation: @host_activation_result&.to_h,
+          host_deactivation: @host_deactivation_result&.to_h,
           session_count: session_store.entries.size
         }
       end

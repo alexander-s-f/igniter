@@ -79,12 +79,20 @@ The recommended target shape is:
   frozen runtime-safe snapshot of that app assembly
 - `Application::Environment`
   ergonomic runtime facade bound to a finalized profile
+- `Application::BootPlan`
+  explicit pre-execution boot lifecycle plan
+- `Application::PlanExecutor`
+  explicit execution seam for application lifecycle plans
 - `Application::Config`
   immutable application-owned configuration snapshot
 - `Application::Provider`
   explicit provider seam for runtime-owned service exports and boot hooks
 - `Application::ProviderLifecycleReport`
   explicit provider resolution / boot / shutdown reporting
+- `Application::SeamLifecycleResult`
+  explicit loader / scheduler / host lifecycle reporting
+- `Application::ShutdownPlan`
+  explicit pre-execution shutdown lifecycle plan
 - `Application::HostAdapter`
   explicit hosting seam
 - `Application::LoaderAdapter`
@@ -207,6 +215,9 @@ The target app model should expose these seams explicitly:
 - app-local interfaces exposed to sibling apps or upper layers
 - session store / durable local session snapshots
 - explicit provider lifecycle reports
+- explicit host/loader/scheduler lifecycle reports
+- explicit boot/shutdown plans before runtime mutation begins
+- explicit plan execution seam instead of ad-hoc boot/shutdown orchestration
 
 Each seam should be:
 
@@ -259,6 +270,11 @@ That means:
   seams rather than through special-case hacks
 - provider boot and shutdown should be explicit lifecycle phases, not hidden
   lazy side effects of service resolution
+- loader, scheduler, and host activation should also be explicit runtime
+  lifecycle phases with structured report values
+- application boot and shutdown should also be expressible as frozen plan
+  objects before execution, so hosts and tooling can inspect intended actions
+  before mutating runtime state
 
 ## Remote And Mesh Direction
 

@@ -21,8 +21,12 @@ Primary API:
 - `Igniter::Application::Profile`
 - `Igniter::Application::Environment`
 - `Igniter::Application::Snapshot`
+- `Igniter::Application::BootPlan`
 - `Igniter::Application::BootReport`
+- `Igniter::Application::PlanExecutor`
+- `Igniter::Application::ShutdownPlan`
 - `Igniter::Application::ShutdownReport`
+- `Igniter::Application::SeamLifecycleResult`
 
 The application layer also now owns a first local session seam for durable
 host-side orchestration around contracts-native compose/collection flows:
@@ -51,6 +55,25 @@ Provider lifecycle is explicit:
 - provider registry resolution is separate from provider `boot`
 - `Environment#boot` returns provider resolution and provider boot reports
 - `Environment#shutdown` returns a provider shutdown report
+
+Host-owned seam lifecycle is explicit too:
+
+- loader `load`
+- scheduler `start` / `stop`
+- host transport `activate` / `deactivate`
+
+These seams are reported as structured lifecycle results inside
+`BootReport`, `ShutdownReport`, and `Snapshot`.
+
+Boot and shutdown can also be planned explicitly before execution:
+
+- `Environment#plan_boot`
+- `Environment#plan_shutdown`
+- `Environment#execute_boot_plan`
+- `Environment#execute_shutdown_plan`
+
+That gives tooling and hosts a stable pre-execution shape for local lifecycle
+decisions without introducing cluster semantics into `Application`.
 
 That keeps `igniter-application` local-first and explainable, while still
 leaving room for richer remote or mesh-specific execution layers above it.

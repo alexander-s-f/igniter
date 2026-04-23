@@ -7,6 +7,10 @@ module Igniter
         environment
       end
 
+      def deactivate!(environment:)
+        environment
+      end
+
       def start(environment:)
         environment.snapshot
       end
