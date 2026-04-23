@@ -2,6 +2,7 @@
 
 require "igniter/contracts"
 require_relative "contracts/aggregate_pack"
+require_relative "contracts/audit_pack"
 require_relative "contracts/commerce_pack"
 require_relative "contracts/creator_pack"
 require_relative "contracts/dataflow_pack"
@@ -25,7 +26,7 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, CommercePack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, JournalPack, McpPack, ProvenancePack, SagaPack]
+        [AggregatePack, AuditPack, CommercePack, CreatorPack, DataflowPack, DebugPack, DifferentialPack, IncrementalPack, JournalPack, McpPack, ProvenancePack, SagaPack]
       ).freeze
 
       PRESETS = {
@@ -133,6 +134,14 @@ module Igniter
 
         def shadow_differential(**arguments)
           DifferentialPack.shadow(**arguments)
+        end
+
+        def audit_snapshot(result)
+          AuditPack.snapshot(result)
+        end
+
+        def audit_report(environment, inputs: nil, compiled_graph: nil, &block)
+          AuditPack.report(environment, inputs: inputs, compiled_graph: compiled_graph, &block)
         end
 
         def debug_profile(target)

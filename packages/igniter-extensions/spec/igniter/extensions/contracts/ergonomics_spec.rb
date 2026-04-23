@@ -13,6 +13,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::ExecutionReportPack,
       Igniter::Extensions::Contracts::LookupPack,
       Igniter::Extensions::Contracts::AggregatePack,
+      Igniter::Extensions::Contracts::AuditPack,
       Igniter::Extensions::Contracts::CommercePack,
       Igniter::Extensions::Contracts::CreatorPack,
       Igniter::Extensions::Contracts::DataflowPack,
@@ -195,6 +196,25 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
 
     expect(report.match?).to eq(false)
     expect(report.divergences.map(&:output_name)).to eq([:tax])
+  end
+
+  it "exposes audit helpers over execution results and environments" do
+    environment = Igniter::Contracts.with(Igniter::Extensions::Contracts::AuditPack)
+
+    compiled = environment.compile do
+      input :amount
+      compute :tax, depends_on: [:amount] do |amount:|
+        amount * 0.2
+      end
+      output :tax
+    end
+
+    result = environment.execute(compiled, inputs: { amount: 10 })
+    snapshot = Igniter::Extensions::Contracts.audit_snapshot(result)
+    report_snapshot = Igniter::Extensions::Contracts.audit_report(environment, compiled_graph: compiled, inputs: { amount: 10 })
+
+    expect(snapshot.state(:tax)).to include(value: 2.0)
+    expect(report_snapshot.event_types).to include(:compute_observed)
   end
 
   it "exposes debug helpers over environments and profiles" do

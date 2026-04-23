@@ -6,6 +6,7 @@ require "igniter/extensions/legacy"
 RSpec.describe Igniter::Extensions::Legacy do
   it "publishes a replacement map for legacy extension activators" do
     expect(described_class.entrypoints).to include(
+      "igniter/extensions/auditing",
       "igniter/extensions/differential",
       "igniter/extensions/execution_report",
       "igniter/extensions/dataflow",
@@ -18,6 +19,8 @@ RSpec.describe Igniter::Extensions::Legacy do
       .to eq("Igniter::Extensions::Contracts::ExecutionReportPack")
     expect(described_class.replacement_for("igniter/extensions/dataflow"))
       .to eq("Igniter::Extensions::Contracts::DataflowPack")
+    expect(described_class.replacement_for("igniter/extensions/auditing"))
+      .to eq("Igniter::Extensions::Contracts::AuditPack")
     expect(described_class.replacement_for("igniter/extensions/differential"))
       .to eq("Igniter::Extensions::Contracts::DifferentialPack")
   end

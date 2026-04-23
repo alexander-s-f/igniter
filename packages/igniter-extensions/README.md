@@ -227,6 +227,7 @@ Igniter::Extensions::Contracts.scaffold_pack(
 
 Legacy extension activators still exist for migration scenarios:
 
+- `require "igniter/extensions/auditing"`
 - `require "igniter/extensions/dataflow"`
 - `require "igniter/extensions/saga"`
 - `require "igniter/extensions/provenance"`
@@ -240,6 +241,8 @@ The first canonical activator-to-pack migration target is now explicit:
 
 - `require "igniter/extensions/execution_report"`
   -> `Igniter::Extensions::Contracts::ExecutionReportPack`
+- `require "igniter/extensions/auditing"`
+  -> `Igniter::Extensions::Contracts::AuditPack`
 - `require "igniter/extensions/dataflow"`
   -> `Igniter::Extensions::Contracts::DataflowPack`
 - `require "igniter/extensions/provenance"`
@@ -252,6 +255,7 @@ The first canonical activator-to-pack migration target is now explicit:
   -> `Igniter::Extensions::Contracts::DifferentialPack`
 
 See [examples/contracts/execution_report_migration.rb](../../examples/contracts/execution_report_migration.rb)
+and [examples/contracts/auditing.rb](../../examples/contracts/auditing.rb)
 and [examples/contracts/dataflow.rb](../../examples/contracts/dataflow.rb)
 and [examples/contracts/differential.rb](../../examples/contracts/differential.rb)
 and [examples/contracts/provenance.rb](../../examples/contracts/provenance.rb)

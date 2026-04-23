@@ -45,6 +45,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `collection_partial_failure.rb` — partial-failure collection diagnostics.
 - `composition.rb` — nested contracts via `compose`.
 - `contracts/aggregates.rb` — external `lookup` + `aggregate` packs composed together.
+- `contracts/auditing.rb` — explicit audit snapshots over `ExecutionResult` and incremental session wrappers.
 - `contracts/build_effect_executor_pack.rb` — inline effect/executor pack authoring over the public contracts API.
 - `contracts/build_your_own_pack.rb` — inline pack authoring over the public contracts API.
 - `contracts/compose_your_own_packs.rb` — inline pack composition where one custom pack depends on another.

@@ -151,6 +151,20 @@ module IgniterExamples
       expected_fragments: ["aggregate_total_amount=60", "aggregate_average_amount=20.0"]
     ),
     Example.new(
+      id: "contracts/auditing",
+      path: "examples/contracts/auditing.rb",
+      summary: "New-world audit snapshot over explicit execution results and incremental sessions.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_auditing_event_types=[:input_observed, :compute_observed, :output_observed]",
+        "contracts_auditing_state={:status=>:succeeded, :value=>120.0}",
+        "contracts_auditing_sections=baseline_summary,audit_summary"
+      ]
+    ),
+    Example.new(
       id: "contracts/build_your_own_pack",
       path: "examples/contracts/build_your_own_pack.rb",
       summary: "Inline custom pack authoring over the public igniter-contracts API.",

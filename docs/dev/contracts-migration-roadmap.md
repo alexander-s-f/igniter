@@ -48,6 +48,8 @@ These legacy activators now have a clear contracts-side replacement:
 
 - `igniter/extensions/execution_report`
   `Igniter::Extensions::Contracts::ExecutionReportPack`
+- `igniter/extensions/auditing`
+  `Igniter::Extensions::Contracts::AuditPack`
 - `igniter/extensions/dataflow`
   `Igniter::Extensions::Contracts::DataflowPack`
 - `igniter/extensions/differential`
@@ -84,8 +86,9 @@ pack or drop-in migration package:
 - `igniter/extensions/introspection`
   now mostly maps to `CompilationReport`, `ValidationReport`,
   `DiagnosticsReport`, and structured `to_h` exports
-- parts of diagnostics/auditing are already partially covered by
-  `ExecutionReportPack`, `ProvenancePack`, and the journal/effect-executor lane
+- deeper audit/debug stories still compose well with
+  `ExecutionReportPack`, `ProvenancePack`, `DebugPack`, and the
+  journal/effect-executor lane
 
 This means the architecture direction is clear, but migration ergonomics are
 still weaker than for the explicit replacement packs above.
@@ -94,7 +97,6 @@ still weaker than for the explicit replacement packs above.
 
 These entrypoints still point to a direction, not a finished replacement:
 
-- `igniter/extensions/auditing`
 - `igniter/extensions/capabilities`
 - `igniter/extensions/content_addressing`
 - `igniter/extensions/invariants`
@@ -164,7 +166,6 @@ The end state should be very explicit:
 
 Close the remaining legacy extension surfaces:
 
-- `auditing`
 - `capabilities`
 - `content_addressing`
 - `invariants`
@@ -307,16 +308,14 @@ That keeps the architecture honest.
 
 If we continue on migration value instead of novelty, I would prioritize:
 
-1. `auditing`
-   because a clean contracts-side diagnostics/audit story is now close
-2. `reactive`
+1. `reactive`
    because it likely wants explicit subscription/report hooks, not runtime
    patching
-3. `invariants`
+2. `invariants`
    because it should probably become validator/diagnostics-oriented
-4. `capabilities`
+3. `capabilities`
    because it likely wants compile-time contracts over global graph patching
-5. `content_addressing`
+4. `content_addressing`
    because it may need a more opinionated effect/runtime cache seam
 
 After those are closed, the priority should switch from "new capability" to
