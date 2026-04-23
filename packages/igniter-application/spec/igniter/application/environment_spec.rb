@@ -3,6 +3,63 @@
 require_relative "../../spec_helper"
 
 RSpec.describe Igniter::Application::Environment do
+  class LifecycleScheduler
+    attr_reader :starts, :stops
+
+    def initialize
+      @starts = []
+      @stops = []
+    end
+
+    def start(environment:)
+      @starts << environment.profile.scheduler_name
+      self
+    end
+
+    def stop(environment:)
+      @stops << environment.profile.scheduler_name
+      self
+    end
+  end
+
+  class LifecycleProvider < Igniter::Application::Provider
+    attr_reader :boot_calls, :shutdown_calls
+
+    def initialize
+      @boot_calls = 0
+      @shutdown_calls = 0
+    end
+
+    def services(environment:)
+      endpoint = environment.config.fetch(:services, :analytics, :endpoint)
+      {
+        analytics_api: -> { endpoint }
+      }
+    end
+
+    def interfaces(environment:)
+      endpoint = environment.config.fetch(:services, :analytics, :endpoint)
+      {
+        public_analytics_api: Igniter::Application::Interface.new(
+          name: :public_analytics_api,
+          callable: -> { endpoint },
+          metadata: { audience: :external },
+          source: :analytics
+        )
+      }
+    end
+
+    def boot(environment:)
+      @boot_calls += 1
+      environment.config.fetch(:runtime, :mode)
+    end
+
+    def shutdown(environment:)
+      @shutdown_calls += 1
+      environment.config.fetch(:runtime, :mode)
+    end
+  end
+
   it "persists compose sessions through the application session store" do
     environment = Igniter::Application.with(Igniter::Extensions::Contracts::ComposePack)
     pricing_graph = environment.compile do
@@ -319,5 +376,94 @@ RSpec.describe Igniter::Application::Environment do
     expect(requests.first.session_id).to eq("mesh/priced_items/1")
     expect(requests.first.key_name).to eq(:sku)
     expect(entry.payload.fetch(:transport)).to eq(adapter: :stub_remote, target: "node-b")
+  end
+
+  it "keeps provider registry resolution separate from provider boot" do
+    provider = LifecycleProvider.new
+    environment = Igniter::Application.build_kernel
+                                      .register_provider(:analytics, provider)
+                                      .set(:runtime, :mode, value: :test)
+                                      .set(:services, :analytics, :endpoint, value: "memory://analytics")
+                                      .finalize
+                                      .then { |profile| described_class.new(profile: profile) }
+
+    expect(environment.service(:analytics_api).call).to eq("memory://analytics")
+    expect(provider.boot_calls).to eq(0)
+    expect(environment.provider_resolution_report.to_h).to include(
+      phase: :resolve,
+      status: :completed,
+      providers: [:analytics],
+      services: %i[analytics_api public_analytics_api],
+      interfaces: [:public_analytics_api]
+    )
+  end
+
+  it "boots through explicit provider lifecycle and returns structured reports" do
+    provider = LifecycleProvider.new
+    scheduler = LifecycleScheduler.new
+    environment = Igniter::Application.build_kernel
+                                      .register_provider(:analytics, provider)
+                                      .scheduler(:threaded, seam: scheduler)
+                                      .set(:runtime, :mode, value: :test)
+                                      .set(:services, :analytics, :endpoint, value: "memory://analytics")
+                                      .then { |kernel| described_class.new(profile: kernel.finalize) }
+
+    report = environment.boot(load_code: false)
+
+    expect(report).to be_a(Igniter::Application::BootReport)
+    expect(report.providers_resolved?).to be(true)
+    expect(report.providers_booted?).to be(true)
+    expect(report.scheduler_started?).to be(true)
+    expect(provider.boot_calls).to eq(1)
+    expect(scheduler.starts).to eq([:threaded])
+    expect(environment.service(:analytics_api).call).to eq("memory://analytics")
+    expect(environment.interface(:public_analytics_api).call).to eq("memory://analytics")
+    expect(report.provider_resolution_report.to_h).to include(
+      providers: [:analytics],
+      services: %i[analytics_api public_analytics_api],
+      interfaces: [:public_analytics_api]
+    )
+    expect(report.provider_boot_report.to_h).to include(
+      phase: :boot,
+      status: :completed,
+      completed_providers: [:analytics]
+    )
+    expect(environment.snapshot.to_h.fetch(:runtime)).to include(
+      providers_resolved: true,
+      providers_booted: true,
+      providers_shutdown: false,
+      scheduler_running: true
+    )
+  end
+
+  it "shuts down providers through an explicit lifecycle report" do
+    provider = LifecycleProvider.new
+    scheduler = LifecycleScheduler.new
+    environment = Igniter::Application.build_kernel
+                                      .register_provider(:analytics, provider)
+                                      .scheduler(:threaded, seam: scheduler)
+                                      .set(:runtime, :mode, value: :test)
+                                      .set(:services, :analytics, :endpoint, value: "memory://analytics")
+                                      .then { |kernel| described_class.new(profile: kernel.finalize) }
+
+    environment.boot(load_code: false)
+    report = environment.shutdown
+
+    expect(report).to be_a(Igniter::Application::ShutdownReport)
+    expect(report.scheduler_stopped?).to be(true)
+    expect(report.providers_shutdown?).to be(true)
+    expect(provider.shutdown_calls).to eq(1)
+    expect(scheduler.stops).to eq([:threaded])
+    expect(report.provider_shutdown_report.to_h).to include(
+      phase: :shutdown,
+      status: :completed,
+      completed_providers: [:analytics]
+    )
+    expect(environment.snapshot.to_h.fetch(:runtime)).to include(
+      booted: false,
+      providers_booted: false,
+      providers_shutdown: true,
+      scheduler_running: false
+    )
   end
 end

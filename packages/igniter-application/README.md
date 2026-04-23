@@ -22,6 +22,7 @@ Primary API:
 - `Igniter::Application::Environment`
 - `Igniter::Application::Snapshot`
 - `Igniter::Application::BootReport`
+- `Igniter::Application::ShutdownReport`
 
 The application layer also now owns a first local session seam for durable
 host-side orchestration around contracts-native compose/collection flows:
@@ -44,6 +45,15 @@ Remote execution is still not a cluster layer here; these helpers only define a
 transport-ready adapter seam over the same session model. Real routing,
 placement, and distributed coordination should arrive later in
 `igniter-cluster`.
+
+Provider lifecycle is explicit:
+
+- provider registry resolution is separate from provider `boot`
+- `Environment#boot` returns provider resolution and provider boot reports
+- `Environment#shutdown` returns a provider shutdown report
+
+That keeps `igniter-application` local-first and explainable, while still
+leaving room for richer remote or mesh-specific execution layers above it.
 
 First clean external host adapter:
 

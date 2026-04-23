@@ -3,7 +3,7 @@
 module Igniter
   module Application
     class Environment
-      attr_reader :profile
+      attr_reader :profile, :provider_resolution_report, :provider_boot_report, :provider_shutdown_report
 
       def initialize(profile:)
         @profile = profile
@@ -183,10 +183,14 @@ module Igniter
           phases << BootPhase.new(name: :load_code, status: :skipped)
         end
 
-        resolve_providers!
-        phases << BootPhase.new(name: :resolve_providers, status: :completed)
+        resolution_report = resolve_providers!
+        phases << BootPhase.new(name: :resolve_providers, status: resolution_report.status)
+
+        boot_report = boot_providers!
+        phases << BootPhase.new(name: :boot_providers, status: boot_report.status)
 
         phases << if start_scheduler
+                    self.start_scheduler
                     BootPhase.new(name: :start_scheduler, status: :completed)
                   else
                     BootPhase.new(name: :start_scheduler, status: :skipped)
@@ -200,11 +204,38 @@ module Igniter
         end
 
         @booted = true
-        BootReport.new(base_dir: base_dir.to_s, phases: phases, snapshot: snapshot)
+        BootReport.new(
+          base_dir: base_dir.to_s,
+          phases: phases,
+          provider_resolution_report: resolution_report,
+          provider_boot_report: boot_report,
+          snapshot: snapshot
+        )
       end
 
       def booted?
         @booted == true
+      end
+
+      def shutdown(stop_scheduler: true)
+        phases = []
+
+        phases << if stop_scheduler && @scheduler_running == true
+                    self.stop_scheduler
+                    BootPhase.new(name: :stop_scheduler, status: :completed)
+                  else
+                    BootPhase.new(name: :stop_scheduler, status: :skipped)
+                  end
+
+        shutdown_report = shutdown_providers!
+        phases << BootPhase.new(name: :shutdown_providers, status: shutdown_report.status)
+
+        @booted = false
+        ShutdownReport.new(
+          phases: phases,
+          provider_shutdown_report: shutdown_report,
+          snapshot: snapshot
+        )
       end
 
       def snapshot
@@ -357,10 +388,13 @@ module Igniter
       private
 
       def resolve_providers!
+        return @provider_resolution_report if @providers_resolved == true
+
         @resolved_provider_services = {}
         @resolved_provider_service_definitions = {}
         @resolved_provider_interfaces = {}
         @resolved_provider_interface_definitions = {}
+        results = []
 
         providers.each do |registration|
           services = registration.provider.services(environment: self)
@@ -381,7 +415,7 @@ module Igniter
             definitions_map: @resolved_provider_interface_definitions
           )
 
-          @resolved_provider_interfaces.each do |name, callable|
+          provider_interface_entries(registration.name).each do |name, callable|
             @resolved_provider_services[name] ||= callable
             @resolved_provider_service_definitions[name] ||= ServiceDefinition.new(
               name: name,
@@ -390,7 +424,14 @@ module Igniter
               source: registration.name
             )
           end
-          registration.provider.boot(environment: self) if registration.provider.respond_to?(:boot)
+
+          results << ProviderLifecycleResult.new(
+            provider_name: registration.name,
+            phase: :resolve,
+            status: :completed,
+            service_names: provider_service_names(registration.name),
+            interface_names: provider_interface_names(registration.name)
+          )
         end
 
         @resolved_provider_services.freeze
@@ -398,7 +439,90 @@ module Igniter
         @resolved_provider_interfaces.freeze
         @resolved_provider_interface_definitions.freeze
         @providers_resolved = true
-        self
+        @provider_resolution_report = ProviderLifecycleReport.new(phase: :resolve, results: results)
+      end
+
+      def boot_providers!
+        return @provider_boot_report if @providers_booted == true
+
+        resolve_providers!
+        results = []
+
+        providers.each do |registration|
+          registration.provider.boot(environment: self) if registration.provider.respond_to?(:boot)
+          results << ProviderLifecycleResult.new(
+            provider_name: registration.name,
+            phase: :boot,
+            status: :completed,
+            service_names: provider_service_names(registration.name),
+            interface_names: provider_interface_names(registration.name)
+          )
+        rescue StandardError => e
+          results << ProviderLifecycleResult.new(
+            provider_name: registration.name,
+            phase: :boot,
+            status: :failed,
+            service_names: provider_service_names(registration.name),
+            interface_names: provider_interface_names(registration.name),
+            error: e
+          )
+          @provider_boot_report = ProviderLifecycleReport.new(phase: :boot, results: results)
+          raise
+        end
+
+        @providers_booted = true
+        @providers_shutdown = false
+        @provider_boot_report = ProviderLifecycleReport.new(phase: :boot, results: results)
+      end
+
+      def shutdown_providers!
+        results = if providers.empty?
+                    []
+                  elsif @providers_booted != true
+                    providers.reverse_each.map do |registration|
+                      ProviderLifecycleResult.new(
+                        provider_name: registration.name,
+                        phase: :shutdown,
+                        status: :skipped,
+                        service_names: provider_service_names(registration.name),
+                        interface_names: provider_interface_names(registration.name)
+                      )
+                    end
+                  else
+                    shutdown_provider_results
+                  end
+
+        @providers_booted = false
+        @providers_shutdown = true
+        @provider_shutdown_report = ProviderLifecycleReport.new(phase: :shutdown, results: results)
+      end
+
+      def shutdown_provider_results
+        results = []
+
+        providers.reverse_each do |registration|
+          registration.provider.shutdown(environment: self) if registration.provider.respond_to?(:shutdown)
+          results << ProviderLifecycleResult.new(
+            provider_name: registration.name,
+            phase: :shutdown,
+            status: :completed,
+            service_names: provider_service_names(registration.name),
+            interface_names: provider_interface_names(registration.name)
+          )
+        rescue StandardError => e
+          results << ProviderLifecycleResult.new(
+            provider_name: registration.name,
+            phase: :shutdown,
+            status: :failed,
+            service_names: provider_service_names(registration.name),
+            interface_names: provider_interface_names(registration.name),
+            error: e
+          )
+          @provider_shutdown_report = ProviderLifecycleReport.new(phase: :shutdown, results: results)
+          raise
+        end
+
+        results
       end
 
       def resolved_provider_services
@@ -447,12 +571,41 @@ module Igniter
         end
       end
 
+      def provider_service_names(provider_name)
+        return [] unless defined?(@resolved_provider_service_definitions)
+
+        @resolved_provider_service_definitions.values.select do |definition|
+          definition.source == provider_name.to_sym
+        end.map(&:name)
+      end
+
+      def provider_interface_names(provider_name)
+        return [] unless defined?(@resolved_provider_interface_definitions)
+
+        @resolved_provider_interface_definitions.values.select do |definition|
+          definition.source == provider_name.to_sym
+        end.map(&:name)
+      end
+
+      def provider_interface_entries(provider_name)
+        return {} unless defined?(@resolved_provider_interface_definitions)
+
+        @resolved_provider_interface_definitions.each_with_object({}) do |(name, definition), memo|
+          memo[name] = definition.callable if definition.source == provider_name.to_sym
+        end
+      end
+
       def runtime_state
         {
           booted: booted?,
           code_loaded: !@loaded_base_dir.nil?,
           loaded_base_dir: @loaded_base_dir,
           providers_resolved: @providers_resolved == true,
+          providers_booted: @providers_booted == true,
+          providers_shutdown: @providers_shutdown == true,
+          provider_resolution: @provider_resolution_report&.to_h,
+          provider_boot: @provider_boot_report&.to_h,
+          provider_shutdown: @provider_shutdown_report&.to_h,
           scheduler_running: @scheduler_running == true,
           transport_activated: @transport_activated == true,
           session_count: session_store.entries.size

@@ -83,6 +83,8 @@ The recommended target shape is:
   immutable application-owned configuration snapshot
 - `Application::Provider`
   explicit provider seam for runtime-owned service exports and boot hooks
+- `Application::ProviderLifecycleReport`
+  explicit provider resolution / boot / shutdown reporting
 - `Application::HostAdapter`
   explicit hosting seam
 - `Application::LoaderAdapter`
@@ -204,6 +206,7 @@ The target app model should expose these seams explicitly:
 - diagnostics contributors
 - app-local interfaces exposed to sibling apps or upper layers
 - session store / durable local session snapshots
+- explicit provider lifecycle reports
 
 Each seam should be:
 
@@ -254,6 +257,22 @@ That means:
 - app runtime snapshots should be serializable and stable for tooling
 - `DebugPack` should be able to introspect application state through explicit
   seams rather than through special-case hacks
+- provider boot and shutdown should be explicit lifecycle phases, not hidden
+  lazy side effects of service resolution
+
+## Remote And Mesh Direction
+
+The current application target should stay open for richer cluster and
+mesh-specific evolution.
+
+That means:
+
+- application may expose transport-ready invoker seams
+- cluster may specialize those seams into routing, placement, ownership, and
+  failover execution
+- future mesh-specific layers may add membership, peer protocol, trust,
+  discovery, or multi-hop behavior above application without changing the
+  contracts DSL or local application lifecycle
 
 ## Suggested Delivery Sequence
 
