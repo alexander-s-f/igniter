@@ -176,4 +176,28 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
     expect(pack_snapshot.name).to eq(:extensions_debug)
     expect(report.execution_result.output(:amount)).to eq(10)
   end
+
+  it "exposes pack audit helpers for custom packs" do
+    environment = Igniter::Extensions::Contracts.with(Igniter::Extensions::Contracts::DebugPack)
+
+    pack = Module.new do
+      module_function
+
+      def manifest
+        Igniter::Contracts::PackManifest.new(
+          name: :draft_pack,
+          node_contracts: [Igniter::Contracts::PackManifest.node(:draft_node)]
+        )
+      end
+
+      def install_into(kernel)
+        kernel
+      end
+    end
+
+    audit = Igniter::Extensions::Contracts.audit_pack(pack, environment)
+
+    expect(audit.ok?).to eq(false)
+    expect(audit.missing_node_definitions).to eq([:draft_node])
+  end
 end

@@ -270,6 +270,20 @@ module IgniterExamples
       ]
     ),
     Example.new(
+      id: "contracts/debug_pack_authoring",
+      path: "examples/contracts/debug_pack_authoring.rb",
+      summary: "DebugPack audit for an incomplete custom pack before finalize.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_pack_audit_ok=false",
+        "contracts_pack_audit_missing_nodes=draft_slug",
+        "contracts_pack_audit_finalize_error=true"
+      ]
+    ),
+    Example.new(
       id: "diagnostics",
       path: "examples/diagnostics.rb",
       summary: "Text diagnostics and machine-readable result output.",

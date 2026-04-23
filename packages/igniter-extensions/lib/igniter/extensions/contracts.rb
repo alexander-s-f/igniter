@@ -112,6 +112,18 @@ module Igniter
           DebugPack.pack_snapshot(pack_or_name, profile: profile)
         end
 
+        def audit_pack(pack, target = nil)
+          profile =
+            case target
+            when nil
+              nil
+            else
+              target.respond_to?(:profile) ? target.profile : target
+            end
+
+          DebugPack.audit(pack, profile: profile)
+        end
+
         def debug_snapshot(result, profile:)
           DebugPack.snapshot(result, profile: profile)
         end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "debug/profile_snapshot"
+require_relative "debug/pack_audit"
 require_relative "debug/report"
 
 module Igniter
@@ -55,6 +56,10 @@ module Igniter
           raise ArgumentError, "unknown pack #{pack_or_name}" unless manifest
 
           Debug::PackSnapshot.new(manifest)
+        end
+
+        def audit(pack, profile: nil)
+          Debug::PackAudit.build(pack, profile: profile)
         end
 
         def snapshot(result, profile:)

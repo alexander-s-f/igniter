@@ -85,6 +85,18 @@ report = Igniter::Extensions::Contracts.debug_report(
 end
 ```
 
+It can also audit a custom pack before finalize, which is the first bridge
+toward a future `CreatorPack` workflow:
+
+```ruby
+audit = Igniter::Extensions::Contracts.audit_pack(MyDraftPack, environment)
+
+audit.ok?
+audit.missing_node_definitions
+audit.missing_registry_contracts
+audit.finalize_error
+```
+
 Legacy extension activators still exist for migration scenarios:
 
 - `require "igniter/extensions/dataflow"`
