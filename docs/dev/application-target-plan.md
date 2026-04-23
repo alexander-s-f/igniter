@@ -295,6 +295,11 @@ The next concrete contracts-native runtime seam should be:
 - application environment helpers that execute contracts-native
   `ComposePack` / `CollectionPack` flows and persist session snapshots without
   pushing that durability concern back into the contracts kernel
+- application-owned `compose_invoker` / `collection_invoker` adapters so
+  contracts DSL can opt into durable application sessions through `via:`
+- transport-ready `remote_compose_invoker` / `remote_collection_invoker`
+  adapters that wrap the same session seam in explicit request/response
+  envelopes, without turning `Application` itself into the distributed runtime
 - future remote/distributed continuation owned by application/cluster adapters,
   not by the contracts baseline
 

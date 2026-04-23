@@ -30,11 +30,20 @@ host-side orchestration around contracts-native compose/collection flows:
 - default `MemorySessionStore`
 - `Environment#run_compose_session`
 - `Environment#run_collection_session`
+- `Environment#compose_invoker`
+- `Environment#collection_invoker`
+- `Environment#remote_compose_invoker`
+- `Environment#remote_collection_invoker`
 - `Environment#fetch_session`
 - `Environment#sessions`
 
 That keeps local session durability in `igniter-application`, while the actual
 graph semantics still live in `igniter-contracts` and `igniter-extensions`.
+
+Remote execution is still not a cluster layer here; these helpers only define a
+transport-ready adapter seam over the same session model. Real routing,
+placement, and distributed coordination should arrive later in
+`igniter-cluster`.
 
 First clean external host adapter:
 

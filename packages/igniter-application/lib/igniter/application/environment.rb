@@ -101,6 +101,50 @@ module Igniter
         profile.session_store_seam
       end
 
+      def compose_invoker(invoker: Igniter::Extensions::Contracts::ComposePack::LocalInvoker, namespace: :compose, metadata: {}, id_generator: nil)
+        ComposeInvoker.new(
+          environment: self,
+          invoker: invoker,
+          namespace: namespace,
+          metadata: metadata,
+          id_generator: id_generator
+        )
+      end
+
+      def remote_compose_invoker(transport:, namespace: :remote_compose, metadata: {}, id_generator: nil)
+        compose_invoker(
+          namespace: namespace,
+          metadata: metadata.merge(remote: true),
+          id_generator: id_generator,
+          invoker: ComposeTransportAdapter.new(
+            transport: transport,
+            metadata: metadata.merge(remote: true, namespace: namespace.to_s)
+          )
+        )
+      end
+
+      def collection_invoker(invoker: Igniter::Extensions::Contracts::CollectionPack::LocalInvoker, namespace: :collection, metadata: {}, id_generator: nil)
+        CollectionInvoker.new(
+          environment: self,
+          invoker: invoker,
+          namespace: namespace,
+          metadata: metadata,
+          id_generator: id_generator
+        )
+      end
+
+      def remote_collection_invoker(transport:, namespace: :remote_collection, metadata: {}, id_generator: nil)
+        collection_invoker(
+          namespace: namespace,
+          metadata: metadata.merge(remote: true),
+          id_generator: id_generator,
+          invoker: CollectionTransportAdapter.new(
+            transport: transport,
+            metadata: metadata.merge(remote: true, namespace: namespace.to_s)
+          )
+        )
+      end
+
       def load_code!(base_dir:)
         loader_seam.load!(base_dir: base_dir, paths: profile.code_paths, environment: self)
         @loaded_base_dir = base_dir.to_s
@@ -173,6 +217,19 @@ module Igniter
       end
 
       def run_compose_session(session_id:, compiled_graph:, inputs:, invoker: Igniter::Extensions::Contracts::ComposePack::LocalInvoker, operation_name: nil, metadata: {})
+        session_metadata = metadata.merge(
+          operation_name: (operation_name || session_id).to_sym,
+          profile_fingerprint: profile.contracts_profile.fingerprint
+        )
+        running_entry = SessionEntry.new(
+          id: session_id,
+          kind: :compose,
+          status: :running,
+          metadata: session_metadata,
+          payload: { inputs: inputs }
+        )
+        session_store.write(running_entry)
+
         operation = Igniter::Contracts::Operation.new(kind: :compose, name: operation_name || session_id, attributes: {})
         invocation = Igniter::Extensions::Contracts::ComposePack::Invocation.new(
           operation: operation,
@@ -180,26 +237,59 @@ module Igniter
           inputs: inputs,
           profile: profile.contracts_profile
         )
-        result = invoker.call(invocation: invocation)
+        raw_result = invoker.call(invocation: invocation)
+        result, transport_metadata = normalize_compose_session_result(raw_result)
         unless result.is_a?(Igniter::Contracts::ExecutionResult)
           raise Igniter::Contracts::Error,
                 "compose session invoker for #{session_id} must return an ExecutionResult"
         end
 
-        persist_session(
-          session_id,
-          kind: :compose,
-          metadata: metadata.merge(operation_name: operation.name, profile_fingerprint: profile.contracts_profile.fingerprint),
-          payload: {
-            inputs: inputs,
-            outputs: result.outputs.to_h,
-            output_names: result.outputs.keys
-          }
+        session_store.write(
+          running_entry.with_update(
+            status: :completed,
+            payload: {
+              inputs: inputs,
+              outputs: result.outputs.to_h,
+              output_names: result.outputs.keys,
+              transport: transport_metadata
+            }
+          )
         )
         result
+      rescue StandardError => error
+        session_store.write(
+          running_entry.with_update(
+            status: :failed,
+            payload: {
+              inputs: inputs,
+              error: {
+                class: error.class.name,
+                message: error.message
+              }
+            }
+          )
+        )
+        raise
       end
 
       def run_collection_session(session_id:, items:, compiled_graph:, key:, inputs: {}, invoker: Igniter::Extensions::Contracts::CollectionPack::LocalInvoker, window: nil, operation_name: nil, metadata: {})
+        session_metadata = metadata.merge(
+          operation_name: (operation_name || session_id).to_sym,
+          key: key.to_sym,
+          profile_fingerprint: profile.contracts_profile.fingerprint
+        )
+        running_entry = SessionEntry.new(
+          id: session_id,
+          kind: :collection,
+          status: :running,
+          metadata: session_metadata,
+          payload: {
+            inputs: inputs,
+            item_count: Array(items).size
+          }
+        )
+        session_store.write(running_entry)
+
         operation = Igniter::Contracts::Operation.new(kind: :collection, name: operation_name || session_id, attributes: {})
         invocation = Igniter::Extensions::Contracts::CollectionPack::Invocation.new(
           operation: operation,
@@ -210,24 +300,41 @@ module Igniter
           key_name: key,
           window: window
         )
-        result = invoker.call(invocation: invocation)
+        raw_result = invoker.call(invocation: invocation)
+        result, transport_metadata = normalize_collection_session_result(raw_result)
         unless result.is_a?(Igniter::Extensions::Contracts::Dataflow::CollectionResult)
           raise Igniter::Contracts::Error,
                 "collection session invoker for #{session_id} must return a CollectionResult"
         end
 
-        persist_session(
-          session_id,
-          kind: :collection,
-          metadata: metadata.merge(operation_name: operation.name, key: key.to_sym, profile_fingerprint: profile.contracts_profile.fingerprint),
-          payload: {
-            inputs: inputs,
-            item_count: Array(items).size,
-            keys: result.keys,
-            summary: result.summary
-          }
+        session_store.write(
+          running_entry.with_update(
+            status: :completed,
+            payload: {
+              inputs: inputs,
+              item_count: Array(items).size,
+              keys: result.keys,
+              summary: result.summary,
+              transport: transport_metadata
+            }
+          )
         )
         result
+      rescue StandardError => error
+        session_store.write(
+          running_entry.with_update(
+            status: :failed,
+            payload: {
+              inputs: inputs,
+              item_count: Array(items).size,
+              error: {
+                class: error.class.name,
+                message: error.message
+              }
+            }
+          )
+        )
+        raise
       end
 
       def start_host
@@ -345,16 +452,20 @@ module Igniter
         }
       end
 
-      def persist_session(id, kind:, metadata:, payload:)
-        previous_entry = session_store.entries.find { |entry| entry.id == id.to_s }
-        entry =
-          if previous_entry
-            previous_entry.with_update(status: :completed, metadata: metadata, payload: payload)
-          else
-            SessionEntry.new(id: id, kind: kind, status: :completed, metadata: metadata, payload: payload)
-          end
+      def normalize_compose_session_result(raw_result)
+        if raw_result.is_a?(TransportResponse)
+          [raw_result.result, raw_result.metadata]
+        else
+          [raw_result, {}]
+        end
+      end
 
-        session_store.write(entry)
+      def normalize_collection_session_result(raw_result)
+        if raw_result.is_a?(TransportResponse)
+          [raw_result.result, raw_result.metadata]
+        else
+          [raw_result, {}]
+        end
       end
     end
   end
