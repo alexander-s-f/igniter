@@ -20,6 +20,7 @@ a framework.
 - [Roadmap And Change Work](./roadmap.md)
 - [Legacy Reference](./legacy-reference.md)
 - [Contracts Migration Roadmap](./contracts-migration-roadmap.md)
+- [DebugPack Spec](./debug-pack-spec.md)
 
 ## Package And Layer Boundaries
 

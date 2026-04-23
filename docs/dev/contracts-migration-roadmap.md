@@ -94,6 +94,8 @@ one.
 
 `DebugPack` looks promising, but it should be shaped carefully.
 
+The deeper design now lives in [DebugPack Spec](./debug-pack-spec.md).
+
 ### Why It Makes Sense
 
 We now already have several useful debugging-oriented building blocks:
