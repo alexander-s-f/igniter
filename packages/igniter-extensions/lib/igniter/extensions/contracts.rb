@@ -4,6 +4,7 @@ require "igniter/contracts"
 require_relative "contracts/aggregate_pack"
 require_relative "contracts/commerce_pack"
 require_relative "contracts/dataflow_pack"
+require_relative "contracts/debug_pack"
 require_relative "contracts/execution_report_pack"
 require_relative "contracts/incremental_pack"
 require_relative "contracts/journal_pack"
@@ -21,7 +22,7 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, CommercePack, DataflowPack, IncrementalPack, JournalPack, ProvenancePack, SagaPack]
+        [AggregatePack, CommercePack, DataflowPack, DebugPack, IncrementalPack, JournalPack, ProvenancePack, SagaPack]
       ).freeze
 
       PRESETS = {
@@ -99,6 +100,24 @@ module Igniter
             context: context,
             &block
           )
+        end
+
+        def debug_profile(target)
+          profile = target.respond_to?(:profile) ? target.profile : target
+          DebugPack.profile_snapshot(profile)
+        end
+
+        def debug_pack(pack_or_name, target)
+          profile = target.respond_to?(:profile) ? target.profile : target
+          DebugPack.pack_snapshot(pack_or_name, profile: profile)
+        end
+
+        def debug_snapshot(result, profile:)
+          DebugPack.snapshot(result, profile: profile)
+        end
+
+        def debug_report(environment, inputs: nil, compiled_graph: nil, &block)
+          DebugPack.report(environment, inputs: inputs, compiled_graph: compiled_graph, &block)
         end
 
         private

@@ -50,6 +50,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/compose_your_own_packs.rb` — inline pack composition where one custom pack depends on another.
 - `contracts/commerce.rb` — applied `igniter-contracts` commerce preset with public external packs.
 - `contracts/dataflow.rb` — new-world dataflow session counterpart over `DataflowPack` + `IncrementalPack`.
+- `contracts/debug.rb` — `DebugPack` report over profile seams, execution, diagnostics, and provenance.
 - `contracts/diagnostics.rb` — new-world diagnostics report counterpart to the legacy diagnostics example.
 - `contracts/effects.rb` — new-world effect/executor counterpart to the legacy effects example.
 - `contracts/execution_report_migration.rb` — side-by-side migration from the legacy `execution_report` activator to `ExecutionReportPack`.

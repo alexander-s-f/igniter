@@ -256,6 +256,20 @@ module IgniterExamples
       ]
     ),
     Example.new(
+      id: "contracts/debug",
+      path: "examples/contracts/debug.rb",
+      summary: "DebugPack report over compilation, execution, diagnostics, and profile seams.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_debug_ok=true",
+        "contracts_debug_output=40.0",
+        "contracts_debug_sections=baseline_summary,execution_report,provenance,debug"
+      ]
+    ),
+    Example.new(
       id: "diagnostics",
       path: "examples/diagnostics.rb",
       summary: "Text diagnostics and machine-readable result output.",

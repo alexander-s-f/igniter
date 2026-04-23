@@ -15,6 +15,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::AggregatePack,
       Igniter::Extensions::Contracts::CommercePack,
       Igniter::Extensions::Contracts::DataflowPack,
+      Igniter::Extensions::Contracts::DebugPack,
       Igniter::Extensions::Contracts::IncrementalPack,
       Igniter::Extensions::Contracts::JournalPack,
       Igniter::Extensions::Contracts::ProvenancePack,
@@ -158,5 +159,21 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
 
     expect(result.total).to eq(1)
     expect(result.processed.keys).to eq(["s1"])
+  end
+
+  it "exposes debug helpers over environments and profiles" do
+    environment = Igniter::Extensions::Contracts.with(Igniter::Extensions::Contracts::DebugPack)
+
+    profile_snapshot = Igniter::Extensions::Contracts.debug_profile(environment)
+    pack_snapshot = Igniter::Extensions::Contracts.debug_pack(:extensions_debug, environment)
+
+    report = Igniter::Extensions::Contracts.debug_report(environment, inputs: { amount: 10 }) do
+      input :amount
+      output :amount
+    end
+
+    expect(profile_snapshot.pack_names).to include(:extensions_debug)
+    expect(pack_snapshot.name).to eq(:extensions_debug)
+    expect(report.execution_result.output(:amount)).to eq(10)
   end
 end

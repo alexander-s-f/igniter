@@ -35,6 +35,7 @@ Contracts-facing external packs now live here too:
 - `Igniter::Extensions::Contracts::AggregatePack`
 - `Igniter::Extensions::Contracts::CommercePack`
 - `Igniter::Extensions::Contracts::DataflowPack`
+- `Igniter::Extensions::Contracts::DebugPack`
 - `Igniter::Extensions::Contracts::JournalPack`
 
 Those packs install into `Igniter::Contracts` through the public facade only:
@@ -65,6 +66,23 @@ Applied presets can sit on top of those packs too:
 
 ```ruby
 environment = Igniter::Extensions::Contracts.with_preset(:commerce)
+```
+
+For developer-focused observability, `DebugPack` can bundle profile,
+compilation, execution, diagnostics, and provenance into one report:
+
+```ruby
+environment = Igniter::Extensions::Contracts.with(
+  Igniter::Extensions::Contracts::DebugPack
+)
+
+report = Igniter::Extensions::Contracts.debug_report(
+  environment,
+  inputs: { amount: 10 }
+) do
+  input :amount
+  output :amount
+end
 ```
 
 Legacy extension activators still exist for migration scenarios:
