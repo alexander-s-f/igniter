@@ -12,6 +12,17 @@ Primary entrypoints:
 - `require "igniter/app/runtime"`
 - `require "igniter/app/scaffold_pack"`
 
+Contracts-native application prototype:
+
+- `Igniter::App.build_kernel`
+- `Igniter::App.build_profile`
+- `Igniter::App.with`
+- `Igniter::App::Kernel`
+- `Igniter::App::Profile`
+- `Igniter::App::Environment`
+- `Igniter::App::Snapshot`
+- `Igniter::App::BootReport`
+
 Docs:
 
 - [Guide](../../docs/guide/README.md)

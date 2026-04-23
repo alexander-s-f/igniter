@@ -42,7 +42,7 @@ That means:
 
 - `igniter-contracts` owns executable graph semantics
 - `igniter-extensions` owns packs and operational/tooling/domain behavior
-- `igniter-app` owns local application assembly and runtime hosting
+- `igniter-application` owns local application assembly and runtime hosting
 
 In other words:
 
@@ -79,6 +79,10 @@ The recommended target shape is:
   frozen runtime-safe snapshot of that app assembly
 - `Application::Environment`
   ergonomic runtime facade bound to a finalized profile
+- `Application::Config`
+  immutable application-owned configuration snapshot
+- `Application::Provider`
+  explicit provider seam for runtime-owned service exports and boot hooks
 - `Application::HostAdapter`
   explicit hosting seam
 - `Application::LoaderAdapter`
@@ -188,6 +192,8 @@ The target app model should expose these seams explicitly:
 
 - contracts profile
 - extensions/packs
+- config
+- providers
 - service providers
 - host adapter
 - loader adapter
@@ -254,6 +260,31 @@ That means:
    - compatibility wrappers
    - migration helpers
    - deletions
+
+## Prototype Status
+
+A first clean-slate prototype now exists in `packages/igniter-application`:
+
+- `Igniter::Application.build_kernel`
+- `Igniter::Application.build_profile`
+- `Igniter::Application.with`
+- `Igniter::Application::Kernel`
+- `Igniter::Application::Profile`
+- `Igniter::Application::Environment`
+- `Igniter::Application::Snapshot`
+- `Igniter::Application::BootReport`
+
+This is intentionally small, but it already establishes the target direction:
+
+- contracts-native app assembly
+- immutable config snapshots
+- provider-driven service exports
+- frozen profile snapshots
+- explicit boot/runtime lifecycle and boot phases
+- structured application snapshots for tooling/debug surfaces
+
+`packages/igniter-app` should now be treated as the frozen legacy/reference
+runtime package while the new model grows in `packages/igniter-application`.
 
 ## Success Criteria
 

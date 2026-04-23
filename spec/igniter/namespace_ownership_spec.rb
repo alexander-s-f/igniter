@@ -76,6 +76,17 @@ RSpec.describe "Igniter namespace ownership" do
         /class\s+App\s*</
       ]
     },
+    "Igniter::Application" => {
+      roots: [
+        "packages/igniter-application/lib/igniter/application.rb",
+        "packages/igniter-application/lib/igniter/application/"
+      ],
+      patterns: [
+        /module\s+Igniter::Application\b/,
+        /class\s+Igniter::Application\b/,
+        /module\s+Igniter\b\s*module\s+Application\b/m
+      ]
+    },
     "Igniter::Server" => {
       roots: [
         "packages/igniter-server/lib/igniter/server.rb",

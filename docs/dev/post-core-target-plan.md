@@ -53,7 +53,7 @@ The target shape should be:
   hooks, extension seams
 - `igniter-extensions`
   behavioral, operational, tooling, and domain packs over the contracts kernel
-- `igniter-app`
+- `igniter-application`
   contracts-native application runtime/profile
 - `igniter-cluster`
   contracts-native distributed runtime
@@ -171,6 +171,7 @@ The next design sequence should be:
 3. define the contracts-native `Application` target
    see [Application Target Plan](./application-target-plan.md)
 4. define the contracts-native `Cluster` target
+   see [Cluster Target Plan](./cluster-target-plan.md)
 5. only then continue package deletion and final cleanup
 
 This order matters because deletion without a strong target just moves the
@@ -182,7 +183,7 @@ This reset is successful when all of these are true:
 
 - `igniter-contracts` is clearly the canonical embedded kernel
 - `Embed` is clearly understood as the foundation operating mode
-- `igniter-app` has a target model that does not assume legacy core semantics
+- `igniter-application` has a target model that does not assume legacy core semantics
 - `igniter-cluster` has a target model that does not assume legacy core
   semantics
 - legacy survives only as reference/compatibility material

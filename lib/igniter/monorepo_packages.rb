@@ -8,6 +8,7 @@
   File.expand_path("../../packages/igniter-sdk/lib", __dir__),
   File.expand_path("../../packages/igniter-extensions/lib", __dir__),
   File.expand_path("../../packages/igniter-app/lib", __dir__),
+  File.expand_path("../../packages/igniter-application/lib", __dir__),
   File.expand_path("../../packages/igniter-server/lib", __dir__),
   File.expand_path("../../packages/igniter-cluster/lib", __dir__),
   File.expand_path("../../packages/igniter-rails/lib", __dir__),

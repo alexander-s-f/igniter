@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "app/runtime"
+require_relative "app/application"
 require_relative "app/diagnostics"
 require_relative "app/credentials"
 require_relative "app/evolution"

@@ -3,27 +3,23 @@
 require_relative "../../lib/igniter/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "igniter-app"
+  spec.name = "igniter-application"
   spec.version = Igniter::VERSION
   spec.authors = ["Alexander"]
   spec.email = ["alexander.s.fokin@gmail.com"]
 
-  spec.summary = "Application runtime layer for Igniter"
-  spec.description = "App runtime, hosts, schedulers, diagnostics, evolution, and scaffolding for Igniter."
+  spec.summary = "Contracts-native local application runtime for Igniter"
+  spec.description = "Clean-slate local application runtime package for Igniter built directly on igniter-contracts without inheriting the legacy igniter-app surface."
   spec.homepage = "https://github.com/alexander-s-f/igniter"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.1.0"
 
   spec.files = Dir[
-    "lib/**/*",
+    "lib/**/*.rb",
     "README.md"
   ].sort
 
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "igniter-core", Igniter::VERSION
   spec.add_dependency "igniter-contracts", Igniter::VERSION
-  spec.add_dependency "igniter-sdk", Igniter::VERSION
-  spec.add_dependency "igniter-server", Igniter::VERSION
-  spec.add_dependency "igniter-cluster", Igniter::VERSION
 end

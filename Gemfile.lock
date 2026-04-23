@@ -22,9 +22,16 @@ PATH
   specs:
     igniter-app (0.5.1)
       igniter-cluster (= 0.5.1)
+      igniter-contracts (= 0.5.1)
       igniter-core (= 0.5.1)
       igniter-sdk (= 0.5.1)
       igniter-server (= 0.5.1)
+
+PATH
+  remote: packages/igniter-application
+  specs:
+    igniter-application (0.5.1)
+      igniter-contracts (= 0.5.1)
 
 PATH
   remote: packages/igniter-cluster
@@ -196,6 +203,7 @@ DEPENDENCIES
   igniter-agents!
   igniter-ai!
   igniter-app!
+  igniter-application!
   igniter-cluster!
   igniter-contracts!
   igniter-core!

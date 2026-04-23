@@ -16,6 +16,7 @@ The cluster layer should stay above `core` and `app`. It is not the place to red
 
 - [Guide](../guide/README.md)
 - [Guide: How-Tos](../guide/how-tos.md)
+- [Dev: Cluster Target Plan](../dev/cluster-target-plan.md)
 - [Cluster State Snapshot](./STATE_NEXT.md)
 - [Cluster Next](./ROADMAP_NEXT.md)
 
@@ -44,5 +45,12 @@ The cluster layer should stay above `core` and `app`. It is not the place to red
 
 If you want the current implemented state, start with [Cluster State Snapshot](./STATE_NEXT.md).
 If you want the development direction beyond that, continue to [Cluster Next](./ROADMAP_NEXT.md).
+
+Current design direction:
+
+- `Cluster` is being reset as a contracts-native distributed runtime layer
+- it should sit above `Embed` and `Application`, not redefine either of them
+- new design work should follow the
+  [Cluster Target Plan](../dev/cluster-target-plan.md)
 
 Read older cluster docs only through [`../dev/legacy-reference.md`](../dev/legacy-reference.md), not as the first entrypoint.
