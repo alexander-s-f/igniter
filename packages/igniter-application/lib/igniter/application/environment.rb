@@ -97,6 +97,10 @@ module Igniter
         profile.scheduler_seam
       end
 
+      def session_store
+        profile.session_store_seam
+      end
+
       def load_code!(base_dir:)
         loader_seam.load!(base_dir: base_dir, paths: profile.code_paths, environment: self)
         @loaded_base_dir = base_dir.to_s
@@ -158,6 +162,72 @@ module Igniter
 
       def snapshot
         Snapshot.new(profile: profile, runtime_state: runtime_state)
+      end
+
+      def fetch_session(id)
+        session_store.fetch(id)
+      end
+
+      def sessions
+        session_store.entries
+      end
+
+      def run_compose_session(session_id:, compiled_graph:, inputs:, invoker: Igniter::Extensions::Contracts::ComposePack::LocalInvoker, operation_name: nil, metadata: {})
+        operation = Igniter::Contracts::Operation.new(kind: :compose, name: operation_name || session_id, attributes: {})
+        invocation = Igniter::Extensions::Contracts::ComposePack::Invocation.new(
+          operation: operation,
+          compiled_graph: compiled_graph,
+          inputs: inputs,
+          profile: profile.contracts_profile
+        )
+        result = invoker.call(invocation: invocation)
+        unless result.is_a?(Igniter::Contracts::ExecutionResult)
+          raise Igniter::Contracts::Error,
+                "compose session invoker for #{session_id} must return an ExecutionResult"
+        end
+
+        persist_session(
+          session_id,
+          kind: :compose,
+          metadata: metadata.merge(operation_name: operation.name, profile_fingerprint: profile.contracts_profile.fingerprint),
+          payload: {
+            inputs: inputs,
+            outputs: result.outputs.to_h,
+            output_names: result.outputs.keys
+          }
+        )
+        result
+      end
+
+      def run_collection_session(session_id:, items:, compiled_graph:, key:, inputs: {}, invoker: Igniter::Extensions::Contracts::CollectionPack::LocalInvoker, window: nil, operation_name: nil, metadata: {})
+        operation = Igniter::Contracts::Operation.new(kind: :collection, name: operation_name || session_id, attributes: {})
+        invocation = Igniter::Extensions::Contracts::CollectionPack::Invocation.new(
+          operation: operation,
+          items: items,
+          inputs: inputs,
+          compiled_graph: compiled_graph,
+          profile: profile.contracts_profile,
+          key_name: key,
+          window: window
+        )
+        result = invoker.call(invocation: invocation)
+        unless result.is_a?(Igniter::Extensions::Contracts::Dataflow::CollectionResult)
+          raise Igniter::Contracts::Error,
+                "collection session invoker for #{session_id} must return a CollectionResult"
+        end
+
+        persist_session(
+          session_id,
+          kind: :collection,
+          metadata: metadata.merge(operation_name: operation.name, key: key.to_sym, profile_fingerprint: profile.contracts_profile.fingerprint),
+          payload: {
+            inputs: inputs,
+            item_count: Array(items).size,
+            keys: result.keys,
+            summary: result.summary
+          }
+        )
+        result
       end
 
       def start_host
@@ -270,8 +340,21 @@ module Igniter
           loaded_base_dir: @loaded_base_dir,
           providers_resolved: @providers_resolved == true,
           scheduler_running: @scheduler_running == true,
-          transport_activated: @transport_activated == true
+          transport_activated: @transport_activated == true,
+          session_count: session_store.entries.size
         }
+      end
+
+      def persist_session(id, kind:, metadata:, payload:)
+        previous_entry = session_store.entries.find { |entry| entry.id == id.to_s }
+        entry =
+          if previous_entry
+            previous_entry.with_update(status: :completed, metadata: metadata, payload: payload)
+          else
+            SessionEntry.new(id: id, kind: kind, status: :completed, metadata: metadata, payload: payload)
+          end
+
+        session_store.write(entry)
       end
     end
   end

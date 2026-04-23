@@ -8,6 +8,7 @@ PATH
   specs:
     igniter-application (0.5.1)
       igniter-contracts (= 0.5.1)
+      igniter-extensions (= 0.5.1)
 
 PATH
   remote: packages/igniter-contracts

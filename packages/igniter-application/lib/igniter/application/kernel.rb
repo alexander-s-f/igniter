@@ -7,7 +7,8 @@ module Igniter
 
       attr_reader :contracts_kernel, :contracts_packs, :application_packs, :providers,
                   :services, :service_definitions, :interfaces, :registrations,
-                  :scheduled_jobs, :code_paths, :host_seam, :loader_seam, :scheduler_seam, :config_builder
+                  :scheduled_jobs, :code_paths, :host_seam, :loader_seam, :scheduler_seam,
+                  :session_store_seam, :config_builder
 
       def initialize(contracts_kernel: Igniter::Contracts.build_kernel)
         @contracts_kernel = contracts_kernel
@@ -27,6 +28,8 @@ module Igniter
         @host_seam = EmbeddedHost.new
         @loader_seam = ManualLoader.new
         @scheduler_seam = ManualScheduler.new
+        @session_store_name = :memory
+        @session_store_seam = MemorySessionStore.new
       end
 
       def install_pack(pack)
@@ -72,6 +75,20 @@ module Igniter
 
         @scheduler_name = name.to_sym unless name.nil?
         @scheduler_seam = resolve_seam(seam, block, current: @scheduler_seam, required_methods: %i[start], label: "scheduler")
+        self
+      end
+
+      def session_store(name = nil, seam: nil, &block)
+        return @session_store_name if name.nil? && seam.nil? && !block
+
+        @session_store_name = name.to_sym unless name.nil?
+        @session_store_seam = resolve_seam(
+          seam,
+          block,
+          current: @session_store_seam,
+          required_methods: %i[write fetch entries],
+          label: "session store"
+        )
         self
       end
 
@@ -175,9 +192,11 @@ module Igniter
           host_name: host,
           loader_name: loader,
           scheduler_name: scheduler,
+          session_store_name: session_store,
           host_seam: host_seam,
           loader_seam: loader_seam,
           scheduler_seam: scheduler_seam,
+          session_store_seam: session_store_seam,
           config: config_builder.to_config,
           providers: providers,
           services: services,

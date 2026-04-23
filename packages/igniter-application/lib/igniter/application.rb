@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "igniter/contracts"
+require "igniter/extensions/contracts"
 
 require_relative "application/config"
 require_relative "application/config_builder"
@@ -10,6 +11,8 @@ require_relative "application/service_definition"
 require_relative "application/interface"
 require_relative "application/service_registry"
 require_relative "application/contract_registry"
+require_relative "application/session_entry"
+require_relative "application/memory_session_store"
 require_relative "application/boot_phase"
 require_relative "application/embedded_host"
 require_relative "application/manual_loader"

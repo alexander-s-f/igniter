@@ -30,4 +30,11 @@ RSpec.describe "gemspec packaging" do
     dependency_names = spec.dependencies.select { |dependency| dependency.type == :runtime }.map(&:name)
     expect(dependency_names).to eq(["igniter-contracts"])
   end
+
+  it "declares igniter-application runtime dependencies through current package layers only" do
+    spec = load_gemspec("packages/igniter-application/igniter-application.gemspec")
+
+    dependency_names = spec.dependencies.select { |dependency| dependency.type == :runtime }.map(&:name)
+    expect(dependency_names).to eq(["igniter-contracts", "igniter-extensions"])
+  end
 end

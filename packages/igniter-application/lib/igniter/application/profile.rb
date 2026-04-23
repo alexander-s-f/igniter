@@ -4,14 +4,14 @@ module Igniter
   module Application
     class Profile
       attr_reader :contracts_profile, :contracts_packs, :application_packs,
-                  :host_name, :loader_name, :scheduler_name,
-                  :host_seam, :loader_seam, :scheduler_seam,
+                  :host_name, :loader_name, :scheduler_name, :session_store_name,
+                  :host_seam, :loader_seam, :scheduler_seam, :session_store_seam,
                   :config, :providers, :service_registry, :contract_registry,
                   :scheduled_jobs, :code_paths
 
       def initialize(contracts_profile:, contracts_packs:, application_packs:,
-                     host_name:, loader_name:, scheduler_name:,
-                     host_seam:, loader_seam:, scheduler_seam:,
+                     host_name:, loader_name:, scheduler_name:, session_store_name:,
+                     host_seam:, loader_seam:, scheduler_seam:, session_store_seam:,
                      config:, providers:, services:, service_definitions:, interfaces:,
                      registrations:, scheduled_jobs:, code_paths:)
         @contracts_profile = contracts_profile
@@ -20,9 +20,11 @@ module Igniter
         @host_name = host_name.to_sym
         @loader_name = loader_name.to_sym
         @scheduler_name = scheduler_name.to_sym
+        @session_store_name = session_store_name.to_sym
         @host_seam = host_seam
         @loader_seam = loader_seam
         @scheduler_seam = scheduler_seam
+        @session_store_seam = session_store_seam
         @config = config
         @providers = providers.dup.freeze
         @service_registry = ServiceRegistry.new(
@@ -102,6 +104,7 @@ module Igniter
           host: host_name,
           loader: loader_name,
           scheduler: scheduler_name,
+          session_store: session_store_name,
           config: config.to_h,
           providers: providers.map(&:to_h),
           services: service_registry.service_names,

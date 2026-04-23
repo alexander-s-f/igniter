@@ -203,6 +203,7 @@ The target app model should expose these seams explicitly:
 - scheduler adapter
 - diagnostics contributors
 - app-local interfaces exposed to sibling apps or upper layers
+- session store / durable local session snapshots
 
 Each seam should be:
 
@@ -285,6 +286,17 @@ This is intentionally small, but it already establishes the target direction:
 - frozen profile snapshots
 - explicit boot/runtime lifecycle and boot phases
 - structured application snapshots for tooling/debug surfaces
+
+The next concrete contracts-native runtime seam should be:
+
+- application-owned session durability for host-side `compose` / `collection`
+  workflows
+- local-first `session_store` seam in `Application::Kernel` / `Profile`
+- application environment helpers that execute contracts-native
+  `ComposePack` / `CollectionPack` flows and persist session snapshots without
+  pushing that durability concern back into the contracts kernel
+- future remote/distributed continuation owned by application/cluster adapters,
+  not by the contracts baseline
 
 `packages/igniter-app` should now be treated as the frozen legacy/reference
 runtime package while the new model grows in `packages/igniter-application`.

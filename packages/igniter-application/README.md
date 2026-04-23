@@ -23,6 +23,19 @@ Primary API:
 - `Igniter::Application::Snapshot`
 - `Igniter::Application::BootReport`
 
+The application layer also now owns a first local session seam for durable
+host-side orchestration around contracts-native compose/collection flows:
+
+- configurable `session_store` seam on `Application::Kernel`
+- default `MemorySessionStore`
+- `Environment#run_compose_session`
+- `Environment#run_collection_session`
+- `Environment#fetch_session`
+- `Environment#sessions`
+
+That keeps local session durability in `igniter-application`, while the actual
+graph semantics still live in `igniter-contracts` and `igniter-extensions`.
+
 First clean external host adapter:
 
 - `Igniter::Server::ApplicationHost`
