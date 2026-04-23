@@ -66,7 +66,8 @@ module Igniter
               audit_ok: audit&.ok?,
               authoring_profile: scaffold.profile.name,
               target_scope: scaffold.scope.name,
-              dependency_hints: scaffold.profile.dependency_hints
+              runtime_dependency_hints: scaffold.profile.runtime_dependency_hints,
+              development_dependency_hints: scaffold.profile.development_dependency_hints
             }
           end
 

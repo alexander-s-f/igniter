@@ -280,7 +280,8 @@ module IgniterExamples
       expected_fragments: [
         "creator_pack_constant=Acme::IgniterPacks::SlugPack",
         "creator_report_audit_ok=false",
-        "creator_report_missing_nodes=draft_slug"
+        "creator_report_missing_nodes=draft_slug",
+        "creator_workflow_stage=implement_pack"
       ]
     ),
     Example.new(

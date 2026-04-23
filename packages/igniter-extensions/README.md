@@ -112,6 +112,12 @@ report = Igniter::Extensions::Contracts.creator_report(
   name: :slug,
   profile: :feature_node
 )
+
+workflow = Igniter::Extensions::Contracts.creator_workflow(
+  name: :slug,
+  profile: :feature_node,
+  scope: :standalone_gem
+)
 ```
 
 Available authoring profiles:
@@ -126,6 +132,18 @@ Available target scopes:
 - `:app_local`
 - `:monorepo_package`
 - `:standalone_gem`
+
+The workflow helper turns those decisions into an explicit authoring ladder:
+
+- profile/scope selection
+- scaffold generation
+- implementation
+- audit validation
+- packaging readiness
+
+It also separates recommended runtime dependency packs from development-only
+tooling packs, so authoring guidance does not accidentally become runtime
+bundle surface.
 
 You can also drive scaffolding directly from capabilities:
 

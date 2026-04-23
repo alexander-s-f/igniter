@@ -39,6 +39,15 @@ report = Igniter::Extensions::Contracts.creator_report(
   target: environment
 )
 
+workflow = Igniter::Extensions::Contracts.creator_workflow(
+  name: :draft_slug,
+  profile: :feature_node,
+  scope: :standalone_gem,
+  namespace: "Acme::IgniterPacks",
+  pack: ExampleDraftPack,
+  target: environment
+)
+
 bundle_scaffold = Igniter::Extensions::Contracts.scaffold_pack(
   name: :developer_console,
   profile: :diagnostic_bundle,
@@ -53,5 +62,8 @@ puts "creator_scopes=#{Igniter::Extensions::Contracts.creator_scopes.join(',')}"
 puts "creator_report_audit_ok=#{report.audit.ok?}"
 puts "creator_report_missing_nodes=#{report.audit.missing_node_definitions.join(',')}"
 puts "creator_bundle_dependency_hints=#{bundle_scaffold.profile.dependency_hints.join(',')}"
+puts "creator_workflow_stage=#{workflow.current_stage.key}"
+puts "creator_workflow_status=#{workflow.current_stage.status}"
+puts "creator_workflow_development_packs=#{workflow.recommended_packs.fetch(:development).join(',')}"
 puts "creator_scope_root=#{scaffold.scope.root}"
 puts "creator_report_next_steps=#{report.next_steps.length}"

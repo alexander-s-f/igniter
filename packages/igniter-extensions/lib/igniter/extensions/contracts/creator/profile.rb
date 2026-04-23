@@ -43,40 +43,53 @@ module Igniter
             }
           }.freeze
 
-          attr_reader :name, :kind, :capabilities, :dependency_hints, :development_hints, :summary
+          attr_reader :name,
+                      :kind,
+                      :capabilities,
+                      :runtime_dependency_hints,
+                      :development_dependency_hints,
+                      :development_hints,
+                      :summary
 
           def self.available
             PRESETS.keys
           end
 
-        def self.build(profile: nil, kind: nil, capabilities: nil)
-          if profile
-            preset = PRESETS.fetch(profile.to_sym) do
-              raise ArgumentError, "unknown creator profile #{profile.inspect}"
-            end
-            effective_capabilities = Array(capabilities)
-            effective_capabilities = preset.fetch(:capabilities) if capabilities.nil? || effective_capabilities.empty?
+          def self.build(profile: nil, kind: nil, capabilities: nil)
+            if profile
+              preset = PRESETS.fetch(profile.to_sym) do
+                raise ArgumentError, "unknown creator profile #{profile.inspect}"
+              end
+              effective_capabilities = Array(capabilities)
+              effective_capabilities = preset.fetch(:capabilities) if capabilities.nil? || effective_capabilities.empty?
 
-            return new(
-              name: profile,
-              kind: preset.fetch(:kind),
-              capabilities: effective_capabilities,
-              dependency_hints: preset.fetch(:dependency_hints),
-              development_hints: development_hints_for(effective_capabilities, preset.fetch(:dependency_hints)),
-              summary: preset.fetch(:summary)
-            )
-          end
+              runtime_hints = preset.fetch(:dependency_hints)
+              development_pack_hints = development_dependency_hints_for(effective_capabilities, runtime_hints)
+
+              return new(
+                name: profile,
+                kind: preset.fetch(:kind),
+                capabilities: effective_capabilities,
+                runtime_dependency_hints: runtime_hints,
+                development_dependency_hints: development_pack_hints,
+                development_hints: development_hints_for(effective_capabilities, runtime_hints, development_pack_hints),
+                summary: preset.fetch(:summary)
+              )
+            end
 
             normalized_kind = (kind || infer_kind(Array(capabilities))).to_sym
             inferred_capabilities = Array(capabilities)
             inferred_capabilities = default_capabilities_for(normalized_kind) if inferred_capabilities.empty?
+            runtime_hints = dependency_hints_for(inferred_capabilities)
+            development_pack_hints = development_dependency_hints_for(inferred_capabilities, runtime_hints)
 
             new(
               name: :custom,
               kind: normalized_kind,
               capabilities: inferred_capabilities,
-              dependency_hints: dependency_hints_for(inferred_capabilities),
-              development_hints: development_hints_for(inferred_capabilities, dependency_hints_for(inferred_capabilities)),
+              runtime_dependency_hints: runtime_hints,
+              development_dependency_hints: development_pack_hints,
+              development_hints: development_hints_for(inferred_capabilities, runtime_hints, development_pack_hints),
               summary: "custom #{normalized_kind} authoring profile"
             )
           end
@@ -97,13 +110,23 @@ module Igniter
             hints.uniq
           end
 
-          def self.development_hints_for(capabilities, dependency_hints)
+          def self.development_dependency_hints_for(capabilities, dependency_hints)
+            caps = capabilities.map(&:to_sym)
+            hints = []
+            hints << "Igniter::Extensions::Contracts::DebugPack"
+            hints << "Igniter::Extensions::Contracts::JournalPack" if (caps & %i[effect executor]).any?
+            hints << "Igniter::Extensions::Contracts::DebugPack" if caps.include?(:dependency_pack) && caps.include?(:diagnostic)
+            hints.reject { |hint| dependency_hints.include?(hint) }.uniq
+          end
+
+          def self.development_hints_for(capabilities, dependency_hints, development_dependency_hints)
             caps = capabilities.map(&:to_sym)
             hints = []
             hints << "use Igniter::Extensions::Contracts::DebugPack while authoring and validating the pack"
             hints << "consider Igniter::Extensions::Contracts::JournalPack while developing effect/executor adapters" if (caps & %i[effect executor]).any?
             hints << "bundle diagnostics contributors only when they are truly additive and non-semantic" if caps.include?(:diagnostic)
-            hints << "review dependency pack composition carefully: #{dependency_hints.join(', ')}" unless dependency_hints.empty?
+            hints << "review runtime dependency pack composition carefully: #{dependency_hints.join(', ')}" unless dependency_hints.empty?
+            hints << "keep development-only helper packs out of the runtime bundle surface: #{development_dependency_hints.join(', ')}" unless development_dependency_hints.empty?
             hints.uniq
           end
 
@@ -128,14 +151,19 @@ module Igniter
             :feature
           end
 
-          def initialize(name:, kind:, capabilities:, dependency_hints:, development_hints:, summary:)
+          def initialize(name:, kind:, capabilities:, runtime_dependency_hints:, development_dependency_hints:, development_hints:, summary:)
             @name = name.to_sym
             @kind = kind.to_sym
             @capabilities = capabilities.map(&:to_sym).uniq.freeze
-            @dependency_hints = dependency_hints.dup.freeze
+            @runtime_dependency_hints = runtime_dependency_hints.dup.freeze
+            @development_dependency_hints = development_dependency_hints.dup.freeze
             @development_hints = development_hints.dup.freeze
             @summary = summary
             freeze
+          end
+
+          def dependency_hints
+            runtime_dependency_hints
           end
 
           def registry_capabilities
@@ -153,6 +181,8 @@ module Igniter
               capabilities: capabilities,
               registry_capabilities: registry_capabilities,
               dependency_hints: dependency_hints,
+              runtime_dependency_hints: runtime_dependency_hints,
+              development_dependency_hints: development_dependency_hints,
               development_hints: development_hints,
               summary: summary
             }

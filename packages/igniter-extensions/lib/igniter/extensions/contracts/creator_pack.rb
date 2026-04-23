@@ -4,6 +4,7 @@ require_relative "creator/profile"
 require_relative "creator/scaffold"
 require_relative "creator/scope"
 require_relative "creator/report"
+require_relative "creator/workflow"
 
 module Igniter
   module Extensions
@@ -56,6 +57,21 @@ module Igniter
           audit = pack ? DebugPack.audit(pack, profile: target_profile) : nil
 
           Creator::Report.new(scaffold: generated, audit: audit)
+        end
+
+        def workflow(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target_profile: nil)
+          Creator::Workflow.new(
+            report: report(
+              name: name,
+              kind: kind,
+              namespace: namespace,
+              profile: profile,
+              capabilities: capabilities,
+              scope: scope,
+              pack: pack,
+              target_profile: target_profile
+            )
+          )
         end
 
         def install_dependency_pack(kernel, pack)

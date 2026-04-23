@@ -207,11 +207,13 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
 
     scaffold = Igniter::Extensions::Contracts.scaffold_pack(name: :slug, profile: :feature_node, scope: :monorepo_package)
     report = Igniter::Extensions::Contracts.creator_report(name: :slug, profile: :feature_node, scope: :monorepo_package, target: environment)
+    workflow = Igniter::Extensions::Contracts.creator_workflow(name: :slug, profile: :feature_node, scope: :monorepo_package, target: environment)
 
     expect(scaffold.pack_constant).to eq("MyCompany::IgniterPacks::SlugPack")
     expect(Igniter::Extensions::Contracts.creator_profiles).to include(:feature_node)
     expect(Igniter::Extensions::Contracts.creator_scopes).to include(:monorepo_package)
     expect(report.to_h.fetch(:quality_bar).fetch(:includes_spec)).to eq(true)
+    expect(workflow.current_stage.key).to eq(:implement_pack)
     expect(environment.profile.pack_names).to include(:extensions_creator, :extensions_debug)
   end
 end

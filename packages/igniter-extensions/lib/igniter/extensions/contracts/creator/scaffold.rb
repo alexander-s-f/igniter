@@ -140,7 +140,8 @@ module Igniter
               - `#{profile.name}`
               - capabilities: `#{profile.capabilities.join("`, `")}`
               - registry seams: `#{profile.registry_capabilities.join("`, `")}`
-              #{dependency_hints_markdown}
+              #{runtime_dependency_hints_markdown}
+              #{development_dependency_hints_markdown}
               #{development_hints_markdown}
 
               ## Target Scope
@@ -387,10 +388,16 @@ module Igniter
             RUBY
           end
 
-          def dependency_hints_markdown
-            return "" if profile.dependency_hints.empty?
+          def runtime_dependency_hints_markdown
+            return "" if profile.runtime_dependency_hints.empty?
 
-            "              - dependency hints: `#{profile.dependency_hints.join("`, `")}`"
+            "              - runtime dependency packs: `#{profile.runtime_dependency_hints.join("`, `")}`"
+          end
+
+          def development_dependency_hints_markdown
+            return "" if profile.development_dependency_hints.empty?
+
+            "              - development tool packs: `#{profile.development_dependency_hints.join("`, `")}`"
           end
 
           def development_hints_markdown
@@ -414,15 +421,15 @@ module Igniter
           end
 
           def install_dependency_hint_lines
-            return "# no dependency pack hints for this profile" if profile.dependency_hints.empty?
+            return "# no dependency pack hints for this profile" if profile.runtime_dependency_hints.empty?
 
-            profile.dependency_hints.map { |hint| "# install_dependency_pack(kernel, #{hint})" }.join("\n                      ")
+            profile.runtime_dependency_hints.map { |hint| "# install_dependency_pack(kernel, #{hint})" }.join("\n                      ")
           end
 
           def bundle_dependency_template_lines
-            return "# install_dependency_pack(kernel, SomeOtherPack)" if profile.dependency_hints.empty?
+            return "# install_dependency_pack(kernel, SomeOtherPack)" if profile.runtime_dependency_hints.empty?
 
-            profile.dependency_hints.map { |hint| "install_dependency_pack(kernel, #{hint})" }.join("\n                      ")
+            profile.runtime_dependency_hints.map { |hint| "install_dependency_pack(kernel, #{hint})" }.join("\n                      ")
           end
 
           def bundle_diagnostic_install_lines

@@ -165,6 +165,27 @@ module Igniter
           )
         end
 
+        def creator_workflow(name:, kind: nil, namespace: "MyCompany::IgniterPacks", profile: nil, capabilities: nil, scope: :monorepo_package, pack: nil, target: nil)
+          runtime_profile =
+            case target
+            when nil
+              nil
+            else
+              target.respond_to?(:profile) ? target.profile : target
+            end
+
+          CreatorPack.workflow(
+            name: name,
+            kind: kind,
+            namespace: namespace,
+            profile: profile,
+            capabilities: capabilities,
+            scope: scope,
+            pack: pack,
+            target_profile: runtime_profile
+          )
+        end
+
         def debug_snapshot(result, profile:)
           DebugPack.snapshot(result, profile: profile)
         end

@@ -85,6 +85,9 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
       "Igniter::Extensions::Contracts::ExecutionReportPack",
       "Igniter::Extensions::Contracts::ProvenancePack"
     )
+    expect(scaffold.profile.development_dependency_hints).to include(
+      "Igniter::Extensions::Contracts::DebugPack"
+    )
     expect(template).to include("PackManifest.diagnostic(:developer_console_summary)")
     expect(template).to include("install_dependency_pack(kernel, Igniter::Extensions::Contracts::ExecutionReportPack)")
   end
@@ -131,5 +134,26 @@ RSpec.describe Igniter::Extensions::Contracts::CreatorPack do
     expect(report.next_steps.grep(/implement node kind/)).not_to be_empty
     expect(report.next_steps.grep(/distributable gem/)).not_to be_empty
     expect(report.to_h.fetch(:quality_bar).fetch(:includes_example)).to eq(true)
+  end
+
+  it "builds a creator workflow with ordered stages and packaging guidance" do
+    environment = Igniter::Extensions::Contracts.with(described_class)
+
+    workflow = Igniter::Extensions::Contracts.creator_workflow(
+      name: :draft,
+      profile: :feature_node,
+      scope: :standalone_gem,
+      namespace: "Acme::IgniterPacks",
+      pack: DraftCreatorPack,
+      target: environment
+    )
+
+    expect(workflow.current_stage.key).to eq(:implement_pack)
+    expect(workflow.current_stage.status).to eq(:needs_attention)
+    expect(workflow.ready_for_packaging?).to eq(false)
+    expect(workflow.recommended_packs.fetch(:development)).to include("Igniter::Extensions::Contracts::DebugPack")
+    expect(workflow.to_h.fetch(:stages).map { |stage| stage.fetch(:key) }).to eq(
+      %i[select_profile generate_scaffold implement_pack validate_pack package_pack]
+    )
   end
 end
