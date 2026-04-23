@@ -14,6 +14,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::LookupPack,
       Igniter::Extensions::Contracts::AggregatePack,
       Igniter::Extensions::Contracts::CommercePack,
+      Igniter::Extensions::Contracts::CreatorPack,
       Igniter::Extensions::Contracts::DataflowPack,
       Igniter::Extensions::Contracts::DebugPack,
       Igniter::Extensions::Contracts::IncrementalPack,
@@ -199,5 +200,16 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
 
     expect(audit.ok?).to eq(false)
     expect(audit.missing_node_definitions).to eq([:draft_node])
+  end
+
+  it "exposes creator scaffold and report helpers" do
+    environment = Igniter::Extensions::Contracts.with(Igniter::Extensions::Contracts::CreatorPack)
+
+    scaffold = Igniter::Extensions::Contracts.scaffold_pack(name: :slug, kind: :feature)
+    report = Igniter::Extensions::Contracts.creator_report(name: :slug, kind: :feature, target: environment)
+
+    expect(scaffold.pack_constant).to eq("MyCompany::IgniterPacks::SlugPack")
+    expect(report.to_h.fetch(:quality_bar).fetch(:includes_spec)).to eq(true)
+    expect(environment.profile.pack_names).to include(:extensions_creator, :extensions_debug)
   end
 end

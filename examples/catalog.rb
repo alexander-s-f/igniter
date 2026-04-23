@@ -270,6 +270,20 @@ module IgniterExamples
       ]
     ),
     Example.new(
+      id: "contracts/create_pack",
+      path: "examples/contracts/create_pack.rb",
+      summary: "CreatorPack scaffold and report workflow for custom pack authoring.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "creator_pack_constant=Acme::IgniterPacks::SlugPack",
+        "creator_report_audit_ok=false",
+        "creator_report_missing_nodes=draft_slug"
+      ]
+    ),
+    Example.new(
       id: "contracts/debug_pack_authoring",
       path: "examples/contracts/debug_pack_authoring.rb",
       summary: "DebugPack audit for an incomplete custom pack before finalize.",

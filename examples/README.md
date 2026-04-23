@@ -49,6 +49,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/build_your_own_pack.rb` — inline pack authoring over the public contracts API.
 - `contracts/compose_your_own_packs.rb` — inline pack composition where one custom pack depends on another.
 - `contracts/commerce.rb` — applied `igniter-contracts` commerce preset with public external packs.
+- `contracts/create_pack.rb` — `CreatorPack` scaffold + report workflow for custom packs.
 - `contracts/dataflow.rb` — new-world dataflow session counterpart over `DataflowPack` + `IncrementalPack`.
 - `contracts/debug.rb` — `DebugPack` report over profile seams, execution, diagnostics, and provenance.
 - `contracts/debug_pack_authoring.rb` — `DebugPack` audit for an incomplete custom pack before finalize.

@@ -34,6 +34,7 @@ Contracts-facing external packs now live here too:
 - `Igniter::Extensions::Contracts::LookupPack`
 - `Igniter::Extensions::Contracts::AggregatePack`
 - `Igniter::Extensions::Contracts::CommercePack`
+- `Igniter::Extensions::Contracts::CreatorPack`
 - `Igniter::Extensions::Contracts::DataflowPack`
 - `Igniter::Extensions::Contracts::DebugPack`
 - `Igniter::Extensions::Contracts::JournalPack`
@@ -95,6 +96,21 @@ audit.ok?
 audit.missing_node_definitions
 audit.missing_registry_contracts
 audit.finalize_error
+```
+
+`CreatorPack` now adds a minimal scaffold/report workflow on top of that:
+
+```ruby
+scaffold = Igniter::Extensions::Contracts.scaffold_pack(
+  name: :slug,
+  kind: :feature,
+  namespace: "MyCompany::IgniterPacks"
+)
+
+report = Igniter::Extensions::Contracts.creator_report(
+  name: :slug,
+  kind: :feature
+)
 ```
 
 Legacy extension activators still exist for migration scenarios:

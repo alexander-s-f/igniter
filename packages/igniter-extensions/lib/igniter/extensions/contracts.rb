@@ -3,6 +3,7 @@
 require "igniter/contracts"
 require_relative "contracts/aggregate_pack"
 require_relative "contracts/commerce_pack"
+require_relative "contracts/creator_pack"
 require_relative "contracts/dataflow_pack"
 require_relative "contracts/debug_pack"
 require_relative "contracts/execution_report_pack"
@@ -22,7 +23,7 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, CommercePack, DataflowPack, DebugPack, IncrementalPack, JournalPack, ProvenancePack, SagaPack]
+        [AggregatePack, CommercePack, CreatorPack, DataflowPack, DebugPack, IncrementalPack, JournalPack, ProvenancePack, SagaPack]
       ).freeze
 
       PRESETS = {
@@ -122,6 +123,22 @@ module Igniter
             end
 
           DebugPack.audit(pack, profile: profile)
+        end
+
+        def scaffold_pack(name:, kind: :feature, namespace: "MyCompany::IgniterPacks")
+          CreatorPack.scaffold(name: name, kind: kind, namespace: namespace)
+        end
+
+        def creator_report(name:, kind: :feature, namespace: "MyCompany::IgniterPacks", pack: nil, target: nil)
+          profile =
+            case target
+            when nil
+              nil
+            else
+              target.respond_to?(:profile) ? target.profile : target
+            end
+
+          CreatorPack.report(name: name, kind: kind, namespace: namespace, pack: pack, profile: profile)
         end
 
         def debug_snapshot(result, profile:)
