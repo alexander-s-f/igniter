@@ -46,16 +46,7 @@ RSpec.describe "Igniter core retirement inventory" do
   end
 
   it "keeps package metadata version-coupling to igniter-core on an explicit whitelist" do
-    expected = %w[
-      igniter-agents
-      igniter-ai
-      igniter-app
-      igniter-cluster
-      igniter-extensions
-      igniter-rails
-      igniter-sdk
-      igniter-server
-    ].freeze
+    expected = [].freeze
 
     actual = gemspecs.filter_map do |path|
       package_name_for(path) if file_text(path).include?('require_relative "../igniter-core/lib/igniter/core/version"')
