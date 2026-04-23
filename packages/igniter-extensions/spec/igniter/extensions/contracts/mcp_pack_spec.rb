@@ -12,7 +12,9 @@ RSpec.describe Igniter::Extensions::Contracts::McpPack do
   end
 
   it "publishes a tooling catalog" do
-    names = described_class.tool_catalog.map { |tool| tool.fetch(:name) }
+    catalog = described_class.tool_catalog
+    names = catalog.map { |tool| tool.fetch(:name) }
+    session_apply = catalog.find { |tool| tool.fetch(:name) == :creator_session_apply }
 
     expect(names).to include(
       :inspect_profile,
@@ -27,6 +29,9 @@ RSpec.describe Igniter::Extensions::Contracts::McpPack do
       :creator_write_plan,
       :creator_write
     )
+    expect(session_apply.fetch(:target)).to eq(:optional_profile_or_environment)
+    expect(session_apply.fetch(:arguments).map { |argument| argument.fetch(:name) }).to eq(%i[session updates])
+    expect(session_apply.fetch(:arguments).all? { |argument| argument.fetch(:required) }).to eq(true)
   end
 
   it "invokes creator and debug surfaces through a stable result envelope" do

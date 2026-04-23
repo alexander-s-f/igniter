@@ -310,6 +310,7 @@ module IgniterExamples
       runnable: true,
       timeout: 10,
       expected_fragments: [
+        "contracts_mcp_session_apply_args=session,updates",
         "contracts_mcp_wizard_decision=scope",
         "contracts_mcp_session_ready=true",
         "contracts_mcp_debug_output=12",

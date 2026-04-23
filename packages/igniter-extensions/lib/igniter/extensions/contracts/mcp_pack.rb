@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "mcp/tool_definition"
+require_relative "mcp/tool_argument"
 require_relative "mcp/tool_result"
 require_relative "mcp/creator_session"
 
@@ -9,22 +10,6 @@ module Igniter
     module Contracts
       module McpPack
         module_function
-
-        TOOL_DEFINITIONS = [
-          Mcp::ToolDefinition.new(name: :inspect_profile, summary: "Return a structured profile snapshot."),
-          Mcp::ToolDefinition.new(name: :inspect_pack, summary: "Return a structured installed-pack snapshot."),
-          Mcp::ToolDefinition.new(name: :audit_pack, summary: "Audit a custom pack against creator/debug quality seams."),
-          Mcp::ToolDefinition.new(name: :debug_report, summary: "Compile or execute and return a structured debug report."),
-          Mcp::ToolDefinition.new(name: :creator_wizard, summary: "Build a stateful creator wizard payload."),
-          Mcp::ToolDefinition.new(name: :creator_session_start, summary: "Create a serialized creator session payload."),
-          Mcp::ToolDefinition.new(name: :creator_session_apply, summary: "Apply updates to a serialized creator session payload."),
-          Mcp::ToolDefinition.new(name: :creator_session_workflow, summary: "Build workflow payload from a serialized creator session."),
-          Mcp::ToolDefinition.new(name: :creator_session_write_plan, summary: "Build writer plan payload from a serialized creator session."),
-          Mcp::ToolDefinition.new(name: :creator_session_write, summary: "Write scaffold files from a serialized creator session.", mutating: true),
-          Mcp::ToolDefinition.new(name: :creator_workflow, summary: "Build a creator workflow payload."),
-          Mcp::ToolDefinition.new(name: :creator_write_plan, summary: "Build a creator writer plan payload."),
-          Mcp::ToolDefinition.new(name: :creator_write, summary: "Write a creator scaffold to disk.", mutating: true)
-        ].freeze
 
         def manifest
           Igniter::Contracts::PackManifest.new(
@@ -40,7 +25,103 @@ module Igniter
         end
 
         def tools
-          TOOL_DEFINITIONS
+          @tools ||= [
+            Mcp::ToolDefinition.new(
+              name: :inspect_profile,
+              summary: "Return a structured profile snapshot.",
+              target: :profile_or_environment
+            ),
+            Mcp::ToolDefinition.new(
+              name: :inspect_pack,
+              summary: "Return a structured installed-pack snapshot.",
+              target: :profile_or_environment,
+              arguments: [
+                Mcp::ToolArgument.new(name: :pack, type: :pack_reference, summary: "Installed pack name or pack module.", required: true)
+              ]
+            ),
+            Mcp::ToolDefinition.new(
+              name: :audit_pack,
+              summary: "Audit a custom pack against creator/debug quality seams.",
+              target: :optional_profile_or_environment,
+              arguments: [
+                Mcp::ToolArgument.new(name: :pack, type: :pack_reference, summary: "Custom pack module to audit.", required: true)
+              ]
+            ),
+            Mcp::ToolDefinition.new(
+              name: :debug_report,
+              summary: "Compile or execute and return a structured debug report.",
+              target: :environment,
+              arguments: [
+                Mcp::ToolArgument.new(name: :inputs, type: :map, summary: "Runtime inputs used for execution when a graph is available."),
+                Mcp::ToolArgument.new(name: :compiled_graph, type: :compiled_graph, summary: "Previously compiled graph to execute instead of compiling a block.")
+              ]
+            ),
+            Mcp::ToolDefinition.new(
+              name: :creator_wizard,
+              summary: "Build a stateful creator wizard payload.",
+              target: :optional_profile_or_environment,
+              arguments: creator_arguments(include_scope: true, include_root: true)
+            ),
+            Mcp::ToolDefinition.new(
+              name: :creator_session_start,
+              summary: "Create a serialized creator session payload.",
+              target: :optional_profile_or_environment,
+              arguments: creator_arguments(include_scope: true, include_root: true)
+            ),
+            Mcp::ToolDefinition.new(
+              name: :creator_session_apply,
+              summary: "Apply updates to a serialized creator session payload.",
+              target: :optional_profile_or_environment,
+              arguments: [
+                Mcp::ToolArgument.new(name: :session, type: :session_state, summary: "Previously serialized creator session payload.", required: true),
+                Mcp::ToolArgument.new(name: :updates, type: :map, summary: "Partial wizard updates to merge into the session.", required: true)
+              ]
+            ),
+            Mcp::ToolDefinition.new(
+              name: :creator_session_workflow,
+              summary: "Build workflow payload from a serialized creator session.",
+              target: :optional_profile_or_environment,
+              arguments: [
+                Mcp::ToolArgument.new(name: :session, type: :session_state, summary: "Previously serialized creator session payload.", required: true)
+              ]
+            ),
+            Mcp::ToolDefinition.new(
+              name: :creator_session_write_plan,
+              summary: "Build writer plan payload from a serialized creator session.",
+              target: :optional_profile_or_environment,
+              arguments: [
+                Mcp::ToolArgument.new(name: :session, type: :session_state, summary: "Previously serialized creator session payload.", required: true)
+              ]
+            ),
+            Mcp::ToolDefinition.new(
+              name: :creator_session_write,
+              summary: "Write scaffold files from a serialized creator session.",
+              mutating: true,
+              target: :optional_profile_or_environment,
+              arguments: [
+                Mcp::ToolArgument.new(name: :session, type: :session_state, summary: "Previously serialized creator session payload.", required: true)
+              ]
+            ),
+            Mcp::ToolDefinition.new(
+              name: :creator_workflow,
+              summary: "Build a creator workflow payload.",
+              target: :optional_profile_or_environment,
+              arguments: creator_arguments(include_scope: true)
+            ),
+            Mcp::ToolDefinition.new(
+              name: :creator_write_plan,
+              summary: "Build a creator writer plan payload.",
+              target: :optional_profile_or_environment,
+              arguments: creator_arguments(include_scope: true, include_root: true, require_name: true, require_root: true)
+            ),
+            Mcp::ToolDefinition.new(
+              name: :creator_write,
+              summary: "Write a creator scaffold to disk.",
+              mutating: true,
+              target: :optional_profile_or_environment,
+              arguments: creator_arguments(include_scope: true, include_root: true, require_name: true, require_root: true)
+            )
+          ].freeze
         end
 
         def tool_catalog
@@ -169,6 +250,21 @@ module Igniter
           return target if target.respond_to?(:profile) && target.respond_to?(:execute)
 
           raise ArgumentError, "McpPack debug_report requires an environment target"
+        end
+
+        def creator_arguments(include_scope: false, include_root: false, require_name: false, require_root: false)
+          arguments = [
+            Mcp::ToolArgument.new(name: :name, type: :string, summary: "Pack name without the trailing _pack suffix.", required: require_name),
+            Mcp::ToolArgument.new(name: :kind, type: :symbol, summary: "Explicit pack kind when not inferred.", enum: %i[feature operational bundle]),
+            Mcp::ToolArgument.new(name: :namespace, type: :string, summary: "Ruby namespace for generated pack constants.", default: "MyCompany::IgniterPacks"),
+            Mcp::ToolArgument.new(name: :profile, type: :symbol, summary: "Named creator profile.", enum: CreatorPack.available_profiles),
+            Mcp::ToolArgument.new(name: :capabilities, type: :symbol_array, summary: "Capabilities used to infer or refine the profile."),
+            Mcp::ToolArgument.new(name: :pack, type: :pack_reference, summary: "Custom pack module for audit-aware creator flows."),
+            Mcp::ToolArgument.new(name: :mode, type: :symbol, summary: "Writer behavior when files already exist.", default: :skip_existing, enum: %i[skip_existing overwrite])
+          ]
+          arguments << Mcp::ToolArgument.new(name: :scope, type: :symbol, summary: "Target packaging scope.", required: include_scope, enum: CreatorPack.available_scopes) if include_scope
+          arguments << Mcp::ToolArgument.new(name: :root, type: :string, summary: "Filesystem root for generated files.", required: require_root) if include_root
+          arguments
         end
 
         def creator_session_from(arguments, target:)

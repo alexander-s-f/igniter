@@ -5,21 +5,26 @@ module Igniter
     module Contracts
       module Mcp
         class ToolDefinition
-          attr_reader :name, :summary, :mutating
+          attr_reader :name, :summary, :mutating, :target, :arguments
 
-          def initialize(name:, summary:, mutating: false)
+          def initialize(name:, summary:, mutating: false, target: nil, arguments: [])
             @name = name.to_sym
             @summary = summary
             @mutating = !!mutating
+            @target = target&.to_sym
+            @arguments = arguments.freeze
             freeze
           end
 
           def to_h
-            {
+            payload = {
               name: name,
               summary: summary,
-              mutating: mutating
+              mutating: mutating,
+              arguments: arguments.map(&:to_h)
             }
+            payload[:target] = target if target
+            payload
           end
         end
       end
