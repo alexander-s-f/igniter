@@ -269,6 +269,7 @@ The next external proof should exercise the full extension path:
 
 - `Igniter::Extensions::Contracts::LookupPack`
 - `Igniter::Extensions::Contracts::ProvenancePack`
+- `Igniter::Extensions::Contracts::SagaPack`
 
 Those next packs prove that an outside package can add:
 
@@ -278,6 +279,8 @@ Those next packs prove that an outside package can add:
 - a runtime handler through the public hook contract
 - lineage/provenance tooling over `ExecutionResult` without falling back to the
   legacy core implementation
+- orchestration helpers such as saga compensation over `CompiledGraph` and
+  partial `ExecutionResult` without reintroducing global contract patching
 
 Pack composition should be proven externally too:
 

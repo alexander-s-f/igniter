@@ -44,6 +44,7 @@ module Igniter
     ValidationFinding = Execution::ValidationFinding
     ValidationReport = Execution::ValidationReport
     CompilationReport = Execution::CompilationReport
+    MutableNamedValues = Execution::MutableNamedValues
   end
 end
 

@@ -15,7 +15,7 @@ module Igniter
         "igniter/extensions/invariants" => "contracts validators or diagnostics contributors instead of global runtime patching",
         "igniter/extensions/provenance" => "Igniter::Extensions::Contracts::ProvenancePack",
         "igniter/extensions/reactive" => "contracts-side subscriptions or diagnostics packs instead of core extension hooks",
-        "igniter/extensions/saga" => "a contracts effect/executor pack for compensation flows"
+        "igniter/extensions/saga" => "Igniter::Extensions::Contracts::SagaPack"
       }.freeze
 
       REQUIRE_MODE_ENV = "IGNITER_LEGACY_CORE_REQUIRE"

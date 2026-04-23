@@ -56,6 +56,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/journal.rb` — external effect/executor pack as a runnable operational demo.
 - `contracts/migration.rb` — side-by-side legacy `igniter-core` reference vs `igniter-contracts` target.
 - `contracts/provenance.rb` — new-world lineage and provenance counterpart to the legacy provenance example.
+- `contracts/saga.rb` — new-world saga counterpart with explicit compensation registry over `SagaPack`.
 - `contracts/three_layer_migration.rb` — one use case shown as legacy core, raw contracts, and applied preset.
 - `consensus.rb` — consensus-style vendor bid selection.
 - `dataflow.rb` — incremental collections and maintained aggregates.
@@ -133,6 +134,7 @@ grow:
 | `effects.rb` | `contracts/effects.rb` | moves from legacy effect nodes to explicit effect/executor seams |
 | `introspection.rb` | `contracts/introspection.rb` | moves from text/Mermaid explainers to structured compilation/result/diagnostics reports |
 | `provenance.rb` | `contracts/provenance.rb` | moves from legacy contract patching to explicit lineage over `ExecutionResult` + `ProvenancePack` |
+| `saga.rb` | `contracts/saga.rb` | moves from global `resolve_saga` patching to explicit `SagaPack` + compensation registry |
 | n/a | `contracts/migration.rb` | direct core-vs-contracts side-by-side comparison |
 | n/a | `contracts/three_layer_migration.rb` | legacy core vs raw contracts vs preset/domain layer |
 | n/a | `contracts/execution_report_migration.rb` | legacy `igniter/extensions/execution_report` activator vs `ExecutionReportPack` |

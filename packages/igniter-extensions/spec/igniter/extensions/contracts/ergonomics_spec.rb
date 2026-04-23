@@ -15,7 +15,8 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::AggregatePack,
       Igniter::Extensions::Contracts::CommercePack,
       Igniter::Extensions::Contracts::JournalPack,
-      Igniter::Extensions::Contracts::ProvenancePack
+      Igniter::Extensions::Contracts::ProvenancePack,
+      Igniter::Extensions::Contracts::SagaPack
     ])
 
     expect(Igniter::Extensions::Contracts.presets).to eq({
@@ -92,5 +93,24 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
 
     expect(lineage.contributing_inputs).to eq(amount: 10)
     expect(Igniter::Extensions::Contracts.explain(result, :tax)).to include("tax = 2.0  [compute]")
+  end
+
+  it "exposes saga helpers over environments" do
+    environment = Igniter::Extensions::Contracts.with(Igniter::Extensions::Contracts::SagaPack)
+    compensations = Igniter::Extensions::Contracts.build_compensations do
+      compensate(:amount) { |**| }
+    end
+
+    result = Igniter::Extensions::Contracts.run_saga(
+      environment,
+      inputs: { amount: 10 },
+      compensations: compensations
+    ) do
+      input :amount
+      output :amount
+    end
+
+    expect(result.success?).to eq(true)
+    expect(result.output(:amount)).to eq(10)
   end
 end

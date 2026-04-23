@@ -373,6 +373,22 @@ module IgniterExamples
       ]
     ),
     Example.new(
+      id: "contracts/saga",
+      path: "examples/contracts/saga.rb",
+      summary: "New-world contracts saga counterpart with explicit compensation registry and SagaPack.",
+      migration_of: "saga",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_saga_success=false",
+        "contracts_saga_failed_node=:charge_card",
+        "contracts_saga_compensations=[:reserve_stock]",
+        "contracts_saga_sections=baseline_summary,execution_report"
+      ]
+    ),
+    Example.new(
       id: "invariants",
       path: "examples/invariants.rb",
       summary: "Invariant checks plus property-based testing.",

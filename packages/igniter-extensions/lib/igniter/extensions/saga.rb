@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "legacy"
-Igniter::Extensions::Legacy.require!("igniter/extensions/saga", replacement: "a contracts effect/executor pack for compensation flows")
+Igniter::Extensions::Legacy.require!("igniter/extensions/saga", replacement: "Igniter::Extensions::Contracts::SagaPack")
 require "igniter"
 require "igniter/core/saga"
 

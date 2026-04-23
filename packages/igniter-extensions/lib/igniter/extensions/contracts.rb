@@ -7,6 +7,7 @@ require_relative "contracts/execution_report_pack"
 require_relative "contracts/journal_pack"
 require_relative "contracts/lookup_pack"
 require_relative "contracts/provenance_pack"
+require_relative "contracts/saga_pack"
 
 module Igniter
   module Extensions
@@ -18,7 +19,7 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, CommercePack, JournalPack, ProvenancePack]
+        [AggregatePack, CommercePack, JournalPack, ProvenancePack, SagaPack]
       ).freeze
 
       PRESETS = {
@@ -67,6 +68,20 @@ module Igniter
 
         def explain(result, output_name)
           ProvenancePack.explain(result, output_name)
+        end
+
+        def build_compensations(&block)
+          SagaPack.build(&block)
+        end
+
+        def run_saga(environment, inputs:, compensations:, compiled_graph: nil, &block)
+          SagaPack.run(
+            environment,
+            inputs: inputs,
+            compensations: compensations,
+            compiled_graph: compiled_graph,
+            &block
+          )
         end
 
         private
