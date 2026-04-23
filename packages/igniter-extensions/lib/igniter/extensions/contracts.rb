@@ -10,6 +10,7 @@ require_relative "contracts/execution_report_pack"
 require_relative "contracts/incremental_pack"
 require_relative "contracts/journal_pack"
 require_relative "contracts/lookup_pack"
+require_relative "contracts/mcp_pack"
 require_relative "contracts/provenance_pack"
 require_relative "contracts/saga_pack"
 
@@ -23,7 +24,7 @@ module Igniter
 
       AVAILABLE_PACKS = (
         DEFAULT_PACKS +
-        [AggregatePack, CommercePack, CreatorPack, DataflowPack, DebugPack, IncrementalPack, JournalPack, ProvenancePack, SagaPack]
+        [AggregatePack, CommercePack, CreatorPack, DataflowPack, DebugPack, IncrementalPack, JournalPack, McpPack, ProvenancePack, SagaPack]
       ).freeze
 
       PRESETS = {
@@ -253,6 +254,14 @@ module Igniter
             root: root,
             mode: mode
           )
+        end
+
+        def mcp_tools
+          McpPack.tool_catalog
+        end
+
+        def mcp_call(tool_name, target: nil, **arguments, &block)
+          McpPack.call(tool_name, target: target, **arguments, &block)
         end
 
         def debug_snapshot(result, profile:)

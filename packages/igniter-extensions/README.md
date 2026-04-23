@@ -38,6 +38,7 @@ Contracts-facing external packs now live here too:
 - `Igniter::Extensions::Contracts::DataflowPack`
 - `Igniter::Extensions::Contracts::DebugPack`
 - `Igniter::Extensions::Contracts::JournalPack`
+- `Igniter::Extensions::Contracts::McpPack`
 
 Those packs install into `Igniter::Contracts` through the public facade only:
 
@@ -177,6 +178,25 @@ result = writer.write
 
 By default the writer uses `:skip_existing`, so existing files are preserved
 unless you explicitly opt into `mode: :overwrite`.
+
+`McpPack` is the first thin tooling adapter over those stabilized surfaces:
+
+```ruby
+environment = Igniter::Extensions::Contracts.with(
+  Igniter::Extensions::Contracts::McpPack
+)
+
+Igniter::Extensions::Contracts.mcp_tools
+result = Igniter::Extensions::Contracts.mcp_call(
+  :creator_wizard,
+  target: environment,
+  name: :delivery,
+  capabilities: %i[effect executor]
+)
+```
+
+The goal is to adapt existing debug/creator primitives for external tools, not
+to invent a second authoring stack.
 
 You can also drive scaffolding directly from capabilities:
 

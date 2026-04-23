@@ -59,6 +59,7 @@ For higher-level guidance on when to use each orchestration style, see
 - `contracts/incremental.rb` — new-world incremental session counterpart over `IncrementalPack`.
 - `contracts/introspection.rb` — new-world structured introspection counterpart to the legacy introspection example.
 - `contracts/journal.rb` — external effect/executor pack as a runnable operational demo.
+- `contracts/mcp.rb` — `McpPack` tooling adapter over debug and creator surfaces.
 - `contracts/migration.rb` — side-by-side legacy `igniter-core` reference vs `igniter-contracts` target.
 - `contracts/provenance.rb` — new-world lineage and provenance counterpart to the legacy provenance example.
 - `contracts/saga.rb` — new-world saga counterpart with explicit compensation registry over `SagaPack`.

@@ -19,6 +19,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
       Igniter::Extensions::Contracts::DebugPack,
       Igniter::Extensions::Contracts::IncrementalPack,
       Igniter::Extensions::Contracts::JournalPack,
+      Igniter::Extensions::Contracts::McpPack,
       Igniter::Extensions::Contracts::ProvenancePack,
       Igniter::Extensions::Contracts::SagaPack
     ])
@@ -220,5 +221,19 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
     expect(wizard.to_h.fetch(:recommended_examples)).to include("examples/contracts/build_your_own_pack.rb")
     expect(writer.plan.to_h.fetch(:steps).any? { |step| step.fetch(:kind) == :file }).to eq(true)
     expect(environment.profile.pack_names).to include(:extensions_creator, :extensions_debug)
+  end
+
+  it "exposes MCP-oriented tool helpers" do
+    environment = Igniter::Extensions::Contracts.with(Igniter::Extensions::Contracts::McpPack)
+    tools = Igniter::Extensions::Contracts.mcp_tools
+    result = Igniter::Extensions::Contracts.mcp_call(
+      :creator_wizard,
+      target: environment,
+      name: :delivery,
+      capabilities: %i[effect executor]
+    )
+
+    expect(tools.map { |tool| tool.fetch(:name) }).to include(:creator_wizard, :debug_report)
+    expect(result.to_h.fetch(:payload).fetch(:pending_decisions).first.fetch(:key)).to eq(:scope)
   end
 end

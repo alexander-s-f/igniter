@@ -302,6 +302,20 @@ module IgniterExamples
       ]
     ),
     Example.new(
+      id: "contracts/mcp",
+      path: "examples/contracts/mcp.rb",
+      summary: "McpPack tooling adapter over debug and creator surfaces.",
+      smoke: true,
+      autonomous: true,
+      runnable: true,
+      timeout: 10,
+      expected_fragments: [
+        "contracts_mcp_wizard_decision=scope",
+        "contracts_mcp_debug_output=12",
+        "contracts_mcp_write_files=4"
+      ]
+    ),
+    Example.new(
       id: "diagnostics",
       path: "examples/diagnostics.rb",
       summary: "Text diagnostics and machine-readable result output.",
