@@ -73,6 +73,12 @@ Cluster planning can now be executed explicitly too:
 By default these produce explicit simulated execution reports, leaving room for
 future real handlers without changing the plan shapes.
 
+Runnable illustrations live in `examples/cluster/`:
+
+- `routing.rb` for capability-aware remote compose
+- `incidents.rb` for durable incident history and active incident state
+- `mesh_diagnostics.rb` for retry traces, projection reports, and operator-facing diagnostics
+
 Mesh-oriented execution now has a first dedicated adapter layer too:
 
 - `Environment#mesh_executor`

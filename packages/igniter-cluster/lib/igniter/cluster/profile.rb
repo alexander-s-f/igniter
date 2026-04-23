@@ -3,13 +3,13 @@
 module Igniter
   module Cluster
     class Profile
-      NAME_KEYS = %i[transport router admission placement peer_registry].freeze
+      NAME_KEYS = %i[transport router admission placement peer_registry incident_registry].freeze
       SEAM_KEYS = NAME_KEYS.dup.freeze
 
       attr_reader :application_profile, :cluster_packs, :transport_name, :router_name,
-                  :admission_name, :placement_name, :peer_registry_name,
+                  :admission_name, :placement_name, :peer_registry_name, :incident_registry_name,
                   :transport_seam, :router_seam, :admission_seam, :placement_seam,
-                  :peer_registry_seam, :route_policy, :admission_policy, :placement_policy,
+                  :peer_registry_seam, :incident_registry_seam, :route_policy, :admission_policy, :placement_policy,
                   :topology_policy, :ownership_policy, :lease_policy, :health_policy, :capability_catalog
 
       def initialize(application_profile:, cluster_packs:, names:, seams:, policies:, capability_catalog:)
@@ -30,6 +30,14 @@ module Igniter
         peer_registry_seam.peers
       end
 
+      def incidents
+        incident_registry_seam.entries
+      end
+
+      def active_incidents
+        incident_registry_seam.active_set
+      end
+
       def to_h
         {
           application_profile: application_profile.to_h,
@@ -46,8 +54,10 @@ module Igniter
           lease_policy: lease_policy&.to_h,
           health_policy: health_policy&.to_h,
           peer_registry: peer_registry_name,
+          incident_registry: incident_registry_name,
           capability_catalog: capability_catalog.to_h,
-          peers: peers.map(&:to_h)
+          peers: peers.map(&:to_h),
+          active_incidents: active_incidents.to_h
         }
       end
 

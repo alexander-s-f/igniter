@@ -190,6 +190,7 @@ Good candidates for convenience and convention:
 
 - implicit template lookup
 - route generation from named actions/pages
+- compact `root` / `page` declarations
 - layout inheritance
 - route helpers
 - form binding

@@ -49,6 +49,6 @@ RSpec.describe "gemspec packaging" do
     spec = load_gemspec("packages/igniter-web/igniter-web.gemspec")
 
     dependency_names = spec.dependencies.select { |dependency| dependency.type == :runtime }.map(&:name)
-    expect(dependency_names).to eq(["igniter-application"])
+    expect(dependency_names).to eq(%w[arbre igniter-application])
   end
 end

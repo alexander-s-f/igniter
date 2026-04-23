@@ -75,6 +75,22 @@ module Igniter
         peer_registry.peers
       end
 
+      def incident_registry
+        profile.incident_registry_seam
+      end
+
+      def fetch_incident(id)
+        incident_registry.fetch(id)
+      end
+
+      def incidents
+        incident_registry.entries
+      end
+
+      def active_incidents
+        incident_registry.active_set
+      end
+
       def plan_rebalance(capabilities: [], traits: [], labels: {}, peer: nil, region: nil, zone: nil, query: nil,
                          policy: nil, metadata: {})
         effective_query = build_capability_query(

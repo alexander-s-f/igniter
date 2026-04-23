@@ -109,6 +109,13 @@ module Igniter
         self
       end
 
+      def incident_registry(name = nil, seam: nil, &block)
+        return @incident_registry_name if seam_query?(name, seam, block)
+
+        configure_named_seam(:incident_registry, name, seam, block, %i[record fetch entries active_set])
+        self
+      end
+
       def initialize_defaults
         @capability_catalog = CapabilityCatalog.new
         configure_default_seam(:transport, :direct, TransportAdapter.new)
@@ -123,6 +130,7 @@ module Igniter
         @lease_policy = LeasePolicy.ephemeral
         @health_policy = HealthPolicy.availability_aware
         configure_default_seam(:peer_registry, :memory, MemoryPeerRegistry.new)
+        configure_default_seam(:incident_registry, :memory, MemoryIncidentRegistry.new)
       end
 
       def profile_names
@@ -131,7 +139,8 @@ module Igniter
           router: router,
           admission: admission,
           placement: placement,
-          peer_registry: peer_registry
+          peer_registry: peer_registry,
+          incident_registry: incident_registry
         }
       end
 
@@ -141,7 +150,8 @@ module Igniter
           router: router_seam,
           admission: admission_seam,
           placement: placement_seam,
-          peer_registry: peer_registry_seam
+          peer_registry: peer_registry_seam,
+          incident_registry: incident_registry_seam
         }
       end
 

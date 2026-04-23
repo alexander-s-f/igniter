@@ -4,6 +4,8 @@ module Igniter
   module Web
     class Record
       class << self
+        attr_reader :adapter_definition
+
         def inherited(subclass)
           super
           subclass.instance_variable_set(:@adapter_definition, adapter_definition)
@@ -31,10 +33,6 @@ module Igniter
 
         def attribute_definitions
           @attribute_definitions ||= []
-        end
-
-        def adapter_definition
-          @adapter_definition
         end
       end
 

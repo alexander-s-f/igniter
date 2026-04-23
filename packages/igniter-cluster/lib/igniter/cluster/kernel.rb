@@ -6,7 +6,7 @@ module Igniter
       include KernelSeams
 
       attr_reader :application_kernel, :cluster_packs, :transport_seam, :router_seam,
-                  :admission_seam, :placement_seam, :peer_registry_seam
+                  :admission_seam, :placement_seam, :peer_registry_seam, :incident_registry_seam
 
       def initialize(application_kernel: Igniter::Application.build_kernel)
         @application_kernel = application_kernel

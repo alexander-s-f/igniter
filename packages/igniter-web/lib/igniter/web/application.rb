@@ -6,12 +6,13 @@ module Igniter
       Route = Struct.new(:verb, :path, :target, :metadata, keyword_init: true)
       Mount = Struct.new(:path, :target, :metadata, keyword_init: true)
 
-      attr_reader :routes, :mounts, :api_surface
+      attr_reader :routes, :mounts, :api_surface, :pages
 
       def initialize(api: nil)
         @routes = []
         @mounts = []
         @api_surface = api
+        @pages = []
       end
 
       def draw(&block)
@@ -34,6 +35,23 @@ module Igniter
       def mount(path, to:, **metadata)
         @mounts << Mount.new(path: path, target: to, metadata: metadata.freeze)
         self
+      end
+
+      def root(to: nil, title: nil, **metadata, &block)
+        page("/", to: to, title: title, **metadata, &block)
+      end
+
+      def page(path, to: nil, title: nil, **metadata, &block)
+        target = if to
+                   to
+                 elsif block
+                   Page.define(title: title, &block)
+                 else
+                   raise ArgumentError, "page requires either `to:` or a block"
+                 end
+
+        @pages << target if target.is_a?(Class) && target <= Page
+        get(path, to: target, page: true, title: title, **metadata)
       end
 
       def api(&block)

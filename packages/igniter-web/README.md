@@ -11,6 +11,8 @@ Current package shape:
 
 - `Igniter::Web::Api`
 - `Igniter::Web::Application`
+- `Igniter::Web::Page`
+- `Igniter::Web::Component`
 - `Igniter::Web::Record`
 
 ## Direction
@@ -33,6 +35,7 @@ The package should optimize for the shapes Igniter actually cares about:
 Current design notes live in:
 
 - [docs/dev/igniter-web-target-plan.md](../../docs/dev/igniter-web-target-plan.md)
+- [docs/dev/igniter-web-dsl-sketch.md](../../docs/dev/igniter-web-dsl-sketch.md)
 
 ## Current Status
 
@@ -41,7 +44,32 @@ This package currently ships only a skeleton:
 - package facade
 - namespace entrypoints
 - route/endpoint declaration objects
+- Arbre-backed `Page` and `Component` base classes
+- compact `root` / `page` authoring DSL
 - an adapter-oriented `Record` placeholder
 
 That gives the rebuild a real package boundary now, while leaving room to shape
 the full web runtime and authoring DSL incrementally.
+
+## Current DSL Sketch
+
+```ruby
+app = Igniter::Web.application do
+  root title: "Operator" do
+    main class: "shell" do
+      h1 "Operator"
+      para "Everything is healthy"
+    end
+  end
+
+  page "/projects/:id", title: "Project" do
+    main do
+      h1 assigns[:project_name]
+      para assigns[:status]
+    end
+  end
+
+  command "/projects/:id/advance", to: Contracts::AdvanceProject
+  stream "/projects/:id/events", to: Projections::ProjectEvents
+end
+```

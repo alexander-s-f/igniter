@@ -86,7 +86,7 @@ module Igniter
           cluster_profile: environment.profile.to_h
         }.merge(metadata)
 
-        PlanExecutionReport.new(
+        report = PlanExecutionReport.new(
           plan_kind: plan_kind,
           status: status,
           plan: plan,
@@ -100,6 +100,8 @@ module Igniter
             metadata: details
           )
         )
+        persist_incident_entry(report, details)
+        report
       end
 
       def resolve_action_result(plan_kind:, action:, handler:)
@@ -233,6 +235,13 @@ module Igniter
         else
           action.to_h
         end
+      end
+
+      def persist_incident_entry(report, details)
+        return report if report.incident.nil?
+
+        environment.incident_registry.record(report, metadata: details)
+        report
       end
     end
   end

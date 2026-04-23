@@ -2,8 +2,11 @@
 
 require "igniter/application"
 
+require_relative "web/arbre"
 require_relative "web/api"
 require_relative "web/application"
+require_relative "web/component"
+require_relative "web/page"
 require_relative "web/record"
 
 module Igniter

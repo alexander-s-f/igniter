@@ -951,6 +951,86 @@ RSpec.describe Igniter::Cluster::Environment do
     )
   end
 
+  it "persists cluster incidents as durable state and keeps only unresolved incidents active" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .topology_policy(
+                                :locality,
+                                required_labels: { tier: "gold" },
+                                preferred_zone: :eu_west_1a
+                              )
+                              .ownership_policy(:distributed, owner_limit: 1)
+                              .health_policy(:availability_aware, trigger_statuses: [:unhealthy])
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :fallback_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "silver" },
+      region: :eu_west,
+      zone: :eu_west_1b,
+      health_status: :unhealthy,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+    environment.register_peer(
+      :pricing_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+
+    plan = environment.plan_failover(target: "order-42", capabilities: [:pricing], traits: [:financial])
+    failed_report = environment.execute_failover_plan(plan) do
+      raise "peer write failed"
+    end
+
+    expect(failed_report.to_h).to include(
+      status: :failed,
+      incident: include(kind: :degraded_health, status: :failed)
+    )
+    expect(environment.incidents.map(&:to_h)).to contain_exactly(
+      include(
+        id: "degraded_health/1",
+        plan_kind: :failover,
+        status: :failed,
+        resolution: :unresolved,
+        active: true,
+        incident: include(kind: :degraded_health, targets: ["order-42"])
+      )
+    )
+    expect(environment.active_incidents.to_h).to include(
+      count: 1,
+      entries: include(
+        include(
+          id: "degraded_health/1",
+          active: true,
+          resolution: :unresolved
+        )
+      )
+    )
+
+    resolved_report = environment.execute_failover_plan(plan)
+    resolved_entry = environment.incidents.last
+
+    expect(resolved_report.to_h).to include(
+      status: :completed,
+      incident: include(kind: :degraded_health, status: :completed)
+    )
+    expect(environment.fetch_incident(resolved_entry.id).to_h).to include(
+      id: "degraded_health/2",
+      status: :completed,
+      resolution: :recovered,
+      active: false
+    )
+    expect(environment.active_incidents).to be_empty
+    expect(environment.active_incidents.to_h).to include(
+      count: 0,
+      incident_keys: []
+    )
+  end
+
   it "routes cluster plan execution through a mesh executor with explicit trace metadata" do
     cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
                               .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
@@ -1449,7 +1529,9 @@ RSpec.describe Igniter::Cluster::Environment do
       ownership_policy: include(name: :distributed),
       lease_policy: include(name: :ephemeral),
       health_policy: include(name: :availability_aware),
-      peer_registry: :memory
+      peer_registry: :memory,
+      incident_registry: :memory,
+      active_incidents: include(count: 0, incident_keys: [])
     )
     expect(profile.to_h.fetch(:capability_catalog)).to eq(definitions: [])
     expect(profile.to_h.fetch(:application_profile).fetch(:contracts_packs)).to include("Igniter::Extensions::Contracts::ComposePack")
