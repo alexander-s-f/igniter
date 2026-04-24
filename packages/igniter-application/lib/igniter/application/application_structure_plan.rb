@@ -10,10 +10,13 @@ module Igniter
         config: "# frozen_string_literal: true\n\n"
       }.freeze
 
-      attr_reader :blueprint, :root, :layout, :entries, :metadata
+      attr_reader :blueprint, :mode, :root, :layout, :entries, :metadata
 
-      def self.inspect(blueprint:, metadata: {})
-        entries = blueprint.layout.paths.map do |group, path|
+      def self.inspect(blueprint:, mode: :sparse, metadata: {})
+        normalized_mode = mode.to_sym
+        groups = groups_for(blueprint, normalized_mode)
+        entries = groups.map do |group|
+          path = blueprint.layout.path(group)
           absolute_path = blueprint.layout.absolute_path(group)
           kind = FILE_GROUPS.include?(group.to_sym) ? :file : :directory
           status = path_present?(absolute_path, kind) ? :present : :missing
@@ -30,11 +33,23 @@ module Igniter
 
         new(
           blueprint: blueprint,
+          mode: normalized_mode,
           root: blueprint.root,
           layout: blueprint.layout,
           entries: entries,
           metadata: metadata
         )
+      end
+
+      def self.groups_for(blueprint, mode)
+        case mode
+        when :sparse
+          blueprint.active_groups
+        when :complete
+          blueprint.known_groups
+        else
+          raise ArgumentError, "unknown application structure plan mode #{mode.inspect}; expected :sparse or :complete"
+        end
       end
 
       def self.path_present?(absolute_path, kind)
@@ -52,8 +67,9 @@ module Igniter
         content.nil? ? {} : { default_content: content }
       end
 
-      def initialize(blueprint:, root:, layout:, entries:, metadata: {})
+      def initialize(blueprint:, mode:, root:, layout:, entries:, metadata: {})
         @blueprint = blueprint
+        @mode = mode.to_sym
         @root = File.expand_path(root.to_s)
         @layout = layout
         @entries = Array(entries).freeze
@@ -96,6 +112,8 @@ module Igniter
         {
           root: root,
           blueprint: blueprint.name,
+          mode: mode,
+          layout_profile: blueprint.layout_profile,
           entry_count: entries.length,
           present_count: present_entries.length,
           missing_count: missing_entries.length,

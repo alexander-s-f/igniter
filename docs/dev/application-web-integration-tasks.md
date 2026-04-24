@@ -81,9 +81,12 @@ Current supervisor direction:
 
 - Treat `apps/<name>` as a portable app capsule.
 - Keep web as an optional surface inside the same capsule.
-- Prefer named layout profiles over teaching free-form path maps first.
-- Add sparse structure materialization as the user-facing default.
-- Preserve complete materialization for tests/docs and explicit users.
+- Done in application: prefer named layout profiles over teaching free-form
+  path maps first.
+- Done in application: add sparse structure materialization as the user-facing
+  default.
+- Done in application: preserve complete materialization for tests/docs and
+  explicit users.
 - Let stack-local apps use compact capsule paths, while standalone generated
   apps may keep `app/` separation.
 

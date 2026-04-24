@@ -5,16 +5,20 @@ module Igniter
     class ApplicationBlueprint
       FILE_GROUPS = %i[config].freeze
 
-      attr_reader :name, :root, :env, :layout, :packs, :contracts, :providers,
-                  :services, :interfaces, :effects, :web_surfaces, :config, :metadata
+      attr_reader :name, :root, :env, :layout_profile, :layout, :groups, :packs,
+                  :contracts, :providers, :services, :interfaces, :effects,
+                  :web_surfaces, :config, :metadata
 
-      def initialize(name:, root:, env: :development, layout: nil, paths: {}, packs: [], contracts: [],
-                     providers: [], services: [], interfaces: [], effects: [], web_surfaces: [],
+      def initialize(name:, root:, env: :development, layout: nil, layout_profile: :standalone, paths: {},
+                     groups: [], packs: [], contracts: [], providers: [], services: [], interfaces: [],
+                     effects: [], web_surfaces: [],
                      config: {}, metadata: {})
         @name = name.to_sym
         @root = File.expand_path(root.to_s)
         @env = env.to_sym
-        @layout = layout || ApplicationLayout.new(root: @root, paths: paths, metadata: metadata)
+        @layout_profile = layout&.profile || layout_profile.to_sym
+        @layout = layout || ApplicationLayout.new(root: @root, profile: @layout_profile, paths: paths, metadata: metadata)
+        @groups = Array(groups).map(&:to_sym).uniq.sort.freeze
         @packs = Array(packs).map(&:to_s).freeze
         @contracts = Array(contracts).map(&:to_s).freeze
         @providers = Array(providers).map(&:to_sym).freeze
@@ -54,18 +58,30 @@ module Igniter
         )
       end
 
-      def structure_plan(metadata: {})
-        ApplicationStructurePlan.inspect(blueprint: self, metadata: metadata)
+      def active_groups
+        (
+          %i[config spec] +
+          groups +
+          implied_groups
+        ).uniq.select { |group| layout.paths.key?(group) }.sort.freeze
       end
 
-      def materialize_structure!(metadata: {})
-        structure_plan(metadata: metadata).apply!
+      def known_groups
+        layout.paths.keys.sort.freeze
+      end
+
+      def structure_plan(mode: :sparse, metadata: {})
+        ApplicationStructurePlan.inspect(blueprint: self, mode: mode, metadata: metadata)
+      end
+
+      def materialize_structure!(mode: :sparse, metadata: {})
+        structure_plan(mode: mode, metadata: metadata).apply!
       end
 
       def apply_to(kernel)
         kernel.manifest(name, root: root, env: env, layout: layout, metadata: manifest_metadata)
-        layout.paths.each do |group, path|
-          kernel.add_path(group, path)
+        active_groups.each do |group|
+          kernel.add_path(group, layout.path(group))
         end
         config.each do |key, value|
           kernel.set(key, value: value)
@@ -78,7 +94,11 @@ module Igniter
           name: name,
           root: root,
           env: env,
+          layout_profile: layout_profile,
           layout: layout.to_h,
+          groups: groups.dup,
+          active_groups: active_groups,
+          known_groups: known_groups,
           planned_paths: planned_paths,
           packs: packs.dup,
           contracts: contracts.dup,
@@ -97,9 +117,22 @@ module Igniter
       def manifest_metadata
         metadata.merge(
           blueprint: true,
+          layout_profile: layout_profile,
+          groups: active_groups,
           effects: effects,
           web_surfaces: web_surfaces
         )
+      end
+
+      def implied_groups
+        [].tap do |result|
+          result << :contracts unless contracts.empty?
+          result << :providers unless providers.empty?
+          result << :services unless services.empty? && interfaces.empty?
+          result << :effects unless effects.empty?
+          result << :packs unless packs.empty?
+          result << :web unless web_surfaces.empty?
+        end
       end
     end
   end

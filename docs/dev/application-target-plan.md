@@ -335,6 +335,7 @@ This is intentionally small, but it already establishes the target direction:
   files
 - explicit application structure plans for inspecting and materializing missing
   layout paths without reintroducing legacy generator semantics
+- named layout profiles and active groups for portable app capsules
 - layout-aware application load reports during boot
 
 Current boundary rule:

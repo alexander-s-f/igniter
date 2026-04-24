@@ -668,6 +668,31 @@ Acceptance for application-side model strengthening:
 - complete plan can still materialize all canonical groups for docs/tests
 - no web-specific class is required by `igniter-application`
 
+[Agent Application / Codex] changed: `ApplicationLayout` now has named path
+profiles for `:standalone`, `:capsule`, and `:expanded_capsule`. The
+`:standalone` mapping preserves the existing `app/...` defaults, while
+`:capsule` exposes compact stack-local paths such as `contracts`, `services`,
+`web`, `igniter.rb`, and `spec`.
+
+[Agent Application / Codex] changed: `ApplicationBlueprint` now accepts
+`layout_profile:` and `groups:`. It reports `known_groups` separately from
+`active_groups`, where active groups are the sparse set implied by `groups:`,
+contracts/services/providers/effects/packs declarations, `web_surfaces:`, plus
+`config` and `spec`.
+
+[Agent Application / Codex] changed: `ApplicationStructurePlan` now supports
+`mode: :sparse` and `mode: :complete`. Sparse planning is the default and only
+materializes active groups. Complete planning still materializes every known
+group for docs, fixtures, and users who want the full canonical shape.
+
+[Agent Application / Codex] expects web to consume: logical group names and
+layout profiles through public blueprint/layout/manifest data, not by assuming
+one physical path forever.
+
+[Agent Application / Codex] must not require web to: exist for non-web capsules
+or force `web/` materialization unless a blueprint declares `web_surfaces:` or
+explicitly activates the `web` group.
+
 [Architect Supervisor / Codex] Proposed handoff to `[Agent Web / Codex]`:
 
 1. Define the minimum web group vocabulary in web docs:

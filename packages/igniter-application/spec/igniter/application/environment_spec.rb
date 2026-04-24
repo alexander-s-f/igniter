@@ -265,12 +265,14 @@ RSpec.describe Igniter::Application::Environment do
       expect(plan.to_h).to include(
         root: root,
         blueprint: :operator,
+        mode: :sparse,
+        layout_profile: :standalone,
         present_count: 0,
-        missing_count: 11,
+        missing_count: 3,
         metadata: { source: :spec }
       )
       expect(plan.to_h.fetch(:entries)).to include(
-        include(group: :contracts, kind: :directory, status: :missing, action: :create_directory),
+        include(group: :web, kind: :directory, status: :missing, action: :create_directory),
         include(group: :config, kind: :file, status: :missing, action: :write_file)
       )
 
@@ -278,19 +280,67 @@ RSpec.describe Igniter::Application::Environment do
 
       expect(result).to include(
         root: root,
-        applied_count: 11,
-        applied_groups: %i[agents config contracts effects executors packs providers services skills spec tools]
+        applied_count: 3,
+        applied_groups: %i[config spec web]
       )
-      expect(File.directory?(File.join(root, "app/contracts"))).to be(true)
+      expect(File.directory?(File.join(root, "app/web"))).to be(true)
       expect(File.file?(File.join(root, "config/igniter.rb"))).to be(true)
 
       refreshed = blueprint.structure_plan
       expect(refreshed.to_h).to include(
-        present_count: 11,
+        present_count: 3,
         missing_count: 0,
-        present_groups: %i[agents config contracts effects executors packs providers services skills spec tools]
+        present_groups: %i[config spec web]
+      )
+
+      complete_result = blueprint.materialize_structure!(mode: :complete)
+      expect(complete_result).to include(
+        root: root,
+        applied_count: 10,
+        applied_groups: %i[agents contracts effects executors packs providers services skills support tools]
+      )
+
+      complete_plan = blueprint.structure_plan(mode: :complete)
+      expect(complete_plan.to_h).to include(
+        mode: :complete,
+        present_count: 13,
+        missing_count: 0
       )
     end
+  end
+
+  it "supports named layout profiles and active groups for app capsules" do
+    root = File.expand_path("/tmp/igniter_operator_capsule")
+    blueprint = Igniter::Application.blueprint(
+      name: :operator,
+      root: root,
+      env: :test,
+      layout_profile: :capsule,
+      groups: %i[contracts services],
+      web_surfaces: [:operator_console]
+    )
+
+    expect(blueprint.to_h).to include(
+      layout_profile: :capsule,
+      groups: %i[contracts services],
+      active_groups: %i[config contracts services spec web]
+    )
+    expect(blueprint.layout.path(:contracts)).to eq("contracts")
+    expect(blueprint.layout.path(:config)).to eq("igniter.rb")
+    expect(blueprint.layout.path(:web)).to eq("web")
+
+    sparse_plan = blueprint.structure_plan
+    complete_plan = blueprint.structure_plan(mode: :complete)
+
+    expect(sparse_plan.to_h).to include(
+      mode: :sparse,
+      layout_profile: :capsule,
+      missing_groups: %i[config contracts services spec web]
+    )
+    expect(complete_plan.to_h).to include(
+      mode: :complete,
+      missing_groups: %i[agents config contracts effects executors packs providers services skills spec support tools web]
+    )
   end
 
   it "publishes generic mount registrations without depending on mounted package classes" do

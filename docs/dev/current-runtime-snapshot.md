@@ -105,7 +105,9 @@ Current shape:
 - transport-ready compose and collection invokers
 - manifest and canonical user app layout
 - scaffold-free app blueprints
-- explicit structure plans for materializing missing app layout paths
+- named layout profiles for standalone and compact app capsules
+- explicit sparse/complete structure plans for materializing missing app layout
+  paths
 - generic mount registry for web, agent, and future interaction surfaces
 - lifecycle plans and reports
 

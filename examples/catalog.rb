@@ -83,7 +83,7 @@ module IgniterExamples
         "application_blueprint_name=operator",
         "application_blueprint_env=test",
         "application_blueprint_web=operator_console,agent_chat",
-        "application_blueprint_paths=contracts,providers,services,effects,packs,executors,tools,agents,skills,config,spec",
+        "application_blueprint_paths=contracts,providers,services,effects,packs,executors,tools,agents,skills,support,web,config,spec",
         "application_blueprint_manifest=true",
         "application_blueprint_owner=operations",
         "application_blueprint_profile_env=test",
@@ -96,12 +96,31 @@ module IgniterExamples
       "Explicit application structure planning and materialization from a blueprint.",
       expected_fragments: [
         "application_structure_name=operator",
-        "application_structure_initial_missing=11",
-        "application_structure_applied=11",
+        "application_structure_initial_missing=3",
+        "application_structure_applied=3",
+        "application_structure_complete_applied=10",
         "application_structure_config=true",
+        "application_structure_web=true",
         "application_structure_contracts=true",
-        "application_structure_final_present=11",
-        "application_structure_final_missing=0"
+        "application_structure_final_present=3",
+        "application_structure_final_missing=0",
+        "application_structure_complete_present=13"
+      ]
+    ),
+    example(
+      "application/capsule_layout",
+      "Compact app capsule layout profile with sparse materialization.",
+      expected_fragments: [
+        "application_capsule_name=pricing",
+        "application_capsule_layout=capsule",
+        "application_capsule_contracts_path=contracts",
+        "application_capsule_config_path=igniter.rb",
+        "application_capsule_active_groups=config,contracts,services,spec",
+        "application_capsule_sparse_groups=config,contracts,services,spec",
+        "application_capsule_applied=4",
+        "application_capsule_config=true",
+        "application_capsule_web=false",
+        "application_capsule_profile_paths=config,contracts,services,spec"
       ]
     ),
     example(

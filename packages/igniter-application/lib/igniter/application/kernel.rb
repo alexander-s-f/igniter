@@ -4,7 +4,7 @@ module Igniter
   module Application
     class Kernel
       PATH_GROUPS = %i[
-        contracts providers services effects packs executors tools agents skills config spec
+        contracts providers services effects packs executors tools agents skills support web config spec
       ].freeze
 
       attr_reader :contracts_kernel, :contracts_packs, :application_packs, :providers,

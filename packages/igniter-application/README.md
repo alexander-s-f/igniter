@@ -41,8 +41,12 @@ The user application model now has a first explicit shape too:
 
 - `ApplicationBlueprint` describes an intended app structure before files are
   written or a runtime profile is finalized
+- `ApplicationLayout` supports named profiles: `:standalone`, `:capsule`, and
+  `:expanded_capsule`
 - `ApplicationStructurePlan` inspects and explicitly materializes missing
   layout paths from a blueprint without becoming a legacy scaffold generator
+- sparse structure plans materialize only active groups; complete plans
+  materialize every known group
 - `ApplicationManifest` captures app name, root, env, packs, contracts,
   providers, services, mounts, config, and layout
 - `ApplicationLayout` captures canonical user-app paths such as
