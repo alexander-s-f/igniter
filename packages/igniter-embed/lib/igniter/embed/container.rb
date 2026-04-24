@@ -15,10 +15,11 @@ module Igniter
         @profile ||= Igniter::Contracts.build_profile(config.packs)
       end
 
-      def register(name, &block)
-        raise ArgumentError, "contract block is required" unless block
+      def register(name, definition = nil, &block)
+        contract_definition = definition || block
+        raise ArgumentError, "contract definition is required" unless contract_definition
 
-        registry.register(name, block)
+        registry.register(name, contract_definition)
         compiled_contracts.delete(name.to_sym)
         ContractHandle.new(name: name, container: self)
       end
@@ -73,9 +74,15 @@ module Igniter
         key = name.to_sym
         return compiled_contracts.fetch(key) if config.cache? && compiled_contracts.key?(key)
 
-        compiled = compile_block(&registry.fetch(key))
+        compiled = compile_registration(registry.fetch(key))
         compiled_contracts[key] = compiled if config.cache?
         compiled
+      end
+
+      def compile_registration(registration)
+        return compile_block(&registration.definition) if registration.block?
+
+        registration.definition.compile(profile: profile)
       end
     end
   end

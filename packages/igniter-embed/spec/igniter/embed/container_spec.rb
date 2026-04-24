@@ -31,6 +31,32 @@ RSpec.describe Igniter::Embed::Container do
     expect(discount_result.output(:discount)).to eq(10.0)
   end
 
+  it "runs block and class contracts in one container" do
+    price_contract = Class.new(Igniter::Contract) do
+      define do
+        input :amount
+        compute :total, depends_on: [:amount] do |amount:|
+          amount * 1.2
+        end
+        output :total
+      end
+    end
+
+    contracts = Igniter::Embed.configure(:billing)
+    contracts.register(:tax_quote) do
+      input :amount
+      compute :tax, depends_on: [:amount] do |amount:|
+        amount * 0.2
+      end
+      output :tax
+    end
+    contracts.register(:price_quote, price_contract)
+
+    expect(contracts.call(:tax_quote, amount: 100).output(:tax)).to eq(20.0)
+    expect(contracts.call(:price_quote, amount: 100).output(:total)).to eq(120.0)
+    expect(contracts.registry.to_h.fetch(:price_quote)).to include(kind: :class)
+  end
+
   it "compiles lazily and caches registered contracts when cache is enabled" do
     compile_count = 0
     contracts = Igniter::Embed.configure(:billing) do |config|
@@ -80,6 +106,28 @@ RSpec.describe Igniter::Embed::Container do
       end
       output :quote
     end
+
+    result = contracts.call(:broken, amount: 10)
+
+    expect(result).to be_failure
+    expect(result.errors.first.message).to eq("boom")
+    expect(result.to_h[:metadata]).to eq(captured_exception: true)
+  end
+
+  it "returns failure envelopes for captured class contract exceptions" do
+    broken_contract = Class.new(Igniter::Contract) do
+      define do
+        input :amount
+        compute :quote, depends_on: [:amount] do |amount:|
+          raise "boom" if amount
+        end
+        output :quote
+      end
+    end
+    contracts = Igniter::Embed.configure(:billing) do |config|
+      config.capture_exceptions = true
+    end
+    contracts.register(:broken, broken_contract)
 
     result = contracts.call(:broken, amount: 10)
 
