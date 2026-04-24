@@ -25,6 +25,7 @@ require_relative "application/application_composition_report"
 require_relative "application/mount_intent"
 require_relative "application/application_assembly_plan"
 require_relative "application/application_handoff_manifest"
+require_relative "application/application_transfer_inventory"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -117,6 +118,15 @@ module Igniter
           host_capabilities: host_capabilities,
           mount_intents: mount_intents,
           surface_metadata: surface_metadata,
+          metadata: metadata
+        )
+      end
+
+      def transfer_inventory(*capsules, surface_metadata: [], enumerate_files: true, metadata: {})
+        ApplicationTransferInventory.build(
+          capsules: capsules.flatten,
+          surface_metadata: surface_metadata,
+          enumerate_files: enumerate_files,
           metadata: metadata
         )
       end

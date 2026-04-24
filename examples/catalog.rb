@@ -250,6 +250,18 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_transfer_inventory",
+      "Read-only dry-run inventory for declared capsule transfer material.",
+      expected_fragments: [
+        "application_capsule_transfer_inventory_capsules=operator",
+        "application_capsule_transfer_inventory_expected=config,contracts,services,spec,web",
+        "application_capsule_transfer_inventory_missing=config,spec,web",
+        "application_capsule_transfer_inventory_files=2",
+        "application_capsule_transfer_inventory_ready=false",
+        "application_capsule_transfer_inventory_surfaces=operator_console"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

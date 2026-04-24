@@ -198,8 +198,14 @@ ready, and what must the receiving host provide?" It summarizes readiness,
 unresolved required imports, missing optional imports, suggested host wiring,
 mount intents, and supplied surface metadata.
 
-This remains separate from runtime activation. It does not package, copy,
-discover, load, boot, mount, route, execute, or place capsules on a cluster.
+`ApplicationTransferInventory` is the current dry-run view of declared capsule
+material. It reports explicit capsule roots, active groups, expected sparse
+layout paths, existing paths/files under declared layout paths, missing expected
+paths, and supplied surface path metadata.
+
+This remains separate from runtime activation and transfer execution. It does
+not package, copy, create archives, discover project directories, load, boot,
+mount, route, execute, or place capsules on a cluster.
 
 ## Placement Rules
 
@@ -241,6 +247,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_composition.rb`](../../examples/application/capsule_composition.rb)
 - [`examples/application/capsule_assembly_plan.rb`](../../examples/application/capsule_assembly_plan.rb)
 - [`examples/application/capsule_handoff_manifest.rb`](../../examples/application/capsule_handoff_manifest.rb)
+- [`examples/application/capsule_transfer_inventory.rb`](../../examples/application/capsule_transfer_inventory.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

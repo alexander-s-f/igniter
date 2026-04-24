@@ -309,6 +309,80 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "builds read-only capsule transfer inventories from declared layout paths" do
+    Dir.mktmpdir("igniter-transfer-inventory") do |root|
+      FileUtils.mkdir_p(File.join(root, "contracts"))
+      FileUtils.mkdir_p(File.join(root, "services"))
+      File.write(File.join(root, "contracts/resolve_incident.rb"), "# contract\n")
+      File.write(File.join(root, "services/incident_queue.rb"), "# service\n")
+
+      capsule = Igniter::Application.capsule(:operator, root: root, env: :test) do
+        layout :capsule
+        groups :contracts, :services
+        web_surface :operator_console
+      end
+
+      inventory = Igniter::Application.transfer_inventory(
+        capsule,
+        surface_metadata: [
+          { name: :operator_console, kind: :web_surface, path: "web" }
+        ],
+        metadata: { source: :spec }
+      )
+      payload = inventory.to_h
+      capsule_payload = payload.fetch(:capsules).first
+
+      expect(payload).to include(
+        ready: false,
+        capsule_count: 1,
+        expected_path_count: 5,
+        existing_path_count: 2,
+        missing_path_count: 3,
+        file_count: 2,
+        metadata: { source: :spec }
+      )
+      expect(capsule_payload).to include(
+        name: :operator,
+        root: root,
+        layout_profile: :capsule,
+        active_groups: %i[config contracts services spec web],
+        file_count: 2
+      )
+      expect(capsule_payload.fetch(:expected_paths)).to include(
+        include(group: :contracts, path: "contracts", kind: :directory, status: :present),
+        include(group: :config, path: "igniter.rb", kind: :file, status: :missing)
+      )
+      expect(capsule_payload.fetch(:missing_expected_paths).map { |entry| entry.fetch(:group) }).to eq(%i[config spec web])
+      expect(capsule_payload.fetch(:files)).to include(
+        include(group: :contracts, relative_path: "contracts/resolve_incident.rb"),
+        include(group: :services, relative_path: "services/incident_queue.rb")
+      )
+      expect(capsule_payload.fetch(:surfaces)).to contain_exactly(
+        include(name: :operator_console, kind: :web_surface, path: "web")
+      )
+    end
+  end
+
+  it "can defer transfer inventory file enumeration" do
+    Dir.mktmpdir("igniter-transfer-inventory") do |root|
+      FileUtils.mkdir_p(File.join(root, "contracts"))
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: root,
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts]
+      )
+
+      payload = Igniter::Application.transfer_inventory(blueprint, enumerate_files: false).to_h
+      capsule_payload = payload.fetch(:capsules).first
+
+      expect(payload).to include(files_enumerated: false, file_count: :not_enumerated)
+      expect(capsule_payload).to include(files_enumerated: false, files: :not_enumerated, file_count: :not_enumerated)
+    end
+  end
+
   it "supports named layout profiles and active groups for app capsules" do
     root = File.expand_path("/tmp/igniter_operator_capsule")
     blueprint = Igniter::Application.blueprint(

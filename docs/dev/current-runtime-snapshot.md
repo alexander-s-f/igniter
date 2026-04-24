@@ -119,6 +119,8 @@ Current shape:
 - read-only capsule assembly plans over composition readiness and mount intents
 - read-only capsule handoff manifests for portable transfer and host wiring
   review
+- read-only capsule transfer inventories for dry-run review of declared
+  capsule paths/files before any future copy or package tooling
 - public capsule transfer guide over the read-only report/composition/assembly/
   handoff chain
 - explicit sparse/complete structure plans for materializing missing app layout
@@ -143,10 +145,12 @@ for humans and agents that need to see what capsules are moving, whether the
 set is ready, which host wiring is still required, and which optional web
 surface metadata was supplied. It is not a packaging, copy, discovery, boot,
 mount, routing, execution, or cluster placement mechanism.
-The next application slice is a read-only transfer inventory over declared
-capsule material. It may help humans and agents review expected/missing paths
-and safely enumerable files, but it must remain a dry run rather than a package
-or copy tool.
+`ApplicationTransferInventory` is the current read-only dry-run inventory over
+declared capsule material. It reports expected/missing paths and can enumerate
+files only under explicit capsule roots and declared layout paths. It accepts
+optional supplied web path metadata without inspecting web internals, and it is
+not a transfer, archive, discovery, loading, boot, mount, routing, execution,
+or cluster placement mechanism.
 
 Lifecycle now follows this shape:
 

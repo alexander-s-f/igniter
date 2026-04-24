@@ -315,6 +315,25 @@ package may produce a plain metadata hash and pass it into the manifest. In
 `igniter-web`, that hash can come from `Igniter::Web.surface_metadata(surface)`
 or `Igniter::Web.flow_surface_metadata(...)`.
 
+When you need to review physical capsule material before a future copy/package
+tool, use a transfer inventory:
+
+```ruby
+inventory = Igniter::Application.transfer_inventory(
+  operator,
+  surface_metadata: [
+    { name: :operator_console, kind: :web_surface, path: "web" }
+  ]
+)
+
+inventory.to_h
+```
+
+`ApplicationTransferInventory` reports declared capsule roots, active groups,
+expected sparse layout paths, existing paths, missing expected paths, optional
+file counts under declared paths, and supplied surface path metadata. It only
+looks under explicit capsule roots and declared layout paths.
+
 This transfer guide deliberately stops before copying files, creating archives,
 discovering directories, loading constants, booting apps, mounting web routes,
 executing contracts, or placing work on a cluster.
@@ -330,6 +349,7 @@ Start with these examples:
 - [`examples/application/capsule_composition.rb`](../../examples/application/capsule_composition.rb)
 - [`examples/application/capsule_assembly_plan.rb`](../../examples/application/capsule_assembly_plan.rb)
 - [`examples/application/capsule_handoff_manifest.rb`](../../examples/application/capsule_handoff_manifest.rb)
+- [`examples/application/capsule_transfer_inventory.rb`](../../examples/application/capsule_transfer_inventory.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

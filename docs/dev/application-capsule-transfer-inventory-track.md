@@ -164,3 +164,36 @@ If web package code or docs examples change, include the relevant
 3. Keep this as dry-run inventory. Do not turn it into transfer packaging,
    copying, discovery, loading, activation, routing, execution, or cluster
    placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-transfer-inventory-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationTransferInventory`.
+- Added `Igniter::Application.transfer_inventory(...)`.
+- Added `examples/application/capsule_transfer_inventory.rb` and registered it
+  in the active examples catalog.
+- Updated public/current docs to position transfer inventory after handoff
+  review as a dry-run material inventory.
+Accepted:
+- Inventories accept clean blueprints and human capsule DSL objects through
+  `to_blueprint`.
+- The inventory reports capsule names, roots, layout profile, active groups,
+  expected sparse layout paths, existing paths, missing expected paths, optional
+  file enumeration, summary counts, and supplied surface metadata.
+- File enumeration is constrained to explicit capsule roots and declared layout
+  paths; paths outside the capsule root are skipped rather than inspected.
+- The surface path story remains supplied metadata only. Application does not
+  inspect web screens, routes, Rack apps, components, or browser transports.
+- The slice remains read-only: no copy, archive, create, delete, discovery,
+  loading, boot, mount, routing, execution, or cluster placement.
+Verification:
+- `ruby examples/application/capsule_transfer_inventory.rb` passed.
+- `ruby examples/application/capsule_handoff_manifest.rb` passed.
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb`
+  passed with 99 examples, 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_inventory.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_inventory.rb examples/catalog.rb`
+  passed with no offenses.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 wording/boundary review for optional
+  web path metadata in transfer inventories.
