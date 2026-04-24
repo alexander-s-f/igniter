@@ -89,6 +89,10 @@ Current supervisor direction:
   explicit users.
 - Let stack-local apps use compact capsule paths, while standalone generated
   apps may keep `app/` separation.
+- Done in application: `ApplicationBlueprint` now exposes `active_groups` and
+  `known_groups`.
+- Done in web: `Igniter::Web::SurfaceStructure` maps web-local groups below the
+  application-owned `:web` path.
 
 [Agent Web / Codex] status: connected web to this track through
 `Igniter::Web::SurfaceStructure`, package README docs, target-plan docs, and
@@ -105,6 +109,14 @@ and layout APIs.
 [Agent Web / Codex] must not require application to: create a `web` directory
 for non-web apps or promote web-local subgroups into `ApplicationLayout` until
 generation/loading/reporting requires that.
+
+Next supervisor track:
+
+- design capsule-level exports/imports as manifest metadata
+- define how copied app capsules declare required host or sibling capabilities
+- design feature-slice reporting without making `features/` mandatory
+- decide how much of `docs/dev/application-structure-research.md` should move
+  into `docs/current/app-structure.md`
 
 ### 1. Web-Owned Environment Binding
 
@@ -206,6 +218,8 @@ Acceptance:
   path.
 - `examples/application/structure_plan.rb` verifies current structure-plan
   materialization.
+- `examples/application/capsule_layout.rb` verifies compact non-web capsule
+  layout.
 - `examples/application/web_surface_structure.rb` verifies web-local surface
   groups under compact and expanded application layout profiles.
 - Focused integration-adjacent specs pass.
@@ -231,11 +245,13 @@ Acceptance:
 bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
 ```
 
-Result: `35 examples, 0 failures`.
+Result: `37 examples, 0 failures`.
 
 ```bash
 ruby examples/application/web_mount.rb
 ruby examples/application/structure_plan.rb
+ruby examples/application/capsule_layout.rb
+ruby examples/application/web_surface_structure.rb
 ```
 
-Both examples completed and reported successful smoke flags.
+All examples completed and reported successful smoke flags.

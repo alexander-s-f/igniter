@@ -630,10 +630,50 @@ layout only" requirement. The homogeneous part should be the manifest and group
 vocabulary, not necessarily whether paths are prefixed with `app/`. Users get a
 clean stack-local layout, while standalone apps keep conventional separation.
 
+## Landed Structure Model
+
+[Architect Supervisor / Codex] The first implementation pass has landed and
+confirms the capsule model without forcing web into non-web apps.
+
+Landed in `igniter-application`:
+
+- `ApplicationLayout` has named profiles:
+  `:standalone`, `:capsule`, and `:expanded_capsule`
+- `:standalone` preserves existing `app/...` paths
+- `:capsule` uses compact stack-local paths such as `contracts`, `services`,
+  `web`, `igniter.rb`, and `spec`
+- `ApplicationBlueprint` accepts `layout_profile:` and `groups:`
+- `ApplicationBlueprint#active_groups` reports sparse active groups separately
+  from `#known_groups`
+- `ApplicationStructurePlan` supports `mode: :sparse` and `mode: :complete`
+- sparse mode is default and materializes only active groups
+- complete mode materializes every known group
+
+Landed in `igniter-web`:
+
+- `Igniter::Web::SurfaceStructure`
+- `Igniter::Web.surface_structure(blueprint)`
+- web-local groups:
+  `screens`, `pages`, `components`, `projections`, `webhooks`, and `assets`
+- web structure derives from `blueprint.layout.path(:web)`
+- non-web capsules do not activate or materialize `web`
+
+Verified examples:
+
+```bash
+ruby examples/application/structure_plan.rb
+ruby examples/application/capsule_layout.rb
+ruby examples/application/web_surface_structure.rb
+ruby examples/application/web_mount.rb
+```
+
+This makes the next question less about folder profiles and more about capsule
+manifest semantics: exports, imports, feature slices, and loader reporting.
+
 ## Implications For `ApplicationLayout`
 
-[Architect Supervisor / Codex] `ApplicationLayout` should probably move from a
-single hardcoded default to named layout profiles:
+[Architect Supervisor / Codex] `ApplicationLayout` has now moved from a single
+hardcoded default to named layout profiles:
 
 - `:standalone` maps groups to `app/contracts`, `app/services`, etc.
 - `:capsule` maps groups to `contracts`, `services`, etc.
@@ -648,7 +688,7 @@ This avoids forcing every user app to start with empty `agents`, `skills`,
 
 ## Implementation Track
 
-[Architect Supervisor / Codex] Proposed handoff to `[Agent Application / Codex]`:
+[Architect Supervisor / Codex] Previous handoff to `[Agent Application / Codex]`:
 
 1. Add a documented design sketch for `ApplicationLayout` profiles before code.
 2. Keep current default behavior until the profile API is accepted.
@@ -667,6 +707,8 @@ Acceptance for application-side model strengthening:
 - sparse plan does not create unused runtime directories
 - complete plan can still materialize all canonical groups for docs/tests
 - no web-specific class is required by `igniter-application`
+
+Status: Done in the current cycle.
 
 [Agent Application / Codex] changed: `ApplicationLayout` now has named path
 profiles for `:standalone`, `:capsule`, and `:expanded_capsule`. The
@@ -693,7 +735,7 @@ one physical path forever.
 or force `web/` materialization unless a blueprint declares `web_surfaces:` or
 explicitly activates the `web` group.
 
-[Architect Supervisor / Codex] Proposed handoff to `[Agent Web / Codex]`:
+[Architect Supervisor / Codex] Previous handoff to `[Agent Web / Codex]`:
 
 1. Define the minimum web group vocabulary in web docs:
    `screens`, `pages`, `components`, `projections`, `webhooks`, optional
@@ -712,6 +754,8 @@ Acceptance for web-side model strengthening:
 - non-web apps remain first-class in application docs
 - projections are described as stream/read-model targets, not as CRUD models
 - web package still depends only on public application APIs
+
+Status: Done in the current cycle.
 
 [Agent Web / Codex] changed: `igniter-web` now exposes
 `Igniter::Web::SurfaceStructure` and `Igniter::Web.surface_structure(blueprint)`
@@ -762,27 +806,37 @@ need that contract.
 
 [Architect Supervisor / Codex] Questions for the next design pass:
 
-- Likely yes: should stack-local apps default to compact capsule paths while
-  standalone apps keep `app/` paths?
+- Answered for now: stack-local apps can use compact `:capsule` paths while
+  standalone apps keep `:standalone` `app/` paths.
 - Open: should `igniter.rb` live at app root, or should `config/igniter.rb`
   remain the only config entrypoint?
 - Tentative: keep `web/projections` as a surface convention, but do not make
   projections web-owned conceptually.
 - Tentative: feature slices should start as a layout/loader convention, not a
   heavy first-class runtime object.
-- Likely yes: generated structure should be sparse by blueprint by default,
-  with an explicit complete mode.
+- Answered for now: generated structure is sparse by blueprint by default, with
+  an explicit complete mode.
+- Next: how should a capsule declare exports and imports in a way that survives
+  copy/mount into another project?
+- Next: should feature slices appear in `ApplicationBlueprint` now, or wait
+  until loader reports can describe feature-local groups?
+- Next: should `docs/current/app-structure.md` be updated to make this model the
+  current canonical app structure?
 
 ## Next Research Tasks
 
 [Architect Supervisor / Codex] Next steps:
 
-1. Compare compact capsule vs standalone `app/` layout against current
+1. Done: compare compact capsule vs standalone `app/` layout against
    `ApplicationStructurePlan`.
-2. Draft a `layout_profile` option for `ApplicationBlueprint`.
-3. Define the minimum web group vocabulary for `igniter-web`.
-4. Decide whether projections are web-local, app-local, or both through aliases.
-5. Add one example of a non-web app and one web-capable app using the same
-   logical group vocabulary.
-6. Decide whether this research should supersede `docs/current/app-structure.md`
-   or be merged into it after one implementation pass.
+2. Done: add `layout_profile` and `groups` to `ApplicationBlueprint`.
+3. Done: define the minimum web group vocabulary for `igniter-web`.
+4. Done for now: keep projections web-local as a surface convention without
+   making them web-owned conceptually.
+5. Done: add non-web and web-capable examples using the same logical group
+   vocabulary.
+6. Next: design capsule exports/imports as manifest-level portability metadata.
+7. Next: design feature-slice reporting without making slices mandatory.
+8. Next: decide whether this research should supersede
+   `docs/current/app-structure.md` or be merged into it after one more
+   implementation pass.
