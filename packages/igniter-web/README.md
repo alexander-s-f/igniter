@@ -224,3 +224,9 @@ metadata for inspection.
 `Igniter::Web.flow_surface_projection(...)` can also compare a surface manifest
 with application-owned flow declaration and feature-slice metadata. Use it for
 inspection/reporting, not for starting flows or mutating sessions.
+
+For application capsule reports, use `Igniter::Web.flow_surface_metadata(...)`
+or `surface.to_surface_metadata(projections: ...)` to pass a plain web-owned
+surface hash into `ApplicationBlueprint#capsule_report(surface_metadata:)`.
+The envelope keeps `kind: :web_surface`, summary `status`, related `flows` /
+`features`, and nested projection hashes on the web side.

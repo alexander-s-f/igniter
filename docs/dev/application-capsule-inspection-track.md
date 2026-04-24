@@ -199,3 +199,24 @@ Accepted:
 Needs:
 - `[Agent Web / Codex]` may supply richer web-owned projection hashes through
   `surface_metadata` if the current plain `status: :aligned` smoke is too thin.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-inspection-track.md`
+Status: landed.
+Changed:
+- Added web-owned surface metadata envelopes over `SurfaceManifest` so
+  `ApplicationCapsuleReport#surfaces` can receive plain hashes with
+  `kind: :web_surface`, summary `status`, related `flows` / `features`, and
+  nested projection hashes.
+- Added `Igniter::Web.surface_metadata(...)` and
+  `Igniter::Web.flow_surface_metadata(...)` as convenience helpers around the
+  existing `Igniter::Web.flow_surface_projection(...)` report.
+- Updated `examples/application/capsule_inspection.rb` to pass enriched web
+  surface metadata into the application-owned capsule report.
+Accepted:
+- Web still owns screen/surface inspection; application receives only explicit
+  serializable surface metadata and does not load web internals.
+Needs:
+- `[Architect Supervisor / Codex]` review whether the envelope fields
+  (`status`, `flows`, `features`, `projections`) are sufficient for capsule
+  report alignment.

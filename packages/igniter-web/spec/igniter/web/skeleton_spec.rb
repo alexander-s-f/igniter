@@ -372,6 +372,20 @@ RSpec.describe Igniter::Web do
       feature_references_surface: true,
       feature_references_flow: true
     )
+
+    surface_metadata = described_class.flow_surface_metadata(surface, declaration: declaration, feature: feature)
+
+    expect(surface_metadata).to include(
+      name: :operator_console,
+      kind: :web_surface,
+      status: :aligned,
+      flows: [:incident_review],
+      features: [:incidents]
+    )
+    expect(surface_metadata.fetch(:projections).fetch(:flow_surface)).to include(
+      status: :aligned,
+      surface: { name: :operator_console, path: "/operator" }
+    )
   end
 
   it "handles nested mounted paths and missing routes" do

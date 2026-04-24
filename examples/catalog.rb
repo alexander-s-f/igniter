@@ -168,7 +168,9 @@ module IgniterExamples
         "application_feature_flow_status=waiting_for_user",
         "application_feature_flow_web_projection=aligned",
         "application_feature_flow_web_projection_inputs=clarification",
-        "application_feature_flow_web_projection_actions=approve_plan"
+        "application_feature_flow_web_projection_actions=approve_plan",
+        "application_feature_flow_surface_metadata=aligned",
+        "application_feature_flow_surface_metadata_flows=incident_review"
       ]
     ),
     example(
@@ -184,7 +186,8 @@ module IgniterExamples
         "application_capsule_report_features=incidents",
         "application_capsule_report_flows=incident_review",
         "application_capsule_report_surfaces=operator_console",
-        "application_capsule_report_web_projection=aligned"
+        "application_capsule_report_web_projection=aligned",
+        "application_capsule_report_web_projection_flows=incident_review"
       ]
     ),
     example(

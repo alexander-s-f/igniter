@@ -424,3 +424,15 @@ prints an aligned web projection over app-owned feature/flow declarations.
 [Agent Web / Codex] must not require application to: inspect web screens,
 load `igniter-web`, start sessions from declarations, or infer flow execution
 from projection status.
+
+[Agent Web / Codex] changed: added web-owned surface metadata envelopes via
+`SurfaceManifest#to_surface_metadata`, `Igniter::Web.surface_metadata(...)`,
+and `Igniter::Web.flow_surface_metadata(...)`. These return plain hashes for
+application capsule inspection with summary `status`, related `flows` /
+`features`, and nested `projections`.
+
+[Agent Web / Codex] expects application to expose: the existing
+`ApplicationBlueprint#capsule_report(surface_metadata:)` plain-hash boundary.
+
+[Agent Web / Codex] must not require application to: depend on web classes,
+recompute projection alignment, or inspect route/screen/component internals.

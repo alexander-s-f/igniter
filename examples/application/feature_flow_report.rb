@@ -82,6 +82,7 @@ projection = Igniter::Web.flow_surface_projection(
   feature: feature,
   metadata: { source: :example }
 )
+surface_metadata = Igniter::Web.surface_metadata(surface, projections: { flow_surface: projection })
 environment = Igniter::Application::Environment.new(
   profile: blueprint.apply_to(Igniter::Application.build_kernel).finalize
 )
@@ -109,3 +110,5 @@ puts "application_feature_flow_status=#{snapshot.status}"
 puts "application_feature_flow_web_projection=#{projection.fetch(:status)}"
 puts "application_feature_flow_web_projection_inputs=#{projection.fetch(:pending_inputs).fetch(:matched).join(",")}"
 puts "application_feature_flow_web_projection_actions=#{projection.fetch(:pending_actions).fetch(:matched).join(",")}"
+puts "application_feature_flow_surface_metadata=#{surface_metadata.fetch(:status)}"
+puts "application_feature_flow_surface_metadata_flows=#{surface_metadata.fetch(:flows).join(",")}"

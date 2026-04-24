@@ -89,6 +89,19 @@ module Igniter
       def flow_surface_projection(surface, declaration:, feature: nil, metadata: {})
         FlowSurfaceProjection.project(surface, declaration: declaration, feature: feature, metadata: metadata)
       end
+
+      def surface_metadata(surface, projections: {})
+        return surface.to_surface_metadata(projections: projections) if surface.respond_to?(:to_surface_metadata)
+
+        payload = surface.respond_to?(:to_h) ? surface.to_h : { surface: surface }
+        projections.empty? ? payload : payload.merge(projections: projections)
+      end
+
+      def flow_surface_metadata(surface, declaration:, feature: nil, metadata: {})
+        projection = flow_surface_projection(surface, declaration: declaration, feature: feature, metadata: metadata)
+
+        surface_metadata(surface, projections: { flow_surface: projection })
+      end
     end
   end
 end

@@ -66,6 +66,16 @@ module Igniter
         }.compact
       end
 
+      def to_surface_metadata(projections: {})
+        normalized_projections = normalize_projection_hash(projections)
+        payload = to_h.merge(kind: :web_surface)
+        return payload if normalized_projections.empty?
+
+        payload.merge(projection_summary(normalized_projections)).merge(
+          projections: normalized_projections
+        )
+      end
+
       def to_capsule_export
         {
           name: name,
@@ -307,6 +317,53 @@ module Igniter
         else
           value
         end
+      end
+
+      def normalize_projection_hash(projections)
+        projections.to_h.each_with_object({}) do |(key, value), memo|
+          next if value.nil?
+
+          memo[key.to_sym] = symbolize_hash(value.respond_to?(:to_h) ? value.to_h : value)
+        end
+      end
+
+      def symbolize_hash(value)
+        value.to_h.transform_keys { |key| key.respond_to?(:to_sym) ? key.to_sym : key }
+      end
+
+      def projection_summary(projections)
+        {}.tap do |summary|
+          statuses = projections.values.filter_map { |projection| symbolize_hash(projection)[:status]&.to_sym }.uniq
+          flows = projection_flows(projections)
+          features = projection_features(projections)
+
+          summary[:status] = summarize_projection_status(statuses) unless statuses.empty?
+          summary[:flows] = flows unless flows.empty?
+          summary[:features] = features unless features.empty?
+        end
+      end
+
+      def summarize_projection_status(statuses)
+        return :attention if statuses.include?(:attention)
+        return statuses.first if statuses.one?
+
+        :mixed
+      end
+
+      def projection_flows(projections)
+        projections.values.flat_map do |projection|
+          source = symbolize_hash(projection)
+          flow = symbolize_hash(source.fetch(:flow, {}))
+          feature = symbolize_hash(source.fetch(:feature, {}))
+          [flow[:name], *Array(feature[:flows])]
+        end.compact.map(&:to_sym).uniq
+      end
+
+      def projection_features(projections)
+        projections.values.filter_map do |projection|
+          feature = symbolize_hash(symbolize_hash(projection).fetch(:feature, {}))
+          feature[:name]
+        end.map(&:to_sym).uniq
       end
     end
   end

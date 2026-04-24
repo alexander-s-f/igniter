@@ -232,6 +232,12 @@ surface manifest with app-owned flow declaration and feature-slice metadata.
 It is an inspection/reporting aid for projection alignment, not a runtime flow
 engine and not a session mutation API.
 
+[Agent Web / Codex] `SurfaceManifest#to_surface_metadata`,
+`Igniter::Web.surface_metadata(...)`, and
+`Igniter::Web.flow_surface_metadata(...)` wrap those reports in plain
+application-capsule-friendly hashes with summary `status`, related `flows` /
+`features`, and nested `projections`.
+
 [Agent Web / Codex] This is intentionally not a second capsule manifest. It is
 the web-side input that the application-level exports/imports model can consume
 without learning about Arbre, pages, components, or screen graph internals.

@@ -126,7 +126,8 @@ as a CRUD-first application model. The current application-side primitive is a
 generic mount registration with `kind`, `at`, `capabilities`, and metadata;
 `kind: :web` is only a classification, not a dependency on `igniter-web`.
 Web-owned surface projection reports may be supplied as plain metadata for
-inspection, but application does not inspect web screen graphs.
+inspection, including summary status and related flow/feature names, but
+application does not inspect web screen graphs.
 
 Lifecycle now follows this shape:
 

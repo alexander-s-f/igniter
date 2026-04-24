@@ -5,8 +5,19 @@ $LOAD_PATH.unshift(File.expand_path("../../lib", __dir__))
 $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-contracts/lib", __dir__))
 $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-extensions/lib", __dir__))
 $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-application/lib", __dir__))
+$LOAD_PATH.unshift(File.expand_path("../../packages/igniter-web/lib", __dir__))
 
 require "igniter/application"
+require "igniter/web"
+
+web = Igniter::Web.application do
+  screen :incident_review, intent: :human_decision do
+    ask :clarification, as: :textarea
+    action :approve_plan, run: "Contracts::ResolveIncident", action_type: :contract
+  end
+
+  screen_route "/incident-review", :incident_review
+end
 
 root = File.expand_path("../../tmp/capsule_inspection_operator", __dir__)
 worker = Igniter::Application.blueprint(
@@ -61,14 +72,15 @@ operator = Igniter::Application.blueprint(
   ]
 )
 
-projection = {
-  name: :operator_console,
-  kind: :web_surface_projection,
-  status: :aligned,
-  flows: [:incident_review]
-}
+surface = Igniter::Web.surface_manifest(web, name: :operator_console, path: "/operator")
+surface_metadata = Igniter::Web.flow_surface_metadata(
+  surface,
+  declaration: operator.flow_declarations.first,
+  feature: operator.feature_slices.first,
+  metadata: { source: :capsule_inspection }
+)
 worker_report = worker.capsule_report.to_h
-operator_report = operator.capsule_report(surface_metadata: [projection]).to_h
+operator_report = operator.capsule_report(surface_metadata: [surface_metadata]).to_h
 
 puts "application_capsule_report_name=#{operator_report.fetch(:name)}"
 puts "application_capsule_report_non_web=#{worker_report.fetch(:web_surfaces).empty?}"
@@ -80,3 +92,4 @@ puts "application_capsule_report_features=#{operator_report.fetch(:feature_slice
 puts "application_capsule_report_flows=#{operator_report.fetch(:flow_declarations).map { |entry| entry.fetch(:name) }.join(",")}"
 puts "application_capsule_report_surfaces=#{operator_report.fetch(:surfaces).map { |entry| entry.fetch(:name) }.join(",")}"
 puts "application_capsule_report_web_projection=#{operator_report.fetch(:surfaces).first.fetch(:status)}"
+puts "application_capsule_report_web_projection_flows=#{operator_report.fetch(:surfaces).first.fetch(:flows).join(",")}"

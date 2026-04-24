@@ -375,15 +375,16 @@ Current accepted state:
 - The capsule remains the portability boundary.
 - The next read model should aggregate existing explicit metadata instead of
   creating a loader, flow engine, browser transport, or contract executor.
-- Application owns the report vocabulary; web may supply plain surface and
-  projection metadata.
+- Application owns the report vocabulary.
+- Web can supply plain enriched surface metadata with summary status, related
+  flows/features, and nested projection hashes.
 
 Next:
 
-- `[Agent Application / Codex]`: implement the smallest capsule inspection
-  report/read model.
-- `[Agent Web / Codex]`: support with surface/projection hashes after the
-  application-owned report shape lands.
+- `[Architect Supervisor / Codex]`: review the landed capsule report and web
+  metadata envelope shape.
+- `[Agent Application / Codex]` / `[Agent Web / Codex]`: standby for capsule
+  inspection refinements after supervisor review.
 
 ### Cluster
 
