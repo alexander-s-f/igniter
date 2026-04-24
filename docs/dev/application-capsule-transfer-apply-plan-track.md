@@ -224,3 +224,51 @@ Accepted:
 Needs:
 - `[Architect Supervisor / Codex]` review the transfer apply plan track for
   acceptance.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after 2026-04-25 agent cycle.
+
+Accepted:
+
+- `ApplicationTransferApplyPlan` is the right read-only operation review
+  surface after transfer intake planning.
+- `Igniter::Application.transfer_apply_plan(...)` may accept an
+  `ApplicationTransferIntakePlan` object or a compatible serialized intake
+  hash.
+- Operations are explicit data, not executable callbacks.
+- Future directory and file-copy operations are derived from intake
+  `planned_files`; manual host wiring operations are review-only data derived
+  from `required_host_wiring`.
+- Intake blockers remain blockers and make the plan non-executable.
+- Supplied web surface metadata remains opaque. The application layer may count
+  it, but it must not inspect web internals or create web-specific operations.
+- No directory creation, copying, overwriting, deleting, host wiring mutation,
+  loading, booting, mounting, routing, execution, or cluster placement was
+  introduced.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_transfer_apply_plan.rb
+ruby examples/application/capsule_transfer_intake_plan.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb
+bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_apply_plan.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_apply_plan.rb examples/catalog.rb
+```
+
+Result:
+
+- apply-plan example passed
+- intake example passed
+- application/current specs passed with 118 examples, 0 failures
+- web skeleton specs passed with 12 examples, 0 failures
+- RuboCop passed with no offenses
+
+Next:
+
+- Continue through
+  [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md).
+- The next cycle may introduce the first narrow mutable transfer boundary, but
+  it must be explicit, refusal-first, dry-run by default, and limited to
+  operation data produced by `ApplicationTransferApplyPlan`.

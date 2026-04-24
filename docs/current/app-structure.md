@@ -242,6 +242,9 @@ surface. Given accepted intake data, it reports whether a future apply would be
 executable, lists ordered `ensure_directory`, `copy_file`, and
 `manual_host_wiring` operations, and preserves blockers/warnings without
 creating directories, copying files, or applying host wiring.
+The next planned surface is explicit dry-run-first apply execution for reviewed
+apply plans. Any mutation must be opt-in and limited to directory creation and
+file copying from reviewed operations.
 
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or

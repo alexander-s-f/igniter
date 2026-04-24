@@ -188,6 +188,9 @@ surface over accepted intake data. It lists ordered future directory creation,
 file copy, and manual host wiring operations plus blockers and warnings without
 creating directories, copying files, applying host wiring, or installing a
 bundle.
+The next active application track is explicit dry-run-first apply execution for
+reviewed transfer apply plans. It may become the first narrow mutable boundary,
+but only behind explicit commit and refusal-first policy.
 
 Lifecycle now follows this shape:
 

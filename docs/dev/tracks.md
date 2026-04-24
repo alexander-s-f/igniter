@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Read-only apply operation plan for accepted transfer intake data | [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md) | [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md), [Application Capsule Transfer Bundle Verification Track](./application-capsule-transfer-bundle-verification-track.md), [Application Capsule Transfer Bundle Artifact Track](./application-capsule-transfer-bundle-artifact-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web metadata review |
-| `[Agent Web / Codex]` | Compatibility review for optional web metadata in apply operation planning | [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md) | [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for apply-plan wording needs |
+| `[Agent Application / Codex]` | Explicit dry-run-first apply execution for reviewed transfer apply plans | [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md) | [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md), [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md), [Application Capsule Transfer Bundle Verification Track](./application-capsule-transfer-bundle-verification-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web metadata review |
+| `[Agent Web / Codex]` | Compatibility review for optional web metadata in apply execution | [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md) | [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for execution wording needs |
 
 ## Track Map
 
@@ -105,8 +105,9 @@ pressure-test wave:
 - Read-only verification/readback for transfer bundle artifacts landed.
 - Read-only destination intake planning for verified transfer bundle artifacts
   landed.
-- The next broad track is read-only apply operation planning over accepted
-  intake data.
+- Read-only apply operation planning over accepted intake data landed.
+- The next broad track is explicit dry-run-first apply execution for reviewed
+  transfer apply plans.
 
 ### Embed And Contract Class DSL
 
@@ -805,7 +806,7 @@ Next:
 
 ### Application Capsule Transfer Apply Plan
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -819,22 +820,59 @@ Dependencies:
 
 Current accepted state:
 
-- The next useful artifact is a read-only apply operation plan over accepted
+- The next useful artifact was a read-only apply operation plan over accepted
   transfer intake data.
-- Apply planning should accept an explicit intake plan or compatible serialized
+- `ApplicationTransferApplyPlan` and
+  `Igniter::Application.transfer_apply_plan(...)` are accepted as the
+  application-owned operation review surface.
+- Apply planning accepts an explicit intake plan or compatible serialized
   intake hash.
-- It should report executable status, ordered operations, blockers, warnings,
+- It reports executable status, ordered operations, blockers, warnings,
   supplied surface metadata count, and stable `to_h`.
 - It must not create, copy, write, delete, install, load, boot, mount, route,
   execute, or coordinate clusters.
 - Web metadata remains supplied and opaque.
+- Apply planning passed on 2026-04-25 with application/current specs, web
+  skeleton specs, examples, and RuboCop.
 
 Next:
 
-- `[Agent Application / Codex]`: implement the smallest transfer apply plan
-  value, facade, specs, and smoke example.
+- Continue through [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md).
+- Keep apply execution explicit, dry-run-first, and refusal-first.
+
+### Application Capsule Transfer Apply Execution
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md)
+
+Dependencies:
+
+- [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md)
+- [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md)
+- [Application Capsule Transfer Bundle Verification Track](./application-capsule-transfer-bundle-verification-track.md)
+
+Current accepted state:
+
+- The next useful artifact is the first narrow mutable transfer boundary.
+- Apply execution should accept an explicit apply plan or compatible serialized
+  apply-plan hash.
+- It should default to dry-run mode and require explicit commit before
+  filesystem mutation.
+- It may execute only reviewed `ensure_directory` and `copy_file` operations.
+- It must refuse non-executable plans and refuse overwrites by default.
+- It must not apply host wiring, activate web, load, boot, route, execute
+  contracts, or coordinate clusters.
+- Web metadata remains supplied and opaque.
+
+Next:
+
+- `[Agent Application / Codex]`: implement the smallest dry-run-first transfer
+  apply result, facade, specs, and smoke example.
 - `[Agent Web / Codex]`: verify optional web metadata remains supplied and
-  opaque in apply planning.
+  opaque in apply execution and no web-specific operation is executed.
 
 ### Cluster
 
