@@ -366,6 +366,20 @@ module IgniterExamples
       ]
     ),
     example(
+      "contracts/embed_human_sugar",
+      "Embed human sugar DSL for host contracts, generated runners, adapters, events, and explicit capabilities.",
+      expected_fragments: [
+        "embed_sugar_primary_total=120.0",
+        "embed_sugar_runner_names=price_quote",
+        "embed_sugar_shadow_match=false",
+        "embed_sugar_shadow_accepted=true",
+        "embed_sugar_redacted_inputs=amount,customer_id",
+        "embed_sugar_divergence_events=1",
+        "embed_sugar_capabilities=logging:contract,reporting:callable_adapter",
+        "embed_sugar_runner_accessor=contractable(:price_quote)"
+      ]
+    ),
+    example(
       "contracts/build_effect_executor_pack",
       "Inline effect/executor pack authoring over the public contracts API.",
       expected_fragments: ["custom_executor_output=15", "custom_result_entries=1"]

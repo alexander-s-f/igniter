@@ -23,6 +23,21 @@ result.success?
 result.output(:tax)
 ```
 
+For human-facing app initializers, `host` is sugar over the same host-local
+configuration:
+
+```ruby
+contracts = Igniter::Embed.host(:shop) do
+  owner Shop
+  path "app/contracts"
+  cache !Rails.env.development?
+
+  contracts do
+    add :price_quote, PriceContract
+  end
+end
+```
+
 For app-local contract classes, prefer host-level registration:
 
 ```ruby
@@ -114,6 +129,68 @@ end
 
 result = QuoteShadow.call(amount: 100)
 ```
+
+The same shape can be declared through host sugar. This keeps registration,
+shadow migration intent, adapters, and event hooks in one inspectable
+initializer:
+
+```ruby
+contracts = Igniter::Embed.host(:billing) do
+  contracts do
+    add :price_quote, Billing::PriceContract do
+      migrate Billing::LegacyQuote, to: Billing::ContractQuote
+      shadow async: false, sample: 1.0
+
+      use :normalizer, Billing::QuoteNormalizer
+      use :redaction, only: %i[amount customer_id]
+      use :acceptance, policy: :shape, outputs: { total: Numeric }
+      use :store, Billing::ObservationStore
+
+      on :divergence do |event|
+        Billing.logger.warn(event)
+      end
+    end
+  end
+end
+
+runner = contracts.contractable(:price_quote)
+runner.call(amount: 100, customer_id: "cust_1", token: "secret")
+```
+
+Generated contractable runners are host-local:
+
+```ruby
+contracts.contractable_names
+contracts.fetch_contractable(:price_quote)
+contracts.sugar_expansion.to_h
+```
+
+`on :failure` is an alias family for typed failure events:
+`:primary_error`, `:candidate_error`, `:acceptance_failure`, and
+`:store_error`. Divergence is intentionally separate and should be subscribed
+to with `on :divergence`.
+
+Capability attachment sugar exists for host-owned targets. It does not install
+implicit built-ins:
+
+```ruby
+contracts = Igniter::Embed.host(:billing) do
+  contracts do
+    add :price_quote, Billing::PriceContract do
+      migrate Billing::LegacyQuote, to: Billing::ContractQuote
+      use :normalizer, Billing::QuoteNormalizer
+
+      use :logging, contract: Billing::LogObservationContract
+      use :reporting, ->(event) { Billing.reporter.record(event) }
+      use :metrics, target: Billing::MetricsSink
+      use :validation, callable: Billing::ObservationValidator
+    end
+  end
+end
+```
+
+Each explicit target appears in `sugar_expansion` as either `kind: :contract`
+or `kind: :callable_adapter`.
 
 Primary-only observed services use the same surface:
 

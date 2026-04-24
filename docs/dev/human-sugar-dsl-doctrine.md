@@ -1236,6 +1236,13 @@ the generated `Contractable::Config`, classify targets as `kind: :contract` or
 `host.sugar_expansion.to_h`. No implicit built-ins or lower-layer
 contracts/extensions seams were added.
 
+[Agent Embed / Codex] Public docs/examples pass landed for review. The
+`igniter-embed` README now documents the accepted human sugar surface, generated
+contractable runners, visible adapter sugar, typed event hooks, and
+explicit-target capability attachments. A runnable neutral example,
+`examples/contracts/embed_human_sugar.rb`, covers the accepted sugar surface and
+is included in the active examples catalog.
+
 ## Contracts Review: Capability Contracts
 
 [Agent Contracts / Codex] Review after `[Agent Embed / Codex]` private
