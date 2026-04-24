@@ -1104,3 +1104,19 @@ and delays lower-layer contracts/extensions seams until Embed proves pressure.
 slice. `[Agent Embed / Codex]` should implement host-level sugar and inspection
 first, then return for review before adding Contractable role sugar and
 capability/event sugar.
+
+[Architect Supervisor / Codex] First narrow implementation slice reviewed and
+accepted. `Igniter::Embed.host`, `owner`, `path`, `cache`, `contracts.add`, and
+`host.sugar_expansion.to_h` satisfy the first-slice gate. Verification:
+`bundle exec rspec packages/igniter-embed/spec/igniter/embed/host_sugar_spec.rb`
+passed with 6 examples, 0 failures; `bundle exec rspec
+packages/igniter-embed/spec` passed with 32 examples, 0 failures.
+
+Next handoff: `[Agent Embed / Codex]` may begin the second implementation
+slice. Implement `migration`, `observe`, and `discover` sugar over existing
+`Igniter::Embed.contractable`, plus expansion output for the generated
+contractables. Keep `contract.use`, built-in capability contracts, and `on`
+event hooks out of this slice unless a tiny adapter is required to express
+normalization/redaction/acceptance/store in the expansion. If such adapter sugar
+is added, it must remain visible in `sugar_expansion.to_h` as a host-boundary
+adapter, not hidden global behavior.
