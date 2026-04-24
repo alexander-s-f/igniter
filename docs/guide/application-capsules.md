@@ -322,7 +322,12 @@ tool, use a transfer inventory:
 inventory = Igniter::Application.transfer_inventory(
   operator,
   surface_metadata: [
-    { name: :operator_console, kind: :web_surface, path: "web" }
+    {
+      name: :operator_console,
+      kind: :web_surface,
+      path: "web",
+      screens_path: "web/screens"
+    }
   ]
 )
 
@@ -331,8 +336,10 @@ inventory.to_h
 
 `ApplicationTransferInventory` reports declared capsule roots, active groups,
 expected sparse layout paths, existing paths, missing expected paths, optional
-file counts under declared paths, and supplied surface path metadata. It only
-looks under explicit capsule roots and declared layout paths.
+file counts under declared paths, and supplied surface path metadata. A web
+package may produce that metadata from its own path vocabulary, such as
+`Igniter::Web.surface_structure(blueprint)`. The inventory only looks under
+explicit capsule roots and declared application layout paths.
 
 This transfer guide deliberately stops before copying files, creating archives,
 discovering directories, loading constants, booting apps, mounting web routes,

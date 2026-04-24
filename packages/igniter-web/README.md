@@ -263,3 +263,25 @@ Igniter::Application.handoff_manifest(
 This is still a read-only handoff manifest. It does not bind the web mount, call
 Rack, route browser traffic, or make `igniter-application` inspect
 `SurfaceManifest`, screens, pages, or components.
+
+For dry-run transfer inventories, keep web-local paths as supplied metadata too:
+
+```ruby
+structure = Igniter::Web.surface_structure(operator)
+
+Igniter::Application.transfer_inventory(
+  operator,
+  surface_metadata: [
+    {
+      name: :operator_console,
+      kind: :web_surface,
+      path: structure.web_root,
+      screens_path: structure.path(:screens)
+    }
+  ]
+)
+```
+
+The inventory may report that the top-level application `web` group is missing,
+but it should not inspect `web/screens`, `web/pages`, or other web-local
+subgroups as application-owned structure.

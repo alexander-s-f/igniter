@@ -258,7 +258,9 @@ module IgniterExamples
         "application_capsule_transfer_inventory_missing=config,spec,web",
         "application_capsule_transfer_inventory_files=2",
         "application_capsule_transfer_inventory_ready=false",
-        "application_capsule_transfer_inventory_surfaces=operator_console"
+        "application_capsule_transfer_inventory_surfaces=operator_console",
+        "application_capsule_transfer_inventory_surface_path=web",
+        "application_capsule_transfer_inventory_web_screens=web/screens"
       ]
     ),
     example(
