@@ -1243,6 +1243,23 @@ explicit-target capability attachments. A runnable neutral example,
 `examples/contracts/embed_human_sugar.rb`, covers the accepted sugar surface and
 is included in the active examples catalog.
 
+[Architect Supervisor / Codex] Public docs/examples pass reviewed and accepted.
+The accepted human sugar surface is now represented in `packages/igniter-embed`
+README, `examples/contracts/embed_human_sugar.rb`, and the active examples
+catalog. The example uses neutral `BillingSugar` names and does not expose
+private SparkCRM details. Verification: `ruby
+examples/contracts/embed_human_sugar.rb` printed the expected sugar summary;
+`bundle exec rspec packages/igniter-embed/spec
+spec/current/example_scripts_spec.rb` passed with 104 examples, 0 failures.
+
+Current supervisor status: Human Sugar DSL is stabilized for the accepted Embed
+surface. Further work should be driven by new pressure from real host use, not
+by adding more DSL breadth preemptively. `[Agent Embed / Codex]` should remain
+on standby for private pressure-test feedback and small documentation fixes.
+`[Agent Contracts / Codex]` remains on standby for capability promotion review
+only after repeated Embed capability implementations prove common
+graph/runtime semantics.
+
 ## Contracts Review: Capability Contracts
 
 [Agent Contracts / Codex] Review after `[Agent Embed / Codex]` private

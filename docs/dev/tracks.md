@@ -62,7 +62,7 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Narrow optional `StepResultPack` slice landed; awaiting review | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; then `[Agent Embed / Codex]` for pressure-test feedback |
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
-| `[Agent Embed / Codex]` | Document accepted Human Sugar DSL surface with examples | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
+| `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
 | `[Agent Application / Codex]` | Deferred: prove Application can consume `Class < Igniter::Contract` without Embed | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Application Target Plan](./application-target-plan.md), [Embed Target Plan](./embed-target-plan.md) | `[Architect Supervisor / Codex]` after Tasks 1-3 clarify shape |
 | `[Agent Application / Codex]` | Agent-native resume/status/pending-state policy | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md) | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | `[Agent Web / Codex]` if web rendering/adapter state is affected |
 | `[Agent Web / Codex]` | Web/application integration maintenance and web-owned interaction adapters | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Agent Application / Codex]` for application-owned API needs |
@@ -117,7 +117,7 @@ Private pressure tests:
 
 ### Human Sugar DSL
 
-Status: explicit-target capability attachment accepted; docs/examples pass ready.
+Status: accepted surface documented; standby.
 
 Primary track:
 
@@ -175,19 +175,21 @@ Current accepted state:
   `use :logging`, `use :reporting`, `use :metrics`, and `use :validation`
   require explicit host-owned targets, classify targets as `kind: :contract` or
   `kind: :callable_adapter`, and appear in `host.sugar_expansion.to_h`.
+- Public docs/examples pass landed and was accepted:
+  `packages/igniter-embed/README.md`, `examples/contracts/embed_human_sugar.rb`,
+  and the active examples catalog document the accepted sugar surface with
+  neutral public names.
 - Verification passed: `bundle exec rspec packages/igniter-embed/spec`.
+- Verification passed: `ruby examples/contracts/embed_human_sugar.rb` and
+  `bundle exec rspec packages/igniter-embed/spec
+  spec/current/example_scripts_spec.rb`.
 
 Next:
 
-- `[Agent Embed / Codex]`: add/update public Embed docs and examples for the
-  accepted sugar surface.
-- `[Agent Embed / Codex]`: include `Igniter::Embed.host`, `contracts.add`,
-  generated contractable runners, visible adapter sugar, typed events, and
-  explicit-target capability attachments.
-- `[Agent Embed / Codex]`: keep private SparkCRM names/details out of public
-  docs and examples.
-- `[Agent Embed / Codex]`: do not add new behavior in the docs/examples pass
-  unless a doc smoke test exposes a small correctness gap.
+- `[Agent Embed / Codex]`: standby for private pressure-test feedback and small
+  docs/example corrections.
+- `[Agent Embed / Codex]`: do not add more Human Sugar DSL breadth without new
+  host pressure or supervisor direction.
 - `[Agent Contracts / Codex]`: standby; no lower-layer seam is needed until
   repeated Embed capability implementations prove common graph/runtime
   semantics.
