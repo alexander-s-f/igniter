@@ -272,7 +272,8 @@ module IgniterExamples
         "application_capsule_transfer_readiness_warnings=missing_optional_import",
         "application_capsule_transfer_readiness_sources=inventory:3,manifest:2",
         "application_capsule_transfer_readiness_manifest=false",
-        "application_capsule_transfer_readiness_inventory=false"
+        "application_capsule_transfer_readiness_inventory=false",
+        "application_capsule_transfer_readiness_surfaces=1"
       ]
     ),
     example(

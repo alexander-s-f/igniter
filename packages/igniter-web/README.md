@@ -285,3 +285,25 @@ Igniter::Application.transfer_inventory(
 The inventory may report that the top-level application `web` group is missing,
 but it should not inspect `web/screens`, `web/pages`, or other web-local
 subgroups as application-owned structure.
+
+For the final read-only decision report before any future transfer/package
+tool, pass the same supplied metadata into transfer readiness:
+
+```ruby
+readiness = Igniter::Application.transfer_readiness(
+  operator,
+  surface_metadata: [
+    {
+      name: :operator_console,
+      kind: :web_surface,
+      path: structure.web_root,
+      screens_path: structure.path(:screens)
+    }
+  ]
+)
+```
+
+Readiness may count supplied web surfaces and warn when a declared surface has
+no supplied metadata. It still treats the metadata as an opaque hash and does
+not load `igniter-web`, inspect screen graphs, bind mounts, or route browser
+traffic.

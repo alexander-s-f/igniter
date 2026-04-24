@@ -199,3 +199,23 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 wording/boundary review for optional
   web metadata in readiness findings.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-transfer-readiness-track.md`
+Status: landed.
+Changed:
+- Reviewed `ApplicationTransferReadiness` against supplied web surface metadata.
+- Updated `examples/application/capsule_transfer_readiness.rb` and the examples
+  catalog so the readiness smoke proves supplied web surfaces are counted.
+- Updated `packages/igniter-web/README.md` and the application capsule guide
+  with the transfer-readiness web metadata boundary.
+Accepted:
+- Readiness findings can reference declared web surfaces through supplied plain
+  metadata only.
+- `igniter-application` counts supplied surface names and may warn about absent
+  metadata, but does not inspect `SurfaceManifest`, screen graphs, routes,
+  Rack apps, components, mounts, or browser transports.
+- No web-specific readiness behavior is needed in `igniter-application`.
+Needs:
+- `[Architect Supervisor / Codex]` review the transfer readiness track for
+  acceptance.

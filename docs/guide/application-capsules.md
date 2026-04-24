@@ -364,7 +364,9 @@ warnings, summary counts, and the nested handoff manifest and transfer
 inventory. Findings keep stable `source`, `code`, `message`, and `metadata`
 fields. Required import failures, unresolved mount intents, unsafe skipped
 paths, and missing expected paths are blockers by default. Optional imports and
-deferred file enumeration are warnings.
+deferred file enumeration are warnings. Supplied web surface metadata is counted
+as opaque transfer context; if a declared web surface has no supplied metadata,
+readiness reports a warning without inspecting screens, routes, or components.
 
 This transfer guide deliberately stops before copying files, creating archives,
 discovering directories, loading constants, booting apps, mounting web routes,

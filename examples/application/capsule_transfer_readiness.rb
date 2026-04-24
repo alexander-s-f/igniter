@@ -51,4 +51,5 @@ Dir.mktmpdir("igniter-capsule-readiness") do |root|
   puts "application_capsule_transfer_readiness_sources=#{sources}"
   puts "application_capsule_transfer_readiness_manifest=#{report.fetch(:summary).fetch(:manifest_ready)}"
   puts "application_capsule_transfer_readiness_inventory=#{report.fetch(:summary).fetch(:inventory_ready)}"
+  puts "application_capsule_transfer_readiness_surfaces=#{report.fetch(:summary).fetch(:supplied_surface_count)}"
 end
