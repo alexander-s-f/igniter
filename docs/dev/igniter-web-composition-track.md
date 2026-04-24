@@ -106,7 +106,8 @@ Initial renderer behavior:
 - render a complete Arbre HTML document
 - preserve screen, preset, zone, and node identity through `data-ig-*`
   attributes
-- keep visual output deliberately plain until component vocabulary is ready
+- delegate screen, zone, and node markup to semantic Arbre components
+- keep visual output deliberately plain while the component vocabulary matures
 
 ## Composition Presets
 

@@ -28,7 +28,7 @@ module Igniter
 
       def build(*args, **kwargs, &_block)
         build_block = self.class.build_with
-        return super() unless build_block
+        return super(*args, **kwargs) unless build_block
 
         instance_exec(*args, **kwargs, &build_block)
       rescue NoMethodError => e
@@ -46,6 +46,37 @@ module Igniter
           instance_exec(&block)
         else
           block.call(*args)
+        end
+      end
+
+      def class_names(*values)
+        values.flatten.compact.reject(&:empty?).join(" ")
+      end
+
+      def token_class(prefix, value)
+        return nil if value.nil?
+
+        "#{prefix}--#{dasherize(value)}"
+      end
+
+      def humanize(value)
+        value.to_s.tr("_", " ").tr("-", " ").split.map(&:capitalize).join(" ")
+      end
+
+      def dasherize(value)
+        value.to_s.tr("_", "-").downcase
+      end
+
+      def format_value(value)
+        case value
+        when Symbol
+          value.to_s
+        when Array
+          value.map { |item| format_value(item) }.join(", ")
+        when Hash
+          value.map { |key, item| "#{humanize(key)}: #{format_value(item)}" }.join(", ")
+        else
+          value.to_s
         end
       end
     end

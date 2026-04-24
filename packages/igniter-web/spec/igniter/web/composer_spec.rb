@@ -92,6 +92,7 @@ RSpec.describe Igniter::Web::Composer do
     expect(html).to include("data-ig-preset=\"decision_workspace\"")
     expect(html).to include("data-ig-zone=\"summary\"")
     expect(html).to include("data-ig-node-kind=\"action\"")
+    expect(html).to include("class=\"ig-node ig-node--action ig-role--primary-action\"")
     expect(html).to include("Contracts::ApprovePlan")
   end
 end

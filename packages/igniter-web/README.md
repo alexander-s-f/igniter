@@ -53,6 +53,7 @@ This package currently ships only a skeleton:
 - compact `root` / `page` authoring DSL
 - initial screen composition objects for agent-managed views and flows
 - first Arbre renderer for composed view graphs
+- semantic Arbre components for screen, zone, and node rendering
 - an adapter-oriented `Record` placeholder
 
 That gives the rebuild a real package boundary now, while leaving room to shape
