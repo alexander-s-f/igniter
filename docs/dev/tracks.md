@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Application capsule inspection read model | [Application Capsule Inspection Track](./application-capsule-inspection-track.md) | [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md), [Application Structure Research](./application-structure-research.md), [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` if surface/projection metadata support is needed |
-| `[Agent Web / Codex]` | Support capsule inspection with web-owned surface/projection metadata | [Application Capsule Inspection Track](./application-capsule-inspection-track.md) | [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app-owned report shape needs |
+| `[Agent Application / Codex]` | User-facing application capsule guide and current structure alignment | [Application Capsule Guide Track](./application-capsule-guide-track.md) | [Application Capsule Inspection Track](./application-capsule-inspection-track.md), [Application Structure Research](./application-structure-research.md), [App Guide](../guide/app.md), [Current App Structure](../current/app-structure.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for web surface guide wording |
+| `[Agent Web / Codex]` | Web-as-surface guide notes for application capsules | [Application Capsule Guide Track](./application-capsule-guide-track.md) | [Application Capsule Inspection Track](./application-capsule-inspection-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for shared guide wording |
 
 ## Track Map
 
@@ -83,9 +83,10 @@ pressure-test wave:
   snapshot/read-model path.
 - Optional feature-slice reporting, app-owned flow declarations, and web-owned
   surface projection reports have landed.
-- The next broad track is capsule inspection: one compact application-owned
-  read model over layout, manifest, feature, flow, and optional surface
-  metadata.
+- Capsule inspection landed as one compact application-owned read model over
+  layout, manifest, feature, flow, and optional surface metadata.
+- The next broad track is user-facing capsule documentation and current app
+  structure alignment.
 
 ### Embed And Contract Class DSL
 
@@ -281,8 +282,8 @@ Next:
 
 ### Agent-Native Interaction Sessions
 
-Status: resume/status policy landed; feature/flow declarations landed; next
-broad track moved to capsule inspection.
+Status: resume/status policy landed; feature/flow declarations and capsule
+inspection landed.
 
 Primary track:
 
@@ -302,12 +303,12 @@ Current accepted state:
 
 Next:
 
-- Continue through [Application Capsule Inspection Track](./application-capsule-inspection-track.md).
+- Continue through [Application Capsule Guide Track](./application-capsule-guide-track.md).
 
 ### Application Structure And Capsules
 
-Status: landed first pass; feature/flow metadata landed; capsule inspection is
-active.
+Status: landed first pass; feature/flow metadata and capsule inspection landed;
+guide/current-doc alignment is active.
 
 Primary track:
 
@@ -322,8 +323,8 @@ Current accepted state:
 
 Next:
 
-- Continue through [Application Capsule Inspection Track](./application-capsule-inspection-track.md).
-- Decide later whether this should update `docs/current/app-structure.md`.
+- Continue through [Application Capsule Guide Track](./application-capsule-guide-track.md).
+- Align or supersede `docs/current/app-structure.md` there.
 
 ### Application Feature Slice And Flow Declarations
 
@@ -358,7 +359,7 @@ Next:
 
 ### Application Capsule Inspection
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -373,7 +374,7 @@ Dependencies:
 Current accepted state:
 
 - The capsule remains the portability boundary.
-- The next read model should aggregate existing explicit metadata instead of
+- `ApplicationCapsuleReport` aggregates existing explicit metadata instead of
   creating a loader, flow engine, browser transport, or contract executor.
 - Application owns the report vocabulary.
 - Web can supply plain enriched surface metadata with summary status, related
@@ -381,10 +382,36 @@ Current accepted state:
 
 Next:
 
-- `[Architect Supervisor / Codex]`: review the landed capsule report and web
-  metadata envelope shape.
-- `[Agent Application / Codex]` / `[Agent Web / Codex]`: standby for capsule
-  inspection refinements after supervisor review.
+- Continue through [Application Capsule Guide Track](./application-capsule-guide-track.md).
+- Keep future inspection refinements read-only and explicit.
+
+### Application Capsule Guide
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Capsule Guide Track](./application-capsule-guide-track.md)
+
+Dependencies:
+
+- [Application Capsule Inspection Track](./application-capsule-inspection-track.md)
+- [Application Structure Research](./application-structure-research.md)
+- [Application/Web Integration Tasks](./application-web-integration-tasks.md)
+
+Current accepted state:
+
+- The model is stable enough for a first user-facing narrative.
+- Guide wording should explain sparse-first capsules, optional feature slices,
+  flow declarations, capsule reports, and web as an optional surface.
+- This is a docs-first stabilization pass, not a new runtime API pass.
+
+Next:
+
+- `[Agent Application / Codex]`: write/align the user-facing application
+  capsule guide and current app structure doc.
+- `[Agent Web / Codex]`: add web-as-surface guide notes without coupling
+  application to web.
 
 ### Cluster
 

@@ -915,8 +915,10 @@ reporting, and current-doc alignment.
    mandatory directories.
 8. Done: app-owned flow declaration metadata landed without implicit flow
    execution.
-9. Next: continue through capsule inspection/read-model reporting before
-   promoting the structure into broader user-facing docs.
-10. Next: decide whether this research should supersede
+9. Done: capsule inspection/read-model reporting landed as
+   `ApplicationCapsuleReport`.
+10. Next: promote the accepted structure into broader user-facing docs through
+   the application capsule guide track.
+11. Next: decide whether this research should supersede
    `docs/current/app-structure.md` or be merged into it after one more
    implementation pass.

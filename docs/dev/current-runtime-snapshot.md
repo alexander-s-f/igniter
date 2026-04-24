@@ -113,6 +113,7 @@ Current shape:
 - capsule export/import metadata for portable app boundaries
 - optional feature-slice reporting metadata
 - app-owned flow declaration metadata
+- application-owned capsule inspection reports
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces
@@ -128,6 +129,8 @@ generic mount registration with `kind`, `at`, `capabilities`, and metadata;
 Web-owned surface projection reports may be supplied as plain metadata for
 inspection, including summary status and related flow/feature names, but
 application does not inspect web screen graphs.
+`ApplicationCapsuleReport` is the current read-only aggregate for humans and
+agents that need to inspect a capsule before editing, moving, or mounting it.
 
 Lifecycle now follows this shape:
 

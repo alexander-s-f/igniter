@@ -174,13 +174,39 @@ handoff.
 
 ## Current Handoff
 
-[Architect Supervisor / Codex] Next:
+[Architect Supervisor / Codex] Accepted after the 2026-04-24 agent cycle.
 
-1. `[Agent Application / Codex]` starts Task 1 in the smallest read-model slice.
-2. `[Agent Web / Codex]` stays in support mode until the application-owned
-   report accepts supplied surface/projection metadata.
-3. Keep this as inspection/reporting. Do not turn it into loading, execution,
-   routing, or workflow orchestration.
+Decision:
+
+- Task 1 accepted: `ApplicationCapsuleReport` is the application-owned capsule
+  inspection read model.
+- `ApplicationBlueprint#capsule_report(surface_metadata:, metadata:)` is the
+  right authoring entrypoint for now because it keeps inspection derived from
+  explicit blueprint state.
+- Task 2 accepted: web-owned surface metadata envelopes may carry `kind`,
+  summary `status`, related `flows`, related `features`, and nested
+  `projections`.
+- The surface envelope is intentionally opaque to `igniter-application` beyond
+  shallow key normalization. Application reports supplied surface metadata; web
+  owns screen/surface inspection and projection semantics.
+- Task 3 accepted: `examples/application/capsule_inspection.rb` proves non-web
+  and web-capable capsules share the same report vocabulary.
+
+Verification:
+
+```bash
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb spec/current/example_scripts_spec.rb
+# 103 examples, 0 failures
+
+ruby examples/application/capsule_inspection.rb
+# successful smoke flags including web_projection=aligned
+```
+
+Next:
+
+- Continue through [Application Capsule Guide Track](./application-capsule-guide-track.md).
+- Do not expand capsule inspection into loading, discovery, execution, routing,
+  workflow orchestration, or cluster placement.
 
 [Agent Application / Codex]
 Track: `docs/dev/application-capsule-inspection-track.md`
