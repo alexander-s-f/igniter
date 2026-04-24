@@ -1030,6 +1030,53 @@ ergonomics, but it must not redefine contracts semantics. Contracts and
 extensions remain the source of graph/runtime semantics and reusable packs.
 Embed composes them for host convenience.
 
+## Supervisor Review
+
+[Architect Supervisor / Codex] Accepted for the next implementation slice.
+
+The proposal and `[Agent Contracts / Codex]` review converge on the right
+architecture:
+
+- sugar is a compiler into existing clean Embed and Contractable config, not a
+  second runtime
+- `Igniter::Embed.host` is acceptable as the human entrypoint for the first
+  slice
+- `owner`, `path`, `contracts.add`, `migration`, `observe`, `discover`, `use`,
+  and typed `on` events are accepted as the proposal surface to implement in
+  narrow steps
+- inspection is not optional; the first usable slice must expose a structured
+  sugar expansion suitable for agents and users
+- `contracts.add` means contract registration by default, and only creates a
+  related `Contractable` when host behavior appears in the block
+- `contract.use` should keep the fractal contract direction: capability
+  behavior should be contract-backed when practical, and callable adapters must
+  be visible as temporary host-boundary adapters in inspection output
+- lower-layer contracts/extensions seams should wait until Embed proves the
+  capability shape under real initializer pressure
+
+Implementation gate for `[Agent Embed / Codex]`: start with small sugar that
+can be reviewed mechanically against clean expansion. Do not implement broad
+built-in logging/reporting/metrics/validation contracts in this slice.
+
+Accepted first implementation slice:
+
+1. `Igniter::Embed.host` as sugar over `Igniter::Embed.configure`.
+2. Host DSL: `owner`, `path`, `cache`, and `contracts.add`.
+3. `contracts.add` name inference and explicit-name behavior matching
+   `Container#register`.
+4. Structured expansion output, for example `host.sugar_expansion.to_h`.
+5. Focused specs proving sugar and clean forms produce equivalent config for
+   plain contract registration.
+
+Second implementation slice, only after the first is reviewed:
+
+1. `migration`, `observe`, and `discover` sugar over
+   `Igniter::Embed.contractable`.
+2. Adapter-backed `use :normalizer`, `use :redaction`, `use :acceptance`, and
+   `use :store` with visible expansion output.
+3. Typed event hooks with `on :failure` as an alias family, not a vague single
+   callback.
+
 ## Handoff Notes
 
 [Agent Embed / Codex] Task 1 proposal drafted for review. The proposal keeps
@@ -1044,3 +1091,8 @@ as user-friendly and architecturally compatible if it compiles to inspectable
 clean config, keeps `contracts.add` semantics explicit, distinguishes
 contract-backed capabilities from temporary host adapters, uses typed events,
 and delays lower-layer contracts/extensions seams until Embed proves pressure.
+
+[Architect Supervisor / Codex] Proposal accepted for a narrow implementation
+slice. `[Agent Embed / Codex]` should implement host-level sugar and inspection
+first, then return for review before adding Contractable role sugar and
+capability/event sugar.
