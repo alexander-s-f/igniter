@@ -23,6 +23,7 @@ module Igniter
     BaselinePack = Assembly::BaselinePack
     ConstPack = Assembly::ConstPack
     ProjectPack = Assembly::ProjectPack
+    StepResultPack = Assembly::StepResultPack
 
     CompiledGraph = Execution::CompiledGraph
     Builder = Execution::Builder
@@ -45,6 +46,7 @@ module Igniter
     ValidationReport = Execution::ValidationReport
     CompilationReport = Execution::CompilationReport
     MutableNamedValues = Execution::MutableNamedValues
+    StepResult = Execution::StepResult
   end
 end
 

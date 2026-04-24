@@ -336,6 +336,16 @@ module IgniterExamples
       ]
     ),
     example(
+      "contracts/step_result",
+      "Optional StepResultPack with visible step nodes and fail-fast trace.",
+      expected_fragments: [
+        "contracts_step_result_success=false",
+        "contracts_step_result_failure_code=halted_dependency",
+        "contracts_step_result_halted_dependency=market",
+        "contracts_step_result_trace=validated_params:success,market:failed,business_window:failed"
+      ]
+    ),
+    example(
       "contracts/embed_class_registration",
       "Embed host registration for contract classes with explicit and inferred names.",
       expected_fragments: [

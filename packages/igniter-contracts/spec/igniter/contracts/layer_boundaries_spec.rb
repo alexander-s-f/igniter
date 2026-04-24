@@ -16,6 +16,11 @@ RSpec.describe "Igniter::Contracts assembly/execution boundaries" do
     "assembly/const_pack.rb" => %w[
       Execution::ConstRuntime
     ],
+    "assembly/step_result_pack.rb" => %w[
+      Execution::StepResultDiagnostics
+      Execution::StepResultRuntime
+      Execution::StepResultValidators
+    ],
     "assembly/hook_result_policies.rb" => %w[
       Execution::ExecutionResult
       Execution::Operation

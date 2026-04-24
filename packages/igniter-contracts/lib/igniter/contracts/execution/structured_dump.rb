@@ -36,7 +36,8 @@ module Igniter
             value.is_a?(DiagnosticsReport) ||
             value.is_a?(ValidationFinding) ||
             value.is_a?(ValidationReport) ||
-            value.is_a?(CompilationReport)
+            value.is_a?(CompilationReport) ||
+            (defined?(StepResult) && value.is_a?(StepResult))
         end
 
         def normalize_key(key)
