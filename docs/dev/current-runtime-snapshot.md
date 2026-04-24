@@ -121,6 +121,8 @@ Current shape:
   review
 - read-only capsule transfer inventories for dry-run review of declared
   capsule paths/files before any future copy or package tooling
+- read-only capsule transfer readiness reports over handoff manifests and
+  transfer inventories
 - public capsule transfer guide over the read-only report/composition/assembly/
   handoff chain
 - explicit sparse/complete structure plans for materializing missing app layout
@@ -151,9 +153,10 @@ files only under explicit capsule roots and declared layout paths. It accepts
 optional supplied web path metadata without inspecting web internals, and it is
 not a transfer, archive, discovery, loading, boot, mount, routing, execution,
 or cluster placement mechanism.
-The next application slice is a readiness report over handoff manifest and
-transfer inventory, still without packaging, copying, activation, or cluster
-placement.
+`ApplicationTransferReadiness` is the current read-only decision report over a
+handoff manifest and transfer inventory. It separates blockers from warnings,
+classifies findings by source, and exposes one `ready` boolean without
+packaging, copying, activation, routing, execution, or cluster placement.
 
 Lifecycle now follows this shape:
 

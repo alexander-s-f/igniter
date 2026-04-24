@@ -383,6 +383,92 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "builds transfer readiness reports over handoff manifests and inventories" do
+    Dir.mktmpdir("igniter-transfer-readiness") do |root|
+      FileUtils.mkdir_p(File.join(root, "contracts"))
+      File.write(File.join(root, "contracts/resolve_incident.rb"), "# contract\n")
+
+      capsule = Igniter::Application.capsule(:operator, root: root, env: :test) do
+        layout :capsule
+        groups :contracts, :services
+        export :resolve_incident, kind: :contract, target: "Contracts::ResolveIncident"
+        import :incident_runtime, kind: :service, from: :host
+        import :audit_log, kind: :service, from: :host, optional: true
+        web_surface :operator_console
+      end
+
+      report = Igniter::Application.transfer_readiness(
+        capsule,
+        subject: :operator_bundle,
+        metadata: { source: :spec }
+      ).to_h
+
+      expect(report).to include(ready: false, metadata: { source: :spec })
+      expect(report.fetch(:blockers).map { |entry| entry.fetch(:code) }).to include(
+        :unresolved_required_import,
+        :missing_expected_path
+      )
+      expect(report.fetch(:warnings).map { |entry| entry.fetch(:code) }).to include(
+        :missing_optional_import,
+        :surface_metadata_absent
+      )
+      expect(report.fetch(:summary)).to include(
+        manifest_ready: false,
+        inventory_ready: false,
+        unresolved_required_count: 1,
+        supplied_surface_count: 0
+      )
+      expect(report.fetch(:summary).fetch(:sources)).to include(
+        manifest: 2,
+        inventory: 4,
+        surface_metadata: 1
+      )
+    end
+  end
+
+  it "accepts explicit transfer artifacts and policy for missing paths" do
+    Dir.mktmpdir("igniter-transfer-readiness") do |root|
+      FileUtils.mkdir_p(File.join(root, "contracts"))
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: root,
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      manifest = Igniter::Application.handoff_manifest(
+        subject: :operator_bundle,
+        capsules: [blueprint],
+        host_exports: [
+          { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+        ]
+      )
+      inventory = Igniter::Application.transfer_inventory(blueprint, enumerate_files: false)
+
+      report = Igniter::Application.transfer_readiness(
+        handoff_manifest: manifest,
+        transfer_inventory: inventory,
+        policy: { missing_expected_paths: :warning }
+      ).to_h
+
+      expect(report).to include(ready: true)
+      expect(report.fetch(:blockers)).to eq([])
+      expect(report.fetch(:warnings).map { |entry| entry.fetch(:code) }).to include(
+        :missing_expected_path,
+        :files_not_enumerated
+      )
+      expect(report.fetch(:summary)).to include(
+        manifest_ready: true,
+        inventory_ready: false,
+        unresolved_required_count: 0
+      )
+    end
+  end
+
   it "supports named layout profiles and active groups for app capsules" do
     root = File.expand_path("/tmp/igniter_operator_capsule")
     blueprint = Igniter::Application.blueprint(

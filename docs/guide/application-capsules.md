@@ -341,6 +341,31 @@ package may produce that metadata from its own path vocabulary, such as
 `Igniter::Web.surface_structure(blueprint)`. The inventory only looks under
 explicit capsule roots and declared application layout paths.
 
+When a human or agent needs one decision surface before a future transfer tool,
+build transfer readiness over the manifest and inventory:
+
+```ruby
+readiness = Igniter::Application.transfer_readiness(
+  operator,
+  subject: :operator_bundle,
+  host_exports: [
+    { name: :audit_log, kind: :service, target: "Host::AuditLog" }
+  ],
+  surface_metadata: [
+    { name: :operator_console, kind: :web_surface, path: "web" }
+  ]
+)
+
+readiness.to_h
+```
+
+`ApplicationTransferReadiness` reports one `ready` boolean, blocking findings,
+warnings, summary counts, and the nested handoff manifest and transfer
+inventory. Findings keep stable `source`, `code`, `message`, and `metadata`
+fields. Required import failures, unresolved mount intents, unsafe skipped
+paths, and missing expected paths are blockers by default. Optional imports and
+deferred file enumeration are warnings.
+
 This transfer guide deliberately stops before copying files, creating archives,
 discovering directories, loading constants, booting apps, mounting web routes,
 executing contracts, or placing work on a cluster.
@@ -357,6 +382,7 @@ Start with these examples:
 - [`examples/application/capsule_assembly_plan.rb`](../../examples/application/capsule_assembly_plan.rb)
 - [`examples/application/capsule_handoff_manifest.rb`](../../examples/application/capsule_handoff_manifest.rb)
 - [`examples/application/capsule_transfer_inventory.rb`](../../examples/application/capsule_transfer_inventory.rb)
+- [`examples/application/capsule_transfer_readiness.rb`](../../examples/application/capsule_transfer_readiness.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

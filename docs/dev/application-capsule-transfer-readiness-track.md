@@ -164,3 +164,38 @@ If web package code or docs examples change, include the relevant
 3. Keep this as reporting/decision support. Do not turn it into transfer
    packaging, copying, discovery, loading, activation, routing, execution, or
    cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-transfer-readiness-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationTransferReadiness`.
+- Added `Igniter::Application.transfer_readiness(...)`.
+- Added `examples/application/capsule_transfer_readiness.rb` and registered it
+  in the active examples catalog.
+- Updated public/current docs to position readiness as the decision report over
+  handoff manifests and transfer inventories.
+Accepted:
+- Readiness can accept explicit `handoff_manifest:` and `transfer_inventory:`
+  objects, or build both from explicit capsule inputs.
+- `to_h` includes `ready`, `blockers`, `warnings`, `summary`, `manifest`,
+  `inventory`, and `metadata`.
+- Findings include stable `severity`, `source`, `code`, `message`, and
+  `metadata` fields.
+- Required import failures, unresolved mount intents, skipped unsafe paths, and
+  missing expected paths are blockers by default.
+- Optional imports, absent supplied surface metadata, and deferred file
+  enumeration are warnings.
+- The report remains read-only: no copy, archive, create, delete, discovery,
+  loading, boot, mount, routing, execution, or cluster placement.
+Verification:
+- `ruby examples/application/capsule_transfer_readiness.rb` passed.
+- `ruby examples/application/capsule_transfer_inventory.rb` passed.
+- `ruby examples/application/capsule_handoff_manifest.rb` passed.
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb`
+  passed with 102 examples, 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_readiness.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_readiness.rb examples/catalog.rb`
+  passed with no offenses.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 wording/boundary review for optional
+  web metadata in readiness findings.

@@ -192,6 +192,10 @@ The current transfer chain is read-only:
   over composition readiness
 - `Igniter::Application.handoff_manifest` produces the final transfer review
   artifact for humans and agents
+- `Igniter::Application.transfer_inventory` dry-runs declared capsule material
+  under explicit capsule roots
+- `Igniter::Application.transfer_readiness` produces the decision report over
+  handoff and inventory artifacts
 
 `ApplicationHandoffManifest` is the current answer to "what is moving, is it
 ready, and what must the receiving host provide?" It summarizes readiness,
@@ -202,6 +206,10 @@ mount intents, and supplied surface metadata.
 material. It reports explicit capsule roots, active groups, expected sparse
 layout paths, existing paths/files under declared layout paths, missing expected
 paths, and supplied surface path metadata.
+
+`ApplicationTransferReadiness` is the current decision surface before any
+future transfer/package tooling. It reports one readiness boolean, blockers,
+warnings, source counts, and the nested handoff manifest and inventory.
 
 This remains separate from runtime activation and transfer execution. It does
 not package, copy, create archives, discover project directories, load, boot,
@@ -248,6 +256,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_assembly_plan.rb`](../../examples/application/capsule_assembly_plan.rb)
 - [`examples/application/capsule_handoff_manifest.rb`](../../examples/application/capsule_handoff_manifest.rb)
 - [`examples/application/capsule_transfer_inventory.rb`](../../examples/application/capsule_transfer_inventory.rb)
+- [`examples/application/capsule_transfer_readiness.rb`](../../examples/application/capsule_transfer_readiness.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

@@ -26,6 +26,7 @@ require_relative "application/mount_intent"
 require_relative "application/application_assembly_plan"
 require_relative "application/application_handoff_manifest"
 require_relative "application/application_transfer_inventory"
+require_relative "application/application_transfer_readiness"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -127,6 +128,24 @@ module Igniter
           capsules: capsules.flatten,
           surface_metadata: surface_metadata,
           enumerate_files: enumerate_files,
+          metadata: metadata
+        )
+      end
+
+      def transfer_readiness(*capsules, handoff_manifest: nil, transfer_inventory: nil, subject: :capsule_transfer,
+                             host_exports: [], host_capabilities: [], mount_intents: [], surface_metadata: [],
+                             enumerate_files: true, policy: {}, metadata: {})
+        ApplicationTransferReadiness.build(
+          handoff_manifest: handoff_manifest,
+          transfer_inventory: transfer_inventory,
+          capsules: capsules.flatten,
+          subject: subject,
+          host_exports: host_exports,
+          host_capabilities: host_capabilities,
+          mount_intents: mount_intents,
+          surface_metadata: surface_metadata,
+          enumerate_files: enumerate_files,
+          policy: policy,
           metadata: metadata
         )
       end

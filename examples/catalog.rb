@@ -264,6 +264,18 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_transfer_readiness",
+      "Read-only transfer readiness report over handoff manifest and inventory.",
+      expected_fragments: [
+        "application_capsule_transfer_readiness_ready=false",
+        "application_capsule_transfer_readiness_blockers=missing_expected_path,unresolved_required_import",
+        "application_capsule_transfer_readiness_warnings=missing_optional_import",
+        "application_capsule_transfer_readiness_sources=inventory:3,manifest:2",
+        "application_capsule_transfer_readiness_manifest=false",
+        "application_capsule_transfer_readiness_inventory=false"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [
