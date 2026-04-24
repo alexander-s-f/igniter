@@ -198,6 +198,8 @@ The current transfer chain is read-only:
   handoff and inventory artifacts
 - `Igniter::Application.transfer_bundle_plan` describes what a future bundle
   operation would include, exclude, and still block
+- `Igniter::Application.write_transfer_bundle` writes an explicit directory
+  artifact from an accepted bundle plan
 
 `ApplicationHandoffManifest` is the current answer to "what is moving, is it
 ready, and what must the receiving host provide?" It summarizes readiness,
@@ -218,9 +220,15 @@ bundle/package tooling. It summarizes included files already enumerated by the
 inventory, missing paths, supplied surfaces, blockers, warnings, and whether a
 future bundle step would be allowed by policy.
 
-This remains separate from runtime activation and transfer execution. It does
-not package, copy, create archives, discover project directories, load, boot,
-mount, route, execute, or place capsules on a cluster.
+`ApplicationTransferBundleArtifact` is the current explicit writer from an
+accepted plan. It writes only to a caller-provided output path, refuses existing
+output by default, includes only planned files, and embeds serialized review
+metadata.
+
+This remains separate from runtime activation and broad transfer automation. It
+does not discover project directories, auto-select destinations, install or
+extract bundles, load, boot, mount, route, execute, or place capsules on a
+cluster.
 
 ## Placement Rules
 
@@ -265,6 +273,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_transfer_inventory.rb`](../../examples/application/capsule_transfer_inventory.rb)
 - [`examples/application/capsule_transfer_readiness.rb`](../../examples/application/capsule_transfer_readiness.rb)
 - [`examples/application/capsule_transfer_bundle_plan.rb`](../../examples/application/capsule_transfer_bundle_plan.rb)
+- [`examples/application/capsule_transfer_bundle_artifact.rb`](../../examples/application/capsule_transfer_bundle_artifact.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

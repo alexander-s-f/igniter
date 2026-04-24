@@ -167,3 +167,38 @@ If web package code or docs examples change, include the relevant
 3. Keep this as artifact creation from an explicit plan. Do not turn it into
    project discovery, install/extract, activation, routing, execution, or
    cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-transfer-bundle-artifact-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationTransferBundleArtifact` and
+  `ApplicationTransferBundleArtifactResult`.
+- Added `Igniter::Application.write_transfer_bundle(...)`.
+- Added `examples/application/capsule_transfer_bundle_artifact.rb` and
+  registered it in the active examples catalog.
+- Updated public/current docs to position artifact writing as an explicit
+  output-path-only step after accepted bundle plans.
+Accepted:
+- Artifact writing accepts only an explicit bundle plan or object responding to
+  `to_h`.
+- Default behavior refuses when `bundle_allowed` is false.
+- Default behavior refuses existing output paths.
+- Parent directories are created only when `create_parent: true` is passed.
+- The directory artifact includes only `included_files` already present in the
+  bundle plan and writes serialized review metadata to
+  `igniter-transfer-bundle.json`.
+- The result exposes stable `to_h` with `written`, `artifact_path`,
+  `included_file_count`, `metadata_entry`, `refusals`, and `metadata`.
+- No project discovery, install/extract, loading, booting, mounting, routing,
+  execution, or cluster placement was introduced.
+Verification:
+- `ruby examples/application/capsule_transfer_bundle_artifact.rb` passed.
+- `ruby examples/application/capsule_transfer_bundle_plan.rb` passed.
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb`
+  passed with 108 examples, 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_bundle_artifact.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_bundle_artifact.rb examples/catalog.rb`
+  passed with no offenses.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 wording/boundary review for supplied
+  web metadata in transfer bundle artifacts.

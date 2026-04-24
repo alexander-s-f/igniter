@@ -392,9 +392,30 @@ does not copy files or write archives. Web surfaces remain supplied metadata in
 the bundle plan; application counts and carries those hashes without loading
 `igniter-web` or inspecting web-local screens, routes, mounts, or components.
 
-This transfer guide deliberately stops before copying files, creating archives,
-discovering directories, loading constants, booting apps, mounting web routes,
-executing contracts, or placing work on a cluster.
+When the plan is allowed, an explicit writer can create a small directory
+artifact:
+
+```ruby
+result = Igniter::Application.write_transfer_bundle(
+  bundle_plan,
+  output: "tmp/operator_bundle",
+  metadata: { requested_by: :release_review }
+)
+
+result.to_h
+```
+
+`ApplicationTransferBundleArtifact` writes only to the caller-provided output
+path, refuses existing output by default, refuses not-allowed bundle plans
+unless `allow_not_ready: true` is passed for an explicit review artifact, and
+copies only the files already listed in `bundle_plan.to_h[:included_files]`.
+The artifact also includes `igniter-transfer-bundle.json` with the serialized
+plan and caller metadata.
+
+This transfer guide deliberately stops before project-wide discovery,
+automatic destination selection, installing or extracting bundles, loading
+constants, booting apps, mounting web routes, executing contracts, or placing
+work on a cluster.
 
 ## Runnable Examples
 
@@ -410,6 +431,7 @@ Start with these examples:
 - [`examples/application/capsule_transfer_inventory.rb`](../../examples/application/capsule_transfer_inventory.rb)
 - [`examples/application/capsule_transfer_readiness.rb`](../../examples/application/capsule_transfer_readiness.rb)
 - [`examples/application/capsule_transfer_bundle_plan.rb`](../../examples/application/capsule_transfer_bundle_plan.rb)
+- [`examples/application/capsule_transfer_bundle_artifact.rb`](../../examples/application/capsule_transfer_bundle_artifact.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

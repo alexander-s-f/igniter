@@ -124,6 +124,7 @@ Current shape:
 - read-only capsule transfer readiness reports over handoff manifests and
   transfer inventories
 - read-only capsule transfer bundle plans over readiness and inventory artifacts
+- explicit capsule transfer bundle artifact writer from accepted bundle plans
 - public capsule transfer guide over the read-only report/composition/assembly/
   handoff chain
 - explicit sparse/complete structure plans for materializing missing app layout
@@ -163,9 +164,12 @@ bundle/package operation. It summarizes included files already enumerated by
 the transfer inventory, missing paths, supplied surfaces, blockers, warnings,
 and policy without writing archives, copying files, loading constants, booting
 apps, mounting web, routing, executing, or placing work on a cluster.
-The next application slice is a tiny explicit transfer bundle artifact writer
-from an accepted bundle plan. It may write only to an explicit output path and
-must include only planned files plus serializable review metadata.
+`ApplicationTransferBundleArtifact` is the current explicit directory artifact
+writer from an accepted bundle plan. It writes only to a caller-provided output
+path, refuses existing output by default, includes only planned files, and
+embeds serialized review metadata. It still does not discover projects,
+auto-select destinations, install or extract bundles, load constants, boot
+apps, mount web, route, execute, or place work on a cluster.
 
 Lifecycle now follows this shape:
 

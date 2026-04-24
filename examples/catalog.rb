@@ -290,6 +290,17 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_transfer_bundle_artifact",
+      "Explicit transfer bundle artifact writer from an accepted bundle plan.",
+      expected_fragments: [
+        "application_capsule_transfer_artifact_written=true",
+        "application_capsule_transfer_artifact_file=operator_bundle",
+        "application_capsule_transfer_artifact_included=2",
+        "application_capsule_transfer_artifact_metadata=igniter-transfer-bundle.json",
+        "application_capsule_transfer_artifact_refusals=0"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

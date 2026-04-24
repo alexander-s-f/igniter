@@ -28,6 +28,7 @@ require_relative "application/application_handoff_manifest"
 require_relative "application/application_transfer_inventory"
 require_relative "application/application_transfer_readiness"
 require_relative "application/application_transfer_bundle_plan"
+require_relative "application/application_transfer_bundle_artifact"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -168,6 +169,16 @@ module Igniter
           enumerate_files: enumerate_files,
           readiness_policy: readiness_policy,
           policy: policy,
+          metadata: metadata
+        )
+      end
+
+      def write_transfer_bundle(plan, output:, allow_not_ready: false, create_parent: false, metadata: {})
+        ApplicationTransferBundleArtifact.write(
+          plan,
+          output: output,
+          allow_not_ready: allow_not_ready,
+          create_parent: create_parent,
           metadata: metadata
         )
       end

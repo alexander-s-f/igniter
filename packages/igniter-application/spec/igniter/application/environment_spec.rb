@@ -558,6 +558,99 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "writes explicit transfer bundle artifacts from allowed bundle plans" do
+    Dir.mktmpdir("igniter-transfer-artifact") do |root|
+      FileUtils.mkdir_p(File.join(root, "capsule/contracts"))
+      FileUtils.mkdir_p(File.join(root, "capsule/spec"))
+      File.write(File.join(root, "capsule/contracts/resolve_incident.rb"), "# contract\n")
+      File.write(File.join(root, "capsule/igniter.rb"), "# config\n")
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: File.join(root, "capsule"),
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      plan = Igniter::Application.transfer_bundle_plan(
+        blueprint,
+        subject: :operator_bundle,
+        host_exports: [
+          { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+        ],
+        metadata: { source: :spec }
+      )
+      output = File.join(root, "operator_bundle")
+
+      result = Igniter::Application.write_transfer_bundle(
+        plan,
+        output: output,
+        metadata: { requested_by: :spec }
+      )
+      payload = result.to_h
+
+      expect(payload).to include(
+        written: true,
+        artifact_path: output,
+        included_file_count: 2,
+        metadata_entry: "igniter-transfer-bundle.json",
+        refusals: [],
+        metadata: { requested_by: :spec }
+      )
+      expect(File.file?(File.join(output, "files/operator/contracts/resolve_incident.rb"))).to be(true)
+      expect(File.file?(File.join(output, "files/operator/igniter.rb"))).to be(true)
+
+      manifest = JSON.parse(File.read(File.join(output, "igniter-transfer-bundle.json")), symbolize_names: true)
+      expect(manifest).to include(
+        kind: "igniter_transfer_bundle",
+        subject: "operator_bundle",
+        bundle_allowed: true,
+        included_file_count: 2,
+        metadata_entry: "igniter-transfer-bundle.json",
+        files_root: "files",
+        metadata: { requested_by: "spec" }
+      )
+      expect(manifest.fetch(:plan)).to include(subject: "operator_bundle", bundle_allowed: true)
+    end
+  end
+
+  it "refuses transfer bundle artifacts when policy or output validation blocks writing" do
+    Dir.mktmpdir("igniter-transfer-artifact") do |root|
+      FileUtils.mkdir_p(File.join(root, "capsule/contracts"))
+      File.write(File.join(root, "capsule/contracts/resolve_incident.rb"), "# contract\n")
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: File.join(root, "capsule"),
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      plan = Igniter::Application.transfer_bundle_plan(
+        blueprint,
+        subject: :operator_bundle
+      )
+      output = File.join(root, "operator_bundle")
+
+      result = Igniter::Application.write_transfer_bundle(plan, output: output).to_h
+
+      expect(result).to include(
+        written: false,
+        artifact_path: output,
+        included_file_count: 0,
+        metadata_entry: nil
+      )
+      expect(result.fetch(:refusals).map { |entry| entry.fetch(:code) }).to eq([:bundle_not_allowed])
+      expect(File.exist?(output)).to be(false)
+    end
+  end
+
   it "supports named layout profiles and active groups for app capsules" do
     root = File.expand_path("/tmp/igniter_operator_capsule")
     blueprint = Igniter::Application.blueprint(
