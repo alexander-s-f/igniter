@@ -3,8 +3,15 @@
 module Igniter
   module Application
     class ManualLoader
-      def load!(_base_dir:, _paths:, _environment:)
-        self
+      def load!(base_dir:, paths:, environment:)
+        ApplicationLoadReport.inspect(
+          base_dir: base_dir,
+          layout: environment.layout,
+          paths: paths,
+          metadata: {
+            loader: :manual
+          }
+        )
       end
     end
   end

@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "fileutils"
+require "tmpdir"
+
 require_relative "../../spec_helper"
 
 RSpec.describe Igniter::Application::Environment do
@@ -153,6 +156,44 @@ RSpec.describe Igniter::Application::Environment do
       layout: include(paths: include(contracts: "app/contracts"))
     )
     expect(environment.snapshot.to_h.fetch(:manifest)).to include(name: :shop, env: :test)
+  end
+
+  it "reports application layout paths during code loading" do
+    Dir.mktmpdir("igniter-shop") do |root|
+      FileUtils.mkdir_p(File.join(root, "app/contracts"))
+      FileUtils.mkdir_p(File.join(root, "app/services"))
+      FileUtils.mkdir_p(File.join(root, "config"))
+      File.write(File.join(root, "config/igniter.rb"), "# test config\n")
+
+      environment = Igniter::Application.build_kernel
+                                        .manifest(:shop, root: root, env: :test)
+                                        .contracts_path("app/contracts")
+                                        .services_path("app/services")
+                                        .effects_path("app/effects")
+                                        .config_path("config/igniter.rb")
+                                        .then { |kernel| described_class.new(profile: kernel.finalize) }
+
+      report = environment.boot(base_dir: root, start_scheduler: false)
+      load_report = report.loader_result.metadata.fetch(:load_report)
+
+      expect(load_report).to include(
+        base_dir: root,
+        present_groups: %i[config contracts services],
+        missing_groups: [:effects],
+        present_count: 3,
+        missing_count: 1
+      )
+      expect(load_report.fetch(:entries)).to include(
+        include(group: :contracts, path: "app/contracts", kind: :directory, status: :present),
+        include(group: :services, path: "app/services", kind: :directory, status: :present),
+        include(group: :config, path: "config/igniter.rb", kind: :file, status: :present),
+        include(group: :effects, path: "app/effects", kind: :missing, status: :missing)
+      )
+      expect(environment.snapshot.to_h.fetch(:runtime).fetch(:application_load_report)).to include(
+        present_groups: %i[config contracts services],
+        missing_groups: [:effects]
+      )
+    end
   end
 
   it "persists compose sessions through the application session store" do

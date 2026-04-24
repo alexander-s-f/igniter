@@ -327,6 +327,7 @@ This is intentionally small, but it already establishes the target direction:
 - local durable session store for compose and collection invocations
 - transport-ready compose and collection invokers for upper layers
 - explicit application manifest and layout shape for user app structure
+- layout-aware application load reports during boot
 
 Current boundary rule:
 

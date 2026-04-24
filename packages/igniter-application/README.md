@@ -42,6 +42,8 @@ The user application model now has a first explicit shape too:
   `app/packs`, `config/igniter.rb`, and `spec/igniter`
 - `Kernel#manifest(...)` configures the app identity and root before finalize
 - `Environment#manifest` and `Environment#layout` expose the finalized shape
+- the default `ManualLoader` returns an `ApplicationLoadReport` during boot,
+  including present and missing layout paths
 
 - configurable `session_store` seam on `Application::Kernel`
 - default `MemorySessionStore`

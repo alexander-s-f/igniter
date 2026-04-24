@@ -162,7 +162,8 @@ module Igniter
       end
 
       def load_code!(base_dir:)
-        loader_seam.load!(base_dir: base_dir, paths: profile.code_paths, environment: self)
+        result = loader_seam.load!(base_dir: base_dir, paths: profile.code_paths, environment: self)
+        @application_load_report = normalize_load_report(result)
         @loaded_base_dir = base_dir.to_s
         self
       end
@@ -469,11 +470,15 @@ module Igniter
       def load_code_with_report(base_dir:)
         metadata = {
           base_dir: base_dir.to_s,
-          path_groups: profile.path_groups
+          path_groups: profile.path_groups,
+          layout: layout.to_h
         }
-        execute_seam_action(seam_name: :loader, action: :load, metadata: metadata) do
+        yield_result = nil
+        result = execute_seam_action(seam_name: :loader, action: :load, metadata: metadata) do
           load_code!(base_dir: base_dir)
+          yield_result = @application_load_report
         end
+        @loader_result = result.with_metadata(metadata.merge(load_report: yield_result&.to_h))
       end
 
       def start_scheduler_with_report
@@ -919,6 +924,7 @@ module Igniter
           code_loaded: !@loaded_base_dir.nil?,
           loaded_base_dir: @loaded_base_dir,
           loader: @loader_result&.to_h,
+          application_load_report: @application_load_report&.to_h,
           providers_resolved: @providers_resolved == true,
           providers_booted: @providers_booted == true,
           providers_shutdown: @providers_shutdown == true,
@@ -949,6 +955,12 @@ module Igniter
         else
           [raw_result, {}]
         end
+      end
+
+      def normalize_load_report(result)
+        return result if result.is_a?(ApplicationLoadReport)
+
+        nil
       end
     end
   end

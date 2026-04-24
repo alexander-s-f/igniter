@@ -71,7 +71,9 @@ module IgniterExamples
         "application_layout_config=config/igniter.rb",
         "application_manifest_services=pricing_api",
         "application_manifest_contracts=PricingContract",
-        "application_manifest_owner=commerce"
+        "application_manifest_owner=commerce",
+        "application_load_present=config,contracts,services",
+        "application_load_missing=effects,packs,providers"
       ]
     ),
     example(

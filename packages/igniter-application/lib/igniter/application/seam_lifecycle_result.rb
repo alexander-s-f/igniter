@@ -36,6 +36,16 @@ module Igniter
         }
       end
 
+      def with_metadata(next_metadata)
+        self.class.new(
+          seam_name: seam_name,
+          action: action,
+          status: status,
+          metadata: next_metadata,
+          error: error
+        )
+      end
+
       private
 
       def normalize_error(error)

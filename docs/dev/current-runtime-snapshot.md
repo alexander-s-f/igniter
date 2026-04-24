@@ -95,6 +95,7 @@ Current shape:
 - `Application::Environment`
 - `ApplicationManifest`
 - `ApplicationLayout`
+- `ApplicationLoadReport`
 - config, provider, service, contract, host, loader, scheduler seams
 - `MemorySessionStore` and configurable `session_store`
 - local durable sessions for compose and collection
