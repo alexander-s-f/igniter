@@ -112,6 +112,44 @@ The important part is not the exact spelling, but the architecture:
 The root `require "igniter"` may remain as an umbrella convenience path during
 transition, but it should not hide the real architecture.
 
+## Authoring Surface
+
+`igniter-contracts` should expose two valid, equal authoring forms before any
+host layer is involved:
+
+```ruby
+compiled = Igniter::Contracts.compile do
+  input :amount
+  output :amount
+end
+```
+
+and:
+
+```ruby
+class PriceContract < Igniter::Contract
+  define do
+    input :order_total, type: :numeric
+    input :country, type: :string
+
+    compute :gross_total, depends_on: %i[order_total country] do |order_total:, country:|
+      order_total * (country == "UA" ? 1.2 : 1.0)
+    end
+
+    output :gross_total
+  end
+end
+```
+
+The block compile form is the low-level kernel API. The class form is the
+human-facing authoring API for app code, agents, examples, Rails projects, and
+future `Application` usage.
+
+`Embed` must consume this class DSL; it must not own or redefine it. Its job is
+host-local configuration, registry/discovery, compiled graph cache, reload
+integration, and named execution around contracts that remain valid without
+Embed.
+
 ## Embedded Runtime Model
 
 The embedded model should center on:

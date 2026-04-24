@@ -4,6 +4,7 @@ require_relative "contracts/errors"
 require_relative "contracts/environment"
 require_relative "contracts/assembly"
 require_relative "contracts/execution"
+require_relative "contracts/contract"
 
 module Igniter
   module Contracts

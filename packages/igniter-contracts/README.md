@@ -64,7 +64,9 @@ extensibility foundation:
 ## Ergonomics
 
 You can still work directly with `Kernel` and `Profile`, but the public facade
-now gives a lighter path too:
+now gives two equal authoring paths.
+
+For the low-level embedded kernel API, compile or run a block directly:
 
 ```ruby
 environment = Igniter::Contracts.with
@@ -73,6 +75,34 @@ result = environment.run(inputs: {}) do
   const :tax_rate, 0.2
   output :tax_rate
 end
+```
+
+For app code and human-edited contract files, use the class DSL:
+
+```ruby
+class PriceContract < Igniter::Contract
+  define do
+    input :order_total, type: :numeric
+    input :country, type: :string
+
+    compute :gross_total, depends_on: %i[order_total country] do |order_total:, country:|
+      order_total * (country == "UA" ? 1.2 : 1.0)
+    end
+
+    output :gross_total
+  end
+end
+
+contract = PriceContract.new(order_total: 100, country: "UA")
+contract.result.gross_total
+contract.update_inputs(order_total: 150)
+contract.output(:gross_total)
+```
+
+Compute nodes may also use `call:` for service objects or callable classes:
+
+```ruby
+compute :gross_total, depends_on: %i[order_total country], call: Pricing::GrossTotal
 ```
 
 Additional helpers:
