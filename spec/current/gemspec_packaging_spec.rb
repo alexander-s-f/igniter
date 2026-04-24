@@ -36,7 +36,7 @@ RSpec.describe "gemspec packaging" do
     spec = load_gemspec("packages/igniter-embed/igniter-embed.gemspec")
 
     dependency_names = spec.dependencies.select { |dependency| dependency.type == :runtime }.map(&:name)
-    expect(dependency_names).to eq(["igniter-contracts"])
+    expect(dependency_names).to eq(%w[igniter-contracts igniter-extensions])
   end
 
   it "declares igniter-application runtime dependencies through current package layers only" do

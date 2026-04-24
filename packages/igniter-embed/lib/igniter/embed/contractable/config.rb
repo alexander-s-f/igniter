@@ -1,0 +1,152 @@
+# frozen_string_literal: true
+
+module Igniter
+  module Embed
+    module Contractable
+      class Config
+        attr_reader :name
+        attr_accessor :primary_callable, :candidate_callable,
+                      :primary_normalizer, :candidate_normalizer,
+                      :store_adapter, :observation_callback,
+                      :acceptance_policy, :acceptance_options, :clock_callable
+
+        def initialize(name:)
+          @name = name.to_sym
+          @role = nil
+          @stage = :captured
+          @async_enabled = true
+          @sample_value = 1.0
+          @async_adapter = Adapters::InlineAsync.new
+          @metadata_value = {}
+          @input_redactor = ->(*, **) { {} }
+          @acceptance_policy = :exact
+          @acceptance_options = {}
+          @clock_callable = Time
+        end
+
+        def primary(callable = nil)
+          return primary_callable unless callable
+
+          self.primary_callable = callable
+        end
+
+        def candidate(callable = nil)
+          return candidate_callable unless callable
+
+          self.candidate_callable = callable
+        end
+
+        def normalize_primary(callable = nil, &block)
+          return primary_normalizer unless callable || block
+
+          self.primary_normalizer = callable || block
+        end
+
+        def normalize_candidate(callable = nil, &block)
+          return candidate_normalizer unless callable || block
+
+          self.candidate_normalizer = callable || block
+        end
+
+        def role(value = nil)
+          return @role || inferred_role unless value
+
+          @role = value.to_sym
+        end
+
+        def stage(value = nil)
+          return @stage unless value
+
+          @stage = value.to_sym
+        end
+
+        def async(value = nil)
+          return @async_enabled if value.nil?
+
+          @async_enabled = !!value
+        end
+
+        def sample(value = nil)
+          return @sample_value if value.nil?
+
+          @sample_value = value
+        end
+
+        def store(value = nil)
+          return store_adapter unless value
+
+          self.store_adapter = value
+        end
+
+        def async_adapter(value = nil)
+          return @async_adapter unless value
+
+          @async_adapter = value
+        end
+
+        def redact_inputs(callable = nil, &block)
+          return @input_redactor unless callable || block
+
+          @input_redactor = callable || block
+        end
+
+        def metadata(value = nil, &block)
+          return @metadata_value unless value || block
+
+          @metadata_value = block || value
+        end
+
+        def on_observation(callable = nil, &block)
+          return observation_callback unless callable || block
+
+          self.observation_callback = callable || block
+        end
+
+        def accept(policy = nil, **options)
+          return acceptance_policy unless policy
+
+          self.acceptance_policy = policy.to_sym
+          self.acceptance_options = options
+        end
+
+        def validate!
+          raise ArgumentError, "contractable #{name} requires a primary callable" unless primary_callable
+          raise ArgumentError, "contractable #{name} requires normalize_primary" unless primary_normalizer
+
+          return if observed_service?
+          raise ArgumentError, "contractable #{name} requires normalize_candidate when candidate is configured" unless candidate_normalizer
+        end
+
+        def observed_service?
+          candidate_callable.nil?
+        end
+
+        def sampled?
+          value = sample_value
+          value = value.call if value.respond_to?(:call)
+          value.to_f >= 1.0 || rand < value.to_f
+        end
+
+        def normalize_inputs(args, kwargs)
+          input_redactor.call(*args, **kwargs)
+        end
+
+        def metadata_payload
+          metadata_value.respond_to?(:call) ? metadata_value.call : metadata_value
+        end
+
+        def now
+          clock_callable.respond_to?(:now) ? clock_callable.now : clock_callable.call
+        end
+
+        private
+
+        attr_reader :sample_value, :input_redactor, :metadata_value
+
+        def inferred_role
+          observed_service? ? :observed_service : :migration_candidate
+        end
+      end
+    end
+  end
+end

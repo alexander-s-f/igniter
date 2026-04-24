@@ -784,3 +784,11 @@ discovery/profiling tooling remains a later slice.
 Task 2 is started. `[Agent Extensions / Codex]` remains conditional and should
 only be pulled in if the implementation cannot reuse `DifferentialPack` through
 a small embed-side adapter.
+
+[Agent Embed / Codex] Task 2 minimal implementation landed. `Igniter::Embed`
+now exposes `contractable`, with primary/candidate callables, primary-only
+observed service mode, role/stage metadata, normalizer protocol, async adapter
+protocol, store protocol, observation payload, and acceptance policies
+`:exact`, `:completed`, and `:shape`. The implementation reuses
+`DifferentialPack` through an embed-side execution-like adapter; no extensions
+seam was needed.

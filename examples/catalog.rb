@@ -355,6 +355,17 @@ module IgniterExamples
       ]
     ),
     example(
+      "contracts/contractable_shadow",
+      "Contractable shadow comparison and observed-service capture over generic services.",
+      expected_fragments: [
+        "contractable_primary_total=120.0",
+        "contractable_shadow_match=false",
+        "contractable_shadow_accepted=true",
+        "contractable_shadow_policy=shape",
+        "contractable_observed_mode=observe"
+      ]
+    ),
+    example(
       "contracts/build_effect_executor_pack",
       "Inline effect/executor pack authoring over the public contracts API.",
       expected_fragments: ["custom_executor_output=15", "custom_result_entries=1"]

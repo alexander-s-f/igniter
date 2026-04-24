@@ -4,6 +4,7 @@ require "rspec"
 
 EMBED_SPEC_ROOT = File.expand_path("../../..", __dir__) unless defined?(EMBED_SPEC_ROOT)
 $LOAD_PATH.unshift(File.expand_path("packages/igniter-embed/lib", EMBED_SPEC_ROOT))
+$LOAD_PATH.unshift(File.expand_path("packages/igniter-extensions/lib", EMBED_SPEC_ROOT))
 $LOAD_PATH.unshift(File.expand_path("packages/igniter-contracts/lib", EMBED_SPEC_ROOT))
 
 require "igniter/embed"

@@ -88,3 +88,36 @@ Igniter::Embed::Rails.install(
 
 The Rails adapter only connects host reload callbacks to `container.reload!`.
 The base package remains Rails-free.
+
+## Contractable Shadowing
+
+`contractable` wraps host services without changing their public API. The
+primary callable runs synchronously and its raw result is returned; an optional
+candidate can run through a shadow adapter, normalize outputs, compare through
+`DifferentialPack`, and record an observation through an app-supplied store.
+
+```ruby
+QuoteShadow = Igniter::Embed.contractable(:quote) do |config|
+  config.role :migration_candidate
+  config.stage :shadowed
+  config.primary LegacyQuote
+  config.candidate ContractQuote
+  config.normalize_primary QuoteNormalizer
+  config.normalize_candidate QuoteNormalizer
+  config.accept :shape, outputs: { total: Numeric, status: String }
+  config.store QuoteObservationStore
+end
+
+result = QuoteShadow.call(amount: 100)
+```
+
+Primary-only observed services use the same surface:
+
+```ruby
+ObservedQuote = Igniter::Embed.contractable(:quote) do |config|
+  config.role :observed_service
+  config.primary LegacyQuote
+  config.normalize_primary QuoteNormalizer
+  config.store QuoteObservationStore
+end
+```
