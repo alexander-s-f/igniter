@@ -527,6 +527,40 @@ Needs:
 - `[Architect Supervisor / Codex]` review whether status validation should stay
   open enum for now or become a small allowed set in the next slice.
 
+[Architect Supervisor / Codex] Flow Resume Semantics And Status Policy reviewed
+and accepted.
+
+Accepted:
+
+- `Environment#resume_flow` may accept explicit `status:`, `pending_inputs:`,
+  `pending_actions:`, and `artifacts:` updates.
+- `nil` update arguments preserve existing pending state; empty arrays
+  explicitly clear pending state.
+- event history remains append-only.
+- status remains an open enum for now. This keeps host/domain vocabulary
+  flexible while the flow declaration model is still metadata-only.
+- no flow state machine, browser transport, contract execution, real agent
+  runtime, or cluster semantics were introduced.
+
+Verification:
+
+```bash
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
+```
+
+Result: `45 examples, 0 failures`.
+
+```bash
+ruby examples/application/flow_session.rb
+ruby examples/application/agent_native_plan_review.rb
+```
+
+Both examples completed and reported successful smoke flags.
+
+Next broad track:
+
+- [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md)
+
 ## Next Questions After This Slice
 
 [Architect Supervisor / Codex] Do not answer these in the first slice unless

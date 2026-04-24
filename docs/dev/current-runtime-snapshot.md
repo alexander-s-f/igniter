@@ -16,6 +16,9 @@ The active runtime graph is:
   packs, tooling, operational behavior, and domain vocabulary over contracts
 - `igniter-application`
   contracts-native local application runtime
+- `igniter-embed`
+  host-local contract embedding, Rails/application pressure layer, and
+  Contractable observation/shadowing
 - `igniter-cluster`
   contracts-native distributed runtime
 - `igniter-mcp-adapter`
@@ -133,6 +136,42 @@ Lifecycle now follows this shape:
 Application owns local lifecycle and local session durability. It does not own
 routing, placement, topology, membership, trust, failover, or mesh behavior.
 Those belong in `igniter-cluster`.
+
+## Current Embed State
+
+`igniter-embed` is the host-local bridge for applications that want to consume
+contracts without adopting the full application runtime.
+
+Current accepted shape:
+
+- host-level contract registration through `Igniter::Embed.configure`
+- human-facing host sugar through `Igniter::Embed.host`
+- `owner`, `path`, `cache`, and `contracts.add` sugar over clean config
+- app-local `Class < Igniter::Contract` consumption from embed
+- optional discovery with explicit cache/reload boundaries
+- `Contractable` wrappers for migration candidates, observed services, and
+  discovery probes
+- differential shadow comparison through `DifferentialPack` via an embed-side
+  adapter
+- async candidate execution through a local thread-backed adapter by default,
+  with host-supplied durable adapters allowed
+- visible host-boundary adapter sugar for normalizer, redaction, acceptance,
+  and store
+- typed event hooks with `on :failure` as a failure-family alias and
+  `:divergence` intentionally separate
+- generated contractable runner access through `host.contractable(:name)`,
+  `host.fetch_contractable(:name)`, and `host.contractable_names`
+- explicit-target capability attachment metadata for logging, reporting,
+  metrics, and validation
+- inspectable `host.sugar_expansion.to_h`
+- public docs/examples for the accepted sugar surface
+
+Current rule:
+
+- do not add more Embed DSL breadth without new host pressure
+- do not promote capability attachments into `igniter-contracts` or
+  `igniter-extensions` until repeated Embed implementations prove common
+  graph/runtime semantics
 
 ## Current Cluster State
 

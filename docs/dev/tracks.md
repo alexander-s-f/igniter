@@ -63,15 +63,31 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Deferred: prove Application can consume `Class < Igniter::Contract` without Embed | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Application Target Plan](./application-target-plan.md), [Embed Target Plan](./embed-target-plan.md) | `[Architect Supervisor / Codex]` after Tasks 1-3 clarify shape |
-| `[Agent Application / Codex]` | Agent-native resume/status/pending-state policy | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md) | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | `[Agent Web / Codex]` if web rendering/adapter state is affected |
-| `[Agent Web / Codex]` | Web/application integration maintenance and web-owned interaction adapters | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Agent Application / Codex]` for application-owned API needs |
+| `[Agent Application / Codex]` | Application feature-slice reporting and flow declaration metadata | [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md) | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Application Structure Research](./application-structure-research.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` if web projection support is needed |
+| `[Agent Web / Codex]` | Support application feature/flow projection after app-owned shape lands | [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md) | [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app-owned API needs |
 
 ## Track Map
 
+### Broad Cycle Snapshot
+
+[Architect Supervisor / Codex] Current cycle status after the Embed/SparkCRM
+pressure-test wave:
+
+- Human Sugar DSL for Embed is stabilized and documented.
+- Contractable shadowing, observed services, discovery probes, generated
+  runners, visible adapters, typed events, and explicit-target capability
+  attachments are accepted at the Embed layer.
+- No new lower-layer `igniter-contracts` or `igniter-extensions` seam is needed
+  for capability attachments yet.
+- Application/Web and Agent-Native sessions have a landed metadata-first flow
+  snapshot/read-model path.
+- The next broad track moves back up to application structure: optional
+  feature-slice reporting and app-owned flow declaration metadata.
+
 ### Embed And Contract Class DSL
 
-Status: active.
+Status: core class-contract/embed integration landed; `StepResultPack` review
+still pending.
 
 Primary track:
 
@@ -100,15 +116,9 @@ Current accepted state:
 Next:
 
 - `[Architect Supervisor / Codex]`: review the narrow `StepResultPack`
-  implementation.
-- `[Agent Embed / Codex]`: pressure-test `StepResultPack` through the embedded
-  host flow after review.
-- `[Agent Embed / Codex]`: harden discovery around named/anonymous classes and
-  duplicate explicit-vs-discovered registrations; keep explicit registration
-  as the preferred application boot path.
-- `[Agent Embed / Codex]`: if working in the private SparkCRM track, move
-  contract registration to one host initializer and remove the per-contract
-  wrapper ceremony.
+  implementation when contracts work resumes.
+- `[Agent Embed / Codex]`: standby for pressure feedback; do not add more
+  Embed DSL breadth without new host pressure.
 
 Private pressure tests:
 
@@ -196,7 +206,8 @@ Next:
 
 ### Differential Shadow Contractable
 
-Status: landed first implementation; private pressure test active.
+Status: landed; pressure-tested through Embed sugar; standby for rollout
+findings.
 
 Primary track:
 
@@ -234,18 +245,14 @@ Current accepted state:
   needed.
 - `async true` now uses a local thread-backed adapter by default; `async false`
   uses inline execution for tests/debugging.
-- Private Rails pressure test is activated; public status should contain only
-  generic findings.
+- Private Rails pressure testing informed Human Sugar DSL and runner
+  materialization. Public status contains only generic findings.
 
 Next:
 
-- `[Agent Embed / Codex]`: collect pressure-test findings through the landed
-  `Contractable` API.
-- `[Agent Embed / Codex]`: report generic conclusions about observation payload
-  adequacy, normalizer friction, async/store adapter needs, and acceptance
-  policy fit.
-- `[Agent Embed / Codex]`: keep private app service names and response details
-  in the private pressure-test track; promote only generic conclusions here.
+- `[Agent Embed / Codex]`: standby for rollout feedback from private apps.
+- `[Agent Embed / Codex]`: promote only generic conclusions here if private
+  pressure changes public architecture.
 - `[Agent Contracts / Codex]`: owns any future `DifferentialPack` seam because
   it now absorbs the former `[Agent Extensions / Codex]` role.
 
@@ -271,7 +278,8 @@ Next:
 
 ### Agent-Native Interaction Sessions
 
-Status: active.
+Status: resume/status policy landed; next broad track moved to feature/flow
+declarations.
 
 Primary track:
 
@@ -286,11 +294,12 @@ Current accepted state:
 - Application-owned flow session snapshots and events landed.
 - Web-owned interaction metadata and adapter landed.
 - Read model/adapter boundary accepted.
+- Explicit `resume_flow` status, pending input/action, and artifact update
+  semantics landed and were verified.
 
 Next:
 
-- Define explicit resume/status/pending-state update semantics without building
-  a hidden flow state machine, browser transport, or real agent runtime.
+- Continue through [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md).
 
 ### Application Structure And Capsules
 
@@ -309,7 +318,41 @@ Current accepted state:
 
 Next:
 
-- Feature-slice reporting and possible user-facing current docs update.
+- Feature-slice reporting is now the next broad track in
+  [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md).
+- Decide later whether this should update `docs/current/app-structure.md`.
+
+### Application Feature Slice And Flow Declarations
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md)
+
+Dependencies:
+
+- [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md)
+- [Application Structure Research](./application-structure-research.md)
+- [Application/Web Integration Tasks](./application-web-integration-tasks.md)
+
+Current accepted state:
+
+- Feature slices are optional reporting/organization metadata, not mandatory
+  runtime boundaries.
+- Flow declarations are app-owned metadata; active runtime state remains
+  `FlowSessionSnapshot`.
+- Web may expose flow-related candidate metadata, but application must not
+  inspect web screen graphs.
+
+Next:
+
+- `[Agent Application / Codex]`: implement the smallest feature-slice reporting
+  and flow declaration metadata slice.
+- `[Agent Web / Codex]`: support projection/adapters only after app-owned shape
+  lands.
+- Keep browser transport, real agent runtime, cluster semantics, and automatic
+  contract execution out of this track.
 
 ### Cluster
 
