@@ -61,7 +61,7 @@ task explicitly requires private details.
 | `[Agent Embed / Codex]` | Discovery hardening and private SparkCRM host cleanup | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Embed Target Plan](./embed-target-plan.md), [Contract Class DSL Guide](../guide/contract-class-dsl.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Narrow optional `StepResultPack` slice landed; awaiting review | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; then `[Agent Embed / Codex]` for pressure-test feedback |
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
-| `[Agent Embed / Codex]` | Harden `Contractable` async default, then run private Rails pressure test | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
+| `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Application / Codex]` | Deferred: prove Application can consume `Class < Igniter::Contract` without Embed | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Application Target Plan](./application-target-plan.md), [Embed Target Plan](./embed-target-plan.md) | `[Architect Supervisor / Codex]` after Tasks 1-3 clarify shape |
 | `[Agent Application / Codex]` | Agent-native resume/status/pending-state policy | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md) | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | `[Agent Web / Codex]` if web rendering/adapter state is affected |
 | `[Agent Web / Codex]` | Web/application integration maintenance and web-owned interaction adapters | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Agent Application / Codex]` for application-owned API needs |
@@ -116,7 +116,7 @@ Private pressure tests:
 
 ### Differential Shadow Contractable
 
-Status: landed first implementation; hardening and private pressure test active.
+Status: landed first implementation; private pressure test active.
 
 Primary track:
 
@@ -152,14 +152,18 @@ Current accepted state:
 - Minimal `Igniter::Embed.contractable` implementation landed and reuses
   `DifferentialPack` through an embed-side adapter; no extensions seam was
   needed.
+- `async true` now uses a local thread-backed adapter by default; `async false`
+  uses inline execution for tests/debugging.
+- Private Rails pressure test is activated; public status should contain only
+  generic findings.
 
 Next:
 
-- `[Agent Embed / Codex]`: harden the `async true` default so production
-  shadowing is actually non-blocking or explicitly requires a non-blocking
-  adapter.
-- `[Agent Embed / Codex]`: run the private Rails pressure test through the
-  landed `Contractable` API after async semantics are clear.
+- `[Agent Embed / Codex]`: collect pressure-test findings through the landed
+  `Contractable` API.
+- `[Agent Embed / Codex]`: report generic conclusions about observation payload
+  adequacy, normalizer friction, async/store adapter needs, and acceptance
+  policy fit.
 - `[Agent Embed / Codex]`: keep private app service names and response details
   in the private pressure-test track; promote only generic conclusions here.
 - `[Agent Contracts / Codex]`: owns any future `DifferentialPack` seam because

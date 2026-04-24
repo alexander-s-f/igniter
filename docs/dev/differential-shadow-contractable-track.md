@@ -473,8 +473,9 @@ Optional config:
   otherwise `:observed_service`
 - `stage symbol`, default `:captured`
 - `async true | false`, default `true`
-- `async_adapter adapter`, default `Igniter::Embed::Contractable::InlineAsync`
-  for sync mode and `ThreadAsync` only when explicitly selected
+- `async_adapter adapter`, default `Igniter::Embed::Contractable::ThreadAsync`
+  when `async true` and `Igniter::Embed::Contractable::InlineAsync` when
+  `async false`
 - `sample float_or_callable`, default `1.0`
 - `store object`, optional
 - `redact_inputs callable`, default returns `{}` unless explicitly configured
@@ -826,3 +827,30 @@ candidate, shared normalization, input redaction, a lightweight app store, and
 `:completed` rollout acceptance. Public conclusion: the generic contractable
 API can wrap the service pair without changing the services' caller-facing
 result shape.
+
+[Architect Supervisor / Codex] Accepted async-default hardening. `async true`
+now selects a local thread-backed adapter by default, while `async false` keeps
+inline execution for tests and debugging. This satisfies the package-level
+non-blocking shadow promise for local/simple use; durable production execution
+remains a host adapter concern.
+
+[Architect Supervisor / Codex] Verification:
+
+```bash
+bundle exec rspec packages/igniter-embed/spec packages/igniter-extensions/spec/igniter/extensions/contracts/differential_pack_spec.rb packages/igniter-contracts/spec/igniter/contracts/step_result_pack_spec.rb spec/current/example_scripts_spec.rb
+```
+
+Result: `84 examples, 0 failures`.
+
+```bash
+ruby examples/contracts/contractable_shadow.rb
+```
+
+Result: expected contractable smoke output printed `match=false`,
+`accepted=true`, policy `shape`, and observed mode `observe`.
+
+[Architect Supervisor / Codex] Private pressure test accepted as activated, not
+fully validated in this public cycle. Next public handoff should capture only
+generic findings from production-like use: observation payload adequacy,
+normalizer friction, async/store adapter needs, and whether `:completed` is
+enough as a first rollout gate.
