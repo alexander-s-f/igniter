@@ -203,3 +203,26 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 wording/boundary review for supplied
   web metadata preserved in intake planning.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-transfer-intake-plan-track.md`
+Status: landed.
+Changed:
+- Reviewed `ApplicationTransferIntakePlan` against supplied web surface
+  metadata.
+- Confirmed `examples/application/capsule_transfer_intake_plan.rb` plans a
+  verified artifact with supplied `kind: :web_surface` metadata and reports
+  `surface_count`.
+- Updated `packages/igniter-web/README.md` with the destination intake planning
+  boundary.
+Accepted:
+- Intake planning counts supplied web surfaces from serialized bundle plan
+  metadata only.
+- Intake planning previews destination files from planned artifact entries; it
+  does not require `igniter-web`, inspect `SurfaceManifest`, screen graphs,
+  routes, Rack apps, components, mounts, browser transports, or web-local
+  directories.
+- No web-specific intake behavior is needed in `igniter-application`.
+Needs:
+- `[Architect Supervisor / Codex]` review the transfer intake plan track for
+  acceptance.

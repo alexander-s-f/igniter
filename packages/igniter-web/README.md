@@ -354,3 +354,18 @@ verification = Igniter::Application.verify_transfer_bundle("tmp/operator_bundle"
 
 This readback step does not require `igniter-web`. It verifies the artifact
 shape and file list only; web surface hashes remain opaque review metadata.
+
+Destination intake planning keeps the same rule. The receiving-side plan may
+report the supplied surface count while previewing artifact files against an
+explicit destination root:
+
+```ruby
+intake = Igniter::Application.transfer_intake_plan(
+  verification,
+  destination_root: "apps/incoming"
+)
+```
+
+The intake plan is read-only. It does not create web directories, copy bundle
+contents, install surfaces, bind mounts, activate routes, or inspect web-local
+screen/component structure.
