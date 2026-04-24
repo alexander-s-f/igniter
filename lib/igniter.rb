@@ -3,6 +3,7 @@
 require_relative "igniter/monorepo_packages"
 require_relative "igniter/version"
 require "igniter/contracts"
+require "igniter/embed"
 require "igniter/application"
 
 module Igniter
@@ -33,6 +34,10 @@ module Igniter
 
     def execute(...)
       Contracts.execute(...)
+    end
+
+    def embed(...)
+      Embed.configure(...)
     end
 
     def execute_with(...)
