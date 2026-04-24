@@ -344,3 +344,13 @@ The writer copies only files already listed by the plan and writes
 `igniter-transfer-bundle.json`. Web metadata is embedded for review; it is not
 used to discover web-local files, load `SurfaceManifest`, bind mounts, or
 activate routes.
+
+Bundle verification reads that artifact metadata back and counts supplied
+surfaces from the serialized plan:
+
+```ruby
+verification = Igniter::Application.verify_transfer_bundle("tmp/operator_bundle")
+```
+
+This readback step does not require `igniter-web`. It verifies the artifact
+shape and file list only; web surface hashes remain opaque review metadata.

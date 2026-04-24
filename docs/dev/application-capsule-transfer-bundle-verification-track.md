@@ -189,3 +189,25 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 wording/boundary review for supplied
   web metadata preserved in bundle verification.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-transfer-bundle-verification-track.md`
+Status: landed.
+Changed:
+- Reviewed `ApplicationTransferBundleVerification` against supplied web surface
+  metadata.
+- Confirmed `examples/application/capsule_transfer_bundle_verification.rb`
+  verifies a written artifact with supplied `kind: :web_surface` metadata and
+  reports `surface_count`.
+- Updated `packages/igniter-web/README.md` with the bundle verification
+  readback boundary.
+Accepted:
+- Bundle verification counts supplied web surfaces from the serialized bundle
+  plan metadata only.
+- Verification does not require `igniter-web`, inspect `SurfaceManifest`,
+  screen graphs, routes, Rack apps, components, mounts, browser transports, or
+  web-local directories.
+- No web-specific verification behavior is needed in `igniter-application`.
+Needs:
+- `[Architect Supervisor / Codex]` review the transfer bundle verification
+  track for acceptance.
