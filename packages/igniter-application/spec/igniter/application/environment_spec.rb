@@ -400,6 +400,143 @@ RSpec.describe Igniter::Application::Environment do
     expect(profile.manifest.imports).to eq(blueprint.imports.map(&:to_h))
   end
 
+  it "reports optional feature slices from blueprints without requiring features directories" do
+    root = File.expand_path("/tmp/igniter_feature_slice_report")
+    sparse_blueprint = Igniter::Application.blueprint(
+      name: :worker,
+      root: root,
+      env: :test,
+      layout_profile: :capsule
+    )
+    blueprint = Igniter::Application.blueprint(
+      name: :operator,
+      root: root,
+      env: :test,
+      layout_profile: :capsule,
+      groups: %i[contracts services],
+      web_surfaces: [:operator_console],
+      exports: [
+        { name: :resolve_incident, kind: :contract, target: "Contracts::ResolveIncident" }
+      ],
+      imports: [
+        { name: :incident_runtime, kind: :service, from: :host, capabilities: [:incidents] }
+      ],
+      features: [
+        {
+          name: :incidents,
+          groups: %i[contracts services web],
+          paths: {
+            contracts: "features/incidents/contracts",
+            web: "features/incidents/web"
+          },
+          contracts: ["Contracts::ResolveIncident"],
+          services: [:incident_queue],
+          exports: [:resolve_incident],
+          imports: [:incident_runtime],
+          flows: [:incident_review],
+          surfaces: [:operator_console],
+          metadata: { owner: :operations }
+        }
+      ]
+    )
+
+    expect(sparse_blueprint.feature_slice_report.to_h).to include(
+      application_name: :worker,
+      slice_count: 0,
+      slices: []
+    )
+
+    report = blueprint.feature_slice_report(metadata: { source: :spec })
+    expect(report.to_h).to include(
+      application_name: :operator,
+      layout_profile: :capsule,
+      slice_count: 1,
+      metadata: { source: :spec }
+    )
+    expect(report.to_h.fetch(:slices)).to contain_exactly(
+      include(
+        name: :incidents,
+        groups: %i[contracts services web],
+        paths: {
+          contracts: "features/incidents/contracts",
+          web: "features/incidents/web"
+        },
+        contracts: ["Contracts::ResolveIncident"],
+        services: [:incident_queue],
+        exports: [:resolve_incident],
+        imports: [:incident_runtime],
+        flows: [:incident_review],
+        surfaces: [:operator_console]
+      )
+    )
+    expect(blueprint.to_manifest.feature_slices).to eq(blueprint.feature_slices.map(&:to_h))
+  end
+
+  it "publishes app-owned flow declaration metadata without starting a flow implicitly" do
+    root = File.expand_path("/tmp/igniter_flow_declaration")
+    blueprint = Igniter::Application.blueprint(
+      name: :operator,
+      root: root,
+      env: :test,
+      layout_profile: :capsule,
+      contracts: ["Contracts::ResolveIncident"],
+      services: [:incident_queue],
+      web_surfaces: [:operator_console],
+      flows: [
+        {
+          name: :incident_review,
+          purpose: "Review incident plan before execution",
+          initial_status: :waiting_for_user,
+          current_step: :review_plan,
+          pending_inputs: [
+            { name: :clarification, input_type: :textarea, target: :review_plan }
+          ],
+          pending_actions: [
+            { name: :approve_plan, action_type: :contract, target: "Contracts::ResolveIncident" }
+          ],
+          artifacts: [
+            { name: :draft_plan, artifact_type: :markdown, uri: "memory://draft-plan" }
+          ],
+          contracts: ["Contracts::ResolveIncident"],
+          services: [:incident_queue],
+          surfaces: [:operator_console],
+          exports: [:resolve_incident],
+          imports: [:incident_runtime],
+          metadata: { feature: :incidents }
+        }
+      ]
+    )
+    declaration = blueprint.flow_declarations.first
+    environment = described_class.new(profile: blueprint.apply_to(Igniter::Application.build_kernel).finalize)
+
+    expect(declaration.to_h).to include(
+      name: :incident_review,
+      initial_status: :waiting_for_user,
+      current_step: :review_plan,
+      pending_inputs: [include(name: :clarification)],
+      pending_actions: [include(name: :approve_plan)],
+      contracts: ["Contracts::ResolveIncident"],
+      services: [:incident_queue],
+      surfaces: [:operator_console]
+    )
+    expect(environment.sessions).to eq([])
+
+    snapshot = environment.start_flow(
+      declaration.name,
+      session_id: "incident-review/1",
+      status: declaration.initial_status,
+      current_step: declaration.current_step,
+      pending_inputs: declaration.pending_inputs.map(&:to_h),
+      pending_actions: declaration.pending_actions.map(&:to_h),
+      artifacts: declaration.artifacts.map(&:to_h),
+      metadata: { declaration: declaration.name }
+    )
+
+    expect(snapshot.status).to eq(:waiting_for_user)
+    expect(snapshot.pending_inputs.map(&:name)).to eq([:clarification])
+    expect(environment.manifest.flow_declarations).to eq(blueprint.flow_declarations.map(&:to_h))
+  end
+
   it "serializes agent-native flow session values without web dependencies" do
     event = Igniter::Application::FlowEvent.new(
       id: "event-1",

@@ -49,6 +49,14 @@ module Igniter
       def imports
         Array(metadata[:imports]).map(&:dup)
       end
+
+      def feature_slices
+        Array(metadata[:feature_slices]).map(&:dup)
+      end
+
+      def flow_declarations
+        Array(metadata[:flow_declarations]).map(&:dup)
+      end
     end
   end
 end

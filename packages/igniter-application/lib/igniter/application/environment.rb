@@ -293,13 +293,14 @@ module Igniter
         sessions.select { |entry| entry.kind == :flow }.map { |entry| FlowSessionSnapshot.from_entry(entry) }
       end
 
-      def start_flow(flow_name, session_id: nil, input: {}, current_step: nil, pending_inputs: [],
+      def start_flow(flow_name, session_id: nil, input: {}, status: nil, current_step: nil, pending_inputs: [],
                      pending_actions: [], artifacts: [], metadata: {})
         resolved_session_id = session_id || "#{flow_name}/#{SecureRandom.uuid}"
+        resolved_status = status || flow_status_for(pending_inputs: pending_inputs, pending_actions: pending_actions)
         snapshot = FlowSessionSnapshot.new(
           session_id: resolved_session_id,
           flow_name: flow_name,
-          status: flow_status_for(pending_inputs: pending_inputs, pending_actions: pending_actions),
+          status: resolved_status,
           current_step: current_step,
           pending_inputs: pending_inputs,
           pending_actions: pending_actions,

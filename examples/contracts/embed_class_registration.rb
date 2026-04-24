@@ -3,6 +3,7 @@
 
 $LOAD_PATH.unshift(File.expand_path("../../lib", __dir__))
 $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-contracts/lib", __dir__))
+$LOAD_PATH.unshift(File.expand_path("../../packages/igniter-extensions/lib", __dir__))
 $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-embed/lib", __dir__))
 
 require "igniter/embed"

@@ -156,6 +156,19 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/feature_flow_report",
+      "Application feature-slice report and app-owned flow declaration metadata.",
+      expected_fragments: [
+        "application_feature_flow_slices=incidents",
+        "application_feature_flow_exports=resolve_incident",
+        "application_feature_flow_imports=incident_runtime",
+        "application_feature_flow_declarations=incident_review",
+        "application_feature_flow_pending_inputs=clarification",
+        "application_feature_flow_pending_actions=approve_plan",
+        "application_feature_flow_status=waiting_for_user"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

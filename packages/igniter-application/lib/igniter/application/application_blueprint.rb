@@ -7,11 +7,13 @@ module Igniter
 
       attr_reader :name, :root, :env, :layout_profile, :layout, :groups, :packs,
                   :contracts, :providers, :services, :interfaces, :effects,
-                  :web_surfaces, :exports, :imports, :config, :metadata
+                  :web_surfaces, :exports, :imports, :feature_slices,
+                  :flow_declarations, :config, :metadata
 
       def initialize(name:, root:, env: :development, layout: nil, layout_profile: :standalone, paths: {},
                      groups: [], packs: [], contracts: [], providers: [], services: [], interfaces: [],
                      effects: [], web_surfaces: [], exports: [], imports: [],
+                     feature_slices: nil, features: nil, flow_declarations: nil, flows: nil,
                      config: {}, metadata: {})
         @name = name.to_sym
         @root = File.expand_path(root.to_s)
@@ -28,6 +30,8 @@ module Igniter
         @web_surfaces = Array(web_surfaces).map(&:to_sym).freeze
         @exports = normalize_exports(exports).freeze
         @imports = normalize_imports(imports).freeze
+        @feature_slices = normalize_feature_slices(features || feature_slices || []).freeze
+        @flow_declarations = normalize_flow_declarations(flows || flow_declarations || []).freeze
         @config = config.dup.freeze
         @metadata = metadata.dup.freeze
         freeze
@@ -80,6 +84,10 @@ module Igniter
         structure_plan(mode: mode, metadata: metadata).apply!
       end
 
+      def feature_slice_report(metadata: {})
+        FeatureSliceReport.for_blueprint(self, metadata: metadata)
+      end
+
       def apply_to(kernel)
         kernel.manifest(name, root: root, env: env, layout: layout, metadata: manifest_metadata)
         active_groups.each do |group|
@@ -111,6 +119,8 @@ module Igniter
           web_surfaces: web_surfaces.dup,
           exports: exports.map(&:to_h),
           imports: imports.map(&:to_h),
+          feature_slices: feature_slices.map(&:to_h),
+          flow_declarations: flow_declarations.map(&:to_h),
           config: config.dup,
           metadata: metadata.dup
         }
@@ -125,6 +135,8 @@ module Igniter
           groups: active_groups,
           exports: exports.map(&:to_h),
           imports: imports.map(&:to_h),
+          feature_slices: feature_slices.map(&:to_h),
+          flow_declarations: flow_declarations.map(&:to_h),
           effects: effects,
           web_surfaces: web_surfaces
         )
@@ -177,6 +189,14 @@ module Igniter
             CapsuleImport.new(name: entry)
           end
         end
+      end
+
+      def normalize_feature_slices(entries)
+        Array(entries).map { |entry| FeatureSlice.from(entry) }
+      end
+
+      def normalize_flow_declarations(entries)
+        Array(entries).map { |entry| FlowDeclaration.from(entry) }
       end
     end
   end

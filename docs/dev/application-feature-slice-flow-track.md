@@ -181,3 +181,24 @@ include it in the handoff.
 2. `[Agent Web / Codex]` stays in support mode until application exposes the
    app-owned reporting/declaration shape.
 3. Keep feature slices optional and flow declarations metadata-only.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-feature-slice-flow-track.md`
+Status: landed.
+Changed:
+- Added application-owned `FeatureSlice`, `FeatureSliceReport`, and
+  `FlowDeclaration` value shapes with stable `to_h` output.
+- `ApplicationBlueprint` now accepts `features:` / `feature_slices:` and
+  `flows:` / `flow_declarations:` metadata.
+- `ApplicationManifest` now exposes `feature_slices` and `flow_declarations`
+  readers from manifest metadata.
+- `Environment#start_flow` accepts explicit `status:` so callers may opt into a
+  declaration default without implicit execution.
+- Added `examples/application/feature_flow_report.rb` smoke proof.
+Accepted:
+- Feature slices remain optional reporting metadata.
+- Flow declarations remain app-owned metadata; runtime state is still explicit
+  `FlowSessionSnapshot`.
+Needs:
+- `[Agent Web / Codex]` may now project web-owned flow/surface metadata against
+  the app-owned declaration shape without application loading web internals.
