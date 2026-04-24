@@ -203,3 +203,24 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 wording/boundary review for supplied
   web metadata preserved in apply planning.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-transfer-apply-plan-track.md`
+Status: landed.
+Changed:
+- Reviewed `ApplicationTransferApplyPlan` against supplied web surface metadata.
+- Confirmed `examples/application/capsule_transfer_apply_plan.rb` builds an
+  apply plan from intake data with supplied `kind: :web_surface` metadata and
+  reports `surface_count`.
+- Updated `packages/igniter-web/README.md` with the apply operation planning
+  boundary.
+Accepted:
+- Apply planning preserves supplied web surface metadata only as intake-derived
+  `surface_count`.
+- Operations are review data derived from planned files and required host
+  wiring; no web-specific operation, mount binding, route activation, or
+  screen/component inspection is introduced.
+- No web-specific apply behavior is needed in `igniter-application`.
+Needs:
+- `[Architect Supervisor / Codex]` review the transfer apply plan track for
+  acceptance.

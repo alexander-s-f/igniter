@@ -369,3 +369,15 @@ intake = Igniter::Application.transfer_intake_plan(
 The intake plan is read-only. It does not create web directories, copy bundle
 contents, install surfaces, bind mounts, activate routes, or inspect web-local
 screen/component structure.
+
+Apply planning stays read-only too. It converts accepted intake data into
+operation hashes for future review:
+
+```ruby
+apply_plan = Igniter::Application.transfer_apply_plan(intake)
+```
+
+The operation list may include directory and file-copy review steps, plus
+manual host wiring steps, but it does not execute them. Supplied web surfaces
+remain a count on the plan; there is no web mount binding, route activation, or
+screen/component inspection.
