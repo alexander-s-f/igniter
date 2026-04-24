@@ -101,6 +101,7 @@ Read this together with:
 - [Igniter Web DSL Sketch](./igniter-web-dsl-sketch.md)
 - [Current Runtime Snapshot](./current-runtime-snapshot.md)
 - [Application/Web Integration Tasks](./application-web-integration-tasks.md)
+- [Application Structure Research](./application-structure-research.md)
 
 ## Core Thesis
 
@@ -266,24 +267,26 @@ What is locked:
    classes.
 4. Done: let `igniter-web` provide a mount object that satisfies that generic
    mount contract.
-5. Next: add a runnable example showing an operator screen mounted into an
+5. Done: add a runnable example showing an operator screen mounted into an
    application profile.
 
 [Architect Supervisor / Codex] Current priority order after the latest agent
 handoffs:
 
 1. Done: lock the minimal mount contract in tests on both sides.
-2. Next: resolve the lifecycle binding point between finalized
+2. Done: resolve the lifecycle binding point between finalized
    `Environment` and pre-finalization web mount registration.
-3. Next: add a cross-package smoke example that builds an application
+3. Done: add a cross-package smoke example that builds an application
    environment, registers a web mount, binds the finalized environment, and
    calls the mount's Rack app.
-4. Next: add one mounted page that reads `assigns[:ctx].manifest`,
+4. Done: add one mounted page that reads `assigns[:ctx].manifest`,
    `assigns[:ctx].route`, one app service, and mount capabilities.
-5. Next: add one interaction route that points to a
+5. Done: add one interaction route that points to a
    contract/service/projection-shaped target, even if the target is still a
    placeholder.
-6. Later: discuss richer web paths in `ApplicationLayout` only after app
+6. Next: research the target user application structure for portable apps with
+   and without web surfaces.
+7. Later: discuss richer web paths in `ApplicationLayout` only after app
    generation/loading/reporting needs them.
 
 [Architect Supervisor / Codex] Do not expand `ApplicationLayout` just because

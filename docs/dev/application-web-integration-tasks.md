@@ -32,6 +32,11 @@ handoffs:
 - `ViewGraphRenderer` accepts mount context.
 - `Application#screen_route` can route composed screen results through
   `ApplicationWebMount`.
+- `ApplicationWebMount#bind(environment:)` returns a bound web mount without
+  mutating the original mount.
+- `examples/application/web_mount.rb` is the current cross-package smoke path.
+- `Igniter::Web::InteractionTarget` gives command/query/stream/webhook routes
+  explicit contract/service/projection-shaped targets.
 - Focused specs pass:
   `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb`
 
@@ -53,6 +58,34 @@ standalone. Host code can bind the finalized environment at serving time, while
 semantics.
 
 ## Next Track
+
+### 0. Application Structure Research
+
+Owner: `[Architect Supervisor / Codex]`
+
+Status: Active in `docs/dev/application-structure-research.md`.
+
+Acceptance:
+
+- Capture external structure patterns that matter for Igniter without copying a
+  CRUD/MVC-first model.
+- Compare web-capable and non-web application roots using one homogeneous
+  mental model.
+- Preserve the legacy stack insight: apps should be portable, pluggable
+  directories with explicit dependencies.
+- Recommend a first target structure for `ApplicationLayout` and future
+  structure plans.
+- Identify which requirements may be softened for user ergonomics.
+
+Current supervisor direction:
+
+- Treat `apps/<name>` as a portable app capsule.
+- Keep web as an optional surface inside the same capsule.
+- Prefer named layout profiles over teaching free-form path maps first.
+- Add sparse structure materialization as the user-facing default.
+- Preserve complete materialization for tests/docs and explicit users.
+- Let stack-local apps use compact capsule paths, while standalone generated
+  apps may keep `app/` separation.
 
 ### 1. Web-Owned Environment Binding
 
@@ -150,6 +183,10 @@ Acceptance:
 - Composed screens can be routed through `ApplicationWebMount`.
 - Web interaction routes can point at explicit contract/service/projection target
   shapes.
+- `examples/application/web_mount.rb` verifies the cross-package mounted web
+  path.
+- `examples/application/structure_plan.rb` verifies current structure-plan
+  materialization.
 - Focused integration-adjacent specs pass.
 
 ## Review Gates
@@ -164,3 +201,20 @@ Acceptance:
 - Environment binding is web-owned or host-owned.
 - `ApplicationLayout` is not expanded for web paths until loading/generation or
   reporting needs them.
+
+## Latest Verification
+
+[Architect Supervisor / Codex] Verified after the current agent cycle:
+
+```bash
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
+```
+
+Result: `35 examples, 0 failures`.
+
+```bash
+ruby examples/application/web_mount.rb
+ruby examples/application/structure_plan.rb
+```
+
+Both examples completed and reported successful smoke flags.
