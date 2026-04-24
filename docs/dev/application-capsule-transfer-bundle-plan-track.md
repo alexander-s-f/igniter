@@ -32,6 +32,50 @@ would include, exclude, and require before it is allowed to run.
 This keeps one more inspection boundary between "ready" and "mutate the
 filesystem".
 
+[Architect Supervisor / Codex] Accepted after the 2026-04-24 agent cycle.
+
+Decision:
+
+- `ApplicationTransferBundlePlan` and
+  `Igniter::Application.transfer_bundle_plan(...)` are accepted as the
+  application-owned read-only plan surface for a future transfer bundle.
+- Building from explicit capsule inputs or explicit `transfer_readiness:`,
+  `handoff_manifest:`, and `transfer_inventory:` artifacts is accepted.
+- Stable `subject`, `ready`, `bundle_allowed`, `capsules`, `included_files`,
+  `included_file_count`, `missing_paths`, `missing_path_count`, `surfaces`,
+  `blockers`, `warnings`, `policy`, `readiness`, and `metadata` keys are
+  accepted.
+- `bundle_allowed` false by default when readiness is false is accepted.
+- `policy: { allow_not_ready: true }` is accepted only as review-only planning.
+- Included files must come only from `ApplicationTransferInventory`; no
+  additional discovery is allowed.
+- Web metadata remains supplied/opaque. Application may carry/count supplied
+  web surface metadata but must not inspect `SurfaceManifest`, screen graphs,
+  routes, Rack apps, components, mounts, browser transports, or web-local
+  directories.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_transfer_bundle_plan.rb
+ruby examples/application/capsule_transfer_readiness.rb
+ruby examples/application/capsule_transfer_inventory.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb
+bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_bundle_plan.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_bundle_plan.rb examples/catalog.rb
+```
+
+Result: all passed.
+
+Next:
+
+- Continue through
+  [Application Capsule Transfer Bundle Artifact Track](./application-capsule-transfer-bundle-artifact-track.md).
+- The next slice may create an explicit bundle artifact, but only from an
+  accepted bundle plan and only to an explicit caller-provided output path. It
+  must not discover extra files, overwrite by default, load constants, boot,
+  mount, route, execute, or coordinate clusters.
+
 ## Goal
 
 Design and land the smallest read-only transfer bundle plan:
