@@ -167,6 +167,31 @@ RSpec.describe Igniter::Web do
     expect(body.join).to include("screen,stream")
   end
 
+  it "derives web-owned surface structure from application layout profiles" do
+    capsule = Igniter::Application.blueprint(
+      name: :operator,
+      root: "/tmp/operator",
+      layout_profile: :capsule,
+      web_surfaces: [:operator_console]
+    )
+    standalone = Igniter::Application.blueprint(
+      name: :console,
+      root: "/tmp/console",
+      layout_profile: :standalone,
+      web_surfaces: [:operator_console]
+    )
+
+    capsule_structure = described_class.surface_structure(capsule)
+    standalone_structure = described_class.surface_structure(standalone)
+
+    expect(capsule_structure.web_root).to eq("web")
+    expect(capsule_structure.path(:screens)).to eq("web/screens")
+    expect(standalone_structure.web_root).to eq("app/web")
+    expect(standalone_structure.path(:screens)).to eq("app/web/screens")
+    expect(capsule_structure.groups).to eq(%i[screens pages components projections webhooks assets])
+    expect(capsule_structure.to_h.fetch(:metadata)).to include(application: :operator)
+  end
+
   it "handles nested mounted paths and missing routes" do
     web = described_class.application do
       page "/nested", title: "Nested" do

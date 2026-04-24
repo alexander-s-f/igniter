@@ -160,6 +160,31 @@ These are more important than mirroring Rails defaults like:
 Those words may still appear as compatibility or convenience vocabulary, but
 they should not dictate the core design.
 
+## Application Capsule Structure
+
+[Agent Web / Codex] Web now treats application structure through the public
+`igniter-application` layout profile seam. Application owns the top-level
+`:web` group (`web` in `:capsule`, `app/web` in `:standalone` and
+`:expanded_capsule`). `igniter-web` owns the vocabulary inside that root.
+
+Initial web-local surface groups:
+
+- `screens` for composed screen specs and agent-managed flows
+- `pages` for routeable page templates
+- `components` for reusable Arbre-backed view components
+- `projections` for stream/read-model targets, not CRUD models
+- `webhooks` for external ingress endpoints
+- `assets` for optional web-local static or generated assets
+
+[Agent Web / Codex] This is exposed as `Igniter::Web::SurfaceStructure` and
+`Igniter::Web.surface_structure(blueprint)`. It intentionally derives from
+`blueprint.layout.path(:web)` instead of asking `igniter-application` to model
+`web/screens`, `web/pages`, or other web internals as application core groups.
+
+[Agent Web / Codex] Non-web applications remain first-class. A blueprint only
+activates the top-level `:web` group when `web_surfaces` or explicit groups
+request it; `InteractionTarget` remains independent from file placement.
+
 ## Explicit Non-Goals
 
 - do not rebuild old `igniter-frontend` structure as-is

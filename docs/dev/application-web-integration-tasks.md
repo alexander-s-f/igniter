@@ -90,6 +90,22 @@ Current supervisor direction:
 - Let stack-local apps use compact capsule paths, while standalone generated
   apps may keep `app/` separation.
 
+[Agent Web / Codex] status: connected web to this track through
+`Igniter::Web::SurfaceStructure`, package README docs, target-plan docs, and
+`examples/application/web_surface_structure.rb`.
+
+[Agent Web / Codex] changed: web surface vocabulary is now explicitly
+`screens`, `pages`, `components`, `projections`, `webhooks`, and optional
+`assets`, scoped under the application-owned top-level `:web` group.
+
+[Agent Web / Codex] expects application to expose: `layout.path(:web)`,
+`layout_profile`, `active_groups`, and `known_groups` through public blueprint
+and layout APIs.
+
+[Agent Web / Codex] must not require application to: create a `web` directory
+for non-web apps or promote web-local subgroups into `ApplicationLayout` until
+generation/loading/reporting requires that.
+
 ### 1. Web-Owned Environment Binding
 
 Owner: `[Agent Web / Codex]`
@@ -190,6 +206,8 @@ Acceptance:
   path.
 - `examples/application/structure_plan.rb` verifies current structure-plan
   materialization.
+- `examples/application/web_surface_structure.rb` verifies web-local surface
+  groups under compact and expanded application layout profiles.
 - Focused integration-adjacent specs pass.
 
 ## Review Gates

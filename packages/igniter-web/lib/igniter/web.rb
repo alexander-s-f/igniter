@@ -21,6 +21,7 @@ require_relative "web/record"
 require_relative "web/mount_context"
 require_relative "web/application_web_mount"
 require_relative "web/interaction_target"
+require_relative "web/surface_structure"
 
 module Igniter
   module Web
@@ -66,6 +67,12 @@ module Igniter
 
       def projection(name)
         InteractionTarget.projection(name)
+      end
+
+      def surface_structure(blueprint = nil, web_root: nil, **options)
+        return SurfaceStructure.for(blueprint, **options) unless blueprint.nil?
+
+        SurfaceStructure.new(web_root: web_root || "app/web", **options)
       end
     end
   end

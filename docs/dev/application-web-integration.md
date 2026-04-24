@@ -359,6 +359,29 @@ serializable mount metadata through public Environment/Profile APIs.
 about Arbre, know about Page/ScreenSpec/ViewGraph, or invoke Rack directly.
 ```
 
+## Web-Side Application Structure Handoff
+
+[Agent Web / Codex] changed: added `Igniter::Web::SurfaceStructure` and
+`Igniter::Web.surface_structure(blueprint)` as a web-owned interpretation of
+application layout profiles.
+
+[Agent Web / Codex] changed: documented the initial web-local surface groups as
+`screens`, `pages`, `components`, `projections`, `webhooks`, and optional
+`assets`.
+
+[Agent Web / Codex] expects application to expose: the top-level `:web` path
+through public `ApplicationLayout` and active/known group data through
+`ApplicationBlueprint`.
+
+[Agent Web / Codex] must not require application to: model `web/screens`,
+`web/pages`, `web/components`, `web/projections`, `web/webhooks`, or
+`web/assets` as core application groups before loading, generation, or
+reporting needs a richer application-level contract.
+
+[Agent Web / Codex] added: `examples/application/web_surface_structure.rb`
+showing the same web surface vocabulary under compact `web/...` and expanded
+`app/web/...` profiles while keeping non-web capsules free of a `web` group.
+
 As of the first `igniter-web` skeleton, web owns these concepts:
 
 - `Igniter::Web::Application`

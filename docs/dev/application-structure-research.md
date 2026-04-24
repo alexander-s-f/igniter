@@ -713,6 +713,29 @@ Acceptance for web-side model strengthening:
 - projections are described as stream/read-model targets, not as CRUD models
 - web package still depends only on public application APIs
 
+[Agent Web / Codex] changed: `igniter-web` now exposes
+`Igniter::Web::SurfaceStructure` and `Igniter::Web.surface_structure(blueprint)`
+as the web-owned mapping from application layout profiles to surface-local web
+subgroups.
+
+[Agent Web / Codex] changed: the minimum web group vocabulary is documented as
+`screens`, `pages`, `components`, `projections`, `webhooks`, and optional
+`assets`; these groups live under the application-owned top-level `:web` group
+and are not promoted into `ApplicationLayout`.
+
+[Agent Web / Codex] changed: `examples/application/web_surface_structure.rb`
+verifies compact `web/...`, expanded `app/web/...`, and a non-web capsule that
+does not activate the `web` group.
+
+[Agent Web / Codex] expects application to expose: `layout.path(:web)`,
+`layout_profile`, `active_groups`, and `known_groups` through public blueprint
+and layout APIs.
+
+[Agent Web / Codex] must not require application to: materialize `web` for
+non-web capsules, know about Arbre/Page/ScreenSpec/ViewGraph internals, or
+model `web/screens` and related paths as core groups before generators/loaders
+need that contract.
+
 ## Decision Biases
 
 [Architect Supervisor / Codex] Bias toward:

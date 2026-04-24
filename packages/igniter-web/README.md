@@ -16,6 +16,7 @@ Current package shape:
 - `Igniter::Web::CompositionPreset`
 - `Igniter::Web::ViewGraph`
 - `Igniter::Web::ViewGraphRenderer`
+- `Igniter::Web::SurfaceStructure`
 - `Igniter::Web::Page`
 - `Igniter::Web::Component`
 - `Igniter::Web::Record`
@@ -58,6 +59,8 @@ This package currently ships only a skeleton:
 - web-side `ApplicationWebMount` for future `igniter-application` integration
 - `MountContext` for mounted pages to access routes, app manifest, services,
   interfaces, and mount metadata without custom handler/context classes
+- `SurfaceStructure` for web-owned surface groups inside application layout
+  profiles
 - an adapter-oriented `Record` placeholder
 
 That gives the rebuild a real package boundary now, while leaving room to shape
@@ -134,4 +137,39 @@ end
 
 command "/incidents/:id/resolve", to: Igniter::Web.contract("Contracts::ResolveIncident")
 stream "/events", to: Igniter::Web.projection("Projections::ClusterEvents")
+```
+
+## Application Capsule Structure
+
+`igniter-web` treats web as an optional surface inside an
+`igniter-application` capsule, not as the application itself.
+
+Application layout owns only the top-level `:web` group:
+
+- compact capsule profile: `web`
+- standalone / expanded profile: `app/web`
+
+Inside that root, `igniter-web` owns this initial surface vocabulary:
+
+- `screens` - composed screen specs and agent-managed flows
+- `pages` - routeable page templates
+- `components` - reusable Arbre-backed view components
+- `projections` - read-model and stream targets for live surfaces
+- `webhooks` - external ingress endpoints
+- `assets` - optional web-local static or generated assets
+
+This vocabulary is deliberately web-local. Non-web applications remain
+first-class and do not need a `web` directory.
+
+```ruby
+blueprint = Igniter::Application.blueprint(
+  name: :operator,
+  root: "apps/operator",
+  layout_profile: :capsule,
+  web_surfaces: [:operator_console]
+)
+
+structure = Igniter::Web.surface_structure(blueprint)
+structure.web_root      # => "web"
+structure.path(:screens) # => "web/screens"
 ```

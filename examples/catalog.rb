@@ -154,6 +154,21 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/web_surface_structure",
+      "Web-owned surface groups inside compact and expanded application capsules.",
+      expected_fragments: [
+        "application_web_surface_compact_root=web",
+        "application_web_surface_expanded_root=app/web",
+        "application_web_surface_compact_screens=web/screens",
+        "application_web_surface_expanded_screens=app/web/screens",
+        "application_web_surface_groups=screens,pages,components,projections,webhooks,assets",
+        "application_web_surface_active_compact=config,spec,web",
+        "application_web_surface_active_non_web=config,contracts,services,spec",
+        "application_web_surface_non_web=false",
+        "application_web_surface_projection_path=web/projections"
+      ]
+    ),
+    example(
       "cluster/incidents",
       "Failover planning plus durable incident history and active incident state.",
       expected_fragments: [
