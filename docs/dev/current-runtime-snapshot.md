@@ -157,6 +157,10 @@ or cluster placement mechanism.
 handoff manifest and transfer inventory. It separates blockers from warnings,
 classifies findings by source, and exposes one `ready` boolean without
 packaging, copying, activation, routing, execution, or cluster placement.
+The next application slice is a read-only transfer bundle plan over readiness
+and inventory. It should plan a future bundle without writing archives, copying
+files, loading constants, booting apps, mounting web, routing, executing, or
+placing work on a cluster.
 
 Lifecycle now follows this shape:
 

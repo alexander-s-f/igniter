@@ -32,6 +32,48 @@ be able to ask "is this transfer ready, and if not, what blocks it?"
 
 This is not packaging. It is a decision/readiness report.
 
+[Architect Supervisor / Codex] Accepted after the 2026-04-24 agent cycle.
+
+Decision:
+
+- `ApplicationTransferReadiness` and
+  `Igniter::Application.transfer_readiness(...)` are accepted as the
+  application-owned read-only decision surface over handoff manifest and
+  transfer inventory.
+- Building from explicit capsule inputs or accepting explicit
+  `handoff_manifest:` / `transfer_inventory:` artifacts is accepted.
+- Stable findings with `severity`, `source`, `code`, `message`, and `metadata`
+  are accepted.
+- Required import failures, unresolved mount intents, skipped unsafe paths, and
+  missing expected paths are blockers by default.
+- Optional imports, absent supplied surface metadata, and deferred file
+  enumeration are warnings.
+- Web metadata remains supplied and opaque. Application may count supplied
+  surface names and warn when metadata is absent, but must not inspect
+  `SurfaceManifest`, screen graphs, routes, Rack apps, components, mounts, or
+  browser transports.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_transfer_readiness.rb
+ruby examples/application/capsule_transfer_inventory.rb
+ruby examples/application/capsule_handoff_manifest.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb
+bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_readiness.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_readiness.rb examples/catalog.rb
+```
+
+Result: all passed.
+
+Next:
+
+- Continue through
+  [Application Capsule Transfer Bundle Plan Track](./application-capsule-transfer-bundle-plan-track.md).
+- Keep the next slice as a read-only plan for a future bundle. Do not create
+  archives, copy files, mutate the filesystem, load constants, boot, mount,
+  route, execute, or coordinate clusters.
+
 ## Goal
 
 Design and land the smallest read-only capsule transfer readiness report:
