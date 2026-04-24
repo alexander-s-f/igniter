@@ -68,6 +68,10 @@ module Igniter
         clear_cache
       end
 
+      def sugar_expansion
+        config.sugar_expansion
+      end
+
       private
 
       attr_reader :compiled_contracts
@@ -82,7 +86,7 @@ module Igniter
         before = contract_classes
         Dir[File.join(root, config.discovery_pattern)].sort.each { |path| require path }
         discovered_contract_classes = (contract_classes - before).select { |klass| discoverable_contract_class?(klass) }
-        discovered_by_name = discovered_contract_classes.group_by { |klass| inferred_contract_name(klass) }
+        discovered_by_name = discovered_contract_classes.group_by { |klass| ContractNaming.infer_contract_name(klass) }
         duplicates = discovered_by_name.select { |_name, classes| classes.length > 1 }
         unless duplicates.empty?
           duplicate_names = duplicates.keys.sort.map { |name| ":#{name}" }.join(", ")
@@ -98,7 +102,7 @@ module Igniter
       end
 
       def contract_classes
-        ObjectSpace.each_object(Class).select { |klass| contract_class?(klass) }
+        ObjectSpace.each_object(Class).select { |klass| ContractNaming.contract_class?(klass) }
       end
 
       def discoverable_contract_class?(contract_class)
@@ -112,42 +116,13 @@ module Igniter
       end
 
       def normalize_registration(name_or_definition, definition, as:, block:)
-        if contract_class?(name_or_definition)
-          name = normalize_contract_name(as || inferred_contract_name(name_or_definition))
+        if ContractNaming.contract_class?(name_or_definition)
+          name = ContractNaming.normalize_contract_name(as || ContractNaming.infer_contract_name(name_or_definition))
           return [name, name_or_definition]
         end
 
-        name = normalize_contract_name(as || name_or_definition)
+        name = ContractNaming.normalize_contract_name(as || name_or_definition)
         [name, definition || block]
-      end
-
-      def contract_class?(value)
-        value.is_a?(Class) && value < Igniter::Contract
-      end
-
-      def inferred_contract_name(contract_class)
-        class_name = contract_class.name
-        unless class_name
-          raise InvalidContractRegistrationError,
-                "anonymous contract classes must be registered with as:"
-        end
-
-        basename = class_name.split("::").last.sub(/Contract\z/, "")
-        snake_case(basename).to_sym
-      end
-
-      def normalize_contract_name(name)
-        raise InvalidContractRegistrationError, "contract name is required" unless name
-
-        name.to_sym
-      end
-
-      def snake_case(value)
-        value
-          .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
-          .gsub(/([a-z\d])([A-Z])/, '\1_\2')
-          .tr("-", "_")
-          .downcase
       end
 
       def compile_block(&block)

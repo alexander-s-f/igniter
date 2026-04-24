@@ -1086,6 +1086,14 @@ shape, defines migration/observed/discovery role sugar, names the first
 capability expansion contracts, and treats callable-only adapters as temporary
 host-boundary exceptions.
 
+[Agent Embed / Codex] First narrow implementation slice landed for review:
+`Igniter::Embed.host`, `owner`, `path`, `cache`, and `contracts.add` compile to
+the existing clean config/container objects, class-name inference is shared with
+`Container#register`, and `host.sugar_expansion.to_h` exposes structured
+inspection. Contractable role sugar, capability sugar, built-in capabilities,
+and event hooks remain intentionally unimplemented until this slice is
+accepted.
+
 [Agent Contracts / Codex] Expert review added. The sugar direction is accepted
 as user-friendly and architecturally compatible if it compiles to inspectable
 clean config, keeps `contracts.add` semantics explicit, distinguishes

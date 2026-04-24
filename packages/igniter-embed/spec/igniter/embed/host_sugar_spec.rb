@@ -1,0 +1,129 @@
+# frozen_string_literal: true
+
+require_relative "../../spec_helper"
+
+RSpec.describe "Igniter::Embed.host sugar" do
+  before do
+    billing = Module.new do
+      def self.root
+        "/tmp/billing"
+      end
+    end
+    stub_const("Billing", billing)
+    stub_const("Billing::PriceQuoteContract", Class.new(Igniter::Contract) do
+      define do
+        input :amount
+        compute :total, depends_on: [:amount] do |amount:|
+          amount * 1.2
+        end
+        output :total
+      end
+    end)
+  end
+
+  it "builds the same plain contract registration as the clean form" do
+    clean = Igniter::Embed.configure(:billing) do |config|
+      config.owner Billing
+      config.root Billing.root
+      config.cache = false
+      config.contract Billing::PriceQuoteContract, as: :price_quote
+    end
+
+    sugar = Igniter::Embed.host(:billing) do
+      owner Billing
+      path "."
+      cache false
+
+      contracts do
+        add :price_quote, Billing::PriceQuoteContract
+      end
+    end
+
+    expect(sugar.config.name).to eq(clean.config.name)
+    expect(sugar.config.owner).to eq(clean.config.owner)
+    expect(sugar.config.root).to eq(clean.config.root)
+    expect(sugar.config.cache?).to eq(clean.config.cache?)
+    expect(sugar.registry.to_h).to eq(clean.registry.to_h)
+    expect(sugar.call(:price_quote, amount: 100).output(:total)).to eq(120.0)
+  end
+
+  it "infers contract names the same way container registration does" do
+    contracts = Igniter::Embed.host(:billing) do
+      contracts do
+        add Billing::PriceQuoteContract
+      end
+    end
+
+    expect(contracts.registry.names).to eq([:price_quote])
+    expect(contracts.call(:price_quote, amount: 100).output(:total)).to eq(120.0)
+  end
+
+  it "supports the explicit config.contracts form as the same first slice" do
+    contracts = Igniter::Embed.configure(:billing) do |config|
+      config.owner Billing
+      config.path "."
+      config.contracts do
+        add :price_quote, Billing::PriceQuoteContract
+      end
+    end
+
+    expect(contracts.config.root).to eq("/tmp/billing")
+    expect(contracts.registry.names).to eq([:price_quote])
+  end
+
+  it "exposes structured sugar expansion output" do
+    contracts = Igniter::Embed.host(:billing) do
+      owner Billing
+      path "app/contracts"
+      cache false
+
+      contracts do
+        add Billing::PriceQuoteContract
+      end
+    end
+
+    expect(contracts.sugar_expansion.to_h).to include(
+      host: :billing,
+      owner: "Billing",
+      root: "/tmp/billing/app/contracts",
+      cache: false,
+      contractables: [],
+      capabilities: [],
+      events: []
+    )
+    expect(contracts.sugar_expansion.to_h.fetch(:contracts)).to eq(
+      [
+        {
+          name: :price_quote,
+          class: "Billing::PriceQuoteContract",
+          kind: :class
+        }
+      ]
+    )
+  end
+
+  it "raises the same anonymous contract error as clean registration" do
+    anonymous_contract = Class.new(Igniter::Contract) do
+      define do
+        input :amount
+        output :amount
+      end
+    end
+
+    expect do
+      Igniter::Embed.host(:billing) do
+        contracts do
+          add anonymous_contract
+        end
+      end
+    end.to raise_error(Igniter::Embed::InvalidContractRegistrationError, /anonymous/)
+  end
+
+  it "rejects ambiguous path arrays in the first implementation slice" do
+    expect do
+      Igniter::Embed.host(:billing) do
+        path ["app/contracts", "engines/billing/app/contracts"]
+      end
+    end.to raise_error(Igniter::Embed::SugarError, /exactly one path/)
+  end
+end

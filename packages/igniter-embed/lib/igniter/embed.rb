@@ -4,7 +4,11 @@ require "igniter/contracts"
 require "igniter/extensions/contracts"
 
 require_relative "embed/errors"
+require_relative "embed/contract_naming"
 require_relative "embed/config"
+require_relative "embed/contracts_builder"
+require_relative "embed/sugar_expansion"
+require_relative "embed/host_builder"
 require_relative "embed/registry"
 require_relative "embed/execution_envelope"
 require_relative "embed/contract_handle"
@@ -17,6 +21,12 @@ module Igniter
       def configure(name, &block)
         config = Config.new(name: name)
         block&.call(config)
+        Container.new(config: config)
+      end
+
+      def host(name, &block)
+        config = Config.new(name: name)
+        HostBuilder.new(config: config).instance_eval(&block) if block
         Container.new(config: config)
       end
 
