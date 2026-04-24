@@ -23,6 +23,8 @@ Primary API:
 - `Igniter::Application::ApplicationBlueprint`
 - `Igniter::Application::ApplicationManifest`
 - `Igniter::Application::ApplicationLayout`
+- `Igniter::Application::ApplicationStructurePlan`
+- `Igniter::Application::ApplicationStructureEntry`
 - `Igniter::Application::MountRegistration`
 - `Igniter::Application::Snapshot`
 - `Igniter::Application::BootPlan`
@@ -39,6 +41,8 @@ The user application model now has a first explicit shape too:
 
 - `ApplicationBlueprint` describes an intended app structure before files are
   written or a runtime profile is finalized
+- `ApplicationStructurePlan` inspects and explicitly materializes missing
+  layout paths from a blueprint without becoming a legacy scaffold generator
 - `ApplicationManifest` captures app name, root, env, packs, contracts,
   providers, services, mounts, config, and layout
 - `ApplicationLayout` captures canonical user-app paths such as

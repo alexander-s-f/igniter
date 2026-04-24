@@ -251,6 +251,48 @@ RSpec.describe Igniter::Application::Environment do
     expect(environment.layout.path(:contracts)).to eq("app/contracts")
   end
 
+  it "plans and materializes application structure from blueprints explicitly" do
+    Dir.mktmpdir("igniter-structure") do |root|
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: root,
+        env: :test,
+        web_surfaces: [:operator_console]
+      )
+
+      plan = blueprint.structure_plan(metadata: { source: :spec })
+
+      expect(plan.to_h).to include(
+        root: root,
+        blueprint: :operator,
+        present_count: 0,
+        missing_count: 11,
+        metadata: { source: :spec }
+      )
+      expect(plan.to_h.fetch(:entries)).to include(
+        include(group: :contracts, kind: :directory, status: :missing, action: :create_directory),
+        include(group: :config, kind: :file, status: :missing, action: :write_file)
+      )
+
+      result = blueprint.materialize_structure!
+
+      expect(result).to include(
+        root: root,
+        applied_count: 11,
+        applied_groups: %i[agents config contracts effects executors packs providers services skills spec tools]
+      )
+      expect(File.directory?(File.join(root, "app/contracts"))).to be(true)
+      expect(File.file?(File.join(root, "config/igniter.rb"))).to be(true)
+
+      refreshed = blueprint.structure_plan
+      expect(refreshed.to_h).to include(
+        present_count: 11,
+        missing_count: 0,
+        present_groups: %i[agents config contracts effects executors packs providers services skills spec tools]
+      )
+    end
+  end
+
   it "publishes generic mount registrations without depending on mounted package classes" do
     operator_surface = Struct.new(:name).new("OperatorSurface")
 

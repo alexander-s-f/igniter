@@ -54,6 +54,14 @@ module Igniter
         )
       end
 
+      def structure_plan(metadata: {})
+        ApplicationStructurePlan.inspect(blueprint: self, metadata: metadata)
+      end
+
+      def materialize_structure!(metadata: {})
+        structure_plan(metadata: metadata).apply!
+      end
+
       def apply_to(kernel)
         kernel.manifest(name, root: root, env: env, layout: layout, metadata: manifest_metadata)
         layout.paths.each do |group, path|

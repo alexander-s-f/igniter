@@ -94,6 +94,7 @@ Current shape:
 - `Application::Profile`
 - `Application::Environment`
 - `ApplicationBlueprint`
+- `ApplicationStructurePlan`
 - `ApplicationManifest`
 - `ApplicationLayout`
 - `MountRegistration`
@@ -104,6 +105,7 @@ Current shape:
 - transport-ready compose and collection invokers
 - manifest and canonical user app layout
 - scaffold-free app blueprints
+- explicit structure plans for materializing missing app layout paths
 - generic mount registry for web, agent, and future interaction surfaces
 - lifecycle plans and reports
 

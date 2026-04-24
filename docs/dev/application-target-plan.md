@@ -333,6 +333,8 @@ This is intentionally small, but it already establishes the target direction:
 - explicit application manifest and layout shape for user app structure
 - scaffold-free application blueprints for planning app shape before writing
   files
+- explicit application structure plans for inspecting and materializing missing
+  layout paths without reintroducing legacy generator semantics
 - layout-aware application load reports during boot
 
 Current boundary rule:

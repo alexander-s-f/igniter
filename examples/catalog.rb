@@ -92,6 +92,19 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/structure_plan",
+      "Explicit application structure planning and materialization from a blueprint.",
+      expected_fragments: [
+        "application_structure_name=operator",
+        "application_structure_initial_missing=11",
+        "application_structure_applied=11",
+        "application_structure_config=true",
+        "application_structure_contracts=true",
+        "application_structure_final_present=11",
+        "application_structure_final_missing=0"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [
