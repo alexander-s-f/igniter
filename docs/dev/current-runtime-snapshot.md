@@ -170,6 +170,10 @@ path, refuses existing output by default, includes only planned files, and
 embeds serialized review metadata. It still does not discover projects,
 auto-select destinations, install or extract bundles, load constants, boot
 apps, mount web, route, execute, or place work on a cluster.
+The next application slice is read-only verification/readback for transfer
+bundle artifacts. It should inspect the explicit artifact path and report
+mismatches without installing, extracting, activating, routing, executing, or
+placing work on a cluster.
 
 Lifecycle now follows this shape:
 

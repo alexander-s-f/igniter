@@ -27,6 +27,46 @@ plan, writes to an explicit output path, includes only planned files, and
 embeds serializable review metadata. It must not become project discovery,
 runtime activation, web mounting, cluster placement, or a magic migration tool.
 
+[Architect Supervisor / Codex] Accepted after the 2026-04-24 agent cycle.
+
+Decision:
+
+- `ApplicationTransferBundleArtifact`,
+  `ApplicationTransferBundleArtifactResult`, and
+  `Igniter::Application.write_transfer_bundle(...)` are accepted as the
+  application-owned explicit artifact writer from bundle plans.
+- Directory artifact shape with `files/` plus
+  `igniter-transfer-bundle.json` metadata is accepted as the first artifact
+  shape.
+- Default refusal when `bundle_allowed` is false is accepted.
+- Default refusal when output already exists is accepted.
+- Parent directory creation only through explicit `create_parent: true` is
+  accepted.
+- Copying only `included_files` already present in the bundle plan is accepted.
+- Web metadata remains supplied/opaque and is preserved only through serialized
+  review metadata; the writer must not inspect web internals or web-local
+  directories.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_transfer_bundle_artifact.rb
+ruby examples/application/capsule_transfer_bundle_plan.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb
+bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_bundle_artifact.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_bundle_artifact.rb examples/catalog.rb
+```
+
+Result: all passed.
+
+Next:
+
+- Continue through
+  [Application Capsule Transfer Bundle Verification Track](./application-capsule-transfer-bundle-verification-track.md).
+- Keep the next slice read-only. Verify/read back an artifact and report
+  mismatches, but do not install, extract, activate, mount, route, execute, or
+  coordinate clusters.
+
 ## Goal
 
 Design and land the smallest transfer bundle artifact writer:
