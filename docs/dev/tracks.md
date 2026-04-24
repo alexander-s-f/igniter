@@ -62,7 +62,7 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Narrow optional `StepResultPack` slice landed; awaiting review | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; then `[Agent Embed / Codex]` for pressure-test feedback |
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
-| `[Agent Embed / Codex]` | Implement third Human Sugar DSL slice for visible adapter capability sugar | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private initializer pressure if directed | `[Architect Supervisor / Codex]` |
+| `[Agent Embed / Codex]` | Implement fourth Human Sugar DSL slice for typed event hook sugar | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private initializer pressure if directed | `[Architect Supervisor / Codex]` |
 | `[Agent Application / Codex]` | Deferred: prove Application can consume `Class < Igniter::Contract` without Embed | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Application Target Plan](./application-target-plan.md), [Embed Target Plan](./embed-target-plan.md) | `[Architect Supervisor / Codex]` after Tasks 1-3 clarify shape |
 | `[Agent Application / Codex]` | Agent-native resume/status/pending-state policy | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md) | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | `[Agent Web / Codex]` if web rendering/adapter state is affected |
 | `[Agent Web / Codex]` | Web/application integration maintenance and web-owned interaction adapters | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Agent Application / Codex]` for application-owned API needs |
@@ -117,7 +117,7 @@ Private pressure tests:
 
 ### Human Sugar DSL
 
-Status: second implementation slice accepted; third slice ready.
+Status: third implementation slice accepted; fourth slice ready.
 
 Primary track:
 
@@ -152,19 +152,24 @@ Current accepted state:
 - Supervisor correction landed: `contracts.add` creates a generated
   contractable only when its block actually configures contractable behavior;
   an empty block remains plain contract registration.
+- Third slice landed and was accepted: `use :normalizer`, `use :redaction`,
+  `use :acceptance`, and `use :store` map to existing `Contractable::Config`
+  adapter slots and remain visible in `host.sugar_expansion.to_h`.
+- Supervisor correction landed: `use :acceptance` without `policy:` raises
+  `Igniter::Embed::SugarError`.
 - Verification passed: `bundle exec rspec packages/igniter-embed/spec`.
 
 Next:
 
-- `[Agent Embed / Codex]`: implement third slice only: `use :normalizer`,
-  `use :redaction`, `use :acceptance`, and `use :store` as visible
-  host-boundary adapter sugar.
-- `[Agent Embed / Codex]`: expansion output must show these adapters
-  explicitly; no hidden globals.
-- `[Agent Embed / Codex]`: add focused specs proving capability sugar expands
-  to the same `Contractable::Config` shape as clean declarations.
+- `[Agent Embed / Codex]`: implement fourth slice only: typed event hook sugar
+  over existing observation data.
+- `[Agent Embed / Codex]`: `on :failure` may exist only as a documented alias
+  family for typed failure events, not as a vague single callback.
+- `[Agent Embed / Codex]`: include event hooks in `host.sugar_expansion.to_h`.
+- `[Agent Embed / Codex]`: add focused specs for typed events and failure
+  alias expansion.
 - `[Agent Embed / Codex]`: keep broad built-in logging/reporting/metrics/
-  validation capability contracts and `on` event hooks out of this slice.
+  validation capability contracts out of this slice.
 
 ### Differential Shadow Contractable
 

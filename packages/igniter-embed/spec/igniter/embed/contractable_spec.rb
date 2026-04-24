@@ -272,6 +272,14 @@ RSpec.describe Igniter::Embed::Contractable do
     end.to raise_error(Igniter::Embed::SugarError, /use :metrics/)
   end
 
+  it "raises a sugar error when acceptance sugar omits policy" do
+    expect do
+      Igniter::Embed.contractable(:quote) do
+        use :acceptance
+      end
+    end.to raise_error(Igniter::Embed::SugarError, /policy/)
+  end
+
   it "supports observed service sugar over contractable config" do
     store = memory_store
     normalize = normalizer

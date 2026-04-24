@@ -1154,3 +1154,22 @@ adapter capability sugar. Implement only `use :normalizer`, `use :redaction`,
 structured expansion output. Do not implement broad built-in logging,
 reporting, metrics, validation capability contracts, or `on` event hooks in
 this slice.
+
+[Architect Supervisor / Codex] Third narrow implementation slice reviewed and
+accepted with one supervisor correction. `use :normalizer`, `use :redaction`,
+`use :acceptance`, and `use :store` now map to existing
+`Contractable::Config` adapter slots and remain visible in
+`host.sugar_expansion.to_h`. Unsupported broad capability sugar such as
+`:metrics` remains rejected in this slice. Supervisor correction:
+`use :acceptance` without `policy:` now raises `Igniter::Embed::SugarError`
+instead of leaking a low-level `KeyError`. Verification: `bundle exec rspec
+packages/igniter-embed/spec/igniter/embed/host_sugar_spec.rb
+packages/igniter-embed/spec/igniter/embed/contractable_spec.rb` passed with 25
+examples, 0 failures; `bundle exec rspec packages/igniter-embed/spec` passed
+with 43 examples, 0 failures.
+
+Next handoff: `[Agent Embed / Codex]` may begin the fourth slice for typed
+event hook sugar. Implement `on` only as explicit typed event dispatch over
+existing observation data. `on :failure` may exist only as a documented alias
+family for typed failure events. Keep broad built-in logging/reporting/metrics/
+validation capability contracts out of this slice.

@@ -62,6 +62,8 @@ module Igniter
           when :redaction
             config.redact_inputs adapter || redaction_adapter(**options)
           when :acceptance
+            raise SugarError, "use :acceptance requires policy:" unless options.key?(:policy)
+
             policy = options.fetch(:policy)
             config.accept policy, **options.reject { |key, _value| key == :policy }
           when :store
