@@ -168,3 +168,22 @@ slice in the handoff.
    metadata or web mount intents need a package-local note.
 3. Keep this as planning/inspection. Do not turn it into boot, mount, route,
    discover, execute, or cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-assembly-plan-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationAssemblyPlan`, `MountIntent`, and
+  `Igniter::Application.assemble_capsules(...)`.
+- The plan nests `ApplicationCompositionReport`, accepts host exports,
+  host capabilities, mount intents, surface metadata, and arbitrary metadata.
+- Added `examples/application/capsule_assembly_plan.rb`.
+Accepted:
+- Mount intents are normalized metadata only and are never executed.
+- Assembly readiness combines composition readiness with unresolved mount-intent
+  capsule references.
+- The plan does not boot, mount, route, load, discover, materialize, execute, or
+  inspect web internals.
+Needs:
+- `[Agent Web / Codex]` can verify web surface metadata and web mount intents
+  remain compatible with this app-owned plan shape.

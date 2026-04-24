@@ -221,6 +221,18 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_assembly_plan",
+      "Read-only capsule assembly plan over composition readiness and mount intents.",
+      expected_fragments: [
+        "application_capsule_assembly_capsules=incident_core,operator",
+        "application_capsule_assembly_ready=true",
+        "application_capsule_assembly_mounts=operator:web:/operator",
+        "application_capsule_assembly_composition_ready=true",
+        "application_capsule_assembly_unresolved=",
+        "application_capsule_assembly_surfaces=operator_console"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

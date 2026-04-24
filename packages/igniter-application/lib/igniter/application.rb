@@ -22,6 +22,8 @@ require_relative "application/flow_declaration"
 require_relative "application/application_capsule_report"
 require_relative "application/capsule_builder"
 require_relative "application/application_composition_report"
+require_relative "application/mount_intent"
+require_relative "application/application_assembly_plan"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -88,6 +90,18 @@ module Igniter
           capsules: capsules.flatten,
           host_exports: host_exports,
           host_capabilities: host_capabilities,
+          metadata: metadata
+        )
+      end
+
+      def assemble_capsules(*capsules, host_exports: [], host_capabilities: [], mount_intents: [],
+                            surface_metadata: [], metadata: {})
+        ApplicationAssemblyPlan.build(
+          capsules: capsules.flatten,
+          host_exports: host_exports,
+          host_capabilities: host_capabilities,
+          mount_intents: mount_intents,
+          surface_metadata: surface_metadata,
           metadata: metadata
         )
       end

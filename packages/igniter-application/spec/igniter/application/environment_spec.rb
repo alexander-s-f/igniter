@@ -773,6 +773,101 @@ RSpec.describe Igniter::Application::Environment do
     expect(report.fetch(:missing_optional_imports).map { |entry| entry.fetch(:name) }).to eq([:optional_notifier])
   end
 
+  it "builds read-only capsule assembly plans with no mount intents" do
+    root = File.expand_path("/tmp/igniter_capsule_assembly_empty")
+    capsule = Igniter::Application.blueprint(
+      name: :worker,
+      root: root,
+      env: :test,
+      layout_profile: :capsule,
+      services: [:worker_queue]
+    )
+
+    plan = Igniter::Application.assemble_capsules(capsule, metadata: { source: :spec }).to_h
+
+    expect(plan).to include(
+      capsules: [:worker],
+      composition_ready: true,
+      mount_intents: [],
+      unresolved_mount_intents: [],
+      surfaces: [],
+      ready: true,
+      metadata: { source: :spec }
+    )
+    expect(plan.fetch(:composition).fetch(:ready)).to eq(true)
+  end
+
+  it "builds read-only capsule assembly plans with web mount intents and surface metadata" do
+    root = File.expand_path("/tmp/igniter_capsule_assembly")
+    provider = Igniter::Application.blueprint(
+      name: :incident_core,
+      root: File.join(root, "incident_core"),
+      env: :test,
+      layout_profile: :capsule,
+      exports: [
+        { name: :incident_runtime, kind: :service, target: "Services::IncidentRuntime" }
+      ]
+    )
+    operator = Igniter::Application.capsule(:operator, root: File.join(root, "operator"), env: :test) do
+      layout :capsule
+      groups :contracts, :services
+      export :resolve_incident, kind: :contract, target: "Contracts::ResolveIncident"
+      import :incident_runtime, kind: :service, from: :incident_core
+      import :audit_log, kind: :service, from: :host
+    end
+    surface_metadata = {
+      name: :operator_console,
+      kind: :web_surface,
+      status: :aligned,
+      flows: [:incident_review]
+    }
+
+    plan = Igniter::Application.assemble_capsules(
+      provider,
+      operator,
+      host_exports: [
+        { name: :audit_log, kind: :service, target: "Host::AuditLog" }
+      ],
+      mount_intents: [
+        { capsule: :operator, kind: :web, at: "operator", capabilities: %i[screen stream] }
+      ],
+      surface_metadata: [surface_metadata]
+    ).to_h
+
+    expect(plan).to include(
+      capsules: %i[incident_core operator],
+      composition_ready: true,
+      ready: true
+    )
+    expect(plan.fetch(:mount_intents)).to contain_exactly(
+      include(capsule: :operator, kind: :web, at: "/operator", capabilities: %i[screen stream])
+    )
+    expect(plan.fetch(:surfaces)).to eq([surface_metadata])
+    expect(plan.fetch(:composition).fetch(:host_satisfied_imports).map { |entry| entry.fetch(:name) }).to eq([:audit_log])
+  end
+
+  it "reports unresolved capsule names in mount intents without mounting anything" do
+    root = File.expand_path("/tmp/igniter_capsule_assembly_unresolved")
+    capsule = Igniter::Application.blueprint(
+      name: :worker,
+      root: root,
+      env: :test,
+      layout_profile: :capsule
+    )
+
+    plan = Igniter::Application.assemble_capsules(
+      capsule,
+      mount_intents: [
+        { capsule: :operator, kind: :web, at: "/operator" }
+      ]
+    ).to_h
+
+    expect(plan).to include(composition_ready: true, ready: false)
+    expect(plan.fetch(:unresolved_mount_intents)).to contain_exactly(
+      include(capsule: :operator, kind: :web, at: "/operator")
+    )
+  end
+
   it "serializes agent-native flow session values without web dependencies" do
     event = Igniter::Application::FlowEvent.new(
       id: "event-1",
