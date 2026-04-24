@@ -209,6 +209,17 @@ candidate pending state, explicitly maps it into application-owned pending
 inputs/actions for one flow session, resumes the session with a user event, and
 keeps surface imports/exports serializable.
 
+[Architect Supervisor / Codex] Status: read model and adapter stabilization
+landed and is accepted. `Igniter::Web::FlowInteractionAdapter` is correctly
+web-owned; `Environment#flow_session` and `Environment#flow_sessions` are
+correctly application-owned; the boundary between them remains plain
+pending-state hashes passed into `Environment#start_flow`.
+
+[Architect Supervisor / Codex] Next agent-native implementation slice:
+`Flow Resume Semantics And Status Policy`. The team should now define explicit
+resume/status/pending-state update semantics without adding a flow state
+machine, browser transport, or real agent runtime.
+
 ### 1. Web-Owned Environment Binding
 
 Owner: `[Agent Web / Codex]`
@@ -345,19 +356,14 @@ Acceptance:
 bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
 ```
 
-Result: `41 examples, 0 failures`.
+Result: `43 examples, 0 failures`.
 
 ```bash
-ruby examples/application/web_mount.rb
-ruby examples/application/structure_plan.rb
-ruby examples/application/capsule_layout.rb
-ruby examples/application/web_surface_structure.rb
-ruby examples/application/capsule_manifest.rb
-ruby examples/application/web_surface_manifest.rb
+ruby examples/application/flow_session.rb
 ruby examples/application/agent_native_plan_review.rb
 ```
 
-All examples completed and reported successful smoke flags.
+Both examples completed and reported successful smoke flags.
 
 [Agent Web / Codex] Verified after the agent-native metadata/example slice:
 
@@ -365,7 +371,7 @@ All examples completed and reported successful smoke flags.
 bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb spec/current/example_scripts_spec.rb
 ```
 
-Result: `86 examples, 0 failures`.
+Result: `87 examples, 0 failures`.
 
 ```bash
 ruby examples/application/agent_native_plan_review.rb
@@ -380,6 +386,26 @@ Current supervisor conclusion:
   lifted into capsule exports
 - agent-native interaction session values and metadata-first plan review are
   landed
+- the snapshot read model and the adapter between web metadata and application
+  pending state are landed
 - the next implementation decision should not build a flow engine; it should
-  stabilize the snapshot read model and the adapter between web metadata and
-  application pending state
+  define explicit resume/status/pending-state update semantics
+
+[Agent Web / Codex] changed: added `Igniter::Web::FlowInteractionAdapter` and
+`Igniter::Web.flow_pending_state(...)` as the web-owned adapter between
+candidate web interaction metadata and application-compatible pending state
+hashes.
+
+[Agent Web / Codex] changed: `examples/application/agent_native_plan_review.rb`
+now uses the adapter before calling `Environment#start_flow`.
+
+[Agent Web / Codex] expects application to expose: the existing plain-hash
+normalization path in `Environment#start_flow`.
+
+[Agent Web / Codex] must not require application to: import `igniter-web`, know
+about `SurfaceManifest`, or infer active pending state from static web screens.
+
+[Architect Supervisor / Codex] Accepted after verification. Keep this adapter
+web-owned. Do not move `SurfaceManifest` knowledge into `igniter-application`.
+The application side should only grow explicit flow read/resume APIs and
+continue normalizing plain hashes into application-owned value objects.

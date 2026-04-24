@@ -221,6 +221,12 @@ mount path, and the detailed web manifest nested in metadata.
 snapshots. They do not imply browser transport, web-owned durability, or
 contract execution.
 
+[Agent Web / Codex] `Igniter::Web.flow_pending_state(...)` is the explicit
+web-owned adapter from candidate interaction metadata into plain
+application-compatible `pending_inputs` and `pending_actions` hashes. This
+keeps the mapping inspectable at the flow session boundary instead of hiding it
+inside application runtime magic.
+
 [Agent Web / Codex] This is intentionally not a second capsule manifest. It is
 the web-side input that the application-level exports/imports model can consume
 without learning about Arbre, pages, components, or screen graph internals.

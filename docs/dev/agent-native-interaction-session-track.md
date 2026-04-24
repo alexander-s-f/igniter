@@ -344,7 +344,7 @@ Latest verified commands:
 bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
 ```
 
-Result: `41 examples, 0 failures`.
+Result: `43 examples, 0 failures`.
 
 ```bash
 ruby examples/application/flow_session.rb
@@ -377,9 +377,40 @@ Both examples completed and reported successful smoke flags.
 - cluster coordination
 - artifact persistence
 
-## Next Slice
+## Landed Read Model And Adapter Slice
 
-[Architect Supervisor / Codex] Recommended next slice:
+[Architect Supervisor / Codex] Accepted. The read model and adapter slice landed
+in the intended ownership shape:
+
+- application owns `FlowSessionSnapshot.from_entry`, `Environment#flow_session`,
+  `Environment#flow_sessions`, and boundary normalization for string-keyed
+  hashes
+- web owns `Igniter::Web::FlowInteractionAdapter` and
+  `Igniter::Web.flow_pending_state(...)`
+- application still receives only plain pending input/action hashes through
+  `Environment#start_flow`
+- `SurfaceManifest#interactions` remain candidate declarations
+- `FlowSessionSnapshot#pending_inputs` and `#pending_actions` remain active
+  runtime state
+
+[Architect Supervisor / Codex] Verified after the read model and adapter cycle:
+
+```bash
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
+```
+
+Result: `43 examples, 0 failures`.
+
+```bash
+ruby examples/application/flow_session.rb
+ruby examples/application/agent_native_plan_review.rb
+```
+
+Both examples completed and reported successful smoke flags.
+
+## Previous Slice Notes
+
+[Architect Supervisor / Codex] Previous recommended slice:
 
 ```text
 Flow Snapshot Read Model And Adapter Stabilization
@@ -404,6 +435,78 @@ Candidate tasks:
 5. Document that `SurfaceManifest#interactions` are candidate declarations,
    while `FlowSessionSnapshot#pending_inputs` and `#pending_actions` are active
    runtime state.
+
+Status: Web-owned adapter helper landed.
+
+[Agent Web / Codex] changed: added `Igniter::Web::FlowInteractionAdapter` and
+`Igniter::Web.flow_pending_state(source, current_step:, metadata:)`.
+
+[Agent Web / Codex] changed: the adapter accepts a `SurfaceManifest` or
+interactions hash and returns plain `pending_inputs` / `pending_actions` hashes
+compatible with `Environment#start_flow`.
+
+[Agent Web / Codex] changed: `examples/application/agent_native_plan_review.rb`
+now uses `Igniter::Web.flow_pending_state(...)` instead of hand-written mapping.
+
+[Agent Web / Codex] expects application to expose: `Environment#start_flow`
+continuing to accept plain hashes and normalize them into application-owned
+`PendingInput` / `PendingAction` values.
+
+[Agent Web / Codex] must not require application to: load the adapter, inspect
+screen graphs, or treat every `SurfaceManifest#interactions` entry as active
+runtime state.
+
+[Agent Application / Codex] changed: added `FlowSessionSnapshot.from_entry`,
+`Environment#flow_session(id)`, and `Environment#flow_sessions` so hosts and
+adapters can read typed application-owned flow snapshots directly from the
+session store.
+
+[Agent Application / Codex] changed: application pending values and flow events
+now accept string-keyed hashes at the boundary, while still storing normalized
+application-owned values in `FlowSessionSnapshot`.
+
+[Agent Application / Codex] note: web-declared interactions remain candidate
+metadata until an adapter explicitly passes the selected pending state into
+`Environment#start_flow`.
+
+## Next Slice
+
+[Architect Supervisor / Codex] Recommended next slice:
+
+```text
+Flow Resume Semantics And Status Policy
+```
+
+Goal:
+
+Define the smallest explicit policy for how host/user/agent events affect a
+flow snapshot without introducing a hidden state machine, contract runner, or
+browser transport.
+
+Candidate tasks:
+
+1. Decide whether `Environment#resume_flow` should accept explicit status
+   updates, pending input/action updates, or both.
+2. Prefer explicit arguments such as `status:`, `pending_inputs:`,
+   `pending_actions:`, `artifacts:`, or narrow helper methods over implicit
+   event-type inference.
+3. Preserve append-only `FlowEvent` history even when pending state is replaced
+   or cleared.
+4. Add focused specs for one answered pending input and one completed pending
+   action.
+5. Update `examples/application/flow_session.rb` or
+   `examples/application/agent_native_plan_review.rb` to show an explicit
+   resume/status change.
+
+Acceptance:
+
+- no application code loads `igniter-web`
+- no web code mutates application session internals
+- resume behavior is visible in `FlowSessionSnapshot#to_h`
+- pending state changes are explicit at the API boundary
+- status changes do not imply contract execution
+- browser form submission remains deferred
+- no real agent runtime is introduced
 
 ## Next Questions After This Slice
 

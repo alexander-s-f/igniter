@@ -26,6 +26,7 @@ module Igniter
       end
 
       def self.from_h(value)
+        value = symbolize_keys(value)
         new(
           session_id: value.fetch(:session_id),
           flow_name: value.fetch(:flow_name),
@@ -39,6 +40,12 @@ module Igniter
           created_at: value.fetch(:created_at),
           updated_at: value.fetch(:updated_at)
         )
+      end
+
+      def self.from_entry(entry)
+        raise ArgumentError, "session #{entry.id.inspect} is not a flow session" unless entry.kind == :flow
+
+        from_h(entry.payload)
       end
 
       def with_event(event, status: self.status, updated_at: Time.now.utc)
@@ -74,6 +81,11 @@ module Igniter
       end
 
       private
+
+      def self.symbolize_keys(value)
+        value.to_h.transform_keys { |key| key.respond_to?(:to_sym) ? key.to_sym : key }
+      end
+      private_class_method :symbolize_keys
 
       def normalize_time(value)
         value.is_a?(String) ? Time.parse(value).utc : value.utc

@@ -285,6 +285,14 @@ module Igniter
         session_store.entries
       end
 
+      def flow_session(id)
+        FlowSessionSnapshot.from_entry(fetch_session(id))
+      end
+
+      def flow_sessions
+        sessions.select { |entry| entry.kind == :flow }.map { |entry| FlowSessionSnapshot.from_entry(entry) }
+      end
+
       def start_flow(flow_name, session_id: nil, input: {}, current_step: nil, pending_inputs: [],
                      pending_actions: [], artifacts: [], metadata: {})
         resolved_session_id = session_id || "#{flow_name}/#{SecureRandom.uuid}"

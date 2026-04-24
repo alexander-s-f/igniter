@@ -526,6 +526,38 @@ RSpec.describe Igniter::Application::Environment do
     )
   end
 
+  it "exposes typed flow session read models without promoting non-flow sessions" do
+    environment = described_class.new(profile: Igniter::Application.build_profile)
+
+    environment.start_flow(
+      :plan_review,
+      session_id: "plan-review/1",
+      pending_inputs: [
+        { "name" => "clarification", "input_type" => "textarea", "target" => "review_plan" }
+      ],
+      pending_actions: [
+        { "name" => "approve_plan", "action_type" => "contract", "target" => "Contracts::ApprovePlan" }
+      ]
+    )
+    environment.start_flow(:plan_review, session_id: "plan-review/2")
+    environment.session_store.write(
+      Igniter::Application::SessionEntry.new(
+        id: "compose/1",
+        kind: :compose,
+        status: :completed,
+        payload: { outputs: { total: 42 } }
+      )
+    )
+
+    snapshot = environment.flow_session("plan-review/1")
+
+    expect(snapshot).to be_a(Igniter::Application::FlowSessionSnapshot)
+    expect(snapshot.pending_inputs.first.name).to eq(:clarification)
+    expect(snapshot.pending_actions.first.target).to eq("Contracts::ApprovePlan")
+    expect(environment.flow_sessions.map(&:session_id)).to eq(["plan-review/1", "plan-review/2"])
+    expect { environment.flow_session("compose/1") }.to raise_error(ArgumentError, /not a flow session/)
+  end
+
   it "publishes generic mount registrations without depending on mounted package classes" do
     operator_surface = Struct.new(:name).new("OperatorSurface")
 

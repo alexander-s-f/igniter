@@ -24,6 +24,7 @@ module Igniter
       def self.from(value, session_id:)
         return value if value.is_a?(self)
 
+        value = symbolize_keys(value)
         new(**value.merge(session_id: value.fetch(:session_id, session_id)))
       end
 
@@ -39,6 +40,11 @@ module Igniter
           metadata: metadata.dup
         }
       end
+
+      def self.symbolize_keys(value)
+        value.to_h.transform_keys { |key| key.respond_to?(:to_sym) ? key.to_sym : key }
+      end
+      private_class_method :symbolize_keys
     end
   end
 end

@@ -23,6 +23,7 @@ require_relative "web/application_web_mount"
 require_relative "web/interaction_target"
 require_relative "web/surface_structure"
 require_relative "web/surface_manifest"
+require_relative "web/flow_interaction_adapter"
 
 module Igniter
   module Web
@@ -78,6 +79,10 @@ module Igniter
 
       def surface_manifest(application, name:, path: nil, metadata: {})
         SurfaceManifest.for(application, name: name, path: path, metadata: metadata)
+      end
+
+      def flow_pending_state(source, current_step: nil, metadata: {})
+        FlowInteractionAdapter.pending_state(source, current_step: current_step, metadata: metadata)
       end
     end
   end

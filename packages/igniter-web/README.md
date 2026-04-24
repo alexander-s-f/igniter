@@ -195,6 +195,7 @@ surface = Igniter::Web.surface_manifest(web, name: :operator_console, path: "/op
 surface.exports # route/api/screen surface exported by the mount
 surface.imports # contract/service/projection/agent targets required by it
 surface.to_h.fetch(:interactions) # pending asks/actions plus streams/chats
+Igniter::Web.flow_pending_state(surface, current_step: :review)
 surface.to_capsule_export # compatible with ApplicationBlueprint exports:
 ```
 
@@ -213,3 +214,9 @@ from screen specs:
 
 This remains metadata only. Application-owned flow sessions decide which
 interactions are active for a concrete snapshot.
+
+When an application wants to start a flow from a web surface, use
+`Igniter::Web.flow_pending_state(...)` as an explicit boundary adapter. It
+returns plain `pending_inputs` and `pending_actions` hashes suitable for
+`Environment#start_flow`, while preserving the original web interaction under
+metadata for inspection.

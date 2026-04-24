@@ -38,9 +38,13 @@ updated = environment.resume_flow(
   }
 )
 entry = environment.fetch_session(snapshot.session_id)
+read_model = environment.flow_session(snapshot.session_id)
+flow_session_ids = environment.flow_sessions.map(&:session_id)
 
 puts "application_flow_session_kind=#{entry.kind}"
 puts "application_flow_session_status=#{entry.status}"
+puts "application_flow_session_read_model=#{read_model.flow_name}"
+puts "application_flow_session_ids=#{flow_session_ids.join(",")}"
 puts "application_flow_session_pending_inputs=#{snapshot.pending_inputs.map(&:name).join(",")}"
 puts "application_flow_session_pending_actions=#{snapshot.pending_actions.map(&:name).join(",")}"
 puts "application_flow_session_artifacts=#{snapshot.artifacts.map(&:name).join(",")}"

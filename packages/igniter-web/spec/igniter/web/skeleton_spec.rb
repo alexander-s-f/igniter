@@ -272,6 +272,55 @@ RSpec.describe Igniter::Web do
     )
   end
 
+  it "adapts web interaction metadata into application flow pending state hashes" do
+    app = described_class.application do
+      screen :execution, intent: :live_process do
+        ask :review_note,
+            as: :textarea,
+            required: true,
+            resume_with: Igniter::Web.service(:review_session),
+            schema: { min_length: 10 }
+        action :pause,
+               run: "Contracts::PauseProject",
+               action_type: :contract,
+               purpose: :operator_control,
+               payload_schema: { reason: :string }
+      end
+    end
+
+    manifest = described_class.surface_manifest(app, name: :operator, path: "/operator")
+    pending_state = described_class.flow_pending_state(
+      manifest,
+      current_step: :execution,
+      metadata: { surface: :operator }
+    )
+
+    expect(pending_state.fetch(:pending_inputs).first).to include(
+      name: :review_note,
+      input_type: :textarea,
+      required: true,
+      target: :execution,
+      schema: { min_length: 10 },
+      metadata: include(
+        surface: :operator,
+        source: include(screen: :execution, element: :ask),
+        web_interaction: include(name: :review_note)
+      )
+    )
+    expect(pending_state.fetch(:pending_actions).first).to include(
+      name: :pause,
+      action_type: :contract,
+      target: "Contracts::PauseProject",
+      payload_schema: { reason: :string },
+      metadata: include(
+        surface: :operator,
+        purpose: :operator_control,
+        source: include(screen: :execution, element: :action),
+        web_interaction: include(name: :pause)
+      )
+    )
+  end
+
   it "handles nested mounted paths and missing routes" do
     web = described_class.application do
       page "/nested", title: "Nested" do

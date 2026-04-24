@@ -18,7 +18,7 @@ module Igniter
       def self.from(value)
         return value if value.is_a?(self)
 
-        new(**value)
+        new(**symbolize_keys(value))
       end
 
       def required?
@@ -35,6 +35,11 @@ module Igniter
           metadata: metadata.dup
         }
       end
+
+      def self.symbolize_keys(value)
+        value.to_h.transform_keys { |key| key.respond_to?(:to_sym) ? key.to_sym : key }
+      end
+      private_class_method :symbolize_keys
     end
   end
 end

@@ -30,26 +30,11 @@ end
 
 surface = Igniter::Web.surface_manifest(web, name: :operator_console, path: "/operator")
 surface_metadata = surface.to_h
-interactions = surface_metadata.fetch(:interactions)
-pending_inputs = interactions.fetch(:pending_inputs).map do |entry|
-  {
-    name: entry.fetch(:name),
-    input_type: entry.fetch(:input_type),
-    required: entry.fetch(:required),
-    target: entry.fetch(:source).fetch(:screen),
-    schema: entry.fetch(:schema, {}),
-    metadata: entry
-  }
-end
-pending_actions = interactions.fetch(:pending_actions).map do |entry|
-  {
-    name: entry.fetch(:name),
-    action_type: entry.fetch(:action_type),
-    target: entry.fetch(:target),
-    payload_schema: entry.fetch(:payload_schema, {}),
-    metadata: entry
-  }
-end
+pending_state = Igniter::Web.flow_pending_state(
+  surface,
+  current_step: :plan_review,
+  metadata: { surface: :operator_console }
+)
 
 blueprint = Igniter::Application.blueprint(
   name: :operator,
@@ -71,8 +56,8 @@ snapshot = environment.start_flow(
   session_id: "plan-review/1",
   input: { plan_id: "plan-123" },
   current_step: :plan_review,
-  pending_inputs: pending_inputs,
-  pending_actions: pending_actions,
+  pending_inputs: pending_state.fetch(:pending_inputs),
+  pending_actions: pending_state.fetch(:pending_actions),
   artifacts: [
     {
       name: :draft_plan,
