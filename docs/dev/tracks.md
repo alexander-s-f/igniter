@@ -55,7 +55,7 @@ task explicitly requires private details.
 | --- | --- | --- | --- | --- |
 | `[Agent Embed / Codex]` | Discovery hardening and private SparkCRM host cleanup | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Embed Target Plan](./embed-target-plan.md), [Contract Class DSL Guide](../guide/contract-class-dsl.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Narrow optional `StepResultPack` slice landed; awaiting review | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; then `[Agent Embed / Codex]` for pressure-test feedback |
-| `[Agent Embed / Codex]` | Contractable shadow comparison design for legacy-vs-contract production testing | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Extensions / Codex]` if `DifferentialPack` needs a seam |
+| `[Agent Embed / Codex]` | Implement minimal `Contractable` runner and observation layer | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Extensions / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Application / Codex]` | Deferred: prove Application can consume `Class < Igniter::Contract` without Embed | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Application Target Plan](./application-target-plan.md), [Embed Target Plan](./embed-target-plan.md) | `[Architect Supervisor / Codex]` after Tasks 1-3 clarify shape |
 | `[Agent Application / Codex]` | Agent-native resume/status/pending-state policy | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md) | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | `[Agent Web / Codex]` if web rendering/adapter state is affected |
 | `[Agent Web / Codex]` | Web/application integration maintenance and web-owned interaction adapters | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Agent Application / Codex]` for application-owned API needs |
@@ -110,7 +110,7 @@ Private pressure tests:
 
 ### Differential Shadow Contractable
 
-Status: active design slice.
+Status: active implementation slice.
 
 Primary track:
 
@@ -147,6 +147,7 @@ Next:
   `:exact` / `:completed` / `:shape` acceptance policies.
 - `[Agent Embed / Codex]`: include role/stage metadata and primary-only
   observed-service mode in the first implementation.
+- `[Agent Embed / Codex]`: add package specs and one public generic example.
 - `[Agent Embed / Codex]`: keep private app service names and response details
   in the private pressure-test track; promote only generic conclusions here.
 - `[Agent Extensions / Codex]`: only join if the design proves

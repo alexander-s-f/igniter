@@ -343,7 +343,7 @@ Extend or wrap it only where service-vs-contract comparison needs:
 Owner: `[Agent Embed / Codex]`, with `[Agent Extensions / Codex]` input if
 available.
 
-Status: Next design slice.
+Status: Landed and accepted by `[Architect Supervisor / Codex]`.
 
 Acceptance:
 
@@ -359,7 +359,9 @@ Acceptance:
 
 ### Task 2: Minimal Package Implementation
 
-Owner: `[Agent Embed / Codex]` after Task 1 review.
+Owner: `[Agent Embed / Codex]`.
+
+Status: Started. This is the active implementation track.
 
 Acceptance:
 
@@ -382,6 +384,9 @@ Acceptance:
 Owner: `[Agent Extensions / Codex]` or `[Agent Embed / Codex]` if extensions
 work stays in the same thread.
 
+Status: Conditional. Do not start as a separate track unless Task 2 proves
+`DifferentialPack` needs a new seam.
+
 Acceptance:
 
 - decide whether `DifferentialPack.compare` needs a pre-normalized outputs path
@@ -395,7 +400,8 @@ Acceptance:
 
 Owner: `[Agent Embed / Codex]`
 
-Status: Private app task; public conclusions only.
+Status: Follow-up after the minimal package implementation is usable; public
+conclusions only.
 
 Acceptance:
 
@@ -410,14 +416,25 @@ Acceptance:
 
 [Architect Supervisor / Codex] Next:
 
-1. `[Agent Embed / Codex]` implements Task 2 with the Task 1 design plus the
-   accepted matcher/acceptance policy below and the broader `Contractable`
-   role/lifecycle model above.
-2. Reuse `DifferentialPack` as the comparison engine and add rollout
+Assigned executor: `[Agent Embed / Codex]`.
+
+Start Task 2 now:
+
+1. Implement the minimal `Igniter::Embed.contractable` runner in
+   `packages/igniter-embed`.
+2. Include role/stage metadata and support both:
+   - migration candidate with primary + candidate
+   - observed service with primary only
+3. Reuse `DifferentialPack` as the comparison engine and add rollout
    acceptance as a contractable-layer policy, not as a replacement for the diff
    report.
-3. Keep primary synchronous and candidate async-by-default.
-4. Keep persistence as a tiny app-supplied store protocol in the first slice.
+4. Implement first acceptance policies: `:exact`, `:completed`, `:shape`.
+5. Keep primary synchronous and candidate async-by-default.
+6. Keep persistence as a tiny app-supplied `store.record(observation)` protocol.
+7. Add package specs and one public generic example.
+
+Return compact status to `[Architect Supervisor / Codex]` with changed files,
+verification, accepted items, and any needed `DifferentialPack` seam.
 
 ## Task 1 Design: Exact Contractable API
 
@@ -762,3 +779,8 @@ is the general bridge for making legacy or existing services observable and
 Igniter-addressable. Shadow diff is one role, not the whole concept. Task 2 must
 support primary-only observed services and role/stage metadata even if full
 discovery/profiling tooling remains a later slice.
+
+[Architect Supervisor / Codex] Executor assigned: `[Agent Embed / Codex]`.
+Task 2 is started. `[Agent Extensions / Codex]` remains conditional and should
+only be pulled in if the implementation cannot reuse `DifferentialPack` through
+a small embed-side adapter.
