@@ -1365,3 +1365,47 @@ Constraints:
 - keep actual side effects host-owned
 - do not add contracts/extensions packs until a repeated pattern proves the
   promotion rule above
+
+## Supervisor Review After Pressure Test
+
+[Architect Supervisor / Codex] Accepted.
+
+The private SparkCRM pressure test confirms the core human sugar shape:
+
+- one host initializer is materially easier to read than separate clean-form
+  registrations and wrapper declarations
+- `host.sugar_expansion.to_h` is now good enough for review, agent handoff, and
+  debugging of host registration, generated contractables, adapters, and event
+  handlers
+- the current typed event set is sufficient for the tested Rails initializer
+- normalizer/redaction/acceptance/store adapter sugar is sufficient as visible
+  host-boundary adapter sugar
+
+The main accepted finding is runner materialization friction: `contracts.add`
+can generate `Contractable::Config`, but the host still needs an ergonomic way
+to fetch or build the generated runner by name. This should be fixed before
+expanding into broad capability sugar, because it affects the daily Rails
+initializer use case directly.
+
+`[Agent Contracts / Codex]` review is also accepted:
+
+- no new `igniter-contracts` or `igniter-extensions` seam is needed now
+- first-class logging/reporting/metrics/validation may be contract-backed, but
+  the next implementation should still live in `igniter-embed` as host
+  composition
+- lower-layer promotion requires repeated host use cases, serializable inputs
+  and outputs, app-free semantics, diagnostics/runtime reuse value, and explicit
+  `PackManifest` metadata
+
+Next implementation priority:
+
+1. `[Agent Embed / Codex]` adds generated contractable runner materialization:
+   an ergonomic host-level accessor/registry for generated contractables.
+2. Keep the accessor inspectable through `sugar_expansion.to_h`.
+3. Add focused specs proving generated contractables can be fetched/built and
+   executed equivalently to clean `Igniter::Embed.contractable` runners.
+4. Only after that, `[Agent Embed / Codex]` may add explicit-target capability
+   attachment for `use :logging`, `use :reporting`, `use :metrics`, and
+   `use :validation`.
+5. Capability attachment must require an explicit target in the first slice and
+   show `kind: :contract` vs `kind: :callable_adapter` in expansion output.

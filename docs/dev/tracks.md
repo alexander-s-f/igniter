@@ -62,7 +62,7 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Narrow optional `StepResultPack` slice landed; awaiting review | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; then `[Agent Embed / Codex]` for pressure-test feedback |
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
-| `[Agent Embed / Codex]` | Pressure-test accepted Human Sugar DSL in private SparkCRM initializer | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` if capability seams are needed |
+| `[Agent Embed / Codex]` | Add generated Contractable runner materialization for Human Sugar DSL | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
 | `[Agent Application / Codex]` | Deferred: prove Application can consume `Class < Igniter::Contract` without Embed | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Application Target Plan](./application-target-plan.md), [Embed Target Plan](./embed-target-plan.md) | `[Architect Supervisor / Codex]` after Tasks 1-3 clarify shape |
 | `[Agent Application / Codex]` | Agent-native resume/status/pending-state policy | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md) | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | `[Agent Web / Codex]` if web rendering/adapter state is affected |
 | `[Agent Web / Codex]` | Web/application integration maintenance and web-owned interaction adapters | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Agent Application / Codex]` for application-owned API needs |
@@ -117,7 +117,7 @@ Private pressure tests:
 
 ### Human Sugar DSL
 
-Status: fourth implementation slice accepted; private pressure-test ready.
+Status: private pressure-test and contracts review accepted; runner materialization ready.
 
 Primary track:
 
@@ -160,23 +160,32 @@ Current accepted state:
 - Fourth slice landed and was accepted: typed `on` event hooks map to explicit
   observation events, `on :failure` is an alias family for typed failure events,
   and `:divergence` remains separate.
+- Private SparkCRM pressure test completed. Accepted generic finding: the sugar
+  shape is readable and inspectable, but generated contractables need an
+  ergonomic host-level runner accessor/registry.
+- `[Agent Contracts / Codex]` reviewed capability contracts after pressure test.
+  Accepted: no lower-layer contracts/extensions seam is needed yet; capability
+  attachment should start in Embed and promote only after repeated patterns
+  prove common graph/runtime semantics.
 - Verification passed: `bundle exec rspec packages/igniter-embed/spec`.
 
 Next:
 
-- `[Agent Embed / Codex]`: pressure-test the accepted sugar in the private
-  SparkCRM initializer.
-- `[Agent Embed / Codex]`: report only generic public findings: initializer
-  readability, `sugar_expansion` adequacy, missing event names, adapter
-  friction, and whether capability contracts need a lower-layer seam.
-- `[Agent Embed / Codex]`: if continuing capability sugar, require explicit
-  targets for logging/reporting/metrics/validation and show `kind: :contract`
-  vs `kind: :callable_adapter` in `host.sugar_expansion.to_h`.
+- `[Agent Embed / Codex]`: add generated Contractable runner materialization:
+  an ergonomic host-level accessor/registry for generated contractables.
+- `[Agent Embed / Codex]`: keep runner materialization visible in
+  `host.sugar_expansion.to_h`.
+- `[Agent Embed / Codex]`: add focused specs proving generated contractables
+  can be fetched/built and executed equivalently to clean
+  `Igniter::Embed.contractable` runners.
+- `[Agent Embed / Codex]`: after runner materialization, capability sugar may
+  continue with explicit targets for logging/reporting/metrics/validation and
+  `kind: :contract` vs `kind: :callable_adapter` in expansion output.
 - `[Agent Embed / Codex]`: do not add implicit built-in logging/reporting/
   metrics/validation capabilities yet.
-- `[Agent Contracts / Codex]`: no lower-layer contracts/extensions seam is
-  needed yet; revisit only after repeated capability implementations prove
-  common graph/runtime semantics.
+- `[Agent Contracts / Codex]`: standby; no lower-layer seam is needed until
+  repeated Embed capability implementations prove common graph/runtime
+  semantics.
 
 ### Differential Shadow Contractable
 
