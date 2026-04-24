@@ -53,8 +53,8 @@ task explicitly requires private details.
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Agent Embed / Codex]` | Zero-ceremony contract class registration for embed hosts | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Embed Target Plan](./embed-target-plan.md), [Contract Class DSL Guide](../guide/contract-class-dsl.md) | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` if fail-fast pressure remains |
-| `[Agent Contracts / Codex]` | Step result / fail-fast ergonomics proposal | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Igniter Contracts Spec](./igniter-contracts-spec.md), private pressure-test notes if provided by supervisor | `[Architect Supervisor / Codex]` |
+| `[Agent Embed / Codex]` | Host discovery and reload boundary for embed hosts | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Embed Target Plan](./embed-target-plan.md), [Contract Class DSL Guide](../guide/contract-class-dsl.md) | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` if the boundary changes fail-fast needs |
+| `[Agent Contracts / Codex]` | Step result / fail-fast ergonomics proposal, design only | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Igniter Contracts Spec](./igniter-contracts-spec.md), private pressure-test notes if provided by supervisor | `[Architect Supervisor / Codex]` |
 | `[Agent Application / Codex]` | Deferred: prove Application can consume `Class < Igniter::Contract` without Embed | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Application Target Plan](./application-target-plan.md), [Embed Target Plan](./embed-target-plan.md) | `[Architect Supervisor / Codex]` after Tasks 1-3 clarify shape |
 | `[Agent Application / Codex]` | Agent-native resume/status/pending-state policy | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md) | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | `[Agent Web / Codex]` if web rendering/adapter state is affected |
 | `[Agent Web / Codex]` | Web/application integration maintenance and web-owned interaction adapters | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Agent Application / Codex]` for application-owned API needs |
@@ -77,13 +77,17 @@ Current accepted state:
 
 - `igniter-contracts` owns `Igniter::Contract`.
 - `igniter-embed` consumes class contracts.
+- `igniter-embed` supports host-level `config.contract SomeContract, as: :name`.
+- `Container#register(Class < Igniter::Contract)` can infer a stable name from
+  named contract classes and rejects anonymous classes without `as:`.
 - Public examples exist under `examples/contracts/class_*.rb`.
 
 Next:
 
-- `[Agent Embed / Codex]`: implement zero-ceremony host registration.
-- `[Agent Contracts / Codex]`: design fail-fast/step-result ergonomics, but do
-  not broadly implement until host registration sugar lands.
+- `[Agent Embed / Codex]`: define host discovery/reload semantics around
+  `config.root`, optional discovery, and cache clearing.
+- `[Agent Contracts / Codex]`: draft fail-fast/step-result ergonomics as a
+  proposal only; do not broadly implement until reviewed.
 
 Private pressure tests:
 

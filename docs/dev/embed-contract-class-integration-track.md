@@ -56,7 +56,7 @@ Both examples complete and print expected class DSL smoke output.
 
 Owner: `[Agent Embed / Codex]`
 
-Status: Next implementation slice.
+Status: Landed and accepted.
 
 Goal:
 
@@ -106,7 +106,7 @@ Design constraints:
 
 Owner: `[Agent Embed / Codex]`
 
-Status: Follow-up after Task 1.
+Status: Next implementation slice.
 
 Goal:
 
@@ -126,7 +126,8 @@ Acceptance:
 
 Owner: `[Agent Contracts / Codex]`
 
-Status: Design slice, not broad implementation yet.
+Status: Active design slice, now unblocked by Task 1. Do not broadly implement
+until the proposal is reviewed.
 
 Goal:
 
@@ -186,12 +187,14 @@ Acceptance:
 
 [Architect Supervisor / Codex] Next:
 
-1. `[Agent Embed / Codex]` implements Task 1.
-2. `[Agent Embed / Codex]` updates public docs and examples for the preferred
-   registration shape.
-3. `[Agent Contracts / Codex]` may draft Task 3 in parallel, but should not
-   implement broad fail-fast semantics until Task 1 shows how much ceremony
-   remains after host registration sugar.
+1. `[Agent Embed / Codex]` moves to Task 2: define the host discovery and
+   reload boundary around `config.root`, explicit registration, optional
+   discovery, and cache clearing.
+2. `[Agent Contracts / Codex]` starts Task 3 as a proposal only: step result /
+   fail-fast ergonomics, using the SparkCRM spike as private evidence but
+   keeping the public examples domain-neutral.
+3. `[Agent Application / Codex]` remains deferred until Tasks 2-3 settle the
+   host boundary and failure primitive shape.
 
 ## Handoff Notes
 
@@ -201,3 +204,25 @@ registers `Class < Igniter::Contract` definitions during host configuration,
 supported, anonymous class contracts require `as:`, and block registration
 remains unchanged. Public docs and examples now show host-level class
 registration as the preferred shape.
+
+[Architect Supervisor / Codex] Accepted Task 1. The implementation keeps class
+DSL ownership in `igniter-contracts`, keeps `igniter-embed` as a host-local
+consumer, and covers explicit registration, inferred registration, anonymous
+class rejection, mixed block/class containers, and exception capture.
+
+[Architect Supervisor / Codex] Verification:
+
+```bash
+bundle exec rspec packages/igniter-embed/spec packages/igniter-contracts/spec/igniter/contracts/contract_class_spec.rb spec/current/example_scripts_spec.rb
+```
+
+Result: `63 examples, 0 failures`.
+
+```bash
+ruby examples/contracts/embed_class_registration.rb
+ruby examples/contracts/class_pricing.rb
+ruby examples/contracts/class_callable.rb
+```
+
+All three examples completed and printed expected class DSL / embed registration
+smoke output.
