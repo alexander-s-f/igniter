@@ -3,7 +3,7 @@
 module Igniter
   module Web
     class SurfaceManifest
-      attr_reader :name, :path, :exports, :imports, :metadata
+      attr_reader :name, :path, :exports, :imports, :interactions, :metadata
 
       def self.for(application, name:, path: nil, metadata: {})
         new(
@@ -11,6 +11,7 @@ module Igniter
           path: path,
           exports: exports_for(application),
           imports: imports_for(application),
+          interactions: interactions_for(application),
           metadata: metadata
         )
       end
@@ -36,11 +37,20 @@ module Igniter
         entries.uniq { |entry| [entry.fetch(:kind), entry.fetch(:name)] }.freeze
       end
 
-      def initialize(name:, path: nil, exports: [], imports: [], metadata: {})
+      def self.interactions_for(application)
+        application.screens.each_with_object(empty_interactions) do |screen, memo|
+          screen_interactions(screen).each do |kind, entries|
+            memo[kind] += entries
+          end
+        end.transform_values(&:freeze).freeze
+      end
+
+      def initialize(name:, path: nil, exports: [], imports: [], interactions: {}, metadata: {})
         @name = name.to_sym
         @path = path
         @exports = exports.map { |entry| deep_freeze(entry) }.freeze
         @imports = imports.map { |entry| deep_freeze(entry) }.freeze
+        @interactions = normalize_interactions(interactions)
         @metadata = metadata.dup.freeze
         freeze
       end
@@ -51,6 +61,7 @@ module Igniter
           path: path,
           exports: exports.map(&:dup),
           imports: imports.map(&:dup),
+          interactions: interactions.transform_values { |entries| entries.map(&:dup) },
           metadata: metadata.dup
         }.compact
       end
@@ -112,6 +123,78 @@ module Igniter
           return :screen if route.metadata.fetch(:screen, false)
 
           :route
+        end
+
+        def empty_interactions
+          {
+            pending_inputs: [],
+            pending_actions: [],
+            streams: [],
+            chats: []
+          }
+        end
+
+        def screen_interactions(screen)
+          spec = screen.respond_to?(:screen) ? screen.screen : screen
+
+          spec.elements.each_with_object(empty_interactions) do |element, memo|
+            case element.kind
+            when :ask
+              memo[:pending_inputs] << pending_input_for(spec, element)
+            when :action
+              memo[:pending_actions] << pending_action_for(spec, element)
+            when :stream
+              memo[:streams] << stream_interaction_for(spec, element)
+            when :chat
+              memo[:chats] << chat_interaction_for(spec, element)
+            end
+          end
+        end
+
+        def pending_input_for(screen, element)
+          {
+            name: element.name,
+            input_type: element.options.fetch(:as, :text),
+            required: element.options.fetch(:required, true) != false,
+            target: serialize_optional_target(element.options[:resume_with] || element.options[:target]),
+            schema: element.options[:schema],
+            source: screen_source(screen, element),
+            metadata: interaction_metadata(element.options, except: %i[as required resume_with target schema])
+          }.compact
+        end
+
+        def pending_action_for(screen, element)
+          {
+            name: element.name,
+            action_type: element.options.fetch(:action_type, :command),
+            target: serialize_optional_target(element.options[:run]),
+            payload_schema: element.options[:payload_schema],
+            role: element.role,
+            purpose: element.options[:purpose],
+            source: screen_source(screen, element),
+            metadata: interaction_metadata(
+              element.options,
+              except: %i[action_type run payload_schema purpose destructive]
+            ).merge(destructive: element.options.fetch(:destructive, false))
+          }.compact
+        end
+
+        def stream_interaction_for(screen, element)
+          {
+            name: element.name,
+            from: serialize_optional_target(element.options[:from]),
+            source: screen_source(screen, element),
+            metadata: interaction_metadata(element.options, except: %i[from])
+          }.compact
+        end
+
+        def chat_interaction_for(screen, element)
+          {
+            name: element.name,
+            with: element.name&.to_s,
+            source: screen_source(screen, element),
+            metadata: interaction_metadata(element.options)
+          }.compact
         end
 
         def screen_imports(screen)
@@ -194,9 +277,26 @@ module Igniter
 
           target.to_s
         end
+
+        def serialize_optional_target(target)
+          return nil if target.nil?
+
+          serialize_target(target)
+        end
+
+        def interaction_metadata(options, except: [])
+          options.reject { |key, _value| except.include?(key) }
+        end
       end
 
       private
+
+      def normalize_interactions(value)
+        normalized = self.class.send(:empty_interactions).merge(value)
+        normalized.transform_values do |entries|
+          Array(entries).map { |entry| deep_freeze(entry) }.freeze
+        end.freeze
+      end
 
       def deep_freeze(value)
         case value

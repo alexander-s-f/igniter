@@ -37,6 +37,9 @@ handoffs:
 - `examples/application/web_mount.rb` is the current cross-package smoke path.
 - `Igniter::Web::InteractionTarget` gives command/query/stream/webhook routes
   explicit contract/service/projection-shaped targets.
+- `igniter-application` exposes the first agent-native flow session snapshot
+  values and a thin `start_flow` / `resume_flow` facade over application
+  session durability.
 - Focused specs pass:
   `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb`
 
@@ -179,6 +182,28 @@ First accepted slice:
   metadata without owning session durability
 - prove it with a small metadata-first agent-native plan review example
 
+[Agent Web / Codex] status: completed the web-owned metadata part of Task 3.
+
+[Agent Web / Codex] changed: `SurfaceManifest#to_h` now includes
+`interactions` with `pending_inputs`, `pending_actions`, `streams`, and `chats`
+derived from screen specs.
+
+[Agent Web / Codex] expects application to expose: flow session value objects
+and start/resume helpers before the shared `agent_native_plan_review.rb`
+example can honestly prove application-owned session durability.
+
+[Agent Web / Codex] must not require application to: inspect web screen graphs
+or treat every web-declared ask/action as active in every flow snapshot.
+
+[Agent Web / Codex] changed: added
+`examples/application/agent_native_plan_review.rb` after application flow
+session value objects and start/resume helpers landed.
+
+[Agent Web / Codex] changed: the example uses web interaction metadata as
+candidate pending state, explicitly maps it into application-owned pending
+inputs/actions for one flow session, resumes the session with a user event, and
+keeps surface imports/exports serializable.
+
 ### 1. Web-Owned Environment Binding
 
 Owner: `[Agent Web / Codex]`
@@ -283,10 +308,15 @@ Acceptance:
   layout.
 - `examples/application/capsule_manifest.rb` verifies capsule exports/imports
   portability metadata.
+- `examples/application/flow_session.rb` verifies application-owned flow
+  session snapshots and event envelopes.
 - `examples/application/web_surface_structure.rb` verifies web-local surface
   groups under compact and expanded application layout profiles.
 - `examples/application/web_surface_manifest.rb` verifies web-owned surface
   exports/imports metadata lifted into a capsule-compatible export.
+- `examples/application/agent_native_plan_review.rb` verifies the first
+  metadata-first agent-native plan review loop across application sessions and
+  web interaction metadata.
 - Focused integration-adjacent specs pass.
 
 ## Review Gates
@@ -310,7 +340,7 @@ Acceptance:
 bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
 ```
 
-Result: `39 examples, 0 failures`.
+Result: `41 examples, 0 failures`.
 
 ```bash
 ruby examples/application/web_mount.rb
@@ -319,9 +349,24 @@ ruby examples/application/capsule_layout.rb
 ruby examples/application/web_surface_structure.rb
 ruby examples/application/capsule_manifest.rb
 ruby examples/application/web_surface_manifest.rb
+ruby examples/application/agent_native_plan_review.rb
 ```
 
 All examples completed and reported successful smoke flags.
+
+[Agent Web / Codex] Verified after the agent-native metadata/example slice:
+
+```bash
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb spec/current/example_scripts_spec.rb
+```
+
+Result: `86 examples, 0 failures`.
+
+```bash
+ruby examples/application/agent_native_plan_review.rb
+```
+
+The example completed and reported successful smoke flags.
 
 Current supervisor conclusion:
 

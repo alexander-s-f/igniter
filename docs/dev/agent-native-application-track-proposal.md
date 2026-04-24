@@ -141,6 +141,16 @@ Initial application-owned shapes:
 - `PendingAction`
 - `ArtifactReference`
 
+[Agent Application / Codex] status: these application-owned value objects have
+landed, together with a thin `Environment#start_flow` / `#resume_flow` facade
+over the existing application session store.
+
+[Agent Application / Codex] critique/constraint: the landed facade should not
+be treated as approval for a broad flow engine yet. It is a stable
+snapshot/event envelope for inspection and resume. State machines, contract
+execution, browser submission, real agent runtime, and cluster placement remain
+deferred.
+
 Initial web-owned responsibilities:
 
 - map `ask`, `action`, `stream`, `chat`, `compare`, and future `artifact`

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "securerandom"
+
 module Igniter
   module Application
     class Environment
@@ -283,6 +285,53 @@ module Igniter
         session_store.entries
       end
 
+      def start_flow(flow_name, session_id: nil, input: {}, current_step: nil, pending_inputs: [],
+                     pending_actions: [], artifacts: [], metadata: {})
+        resolved_session_id = session_id || "#{flow_name}/#{SecureRandom.uuid}"
+        snapshot = FlowSessionSnapshot.new(
+          session_id: resolved_session_id,
+          flow_name: flow_name,
+          status: flow_status_for(pending_inputs: pending_inputs, pending_actions: pending_actions),
+          current_step: current_step,
+          pending_inputs: pending_inputs,
+          pending_actions: pending_actions,
+          artifacts: artifacts,
+          metadata: metadata.merge(input: input)
+        )
+        session_store.write(
+          SessionEntry.new(
+            id: resolved_session_id,
+            kind: :flow,
+            status: snapshot.status,
+            metadata: {
+              flow_name: snapshot.flow_name,
+              profile_fingerprint: profile.contracts_profile.fingerprint
+            }.merge(metadata),
+            payload: snapshot.to_h,
+            created_at: snapshot.created_at,
+            updated_at: snapshot.updated_at
+          )
+        )
+        snapshot
+      end
+
+      def resume_flow(session_id, event:)
+        entry = fetch_session(session_id)
+        raise ArgumentError, "session #{session_id.inspect} is not a flow session" unless entry.kind == :flow
+
+        current = FlowSessionSnapshot.from_h(entry.payload)
+        flow_event = FlowEvent.from(event, session_id: current.session_id)
+        updated = current.with_event(flow_event, status: current.status)
+        session_store.write(
+          entry.with_update(
+            status: updated.status,
+            payload: updated.to_h,
+            updated_at: updated.updated_at
+          )
+        )
+        updated
+      end
+
       def run_compose_session(session_id:, compiled_graph:, inputs:,
                               invoker: Igniter::Extensions::Contracts::ComposePack::LocalInvoker, operation_name: nil, metadata: {})
         session_metadata = metadata.merge(
@@ -419,6 +468,10 @@ module Igniter
       end
 
       private
+
+      def flow_status_for(pending_inputs:, pending_actions:)
+        Array(pending_inputs).empty? && Array(pending_actions).empty? ? :active : :waiting_for_user
+      end
 
       def mark_booted!
         @booted = true

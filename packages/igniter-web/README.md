@@ -194,6 +194,7 @@ end
 surface = Igniter::Web.surface_manifest(web, name: :operator_console, path: "/operator")
 surface.exports # route/api/screen surface exported by the mount
 surface.imports # contract/service/projection/agent targets required by it
+surface.to_h.fetch(:interactions) # pending asks/actions plus streams/chats
 surface.to_capsule_export # compatible with ApplicationBlueprint exports:
 ```
 
@@ -201,3 +202,14 @@ This is intentionally web-owned metadata. The application capsule can export
 the whole web surface as `kind: :web_surface`, while the detailed route/screen
 imports stay nested until a host decides which targets are local and which are
 external requirements.
+
+For agent-native flows, `SurfaceManifest` also extracts interaction metadata
+from screen specs:
+
+- `pending_inputs` from `ask`
+- `pending_actions` from `action`
+- `streams` from `stream`
+- `chats` from `chat`
+
+This remains metadata only. Application-owned flow sessions decide which
+interactions are active for a concrete snapshot.

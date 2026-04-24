@@ -71,6 +71,20 @@ These values must be immutable or effectively immutable, serializable with
 
 Owner: `[Agent Application / Codex]`
 
+Status: Done in the current application slice.
+
+[Agent Application / Codex] changed: added `FlowEvent`,
+`FlowSessionSnapshot`, `PendingInput`, `PendingAction`, and
+`ArtifactReference` as application-owned serializable values.
+
+[Agent Application / Codex] expects web to consume: these shapes as plain
+snapshot/event/interaction metadata when web needs to render pending asks,
+actions, streams, or artifacts.
+
+[Agent Application / Codex] must not require web to: load these values for
+static surface manifest extraction. Web can continue emitting plain hashes and
+application can normalize them at session boundaries.
+
 Files likely owned:
 
 - `packages/igniter-application/lib/igniter/application/flow_event.rb`
@@ -104,6 +118,22 @@ Acceptance:
 ## Task 2: Application Flow Session Facade
 
 Owner: `[Agent Application / Codex]`
+
+Status: First thin facade landed.
+
+[Agent Application / Codex] changed: `Environment#start_flow` writes a
+`kind: :flow` `SessionEntry` through the existing application session store and
+returns a `FlowSessionSnapshot`.
+
+[Agent Application / Codex] changed: `Environment#resume_flow` appends a
+`FlowEvent`, updates `updated_at`, and persists the updated snapshot through the
+same session store.
+
+[Agent Application / Codex] critique/constraint: this is intentionally not a
+flow engine. It does not infer contract execution, transition state machines,
+agent orchestration, browser transport, artifact persistence, or cluster
+placement. Those should remain separate tracks until the snapshot/event shape
+has proven stable.
 
 Files likely owned:
 
@@ -162,6 +192,28 @@ Constraints:
 - Do not make `ask` require a browser-specific route.
 - Do not execute contracts from `SurfaceManifest`.
 
+Status: Done for the web-owned metadata slice.
+
+[Agent Web / Codex] changed: `SurfaceManifest#to_h` now includes
+`interactions` with `pending_inputs`, `pending_actions`, `streams`, and `chats`
+derived from screen specs.
+
+[Agent Web / Codex] changed: `ask` metadata reports stable `name`,
+`input_type`, `required`, optional resume `target`, `schema`, source screen
+metadata, and remaining metadata.
+
+[Agent Web / Codex] changed: `action` metadata reports stable `name`,
+`action_type`, `target`, `payload_schema`, `role`, `purpose`, source screen
+metadata, and remaining metadata.
+
+[Agent Web / Codex] expects application to expose: application-owned
+`PendingInput` and `PendingAction` value objects later if it wants to promote
+these hashes into concrete flow session snapshots.
+
+[Agent Web / Codex] must not require application to: inspect screen graphs,
+render components, execute contracts, or own browser submission routes to read
+web interaction metadata.
+
 ## Task 4: Agent-Native Plan Review Example
 
 Owner: shared.
@@ -202,6 +254,30 @@ agent_native_plan_review_events_after=...
 agent_native_plan_review_surface_imports=...
 agent_native_plan_review_surface_exports=...
 ```
+
+[Agent Application / Codex] interim application-only example:
+`examples/application/flow_session.rb` verifies the application-owned session
+half of this loop before the shared web surface example is assembled.
+
+Status: Done for the first metadata-first smoke path.
+
+[Agent Web / Codex] changed: added
+`examples/application/agent_native_plan_review.rb`.
+
+[Agent Web / Codex] changed: the example builds an application capsule
+blueprint, defines a web surface screen with `ask`, `action`, `stream`, and
+`chat`, lifts the web surface into capsule export metadata, starts an
+application-owned flow session, resumes it with one user event, and prints
+serialized smoke flags.
+
+[Agent Web / Codex] expects application to expose: the landed
+`Environment#start_flow`, `Environment#resume_flow`, `FlowSessionSnapshot`,
+`FlowEvent`, `PendingInput`, `PendingAction`, and `ArtifactReference` public
+shapes.
+
+[Agent Web / Codex] must not require application to: load `igniter-web`,
+execute web routes, render screens, or know how `SurfaceManifest` extracted
+interaction metadata.
 
 ## Task 5: Documentation Update
 

@@ -203,9 +203,17 @@ RSpec.describe Igniter::Web do
       stream "/events", to: Igniter::Web.projection("Projections::ClusterEvents")
 
       screen :execution, intent: :live_process do
+        ask :review_note,
+            as: :textarea,
+            required: true,
+            resume_with: Igniter::Web.service(:review_session),
+            schema: { min_length: 10 }
         stream :events, from: "Projections::ClusterEvents"
-        chat with: "Agents::ProjectLead"
-        action :pause, run: "Contracts::PauseProject"
+        chat with: "Agents::ProjectLead", purpose: :review_support
+        action :pause,
+               run: "Contracts::PauseProject",
+               purpose: :operator_control,
+               payload_schema: { reason: :string }
       end
 
       screen_route "/execution", :execution
@@ -214,6 +222,7 @@ RSpec.describe Igniter::Web do
     manifest = described_class.surface_manifest(app, name: :operator, path: "/operator")
     exports = manifest.exports.map { |entry| [entry.fetch(:kind), entry[:path] || entry[:name]] }
     imports = manifest.imports.map { |entry| [entry.fetch(:kind), entry.fetch(:name)] }
+    interactions = manifest.to_h.fetch(:interactions)
 
     expect(exports).to include([:page, "/"], [:screen, "/execution"], [:command, "/incidents/:id/resolve"])
     expect(exports).to include([:query, "/status"], [:stream, "/events"], %i[screen execution])
@@ -223,6 +232,33 @@ RSpec.describe Igniter::Web do
       [:projection, "Projections::ClusterEvents"],
       [:contract, "Contracts::PauseProject"],
       [:agent, "Agents::ProjectLead"]
+    )
+    expect(interactions.fetch(:pending_inputs).first).to include(
+      name: :review_note,
+      input_type: :textarea,
+      required: true,
+      target: { kind: :service, name: "review_session", metadata: {} },
+      schema: { min_length: 10 },
+      source: include(kind: :screen, screen: :execution, element: :ask)
+    )
+    expect(interactions.fetch(:pending_actions).first).to include(
+      name: :pause,
+      action_type: :command,
+      target: "Contracts::PauseProject",
+      role: :primary_action,
+      purpose: :operator_control,
+      payload_schema: { reason: :string },
+      source: include(kind: :screen, screen: :execution, element: :action)
+    )
+    expect(interactions.fetch(:streams).first).to include(
+      name: :events,
+      from: "Projections::ClusterEvents",
+      source: include(kind: :screen, screen: :execution, element: :stream)
+    )
+    expect(interactions.fetch(:chats).first).to include(
+      name: :"Agents::ProjectLead",
+      with: "Agents::ProjectLead",
+      metadata: { purpose: :review_support }
     )
     expect(manifest.to_h).to include(name: :operator, path: "/operator")
     expect(manifest.to_capsule_export).to include(

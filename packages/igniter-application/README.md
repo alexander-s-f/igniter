@@ -63,6 +63,10 @@ The user application model now has a first explicit shape too:
 
 - configurable `session_store` seam on `Application::Kernel`
 - default `MemorySessionStore`
+- `FlowSessionSnapshot`, `FlowEvent`, `PendingInput`, `PendingAction`, and
+  `ArtifactReference` for agent-native interaction session snapshots
+- `Environment#start_flow`
+- `Environment#resume_flow`
 - `Environment#run_compose_session`
 - `Environment#run_collection_session`
 - `Environment#compose_invoker`

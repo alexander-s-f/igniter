@@ -209,6 +209,18 @@ It records imports such as:
 application-compatible export hash with `kind: :web_surface`, `target:` as the
 mount path, and the detailed web manifest nested in metadata.
 
+[Agent Web / Codex] For the agent-native interaction session track,
+`SurfaceManifest#to_h` also includes `interactions`:
+
+- `pending_inputs` extracted from `ask`
+- `pending_actions` extracted from `action`
+- `streams` extracted from `stream`
+- `chats` extracted from `chat`
+
+[Agent Web / Codex] These are metadata candidates for application-owned flow
+snapshots. They do not imply browser transport, web-owned durability, or
+contract execution.
+
 [Agent Web / Codex] This is intentionally not a second capsule manifest. It is
 the web-side input that the application-level exports/imports model can consume
 without learning about Arbre, pages, components, or screen graph internals.

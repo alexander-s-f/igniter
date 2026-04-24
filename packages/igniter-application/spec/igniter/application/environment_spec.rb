@@ -400,6 +400,132 @@ RSpec.describe Igniter::Application::Environment do
     expect(profile.manifest.imports).to eq(blueprint.imports.map(&:to_h))
   end
 
+  it "serializes agent-native flow session values without web dependencies" do
+    event = Igniter::Application::FlowEvent.new(
+      id: "event-1",
+      session_id: "flow-1",
+      type: :user_reply,
+      source: :user,
+      target: :clarification,
+      payload: { text: "Check source citations first." },
+      timestamp: Time.utc(2026, 4, 24, 12, 0, 0),
+      metadata: { channel: :operator }
+    )
+    snapshot = Igniter::Application::FlowSessionSnapshot.new(
+      session_id: "flow-1",
+      flow_name: :plan_review,
+      status: :waiting_for_user,
+      current_step: :review_plan,
+      pending_inputs: [
+        { name: :clarification, input_type: :textarea, required: true, target: :review_plan }
+      ],
+      pending_actions: [
+        { name: :approve_plan, action_type: :contract, target: "Contracts::ApprovePlan" }
+      ],
+      events: [event],
+      artifacts: [
+        { name: :draft_plan, artifact_type: :markdown, uri: "memory://draft-plan", summary: "Draft plan" }
+      ],
+      metadata: { owner: :operator },
+      created_at: Time.utc(2026, 4, 24, 11, 59, 0),
+      updated_at: Time.utc(2026, 4, 24, 12, 0, 0)
+    )
+
+    expect(event.to_h.keys).to contain_exactly(
+      :id,
+      :session_id,
+      :type,
+      :source,
+      :target,
+      :payload,
+      :timestamp,
+      :metadata
+    )
+    expect(snapshot.to_h.keys).to contain_exactly(
+      :session_id,
+      :flow_name,
+      :status,
+      :current_step,
+      :pending_inputs,
+      :pending_actions,
+      :events,
+      :artifacts,
+      :metadata,
+      :created_at,
+      :updated_at
+    )
+    expect(snapshot.to_h).to include(
+      session_id: "flow-1",
+      flow_name: :plan_review,
+      status: :waiting_for_user,
+      current_step: :review_plan,
+      pending_inputs: [
+        include(name: :clarification, input_type: :textarea, required: true, target: :review_plan)
+      ],
+      pending_actions: [
+        include(name: :approve_plan, action_type: :contract, target: "Contracts::ApprovePlan")
+      ],
+      artifacts: [
+        include(name: :draft_plan, artifact_type: :markdown, uri: "memory://draft-plan")
+      ]
+    )
+  end
+
+  it "starts and resumes flow sessions through the application session store" do
+    environment = described_class.new(profile: Igniter::Application.build_profile)
+
+    snapshot = environment.start_flow(
+      :plan_review,
+      session_id: "plan-review/1",
+      input: { plan_id: "plan-1" },
+      current_step: :review_plan,
+      pending_inputs: [
+        { name: :clarification, input_type: :textarea, target: :review_plan }
+      ],
+      pending_actions: [
+        { name: :approve_plan, action_type: :contract, target: "Contracts::ApprovePlan" }
+      ],
+      artifacts: [
+        { name: :draft_plan, artifact_type: :markdown, uri: "memory://draft-plan" }
+      ],
+      metadata: { surface: :operator_console }
+    )
+
+    entry = environment.fetch_session("plan-review/1")
+    expect(entry.kind).to eq(:flow)
+    expect(entry.status).to eq(:waiting_for_user)
+    expect(entry.payload).to include(
+      session_id: "plan-review/1",
+      flow_name: :plan_review,
+      status: :waiting_for_user
+    )
+    expect(snapshot.events).to eq([])
+
+    updated = environment.resume_flow(
+      "plan-review/1",
+      event: {
+        id: "event-1",
+        type: :user_reply,
+        source: :user,
+        target: :clarification,
+        payload: { text: "Check source citations first." },
+        metadata: { actor: :operator }
+      }
+    )
+
+    updated_entry = environment.fetch_session("plan-review/1")
+    expect(updated.events.map(&:type)).to eq([:user_reply])
+    expect(updated_entry.payload.fetch(:events).first).to include(
+      id: "event-1",
+      session_id: "plan-review/1",
+      type: :user_reply,
+      source: :user,
+      target: :clarification,
+      payload: { text: "Check source citations first." },
+      metadata: { actor: :operator }
+    )
+  end
+
   it "publishes generic mount registrations without depending on mounted package classes" do
     operator_surface = Struct.new(:name).new("OperatorSurface")
 

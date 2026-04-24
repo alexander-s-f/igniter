@@ -101,6 +101,7 @@ Current shape:
 - `ApplicationLoadReport`
 - config, provider, service, contract, host, loader, scheduler seams
 - `MemorySessionStore` and configurable `session_store`
+- agent-native flow session snapshots and event envelopes
 - local durable sessions for compose and collection
 - transport-ready compose and collection invokers
 - manifest and canonical user app layout

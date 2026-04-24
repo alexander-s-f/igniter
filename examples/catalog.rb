@@ -138,6 +138,21 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/flow_session",
+      "Application-owned agent-native flow session snapshot and event envelope.",
+      expected_fragments: [
+        "application_flow_session_kind=flow",
+        "application_flow_session_status=waiting_for_user",
+        "application_flow_session_pending_inputs=clarification",
+        "application_flow_session_pending_actions=approve_plan",
+        "application_flow_session_artifacts=draft_plan",
+        "application_flow_session_events_before=0",
+        "application_flow_session_events_after=1",
+        "application_flow_session_event_type=user_reply",
+        "application_flow_session_payload_keys=session_id,flow_name,status,current_step,pending_inputs,pending_actions,events,artifacts,metadata,created_at,updated_at"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [
@@ -190,10 +205,30 @@ module IgniterExamples
         "application_web_manifest_path=/operator",
         "application_web_manifest_capsule_export=web_surface:operator_console",
         "application_web_manifest_exports=page:/,screen:/execution,command:/incidents/:id/resolve,query:/status,stream:/events,screen:execution",
+        "application_web_manifest_pending_inputs=review_note",
+        "application_web_manifest_pending_actions=pause",
+        "application_web_manifest_streams=events",
+        "application_web_manifest_chats=Agents::ProjectLead",
         "application_web_manifest_contract=true",
         "application_web_manifest_service=true",
         "application_web_manifest_projection=true",
         "application_web_manifest_agent=true"
+      ]
+    ),
+    example(
+      "application/agent_native_plan_review",
+      "Agent-native plan review flow using application sessions and web interaction metadata.",
+      expected_fragments: [
+        "agent_native_plan_review_session_kind=flow",
+        "agent_native_plan_review_status=waiting_for_user",
+        "agent_native_plan_review_pending_inputs=clarification",
+        "agent_native_plan_review_pending_actions=approve_plan",
+        "agent_native_plan_review_artifacts=draft_plan",
+        "agent_native_plan_review_events_before=0",
+        "agent_native_plan_review_events_after=1",
+        "agent_native_plan_review_surface_imports=projection:Projections::PlanReviewEvents,agent:Agents::ProjectLead,contract:Contracts::ApprovePlan",
+        "agent_native_plan_review_surface_exports=screen:/plan-review,screen:plan_review",
+        "agent_native_plan_review_manifest_export=web_surface"
       ]
     ),
     example(
