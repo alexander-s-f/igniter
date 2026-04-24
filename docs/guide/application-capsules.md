@@ -410,7 +410,9 @@ path, refuses existing output by default, refuses not-allowed bundle plans
 unless `allow_not_ready: true` is passed for an explicit review artifact, and
 copies only the files already listed in `bundle_plan.to_h[:included_files]`.
 The artifact also includes `igniter-transfer-bundle.json` with the serialized
-plan and caller metadata.
+plan and caller metadata. Supplied web surface metadata remains part of that
+serialized plan for review, but the writer does not use it to discover
+web-local files, load `igniter-web`, bind mounts, or activate routes.
 
 This transfer guide deliberately stops before project-wide discovery,
 automatic destination selection, installing or extracting bundles, loading

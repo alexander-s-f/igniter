@@ -202,3 +202,25 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 wording/boundary review for supplied
   web metadata in transfer bundle artifacts.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-transfer-bundle-artifact-track.md`
+Status: landed.
+Changed:
+- Reviewed `ApplicationTransferBundleArtifact` against supplied web surface
+  metadata.
+- Updated `examples/application/capsule_transfer_bundle_artifact.rb` so the
+  written metadata manifest proves a supplied web surface survives inside the
+  serialized bundle plan.
+- Updated the examples catalog, `packages/igniter-web/README.md`, and the
+  application capsule guide with the artifact metadata boundary.
+Accepted:
+- Transfer bundle artifacts preserve supplied web surface hashes in
+  `igniter-transfer-bundle.json` as review metadata.
+- The writer copies only files already listed by the bundle plan; it does not
+  inspect `SurfaceManifest`, screen graphs, routes, Rack apps, components,
+  mounts, browser transports, or web-local directories.
+- No web-specific artifact behavior is needed in `igniter-application`.
+Needs:
+- `[Architect Supervisor / Codex]` review the transfer bundle artifact track
+  for acceptance.

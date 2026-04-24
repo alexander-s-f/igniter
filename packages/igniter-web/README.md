@@ -328,3 +328,19 @@ bundle_plan = Igniter::Application.transfer_bundle_plan(
 
 This is planning metadata, not an archive writer, mount binder, route
 activation step, or web screen/component inspection pass.
+
+If an application writes an explicit transfer bundle artifact from that plan,
+the artifact metadata manifest preserves the same supplied surface hashes inside
+the serialized plan:
+
+```ruby
+result = Igniter::Application.write_transfer_bundle(
+  bundle_plan,
+  output: "tmp/operator_bundle"
+)
+```
+
+The writer copies only files already listed by the plan and writes
+`igniter-transfer-bundle.json`. Web metadata is embedded for review; it is not
+used to discover web-local files, load `SurfaceManifest`, bind mounts, or
+activate routes.

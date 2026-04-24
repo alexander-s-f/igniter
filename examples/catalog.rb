@@ -297,7 +297,8 @@ module IgniterExamples
         "application_capsule_transfer_artifact_file=operator_bundle",
         "application_capsule_transfer_artifact_included=2",
         "application_capsule_transfer_artifact_metadata=igniter-transfer-bundle.json",
-        "application_capsule_transfer_artifact_refusals=0"
+        "application_capsule_transfer_artifact_refusals=0",
+        "application_capsule_transfer_artifact_surfaces=1"
       ]
     ),
     example(
