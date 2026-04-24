@@ -181,6 +181,26 @@ It reports:
 The report is read-only. It does not load code, materialize files, execute
 contracts, start flows, submit browser forms, or coordinate clusters.
 
+## Transfer Review
+
+The current transfer chain is read-only:
+
+- `ApplicationBlueprint#capsule_report` inspects one capsule
+- `Igniter::Application.compose_capsules` checks sibling and host import/export
+  readiness
+- `Igniter::Application.assemble_capsules` records intended mounts as metadata
+  over composition readiness
+- `Igniter::Application.handoff_manifest` produces the final transfer review
+  artifact for humans and agents
+
+`ApplicationHandoffManifest` is the current answer to "what is moving, is it
+ready, and what must the receiving host provide?" It summarizes readiness,
+unresolved required imports, missing optional imports, suggested host wiring,
+mount intents, and supplied surface metadata.
+
+This remains separate from runtime activation. It does not package, copy,
+discover, load, boot, mount, route, execute, or place capsules on a cluster.
+
 ## Placement Rules
 
 Code that exists for one capsule belongs inside that capsule.
@@ -218,6 +238,9 @@ Runnable examples for the current model:
 - [`examples/application/capsule_manifest.rb`](../../examples/application/capsule_manifest.rb)
 - [`examples/application/feature_flow_report.rb`](../../examples/application/feature_flow_report.rb)
 - [`examples/application/capsule_inspection.rb`](../../examples/application/capsule_inspection.rb)
+- [`examples/application/capsule_composition.rb`](../../examples/application/capsule_composition.rb)
+- [`examples/application/capsule_assembly_plan.rb`](../../examples/application/capsule_assembly_plan.rb)
+- [`examples/application/capsule_handoff_manifest.rb`](../../examples/application/capsule_handoff_manifest.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

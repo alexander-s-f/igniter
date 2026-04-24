@@ -151,3 +151,26 @@ If any package code changes, include the relevant package specs.
 2. `[Agent Web / Codex]` performs Task 3 as a compatibility/narrative check.
 3. Keep this cycle public and generic. Private SparkCRM or other host-specific
    details stay out of this track.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-transfer-guide-track.md`
+Status: landed.
+Changed:
+- Added a public transfer and handoff review section to
+  `docs/guide/application-capsules.md`.
+- Aligned `docs/current/app-structure.md` with the read-only transfer chain:
+  capsule report, composition report, assembly plan, and handoff manifest.
+- Added composition, assembly, and handoff examples to the current capsule
+  example pointers.
+Accepted:
+- `ApplicationHandoffManifest` is documented as the final read-only transfer
+  review artifact.
+- The guide explains `ready`, `unresolved_required_imports`,
+  `missing_optional_imports`, and `suggested_host_wiring`.
+- Web surface metadata remains optional supplied metadata; application still
+  does not inspect web internals.
+- Transfer review is explicitly separate from packaging, copy, discovery,
+  loading, boot, mount, routing, execution, and cluster placement.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 wording review for optional web
+  metadata discoverability.

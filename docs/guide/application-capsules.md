@@ -257,6 +257,66 @@ The report includes identity, layout profile, active and known groups,
 sparse/complete planned paths, exports/imports, feature slices, flow
 declarations, contracts/services, and supplied surface metadata.
 
+## Transfer And Handoff Review
+
+Capsule transfer is a review step, not an automatic packaging or activation
+step. Before a capsule moves into a new host, build the read-only chain:
+
+- `capsule_report` explains one capsule
+- `compose_capsules` explains whether capsule imports are satisfied by sibling
+  capsules or host exports
+- `assemble_capsules` adds intended mount metadata over the same composition
+  readiness
+- `handoff_manifest` summarizes what is moving and what the receiving host must
+  provide
+
+```ruby
+manifest = Igniter::Application.handoff_manifest(
+  subject: :operator_bundle,
+  capsules: [incident_core, operator],
+  host_exports: [
+    { name: :audit_log, kind: :service, target: "Host::AuditLog" }
+  ],
+  host_capabilities: [:audit],
+  mount_intents: [
+    {
+      capsule: :operator,
+      kind: :web,
+      at: "/operator",
+      capabilities: %i[screen stream],
+      metadata: { surface: :operator_console }
+    }
+  ],
+  surface_metadata: [
+    {
+      name: :operator_console,
+      kind: :web_surface,
+      status: :aligned
+    }
+  ]
+)
+
+manifest.to_h
+```
+
+`ApplicationHandoffManifest` answers four transfer questions:
+
+- `ready` says whether required imports and mount intents are satisfied
+- `unresolved_required_imports` lists required imports that still need a
+  sibling capsule export or host export
+- `missing_optional_imports` lists optional imports that are not wired yet, but
+  do not block readiness
+- `suggested_host_wiring` is the host-facing checklist for imports that should
+  be provided by the receiving host
+
+Web surface data remains supplied metadata. `igniter-application` does not
+inspect screens, routes, components, Rack apps, or browser transports; a web
+package may produce a plain metadata hash and pass it into the manifest.
+
+This transfer guide deliberately stops before copying files, creating archives,
+discovering directories, loading constants, booting apps, mounting web routes,
+executing contracts, or placing work on a cluster.
+
 ## Runnable Examples
 
 Start with these examples:
@@ -265,6 +325,9 @@ Start with these examples:
 - [`examples/application/feature_flow_report.rb`](../../examples/application/feature_flow_report.rb)
 - [`examples/application/capsule_inspection.rb`](../../examples/application/capsule_inspection.rb)
 - [`examples/application/capsule_authoring_dsl.rb`](../../examples/application/capsule_authoring_dsl.rb)
+- [`examples/application/capsule_composition.rb`](../../examples/application/capsule_composition.rb)
+- [`examples/application/capsule_assembly_plan.rb`](../../examples/application/capsule_assembly_plan.rb)
+- [`examples/application/capsule_handoff_manifest.rb`](../../examples/application/capsule_handoff_manifest.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow
