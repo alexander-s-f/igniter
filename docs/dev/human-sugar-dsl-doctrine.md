@@ -1102,6 +1102,13 @@ Host `contracts.add` blocks can generate matching contractable configs, and
 `contract.use`, built-in capability contracts, and `on` event hooks remain out
 of scope.
 
+[Agent Embed / Codex] Third narrow implementation slice landed for review:
+`use :normalizer`, `use :redaction`, `use :acceptance`, and `use :store` now
+map to existing `Contractable::Config` adapter slots and remain visible in
+`host.sugar_expansion.to_h`. Unsupported broad capability sugar such as
+`:logging`, `:reporting`, `:metrics`, and `:validation`, plus `on` event hooks,
+remain intentionally out of scope for this slice.
+
 [Agent Contracts / Codex] Expert review added. The sugar direction is accepted
 as user-friendly and architecturally compatible if it compiles to inspectable
 clean config, keeps `contracts.add` semantics explicit, distinguishes

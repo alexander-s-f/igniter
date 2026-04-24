@@ -228,6 +228,50 @@ RSpec.describe Igniter::Embed::Contractable do
     expect(store.observations.fetch(0)).to include(match: true, accepted: true)
   end
 
+  it "supports visible adapter capability sugar over contractable config" do
+    store = memory_store
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      migrate ->(amount:, **) { { total: amount * 1.2, internal_id: "p1" } },
+              to: ->(amount:, **) { { total: amount * 1.2, internal_id: "c1" } }
+      shadow async: false, sample: 1.0
+      use :normalizer, normalize
+      use :redaction, only: %i[account_id quote_id]
+      use :acceptance, policy: :completed
+      use :store, store
+    end
+
+    expect(runner.config.normalize_primary).to eq(normalize)
+    expect(runner.config.normalize_candidate).to eq(normalize)
+    expect(runner.config.accept).to eq(:completed)
+    expect(runner.config.store).to eq(store)
+
+    runner.call(amount: 100, account_id: "acct_1", quote_id: "quote_1", token: "secret")
+    observation = store.observations.fetch(0)
+
+    expect(observation.fetch(:inputs)).to eq(account_id: "acct_1", quote_id: "quote_1")
+    expect(observation.fetch(:accepted)).to eq(true)
+  end
+
+  it "supports redaction except sugar" do
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      observe ->(**inputs) { inputs }
+      normalize_primary normalize
+      use :redaction, except: :token
+    end
+
+    expect(runner.config.redact_inputs.call(account_id: "acct_1", token: "secret")).to eq(account_id: "acct_1")
+  end
+
+  it "rejects broad capability sugar outside the current slice" do
+    expect do
+      Igniter::Embed.contractable(:quote) do
+        use :metrics
+      end
+    end.to raise_error(Igniter::Embed::SugarError, /use :metrics/)
+  end
+
   it "supports observed service sugar over contractable config" do
     store = memory_store
     normalize = normalizer

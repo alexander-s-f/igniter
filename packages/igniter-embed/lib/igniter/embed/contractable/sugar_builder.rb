@@ -52,6 +52,27 @@ module Igniter
           config.metadata(capture: options)
         end
 
+        def use(capability, adapter = nil, **options)
+          mark_configured!
+          case capability.to_sym
+          when :normalizer
+            require_adapter!(capability, adapter)
+            config.normalize_primary adapter
+            config.normalize_candidate adapter
+          when :redaction
+            config.redact_inputs adapter || redaction_adapter(**options)
+          when :acceptance
+            policy = options.fetch(:policy)
+            config.accept policy, **options.reject { |key, _value| key == :policy }
+          when :store
+            require_adapter!(capability, adapter)
+            config.store adapter
+          else
+            raise SugarError, "use :#{capability} is not supported in this implementation slice"
+          end
+          config
+        end
+
         def configured?
           !!configured
         end
@@ -75,6 +96,24 @@ module Igniter
 
         def mark_configured!
           @configured = true
+        end
+
+        def require_adapter!(capability, adapter)
+          return if adapter
+
+          raise SugarError, "use :#{capability} requires an explicit adapter"
+        end
+
+        def redaction_adapter(only: nil, except: nil)
+          raise SugarError, "use :redaction accepts only one of :only or :except" if only && except
+          raise SugarError, "use :redaction requires an adapter, :only, or :except" unless only || except
+
+          keys = Array(only || except).map(&:to_sym)
+          lambda do |*args, **kwargs|
+            inputs = kwargs.empty? && args.first.respond_to?(:to_h) ? args.first.to_h : kwargs
+            normalized = inputs.transform_keys(&:to_sym)
+            only ? normalized.slice(*keys) : normalized.reject { |key, _value| keys.include?(key) }
+          end
         end
       end
     end

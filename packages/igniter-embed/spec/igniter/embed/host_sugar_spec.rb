@@ -22,6 +22,8 @@ RSpec.describe "Igniter::Embed.host sugar" do
     stub_const("Billing::LegacyQuoteService", Class.new)
     stub_const("Billing::ContractQuoteService", Class.new)
     stub_const("Billing::QuoteObserver", Class.new)
+    stub_const("Billing::QuoteNormalizer", Class.new)
+    stub_const("Billing::ObservationStore", Class.new)
   end
 
   it "builds the same plain contract registration as the clean form" do
@@ -117,9 +119,9 @@ RSpec.describe "Igniter::Embed.host sugar" do
     end
 
     expect(contracts.config.contractable_configs.length).to eq(1)
-    expect(contracts.sugar_expansion.to_h.fetch(:contractables)).to eq(
+    expect(contracts.sugar_expansion.to_h.fetch(:contractables)).to match(
       [
-        {
+        include(
           name: :price_quote,
           role: :migration_candidate,
           stage: :shadowed,
@@ -127,9 +129,35 @@ RSpec.describe "Igniter::Embed.host sugar" do
           candidate: "Billing::ContractQuoteService",
           async: false,
           sample: 0.25,
-          metadata: {}
-        }
+          metadata: {},
+          adapters: {
+            redaction: a_string_matching(/Proc/),
+            acceptance: { policy: :exact, options: {} }
+          }
+        )
       ]
+    )
+  end
+
+  it "includes visible host-boundary adapters in sugar expansion output" do
+    contracts = Igniter::Embed.host(:billing) do
+      contracts do
+        add :price_quote, Billing::PriceQuoteContract do
+          migration from: Billing::LegacyQuoteService,
+                    to: Billing::ContractQuoteService
+          use :normalizer, Billing::QuoteNormalizer
+          use :redaction, only: %i[account_id quote_id]
+          use :acceptance, policy: :completed
+          use :store, Billing::ObservationStore
+        end
+      end
+    end
+
+    expect(contracts.sugar_expansion.to_h.fetch(:contractables).first.fetch(:adapters)).to include(
+      normalizer: "Billing::QuoteNormalizer",
+      redaction: a_string_matching(/Proc/),
+      acceptance: { policy: :completed, options: {} },
+      store: "Billing::ObservationStore"
     )
   end
 
@@ -166,7 +194,8 @@ RSpec.describe "Igniter::Embed.host sugar" do
         role: :observed_service,
         stage: :captured,
         primary: "Billing::QuoteObserver",
-        candidate: nil
+        candidate: nil,
+        adapters: include(acceptance: { policy: :exact, options: {} })
       ),
       include(
         name: :quote_probe,
@@ -174,7 +203,8 @@ RSpec.describe "Igniter::Embed.host sugar" do
         stage: :profiled,
         primary: "Billing::LegacyQuoteService",
         candidate: nil,
-        metadata: { capture: { calls: true, timing: true, errors: true } }
+        metadata: { capture: { calls: true, timing: true, errors: true } },
+        adapters: include(acceptance: { policy: :exact, options: {} })
       )
     )
   end

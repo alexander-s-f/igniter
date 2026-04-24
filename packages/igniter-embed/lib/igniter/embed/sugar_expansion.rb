@@ -63,7 +63,8 @@ module Igniter
             candidate: callable_name(contractable_config.candidate),
             async: contractable_config.async,
             sample: contractable_config.sample,
-            metadata: contractable_config.metadata
+            metadata: contractable_config.metadata,
+            adapters: adapters(contractable_config)
           }
         end
       end
@@ -91,6 +92,30 @@ module Igniter
         return callable.name if callable.respond_to?(:name) && callable.name
 
         callable.inspect
+      end
+
+      def adapters(contractable_config)
+        {
+          normalizer: normalizer_adapter(contractable_config),
+          redaction: callable_name(contractable_config.redact_inputs),
+          acceptance: acceptance_adapter(contractable_config),
+          store: callable_name(contractable_config.store)
+        }.compact
+      end
+
+      def normalizer_adapter(contractable_config)
+        primary = callable_name(contractable_config.normalize_primary)
+        candidate = callable_name(contractable_config.normalize_candidate)
+        return primary if primary == candidate
+
+        { primary: primary, candidate: candidate }.compact
+      end
+
+      def acceptance_adapter(contractable_config)
+        {
+          policy: contractable_config.accept,
+          options: contractable_config.acceptance_options
+        }
       end
     end
   end
