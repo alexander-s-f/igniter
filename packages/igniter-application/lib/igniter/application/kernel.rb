@@ -55,6 +55,10 @@ module Igniter
         self
       end
 
+      def apply_blueprint(blueprint)
+        blueprint.apply_to(self)
+      end
+
       def install_pack(pack)
         if pack.respond_to?(:install_into_application_kernel)
           pack.install_into_application_kernel(self)

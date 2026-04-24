@@ -196,6 +196,61 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "builds application blueprints before applying them to a runtime kernel" do
+    root = File.expand_path("/tmp/igniter_blueprint_shop")
+    blueprint = Igniter::Application.blueprint(
+      name: :shop,
+      root: root,
+      env: :test,
+      packs: ["Igniter::Extensions::Contracts::ComposePack"],
+      contracts: ["PricingContract"],
+      services: [:pricing_api],
+      effects: [:journal],
+      web_surfaces: [:operator_console],
+      config: { runtime: { mode: :test } },
+      metadata: { owner: :commerce }
+    )
+
+    expect(blueprint.to_h).to include(
+      name: :shop,
+      root: root,
+      env: :test,
+      contracts: ["PricingContract"],
+      services: [:pricing_api],
+      effects: [:journal],
+      web_surfaces: [:operator_console],
+      metadata: { owner: :commerce },
+      planned_paths: include(
+        include(group: :contracts, path: "app/contracts", kind: :directory),
+        include(group: :config, path: "config/igniter.rb", kind: :file)
+      )
+    )
+    expect(blueprint.to_manifest.to_h).to include(
+      name: :shop,
+      env: :test,
+      metadata: include(blueprint: true, web_surfaces: [:operator_console])
+    )
+
+    profile = Igniter::Application.build_kernel
+                                  .apply_blueprint(blueprint)
+                                  .finalize
+    environment = described_class.new(profile: profile)
+
+    expect(environment.manifest.to_h).to include(
+      name: :shop,
+      root: root,
+      env: :test,
+      metadata: include(
+        owner: :commerce,
+        blueprint: true,
+        effects: [:journal],
+        web_surfaces: [:operator_console]
+      ),
+      config: include(runtime: { mode: :test })
+    )
+    expect(environment.layout.path(:contracts)).to eq("app/contracts")
+  end
+
   it "persists compose sessions through the application session store" do
     environment = Igniter::Application.with(Igniter::Extensions::Contracts::ComposePack)
     pricing_graph = environment.compile do

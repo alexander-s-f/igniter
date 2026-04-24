@@ -93,6 +93,7 @@ Current shape:
 - `Application::Kernel`
 - `Application::Profile`
 - `Application::Environment`
+- `ApplicationBlueprint`
 - `ApplicationManifest`
 - `ApplicationLayout`
 - `ApplicationLoadReport`
@@ -101,7 +102,14 @@ Current shape:
 - local durable sessions for compose and collection
 - transport-ready compose and collection invokers
 - manifest and canonical user app layout
+- scaffold-free app blueprints
 - lifecycle plans and reports
+
+Application and web integration is tracked separately in
+[Application And Web Integration](./application-web-integration.md). The current
+rule is that `igniter-web` should mount into `igniter-application` as an
+interaction layer for agents, streams, dashboards, and operator workflows, not
+as a CRUD-first application model.
 
 Lifecycle now follows this shape:
 

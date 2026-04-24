@@ -37,6 +37,7 @@ rake examples
 
 Active runnable examples live in `examples/application/`, `examples/contracts/`, and `examples/cluster/`:
 
+- `application/blueprint.rb`
 - `application/layout.rb`
 - `cluster/incidents.rb`
 - `cluster/incident_workflow.rb`

@@ -20,6 +20,7 @@ Primary API:
 - `Igniter::Application::Kernel`
 - `Igniter::Application::Profile`
 - `Igniter::Application::Environment`
+- `Igniter::Application::ApplicationBlueprint`
 - `Igniter::Application::ApplicationManifest`
 - `Igniter::Application::ApplicationLayout`
 - `Igniter::Application::Snapshot`
@@ -35,6 +36,8 @@ host-side orchestration around contracts-native compose/collection flows:
 
 The user application model now has a first explicit shape too:
 
+- `ApplicationBlueprint` describes an intended app structure before files are
+  written or a runtime profile is finalized
 - `ApplicationManifest` captures app name, root, env, packs, contracts,
   providers, services, config, and layout
 - `ApplicationLayout` captures canonical user-app paths such as

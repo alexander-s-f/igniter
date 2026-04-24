@@ -7,6 +7,7 @@ require_relative "application/config"
 require_relative "application/config_builder"
 require_relative "application/application_layout"
 require_relative "application/application_manifest"
+require_relative "application/application_blueprint"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
 require_relative "application/provider"
@@ -56,6 +57,10 @@ module Igniter
 
       def with(*packs)
         Environment.new(profile: build_profile(*packs))
+      end
+
+      def blueprint(...)
+        ApplicationBlueprint.new(...)
       end
     end
   end

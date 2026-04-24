@@ -77,6 +77,21 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/blueprint",
+      "Application blueprint as the canonical pre-runtime app shape.",
+      expected_fragments: [
+        "application_blueprint_name=operator",
+        "application_blueprint_env=test",
+        "application_blueprint_web=operator_console,agent_chat",
+        "application_blueprint_paths=contracts,providers,services,effects,packs,executors,tools,agents,skills,config,spec",
+        "application_blueprint_manifest=true",
+        "application_blueprint_owner=operations",
+        "application_blueprint_profile_env=test",
+        "application_blueprint_profile_web=operator_console,agent_chat",
+        "application_blueprint_runtime=test"
+      ]
+    ),
+    example(
       "cluster/incidents",
       "Failover planning plus durable incident history and active incident state.",
       expected_fragments: [

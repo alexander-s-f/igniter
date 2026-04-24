@@ -83,6 +83,8 @@ The recommended target shape is:
   explicit user application identity, root, env, layout, and registered surface
 - `Application::Layout`
   canonical user application paths
+- `Application::Blueprint`
+  scaffold-free application structure intent before files are written
 - `Application::BootPlan`
   explicit pre-execution boot lifecycle plan
 - `Application::PlanExecutor`
@@ -327,6 +329,8 @@ This is intentionally small, but it already establishes the target direction:
 - local durable session store for compose and collection invocations
 - transport-ready compose and collection invokers for upper layers
 - explicit application manifest and layout shape for user app structure
+- scaffold-free application blueprints for planning app shape before writing
+  files
 - layout-aware application load reports during boot
 
 Current boundary rule:
