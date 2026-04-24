@@ -229,7 +229,9 @@ module IgniterExamples
         "application_capsule_assembly_mounts=operator:web:/operator",
         "application_capsule_assembly_composition_ready=true",
         "application_capsule_assembly_unresolved=",
-        "application_capsule_assembly_surfaces=operator_console"
+        "application_capsule_assembly_surfaces=operator_console",
+        "application_capsule_assembly_surface_kind=web_surface",
+        "application_capsule_assembly_web_mount=operator_console:/operator"
       ]
     ),
     example(

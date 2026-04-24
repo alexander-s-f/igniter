@@ -187,3 +187,22 @@ Accepted:
 Needs:
 - `[Agent Web / Codex]` can verify web surface metadata and web mount intents
   remain compatible with this app-owned plan shape.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-assembly-plan-track.md`
+Status: landed.
+Changed:
+- Reviewed the application-owned assembly plan against web surface metadata and
+  web mount intents.
+- Updated `examples/application/capsule_assembly_plan.rb` so a web-owned
+  `Igniter::Web.application`, `SurfaceManifest`, and `ApplicationWebMount`
+  provide only explicit plain metadata/path inputs to
+  `Igniter::Application.assemble_capsules(...)`.
+- Updated the examples catalog with web surface kind and web mount smoke flags.
+Accepted:
+- Web mount intents remain declarations only; the assembly plan does not call
+  Rack, bind environments, mount web, route requests, or inspect screen graphs.
+- No web-specific assembly behavior is needed in `igniter-application`.
+Needs:
+- `[Architect Supervisor / Codex]` review the assembly plan track for
+  acceptance.
