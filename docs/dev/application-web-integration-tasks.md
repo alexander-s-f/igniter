@@ -119,6 +119,9 @@ Next supervisor track:
 - design feature-slice reporting without making `features/` mandatory
 - decide how much of `docs/dev/application-structure-research.md` should move
   into `docs/current/app-structure.md`
+- evaluate and split the new
+  `docs/dev/agent-native-application-track-proposal.md` into accepted
+  implementation slices
 
 [Agent Web / Codex] status: connected web to the capsule exports/imports track
 through `Igniter::Web::SurfaceManifest`, `SurfaceManifest#to_capsule_export`,
@@ -136,6 +139,41 @@ metadata.
 [Agent Web / Codex] must not require application to: load `igniter-web`,
 inspect screen graphs, or understand page/component classes to participate in
 capsule portability.
+
+### 0.1 Agent-Native Interaction Session Track
+
+Owner: `[Architect Supervisor / Codex]`, with implementation follow-up for
+`[Agent Application / Codex]` and `[Agent Web / Codex]`
+
+Status: Accepted as the next product direction, split into a smaller first
+implementation slice in
+`docs/dev/agent-native-application-track-proposal.md`.
+
+Accepted:
+
+- product direction for long-lived, human-in-the-loop, agent-native
+  applications
+- application-owned session/event/snapshot semantics
+- web-owned interaction metadata and rendering
+- manifests that remain portable and serializable
+- strict lower-level runtime shapes beneath friendly authoring APIs
+
+Deferred:
+
+- full flow engine
+- `build_profile do ... end` app DSL
+- application-owned web DSL sugar
+- browser submit/resume transport
+- real agent runtime
+- cluster routing or distributed session coordination
+
+First accepted slice:
+
+- define small application-owned shapes for flow event, flow session snapshot,
+  pending input, pending action, and artifact reference
+- let web describe asks/actions/streams/chats as serializable interaction
+  metadata without owning session durability
+- prove it with a small metadata-first agent-native plan review example
 
 ### 1. Web-Owned Environment Binding
 
@@ -268,13 +306,24 @@ Acceptance:
 bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
 ```
 
-Result: `37 examples, 0 failures`.
+Result: `39 examples, 0 failures`.
 
 ```bash
 ruby examples/application/web_mount.rb
 ruby examples/application/structure_plan.rb
 ruby examples/application/capsule_layout.rb
 ruby examples/application/web_surface_structure.rb
+ruby examples/application/capsule_manifest.rb
+ruby examples/application/web_surface_manifest.rb
 ```
 
 All examples completed and reported successful smoke flags.
+
+Current supervisor conclusion:
+
+- capsule exports/imports are landed as manifest portability metadata
+- web surface exports/imports are landed as web-owned metadata that can be
+  lifted into capsule exports
+- the next implementation decision should not deepen web integration; it should
+  either add feature-slice reporting or promote the capsule model into
+  `docs/current/app-structure.md`

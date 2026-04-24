@@ -665,6 +665,8 @@ ruby examples/application/structure_plan.rb
 ruby examples/application/capsule_layout.rb
 ruby examples/application/web_surface_structure.rb
 ruby examples/application/web_mount.rb
+ruby examples/application/capsule_manifest.rb
+ruby examples/application/web_surface_manifest.rb
 ```
 
 This makes the next question less about folder profiles and more about capsule
@@ -843,6 +845,13 @@ surface targets are local and which should become capsule imports.
 screen graph internals, Arbre components, or page classes to understand capsule
 portability.
 
+[Architect Supervisor / Codex] Current acceptance status: capsule
+exports/imports are now landed as metadata, not execution wiring. Web surface
+manifests are also landed as web-owned metadata that can be lifted into
+application exports. The next slice should resist turning this into a resolver
+too early; keep the next work focused on inspectability, feature-slice
+reporting, and current-doc alignment.
+
 ## Decision Biases
 
 [Architect Supervisor / Codex] Bias toward:
@@ -886,6 +895,8 @@ portability.
   until loader reports can describe feature-local groups?
 - Next: should `docs/current/app-structure.md` be updated to make this model the
   current canonical app structure?
+- Next: should import/export validation live in application, stack/host, or a
+  future portability inspector?
 
 ## Next Research Tasks
 

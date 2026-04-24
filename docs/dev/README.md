@@ -26,6 +26,7 @@ a framework.
 - [Embed Target Plan](./embed-target-plan.md)
 - [Application Target Plan](./application-target-plan.md)
 - [Application And Web Integration](./application-web-integration.md)
+- [Agent-Native Application Track Proposal](./agent-native-application-track-proposal.md)
 - [Cluster Target Plan](./cluster-target-plan.md)
 - [Igniter Web Target Plan](./igniter-web-target-plan.md)
 - [Igniter Web DSL Sketch](./igniter-web-dsl-sketch.md)
@@ -53,6 +54,7 @@ a framework.
 - [Igniter Web Target Plan](./igniter-web-target-plan.md)
 - [Igniter Web DSL Sketch](./igniter-web-dsl-sketch.md)
 - [Igniter Web Composition Track](./igniter-web-composition-track.md)
+- [Agent-Native Application Track Proposal](./agent-native-application-track-proposal.md)
 - [Data Ownership](./data-ownership.md)
 
 ## Working Heuristics
