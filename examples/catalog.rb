@@ -145,10 +145,13 @@ module IgniterExamples
         "application_flow_session_status=waiting_for_user",
         "application_flow_session_pending_inputs=clarification",
         "application_flow_session_pending_actions=approve_plan",
+        "application_flow_session_pending_inputs_after=",
+        "application_flow_session_pending_actions_after=",
         "application_flow_session_artifacts=draft_plan",
         "application_flow_session_events_before=0",
-        "application_flow_session_events_after=1",
+        "application_flow_session_events_after=2",
         "application_flow_session_event_type=user_reply",
+        "application_flow_session_completed_status=completed",
         "application_flow_session_payload_keys=session_id,flow_name,status,current_step,pending_inputs,pending_actions,events,artifacts,metadata,created_at,updated_at"
       ]
     ),
@@ -330,6 +333,15 @@ module IgniterExamples
         "contracts_class_callable_subtotal=40",
         "contracts_class_callable_total=36.0",
         "contracts_class_callable_outputs=subtotal,total"
+      ]
+    ),
+    example(
+      "contracts/embed_class_registration",
+      "Embed host registration for contract classes with explicit and inferred names.",
+      expected_fragments: [
+        "embed_class_explicit_total=120.0",
+        "embed_class_inferred_total=180.0",
+        "embed_class_registration_kind=class"
       ]
     ),
     example(

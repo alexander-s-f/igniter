@@ -26,6 +26,7 @@ snapshot = environment.start_flow(
   ],
   metadata: { surface: :operator_console }
 )
+initial_entry = environment.fetch_session(snapshot.session_id)
 
 updated = environment.resume_flow(
   snapshot.session_id,
@@ -35,20 +36,36 @@ updated = environment.resume_flow(
     source: :user,
     target: :clarification,
     payload: { text: "Check source citations first." }
-  }
+  },
+  pending_inputs: []
+)
+completed = environment.resume_flow(
+  snapshot.session_id,
+  event: {
+    id: "event-2",
+    type: :action_completed,
+    source: :host,
+    target: :approve_plan,
+    payload: { approved: true }
+  },
+  status: :completed,
+  pending_actions: []
 )
 entry = environment.fetch_session(snapshot.session_id)
 read_model = environment.flow_session(snapshot.session_id)
 flow_session_ids = environment.flow_sessions.map(&:session_id)
 
-puts "application_flow_session_kind=#{entry.kind}"
-puts "application_flow_session_status=#{entry.status}"
+puts "application_flow_session_kind=#{initial_entry.kind}"
+puts "application_flow_session_status=#{initial_entry.status}"
 puts "application_flow_session_read_model=#{read_model.flow_name}"
 puts "application_flow_session_ids=#{flow_session_ids.join(",")}"
 puts "application_flow_session_pending_inputs=#{snapshot.pending_inputs.map(&:name).join(",")}"
 puts "application_flow_session_pending_actions=#{snapshot.pending_actions.map(&:name).join(",")}"
+puts "application_flow_session_pending_inputs_after=#{completed.pending_inputs.map(&:name).join(",")}"
+puts "application_flow_session_pending_actions_after=#{completed.pending_actions.map(&:name).join(",")}"
 puts "application_flow_session_artifacts=#{snapshot.artifacts.map(&:name).join(",")}"
 puts "application_flow_session_events_before=#{snapshot.events.length}"
-puts "application_flow_session_events_after=#{updated.events.length}"
+puts "application_flow_session_events_after=#{completed.events.length}"
 puts "application_flow_session_event_type=#{updated.events.first.type}"
+puts "application_flow_session_completed_status=#{completed.status}"
 puts "application_flow_session_payload_keys=#{entry.payload.keys.join(",")}"
