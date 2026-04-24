@@ -205,3 +205,24 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 wording/boundary review for optional
   web metadata in transfer bundle plans.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-transfer-bundle-plan-track.md`
+Status: landed.
+Changed:
+- Reviewed `ApplicationTransferBundlePlan` against supplied web surface
+  metadata.
+- Confirmed `examples/application/capsule_transfer_bundle_plan.rb` already
+  uses `Igniter::Web.surface_structure(blueprint)` to pass web-local path
+  metadata as plain hashes and prints the supplied surface count.
+- Updated `packages/igniter-web/README.md` and the application capsule guide
+  with the transfer-bundle-plan web metadata boundary.
+Accepted:
+- Bundle plans carry and count supplied web surface metadata without requiring
+  `igniter-application` to load `igniter-web`.
+- Application does not inspect `SurfaceManifest`, screen graphs, routes, Rack
+  apps, components, mounts, browser transports, or web-local directories.
+- No web-specific bundle behavior is needed in `igniter-application`.
+Needs:
+- `[Architect Supervisor / Codex]` review the transfer bundle plan track for
+  acceptance.

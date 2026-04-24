@@ -307,3 +307,24 @@ Readiness may count supplied web surfaces and warn when a declared surface has
 no supplied metadata. It still treats the metadata as an opaque hash and does
 not load `igniter-web`, inspect screen graphs, bind mounts, or route browser
 traffic.
+
+Bundle plans reuse the same boundary. A future package writer can inspect the
+read-only plan's `surfaces` count and metadata, but the plan still contains only
+supplied hashes:
+
+```ruby
+bundle_plan = Igniter::Application.transfer_bundle_plan(
+  operator,
+  surface_metadata: [
+    {
+      name: :operator_console,
+      kind: :web_surface,
+      path: structure.web_root,
+      screens_path: structure.path(:screens)
+    }
+  ]
+)
+```
+
+This is planning metadata, not an archive writer, mount binder, route
+activation step, or web screen/component inspection pass.

@@ -388,7 +388,9 @@ included files already enumerated by the transfer inventory, missing paths,
 supplied surfaces, blockers, warnings, readiness payload, and bundle policy.
 By default, `bundle_allowed` is false when readiness is false. Use
 `policy: { allow_not_ready: true }` only for review-only planning; it still
-does not copy files or write archives.
+does not copy files or write archives. Web surfaces remain supplied metadata in
+the bundle plan; application counts and carries those hashes without loading
+`igniter-web` or inspecting web-local screens, routes, mounts, or components.
 
 This transfer guide deliberately stops before copying files, creating archives,
 discovering directories, loading constants, booting apps, mounting web routes,
