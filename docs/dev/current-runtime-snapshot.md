@@ -163,6 +163,9 @@ bundle/package operation. It summarizes included files already enumerated by
 the transfer inventory, missing paths, supplied surfaces, blockers, warnings,
 and policy without writing archives, copying files, loading constants, booting
 apps, mounting web, routing, executing, or placing work on a cluster.
+The next application slice is a tiny explicit transfer bundle artifact writer
+from an accepted bundle plan. It may write only to an explicit output path and
+must include only planned files plus serializable review metadata.
 
 Lifecycle now follows this shape:
 

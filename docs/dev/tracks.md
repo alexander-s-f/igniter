@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Read-only transfer bundle plan over readiness and inventory | [Application Capsule Transfer Bundle Plan Track](./application-capsule-transfer-bundle-plan-track.md) | [Application Capsule Transfer Readiness Track](./application-capsule-transfer-readiness-track.md), [Application Capsule Transfer Inventory Track](./application-capsule-transfer-inventory-track.md), [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web metadata review |
-| `[Agent Web / Codex]` | Compatibility review for optional web metadata in transfer bundle plans | [Application Capsule Transfer Bundle Plan Track](./application-capsule-transfer-bundle-plan-track.md) | [Application Capsule Transfer Readiness Track](./application-capsule-transfer-readiness-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for bundle-plan wording needs |
+| `[Agent Application / Codex]` | Explicit transfer bundle artifact writer from accepted bundle plans | [Application Capsule Transfer Bundle Artifact Track](./application-capsule-transfer-bundle-artifact-track.md) | [Application Capsule Transfer Bundle Plan Track](./application-capsule-transfer-bundle-plan-track.md), [Application Capsule Transfer Readiness Track](./application-capsule-transfer-readiness-track.md), [Application Capsule Transfer Inventory Track](./application-capsule-transfer-inventory-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web metadata review |
+| `[Agent Web / Codex]` | Compatibility review for optional web metadata in transfer bundle artifacts | [Application Capsule Transfer Bundle Artifact Track](./application-capsule-transfer-bundle-artifact-track.md) | [Application Capsule Transfer Bundle Plan Track](./application-capsule-transfer-bundle-plan-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for artifact wording needs |
 
 ## Track Map
 
@@ -100,7 +100,9 @@ pressure-test wave:
 - Read-only dry-run transfer inventory for declared capsule material landed.
 - Read-only transfer readiness report over handoff manifest and transfer
   inventory landed.
-- The next broad track is a read-only transfer bundle plan.
+- Read-only transfer bundle plan landed.
+- The next broad track is an explicit transfer bundle artifact writer from
+  accepted bundle plans.
 
 ### Embed And Contract Class DSL
 
@@ -657,7 +659,7 @@ Next:
 
 ### Application Capsule Transfer Bundle Plan
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -679,13 +681,47 @@ Current accepted state:
   duplicating their logic.
 - It must not copy, archive, write, mutate, discover, load, boot, mount, route,
   execute, or coordinate clusters.
+- `ApplicationTransferBundlePlan` and
+  `Igniter::Application.transfer_bundle_plan(...)` are accepted as the
+  application-owned read-only plan surface.
+- Included files must come only from transfer inventory.
+- `bundle_allowed` is false by default when readiness is false; explicit
+  `allow_not_ready` remains review-only planning.
 
 Next:
 
-- `[Agent Application / Codex]`: implement the smallest transfer bundle plan
-  value, facade, specs, and smoke example.
+- Continue through [Application Capsule Transfer Bundle Artifact Track](./application-capsule-transfer-bundle-artifact-track.md).
+- Keep artifact writing explicit and bounded by the bundle plan.
+
+### Application Capsule Transfer Bundle Artifact
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Capsule Transfer Bundle Artifact Track](./application-capsule-transfer-bundle-artifact-track.md)
+
+Dependencies:
+
+- [Application Capsule Transfer Bundle Plan Track](./application-capsule-transfer-bundle-plan-track.md)
+- [Application Capsule Transfer Readiness Track](./application-capsule-transfer-readiness-track.md)
+- [Application Capsule Transfer Inventory Track](./application-capsule-transfer-inventory-track.md)
+
+Current accepted state:
+
+- The next useful artifact is a tiny explicit writer from a bundle plan.
+- The writer must require explicit output and refuse overwrite by default.
+- It must include only files already listed by the bundle plan and embed
+  serializable review metadata.
+- It must not discover, install, extract, load, boot, mount, route, execute, or
+  coordinate clusters.
+
+Next:
+
+- `[Agent Application / Codex]`: implement the smallest transfer bundle
+  artifact result, facade, specs, and smoke example.
 - `[Agent Web / Codex]`: verify optional web metadata remains supplied and
-  opaque in bundle plans.
+  opaque in bundle artifacts.
 
 ### Cluster
 
