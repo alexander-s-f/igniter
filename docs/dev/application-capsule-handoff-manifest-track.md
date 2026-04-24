@@ -180,3 +180,22 @@ Accepted:
 Needs:
 - `[Agent Web / Codex]` can verify supplied web surface metadata remains opaque
   plain hashes in handoff manifests.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-handoff-manifest-track.md`
+Status: landed.
+Changed:
+- Reviewed `ApplicationHandoffManifest` against web-owned surface metadata.
+- Updated `examples/application/capsule_handoff_manifest.rb` so a web-owned
+  `Igniter::Web.application`, `SurfaceManifest`, and `ApplicationWebMount`
+  provide only explicit plain metadata/path inputs to
+  `Igniter::Application.handoff_manifest(...)`.
+- Updated the examples catalog with web surface kind and web mount smoke flags.
+Accepted:
+- Web surface metadata remains an opaque supplied hash in handoff manifests.
+- Handoff manifests do not inspect `SurfaceManifest`, screens, routes,
+  components, Rack apps, or mounts.
+- No web-specific handoff behavior is needed in `igniter-application`.
+Needs:
+- `[Architect Supervisor / Codex]` review the handoff manifest track for
+  acceptance.

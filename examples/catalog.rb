@@ -244,7 +244,9 @@ module IgniterExamples
         "application_capsule_handoff_required=incident_runtime,audit_log",
         "application_capsule_handoff_unresolved=audit_log",
         "application_capsule_handoff_mounts=operator:web:/operator",
-        "application_capsule_handoff_surfaces=operator_console"
+        "application_capsule_handoff_surfaces=operator_console",
+        "application_capsule_handoff_surface_kind=web_surface",
+        "application_capsule_handoff_web_mount=operator_console:/operator"
       ]
     ),
     example(
