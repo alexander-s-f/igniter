@@ -938,6 +938,98 @@ After review, implement in small slices:
 Stop before step 5 if the capability contract shape needs `[Agent Contracts /
 Codex]` review.
 
+## Expert Review For Embed Handoff
+
+[Agent Contracts / Codex] Review for `[Architect Supervisor / Codex]` ->
+`[Agent Embed / Codex]`.
+
+Overall assessment: the track is directionally sound and well balanced. The
+clean form is architecturally correct, but the human sugar form is necessary
+for real app initializers. A Rails/application author should be able to read
+the initializer as domain intent, not as container wiring.
+
+### Review Recommendations
+
+1. Treat sugar as a compiler into clean config.
+
+   The first implementation should build the same lower-level `configure`,
+   `contract`, and `contractable` objects that already exist. Do not create a
+   second runtime for sugar. Every sugar example in the proposal should include
+   the clean expansion it produces.
+
+2. Make inspection a release requirement.
+
+   Human sugar is acceptable only if users and agents can inspect it. The first
+   usable slice should expose a structured expansion such as
+   `host.sugar_expansion.to_h` or an equivalent object with host, contracts,
+   contractables, capabilities, events, and clean config.
+
+3. Keep `contracts.add` semantics explicit.
+
+   `contracts.add` should mean contract registration by default. If the block
+   adds `role`, `stage`, `migration`, `observe`, `discover`, `use`, or `on`,
+   then the sugar may create a related `Contractable` config, but the expansion
+   must show that clearly.
+
+4. Split first-class contract capabilities from temporary adapters.
+
+   The doctrine that "if it can be represented as a contract, represent it as a
+   contract" is correct for Igniter. Still, the first Embed slice should not
+   require every capability to become a polished built-in contract on day one.
+
+   Recommended split:
+
+   - first-class contract-backed candidates: normalizer, redaction, validation,
+     acceptance, reporting
+   - temporary host adapters: logging, metrics, notifications, failure hooks
+
+   Temporary adapters should be named as temporary in docs and expansion output
+   so they do not become invisible ambient behavior.
+
+5. Keep `contract.use` below host magic and above raw callbacks.
+
+   `contract.use :normalizer, BillingQuoteNormalizer` is a good human surface,
+   but its expansion should name the exact adapter or contract-backed
+   capability that will run. Avoid hidden global presets.
+
+6. Keep events typed.
+
+   `contract.on :failure` is readable, but it should expand to a typed event
+   target. The proposal should clarify whether `:failure` means contract
+   execution failure, candidate failure, normalization failure, acceptance
+   failure, or a combined event family.
+
+7. Delay contracts/extensions changes until Embed proves pressure.
+
+   `[Agent Contracts / Codex]` should not preemptively move sugar capability
+   primitives into `igniter-contracts` or `igniter-extensions`. Embed should
+   first show which capability adapters become awkward enough to justify a
+   lower-layer seam.
+
+### Suggested Review Gate
+
+Before broad implementation, `[Agent Embed / Codex]` should return a proposal
+with sugar and clean expansion pairs for:
+
+- plain contract registration
+- migration candidate
+- observed service
+- discovery probe
+- `contract.use :normalizer`
+- `contract.use :redaction`
+- `contract.use :acceptance`
+- `contract.on :failure`
+
+If a sugar example expands into a messy clean form, fix the clean model first
+instead of hiding the roughness behind DSL.
+
+### Foundation Boundary
+
+This review supports the sugar direction, with one boundary: Embed may own host
+ergonomics, but it must not redefine contracts semantics. Contracts and
+extensions remain the source of graph/runtime semantics and reusable packs.
+Embed composes them for host convenience.
+
 ## Handoff Notes
 
 [Agent Embed / Codex] Task 1 proposal drafted for review. The proposal keeps
@@ -946,3 +1038,9 @@ the clean `configure` / `contractable` forms as the expansion target, accepts
 shape, defines migration/observed/discovery role sugar, names the first
 capability expansion contracts, and treats callable-only adapters as temporary
 host-boundary exceptions.
+
+[Agent Contracts / Codex] Expert review added. The sugar direction is accepted
+as user-friendly and architecturally compatible if it compiles to inspectable
+clean config, keeps `contracts.add` semantics explicit, distinguishes
+contract-backed capabilities from temporary host adapters, uses typed events,
+and delays lower-layer contracts/extensions seams until Embed proves pressure.
