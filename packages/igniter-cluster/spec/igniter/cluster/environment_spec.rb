@@ -1031,6 +1031,148 @@ RSpec.describe Igniter::Cluster::Environment do
     )
   end
 
+  it "builds and executes remediation plans from active incidents" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .topology_policy(
+                                :locality,
+                                required_labels: { tier: "gold" },
+                                preferred_zone: :eu_west_1a
+                              )
+                              .ownership_policy(:distributed, owner_limit: 1)
+                              .health_policy(:availability_aware, trigger_statuses: [:unhealthy])
+                              .remediation_policy(:default)
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :fallback_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "silver" },
+      region: :eu_west,
+      zone: :eu_west_1b,
+      health_status: :unhealthy,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+    environment.register_peer(
+      :pricing_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+
+    incident_plan = environment.plan_failover(target: "order-42", capabilities: [:pricing], traits: [:financial])
+    environment.execute_failover_plan(incident_plan) do
+      raise "peer write failed"
+    end
+
+    remediation_plan = environment.plan_remediation(metadata: { source: :cluster_spec })
+    remediation_report = environment.execute_remediation_plan(remediation_plan)
+
+    expect(remediation_plan.to_h).to include(
+      mode: :planned,
+      targets: ["order-42"],
+      action_kinds: [:retry_failover],
+      metadata: include(source: :cluster_spec, active_incident_count: 1),
+      explanation: include(code: :remediation_plan)
+    )
+    expect(remediation_plan.steps.map(&:to_h)).to contain_exactly(
+      include(
+        incident_kind: :degraded_health,
+        target: "order-42",
+        action: :retry_failover
+      )
+    )
+    expect(remediation_report.to_h).to include(
+      plan_kind: :remediation,
+      status: :completed,
+      action_types: [:remediation_action],
+      incident: nil,
+      recovery_timeline: nil,
+      explanation: include(code: :remediation_execution)
+    )
+    expect(remediation_report.action_results.first.to_h).to include(
+      action_type: :remediation_action,
+      subject: {
+        incident_id: "degraded_health/1",
+        incident_kind: :degraded_health,
+        target: "order-42",
+        action: :retry_failover
+      }
+    )
+    expect(environment.incidents.length).to eq(1)
+    expect(environment.active_incidents.count).to eq(1)
+    expect(environment.incident_workflow("degraded_health/1").to_h).to include(
+      state: :remediation_completed,
+      active: true,
+      action_kinds: [:remediation_completed]
+    )
+  end
+
+  it "records operator incident workflow actions through environment helpers" do
+    cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                              .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
+                              .topology_policy(
+                                :locality,
+                                required_labels: { tier: "gold" },
+                                preferred_zone: :eu_west_1a
+                              )
+                              .ownership_policy(:distributed, owner_limit: 1)
+                              .health_policy(:availability_aware, trigger_statuses: [:unhealthy])
+                              .finalize
+    environment = described_class.new(profile: cluster)
+    environment.register_peer(
+      :fallback_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "silver" },
+      region: :eu_west,
+      zone: :eu_west_1b,
+      health_status: :unhealthy,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+    environment.register_peer(
+      :pricing_node,
+      capabilities: %i[pricing compose],
+      labels: { tier: "gold" },
+      region: :eu_west,
+      zone: :eu_west_1a,
+      transport: build_peer_transport(environment.application.profile.contracts_profile)
+    )
+
+    plan = environment.plan_failover(target: "order-42", capabilities: [:pricing], traits: [:financial])
+    environment.execute_failover_plan(plan) do
+      raise "peer write failed"
+    end
+
+    environment.acknowledge_incident("degraded_health/1", actor: :operator, note: "triaged")
+    environment.assign_incident("degraded_health/1", assignee: :sre, actor: :operator)
+    environment.silence_incident("degraded_health/1", actor: :operator, metadata: { minutes: 15 })
+
+    expect(environment.incident_workflow("degraded_health/1").to_h).to include(
+      state: :silenced,
+      active: true,
+      action_kinds: %i[acknowledged assigned silenced],
+      actions: include(
+        include(kind: :assigned, metadata: include(assignee: :sre)),
+        include(kind: :silenced, metadata: include(minutes: 15))
+      )
+    )
+    expect(environment.active_incidents.count).to eq(1)
+
+    environment.resolve_incident("degraded_health/1", actor: :operator, note: "manual recovery confirmed")
+
+    expect(environment.incident_workflow("degraded_health/1").to_h).to include(
+      state: :resolved,
+      active: false,
+      action_kinds: %i[acknowledged assigned silenced resolved]
+    )
+    expect(environment.active_incidents).to be_empty
+    expect(environment.incident_workflows.map(&:to_h)).to contain_exactly(
+      include(state: :resolved, action_count: 4)
+    )
+  end
+
   it "routes cluster plan execution through a mesh executor with explicit trace metadata" do
     cluster = Igniter::Cluster.build_kernel(Igniter::Extensions::Contracts::ComposePack)
                               .capability(:pricing, traits: [:financial], labels: { domain: "commerce" })
@@ -1529,6 +1671,10 @@ RSpec.describe Igniter::Cluster::Environment do
       ownership_policy: include(name: :distributed),
       lease_policy: include(name: :ephemeral),
       health_policy: include(name: :availability_aware),
+      remediation_policy: include(
+        name: :default,
+        action_map: include(degraded_health: :retry_failover)
+      ),
       peer_registry: :memory,
       incident_registry: :memory,
       active_incidents: include(count: 0, incident_keys: [])

@@ -20,6 +20,8 @@ module Igniter
           execute_lease(plan, handler: handler, metadata: metadata)
         when FailoverPlan
           execute_failover(plan, handler: handler, metadata: metadata)
+        when RemediationPlan
+          execute_remediation(plan, handler: handler, metadata: metadata)
         else
           raise ArgumentError, "unsupported cluster plan #{plan.class}"
         end
@@ -65,26 +67,40 @@ module Igniter
         )
       end
 
+      def execute_remediation(plan, handler: nil, metadata: {})
+        report = execute_action_plan(
+          plan_kind: :remediation,
+          plan: plan,
+          actions: plan.steps,
+          handler: handler,
+          metadata: metadata,
+          record_incident: false
+        )
+        persist_remediation_workflow_actions(report)
+        report
+      end
+
       private
 
-      def execute_action_plan(plan_kind:, plan:, actions:, handler:, metadata:)
+      def execute_action_plan(plan_kind:, plan:, actions:, handler:, metadata:, record_incident: true)
         action_results = Array(actions).map do |action|
           resolve_action_result(plan_kind: plan_kind, action: action, handler: handler)
         end
 
         status = derive_status(action_results)
-        incident_artifacts = incident_executor.execute(
+        details = {
+          plan_mode: plan.mode,
+          action_count: action_results.length,
+          cluster_profile: environment.profile.to_h
+        }.merge(metadata)
+        incident_artifacts = incident_artifacts_for(
+          record_incident: record_incident,
           plan_kind: plan_kind,
           plan: plan,
           action_results: action_results,
           status: status,
           metadata: metadata
         )
-        details = {
-          plan_mode: plan.mode,
-          action_count: action_results.length,
-          cluster_profile: environment.profile.to_h
-        }.merge(metadata)
 
         report = PlanExecutionReport.new(
           plan_kind: plan_kind,
@@ -100,7 +116,7 @@ module Igniter
             metadata: details
           )
         )
-        persist_incident_entry(report, details)
+        persist_incident_entry(report, details) if record_incident
         report
       end
 
@@ -204,6 +220,8 @@ module Igniter
           "grant lease for #{action.target} to #{action.owner.name}"
         when :failover
           "fail over #{action.target} from #{action.source.name} to #{action.destination.name}"
+        when :remediation
+          "run #{action.action} for #{action.incident_kind} on #{action.target}"
         else
           "execute #{plan_kind} action"
         end
@@ -232,9 +250,28 @@ module Igniter
             source: action.source.name,
             destination: action.destination.name
           }
+        when :remediation
+          {
+            incident_id: action.incident_id,
+            incident_kind: action.incident_kind,
+            target: action.target,
+            action: action.action
+          }
         else
           action.to_h
         end
+      end
+
+      def incident_artifacts_for(record_incident:, plan_kind:, plan:, action_results:, status:, metadata:)
+        return { incident: nil, recovery_timeline: nil } unless record_incident
+
+        incident_executor.execute(
+          plan_kind: plan_kind,
+          plan: plan,
+          action_results: action_results,
+          status: status,
+          metadata: metadata
+        )
       end
 
       def persist_incident_entry(report, details)
@@ -242,6 +279,35 @@ module Igniter
 
         environment.incident_registry.record(report, metadata: details)
         report
+      end
+
+      def persist_remediation_workflow_actions(report)
+        report.action_results.each do |result|
+          subject = result.subject
+          next unless subject.is_a?(Hash) && subject[:incident_id]
+
+          environment.incident_registry.record_action(
+            subject.fetch(:incident_id),
+            kind: remediation_action_kind(result.status),
+            status: result.status,
+            metadata: {
+              remediation_action: subject[:action],
+              remediation_target: subject[:target],
+              action_result: result.to_h
+            }
+          )
+        end
+      end
+
+      def remediation_action_kind(status)
+        case status.to_sym
+        when :completed
+          :remediation_completed
+        when :failed
+          :remediation_failed
+        else
+          :remediation_skipped
+        end
       end
     end
   end

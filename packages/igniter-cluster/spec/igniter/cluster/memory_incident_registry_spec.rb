@@ -66,4 +66,33 @@ RSpec.describe Igniter::Cluster::MemoryIncidentRegistry do
       incident_keys: []
     )
   end
+
+  it "records operator workflow actions and lets terminal actions clear active incidents" do
+    registry = described_class.new
+    entry = registry.record(build_report(status: :failed, resolution: :unresolved))
+
+    registry.record_action(entry.id, kind: :acknowledged, actor: :operator, note: "looking")
+    registry.record_action(entry.incident_key, kind: :assigned, actor: :operator, metadata: { assignee: :sre })
+
+    workflow = registry.workflow(entry)
+
+    expect(workflow.to_h).to include(
+      incident_key: entry.incident_key,
+      state: :assigned,
+      active: true,
+      entry_count: 1,
+      action_count: 2,
+      action_kinds: %i[acknowledged assigned]
+    )
+    expect(registry.active_set.count).to eq(1)
+
+    registry.record_action(entry.id, kind: :resolved, actor: :operator, note: "recovered")
+
+    expect(registry.workflow(entry).to_h).to include(
+      state: :resolved,
+      active: false,
+      action_kinds: %i[acknowledged assigned resolved]
+    )
+    expect(registry.active_set).to be_empty
+  end
 end

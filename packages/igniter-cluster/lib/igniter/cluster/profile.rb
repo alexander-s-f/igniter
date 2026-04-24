@@ -10,7 +10,8 @@ module Igniter
                   :admission_name, :placement_name, :peer_registry_name, :incident_registry_name,
                   :transport_seam, :router_seam, :admission_seam, :placement_seam,
                   :peer_registry_seam, :incident_registry_seam, :route_policy, :admission_policy, :placement_policy,
-                  :topology_policy, :ownership_policy, :lease_policy, :health_policy, :capability_catalog
+                  :topology_policy, :ownership_policy, :lease_policy, :health_policy, :remediation_policy,
+                  :capability_catalog
 
       def initialize(application_profile:, cluster_packs:, names:, seams:, policies:, capability_catalog:)
         @application_profile = application_profile
@@ -38,6 +39,10 @@ module Igniter
         incident_registry_seam.active_set
       end
 
+      def incident_workflows
+        incident_registry_seam.workflows
+      end
+
       def to_h
         {
           application_profile: application_profile.to_h,
@@ -53,11 +58,13 @@ module Igniter
           ownership_policy: ownership_policy&.to_h,
           lease_policy: lease_policy&.to_h,
           health_policy: health_policy&.to_h,
+          remediation_policy: remediation_policy&.to_h,
           peer_registry: peer_registry_name,
           incident_registry: incident_registry_name,
           capability_catalog: capability_catalog.to_h,
           peers: peers.map(&:to_h),
-          active_incidents: active_incidents.to_h
+          active_incidents: active_incidents.to_h,
+          incident_workflows: incident_workflows.map(&:to_h)
         }
       end
 
@@ -83,6 +90,7 @@ module Igniter
         @ownership_policy = policies[:ownership]
         @lease_policy = policies[:lease]
         @health_policy = policies[:health]
+        @remediation_policy = policies[:remediation]
       end
     end
   end

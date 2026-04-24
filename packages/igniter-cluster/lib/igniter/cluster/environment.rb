@@ -91,6 +91,44 @@ module Igniter
         incident_registry.active_set
       end
 
+      def incident_workflow(incident)
+        incident_registry.workflow(incident)
+      end
+
+      def incident_workflows
+        incident_registry.workflows
+      end
+
+      def acknowledge_incident(incident, actor: nil, note: nil, metadata: {})
+        record_incident_action(incident, :acknowledged, actor: actor, note: note, metadata: metadata)
+      end
+
+      def assign_incident(incident, assignee:, actor: nil, note: nil, metadata: {})
+        record_incident_action(
+          incident,
+          :assigned,
+          actor: actor,
+          note: note,
+          metadata: metadata.merge(assignee: assignee.to_sym)
+        )
+      end
+
+      def silence_incident(incident, actor: nil, note: nil, metadata: {})
+        record_incident_action(incident, :silenced, actor: actor, note: note, metadata: metadata)
+      end
+
+      def escalate_incident(incident, actor: nil, note: nil, metadata: {})
+        record_incident_action(incident, :escalated, actor: actor, note: note, metadata: metadata)
+      end
+
+      def resolve_incident(incident, actor: nil, note: nil, metadata: {})
+        record_incident_action(incident, :resolved, actor: actor, note: note, metadata: metadata)
+      end
+
+      def close_incident(incident, actor: nil, note: nil, metadata: {})
+        record_incident_action(incident, :closed, actor: actor, note: note, metadata: metadata)
+      end
+
       def plan_rebalance(capabilities: [], traits: [], labels: {}, peer: nil, region: nil, zone: nil, query: nil,
                          policy: nil, metadata: {})
         effective_query = build_capability_query(
@@ -190,6 +228,18 @@ module Igniter
         plan_executor.execute_failover(plan, handler: resolve_execution_handler(handler, block), metadata: metadata)
       end
 
+      def plan_remediation(active_incidents: nil, policy: nil, metadata: {})
+        effective_policy = policy || profile.remediation_policy
+        effective_policy.plan(
+          active_incidents: active_incidents || self.active_incidents,
+          metadata: metadata
+        )
+      end
+
+      def execute_remediation_plan(plan, handler: nil, metadata: {}, &block)
+        plan_executor.execute_remediation(plan, handler: resolve_execution_handler(handler, block), metadata: metadata)
+      end
+
       def execute_plan_via_mesh(plan, executor: nil, metadata: {})
         resolved_executor = executor || mesh_executor(metadata: metadata)
         execute_plan(
@@ -269,6 +319,16 @@ module Igniter
 
       def resolve_execution_handler(handler, block)
         handler || block
+      end
+
+      def record_incident_action(incident, kind, actor:, note:, metadata:)
+        incident_registry.record_action(
+          incident,
+          kind: kind,
+          actor: actor,
+          note: note,
+          metadata: metadata
+        )
       end
 
       def build_remote_invoker(factory:, query:, namespace:, metadata:, id_generator:)

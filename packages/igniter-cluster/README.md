@@ -22,6 +22,7 @@ Primary API:
 - `Igniter::Cluster::Environment`
 - `Igniter::Cluster::PlanExecutor`
 - `Igniter::Cluster::MeshExecutor`
+- `Igniter::Cluster::RemediationPolicy`
 - `Igniter::Cluster::MeshMembership`
 - `Igniter::Cluster::MeshMembershipSource`
 - `Igniter::Cluster::RegistryMembershipSource`
@@ -44,6 +45,8 @@ The first active slice is intentionally narrow:
   planning
 - explicit `HealthPolicy` and `FailoverPlan` for degraded/failure transition
   planning
+- explicit `RemediationPolicy` and `RemediationPlan` for response workflows over
+  active incidents
 - explicit cluster plan execution reports over rebalance/ownership/lease/failover
 - explicit mesh execution requests, attempts, traces, and responses over cluster plans
 - explicit mesh membership, discovery, and retry/fallback policy over peer execution
@@ -77,7 +80,9 @@ Runnable illustrations live in `examples/cluster/`:
 
 - `routing.rb` for capability-aware remote compose
 - `incidents.rb` for durable incident history and active incident state
+- `incident_workflow.rb` for acknowledge/assign/silence/resolve workflow actions
 - `mesh_diagnostics.rb` for retry traces, projection reports, and operator-facing diagnostics
+- `remediation.rb` for turning active incidents into executable response steps
 
 Mesh-oriented execution now has a first dedicated adapter layer too:
 

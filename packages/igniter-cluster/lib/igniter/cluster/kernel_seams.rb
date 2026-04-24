@@ -71,6 +71,13 @@ module Igniter
         self
       end
 
+      def remediation_policy(name = nil, policy: nil, **attributes)
+        return @remediation_policy if policy_query?(name, policy, attributes)
+
+        @remediation_policy = policy || RemediationPolicy.new(name: name || :remediation_policy, **attributes)
+        self
+      end
+
       def transport(name = nil, seam: nil, &block)
         return @transport_name if seam_query?(name, seam, block)
 
@@ -112,7 +119,13 @@ module Igniter
       def incident_registry(name = nil, seam: nil, &block)
         return @incident_registry_name if seam_query?(name, seam, block)
 
-        configure_named_seam(:incident_registry, name, seam, block, %i[record fetch entries active_set])
+        configure_named_seam(
+          :incident_registry,
+          name,
+          seam,
+          block,
+          %i[record fetch entries active_set record_action workflow workflows]
+        )
         self
       end
 
@@ -129,6 +142,7 @@ module Igniter
         @ownership_policy = OwnershipPolicy.distributed
         @lease_policy = LeasePolicy.ephemeral
         @health_policy = HealthPolicy.availability_aware
+        @remediation_policy = RemediationPolicy.default
         configure_default_seam(:peer_registry, :memory, MemoryPeerRegistry.new)
         configure_default_seam(:incident_registry, :memory, MemoryIncidentRegistry.new)
       end
@@ -163,7 +177,8 @@ module Igniter
           topology: @topology_policy,
           ownership: @ownership_policy,
           lease: @lease_policy,
-          health: @health_policy
+          health: @health_policy,
+          remediation: @remediation_policy
         }
       end
 
