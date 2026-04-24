@@ -19,9 +19,10 @@ module Igniter
         end
 
         def call(*args, **kwargs)
-          primary_result = invoke(config.primary_callable, args, kwargs)
+          primary_result = primary_payload(args, kwargs)
           started_at = config.now
           sampled = config.sampled?
+          dispatch_event(:primary_success, observation: nil, error: nil, metadata: { inputs: redacted_inputs(args, kwargs) })
 
           if sampled
             work = -> { observe(started_at: started_at, primary_result: primary_result, args: args, kwargs: kwargs, sampled: true) }
@@ -34,6 +35,13 @@ module Igniter
         end
 
         private
+
+        def primary_payload(args, kwargs)
+          invoke(config.primary_callable, args, kwargs)
+        rescue StandardError => e
+          dispatch_event(:primary_error, observation: nil, error: serialize_error(e), metadata: { inputs: safe_redacted_inputs(args, kwargs) })
+          raise
+        end
 
         def observe(started_at:, primary_result:, args:, kwargs:, sampled:)
           primary = normalize_side(config.primary_normalizer, primary_result)
@@ -154,7 +162,48 @@ module Igniter
             end
           end
           config.observation_callback&.call(observation)
+          dispatch_observation_events(observation)
           observation
+        end
+
+        def dispatch_observation_events(observation)
+          dispatch_event(:candidate_success, observation: observation) if candidate_success?(observation)
+          dispatch_event(:candidate_error, observation: observation, error: observation[:error]) if observation[:error]
+          dispatch_event(:divergence, observation: observation) if observation[:match] == false
+          dispatch_event(:acceptance_failure, observation: observation) if observation[:accepted] == false
+          dispatch_event(:store_error, observation: observation, error: observation[:store_error]) if observation[:store_error]
+          dispatch_event(:observation, observation: observation)
+        end
+
+        def dispatch_event(event, observation:, error: nil, metadata: {})
+          config.handlers_for(event).each do |event_handler|
+            event_handler.handler.call(
+              event_payload(
+                event: event,
+                observation: observation,
+                error: error,
+                metadata: metadata
+              )
+            )
+          end
+        end
+
+        def event_payload(event:, observation:, error:, metadata:)
+          {
+            name: config.name,
+            role: config.role,
+            stage: config.stage,
+            event: event,
+            observation: observation,
+            report: observation&.fetch(:report, nil),
+            error: error,
+            metadata: metadata_payload.merge(normalize_hash(metadata))
+          }
+        end
+
+        def candidate_success?(observation)
+          candidate = observation[:candidate]
+          candidate && candidate[:status] != :error
         end
 
         def invoke(callable, args, kwargs)
@@ -177,6 +226,12 @@ module Igniter
 
         def redacted_inputs(args, kwargs)
           normalize_hash(config.normalize_inputs(args, kwargs))
+        end
+
+        def safe_redacted_inputs(args, kwargs)
+          redacted_inputs(args, kwargs)
+        rescue StandardError
+          {}
         end
 
         def metadata_payload

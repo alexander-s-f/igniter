@@ -280,6 +280,87 @@ RSpec.describe Igniter::Embed::Contractable do
     end.to raise_error(Igniter::Embed::SugarError, /policy/)
   end
 
+  it "dispatches typed candidate error events" do
+    events = []
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      migrate ->(amount:) { { total: amount } },
+              to: ->(amount:) { raise "candidate exploded" if amount }
+      shadow async: false
+      use :normalizer, normalize
+      on :candidate_error do |event|
+        events << event
+      end
+    end
+
+    runner.call(amount: 100)
+
+    expect(events.length).to eq(1)
+    expect(events.first).to include(name: :quote, role: :migration_candidate, stage: :shadowed, event: :candidate_error)
+    expect(events.first.dig(:error, :message)).to eq("candidate exploded")
+  end
+
+  it "expands failure alias into typed failure events" do
+    events = []
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      migrate ->(amount:) { { total: amount } },
+              to: ->(amount:) { raise "candidate exploded" if amount }
+      shadow async: false
+      use :normalizer, normalize
+      use :acceptance, policy: :completed
+      on :failure do |event|
+        events << event.fetch(:event)
+      end
+    end
+
+    runner.call(amount: 100)
+
+    expect(events).to include(:candidate_error, :acceptance_failure)
+    expect(events).not_to include(:divergence)
+  end
+
+  it "dispatches divergence separately from failure alias" do
+    divergence_events = []
+    failure_events = []
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      migrate ->(amount:) { { total: amount } },
+              to: ->(amount:) { { total: amount + 1 } }
+      shadow async: false
+      use :normalizer, normalize
+      on :divergence do |event|
+        divergence_events << event
+      end
+      on :failure do |event|
+        failure_events << event
+      end
+    end
+
+    runner.call(amount: 100)
+
+    expect(divergence_events.length).to eq(1)
+    expect(divergence_events.first.fetch(:event)).to eq(:divergence)
+    expect(failure_events.map { |event| event.fetch(:event) }).to eq([:acceptance_failure])
+  end
+
+  it "dispatches primary error events before re-raising" do
+    events = []
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      observe -> { raise "primary exploded" }
+      normalize_primary normalize
+      on :failure do |event|
+        events << event
+      end
+    end
+
+    expect { runner.call }.to raise_error(RuntimeError, "primary exploded")
+    expect(events.length).to eq(1)
+    expect(events.first.fetch(:event)).to eq(:primary_error)
+    expect(events.first.dig(:error, :message)).to eq("primary exploded")
+  end
+
   it "supports observed service sugar over contractable config" do
     store = memory_store
     normalize = normalizer

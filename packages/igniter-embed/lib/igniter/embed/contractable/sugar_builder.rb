@@ -75,6 +75,11 @@ module Igniter
           config
         end
 
+        def on(event, callable = nil, &block)
+          mark_configured!
+          config.on(event, callable, &block)
+        end
+
         def configured?
           !!configured
         end

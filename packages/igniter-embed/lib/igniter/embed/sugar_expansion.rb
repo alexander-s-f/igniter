@@ -64,7 +64,8 @@ module Igniter
             async: contractable_config.async,
             sample: contractable_config.sample,
             metadata: contractable_config.metadata,
-            adapters: adapters(contractable_config)
+            adapters: adapters(contractable_config),
+            events: events(contractable_config)
           }
         end
       end
@@ -116,6 +117,16 @@ module Igniter
           policy: contractable_config.accept,
           options: contractable_config.acceptance_options
         }
+      end
+
+      def events(contractable_config)
+        contractable_config.event_handlers.map do |event_handler|
+          {
+            event: event_handler.event,
+            source: event_handler.source,
+            handler: callable_name(event_handler.handler)
+          }
+        end
       end
     end
   end

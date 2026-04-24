@@ -4,7 +4,15 @@ module Igniter
   module Embed
     module Contractable
       class Config
-        attr_reader :name
+        EventHandler = Struct.new(:event, :handler, :source, keyword_init: true)
+
+        FAILURE_EVENTS = %i[primary_error candidate_error acceptance_failure store_error].freeze
+        SUPPORTED_EVENTS = (
+          %i[primary_success primary_error candidate_success candidate_error divergence acceptance_failure store_error observation] +
+          [:failure]
+        ).freeze
+
+        attr_reader :name, :event_handlers
         attr_accessor :primary_callable, :candidate_callable,
                       :primary_normalizer, :candidate_normalizer,
                       :store_adapter, :observation_callback,
@@ -21,6 +29,7 @@ module Igniter
           @input_redactor = ->(*, **) { {} }
           @acceptance_policy = :exact
           @acceptance_options = {}
+          @event_handlers = []
           @clock_callable = Time
         end
 
@@ -102,6 +111,23 @@ module Igniter
           self.observation_callback = callable || block
         end
 
+        def on(event, callable = nil, &block)
+          handler = callable || block
+          raise SugarError, "on :#{event} requires a block or callable" unless handler
+
+          normalized_event = event.to_sym
+          raise SugarError, "unsupported event :#{event}" unless SUPPORTED_EVENTS.include?(normalized_event)
+
+          event_names(normalized_event).each do |event_name|
+            event_handlers << EventHandler.new(event: event_name, handler: handler, source: normalized_event)
+          end
+          self
+        end
+
+        def handlers_for(event)
+          event_handlers.select { |handler| handler.event == event.to_sym }
+        end
+
         def accept(policy = nil, **options)
           return acceptance_policy unless policy
 
@@ -142,6 +168,10 @@ module Igniter
         private
 
         attr_reader :sample_value, :input_redactor, :metadata_value
+
+        def event_names(event)
+          event == :failure ? FAILURE_EVENTS : [event]
+        end
 
         def inferred_role
           observed_service? ? :observed_service : :migration_candidate

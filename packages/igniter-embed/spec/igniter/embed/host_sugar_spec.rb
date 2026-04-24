@@ -161,6 +161,27 @@ RSpec.describe "Igniter::Embed.host sugar" do
     )
   end
 
+  it "includes typed event hooks in sugar expansion output" do
+    failure_handler = ->(_event) {}
+    contracts = Igniter::Embed.host(:billing) do
+      contracts do
+        add :price_quote, Billing::PriceQuoteContract do
+          migration from: Billing::LegacyQuoteService,
+                    to: Billing::ContractQuoteService
+          use :normalizer, Billing::QuoteNormalizer
+          on :failure, failure_handler
+        end
+      end
+    end
+
+    expect(contracts.sugar_expansion.to_h.fetch(:contractables).first.fetch(:events)).to contain_exactly(
+      include(event: :primary_error, source: :failure, handler: a_string_matching(/Proc/)),
+      include(event: :candidate_error, source: :failure, handler: a_string_matching(/Proc/)),
+      include(event: :acceptance_failure, source: :failure, handler: a_string_matching(/Proc/)),
+      include(event: :store_error, source: :failure, handler: a_string_matching(/Proc/))
+    )
+  end
+
   it "does not generate a contractable for an empty add block" do
     contracts = Igniter::Embed.host(:billing) do
       contracts do

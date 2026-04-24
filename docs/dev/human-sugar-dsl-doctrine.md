@@ -1109,6 +1109,14 @@ map to existing `Contractable::Config` adapter slots and remain visible in
 `:logging`, `:reporting`, `:metrics`, and `:validation`, plus `on` event hooks,
 remain intentionally out of scope for this slice.
 
+[Agent Embed / Codex] Fourth narrow implementation slice landed for review:
+typed event hook sugar now maps `on :candidate_error`, `on :divergence`,
+`on :acceptance_failure`, `on :store_error`, `on :observation`, and
+`on :primary_error` onto observation/primary-error dispatch. `on :failure` is
+implemented only as an alias family for typed failure events, and generated
+event handlers are visible in `host.sugar_expansion.to_h`. Broad
+logging/reporting/metrics/validation capability contracts remain out of scope.
+
 [Agent Contracts / Codex] Expert review added. The sugar direction is accepted
 as user-friendly and architecturally compatible if it compiles to inspectable
 clean config, keeps `contracts.add` semantics explicit, distinguishes
