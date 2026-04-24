@@ -1189,6 +1189,36 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "refuses committed transfer application without explicit apply roots" do
+    plan = {
+      executable: true,
+      artifact_path: "",
+      destination_root: "",
+      operations: [
+        {
+          type: :copy_file,
+          status: :planned,
+          source: "Gemfile",
+          destination: "tmp/unsafe-copy",
+          metadata: { safe: true }
+        }
+      ],
+      blockers: [],
+      surface_count: 0
+    }
+
+    result = Igniter::Application.apply_transfer_plan(plan, commit: true).to_h
+
+    expect(result).to include(committed: true, executable: true, applied: [])
+    expect(result.fetch(:skipped)).to contain_exactly(
+      include(type: :copy_file, status: :skipped, reason: :refusals_present)
+    )
+    expect(result.fetch(:refusals).map { |entry| entry.fetch(:code) }).to include(
+      :missing_artifact_root,
+      :missing_destination_root
+    )
+  end
+
   it "supports named layout profiles and active groups for app capsules" do
     root = File.expand_path("/tmp/igniter_operator_capsule")
     blueprint = Igniter::Application.blueprint(

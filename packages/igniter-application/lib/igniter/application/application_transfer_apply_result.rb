@@ -122,10 +122,21 @@ module Igniter
       end
 
       def commit_refusals
-        @commit_refusals ||= operations.flat_map { |operation| operation_refusals(operation) }.freeze
+        @commit_refusals ||= (root_refusals + operations.flat_map { |operation| operation_refusals(operation) }).freeze
+      end
+
+      def root_refusals
+        [].tap do |items|
+          items << refusal(:missing_artifact_root, "Transfer apply plan artifact path is missing.", entry: plan_payload) unless
+            artifact_root
+          items << refusal(:missing_destination_root, "Transfer apply plan destination root is missing.", entry: plan_payload) unless
+            destination_root_path
+        end
       end
 
       def operation_refusals(operation)
+        return [] unless artifact_root && destination_root_path
+
         case operation_type(operation)
         when :ensure_directory
           directory_refusals(operation)
@@ -179,18 +190,22 @@ module Igniter
 
       def reviewed_source_path(operation)
         relative = value(operation, :source)
+        root = artifact_root
+        return nil unless root
         return nil if relative.nil? || !safe_relative_path?(relative)
 
-        path = File.expand_path(relative.to_s, artifact_path)
-        inside_root?(path, artifact_path) ? path : nil
+        path = File.expand_path(relative.to_s, root)
+        inside_root?(path, root) ? path : nil
       end
 
       def reviewed_destination_path(operation)
         relative = value(operation, :destination)
+        root = destination_root_path
+        return nil unless root
         return nil unless safe_relative_path?(relative)
 
-        path = File.expand_path(relative.to_s, destination_root)
-        inside_root?(path, destination_root) ? path : nil
+        path = File.expand_path(relative.to_s, root)
+        inside_root?(path, root) ? path : nil
       end
 
       def parent_available_for_commit?(path)
@@ -257,6 +272,14 @@ module Igniter
         value(plan_payload, :destination_root).to_s
       end
 
+      def artifact_root
+        @artifact_root ||= expanded_root(value(plan_payload, :artifact_path))
+      end
+
+      def destination_root_path
+        @destination_root_path ||= expanded_root(value(plan_payload, :destination_root))
+      end
+
       def surface_count
         value(plan_payload, :surface_count) || 0
       end
@@ -271,6 +294,13 @@ module Igniter
 
       def inside_root?(path, root)
         path == root || path.start_with?("#{root}#{File::SEPARATOR}")
+      end
+
+      def expanded_root(value)
+        text = value.to_s
+        return nil if text.empty?
+
+        File.expand_path(text)
       end
 
       def value(hash, key)
