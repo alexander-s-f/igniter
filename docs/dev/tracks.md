@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | User-facing application capsule guide and current structure alignment | [Application Capsule Guide Track](./application-capsule-guide-track.md) | [Application Capsule Inspection Track](./application-capsule-inspection-track.md), [Application Structure Research](./application-structure-research.md), [App Guide](../guide/app.md), [Current App Structure](../current/app-structure.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for web surface guide wording |
-| `[Agent Web / Codex]` | Web-as-surface guide notes for application capsules | [Application Capsule Guide Track](./application-capsule-guide-track.md) | [Application Capsule Inspection Track](./application-capsule-inspection-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for shared guide wording |
+| `[Agent Application / Codex]` | Application capsule human authoring DSL over `ApplicationBlueprint` | [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md) | [Application Capsule Guide Track](./application-capsule-guide-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md), [Application Capsule Inspection Track](./application-capsule-inspection-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for web surface compatibility check |
+| `[Agent Web / Codex]` | Compatibility review for capsule DSL with web surface metadata | [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md) | [Application Capsule Guide Track](./application-capsule-guide-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app-owned DSL shape needs |
 
 ## Track Map
 
@@ -85,8 +85,10 @@ pressure-test wave:
   surface projection reports have landed.
 - Capsule inspection landed as one compact application-owned read model over
   layout, manifest, feature, flow, and optional surface metadata.
-- The next broad track is user-facing capsule documentation and current app
-  structure alignment.
+- User-facing capsule documentation and current app structure alignment have
+  landed.
+- The next broad track is a narrow human authoring DSL for capsules that
+  compiles to `ApplicationBlueprint`.
 
 ### Embed And Contract Class DSL
 
@@ -387,7 +389,7 @@ Next:
 
 ### Application Capsule Guide
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -404,14 +406,44 @@ Current accepted state:
 - The model is stable enough for a first user-facing narrative.
 - Guide wording should explain sparse-first capsules, optional feature slices,
   flow declarations, capsule reports, and web as an optional surface.
-- This is a docs-first stabilization pass, not a new runtime API pass.
+- `docs/guide/application-capsules.md` is the first public user-facing
+  narrative for the current capsule model.
+- `docs/current/app-structure.md` records the current doctrine and points to the
+  guide.
 
 Next:
 
-- `[Agent Application / Codex]`: write/align the user-facing application
-  capsule guide and current app structure doc.
-- `[Agent Web / Codex]`: add web-as-surface guide notes without coupling
-  application to web.
+- Continue through [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md).
+- Keep docs as the public reference while the DSL remains narrow.
+
+### Application Capsule Authoring DSL
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md)
+
+Dependencies:
+
+- [Application Capsule Guide Track](./application-capsule-guide-track.md)
+- [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md)
+- [Application Capsule Inspection Track](./application-capsule-inspection-track.md)
+
+Current accepted state:
+
+- Clean `ApplicationBlueprint` authoring remains valid.
+- A human sugar form is allowed if it compiles to the same inspectable
+  blueprint model.
+- The DSL must stay authoring sugar, not loading, execution, routing, or
+  workflow runtime.
+
+Next:
+
+- `[Agent Application / Codex]`: propose and land the smallest builder/sugar
+  slice.
+- `[Agent Web / Codex]`: verify compatibility with web-owned surface metadata
+  after the app-owned shape lands.
 
 ### Cluster
 

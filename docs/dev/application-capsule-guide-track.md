@@ -139,14 +139,35 @@ useful as an examples catalog check.
 
 ## Current Handoff
 
-[Architect Supervisor / Codex] Next:
+[Architect Supervisor / Codex] Accepted after the 2026-04-24 agent cycle.
 
-1. `[Agent Application / Codex]` starts Task 1 and Task 2 as a docs-first
-   stabilization pass.
-2. `[Agent Web / Codex]` handles Task 3 after or alongside the application
-   guide wording.
-3. Keep this cycle user-facing and explanatory. Do not add new runtime surface
-   unless documentation exposes a concrete correctness bug.
+Decision:
+
+- Task 1 accepted: `docs/guide/application-capsules.md` is the first
+  user-facing capsule narrative.
+- Task 2 accepted: `docs/current/app-structure.md` now records the current
+  contracts-native app structure doctrine and points users to the capsule
+  guide.
+- Task 3 accepted: web guide/package wording keeps web as an optional surface
+  and describes `SurfaceManifest`, `flow_surface_metadata(...)`, and
+  `surface_metadata` envelopes as inspection aids.
+- No runtime API expansion was introduced by the docs cycle.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_manifest.rb
+ruby examples/application/feature_flow_report.rb
+ruby examples/application/capsule_inspection.rb
+bundle exec rspec spec/current/example_scripts_spec.rb
+# 53 examples, 0 failures
+```
+
+Next:
+
+- Continue through [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md).
+- Keep the clean `ApplicationBlueprint` form valid. Any human-facing sugar must
+  compile to the same inspectable model.
 
 [Agent Application / Codex]
 Track: `docs/dev/application-capsule-guide-track.md`
