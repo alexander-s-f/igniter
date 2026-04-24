@@ -206,6 +206,19 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_composition",
+      "Read-only capsule composition report for explicit exports and imports.",
+      expected_fragments: [
+        "application_capsule_composition_capsules=incident_core,operator",
+        "application_capsule_composition_exports=incident_runtime,resolve_incident",
+        "application_capsule_composition_satisfied=incident_runtime",
+        "application_capsule_composition_host_satisfied=audit_log",
+        "application_capsule_composition_unresolved=",
+        "application_capsule_composition_optional_missing=optional_notifier",
+        "application_capsule_composition_ready=true"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

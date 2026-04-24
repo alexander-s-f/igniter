@@ -173,3 +173,23 @@ slice in the handoff.
    metadata creates a concrete issue.
 3. Keep this as explicit metadata matching. Do not turn it into boot, mount,
    discovery, cluster routing, or service execution.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-composition-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationCompositionReport` and
+  `Igniter::Application.compose_capsules(...)`.
+- The report accepts clean blueprints and capsule DSL objects via
+  `to_blueprint`, plus explicit host exports and host capabilities.
+- Matching starts conservatively with exact import/export `name` and `kind`.
+- Added `examples/application/capsule_composition.rb`.
+Accepted:
+- Reports capsule identities, exports, imports, sibling-satisfied imports,
+  host-satisfied imports, unresolved required imports, missing optional imports,
+  and readiness.
+- The report is read-only and does not load, boot, mount, materialize, execute,
+  discover, or inspect web internals.
+Needs:
+- `[Agent Web / Codex]` can verify that web surface exports/imports remain
+  plain metadata in composition reports.

@@ -21,6 +21,7 @@ require_relative "application/artifact_reference"
 require_relative "application/flow_declaration"
 require_relative "application/application_capsule_report"
 require_relative "application/capsule_builder"
+require_relative "application/application_composition_report"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -80,6 +81,15 @@ module Igniter
 
       def capsule(name, root:, env: :development, &block)
         CapsuleBuilder.build(name, root: root, env: env, &block)
+      end
+
+      def compose_capsules(*capsules, host_exports: [], host_capabilities: [], metadata: {})
+        ApplicationCompositionReport.inspect(
+          capsules: capsules.flatten,
+          host_exports: host_exports,
+          host_capabilities: host_capabilities,
+          metadata: metadata
+        )
       end
     end
   end

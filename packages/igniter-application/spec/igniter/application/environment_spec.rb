@@ -722,6 +722,57 @@ RSpec.describe Igniter::Application::Environment do
     )
   end
 
+  it "reports capsule composition readiness without loading or executing capsules" do
+    root = File.expand_path("/tmp/igniter_capsule_composition")
+    provider = Igniter::Application.blueprint(
+      name: :incident_core,
+      root: File.join(root, "incident_core"),
+      env: :test,
+      layout_profile: :capsule,
+      groups: %i[contracts services],
+      exports: [
+        { name: :incident_runtime, kind: :service, target: "Services::IncidentRuntime" }
+      ]
+    )
+    operator = Igniter::Application.capsule(:operator, root: File.join(root, "operator"), env: :test) do
+      layout :capsule
+      groups :contracts, :services
+      export :resolve_incident, kind: :contract, target: "Contracts::ResolveIncident"
+      import :incident_runtime, kind: :service, from: :incident_core
+      import :audit_log, kind: :service, from: :host, capabilities: [:audit]
+      import :optional_notifier, kind: :service, from: :observability, optional: true
+      import :missing_policy, kind: :service, from: :host
+    end
+
+    report = Igniter::Application.compose_capsules(
+      provider,
+      operator,
+      host_exports: [
+        { name: :audit_log, kind: :service, target: "Host::AuditLog" }
+      ],
+      host_capabilities: [:audit],
+      metadata: { source: :spec }
+    ).to_h
+
+    expect(report).to include(
+      capsule_count: 2,
+      host_capabilities: [:audit],
+      ready: false,
+      metadata: { source: :spec }
+    )
+    expect(report.fetch(:capsules).map { |entry| entry.fetch(:name) }).to eq(%i[incident_core operator])
+    expect(report.fetch(:exports).map { |entry| entry.fetch(:name) }).to eq(%i[incident_runtime resolve_incident])
+    expect(report.fetch(:satisfied_imports).map { |entry| entry.fetch(:name) }).to eq([:incident_runtime])
+    expect(report.fetch(:satisfied_imports).first).to include(
+      capsule: :operator,
+      provider_capsule: :incident_core,
+      satisfied_by: :capsule
+    )
+    expect(report.fetch(:host_satisfied_imports).map { |entry| entry.fetch(:name) }).to eq([:audit_log])
+    expect(report.fetch(:unresolved_required_imports).map { |entry| entry.fetch(:name) }).to eq([:missing_policy])
+    expect(report.fetch(:missing_optional_imports).map { |entry| entry.fetch(:name) }).to eq([:optional_notifier])
+  end
+
   it "serializes agent-native flow session values without web dependencies" do
     event = Igniter::Application::FlowEvent.new(
       id: "event-1",
