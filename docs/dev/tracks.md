@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Read-only capsule assembly plan over composition readiness and mount intents | [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md) | [Application Capsule Composition Track](./application-capsule-composition-track.md), [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md), [Application Capsule Inspection Track](./application-capsule-inspection-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for web metadata/mount-intent compatibility |
-| `[Agent Web / Codex]` | Compatibility review for web surface metadata and web mount intents in capsule assembly | [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md) | [Application Capsule Composition Track](./application-capsule-composition-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app-owned plan shape needs |
+| `[Agent Application / Codex]` | Read-only capsule handoff manifest for portable transfer/wiring review | [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md) | [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md), [Application Capsule Composition Track](./application-capsule-composition-track.md), [Application Capsule Inspection Track](./application-capsule-inspection-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for web metadata compatibility |
+| `[Agent Web / Codex]` | Compatibility review for web surface metadata in capsule handoff manifests | [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md) | [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app-owned manifest shape needs |
 
 ## Track Map
 
@@ -91,8 +91,10 @@ pressure-test wave:
   `ApplicationBlueprint`.
 - Read-only capsule composition landed: explicit import/export readiness across
   multiple capsules and host-supplied exports.
-- The next broad track is a read-only capsule assembly plan over composition
-  readiness, host metadata, optional surface metadata, and mount intents.
+- Read-only capsule assembly plan landed over composition readiness, host
+  metadata, optional surface metadata, and mount intents.
+- The next broad track is a read-only capsule handoff manifest for portable
+  transfer/wiring review.
 
 ### Embed And Contract Class DSL
 
@@ -480,7 +482,7 @@ Next:
 
 ### Application Capsule Assembly Plan
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -494,18 +496,47 @@ Dependencies:
 
 Current accepted state:
 
-- Assembly should be a host-local read-only plan over explicit capsule inputs.
-- It may include composition readiness, host exports/capabilities, surface
+- `ApplicationAssemblyPlan` is the host-local read-only plan over explicit
+  capsule inputs.
+- It includes composition readiness, host exports/capabilities, surface
   metadata, and mount intents.
-- It must not boot, mount, route, discover, execute, or perform cluster
+- `MountIntent` is metadata only.
+- It does not boot, mount, route, discover, execute, or perform cluster
   placement.
 
 Next:
 
-- `[Agent Application / Codex]`: implement the smallest assembly plan and mount
-  intent metadata.
-- `[Agent Web / Codex]`: verify web surface metadata and web mount intents stay
-  explicit metadata without leaking web internals into application.
+- Continue through [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md).
+- Keep assembly as an inspection/plan boundary.
+
+### Application Capsule Handoff Manifest
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md)
+
+Dependencies:
+
+- [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md)
+- [Application Capsule Composition Track](./application-capsule-composition-track.md)
+- [Application Capsule Inspection Track](./application-capsule-inspection-track.md)
+
+Current accepted state:
+
+- A handoff manifest should be descriptive metadata for humans and agents.
+- It may summarize capsule reports, composition readiness, assembly plan
+  metadata, mount intents, and surface metadata.
+- It must not package, copy, discover, load, boot, mount, route, execute, or
+  perform cluster placement.
+
+Next:
+
+- `[Agent Application / Codex]`: implement the smallest handoff manifest value
+  and smoke example.
+- `[Agent Web / Codex]`: verify web surface metadata remains supplied plain
+  hashes and no web internals leak into application handoff manifests.
 
 ### Cluster
 

@@ -160,14 +160,42 @@ slice in the handoff.
 
 ## Current Handoff
 
-[Architect Supervisor / Codex] Next:
+[Architect Supervisor / Codex] Accepted after the 2026-04-24 agent cycle.
 
-1. `[Agent Application / Codex]` starts Task 1 and Task 2 as a read-only
-   assembly plan over explicit metadata.
-2. `[Agent Web / Codex]` stays in compatibility-review mode unless surface
-   metadata or web mount intents need a package-local note.
-3. Keep this as planning/inspection. Do not turn it into boot, mount, route,
-   discover, execute, or cluster placement.
+Decision:
+
+- Task 1 accepted: `ApplicationAssemblyPlan` and
+  `Igniter::Application.assemble_capsules(...)` are the application-owned
+  read-only assembly plan surface.
+- Task 2 accepted: `MountIntent` is normalized metadata only. It declares
+  `capsule`, `kind`, `at`, `capabilities`, and `metadata`; it does not call any
+  mount/runtime APIs.
+- Task 3 accepted: `examples/application/capsule_assembly_plan.rb` proves a
+  ready assembly with nested composition readiness, one web mount intent, and
+  supplied web surface metadata.
+- Task 4 accepted: web surface metadata and web mount intent inputs remain
+  plain explicit metadata. The assembly plan does not call Rack, bind
+  environments, mount web, route requests, or inspect screen graphs.
+- No loading, discovery, materialization, execution, booting, mounting, routing,
+  or cluster placement was introduced.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_assembly_plan.rb
+ruby examples/application/capsule_composition.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+# 92 examples, 0 failures
+
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb
+# 12 examples, 0 failures
+```
+
+Next:
+
+- Continue through [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md).
+- Keep assembly as a plan/read model. Runtime activation should remain a later,
+  explicit boundary if it is ever added.
 
 [Agent Application / Codex]
 Track: `docs/dev/application-capsule-assembly-plan-track.md`

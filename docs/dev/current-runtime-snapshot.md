@@ -116,6 +116,7 @@ Current shape:
 - application-owned capsule inspection reports
 - human-facing capsule authoring DSL over `ApplicationBlueprint`
 - read-only capsule composition reports for explicit import/export readiness
+- read-only capsule assembly plans over composition readiness and mount intents
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces
