@@ -361,7 +361,7 @@ Acceptance:
 
 Owner: `[Agent Embed / Codex]`.
 
-Status: Started. This is the active implementation track.
+Status: Landed and accepted with one async-default hardening follow-up.
 
 Acceptance:
 
@@ -381,11 +381,10 @@ Acceptance:
 
 ### Task 3: Differential Pack Fit Check
 
-Owner: `[Agent Extensions / Codex]` or `[Agent Embed / Codex]` if extensions
+Owner: `[Agent Contracts / Codex]` or `[Agent Embed / Codex]` if extensions
 work stays in the same thread.
 
-Status: Conditional. Do not start as a separate track unless Task 2 proves
-`DifferentialPack` needs a new seam.
+Status: Not needed for Task 2. The embed-side adapter was sufficient.
 
 Acceptance:
 
@@ -416,25 +415,18 @@ Acceptance:
 
 [Architect Supervisor / Codex] Next:
 
-Assigned executor: `[Agent Embed / Codex]`.
-
-Start Task 2 now:
-
-1. Implement the minimal `Igniter::Embed.contractable` runner in
-   `packages/igniter-embed`.
-2. Include role/stage metadata and support both:
-   - migration candidate with primary + candidate
-   - observed service with primary only
-3. Reuse `DifferentialPack` as the comparison engine and add rollout
-   acceptance as a contractable-layer policy, not as a replacement for the diff
-   report.
-4. Implement first acceptance policies: `:exact`, `:completed`, `:shape`.
-5. Keep primary synchronous and candidate async-by-default.
-6. Keep persistence as a tiny app-supplied `store.record(observation)` protocol.
-7. Add package specs and one public generic example.
-
-Return compact status to `[Architect Supervisor / Codex]` with changed files,
-verification, accepted items, and any needed `DifferentialPack` seam.
+1. `[Agent Embed / Codex]` hardens the async default contract so the API does
+   not imply non-blocking production shadowing while using an inline adapter.
+   Acceptable fixes:
+   - make `async true` use a non-blocking local adapter by default and document
+     that it is not durable, or
+   - keep inline as the default but rename/document the setting so users must
+     explicitly configure a non-blocking adapter for production shadowing.
+2. `[Agent Embed / Codex]` then starts Task 4 private pressure test against the
+   Rails service pair, using the public `Contractable` API and keeping private
+   details out of this document.
+3. `[Agent Contracts / Codex]` absorbs the former `[Agent Extensions / Codex]`
+   role for any future `DifferentialPack` seam. No seam is needed from Task 2.
 
 ## Task 1 Design: Exact Contractable API
 
@@ -792,3 +784,31 @@ protocol, store protocol, observation payload, and acceptance policies
 `:exact`, `:completed`, and `:shape`. The implementation reuses
 `DifferentialPack` through an embed-side execution-like adapter; no extensions
 seam was needed.
+
+[Architect Supervisor / Codex] Accepted Task 2. The implementation satisfies
+the minimal package slice: migration-candidate shadowing, primary-only observed
+service capture, role/stage metadata, store protocol, callback/no-store mode,
+candidate exception capture, and `:exact` / `:completed` / `:shape` acceptance
+policies are in place.
+
+[Architect Supervisor / Codex] Verification:
+
+```bash
+bundle exec rspec packages/igniter-embed/spec packages/igniter-extensions/spec/igniter/extensions/contracts/differential_pack_spec.rb packages/igniter-contracts/spec/igniter/contracts/step_result_pack_spec.rb spec/current/example_scripts_spec.rb
+```
+
+Result: `83 examples, 0 failures`.
+
+```bash
+ruby examples/contracts/contractable_shadow.rb
+```
+
+Result: expected contractable smoke output printed `match=false`,
+`accepted=true`, policy `shape`, and observed mode `observe`.
+
+[Architect Supervisor / Codex] Hardening follow-up: the current implementation
+has `async true` by default but uses an inline adapter unless a host provides a
+different adapter. Before presenting production shadowing as async-by-default,
+make this contract explicit or switch the default adapter. The important user
+promise is that the legacy primary response must not wait on candidate
+execution in production shadow mode.

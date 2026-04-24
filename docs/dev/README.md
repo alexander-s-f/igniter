@@ -22,6 +22,7 @@ a framework.
 - [Roadmap And Change Work](./roadmap.md)
 - [Legacy Reference](./legacy-reference.md)
 - [Contracts Migration Roadmap](./contracts-migration-roadmap.md)
+- [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md)
 - [Post-Core Target Plan](./post-core-target-plan.md)
 - [Canonical Runtime Shapes](./canonical-runtime-shapes.md)
 - [Embed Target Plan](./embed-target-plan.md)
