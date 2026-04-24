@@ -211,3 +211,49 @@ Accepted:
 Needs:
 - `[Architect Supervisor / Codex]` review the transfer bundle verification
   track for acceptance.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after 2026-04-25 agent cycle.
+
+Accepted:
+
+- `ApplicationTransferBundleVerification` is the right next read-only readback
+  surface after explicit bundle artifact writing.
+- `Igniter::Application.verify_transfer_bundle(path)` keeps the API compact and
+  explicit.
+- Verification reads only the caller-provided artifact path and the artifact
+  metadata manifest.
+- Planned file checks are constrained to the artifact `files/` tree and unsafe
+  or malformed entries are reported rather than repaired.
+- Missing files, extra files, invalid/missing metadata, and malformed entries
+  all remain report data; no install/extract/copy/load/boot/mount/route/execute
+  behavior was introduced.
+- Supplied web surface metadata remains opaque serialized review metadata. The
+  application layer may count it, but it must not inspect web internals.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_transfer_bundle_verification.rb
+ruby examples/application/capsule_transfer_bundle_artifact.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb
+bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_bundle_verification.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_bundle_verification.rb examples/catalog.rb
+```
+
+Result:
+
+- verification example passed
+- artifact example passed
+- application/current specs passed with 111 examples, 0 failures
+- web skeleton specs passed with 12 examples, 0 failures
+- RuboCop passed with no offenses
+
+Next:
+
+- Continue through
+  [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md).
+- Keep the next cycle read-only: inspect a verified bundle against an explicit
+  destination context, but do not extract, copy, install, boot, mount, route,
+  execute, or place work on a cluster.
