@@ -42,9 +42,16 @@ module Igniter
         end
 
         def render_node(node)
-          view_node node do
+          send(node_builder_method(node), node) do
             node.children.each { |child| render_node(child) }
           end
+        end
+
+        def node_builder_method(node)
+          candidate = :"view_#{node.kind}_node"
+          return candidate if respond_to?(candidate)
+
+          :view_node
         end
 
         def humanize(value)

@@ -79,6 +79,25 @@ module Igniter
           value.to_s
         end
       end
+
+      def node_label(node)
+        humanize([node.kind, node.name].compact.join(": "))
+      end
+
+      def render_property_list(props)
+        return if props.empty?
+
+        dl class: "ig-node-props" do
+          props.each do |name, value|
+            next if value.nil?
+
+            div class: "ig-node-prop", "data-ig-prop": name do
+              dt humanize(name)
+              dd format_value(value)
+            end
+          end
+        end
+      end
     end
   end
 end

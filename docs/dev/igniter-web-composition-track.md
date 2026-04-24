@@ -107,6 +107,7 @@ Initial renderer behavior:
 - preserve screen, preset, zone, and node identity through `data-ig-*`
   attributes
 - delegate screen, zone, and node markup to semantic Arbre components
+- specialize common node kinds such as action, chat, stream, ask, and compare
 - keep visual output deliberately plain while the component vocabulary matures
 
 ## Composition Presets

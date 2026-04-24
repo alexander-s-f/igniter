@@ -54,6 +54,7 @@ This package currently ships only a skeleton:
 - initial screen composition objects for agent-managed views and flows
 - first Arbre renderer for composed view graphs
 - semantic Arbre components for screen, zone, and node rendering
+- specialized Arbre components for action, chat, stream, ask, and compare nodes
 - an adapter-oriented `Record` placeholder
 
 That gives the rebuild a real package boundary now, while leaving room to shape

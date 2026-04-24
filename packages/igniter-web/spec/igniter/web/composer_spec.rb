@@ -79,6 +79,7 @@ RSpec.describe Igniter::Web::Composer do
       title "Plan review"
       subject :project
       show :risk_panel
+      compare :current_plan, :proposed_plan
       action :approve, run: "Contracts::ApprovePlan"
       chat with: "Agents::ProjectLead"
       compose with: :decision_workspace
@@ -92,7 +93,28 @@ RSpec.describe Igniter::Web::Composer do
     expect(html).to include("data-ig-preset=\"decision_workspace\"")
     expect(html).to include("data-ig-zone=\"summary\"")
     expect(html).to include("data-ig-node-kind=\"action\"")
-    expect(html).to include("class=\"ig-node ig-node--action ig-role--primary-action\"")
+    expect(html).to include("class=\"ig-node ig-action ig-action--approve ig-role--primary-action\"")
+    expect(html).to include("data-ig-action=\"approve\"")
+    expect(html).to include("data-ig-chat-with=\"Agents::ProjectLead\"")
+    expect(html).to include("class=\"ig-compare-grid\"")
     expect(html).to include("Contracts::ApprovePlan")
+  end
+
+  it "renders ask and stream nodes through specialized components" do
+    screen = Igniter::Web.screen(:brief, intent: :collect_input) do
+      title "Brief"
+      ask :goal, as: :textarea
+      stream :events, from: "Projections::ProjectEvents"
+      action :continue, run: "Contracts::DraftPlan"
+      compose with: :wizard_operator_surface
+    end
+    result = described_class.compose(screen)
+
+    html = Igniter::Web.render(result.graph)
+
+    expect(html).to include("data-ig-field=\"goal\"")
+    expect(html).to include("<textarea")
+    expect(html).to include("data-ig-stream=\"events\"")
+    expect(html).to include("data-ig-stream-from=\"Projections::ProjectEvents\"")
   end
 end
