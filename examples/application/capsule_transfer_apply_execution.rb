@@ -51,4 +51,5 @@ Dir.mktmpdir("igniter-capsule-apply-execution") do |root|
   puts "application_capsule_transfer_apply_applied=#{committed.fetch(:applied).length}"
   puts "application_capsule_transfer_apply_refusals=#{committed.fetch(:refusals).length}"
   puts "application_capsule_transfer_apply_copied=#{copied}"
+  puts "application_capsule_transfer_apply_execution_surfaces=#{committed.fetch(:surface_count)}"
 end

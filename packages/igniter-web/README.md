@@ -381,3 +381,15 @@ The operation list may include directory and file-copy review steps, plus
 manual host wiring steps, but it does not execute them. Supplied web surfaces
 remain a count on the plan; there is no web mount binding, route activation, or
 screen/component inspection.
+
+Apply execution is the first mutable transfer boundary and is still explicit:
+
+```ruby
+dry_run = Igniter::Application.apply_transfer_plan(apply_plan)
+committed = Igniter::Application.apply_transfer_plan(apply_plan, commit: true)
+```
+
+Dry-run is the default. Commit mode may create reviewed directories and copy
+reviewed files, but it still treats web surface metadata as an opaque count and
+does not install surfaces, bind mounts, activate routes, or inspect web
+internals.

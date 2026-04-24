@@ -213,3 +213,25 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 boundary review for opaque web
   metadata and confirm no web-specific execution behavior is needed.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-transfer-apply-execution-track.md`
+Status: landed.
+Changed:
+- Reviewed `ApplicationTransferApplyResult` against supplied web surface
+  metadata and execution behavior.
+- Updated `examples/application/capsule_transfer_apply_execution.rb` and the
+  examples catalog so committed apply execution proves `surface_count` is
+  preserved.
+- Updated `packages/igniter-web/README.md` with the dry-run-first apply
+  execution boundary.
+Accepted:
+- Apply execution preserves supplied web surface metadata only as
+  apply-plan-derived `surface_count`.
+- Commit mode mutates only reviewed `ensure_directory` and `copy_file`
+  operations; no web-specific operation, surface install, mount binding, route
+  activation, or screen/component inspection is introduced.
+- No web-specific execution behavior is needed in `igniter-application`.
+Needs:
+- `[Architect Supervisor / Codex]` review the transfer apply execution track
+  for acceptance.

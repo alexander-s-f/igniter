@@ -344,7 +344,8 @@ module IgniterExamples
         "application_capsule_transfer_apply_commit_committed=true",
         "application_capsule_transfer_apply_applied=4",
         "application_capsule_transfer_apply_refusals=0",
-        "application_capsule_transfer_apply_copied=true"
+        "application_capsule_transfer_apply_copied=true",
+        "application_capsule_transfer_apply_execution_surfaces=1"
       ]
     ),
     example(
