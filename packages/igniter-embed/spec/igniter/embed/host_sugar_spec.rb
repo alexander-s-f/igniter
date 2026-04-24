@@ -19,6 +19,9 @@ RSpec.describe "Igniter::Embed.host sugar" do
         output :total
       end
     end)
+    stub_const("Billing::LegacyQuoteService", Class.new)
+    stub_const("Billing::ContractQuoteService", Class.new)
+    stub_const("Billing::QuoteObserver", Class.new)
   end
 
   it "builds the same plain contract registration as the clean form" do
@@ -99,6 +102,80 @@ RSpec.describe "Igniter::Embed.host sugar" do
           kind: :class
         }
       ]
+    )
+  end
+
+  it "includes generated migration contractables in sugar expansion output" do
+    contracts = Igniter::Embed.host(:billing) do
+      contracts do
+        add :price_quote, Billing::PriceQuoteContract do
+          migration from: Billing::LegacyQuoteService,
+                    to: Billing::ContractQuoteService
+          shadow async: false, sample: 0.25
+        end
+      end
+    end
+
+    expect(contracts.config.contractable_configs.length).to eq(1)
+    expect(contracts.sugar_expansion.to_h.fetch(:contractables)).to eq(
+      [
+        {
+          name: :price_quote,
+          role: :migration_candidate,
+          stage: :shadowed,
+          primary: "Billing::LegacyQuoteService",
+          candidate: "Billing::ContractQuoteService",
+          async: false,
+          sample: 0.25,
+          metadata: {}
+        }
+      ]
+    )
+  end
+
+  it "does not generate a contractable for an empty add block" do
+    contracts = Igniter::Embed.host(:billing) do
+      contracts do
+        add :price_quote, Billing::PriceQuoteContract do
+        end
+      end
+    end
+
+    expect(contracts.registry.names).to eq([:price_quote])
+    expect(contracts.config.contractable_configs).to eq([])
+    expect(contracts.sugar_expansion.to_h.fetch(:contractables)).to eq([])
+  end
+
+  it "includes generated observed and discovery contractables in sugar expansion output" do
+    contracts = Igniter::Embed.host(:billing) do
+      contracts do
+        add :quote_observer, Billing::PriceQuoteContract do
+          observe Billing::QuoteObserver
+        end
+
+        add :quote_probe, Billing::PriceQuoteContract do
+          discover Billing::LegacyQuoteService
+          capture calls: true, timing: true, errors: true
+        end
+      end
+    end
+
+    expect(contracts.sugar_expansion.to_h.fetch(:contractables)).to contain_exactly(
+      include(
+        name: :quote_observer,
+        role: :observed_service,
+        stage: :captured,
+        primary: "Billing::QuoteObserver",
+        candidate: nil
+      ),
+      include(
+        name: :quote_probe,
+        role: :discovery_probe,
+        stage: :profiled,
+        primary: "Billing::LegacyQuoteService",
+        candidate: nil,
+        metadata: { capture: { calls: true, timing: true, errors: true } }
+      )
     )
   end
 

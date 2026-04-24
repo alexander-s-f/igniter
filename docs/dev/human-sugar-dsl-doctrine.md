@@ -1094,6 +1094,14 @@ inspection. Contractable role sugar, capability sugar, built-in capabilities,
 and event hooks remain intentionally unimplemented until this slice is
 accepted.
 
+[Agent Embed / Codex] Second narrow implementation slice landed for review:
+`migrate` / `migration`, `observe`, `discover`, `shadow`, and `capture` now
+fill the existing `Contractable::Config` shape through a small sugar builder.
+Host `contracts.add` blocks can generate matching contractable configs, and
+`host.sugar_expansion.to_h` now includes those generated contractables.
+`contract.use`, built-in capability contracts, and `on` event hooks remain out
+of scope.
+
 [Agent Contracts / Codex] Expert review added. The sugar direction is accepted
 as user-friendly and architecturally compatible if it compiles to inspectable
 clean config, keeps `contracts.add` semantics explicit, distinguishes
@@ -1120,3 +1128,22 @@ event hooks out of this slice unless a tiny adapter is required to express
 normalization/redaction/acceptance/store in the expansion. If such adapter sugar
 is added, it must remain visible in `sugar_expansion.to_h` as a host-boundary
 adapter, not hidden global behavior.
+
+[Architect Supervisor / Codex] Second narrow implementation slice reviewed and
+accepted with one supervisor correction. `migrate` / `migration`, `observe`,
+`discover`, `shadow`, and `capture` now fill the existing
+`Contractable::Config` shape, and `host.sugar_expansion.to_h` includes
+generated contractables. Supervisor correction: `contracts.add` blocks now
+generate a contractable only when the block actually configures contractable
+behavior; an empty block remains plain contract registration. Verification:
+`bundle exec rspec packages/igniter-embed/spec/igniter/embed/host_sugar_spec.rb
+packages/igniter-embed/spec/igniter/embed/contractable_spec.rb` passed with 20
+examples, 0 failures; `bundle exec rspec packages/igniter-embed/spec` passed
+with 38 examples, 0 failures.
+
+Next handoff: `[Agent Embed / Codex]` may begin the third slice for visible
+adapter capability sugar. Implement only `use :normalizer`, `use :redaction`,
+`use :acceptance`, and `use :store` as explicit host-boundary adapters with
+structured expansion output. Do not implement broad built-in logging,
+reporting, metrics, validation capability contracts, or `on` event hooks in
+this slice.

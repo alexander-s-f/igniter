@@ -5,7 +5,8 @@ module Igniter
     class Config
       ContractRegistration = Struct.new(:definition, :name, keyword_init: true)
 
-      attr_reader :name, :packs, :contract_registrations, :discovery_pattern
+      attr_reader :name, :packs, :contract_registrations,
+                  :contractable_configs, :discovery_pattern
       attr_accessor :cache, :capture_exceptions, :executor_name
 
       UNSET = Object.new.freeze
@@ -17,6 +18,7 @@ module Igniter
         @owner = nil
         @packs = []
         @contract_registrations = []
+        @contractable_configs = []
         @discovery_enabled = false
         @discovery_pattern = "**/*_contract.rb"
         @capture_exceptions = false
@@ -41,6 +43,11 @@ module Igniter
 
       def contract(definition, as: nil)
         contract_registrations << ContractRegistration.new(definition: definition, name: as)
+        self
+      end
+
+      def contractable(config)
+        contractable_configs << config
         self
       end
 

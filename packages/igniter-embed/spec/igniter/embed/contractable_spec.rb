@@ -207,4 +207,60 @@ RSpec.describe Igniter::Embed::Contractable do
 
     expect(store.observations.fetch(0).fetch(:accepted)).to eq(true)
   end
+
+  it "supports migration sugar over contractable config" do
+    store = memory_store
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      migrate ->(amount:) { { total: amount * 1.2 } },
+              to: ->(amount:) { { total: amount * 1.2 } }
+      shadow async: false, sample: 1.0
+      store store
+      redact_inputs ->(**inputs) { inputs }
+      normalize_primary normalize
+      normalize_candidate normalize
+      accept :exact
+    end
+
+    expect(runner.config.role).to eq(:migration_candidate)
+    expect(runner.config.stage).to eq(:shadowed)
+    expect(runner.call(amount: 100)).to eq(total: 120.0)
+    expect(store.observations.fetch(0)).to include(match: true, accepted: true)
+  end
+
+  it "supports observed service sugar over contractable config" do
+    store = memory_store
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:quote) do
+      observe ->(amount:) { { total: amount } }
+      async false
+      store store
+      redact_inputs ->(**inputs) { inputs }
+      normalize_primary normalize
+    end
+
+    expect(runner.config.role).to eq(:observed_service)
+    expect(runner.config.stage).to eq(:captured)
+    runner.call(amount: 100)
+
+    observation = store.observations.fetch(0)
+    expect(observation).to include(role: :observed_service, stage: :captured, mode: :observe)
+  end
+
+  it "supports discovery probe sugar over contractable config" do
+    store = memory_store
+    normalize = normalizer
+    runner = Igniter::Embed.contractable(:vendor_lookup) do
+      discover ->(vendor_id:) { { vendor_id: vendor_id } }
+      capture calls: true, timing: true, errors: true
+      async false
+      store store
+      redact_inputs ->(**inputs) { inputs }
+      normalize_primary normalize
+    end
+
+    expect(runner.config.role).to eq(:discovery_probe)
+    expect(runner.config.stage).to eq(:profiled)
+    expect(runner.config.metadata).to eq(capture: { calls: true, timing: true, errors: true })
+  end
 end

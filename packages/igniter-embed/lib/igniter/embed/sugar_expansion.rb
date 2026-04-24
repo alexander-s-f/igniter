@@ -14,7 +14,7 @@ module Igniter
           root: config.root,
           cache: config.cache?,
           contracts: contracts,
-          contractables: [],
+          contractables: contractables,
           capabilities: [],
           events: [],
           clean_config: clean_config
@@ -53,6 +53,21 @@ module Igniter
         }
       end
 
+      def contractables
+        config.contractable_configs.map do |contractable_config|
+          {
+            name: contractable_config.name,
+            role: contractable_config.role,
+            stage: contractable_config.stage,
+            primary: callable_name(contractable_config.primary),
+            candidate: callable_name(contractable_config.candidate),
+            async: contractable_config.async,
+            sample: contractable_config.sample,
+            metadata: contractable_config.metadata
+          }
+        end
+      end
+
       def registration_name(registration)
         return registration.name.to_sym if registration.name
         return ContractNaming.infer_contract_name(registration.definition) if ContractNaming.contract_class?(registration.definition)
@@ -69,6 +84,13 @@ module Igniter
 
       def registration_kind(registration)
         ContractNaming.contract_class?(registration.definition) ? :class : :block
+      end
+
+      def callable_name(callable)
+        return nil unless callable
+        return callable.name if callable.respond_to?(:name) && callable.name
+
+        callable.inspect
       end
     end
   end
