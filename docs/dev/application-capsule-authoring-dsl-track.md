@@ -203,14 +203,43 @@ slice in the handoff.
 
 ## Current Handoff
 
-[Architect Supervisor / Codex] Next:
+[Architect Supervisor / Codex] Accepted after the 2026-04-24 agent cycle.
 
-1. `[Agent Application / Codex]` starts Task 1 with the narrowest builder that
-   proves clean form and sugar form are equivalent.
-2. `[Agent Web / Codex]` stays in compatibility-review mode until the
-   application-owned DSL shape lands.
-3. Keep the DSL small. This is authoring sugar over `ApplicationBlueprint`, not
-   a new application runtime.
+Decision:
+
+- Task 1 accepted: `Igniter::Application.capsule(...)` and `CapsuleBuilder`
+  are the first human authoring DSL over `ApplicationBlueprint`.
+- Clean form remains canonical for explicit generated configuration; human form
+  is accepted as equal authoring sugar because it compiles to the same
+  `ApplicationBlueprint` semantics.
+- Task 2 accepted: `examples/application/capsule_authoring_dsl.rb` proves clean
+  form and DSL form equivalence and keeps the DSL inspectable through
+  `to_blueprint` / `to_h`.
+- Task 3 accepted: the DSL-created blueprint works unchanged with
+  `Igniter::Web.surface_manifest(...)`,
+  `Igniter::Web.flow_surface_metadata(...)`, and
+  `ApplicationBlueprint#capsule_report(surface_metadata:)`.
+- No loading, discovery, materialization, execution, routing, browser
+  transport, web dependency, or workflow semantics were introduced.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_authoring_dsl.rb
+ruby examples/application/capsule_inspection.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+# 86 examples, 0 failures
+
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb
+# 12 examples, 0 failures
+```
+
+Next:
+
+- Continue through [Application Capsule Composition Track](./application-capsule-composition-track.md).
+- Keep capsule DSL narrow. Future additions should be driven by real
+  application composition or pressure-test needs, not by making a second hidden
+  runtime.
 
 [Agent Application / Codex]
 Track: `docs/dev/application-capsule-authoring-dsl-track.md`

@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Application capsule human authoring DSL over `ApplicationBlueprint` | [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md) | [Application Capsule Guide Track](./application-capsule-guide-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md), [Application Capsule Inspection Track](./application-capsule-inspection-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for web surface compatibility check |
-| `[Agent Web / Codex]` | Compatibility review for capsule DSL with web surface metadata | [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md) | [Application Capsule Guide Track](./application-capsule-guide-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app-owned DSL shape needs |
+| `[Agent Application / Codex]` | Read-only capsule composition/import-export readiness report | [Application Capsule Composition Track](./application-capsule-composition-track.md) | [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md), [Application Capsule Inspection Track](./application-capsule-inspection-track.md), [Application Structure Research](./application-structure-research.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for web metadata compatibility |
+| `[Agent Web / Codex]` | Compatibility review for web surface metadata in capsule composition | [Application Capsule Composition Track](./application-capsule-composition-track.md) | [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app-owned report shape needs |
 
 ## Track Map
 
@@ -87,8 +87,10 @@ pressure-test wave:
   layout, manifest, feature, flow, and optional surface metadata.
 - User-facing capsule documentation and current app structure alignment have
   landed.
-- The next broad track is a narrow human authoring DSL for capsules that
-  compiles to `ApplicationBlueprint`.
+- Narrow human authoring DSL for capsules landed and compiles to
+  `ApplicationBlueprint`.
+- The next broad track is read-only capsule composition: explicit import/export
+  readiness across multiple capsules and host-supplied capabilities.
 
 ### Embed And Contract Class DSL
 
@@ -418,7 +420,7 @@ Next:
 
 ### Application Capsule Authoring DSL
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -435,15 +437,44 @@ Current accepted state:
 - Clean `ApplicationBlueprint` authoring remains valid.
 - A human sugar form is allowed if it compiles to the same inspectable
   blueprint model.
-- The DSL must stay authoring sugar, not loading, execution, routing, or
-  workflow runtime.
+- `Igniter::Application.capsule(...)` and `CapsuleBuilder` are accepted as the
+  first human authoring DSL over `ApplicationBlueprint`.
+- The DSL stays authoring sugar, not loading, execution, routing, or workflow
+  runtime.
 
 Next:
 
-- `[Agent Application / Codex]`: propose and land the smallest builder/sugar
-  slice.
-- `[Agent Web / Codex]`: verify compatibility with web-owned surface metadata
-  after the app-owned shape lands.
+- Continue through [Application Capsule Composition Track](./application-capsule-composition-track.md).
+- Keep future DSL additions pressure-driven and inspectable.
+
+### Application Capsule Composition
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Capsule Composition Track](./application-capsule-composition-track.md)
+
+Dependencies:
+
+- [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md)
+- [Application Capsule Inspection Track](./application-capsule-inspection-track.md)
+- [Application Structure Research](./application-structure-research.md)
+
+Current accepted state:
+
+- Capsules expose explicit exports/imports.
+- Composition should start as a read-only readiness report over explicit
+  metadata, not a boot/mount/runtime/cluster mechanism.
+- Clean blueprints and DSL capsules should both be accepted through
+  `to_blueprint`.
+
+Next:
+
+- `[Agent Application / Codex]`: implement the smallest composition report and
+  matching policy.
+- `[Agent Web / Codex]`: verify web surface metadata remains plain metadata and
+  does not leak web internals into application composition.
 
 ### Cluster
 

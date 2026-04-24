@@ -114,6 +114,7 @@ Current shape:
 - optional feature-slice reporting metadata
 - app-owned flow declaration metadata
 - application-owned capsule inspection reports
+- human-facing capsule authoring DSL over `ApplicationBlueprint`
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces
