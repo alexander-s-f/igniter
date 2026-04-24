@@ -3,15 +3,23 @@
 module Igniter
   module Application
     class Kernel
-      PATH_GROUPS = %i[contracts executors tools agents skills].freeze
+      PATH_GROUPS = %i[
+        contracts providers services effects packs executors tools agents skills config spec
+      ].freeze
 
       attr_reader :contracts_kernel, :contracts_packs, :application_packs, :providers,
                   :services, :service_definitions, :interfaces, :registrations,
                   :scheduled_jobs, :code_paths, :host_seam, :loader_seam, :scheduler_seam,
-                  :session_store_seam, :config_builder
+                  :session_store_seam, :config_builder, :application_name, :application_root,
+                  :application_env, :application_layout, :application_metadata
 
       def initialize(contracts_kernel: Igniter::Contracts.build_kernel)
         @contracts_kernel = contracts_kernel
+        @application_name = :application
+        @application_root = Dir.pwd
+        @application_env = :development
+        @application_layout = ApplicationLayout.new(root: @application_root)
+        @application_metadata = {}
         @contracts_packs = []
         @application_packs = []
         @providers = []
@@ -30,6 +38,21 @@ module Igniter
         @scheduler_seam = ManualScheduler.new
         @session_store_name = :memory
         @session_store_seam = MemorySessionStore.new
+      end
+
+      def manifest(name = nil, root: nil, env: nil, layout: nil, paths: nil, metadata: nil)
+        return build_manifest_preview if name.nil? && root.nil? && env.nil? && layout.nil? && paths.nil? && metadata.nil?
+
+        @application_name = name.to_sym unless name.nil?
+        @application_root = root.to_s unless root.nil?
+        @application_env = env.to_sym unless env.nil?
+        @application_metadata = metadata.dup unless metadata.nil?
+        @application_layout = layout || ApplicationLayout.new(
+          root: @application_root,
+          paths: paths || application_layout.paths,
+          metadata: @application_metadata
+        )
+        self
       end
 
       def install_pack(pack)
@@ -175,6 +198,22 @@ module Igniter
         add_path(:contracts, *paths)
       end
 
+      def providers_path(*paths)
+        add_path(:providers, *paths)
+      end
+
+      def services_path(*paths)
+        add_path(:services, *paths)
+      end
+
+      def effects_path(*paths)
+        add_path(:effects, *paths)
+      end
+
+      def packs_path(*paths)
+        add_path(:packs, *paths)
+      end
+
       def executors_path(*paths)
         add_path(:executors, *paths)
       end
@@ -191,9 +230,25 @@ module Igniter
         add_path(:skills, *paths)
       end
 
+      def config_path(*paths)
+        add_path(:config, *paths)
+      end
+
+      def spec_path(*paths)
+        add_path(:spec, *paths)
+      end
+
       def finalize
+        layout = ApplicationLayout.new(
+          root: application_root,
+          paths: application_layout.paths.merge(code_paths),
+          metadata: application_layout.metadata
+        )
+        manifest = build_manifest(layout: layout)
+
         Profile.new(
           contracts_profile: contracts_kernel.finalize,
+          manifest: manifest,
           contracts_packs: contracts_packs,
           application_packs: application_packs,
           host_name: host,
@@ -230,6 +285,38 @@ module Igniter
         return resolved if missing.empty?
 
         raise ArgumentError, "#{label} seam #{resolved.inspect} must respond to: #{required_methods.join(", ")}"
+      end
+
+      def build_manifest_preview
+        build_manifest(layout: ApplicationLayout.new(
+          root: application_root,
+          paths: application_layout.paths.merge(code_paths),
+          metadata: application_layout.metadata
+        ))
+      end
+
+      def build_manifest(layout:)
+        ApplicationManifest.new(
+          name: application_name,
+          root: application_root,
+          env: application_env,
+          layout: layout,
+          packs: pack_names,
+          contracts: registrations.keys.sort,
+          providers: providers.map(&:name).sort,
+          services: services.keys.sort,
+          interfaces: interfaces.keys.sort,
+          scheduled_jobs: scheduled_jobs.map { |job| job[:name] }.sort,
+          config: config_builder.to_config.to_h,
+          metadata: application_metadata
+        )
+      end
+
+      def pack_names
+        (contracts_packs + application_packs).map do |pack|
+          resolved = pack.respond_to?(:name) ? pack.name : nil
+          resolved.nil? || resolved.to_s.empty? ? pack.inspect : resolved.to_s
+        end.sort
       end
     end
   end

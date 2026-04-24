@@ -62,6 +62,19 @@ module IgniterExamples
 
   ALL = [
     example(
+      "application/layout",
+      "Application manifest and canonical user app layout shape.",
+      expected_fragments: [
+        "application_manifest_name=shop",
+        "application_manifest_env=test",
+        "application_layout_contracts=app/contracts",
+        "application_layout_config=config/igniter.rb",
+        "application_manifest_services=pricing_api",
+        "application_manifest_contracts=PricingContract",
+        "application_manifest_owner=commerce"
+      ]
+    ),
+    example(
       "cluster/incidents",
       "Failover planning plus durable incident history and active incident state.",
       expected_fragments: [

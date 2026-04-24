@@ -77,6 +77,14 @@ module Igniter
         profile.config
       end
 
+      def manifest
+        profile.manifest
+      end
+
+      def layout
+        manifest.layout
+      end
+
       def providers
         profile.providers
       end

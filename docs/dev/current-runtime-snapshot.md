@@ -93,10 +93,13 @@ Current shape:
 - `Application::Kernel`
 - `Application::Profile`
 - `Application::Environment`
+- `ApplicationManifest`
+- `ApplicationLayout`
 - config, provider, service, contract, host, loader, scheduler seams
 - `MemorySessionStore` and configurable `session_store`
 - local durable sessions for compose and collection
 - transport-ready compose and collection invokers
+- manifest and canonical user app layout
 - lifecycle plans and reports
 
 Lifecycle now follows this shape:

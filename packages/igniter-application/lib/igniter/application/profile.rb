@@ -7,14 +7,15 @@ module Igniter
                   :host_name, :loader_name, :scheduler_name, :session_store_name,
                   :host_seam, :loader_seam, :scheduler_seam, :session_store_seam,
                   :config, :providers, :service_registry, :contract_registry,
-                  :scheduled_jobs, :code_paths
+                  :scheduled_jobs, :code_paths, :manifest
 
-      def initialize(contracts_profile:, contracts_packs:, application_packs:,
+      def initialize(contracts_profile:, manifest:, contracts_packs:, application_packs:,
                      host_name:, loader_name:, scheduler_name:, session_store_name:,
                      host_seam:, loader_seam:, scheduler_seam:, session_store_seam:,
                      config:, providers:, services:, service_definitions:, interfaces:,
                      registrations:, scheduled_jobs:, code_paths:)
         @contracts_profile = contracts_profile
+        @manifest = manifest
         @contracts_packs = contracts_packs.dup.freeze
         @application_packs = application_packs.dup.freeze
         @host_name = host_name.to_sym
@@ -99,6 +100,7 @@ module Igniter
       def to_h
         {
           contracts_profile_fingerprint: contracts_profile.fingerprint,
+          manifest: manifest.to_h,
           contracts_packs: contracts_pack_names,
           application_packs: application_pack_names,
           host: host_name,

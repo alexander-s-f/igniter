@@ -20,6 +20,8 @@ Primary API:
 - `Igniter::Application::Kernel`
 - `Igniter::Application::Profile`
 - `Igniter::Application::Environment`
+- `Igniter::Application::ApplicationManifest`
+- `Igniter::Application::ApplicationLayout`
 - `Igniter::Application::Snapshot`
 - `Igniter::Application::BootPlan`
 - `Igniter::Application::BootReport`
@@ -30,6 +32,16 @@ Primary API:
 
 The application layer also now owns a first local session seam for durable
 host-side orchestration around contracts-native compose/collection flows:
+
+The user application model now has a first explicit shape too:
+
+- `ApplicationManifest` captures app name, root, env, packs, contracts,
+  providers, services, config, and layout
+- `ApplicationLayout` captures canonical user-app paths such as
+  `app/contracts`, `app/providers`, `app/services`, `app/effects`,
+  `app/packs`, `config/igniter.rb`, and `spec/igniter`
+- `Kernel#manifest(...)` configures the app identity and root before finalize
+- `Environment#manifest` and `Environment#layout` expose the finalized shape
 
 - configurable `session_store` seam on `Application::Kernel`
 - default `MemorySessionStore`

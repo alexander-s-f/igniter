@@ -79,6 +79,10 @@ The recommended target shape is:
   frozen runtime-safe snapshot of that app assembly
 - `Application::Environment`
   ergonomic runtime facade bound to a finalized profile
+- `Application::Manifest`
+  explicit user application identity, root, env, layout, and registered surface
+- `Application::Layout`
+  canonical user application paths
 - `Application::BootPlan`
   explicit pre-execution boot lifecycle plan
 - `Application::PlanExecutor`
@@ -322,6 +326,7 @@ This is intentionally small, but it already establishes the target direction:
 - explicit lifecycle plan execution reports
 - local durable session store for compose and collection invocations
 - transport-ready compose and collection invokers for upper layers
+- explicit application manifest and layout shape for user app structure
 
 Current boundary rule:
 

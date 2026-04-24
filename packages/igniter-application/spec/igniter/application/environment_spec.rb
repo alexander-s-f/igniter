@@ -104,6 +104,57 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "publishes an application manifest and canonical layout through the profile" do
+    root = File.expand_path("/tmp/igniter_shop")
+    profile = Igniter::Application.build_kernel(Igniter::Extensions::Contracts::ComposePack)
+                                  .manifest(:shop, root: root, env: :test, metadata: { owner: :commerce })
+                                  .providers_path("app/providers")
+                                  .services_path("app/services")
+                                  .effects_path("app/effects")
+                                  .packs_path("app/packs")
+                                  .contracts_path("app/contracts")
+                                  .config_path("config/igniter.rb")
+                                  .set(:runtime, :mode, value: :test)
+                                  .provide(:pricing_api, -> { :ok })
+                                  .expose(:public_pricing_api, -> { :ok }, metadata: { audience: :public })
+                                  .register("PricingContract", Object)
+                                  .finalize
+    environment = described_class.new(profile: profile)
+
+    expect(environment.manifest.to_h).to include(
+      name: :shop,
+      root: root,
+      env: :test,
+      packs: include("Igniter::Extensions::Contracts::ComposePack"),
+      contracts: ["PricingContract"],
+      services: %i[pricing_api public_pricing_api],
+      interfaces: [:public_pricing_api],
+      config: include(runtime: { mode: :test }),
+      metadata: { owner: :commerce }
+    )
+    expect(environment.layout.to_h).to include(
+      root: root,
+      paths: include(
+        contracts: "app/contracts",
+        providers: "app/providers",
+        services: "app/services",
+        effects: "app/effects",
+        packs: "app/packs",
+        config: "config/igniter.rb",
+        spec: "spec/igniter"
+      ),
+      absolute_paths: include(
+        contracts: File.join(root, "app/contracts"),
+        config: File.join(root, "config/igniter.rb")
+      )
+    )
+    expect(profile.to_h.fetch(:manifest)).to include(
+      name: :shop,
+      layout: include(paths: include(contracts: "app/contracts"))
+    )
+    expect(environment.snapshot.to_h.fetch(:manifest)).to include(name: :shop, env: :test)
+  end
+
   it "persists compose sessions through the application session store" do
     environment = Igniter::Application.with(Igniter::Extensions::Contracts::ComposePack)
     pricing_graph = environment.compile do

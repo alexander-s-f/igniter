@@ -5,6 +5,8 @@ require "igniter/extensions/contracts"
 
 require_relative "application/config"
 require_relative "application/config_builder"
+require_relative "application/application_layout"
+require_relative "application/application_manifest"
 require_relative "application/provider"
 require_relative "application/provider_registration"
 require_relative "application/provider_lifecycle_result"

@@ -35,8 +35,9 @@ rake examples
 
 ## Active Example Lane
 
-Active runnable examples live in `examples/contracts/` and `examples/cluster/`:
+Active runnable examples live in `examples/application/`, `examples/contracts/`, and `examples/cluster/`:
 
+- `application/layout.rb`
 - `cluster/incidents.rb`
 - `cluster/incident_workflow.rb`
 - `cluster/mesh_diagnostics.rb`
