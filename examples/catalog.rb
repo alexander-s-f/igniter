@@ -191,6 +191,19 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_authoring_dsl",
+      "Human capsule authoring DSL that expands to ApplicationBlueprint.",
+      expected_fragments: [
+        "application_capsule_dsl_name=operator",
+        "application_capsule_dsl_equivalent=true",
+        "application_capsule_dsl_exports=resolve_incident",
+        "application_capsule_dsl_imports=incident_runtime",
+        "application_capsule_dsl_features=incidents",
+        "application_capsule_dsl_flows=incident_review",
+        "application_capsule_dsl_report=operator"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

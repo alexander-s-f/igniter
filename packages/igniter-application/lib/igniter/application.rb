@@ -20,6 +20,7 @@ require_relative "application/pending_action"
 require_relative "application/artifact_reference"
 require_relative "application/flow_declaration"
 require_relative "application/application_capsule_report"
+require_relative "application/capsule_builder"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -75,6 +76,10 @@ module Igniter
 
       def blueprint(...)
         ApplicationBlueprint.new(...)
+      end
+
+      def capsule(name, root:, env: :development, &block)
+        CapsuleBuilder.build(name, root: root, env: env, &block)
       end
     end
   end

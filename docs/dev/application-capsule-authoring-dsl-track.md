@@ -211,3 +211,27 @@ slice in the handoff.
    application-owned DSL shape lands.
 3. Keep the DSL small. This is authoring sugar over `ApplicationBlueprint`, not
    a new application runtime.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-authoring-dsl-track.md`
+Status: landed.
+Changed:
+- Added `Igniter::Application.capsule(...)` and application-owned
+  `CapsuleBuilder` as human authoring sugar over `ApplicationBlueprint`.
+- The builder covers layout profile, groups, exports/imports, feature slices,
+  flow declarations, web surface names, services/contracts/interfaces, config,
+  and metadata.
+- Added `examples/application/capsule_authoring_dsl.rb` comparing clean form and
+  DSL form equivalence.
+- Updated the application capsule guide with clean form and human form examples.
+Accepted:
+- `capsule.to_blueprint.to_h` matches the clean `ApplicationBlueprint` form for
+  equivalent input.
+- The DSL is inspectable through `to_blueprint` and `to_h`.
+- No loading, discovery, execution, routing, browser transport, web dependency,
+  or workflow semantics were introduced.
+Needs:
+- `[Agent Web / Codex]` can now run the compatibility check against
+  `Igniter::Web.surface_manifest(...)`,
+  `Igniter::Web.flow_surface_metadata(...)`, and
+  `ApplicationBlueprint#capsule_report(surface_metadata:)`.

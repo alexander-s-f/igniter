@@ -32,6 +32,8 @@ metadata when locality becomes useful.
 The default shape is sparse: materialize only the paths the capsule actually
 owns.
 
+Clean form:
+
 ```ruby
 blueprint = Igniter::Application.blueprint(
   name: :operator,
@@ -47,6 +49,30 @@ blueprint = Igniter::Application.blueprint(
   ]
 )
 ```
+
+Human authoring form:
+
+```ruby
+capsule = Igniter::Application.capsule(:operator, root: "apps/operator") do
+  layout :capsule
+  groups :contracts, :services
+
+  export :resolve_incident,
+         kind: :contract,
+         target: "Contracts::ResolveIncident"
+
+  import :incident_runtime,
+         kind: :service,
+         from: :host,
+         capabilities: [:incidents]
+end
+
+blueprint = capsule.to_blueprint
+```
+
+Both forms produce the same `ApplicationBlueprint` semantics. Use the clean form
+when generating or diffing explicit configuration; use the human form when you
+want compact, readable capsule declarations.
 
 With `layout_profile: :capsule`, logical groups map to compact paths such as
 `contracts`, `services`, `web`, `support`, `spec`, and `igniter.rb`.
@@ -238,6 +264,7 @@ Start with these examples:
 - [`examples/application/capsule_manifest.rb`](../../examples/application/capsule_manifest.rb)
 - [`examples/application/feature_flow_report.rb`](../../examples/application/feature_flow_report.rb)
 - [`examples/application/capsule_inspection.rb`](../../examples/application/capsule_inspection.rb)
+- [`examples/application/capsule_authoring_dsl.rb`](../../examples/application/capsule_authoring_dsl.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow
