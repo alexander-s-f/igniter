@@ -38,7 +38,9 @@ rake examples
 Active runnable examples live in `examples/contracts/` and `examples/cluster/`:
 
 - `cluster/incidents.rb`
+- `cluster/incident_workflow.rb`
 - `cluster/mesh_diagnostics.rb`
+- `cluster/remediation.rb`
 - `cluster/routing.rb`
 
 - `contracts/basic_pricing.rb`

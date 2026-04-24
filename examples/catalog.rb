@@ -73,6 +73,17 @@ module IgniterExamples
       ]
     ),
     example(
+      "cluster/incident_workflow",
+      "Operator workflow actions over durable active incidents.",
+      expected_fragments: [
+        "cluster_incident_workflow_before=silenced",
+        "cluster_incident_workflow_actions=acknowledged,assigned,silenced,resolved",
+        "cluster_incident_workflow_active_before=1",
+        "cluster_incident_workflow_after=resolved",
+        "cluster_incident_workflow_active_after=0"
+      ]
+    ),
+    example(
       "cluster/mesh_diagnostics",
       "Mesh execution retry trace, projection report, and operator-facing diagnostics.",
       expected_fragments: [
@@ -82,6 +93,17 @@ module IgniterExamples
         "cluster_mesh_projection_mode=mesh_candidates",
         "cluster_mesh_diagnostics_events=projection,mesh_attempt,mesh_attempt,mesh",
         "cluster_mesh_trace_id=mesh/ownership/pricing_node_a/1"
+      ]
+    ),
+    example(
+      "cluster/remediation",
+      "Remediation planning and execution over active cluster incidents.",
+      expected_fragments: [
+        "cluster_remediation_mode=planned",
+        "cluster_remediation_steps=1",
+        "cluster_remediation_actions=retry_failover",
+        "cluster_remediation_target=order-42",
+        "cluster_remediation_status=completed"
       ]
     ),
     example(
