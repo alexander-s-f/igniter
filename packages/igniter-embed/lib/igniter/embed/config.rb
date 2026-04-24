@@ -3,7 +3,9 @@
 module Igniter
   module Embed
     class Config
-      attr_reader :name, :packs
+      ContractRegistration = Struct.new(:definition, :name, keyword_init: true)
+
+      attr_reader :name, :packs, :contract_registrations
       attr_accessor :cache, :root, :capture_exceptions, :executor_name
 
       def initialize(name:)
@@ -11,12 +13,18 @@ module Igniter
         @cache = true
         @root = nil
         @packs = []
+        @contract_registrations = []
         @capture_exceptions = false
         @executor_name = :inline
       end
 
       def pack(pack)
         packs << pack
+        self
+      end
+
+      def contract(definition, as: nil)
+        contract_registrations << ContractRegistration.new(definition: definition, name: as)
         self
       end
 

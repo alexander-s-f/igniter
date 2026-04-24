@@ -23,6 +23,33 @@ result.success?
 result.output(:tax)
 ```
 
+For app-local contract classes, prefer host-level registration:
+
+```ruby
+class PriceContract < Igniter::Contract
+  define do
+    input :amount
+    compute :total, depends_on: [:amount] do |amount:|
+      amount * 1.2
+    end
+    output :total
+  end
+end
+
+contracts = Igniter::Embed.configure(:shop) do |config|
+  config.contract PriceContract, as: :price_quote
+end
+
+contracts.call(:price_quote, amount: 100).output(:total)
+```
+
+Named contract classes can also be registered directly:
+
+```ruby
+contracts.register(PriceContract)
+contracts.call(:price, amount: 100)
+```
+
 Rails integration is optional:
 
 ```ruby

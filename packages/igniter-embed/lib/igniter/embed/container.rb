@@ -9,18 +9,19 @@ module Igniter
         @config = config
         @registry = Registry.new
         @compiled_contracts = {}
+        register_configured_contracts
       end
 
       def profile
         @profile ||= Igniter::Contracts.build_profile(config.packs)
       end
 
-      def register(name, definition = nil, &block)
-        contract_definition = definition || block
+      def register(name_or_definition, definition = nil, as: nil, &block)
+        name, contract_definition = normalize_registration(name_or_definition, definition, as: as, block: block)
         raise ArgumentError, "contract definition is required" unless contract_definition
 
         registry.register(name, contract_definition)
-        compiled_contracts.delete(name.to_sym)
+        compiled_contracts.delete(name)
         ContractHandle.new(name: name, container: self)
       end
 
@@ -65,6 +66,51 @@ module Igniter
       private
 
       attr_reader :compiled_contracts
+
+      def register_configured_contracts
+        config.contract_registrations.each do |registration|
+          register(registration.definition, as: registration.name)
+        end
+      end
+
+      def normalize_registration(name_or_definition, definition, as:, block:)
+        if contract_class?(name_or_definition)
+          name = normalize_contract_name(as || inferred_contract_name(name_or_definition))
+          return [name, name_or_definition]
+        end
+
+        name = normalize_contract_name(as || name_or_definition)
+        [name, definition || block]
+      end
+
+      def contract_class?(value)
+        value.is_a?(Class) && value < Igniter::Contract
+      end
+
+      def inferred_contract_name(contract_class)
+        class_name = contract_class.name
+        unless class_name
+          raise InvalidContractRegistrationError,
+                "anonymous contract classes must be registered with as:"
+        end
+
+        basename = class_name.split("::").last.sub(/Contract\z/, "")
+        snake_case(basename).to_sym
+      end
+
+      def normalize_contract_name(name)
+        raise InvalidContractRegistrationError, "contract name is required" unless name
+
+        name.to_sym
+      end
+
+      def snake_case(value)
+        value
+          .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+          .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+          .tr("-", "_")
+          .downcase
+      end
 
       def compile_block(&block)
         Igniter::Contracts.compile(profile: profile, &block)

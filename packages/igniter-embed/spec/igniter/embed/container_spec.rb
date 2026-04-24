@@ -3,6 +3,19 @@
 require_relative "../../spec_helper"
 
 RSpec.describe Igniter::Embed::Container do
+  before do
+    stub_const("Billing", Module.new)
+    stub_const("Billing::PriceContract", Class.new(Igniter::Contract) do
+      define do
+        input :amount
+        compute :total, depends_on: [:amount] do |amount:|
+          amount * 1.2
+        end
+        output :total
+      end
+    end)
+  end
+
   it "runs two named contracts in one container" do
     contracts = Igniter::Embed.configure(:billing)
 
@@ -32,16 +45,6 @@ RSpec.describe Igniter::Embed::Container do
   end
 
   it "runs block and class contracts in one container" do
-    price_contract = Class.new(Igniter::Contract) do
-      define do
-        input :amount
-        compute :total, depends_on: [:amount] do |amount:|
-          amount * 1.2
-        end
-        output :total
-      end
-    end
-
     contracts = Igniter::Embed.configure(:billing)
     contracts.register(:tax_quote) do
       input :amount
@@ -50,11 +53,43 @@ RSpec.describe Igniter::Embed::Container do
       end
       output :tax
     end
-    contracts.register(:price_quote, price_contract)
+    contracts.register(:price_quote, Billing::PriceContract)
 
     expect(contracts.call(:tax_quote, amount: 100).output(:tax)).to eq(20.0)
     expect(contracts.call(:price_quote, amount: 100).output(:total)).to eq(120.0)
     expect(contracts.registry.to_h.fetch(:price_quote)).to include(kind: :class)
+  end
+
+  it "registers contract classes from host configuration" do
+    contracts = Igniter::Embed.configure(:billing) do |config|
+      config.contract Billing::PriceContract, as: :price_quote
+    end
+
+    expect(contracts.call(:price_quote, amount: 100).output(:total)).to eq(120.0)
+    expect(contracts.registry.to_h.fetch(:price_quote)).to include(kind: :class)
+  end
+
+  it "infers class contract names when registering a named contract class" do
+    contracts = Igniter::Embed.configure(:billing)
+
+    handle = contracts.register(Billing::PriceContract)
+
+    expect(handle.name).to eq(:price)
+    expect(contracts.call(:price, amount: 100).output(:total)).to eq(120.0)
+  end
+
+  it "requires explicit names for anonymous class contracts" do
+    anonymous_contract = Class.new(Igniter::Contract) do
+      define do
+        input :amount
+        output :amount
+      end
+    end
+    contracts = Igniter::Embed.configure(:billing)
+
+    expect do
+      contracts.register(anonymous_contract)
+    end.to raise_error(Igniter::Embed::InvalidContractRegistrationError, /anonymous/)
   end
 
   it "compiles lazily and caches registered contracts when cache is enabled" do
