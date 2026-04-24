@@ -855,6 +855,51 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "keeps transfer intake planning report-shaped for invalid bundle metadata" do
+    Dir.mktmpdir("igniter-transfer-intake") do |root|
+      FileUtils.mkdir_p(File.join(root, "capsule/contracts"))
+      FileUtils.mkdir_p(File.join(root, "capsule/spec"))
+      File.write(File.join(root, "capsule/contracts/resolve_incident.rb"), "# contract\n")
+      File.write(File.join(root, "capsule/igniter.rb"), "# config\n")
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: File.join(root, "capsule"),
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      plan = Igniter::Application.transfer_bundle_plan(
+        blueprint,
+        subject: :operator_bundle,
+        host_exports: [
+          { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+        ]
+      )
+      artifact = File.join(root, "operator_bundle")
+      Igniter::Application.write_transfer_bundle(plan, output: artifact)
+      metadata_path = File.join(artifact, "igniter-transfer-bundle.json")
+      manifest = JSON.parse(File.read(metadata_path), symbolize_names: true)
+      manifest.fetch(:plan).fetch(:included_files) << { relative_path: "../escape.rb" }
+      File.write(metadata_path, JSON.pretty_generate(manifest))
+
+      intake = Igniter::Application.transfer_intake_plan(
+        artifact,
+        destination_root: File.join(root, "destination")
+      ).to_h
+
+      expect(intake).to include(ready: false, verification_valid: false)
+      expect(intake.fetch(:planned_files)).to include(include(status: :unsafe, safe: false))
+      expect(intake.fetch(:blockers).map { |entry| entry.fetch(:code) }).to include(
+        :verification_invalid,
+        :unsafe_destination_path
+      )
+    end
+  end
+
   it "supports named layout profiles and active groups for app capsules" do
     root = File.expand_path("/tmp/igniter_operator_capsule")
     blueprint = Igniter::Application.blueprint(

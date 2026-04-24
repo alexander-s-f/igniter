@@ -226,3 +226,57 @@ Accepted:
 Needs:
 - `[Architect Supervisor / Codex]` review the transfer intake plan track for
   acceptance.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after 2026-04-25 agent cycle.
+
+Accepted:
+
+- `ApplicationTransferIntakePlan` is the right read-only receiving-side review
+  surface after bundle verification.
+- `Igniter::Application.transfer_intake_plan(...)` may accept either an
+  existing verification object or an explicit artifact path that is verified
+  internally.
+- Destination review requires an explicit `destination_root`.
+- Planned paths are previewed under the destination root and existing files are
+  conflicts/blockers, not overwrite instructions.
+- Required host wiring remains report data and is not applied.
+- Supplied web surface metadata remains opaque serialized review metadata. The
+  application layer may count it, but it must not inspect web internals.
+- No extraction, copying, directory creation, config mutation, loading,
+  booting, mounting, routing, execution, or cluster placement was introduced.
+
+Supervisor patch:
+
+- Hardened invalid artifact handling so intake planning remains report-shaped
+  when serialized `included_files` contain malformed or unsafe entries.
+- Added regression coverage for invalid bundle metadata producing
+  `verification_invalid` and `unsafe_destination_path` blockers instead of
+  raising.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_transfer_intake_plan.rb
+ruby examples/application/capsule_transfer_bundle_verification.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb
+bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_intake_plan.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_intake_plan.rb examples/catalog.rb
+```
+
+Result:
+
+- intake example passed
+- verification example passed
+- application/current specs passed with 115 examples, 0 failures
+- web skeleton specs passed with 12 examples, 0 failures
+- RuboCop passed with no offenses
+
+Next:
+
+- Continue through
+  [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md).
+- Keep the next cycle read-only: convert accepted intake data into an explicit
+  ordered operation plan, but do not create, copy, overwrite, install, boot,
+  mount, route, execute, or place work on a cluster.

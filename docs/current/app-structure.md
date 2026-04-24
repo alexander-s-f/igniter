@@ -236,6 +236,9 @@ entries, and counts supplied surfaces without interpreting web internals.
 surface. Given a verified artifact and an explicit destination root, it reports
 planned paths, destination conflicts, blockers, required host wiring, warnings,
 and supplied surface metadata without copying or installing anything.
+The next planned surface is a read-only apply operation plan that converts
+accepted intake data into ordered future operations and preconditions without
+executing them.
 
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or

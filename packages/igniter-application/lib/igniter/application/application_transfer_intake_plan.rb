@@ -23,7 +23,7 @@ module Igniter
         @destination_root = File.expand_path(destination_root.to_s)
         @metadata = metadata.dup.freeze
         @bundle_manifest = read_bundle_manifest
-        @planned_files = included_files.map { |entry| planned_file(entry) }.freeze
+        @planned_files = included_files.filter_map { |entry| planned_file(entry) }.freeze
         freeze
       end
 
@@ -67,9 +67,13 @@ module Igniter
       end
 
       def planned_file(entry)
-        capsule = entry.fetch(:capsule).to_sym
-        artifact_relative_path = File.join(FILES_ROOT, capsule.to_s, entry.fetch(:relative_path).to_s)
-        destination_relative_path = File.join(capsule.to_s, entry.fetch(:relative_path).to_s)
+        capsule = entry[:capsule] || entry["capsule"]
+        relative_path = entry[:relative_path] || entry["relative_path"]
+        return unsafe_planned_file(entry) unless safe_component?(capsule) && safe_component?(relative_path)
+
+        capsule = capsule.to_sym
+        artifact_relative_path = File.join(FILES_ROOT, capsule.to_s, relative_path.to_s)
+        destination_relative_path = File.join(capsule.to_s, relative_path.to_s)
         destination_path = File.expand_path(destination_relative_path, destination_root)
         safe = safe_destination?(destination_path, destination_relative_path)
         exists = safe && File.exist?(destination_path)
@@ -82,6 +86,18 @@ module Igniter
           bytes: entry[:bytes],
           status: exists ? :conflict : :planned,
           safe: safe
+        }
+      end
+
+      def unsafe_planned_file(entry)
+        {
+          capsule: entry[:capsule] || entry["capsule"],
+          artifact_path: nil,
+          destination_relative_path: nil,
+          destination_path: nil,
+          bytes: entry[:bytes] || entry["bytes"],
+          status: :unsafe,
+          safe: false
         }
       end
 
@@ -130,6 +146,14 @@ module Igniter
         return false if destination_relative_path.split(%r{[\\/]}).include?("..")
 
         destination_path == destination_root || destination_path.start_with?("#{destination_root}#{File::SEPARATOR}")
+      end
+
+      def safe_component?(value)
+        text = value.to_s
+        return false if text.empty?
+        return false if text.start_with?("/", "\\")
+
+        !text.split(%r{[\\/]}).include?("..")
       end
 
       def blocker(code, message, entry)

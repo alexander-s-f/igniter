@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Read-only destination intake plan for verified transfer bundle artifacts | [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md) | [Application Capsule Transfer Bundle Verification Track](./application-capsule-transfer-bundle-verification-track.md), [Application Capsule Transfer Bundle Artifact Track](./application-capsule-transfer-bundle-artifact-track.md), [Application Capsule Transfer Bundle Plan Track](./application-capsule-transfer-bundle-plan-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web metadata review |
-| `[Agent Web / Codex]` | Compatibility review for optional web metadata in destination intake planning | [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md) | [Application Capsule Transfer Bundle Verification Track](./application-capsule-transfer-bundle-verification-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for intake wording needs |
+| `[Agent Application / Codex]` | Read-only apply operation plan for accepted transfer intake data | [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md) | [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md), [Application Capsule Transfer Bundle Verification Track](./application-capsule-transfer-bundle-verification-track.md), [Application Capsule Transfer Bundle Artifact Track](./application-capsule-transfer-bundle-artifact-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web metadata review |
+| `[Agent Web / Codex]` | Compatibility review for optional web metadata in apply operation planning | [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md) | [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for apply-plan wording needs |
 
 ## Track Map
 
@@ -103,8 +103,10 @@ pressure-test wave:
 - Read-only transfer bundle plan landed.
 - Explicit transfer bundle artifact writer from accepted bundle plans landed.
 - Read-only verification/readback for transfer bundle artifacts landed.
-- The next broad track is read-only destination intake planning for verified
-  transfer bundle artifacts.
+- Read-only destination intake planning for verified transfer bundle artifacts
+  landed.
+- The next broad track is read-only apply operation planning over accepted
+  intake data.
 
 ### Embed And Contract Class DSL
 
@@ -767,7 +769,7 @@ Next:
 
 ### Application Capsule Transfer Intake Plan
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -781,22 +783,58 @@ Dependencies:
 
 Current accepted state:
 
-- The next useful artifact is a read-only receiving-side intake plan for a
+- The next useful artifact was a read-only receiving-side intake plan for a
   verified transfer bundle.
-- Intake planning should accept an explicit verified bundle or artifact path and
+- `ApplicationTransferIntakePlan` and
+  `Igniter::Application.transfer_intake_plan(...)` are accepted as the
+  application-owned receiving-side review surface.
+- Intake planning accepts an explicit verified bundle or artifact path and
   an explicit destination root.
-- It should report planned destination paths, conflicts, blockers, warnings,
+- It reports planned destination paths, conflicts, blockers, warnings,
   required host wiring, supplied surface metadata count, and stable `to_h`.
 - It must not extract, copy, write, install, load, boot, mount, route, execute,
   or coordinate clusters.
 - Web metadata remains supplied and opaque.
+- Intake planning passed on 2026-04-25 with application/current specs, web
+  skeleton specs, examples, and RuboCop.
 
 Next:
 
-- `[Agent Application / Codex]`: implement the smallest transfer intake plan
+- Continue through [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md).
+- Keep apply planning read-only and explicit.
+
+### Application Capsule Transfer Apply Plan
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md)
+
+Dependencies:
+
+- [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md)
+- [Application Capsule Transfer Bundle Verification Track](./application-capsule-transfer-bundle-verification-track.md)
+- [Application Capsule Transfer Bundle Artifact Track](./application-capsule-transfer-bundle-artifact-track.md)
+
+Current accepted state:
+
+- The next useful artifact is a read-only apply operation plan over accepted
+  transfer intake data.
+- Apply planning should accept an explicit intake plan or compatible serialized
+  intake hash.
+- It should report executable status, ordered operations, blockers, warnings,
+  supplied surface metadata count, and stable `to_h`.
+- It must not create, copy, write, delete, install, load, boot, mount, route,
+  execute, or coordinate clusters.
+- Web metadata remains supplied and opaque.
+
+Next:
+
+- `[Agent Application / Codex]`: implement the smallest transfer apply plan
   value, facade, specs, and smoke example.
 - `[Agent Web / Codex]`: verify optional web metadata remains supplied and
-  opaque in intake planning.
+  opaque in apply planning.
 
 ### Cluster
 

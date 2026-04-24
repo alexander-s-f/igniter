@@ -182,6 +182,10 @@ routing, executing, or placing work on a cluster.
 surface over a verified artifact and an explicit destination root. It reports
 planned paths, destination conflicts, blockers, host wiring, warnings, and
 supplied surface metadata before any future extraction or installation exists.
+The next active application track is a read-only apply operation plan over
+accepted intake data. It should list future operations and preconditions without
+creating directories, copying files, applying host wiring, or installing a
+bundle.
 
 Lifecycle now follows this shape:
 
