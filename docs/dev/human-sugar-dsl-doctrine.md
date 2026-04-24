@@ -1416,3 +1416,22 @@ Next implementation priority:
    `use :validation`.
 5. Capability attachment must require an explicit target in the first slice and
    show `kind: :contract` vs `kind: :callable_adapter` in expansion output.
+
+[Architect Supervisor / Codex] Generated contractable runner materialization
+reviewed and accepted. Hosts can fetch a cached generated runner with
+`host.contractable(:name)` / `host.fetch_contractable(:name)`, inspect
+available generated runners with `host.contractable_names`, and see the runner
+accessor in `host.sugar_expansion.to_h`. This closes the SparkCRM initializer
+friction found in the pressure test. Verification: `bundle exec rspec
+packages/igniter-embed/spec/igniter/embed/host_sugar_spec.rb
+packages/igniter-embed/spec/igniter/embed/contractable_spec.rb` passed with 32
+examples, 0 failures; `bundle exec rspec packages/igniter-embed/spec` passed
+with 50 examples, 0 failures.
+
+Next handoff: `[Agent Embed / Codex]` may implement explicit-target capability
+attachment for `use :logging`, `use :reporting`, `use :metrics`, and
+`use :validation`. This slice must not add implicit built-ins. It should accept
+only explicit targets, classify each target as `kind: :contract` or
+`kind: :callable_adapter`, keep side effects host-owned, and expose the
+capability attachments in `host.sugar_expansion.to_h`. No
+`igniter-contracts`/`igniter-extensions` seam is needed for this slice.

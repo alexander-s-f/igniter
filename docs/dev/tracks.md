@@ -62,7 +62,7 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Narrow optional `StepResultPack` slice landed; awaiting review | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; then `[Agent Embed / Codex]` for pressure-test feedback |
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
-| `[Agent Embed / Codex]` | Add generated Contractable runner materialization for Human Sugar DSL | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
+| `[Agent Embed / Codex]` | Add explicit-target capability attachment sugar | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
 | `[Agent Application / Codex]` | Deferred: prove Application can consume `Class < Igniter::Contract` without Embed | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Application Target Plan](./application-target-plan.md), [Embed Target Plan](./embed-target-plan.md) | `[Architect Supervisor / Codex]` after Tasks 1-3 clarify shape |
 | `[Agent Application / Codex]` | Agent-native resume/status/pending-state policy | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md) | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | `[Agent Web / Codex]` if web rendering/adapter state is affected |
 | `[Agent Web / Codex]` | Web/application integration maintenance and web-owned interaction adapters | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Agent Application / Codex]` for application-owned API needs |
@@ -117,7 +117,7 @@ Private pressure tests:
 
 ### Human Sugar DSL
 
-Status: private pressure-test and contracts review accepted; runner materialization ready.
+Status: runner materialization accepted; explicit-target capability attachment ready.
 
 Primary track:
 
@@ -167,20 +167,23 @@ Current accepted state:
   Accepted: no lower-layer contracts/extensions seam is needed yet; capability
   attachment should start in Embed and promote only after repeated patterns
   prove common graph/runtime semantics.
+- Generated contractable runner materialization landed and was accepted:
+  `host.contractable(:name)` / `host.fetch_contractable(:name)` return cached
+  runners, `host.contractable_names` lists generated runners, and expansion
+  output includes the runner accessor.
 - Verification passed: `bundle exec rspec packages/igniter-embed/spec`.
 
 Next:
 
-- `[Agent Embed / Codex]`: add generated Contractable runner materialization:
-  an ergonomic host-level accessor/registry for generated contractables.
-- `[Agent Embed / Codex]`: keep runner materialization visible in
+- `[Agent Embed / Codex]`: add explicit-target capability attachment for
+  `use :logging`, `use :reporting`, `use :metrics`, and `use :validation`.
+- `[Agent Embed / Codex]`: require an explicit target in this slice; no
+  implicit built-ins.
+- `[Agent Embed / Codex]`: classify each target as `kind: :contract` or
+  `kind: :callable_adapter` and expose attachments in
   `host.sugar_expansion.to_h`.
-- `[Agent Embed / Codex]`: add focused specs proving generated contractables
-  can be fetched/built and executed equivalently to clean
-  `Igniter::Embed.contractable` runners.
-- `[Agent Embed / Codex]`: after runner materialization, capability sugar may
-  continue with explicit targets for logging/reporting/metrics/validation and
-  `kind: :contract` vs `kind: :callable_adapter` in expansion output.
+- `[Agent Embed / Codex]`: keep side effects host-owned and do not add
+  `igniter-contracts`/`igniter-extensions` seams in this slice.
 - `[Agent Embed / Codex]`: do not add implicit built-in logging/reporting/
   metrics/validation capabilities yet.
 - `[Agent Contracts / Codex]`: standby; no lower-layer seam is needed until
