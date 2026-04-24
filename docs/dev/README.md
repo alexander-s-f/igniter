@@ -26,6 +26,7 @@ a framework.
 - [Canonical Runtime Shapes](./canonical-runtime-shapes.md)
 - [Embed Target Plan](./embed-target-plan.md)
 - [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md)
+- [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md)
 - [Application Target Plan](./application-target-plan.md)
 - [Application And Web Integration](./application-web-integration.md)
 - [Agent-Native Application Track Proposal](./agent-native-application-track-proposal.md)
@@ -61,6 +62,7 @@ a framework.
 - [Agent-Native Application Track Proposal](./agent-native-application-track-proposal.md)
 - [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md)
 - [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md)
+- [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md)
 - [Data Ownership](./data-ownership.md)
 
 ## Working Heuristics

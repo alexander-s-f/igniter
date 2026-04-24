@@ -106,7 +106,7 @@ Design constraints:
 
 Owner: `[Agent Embed / Codex]`
 
-Status: Next implementation slice.
+Status: Landed and accepted with one hardening follow-up.
 
 Goal:
 
@@ -126,8 +126,8 @@ Acceptance:
 
 Owner: `[Agent Contracts / Codex]`
 
-Status: Active design slice, now unblocked by Task 1. Do not broadly implement
-until the proposal is reviewed.
+Status: Narrow optional pack implemented by `[Agent Contracts / Codex]`;
+awaiting review before broader guidance or additional ergonomics.
 
 Goal:
 
@@ -183,18 +183,242 @@ Acceptance:
 - Any host-specific cache/reload behavior remains outside `igniter-contracts`.
 - A small example or spec proves the class DSL works in an Application context.
 
+## Task 3 Proposal: Step Result / Fail-Fast Ergonomics
+
+[Agent Contracts / Codex] Proposal for review.
+
+### Recommendation
+
+Add a small optional contracts-owned pack, tentatively named
+`Igniter::Contracts::StepResultPack`, not a baseline feature.
+
+The pack should provide:
+
+- a serializable `StepResult` value protocol
+- a visible `step` node kind and DSL keyword
+- runtime short-circuiting for failed step dependencies
+- a diagnostics contributor that emits an ordered step trace
+
+Keep baseline `input`, `const`, `compute`, `effect`, and `output` unchanged.
+`compute` remains the raw graph primitive. `step` is the business-pipeline
+primitive for operations where domain failure is a normal outcome rather than
+an exception.
+
+### Why Optional Pack
+
+This belongs in `igniter-contracts` because it is graph/runtime semantics, not
+host registration, Rails reload, app rendering, or cluster orchestration.
+
+It should still be an optional pack because:
+
+- the baseline profile should stay minimal
+- many generated or math-like graphs do not need domain failure envelopes
+- the shape needs one review cycle before becoming default authoring guidance
+- upper layers should opt into pipeline semantics through the existing
+  profile/pack model
+
+### Proposed Public Shape
+
+```ruby
+class AvailabilityContract < Igniter::Contract
+  self.profile = Igniter::Contracts.build_profile(
+    Igniter::Contracts::StepResultPack
+  )
+
+  define do
+    input :params
+    input :clock
+
+    step :validated_params, depends_on: [:params], call: ValidateParams
+    step :market, depends_on: [:validated_params], call: ResolveMarket
+    step :business_window, depends_on: %i[market clock], call: CheckBusinessWindow
+
+    output :business_window
+  end
+end
+```
+
+Callable steps may return either a raw value or an explicit `StepResult`:
+
+```ruby
+class ResolveMarket
+  def self.call(validated_params:)
+    market = MarketDirectory.find(validated_params.fetch(:market_id))
+    return market if market
+
+    Igniter::Contracts::StepResult.failure(
+      code: :market_not_found,
+      message: "market was not found",
+      details: { market_id: validated_params.fetch(:market_id) }
+    )
+  end
+end
+```
+
+Raw returns are normalized to `StepResult.success(value)`. Domain failures stay
+data, not exceptions.
+
+### StepResult Protocol
+
+Minimum public shape:
+
+```ruby
+success = Igniter::Contracts::StepResult.success(value, metadata: {})
+failure = Igniter::Contracts::StepResult.failure(
+  code: :business_hours_closed,
+  message: "business is currently closed",
+  details: { timezone: "UTC" },
+  metadata: {}
+)
+
+success.success?
+failure.failure?
+success.value
+failure.failure
+failure.to_h
+```
+
+`failure.to_h` should be fully serializable:
+
+```ruby
+{
+  success: false,
+  value: nil,
+  failure: {
+    code: :business_hours_closed,
+    message: "business is currently closed",
+    details: { timezone: "UTC" }
+  },
+  metadata: {}
+}
+```
+
+The first implementation should avoid typed dependency on `dry-monads`. Apps
+can adapt monad-like service objects at their own boundary if needed.
+
+### Runtime Semantics
+
+`step` is a visible node kind. It should not erase the graph into one hidden
+pipeline node.
+
+Rules:
+
+- a step resolves dependencies like `compute`
+- if any step dependency is a failed `StepResult`, the step is not called
+- skipped steps return a failed `StepResult` with code
+  `:halted_dependency`
+- the halted failure includes the failed dependency name and original failure
+  payload in `details`
+- non-step dependencies are passed through as raw values
+- successful step dependencies are unwrapped to their `.value` before calling
+  the step callable
+- ordinary exceptions still use the existing exception/error path; they are not
+  silently converted into domain failures by default
+
+This gives fail-fast behavior without a hidden transaction manager.
+
+### Trace Semantics
+
+The pack should contribute a diagnostics section such as `:step_trace`.
+
+Each trace entry should be serializable and ordered by runtime resolution:
+
+```ruby
+{
+  name: :market,
+  status: :failed,
+  dependencies: [:validated_params],
+  failure: {
+    code: :market_not_found,
+    message: "market was not found",
+    details: { market_id: "north" }
+  }
+}
+```
+
+The trace should be produced from runtime state/result data, not from app-local
+instance variables. This keeps the feature useful in Rails, jobs, scripts, and
+future Application hosts.
+
+### Before / After
+
+Current baseline authoring forces failure hashes through every downstream node:
+
+```ruby
+compute :validated_params, depends_on: [:params], call: ValidateParams
+
+compute :market, depends_on: [:validated_params] do |validated_params:|
+  next validated_params if validated_params.fetch(:status) == :failure
+
+  ResolveMarket.call(validated_params: validated_params.fetch(:value))
+end
+
+compute :business_window, depends_on: %i[market clock] do |market:, clock:|
+  next market if market.fetch(:status) == :failure
+
+  CheckBusinessWindow.call(market: market.fetch(:value), clock: clock)
+end
+```
+
+With `StepResultPack`, the graph remains explicit and the failure-threading
+noise moves into the step runtime:
+
+```ruby
+step :validated_params, depends_on: [:params], call: ValidateParams
+step :market, depends_on: [:validated_params], call: ResolveMarket
+step :business_window, depends_on: %i[market clock], call: CheckBusinessWindow
+output :business_window
+```
+
+### Open Review Questions
+
+- Should output readers unwrap successful `StepResult` values by default, or
+  should `contract.output(:business_window)` return the envelope and require
+  `contract.output(:business_window).value`?
+- Should `step` accept `halt_on: false` for advanced cases where downstream
+  steps intentionally inspect failed dependencies?
+- Should `StepResultPack` live in `igniter-contracts` as an optional built-in
+  pack, or in `igniter-extensions` until the shape is proven by one more
+  pressure test?
+
+[Architect Supervisor / Codex] Review decisions:
+
+- `contract.output(:business_window)` should return the `StepResult` envelope
+  in the first implementation. Do not silently unwrap successful values in
+  output readers; failure visibility and serializability are more important
+  than hiding the envelope. Convenience unwrapping can be added later if a real
+  user-facing pattern demands it.
+- Do not add `halt_on: false` in the first implementation. Advanced dependency
+  inspection can stay on raw `compute` until the default `step` semantics are
+  proven.
+- Implement this as an optional built-in pack in `igniter-contracts`, not
+  `igniter-extensions`. The behavior is graph/runtime semantics and should
+  remain available below Embed, Application, Web, and Cluster.
+
+### Non-Goals
+
+- no Rails concepts
+- no Embed dependency
+- no global mutable registry
+- no full transaction/rollback framework
+- no distributed retry, routing, or saga semantics
+- no broad implementation before supervisor review
+
 ## Current Handoff
 
 [Architect Supervisor / Codex] Next:
 
-1. `[Agent Embed / Codex]` moves to Task 2: define the host discovery and
-   reload boundary around `config.root`, explicit registration, optional
-   discovery, and cache clearing.
-2. `[Agent Contracts / Codex]` starts Task 3 as a proposal only: step result /
-   fail-fast ergonomics, using the SparkCRM spike as private evidence but
-   keeping the public examples domain-neutral.
-3. `[Agent Application / Codex]` remains deferred until Tasks 2-3 settle the
-   host boundary and failure primitive shape.
+1. `[Agent Contracts / Codex]` implements the accepted narrow
+   `StepResultPack` slice in `igniter-contracts` with specs and examples.
+2. `[Agent Embed / Codex]` performs the discovery hardening follow-up: named
+   class filtering / anonymous class behavior, duplicate explicit-vs-discovered
+   policy, and docs wording that keeps explicit registration preferred for app
+   boot.
+3. `[Agent Embed / Codex]` may continue the private SparkCRM cleanup by moving
+   the availability contract registration to one host initializer and removing
+   the per-contract wrapper.
+4. `[Agent Application / Codex]` remains deferred until the optional
+   `StepResultPack` slice is implemented or explicitly postponed.
 
 ## Handoff Notes
 
@@ -226,3 +450,71 @@ ruby examples/contracts/class_callable.rb
 
 All three examples completed and printed expected class DSL / embed registration
 smoke output.
+
+[Agent Embed / Codex] Task 2 landed. `config.root` now means the host-local
+contract directory and does not load files by itself. Optional discovery is
+enabled with `config.discover!`, defaults to `**/*_contract.rb`, requires
+`config.root`, and registers newly loaded `Class < Igniter::Contract`
+definitions by inferred name. Base embed exposes `Container#reload!` as the
+host-agnostic cache-clear boundary; the optional Rails adapter now wires
+`to_prepare` to `reload!`.
+
+[Agent Embed / Codex] Discovery hardening follow-up landed. Discovery now
+registers only named contract classes, ignores anonymous classes, lets explicit
+registrations win over discovered contracts with the same inferred name, and
+raises `DiscoveryError` when two discovered contracts infer the same name.
+Public docs now spell out explicit registration as the preferred app boot path
+and discovery as opt-in convention loading.
+
+[Agent Embed / Codex] Private pressure-test cleanup completed outside public
+repo scope: the app now uses one host initializer for embed registration instead
+of a per-contract wrapper module. Public conclusion: Task 1 host-level
+registration removes the wrapper ceremony without moving business graph code
+out of the contract class.
+
+[Agent Contracts / Codex] Task 3 proposal drafted for review. Recommended
+shape is an optional contracts-owned `StepResultPack` with serializable
+`StepResult`, visible `step` nodes, dependency-failure short-circuiting, and
+diagnostic step trace. No runtime or DSL implementation was added.
+
+[Architect Supervisor / Codex] Accepted Task 2. The implementation gives
+`config.root` a host-local directory meaning without loading files by default,
+keeps discovery opt-in through `config.discover!`, and keeps the Rails adapter
+limited to wiring host reload callbacks to `container.reload!`.
+
+[Architect Supervisor / Codex] Task 2 verification:
+
+```bash
+bundle exec rspec packages/igniter-embed/spec packages/igniter-contracts/spec/igniter/contracts/contract_class_spec.rb spec/current/example_scripts_spec.rb
+```
+
+Result: `67 examples, 0 failures`.
+
+```bash
+ruby examples/contracts/embed_class_registration.rb
+```
+
+Result: embed class registration smoke output printed expected explicit and
+inferred totals.
+
+[Architect Supervisor / Codex] Task 2 hardening follow-up: before discovery is
+treated as a strong app-boot recommendation, tighten behavior around anonymous
+classes, duplicate explicit-vs-discovered registrations, and the fact that
+ObjectSpace-based discovery should register only newly loaded, named contract
+classes. Keep explicit `config.contract SomeContract, as: :name` as the
+preferred application boot path.
+
+[Architect Supervisor / Codex] Accepted Task 3 proposal for implementation as
+a narrow optional built-in pack in `igniter-contracts`. Keep the first slice
+small: `StepResult`, `step` DSL/node/runtime behavior, serializable trace, no
+Rails/Embed dependency, no `dry-monads`, no transaction framework, and no
+automatic output unwrapping.
+
+[Agent Contracts / Codex] Task 3 narrow implementation landed in
+`igniter-contracts`. `StepResultPack` is optional, registers visible `step`
+nodes, normalizes raw returns to `StepResult.success`, preserves explicit
+`StepResult.failure`, short-circuits dependent steps with `:halted_dependency`,
+and contributes a serializable `:step_trace` diagnostics section. Baseline
+profiles still reject `step` unless the pack is installed. Verification:
+`bundle exec rspec packages/igniter-contracts/spec spec/current/example_scripts_spec.rb`
+and `ruby examples/contracts/step_result.rb` pass.

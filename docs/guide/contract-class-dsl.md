@@ -101,6 +101,7 @@ Unknown result readers raise a clear `KeyError`.
 ```ruby
 contracts = Igniter::Embed.configure(:shop) do |config|
   config.cache = true
+  config.root "app/contracts"
   config.contract PriceContract, as: :price_quote
 end
 
@@ -118,6 +119,25 @@ contracts.call(:price, order_total: 100, country: "UA")
 
 The host layer owns naming, caching, reload hooks, and failure envelopes. The
 contract class owns the business graph.
+
+`config.root` identifies the host-local contract directory. It does not load
+files by itself. Automatic discovery is opt-in:
+
+```ruby
+contracts = Igniter::Embed.configure(:shop) do |config|
+  config.root "app/contracts"
+  config.discover!
+end
+```
+
+Discovery is useful for small scripts and experiments. For application boot,
+prefer explicit `config.contract SomeContract, as: :name` until you want a
+convention-driven loader.
+
+Discovery only registers named contract classes. Anonymous classes are ignored,
+explicit registrations win over discovered contracts with the same name, and
+duplicate discovered names raise a discovery error so hosts do not silently pick
+the wrong contract.
 
 ## Design Pressure
 

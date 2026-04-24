@@ -53,8 +53,9 @@ task explicitly requires private details.
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Agent Embed / Codex]` | Host discovery and reload boundary for embed hosts | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Embed Target Plan](./embed-target-plan.md), [Contract Class DSL Guide](../guide/contract-class-dsl.md) | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` if the boundary changes fail-fast needs |
-| `[Agent Contracts / Codex]` | Step result / fail-fast ergonomics proposal, design only | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Igniter Contracts Spec](./igniter-contracts-spec.md), private pressure-test notes if provided by supervisor | `[Architect Supervisor / Codex]` |
+| `[Agent Embed / Codex]` | Discovery hardening and private SparkCRM host cleanup | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Embed Target Plan](./embed-target-plan.md), [Contract Class DSL Guide](../guide/contract-class-dsl.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
+| `[Agent Contracts / Codex]` | Narrow optional `StepResultPack` slice landed; awaiting review | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; then `[Agent Embed / Codex]` for pressure-test feedback |
+| `[Agent Embed / Codex]` | Contractable shadow comparison design for legacy-vs-contract production testing | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Extensions / Codex]` if `DifferentialPack` needs a seam |
 | `[Agent Application / Codex]` | Deferred: prove Application can consume `Class < Igniter::Contract` without Embed | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Application Target Plan](./application-target-plan.md), [Embed Target Plan](./embed-target-plan.md) | `[Architect Supervisor / Codex]` after Tasks 1-3 clarify shape |
 | `[Agent Application / Codex]` | Agent-native resume/status/pending-state policy | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md) | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | `[Agent Web / Codex]` if web rendering/adapter state is affected |
 | `[Agent Web / Codex]` | Web/application integration maintenance and web-owned interaction adapters | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Agent Application / Codex]` for application-owned API needs |
@@ -80,19 +81,62 @@ Current accepted state:
 - `igniter-embed` supports host-level `config.contract SomeContract, as: :name`.
 - `Container#register(Class < Igniter::Contract)` can infer a stable name from
   named contract classes and rejects anonymous classes without `as:`.
+- `config.root` is host-local contract directory metadata; it does not load
+  files by itself.
+- `config.discover!` is opt-in discovery and `container.reload!` is the
+  host-agnostic cache-clear boundary.
+- Optional `StepResultPack` is implemented in `igniter-contracts` with
+  `StepResult`, `step`, fail-fast dependency short-circuiting, and serializable
+  step trace.
 - Public examples exist under `examples/contracts/class_*.rb`.
 
 Next:
 
-- `[Agent Embed / Codex]`: define host discovery/reload semantics around
-  `config.root`, optional discovery, and cache clearing.
-- `[Agent Contracts / Codex]`: draft fail-fast/step-result ergonomics as a
-  proposal only; do not broadly implement until reviewed.
+- `[Architect Supervisor / Codex]`: review the narrow `StepResultPack`
+  implementation.
+- `[Agent Embed / Codex]`: pressure-test `StepResultPack` through the embedded
+  host flow after review.
+- `[Agent Embed / Codex]`: harden discovery around named/anonymous classes and
+  duplicate explicit-vs-discovered registrations; keep explicit registration
+  as the preferred application boot path.
+- `[Agent Embed / Codex]`: if working in the private SparkCRM track, move
+  contract registration to one host initializer and remove the per-contract
+  wrapper ceremony.
 
 Private pressure tests:
 
 - App-specific Rails/SparkCRM notes live outside this public track. Use only
   when explicitly directed by supervisor or user.
+
+### Differential Shadow Contractable
+
+Status: active design slice.
+
+Primary track:
+
+- [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md)
+
+Current accepted state:
+
+- `DifferentialPack` already exists in `igniter-extensions` and is the
+  comparison/reporting engine.
+- `igniter-embed` is the right host-local layer for wrapping legacy services
+  and contract-backed candidates.
+- Production shadow mode should run the legacy primary synchronously and the
+  contract candidate asynchronously by default.
+- Persistence should start as a tiny app-supplied `store.record(observation)`
+  protocol, not a heavy orchestration subsystem.
+- Packs should expose useful self-description through `PackManifest` metadata
+  before adding any larger registry.
+
+Next:
+
+- `[Agent Embed / Codex]`: design exact contractable shadow runner API,
+  normalizer protocol, async adapter, store protocol, and observation payload.
+- `[Agent Embed / Codex]`: keep private app service names and response details
+  in the private pressure-test track; promote only generic conclusions here.
+- `[Agent Extensions / Codex]`: only join if the design proves
+  `DifferentialPack` needs a missing pre-normalized output seam.
 
 ### Application/Web Integration
 
