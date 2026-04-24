@@ -149,6 +149,10 @@ Status: Accepted as the next product direction, split into a smaller first
 implementation slice in
 `docs/dev/agent-native-application-track-proposal.md`.
 
+Canonical task/acceptance document:
+
+- `docs/dev/agent-native-interaction-session-track.md`
+
 Accepted:
 
 - product direction for long-lived, human-in-the-loop, agent-native

@@ -27,6 +27,7 @@ a framework.
 - [Application Target Plan](./application-target-plan.md)
 - [Application And Web Integration](./application-web-integration.md)
 - [Agent-Native Application Track Proposal](./agent-native-application-track-proposal.md)
+- [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md)
 - [Cluster Target Plan](./cluster-target-plan.md)
 - [Igniter Web Target Plan](./igniter-web-target-plan.md)
 - [Igniter Web DSL Sketch](./igniter-web-dsl-sketch.md)
@@ -55,6 +56,7 @@ a framework.
 - [Igniter Web DSL Sketch](./igniter-web-dsl-sketch.md)
 - [Igniter Web Composition Track](./igniter-web-composition-track.md)
 - [Agent-Native Application Track Proposal](./agent-native-application-track-proposal.md)
+- [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md)
 - [Data Ownership](./data-ownership.md)
 
 ## Working Heuristics
