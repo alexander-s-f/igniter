@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Read-only capsule handoff manifest for portable transfer/wiring review | [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md) | [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md), [Application Capsule Composition Track](./application-capsule-composition-track.md), [Application Capsule Inspection Track](./application-capsule-inspection-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for web metadata compatibility |
-| `[Agent Web / Codex]` | Compatibility review for web surface metadata in capsule handoff manifests | [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md) | [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app-owned manifest shape needs |
+| `[Agent Application / Codex]` | Public transfer guide over capsule handoff manifests and host wiring review | [Application Capsule Transfer Guide Track](./application-capsule-transfer-guide-track.md) | [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md), [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md), [Application Capsule Guide Track](./application-capsule-guide-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web metadata wording |
+| `[Agent Web / Codex]` | Compatibility/narrative review for optional web surface metadata in transfer docs | [Application Capsule Transfer Guide Track](./application-capsule-transfer-guide-track.md) | [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for guide wording needs |
 
 ## Track Map
 
@@ -93,8 +93,10 @@ pressure-test wave:
   multiple capsules and host-supplied exports.
 - Read-only capsule assembly plan landed over composition readiness, host
   metadata, optional surface metadata, and mount intents.
-- The next broad track is a read-only capsule handoff manifest for portable
-  transfer/wiring review.
+- Read-only capsule handoff manifests landed: portable transfer/wiring review
+  now has a stable serializable artifact.
+- The next broad track is a public transfer guide over capsule handoff
+  manifests and host wiring review.
 
 ### Embed And Contract Class DSL
 
@@ -511,7 +513,7 @@ Next:
 
 ### Application Capsule Handoff Manifest
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -530,13 +532,49 @@ Current accepted state:
   metadata, mount intents, and surface metadata.
 - It must not package, copy, discover, load, boot, mount, route, execute, or
   perform cluster placement.
+- `ApplicationHandoffManifest` and
+  `Igniter::Application.handoff_manifest(...)` are accepted as the
+  application-owned read-only handoff surface.
+- Building from explicit capsules or an existing `ApplicationAssemblyPlan` is
+  accepted.
+- Web metadata remains caller-supplied plain hashes; `igniter-application`
+  does not inspect web internals.
 
 Next:
 
-- `[Agent Application / Codex]`: implement the smallest handoff manifest value
-  and smoke example.
-- `[Agent Web / Codex]`: verify web surface metadata remains supplied plain
-  hashes and no web internals leak into application handoff manifests.
+- Continue through [Application Capsule Transfer Guide Track](./application-capsule-transfer-guide-track.md).
+- Keep the handoff manifest read-only and explicit.
+
+### Application Capsule Transfer Guide
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Capsule Transfer Guide Track](./application-capsule-transfer-guide-track.md)
+
+Dependencies:
+
+- [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md)
+- [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md)
+- [Application Capsule Guide Track](./application-capsule-guide-track.md)
+
+Current accepted state:
+
+- The implementation is ready for a public narrative pass.
+- Transfer review means reading explicit metadata, readiness, unresolved
+  requirements, suggested host wiring, mount intents, and optional surface
+  metadata.
+- This track is documentation-first and must not introduce activation,
+  copying, packaging, discovery, runtime mounting, routing, contract execution,
+  or cluster placement.
+
+Next:
+
+- `[Agent Application / Codex]`: update the user-facing capsule guide and
+  current docs with the transfer/handoff workflow.
+- `[Agent Web / Codex]`: verify optional web surface metadata wording remains
+  package-boundary safe.
 
 ### Cluster
 

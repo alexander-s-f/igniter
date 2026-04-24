@@ -117,6 +117,8 @@ Current shape:
 - human-facing capsule authoring DSL over `ApplicationBlueprint`
 - read-only capsule composition reports for explicit import/export readiness
 - read-only capsule assembly plans over composition readiness and mount intents
+- read-only capsule handoff manifests for portable transfer and host wiring
+  review
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces
@@ -134,6 +136,11 @@ inspection, including summary status and related flow/feature names, but
 application does not inspect web screen graphs.
 `ApplicationCapsuleReport` is the current read-only aggregate for humans and
 agents that need to inspect a capsule before editing, moving, or mounting it.
+`ApplicationHandoffManifest` is the current read-only transfer review artifact
+for humans and agents that need to see what capsules are moving, whether the
+set is ready, which host wiring is still required, and which optional web
+surface metadata was supplied. It is not a packaging, copy, discovery, boot,
+mount, routing, execution, or cluster placement mechanism.
 
 Lifecycle now follows this shape:
 

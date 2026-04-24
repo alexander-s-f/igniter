@@ -34,6 +34,41 @@ agent can read before copying, reviewing, or wiring capsules into a host.
 This must stay descriptive. It must not discover files, package archives, boot
 apps, mount web, or execute contracts.
 
+[Architect Supervisor / Codex] Accepted after the 2026-04-24 agent cycle.
+
+Decision:
+
+- `ApplicationHandoffManifest` and
+  `Igniter::Application.handoff_manifest(...)` are accepted as the
+  application-owned read-only handoff surface.
+- Building from explicit capsules or an existing `ApplicationAssemblyPlan` is
+  accepted.
+- Summaries for capsule identities, exports/imports, readiness, unresolved
+  requirements, suggested host wiring, mount intents, surface metadata, and
+  nested assembly metadata are accepted.
+- Web metadata remains caller-supplied plain hashes. The example may use
+  `igniter-web` to produce those hashes, but `igniter-application` must not
+  inspect web screens, routes, components, Rack apps, or mount internals.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_handoff_manifest.rb
+ruby examples/application/capsule_assembly_plan.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb
+```
+
+Result: all passed.
+
+Next:
+
+- Continue through
+  [Application Capsule Transfer Guide Track](./application-capsule-transfer-guide-track.md).
+- Keep the next slice documentation-first. Do not turn handoff manifests into
+  packaging, copy, discovery, loading, boot, mount, route, execution, or
+  cluster placement.
+
 ## Goal
 
 Design and land the smallest handoff manifest for portable application
