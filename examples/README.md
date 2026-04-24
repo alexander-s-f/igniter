@@ -39,6 +39,7 @@ Active runnable examples live in `examples/application/`, `examples/contracts/`,
 
 - `application/blueprint.rb`
 - `application/capsule_layout.rb`
+- `application/capsule_inspection.rb`
 - `application/capsule_manifest.rb`
 - `application/feature_flow_report.rb`
 - `application/flow_session.rb`

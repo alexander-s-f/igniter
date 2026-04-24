@@ -537,6 +537,104 @@ RSpec.describe Igniter::Application::Environment do
     expect(environment.manifest.flow_declarations).to eq(blueprint.flow_declarations.map(&:to_h))
   end
 
+  it "builds capsule inspection reports for sparse non-web blueprints" do
+    root = File.expand_path("/tmp/igniter_capsule_report_worker")
+    blueprint = Igniter::Application.blueprint(
+      name: :worker,
+      root: root,
+      env: :test,
+      layout_profile: :capsule,
+      services: [:worker_queue]
+    )
+
+    report = blueprint.capsule_report(metadata: { source: :spec }).to_h
+
+    expect(report).to include(
+      name: :worker,
+      root: root,
+      env: :test,
+      layout_profile: :capsule,
+      exports: [],
+      imports: [],
+      feature_slices: [],
+      flow_declarations: [],
+      services: [:worker_queue],
+      web_surfaces: [],
+      surfaces: [],
+      metadata: { source: :spec }
+    )
+    expect(report.fetch(:groups)).to include(
+      active: %i[config services spec],
+      known: %i[agents config contracts effects executors packs providers services skills spec support tools web]
+    )
+    expect(report.fetch(:planned_paths).fetch(:sparse).map { |entry| entry.fetch(:group) }).to eq(
+      %i[config services spec]
+    )
+  end
+
+  it "builds capsule inspection reports with feature, flow, and supplied surface metadata" do
+    root = File.expand_path("/tmp/igniter_capsule_report_operator")
+    blueprint = Igniter::Application.blueprint(
+      name: :operator,
+      root: root,
+      env: :test,
+      layout_profile: :capsule,
+      groups: %i[contracts services],
+      contracts: ["Contracts::ResolveIncident"],
+      services: [:incident_queue],
+      web_surfaces: [:operator_console],
+      exports: [
+        { name: :resolve_incident, kind: :contract, target: "Contracts::ResolveIncident" }
+      ],
+      imports: [
+        { name: :incident_runtime, kind: :service, from: :host, capabilities: [:incidents] }
+      ],
+      features: [
+        {
+          name: :incidents,
+          groups: %i[contracts services web],
+          contracts: ["Contracts::ResolveIncident"],
+          services: [:incident_queue],
+          flows: [:incident_review],
+          surfaces: [:operator_console]
+        }
+      ],
+      flows: [
+        {
+          name: :incident_review,
+          purpose: "Review incident plan",
+          initial_status: :waiting_for_user,
+          pending_inputs: [
+            { name: :clarification, input_type: :textarea, target: :review_plan }
+          ],
+          pending_actions: [
+            { name: :approve_plan, action_type: :contract, target: "Contracts::ResolveIncident" }
+          ],
+          surfaces: [:operator_console]
+        }
+      ]
+    )
+    surface_projection = {
+      name: :operator_console,
+      kind: :web_surface_projection,
+      status: :aligned,
+      metadata: { source: :spec }
+    }
+
+    report = blueprint.capsule_report(surface_metadata: [surface_projection]).to_h
+
+    expect(report.fetch(:exports).map { |entry| entry.fetch(:name) }).to eq([:resolve_incident])
+    expect(report.fetch(:imports).map { |entry| entry.fetch(:name) }).to eq([:incident_runtime])
+    expect(report.fetch(:feature_slices).map { |entry| entry.fetch(:name) }).to eq([:incidents])
+    expect(report.fetch(:flow_declarations).map { |entry| entry.fetch(:name) }).to eq([:incident_review])
+    expect(report.fetch(:surfaces)).to eq([surface_projection])
+    expect(report.fetch(:planned_paths).fetch(:complete).map { |entry| entry.fetch(:group) }).to include(
+      :contracts,
+      :services,
+      :web
+    )
+  end
+
   it "serializes agent-native flow session values without web dependencies" do
     event = Igniter::Application::FlowEvent.new(
       id: "event-1",

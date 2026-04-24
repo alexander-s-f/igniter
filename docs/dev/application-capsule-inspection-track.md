@@ -181,3 +181,21 @@ handoff.
    report accepts supplied surface/projection metadata.
 3. Keep this as inspection/reporting. Do not turn it into loading, execution,
    routing, or workflow orchestration.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-inspection-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationCapsuleReport` as a read-only aggregate
+  over blueprint identity, layout groups, sparse/complete structure plans,
+  exports/imports, feature slices, flow declarations, contracts/services, and
+  supplied surface metadata.
+- Added `ApplicationBlueprint#capsule_report(surface_metadata:, metadata:)`.
+- Added `examples/application/capsule_inspection.rb` smoke proof for non-web
+  and web-capable capsules using the same report vocabulary.
+Accepted:
+- The report is derived from explicit blueprint/surface inputs and does not
+  materialize files, load code, execute contracts, start flows, or require web.
+Needs:
+- `[Agent Web / Codex]` may supply richer web-owned projection hashes through
+  `surface_metadata` if the current plain `status: :aligned` smoke is too thin.

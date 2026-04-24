@@ -172,6 +172,22 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_inspection",
+      "Application-owned capsule inspection report for non-web and web-capable capsules.",
+      expected_fragments: [
+        "application_capsule_report_name=operator",
+        "application_capsule_report_non_web=true",
+        "application_capsule_report_groups=config,contracts,services,spec,web",
+        "application_capsule_report_sparse_paths=config,contracts,services,spec,web",
+        "application_capsule_report_exports=resolve_incident",
+        "application_capsule_report_imports=incident_runtime",
+        "application_capsule_report_features=incidents",
+        "application_capsule_report_flows=incident_review",
+        "application_capsule_report_surfaces=operator_console",
+        "application_capsule_report_web_projection=aligned"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

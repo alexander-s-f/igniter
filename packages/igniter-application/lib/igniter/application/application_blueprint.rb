@@ -88,6 +88,10 @@ module Igniter
         FeatureSliceReport.for_blueprint(self, metadata: metadata)
       end
 
+      def capsule_report(surface_metadata: [], metadata: {})
+        ApplicationCapsuleReport.for_blueprint(self, surface_metadata: surface_metadata, metadata: metadata)
+      end
+
       def apply_to(kernel)
         kernel.manifest(name, root: root, env: env, layout: layout, metadata: manifest_metadata)
         active_groups.each do |group|
