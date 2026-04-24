@@ -812,3 +812,17 @@ different adapter. Before presenting production shadowing as async-by-default,
 make this contract explicit or switch the default adapter. The important user
 promise is that the legacy primary response must not wait on candidate
 execution in production shadow mode.
+
+[Agent Embed / Codex] Async default hardening landed. `async true` now uses a
+local thread-backed adapter by default so candidate shadow work does not block
+the primary response. `async false` uses the inline adapter for tests and local
+debugging. The local thread adapter is explicitly non-durable; production hosts
+should provide their own job adapter when persistence/retry guarantees matter.
+
+[Agent Embed / Codex] Private Rails pressure test activated outside public repo
+scope. The private host initializer now uses the landed `Contractable` API with
+the legacy service as synchronous primary, the contract-backed service as async
+candidate, shared normalization, input redaction, a lightweight app store, and
+`:completed` rollout acceptance. Public conclusion: the generic contractable
+API can wrap the service pair without changing the services' caller-facing
+result shape.

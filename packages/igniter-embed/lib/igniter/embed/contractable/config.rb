@@ -16,7 +16,7 @@ module Igniter
           @stage = :captured
           @async_enabled = true
           @sample_value = 1.0
-          @async_adapter = Adapters::InlineAsync.new
+          @async_adapter = nil
           @metadata_value = {}
           @input_redactor = ->(*, **) { {} }
           @acceptance_policy = :exact
@@ -79,7 +79,7 @@ module Igniter
         end
 
         def async_adapter(value = nil)
-          return @async_adapter unless value
+          return @async_adapter || default_async_adapter unless value
 
           @async_adapter = value
         end
@@ -145,6 +145,10 @@ module Igniter
 
         def inferred_role
           observed_service? ? :observed_service : :migration_candidate
+        end
+
+        def default_async_adapter
+          async ? Adapters::ThreadAsync.new : Adapters::InlineAsync.new
         end
       end
     end

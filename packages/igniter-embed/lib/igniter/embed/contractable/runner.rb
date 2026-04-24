@@ -25,11 +25,7 @@ module Igniter
 
           if sampled
             work = -> { observe(started_at: started_at, primary_result: primary_result, args: args, kwargs: kwargs, sampled: true) }
-            if config.async
-              config.async_adapter.enqueue(name: config.name, inputs: redacted_inputs(args, kwargs), metadata: metadata_payload, &work)
-            else
-              work.call
-            end
+            config.async_adapter.enqueue(name: config.name, inputs: redacted_inputs(args, kwargs), metadata: metadata_payload, &work)
           else
             record_observation(sampled_observation(started_at: started_at, primary_result: primary_result, args: args, kwargs: kwargs))
           end

@@ -144,6 +144,33 @@ RSpec.describe Igniter::Embed::Contractable do
     expect(store.observations.length).to eq(1)
   end
 
+  it "uses a non-blocking local thread adapter by default when async is true" do
+    store = memory_store
+    candidate_started = Queue.new
+    release_candidate = Queue.new
+    runner = Igniter::Embed.contractable(:quote) do |config|
+      config.primary ->(amount:) { { total: amount } }
+      config.candidate lambda { |amount:|
+        candidate_started << true
+        release_candidate.pop
+        { total: amount }
+      }
+      config.store store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+    end
+
+    expect(runner.call(amount: 100)).to eq(total: 100)
+    expect(candidate_started.pop).to eq(true)
+    expect(store.observations).to eq([])
+
+    release_candidate << true
+    sleep 0.05 until store.observations.any?
+
+    expect(store.observations.length).to eq(1)
+  end
+
   it "supports primary-only observed service mode" do
     store = memory_store
     runner = Igniter::Embed.contractable(:quote) do |config|

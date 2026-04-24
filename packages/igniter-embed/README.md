@@ -95,6 +95,10 @@ The base package remains Rails-free.
 primary callable runs synchronously and its raw result is returned; an optional
 candidate can run through a shadow adapter, normalize outputs, compare through
 `DifferentialPack`, and record an observation through an app-supplied store.
+When `async` is true, the default adapter uses a local Ruby thread so candidate
+work does not block the primary response. It is not a durable production job
+queue; provide an app adapter for ActiveJob, Sidekiq, or another backend when
+durability matters.
 
 ```ruby
 QuoteShadow = Igniter::Embed.contractable(:quote) do |config|
