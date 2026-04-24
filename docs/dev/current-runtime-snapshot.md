@@ -106,6 +106,7 @@ Current shape:
 - manifest and canonical user app layout
 - scaffold-free app blueprints
 - named layout profiles for standalone and compact app capsules
+- capsule export/import metadata for portable app boundaries
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces

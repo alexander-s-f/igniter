@@ -17,6 +17,7 @@ Current package shape:
 - `Igniter::Web::ViewGraph`
 - `Igniter::Web::ViewGraphRenderer`
 - `Igniter::Web::SurfaceStructure`
+- `Igniter::Web::SurfaceManifest`
 - `Igniter::Web::Page`
 - `Igniter::Web::Component`
 - `Igniter::Web::Record`
@@ -61,6 +62,8 @@ This package currently ships only a skeleton:
   interfaces, and mount metadata without custom handler/context classes
 - `SurfaceStructure` for web-owned surface groups inside application layout
   profiles
+- `SurfaceManifest` for web-owned exports/imports metadata that can be lifted
+  into application capsule exports
 - an adapter-oriented `Record` placeholder
 
 That gives the rebuild a real package boundary now, while leaving room to shape
@@ -173,3 +176,28 @@ structure = Igniter::Web.surface_structure(blueprint)
 structure.web_root      # => "web"
 structure.path(:screens) # => "web/screens"
 ```
+
+## Surface Exports And Imports
+
+`igniter-web` can describe a mounted web surface without asking
+`igniter-application` to understand pages, Arbre, or screen graphs.
+
+```ruby
+web = Igniter::Web.application do
+  command "/incidents/:id/resolve",
+          to: Igniter::Web.contract("Contracts::ResolveIncident")
+
+  stream "/events",
+         to: Igniter::Web.projection("Projections::ClusterEvents")
+end
+
+surface = Igniter::Web.surface_manifest(web, name: :operator_console, path: "/operator")
+surface.exports # route/api/screen surface exported by the mount
+surface.imports # contract/service/projection/agent targets required by it
+surface.to_capsule_export # compatible with ApplicationBlueprint exports:
+```
+
+This is intentionally web-owned metadata. The application capsule can export
+the whole web surface as `kind: :web_surface`, while the detailed route/screen
+imports stay nested until a host decides which targets are local and which are
+external requirements.

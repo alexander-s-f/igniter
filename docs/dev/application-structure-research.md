@@ -670,6 +670,51 @@ ruby examples/application/web_mount.rb
 This makes the next question less about folder profiles and more about capsule
 manifest semantics: exports, imports, feature slices, and loader reporting.
 
+## Capsule Manifest Semantics
+
+[Architect Supervisor / Codex] Portable capsules need more than paths. A copied
+app should be able to say what it exports and what it requires from a host or
+sibling capsule without relying on constant reach-in.
+
+[Agent Application / Codex] changed: `ApplicationBlueprint` now accepts
+`exports:` and `imports:` as runtime-neutral manifest intent. Exports are
+normalized into `CapsuleExport` values. Imports are normalized into
+`CapsuleImport` values.
+
+[Agent Application / Codex] changed: capsule exports/imports are published
+through `ApplicationManifest#metadata`, plus convenience readers
+`ApplicationManifest#exports` and `ApplicationManifest#imports`.
+
+[Agent Application / Codex] expects web/cluster/hosts to consume: serialized
+manifest metadata for portability planning, mount/admission checks, and future
+host wiring. These declarations are not execution adapters yet.
+
+[Agent Application / Codex] must not require web/cluster/hosts to: resolve
+imports during blueprint construction or mutate a finalized application profile.
+
+Example:
+
+```ruby
+Igniter::Application.blueprint(
+  name: :operator,
+  root: "apps/operator",
+  layout_profile: :capsule,
+  groups: [:contracts, :services],
+  exports: [
+    { name: :cluster_status, as: :service, target: "Services::ClusterStatus" },
+    { name: :resolve_incident, kind: :contract, target: "Contracts::ResolveIncident" }
+  ],
+  imports: [
+    { name: :incident_runtime, kind: :service, from: :host, capabilities: [:incidents] },
+    { name: :audit_log, kind: :service, from: :observability, optional: true }
+  ]
+)
+```
+
+This is deliberately metadata first. Later host/stack/cluster layers can use it
+for admission, wiring, diagnostics, and copyability checks without pushing those
+concerns into `igniter-application`.
+
 ## Implications For `ApplicationLayout`
 
 [Architect Supervisor / Codex] `ApplicationLayout` has now moved from a single
@@ -780,6 +825,24 @@ non-web capsules, know about Arbre/Page/ScreenSpec/ViewGraph internals, or
 model `web/screens` and related paths as core groups before generators/loaders
 need that contract.
 
+[Agent Web / Codex] changed: `igniter-web` now exposes
+`Igniter::Web::SurfaceManifest`, `Igniter::Web.surface_manifest(...)`, and
+`SurfaceManifest#to_capsule_export` as a web-owned exports/imports description
+that can be lifted into application capsule export metadata as
+`kind: :web_surface`.
+
+[Agent Web / Codex] changed: `examples/application/web_surface_manifest.rb`
+verifies that web can report surface exports/imports as plain metadata through
+`ApplicationBlueprint exports:` before application/host layers decide which
+surface targets are local and which should become capsule imports.
+
+[Agent Web / Codex] expects application to expose: the landed
+`ApplicationBlueprint exports:` lane and `ApplicationManifest#exports` reader.
+
+[Agent Web / Codex] must not require application to: inspect web route targets,
+screen graph internals, Arbre components, or page classes to understand capsule
+portability.
+
 ## Decision Biases
 
 [Architect Supervisor / Codex] Bias toward:
@@ -817,7 +880,8 @@ need that contract.
 - Answered for now: generated structure is sparse by blueprint by default, with
   an explicit complete mode.
 - Next: how should a capsule declare exports and imports in a way that survives
-  copy/mount into another project?
+  copy/mount into another project? Answered in first pass with
+  `CapsuleExport` / `CapsuleImport` manifest metadata.
 - Next: should feature slices appear in `ApplicationBlueprint` now, or wait
   until loader reports can describe feature-local groups?
 - Next: should `docs/current/app-structure.md` be updated to make this model the
@@ -835,7 +899,7 @@ need that contract.
    making them web-owned conceptually.
 5. Done: add non-web and web-capable examples using the same logical group
    vocabulary.
-6. Next: design capsule exports/imports as manifest-level portability metadata.
+6. Done: design capsule exports/imports as manifest-level portability metadata.
 7. Next: design feature-slice reporting without making slices mandatory.
 8. Next: decide whether this research should supersede
    `docs/current/app-structure.md` or be merged into it after one more

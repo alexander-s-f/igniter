@@ -124,6 +124,20 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_manifest",
+      "Portable capsule manifest metadata for exports and imports.",
+      expected_fragments: [
+        "application_capsule_manifest_name=operator",
+        "application_capsule_manifest_layout=capsule",
+        "application_capsule_manifest_groups=config,contracts,services,spec",
+        "application_capsule_manifest_exports=cluster_status,resolve_incident",
+        "application_capsule_manifest_imports=incident_runtime,audit_log",
+        "application_capsule_manifest_required_imports=incident_runtime",
+        "application_capsule_manifest_optional_imports=audit_log",
+        "application_capsule_manifest_paths=config,contracts,services,spec"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [
@@ -166,6 +180,20 @@ module IgniterExamples
         "application_web_surface_active_non_web=config,contracts,services,spec",
         "application_web_surface_non_web=false",
         "application_web_surface_projection_path=web/projections"
+      ]
+    ),
+    example(
+      "application/web_surface_manifest",
+      "Web-owned surface manifest lifted into capsule export metadata.",
+      expected_fragments: [
+        "application_web_manifest_name=operator_console",
+        "application_web_manifest_path=/operator",
+        "application_web_manifest_capsule_export=web_surface:operator_console",
+        "application_web_manifest_exports=page:/,screen:/execution,command:/incidents/:id/resolve,query:/status,stream:/events,screen:execution",
+        "application_web_manifest_contract=true",
+        "application_web_manifest_service=true",
+        "application_web_manifest_projection=true",
+        "application_web_manifest_agent=true"
       ]
     ),
     example(

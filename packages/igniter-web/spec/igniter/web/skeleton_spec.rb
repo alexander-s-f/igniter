@@ -192,6 +192,50 @@ RSpec.describe Igniter::Web do
     expect(capsule_structure.to_h.fetch(:metadata)).to include(application: :operator)
   end
 
+  it "describes web surface exports and imports without controller state" do
+    app = described_class.application do
+      root title: "Operator" do
+        main { h1 "Operator" }
+      end
+
+      command "/incidents/:id/resolve", to: Igniter::Web.contract("Contracts::ResolveIncident")
+      query "/status", to: Igniter::Web.service(:cluster_status)
+      stream "/events", to: Igniter::Web.projection("Projections::ClusterEvents")
+
+      screen :execution, intent: :live_process do
+        stream :events, from: "Projections::ClusterEvents"
+        chat with: "Agents::ProjectLead"
+        action :pause, run: "Contracts::PauseProject"
+      end
+
+      screen_route "/execution", :execution
+    end
+
+    manifest = described_class.surface_manifest(app, name: :operator, path: "/operator")
+    exports = manifest.exports.map { |entry| [entry.fetch(:kind), entry[:path] || entry[:name]] }
+    imports = manifest.imports.map { |entry| [entry.fetch(:kind), entry.fetch(:name)] }
+
+    expect(exports).to include([:page, "/"], [:screen, "/execution"], [:command, "/incidents/:id/resolve"])
+    expect(exports).to include([:query, "/status"], [:stream, "/events"], %i[screen execution])
+    expect(imports).to include(
+      [:contract, "Contracts::ResolveIncident"],
+      [:service, "cluster_status"],
+      [:projection, "Projections::ClusterEvents"],
+      [:contract, "Contracts::PauseProject"],
+      [:agent, "Agents::ProjectLead"]
+    )
+    expect(manifest.to_h).to include(name: :operator, path: "/operator")
+    expect(manifest.to_capsule_export).to include(
+      name: :operator,
+      kind: :web_surface,
+      target: "/operator"
+    )
+    expect(manifest.to_capsule_export.fetch(:metadata).fetch(:surface_manifest)).to include(
+      name: :operator,
+      path: "/operator"
+    )
+  end
+
   it "handles nested mounted paths and missing routes" do
     web = described_class.application do
       page "/nested", title: "Nested" do

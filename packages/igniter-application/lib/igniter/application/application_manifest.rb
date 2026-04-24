@@ -41,6 +41,14 @@ module Igniter
           metadata: metadata.dup
         }
       end
+
+      def exports
+        Array(metadata[:exports]).map(&:dup)
+      end
+
+      def imports
+        Array(metadata[:imports]).map(&:dup)
+      end
     end
   end
 end

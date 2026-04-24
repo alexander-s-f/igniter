@@ -51,12 +51,22 @@ module Igniter
           name: name,
           path: path,
           metadata: metadata,
+          surface_manifest: surface_manifest.to_h,
           routes: web_application.routes.map { |route| route_to_h(route) },
           screens: web_application.screens.map { |screen| screen_to_h(screen) }
         }
       end
 
       private
+
+      def surface_manifest
+        SurfaceManifest.for(
+          web_application,
+          name: name,
+          path: path,
+          metadata: metadata
+        )
+      end
 
       def normalize_mount_path(value)
         candidate = value.to_s

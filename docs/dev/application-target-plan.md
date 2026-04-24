@@ -336,6 +336,8 @@ This is intentionally small, but it already establishes the target direction:
 - explicit application structure plans for inspecting and materializing missing
   layout paths without reintroducing legacy generator semantics
 - named layout profiles and active groups for portable app capsules
+- capsule export/import metadata for declaring portable app boundaries and
+  host/sibling requirements
 - layout-aware application load reports during boot
 
 Current boundary rule:

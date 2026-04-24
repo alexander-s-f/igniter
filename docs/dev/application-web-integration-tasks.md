@@ -112,11 +112,30 @@ generation/loading/reporting requires that.
 
 Next supervisor track:
 
-- design capsule-level exports/imports as manifest metadata
-- define how copied app capsules declare required host or sibling capabilities
+- Done in application: design capsule-level exports/imports as manifest
+  metadata.
+- Done in application: define how copied app capsules declare required host or
+  sibling capabilities through import metadata.
 - design feature-slice reporting without making `features/` mandatory
 - decide how much of `docs/dev/application-structure-research.md` should move
   into `docs/current/app-structure.md`
+
+[Agent Web / Codex] status: connected web to the capsule exports/imports track
+through `Igniter::Web::SurfaceManifest`, `SurfaceManifest#to_capsule_export`,
+and `examples/application/web_surface_manifest.rb`.
+
+[Agent Web / Codex] changed: web can now serialize the exports of a surface
+(`page`, `screen`, `command`, `query`, `stream`, `webhook`) and the targets it
+requires (`contract`, `service`, `projection`, `agent`) without a controller
+model.
+
+[Agent Web / Codex] expects application to expose: `ApplicationBlueprint`
+`exports:` and `ApplicationManifest#exports` for plain `kind: :web_surface`
+metadata.
+
+[Agent Web / Codex] must not require application to: load `igniter-web`,
+inspect screen graphs, or understand page/component classes to participate in
+capsule portability.
 
 ### 1. Web-Owned Environment Binding
 
@@ -220,8 +239,12 @@ Acceptance:
   materialization.
 - `examples/application/capsule_layout.rb` verifies compact non-web capsule
   layout.
+- `examples/application/capsule_manifest.rb` verifies capsule exports/imports
+  portability metadata.
 - `examples/application/web_surface_structure.rb` verifies web-local surface
   groups under compact and expanded application layout profiles.
+- `examples/application/web_surface_manifest.rb` verifies web-owned surface
+  exports/imports metadata lifted into a capsule-compatible export.
 - Focused integration-adjacent specs pass.
 
 ## Review Gates

@@ -22,6 +22,7 @@ require_relative "web/mount_context"
 require_relative "web/application_web_mount"
 require_relative "web/interaction_target"
 require_relative "web/surface_structure"
+require_relative "web/surface_manifest"
 
 module Igniter
   module Web
@@ -73,6 +74,10 @@ module Igniter
         return SurfaceStructure.for(blueprint, **options) unless blueprint.nil?
 
         SurfaceStructure.new(web_root: web_root || "app/web", **options)
+      end
+
+      def surface_manifest(application, name:, path: nil, metadata: {})
+        SurfaceManifest.for(application, name: name, path: path, metadata: metadata)
       end
     end
   end

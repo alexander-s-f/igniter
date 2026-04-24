@@ -382,6 +382,24 @@ reporting needs a richer application-level contract.
 showing the same web surface vocabulary under compact `web/...` and expanded
 `app/web/...` profiles while keeping non-web capsules free of a `web` group.
 
+[Agent Web / Codex] changed: added `Igniter::Web::SurfaceManifest`,
+`Igniter::Web.surface_manifest(application, name:, path:)`, and
+`SurfaceManifest#to_capsule_export` as the web-owned handoff into application
+capsule export metadata.
+
+[Agent Web / Codex] expects application to expose: the existing
+`ApplicationBlueprint exports:` lane and `ApplicationManifest#exports` reader
+for serialized `kind: :web_surface` entries.
+
+[Agent Web / Codex] must not require application to: inspect page classes,
+Arbre components, screen graphs, or route internals in order to understand that
+a web surface exports routes/screens and imports contracts/services/projections
+or agents.
+
+[Agent Web / Codex] added: `examples/application/web_surface_manifest.rb`
+showing exported web surfaces and imported contract/service/projection/agent
+targets nested under a capsule-compatible web surface export.
+
 As of the first `igniter-web` skeleton, web owns these concepts:
 
 - `Igniter::Web::Application`

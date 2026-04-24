@@ -343,6 +343,63 @@ RSpec.describe Igniter::Application::Environment do
     )
   end
 
+  it "publishes capsule exports and imports as manifest portability metadata" do
+    root = File.expand_path("/tmp/igniter_operator_capsule_manifest")
+    blueprint = Igniter::Application.blueprint(
+      name: :operator,
+      root: root,
+      env: :test,
+      layout_profile: :capsule,
+      groups: %i[contracts services],
+      exports: [
+        { name: :cluster_status, as: :service, target: "Services::ClusterStatus" },
+        { name: :resolve_incident, kind: :contract, target: "Contracts::ResolveIncident" }
+      ],
+      imports: [
+        { name: :incident_runtime, kind: :service, from: :host, capabilities: [:incidents] },
+        { name: :audit_log, kind: :service, from: :observability, optional: true }
+      ]
+    )
+
+    expect(blueprint.to_h).to include(
+      exports: [
+        { name: :cluster_status, kind: :service, target: "Services::ClusterStatus", metadata: {} },
+        { name: :resolve_incident, kind: :contract, target: "Contracts::ResolveIncident", metadata: {} }
+      ],
+      imports: [
+        {
+          name: :incident_runtime,
+          kind: :service,
+          from: :host,
+          optional: false,
+          capabilities: [:incidents],
+          metadata: {}
+        },
+        {
+          name: :audit_log,
+          kind: :service,
+          from: :observability,
+          optional: true,
+          capabilities: [],
+          metadata: {}
+        }
+      ]
+    )
+
+    manifest = blueprint.to_manifest
+    expect(manifest.exports).to eq(blueprint.exports.map(&:to_h))
+    expect(manifest.imports).to eq(blueprint.imports.map(&:to_h))
+    expect(manifest.metadata).to include(
+      layout_profile: :capsule,
+      exports: blueprint.exports.map(&:to_h),
+      imports: blueprint.imports.map(&:to_h)
+    )
+
+    profile = blueprint.apply_to(Igniter::Application.build_kernel).finalize
+    expect(profile.manifest.exports).to eq(blueprint.exports.map(&:to_h))
+    expect(profile.manifest.imports).to eq(blueprint.imports.map(&:to_h))
+  end
+
   it "publishes generic mount registrations without depending on mounted package classes" do
     operator_surface = Struct.new(:name).new("OperatorSurface")
 

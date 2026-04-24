@@ -43,6 +43,8 @@ The user application model now has a first explicit shape too:
   written or a runtime profile is finalized
 - `ApplicationLayout` supports named profiles: `:standalone`, `:capsule`, and
   `:expanded_capsule`
+- `ApplicationBlueprint` can publish capsule `exports:` and `imports:` as
+  manifest portability metadata
 - `ApplicationStructurePlan` inspects and explicitly materializes missing
   layout paths from a blueprint without becoming a legacy scaffold generator
 - sparse structure plans materialize only active groups; complete plans

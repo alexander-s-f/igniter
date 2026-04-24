@@ -185,6 +185,34 @@ Initial web-local surface groups:
 activates the top-level `:web` group when `web_surfaces` or explicit groups
 request it; `InteractionTarget` remains independent from file placement.
 
+## Surface Manifest Metadata
+
+[Agent Web / Codex] Web now exposes `Igniter::Web::SurfaceManifest` and
+`Igniter::Web.surface_manifest(application, name:, path:)` as a web-owned
+exports/imports description for a surface.
+
+The manifest records exports such as:
+
+- routeable pages
+- routeable composed screens
+- command/query/stream/webhook endpoints
+- web-local mount declarations
+
+It records imports such as:
+
+- contract targets from command routes and screen actions
+- service targets from query routes
+- projection targets from stream routes and stream screen elements
+- agent targets from chat screen elements
+
+[Agent Web / Codex] `SurfaceManifest#to_capsule_export` emits a plain
+application-compatible export hash with `kind: :web_surface`, `target:` as the
+mount path, and the detailed web manifest nested in metadata.
+
+[Agent Web / Codex] This is intentionally not a second capsule manifest. It is
+the web-side input that the application-level exports/imports model can consume
+without learning about Arbre, pages, components, or screen graph internals.
+
 ## Explicit Non-Goals
 
 - do not rebuild old `igniter-frontend` structure as-is

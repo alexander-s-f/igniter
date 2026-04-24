@@ -7,11 +7,11 @@ module Igniter
 
       attr_reader :name, :root, :env, :layout_profile, :layout, :groups, :packs,
                   :contracts, :providers, :services, :interfaces, :effects,
-                  :web_surfaces, :config, :metadata
+                  :web_surfaces, :exports, :imports, :config, :metadata
 
       def initialize(name:, root:, env: :development, layout: nil, layout_profile: :standalone, paths: {},
                      groups: [], packs: [], contracts: [], providers: [], services: [], interfaces: [],
-                     effects: [], web_surfaces: [],
+                     effects: [], web_surfaces: [], exports: [], imports: [],
                      config: {}, metadata: {})
         @name = name.to_sym
         @root = File.expand_path(root.to_s)
@@ -26,6 +26,8 @@ module Igniter
         @interfaces = Array(interfaces).map(&:to_sym).freeze
         @effects = Array(effects).map(&:to_sym).freeze
         @web_surfaces = Array(web_surfaces).map(&:to_sym).freeze
+        @exports = normalize_exports(exports).freeze
+        @imports = normalize_imports(imports).freeze
         @config = config.dup.freeze
         @metadata = metadata.dup.freeze
         freeze
@@ -107,6 +109,8 @@ module Igniter
           interfaces: interfaces.dup,
           effects: effects.dup,
           web_surfaces: web_surfaces.dup,
+          exports: exports.map(&:to_h),
+          imports: imports.map(&:to_h),
           config: config.dup,
           metadata: metadata.dup
         }
@@ -119,6 +123,8 @@ module Igniter
           blueprint: true,
           layout_profile: layout_profile,
           groups: active_groups,
+          exports: exports.map(&:to_h),
+          imports: imports.map(&:to_h),
           effects: effects,
           web_surfaces: web_surfaces
         )
@@ -132,6 +138,44 @@ module Igniter
           result << :effects unless effects.empty?
           result << :packs unless packs.empty?
           result << :web unless web_surfaces.empty?
+        end
+      end
+
+      def normalize_exports(entries)
+        Array(entries).map do |entry|
+          case entry
+          when CapsuleExport
+            entry
+          when Hash
+            CapsuleExport.new(
+              name: entry.fetch(:name),
+              kind: entry.fetch(:kind, entry.fetch(:as, :service)),
+              target: entry[:target],
+              metadata: entry.fetch(:metadata, {})
+            )
+          else
+            CapsuleExport.new(name: entry)
+          end
+        end
+      end
+
+      def normalize_imports(entries)
+        Array(entries).map do |entry|
+          case entry
+          when CapsuleImport
+            entry
+          when Hash
+            CapsuleImport.new(
+              name: entry.fetch(:name),
+              kind: entry.fetch(:kind, :service),
+              from: entry[:from],
+              optional: entry.fetch(:optional, false),
+              capabilities: entry.fetch(:capabilities, []),
+              metadata: entry.fetch(:metadata, {})
+            )
+          else
+            CapsuleImport.new(name: entry)
+          end
         end
       end
     end
