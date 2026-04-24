@@ -10,6 +10,7 @@ module Igniter
         @registry = Registry.new
         @compiled_contracts = {}
         register_configured_contracts
+        discover_configured_contracts
       end
 
       def profile
@@ -63,9 +64,46 @@ module Igniter
         self
       end
 
+      def reload!
+        clear_cache
+      end
+
       private
 
       attr_reader :compiled_contracts
+
+      def discover_configured_contracts
+        return unless config.discovery_enabled?
+
+        root = config.root
+        raise DiscoveryError, "config.root is required when discovery is enabled" unless root
+        raise DiscoveryError, "contract discovery root does not exist: #{root}" unless Dir.exist?(root)
+
+        before = contract_classes
+        Dir[File.join(root, config.discovery_pattern)].sort.each { |path| require path }
+        discovered_contract_classes = (contract_classes - before).select { |klass| discoverable_contract_class?(klass) }
+        discovered_by_name = discovered_contract_classes.group_by { |klass| inferred_contract_name(klass) }
+        duplicates = discovered_by_name.select { |_name, classes| classes.length > 1 }
+        unless duplicates.empty?
+          duplicate_names = duplicates.keys.sort.map { |name| ":#{name}" }.join(", ")
+          raise DiscoveryError,
+                "discovered duplicate contract names #{duplicate_names}; use explicit config.contract registrations"
+        end
+
+        discovered_by_name.keys.sort.each do |name|
+          next if registry.key?(name)
+
+          register(discovered_by_name.fetch(name).first, as: name)
+        end
+      end
+
+      def contract_classes
+        ObjectSpace.each_object(Class).select { |klass| contract_class?(klass) }
+      end
+
+      def discoverable_contract_class?(contract_class)
+        !contract_class.name.nil?
+      end
 
       def register_configured_contracts
         config.contract_registrations.each do |registration|

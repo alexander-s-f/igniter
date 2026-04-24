@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "../../spec_helper"
+require "securerandom"
+require "tmpdir"
 
 RSpec.describe Igniter::Embed::Container do
   before do
@@ -67,6 +69,146 @@ RSpec.describe Igniter::Embed::Container do
 
     expect(contracts.call(:price_quote, amount: 100).output(:total)).to eq(120.0)
     expect(contracts.registry.to_h.fetch(:price_quote)).to include(kind: :class)
+  end
+
+  it "uses config.root only when opt-in discovery is enabled" do
+    Dir.mktmpdir("igniter-embed-contracts") do |root|
+      File.write(File.join(root, "price_contract.rb"), <<~RUBY)
+        class IgnoredByDefaultContract < Igniter::Contract
+          define do
+            input :amount
+            output :amount
+          end
+        end
+      RUBY
+
+      contracts = Igniter::Embed.configure(:billing) do |config|
+        config.root root
+      end
+
+      expect(contracts.registry.names).to eq([])
+    end
+  end
+
+  it "discovers contract classes from config.root when discovery is enabled" do
+    namespace = "EmbedDiscovery#{SecureRandom.hex(4)}"
+
+    Dir.mktmpdir("igniter-embed-contracts") do |root|
+      File.write(File.join(root, "price_contract.rb"), <<~RUBY)
+        module #{namespace}
+          class PriceContract < Igniter::Contract
+            define do
+              input :amount
+              compute :total, depends_on: [:amount] do |amount:|
+                amount * 1.2
+              end
+              output :total
+            end
+          end
+        end
+      RUBY
+
+      contracts = Igniter::Embed.configure(:billing) do |config|
+        config.root root
+        config.discover!
+      end
+
+      expect(contracts.registry.names).to include(:price)
+      expect(contracts.call(:price, amount: 100).output(:total)).to eq(120.0)
+    end
+  end
+
+  it "ignores anonymous contract classes during discovery" do
+    Dir.mktmpdir("igniter-embed-contracts") do |root|
+      File.write(File.join(root, "anonymous_contract.rb"), <<~RUBY)
+        Class.new(Igniter::Contract) do
+          define do
+            input :amount
+            output :amount
+          end
+        end
+      RUBY
+
+      contracts = Igniter::Embed.configure(:billing) do |config|
+        config.root root
+        config.discover!
+      end
+
+      expect(contracts.registry.names).to eq([])
+    end
+  end
+
+  it "lets explicit registrations win over discovered contracts with the same inferred name" do
+    namespace = "EmbedDiscoveryExplicit#{SecureRandom.hex(4)}"
+
+    Dir.mktmpdir("igniter-embed-contracts") do |root|
+      File.write(File.join(root, "price_contract.rb"), <<~RUBY)
+        module #{namespace}
+          class PriceContract < Igniter::Contract
+            define do
+              input :amount
+              compute :total, depends_on: [:amount] do |amount:|
+                amount * 9
+              end
+              output :total
+            end
+          end
+        end
+      RUBY
+
+      contracts = Igniter::Embed.configure(:billing) do |config|
+        config.root root
+        config.contract Billing::PriceContract, as: :price
+        config.discover!
+      end
+
+      expect(contracts.call(:price, amount: 100).output(:total)).to eq(120.0)
+      expect(contracts.registry.names).to eq([:price])
+    end
+  end
+
+  it "raises a clear error for duplicate discovered inferred names" do
+    namespace = "EmbedDiscoveryDuplicate#{SecureRandom.hex(4)}"
+
+    Dir.mktmpdir("igniter-embed-contracts") do |root|
+      File.write(File.join(root, "first_price_contract.rb"), <<~RUBY)
+        module #{namespace}
+          module First
+            class PriceContract < Igniter::Contract
+              define do
+                input :amount
+                output :amount
+              end
+            end
+          end
+        end
+      RUBY
+      File.write(File.join(root, "second_price_contract.rb"), <<~RUBY)
+        module #{namespace}
+          module Second
+            class PriceContract < Igniter::Contract
+              define do
+                input :amount
+                output :amount
+              end
+            end
+          end
+        end
+      RUBY
+
+      expect do
+        Igniter::Embed.configure(:billing) do |config|
+          config.root root
+          config.discover!
+        end
+      end.to raise_error(Igniter::Embed::DiscoveryError, /duplicate contract names :price/)
+    end
+  end
+
+  it "raises a clear error when discovery is enabled without a root" do
+    expect do
+      Igniter::Embed.configure(:billing, &:discover!)
+    end.to raise_error(Igniter::Embed::DiscoveryError, /config.root/)
   end
 
   it "infers class contract names when registering a named contract class" do

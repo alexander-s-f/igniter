@@ -12,7 +12,7 @@ module Igniter
 
           raise RailsIntegrationError, "Rails reloader must respond to #to_prepare" unless reloader.respond_to?(:to_prepare)
 
-          reloader.to_prepare { container.clear_cache }
+          reloader.to_prepare { container.reload! }
           container
         end
       end
