@@ -13,6 +13,7 @@ Current package shape:
 - `Igniter::Web::Application`
 - `Igniter::Web::ScreenSpec`
 - `Igniter::Web::Composer`
+- `Igniter::Web::CompositionPreset`
 - `Igniter::Web::ViewGraph`
 - `Igniter::Web::Page`
 - `Igniter::Web::Component`

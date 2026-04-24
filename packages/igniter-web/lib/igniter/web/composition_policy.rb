@@ -3,14 +3,27 @@
 module Igniter
   module Web
     class CompositionPolicy
-      def findings_for(screen)
+      def findings_for(screen, preset: CompositionPreset.default)
         findings = []
+        findings.concat(preset_findings(screen, preset))
         findings.concat(intent_findings(screen))
         findings.concat(action_findings(screen))
         findings
       end
 
       private
+
+      def preset_findings(screen, preset)
+        return [] unless preset.policy_hints[:requires_action]
+        return [] if screen.elements.any? { |element| element.kind == :action }
+
+        [finding(
+          :error,
+          :missing_preset_action,
+          "#{screen.name} uses #{preset.name} but has no action.",
+          ["add an action", "choose a less action-oriented preset"]
+        )]
+      end
 
       def intent_findings(screen)
         case screen.intent

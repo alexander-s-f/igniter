@@ -3,8 +3,6 @@
 module Igniter
   module Web
     class Composer
-      ZONE_ORDER = %i[summary main aside footer].freeze
-
       class << self
         def compose(...)
           new.compose(...)
@@ -16,38 +14,41 @@ module Igniter
       end
 
       def compose(screen)
-        graph = ViewGraph.new(root: root_node(screen))
+        preset = CompositionPreset.fetch(screen.composition_preset)
+        graph = ViewGraph.new(root: root_node(screen, preset))
         CompositionResult.new(
           screen: screen,
           graph: graph,
-          findings: @policy.findings_for(screen)
+          findings: @policy.findings_for(screen, preset: preset)
         )
       end
 
       private
 
-      def root_node(screen)
-        zones = ZONE_ORDER.map { |name| zone_node(name, screen) }
+      def root_node(screen, preset)
+        zones = preset.zone_order.map { |name| zone_node(name, screen, preset) }
         ViewNode.new(
           kind: :screen,
           name: screen.name,
           role: screen.intent,
           props: {
             title: screen.title_text,
-            compose_with: screen.composition_preset,
+            preset: preset.to_h,
             options: screen.options
           }.compact,
           children: zones
         )
       end
 
-      def zone_node(name, screen)
+      def zone_node(name, screen, preset)
+        children = screen.elements
+                         .select { |element| zone_for(element, preset) == name }
+                         .map { |element| element_node(element) }
+
         ViewNode.new(
           kind: :zone,
           name: name,
-          children: screen.elements
-                          .select { |element| zone_for(element) == name }
-                          .map { |element| element_node(element) }
+          children: children
         )
       end
 
@@ -60,7 +61,10 @@ module Igniter
         )
       end
 
-      def zone_for(element)
+      def zone_for(element, preset)
+        preset_zone = preset.preferred_zone_for(element.kind)
+        return preset_zone if preset_zone
+
         return :summary if element.role == :summary
         return :aside if element.role == :aside
         return :footer if element.kind == :action

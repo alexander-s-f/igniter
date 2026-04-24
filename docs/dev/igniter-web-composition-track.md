@@ -85,6 +85,7 @@ The first implementation should stay intentionally small:
 
 - `Igniter::Web::ScreenSpec`
 - `Igniter::Web::Composer`
+- `Igniter::Web::CompositionPreset`
 - `Igniter::Web::CompositionPolicy`
 - `Igniter::Web::CompositionResult`
 - `Igniter::Web::CompositionFinding`
@@ -101,9 +102,10 @@ Initial composer behavior:
 
 ## Composition Presets
 
-Start with symbolic presets. They are policy hints, not hard themes.
+Start with named preset objects. They are policy and layout hints, not hard
+themes.
 
-Likely first presets:
+First presets:
 
 - `:decision_workspace`
 - `:operator_console`
@@ -112,6 +114,13 @@ Likely first presets:
 
 Presets should influence placement and validation, but the internal graph should
 remain explicit and inspectable.
+
+Initial preset responsibilities:
+
+- zone order
+- preferred zones for component kinds
+- policy hints such as `requires_action`, `step_first`, or
+  `prefers_live_surface`
 
 ## Policy Direction
 
