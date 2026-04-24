@@ -4,6 +4,10 @@ This public track defines the generic mechanism for comparing a synchronous
 legacy implementation with a new Igniter contract-backed implementation in
 real application traffic.
 
+It also defines the broader `Contractable` concept: a host service can be made
+observable, comparable, and ecosystem-addressable before it becomes a full
+Igniter contract, and in some cases without ever needing to become one.
+
 Authoritative supervisor notes are marked:
 
 ```text
@@ -27,7 +31,7 @@ behavior only.
 [Architect Supervisor / Codex] Accepted: this is a first-class Igniter
 ecosystem capability, not a one-off Rails migration helper.
 
-The target pattern is **contractable shadow comparison**:
+The first target pattern is **contractable shadow comparison**:
 
 1. run the existing implementation synchronously and return its result to the
    caller
@@ -37,6 +41,26 @@ The target pattern is **contractable shadow comparison**:
 5. persist a lightweight observation record when configured
 6. never block the original request on the candidate path when async shadowing
    is enabled
+
+[Architect Supervisor / Codex] Broader placement decision: `Contractable` is
+the host-local bridge between opaque application services and the Igniter
+contracts ecosystem. It can be used to observe, compare, migrate, or discover
+business flows without changing the service's public API.
+
+`Contractable` should therefore support multiple roles:
+
+- `:migration_candidate`: capture a legacy service, compare it with a new
+  `Igniter::Contract` implementation, and keep a handover report when the new
+  contract takes over.
+- `:observed_service`: make an already-good service observable and
+  ecosystem-addressable without requiring a rewrite into graph DSL.
+- `:discovery_probe`: wrap or instrument a service boundary to learn inputs,
+  outputs, callers, timing, errors, and downstream flow before deciding what to
+  extract or rewrite.
+
+The first implementation can focus on shadow comparison, but the naming,
+metadata, observation shape, and store payload must not make migration the only
+valid purpose.
 
 ## Package Ownership
 
@@ -62,9 +86,11 @@ Does not own:
 Owns:
 
 - host-local wrapping of legacy/candidate callables
+- `Contractable` registration and role metadata
 - production-safe shadow execution defaults
 - adapter protocols for async execution and persistence
 - bridge from arbitrary host service results to `DifferentialPack`
+- lightweight observation of service calls without changing the service API
 
 Does not own:
 
@@ -77,18 +103,79 @@ Does not own:
 Owns:
 
 - choosing the legacy primary and contract candidate
+- choosing the `Contractable` role and lifecycle stage
 - response normalization/redaction
 - persistence adapter implementation
 - async adapter implementation
 - rollout policy, sampling, and alerting
 
+## Contractable Lifecycle
+
+`Contractable` is a lifecycle wrapper, not only a comparison runner.
+
+Suggested stages:
+
+1. `:captured` - the service is wrapped and observable; public API is unchanged.
+2. `:profiled` - observations reveal inputs, outputs, errors, and call
+   patterns.
+3. `:shadowed` - a candidate implementation runs beside the primary.
+4. `:accepted` - acceptance policies pass for the chosen rollout gate.
+5. `:promoted` - the candidate becomes primary or the host app keeps the
+   service as an observed non-contract boundary.
+6. `:retired` - the old implementation is removed, with the migration report
+   retained.
+
+The lifecycle should be metadata and reporting first. Do not build a workflow
+engine around it in the first slice.
+
+## Contractable Roles
+
+### Migration Candidate
+
+Use when a legacy service may become a full `Igniter::Contract`.
+
+Expected behavior:
+
+- primary remains the legacy service
+- candidate may be a contract-backed service or direct contract call
+- comparison and acceptance policies produce a promotion report
+- final state can point to the new contract as the durable implementation
+
+### Observed Service
+
+Use when the service is already good enough and does not need to become a graph.
+
+Expected behavior:
+
+- no candidate is required
+- calls are observed, normalized, redacted, and persisted
+- the service becomes visible to diagnostics, host maps, and future tooling
+- public API stays unchanged
+
+### Discovery Probe
+
+Use when a large codebase needs flow reconstruction before refactoring.
+
+Expected behavior:
+
+- wrap or instrument service boundaries with minimal behavior change
+- collect call metadata, normalized inputs/outputs, errors, timings, and
+  optional caller/source metadata
+- help identify domain flows and candidate contract boundaries
+- avoid scattering ad hoc loggers through the codebase
+
 ## Target API Sketch
 
 The public shape should bias toward one small host object rather than scattered
-service wrappers:
+service wrappers.
+
+Migration candidate:
 
 ```ruby
 MarketingAvailabilityShadow = Igniter::Embed.contractable(:marketing_availability) do |c|
+  c.role :migration_candidate
+  c.stage :shadowed
+
   c.primary Api::Marketing::ExecutorService
   c.candidate Api::Marketing::ExecutorContractService
 
@@ -98,6 +185,33 @@ MarketingAvailabilityShadow = Igniter::Embed.contractable(:marketing_availabilit
 
   c.normalize_primary { |result| MarketingAvailabilityNormalizer.call(result) }
   c.normalize_candidate { |result| MarketingAvailabilityNormalizer.call(result) }
+end
+```
+
+Observed service:
+
+```ruby
+BillingQuote = Igniter::Embed.contractable(:billing_quote) do |c|
+  c.role :observed_service
+  c.stage :captured
+
+  c.primary Billing::QuoteService
+  c.normalize_primary BillingQuoteNormalizer
+  c.store BillingObservationStore
+end
+```
+
+Discovery probe:
+
+```ruby
+VendorLookupProbe = Igniter::Embed.contractable(:vendor_lookup) do |c|
+  c.role :discovery_probe
+  c.stage :profiled
+
+  c.primary VendorLookupService
+  c.observe calls: true, timing: true, errors: true
+  c.redact_inputs VendorLookupRedactor
+  c.store DomainFlowStore
 end
 ```
 
@@ -116,7 +230,8 @@ background adapter.
 Required first slice:
 
 - primary executes synchronously and its raw result is returned
-- candidate executes only when shadowing is enabled for this call
+- candidate executes only when configured and when shadowing is enabled for this
+  call
 - async defaults to `true`
 - sync mode exists for tests and local debugging
 - primary exceptions are not swallowed
@@ -126,6 +241,8 @@ Required first slice:
 - inputs are captured through a redaction hook before persistence
 - store is optional; no configured store means the report may be emitted through
   callback/logging only
+- role/stage metadata is included in observations
+- observed-service mode works without a candidate
 
 Suggested object vocabulary:
 
@@ -151,6 +268,8 @@ Observation payload should be serializable:
 ```ruby
 {
   name: :marketing_availability,
+  role: :migration_candidate,
+  stage: :shadowed,
   mode: :shadow,
   async: true,
   sampled: true,
@@ -215,6 +334,7 @@ Extend or wrap it only where service-vs-contract comparison needs:
 - observation metadata
 - persistence callback
 - async execution boundary
+- acceptance/matching policy for rollout decisions
 
 ## Tasks
 
@@ -229,6 +349,7 @@ Acceptance:
 
 - inspect existing `DifferentialPack` API and confirm what can be reused as-is
 - propose exact `igniter-embed` API for contractable shadow running
+- include `Contractable` roles and lifecycle metadata in the API
 - define normalizer, async adapter, and store protocols
 - define minimal observation shape
 - define failure semantics for primary and candidate errors
@@ -243,13 +364,18 @@ Owner: `[Agent Embed / Codex]` after Task 1 review.
 Acceptance:
 
 - host can wrap a primary callable and candidate callable
+- host can wrap a primary-only observed service without a candidate
+- observations include role and lifecycle stage
 - primary result is returned synchronously
 - candidate can run sync for tests or async through adapter
 - comparison uses `DifferentialPack` or a narrow adapter over it
+- acceptance policy can distinguish exact match, candidate completed, and
+  expected output shape
 - observation can be persisted through `store.record`
 - candidate failures do not break primary response
 - tests cover match, divergence, candidate exception, no-store mode, and async
   adapter enqueue behavior
+- tests cover observed-service mode with no candidate
 
 ### Task 3: Differential Pack Fit Check
 
@@ -284,9 +410,355 @@ Acceptance:
 
 [Architect Supervisor / Codex] Next:
 
-1. `[Agent Embed / Codex]` starts Task 1 and treats this as a generic
-   contractable shadow-running design, not only a private Rails migration.
-2. Reuse `DifferentialPack` as the comparison engine unless the design spike
-   proves a precise missing seam.
+1. `[Agent Embed / Codex]` implements Task 2 with the Task 1 design plus the
+   accepted matcher/acceptance policy below and the broader `Contractable`
+   role/lifecycle model above.
+2. Reuse `DifferentialPack` as the comparison engine and add rollout
+   acceptance as a contractable-layer policy, not as a replacement for the diff
+   report.
 3. Keep primary synchronous and candidate async-by-default.
 4. Keep persistence as a tiny app-supplied store protocol in the first slice.
+
+## Task 1 Design: Exact Contractable API
+
+[Agent Embed / Codex] Proposed exact first-slice API.
+
+### Host API
+
+```ruby
+PriceQuoteShadow = Igniter::Embed.contractable(:price_quote) do |c|
+  c.role :migration_candidate
+  c.stage :shadowed
+
+  c.primary LegacyPriceQuote
+  c.candidate ContractPriceQuote
+
+  c.async true
+  c.async_adapter LocalShadowAdapter
+  c.sample 1.0
+  c.store PriceQuoteObservationStore
+
+  c.normalize_primary PriceQuoteNormalizer
+  c.normalize_candidate PriceQuoteNormalizer
+  c.redact_inputs PriceQuoteInputRedactor
+
+  c.metadata component: "billing", rollout: "contract-v2"
+end
+
+result = PriceQuoteShadow.call(order_id: "order-1")
+```
+
+`Igniter::Embed.contractable(name) { ... }` returns a
+`ContractableRunner`.
+
+Required config:
+
+- `primary callable`
+- `candidate callable`
+- `normalize_primary callable`
+- `normalize_candidate callable`
+
+Optional config:
+
+- `role symbol`, default `:migration_candidate` when a candidate is configured,
+  otherwise `:observed_service`
+- `stage symbol`, default `:captured`
+- `async true | false`, default `true`
+- `async_adapter adapter`, default `Igniter::Embed::Contractable::InlineAsync`
+  for sync mode and `ThreadAsync` only when explicitly selected
+- `sample float_or_callable`, default `1.0`
+- `store object`, optional
+- `redact_inputs callable`, default returns `{}` unless explicitly configured
+- `metadata hash_or_callable`, default `{}`
+- `on_observation callable`, optional callback after observation is built
+- `clock callable`, default `Time`
+
+Callable invocation rules:
+
+- primary is called synchronously and its raw result is returned
+- candidate is called only when sampled
+- services can be plain callables responding to `.call(...)`
+- classes are treated as callables if they respond to `.call`; otherwise embed
+  may instantiate `new` and call the instance in implementation, but explicit
+  `.call` is preferred for app services
+- primary exceptions are allowed to bubble to the caller and no observation is
+  required
+- candidate exceptions are captured into the observation and never change the
+  primary return value
+
+### Normalizer Protocol
+
+Normalizer objects receive the raw service result and must return comparable
+outputs:
+
+```ruby
+normalized = PriceQuoteNormalizer.call(result)
+```
+
+Accepted return shape:
+
+```ruby
+{
+  status: :ok,
+  outputs: {
+    status: "accepted",
+    amount: 120.0,
+    currency: "USD"
+  },
+  metadata: {
+    source_status: "success"
+  }
+}
+```
+
+Rules:
+
+- `:outputs` is the only value sent into `DifferentialPack`
+- `:status` should be `:ok`, `:failure`, or `:error`
+- `:metadata` is optional and persisted in the observation
+- normalizers are responsible for redaction and app-specific shape decisions
+- normalizer exceptions are captured as side-specific `:error` outcomes
+
+### Acceptance / Matcher Policy
+
+[Architect Supervisor / Codex] Accepted addition after user review:
+contractable comparison needs two related but separate answers:
+
+1. `report.match?` from `DifferentialPack`: are the normalized primary and
+   candidate outputs equal under the diff engine?
+2. `accepted?` from contractable policy: is the candidate acceptable for the
+   current rollout gate?
+
+This lets production shadow mode start with coarse safety gates and tighten
+toward exact equivalence over time.
+
+First implementation should support three built-in policies:
+
+```ruby
+PriceQuoteShadow = Igniter::Embed.contractable(:price_quote) do |c|
+  c.primary LegacyPriceQuote
+  c.candidate ContractPriceQuote
+
+  c.normalize_primary QuoteNormalizer
+  c.normalize_candidate QuoteNormalizer
+
+  c.accept :exact
+end
+```
+
+```ruby
+c.accept :completed
+```
+
+```ruby
+c.accept :shape, outputs: {
+  status: String,
+  amount: Numeric,
+  currency: String
+}
+```
+
+Semantics:
+
+- `:exact`: accepted only when `DifferentialPack` reports a match.
+- `:completed`: accepted when the candidate ran and normalized without raising,
+  regardless of output equality.
+- `:shape`: accepted when candidate outputs satisfy an expected type/structure
+  contract. For hash outputs, validate keys and nested value predicates without
+  requiring exact values.
+
+Observation should persist both values:
+
+```ruby
+{
+  match: false,
+  accepted: true,
+  acceptance: {
+    policy: :shape,
+    failures: []
+  }
+}
+```
+
+Future matcher vocabulary should fit behind the same policy surface:
+
+```ruby
+c.accept :shape, outputs: {
+  status: one_of("success", "failure"),
+  amount: between(0, 10_000),
+  currency: in(%w[USD EUR UAH])
+}
+```
+
+Do not implement the full matcher DSL in the first slice. Design the internal
+shape so `exact`, `completed`, and `shape` do not block later predicates such
+as `one_of`, `in`, `between`, `optional`, `array_of`, or custom callables.
+
+Placement decision:
+
+- policy evaluation belongs in `igniter-embed` contractable runner because it
+  is host rollout semantics
+- reusable predicate primitives may later move into `igniter-contracts` or
+  `igniter-extensions` if they prove useful outside shadow comparison
+- `DifferentialPack` should continue to produce the objective diff report
+  rather than deciding rollout acceptance
+
+### Async Adapter Protocol
+
+Base embed must not assume a durable job backend.
+
+Protocol:
+
+```ruby
+adapter.enqueue(name:, inputs:, metadata:) do
+  candidate_and_diff_work.call
+end
+```
+
+Return value is ignored by the caller. Implementations may run inline, spawn a
+local thread, enqueue ActiveJob, enqueue Sidekiq, or write to an app queue. Base
+embed should ship only simple adapters suitable for tests/local use and document
+that they are not durable production queues.
+
+### Store Protocol
+
+Persistence remains host-owned.
+
+Protocol:
+
+```ruby
+store.record(observation)
+```
+
+`record` receives the full observation hash and may persist all observations,
+only divergences, or only errors. Store errors should be captured into
+`observation[:store_error]` and surfaced through `on_observation` or logging;
+they should not affect the primary result.
+
+### Observation Payload
+
+Minimal serializable payload:
+
+```ruby
+{
+  name: :price_quote,
+  role: :migration_candidate,
+  stage: :shadowed,
+  mode: :shadow,
+  async: true,
+  sampled: true,
+  started_at: "2026-04-24T12:00:00Z",
+  finished_at: "2026-04-24T12:00:00Z",
+  duration_ms: 12.4,
+  inputs: { order_id: "redacted" },
+  primary: {
+    status: :ok,
+    outputs: { status: "accepted", amount: 120.0 },
+    metadata: {}
+  },
+  candidate: {
+    status: :ok,
+    outputs: { status: "accepted", amount: 120.0 },
+    metadata: {},
+    error: nil
+  },
+  report: {
+    match: true,
+    summary: "match",
+    details: {}
+  },
+  match: true,
+  error: nil,
+  store_error: nil,
+  metadata: { component: "billing" }
+}
+```
+
+When the candidate raises:
+
+```ruby
+candidate: {
+  status: :error,
+  outputs: {},
+  metadata: {},
+  error: { type: "RuntimeError", message: "candidate exploded", details: {} }
+}
+```
+
+### DifferentialPack Fit
+
+`DifferentialPack` can already compare precomputed primary/candidate execution
+results, but it currently expects `ExecutionResult`-like objects with
+`outputs.to_h`. Embed can adapt normalized service outputs with a tiny internal
+value object:
+
+```ruby
+ExecutionLike = Struct.new(:outputs, keyword_init: true)
+OutputsLike = Struct.new(:payload, keyword_init: true) do
+  def to_h = payload
+end
+```
+
+No `DifferentialPack` seam is required for Task 1/2 unless implementation
+proves this adapter awkward. Keep `igniter-extensions` free of host concepts.
+
+[Architect Supervisor / Codex] Accepted with amendment: `DifferentialPack`
+remains the objective comparison engine, but contractable runner must add an
+acceptance policy layer. Do not overload `Differential::Report#match?` to mean
+"safe enough for rollout".
+
+### Public Example Shape
+
+Use generic services in docs/examples:
+
+```ruby
+class LegacyPriceQuote
+  def self.call(order_id:)
+    { status: "accepted", amount: 120.0 }
+  end
+end
+
+class ContractPriceQuote
+  def self.call(order_id:)
+    PriceContract.new(order_id: order_id).to_h
+  end
+end
+
+PriceQuoteShadow = Igniter::Embed.contractable(:price_quote) do |c|
+  c.role :migration_candidate
+  c.primary LegacyPriceQuote
+  c.candidate ContractPriceQuote
+  c.normalize_primary QuoteNormalizer
+  c.normalize_candidate QuoteNormalizer
+  c.store ObservationStore
+end
+```
+
+Observed service example:
+
+```ruby
+PriceQuoteObserved = Igniter::Embed.contractable(:price_quote) do |c|
+  c.role :observed_service
+  c.primary LegacyPriceQuote
+  c.normalize_primary QuoteNormalizer
+  c.store ObservationStore
+end
+```
+
+### Private Pressure-Test Result
+
+[Agent Embed / Codex] Private service pressure test applied the proposed
+callable boundary by adding class-level `.call(...)` entrypoints to both legacy
+primary and contract candidate services. The private host initializer now has a
+guarded `Igniter::Embed.contractable(...)` declaration that will activate once
+the package API lands, without changing current primary response behavior.
+
+[Architect Supervisor / Codex] Task 1 accepted with matcher amendment. Proceed
+to Task 2 implementation using `:exact`, `:completed`, and `:shape` as the
+first built-in acceptance policies.
+
+[Architect Supervisor / Codex] Additional user insight accepted: `Contractable`
+is the general bridge for making legacy or existing services observable and
+Igniter-addressable. Shadow diff is one role, not the whole concept. Task 2 must
+support primary-only observed services and role/stage metadata even if full
+discovery/profiling tooling remains a later slice.

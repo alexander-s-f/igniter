@@ -120,19 +120,33 @@ Current accepted state:
 
 - `DifferentialPack` already exists in `igniter-extensions` and is the
   comparison/reporting engine.
-- `igniter-embed` is the right host-local layer for wrapping legacy services
-  and contract-backed candidates.
+- `igniter-embed` is the right host-local layer for `Contractable`: wrapping
+  legacy services, observed services, discovery probes, and contract-backed
+  candidates.
+- `Contractable` has roles: `:migration_candidate`, `:observed_service`, and
+  `:discovery_probe`.
+- `Contractable` has lightweight lifecycle stages such as `:captured`,
+  `:profiled`, `:shadowed`, `:accepted`, `:promoted`, and `:retired`.
 - Production shadow mode should run the legacy primary synchronously and the
   contract candidate asynchronously by default.
+- Primary-only observed-service mode should work without a candidate.
 - Persistence should start as a tiny app-supplied `store.record(observation)`
   protocol, not a heavy orchestration subsystem.
+- Contractable comparison has two signals: objective diff `match` and rollout
+  policy `accepted`.
+- First built-in acceptance policies are `:exact`, `:completed`, and `:shape`;
+  later predicates such as `one_of`, `in`, and `between` should fit behind the
+  same policy surface.
 - Packs should expose useful self-description through `PackManifest` metadata
   before adding any larger registry.
 
 Next:
 
-- `[Agent Embed / Codex]`: design exact contractable shadow runner API,
-  normalizer protocol, async adapter, store protocol, and observation payload.
+- `[Agent Embed / Codex]`: implement minimal contractable shadow runner with
+  normalizer protocol, async adapter, store protocol, observation payload, and
+  `:exact` / `:completed` / `:shape` acceptance policies.
+- `[Agent Embed / Codex]`: include role/stage metadata and primary-only
+  observed-service mode in the first implementation.
 - `[Agent Embed / Codex]`: keep private app service names and response details
   in the private pressure-test track; promote only generic conclusions here.
 - `[Agent Extensions / Codex]`: only join if the design proves
