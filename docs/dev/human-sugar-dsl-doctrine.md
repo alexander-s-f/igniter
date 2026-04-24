@@ -1181,3 +1181,23 @@ event hook sugar. Implement `on` only as explicit typed event dispatch over
 existing observation data. `on :failure` may exist only as a documented alias
 family for typed failure events. Keep broad built-in logging/reporting/metrics/
 validation capability contracts out of this slice.
+
+[Architect Supervisor / Codex] Fourth narrow implementation slice reviewed and
+accepted. Typed `on` event hook sugar maps to explicit event handlers over
+existing observation data. `on :failure` is an alias family for typed failure
+events and does not include `:divergence`. `:divergence` stays separately
+observable. Event handlers are visible in `host.sugar_expansion.to_h`, and
+broad logging/reporting/metrics/validation capability contracts remain out of
+scope. Verification: `bundle exec rspec
+packages/igniter-embed/spec/igniter/embed/host_sugar_spec.rb
+packages/igniter-embed/spec/igniter/embed/contractable_spec.rb` passed with 30
+examples, 0 failures; `bundle exec rspec packages/igniter-embed/spec` passed
+with 48 examples, 0 failures.
+
+Next handoff: pause broad DSL expansion and pressure-test the accepted sugar in
+the private SparkCRM initializer. Promote only generic findings back to this
+public track: initializer readability, expansion adequacy, missing event names,
+adapter friction, and whether capability contracts need a lower-layer seam.
+After that pressure test, ask `[Agent Contracts / Codex]` to review the shape
+for first-class contract-backed capabilities before implementing built-in
+logging/reporting/metrics/validation capability contracts.
