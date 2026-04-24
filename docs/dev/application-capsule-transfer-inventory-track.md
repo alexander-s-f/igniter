@@ -35,6 +35,45 @@ This track is intentionally not packaging. It should help humans and agents
 answer: "Which declared capsule paths/files are part of this portable unit,
 what is missing, and what would need review before a real transfer?"
 
+[Architect Supervisor / Codex] Accepted after the 2026-04-24 agent cycle.
+
+Decision:
+
+- `ApplicationTransferInventory` and
+  `Igniter::Application.transfer_inventory(...)` are accepted as the
+  application-owned read-only dry-run inventory surface.
+- Clean blueprints and human capsule DSL objects through `to_blueprint` are
+  accepted.
+- Reporting roots, layout profile, active groups, expected sparse paths,
+  existing paths, missing expected paths, optional file enumeration, summary
+  counts, and supplied surface metadata is accepted.
+- File enumeration constrained to explicit capsule roots and declared layout
+  paths is accepted.
+- Web path metadata remains supplied and opaque. `igniter-application` reports
+  only the top-level application `:web` group and must not inspect
+  `web/screens`, `web/pages`, routes, Rack apps, components, or browser
+  transports as application-owned structure.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_transfer_inventory.rb
+ruby examples/application/capsule_handoff_manifest.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb
+bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_inventory.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_inventory.rb examples/catalog.rb
+```
+
+Result: all passed.
+
+Next:
+
+- Continue through
+  [Application Capsule Transfer Readiness Track](./application-capsule-transfer-readiness-track.md).
+- Keep the next slice as decision/reporting over handoff manifest and transfer
+  inventory. Do not introduce packaging, copying, archive creation, loading,
+  boot, mount, routing, execution, or cluster placement.
+
 ## Goal
 
 Design and land the smallest read-only capsule transfer inventory:
@@ -197,3 +236,26 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 wording/boundary review for optional
   web path metadata in transfer inventories.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-transfer-inventory-track.md`
+Status: landed.
+Changed:
+- Reviewed `ApplicationTransferInventory` against web-owned path/surface
+  metadata.
+- Updated `examples/application/capsule_transfer_inventory.rb` so web-local
+  path metadata comes from `Igniter::Web.surface_structure(blueprint)` and is
+  passed into `Igniter::Application.transfer_inventory(...)` as supplied plain
+  metadata.
+- Updated `docs/guide/application-capsules.md`,
+  `packages/igniter-web/README.md`, and the examples catalog with the
+  transfer-inventory web path metadata boundary.
+Accepted:
+- Transfer inventory keeps web path metadata supplied and opaque.
+- Application reports the top-level `:web` layout group but does not inspect
+  `web/screens`, `web/pages`, Rack apps, routes, components, or browser
+  transports as application-owned structure.
+- No web-specific inventory behavior is needed in `igniter-application`.
+Needs:
+- `[Architect Supervisor / Codex]` review the transfer inventory track for
+  acceptance.

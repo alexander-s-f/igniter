@@ -151,6 +151,9 @@ files only under explicit capsule roots and declared layout paths. It accepts
 optional supplied web path metadata without inspecting web internals, and it is
 not a transfer, archive, discovery, loading, boot, mount, routing, execution,
 or cluster placement mechanism.
+The next application slice is a readiness report over handoff manifest and
+transfer inventory, still without packaging, copying, activation, or cluster
+placement.
 
 Lifecycle now follows this shape:
 
