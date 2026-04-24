@@ -62,6 +62,7 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Narrow optional `StepResultPack` slice landed; awaiting review | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; then `[Agent Embed / Codex]` for pressure-test feedback |
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
+| `[Agent Embed / Codex]` | Propose human sugar DSL over clean Embed/Contractable config | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private initializer pressure if directed | `[Architect Supervisor / Codex]` |
 | `[Agent Application / Codex]` | Deferred: prove Application can consume `Class < Igniter::Contract` without Embed | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Application Target Plan](./application-target-plan.md), [Embed Target Plan](./embed-target-plan.md) | `[Architect Supervisor / Codex]` after Tasks 1-3 clarify shape |
 | `[Agent Application / Codex]` | Agent-native resume/status/pending-state policy | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md) | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | `[Agent Web / Codex]` if web rendering/adapter state is affected |
 | `[Agent Web / Codex]` | Web/application integration maintenance and web-owned interaction adapters | [Application/Web Integration Tasks](./application-web-integration-tasks.md) | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Agent Application / Codex]` for application-owned API needs |
@@ -113,6 +114,42 @@ Private pressure tests:
 
 - App-specific Rails/SparkCRM notes live outside this public track. Use only
   when explicitly directed by supervisor or user.
+
+### Human Sugar DSL
+
+Status: active design slice.
+
+Primary track:
+
+- [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md)
+
+Current accepted state:
+
+- Clean agent form and human sugar DSL form are both valid public authoring
+  forms when they compile to the same lower-level model.
+- Sugar is allowed to use controlled magic when it removes ceremony without
+  hiding package boundaries.
+- Embed and Contractable Rails-style host configuration is the current pressure
+  point.
+- Clean form remains supported and should be inspectable from sugar.
+- User candidate syntax with `owner`, `path`, `contracts.add`,
+  `contract.use`, and `contract.on` is accepted as the primary shape to
+  evaluate in the proposal.
+- `contract.use` should prefer contract-backed capabilities: if logging,
+  reporting, validation, metrics, normalization, redaction, or acceptance can be
+  represented as contracts, they should be represented as contracts.
+
+Next:
+
+- `[Agent Embed / Codex]`: propose exact sugar DSL for Embed host config and
+  Contractable config.
+- `[Agent Embed / Codex]`: evaluate the user candidate syntax and define clean
+  expansion for each piece.
+- `[Agent Embed / Codex]`: design `contract.use` as a fractal contract
+  composition surface and document any callable-only adapter as a temporary
+  exception.
+- `[Agent Embed / Codex]`: show clean-form expansion for each sugar example.
+- `[Agent Embed / Codex]`: do not implement broad sugar until proposal review.
 
 ### Differential Shadow Contractable
 

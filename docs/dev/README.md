@@ -23,6 +23,7 @@ a framework.
 - [Legacy Reference](./legacy-reference.md)
 - [Contracts Migration Roadmap](./contracts-migration-roadmap.md)
 - [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md)
+- [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md)
 - [Post-Core Target Plan](./post-core-target-plan.md)
 - [Canonical Runtime Shapes](./canonical-runtime-shapes.md)
 - [Embed Target Plan](./embed-target-plan.md)
@@ -64,6 +65,7 @@ a framework.
 - [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md)
 - [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md)
 - [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md)
+- [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md)
 - [Data Ownership](./data-ownership.md)
 
 ## Working Heuristics
