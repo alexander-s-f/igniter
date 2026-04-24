@@ -200,7 +200,9 @@ module IgniterExamples
         "application_capsule_dsl_imports=incident_runtime",
         "application_capsule_dsl_features=incidents",
         "application_capsule_dsl_flows=incident_review",
-        "application_capsule_dsl_report=operator"
+        "application_capsule_dsl_report=operator",
+        "application_capsule_dsl_surface=operator_console",
+        "application_capsule_dsl_web_projection=aligned"
       ]
     ),
     example(

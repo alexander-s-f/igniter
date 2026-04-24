@@ -235,3 +235,22 @@ Needs:
   `Igniter::Web.surface_manifest(...)`,
   `Igniter::Web.flow_surface_metadata(...)`, and
   `ApplicationBlueprint#capsule_report(surface_metadata:)`.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-authoring-dsl-track.md`
+Status: landed.
+Changed:
+- Reviewed the application-owned capsule DSL against the web-owned surface
+  metadata path.
+- Updated `examples/application/capsule_authoring_dsl.rb` so a DSL-created
+  blueprint feeds `Igniter::Web.surface_manifest(...)`,
+  `Igniter::Web.flow_surface_metadata(...)`, and
+  `ApplicationBlueprint#capsule_report(surface_metadata:)`.
+- Updated the examples catalog with web surface/projection smoke flags.
+Accepted:
+- The DSL-created blueprint works unchanged with existing web helpers because
+  web surfaces, feature surfaces, and flow surfaces remain plain metadata names.
+- No web-specific DSL is needed in `igniter-application`.
+Needs:
+- `[Architect Supervisor / Codex]` review the authoring DSL cycle for
+  acceptance.
