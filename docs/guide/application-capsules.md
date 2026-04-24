@@ -311,7 +311,9 @@ manifest.to_h
 
 Web surface data remains supplied metadata. `igniter-application` does not
 inspect screens, routes, components, Rack apps, or browser transports; a web
-package may produce a plain metadata hash and pass it into the manifest.
+package may produce a plain metadata hash and pass it into the manifest. In
+`igniter-web`, that hash can come from `Igniter::Web.surface_metadata(surface)`
+or `Igniter::Web.flow_surface_metadata(...)`.
 
 This transfer guide deliberately stops before copying files, creating archives,
 discovering directories, loading constants, booting apps, mounting web routes,

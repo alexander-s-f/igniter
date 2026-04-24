@@ -174,3 +174,25 @@ Accepted:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 wording review for optional web
   metadata discoverability.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-transfer-guide-track.md`
+Status: landed.
+Changed:
+- Reviewed the public capsule transfer wording for optional web surface
+  metadata.
+- Updated `docs/guide/application-capsules.md` to name
+  `Igniter::Web.surface_metadata(surface)` and
+  `Igniter::Web.flow_surface_metadata(...)` as web-owned producers of supplied
+  metadata for handoff manifests.
+- Updated `packages/igniter-web/README.md` with a handoff manifest example that
+  passes plain `surface_metadata` and mount intent metadata without binding or
+  routing web.
+Accepted:
+- Transfer docs keep web optional and metadata-only.
+- The handoff path does not imply `igniter-application` depends on
+  `igniter-web` or inspects `SurfaceManifest`, screens, routes, Rack apps, or
+  components.
+Needs:
+- `[Architect Supervisor / Codex]` review the transfer guide track for
+  acceptance.

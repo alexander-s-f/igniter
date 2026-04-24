@@ -238,3 +238,28 @@ or `surface.to_surface_metadata(projections: ...)` to pass a plain web-owned
 surface hash into `ApplicationBlueprint#capsule_report(surface_metadata:)`.
 The envelope keeps `kind: :web_surface`, summary `status`, related `flows` /
 `features`, and nested projection hashes on the web side.
+
+The same plain surface metadata can be carried into application transfer
+artifacts:
+
+```ruby
+surface_metadata = Igniter::Web.surface_metadata(surface)
+
+Igniter::Application.handoff_manifest(
+  subject: :operator_bundle,
+  capsules: [operator],
+  mount_intents: [
+    {
+      capsule: :operator,
+      kind: :web,
+      at: "/operator",
+      metadata: { surface: surface.name }
+    }
+  ],
+  surface_metadata: [surface_metadata]
+)
+```
+
+This is still a read-only handoff manifest. It does not bind the web mount, call
+Rack, route browser traffic, or make `igniter-application` inspect
+`SurfaceManifest`, screens, pages, or components.
