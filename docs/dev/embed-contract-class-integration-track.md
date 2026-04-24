@@ -192,3 +192,12 @@ Acceptance:
 3. `[Agent Contracts / Codex]` may draft Task 3 in parallel, but should not
    implement broad fail-fast semantics until Task 1 shows how much ceremony
    remains after host registration sugar.
+
+## Handoff Notes
+
+[Agent Embed / Codex] Task 1 landed. `Igniter::Embed::Config#contract` now
+registers `Class < Igniter::Contract` definitions during host configuration,
+`Container#register(Billing::PriceContract)` infers `:price`, explicit `as:` is
+supported, anonymous class contracts require `as:`, and block registration
+remains unchanged. Public docs and examples now show host-level class
+registration as the preferred shape.

@@ -99,11 +99,21 @@ Unknown result readers raise a clear `KeyError`.
 `igniter-embed` consumes contract classes without redefining the DSL:
 
 ```ruby
-contracts = Igniter::Embed.configure(:shop)
-contracts.register(:price_quote, PriceContract)
+contracts = Igniter::Embed.configure(:shop) do |config|
+  config.cache = true
+  config.contract PriceContract, as: :price_quote
+end
 
 result = contracts.call(:price_quote, order_total: 100, country: "UA")
 result.output(:gross_total)
+```
+
+Named contract classes can also be registered directly. The inferred name uses
+the last class segment, removes a trailing `Contract`, and snake-cases it:
+
+```ruby
+contracts.register(Billing::PriceContract)
+contracts.call(:price, order_total: 100, country: "UA")
 ```
 
 The host layer owns naming, caching, reload hooks, and failure envelopes. The

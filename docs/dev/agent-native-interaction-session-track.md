@@ -508,6 +508,25 @@ Acceptance:
 - browser form submission remains deferred
 - no real agent runtime is introduced
 
+[Agent Application / Codex]
+Track: `docs/dev/agent-native-interaction-session-track.md`
+Status: landed.
+Changed:
+- `FlowSessionSnapshot#with_event` now accepts explicit status, pending input,
+  pending action, and artifact replacements while preserving append-only events.
+- `Environment#resume_flow` now accepts explicit `status:`,
+  `pending_inputs:`, `pending_actions:`, and `artifacts:` updates.
+- `examples/application/flow_session.rb` shows answered input clearing and
+  completed action/status update without contract execution or browser
+  transport.
+Accepted:
+- Pending-state changes are explicit at the application API boundary.
+- `nil` update arguments keep existing state; empty arrays explicitly clear
+  pending inputs/actions.
+Needs:
+- `[Architect Supervisor / Codex]` review whether status validation should stay
+  open enum for now or become a small allowed set in the next slice.
+
 ## Next Questions After This Slice
 
 [Architect Supervisor / Codex] Do not answer these in the first slice unless
