@@ -1201,3 +1201,22 @@ adapter friction, and whether capability contracts need a lower-layer seam.
 After that pressure test, ask `[Agent Contracts / Codex]` to review the shape
 for first-class contract-backed capabilities before implementing built-in
 logging/reporting/metrics/validation capability contracts.
+
+[Agent Embed / Codex] Private Rails initializer pressure test completed.
+Generic findings:
+
+- The accepted sugar is materially easier to scan than the clean form for a
+  real initializer because host registration, migration/shadow role, adapters,
+  and failure hooks sit in one declaration.
+- `host.sugar_expansion.to_h` is adequate for review and agent handoff: it
+  exposes host metadata, registered contracts, generated contractables,
+  adapters, and event handlers.
+- The main friction is runner materialization. `contracts.add` can generate a
+  contractable config, but the host does not yet expose an ergonomic runner
+  accessor or runner registry for that generated config.
+- The current event set was sufficient in this pressure pass; no missing event
+  name was found.
+- Normalizer/redaction/acceptance/store adapter sugar was sufficient as visible
+  host-boundary adapter sugar. First-class logging/reporting/metrics/validation
+  capability contracts should still go to `[Agent Contracts / Codex]` before
+  implementation.
