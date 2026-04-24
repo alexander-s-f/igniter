@@ -414,6 +414,21 @@ plan and caller metadata. Supplied web surface metadata remains part of that
 serialized plan for review, but the writer does not use it to discover
 web-local files, load `igniter-web`, bind mounts, or activate routes.
 
+Bundle verification reads the written artifact back without extracting it:
+
+```ruby
+verification = Igniter::Application.verify_transfer_bundle("tmp/operator_bundle")
+
+verification.to_h
+```
+
+`ApplicationTransferBundleVerification` reads
+`igniter-transfer-bundle.json`, compares the planned entries with actual files
+under `files/`, reports missing, extra, or malformed entries, and counts
+supplied surfaces from serialized metadata. It never installs a bundle, copies
+bundle contents into a destination, loads constants, or interprets web surface
+internals.
+
 This transfer guide deliberately stops before project-wide discovery,
 automatic destination selection, installing or extracting bundles, loading
 constants, booting apps, mounting web routes, executing contracts, or placing
@@ -434,6 +449,7 @@ Start with these examples:
 - [`examples/application/capsule_transfer_readiness.rb`](../../examples/application/capsule_transfer_readiness.rb)
 - [`examples/application/capsule_transfer_bundle_plan.rb`](../../examples/application/capsule_transfer_bundle_plan.rb)
 - [`examples/application/capsule_transfer_bundle_artifact.rb`](../../examples/application/capsule_transfer_bundle_artifact.rb)
+- [`examples/application/capsule_transfer_bundle_verification.rb`](../../examples/application/capsule_transfer_bundle_verification.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

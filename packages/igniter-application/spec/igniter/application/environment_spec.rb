@@ -651,6 +651,93 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "verifies transfer bundle artifacts without extracting or installing them" do
+    Dir.mktmpdir("igniter-transfer-verify") do |root|
+      FileUtils.mkdir_p(File.join(root, "capsule/contracts"))
+      FileUtils.mkdir_p(File.join(root, "capsule/spec"))
+      FileUtils.mkdir_p(File.join(root, "capsule/web"))
+      File.write(File.join(root, "capsule/contracts/resolve_incident.rb"), "# contract\n")
+      File.write(File.join(root, "capsule/igniter.rb"), "# config\n")
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: File.join(root, "capsule"),
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        web_surfaces: [:operator_console],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      plan = Igniter::Application.transfer_bundle_plan(
+        blueprint,
+        subject: :operator_bundle,
+        host_exports: [
+          { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+        ],
+        surface_metadata: [
+          { name: :operator_console, kind: :web_surface, path: "web" }
+        ]
+      )
+      output = File.join(root, "operator_bundle")
+      Igniter::Application.write_transfer_bundle(plan, output: output)
+
+      report = Igniter::Application.verify_transfer_bundle(output, metadata: { source: :spec }).to_h
+
+      expect(report).to include(
+        valid: true,
+        artifact_path: output,
+        metadata_entry: "igniter-transfer-bundle.json",
+        missing_files: [],
+        extra_files: [],
+        malformed_entries: [],
+        included_file_count: 2,
+        actual_file_count: 2,
+        surface_count: 1,
+        metadata: { source: :spec }
+      )
+    end
+  end
+
+  it "reports transfer bundle verification mismatches read-only" do
+    Dir.mktmpdir("igniter-transfer-verify") do |root|
+      FileUtils.mkdir_p(File.join(root, "capsule/contracts"))
+      FileUtils.mkdir_p(File.join(root, "capsule/spec"))
+      File.write(File.join(root, "capsule/contracts/resolve_incident.rb"), "# contract\n")
+      File.write(File.join(root, "capsule/igniter.rb"), "# config\n")
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: File.join(root, "capsule"),
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      plan = Igniter::Application.transfer_bundle_plan(
+        blueprint,
+        subject: :operator_bundle,
+        host_exports: [
+          { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+        ]
+      )
+      output = File.join(root, "operator_bundle")
+      Igniter::Application.write_transfer_bundle(plan, output: output)
+      FileUtils.rm_f(File.join(output, "files/operator/igniter.rb"))
+      File.write(File.join(output, "files/operator/extra.txt"), "extra\n")
+
+      report = Igniter::Application.verify_transfer_bundle(output).to_h
+
+      expect(report).to include(valid: false, included_file_count: 2, actual_file_count: 2)
+      expect(report.fetch(:missing_files)).to eq(["files/operator/igniter.rb"])
+      expect(report.fetch(:extra_files)).to eq(["files/operator/extra.txt"])
+      expect(report.fetch(:malformed_entries)).to eq([])
+    end
+  end
+
   it "supports named layout profiles and active groups for app capsules" do
     root = File.expand_path("/tmp/igniter_operator_capsule")
     blueprint = Igniter::Application.blueprint(

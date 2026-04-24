@@ -200,6 +200,8 @@ The current transfer chain is read-only:
   operation would include, exclude, and still block
 - `Igniter::Application.write_transfer_bundle` writes an explicit directory
   artifact from an accepted bundle plan
+- `Igniter::Application.verify_transfer_bundle` reads back a written artifact
+  and reports metadata/file mismatches
 
 `ApplicationHandoffManifest` is the current answer to "what is moving, is it
 ready, and what must the receiving host provide?" It summarizes readiness,
@@ -224,6 +226,11 @@ future bundle step would be allowed by policy.
 accepted plan. It writes only to a caller-provided output path, refuses existing
 output by default, includes only planned files, and embeds serialized review
 metadata.
+
+`ApplicationTransferBundleVerification` is the current read-only artifact
+readback surface. It reads `igniter-transfer-bundle.json`, compares planned
+files with actual files under `files/`, reports missing, extra, or malformed
+entries, and counts supplied surfaces without interpreting web internals.
 
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or
@@ -274,6 +281,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_transfer_readiness.rb`](../../examples/application/capsule_transfer_readiness.rb)
 - [`examples/application/capsule_transfer_bundle_plan.rb`](../../examples/application/capsule_transfer_bundle_plan.rb)
 - [`examples/application/capsule_transfer_bundle_artifact.rb`](../../examples/application/capsule_transfer_bundle_artifact.rb)
+- [`examples/application/capsule_transfer_bundle_verification.rb`](../../examples/application/capsule_transfer_bundle_verification.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

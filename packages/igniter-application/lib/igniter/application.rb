@@ -29,6 +29,7 @@ require_relative "application/application_transfer_inventory"
 require_relative "application/application_transfer_readiness"
 require_relative "application/application_transfer_bundle_plan"
 require_relative "application/application_transfer_bundle_artifact"
+require_relative "application/application_transfer_bundle_verification"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -181,6 +182,10 @@ module Igniter
           create_parent: create_parent,
           metadata: metadata
         )
+      end
+
+      def verify_transfer_bundle(path, metadata: {})
+        ApplicationTransferBundleVerification.verify(path, metadata: metadata)
       end
     end
   end

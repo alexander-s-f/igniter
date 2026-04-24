@@ -125,6 +125,7 @@ Current shape:
   transfer inventories
 - read-only capsule transfer bundle plans over readiness and inventory artifacts
 - explicit capsule transfer bundle artifact writer from accepted bundle plans
+- read-only capsule transfer bundle verification over written artifacts
 - public capsule transfer guide over the read-only report/composition/assembly/
   handoff chain
 - explicit sparse/complete structure plans for materializing missing app layout
@@ -170,10 +171,11 @@ path, refuses existing output by default, includes only planned files, and
 embeds serialized review metadata. It still does not discover projects,
 auto-select destinations, install or extract bundles, load constants, boot
 apps, mount web, route, execute, or place work on a cluster.
-The next application slice is read-only verification/readback for transfer
-bundle artifacts. It should inspect the explicit artifact path and report
-mismatches without installing, extracting, activating, routing, executing, or
-placing work on a cluster.
+`ApplicationTransferBundleVerification` is the current read-only readback
+surface for written artifacts. It reads the explicit artifact path, parses
+`igniter-transfer-bundle.json`, compares planned files with actual files under
+`files/`, and reports mismatches without installing, extracting, activating,
+routing, executing, or placing work on a cluster.
 
 Lifecycle now follows this shape:
 

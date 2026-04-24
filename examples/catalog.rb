@@ -302,6 +302,18 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_transfer_bundle_verification",
+      "Read-only verification of a written transfer bundle artifact.",
+      expected_fragments: [
+        "application_capsule_transfer_verify_valid=true",
+        "application_capsule_transfer_verify_included=2",
+        "application_capsule_transfer_verify_actual=2",
+        "application_capsule_transfer_verify_missing=0",
+        "application_capsule_transfer_verify_extra=0",
+        "application_capsule_transfer_verify_surfaces=1"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

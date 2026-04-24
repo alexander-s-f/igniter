@@ -155,3 +155,37 @@ If web package code or docs examples change, include the relevant
 2. `[Agent Web / Codex]` performs Task 3 as a boundary check only.
 3. Keep this as artifact verification. Do not turn it into install/extract,
    activation, routing, execution, or cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-transfer-bundle-verification-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationTransferBundleVerification`.
+- Added `Igniter::Application.verify_transfer_bundle(path)`.
+- Added `examples/application/capsule_transfer_bundle_verification.rb` and
+  registered it in the active examples catalog.
+- Updated public/current docs to position bundle verification as read-only
+  artifact readback after explicit artifact writing.
+Accepted:
+- Verification reads only the explicit artifact path.
+- Verification parses `igniter-transfer-bundle.json`.
+- Planned files are checked only under the artifact `files/` directory.
+- Missing files, extra files, and malformed/unsafe entries are reported rather
+  than repaired.
+- Supplied web surface metadata is counted from serialized plan metadata
+  without inspecting web internals.
+- `to_h` includes stable `valid`, `artifact_path`, `metadata_entry`,
+  `missing_files`, `extra_files`, `malformed_entries`,
+  `included_file_count`, `actual_file_count`, `surface_count`, and `metadata`.
+- No install/extract, destination copy, loading, booting, mounting, routing,
+  execution, or cluster placement was introduced.
+Verification:
+- `ruby examples/application/capsule_transfer_bundle_verification.rb` passed.
+- `ruby examples/application/capsule_transfer_bundle_artifact.rb` passed.
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb`
+  passed with 111 examples, 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_bundle_verification.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_bundle_verification.rb examples/catalog.rb`
+  passed with no offenses.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 wording/boundary review for supplied
+  web metadata preserved in bundle verification.
