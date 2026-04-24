@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Application feature-slice reporting and flow declaration metadata | [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md) | [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Application Structure Research](./application-structure-research.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` if web projection support is needed |
-| `[Agent Web / Codex]` | Support application feature/flow projection after app-owned shape lands | [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md) | [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app-owned API needs |
+| `[Agent Application / Codex]` | Application capsule inspection read model | [Application Capsule Inspection Track](./application-capsule-inspection-track.md) | [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md), [Application Structure Research](./application-structure-research.md), [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` if surface/projection metadata support is needed |
+| `[Agent Web / Codex]` | Support capsule inspection with web-owned surface/projection metadata | [Application Capsule Inspection Track](./application-capsule-inspection-track.md) | [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app-owned report shape needs |
 
 ## Track Map
 
@@ -81,8 +81,11 @@ pressure-test wave:
   for capability attachments yet.
 - Application/Web and Agent-Native sessions have a landed metadata-first flow
   snapshot/read-model path.
-- The next broad track moves back up to application structure: optional
-  feature-slice reporting and app-owned flow declaration metadata.
+- Optional feature-slice reporting, app-owned flow declarations, and web-owned
+  surface projection reports have landed.
+- The next broad track is capsule inspection: one compact application-owned
+  read model over layout, manifest, feature, flow, and optional surface
+  metadata.
 
 ### Embed And Contract Class DSL
 
@@ -278,8 +281,8 @@ Next:
 
 ### Agent-Native Interaction Sessions
 
-Status: resume/status policy landed; next broad track moved to feature/flow
-declarations.
+Status: resume/status policy landed; feature/flow declarations landed; next
+broad track moved to capsule inspection.
 
 Primary track:
 
@@ -299,11 +302,12 @@ Current accepted state:
 
 Next:
 
-- Continue through [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md).
+- Continue through [Application Capsule Inspection Track](./application-capsule-inspection-track.md).
 
 ### Application Structure And Capsules
 
-Status: landed first pass; design follow-up.
+Status: landed first pass; feature/flow metadata landed; capsule inspection is
+active.
 
 Primary track:
 
@@ -318,13 +322,12 @@ Current accepted state:
 
 Next:
 
-- Feature-slice reporting is now the next broad track in
-  [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md).
+- Continue through [Application Capsule Inspection Track](./application-capsule-inspection-track.md).
 - Decide later whether this should update `docs/current/app-structure.md`.
 
 ### Application Feature Slice And Flow Declarations
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -344,15 +347,43 @@ Current accepted state:
   `FlowSessionSnapshot`.
 - Web may expose flow-related candidate metadata, but application must not
   inspect web screen graphs.
+- `Igniter::Web.flow_surface_projection(...)` is accepted as a web-owned
+  inspection/reporting helper over plain hashes.
 
 Next:
 
-- `[Agent Application / Codex]`: implement the smallest feature-slice reporting
-  and flow declaration metadata slice.
-- `[Agent Web / Codex]`: support projection/adapters only after app-owned shape
-  lands.
+- Continue through [Application Capsule Inspection Track](./application-capsule-inspection-track.md).
 - Keep browser transport, real agent runtime, cluster semantics, and automatic
-  contract execution out of this track.
+  contract execution out of follow-up work.
+
+### Application Capsule Inspection
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Capsule Inspection Track](./application-capsule-inspection-track.md)
+
+Dependencies:
+
+- [Application Feature Slice And Flow Declaration Track](./application-feature-slice-flow-track.md)
+- [Application Structure Research](./application-structure-research.md)
+- [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md)
+
+Current accepted state:
+
+- The capsule remains the portability boundary.
+- The next read model should aggregate existing explicit metadata instead of
+  creating a loader, flow engine, browser transport, or contract executor.
+- Application owns the report vocabulary; web may supply plain surface and
+  projection metadata.
+
+Next:
+
+- `[Agent Application / Codex]`: implement the smallest capsule inspection
+  report/read model.
+- `[Agent Web / Codex]`: support with surface/projection hashes after the
+  application-owned report shape lands.
 
 ### Cluster
 

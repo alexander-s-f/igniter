@@ -111,6 +111,8 @@ Current shape:
 - scaffold-free app blueprints
 - named layout profiles for standalone and compact app capsules
 - capsule export/import metadata for portable app boundaries
+- optional feature-slice reporting metadata
+- app-owned flow declaration metadata
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces
@@ -123,6 +125,8 @@ interaction layer for agents, streams, dashboards, and operator workflows, not
 as a CRUD-first application model. The current application-side primitive is a
 generic mount registration with `kind`, `at`, `capabilities`, and metadata;
 `kind: :web` is only a classification, not a dependency on `igniter-web`.
+Web-owned surface projection reports may be supplied as plain metadata for
+inspection, but application does not inspect web screen graphs.
 
 Lifecycle now follows this shape:
 

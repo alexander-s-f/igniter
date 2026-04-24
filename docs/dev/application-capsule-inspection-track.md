@@ -1,0 +1,183 @@
+# Application Capsule Inspection Track
+
+This track follows the accepted feature-slice and flow declaration cycle.
+
+Authoritative supervisor notes are marked:
+
+```text
+[Architect Supervisor / Codex]
+```
+
+Package agents should report with:
+
+```text
+[Agent Application / Codex]
+[Agent Web / Codex]
+```
+
+## Decision
+
+[Architect Supervisor / Codex] Accepted as the next broad track.
+
+Igniter now has the raw metadata needed to explain an application capsule:
+layout profiles, sparse structure plans, exports/imports, optional feature
+slices, app-owned flow declarations, active flow snapshots, and web-owned
+surface projections.
+
+The next step should not add another hidden runtime. It should make the capsule
+inspectable as a compact read model that humans and agents can use before
+editing or moving an application.
+
+## Goal
+
+Land the smallest inspectable capsule report that can answer:
+
+- what this app capsule owns
+- what it exports and imports
+- which optional feature slices exist
+- which flow declarations are available
+- which surfaces are related by metadata
+- which paths would be materialized in sparse and complete layouts
+
+The report should work for both non-web and web-capable apps and should be
+serializable with stable `to_h` output.
+
+## Scope
+
+In scope:
+
+- application-owned capsule inspection/reporting value object or equivalent
+  read model
+- aggregation of existing manifest, structure plan, feature-slice report, and
+  flow declaration metadata
+- stable smoke example that prints compact flags for non-web and web-capable
+  capsules
+- optional web-side projection summary when a caller supplies web surface
+  manifests
+- documentation alignment for the current public application structure model
+
+Out of scope:
+
+- mandatory feature directories
+- automatic loading or discovery
+- contract execution
+- browser route/form transport
+- workflow/state-machine semantics
+- cluster/distributed placement semantics
+- making `igniter-application` depend on `igniter-web`
+
+## Accepted Constraints
+
+- The capsule remains the portability boundary.
+- The report is read-only and derived from explicit inputs.
+- Application may accept plain surface metadata supplied by callers, but must
+  not inspect web screen graphs or require `igniter-web`.
+- Web may provide helper projection reports, but application owns the capsule
+  inspection vocabulary.
+- Missing optional sections should serialize as empty arrays/hashes, not
+  failures.
+
+## Task 1: Application Capsule Report
+
+Owner: `[Agent Application / Codex]`
+
+Acceptance:
+
+- Add the smallest application-owned capsule inspection shape, for example
+  `ApplicationCapsuleReport`, or justify reusing an existing report shape.
+- A blueprint can produce the report without materializing files.
+- Report includes app identity, layout profile, active/known groups,
+  sparse/complete planned paths or enough path metadata to compare them,
+  exports/imports, feature slices, flow declarations, services/contracts, and
+  supplied surface metadata when present.
+- Report works for sparse apps with no features, flows, or web surfaces.
+- Report is immutable enough for current package conventions and exposes stable
+  `to_h`.
+- No loader magic, contract execution, web dependency, or flow execution is
+  introduced.
+
+## Task 2: Web Projection Summary
+
+Owner: `[Agent Web / Codex]`
+
+Acceptance:
+
+- Web can supply plain surface manifest/projection hashes that fit into the
+  application-owned capsule report.
+- Existing `Igniter::Web.flow_surface_projection(...)` remains a helper, not a
+  runtime bridge.
+- Web does not require application to inspect screens, routes, or components.
+- Add mismatch/attention coverage only if it materially improves the report;
+  do not expand into browser transport.
+
+## Task 3: Smoke Examples
+
+Owner: shared.
+
+Primary: `[Agent Application / Codex]`
+
+Support: `[Agent Web / Codex]`
+
+Suggested files:
+
+- `examples/application/capsule_inspection.rb`
+
+Acceptance:
+
+- Shows a non-web capsule and a web-capable capsule using the same report
+  vocabulary.
+- Prints compact smoke keys for identity, groups, planned paths,
+  exports/imports, feature slices, flow declarations, and surface projection
+  status when present.
+- Does not require browser, cluster, real agent runtime, file materialization,
+  or contract execution.
+
+Suggested smoke keys:
+
+```text
+application_capsule_report_name=...
+application_capsule_report_groups=...
+application_capsule_report_sparse_paths=...
+application_capsule_report_exports=...
+application_capsule_report_imports=...
+application_capsule_report_features=...
+application_capsule_report_flows=...
+application_capsule_report_surfaces=...
+application_capsule_report_web_projection=...
+```
+
+## Task 4: Documentation Alignment
+
+Owner: `[Architect Supervisor / Codex]` after agent handoff, or agents may
+propose changes.
+
+Acceptance:
+
+- `docs/dev/tracks.md` and `docs/dev/current-runtime-snapshot.md` stay aligned.
+- `docs/dev/application-structure-research.md` marks feature-slice reporting as
+  landed and records whether a user-facing/current structure doc should be
+  updated next.
+- Public docs describe generic architecture only; private app specifics remain
+  outside the repository.
+
+## Verification Gate
+
+Before supervisor acceptance:
+
+```bash
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb spec/current/example_scripts_spec.rb
+ruby examples/application/capsule_inspection.rb
+```
+
+If the implementation adds narrower package specs, include those in the
+handoff.
+
+## Current Handoff
+
+[Architect Supervisor / Codex] Next:
+
+1. `[Agent Application / Codex]` starts Task 1 in the smallest read-model slice.
+2. `[Agent Web / Codex]` stays in support mode until the application-owned
+   report accepts supplied surface/projection metadata.
+3. Keep this as inspection/reporting. Do not turn it into loading, execution,
+   routing, or workflow orchestration.

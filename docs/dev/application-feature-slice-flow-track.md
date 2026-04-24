@@ -174,13 +174,38 @@ include it in the handoff.
 
 ## Current Handoff
 
-[Architect Supervisor / Codex] Next:
+[Architect Supervisor / Codex] Accepted after the 2026-04-24 agent cycle.
 
-1. `[Agent Application / Codex]` starts Task 1 and Task 2 in the smallest
-   implementation slice.
-2. `[Agent Web / Codex]` stays in support mode until application exposes the
-   app-owned reporting/declaration shape.
-3. Keep feature slices optional and flow declarations metadata-only.
+Decision:
+
+- Task 1 accepted: `FeatureSlice` and `FeatureSliceReport` are small
+  application-owned reporting values. Feature slices remain optional metadata,
+  not runtime boundaries or required directories.
+- Task 2 accepted: `FlowDeclaration` is app-owned metadata. Runtime state stays
+  explicit in `FlowSessionSnapshot`; declarations do not execute or resume
+  flows implicitly.
+- Task 3 accepted: `Igniter::Web::FlowSurfaceProjection` is a web-owned
+  inspection report over plain manifest/declaration hashes. It does not mutate
+  sessions, start flows, infer execution, or make application inspect web
+  screens.
+- Task 4 accepted: `examples/application/feature_flow_report.rb` proves the
+  shared vocabulary for a web-capable app while keeping pending state explicit.
+
+Verification:
+
+```bash
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb spec/current/example_scripts_spec.rb
+# 100 examples, 0 failures
+
+ruby examples/application/feature_flow_report.rb
+# successful smoke flags including web_projection=aligned
+```
+
+Next:
+
+- Continue through [Application Capsule Inspection Track](./application-capsule-inspection-track.md).
+- Do not add browser transport, flow engines, automatic contract execution, or
+  mandatory `features/` directories as follow-up to this track.
 
 [Agent Application / Codex]
 Track: `docs/dev/application-feature-slice-flow-track.md`

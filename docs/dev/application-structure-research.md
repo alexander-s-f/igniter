@@ -911,7 +911,12 @@ reporting, and current-doc alignment.
 5. Done: add non-web and web-capable examples using the same logical group
    vocabulary.
 6. Done: design capsule exports/imports as manifest-level portability metadata.
-7. Next: design feature-slice reporting without making slices mandatory.
-8. Next: decide whether this research should supersede
+7. Done: feature-slice reporting landed as optional application metadata, not
+   mandatory directories.
+8. Done: app-owned flow declaration metadata landed without implicit flow
+   execution.
+9. Next: continue through capsule inspection/read-model reporting before
+   promoting the structure into broader user-facing docs.
+10. Next: decide whether this research should supersede
    `docs/current/app-structure.md` or be merged into it after one more
    implementation pass.
