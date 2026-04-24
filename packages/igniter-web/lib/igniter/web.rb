@@ -20,6 +20,7 @@ require_relative "web/page"
 require_relative "web/record"
 require_relative "web/mount_context"
 require_relative "web/application_web_mount"
+require_relative "web/interaction_target"
 
 module Igniter
   module Web
@@ -53,6 +54,18 @@ module Igniter
           application_environment: environment,
           metadata: metadata
         )
+      end
+
+      def contract(name)
+        InteractionTarget.contract(name)
+      end
+
+      def service(name)
+        InteractionTarget.service(name)
+      end
+
+      def projection(name)
+        InteractionTarget.projection(name)
       end
     end
   end

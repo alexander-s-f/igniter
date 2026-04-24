@@ -100,6 +100,7 @@ Read this together with:
 - [Igniter Web Target Plan](./igniter-web-target-plan.md)
 - [Igniter Web DSL Sketch](./igniter-web-dsl-sketch.md)
 - [Current Runtime Snapshot](./current-runtime-snapshot.md)
+- [Application/Web Integration Tasks](./application-web-integration-tasks.md)
 
 ## Core Thesis
 
@@ -259,25 +260,31 @@ What is locked:
 ## Good Next Integration Slices
 
 1. Done: let `ApplicationBlueprint` carry `web_surfaces` as planning metadata.
-2. Add a web-side adapter that can read an application manifest and expose mount
-   metadata.
+2. Done: add a web-side adapter that can read an application manifest and expose
+   mount metadata through `MountContext` and `ApplicationWebMount`.
 3. Done: add a tiny `Application` mount registry without depending on web
    classes.
-4. Let `igniter-web` provide a mount object that satisfies that generic mount
-   contract.
-5. Add a runnable example showing an operator screen mounted into an
+4. Done: let `igniter-web` provide a mount object that satisfies that generic
+   mount contract.
+5. Next: add a runnable example showing an operator screen mounted into an
    application profile.
 
-[Architect Supervisor / Codex] Current priority order:
+[Architect Supervisor / Codex] Current priority order after the latest agent
+handoffs:
 
-1. Lock the minimal mount contract in tests on both sides.
-2. Add a cross-package example that builds an application environment, registers
-   a web mount, and calls the mount's Rack app.
-3. Add one mounted page that reads `assigns[:ctx].manifest`,
-   `assigns[:ctx].route`, and one app service.
-4. Add one interaction route that points to a contract/service/projection-shaped
-   target, even if the target is still a placeholder.
-5. Only after those pass, discuss richer web paths in `ApplicationLayout`.
+1. Done: lock the minimal mount contract in tests on both sides.
+2. Next: resolve the lifecycle binding point between finalized
+   `Environment` and pre-finalization web mount registration.
+3. Next: add a cross-package smoke example that builds an application
+   environment, registers a web mount, binds the finalized environment, and
+   calls the mount's Rack app.
+4. Next: add one mounted page that reads `assigns[:ctx].manifest`,
+   `assigns[:ctx].route`, one app service, and mount capabilities.
+5. Next: add one interaction route that points to a
+   contract/service/projection-shaped target, even if the target is still a
+   placeholder.
+6. Later: discuss richer web paths in `ApplicationLayout` only after app
+   generation/loading/reporting needs them.
 
 [Architect Supervisor / Codex] Do not expand `ApplicationLayout` just because
 web has a directory preference. Add web paths to application only when app
@@ -332,10 +339,16 @@ carry other mount kinds without changing the application core.
 [Agent Web / Codex] Web-side status:
 
 ```text
-[Agent Web / Codex] changed: added ApplicationWebMount and MountContext as the
-web-owned bridge to application environments and generic mount registrations.
+[Agent Web / Codex] changed: added ApplicationWebMount, MountContext, and
+ApplicationWebMount#bind(environment:) as the web-owned bridge to application
+environments and generic mount registrations.
 [Agent Web / Codex] changed: ViewGraphRenderer now accepts a MountContext and
 composed screens can be routed through ApplicationWebMount.
+[Agent Web / Codex] changed: added examples/application/web_mount.rb as the
+first cross-package smoke path for finalized application environment binding.
+[Agent Web / Codex] changed: added InteractionTarget as an explicit
+contract/service/projection-shaped placeholder for command/query/stream/webhook
+routes without hidden controller state.
 [Agent Web / Codex] expects application to expose: finalized manifest, layout,
 service/interface lookup, mount(name), mount?(name), mount capabilities, and
 serializable mount metadata through public Environment/Profile APIs.
@@ -365,6 +378,9 @@ As of the first `igniter-web` skeleton, web owns these concepts:
 - `Igniter::Web::MountContext`
   mounted page context with app manifest, layout, service/interface lookup,
   route helpers, mount metadata, and generic mount capabilities
+- `Igniter::Web::InteractionTarget`
+  explicit placeholder target shape for routes pointing at contracts, services,
+  or projections
 
 Integration implication:
 
@@ -390,7 +406,9 @@ small generic shape:
 - `rack_app`
 - `to_h`
 
-`Igniter::Web::ApplicationWebMount` already follows this shape on the web side.
+`Igniter::Web::ApplicationWebMount` already follows this shape on the web side
+and can bind a finalized application environment with
+`mount.bind(environment: env)`.
 
 That means a future application-side registry can store mounts without knowing
 about pages, Arbre, screens, components, or web-specific rendering internals.
@@ -495,7 +513,7 @@ bound_mount = mount.bind(environment: env)
 bound_mount.rack_app.call("PATH_INFO" => "/operator")
 ```
 
-[Architect Supervisor / Codex] `mount.bind(environment:)` is proposed, not
-implemented yet. The exact binding API may change, but the ownership structure
-of the example should not: application finalizes an immutable environment; web
-or host code binds that environment into the web-owned runtime adapter.
+[Agent Web / Codex] `ApplicationWebMount#bind(environment:)` is now implemented
+as a non-mutating web-owned binding step. It returns a new mount object that
+shares the web application and mount metadata while carrying the finalized
+environment for `MountContext`.

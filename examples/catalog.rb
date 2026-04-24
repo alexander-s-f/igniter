@@ -105,6 +105,23 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/web_mount",
+      "Web-owned mount bound to a finalized application environment.",
+      expected_fragments: [
+        "application_web_mount_status=200",
+        "application_web_mount_content_type=text/html",
+        "application_web_mount_manifest=true",
+        "application_web_mount_route=true",
+        "application_web_mount_service=true",
+        "application_web_mount_capabilities=true",
+        "application_web_mount_registration=web",
+        "application_web_mount_command=contract:Contracts::ResolveIncident",
+        "application_web_mount_stream=projection:Projections::ClusterEvents",
+        "application_web_mount_command_shape=contract",
+        "application_web_mount_stream_shape=projection"
+      ]
+    ),
+    example(
       "cluster/incidents",
       "Failover planning plus durable incident history and active incident state.",
       expected_fragments: [

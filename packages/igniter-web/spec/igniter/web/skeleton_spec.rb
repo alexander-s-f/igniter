@@ -55,18 +55,20 @@ RSpec.describe Igniter::Web do
 
   it "builds a contracts-first api skeleton" do
     api = described_class.api do
-      command "/projects/:id/advance", to: "Contracts::AdvanceProject"
-      query "/projects/:id", to: "Queries::ProjectSnapshot"
+      command "/projects/:id/advance", to: Igniter::Web.contract("Contracts::AdvanceProject")
+      query "/projects/:id", to: Igniter::Web.service(:project_snapshot)
       webhook "/mesh/events", to: "Ingress::MeshEvents", auth: :signature
     end
 
     expect(api.endpoints.map { |endpoint| [endpoint.kind, endpoint.verb, endpoint.path, endpoint.target] }).to eq(
       [
-        [:command, :post, "/projects/:id/advance", "Contracts::AdvanceProject"],
-        [:query, :get, "/projects/:id", "Queries::ProjectSnapshot"],
+        [:command, :post, "/projects/:id/advance", Igniter::Web.contract("Contracts::AdvanceProject")],
+        [:query, :get, "/projects/:id", Igniter::Web.service(:project_snapshot)],
         [:webhook, :post, "/mesh/events", "Ingress::MeshEvents"]
       ]
     )
+    expect(api.endpoints.first.target.to_h).to include(kind: :contract, name: "Contracts::AdvanceProject")
+    expect(api.endpoints[1].target.to_h).to include(kind: :service, name: "project_snapshot")
     expect(api.endpoints.last.metadata).to eq({ auth: :signature })
   end
 
@@ -132,5 +134,55 @@ RSpec.describe Igniter::Web do
     expect(html).to include("/operator/events")
     expect(html).to include("healthy")
     expect(html).to include("screen,stream")
+  end
+
+  it "binds a finalized application environment without mutating the original mount" do
+    web = described_class.application do
+      root title: "Operator" do
+        main do
+          h1 assigns[:ctx].manifest.name
+          para assigns[:ctx].service(:cluster_status).call
+          para assigns[:ctx].capabilities.join(",")
+        end
+      end
+    end
+    mount = described_class.mount(:operator, path: "/operator", application: web)
+
+    kernel = Igniter::Application.build_kernel
+    kernel.manifest(:operator, root: "/tmp/operator", env: :test)
+    kernel.provide(:cluster_status, -> { "green" })
+    kernel.mount_web(:operator, mount, at: "/operator", capabilities: %i[screen stream])
+    environment = Igniter::Application::Environment.new(profile: kernel.finalize)
+
+    bound_mount = mount.bind(environment: environment)
+
+    expect(mount.context.manifest).to be_nil
+    expect(bound_mount.context.manifest.name).to eq(:operator)
+    expect(bound_mount.context.service(:cluster_status).call).to eq("green")
+    expect(bound_mount.context.capabilities).to eq(%i[screen stream])
+
+    status, _headers, body = bound_mount.rack_app.call("PATH_INFO" => "/operator")
+    expect(status).to eq(200)
+    expect(body.join).to include("green")
+    expect(body.join).to include("screen,stream")
+  end
+
+  it "handles nested mounted paths and missing routes" do
+    web = described_class.application do
+      page "/nested", title: "Nested" do
+        main do
+          h1 "Nested"
+        end
+      end
+    end
+    mount = described_class.mount(:operator, path: "/operator", application: web)
+
+    nested_status, _nested_headers, nested_body = mount.rack_app.call("PATH_INFO" => "/operator/nested")
+    missing_status, _missing_headers, missing_body = mount.rack_app.call("PATH_INFO" => "/operator/missing")
+
+    expect(nested_status).to eq(200)
+    expect(nested_body.join).to include("Nested")
+    expect(missing_status).to eq(404)
+    expect(missing_body.join).to include("No igniter-web route for /missing")
   end
 end

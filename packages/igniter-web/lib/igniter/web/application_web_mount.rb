@@ -17,6 +17,16 @@ module Igniter
         ->(env) { call(env) }
       end
 
+      def bind(environment:)
+        self.class.new(
+          name: name,
+          path: path,
+          web_application: web_application,
+          application_environment: environment,
+          metadata: metadata
+        )
+      end
+
       def context(env = {})
         MountContext.new(
           mount: self,
@@ -111,9 +121,16 @@ module Igniter
         {
           verb: route.verb,
           path: route.path,
-          target: route.target.respond_to?(:name) ? route.target.name : route.target.to_s,
+          target: serialize_target(route.target),
           metadata: route.metadata
         }
+      end
+
+      def serialize_target(target)
+        return target.to_h if target.respond_to?(:to_h)
+        return target.name if target.respond_to?(:name)
+
+        target.to_s
       end
 
       def screen_to_h(screen)

@@ -117,7 +117,8 @@ web = Igniter::Web.application do
 end
 
 mount = Igniter::Web.mount(:operator, path: "/operator", application: web)
-mount.rack_app.call("PATH_INFO" => "/operator")
+bound_mount = mount.bind(environment: app_environment)
+bound_mount.rack_app.call("PATH_INFO" => "/operator")
 ```
 
 Mounted pages receive `assigns[:ctx]`:
@@ -130,4 +131,7 @@ root title: "Operator" do
     para assigns[:ctx].service(:cluster_status).call
   end
 end
+
+command "/incidents/:id/resolve", to: Igniter::Web.contract("Contracts::ResolveIncident")
+stream "/events", to: Igniter::Web.projection("Projections::ClusterEvents")
 ```

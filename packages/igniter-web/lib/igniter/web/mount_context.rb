@@ -48,7 +48,7 @@ module Igniter
       end
 
       def mount_registration
-        return nil unless application&.respond_to?(:mount?)
+        return nil unless application.respond_to?(:mount?)
         return nil unless application.mount?(name)
 
         application.mount(name)

@@ -306,6 +306,22 @@ RSpec.describe Igniter::Application::Environment do
       :capabilities,
       :metadata
     )
+    serialized_mounts = [
+      environment.manifest.to_h.fetch(:mounts),
+      profile.to_h.fetch(:mounts),
+      environment.snapshot.to_h.fetch(:mounts)
+    ].flatten
+    expect(serialized_mounts).to all(be_a(Hash))
+    expect(serialized_mounts).to all(include(:name, :kind, :target, :at, :capabilities, :metadata))
+    expect(serialized_mounts.flat_map(&:keys).uniq).not_to include(
+      :rack_app,
+      :env,
+      :page,
+      :component,
+      :arbre,
+      :screen,
+      :graph
+    )
     expect(environment.snapshot.to_h.fetch(:mounts).map { |entry| entry.fetch(:name) }).to eq(
       %i[agent_bus operator_console]
     )

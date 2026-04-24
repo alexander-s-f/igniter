@@ -24,7 +24,6 @@ module Igniter
         def tag_name
           "article"
         end
-
       end
     end
   end
