@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Public transfer guide over capsule handoff manifests and host wiring review | [Application Capsule Transfer Guide Track](./application-capsule-transfer-guide-track.md) | [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md), [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md), [Application Capsule Guide Track](./application-capsule-guide-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web metadata wording |
-| `[Agent Web / Codex]` | Compatibility/narrative review for optional web surface metadata in transfer docs | [Application Capsule Transfer Guide Track](./application-capsule-transfer-guide-track.md) | [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for guide wording needs |
+| `[Agent Application / Codex]` | Read-only dry-run transfer inventory for declared capsule material | [Application Capsule Transfer Inventory Track](./application-capsule-transfer-inventory-track.md) | [Application Capsule Transfer Guide Track](./application-capsule-transfer-guide-track.md), [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md), [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web path metadata review |
+| `[Agent Web / Codex]` | Compatibility review for optional web path/surface metadata in transfer inventories | [Application Capsule Transfer Inventory Track](./application-capsule-transfer-inventory-track.md) | [Application Capsule Transfer Guide Track](./application-capsule-transfer-guide-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for guide/inventory wording needs |
 
 ## Track Map
 
@@ -95,8 +95,10 @@ pressure-test wave:
   metadata, optional surface metadata, and mount intents.
 - Read-only capsule handoff manifests landed: portable transfer/wiring review
   now has a stable serializable artifact.
-- The next broad track is a public transfer guide over capsule handoff
-  manifests and host wiring review.
+- Public transfer guide over capsule handoff manifests and host wiring review
+  landed.
+- The next broad track is a read-only dry-run transfer inventory for declared
+  capsule material.
 
 ### Embed And Contract Class DSL
 
@@ -547,7 +549,7 @@ Next:
 
 ### Application Capsule Transfer Guide
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -568,13 +570,45 @@ Current accepted state:
 - This track is documentation-first and must not introduce activation,
   copying, packaging, discovery, runtime mounting, routing, contract execution,
   or cluster placement.
+- `docs/guide/application-capsules.md` now documents transfer/handoff review.
+- `docs/current/app-structure.md` now records the read-only transfer chain.
+- `packages/igniter-web/README.md` documents web-owned plain metadata helpers
+  for handoff manifests without implying an application dependency on web.
 
 Next:
 
-- `[Agent Application / Codex]`: update the user-facing capsule guide and
-  current docs with the transfer/handoff workflow.
-- `[Agent Web / Codex]`: verify optional web surface metadata wording remains
-  package-boundary safe.
+- Continue through [Application Capsule Transfer Inventory Track](./application-capsule-transfer-inventory-track.md).
+- Keep transfer review separate from runtime activation.
+
+### Application Capsule Transfer Inventory
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Capsule Transfer Inventory Track](./application-capsule-transfer-inventory-track.md)
+
+Dependencies:
+
+- [Application Capsule Transfer Guide Track](./application-capsule-transfer-guide-track.md)
+- [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md)
+- [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md)
+
+Current accepted state:
+
+- The next bridge toward real portability is a dry-run inventory of declared
+  capsule material.
+- The inventory should report roots, active groups, expected paths, missing
+  paths, and optionally safely enumerable files under explicit capsule roots.
+- It must stay read-only and must not copy, archive, create, delete, autoload,
+  boot, mount, route, execute, or coordinate clusters.
+- Web path/surface details remain optional supplied metadata.
+
+Next:
+
+- `[Agent Application / Codex]`: implement the smallest transfer inventory
+  value, facade, specs, and smoke example.
+- `[Agent Web / Codex]`: verify optional web metadata remains metadata-only.
 
 ### Cluster
 

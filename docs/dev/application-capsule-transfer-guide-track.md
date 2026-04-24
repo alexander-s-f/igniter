@@ -35,6 +35,41 @@ The guide should preserve the Igniter doctrine: capsules are portable because
 they declare explicit metadata and dependencies, not because Igniter scans,
 loads, packages, or mounts them automatically.
 
+[Architect Supervisor / Codex] Accepted after the 2026-04-24 agent cycle.
+
+Decision:
+
+- The public transfer/handoff guide pass is accepted.
+- `ApplicationHandoffManifest` is now documented as the final read-only
+  transfer review artifact after capsule report, composition report, and
+  assembly plan.
+- The guide correctly explains `ready`, `unresolved_required_imports`,
+  `missing_optional_imports`, and `suggested_host_wiring`.
+- Web wording is accepted: `Igniter::Web.surface_metadata(surface)` and
+  `Igniter::Web.flow_surface_metadata(...)` are web-owned producers of plain
+  metadata supplied to application reports/manifests.
+- `packages/igniter-web/README.md` keeps the handoff path metadata-only and
+  does not imply an application dependency on web internals.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_handoff_manifest.rb
+ruby examples/application/capsule_assembly_plan.rb
+bundle exec rspec spec/current/example_scripts_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb
+```
+
+Result: all passed.
+
+Next:
+
+- Continue through
+  [Application Capsule Transfer Inventory Track](./application-capsule-transfer-inventory-track.md).
+- The next slice may inspect physical capsule material, but must remain a
+  dry-run/read-only inventory. It must not copy, archive, load constants, boot,
+  mount, route, execute, or place work on a cluster.
+
 ## Goal
 
 Land the smallest public documentation pass for capsule transfer and host
