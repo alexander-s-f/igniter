@@ -126,6 +126,8 @@ Current shape:
 - read-only capsule transfer bundle plans over readiness and inventory artifacts
 - explicit capsule transfer bundle artifact writer from accepted bundle plans
 - read-only capsule transfer bundle verification over written artifacts
+- read-only capsule transfer intake plans over verified artifacts and explicit
+  destination roots
 - public capsule transfer guide over the read-only report/composition/assembly/
   handoff chain
 - explicit sparse/complete structure plans for materializing missing app layout
@@ -176,10 +178,10 @@ surface for written artifacts. It reads the explicit artifact path, parses
 `igniter-transfer-bundle.json`, compares planned files with actual files under
 `files/`, and reports mismatches without installing, extracting, activating,
 routing, executing, or placing work on a cluster.
-The next active application track is a read-only destination intake plan over a
-verified artifact and an explicit destination root. It should report planned
-paths, conflicts, blockers, host wiring, and supplied surface metadata before
-any future extraction or installation exists.
+`ApplicationTransferIntakePlan` is the current read-only destination planning
+surface over a verified artifact and an explicit destination root. It reports
+planned paths, destination conflicts, blockers, host wiring, warnings, and
+supplied surface metadata before any future extraction or installation exists.
 
 Lifecycle now follows this shape:
 

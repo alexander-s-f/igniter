@@ -231,10 +231,11 @@ metadata.
 readback surface. It reads `igniter-transfer-bundle.json`, compares planned
 files with actual files under `files/`, reports missing, extra, or malformed
 entries, and counts supplied surfaces without interpreting web internals.
-The next planned surface is a read-only destination intake plan: given a
-verified artifact and an explicit destination root, it should report planned
-paths, conflicts, blockers, host wiring, and supplied surface metadata without
-copying or installing anything.
+
+`ApplicationTransferIntakePlan` is the current read-only receiving-side review
+surface. Given a verified artifact and an explicit destination root, it reports
+planned paths, destination conflicts, blockers, required host wiring, warnings,
+and supplied surface metadata without copying or installing anything.
 
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or
@@ -286,6 +287,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_transfer_bundle_plan.rb`](../../examples/application/capsule_transfer_bundle_plan.rb)
 - [`examples/application/capsule_transfer_bundle_artifact.rb`](../../examples/application/capsule_transfer_bundle_artifact.rb)
 - [`examples/application/capsule_transfer_bundle_verification.rb`](../../examples/application/capsule_transfer_bundle_verification.rb)
+- [`examples/application/capsule_transfer_intake_plan.rb`](../../examples/application/capsule_transfer_intake_plan.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

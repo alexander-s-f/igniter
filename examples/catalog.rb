@@ -314,6 +314,18 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_transfer_intake_plan",
+      "Read-only destination intake plan for a verified transfer bundle artifact.",
+      expected_fragments: [
+        "application_capsule_transfer_intake_ready=true",
+        "application_capsule_transfer_intake_planned=2",
+        "application_capsule_transfer_intake_conflicts=0",
+        "application_capsule_transfer_intake_blockers=0",
+        "application_capsule_transfer_intake_host_wiring=0",
+        "application_capsule_transfer_intake_surfaces=1"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

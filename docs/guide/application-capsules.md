@@ -429,6 +429,24 @@ supplied surfaces from serialized metadata. It never installs a bundle, copies
 bundle contents into a destination, loads constants, or interprets web surface
 internals.
 
+Destination intake planning previews a verified artifact against an explicit
+receiving root:
+
+```ruby
+intake = Igniter::Application.transfer_intake_plan(
+  verification,
+  destination_root: "apps/incoming"
+)
+
+intake.to_h
+```
+
+`ApplicationTransferIntakePlan` reports planned destination paths, existing
+destination conflicts, blockers, warnings, required host wiring, and supplied
+surface counts. It reads bundle metadata and destination filesystem state only;
+it does not create directories, copy files, modify host configuration, install
+bundles, or interpret web internals.
+
 This transfer guide deliberately stops before project-wide discovery,
 automatic destination selection, installing or extracting bundles, loading
 constants, booting apps, mounting web routes, executing contracts, or placing
@@ -450,6 +468,7 @@ Start with these examples:
 - [`examples/application/capsule_transfer_bundle_plan.rb`](../../examples/application/capsule_transfer_bundle_plan.rb)
 - [`examples/application/capsule_transfer_bundle_artifact.rb`](../../examples/application/capsule_transfer_bundle_artifact.rb)
 - [`examples/application/capsule_transfer_bundle_verification.rb`](../../examples/application/capsule_transfer_bundle_verification.rb)
+- [`examples/application/capsule_transfer_intake_plan.rb`](../../examples/application/capsule_transfer_intake_plan.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

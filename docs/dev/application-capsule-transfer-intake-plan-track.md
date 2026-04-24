@@ -167,3 +167,39 @@ If web package code or docs examples change, include the relevant
 2. `[Agent Web / Codex]` performs Task 3 as a boundary check only.
 3. Keep this as receiving-side review. Do not turn it into extraction,
    installation, activation, routing, execution, or cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-transfer-intake-plan-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationTransferIntakePlan`.
+- Added `Igniter::Application.transfer_intake_plan(...)`.
+- Added `examples/application/capsule_transfer_intake_plan.rb` and registered
+  it in the active examples catalog.
+- Updated public/current docs to position intake planning as read-only
+  destination review after bundle verification.
+Accepted:
+- Intake planning accepts an existing verification object or an explicit
+  artifact path that is verified internally.
+- Destination checks require an explicit `destination_root`.
+- `to_h` includes stable `ready`, `destination_root`, `artifact_path`,
+  `verification_valid`, `planned_files`, `conflicts`, `blockers`, `warnings`,
+  `required_host_wiring`, `surface_count`, and `metadata`.
+- Planned destination paths are derived from serialized artifact metadata and
+  are checked for relative/safe placement under the destination root.
+- Existing destination files are reported as conflicts and blockers, not
+  overwrite instructions.
+- Required host wiring is surfaced from serialized handoff/plan metadata.
+- Supplied web surface metadata is counted without inspecting web internals.
+- No extraction, copying, directory creation, host config mutation, loading,
+  booting, mounting, routing, execution, or cluster placement was introduced.
+Verification:
+- `ruby examples/application/capsule_transfer_intake_plan.rb` passed.
+- `ruby examples/application/capsule_transfer_bundle_verification.rb` passed.
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb`
+  passed with 114 examples, 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_intake_plan.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_intake_plan.rb examples/catalog.rb`
+  passed with no offenses.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 wording/boundary review for supplied
+  web metadata preserved in intake planning.

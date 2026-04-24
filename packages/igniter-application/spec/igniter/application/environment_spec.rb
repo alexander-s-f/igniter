@@ -738,6 +738,123 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "plans transfer bundle intake into an explicit destination without copying" do
+    Dir.mktmpdir("igniter-transfer-intake") do |root|
+      FileUtils.mkdir_p(File.join(root, "capsule/contracts"))
+      FileUtils.mkdir_p(File.join(root, "capsule/spec"))
+      FileUtils.mkdir_p(File.join(root, "capsule/web"))
+      File.write(File.join(root, "capsule/contracts/resolve_incident.rb"), "# contract\n")
+      File.write(File.join(root, "capsule/igniter.rb"), "# config\n")
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: File.join(root, "capsule"),
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        web_surfaces: [:operator_console],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      plan = Igniter::Application.transfer_bundle_plan(
+        blueprint,
+        subject: :operator_bundle,
+        host_exports: [
+          { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+        ],
+        surface_metadata: [
+          { name: :operator_console, kind: :web_surface, path: "web" }
+        ]
+      )
+      artifact = File.join(root, "operator_bundle")
+      Igniter::Application.write_transfer_bundle(plan, output: artifact)
+      verification = Igniter::Application.verify_transfer_bundle(artifact)
+      destination = File.join(root, "destination")
+
+      intake = Igniter::Application.transfer_intake_plan(
+        verification,
+        destination_root: destination,
+        metadata: { source: :spec }
+      ).to_h
+
+      expect(intake).to include(
+        ready: true,
+        destination_root: destination,
+        artifact_path: artifact,
+        verification_valid: true,
+        conflicts: [],
+        blockers: [],
+        required_host_wiring: [],
+        surface_count: 1,
+        metadata: { source: :spec }
+      )
+      expect(intake.fetch(:planned_files)).to include(
+        include(
+          capsule: :operator,
+          artifact_path: "files/operator/contracts/resolve_incident.rb",
+          destination_relative_path: "operator/contracts/resolve_incident.rb",
+          status: :planned,
+          safe: true
+        ),
+        include(
+          capsule: :operator,
+          artifact_path: "files/operator/igniter.rb",
+          destination_relative_path: "operator/igniter.rb",
+          status: :planned,
+          safe: true
+        )
+      )
+      expect(File.exist?(File.join(destination, "operator/contracts/resolve_incident.rb"))).to be(false)
+    end
+  end
+
+  it "reports destination conflicts during transfer intake planning" do
+    Dir.mktmpdir("igniter-transfer-intake") do |root|
+      FileUtils.mkdir_p(File.join(root, "capsule/contracts"))
+      FileUtils.mkdir_p(File.join(root, "capsule/spec"))
+      File.write(File.join(root, "capsule/contracts/resolve_incident.rb"), "# contract\n")
+      File.write(File.join(root, "capsule/igniter.rb"), "# config\n")
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: File.join(root, "capsule"),
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      plan = Igniter::Application.transfer_bundle_plan(
+        blueprint,
+        subject: :operator_bundle,
+        host_exports: [
+          { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+        ]
+      )
+      artifact = File.join(root, "operator_bundle")
+      Igniter::Application.write_transfer_bundle(plan, output: artifact)
+      destination = File.join(root, "destination")
+      FileUtils.mkdir_p(File.join(destination, "operator/contracts"))
+      File.write(File.join(destination, "operator/contracts/resolve_incident.rb"), "# existing\n")
+
+      intake = Igniter::Application.transfer_intake_plan(
+        artifact,
+        destination_root: destination
+      ).to_h
+
+      expect(intake).to include(ready: false, verification_valid: true)
+      expect(intake.fetch(:conflicts)).to contain_exactly(
+        include(
+          code: :destination_exists,
+          destination_relative_path: "operator/contracts/resolve_incident.rb"
+        )
+      )
+      expect(intake.fetch(:blockers).map { |entry| entry.fetch(:code) }).to eq([:destination_conflict])
+    end
+  end
+
   it "supports named layout profiles and active groups for app capsules" do
     root = File.expand_path("/tmp/igniter_operator_capsule")
     blueprint = Igniter::Application.blueprint(
