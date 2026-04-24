@@ -18,6 +18,8 @@ Current package shape:
 - `Igniter::Web::ViewGraphRenderer`
 - `Igniter::Web::SurfaceStructure`
 - `Igniter::Web::SurfaceManifest`
+- `Igniter::Web::FlowInteractionAdapter`
+- `Igniter::Web::FlowSurfaceProjection`
 - `Igniter::Web::Page`
 - `Igniter::Web::Component`
 - `Igniter::Web::Record`
@@ -64,6 +66,8 @@ This package currently ships only a skeleton:
   profiles
 - `SurfaceManifest` for web-owned exports/imports metadata that can be lifted
   into application capsule exports
+- flow pending-state/projection helpers for inspection and explicit
+  application flow handoff
 - an adapter-oriented `Record` placeholder
 
 That gives the rebuild a real package boundary now, while leaving room to shape
@@ -146,6 +150,10 @@ stream "/events", to: Igniter::Web.projection("Projections::ClusterEvents")
 
 `igniter-web` treats web as an optional surface inside an
 `igniter-application` capsule, not as the application itself.
+
+If you are starting from application structure, read the user-facing
+[Application Capsules guide](../../docs/guide/application-capsules.md) first.
+This README explains the web-owned half of that boundary.
 
 Application layout owns only the top-level `:web` group:
 

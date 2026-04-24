@@ -2,6 +2,11 @@
 
 Use this section when Igniter becomes the runtime shape of an application, not just an embedded logic kernel.
 
+For new contracts-native application work, start with
+[Application Capsules](./application-capsules.md). That guide is the current
+user-facing reference for sparse capsules, exports/imports, optional feature
+slices, app-owned flow declarations, and capsule inspection reports.
+
 ## App Means
 
 - `Igniter::App` as the opinionated single-node runtime/profile
@@ -17,6 +22,7 @@ Use this section when Igniter becomes the runtime shape of an application, not j
 - [Guide: How-Tos](../guide/how-tos.md)
 - [Guide: Configuration](../guide/configuration.md)
 - [Guide: Deployment Modes](../guide/deployment-modes.md)
+- [Guide: Application Capsules](../guide/application-capsules.md)
 - [Current: App Structure](../current/app-structure.md)
 - [Dev: Application Target Plan](../dev/application-target-plan.md)
 - [Stacks Next](../STACKS_NEXT.md)
@@ -84,14 +90,21 @@ The preferred app/runtime shape is now:
 
 ## Current App Structure Direction
 
-The current direction is:
+The current contracts-native direction is:
 
-- app-local code lives inside the app
-- stack-level `lib` is only for code that is truly shared
-- apps should be portable and mountable across stacks
-- cross-app access should use explicit app-to-app APIs, not implicit shared constants
+- an application capsule is the portability boundary
+- `layout_profile: :capsule` gives a compact named path vocabulary
+- sparse structure is the default user-facing shape
+- exports/imports describe portability intent
+- optional feature slices and flow declarations are metadata, not hidden runtime
+  engines
+- capsule reports are read-only inspection output for humans and agents
 
-Current cross-app contract:
+The older `Igniter::App` and `Igniter::Stack` notes below remain historical
+orientation while the contracts-native `igniter-application` package becomes
+the target application layer. Prefer the capsule guide for new design work.
+
+Legacy/current-stack cross-app contract:
 
 - provider app exposes an interface with `expose`
 - or, more readably for app-to-app contracts, `provide`

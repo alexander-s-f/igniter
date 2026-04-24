@@ -1,357 +1,223 @@
 # App Structure
 
-This note fixes the current direction for `Igniter::App` structure while the
-stack/app model is still evolving.
+This note records the current public structure direction for contracts-native
+Igniter applications. It supersedes older `Igniter::App`/stack-first structure
+notes for new application design.
 
-It is intentionally current-state and decision-oriented, not a legacy design
-dump.
+For the practical user-facing path, start with
+[Application Capsules](../guide/application-capsules.md).
 
 ## Core Thesis
 
-An app should be pluggable.
+An application should be portable.
+
+In current Igniter vocabulary, that portable unit is an application capsule.
+A capsule owns app-local code and metadata, and can be inspected before it is
+loaded, mounted, copied, or connected to a host.
 
 That means:
 
-- an app can be copied into another Igniter stack
-- mounted there
-- and still work without depending on hidden stack-local glue
+- app-local code lives inside the capsule
+- web is an optional surface inside the capsule
+- dependencies on a host or sibling app are explicit imports
+- capabilities offered by the capsule are explicit exports
+- feature slices are optional reporting metadata for scale
+- flow declarations are app-owned metadata, not workflow execution
+- capsule reports are read-only inspection output for humans and agents
 
-If an app needs another app, that dependency should be explicit.
-The current contract is:
+## Sparse-First Structure
 
-- provider app exposes a named interface with `expose`
-- provider app can declare it more explicitly with `provide`
-- stack registration declares that dependency with `access_to: [...]`
-- consumers can resolve the interface through `App.interface(:name)` /
-  `App.interfaces` once the app is mounted in a stack
-- stack still exposes the lower-level `Stack.interface(:name)` and `Stack.interfaces`
-- avoid hidden coupling through shared constants or shared helper files
+The default user-facing structure is sparse. Materialize only the paths the
+capsule actually owns.
+
+Compact capsule shape:
+
+```text
+apps/<app>/
+  contracts/
+  services/
+  support/
+  spec/
+  igniter.rb
+```
+
+Web-capable capsule shape:
+
+```text
+apps/<app>/
+  contracts/
+  services/
+  web/
+  support/
+  spec/
+  igniter.rb
+```
+
+These are examples, not mandatory scaffolds. `ApplicationBlueprint` and
+`ApplicationLayout` use logical groups such as `contracts`, `services`, `web`,
+`support`, `spec`, and `config`. Sparse structure plans include only active
+groups; complete plans are available for explicit inspection or materialization.
+
+## Layout Profiles
+
+Use named layout profiles instead of ad hoc path doctrine.
+
+Current profiles:
+
+- `:capsule` for compact portable app capsules
+- `:standalone` for expanded standalone app roots
+- `:expanded_capsule` when a capsule wants standalone-style paths
+
+A layout profile is a named path vocabulary. It is not a requirement to create
+every possible directory.
+
+## Exports And Imports
+
+Capsules should not depend on hidden sibling constants or stack-global helper
+files.
+
+Use exports to describe what a capsule offers:
+
+```ruby
+exports: [
+  { name: :resolve_incident, kind: :contract, target: "Contracts::ResolveIncident" }
+]
+```
+
+Use imports to describe what a capsule needs:
+
+```ruby
+imports: [
+  { name: :incident_runtime, kind: :service, from: :host, capabilities: [:incidents] }
+]
+```
+
+This is portability metadata first. Host, stack, web, and cluster layers can
+inspect it later without the capsule reaching into sibling internals.
+
+## Feature Slices
+
+Small apps should stay flat and obvious. Larger apps may add optional feature
+slice metadata:
+
+```ruby
+features: [
+  {
+    name: :incidents,
+    groups: %i[contracts services web],
+    contracts: ["Contracts::ResolveIncident"],
+    services: [:incident_queue],
+    exports: [:resolve_incident],
+    imports: [:incident_runtime],
+    flows: [:incident_review],
+    surfaces: [:operator_console]
+  }
+]
+```
+
+Feature slices are reporting/organization metadata. They do not require a
+`features/` directory and do not create a runtime boundary.
+
+## Flow Declarations
+
+Flow declarations describe available human-in-the-loop or agent-native flows:
+
+```ruby
+flows: [
+  {
+    name: :incident_review,
+    initial_status: :waiting_for_user,
+    pending_inputs: [
+      { name: :clarification, input_type: :textarea, target: :review_plan }
+    ],
+    pending_actions: [
+      { name: :approve_plan, action_type: :contract, target: "Contracts::ResolveIncident" }
+    ],
+    surfaces: [:operator_console]
+  }
+]
+```
+
+They are metadata. Active runtime state remains explicit
+`FlowSessionSnapshot` state created through `Environment#start_flow` and
+updated through `Environment#resume_flow`.
+
+## Web As Optional Surface
+
+`web/` is optional. A non-web capsule and a web-capable capsule use the same
+application vocabulary.
+
+Surface packages such as `igniter-web` can provide plain surface metadata for
+inspection reports. `igniter-application` must not inspect screen graphs,
+browser routes, or component trees.
+
+For `igniter-web`, the current bridge is:
+
+- `SurfaceManifest` for web-owned exports/imports and candidate interactions
+- `flow_surface_projection` for checking a web surface against app-owned flow
+  and feature metadata
+- `flow_surface_metadata` for passing a plain surface envelope into
+  `ApplicationBlueprint#capsule_report(surface_metadata:)`
+
+These are inspection aids. They do not create browser transport, execute
+contracts, or make web a required dependency of application capsules.
+
+## Capsule Reports
+
+`ApplicationBlueprint#capsule_report` is the current read model for capsule
+inspection.
+
+It reports:
+
+- identity and layout profile
+- active and known groups
+- sparse and complete planned paths
+- exports/imports
+- feature slices
+- flow declarations
+- contracts/services/interfaces
+- supplied surface metadata
+
+The report is read-only. It does not load code, materialize files, execute
+contracts, start flows, submit browser forms, or coordinate clusters.
 
 ## Placement Rules
 
-### App code belongs in the app
+Code that exists for one capsule belongs inside that capsule.
 
-Code that exists for one app should live under that app.
-
-Examples:
+Good app-local candidates:
 
 - contracts
-- executors
+- services
+- providers
+- effects
 - agents
 - tools
 - skills
-- optional `web/handlers`
-- optional `web/views`
-- optional `web/components`
-- optional app-private `support/`
+- optional web surfaces
+- app-private support code
 
-If the code only exists because one app needs it, it should not live in
-stack-level `lib`.
-
-### `lib` is only for truly shared code
-
-`lib/<project>/shared` should mean genuinely shared stack-level code, not
-"somewhere convenient to put app code".
-
-Good candidates:
-
-- stack-level deployment helpers
-- cross-app shared domain primitives
-- intentionally reused shared infrastructure owned by the stack
-
-Bad candidates:
-
-- a dashboard handler used only by the dashboard app
-- app-local note stores
-- app-local view helpers
-- app-local capability profiles
+Stack-level `lib/<project>/shared` should mean genuinely shared stack-level
+code, not a convenient place to put app-local behavior.
 
 ## Current Anti-Patterns
 
-These are current anti-patterns:
+Avoid:
 
-- app-local code in `lib/<project>/shared`
-- app-local code in `lib/<project>/<app>/...` when it should live under `apps/<app>/`
+- app-local code in stack-level `lib/<project>/shared`
 - implicit sibling coupling through direct constant reach-in
-- hardcoded HTML strings in Ruby source
+- hardcoded HTML strings as the recommended UI authoring style
+- mandatory `features/` directories for small apps
+- mandatory `web/` directories for non-web apps
+- flow declarations that imply contract execution or browser transport
 
-For frontend authoring, the default recommended path is:
+## Examples
 
-- `igniter-frontend`
-- Arbre pages/templates/components
-- Tailwind surfaces
+Runnable examples for the current model:
 
-`igniter-frontend` should now be treated as shipping with Arbre, not as an
-optional Arbre adapter you wire in later.
+- [`examples/application/capsule_manifest.rb`](../../examples/application/capsule_manifest.rb)
+- [`examples/application/feature_flow_report.rb`](../../examples/application/feature_flow_report.rb)
+- [`examples/application/capsule_inspection.rb`](../../examples/application/capsule_inspection.rb)
 
-We should not treat raw HTML string assembly in Ruby as the preferred style.
-It is an anti-pattern and should be migrated away from over time.
-
-The scaffold direction is now aligned with this rule:
-
-- app-local handlers/views/support objects are generated inside the owning app
-- stack-level `lib/<project>/shared` is reserved for genuinely shared stack code
-- generated dashboard/operator pages should prefer `igniter-frontend` page classes
-  over raw HTML string assembly
-- generated `playground` and `cluster` stacks now show cross-app composition through
-  `provide + access_to + App.interface(...)`, not through direct sibling reach-in
-
-## App Structure Options
-
-There are three realistic structure directions.
-
-### Option 1. Minimal top-level runtime buckets
-
-```text
-apps/<app>/
-  contracts/
-  executors/
-  agents/
-  tools/
-  skills/
-  spec/
-  app.rb
-  app.yml
-```
-
-Pros:
-
-- matches Igniter's first-class primitives directly
-- very small and easy to scan
-- no unnecessary nesting
-- ideal as the default scaffold shape
-
-Cons:
-
-- web/UI surfaces need an extra convention
-- larger apps may still want one more organizing layer
-
-### Option 2. Top-level runtime buckets plus optional web
-
-```text
-apps/<app>/
-  contracts/
-  executors/
-  agents/
-  tools/
-  skills/
-  web/
-    handlers/
-    views/
-    components/
-  support/
-  spec/
-  app.rb
-  app.yml
-```
-
-Pros:
-
-- simple
-- readable
-- makes web an optional surface instead of a mandatory assumption
-- keeps Igniter runtime primitives top-level and obvious
-
-Cons:
-
-- can become broad for large apps
-- still leaves feature boundaries implicit unless the app introduces them
-
-### Option 3. Feature slices
-
-```text
-apps/<app>/
-  features/
-    orders/
-      contracts/
-      handlers/
-      views/
-    dashboard/
-      handlers/
-      views/
-      components/
-  support/
-  spec/
-  app.rb
-  app.yml
-```
-
-Pros:
-
-- very good locality for large apps
-- encourages bounded features
-
-Cons:
-
-- heavier to teach and scaffold
-- too much ceremony for small/medium stacks
-
-### Option 4. Hybrid runtime buckets plus feature slices
-
-```text
-apps/<app>/
-  contracts/
-  executors/
-  agents/
-  tools/
-  skills/
-  web/
-    handlers/
-    views/
-    components/
-  support/
-  features/
-  spec/
-  app.rb
-  app.yml
-```
-
-Pros:
-
-- keeps the common path simple
-- leaves room for larger feature slices later
-- separates web/UI concerns clearly
-
-Cons:
-
-- slightly more abstract than the flat model
-- can become inconsistent if not guided well
-
-## Recommended Direction
-
-The current best target is the minimal top-level runtime layout, with optional
-`web/` when the app actually exposes a web surface.
-
-Recommended shape:
-
-```text
-apps/<app>/
-  contracts/
-  executors/
-  agents/
-  tools/
-  skills/
-  spec/
-  app.rb
-  app.yml
-```
-
-If the app has a web surface, add:
-
-```text
-apps/<app>/
-  contracts/
-  executors/
-  agents/
-  tools/
-  skills/
-  web/
-    handlers/
-    views/
-    components/
-  spec/
-  app.rb
-  app.yml
-```
-
-Rules:
-
-- keep `contracts`, `executors`, `agents`, `tools`, and `skills` top-level
-- add `web/` only when the app really has a web/UI surface
-- use optional top-level `support/` for app-private shared code
-- only introduce deeper feature slices when the app actually becomes large
-- keep stack-level `lib/<project>/shared` for code that is truly stack-shared
-
-This gives us a clean default without forcing early architectural ceremony or a
-mandatory `app/` wrapper directory.
-
-## Frontend Direction
-
-The recommended human UI path is:
-
-- `require "igniter-frontend"`
-- Arbre pages
-- Arbre components
-- Tailwind UI surfaces
-
-Preferred structure for a web-capable app:
-
-```text
-apps/<app>/
-  web/
-    handlers/
-    views/
-    components/
-```
-
-The important rule comes first:
-
-- no hardcoded HTML strings as the recommended style
-- prefer frontend objects/templates/components
-
-## Portability Rule
-
-An app should not assume:
-
-- it is the root app
-- a specific sibling app exists
-- direct access to sibling internals through stack `lib`
-
-If an app needs another app:
-
-- declare that dependency explicitly
-- keep the access surface narrow
-- prefer a stable app-to-app API over direct constant sharing
-
-`access_to` is not just a future direction now. It already exists at the stack
-registration layer and is validated against exposed interfaces.
-
-Current example:
-
-```ruby
-class MainApp < Igniter::App
-  provide :notes_api, NotesAPI
-end
-
-class Workspace < Igniter::Stack
-  app :main, path: "apps/main", klass: MainApp, default: true
-  app :dashboard, path: "apps/dashboard", klass: DashboardApp, access_to: [:notes_api]
-end
-
-Workspace.interface(:notes_api)
-DashboardApp.interface(:notes_api)
-```
-
-That is the current canonical path for explicit cross-app access.
-
-## Compatibility Policy Before v1
-
-Igniter does not promise backward compatibility before `v1`.
-
-That is not only a release note. It is a development rule:
-
-- do not preserve weak structure just because it already exists
-- do not add compatibility shims by default
-- prefer replacing bad shapes with cleaner ones
-- if a structure is wrong, we should feel free to remove it and implement the
-  better shape
-
-This is also the signal for development agents working on the codebase:
-
-- optimize for the target architecture
-- do not accumulate avoidable debt just to keep transitional layouts alive
-
-## Current Migration Direction
-
-The practical next app-structure moves are:
-
-1. stop generating new app-local code into stack-level `lib/.../shared`
-2. move generated dashboard/playground/cluster app code under the owning app
-3. replace raw HTML-string generator output with `igniter-frontend` authoring
-4. design an explicit cross-app access surface instead of hidden sharing
-
-The important part is the order:
-
-- first fix placement
-- then fix authoring style
-- then deepen cross-app composition
+Older `Igniter::App` and `Igniter::Stack` material should be treated as
+historical or transitional unless a current track explicitly says otherwise.

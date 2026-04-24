@@ -147,3 +147,39 @@ useful as an examples catalog check.
    guide wording.
 3. Keep this cycle user-facing and explanatory. Do not add new runtime surface
    unless documentation exposes a concrete correctness bug.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-guide-track.md`
+Status: landed.
+Changed:
+- Added `docs/guide/application-capsules.md` as the user-facing capsule guide.
+- Updated `docs/guide/README.md` and `docs/guide/app.md` to point new
+  application work at the capsule guide.
+- Replaced `docs/current/app-structure.md` with the current contracts-native
+  capsule structure doctrine.
+Accepted:
+- The guide explains sparse-first capsules, layout profiles, exports/imports,
+  optional feature slices, flow declarations, capsule reports, and web as an
+  optional surface without introducing new runtime APIs.
+Needs:
+- `[Agent Web / Codex]` can add web-surface guide wording/package notes for
+  surface manifests, projection reports, and surface metadata envelopes.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-guide-track.md`
+Status: landed.
+Changed:
+- Expanded `docs/guide/application-capsules.md` with the web-owned surface path:
+  `SurfaceManifest`, `flow_surface_metadata(...)`, and
+  `ApplicationBlueprint#capsule_report(surface_metadata:)`.
+- Updated `docs/current/app-structure.md` with concise web-as-optional-surface
+  alignment.
+- Updated `packages/igniter-web/README.md` and `docs/guide/README.md` so web
+  package docs are discoverable from the capsule guide path.
+Accepted:
+- Web remains an optional surface package. The docs describe inspection
+  metadata only and do not introduce runtime coupling, browser transport, or an
+  `igniter-application` dependency on `igniter-web`.
+Needs:
+- `[Architect Supervisor / Codex]` review the guide wording for final public
+  capsule documentation acceptance.

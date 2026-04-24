@@ -1,0 +1,244 @@
+# Application Capsules
+
+Application capsules are the user-facing shape for portable Igniter
+applications. A capsule owns its app-local contracts, services, optional web
+surfaces, portability metadata, and inspection reports.
+
+Use capsules when you want an Igniter application to be understandable before it
+is loaded, mounted, copied, or connected to a larger host.
+
+## Mental Model
+
+An application capsule is a portability boundary.
+
+That means:
+
+- app-owned code stays inside the capsule
+- dependencies on a host or sibling app are declared as imports
+- capabilities the capsule offers are declared as exports
+- web is an optional surface, not a required app type
+- feature slices are optional organization metadata for larger apps
+- flow declarations describe candidate interaction state, but do not execute
+  workflows
+- capsule reports are read-only inspection output for humans and agents
+
+The important difference from Rails-style global buckets is locality. A feature
+does not have to be scattered across unrelated top-level directories owned by a
+stack. Small capsules can stay flat; larger capsules can add feature-slice
+metadata when locality becomes useful.
+
+## Sparse First
+
+The default shape is sparse: materialize only the paths the capsule actually
+owns.
+
+```ruby
+blueprint = Igniter::Application.blueprint(
+  name: :operator,
+  root: "apps/operator",
+  env: :development,
+  layout_profile: :capsule,
+  groups: %i[contracts services],
+  exports: [
+    { name: :resolve_incident, kind: :contract, target: "Contracts::ResolveIncident" }
+  ],
+  imports: [
+    { name: :incident_runtime, kind: :service, from: :host, capabilities: [:incidents] }
+  ]
+)
+```
+
+With `layout_profile: :capsule`, logical groups map to compact paths such as
+`contracts`, `services`, `web`, `support`, `spec`, and `igniter.rb`.
+
+Sparse structure plans include only active groups:
+
+```ruby
+blueprint.structure_plan.to_h.fetch(:missing_groups)
+```
+
+Complete structure plans remain available for inspection or explicit
+materialization:
+
+```ruby
+blueprint.structure_plan(mode: :complete)
+```
+
+## Web Is A Surface
+
+A non-web capsule and a web-capable capsule use the same application vocabulary.
+Adding web means declaring a surface group and allowing a web package to provide
+surface metadata.
+
+```ruby
+blueprint = Igniter::Application.blueprint(
+  name: :operator,
+  root: "apps/operator",
+  layout_profile: :capsule,
+  groups: %i[contracts services],
+  web_surfaces: [:operator_console]
+)
+```
+
+`igniter-application` does not inspect screens, routes, or browser forms.
+Surface packages such as `igniter-web` can supply plain metadata to capsule
+reports.
+
+In `igniter-web`, this metadata starts from a `SurfaceManifest`. The manifest
+describes what a web surface exports, which contracts/services/projections it
+imports, and which candidate interactions a screen declares. It stays
+web-owned; the application layer receives only serialized hashes.
+
+```ruby
+web = Igniter::Web.application do
+  screen :incident_review, intent: :human_decision do
+    ask :clarification, as: :textarea
+    action :approve_plan,
+           run: "Contracts::ResolveIncident",
+           action_type: :contract
+  end
+
+  screen_route "/incident-review", :incident_review
+end
+
+surface = Igniter::Web.surface_manifest(
+  web,
+  name: :operator_console,
+  path: "/operator"
+)
+```
+
+For inspection, web can compare that surface with app-owned flow and feature
+metadata:
+
+```ruby
+surface_metadata = Igniter::Web.flow_surface_metadata(
+  surface,
+  declaration: blueprint.flow_declarations.first,
+  feature: blueprint.feature_slices.first
+)
+
+blueprint.capsule_report(surface_metadata: [surface_metadata])
+```
+
+This does not start a flow, submit a form, or execute a contract. It gives the
+capsule report a plain surface envelope with summary status, related flows and
+features, and nested projection details.
+
+## Feature Slices
+
+Feature slices are optional reporting metadata. They are useful when a capsule
+grows large enough that feature-local ownership matters.
+
+```ruby
+blueprint = Igniter::Application.blueprint(
+  name: :operator,
+  root: "apps/operator",
+  layout_profile: :capsule,
+  features: [
+    {
+      name: :incidents,
+      groups: %i[contracts services web],
+      contracts: ["Contracts::ResolveIncident"],
+      services: [:incident_queue],
+      exports: [:resolve_incident],
+      imports: [:incident_runtime],
+      flows: [:incident_review],
+      surfaces: [:operator_console]
+    }
+  ]
+)
+```
+
+This does not require a `features/` directory and does not create a runtime
+boundary. It makes ownership inspectable.
+
+## Flow Declarations
+
+Flow declarations are app-owned metadata for agent-native and
+human-in-the-loop workflows.
+
+```ruby
+blueprint = Igniter::Application.blueprint(
+  name: :operator,
+  root: "apps/operator",
+  layout_profile: :capsule,
+  flows: [
+    {
+      name: :incident_review,
+      purpose: "Review incident plan before execution",
+      initial_status: :waiting_for_user,
+      current_step: :review_plan,
+      pending_inputs: [
+        { name: :clarification, input_type: :textarea, target: :review_plan }
+      ],
+      pending_actions: [
+        { name: :approve_plan, action_type: :contract, target: "Contracts::ResolveIncident" }
+      ],
+      contracts: ["Contracts::ResolveIncident"],
+      services: [:incident_queue],
+      surfaces: [:operator_console]
+    }
+  ]
+)
+```
+
+A declaration does not start a flow, execute a contract, submit a browser form,
+or run an agent. Runtime state is still explicit:
+
+```ruby
+declaration = blueprint.flow_declarations.first
+environment = Igniter::Application::Environment.new(
+  profile: blueprint.apply_to(Igniter::Application.build_kernel).finalize
+)
+
+environment.start_flow(
+  declaration.name,
+  status: declaration.initial_status,
+  current_step: declaration.current_step,
+  pending_inputs: declaration.pending_inputs.map(&:to_h),
+  pending_actions: declaration.pending_actions.map(&:to_h)
+)
+```
+
+## Capsule Reports
+
+Capsule reports summarize a blueprint without loading code or materializing
+files.
+
+```ruby
+report = blueprint.capsule_report(
+  surface_metadata: [
+    {
+      name: :operator_console,
+      kind: :web_surface,
+      status: :aligned,
+      flows: [:incident_review],
+      features: [:incidents],
+      projections: {
+        flow_surface: {
+          status: :aligned
+        }
+      }
+    }
+  ]
+)
+
+report.to_h
+```
+
+The report includes identity, layout profile, active and known groups,
+sparse/complete planned paths, exports/imports, feature slices, flow
+declarations, contracts/services, and supplied surface metadata.
+
+## Runnable Examples
+
+Start with these examples:
+
+- [`examples/application/capsule_manifest.rb`](../../examples/application/capsule_manifest.rb)
+- [`examples/application/feature_flow_report.rb`](../../examples/application/feature_flow_report.rb)
+- [`examples/application/capsule_inspection.rb`](../../examples/application/capsule_inspection.rb)
+
+They are smoke-tested through the examples catalog and show the current
+capsule vocabulary without browser transport, cluster placement, or workflow
+execution.
