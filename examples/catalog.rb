@@ -209,13 +209,15 @@ module IgniterExamples
       "application/capsule_composition",
       "Read-only capsule composition report for explicit exports and imports.",
       expected_fragments: [
-        "application_capsule_composition_capsules=incident_core,operator",
-        "application_capsule_composition_exports=incident_runtime,resolve_incident",
-        "application_capsule_composition_satisfied=incident_runtime",
+        "application_capsule_composition_capsules=incident_core,operator,operator_client",
+        "application_capsule_composition_exports=incident_runtime,resolve_incident,operator_console",
+        "application_capsule_composition_satisfied=incident_runtime,operator_console",
         "application_capsule_composition_host_satisfied=audit_log",
         "application_capsule_composition_unresolved=",
         "application_capsule_composition_optional_missing=optional_notifier",
-        "application_capsule_composition_ready=true"
+        "application_capsule_composition_ready=true",
+        "application_capsule_composition_web_exports=operator_console",
+        "application_capsule_composition_web_satisfied=operator_console"
       ]
     ),
     example(

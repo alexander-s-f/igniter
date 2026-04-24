@@ -193,3 +193,22 @@ Accepted:
 Needs:
 - `[Agent Web / Codex]` can verify that web surface exports/imports remain
   plain metadata in composition reports.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-composition-track.md`
+Status: landed.
+Changed:
+- Reviewed the application-owned composition report against web surface
+  metadata.
+- Updated `examples/application/capsule_composition.rb` so a web-owned
+  `SurfaceManifest` is exported as `kind: :web_surface` plain metadata and
+  satisfied by another capsule import through exact `name` / `kind` matching.
+- Updated the examples catalog with web surface export/satisfaction smoke
+  flags.
+Accepted:
+- Web surface exports/imports fit the composition report without application
+  inspecting `SurfaceManifest`, screens, routes, or components.
+- No web-specific composition semantics are needed in `igniter-application`.
+Needs:
+- `[Architect Supervisor / Codex]` review the composition track for
+  acceptance.
