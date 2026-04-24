@@ -31,6 +31,7 @@ require_relative "application/application_transfer_bundle_plan"
 require_relative "application/application_transfer_bundle_artifact"
 require_relative "application/application_transfer_bundle_verification"
 require_relative "application/application_transfer_intake_plan"
+require_relative "application/application_transfer_apply_plan"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -195,6 +196,10 @@ module Igniter
           destination_root: destination_root,
           metadata: metadata
         )
+      end
+
+      def transfer_apply_plan(intake_plan, metadata: {})
+        ApplicationTransferApplyPlan.build(intake_plan, metadata: metadata)
       end
     end
   end

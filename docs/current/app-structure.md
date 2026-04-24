@@ -236,9 +236,12 @@ entries, and counts supplied surfaces without interpreting web internals.
 surface. Given a verified artifact and an explicit destination root, it reports
 planned paths, destination conflicts, blockers, required host wiring, warnings,
 and supplied surface metadata without copying or installing anything.
-The next planned surface is a read-only apply operation plan that converts
-accepted intake data into ordered future operations and preconditions without
-executing them.
+
+`ApplicationTransferApplyPlan` is the current read-only operation review
+surface. Given accepted intake data, it reports whether a future apply would be
+executable, lists ordered `ensure_directory`, `copy_file`, and
+`manual_host_wiring` operations, and preserves blockers/warnings without
+creating directories, copying files, or applying host wiring.
 
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or
@@ -291,6 +294,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_transfer_bundle_artifact.rb`](../../examples/application/capsule_transfer_bundle_artifact.rb)
 - [`examples/application/capsule_transfer_bundle_verification.rb`](../../examples/application/capsule_transfer_bundle_verification.rb)
 - [`examples/application/capsule_transfer_intake_plan.rb`](../../examples/application/capsule_transfer_intake_plan.rb)
+- [`examples/application/capsule_transfer_apply_plan.rb`](../../examples/application/capsule_transfer_apply_plan.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

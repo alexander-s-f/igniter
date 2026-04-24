@@ -326,6 +326,17 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_transfer_apply_plan",
+      "Read-only apply operation plan over accepted transfer intake data.",
+      expected_fragments: [
+        "application_capsule_transfer_apply_executable=true",
+        "application_capsule_transfer_apply_operations=4",
+        "application_capsule_transfer_apply_blockers=0",
+        "application_capsule_transfer_apply_warnings=0",
+        "application_capsule_transfer_apply_surfaces=1"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

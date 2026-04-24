@@ -447,6 +447,22 @@ surface counts. It reads bundle metadata and destination filesystem state only;
 it does not create directories, copy files, modify host configuration, install
 bundles, or interpret web internals.
 
+Apply operation planning converts accepted intake data into explicit future
+operations without executing them:
+
+```ruby
+apply_plan = Igniter::Application.transfer_apply_plan(intake)
+
+apply_plan.to_h
+```
+
+`ApplicationTransferApplyPlan` reports whether the intake is executable,
+ordered `ensure_directory`, `copy_file`, and `manual_host_wiring` operation
+data, blockers, warnings, and supplied surface counts. Operation paths are
+review data derived from the intake plan; the plan does not create
+directories, copy files, apply host wiring, install bundles, or interpret web
+internals.
+
 This transfer guide deliberately stops before project-wide discovery,
 automatic destination selection, installing or extracting bundles, loading
 constants, booting apps, mounting web routes, executing contracts, or placing
@@ -469,6 +485,7 @@ Start with these examples:
 - [`examples/application/capsule_transfer_bundle_artifact.rb`](../../examples/application/capsule_transfer_bundle_artifact.rb)
 - [`examples/application/capsule_transfer_bundle_verification.rb`](../../examples/application/capsule_transfer_bundle_verification.rb)
 - [`examples/application/capsule_transfer_intake_plan.rb`](../../examples/application/capsule_transfer_intake_plan.rb)
+- [`examples/application/capsule_transfer_apply_plan.rb`](../../examples/application/capsule_transfer_apply_plan.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

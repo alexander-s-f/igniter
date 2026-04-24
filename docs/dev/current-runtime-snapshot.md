@@ -128,6 +128,7 @@ Current shape:
 - read-only capsule transfer bundle verification over written artifacts
 - read-only capsule transfer intake plans over verified artifacts and explicit
   destination roots
+- read-only capsule transfer apply operation plans over accepted intake data
 - public capsule transfer guide over the read-only report/composition/assembly/
   handoff chain
 - explicit sparse/complete structure plans for materializing missing app layout
@@ -182,8 +183,9 @@ routing, executing, or placing work on a cluster.
 surface over a verified artifact and an explicit destination root. It reports
 planned paths, destination conflicts, blockers, host wiring, warnings, and
 supplied surface metadata before any future extraction or installation exists.
-The next active application track is a read-only apply operation plan over
-accepted intake data. It should list future operations and preconditions without
+`ApplicationTransferApplyPlan` is the current read-only operation planning
+surface over accepted intake data. It lists ordered future directory creation,
+file copy, and manual host wiring operations plus blockers and warnings without
 creating directories, copying files, applying host wiring, or installing a
 bundle.
 
