@@ -220,3 +220,7 @@ When an application wants to start a flow from a web surface, use
 returns plain `pending_inputs` and `pending_actions` hashes suitable for
 `Environment#start_flow`, while preserving the original web interaction under
 metadata for inspection.
+
+`Igniter::Web.flow_surface_projection(...)` can also compare a surface manifest
+with application-owned flow declaration and feature-slice metadata. Use it for
+inspection/reporting, not for starting flows or mutating sessions.

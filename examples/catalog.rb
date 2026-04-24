@@ -165,7 +165,10 @@ module IgniterExamples
         "application_feature_flow_declarations=incident_review",
         "application_feature_flow_pending_inputs=clarification",
         "application_feature_flow_pending_actions=approve_plan",
-        "application_feature_flow_status=waiting_for_user"
+        "application_feature_flow_status=waiting_for_user",
+        "application_feature_flow_web_projection=aligned",
+        "application_feature_flow_web_projection_inputs=clarification",
+        "application_feature_flow_web_projection_actions=approve_plan"
       ]
     ),
     example(

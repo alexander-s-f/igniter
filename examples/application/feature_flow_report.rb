@@ -5,10 +5,23 @@ $LOAD_PATH.unshift(File.expand_path("../../lib", __dir__))
 $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-contracts/lib", __dir__))
 $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-extensions/lib", __dir__))
 $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-application/lib", __dir__))
+$LOAD_PATH.unshift(File.expand_path("../../packages/igniter-web/lib", __dir__))
 
 require "igniter/application"
+require "igniter/web"
+
+web = Igniter::Web.application do
+  screen :incident_review, intent: :human_decision do
+    ask :clarification, as: :textarea
+    action :approve_plan, run: "Contracts::ResolveIncident", action_type: :contract
+  end
+
+  screen_route "/incident-review", :incident_review
+end
 
 root = File.expand_path("../../tmp/feature_flow_operator", __dir__)
+surface = Igniter::Web.surface_manifest(web, name: :operator_console, path: "/operator")
+pending_state = Igniter::Web.flow_pending_state(surface, current_step: :review_plan)
 blueprint = Igniter::Application.blueprint(
   name: :operator,
   root: root,
@@ -46,12 +59,8 @@ blueprint = Igniter::Application.blueprint(
       purpose: "Review incident plan before execution",
       initial_status: :waiting_for_user,
       current_step: :review_plan,
-      pending_inputs: [
-        { name: :clarification, input_type: :textarea, target: :review_plan }
-      ],
-      pending_actions: [
-        { name: :approve_plan, action_type: :contract, target: "Contracts::ResolveIncident" }
-      ],
+      pending_inputs: pending_state.fetch(:pending_inputs),
+      pending_actions: pending_state.fetch(:pending_actions),
       artifacts: [
         { name: :draft_plan, artifact_type: :markdown, uri: "memory://draft-plan" }
       ],
@@ -66,6 +75,13 @@ blueprint = Igniter::Application.blueprint(
 )
 
 declaration = blueprint.flow_declarations.first
+feature = blueprint.feature_slices.first
+projection = Igniter::Web.flow_surface_projection(
+  surface,
+  declaration: declaration,
+  feature: feature,
+  metadata: { source: :example }
+)
 environment = Igniter::Application::Environment.new(
   profile: blueprint.apply_to(Igniter::Application.build_kernel).finalize
 )
@@ -90,3 +106,6 @@ puts "application_feature_flow_declarations=#{manifest.flow_declarations.map { |
 puts "application_feature_flow_pending_inputs=#{snapshot.pending_inputs.map(&:name).join(",")}"
 puts "application_feature_flow_pending_actions=#{snapshot.pending_actions.map(&:name).join(",")}"
 puts "application_feature_flow_status=#{snapshot.status}"
+puts "application_feature_flow_web_projection=#{projection.fetch(:status)}"
+puts "application_feature_flow_web_projection_inputs=#{projection.fetch(:pending_inputs).fetch(:matched).join(",")}"
+puts "application_feature_flow_web_projection_actions=#{projection.fetch(:pending_actions).fetch(:matched).join(",")}"

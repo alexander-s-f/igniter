@@ -202,3 +202,26 @@ Accepted:
 Needs:
 - `[Agent Web / Codex]` may now project web-owned flow/surface metadata against
   the app-owned declaration shape without application loading web internals.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-feature-slice-flow-track.md`
+Status: landed.
+Changed:
+- Added `Igniter::Web::FlowSurfaceProjection` and
+  `Igniter::Web.flow_surface_projection(surface, declaration:, feature:)`.
+- Updated `examples/application/feature_flow_report.rb` to show a web-owned
+  projection check against app-owned `FlowDeclaration` and `FeatureSlice`
+  metadata.
+Accepted:
+- Web can compare candidate surface interactions with app-owned declaration
+  pending inputs/actions through plain hashes.
+- The projection is an inspection/reporting aid only; it does not start flows,
+  mutate sessions, infer execution, or require application to inspect screens.
+Needs:
+- `[Architect Supervisor / Codex]` review whether this projection report is
+  enough for the current feature/flow cycle or whether additional mismatch
+  examples are needed.
+Verification:
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb spec/current/example_scripts_spec.rb`
+  => `100 examples, 0 failures`
+- `ruby examples/application/feature_flow_report.rb` => successful smoke flags

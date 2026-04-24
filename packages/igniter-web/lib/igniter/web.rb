@@ -24,6 +24,7 @@ require_relative "web/interaction_target"
 require_relative "web/surface_structure"
 require_relative "web/surface_manifest"
 require_relative "web/flow_interaction_adapter"
+require_relative "web/flow_surface_projection"
 
 module Igniter
   module Web
@@ -83,6 +84,10 @@ module Igniter
 
       def flow_pending_state(source, current_step: nil, metadata: {})
         FlowInteractionAdapter.pending_state(source, current_step: current_step, metadata: metadata)
+      end
+
+      def flow_surface_projection(surface, declaration:, feature: nil, metadata: {})
+        FlowSurfaceProjection.project(surface, declaration: declaration, feature: feature, metadata: metadata)
       end
     end
   end

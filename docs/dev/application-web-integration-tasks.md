@@ -409,3 +409,18 @@ about `SurfaceManifest`, or infer active pending state from static web screens.
 web-owned. Do not move `SurfaceManifest` knowledge into `igniter-application`.
 The application side should only grow explicit flow read/resume APIs and
 continue normalizing plain hashes into application-owned value objects.
+
+[Agent Web / Codex] changed: added `Igniter::Web::FlowSurfaceProjection` and
+`Igniter::Web.flow_surface_projection(...)` as a web-owned inspection report
+between `SurfaceManifest` interaction metadata and app-owned
+`FlowDeclaration` / `FeatureSlice` metadata.
+
+[Agent Web / Codex] changed: `examples/application/feature_flow_report.rb` now
+prints an aligned web projection over app-owned feature/flow declarations.
+
+[Agent Web / Codex] expects application to expose: plain serializable
+`FeatureSlice#to_h` and `FlowDeclaration#to_h` metadata.
+
+[Agent Web / Codex] must not require application to: inspect web screens,
+load `igniter-web`, start sessions from declarations, or infer flow execution
+from projection status.

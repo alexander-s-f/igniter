@@ -321,6 +321,59 @@ RSpec.describe Igniter::Web do
     )
   end
 
+  it "projects web surface metadata against app-owned flow declarations and feature slices" do
+    app = described_class.application do
+      screen :incident_review, intent: :human_decision do
+        ask :clarification, as: :textarea
+        action :approve_plan, run: "Contracts::ResolveIncident", action_type: :contract
+      end
+
+      screen_route "/incident-review", :incident_review
+    end
+    surface = described_class.surface_manifest(app, name: :operator_console, path: "/operator")
+    declaration = {
+      name: :incident_review,
+      initial_status: :waiting_for_user,
+      current_step: :review_plan,
+      pending_inputs: [
+        { name: :clarification, input_type: :textarea, target: :review_plan }
+      ],
+      pending_actions: [
+        { name: :approve_plan, action_type: :contract, target: "Contracts::ResolveIncident" }
+      ],
+      surfaces: [:operator_console]
+    }
+    feature = {
+      name: :incidents,
+      flows: [:incident_review],
+      surfaces: [:operator_console]
+    }
+
+    projection = described_class.flow_surface_projection(surface, declaration: declaration, feature: feature)
+
+    expect(projection).to include(
+      status: :aligned,
+      surface: { name: :operator_console, path: "/operator" },
+      flow: include(name: :incident_review, initial_status: :waiting_for_user),
+      feature: include(name: :incidents)
+    )
+    expect(projection.fetch(:pending_inputs)).to include(
+      matched: [:clarification],
+      missing_in_surface: [],
+      extra_in_surface: []
+    )
+    expect(projection.fetch(:pending_actions)).to include(
+      matched: [:approve_plan],
+      missing_in_surface: [],
+      extra_in_surface: []
+    )
+    expect(projection.fetch(:relationships)).to include(
+      declaration_references_surface: true,
+      feature_references_surface: true,
+      feature_references_flow: true
+    )
+  end
+
   it "handles nested mounted paths and missing routes" do
     web = described_class.application do
       page "/nested", title: "Nested" do

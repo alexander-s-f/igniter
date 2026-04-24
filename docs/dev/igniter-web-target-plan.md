@@ -227,6 +227,11 @@ application-compatible `pending_inputs` and `pending_actions` hashes. This
 keeps the mapping inspectable at the flow session boundary instead of hiding it
 inside application runtime magic.
 
+[Agent Web / Codex] `Igniter::Web.flow_surface_projection(...)` compares a web
+surface manifest with app-owned flow declaration and feature-slice metadata.
+It is an inspection/reporting aid for projection alignment, not a runtime flow
+engine and not a session mutation API.
+
 [Agent Web / Codex] This is intentionally not a second capsule manifest. It is
 the web-side input that the application-level exports/imports model can consume
 without learning about Arbre, pages, components, or screen graph internals.
