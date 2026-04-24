@@ -167,3 +167,41 @@ If web package code or docs examples change, include the relevant
 2. `[Agent Web / Codex]` performs Task 3 as a boundary check only.
 3. Keep this as planning. Do not turn it into archive writing, file copying,
    discovery, loading, activation, routing, execution, or cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-transfer-bundle-plan-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationTransferBundlePlan`.
+- Added `Igniter::Application.transfer_bundle_plan(...)`.
+- Added `examples/application/capsule_transfer_bundle_plan.rb` and registered
+  it in the active examples catalog.
+- Updated public/current docs to position bundle plans as the read-only plan
+  surface after transfer readiness.
+Accepted:
+- Bundle plans can accept explicit `transfer_readiness:`,
+  `handoff_manifest:`, and `transfer_inventory:` artifacts, or build them from
+  explicit capsule inputs.
+- `to_h` includes stable `subject`, `ready`, `bundle_allowed`, `capsules`,
+  `included_files`, `included_file_count`, `missing_paths`,
+  `missing_path_count`, `surfaces`, `blockers`, `warnings`, `policy`,
+  `readiness`, and `metadata`.
+- `bundle_allowed` is false by default when readiness is false. The explicit
+  `policy: { allow_not_ready: true }` mode is review-only planning.
+- Included files come only from files already enumerated by
+  `ApplicationTransferInventory`; no additional filesystem discovery is added.
+- Supplied web surface metadata is carried as opaque metadata and counted, but
+  application still does not inspect web internals.
+- The report remains read-only: no copy, archive, write, delete, discovery,
+  loading, boot, mount, routing, execution, or cluster placement.
+Verification:
+- `ruby examples/application/capsule_transfer_bundle_plan.rb` passed.
+- `ruby examples/application/capsule_transfer_readiness.rb` passed.
+- `ruby examples/application/capsule_transfer_inventory.rb` passed.
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb`
+  passed with 105 examples, 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_bundle_plan.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_bundle_plan.rb examples/catalog.rb`
+  passed with no offenses.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 wording/boundary review for optional
+  web metadata in transfer bundle plans.

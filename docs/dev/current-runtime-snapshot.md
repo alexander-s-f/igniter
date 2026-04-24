@@ -123,6 +123,7 @@ Current shape:
   capsule paths/files before any future copy or package tooling
 - read-only capsule transfer readiness reports over handoff manifests and
   transfer inventories
+- read-only capsule transfer bundle plans over readiness and inventory artifacts
 - public capsule transfer guide over the read-only report/composition/assembly/
   handoff chain
 - explicit sparse/complete structure plans for materializing missing app layout
@@ -157,10 +158,11 @@ or cluster placement mechanism.
 handoff manifest and transfer inventory. It separates blockers from warnings,
 classifies findings by source, and exposes one `ready` boolean without
 packaging, copying, activation, routing, execution, or cluster placement.
-The next application slice is a read-only transfer bundle plan over readiness
-and inventory. It should plan a future bundle without writing archives, copying
-files, loading constants, booting apps, mounting web, routing, executing, or
-placing work on a cluster.
+`ApplicationTransferBundlePlan` is the current read-only plan for a future
+bundle/package operation. It summarizes included files already enumerated by
+the transfer inventory, missing paths, supplied surfaces, blockers, warnings,
+and policy without writing archives, copying files, loading constants, booting
+apps, mounting web, routing, executing, or placing work on a cluster.
 
 Lifecycle now follows this shape:
 

@@ -196,6 +196,8 @@ The current transfer chain is read-only:
   under explicit capsule roots
 - `Igniter::Application.transfer_readiness` produces the decision report over
   handoff and inventory artifacts
+- `Igniter::Application.transfer_bundle_plan` describes what a future bundle
+  operation would include, exclude, and still block
 
 `ApplicationHandoffManifest` is the current answer to "what is moving, is it
 ready, and what must the receiving host provide?" It summarizes readiness,
@@ -210,6 +212,11 @@ paths, and supplied surface path metadata.
 `ApplicationTransferReadiness` is the current decision surface before any
 future transfer/package tooling. It reports one readiness boolean, blockers,
 warnings, source counts, and the nested handoff manifest and inventory.
+
+`ApplicationTransferBundlePlan` is the current plan surface before any future
+bundle/package tooling. It summarizes included files already enumerated by the
+inventory, missing paths, supplied surfaces, blockers, warnings, and whether a
+future bundle step would be allowed by policy.
 
 This remains separate from runtime activation and transfer execution. It does
 not package, copy, create archives, discover project directories, load, boot,
@@ -257,6 +264,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_handoff_manifest.rb`](../../examples/application/capsule_handoff_manifest.rb)
 - [`examples/application/capsule_transfer_inventory.rb`](../../examples/application/capsule_transfer_inventory.rb)
 - [`examples/application/capsule_transfer_readiness.rb`](../../examples/application/capsule_transfer_readiness.rb)
+- [`examples/application/capsule_transfer_bundle_plan.rb`](../../examples/application/capsule_transfer_bundle_plan.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

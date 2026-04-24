@@ -277,6 +277,19 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_transfer_bundle_plan",
+      "Read-only transfer bundle plan over readiness and inventory artifacts.",
+      expected_fragments: [
+        "application_capsule_transfer_bundle_subject=operator_bundle",
+        "application_capsule_transfer_bundle_allowed=false",
+        "application_capsule_transfer_bundle_capsules=operator",
+        "application_capsule_transfer_bundle_files=2",
+        "application_capsule_transfer_bundle_blockers=missing_expected_path,unresolved_required_import",
+        "application_capsule_transfer_bundle_warnings=missing_optional_import",
+        "application_capsule_transfer_bundle_surfaces=1"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

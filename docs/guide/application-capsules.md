@@ -368,6 +368,28 @@ deferred file enumeration are warnings. Supplied web surface metadata is counted
 as opaque transfer context; if a declared web surface has no supplied metadata,
 readiness reports a warning without inspecting screens, routes, or components.
 
+When you want to see what a future bundle tool would intend to include, build a
+bundle plan:
+
+```ruby
+bundle_plan = Igniter::Application.transfer_bundle_plan(
+  operator,
+  subject: :operator_bundle,
+  surface_metadata: [
+    { name: :operator_console, kind: :web_surface, path: "web" }
+  ]
+)
+
+bundle_plan.to_h
+```
+
+`ApplicationTransferBundlePlan` summarizes the subject, capsule entries,
+included files already enumerated by the transfer inventory, missing paths,
+supplied surfaces, blockers, warnings, readiness payload, and bundle policy.
+By default, `bundle_allowed` is false when readiness is false. Use
+`policy: { allow_not_ready: true }` only for review-only planning; it still
+does not copy files or write archives.
+
 This transfer guide deliberately stops before copying files, creating archives,
 discovering directories, loading constants, booting apps, mounting web routes,
 executing contracts, or placing work on a cluster.
@@ -385,6 +407,7 @@ Start with these examples:
 - [`examples/application/capsule_handoff_manifest.rb`](../../examples/application/capsule_handoff_manifest.rb)
 - [`examples/application/capsule_transfer_inventory.rb`](../../examples/application/capsule_transfer_inventory.rb)
 - [`examples/application/capsule_transfer_readiness.rb`](../../examples/application/capsule_transfer_readiness.rb)
+- [`examples/application/capsule_transfer_bundle_plan.rb`](../../examples/application/capsule_transfer_bundle_plan.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

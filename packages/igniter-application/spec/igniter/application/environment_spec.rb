@@ -469,6 +469,95 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "builds read-only transfer bundle plans over readiness and inventory" do
+    Dir.mktmpdir("igniter-transfer-bundle") do |root|
+      FileUtils.mkdir_p(File.join(root, "contracts"))
+      FileUtils.mkdir_p(File.join(root, "services"))
+      File.write(File.join(root, "contracts/resolve_incident.rb"), "# contract\n")
+      File.write(File.join(root, "services/incident_queue.rb"), "# service\n")
+
+      capsule = Igniter::Application.capsule(:operator, root: root, env: :test) do
+        layout :capsule
+        groups :contracts, :services
+        export :resolve_incident, kind: :contract, target: "Contracts::ResolveIncident"
+        import :incident_runtime, kind: :service, from: :host
+        web_surface :operator_console
+      end
+      surface_metadata = [
+        { name: :operator_console, kind: :web_surface, path: "web" }
+      ]
+
+      plan = Igniter::Application.transfer_bundle_plan(
+        capsule,
+        subject: :operator_bundle,
+        surface_metadata: surface_metadata,
+        metadata: { source: :spec }
+      ).to_h
+
+      expect(plan).to include(
+        subject: :operator_bundle,
+        ready: false,
+        bundle_allowed: false,
+        included_file_count: 2,
+        missing_path_count: 3,
+        metadata: { source: :spec }
+      )
+      expect(plan.fetch(:capsules)).to contain_exactly(
+        include(name: :operator, file_count: 2, missing_path_count: 3, skipped_path_count: 0)
+      )
+      expect(plan.fetch(:included_files)).to include(
+        include(capsule: :operator, relative_path: "contracts/resolve_incident.rb"),
+        include(capsule: :operator, relative_path: "services/incident_queue.rb")
+      )
+      expect(plan.fetch(:missing_paths).map { |entry| entry.fetch(:group) }).to eq(%i[config spec web])
+      expect(plan.fetch(:surfaces)).to contain_exactly(
+        include(name: :operator_console, kind: :web_surface, path: "web")
+      )
+      expect(plan.fetch(:blockers).map { |entry| entry.fetch(:code) }).to include(
+        :unresolved_required_import,
+        :missing_expected_path
+      )
+      expect(plan.fetch(:policy)).to eq(allow_not_ready: false)
+      expect(plan.fetch(:readiness)).to include(ready: false)
+    end
+  end
+
+  it "can produce review-only transfer bundle plans for not-ready transfers" do
+    Dir.mktmpdir("igniter-transfer-bundle") do |root|
+      FileUtils.mkdir_p(File.join(root, "contracts"))
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: root,
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      readiness = Igniter::Application.transfer_readiness(
+        blueprint,
+        subject: :operator_bundle,
+        policy: { missing_expected_paths: :warning }
+      )
+
+      plan = Igniter::Application.transfer_bundle_plan(
+        transfer_readiness: readiness,
+        policy: { allow_not_ready: true }
+      ).to_h
+
+      expect(plan).to include(
+        subject: :operator_bundle,
+        ready: false,
+        bundle_allowed: true,
+        policy: { allow_not_ready: true }
+      )
+      expect(plan.fetch(:blockers).map { |entry| entry.fetch(:code) }).to eq([:unresolved_required_import])
+      expect(plan.fetch(:warnings).map { |entry| entry.fetch(:code) }).to include(:missing_expected_path)
+    end
+  end
+
   it "supports named layout profiles and active groups for app capsules" do
     root = File.expand_path("/tmp/igniter_operator_capsule")
     blueprint = Igniter::Application.blueprint(
