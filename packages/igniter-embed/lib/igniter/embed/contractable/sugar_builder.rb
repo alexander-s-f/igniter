@@ -69,6 +69,8 @@ module Igniter
           when :store
             require_adapter!(capability, adapter)
             config.store adapter
+          when :logging, :reporting, :metrics, :validation
+            config.capability capability, explicit_capability_target(capability, adapter, **options)
           else
             raise SugarError, "use :#{capability} is not supported in this implementation slice"
           end
@@ -109,6 +111,14 @@ module Igniter
           return if adapter
 
           raise SugarError, "use :#{capability} requires an explicit adapter"
+        end
+
+        def explicit_capability_target(capability, adapter = nil, contract: nil, callable: nil, target: nil)
+          targets = [adapter, contract, callable, target].compact
+          raise SugarError, "use :#{capability} requires an explicit target" if targets.empty?
+          raise SugarError, "use :#{capability} accepts only one explicit target" if targets.length > 1
+
+          targets.first
         end
 
         def redaction_adapter(only: nil, except: nil)

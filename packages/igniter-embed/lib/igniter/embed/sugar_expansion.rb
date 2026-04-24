@@ -65,6 +65,7 @@ module Igniter
             sample: contractable_config.sample,
             metadata: contractable_config.metadata,
             adapters: adapters(contractable_config),
+            capabilities: capabilities(contractable_config),
             events: events(contractable_config),
             runner: runner(contractable_config)
           }
@@ -126,6 +127,16 @@ module Igniter
             event: event_handler.event,
             source: event_handler.source,
             handler: callable_name(event_handler.handler)
+          }
+        end
+      end
+
+      def capabilities(contractable_config)
+        contractable_config.capability_attachments.map do |attachment|
+          {
+            name: attachment.name,
+            kind: attachment.kind,
+            target: callable_name(attachment.target)
           }
         end
       end

@@ -5,6 +5,7 @@ module Igniter
     module Contractable
       class Config
         EventHandler = Struct.new(:event, :handler, :source, keyword_init: true)
+        CapabilityAttachment = Struct.new(:name, :target, :kind, keyword_init: true)
 
         FAILURE_EVENTS = %i[primary_error candidate_error acceptance_failure store_error].freeze
         SUPPORTED_EVENTS = (
@@ -12,7 +13,7 @@ module Igniter
           [:failure]
         ).freeze
 
-        attr_reader :name, :event_handlers
+        attr_reader :name, :event_handlers, :capability_attachments
         attr_accessor :primary_callable, :candidate_callable,
                       :primary_normalizer, :candidate_normalizer,
                       :store_adapter, :observation_callback,
@@ -30,6 +31,7 @@ module Igniter
           @acceptance_policy = :exact
           @acceptance_options = {}
           @event_handlers = []
+          @capability_attachments = []
           @clock_callable = Time
         end
 
@@ -128,6 +130,18 @@ module Igniter
           event_handlers.select { |handler| handler.event == event.to_sym }
         end
 
+        def capability(name, target)
+          capability_name = name.to_sym
+          raise SugarError, "capability :#{capability_name} is already configured" if capability_configured?(capability_name)
+
+          capability_attachments << CapabilityAttachment.new(
+            name: capability_name,
+            target: target,
+            kind: capability_kind(target)
+          )
+          self
+        end
+
         def accept(policy = nil, **options)
           return acceptance_policy unless policy
 
@@ -171,6 +185,14 @@ module Igniter
 
         def event_names(event)
           event == :failure ? FAILURE_EVENTS : [event]
+        end
+
+        def capability_kind(target)
+          ContractNaming.contract_class?(target) ? :contract : :callable_adapter
+        end
+
+        def capability_configured?(name)
+          capability_attachments.any? { |attachment| attachment.name == name }
         end
 
         def inferred_role

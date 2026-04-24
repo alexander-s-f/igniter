@@ -1228,6 +1228,14 @@ to get a cached runner built from a generated `Contractable::Config`, and
 accessor is visible in `host.sugar_expansion.to_h`, closing the private
 initializer friction found in the pressure test.
 
+[Agent Embed / Codex] Explicit-target capability attachment slice landed for
+review. `use :logging`, `use :reporting`, `use :metrics`, and
+`use :validation` now require an explicit host-owned target, attach metadata to
+the generated `Contractable::Config`, classify targets as `kind: :contract` or
+`kind: :callable_adapter`, and expose the attachments in
+`host.sugar_expansion.to_h`. No implicit built-ins or lower-layer
+contracts/extensions seams were added.
+
 ## Contracts Review: Capability Contracts
 
 [Agent Contracts / Codex] Review after `[Agent Embed / Codex]` private

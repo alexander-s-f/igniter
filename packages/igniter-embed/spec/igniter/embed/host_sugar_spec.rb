@@ -24,6 +24,12 @@ RSpec.describe "Igniter::Embed.host sugar" do
     stub_const("Billing::QuoteObserver", Class.new)
     stub_const("Billing::QuoteNormalizer", Class.new)
     stub_const("Billing::ObservationStore", Class.new)
+    stub_const("Billing::LogObservationContract", Class.new(Igniter::Contract) do
+      define do
+        input :event
+        output :event
+      end
+    end)
   end
 
   it "builds the same plain contract registration as the clean form" do
@@ -242,6 +248,67 @@ RSpec.describe "Igniter::Embed.host sugar" do
       include(event: :acceptance_failure, source: :failure, handler: a_string_matching(/Proc/)),
       include(event: :store_error, source: :failure, handler: a_string_matching(/Proc/))
     )
+  end
+
+  it "attaches explicit capability targets and exposes their kind" do
+    report_adapter = ->(_event) {}
+    contracts = Igniter::Embed.host(:billing) do
+      contracts do
+        add :price_quote, Billing::PriceQuoteContract do
+          migration from: Billing::LegacyQuoteService,
+                    to: Billing::ContractQuoteService
+          use :normalizer, Billing::QuoteNormalizer
+          use :logging, contract: Billing::LogObservationContract
+          use :reporting, report_adapter
+        end
+      end
+    end
+
+    contractable_config = contracts.config.contractable_config(:price_quote)
+    expect(contractable_config.capability_attachments.map(&:name)).to eq(%i[logging reporting])
+    expect(contracts.sugar_expansion.to_h.fetch(:contractables).first.fetch(:capabilities)).to contain_exactly(
+      {
+        name: :logging,
+        kind: :contract,
+        target: "Billing::LogObservationContract"
+      },
+      {
+        name: :reporting,
+        kind: :callable_adapter,
+        target: a_string_matching(/Proc/)
+      }
+    )
+  end
+
+  it "requires explicit targets for broad capability sugar" do
+    expect do
+      Igniter::Embed.host(:billing) do
+        contracts do
+          add :price_quote, Billing::PriceQuoteContract do
+            migration from: Billing::LegacyQuoteService,
+                      to: Billing::ContractQuoteService
+            use :metrics
+          end
+        end
+      end
+    end.to raise_error(Igniter::Embed::SugarError, /requires an explicit target/)
+  end
+
+  it "rejects duplicate capability attachments" do
+    adapter = ->(_event) {}
+
+    expect do
+      Igniter::Embed.host(:billing) do
+        contracts do
+          add :price_quote, Billing::PriceQuoteContract do
+            migration from: Billing::LegacyQuoteService,
+                      to: Billing::ContractQuoteService
+            use :validation, adapter
+            use :validation, adapter
+          end
+        end
+      end
+    end.to raise_error(Igniter::Embed::SugarError, /capability :validation is already configured/)
   end
 
   it "does not generate a contractable for an empty add block" do
