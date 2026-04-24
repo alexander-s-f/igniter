@@ -173,3 +173,43 @@ If web package code or docs examples change, include the relevant
 3. Keep this as a narrow filesystem transfer boundary. Do not add host wiring
    mutation, web activation, app boot, routing, contract execution, discovery,
    overwrite policy, or cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-transfer-apply-execution-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationTransferApplyResult`.
+- Added `Igniter::Application.apply_transfer_plan(...)`.
+- Added `examples/application/capsule_transfer_apply_execution.rb` and
+  registered it in the active examples catalog.
+- Updated public/current docs to position apply execution as explicit,
+  dry-run-first, refusal-first transfer execution over reviewed apply plans.
+Accepted:
+- Apply execution accepts an `ApplicationTransferApplyPlan` object or a
+  compatible serialized apply-plan hash.
+- `to_h` includes stable `committed`, `executable`, `applied`, `skipped`,
+  `refusals`, `operation_count`, `artifact_path`, `destination_root`,
+  `surface_count`, and `metadata`.
+- Dry-run is the default and reports reviewed operations without writing.
+- `commit: true` is required for filesystem mutation.
+- Commit mode preflights reviewed operations before mutation and refuses unsafe
+  paths, missing artifact sources, destination overwrites, unsupported
+  operation types, and non-executable plans.
+- Only reviewed `ensure_directory` and `copy_file` operations can mutate the
+  destination filesystem.
+- `manual_host_wiring` operations are skipped/review-only and never applied.
+- Supplied web surface metadata is counted without requiring `igniter-web` or
+  executing web-specific operations.
+- No host wiring mutation, web activation, loading, booting, routing, contract
+  execution, discovery, overwrite policy, or cluster placement was introduced.
+Verification:
+- `ruby examples/application/capsule_transfer_apply_execution.rb` passed.
+- `ruby examples/application/capsule_transfer_apply_plan.rb` passed.
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb`
+  passed with 122 examples, 0 failures.
+- `ruby examples/run.rb smoke` passed with 65 examples, 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_apply_result.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_apply_execution.rb examples/catalog.rb`
+  passed with no offenses.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 boundary review for opaque web
+  metadata and confirm no web-specific execution behavior is needed.

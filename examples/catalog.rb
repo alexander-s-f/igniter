@@ -337,6 +337,17 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_transfer_apply_execution",
+      "Dry-run-first transfer apply execution over reviewed apply plans.",
+      expected_fragments: [
+        "application_capsule_transfer_apply_dry_run_committed=false",
+        "application_capsule_transfer_apply_commit_committed=true",
+        "application_capsule_transfer_apply_applied=4",
+        "application_capsule_transfer_apply_refusals=0",
+        "application_capsule_transfer_apply_copied=true"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

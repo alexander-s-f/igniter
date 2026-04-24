@@ -1042,6 +1042,153 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "applies reviewed transfer plans in dry-run mode by default and commits explicitly" do
+    Dir.mktmpdir("igniter-transfer-apply-execution") do |root|
+      FileUtils.mkdir_p(File.join(root, "capsule/contracts"))
+      FileUtils.mkdir_p(File.join(root, "capsule/spec"))
+      FileUtils.mkdir_p(File.join(root, "capsule/web"))
+      File.write(File.join(root, "capsule/contracts/resolve_incident.rb"), "# contract\n")
+      File.write(File.join(root, "capsule/igniter.rb"), "# config\n")
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: File.join(root, "capsule"),
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        web_surfaces: [:operator_console],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      plan = Igniter::Application.transfer_bundle_plan(
+        blueprint,
+        subject: :operator_bundle,
+        host_exports: [
+          { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+        ],
+        surface_metadata: [
+          { name: :operator_console, kind: :web_surface, path: "web" }
+        ]
+      )
+      artifact = File.join(root, "operator_bundle")
+      destination = File.join(root, "destination")
+      Igniter::Application.write_transfer_bundle(plan, output: artifact)
+      verification = Igniter::Application.verify_transfer_bundle(artifact)
+      intake = Igniter::Application.transfer_intake_plan(verification, destination_root: destination)
+      apply_plan = Igniter::Application.transfer_apply_plan(intake)
+
+      dry_run = Igniter::Application.apply_transfer_plan(apply_plan, metadata: { source: :spec }).to_h
+
+      expect(dry_run).to include(
+        committed: false,
+        executable: true,
+        operation_count: 4,
+        artifact_path: artifact,
+        destination_root: destination,
+        surface_count: 1,
+        metadata: { source: :spec }
+      )
+      expect(dry_run.fetch(:applied).map { |entry| entry.fetch(:status) }).to eq(
+        %i[dry_run dry_run dry_run dry_run]
+      )
+      expect(dry_run.fetch(:refusals)).to eq([])
+      expect(File.exist?(File.join(destination, "operator/igniter.rb"))).to be(false)
+
+      committed = Igniter::Application.apply_transfer_plan(apply_plan, commit: true).to_h
+
+      expect(committed).to include(committed: true, executable: true, operation_count: 4)
+      expect(committed.fetch(:applied).map { |entry| entry.fetch(:status) }).to eq(
+        %i[applied applied applied applied]
+      )
+      expect(committed.fetch(:refusals)).to eq([])
+      expect(File.read(File.join(destination, "operator/contracts/resolve_incident.rb"))).to eq("# contract\n")
+      expect(File.read(File.join(destination, "operator/igniter.rb"))).to eq("# config\n")
+    end
+  end
+
+  it "refuses committed transfer application when reviewed file destinations would overwrite" do
+    Dir.mktmpdir("igniter-transfer-apply-execution") do |root|
+      FileUtils.mkdir_p(File.join(root, "capsule/contracts"))
+      FileUtils.mkdir_p(File.join(root, "capsule/spec"))
+      File.write(File.join(root, "capsule/contracts/resolve_incident.rb"), "# contract\n")
+      File.write(File.join(root, "capsule/igniter.rb"), "# config\n")
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: File.join(root, "capsule"),
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      plan = Igniter::Application.transfer_bundle_plan(
+        blueprint,
+        subject: :operator_bundle,
+        host_exports: [
+          { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+        ]
+      )
+      artifact = File.join(root, "operator_bundle")
+      destination = File.join(root, "destination")
+      Igniter::Application.write_transfer_bundle(plan, output: artifact)
+      verification = Igniter::Application.verify_transfer_bundle(artifact)
+      intake = Igniter::Application.transfer_intake_plan(verification, destination_root: destination)
+      apply_plan = Igniter::Application.transfer_apply_plan(intake)
+      FileUtils.mkdir_p(File.join(destination, "operator/contracts"))
+      File.write(File.join(destination, "operator/contracts/resolve_incident.rb"), "# existing\n")
+
+      result = Igniter::Application.apply_transfer_plan(apply_plan, commit: true).to_h
+
+      expect(result).to include(committed: true, executable: true, operation_count: 4)
+      expect(result.fetch(:applied)).to eq([])
+      expect(result.fetch(:skipped).map { |entry| entry.fetch(:reason) }).to eq(
+        %i[refusals_present refusals_present refusals_present refusals_present]
+      )
+      expect(result.fetch(:refusals)).to contain_exactly(
+        include(code: :destination_exists)
+      )
+      expect(File.read(File.join(destination, "operator/contracts/resolve_incident.rb"))).to eq("# existing\n")
+      expect(File.exist?(File.join(destination, "operator/igniter.rb"))).to be(false)
+    end
+  end
+
+  it "keeps manual host wiring operations review-only during transfer apply execution" do
+    Dir.mktmpdir("igniter-transfer-apply-execution") do |root|
+      plan = {
+        executable: true,
+        artifact_path: root,
+        destination_root: File.join(root, "destination"),
+        operations: [
+          {
+            type: :manual_host_wiring,
+            status: :review_required,
+            source: :intake_required_host_wiring,
+            destination: :host,
+            metadata: { entry: { name: :incident_runtime } }
+          }
+        ],
+        blockers: [],
+        surface_count: 0
+      }
+
+      result = Igniter::Application.apply_transfer_plan(plan, commit: true).to_h
+
+      expect(result).to include(committed: true, executable: true, operation_count: 1)
+      expect(result.fetch(:applied)).to eq([])
+      expect(result.fetch(:refusals)).to eq([])
+      expect(result.fetch(:skipped)).to contain_exactly(
+        include(
+          type: :manual_host_wiring,
+          status: :skipped,
+          reason: :manual_host_wiring_review_only
+        )
+      )
+    end
+  end
+
   it "supports named layout profiles and active groups for app capsules" do
     root = File.expand_path("/tmp/igniter_operator_capsule")
     blueprint = Igniter::Application.blueprint(

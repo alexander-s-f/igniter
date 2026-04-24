@@ -463,10 +463,29 @@ review data derived from the intake plan; the plan does not create
 directories, copy files, apply host wiring, install bundles, or interpret web
 internals.
 
+Apply execution is explicit and dry-run-first:
+
+```ruby
+dry_run = Igniter::Application.apply_transfer_plan(apply_plan)
+committed = Igniter::Application.apply_transfer_plan(apply_plan, commit: true)
+
+dry_run.to_h
+committed.to_h
+```
+
+`ApplicationTransferApplyResult` consumes reviewed apply-plan operations. By
+default it reports what would be applied without writing. With `commit: true`,
+it first preflights the reviewed operations, then creates only reviewed
+directories and copies only reviewed files from the artifact into the explicit
+destination root. Existing destination files, unsafe paths, missing artifact
+sources, unsupported operation types, and non-executable plans are refusals.
+`manual_host_wiring` operations remain skipped/review-only and are never
+applied.
+
 This transfer guide deliberately stops before project-wide discovery,
-automatic destination selection, installing or extracting bundles, loading
-constants, booting apps, mounting web routes, executing contracts, or placing
-work on a cluster.
+automatic destination selection, applying host wiring, loading constants,
+booting apps, mounting web routes, executing contracts, or placing work on a
+cluster.
 
 ## Runnable Examples
 
@@ -486,6 +505,7 @@ Start with these examples:
 - [`examples/application/capsule_transfer_bundle_verification.rb`](../../examples/application/capsule_transfer_bundle_verification.rb)
 - [`examples/application/capsule_transfer_intake_plan.rb`](../../examples/application/capsule_transfer_intake_plan.rb)
 - [`examples/application/capsule_transfer_apply_plan.rb`](../../examples/application/capsule_transfer_apply_plan.rb)
+- [`examples/application/capsule_transfer_apply_execution.rb`](../../examples/application/capsule_transfer_apply_execution.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

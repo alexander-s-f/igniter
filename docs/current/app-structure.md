@@ -242,9 +242,13 @@ surface. Given accepted intake data, it reports whether a future apply would be
 executable, lists ordered `ensure_directory`, `copy_file`, and
 `manual_host_wiring` operations, and preserves blockers/warnings without
 creating directories, copying files, or applying host wiring.
-The next planned surface is explicit dry-run-first apply execution for reviewed
-apply plans. Any mutation must be opt-in and limited to directory creation and
-file copying from reviewed operations.
+
+`ApplicationTransferApplyResult` is the current dry-run-first execution report
+for reviewed transfer apply plans. It defaults to reporting what would be
+applied; with `commit: true` it preflights the reviewed operations and may
+create only reviewed directories and copy only reviewed files. It refuses
+non-executable plans, unsafe paths, missing artifact sources, unsupported
+operations, and destination overwrites; manual host wiring remains review-only.
 
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or
@@ -298,6 +302,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_transfer_bundle_verification.rb`](../../examples/application/capsule_transfer_bundle_verification.rb)
 - [`examples/application/capsule_transfer_intake_plan.rb`](../../examples/application/capsule_transfer_intake_plan.rb)
 - [`examples/application/capsule_transfer_apply_plan.rb`](../../examples/application/capsule_transfer_apply_plan.rb)
+- [`examples/application/capsule_transfer_apply_execution.rb`](../../examples/application/capsule_transfer_apply_execution.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

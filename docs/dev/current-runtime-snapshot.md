@@ -129,6 +129,8 @@ Current shape:
 - read-only capsule transfer intake plans over verified artifacts and explicit
   destination roots
 - read-only capsule transfer apply operation plans over accepted intake data
+- explicit dry-run-first capsule transfer apply execution reports over
+  reviewed apply plans
 - public capsule transfer guide over the read-only report/composition/assembly/
   handoff chain
 - explicit sparse/complete structure plans for materializing missing app layout
@@ -188,9 +190,12 @@ surface over accepted intake data. It lists ordered future directory creation,
 file copy, and manual host wiring operations plus blockers and warnings without
 creating directories, copying files, applying host wiring, or installing a
 bundle.
-The next active application track is explicit dry-run-first apply execution for
-reviewed transfer apply plans. It may become the first narrow mutable boundary,
-but only behind explicit commit and refusal-first policy.
+`ApplicationTransferApplyResult` is the current dry-run-first execution report
+over reviewed transfer apply plans. It defaults to non-mutating review; with
+`commit: true` it uses refusal-first preflight and may only create reviewed
+directories and copy reviewed files under the destination root. It does not
+apply host wiring, activate web, load, boot, route, execute contracts, or place
+work on a cluster.
 
 Lifecycle now follows this shape:
 
