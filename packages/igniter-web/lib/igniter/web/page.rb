@@ -41,7 +41,7 @@ module Igniter
         end
       end
 
-      attr_reader :assigns
+      attr_reader :assigns, :current_arbre_context
 
       def initialize(assigns: {})
         @assigns = assigns
@@ -91,10 +91,6 @@ module Igniter
             end
           end
         end
-      end
-
-      def current_arbre_context
-        @current_arbre_context
       end
 
       def build_context(&block)

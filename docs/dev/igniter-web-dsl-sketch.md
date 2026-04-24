@@ -63,6 +63,25 @@ This is intentionally more compact than:
 - explicit template file wiring for every first page
 - multiple ceremony objects before the screen can exist
 
+For agent-managed and process-oriented surfaces, the DSL should also support
+screen intent that can be composed before rendering:
+
+```ruby
+screen :plan_review, intent: :human_decision do
+  title "Plan review"
+
+  show :plan_summary
+  show :risk_panel
+  compare :current_plan, :proposed_plan
+
+  action :approve, run: Contracts::ApprovePlan
+  action :revise, run: Contracts::RequestRevision
+  chat with: Agents::ProjectLead
+
+  compose with: :decision_workspace
+end
+```
+
 ## DSL Priorities
 
 Prioritize these authoring wins early:

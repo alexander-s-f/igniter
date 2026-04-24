@@ -31,8 +31,8 @@ module Igniter
         return super() unless build_block
 
         instance_exec(*args, **kwargs, &build_block)
-      rescue NoMethodError => error
-        raise unless error.name == :build
+      rescue NoMethodError => e
+        raise unless e.name == :build
 
         self
       end

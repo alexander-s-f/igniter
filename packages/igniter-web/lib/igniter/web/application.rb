@@ -6,13 +6,14 @@ module Igniter
       Route = Struct.new(:verb, :path, :target, :metadata, keyword_init: true)
       Mount = Struct.new(:path, :target, :metadata, keyword_init: true)
 
-      attr_reader :routes, :mounts, :api_surface, :pages
+      attr_reader :routes, :mounts, :api_surface, :pages, :screens
 
       def initialize(api: nil)
         @routes = []
         @mounts = []
         @api_surface = api
         @pages = []
+        @screens = []
       end
 
       def draw(&block)
@@ -52,6 +53,12 @@ module Igniter
 
         @pages << target if target.is_a?(Class) && target <= Page
         get(path, to: target, page: true, title: title, **metadata)
+      end
+
+      def screen(name, intent: nil, compose: true, **options, &block)
+        spec = ScreenSpec.build(name, intent: intent, **options, &block)
+        @screens << (compose ? Composer.compose(spec) : spec)
+        self
       end
 
       def api(&block)

@@ -11,6 +11,9 @@ Current package shape:
 
 - `Igniter::Web::Api`
 - `Igniter::Web::Application`
+- `Igniter::Web::ScreenSpec`
+- `Igniter::Web::Composer`
+- `Igniter::Web::ViewGraph`
 - `Igniter::Web::Page`
 - `Igniter::Web::Component`
 - `Igniter::Web::Record`
@@ -46,6 +49,7 @@ This package currently ships only a skeleton:
 - route/endpoint declaration objects
 - Arbre-backed `Page` and `Component` base classes
 - compact `root` / `page` authoring DSL
+- initial screen composition objects for agent-managed views and flows
 - an adapter-oriented `Record` placeholder
 
 That gives the rebuild a real package boundary now, while leaving room to shape
@@ -72,4 +76,24 @@ app = Igniter::Web.application do
   command "/projects/:id/advance", to: Contracts::AdvanceProject
   stream "/projects/:id/events", to: Projections::ProjectEvents
 end
+```
+
+Composition starts from screen intent:
+
+```ruby
+result = Igniter::Web.compose(name: :plan_review, intent: :human_decision) do
+  title "Plan review"
+
+  show :plan_summary
+  show :risk_panel
+  compare :current_plan, :proposed_plan
+
+  action :approve, run: Contracts::ApprovePlan
+  chat with: Agents::ProjectLead
+
+  compose with: :decision_workspace
+end
+
+result.success?
+result.graph.zone(:footer)
 ```

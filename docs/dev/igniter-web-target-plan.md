@@ -121,6 +121,9 @@ Preferred public namespaces:
 
 - `Igniter::Web::Api`
 - `Igniter::Web::Application`
+- `Igniter::Web::ScreenSpec`
+- `Igniter::Web::Composer`
+- `Igniter::Web::ViewGraph`
 - `Igniter::Web::Record`
 
 This is currently preferred over a classical `igniter-mvc` naming lane because
@@ -143,6 +146,8 @@ Prefer building around concepts such as:
 - `process`
 - `projection`
 - `component`
+- `composer`
+- `view_graph`
 
 These are more important than mirroring Rails defaults like:
 
