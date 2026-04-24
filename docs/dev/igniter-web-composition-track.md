@@ -91,6 +91,7 @@ The first implementation should stay intentionally small:
 - `Igniter::Web::CompositionFinding`
 - `Igniter::Web::ViewGraph`
 - `Igniter::Web::ViewNode`
+- `Igniter::Web::ViewGraphRenderer`
 
 Initial composer behavior:
 
@@ -99,6 +100,13 @@ Initial composer behavior:
 - place chat and agent companion surfaces in `aside`
 - place actions in `footer`
 - emit findings when the declared intent has no primary path
+
+Initial renderer behavior:
+
+- render a complete Arbre HTML document
+- preserve screen, preset, zone, and node identity through `data-ig-*`
+  attributes
+- keep visual output deliberately plain until component vocabulary is ready
 
 ## Composition Presets
 

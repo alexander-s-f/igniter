@@ -13,6 +13,7 @@ require_relative "web/composition_preset"
 require_relative "web/composition_policy"
 require_relative "web/composition_result"
 require_relative "web/composer"
+require_relative "web/view_graph_renderer"
 require_relative "web/component"
 require_relative "web/page"
 require_relative "web/record"
@@ -35,6 +36,10 @@ module Igniter
       def compose(screen = nil, **options, &block)
         spec = screen || ScreenSpec.build(options.fetch(:name, :anonymous), **options, &block)
         Composer.compose(spec)
+      end
+
+      def render(graph)
+        ViewGraphRenderer.render(graph)
       end
     end
   end

@@ -73,4 +73,25 @@ RSpec.describe Igniter::Web::Composer do
     expect(app.screens.first.graph.zone(:aside).children.map(&:kind)).to eq([:chat])
     expect(app.screens.first.graph.zone(:footer).children.map(&:kind)).to eq([:action])
   end
+
+  it "renders a composed view graph through Arbre" do
+    screen = Igniter::Web.screen(:plan_review, intent: :human_decision) do
+      title "Plan review"
+      subject :project
+      show :risk_panel
+      action :approve, run: "Contracts::ApprovePlan"
+      chat with: "Agents::ProjectLead"
+      compose with: :decision_workspace
+    end
+    result = described_class.compose(screen)
+
+    html = Igniter::Web.render(result.graph)
+
+    expect(html).to include("<title>Plan review</title>")
+    expect(html).to include("data-ig-screen=\"plan_review\"")
+    expect(html).to include("data-ig-preset=\"decision_workspace\"")
+    expect(html).to include("data-ig-zone=\"summary\"")
+    expect(html).to include("data-ig-node-kind=\"action\"")
+    expect(html).to include("Contracts::ApprovePlan")
+  end
 end

@@ -15,6 +15,7 @@ Current package shape:
 - `Igniter::Web::Composer`
 - `Igniter::Web::CompositionPreset`
 - `Igniter::Web::ViewGraph`
+- `Igniter::Web::ViewGraphRenderer`
 - `Igniter::Web::Page`
 - `Igniter::Web::Component`
 - `Igniter::Web::Record`
@@ -51,6 +52,7 @@ This package currently ships only a skeleton:
 - Arbre-backed `Page` and `Component` base classes
 - compact `root` / `page` authoring DSL
 - initial screen composition objects for agent-managed views and flows
+- first Arbre renderer for composed view graphs
 - an adapter-oriented `Record` placeholder
 
 That gives the rebuild a real package boundary now, while leaving room to shape
@@ -97,4 +99,5 @@ end
 
 result.success?
 result.graph.zone(:footer)
+Igniter::Web.render(result.graph)
 ```
