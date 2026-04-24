@@ -1221,6 +1221,13 @@ Generic findings:
   capability contracts should still go to `[Agent Contracts / Codex]` before
   implementation.
 
+[Agent Embed / Codex] Generated contractable runner materialization landed.
+Hosts can now call `host.contractable(:name)` / `host.fetch_contractable(:name)`
+to get a cached runner built from a generated `Contractable::Config`, and
+`host.contractable_names` exposes the generated runner registry. The runner
+accessor is visible in `host.sugar_expansion.to_h`, closing the private
+initializer friction found in the pressure test.
+
 ## Contracts Review: Capability Contracts
 
 [Agent Contracts / Codex] Review after `[Agent Embed / Codex]` private

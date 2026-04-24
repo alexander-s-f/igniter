@@ -133,10 +133,72 @@ RSpec.describe "Igniter::Embed.host sugar" do
           adapters: {
             redaction: a_string_matching(/Proc/),
             acceptance: { policy: :exact, options: {} }
+          },
+          runner: {
+            accessor: "contractable(:price_quote)",
+            materializable: true
           }
         )
       ]
     )
+  end
+
+  it "materializes generated contractable runners from the host" do
+    store = Class.new do
+      attr_reader :observations
+
+      def initialize
+        @observations = []
+      end
+
+      def record(observation)
+        observations << observation
+      end
+    end.new
+    normalizer = lambda do |result|
+      {
+        status: :ok,
+        outputs: result,
+        metadata: {}
+      }
+    end
+    primary = ->(amount:) { { total: amount * 1.2 } }
+    candidate = ->(amount:) { { total: amount * 1.2 } }
+    contracts = Igniter::Embed.host(:billing) do
+      contracts do
+        add :price_quote, Billing::PriceQuoteContract do
+          migrate primary, to: candidate
+          shadow async: false
+          use :normalizer, normalizer
+          use :store, store
+        end
+      end
+    end
+    clean_runner = Igniter::Embed.contractable(:price_quote) do |config|
+      config.primary primary
+      config.candidate candidate
+      config.async false
+      config.normalize_primary normalizer
+      config.normalize_candidate normalizer
+      config.store store
+    end
+
+    runner = contracts.contractable(:price_quote)
+
+    expect(contracts.contractable_names).to eq([:price_quote])
+    expect(contracts.contractable(:price_quote)).to equal(runner)
+    expect(runner.config.role).to eq(clean_runner.config.role)
+    expect(runner.config.stage).to eq(:shadowed)
+    expect(runner.call(amount: 100)).to eq(total: 120.0)
+    expect(store.observations.last).to include(name: :price_quote, match: true)
+  end
+
+  it "raises a clear error for unknown generated contractables" do
+    contracts = Igniter::Embed.host(:billing)
+
+    expect do
+      contracts.contractable(:missing)
+    end.to raise_error(Igniter::Embed::UnknownContractableError, /unknown contractable missing/)
   end
 
   it "includes visible host-boundary adapters in sugar expansion output" do

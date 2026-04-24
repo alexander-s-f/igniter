@@ -47,8 +47,15 @@ module Igniter
       end
 
       def contractable(config)
+        raise DuplicateContractError, "contractable #{config.name} is already configured" if contractable_registered?(config.name)
+
         contractable_configs << config
         self
+      end
+
+      def contractable_config(name)
+        key = name.to_sym
+        contractable_configs.find { |contractable_config| contractable_config.name == key }
       end
 
       def contracts(&block)
@@ -101,6 +108,10 @@ module Igniter
       end
 
       private
+
+      def contractable_registered?(name)
+        contractable_configs.any? { |contractable_config| contractable_config.name == name }
+      end
 
       def resolve_path(value)
         if value.is_a?(Array)

@@ -9,6 +9,7 @@ module Igniter
         @config = config
         @registry = Registry.new
         @compiled_contracts = {}
+        @contractable_runners = {}
         register_configured_contracts
         discover_configured_contracts
       end
@@ -58,8 +59,24 @@ module Igniter
         )
       end
 
+      def contractable(name)
+        key = name.to_sym
+        return contractable_runners.fetch(key) if contractable_runners.key?(key)
+
+        contractable_config = config.contractable_config(key)
+        raise UnknownContractableError, "unknown contractable #{key}" unless contractable_config
+
+        contractable_runners[key] = Contractable::Runner.new(config: contractable_config)
+      end
+      alias fetch_contractable contractable
+
+      def contractable_names
+        config.contractable_configs.map(&:name)
+      end
+
       def clear_cache
         compiled_contracts.clear
+        contractable_runners.clear
         @profile = nil
         self
       end
@@ -74,7 +91,7 @@ module Igniter
 
       private
 
-      attr_reader :compiled_contracts
+      attr_reader :compiled_contracts, :contractable_runners
 
       def discover_configured_contracts
         return unless config.discovery_enabled?

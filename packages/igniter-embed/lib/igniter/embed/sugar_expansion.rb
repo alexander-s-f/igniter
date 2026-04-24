@@ -65,7 +65,8 @@ module Igniter
             sample: contractable_config.sample,
             metadata: contractable_config.metadata,
             adapters: adapters(contractable_config),
-            events: events(contractable_config)
+            events: events(contractable_config),
+            runner: runner(contractable_config)
           }
         end
       end
@@ -127,6 +128,13 @@ module Igniter
             handler: callable_name(event_handler.handler)
           }
         end
+      end
+
+      def runner(contractable_config)
+        {
+          accessor: "contractable(:#{contractable_config.name})",
+          materializable: true
+        }
       end
     end
   end

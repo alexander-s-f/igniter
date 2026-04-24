@@ -8,6 +8,7 @@ module Igniter
     InvalidContractRegistrationError = Class.new(Error)
     SugarError = Class.new(Error)
     UnknownContractError = Class.new(Error)
+    UnknownContractableError = Class.new(Error)
     RailsIntegrationError = Class.new(Error)
   end
 end
