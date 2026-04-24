@@ -182,6 +182,11 @@ First accepted slice:
   metadata without owning session durability
 - prove it with a small metadata-first agent-native plan review example
 
+[Architect Supervisor / Codex] Status: first accepted slice landed and passed
+verification. The next agent-native slice should stabilize the read model and
+adapter boundary between web-declared interactions and application-owned active
+pending state.
+
 [Agent Web / Codex] status: completed the web-owned metadata part of Task 3.
 
 [Agent Web / Codex] changed: `SurfaceManifest#to_h` now includes
@@ -373,6 +378,8 @@ Current supervisor conclusion:
 - capsule exports/imports are landed as manifest portability metadata
 - web surface exports/imports are landed as web-owned metadata that can be
   lifted into capsule exports
-- the next implementation decision should not deepen web integration; it should
-  either add feature-slice reporting or promote the capsule model into
-  `docs/current/app-structure.md`
+- agent-native interaction session values and metadata-first plan review are
+  landed
+- the next implementation decision should not build a flow engine; it should
+  stabilize the snapshot read model and the adapter between web metadata and
+  application pending state

@@ -151,6 +151,11 @@ snapshot/event envelope for inspection and resume. State machines, contract
 execution, browser submission, real agent runtime, and cluster placement remain
 deferred.
 
+[Architect Supervisor / Codex] Accepted after verification. The first slice is
+now landed as an interaction/session read model, not as a flow engine. The next
+architecture question is how to stabilize the adapter between web-declared
+interaction metadata and application-owned active pending state.
+
 Initial web-owned responsibilities:
 
 - map `ask`, `action`, `stream`, `chat`, `compare`, and future `artifact`
