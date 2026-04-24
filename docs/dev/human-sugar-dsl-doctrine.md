@@ -1220,3 +1220,148 @@ Generic findings:
   host-boundary adapter sugar. First-class logging/reporting/metrics/validation
   capability contracts should still go to `[Agent Contracts / Codex]` before
   implementation.
+
+## Contracts Review: Capability Contracts
+
+[Agent Contracts / Codex] Review after `[Agent Embed / Codex]` private
+initializer pressure test.
+
+### Decision
+
+Do not add a new `igniter-contracts` or `igniter-extensions` seam yet.
+
+The pressure test shows that the accepted sugar and visible host-boundary
+adapters are enough for normalizer, redaction, acceptance, and store concerns.
+`DifferentialPack` also remains reusable through the existing embed-side
+adapter, so no pre-normalized outputs seam is needed now.
+
+First-class logging/reporting/metrics/validation should be designed as
+contract-backed capabilities, but the first implementation should still live in
+`igniter-embed` as host composition over existing contracts primitives. Promote
+lower-layer packs only after repeated capability implementations reveal common
+graph/runtime semantics.
+
+### Capability Contract Shape
+
+The preferred shape is explicit contract classes, not hidden global presets:
+
+```ruby
+class LogContractFailure < Igniter::Contract
+  define do
+    input :event
+    input :observation
+    input :context
+
+    compute :log_entry, depends_on: %i[event observation context] do |event:, observation:, context:|
+      {
+        event: event,
+        contractable: observation.fetch(:name),
+        context: context
+      }
+    end
+
+    output :log_entry
+  end
+end
+```
+
+Sugar may attach that capability:
+
+```ruby
+contract.use :logging, LogContractFailure
+```
+
+Clean expansion should show:
+
+```ruby
+contractable_config.capability :logging,
+                               kind: :contract,
+                               target: LogContractFailure,
+                               events: [:failure]
+```
+
+If a host supplies a callable instead of a contract, inspection must name it as
+a host-boundary adapter:
+
+```ruby
+contractable_config.capability :logging,
+                               kind: :callable_adapter,
+                               target: BillingLogger
+```
+
+### Capability Categories
+
+Recommended first classification:
+
+- `:normalizer`
+  adapter is already sufficient; later contract-backed normalization can use a
+  contract with `input :raw_result` and `output :outputs`.
+- `:redaction`
+  adapter is already sufficient; later contract-backed redaction can use
+  `input :inputs` and `output :redacted_inputs`.
+- `:acceptance`
+  keep current policy adapters first. Contract-backed acceptance may later use
+  `input :report`, `input :candidate`, and `output :accepted`.
+- `:store`
+  keep as host adapter. Persistence is not a contracts concern.
+- `:logging`
+  valid capability contract candidate, but side effects must go through host
+  adapters or explicit `effect` adapters.
+- `:reporting`
+  valid capability contract candidate. Prefer serializable report outputs over
+  direct rendering.
+- `:metrics`
+  valid capability contract candidate only if it outputs metric events; actual
+  emission remains host/adapter-owned.
+- `:validation`
+  valid capability contract candidate. Prefer `StepResult`-style explicit
+  success/failure outputs when validation is domain-level.
+
+### Event Inputs
+
+Capability contracts should receive typed event data, not vague callbacks.
+
+Minimum event families:
+
+- `:observation`
+- `:candidate_error`
+- `:acceptance_failure`
+- `:store_error`
+- `:primary_error`
+- `:divergence`
+
+`on :failure` may remain sugar over failure-family events, but the expansion
+must list the concrete event names.
+
+### Lower-Layer Promotion Rule
+
+Promote a capability from Embed composition into `igniter-extensions` only when
+all of these are true:
+
+- at least two host use cases need the same capability semantics
+- the capability can be expressed without Rails/app/persistence dependencies
+- its inputs and outputs are serializable
+- it improves diagnostics or graph/runtime reuse below Embed
+- it can ship as an explicit pack with useful `PackManifest` metadata
+
+Do not promote logging, reporting, metrics, or validation merely because the DSL
+spelling is attractive. The first durable abstraction should be the capability
+contract attachment shape, not a bundle of built-in behaviors.
+
+### Handoff To Embed
+
+`[Agent Embed / Codex]` may implement the next sugar slice as:
+
+- `contract.use :logging, SomeContractOrCallable`
+- `contract.use :reporting, SomeContractOrCallable`
+- `contract.use :metrics, SomeContractOrCallable`
+- `contract.use :validation, SomeContractOrCallable`
+
+Constraints:
+
+- require an explicit target in the first slice; do not add implicit built-ins
+- show `kind: :contract` vs `kind: :callable_adapter` in
+  `host.sugar_expansion.to_h`
+- keep actual side effects host-owned
+- do not add contracts/extensions packs until a repeated pattern proves the
+  promotion rule above

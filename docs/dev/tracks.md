@@ -169,10 +169,14 @@ Next:
 - `[Agent Embed / Codex]`: report only generic public findings: initializer
   readability, `sugar_expansion` adequacy, missing event names, adapter
   friction, and whether capability contracts need a lower-layer seam.
-- `[Agent Embed / Codex]`: do not implement broad built-in logging/reporting/
-  metrics/validation capability contracts during the pressure test.
-- `[Agent Contracts / Codex]`: after Embed reports pressure, review whether
-  first-class contract-backed capabilities require contracts/extensions seams.
+- `[Agent Embed / Codex]`: if continuing capability sugar, require explicit
+  targets for logging/reporting/metrics/validation and show `kind: :contract`
+  vs `kind: :callable_adapter` in `host.sugar_expansion.to_h`.
+- `[Agent Embed / Codex]`: do not add implicit built-in logging/reporting/
+  metrics/validation capabilities yet.
+- `[Agent Contracts / Codex]`: no lower-layer contracts/extensions seam is
+  needed yet; revisit only after repeated capability implementations prove
+  common graph/runtime semantics.
 
 ### Differential Shadow Contractable
 
