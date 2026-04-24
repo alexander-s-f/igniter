@@ -323,13 +323,19 @@ module Igniter
         snapshot
       end
 
-      def resume_flow(session_id, event:)
+      def resume_flow(session_id, event:, status: nil, pending_inputs: nil, pending_actions: nil, artifacts: nil)
         entry = fetch_session(session_id)
         raise ArgumentError, "session #{session_id.inspect} is not a flow session" unless entry.kind == :flow
 
-        current = FlowSessionSnapshot.from_h(entry.payload)
+        current = FlowSessionSnapshot.from_entry(entry)
         flow_event = FlowEvent.from(event, session_id: current.session_id)
-        updated = current.with_event(flow_event, status: current.status)
+        updated = current.with_event(
+          flow_event,
+          status: status || current.status,
+          pending_inputs: pending_inputs.nil? ? current.pending_inputs : pending_inputs,
+          pending_actions: pending_actions.nil? ? current.pending_actions : pending_actions,
+          artifacts: artifacts.nil? ? current.artifacts : artifacts
+        )
         session_store.write(
           entry.with_update(
             status: updated.status,

@@ -48,7 +48,10 @@ module Igniter
         from_h(entry.payload)
       end
 
-      def with_event(event, status: self.status, updated_at: Time.now.utc)
+      def with_event(event, status: self.status, current_step: self.current_step,
+                     pending_inputs: self.pending_inputs, pending_actions: self.pending_actions,
+                     artifacts: self.artifacts, metadata: self.metadata,
+                     updated_at: Time.now.utc)
         self.class.new(
           session_id: session_id,
           flow_name: flow_name,

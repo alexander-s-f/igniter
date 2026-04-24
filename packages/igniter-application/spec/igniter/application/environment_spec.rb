@@ -526,6 +526,72 @@ RSpec.describe Igniter::Application::Environment do
     )
   end
 
+  it "resumes a flow by explicitly clearing answered pending inputs" do
+    environment = described_class.new(profile: Igniter::Application.build_profile)
+    environment.start_flow(
+      :plan_review,
+      session_id: "plan-review/1",
+      current_step: :review_plan,
+      pending_inputs: [
+        { name: :clarification, input_type: :textarea, target: :review_plan }
+      ]
+    )
+
+    updated = environment.resume_flow(
+      "plan-review/1",
+      event: {
+        id: "event-1",
+        type: :user_reply,
+        source: :user,
+        target: :clarification,
+        payload: { text: "Looks good." }
+      },
+      status: :active,
+      pending_inputs: []
+    )
+
+    expect(updated.status).to eq(:active)
+    expect(updated.pending_inputs).to eq([])
+    expect(updated.events.map(&:type)).to eq([:user_reply])
+    expect(environment.fetch_session("plan-review/1").payload).to include(
+      status: :active,
+      pending_inputs: []
+    )
+  end
+
+  it "resumes a flow by explicitly completing a pending action" do
+    environment = described_class.new(profile: Igniter::Application.build_profile)
+    environment.start_flow(
+      :plan_review,
+      session_id: "plan-review/1",
+      pending_actions: [
+        { name: :approve_plan, action_type: :contract, target: "Contracts::ApprovePlan" }
+      ]
+    )
+
+    updated = environment.resume_flow(
+      "plan-review/1",
+      event: {
+        id: "event-1",
+        type: :action_completed,
+        source: :host,
+        target: :approve_plan,
+        payload: { approved: true }
+      },
+      status: :completed,
+      pending_actions: [],
+      artifacts: [
+        { name: :approved_plan, artifact_type: :markdown, uri: "memory://approved-plan" }
+      ]
+    )
+
+    expect(updated.status).to eq(:completed)
+    expect(updated.pending_actions).to eq([])
+    expect(updated.artifacts.map(&:name)).to eq([:approved_plan])
+    expect(updated.events.map(&:type)).to eq([:action_completed])
+    expect(environment.fetch_session("plan-review/1").status).to eq(:completed)
+  end
+
   it "exposes typed flow session read models without promoting non-flow sessions" do
     environment = described_class.new(profile: Igniter::Application.build_profile)
 
