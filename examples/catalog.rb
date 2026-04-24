@@ -314,6 +314,25 @@ module IgniterExamples
       expected_fragments: ["contracts_basic_gross_total=120.0", "contracts_basic_updated_gross_total=180.0"]
     ),
     example(
+      "contracts/class_pricing",
+      "Human-facing contract class DSL with result readers and input updates.",
+      expected_fragments: [
+        "contracts_class_gross_total=120.0",
+        "contracts_class_output=120.0",
+        "contracts_class_updated_gross_total=180.0",
+        "contracts_class_success=true"
+      ]
+    ),
+    example(
+      "contracts/class_callable",
+      "Contract class DSL using call: to reuse a service object step.",
+      expected_fragments: [
+        "contracts_class_callable_subtotal=40",
+        "contracts_class_callable_total=36.0",
+        "contracts_class_callable_outputs=subtotal,total"
+      ]
+    ),
+    example(
       "contracts/build_effect_executor_pack",
       "Inline effect/executor pack authoring over the public contracts API.",
       expected_fragments: ["custom_executor_output=15", "custom_result_entries=1"]

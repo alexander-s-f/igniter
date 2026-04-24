@@ -25,6 +25,7 @@ Current loading guidance:
 - [Top-level README](../../README.md)
 - [Getting Started](./getting-started.md)
 - [API And Runtime](./api-and-runtime.md)
+- [Contract Class DSL](./contract-class-dsl.md)
 - [How-Tos](./how-tos.md)
 - [Configuration](./configuration.md)
 - [Deployment Modes](./deployment-modes.md)

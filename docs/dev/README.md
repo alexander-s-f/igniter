@@ -24,6 +24,7 @@ a framework.
 - [Post-Core Target Plan](./post-core-target-plan.md)
 - [Canonical Runtime Shapes](./canonical-runtime-shapes.md)
 - [Embed Target Plan](./embed-target-plan.md)
+- [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md)
 - [Application Target Plan](./application-target-plan.md)
 - [Application And Web Integration](./application-web-integration.md)
 - [Agent-Native Application Track Proposal](./agent-native-application-track-proposal.md)
@@ -57,6 +58,7 @@ a framework.
 - [Igniter Web Composition Track](./igniter-web-composition-track.md)
 - [Agent-Native Application Track Proposal](./agent-native-application-track-proposal.md)
 - [Agent-Native Interaction Session Track](./agent-native-interaction-session-track.md)
+- [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md)
 - [Data Ownership](./data-ownership.md)
 
 ## Working Heuristics

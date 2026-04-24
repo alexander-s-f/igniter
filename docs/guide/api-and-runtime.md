@@ -24,6 +24,7 @@ Operating modes to keep in mind:
 
 ## Focused Topics
 
+- [Contract Class DSL](./contract-class-dsl.md)
 - [Content Addressing v1](../CONTENT_ADDRESSING_V1.md) — legacy reference for the pre-contracts activation model
 - [Dataflow v1](../DATAFLOW_V1.md) — legacy reference for the pre-contracts activation model
 - [Store Adapters](../STORE_ADAPTERS.md)

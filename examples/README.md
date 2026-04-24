@@ -51,6 +51,8 @@ Active runnable examples live in `examples/application/`, `examples/contracts/`,
 - `cluster/routing.rb`
 
 - `contracts/basic_pricing.rb`
+- `contracts/class_pricing.rb`
+- `contracts/class_callable.rb`
 - `contracts/aggregates.rb`
 - `contracts/auditing.rb`
 - `contracts/branching.rb`
