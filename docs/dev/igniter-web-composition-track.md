@@ -110,6 +110,19 @@ Initial renderer behavior:
 - specialize common node kinds such as action, chat, stream, ask, and compare
 - keep visual output deliberately plain while the component vocabulary matures
 
+## Application Mount Direction
+
+`igniter-web` should provide web-owned mount objects before asking
+`igniter-application` for a registry.
+
+Current web-side shape:
+
+- `Igniter::Web::ApplicationWebMount`
+- `Igniter::Web::MountContext`
+- exposes `name`, `path`, `rack_app`, and `to_h`
+- can carry an optional `Igniter::Application::Environment`
+- keeps Arbre, page, screen, and component details in `igniter-web`
+
 ## Composition Presets
 
 Start with named preset objects. They are policy and layout hints, not hard

@@ -55,6 +55,9 @@ This package currently ships only a skeleton:
 - first Arbre renderer for composed view graphs
 - semantic Arbre components for screen, zone, and node rendering
 - specialized Arbre components for action, chat, stream, ask, and compare nodes
+- web-side `ApplicationWebMount` for future `igniter-application` integration
+- `MountContext` for mounted pages to access routes, app manifest, services,
+  interfaces, and mount metadata without custom handler/context classes
 - an adapter-oriented `Record` placeholder
 
 That gives the rebuild a real package boundary now, while leaving room to shape
@@ -102,4 +105,29 @@ end
 result.success?
 result.graph.zone(:footer)
 Igniter::Web.render(result.graph)
+```
+
+Web applications can also be wrapped as a web-owned mount object:
+
+```ruby
+web = Igniter::Web.application do
+  root title: "Operator" do
+    main { h1 "Operator" }
+  end
+end
+
+mount = Igniter::Web.mount(:operator, path: "/operator", application: web)
+mount.rack_app.call("PATH_INFO" => "/operator")
+```
+
+Mounted pages receive `assigns[:ctx]`:
+
+```ruby
+root title: "Operator" do
+  main do
+    h1 assigns[:ctx].manifest.name
+    para assigns[:ctx].route("/events")
+    para assigns[:ctx].service(:cluster_status).call
+  end
+end
 ```

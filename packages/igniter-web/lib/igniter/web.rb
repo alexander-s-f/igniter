@@ -18,6 +18,8 @@ require_relative "web/components"
 require_relative "web/view_graph_renderer"
 require_relative "web/page"
 require_relative "web/record"
+require_relative "web/mount_context"
+require_relative "web/application_web_mount"
 
 module Igniter
   module Web
@@ -41,6 +43,16 @@ module Igniter
 
       def render(graph)
         ViewGraphRenderer.render(graph)
+      end
+
+      def mount(name, path:, application: application(&nil), environment: nil, metadata: {})
+        ApplicationWebMount.new(
+          name: name,
+          path: path,
+          web_application: application,
+          application_environment: environment,
+          metadata: metadata
+        )
       end
     end
   end

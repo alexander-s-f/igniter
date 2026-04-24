@@ -86,4 +86,51 @@ RSpec.describe Igniter::Web do
     expect(record[:title]).to eq("Launch")
     expect(record.to_h).to eq(title: "Launch", status: :active)
   end
+
+  it "wraps web applications in a Rack-compatible application mount" do
+    web = described_class.application do
+      root title: "Operator" do
+        main do
+          h1 "Operator"
+        end
+      end
+    end
+
+    mount = described_class.mount(:operator, path: "/operator", application: web, metadata: { audience: :operator })
+    status, headers, body = mount.rack_app.call("PATH_INFO" => "/operator")
+
+    expect(status).to eq(200)
+    expect(headers.fetch("content-type")).to include("text/html")
+    expect(body.join).to include("Operator")
+    expect(mount.to_h).to include(name: :operator, path: "/operator", metadata: { audience: :operator })
+    expect(mount.to_h.fetch(:routes).first).to include(verb: :get, path: "/")
+  end
+
+  it "passes a mount context into mounted pages" do
+    environment = Igniter::Application.build_kernel
+                                      .manifest(:operator, root: "/tmp/operator", env: :test)
+                                      .mount_web(:operator, Struct.new(:name).new("OperatorMount"),
+                                                 at: "/operator", capabilities: %i[screen stream])
+                                      .provide(:cluster_status, -> { "healthy" })
+                                      .then { |kernel| Igniter::Application::Environment.new(profile: kernel.finalize) }
+    web = described_class.application do
+      root title: "Operator" do
+        main do
+          h1 assigns[:ctx].manifest.name
+          para assigns[:ctx].route("/events")
+          para assigns[:ctx].service(:cluster_status).call
+          para assigns[:ctx].capabilities.join(",")
+        end
+      end
+    end
+
+    mount = described_class.mount(:operator, path: "/operator", application: web, environment: environment)
+    _status, _headers, body = mount.rack_app.call("PATH_INFO" => "/operator")
+    html = body.join
+
+    expect(html).to include("operator")
+    expect(html).to include("/operator/events")
+    expect(html).to include("healthy")
+    expect(html).to include("screen,stream")
+  end
 end
