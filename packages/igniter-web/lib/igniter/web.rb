@@ -41,8 +41,8 @@ module Igniter
         Composer.compose(spec)
       end
 
-      def render(graph)
-        ViewGraphRenderer.render(graph)
+      def render(graph, context: nil)
+        ViewGraphRenderer.render(graph, context: context)
       end
 
       def mount(name, path:, application: application(&nil), environment: nil, metadata: {})

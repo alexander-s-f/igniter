@@ -9,11 +9,11 @@ module Igniter
         end
       end
 
-      def render(graph)
+      def render(graph, context: nil)
         Arbre.ensure_available!
-        context = Arbre.context_class.new(graph: graph)
-        context.extend(RenderingHelpers)
-        context.instance_exec(graph) do |view_graph|
+        arbre_context = Arbre.context_class.new(graph: graph, ctx: context, context: context)
+        arbre_context.extend(RenderingHelpers)
+        arbre_context.instance_exec(graph) do |view_graph|
           html do
             head do
               meta charset: "utf-8"
@@ -27,7 +27,7 @@ module Igniter
             end
           end
         end
-        context.to_s
+        arbre_context.to_s
       end
 
       module RenderingHelpers

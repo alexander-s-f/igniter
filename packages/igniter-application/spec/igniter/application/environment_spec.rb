@@ -297,6 +297,15 @@ RSpec.describe Igniter::Application::Environment do
         capabilities: [:command]
       )
     )
+    expect(environment.manifest.mounts).to all(be_a(Hash))
+    expect(environment.manifest.mounts.first.keys).to contain_exactly(
+      :name,
+      :kind,
+      :target,
+      :at,
+      :capabilities,
+      :metadata
+    )
     expect(environment.snapshot.to_h.fetch(:mounts).map { |entry| entry.fetch(:name) }).to eq(
       %i[agent_bus operator_console]
     )

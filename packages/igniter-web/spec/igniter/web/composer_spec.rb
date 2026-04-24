@@ -86,7 +86,8 @@ RSpec.describe Igniter::Web::Composer do
     end
     result = described_class.compose(screen)
 
-    html = Igniter::Web.render(result.graph)
+    context = instance_double("MountContext", route: "/operator/events")
+    html = Igniter::Web.render(result.graph, context: context)
 
     expect(html).to include("<title>Plan review</title>")
     expect(html).to include("data-ig-screen=\"plan_review\"")
@@ -116,5 +117,26 @@ RSpec.describe Igniter::Web::Composer do
     expect(html).to include("<textarea")
     expect(html).to include("data-ig-stream=\"events\"")
     expect(html).to include("data-ig-stream-from=\"Projections::ProjectEvents\"")
+  end
+
+  it "routes composed screens through the web mount with mount context" do
+    web = Igniter::Web.application do
+      screen :execution, intent: :live_process do
+        title "Execution"
+        stream :events, from: "Projections::ProjectEvents"
+        chat with: "Agents::ProjectLead"
+        action :pause, run: "Contracts::PauseProject"
+      end
+
+      screen_route "/execution", :execution
+    end
+    mount = Igniter::Web.mount(:operator, path: "/operator", application: web)
+
+    status, headers, body = mount.rack_app.call("PATH_INFO" => "/operator/execution")
+
+    expect(status).to eq(200)
+    expect(headers.fetch("content-type")).to include("text/html")
+    expect(body.join).to include("data-ig-screen=\"execution\"")
+    expect(body.join).to include("data-ig-stream=\"events\"")
   end
 end

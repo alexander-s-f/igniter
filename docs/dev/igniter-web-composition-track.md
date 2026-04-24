@@ -104,6 +104,7 @@ Initial composer behavior:
 Initial renderer behavior:
 
 - render a complete Arbre HTML document
+- accept an optional `MountContext` for mounted screen rendering
 - preserve screen, preset, zone, and node identity through `data-ig-*`
   attributes
 - delegate screen, zone, and node markup to semantic Arbre components
@@ -122,6 +123,7 @@ Current web-side shape:
 - exposes `name`, `path`, `rack_app`, and `to_h`
 - can carry an optional `Igniter::Application::Environment`
 - keeps Arbre, page, screen, and component details in `igniter-web`
+- passes `MountContext` into page and screen rendering
 
 ## Composition Presets
 

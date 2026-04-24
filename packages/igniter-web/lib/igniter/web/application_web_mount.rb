@@ -69,6 +69,8 @@ module Igniter
       def render_route(route, env)
         body = if route.target.is_a?(Class) && route.target <= Page
                  route.target.render(assigns: route_assigns(env))
+               elsif route.target.respond_to?(:graph)
+                 ViewGraphRenderer.render(route.target.graph, context: context(env))
                elsif route.target.respond_to?(:call)
                  route.target.call(env)
                else

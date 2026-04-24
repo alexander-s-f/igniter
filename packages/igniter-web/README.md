@@ -104,7 +104,7 @@ end
 
 result.success?
 result.graph.zone(:footer)
-Igniter::Web.render(result.graph)
+Igniter::Web.render(result.graph, context: assigns[:ctx])
 ```
 
 Web applications can also be wrapped as a web-owned mount object:

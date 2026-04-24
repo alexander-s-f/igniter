@@ -61,6 +61,15 @@ module Igniter
         self
       end
 
+      def screen_route(path, screen_name, **metadata)
+        screen = @screens.find do |candidate|
+          candidate.respond_to?(:screen) && candidate.screen.name == screen_name.to_sym
+        end
+        raise ArgumentError, "unknown composed screen: #{screen_name.inspect}" unless screen
+
+        get(path, to: screen, screen: true, **metadata)
+      end
+
       def api(&block)
         @api_surface ||= Api.new
         @api_surface.draw(&block)
