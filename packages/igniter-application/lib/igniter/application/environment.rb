@@ -95,6 +95,22 @@ module Igniter
         end&.provider || raise(KeyError, "unknown provider #{name.inspect}")
       end
 
+      def mount(name)
+        profile.mount(name)
+      end
+
+      def mount?(name)
+        profile.mount?(name)
+      end
+
+      def mounts
+        profile.mounts.values.sort_by(&:name)
+      end
+
+      def mounts_by_kind(kind)
+        profile.mounts_by_kind(kind)
+      end
+
       def host_seam
         profile.host_seam
       end

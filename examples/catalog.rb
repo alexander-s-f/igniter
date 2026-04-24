@@ -92,6 +92,19 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/mounts",
+      "Generic application mount registry for web, agent, and future interaction surfaces.",
+      expected_fragments: [
+        "application_mount_names=agent_bus,operator_console",
+        "application_mount_web_kind=web",
+        "application_mount_web_at=/operator",
+        "application_mount_web_capabilities=screen,stream",
+        "application_mount_web_target=OperatorConsole",
+        "application_mount_manifest=agent_bus,operator_console",
+        "application_mount_snapshot=agent,web"
+      ]
+    ),
+    example(
       "cluster/incidents",
       "Failover planning plus durable incident history and active incident state.",
       expected_fragments: [

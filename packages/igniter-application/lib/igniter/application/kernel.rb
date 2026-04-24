@@ -9,7 +9,7 @@ module Igniter
 
       attr_reader :contracts_kernel, :contracts_packs, :application_packs, :providers,
                   :services, :service_definitions, :interfaces, :registrations,
-                  :scheduled_jobs, :code_paths, :host_seam, :loader_seam, :scheduler_seam,
+                  :scheduled_jobs, :mounts, :code_paths, :host_seam, :loader_seam, :scheduler_seam,
                   :session_store_seam, :config_builder, :application_name, :application_root,
                   :application_env, :application_layout, :application_metadata
 
@@ -28,6 +28,7 @@ module Igniter
         @interfaces = {}
         @registrations = {}
         @scheduled_jobs = []
+        @mounts = {}
         @code_paths = {}
         @config_builder = ConfigBuilder.new
         @host_name = :embedded
@@ -191,6 +192,23 @@ module Igniter
         self
       end
 
+      def mount(name, target, kind: :generic, at: nil, capabilities: [], metadata: {})
+        registration = MountRegistration.new(
+          name: name,
+          target: target,
+          kind: kind,
+          at: at,
+          capabilities: capabilities,
+          metadata: metadata
+        )
+        @mounts[registration.name] = registration
+        self
+      end
+
+      def mount_web(name, target, at: nil, capabilities: [], metadata: {})
+        mount(name, target, kind: :web, at: at, capabilities: capabilities, metadata: metadata)
+      end
+
       def add_path(group, *paths)
         normalized_group = normalize_group(group)
         @code_paths[normalized_group] ||= []
@@ -270,6 +288,7 @@ module Igniter
           interfaces: interfaces,
           registrations: registrations,
           scheduled_jobs: scheduled_jobs,
+          mounts: mounts.values,
           code_paths: code_paths
         )
       end
@@ -311,6 +330,7 @@ module Igniter
           services: services.keys.sort,
           interfaces: interfaces.keys.sort,
           scheduled_jobs: scheduled_jobs.map { |job| job[:name] }.sort,
+          mounts: mounts.values.map(&:to_h).sort_by { |entry| entry.fetch(:name).to_s },
           config: config_builder.to_config.to_h,
           metadata: application_metadata
         )

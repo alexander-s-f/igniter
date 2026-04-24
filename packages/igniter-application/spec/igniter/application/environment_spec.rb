@@ -251,6 +251,57 @@ RSpec.describe Igniter::Application::Environment do
     expect(environment.layout.path(:contracts)).to eq("app/contracts")
   end
 
+  it "publishes generic mount registrations without depending on mounted package classes" do
+    operator_surface = Struct.new(:name).new("OperatorSurface")
+
+    profile = Igniter::Application.build_kernel
+                                  .manifest(:operator, root: "/tmp/igniter_operator", env: :test)
+                                  .mount_web(
+                                    :operator_console,
+                                    operator_surface,
+                                    at: "operator",
+                                    capabilities: %i[screen stream],
+                                    metadata: { interaction_model: :agent_operated }
+                                  )
+                                  .mount(
+                                    :agent_bus,
+                                    :agent_bus_adapter,
+                                    kind: :agent,
+                                    at: "/agents",
+                                    capabilities: [:command]
+                                  )
+                                  .finalize
+    environment = described_class.new(profile: profile)
+
+    expect(profile.mount_names).to eq(%i[agent_bus operator_console])
+    expect(environment.mount(:operator_console).to_h).to include(
+      name: :operator_console,
+      kind: :web,
+      target: "OperatorSurface",
+      at: "/operator",
+      capabilities: %i[screen stream],
+      metadata: { interaction_model: :agent_operated }
+    )
+    expect(environment.mounts_by_kind(:web).map(&:name)).to eq([:operator_console])
+    expect(environment.manifest.to_h.fetch(:mounts)).to include(
+      include(
+        name: :operator_console,
+        kind: :web,
+        at: "/operator",
+        capabilities: %i[screen stream]
+      ),
+      include(
+        name: :agent_bus,
+        kind: :agent,
+        at: "/agents",
+        capabilities: [:command]
+      )
+    )
+    expect(environment.snapshot.to_h.fetch(:mounts).map { |entry| entry.fetch(:name) }).to eq(
+      %i[agent_bus operator_console]
+    )
+  end
+
   it "persists compose sessions through the application session store" do
     environment = Igniter::Application.with(Igniter::Extensions::Contracts::ComposePack)
     pricing_graph = environment.compile do

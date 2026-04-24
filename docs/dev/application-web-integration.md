@@ -170,14 +170,44 @@ What is locked:
 
 ## Good Next Integration Slices
 
-1. Let `ApplicationBlueprint` carry `web_surfaces` as planning metadata.
+1. Done: let `ApplicationBlueprint` carry `web_surfaces` as planning metadata.
 2. Add a web-side adapter that can read an application manifest and expose mount
    metadata.
-3. Add a tiny `Application` mount registry without depending on web classes.
+3. Done: add a tiny `Application` mount registry without depending on web
+   classes.
 4. Let `igniter-web` provide a mount object that satisfies that generic mount
    contract.
 5. Add a runnable example showing an operator screen mounted into an
    application profile.
+
+## Application-Side Mount Registry
+
+`igniter-application` now owns a generic mount registration model:
+
+```ruby
+app = Igniter::Application.build_kernel
+app.mount_web(
+  :operator_console,
+  web_mount,
+  at: "/operator",
+  capabilities: [:screen, :stream],
+  metadata: { interaction_model: :agent_operated }
+)
+```
+
+This is intentionally not a web framework API. It records:
+
+- `name`
+- `kind`
+- `target`
+- `at`
+- `capabilities`
+- `metadata`
+
+`kind: :web` is a classification for discovery and planning. The target object
+is owned by whichever package provides it. For `igniter-web`, that should become
+a web-owned mount object; for cluster or agent surfaces, the same registry can
+carry other mount kinds without changing the application core.
 
 ## Current Web-Side Shape
 
@@ -197,17 +227,58 @@ As of the first `igniter-web` skeleton, web owns these concepts:
 - `Igniter::Web::Components::*`
   semantic rendering vocabulary for screen, zone, action, chat, stream, ask,
   compare, and generic nodes
+- `Igniter::Web::ApplicationWebMount`
+  web-owned Rack-compatible mount object intended to satisfy a future generic
+  application mount registry
+- `Igniter::Web::MountContext`
+  mounted page context with app manifest, layout, service/interface lookup,
+  route helpers, mount metadata, and generic mount capabilities
 
 Integration implication:
 
 - application should expose identity, manifest, layout, services, contracts,
-  interfaces, host lifecycle, and future generic mount registries
+  interfaces, host lifecycle, and generic mount registries
 - web should adapt those into interaction surfaces without requiring
   `igniter-application` to know about pages, components, or Arbre
 
 Near-term coordination point:
 
-- if `igniter-application` adds a mount registry, make it generic enough for
-  web to satisfy with a small web-owned mount object
+- keep the application mount registry generic enough for web to satisfy with a
+  small web-owned mount object
 - if `igniter-web` needs app context, prefer a web-owned adapter over adding web
   methods to `Igniter::Application::Environment`
+
+## Proposed Generic Mount Contract
+
+`igniter-application` can stay web-agnostic by accepting mount objects with a
+small generic shape:
+
+- `name`
+- `path`
+- `rack_app`
+- `to_h`
+
+`Igniter::Web::ApplicationWebMount` already follows this shape on the web side.
+
+That means a future application-side registry can store mounts without knowing
+about pages, Arbre, screens, components, or web-specific rendering internals.
+
+## Mounted Context Contract
+
+`igniter-web` now passes a web-owned `MountContext` into mounted pages as
+`assigns[:ctx]`.
+
+The context exposes:
+
+- `route(suffix)`
+- `manifest`
+- `layout`
+- `service(name)`
+- `interface(name)`
+- `metadata`
+- `capabilities`
+- `mount_registration`
+
+This is the preferred bridge for page and screen authoring. It avoids bringing
+back the legacy `Handler -> Context -> Page` boilerplate while still letting web
+surfaces read application-owned runtime information.

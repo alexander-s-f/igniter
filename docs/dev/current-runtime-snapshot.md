@@ -96,6 +96,7 @@ Current shape:
 - `ApplicationBlueprint`
 - `ApplicationManifest`
 - `ApplicationLayout`
+- `MountRegistration`
 - `ApplicationLoadReport`
 - config, provider, service, contract, host, loader, scheduler seams
 - `MemorySessionStore` and configurable `session_store`
@@ -103,13 +104,16 @@ Current shape:
 - transport-ready compose and collection invokers
 - manifest and canonical user app layout
 - scaffold-free app blueprints
+- generic mount registry for web, agent, and future interaction surfaces
 - lifecycle plans and reports
 
 Application and web integration is tracked separately in
 [Application And Web Integration](./application-web-integration.md). The current
 rule is that `igniter-web` should mount into `igniter-application` as an
 interaction layer for agents, streams, dashboards, and operator workflows, not
-as a CRUD-first application model.
+as a CRUD-first application model. The current application-side primitive is a
+generic mount registration with `kind`, `at`, `capabilities`, and metadata;
+`kind: :web` is only a classification, not a dependency on `igniter-web`.
 
 Lifecycle now follows this shape:
 

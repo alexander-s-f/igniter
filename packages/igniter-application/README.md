@@ -23,6 +23,7 @@ Primary API:
 - `Igniter::Application::ApplicationBlueprint`
 - `Igniter::Application::ApplicationManifest`
 - `Igniter::Application::ApplicationLayout`
+- `Igniter::Application::MountRegistration`
 - `Igniter::Application::Snapshot`
 - `Igniter::Application::BootPlan`
 - `Igniter::Application::BootReport`
@@ -39,12 +40,14 @@ The user application model now has a first explicit shape too:
 - `ApplicationBlueprint` describes an intended app structure before files are
   written or a runtime profile is finalized
 - `ApplicationManifest` captures app name, root, env, packs, contracts,
-  providers, services, config, and layout
+  providers, services, mounts, config, and layout
 - `ApplicationLayout` captures canonical user-app paths such as
   `app/contracts`, `app/providers`, `app/services`, `app/effects`,
   `app/packs`, `config/igniter.rb`, and `spec/igniter`
 - `Kernel#manifest(...)` configures the app identity and root before finalize
 - `Environment#manifest` and `Environment#layout` expose the finalized shape
+- `Kernel#mount` and `Kernel#mount_web` register generic mounted interaction
+  surfaces without depending on `igniter-web` classes
 - the default `ManualLoader` returns an `ApplicationLoadReport` during boot,
   including present and missing layout paths
 

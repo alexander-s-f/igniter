@@ -153,6 +153,8 @@ Rules:
 - a single app should be bootable without stack orchestration
 - stack should compose apps, not redefine app runtime semantics
 - cross-app access should stay explicit through service/interface contracts
+- mounted interaction surfaces should use generic mount registrations rather
+  than pushing web, cluster, or agent semantics into the application core
 - composition of larger units should prefer explicit app/subgraph invocation
   here rather than pushing hidden child-runtime semantics back into
   `igniter-contracts`

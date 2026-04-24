@@ -39,6 +39,7 @@ Active runnable examples live in `examples/application/`, `examples/contracts/`,
 
 - `application/blueprint.rb`
 - `application/layout.rb`
+- `application/mounts.rb`
 - `cluster/incidents.rb`
 - `cluster/incident_workflow.rb`
 - `cluster/mesh_diagnostics.rb`

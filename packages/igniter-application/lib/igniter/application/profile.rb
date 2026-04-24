@@ -7,13 +7,13 @@ module Igniter
                   :host_name, :loader_name, :scheduler_name, :session_store_name,
                   :host_seam, :loader_seam, :scheduler_seam, :session_store_seam,
                   :config, :providers, :service_registry, :contract_registry,
-                  :scheduled_jobs, :code_paths, :manifest
+                  :scheduled_jobs, :mounts, :code_paths, :manifest
 
       def initialize(contracts_profile:, manifest:, contracts_packs:, application_packs:,
                      host_name:, loader_name:, scheduler_name:, session_store_name:,
                      host_seam:, loader_seam:, scheduler_seam:, session_store_seam:,
                      config:, providers:, services:, service_definitions:, interfaces:,
-                     registrations:, scheduled_jobs:, code_paths:)
+                     registrations:, scheduled_jobs:, mounts:, code_paths:)
         @contracts_profile = contracts_profile
         @manifest = manifest
         @contracts_packs = contracts_packs.dup.freeze
@@ -35,6 +35,9 @@ module Igniter
         )
         @contract_registry = ContractRegistry.new(registrations)
         @scheduled_jobs = scheduled_jobs.map(&:dup).freeze
+        @mounts = mounts.each_with_object({}) do |registration, memo|
+          memo[registration.name] = registration
+        end.freeze
         @code_paths = code_paths.each_with_object({}) do |(group, paths), memo|
           memo[group.to_sym] = Array(paths).map(&:dup).freeze
         end.freeze
@@ -97,6 +100,22 @@ module Igniter
         scheduled_jobs.map { |job| job[:name] }.sort
       end
 
+      def mount(name)
+        mounts.fetch(name.to_sym)
+      end
+
+      def mount?(name)
+        mounts.key?(name.to_sym)
+      end
+
+      def mount_names
+        mounts.keys.sort
+      end
+
+      def mounts_by_kind(kind)
+        mounts.values.select { |registration| registration.kind == kind.to_sym }.sort_by(&:name)
+      end
+
       def to_h
         {
           contracts_profile_fingerprint: contracts_profile.fingerprint,
@@ -119,6 +138,7 @@ module Igniter
               at: job[:at]
             }
           end,
+          mounts: mounts.values.map(&:to_h).sort_by { |entry| entry.fetch(:name).to_s },
           code_paths: code_paths.transform_values(&:dup)
         }
       end
