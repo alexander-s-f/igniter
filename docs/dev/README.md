@@ -13,6 +13,7 @@ a framework.
 
 ## Canonical Dev Docs
 
+- [Current Runtime Snapshot](./current-runtime-snapshot.md)
 - [Architecture](./architecture.md)
 - [Module System](./module-system.md)
 - [Package Map](./package-map.md)
@@ -27,6 +28,7 @@ a framework.
 - [Cluster Target Plan](./cluster-target-plan.md)
 - [Igniter Web Target Plan](./igniter-web-target-plan.md)
 - [Igniter Web DSL Sketch](./igniter-web-dsl-sketch.md)
+- [Igniter Web Composition Track](./igniter-web-composition-track.md)
 - [Core Retirement Inventory](./core-retirement-inventory.md)
 - [DebugPack Spec](./debug-pack-spec.md)
 - [MCP Adapter Package](./mcp-adapter-package-spec.md)
@@ -49,6 +51,7 @@ a framework.
 - [Frontend Packages Idea](./frontend-packages-idea.md)
 - [Igniter Web Target Plan](./igniter-web-target-plan.md)
 - [Igniter Web DSL Sketch](./igniter-web-dsl-sketch.md)
+- [Igniter Web Composition Track](./igniter-web-composition-track.md)
 - [Data Ownership](./data-ownership.md)
 
 ## Working Heuristics

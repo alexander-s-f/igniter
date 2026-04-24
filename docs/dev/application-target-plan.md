@@ -318,6 +318,16 @@ This is intentionally small, but it already establishes the target direction:
 - contracts-native app assembly
 - immutable config snapshots
 - provider-driven service exports
+- explicit boot and shutdown plans
+- explicit lifecycle plan execution reports
+- local durable session store for compose and collection invocations
+- transport-ready compose and collection invokers for upper layers
+
+Current boundary rule:
+
+- `Application` owns local runtime lifecycle and local session durability
+- `Cluster` owns routing, placement, membership, incidents, remediation, and
+  distributed diagnostics
 - frozen profile snapshots
 - explicit boot/runtime lifecycle and boot phases
 - structured application snapshots for tooling/debug surfaces

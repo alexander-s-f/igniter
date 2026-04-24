@@ -26,6 +26,13 @@ Root should stay thin:
   contracts-native distributed runtime: remote execution, routing, admission,
   placement, peer registry, topology, distributed diagnostics
 
+## Current Supporting Packages
+
+- `igniter-mcp-adapter`
+  MCP adapter over contracts-native tooling and host integration
+- `igniter-web`
+  supporting web/UI package; active, but not a runtime pillar
+
 ## Supporting Lanes
 
 - `legacy`

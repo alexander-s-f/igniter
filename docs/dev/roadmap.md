@@ -2,8 +2,14 @@
 
 Use this index for active internal change streams and planning material.
 
+For the current clean-slate runtime track, start with
+[Current Runtime Snapshot](./current-runtime-snapshot.md). Some older roadmap
+sections below still preserve useful historical context from the pre-reset
+agent/app work, but they are not the current runtime package graph.
+
 ## Active References
 
+- [Current Runtime Snapshot](./current-runtime-snapshot.md)
 - [Agents Roadmap](../current/agents-roadmap.md)
 - [Namespace Migration Plan](./namespace-migration-plan.md)
 - [Credential Distribution And Propagation](./credential-distribution.md)

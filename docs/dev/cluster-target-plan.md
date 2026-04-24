@@ -348,6 +348,32 @@ This should compose with contracts/app diagnostics rather than replacing them.
 `DebugPack` and future tooling should be able to observe cluster runtime state
 through stable structured reports.
 
+## Current Implementation Snapshot
+
+The clean-slate cluster implementation now includes:
+
+- capability catalog and capability query objects
+- peer profile, topology, health, and projected peer views
+- route, admission, placement, topology, ownership, lease, health, and
+  remediation policies
+- rebalance, ownership, lease, failover, and remediation plans
+- plan execution reports with action results
+- mesh execution requests, responses, attempts, traces, membership snapshots,
+  membership feeds, discovery feeds, and membership deltas
+- projection policies, projection reports, cluster diagnostics reports, event
+  logs, and operator timelines
+- durable incident entries through the memory incident registry
+- active incident sets and remediation plans over active incidents
+
+The important current shape is:
+
+- plans are explicit
+- execution is explicit
+- diagnostics are structured
+- incidents are durable
+- remediation is planned and executable
+- mesh behavior sits above plan semantics
+
 ## Suggested Delivery Sequence
 
 1. define the minimal remote execution contract
