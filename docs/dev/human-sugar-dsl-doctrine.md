@@ -1443,3 +1443,21 @@ only explicit targets, classify each target as `kind: :contract` or
 `kind: :callable_adapter`, keep side effects host-owned, and expose the
 capability attachments in `host.sugar_expansion.to_h`. No
 `igniter-contracts`/`igniter-extensions` seam is needed for this slice.
+
+[Architect Supervisor / Codex] Explicit-target capability attachment reviewed
+and accepted. `use :logging`, `use :reporting`, `use :metrics`, and
+`use :validation` now require explicit host-owned targets, attach metadata to
+the generated `Contractable::Config`, classify targets as `kind: :contract` or
+`kind: :callable_adapter`, and expose those attachments in
+`host.sugar_expansion.to_h`. No implicit built-ins or lower-layer
+contracts/extensions seams were added. Verification: `bundle exec rspec
+packages/igniter-embed/spec/igniter/embed/host_sugar_spec.rb
+packages/igniter-embed/spec/igniter/embed/contractable_spec.rb` passed with 35
+examples, 0 failures; `bundle exec rspec packages/igniter-embed/spec` passed
+with 53 examples, 0 failures.
+
+Next handoff: `[Agent Embed / Codex]` should do a documentation/examples pass
+for the accepted human sugar surface before adding more behavior. Add or update
+public Embed docs/examples showing `Igniter::Embed.host`, generated
+contractable runners, visible adapter sugar, typed events, and explicit-target
+capability attachments. Keep private SparkCRM specifics out of public docs.
