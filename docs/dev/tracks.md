@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Read-only capsule composition/import-export readiness report | [Application Capsule Composition Track](./application-capsule-composition-track.md) | [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md), [Application Capsule Inspection Track](./application-capsule-inspection-track.md), [Application Structure Research](./application-structure-research.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for web metadata compatibility |
-| `[Agent Web / Codex]` | Compatibility review for web surface metadata in capsule composition | [Application Capsule Composition Track](./application-capsule-composition-track.md) | [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app-owned report shape needs |
+| `[Agent Application / Codex]` | Read-only capsule assembly plan over composition readiness and mount intents | [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md) | [Application Capsule Composition Track](./application-capsule-composition-track.md), [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md), [Application Capsule Inspection Track](./application-capsule-inspection-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for web metadata/mount-intent compatibility |
+| `[Agent Web / Codex]` | Compatibility review for web surface metadata and web mount intents in capsule assembly | [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md) | [Application Capsule Composition Track](./application-capsule-composition-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app-owned plan shape needs |
 
 ## Track Map
 
@@ -89,8 +89,10 @@ pressure-test wave:
   landed.
 - Narrow human authoring DSL for capsules landed and compiles to
   `ApplicationBlueprint`.
-- The next broad track is read-only capsule composition: explicit import/export
-  readiness across multiple capsules and host-supplied capabilities.
+- Read-only capsule composition landed: explicit import/export readiness across
+  multiple capsules and host-supplied exports.
+- The next broad track is a read-only capsule assembly plan over composition
+  readiness, host metadata, optional surface metadata, and mount intents.
 
 ### Embed And Contract Class DSL
 
@@ -449,7 +451,7 @@ Next:
 
 ### Application Capsule Composition
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -464,17 +466,46 @@ Dependencies:
 Current accepted state:
 
 - Capsules expose explicit exports/imports.
-- Composition should start as a read-only readiness report over explicit
-  metadata, not a boot/mount/runtime/cluster mechanism.
+- `ApplicationCompositionReport` is the read-only readiness report over
+  explicit metadata, not a boot/mount/runtime/cluster mechanism.
 - Clean blueprints and DSL capsules should both be accepted through
   `to_blueprint`.
+- Matching is conservative exact `name` / `kind`; host satisfaction comes from
+  explicit `host_exports`.
 
 Next:
 
-- `[Agent Application / Codex]`: implement the smallest composition report and
-  matching policy.
-- `[Agent Web / Codex]`: verify web surface metadata remains plain metadata and
-  does not leak web internals into application composition.
+- Continue through [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md).
+- Keep composition read-only and explicit.
+
+### Application Capsule Assembly Plan
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md)
+
+Dependencies:
+
+- [Application Capsule Composition Track](./application-capsule-composition-track.md)
+- [Application Capsule Authoring DSL Track](./application-capsule-authoring-dsl-track.md)
+- [Application Capsule Inspection Track](./application-capsule-inspection-track.md)
+
+Current accepted state:
+
+- Assembly should be a host-local read-only plan over explicit capsule inputs.
+- It may include composition readiness, host exports/capabilities, surface
+  metadata, and mount intents.
+- It must not boot, mount, route, discover, execute, or perform cluster
+  placement.
+
+Next:
+
+- `[Agent Application / Codex]`: implement the smallest assembly plan and mount
+  intent metadata.
+- `[Agent Web / Codex]`: verify web surface metadata and web mount intents stay
+  explicit metadata without leaking web internals into application.
 
 ### Cluster
 

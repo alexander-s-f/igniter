@@ -165,14 +165,44 @@ slice in the handoff.
 
 ## Current Handoff
 
-[Architect Supervisor / Codex] Next:
+[Architect Supervisor / Codex] Accepted after the 2026-04-24 agent cycle.
 
-1. `[Agent Application / Codex]` starts Task 1 and Task 2 with a read-only
-   composition report.
-2. `[Agent Web / Codex]` stays in compatibility-review mode unless web surface
-   metadata creates a concrete issue.
-3. Keep this as explicit metadata matching. Do not turn it into boot, mount,
-   discovery, cluster routing, or service execution.
+Decision:
+
+- Task 1 accepted: `ApplicationCompositionReport` and
+  `Igniter::Application.compose_capsules(...)` are the application-owned
+  read-only composition/readiness surface.
+- Task 2 accepted: the first matching policy is conservative exact matching by
+  import/export `name` and `kind`.
+- Host satisfaction is explicit through supplied `host_exports`; host
+  capabilities are reported as input metadata but do not silently satisfy
+  imports by themselves.
+- Task 3 accepted: `examples/application/capsule_composition.rb` proves
+  sibling-satisfied, host-satisfied, optional-missing, ready, and web-surface
+  export/import paths.
+- Task 4 accepted: web surface exports/imports remain plain metadata; no web
+  internals or web-specific composition semantics are required in
+  `igniter-application`.
+- No loading, discovery, materialization, execution, booting, mounting, cluster
+  routing, or service invocation was introduced.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_composition.rb
+ruby examples/application/capsule_authoring_dsl.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+# 88 examples, 0 failures
+
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb
+# 12 examples, 0 failures
+```
+
+Next:
+
+- Continue through [Application Capsule Assembly Plan Track](./application-capsule-assembly-plan-track.md).
+- Keep composition as explicit readiness metadata. Do not let it become runtime
+  boot, implicit discovery, or distributed placement.
 
 [Agent Application / Codex]
 Track: `docs/dev/application-capsule-composition-track.md`
