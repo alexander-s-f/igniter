@@ -161,3 +161,22 @@ slice in the handoff.
    metadata needs a package-local note.
 3. Keep this as manifest/description. Do not turn it into packaging, copy,
    discovery, boot, mount, route, execute, or cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-handoff-manifest-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationHandoffManifest` and
+  `Igniter::Application.handoff_manifest(...)`.
+- The manifest can build from explicit capsules or an existing
+  `ApplicationAssemblyPlan`.
+- Added `examples/application/capsule_handoff_manifest.rb`.
+Accepted:
+- The manifest summarizes capsule identities, exports/imports, readiness,
+  unresolved required imports, missing optional imports, suggested host wiring,
+  mount intents, supplied surface metadata, and nested assembly metadata.
+- It remains descriptive metadata only: no packaging, copying, discovery,
+  loading, booting, mounting, routing, execution, or cluster placement.
+Needs:
+- `[Agent Web / Codex]` can verify supplied web surface metadata remains opaque
+  plain hashes in handoff manifests.

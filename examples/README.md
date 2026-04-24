@@ -42,6 +42,7 @@ Active runnable examples live in `examples/application/`, `examples/contracts/`,
 - `application/capsule_authoring_dsl.rb`
 - `application/capsule_assembly_plan.rb`
 - `application/capsule_composition.rb`
+- `application/capsule_handoff_manifest.rb`
 - `application/capsule_inspection.rb`
 - `application/capsule_manifest.rb`
 - `application/feature_flow_report.rb`

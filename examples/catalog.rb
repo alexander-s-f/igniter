@@ -235,6 +235,19 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_handoff_manifest",
+      "Read-only handoff manifest for portable capsule transfer and wiring review.",
+      expected_fragments: [
+        "application_capsule_handoff_subject=operator_bundle",
+        "application_capsule_handoff_capsules=incident_core,operator",
+        "application_capsule_handoff_ready=true",
+        "application_capsule_handoff_required=incident_runtime,audit_log",
+        "application_capsule_handoff_unresolved=audit_log",
+        "application_capsule_handoff_mounts=operator:web:/operator",
+        "application_capsule_handoff_surfaces=operator_console"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

@@ -868,6 +868,106 @@ RSpec.describe Igniter::Application::Environment do
     )
   end
 
+  it "builds read-only capsule handoff manifests from explicit assembly metadata" do
+    root = File.expand_path("/tmp/igniter_capsule_handoff")
+    provider = Igniter::Application.blueprint(
+      name: :incident_core,
+      root: File.join(root, "incident_core"),
+      env: :test,
+      layout_profile: :capsule,
+      exports: [
+        { name: :incident_runtime, kind: :service, target: "Services::IncidentRuntime" }
+      ]
+    )
+    operator = Igniter::Application.capsule(:operator, root: File.join(root, "operator"), env: :test) do
+      layout :capsule
+      groups :contracts, :services
+      export :resolve_incident, kind: :contract, target: "Contracts::ResolveIncident"
+      import :incident_runtime, kind: :service, from: :incident_core
+      import :audit_log, kind: :service, from: :host, capabilities: [:audit]
+      web_surface :operator_console
+    end
+    surface_metadata = {
+      name: :operator_console,
+      kind: :web_surface,
+      status: :aligned,
+      flows: [:incident_review]
+    }
+
+    manifest = Igniter::Application.handoff_manifest(
+      subject: :operator_bundle,
+      capsules: [provider, operator],
+      host_exports: [
+        { name: :audit_log, kind: :service, target: "Host::AuditLog" }
+      ],
+      host_capabilities: [:audit],
+      mount_intents: [
+        { capsule: :operator, kind: :web, at: "/operator", capabilities: [:screen] }
+      ],
+      surface_metadata: [surface_metadata],
+      metadata: { source: :spec }
+    ).to_h
+
+    expect(manifest).to include(
+      subject: :operator_bundle,
+      ready: true,
+      capsule_count: 2,
+      metadata: { source: :spec }
+    )
+    expect(manifest.fetch(:capsules).map { |entry| entry.fetch(:name) }).to eq(%i[incident_core operator])
+    expect(manifest.fetch(:readiness)).to include(
+      composition_ready: true,
+      assembly_ready: true,
+      unresolved_required_count: 0,
+      missing_optional_count: 0,
+      unresolved_mount_count: 0
+    )
+    expect(manifest.fetch(:mount_intents).map { |entry| entry.fetch(:capsule) }).to eq([:operator])
+    expect(manifest.fetch(:surfaces)).to eq([surface_metadata])
+    expect(manifest.fetch(:suggested_host_wiring)).to eq([])
+  end
+
+  it "reports unresolved handoff requirements as suggested host wiring" do
+    root = File.expand_path("/tmp/igniter_capsule_handoff_missing")
+    capsule = Igniter::Application.capsule(:operator, root: root, env: :test) do
+      layout :capsule
+      import :audit_log, kind: :service, from: :host, capabilities: [:audit]
+      import :optional_notifier, kind: :service, from: :observability, optional: true
+    end
+
+    manifest = Igniter::Application.handoff_manifest(
+      subject: :operator_bundle,
+      capsules: [capsule]
+    ).to_h
+
+    expect(manifest).to include(subject: :operator_bundle, ready: false)
+    expect(manifest.fetch(:unresolved_required_imports).map { |entry| entry.fetch(:name) }).to eq([:audit_log])
+    expect(manifest.fetch(:missing_optional_imports).map { |entry| entry.fetch(:name) }).to eq([:optional_notifier])
+    expect(manifest.fetch(:suggested_host_wiring)).to contain_exactly(
+      include(capsule: :operator, name: :audit_log, kind: :service, capabilities: [:audit])
+    )
+  end
+
+  it "builds handoff manifests from an existing assembly plan" do
+    root = File.expand_path("/tmp/igniter_capsule_handoff_existing_plan")
+    capsule = Igniter::Application.blueprint(
+      name: :worker,
+      root: root,
+      env: :test,
+      layout_profile: :capsule
+    )
+    plan = Igniter::Application.assemble_capsules(capsule)
+
+    manifest = Igniter::Application.handoff_manifest(
+      subject: :worker_bundle,
+      assembly_plan: plan
+    ).to_h
+
+    expect(manifest).to include(subject: :worker_bundle, ready: true, capsule_count: 1)
+    expect(manifest.fetch(:capsules).map { |entry| entry.fetch(:name) }).to eq([:worker])
+    expect(manifest.fetch(:assembly)).to eq(plan.to_h)
+  end
+
   it "serializes agent-native flow session values without web dependencies" do
     event = Igniter::Application::FlowEvent.new(
       id: "event-1",
