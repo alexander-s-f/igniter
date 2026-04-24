@@ -19,6 +19,7 @@ RuboCop::RakeTask.new do |task|
     lib/igniter/version.rb
     spec/current/**/*_spec.rb
     packages/igniter-contracts/**/*.rb
+    packages/igniter-embed/**/*.rb
     packages/igniter-extensions/**/*.rb
     packages/igniter-application/**/*.rb
     packages/igniter-web/**/*.rb
@@ -33,6 +34,7 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   active_spec_roots = %w[
     spec/current
     packages/igniter-contracts/spec
+    packages/igniter-embed/spec
     packages/igniter-extensions/spec
     packages/igniter-application/spec
     packages/igniter-web/spec

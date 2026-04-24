@@ -15,6 +15,7 @@ RSpec.describe "gemspec packaging" do
     spec = load_gemspec("igniter.gemspec")
 
     expect(spec.files).to include("packages/igniter-contracts/lib/igniter/contracts.rb")
+    expect(spec.files).to include("packages/igniter-embed/lib/igniter/embed.rb")
     expect(spec.files).to include("packages/igniter-extensions/lib/igniter/extensions/contracts.rb")
     expect(spec.files).to include("packages/igniter-application/lib/igniter/application.rb")
     expect(spec.files).to include("packages/igniter-web/lib/igniter/web.rb")
@@ -26,6 +27,13 @@ RSpec.describe "gemspec packaging" do
 
   it "keeps igniter-extensions free from igniter-core runtime dependency" do
     spec = load_gemspec("packages/igniter-extensions/igniter-extensions.gemspec")
+
+    dependency_names = spec.dependencies.select { |dependency| dependency.type == :runtime }.map(&:name)
+    expect(dependency_names).to eq(["igniter-contracts"])
+  end
+
+  it "declares igniter-embed runtime dependency through igniter-contracts only" do
+    spec = load_gemspec("packages/igniter-embed/igniter-embed.gemspec")
 
     dependency_names = spec.dependencies.select { |dependency| dependency.type == :runtime }.map(&:name)
     expect(dependency_names).to eq(["igniter-contracts"])
