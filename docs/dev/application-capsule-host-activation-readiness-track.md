@@ -181,3 +181,31 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 boundary review for optional web
   readiness metadata and mount-intent wording.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-host-activation-readiness-track.md`
+Status: landed.
+Changed:
+- Reviewed `ApplicationHostActivationReadiness` against the web/application
+  boundary.
+- Added a short `packages/igniter-web/README.md` note for host activation
+  readiness as read-only preflight over reviewed web mount decisions.
+Accepted:
+- Web-related readiness remains supplied mount-intent and surface metadata
+  review only.
+- `igniter-application` does not require `igniter-web`, `SurfaceManifest`, Rack
+  apps, route activation, mount binding, browser traffic, or screen/component
+  inspection for activation readiness.
+- No web-owned helper is needed yet; future real web activation should stay
+  web-owned or host-owned.
+Verification:
+- `ruby examples/application/capsule_host_activation_readiness.rb` passed.
+- `ruby examples/application/capsule_transfer_end_to_end.rb` passed.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed.
+- `bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb`
+  passed.
+- `git diff --check` passed.
+Needs:
+- `[Architect Supervisor / Codex]` review/accept the host activation readiness
+  track and choose the next broad handoff.

@@ -435,3 +435,21 @@ they are not `Igniter::Web.mount(...)` calls, Rack traffic, route activation, or
 screen/component inspection. A web-capable host can use `igniter-web` to turn
 reviewed metadata into a real mount, but non-web capsules and application-owned
 transfer reports never require this package.
+
+Host activation readiness is the read-only preflight over those host decisions:
+
+```ruby
+readiness = Igniter::Application.host_activation_readiness(
+  receipt,
+  handoff_manifest: manifest,
+  mount_decisions: [
+    { capsule: :operator, kind: :web, at: "/operator", status: :accepted }
+  ],
+  surface_metadata: [{ name: :operator_console, kind: :web_surface }]
+)
+```
+
+For web surfaces, readiness confirms only that the host has reviewed supplied
+mount intents and surface metadata. It still does not instantiate web mounts,
+bind routes, call Rack, inspect screens/components, or require `igniter-web`
+for non-web capsules.
