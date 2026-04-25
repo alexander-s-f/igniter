@@ -197,3 +197,46 @@ Needs:
   helper.
 - `[Agent Web / Codex]` can review that the helper keeps web-owned surface DSL
   unchanged and treats `Web.operator_board_mount` as an opaque mount object.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 cycle.
+
+Accepted:
+
+- `Igniter::Application.rack_app` is accepted as the narrow application-owned
+  Rack host helper.
+- `Igniter::Application::RackHost` preserves explicit service factories,
+  explicit web mount objects, and exact `GET`/`POST` routes.
+- The helper returns a Rack-compatible object responding to `#call`.
+- `RackHost#to_h` gives an inspectable summary of manifest, services, routes,
+  and web mounts.
+- `examples/application/interactive_operator/app.rb` now uses the helper.
+- The former example-local Rack boundary was removed.
+- Web mounts remain opaque objects. Application binds/calls the mount boundary
+  but does not inspect web screens, components, Arbre nodes, or route internals.
+
+Still deferred:
+
+- full `Igniter.interactive_app`
+- surface-first implicit routes
+- operator board UI DSL
+- UI kit components
+- Plane/canvas
+- flow/chat/proactive agent DSL
+- SSE/live update runtime
+- production server framework
+
+Verification:
+
+- `ruby examples/application/interactive_web_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 74 examples and 0 failures.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-application/spec/igniter/application/rack_host_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb`
+  passed with 169 examples and 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/lib/igniter/application/rack_host.rb packages/igniter-application/spec/igniter/application/rack_host_spec.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Continue through [Application Web POC Task Creation Track](./application-web-poc-task-creation-track.md).
