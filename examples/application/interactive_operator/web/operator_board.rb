@@ -112,9 +112,8 @@ module InteractiveOperator
     def self.operator_board_mount
       application = Igniter::Web.application do
         root title: "Operator task board" do
-          board = assigns[:ctx].service(:task_board).call
+          snapshot = assigns[:ctx].service(:task_board).call.snapshot(recent_limit: 5)
           feedback = InteractiveOperator::Web.feedback_for(assigns[:env])
-          recent_events = board.recent_events(limit: 5)
 
           main class: "task-board",
                "data-ig-poc-surface": "operator_task_board",
@@ -126,9 +125,9 @@ module InteractiveOperator
               end
 
               aside class: "open-count",
-                    "data-open-count": board.open_count,
+                    "data-open-count": snapshot.open_count,
                     style: InteractiveOperator::Web.style(:counter) do
-                strong board.open_count.to_s, style: InteractiveOperator::Web.style(:counter_value)
+                strong snapshot.open_count.to_s, style: InteractiveOperator::Web.style(:counter_value)
                 span "open tasks"
               end
             end
@@ -163,7 +162,7 @@ module InteractiveOperator
               end
             end
 
-            board.tasks.each do |task|
+            snapshot.tasks.each do |task|
               section class: "task #{task.status}",
                       "data-task-id": task.id,
                       "data-task-state": task.status,
@@ -187,11 +186,11 @@ module InteractiveOperator
 
             section class: "recent-activity",
                     "data-ig-activity": "recent",
-                    "data-activity-count": recent_events.length,
+                    "data-activity-count": snapshot.recent_events.length,
                     style: InteractiveOperator::Web.style(:activity_panel) do
               h2 "Recent activity", style: InteractiveOperator::Web.style(:activity_title)
               ol style: InteractiveOperator::Web.style(:activity_list) do
-                recent_events.each do |event|
+                snapshot.recent_events.each do |event|
                   task_id = InteractiveOperator::Web.activity_task_id(event)
                   li "data-activity-index": event.fetch(:index),
                      "data-activity-kind": event.fetch(:kind),
@@ -206,7 +205,7 @@ module InteractiveOperator
             end
 
             footer style: InteractiveOperator::Web.style(:footer) do
-              para "Read endpoint: GET /events -> open=#{board.open_count}",
+              para "Read endpoint: GET /events -> open=#{snapshot.open_count}",
                    style: InteractiveOperator::Web.style(:footer_text)
             end
           end

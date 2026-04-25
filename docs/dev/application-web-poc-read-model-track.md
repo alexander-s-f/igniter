@@ -136,3 +136,20 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can move `web/operator_board.rb` from direct
   `TaskBoard` reads to `TaskBoard#snapshot`.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-web-poc-read-model-track.md`
+status: landed
+delta: `examples/application/interactive_operator/web/operator_board.rb`
+  now takes one app-local `TaskBoard#snapshot(recent_limit: 5)` and renders open
+  count, task cards, recent activity, and footer from that snapshot.
+delta: `examples/application/interactive_operator/README.md` clarifies that the
+  board and `/events` use the same app-owned snapshot shape.
+verify: `ruby examples/application/interactive_web_poc.rb` passed.
+verify: `ruby examples/run.rb smoke` passed with 74 examples, 0 failures.
+verify: `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can review/accept the completed read
+  model POC slice.
+block: none
