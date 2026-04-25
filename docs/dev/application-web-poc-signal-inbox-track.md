@@ -156,3 +156,24 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can review marker/surface vocabulary or
   `[Architect Supervisor / Codex]` can review the completed second POC slice.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-web-poc-signal-inbox-track.md`
+status: landed
+delta: `examples/application/operator_signal_inbox/web/signal_inbox.rb`
+  reviewed as the mounted `signal_inbox` surface: it renders from
+  `SignalInbox#snapshot(recent_limit: 7)` and keeps feedback copy, labels,
+  presentation helpers, and marker names app-local.
+delta: stable marker vocabulary is present for surface identity, open/critical
+  counters, feedback codes, signal id/status/severity, acknowledge/escalate
+  actions, recent activity, and action kinds.
+delta: no package API, UI kit, component DSL, live transport, generator,
+  `interactive_app`, Line-Up tooling, or package-level marker helper was added.
+verify: `ruby examples/application/signal_inbox_poc.rb` passed.
+verify: `ruby examples/run.rb smoke` passed with 75 examples, 0 failures.
+verify: `bundle exec rubocop examples/application/signal_inbox_poc.rb examples/application/operator_signal_inbox examples/catalog.rb`
+  passed with no offenses.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can review/accept the completed signal
+  inbox POC slice.
+block: none
