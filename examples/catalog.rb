@@ -349,6 +349,19 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_transfer_applied_verification",
+      "Read-only post-apply verification for committed transfer results.",
+      expected_fragments: [
+        "application_capsule_transfer_applied_verify_valid=true",
+        "application_capsule_transfer_applied_verify_committed=true",
+        "application_capsule_transfer_applied_verify_verified=4",
+        "application_capsule_transfer_applied_verify_findings=0",
+        "application_capsule_transfer_applied_verify_refusals=0",
+        "application_capsule_transfer_applied_verify_skipped=0",
+        "application_capsule_transfer_applied_verify_surfaces=1"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

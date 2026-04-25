@@ -1189,6 +1189,139 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "verifies committed transfer application results read-only" do
+    Dir.mktmpdir("igniter-transfer-applied-verification") do |root|
+      FileUtils.mkdir_p(File.join(root, "capsule/contracts"))
+      FileUtils.mkdir_p(File.join(root, "capsule/spec"))
+      FileUtils.mkdir_p(File.join(root, "capsule/web"))
+      File.write(File.join(root, "capsule/contracts/resolve_incident.rb"), "# contract\n")
+      File.write(File.join(root, "capsule/igniter.rb"), "# config\n")
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: File.join(root, "capsule"),
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        web_surfaces: [:operator_console],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      plan = Igniter::Application.transfer_bundle_plan(
+        blueprint,
+        subject: :operator_bundle,
+        host_exports: [
+          { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+        ],
+        surface_metadata: [
+          { name: :operator_console, kind: :web_surface, path: "web" }
+        ]
+      )
+      artifact = File.join(root, "operator_bundle")
+      destination = File.join(root, "destination")
+      Igniter::Application.write_transfer_bundle(plan, output: artifact)
+      verification = Igniter::Application.verify_transfer_bundle(artifact)
+      intake = Igniter::Application.transfer_intake_plan(verification, destination_root: destination)
+      apply_plan = Igniter::Application.transfer_apply_plan(intake)
+      apply_result = Igniter::Application.apply_transfer_plan(apply_plan, commit: true)
+
+      report = Igniter::Application.verify_applied_transfer(
+        apply_result,
+        apply_plan: apply_plan,
+        metadata: { source: :spec }
+      ).to_h
+
+      expect(report).to include(
+        valid: true,
+        committed: true,
+        artifact_path: artifact,
+        destination_root: destination,
+        findings: [],
+        refusals: [],
+        skipped: [],
+        operation_count: 4,
+        surface_count: 1,
+        metadata: { source: :spec }
+      )
+      expect(report.fetch(:verified)).to include(
+        include(type: :ensure_directory, destination: "operator", status: :verified),
+        include(type: :ensure_directory, destination: "operator/contracts", status: :verified),
+        include(type: :copy_file, destination: "operator/contracts/resolve_incident.rb", bytes: 11),
+        include(type: :copy_file, destination: "operator/igniter.rb", bytes: 9)
+      )
+    end
+  end
+
+  it "reports post-apply destination mismatches without repairing them" do
+    Dir.mktmpdir("igniter-transfer-applied-verification") do |root|
+      FileUtils.mkdir_p(File.join(root, "capsule/contracts"))
+      FileUtils.mkdir_p(File.join(root, "capsule/spec"))
+      File.write(File.join(root, "capsule/contracts/resolve_incident.rb"), "# contract\n")
+      File.write(File.join(root, "capsule/igniter.rb"), "# config\n")
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: File.join(root, "capsule"),
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      plan = Igniter::Application.transfer_bundle_plan(
+        blueprint,
+        subject: :operator_bundle,
+        host_exports: [
+          { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+        ]
+      )
+      artifact = File.join(root, "operator_bundle")
+      destination = File.join(root, "destination")
+      Igniter::Application.write_transfer_bundle(plan, output: artifact)
+      verification = Igniter::Application.verify_transfer_bundle(artifact)
+      intake = Igniter::Application.transfer_intake_plan(verification, destination_root: destination)
+      apply_plan = Igniter::Application.transfer_apply_plan(intake)
+      apply_result = Igniter::Application.apply_transfer_plan(apply_plan, commit: true)
+      File.write(File.join(destination, "operator/contracts/resolve_incident.rb"), "# changed!\n")
+
+      report = Igniter::Application.verify_applied_transfer(
+        JSON.parse(JSON.generate(apply_result.to_h)),
+        apply_plan: JSON.parse(JSON.generate(apply_plan.to_h))
+      ).to_h
+
+      expect(report).to include(valid: false, committed: true, operation_count: 4)
+      expect(report.fetch(:findings).map { |entry| entry.fetch(:code) }).to include(:content_mismatch)
+      expect(report.fetch(:verified)).to include(
+        include(type: :ensure_directory, destination: "operator"),
+        include(type: :ensure_directory, destination: "operator/contracts"),
+        include(type: :copy_file, destination: "operator/igniter.rb")
+      )
+      expect(File.read(File.join(destination, "operator/contracts/resolve_incident.rb"))).to eq("# changed!\n")
+    end
+  end
+
+  it "marks dry-run transfer application results invalid during applied verification" do
+    Dir.mktmpdir("igniter-transfer-applied-verification") do |root|
+      apply_result = {
+        committed: false,
+        artifact_path: root,
+        destination_root: File.join(root, "destination"),
+        applied: [],
+        skipped: [],
+        refusals: [],
+        operation_count: 0,
+        surface_count: 0
+      }
+
+      report = Igniter::Application.verify_applied_transfer(apply_result).to_h
+
+      expect(report).to include(valid: false, committed: false, verified: [], refusals: [], skipped: [])
+      expect(report.fetch(:findings)).to contain_exactly(include(code: :not_committed))
+    end
+  end
+
   it "refuses committed transfer application without explicit apply roots" do
     plan = {
       executable: true,
