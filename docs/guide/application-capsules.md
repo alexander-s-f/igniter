@@ -554,6 +554,20 @@ A complete receipt means the reviewed files landed and verified. It does not
 mean the receiving host has activated the capsule. Host integration remains a
 separate human/agent decision boundary.
 
+The current host activation review path is:
+
+1. `ApplicationTransferReceipt` closes the file-transfer audit.
+2. Post-transfer host integration review names the host-owned decisions.
+3. `ApplicationHostActivationReadiness` checks whether those decisions are
+   sufficient.
+4. `ApplicationHostActivationPlan` converts accepted readiness into ordered
+   review operations.
+5. `ApplicationHostActivationPlanVerification` checks that the plan is still
+   internally consistent and review-only.
+6. Stop. Igniter has reviewed activation intent; it has not activated the
+   host, loaded code, registered providers/contracts, mounted web, routed
+   traffic, or executed contracts.
+
 Use the existing transfer artifacts as the post-transfer checklist:
 
 - `ApplicationHandoffManifest` carries required host exports, host
@@ -657,10 +671,12 @@ screen graphs, mutate host state, load constants, boot apps, register
 providers or contracts, bind mounts, activate routes, send browser traffic,
 execute contracts, discover projects, or place work on a cluster.
 
-This transfer guide deliberately stops before project-wide discovery,
-automatic destination selection, applying host wiring, loading constants,
-booting apps, mounting web routes, executing contracts, or placing work on a
-cluster.
+This is the stop line for the current guide: a valid activation plan
+verification means the activation intent is reviewed, not performed. The guide
+deliberately stops before project-wide discovery, automatic destination
+selection, applying host wiring, loading constants, registering providers or
+contracts, booting apps, mounting web routes, sending browser traffic,
+executing contracts, or placing work on a cluster.
 
 ## Runnable Examples
 

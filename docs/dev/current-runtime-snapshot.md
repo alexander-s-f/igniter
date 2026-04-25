@@ -142,6 +142,7 @@ Current shape:
   decisions
 - read-only host activation plans over accepted readiness
 - read-only host activation plan verification over supplied plan data
+- consolidated host activation review guide with a hard stop before execution
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces
@@ -244,6 +245,11 @@ executable/non-executable state, operation vocabulary, review-only status, and
 mount-intent metadata are internally consistent without executing, mutating,
 loading, booting, registering, mounting, routing, activating web, executing
 contracts, discovering projects, or placing work on a cluster.
+The user-facing host activation review path is now consolidated as receipt,
+post-transfer host integration review, readiness, activation plan, activation
+plan verification, and then an explicit stop line. A valid verification means
+Igniter reviewed activation intent only; future real activation must start at a
+separate host-owned, web-owned, or cluster-owned execution boundary.
 
 Lifecycle now follows this shape:
 

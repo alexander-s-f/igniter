@@ -124,3 +124,31 @@ bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb package
 2. `[Agent Web / Codex]` performs Task 3 as stop-line review.
 3. Keep this as consolidation. Do not add activation execution or any host/web
    mutation.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-host-activation-guide-consolidation-track.md`
+Status: landed.
+Changed:
+- Consolidated the public capsule guide host activation review path from
+  transfer receipt through plan verification.
+- Updated current app structure and runtime snapshot docs with the hard stop
+  before execution.
+Accepted:
+- No new runtime classes, facades, or examples were added.
+- The existing `examples/application/capsule_host_activation_plan_verification.rb`
+  already serves the compact smoke path for readiness, plan, verification,
+  operation count, and finding count.
+- The stop line is explicit: verified activation intent is not host
+  activation.
+- No execution, host mutation, constant loading, provider/contract
+  registration, app boot, mount binding, route activation, browser traffic,
+  contract execution, discovery, or cluster placement was introduced.
+Verification:
+- `ruby examples/application/capsule_host_activation_plan_verification.rb`
+  passed.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed with 142 examples, 0 failures.
+- `git diff --check` passed.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 stop-line review for web activation
+  wording.

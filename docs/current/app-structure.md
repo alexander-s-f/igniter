@@ -277,6 +277,14 @@ and optional mount intents before making the capsule live. Supplied web surface
 metadata is context for a web-owned layer; it is not route activation, mount
 binding, browser traffic, or an application dependency on `igniter-web`.
 
+The current activation review path is deliberately finite: receipt,
+post-transfer host integration review, readiness, activation plan, activation
+plan verification, and then a hard stop before execution. At the stop line,
+Igniter has reviewed intent only. It has not loaded constants, registered
+providers or contracts, booted apps, bound web mounts, activated routes, sent
+browser traffic, executed contracts, discovered projects, or placed capsules on
+a cluster.
+
 `ApplicationHostActivationReadiness` is the current read-only preflight over
 those explicit host decisions. It reports readiness, blockers, warnings,
 decisions, manual actions, mount intents, and supplied surface count before any
@@ -298,10 +306,9 @@ applied/executed state, and that mount-intent review remains opaque metadata.
 It does not inspect directories, inspect web screen graphs, mutate hosts, load,
 boot, mount, route, execute contracts, or place capsules on a cluster.
 
-This remains separate from runtime activation and broad transfer automation. It
-does not discover project directories, auto-select destinations, install or
-extract bundles, load, boot, mount, route, execute, or place capsules on a
-cluster.
+This remains separate from runtime activation and broad transfer automation.
+The existing activation review objects can feed a future explicit
+host/web/cluster-owned execution boundary, but they are not that boundary.
 
 ## Placement Rules
 
