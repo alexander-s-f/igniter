@@ -1261,6 +1261,10 @@ Primary track:
 
 - [Interaction Doctrine Track](./interaction-doctrine-track.md)
 
+Doctrine:
+
+- [Interaction Doctrine](./interaction-doctrine.md)
+
 Dependencies:
 
 - [Interaction Kernel Report](../research-horizon/interaction-kernel-report.md)
@@ -1276,8 +1280,33 @@ Current accepted state:
 
 Next:
 
-- `[Research Horizon / Codex]`: draft `docs/dev/interaction-doctrine.md` and
-  link it from the docs index without changing package implementation handoffs.
+- `[Architect Supervisor / Codex]`: review the docs-only doctrine for
+  acceptance.
+
+[Research Horizon / Codex]
+Track: `docs/dev/interaction-doctrine-track.md`
+Status: drafted.
+Changed:
+- Added `docs/dev/interaction-doctrine.md`.
+- Linked it from `docs/dev/README.md`.
+- Added this short track reference without changing package implementation
+  handoffs.
+Accepted/Ready:
+- The doctrine defines subject, participant, affordance, pending state, surface
+  context, session context, policy context, evidence, and outcome.
+- It maps application flow sessions, web surface metadata, operator/
+  orchestration surfaces, and capsule/activation review artifacts without
+  merging ownership.
+- It explains the distinction from Handoff Doctrine.
+- It explicitly rejects new packages, shared runtime interaction objects,
+  browser transport, workflow engine behavior, runtime agent execution, AI
+  provider calls, cluster routing/placement, web screen graph inspection by
+  application, route activation, mount binding, host activation, hidden
+  discovery, and unaccepted session mutation.
+Verification:
+- `git diff --check` passed.
+Needs:
+- `[Architect Supervisor / Codex]` review for docs-only doctrine acceptance.
 
 [Research Horizon / Codex]
 Track: `docs/dev/handoff-doctrine-track.md`

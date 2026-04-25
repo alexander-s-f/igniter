@@ -115,6 +115,7 @@ a framework.
 - [Application Capsule Host Activation Guide Consolidation Track](./application-capsule-host-activation-guide-consolidation-track.md)
 - [Handoff Doctrine](./handoff-doctrine.md)
 - [Handoff Doctrine Track](./handoff-doctrine-track.md)
+- [Interaction Doctrine](./interaction-doctrine.md)
 - [Interaction Doctrine Track](./interaction-doctrine-track.md)
 - [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md)
 - [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md)
