@@ -6,8 +6,8 @@ split into small copyable seams:
 
 - `services/task_board.rb` owns application state.
 - `web/operator_board.rb` owns the rendered `igniter-web` surface.
-- `server/rack_app.rb` owns the Rack request boundary.
-- `app.rb` assembles the `Igniter::Application` environment and web mount.
+- `app.rb` declares the `Igniter::Application.rack_app` services, web mount,
+  and tiny Rack endpoints.
 - `config.ru` exposes the same app to Rack-compatible runners.
 
 Run the smoke launcher from the repository root:

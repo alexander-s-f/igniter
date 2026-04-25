@@ -75,6 +75,7 @@ require_relative "application/boot_report"
 require_relative "application/shutdown_plan"
 require_relative "application/shutdown_report"
 require_relative "application/environment"
+require_relative "application/rack_host"
 
 module Igniter
   module Application
@@ -91,6 +92,10 @@ module Igniter
 
       def with(*packs)
         Environment.new(profile: build_profile(*packs))
+      end
+
+      def rack_app(name, root:, env: :development, metadata: {}, &block)
+        RackHost.build(name, root: root, env: env, metadata: metadata, &block)
       end
 
       def blueprint(...)

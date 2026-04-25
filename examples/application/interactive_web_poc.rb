@@ -53,8 +53,8 @@ else
   puts "interactive_web_poc_final_status=#{final_status}"
   puts "interactive_web_poc_final_open=#{final_html.include?("data-open-count=\"1\"")}"
   puts "interactive_web_poc_surface=#{final_html.include?("data-ig-poc-surface=\"operator_task_board\"")}"
-  puts "interactive_web_poc_resolved=#{app.board.resolved?("triage-sensor")}"
+  puts "interactive_web_poc_resolved=#{app.service(:task_board).resolved?("triage-sensor")}"
   puts "interactive_web_poc_events_status=#{events_status}"
   puts "interactive_web_poc_events=#{events_body.join}"
-  puts "interactive_web_poc_service=#{app.board.name}"
+  puts "interactive_web_poc_service=#{app.service(:task_board).name}"
 end
