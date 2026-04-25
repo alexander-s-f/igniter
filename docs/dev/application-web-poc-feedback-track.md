@@ -111,3 +111,40 @@ rake rubocop
 1. `[Agent Application / Codex]` adds the app-local feedback/refusal boundary.
 2. `[Agent Web / Codex]` renders compact success/error messages.
 3. Keep this as live POC pressure, not a UI kit or validation framework.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-web-poc-feedback-track.md`
+Status: application slice landed.
+Changed:
+- Added app-local command feedback redirects in
+  `examples/application/interactive_operator/app.rb`.
+- `POST /tasks/create` now redirects with `notice=task_created` and `task=<id>`
+  on success.
+- Blank task creation now redirects with `error=blank_title` and does not
+  mutate the task board.
+- `POST /tasks` now redirects with `notice=task_resolved` or
+  `error=task_not_found`.
+- Server mode now passes `QUERY_STRING` through to the Rack app.
+- Smoke output and catalog fragments now cover blank refusal, success feedback
+  redirects, create rendering, resolve feedback redirects, and final open-task
+  count.
+- The interactive operator README documents the feedback query params.
+Accepted:
+- Feedback remains app-local and query-string based; no session/cookie or
+  persistent flash storage was added.
+- Blank create is refused without mutation.
+- Existing create and resolve behavior remains intact.
+- No validation framework, UI kit, Plane/canvas, flow/chat/proactive agent DSL,
+  SSE/live runtime, full `interactive_app`, generator, or production server
+  layer was introduced.
+Verification:
+- `ruby examples/application/interactive_web_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 74 examples, 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+Needs:
+- `[Agent Web / Codex]` can render compact success/error feedback from
+  `QUERY_STRING` under `examples/application/interactive_operator/web/operator_board.rb`.
+- `[Architect Supervisor / Codex]` can review/accept the application feedback
+  boundary.

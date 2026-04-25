@@ -17,6 +17,7 @@ def rack_env(method, path, body = "")
   {
     "REQUEST_METHOD" => method,
     "PATH_INFO" => path,
+    "QUERY_STRING" => "",
     "rack.input" => StringIO.new(body)
   }
 end
@@ -29,6 +30,7 @@ if ARGV.first == "server"
     status, headers, body = app.call(
       "REQUEST_METHOD" => request.request_method,
       "PATH_INFO" => request.path,
+      "QUERY_STRING" => request.query_string.to_s,
       "rack.input" => StringIO.new(request.body.to_s)
     )
     response.status = status
@@ -40,14 +42,17 @@ if ARGV.first == "server"
   server.start
 else
   initial_status, initial_headers, initial_body = app.call(rack_env("GET", "/"))
-  create_status, _create_headers, _create_body = app.call(
+  blank_status, blank_headers, _blank_body = app.call(rack_env("POST", "/tasks/create", "title=++"))
+  blank_state_status, _blank_state_headers, blank_state_body = app.call(rack_env("GET", "/"))
+  create_status, create_headers, _create_body = app.call(
     rack_env("POST", "/tasks/create", "title=Review+operator+handoff")
   )
   created_status, _created_headers, created_body = app.call(rack_env("GET", "/"))
-  post_status, _post_headers, _post_body = app.call(rack_env("POST", "/tasks", "id=triage-sensor"))
+  post_status, post_headers, _post_body = app.call(rack_env("POST", "/tasks", "id=triage-sensor"))
   final_status, _final_headers, final_body = app.call(rack_env("GET", "/"))
   events_status, _events_headers, events_body = app.call(rack_env("GET", "/events"))
   initial_html = initial_body.join
+  blank_state_html = blank_state_body.join
   created_html = created_body.join
   final_html = final_body.join
 
@@ -55,11 +60,16 @@ else
   puts "interactive_web_poc_content_type=#{initial_headers.fetch("content-type")}"
   puts "interactive_web_poc_initial_open=#{initial_html.include?("data-open-count=\"2\"")}"
   puts "interactive_web_poc_create_form=#{initial_html.include?("data-ig-create-task=\"form\"")}"
+  puts "interactive_web_poc_blank_status=#{blank_status}"
+  puts "interactive_web_poc_blank_location=#{blank_headers.fetch("location").include?("error=blank_title")}"
+  puts "interactive_web_poc_blank_refused=#{blank_state_status == 200 && blank_state_html.include?("data-open-count=\"2\"")}"
   puts "interactive_web_poc_create_status=#{create_status}"
+  puts "interactive_web_poc_create_location=#{create_headers.fetch("location").include?("notice=task_created")}"
   puts "interactive_web_poc_created_status=#{created_status}"
   puts "interactive_web_poc_created_open=#{created_html.include?("data-open-count=\"3\"")}"
   puts "interactive_web_poc_created_task=#{created_html.include?("data-task-id=\"review-operator-handoff\"")}"
   puts "interactive_web_poc_post_status=#{post_status}"
+  puts "interactive_web_poc_resolve_location=#{post_headers.fetch("location").include?("notice=task_resolved")}"
   puts "interactive_web_poc_final_status=#{final_status}"
   puts "interactive_web_poc_final_open=#{final_html.include?("data-open-count=\"2\"")}"
   puts "interactive_web_poc_surface=#{final_html.include?("data-ig-poc-surface=\"operator_task_board\"")}"

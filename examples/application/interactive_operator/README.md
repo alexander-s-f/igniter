@@ -12,8 +12,12 @@ split into small copyable seams:
 
 The current application commands are intentionally plain Rack form targets:
 
-- `POST /tasks/create` creates an open task from a `title` field.
-- `POST /tasks` resolves an existing task from an `id` field.
+- `POST /tasks/create` creates an open task from a `title` field and redirects
+  with `notice=task_created`.
+- `POST /tasks/create` refuses blank titles without mutation and redirects with
+  `error=blank_title`.
+- `POST /tasks` resolves an existing task from an `id` field and redirects
+  with `notice=task_resolved` or `error=task_not_found`.
 - `GET /events` returns a compact text read model with the open-task count.
 
 Run the smoke launcher from the repository root:
