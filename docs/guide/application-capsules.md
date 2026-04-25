@@ -620,6 +620,24 @@ are warnings. It does not inspect directories, load constants, boot providers,
 bind mounts, activate routes, send browser traffic, execute contracts, or place
 work on a cluster.
 
+Once readiness is accepted, a host can build a review-only activation plan:
+
+```ruby
+plan = Igniter::Application.host_activation_plan(activation)
+
+plan.to_h
+```
+
+`ApplicationHostActivationPlan` turns accepted readiness into ordered review
+operations such as `confirm_load_path`, `confirm_provider`,
+`confirm_contract`, `confirm_lifecycle`, `review_mount_intent`, and
+`acknowledge_manual_actions`. If readiness is not ready, the plan is
+non-executable and carries readiness blockers/warnings forward. The plan is
+still descriptive only: it does not mutate host wiring, add load paths,
+register providers or contracts, boot anything, bind mounts, activate routes,
+send browser traffic, execute contracts, discover projects, or place work on a
+cluster.
+
 This transfer guide deliberately stops before project-wide discovery,
 automatic destination selection, applying host wiring, loading constants,
 booting apps, mounting web routes, executing contracts, or placing work on a
@@ -648,6 +666,7 @@ Start with these examples:
 - [`examples/application/capsule_transfer_receipt.rb`](../../examples/application/capsule_transfer_receipt.rb)
 - [`examples/application/capsule_transfer_end_to_end.rb`](../../examples/application/capsule_transfer_end_to_end.rb)
 - [`examples/application/capsule_host_activation_readiness.rb`](../../examples/application/capsule_host_activation_readiness.rb)
+- [`examples/application/capsule_host_activation_plan.rb`](../../examples/application/capsule_host_activation_plan.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

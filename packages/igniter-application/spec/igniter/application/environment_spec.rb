@@ -1600,6 +1600,101 @@ RSpec.describe Igniter::Application::Environment do
     )
   end
 
+  it "plans host activation review operations over accepted readiness" do
+    readiness = Igniter::Application.host_activation_readiness(
+      {
+        complete: true,
+        valid: true,
+        committed: true,
+        manual_actions: [],
+        surface_count: 1
+      },
+      handoff_manifest: {
+        suggested_host_wiring: [
+          {
+            capsule: :operator,
+            name: :incident_runtime,
+            kind: :service,
+            capabilities: [:audit]
+          }
+        ],
+        mount_intents: [
+          {
+            capsule: :operator,
+            kind: :web,
+            at: "/operator",
+            metadata: { surface: :operator_console }
+          }
+        ]
+      },
+      host_exports: [
+        { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+      ],
+      host_capabilities: [:audit],
+      load_paths: ["operator"],
+      providers: [:incident_runtime],
+      contracts: ["Contracts::ResolveIncident"],
+      lifecycle: { boot: :manual_review },
+      mount_decisions: [
+        { capsule: :operator, kind: :web, at: "/operator", status: :accepted }
+      ]
+    )
+
+    plan = Igniter::Application.host_activation_plan(readiness, metadata: { source: :spec }).to_h
+
+    expect(plan).to include(
+      executable: true,
+      blockers: [],
+      warnings: [],
+      surface_count: 1,
+      metadata: { source: :spec }
+    )
+    expect(plan.fetch(:operations).map { |entry| entry.fetch(:type) }).to eq(
+      %i[
+        confirm_host_export
+        confirm_host_capability
+        confirm_load_path
+        confirm_provider
+        confirm_contract
+        confirm_lifecycle
+        review_mount_intent
+      ]
+    )
+    expect(plan.fetch(:operations)).to include(
+      include(type: :confirm_load_path, status: :review_required, destination: "operator"),
+      include(type: :confirm_contract, status: :review_required, destination: "Contracts::ResolveIncident"),
+      include(type: :review_mount_intent, status: :review_required, destination: "/operator")
+    )
+  end
+
+  it "refuses host activation plans when readiness is not accepted" do
+    readiness = {
+      ready: false,
+      blockers: [
+        { code: :missing_host_export, message: "Required host export decision is missing." }
+      ],
+      warnings: [
+        { code: :load_paths_unconfirmed, message: "Host load path decision was not supplied." }
+      ],
+      decisions: {
+        load_paths: ["operator"]
+      },
+      manual_actions: [],
+      mount_intents: [],
+      surface_count: 0
+    }
+
+    plan = Igniter::Application.host_activation_plan(JSON.parse(JSON.generate(readiness))).to_h
+
+    expect(plan).to include(
+      executable: false,
+      operations: [],
+      surface_count: 0
+    )
+    expect(plan.fetch(:blockers)).to contain_exactly(include(code: "missing_host_export"))
+    expect(plan.fetch(:warnings)).to contain_exactly(include(code: "load_paths_unconfirmed"))
+  end
+
   it "refuses committed transfer application without explicit apply roots" do
     plan = {
       executable: true,

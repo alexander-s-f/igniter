@@ -404,6 +404,19 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_host_activation_plan",
+      "Read-only host activation review plan over accepted readiness.",
+      expected_fragments: [
+        "application_capsule_host_activation_plan_executable=true",
+        "application_capsule_host_activation_plan_operations=6",
+        "application_capsule_host_activation_plan_blockers=0",
+        "application_capsule_host_activation_plan_warnings=0",
+        "application_capsule_host_activation_plan_mounts=1",
+        "application_capsule_host_activation_plan_surfaces=1",
+        "application_capsule_host_activation_plan_types=confirm_host_export,confirm_load_path,confirm_provider,confirm_contract,confirm_lifecycle,review_mount_intent"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

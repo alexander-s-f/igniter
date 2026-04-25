@@ -130,3 +130,41 @@ bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb package
 3. Do not add host mutation, loading, boot, provider/contract registration,
    mount binding, route activation, browser traffic, contract execution,
    discovery, or cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-host-activation-plan-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationHostActivationPlan`.
+- Added `Igniter::Application.host_activation_plan(...)`.
+- Added `examples/application/capsule_host_activation_plan.rb` and registered
+  it in the active examples catalog.
+- Updated public/current docs to distinguish activation readiness, read-only
+  activation planning, and future activation execution.
+Accepted:
+- Host activation plans consume explicit readiness objects or compatible
+  hashes only.
+- `to_h` includes stable `executable`, `operations`, `blockers`, `warnings`,
+  `surface_count`, and `metadata`.
+- Blocked readiness produces a non-executable plan with no operations and
+  carries readiness blockers/warnings forward.
+- Accepted readiness produces ordered descriptive review operations for host
+  exports/capabilities, load paths, providers, contracts, lifecycle, manual
+  actions, and mount intents.
+- Web-related operations remain `review_mount_intent` metadata only; no
+  `igniter-web` dependency or route activation was introduced.
+- No activation execution, host wiring mutation, load path mutation, provider
+  or contract registration, boot, mount binding, route activation, browser
+  traffic, contract execution, discovery, or cluster placement was introduced.
+Verification:
+- `ruby examples/application/capsule_host_activation_plan.rb` passed.
+- `ruby examples/application/capsule_host_activation_readiness.rb` passed.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed with 138 examples, 0 failures.
+- `ruby examples/run.rb smoke` passed with 70 examples, 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_host_activation_plan.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_host_activation_plan.rb examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 boundary review for mount-intent
+  wording in activation plans.
