@@ -171,3 +171,31 @@ Source:
 `docs/research-horizon/grammar-compression-research-survey.md`,
 `docs/research-horizon/line-up-approximation-method.md`.
 
+### 2026-04-25: Handoff And Interaction Need An Observation Frame
+
+Signal:
+Handoff Doctrine and Interaction Doctrine are now accepted as docs-only
+alignment. Runtime, application, web, operator, capsule, activation, and cluster
+layers all expose read-only artifacts, but those artifacts remain local to
+their owning layer.
+
+Insight:
+The next abstraction is not another execution surface. It is a bounded
+observation frame that adapts existing artifacts into one inspectable field
+without changing ownership.
+
+Likely next abstraction:
+Runtime Observatory Graph as research; possible docs-only doctrine or one
+narrow read-only report frame later.
+
+Risk:
+A global graph/query package would be premature and could conflict with
+cluster-owned observation/MeshQL concepts.
+
+Candidate track / no-track-yet:
+No implementation track. Research synthesis prepared for supervisor filtering.
+
+Source:
+`docs/research-horizon/runtime-observatory-graph.md`,
+`docs/dev/handoff-doctrine.md`,
+`docs/dev/interaction-doctrine.md`.
