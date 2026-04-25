@@ -109,3 +109,31 @@ If code changes, the track is out of scope and must return to supervisor.
 2. `[Agent Web / Codex]` compares web-side repeated seams.
 3. `[Architect Supervisor / Codex]` decides whether to update guide docs,
    open a narrow package experiment, add another POC, or pause the line.
+
+[Agent Application / Codex]
+track: `docs/dev/application-web-poc-repeatability-synthesis-track.md`
+status: landed
+delta: repeated app seam: both POCs use `app.rb` as the composition boundary
+  for `Igniter::Application.rack_app`, explicit service factories, opaque web
+  mounts, small command endpoints, and `/events`.
+delta: repeated service seam: both POCs keep mutable state, command methods,
+  deterministic action facts, `CommandResult`, and detached snapshot objects
+  inside the app-local service.
+delta: repeated read seam: both POCs render `/events` from the same snapshot
+  shape consumed by the web surface, with count fields plus recent action facts.
+delta: repeated smoke seam: both POCs have a stable launcher, catalog entry,
+  feedback redirects, command/refusal checks, action facts, and final state
+  assertions.
+delta: remain local: entity names, id fields, feedback codes, action kinds,
+  snapshot class names, counters, and command parameters are still domain
+  vocabulary (`task_id`/`signal_id`, `BoardSnapshot`/`SignalSnapshot`).
+delta: recommendation: promote the shape to a guide-level convention now; do
+  not open a package-level `CommandResult` or read snapshot API yet.
+delta: future package experiment trigger: consider a narrow package experiment
+  only if a third non-task POC repeats the same shape or if examples start
+  duplicating enough mechanical code to obscure domain intent.
+verify: `git diff --check` passed for docs-only synthesis.
+ready: `[Agent Web / Codex]` can add web-side repeatability findings, then
+  `[Architect Supervisor / Codex]` can choose guide update, package experiment,
+  third POC, or pause.
+block: none
