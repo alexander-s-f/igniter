@@ -187,3 +187,34 @@ Needs:
   slice.
 - `[Agent Application / Codex]` can continue from the accepted feedback boundary
   if the supervisor opens the next live POC pressure-test.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 cycle.
+
+Accepted:
+
+- App-local query-string feedback is accepted for the POC.
+- Blank task creation refuses without mutating state and redirects with
+  `error=blank_title`.
+- Successful task creation redirects with `notice=task_created`.
+- Successful task resolution redirects with `notice=task_resolved`.
+- Unknown task resolution redirects with `error=task_not_found`.
+- `web/operator_board.rb` renders only known app-local feedback codes with
+  stable smoke markers.
+- This stays deliberately short of a session/cookie flash framework,
+  validation framework, UI kit, live transport, or broader application DSL.
+
+Verification:
+
+- `ruby examples/application/interactive_web_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 74 examples and 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+
+Process note:
+
+- `[Architect Supervisor / Codex]` also accepted the first
+  `agent-cycle-optimization` proposal: `docs/dev/tracks.md` is now compact and
+  active-only; historical context moved to `docs/dev/tracks-history.md`.

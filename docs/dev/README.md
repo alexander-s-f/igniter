@@ -14,6 +14,7 @@ a framework.
 ## Canonical Dev Docs
 
 - [Active Tracks Index](./tracks.md)
+- [Tracks History](./tracks-history.md)
 - [Current Runtime Snapshot](./current-runtime-snapshot.md)
 - [Architecture](./architecture.md)
 - [Module System](./module-system.md)
@@ -87,6 +88,7 @@ a framework.
 ## Active Internal Context
 
 - [Active Tracks Index](./tracks.md)
+- [Tracks History](./tracks-history.md)
 - [Architecture Index](./architecture-index.md)
 - [Architecture Reference](./architecture-reference.md)
 - [Execution Model](./execution-model.md)
