@@ -10,6 +10,12 @@ split into small copyable seams:
   and tiny Rack endpoints.
 - `config.ru` exposes the same app to Rack-compatible runners.
 
+The current application commands are intentionally plain Rack form targets:
+
+- `POST /tasks/create` creates an open task from a `title` field.
+- `POST /tasks` resolves an existing task from an `id` field.
+- `GET /events` returns a compact text read model with the open-task count.
+
 Run the smoke launcher from the repository root:
 
 ```bash

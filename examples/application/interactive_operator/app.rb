@@ -24,6 +24,11 @@ module InteractiveOperator
         text "open=#{service(:task_board).open_count}"
       end
 
+      post "/tasks/create" do |params|
+        service(:task_board).create(params.fetch("title", ""))
+        redirect "/"
+      end
+
       post "/tasks" do |params|
         service(:task_board).resolve(params.fetch("id", ""))
         redirect "/"

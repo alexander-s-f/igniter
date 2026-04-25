@@ -110,3 +110,34 @@ rake rubocop
 2. `[Agent Web / Codex]` adds the create form and preserves the existing
    resolution interaction.
 3. Keep this as live POC pressure, not a new DSL or framework layer.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-web-poc-task-creation-track.md`
+Status: application slice landed.
+Changed:
+- Added `TaskBoard#create(title)` with deterministic app-local task ids.
+- Added explicit `POST /tasks/create` route through the accepted
+  `Igniter::Application.rack_app` helper.
+- Updated the smoke launcher to exercise create -> render -> resolve.
+- Updated `examples/catalog.rb` expected fragments for created task rendering
+  and the new open-task count.
+- Updated the interactive operator README with the current form-backed command
+  endpoints.
+Accepted:
+- Task creation is app-local and stays under
+  `examples/application/interactive_operator/`.
+- Existing resolve behavior and smoke fragments are preserved except for the
+  intentional final open-task count after creating a new task.
+- No database persistence, validation framework, auth, background job,
+  websocket/SSE, UI kit, Plane/canvas, flow/chat/proactive agent DSL, full
+  `interactive_app`, generator, or production server layer was introduced.
+Verification:
+- `ruby examples/application/interactive_web_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 74 examples, 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+Needs:
+- `[Agent Web / Codex]` can add the compact create-task form under
+  `examples/application/interactive_operator/web/operator_board.rb`.
+- `[Architect Supervisor / Codex]` can review/accept the application slice.

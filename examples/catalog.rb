@@ -465,13 +465,17 @@ module IgniterExamples
         "interactive_web_poc_initial_status=200",
         "interactive_web_poc_content_type=text/html",
         "interactive_web_poc_initial_open=true",
+        "interactive_web_poc_create_status=303",
+        "interactive_web_poc_created_status=200",
+        "interactive_web_poc_created_open=true",
+        "interactive_web_poc_created_task=true",
         "interactive_web_poc_post_status=303",
         "interactive_web_poc_final_status=200",
         "interactive_web_poc_final_open=true",
         "interactive_web_poc_surface=true",
         "interactive_web_poc_resolved=true",
         "interactive_web_poc_events_status=200",
-        "interactive_web_poc_events=open=1",
+        "interactive_web_poc_events=open=2",
         "interactive_web_poc_service=operator_task_board"
       ]
     ),

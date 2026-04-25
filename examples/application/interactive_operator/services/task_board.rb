@@ -23,6 +23,15 @@ module InteractiveOperator
         @tasks.count { |task| task.status == :open }
       end
 
+      def create(title)
+        normalized_title = title.to_s.strip
+        return nil if normalized_title.empty?
+
+        task = Task.new(id: next_id_for(normalized_title), title: normalized_title, status: :open)
+        @tasks << task
+        task.dup
+      end
+
       def resolve(id)
         task = @tasks.find { |entry| entry.id == id.to_s }
         return false unless task
@@ -33,6 +42,20 @@ module InteractiveOperator
 
       def resolved?(id)
         @tasks.any? { |task| task.id == id.to_s && task.status == :resolved }
+      end
+
+      private
+
+      def next_id_for(title)
+        base = title.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/\A-|-+\z/, "")
+        base = "task" if base.empty?
+        candidate = base
+        suffix = 2
+        while @tasks.any? { |task| task.id == candidate }
+          candidate = "#{base}-#{suffix}"
+          suffix += 1
+        end
+        candidate
       end
     end
   end
