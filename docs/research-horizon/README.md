@@ -14,6 +14,7 @@ Current research posture:
 - prefer concrete architectural moves over vague futurism
 - treat agents, contracts, app capsules, clusters, mesh, and AI interfaces as
   one evolving system
+- ingest external expert reports as research input, not accepted architecture
 - mark ideas that need `[Architect Supervisor / Codex]` review before they
   become implementation tracks
 
@@ -28,6 +29,7 @@ It may:
 - draft bold proposals
 - compare architectural futures
 - connect contracts, capsules, web, cluster, agents, AI, and human interfaces
+- synthesize `docs/experts/` reports into scoped research artifacts
 - ask `[Architect Supervisor / Codex]` to review a proposal for graduation
 
 It may not:
@@ -36,6 +38,7 @@ It may not:
 - change package code
 - create `docs/dev/` implementation tracks without supervisor acceptance
 - override active package-agent handoffs
+- treat external expert proposals as accepted roadmap without supervisor review
 
 ## Supervisor Gate
 
@@ -56,6 +59,7 @@ track with scoped tasks and acceptance criteria.
 ## Research Artifacts
 
 - [Current State Report](./current-state-report.md)
+- [External Expert Scope Update](./external-expert-scope-update.md)
 - [Horizon Proposals](./horizon-proposals.md)
 - [Supervisor Review](./supervisor-review.md)
 - [Agent Handoff Protocol](./agent-handoff-protocol.md)

@@ -230,3 +230,33 @@ yet.
 Source:
 `docs/research-horizon/interactive-operator-dsl-proposals.md`,
 `examples/application/interactive_operator/`.
+
+### 2026-04-25: External Expert Reframes The Horizon As Interactive Agent Platform
+
+Signal:
+`docs/experts/` adds external reports on interactive app DSL, UI Kit, Plane,
+Plastic Runtime Cells, grammar compression measurement, agent-cycle
+optimization, and formal Agent Track Pattern.
+
+Insight:
+The reports converge on one frame: Igniter is becoming an interactive agent
+application platform. The biggest near-term gap is not another runtime primitive
+but an authoring surface that lets services, agents, surfaces, flows, endpoints,
+and actions read as one app inventory while expanding to package-owned clean
+forms.
+
+Likely next abstraction:
+Research Horizon should treat interactive app authoring, Evidence-First
+Architecture, Agent Track Pattern, compression economics, Plane/UI Kit, and
+Runtime Cells as connected lanes under supervisor review.
+
+Risk:
+External proposals are strong enough to feel like roadmap. They must remain
+research input until `[Architect Supervisor / Codex]` accepts or narrows them.
+
+Candidate track / no-track-yet:
+Scope update added; no implementation track yet.
+
+Source:
+`docs/research-horizon/external-expert-scope-update.md`,
+`docs/experts/`.
