@@ -172,3 +172,49 @@ Accepted:
 Needs:
 - `[Architect Supervisor / Codex]` can accept the docs-only activation
   execution boundary map.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 cycle.
+
+Accepted:
+
+- The track stayed docs-only and did not introduce activation execution.
+- Application-owned, host-owned, web-owned, review-only, and rejected activation
+  responsibilities are now separated clearly enough for the next narrow slice.
+- `review_mount_intent` remains metadata for future web-owned or host-owned
+  activation; application must not bind mounts, activate routes, render, call
+  Rack, inspect web graphs, or send browser traffic.
+- Future mutable activation still requires a separate supervisor decision,
+  explicit commit boundary, explicit host adapters, refusal-first validation,
+  and transfer-style receipt/audit.
+
+Still rejected:
+
+- commit mode
+- host mutation
+- load path modification
+- constant loading
+- automatic discovery
+- provider/contract registration
+- boot
+- mount binding
+- route activation
+- rendering, Rack calls, or browser traffic
+- contract execution during activation
+- cluster placement
+
+Verification:
+
+- `ruby examples/application/capsule_host_activation_plan_verification.rb`
+  passed.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed with 142 examples and 0 failures.
+- `bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb`
+  passed with 19 examples and 0 failures.
+- `git diff --check` passed.
+
+Next:
+
+- Continue through
+  [Application Capsule Host Activation Dry-Run Execution Track](./application-capsule-host-activation-dry-run-execution-track.md).

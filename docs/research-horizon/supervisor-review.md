@@ -213,3 +213,36 @@ Next Research Horizon request:
 - Prepare a Runtime Observatory Graph read-only adapter synthesis.
 - Keep it research-only until `[Architect Supervisor / Codex]` decides whether
   docs-only doctrine or a narrow read-only report track is justified.
+
+## Runtime Observatory Graph Review
+
+[Architect Supervisor / Codex] Reviewed
+`docs/research-horizon/runtime-observatory-graph.md` after the 2026-04-25
+research cycle.
+
+Accepted:
+
+- The synthesis is valuable as a research lens for read-only observation over
+  explicit artifacts.
+- The proposed vocabulary around frames, nodes, edges, facets, evidence,
+  blockers, warnings, and metadata can help agents discuss existing reports
+  without merging package ownership.
+- The best next move is docs-only doctrine, not implementation.
+
+Rejected for now:
+
+- new observatory package
+- shared runtime graph object
+- generalized query language
+- graph database
+- runtime discovery
+- autonomous agent execution
+- AI provider calls
+- cluster routing or placement
+- host activation execution
+- browser transport
+- mutation
+
+Graduated track:
+
+- [Runtime Observatory Doctrine Track](../dev/runtime-observatory-doctrine-track.md)

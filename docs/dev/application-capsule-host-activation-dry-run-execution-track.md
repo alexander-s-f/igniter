@@ -1,0 +1,127 @@
+# Application Capsule Host Activation Dry-Run Execution Track
+
+This track follows the accepted host activation execution boundary map.
+
+Authoritative supervisor notes are marked:
+
+```text
+[Architect Supervisor / Codex]
+```
+
+Package agents should report with:
+
+```text
+[Agent Application / Codex]
+[Agent Web / Codex]
+```
+
+## Decision
+
+[Architect Supervisor / Codex] Accepted as the next narrow activation track.
+
+The boundary map is useful enough to test as a dry-run execution report, but
+Igniter is still not ready for host mutation. This track may add executable
+read-only/dry-run behavior only. It must not add commit mode.
+
+## Goal
+
+Produce a refusal-first dry-run result over explicit, already verified host
+activation plan data.
+
+The result should answer:
+
+- what would be considered applyable by application-owned activation logic
+- what would remain host-owned/manual
+- what would remain web-owned/host-owned mount metadata
+- what would be refused before any future commit boundary
+
+## Scope
+
+In scope:
+
+- a small application-owned dry-run value object or facade, if implementation
+  is justified by the existing code shape
+- explicit input from `ApplicationHostActivationPlanVerification` or equivalent
+  verified plan data
+- stable serializable keys such as `dry_run`, `committed`, `executable`,
+  `would_apply`, `skipped`, `refusals`, `warnings`, `surface_count`, and
+  `metadata`
+- refusal when verification is invalid, plan is not executable, blockers or
+  unresolved findings exist, or explicit host adapters are missing
+- documentation and smoke coverage for the accepted dry-run path
+
+Out of scope:
+
+- commit mode
+- host mutation
+- modifying load paths
+- loading constants
+- automatic discovery
+- registering providers or contracts
+- booting apps or providers
+- binding web mounts
+- activating routes
+- rendering, Rack calls, or browser traffic
+- contract execution during activation
+- cluster placement
+
+## Task 1: Application Dry-Run Report
+
+Owner: `[Agent Application / Codex]`
+
+Acceptance:
+
+- Add the smallest read-only/dry-run API that fits the existing application
+  capsule activation chain.
+- Require explicit verified activation plan data; do not infer project state.
+- Return a serializable report that separates `would_apply`, `skipped`,
+  `refusals`, and `warnings`.
+- Set `dry_run: true` and `committed: false`; do not expose a commit option.
+- Refuse unsafe inputs rather than degrading into implicit discovery.
+- Add or update a compact example/spec if runtime code changes.
+
+## Task 2: Web Boundary Review
+
+Owner: `[Agent Web / Codex]`
+
+Acceptance:
+
+- Review the dry-run report shape for `review_mount_intent`.
+- Keep mount activation as web-owned or host-owned future work.
+- If wording is needed, update package/guide docs only.
+- Do not add web runtime activation, route binding, rendering, Rack calls,
+  browser traffic, or an application-to-web dependency.
+
+## Verification Gate
+
+Before supervisor acceptance:
+
+```bash
+ruby examples/application/capsule_host_activation_plan_verification.rb
+bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb
+git diff --check
+```
+
+If `packages/igniter-web` changes:
+
+```bash
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
+```
+
+If Ruby implementation files change:
+
+```bash
+rake rubocop
+```
+
+## Current Handoff
+
+[Architect Supervisor / Codex] Next:
+
+1. `[Agent Application / Codex]` starts Task 1 as dry-run-only activation
+   execution reporting.
+2. `[Agent Web / Codex]` performs Task 2 only if the dry-run report touches
+   `review_mount_intent` wording.
+3. Do not add commit mode, mutation, loading, discovery, provider/contract
+   registration, app boot, mount binding, route activation, rendering, browser
+   traffic, contract execution, or cluster placement.
