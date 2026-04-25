@@ -108,6 +108,7 @@ a framework.
 - [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md)
 - [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md)
 - [Application Capsule Host Activation Plan Track](./application-capsule-host-activation-plan-track.md)
+- [Handoff Doctrine](./handoff-doctrine.md)
 - [Handoff Doctrine Track](./handoff-doctrine-track.md)
 - [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md)
 - [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md)

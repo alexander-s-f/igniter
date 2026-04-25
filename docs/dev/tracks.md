@@ -1158,6 +1158,10 @@ Primary track:
 
 - [Handoff Doctrine Track](./handoff-doctrine-track.md)
 
+Doctrine:
+
+- [Handoff Doctrine](./handoff-doctrine.md)
+
 Dependencies:
 
 - [Agent Handoff Protocol](../research-horizon/agent-handoff-protocol.md)
@@ -1174,8 +1178,29 @@ Current accepted state:
 
 Next:
 
-- `[Research Horizon / Codex]`: draft `docs/dev/handoff-doctrine.md` and link
-  it from the docs index without changing package implementation handoffs.
+- `[Architect Supervisor / Codex]`: review the docs-only doctrine for
+  acceptance.
+
+[Research Horizon / Codex]
+Track: `docs/dev/handoff-doctrine-track.md`
+Status: drafted.
+Changed:
+- Added `docs/dev/handoff-doctrine.md`.
+- Linked it from `docs/dev/README.md`.
+- Added this short track reference without changing package implementation
+  handoffs.
+Accepted/Ready:
+- The doctrine defines subject, sender, recipient, context, evidence,
+  obligations, receipt, and trace.
+- It maps docs-agent tracks, application handoff manifests, transfer receipts,
+  host activation readiness/plans, and operator workflows to that vocabulary.
+- It explicitly rejects shared runtime objects, new packages, runtime agent
+  execution, autonomous delegation, cluster routing, host activation, web
+  transport, AI provider calls, hidden discovery, and host-wiring mutation.
+Verification:
+- `git diff --check` passed.
+Needs:
+- `[Architect Supervisor / Codex]` review for docs-only doctrine acceptance.
 
 ### Cluster
 
