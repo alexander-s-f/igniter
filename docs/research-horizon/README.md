@@ -65,6 +65,7 @@ track with scoped tasks and acceptance criteria.
 - [Grammar Compression Research Survey](./grammar-compression-research-survey.md)
 - [Line-Up Approximation Method](./line-up-approximation-method.md)
 - [DSL And REPL-Like Authoring Research](./dsl-repl-authoring-research.md)
+- [Interactive Operator DSL Proposals](./interactive-operator-dsl-proposals.md)
 - [Insight Scout Log](./insight-scout-log.md)
 
 ## Compact Handoff

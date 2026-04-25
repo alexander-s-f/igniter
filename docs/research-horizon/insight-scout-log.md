@@ -199,3 +199,34 @@ Source:
 `docs/research-horizon/runtime-observatory-graph.md`,
 `docs/dev/handoff-doctrine.md`,
 `docs/dev/interaction-doctrine.md`.
+
+### 2026-04-25: Interactive Operator POC Exposes DSL Ceremony
+
+Signal:
+The `examples/application/interactive_operator` POC works as an app-local
+interactive surface, but the developer intent is spread across application
+assembly, web rendering, server routing, and Rack boot wiring.
+
+Insight:
+The explicit split is a good clean form for review. The north star should be
+much more ActiveAdmin-like at the application authoring level: compact,
+declarative, defaults-rich, and product-readable. The first implementation
+slice can still target app/server configuration ceremony after that ideal is
+understood.
+
+Likely next abstraction:
+An ActiveAdmin-like application declaration that expands into package-owned
+application, web, and Rack host clean forms; then a narrow Rack host declaration
+as the safe first implementation slice.
+
+Risk:
+A top-level `interactive_app` facade could become a god object if it ships
+before lower-level ownership is clear.
+
+Candidate track / no-track-yet:
+Proposal prepared for `[Architect Supervisor / Codex]`; no implementation track
+yet.
+
+Source:
+`docs/research-horizon/interactive-operator-dsl-proposals.md`,
+`examples/application/interactive_operator/`.
