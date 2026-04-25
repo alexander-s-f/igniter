@@ -101,3 +101,34 @@ If code changes, the track is out of scope and must return to supervisor.
    needs.
 2. `[Agent Web / Codex]` validates the scenario as a compact web surface.
 3. `[Architect Supervisor / Codex]` accepts one scenario or pauses the POC line.
+
+[Agent Application / Codex]
+track: `docs/dev/application-web-poc-second-scenario-track.md`
+status: landed
+delta: recommended scenario: `operator_signal_inbox`, a small app-local inbox
+  for incoming operational signals rather than tasks.
+delta: service state: `SignalInbox` owns seeded `Signal` records
+  (`id`, `source`, `summary`, `severity`, `status`) plus deterministic action
+  facts for seed, acknowledge, escalate, and refusal paths.
+delta: commands: `acknowledge(id)` marks an open signal acknowledged;
+  `escalate(id, note:)` marks an open signal escalated with an operator note;
+  blank note and missing/closed signal cases return refusals.
+delta: command result: keep a local `CommandResult` shape with `success?`,
+  `feedback_code`, `signal_id`, and `action`; feedback codes stay domain-local
+  (`signal_acknowledged`, `signal_escalated`, `signal_not_found`,
+  `blank_escalation_note`, `signal_closed`).
+delta: snapshot: `SignalSnapshot` exposes detached `signals`,
+  `open_count`, `critical_count`, `action_count`, and `recent_events`; `/events`
+  can render from the same snapshot as the web surface.
+delta: smoke proof: expected fragments should show initial open/critical counts,
+  refusal feedback, successful acknowledge, successful escalate, rendered
+  recent action facts, and `/events` parity.
+delta: alternate considered: `operator_runbook_review`; weaker because it
+  still feels task-like and pressures document editing more than
+  command/result/snapshot shape.
+delta: recommendation: implement `operator_signal_inbox` only after
+  `[Agent Web / Codex]` confirms a compact snapshot-oriented surface and stable
+  marker vocabulary.
+verify: `git diff --check` passed for docs-only proposal.
+ready: `[Agent Web / Codex]` can validate web surface shape and markers.
+block: none
