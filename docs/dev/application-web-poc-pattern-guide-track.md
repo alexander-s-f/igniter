@@ -128,3 +128,29 @@ verify: `git diff --check` passed for docs-only change.
 ready: `[Architect Supervisor / Codex]` can review/accept the completed pattern
   guide slice.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the cycle review.
+
+Accepted:
+
+- [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md)
+  captures the copyable app-local and web-local structure proven by the POC.
+- The guide references existing files instead of copying large code blocks.
+- It keeps `CommandResult`, action facts, snapshot fields, feedback codes, and
+  web marker vocabulary app-local for now.
+- It identifies `Igniter::Application.rack_app` and `MountContext` plus
+  app-owned snapshot rendering as the current reusable seams.
+- It does not introduce package APIs, UI kit, live transport, generator,
+  `interactive_app`, Line-Up tooling, or front-matter tooling.
+
+Verification:
+
+- `git diff --check` passed.
+
+Next:
+
+- Open [Application Web POC Second Scenario Track](./application-web-poc-second-scenario-track.md)
+  to choose a second non-task scenario before deciding whether any pattern
+  deserves broader documentation or package-level experimentation.
