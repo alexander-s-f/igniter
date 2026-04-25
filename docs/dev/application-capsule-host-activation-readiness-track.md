@@ -209,3 +209,47 @@ Verification:
 Needs:
 - `[Architect Supervisor / Codex]` review/accept the host activation readiness
   track and choose the next broad handoff.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 agent cycle.
+
+The readiness slice landed in the right shape:
+
+- `ApplicationHostActivationReadiness` is application-owned read-only
+  preflight over explicit transfer receipt, optional handoff manifest, and
+  host-supplied decisions.
+- `Igniter::Application.host_activation_readiness(...)` does not activate
+  anything; it only reports readiness, blockers, warnings, decisions, manual
+  actions, mount intents, surface count, and metadata.
+- Incomplete receipts, missing required host exports/capabilities, and
+  unresolved manual actions are blockers.
+- Missing load path, provider, contract, lifecycle, and optional mount
+  decisions are warnings.
+- Web readiness remains supplied mount-intent/surface metadata review only.
+- No host wiring mutation, constant loading, app boot, provider lifecycle
+  execution, contract execution, mount binding, route activation, browser
+  traffic, discovery, cluster placement, or `igniter-web` dependency was
+  introduced.
+
+Supervisor verification:
+
+```bash
+ruby examples/application/capsule_host_activation_readiness.rb
+ruby examples/application/capsule_transfer_end_to_end.rb
+bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
+bundle exec rubocop packages/igniter-application/lib/igniter/application/application_host_activation_readiness.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_host_activation_readiness.rb examples/catalog.rb
+```
+
+Results:
+
+- host activation readiness smoke passed
+- end-to-end transfer smoke passed
+- application/current specs passed with 135 examples, 0 failures
+- web skeleton/composer specs passed with 19 examples, 0 failures
+- targeted RuboCop passed with no offenses
+
+Next implementation track:
+
+- [Application Capsule Host Activation Plan Track](./application-capsule-host-activation-plan-track.md)

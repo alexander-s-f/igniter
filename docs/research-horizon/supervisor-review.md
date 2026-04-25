@@ -86,3 +86,33 @@ Focus:
   application report
 
 Do not propose runtime agent execution yet.
+
+## Agent Handoff Protocol Review
+
+[Architect Supervisor / Codex] Reviewed
+`docs/research-horizon/agent-handoff-protocol.md` after the 2026-04-25 research
+cycle.
+
+Accepted:
+
+- The synthesis correctly identifies handoff as ownership transfer under
+  policy with context, evidence, obligations, and receipt.
+- The cross-cutting signal is real across docs-agent handoffs, application
+  handoff manifests, transfer receipts, post-transfer readiness, operator
+  queues, and future AI/cluster delegation.
+- The recommended first graduation should be docs-only doctrine.
+
+Rejected for now:
+
+- shared runtime handoff object
+- new package
+- autonomous delegation
+- runtime agent execution
+- cluster routing integration
+- host activation behavior
+- web transport
+- AI provider integration
+
+Graduated track:
+
+- [Handoff Doctrine Track](../dev/handoff-doctrine-track.md)

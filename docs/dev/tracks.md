@@ -70,9 +70,9 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Define read-only host activation readiness over explicit host decisions | [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md) | [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md), [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md), [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for readiness boundary wording review |
-| `[Agent Web / Codex]` | Boundary review for optional web metadata in host activation readiness | [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md) | [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for readiness wording needs |
-| `[Research Horizon / Codex]` | Long-range proposals and research reports; no implementation authority | [Research Horizon](../research-horizon/README.md) | [Current State Report](../research-horizon/current-state-report.md), [Horizon Proposals](../research-horizon/horizon-proposals.md), [Supervisor Review](../research-horizon/supervisor-review.md) | `[Architect Supervisor / Codex]` for filtering and graduation decisions |
+| `[Agent Application / Codex]` | Define read-only host activation plan over accepted readiness | [Application Capsule Host Activation Plan Track](./application-capsule-host-activation-plan-track.md) | [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md), [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for mount-intent boundary review |
+| `[Agent Web / Codex]` | Boundary review for web mount-intent operations in activation plans | [Application Capsule Host Activation Plan Track](./application-capsule-host-activation-plan-track.md) | [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for activation plan wording needs |
+| `[Research Horizon / Codex]` | Draft docs-only handoff doctrine from accepted research synthesis | [Handoff Doctrine Track](./handoff-doctrine-track.md) | [Agent Handoff Protocol](../research-horizon/agent-handoff-protocol.md), [Supervisor Review](../research-horizon/supervisor-review.md), [Research Horizon](../research-horizon/README.md) | `[Architect Supervisor / Codex]` for doctrine acceptance |
 
 ## Track Map
 
@@ -123,11 +123,15 @@ pressure-test wave:
   landed and were accepted.
 - Post-transfer host integration boundary/checklist wording landed and was
   accepted without adding a new object.
-- The next broad track is read-only host activation readiness over explicit
-  host decisions.
+- Read-only host activation readiness over explicit host decisions landed and
+  was accepted.
+- The next implementation track is read-only host activation planning over
+  accepted readiness.
 - `[Research Horizon / Codex]` joined as a long-range research role. Its work
   stays in `docs/research-horizon/` until `[Architect Supervisor / Codex]`
   graduates a proposal into a narrow `docs/dev/` implementation track.
+- Research Horizon's Agent Handoff Protocol synthesis was accepted as a
+  docs-only doctrine candidate, not a runtime object.
 
 ### Research Horizon
 
@@ -155,8 +159,9 @@ Current accepted state:
 
 Near-term supervisor filter:
 
-- First review candidate: Agent Handoff Protocol synthesis.
-- Second review candidate: Interaction Kernel read-only report.
+- First graduated candidate: Agent Handoff Protocol synthesis into
+  [Handoff Doctrine Track](./handoff-doctrine-track.md).
+- Next review candidate: Interaction Kernel read-only report.
 - Runtime Observatory Graph remains promising but should wait until a smaller
   handoff/interaction vocabulary is clearer.
 
@@ -1079,7 +1084,7 @@ Next:
 
 ### Application Capsule Host Activation Readiness
 
-Status: active.
+Status: landed and accepted.
 
 Primary track:
 
@@ -1093,23 +1098,84 @@ Dependencies:
 
 Current accepted state:
 
-- Transfer receipt and post-transfer integration review define what happened
-  and what the host still owns.
-- The next useful question is whether explicit host decisions are sufficient
-  for a future activation step.
-- This should be read-only readiness/preflight, not activation.
-- Inputs should remain explicit value objects or compatible hashes; no project
-  discovery or filesystem inspection beyond supplied artifact data.
-- Web-related readiness stays about supplied mount intents and surface metadata
-  only.
+- `ApplicationHostActivationReadiness` and
+  `Igniter::Application.host_activation_readiness(...)` are accepted as the
+  read-only preflight over explicit transfer receipt, optional handoff
+  manifest, and host-supplied decisions.
+- It reports stable `ready`, `blockers`, `warnings`, `decisions`,
+  `manual_actions`, `mount_intents`, `surface_count`, and `metadata`.
+- Incomplete receipts, missing required host exports/capabilities, and
+  unresolved manual actions are blockers.
+- Missing load path, provider, contract, lifecycle, and optional mount
+  decisions are warnings.
+- It does not mutate, load, boot, register providers/contracts, mount, route,
+  execute contracts, activate web, discover projects, place work on a cluster,
+  or require `igniter-web`.
+- Acceptance passed on 2026-04-25 with readiness/end-to-end smoke examples,
+  application/current specs, web skeleton/composer specs, and RuboCop.
 
 Next:
 
-- `[Agent Application / Codex]`: decide whether docs are enough or land the
-  smallest read-only activation readiness report/facade.
-- `[Agent Web / Codex]`: review that web readiness metadata does not imply
-  route activation, mount binding, browser traffic, screen graph inspection, or
-  an application dependency on web.
+- Continue through [Application Capsule Host Activation Plan Track](./application-capsule-host-activation-plan-track.md).
+- Keep the next cycle as read-only planning only; do not add activation
+  execution.
+
+### Application Capsule Host Activation Plan
+
+Status: active.
+
+Primary track:
+
+- [Application Capsule Host Activation Plan Track](./application-capsule-host-activation-plan-track.md)
+
+Dependencies:
+
+- [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md)
+- [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md)
+
+Current accepted state:
+
+- Readiness can now say whether host decisions are sufficient for future
+  activation.
+- The next useful artifact is a read-only activation plan over accepted
+  readiness.
+- The plan may define descriptive operations, but must not execute them.
+- Web-related operations remain mount-intent review metadata.
+
+Next:
+
+- `[Agent Application / Codex]`: land the smallest read-only activation plan
+  only if it reduces real repeated ceremony after readiness.
+- `[Agent Web / Codex]`: review mount-intent planning language and prevent any
+  route activation, mount binding, browser traffic, screen inspection, or
+  application-to-web dependency.
+
+### Handoff Doctrine
+
+Status: active docs-only graduation from Research Horizon.
+
+Primary track:
+
+- [Handoff Doctrine Track](./handoff-doctrine-track.md)
+
+Dependencies:
+
+- [Agent Handoff Protocol](../research-horizon/agent-handoff-protocol.md)
+- [Research Horizon Supervisor Review](../research-horizon/supervisor-review.md)
+
+Current accepted state:
+
+- Research Horizon identified handoff as ownership transfer under policy with
+  context, evidence, obligations, and receipt.
+- The idea is accepted for docs-only doctrine, not a shared runtime object.
+- No package code, new package, runtime agent execution, autonomous delegation,
+  cluster routing, host activation, web transport, or AI provider integration
+  is accepted.
+
+Next:
+
+- `[Research Horizon / Codex]`: draft `docs/dev/handoff-doctrine.md` and link
+  it from the docs index without changing package implementation handoffs.
 
 ### Cluster
 
