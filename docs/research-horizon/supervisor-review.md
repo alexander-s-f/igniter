@@ -146,3 +146,37 @@ Next Research Horizon request:
 - Prepare an Interaction Kernel read-only report synthesis.
 - Keep it research-only until `[Architect Supervisor / Codex]` decides whether
   a docs-only doctrine or read-only report track is justified.
+
+## Interaction Kernel Review
+
+[Architect Supervisor / Codex] Reviewed
+`docs/research-horizon/interaction-kernel-report.md` after the 2026-04-25
+research cycle.
+
+Accepted:
+
+- The synthesis correctly separates interaction from handoff.
+- The proposed vocabulary is useful as docs-only alignment: subject,
+  participant, affordance, pending state, surface context, session context,
+  policy context, evidence, and outcome.
+- The current ownership split remains correct: application owns active flow
+  snapshots, web owns candidate surface metadata, operator surfaces own
+  accountability, and capsule/activation reports own transfer/host review
+  state.
+
+Rejected for now:
+
+- `igniter-interactions`
+- shared runtime interaction object
+- browser transport
+- workflow engine behavior
+- runtime agent execution
+- AI provider integration
+- cluster routing/placement
+- web screen graph inspection by application
+- route activation
+- host activation
+
+Graduated track:
+
+- [Interaction Doctrine Track](../dev/interaction-doctrine-track.md)

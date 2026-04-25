@@ -193,3 +193,49 @@ Accepted:
 Needs:
 - `[Architect Supervisor / Codex]` can accept the Web boundary review for this
   track.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 agent cycle.
+
+The activation plan verification slice landed in the intended shape:
+
+- `ApplicationHostActivationPlanVerification` is application-owned read-only
+  verification over supplied activation plan data.
+- `Igniter::Application.verify_host_activation_plan(...)` consumes explicit
+  plan objects or compatible hashes only.
+- Executable plans must carry review operations unless explicitly allowed by
+  policy/metadata.
+- Non-executable plans are valid only when blockers explain the refusal and no
+  operations are present.
+- Operations must use the accepted descriptive vocabulary and remain
+  `status: :review_required`.
+- `review_mount_intent` remains supplied intent metadata only.
+- The implementation does not execute plans, mutate host wiring, change load
+  paths, load constants, register providers/contracts, boot, bind mounts,
+  activate routes, send browser traffic, execute contracts, discover projects,
+  place work on a cluster, or require `igniter-web`.
+
+Supervisor verification:
+
+```bash
+ruby examples/application/capsule_host_activation_plan_verification.rb
+ruby examples/application/capsule_host_activation_plan.rb
+bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
+bundle exec rubocop packages/igniter-application/lib/igniter/application/application_host_activation_plan_verification.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_host_activation_plan_verification.rb examples/catalog.rb
+git diff --check
+```
+
+Results:
+
+- activation plan verification smoke passed
+- activation plan smoke passed
+- application/current specs passed with 142 examples, 0 failures
+- web skeleton/composer specs passed with 19 examples, 0 failures
+- targeted RuboCop passed with no offenses
+- diff whitespace check passed
+
+Next implementation track:
+
+- [Application Capsule Host Activation Guide Consolidation Track](./application-capsule-host-activation-guide-consolidation-track.md)
