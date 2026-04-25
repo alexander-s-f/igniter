@@ -482,6 +482,26 @@ sources, unsupported operation types, and non-executable plans are refusals.
 `manual_host_wiring` operations remain skipped/review-only and are never
 applied.
 
+Post-apply verification reads back a committed transfer result without
+repairing it:
+
+```ruby
+applied_verification = Igniter::Application.verify_applied_transfer(
+  committed,
+  apply_plan: apply_plan
+)
+
+applied_verification.to_h
+```
+
+`ApplicationTransferAppliedVerification` verifies reviewed directories and file
+copies against the destination filesystem and artifact source files. It reports
+missing directories/files, unsafe paths, byte-size mismatches, content
+mismatches, skipped/refused operations, and unexpected applied operations from
+explicit result/plan data only. It does not create directories, copy files,
+repair mismatches, apply host wiring, activate web, load constants, boot apps,
+or route traffic.
+
 This transfer guide deliberately stops before project-wide discovery,
 automatic destination selection, applying host wiring, loading constants,
 booting apps, mounting web routes, executing contracts, or placing work on a
@@ -506,6 +526,7 @@ Start with these examples:
 - [`examples/application/capsule_transfer_intake_plan.rb`](../../examples/application/capsule_transfer_intake_plan.rb)
 - [`examples/application/capsule_transfer_apply_plan.rb`](../../examples/application/capsule_transfer_apply_plan.rb)
 - [`examples/application/capsule_transfer_apply_execution.rb`](../../examples/application/capsule_transfer_apply_execution.rb)
+- [`examples/application/capsule_transfer_applied_verification.rb`](../../examples/application/capsule_transfer_applied_verification.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

@@ -131,6 +131,8 @@ Current shape:
 - read-only capsule transfer apply operation plans over accepted intake data
 - explicit dry-run-first capsule transfer apply execution reports over
   reviewed apply plans
+- read-only capsule transfer applied verification reports over committed
+  transfer results
 - public capsule transfer guide over the read-only report/composition/assembly/
   handoff chain
 - explicit sparse/complete structure plans for materializing missing app layout
@@ -196,9 +198,11 @@ over reviewed transfer apply plans. It defaults to non-mutating review; with
 directories and copy reviewed files under the destination root. It does not
 apply host wiring, activate web, load, boot, route, execute contracts, or place
 work on a cluster.
-The next active application track is read-only post-apply verification for
-committed transfer results. It should prove the destination matches reviewed
-operations without repairing, overwriting, activating web, or booting apps.
+`ApplicationTransferAppliedVerification` is the current read-only post-apply
+verification report over committed transfer results. It proves destination
+directories/files match reviewed operations and artifact sources without
+repairing, overwriting, applying host wiring, activating web, booting apps,
+routing, executing contracts, or placing work on a cluster.
 
 Lifecycle now follows this shape:
 

@@ -393,3 +393,17 @@ Dry-run is the default. Commit mode may create reviewed directories and copy
 reviewed files, but it still treats web surface metadata as an opaque count and
 does not install surfaces, bind mounts, activate routes, or inspect web
 internals.
+
+Post-apply verification is the read-only closure step after an explicit commit:
+
+```ruby
+report = Igniter::Application.verify_applied_transfer(
+  committed,
+  apply_plan: apply_plan
+)
+```
+
+The report verifies only reviewed destination directories/files and artifact
+sources. It may preserve the supplied web surface count from the committed
+result, but it does not require `igniter-web`, inspect web metadata, install
+surfaces, bind mounts, activate routes, or repair destination state.

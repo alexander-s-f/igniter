@@ -249,9 +249,12 @@ applied; with `commit: true` it preflights the reviewed operations and may
 create only reviewed directories and copy only reviewed files. It refuses
 non-executable plans, unsafe paths, missing artifact sources, unsupported
 operations, and destination overwrites; manual host wiring remains review-only.
-The next planned surface is read-only post-apply verification: after a committed
-apply result, verify destination files/directories against reviewed operations
-without repairing or activating anything.
+
+`ApplicationTransferAppliedVerification` is the current read-only post-apply
+verification report. Given a committed apply result and optional reviewed apply
+plan, it verifies destination directories/files against explicit operations and
+artifact sources, reports mismatches or missing material, and never repairs,
+activates web, boots apps, routes, or applies host wiring.
 
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or
@@ -306,6 +309,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_transfer_intake_plan.rb`](../../examples/application/capsule_transfer_intake_plan.rb)
 - [`examples/application/capsule_transfer_apply_plan.rb`](../../examples/application/capsule_transfer_apply_plan.rb)
 - [`examples/application/capsule_transfer_apply_execution.rb`](../../examples/application/capsule_transfer_apply_execution.rb)
+- [`examples/application/capsule_transfer_applied_verification.rb`](../../examples/application/capsule_transfer_applied_verification.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

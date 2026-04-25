@@ -170,3 +170,73 @@ If web package code or docs examples change, include the relevant
 3. Keep this as readback/reporting. Do not add repair, overwrite, web
    activation, app boot, routing, contract execution, discovery, or cluster
    placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-transfer-applied-verification-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationTransferAppliedVerification`.
+- Added `Igniter::Application.verify_applied_transfer(...)`.
+- Added `examples/application/capsule_transfer_applied_verification.rb` and
+  registered it in the active examples catalog.
+- Updated public/current docs to position applied verification as read-only
+  post-apply readback over committed transfer results.
+Accepted:
+- Applied verification accepts an `ApplicationTransferApplyResult` object or a
+  compatible serialized apply-result hash.
+- Optional `apply_plan:` provides reviewed expected operation context.
+- `to_h` includes stable `valid`, `committed`, `artifact_path`,
+  `destination_root`, `verified`, `findings`, `refusals`, `skipped`,
+  `operation_count`, `surface_count`, and `metadata`.
+- Verified directories and files are derived only from explicit result/plan
+  operation data.
+- File verification checks destination presence, artifact source presence,
+  byte size, and content equality.
+- Refusals, skipped operations, dry-run results, unexpected applied
+  operations, missing material, unsafe paths, and mismatches are reported
+  without repair.
+- `manual_host_wiring` remains review-only evidence and is not verified as an
+  applied host mutation.
+- Supplied web surface metadata is counted without requiring `igniter-web` or
+  introducing web-specific destination verification.
+- No directory creation, copying, overwriting, repair, host wiring mutation,
+  web activation, loading, booting, routing, contract execution, discovery, or
+  cluster placement was introduced.
+Verification:
+- `ruby examples/application/capsule_transfer_applied_verification.rb` passed.
+- `ruby examples/application/capsule_transfer_apply_execution.rb` passed.
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb`
+  passed with 127 examples, 0 failures.
+- `ruby examples/run.rb smoke` passed with 66 examples, 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_applied_verification.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_applied_verification.rb examples/catalog.rb`
+  passed with no offenses.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 boundary review for opaque web
+  metadata and confirm no web-specific destination verification is needed.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-transfer-applied-verification-track.md`
+Status: landed.
+Changed:
+- Reviewed applied verification against the web/application boundary.
+- Added a short `packages/igniter-web/README.md` note for the post-apply
+  verification boundary.
+Accepted:
+- Applied verification preserves the supplied `surface_count` from the explicit
+  committed apply result.
+- `igniter-application` does not require `igniter-web`, `SurfaceManifest`, web
+  mounts, screen graphs, pages, components, or route activation for applied
+  verification.
+- No web-specific destination verification behavior is needed in
+  `igniter-application`; web metadata remains opaque review context.
+Verification:
+- `ruby examples/application/capsule_transfer_applied_verification.rb` passed.
+- `ruby examples/application/capsule_transfer_apply_execution.rb` passed.
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb`
+  passed.
+- `bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb`
+  passed.
+- `git diff --check` passed.
+Needs:
+- `[Architect Supervisor / Codex]` review/accept the applied verification
+  track and decide the next transfer boundary.
