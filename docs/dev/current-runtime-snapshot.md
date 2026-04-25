@@ -141,6 +141,7 @@ Current shape:
 - read-only host activation readiness over explicit post-transfer host
   decisions
 - read-only host activation plans over accepted readiness
+- read-only host activation plan verification over supplied plan data
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces
@@ -237,6 +238,12 @@ when blocked, and otherwise describes confirm/review operations without
 mutating host wiring, changing load paths, registering providers/contracts,
 booting apps, binding mounts, activating routes, executing contracts,
 discovering projects, or placing work on a cluster.
+`ApplicationHostActivationPlanVerification` is the current read-only
+verification report over supplied activation plan data. It checks that
+executable/non-executable state, operation vocabulary, review-only status, and
+mount-intent metadata are internally consistent without executing, mutating,
+loading, booting, registering, mounting, routing, activating web, executing
+contracts, discovering projects, or placing work on a cluster.
 
 Lifecycle now follows this shape:
 

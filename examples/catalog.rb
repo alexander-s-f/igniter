@@ -417,6 +417,18 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_host_activation_plan_verification",
+      "Read-only verification of host activation review plans.",
+      expected_fragments: [
+        "application_capsule_host_activation_plan_verify_valid=true",
+        "application_capsule_host_activation_plan_verify_executable=true",
+        "application_capsule_host_activation_plan_verify_operations=6",
+        "application_capsule_host_activation_plan_verify_verified=6",
+        "application_capsule_host_activation_plan_verify_findings=0",
+        "application_capsule_host_activation_plan_verify_surfaces=1"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

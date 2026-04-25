@@ -1695,6 +1695,113 @@ RSpec.describe Igniter::Application::Environment do
     expect(plan.fetch(:warnings)).to contain_exactly(include(code: "load_paths_unconfirmed"))
   end
 
+  it "verifies host activation plans as descriptive review data" do
+    readiness = Igniter::Application.host_activation_readiness(
+      {
+        complete: true,
+        valid: true,
+        committed: true,
+        manual_actions: [],
+        surface_count: 1
+      },
+      handoff_manifest: {
+        suggested_host_wiring: [
+          { capsule: :operator, name: :incident_runtime, kind: :service, capabilities: [:audit] }
+        ],
+        mount_intents: [
+          { capsule: :operator, kind: :web, at: "/operator", metadata: { surface: :operator_console } }
+        ]
+      },
+      host_exports: [
+        { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+      ],
+      host_capabilities: [:audit],
+      load_paths: ["operator"],
+      providers: [:incident_runtime],
+      contracts: ["Contracts::ResolveIncident"],
+      lifecycle: { boot: :manual_review },
+      mount_decisions: [
+        { capsule: :operator, kind: :web, at: "/operator", status: :accepted }
+      ]
+    )
+    plan = Igniter::Application.host_activation_plan(readiness)
+
+    verification = Igniter::Application.verify_host_activation_plan(plan, metadata: { source: :spec }).to_h
+
+    expect(verification).to include(
+      valid: true,
+      executable: true,
+      findings: [],
+      operation_count: 7,
+      surface_count: 1,
+      metadata: { source: :spec }
+    )
+    expect(verification.fetch(:verified).map { |entry| entry.fetch(:type) }).to include(
+      :confirm_load_path,
+      :confirm_provider,
+      :confirm_contract,
+      :confirm_lifecycle,
+      :review_mount_intent
+    )
+  end
+
+  it "flags activation plan verification findings for non-review operations" do
+    plan = {
+      executable: true,
+      operations: [
+        {
+          type: :activate_route,
+          status: :executed,
+          source: :runtime,
+          destination: "/operator",
+          metadata: { route: "/operator" }
+        },
+        {
+          type: :review_mount_intent,
+          status: :review_required,
+          source: :activation_readiness_mount_intent,
+          destination: "/operator",
+          metadata: {}
+        }
+      ],
+      blockers: [],
+      warnings: [],
+      surface_count: 1
+    }
+
+    verification = Igniter::Application.verify_host_activation_plan(JSON.parse(JSON.generate(plan))).to_h
+
+    expect(verification).to include(valid: false, executable: true, verified: [], operation_count: 2)
+    expect(verification.fetch(:findings).map { |entry| entry.fetch(:code) }).to include(
+      :unknown_operation_type,
+      :operation_not_review_required,
+      :mount_intent_metadata_missing
+    )
+  end
+
+  it "accepts blocked host activation plans when blockers explain the refusal" do
+    plan = {
+      executable: false,
+      operations: [],
+      blockers: [
+        { code: :missing_host_export, message: "Required host export decision is missing." }
+      ],
+      warnings: [],
+      surface_count: 0
+    }
+
+    verification = Igniter::Application.verify_host_activation_plan(plan).to_h
+
+    expect(verification).to include(
+      valid: true,
+      executable: false,
+      verified: [],
+      findings: [],
+      operation_count: 0,
+      surface_count: 0
+    )
+  end
+
   it "refuses committed transfer application without explicit apply roots" do
     plan = {
       executable: true,

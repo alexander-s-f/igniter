@@ -37,6 +37,7 @@ require_relative "application/application_transfer_applied_verification"
 require_relative "application/application_transfer_receipt"
 require_relative "application/application_host_activation_readiness"
 require_relative "application/application_host_activation_plan"
+require_relative "application/application_host_activation_plan_verification"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -253,6 +254,10 @@ module Igniter
 
       def host_activation_plan(readiness, metadata: {})
         ApplicationHostActivationPlan.build(readiness, metadata: metadata)
+      end
+
+      def verify_host_activation_plan(plan, metadata: {})
+        ApplicationHostActivationPlanVerification.verify(plan, metadata: metadata)
       end
     end
   end

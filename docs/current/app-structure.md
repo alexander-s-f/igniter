@@ -291,6 +291,13 @@ but remains non-executable when readiness is blocked. It does not mutate host
 wiring, register anything, boot apps, bind web mounts, activate routes, execute
 contracts, discover projects, or place capsules on a cluster.
 
+`ApplicationHostActivationPlanVerification` is the current read-only check
+over supplied activation plan data. It verifies that operations are still from
+the accepted descriptive review vocabulary, that review operations do not claim
+applied/executed state, and that mount-intent review remains opaque metadata.
+It does not inspect directories, inspect web screen graphs, mutate hosts, load,
+boot, mount, route, execute contracts, or place capsules on a cluster.
+
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or
 extract bundles, load, boot, mount, route, execute, or place capsules on a
@@ -349,6 +356,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_transfer_end_to_end.rb`](../../examples/application/capsule_transfer_end_to_end.rb)
 - [`examples/application/capsule_host_activation_readiness.rb`](../../examples/application/capsule_host_activation_readiness.rb)
 - [`examples/application/capsule_host_activation_plan.rb`](../../examples/application/capsule_host_activation_plan.rb)
+- [`examples/application/capsule_host_activation_plan_verification.rb`](../../examples/application/capsule_host_activation_plan_verification.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

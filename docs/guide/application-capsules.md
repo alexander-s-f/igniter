@@ -638,6 +638,25 @@ register providers or contracts, boot anything, bind mounts, activate routes,
 send browser traffic, execute contracts, discover projects, or place work on a
 cluster.
 
+Activation plan verification checks the supplied plan data before any future
+execution boundary exists:
+
+```ruby
+verification = Igniter::Application.verify_host_activation_plan(plan)
+
+verification.to_h
+```
+
+`ApplicationHostActivationPlanVerification` reports `valid`, `executable`,
+verified operations, findings, operation count, supplied surface count, and
+metadata. It verifies that executable plans remain descriptive review work,
+non-executable plans carry blockers and no operations, operation types are from
+the accepted activation-review vocabulary, and `review_mount_intent` remains
+opaque mount metadata. It does not inspect project directories, inspect web
+screen graphs, mutate host state, load constants, boot apps, register
+providers or contracts, bind mounts, activate routes, send browser traffic,
+execute contracts, discover projects, or place work on a cluster.
+
 This transfer guide deliberately stops before project-wide discovery,
 automatic destination selection, applying host wiring, loading constants,
 booting apps, mounting web routes, executing contracts, or placing work on a
@@ -667,6 +686,7 @@ Start with these examples:
 - [`examples/application/capsule_transfer_end_to_end.rb`](../../examples/application/capsule_transfer_end_to_end.rb)
 - [`examples/application/capsule_host_activation_readiness.rb`](../../examples/application/capsule_host_activation_readiness.rb)
 - [`examples/application/capsule_host_activation_plan.rb`](../../examples/application/capsule_host_activation_plan.rb)
+- [`examples/application/capsule_host_activation_plan_verification.rb`](../../examples/application/capsule_host_activation_plan_verification.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow
