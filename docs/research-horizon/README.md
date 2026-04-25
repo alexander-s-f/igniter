@@ -60,6 +60,9 @@ track with scoped tasks and acceptance criteria.
 - [Supervisor Review](./supervisor-review.md)
 - [Agent Handoff Protocol](./agent-handoff-protocol.md)
 - [Interaction Kernel Report](./interaction-kernel-report.md)
+- [Grammar-Compressed Interaction](./grammar-compressed-interaction.md)
+- [Grammar Compression Research Survey](./grammar-compression-research-survey.md)
+- [Line-Up Approximation Method](./line-up-approximation-method.md)
 
 ## Compact Handoff
 
