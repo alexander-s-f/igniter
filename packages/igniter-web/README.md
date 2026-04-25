@@ -422,3 +422,9 @@ The receipt can carry the same supplied web surface count forward for humans,
 agents, and CI logs. It remains application-owned reporting only; it does not
 load web classes, interpret surface metadata, mount routes, activate browser
 traffic, or mutate destination files.
+
+For the complete public transfer path, start with
+`examples/application/capsule_transfer_end_to_end.rb`. It demonstrates the
+application-owned chain from capsule declaration to receipt while keeping web
+surface metadata as supplied hashes. The example does not activate web routes,
+bind mounts, inspect screens/components, or require `igniter-web`.

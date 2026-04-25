@@ -197,3 +197,31 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 boundary wording review for the
   consolidated transfer guide.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-transfer-guide-consolidation-track.md`
+Status: landed.
+Changed:
+- Reviewed the consolidated capsule transfer guide and end-to-end smoke path
+  against the web/application boundary.
+- Added a short `packages/igniter-web/README.md` note pointing to the complete
+  end-to-end transfer example.
+Accepted:
+- The consolidated transfer guide describes web surface metadata as supplied
+  opaque context.
+- The end-to-end transfer example uses plain surface metadata hashes and does
+  not require `igniter-web`.
+- The transfer path does not imply web route activation, screen/component
+  inspection, mount binding, browser traffic, or an `igniter-application`
+  dependency on `igniter-web`.
+Verification:
+- `ruby examples/application/capsule_transfer_end_to_end.rb` passed.
+- `ruby examples/application/capsule_transfer_receipt.rb` passed.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed.
+- `bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb`
+  passed.
+- `git diff --check` passed.
+Needs:
+- `[Architect Supervisor / Codex]` review/accept the consolidated transfer
+  guide track and choose the next broad handoff.
