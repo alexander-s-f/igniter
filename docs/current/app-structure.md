@@ -310,6 +310,18 @@ This remains separate from runtime activation and broad transfer automation.
 The existing activation review objects can feed a future explicit
 host/web/cluster-owned execution boundary, but they are not that boundary.
 
+Future activation execution is only mapped, not implemented. If accepted later,
+the first mutable boundary must be refusal-first: start from a valid activation
+plan verification, require explicit commit and explicit host target/adapters,
+reject unresolved blockers/findings/manual actions, and avoid implicit
+discovery or ambient constant loading. Host exports/capabilities and manual
+actions remain host-owned evidence, load path/provider/contract/lifecycle
+operations are only possible future application-owned work, and
+`review_mount_intent` remains web-owned or host-owned metadata until a web
+activation boundary consumes it. Any future execution report must list applied,
+skipped, refused, and manual operations plus the verified plan identity before
+a separate activation receipt can close the audit.
+
 ## Placement Rules
 
 Code that exists for one capsule belongs inside that capsule.

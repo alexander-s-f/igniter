@@ -678,6 +678,51 @@ selection, applying host wiring, loading constants, registering providers or
 contracts, booting apps, mounting web routes, sending browser traffic,
 executing contracts, or placing work on a cluster.
 
+### Future Activation Execution Boundary
+
+Igniter is not yet implementing activation execution. If a future mutable slice
+is accepted, it must start from the verified activation plan and stay
+refusal-first. The current ownership map is:
+
+- `confirm_host_export` and `confirm_host_capability` are host-owned evidence.
+  Application may review their names and metadata, but it must not construct or
+  inject host objects.
+- `confirm_load_path`, `confirm_provider`, `confirm_contract`, and
+  `confirm_lifecycle` are possible future application-owned activation
+  operations only after explicit host target, explicit commit, and no implicit
+  discovery or ambient constant loading.
+- `acknowledge_manual_actions` remains host-owned/manual unless a later track
+  narrows a safe explicit adapter for a specific action type.
+- `review_mount_intent` is web-owned or host-owned activation metadata.
+  Application must not bind web mounts, activate routes, render screens, call
+  Rack, send browser traffic, or inspect web component graphs.
+
+These behaviors are too risky for the first activation execution boundary and
+must stay out of v1 execution unless a later track accepts a smaller proof:
+project-wide discovery, automatic constant loading, inferred provider or
+contract registration, automatic lifecycle boot, implicit web mount binding,
+route activation, browser traffic, contract execution during activation, and
+cluster placement.
+
+Any future execution boundary would require these preconditions before doing
+mutable work:
+
+- a valid `ApplicationHostActivationPlanVerification`
+- an explicit `commit: true`-style caller decision
+- an explicit host target or adapter supplied by the caller
+- no readiness blockers, plan blockers, verification findings, or unresolved
+  manual actions
+- no project-wide discovery, implicit destination selection, ambient constant
+  loading, or automatic web activation
+
+The future execution report would need to be as explicit as transfer apply
+reports: committed/dry-run status, verified plan identity or digest, accepted
+operation count, applied operations, skipped operations, refusals, warnings,
+manual actions left for the host, surface count, and metadata. It would still
+need a separate receipt/audit object before being treated as activation
+closure. Until that future track exists, the verified plan is review evidence
+only.
+
 ## Runnable Examples
 
 Start with these examples:

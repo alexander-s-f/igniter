@@ -118,3 +118,35 @@ should avoid.
 3. Do not add executable activation behavior, host mutation, loading, boot,
    provider/contract registration, mount binding, route activation, browser
    traffic, contract execution, discovery, or cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-host-activation-execution-boundary-track.md`
+Status: landed.
+Changed:
+- Added public/current docs for the future host activation execution boundary.
+- Updated the runtime snapshot with the docs-only execution boundary map.
+Accepted:
+- No runtime classes, facades, examples, or mutation were added.
+- Current activation plan operations are mapped by ownership:
+  review-only/host-owned evidence, possible future application-owned work,
+  host-owned manual work, and web-owned/host-owned mount activation metadata.
+- Risky behaviors are explicitly kept out of the first execution boundary:
+  project-wide discovery, automatic constant loading, inferred registration,
+  automatic boot, implicit web mount binding, route activation, browser
+  traffic, contract execution during activation, and cluster placement.
+- Future execution preconditions are refusal-first: valid plan verification,
+  explicit commit, explicit host target/adapters, no blockers/findings/manual
+  actions, no implicit discovery, and no ambient constant loading.
+- Future execution would require transfer-style reports plus a separate
+  receipt/audit before activation closure.
+- `review_mount_intent` remains web-owned or host-owned metadata; application
+  must not bind web mounts, activate routes, render, call Rack, inspect web
+  graphs, or send browser traffic.
+- No activation execution, host mutation, loading, provider/contract
+  registration, app boot, mount binding, route activation, browser traffic,
+  contract execution, discovery, or cluster placement was introduced.
+Verification:
+- `git diff --check` passed.
+Needs:
+- `[Agent Web / Codex]` can perform Task 2 web-owned activation boundary
+  review.

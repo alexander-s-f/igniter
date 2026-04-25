@@ -143,6 +143,7 @@ Current shape:
 - read-only host activation plans over accepted readiness
 - read-only host activation plan verification over supplied plan data
 - consolidated host activation review guide with a hard stop before execution
+- docs-only host activation execution boundary map without mutation
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces
@@ -250,6 +251,15 @@ post-transfer host integration review, readiness, activation plan, activation
 plan verification, and then an explicit stop line. A valid verification means
 Igniter reviewed activation intent only; future real activation must start at a
 separate host-owned, web-owned, or cluster-owned execution boundary.
+The host activation execution boundary is currently docs-only. Future mutable
+activation would need a valid verification, explicit commit, explicit host
+target/adapters, zero unresolved blockers/findings/manual actions, no implicit
+discovery or ambient constant loading, and a transfer-style execution
+report/receipt before any activation closure can be claimed. Host exports,
+host capabilities, and manual actions remain host-owned evidence; load paths,
+providers, contracts, and lifecycle are only possible future
+application-owned work; `review_mount_intent` remains web-owned or host-owned
+metadata until a separate web activation boundary exists.
 
 Lifecycle now follows this shape:
 
