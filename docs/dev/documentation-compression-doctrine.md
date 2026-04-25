@@ -65,3 +65,22 @@ Deferred:
 - The expert proposal to compress `tracks-history.md` immediately. It is useful,
   but lower priority than keeping the active path small while the POC is still
   moving.
+
+## Line-Up Experiment Boundary
+
+[Architect Supervisor / Codex]
+
+The experimental work in `examples/lineup` is accepted as a research sandbox,
+not as active-process tooling.
+
+Observed from `ruby examples/lineup/demo.rb`:
+
+- Compact handoffs are already dense; Line-Up can be neutral or more expensive.
+- Prose handoffs can benefit modestly.
+- Session-level economics improve only after enough repeated messages.
+
+Decision:
+
+- Do not replace the current compact handoff format with Line-Up.
+- Keep Line-Up experiments outside the main tracks until the research shows a
+  clear win for long prose documents or generated summaries.

@@ -1,0 +1,101 @@
+# Application Web POC Pattern Guide Track
+
+This track turns the accepted interactive operator POC findings into a compact
+copyable pattern guide.
+
+Authoritative supervisor notes are marked:
+
+```text
+[Architect Supervisor / Codex]
+```
+
+Package agents should report with:
+
+```text
+[Agent Application / Codex]
+[Agent Web / Codex]
+```
+
+Constraints:
+
+- `:interactive_poc_guardrails` from [Constraint Sets](./constraints.md)
+- [Documentation Compression Doctrine](./documentation-compression-doctrine.md)
+
+## Decision
+
+[Architect Supervisor / Codex] Accepted as the next docs-only slice.
+
+The structure synthesis recommends documenting the copyable app-local pattern
+before adding another runtime feature or package API.
+
+## Goal
+
+Add a short guide/pattern note for building a small interactive app with
+Igniter Application + Igniter Web.
+
+The guide should cover:
+
+- `app.rb` as the composition seam
+- `services/` as the app-owned state/command/read boundary
+- app-local `CommandResult`
+- app-local read snapshot
+- mounted web surface consuming the snapshot
+- stable `data-` markers for smoke/browser checks
+- what should remain local until repeated by another POC
+
+## Scope
+
+In scope:
+
+- one compact guide or dev pattern note
+- links from the dev index if needed
+- examples that point to the existing `examples/application/interactive_operator`
+  skeleton instead of copying large code blocks
+
+Out of scope:
+
+- code changes
+- package API changes
+- generators
+- UI kit
+- live transport
+- full `interactive_app`
+- Line-Up/front-matter tooling
+
+## Task 1: Application Pattern Note
+
+Owner: `[Agent Application / Codex]`
+
+Acceptance:
+
+- Document the app-local structure and why it stayed local.
+- Keep examples short and reference existing files.
+- Do not propose package API unless labeled as future candidate.
+
+## Task 2: Web Pattern Note
+
+Owner: `[Agent Web / Codex]`
+
+Acceptance:
+
+- Document the mounted surface and snapshot rendering pattern.
+- Document stable `data-` markers as the current testing/inspection seam.
+- Do not introduce a UI kit or web abstraction.
+
+## Verification Gate
+
+Before supervisor acceptance:
+
+```bash
+git diff --check
+```
+
+If code changes, the track is out of scope and must return to supervisor.
+
+## Current Handoff
+
+[Architect Supervisor / Codex] Next:
+
+1. `[Agent Application / Codex]` drafts the app-local pattern section.
+2. `[Agent Web / Codex]` drafts the web-local pattern section.
+3. Keep the guide compact; link existing files instead of reproducing code.

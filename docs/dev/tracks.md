@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review POC structure synthesis and decide next compact slice | [Application Web POC Structure Synthesis Track](./application-web-poc-structure-synthesis-track.md) | [Documentation Compression Doctrine](./documentation-compression-doctrine.md), [Constraint Sets](./constraints.md), [Application Web POC Read Model Track](./application-web-poc-read-model-track.md) | user |
-| `[Agent Application / Codex]` | Summarize app-local structure findings from the accepted POC | [Application Web POC Structure Synthesis Track](./application-web-poc-structure-synthesis-track.md) | [Application Web POC Read Model Track](./application-web-poc-read-model-track.md), [Application Web POC Command Result Track](./application-web-poc-command-result-track.md), [Application Web POC Action Log Track](./application-web-poc-action-log-track.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Summarize web-local structure findings from the accepted POC | [Application Web POC Structure Synthesis Track](./application-web-poc-structure-synthesis-track.md) | [Application Web POC Read Model Track](./application-web-poc-read-model-track.md), [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review POC pattern guide and keep Line-Up research out of active tooling until accepted | [Application Web POC Pattern Guide Track](./application-web-poc-pattern-guide-track.md) | [Application Web POC Structure Synthesis Track](./application-web-poc-structure-synthesis-track.md), [Documentation Compression Doctrine](./documentation-compression-doctrine.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Draft app-local pattern guide section from accepted POC findings | [Application Web POC Pattern Guide Track](./application-web-poc-pattern-guide-track.md) | [Application Web POC Structure Synthesis Track](./application-web-poc-structure-synthesis-track.md), [Application Web POC Read Model Track](./application-web-poc-read-model-track.md), [Application Web POC Command Result Track](./application-web-poc-command-result-track.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Draft web-local pattern guide section from accepted POC findings | [Application Web POC Pattern Guide Track](./application-web-poc-pattern-guide-track.md) | [Application Web POC Structure Synthesis Track](./application-web-poc-structure-synthesis-track.md), [Application Web POC Read Model Track](./application-web-poc-read-model-track.md), [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -73,14 +73,16 @@ block: none | <blocker>
 - Expert formalization is accepted as reference vocabulary, not as an
   implementation mandate:
   [Agent Track Pattern](../experts/agent-track-pattern.md).
-- Next slice is docs-only structure synthesis:
-  [Application Web POC Structure Synthesis Track](./application-web-poc-structure-synthesis-track.md).
+- Next slice is docs-only pattern guide:
+  [Application Web POC Pattern Guide Track](./application-web-poc-pattern-guide-track.md).
+- `examples/lineup` is research sandbox only; do not replace active compact
+  handoffs with Line-Up.
 
 ## Active Review
 
 ### Current Accepted POC State
 
-Status: read model landed and accepted.
+Status: structure synthesis landed and accepted.
 
 Accepted slices:
 
@@ -92,6 +94,8 @@ Accepted slices:
   app-local command result shape.
 - [Read Model](./application-web-poc-read-model-track.md): app-local
   `BoardSnapshot` consumed by `/events` and the web board.
+- [Structure Synthesis](./application-web-poc-structure-synthesis-track.md):
+  app-local and web-local pattern findings.
 
 Verification gate observed for latest slice:
 
@@ -111,6 +115,7 @@ Accepted:
 - Constraint sets for reusable boundaries.
 - Agent lifecycle doctrine and expert track-pattern vocabulary.
 - Documentation compression doctrine, narrowed to manual active-context hygiene.
+- Line-Up research sandbox acknowledged; not accepted as active tooling.
 
 Deferred:
 
@@ -119,5 +124,5 @@ Deferred:
 
 Next:
 
-- Application/Web agents should summarize structure findings before any new POC
-  implementation.
+- Application/Web agents should turn the synthesis into a compact copyable
+  pattern guide before any new POC implementation.

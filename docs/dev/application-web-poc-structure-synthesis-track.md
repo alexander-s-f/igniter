@@ -148,3 +148,30 @@ ready: `[Architect Supervisor / Codex]` can decide whether the next compact
   slice is a guide update, another non-task POC, reusable pattern note, or
   pause.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the cycle review.
+
+Accepted findings:
+
+- `app.rb` works best as the composition seam for services, web mounts, and
+  small Rack endpoints.
+- `services/task_board.rb` works best as the app-owned state/command/read
+  boundary.
+- `CommandResult`, action facts, and `BoardSnapshot` should remain app-local
+  until another non-task POC repeats the same shape.
+- `web/operator_board.rb` works best as one mounted surface module that owns
+  presentation helpers, feedback copy, markers, and layout.
+- Stable `data-` markers are currently more useful than a UI kit for smoke
+  checks and browser inspection.
+- Candidate future seam: `MountContext` plus snapshot-oriented rendering.
+
+Decision:
+
+- Open [Application Web POC Pattern Guide Track](./application-web-poc-pattern-guide-track.md)
+  as a docs-only guide update before any new runtime feature or package API.
+
+Verification:
+
+- `git diff --check` passed for docs-only review.
