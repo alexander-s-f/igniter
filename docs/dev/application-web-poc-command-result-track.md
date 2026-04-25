@@ -141,3 +141,20 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can verify board compatibility; no visible board
   change is required by the application slice.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-web-poc-command-result-track.md`
+status: landed
+delta: no Web surface code change required; `web/operator_board.rb` remains
+  compatible because command results preserve the existing feedback query codes
+  and app-owned recent activity facts.
+delta: verified existing rendered markers for feedback, task cards, and recent
+  activity still pass after the app-local `CommandResult` change.
+verify: `ruby examples/application/interactive_web_poc.rb` passed.
+verify: `ruby examples/run.rb smoke` passed with 74 examples, 0 failures.
+verify: `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can review/accept the completed command
+  result POC slice.
+block: none
