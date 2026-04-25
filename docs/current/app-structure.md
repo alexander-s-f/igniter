@@ -255,8 +255,12 @@ verification report. Given a committed apply result and optional reviewed apply
 plan, it verifies destination directories/files against explicit operations and
 artifact sources, reports mismatches or missing material, and never repairs,
 activates web, boots apps, routes, or applies host wiring.
-The next planned surface is a compact read-only transfer receipt over explicit
-transfer reports, suitable as final audit/closure output for humans and agents.
+
+`ApplicationTransferReceipt` is the current read-only transfer closure report.
+Given explicit verification/result/plan reports, it summarizes
+complete/valid/committed status, counts, findings, refusals, skipped work,
+manual actions, and supplied surface count without rerunning execution,
+verification, discovery, repair, activation, or routing.
 
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or
@@ -312,6 +316,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_transfer_apply_plan.rb`](../../examples/application/capsule_transfer_apply_plan.rb)
 - [`examples/application/capsule_transfer_apply_execution.rb`](../../examples/application/capsule_transfer_apply_execution.rb)
 - [`examples/application/capsule_transfer_applied_verification.rb`](../../examples/application/capsule_transfer_applied_verification.rb)
+- [`examples/application/capsule_transfer_receipt.rb`](../../examples/application/capsule_transfer_receipt.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

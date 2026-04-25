@@ -34,6 +34,7 @@ require_relative "application/application_transfer_intake_plan"
 require_relative "application/application_transfer_apply_plan"
 require_relative "application/application_transfer_apply_result"
 require_relative "application/application_transfer_applied_verification"
+require_relative "application/application_transfer_receipt"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -215,6 +216,15 @@ module Igniter
       def verify_applied_transfer(apply_result, apply_plan: nil, metadata: {})
         ApplicationTransferAppliedVerification.verify(
           apply_result,
+          apply_plan: apply_plan,
+          metadata: metadata
+        )
+      end
+
+      def transfer_receipt(applied_verification, apply_result: nil, apply_plan: nil, metadata: {})
+        ApplicationTransferReceipt.build(
+          applied_verification,
+          apply_result: apply_result,
           apply_plan: apply_plan,
           metadata: metadata
         )

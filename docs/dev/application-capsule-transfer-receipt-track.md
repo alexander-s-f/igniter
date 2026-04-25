@@ -165,3 +165,41 @@ If web package code or docs examples change, include the relevant
 3. Keep this as audit/closure reporting. Do not add mutation, repair, web
    activation, app boot, routing, contract execution, discovery, or cluster
    placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-transfer-receipt-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationTransferReceipt`.
+- Added `Igniter::Application.transfer_receipt(...)`.
+- Added `examples/application/capsule_transfer_receipt.rb` and registered it
+  in the active examples catalog.
+- Updated public/current docs to position transfer receipts as read-only
+  closure/audit artifacts over explicit transfer reports.
+Accepted:
+- Receipt generation accepts value objects or compatible serialized hashes for
+  applied verification, apply result, and apply plan data.
+- `to_h` includes stable `complete`, `valid`, `committed`, `artifact_path`,
+  `destination_root`, `counts`, `manual_actions`, `findings`, `refusals`,
+  `skipped`, `surface_count`, and `metadata`.
+- `counts` summarizes planned, applied, verified, findings, refusals, skipped,
+  and manual action totals.
+- Manual host wiring remains review-only and is surfaced as `manual_actions`.
+- `complete` requires valid committed verification with no findings, refusals,
+  skipped operations, or manual actions.
+- Supplied web surface metadata is counted without requiring `igniter-web` or
+  introducing web-specific receipt behavior.
+- Receipt generation does not rerun apply execution, rerun applied
+  verification, discover artifacts, repair files, mutate host wiring, activate
+  web, load, boot, route, execute contracts, or place work on a cluster.
+Verification:
+- `ruby examples/application/capsule_transfer_receipt.rb` passed.
+- `ruby examples/application/capsule_transfer_applied_verification.rb` passed.
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb`
+  passed with 131 examples, 0 failures.
+- `ruby examples/run.rb smoke` passed with 67 examples, 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_receipt.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_receipt.rb examples/catalog.rb`
+  passed with no offenses.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 boundary review for opaque web
+  metadata and confirm no web-specific receipt behavior is needed.

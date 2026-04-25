@@ -1322,6 +1322,171 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "builds transfer receipts over explicit transfer reports" do
+    Dir.mktmpdir("igniter-transfer-receipt") do |root|
+      FileUtils.mkdir_p(File.join(root, "capsule/contracts"))
+      FileUtils.mkdir_p(File.join(root, "capsule/spec"))
+      FileUtils.mkdir_p(File.join(root, "capsule/web"))
+      File.write(File.join(root, "capsule/contracts/resolve_incident.rb"), "# contract\n")
+      File.write(File.join(root, "capsule/igniter.rb"), "# config\n")
+
+      blueprint = Igniter::Application.blueprint(
+        name: :operator,
+        root: File.join(root, "capsule"),
+        env: :test,
+        layout_profile: :capsule,
+        groups: [:contracts],
+        web_surfaces: [:operator_console],
+        imports: [
+          { name: :incident_runtime, kind: :service, from: :host }
+        ]
+      )
+      plan = Igniter::Application.transfer_bundle_plan(
+        blueprint,
+        subject: :operator_bundle,
+        host_exports: [
+          { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+        ],
+        surface_metadata: [
+          { name: :operator_console, kind: :web_surface, path: "web" }
+        ]
+      )
+      artifact = File.join(root, "operator_bundle")
+      destination = File.join(root, "destination")
+      Igniter::Application.write_transfer_bundle(plan, output: artifact)
+      verification = Igniter::Application.verify_transfer_bundle(artifact)
+      intake = Igniter::Application.transfer_intake_plan(verification, destination_root: destination)
+      apply_plan = Igniter::Application.transfer_apply_plan(intake)
+      apply_result = Igniter::Application.apply_transfer_plan(apply_plan, commit: true)
+      applied_verification = Igniter::Application.verify_applied_transfer(apply_result, apply_plan: apply_plan)
+
+      receipt = Igniter::Application.transfer_receipt(
+        applied_verification,
+        apply_result: apply_result,
+        apply_plan: apply_plan,
+        metadata: { source: :spec }
+      ).to_h
+
+      expect(receipt).to include(
+        complete: true,
+        valid: true,
+        committed: true,
+        artifact_path: artifact,
+        destination_root: destination,
+        manual_actions: [],
+        findings: [],
+        refusals: [],
+        skipped: [],
+        surface_count: 1,
+        metadata: { source: :spec }
+      )
+      expect(receipt.fetch(:counts)).to eq(
+        planned: 4,
+        applied: 4,
+        verified: 4,
+        findings: 0,
+        refusals: 0,
+        skipped: 0,
+        manual_actions: 0
+      )
+    end
+  end
+
+  it "keeps transfer receipts compatible with serialized report hashes" do
+    Dir.mktmpdir("igniter-transfer-receipt") do |root|
+      applied_verification = {
+        valid: false,
+        committed: true,
+        artifact_path: File.join(root, "artifact"),
+        destination_root: File.join(root, "destination"),
+        verified: [],
+        findings: [
+          { code: :content_mismatch, message: "changed" }
+        ],
+        refusals: [],
+        skipped: [],
+        operation_count: 1,
+        surface_count: 0
+      }
+      apply_result = {
+        applied: [
+          { type: :copy_file, status: :applied, source: "files/operator/igniter.rb", destination: "operator/igniter.rb" }
+        ]
+      }
+      apply_plan = {
+        operation_count: 1,
+        operations: [
+          { type: :copy_file, source: "files/operator/igniter.rb", destination: "operator/igniter.rb" }
+        ]
+      }
+
+      receipt = Igniter::Application.transfer_receipt(
+        JSON.parse(JSON.generate(applied_verification)),
+        apply_result: JSON.parse(JSON.generate(apply_result)),
+        apply_plan: JSON.parse(JSON.generate(apply_plan))
+      ).to_h
+
+      expect(receipt).to include(complete: false, valid: false, committed: true)
+      expect(receipt.fetch(:counts)).to include(
+        planned: 1,
+        applied: 1,
+        verified: 0,
+        findings: 1,
+        refusals: 0,
+        skipped: 0,
+        manual_actions: 0
+      )
+      expect(receipt.fetch(:findings)).to contain_exactly(include("code" => "content_mismatch"))
+    end
+  end
+
+  it "summarizes manual host wiring as transfer receipt manual actions" do
+    Dir.mktmpdir("igniter-transfer-receipt") do |root|
+      apply_plan = {
+        operation_count: 1,
+        operations: [
+          {
+            type: :manual_host_wiring,
+            status: :review_required,
+            source: :intake_required_host_wiring,
+            destination: :host,
+            metadata: { entry: { name: :incident_runtime } }
+          }
+        ]
+      }
+      apply_result = Igniter::Application.apply_transfer_plan(
+        {
+          executable: true,
+          artifact_path: root,
+          destination_root: File.join(root, "destination"),
+          operations: apply_plan.fetch(:operations),
+          blockers: [],
+          surface_count: 0
+        },
+        commit: true
+      )
+      applied_verification = Igniter::Application.verify_applied_transfer(apply_result, apply_plan: apply_plan)
+
+      receipt = Igniter::Application.transfer_receipt(
+        applied_verification,
+        apply_result: apply_result,
+        apply_plan: apply_plan
+      ).to_h
+
+      expect(receipt).to include(valid: true, committed: true, complete: false)
+      expect(receipt.fetch(:counts)).to include(
+        planned: 1,
+        applied: 0,
+        verified: 0,
+        skipped: 1,
+        manual_actions: 1
+      )
+      expect(receipt.fetch(:manual_actions)).to contain_exactly(
+        include(type: :manual_host_wiring, destination: :host)
+      )
+    end
+  end
+
   it "refuses committed transfer application without explicit apply roots" do
     plan = {
       executable: true,

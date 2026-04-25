@@ -502,6 +502,26 @@ explicit result/plan data only. It does not create directories, copy files,
 repair mismatches, apply host wiring, activate web, load constants, boot apps,
 or route traffic.
 
+Transfer receipts summarize explicit transfer reports into one closure
+artifact:
+
+```ruby
+receipt = Igniter::Application.transfer_receipt(
+  applied_verification,
+  apply_result: committed,
+  apply_plan: apply_plan
+)
+
+receipt.to_h
+```
+
+`ApplicationTransferReceipt` reports complete/valid/committed status, artifact
+and destination roots, planned/applied/verified/finding/refusal/skipped counts,
+manual actions, and supplied surface count. It consumes already-built reports
+or hashes only; it does not rerun apply execution, rerun applied verification,
+discover missing artifacts, repair files, apply host wiring, activate web, load
+constants, boot apps, or route traffic.
+
 This transfer guide deliberately stops before project-wide discovery,
 automatic destination selection, applying host wiring, loading constants,
 booting apps, mounting web routes, executing contracts, or placing work on a
@@ -527,6 +547,7 @@ Start with these examples:
 - [`examples/application/capsule_transfer_apply_plan.rb`](../../examples/application/capsule_transfer_apply_plan.rb)
 - [`examples/application/capsule_transfer_apply_execution.rb`](../../examples/application/capsule_transfer_apply_execution.rb)
 - [`examples/application/capsule_transfer_applied_verification.rb`](../../examples/application/capsule_transfer_applied_verification.rb)
+- [`examples/application/capsule_transfer_receipt.rb`](../../examples/application/capsule_transfer_receipt.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

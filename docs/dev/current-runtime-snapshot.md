@@ -133,6 +133,7 @@ Current shape:
   reviewed apply plans
 - read-only capsule transfer applied verification reports over committed
   transfer results
+- read-only capsule transfer receipts over explicit transfer reports
 - public capsule transfer guide over the read-only report/composition/assembly/
   handoff chain
 - explicit sparse/complete structure plans for materializing missing app layout
@@ -203,9 +204,11 @@ verification report over committed transfer results. It proves destination
 directories/files match reviewed operations and artifact sources without
 repairing, overwriting, applying host wiring, activating web, booting apps,
 routing, executing contracts, or placing work on a cluster.
-The next active application track is a compact read-only transfer receipt over
-explicit transfer reports. It should summarize final status and manual
-attention without mutation, rediscovery, activation, or execution.
+`ApplicationTransferReceipt` is the current read-only transfer closure report
+over explicit verification/result/plan reports. It summarizes final status,
+counts, findings, refusals, skipped work, manual actions, and supplied surface
+count without mutation, rediscovery, activation, verification reruns, or
+execution.
 
 Lifecycle now follows this shape:
 
