@@ -459,6 +459,23 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/interactive_web_poc",
+      "Compact server-backed application/web POC with state-changing interaction.",
+      expected_fragments: [
+        "interactive_web_poc_initial_status=200",
+        "interactive_web_poc_content_type=text/html",
+        "interactive_web_poc_initial_open=true",
+        "interactive_web_poc_post_status=303",
+        "interactive_web_poc_final_status=200",
+        "interactive_web_poc_final_open=true",
+        "interactive_web_poc_surface=true",
+        "interactive_web_poc_resolved=true",
+        "interactive_web_poc_events_status=200",
+        "interactive_web_poc_events=open=1",
+        "interactive_web_poc_service=operator_task_board"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

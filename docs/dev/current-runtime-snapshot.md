@@ -146,6 +146,7 @@ Current shape:
 - docs-only host activation execution boundary map without mutation
 - dry-run-only host activation execution reports over verified plan data
 - read-only host activation commit-readiness over dry-run and adapter evidence
+- compact server-backed interactive application/web POC
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces
@@ -273,6 +274,11 @@ dry-run evidence and supplied adapter evidence. It reports descriptive
 `commit_allowed` state plus blockers, warnings, required/provided adapters,
 would-apply count, and skipped count without commit mode, adapter discovery,
 host mutation, web activation, contract execution, or cluster placement.
+`examples/application/interactive_web_poc.rb` is the current practical
+application/web integration POC. It uses an application environment to provide
+state, renders a web surface through `igniter-web`, handles a form POST through
+a tiny Rack-compatible host, and confirms the changed state in the next render
+without adding production server dependencies.
 
 Lifecycle now follows this shape:
 

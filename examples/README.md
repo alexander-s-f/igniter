@@ -50,6 +50,7 @@ Active runnable examples live in `examples/application/`, `examples/contracts/`,
 - `application/capsule_host_activation_readiness.rb`
 - `application/capsule_inspection.rb`
 - `application/capsule_manifest.rb`
+- `application/interactive_web_poc.rb`
 - `application/capsule_transfer_applied_verification.rb`
 - `application/capsule_transfer_apply_execution.rb`
 - `application/capsule_transfer_apply_plan.rb`

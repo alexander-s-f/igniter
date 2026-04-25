@@ -341,6 +341,13 @@ discover adapters, expose commit mode, mutate hosts, register or boot
 anything, bind mounts, activate routes, execute contracts, or place capsules on
 a cluster.
 
+`examples/application/interactive_web_poc.rb` is the current compact
+application/web POC. It builds an application environment with an app-owned
+task-board service, renders the surface through `igniter-web`, handles a
+state-changing Rack POST, and verifies that the next render reflects the new
+state. Its default mode is non-hanging smoke; `server` mode starts a small
+local HTTP server for manual browser testing.
+
 ## Placement Rules
 
 Code that exists for one capsule belongs inside that capsule.
@@ -397,6 +404,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_host_activation_plan_verification.rb`](../../examples/application/capsule_host_activation_plan_verification.rb)
 - [`examples/application/capsule_host_activation_dry_run.rb`](../../examples/application/capsule_host_activation_dry_run.rb)
 - [`examples/application/capsule_host_activation_commit_readiness.rb`](../../examples/application/capsule_host_activation_commit_readiness.rb)
+- [`examples/application/interactive_web_poc.rb`](../../examples/application/interactive_web_poc.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

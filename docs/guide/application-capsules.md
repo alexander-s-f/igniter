@@ -808,7 +808,10 @@ Start with these examples:
 - [`examples/application/capsule_host_activation_plan_verification.rb`](../../examples/application/capsule_host_activation_plan_verification.rb)
 - [`examples/application/capsule_host_activation_dry_run.rb`](../../examples/application/capsule_host_activation_dry_run.rb)
 - [`examples/application/capsule_host_activation_commit_readiness.rb`](../../examples/application/capsule_host_activation_commit_readiness.rb)
+- [`examples/application/interactive_web_poc.rb`](../../examples/application/interactive_web_poc.rb)
 
 They are smoke-tested through the examples catalog and show the current
-capsule vocabulary without browser transport, cluster placement, or workflow
-execution.
+capsule vocabulary without cluster placement or workflow execution. The
+interactive web POC additionally shows a tiny server-backed Rack path where an
+application-owned service holds state, `igniter-web` renders a form, a POST
+request changes state, and the next render reflects the change.

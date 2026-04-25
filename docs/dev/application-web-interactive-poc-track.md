@@ -133,3 +133,52 @@ rake rubocop
    boundary.
 3. `[Research Horizon / Codex]` skips this cycle.
 4. Keep the result compact, runnable, and practical.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-web-interactive-poc-track.md`
+Status: landed.
+Changed:
+- Added `examples/application/interactive_web_poc.rb`.
+- Registered the POC in `examples/catalog.rb` and `examples/README.md`.
+- Updated public/current/runtime docs with the interactive POC entry.
+Accepted:
+- The POC defines a public app-owned `InteractiveTaskBoard` state/service.
+- It builds an `Igniter::Application` environment that provides the service.
+- It renders the surface through accepted `igniter-web` page/mount APIs.
+- A Rack-compatible `POST /tasks` request mutates in-memory state.
+- The next `GET /` render reflects the changed state.
+- Default mode is non-hanging smoke; `server` mode starts a small local HTTP
+  server for manual browser testing.
+- No production server framework, database, auth, background job, websocket,
+  cluster placement, host activation commit, or frontend framework was added.
+Verification:
+- `ruby examples/application/interactive_web_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 74 examples, 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+Needs:
+- `[Agent Web / Codex]` can review/own the rendered interactive surface and
+  web request boundary.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-web-interactive-poc-track.md`
+Status: landed.
+Changed:
+- Tightened the `igniter-web` rendered surface in
+  `examples/application/interactive_web_poc.rb` with a compact operator-board
+  layout, task cards, a visible read endpoint hint, and stable web data
+  attributes for smoke verification.
+- Updated the examples catalog with the new rendered-surface marker.
+Accepted:
+- The POC surface renders through accepted `Igniter::Web.application`,
+  page/root, `ApplicationWebMount`, and `MountContext` APIs.
+- The interaction path remains real and compact: `GET /` renders app-owned
+  state, `POST /tasks` mutates the in-memory service through the host, and the
+  next `GET /` render reflects the changed state.
+- No frontend framework, production server framework, database, auth,
+  background job, websocket, cluster placement, host activation commit, or
+  unrelated visual system was introduced.
+Needs:
+- `[Architect Supervisor / Codex]` can review/accept the compact interactive
+  application/web POC.
