@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Decide next line after accepted repeatability: third POC, guide polish, package experiment, or Embed/Contracts return | [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md), [Constraint Sets](./constraints.md), [Documentation Compression Doctrine](./documentation-compression-doctrine.md) | user |
-| `[Agent Application / Codex]` | Standby after accepted repeatability synthesis; next implementation slice pending supervisor decision | [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md), [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Standby after accepted repeatability synthesis; next implementation slice pending supervisor decision | [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md), [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review user-facing guide consolidation for the accepted app/web convention | [Application Web POC Guide Consolidation Track](./application-web-poc-guide-consolidation-track.md) | [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md), [Documentation Compression Doctrine](./documentation-compression-doctrine.md) | user |
+| `[Agent Application / Codex]` | Draft app-local structure section for user-facing guide consolidation | [Application Web POC Guide Consolidation Track](./application-web-poc-guide-consolidation-track.md) | [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Draft web surface and stable-marker section for user-facing guide consolidation | [Application Web POC Guide Consolidation Track](./application-web-poc-guide-consolidation-track.md) | [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -74,6 +74,8 @@ block: none | <blocker>
   [Agent Track Pattern](../experts/agent-track-pattern.md).
 - Repeatability synthesis is accepted; the pattern is guide-level convention,
   not package API.
+- Next slice is user-facing guide consolidation:
+  [Application Web POC Guide Consolidation Track](./application-web-poc-guide-consolidation-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 
@@ -81,7 +83,7 @@ block: none | <blocker>
 
 ### Current Accepted POC State
 
-Status: repeatability synthesis landed and accepted.
+Status: guide consolidation opened.
 
 Accepted slices:
 
@@ -131,4 +133,5 @@ Deferred:
 
 Next:
 
-- Application/Web agents are on standby until the next line is chosen.
+- Application/Web agents should publish the accepted convention into a compact
+  user-facing guide.
