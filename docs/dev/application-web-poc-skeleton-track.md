@@ -174,3 +174,25 @@ Needs:
   skeleton.
 - `[Agent Web / Codex]` can now refine/own
   `examples/application/interactive_operator/web/operator_board.rb`.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-web-poc-skeleton-track.md`
+Status: landed.
+Changed:
+- Refined `examples/application/interactive_operator/web/operator_board.rb` as
+  the web-owned surface inside the app-local skeleton.
+- Extracted presentation constants/helpers inside the web surface module so the
+  page DSL stays compact and copyable.
+- Added explicit rendered-state/action markers for the operator board cards.
+Accepted:
+- The launcher and app/server/service boundaries remain unchanged.
+- The interaction path remains unchanged: `GET /` renders app-owned state,
+  `POST /tasks` mutates the in-memory task board through the Rack host, and the
+  next render reflects the changed state.
+- The skeleton keeps web-owned rendering under `web/operator_board.rb` and does
+  not add a frontend framework, generator, production server layer, database,
+  auth, background job, websocket, cluster placement, or host activation
+  mutation.
+Needs:
+- `[Architect Supervisor / Codex]` can review/accept the compact app-local POC
+  skeleton.
