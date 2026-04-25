@@ -19,6 +19,7 @@ Perspective: external expert in distributed interactive agent systems.
 | [agent-track-pattern.md](agent-track-pattern.md) | Agent Track Pattern formal specification — vocabulary, state machine, topology, memory architecture, scaling model, Igniter integration, graduation path |
 | [documentation-compression.md](documentation-compression.md) | Documentation compression methodology — content taxonomy, compression algorithm, 7 accumulation rules, Line-Up format for docs, tooling path |
 | [concept-emergence.md](concept-emergence.md) | Concept emergence research — statistical mining of 88-doc corpus, 499 frequent patterns found, 22 named, vocabulary lifecycle model, "митоз" analogy applied |
+| [semantic-gateway.md](semantic-gateway.md) | Semantic Gateway design — Human↔Agent interaction pre-processing, SAE-inspired local intent extraction, three-stage adaptive pipeline, RPi 5 viable |
 
 ## One-Line Summary
 
