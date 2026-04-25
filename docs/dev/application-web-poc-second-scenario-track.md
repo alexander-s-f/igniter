@@ -166,3 +166,33 @@ verify: `git diff --check` passed for docs-only proposal.
 ready: `[Architect Supervisor / Codex]` can accept `operator_signal_inbox`,
   pause the POC line, or request a smaller scenario.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the cycle review.
+
+Accepted scenario:
+
+- `operator_signal_inbox`
+
+Accepted reasons:
+
+- It is meaningfully outside the task-board domain.
+- It repeats the accepted app/web shape with signal-specific vocabulary.
+- It has success/refusal command paths, counters, read snapshot, feedback,
+  recent action facts, and smokeable markers.
+- It can stay app-local and small.
+
+Rejected/deferred:
+
+- `operator_runbook_review` is deferred because it feels more task-like and
+  would pressure document editing more than command/result/snapshot structure.
+
+Next:
+
+- Open [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md)
+  for implementation.
+
+Verification:
+
+- `git diff --check` passed.
