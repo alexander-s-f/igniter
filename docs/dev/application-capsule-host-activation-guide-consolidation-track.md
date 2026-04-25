@@ -152,3 +152,24 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 stop-line review for web activation
   wording.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-host-activation-guide-consolidation-track.md`
+Status: landed.
+Changed:
+- Reviewed the consolidated public/current host activation guide wording from
+  the web boundary side.
+- No package README or runtime changes were needed; existing `igniter-web`
+  wording already states that activation readiness, plan, and verification keep
+  web mount intent as supplied metadata only.
+Accepted:
+- Public wording does not imply web activation.
+- Mount intents and `review_mount_intent` remain supplied metadata/review
+  operations until a future explicit web-owned activation adapter consumes
+  them.
+- No route activation, mount binding, browser traffic, rendering,
+  screen/component inspection, application-to-web dependency, or executable
+  web activation path was introduced.
+Needs:
+- `[Architect Supervisor / Codex]` can accept the host activation guide
+  consolidation stop line.
