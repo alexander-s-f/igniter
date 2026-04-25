@@ -18,7 +18,8 @@ The current application commands are intentionally plain Rack form targets:
   `error=blank_title`.
 - `POST /tasks` resolves an existing task from an `id` field and redirects
   with `notice=task_resolved` or `error=task_not_found`.
-- `GET /events` returns a compact text read model with the open-task count.
+- `GET /events` returns a compact text read model with the open-task count,
+  action count, and recent typed action facts.
 
 The web surface renders `notice` and `error` query params as compact feedback
 messages on the next board render. This stays app-local and intentionally does

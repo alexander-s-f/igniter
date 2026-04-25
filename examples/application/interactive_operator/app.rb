@@ -14,6 +14,14 @@ module InteractiveOperator
     "/?#{URI.encode_www_form(params)}"
   end
 
+  def self.events_read_model(board)
+    recent = board.recent_events(limit: 6).map do |event|
+      task_id = event.fetch(:task_id) || "-"
+      "#{event.fetch(:kind)}:#{task_id}:#{event.fetch(:status)}"
+    end
+    "open=#{board.open_count} actions=#{board.action_count} recent=#{recent.join("|")}"
+  end
+
   def self.build
     Igniter::Application.rack_app(:interactive_operator, root: APP_ROOT, env: :test) do
       service(:task_board) { Services::TaskBoard.new }
@@ -27,7 +35,7 @@ module InteractiveOperator
       )
 
       get "/events" do
-        text "open=#{service(:task_board).open_count}"
+        text InteractiveOperator.events_read_model(service(:task_board))
       end
 
       post "/tasks/create" do |params|

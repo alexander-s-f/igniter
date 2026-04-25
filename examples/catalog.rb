@@ -476,6 +476,8 @@ module IgniterExamples
         "interactive_web_poc_created_open=true",
         "interactive_web_poc_created_task=true",
         "interactive_web_poc_created_feedback=true",
+        "interactive_web_poc_missing_status=303",
+        "interactive_web_poc_missing_location=true",
         "interactive_web_poc_post_status=303",
         "interactive_web_poc_resolve_location=true",
         "interactive_web_poc_final_status=200",
@@ -485,6 +487,12 @@ module IgniterExamples
         "interactive_web_poc_resolved=true",
         "interactive_web_poc_events_status=200",
         "interactive_web_poc_events=open=2",
+        "interactive_web_poc_events_actions=true",
+        "interactive_web_poc_events_seeded=true",
+        "interactive_web_poc_events_refused=true",
+        "interactive_web_poc_events_created=true",
+        "interactive_web_poc_events_missing=true",
+        "interactive_web_poc_events_resolved=true",
         "interactive_web_poc_service=operator_task_board"
       ]
     ),

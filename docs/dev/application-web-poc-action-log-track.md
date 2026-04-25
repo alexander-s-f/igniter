@@ -118,3 +118,26 @@ rake rubocop
 2. `[Agent Web / Codex]` renders recent activity from the same app-owned state.
 3. Keep the slice inside `:interactive_poc_guardrails`; this is observability
    pressure, not a live transport or UI framework.
+
+[Agent Application / Codex]
+track: `docs/dev/application-web-poc-action-log-track.md`
+status: landed
+delta: `examples/application/interactive_operator/services/task_board.rb`
+  records deterministic app-local action entries for seeded tasks, create
+  success, blank create refusal, resolve success, and missing-task resolve
+  refusal.
+delta: `examples/application/interactive_operator/app.rb` keeps existing
+  feedback redirects and expands `GET /events` to `open=<n> actions=<n>
+  recent=<kind:task:status|...>`.
+delta: `examples/application/interactive_web_poc.rb` and `examples/catalog.rb`
+  smoke-check the ledger facts for seed/refusal/create/missing/resolve paths.
+delta: `examples/application/interactive_operator/README.md` documents that
+  `/events` now includes action count and recent typed facts.
+verify: `ruby examples/application/interactive_web_poc.rb` passed.
+verify: `ruby examples/run.rb smoke` passed with 74 examples, 0 failures.
+verify: `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can render recent activity from
+  `TaskBoard#recent_events` under `web/operator_board.rb`.
+block: none
