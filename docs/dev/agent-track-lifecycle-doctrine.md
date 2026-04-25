@@ -31,10 +31,34 @@ LLM capabilities.
 - [Active Tracks](./tracks.md) is the live routing table.
 - [Tracks History](./tracks-history.md) is accepted long context.
 - [Constraint Sets](./constraints.md) is reusable boundary vocabulary.
+- [Agent Track Pattern](../experts/agent-track-pattern.md) is accepted as an
+  expert reference, not as an implementation mandate.
 - Individual track files hold goal, scope, owners, acceptance, verification,
   handoffs, and supervisor acceptance.
 - Research and expert directories can feed proposals, but they do not directly
   become active work until the supervisor accepts a slice.
+
+## Vocabulary
+
+The current lightweight vocabulary is intentionally smaller than the full expert
+specification:
+
+- Signal: a user, agent, research, expert, verification, or application-pressure
+  trigger that may become a track.
+- Track: a bounded unit of work with owner roles, constraints, acceptance, and
+  verification.
+- Task: a discrete owner-scoped piece inside a track.
+- Window: a group of tasks that may run in parallel and should be reviewed
+  together.
+- Constraint set: a named boundary policy cited by active tracks.
+- Handoff: a compact structured observation emitted by an agent.
+- Acceptance: a supervisor decision to accept, reject, defer, or follow up.
+- Memory layer: active, warm, cold, or speculative context with different read
+  costs.
+
+Do not add formal front-matter, generators, validators, or native agent runtime
+from this vocabulary yet. The vocabulary is accepted so humans and agents can
+name the shape consistently while the docs protocol continues to evolve.
 
 ## Lifecycle
 
@@ -143,6 +167,22 @@ Current implementation status:
 - active routing exists in [Active Tracks](./tracks.md)
 - history compression exists in [Tracks History](./tracks-history.md)
 - named constraints exist in [Constraint Sets](./constraints.md)
-- next live test is [Application Web POC Action Log Track](./application-web-poc-action-log-track.md)
+- expert formalization exists in [Agent Track Pattern](../experts/agent-track-pattern.md)
+- next live test is [Application Web POC Command Result Track](./application-web-poc-command-result-track.md)
 
 Next evolution should happen through use, not premature framework code.
+
+Accepted from expert review:
+
+- vocabulary for Signal, Track, Task, Window, Constraint set, Handoff,
+  Acceptance, and Memory layer
+- framing of the docs protocol as a future candidate for Igniter-native agent
+  compilation
+
+Deferred from expert review:
+
+- front-matter conversion
+- active index generator
+- handoff validator
+- track compiler
+- native agent execution

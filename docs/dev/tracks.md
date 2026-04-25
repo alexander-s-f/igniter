@@ -44,8 +44,8 @@ block: none | <blocker>
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
 | `[Architect Supervisor / Codex]` | Maintain compact active index, lifecycle doctrine, constraint sets, and next small implementation/process slice | [Agent Track Lifecycle Doctrine](./agent-track-lifecycle-doctrine.md) | [Constraint Sets](./constraints.md), [Agent Cycle Optimization](../experts/agent-cycle-optimization.md), [Application Web POC Feedback Track](./application-web-poc-feedback-track.md), [Tracks History](./tracks-history.md) | user |
-| `[Agent Application / Codex]` | Add app-local action ledger and `/events` read model under `:interactive_poc_guardrails` | [Application Web POC Action Log Track](./application-web-poc-action-log-track.md) | [Constraint Sets](./constraints.md), [Application Web POC Feedback Track](./application-web-poc-feedback-track.md), [Application Web POC Task Creation Track](./application-web-poc-task-creation-track.md), [Application Rack Host DSL Track](./application-rack-host-dsl-track.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Render recent activity from app-owned state under `:interactive_poc_guardrails` | [Application Web POC Action Log Track](./application-web-poc-action-log-track.md) | [Constraint Sets](./constraints.md), [Application Web POC Feedback Track](./application-web-poc-feedback-track.md), [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Application / Codex]` | Replace mixed command returns with an app-local command result under `:interactive_poc_guardrails` | [Application Web POC Command Result Track](./application-web-poc-command-result-track.md) | [Constraint Sets](./constraints.md), [Application Web POC Action Log Track](./application-web-poc-action-log-track.md), [Application Web POC Feedback Track](./application-web-poc-feedback-track.md), [Application Rack Host DSL Track](./application-rack-host-dsl-track.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Verify board compatibility with command result shape under `:interactive_poc_guardrails` | [Application Web POC Command Result Track](./application-web-poc-command-result-track.md) | [Constraint Sets](./constraints.md), [Application Web POC Action Log Track](./application-web-poc-action-log-track.md), [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -56,7 +56,7 @@ block: none | <blocker>
 
 - Interactive operator POC is the active live pressure-test line.
 - Accepted chain: skeleton -> `Application.rack_app` -> task creation ->
-  feedback/refusal visibility.
+  feedback/refusal visibility -> action ledger/recent activity.
 - Research/expert proposals are useful, but full `interactive_app`, UI kit,
   Plane/canvas, flow/chat/proactive agent DSL, SSE/live updates, generator, and
   production server layer remain deferred.
@@ -67,8 +67,12 @@ block: none | <blocker>
   [Constraint Sets](./constraints.md).
 - The emerging agent workflow is captured as a reusable lifecycle doctrine:
   [Agent Track Lifecycle Doctrine](./agent-track-lifecycle-doctrine.md).
-- Next implementation slice is opened as a compact action-log pressure test:
-  [Application Web POC Action Log Track](./application-web-poc-action-log-track.md).
+- Expert formalization is accepted as reference vocabulary, not as an
+  implementation mandate:
+  [Agent Track Pattern](../experts/agent-track-pattern.md).
+- Next implementation slice is opened as a compact command-result pressure
+  test:
+  [Application Web POC Command Result Track](./application-web-poc-command-result-track.md).
 
 ## Active Review
 
@@ -116,6 +120,8 @@ Accepted now:
 - Proposal 2, narrowed: shared constraint registry for new active tracks only.
 - Supervisor insight: the process is now an explicit track lifecycle pattern,
   captured in [Agent Track Lifecycle Doctrine](./agent-track-lifecycle-doctrine.md).
+- Expert review: [Agent Track Pattern](../experts/agent-track-pattern.md) is
+  accepted as reference; vocabulary is folded into lifecycle doctrine.
 
 Deferred:
 
@@ -123,6 +129,10 @@ Deferred:
 - parallel task windows
 - graduated verification tiers
 - track retirement automation
+- front-matter conversion
+- active index generator
+- handoff validator
+- track compiler / native agent execution
 
 Active constraint sets:
 
@@ -139,7 +149,7 @@ Next possible process slice:
 
 ### Application Web POC Action Log
 
-Status: ready for agent implementation.
+Status: landed and accepted.
 
 Track:
 
@@ -149,10 +159,30 @@ Constraint set:
 
 - `:interactive_poc_guardrails`
 
+Accepted result:
+
+- App-local action ledger records seed/create/refuse/resolve facts.
+- `/events` exposes open count, action count, and recent typed facts.
+- Board renders recent activity from app-owned state.
+- Verification gate passed.
+
+### Application Web POC Command Result
+
+Status: ready for agent implementation.
+
+Track:
+
+- [Application Web POC Command Result Track](./application-web-poc-command-result-track.md)
+
+Constraint set:
+
+- `:interactive_poc_guardrails`
+
 Accepted next slice:
 
-- Add a small app-local action ledger.
-- Let `/events` expose open count plus action facts.
-- Let the board render recent activity from app-owned state.
-- Keep this as observability pressure inside the POC, not live transport,
-  persistence, or a UI framework.
+- Replace mixed `nil`/boolean command returns with an explicit app-local
+  command result object.
+- Preserve existing redirects, feedback markers, action facts, and `/events`
+  output.
+- Keep this as result-model pressure inside the POC, not a package-level API or
+  contract runtime change.

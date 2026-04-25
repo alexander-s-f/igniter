@@ -162,3 +162,39 @@ verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can review/accept the completed action
   log POC slice.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the cycle review.
+
+Accepted:
+
+- `TaskBoard` now records deterministic in-memory action entries for seeded
+  tasks, successful create, blank create refusal, successful resolve, and
+  missing-task resolve refusal.
+- `GET /events` exposes a compact read model with open count, action count, and
+  recent typed facts.
+- The operator board renders recent activity from app-owned state through
+  stable `data-ig-activity`, `data-activity-kind`,
+  `data-activity-task-id`, and `data-activity-status` markers.
+- Existing create/resolve forms, query-string feedback, open count, and browser
+  server behavior remain stable.
+- This stays inside `:interactive_poc_guardrails`: no persistence, background
+  jobs, websocket/SSE transport, auth/session framework, UI kit, redesign,
+  broader `interactive_app`, generator, or production server layer.
+
+Verification:
+
+- `ruby examples/application/interactive_web_poc.rb` passed and proved seeded,
+  refused create, successful create, missing resolve, and successful resolve
+  facts in both rendered activity and `/events`.
+- `ruby examples/run.rb smoke` passed with 74 examples and 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Open [Application Web POC Command Result Track](./application-web-poc-command-result-track.md)
+  to replace mixed `nil`/boolean command returns with an explicit app-local
+  command result shape.
