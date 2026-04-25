@@ -54,6 +54,7 @@ else
   puts "interactive_web_poc_initial_status=#{initial_status}"
   puts "interactive_web_poc_content_type=#{initial_headers.fetch("content-type")}"
   puts "interactive_web_poc_initial_open=#{initial_html.include?("data-open-count=\"2\"")}"
+  puts "interactive_web_poc_create_form=#{initial_html.include?("data-ig-create-task=\"form\"")}"
   puts "interactive_web_poc_create_status=#{create_status}"
   puts "interactive_web_poc_created_status=#{created_status}"
   puts "interactive_web_poc_created_open=#{created_html.include?("data-open-count=\"3\"")}"

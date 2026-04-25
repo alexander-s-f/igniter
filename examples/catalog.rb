@@ -465,6 +465,7 @@ module IgniterExamples
         "interactive_web_poc_initial_status=200",
         "interactive_web_poc_content_type=text/html",
         "interactive_web_poc_initial_open=true",
+        "interactive_web_poc_create_form=true",
         "interactive_web_poc_create_status=303",
         "interactive_web_poc_created_status=200",
         "interactive_web_poc_created_open=true",

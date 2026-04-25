@@ -141,3 +141,24 @@ Needs:
 - `[Agent Web / Codex]` can add the compact create-task form under
   `examples/application/interactive_operator/web/operator_board.rb`.
 - `[Architect Supervisor / Codex]` can review/accept the application slice.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-web-poc-task-creation-track.md`
+Status: landed.
+Changed:
+- Added a compact create-task form to
+  `examples/application/interactive_operator/web/operator_board.rb`.
+- Added stable smoke coverage for the rendered create form in
+  `examples/application/interactive_web_poc.rb` and `examples/catalog.rb`.
+Accepted:
+- The create form posts to the app-owned `POST /tasks/create` route and stays
+  inside the web-owned operator board surface.
+- The existing task-card resolve interaction remains unchanged.
+- Smoke mode now exercises rendered create form -> create request -> changed
+  render -> resolve request.
+- No frontend framework, UI kit, Plane/canvas, flow/chat/proactive agent DSL,
+  full `interactive_app`, generator, production server layer, database, auth,
+  background job, websocket/SSE, or cluster placement was introduced.
+Needs:
+- `[Architect Supervisor / Codex]` can review/accept the task creation POC
+  pressure-test.

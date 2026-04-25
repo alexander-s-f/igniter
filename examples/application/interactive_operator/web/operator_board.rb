@@ -12,6 +12,10 @@ module InteractiveOperator
       counter: "min-width: 120px; padding: 14px; color: #f8f4ea; background: #2f2a1f; text-align: center;",
       counter_value: "display: block; font-size: 34px;",
       intro: "margin: 22px 0; max-width: 620px;",
+      create_panel: "margin: 22px 0; padding: 18px; background: #2f2a1f; color: #f8f4ea;",
+      create_label: "display: block; margin-bottom: 8px; font-weight: 700;",
+      create_input: "width: min(100%, 420px); padding: 10px; border: 1px solid #f8f4ea; margin-right: 8px;",
+      create_button: "padding: 10px 14px; border: 1px solid #f8f4ea; background: #f2b84b; cursor: pointer;",
       card: "margin-top: 14px; padding: 18px; background: #fffdf7; border: 1px solid #2f2a1f;",
       resolved_card: " opacity: 0.62;",
       task_title: "margin: 0 0 8px;",
@@ -60,6 +64,24 @@ module InteractiveOperator
 
             para "This page is rendered by igniter-web, reads app-owned state through MountContext, and submits a Rack POST back to the host.",
                  style: InteractiveOperator::Web.style(:intro)
+
+            section class: "create-task",
+                    "data-ig-create-task": "form",
+                    style: InteractiveOperator::Web.style(:create_panel) do
+              form action: "/tasks/create", method: "post" do
+                label "Create a task", for: "task-title", style: InteractiveOperator::Web.style(:create_label)
+                input id: "task-title",
+                      name: "title",
+                      type: "text",
+                      placeholder: "Review operator handoff",
+                      required: true,
+                      style: InteractiveOperator::Web.style(:create_input)
+                button "Add task",
+                       type: "submit",
+                       "data-action": "create-task",
+                       style: InteractiveOperator::Web.style(:create_button)
+              end
+            end
 
             board.tasks.each do |task|
               section class: "task #{task.status}",
