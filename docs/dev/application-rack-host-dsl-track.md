@@ -155,3 +155,45 @@ rake rubocop
    untouched.
 3. Do not implement `interactive_app`, UI kit, Plane, flow/chat, proactive
    agents, or SSE in this cycle.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-rack-host-dsl-track.md`
+Status: landed.
+Changed:
+- Added `Igniter::Application.rack_app` backed by
+  `Igniter::Application::RackHost`.
+- Added explicit service factory registration, web mount registration, exact
+  `get`/`post` route declarations, urlencoded request params, and `text`,
+  `redirect`, `not_found` response helpers.
+- Added inspectable `RackHost#to_h` over manifest, services, routes, and web
+  mounts.
+- Ported `examples/application/interactive_operator/app.rb` to the helper.
+- Removed the hand-written example-local `server/rack_app.rb`.
+- Added package spec coverage for service state, web mount delegation, route
+  params, redirects, 404s, and helper inspection.
+- Updated current/user-facing docs to point at the helper-backed skeleton.
+Accepted:
+- The helper returns a Rack-compatible object responding to `#call`.
+- Service state remains explicit and app-owned through factories.
+- Web mounts remain explicit objects; `igniter-application` does not inspect
+  web screen, component, Arbre, or route internals.
+- The POC interaction path is unchanged: `GET /` -> `POST /tasks` -> changed
+  `GET /`.
+- No production server framework, broad router, full `interactive_app`, UI kit,
+  Plane/canvas, flow/chat/proactive agent DSL, SSE/live runtime, database,
+  auth/background job/websocket, Rails integration, or cluster placement was
+  introduced.
+Verification:
+- `ruby examples/application/interactive_web_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 74 examples, 0 failures.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb packages/igniter-application/spec/igniter/application/rack_host_spec.rb packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb`
+  passed with 169 examples, 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/lib/igniter/application/rack_host.rb packages/igniter-application/spec/igniter/application/rack_host_spec.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+- `rake rubocop` passed with no offenses across 467 files.
+Needs:
+- `[Architect Supervisor / Codex]` can review/accept the narrow Rack host
+  helper.
+- `[Agent Web / Codex]` can review that the helper keeps web-owned surface DSL
+  unchanged and treats `Web.operator_board_mount` as an opaque mount object.

@@ -278,10 +278,11 @@ host mutation, web activation, contract execution, or cluster placement.
 current practical application/web integration POC. Its app-local skeleton lives
 under `examples/application/interactive_operator/`, with state in
 `services/task_board.rb`, the rendered surface in `web/operator_board.rb`, and
-the Rack boundary in `server/rack_app.rb`. It uses an application environment
-to provide state, renders a web surface through `igniter-web`, handles a form
-POST through a tiny Rack-compatible host, and confirms the changed state in the
-next render without adding production server dependencies.
+Rack host wiring declared through `Igniter::Application.rack_app` in `app.rb`.
+It uses an application environment to provide state, renders a web surface
+through `igniter-web`, handles a form POST through a tiny Rack-compatible host,
+and confirms the changed state in the next render without adding production
+server dependencies.
 
 Lifecycle now follows this shape:
 
