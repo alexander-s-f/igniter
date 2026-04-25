@@ -70,9 +70,9 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Add read-only host activation commit-readiness gate; no commit or mutation | [Application Capsule Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md) | [Application Capsule Host Activation Dry-Run Execution Track](./application-capsule-host-activation-dry-run-execution-track.md), [Application Capsule Host Activation Plan Verification Track](./application-capsule-host-activation-plan-verification-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` only if web adapter evidence wording is touched |
-| `[Agent Web / Codex]` | Define web mount adapter evidence for commit readiness only; do not bind routes | [Application Capsule Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md) | [Application Capsule Host Activation Dry-Run Execution Track](./application-capsule-host-activation-dry-run-execution-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for evidence wording needs |
-| `[Research Horizon / Codex]` | Draft bounded activation-review observatory frame proposal | [Runtime Observatory Activation Frame Track](./runtime-observatory-activation-frame-track.md) | [Runtime Observatory Doctrine](./runtime-observatory-doctrine.md), [Interaction Doctrine](./interaction-doctrine.md), [Handoff Doctrine](./handoff-doctrine.md) | `[Architect Supervisor / Codex]` for filtering and graduation decision |
+| `[Agent Application / Codex]` | Build compact interactive application POC host/state/smoke path | [Application Web Interactive POC Track](./application-web-interactive-poc-track.md) | [Application Target Plan](./application-target-plan.md), [Igniter Web Target Plan](./igniter-web-target-plan.md), [Application Capsule Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for the rendered surface |
+| `[Agent Web / Codex]` | Build compact interactive web surface for the POC | [Application Web Interactive POC Track](./application-web-interactive-poc-track.md) | [Igniter Web Target Plan](./igniter-web-target-plan.md), [Application And Web Integration](./application-web-integration.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app state/service needs |
+| `[Research Horizon / Codex]` | Skip this cycle; standby | [Runtime Observatory Activation Frame Track](./runtime-observatory-activation-frame-track.md) | [Runtime Observatory Doctrine](./runtime-observatory-doctrine.md) | `[Architect Supervisor / Codex]` when research resumes |
 
 ## Track Map
 
@@ -134,8 +134,10 @@ pressure-test wave:
   docs-only, still without mutation.
 - Dry-run-only activation execution reporting over explicit verified plan data
   landed and was accepted with no commit mode.
-- The next activation track is read-only commit readiness over dry-run and
-  explicit adapter evidence, still without commit or mutation.
+- Read-only host activation commit readiness over dry-run and explicit adapter
+  evidence landed and was accepted with no commit or mutation.
+- Host activation expansion is paused; the next finalization track is a compact
+  server-backed interactive application/web POC.
 - `[Research Horizon / Codex]` joined as a long-range research role. Its work
   stays in `docs/research-horizon/` until `[Architect Supervisor / Codex]`
   graduates a proposal into a narrow `docs/dev/` implementation track.
@@ -1300,7 +1302,7 @@ Next:
 
 ### Application Capsule Host Activation Commit Readiness
 
-Status: active.
+Status: landed and accepted.
 
 Primary track:
 
@@ -1313,21 +1315,46 @@ Dependencies:
 
 Current accepted state:
 
-- The next activation step must remain read-only.
-- Commit readiness may describe whether a future commit track can be proposed,
-  but must not expose or perform commit.
-- Readiness must consume explicit dry-run evidence and explicit adapter
-  evidence; it must not discover host or web runtime state.
+- `ApplicationHostActivationCommitReadiness` is accepted as a read-only gate
+  over explicit dry-run evidence and supplied adapter evidence.
+- `commit_allowed` is descriptive only and does not expose or perform commit.
+- Readiness consumes explicit dry-run evidence and explicit adapter evidence;
+  it does not discover host or web runtime state.
 - Commit mode, mutation, loading, boot, registration, mount binding, route
   activation, browser/Rack traffic, contract execution, and cluster placement
   remain rejected.
 
 Next:
 
-- `[Agent Application / Codex]`: add the smallest read-only commit-readiness
-  gate over explicit dry-run evidence.
-- `[Agent Web / Codex]`: define only web mount adapter evidence if needed; do
-  not add web activation runtime or app-to-web dependency.
+- Continue through [Application Web Interactive POC Track](./application-web-interactive-poc-track.md).
+
+### Application Web Interactive POC
+
+Status: active.
+
+Primary track:
+
+- [Application Web Interactive POC Track](./application-web-interactive-poc-track.md)
+
+Dependencies:
+
+- [Application Target Plan](./application-target-plan.md)
+- [Igniter Web Target Plan](./igniter-web-target-plan.md)
+- [Application And Web Integration](./application-web-integration.md)
+
+Current accepted state:
+
+- The next finalization step should be practical and user-facing.
+- Build one compact public POC/MVP that runs as a server, renders a web surface,
+  accepts a user action, mutates app-owned state, and shows the changed state on
+  the next render.
+- Default mode must be smoke-friendly and exit; optional server mode may stay
+  running for manual use.
+
+Next:
+
+- `[Agent Application / Codex]`: own app state/service and smoke path.
+- `[Agent Web / Codex]`: own rendered interactive surface and request boundary.
 
 ### Handoff Doctrine
 

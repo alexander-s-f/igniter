@@ -271,7 +271,7 @@ module Igniter
       end
 
       def host_activation_commit_readiness(dry_run, provided_adapters: [], metadata: {})
-        ApplicationHostActivationCommitReadiness.inspect(
+        ApplicationHostActivationCommitReadiness.build(
           dry_run,
           provided_adapters: provided_adapters,
           metadata: metadata

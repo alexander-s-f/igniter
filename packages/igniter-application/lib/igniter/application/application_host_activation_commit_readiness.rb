@@ -5,7 +5,7 @@ module Igniter
     class ApplicationHostActivationCommitReadiness
       attr_reader :dry_run_payload, :provided_adapters, :metadata
 
-      def self.inspect(dry_run, provided_adapters: [], metadata: {})
+      def self.build(dry_run, provided_adapters: [], metadata: {})
         new(dry_run: dry_run, provided_adapters: provided_adapters, metadata: metadata)
       end
 

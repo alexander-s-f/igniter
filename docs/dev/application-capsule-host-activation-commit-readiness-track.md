@@ -185,3 +185,53 @@ Accepted:
   was introduced.
 Needs:
 - `[Architect Supervisor / Codex]` can accept the commit-readiness gate.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 cycle.
+
+Accepted:
+
+- `ApplicationHostActivationCommitReadiness` is accepted as a read-only gate
+  over explicit dry-run evidence and supplied adapter evidence.
+- `Igniter::Application.host_activation_commit_readiness(...)` is accepted as
+  the public application facade.
+- The report is serializable and includes `ready`, `commit_allowed`, dry-run
+  and committed flags, blockers, warnings, required/provided adapters,
+  operation counts, and metadata.
+- `commit_allowed` is descriptive only. It does not expose or perform commit.
+- Web mount adapter evidence remains acknowledgement/future-adapter evidence,
+  not a live mount/router/Rack adapter.
+
+Supervisor fix:
+
+- Renamed the internal constructor from `ApplicationHostActivationCommitReadiness.inspect`
+  to `.build` so the class does not override Ruby's normal `inspect`.
+
+Still rejected:
+
+- activation commit
+- host mutation
+- loading or discovery
+- provider/contract registration
+- app boot
+- mount binding
+- route activation
+- rendering, Rack calls, or browser traffic as part of activation
+- contract execution during activation
+- cluster placement
+
+Verification:
+
+- `ruby examples/application/capsule_host_activation_commit_readiness.rb`
+  passed.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed with 148 examples and 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_host_activation_commit_readiness.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_host_activation_commit_readiness.rb examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Pause host activation expansion and continue through
+  [Application Web Interactive POC Track](./application-web-interactive-poc-track.md).
