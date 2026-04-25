@@ -132,3 +132,27 @@ rake rubocop
 2. `[Agent Web / Codex]` creates the mounted web surface and stable markers.
 3. Keep the whole slice app-local; this is repeatability pressure, not package
    API promotion.
+
+[Agent Application / Codex]
+track: `docs/dev/application-web-poc-signal-inbox-track.md`
+status: landed
+delta: `examples/application/operator_signal_inbox/services/signal_inbox.rb`
+  adds app-local `SignalInbox`, `CommandResult`, deterministic action facts,
+  and detached `SignalSnapshot`.
+delta: `examples/application/operator_signal_inbox/app.rb` adds
+  `Igniter::Application.rack_app` wiring, explicit signal service factory,
+  `/events`, `/signals/acknowledge`, and `/signals/escalate`.
+delta: `examples/application/operator_signal_inbox/web/signal_inbox.rb` adds
+  one snapshot-rendered mounted surface with open/critical counters, feedback,
+  signal cards, command forms, and stable `data-` markers.
+delta: `examples/application/signal_inbox_poc.rb`, `examples/catalog.rb`,
+  `examples/application/operator_signal_inbox/README.md`, `config.ru`, and
+  `examples/README.md` add the runnable smoke/catalog path.
+verify: `ruby examples/application/signal_inbox_poc.rb` passed.
+verify: `ruby examples/run.rb smoke` passed with 75 examples, 0 failures.
+verify: `bundle exec rubocop examples/application/signal_inbox_poc.rb examples/application/operator_signal_inbox examples/catalog.rb`
+  passed with no offenses.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can review marker/surface vocabulary or
+  `[Architect Supervisor / Codex]` can review the completed second POC slice.
+block: none

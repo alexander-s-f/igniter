@@ -114,6 +114,10 @@ These are the examples the runner and the current root specs validate.
 app-local skeleton for that POC lives in
 `application/interactive_operator/`.
 
+`application/signal_inbox_poc.rb` repeats the same application/web pattern in a
+non-task signal inbox domain. Its copyable skeleton lives in
+`application/operator_signal_inbox/`.
+
 ## Archive Note
 
 Legacy-root demos and migration scripts were moved out of the active example
