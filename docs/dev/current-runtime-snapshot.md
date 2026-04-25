@@ -144,6 +144,7 @@ Current shape:
 - read-only host activation plan verification over supplied plan data
 - consolidated host activation review guide with a hard stop before execution
 - docs-only host activation execution boundary map without mutation
+- dry-run-only host activation execution reports over verified plan data
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces
@@ -260,6 +261,12 @@ host capabilities, and manual actions remain host-owned evidence; load paths,
 providers, contracts, and lifecycle are only possible future
 application-owned work; `review_mount_intent` remains web-owned or host-owned
 metadata until a separate web activation boundary exists.
+`ApplicationHostActivationDryRunResult` is the current dry-run-only execution
+report over verified activation plan data. It reports `dry_run: true`,
+`committed: false`, `would_apply`, `skipped`, `refusals`, and warnings without
+commit mode, mutation, loading, registration, boot, mount binding, route
+activation, browser/Rack traffic, contract execution, discovery, or cluster
+placement.
 
 Lifecycle now follows this shape:
 

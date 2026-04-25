@@ -43,6 +43,7 @@ Active runnable examples live in `examples/application/`, `examples/contracts/`,
 - `application/capsule_assembly_plan.rb`
 - `application/capsule_composition.rb`
 - `application/capsule_handoff_manifest.rb`
+- `application/capsule_host_activation_dry_run.rb`
 - `application/capsule_host_activation_plan.rb`
 - `application/capsule_host_activation_plan_verification.rb`
 - `application/capsule_host_activation_readiness.rb`

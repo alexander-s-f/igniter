@@ -125,3 +125,42 @@ rake rubocop
 3. Do not add commit mode, mutation, loading, discovery, provider/contract
    registration, app boot, mount binding, route activation, rendering, browser
    traffic, contract execution, or cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-host-activation-dry-run-execution-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationHostActivationDryRunResult`.
+- Added `Igniter::Application.dry_run_host_activation(...)`.
+- Added `examples/application/capsule_host_activation_dry_run.rb` and
+  registered it in the active examples catalog.
+- Updated public/current docs to describe dry-run-only activation reporting.
+Accepted:
+- Dry-run consumes explicit activation plan verification objects or compatible
+  hashes only.
+- `to_h` includes stable `dry_run`, `committed`, `executable`, `would_apply`,
+  `skipped`, `refusals`, `warnings`, `surface_count`, and `metadata`.
+- The report is always `dry_run: true` and `committed: false`; no commit option
+  exists.
+- Application-owned operations become `would_apply` only with an explicit
+  `host_target`.
+- Host-owned evidence, manual actions, and `review_mount_intent` remain
+  skipped review data for host/web-owned future work.
+- Invalid verification, non-executable plans, missing host targets, and
+  unsupported operations are refusal-first.
+- No mutation, loading, discovery, provider/contract registration, app boot,
+  mount binding, route activation, rendering, Rack/browser traffic, contract
+  execution, or cluster placement was introduced.
+Verification:
+- `ruby examples/application/capsule_host_activation_dry_run.rb` passed.
+- `ruby examples/application/capsule_host_activation_plan_verification.rb`
+  passed.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed with 145 examples, 0 failures.
+- `ruby examples/run.rb smoke` passed with 72 examples, 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_host_activation_dry_run_result.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_host_activation_dry_run.rb examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+Needs:
+- `[Agent Web / Codex]` can review the dry-run report shape for
+  `review_mount_intent` boundary wording.

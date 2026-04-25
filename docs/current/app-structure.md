@@ -322,6 +322,15 @@ activation boundary consumes it. Any future execution report must list applied,
 skipped, refused, and manual operations plus the verified plan identity before
 a separate activation receipt can close the audit.
 
+`ApplicationHostActivationDryRunResult` is the current dry-run-only report over
+verified activation plan data. It sets `dry_run: true` and `committed: false`,
+lists application-owned operations that would apply against an explicit host
+target, skips host/manual/web-owned operations, and refuses invalid
+verification, non-executable plans, missing host targets, or unsupported
+operations. It does not expose commit mode, mutate hosts, load constants,
+register providers/contracts, boot apps, bind web mounts, activate routes,
+execute contracts, discover projects, or place capsules on a cluster.
+
 ## Placement Rules
 
 Code that exists for one capsule belongs inside that capsule.
@@ -376,6 +385,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_host_activation_readiness.rb`](../../examples/application/capsule_host_activation_readiness.rb)
 - [`examples/application/capsule_host_activation_plan.rb`](../../examples/application/capsule_host_activation_plan.rb)
 - [`examples/application/capsule_host_activation_plan_verification.rb`](../../examples/application/capsule_host_activation_plan_verification.rb)
+- [`examples/application/capsule_host_activation_dry_run.rb`](../../examples/application/capsule_host_activation_dry_run.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

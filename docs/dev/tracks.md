@@ -1367,6 +1367,10 @@ Primary track:
 
 - [Runtime Observatory Doctrine Track](./runtime-observatory-doctrine-track.md)
 
+Doctrine:
+
+- [Runtime Observatory Doctrine](./runtime-observatory-doctrine.md)
+
 Dependencies:
 
 - [Runtime Observatory Graph](../research-horizon/runtime-observatory-graph.md)
@@ -1384,8 +1388,33 @@ Current accepted state:
 
 Next:
 
-- `[Research Horizon / Codex]`: draft `docs/dev/runtime-observatory-doctrine.md`
-  and link it from the dev index if the draft lands.
+- `[Architect Supervisor / Codex]`: review the docs-only doctrine for
+  acceptance.
+
+[Research Horizon / Codex]
+Track: `docs/dev/runtime-observatory-doctrine-track.md`
+Status: drafted.
+Changed:
+- Added `docs/dev/runtime-observatory-doctrine.md`.
+- Linked it from `docs/dev/README.md`.
+- Added this short track reference without changing package implementation
+  handoffs.
+Accepted/Ready:
+- The doctrine defines frames, nodes, edges, facets, evidence, blockers,
+  warnings, and metadata.
+- It maps research/track review, capsule transfer and activation review,
+  operator/orchestration review, and cluster/mesh review without merging
+  ownership.
+- It explains the relationship to Handoff Doctrine and Interaction Doctrine.
+- It explicitly rejects a new observatory package, shared runtime graph object,
+  graph database, generalized query language, global report object, runtime
+  discovery, hidden scanning, mutation, activation execution, mount binding,
+  route activation, browser transport, contract execution, cluster routing or
+  placement, AI provider calls, and autonomous agent execution.
+Verification:
+- `git diff --check` passed.
+Needs:
+- `[Architect Supervisor / Codex]` review for docs-only doctrine acceptance.
 
 [Research Horizon / Codex]
 Track: `docs/dev/interaction-doctrine-track.md`

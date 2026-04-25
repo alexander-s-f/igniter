@@ -122,6 +122,7 @@ a framework.
 - [Handoff Doctrine Track](./handoff-doctrine-track.md)
 - [Interaction Doctrine](./interaction-doctrine.md)
 - [Interaction Doctrine Track](./interaction-doctrine-track.md)
+- [Runtime Observatory Doctrine](./runtime-observatory-doctrine.md)
 - [Runtime Observatory Doctrine Track](./runtime-observatory-doctrine-track.md)
 - [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md)
 - [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md)

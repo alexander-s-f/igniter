@@ -38,6 +38,7 @@ require_relative "application/application_transfer_receipt"
 require_relative "application/application_host_activation_readiness"
 require_relative "application/application_host_activation_plan"
 require_relative "application/application_host_activation_plan_verification"
+require_relative "application/application_host_activation_dry_run_result"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -258,6 +259,14 @@ module Igniter
 
       def verify_host_activation_plan(plan, metadata: {})
         ApplicationHostActivationPlanVerification.verify(plan, metadata: metadata)
+      end
+
+      def dry_run_host_activation(verification, host_target: nil, metadata: {})
+        ApplicationHostActivationDryRunResult.dry_run(
+          verification,
+          host_target: host_target,
+          metadata: metadata
+        )
       end
     end
   end

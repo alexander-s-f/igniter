@@ -723,6 +723,32 @@ need a separate receipt/audit object before being treated as activation
 closure. Until that future track exists, the verified plan is review evidence
 only.
 
+Igniter currently supports only the dry-run side of that boundary:
+
+```ruby
+dry_run = Igniter::Application.dry_run_host_activation(
+  verification,
+  host_target: "Host::OperatorRuntime"
+)
+
+dry_run.to_h
+```
+
+`ApplicationHostActivationDryRunResult` reports `dry_run: true`,
+`committed: false`, `executable`, `would_apply`, `skipped`, `refusals`,
+`warnings`, supplied surface count, and metadata. It requires explicit
+verified activation plan data. Application-owned review operations such as
+`confirm_load_path`, `confirm_provider`, `confirm_contract`, and
+`confirm_lifecycle` become `would_apply` only when the caller supplies an
+explicit host target. Host export/capability checks, manual actions, and
+`review_mount_intent` remain skipped review evidence for host-owned,
+manual, or web-owned future work.
+
+There is still no commit mode. The dry-run report does not mutate host state,
+change load paths, load constants, register providers or contracts, boot apps,
+bind web mounts, activate routes, render, call Rack, send browser traffic,
+execute contracts, discover projects, or place work on a cluster.
+
 ## Runnable Examples
 
 Start with these examples:
@@ -748,6 +774,7 @@ Start with these examples:
 - [`examples/application/capsule_host_activation_readiness.rb`](../../examples/application/capsule_host_activation_readiness.rb)
 - [`examples/application/capsule_host_activation_plan.rb`](../../examples/application/capsule_host_activation_plan.rb)
 - [`examples/application/capsule_host_activation_plan_verification.rb`](../../examples/application/capsule_host_activation_plan_verification.rb)
+- [`examples/application/capsule_host_activation_dry_run.rb`](../../examples/application/capsule_host_activation_dry_run.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

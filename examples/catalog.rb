@@ -429,6 +429,20 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_host_activation_dry_run",
+      "Dry-run-only host activation report over verified plan data.",
+      expected_fragments: [
+        "application_capsule_host_activation_dry_run=true",
+        "application_capsule_host_activation_committed=false",
+        "application_capsule_host_activation_executable=true",
+        "application_capsule_host_activation_would_apply=4",
+        "application_capsule_host_activation_skipped=2",
+        "application_capsule_host_activation_refusals=0",
+        "application_capsule_host_activation_warnings=0",
+        "application_capsule_host_activation_surfaces=1"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

@@ -1802,6 +1802,100 @@ RSpec.describe Igniter::Application::Environment do
     )
   end
 
+  it "reports dry-run host activation over verified plan data" do
+    readiness = Igniter::Application.host_activation_readiness(
+      {
+        complete: true,
+        valid: true,
+        committed: true,
+        manual_actions: [],
+        surface_count: 1
+      },
+      handoff_manifest: {
+        suggested_host_wiring: [
+          { capsule: :operator, name: :incident_runtime, kind: :service, capabilities: [:audit] }
+        ],
+        mount_intents: [
+          { capsule: :operator, kind: :web, at: "/operator", metadata: { surface: :operator_console } }
+        ]
+      },
+      host_exports: [
+        { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+      ],
+      host_capabilities: [:audit],
+      load_paths: ["operator"],
+      providers: [:incident_runtime],
+      contracts: ["Contracts::ResolveIncident"],
+      lifecycle: { boot: :manual_review },
+      mount_decisions: [
+        { capsule: :operator, kind: :web, at: "/operator", status: :accepted }
+      ]
+    )
+    plan = Igniter::Application.host_activation_plan(readiness)
+    verification = Igniter::Application.verify_host_activation_plan(plan)
+
+    report = Igniter::Application.dry_run_host_activation(
+      verification,
+      host_target: "Host::OperatorRuntime",
+      metadata: { source: :spec }
+    ).to_h
+
+    expect(report).to include(
+      dry_run: true,
+      committed: false,
+      executable: true,
+      refusals: [],
+      warnings: [],
+      surface_count: 1,
+      metadata: { source: :spec }
+    )
+    expect(report.fetch(:would_apply).map { |entry| entry.fetch(:type) }).to eq(
+      %i[confirm_load_path confirm_provider confirm_contract confirm_lifecycle]
+    )
+    expect(report.fetch(:would_apply)).to all(include(status: :dry_run, target: "Host::OperatorRuntime"))
+    expect(report.fetch(:skipped).map { |entry| entry.fetch(:reason) }).to include(
+      :host_owned_evidence,
+      :web_or_host_owned_mount
+    )
+  end
+
+  it "refuses dry-run host activation without verified executable input and host target" do
+    verification = {
+      valid: false,
+      executable: true,
+      verified: [
+        {
+          type: :confirm_provider,
+          status: :review_required,
+          source: :activation_readiness_provider,
+          destination: :incident_runtime,
+          metadata: { provider: :incident_runtime }
+        }
+      ],
+      findings: [
+        { code: :operation_not_review_required, message: "bad" }
+      ],
+      surface_count: 0
+    }
+
+    report = Igniter::Application.dry_run_host_activation(JSON.parse(JSON.generate(verification))).to_h
+
+    expect(report).to include(
+      dry_run: true,
+      committed: false,
+      executable: false,
+      would_apply: [],
+      surface_count: 0
+    )
+    expect(report.fetch(:refusals).map { |entry| entry.fetch(:code) }).to include(
+      :verification_invalid,
+      :missing_host_target
+    )
+    expect(report.fetch(:skipped)).to contain_exactly(
+      include(type: :confirm_provider, status: :skipped, reason: :missing_host_target)
+    )
+  end
+
   it "refuses committed transfer application without explicit apply roots" do
     plan = {
       executable: true,
