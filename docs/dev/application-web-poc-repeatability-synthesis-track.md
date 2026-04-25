@@ -137,3 +137,34 @@ ready: `[Agent Web / Codex]` can add web-side repeatability findings, then
   `[Architect Supervisor / Codex]` can choose guide update, package experiment,
   third POC, or pause.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-web-poc-repeatability-synthesis-track.md`
+status: landed
+delta: repeated web seam: both POCs use one mounted surface module that owns
+  Arbre layout, local style helpers, feedback copy, status/activity labels, and
+  marker naming while consuming app state through `MountContext`.
+delta: repeated render seam: both surfaces take one app-owned snapshot at the
+  top of render and use it for counters, cards, recent activity, and footer
+  read-model hints.
+delta: repeated marker seam: both surfaces expose stable markers for surface
+  identity, counters, command forms, entity id/status, feedback code, recent
+  activity surface, action kind, and activity status.
+delta: repeated smoke seam: both launchers use those markers as the browser/
+  smoke inspection contract instead of asserting presentation internals or
+  introducing a component framework.
+delta: remain local: entity marker names (`data-task-id` vs
+  `data-signal-id`), command action names, feedback messages, status labels,
+  severity/task styling, and activity label copy remain app vocabulary.
+delta: guide-level convention: document "mounted surface consumes app snapshot
+  and publishes stable inspection markers" as a copyable convention.
+delta: package experiment trigger: consider `igniter-web` helpers only if a
+  third distinct POC repeats enough mechanical marker/form/feedback code that
+  local readability gets worse.
+delta: recommendation: update/accept guide-level wording now; do not promote a
+  UI kit, marker DSL, component DSL, live transport, generator, `interactive_app`,
+  Line-Up tooling, or package-level snapshot/render API yet.
+verify: `git diff --check` passed for docs-only synthesis.
+ready: `[Architect Supervisor / Codex]` can choose guide update, package
+  experiment, third POC, or pause.
+block: none
