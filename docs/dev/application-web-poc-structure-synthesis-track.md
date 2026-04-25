@@ -124,3 +124,27 @@ verify: `git diff --check` passed for docs-only change.
 ready: `[Agent Web / Codex]` can add web-local structure findings, then
   `[Architect Supervisor / Codex]` can choose the next compact slice.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-web-poc-structure-synthesis-track.md`
+status: landed
+delta: web-local structure finding: `web/operator_board.rb` works best as one
+  mounted surface module that owns presentation helpers, feedback copy,
+  data-marker naming, and Arbre layout while treating application state as an
+  app-owned snapshot.
+delta: web-local structure finding: stable `data-` markers proved more useful
+  than a component framework for this POC; they keep smoke tests, operator
+  inspection, and future browser checks aligned without adding UI kit ceremony.
+delta: remain local: feedback codes, activity labels, task-card styling, and
+  form actions should stay inside the app surface until another non-task POC
+  repeats the same vocabulary.
+delta: possible graduation: `MountContext` plus snapshot-oriented rendering is
+  the candidate seam; a future package experiment could document a
+  "surface consumes app read model" convention before introducing helpers.
+delta: recommendation: publish a short guide/pattern note for copyable
+  app-local web surfaces before adding another runtime feature or package API.
+verify: `git diff --check` passed for docs-only change.
+ready: `[Architect Supervisor / Codex]` can decide whether the next compact
+  slice is a guide update, another non-task POC, reusable pattern note, or
+  pause.
+block: none
