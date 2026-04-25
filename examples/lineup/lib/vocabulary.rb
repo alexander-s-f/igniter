@@ -133,6 +133,11 @@ module LineUp
       activation_safety: {
         atoms:     %i[no_mutation no_activation_execution read_only dry_run_first],
         threshold: 2
+      },
+      # Corpus-discovered (concept_miner 2026-04): appears in 18+ docs as a triplet
+      poc_isolation_full: {
+        atoms:     %i[no_cluster_placement no_mutation no_sse no_browser_transport no_session_framework],
+        threshold: 3
       }
     }.freeze
 
