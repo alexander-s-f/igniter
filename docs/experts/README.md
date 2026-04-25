@@ -15,6 +15,7 @@ Perspective: external expert in distributed interactive agent systems.
 | [research-horizon-analysis.md](research-horizon-analysis.md) | Meta-analysis of all six Research Horizon proposals — what's solid, what's missing, strategic tensions, new insights |
 | [plastic-runtime-cells.md](plastic-runtime-cells.md) | Missing synthesis for Proposal D — cell vocabulary, plasticity operations, graduation sequence |
 | [compression-experiment.md](compression-experiment.md) | Grammar compression experiment — three real Igniter handoffs measured, economic formula evaluated, break-even analysis |
+| [agent-cycle-optimization.md](agent-cycle-optimization.md) | Agent development cycle optimization — six proposals to reduce token cost and latency of the Handoff protocol |
 
 ## One-Line Summary
 
