@@ -25,11 +25,18 @@ Package agents should keep reporting with their role labels:
 [Agent Application / Codex]
 [Agent Web / Codex]
 [Agent Cluster / Codex]
+[Research Horizon / Codex]
 ```
 
 `[Agent Contracts / Codex]` currently absorbs `[Agent Extensions / Codex]` for
 work in `packages/igniter-contracts` and `packages/igniter-extensions`. See
 [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md).
+
+`[Research Horizon / Codex]` is not an implementation package agent. It works
+in `docs/research-horizon/` on long-range architecture research, innovation,
+and "step beyond the horizon" proposals. Its ideas graduate into `docs/dev/`
+only after `[Architect Supervisor / Codex]` filters them into a narrow accepted
+track.
 
 ## Agent Drill-Down Protocol
 
@@ -65,6 +72,7 @@ task explicitly requires private details.
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
 | `[Agent Application / Codex]` | Define read-only host activation readiness over explicit host decisions | [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md) | [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md), [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md), [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for readiness boundary wording review |
 | `[Agent Web / Codex]` | Boundary review for optional web metadata in host activation readiness | [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md) | [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for readiness wording needs |
+| `[Research Horizon / Codex]` | Long-range proposals and research reports; no implementation authority | [Research Horizon](../research-horizon/README.md) | [Current State Report](../research-horizon/current-state-report.md), [Horizon Proposals](../research-horizon/horizon-proposals.md), [Supervisor Review](../research-horizon/supervisor-review.md) | `[Architect Supervisor / Codex]` for filtering and graduation decisions |
 
 ## Track Map
 
@@ -117,6 +125,40 @@ pressure-test wave:
   accepted without adding a new object.
 - The next broad track is read-only host activation readiness over explicit
   host decisions.
+- `[Research Horizon / Codex]` joined as a long-range research role. Its work
+  stays in `docs/research-horizon/` until `[Architect Supervisor / Codex]`
+  graduates a proposal into a narrow `docs/dev/` implementation track.
+
+### Research Horizon
+
+Status: active research, not implementation.
+
+Primary area:
+
+- [Research Horizon](../research-horizon/README.md)
+
+Current research reports:
+
+- [Current State Report](../research-horizon/current-state-report.md)
+- [Horizon Proposals](../research-horizon/horizon-proposals.md)
+- [Supervisor Review](../research-horizon/supervisor-review.md)
+
+Current accepted state:
+
+- `[Research Horizon / Codex]` explores innovation, long-range architecture,
+  experimental system models, and Human <-> AI Agent interface directions.
+- `[Architect Supervisor / Codex]` filters Horizon output, extracts the
+  smallest useful next move, and decides what can graduate into `docs/dev/`.
+- Research documents are allowed to be speculative, but must separate
+  observation, proposal, risks, and implementation readiness.
+- Research does not authorize code changes or package tracks by itself.
+
+Near-term supervisor filter:
+
+- First review candidate: Agent Handoff Protocol synthesis.
+- Second review candidate: Interaction Kernel read-only report.
+- Runtime Observatory Graph remains promising but should wait until a smaller
+  handoff/interaction vocabulary is clearer.
 
 ### Embed And Contract Class DSL
 

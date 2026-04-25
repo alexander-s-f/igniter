@@ -110,6 +110,13 @@ a framework.
 - [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md)
 - [Data Ownership](./data-ownership.md)
 
+## Research Horizon
+
+- [Research Horizon](../research-horizon/README.md)
+- [Current State Report](../research-horizon/current-state-report.md)
+- [Horizon Proposals](../research-horizon/horizon-proposals.md)
+- [Supervisor Review](../research-horizon/supervisor-review.md)
+
 ## Working Heuristics
 
 - Keep end-user onboarding in `docs/guide/`.
