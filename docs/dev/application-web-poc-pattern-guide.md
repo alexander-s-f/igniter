@@ -82,3 +82,40 @@ Future graduation candidate:
 - If another non-task interactive POC repeats the same shape, document a
   `MountContext` plus app snapshot rendering convention before adding helper
   APIs to `igniter-web`.
+
+## Repeated Convention
+
+The pattern has now repeated in two domains:
+
+- `interactive_operator`: task board commands and board snapshot.
+- `operator_signal_inbox`: signal commands and signal snapshot.
+
+Guide-level convention:
+
+- Keep `app.rb` as the composition boundary.
+- Keep mutable state, command methods, command results, action facts, and read
+  snapshots inside app-owned services.
+- Let Rack endpoints map app-local command results to transport behavior.
+- Render `/events` and web surfaces from the same detached snapshot shape.
+- Let mounted web surfaces consume app snapshots through `MountContext`.
+- Use stable `data-` markers as the smoke/browser inspection seam.
+- Add catalog smoke coverage for command success, refusal, final state, recent
+  action facts, and `/events` parity.
+
+Still app-local:
+
+- entity ids and marker names such as `task_id` or `signal_id`
+- feedback codes and copy
+- action kinds
+- snapshot class names and fields
+- counter names
+- command parameters
+- status/severity labels and styling
+
+Do not promote a package-level `CommandResult`, snapshot API, marker DSL, UI
+kit, generator, live transport, or `interactive_app` from two POCs alone.
+
+Promotion trigger:
+
+- Consider a narrow package experiment only after a third distinct POC repeats
+  the same shape, or if mechanical duplication starts hiding domain intent.

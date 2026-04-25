@@ -168,3 +168,35 @@ verify: `git diff --check` passed for docs-only synthesis.
 ready: `[Architect Supervisor / Codex]` can choose guide update, package
   experiment, third POC, or pause.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the cycle review.
+
+Accepted:
+
+- The task-board and signal-inbox POCs repeat the same app/web structure:
+  `app.rb` composition, app-owned service boundary, local command result,
+  deterministic action facts, detached read snapshot, `/events` parity, mounted
+  web surface, stable markers, and catalog smoke launcher.
+- This is enough for a guide-level convention.
+- It is not enough for package-level `CommandResult`, snapshot API, marker DSL,
+  UI kit, generator, live transport, or `interactive_app`.
+
+Guide update:
+
+- [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md)
+  now includes the repeated convention and the "still app-local" boundary.
+
+Decision:
+
+- Pause new Application/Web POC implementation until the user or supervisor
+  chooses one of:
+  - third distinct POC
+  - narrow guide polish
+  - narrow package experiment after more evidence
+  - return to Embed/Contracts pressure
+
+Verification:
+
+- `git diff --check` passed.

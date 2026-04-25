@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review repeatability synthesis before guide/API graduation | [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md) | [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Compare app-side repeated seams across task board and signal inbox POCs | [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md) | [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Compare web-side repeated seams and marker vocabulary across both POCs | [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md) | [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Decide next line after accepted repeatability: third POC, guide polish, package experiment, or Embed/Contracts return | [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md), [Constraint Sets](./constraints.md), [Documentation Compression Doctrine](./documentation-compression-doctrine.md) | user |
+| `[Agent Application / Codex]` | Standby after accepted repeatability synthesis; next implementation slice pending supervisor decision | [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md), [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Standby after accepted repeatability synthesis; next implementation slice pending supervisor decision | [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md), [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -72,8 +72,8 @@ block: none | <blocker>
 - Expert formalization is accepted as reference vocabulary, not as an
   implementation mandate:
   [Agent Track Pattern](../experts/agent-track-pattern.md).
-- Next slice is docs-only repeatability synthesis:
-  [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md).
+- Repeatability synthesis is accepted; the pattern is guide-level convention,
+  not package API.
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 
@@ -81,7 +81,7 @@ block: none | <blocker>
 
 ### Current Accepted POC State
 
-Status: signal inbox landed and accepted.
+Status: repeatability synthesis landed and accepted.
 
 Accepted slices:
 
@@ -101,6 +101,8 @@ Accepted slices:
   `operator_signal_inbox`.
 - [Signal Inbox](./application-web-poc-signal-inbox-track.md): second app-local
   POC with signal commands, snapshot, web surface, and smoke coverage.
+- [Repeatability Synthesis](./application-web-poc-repeatability-synthesis-track.md):
+  guide-level convention accepted; package API deferred.
 
 Verification gate observed for latest slice:
 
@@ -129,5 +131,4 @@ Deferred:
 
 Next:
 
-- Application/Web agents should compare the two POCs before any guide/API
-  graduation or third POC.
+- Application/Web agents are on standby until the next line is chosen.
