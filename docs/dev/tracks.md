@@ -6,6 +6,8 @@ Full accepted/history context lives in [Tracks History](./tracks-history.md).
 Reusable active-track boundaries live in [Constraint Sets](./constraints.md).
 The lifecycle pattern is captured in
 [Agent Track Lifecycle Doctrine](./agent-track-lifecycle-doctrine.md).
+Documentation compression rules live in
+[Documentation Compression Doctrine](./documentation-compression-doctrine.md).
 Long-range research context lives in [Research Horizon](../research-horizon/README.md)
 and external expert input lives in [Experts](../experts/README.md).
 
@@ -43,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Maintain compact active index, lifecycle doctrine, constraint sets, and next small implementation/process slice | [Agent Track Lifecycle Doctrine](./agent-track-lifecycle-doctrine.md) | [Constraint Sets](./constraints.md), [Agent Cycle Optimization](../experts/agent-cycle-optimization.md), [Application Web POC Feedback Track](./application-web-poc-feedback-track.md), [Tracks History](./tracks-history.md) | user |
-| `[Agent Application / Codex]` | Introduce app-local board snapshot/read model under `:interactive_poc_guardrails` | [Application Web POC Read Model Track](./application-web-poc-read-model-track.md) | [Constraint Sets](./constraints.md), [Application Web POC Command Result Track](./application-web-poc-command-result-track.md), [Application Web POC Action Log Track](./application-web-poc-action-log-track.md), [Application Rack Host DSL Track](./application-rack-host-dsl-track.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Render board from app-local snapshot under `:interactive_poc_guardrails` | [Application Web POC Read Model Track](./application-web-poc-read-model-track.md) | [Constraint Sets](./constraints.md), [Application Web POC Command Result Track](./application-web-poc-command-result-track.md), [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review POC structure synthesis and decide next compact slice | [Application Web POC Structure Synthesis Track](./application-web-poc-structure-synthesis-track.md) | [Documentation Compression Doctrine](./documentation-compression-doctrine.md), [Constraint Sets](./constraints.md), [Application Web POC Read Model Track](./application-web-poc-read-model-track.md) | user |
+| `[Agent Application / Codex]` | Summarize app-local structure findings from the accepted POC | [Application Web POC Structure Synthesis Track](./application-web-poc-structure-synthesis-track.md) | [Application Web POC Read Model Track](./application-web-poc-read-model-track.md), [Application Web POC Command Result Track](./application-web-poc-command-result-track.md), [Application Web POC Action Log Track](./application-web-poc-action-log-track.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Summarize web-local structure findings from the accepted POC | [Application Web POC Structure Synthesis Track](./application-web-poc-structure-synthesis-track.md) | [Application Web POC Read Model Track](./application-web-poc-read-model-track.md), [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -55,9 +57,9 @@ block: none | <blocker>
 [Architect Supervisor / Codex] Current compact state:
 
 - Interactive operator POC is the active live pressure-test line.
-- Accepted chain: skeleton -> `Application.rack_app` -> task creation ->
+- Accepted POC chain: skeleton -> `Application.rack_app` -> task creation ->
   feedback/refusal visibility -> action ledger/recent activity -> command
-  result.
+  result -> board snapshot/read model.
 - Research/expert proposals are useful, but full `interactive_app`, UI kit,
   Plane/canvas, flow/chat/proactive agent DSL, SSE/live updates, generator, and
   production server layer remain deferred.
@@ -71,29 +73,27 @@ block: none | <blocker>
 - Expert formalization is accepted as reference vocabulary, not as an
   implementation mandate:
   [Agent Track Pattern](../experts/agent-track-pattern.md).
-- Next implementation slice is opened as a compact read-model pressure test:
-  [Application Web POC Read Model Track](./application-web-poc-read-model-track.md).
+- Next slice is docs-only structure synthesis:
+  [Application Web POC Structure Synthesis Track](./application-web-poc-structure-synthesis-track.md).
 
 ## Active Review
 
-### Application Web POC Feedback
+### Current Accepted POC State
 
-Status: landed and accepted.
+Status: read model landed and accepted.
 
-Track:
+Accepted slices:
 
-- [Application Web POC Feedback Track](./application-web-poc-feedback-track.md)
+- [Feedback](./application-web-poc-feedback-track.md): app-local feedback and
+  blank refusal.
+- [Action Log](./application-web-poc-action-log-track.md): deterministic action
+  ledger and recent activity.
+- [Command Result](./application-web-poc-command-result-track.md): unified
+  app-local command result shape.
+- [Read Model](./application-web-poc-read-model-track.md): app-local
+  `BoardSnapshot` consumed by `/events` and the web board.
 
-Current result:
-
-- App-local query-string feedback landed.
-- Blank task creation redirects with `error=blank_title` and does not mutate.
-- Successful create/resolve redirects with known `notice` codes.
-- Web surface renders compact known-code feedback markers.
-- Smoke proves blank refusal, create feedback, resolve feedback, and final
-  open-task count.
-
-Acceptance gate already observed:
+Verification gate observed for latest slice:
 
 - `ruby examples/application/interactive_web_poc.rb` passed.
 - `ruby examples/run.rb smoke` passed with 74 examples and 0 failures.
@@ -101,107 +101,23 @@ Acceptance gate already observed:
   passed with no offenses.
 - `git diff --check` passed.
 
-Accepted decision:
+### Process State
 
-- Feedback POC accepted.
-- Keep next implementation compact; do not jump to full `interactive_app`.
+Status: active supervisor compression pass.
 
-### Agent Cycle Optimization
+Accepted:
 
-Status: active supervisor protocol change.
-
-Source:
-
-- [Agent Cycle Optimization](../experts/agent-cycle-optimization.md)
-
-Accepted now:
-
-- Proposal 1: split active tracks from history.
-- Proposal 2, narrowed: shared constraint registry for new active tracks only.
-- Supervisor insight: the process is now an explicit track lifecycle pattern,
-  captured in [Agent Track Lifecycle Doctrine](./agent-track-lifecycle-doctrine.md).
-- Expert review: [Agent Track Pattern](../experts/agent-track-pattern.md) is
-  accepted as reference; vocabulary is folded into lifecycle doctrine.
+- Active tracks/history split.
+- Constraint sets for reusable boundaries.
+- Agent lifecycle doctrine and expert track-pattern vocabulary.
+- Documentation compression doctrine, narrowed to manual active-context hygiene.
 
 Deferred:
 
-- full micro-format enforcement beyond the compact status template above
-- parallel task windows
-- graduated verification tiers
-- track retirement automation
-- front-matter conversion
-- active index generator
-- handoff validator
-- track compiler / native agent execution
+- front-matter conversion, generators, validators, automated history
+  compression, native track compiler, and native agent execution.
 
-Active constraint sets:
+Next:
 
-- `:interactive_poc_guardrails`
-- `:activation_safety`
-- `:research_only`
-- `:embed_shadow_safety`
-- `:human_sugar_parallel_form`
-
-Next possible process slice:
-
-- Either use constraint sets in the next implementation track, or add a minimal
-  verification-tier vocabulary if agent handoffs remain too verbose.
-
-### Application Web POC Action Log
-
-Status: landed and accepted.
-
-Track:
-
-- [Application Web POC Action Log Track](./application-web-poc-action-log-track.md)
-
-Constraint set:
-
-- `:interactive_poc_guardrails`
-
-Accepted result:
-
-- App-local action ledger records seed/create/refuse/resolve facts.
-- `/events` exposes open count, action count, and recent typed facts.
-- Board renders recent activity from app-owned state.
-- Verification gate passed.
-
-### Application Web POC Command Result
-
-Status: landed and accepted.
-
-Track:
-
-- [Application Web POC Command Result Track](./application-web-poc-command-result-track.md)
-
-Constraint set:
-
-- `:interactive_poc_guardrails`
-
-Accepted result:
-
-- `TaskBoard#create` and `TaskBoard#resolve` return the same app-local
-  `CommandResult` shape.
-- Rack endpoints map command results to existing feedback redirects.
-- Action ledger, `/events`, feedback markers, task cards, and recent activity
-  remain stable.
-- Verification gate passed.
-
-### Application Web POC Read Model
-
-Status: ready for agent implementation.
-
-Track:
-
-- [Application Web POC Read Model Track](./application-web-poc-read-model-track.md)
-
-Constraint set:
-
-- `:interactive_poc_guardrails`
-
-Accepted next slice:
-
-- Introduce an app-local board snapshot/read model.
-- Render `/events` and the web board from the same snapshot shape.
-- Keep this as read-model pressure inside the POC, not a package-level API,
-  persistence layer, or live transport.
+- Application/Web agents should summarize structure findings before any new POC
+  implementation.

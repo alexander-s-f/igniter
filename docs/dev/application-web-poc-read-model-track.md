@@ -153,3 +153,35 @@ verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can review/accept the completed read
   model POC slice.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the cycle review.
+
+Accepted:
+
+- `TaskBoard` now exposes an app-local `BoardSnapshot` through
+  `snapshot(recent_limit:)`.
+- Snapshot data is detached from mutable internal task/action arrays.
+- `GET /events` renders from the snapshot while preserving the existing output
+  facts.
+- The operator board renders open count, task cards, footer, and recent
+  activity from the same snapshot shape.
+- Existing command results, action ledger, feedback redirects, feedback
+  markers, and smoke fragments remain stable.
+- This stays inside `:interactive_poc_guardrails`: no package-level read model
+  API, persistence, database projection, background jobs, live transport,
+  auth/session framework, UI redesign, or broader `interactive_app`.
+
+Verification:
+
+- `ruby examples/application/interactive_web_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 74 examples and 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Pause new POC implementation for one supervisor cycle and apply the accepted
+  documentation compression doctrine to keep active context small.
