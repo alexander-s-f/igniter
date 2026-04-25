@@ -814,4 +814,6 @@ They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without cluster placement or workflow execution. The
 interactive web POC additionally shows a tiny server-backed Rack path where an
 application-owned service holds state, `igniter-web` renders a form, a POST
-request changes state, and the next render reflects the change.
+request changes state, and the next render reflects the change. Its stable
+launcher is `examples/application/interactive_web_poc.rb`; its copyable
+app-local skeleton is `examples/application/interactive_operator/`.

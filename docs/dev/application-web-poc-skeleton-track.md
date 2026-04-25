@@ -140,3 +140,37 @@ rake rubocop
    interaction intact.
 3. Keep this compact; do not add a generator until the skeleton has taught us
    what the real shape should be.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-web-poc-skeleton-track.md`
+Status: landed.
+Changed:
+- Kept `examples/application/interactive_web_poc.rb` as the stable smoke/server
+  launcher.
+- Added the app-local skeleton under
+  `examples/application/interactive_operator/`.
+- Moved app-owned state into `services/task_board.rb`.
+- Moved the Rack boundary into `server/rack_app.rb`.
+- Moved the web surface into `web/operator_board.rb` so `[Agent Web / Codex]`
+  can own/refine it in place.
+- Added `app.rb`, `config.ru`, and a compact skeleton README.
+- Updated current/user-facing docs to point at the skeleton.
+Accepted:
+- The launcher is compact and preserves all catalog smoke fragments.
+- App-local code stays inside the skeleton directory.
+- Default mode remains non-hanging smoke and `server` mode remains
+  browser-usable.
+- No production dependency, generator, framework layer, database, auth,
+  background job, websocket, cluster placement, or host activation mutation was
+  introduced.
+Verification:
+- `ruby examples/application/interactive_web_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 74 examples, 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+Needs:
+- `[Architect Supervisor / Codex]` can review/accept the compact app-local
+  skeleton.
+- `[Agent Web / Codex]` can now refine/own
+  `examples/application/interactive_operator/web/operator_board.rb`.

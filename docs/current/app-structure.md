@@ -341,12 +341,15 @@ discover adapters, expose commit mode, mutate hosts, register or boot
 anything, bind mounts, activate routes, execute contracts, or place capsules on
 a cluster.
 
-`examples/application/interactive_web_poc.rb` is the current compact
-application/web POC. It builds an application environment with an app-owned
-task-board service, renders the surface through `igniter-web`, handles a
-state-changing Rack POST, and verifies that the next render reflects the new
-state. Its default mode is non-hanging smoke; `server` mode starts a small
-local HTTP server for manual browser testing.
+`examples/application/interactive_web_poc.rb` is the stable launcher for the
+current compact application/web POC. The app-local skeleton lives under
+`examples/application/interactive_operator/`: service state is in
+`services/task_board.rb`, the web surface is in `web/operator_board.rb`, and
+the Rack request boundary is in `server/rack_app.rb`. It builds an application
+environment with an app-owned task-board service, renders the surface through
+`igniter-web`, handles a state-changing Rack POST, and verifies that the next
+render reflects the new state. Its default mode is non-hanging smoke; `server`
+mode starts a small local HTTP server for manual browser testing.
 
 ## Placement Rules
 

@@ -274,11 +274,14 @@ dry-run evidence and supplied adapter evidence. It reports descriptive
 `commit_allowed` state plus blockers, warnings, required/provided adapters,
 would-apply count, and skipped count without commit mode, adapter discovery,
 host mutation, web activation, contract execution, or cluster placement.
-`examples/application/interactive_web_poc.rb` is the current practical
-application/web integration POC. It uses an application environment to provide
-state, renders a web surface through `igniter-web`, handles a form POST through
-a tiny Rack-compatible host, and confirms the changed state in the next render
-without adding production server dependencies.
+`examples/application/interactive_web_poc.rb` is the stable launcher for the
+current practical application/web integration POC. Its app-local skeleton lives
+under `examples/application/interactive_operator/`, with state in
+`services/task_board.rb`, the rendered surface in `web/operator_board.rb`, and
+the Rack boundary in `server/rack_app.rb`. It uses an application environment
+to provide state, renders a web surface through `igniter-web`, handles a form
+POST through a tiny Rack-compatible host, and confirms the changed state in the
+next render without adding production server dependencies.
 
 Lifecycle now follows this shape:
 

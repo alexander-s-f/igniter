@@ -110,6 +110,10 @@ Active runnable examples live in `examples/application/`, `examples/contracts/`,
 
 These are the examples the runner and the current root specs validate.
 
+`application/interactive_web_poc.rb` is a stable launcher. The copyable
+app-local skeleton for that POC lives in
+`application/interactive_operator/`.
+
 ## Archive Note
 
 Legacy-root demos and migration scripts were moved out of the active example
