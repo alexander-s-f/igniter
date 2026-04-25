@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Define post-transfer host integration boundary and checklist shape | [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md) | [Application Capsule Transfer Guide Consolidation Track](./application-capsule-transfer-guide-consolidation-track.md), [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md), [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for mount boundary wording review |
-| `[Agent Web / Codex]` | Boundary review for post-transfer web mount intents and surface metadata | [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md) | [Application Capsule Transfer Guide Consolidation Track](./application-capsule-transfer-guide-consolidation-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for guide/checklist wording needs |
+| `[Agent Application / Codex]` | Define read-only host activation readiness over explicit host decisions | [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md) | [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md), [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md), [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for readiness boundary wording review |
+| `[Agent Web / Codex]` | Boundary review for optional web metadata in host activation readiness | [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md) | [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for readiness wording needs |
 
 ## Track Map
 
@@ -113,8 +113,10 @@ pressure-test wave:
   landed and was accepted.
 - User-facing transfer guide consolidation and compact end-to-end smoke path
   landed and were accepted.
-- The next broad track is post-transfer host integration boundary/checklist
-  design.
+- Post-transfer host integration boundary/checklist wording landed and was
+  accepted without adding a new object.
+- The next broad track is read-only host activation readiness over explicit
+  host decisions.
 
 ### Embed And Contract Class DSL
 
@@ -998,7 +1000,7 @@ Next:
 
 ### Application Capsule Post-Transfer Host Integration
 
-Status: active.
+Status: landed and accepted.
 
 Primary track:
 
@@ -1014,22 +1016,58 @@ Current accepted state:
 
 - The transfer chain ends with a verified receipt, but transfer completion does
   not equal runtime activation.
-- The next work should define what the receiving host still needs to review or
-  wire: host exports, capabilities, manual actions, load paths, providers,
-  contracts, optional mount intents, and optional supplied surface metadata.
-- Start docs/checklist-first. Add a read-only checklist/report only if the
-  existing artifacts cannot express the host decisions without excessive
-  repetition.
-- Web mount intent wording remains review-only and must not imply route
-  activation, mount binding, browser traffic, or an application dependency on
-  web.
+- Existing artifacts are enough for this cycle: handoff manifest, assembly
+  plan, transfer readiness, apply plan, applied verification, and receipt.
+- Host-owned decisions are explicit: exports, capabilities, manual wiring,
+  load paths, providers, contracts, lifecycle, and optional mounts.
+- No checklist/report object was added because the guide can express the
+  boundary without duplicating existing transfer report data.
+- Web surface metadata remains supplied/opaque context until a web-owned layer
+  explicitly consumes it.
+- Mount intents remain review data, not web mount calls, Rack/browser traffic,
+  route activation, or screen/component inspection.
+- Acceptance passed on 2026-04-25 with end-to-end smoke, application/current
+  specs, web skeleton/composer specs, and diff check.
 
 Next:
 
-- `[Agent Application / Codex]`: draft the post-transfer host integration
-  boundary and optional checklist shape.
-- `[Agent Web / Codex]`: review web mount/surface wording and keep web-related
-  fields supplied/opaque or web-owned.
+- Continue through [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md).
+- Keep the next cycle as activation readiness only; do not add activation,
+  loading, boot, route mounting, browser traffic, or contract execution.
+
+### Application Capsule Host Activation Readiness
+
+Status: active.
+
+Primary track:
+
+- [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md)
+
+Dependencies:
+
+- [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md)
+- [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md)
+- [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md)
+
+Current accepted state:
+
+- Transfer receipt and post-transfer integration review define what happened
+  and what the host still owns.
+- The next useful question is whether explicit host decisions are sufficient
+  for a future activation step.
+- This should be read-only readiness/preflight, not activation.
+- Inputs should remain explicit value objects or compatible hashes; no project
+  discovery or filesystem inspection beyond supplied artifact data.
+- Web-related readiness stays about supplied mount intents and surface metadata
+  only.
+
+Next:
+
+- `[Agent Application / Codex]`: decide whether docs are enough or land the
+  smallest read-only activation readiness report/facade.
+- `[Agent Web / Codex]`: review that web readiness metadata does not imply
+  route activation, mount binding, browser traffic, screen graph inspection, or
+  an application dependency on web.
 
 ### Cluster
 

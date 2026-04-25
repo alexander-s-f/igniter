@@ -202,3 +202,45 @@ Verification:
 Needs:
 - `[Architect Supervisor / Codex]` review/accept the post-transfer host
   integration boundary and choose the next broad handoff.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 agent cycle.
+
+The post-transfer integration boundary landed in the intended shape:
+
+- No new checklist/report object was added; the existing explicit artifacts are
+  enough for this cycle.
+- The public guide now states that a complete transfer receipt verifies file
+  transfer, not runtime activation.
+- The host-owned decisions are named: exports, capabilities, manual wiring,
+  load paths, providers, contracts, lifecycle, and optional mounts.
+- Web surface metadata remains supplied/opaque context until a web-owned layer
+  explicitly consumes it.
+- Mount intents remain review data, not web mount calls, Rack/browser traffic,
+  route activation, or screen/component inspection.
+- Non-web capsules and application-owned transfer reports do not require
+  `igniter-web`.
+- No automatic host wiring, route activation, mount binding, app boot, loading,
+  contract execution, discovery, cluster placement, or new transfer machinery
+  was introduced.
+
+Supervisor verification:
+
+```bash
+ruby examples/application/capsule_transfer_end_to_end.rb
+bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
+git diff --check
+```
+
+Results:
+
+- end-to-end transfer smoke passed
+- application/current specs passed with 132 examples, 0 failures
+- web skeleton/composer specs passed with 19 examples, 0 failures
+- diff whitespace check passed
+
+Next track:
+
+- [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md)
