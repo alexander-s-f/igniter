@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review signal inbox implementation and guard against package API promotion | [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md) | [Application Web POC Second Scenario Track](./application-web-poc-second-scenario-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Implement app-local signal inbox service, commands, snapshot, Rack endpoints, and smoke fragments | [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md) | [Application Web POC Second Scenario Track](./application-web-poc-second-scenario-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Implement signal inbox mounted web surface and stable markers | [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md) | [Application Web POC Second Scenario Track](./application-web-poc-second-scenario-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review repeatability synthesis before guide/API graduation | [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md) | [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Compare app-side repeated seams across task board and signal inbox POCs | [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md) | [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Compare web-side repeated seams and marker vocabulary across both POCs | [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md) | [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -57,9 +57,8 @@ block: none | <blocker>
 [Architect Supervisor / Codex] Current compact state:
 
 - Interactive operator POC is the active live pressure-test line.
-- Accepted POC chain: skeleton -> `Application.rack_app` -> task creation ->
-  feedback/refusal visibility -> action ledger/recent activity -> command
-  result -> board snapshot/read model.
+- Accepted POC chain: task board skeleton -> feedback/refusal -> action ledger
+  -> command result -> read snapshot -> pattern guide -> signal inbox repeat.
 - Research/expert proposals are useful, but full `interactive_app`, UI kit,
   Plane/canvas, flow/chat/proactive agent DSL, SSE/live updates, generator, and
   production server layer remain deferred.
@@ -73,8 +72,8 @@ block: none | <blocker>
 - Expert formalization is accepted as reference vocabulary, not as an
   implementation mandate:
   [Agent Track Pattern](../experts/agent-track-pattern.md).
-- Next slice is implementation of the accepted second scenario:
-  [Application Web POC Signal Inbox Track](./application-web-poc-signal-inbox-track.md).
+- Next slice is docs-only repeatability synthesis:
+  [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 
@@ -82,7 +81,7 @@ block: none | <blocker>
 
 ### Current Accepted POC State
 
-Status: second scenario selected.
+Status: signal inbox landed and accepted.
 
 Accepted slices:
 
@@ -100,6 +99,8 @@ Accepted slices:
   app/web structure note.
 - [Second Scenario](./application-web-poc-second-scenario-track.md): accepted
   `operator_signal_inbox`.
+- [Signal Inbox](./application-web-poc-signal-inbox-track.md): second app-local
+  POC with signal commands, snapshot, web surface, and smoke coverage.
 
 Verification gate observed for latest slice:
 
@@ -128,5 +129,5 @@ Deferred:
 
 Next:
 
-- Application/Web agents should implement `operator_signal_inbox` as an
-  app-local second POC without package API promotion.
+- Application/Web agents should compare the two POCs before any guide/API
+  graduation or third POC.

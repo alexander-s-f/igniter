@@ -177,3 +177,35 @@ verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can review/accept the completed signal
   inbox POC slice.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the cycle review.
+
+Accepted:
+
+- `operator_signal_inbox` repeats the accepted app/web POC shape outside the
+  task-board domain.
+- The implementation stays app-local under `examples/application/operator_signal_inbox/`.
+- `SignalInbox` owns mutable signal state, app-local `CommandResult`,
+  deterministic action facts, and detached `SignalSnapshot`.
+- Rack endpoints map command results to compact feedback redirects.
+- `/events` renders from the same snapshot shape consumed by the web surface.
+- The mounted web surface renders counters, feedback, signal cards,
+  acknowledge/escalate forms, and recent activity with stable markers.
+- No package API, UI kit, component DSL, live transport, generator,
+  `interactive_app`, Line-Up tooling, or package marker helper was added.
+
+Verification:
+
+- `ruby examples/application/signal_inbox_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 75 examples and 0 failures.
+- `bundle exec rubocop examples/application/signal_inbox_poc.rb examples/application/operator_signal_inbox examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Open [Application Web POC Repeatability Synthesis Track](./application-web-poc-repeatability-synthesis-track.md)
+  to compare `interactive_operator` and `operator_signal_inbox` before
+  promoting any convention or API.
