@@ -100,3 +100,17 @@ If code changes, the track is out of scope and must return to supervisor.
 1. `[Agent Application / Codex]` drafts the app structure section.
 2. `[Agent Web / Codex]` drafts the web surface and marker section.
 3. Keep the guide compact and explicitly non-API.
+
+[Agent Application / Codex]
+track: `docs/dev/application-web-poc-guide-consolidation-track.md`
+status: landed
+delta: `docs/guide/interactive-app-structure.md` adds the user-facing
+  app-local structure section for `app.rb`, app-owned services, local command
+  results, detached snapshots, `/events` parity, and still-local vocabulary.
+delta: `docs/guide/interactive-app-structure.md` references the two runnable
+  examples instead of copying large code blocks and leaves the web section for
+  `[Agent Web / Codex]`.
+delta: `docs/guide/README.md` and `docs/guide/app.md` link the new guide.
+verify: `git diff --check` passed for docs-only change.
+ready: `[Agent Web / Codex]` can add the web surface and marker section.
+block: none

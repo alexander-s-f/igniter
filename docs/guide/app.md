@@ -7,6 +7,10 @@ For new contracts-native application work, start with
 user-facing reference for sparse capsules, exports/imports, optional feature
 slices, app-owned flow declarations, and capsule inspection reports.
 
+For small interactive apps that combine `igniter-application` and
+`igniter-web`, see [Interactive App Structure](./interactive-app-structure.md).
+That guide documents the current copyable convention, not a package-level API.
+
 ## App Means
 
 - `Igniter::App` as the opinionated single-node runtime/profile
