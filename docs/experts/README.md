@@ -16,6 +16,7 @@ Perspective: external expert in distributed interactive agent systems.
 | [plastic-runtime-cells.md](plastic-runtime-cells.md) | Missing synthesis for Proposal D — cell vocabulary, plasticity operations, graduation sequence |
 | [compression-experiment.md](compression-experiment.md) | Grammar compression experiment — three real Igniter handoffs measured, economic formula evaluated, break-even analysis |
 | [agent-cycle-optimization.md](agent-cycle-optimization.md) | Agent development cycle optimization — six proposals to reduce token cost and latency of the Handoff protocol |
+| [agent-track-pattern.md](agent-track-pattern.md) | Agent Track Pattern formal specification — vocabulary, state machine, topology, memory architecture, scaling model, Igniter integration, graduation path |
 
 ## One-Line Summary
 
