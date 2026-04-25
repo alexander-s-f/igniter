@@ -53,6 +53,14 @@ The filter is:
 Research graduates only when supervisor notes create or update a `docs/dev/`
 track with scoped tasks and acceptance criteria.
 
+## Research Artifacts
+
+- [Current State Report](./current-state-report.md)
+- [Horizon Proposals](./horizon-proposals.md)
+- [Supervisor Review](./supervisor-review.md)
+- [Agent Handoff Protocol](./agent-handoff-protocol.md)
+- [Interaction Kernel Report](./interaction-kernel-report.md)
+
 ## Compact Handoff
 
 Use this format when asking for review:
