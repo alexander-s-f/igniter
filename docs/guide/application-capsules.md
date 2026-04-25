@@ -586,6 +586,40 @@ binds mounts, activates routes, sends browser traffic, executes contracts, or
 places work on a cluster. Those steps belong to explicit host/runtime,
 web-owned, or cluster-owned activation flows.
 
+Activation readiness is the read-only preflight for those host decisions:
+
+```ruby
+activation = Igniter::Application.host_activation_readiness(
+  receipt,
+  handoff_manifest: manifest,
+  host_exports: [
+    { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+  ],
+  host_capabilities: [:audit],
+  load_paths: ["operator"],
+  providers: [:incident_runtime],
+  contracts: ["Contracts::ResolveIncident"],
+  lifecycle: { boot: :manual_review },
+  mount_decisions: [
+    { capsule: :operator, kind: :web, at: "/operator", status: :accepted }
+  ],
+  surface_metadata: [
+    { name: :operator_console, kind: :web_surface, path: "web" }
+  ]
+)
+
+activation.to_h
+```
+
+`ApplicationHostActivationReadiness` reports `ready`, blockers, warnings,
+explicit host decisions, manual actions, mount intents, and supplied surface
+count. It treats incomplete transfer receipts, missing required host exports,
+missing required capabilities, and unresolved manual actions as blockers.
+Missing load path, provider, contract, lifecycle, or optional mount decisions
+are warnings. It does not inspect directories, load constants, boot providers,
+bind mounts, activate routes, send browser traffic, execute contracts, or place
+work on a cluster.
+
 This transfer guide deliberately stops before project-wide discovery,
 automatic destination selection, applying host wiring, loading constants,
 booting apps, mounting web routes, executing contracts, or placing work on a
@@ -613,6 +647,7 @@ Start with these examples:
 - [`examples/application/capsule_transfer_applied_verification.rb`](../../examples/application/capsule_transfer_applied_verification.rb)
 - [`examples/application/capsule_transfer_receipt.rb`](../../examples/application/capsule_transfer_receipt.rb)
 - [`examples/application/capsule_transfer_end_to_end.rb`](../../examples/application/capsule_transfer_end_to_end.rb)
+- [`examples/application/capsule_host_activation_readiness.rb`](../../examples/application/capsule_host_activation_readiness.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

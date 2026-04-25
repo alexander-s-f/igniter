@@ -392,6 +392,18 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_host_activation_readiness",
+      "Read-only host activation readiness over explicit host decisions.",
+      expected_fragments: [
+        "application_capsule_host_activation_ready=true",
+        "application_capsule_host_activation_blockers=0",
+        "application_capsule_host_activation_warnings=0",
+        "application_capsule_host_activation_manual=0",
+        "application_capsule_host_activation_mounts=1",
+        "application_capsule_host_activation_surfaces=1"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

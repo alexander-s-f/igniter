@@ -277,6 +277,13 @@ and optional mount intents before making the capsule live. Supplied web surface
 metadata is context for a web-owned layer; it is not route activation, mount
 binding, browser traffic, or an application dependency on `igniter-web`.
 
+`ApplicationHostActivationReadiness` is the current read-only preflight over
+those explicit host decisions. It reports readiness, blockers, warnings,
+decisions, manual actions, mount intents, and supplied surface count before any
+future activation flow. It does not inspect directories, load constants, boot
+providers, bind mounts, activate routes, execute contracts, or place work on a
+cluster.
+
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or
 extract bundles, load, boot, mount, route, execute, or place capsules on a
@@ -333,6 +340,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_transfer_applied_verification.rb`](../../examples/application/capsule_transfer_applied_verification.rb)
 - [`examples/application/capsule_transfer_receipt.rb`](../../examples/application/capsule_transfer_receipt.rb)
 - [`examples/application/capsule_transfer_end_to_end.rb`](../../examples/application/capsule_transfer_end_to_end.rb)
+- [`examples/application/capsule_host_activation_readiness.rb`](../../examples/application/capsule_host_activation_readiness.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

@@ -138,6 +138,8 @@ Current shape:
   handoff chain
 - compact capsule transfer end-to-end smoke path from capsule declaration to
   final receipt
+- read-only host activation readiness over explicit post-transfer host
+  decisions
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces
@@ -223,6 +225,11 @@ exports, capabilities, manual wiring, load paths, providers, contracts, and
 optional mounts. Transfer completion is not runtime activation; application
 does not auto-wire hosts, bind web routes, load constants, boot apps, execute
 contracts, or place work on a cluster.
+`ApplicationHostActivationReadiness` is the current read-only activation
+preflight over explicit transfer receipts, handoff metadata, and host-supplied
+decisions. It reports blockers and warnings before activation without mutating
+host wiring, loading constants, booting apps, binding mounts, activating web,
+routing browser traffic, executing contracts, or placing work on a cluster.
 
 Lifecycle now follows this shape:
 

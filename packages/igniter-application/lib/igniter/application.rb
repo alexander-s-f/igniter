@@ -35,6 +35,7 @@ require_relative "application/application_transfer_apply_plan"
 require_relative "application/application_transfer_apply_result"
 require_relative "application/application_transfer_applied_verification"
 require_relative "application/application_transfer_receipt"
+require_relative "application/application_host_activation_readiness"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -226,6 +227,25 @@ module Igniter
           applied_verification,
           apply_result: apply_result,
           apply_plan: apply_plan,
+          metadata: metadata
+        )
+      end
+
+      def host_activation_readiness(transfer_receipt, handoff_manifest: nil, host_exports: [], host_capabilities: [],
+                                    manual_actions: [], load_paths: [], providers: [], contracts: [], lifecycle: {},
+                                    mount_decisions: [], surface_metadata: [], metadata: {})
+        ApplicationHostActivationReadiness.build(
+          transfer_receipt,
+          handoff_manifest: handoff_manifest,
+          host_exports: host_exports,
+          host_capabilities: host_capabilities,
+          manual_actions: manual_actions,
+          load_paths: load_paths,
+          providers: providers,
+          contracts: contracts,
+          lifecycle: lifecycle,
+          mount_decisions: mount_decisions,
+          surface_metadata: surface_metadata,
           metadata: metadata
         )
       end

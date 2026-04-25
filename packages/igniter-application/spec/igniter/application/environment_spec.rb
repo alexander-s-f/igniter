@@ -1487,6 +1487,119 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  it "reports host activation readiness over explicit host decisions" do
+    receipt = {
+      complete: true,
+      valid: true,
+      committed: true,
+      manual_actions: [],
+      surface_count: 1
+    }
+    handoff = {
+      suggested_host_wiring: [
+        {
+          capsule: :operator,
+          name: :incident_runtime,
+          kind: :service,
+          capabilities: [:audit]
+        }
+      ],
+      mount_intents: [
+        {
+          capsule: :operator,
+          kind: :web,
+          at: "/operator",
+          metadata: { surface: :operator_console }
+        }
+      ],
+      surfaces: [
+        { name: :operator_console, kind: :web_surface }
+      ]
+    }
+
+    readiness = Igniter::Application.host_activation_readiness(
+      receipt,
+      handoff_manifest: handoff,
+      host_exports: [
+        { name: :incident_runtime, kind: :service, target: "Host::IncidentRuntime" }
+      ],
+      host_capabilities: [:audit],
+      load_paths: ["operator"],
+      providers: [:incident_runtime],
+      contracts: ["Contracts::ResolveIncident"],
+      lifecycle: { boot: :manual_review },
+      mount_decisions: [
+        { capsule: :operator, kind: :web, at: "/operator", status: :accepted }
+      ],
+      metadata: { source: :spec }
+    ).to_h
+
+    expect(readiness).to include(
+      ready: true,
+      blockers: [],
+      warnings: [],
+      manual_actions: [],
+      surface_count: 1,
+      metadata: { source: :spec }
+    )
+    expect(readiness.fetch(:decisions)).to include(
+      host_capabilities: [:audit],
+      load_paths: ["operator"],
+      providers: [:incident_runtime],
+      contracts: ["Contracts::ResolveIncident"],
+      lifecycle: { boot: :manual_review }
+    )
+    expect(readiness.fetch(:mount_intents)).to contain_exactly(
+      include(capsule: :operator, kind: :web, at: "/operator")
+    )
+  end
+
+  it "blocks host activation readiness for incomplete receipts and unresolved host decisions" do
+    receipt = {
+      complete: false,
+      valid: true,
+      committed: true,
+      manual_actions: [
+        {
+          type: :manual_host_wiring,
+          status: :skipped,
+          metadata: { entry: { name: :incident_runtime } }
+        }
+      ],
+      surface_count: 0
+    }
+    handoff = {
+      suggested_host_wiring: [
+        {
+          capsule: :operator,
+          name: :incident_runtime,
+          kind: :service,
+          capabilities: [:audit]
+        }
+      ],
+      mount_intents: []
+    }
+
+    readiness = Igniter::Application.host_activation_readiness(
+      JSON.parse(JSON.generate(receipt)),
+      handoff_manifest: JSON.parse(JSON.generate(handoff)),
+      lifecycle: { boot: :manual_review }
+    ).to_h
+
+    expect(readiness).to include(ready: false)
+    expect(readiness.fetch(:blockers).map { |entry| entry.fetch(:code) }).to include(
+      :transfer_receipt_incomplete,
+      :missing_host_export,
+      :missing_host_capability,
+      :manual_action_unresolved
+    )
+    expect(readiness.fetch(:warnings).map { |entry| entry.fetch(:code) }).to include(
+      :load_paths_unconfirmed,
+      :providers_unconfirmed,
+      :contracts_unconfirmed
+    )
+  end
+
   it "refuses committed transfer application without explicit apply roots" do
     plan = {
       executable: true,
