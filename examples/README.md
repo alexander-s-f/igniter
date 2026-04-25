@@ -51,6 +51,7 @@ Active runnable examples live in `examples/application/`, `examples/contracts/`,
 - `application/capsule_transfer_bundle_artifact.rb`
 - `application/capsule_transfer_bundle_plan.rb`
 - `application/capsule_transfer_bundle_verification.rb`
+- `application/capsule_transfer_end_to_end.rb`
 - `application/capsule_transfer_intake_plan.rb`
 - `application/capsule_transfer_inventory.rb`
 - `application/capsule_transfer_receipt.rb`

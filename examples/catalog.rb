@@ -377,6 +377,21 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_transfer_end_to_end",
+      "Complete capsule transfer path from declaration to receipt.",
+      expected_fragments: [
+        "application_capsule_transfer_end_to_end_ready=true",
+        "application_capsule_transfer_end_to_end_bundle_allowed=true",
+        "application_capsule_transfer_end_to_end_bundle_verified=true",
+        "application_capsule_transfer_end_to_end_intake_accepted=true",
+        "application_capsule_transfer_end_to_end_apply_executable=true",
+        "application_capsule_transfer_end_to_end_dry_run_committed=false",
+        "application_capsule_transfer_end_to_end_committed=true",
+        "application_capsule_transfer_end_to_end_applied_valid=true",
+        "application_capsule_transfer_end_to_end_receipt_complete=true"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

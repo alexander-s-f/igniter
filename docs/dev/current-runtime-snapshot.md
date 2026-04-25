@@ -136,6 +136,8 @@ Current shape:
 - read-only capsule transfer receipts over explicit transfer reports
 - public capsule transfer guide over the read-only report/composition/assembly/
   handoff chain
+- compact capsule transfer end-to-end smoke path from capsule declaration to
+  final receipt
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces
@@ -209,6 +211,11 @@ over explicit verification/result/plan reports. It summarizes final status,
 counts, findings, refusals, skipped work, manual actions, and supplied surface
 count without mutation, rediscovery, activation, verification reruns, or
 execution.
+`examples/application/capsule_transfer_end_to_end.rb` is the current compact
+public transfer path. It demonstrates capsule declaration, inventory,
+readiness, bundle artifact writing, bundle verification, destination intake,
+apply planning, dry-run apply, committed apply, applied verification, and
+receipt generation without adding new runtime machinery.
 
 Lifecycle now follows this shape:
 

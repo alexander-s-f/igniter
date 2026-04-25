@@ -270,6 +270,32 @@ step. Before a capsule moves into a new host, build the read-only chain:
 - `handoff_manifest` summarizes what is moving and what the receiving host must
   provide
 
+The complete transfer path from declaration to final receipt is:
+
+1. Declare a capsule with explicit imports/exports and optional supplied web
+   surface metadata.
+2. Review declared files with `transfer_inventory`.
+3. Decide if transfer is ready with `transfer_readiness`.
+4. Build a read-only `transfer_bundle_plan`.
+5. Write an explicit bundle artifact with `write_transfer_bundle`.
+6. Read the artifact back with `verify_transfer_bundle`.
+7. Preview the receiving root with `transfer_intake_plan`.
+8. Convert intake into reviewed operations with `transfer_apply_plan`.
+9. Run `apply_transfer_plan` without `commit:` for dry-run review.
+10. Run `apply_transfer_plan(..., commit: true)` only when filesystem mutation
+    is intentionally accepted.
+11. Verify the committed result with `verify_applied_transfer`.
+12. Produce the final audit artifact with `transfer_receipt`.
+
+Only step 10 mutates the destination filesystem, and it is limited to reviewed
+directory creation and file copy operations. Host wiring remains manual review
+data; web surface metadata remains supplied/opaque context and never implies
+route activation, mount binding, browser traffic, or an `igniter-web`
+dependency.
+
+For the compact executable version of the full path, see
+[`examples/application/capsule_transfer_end_to_end.rb`](../../examples/application/capsule_transfer_end_to_end.rb).
+
 ```ruby
 manifest = Igniter::Application.handoff_manifest(
   subject: :operator_bundle,
@@ -548,6 +574,7 @@ Start with these examples:
 - [`examples/application/capsule_transfer_apply_execution.rb`](../../examples/application/capsule_transfer_apply_execution.rb)
 - [`examples/application/capsule_transfer_applied_verification.rb`](../../examples/application/capsule_transfer_applied_verification.rb)
 - [`examples/application/capsule_transfer_receipt.rb`](../../examples/application/capsule_transfer_receipt.rb)
+- [`examples/application/capsule_transfer_end_to_end.rb`](../../examples/application/capsule_transfer_end_to_end.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

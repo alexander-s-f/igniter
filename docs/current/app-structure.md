@@ -262,6 +262,14 @@ complete/valid/committed status, counts, findings, refusals, skipped work,
 manual actions, and supplied surface count without rerunning execution,
 verification, discovery, repair, activation, or routing.
 
+The current user-facing transfer path is consolidated in
+[`examples/application/capsule_transfer_end_to_end.rb`](../../examples/application/capsule_transfer_end_to_end.rb):
+capsule declaration, inventory, readiness, bundle plan/artifact/verification,
+destination intake, apply planning, dry-run apply, committed apply, applied
+verification, and final receipt. Only the committed apply step mutates the
+destination filesystem, and it still does not apply host wiring, activate web,
+boot apps, route traffic, execute contracts, or place work on a cluster.
+
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or
 extract bundles, load, boot, mount, route, execute, or place capsules on a
@@ -317,6 +325,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_transfer_apply_execution.rb`](../../examples/application/capsule_transfer_apply_execution.rb)
 - [`examples/application/capsule_transfer_applied_verification.rb`](../../examples/application/capsule_transfer_applied_verification.rb)
 - [`examples/application/capsule_transfer_receipt.rb`](../../examples/application/capsule_transfer_receipt.rb)
+- [`examples/application/capsule_transfer_end_to_end.rb`](../../examples/application/capsule_transfer_end_to_end.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

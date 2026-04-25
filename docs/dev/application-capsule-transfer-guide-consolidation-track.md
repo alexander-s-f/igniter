@@ -160,3 +160,40 @@ examples already provide an equally compact user path.
 3. Keep this cycle user-facing and stabilizing. Do not add new transfer
    machinery, web activation, host wiring automation, discovery, contract
    execution, or cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-transfer-guide-consolidation-track.md`
+Status: landed.
+Changed:
+- Added `examples/application/capsule_transfer_end_to_end.rb`.
+- Registered the end-to-end example in the active examples catalog and README.
+- Consolidated `docs/guide/application-capsules.md` with a complete
+  declaration-to-receipt transfer path.
+- Updated current app structure and runtime snapshot docs to reference the
+  compact end-to-end smoke path.
+Accepted:
+- The example demonstrates capsule declaration, transfer inventory, transfer
+  readiness, bundle plan, bundle artifact write, bundle verification,
+  destination intake, apply planning, dry-run apply, committed apply, applied
+  verification, and final receipt.
+- The guide calls out that only committed apply mutates the destination
+  filesystem and that mutation is limited to reviewed directory/file
+  operations.
+- Host wiring remains manual review data.
+- Web surface metadata remains supplied/opaque context and does not imply web
+  route activation, mount binding, browser traffic, or an `igniter-web`
+  dependency.
+- No new runtime classes, facades, transfer semantics, discovery, host wiring
+  automation, web activation, contract execution, or cluster placement was
+  introduced.
+Verification:
+- `ruby examples/application/capsule_transfer_end_to_end.rb` passed.
+- `ruby examples/application/capsule_transfer_receipt.rb` passed.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed with 132 examples, 0 failures.
+- `ruby examples/run.rb smoke` passed with 68 examples, 0 failures.
+- `bundle exec rubocop examples/application/capsule_transfer_end_to_end.rb examples/catalog.rb`
+  passed with no offenses.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 boundary wording review for the
+  consolidated transfer guide.
