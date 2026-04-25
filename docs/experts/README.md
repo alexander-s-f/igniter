@@ -11,6 +11,7 @@ Perspective: external expert in distributed interactive agent systems.
 | [expert-review.md](expert-review.md) | Assessment, architectural findings, friction analysis, application skeleton |
 | [interactive-app-dsl.md](interactive-app-dsl.md) | Proposed DSL for interactive agent applications with full examples |
 | [igniter-ui-kit.md](igniter-ui-kit.md) | UI component system — design language, component taxonomy, agent-specific primitives, live update architecture |
+| [igniter-plane.md](igniter-plane.md) | Living Graph Canvas — floating interactive system graph, bird's eye view, spatial navigation, node interactions, agent annotations |
 
 ## One-Line Summary
 
