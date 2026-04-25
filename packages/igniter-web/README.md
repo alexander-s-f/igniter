@@ -428,3 +428,10 @@ For the complete public transfer path, start with
 application-owned chain from capsule declaration to receipt while keeping web
 surface metadata as supplied hashes. The example does not activate web routes,
 bind mounts, inspect screens/components, or require `igniter-web`.
+
+After a transfer receipt, host integration is still a separate review boundary.
+Mount intents describe where a host might bind an interaction surface later;
+they are not `Igniter::Web.mount(...)` calls, Rack traffic, route activation, or
+screen/component inspection. A web-capable host can use `igniter-web` to turn
+reviewed metadata into a real mount, but non-web capsules and application-owned
+transfer reports never require this package.

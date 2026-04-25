@@ -175,3 +175,30 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 boundary wording review for web
   mount intents and supplied surface metadata.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-post-transfer-host-integration-track.md`
+Status: landed.
+Changed:
+- Reviewed post-transfer host integration wording against the web/application
+  boundary.
+- Added a short `packages/igniter-web/README.md` note clarifying mount intents
+  versus actual web mount/route activation.
+Accepted:
+- Supplied web surface metadata remains opaque context until a web-owned layer
+  explicitly consumes it.
+- Mount intents are host review data, not `Igniter::Web.mount(...)` calls,
+  Rack traffic, route activation, browser traffic, or screen/component
+  inspection.
+- Non-web capsules and application-owned transfer reports do not require
+  `igniter-web`.
+Verification:
+- `ruby examples/application/capsule_transfer_end_to_end.rb` passed.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed.
+- `bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb`
+  passed.
+- `git diff --check` passed.
+Needs:
+- `[Architect Supervisor / Codex]` review/accept the post-transfer host
+  integration boundary and choose the next broad handoff.
