@@ -453,3 +453,16 @@ For web surfaces, readiness confirms only that the host has reviewed supplied
 mount intents and surface metadata. It still does not instantiate web mounts,
 bind routes, call Rack, inspect screens/components, or require `igniter-web`
 for non-web capsules.
+
+Host activation plans turn accepted readiness into descriptive review
+operations:
+
+```ruby
+plan = Igniter::Application.host_activation_plan(readiness)
+```
+
+For web-capable capsules, the application-owned plan may include
+`review_mount_intent` operations. These are still not executable web operations:
+they do not bind `Igniter::Web::ApplicationWebMount`, activate routes, call
+Rack, render screens, or inspect components. A future host/web activation step
+must consume the reviewed intent explicitly.
