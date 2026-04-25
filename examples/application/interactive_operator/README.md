@@ -20,6 +20,10 @@ The current application commands are intentionally plain Rack form targets:
   with `notice=task_resolved` or `error=task_not_found`.
 - `GET /events` returns a compact text read model with the open-task count.
 
+The web surface renders `notice` and `error` query params as compact feedback
+messages on the next board render. This stays app-local and intentionally does
+not introduce session storage, a validation framework, or a UI component kit.
+
 Run the smoke launcher from the repository root:
 
 ```bash

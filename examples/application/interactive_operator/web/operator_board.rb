@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "uri"
+
 require "igniter/web"
 
 module InteractiveOperator
@@ -16,6 +18,9 @@ module InteractiveOperator
       create_label: "display: block; margin-bottom: 8px; font-weight: 700;",
       create_input: "width: min(100%, 420px); padding: 10px; border: 1px solid #f8f4ea; margin-right: 8px;",
       create_button: "padding: 10px 14px; border: 1px solid #f8f4ea; background: #f2b84b; cursor: pointer;",
+      feedback: "margin: 18px 0; padding: 12px 14px; border: 1px solid #2f2a1f; font-weight: 700;",
+      feedback_notice: " background: #e6f2c4;",
+      feedback_error: " background: #ffd8c8;",
       card: "margin-top: 14px; padding: 18px; background: #fffdf7; border: 1px solid #2f2a1f;",
       resolved_card: " opacity: 0.62;",
       task_title: "margin: 0 0 8px;",
@@ -40,10 +45,49 @@ module InteractiveOperator
       task.status == :resolved ? "Resolved" : "Awaiting operator"
     end
 
+    def self.feedback_for(env)
+      params = URI.decode_www_form(env.fetch("QUERY_STRING", "").to_s).to_h
+      return notice_feedback(params) if params.key?("notice")
+      return error_feedback(params) if params.key?("error")
+
+      nil
+    end
+
+    def self.notice_feedback(params)
+      case params.fetch("notice")
+      when "task_created"
+        feedback(:notice, "Task created.", "task_created")
+      when "task_resolved"
+        feedback(:notice, "Task resolved.", "task_resolved")
+      end
+    end
+
+    def self.error_feedback(params)
+      case params.fetch("error")
+      when "blank_title"
+        feedback(:error, "Task title cannot be blank.", "blank_title")
+      when "task_not_found"
+        feedback(:error, "Task not found.", "task_not_found")
+      end
+    end
+
+    def self.feedback(kind, message, code)
+      {
+        kind: kind,
+        code: code,
+        message: message
+      }.freeze
+    end
+
+    def self.feedback_style(feedback)
+      "#{style(:feedback)}#{style(:"feedback_#{feedback.fetch(:kind)}")}"
+    end
+
     def self.operator_board_mount
       application = Igniter::Web.application do
         root title: "Operator task board" do
           board = assigns[:ctx].service(:task_board).call
+          feedback = InteractiveOperator::Web.feedback_for(assigns[:env])
 
           main class: "task-board",
                "data-ig-poc-surface": "operator_task_board",
@@ -64,6 +108,15 @@ module InteractiveOperator
 
             para "This page is rendered by igniter-web, reads app-owned state through MountContext, and submits a Rack POST back to the host.",
                  style: InteractiveOperator::Web.style(:intro)
+
+            if feedback
+              section class: "feedback #{feedback.fetch(:kind)}",
+                      "data-ig-feedback": feedback.fetch(:kind),
+                      "data-feedback-code": feedback.fetch(:code),
+                      style: InteractiveOperator::Web.feedback_style(feedback) do
+                para feedback.fetch(:message), style: "margin: 0;"
+              end
+            end
 
             section class: "create-task",
                     "data-ig-create-task": "form",

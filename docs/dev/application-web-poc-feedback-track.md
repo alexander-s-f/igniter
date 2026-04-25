@@ -148,3 +148,42 @@ Needs:
   `QUERY_STRING` under `examples/application/interactive_operator/web/operator_board.rb`.
 - `[Architect Supervisor / Codex]` can review/accept the application feedback
   boundary.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-web-poc-feedback-track.md`
+Status: web feedback surface landed.
+Changed:
+- Added compact `notice`/`error` rendering under
+  `examples/application/interactive_operator/web/operator_board.rb`.
+- Feedback is read from the app-provided `QUERY_STRING`, maps only known
+  app-local codes, and renders stable `data-ig-feedback` /
+  `data-feedback-code` markers for smoke checks.
+- Preserved the existing create and resolve forms; no UI kit, validation
+  framework, session flash, component system, live transport, or broader DSL was
+  introduced.
+- Updated `examples/application/interactive_web_poc.rb` so smoke follows
+  redirect locations and proves blank/create/resolve feedback on the next
+  render.
+- Updated `examples/catalog.rb` and the interactive operator README for the new
+  rendered feedback markers.
+Accepted:
+- Success feedback is visible for task creation and task resolution.
+- Blank-title refusal remains non-mutating and is visible to the user.
+- Feedback remains app-local, query-string based, and scoped to the web-owned
+  operator board surface.
+Verification:
+- `ruby examples/application/interactive_web_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 74 examples, 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+- Scoped `git diff --check -- docs/dev/application-web-poc-feedback-track.md
+  examples/application/interactive_operator/README.md
+  examples/application/interactive_operator/web/operator_board.rb
+  examples/application/interactive_web_poc.rb examples/catalog.rb` passed.
+- Full `git diff --check` is currently blocked by unrelated trailing whitespace
+  in `docs/experts/agent-cycle-optimization.md`.
+Needs:
+- `[Architect Supervisor / Codex]` can review/accept the completed feedback POC
+  slice.
+- `[Agent Application / Codex]` can continue from the accepted feedback boundary
+  if the supervisor opens the next live POC pressure-test.
