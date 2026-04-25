@@ -143,3 +143,41 @@ bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb package
 3. Keep this as activation readiness only. Do not add activation, host wiring
    mutation, constant loading, app boot, route mounting, browser traffic,
    contract execution, discovery, or cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-host-activation-readiness-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationHostActivationReadiness`.
+- Added `Igniter::Application.host_activation_readiness(...)`.
+- Added `examples/application/capsule_host_activation_readiness.rb` and
+  registered it in the active examples catalog.
+- Updated public/current docs to position host activation readiness as a
+  read-only preflight after transfer receipt and post-transfer integration
+  review.
+Accepted:
+- Host activation readiness consumes explicit transfer receipts, optional
+  handoff manifests, and host-supplied decisions or compatible hashes.
+- `to_h` includes stable `ready`, `blockers`, `warnings`, `decisions`,
+  `manual_actions`, `mount_intents`, `surface_count`, and `metadata`.
+- Incomplete transfer receipts are blockers.
+- Missing required host export decisions, missing required host capabilities,
+  and unresolved manual actions are blockers.
+- Missing load path, provider, contract, lifecycle, and optional mount
+  decisions are warnings.
+- Web readiness remains supplied/opaque metadata plus optional mount-intent
+  review; no `igniter-web` dependency or route activation was introduced.
+- No activation, host wiring mutation, constant loading, app boot, provider
+  lifecycle execution, mount binding, route activation, browser traffic,
+  contract execution, discovery, or cluster placement was introduced.
+Verification:
+- `ruby examples/application/capsule_host_activation_readiness.rb` passed.
+- `ruby examples/application/capsule_transfer_end_to_end.rb` passed.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed with 135 examples, 0 failures.
+- `ruby examples/run.rb smoke` passed with 69 examples, 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_host_activation_readiness.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_host_activation_readiness.rb examples/catalog.rb`
+  passed with no offenses.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 boundary review for optional web
+  readiness metadata and mount-intent wording.
