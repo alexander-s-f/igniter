@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Consolidate capsule transfer guide and optional end-to-end smoke path | [Application Capsule Transfer Guide Consolidation Track](./application-capsule-transfer-guide-consolidation-track.md) | [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md), [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md), [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for boundary wording review |
-| `[Agent Web / Codex]` | Boundary review for web metadata wording in the consolidated transfer guide | [Application Capsule Transfer Guide Consolidation Track](./application-capsule-transfer-guide-consolidation-track.md) | [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for guide wording needs |
+| `[Agent Application / Codex]` | Define post-transfer host integration boundary and checklist shape | [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md) | [Application Capsule Transfer Guide Consolidation Track](./application-capsule-transfer-guide-consolidation-track.md), [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md), [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for mount boundary wording review |
+| `[Agent Web / Codex]` | Boundary review for post-transfer web mount intents and surface metadata | [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md) | [Application Capsule Transfer Guide Consolidation Track](./application-capsule-transfer-guide-consolidation-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for guide/checklist wording needs |
 
 ## Track Map
 
@@ -111,8 +111,10 @@ pressure-test wave:
 - Read-only post-apply verification for committed transfer results landed.
 - Read-only transfer receipt/audit generation over explicit transfer reports
   landed and was accepted.
-- The next broad track is user-facing transfer guide consolidation with a
-  compact end-to-end smoke path.
+- User-facing transfer guide consolidation and compact end-to-end smoke path
+  landed and were accepted.
+- The next broad track is post-transfer host integration boundary/checklist
+  design.
 
 ### Embed And Contract Class DSL
 
@@ -959,7 +961,7 @@ Next:
 
 ### Application Capsule Transfer Guide Consolidation
 
-Status: active.
+Status: landed and accepted.
 
 Primary track:
 
@@ -974,21 +976,60 @@ Dependencies:
 Current accepted state:
 
 - The transfer chain is complete enough for a consolidation pass.
-- The next work should make the public path easy to follow from capsule
-  declaration to receipt.
-- This track may add a deterministic end-to-end example and compact guide
-  wording, but should not add new runtime classes, facades, or transfer
-  semantics.
-- Web metadata remains supplied and opaque; web review is wording/boundary
-  review only.
+- `examples/application/capsule_transfer_end_to_end.rb` is accepted as the
+  compact public path from capsule declaration to final transfer receipt.
+- The public guide lists the full chain in order and clearly states that only
+  committed apply mutates the destination filesystem.
+- Host wiring remains manual review data.
+- Web metadata remains supplied and opaque and does not imply route activation,
+  mount binding, browser traffic, screen inspection, or an application
+  dependency on `igniter-web`.
+- The consolidation pass added no new runtime classes, facades, transfer
+  semantics, discovery, host wiring automation, web activation, contract
+  execution, or cluster placement.
+- Acceptance passed on 2026-04-25 with end-to-end/receipt smoke examples,
+  application/current specs, web skeleton/composer specs, and RuboCop.
 
 Next:
 
-- `[Agent Application / Codex]`: consolidate the public guide and add the
-  end-to-end smoke example if useful.
-- `[Agent Web / Codex]`: verify the consolidated wording does not imply web
-  route activation, screen inspection, mount binding, browser traffic, or an
-  application dependency on web.
+- Continue through [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md).
+- Keep the next cycle focused on host-owned integration decisions after a
+  verified receipt; do not introduce automatic activation yet.
+
+### Application Capsule Post-Transfer Host Integration
+
+Status: active.
+
+Primary track:
+
+- [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md)
+
+Dependencies:
+
+- [Application Capsule Transfer Guide Consolidation Track](./application-capsule-transfer-guide-consolidation-track.md)
+- [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md)
+- [Application Capsule Handoff Manifest Track](./application-capsule-handoff-manifest-track.md)
+
+Current accepted state:
+
+- The transfer chain ends with a verified receipt, but transfer completion does
+  not equal runtime activation.
+- The next work should define what the receiving host still needs to review or
+  wire: host exports, capabilities, manual actions, load paths, providers,
+  contracts, optional mount intents, and optional supplied surface metadata.
+- Start docs/checklist-first. Add a read-only checklist/report only if the
+  existing artifacts cannot express the host decisions without excessive
+  repetition.
+- Web mount intent wording remains review-only and must not imply route
+  activation, mount binding, browser traffic, or an application dependency on
+  web.
+
+Next:
+
+- `[Agent Application / Codex]`: draft the post-transfer host integration
+  boundary and optional checklist shape.
+- `[Agent Web / Codex]`: review web mount/surface wording and keep web-related
+  fields supplied/opaque or web-owned.
 
 ### Cluster
 

@@ -225,3 +225,44 @@ Verification:
 Needs:
 - `[Architect Supervisor / Codex]` review/accept the consolidated transfer
   guide track and choose the next broad handoff.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 agent cycle.
+
+The consolidation pass landed as intended:
+
+- `examples/application/capsule_transfer_end_to_end.rb` gives one compact
+  public path from capsule declaration to final transfer receipt.
+- The guide now names the full transfer chain in order.
+- The mutation boundary is clear: only committed apply mutates the destination
+  filesystem, and only through reviewed directory/file operations.
+- Host wiring remains manual review data.
+- Web surface metadata remains supplied/opaque context and does not imply web
+  activation, route mounting, screen/component inspection, browser traffic, or
+  an application dependency on `igniter-web`.
+- No new runtime classes, facades, transfer semantics, discovery, host wiring
+  automation, web activation, contract execution, or cluster placement were
+  introduced.
+
+Supervisor verification:
+
+```bash
+ruby examples/application/capsule_transfer_end_to_end.rb
+ruby examples/application/capsule_transfer_receipt.rb
+bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
+bundle exec rubocop examples/application/capsule_transfer_end_to_end.rb examples/catalog.rb
+```
+
+Results:
+
+- end-to-end transfer smoke passed
+- receipt smoke passed
+- application/current specs passed with 132 examples, 0 failures
+- web skeleton/composer specs passed with 19 examples, 0 failures
+- targeted RuboCop passed with no offenses
+
+Next track:
+
+- [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md)
