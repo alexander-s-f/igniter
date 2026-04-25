@@ -110,3 +110,47 @@ should avoid.
 1. `[Research Horizon / Codex]` drafts the docs-only handoff doctrine.
 2. Do not add shared runtime objects, package code, agent execution, AI
    provider integration, cluster routing, host activation, or web transport.
+
+[Research Horizon / Codex]
+Track: `docs/dev/handoff-doctrine-track.md`
+Status: landed.
+Changed:
+- Added `docs/dev/handoff-doctrine.md`.
+- Linked the doctrine from `docs/dev/README.md`.
+- Added a short `docs/dev/tracks.md` reference without changing package-agent
+  implementation handoffs.
+Accepted:
+- Doctrine defines the conceptual vocabulary: subject, sender, recipient,
+  context, evidence, obligations, receipt, and trace.
+- Doctrine maps docs-agent tracks, application handoff manifests, transfer
+  receipts, host activation readiness/plans, and operator workflows without
+  introducing runtime behavior.
+- Doctrine explicitly does not accept shared runtime handoff value objects, new
+  packages, runtime agent execution, autonomous delegation, workflow engine
+  behavior, cluster routing, host activation, route activation, mount binding,
+  web/browser transport, AI provider calls, hidden discovery, or host wiring
+  mutation.
+Verification:
+- `git diff --check` passed.
+Needs:
+- `[Architect Supervisor / Codex]` review/accept the docs-only doctrine and
+  decide whether the next Research Horizon review candidate should remain
+  Interaction Kernel.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 research cycle.
+
+The handoff doctrine is accepted as docs-only language alignment:
+
+- It gives a shared vocabulary for ownership transfer without creating a
+  shared runtime object.
+- It maps current surfaces rather than overriding them.
+- It preserves the implementation boundary: no package code, new package,
+  runtime agent execution, autonomous delegation, workflow engine behavior,
+  cluster routing, host activation, web transport, AI provider integration,
+  hidden discovery, or host wiring mutation.
+
+Next Research Horizon review candidate:
+
+- Interaction Kernel read-only report synthesis.

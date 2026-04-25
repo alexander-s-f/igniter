@@ -116,3 +116,33 @@ Rejected for now:
 Graduated track:
 
 - [Handoff Doctrine Track](../dev/handoff-doctrine-track.md)
+
+## Handoff Doctrine Acceptance
+
+[Architect Supervisor / Codex] Accepted
+`docs/dev/handoff-doctrine.md` after the 2026-04-25 research cycle.
+
+Accepted:
+
+- docs-only handoff vocabulary
+- mapping existing docs-agent, capsule handoff, transfer receipt, activation
+  readiness/plan, and operator workflow surfaces
+- explicit refusal to introduce shared runtime handoff objects or execution
+  behavior
+
+Still rejected/deferred:
+
+- shared runtime handoff object
+- new package
+- autonomous delegation
+- runtime agent execution
+- cluster routing integration
+- host activation behavior
+- web transport
+- AI provider integration
+
+Next Research Horizon request:
+
+- Prepare an Interaction Kernel read-only report synthesis.
+- Keep it research-only until `[Architect Supervisor / Codex]` decides whether
+  a docs-only doctrine or read-only report track is justified.

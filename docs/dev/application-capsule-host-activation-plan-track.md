@@ -195,3 +195,49 @@ Verification:
 Needs:
 - `[Architect Supervisor / Codex]` review/accept the host activation plan track
   and choose the next broad handoff.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 agent cycle.
+
+The activation plan landed in the intended shape:
+
+- `ApplicationHostActivationPlan` is application-owned read-only planning over
+  accepted activation readiness.
+- `Igniter::Application.host_activation_plan(...)` consumes explicit readiness
+  objects or compatible hashes only.
+- Non-ready readiness produces a non-executable plan with no operations and
+  carries blockers/warnings forward.
+- Ready input produces ordered descriptive review operations such as
+  `confirm_host_export`, `confirm_host_capability`, `confirm_load_path`,
+  `confirm_provider`, `confirm_contract`, `confirm_lifecycle`,
+  `acknowledge_manual_actions`, and `review_mount_intent`.
+- Web-related operations remain mount-intent review metadata only.
+- The implementation does not execute activation, mutate host wiring, change
+  load paths, register providers/contracts, boot, bind mounts, activate routes,
+  send browser traffic, execute contracts, discover projects, place work on a
+  cluster, or require `igniter-web`.
+
+Supervisor verification:
+
+```bash
+ruby examples/application/capsule_host_activation_plan.rb
+ruby examples/application/capsule_host_activation_readiness.rb
+bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
+bundle exec rubocop packages/igniter-application/lib/igniter/application/application_host_activation_plan.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_host_activation_plan.rb examples/catalog.rb
+git diff --check
+```
+
+Results:
+
+- host activation plan smoke passed
+- host activation readiness smoke passed
+- application/current specs passed with 138 examples, 0 failures
+- web skeleton/composer specs passed with 19 examples, 0 failures
+- targeted RuboCop passed with no offenses
+- diff whitespace check passed
+
+Next implementation track:
+
+- [Application Capsule Host Activation Plan Verification Track](./application-capsule-host-activation-plan-verification-track.md)

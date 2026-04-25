@@ -70,9 +70,9 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Define read-only host activation plan over accepted readiness | [Application Capsule Host Activation Plan Track](./application-capsule-host-activation-plan-track.md) | [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md), [Application Capsule Post-Transfer Host Integration Track](./application-capsule-post-transfer-host-integration-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for mount-intent boundary review |
-| `[Agent Web / Codex]` | Boundary review for web mount-intent operations in activation plans | [Application Capsule Host Activation Plan Track](./application-capsule-host-activation-plan-track.md) | [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for activation plan wording needs |
-| `[Research Horizon / Codex]` | Draft docs-only handoff doctrine from accepted research synthesis | [Handoff Doctrine Track](./handoff-doctrine-track.md) | [Agent Handoff Protocol](../research-horizon/agent-handoff-protocol.md), [Supervisor Review](../research-horizon/supervisor-review.md), [Research Horizon](../research-horizon/README.md) | `[Architect Supervisor / Codex]` for doctrine acceptance |
+| `[Agent Application / Codex]` | Verify read-only host activation plans before any future execution boundary | [Application Capsule Host Activation Plan Verification Track](./application-capsule-host-activation-plan-verification-track.md) | [Application Capsule Host Activation Plan Track](./application-capsule-host-activation-plan-track.md), [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for mount-intent verification boundary |
+| `[Agent Web / Codex]` | Boundary review for web mount-intent verification metadata | [Application Capsule Host Activation Plan Verification Track](./application-capsule-host-activation-plan-verification-track.md) | [Application Capsule Host Activation Plan Track](./application-capsule-host-activation-plan-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for verification wording needs |
+| `[Research Horizon / Codex]` | Prepare Interaction Kernel read-only report synthesis | [Research Horizon Supervisor Review](../research-horizon/supervisor-review.md) | [Handoff Doctrine](./handoff-doctrine.md), [Horizon Proposals](../research-horizon/horizon-proposals.md), [Research Horizon](../research-horizon/README.md) | `[Architect Supervisor / Codex]` for filtering and graduation decision |
 
 ## Track Map
 
@@ -125,13 +125,15 @@ pressure-test wave:
   accepted without adding a new object.
 - Read-only host activation readiness over explicit host decisions landed and
   was accepted.
-- The next implementation track is read-only host activation planning over
-  accepted readiness.
+- Read-only host activation planning over accepted readiness landed and was
+  accepted.
+- The next implementation track is read-only verification of host activation
+  plans before any future execution boundary.
 - `[Research Horizon / Codex]` joined as a long-range research role. Its work
   stays in `docs/research-horizon/` until `[Architect Supervisor / Codex]`
   graduates a proposal into a narrow `docs/dev/` implementation track.
-- Research Horizon's Agent Handoff Protocol synthesis was accepted as a
-  docs-only doctrine candidate, not a runtime object.
+- Research Horizon's Agent Handoff Protocol synthesis graduated into accepted
+  docs-only [Handoff Doctrine](./handoff-doctrine.md), not a runtime object.
 
 ### Research Horizon
 
@@ -159,9 +161,8 @@ Current accepted state:
 
 Near-term supervisor filter:
 
-- First graduated candidate: Agent Handoff Protocol synthesis into
-  [Handoff Doctrine Track](./handoff-doctrine-track.md).
-- Next review candidate: Interaction Kernel read-only report.
+- First graduated candidate accepted: [Handoff Doctrine](./handoff-doctrine.md).
+- Next review candidate: Interaction Kernel read-only report synthesis.
 - Runtime Observatory Graph remains promising but should wait until a smaller
   handoff/interaction vocabulary is clearer.
 
@@ -1122,7 +1123,7 @@ Next:
 
 ### Application Capsule Host Activation Plan
 
-Status: active.
+Status: landed and accepted.
 
 Primary track:
 
@@ -1135,24 +1136,60 @@ Dependencies:
 
 Current accepted state:
 
-- Readiness can now say whether host decisions are sufficient for future
-  activation.
-- The next useful artifact is a read-only activation plan over accepted
-  readiness.
-- The plan may define descriptive operations, but must not execute them.
-- Web-related operations remain mount-intent review metadata.
+- `ApplicationHostActivationPlan` and
+  `Igniter::Application.host_activation_plan(...)` are accepted as read-only
+  planning over activation readiness.
+- Non-ready readiness produces a non-executable plan with no operations and
+  carries blockers/warnings forward.
+- Ready readiness produces ordered descriptive review operations for host
+  exports/capabilities, load paths, providers, contracts, lifecycle, manual
+  actions, and mount intents.
+- Web-related operations remain `review_mount_intent` metadata only.
+- It does not execute activation, mutate host wiring, change load paths,
+  register providers/contracts, boot, bind mounts, activate routes, send
+  browser traffic, execute contracts, discover projects, place work on a
+  cluster, or require `igniter-web`.
+- Acceptance passed on 2026-04-25 with activation plan/readiness smoke,
+  application/current specs, web skeleton/composer specs, RuboCop, and diff
+  check.
 
 Next:
 
-- `[Agent Application / Codex]`: land the smallest read-only activation plan
-  only if it reduces real repeated ceremony after readiness.
-- `[Agent Web / Codex]`: review mount-intent planning language and prevent any
-  route activation, mount binding, browser traffic, screen inspection, or
-  application-to-web dependency.
+- Continue through [Application Capsule Host Activation Plan Verification Track](./application-capsule-host-activation-plan-verification-track.md).
+- Keep the next cycle as read-only plan verification only; do not add
+  activation execution.
+
+### Application Capsule Host Activation Plan Verification
+
+Status: active.
+
+Primary track:
+
+- [Application Capsule Host Activation Plan Verification Track](./application-capsule-host-activation-plan-verification-track.md)
+
+Dependencies:
+
+- [Application Capsule Host Activation Plan Track](./application-capsule-host-activation-plan-track.md)
+- [Application Capsule Host Activation Readiness Track](./application-capsule-host-activation-readiness-track.md)
+
+Current accepted state:
+
+- Activation plans are descriptive operation review artifacts.
+- The next useful artifact is read-only verification of supplied plan data:
+  executable state, blockers/warnings, accepted operation vocabulary, and
+  review-only statuses.
+- Verification must not inspect host runtime state or execute operations.
+- Web-related verification remains about `review_mount_intent` metadata only.
+
+Next:
+
+- `[Agent Application / Codex]`: land the smallest read-only plan verification
+  only if it reduces real ceremony before any future execution boundary.
+- `[Agent Web / Codex]`: verify mount-intent operations remain metadata only.
 
 ### Handoff Doctrine
 
-Status: active docs-only graduation from Research Horizon.
+Status: landed and accepted.
 
 Primary track:
 
@@ -1171,15 +1208,16 @@ Current accepted state:
 
 - Research Horizon identified handoff as ownership transfer under policy with
   context, evidence, obligations, and receipt.
-- The idea is accepted for docs-only doctrine, not a shared runtime object.
+- [Handoff Doctrine](./handoff-doctrine.md) is accepted as docs-only language
+  alignment, not a shared runtime object.
 - No package code, new package, runtime agent execution, autonomous delegation,
   cluster routing, host activation, web transport, or AI provider integration
   is accepted.
 
 Next:
 
-- `[Architect Supervisor / Codex]`: review the docs-only doctrine for
-  acceptance.
+- `[Research Horizon / Codex]`: prepare Interaction Kernel read-only report
+  synthesis for supervisor filtering.
 
 [Research Horizon / Codex]
 Track: `docs/dev/handoff-doctrine-track.md`
@@ -1200,7 +1238,8 @@ Accepted/Ready:
 Verification:
 - `git diff --check` passed.
 Needs:
-- `[Architect Supervisor / Codex]` review for docs-only doctrine acceptance.
+- `[Architect Supervisor / Codex]` accepted this docs-only doctrine; next
+  Research Horizon review candidate is Interaction Kernel.
 
 ### Cluster
 
