@@ -216,6 +216,13 @@ public transfer path. It demonstrates capsule declaration, inventory,
 readiness, bundle artifact writing, bundle verification, destination intake,
 apply planning, dry-run apply, committed apply, applied verification, and
 receipt generation without adding new runtime machinery.
+Post-transfer host integration is currently docs/checklist-only. The existing
+handoff manifest, assembly plan, transfer readiness, apply plan, applied
+verification, and receipt already carry the required review signals for host
+exports, capabilities, manual wiring, load paths, providers, contracts, and
+optional mounts. Transfer completion is not runtime activation; application
+does not auto-wire hosts, bind web routes, load constants, boot apps, execute
+contracts, or place work on a cluster.
 
 Lifecycle now follows this shape:
 

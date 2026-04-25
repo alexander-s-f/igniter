@@ -270,6 +270,13 @@ verification, and final receipt. Only the committed apply step mutates the
 destination filesystem, and it still does not apply host wiring, activate web,
 boot apps, route traffic, execute contracts, or place work on a cluster.
 
+After a complete transfer receipt, host integration is still a separate
+boundary. The host must review handoff manifest wiring, required exports and
+capabilities, load paths, providers, contract registration, lifecycle choices,
+and optional mount intents before making the capsule live. Supplied web surface
+metadata is context for a web-owned layer; it is not route activation, mount
+binding, browser traffic, or an application dependency on `igniter-web`.
+
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or
 extract bundles, load, boot, mount, route, execute, or place capsules on a

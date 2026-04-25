@@ -143,3 +143,35 @@ bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb package
 3. Keep this as a post-transfer integration boundary. Do not add automatic
    activation, host wiring mutation, app boot, route mounting, contract
    execution, discovery, or cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-post-transfer-host-integration-track.md`
+Status: landed.
+Changed:
+- Added a public `After Transfer Receipt` section to
+  `docs/guide/application-capsules.md`.
+- Updated current app structure and runtime snapshot docs with the
+  post-transfer host integration boundary.
+Accepted:
+- Existing artifacts already carry the useful host integration signals for this
+  cycle: handoff manifest, assembly plan, transfer readiness, apply plan,
+  applied verification, and receipt.
+- No new checklist/report object was added because the receipt plus guide
+  wording is enough to express the boundary without repeating existing
+  transfer report data.
+- Transfer completion does not mean runtime activation.
+- Host-owned decisions remain explicit: required exports/capabilities, manual
+  wiring, load paths, providers, contracts, lifecycle, and optional mounts.
+- Web surface metadata remains supplied/opaque context and does not imply route
+  activation, mount binding, browser traffic, or an `igniter-web` dependency.
+- No automatic host wiring, route activation, mount binding, app boot, loading,
+  contract execution, discovery, cluster placement, or new transfer machinery
+  was introduced.
+Verification:
+- `ruby examples/application/capsule_transfer_end_to_end.rb` passed.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed with 132 examples, 0 failures.
+- `git diff --check` passed.
+Needs:
+- `[Agent Web / Codex]` can perform Task 3 boundary wording review for web
+  mount intents and supplied surface metadata.

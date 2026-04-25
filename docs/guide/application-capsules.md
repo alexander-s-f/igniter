@@ -548,6 +548,44 @@ or hashes only; it does not rerun apply execution, rerun applied verification,
 discover missing artifacts, repair files, apply host wiring, activate web, load
 constants, boot apps, or route traffic.
 
+### After Transfer Receipt
+
+A complete receipt means the reviewed files landed and verified. It does not
+mean the receiving host has activated the capsule. Host integration remains a
+separate human/agent decision boundary.
+
+Use the existing transfer artifacts as the post-transfer checklist:
+
+- `ApplicationHandoffManifest` carries required host exports, host
+  capabilities, suggested host wiring, mount intents, and supplied surface
+  metadata.
+- `ApplicationAssemblyPlan` carries intended mount metadata and composition
+  readiness for the moved capsule set.
+- `ApplicationTransferReadiness` records which requirements were blockers or
+  warnings before the bundle was written.
+- `ApplicationTransferApplyPlan` records the reviewed file operations and any
+  `manual_host_wiring` operation data.
+- `ApplicationTransferAppliedVerification` proves the committed files match
+  the reviewed operations.
+- `ApplicationTransferReceipt` is the final audit/closure summary and highlights
+  remaining manual actions.
+
+Before making a transferred capsule live, the receiving host still owns these
+decisions:
+
+- provide required host exports and capabilities using host-local objects
+- perform or reject manual host wiring actions
+- decide load paths, provider registration, contract registration, and
+  scheduler/transport lifecycle
+- review optional mount intents before binding routes or interaction surfaces
+- treat supplied web surface metadata as opaque context unless `igniter-web` or
+  another web-owned layer explicitly activates it
+
+Transfer completion never loads constants, boots providers, starts schedulers,
+binds mounts, activates routes, sends browser traffic, executes contracts, or
+places work on a cluster. Those steps belong to explicit host/runtime,
+web-owned, or cluster-owned activation flows.
+
 This transfer guide deliberately stops before project-wide discovery,
 automatic destination selection, applying host wiring, loading constants,
 booting apps, mounting web routes, executing contracts, or placing work on a
