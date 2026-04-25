@@ -4,6 +4,8 @@ This is the first file agents should read. It is intentionally compact.
 
 Full accepted/history context lives in [Tracks History](./tracks-history.md).
 Reusable active-track boundaries live in [Constraint Sets](./constraints.md).
+The lifecycle pattern is captured in
+[Agent Track Lifecycle Doctrine](./agent-track-lifecycle-doctrine.md).
 Long-range research context lives in [Research Horizon](../research-horizon/README.md)
 and external expert input lives in [Experts](../experts/README.md).
 
@@ -41,7 +43,7 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Maintain compact active index, constraint sets, and next small implementation/process slice | [Agent Cycle Optimization](../experts/agent-cycle-optimization.md) | [Constraint Sets](./constraints.md), [Application Web POC Feedback Track](./application-web-poc-feedback-track.md), [Tracks History](./tracks-history.md) | user |
+| `[Architect Supervisor / Codex]` | Maintain compact active index, lifecycle doctrine, constraint sets, and next small implementation/process slice | [Agent Track Lifecycle Doctrine](./agent-track-lifecycle-doctrine.md) | [Constraint Sets](./constraints.md), [Agent Cycle Optimization](../experts/agent-cycle-optimization.md), [Application Web POC Feedback Track](./application-web-poc-feedback-track.md), [Tracks History](./tracks-history.md) | user |
 | `[Agent Application / Codex]` | Add app-local action ledger and `/events` read model under `:interactive_poc_guardrails` | [Application Web POC Action Log Track](./application-web-poc-action-log-track.md) | [Constraint Sets](./constraints.md), [Application Web POC Feedback Track](./application-web-poc-feedback-track.md), [Application Web POC Task Creation Track](./application-web-poc-task-creation-track.md), [Application Rack Host DSL Track](./application-rack-host-dsl-track.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Web / Codex]` | Render recent activity from app-owned state under `:interactive_poc_guardrails` | [Application Web POC Action Log Track](./application-web-poc-action-log-track.md) | [Constraint Sets](./constraints.md), [Application Web POC Feedback Track](./application-web-poc-feedback-track.md), [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
@@ -63,6 +65,8 @@ block: none | <blocker>
   [Tracks History](./tracks-history.md).
 - Constraint shorthand is now available for new active tracks:
   [Constraint Sets](./constraints.md).
+- The emerging agent workflow is captured as a reusable lifecycle doctrine:
+  [Agent Track Lifecycle Doctrine](./agent-track-lifecycle-doctrine.md).
 - Next implementation slice is opened as a compact action-log pressure test:
   [Application Web POC Action Log Track](./application-web-poc-action-log-track.md).
 
@@ -110,6 +114,8 @@ Accepted now:
 
 - Proposal 1: split active tracks from history.
 - Proposal 2, narrowed: shared constraint registry for new active tracks only.
+- Supervisor insight: the process is now an explicit track lifecycle pattern,
+  captured in [Agent Track Lifecycle Doctrine](./agent-track-lifecycle-doctrine.md).
 
 Deferred:
 
