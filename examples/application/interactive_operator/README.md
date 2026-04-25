@@ -25,6 +25,10 @@ Inside `services/task_board.rb`, `create` and `resolve` both return the same
 small app-local `CommandResult` shape with `success?`, `feedback_code`,
 `task_id`, and `action`.
 
+The task board also exposes a small app-local `BoardSnapshot` read model through
+`snapshot(recent_limit:)`. `/events` renders from that detached snapshot shape
+instead of reading mutable service arrays directly.
+
 The web surface renders `notice` and `error` query params as compact feedback
 messages on the next board render. This stays app-local and intentionally does
 not introduce session storage, a validation framework, or a UI component kit.

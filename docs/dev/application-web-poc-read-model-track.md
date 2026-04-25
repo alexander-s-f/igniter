@@ -117,3 +117,22 @@ rake rubocop
    snapshot.
 3. Keep this as read-model pressure inside the POC, not a package API,
    persistence layer, or live transport.
+
+[Agent Application / Codex]
+track: `docs/dev/application-web-poc-read-model-track.md`
+status: landed
+delta: `examples/application/interactive_operator/services/task_board.rb`
+  adds app-local `BoardSnapshot` plus `snapshot(recent_limit:)` with detached
+  task copies, open/action counts, and recent action facts.
+delta: `examples/application/interactive_operator/app.rb` renders `GET /events`
+  from the snapshot shape while preserving the existing text output.
+delta: `examples/application/interactive_operator/README.md` documents the
+  local read model and keeps it explicitly app-scoped.
+verify: `ruby examples/application/interactive_web_poc.rb` passed.
+verify: `ruby examples/run.rb smoke` passed with 74 examples, 0 failures.
+verify: `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can move `web/operator_board.rb` from direct
+  `TaskBoard` reads to `TaskBoard#snapshot`.
+block: none

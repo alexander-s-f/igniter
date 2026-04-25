@@ -5,6 +5,16 @@ module InteractiveOperator
     class TaskBoard
       Task = Struct.new(:id, :title, :status, keyword_init: true)
       Action = Struct.new(:index, :kind, :task_id, :status, keyword_init: true)
+      BoardSnapshot = Struct.new(:tasks, :open_count, :action_count, :recent_events, keyword_init: true) do
+        def to_h
+          {
+            tasks: tasks.map { |task| task.to_h.dup },
+            open_count: open_count,
+            action_count: action_count,
+            recent_events: recent_events.map(&:dup)
+          }
+        end
+      end
       CommandResult = Struct.new(:kind, :feedback_code, :task_id, :action, keyword_init: true) do
         def success?
           kind == :success
@@ -45,6 +55,18 @@ module InteractiveOperator
 
       def recent_events(limit: 5)
         events.last(limit)
+      end
+
+      def snapshot(recent_limit: 5)
+        snapshot_tasks = @tasks.map(&:dup).freeze
+        snapshot_events = @actions.last(recent_limit).map { |action| action.to_h.freeze }.freeze
+
+        BoardSnapshot.new(
+          tasks: snapshot_tasks,
+          open_count: snapshot_tasks.count { |task| task.status == :open },
+          action_count: @actions.length,
+          recent_events: snapshot_events
+        ).freeze
       end
 
       def action_count

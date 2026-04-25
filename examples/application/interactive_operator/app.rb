@@ -14,12 +14,12 @@ module InteractiveOperator
     "/?#{URI.encode_www_form(params)}"
   end
 
-  def self.events_read_model(board)
-    recent = board.recent_events(limit: 6).map do |event|
+  def self.events_read_model(snapshot)
+    recent = snapshot.recent_events.map do |event|
       task_id = event.fetch(:task_id) || "-"
       "#{event.fetch(:kind)}:#{task_id}:#{event.fetch(:status)}"
     end
-    "open=#{board.open_count} actions=#{board.action_count} recent=#{recent.join("|")}"
+    "open=#{snapshot.open_count} actions=#{snapshot.action_count} recent=#{recent.join("|")}"
   end
 
   def self.build
@@ -35,7 +35,7 @@ module InteractiveOperator
       )
 
       get "/events" do
-        text InteractiveOperator.events_read_model(service(:task_board))
+        text InteractiveOperator.events_read_model(service(:task_board).snapshot(recent_limit: 6))
       end
 
       post "/tasks/create" do |params|
