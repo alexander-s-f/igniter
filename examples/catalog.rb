@@ -443,6 +443,22 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_host_activation_commit_readiness",
+      "Read-only host activation commit-readiness over dry-run and adapter evidence.",
+      expected_fragments: [
+        "application_capsule_host_activation_commit_ready=true",
+        "application_capsule_host_activation_commit_allowed=true",
+        "application_capsule_host_activation_commit_dry_run=true",
+        "application_capsule_host_activation_commit_committed=false",
+        "application_capsule_host_activation_commit_blockers=0",
+        "application_capsule_host_activation_commit_warnings=0",
+        "application_capsule_host_activation_commit_required=3",
+        "application_capsule_host_activation_commit_provided=3",
+        "application_capsule_host_activation_commit_would_apply=4",
+        "application_capsule_host_activation_commit_skipped=2"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

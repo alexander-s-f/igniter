@@ -749,6 +749,38 @@ change load paths, load constants, register providers or contracts, boot apps,
 bind web mounts, activate routes, render, call Rack, send browser traffic,
 execute contracts, discover projects, or place work on a cluster.
 
+Commit readiness is a read-only gate over dry-run evidence and explicit
+adapter evidence:
+
+```ruby
+commit_readiness = Igniter::Application.host_activation_commit_readiness(
+  dry_run,
+  provided_adapters: [
+    { name: :application_host_target, kind: :application_host_adapter },
+    { name: :host_evidence_acknowledgement, kind: :host_evidence },
+    { name: :web_mount_adapter_evidence, kind: :web_or_host_mount_evidence }
+  ]
+)
+
+commit_readiness.to_h
+```
+
+`ApplicationHostActivationCommitReadiness` reports `ready`,
+`commit_allowed`, dry-run/committed flags, blockers, warnings,
+`required_adapters`, `provided_adapters`, `would_apply_count`,
+`skipped_count`, and metadata. `commit_allowed` is descriptive only: it means a
+future activation commit proposal has enough explicit evidence to be reviewed.
+It does not expose a commit option and it does not perform activation.
+
+The gate refuses missing or invalid dry-run evidence, committed evidence,
+non-executable dry-runs, dry-run refusals, and missing adapter evidence.
+Application-owned dry-run operations require an explicit application host
+adapter. Skipped host-owned evidence, manual actions, and web/host-owned mount
+metadata require explicit acknowledgement or adapter evidence before readiness
+can be true. The application still must not discover adapters, mutate host
+state, bind web mounts, activate routes, render, call Rack, send browser
+traffic, execute contracts, or place work on a cluster.
+
 ## Runnable Examples
 
 Start with these examples:
@@ -775,6 +807,7 @@ Start with these examples:
 - [`examples/application/capsule_host_activation_plan.rb`](../../examples/application/capsule_host_activation_plan.rb)
 - [`examples/application/capsule_host_activation_plan_verification.rb`](../../examples/application/capsule_host_activation_plan_verification.rb)
 - [`examples/application/capsule_host_activation_dry_run.rb`](../../examples/application/capsule_host_activation_dry_run.rb)
+- [`examples/application/capsule_host_activation_commit_readiness.rb`](../../examples/application/capsule_host_activation_commit_readiness.rb)
 
 They are smoke-tested through the examples catalog and show the current
 capsule vocabulary without browser transport, cluster placement, or workflow

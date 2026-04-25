@@ -1896,6 +1896,96 @@ RSpec.describe Igniter::Application::Environment do
     )
   end
 
+  it "reports host activation commit readiness over explicit adapter evidence" do
+    dry_run = {
+      dry_run: true,
+      committed: false,
+      executable: true,
+      would_apply: [
+        { type: :confirm_load_path, status: :dry_run, destination: "operator" },
+        { type: :confirm_provider, status: :dry_run, destination: :incident_runtime }
+      ],
+      skipped: [
+        { type: :confirm_host_export, status: :skipped, reason: :host_owned_evidence },
+        { type: :review_mount_intent, status: :skipped, reason: :web_or_host_owned_mount }
+      ],
+      refusals: [],
+      warnings: [],
+      surface_count: 1
+    }
+
+    readiness = Igniter::Application.host_activation_commit_readiness(
+      dry_run,
+      provided_adapters: [
+        { name: :application_host_target, kind: :application_host_adapter, target: "Host::OperatorRuntime" },
+        { name: :host_evidence_acknowledgement, kind: :host_evidence },
+        { name: :web_mount_adapter_evidence, kind: :web_or_host_mount_evidence }
+      ],
+      metadata: { source: :spec }
+    ).to_h
+
+    expect(readiness).to include(
+      ready: true,
+      commit_allowed: true,
+      dry_run: true,
+      committed: false,
+      blockers: [],
+      warnings: [],
+      would_apply_count: 2,
+      skipped_count: 2,
+      metadata: { source: :spec }
+    )
+    expect(readiness.fetch(:required_adapters).map { |entry| entry.fetch(:name) }).to contain_exactly(
+      :application_host_target,
+      :host_evidence_acknowledgement,
+      :web_mount_adapter_evidence
+    )
+  end
+
+  it "blocks host activation commit readiness when dry-run evidence or adapters are missing" do
+    dry_run = {
+      dry_run: true,
+      committed: false,
+      executable: true,
+      would_apply: [
+        { type: :confirm_provider, status: :dry_run, destination: :incident_runtime }
+      ],
+      skipped: [
+        { type: :review_mount_intent, status: :skipped, reason: :web_or_host_owned_mount }
+      ],
+      refusals: [
+        { code: :missing_host_target, message: "missing" }
+      ],
+      warnings: [
+        { code: :dry_run_note, message: "note" }
+      ],
+      surface_count: 1
+    }
+
+    readiness = Igniter::Application.host_activation_commit_readiness(
+      JSON.parse(JSON.generate(dry_run)),
+      provided_adapters: [{ name: :application_host_target }]
+    ).to_h
+
+    expect(readiness).to include(
+      ready: false,
+      commit_allowed: false,
+      dry_run: true,
+      committed: false,
+      would_apply_count: 1,
+      skipped_count: 1
+    )
+    expect(readiness.fetch(:blockers).map { |entry| entry.fetch(:code) }).to include(
+      :dry_run_refusal,
+      :missing_adapter_evidence
+    )
+    expect(readiness.fetch(:warnings)).to contain_exactly(include(code: :dry_run_warning))
+    expect(readiness.fetch(:required_adapters).map { |entry| entry.fetch(:name) }).to include(
+      :application_host_target,
+      :web_mount_adapter_evidence
+    )
+  end
+
   it "refuses committed transfer application without explicit apply roots" do
     plan = {
       executable: true,

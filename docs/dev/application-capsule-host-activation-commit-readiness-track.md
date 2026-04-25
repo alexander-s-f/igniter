@@ -125,3 +125,42 @@ bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb package
 3. Do not add activation commit, mutation, loading, discovery, registration,
    boot, mount binding, route activation, rendering, browser traffic, contract
    execution, or cluster placement.
+
+[Agent Application / Codex]
+Track: `docs/dev/application-capsule-host-activation-commit-readiness-track.md`
+Status: landed.
+Changed:
+- Added application-owned `ApplicationHostActivationCommitReadiness`.
+- Added `Igniter::Application.host_activation_commit_readiness(...)`.
+- Added `examples/application/capsule_host_activation_commit_readiness.rb`
+  and registered it in the active examples catalog.
+- Updated public/current docs to describe commit-readiness as a read-only gate.
+Accepted:
+- Commit readiness consumes explicit dry-run objects or compatible hashes only.
+- `to_h` includes stable `ready`, `commit_allowed`, `dry_run`, `committed`,
+  `blockers`, `warnings`, `required_adapters`, `provided_adapters`,
+  `would_apply_count`, `skipped_count`, and `metadata`.
+- `commit_allowed` is descriptive only and does not expose commit mode.
+- Readiness requires executable dry-run evidence with no refusals and explicit
+  adapter evidence for application-owned work, host-owned evidence, manual
+  actions, and web/host-owned mount metadata when present.
+- Missing or invalid dry-run evidence, committed evidence, dry-run refusals,
+  non-executable dry-runs, and missing adapter evidence are blockers.
+- No activation commit, host mutation, loading, discovery,
+  provider/contract registration, app boot, mount binding, route activation,
+  rendering, Rack/browser traffic, contract execution, or cluster placement was
+  introduced.
+Verification:
+- `ruby examples/application/capsule_host_activation_commit_readiness.rb`
+  passed.
+- `ruby examples/application/capsule_host_activation_dry_run.rb` passed.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed with 148 examples, 0 failures.
+- `ruby examples/run.rb smoke` passed with 73 examples, 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_host_activation_commit_readiness.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_host_activation_commit_readiness.rb examples/catalog.rb`
+  passed with no offenses.
+- `rake rubocop` passed with 465 files inspected and no offenses.
+- `git diff --check` passed.
+Needs:
+- `[Agent Web / Codex]` can review web adapter evidence wording for
+  `review_mount_intent`.

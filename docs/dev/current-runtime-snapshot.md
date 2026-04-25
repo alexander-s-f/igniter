@@ -145,6 +145,7 @@ Current shape:
 - consolidated host activation review guide with a hard stop before execution
 - docs-only host activation execution boundary map without mutation
 - dry-run-only host activation execution reports over verified plan data
+- read-only host activation commit-readiness over dry-run and adapter evidence
 - explicit sparse/complete structure plans for materializing missing app layout
   paths
 - generic mount registry for web, agent, and future interaction surfaces
@@ -267,6 +268,11 @@ report over verified activation plan data. It reports `dry_run: true`,
 commit mode, mutation, loading, registration, boot, mount binding, route
 activation, browser/Rack traffic, contract execution, discovery, or cluster
 placement.
+`ApplicationHostActivationCommitReadiness` is the current read-only gate over
+dry-run evidence and supplied adapter evidence. It reports descriptive
+`commit_allowed` state plus blockers, warnings, required/provided adapters,
+would-apply count, and skipped count without commit mode, adapter discovery,
+host mutation, web activation, contract execution, or cluster placement.
 
 Lifecycle now follows this shape:
 

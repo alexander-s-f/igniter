@@ -331,6 +331,16 @@ operations. It does not expose commit mode, mutate hosts, load constants,
 register providers/contracts, boot apps, bind web mounts, activate routes,
 execute contracts, discover projects, or place capsules on a cluster.
 
+`ApplicationHostActivationCommitReadiness` is the current read-only gate over
+dry-run evidence and explicit adapter evidence. It reports whether a future
+commit proposal may be reviewed, not whether activation has happened.
+Readiness requires executable dry-run evidence with no refusals and explicit
+evidence for application host targets, host-owned/manual acknowledgements, and
+web/host mount adapter evidence when those categories appear. It does not
+discover adapters, expose commit mode, mutate hosts, register or boot
+anything, bind mounts, activate routes, execute contracts, or place capsules on
+a cluster.
+
 ## Placement Rules
 
 Code that exists for one capsule belongs inside that capsule.
@@ -386,6 +396,7 @@ Runnable examples for the current model:
 - [`examples/application/capsule_host_activation_plan.rb`](../../examples/application/capsule_host_activation_plan.rb)
 - [`examples/application/capsule_host_activation_plan_verification.rb`](../../examples/application/capsule_host_activation_plan_verification.rb)
 - [`examples/application/capsule_host_activation_dry_run.rb`](../../examples/application/capsule_host_activation_dry_run.rb)
+- [`examples/application/capsule_host_activation_commit_readiness.rb`](../../examples/application/capsule_host_activation_commit_readiness.rb)
 
 Older `Igniter::App` and `Igniter::Stack` material should be treated as
 historical or transitional unless a current track explicitly says otherwise.

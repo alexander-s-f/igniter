@@ -39,6 +39,7 @@ require_relative "application/application_host_activation_readiness"
 require_relative "application/application_host_activation_plan"
 require_relative "application/application_host_activation_plan_verification"
 require_relative "application/application_host_activation_dry_run_result"
+require_relative "application/application_host_activation_commit_readiness"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -265,6 +266,14 @@ module Igniter
         ApplicationHostActivationDryRunResult.dry_run(
           verification,
           host_target: host_target,
+          metadata: metadata
+        )
+      end
+
+      def host_activation_commit_readiness(dry_run, provided_adapters: [], metadata: {})
+        ApplicationHostActivationCommitReadiness.inspect(
+          dry_run,
+          provided_adapters: provided_adapters,
           metadata: metadata
         )
       end
