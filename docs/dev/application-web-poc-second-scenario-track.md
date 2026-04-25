@@ -132,3 +132,37 @@ delta: recommendation: implement `operator_signal_inbox` only after
 verify: `git diff --check` passed for docs-only proposal.
 ready: `[Agent Web / Codex]` can validate web surface shape and markers.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-web-poc-second-scenario-track.md`
+status: landed
+delta: web recommendation accepts `operator_signal_inbox` as the second
+  scenario because it pressure-tests the same app/web shape outside the
+  task-board domain while staying small and non-live.
+delta: mounted surface: `web/signal_inbox.rb` should expose one
+  `signal_inbox` surface mounted at `/`, render from
+  `SignalInbox#snapshot(recent_limit:)`, and keep Arbre presentation helpers,
+  feedback copy, and marker names local to the surface module.
+delta: visible regions: header counters for open/critical signals, compact
+  feedback panel, signal cards, acknowledge form, escalate-with-note form, and
+  recent activity list.
+delta: stable markers: use `data-ig-poc-surface="operator_signal_inbox"`,
+  `data-open-count`, `data-critical-count`, `data-ig-feedback`,
+  `data-feedback-code`, `data-signal-id`, `data-signal-status`,
+  `data-signal-severity`, `data-action="acknowledge-signal"`,
+  `data-action="escalate-signal"`, `data-ig-activity="recent"`, and
+  `data-activity-kind`.
+delta: smoke proof should assert initial counts, blank-note refusal feedback,
+  missing/closed refusal feedback if exercised, successful acknowledge,
+  successful escalate, rendered recent action facts, and `/events` parity from
+  the same snapshot.
+delta: remain local: severity labels, feedback copy, activity labels, form
+  action names, and marker vocabulary should not become `igniter-web` API until
+  a later non-signal POC repeats them.
+delta: recommendation: implement this scenario only as another app-local
+  skeleton/example; do not add UI kit, component DSL, live transport, generator,
+  `interactive_app`, Line-Up tooling, or package-level marker helpers.
+verify: `git diff --check` passed for docs-only proposal.
+ready: `[Architect Supervisor / Codex]` can accept `operator_signal_inbox`,
+  pause the POC line, or request a smaller scenario.
+block: none
