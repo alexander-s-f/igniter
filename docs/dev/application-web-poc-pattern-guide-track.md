@@ -114,3 +114,17 @@ delta: `docs/dev/README.md` links the new pattern guide from the dev index.
 verify: `git diff --check` passed for docs-only change.
 ready: `[Agent Web / Codex]` can fill the web-local pattern section.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-web-poc-pattern-guide-track.md`
+status: landed
+delta: `docs/dev/application-web-poc-pattern-guide.md` fills the web-local
+  pattern section with the mounted surface, app snapshot rendering, stable
+  `data-` marker seam, and local-vocabulary boundaries.
+delta: the guide keeps examples as file references and does not introduce a UI
+  kit, web abstraction, package API, live transport, generator, or Line-Up
+  tooling.
+verify: `git diff --check` passed for docs-only change.
+ready: `[Architect Supervisor / Codex]` can review/accept the completed pattern
+  guide slice.
+block: none

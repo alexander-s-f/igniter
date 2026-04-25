@@ -47,4 +47,38 @@ Future graduation candidate:
 
 ## Web Pattern
 
-To be filled by `[Agent Web / Codex]`.
+Use one mounted surface module for the screen.
+
+- Keep the Arbre page, presentation helpers, feedback copy, and marker names in
+  `web/operator_board.rb`.
+- Read app state through `MountContext` and app-owned services.
+- Treat the web mount as a consumer of an app read model, not as the owner of
+  command state or domain vocabulary.
+
+Render from the app-owned snapshot.
+
+- Take one snapshot at the top of the page render.
+- Use that snapshot for open counts, task cards, recent activity, and footer
+  copy.
+- Do not mix snapshot rendering with extra direct service reads unless a new
+  POC proves a real need.
+
+Use stable `data-` markers as the current inspection seam.
+
+- Mark the surface, forms, task state, feedback code, and activity facts.
+- Let smoke scripts and future browser checks assert those markers.
+- Prefer boring markers over a UI kit while the interaction model is still
+  being pressure-tested.
+
+Keep web vocabulary local for now.
+
+- Feedback messages, activity labels, task-card styling, and form action names
+  belong to the app surface.
+- Do not promote a generic component system or web DSL from this single
+  task-board POC.
+
+Future graduation candidate:
+
+- If another non-task interactive POC repeats the same shape, document a
+  `MountContext` plus app snapshot rendering convention before adding helper
+  APIs to `igniter-web`.
