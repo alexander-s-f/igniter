@@ -70,9 +70,9 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Extract interactive POC into compact app-local skeleton | [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | [Application Web Interactive POC Track](./application-web-interactive-poc-track.md), [Application Target Plan](./application-target-plan.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for web surface extraction |
-| `[Agent Web / Codex]` | Extract web-owned POC surface into the app skeleton | [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | [Application Web Interactive POC Track](./application-web-interactive-poc-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md), [Application And Web Integration](./application-web-integration.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app skeleton shape |
-| `[Research Horizon / Codex]` | Skip this cycle; standby | [Runtime Observatory Activation Frame Track](./runtime-observatory-activation-frame-track.md) | [Runtime Observatory Doctrine](./runtime-observatory-doctrine.md) | `[Architect Supervisor / Codex]` when research resumes |
+| `[Agent Application / Codex]` | Implement narrow Rack host helper over the interactive operator skeleton | [Application Rack Host DSL Track](./application-rack-host-dsl-track.md) | [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md), [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md), [Expert Review](../experts/expert-review.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for boundary review |
+| `[Agent Web / Codex]` | Review Rack host helper boundary; keep web surface DSL unchanged | [Application Rack Host DSL Track](./application-rack-host-dsl-track.md) | [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md), [Application And Web Integration](./application-web-integration.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for helper shape |
+| `[Research Horizon / Codex]` | Standby; new reports reviewed as inputs to Rack Host DSL only | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 
 ## Track Map
 
@@ -138,8 +138,10 @@ pressure-test wave:
   evidence landed and was accepted with no commit or mutation.
 - Compact server-backed interactive application/web POC landed and was
   accepted.
-- The next finalization track extracts that POC into a compact app-local
-  skeleton so structure can be pressure-tested in a live app.
+- Compact app-local interactive operator skeleton landed and was accepted.
+- Research Horizon and external expert reports were reviewed; the next accepted
+  implementation slice is a narrow Rack host DSL/helper, not the full
+  `interactive_app` facade yet.
 - `[Research Horizon / Codex]` joined as a long-range research role. Its work
   stays in `docs/research-horizon/` until `[Architect Supervisor / Codex]`
   graduates a proposal into a narrow `docs/dev/` implementation track.
@@ -1360,7 +1362,7 @@ Next:
 
 ### Application Web POC Skeleton
 
-Status: active.
+Status: landed and accepted.
 
 Primary track:
 
@@ -1375,17 +1377,47 @@ Dependencies:
 
 Current accepted state:
 
-- The single-file POC is useful enough to extract into an app-local skeleton.
-- Keep `examples/application/interactive_web_poc.rb` as the stable launcher.
-- Extract app-owned service/state, web-owned surface, and Rack/server boundary
-  into a compact directory that can pressure-test app structure.
+- `examples/application/interactive_operator/` is accepted as the first
+  app-local interactive application skeleton.
+- `examples/application/interactive_web_poc.rb` remains the stable launcher.
+- App-owned service/state, web-owned surface, and Rack/server boundary are
+  separated into a compact directory that can pressure-test app structure.
 - Do not add a generator until the skeleton teaches us the right shape.
 
 Next:
 
-- `[Agent Application / Codex]`: extract app-owned service/state and launcher
-  shape.
-- `[Agent Web / Codex]`: extract web-owned surface and preserve interaction.
+- Continue through [Application Rack Host DSL Track](./application-rack-host-dsl-track.md).
+
+### Application Rack Host DSL
+
+Status: active.
+
+Primary track:
+
+- [Application Rack Host DSL Track](./application-rack-host-dsl-track.md)
+
+Dependencies:
+
+- [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md)
+- [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md)
+- [Expert Review](../experts/expert-review.md)
+- [Interactive App DSL Proposal](../experts/interactive-app-dsl.md)
+
+Current accepted state:
+
+- New research and expert reports converge on a narrow first slice:
+  compress app/server ceremony before adding broader application or UI DSL.
+- The accepted next target is an application-owned Rack host helper/facade over
+  explicit services, web mounts, and simple GET/POST routes.
+- Full `interactive_app`, UI kit, Plane/canvas, flow/chat/proactive agent DSL,
+  SSE/live updates, and surface-first implicit routes remain deferred.
+
+Next:
+
+- `[Agent Application / Codex]`: implement the narrow Rack host helper or
+  return a placement objection if package scope is premature.
+- `[Agent Web / Codex]`: verify the helper keeps web surface ownership intact
+  and does not inspect web internals.
 
 ### Handoff Doctrine
 

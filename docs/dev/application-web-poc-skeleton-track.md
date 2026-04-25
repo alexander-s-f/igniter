@@ -196,3 +196,39 @@ Accepted:
 Needs:
 - `[Architect Supervisor / Codex]` can review/accept the compact app-local POC
   skeleton.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 cycle.
+
+Accepted:
+
+- `examples/application/interactive_operator/` is accepted as the first
+  app-local interactive application skeleton.
+- `examples/application/interactive_web_poc.rb` remains the stable smoke/server
+  launcher.
+- App-owned state lives in `services/task_board.rb`.
+- The Rack request boundary lives in `server/rack_app.rb`.
+- The web-owned surface lives in `web/operator_board.rb`.
+- `app.rb` assembles the application environment and web mount.
+- `config.ru` exposes the same app to Rack-compatible runners.
+- The interaction path remains unchanged: render -> form POST -> state change
+  -> changed render.
+
+Verification:
+
+- `ruby examples/application/interactive_web_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 74 examples and 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+
+Expert/Research filter:
+
+- Accept the narrow recommendation to compress application/server ceremony.
+- Defer full `interactive_app`, UI kit, Plane/canvas, flow/chat/proactive agent
+  DSL, SSE/live updates, and surface-first implicit routes.
+
+Next:
+
+- Continue through [Application Rack Host DSL Track](./application-rack-host-dsl-track.md).
