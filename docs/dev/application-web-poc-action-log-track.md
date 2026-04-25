@@ -141,3 +141,24 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can render recent activity from
   `TaskBoard#recent_events` under `web/operator_board.rb`.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-web-poc-action-log-track.md`
+status: landed
+delta: `examples/application/interactive_operator/web/operator_board.rb`
+  renders recent activity from app-owned `TaskBoard#recent_events` with stable
+  `data-ig-activity`, `data-activity-kind`, `data-activity-task-id`, and
+  `data-activity-status` markers.
+delta: `examples/application/interactive_web_poc.rb` and `examples/catalog.rb`
+  smoke-check the rendered activity surface for seeded, refused create,
+  successful create, refused resolve, and successful resolve facts.
+delta: `examples/application/interactive_operator/README.md` documents that the
+  board renders recent activity from the same state that backs `/events`.
+verify: `ruby examples/application/interactive_web_poc.rb` passed.
+verify: `ruby examples/run.rb smoke` passed with 74 examples, 0 failures.
+verify: `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can review/accept the completed action
+  log POC slice.
+block: none

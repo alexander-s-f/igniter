@@ -24,6 +24,8 @@ The current application commands are intentionally plain Rack form targets:
 The web surface renders `notice` and `error` query params as compact feedback
 messages on the next board render. This stays app-local and intentionally does
 not introduce session storage, a validation framework, or a UI component kit.
+It also renders a recent activity section from the same app-owned task board
+state that backs `/events`.
 
 Run the smoke launcher from the repository root:
 

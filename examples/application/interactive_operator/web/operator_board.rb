@@ -27,6 +27,11 @@ module InteractiveOperator
       task_status: "margin: 0 0 14px;",
       action_button: "padding: 10px 14px; border: 1px solid #2f2a1f; background: #f2b84b; cursor: pointer;",
       resolved_label: "margin: 0; font-weight: 700;",
+      activity_panel: "margin-top: 22px; padding: 18px; background: #fff6d8; border: 1px solid #2f2a1f;",
+      activity_title: "margin: 0 0 12px; font-size: 18px;",
+      activity_list: "margin: 0; padding-left: 20px;",
+      activity_item: "margin-top: 8px;",
+      activity_meta: "font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;",
       footer: "margin-top: 22px; font-size: 13px;",
       footer_text: "margin: 0;"
     }.freeze
@@ -83,11 +88,33 @@ module InteractiveOperator
       "#{style(:feedback)}#{style(:"feedback_#{feedback.fetch(:kind)}")}"
     end
 
+    def self.activity_label(event)
+      case event.fetch(:kind)
+      when :task_seeded
+        "Seeded task"
+      when :task_created
+        "Created task"
+      when :task_create_refused
+        "Create refused"
+      when :task_resolved
+        "Resolved task"
+      when :task_resolve_refused
+        "Resolve refused"
+      else
+        event.fetch(:kind).to_s.tr("_", " ")
+      end
+    end
+
+    def self.activity_task_id(event)
+      event.fetch(:task_id) || "-"
+    end
+
     def self.operator_board_mount
       application = Igniter::Web.application do
         root title: "Operator task board" do
           board = assigns[:ctx].service(:task_board).call
           feedback = InteractiveOperator::Web.feedback_for(assigns[:env])
+          recent_events = board.recent_events(limit: 5)
 
           main class: "task-board",
                "data-ig-poc-surface": "operator_task_board",
@@ -154,6 +181,26 @@ module InteractiveOperator
                   end
                 else
                   para "Resolved", class: "resolved", style: InteractiveOperator::Web.style(:resolved_label)
+                end
+              end
+            end
+
+            section class: "recent-activity",
+                    "data-ig-activity": "recent",
+                    "data-activity-count": recent_events.length,
+                    style: InteractiveOperator::Web.style(:activity_panel) do
+              h2 "Recent activity", style: InteractiveOperator::Web.style(:activity_title)
+              ol style: InteractiveOperator::Web.style(:activity_list) do
+                recent_events.each do |event|
+                  task_id = InteractiveOperator::Web.activity_task_id(event)
+                  li "data-activity-index": event.fetch(:index),
+                     "data-activity-kind": event.fetch(:kind),
+                     "data-activity-task-id": task_id,
+                     "data-activity-status": event.fetch(:status),
+                     style: InteractiveOperator::Web.style(:activity_item) do
+                    span "#{InteractiveOperator::Web.activity_label(event)}: #{task_id}",
+                         style: InteractiveOperator::Web.style(:activity_meta)
+                  end
                 end
               end
             end
