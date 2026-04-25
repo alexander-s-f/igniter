@@ -39,20 +39,20 @@ module InteractiveOperator
       end
 
       post "/tasks/create" do |params|
-        task = service(:task_board).create(params.fetch("title", ""))
-        if task
-          redirect InteractiveOperator.feedback_path(notice: "task_created", task: task.id)
+        result = service(:task_board).create(params.fetch("title", ""))
+        if result.success?
+          redirect InteractiveOperator.feedback_path(notice: result.feedback_code, task: result.task_id)
         else
-          redirect InteractiveOperator.feedback_path(error: "blank_title")
+          redirect InteractiveOperator.feedback_path(error: result.feedback_code)
         end
       end
 
       post "/tasks" do |params|
-        task_id = params.fetch("id", "")
-        if service(:task_board).resolve(task_id)
-          redirect InteractiveOperator.feedback_path(notice: "task_resolved", task: task_id)
+        result = service(:task_board).resolve(params.fetch("id", ""))
+        if result.success?
+          redirect InteractiveOperator.feedback_path(notice: result.feedback_code, task: result.task_id)
         else
-          redirect InteractiveOperator.feedback_path(error: "task_not_found", task: task_id)
+          redirect InteractiveOperator.feedback_path(error: result.feedback_code, task: result.task_id)
         end
       end
     end

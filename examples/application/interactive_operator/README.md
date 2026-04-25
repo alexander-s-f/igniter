@@ -21,6 +21,10 @@ The current application commands are intentionally plain Rack form targets:
 - `GET /events` returns a compact text read model with the open-task count,
   action count, and recent typed action facts.
 
+Inside `services/task_board.rb`, `create` and `resolve` both return the same
+small app-local `CommandResult` shape with `success?`, `feedback_code`,
+`task_id`, and `action`.
+
 The web surface renders `notice` and `error` query params as compact feedback
 messages on the next board render. This stays app-local and intentionally does
 not introduce session storage, a validation framework, or a UI component kit.

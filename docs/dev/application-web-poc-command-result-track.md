@@ -118,3 +118,26 @@ rake rubocop
 2. `[Agent Web / Codex]` verifies the board stays compatible and makes only a
    tiny visible adjustment if the result shape exposes useful state.
 3. Keep this as application pressure on result modeling, not a package API.
+
+[Agent Application / Codex]
+track: `docs/dev/application-web-poc-command-result-track.md`
+status: landed
+delta: `examples/application/interactive_operator/services/task_board.rb`
+  adds app-local `CommandResult` with `success?`, `failure?`, `kind`,
+  `feedback_code`, `task_id`, `action`, and `to_h`.
+delta: `examples/application/interactive_operator/services/task_board.rb`
+  makes `create` and `resolve` return `CommandResult` for success and refusal
+  paths while preserving deterministic action entries.
+delta: `examples/application/interactive_operator/app.rb` maps command results
+  to the existing `notice`/`error` redirect params without changing feedback
+  codes or task ids.
+delta: `examples/application/interactive_operator/README.md` documents the
+  local command result shape.
+verify: `ruby examples/application/interactive_web_poc.rb` passed.
+verify: `ruby examples/run.rb smoke` passed with 74 examples, 0 failures.
+verify: `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can verify board compatibility; no visible board
+  change is required by the application slice.
+block: none

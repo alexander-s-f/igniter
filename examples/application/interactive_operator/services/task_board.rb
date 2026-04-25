@@ -5,6 +5,24 @@ module InteractiveOperator
     class TaskBoard
       Task = Struct.new(:id, :title, :status, keyword_init: true)
       Action = Struct.new(:index, :kind, :task_id, :status, keyword_init: true)
+      CommandResult = Struct.new(:kind, :feedback_code, :task_id, :action, keyword_init: true) do
+        def success?
+          kind == :success
+        end
+
+        def failure?
+          !success?
+        end
+
+        def to_h
+          {
+            kind: kind,
+            feedback_code: feedback_code,
+            task_id: task_id,
+            action: action&.to_h
+          }
+        end
+      end
 
       attr_reader :name
 
@@ -40,26 +58,26 @@ module InteractiveOperator
       def create(title)
         normalized_title = title.to_s.strip
         if normalized_title.empty?
-          record_action(kind: :task_create_refused, task_id: nil, status: :refused)
-          return nil
+          action = record_action(kind: :task_create_refused, task_id: nil, status: :refused)
+          return command_result(:failure, feedback_code: :blank_title, task_id: nil, action: action)
         end
 
         task = Task.new(id: next_id_for(normalized_title), title: normalized_title, status: :open)
         @tasks << task
-        record_action(kind: :task_created, task_id: task.id, status: :open)
-        task.dup
+        action = record_action(kind: :task_created, task_id: task.id, status: :open)
+        command_result(:success, feedback_code: :task_created, task_id: task.id, action: action)
       end
 
       def resolve(id)
         task = @tasks.find { |entry| entry.id == id.to_s }
         unless task
-          record_action(kind: :task_resolve_refused, task_id: id.to_s, status: :refused)
-          return false
+          action = record_action(kind: :task_resolve_refused, task_id: id.to_s, status: :refused)
+          return command_result(:failure, feedback_code: :task_not_found, task_id: id.to_s, action: action)
         end
 
         task.status = :resolved
-        record_action(kind: :task_resolved, task_id: task.id, status: :resolved)
-        true
+        action = record_action(kind: :task_resolved, task_id: task.id, status: :resolved)
+        command_result(:success, feedback_code: :task_resolved, task_id: task.id, action: action)
       end
 
       def resolved?(id)
@@ -75,13 +93,24 @@ module InteractiveOperator
       end
 
       def record_action(kind:, task_id:, status:)
-        @actions << Action.new(
+        action = Action.new(
           index: @next_action_index,
           kind: kind.to_sym,
           task_id: task_id,
           status: status.to_sym
         )
+        @actions << action
         @next_action_index += 1
+        action
+      end
+
+      def command_result(kind, feedback_code:, task_id:, action:)
+        CommandResult.new(
+          kind: kind.to_sym,
+          feedback_code: feedback_code.to_sym,
+          task_id: task_id,
+          action: action
+        )
       end
 
       def next_id_for(title)
