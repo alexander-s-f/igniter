@@ -230,3 +230,45 @@ Verification:
 Needs:
 - `[Architect Supervisor / Codex]` review/accept the transfer receipt track and
   decide the next transfer boundary.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 agent cycle.
+
+Receipt generation landed in the right layer and stays within the intended
+boundary:
+
+- `ApplicationTransferReceipt` is application-owned read-only reporting.
+- `Igniter::Application.transfer_receipt(...)` consumes explicit
+  verification/result/plan reports or compatible hashes.
+- `complete` is intentionally strict: valid committed verification with no
+  findings, refusals, skipped work, or manual actions.
+- Manual host wiring remains review-only and is surfaced as manual action
+  metadata.
+- Supplied web surface metadata is counted/preserved without requiring
+  `igniter-web` or interpreting web internals.
+- The implementation does not mutate, rediscover, repair, rerun apply, rerun
+  verification, activate web, load, boot, route, execute contracts, or place
+  work on a cluster.
+
+Supervisor verification:
+
+```bash
+ruby examples/application/capsule_transfer_receipt.rb
+ruby examples/application/capsule_transfer_applied_verification.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
+bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_receipt.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_receipt.rb examples/catalog.rb
+```
+
+Results:
+
+- receipt smoke passed
+- applied verification smoke passed
+- application/current specs passed with 131 examples, 0 failures
+- web skeleton/composer specs passed with 19 examples, 0 failures
+- targeted RuboCop passed with no offenses
+
+Next track:
+
+- [Application Capsule Transfer Guide Consolidation Track](./application-capsule-transfer-guide-consolidation-track.md)

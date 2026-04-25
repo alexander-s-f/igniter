@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Read-only transfer receipt/audit artifact over explicit transfer reports | [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md) | [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md), [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md), [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web metadata review |
-| `[Agent Web / Codex]` | Compatibility review for optional web metadata in transfer receipts | [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md) | [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for receipt wording needs |
+| `[Agent Application / Codex]` | Consolidate capsule transfer guide and optional end-to-end smoke path | [Application Capsule Transfer Guide Consolidation Track](./application-capsule-transfer-guide-consolidation-track.md) | [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md), [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md), [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for boundary wording review |
+| `[Agent Web / Codex]` | Boundary review for web metadata wording in the consolidated transfer guide | [Application Capsule Transfer Guide Consolidation Track](./application-capsule-transfer-guide-consolidation-track.md) | [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for guide wording needs |
 
 ## Track Map
 
@@ -109,8 +109,10 @@ pressure-test wave:
 - Explicit dry-run-first apply execution for reviewed transfer apply plans
   landed.
 - Read-only post-apply verification for committed transfer results landed.
-- The next broad track is read-only transfer receipt/audit generation over
-  explicit transfer reports.
+- Read-only transfer receipt/audit generation over explicit transfer reports
+  landed and was accepted.
+- The next broad track is user-facing transfer guide consolidation with a
+  compact end-to-end smoke path.
 
 ### Embed And Contract Class DSL
 
@@ -919,7 +921,7 @@ Next:
 
 ### Application Capsule Transfer Receipt
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -933,22 +935,60 @@ Dependencies:
 
 Current accepted state:
 
-- The next useful artifact is a compact read-only transfer receipt/audit report.
-- Receipt generation should accept explicit applied verification and optional
-  upstream transfer reports as value objects or serialized hashes.
-- It should summarize committed/valid/complete status, counts, findings,
-  refusals, skipped operations, manual actions, and supplied surface metadata.
-- It must not mutate, repair, rediscover, activate web, load, boot, route,
-  execute contracts, or coordinate clusters.
+- `ApplicationTransferReceipt` and
+  `Igniter::Application.transfer_receipt(...)` are accepted as the final
+  read-only closure report over explicit transfer verification/result/plan
+  data.
+- Receipt generation accepts value objects or compatible serialized hashes.
+- It summarizes complete/valid/committed status, artifact and destination
+  roots, planned/applied/verified/finding/refusal/skipped/manual counts,
+  manual actions, supplied surface count, and caller metadata.
+- `complete` requires valid committed verification with no findings, refusals,
+  skipped work, or manual actions.
+- It must not mutate, repair, rediscover, rerun apply, rerun verification,
+  activate web, load, boot, route, execute contracts, or coordinate clusters.
 - Web metadata remains supplied and opaque.
+- Receipt acceptance passed on 2026-04-25 with application/current specs, web
+  skeleton/composer specs, examples, and RuboCop.
 
 Next:
 
-- `[Agent Application / Codex]`: implement the smallest transfer receipt value,
-  facade, specs, and smoke example.
-- `[Agent Web / Codex]`: verify optional web metadata remains supplied and
-  opaque in transfer receipts and no web-specific receipt behavior is
-  introduced.
+- Continue through [Application Capsule Transfer Guide Consolidation Track](./application-capsule-transfer-guide-consolidation-track.md).
+- Keep the next cycle user-facing and stabilizing; do not add more transfer
+  runtime machinery without new pressure.
+
+### Application Capsule Transfer Guide Consolidation
+
+Status: active.
+
+Primary track:
+
+- [Application Capsule Transfer Guide Consolidation Track](./application-capsule-transfer-guide-consolidation-track.md)
+
+Dependencies:
+
+- [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md)
+- [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md)
+- [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md)
+
+Current accepted state:
+
+- The transfer chain is complete enough for a consolidation pass.
+- The next work should make the public path easy to follow from capsule
+  declaration to receipt.
+- This track may add a deterministic end-to-end example and compact guide
+  wording, but should not add new runtime classes, facades, or transfer
+  semantics.
+- Web metadata remains supplied and opaque; web review is wording/boundary
+  review only.
+
+Next:
+
+- `[Agent Application / Codex]`: consolidate the public guide and add the
+  end-to-end smoke example if useful.
+- `[Agent Web / Codex]`: verify the consolidated wording does not imply web
+  route activation, screen inspection, mount binding, browser traffic, or an
+  application dependency on web.
 
 ### Cluster
 
