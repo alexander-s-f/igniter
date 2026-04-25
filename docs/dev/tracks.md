@@ -70,8 +70,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Add task creation workflow to the interactive operator POC | [Application Web POC Task Creation Track](./application-web-poc-task-creation-track.md) | [Application Rack Host DSL Track](./application-rack-host-dsl-track.md), [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for create form |
-| `[Agent Web / Codex]` | Add compact create-task form while preserving resolve interaction | [Application Web POC Task Creation Track](./application-web-poc-task-creation-track.md) | [Application Rack Host DSL Track](./application-rack-host-dsl-track.md), [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for route/service needs |
+| `[Agent Application / Codex]` | Add app-local feedback/refusal boundary to the interactive operator POC | [Application Web POC Feedback Track](./application-web-poc-feedback-track.md) | [Application Web POC Task Creation Track](./application-web-poc-task-creation-track.md), [Application Rack Host DSL Track](./application-rack-host-dsl-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for feedback rendering |
+| `[Agent Web / Codex]` | Render compact success/error feedback in the operator board | [Application Web POC Feedback Track](./application-web-poc-feedback-track.md) | [Application Web POC Task Creation Track](./application-web-poc-task-creation-track.md), [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for feedback params |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 
 ## Track Map
@@ -143,7 +143,9 @@ pressure-test wave:
   implementation slice was a narrow Rack host DSL/helper, not the full
   `interactive_app` facade yet.
 - Narrow `Igniter::Application.rack_app` landed and was accepted.
-- The next live POC pressure-test adds task creation before broader facade work.
+- Task creation workflow landed in the live POC and was accepted.
+- The next live POC pressure-test adds visible success/error feedback before
+  broader facade work.
 - `[Research Horizon / Codex]` joined as a long-range research role. Its work
   stays in `docs/research-horizon/` until `[Architect Supervisor / Codex]`
   graduates a proposal into a narrow `docs/dev/` implementation track.
@@ -1422,7 +1424,7 @@ Next:
 
 ### Application Web POC Task Creation
 
-Status: active.
+Status: landed and accepted.
 
 Primary track:
 
@@ -1435,18 +1437,42 @@ Dependencies:
 
 Current accepted state:
 
-- The next POC pressure-test should add a second real user workflow before
-  broadening the DSL.
-- Task creation should use app-local service state, the accepted Rack host
-  helper, and the existing web-owned surface.
+- The interactive operator POC supports task creation and task resolution.
+- Task creation uses app-local service state, the accepted Rack host helper,
+  and the existing web-owned surface.
+- Smoke mode exercises rendered create form, create request, changed render,
+  and resolve request.
 - Full `interactive_app`, UI kit, Plane/canvas, flow/chat/proactive agent DSL,
   SSE/live updates, and generators remain deferred.
 
 Next:
 
-- `[Agent Application / Codex]`: add app-local task creation and route/smoke
-  coverage.
-- `[Agent Web / Codex]`: add the create form while preserving task resolution.
+- Continue through [Application Web POC Feedback Track](./application-web-poc-feedback-track.md).
+
+### Application Web POC Feedback
+
+Status: active.
+
+Primary track:
+
+- [Application Web POC Feedback Track](./application-web-poc-feedback-track.md)
+
+Dependencies:
+
+- [Application Web POC Task Creation Track](./application-web-poc-task-creation-track.md)
+- [Application Rack Host DSL Track](./application-rack-host-dsl-track.md)
+
+Current accepted state:
+
+- The live POC now has enough behavior to need visible command outcomes.
+- The next slice should add success/error feedback and blank-title refusal
+  without adding a validation framework, session framework, UI kit, or broader
+  facade.
+
+Next:
+
+- `[Agent Application / Codex]`: add app-local feedback/refusal boundary.
+- `[Agent Web / Codex]`: render compact success/error feedback.
 
 ### Handoff Doctrine
 

@@ -162,3 +162,43 @@ Accepted:
 Needs:
 - `[Architect Supervisor / Codex]` can review/accept the task creation POC
   pressure-test.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 cycle.
+
+Accepted:
+
+- The interactive operator POC now supports task creation and task resolution.
+- `TaskBoard#create(title)` is app-local and creates deterministic task ids.
+- `POST /tasks/create` is declared through the accepted
+  `Igniter::Application.rack_app` helper.
+- `web/operator_board.rb` renders a compact create-task form.
+- Smoke mode exercises rendered create form -> create request -> changed render
+  -> resolve request.
+- The existing resolve path remains intact.
+
+Still deferred:
+
+- database persistence
+- validation framework
+- session/cookie framework
+- UI kit
+- Plane/canvas
+- flow/chat/proactive agent DSL
+- SSE/live updates
+- full `Igniter.interactive_app`
+- generator
+- production server layer
+
+Verification:
+
+- `ruby examples/application/interactive_web_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 74 examples and 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Continue through [Application Web POC Feedback Track](./application-web-poc-feedback-track.md).
