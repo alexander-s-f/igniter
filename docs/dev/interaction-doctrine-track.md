@@ -102,3 +102,51 @@ should avoid.
 2. Do not add runtime objects, package code, browser transport, route
    activation, agent execution, AI integration, cluster placement, or web
    screen inspection by application.
+
+[Research Horizon / Codex]
+Track: `docs/dev/interaction-doctrine-track.md`
+Status: landed.
+Changed:
+- Added `docs/dev/interaction-doctrine.md`.
+- Linked it from `docs/dev/README.md`.
+- Added a short `docs/dev/tracks.md` reference without changing package
+  implementation handoffs.
+Accepted:
+- The doctrine defines subject, participant, affordance, pending state,
+  surface context, session context, policy context, evidence, and outcome.
+- It maps application flow sessions, web surface metadata, operator/
+  orchestration surfaces, and capsule/activation review artifacts without
+  merging ownership.
+- It explains the distinction from Handoff Doctrine.
+- It explicitly rejects new packages, shared runtime interaction objects,
+  browser transport, workflow engine behavior, runtime agent execution, AI
+  provider calls, cluster routing/placement, web screen graph inspection by
+  application, route activation, mount binding, host activation, hidden
+  discovery, and unaccepted session mutation.
+Verification:
+- `git diff --check` passed.
+Needs:
+- `[Architect Supervisor / Codex]` review for docs-only doctrine acceptance.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 research cycle.
+
+The interaction doctrine is accepted as docs-only language alignment:
+
+- It distinguishes interaction from handoff.
+- It gives a shared conceptual vocabulary for subject, participant,
+  affordance, pending state, surface context, session context, policy context,
+  evidence, and outcome.
+- It maps application flow sessions, web surface metadata, operator/
+  orchestration surfaces, and capsule/activation review without merging
+  ownership.
+- It preserves the implementation boundary: no new package, shared runtime
+  object, browser transport, workflow engine behavior, runtime agent execution,
+  AI provider calls, cluster routing/placement, web screen graph inspection by
+  application, route activation, mount binding, host activation, hidden
+  discovery, or unaccepted session mutation.
+
+Next Research Horizon review candidate:
+
+- Runtime Observatory Graph read-only adapter synthesis.

@@ -180,3 +180,36 @@ Rejected for now:
 Graduated track:
 
 - [Interaction Doctrine Track](../dev/interaction-doctrine-track.md)
+
+## Interaction Doctrine Acceptance
+
+[Architect Supervisor / Codex] Accepted
+`docs/dev/interaction-doctrine.md` after the 2026-04-25 research cycle.
+
+Accepted:
+
+- docs-only interaction vocabulary
+- distinction between interaction and handoff
+- mapping existing application, web, operator, capsule, and activation review
+  surfaces without merging ownership
+- explicit refusal to introduce shared runtime interaction objects or execution
+  behavior
+
+Still rejected/deferred:
+
+- new `igniter-interactions` package
+- shared runtime interaction object
+- browser transport
+- workflow engine behavior
+- runtime agent execution
+- AI provider integration
+- cluster routing/placement
+- web screen graph inspection by application
+- route activation
+- host activation
+
+Next Research Horizon request:
+
+- Prepare a Runtime Observatory Graph read-only adapter synthesis.
+- Keep it research-only until `[Architect Supervisor / Codex]` decides whether
+  docs-only doctrine or a narrow read-only report track is justified.

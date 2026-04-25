@@ -173,3 +173,45 @@ Accepted:
 Needs:
 - `[Architect Supervisor / Codex]` can accept the host activation guide
   consolidation stop line.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 agent cycle.
+
+The guide consolidation landed in the intended shape:
+
+- The public guide now shows the review path from transfer receipt through
+  host activation readiness, activation plan, and activation plan verification.
+- No new runtime classes, facades, or examples were added.
+- The existing `examples/application/capsule_host_activation_plan_verification.rb`
+  is accepted as the compact smoke path for readiness, plan, verification,
+  operation count, and finding count.
+- The stop line is explicit: valid activation plan verification means
+  activation intent was reviewed, not performed.
+- Web mount intents and `review_mount_intent` remain supplied metadata/review
+  operations until a future explicit web-owned or host-owned activation
+  boundary consumes them.
+- No execution, host mutation, constant loading, provider/contract
+  registration, app boot, mount binding, route activation, browser traffic,
+  rendering, screen/component inspection, contract execution, discovery, or
+  cluster placement was introduced.
+
+Supervisor verification:
+
+```bash
+ruby examples/application/capsule_host_activation_plan_verification.rb
+bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
+git diff --check
+```
+
+Results:
+
+- activation plan verification smoke passed
+- application/current specs passed with 142 examples, 0 failures
+- web skeleton/composer specs passed with 19 examples, 0 failures
+- diff whitespace check passed
+
+Next implementation track:
+
+- [Application Capsule Host Activation Execution Boundary Track](./application-capsule-host-activation-execution-boundary-track.md)
