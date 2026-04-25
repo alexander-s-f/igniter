@@ -17,6 +17,7 @@ Perspective: external expert in distributed interactive agent systems.
 | [compression-experiment.md](compression-experiment.md) | Grammar compression experiment — three real Igniter handoffs measured, economic formula evaluated, break-even analysis |
 | [agent-cycle-optimization.md](agent-cycle-optimization.md) | Agent development cycle optimization — six proposals to reduce token cost and latency of the Handoff protocol |
 | [agent-track-pattern.md](agent-track-pattern.md) | Agent Track Pattern formal specification — vocabulary, state machine, topology, memory architecture, scaling model, Igniter integration, graduation path |
+| [documentation-compression.md](documentation-compression.md) | Documentation compression methodology — content taxonomy, compression algorithm, 7 accumulation rules, Line-Up format for docs, tooling path |
 
 ## One-Line Summary
 
