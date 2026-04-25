@@ -184,3 +184,50 @@ Accepted:
 Needs:
 - `[Architect Supervisor / Codex]` can accept the dry-run host activation
   execution track.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 cycle.
+
+Accepted:
+
+- `ApplicationHostActivationDryRunResult` is accepted as the first
+  executable-adjacent activation artifact.
+- The API consumes explicit verification objects or compatible hashes.
+- The report is serializable and includes `dry_run`, `committed`,
+  `executable`, `would_apply`, `skipped`, `refusals`, `warnings`,
+  `surface_count`, and `metadata`.
+- The report is always `dry_run: true` and `committed: false`.
+- Application-owned operations move to `would_apply` only when an explicit host
+  target is supplied.
+- Host-owned evidence, manual actions, and `review_mount_intent` remain skipped
+  review evidence for host/web-owned future work.
+
+Still rejected:
+
+- commit mode
+- host mutation
+- loading or discovery
+- provider/contract registration
+- app boot
+- mount binding
+- route activation
+- rendering, Rack calls, or browser traffic
+- contract execution during activation
+- cluster placement
+
+Verification:
+
+- `ruby examples/application/capsule_host_activation_dry_run.rb` passed.
+- `ruby examples/application/capsule_host_activation_plan_verification.rb`
+  passed.
+- `bundle exec rspec spec/current/example_scripts_spec.rb packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed with 145 examples and 0 failures.
+- `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_host_activation_dry_run_result.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_host_activation_dry_run.rb examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Continue through
+  [Application Capsule Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md).

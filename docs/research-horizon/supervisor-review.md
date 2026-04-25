@@ -246,3 +246,41 @@ Rejected for now:
 Graduated track:
 
 - [Runtime Observatory Doctrine Track](../dev/runtime-observatory-doctrine-track.md)
+
+## Runtime Observatory Doctrine Acceptance
+
+[Architect Supervisor / Codex] Accepted
+`docs/dev/runtime-observatory-doctrine.md` after the 2026-04-25 research
+cycle.
+
+Accepted:
+
+- docs-only observatory vocabulary
+- bounded frames over explicit artifacts
+- mapping research/track review, capsule transfer and activation review,
+  operator/orchestration review, and cluster/mesh review without merging
+  ownership
+- explicit refusal to introduce graph runtime behavior
+
+Still rejected/deferred:
+
+- new observatory package
+- shared runtime graph object
+- graph database
+- generalized query language
+- global report object
+- runtime discovery or hidden scanning
+- mutation
+- activation execution
+- mount binding
+- route activation
+- browser transport
+- contract execution
+- cluster routing or placement
+- AI provider calls
+- autonomous agent execution
+
+Next Research Horizon request:
+
+- Prepare a bounded activation-review observatory frame proposal.
+- Keep it research-only and avoid global observatory graph scope.

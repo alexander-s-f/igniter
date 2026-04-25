@@ -97,3 +97,66 @@ git diff --check
 2. Do not touch packages or runtime implementation.
 3. Return with changed files, compact accepted/deferred summary, and
    verification result.
+
+[Research Horizon / Codex]
+Track: `docs/dev/runtime-observatory-doctrine-track.md`
+Status: drafted.
+Changed:
+- Added `docs/dev/runtime-observatory-doctrine.md`.
+- Linked it from `docs/dev/README.md`.
+- Added this short track reference without changing package implementation
+  handoffs.
+Accepted/Ready:
+- The doctrine defines frames, nodes, edges, facets, evidence, blockers,
+  warnings, and metadata.
+- It maps research/track review, capsule transfer and activation review,
+  operator/orchestration review, and cluster/mesh review without merging
+  ownership.
+- It explains the relationship to Handoff Doctrine and Interaction Doctrine.
+- It explicitly rejects a new observatory package, shared runtime graph object,
+  graph database, generalized query language, global report object, runtime
+  discovery, hidden scanning, mutation, activation execution, mount binding,
+  route activation, browser transport, contract execution, cluster routing or
+  placement, AI provider calls, and autonomous agent execution.
+Verification:
+- `git diff --check` passed.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 cycle.
+
+Accepted:
+
+- [Runtime Observatory Doctrine](./runtime-observatory-doctrine.md) is accepted
+  as docs-only language alignment.
+- The doctrine usefully separates bounded observation frames from execution,
+  discovery, routing, mutation, and global graph modeling.
+- It can guide later read-only reports, but does not authorize package work by
+  itself.
+
+Still rejected:
+
+- new observatory package
+- shared runtime graph object
+- graph database
+- generalized query language
+- global report object
+- hidden runtime discovery
+- mutation
+- activation execution
+- mount binding
+- route activation
+- browser transport
+- contract execution
+- cluster routing or placement
+- AI provider calls
+- autonomous agent execution
+
+Verification:
+
+- `git diff --check` passed.
+
+Next:
+
+- Continue through
+  [Runtime Observatory Activation Frame Track](./runtime-observatory-activation-frame-track.md).

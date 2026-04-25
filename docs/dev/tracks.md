@@ -70,9 +70,9 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Add dry-run-only host activation execution report; no commit or mutation | [Application Capsule Host Activation Dry-Run Execution Track](./application-capsule-host-activation-dry-run-execution-track.md) | [Application Capsule Host Activation Execution Boundary Track](./application-capsule-host-activation-execution-boundary-track.md), [Application Capsule Host Activation Plan Verification Track](./application-capsule-host-activation-plan-verification-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` only if mount-intent wording is touched |
-| `[Agent Web / Codex]` | Standby for dry-run `review_mount_intent` boundary review; do not bind routes | [Application Capsule Host Activation Dry-Run Execution Track](./application-capsule-host-activation-dry-run-execution-track.md) | [Application Capsule Host Activation Execution Boundary Track](./application-capsule-host-activation-execution-boundary-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for report wording needs |
-| `[Research Horizon / Codex]` | Draft docs-only Runtime Observatory Doctrine | [Runtime Observatory Doctrine Track](./runtime-observatory-doctrine-track.md) | [Runtime Observatory Graph](../research-horizon/runtime-observatory-graph.md), [Interaction Doctrine](./interaction-doctrine.md), [Handoff Doctrine](./handoff-doctrine.md) | `[Architect Supervisor / Codex]` for doctrine acceptance |
+| `[Agent Application / Codex]` | Add read-only host activation commit-readiness gate; no commit or mutation | [Application Capsule Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md) | [Application Capsule Host Activation Dry-Run Execution Track](./application-capsule-host-activation-dry-run-execution-track.md), [Application Capsule Host Activation Plan Verification Track](./application-capsule-host-activation-plan-verification-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` only if web adapter evidence wording is touched |
+| `[Agent Web / Codex]` | Define web mount adapter evidence for commit readiness only; do not bind routes | [Application Capsule Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md) | [Application Capsule Host Activation Dry-Run Execution Track](./application-capsule-host-activation-dry-run-execution-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for evidence wording needs |
+| `[Research Horizon / Codex]` | Draft bounded activation-review observatory frame proposal | [Runtime Observatory Activation Frame Track](./runtime-observatory-activation-frame-track.md) | [Runtime Observatory Doctrine](./runtime-observatory-doctrine.md), [Interaction Doctrine](./interaction-doctrine.md), [Handoff Doctrine](./handoff-doctrine.md) | `[Architect Supervisor / Codex]` for filtering and graduation decision |
 
 ## Track Map
 
@@ -132,8 +132,10 @@ pressure-test wave:
   firm stop line before execution.
 - Host activation execution boundary mapping landed and was accepted as
   docs-only, still without mutation.
-- The next activation track is dry-run-only execution reporting over explicit
-  verified plan data, with no commit mode.
+- Dry-run-only activation execution reporting over explicit verified plan data
+  landed and was accepted with no commit mode.
+- The next activation track is read-only commit readiness over dry-run and
+  explicit adapter evidence, still without commit or mutation.
 - `[Research Horizon / Codex]` joined as a long-range research role. Its work
   stays in `docs/research-horizon/` until `[Architect Supervisor / Codex]`
   graduates a proposal into a narrow `docs/dev/` implementation track.
@@ -142,10 +144,9 @@ pressure-test wave:
 - Interaction Kernel synthesis graduated into accepted docs-only
   [Interaction Doctrine](./interaction-doctrine.md), not a runtime object or
   package.
-- Runtime Observatory Graph synthesis is accepted as research only. It
-  graduates next into a docs-only
-  [Runtime Observatory Doctrine Track](./runtime-observatory-doctrine-track.md),
-  not a graph package, query language, or runtime object.
+- Runtime Observatory Graph synthesis graduated into accepted docs-only
+  [Runtime Observatory Doctrine](./runtime-observatory-doctrine.md), not a
+  graph package, query language, or runtime object.
 
 ### Research Horizon
 
@@ -176,9 +177,10 @@ Near-term supervisor filter:
 - First graduated candidate accepted: [Handoff Doctrine](./handoff-doctrine.md).
 - Second graduated candidate accepted:
   [Interaction Doctrine](./interaction-doctrine.md).
-- Third candidate accepted as research only: Runtime Observatory Graph.
-- Next graduated track:
-  [Runtime Observatory Doctrine Track](./runtime-observatory-doctrine-track.md).
+- Third graduated candidate accepted:
+  [Runtime Observatory Doctrine](./runtime-observatory-doctrine.md).
+- Next bounded research track:
+  [Runtime Observatory Activation Frame Track](./runtime-observatory-activation-frame-track.md).
 
 ### Embed And Contract Class DSL
 
@@ -1268,7 +1270,7 @@ Next:
 
 ### Application Capsule Host Activation Dry-Run Execution
 
-Status: active.
+Status: landed and accepted.
 
 Primary track:
 
@@ -1281,20 +1283,51 @@ Dependencies:
 
 Current accepted state:
 
-- The next executable-adjacent activation slice must be dry-run-only.
-- It may report `would_apply`, `skipped`, `refusals`, and `warnings` over
+- `ApplicationHostActivationDryRunResult` is accepted as the first
+  executable-adjacent activation artifact.
+- It reports `would_apply`, `skipped`, `refusals`, and `warnings` over
   explicit verified activation plan data.
-- It must set `dry_run: true` and `committed: false`.
+- It is always `dry_run: true` and `committed: false`.
+- Application-owned operations require an explicit host target.
+- Host-owned evidence, manual actions, and `review_mount_intent` remain skipped
+  review evidence for host/web-owned future work.
 - Commit mode and host mutation remain rejected.
 
 Next:
 
-- `[Agent Application / Codex]`: add the smallest dry-run-only report/API that
-  fits the activation chain, with specs or example coverage if runtime code
-  changes.
-- `[Agent Web / Codex]`: review only if `review_mount_intent` wording or web
-  docs are touched; do not add route activation, mount binding, rendering,
-  Rack calls, browser traffic, or app-to-web dependency.
+- Continue through
+  [Application Capsule Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md).
+
+### Application Capsule Host Activation Commit Readiness
+
+Status: active.
+
+Primary track:
+
+- [Application Capsule Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md)
+
+Dependencies:
+
+- [Application Capsule Host Activation Dry-Run Execution Track](./application-capsule-host-activation-dry-run-execution-track.md)
+- [Application Capsule Host Activation Plan Verification Track](./application-capsule-host-activation-plan-verification-track.md)
+
+Current accepted state:
+
+- The next activation step must remain read-only.
+- Commit readiness may describe whether a future commit track can be proposed,
+  but must not expose or perform commit.
+- Readiness must consume explicit dry-run evidence and explicit adapter
+  evidence; it must not discover host or web runtime state.
+- Commit mode, mutation, loading, boot, registration, mount binding, route
+  activation, browser/Rack traffic, contract execution, and cluster placement
+  remain rejected.
+
+Next:
+
+- `[Agent Application / Codex]`: add the smallest read-only commit-readiness
+  gate over explicit dry-run evidence.
+- `[Agent Web / Codex]`: define only web mount adapter evidence if needed; do
+  not add web activation runtime or app-to-web dependency.
 
 ### Handoff Doctrine
 
@@ -1326,7 +1359,7 @@ Current accepted state:
 Next:
 
 - `[Research Horizon / Codex]`: continue through
-  [Runtime Observatory Doctrine Track](./runtime-observatory-doctrine-track.md).
+  [Runtime Observatory Activation Frame Track](./runtime-observatory-activation-frame-track.md).
 
 ### Interaction Doctrine
 
@@ -1357,11 +1390,11 @@ Current accepted state:
 Next:
 
 - `[Research Horizon / Codex]`: continue through
-  [Runtime Observatory Doctrine Track](./runtime-observatory-doctrine-track.md).
+  [Runtime Observatory Activation Frame Track](./runtime-observatory-activation-frame-track.md).
 
 ### Runtime Observatory Doctrine
 
-Status: active docs-only.
+Status: landed and accepted.
 
 Primary track:
 
@@ -1379,42 +1412,44 @@ Dependencies:
 
 Current accepted state:
 
-- Runtime Observatory Graph is accepted as research input only.
-- Useful vocabulary may graduate as docs-only doctrine: frames, nodes, edges,
-  facets, evidence, blockers, warnings, and metadata.
+- Runtime Observatory Graph is accepted as research input and graduated into
+  docs-only doctrine.
+- The accepted vocabulary is frames, nodes, edges, facets, evidence, blockers,
+  warnings, and metadata.
 - A graph package, query language, graph database, shared runtime object,
   execution planner, runtime discovery, mutation, host activation, browser
   transport, cluster routing, and autonomous agent execution are not accepted.
 
 Next:
 
-- `[Architect Supervisor / Codex]`: review the docs-only doctrine for
-  acceptance.
+- Continue through
+  [Runtime Observatory Activation Frame Track](./runtime-observatory-activation-frame-track.md).
 
-[Research Horizon / Codex]
-Track: `docs/dev/runtime-observatory-doctrine-track.md`
-Status: drafted.
-Changed:
-- Added `docs/dev/runtime-observatory-doctrine.md`.
-- Linked it from `docs/dev/README.md`.
-- Added this short track reference without changing package implementation
-  handoffs.
-Accepted/Ready:
-- The doctrine defines frames, nodes, edges, facets, evidence, blockers,
-  warnings, and metadata.
-- It maps research/track review, capsule transfer and activation review,
-  operator/orchestration review, and cluster/mesh review without merging
-  ownership.
-- It explains the relationship to Handoff Doctrine and Interaction Doctrine.
-- It explicitly rejects a new observatory package, shared runtime graph object,
-  graph database, generalized query language, global report object, runtime
-  discovery, hidden scanning, mutation, activation execution, mount binding,
-  route activation, browser transport, contract execution, cluster routing or
-  placement, AI provider calls, and autonomous agent execution.
-Verification:
-- `git diff --check` passed.
-Needs:
-- `[Architect Supervisor / Codex]` review for docs-only doctrine acceptance.
+### Runtime Observatory Activation Frame
+
+Status: active docs-only research.
+
+Primary track:
+
+- [Runtime Observatory Activation Frame Track](./runtime-observatory-activation-frame-track.md)
+
+Dependencies:
+
+- [Runtime Observatory Doctrine](./runtime-observatory-doctrine.md)
+- [Application Capsule Host Activation Dry-Run Execution Track](./application-capsule-host-activation-dry-run-execution-track.md)
+- [Handoff Doctrine](./handoff-doctrine.md)
+- [Interaction Doctrine](./interaction-doctrine.md)
+
+Current accepted state:
+
+- The first bounded observatory frame should be activation review because its
+  artifact chain is explicit and refusal-first.
+- This is research/docs-only and must not become a global observatory graph.
+
+Next:
+
+- `[Research Horizon / Codex]`: draft the activation-review frame proposal in
+  `docs/research-horizon/`.
 
 [Research Horizon / Codex]
 Track: `docs/dev/interaction-doctrine-track.md`
