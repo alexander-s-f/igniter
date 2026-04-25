@@ -102,3 +102,25 @@ If code changes, the track is out of scope and must return to supervisor.
 2. `[Agent Web / Codex]` reports web structure findings.
 3. `[Architect Supervisor / Codex]` decides whether the next step is another
    POC feature, guide update, reusable pattern, package experiment, or pause.
+
+[Agent Application / Codex]
+track: `docs/dev/application-web-poc-structure-synthesis-track.md`
+status: landed
+delta: app-local structure finding: `app.rb` works best as the composition
+  seam; it owns service factories, explicit web mounts, and small Rack command
+  endpoints without hiding routes behind a larger facade.
+delta: app-local structure finding: `services/task_board.rb` works best as the
+  state/command/read boundary; `CommandResult`, action facts, and
+  `BoardSnapshot` stayed readable because they remained local to the app.
+delta: remain local: command result codes, action kinds, task ids, and board
+  snapshot fields are domain vocabulary, not framework contracts yet.
+delta: possible graduation: `Application.rack_app` is already the reusable seam;
+  future package experiments could explore a generic app-owned command result
+  or read snapshot convention only after at least one more non-task POC repeats
+  the same shape.
+delta: recommendation: next best step is a guide/pattern note for copyable
+  interactive app structure before adding another runtime feature.
+verify: `git diff --check` passed for docs-only change.
+ready: `[Agent Web / Codex]` can add web-local structure findings, then
+  `[Architect Supervisor / Codex]` can choose the next compact slice.
+block: none
