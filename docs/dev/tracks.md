@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Read-only post-apply verification for committed transfer results | [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md) | [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md), [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md), [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web metadata review |
-| `[Agent Web / Codex]` | Compatibility review for optional web metadata in applied verification | [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md) | [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for verification wording needs |
+| `[Agent Application / Codex]` | Read-only transfer receipt/audit artifact over explicit transfer reports | [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md) | [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md), [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md), [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web metadata review |
+| `[Agent Web / Codex]` | Compatibility review for optional web metadata in transfer receipts | [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md) | [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for receipt wording needs |
 
 ## Track Map
 
@@ -108,8 +108,9 @@ pressure-test wave:
 - Read-only apply operation planning over accepted intake data landed.
 - Explicit dry-run-first apply execution for reviewed transfer apply plans
   landed.
-- The next broad track is read-only post-apply verification for committed
-  transfer results.
+- Read-only post-apply verification for committed transfer results landed.
+- The next broad track is read-only transfer receipt/audit generation over
+  explicit transfer reports.
 
 ### Embed And Contract Class DSL
 
@@ -881,7 +882,7 @@ Next:
 
 ### Application Capsule Transfer Applied Verification
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -895,24 +896,59 @@ Dependencies:
 
 Current accepted state:
 
-- The next useful artifact is a read-only verification report after committed
+- The next useful artifact was a read-only verification report after committed
   apply execution.
-- Applied verification should accept an explicit apply result or compatible
+- `ApplicationTransferAppliedVerification` and
+  `Igniter::Application.verify_applied_transfer(...)` are accepted as the
+  application-owned post-apply readback surface.
+- Applied verification accepts an explicit apply result or compatible
   serialized apply-result hash.
-- It should verify reviewed destination directories/files against the committed
+- It verifies reviewed destination directories/files against the committed
   result and artifact sources when available.
 - It must report findings rather than repair, overwrite, or rediscover.
 - It must not apply host wiring, activate web, load, boot, route, execute
   contracts, or coordinate clusters.
 - Web metadata remains supplied and opaque.
+- Applied verification passed on 2026-04-25 with application/current specs, web
+  skeleton/composer specs, examples, and RuboCop.
 
 Next:
 
-- `[Agent Application / Codex]`: implement the smallest applied verification
-  value, facade, specs, and smoke example.
+- Continue through [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md).
+- Keep receipt generation read-only and explicit.
+
+### Application Capsule Transfer Receipt
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md)
+
+Dependencies:
+
+- [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md)
+- [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md)
+- [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md)
+
+Current accepted state:
+
+- The next useful artifact is a compact read-only transfer receipt/audit report.
+- Receipt generation should accept explicit applied verification and optional
+  upstream transfer reports as value objects or serialized hashes.
+- It should summarize committed/valid/complete status, counts, findings,
+  refusals, skipped operations, manual actions, and supplied surface metadata.
+- It must not mutate, repair, rediscover, activate web, load, boot, route,
+  execute contracts, or coordinate clusters.
+- Web metadata remains supplied and opaque.
+
+Next:
+
+- `[Agent Application / Codex]`: implement the smallest transfer receipt value,
+  facade, specs, and smoke example.
 - `[Agent Web / Codex]`: verify optional web metadata remains supplied and
-  opaque in applied verification and no web-specific destination verification
-  is introduced.
+  opaque in transfer receipts and no web-specific receipt behavior is
+  introduced.
 
 ### Cluster
 

@@ -203,6 +203,9 @@ verification report over committed transfer results. It proves destination
 directories/files match reviewed operations and artifact sources without
 repairing, overwriting, applying host wiring, activating web, booting apps,
 routing, executing contracts, or placing work on a cluster.
+The next active application track is a compact read-only transfer receipt over
+explicit transfer reports. It should summarize final status and manual
+attention without mutation, rediscovery, activation, or execution.
 
 Lifecycle now follows this shape:
 

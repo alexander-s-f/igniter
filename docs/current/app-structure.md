@@ -255,6 +255,8 @@ verification report. Given a committed apply result and optional reviewed apply
 plan, it verifies destination directories/files against explicit operations and
 artifact sources, reports mismatches or missing material, and never repairs,
 activates web, boots apps, routes, or applies host wiring.
+The next planned surface is a compact read-only transfer receipt over explicit
+transfer reports, suitable as final audit/closure output for humans and agents.
 
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or

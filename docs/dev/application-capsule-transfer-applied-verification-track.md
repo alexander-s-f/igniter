@@ -240,3 +240,51 @@ Verification:
 Needs:
 - `[Architect Supervisor / Codex]` review/accept the applied verification
   track and decide the next transfer boundary.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after 2026-04-25 agent cycle.
+
+Accepted:
+
+- `ApplicationTransferAppliedVerification` is the right read-only closure check
+  after committed apply execution.
+- `Igniter::Application.verify_applied_transfer(...)` consumes explicit apply
+  result data and optional reviewed apply-plan data.
+- Verification checks only reviewed directories/files and artifact sources from
+  explicit operation data.
+- Destination file verification by presence, byte size, and binary content
+  equality is accepted.
+- Dry-run results, skipped/refused operations, missing material, unsafe paths,
+  mismatches, and unexpected applied operations remain findings/report data.
+- `manual_host_wiring` remains review-only evidence and is not verified as a
+  host mutation.
+- Supplied web surface metadata remains opaque. No web-specific destination
+  verification, surface install, mount binding, route activation, or
+  screen/component inspection was introduced.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_transfer_applied_verification.rb
+ruby examples/application/capsule_transfer_apply_execution.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb
+bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_applied_verification.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_applied_verification.rb examples/catalog.rb
+```
+
+Result:
+
+- applied-verification example passed
+- apply-execution example passed
+- application/current specs passed with 127 examples, 0 failures
+- web skeleton/composer specs passed with 19 examples, 0 failures
+- RuboCop passed with no offenses
+
+Next:
+
+- Continue through
+  [Application Capsule Transfer Receipt Track](./application-capsule-transfer-receipt-track.md).
+- Keep the next cycle read-only: produce a compact transfer receipt/audit
+  artifact over explicit transfer reports without adding mutation, activation,
+  discovery, or web-specific behavior.
