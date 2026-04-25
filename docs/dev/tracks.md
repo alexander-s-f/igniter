@@ -70,8 +70,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Build compact interactive application POC host/state/smoke path | [Application Web Interactive POC Track](./application-web-interactive-poc-track.md) | [Application Target Plan](./application-target-plan.md), [Igniter Web Target Plan](./igniter-web-target-plan.md), [Application Capsule Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for the rendered surface |
-| `[Agent Web / Codex]` | Build compact interactive web surface for the POC | [Application Web Interactive POC Track](./application-web-interactive-poc-track.md) | [Igniter Web Target Plan](./igniter-web-target-plan.md), [Application And Web Integration](./application-web-integration.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app state/service needs |
+| `[Agent Application / Codex]` | Extract interactive POC into compact app-local skeleton | [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | [Application Web Interactive POC Track](./application-web-interactive-poc-track.md), [Application Target Plan](./application-target-plan.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for web surface extraction |
+| `[Agent Web / Codex]` | Extract web-owned POC surface into the app skeleton | [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md) | [Application Web Interactive POC Track](./application-web-interactive-poc-track.md), [Igniter Web Target Plan](./igniter-web-target-plan.md), [Application And Web Integration](./application-web-integration.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for app skeleton shape |
 | `[Research Horizon / Codex]` | Skip this cycle; standby | [Runtime Observatory Activation Frame Track](./runtime-observatory-activation-frame-track.md) | [Runtime Observatory Doctrine](./runtime-observatory-doctrine.md) | `[Architect Supervisor / Codex]` when research resumes |
 
 ## Track Map
@@ -136,8 +136,10 @@ pressure-test wave:
   landed and was accepted with no commit mode.
 - Read-only host activation commit readiness over dry-run and explicit adapter
   evidence landed and was accepted with no commit or mutation.
-- Host activation expansion is paused; the next finalization track is a compact
-  server-backed interactive application/web POC.
+- Compact server-backed interactive application/web POC landed and was
+  accepted.
+- The next finalization track extracts that POC into a compact app-local
+  skeleton so structure can be pressure-tested in a live app.
 - `[Research Horizon / Codex]` joined as a long-range research role. Its work
   stays in `docs/research-horizon/` until `[Architect Supervisor / Codex]`
   graduates a proposal into a narrow `docs/dev/` implementation track.
@@ -1330,7 +1332,7 @@ Next:
 
 ### Application Web Interactive POC
 
-Status: active.
+Status: landed and accepted.
 
 Primary track:
 
@@ -1344,17 +1346,46 @@ Dependencies:
 
 Current accepted state:
 
-- The next finalization step should be practical and user-facing.
-- Build one compact public POC/MVP that runs as a server, renders a web surface,
-  accepts a user action, mutates app-owned state, and shows the changed state on
-  the next render.
-- Default mode must be smoke-friendly and exit; optional server mode may stay
-  running for manual use.
+- `examples/application/interactive_web_poc.rb` is accepted as the first
+  practical application/web POC.
+- It runs as a tiny server-backed Rack-compatible app, renders a web surface,
+  accepts a user action, mutates app-owned state, and shows the changed state
+  on the next render.
+- Default mode is smoke-friendly and exits; optional server mode is browser
+  usable.
 
 Next:
 
-- `[Agent Application / Codex]`: own app state/service and smoke path.
-- `[Agent Web / Codex]`: own rendered interactive surface and request boundary.
+- Continue through [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md).
+
+### Application Web POC Skeleton
+
+Status: active.
+
+Primary track:
+
+- [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md)
+
+Dependencies:
+
+- [Application Web Interactive POC Track](./application-web-interactive-poc-track.md)
+- [Application Target Plan](./application-target-plan.md)
+- [Igniter Web Target Plan](./igniter-web-target-plan.md)
+- [Application And Web Integration](./application-web-integration.md)
+
+Current accepted state:
+
+- The single-file POC is useful enough to extract into an app-local skeleton.
+- Keep `examples/application/interactive_web_poc.rb` as the stable launcher.
+- Extract app-owned service/state, web-owned surface, and Rack/server boundary
+  into a compact directory that can pressure-test app structure.
+- Do not add a generator until the skeleton teaches us the right shape.
+
+Next:
+
+- `[Agent Application / Codex]`: extract app-owned service/state and launcher
+  shape.
+- `[Agent Web / Codex]`: extract web-owned surface and preserve interaction.
 
 ### Handoff Doctrine
 

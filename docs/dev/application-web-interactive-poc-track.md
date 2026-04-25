@@ -182,3 +182,33 @@ Accepted:
 Needs:
 - `[Architect Supervisor / Codex]` can review/accept the compact interactive
   application/web POC.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the 2026-04-25 cycle.
+
+Accepted:
+
+- `examples/application/interactive_web_poc.rb` is accepted as the first
+  practical application/web POC.
+- The POC builds an `Igniter::Application` environment, provides app-owned
+  state through a service, renders through accepted `igniter-web` page/mount
+  APIs, handles a Rack-compatible `POST /tasks`, and shows changed state on the
+  next render.
+- Default mode is smoke-friendly and exits.
+- `server` mode is browser-usable for manual testing.
+- No production server framework, database, auth, background jobs, websockets,
+  cluster placement, host activation commit, or frontend framework was added.
+
+Verification:
+
+- `ruby examples/application/interactive_web_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 74 examples and 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Continue through
+  [Application Web POC Skeleton Track](./application-web-poc-skeleton-track.md).
