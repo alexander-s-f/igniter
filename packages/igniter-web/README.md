@@ -466,3 +466,16 @@ For web-capable capsules, the application-owned plan may include
 they do not bind `Igniter::Web::ApplicationWebMount`, activate routes, call
 Rack, render screens, or inspect components. A future host/web activation step
 must consume the reviewed intent explicitly.
+
+Activation plan verification reads that descriptive plan back:
+
+```ruby
+verification = Igniter::Application.verify_host_activation_plan(plan)
+```
+
+For web-related operations, verification accepts only `review_mount_intent`
+entries with supplied intent metadata. It does not require `igniter-web`, bind
+an `ApplicationWebMount`, activate routes, call Rack, render screens, inspect
+components, or turn the reviewed mount intent into browser traffic. Any future
+web-capable activation adapter must still consume the verified metadata through
+an explicit web-owned boundary.

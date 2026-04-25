@@ -176,3 +176,20 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 boundary review for
   `review_mount_intent` verification wording.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-host-activation-plan-verification-track.md`
+Status: landed.
+Changed:
+- Added `igniter-web` README wording for activation plan verification as
+  readback over descriptive plan operations.
+Accepted:
+- `ApplicationHostActivationPlanVerification` treats `review_mount_intent` as
+  supplied intent metadata only.
+- No `igniter-web` dependency is required for verification.
+- No web mount binding, route activation, Rack/browser traffic, screen graph
+  inspection, component inspection, application-to-web dependency, or
+  executable activation adapter was introduced.
+Needs:
+- `[Architect Supervisor / Codex]` can accept the Web boundary review for this
+  track.
