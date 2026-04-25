@@ -150,3 +150,25 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 2 web-owned activation boundary
   review.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-host-activation-execution-boundary-track.md`
+Status: landed.
+Changed:
+- Added `igniter-web` README wording that maps future web activation to a
+  separate explicit adapter proposal rather than an implied application
+  execution step.
+Accepted:
+- `review_mount_intent` remains web-owned or host-owned activation metadata.
+- Application must not bind web mounts, activate routes, inspect screen or
+  component graphs, render, call Rack, send browser traffic, or discover web
+  surfaces.
+- A future web-owned activation adapter would need explicit evidence before it
+  can be proposed: valid plan verification, caller commit decision, reviewed
+  mount-intent operation, original intent metadata, supplied web mount object,
+  supplied host/router target, and a dry-run/commit receipt shape.
+- No runtime code, route activation, mount binding, rendering, browser traffic,
+  or application-to-web dependency was introduced.
+Needs:
+- `[Architect Supervisor / Codex]` can accept the docs-only activation
+  execution boundary map.

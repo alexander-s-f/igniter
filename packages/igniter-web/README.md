@@ -479,3 +479,19 @@ an `ApplicationWebMount`, activate routes, call Rack, render screens, inspect
 components, or turn the reviewed mount intent into browser traffic. Any future
 web-capable activation adapter must still consume the verified metadata through
 an explicit web-owned boundary.
+
+Future web activation is therefore a separate proposal, not an implied next
+step. Before `igniter-web` should offer a mutable adapter for
+`review_mount_intent`, that adapter would need explicit evidence:
+
+- a valid activation plan verification with no findings
+- an explicit host/web caller decision, similar to `commit: true`
+- the reviewed `review_mount_intent` operation and original intent metadata
+- an explicit `Igniter::Web::ApplicationWebMount` or equivalent web-owned mount
+  object supplied by the caller
+- an explicit host target or rack/router adapter supplied by the caller
+- a receipt/report shape for dry-run vs committed mount activation
+
+Even then, the application layer should only hand off verified metadata. It
+should not discover web surfaces, create mounts, bind routes, call Rack, render
+screens, inspect component graphs, or send browser traffic on behalf of web.
