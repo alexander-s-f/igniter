@@ -164,3 +164,23 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can review the dry-run report shape for
   `review_mount_intent` boundary wording.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-host-activation-dry-run-execution-track.md`
+Status: landed.
+Changed:
+- Reviewed `ApplicationHostActivationDryRunResult` for the
+  `review_mount_intent` boundary.
+- Added `igniter-web` README wording that dry-run activation reporting keeps
+  mount intent as skipped evidence for a future web/host-owned adapter.
+Accepted:
+- `review_mount_intent` is skipped with a web/host-owned mount reason and does
+  not enter `would_apply`.
+- The dry-run report remains `dry_run: true`, `committed: false`, and has no
+  commit path for web mount activation.
+- No web runtime activation, route binding, rendering, Rack calls, browser
+  traffic, screen/component inspection, or application-to-web dependency was
+  introduced.
+Needs:
+- `[Architect Supervisor / Codex]` can accept the dry-run host activation
+  execution track.

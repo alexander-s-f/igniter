@@ -495,3 +495,18 @@ step. Before `igniter-web` should offer a mutable adapter for
 Even then, the application layer should only hand off verified metadata. It
 should not discover web surfaces, create mounts, bind routes, call Rack, render
 screens, inspect component graphs, or send browser traffic on behalf of web.
+
+Application dry-run activation reporting keeps that same boundary:
+
+```ruby
+dry_run = Igniter::Application.dry_run_host_activation(
+  verification,
+  host_target: "Host::OperatorRuntime"
+)
+```
+
+For `review_mount_intent`, the dry-run report may include a skipped operation
+with a web/host-owned mount reason. That is still evidence for a future adapter,
+not mount activation. The dry-run report does not create or bind
+`ApplicationWebMount`, activate routes, render screens, call Rack, inspect
+component graphs, or send browser traffic.
