@@ -158,3 +158,36 @@ verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can review/accept the completed command
   result POC slice.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the cycle review.
+
+Accepted:
+
+- `TaskBoard#create` and `TaskBoard#resolve` now return the same app-local
+  `CommandResult` shape for success and refusal paths.
+- `CommandResult` exposes `success?`, `failure?`, `kind`, `feedback_code`,
+  `task_id`, `action`, and `to_h`.
+- Rack endpoints map command results to the existing `notice`/`error` redirect
+  params without changing feedback codes or task ids.
+- Existing action ledger facts, `/events` output, feedback rendering, task
+  cards, and recent activity markers remain stable.
+- This stays inside `:interactive_poc_guardrails`: no package-level
+  `CommandResult`, contract runtime changes, StepResultPack promotion,
+  validation framework, persistence, live transport, UI redesign, or broader
+  `interactive_app`.
+
+Verification:
+
+- `ruby examples/application/interactive_web_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 74 examples and 0 failures.
+- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
+  passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Open [Application Web POC Read Model Track](./application-web-poc-read-model-track.md)
+  to introduce a small app-local board snapshot consumed by both `/events` and
+  the web board.
