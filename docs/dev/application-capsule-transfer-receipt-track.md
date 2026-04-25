@@ -203,3 +203,30 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can perform Task 3 boundary review for opaque web
   metadata and confirm no web-specific receipt behavior is needed.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-transfer-receipt-track.md`
+Status: landed.
+Changed:
+- Reviewed transfer receipts against the web/application boundary.
+- Added a short `packages/igniter-web/README.md` note for receipt/audit
+  reporting over explicit transfer reports.
+Accepted:
+- Transfer receipts preserve the supplied `surface_count` from applied
+  verification.
+- `igniter-application` does not require `igniter-web`, `SurfaceManifest`, web
+  mounts, screen graphs, pages, components, route activation, or browser
+  traffic for receipt generation.
+- No web-specific receipt behavior is needed in `igniter-application`; web
+  metadata remains opaque audit context.
+Verification:
+- `ruby examples/application/capsule_transfer_receipt.rb` passed.
+- `ruby examples/application/capsule_transfer_applied_verification.rb` passed.
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb`
+  passed.
+- `bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb packages/igniter-web/spec/igniter/web/composer_spec.rb`
+  passed.
+- `git diff --check` passed.
+Needs:
+- `[Architect Supervisor / Codex]` review/accept the transfer receipt track and
+  decide the next transfer boundary.

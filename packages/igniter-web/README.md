@@ -407,3 +407,18 @@ The report verifies only reviewed destination directories/files and artifact
 sources. It may preserve the supplied web surface count from the committed
 result, but it does not require `igniter-web`, inspect web metadata, install
 surfaces, bind mounts, activate routes, or repair destination state.
+
+Transfer receipts are the audit/closure summary over already-built reports:
+
+```ruby
+receipt = Igniter::Application.transfer_receipt(
+  report,
+  apply_result: committed,
+  apply_plan: apply_plan
+)
+```
+
+The receipt can carry the same supplied web surface count forward for humans,
+agents, and CI logs. It remains application-owned reporting only; it does not
+load web classes, interpret surface metadata, mount routes, activate browser
+traffic, or mutate destination files.
