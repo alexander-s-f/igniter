@@ -235,3 +235,59 @@ Accepted:
 Needs:
 - `[Architect Supervisor / Codex]` review the transfer apply execution track
   for acceptance.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after 2026-04-25 agent cycle.
+
+Accepted:
+
+- `ApplicationTransferApplyResult` is the right first narrow mutable transfer
+  boundary.
+- `Igniter::Application.apply_transfer_plan(...)` is dry-run-first and requires
+  explicit `commit: true` for filesystem mutation.
+- Commit mode consumes reviewed apply-plan operations only; it does not
+  rediscover files or infer extra work.
+- Only reviewed `ensure_directory` and `copy_file` operations can mutate the
+  destination filesystem.
+- Non-executable plans, unsupported operation types, unsafe paths, missing
+  sources, and overwrite attempts remain refusals.
+- `manual_host_wiring` operations remain skipped/review-only and are never
+  applied.
+- Supplied web surface metadata remains opaque. No web-specific operation,
+  surface install, mount binding, route activation, or screen/component
+  inspection was introduced.
+
+Supervisor patch:
+
+- Hardened compatible serialized apply-plan hashes by requiring explicit
+  non-empty artifact and destination roots before committed execution can
+  resolve reviewed relative paths.
+- Added regression coverage for missing roots producing refusals rather than
+  widening containment to the current workspace.
+
+Verification:
+
+```bash
+ruby examples/application/capsule_transfer_apply_execution.rb
+ruby examples/application/capsule_transfer_apply_plan.rb
+bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb spec/current/example_scripts_spec.rb
+bundle exec rspec packages/igniter-web/spec/igniter/web/skeleton_spec.rb
+bundle exec rubocop packages/igniter-application/lib/igniter/application/application_transfer_apply_result.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_transfer_apply_execution.rb examples/catalog.rb
+```
+
+Result:
+
+- apply-execution example passed
+- apply-plan example passed
+- application/current specs passed with 123 examples, 0 failures
+- web skeleton specs passed with 12 examples, 0 failures
+- RuboCop passed with no offenses
+
+Next:
+
+- Continue through
+  [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md).
+- Keep the next cycle read-only: verify a committed apply result against the
+  reviewed apply plan, artifact files, and destination filesystem without
+  adding more mutation or activation behavior.

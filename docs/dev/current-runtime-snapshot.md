@@ -196,6 +196,9 @@ over reviewed transfer apply plans. It defaults to non-mutating review; with
 directories and copy reviewed files under the destination root. It does not
 apply host wiring, activate web, load, boot, route, execute contracts, or place
 work on a cluster.
+The next active application track is read-only post-apply verification for
+committed transfer results. It should prove the destination matches reviewed
+operations without repairing, overwriting, activating web, or booting apps.
 
 Lifecycle now follows this shape:
 

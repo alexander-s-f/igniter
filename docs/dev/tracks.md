@@ -63,8 +63,8 @@ task explicitly requires private details.
 | `[Agent Contracts / Codex]` | Contracts/extensions stewardship; standby for future `DifferentialPack` seams | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]`; `[Agent Embed / Codex]` if a seam is requested |
 | `[Agent Embed / Codex]` | Collect private `Contractable` Rails pressure-test findings | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md) | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), `DifferentialPack` in `igniter-extensions`, private SparkCRM track if directed | `[Architect Supervisor / Codex]`; then `[Agent Contracts / Codex]` only if `DifferentialPack` needs a seam |
 | `[Agent Embed / Codex]` | Standby for Human Sugar DSL pressure feedback and small docs fixes | [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md), private SparkCRM track if directed | `[Architect Supervisor / Codex]` |
-| `[Agent Application / Codex]` | Explicit dry-run-first apply execution for reviewed transfer apply plans | [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md) | [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md), [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md), [Application Capsule Transfer Bundle Verification Track](./application-capsule-transfer-bundle-verification-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web metadata review |
-| `[Agent Web / Codex]` | Compatibility review for optional web metadata in apply execution | [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md) | [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for execution wording needs |
+| `[Agent Application / Codex]` | Read-only post-apply verification for committed transfer results | [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md) | [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md), [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md), [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md) | `[Architect Supervisor / Codex]`; `[Agent Web / Codex]` for optional web metadata review |
+| `[Agent Web / Codex]` | Compatibility review for optional web metadata in applied verification | [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md) | [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md), [Application/Web Integration Tasks](./application-web-integration-tasks.md), [Igniter Web Target Plan](./igniter-web-target-plan.md) | `[Architect Supervisor / Codex]`; `[Agent Application / Codex]` for verification wording needs |
 
 ## Track Map
 
@@ -106,8 +106,10 @@ pressure-test wave:
 - Read-only destination intake planning for verified transfer bundle artifacts
   landed.
 - Read-only apply operation planning over accepted intake data landed.
-- The next broad track is explicit dry-run-first apply execution for reviewed
-  transfer apply plans.
+- Explicit dry-run-first apply execution for reviewed transfer apply plans
+  landed.
+- The next broad track is read-only post-apply verification for committed
+  transfer results.
 
 ### Embed And Contract Class DSL
 
@@ -842,7 +844,7 @@ Next:
 
 ### Application Capsule Transfer Apply Execution
 
-Status: next broad track.
+Status: landed and accepted.
 
 Primary track:
 
@@ -856,23 +858,61 @@ Dependencies:
 
 Current accepted state:
 
-- The next useful artifact is the first narrow mutable transfer boundary.
-- Apply execution should accept an explicit apply plan or compatible serialized
+- The next useful artifact was the first narrow mutable transfer boundary.
+- `ApplicationTransferApplyResult` and
+  `Igniter::Application.apply_transfer_plan(...)` are accepted as the
+  application-owned dry-run-first execution surface.
+- Apply execution accepts an explicit apply plan or compatible serialized
   apply-plan hash.
-- It should default to dry-run mode and require explicit commit before
+- It defaults to dry-run mode and requires explicit commit before
   filesystem mutation.
-- It may execute only reviewed `ensure_directory` and `copy_file` operations.
-- It must refuse non-executable plans and refuse overwrites by default.
+- It executes only reviewed `ensure_directory` and `copy_file` operations.
+- It refuses non-executable plans and refuses overwrites by default.
+- It must not apply host wiring, activate web, load, boot, route, execute
+  contracts, or coordinate clusters.
+- Web metadata remains supplied and opaque.
+- Apply execution passed on 2026-04-25 with application/current specs, web
+  skeleton specs, examples, and RuboCop.
+
+Next:
+
+- Continue through [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md).
+- Keep post-apply verification read-only and explicit.
+
+### Application Capsule Transfer Applied Verification
+
+Status: next broad track.
+
+Primary track:
+
+- [Application Capsule Transfer Applied Verification Track](./application-capsule-transfer-applied-verification-track.md)
+
+Dependencies:
+
+- [Application Capsule Transfer Apply Execution Track](./application-capsule-transfer-apply-execution-track.md)
+- [Application Capsule Transfer Apply Plan Track](./application-capsule-transfer-apply-plan-track.md)
+- [Application Capsule Transfer Intake Plan Track](./application-capsule-transfer-intake-plan-track.md)
+
+Current accepted state:
+
+- The next useful artifact is a read-only verification report after committed
+  apply execution.
+- Applied verification should accept an explicit apply result or compatible
+  serialized apply-result hash.
+- It should verify reviewed destination directories/files against the committed
+  result and artifact sources when available.
+- It must report findings rather than repair, overwrite, or rediscover.
 - It must not apply host wiring, activate web, load, boot, route, execute
   contracts, or coordinate clusters.
 - Web metadata remains supplied and opaque.
 
 Next:
 
-- `[Agent Application / Codex]`: implement the smallest dry-run-first transfer
-  apply result, facade, specs, and smoke example.
+- `[Agent Application / Codex]`: implement the smallest applied verification
+  value, facade, specs, and smoke example.
 - `[Agent Web / Codex]`: verify optional web metadata remains supplied and
-  opaque in apply execution and no web-specific operation is executed.
+  opaque in applied verification and no web-specific destination verification
+  is introduced.
 
 ### Cluster
 

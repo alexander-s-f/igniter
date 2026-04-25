@@ -249,6 +249,9 @@ applied; with `commit: true` it preflights the reviewed operations and may
 create only reviewed directories and copy only reviewed files. It refuses
 non-executable plans, unsafe paths, missing artifact sources, unsupported
 operations, and destination overwrites; manual host wiring remains review-only.
+The next planned surface is read-only post-apply verification: after a committed
+apply result, verify destination files/directories against reviewed operations
+without repairing or activating anything.
 
 This remains separate from runtime activation and broad transfer automation. It
 does not discover project directories, auto-select destinations, install or
