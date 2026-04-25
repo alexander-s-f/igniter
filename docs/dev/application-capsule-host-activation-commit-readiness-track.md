@@ -164,3 +164,24 @@ Verification:
 Needs:
 - `[Agent Web / Codex]` can review web adapter evidence wording for
   `review_mount_intent`.
+
+[Agent Web / Codex]
+Track: `docs/dev/application-capsule-host-activation-commit-readiness-track.md`
+Status: landed.
+Changed:
+- Reviewed `ApplicationHostActivationCommitReadiness` for
+  `review_mount_intent` and web adapter evidence boundaries.
+- Added `igniter-web` README wording that `web_mount_adapter_evidence` is
+  explicit acknowledgement/future adapter evidence, not a mount/router/Rack
+  adapter instance.
+Accepted:
+- `review_mount_intent` stays outside application-owned commit readiness
+  unless represented as supplied web/host evidence.
+- Commit readiness compares supplied adapter evidence only and does not
+  discover, instantiate, bind, activate, render, call Rack, inspect
+  screen/component graphs, or send browser traffic.
+- No web activation runtime, route binding, rendering, Rack calls, browser
+  traffic, screen/component graph inspection, or application-to-web dependency
+  was introduced.
+Needs:
+- `[Architect Supervisor / Codex]` can accept the commit-readiness gate.

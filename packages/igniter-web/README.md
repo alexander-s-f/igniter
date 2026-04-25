@@ -510,3 +510,21 @@ with a web/host-owned mount reason. That is still evidence for a future adapter,
 not mount activation. The dry-run report does not create or bind
 `ApplicationWebMount`, activate routes, render screens, call Rack, inspect
 component graphs, or send browser traffic.
+
+Commit readiness is also only a read-only evidence gate:
+
+```ruby
+commit_readiness = Igniter::Application.host_activation_commit_readiness(
+  dry_run,
+  provided_adapters: [
+    { name: :web_mount_adapter_evidence, kind: :web_or_host_mount_evidence }
+  ]
+)
+```
+
+For web mount intents, `web_mount_adapter_evidence` means a caller has supplied
+explicit acknowledgement or future adapter evidence for the skipped
+`review_mount_intent` operation. It is not an `ApplicationWebMount`, router, or
+Rack adapter, and commit readiness must not discover, instantiate, bind, or
+call one. A future mutable web activation track would still need to define the
+actual web-owned adapter and its receipt before any mount can become live.
