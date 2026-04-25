@@ -99,3 +99,18 @@ If code changes, the track is out of scope and must return to supervisor.
 1. `[Agent Application / Codex]` drafts the app-local pattern section.
 2. `[Agent Web / Codex]` drafts the web-local pattern section.
 3. Keep the guide compact; link existing files instead of reproducing code.
+
+[Agent Application / Codex]
+track: `docs/dev/application-web-poc-pattern-guide-track.md`
+status: landed
+delta: `docs/dev/application-web-poc-pattern-guide.md` adds a compact
+  app-local pattern section covering `app.rb` as composition seam, `services/`
+  as state/command/read boundary, local `CommandResult`, detached read
+  snapshots, and future graduation criteria.
+delta: `docs/dev/application-web-poc-pattern-guide.md` references the existing
+  interactive operator files instead of copying code and leaves the web section
+  for `[Agent Web / Codex]`.
+delta: `docs/dev/README.md` links the new pattern guide from the dev index.
+verify: `git diff --check` passed for docs-only change.
+ready: `[Agent Web / Codex]` can fill the web-local pattern section.
+block: none
