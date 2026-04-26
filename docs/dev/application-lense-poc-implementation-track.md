@@ -160,3 +160,31 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can mount the Lense dashboard/workbench over the
   app-owned snapshot, session commands, and receipt report.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-lense-poc-implementation-track.md`
+status: landed
+delta: added `examples/application/lense/web/lense_dashboard.rb` as the single
+  Arbre dashboard/workbench surface over the app-owned `CodebaseSnapshot`,
+  guided session state, recent events, and receipt report markers.
+delta: updated `examples/application/lense/app.rb` with
+  `Igniter::Application.rack_app` wiring for `GET /`, `GET /events`,
+  `GET /report`, `POST /scan`, `POST /sessions/start`, and
+  `POST /sessions/:id/steps`, preserving app-local mutation boundaries.
+delta: extended `examples/application/lense_poc.rb` and `examples/catalog.rb`
+  with in-process Rack smoke coverage for dashboard render, refresh, start
+  session, done/skip/note, refusal feedback, `/events` parity, report output,
+  and no scanned-project mutation.
+delta: added narrow dynamic route params support to
+  `Igniter::Application::RackHost` with focused spec coverage so the POC can use
+  `/sessions/:id/steps` without introducing a broader server layer.
+verify: `ruby examples/application/lense_poc.rb` passed.
+verify: `ruby examples/run.rb smoke` passed, 77 examples.
+verify: `bundle exec rubocop examples/application/lense_poc.rb examples/application/lense examples/catalog.rb packages/igniter-application/lib/igniter/application/rack_host.rb packages/igniter-application/spec/igniter/application/rack_host_spec.rb`
+  passed.
+verify: `bundle exec rspec packages/igniter-application/spec/igniter/application/rack_host_spec.rb`
+  passed, 2 examples.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can review the completed Lense
+  implementation track.
+block: none

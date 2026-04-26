@@ -103,4 +103,19 @@ RSpec.describe Igniter::Application::RackHost do
       )
     end
   end
+
+  it "merges dynamic route params into request params" do
+    Dir.mktmpdir("igniter-rack-host") do |root|
+      app = Igniter::Application.rack_app(:dynamic_app, root: root, env: :test) do
+        post "/sessions/:id/steps" do |params|
+          text "session=#{params.fetch("id")} action=#{params.fetch("action")}"
+        end
+      end
+
+      status, _headers, body = app.call(rack_env("POST", "/sessions/session-123/steps", "action=done"))
+
+      expect(status).to eq(200)
+      expect(body.join).to eq("session=session-123 action=done")
+    end
+  end
 end

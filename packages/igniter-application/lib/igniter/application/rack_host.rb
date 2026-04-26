@@ -7,7 +7,21 @@ module Igniter
     class RackHost
       Route = Struct.new(:http_method, :path, :block, keyword_init: true) do
         def matches?(request_method, request_path)
-          http_method == request_method.to_s.upcase && path == request_path.to_s
+          http_method == request_method.to_s.upcase && path_params(request_path)
+        end
+
+        def path_params(request_path)
+          route_segments = path.to_s.split("/")
+          request_segments = request_path.to_s.split("/")
+          return nil unless route_segments.length == request_segments.length
+
+          route_segments.zip(request_segments).each_with_object({}) do |(route_segment, request_segment), memo|
+            if route_segment.start_with?(":")
+              memo[route_segment.delete_prefix(":")] = request_segment
+            elsif route_segment != request_segment
+              return nil
+            end
+          end
         end
 
         def to_h
@@ -196,7 +210,7 @@ module Igniter
       private
 
       def call_route(route, env)
-        context = Context.new(host: self, env: env, params: params_for(env))
+        context = Context.new(host: self, env: env, params: params_for(env).merge(route.path_params(env.fetch("PATH_INFO", "/").to_s) || {}))
         result = if route.block.arity.zero?
                    context.instance_exec(&route.block)
                  else

@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review Lense one-process POC implementation | [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md) | [Application Showcase Selection Track](./application-showcase-selection-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Implement Lense app core: scan, contract, snapshot, guided session store, receipt report | [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md) | [Application Showcase Selection Track](./application-showcase-selection-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Implement Lense dashboard/workbench surface and in-process smoke loop | [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md) | [Application Showcase Selection Track](./application-showcase-selection-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review completed Lense one-process POC implementation | [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md) | [Application Showcase Selection Track](./application-showcase-selection-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Standby after Lense app core landed; supervisor review pending | [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md) | [Application Showcase Selection Track](./application-showcase-selection-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Standby after Lense dashboard/workbench landed; supervisor review pending | [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md) | [Application Showcase Selection Track](./application-showcase-selection-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -99,6 +99,8 @@ block: none | <blocker>
   showcase selection track.
 - Next active track implements Lense as a bounded one-process POC:
   [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md).
+- Lense app core and Web dashboard/workbench have landed; supervisor can review
+  the completed implementation track.
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 
