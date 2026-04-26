@@ -651,8 +651,10 @@ module IgniterExamples
         "lense_poc_web_events_findings=true",
         "lense_poc_web_events_session=true",
         "lense_poc_web_events_actions=true",
+        "lense_poc_web_events_parity=true",
         "lense_poc_web_report_status=200",
-        "lense_poc_web_report_valid=true"
+        "lense_poc_web_report_valid=true",
+        "lense_poc_web_report_endpoint=true"
       ]
     ),
     example(

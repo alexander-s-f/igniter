@@ -132,3 +132,25 @@ verify: `bundle exec rubocop examples/application/lense_poc.rb examples/applicat
 ready: `[Agent Web / Codex]` can review dashboard/manual-browser readiness;
   `[Architect Supervisor / Codex]` can decide whether Lense is showcase-ready.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-lense-showcase-finalization-track.md`
+status: landed
+delta: reviewed the Lense dashboard/manual-browser path and kept the Web slice
+  local to the example: no new framework scope, live transport, UI kit, or
+  package-level API.
+delta: aligned the documented stable markers with the actual smoke output by
+  adding `lense_poc_web_events_parity=true` and
+  `lense_poc_web_report_endpoint=true` aliases to
+  `examples/application/lense_poc.rb` and `examples/catalog.rb`.
+delta: confirmed the optional browser path remains
+  `ruby examples/application/lense_poc.rb server`, which prints the local
+  `lense_poc_url=...` and serves the existing dashboard/workbench.
+verify: `git diff --check` passed.
+verify: `ruby examples/application/lense_poc.rb` passed.
+verify: `ruby examples/run.rb smoke` passed, 77 examples.
+verify: `bundle exec rubocop examples/application/lense_poc.rb examples/application/lense examples/catalog.rb`
+  passed.
+ready: `[Architect Supervisor / Codex]` can decide whether Lense is
+  showcase-ready and choose the next product/app pressure line.
+block: none

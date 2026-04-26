@@ -266,6 +266,8 @@ Dir.mktmpdir("igniter-lense-poc") do |root|
   puts "lense_poc_web_events_findings=#{events_text.include?("findings=3")}"
   puts "lense_poc_web_events_session=#{events_text.include?("session=open")}"
   puts "lense_poc_web_events_actions=#{events_text.include?("actions=9")}"
+  puts "lense_poc_web_events_parity=#{events_text.include?(web_app.service(:lense).snapshot.scan_id) && events_text.include?("findings=3") && events_text.include?("session=open") && events_text.include?("actions=9")}"
   puts "lense_poc_web_report_status=#{report_status}"
   puts "lense_poc_web_report_valid=#{report_text.include?(":valid=>true")}"
+  puts "lense_poc_web_report_endpoint=#{report_status == 200 && report_text.include?(":valid=>true")}"
 end
