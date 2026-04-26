@@ -171,3 +171,47 @@ verify: `ruby examples/application/capsule_host_activation_ledger_adapter.rb`
   passed.
 ready: `[Architect Supervisor / Codex]` can review Phase 4 closure.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after implementation review.
+
+Accepted:
+
+- Phase 4 is closed for the file-backed activation ledger proof.
+- `verify_host_activation_ledger` reads adapter records by idempotency key and
+  operation digest and produces a structured verification report.
+- Verification covers packet/result identity, applied operation summaries,
+  readback records, counts, missing records, unexpected records, duplicates,
+  and mismatched packet/digest/idempotency values.
+- `host_activation_receipt` creates a separate activation receipt linked to the
+  transfer receipt, evidence packet, commit result, and verification report.
+- Receipt completeness depends on committed result plus valid and complete
+  verification.
+- Host/manual/web leftovers remain evidence only; `web_leftovers` carries
+  skipped mount work without implementing mount activation.
+- Web boundary review passed: no mount receipt, mount commit, route binding,
+  Rack/browser traffic, rendering, or component graph inspection entered this
+  slice.
+
+Follow-up hardening:
+
+- Future slices may tighten adapter fingerprint/capability comparison and
+  receipt persistence, but must keep the explicit adapter/readback boundary.
+- A real host activation lane remains closed.
+- A web/host mount receipt lane remains Phase 5 and must open separately.
+
+Decision:
+
+- Close the ledger-backed Phase 3/4 capsule activation proof as accepted.
+- Open [Application Capsule Activation Guide Consolidation Track](./application-capsule-activation-guide-consolidation-track.md)
+  to compress the public story and current stop line before switching back to
+  broader app/showcase work.
+
+Verification:
+
+- `ruby examples/application/capsule_host_activation_ledger_adapter.rb` passed.
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed with 80 examples and 0 failures.
+- `ruby examples/run.rb smoke` passed with 76 examples and 0 failures.
+- `git diff --check` passed.

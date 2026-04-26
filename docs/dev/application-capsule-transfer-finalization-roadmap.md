@@ -16,6 +16,8 @@ Current state:
 - Host activation review is complete through dry-run and commit-readiness.
 - Narrow Phase 3 ledger commit proof is accepted for file-backed activation
   acknowledgements only.
+- Phase 4 ledger readback verification and separate activation receipt are
+  accepted for the file-backed proof.
 - Host runtime mutation, web route activation, contract execution, and cluster
   placement are still deliberately not implemented.
 
@@ -168,6 +170,12 @@ Acceptance:
 - enterprise users can audit what moved and what became active as separate
   lifecycle events
 
+Current decision:
+
+- Accepted for the file-backed activation ledger proof.
+- Activation receipt remains separate from transfer receipt and proves only the
+  ledger-backed confirmation acknowledgement lifecycle.
+
 ### Phase 5: Web/Host Mount Activation Lane
 
 Goal: let web or host-owned layers activate mount intents later, without
@@ -225,5 +233,7 @@ Accepted next line:
 - Activation Evidence Schema accepted the normative schema and first real
   adapter candidate.
 - Host Activation Ledger Adapter accepted the narrow Phase 3 proof.
-- Next useful track is **Host Activation Ledger Verification Receipt**: verify
-  ledger readback and produce a separate activation receipt.
+- Host Activation Ledger Verification Receipt accepted Phase 4 closure for the
+  file-backed proof.
+- Next useful track is **Activation Guide Consolidation**: make the accepted
+  lifecycle and current non-activation boundary easy to read publicly.
