@@ -149,3 +149,25 @@ verify: `ruby examples/run.rb smoke` passed, 76 examples.
 ready: `[Agent Web / Codex]` can confirm web/mount boundary, then
   `[Architect Supervisor / Codex]` can review Phase 4 closure.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-capsule-host-activation-ledger-verification-receipt-track.md`
+status: landed
+delta: reviewed Phase 4 ledger verification and activation receipt surfaces;
+  found no mount receipt implementation, no mount commit, no route binding, no
+  Rack/browser traffic, no rendering, and no screen/component graph inspection.
+delta: confirmed `ApplicationHostActivationLedgerVerification` reads only
+  file-backed adapter records by idempotency key and operation digest, then
+  compares packet/result/readback identity and operation counts.
+delta: confirmed `ApplicationHostActivationReceipt` stays separate from the
+  transfer receipt and carries `web_leftovers` only as skipped
+  `web_or_host_owned_mount` evidence.
+delta: confirmed the runnable ledger example still requires only
+  `igniter/application`; `web_mount_adapter_evidence` remains acknowledgement
+  metadata and no live web mount, Rack env, route table, rendered output, or
+  browser artifact is introduced.
+verify: `git diff --check` passed.
+verify: `ruby examples/application/capsule_host_activation_ledger_adapter.rb`
+  passed.
+ready: `[Architect Supervisor / Codex]` can review Phase 4 closure.
+block: none
