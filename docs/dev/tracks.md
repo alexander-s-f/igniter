@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review completed Lense one-process POC implementation | [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md) | [Application Showcase Selection Track](./application-showcase-selection-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Standby after Lense app core landed; supervisor review pending | [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md) | [Application Showcase Selection Track](./application-showcase-selection-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Standby after Lense dashboard/workbench landed; supervisor review pending | [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md) | [Application Showcase Selection Track](./application-showcase-selection-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review Lense showcase finalization and decide next product/app pressure line | [Application Lense Showcase Finalization Track](./application-lense-showcase-finalization-track.md) | [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Add compact Lense discoverability docs and run commands; no new runtime scope | [Application Lense Showcase Finalization Track](./application-lense-showcase-finalization-track.md) | [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Review Lense dashboard/manual-browser readiness without adding new framework scope | [Application Lense Showcase Finalization Track](./application-lense-showcase-finalization-track.md) | [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -99,8 +99,11 @@ block: none | <blocker>
   showcase selection track.
 - Next active track implements Lense as a bounded one-process POC:
   [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md).
-- Lense app core and Web dashboard/workbench have landed; supervisor can review
-  the completed implementation track.
+- Lense POC implementation accepted: local scan, contract-backed analysis,
+  dashboard/workbench, guided session actions, `/events`, report output, and
+  no scanned-project mutation.
+- Next active track finalizes Lense as a discoverable showcase:
+  [Application Lense Showcase Finalization Track](./application-lense-showcase-finalization-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 
