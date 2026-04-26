@@ -7,12 +7,30 @@ Working examples:
 
 - `examples/application/interactive_operator/`
 - `examples/application/operator_signal_inbox/`
+- `examples/application/lense/`
 - `examples/application/interactive_web_poc.rb`
 - `examples/application/signal_inbox_poc.rb`
+- `examples/application/lense_poc.rb`
 
 This is a copyable convention, not a framework contract. Keep domain vocabulary
 inside your app until the same shape repeats enough to justify a package-level
 API.
+
+`interactive_operator` and `operator_signal_inbox` are small command/read-model
+pressure tests. `lense` is the first richer showcase: it scans a local Ruby
+project, runs a contracts-native health analysis, renders a dashboard/workbench,
+records guided issue-session actions, and produces a receipt-shaped report.
+Run it with:
+
+```bash
+ruby examples/application/lense_poc.rb
+```
+
+For manual browser inspection:
+
+```bash
+ruby examples/application/lense_poc.rb server
+```
 
 ## Application Structure
 

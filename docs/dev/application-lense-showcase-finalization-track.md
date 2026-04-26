@@ -112,3 +112,23 @@ If package code changes, run focused package specs too.
    expanding scope.
 3. `[Architect Supervisor / Codex]` decides whether Lense can be marked
    showcase-ready and what the next product/app pressure line should be.
+
+[Agent Application / Codex]
+track: `docs/dev/application-lense-showcase-finalization-track.md`
+status: landed
+delta: added `examples/application/lense/README.md` with a compact explanation
+  of what Lense proves, one-command smoke usage, optional manual browser usage,
+  stable marker examples, and explicit POC/non-package-API boundaries.
+delta: updated `docs/guide/interactive-app-structure.md` so Lense is visible
+  alongside the earlier interactive POC examples and includes both smoke and
+  manual-browser commands.
+delta: kept scope unchanged: no LLM, persistence, scheduler, SSE/WebSocket,
+  public `interactive_app` facade, code editing, or production server behavior.
+verify: `git diff --check` passed.
+verify: `ruby examples/application/lense_poc.rb` passed.
+verify: `ruby examples/run.rb smoke` passed, 77 examples.
+verify: `bundle exec rubocop examples/application/lense_poc.rb examples/application/lense examples/catalog.rb`
+  passed.
+ready: `[Agent Web / Codex]` can review dashboard/manual-browser readiness;
+  `[Architect Supervisor / Codex]` can decide whether Lense is showcase-ready.
+block: none
