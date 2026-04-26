@@ -1,132 +1,139 @@
-# Capsule Transfer — Экспертный Отчёт
+# Capsule Transfer — Expert Report
 
 Date: 2026-04-26.
-Perspective: эксперт в распределённых агентных системах и интерактивных платформах.
-Subject: трек Capsule Transfer и его стратегическое значение для Igniter.
+Perspective: expert in distributed agent systems and interactive platforms.
+Subject: Capsule Transfer track — strategic analysis and forward direction.
 
 ---
 
-## 1. Визионерский взгляд
+## 1. Visionary Perspective
 
-Capsule Transfer — это не механизм деплоя. Это **первый класс словаря доставки
-программного обеспечения под надзором агентов**.
+Capsule Transfer is not a deploy mechanism. It is **the first first-class vocabulary
+for agent-supervised software delivery**.
 
-Когда мы смотрим на всю цепочку — declaration → handoff manifest → bundle plan →
-artifact verification → applied verification → receipt — мы видим нечто принципиально
-иное, чем `git push` или `docker pull`. Это протокол с явным **chain-of-custody**:
-каждый шаг создаёт свидетельство, каждое свидетельство становится входом для
-следующего, и **ни один мутирующий шаг не выполняется без предшествующей проверки**.
+Looking at the full chain — declaration → handoff manifest → bundle plan →
+artifact verification → applied verification → receipt — what we see is
+something fundamentally different from `git push` or `docker pull`. This is a
+protocol with explicit **chain-of-custody**: each step produces evidence, each
+piece of evidence becomes input for the next, and **no mutating step executes
+without a preceding verification**.
 
-В мире, где AI-агенты координируют доставку и активацию программного обеспечения
-между хостами, тенантами и узлами кластера, — этот протокол становится несущей
-конструкцией. Не инфраструктурой. **Новым примитивом**.
+In a world where AI agents coordinate the delivery and activation of software
+across hosts, tenants, and cluster nodes, this protocol becomes a structural
+load-bearing element. Not infrastructure. **A new primitive**.
 
-Ключевое визионерское утверждение:
+The core visionary claim:
 
-> Capsule Transfer — это foundation для enterprise application supply chain под
-> управлением агентов. Это то, чем `npm publish` + `CI/CD` мог бы стать, если бы
-> был спроектирован с первого дня как аудируемый, refusal-first, агент-контролируемый
-> процесс.
+> Capsule Transfer is the foundation for an enterprise application supply chain
+> under agent control. It is what `npm publish` + CI/CD could have become if
+> it had been designed from day one as an auditable, refusal-first,
+> agent-supervised process.
 
-Сравнение с тем, что уже существует:
+Comparison with existing mechanisms:
 
-| Механизм | Доставка | Аудит | Отказ явный | Активация отделена |
+| Mechanism | Delivery unit | Audit | Explicit refusal | Activation separated |
 |---|---|---|---|---|
-| `gem install` | файлы | нет | нет | нет |
-| Docker | образ | частично | нет | нет |
-| CI/CD pipeline | артефакт | лог | нет | нет |
-| **Capsule Transfer** | **капсула** | **receipt chain** | **да** | **да** |
+| `gem install` | files | none | no | no |
+| Docker | image | partial | no | no |
+| CI/CD pipeline | artifact | log | no | no |
+| **Capsule Transfer** | **capsule** | **receipt chain** | **yes** | **yes** |
 
-Разделение `"файлы перемещены"` и `"runtime активирован"` — это не детальная
-реализация. Это **принципиальная архитектурная граница**, которая даёт системе её
-силу.
+The separation of "files moved" from "runtime activated" is not an
+implementation detail. It is a **fundamental architectural boundary** — and that
+boundary is where the system's strength lives.
 
 ---
 
-## 2. Идея, Модель, Усиление
+## 2. Idea, Model, Amplification
 
-### 2.1 Идея
+### 2.1 The Idea
 
-Capsule — это единица портируемого приложения. Не Docker-образ (не хватает
-семантики хоста), не gem (нет бизнес-логики декларации), не zip-архив (нет
-намерения). Capsule — это **объявленное намерение** плюс **верифицированная
-полезная нагрузка** плюс **протокол активации**.
+A capsule is a unit of portable application. Not a Docker image (missing host
+semantics), not a gem (no business-logic declaration), not a zip archive (no
+intent). A capsule is a **declared intent** plus a **verified payload** plus an
+**activation protocol**.
 
-Handoff manifest — это контракт между источником и назначением. Transfer receipt —
-это закрывающее свидетельство. Activation receipt — будущее второе свидетельство,
-которое закрывает жизненный цикл активации отдельно.
+The handoff manifest is the contract between source and destination. The transfer
+receipt is the closing evidence document. The activation receipt is the future
+second evidence document — it closes the activation lifecycle separately and
+independently.
 
-### 2.2 Модель
+### 2.2 The Model
 
-Всю модель можно выразить тремя ортогональными измерениями:
+The full model can be expressed as three orthogonal layers:
 
 ```
 Capsule Transfer Model
 ├── TRANSPORT LAYER
-│   ├── Declaration      → что хочет переехать
-│   ├── Inventory        → что реально существует
-│   ├── Bundle           → что упаковано и верифицировано
-│   └── Apply            → что применено к назначению
+│   ├── Declaration      → what wants to move
+│   ├── Inventory        → what actually exists
+│   ├── Bundle           → what is packaged and verified
+│   └── Apply            → what is applied at the destination
 │
 ├── EVIDENCE LAYER
-│   ├── Transfer Receipt → "файлы перемещены" (закрыто)
-│   ├── Commit Readiness → "активация возможна" (только описательно)
-│   └── Activation Receipt → "runtime активирован" (будущий)
+│   ├── Transfer Receipt   → "files moved" (closed)
+│   ├── Commit Readiness   → "activation is possible" (descriptive only)
+│   └── Activation Receipt → "runtime activated" (future)
 │
 └── REFUSAL LAYER
-    ├── Dry-run gate     → любой шаг выполнен сначала как dry-run
-    ├── Manifest guard   → отклонение при расхождении плана и факта
-    └── Commit boundary  → только narrow application-owned операции
+    ├── Dry-run gate     → every step runs as dry-run first
+    ├── Manifest guard   → rejection on plan-vs-fact divergence
+    └── Commit boundary  → only narrow application-owned operations
 ```
 
-Это **не конвейер**, это **контрактная цепочка**. Каждый уровень независим и
-может быть остановлен или отклонён без нарушения предыдущих свидетельств.
+This is **not a pipeline** — it is a **contractual chain**. Each layer is
+independent and can be halted or refused without invalidating earlier evidence.
 
-### 2.3 Усиление
+### 2.3 Amplification
 
-Usиление — через **agents as activation reviewers**.
+The amplification path is **agents as activation reviewers**.
 
-Сегодня: человек читает `commit_readiness`, человек решает, запускать ли активацию.
+Today: a human reads `commit_readiness`, a human decides whether to trigger
+activation.
 
-Завтра: агент получает transfer receipt, анализирует activation evidence, проверяет
-адаптер, подписывает решение, и только тогда узкая application-owned операция
-выполняется. Агент здесь — не исполнитель, а **аудитор с полномочиями на решение**.
+Tomorrow: an agent receives the transfer receipt, analyzes the activation
+evidence, verifies the adapter, signs the decision, and only then does the
+narrow application-owned operation execute. The agent here is not an executor —
+it is an **auditor with decision authority**.
 
-Это открывает следующий уровень: **automated compliance gate** — когда регуляторные
-требования (SOC2, HIPAA) выражены как activation predicates, и capsule физически
-не может стать активной без прохождения через них.
+This opens the next level: **automated compliance gates** — where regulatory
+requirements (SOC2, HIPAA) are expressed as activation predicates, and a capsule
+physically cannot become active without passing through them.
 
 ---
 
-## 3. Развитие Перспективы
+## 3. Perspective Development
 
-### 3.1 Где мы сейчас
+### 3.1 Where We Are
 
-Трек прошёл огромный путь:
+The track has covered substantial ground:
 
-- ✅ Transfer chain: 14 шагов, end-to-end verified
-- ✅ Activation review chain: 7 шагов, dry-run + commit-readiness
-- ✅ Boundary review: принята только narrow application-owned граница
-- 🔄 Активный: Evidence and Receipt track (docs/design only)
-- ⏸ Заблокировано: activation commit implementation
+- ✅ Transfer chain: 14 steps, end-to-end verified
+- ✅ Activation review chain: 7 steps, dry-run + commit-readiness
+- ✅ Boundary review: only narrow application-owned boundary accepted
+- 🔄 Active: Evidence and Receipt track (docs/design only)
+- ⏸ Blocked: activation commit implementation
 
-Текущая остановка — намеренная и правильная. Это не стагнация. Это дисциплина.
+The current pause is intentional and correct. This is not stagnation. This is
+discipline.
 
-### 3.2 Критический развилок
+### 3.2 The Critical Fork
 
-Самое важное проектное решение, которое ещё не принято — **форма activation receipt**.
+The most important design decision not yet made is **the shape of the activation
+receipt**.
 
-Transfer receipt существует и закрывает транспортный слой. Activation receipt будет
-закрывать runtime слой. Но между ними — **evidence packet**: точные поля, которые
-должны войти в будущий activation commit.
+The transfer receipt exists and closes the transport layer. The activation
+receipt will close the runtime layer. But between them sits the **evidence
+packet**: the exact fields that must enter the future activation commit.
 
-Этот пакет свидетельств — высочайшей важности проектное решение. Если его форма
-будет слабой (неполные поля, нет operation digest, нет idempotency key) — Phase 3
-будет хрупкой. Если форма будет избыточной — implementation станет тяжёлой.
+This evidence packet is the highest-stakes design decision in the track. If its
+shape is weak — incomplete fields, no operation digest, no idempotency key —
+Phase 3 will be brittle. If its shape is bloated, implementation becomes
+unwieldy.
 
-**Нужно получить это правильно прежде чем двигаться дальше.**
+**Getting this right before moving forward is non-negotiable.**
 
-### 3.3 Долгосрочная траектория
+### 3.3 Long-Term Trajectory
 
 ```
 Phase 1: Stable transport chain (DONE)
@@ -137,151 +144,157 @@ Phase 5: Web/host mount activation ← separate lane, not application-owned
 Phase 6: Enterprise orchestration ← the real prize
 ```
 
-Phase 6 — это то место, куда всё это ведёт: CI/CD gates, compliance audit,
-internal app marketplaces, agent-assisted migrations. Это уровень, на котором
-Capsule Transfer становится product-level feature, а не internal tooling.
+Phase 6 is where all of this is heading: CI/CD gates, compliance audit, internal
+application marketplaces, agent-assisted migrations. It is the level at which
+Capsule Transfer becomes a product-level feature rather than internal tooling.
 
-### 3.4 Связь с агентной платформой
+### 3.4 Connection to the Agent Platform
 
-В контексте Igniter как interactive agent platform (vision из expert-review.md),
-Capsule Transfer — это **инфраструктурный enabler** для:
+In the context of Igniter as an interactive agent platform (the vision articulated
+in expert-review.md), Capsule Transfer is the **infrastructural enabler** for:
 
-- **Multi-tenant agent environments**: агент-приложения переезжают между тенантами
-  с полным audit trail
-- **Agent marketplace**: капсулы публикуются, инспектируются, переносятся с
-  explicit receipts — как App Store, но для AI-агентов
-- **Hot deployment без downtime**: transfer receipt → activation evidence →
-  activation commit → activation receipt, всё под надзором live supervisor agent
+- **Multi-tenant agent environments**: agent applications move between tenants
+  with a full audit trail
+- **Agent marketplace**: capsules are published, inspected, and transferred with
+  explicit receipts — like an App Store, but for AI agents
+- **Hot deployment without downtime**: transfer receipt → activation evidence →
+  activation commit → activation receipt, all under the supervision of a live
+  supervisor agent
 
 ---
 
-## 4. Рекомендации
+## 4. Recommendations
 
-### 4.1 Приоритет #1: Сделать Evidence & Receipt track образцовым
+### 4.1 Priority #1: Make the Evidence & Receipt Track Exhaustive
 
-Текущий активный трек — docs/design only. Это правильно. Но форма evidence
-packet должна быть **исчерпывающей**, не минимальной. Каждое поле должно иметь
-явное обоснование:
+The current active track is docs/design only. That is correct. But the shape of
+the evidence packet must be **exhaustive**, not minimal. Every field must have an
+explicit justification:
 
-- **operation_digest**: без него любой replay-атака или race condition может
-  применить устаревший план — это не паранойя, это корректность
-- **idempotency_key**: капсула может быть применена дважды при network failure —
-  без ключа нет safe retry
-- **adapter_capability_map**: прежде чем commit, адаптер должен декларировать что
-  умеет — это предотвращает silent failures на хостах с урезанными правами
-- **caller_metadata + receipt_sink**: кто решил и куда отправить результат —
-  essential для enterprise audit
+- **operation_digest**: without it, any replay attack or race condition can apply
+  a stale plan — this is not paranoia, it is correctness
+- **idempotency_key**: a capsule may be applied twice under a network failure —
+  without a key there is no safe retry
+- **adapter_capability_map**: before commit, the adapter must declare what it
+  supports — this prevents silent failures on hosts with restricted permissions
+- **caller_metadata + receipt_sink**: who decided and where to send the result —
+  essential for enterprise audit
 
-Оба агента (Application и Web) должны выдать полные shapes, не наброски.
+Both agents (Application and Web) must produce complete shapes, not sketches.
 
-### 4.2 Сохранить hard separation: transfer receipt ≠ activation receipt
+### 4.2 Preserve the Hard Separation: Transfer Receipt ≠ Activation Receipt
 
-Это архитектурный принцип, не деталь. Эти два события должны оставаться
-независимыми свидетельствами навсегда — у них разные жизненные циклы, разные
-потребители, разный аудит. Не поддаваться соблазну "объединить для простоты".
+This is an architectural principle, not an implementation detail. These two
+events must remain independent evidence documents permanently — they have
+different lifecycles, different consumers, and different audit requirements. Do
+not yield to the temptation to merge them for simplicity.
 
-### 4.3 Phase 6 заслуживает отдельного vision документа
+### 4.3 Phase 6 Deserves Its Own Vision Document
 
-Enterprise Orchestration (Phase 6) сегодня описана как 7 bullet points в
-roadmap. Это мало. Это та часть, которая делает всю предыдущую работу
-экономически оправданной. Рекомендую написать отдельный `docs/experts/capsule-enterprise-orchestration.md`
-или `docs/dev/capsule-enterprise-vision.md` с:
+Enterprise Orchestration (Phase 6) is currently described as seven bullet points
+in a roadmap. That is not enough. This is the part that makes all the preceding
+work economically justified. A dedicated document —
+`docs/experts/capsule-enterprise-orchestration.md` or
+`docs/dev/capsule-enterprise-vision.md` — is warranted, covering:
 
-- конкретными use cases (air-gapped delivery, compliance gates, marketplace)
-- кто является покупателем этой фичи (DevOps lead, CTO, compliance officer)
-- как capsule receipt chain интегрируется с существующими tools (GitHub Actions,
+- concrete use cases (air-gapped delivery, compliance gates, marketplace)
+- who the buyer of this feature is (DevOps lead, CTO, compliance officer)
+- how the capsule receipt chain integrates with existing tooling (GitHub Actions,
   Kubernetes admission webhooks, OPA/Gatekeeper)
 
-### 4.4 Activation commit должен быть agent-readable
+### 4.4 Activation Commit Must Be Agent-Readable
 
-Когда Phase 3 откроется — activation commit должен возвращать данные, которые
-AI-агент может разобрать и принять решение на основе. Не только human-readable
-описание. Structured result: operation_id, committed?, skipped_operations, reason_map.
+When Phase 3 opens, the activation commit must return data that an AI agent can
+parse and act on — not only a human-readable description. A structured result:
+`operation_id`, `committed?`, `skipped_operations`, `reason_map`.
 
-Это даёт фундамент для automated activation review agents в Phase 6.
+This is the foundation for automated activation review agents in Phase 6.
 
-### 4.5 Не спешить с Phase 3
+### 4.5 Do Not Rush Phase 3
 
-Текущая позиция (блокировать implementation до определения evidence shapes) —
-правильная. Добавить один критерий к acceptance для Phase 3: должен существовать
-хотя бы один реальный adapter (не stub), прежде чем implementation открывается.
-Без real adapter тест корректности evidence packet невозможен.
+The current position — blocking implementation until evidence shapes are
+finalized — is correct. Add one more acceptance criterion for Phase 3: at least
+one real adapter (not a stub) must exist before implementation opens. Without a
+real adapter, there is no way to validate the correctness of the evidence packet
+shape.
 
 ---
 
-## 5. Инсайты и Идеи
+## 5. Insights and Ideas
 
 ### 5.1 Capsule as a Trust Boundary
 
-Capsule не просто переносит файлы — она переносит **trust context**. Transfer
-receipt — это подписанное утверждение: "эти файлы были верифицированы перед
-переносом". В distributed agent world это означает, что агент на принимающем
-хосте может принять capsule без повторной верификации содержимого (trust the
-receipt), но должен самостоятельно верифицировать соответствие своей среды
-(activation readiness).
+A capsule does not just move files — it moves **trust context**. The transfer
+receipt is a signed assertion: "these files were verified before transfer." In a
+distributed agent world, this means the agent on the receiving host can accept
+the capsule without re-verifying its contents (trust the receipt), but must
+independently verify its own environment's readiness (activation readiness).
 
-Это изоморфно JWT: содержимое подписано, получатель проверяет подпись, не
-перепроверяет содержимое.
+This is isomorphic to JWT: the contents are signed, the recipient verifies the
+signature rather than re-verifying the payload.
 
-### 5.2 Receipt Chain как Distributed Event Log
+### 5.2 Receipt Chain as a Distributed Event Log
 
-Цепочка receipt'ов (transfer → activation) — это фактически **append-only
-distributed event log** для lifecycle приложения. Это открывает возможность:
+The receipt chain (transfer → activation) is effectively an **append-only
+distributed event log** for the application lifecycle. This opens up:
 
-- temporal queries: "какое состояние было у host-X в момент T?"
-- diff между двумя receipts: что изменилось между двумя активациями одной капсулы
-- agent subscription: агент подписывается на receipt events и принимает решения
+- temporal queries: "what was the state of host-X at time T?"
+- diff between two receipts: what changed between two activations of the same
+  capsule
+- agent subscriptions: an agent subscribes to receipt events and makes decisions
+  on that stream
 
-### 5.3 "Activation Budget" Pattern
+### 5.3 The "Activation Budget" Pattern
 
-Интересная идея для Phase 3: вместо того чтобы перечислять allowed operations,
-определить **activation budget** — максимальное количество filesystem mutations,
-maximum depth, maximum file count. Если commit превышает budget — автоматический
-отказ без ручного review. Это defence-in-depth поверх explicit boundary review.
+An idea worth considering for Phase 3: rather than enumerating allowed operations
+explicitly, define an **activation budget** — a maximum number of filesystem
+mutations, a maximum depth, a maximum file count. If the commit would exceed the
+budget, automatic refusal without manual review. This is defence-in-depth layered
+on top of explicit boundary review.
 
-### 5.4 Capsule Composition как Dependency Graph
+### 5.4 Capsule Composition as a Dependency Graph
 
-Capsule может зависеть от другой capsule (base capsule). Тогда transfer chain
-превращается в topologically sorted dependency graph. Igniter contracts — это
-именно validated dependency graphs. Использовать тот же компилятор для валидации
-capsule dependencies — это не просто красивая идея, это natural fit.
+A capsule may depend on another capsule (a base capsule). The transfer chain then
+becomes a topologically sorted dependency graph. Igniter contracts are precisely
+validated dependency graphs. Using the same compiler to validate capsule
+dependencies is not just an appealing idea — it is a natural fit.
 
-### 5.5 "Evidence Accumulation" vs "Evidence Snapshot"
+### 5.5 Evidence Accumulation vs. Evidence Snapshot
 
-Текущая модель: evidence snapshot — набор полей, которые должны присутствовать
-в момент commit. Альтернативная модель: evidence accumulation — каждый шаг
-добавляет evidence в растущий объект (immutable append), и commit является
-simply последним append'ом.
+The current model is evidence snapshot: a set of fields that must be present at
+commit time. The alternative is evidence accumulation: each step appends evidence
+to a growing immutable object, and the commit is simply the final append.
 
-Advantage: аудитор видит полную историю принятия решений, а не только финальный
-срез. Это особенно ценно для regulated environments.
+The advantage: an auditor sees the full decision history, not just the terminal
+state. This is especially valuable in regulated environments.
 
 ### 5.6 Capsule as the Agent Deployment Primitive
 
-В контексте interactive agent platform: когда пользователь "устанавливает" нового
-агента-ассистента в своё рабочее пространство — это capsule transfer. Манифест
-описывает агента (capabilities, tools, LLM requirements), receipt подтверждает
-установку, activation receipt подтверждает что агент live. Пользователь видит
-это как "Install Agent", но под капотом — полная verifiable supply chain.
+In the context of an interactive agent platform: when a user "installs" a new
+assistant agent into their workspace, that is a capsule transfer. The manifest
+describes the agent (capabilities, tools, LLM requirements), the transfer receipt
+confirms installation, and the activation receipt confirms the agent is live. The
+user sees "Install Agent" — but underneath is a fully verifiable supply chain.
 
-Это то, что отличает Igniter от просто "ещё одного AI framework" — **agents
-deployable as first-class auditable artifacts**.
+This is what separates Igniter from yet another AI framework: **agents deployable
+as first-class auditable artifacts**.
 
 ---
 
-## 6. Итоговый Вывод
+## 6. Conclusion
 
-Capsule Transfer — стратегически правильная и хорошо дисциплинированная работа.
-Текущая пауза перед activation commit — это не медлительность, это зрелость.
+Capsule Transfer is strategically sound and well-disciplined work. The current
+pause before activation commit is not slowness — it is maturity.
 
-Единственный риск — что Evidence & Receipt track будет сделан "достаточно хорошо"
-а не "правильно". Форма evidence packet — это один из тех решений, которые
-дорого переделывать после того как поверх них написан код.
+The one real risk is that the Evidence & Receipt track gets done "well enough"
+rather than "correctly." The shape of the evidence packet is one of those
+decisions that becomes expensive to redo once code is written on top of it.
 
-**Основная рекомендация**: потратить на Evidence & Receipt track столько времени,
-сколько нужно. Этот документ становится контрактом для всего Phase 3–6.
-После его принятия roadmap разворачивается быстро и чисто.
+**The primary recommendation**: invest whatever time is needed in the Evidence &
+Receipt track. That document becomes the contract for all of Phase 3 through 6.
+Once it is accepted, the roadmap ahead unfolds quickly and cleanly.
 
-Capsule Transfer может стать тем, чем Apple Notarization является для macOS —
-verifiable chain-of-custody для software delivery — но с агентами как
-active participants в процессе, а не только пассивными инструментами CI.
+Capsule Transfer has the potential to become what Apple Notarization is for
+macOS — a verifiable chain-of-custody for software delivery — but with agents as
+**active participants** in the process rather than passive instruments of a CI
+pipeline.

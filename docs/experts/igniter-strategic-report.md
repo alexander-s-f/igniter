@@ -1,137 +1,138 @@
-# Igniter — Стратегический Экспертный Отчёт
+# Igniter — Strategic Expert Report
 
 Date: 2026-04-26.
-Perspective: эксперт в распределённых агентных системах, enterprise-архитектуре, и AI-нативных платформах.
-Subject: стратегический анализ Igniter — где он сейчас, чем может стать, и как туда попасть.
+Perspective: expert in distributed agent systems, enterprise architecture, and AI-native platforms.
+Subject: Igniter strategic analysis — current state, unique position, path to significance.
 
 ---
 
-## 1. Визионерский Взгляд
+## 1. Visionary Perspective
 
-### 1.1 Смена парадигмы, которую Igniter может захватить
+### 1.1 The Paradigm Shift Igniter Can Own
 
-Мы живём в переломный момент в программировании. Не потому что появились LLM —
-а потому что **меняется форма самого приложения**.
+We are at an inflection point in software development. Not because LLMs arrived —
+but because **the shape of the application itself is changing**.
 
-Классическое enterprise-приложение — это request/response машина: пришёл запрос,
-отработала бизнес-логика, вернулся ответ. Всё синхронно, всё атомарно, всё живёт
-меньше секунды. Rails был идеален для этой формы.
+The classical enterprise application is a request/response machine: a request comes
+in, business logic executes, a response goes back. Everything is synchronous,
+atomic, and lives for under a second. Rails was the perfect tool for that shape.
 
-Новое enterprise-приложение — это другое. Это:
+The new enterprise application is something different. It is:
 
-> Долгоживущие, проактивные, интерактивные процессы, где люди и AI-агенты
-> совместно работают над задачами, которые длятся минуты, часы, дни.
+> Long-lived, proactive, interactive processes where humans and AI agents
+> collaborate on tasks that unfold over minutes, hours, or days.
 
-Это инцидент-менеджмент, где агент мониторит систему и инициирует диалог с
-дежурным инженером. Это onboarding-платформа, где агент ведёт нового сотрудника
-через 40-шаговый wizard, и может приостановиться на 3 дня пока кто-то подписывает
-документ. Это compliance-сценарий, где агент и человек совместно проводят аудит,
-каждый шаг которого логируется и верифицируется.
+It is an incident-management system where an agent monitors infrastructure and
+initiates a conversation with the on-call engineer. It is an onboarding platform
+where an agent walks a new employee through a forty-step wizard and can pause for
+three days while someone signs a document. It is a compliance workflow where an
+agent and a human conduct an audit together, every step logged and verifiable.
 
-**Igniter — это единственный Ruby framework, который спроектирован для этой
-новой формы приложения.**
+**Igniter is the only Ruby framework designed for this new application shape.**
 
-Не Rails — там нет ни агентного рантайма, ни долгоживущих сессий, ни capsule
-supply chain. Не просто LLM wrapper — там нет contracts, нет compile-time
-validation, нет enterprise-grade доставки. Igniter стоит в уникальной позиции.
+Not Rails — Rails has no agent runtime, no long-lived sessions, no capsule supply
+chain. Not an LLM wrapper — those have no contracts, no compile-time validation,
+no enterprise-grade delivery guarantees. Igniter occupies a unique position.
 
-Вопрос не в том, нужен ли миру такой инструмент. Нужен — очевидно. Вопрос в том,
-**станет ли Igniter тем, кто занимает эту позицию первым и убедительно.**
+The question is not whether the world needs this kind of tool. It clearly does.
+The question is **whether Igniter will be the one to claim that position first
+and convincingly.**
 
-### 1.2 Что значит "значимый enterprise-проект"
+### 1.2 What "Significant Enterprise Project" Actually Means
 
-Значимый — не значит популярный. Значимый означает:
+Significant does not mean popular. Significant means:
 
-1. **Уникальная ниша**: область, где нет достойной альтернативы
-2. **Доверие**: enterprise покупает то, в что верит — audit trail, явные
-   контракты, refusal-first design, receipt chain
-3. **Производительность**: разработчики должны уметь строить то, что без Igniter
-   строить мучительно
-4. **Референсные клиенты**: один убедительный case study дороже ста звёздочек
-   на GitHub
+1. **Unique niche**: a domain where no worthy alternative exists
+2. **Trust**: enterprise buys what it believes in — audit trails, explicit
+   contracts, refusal-first design, receipt chains
+3. **Productivity**: developers must be able to build things that are painful to
+   build without Igniter
+4. **Reference customers**: one compelling case study is worth more than a hundred
+   GitHub stars
 
-Igniter уже имеет архитектурную основу для #1. Capsule Transfer закладывает
-основу для #2. Authoring experience пока не на уровне #3. #4 ещё не начато.
+Igniter already has the architectural foundation for #1. Capsule Transfer lays
+the groundwork for #2. The authoring experience is not yet at the level of #3.
+#4 has not started.
 
 ---
 
-## 2. Идея, Модель, Усиление
+## 2. Idea, Model, Amplification
 
-### 2.1 Ядро Igniter — редкая вещь
+### 2.1 The Igniter Core Is a Rare Thing
 
-Contracts как validated dependency graphs — это не просто техническая фича.
-Это **другой способ думать о бизнес-логике**.
+Contracts as validated dependency graphs are not just a technical feature.
+This is **a different way of thinking about business logic**.
 
-В большинстве фреймворков бизнес-логика живёт как процедурный код: делаем A,
-потом B, потом C. Игнорируем зависимости, пока не приходит производственная
-авария. Igniter говорит: сначала объяви граф зависимостей. Компилятор проверит
-его до запуска. Рантайм выполнит только то, что нужно, с кешированием и
-инвалидацией.
+In most frameworks, business logic lives as procedural code: do A, then B, then C.
+Dependencies are ignored until a production incident reveals them. Igniter says:
+declare the dependency graph first. The compiler validates it before anything runs.
+The runtime executes only what is needed, with caching and invalidation built in.
 
-Это не "ещё один способ написать бизнес-логику". Это **compile-time safety для
-бизнес-правил** — вещь, которой в Ruby-экосистеме раньше не было.
+This is not "yet another way to write business logic." This is **compile-time
+safety for business rules** — something that did not exist in the Ruby ecosystem
+before.
 
 ```
 Contracts Kernel
-├── Compile-time: граф валидирован до запуска
-├── Runtime: ленивое выполнение, только нужные узлы
+├── Compile-time: graph validated before execution
+├── Runtime: lazy resolution, only necessary nodes
 ├── Cache: TTL + coalescing + fingerprinting
-└── Zero production deps: встраивается куда угодно
+└── Zero production deps: embeds anywhere
 ```
 
-### 2.2 Три уровня ценностного предложения
+### 2.2 Three Levels of Value Proposition
 
-Igniter работает на трёх независимых уровнях, и это сила:
+Igniter operates at three independent levels, and this is a strength:
 
-**Уровень 1: Contracts Kernel (embed mode)**
-Встраивается в любой Ruby-проект. Никаких зависимостей. Validated dependency
-graphs для бизнес-логики. Ценность: предсказуемость + debuggability. Покупатель:
-разработчик, который устал от "почему это вычислилось неправильно".
+**Level 1: Contracts Kernel (embed mode)**
+Embeds into any Ruby project. No dependencies. Validated dependency graphs for
+business logic. The value: predictability and debuggability. The buyer: the
+developer who is tired of "why did this compute incorrectly."
 
-**Уровень 2: Application Platform (agent-native apps)**
-Полноценный рантайм для интерактивных агентных приложений. Capsule model,
-Ignite lifecycle, web surfaces, proactive agents. Ценность: строй сложные
-human-AI apps без бесконечного glue-кода. Покупатель: команда, которая строит
-SaaS с AI-ассистентами.
+**Level 2: Application Platform (agent-native apps)**
+A full runtime for interactive agent applications. The capsule model, the Ignite
+lifecycle, web surfaces, proactive agents. The value: build sophisticated
+human-AI applications without endless glue code. The buyer: the team building
+a SaaS product with AI assistants.
 
-**Уровень 3: Enterprise Supply Chain (capsule transfer)**
-Verifiable, auditable, refusal-first доставка приложений между хостами. Receipt
-chain, activation evidence, compliance gates. Ценность: enterprise-grade
-deployment под надзором агентов. Покупатель: CTO / DevOps Lead в regulated
-industry.
+**Level 3: Enterprise Supply Chain (capsule transfer)**
+Verifiable, auditable, refusal-first delivery of applications between hosts.
+Receipt chain, activation evidence, compliance gates. The value: enterprise-grade
+deployment under agent supervision. The buyer: a CTO or DevOps lead in a
+regulated industry.
 
-Три уровня — три независимые точки входа. Разработчик начинает с Level 1,
-компания вырастает до Level 2, enterprise требует Level 3.
+Three levels, three independent entry points. A developer starts with Level 1.
+A company grows into Level 2. An enterprise demands Level 3.
 
-### 2.3 Усиление через Agent-as-First-Class-Citizen
+### 2.3 Amplification Through Agent-as-First-Class-Citizen
 
-Главная идея, которую нужно провести через весь Igniter:
+The central idea that must run through all of Igniter:
 
-> Агент — это не вызов API. Агент — это участник системы с тем же статусом,
-> что и пользователь или сервис.
+> An agent is not an API call. An agent is a participant in the system with the
+> same standing as a user or a service.
 
-Это означает:
-- Агент может инициировать диалог (proactive wakeup)
-- Агент может запросить структурированный ввод (pending input)
-- Агент может подождать (await в distributed contracts)
-- Агент может быть проверен (activation evidence)
-- Агент может быть доставлен (capsule transfer)
+This means:
+- An agent can initiate a conversation (proactive wakeup)
+- An agent can request structured input (pending input)
+- An agent can wait (await in distributed contracts)
+- An agent can be verified (activation evidence)
+- An agent can be delivered (capsule transfer)
 
-Ни один другой Ruby framework не думает об агентах в таких терминах. Это
-уникальное конкурентное преимущество.
+No other Ruby framework thinks about agents in these terms. This is a genuine
+competitive advantage.
 
 ---
 
-## 3. Развитие Перспективы
+## 3. Perspective Development
 
-### 3.1 Где Igniter сейчас — честная карта
+### 3.1 Where Igniter Stands Today — an Honest Map
 
 ```
 MATURE (production-ready, impressive):
 ├── Contracts kernel — DSL, compile, runtime, cache, coalescing
 ├── Diagnostics — text/markdown/structured formatters
 ├── Extensions — saga, differential, provenance, invariants
-└── Transfer Chain — 14 шагов, end-to-end verified
+└── Transfer Chain — 14 steps, end-to-end verified
 
 SOLID (working, needs polish):
 ├── AI/LLM/Tool/Skill system — canonical Igniter::AI::* namespace
@@ -151,47 +152,48 @@ DESIGN PHASE (docs-only, not yet implemented):
 └── Enterprise Orchestration (Phase 6, vision only)
 ```
 
-### 3.2 Три критических разрыва
+### 3.2 Three Critical Gaps
 
-**Разрыв #1: Developer Experience**
+**Gap #1: Developer Experience**
 
-Сегодня для hello-world интерактивного приложения нужно 5 файлов, понимание
-4 пакетов и 30 минут чтения документации. Это неприемлемо для adoption.
+Today, a hello-world interactive application requires five files, an understanding
+of four packages, and thirty minutes of documentation reading. This is not
+acceptable for adoption.
 
-Цель: один файл, один `Igniter.interactive_app` block, две строки в `config.ru`.
-Это возможно — архитектура позволяет. Нет только authoring facade поверх
-уже существующих правильных примитивов.
+The goal: one file, one `Igniter.interactive_app` block, two lines in `config.ru`.
+The architecture makes this possible. What is missing is an authoring facade on
+top of the already-correct primitives.
 
-**Разрыв #2: Showcase / Reference App**
+**Gap #2: Showcase / Reference Application**
 
-Igniter не имеет ни одного публичного впечатляющего примера, который можно
-показать потенциальному пользователю и сказать "смотри, вот что это делает".
+Igniter has no publicly available, impressive example that can be shown to a
+prospective user with the words "look, this is what it does."
 
-`examples/companion` — правильный кандидат. Но он должен быть не заглушкой,
-а настоящим работающим приложением с проактивным агентом, wizard-flow,
-live-обновлениями и LLM integration. Это не дополнительная фича — это
-**маркетинговый артефакт**.
+`examples/companion` is the right candidate. But it must be not a stub but a
+genuine working application: a proactive agent, a wizard flow, live updates,
+and LLM integration. This is not an additional feature — it is a **marketing
+artifact**.
 
-**Разрыв #3: Enterprise Story не дорассказана**
+**Gap #3: The Enterprise Story Is Unfinished**
 
-Capsule Transfer — готов. Activation review — готов. Но нет документа,
-который говорит enterprise-buyer'у: "вот как Igniter решает твою проблему
-с compliance, audit, и agent-supervised deployment". Phase 6 (Enterprise
-Orchestration) остаётся 7 строками в roadmap.
+Capsule Transfer is ready. Activation review is ready. But there is no document
+that speaks directly to the enterprise buyer: "here is how Igniter solves your
+compliance, audit, and agent-supervised deployment problem." Phase 6 (Enterprise
+Orchestration) remains seven lines in a roadmap.
 
-### 3.3 Траектория к значимости
+### 3.3 Trajectory to Significance
 
 ```
 2026 Q2: Foundation Complete
 ├── Evidence & Receipt track closed
-├── Activation commit (Phase 3) opened and scoped
+├── Activation Commit (Phase 3) opened and scoped
 └── interactive_app facade — POC shipped
 
 2026 Q3: Showcase Moment
-├── examples/companion — полноценное reference app
+├── examples/companion — full reference application
 ├── Igniter.interactive_app public API stable
-├── SSE/WebSocket push (первый класс)
-└── Enterprise Orchestration vision doc
+├── SSE/WebSocket push (first class)
+└── Enterprise Orchestration vision document
 
 2026 Q4: Enterprise Credibility
 ├── Capsule Transfer — Phase 4 (activation receipt)
@@ -207,16 +209,17 @@ Orchestration) остаётся 7 строками в roadmap.
 
 ---
 
-## 4. Рекомендации
+## 4. Recommendations
 
-### 4.1 ПРИОРИТЕТ #1: Сделать `Igniter.interactive_app` реальностью
+### 4.1 PRIORITY #1: Make `Igniter.interactive_app` Real
 
-Это самое высокоприоритетное техническое решение. Не потому что это сложно —
-а потому что без него проект остаётся invisible для потенциальных пользователей.
+This is the highest-priority technical decision. Not because it is technically
+difficult — but because without it the project remains invisible to potential
+users.
 
-Что нужно:
+What is needed:
 ```ruby
-# Вот что разработчик должен написать
+# This is what a developer should write
 App = Igniter.interactive_app :my_app do
   service :tasks, Services::TaskService
 
@@ -228,38 +231,39 @@ App = Igniter.interactive_app :my_app do
   endpoint :stream, at: "/stream", format: :sse
 end
 
-# И в config.ru:
+# And in config.ru:
 run App.rack_app
 ```
 
-Эта facade уже спроектирована в `expert-review.md`. Примитивы уже существуют.
-Нужен только тонкий delegation layer.
+This facade is already outlined in `expert-review.md`. The primitives already
+exist. Only a thin delegation layer is missing.
 
-Acceptance: `examples/companion/app.rb` умещается в один экран.
+Acceptance criterion: `examples/companion/app.rb` fits on one screen.
 
-### 4.2 ПРИОРИТЕТ #2: examples/companion как настоящее приложение
+### 4.2 PRIORITY #2: `examples/companion` as a Real Application
 
-`examples/companion` должен стать flagship reference app. Не smoke test, не
-заглушка — работающее впечатляющее приложение:
+`examples/companion` must become the flagship reference application. Not a smoke
+test, not a stub — a working, impressive application:
 
-- Проактивный агент (мониторит задачи, инициирует диалог)
-- Wizard flow (multi-step structured interaction)
-- Live-обновления (SSE push, не polling)
-- LLM-powered tool loop (реальный вызов Anthropic/OpenAI)
-- Capsule packaging + transfer demonstration
+- A proactive agent (monitors tasks, initiates dialogue)
+- A wizard flow (multi-step structured interaction)
+- Live updates (SSE push, not polling)
+- An LLM-powered tool loop (real calls to Anthropic or OpenAI)
+- Capsule packaging and transfer demonstration
 
-Это должен быть ответ на вопрос: "Можете показать Igniter в действии?" — "Да,
-запусти `ruby examples/companion/app.rb`."
+This must be the answer to the question: "Can you show Igniter in action?" —
+"Yes. Run `ruby examples/companion/app.rb`."
 
-Без этого артефакта нет adoption. Без adoption нет significance.
+Without this artifact there is no adoption. Without adoption there is no
+significance.
 
-### 4.3 ПРИОРИТЕТ #3: SSE/WebSocket — первый класс, не afterthought
+### 4.3 PRIORITY #3: SSE/WebSocket as First Class, Not an Afterthought
 
-Сейчас interactive POC использует polling (GET /events). Это неприемлемо для
-production. Проактивный агент завершил задачу — пользователь должен увидеть
-это немедленно, без 5-секундного polling интервала.
+The current interactive POC uses polling (GET /events). This is not acceptable
+for production. When a proactive agent completes a task, the user must see it
+immediately — not after a five-second polling interval.
 
-Рекомендуемая модель:
+The recommended model:
 ```ruby
 endpoint :stream, at: "/stream", format: :sse do
   emit :task_created, from: :tasks
@@ -268,215 +272,219 @@ endpoint :stream, at: "/stream", format: :sse do
 end
 ```
 
-Rack chunked response + Arbre rendering на клиенте — это достижимо без
-внешних зависимостей. Это critical missing piece для "живого" feel.
+Rack chunked response with Arbre rendering on the client side is achievable
+without external dependencies. This is the critical missing piece for a genuinely
+"live" feel.
 
-### 4.4 ПРИОРИТЕТ #4: Enterprise Vision Document
+### 4.4 PRIORITY #4: Enterprise Vision Document
 
-Нужен отдельный документ (или сокращённая landing page версия), который
-отвечает на вопрос enterprise buyer'а:
+A dedicated document is needed — or a concise landing-page version — that answers
+the enterprise buyer's core question:
 
-"Почему Igniter, а не [Rails + Sidekiq + custom agents + CI/CD]?"
+"Why Igniter, rather than Rails + Sidekiq + custom agents + CI/CD?"
 
-Ответ существует, но он разбросан по 50 документам:
+The answer exists, but it is scattered across fifty documents:
 
-- **Validated delivery**: capsule transfer с receipt chain — не git push,
-  не docker pull, а verifiable chain-of-custody
-- **Compliance-ready**: activation evidence, refusal-first design,
-  операции только через явный adapter с idempotency key
-- **Agent-supervised**: агенты участвуют в delivery как reviewers, не только
-  как executors
-- **Zero prod deps**: встраивается в любую enterprise среду без vendor lock-in
-- **Audit trail**: transfer receipt + activation receipt = два независимых
-  свидетельства жизненного цикла
+- **Validated delivery**: capsule transfer with receipt chain — not a git push,
+  not a docker pull, but a verifiable chain of custody
+- **Compliance-ready**: activation evidence, refusal-first design, all operations
+  through an explicit adapter with an idempotency key
+- **Agent-supervised**: agents participate in delivery as reviewers, not merely
+  as executors
+- **Zero prod deps**: embeds in any enterprise environment without vendor lock-in
+- **Audit trail**: transfer receipt + activation receipt = two independent
+  lifecycle witnesses
 
-Этот нарратив нужно написать один раз и хорошо.
+This narrative needs to be written once, and written well.
 
-### 4.5 ПРИОРИТЕТ #5: Не растягивать разработку на бесконечные design tracks
+### 4.5 PRIORITY #5: Stop Stretching Development Across Endless Design Tracks
 
-Текущий процесс (research → supervisor → track → docs/design → implementation)
-правильный и дисциплинированный. Но есть риск: слишком много design phase,
-слишком мало shipped features.
+The current process — research, supervisor gate, track opened, docs-only design,
+then implementation — is correct and disciplined. But there is a real risk:
+too much design phase, too few shipped features.
 
-Конкретная проблема: Interactive web POC остановился на "repeatability synthesis".
-Это хорошая работа — но где следующий POC slice? Где SSE? Где `flow` primitive?
+The specific problem: the interactive web POC stalled at "repeatability synthesis."
+That is good work. But where is the next implementation slice? Where is SSE?
+Where is the `flow` primitive?
 
-Рекомендация: каждый завершённый design track должен в течение **2 недель**
-порождать хотя бы один implementation slice. Если не порождает — нужно спросить
-"зачем мы это проектировали?"
+Recommendation: every completed design track must produce at least one
+implementation slice within **two weeks**. If it does not, the question must
+be asked: "What were we designing this for?"
 
-### 4.6 ПРИОРИТЕТ #6: Выбрать и зафиксировать публичный namespace
+### 4.6 PRIORITY #6: Choose and Lock the Public Namespace
 
-В документах есть несколько конкурирующих терминов для одних и тех же вещей:
-`surface` / `board` / `operator` / `screen` — все используются. `flow` / `wizard`
-/ `composition` — все используются.
+The documentation uses several competing terms for the same concepts:
+`surface` / `board` / `operator` / `screen` — all appear. `flow` / `wizard`
+/ `composition` — all appear.
 
-До v1 это нормально. Но для adoption нужна стабильная документация. Нужно
-принять решение по ключевым терминам публичного API и зафиксировать его:
+Before v1 this is tolerable. But stable documentation is a prerequisite for
+adoption. A decision on key public API terms must be made and committed to:
 
-| Термин | Финальное решение |
-|--------|------------------|
-| Корневой DSL | `Igniter.interactive_app` |
-| Экран пользователя | `surface` |
-| Долгоживущий процесс | `flow` |
-| Взаимодействие с агентом | `chat` |
-| Структурированный ввод | `ask` |
-| Команда | `action` |
-| Реальтайм поток | `stream` |
+| Concept | Final term |
+|---------|-----------|
+| Root DSL | `Igniter.interactive_app` |
+| User-facing screen | `surface` |
+| Long-lived process | `flow` |
+| Agent interaction | `chat` |
+| Structured input | `ask` |
+| User command | `action` |
+| Real-time stream | `stream` |
 
 ---
 
-## 5. Инсайты и Идеи
+## 5. Insights and Ideas
 
-### 5.1 Igniter как "Rails для агентных приложений" — правильный pitch, но неполный
+### 5.1 "Rails for Agent Applications" Is the Right Pitch — But Incomplete
 
-"Rails для агентных приложений" — понятный positioning, и он верный по духу.
-Но Rails был силён не только API. Rails был силён **конвенциями, которые
-исключали плохие решения**.
+"Rails for agent applications" is an understandable positioning, and it is right
+in spirit. But Rails was powerful not only because of its API. Rails was powerful
+because of **conventions that made bad decisions impossible**.
 
-Igniter должен сделать то же самое. Примеры "rails-like" принятия решений
-за разработчика:
+Igniter must do the same. Examples of Rails-like decision-making on behalf of the
+developer:
 
-- По умолчанию capsule transfer — не голый git push. Не потому что "фича",
-  а потому что это **правильный способ**.
-- По умолчанию activation — с evidence packet и receipt. Не потому что
-  "enterprise", а потому что **это ожидаемое поведение серьёзного инструмента**.
-- По умолчанию сессии долгоживущие и durable. Не потому что "распределённые
-  системы", а потому что **современные приложения так работают**.
+- By default, capsule transfer — not a bare git push. Not because it is a
+  "feature," but because it is **the right way**.
+- By default, activation — with an evidence packet and a receipt. Not because it
+  is "enterprise," but because **that is what a serious tool should do**.
+- By default, sessions are long-lived and durable. Not because of "distributed
+  systems," but because **that is how modern applications work**.
 
-Conventions > Configuration. Именно это сделало Rails success story.
+Conventions over Configuration. That is precisely what made Rails a success story.
 
-### 5.2 Contracts Compiler как скрытый секрет проекта
+### 5.2 The Contracts Compiler as the Project's Hidden Secret
 
-Compile-time validation dependency graphs — это технически невозможно переоценить.
-Это то, что делает Igniter quality-gate для бизнес-логики.
+Compile-time validation of dependency graphs is technically difficult to
+overstate. It is what makes Igniter a quality gate for business logic.
 
-Но этот компилятор можно использовать не только для contracts. Capsule dependency
-graphs? Тот же компилятор. Flow session graph? Тот же компилятор. Agent tool
-dependency graph (agent A зависит от agent B)? Тот же компилятор.
+But this compiler need not be used only for contracts. Capsule dependency graphs?
+The same compiler. Flow session graphs? The same compiler. Agent tool dependency
+graphs — where agent A depends on agent B? The same compiler.
 
-**Идея**: "Universal Graph Compiler" — один компилятор для всех DAG-структур в
-Igniter. Это не дополнительная работа, это обнаружение того, что уже есть.
-Маркетингово: "весь Igniter — это validated dependency graphs at every layer."
+**Idea**: "Universal Graph Compiler" — one compiler for all DAG structures in
+Igniter. This is not additional work; it is recognizing what already exists.
+The marketing angle: "All of Igniter is validated dependency graphs at every
+layer."
 
-### 5.3 Agent-as-Reviewer — нераскрытый differentiator
+### 5.3 Agent-as-Reviewer — an Unexploited Differentiator
 
-В Capsule Transfer агенты будущих фаз будут выступать не только как исполнители
-(delivering files), но и как **reviewers** (verifying activation evidence,
-checking adapter capability map, signing off on commit).
+In Capsule Transfer, agents in future phases will act not only as executors
+(delivering files) but as **reviewers** — verifying activation evidence, checking
+the adapter capability map, signing off on the commit.
 
-Это паттерн, который можно расширить на весь Igniter:
+This pattern can be extended across all of Igniter:
 
-- **Contracts**: агент-ревьюер может проверить граф перед запуском
-- **Application boot**: агент проверяет provider lifecycle report перед
-  тем как app становится active
-- **Deployment**: агент проверяет capsule evidence перед activation commit
+- **Contracts**: an agent-reviewer can verify the graph before it runs
+- **Application boot**: an agent checks the provider lifecycle report before the
+  app becomes active
+- **Deployment**: an agent verifies capsule evidence before the activation commit
 
-**"Agent-as-Reviewer" pattern** — это уникальная Igniter-идея, которой нигде
-больше нет. Это должно стать именованным паттерном в документации.
+The **"Agent-as-Reviewer" pattern** is a uniquely Igniter idea that does not
+exist anywhere else. It must become a named, documented pattern.
 
 ### 5.4 The "One Process" Test
 
-Для каждой фичи Igniter применяй простой тест: может ли всё это работать в
-**одном Ruby процессе**, без cluster, без docker, без сетевых зависимостей?
+For every Igniter feature, apply a simple test: can all of this run in **a single
+Ruby process**, without a cluster, without Docker, without network dependencies?
 
-Если да — это правильно. Если нет — добавили слишком много зависимостей.
+If yes — correct. If no — too many dependencies have been introduced.
 
-`ruby examples/companion/app.rb` должен запустить полноценное приложение с
-агентом, web-surface, и LLM integration — в одном процессе. Это и есть
-"zero production dependencies" в действии.
+`ruby examples/companion/app.rb` must launch a complete application — with an
+agent, a web surface, and LLM integration — in a single process. That is what
+"zero production dependencies" looks like in practice.
 
-### 5.5 Capsule Marketplace как долгосрочная бизнес-модель
+### 5.5 Capsule Marketplace as the Long-Term Business Model
 
-Phase 6 roadmap упоминает "internal app marketplaces". Это достойно более
-глубокого исследования.
+The Phase 6 roadmap mentions "internal app marketplaces." This deserves deeper
+attention.
 
-Capsule + transfer receipt + activation receipt = **верифицируемый артефакт,
-который можно опубликовать, найти, перенести и установить**. Это app store для
-enterprise Ruby applications.
+Capsule + transfer receipt + activation receipt = **a verifiable artifact that
+can be published, discovered, transferred, and installed**. This is an app store
+for enterprise Ruby applications.
 
-Аналог: Shopify App Store, но для agent-native enterprise apps. Каждый capsule
-в marketplace имеет:
-- Manifest (что делает, что требует)
-- Transfer history (откуда пришёл)
-- Activation receipt (где работает)
-- Compliance evidence (что прошёл)
+The analogy: the Shopify App Store, but for agent-native enterprise applications.
+Every capsule in the marketplace carries:
+- A manifest (what it does, what it requires)
+- A transfer history (where it came from)
+- An activation receipt (where it is running)
+- Compliance evidence (what it has passed through)
 
-Это не фантастика — это Phase 6, и фундамент уже строится.
+This is not speculation — it is Phase 6, and the foundation is being built now.
 
-### 5.6 MCP Adapter как Immediate Enterprise Bridge
+### 5.6 MCP Adapter as an Immediate Enterprise Bridge
 
-В dev docs уже есть `mcp-adapter-package-spec.md`. MCP (Model Context Protocol)
-— это сейчас то, что объединяет AI tooling.
+The dev docs already contain `mcp-adapter-package-spec.md`. MCP (Model Context
+Protocol) is currently what unifies the AI tooling ecosystem.
 
-Игра: если Igniter contracts могут быть exposed как MCP tools — то любой
-Claude/GPT/agent может вызвать Igniter contract как tool. Это:
+The play: if Igniter contracts can be exposed as MCP tools, then any Claude,
+GPT, or external agent can call an Igniter contract as a tool. This means:
 
-- Мгновенная интеграция с AI tooling ecosystem
-- Contracts становятся "callable business logic" для внешних агентов
-- Capsule с MCP manifest = publishable enterprise tool набор
+- Instant integration with the AI tooling ecosystem
+- Contracts become "callable business logic" for external agents
+- A capsule with an MCP manifest becomes a publishable enterprise toolset
 
-Это высокоприоритетная bridge feature для enterprise adoption.
+This is a high-priority bridge feature for enterprise adoption.
 
 ### 5.7 The Discipline Advantage
 
-Одно из самых недооценённых преимуществ Igniter — **дисциплина разработки**.
-Refusal-first design. Explicit evidence. Docs-only tracks перед implementation.
-Supervisor gate перед каждым решением.
+One of the most underappreciated advantages of Igniter is **development
+discipline**. Refusal-first design. Explicit evidence. Docs-only tracks before
+implementation. A supervisor gate before every significant decision.
 
-В мире, где AI-агенты могут генерировать код бесконечно быстро — эта дисциплина
-становится ценностью, а не overhead'ом. Это то, что отличает "наброски" от
-"серьёзного фреймворка".
+In a world where AI agents can generate code at indefinite speed, this discipline
+is a value, not an overhead. It is what separates "sketches" from "a serious
+framework."
 
-Это должно быть частью public story: **"Igniter был спроектирован с той же
-строгостью, с которой должны быть спроектированы enterprise системы."**
+This must be part of the public story: **"Igniter was designed with the same
+rigor that enterprise systems themselves demand."**
 
 ---
 
-## 6. Диагноз и Финальный Вывод
+## 6. Diagnosis and Final Conclusion
 
-### 6.1 Что работает
+### 6.1 What Is Working
 
-Igniter имеет правильную архитектурную DNA:
-- Compile-time validation (редкость в Ruby)
-- Refusal-first design (зрелость мышления)
+Igniter has the right architectural DNA:
+- Compile-time validation (rare in Ruby)
+- Refusal-first design (a sign of mature thinking)
 - Zero production dependencies (discipline)
-- Agent as first-class participant (differentiation)
+- Agent as a first-class participant (differentiation)
 - Capsule supply chain (enterprise readiness)
 
-Это не "очередной наброск". Это архитектурно зрелый проект с правильными
-принципами. Это сильное основание.
+This is not "yet another sketch." This is an architecturally mature project
+with the right principles. That is a strong foundation.
 
-### 6.2 Что мешает росту
+### 6.2 What Is Holding Back Growth
 
-**Invisible**: нет публичного showcase. Разработчик не может посмотреть и
-немедленно понять ценность.
+**Invisible**: no public showcase. A developer cannot look at this and immediately
+understand its value.
 
-**Too spread**: слишком много открытых направлений одновременно. Contracts,
-Application, Web, Agents, Cluster, Capsule Transfer, Ignite lifecycle,
-Credentials, DTO layer, MCP Adapter — всё это одновременно в design или
-early implementation.
+**Too spread**: too many open fronts simultaneously. Contracts, Application, Web,
+Agents, Cluster, Capsule Transfer, Ignite lifecycle, Credentials, DTO layer, MCP
+Adapter — all are in design or early implementation at the same time.
 
-**No "aha moment"**: нет простого пути от "установил gem" до "понял, зачем
-это существует" за 15 минут.
+**No "aha moment"**: there is no simple path from "installed the gem" to "I
+understand why this exists" in fifteen minutes.
 
-### 6.3 Путь к значимости
+### 6.3 The Path to Significance
 
-**Формула**: один killer showcase + компактный authoring DX + завершённый
-enterprise story = Igniter занимает уникальную нишу.
+**The formula**: one killer showcase + compact authoring DX + completed enterprise
+story = Igniter occupies a unique niche that nobody else holds.
 
-Конкретно:
+Specifically:
 
-1. **`Igniter.interactive_app` facade** — прямо сейчас, архитектура позволяет
-2. **`examples/companion` как flagship** — настоящее working app, не smoke test
-3. **SSE push as first class** — table stakes для interactive apps
-4. **Enterprise Vision doc** — один документ, который отвечает на вопрос buyer'а
-5. **Evidence & Receipt track** — закрыть, это разблокирует Phase 3-6
+1. **`Igniter.interactive_app` facade** — right now, the architecture allows it
+2. **`examples/companion` as flagship** — a real working application, not a smoke
+   test
+3. **SSE push as first class** — table stakes for any interactive application
+4. **Enterprise Vision document** — one document that answers the buyer's question
+5. **Evidence & Receipt track** — close it; this unblocks Phases 3 through 6
 
-После этих пяти шагов Igniter — не "ещё один Ruby framework". Это:
+After these five steps, Igniter is no longer "yet another Ruby framework." It is:
 
-> Единственная Ruby платформа для enterprise-grade, agent-native, interactive
-> приложений с verifiable supply chain и compile-time validated business logic.
+> The only Ruby platform for enterprise-grade, agent-native, interactive
+> applications with a verifiable supply chain and compile-time validated
+> business logic.
 
-Эту позицию не занял никто. Окно открыто. Вопрос в том, будет ли достаточно
-фокуса и скорости, чтобы его занять раньше, чем оно закроется.
+No one else occupies this position. The window is open. The question is whether
+there will be enough focus and velocity to claim it before the window closes.

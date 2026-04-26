@@ -20,8 +20,10 @@ Perspective: external expert in distributed interactive agent systems.
 | [documentation-compression.md](documentation-compression.md) | Documentation compression methodology — content taxonomy, compression algorithm, 7 accumulation rules, Line-Up format for docs, tooling path |
 | [concept-emergence.md](concept-emergence.md) | Concept emergence research — statistical mining of 88-doc corpus, 499 frequent patterns found, 22 named, vocabulary lifecycle model, "митоз" analogy applied |
 | [semantic-gateway.md](semantic-gateway.md) | Semantic Gateway design — Human↔Agent interaction pre-processing, SAE-inspired local intent extraction, three-stage adaptive pipeline, RPi 5 viable |
-| [capsule-transfer-expert-report.md](capsule-transfer-expert-report.md) | Capsule Transfer track expert report — visionary, model/amplification, perspective development, recommendations, insights; agent-supervised supply chain analysis |
-| [igniter-strategic-report.md](igniter-strategic-report.md) | Igniter whole-project strategic report — unique positioning, three value levels, critical gaps, growth path to significant enterprise platform |
+| [capsule-transfer-expert-report.md](capsule-transfer-expert-report.md) · [ru](capsule-transfer-expert-report.ru.md) | Capsule Transfer track expert report — visionary, model/amplification, perspective development, recommendations, insights; agent-supervised supply chain analysis |
+| [igniter-strategic-report.md](igniter-strategic-report.md) · [ru](igniter-strategic-report.ru.md) | Igniter whole-project strategic report — unique positioning, three value levels, critical gaps, growth path to significant enterprise platform |
+| [application-proposals.md](application-proposals.md) · [ru](application-proposals.ru.md) | Five POC-ready application proposals (IT/developer audience) — Lense, Scout, Dispatch, Chronicle, Aria — each with pain, Igniter fit, MVP scope, DSL sketch, build-further threads |
+| [application-proposals-non-tech.md](application-proposals-non-tech.md) · [ru](application-proposals-non-tech.ru.md) | Non-technical audience proposals — end users (Forma/Meridian), creators/media (Studio/Signal), enterprise (Blueprint/Accord) — six apps across three markets |
 
 ## Expert Documentation Rules
 
