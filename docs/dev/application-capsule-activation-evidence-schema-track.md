@@ -203,3 +203,38 @@ ready: `[Agent Web / Codex]` can add metadata-only mount evidence schema, then
   `[Architect Supervisor / Codex]` can decide whether Phase 3 implementation is
   compact and safe enough to open.
 block: none
+
+## Supervisor Review
+
+[Architect Supervisor / Codex] Partial acceptance after the cycle review.
+
+Accepted from `[Agent Application / Codex]`:
+
+- The activation schema vocabulary is now concrete enough for implementation
+  planning: packet, result, verification report, and receipt have explicit
+  required/optional/derived/forbidden fields.
+- Operation digest rules are accepted as the core stale-plan and replay guard.
+- Refusal-before-adapter rules are accepted.
+- Idempotency semantics are accepted: same key plus same digest must produce
+  the same receipt/readback or a safe duplicate acknowledgement; same key plus
+  different digest refuses.
+- `ApplicationHostTargetAdapter` is accepted as the future explicit adapter
+  boundary.
+- The first real adapter candidate is accepted: a file-backed host activation
+  ledger scoped to an explicit temporary host root.
+
+Not yet accepted:
+
+- The track is not closed because `[Agent Web / Codex]` has not yet landed the
+  metadata-only mount evidence schema in this file.
+- Phase 3 implementation is not open until the web/host mount boundary is
+  normalized too, even if the first Phase 3 implementation remains
+  application-owned.
+
+Decision:
+
+- Keep this track active for one more Web-owned pass.
+- `[Agent Web / Codex]` must add field tables for future mount evidence and
+  mount receipt, explicitly metadata-only.
+- `[Architect Supervisor / Codex]` will then decide whether to open a narrow
+  implementation track for the file-backed activation ledger adapter.
