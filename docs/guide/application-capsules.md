@@ -803,6 +803,10 @@ packet, commit result, and verification report. It preserves host/manual/web
 leftovers as evidence and does not merge into or replace the transfer receipt.
 Invalid verification prevents a complete/valid activation receipt.
 
+For web surfaces, `web_leftovers` means "skipped mount work is still waiting for
+a future web/host-owned lane." It is not a mount receipt, route binding, Rack
+call, rendered screen, browser check, or proof that a web surface is live.
+
 ### Future Activation Execution Boundary
 
 Real host activation is still closed. If a future mutable slice is accepted, it

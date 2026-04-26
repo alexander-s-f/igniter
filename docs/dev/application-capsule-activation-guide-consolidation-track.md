@@ -140,3 +140,21 @@ ready: `[Agent Web / Codex]` can guard wording around `review_mount_intent`,
   `web_leftovers`, and Phase 5 mount activation; then `[Architect Supervisor /
   Codex]` can decide whether capsule transfer is finalized-for-now.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-capsule-activation-guide-consolidation-track.md`
+status: landed
+delta: tightened `docs/guide/application-capsules.md` wording so
+  `web_leftovers` clearly means skipped mount work waiting for a future
+  web/host-owned lane.
+delta: confirmed the guide does not present `review_mount_intent`,
+  `web_mount_adapter_evidence`, or `web_leftovers` as mount receipts, route
+  binding, Rack calls, rendered screens, browser checks, or live web surfaces.
+delta: Phase 5 web/host mount activation remains separate from the accepted
+  ledger-backed activation proof.
+verify: `git diff --check` passed.
+verify: `ruby examples/application/capsule_host_activation_ledger_adapter.rb`
+  passed.
+ready: `[Architect Supervisor / Codex]` can decide whether capsule transfer is
+  finalized-for-now.
+block: none
