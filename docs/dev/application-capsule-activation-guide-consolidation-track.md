@@ -112,3 +112,31 @@ Run focused specs if package code changes.
 2. `[Agent Web / Codex]` guards wording around web/mount boundaries.
 3. `[Architect Supervisor / Codex]` decides whether capsule transfer can pause
    as finalized-for-now and the team can return to showcase/app work.
+
+[Agent Application / Codex]
+track: `docs/dev/application-capsule-activation-guide-consolidation-track.md`
+status: landed
+delta: consolidated `docs/guide/application-capsules.md` around the accepted
+  lifecycle: transfer receipt -> activation readiness/plan/verification ->
+  dry-run -> commit-readiness -> ledger commit -> ledger verification ->
+  separate activation receipt.
+delta: clarified transfer receipt vs activation receipt: transfer receipt
+  proves files moved and verified; activation receipt proves only
+  ledger-backed acknowledgement/readback closure and does not replace the
+  transfer receipt.
+delta: made the non-activation boundary explicit: the file-backed ledger is a
+  fake-host audit proof, not load path mutation, constant loading,
+  provider/contract registration, app boot, web mount binding, route
+  activation, Rack/browser traffic, contract execution, discovery, or cluster
+  placement.
+delta: updated the roadmap stop line and compact `tracks.md` current-state
+  wording to reflect Phase 3/4 acceptance and guide consolidation as the active
+  step.
+verify: `git diff --check` passed.
+verify: `ruby examples/application/capsule_host_activation_ledger_adapter.rb`
+  passed.
+verify: `ruby examples/run.rb smoke` passed, 76 examples.
+ready: `[Agent Web / Codex]` can guard wording around `review_mount_intent`,
+  `web_leftovers`, and Phase 5 mount activation; then `[Architect Supervisor /
+  Codex]` can decide whether capsule transfer is finalized-for-now.
+block: none

@@ -548,25 +548,52 @@ or hashes only; it does not rerun apply execution, rerun applied verification,
 discover missing artifacts, repair files, apply host wiring, activate web, load
 constants, boot apps, or route traffic.
 
-### After Transfer Receipt
+### Transfer Receipt And Activation Receipt
 
 A complete receipt means the reviewed files landed and verified. It does not
 mean the receiving host has activated the capsule. Host integration remains a
 separate human/agent decision boundary.
 
-The current host activation review path is:
+The current accepted capsule lifecycle has two separate closure artifacts:
+
+- `ApplicationTransferReceipt` proves the reviewed files were copied and
+  verified under an explicit destination root.
+- `ApplicationHostActivationReceipt` proves reviewed application-owned
+  activation confirmations were acknowledged through the file-backed ledger
+  adapter and verified by readback.
+
+These receipts are intentionally independent. A complete transfer receipt does
+not imply activation, and an activation receipt does not replace the transfer
+receipt. Together they give an audit trail for "files moved" and "activation
+confirmations were acknowledged" without hiding host/runtime behavior.
+
+The accepted ledger-backed activation proof is:
 
 1. `ApplicationTransferReceipt` closes the file-transfer audit.
-2. Post-transfer host integration review names the host-owned decisions.
+2. Post-transfer host integration review names explicit host-owned decisions.
 3. `ApplicationHostActivationReadiness` checks whether those decisions are
    sufficient.
 4. `ApplicationHostActivationPlan` converts accepted readiness into ordered
    review operations.
 5. `ApplicationHostActivationPlanVerification` checks that the plan is still
    internally consistent and review-only.
-6. Stop. Igniter has reviewed activation intent; it has not activated the
-   host, loaded code, registered providers/contracts, mounted web, routed
-   traffic, or executed contracts.
+6. `ApplicationHostActivationDryRunResult` turns verified application-owned
+   confirmation operations into dry-run evidence for an explicit host target.
+7. `ApplicationHostActivationCommitReadiness` checks explicit adapter evidence
+   and keeps host/manual/web work as evidence requirements.
+8. `ApplicationHostActivationLedgerCommit` writes only file-backed ledger
+   acknowledgement records for reviewed application-owned confirmations.
+9. `ApplicationHostActivationLedgerVerification` reads those records back and
+   verifies packet/result/operation identity.
+10. `ApplicationHostActivationReceipt` closes the ledger proof as a separate
+    activation receipt.
+
+This is not real host activation. The ledger adapter is deliberately a fake
+host boundary: it writes acknowledgement JSON under a caller-supplied root so
+the lifecycle can be audited without mutating load paths, loading constants,
+registering providers/contracts, booting apps, binding web mounts, activating
+routes, rendering screens, calling Rack, sending browser traffic, executing
+contracts, discovering projects, or placing work on a cluster.
 
 Use the existing transfer artifacts as the post-transfer checklist:
 
@@ -671,59 +698,16 @@ screen graphs, mutate host state, load constants, boot apps, register
 providers or contracts, bind mounts, activate routes, send browser traffic,
 execute contracts, discover projects, or place work on a cluster.
 
-This is the stop line for the current guide: a valid activation plan
-verification means the activation intent is reviewed, not performed. The guide
-deliberately stops before project-wide discovery, automatic destination
-selection, applying host wiring, loading constants, registering providers or
-contracts, booting apps, mounting web routes, sending browser traffic,
-executing contracts, or placing work on a cluster.
+This is the review stop line. A valid activation plan verification means the
+activation intent is reviewed, not performed. The only accepted commit-shaped
+step after this point is the file-backed ledger proof described below: it
+acknowledges reviewed application-owned confirmations as records, not as live
+host mutation.
 
-### Future Activation Execution Boundary
+### Ledger-Backed Activation Proof
 
-Igniter is not yet implementing activation execution. If a future mutable slice
-is accepted, it must start from the verified activation plan and stay
-refusal-first. The current ownership map is:
-
-- `confirm_host_export` and `confirm_host_capability` are host-owned evidence.
-  Application may review their names and metadata, but it must not construct or
-  inject host objects.
-- `confirm_load_path`, `confirm_provider`, `confirm_contract`, and
-  `confirm_lifecycle` are possible future application-owned activation
-  operations only after explicit host target, explicit commit, and no implicit
-  discovery or ambient constant loading.
-- `acknowledge_manual_actions` remains host-owned/manual unless a later track
-  narrows a safe explicit adapter for a specific action type.
-- `review_mount_intent` is web-owned or host-owned activation metadata.
-  Application must not bind web mounts, activate routes, render screens, call
-  Rack, send browser traffic, or inspect web component graphs.
-
-These behaviors are too risky for the first activation execution boundary and
-must stay out of v1 execution unless a later track accepts a smaller proof:
-project-wide discovery, automatic constant loading, inferred provider or
-contract registration, automatic lifecycle boot, implicit web mount binding,
-route activation, browser traffic, contract execution during activation, and
-cluster placement.
-
-Any future execution boundary would require these preconditions before doing
-mutable work:
-
-- a valid `ApplicationHostActivationPlanVerification`
-- an explicit `commit: true`-style caller decision
-- an explicit host target or adapter supplied by the caller
-- no readiness blockers, plan blockers, verification findings, or unresolved
-  manual actions
-- no project-wide discovery, implicit destination selection, ambient constant
-  loading, or automatic web activation
-
-The future execution report would need to be as explicit as transfer apply
-reports: committed/dry-run status, verified plan identity or digest, accepted
-operation count, applied operations, skipped operations, refusals, warnings,
-manual actions left for the host, surface count, and metadata. It would still
-need a separate receipt/audit object before being treated as activation
-closure. Until that future track exists, the verified plan is review evidence
-only.
-
-Igniter currently supports only the dry-run side of that boundary:
+The ledger proof exists to make the activation lifecycle auditable before any
+real host activation lane exists. It starts with dry-run evidence:
 
 ```ruby
 dry_run = Igniter::Application.dry_run_host_activation(
@@ -741,18 +725,10 @@ verified activation plan data. Application-owned review operations such as
 `confirm_load_path`, `confirm_provider`, `confirm_contract`, and
 `confirm_lifecycle` become `would_apply` only when the caller supplies an
 explicit host target. Host export/capability checks, manual actions, and
-`review_mount_intent` remain skipped review evidence for host-owned,
-manual, or web-owned future work.
+`review_mount_intent` remain skipped review evidence for host-owned, manual, or
+web-owned future work.
 
-The only current commit-shaped path is the file-backed activation ledger
-adapter. It acknowledges reviewed application-owned confirmations by writing
-ledger records under an explicit caller-supplied host root. It does not mutate
-host state, change load paths, load constants, register providers or contracts,
-boot apps, bind web mounts, activate routes, render, call Rack, send browser
-traffic, execute contracts, discover projects, or place work on a cluster.
-
-Commit readiness is a read-only gate over dry-run evidence and explicit
-adapter evidence:
+Commit readiness is still a gate, not activation:
 
 ```ruby
 commit_readiness = Igniter::Application.host_activation_commit_readiness(
@@ -767,21 +743,11 @@ commit_readiness = Igniter::Application.host_activation_commit_readiness(
 commit_readiness.to_h
 ```
 
-`ApplicationHostActivationCommitReadiness` reports `ready`,
-`commit_allowed`, dry-run/committed flags, blockers, warnings,
-`required_adapters`, `provided_adapters`, `would_apply_count`,
-`skipped_count`, and metadata. `commit_allowed` is descriptive only: it means a
-future activation commit proposal has enough explicit evidence to be reviewed.
-It does not expose a commit option and it does not perform activation.
-
-The gate refuses missing or invalid dry-run evidence, committed evidence,
-non-executable dry-runs, dry-run refusals, and missing adapter evidence.
-Application-owned dry-run operations require an explicit application host
-adapter. Skipped host-owned evidence, manual actions, and web/host-owned mount
-metadata require explicit acknowledgement or adapter evidence before readiness
-can be true. The application still must not discover adapters, mutate host
-state, bind web mounts, activate routes, render, call Rack, send browser
-traffic, execute contracts, or place work on a cluster.
+`ApplicationHostActivationCommitReadiness` reports `ready`, `commit_allowed`,
+dry-run/committed flags, blockers, warnings, `required_adapters`,
+`provided_adapters`, `would_apply_count`, `skipped_count`, and metadata.
+`commit_allowed` means the evidence is ready for the ledger proof; it does not
+mean Igniter can mutate a live host.
 
 The ledger commit proof accepts only explicit activation evidence packets and a
 caller-supplied adapter:
@@ -797,6 +763,13 @@ result = Igniter::Application.host_activation_ledger_commit(
 
 result.to_h
 ```
+
+The only current commit-shaped path is the file-backed activation ledger
+adapter. It acknowledges reviewed application-owned confirmations by writing
+ledger records under an explicit caller-supplied host root. It does not mutate
+host state, change load paths, load constants, register providers or contracts,
+boot apps, bind web mounts, activate routes, render, call Rack, send browser
+traffic, execute contracts, discover projects, or place work on a cluster.
 
 The result reports committed/refused status, applied acknowledgement summaries,
 preserved skipped evidence, refusal details, and adapter receipts. Reusing the
@@ -829,6 +802,29 @@ a separate activation receipt linked to the transfer receipt id, evidence
 packet, commit result, and verification report. It preserves host/manual/web
 leftovers as evidence and does not merge into or replace the transfer receipt.
 Invalid verification prevents a complete/valid activation receipt.
+
+### Future Activation Execution Boundary
+
+Real host activation is still closed. If a future mutable slice is accepted, it
+must start from explicit verified evidence and stay refusal-first. The current
+ownership map is:
+
+- `confirm_host_export` and `confirm_host_capability` are host-owned evidence.
+  Application may review their names and metadata, but it must not construct or
+  inject host objects.
+- `confirm_load_path`, `confirm_provider`, `confirm_contract`, and
+  `confirm_lifecycle` are currently ledger acknowledgement records only. A
+  later real host lane would need a new explicit adapter and review track.
+- `acknowledge_manual_actions` remains host-owned/manual unless a later track
+  narrows a safe explicit adapter for a specific action type.
+- `review_mount_intent` is web-owned or host-owned activation metadata. In the
+  current proof it becomes `web_leftovers` evidence, not route binding.
+
+Phase 5 web/host mount activation would start with a separate mount adapter,
+mount verification, and mount receipt lane. Until then, application must not
+bind web mounts, activate routes, render screens, call Rack, send browser
+traffic, inspect web component graphs, or treat `web_leftovers` as applied
+work.
 
 ## Runnable Examples
 

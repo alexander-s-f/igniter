@@ -91,7 +91,7 @@ block: none | <blocker>
 - Host Activation Ledger Adapter accepted the narrow Phase 3 proof.
 - Host Activation Ledger Verification Receipt accepted Phase 4 over the
   ledger proof.
-- Next active track consolidates guide/current-state wording:
+- Current active track consolidates guide/current-state wording:
   [Activation Guide Consolidation Track](./application-capsule-activation-guide-consolidation-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
@@ -154,5 +154,5 @@ Next:
   agents completed the evidence schema pass.
 - Phase 3 file-backed activation ledger proof is accepted.
 - Phase 4 ledger verification and activation receipt are accepted.
-- Next step is guide consolidation; real host activation and web mount behavior
-  remain out of scope.
+- Current step is guide consolidation; real host activation and web mount
+  behavior remain out of scope.

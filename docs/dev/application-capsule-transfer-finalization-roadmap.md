@@ -71,15 +71,20 @@ The accepted post-transfer activation review chain is:
 2. host activation readiness
 3. host activation plan
 4. host activation plan verification
-5. activation execution boundary design
-6. host activation dry-run
-7. host activation commit-readiness
+5. host activation dry-run
+6. host activation commit-readiness
+7. file-backed activation ledger commit
+8. ledger readback verification
+9. separate activation receipt
 
 Current stop line:
 
-- `ApplicationHostActivationCommitReadiness#commit_allowed` is descriptive
-  evidence only.
-- It does not expose commit mode and does not mutate host state.
+- The accepted commit-shaped path is only the file-backed activation ledger
+  proof.
+- Activation receipt proves ledger acknowledgement/readback closure, not real
+  host activation.
+- Host runtime mutation, web mount activation, route binding, Rack/browser
+  traffic, contract execution, and cluster placement remain closed.
 
 ## Finalization Phases
 
