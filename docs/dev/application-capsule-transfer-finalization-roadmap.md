@@ -240,5 +240,7 @@ Accepted next line:
 - Host Activation Ledger Adapter accepted the narrow Phase 3 proof.
 - Host Activation Ledger Verification Receipt accepted Phase 4 closure for the
   file-backed proof.
-- Next useful track is **Activation Guide Consolidation**: make the accepted
-  lifecycle and current non-activation boundary easy to read publicly.
+- Activation Guide Consolidation accepted the public lifecycle and stop-line
+  wording.
+- Capsule transfer and ledger-backed activation are finalized-for-now.
+- Next active work returns to practical showcase/application pressure.

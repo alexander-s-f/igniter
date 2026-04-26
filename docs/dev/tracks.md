@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review capsule activation guide consolidation and decide whether capsule transfer can pause finalized-for-now | [Activation Guide Consolidation Track](./application-capsule-activation-guide-consolidation-track.md) | [Host Activation Ledger Verification Receipt Track](./application-capsule-host-activation-ledger-verification-receipt-track.md), [Capsule Transfer Finalization Roadmap](./application-capsule-transfer-finalization-roadmap.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Consolidate public capsule activation story around ledger commit, verification, and activation receipt | [Activation Guide Consolidation Track](./application-capsule-activation-guide-consolidation-track.md) | [Host Activation Ledger Verification Receipt Track](./application-capsule-host-activation-ledger-verification-receipt-track.md), [Application Capsules Guide](../guide/application-capsules.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Guard guide wording so web mount remains evidence/leftovers, not implemented activation | [Activation Guide Consolidation Track](./application-capsule-activation-guide-consolidation-track.md) | [Host Activation Ledger Verification Receipt Track](./application-capsule-host-activation-ledger-verification-receipt-track.md), [Application Capsules Guide](../guide/application-capsules.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review first showcase app selection and open bounded implementation track | [Application Showcase Selection Track](./application-showcase-selection-track.md) | [Application Proposals](../experts/application-proposals.md), [Igniter Strategic Report](../experts/igniter-strategic-report.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Select and scope the first one-process application POC; default candidate is Lense | [Application Showcase Selection Track](./application-showcase-selection-track.md) | [Application Proposals](../experts/application-proposals.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Scope the minimum web surface and interaction loop for the selected showcase POC | [Application Showcase Selection Track](./application-showcase-selection-track.md) | [Application Proposals](../experts/application-proposals.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -91,8 +91,10 @@ block: none | <blocker>
 - Host Activation Ledger Adapter accepted the narrow Phase 3 proof.
 - Host Activation Ledger Verification Receipt accepted Phase 4 over the
   ledger proof.
-- Current active track consolidates guide/current-state wording:
-  [Activation Guide Consolidation Track](./application-capsule-activation-guide-consolidation-track.md).
+- Activation Guide Consolidation accepted capsule transfer/activation as
+  finalized-for-now.
+- Next active track selects the first real showcase/reference app:
+  [Application Showcase Selection Track](./application-showcase-selection-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 
@@ -154,5 +156,7 @@ Next:
   agents completed the evidence schema pass.
 - Phase 3 file-backed activation ledger proof is accepted.
 - Phase 4 ledger verification and activation receipt are accepted.
-- Current step is guide consolidation; real host activation and web mount
-  behavior remain out of scope.
+- Capsule transfer/activation is finalized-for-now; real host activation and
+  web mount behavior remain out of scope.
+- Next step is a practical one-process showcase app selection, with Lense as
+  the default candidate.

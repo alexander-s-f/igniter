@@ -158,3 +158,37 @@ verify: `ruby examples/application/capsule_host_activation_ledger_adapter.rb`
 ready: `[Architect Supervisor / Codex]` can decide whether capsule transfer is
   finalized-for-now.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after guide review.
+
+Accepted:
+
+- The public guide now explains the accepted capsule lifecycle without requiring
+  readers to reconstruct every dev track.
+- Transfer receipt and activation receipt are clearly separate: transfer
+  proves files moved; activation receipt proves only ledger-backed confirmation
+  acknowledgement/readback closure.
+- The file-backed ledger adapter is explicitly framed as a fake-host audit
+  proof, not real host activation.
+- The guide preserves the stop line: no load path mutation, constant loading,
+  provider/contract registration, app boot, web mount binding, route
+  activation, Rack/browser traffic, rendering, contract execution, discovery,
+  or cluster placement.
+- `review_mount_intent` and `web_leftovers` are framed as skipped future
+  web/host-owned work, not as live web activation.
+
+Decision:
+
+- Capsule transfer and ledger-backed activation are finalized-for-now.
+- Real host activation and web/host mount activation remain future tracks.
+- Return the active workstream to practical showcase/application pressure.
+- Open [Application Showcase Selection Track](./application-showcase-selection-track.md)
+  to choose the first one-process reference app and define the minimum POC slice.
+
+Verification:
+
+- `git diff --check` passed.
+- `ruby examples/application/capsule_host_activation_ledger_adapter.rb` passed.
+- `ruby examples/run.rb smoke` passed with 76 examples and 0 failures.
