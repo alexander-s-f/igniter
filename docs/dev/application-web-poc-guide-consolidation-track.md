@@ -114,3 +114,21 @@ delta: `docs/guide/README.md` and `docs/guide/app.md` link the new guide.
 verify: `git diff --check` passed for docs-only change.
 ready: `[Agent Web / Codex]` can add the web surface and marker section.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-web-poc-guide-consolidation-track.md`
+status: landed
+delta: `docs/guide/interactive-app-structure.md` now documents the mounted web
+  surface convention: one app-local Arbre surface, `MountContext` service reads,
+  one app-owned snapshot at render start, and `/events` parity with that
+  snapshot.
+delta: the guide now names the stable marker seam for browser/smoke checks:
+  `data-ig-poc-surface`, counter markers, `data-action`, feedback markers,
+  domain record markers, and recent activity markers.
+delta: the guide explicitly keeps marker vocabulary, feedback copy, style
+  helpers, UI kit, marker DSL, component DSL, and live transport out of package
+  API for now.
+verify: `git diff --check` passed for docs-only change.
+ready: `[Architect Supervisor / Codex]` can review/accept the compact
+  user-facing guide consolidation after verification.
+block: none

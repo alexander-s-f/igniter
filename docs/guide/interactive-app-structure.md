@@ -58,7 +58,43 @@ Keep these local for now:
 
 ## Web Structure
 
-To be filled by `[Agent Web / Codex]`.
+Use one mounted web surface for the screen.
+
+- Keep the Arbre page, presentation helpers, feedback copy, and marker names in
+  the local `web/` file.
+- Read app state through `MountContext`, usually with
+  `assigns[:ctx].service(:service_name).call`.
+- Treat the mount as a consumer of an app read snapshot, not as the owner of
+  command state.
+- Return the mount from the app as an opaque web object.
+
+Render from one app-owned snapshot.
+
+- Take the snapshot once near the top of the render block.
+- Use that snapshot for counters, records, recent activity, and footer hints.
+- Keep `/events` on the same snapshot shape so API and HTML inspection agree.
+- Avoid extra direct service reads during rendering unless a later app proves
+  the snapshot is too coarse.
+
+Use stable `data-` markers as the inspection seam.
+
+- Mark the surface with `data-ig-poc-surface`.
+- Mark visible counters with names such as `data-open-count` or
+  `data-critical-count`.
+- Mark command buttons with `data-action`.
+- Mark feedback with `data-ig-feedback` and `data-feedback-code`.
+- Mark domain records with app-local ids and states such as `data-task-id`,
+  `data-task-state`, `data-signal-id`, or `data-signal-status`.
+- Mark recent activity with `data-ig-activity`, `data-activity-kind`, and the
+  domain id needed by the smoke check.
+
+Keep marker vocabulary local for now.
+
+- Surface names, action names, id attribute names, status labels, feedback copy,
+  and style helpers belong to the app.
+- Do not introduce a generic UI kit, marker DSL, component DSL, or live
+  transport until another distinct app repeats enough mechanical code to make
+  local readability worse.
 
 ## Validation
 
