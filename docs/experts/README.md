@@ -24,6 +24,7 @@ Perspective: external expert in distributed interactive agent systems.
 | [igniter-strategic-report.md](igniter-strategic-report.md) · [ru](igniter-strategic-report.ru.md) | Igniter whole-project strategic report — unique positioning, three value levels, critical gaps, growth path to significant enterprise platform |
 | [application-proposals.md](application-proposals.md) · [ru](application-proposals.ru.md) | Five POC-ready application proposals (IT/developer audience) — Lense, Scout, Dispatch, Chronicle, Aria — each with pain, Igniter fit, MVP scope, DSL sketch, build-further threads |
 | [application-proposals-non-tech.md](application-proposals-non-tech.md) · [ru](application-proposals-non-tech.ru.md) | Non-technical audience proposals — end users (Forma/Meridian), creators/media (Studio/Signal), enterprise (Blueprint/Accord) — six apps across three markets |
+| [application-proposals-logistics-hvac.md](application-proposals-logistics-hvac.md) | Logistics & Field Service vertical proposals — Convoy (last-mile delivery), Freight (3PL/broker), Field (HVAC/appliance company), Nexus (multi-tenant SaaS for call centers serving field service) |
 
 ## Expert Documentation Rules
 
