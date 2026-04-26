@@ -238,3 +238,168 @@ Decision:
   mount receipt, explicitly metadata-only.
 - `[Architect Supervisor / Codex]` will then decide whether to open a narrow
   implementation track for the file-backed activation ledger adapter.
+
+## Web/Host Mount Evidence Schema
+
+[Agent Web / Codex]
+
+This schema is metadata-only. It describes what a later Phase 5 web/host mount
+lane would need to prove before binding a mount. It does not authorize route
+activation, rendering, Rack calls, browser traffic, or screen/component graph
+inspection.
+
+### MountEvidencePacket
+
+| Field | Status | Meaning |
+| --- | --- | --- |
+| `mount_evidence_id` | required | Stable id for this mount evidence packet. |
+| `schema_version` | required | Version of the mount evidence schema. |
+| `activation_evidence_packet_id` | required | Link to the application activation evidence packet that preserved the skipped mount work. |
+| `activation_receipt_id` | optional | Link to a completed activation receipt when Phase 5 runs after Phase 4. |
+| `review_mount_intent_id` | required | Stable identity of the verified `review_mount_intent` operation. |
+| `mount_intent_metadata` | required | Original supplied intent metadata from the verified activation plan. |
+| `surface_metadata_ref` | required | Reference or digest for supplied web surface metadata. |
+| `skipped_operation_id` | required | Stable identity of the dry-run skipped `review_mount_intent` operation. |
+| `mount_digest` | required | Digest over the reviewed intent, surface metadata ref, mount path, host target ref, and adapter capability evidence. |
+| `commit_decision` | required | Explicit host/web caller decision; must be true before a future adapter call. |
+| `idempotency_key` | required | Retry key scoped to `mount_digest`. |
+| `caller_metadata` | required | Actor, origin, reason, and trace metadata. |
+| `receipt_sink` | required | Where a future mount result/receipt must be written or returned. |
+| `web_mount_descriptor` | required | Supplied web-owned mount object descriptor or stable external reference, not a live object. |
+| `host_mount_adapter` | required | Supplied host rack/router target adapter evidence. |
+| `path_conflict_policy` | required | Explicit host policy for path conflicts such as refuse, replace, or shadow. |
+| `rollback_policy` | required | Evidence that a later mount lane can disable or roll back the binding. |
+| `policy_refs` | optional | Compliance, operator, or host policy references. |
+| `created_at` | derived | Packet creation timestamp. |
+| `adapter_capability_map` | derived | Normalized capabilities from supplied web and host adapter evidence. |
+
+Forbidden fields: live `ApplicationWebMount` objects, live rack/router objects,
+route tables, rendered HTML, Rack responses, browser screenshots, loaded
+screen/component graphs, discovered filesystem state, contract execution
+results, application boot state, and cluster placement data.
+
+### Mount Adapter Evidence
+
+| Field | Status | Meaning |
+| --- | --- | --- |
+| `adapter_name` | required | Stable adapter name supplied by the caller. |
+| `adapter_kind` | required | `web_mount_adapter` or `host_mount_adapter`. |
+| `adapter_fingerprint` | required | Version, digest, or implementation fingerprint for audit/readback. |
+| `supported_operation_types` | required | Must explicitly include the mount operation type a future lane will request. |
+| `dry_run_compatible` | required | Whether the adapter can produce non-mutating preview/readback evidence. |
+| `readback_supported` | required | Whether receipts can be read back by idempotency key and mount digest. |
+| `rollback_supported` | required | Whether the adapter can disable or roll back the mount. |
+| `host_target_ref` | required for host adapter | Stable host rack/router target reference. |
+| `mount_path` | required | Path that the adapter is allowed to bind later. |
+| `limitations` | optional | Declared unsupported features or host policy limits. |
+
+### Future Mount Commit Result
+
+| Field | Status | Meaning |
+| --- | --- | --- |
+| `mount_result_id` | required | Stable result id. |
+| `mount_evidence_id` | required | Evidence packet used for the future attempt. |
+| `mount_digest` | required | Digest accepted by the adapter. |
+| `committed` | required | Whether the future mount lane mutated host/web state. |
+| `dry_run` | required | Whether this was only preview evidence. |
+| `bound_operations` | required | Mount operations accepted by web/host adapters. |
+| `skipped_operations` | required | Preserved host/web/manual leftovers. |
+| `refusals` | required | Refusal records if the mount could not proceed. |
+| `warnings` | required | Non-blocking warnings. |
+| `web_adapter_receipts` | required | Receipt refs returned by web-owned adapter evidence. |
+| `host_adapter_receipts` | required | Receipt refs returned by host-owned adapter evidence. |
+| `rollback_refs` | required | Disable/rollback handles returned by adapters. |
+| `started_at` | required | Future attempt start timestamp. |
+| `finished_at` | required | Future attempt finish timestamp. |
+| `caller_metadata` | required | Actor and trace metadata carried forward. |
+
+Forbidden fields: rendered output, Rack response bodies, browser traffic,
+screen/component graph internals, contract execution values, application
+lifecycle results, cluster placement, and implicit discovery output.
+
+### Future Mount Verification Report
+
+| Field | Status | Meaning |
+| --- | --- | --- |
+| `mount_verification_id` | required | Stable verification report id. |
+| `mount_evidence_id` | required | Evidence packet being verified. |
+| `mount_result_id` | required | Future mount result being read back. |
+| `mount_digest` | required | Digest read from evidence and adapter receipts. |
+| `valid` | required | Whether result and evidence align. |
+| `complete` | required | Whether required readback evidence is present. |
+| `findings` | required | Structured verification findings. |
+| `verified_operations` | required | Operations matched against adapter readback. |
+| `unexpected_operations` | required | Any unplanned route or mount operation reported by adapters. |
+| `adapter_readbacks` | required | Readback records from web and host adapters. |
+| `idempotency_key` | required | Retry key observed in adapter readback. |
+| `verified_at` | required | Verification timestamp. |
+
+### MountReceipt
+
+| Field | Status | Meaning |
+| --- | --- | --- |
+| `mount_receipt_id` | required | Closure id for the future mount activation event. |
+| `schema_version` | required | Version of the mount receipt schema. |
+| `mount_evidence_id` | required | Evidence packet used. |
+| `mount_result_id` | required | Future mount commit/dry-run result id. |
+| `mount_verification_id` | required | Verification report id. |
+| `activation_receipt_id` | optional | Link to activation receipt when available. |
+| `transfer_receipt_id` | required | Link back to the transfer receipt chain. |
+| `review_mount_intent_id` | required | Reviewed mount operation identity. |
+| `complete` | required | Whether mount activation is closed. |
+| `valid` | required | Whether verification passed. |
+| `committed` | required | Whether a future lane actually bound anything. |
+| `mount_digest` | required | Digest tying receipt to evidence and result. |
+| `counts` | required | Bound, skipped, refused, warning, and finding counts. |
+| `web_leftovers` | required | Web-owned work not completed by the future lane. |
+| `host_leftovers` | required | Host-owned work not completed by the future lane. |
+| `manual_leftovers` | required | Manual actions still required. |
+| `adapter_receipt_refs` | required | Web and host adapter receipt references. |
+| `rollback_refs` | required | Disable/rollback references for audit and recovery. |
+| `audit_metadata` | required | Actor, policy, trace, and receipt sink metadata. |
+| `issued_at` | required | Receipt issue timestamp. |
+
+The mount receipt must remain separate from transfer and activation receipts.
+Transfer proves files moved; activation proves application-owned confirmations;
+mount receipt would prove only the later web/host mount binding lane.
+
+### Phase 5 Opening Requirements
+
+Before a web/host mount commit lane can open, a future track must provide:
+
+- a real web mount adapter or stable descriptor source
+- a real host rack/router adapter with readback by idempotency key
+- path conflict refusal behavior
+- dry-run preview and committed result shapes
+- rollback or disable handle evidence
+- verification that no unplanned routes/screens were bound
+- a mount receipt writer or return channel
+- proof that application does not load `igniter-web`, create mounts, bind
+  routes, render screens, call Rack, inspect component graphs, or send browser
+  traffic
+
+[Agent Web / Codex]
+track: `docs/dev/application-capsule-activation-evidence-schema-track.md`
+status: landed
+delta: added metadata-only field tables for `MountEvidencePacket`,
+  `MountAdapterEvidence`, future `MountCommitResult`,
+  `MountVerificationReport`, and `MountReceipt`.
+delta: mount evidence requires reviewed `review_mount_intent` identity,
+  original mount intent metadata, surface metadata ref, skipped dry-run
+  operation id, mount digest, explicit caller decision, idempotency key,
+  receipt sink, web mount descriptor, host mount adapter, path conflict policy,
+  and rollback policy.
+delta: explicitly forbids live mount/router objects, route tables, rendered
+  HTML, Rack responses, browser screenshots, screen/component graph internals,
+  discovery output, contract results, app boot state, and cluster placement.
+delta: future mount receipt remains separate from transfer and application
+  activation receipts, with its own evidence/result/verification ids, counts,
+  leftovers, adapter receipt refs, rollback refs, and audit metadata.
+delta: Phase 5 opening requirements now require real web/host adapters,
+  readback by idempotency key, path-conflict refusal, dry-run/commit shapes,
+  rollback evidence, unplanned-route verification, receipt sink, and no
+  application-owned web activation behavior.
+verify: `git diff --check` passed for docs-only mount schema.
+ready: `[Architect Supervisor / Codex]` can decide whether Phase 3
+  implementation is safe to open for the file-backed activation ledger adapter.
+block: none
