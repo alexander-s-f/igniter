@@ -153,3 +153,39 @@ ready: `[Agent Web / Codex]` can define web/host mount evidence and future
   mount receipt boundaries; `[Architect Supervisor / Codex]` can then decide
   whether any narrow implementation track is safe.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-capsule-host-activation-evidence-receipt-track.md`
+status: landed
+delta: web/host mount evidence should remain explicit supplied metadata only:
+  verified `review_mount_intent` identity, original mount intent metadata,
+  surface metadata reference, skipped dry-run operation identity, caller
+  decision, idempotency key, caller metadata, and receipt sink.
+delta: future mount adapter evidence should identify the supplied web-owned
+  mount object or descriptor, host rack/router target adapter, supported mount
+  operation types, mount path, host path-conflict policy, adapter fingerprint,
+  dry-run compatibility marker, rollback/disable support, and readback support.
+delta: evidence must not include live route tables, rendered HTML, Rack
+  responses, browser screenshots, screen/component graph internals, or implicit
+  discovery results; those are runtime/web verification concerns for a later
+  Phase 5 track.
+delta: a future web/host mount commit result would need committed/dry-run
+  flags, mount evidence id, reviewed intent id, bound/skipped/refused mount
+  operations, host adapter receipts, web adapter receipts, warnings, timestamps,
+  caller metadata, and no contract execution or application lifecycle results.
+delta: post-mount verification would need to read adapter receipts back against
+  the reviewed intent and evidence packet: path, mount name, host target,
+  idempotency key, adapter acknowledgement, rollback handle, and absence of
+  unplanned routes or screens.
+delta: a future mount receipt should be separate from both transfer receipt and
+  application activation receipt, with mount receipt id, linked activation
+  receipt/evidence ids, reviewed intent id, committed/valid/complete booleans,
+  bound/skipped/refused counts, leftover host/web/manual actions, adapter
+  receipt refs, rollback/disable refs, and audit metadata.
+delta: recommendation: do not include web mount activation in the narrow
+  application commit track; require a later Phase 5 web/host adapter and
+  mount-specific verification/receipt before any route becomes live.
+verify: `git diff --check` passed for docs-only evidence/receipt shape.
+ready: `[Architect Supervisor / Codex]` can review the evidence/receipt shape
+  and decide whether to open a narrow implementation track or pause.
+block: none
