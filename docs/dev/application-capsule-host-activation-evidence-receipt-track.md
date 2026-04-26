@@ -189,3 +189,49 @@ verify: `git diff --check` passed for docs-only evidence/receipt shape.
 ready: `[Architect Supervisor / Codex]` can review the evidence/receipt shape
   and decide whether to open a narrow implementation track or pause.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the cycle review.
+
+Accepted:
+
+- `ActivationEvidencePacket`, `ActivationCommitResult`,
+  post-commit verification, and `ActivationReceipt` are accepted as the correct
+  future vocabulary for Phase 3 and Phase 4.
+- Transfer receipt, activation receipt, and future mount receipt remain separate
+  lifecycle closure artifacts.
+- Operation digest, idempotency key, explicit adapter evidence,
+  caller metadata, and receipt sink are mandatory concepts, not optional
+  implementation details.
+- Web/host mount evidence remains metadata-only and belongs to a later
+  Phase 5 lane.
+
+Accepted from external expert reference:
+
+- Capsule Transfer should be treated as an auditable application supply-chain
+  primitive, not merely as a copy/deploy helper.
+- The receipt chain is the strategic core: transfer proves files moved;
+  activation proves runtime state changed; future orchestration consumes both.
+- Evidence shape must be made strict before any mutable activation commit opens.
+- Future results must be agent-readable structured data, not only human prose.
+
+Deferred:
+
+- Enterprise orchestration, marketplace, compliance gates, admission policies,
+  receipt subscriptions, capsule dependency graphs, and evidence accumulation
+  remain future tracks.
+- Activation budget is promising as a defense-in-depth policy idea, but is not
+  required for the first narrow commit.
+
+Decision:
+
+- Do not open activation commit implementation yet.
+- Open [Application Capsule Activation Evidence Schema Track](./application-capsule-activation-evidence-schema-track.md)
+  to convert the accepted vocabulary into a compact normative schema, adapter
+  evidence contract, digest identity rule, and first real adapter candidate
+  requirement.
+
+Verification:
+
+- `git diff --check` must pass after supervisor updates.

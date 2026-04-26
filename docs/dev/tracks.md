@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review activation evidence/receipt shape before any commit implementation | [Activation Evidence And Receipt Track](./application-capsule-host-activation-evidence-receipt-track.md) | [Activation Commit Boundary Review](./application-capsule-host-activation-commit-boundary-review-track.md), [Capsule Transfer Finalization Roadmap](./application-capsule-transfer-finalization-roadmap.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Define activation evidence packet, future commit result, verification, and receipt shape; no implementation | [Activation Evidence And Receipt Track](./application-capsule-host-activation-evidence-receipt-track.md) | [Activation Commit Boundary Review](./application-capsule-host-activation-commit-boundary-review-track.md), [Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md), [Application Capsules Guide](../guide/application-capsules.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Define web/host mount evidence and future receipt boundary; no web activation | [Activation Evidence And Receipt Track](./application-capsule-host-activation-evidence-receipt-track.md) | [Activation Commit Boundary Review](./application-capsule-host-activation-commit-boundary-review-track.md), [Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md), [Application Capsules Guide](../guide/application-capsules.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review activation evidence schema and decide whether Phase 3 implementation can open | [Activation Evidence Schema Track](./application-capsule-activation-evidence-schema-track.md) | [Activation Evidence And Receipt Track](./application-capsule-host-activation-evidence-receipt-track.md), [Capsule Transfer Finalization Roadmap](./application-capsule-transfer-finalization-roadmap.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Convert activation evidence/receipt vocabulary into normative schema and adapter contract; no implementation | [Activation Evidence Schema Track](./application-capsule-activation-evidence-schema-track.md) | [Activation Evidence And Receipt Track](./application-capsule-host-activation-evidence-receipt-track.md), [Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md), [Application Capsules Guide](../guide/application-capsules.md), [Capsule Transfer Expert Report](../experts/capsule-transfer-expert-report.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Convert mount evidence/receipt boundary into metadata-only schema; no web activation | [Activation Evidence Schema Track](./application-capsule-activation-evidence-schema-track.md) | [Activation Evidence And Receipt Track](./application-capsule-host-activation-evidence-receipt-track.md), [Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md), [Application Capsules Guide](../guide/application-capsules.md), [Capsule Transfer Expert Report](../experts/capsule-transfer-expert-report.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -76,8 +76,12 @@ block: none | <blocker>
   not package API.
 - Current line returns to capsule transfer:
   [Capsule Transfer Finalization Roadmap](./application-capsule-transfer-finalization-roadmap.md).
+- Activation Evidence And Receipt accepted the right vocabulary.
+- External expert report accepted as strategic reference, not implementation
+  mandate:
+  [Capsule Transfer Expert Report](../experts/capsule-transfer-expert-report.md).
 - Next active track is docs/design only:
-  [Activation Evidence And Receipt Track](./application-capsule-host-activation-evidence-receipt-track.md).
+  [Activation Evidence Schema Track](./application-capsule-activation-evidence-schema-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 
@@ -136,4 +140,5 @@ Deferred:
 Next:
 
 - Boundary review accepted only a narrow possible Phase 3; Application/Web
-  agents must define evidence and receipt shapes before any implementation.
+  agents must now normalize evidence and receipt shapes into schema and adapter
+  contract before any implementation.

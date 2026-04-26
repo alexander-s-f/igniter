@@ -116,8 +116,9 @@ Current decision:
 
 - Boundary review accepted only a narrow adapter-backed application-owned
   confirmation boundary as a possible future Phase 3.
-- Runtime implementation is still blocked until activation evidence and receipt
-  shapes are defined.
+- Evidence/receipt vocabulary is accepted, but runtime implementation is still
+  blocked until the vocabulary is converted into a normative schema, digest
+  identity rule, adapter evidence contract, and first real adapter candidate.
 
 ### Phase 3: Narrow Activation Commit
 
@@ -212,6 +213,7 @@ Accepted next line:
 - Return to capsule transfer through this finalization roadmap.
 - Do not jump directly to activation commit.
 - Activation Commit Boundary Review accepted only a narrow possible Phase 3.
-- Next useful track is **Activation Evidence And Receipt**: a docs/design pass
-  that defines evidence, commit-result, verification, and receipt shapes before
-  any implementation.
+- Activation Evidence And Receipt accepted the right vocabulary.
+- Next useful track is **Activation Evidence Schema**: a docs/design pass that
+  makes the packet/result/verification/receipt schema and adapter evidence
+  contract precise before any implementation.
