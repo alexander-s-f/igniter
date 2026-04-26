@@ -116,9 +116,9 @@ Current decision:
 
 - Boundary review accepted only a narrow adapter-backed application-owned
   confirmation boundary as a possible future Phase 3.
-- Evidence/receipt vocabulary is accepted, but runtime implementation is still
-  blocked until the vocabulary is converted into a normative schema, digest
-  identity rule, adapter evidence contract, and first real adapter candidate.
+- Evidence/receipt vocabulary and normative schema are accepted.
+- Phase 3 is open only for a file-backed host activation ledger adapter scoped
+  to an explicit temporary host root.
 
 ### Phase 3: Narrow Activation Commit
 
@@ -214,6 +214,8 @@ Accepted next line:
 - Do not jump directly to activation commit.
 - Activation Commit Boundary Review accepted only a narrow possible Phase 3.
 - Activation Evidence And Receipt accepted the right vocabulary.
-- Next useful track is **Activation Evidence Schema**: a docs/design pass that
-  makes the packet/result/verification/receipt schema and adapter evidence
-  contract precise before any implementation.
+- Activation Evidence Schema accepted the normative schema and first real
+  adapter candidate.
+- Next useful track is **Host Activation Ledger Adapter**: a narrow
+  implementation proof that writes and reads activation evidence without
+  activating a real host.

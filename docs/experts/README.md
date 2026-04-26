@@ -23,6 +23,20 @@ Perspective: external expert in distributed interactive agent systems.
 | [capsule-transfer-expert-report.md](capsule-transfer-expert-report.md) | Capsule Transfer track expert report — visionary, model/amplification, perspective development, recommendations, insights; agent-supervised supply chain analysis |
 | [igniter-strategic-report.md](igniter-strategic-report.md) | Igniter whole-project strategic report — unique positioning, three value levels, critical gaps, growth path to significant enterprise platform |
 
+## Expert Documentation Rules
+
+This directory can contain external expert drafts and reports. The canonical
+index language is English, even when a source report is originally written in
+Russian.
+
+For future expert documents:
+
+- keep this README entry in English
+- prefer an English canonical version for documents that affect active tracks
+- Russian originals may be kept as source material or companion notes
+- active implementation decisions still require supervisor acceptance in
+  `docs/dev`
+
 ## One-Line Summary
 
 Igniter has all the right primitives — contracts, agents, web surfaces, cluster

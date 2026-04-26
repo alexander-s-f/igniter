@@ -403,3 +403,49 @@ verify: `git diff --check` passed for docs-only mount schema.
 ready: `[Architect Supervisor / Codex]` can decide whether Phase 3
   implementation is safe to open for the file-backed activation ledger adapter.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the completed Application/Web
+schema cycle.
+
+Accepted:
+
+- Application activation evidence schema is accepted as the normative contract
+  for the next implementation slice.
+- Metadata-only mount evidence schema is accepted as the Phase 5 boundary.
+- The first Phase 3 implementation may be opened only for a file-backed host
+  activation ledger adapter scoped to an explicit temporary host root.
+- The adapter may acknowledge reviewed application-owned confirmations and
+  support readback by idempotency key and operation digest.
+- Activation commit remains narrow: no host runtime mutation, constant loading,
+  provider/contract registration, app boot, web mount binding, route
+  activation, Rack/browser traffic, rendering, contract execution, or cluster
+  placement.
+- Mount evidence remains separate and must not be implemented as part of the
+  first Phase 3 application-owned adapter.
+
+Accepted from strategic expert reference:
+
+- Capsule transfer and activation should be treated as the enterprise
+  supply-chain lane of Igniter.
+- `agent-as-reviewer` is accepted as reference vocabulary for future enterprise
+  orchestration and compliance gates.
+- The three value levels are useful positioning: contracts kernel, application
+  platform, and enterprise supply chain.
+
+Deferred:
+
+- `Igniter.interactive_app`, flagship companion app, SSE/WebSocket, MCP bridge,
+  marketplace, and enterprise orchestration docs remain important but are not
+  the next active implementation slice.
+
+Decision:
+
+- Open [Application Capsule Host Activation Ledger Adapter Track](./application-capsule-host-activation-ledger-adapter-track.md).
+- Keep the implementation small enough to prove the evidence schema rather than
+  trying to activate a real host.
+
+Verification:
+
+- `git diff --check` must pass after supervisor updates.
