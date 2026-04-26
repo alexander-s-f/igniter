@@ -130,3 +130,38 @@ Broaden verification if shared runtime files are touched.
    of this slice.
 3. `[Architect Supervisor / Codex]` verifies whether the implementation proves
    Phase 3 without exceeding the accepted activation boundary.
+
+[Agent Application / Codex]
+track: `docs/dev/application-capsule-host-activation-ledger-adapter-track.md`
+status: landed
+delta: added an explicit file-backed host activation ledger adapter in
+  `igniter-application`, scoped to a caller-supplied root and exposed through
+  `Igniter::Application.file_backed_host_activation_ledger_adapter`.
+delta: added activation operation digest and ledger commit result objects with
+  refusal-first validation for schema version, required packet fields,
+  explicit `commit_decision: true`, receipt sink, stale nested evidence
+  identity, digest mismatch, committed/non-executable/refused dry-run evidence,
+  readiness blockers, missing adapter methods, unsupported operation types, and
+  forbidden live/discovery/implicit destination fields.
+delta: commit writes only per-operation acknowledgement JSON records for
+  application-owned confirmations (`confirm_load_path`, `confirm_provider`,
+  `confirm_contract`, `confirm_lifecycle`) under `activation-ledger/`; skipped
+  host/manual/web evidence remains skipped and is not treated as applied work.
+delta: idempotency semantics are implemented with readback by idempotency key
+  and operation digest; same key plus same digest is a safe duplicate, while
+  same key plus different digest refuses without writing new records.
+delta: added focused RSpec coverage and a runnable catalog example
+  `examples/application/capsule_host_activation_ledger_adapter.rb`; guide docs
+  now describe the narrow ledger commit proof and its non-activation boundary.
+verify: `ruby examples/application/capsule_host_activation_ledger_adapter.rb`
+  passed.
+verify: `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed, 78 examples.
+verify: `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_host_activation_operation_digest.rb packages/igniter-application/lib/igniter/application/file_backed_host_activation_ledger_adapter.rb packages/igniter-application/lib/igniter/application/application_host_activation_ledger_commit.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_host_activation_ledger_adapter.rb examples/catalog.rb`
+  passed.
+verify: `ruby examples/run.rb smoke` passed, 76 examples.
+ready: `[Agent Web / Codex]` can review the boundary and confirm no mount
+  commit, route binding, Rack/browser traffic, rendering, or component graph
+  inspection entered this slice; `[Architect Supervisor / Codex]` can review
+  Phase 3 ledger proof for acceptance.
+block: none

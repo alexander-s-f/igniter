@@ -459,6 +459,24 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_host_activation_ledger_adapter",
+      "File-backed host activation ledger adapter for explicit confirmation acknowledgements.",
+      expected_fragments: [
+        "application_capsule_host_activation_ledger_committed=true",
+        "application_capsule_host_activation_ledger_applied=4",
+        "application_capsule_host_activation_ledger_skipped=2",
+        "application_capsule_host_activation_ledger_refusals=0",
+        "application_capsule_host_activation_ledger_receipts=4",
+        "application_capsule_host_activation_ledger_files=4",
+        "application_capsule_host_activation_ledger_duplicate=true",
+        "application_capsule_host_activation_ledger_readback=4",
+        "application_capsule_host_activation_ledger_conflict_committed=false",
+        "application_capsule_host_activation_ledger_conflict_refusal=true",
+        "application_capsule_host_activation_ledger_digest=true",
+        "application_capsule_host_activation_ledger_adapter=file_backed_host_activation_ledger"
+      ]
+    ),
+    example(
       "application/interactive_web_poc",
       "Compact server-backed application/web POC with state-changing interaction.",
       expected_fragments: [

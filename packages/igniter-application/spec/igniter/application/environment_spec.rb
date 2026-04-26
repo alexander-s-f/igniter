@@ -107,6 +107,27 @@ RSpec.describe Igniter::Application::Environment do
     end
   end
 
+  def activation_evidence_packet(dry_run:, readiness:, digest:, idempotency_key: "activation-key-1")
+    {
+      packet_id: "activation-packet-1",
+      schema_version: "activation-ledger-v1",
+      transfer_receipt_id: "transfer-receipt-1",
+      activation_readiness_id: "activation-readiness-1",
+      activation_plan_id: "activation-plan-1",
+      activation_plan_verification_id: "activation-plan-verification-1",
+      activation_dry_run_id: "activation-dry-run-1",
+      commit_readiness_id: "activation-commit-readiness-1",
+      operation_digest: digest,
+      commit_decision: true,
+      idempotency_key: idempotency_key,
+      caller_metadata: { source: :spec },
+      receipt_sink: "activation-ledger",
+      application_host_adapter: { name: :file_backed_host_activation_ledger },
+      dry_run: dry_run,
+      commit_readiness: readiness
+    }
+  end
+
   it "publishes an application manifest and canonical layout through the profile" do
     root = File.expand_path("/tmp/igniter_shop")
     profile = Igniter::Application.build_kernel(Igniter::Extensions::Contracts::ComposePack)
@@ -1984,6 +2005,142 @@ RSpec.describe Igniter::Application::Environment do
       :application_host_target,
       :web_mount_adapter_evidence
     )
+  end
+
+  it "commits host activation confirmations to an explicit file-backed ledger adapter" do
+    Dir.mktmpdir("igniter-host-activation-ledger") do |root|
+      dry_run = {
+        dry_run: true,
+        committed: false,
+        executable: true,
+        would_apply: [
+          { type: :confirm_load_path, status: :dry_run, destination: "operator" },
+          { type: :confirm_provider, status: :dry_run, destination: :incident_runtime }
+        ],
+        skipped: [
+          { type: :confirm_host_export, status: :skipped, reason: :host_owned_evidence },
+          { type: :review_mount_intent, status: :skipped, reason: :web_or_host_owned_mount }
+        ],
+        refusals: [],
+        warnings: [],
+        surface_count: 1
+      }
+      readiness = Igniter::Application.host_activation_commit_readiness(
+        dry_run,
+        provided_adapters: [
+          { name: :application_host_target, kind: :application_host_adapter, target: "Host::OperatorRuntime" },
+          { name: :host_evidence_acknowledgement, kind: :host_evidence },
+          { name: :web_mount_adapter_evidence, kind: :web_or_host_mount_evidence }
+        ]
+      ).to_h
+      digest = Igniter::Application.host_activation_operation_digest(dry_run)
+      adapter = Igniter::Application.file_backed_host_activation_ledger_adapter(root: root)
+
+      result = Igniter::Application.host_activation_ledger_commit(
+        activation_evidence_packet(dry_run: dry_run, readiness: readiness, digest: digest),
+        adapter: adapter,
+        metadata: { source: :spec }
+      ).to_h
+
+      expect(result).to include(
+        committed: true,
+        dry_run: false,
+        operation_digest: digest,
+        refusals: [],
+        metadata: { source: :spec }
+      )
+      expect(result.fetch(:applied_operations).map { |entry| entry.fetch(:type) }).to contain_exactly(
+        :confirm_load_path,
+        :confirm_provider
+      )
+      expect(result.fetch(:skipped_operations).map { |entry| entry.fetch(:reason) }).to include(
+        :host_owned_evidence,
+        :web_or_host_owned_mount
+      )
+      expect(adapter.readback(idempotency_key: "activation-key-1", operation_digest: digest).length).to eq(2)
+    end
+  end
+
+  it "reuses matching activation ledger idempotency keys and refuses mismatched digests" do
+    Dir.mktmpdir("igniter-host-activation-ledger") do |root|
+      dry_run = {
+        dry_run: true,
+        committed: false,
+        executable: true,
+        would_apply: [
+          { type: :confirm_contract, status: :dry_run, destination: "Contracts::ResolveIncident" }
+        ],
+        skipped: [],
+        refusals: [],
+        warnings: [],
+        surface_count: 0
+      }
+      readiness = Igniter::Application.host_activation_commit_readiness(
+        dry_run,
+        provided_adapters: [
+          { name: :application_host_target, kind: :application_host_adapter, target: "Host::OperatorRuntime" }
+        ]
+      ).to_h
+      digest = Igniter::Application.host_activation_operation_digest(dry_run)
+      adapter = Igniter::Application.file_backed_host_activation_ledger_adapter(root: root)
+      packet = activation_evidence_packet(dry_run: dry_run, readiness: readiness, digest: digest)
+
+      first = Igniter::Application.host_activation_ledger_commit(packet, adapter: adapter).to_h
+      duplicate = Igniter::Application.host_activation_ledger_commit(packet, adapter: adapter).to_h
+      changed_dry_run = dry_run.merge(
+        would_apply: [
+          { type: :confirm_contract, status: :dry_run, destination: "Contracts::ReassignIncident" }
+        ]
+      )
+      changed_digest = Igniter::Application.host_activation_operation_digest(changed_dry_run)
+      mismatch = Igniter::Application.host_activation_ledger_commit(
+        activation_evidence_packet(dry_run: changed_dry_run, readiness: readiness, digest: changed_digest),
+        adapter: adapter
+      ).to_h
+
+      expect(first.fetch(:committed)).to be(true)
+      expect(duplicate.fetch(:committed)).to be(true)
+      expect(duplicate.fetch(:adapter_receipts).first.fetch(:idempotency_key)).to eq("activation-key-1")
+      expect(adapter.readback(idempotency_key: "activation-key-1").length).to eq(1)
+      expect(mismatch.fetch(:committed)).to be(false)
+      expect(mismatch.fetch(:refusals).map { |entry| entry.fetch(:code) }).to include(:idempotency_key_reused)
+    end
+  end
+
+  it "refuses host activation ledger commits before adapter calls when evidence is invalid" do
+    Dir.mktmpdir("igniter-host-activation-ledger") do |root|
+      dry_run = {
+        dry_run: true,
+        committed: false,
+        executable: true,
+        would_apply: [
+          { type: :review_mount_intent, status: :dry_run, destination: "/operator" }
+        ],
+        skipped: [],
+        refusals: [],
+        warnings: [],
+        surface_count: 1
+      }
+      readiness = { blockers: [{ code: :missing_adapter_evidence }] }
+      adapter = Igniter::Application.file_backed_host_activation_ledger_adapter(root: root)
+      packet = activation_evidence_packet(
+        dry_run: dry_run.merge(activation_dry_run_id: "stale-dry-run"),
+        readiness: readiness,
+        digest: Igniter::Application.host_activation_operation_digest(dry_run)
+      ).merge(commit_decision: false, host_target: "Host::ImplicitDiscovery")
+
+      result = Igniter::Application.host_activation_ledger_commit(packet, adapter: adapter).to_h
+
+      expect(result).to include(committed: false, applied_operations: [], adapter_receipts: [])
+      expect(result.fetch(:refusals).map { |entry| entry.fetch(:code) }).to include(
+        :commit_not_explicit,
+        :commit_readiness_blocker,
+        :forbidden_evidence_field,
+        :stale_evidence_identity,
+        :unsupported_operation_type
+      )
+      expect(Dir.glob(File.join(root, "activation-ledger", "*.json"))).to be_empty
+    end
   end
 
   it "refuses committed transfer application without explicit apply roots" do

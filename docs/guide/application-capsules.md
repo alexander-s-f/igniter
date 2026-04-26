@@ -744,10 +744,12 @@ explicit host target. Host export/capability checks, manual actions, and
 `review_mount_intent` remain skipped review evidence for host-owned,
 manual, or web-owned future work.
 
-There is still no commit mode. The dry-run report does not mutate host state,
-change load paths, load constants, register providers or contracts, boot apps,
-bind web mounts, activate routes, render, call Rack, send browser traffic,
-execute contracts, discover projects, or place work on a cluster.
+The only current commit-shaped path is the file-backed activation ledger
+adapter. It acknowledges reviewed application-owned confirmations by writing
+ledger records under an explicit caller-supplied host root. It does not mutate
+host state, change load paths, load constants, register providers or contracts,
+boot apps, bind web mounts, activate routes, render, call Rack, send browser
+traffic, execute contracts, discover projects, or place work on a cluster.
 
 Commit readiness is a read-only gate over dry-run evidence and explicit
 adapter evidence:
@@ -781,6 +783,27 @@ can be true. The application still must not discover adapters, mutate host
 state, bind web mounts, activate routes, render, call Rack, send browser
 traffic, execute contracts, or place work on a cluster.
 
+The ledger commit proof accepts only explicit activation evidence packets and a
+caller-supplied adapter:
+
+```ruby
+adapter = Igniter::Application.file_backed_host_activation_ledger_adapter(root: host_root)
+digest = Igniter::Application.host_activation_operation_digest(dry_run)
+
+result = Igniter::Application.host_activation_ledger_commit(
+  evidence_packet.merge(operation_digest: digest),
+  adapter: adapter
+)
+
+result.to_h
+```
+
+The result reports committed/refused status, applied acknowledgement summaries,
+preserved skipped evidence, refusal details, and adapter receipts. Reusing the
+same idempotency key with the same operation digest is a safe duplicate;
+reusing the same key with a different digest refuses before new ledger records
+are written.
+
 ## Runnable Examples
 
 Start with these examples:
@@ -808,6 +831,7 @@ Start with these examples:
 - [`examples/application/capsule_host_activation_plan_verification.rb`](../../examples/application/capsule_host_activation_plan_verification.rb)
 - [`examples/application/capsule_host_activation_dry_run.rb`](../../examples/application/capsule_host_activation_dry_run.rb)
 - [`examples/application/capsule_host_activation_commit_readiness.rb`](../../examples/application/capsule_host_activation_commit_readiness.rb)
+- [`examples/application/capsule_host_activation_ledger_adapter.rb`](../../examples/application/capsule_host_activation_ledger_adapter.rb)
 - [`examples/application/interactive_web_poc.rb`](../../examples/application/interactive_web_poc.rb)
 
 They are smoke-tested through the examples catalog and show the current
