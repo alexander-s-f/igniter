@@ -132,3 +132,74 @@ If code changes, the track is out of scope and must return to supervisor.
    metadata-only schema.
 3. `[Architect Supervisor / Codex]` decides whether Phase 3 implementation is
    safe to open.
+
+[Agent Application / Codex]
+track: `docs/dev/application-capsule-activation-evidence-schema-track.md`
+status: landed
+delta: `ActivationEvidencePacket` schema:
+  required fields are `packet_id`, `schema_version`, `transfer_receipt_id`,
+  `activation_readiness_id`, `activation_plan_id`,
+  `activation_plan_verification_id`, `activation_dry_run_id`,
+  `commit_readiness_id`, `operation_digest`, `commit_decision`,
+  `idempotency_key`, `caller_metadata`, `receipt_sink`, and
+  `application_host_adapter`.
+delta: `ActivationEvidencePacket` optional fields are `policy_refs`,
+  `reviewer_refs`, `expires_at`, and `notes`; derived fields are
+  `created_at`, `operation_count`, `would_apply_count`, `skipped_count`, and
+  `adapter_capability_map`; forbidden fields are live host objects, constants,
+  loaded classes, Rack apps, route tables, rendered output, contract results,
+  cluster placement data, and discovery results.
+delta: `ActivationCommitResult` schema:
+  required fields are `result_id`, `packet_id`, `operation_digest`,
+  `committed`, `dry_run`, `applied_operations`, `skipped_operations`,
+  `refusals`, `warnings`, `adapter_receipts`, `started_at`, `finished_at`,
+  and `caller_metadata`; forbidden fields are runtime execution outputs,
+  contract values, rendered screens, Rack/browser responses, and implicit
+  host-discovery output.
+delta: `ActivationVerificationReport` schema:
+  required fields are `verification_id`, `packet_id`, `result_id`,
+  `operation_digest`, `valid`, `complete`, `findings`,
+  `verified_operations`, `unexpected_operations`, `adapter_readbacks`,
+  `idempotency_key`, and `verified_at`; derived fields include applied,
+  skipped, refused, warning, and finding counts.
+delta: `ActivationReceipt` schema:
+  required fields are `activation_receipt_id`, `schema_version`,
+  `transfer_receipt_id`, `packet_id`, `result_id`, `verification_id`,
+  `complete`, `valid`, `committed`, `operation_digest`, `counts`,
+  `manual_leftovers`, `host_leftovers`, `web_leftovers`,
+  `adapter_receipt_refs`, `audit_metadata`, and `issued_at`; it must not merge
+  into or replace the transfer receipt.
+delta: operation digest normalization: sort operations by stable operation id;
+  include operation id, type, target, normalized metadata, source artifact
+  identity, skipped/manual/web-owned operation identities, and accepted adapter
+  capability requirements; stringify symbol keys, sort map keys, omit volatile
+  timestamps, and refuse if any normalized input differs from the verified
+  plan/dry-run/commit-readiness chain.
+delta: refusal-before-adapter rules: refuse missing required fields, unsupported
+  schema version, `commit_decision` other than explicit `true`, missing or
+  expired idempotency key, stale evidence identity, digest mismatch,
+  non-executable dry-run, committed dry-run evidence, dry-run refusals,
+  missing adapter capability, unsupported operation type, requested host/manual/
+  web work as application-owned, receipt sink absence, or any discovery/
+  implicit destination input.
+delta: idempotency semantics: the same `idempotency_key` plus
+  `operation_digest` must return the same adapter receipts or a safe duplicate
+  acknowledgement; a reused key with a different digest is a refusal; adapter
+  readback must expose the key for verification.
+delta: adapter contract: the first implementation requires a real
+  caller-supplied `ApplicationHostTargetAdapter` that supports dry-run
+  compatibility, explicit capabilities for `confirm_load_path`,
+  `confirm_provider`, `confirm_contract`, and `confirm_lifecycle`, stable
+  adapter fingerprint/version, per-operation receipt ids, readback by
+  idempotency key, and refusal reporting; no registry lookup or ambient
+  discovery is allowed.
+delta: first real adapter candidate: a file-backed host activation ledger
+  adapter scoped to an explicit temporary host root is the smallest acceptable
+  Phase 3 proof because it can acknowledge confirmations and read receipts back
+  without loading constants, mutating runtime state, booting apps, binding web,
+  or executing contracts.
+verify: `git diff --check` passed for docs-only schema.
+ready: `[Agent Web / Codex]` can add metadata-only mount evidence schema, then
+  `[Architect Supervisor / Codex]` can decide whether Phase 3 implementation is
+  compact and safe enough to open.
+block: none
