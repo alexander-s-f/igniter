@@ -473,7 +473,18 @@ module IgniterExamples
         "application_capsule_host_activation_ledger_conflict_committed=false",
         "application_capsule_host_activation_ledger_conflict_refusal=true",
         "application_capsule_host_activation_ledger_digest=true",
-        "application_capsule_host_activation_ledger_adapter=file_backed_host_activation_ledger"
+        "application_capsule_host_activation_ledger_adapter=file_backed_host_activation_ledger",
+        "application_capsule_host_activation_ledger_verify_valid=true",
+        "application_capsule_host_activation_ledger_verify_complete=true",
+        "application_capsule_host_activation_ledger_verify_findings=0",
+        "application_capsule_host_activation_ledger_verify_verified=4",
+        "application_capsule_host_activation_receipt_complete=true",
+        "application_capsule_host_activation_receipt_valid=true",
+        "application_capsule_host_activation_receipt_committed=true",
+        "application_capsule_host_activation_receipt_refs=4",
+        "application_capsule_host_activation_receipt_host_leftovers=1",
+        "application_capsule_host_activation_receipt_web_leftovers=1",
+        "application_capsule_host_activation_receipt_separate=true"
       ]
     ),
     example(

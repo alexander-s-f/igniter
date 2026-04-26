@@ -43,6 +43,8 @@ require_relative "application/application_host_activation_commit_readiness"
 require_relative "application/application_host_activation_operation_digest"
 require_relative "application/file_backed_host_activation_ledger_adapter"
 require_relative "application/application_host_activation_ledger_commit"
+require_relative "application/application_host_activation_ledger_verification"
+require_relative "application/application_host_activation_receipt"
 require_relative "application/flow_session_snapshot"
 require_relative "application/application_load_path"
 require_relative "application/application_load_report"
@@ -298,6 +300,24 @@ module Igniter
         ApplicationHostActivationLedgerCommit.commit(
           evidence_packet,
           adapter: adapter,
+          metadata: metadata
+        )
+      end
+
+      def verify_host_activation_ledger(evidence_packet, commit_result:, adapter:, metadata: {})
+        ApplicationHostActivationLedgerVerification.verify(
+          evidence_packet,
+          commit_result: commit_result,
+          adapter: adapter,
+          metadata: metadata
+        )
+      end
+
+      def host_activation_receipt(verification, evidence_packet:, commit_result:, metadata: {})
+        ApplicationHostActivationReceipt.build(
+          verification,
+          evidence_packet: evidence_packet,
+          commit_result: commit_result,
           metadata: metadata
         )
       end

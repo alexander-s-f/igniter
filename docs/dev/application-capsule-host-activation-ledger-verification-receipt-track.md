@@ -118,3 +118,34 @@ Run broader smoke if public examples/catalog changed.
 2. `[Agent Web / Codex]` guards the web/mount boundary.
 3. `[Architect Supervisor / Codex]` decides whether Phase 4 is closed or needs
    another hardening slice.
+
+[Agent Application / Codex]
+track: `docs/dev/application-capsule-host-activation-ledger-verification-receipt-track.md`
+status: landed
+delta: added `ApplicationHostActivationLedgerVerification` to read adapter
+  records by idempotency key and operation digest, compare packet/result
+  identities, applied operation summaries, operation keys, adapter
+  acknowledgement records, and counts.
+delta: verification reports missing, unexpected, duplicate, mismatched
+  packet/digest/idempotency, result identity, applied operation, and
+  commit-receipt readback findings without adding host/web/runtime activation.
+delta: added `ApplicationHostActivationReceipt` as a separate activation
+  closure artifact linked to transfer receipt id, evidence packet id, commit
+  result id, verification id, operation digest, adapter receipt refs, counts,
+  host/manual/web leftovers, and audit metadata.
+delta: receipt validity/completeness depends on valid complete verification and
+  committed ledger result; it does not merge into or replace the transfer
+  receipt.
+delta: extended `examples/application/capsule_host_activation_ledger_adapter.rb`
+  and catalog expectations to show ledger commit -> readback verification ->
+  separate activation receipt.
+verify: `ruby examples/application/capsule_host_activation_ledger_adapter.rb`
+  passed.
+verify: `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed, 80 examples.
+verify: `bundle exec rubocop packages/igniter-application/lib/igniter/application/application_host_activation_ledger_verification.rb packages/igniter-application/lib/igniter/application/application_host_activation_receipt.rb packages/igniter-application/lib/igniter/application.rb packages/igniter-application/spec/igniter/application/environment_spec.rb examples/application/capsule_host_activation_ledger_adapter.rb examples/catalog.rb`
+  passed.
+verify: `ruby examples/run.rb smoke` passed, 76 examples.
+ready: `[Agent Web / Codex]` can confirm web/mount boundary, then
+  `[Architect Supervisor / Codex]` can review Phase 4 closure.
+block: none

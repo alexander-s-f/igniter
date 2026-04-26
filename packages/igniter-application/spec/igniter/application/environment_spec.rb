@@ -128,6 +128,20 @@ RSpec.describe Igniter::Application::Environment do
     }
   end
 
+  class ActivationLedgerReadbackProbe
+    def initialize(records)
+      @records = records
+    end
+
+    def readback(idempotency_key:, operation_digest: nil)
+      @records.select do |record|
+        record[:idempotency_key] == idempotency_key ||
+          record["idempotency_key"] == idempotency_key ||
+          operation_digest
+      end
+    end
+  end
+
   it "publishes an application manifest and canonical layout through the profile" do
     root = File.expand_path("/tmp/igniter_shop")
     profile = Igniter::Application.build_kernel(Igniter::Extensions::Contracts::ComposePack)
@@ -2140,6 +2154,143 @@ RSpec.describe Igniter::Application::Environment do
         :unsupported_operation_type
       )
       expect(Dir.glob(File.join(root, "activation-ledger", "*.json"))).to be_empty
+    end
+  end
+
+  it "verifies host activation ledger readback and produces a separate activation receipt" do
+    Dir.mktmpdir("igniter-host-activation-ledger") do |root|
+      dry_run = {
+        dry_run: true,
+        committed: false,
+        executable: true,
+        would_apply: [
+          { type: :confirm_load_path, status: :dry_run, destination: "operator" },
+          { type: :confirm_lifecycle, status: :dry_run, destination: :boot }
+        ],
+        skipped: [
+          { type: :confirm_host_export, status: :skipped, reason: :host_owned_evidence },
+          { type: :review_mount_intent, status: :skipped, reason: :web_or_host_owned_mount }
+        ],
+        refusals: [],
+        warnings: [],
+        surface_count: 1
+      }
+      digest = Igniter::Application.host_activation_operation_digest(dry_run)
+      adapter = Igniter::Application.file_backed_host_activation_ledger_adapter(root: root)
+      readiness = Igniter::Application.host_activation_commit_readiness(
+        dry_run,
+        provided_adapters: [
+          adapter.to_h,
+          { name: :host_evidence_acknowledgement, kind: :host_evidence },
+          { name: :web_mount_adapter_evidence, kind: :web_or_host_mount_evidence }
+        ]
+      ).to_h
+      packet = activation_evidence_packet(dry_run: dry_run, readiness: readiness, digest: digest)
+      commit = Igniter::Application.host_activation_ledger_commit(packet, adapter: adapter).to_h
+
+      verification = Igniter::Application.verify_host_activation_ledger(
+        packet,
+        commit_result: commit,
+        adapter: adapter,
+        metadata: { source: :spec }
+      ).to_h
+      receipt = Igniter::Application.host_activation_receipt(
+        verification,
+        evidence_packet: packet,
+        commit_result: commit,
+        metadata: { reviewer: :application_spec }
+      ).to_h
+
+      expect(verification).to include(
+        valid: true,
+        complete: true,
+        committed: true,
+        packet_id: "activation-packet-1",
+        result_id: "activation-ledger-result:activation-packet-1",
+        operation_digest: digest,
+        idempotency_key: "activation-key-1",
+        findings: [],
+        unexpected_operations: [],
+        metadata: { source: :spec }
+      )
+      expect(verification.fetch(:counts)).to include(expected: 2, readback: 2, verified: 2, skipped: 2)
+      expect(receipt).to include(
+        schema_version: "activation-receipt-v1",
+        transfer_receipt_id: "transfer-receipt-1",
+        packet_id: "activation-packet-1",
+        result_id: "activation-ledger-result:activation-packet-1",
+        valid: true,
+        complete: true,
+        committed: true,
+        operation_digest: digest
+      )
+      expect(receipt.fetch(:host_leftovers).length).to eq(1)
+      expect(receipt.fetch(:web_leftovers).length).to eq(1)
+      expect(receipt.fetch(:adapter_receipt_refs).length).to eq(2)
+      expect(receipt.fetch(:audit_metadata)).to include(separate_from_transfer_receipt: true)
+    end
+  end
+
+  it "reports missing unexpected mismatched and duplicate ledger readback records" do
+    Dir.mktmpdir("igniter-host-activation-ledger") do |root|
+      dry_run = {
+        dry_run: true,
+        committed: false,
+        executable: true,
+        would_apply: [
+          { type: :confirm_provider, status: :dry_run, destination: :incident_runtime },
+          { type: :confirm_contract, status: :dry_run, destination: "Contracts::ResolveIncident" }
+        ],
+        skipped: [],
+        refusals: [],
+        warnings: [],
+        surface_count: 0
+      }
+      digest = Igniter::Application.host_activation_operation_digest(dry_run)
+      adapter = Igniter::Application.file_backed_host_activation_ledger_adapter(root: root)
+      readiness = Igniter::Application.host_activation_commit_readiness(
+        dry_run,
+        provided_adapters: [adapter.to_h]
+      ).to_h
+      packet = activation_evidence_packet(dry_run: dry_run, readiness: readiness, digest: digest)
+      commit = Igniter::Application.host_activation_ledger_commit(packet, adapter: adapter).to_h
+      first_receipt = commit.fetch(:adapter_receipts).first
+      duplicate = first_receipt.merge(receipt_id: "activation-ledger:duplicate")
+      unexpected = first_receipt.merge(
+        receipt_id: "activation-ledger:unexpected",
+        packet_id: "other-packet",
+        operation_digest: "other-digest",
+        idempotency_key: "other-key",
+        operation: first_receipt.fetch(:operation).merge(
+          operation_key: "confirm_lifecycle:shutdown:",
+          type: :confirm_lifecycle,
+          destination: :shutdown
+        )
+      )
+      verifier_adapter = ActivationLedgerReadbackProbe.new([first_receipt, duplicate, unexpected])
+
+      verification = Igniter::Application.verify_host_activation_ledger(
+        packet,
+        commit_result: commit,
+        adapter: verifier_adapter
+      ).to_h
+      receipt = Igniter::Application.host_activation_receipt(
+        verification,
+        evidence_packet: packet,
+        commit_result: commit
+      ).to_h
+
+      expect(verification).to include(valid: false, complete: false)
+      expect(verification.fetch(:findings).map { |entry| entry.fetch(:code) }).to include(
+        :missing_ledger_record,
+        :unexpected_ledger_record,
+        :duplicate_ledger_record,
+        :packet_id_mismatch,
+        :operation_digest_mismatch,
+        :idempotency_key_mismatch,
+        :commit_receipt_missing_from_readback
+      )
+      expect(receipt).to include(valid: false, complete: false, committed: true)
     end
   end
 

@@ -63,6 +63,17 @@ Dir.mktmpdir("igniter-capsule-host-ledger") do |root|
   packet = activation_evidence_packet(dry_run: dry_run, readiness: readiness, digest: digest, adapter: adapter)
 
   result = Igniter::Application.host_activation_ledger_commit(packet, adapter: adapter).to_h
+  verification = Igniter::Application.verify_host_activation_ledger(
+    packet,
+    commit_result: result,
+    adapter: adapter
+  ).to_h
+  receipt = Igniter::Application.host_activation_receipt(
+    verification,
+    evidence_packet: packet,
+    commit_result: result,
+    metadata: { source: :example }
+  ).to_h
   duplicate = Igniter::Application.host_activation_ledger_commit(packet, adapter: adapter).to_h
   changed_dry_run = dry_run.merge(
     would_apply: [
@@ -93,4 +104,15 @@ Dir.mktmpdir("igniter-capsule-host-ledger") do |root|
   puts "application_capsule_host_activation_ledger_conflict_refusal=#{conflict.fetch(:refusals).any?}"
   puts "application_capsule_host_activation_ledger_digest=#{digest.length == 64}"
   puts "application_capsule_host_activation_ledger_adapter=#{adapter.to_h.fetch(:name)}"
+  puts "application_capsule_host_activation_ledger_verify_valid=#{verification.fetch(:valid)}"
+  puts "application_capsule_host_activation_ledger_verify_complete=#{verification.fetch(:complete)}"
+  puts "application_capsule_host_activation_ledger_verify_findings=#{verification.fetch(:findings).length}"
+  puts "application_capsule_host_activation_ledger_verify_verified=#{verification.fetch(:verified_operations).length}"
+  puts "application_capsule_host_activation_receipt_complete=#{receipt.fetch(:complete)}"
+  puts "application_capsule_host_activation_receipt_valid=#{receipt.fetch(:valid)}"
+  puts "application_capsule_host_activation_receipt_committed=#{receipt.fetch(:committed)}"
+  puts "application_capsule_host_activation_receipt_refs=#{receipt.fetch(:adapter_receipt_refs).length}"
+  puts "application_capsule_host_activation_receipt_host_leftovers=#{receipt.fetch(:host_leftovers).length}"
+  puts "application_capsule_host_activation_receipt_web_leftovers=#{receipt.fetch(:web_leftovers).length}"
+  puts "application_capsule_host_activation_receipt_separate=#{receipt.fetch(:audit_metadata).fetch(:separate_from_transfer_receipt)}"
 end

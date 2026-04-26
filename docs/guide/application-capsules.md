@@ -804,6 +804,32 @@ same idempotency key with the same operation digest is a safe duplicate;
 reusing the same key with a different digest refuses before new ledger records
 are written.
 
+After a ledger commit, verify the adapter readback before issuing activation
+closure:
+
+```ruby
+verification = Igniter::Application.verify_host_activation_ledger(
+  evidence_packet,
+  commit_result: result,
+  adapter: adapter
+)
+
+activation_receipt = Igniter::Application.host_activation_receipt(
+  verification,
+  evidence_packet: evidence_packet,
+  commit_result: result
+)
+```
+
+`verify_host_activation_ledger` reads adapter records by idempotency key and
+operation digest, compares packet/result identities, verifies planned
+application-owned acknowledgement operations, and reports missing, unexpected,
+mismatched, or duplicate ledger records. `host_activation_receipt` then creates
+a separate activation receipt linked to the transfer receipt id, evidence
+packet, commit result, and verification report. It preserves host/manual/web
+leftovers as evidence and does not merge into or replace the transfer receipt.
+Invalid verification prevents a complete/valid activation receipt.
+
 ## Runnable Examples
 
 Start with these examples:
