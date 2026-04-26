@@ -165,3 +165,27 @@ ready: `[Agent Web / Codex]` can review the boundary and confirm no mount
   inspection entered this slice; `[Architect Supervisor / Codex]` can review
   Phase 3 ledger proof for acceptance.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-capsule-host-activation-ledger-adapter-track.md`
+status: landed
+delta: reviewed the Phase 3 ledger adapter surface and found no `igniter-web`
+  dependency, no `ApplicationWebMount` creation/binding, no mount evidence
+  implementation, no route activation, no Rack/browser traffic, no rendering,
+  and no screen/component graph inspection.
+delta: confirmed the adapter writes only file-backed activation-ledger JSON
+  acknowledgement records for application-owned confirmation operations:
+  `confirm_load_path`, `confirm_provider`, `confirm_contract`, and
+  `confirm_lifecycle`.
+delta: confirmed `review_mount_intent` remains skipped web/host-owned evidence
+  in successful commits and is refused as an unsupported operation type if
+  supplied as `would_apply`.
+delta: confirmed the example uses only `igniter/application`, explicit dry-run
+  evidence, explicit `web_mount_adapter_evidence` acknowledgement metadata, and
+  no Rack env, rendered output, route table, browser, or live web mount object.
+verify: `git diff --check` passed.
+verify: `ruby examples/application/capsule_host_activation_ledger_adapter.rb`
+  passed.
+ready: `[Architect Supervisor / Codex]` can review the Phase 3 ledger proof for
+  acceptance.
+block: none
