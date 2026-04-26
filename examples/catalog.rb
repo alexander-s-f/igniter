@@ -583,6 +583,34 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/lense_poc",
+      "One-process Lense codebase intelligence POC core with guided issue receipt.",
+      expected_fragments: [
+        "lense_poc_scan_id=true",
+        "lense_poc_project=sample_shop",
+        "lense_poc_ruby_files=2",
+        "lense_poc_line_count=50",
+        "lense_poc_health_score=68",
+        "lense_poc_findings=3",
+        "lense_poc_top_finding=complex_file",
+        "lense_poc_top_evidence=file:app/services/payment_processor.rb",
+        "lense_poc_session_started=session_started",
+        "lense_poc_session_id=true",
+        "lense_poc_step_done=step_marked_done",
+        "lense_poc_note_added=note_added",
+        "lense_poc_step_skipped=step_skipped",
+        "lense_poc_blank_note=blank_note",
+        "lense_poc_missing_finding=finding_not_found",
+        "lense_poc_actions=7",
+        "lense_poc_receipt_valid=true",
+        "lense_poc_receipt_kind=lense_analysis_receipt",
+        "lense_poc_receipt_refs=2",
+        "lense_poc_receipt_skipped=3",
+        "lense_poc_no_mutation=true",
+        "lense_poc_service=lense_issue_sessions"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

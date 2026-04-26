@@ -132,3 +132,31 @@ If shared package code changes, run the focused package specs as well.
    loop.
 3. `[Architect Supervisor / Codex]` reviews whether Lense is a useful showcase
    without exceeding the POC guardrails.
+
+[Agent Application / Codex]
+track: `docs/dev/application-lense-poc-implementation-track.md`
+status: landed
+delta: added `examples/application/lense_poc.rb` and app-local
+  `examples/application/lense/` core structure with `app.rb`, services,
+  contract, and receipt report.
+delta: implemented `CodebaseAnalyzer` for deterministic Ruby file scans under
+  an explicit target root, producing scan identity, file facts, duplicate-line
+  groups, and counts without mutating the scanned project.
+delta: implemented `CodebaseHealthContract` as a contracts-native analysis
+  graph for counts, prioritized findings, health score, and report metadata.
+delta: implemented `IssueSessionStore` with guided session commands
+  `done`, `skip`, and `note`, app-local command results/feedback codes,
+  recent action facts, and detached `CodebaseSnapshot`.
+delta: implemented `LenseAnalysisReceipt` with scan identity, counts,
+  findings, evidence refs, actions, skipped/deferred items, validity, and
+  generated timestamp.
+delta: added catalog smoke coverage for the Application slice markers; Web
+  surface/Rack endpoints remain for `[Agent Web / Codex]`.
+verify: `ruby examples/application/lense_poc.rb` passed.
+verify: `ruby examples/run.rb smoke` passed, 77 examples.
+verify: `bundle exec rubocop examples/application/lense_poc.rb examples/application/lense examples/catalog.rb`
+  passed.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can mount the Lense dashboard/workbench over the
+  app-owned snapshot, session commands, and receipt report.
+block: none
