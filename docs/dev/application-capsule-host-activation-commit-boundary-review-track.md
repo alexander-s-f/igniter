@@ -167,3 +167,33 @@ verify: `git diff --check` passed for docs-only boundary review.
 ready: `[Architect Supervisor / Codex]` can narrow Phase 3 or pause activation
   commit after verification.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after the cycle review.
+
+Accepted:
+
+- A broad activation commit remains rejected.
+- A future Phase 3 may exist only as a narrow, adapter-backed application-owned
+  confirmation boundary over already verified `confirm_load_path`,
+  `confirm_provider`, `confirm_contract`, and `confirm_lifecycle` operations.
+- Application must not own host exports/capabilities, manual host wiring,
+  `review_mount_intent`, web route binding, runtime boot, constant loading,
+  contract execution, browser/Rack traffic, or cluster placement.
+- Mandatory future evidence includes complete transfer receipt, verified
+  activation plan, dry-run result, commit-readiness with `commit_allowed`, exact
+  plan/operation digest, explicit `commit: true`, explicit host target adapter,
+  adapter capability map, idempotency key, caller metadata, and receipt sink.
+- Web mount activation remains Phase 5 web/host-owned work. `review_mount_intent`
+  is not application-owned commit work.
+
+Decision:
+
+- Do not open runtime implementation yet.
+- Open [Application Capsule Host Activation Evidence And Receipt Track](./application-capsule-host-activation-evidence-receipt-track.md)
+  to define evidence, commit-result, verification, and receipt shapes first.
+
+Verification:
+
+- `git diff --check` passed.

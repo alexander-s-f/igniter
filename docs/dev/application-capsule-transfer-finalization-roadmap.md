@@ -112,6 +112,13 @@ Acceptance:
 - a future implementation track can be scoped to a tiny commit surface
 - or the supervisor explicitly pauses activation commit as too early
 
+Current decision:
+
+- Boundary review accepted only a narrow adapter-backed application-owned
+  confirmation boundary as a possible future Phase 3.
+- Runtime implementation is still blocked until activation evidence and receipt
+  shapes are defined.
+
 ### Phase 3: Narrow Activation Commit
 
 Goal: if Phase 2 accepts it, implement the smallest explicit activation commit.
@@ -204,5 +211,7 @@ Accepted next line:
 
 - Return to capsule transfer through this finalization roadmap.
 - Do not jump directly to activation commit.
-- Next useful track is **Activation Commit Boundary Review**: a docs/design
-  pass that decides whether Phase 3 should exist at all.
+- Activation Commit Boundary Review accepted only a narrow possible Phase 3.
+- Next useful track is **Activation Evidence And Receipt**: a docs/design pass
+  that defines evidence, commit-result, verification, and receipt shapes before
+  any implementation.
