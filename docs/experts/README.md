@@ -25,6 +25,7 @@ Perspective: external expert in distributed interactive agent systems.
 | [application-proposals.md](application-proposals.md) · [ru](application-proposals.ru.md) | Five POC-ready application proposals (IT/developer audience) — Lense, Scout, Dispatch, Chronicle, Aria — each with pain, Igniter fit, MVP scope, DSL sketch, build-further threads |
 | [application-proposals-non-tech.md](application-proposals-non-tech.md) · [ru](application-proposals-non-tech.ru.md) | Non-technical audience proposals — end users (Forma/Meridian), creators/media (Studio/Signal), enterprise (Blueprint/Accord) — six apps across three markets |
 | [application-proposals-logistics-hvac.md](application-proposals-logistics-hvac.md) | Logistics & Field Service vertical proposals — Convoy (last-mile delivery), Freight (3PL/broker), Field (HVAC/appliance company), Nexus (multi-tenant SaaS for call centers serving field service) |
+| [igniter-implementation-delta.md](igniter-implementation-delta.md) | Delta report across all 15 proposals — 24 missing platform items in P1–P5 tiers, per-app gap maps, ranked summary table by required delta, strategic shipping sequence |
 
 ## Expert Documentation Rules
 
