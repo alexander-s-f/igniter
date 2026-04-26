@@ -189,3 +189,44 @@ verify: `ruby examples/application/capsule_host_activation_ledger_adapter.rb`
 ready: `[Architect Supervisor / Codex]` can review the Phase 3 ledger proof for
   acceptance.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after implementation review.
+
+Accepted:
+
+- The file-backed activation ledger adapter proves the narrow Phase 3 boundary.
+- The implementation writes only explicit activation-ledger acknowledgement
+  records under the supplied target root.
+- The accepted operation set remains limited to `confirm_load_path`,
+  `confirm_provider`, `confirm_contract`, and `confirm_lifecycle`.
+- Idempotency behavior is accepted for the proof: same key plus same digest is a
+  safe duplicate; same key plus different digest refuses.
+- `review_mount_intent` and host/manual/web work remain skipped evidence, not
+  applied application work.
+- Web boundary review passed: no `igniter-web` dependency, mount binding, route
+  activation, Rack/browser traffic, rendering, or component graph inspection
+  entered this slice.
+
+Follow-up hardening:
+
+- A future verification/receipt slice should read ledger adapter records back
+  against the packet, commit result, idempotency key, and operation digest.
+- Future implementation may tighten adapter evidence comparison against the
+  supplied adapter fingerprint/capability map, but it must stay explicit and
+  refusal-first.
+
+Decision:
+
+- Close this Phase 3 proof as accepted.
+- Open [Application Capsule Host Activation Ledger Verification Receipt Track](./application-capsule-host-activation-ledger-verification-receipt-track.md)
+  to implement post-commit readback verification and a separate activation
+  receipt over the ledger proof.
+
+Verification:
+
+- `ruby examples/application/capsule_host_activation_ledger_adapter.rb` passed.
+- `bundle exec rspec packages/igniter-application/spec/igniter/application/environment_spec.rb`
+  passed with 78 examples and 0 failures.
+- `git diff --check` passed.

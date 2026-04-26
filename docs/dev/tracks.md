@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review narrow Phase 3 ledger adapter implementation | [Host Activation Ledger Adapter Track](./application-capsule-host-activation-ledger-adapter-track.md) | [Activation Evidence Schema Track](./application-capsule-activation-evidence-schema-track.md), [Capsule Transfer Finalization Roadmap](./application-capsule-transfer-finalization-roadmap.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Implement file-backed host activation ledger adapter with refusal/idempotency/readback coverage | [Host Activation Ledger Adapter Track](./application-capsule-host-activation-ledger-adapter-track.md) | [Activation Evidence Schema Track](./application-capsule-activation-evidence-schema-track.md), [Host Activation Commit Readiness Track](./application-capsule-host-activation-commit-readiness-track.md), [Application Capsules Guide](../guide/application-capsules.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Guard web boundary; confirm no mount/route/Rack/browser/rendering behavior entered Phase 3 | [Host Activation Ledger Adapter Track](./application-capsule-host-activation-ledger-adapter-track.md) | [Activation Evidence Schema Track](./application-capsule-activation-evidence-schema-track.md), [Application Capsules Guide](../guide/application-capsules.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review Phase 4 ledger verification and activation receipt closure | [Host Activation Ledger Verification Receipt Track](./application-capsule-host-activation-ledger-verification-receipt-track.md) | [Host Activation Ledger Adapter Track](./application-capsule-host-activation-ledger-adapter-track.md), [Activation Evidence Schema Track](./application-capsule-activation-evidence-schema-track.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Implement ledger readback verification and separate activation receipt | [Host Activation Ledger Verification Receipt Track](./application-capsule-host-activation-ledger-verification-receipt-track.md) | [Host Activation Ledger Adapter Track](./application-capsule-host-activation-ledger-adapter-track.md), [Application Capsules Guide](../guide/application-capsules.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Guard web boundary; confirm verification/receipt does not add mount/route/Rack/browser/rendering behavior | [Host Activation Ledger Verification Receipt Track](./application-capsule-host-activation-ledger-verification-receipt-track.md) | [Host Activation Ledger Adapter Track](./application-capsule-host-activation-ledger-adapter-track.md), [Application Capsules Guide](../guide/application-capsules.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -83,10 +83,14 @@ block: none | <blocker>
 - Whole-project strategic expert report accepted as reference framing, not as
   an immediate track replacement:
   [Igniter Strategic Report](../experts/igniter-strategic-report.md).
+- Application proposals are accepted as future showcase/reference-app backlog,
+  not as the current active track:
+  [Application Proposals](../experts/application-proposals.md).
 - Activation Evidence Schema accepted the normative application schema and
   metadata-only mount boundary.
-- Next active track is narrow implementation:
-  [Host Activation Ledger Adapter Track](./application-capsule-host-activation-ledger-adapter-track.md).
+- Host Activation Ledger Adapter accepted the narrow Phase 3 proof.
+- Next active track closes Phase 4 over the ledger proof:
+  [Host Activation Ledger Verification Receipt Track](./application-capsule-host-activation-ledger-verification-receipt-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 
@@ -146,5 +150,6 @@ Next:
 
 - Boundary review accepted only a narrow possible Phase 3; Application/Web
   agents completed the evidence schema pass.
-- Phase 3 opens only for a file-backed activation ledger adapter; real host
-  activation and web mount behavior remain out of scope.
+- Phase 3 file-backed activation ledger proof is accepted.
+- Phase 4 now verifies ledger readback and produces an activation receipt; real
+  host activation and web mount behavior remain out of scope.

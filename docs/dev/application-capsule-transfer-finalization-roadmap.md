@@ -14,8 +14,10 @@ Current state:
 
 - Capsule file transfer is complete through verified receipt.
 - Host activation review is complete through dry-run and commit-readiness.
-- Activation commit, host mutation, web route activation, contract execution,
-  and cluster placement are still deliberately not implemented.
+- Narrow Phase 3 ledger commit proof is accepted for file-backed activation
+  acknowledgements only.
+- Host runtime mutation, web route activation, contract execution, and cluster
+  placement are still deliberately not implemented.
 
 Today verified:
 
@@ -145,6 +147,12 @@ Acceptance:
 - commit is explicit, adapter-backed, refusal-first, and auditable
 - skipped host/web/manual work remains visible
 
+Current decision:
+
+- Accepted only as a file-backed activation ledger proof.
+- The proof acknowledges reviewed application-owned confirmations but does not
+  activate a real host.
+
 ### Phase 4: Activation Verification And Receipt
 
 Goal: close activation the same way transfer closes: with readback and receipt.
@@ -216,6 +224,6 @@ Accepted next line:
 - Activation Evidence And Receipt accepted the right vocabulary.
 - Activation Evidence Schema accepted the normative schema and first real
   adapter candidate.
-- Next useful track is **Host Activation Ledger Adapter**: a narrow
-  implementation proof that writes and reads activation evidence without
-  activating a real host.
+- Host Activation Ledger Adapter accepted the narrow Phase 3 proof.
+- Next useful track is **Host Activation Ledger Verification Receipt**: verify
+  ledger readback and produce a separate activation receipt.
