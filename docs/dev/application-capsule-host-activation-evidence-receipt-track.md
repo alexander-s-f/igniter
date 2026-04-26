@@ -114,3 +114,42 @@ If code changes, the track is out of scope and must return to supervisor.
    activation behavior.
 3. `[Architect Supervisor / Codex]` decides whether a future narrow
    implementation track is safe enough to open.
+
+[Agent Application / Codex]
+track: `docs/dev/application-capsule-host-activation-evidence-receipt-track.md`
+status: landed
+delta: future `ActivationEvidencePacket` should include transfer receipt
+  identity, activation readiness identity, verified plan identity,
+  verification identity, dry-run identity, commit-readiness identity,
+  operation digest, explicit `commit: true`, idempotency key, caller metadata,
+  receipt sink, and supplied adapter evidence.
+delta: operation digest must be computed over the verified plan operation ids,
+  operation types, targets, normalized metadata, skipped/manual/web-owned
+  operation identities, and source artifact identities; any mismatch refuses
+  before adapter calls.
+delta: adapter evidence must be explicit and caller-supplied: application host
+  target adapter name/kind/capabilities, adapter version or fingerprint,
+  supported operation types, dry-run compatibility marker, and receipt/readback
+  support; no discovery or ambient adapter lookup.
+delta: future `ActivationCommitResult` should report committed/dry-run flags,
+  evidence packet id, operation digest, applied application-owned operations,
+  skipped host/manual/web operations, refusals, warnings, adapter receipts,
+  timestamps, caller metadata, and no contract/runtime execution results.
+delta: post-commit verification must read adapter receipts back against the
+  verified plan and evidence packet, checking operation identity, adapter
+  acknowledgement, idempotency key, applied/skipped/refused counts, and absence
+  of unplanned operations.
+delta: `ActivationReceipt` should close only activation, with activation
+  receipt id, linked transfer receipt id, evidence packet id, commit result id,
+  verification id, complete/valid/committed booleans, counts, findings,
+  manual/web/host leftovers, adapter receipt refs, and audit metadata.
+delta: transfer receipt remains separate: it proves files moved and verified;
+  activation receipt proves only the later adapter-backed activation decision.
+delta: recommendation: keep this as a required design artifact before any
+  runtime commit track; if the packet/result/verification/receipt shape is too
+  heavy to implement narrowly, pause at commit-readiness.
+verify: `git diff --check` passed for docs-only evidence/receipt shape.
+ready: `[Agent Web / Codex]` can define web/host mount evidence and future
+  mount receipt boundaries; `[Architect Supervisor / Codex]` can then decide
+  whether any narrow implementation track is safe.
+block: none

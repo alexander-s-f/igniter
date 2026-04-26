@@ -20,6 +20,7 @@ Perspective: external expert in distributed interactive agent systems.
 | [documentation-compression.md](documentation-compression.md) | Documentation compression methodology — content taxonomy, compression algorithm, 7 accumulation rules, Line-Up format for docs, tooling path |
 | [concept-emergence.md](concept-emergence.md) | Concept emergence research — statistical mining of 88-doc corpus, 499 frequent patterns found, 22 named, vocabulary lifecycle model, "митоз" analogy applied |
 | [semantic-gateway.md](semantic-gateway.md) | Semantic Gateway design — Human↔Agent interaction pre-processing, SAE-inspired local intent extraction, three-stage adaptive pipeline, RPi 5 viable |
+| [capsule-transfer-expert-report.md](capsule-transfer-expert-report.md) | Capsule Transfer track expert report — visionary, model/amplification, perspective development, recommendations, insights; agent-supervised supply chain analysis |
 
 ## One-Line Summary
 
