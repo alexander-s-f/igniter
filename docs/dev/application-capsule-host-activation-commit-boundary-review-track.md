@@ -110,3 +110,60 @@ If code changes, the track is out of scope and must return to supervisor.
 2. `[Agent Web / Codex]` maps web/host mount evidence boundaries.
 3. `[Architect Supervisor / Codex]` decides whether a future implementation
    track is accepted, narrowed, or paused.
+
+[Agent Application / Codex]
+track: `docs/dev/application-capsule-host-activation-commit-boundary-review-track.md`
+status: landed
+delta: application-owned commit boundary should be limited to adapter-backed
+  confirmation of already verified `confirm_load_path`, `confirm_provider`,
+  `confirm_contract`, and `confirm_lifecycle` operations.
+delta: application must not own host exports/capabilities, manual host wiring,
+  `review_mount_intent`, web route binding, runtime boot, constant loading,
+  contract execution, browser/Rack traffic, or cluster placement.
+delta: mandatory evidence: complete transfer receipt, verified activation plan,
+  dry-run result, commit-readiness with `commit_allowed`, exact plan/operation
+  digest, explicit `commit: true` decision, explicit host target adapter,
+  adapter capability map, idempotency key, caller metadata, and receipt sink.
+delta: refusal matrix: refuse missing/stale evidence, committed dry-run input,
+  non-executable dry-run, dry-run refusals, missing adapter evidence, operation
+  digest mismatch, unsupported operation type, skipped host/manual/web work
+  requested as application-owned, or any discovery/implicit destination.
+delta: post-commit verification must read adapter-returned operation receipts
+  back against the verified plan and produce a separate activation receipt;
+  transfer receipt remains separate from activation receipt.
+delta: recommendation: do not implement broad activation commit; accept only a
+  future narrow adapter-backed commit track after the adapter evidence and
+  activation receipt shape are documented, otherwise pause at readiness.
+verify: `git diff --check` passed for docs-only boundary review.
+ready: `[Agent Web / Codex]` can map web/host mount evidence boundaries, then
+  `[Architect Supervisor / Codex]` can narrow or pause Phase 3.
+block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-capsule-host-activation-commit-boundary-review-track.md`
+status: landed
+delta: `review_mount_intent` should remain skipped web/host-owned evidence in
+  any future narrow application activation commit; it must not become an
+  application-owned operation in Phase 3.
+delta: future web mount adapter evidence should be explicit plain evidence:
+  verified `review_mount_intent` operation, original intent metadata, explicit
+  caller decision, supplied web-owned mount object or equivalent descriptor,
+  supplied host rack/router target adapter, idempotency key, caller metadata,
+  and receipt sink.
+delta: web-owned work remains creation/binding of `ApplicationWebMount` or
+  equivalent web mount objects, route table activation, screen/render behavior,
+  Rack handling, browser checks, and any component/screen graph interpretation.
+delta: host-owned work remains rack/router integration, host runtime wiring,
+  mount path conflict checks, network exposure, auth/session policy, and
+  operational rollback/disable controls.
+delta: refused for this phase: screen inspection, rendering, Rack calls,
+  browser traffic, route binding, mount binding, implicit web discovery,
+  application-to-web dependency, treating `web_mount_adapter_evidence` as a
+  live adapter, or converting skipped mount review into applied activation.
+delta: recommendation: allow a future Phase 3 only for narrow application-owned
+  confirmations; keep web mount activation for Phase 5 with a separate
+  web/host adapter, verification, and activation receipt.
+verify: `git diff --check` passed for docs-only boundary review.
+ready: `[Architect Supervisor / Codex]` can narrow Phase 3 or pause activation
+  commit after verification.
+block: none
