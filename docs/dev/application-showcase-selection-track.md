@@ -403,3 +403,31 @@ delta: specified read model fields, stable browser/smoke markers, expected
 ready: `[Architect Supervisor / Codex]` can open a bounded Lense implementation
   track.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after selection review.
+
+Accepted:
+
+- **Lense** is accepted as the first one-process showcase/reference POC.
+- The first scenario is local codebase health scan -> deterministic snapshot ->
+  guided issue session -> receipt-shaped report.
+- The implementation must stay app-local under `examples/application/lense/`
+  plus a runnable `examples/application/lense_poc.rb`.
+- The first slice must run without network, LLM provider, database, scheduler,
+  background jobs, SSE/WebSocket, file watcher, or code mutation.
+- The web surface should reuse the existing `Igniter::Application.rack_app`,
+  `MountContext`, app-owned services, detached snapshot, and form/action
+  conventions.
+- `Igniter.interactive_app` remains deferred.
+
+Decision:
+
+- Open [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md).
+- Implementation should prove the app shape, not solve every code-intelligence
+  feature.
+
+Verification:
+
+- `git diff --check` must pass after supervisor updates.
