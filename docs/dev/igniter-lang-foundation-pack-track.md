@@ -186,3 +186,57 @@ not map to the current repository layout because `spec/igniter` no longer
 exists; `spec/current` is the current top-level active spec scope. Full
 `bundle exec rubocop` still reports pre-existing archived/research offenses, so
 the changed-file lint scope was used for this slice.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- The Igniter-Lang foundation pack is accepted as additive.
+- `require "igniter/lang"` loads a narrow Lang namespace without changing
+  existing contract execution.
+- `Igniter::Lang::Backends::Ruby` correctly acts as a wrapper over current
+  contracts APIs rather than a new backend/runtime.
+- `History`, `BiHistory`, `OLAPPoint`, and `Forecast` are accepted as immutable
+  definition-time descriptors.
+- `VerificationReport` is accepted as a read-only report over current
+  compilation/artifact data.
+- `examples/contracts/lang_foundation.rb` is accepted as the compact smoke
+  proof.
+
+Rejected/deferred remain unchanged:
+
+- parser, `.il`, grammar, AST front-end
+- Rust backend or certified export
+- store/OLAP/time-machine runtime
+- physical unit algebra enforcement
+- deadline runtime monitoring, warning channels, WCET enforcement
+- changes to current execution semantics
+
+Supervisor verification:
+
+```bash
+bundle exec rspec packages/igniter-contracts/spec spec/current
+ruby examples/run.rb smoke
+bundle exec rubocop packages/igniter-contracts/lib/igniter/lang.rb packages/igniter-contracts/lib/igniter/lang/types.rb packages/igniter-contracts/lib/igniter/lang/backend.rb packages/igniter-contracts/lib/igniter/lang/backends/ruby.rb packages/igniter-contracts/lib/igniter/lang/verification_report.rb packages/igniter-contracts/spec/igniter/lang_spec.rb examples/contracts/lang_foundation.rb examples/catalog.rb
+git diff --check
+```
+
+Result:
+
+- RSpec passed with 199 examples and 0 failures.
+- Examples smoke passed with 81 examples and 0 failures.
+- Changed-file RuboCop passed with no offenses.
+- `git diff --check` passed.
+
+Note:
+
+- The track's original `bundle exec rspec spec/igniter` gate is outdated for
+  the current repository layout; `spec/current` is the active top-level scope.
+- Full `bundle exec rubocop` still includes pre-existing archived/research
+  offenses, so changed-file RuboCop is the practical gate for this slice.
+
+Next:
+
+- Open [Igniter Lang Metadata Manifest Scoping Track](./igniter-lang-metadata-manifest-scoping-track.md).

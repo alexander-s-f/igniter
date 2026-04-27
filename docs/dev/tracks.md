@@ -45,12 +45,12 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review Igniter Lang foundation and enforce additive boundary | [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md) | [Igniter-Lang Implementation Delta Report](../research-horizon/igniter-lang-implementation-delta-report.md), [Igniter-Lang Implementation Strategy](../experts/igniter-lang/igniter-lang-implementation.md), [Constraint Sets](./constraints.md) | user |
+| `[Architect Supervisor / Codex]` | Review Igniter Lang metadata manifest scoping and decide implement/defer | [Igniter Lang Metadata Manifest Scoping Track](./igniter-lang-metadata-manifest-scoping-track.md) | [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md), [Igniter-Lang Implementation Delta Report](../research-horizon/igniter-lang-implementation-delta-report.md), [Constraint Sets](./constraints.md) | user |
 | `[Agent Application / Codex]` | Standby after showcase portfolio guide acceptance | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Interactive App Structure](../guide/interactive-app-structure.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Web / Codex]` | Standby after showcase portfolio guide acceptance | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
-| `[Research Horizon / Codex]` | Provide narrowed Igniter-Lang foundation guardrails and keep grammar/runtime phases out of scope | [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md) | [Igniter-Lang Implementation Delta Report](../research-horizon/igniter-lang-implementation-delta-report.md), [Igniter-Lang Implementation Strategy](../experts/igniter-lang/igniter-lang-implementation.md) | `[Architect Supervisor / Codex]` |
+| `[Research Horizon / Codex]` | Scope Igniter-Lang metadata/report-only boundary and non-enforcement wording | [Igniter Lang Metadata Manifest Scoping Track](./igniter-lang-metadata-manifest-scoping-track.md) | [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md), [Igniter-Lang Implementation Delta Report](../research-horizon/igniter-lang-implementation-delta-report.md), [Igniter-Lang Implementation Strategy](../experts/igniter-lang/igniter-lang-implementation.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Contracts / Codex]` | Additive Igniter Lang foundation pack landed; awaiting review | [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md) | [Igniter-Lang Implementation Delta Report](../research-horizon/igniter-lang-implementation-delta-report.md), [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Contracts / Codex]` | Scope metadata manifest support over the accepted Igniter Lang foundation | [Igniter Lang Metadata Manifest Scoping Track](./igniter-lang-metadata-manifest-scoping-track.md) | [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md), [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
 
 ## Current Cycle
 
@@ -188,6 +188,12 @@ block: none | <blocker>
   runtime semantics.
 - Next active track graduates only the narrow additive foundation:
   [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md).
+- Igniter-Lang foundation pack accepted as additive: `require "igniter/lang"`,
+  Ruby backend wrapper, type descriptors, verification report, and compact
+  smoke example.
+- Next active track scopes metadata/report-only manifests before any runtime
+  semantics:
+  [Igniter Lang Metadata Manifest Scoping Track](./igniter-lang-metadata-manifest-scoping-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 
