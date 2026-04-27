@@ -328,3 +328,29 @@ delta: recommended one narrow showcase evidence/smoke proof design track before
 verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can choose the next strategic line.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Portfolio update is accepted.
+- Lense, Chronicle, and Scout collectively prove a mature one-process showcase
+  convention: app-owned services, deterministic contracts, detached snapshots,
+  app-local command results, explicit action facts, receipt/report evidence,
+  `/events` parity, stable Web markers, manual server mode, catalog smoke, and
+  mutation-boundary proof.
+- Three apps justify a tiny design track for showcase evidence and smoke proof
+  shape.
+- They do not justify a public `interactive_app` facade, UI kit, marker DSL,
+  route DSL, shared command/snapshot/receipt classes, live transport,
+  persistence, LLM/connectors, or production server behavior.
+- Dispatch is accepted as the likely next product pressure line after the
+  evidence/smoke design pass, provided it stays offline and fixture-backed.
+- If product pressure pauses, Embed/Contracts is the preferred package fallback
+  before Cluster/Mesh.
+
+Next:
+
+- Open [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md).
