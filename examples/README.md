@@ -7,6 +7,7 @@ Active examples are limited to:
 - `igniter-contracts`
 - `igniter-extensions`
 - `igniter-application`
+- `igniter-ai`
 - `igniter-cluster`
 - `igniter-mcp-adapter`
 

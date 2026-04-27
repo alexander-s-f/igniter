@@ -22,16 +22,16 @@ Root should stay thin:
 - `igniter-application`
   contracts-native local runtime host: config, providers, services, loaders,
   schedulers, host adapters, boot lifecycle
+- `igniter-ai`
+  provider-neutral AI execution: request/response envelopes, provider clients,
+  credentials-aware configuration, fake/live/recorded modes, transcripts,
+  usage, errors, and replay seams
 - `igniter-cluster`
   contracts-native distributed runtime: remote execution, routing, admission,
   placement, peer registry, topology, distributed diagnostics
 
 ## Planned Runtime Packages
 
-- `igniter-ai`
-  provider-neutral AI execution: request/response envelopes, provider clients,
-  credentials-aware configuration, fake/live/recorded modes, transcripts,
-  usage, errors, and replay seams
 - `igniter-agents`
   agent runtime semantics over contracts and AI: agent runs, turns, traces,
   tool policy, memory/context, handoff, human gates, and supervisor vocabulary

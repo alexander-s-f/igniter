@@ -39,8 +39,8 @@ module Igniter
       end
 
       def missing_required
-        definitions.values.select(&:required?).reject do |definition|
-          !definition.resolve(env_lookup: env_lookup).nil?
+        definitions.values.select(&:required?).select do |definition|
+          definition.resolve(env_lookup: env_lookup).nil?
         end.map(&:name).sort
       end
 

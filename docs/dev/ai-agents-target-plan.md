@@ -105,6 +105,8 @@ This is illustrative, not accepted API.
 
 ## First Implementation Slice
 
+Status: package skeleton landed; application-level AI DSL is still next.
+
 1. Create `packages/igniter-ai` with zero production dependencies.
 2. Move the Companion OpenAI Responses behavior behind
    `Igniter::AI::Providers::OpenAIResponses`.

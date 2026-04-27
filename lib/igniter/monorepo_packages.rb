@@ -5,6 +5,7 @@
   File.expand_path("../../packages/igniter-embed/lib", __dir__),
   File.expand_path("../../packages/igniter-extensions/lib", __dir__),
   File.expand_path("../../packages/igniter-application/lib", __dir__),
+  File.expand_path("../../packages/igniter-ai/lib", __dir__),
   File.expand_path("../../packages/igniter-web/lib", __dir__),
   File.expand_path("../../packages/igniter-cluster/lib", __dir__),
   File.expand_path("../../packages/igniter-mcp-adapter/lib", __dir__)

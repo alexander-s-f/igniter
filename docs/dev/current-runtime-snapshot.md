@@ -12,6 +12,8 @@ This snapshot describes the current public package graph and proof surface.
   that want Igniter contracts inside an existing runtime.
 - `igniter-application`: contracts-native local application runtime and
   app-owned environment composition.
+- `igniter-ai`: provider-neutral AI execution, request/response envelopes,
+  fake/live/recorded provider modes, and response normalization.
 - `igniter-web`: mounted web surfaces over explicit application snapshots.
 - `igniter-cluster`: distributed planning, routing, and mesh execution layer.
 - `igniter-mcp-adapter`: transport-facing adapter for MCP tool catalogs and
@@ -19,8 +21,6 @@ This snapshot describes the current public package graph and proof surface.
 
 Planned rebuilds:
 
-- `igniter-ai`: provider-neutral AI execution, credentials-aware provider
-  configuration, fake/live/recorded modes, and replay/evaluation seams.
 - `igniter-agents`: agent run state, tool policy, memory/context, handoff, and
   human-gate semantics over contracts and AI.
 

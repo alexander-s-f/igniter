@@ -13,11 +13,21 @@ RSpec.describe "active example scripts" do
     status = nil
 
     Timeout.timeout(example.timeout) do
-      stdout, stderr, status = Open3.capture3(
-        RbConfig.ruby,
-        example.full_path,
-        *example.command_args
-      )
+      if defined?(Bundler)
+        Bundler.with_unbundled_env do
+          stdout, stderr, status = Open3.capture3(
+            RbConfig.ruby,
+            example.full_path,
+            *example.command_args
+          )
+        end
+      else
+        stdout, stderr, status = Open3.capture3(
+          RbConfig.ruby,
+          example.full_path,
+          *example.command_args
+        )
+      end
     end
 
     [stdout, stderr, status]

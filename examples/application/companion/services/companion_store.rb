@@ -7,7 +7,11 @@ module Companion
   module Services
     class CompanionStore
       Reminder = Struct.new(:id, :title, :due, :status, keyword_init: true)
-      Tracker = Struct.new(:id, :name, :template, :unit, :entries, keyword_init: true)
+      Tracker = Struct.new(:id, :name, :template, :unit, :log_entries, keyword_init: true) do
+        def to_h
+          super.merge(entries: log_entries)
+        end
+      end
       Countdown = Struct.new(:id, :title, :target_date, keyword_init: true)
       Action = Struct.new(:index, :kind, :subject_id, :status, keyword_init: true)
       CommandResult = Struct.new(:kind, :feedback_code, :subject_id, :action, keyword_init: true) do
@@ -24,7 +28,7 @@ module Companion
         def to_h
           {
             reminders: reminders.map(&:to_h),
-            trackers: trackers.map { |tracker| tracker.to_h.merge(entries: tracker.entries.map(&:dup)) },
+            trackers: trackers.map { |tracker| tracker.to_h.merge(entries: tracker.log_entries.map(&:dup)) },
             countdowns: countdowns.map(&:to_h),
             open_reminders: open_reminders,
             tracker_logs_today: tracker_logs_today,
@@ -52,7 +56,7 @@ module Companion
 
         Snapshot.new(
           reminders: @reminders.map(&:dup).freeze,
-          trackers: @trackers.map { |tracker| tracker.dup.tap { |copy| copy.entries = tracker.entries.map(&:dup).freeze } }.freeze,
+          trackers: @trackers.map { |tracker| tracker.dup.tap { |copy| copy.log_entries = tracker.log_entries.map(&:dup).freeze } }.freeze,
           countdowns: @countdowns.map(&:dup).freeze,
           open_reminders: payload.fetch(:open_reminders),
           tracker_logs_today: payload.fetch(:tracker_logs_today),
@@ -79,11 +83,11 @@ module Companion
           return command_result(:failure, feedback_code: :live_provider_missing, subject_id: :daily_summary, action: action)
         end
 
-        result = @llm_provider.daily_summary(snapshot: snapshot.to_h)
-        if result.fetch(:success)
+        result = @llm_provider.complete(daily_summary_request(snapshot.to_h))
+        if result.success?
           @live_summary = {
-            text: result.fetch(:text),
-            provider: :openai,
+            text: result.text,
+            provider: result.metadata.fetch(:provider, :unknown),
             generated_at: Time.now.utc.iso8601
           }
           action = record_action(kind: :live_summary_generated, subject_id: :daily_summary, status: :ready)
@@ -92,7 +96,7 @@ module Companion
         else
           action = record_action(kind: :live_summary_failed, subject_id: :daily_summary, status: :error)
           persist!
-          command_result(:failure, feedback_code: :live_summary_failed, subject_id: result.fetch(:error), action: action)
+          command_result(:failure, feedback_code: :live_summary_failed, subject_id: result.error, action: action)
         end
       end
 
@@ -136,7 +140,7 @@ module Companion
           return command_result(:failure, feedback_code: :blank_tracker_value, subject_id: tracker.id, action: action)
         end
 
-        tracker.entries << { date: Date.today.iso8601, value: normalized }
+        tracker.log_entries << { date: Date.today.iso8601, value: normalized }
         action = record_action(kind: :tracker_logged, subject_id: tracker.id, status: :logged)
         persist!
         command_result(:success, feedback_code: :tracker_logged, subject_id: tracker.id, action: action)
@@ -171,8 +175,8 @@ module Companion
       def seed
         @reminders << Reminder.new(id: "morning-water", title: "Drink water after wake-up", due: "morning", status: :open)
         @reminders << Reminder.new(id: "evening-review", title: "Review the day", due: "evening", status: :open)
-        @trackers << Tracker.new(id: "sleep", name: "Sleep", template: :sleep, unit: "hours", entries: [])
-        @trackers << Tracker.new(id: "training", name: "Training", template: :workout, unit: "minutes", entries: [])
+        @trackers << Tracker.new(id: "sleep", name: "Sleep", template: :sleep, unit: "hours", log_entries: [])
+        @trackers << Tracker.new(id: "training", name: "Training", template: :workout, unit: "minutes", log_entries: [])
         @countdowns << Countdown.new(id: "new-year", title: "New Year", target_date: "#{Date.today.year + 1}-01-01")
         record_action(kind: :companion_seeded, subject_id: :companion, status: :ready)
       end
@@ -194,7 +198,7 @@ module Companion
             name: payload.fetch(:name),
             template: payload.fetch(:template).to_sym,
             unit: payload.fetch(:unit),
-            entries: Array(payload.fetch(:entries)).map { |tracker_entry| symbolize(tracker_entry) }
+            log_entries: Array(payload.fetch(:entries)).map { |tracker_entry| symbolize(tracker_entry) }
           )
         end
         @countdowns = Array(state.fetch(:countdowns)).map do |entry|
@@ -216,7 +220,7 @@ module Companion
       def persist!
         @backend.save_state(
           reminders: @reminders.map(&:to_h),
-          trackers: @trackers.map { |tracker| tracker.to_h.merge(entries: tracker.entries.map(&:dup)) },
+          trackers: @trackers.map { |tracker| tracker.to_h.merge(entries: tracker.log_entries.map(&:dup)) },
           countdowns: @countdowns.map(&:to_h),
           actions: @actions.map(&:to_h),
           live_summary: @live_summary,
@@ -227,7 +231,9 @@ module Companion
       def base_payload
         {
           open_reminders: @reminders.count { |reminder| reminder.status == :open },
-          tracker_logs_today: @trackers.sum { |tracker| tracker.entries.count { |entry| entry.fetch(:date) == Date.today.iso8601 } },
+          tracker_logs_today: @trackers.sum do |tracker|
+            tracker.log_entries.count { |entry| entry.fetch(:date) == Date.today.iso8601 }
+          end,
           live_ready: credential_status.fetch(:configured)
         }
       end
@@ -249,6 +255,27 @@ module Companion
 
       def command_result(kind, feedback_code:, subject_id:, action:)
         CommandResult.new(kind: kind.to_sym, feedback_code: feedback_code.to_sym, subject_id: subject_id, action: action)
+      end
+
+      def daily_summary_request(snapshot)
+        Igniter::AI.request(
+          model: "companion-live",
+          instructions: "You are Igniter Companion. Write a concise, practical daily summary for a personal assistant app.",
+          input: daily_summary_prompt(snapshot),
+          metadata: { feature: :daily_summary }
+        )
+      end
+
+      def daily_summary_prompt(snapshot)
+        <<~PROMPT
+          Current companion state:
+          - open reminders: #{snapshot.fetch(:open_reminders)}
+          - tracker logs today: #{snapshot.fetch(:tracker_logs_today)}
+          - countdowns: #{snapshot.fetch(:countdown_count)}
+          - deterministic recommendation: #{snapshot.fetch(:daily_summary).fetch(:recommendation)}
+
+          Return one short paragraph and one next action.
+        PROMPT
       end
 
       def next_id_for(title, collection)

@@ -18,7 +18,7 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `runtime.rb` owns server and smoke wiring.
 - `app_dsl.rb` owns app-local routing/configuration sugar.
 - `services/store_backends.rb` provides the store interface and SQLite backend.
-- `services/llm_providers.rb` contains the live OpenAI Responses provider.
+- `igniter-ai` contains the live OpenAI Responses provider.
 - `contracts/daily_summary_contract.rb` uses the human contract DSL form.
 
 Run smoke:

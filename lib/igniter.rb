@@ -5,6 +5,7 @@ require_relative "igniter/version"
 require "igniter/contracts"
 require "igniter/embed"
 require "igniter/application"
+require "igniter/ai"
 
 module Igniter
   class << self
@@ -62,6 +63,10 @@ module Igniter
 
     def application(*packs)
       Application.with(*packs)
+    end
+
+    def ai_client(...)
+      AI.client(...)
     end
   end
 end

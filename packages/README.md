@@ -7,13 +7,13 @@ Active runtime packages:
 - `igniter-contracts`
 - `igniter-extensions`
 - `igniter-application`
+- `igniter-ai`
 - `igniter-web`
 - `igniter-cluster`
 - `igniter-mcp-adapter`
 
 Remaining recreation work:
 
-- rebuild `igniter-ai`
 - rebuild `igniter-agents`
 - rebuild `igniter-server` only if an adapter surface is still needed
 
