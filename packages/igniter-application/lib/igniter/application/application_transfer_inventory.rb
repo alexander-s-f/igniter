@@ -75,6 +75,7 @@ module Igniter
           files_enumerated: enumerate_files,
           files: files,
           file_count: enumerate_files ? files.length : :not_enumerated,
+          agents: blueprint.agents.map(&:dup),
           surfaces: surfaces_for(blueprint)
         }
       end

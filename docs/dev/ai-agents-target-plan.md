@@ -130,8 +130,8 @@ Acceptance:
 ## Second Implementation Slice
 
 Status: minimal package skeleton and application-level agent DSL landed;
-memory, handoff, human gates, and contracts-first tool execution are still
-next.
+capsule transfer can now carry declared agents as capabilities; memory,
+handoff, human gates, and contracts-first tool execution are still next.
 
 1. Create `packages/igniter-agents` around minimal agent run state.
 2. Treat tools as contracts-first callables.
@@ -145,6 +145,18 @@ Acceptance:
 - tool calls expose typed inputs/results
 - web can render run state without owning runtime logic
 - applications can run a simple assistant without custom loop code
+
+## Agent-Aware Capsule Transfer
+
+Status: first deterministic slice landed.
+
+Capsule transfer treats agents as declared application capabilities. Transfer
+reports carry agent declarations through capsule reports, handoff manifests,
+inventories, intake/apply plans, and receipts. Readiness can block an agent
+capsule when the required AI provider is not declared.
+
+Transfer does not run agents by default. Agents may review reports later, but
+the source of truth remains the deterministic transfer pipeline.
 
 ## Legacy Filter
 

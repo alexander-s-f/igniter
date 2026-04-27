@@ -17,6 +17,7 @@ module Igniter
         @services = []
         @interfaces = []
         @effects = []
+        @agents = []
         @web_surfaces = []
         @exports = []
         @imports = []
@@ -69,6 +70,20 @@ module Igniter
 
       def effect(name)
         @effects << name.to_sym
+        self
+      end
+
+      def agent(name, model: nil, instructions: nil, tools: [], memory: nil, metadata: {}, **options)
+        ai_provider = options.delete(:ai) || :default
+        @agents << {
+          name: name.to_sym,
+          ai_provider: ai_provider.to_sym,
+          model: model,
+          instructions: instructions,
+          tools: tools,
+          memory: memory,
+          metadata: metadata
+        }
         self
       end
 
@@ -137,6 +152,7 @@ module Igniter
           services: @services,
           interfaces: @interfaces,
           effects: @effects,
+          agents: @agents,
           web_surfaces: @web_surfaces,
           exports: @exports,
           imports: @imports,

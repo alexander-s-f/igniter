@@ -68,7 +68,7 @@ module Igniter
       private
 
       def build_findings
-        manifest_blockers + inventory_findings + surface_metadata_warnings + inventory_warnings + optional_warnings
+        manifest_blockers + agent_findings + inventory_findings + surface_metadata_warnings + inventory_warnings + optional_warnings
       end
 
       def manifest_blockers
@@ -106,6 +106,26 @@ module Igniter
       def inventory_findings
         inventory_payload.fetch(:capsules, []).flat_map do |capsule|
           skipped_path_findings(capsule) + missing_path_findings(capsule)
+        end
+      end
+
+      def agent_findings
+        manifest_payload.fetch(:capsules, []).flat_map do |capsule|
+          capsule.fetch(:agents, []).filter_map do |agent|
+            next if agent_ai_provider_declared?(capsule, agent)
+
+            finding(
+              severity: :blocker,
+              source: :agents,
+              code: :missing_agent_ai_provider,
+              message: "Agent #{agent.fetch(:name)} for #{capsule.fetch(:name)} requires AI provider #{agent.fetch(:ai_provider)}.",
+              metadata: {
+                capsule: capsule.fetch(:name),
+                agent: agent.fetch(:name),
+                ai_provider: agent.fetch(:ai_provider)
+              }
+            )
+          end
         end
       end
 
@@ -181,6 +201,16 @@ module Igniter
       def declared_surfaces
         manifest_payload.fetch(:capsules, []).flat_map do |capsule|
           capsule.fetch(:web_surfaces, []).map { |surface| [capsule.fetch(:name), surface.to_sym] }
+        end
+      end
+
+      def agent_ai_provider_declared?(capsule, agent)
+        provider = agent.fetch(:ai_provider).to_sym
+        return true if provider == :default && capsule.fetch(:providers, []).empty?
+        return true if capsule.fetch(:providers, []).map(&:to_sym).include?(provider)
+
+        capsule.fetch(:imports, []).any? do |entry|
+          entry.fetch(:name).to_sym == provider && entry.fetch(:kind).to_sym == :ai_provider
         end
       end
 

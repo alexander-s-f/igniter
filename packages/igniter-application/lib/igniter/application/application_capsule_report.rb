@@ -37,6 +37,7 @@ module Igniter
           contracts: blueprint.contracts.dup,
           services: blueprint.services.dup,
           interfaces: blueprint.interfaces.dup,
+          agents: blueprint.agents.map(&:dup),
           web_surfaces: blueprint.web_surfaces.dup,
           surfaces: surface_metadata.map(&:dup),
           metadata: metadata.dup

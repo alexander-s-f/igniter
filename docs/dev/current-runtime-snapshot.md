@@ -48,3 +48,5 @@ Companion.
   material under `playgrounds/docs/`.
 - Public package APIs should graduate only from repeated, low-ceremony shapes
   proven across examples.
+- Capsule transfer is now agent-aware at the declaration/evidence layer:
+  agents can be carried as capabilities, but transfer does not execute agents.

@@ -29,6 +29,7 @@ module Igniter
           operation_count: operations.length,
           blockers: blockers,
           warnings: warnings,
+          agent_capabilities: agent_capabilities,
           surface_count: surface_count,
           metadata: metadata.dup
         }
@@ -142,6 +143,10 @@ module Igniter
 
       def warnings
         Array(value(intake_payload, :warnings)).map(&:dup)
+      end
+
+      def agent_capabilities
+        Array(value(intake_payload, :agent_capabilities)).map(&:dup)
       end
 
       def required_host_wiring

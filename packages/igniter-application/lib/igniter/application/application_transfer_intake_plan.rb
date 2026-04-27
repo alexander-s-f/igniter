@@ -42,6 +42,7 @@ module Igniter
           blockers: blockers,
           warnings: warnings,
           required_host_wiring: required_host_wiring,
+          agent_capabilities: agent_capabilities,
           surface_count: surfaces.length,
           metadata: metadata.dup
         }
@@ -134,6 +135,32 @@ module Igniter
       def required_host_wiring
         manifest = bundle_plan.fetch(:readiness, {}).fetch(:manifest, {})
         manifest.fetch(:suggested_host_wiring, []).map(&:dup)
+      end
+
+      def agent_capabilities
+        manifest = bundle_plan.fetch(:readiness, {}).fetch(:manifest, {})
+        manifest.fetch(:capsules, []).flat_map do |capsule|
+          capsule.fetch(:agents, []).map do |agent|
+            normalize_agent(agent).merge(capsule: capsule.fetch(:name).to_sym)
+          end
+        end
+      end
+
+      def normalize_agent(agent)
+        {
+          name: agent.fetch(:name).to_sym,
+          ai_provider: agent.fetch(:ai_provider).to_sym,
+          model: agent[:model],
+          instructions: agent[:instructions],
+          tools: Array(agent.fetch(:tools, [])).map(&:to_sym),
+          memory: agent[:memory],
+          metadata: normalize_hash(agent.fetch(:metadata, {}))
+        }.compact
+      end
+
+      def normalize_hash(value)
+        source = value.respond_to?(:to_h) ? value.to_h : value
+        source.to_h.transform_keys { |key| key.respond_to?(:to_sym) ? key.to_sym : key }
       end
 
       def surfaces

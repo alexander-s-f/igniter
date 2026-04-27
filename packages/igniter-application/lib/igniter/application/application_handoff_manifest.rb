@@ -64,8 +64,10 @@ module Igniter
             layout_profile: blueprint.layout_profile,
             exports: blueprint.exports.map(&:to_h),
             imports: blueprint.imports.map(&:to_h),
+            providers: blueprint.providers.dup,
             feature_slices: blueprint.feature_slices.map(&:to_h),
             flow_declarations: blueprint.flow_declarations.map(&:to_h),
+            agents: blueprint.agents.map(&:dup),
             web_surfaces: blueprint.web_surfaces.dup
           }
         end

@@ -47,6 +47,7 @@ module Igniter
           findings: findings,
           refusals: refusals,
           skipped: skipped,
+          agent_capabilities: agent_capabilities,
           surface_count: surface_count,
           metadata: metadata.dup
         }
@@ -144,6 +145,12 @@ module Igniter
 
       def surface_count
         value(verification_payload, :surface_count) || 0
+      end
+
+      def agent_capabilities
+        return [] unless plan_payload
+
+        Array(value(plan_payload, :agent_capabilities)).map(&:dup)
       end
 
       def operation_type(entry)

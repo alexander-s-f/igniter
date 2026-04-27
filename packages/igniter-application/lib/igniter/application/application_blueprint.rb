@@ -6,13 +6,13 @@ module Igniter
       FILE_GROUPS = %i[config].freeze
 
       attr_reader :name, :root, :env, :layout_profile, :layout, :groups, :packs,
-                  :contracts, :providers, :services, :interfaces, :effects,
+                  :contracts, :providers, :services, :interfaces, :effects, :agents,
                   :web_surfaces, :exports, :imports, :feature_slices,
                   :flow_declarations, :config, :metadata
 
       def initialize(name:, root:, env: :development, layout: nil, layout_profile: :standalone, paths: {},
                      groups: [], packs: [], contracts: [], providers: [], services: [], interfaces: [],
-                     effects: [], web_surfaces: [], exports: [], imports: [],
+                     effects: [], agents: [], web_surfaces: [], exports: [], imports: [],
                      feature_slices: nil, features: nil, flow_declarations: nil, flows: nil,
                      config: {}, metadata: {})
         @name = name.to_sym
@@ -27,6 +27,7 @@ module Igniter
         @services = Array(services).map(&:to_sym).freeze
         @interfaces = Array(interfaces).map(&:to_sym).freeze
         @effects = Array(effects).map(&:to_sym).freeze
+        @agents = normalize_agents(agents).freeze
         @web_surfaces = Array(web_surfaces).map(&:to_sym).freeze
         @exports = normalize_exports(exports).freeze
         @imports = normalize_imports(imports).freeze
@@ -120,6 +121,7 @@ module Igniter
           services: services.dup,
           interfaces: interfaces.dup,
           effects: effects.dup,
+          agents: agents.map(&:dup),
           web_surfaces: web_surfaces.dup,
           exports: exports.map(&:to_h),
           imports: imports.map(&:to_h),
@@ -142,6 +144,7 @@ module Igniter
           feature_slices: feature_slices.map(&:to_h),
           flow_declarations: flow_declarations.map(&:to_h),
           effects: effects,
+          agents: agents.map(&:dup),
           web_surfaces: web_surfaces
         )
       end
@@ -152,6 +155,7 @@ module Igniter
           result << :providers unless providers.empty?
           result << :services unless services.empty? && interfaces.empty?
           result << :effects unless effects.empty?
+          result << :agents unless agents.empty?
           result << :packs unless packs.empty?
           result << :web unless web_surfaces.empty?
         end
@@ -201,6 +205,22 @@ module Igniter
 
       def normalize_flow_declarations(entries)
         Array(entries).map { |entry| FlowDeclaration.from(entry) }
+      end
+
+      def normalize_agents(entries)
+        Array(entries).map do |entry|
+          source = entry.respond_to?(:to_h) ? entry.to_h : entry
+          payload = source.to_h.transform_keys { |key| key.respond_to?(:to_sym) ? key.to_sym : key }
+          {
+            name: payload.fetch(:name).to_sym,
+            ai_provider: payload.fetch(:ai_provider, payload.fetch(:ai, :default)).to_sym,
+            model: payload[:model],
+            instructions: payload[:instructions],
+            tools: Array(payload.fetch(:tools, [])).map(&:to_sym),
+            memory: payload[:memory],
+            metadata: payload.fetch(:metadata, {}).dup
+          }.compact
+        end
       end
     end
   end
