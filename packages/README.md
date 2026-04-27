@@ -8,13 +8,13 @@ Active runtime packages:
 - `igniter-extensions`
 - `igniter-application`
 - `igniter-ai`
+- `igniter-agents`
 - `igniter-web`
 - `igniter-cluster`
 - `igniter-mcp-adapter`
 
 Remaining recreation work:
 
-- rebuild `igniter-agents`
 - rebuild `igniter-server` only if an adapter surface is still needed
 
 See [AI And Agents Target Plan](../docs/dev/ai-agents-target-plan.md) before

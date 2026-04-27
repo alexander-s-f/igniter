@@ -6,6 +6,7 @@ require "igniter/contracts"
 require "igniter/embed"
 require "igniter/application"
 require "igniter/ai"
+require "igniter/agents"
 
 module Igniter
   class << self
@@ -67,6 +68,10 @@ module Igniter
 
     def ai_client(...)
       AI.client(...)
+    end
+
+    def agent(...)
+      Agents.agent(...)
     end
   end
 end

@@ -8,6 +8,7 @@ Active examples are limited to:
 - `igniter-extensions`
 - `igniter-application`
 - `igniter-ai`
+- `igniter-agents`
 - `igniter-cluster`
 - `igniter-mcp-adapter`
 

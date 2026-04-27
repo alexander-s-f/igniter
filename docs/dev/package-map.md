@@ -26,15 +26,17 @@ Root should stay thin:
   provider-neutral AI execution: request/response envelopes, provider clients,
   credentials-aware configuration, fake/live/recorded modes, transcripts,
   usage, errors, and replay seams
+- `igniter-agents`
+  agent runtime semantics over contracts and AI: agent definitions, runs,
+  turns, traces, tool-call evidence, and single-turn assistant execution
 - `igniter-cluster`
   contracts-native distributed runtime: remote execution, routing, admission,
   placement, peer registry, topology, distributed diagnostics
 
 ## Planned Runtime Packages
 
-- `igniter-agents`
-  agent runtime semantics over contracts and AI: agent runs, turns, traces,
-  tool policy, memory/context, handoff, human gates, and supervisor vocabulary
+- richer agent memory/context, handoff, human gates, contracts-first tool
+  execution, and supervisor vocabulary
 
 ## Current Supporting Packages
 

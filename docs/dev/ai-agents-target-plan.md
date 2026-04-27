@@ -105,8 +105,8 @@ This is illustrative, not accepted API.
 
 ## First Implementation Slice
 
-Status: package skeleton and application-level AI provider DSL landed; agent
-runtime is still next.
+Status: package skeleton, application-level AI provider DSL, and minimal
+single-turn agent runtime landed.
 
 1. Create `packages/igniter-ai` with zero production dependencies.
 2. Move the Companion OpenAI Responses behavior behind
@@ -128,6 +128,9 @@ Acceptance:
 - Companion still runs in fake/offline mode and can opt into live mode
 
 ## Second Implementation Slice
+
+Status: minimal package skeleton landed; memory, handoff, human gates, and
+contracts-first tool execution are still next.
 
 1. Create `packages/igniter-agents` around minimal agent run state.
 2. Treat tools as contracts-first callables.

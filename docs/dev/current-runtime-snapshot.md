@@ -14,6 +14,8 @@ This snapshot describes the current public package graph and proof surface.
   app-owned environment composition.
 - `igniter-ai`: provider-neutral AI execution, request/response envelopes,
   fake/live/recorded provider modes, and response normalization.
+- `igniter-agents`: minimal agent definitions, runs, turns, traces, tool-call
+  evidence, and single-turn assistant execution over `igniter-ai`.
 - `igniter-web`: mounted web surfaces over explicit application snapshots.
 - `igniter-cluster`: distributed planning, routing, and mesh execution layer.
 - `igniter-mcp-adapter`: transport-facing adapter for MCP tool catalogs and
@@ -21,8 +23,8 @@ This snapshot describes the current public package graph and proof surface.
 
 Planned rebuilds:
 
-- `igniter-agents`: agent run state, tool policy, memory/context, handoff, and
-  human-gate semantics over contracts and AI.
+- richer agent memory/context, handoff, human-gate, and contracts-first tool
+  execution semantics.
 
 ## Public Proof
 
