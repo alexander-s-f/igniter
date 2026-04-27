@@ -15,17 +15,12 @@ are not part of the public documentation surface.
 - [Module System](./module-system.md)
 - [Package Map](./package-map.md)
 - [Data Ownership](./data-ownership.md)
-- [Contracts Migration Roadmap](./contracts-migration-roadmap.md)
-- [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md)
-- [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md)
 - [Embed Target Plan](./embed-target-plan.md)
 - [Application Target Plan](./application-target-plan.md)
 - [Application And Web Integration](./application-web-integration.md)
 - [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md)
 - [Cluster Target Plan](./cluster-target-plan.md)
 - [Igniter Web Target Plan](./igniter-web-target-plan.md)
-- [Core Retirement Inventory](./core-retirement-inventory.md)
-- [DebugPack Spec](./debug-pack-spec.md)
 - [MCP Adapter Package](./mcp-adapter-package-spec.md)
 
 ## Package And Layer Boundaries

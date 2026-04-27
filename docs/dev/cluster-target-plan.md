@@ -4,10 +4,9 @@ This note defines the target direction for a contracts-native `Cluster` layer.
 
 It should be read together with:
 
-- [Post-Core Target Plan](./post-core-target-plan.md)
 - [Embed Target Plan](./embed-target-plan.md)
 - [Application Target Plan](./application-target-plan.md)
-- [Igniter Contracts Spec](./igniter-contracts-spec.md)
+- [Package Map](./package-map.md)
 
 The central design rule is:
 

@@ -5,9 +5,8 @@ layer.
 
 It should be read together with:
 
-- [Post-Core Target Plan](./post-core-target-plan.md)
-- [Igniter Contracts Spec](./igniter-contracts-spec.md)
 - [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md)
+- [Package Map](./package-map.md)
 
 The central design rule is:
 

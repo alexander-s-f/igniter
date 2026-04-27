@@ -4,9 +4,8 @@ This note defines the target role of `Embed` in the post-core architecture.
 
 It should be read together with:
 
-- [Post-Core Target Plan](./post-core-target-plan.md)
-- [Igniter Contracts Spec](./igniter-contracts-spec.md)
 - [Application Target Plan](./application-target-plan.md)
+- [Package Map](./package-map.md)
 
 The key rule is simple:
 

@@ -62,4 +62,4 @@ of truth remains:
 ## Docs
 
 - [Igniter Dev](../../docs/dev/README.md)
-- [DebugPack Spec](../../docs/dev/debug-pack-spec.md)
+- [MCP Adapter Package](../../docs/dev/mcp-adapter-package-spec.md)
