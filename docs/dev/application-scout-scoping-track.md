@@ -331,6 +331,154 @@ Application recommendation:
   source count or presentation detail before cutting provenance, checkpoint, or
   receipt behavior.
 
+## Scout Web Scoping
+
+[Agent Web / Codex] Proposed first surface:
+
+Scout should use one mounted Web surface:
+
+```text
+examples/application/scout/web/research_workspace.rb
+```
+
+The surface should be a source-backed research workspace rendered from an
+app-owned `ScoutSnapshot`. It should not own source parsing, finding
+extraction, checkpoint readiness, receipt payloads, or runtime writes.
+
+Surface story:
+
+```text
+Start local research session -> inspect source-backed findings ->
+choose direction checkpoint -> emit synthesis receipt
+```
+
+Recommended page sections:
+
+- **Session header**: topic, status, session id, source/finding/contradiction
+  counts, checkpoint choice, receipt readiness.
+- **Start research**: topic input plus local source id selector or text input
+  for fixture ids.
+- **Source pack**: source cards with title, type, date, tags, fixture path, and
+  citation anchors.
+- **Findings**: finding cards grouped by deterministic cluster/direction, each
+  with nested source refs and claim anchors.
+- **Contradictions / direction checkpoint**: tension cards showing governance,
+  velocity, balanced, or source-needed options and the evidence behind each.
+- **Checkpoint form**: choose `governance`, `velocity`, or `balanced`.
+- **Receipt lane**: emit receipt action plus receipt id/validity once ready.
+- **Recent activity**: action facts from the app snapshot.
+- **Inspection footer**: links or visible hints for `/events` and `/receipt`.
+
+Rack routes to scope for implementation:
+
+- `GET /`: mounted `research_workspace`.
+- `GET /events`: text read model from the same `ScoutSnapshot`.
+- `GET /receipt`: emitted research receipt, empty or explanatory text before
+  receipt emission.
+- `POST /sessions/start`: starts a session from `topic` and local `source_ids`.
+- `POST /findings/extract`: runs deterministic extraction for the session.
+- `POST /sources/add`: adds one existing local source fixture to the session.
+- `POST /checkpoints`: records the checkpoint direction.
+- `POST /receipts`: emits the synthesis receipt.
+
+Feedback codes:
+
+- success: `scout_session_started`, `scout_findings_extracted`,
+  `scout_checkpoint_chosen`, `scout_local_source_added`,
+  `scout_receipt_emitted`
+- refusal: `scout_blank_topic`, `scout_unknown_source`,
+  `scout_unknown_session`, `scout_no_sources`,
+  `scout_invalid_checkpoint`, `scout_receipt_not_ready`
+
+Stable markers:
+
+- surface: `data-ig-poc-surface="scout_research_workspace"`
+- session/read model: `data-session-id`, `data-topic`,
+  `data-research-status`
+- source pack: `data-source-count`, `data-source-id`, `data-source-type`,
+  `data-source-path`, `data-source-tag`
+- citation/provenance: `data-citation-id`, `data-citation-anchor`,
+  `data-source-ref`, `data-provenance-path`
+- findings: `data-finding-count`, `data-finding-id`,
+  `data-finding-direction`, `data-finding-confidence`
+- contradictions: `data-contradiction-count`, `data-contradiction-id`,
+  `data-contradiction-direction`
+- checkpoint: `data-checkpoint-choice`, `data-checkpoint-option`
+- receipt: `data-receipt-id`, `data-receipt-valid`
+- feedback: `data-ig-feedback`, `data-feedback-code`
+- actions: `data-action="start-session"`, `extract-findings`,
+  `add-local-source`, `choose-checkpoint`, `emit-receipt`
+- recent activity: `data-ig-activity="recent"`, `data-activity-kind`,
+  `data-activity-source-id`, `data-activity-status`
+
+Nested provenance rendering:
+
+- Render sources as nested HTML lists/cards under findings and contradictions.
+- Each finding should show the statement first, then nested source refs with
+  source id, citation anchor, fixture path, and excerpt/citation label.
+- Each contradiction should show both directions and the supporting finding ids
+  or source refs below each direction.
+- Do not propose graph/canvas/SVG, timeline libraries, live streams, or an
+  Evidence Map UI kit in the first slice.
+
+Smoke acceptance sketch:
+
+- Initial `GET /` returns `200`, HTML content type, surface marker, and no
+  active session marker.
+- Blank topic submit redirects with `scout_blank_topic` and renders feedback.
+- Unknown source submit redirects with `scout_unknown_source` and renders
+  feedback.
+- Successful session start redirects with `scout_session_started` and renders
+  topic/source/session markers.
+- Findings extraction redirects with `scout_findings_extracted` and renders
+  finding, citation, provenance path, and contradiction markers.
+- Receipt before checkpoint redirects with `scout_receipt_not_ready`.
+- Invalid checkpoint redirects with `scout_invalid_checkpoint`.
+- Valid checkpoint redirects with `scout_checkpoint_chosen` and renders
+  `data-checkpoint-choice`.
+- Receipt emission redirects with `scout_receipt_emitted` and renders receipt
+  id plus `data-receipt-valid="true"`.
+- `/events` returns text derived from the same final snapshot:
+  topic/session/status/source/finding/contradiction/checkpoint/receipt/action
+  counts.
+- `/receipt` returns a source-backed synthesis artifact with citations and
+  validity.
+- Smoke proves fixture no-mutation and runtime-only writes.
+
+Manual browser review:
+
+- `ruby examples/application/scout_poc.rb server` should print a local URL.
+- The first browser review should prove one complete path:
+  start session -> extract findings -> choose checkpoint -> emit receipt.
+- Manual review should inspect `/events` and `/receipt` after receipt emission.
+
+Keep Web-local for this slice:
+
+- surface name, CSS direction, page copy, section labels, marker names, action
+  names, endpoint labels, feedback messages, smoke output labels, and catalog
+  fragments.
+- grouping choices for findings, contradictions, source refs, and checkpoint
+  options.
+
+Deferred:
+
+- graph/canvas/SVG evidence map
+- UI kit/component system or marker DSL
+- live transport/SSE/WebSocket
+- browser automation requirement for smoke
+- generic research workspace DSL
+- generic report/receipt viewer
+- web fetch/search/connectors/LLM surfaces
+- production server/auth/users/teams
+
+Web recommendation:
+
+- Implement Scout next if the surface remains one local-source research
+  workspace and treats provenance as nested HTML evidence.
+- If scope needs trimming, reduce the number of fixture sources or visual
+  detail; do not cut provenance markers, checkpoint choice, `/events` parity,
+  or receipt inspection.
+
 ## Current Handoff
 
 [Architect Supervisor / Codex] Next:
@@ -362,4 +510,24 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can scope the Scout mounted surface and smoke
   evidence; `[Architect Supervisor / Codex]` can decide implementation after
   Web scoping lands.
+block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-scout-scoping-track.md`
+status: landed
+delta: scoped one Scout mounted Web surface,
+  `examples/application/scout/web/research_workspace.rb`, rendered from an
+  app-owned `ScoutSnapshot`.
+delta: defined Scout page sections, Rack route sketch, feedback codes, stable
+  provenance/finding/contradiction/checkpoint/receipt markers, nested HTML
+  provenance rendering, `/events`, `/receipt`, manual server mode, and smoke
+  acceptance.
+delta: kept surface names, page copy, CSS, marker names, action names,
+  endpoint labels, feedback messages, smoke labels, and catalog fragments
+  Web-local; deferred graph/canvas, UI kit, marker DSL, live transport,
+  browser automation, generic research DSL, connectors, LLMs, and production
+  server scope.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can decide whether to implement Scout
+  or choose a support/design pass.
 block: none
