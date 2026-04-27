@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+require "uri"
+
 require "igniter/application"
 
 require_relative "services/dispatch_analyzer"
 require_relative "services/incident_library"
 require_relative "services/incident_session_store"
+require_relative "web/command_center"
 
 module Dispatch
   APP_ROOT = File.expand_path(__dir__)
@@ -14,6 +17,24 @@ module Dispatch
     ENV.fetch("DISPATCH_WORKDIR", "/tmp/igniter_dispatch_poc")
   end
 
+  def self.feedback_path(params)
+    "/?#{URI.encode_www_form(params)}"
+  end
+
+  def self.result_feedback_path(result)
+    feedback_param = result.success? ? :notice : :error
+    feedback_path(
+      {
+        feedback_param => result.feedback_code,
+        session: result.session_id,
+        incident: result.incident_id,
+        event: result.event_id,
+        team: result.team,
+        receipt: result.receipt_id
+      }.compact
+    )
+  end
+
   def self.events_read_model(snapshot)
     recent = snapshot.recent_events.map do |event|
       event_id = event.fetch(:event_id) || "-"
@@ -21,6 +42,63 @@ module Dispatch
       "#{event.fetch(:kind)}:#{event.fetch(:incident_id)}:#{event_id}:#{team}:#{event.fetch(:status)}"
     end
     "incident=#{snapshot.incident_id || "none"} session=#{snapshot.session_id || "none"} status=#{snapshot.status} severity=#{snapshot.severity} cause=#{snapshot.suspected_cause} events=#{snapshot.event_count} assigned=#{snapshot.assigned_team || "none"} escalated=#{snapshot.escalated_team || "none"} handoff=#{snapshot.handoff_ready} receipt=#{snapshot.receipt_id || "none"} actions=#{snapshot.action_count} recent=#{recent.join("|")}"
+  end
+
+  def self.build(data_root: DATA_ROOT, workdir: Dispatch.default_workdir)
+    Igniter::Application.rack_app(:dispatch, root: APP_ROOT, env: :test) do
+      service(:dispatch) { App.new(data_root: data_root, workdir: workdir) }
+
+      mount_web(
+        :command_center,
+        Web.command_center_mount,
+        at: "/",
+        capabilities: %i[screen command],
+        metadata: { poc: true }
+      )
+
+      get "/events" do
+        text Dispatch.events_read_model(service(:dispatch).snapshot)
+      end
+
+      get "/receipt" do
+        text service(:dispatch).latest_receipt_text
+      end
+
+      post "/incidents/open" do |params|
+        result = service(:dispatch).open_incident(incident_id: params.fetch("incident_id", ""))
+        redirect Dispatch.result_feedback_path(result)
+      end
+
+      post "/incidents/triage" do |params|
+        result = service(:dispatch).triage_incident(session_id: params.fetch("session_id", ""))
+        redirect Dispatch.result_feedback_path(result)
+      end
+
+      post "/assignments" do |params|
+        result = service(:dispatch).assign_owner(
+          session_id: params.fetch("session_id", ""),
+          team: params.fetch("team", "")
+        )
+        redirect Dispatch.result_feedback_path(result)
+      end
+
+      post "/escalations" do |params|
+        result = service(:dispatch).escalate_incident(
+          session_id: params.fetch("session_id", ""),
+          team: params.fetch("team", ""),
+          reason: params.fetch("reason", "")
+        )
+        redirect Dispatch.result_feedback_path(result)
+      end
+
+      post "/receipts" do |params|
+        result = service(:dispatch).emit_receipt(
+          session_id: params.fetch("session_id", ""),
+          metadata: { source: :dispatch_web }
+        )
+        redirect Dispatch.result_feedback_path(result)
+      end
+    end
   end
 
   class App

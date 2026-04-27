@@ -7,4 +7,4 @@ $LOAD_PATH.unshift(File.expand_path("../../../packages/igniter-application/lib",
 
 require_relative "app"
 
-run ->(_env) { [404, { "content-type" => "text/plain" }, ["Dispatch Web surface is implemented by the Web slice.\n"]] }
+run Dispatch.build

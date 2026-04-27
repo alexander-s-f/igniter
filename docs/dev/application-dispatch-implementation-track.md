@@ -194,3 +194,29 @@ ready: `[Agent Web / Codex]` can implement Dispatch mounted command center,
   command routes, Web markers, `/events`, `/receipt`, manual server mode, and
   web smoke assertions on top of the app-local core.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-dispatch-implementation-track.md`
+status: landed
+delta: added Dispatch Rack wiring through `Dispatch.build`, including mounted
+  command center, command redirects, `/events`, `/receipt`, and manual server
+  mode.
+delta: added `examples/application/dispatch/web/command_center.rb` with an
+  Arbre command center rendered from `DispatchSnapshot`, stable incident,
+  event, provenance, severity, routing, checkpoint, receipt, feedback, and
+  recent-activity markers.
+delta: expanded `examples/application/dispatch_poc.rb` and
+  `examples/catalog.rb` with in-process Rack smoke evidence for initial render,
+  refusals, triage, assignment, receipt emission, `/events` parity, `/receipt`,
+  and fixture no-mutation.
+verify: `ruby examples/application/dispatch_poc.rb` passed.
+verify: `ruby examples/run.rb run application/dispatch_poc` passed.
+verify: `ruby examples/run.rb smoke` passed, 80 examples.
+verify: `bundle exec rubocop examples/application/dispatch_poc.rb examples/application/dispatch examples/catalog.rb`
+  passed.
+verify: `git diff --check` passed.
+verify: `ruby examples/application/dispatch_poc.rb server` served GET `/` on
+  `http://127.0.0.1:9297/` during manual local check.
+ready: `[Architect Supervisor / Codex]` can review Dispatch as a complete
+  bounded one-process showcase candidate.
+block: none
