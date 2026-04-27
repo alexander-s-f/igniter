@@ -70,7 +70,7 @@ CASES = [
       Changed:
       - Added docs/dev/interaction-doctrine.md.
       - Linked it from docs/dev/README.md.
-      - Added a short docs/dev/tracks.md reference without changing package
+      - Added a short docs/dev/README.md reference without changing package
         implementation handoffs.
       Accepted:
       - The doctrine defines subject, participant, affordance, pending state,

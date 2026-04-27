@@ -44,9 +44,6 @@ Current loading guidance:
 - [SDK](./sdk.md)
 - [CLI](./cli.md)
 - [Store Adapters](./store-adapters.md)
-- [Frontend Authoring](./frontend-authoring.md)
-- [Frontend Components](./frontend-components.md)
-- [Schema Rendering Authoring](./schema-rendering-authoring.md)
 
 ## Core Guide References
 

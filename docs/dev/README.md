@@ -22,6 +22,7 @@ are not part of the public documentation surface.
 - [Cluster Target Plan](./cluster-target-plan.md)
 - [Igniter Web Target Plan](./igniter-web-target-plan.md)
 - [MCP Adapter Package](./mcp-adapter-package-spec.md)
+- [Document Rotation](./document-rotation.md)
 
 ## Package And Layer Boundaries
 
@@ -39,3 +40,5 @@ are not part of the public documentation surface.
   tracks in `playgrounds/docs/`.
 - Prefer updating a package README and guide index before writing new deep
   public prose.
+- Rotate stale public docs into `playgrounds/docs/` once their accepted content
+  has been compressed into guide, dev, example, or package reference.

@@ -12,13 +12,9 @@ reading.
 
 ## Build A Dashboard Or Human UI
 
-- [Frontend Authoring](./frontend-authoring.md)
-- [Frontend Components](./frontend-components.md)
 - [Application Showcase Portfolio](./application-showcase-portfolio.md)
-
-## Add Schema-Driven Rendering
-
-- [Schema Rendering Authoring](./schema-rendering-authoring.md)
+- [Interactive App Structure](./interactive-app-structure.md)
+- [`packages/igniter-web/README.md`](../../packages/igniter-web/README.md)
 
 ## Add Rails Integration
 
