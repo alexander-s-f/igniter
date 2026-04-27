@@ -36,14 +36,17 @@ rake examples
 For app-level evaluation, start with the flagship application checks:
 
 ```bash
+ruby examples/run.rb run application/companion_poc
 ruby examples/run.rb run application/lense_poc
 ruby examples/run.rb run application/chronicle_poc
 ruby examples/run.rb run application/scout_poc
 ruby examples/run.rb run application/dispatch_poc
 ```
 
-These are the richer current application examples. Their portfolio guide lives
-at [Application Showcase Portfolio](../docs/guide/application-showcase-portfolio.md).
+These are the richer current application examples. Companion is the
+ready-to-go assistant shell; the others are focused workflow showcases. Their
+portfolio guide lives at
+[Application Showcase Portfolio](../docs/guide/application-showcase-portfolio.md).
 
 The focused contracts/lang checks are:
 

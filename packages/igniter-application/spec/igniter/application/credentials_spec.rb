@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "stringio"
+
 require_relative "../../spec_helper"
 
 RSpec.describe Igniter::Application::CredentialStore do
@@ -74,5 +76,31 @@ RSpec.describe Igniter::Application::CredentialStore do
       ],
       missing_required: []
     )
+  end
+
+  it "allows Rack apps to declare credentials in the application manifest" do
+    app = Igniter::Application.rack_app(:assistant, root: "/tmp/assistant", env: :test) do
+      credential :openai_api_key, env: "IGNITER_TEST_OPENAI_API_KEY", required: false
+
+      get "/setup" do
+        text host.environment.credentials.status(:openai_api_key).inspect
+      end
+    end
+
+    payload = app.to_h.fetch(:manifest).fetch(:credentials)
+
+    expect(payload).to include(ready: true, missing_required: [])
+    expect(payload.fetch(:credentials)).to include(
+      include(name: :openai_api_key, configured: false, missing: true)
+    )
+
+    status, _headers, body = app.call(
+      "REQUEST_METHOD" => "GET",
+      "PATH_INFO" => "/setup",
+      "QUERY_STRING" => "",
+      "rack.input" => StringIO.new
+    )
+    expect(status).to eq(200)
+    expect(body.join).to include("openai_api_key")
   end
 end

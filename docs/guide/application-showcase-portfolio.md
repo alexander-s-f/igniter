@@ -4,8 +4,9 @@ This guide is the current application showcase map for Igniter. Use it when you
 want to evaluate the richer contracts-native examples as products, not only as
 small API snippets.
 
-The portfolio has four current applications:
+The portfolio has five current applications:
 
+- Companion: ready-to-go personal assistant shell.
 - Lense: local codebase intelligence.
 - Chronicle: architecture decision review.
 - Scout: local-source research synthesis.
@@ -18,7 +19,7 @@ interactive app API.
 
 ## What The Portfolio Proves
 
-The four showcases demonstrate the same serious application loop:
+The showcases demonstrate the same serious application loop:
 
 - app-owned services load local inputs, own mutable session state, and emit
   deterministic evidence artifacts
@@ -38,6 +39,7 @@ receipt/report API, or `Igniter.interactive_app` facade.
 
 | Showcase | Purpose | Workflow | Packages exercised | Evidence artifact | Mutation boundary | Smoke | Manual server |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| Companion | Personal assistant shell for ordinary users. | Credentials setup -> reminders/trackers/countdowns -> daily summary. | `igniter-application`, `igniter-contracts`, `igniter-web`. | Setup state and deterministic daily summary. | In-memory only in the first slice. | `ruby examples/application/companion_poc.rb` | `ruby examples/application/companion_poc.rb server` |
 | Lense | Codebase intelligence for a local Ruby project. | Scan project -> health findings -> guided issue session -> analysis report. | `igniter-application`, `igniter-contracts`, `igniter-extensions`, `igniter-web`. | `LenseAnalysisReceipt` through `/report`. | Reads an explicit sample project and proves no scanned-project mutation. | `ruby examples/application/lense_poc.rb` | `ruby examples/application/lense_poc.rb server` |
 | Chronicle | Decision compass for architecture proposals. | Proposal scan -> decision conflicts -> sign-off/refusal -> decision receipt. | `igniter-application`, `igniter-contracts`, `igniter-extensions`, `igniter-web`. | `DecisionReceipt` through `/receipt`. | Reads proposal/decision fixtures and writes runtime sessions/actions/receipts only to workdir. | `ruby examples/application/chronicle_poc.rb` | `ruby examples/application/chronicle_poc.rb server` |
 | Scout | Local-source research workspace. | Topic + local sources -> findings -> direction checkpoint -> research receipt. | `igniter-application`, `igniter-contracts`, `igniter-extensions`, `igniter-web`. | `ResearchReceipt` through `/receipt`. | Reads local source fixtures and writes runtime sessions/actions/receipts only to workdir. | `ruby examples/application/scout_poc.rb` | `ruby examples/application/scout_poc.rb server` |

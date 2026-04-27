@@ -583,6 +583,30 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/companion_poc",
+      "Ready-to-go Companion app shell with credentials setup state and assistant capsules.",
+      expected_fragments: [
+        "companion_poc_live_ready=false",
+        "companion_poc_open_reminders=2",
+        "companion_poc_tracker_logs=1",
+        "companion_poc_countdowns=1",
+        "companion_poc_summary=true",
+        "companion_poc_create_status=303",
+        "companion_poc_created_status=200",
+        "companion_poc_log_status=303",
+        "companion_poc_logged_status=200",
+        "companion_poc_complete_status=303",
+        "companion_poc_completed_status=200",
+        "companion_poc_events_status=200",
+        "companion_poc_setup_status=200",
+        "companion_poc_html_status=200",
+        "companion_poc_setup_redacted=true",
+        "companion_poc_web_surface=true",
+        "companion_poc_capsules=true",
+        "companion_poc_events_parity=true"
+      ]
+    ),
+    example(
       "application/lense_poc",
       "One-process Lense codebase intelligence POC core with guided issue receipt.",
       expected_fragments: [
