@@ -1,4 +1,0 @@
-/var/dev-cluster/
-/var/log/
-/var/assistant_requests.json
-/var/*_executions.sqlite3

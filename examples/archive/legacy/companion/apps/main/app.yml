@@ -1,4 +1,0 @@
-persistence:
-  execution:
-    adapter: memory   # memory | sqlite | redis
-    path: var/main_executions.sqlite3
