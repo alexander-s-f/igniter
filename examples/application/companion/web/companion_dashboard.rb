@@ -120,6 +120,22 @@ module Companion
               div "data-capsule": "daily-summary", style: Companion::Web.style(:panel_accent) do
                 h2 "Daily summary", style: Companion::Web.style(:h2)
                 para snapshot.daily_summary.fetch(:recommendation), "data-daily-recommendation": "true"
+                if snapshot.live_summary
+                  para snapshot.live_summary.fetch(:text),
+                       "data-live-summary": "generated",
+                       style: Companion::Web.style(:item)
+                elsif snapshot.live_ready
+                  form action: "/summary/live", method: "post" do
+                    button "Generate live summary",
+                           type: "submit",
+                           "data-action": "generate-live-summary",
+                           style: Companion::Web.style(:button)
+                  end
+                else
+                  para "Add OPENAI_API_KEY to generate a live assistant summary.",
+                       "data-live-summary": "setup-required",
+                       style: Companion::Web.style(:muted)
+                end
                 para "Activity #{snapshot.action_count}", "data-action-count": snapshot.action_count, style: Companion::Web.style(:muted)
                 snapshot.recent_events.each do |event|
                   para "#{event.fetch(:kind)} / #{event.fetch(:subject_id)}",
