@@ -21,7 +21,7 @@ module Companion
       agents do
         assistant :daily_companion,
                   ai: :openai,
-                  instructions: "Give one concise practical next action for the Companion user.",
+                  instructions: "You are Igniter Companion. Write a concise, practical daily summary for a personal assistant app.",
                   capsule: :daily_summary
       end
     end
@@ -31,7 +31,7 @@ module Companion
         Services::CompanionStore.new(
           credentials: config.credential_store,
           backend: config.store_adapter,
-          llm_provider: environment.credentials.configured?(:openai_api_key) ? environment.ai_client(:openai) : nil
+          assistant: environment.credentials.configured?(:openai_api_key) ? environment.agent(:daily_companion) : nil
         )
       end
     end

@@ -43,10 +43,10 @@ module Companion
         end
       end
 
-      def initialize(credentials:, backend:, llm_provider: nil)
+      def initialize(credentials:, backend:, assistant: nil)
         @credentials = credentials
         @backend = backend
-        @llm_provider = llm_provider
+        @assistant = assistant
         restore_or_seed
       end
 
@@ -77,17 +77,23 @@ module Companion
           return command_result(:failure, feedback_code: :openai_key_missing, subject_id: :daily_summary, action: action)
         end
 
-        unless @llm_provider
+        unless @assistant
           action = record_action(kind: :live_summary_refused, subject_id: :daily_summary, status: :refused)
           persist!
-          return command_result(:failure, feedback_code: :live_provider_missing, subject_id: :daily_summary, action: action)
+          return command_result(:failure, feedback_code: :live_assistant_missing, subject_id: :daily_summary, action: action)
         end
 
-        result = @llm_provider.complete(daily_summary_request(snapshot.to_h))
-        if result.success?
+        run = @assistant.run(
+          input: daily_summary_prompt(snapshot.to_h),
+          context: { feature: :daily_summary },
+          metadata: { feature: :daily_summary }
+        )
+        if run.success?
+          response = run.turns.first.response
           @live_summary = {
-            text: result.text,
-            provider: result.metadata.fetch(:provider, :unknown),
+            text: response.text,
+            provider: response.metadata.fetch(:provider, :unknown),
+            agent_run_id: run.id,
             generated_at: Time.now.utc.iso8601
           }
           action = record_action(kind: :live_summary_generated, subject_id: :daily_summary, status: :ready)
@@ -96,7 +102,7 @@ module Companion
         else
           action = record_action(kind: :live_summary_failed, subject_id: :daily_summary, status: :error)
           persist!
-          command_result(:failure, feedback_code: :live_summary_failed, subject_id: result.error, action: action)
+          command_result(:failure, feedback_code: :live_summary_failed, subject_id: run.error, action: action)
         end
       end
 
@@ -255,15 +261,6 @@ module Companion
 
       def command_result(kind, feedback_code:, subject_id:, action:)
         CommandResult.new(kind: kind.to_sym, feedback_code: feedback_code.to_sym, subject_id: subject_id, action: action)
-      end
-
-      def daily_summary_request(snapshot)
-        Igniter::AI.request(
-          model: "companion-live",
-          instructions: "You are Igniter Companion. Write a concise, practical daily summary for a personal assistant app.",
-          input: daily_summary_prompt(snapshot),
-          metadata: { feature: :daily_summary }
-        )
       end
 
       def daily_summary_prompt(snapshot)

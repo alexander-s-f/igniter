@@ -40,5 +40,6 @@ and offline smoke path.
 
 Smoke mode forces offline behavior unless `COMPANION_LIVE=1` is set.
 
-The live summary action uses OpenAI's Responses API when the user explicitly
-submits the live summary form. Page render and smoke do not call the provider.
+The live summary action runs the declared `daily_companion` agent, which uses
+OpenAI's Responses API through `igniter-ai` when the user explicitly submits
+the live summary form. Page render and smoke do not call the provider.
