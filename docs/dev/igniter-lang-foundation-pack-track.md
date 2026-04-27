@@ -92,6 +92,8 @@ Out of scope:
 
 Owner: `[Agent Contracts / Codex]`
 
+Status: Landed; awaiting `[Architect Supervisor / Codex]` review.
+
 Acceptance:
 
 - Add `require "igniter/lang"` as an additive entrypoint.
@@ -154,3 +156,33 @@ any package-local specs or examples the agent adds.
    documentation guardrails.
 3. `[Architect Supervisor / Codex]` reviews whether the foundation is truly
    additive and whether metadata/report-only language is clear.
+
+## Handoff Notes
+
+[Agent Contracts / Codex] Task 1 landed as an additive `igniter-contracts`
+foundation. Added `require "igniter/lang"`, `Igniter::Lang::Backends::Ruby`
+as a thin wrapper over current contracts compile/execute/diagnose/verify
+surfaces, immutable descriptors for `History`, `BiHistory`, `OLAPPoint`, and
+`Forecast`, and a read-only `VerificationReport` that serializes descriptor
+metadata and current compilation findings. Added
+`examples/contracts/lang_foundation.rb` as the compact smoke example. No
+parser, grammar, runtime semantic changes, stores, OLAP runtime, warning
+channel, deadline monitoring, or dependencies were added.
+
+Verification:
+
+```bash
+bundle exec rspec packages/igniter-contracts/spec spec/current
+ruby examples/run.rb smoke
+bundle exec rubocop packages/igniter-contracts/lib/igniter/lang.rb packages/igniter-contracts/lib/igniter/lang/types.rb packages/igniter-contracts/lib/igniter/lang/backend.rb packages/igniter-contracts/lib/igniter/lang/backends/ruby.rb packages/igniter-contracts/lib/igniter/lang/verification_report.rb packages/igniter-contracts/spec/igniter/lang_spec.rb examples/contracts/lang_foundation.rb examples/catalog.rb
+git diff --check
+```
+
+Results: `199 examples, 0 failures`; examples smoke `81 passed, 0 failed`;
+changed-file RuboCop no offenses; diff check passed.
+
+Gate caveat: the track's literal `bundle exec rspec spec/igniter` command does
+not map to the current repository layout because `spec/igniter` no longer
+exists; `spec/current` is the current top-level active spec scope. Full
+`bundle exec rubocop` still reports pre-existing archived/research offenses, so
+the changed-file lint scope was used for this slice.

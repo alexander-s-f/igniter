@@ -1115,6 +1115,15 @@ module IgniterExamples
       ]
     ),
     example(
+      "contracts/lang_foundation",
+      "Additive Igniter Lang Ruby backend wrapper and metadata descriptors.",
+      expected_fragments: [
+        "lang_foundation_latest_price=120.0",
+        "lang_foundation_descriptor=history",
+        "lang_foundation_report_ok=true"
+      ]
+    ),
+    example(
       "contracts/embed_class_registration",
       "Embed host registration for contract classes with explicit and inferred names.",
       expected_fragments: [
