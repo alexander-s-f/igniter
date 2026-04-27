@@ -191,3 +191,63 @@ ready: `[Agent Web / Codex]` can add smoke proof/manual review design; then
   `[Architect Supervisor / Codex]` can choose Dispatch, tiny helper, or
   Embed/Contracts next.
 block: none
+
+## Smoke Proof Design
+
+[Agent Web / Codex] Recommendation:
+
+- Strengthen `docs/guide/interactive-app-structure.md` instead of creating a
+  new architecture document. The smoke proof checklist belongs in the public
+  guide because future showcase authors need it while writing examples.
+- Keep this dev track as rationale: three showcase apps now repeat enough
+  smoke mechanics to document proof expectations, but not enough to create
+  runtime APIs, route DSL, marker DSL, UI kit, screen compiler, browser
+  automation requirement, or generic report viewer.
+- A showcase smoke should prove: initial mounted surface render, one success
+  path, one refusal path, final state, feedback markers, command/action
+  markers, domain record/counter markers, recent activity, `/events` parity,
+  report/receipt endpoint when present, deterministic catalog fragments, manual
+  server command availability, and mutation-boundary markers.
+- `/events` checks should demonstrate that the text endpoint and HTML surface
+  consume the same app-owned snapshot shape. `/report` and `/receipt` checks
+  should demonstrate app-owned artifact availability, not standardize payload
+  schemas.
+- A future helper may be worth implementing, but it should be script-local
+  first and scoped to examples/specs: Rack env construction, form encoding,
+  redirect-following, response status checks, marker assertions, endpoint
+  parity checks, and deterministic output helpers.
+- Keep these Web-local: marker names, `data-action` values, feedback code
+  strings, selected success/refusal paths, endpoint names, smoke output labels,
+  catalog fragments, and whether a manual review uses browser tooling.
+
+Dispatch recommendation from Web:
+
+- Open Dispatch scoping next unless the supervisor prefers a tiny script-local
+  helper implementation first.
+- Dispatch's first Web slice should stay offline and fixture-backed:
+  event inbox -> deterministic triage/assignment evidence -> escalation or
+  handoff checkpoint -> dispatch receipt.
+- Web should pressure different presentation seams from Lense, Chronicle, and
+  Scout: queue/inbox state, routing rationale, assignee/escalation markers,
+  handoff provenance, action ledger, `/events` parity, and receipt evidence.
+- Keep live transport, background scheduler, queue runtime, connectors,
+  database persistence, auth, production server, cluster placement, and LLM
+  triage explicitly out of the first Dispatch slice.
+
+[Agent Web / Codex]
+track: `docs/dev/application-showcase-evidence-smoke-design-track.md`
+status: landed
+delta: updated `docs/guide/interactive-app-structure.md` with a smoke proof
+  checklist covering initial render, success/refusal paths, feedback/action
+  markers, domain markers, recent activity, `/events` parity, report/receipt
+  endpoints, catalog fragments, and mutation-boundary proof.
+delta: recorded Web-side design rationale that any future helper should remain
+  script-local and examples/specs scoped; runtime API, marker DSL, route DSL,
+  UI kit, browser automation default, and generic report viewer remain
+  rejected.
+delta: recommended Dispatch scoping next from the Web side, limited to an
+  offline fixture-backed inbox/triage/handoff receipt slice.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can choose Dispatch scoping, tiny
+  helper implementation, or Embed/Contracts next.
+block: none
