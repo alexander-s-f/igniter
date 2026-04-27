@@ -364,3 +364,70 @@ verify: `git diff --check` passed.
 ready: `[Research Horizon / Codex]` can land the horizon filter; then
   `[Architect Supervisor / Codex]` can choose the next active track.
 block: none
+
+## Research Horizon Filter
+
+[Research Horizon / Codex] Horizon assessment:
+
+The current research horizon is rich, but it should not pull the next active
+track into grammar, Rust, live agents, cluster runtime, semantic gateway,
+production connectors, or a new application. The strongest near-term move is
+to make the existing public surface easier to verify, explain, and trust.
+
+Ideas that should influence the next track:
+
+- The expert corpus consistently says Igniter's differentiator is verifiable
+  agent-native/business execution, not raw feature breadth.
+- Showcase apps, contracts/class DSL, Lang foundation, metadata manifests,
+  receipts, and mutation boundaries now form a credible public story, but the
+  proof is spread across guide pages, examples, specs, and smoke markers.
+- Research on handoff, documentation compression, and concept emergence points
+  to the same operational pattern: compress repeated review context into a
+  small, named, reproducible receipt.
+- Capsule transfer and activation work showed the right enterprise posture:
+  review-first artifacts, explicit boundaries, and evidence before automation.
+
+Filtered out for now:
+
+- standalone grammar/parser/AST, `.il`, Rust backend, certified export
+- `store`, OLAP, time-machine, temporal rules, units, deadline runtime
+  monitoring, or Lang enforcement
+- `Igniter.interactive_app`, UI kit, Plane/canvas, live transport, browser
+  automation default, production server behavior, auth, persistence,
+  connectors, LLM/provider runtime, scheduler, or cluster placement
+- Line-Up/Semantic Gateway runtime; keep these as research experiments until a
+  measured evaluator or agent workflow needs them
+
+Recommended one next track:
+
+Open a narrow **Enterprise Verification Receipt Hardening Track**.
+
+Acceptance should be evidence-oriented and non-invasive:
+
+- define one evaluator-facing verification path that names the canonical
+  commands and explains what each proves
+- add a compact enterprise verification receipt document or guide section that
+  ties together contracts specs, examples smoke, four showcase app smokes,
+  Lang foundation smoke, mutation-boundary proof, Web/manual-review seams, and
+  known non-goals
+- make example/catalog discoverability point to the flagship verification path
+  without replacing package-local docs
+- design, but keep examples/spec-scoped, a tiny smoke helper only for repeated
+  Rack/form/redirect/status/marker/endpoint/file-signature mechanics
+- keep the receipt read-only/documentary; it should summarize proof, not become
+  a product API or runtime object
+
+Explicit non-goal:
+
+Do not open a Lang continuation or interactive-app API track next. The horizon
+still points there eventually, but the current enterprise bottleneck is trust
+and reproducibility, not another authoring/runtime surface.
+
+[Research Horizon / Codex]
+track: `docs/dev/igniter-enterprise-readiness-synthesis-track.md`
+status: landed
+delta: added horizon filter with one recommended next track and one explicit
+  non-goal.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can choose the next active track.
+block: none
