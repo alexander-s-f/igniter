@@ -32,6 +32,12 @@ Reference skeletons:
 - `examples/application/scout/reports/research_receipt.rb`
 - `examples/application/scout/web/research_workspace.rb`
 - `examples/application/scout_poc.rb`
+- `examples/application/dispatch/app.rb`
+- `examples/application/dispatch/services/incident_session_store.rb`
+- `examples/application/dispatch/contracts/incident_triage_contract.rb`
+- `examples/application/dispatch/reports/incident_receipt.rb`
+- `examples/application/dispatch/web/command_center.rb`
+- `examples/application/dispatch_poc.rb`
 
 ## Application Pattern
 
@@ -108,7 +114,7 @@ Future graduation candidate:
 
 ## Repeated Convention
 
-The pattern has now repeated in five domains:
+The pattern has now repeated in six domains:
 
 - `interactive_operator`: task board commands and board snapshot.
 - `operator_signal_inbox`: signal commands and signal snapshot.
@@ -119,6 +125,9 @@ The pattern has now repeated in five domains:
   receipt.
 - `scout`: local source-pack sessions, research snapshot, contracts-backed
   finding synthesis, direction checkpoint, and emitted provenance receipt.
+- `dispatch`: seeded incident-event sessions, dispatch snapshot,
+  contracts-backed triage/routing, assignment checkpoint, and emitted handoff
+  receipt.
 
 Guide-level convention:
 
@@ -144,8 +153,8 @@ Still app-local:
 - contract graph shape and thresholds
 - report/receipt schema
 
-Lense, Chronicle, and Scout add contracts-native analysis graphs and
-receipt-shaped reports, but their domain shapes are still app-local showcase
+Lense, Chronicle, Scout, and Dispatch add contracts-native analysis graphs and
+receipt-shaped artifacts, but their domain shapes are still app-local showcase
 evidence, not package API pressure.
 
 Do not promote a package-level `CommandResult`, snapshot API, marker DSL, UI
@@ -153,6 +162,6 @@ kit, generator, live transport, or `interactive_app` from four POCs alone.
 
 Promotion trigger:
 
-- The fifth POC confirms a guide-level convention. Consider a narrow package
+- The sixth POC confirms a guide-level convention. Consider a narrow package
   experiment only after a future distinct POC repeats the same mechanical
   duplication in a way that hides domain intent.
