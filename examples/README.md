@@ -70,9 +70,15 @@ Active runnable examples live in `examples/application/`, `examples/contracts/`,
 - `application/capsule_host_activation_plan.rb`
 - `application/capsule_host_activation_plan_verification.rb`
 - `application/capsule_host_activation_readiness.rb`
+- `application/capsule_host_activation_ledger_adapter.rb`
 - `application/capsule_inspection.rb`
 - `application/capsule_manifest.rb`
 - `application/interactive_web_poc.rb`
+- `application/signal_inbox_poc.rb`
+- `application/lense_poc.rb`
+- `application/chronicle_poc.rb`
+- `application/scout_poc.rb`
+- `application/dispatch_poc.rb`
 - `application/capsule_transfer_applied_verification.rb`
 - `application/capsule_transfer_apply_execution.rb`
 - `application/capsule_transfer_apply_plan.rb`
@@ -88,6 +94,10 @@ Active runnable examples live in `examples/application/`, `examples/contracts/`,
 - `application/flow_session.rb`
 - `application/layout.rb`
 - `application/mounts.rb`
+- `application/web_mount.rb`
+- `application/web_surface_structure.rb`
+- `application/web_surface_manifest.rb`
+- `application/agent_native_plan_review.rb`
 - `application/structure_plan.rb`
 - `cluster/incidents.rb`
 - `cluster/incident_workflow.rb`
@@ -101,6 +111,8 @@ Active runnable examples live in `examples/application/`, `examples/contracts/`,
 - `contracts/embed_class_registration.rb`
 - `contracts/contractable_shadow.rb`
 - `contracts/embed_human_sugar.rb`
+- `contracts/step_result.rb`
+- `contracts/lang_foundation.rb`
 - `contracts/aggregates.rb`
 - `contracts/auditing.rb`
 - `contracts/branching.rb`

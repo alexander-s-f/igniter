@@ -124,6 +124,45 @@ git diff --check
 
 If code changes unexpectedly, run affected specs/smoke/lint.
 
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+The enterprise verification receipt is now the current evaluator-facing proof
+entrypoint:
+
+- `docs/guide/enterprise-verification.md` gives one compact command matrix and
+  receipt path across contracts, flagship applications, Web/manual review, and
+  Lang foundation.
+- The four flagship applications are correctly framed as reproducible
+  one-process evidence, not as a public application framework API.
+- Web markers remain inspection seams, not marker DSL/component API.
+- Contracts/Lang wording is strict enough: report-only metadata does not imply
+  runtime checks, warnings, deadline monitoring, store behavior, or execution
+  result changes.
+- Smoke-helper extraction remains examples/specs-scoped and design-only.
+- Research/runtime expansion, production server behavior, cluster placement,
+  connectors, LLM/provider behavior, grammar/Rust, and package API promotion
+  remain explicitly deferred.
+
+Supervisor verification:
+
+- `git diff --check` passed.
+- `ruby examples/run.rb run application/lense_poc` passed.
+- `ruby examples/run.rb run contracts/lang_foundation` passed.
+- `ruby examples/run.rb smoke` passed with 81 examples.
+- `bundle exec rspec packages/igniter-contracts/spec spec/current` passed with
+  201 examples.
+
+Supervisor follow-up:
+
+- Updated `examples/README.md` so the active lane list includes the newer
+  flagship app, Web mount, agent-native, StepResultPack, and Lang foundation
+  examples already present in the runner catalog.
+- Open the next track as public entry-surface hygiene: make the top-level
+  onboarding path match the accepted enterprise verification story before any
+  new feature/API expansion.
+
 ## Current Handoff
 
 [Architect Supervisor / Codex] Next:
