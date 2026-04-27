@@ -151,3 +151,26 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can finalize Web/manual review polish; then
   `[Architect Supervisor / Codex]` can decide showcase-ready status.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-scout-showcase-finalization-track.md`
+status: landed
+delta: reviewed Scout Web marker stability and preserved existing smoke-facing
+  surface, feedback, provenance, activity, `/events`, and `/receipt` seams.
+delta: polished `examples/application/scout/web/research_workspace.rb` empty
+  state and receipt-ready copy for manual browser review without adding
+  framework/API surface or changing markers.
+delta: added browser review notes to `examples/application/scout/README.md`
+  and updated `docs/dev/application-web-poc-pattern-guide.md` so Scout is
+  represented in the repeated app/web convention.
+verify: `ruby examples/application/scout_poc.rb` passed.
+verify: `ruby examples/run.rb run application/scout_poc` passed.
+verify: `ruby examples/run.rb smoke` passed, 79 examples.
+verify: `bundle exec rubocop examples/application/scout_poc.rb examples/application/scout examples/catalog.rb`
+  passed.
+verify: `git diff --check` passed.
+verify: `ruby examples/application/scout_poc.rb server` served GET `/` on
+  `http://127.0.0.1:9296/` during manual local check.
+ready: `[Architect Supervisor / Codex]` can decide whether Scout is
+  showcase-ready beside Lense and Chronicle.
+block: none

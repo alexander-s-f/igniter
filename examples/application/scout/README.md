@@ -78,6 +78,28 @@ scout_poc_web_receipt_endpoint=true
 scout_poc_web_fixture_no_mutation=true
 ```
 
+## Manual Browser Review
+
+After starting the server, open the printed local URL and review the same
+workflow through the mounted Arbre surface:
+
+1. Start the default session.
+2. Extract findings.
+3. Try receipt emission before choosing a checkpoint to see a refusal.
+4. Add optional local source `SRC-004`.
+5. Extract findings again.
+6. Choose the `balanced` checkpoint.
+7. Emit the receipt.
+8. Open `/events` and `/receipt` from the footer links.
+
+The browser surface should keep these inspection seams visible:
+
+- `data-ig-poc-surface="scout_research_workspace"` on the root surface.
+- `data-feedback-code` after success and refusal redirects.
+- source, citation, and provenance markers on nested evidence lists.
+- `data-ig-activity="recent"` for the same recent events used by `/events`.
+- `data-receipt-valid="true"` after successful receipt emission.
+
 ## File Layout
 
 ```text

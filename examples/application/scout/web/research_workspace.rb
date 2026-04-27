@@ -226,6 +226,10 @@ module Scout
 
               section class: "findings", style: Scout::Web.style(:panel) do
                 h2 "Source-backed findings", style: Scout::Web.style(:panel_title)
+                if snapshot.top_findings.empty?
+                  para "Start a session and extract findings to reveal source-backed evidence.",
+                       style: Scout::Web.style(:meta)
+                end
                 form action: "/findings/extract", method: "post", style: Scout::Web.style(:actions) do
                   input type: "hidden", name: "session_id", value: snapshot.session_id
                   button "Extract findings",
@@ -259,6 +263,10 @@ module Scout
 
             section class: "contradictions", style: Scout::Web.style(:panel) do
               h2 "Direction checkpoint", style: Scout::Web.style(:panel_title)
+              if snapshot.contradictions.empty?
+                para "Contradictions appear after extraction; choose one direction to make the receipt ready.",
+                     style: Scout::Web.style(:meta)
+              end
               snapshot.contradictions.each do |contradiction|
                 article class: "contradiction",
                         "data-contradiction-id": contradiction.fetch(:id),
@@ -301,8 +309,13 @@ module Scout
                     style: Scout::Web.style(:receipt) do
               h2 "Research receipt", style: "margin: 0 0 10px;"
               para "Receipt id: #{snapshot.receipt_id || "not emitted"}", style: "margin: 0 0 8px;"
-              para "Receipt emission requires extracted findings plus a valid direction checkpoint.",
-                   style: "margin: 0 0 12px;"
+              if receipt_valid
+                para "Receipt is ready. Inspect the Markdown artifact through /receipt.",
+                     style: "margin: 0 0 12px;"
+              else
+                para "Receipt emission requires extracted findings plus a valid direction checkpoint.",
+                     style: "margin: 0 0 12px;"
+              end
               form action: "/receipts", method: "post" do
                 input type: "hidden", name: "session_id", value: snapshot.session_id
                 button "Emit receipt",
