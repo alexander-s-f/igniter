@@ -45,12 +45,12 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review Igniter Lang metadata manifest implementation and truth-in-labeling boundary | [Igniter Lang Metadata Manifest Implementation Track](./igniter-lang-metadata-manifest-implementation-track.md) | [Igniter Lang Metadata Manifest Scoping Track](./igniter-lang-metadata-manifest-scoping-track.md), [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md), [Constraint Sets](./constraints.md) | user |
+| `[Architect Supervisor / Codex]` | Review Igniter Lang foundation guide finalization and discoverability | [Igniter Lang Foundation Guide Finalization Track](./igniter-lang-foundation-guide-finalization-track.md) | [Igniter Lang Metadata Manifest Implementation Track](./igniter-lang-metadata-manifest-implementation-track.md), [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md), [Constraint Sets](./constraints.md) | user |
 | `[Agent Application / Codex]` | Standby after showcase portfolio guide acceptance | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Interactive App Structure](../guide/interactive-app-structure.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Web / Codex]` | Standby after showcase portfolio guide acceptance | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
-| `[Research Horizon / Codex]` | Review metadata manifest wording for overclaiming and keep runtime phases deferred | [Igniter Lang Metadata Manifest Implementation Track](./igniter-lang-metadata-manifest-implementation-track.md) | [Igniter Lang Metadata Manifest Scoping Track](./igniter-lang-metadata-manifest-scoping-track.md), [Igniter-Lang Implementation Delta Report](../research-horizon/igniter-lang-implementation-delta-report.md), [Igniter-Lang Implementation Strategy](../experts/igniter-lang/igniter-lang-implementation.md) | `[Architect Supervisor / Codex]` |
+| `[Research Horizon / Codex]` | Review public Lang foundation wording for overclaiming | [Igniter Lang Foundation Guide Finalization Track](./igniter-lang-foundation-guide-finalization-track.md) | [Igniter Lang Metadata Manifest Implementation Track](./igniter-lang-metadata-manifest-implementation-track.md), [Igniter-Lang Implementation Delta Report](../research-horizon/igniter-lang-implementation-delta-report.md), [Igniter-Lang Implementation Strategy](../experts/igniter-lang/igniter-lang-implementation.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Contracts / Codex]` | Implement report-only metadata manifest over existing Lang operation metadata | [Igniter Lang Metadata Manifest Implementation Track](./igniter-lang-metadata-manifest-implementation-track.md) | [Igniter Lang Metadata Manifest Scoping Track](./igniter-lang-metadata-manifest-scoping-track.md), [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md), [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Contracts / Codex]` | Finalize contracts-facing docs for accepted Lang foundation and metadata manifest | [Igniter Lang Foundation Guide Finalization Track](./igniter-lang-foundation-guide-finalization-track.md) | [Igniter Lang Metadata Manifest Implementation Track](./igniter-lang-metadata-manifest-implementation-track.md), [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md), [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | `[Architect Supervisor / Codex]` |
 
 ## Current Cycle
 
@@ -199,6 +199,12 @@ block: none | <blocker>
   enforcement.
 - Next active track implements only the read-only manifest/report plumbing:
   [Igniter Lang Metadata Manifest Implementation Track](./igniter-lang-metadata-manifest-implementation-track.md).
+- Igniter-Lang metadata manifest implementation accepted as read-only report
+  plumbing, with `report_only: true`, `runtime_enforced: false`, and no runtime
+  behavior changes.
+- Next active track finalizes public wording/discoverability for the accepted
+  Lang foundation:
+  [Igniter Lang Foundation Guide Finalization Track](./igniter-lang-foundation-guide-finalization-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 

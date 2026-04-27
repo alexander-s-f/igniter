@@ -191,3 +191,51 @@ example say the important thing directly: `return_type`, `deadline`, and
 
 Recommendation: proceed to `[Architect Supervisor / Codex]` review. No revert
 to foundation-only is needed from the research boundary perspective.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- The metadata manifest implementation is accepted.
+- `Igniter::Lang::MetadataManifest` is accepted as read-only report plumbing,
+  not runtime semantics.
+- `VerificationReport#metadata_manifest` is accepted.
+- Manifest extraction is correctly limited to existing operation attributes:
+  `type:`, `return_type:`, `deadline:`, and `wcet:`.
+- Truth-in-labeling is preserved: manifest semantics are `report_only: true`
+  and `runtime_enforced: false`, and requirement-like entries carry
+  `enforced: false`.
+- Execution behavior, `ExecutionResult`, `ok?`, compilation findings, runtime
+  handlers, and DSL keywords remain unchanged.
+
+Still deferred:
+
+- `store` DSL keyword or Lang metadata builder
+- invariant metadata integration
+- budget warnings/findings
+- runtime deadline monitoring
+- store/OLAP/time-machine runtime
+- unit algebra enforcement
+- parser, grammar, AST, Rust backend, exports
+
+Supervisor verification:
+
+```bash
+bundle exec rspec packages/igniter-contracts/spec spec/current
+ruby examples/run.rb smoke
+bundle exec rubocop packages/igniter-contracts/lib/igniter/lang.rb packages/igniter-contracts/lib/igniter/lang/types.rb packages/igniter-contracts/lib/igniter/lang/metadata_manifest.rb packages/igniter-contracts/lib/igniter/lang/backend.rb packages/igniter-contracts/lib/igniter/lang/backends/ruby.rb packages/igniter-contracts/lib/igniter/lang/verification_report.rb packages/igniter-contracts/spec/igniter/lang_spec.rb examples/contracts/lang_foundation.rb examples/catalog.rb
+git diff --check
+```
+
+Result:
+
+- RSpec passed with 201 examples and 0 failures.
+- Examples smoke passed with 81 examples and 0 failures.
+- Changed-file RuboCop passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Open [Igniter Lang Foundation Guide Finalization Track](./igniter-lang-foundation-guide-finalization-track.md).
