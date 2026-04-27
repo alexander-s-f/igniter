@@ -165,3 +165,28 @@ If catalog registration is deferred, explain why in the handoff.
    assertions.
 3. `[Architect Supervisor / Codex]` reviews implementation and decides whether
    Scout is showcase-ready or needs a finalization pass.
+
+[Agent Application / Codex]
+track: `docs/dev/application-scout-implementation-track.md`
+status: landed
+delta: added `examples/application/scout/` with read-only local source
+  fixtures, source parser/library, deterministic finding extractor,
+  contract-backed research synthesis graph, session store, command results,
+  snapshots, research receipt writer, and app-local `Scout::App`.
+delta: added `examples/application/scout_poc.rb` core smoke proving blank
+  topic, no sources, unknown source, session start, finding extraction,
+  receipt-not-ready, invalid checkpoint, local source add, re-extraction,
+  checkpoint choice, receipt emission, provenance citation, runtime writes, and
+  fixture no-mutation.
+delta: registered `application/scout_poc` in `examples/catalog.rb` while
+  leaving Web routes/surface/manual server mode to `[Agent Web / Codex]`.
+verify: `ruby examples/application/scout_poc.rb` passed.
+verify: `ruby examples/run.rb run application/scout_poc` passed.
+verify: `ruby examples/run.rb smoke` passed, 79 examples.
+verify: `bundle exec rubocop examples/application/scout_poc.rb examples/application/scout examples/catalog.rb`
+  passed.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can implement Scout mounted research workspace,
+  Rack routes, `/events`, `/receipt`, web markers, and manual server mode on
+  top of the app-local core.
+block: none
