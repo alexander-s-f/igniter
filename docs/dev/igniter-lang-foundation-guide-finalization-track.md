@@ -173,3 +173,45 @@ monitoring.
 
 Recommendation: proceed to `[Architect Supervisor / Codex]` review. No public
 wording rollback is needed from the research boundary perspective.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- The Igniter-Lang foundation guide finalization is accepted.
+- `docs/guide/igniter-lang-foundation.md` is accepted as the current
+  user-facing entrypoint for the additive Lang foundation.
+- `packages/igniter-contracts/README.md`, `docs/guide/README.md`, and
+  `docs/guide/api-and-runtime.md` now make `require "igniter/lang"`
+  discoverable from the contracts-facing path.
+- The public wording is appropriately modest: Lang is an additive
+  contracts-facing foundation, not a separate production language runtime.
+- The guide correctly states that `return_type:`, `deadline:`, and `wcet:` are
+  declared metadata, not runtime enforcement.
+
+Deferred:
+
+- grammar/parser/AST and `.il` files
+- Rust backend and certified exports
+- store DSL or Lang metadata builder
+- OLAP/time-machine/temporal-rule runtime behavior
+- physical unit algebra enforcement
+- invariant metadata integration
+- deadline/WCET runtime monitoring, warnings, findings, or
+  `ExecutionResult` changes
+
+Supervisor verification:
+
+```bash
+git diff --check
+```
+
+Result:
+
+- `git diff --check` passed.
+
+Next:
+
+- Open [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md).
