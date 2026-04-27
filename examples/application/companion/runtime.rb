@@ -113,6 +113,7 @@ module Companion
       out.puts "companion_poc_hub_receipt=#{hub_installed_file}"
       out.puts "companion_poc_hub_installed_file=#{hub_installed_file}"
       out.puts "companion_poc_hub_registry=#{app.service(:hub).installed?(:horoscope)}"
+      out.puts "companion_poc_hub_history=#{app.service(:hub).registry.history(:horoscope).length}"
       out.puts "companion_poc_hub_installed_surface=#{installed_html.include?('data-hub-installed="true"')}"
     end
 

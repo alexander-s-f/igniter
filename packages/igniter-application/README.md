@@ -92,6 +92,11 @@ entry = Igniter::Application.record_installed_capsule(
 entry.installed? #=> true when the transfer receipt is complete
 ```
 
+The file-backed registry keeps current state and append-only history separate:
+`registry.fetch(:horoscope)` returns the latest entry, while
+`registry.history(:horoscope)` returns every recorded install attempt in
+sequence order.
+
 Credentials are app runtime configuration for secrets such as API keys. They
 are fetched explicitly at runtime and redacted from manifests/profile payloads:
 

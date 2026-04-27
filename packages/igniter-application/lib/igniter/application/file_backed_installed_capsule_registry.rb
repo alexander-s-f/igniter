@@ -19,16 +19,18 @@ module Igniter
       end
 
       def record(name, receipt:, source: nil, version: nil, metadata: {})
+        installed_at = Time.now.utc.iso8601
         entry = InstalledCapsuleEntry.new(
           name: name,
           receipt: receipt,
           source: source,
           version: version,
           metadata: metadata,
-          installed_at: Time.now.utc.iso8601
+          installed_at: installed_at
         )
         FileUtils.mkdir_p(registry_dir)
         File.write(entry_path(name), "#{JSON.pretty_generate(entry.to_h)}\n")
+        append_history(entry, installed_at: installed_at)
         entry
       end
 
@@ -56,10 +58,22 @@ module Igniter
         false
       end
 
+      def history(name = nil)
+        paths = if name
+                  Dir.glob(File.join(history_dir, "#{safe_key(name)}--*.json"))
+                else
+                  Dir.glob(File.join(history_dir, "*.json"))
+                end
+        paths.sort.map do |path|
+          JSON.parse(File.read(path), symbolize_names: true)
+        end.freeze
+      end
+
       def to_h
         {
           root: root,
-          entries: entries.map(&:to_h)
+          entries: entries.map(&:to_h),
+          history_count: history.length
         }
       end
 
@@ -71,6 +85,43 @@ module Igniter
 
       def entry_path(name)
         File.join(registry_dir, "#{safe_key(name)}.json")
+      end
+
+      def append_history(entry, installed_at:)
+        FileUtils.mkdir_p(history_dir)
+        sequence = next_history_sequence(entry.name)
+        event = {
+          event_id: history_event_id(entry, sequence),
+          event_type: :installed_capsule_recorded,
+          capsule: entry.name,
+          sequence: sequence,
+          status: entry.status,
+          source: entry.source,
+          version: entry.version,
+          complete: entry.complete,
+          valid: entry.valid,
+          committed: entry.committed,
+          receipt: entry.receipt,
+          metadata: entry.metadata,
+          recorded_at: installed_at
+        }.compact
+        File.write(history_path(entry, sequence), "#{JSON.pretty_generate(event)}\n")
+      end
+
+      def history_dir
+        File.join(root, "installed-capsule-history")
+      end
+
+      def history_path(entry, sequence)
+        File.join(history_dir, "#{safe_key(entry.name)}--#{sequence.to_s.rjust(6, "0")}.json")
+      end
+
+      def history_event_id(entry, sequence)
+        "installed-capsule:#{safe_key(entry.name)}:#{sequence}"
+      end
+
+      def next_history_sequence(name)
+        history(name).map { |event| event.fetch(:sequence, 0).to_i }.max.to_i + 1
       end
 
       def safe_key(value)

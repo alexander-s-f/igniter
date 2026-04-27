@@ -102,7 +102,9 @@ execution, and cluster placement remain outside transfer.
 Installed-capsule registries are application state, not hub state. A hub can
 discover a candidate bundle, but `igniter-application` owns the receipt-backed
 record that says what was installed, whether it is complete, and which source
-and version produced it.
+and version produced it. The file-backed registry keeps current state separate
+from append-only history so future upgrade, rollback, and audit flows can build
+on the same receipt trail.
 
 Runnable end-to-end example:
 

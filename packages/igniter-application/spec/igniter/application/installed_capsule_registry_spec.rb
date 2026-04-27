@@ -40,6 +40,14 @@ RSpec.describe "installed capsule registry" do
       expect(registry.installed?(:horoscope)).to be(true)
       expect(registry.fetch(:horoscope).metadata).to eq(audience: "companion")
       expect(registry.entries.map(&:name)).to eq([:horoscope])
+      expect(registry.history(:horoscope).length).to eq(1)
+      expect(registry.history(:horoscope).first).to include(
+        event_type: "installed_capsule_recorded",
+        capsule: "horoscope",
+        sequence: 1,
+        status: "installed",
+        version: "0.1.0"
+      )
     end
   end
 
@@ -59,7 +67,30 @@ RSpec.describe "installed capsule registry" do
 
       expect(entry.status).to eq(:blocked)
       expect(entry.installed?).to be(false)
+      expect(registry.history(:operator).first).to include(
+        status: "blocked",
+        complete: false
+      )
       expect(registry.installed?(:missing)).to be(false)
+    end
+  end
+
+  it "keeps current entry separate from append-only install history" do
+    Dir.mktmpdir("igniter-installed-capsules") do |root|
+      registry = Igniter::Application.file_backed_installed_capsule_registry(root: root)
+      complete_receipt = {
+        complete: true,
+        valid: true,
+        committed: true
+      }
+
+      registry.record(:horoscope, receipt: complete_receipt, source: "local-hub", version: "0.1.0")
+      registry.record(:horoscope, receipt: complete_receipt, source: "local-hub", version: "0.2.0")
+
+      expect(registry.fetch(:horoscope).version).to eq("0.2.0")
+      expect(registry.history(:horoscope).map { |event| event.fetch(:version) }).to eq(%w[0.1.0 0.2.0])
+      expect(registry.history(:horoscope).map { |event| event.fetch(:sequence) }).to eq([1, 2])
+      expect(registry.to_h.fetch(:history_count)).to eq(2)
     end
   end
 end
