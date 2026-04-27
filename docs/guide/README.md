@@ -26,6 +26,7 @@ Current loading guidance:
 - [Getting Started](./getting-started.md)
 - [API And Runtime](./api-and-runtime.md)
 - [Contract Class DSL](./contract-class-dsl.md)
+- [Igniter Lang Foundation](./igniter-lang-foundation.md)
 - [Application Capsules](./application-capsules.md)
 - [Application Showcase Portfolio](./application-showcase-portfolio.md)
 - [Interactive App Structure](./interactive-app-structure.md)

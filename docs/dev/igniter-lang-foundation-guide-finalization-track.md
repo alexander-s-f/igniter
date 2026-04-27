@@ -113,3 +113,34 @@ If code changes, run the relevant specs/smoke/lint for the touched area.
 2. `[Research Horizon / Codex]` checks the wording boundary.
 3. `[Architect Supervisor / Codex]` decides whether Lang foundation is
    discoverable enough for now.
+
+## Handoff Notes
+
+[Agent Contracts / Codex] Task 1 landed for review.
+
+Added a compact user-facing guide at
+[Igniter Lang Foundation](../guide/igniter-lang-foundation.md) and linked it
+from the guide index and API/runtime index. Updated
+`packages/igniter-contracts/README.md` so `require "igniter/lang"` is
+discoverable from contracts-facing package docs.
+
+The guide explains:
+
+- `Igniter::Lang.ruby_backend` as a wrapper over current contracts APIs
+- descriptors as immutable definition-time metadata
+- `VerificationReport` as read-only report surface
+- `MetadataManifest` as report-only extraction from existing operation
+  attributes
+- `return_type:`, `deadline:`, and `wcet:` as declared metadata, not enforced
+
+The wording explicitly keeps grammar/parser/AST, Rust/export, store/metadata
+builder, OLAP/time-machine runtime, physical unit enforcement, invariant
+metadata, and deadline/WCET monitoring as deferred future/research phases.
+
+Verification:
+
+```bash
+git diff --check
+```
+
+Result: passed.

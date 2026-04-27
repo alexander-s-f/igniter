@@ -11,6 +11,7 @@ Primary entrypoints:
 
 - `require "igniter-contracts"`
 - `require "igniter/contracts"`
+- `require "igniter/lang"` for the additive Lang foundation
 
 Current implementation focus:
 
@@ -110,3 +111,30 @@ Additional helpers:
 - `Igniter::Contracts.build_kernel(*packs)`
 - `Igniter::Contracts.build_profile(*packs)`
 - `Igniter::Contracts.with(*packs)`
+
+## Igniter Lang Foundation
+
+`require "igniter/lang"` loads a small contracts-facing Lang namespace.
+Currently this is an additive reference surface over the existing contracts
+runtime:
+
+- `Igniter::Lang.ruby_backend` wraps current compile, execute, diagnose, and
+  verify APIs.
+- `History`, `BiHistory`, `OLAPPoint`, and `Forecast` are immutable
+  definition-time descriptors that can be attached as operation metadata.
+- `VerificationReport` is read-only and follows current compilation findings.
+- `MetadataManifest` reports declared `type:`, `return_type:`, `deadline:`,
+  and `wcet:` metadata.
+
+Metadata manifest fields are declared, not enforced. `return_type`, `deadline`,
+and `wcet` appear in reports with `enforced: false`; they do not add runtime
+checks, warnings, deadline monitoring, or `ExecutionResult` changes.
+
+Try the compact proof:
+
+```bash
+ruby examples/contracts/lang_foundation.rb
+```
+
+See [Igniter Lang Foundation](../../docs/guide/igniter-lang-foundation.md) for
+the short guide.
