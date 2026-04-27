@@ -549,3 +549,36 @@ verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can decide whether to open a bounded
   Chronicle implementation track.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Chronicle scoping is accepted and may proceed to bounded implementation.
+- The approved first slice is "proposal meets existing decisions": deterministic
+  conflict evidence, explicit acknowledgement/sign-off/refusal, and a durable
+  decision receipt.
+- The local Markdown fixture plus runtime workdir model is accepted, with a
+  hard no-mutation requirement for repository fixtures.
+- The first contract graph should compute evidence/readiness/receipt payloads;
+  it must not call LLMs, semantic search, network services, or write files.
+- The first Web surface should be one app-local Arbre workbench with nested HTML
+  relationship rendering, stable markers, `/events` parity, `/receipt`
+  inspection, and in-process Rack smoke coverage.
+
+Rejected/deferred:
+
+- Public `Igniter.interactive_app` facade.
+- Generic decision workflow framework.
+- Generic command/result/snapshot/report DSL.
+- UI kit, graph/canvas/SVG relationship renderer, live transport, browser
+  automation framework, persistence database, scheduler, auth, users, teams,
+  LLM/provider integration, connectors, and external system mutation.
+
+Next:
+
+- Open [Application Chronicle Implementation Track](./application-chronicle-implementation-track.md).
+- Implementation should stay app-local-first and copy the proven Lense-style
+  showcase structure only where it fits naturally.
