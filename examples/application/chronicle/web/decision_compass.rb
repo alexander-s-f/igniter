@@ -8,13 +8,13 @@ module Chronicle
   module Web
     STYLES = {
       shell: "max-width: 1040px; margin: 34px auto; padding: 30px; font-family: ui-sans-serif, system-ui; background: #eef0e8; border: 1px solid #20251d; box-shadow: 12px 12px 0 #20251d;",
-      header: "display: flex; justify-content: space-between; gap: 20px; align-items: flex-start;",
+      header: "display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px; align-items: flex-start;",
       eyebrow: "margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.16em; font-size: 12px;",
       title: "margin: 0; font-size: 44px; line-height: 1;",
       subtitle: "margin: 12px 0 0; max-width: 660px;",
       status: "min-width: 150px; padding: 16px; color: #eef0e8; background: #20251d; text-align: center;",
       status_value: "display: block; font-size: 22px; font-weight: 800;",
-      stats: "display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 24px 0;",
+      stats: "display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; margin: 24px 0;",
       stat: "padding: 14px; border: 1px solid #20251d; background: #fffdf4;",
       stat_value: "display: block; font-size: 25px; font-weight: 800;",
       actions: "display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0 0;",
@@ -23,7 +23,7 @@ module Chronicle
       feedback: "margin: 18px 0; padding: 12px 14px; border: 1px solid #20251d; font-weight: 700;",
       feedback_notice: " background: #d8eac1;",
       feedback_error: " background: #ffd6c8;",
-      grid: "display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 18px;",
+      grid: "display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;",
       panel: "padding: 18px; background: #fffdf4; border: 1px solid #20251d;",
       panel_title: "margin: 0 0 12px; font-size: 22px;",
       conflict: "margin-top: 12px; padding: 14px; background: #fff4d1; border: 1px solid #20251d;",
@@ -37,6 +37,8 @@ module Chronicle
       activity_list: "margin: 0; padding-left: 20px;",
       activity_item: "margin-top: 8px;",
       activity_meta: "font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;",
+      inspection: "display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;",
+      inspection_link: "color: #20251d; font-weight: 800;",
       footer: "margin-top: 22px; font-size: 13px;"
     }.freeze
 
@@ -314,6 +316,10 @@ module Chronicle
             footer style: Chronicle::Web.style(:footer) do
               para "Read endpoint: GET /events -> proposal=#{snapshot.proposal_id || "none"} status=#{snapshot.status}",
                    style: "margin: 0;"
+              div style: Chronicle::Web.style(:inspection) do
+                a "Inspect events", href: "/events", style: Chronicle::Web.style(:inspection_link)
+                a "Inspect receipt", href: "/receipt", style: Chronicle::Web.style(:inspection_link)
+              end
             end
           end
         end

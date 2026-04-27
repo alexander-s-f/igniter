@@ -20,6 +20,12 @@ Reference skeletons:
 - `examples/application/lense/reports/lense_analysis_receipt.rb`
 - `examples/application/lense/web/lense_dashboard.rb`
 - `examples/application/lense_poc.rb`
+- `examples/application/chronicle/app.rb`
+- `examples/application/chronicle/services/decision_session_store.rb`
+- `examples/application/chronicle/contracts/decision_review_contract.rb`
+- `examples/application/chronicle/reports/decision_receipt.rb`
+- `examples/application/chronicle/web/decision_compass.rb`
+- `examples/application/chronicle_poc.rb`
 
 ## Application Pattern
 
@@ -96,12 +102,15 @@ Future graduation candidate:
 
 ## Repeated Convention
 
-The pattern has now repeated in three domains:
+The pattern has now repeated in four domains:
 
 - `interactive_operator`: task board commands and board snapshot.
 - `operator_signal_inbox`: signal commands and signal snapshot.
 - `lense`: local codebase scan/session commands, codebase snapshot,
   contracts-backed analysis, and receipt-shaped report.
+- `chronicle`: local decision/proposal fixtures, conflict scan commands,
+  decision snapshot, contracts-backed review analysis, and emitted decision
+  receipt.
 
 Guide-level convention:
 
@@ -127,15 +136,15 @@ Still app-local:
 - contract graph shape and thresholds
 - report/receipt schema
 
-Lense adds a contracts-native analysis graph and a receipt-shaped report, but
-those shapes have not repeated across app/web POCs yet. Treat them as important
-showcase evidence, not package API pressure.
+Lense and Chronicle both add a contracts-native analysis graph and a
+receipt-shaped report, but their domain shapes are still app-local showcase
+evidence, not package API pressure.
 
 Do not promote a package-level `CommandResult`, snapshot API, marker DSL, UI
-kit, generator, live transport, or `interactive_app` from three POCs alone.
+kit, generator, live transport, or `interactive_app` from four POCs alone.
 
 Promotion trigger:
 
-- The third POC confirms a guide-level convention. Consider a narrow package
-  experiment only after a fourth distinct POC repeats the same mechanical
-  duplication, or earlier only if the duplication starts hiding domain intent.
+- The fourth POC confirms a guide-level convention. Consider a narrow package
+  experiment only after a future distinct POC repeats the same mechanical
+  duplication in a way that hides domain intent.

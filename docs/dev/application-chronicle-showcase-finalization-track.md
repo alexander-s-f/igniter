@@ -149,3 +149,24 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can finish browser/manual review polish, then
   `[Architect Supervisor / Codex]` can decide showcase-ready status.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-chronicle-showcase-finalization-track.md`
+status: landed
+delta: polished `examples/application/chronicle/web/decision_compass.rb` for
+  manual review with responsive grid/header behavior and explicit inspection
+  links to `/events` and `/receipt`, preserving all smoke markers.
+delta: updated `docs/dev/application-web-poc-pattern-guide.md` so Chronicle is
+  included as the fourth app/web POC while keeping command result, snapshot,
+  marker, UI kit, and `interactive_app` promotion deferred.
+delta: confirmed manual server mode with local HTTP checks for `/`, `/events`,
+  and `/receipt`.
+verify: `ruby examples/application/chronicle_poc.rb` passed.
+verify: `ruby examples/run.rb run application/chronicle_poc` passed.
+verify: `ruby examples/run.rb smoke` passed, 78 examples.
+verify: `bundle exec rubocop examples/application/chronicle_poc.rb examples/application/chronicle examples/catalog.rb`
+  passed.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can decide Chronicle showcase-ready
+  status.
+block: none
