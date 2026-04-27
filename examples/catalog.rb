@@ -1120,7 +1120,8 @@ module IgniterExamples
       expected_fragments: [
         "lang_foundation_latest_price=120.0",
         "lang_foundation_descriptor=history",
-        "lang_foundation_report_ok=true"
+        "lang_foundation_report_ok=true",
+        "lang_foundation_metadata_declared_not_enforced=true"
       ]
     ),
     example(

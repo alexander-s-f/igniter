@@ -25,8 +25,13 @@ end
 
 result = backend.execute(compiled, inputs: { price_history: { latest: 120.0 } })
 report = backend.verify(compiled)
+manifest = report.metadata_manifest
+declared_not_enforced = !manifest.runtime_enforced? &&
+                        manifest.return_types.all? { |entry| entry.fetch(:enforced) == false } &&
+                        manifest.budgets.all? { |entry| entry.fetch(:enforced) == false }
 
 puts "lang_foundation_latest_price=#{result.output(:latest_price)}"
 puts "lang_foundation_descriptor=#{history_type.to_h.fetch(:kind)}"
 puts "lang_foundation_report_ok=#{report.ok?}"
-puts "lang_foundation_manifest_report_only=#{report.metadata_manifest.report_only?}"
+puts "lang_foundation_manifest_report_only=#{manifest.report_only?}"
+puts "lang_foundation_metadata_declared_not_enforced=#{declared_not_enforced}"

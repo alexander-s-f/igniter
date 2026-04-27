@@ -166,3 +166,28 @@ git diff --check
 
 Results: `201 examples, 0 failures`; examples smoke `81 passed, 0 failed`;
 changed-file RuboCop no offenses; diff check passed.
+
+[Research Horizon / Codex] Task 2 review landed for supervisor review.
+
+Reviewed the implementation track, scoping track, Lang manifest/report files,
+Lang specs, catalog entry, and compact foundation example for truth in
+labeling.
+
+The current implementation keeps the boundary clear:
+
+- metadata is extracted only from already-declared operation attributes:
+  `type:`, `return_type:`, `deadline:`, and `wcet:`
+- every requirement-like manifest entry carries `enforced: false`
+- manifest semantics say `report_only: true` and `runtime_enforced: false`
+- `VerificationReport#ok?` still follows compilation findings only
+- no `store`, `olap`, `rule`, `time_machine`, physical unit enforcement,
+  grammar/parser, Rust backend, export, warning/finding policy, or runtime
+  deadline phase is introduced
+
+I tightened the compact example/catalog wording by adding a smoke-visible
+`lang_foundation_metadata_declared_not_enforced=true` fragment. This makes the
+example say the important thing directly: `return_type`, `deadline`, and
+`wcet` are declared metadata, not enforced runtime semantics.
+
+Recommendation: proceed to `[Architect Supervisor / Codex]` review. No revert
+to foundation-only is needed from the research boundary perspective.
