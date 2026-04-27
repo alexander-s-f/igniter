@@ -10,15 +10,16 @@ This snapshot describes the current public package graph and proof surface.
   differential/shadow utilities, and MCP-facing tool semantics.
 - `igniter-embed`: host integration and registration layer for applications
   that want Igniter contracts inside an existing runtime.
-- `igniter-application`: contracts-native local application runtime and
-  app-owned environment composition.
+- `igniter-application`: contracts-native local application runtime,
+  app-owned environment composition, transfer receipts, and installed-capsule
+  registries.
 - `igniter-ai`: provider-neutral AI execution, request/response envelopes,
   fake/live/recorded provider modes, and response normalization.
 - `igniter-agents`: minimal agent definitions, runs, turns, traces, tool-call
   evidence, single-turn assistant execution over `igniter-ai`, and
   application-level agent DSL wiring.
-- `igniter-hub`: local capsule catalog discovery and transfer bundle metadata
-  for installable capabilities.
+- `igniter-hub`: local capsule catalog discovery, transfer bundle metadata,
+  and app-facing install candidate summaries.
 - `igniter-web`: mounted web surfaces over explicit application snapshots.
 - `igniter-cluster`: distributed planning, routing, and mesh execution layer.
 - `igniter-mcp-adapter`: transport-facing adapter for MCP tool catalogs and
@@ -52,5 +53,7 @@ Companion.
   proven across examples.
 - Capsule transfer is now agent-aware at the declaration/evidence layer:
   agents can be carried as capabilities, but transfer does not execute agents.
-- `igniter-hub` is local-only in the first slice: no remote download,
-  signatures, or trust policy yet.
+- `igniter-hub` is local-only in the first slice. Companion can display and
+  install a local hub capsule through transfer, then record installed state via
+  the `igniter-application` registry, but there is no remote download,
+  signature, or trust policy yet.

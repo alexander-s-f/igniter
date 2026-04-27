@@ -47,6 +47,8 @@ require_relative "application/application_transfer_apply_plan"
 require_relative "application/application_transfer_apply_result"
 require_relative "application/application_transfer_applied_verification"
 require_relative "application/application_transfer_receipt"
+require_relative "application/installed_capsule_entry"
+require_relative "application/file_backed_installed_capsule_registry"
 require_relative "application/application_host_activation_readiness"
 require_relative "application/application_host_activation_plan"
 require_relative "application/application_host_activation_plan_verification"
@@ -253,6 +255,20 @@ module Igniter
           applied_verification,
           apply_result: apply_result,
           apply_plan: apply_plan,
+          metadata: metadata
+        )
+      end
+
+      def file_backed_installed_capsule_registry(root:)
+        FileBackedInstalledCapsuleRegistry.build(root: root)
+      end
+
+      def record_installed_capsule(name, receipt:, registry:, source: nil, version: nil, metadata: {})
+        registry.record(
+          name,
+          receipt: receipt,
+          source: source,
+          version: version,
           metadata: metadata
         )
       end

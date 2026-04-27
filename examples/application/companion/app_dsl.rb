@@ -68,6 +68,16 @@ module Companion
         text service(:hub).entries.map(&:name).join(",")
       end
 
+      post "/hub/:name/install" do |params|
+        result = service(:hub).install(params.fetch("name", ""))
+        redirect Companion.feedback_path(
+          (result.success? ? :notice : :error) => (result.success? ? :hub_capsule_installed : :hub_capsule_blocked),
+          subject: params.fetch("name", "")
+        )
+      rescue KeyError
+        redirect Companion.feedback_path(error: :hub_capsule_unknown, subject: params.fetch("name", ""))
+      end
+
       post "/summary/live" do
         result = service(:companion).generate_live_summary
         redirect Companion.feedback_path(

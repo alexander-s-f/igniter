@@ -10,6 +10,7 @@ Current capsules:
 - trackers
 - countdowns
 - daily summary
+- hub install surface
 
 The launcher is intentionally thin. App-local infrastructure lives under
 `companion/`:
@@ -19,6 +20,7 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `app_dsl.rb` owns app-local routing and AI/provider configuration sugar.
 - `services/store_backends.rb` provides the store interface and SQLite backend.
 - `services/hub_installer.rb` installs local hub capsules through transfer.
+- the dashboard exposes the local hub catalog and install action.
 - `igniter-ai` contains the live OpenAI Responses provider.
 - `igniter-agents` contains the declared `daily_companion` runtime capability.
 - `contracts/daily_summary_contract.rb` uses the human contract DSL form.
@@ -35,9 +37,9 @@ Run the local browser surface:
 ruby examples/application/companion_poc.rb server
 ```
 
-Set `OPENAI_API_KEY` to make the app live-ready. The first slice does not call
-the provider yet; it proves the setup state, capsule shape, SQLite-backed store,
-and offline smoke path.
+Set `OPENAI_API_KEY` to make the app live-ready. The app stays deterministic by
+default; smoke mode proves setup state, capsule shape, SQLite-backed store,
+local hub installation, and the offline path.
 
 Smoke mode forces offline behavior unless `COMPANION_LIVE=1` is set.
 

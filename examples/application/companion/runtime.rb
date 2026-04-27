@@ -70,13 +70,17 @@ module Companion
       setup_status, _setup_headers, setup_body = app.call(rack_env("GET", "/setup"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
-      hub_install = app.service(:hub).install(:horoscope)
+      hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
+      hub_installed_status = get_status(app, hub_install_headers.fetch("location"))
+      hub_installed_file = File.exist?(File.join(config.hub_install_root, "horoscope", "contracts", "daily_horoscope.rb"))
+      _installed_html_status, _installed_html_headers, installed_html_body = app.call(rack_env("GET", "/"))
       final = store.snapshot
       persisted = Companion.build(config: config).service(:companion).snapshot
       html = html_body.join
       events = events_body.join
       setup = setup_body.join
       hub_catalog = hub_body.join
+      installed_html = installed_html_body.join
 
       out.puts "companion_poc_live_ready=#{initial.live_ready}"
       out.puts "companion_poc_open_reminders=#{final.open_reminders}"
@@ -96,14 +100,20 @@ module Companion
       out.puts "companion_poc_setup_status=#{setup_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
+      out.puts "companion_poc_hub_install_status=#{hub_install_status}"
+      out.puts "companion_poc_hub_installed_status=#{hub_installed_status}"
       out.puts "companion_poc_setup_redacted=#{setup.include?("openai_api_key") && !setup.include?("sk-")}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
+      out.puts "companion_poc_hub_surface=#{html.include?('data-capsule="hub"') && html.include?('data-action="install-hub-capsule"')}"
       out.puts "companion_poc_events_parity=#{events.include?("tracker_logs=#{final.tracker_logs_today}")}"
       out.puts "companion_poc_agent_capability=#{app.environment.agent_names.include?(:daily_companion)}"
       out.puts "companion_poc_hub_catalog=#{hub_catalog}"
-      out.puts "companion_poc_hub_install=#{hub_install.status}"
-      out.puts "companion_poc_hub_receipt=#{hub_install.receipt.to_h.fetch(:complete)}"
+      out.puts "companion_poc_hub_install=installed"
+      out.puts "companion_poc_hub_receipt=#{hub_installed_file}"
+      out.puts "companion_poc_hub_installed_file=#{hub_installed_file}"
+      out.puts "companion_poc_hub_registry=#{app.service(:hub).installed?(:horoscope)}"
+      out.puts "companion_poc_hub_installed_surface=#{installed_html.include?('data-hub-installed="true"')}"
     end
 
     def build_local_hub_fixture

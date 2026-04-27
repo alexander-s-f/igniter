@@ -37,6 +37,8 @@ Primary API:
 - `Igniter::Application::MissingCredentialError`
 - `Igniter::Application::AIRegistry`
 - `Igniter::Application::AgentRegistry`
+- `Igniter::Application.file_backed_installed_capsule_registry`
+- `Igniter::Application.record_installed_capsule`
 
 AI providers are configured at the application layer and resolved through the
 environment. Applications declare intent; provider-specific client construction
@@ -71,6 +73,23 @@ environment = Igniter::Application.build_kernel
                                   .then { |kernel| Igniter::Application::Environment.new(profile: kernel.finalize) }
 
 run = environment.agent(:daily_companion).run(input: "Two reminders are open.")
+```
+
+Installed capsule state is receipt-backed application state. A catalog or hub
+can point at a transfer bundle, but the application records what actually
+landed:
+
+```ruby
+registry = Igniter::Application.file_backed_installed_capsule_registry(root: "tmp/igniter")
+entry = Igniter::Application.record_installed_capsule(
+  :horoscope,
+  receipt: transfer_receipt,
+  registry: registry,
+  source: "local-hub",
+  version: "0.1.0"
+)
+
+entry.installed? #=> true when the transfer receipt is complete
 ```
 
 Credentials are app runtime configuration for secrets such as API keys. They

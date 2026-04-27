@@ -93,10 +93,16 @@ Capsule transfer is review-first. The lifecycle is deliberately explicit:
 8. commit only reviewed file operations
 9. verify the applied transfer
 10. close with `transfer_receipt`
+11. optionally record the result in an installed-capsule registry
 
 Only the explicit committed apply step mutates the destination filesystem.
 Host wiring, load paths, provider registration, web route activation, contract
 execution, and cluster placement remain outside transfer.
+
+Installed-capsule registries are application state, not hub state. A hub can
+discover a candidate bundle, but `igniter-application` owns the receipt-backed
+record that says what was installed, whether it is complete, and which source
+and version produced it.
 
 Runnable end-to-end example:
 

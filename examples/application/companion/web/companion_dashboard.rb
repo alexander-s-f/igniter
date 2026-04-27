@@ -43,6 +43,7 @@ module Companion
       application = Igniter::Web.application do
         root title: "Igniter Companion" do
           store = assigns[:ctx].service(:companion).call
+          hub = assigns[:ctx].service(:hub).call
           snapshot = store.snapshot
           feedback = Companion::Web.feedback_for(assigns[:env])
 
@@ -141,6 +142,30 @@ module Companion
                   para "#{event.fetch(:kind)} / #{event.fetch(:subject_id)}",
                        "data-activity-kind": event.fetch(:kind),
                        style: Companion::Web.style(:activity)
+                end
+              end
+
+              div "data-capsule": "hub", "data-hub-catalog": hub.entries.map(&:name).join(","), style: Companion::Web.style(:panel) do
+                h2 "Hub", style: Companion::Web.style(:h2)
+                if hub.entries.empty?
+                  para "No local hub catalog configured.", "data-hub-empty": "true", style: Companion::Web.style(:muted)
+                else
+                  para "#{hub.entries.length} capsule available", "data-hub-count": hub.entries.length, style: Companion::Web.style(:muted)
+                  hub.entries.each do |entry|
+                    installed = hub.installed?(entry.name)
+                    div "data-hub-entry": entry.name, "data-hub-installed": installed, style: Companion::Web.style(:item) do
+                      strong entry.title
+                      para(installed ? "Installed" : "Available", style: Companion::Web.style(:muted))
+                      para entry.description.to_s, style: Companion::Web.style(:muted)
+                      para "Capabilities: #{entry.capabilities.join(", ")}", style: Companion::Web.style(:muted)
+                      form action: "/hub/#{entry.name}/install", method: "post" do
+                        button(installed ? "Reinstall" : "Install",
+                               type: "submit",
+                               "data-action": "install-hub-capsule",
+                               style: Companion::Web.style(:button))
+                      end
+                    end
+                  end
                 end
               end
             end

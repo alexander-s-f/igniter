@@ -73,7 +73,8 @@ Root should stay thin:
 - Put agent loops, run state, tool policy, memory/context, handoff, and human
   gates in `igniter-agents`.
 - Put capsule catalog discovery and bundle metadata in `igniter-hub`; keep
-  verification, intake, apply, and receipts in `igniter-application`.
+  verification, intake, apply, receipts, and installed-capsule registries in
+  `igniter-application`.
 - Put transport and protocol work in adapter packages unless it is truly a
   cluster semantic concern.
 - Touch legacy packages only for reference, parity, migration, or retirement

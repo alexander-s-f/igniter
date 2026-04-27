@@ -9,6 +9,7 @@ Status: first POC slice, not stable API.
 - local capsule catalog loading
 - bundle metadata for install candidates
 - capability summaries for applications
+- enough metadata for an app UI to present installable capsules
 
 ## Does Not Own
 
@@ -19,3 +20,6 @@ Status: first POC slice, not stable API.
 
 Applications should use `igniter-application` transfer verification, intake,
 apply, and receipt APIs to install a selected bundle.
+
+Companion uses this split as the first proof: `igniter-hub` lists a local
+horoscope capsule, while the app installs it through the transfer pipeline.
