@@ -5,6 +5,9 @@ Igniter contracts have two equal authoring forms:
 - block compilation for low-level embedding and generated graphs
 - class DSL for human-edited application code
 
+For the accepted evaluator proof path across contracts, examples, application
+showcases, and Lang, see [Enterprise Verification](./enterprise-verification.md).
+
 Use the class form when a Rails/service/job author needs to read the contract as
 business logic.
 
@@ -144,3 +147,8 @@ the wrong contract.
 The class DSL removes most container ceremony from app-local contracts. The next
 ergonomics target is reducing repeated fail-fast and host registration boilerplate
 without hiding the business graph.
+
+## Related
+
+- [Enterprise Verification](./enterprise-verification.md)
+- [Igniter Lang Foundation](./igniter-lang-foundation.md)

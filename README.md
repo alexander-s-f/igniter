@@ -6,12 +6,17 @@ Igniter is being rebuilt around a contracts-native package graph:
 - `igniter-extensions` — packs, tooling, and domain behavior
 - `igniter-application` — contracts-native app runtime
 - `igniter-web` — contracts-first web runtime and authoring lane
-- `igniter-cluster` — distributed runtime
+- `igniter-cluster` — distributed planning and mesh execution layer
 - `igniter-mcp-adapter` — transport-facing MCP surface
 
 The active repository surface is intentionally limited to those packages. Older
 legacy-root layers are no longer part of the current framework story and are
 being recreated step by step instead of being carried forward.
+
+For enterprise evaluation, start with the compact proof path:
+[Enterprise Verification](./docs/guide/enterprise-verification.md). For the
+flagship application portfolio, see
+[Application Showcase Portfolio](./docs/guide/application-showcase-portfolio.md).
 
 ## Root Facade
 
@@ -84,9 +89,17 @@ Use this for:
 Use this for:
 
 - contracts-first web ingress and transport surfaces
-- higher-level web application authoring DSL
-- streams, dashboards, chats, wizards, and operator-facing UI workflows
-- optional record-style persistence facade
+- app-local mounted review surfaces
+- dashboards and operator-facing UI workflows in current examples
+- manual review scaffolding that does not imply production server behavior
+
+### `igniter-cluster`
+
+Use this for:
+
+- contracts-native distributed runtime seams
+- cluster planning, routing, and remote compose examples
+- mesh-oriented execution traces that leave real deployment guarantees for later
 
 ### `igniter-mcp-adapter`
 
@@ -98,25 +111,21 @@ Use this for:
 
 ## Examples And Docs
 
-- Runnable examples: [examples/README.md](/Users/alex/dev/projects/igniter/examples/README.md)
-- Internal design docs: [docs/dev/README.md](/Users/alex/dev/projects/igniter/docs/dev/README.md)
+- Runnable examples: [examples/README.md](./examples/README.md)
+- Enterprise proof path: [docs/guide/enterprise-verification.md](./docs/guide/enterprise-verification.md)
+- Application showcase portfolio: [docs/guide/application-showcase-portfolio.md](./docs/guide/application-showcase-portfolio.md)
+- User guide index: [docs/guide/README.md](./docs/guide/README.md)
+- Internal design docs: [docs/dev/README.md](./docs/dev/README.md)
 - Package docs:
-  - [packages/igniter-contracts/README.md](/Users/alex/dev/projects/igniter/packages/igniter-contracts/README.md)
-  - [packages/igniter-extensions/README.md](/Users/alex/dev/projects/igniter/packages/igniter-extensions/README.md)
-  - [packages/igniter-application/README.md](/Users/alex/dev/projects/igniter/packages/igniter-application/README.md)
-  - [packages/igniter-web/README.md](/Users/alex/dev/projects/igniter/packages/igniter-web/README.md)
-  - [packages/igniter-cluster/README.md](/Users/alex/dev/projects/igniter/packages/igniter-cluster/README.md)
-  - [packages/igniter-mcp-adapter/README.md](/Users/alex/dev/projects/igniter/packages/igniter-mcp-adapter/README.md)
-| Explicit legacy kernel lane | `require "igniter/legacy"` |
-| Embedded contracts kernel | `require "igniter/contracts"` or `require "igniter-contracts"` |
-| Actor runtime and built-in agents | `require "igniter/agent"` or `require "igniter/agents"` |
-| SDK registry | `require "igniter/sdk"` |
-| App runtime/profile | `require "igniter/app"` |
-| Cluster runtime | `require "igniter/cluster"` |
+  - [packages/igniter-contracts/README.md](./packages/igniter-contracts/README.md)
+  - [packages/igniter-extensions/README.md](./packages/igniter-extensions/README.md)
+  - [packages/igniter-application/README.md](./packages/igniter-application/README.md)
+  - [packages/igniter-web/README.md](./packages/igniter-web/README.md)
+  - [packages/igniter-cluster/README.md](./packages/igniter-cluster/README.md)
+  - [packages/igniter-mcp-adapter/README.md](./packages/igniter-mcp-adapter/README.md)
 
-`igniter/core` remains available only as a deprecated compatibility alias during
-the retirement track and now emits a legacy notice on public runtime
-entrypoints by default.
+`require "igniter/legacy"` is explicit reference-only context. Do not use
+legacy material as the public onboarding path.
 
 The fuller map lives in [`docs/guide/README.md`](./docs/guide/README.md).
 
@@ -126,16 +135,15 @@ The fuller map lives in [`docs/guide/README.md`](./docs/guide/README.md).
 - [`docs/guide/`](./docs/guide/README.md) — user-facing docs
 - [`docs/dev/`](./docs/dev/README.md) — contributor-facing docs
 - [`examples/`](./examples/README.md) — public runnable examples
-- [`examples/companion/`](./examples/companion/README.md) — canonical stack-style demo
 - [`playgrounds/`](./playgrounds/README.md) — local-first experiments such as home-lab work
 
 ## Status
 
 Igniter is intentionally being shaped as layered infrastructure:
 
-- keep `core` small and strict
-- let `app` and `cluster` grow above it
-- move reusable optional capabilities into `sdk`
+- keep `igniter-contracts` small and strict
+- let `igniter-application`, `igniter-web`, and `igniter-cluster` grow above it
+- move reusable optional capabilities into `igniter-extensions`
 - keep user docs in `docs/guide/`
 - keep internal architecture and planning docs in `docs/dev/`
 - keep package-local quick reference next to each package README

@@ -10,6 +10,10 @@ slices, app-owned flow declarations, and capsule inspection reports.
 For small interactive apps that combine `igniter-application` and
 `igniter-web`, see [Interactive App Structure](./interactive-app-structure.md).
 That guide documents the current copyable convention, not a package-level API.
+For evaluator-facing proof of the current application/Web story, start with
+[Enterprise Verification](./enterprise-verification.md), then use
+[Application Showcase Portfolio](./application-showcase-portfolio.md) for the
+four richer app reviews.
 
 ## App Means
 

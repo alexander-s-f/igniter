@@ -20,6 +20,9 @@ Run the compact example:
 ruby examples/contracts/lang_foundation.rb
 ```
 
+For the accepted evaluator proof path, see
+[Enterprise Verification](./enterprise-verification.md).
+
 Minimal usage:
 
 ```ruby
@@ -121,3 +124,8 @@ These remain future/research phases:
 - physical unit algebra enforcement
 - invariant metadata integration
 - deadline/WCET runtime monitoring, warnings, or findings
+
+## Related
+
+- [Enterprise Verification](./enterprise-verification.md)
+- [Contract Class DSL](./contract-class-dsl.md)

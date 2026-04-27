@@ -27,10 +27,10 @@ what you are trying to do.
 ### I want to build an app or stack
 
 1. [Guide](./guide/README.md)
-2. [How-Tos](./guide/how-tos.md)
-3. [App](./guide/app.md)
-4. [CLI](./guide/cli.md)
-5. [Companion example](../examples/companion/README.md)
+2. [Enterprise Verification](./guide/enterprise-verification.md)
+3. [Application Showcase Portfolio](./guide/application-showcase-portfolio.md)
+4. [Interactive App Structure](./guide/interactive-app-structure.md)
+5. [Examples](../examples/README.md)
 
 ### I want distributed execution
 

@@ -46,11 +46,11 @@ block: none | <blocker>
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
 | `[Architect Supervisor / Codex]` | Supervise public entry-surface hygiene after enterprise verification acceptance | [Enterprise Public Entry Surface Hygiene Track](./enterprise-public-entry-surface-hygiene-track.md) | [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md), [Enterprise Verification](../guide/enterprise-verification.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Igniter Lang Foundation](../guide/igniter-lang-foundation.md) | user |
-| `[Agent Application / Codex]` | Clean root README and examples onboarding against the accepted proof path | [Enterprise Public Entry Surface Hygiene Track](./enterprise-public-entry-surface-hygiene-track.md) | [Enterprise Verification](../guide/enterprise-verification.md), [Examples](../../examples/README.md), [Root README](../../README.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Clean application/web guide links and manual-review wording | [Enterprise Public Entry Surface Hygiene Track](./enterprise-public-entry-surface-hygiene-track.md) | [Enterprise Verification](../guide/enterprise-verification.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Interactive App Structure](../guide/interactive-app-structure.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Application / Codex]` | Standby after root README and examples onboarding hygiene | [Enterprise Public Entry Surface Hygiene Track](./enterprise-public-entry-surface-hygiene-track.md) | [Enterprise Verification](../guide/enterprise-verification.md), [Examples](../../examples/README.md), [Root README](../../README.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Standby after app/web guide link and manual-review hygiene | [Enterprise Public Entry Surface Hygiene Track](./enterprise-public-entry-surface-hygiene-track.md) | [Enterprise Verification](../guide/enterprise-verification.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Interactive App Structure](../guide/interactive-app-structure.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Review public entry surfaces for overclaiming and recommend next post-hygiene track | [Enterprise Public Entry Surface Hygiene Track](./enterprise-public-entry-surface-hygiene-track.md) | [Enterprise Verification](../guide/enterprise-verification.md), [Research Horizon](../research-horizon/README.md), [Experts](../experts/README.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Contracts / Codex]` | Clean contracts/lang package entrypoints against the accepted proof path | [Enterprise Public Entry Surface Hygiene Track](./enterprise-public-entry-surface-hygiene-track.md) | [Enterprise Verification](../guide/enterprise-verification.md), [Igniter Lang Foundation](../guide/igniter-lang-foundation.md), [Contract Class DSL](../guide/contract-class-dsl.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Contracts / Codex]` | Standby after contracts/lang package entrypoint hygiene | [Enterprise Public Entry Surface Hygiene Track](./enterprise-public-entry-surface-hygiene-track.md) | [Enterprise Verification](../guide/enterprise-verification.md), [Igniter Lang Foundation](../guide/igniter-lang-foundation.md), [Contract Class DSL](../guide/contract-class-dsl.md) | `[Architect Supervisor / Codex]` |
 
 ## Current Cycle
 
@@ -223,6 +223,8 @@ block: none | <blocker>
 - Next active track aligns public repository entrypoints with that accepted
   proof path before new feature/API work:
   [Enterprise Public Entry Surface Hygiene Track](./enterprise-public-entry-surface-hygiene-track.md).
+- Public entry-surface Application, Web/app guide, and Contracts/Lang hygiene
+  have landed; Research Horizon can complete overclaim review.
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 

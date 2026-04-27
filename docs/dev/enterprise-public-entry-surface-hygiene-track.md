@@ -142,3 +142,90 @@ If code changes unexpectedly, run affected specs/smoke/lint.
 3. `[Agent Contracts / Codex]` cleans contracts/lang package entrypoints.
 4. `[Research Horizon / Codex]` reviews the public surface for overclaiming
    and recommends the next post-hygiene track.
+
+[Agent Web / Codex]
+track: `docs/dev/enterprise-public-entry-surface-hygiene-track.md`
+status: landed
+delta: updated `docs/guide/interactive-app-structure.md` to point evaluators
+  to Enterprise Verification for the proof path and to clarify manual server
+  mode as review scaffolding only.
+delta: updated `docs/guide/app.md` so small interactive app readers start from
+  Enterprise Verification, then Application Showcase Portfolio, then the
+  copyable structure convention.
+delta: updated `packages/igniter-web/README.md` with proof-path links and
+  explicit Web boundary wording: no production server claim, marker DSL, route
+  DSL, component DSL, browser automation default, auth, persistence, live
+  transport, deployment behavior, or cluster placement.
+verify: `git diff --check` passed.
+ready: `[Agent Application / Codex]`, `[Agent Contracts / Codex]`, and
+  `[Research Horizon / Codex]` can complete their hygiene passes; then
+  `[Architect Supervisor / Codex]` can review the entry surface.
+block: none
+
+[Agent Contracts / Codex]
+track: `docs/dev/enterprise-public-entry-surface-hygiene-track.md`
+status: landed
+delta: updated `packages/igniter-contracts/README.md` with evaluator proof
+  links, verification commands, focused contracts/lang checks, and a narrow
+  changed-file RuboCop caveat.
+delta: linked `docs/guide/igniter-lang-foundation.md`,
+  `docs/guide/contract-class-dsl.md`, and `docs/guide/api-and-runtime.md` back
+  to the accepted Enterprise Verification path.
+delta: kept Lang wording report-only and avoided new runtime enforcement,
+  store, warning, deadline-monitoring, or `ExecutionResult` claims.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` after remaining entry-surface hygiene
+  and Research Horizon overclaim review.
+block: none
+
+[Agent Application / Codex]
+track: `docs/dev/enterprise-public-entry-surface-hygiene-track.md`
+status: landed
+delta: cleaned root README public onboarding links toward Enterprise
+  Verification, Application Showcase Portfolio, user guide, active examples,
+  and current package READMEs without local absolute paths.
+delta: removed stale root README entrypoint fragments for legacy/core/agent/sdk
+  lanes and removed the missing `examples/companion` public landmark.
+delta: aligned examples onboarding with the accepted flagship application
+  verification path and linked the application showcase portfolio.
+delta: replaced the missing companion-app reading path in `docs/README.md`
+  with Enterprise Verification, Application Showcase Portfolio, Interactive
+  App Structure, and active examples.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]`, `[Agent Contracts / Codex]`, and
+  `[Research Horizon / Codex]` can continue hygiene review.
+block: none
+
+[Research Horizon / Codex]
+track: `docs/dev/enterprise-public-entry-surface-hygiene-track.md`
+status: landed
+delta: reviewed root, guide, examples, package README, Research Horizon, and
+  expert entry surfaces for overclaiming against the accepted Enterprise
+  Verification path.
+delta: tightened the root README cluster wording from broad distributed runtime
+  posture to distributed planning/mesh execution with deployment guarantees
+  deferred.
+delta: confirmed public surfaces now keep production server, auth,
+  persistence, live transport, cluster placement/deployment guarantees,
+  connectors, LLM/provider behavior, Lang runtime enforcement, grammar/Rust,
+  and smoke-helper/API promotion out of the verified claim.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can review the entry surface.
+block: none
+
+Recommended next post-hygiene track:
+
+Open a narrow release-readiness checklist track before implementing new
+features or extracting smoke helpers.
+
+Suggested acceptance:
+
+- one checklist that names release blockers, verification commands, package
+  docs, examples smoke, changed-file lint policy, legacy/reference caveats,
+  and known non-goals
+- no runtime/API changes
+- no new product app
+- no `interactive_app`, Lang continuation, cluster runtime, live agents, or
+  connector work
+- smoke-helper extraction remains a later examples/specs-only track if release
+  checklist work shows repeated maintenance pain

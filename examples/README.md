@@ -44,6 +44,9 @@ ruby examples/run.rb run application/scout_poc
 ruby examples/run.rb run application/dispatch_poc
 ```
 
+These are the richer current application examples. Their portfolio guide lives
+at [Application Showcase Portfolio](../docs/guide/application-showcase-portfolio.md).
+
 The focused contracts/lang checks are:
 
 ```bash
@@ -57,7 +60,8 @@ ruby examples/run.rb run contracts/lang_foundation
 
 ## Active Example Lane
 
-Active runnable examples live in `examples/application/`, `examples/contracts/`, and `examples/cluster/`:
+Active runnable examples live in `examples/application/`,
+`examples/contracts/`, and `examples/cluster/`:
 
 - `application/blueprint.rb`
 - `application/capsule_layout.rb`
@@ -160,7 +164,6 @@ will be recreated intentionally on top of the new package graph.
 
 ## Validation
 
-The catalog lives in [catalog.rb](/Users/alex/dev/projects/igniter/examples/catalog.rb).
-Both [run.rb](/Users/alex/dev/projects/igniter/examples/run.rb) and the current
-root specs under [spec/current](/Users/alex/dev/projects/igniter/spec/current)
-use that same source of truth.
+The catalog lives in [catalog.rb](./catalog.rb). Both
+[run.rb](./run.rb) and the current root specs under
+[spec/current](../spec/current) use that same source of truth.

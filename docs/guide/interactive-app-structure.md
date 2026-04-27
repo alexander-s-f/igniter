@@ -20,6 +20,8 @@ Working examples:
 
 For an evaluator-facing comparison of Lense, Chronicle, Scout, and Dispatch,
 see [Application Showcase Portfolio](./application-showcase-portfolio.md).
+For the compact proof path and canonical verification commands, start with
+[Enterprise Verification](./enterprise-verification.md).
 
 This is a copyable convention, not a framework contract. Keep domain vocabulary
 inside your app until the same shape repeats enough to justify a package-level
@@ -71,6 +73,11 @@ ruby examples/application/chronicle_poc.rb server
 ruby examples/application/scout_poc.rb server
 ruby examples/application/dispatch_poc.rb server
 ```
+
+Manual server mode is review scaffolding for these examples. It does not imply
+production server behavior, browser automation as a default, auth, persistence,
+live transport, deployment readiness, connectors, LLM/provider behavior, or
+cluster placement.
 
 ## Application Structure
 

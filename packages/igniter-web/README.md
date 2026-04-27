@@ -46,6 +46,12 @@ Current design notes live in:
 - [docs/dev/igniter-web-target-plan.md](../../docs/dev/igniter-web-target-plan.md)
 - [docs/dev/igniter-web-dsl-sketch.md](../../docs/dev/igniter-web-dsl-sketch.md)
 
+For the current evaluator-facing proof path across contracts, flagship
+applications, Web/manual review, and Lang foundation, start with
+[Enterprise Verification](../../docs/guide/enterprise-verification.md). For
+the four richer application examples that exercise `igniter-web`, see
+[Application Showcase Portfolio](../../docs/guide/application-showcase-portfolio.md).
+
 ## Current Status
 
 This package currently ships only a skeleton:
@@ -72,6 +78,12 @@ This package currently ships only a skeleton:
 
 That gives the rebuild a real package boundary now, while leaving room to shape
 the full web runtime and authoring DSL incrementally.
+
+The package README is not a production server claim. Current showcase Web
+surfaces use manual server mode as review scaffolding and stable app-local
+`data-` attributes as inspection seams; they do not graduate marker DSL,
+route DSL, component DSL, browser automation default, auth, persistence, live
+transport, deployment behavior, or cluster placement.
 
 ## Current DSL Sketch
 

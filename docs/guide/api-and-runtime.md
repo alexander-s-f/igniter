@@ -5,6 +5,7 @@ surface area.
 
 ## Canonical Public Reads
 
+- [Enterprise Verification](./enterprise-verification.md)
 - [API v2](../API_V2.md)
 - [Execution Model v2](../EXECUTION_MODEL_V2.md)
 - [Patterns](../PATTERNS.md)
@@ -36,6 +37,7 @@ Operating modes to keep in mind:
 
 Package-specific entrypoints live next to the owning gem:
 
+- [`packages/igniter-contracts/README.md`](../../packages/igniter-contracts/README.md)
 - [`packages/igniter-core/README.md`](../../packages/igniter-core/README.md)
 - [`packages/igniter-ai/README.md`](../../packages/igniter-ai/README.md)
 - [`packages/igniter-sdk/README.md`](../../packages/igniter-sdk/README.md)

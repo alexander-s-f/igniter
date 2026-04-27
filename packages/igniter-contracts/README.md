@@ -13,6 +13,12 @@ Primary entrypoints:
 - `require "igniter/contracts"`
 - `require "igniter/lang"` for the additive Lang foundation
 
+Evaluator proof path:
+
+- [Enterprise Verification](../../docs/guide/enterprise-verification.md)
+- [Contract Class DSL](../../docs/guide/contract-class-dsl.md)
+- [Igniter Lang Foundation](../../docs/guide/igniter-lang-foundation.md)
+
 Current implementation focus:
 
 - `Kernel`
@@ -112,6 +118,31 @@ Additional helpers:
 - `Igniter::Contracts.build_profile(*packs)`
 - `Igniter::Contracts.with(*packs)`
 
+## Verification
+
+Use the enterprise receipt as the compact public proof path:
+
+```bash
+bundle exec rspec packages/igniter-contracts/spec spec/current
+ruby examples/run.rb smoke
+```
+
+Focused contracts/lang checks:
+
+```bash
+ruby examples/run.rb run contracts/class_pricing
+ruby examples/run.rb run contracts/class_callable
+ruby examples/run.rb run contracts/embed_class_registration
+ruby examples/run.rb run contracts/contractable_shadow
+ruby examples/run.rb run contracts/step_result
+ruby examples/run.rb run contracts/lang_foundation
+```
+
+For narrow changes, run RuboCop on the changed files. Full-project RuboCop
+currently includes pre-existing archived/research offenses, so changed-file
+lint is the practical gate for focused package slices; this is a caveat, not a
+quality target.
+
 ## Igniter Lang Foundation
 
 `require "igniter/lang"` loads a small contracts-facing Lang namespace.
@@ -137,4 +168,5 @@ ruby examples/contracts/lang_foundation.rb
 ```
 
 See [Igniter Lang Foundation](../../docs/guide/igniter-lang-foundation.md) for
-the short guide.
+the short guide, or [Enterprise Verification](../../docs/guide/enterprise-verification.md)
+for the accepted proof path.
