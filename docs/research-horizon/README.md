@@ -60,6 +60,7 @@ track with scoped tasks and acceptance criteria.
 
 - [Current State Report](./current-state-report.md)
 - [External Expert Scope Update](./external-expert-scope-update.md)
+- [External Expert Synthesis Report](./external-expert-synthesis-report.md)
 - [Horizon Proposals](./horizon-proposals.md)
 - [Supervisor Review](./supervisor-review.md)
 - [Agent Handoff Protocol](./agent-handoff-protocol.md)

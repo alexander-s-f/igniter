@@ -148,3 +148,20 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can add Web/manual-review discoverability details;
   then `[Architect Supervisor / Codex]` can review public onboarding readiness.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-showcase-portfolio-guide-track.md`
+status: landed
+delta: updated `docs/guide/application-showcase-portfolio.md` with a
+  Web/manual-review map for Lense, Chronicle, Scout, and Dispatch, including
+  mounted surface files, surface markers, evidence endpoints, and review focus.
+delta: documented guide-level inspection seams for `/events`, `/report` or
+  `/receipt`, feedback markers, activity markers, command actions, and domain
+  `data-` attributes while keeping them app-local.
+delta: clarified that manual server mode is example scaffolding and that the
+  portfolio does not require browser automation, live transport, production
+  server behavior, auth, persistence, schedulers, connectors, or LLM/provider
+  integration.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can review public onboarding readiness.
+block: none

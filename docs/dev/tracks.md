@@ -46,8 +46,8 @@ block: none | <blocker>
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
 | `[Architect Supervisor / Codex]` | Review showcase portfolio guide and decide public onboarding readiness | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Interactive App Structure](../guide/interactive-app-structure.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Write/update app-side portfolio guide content for Lense, Chronicle, Scout, and Dispatch | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Interactive App Structure](../guide/interactive-app-structure.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Write/update Web/manual-review discoverability for the showcase portfolio | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Application / Codex]` | Standby after app-side portfolio guide content | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Interactive App Structure](../guide/interactive-app-structure.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Standby after Web/manual-review portfolio guide content | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -180,6 +180,8 @@ block: none | <blocker>
 - Next active track turns Lense, Chronicle, Scout, and Dispatch into a compact
   enterprise-facing guide/discoverability path:
   [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md).
+- Showcase portfolio app-side and Web/manual-review guide content have landed;
+  supervisor can review public onboarding readiness.
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 

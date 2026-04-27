@@ -55,6 +55,37 @@ roles:
 | Scout | Source library, research session commands, checkpoint state, receipt endpoint. | `ResearchSynthesisContract` computes findings, contradictions, checkpoint readiness, citations, and synthesis payload. | Mounted research workspace with `/events`, `/receipt`, feedback, source/provenance, checkpoint, and activity markers. |
 | Dispatch | Incident library, triage session commands, assignment/escalation state, receipt endpoint. | `IncidentTriageContract` computes severity, suspected cause, routing options, readiness, and receipt payload. | Mounted command center with `/events`, `/receipt`, feedback, event/citation, routing, assignment, and activity markers. |
 
+## Web Review Map
+
+Each richer showcase has one mounted Arbre surface. The surface reads one
+app-owned snapshot through `MountContext`; `app.rb` owns command routes,
+redirect feedback, `/events`, and the evidence endpoint.
+
+| Showcase | Mounted surface | Surface marker | Evidence endpoint | Manual review focus |
+| --- | --- | --- | --- | --- |
+| Lense | `web/lense_dashboard.rb` as `:lense_dashboard`. | `data-ig-poc-surface="lense_dashboard"` | `/report` | Scan summary, findings, evidence refs, issue-session actions, report validity, and no scanned-project mutation. |
+| Chronicle | `web/decision_compass.rb` as `:decision_compass`. | `data-ig-poc-surface="decision_compass"` | `/receipt` | Proposal context, conflict evidence, sign-off/refusal state, decision receipt validity, and fixture no-mutation. |
+| Scout | `web/research_workspace.rb` as `:research_workspace`. | `data-ig-poc-surface="research_workspace"` | `/receipt` | Topic, sources, citations, provenance, findings, contradictions, checkpoint state, research receipt validity, and fixture no-mutation. |
+| Dispatch | `web/command_center.rb` as `:command_center`. | `data-ig-poc-surface="command_center"` | `/receipt` | Incident events, severity, routing rationale, assignment/escalation checkpoint, handoff receipt validity, and fixture no-mutation. |
+
+During manual review, inspect the browser page and these companion endpoints:
+
+- `/events` should agree with the visible state because both render from the
+  same detached app snapshot.
+- `/report` or `/receipt` should expose the app-owned evidence artifact when
+  the workflow reaches its checkpoint.
+- feedback should appear through query-string redirect state and render with
+  `data-ig-feedback` plus an app-local `data-feedback-code`.
+- recent activity should render from the same snapshot and use
+  `data-ig-activity` plus app-local action metadata.
+- command controls should expose app-local `data-action` values.
+- domain records and counters should expose explicit app-local `data-`
+  attributes for smoke and browser inspection.
+
+These markers are inspection seams, not a public marker DSL. Surface names,
+feedback codes, action names, endpoint labels, CSS direction, and panel
+grouping remain local to each showcase.
+
 ## Run The Portfolio
 
 Run the full active examples catalog:
@@ -92,6 +123,11 @@ ruby examples/application/dispatch_poc.rb server
 
 Each server command prints a local URL. Server mode is example scaffolding for
 manual review, not production server behavior.
+
+Use in-process smoke runs as the default proof. Manual browser review is useful
+for evaluating the mounted screens, but the portfolio does not require browser
+automation, live transport, a production server, auth, persistence, scheduler,
+connectors, or LLM/provider integration.
 
 ## Evidence To Inspect
 

@@ -260,3 +260,33 @@ Scope update added; no implementation track yet.
 Source:
 `docs/research-horizon/external-expert-scope-update.md`,
 `docs/experts/`.
+
+### 2026-04-27: Expert Corpus Expands From App DSL To Platform Thesis
+
+Signal:
+`docs/experts/` now includes strategic reports, implementation delta,
+application proposals, science/robotics/space/medicine validation, Semantic
+Gateway, documentation compression, concept emergence, and the Igniter-Lang
+research series.
+
+Insight:
+The corpus now has two layers. The first layer says Igniter needs compact
+interactive app authoring. The second layer says that app authoring is only the
+entry point into a larger platform thesis: evidence-first execution, live agent
+surfaces, capsule supply chain, and contract-language semantics.
+
+Likely next abstraction:
+A supervisor-prioritized queue that separates near-term adoption work
+(`interactive_app`, flows, sessions, SSE, showcase) from long-horizon research
+(Plane, Runtime Cells, Igniter-Lang, Semantic Gateway).
+
+Risk:
+The corpus is rich enough to overload the roadmap. Without prioritization it
+could increase vocabulary and planning debt instead of reducing uncertainty.
+
+Candidate track / no-track-yet:
+Synthesis report added; no implementation track yet.
+
+Source:
+`docs/research-horizon/external-expert-synthesis-report.md`,
+`docs/experts/`.
