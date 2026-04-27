@@ -123,8 +123,9 @@ showcase, not only a small interaction pressure test.
 
 ## Receipt/Report Convention
 
-Receipts and reports are evidence artifacts, not a shared framework class. Lense
-and Chronicle both prove the shape, but their payloads remain domain-specific.
+Receipts and reports are evidence artifacts, not a shared framework class.
+Lense, Chronicle, and Scout prove the shape, but their payloads remain
+domain-specific.
 
 Include these ideas when useful:
 
@@ -137,6 +138,20 @@ Include these ideas when useful:
 - skipped/deferred scope such as no LLM, no scheduler, or no external mutation
 - metadata supplied by the caller or inspection endpoint
 
+For a richer showcase, the artifact should make these checks easy:
+
+- identify the subject, such as scan, proposal, session, source set, or topic
+- show whether the artifact is valid and what readiness rule made it valid
+- cite the deterministic contract or app-local analysis that produced it
+- link conclusions back to concrete evidence refs
+- include relevant action facts that happened before emission
+- name deferred capabilities so readers do not infer hidden LLM, connector,
+  scheduler, persistence, live transport, or production behavior
+- state the mutation boundary, such as no target mutation or runtime-only writes
+  in a named workdir
+- expose enough metadata for `/report`, `/receipt`, smoke output, or manual
+  inspection to verify the same artifact
+
 Keep these local for now:
 
 - receipt/report class names
@@ -146,6 +161,9 @@ Keep these local for now:
 - evidence reference format
 - deferred item vocabulary
 - runtime write layout
+
+Do not extract a shared receipt/report class yet. If a helper is designed later,
+start with checklist vocabulary or example/spec utilities before package API.
 
 ## Web Structure
 
@@ -265,3 +283,9 @@ For richer showcase apps, also prove receipt/report evidence and mutation
 boundaries. Good smoke output names are app-local and boring, for example
 `lense_poc_receipt_valid=true`, `chronicle_poc_web_events_parity=true`, or
 `scout_poc_web_receipt_endpoint=true`.
+
+Mutation-boundary proof should be explicit. A smoke can compare file signatures
+for read-only fixtures or scanned targets, count runtime files in the workdir,
+and print a stable marker such as `*_no_mutation=true` or
+`*_fixture_no_mutation=true`. The exact filenames, hashing strategy, and
+workdir layout stay app-local.
