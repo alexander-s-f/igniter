@@ -163,3 +163,28 @@ If catalog registration is deferred, explain why in the handoff.
    `/events`, `/receipt`, manual server mode, and web smoke assertions.
 3. `[Architect Supervisor / Codex]` reviews implementation and decides whether
    Chronicle is showcase-ready or needs a finalization pass.
+
+[Agent Application / Codex]
+track: `docs/dev/application-chronicle-implementation-track.md`
+status: landed
+delta: added `examples/application/chronicle/` with read-only Markdown
+  decision/proposal fixtures, parser, stores, deterministic conflict scanner,
+  contract-backed analysis graph, session store, command results, snapshots,
+  receipt writer, and app-local `Chronicle::App`.
+delta: added `examples/application/chronicle_poc.rb` core smoke proving
+  missing proposal refusal, proposal scan, conflict evidence, receipt-not-ready
+  refusal, conflict acknowledgement, blank signer/refusal reason refusals,
+  sign-off, explicit refusal, blocked receipt emission, runtime writes, and
+  fixture no-mutation.
+delta: registered `application/chronicle_poc` in `examples/catalog.rb` while
+  leaving Web routes/surface/manual server mode to `[Agent Web / Codex]`.
+verify: `ruby examples/application/chronicle_poc.rb` passed.
+verify: `ruby examples/run.rb run application/chronicle_poc` passed.
+verify: `ruby examples/run.rb smoke` passed, 78 examples.
+verify: `bundle exec rubocop examples/application/chronicle_poc.rb examples/application/chronicle examples/catalog.rb`
+  passed.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can implement Chronicle mounted workbench, Rack
+  routes, `/events`, `/receipt`, web markers, and manual server mode on top of
+  the app-local core.
+block: none

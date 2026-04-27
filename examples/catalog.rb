@@ -658,6 +658,36 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/chronicle_poc",
+      "One-process Chronicle decision compass POC core with conflict and receipt evidence.",
+      expected_fragments: [
+        "chronicle_poc_missing_proposal=chronicle_unknown_proposal",
+        "chronicle_poc_scan=chronicle_scan_created",
+        "chronicle_poc_session_id=true",
+        "chronicle_poc_proposal=PR-001",
+        "chronicle_poc_conflicts=3",
+        "chronicle_poc_open_conflicts=2",
+        "chronicle_poc_top_conflict=DR-041",
+        "chronicle_poc_receipt_not_ready=chronicle_receipt_not_ready",
+        "chronicle_poc_acknowledge=chronicle_conflict_acknowledged",
+        "chronicle_poc_blank_signer=chronicle_blank_signer",
+        "chronicle_poc_signoff=chronicle_signoff_recorded",
+        "chronicle_poc_blank_reason=chronicle_blank_reason",
+        "chronicle_poc_refusal=chronicle_signoff_refused",
+        "chronicle_poc_status=blocked",
+        "chronicle_poc_signed=platform",
+        "chronicle_poc_refused=security",
+        "chronicle_poc_receipt=chronicle_receipt_emitted",
+        "chronicle_poc_receipt_id=chronicle-receipt:chronicle-session-pr-001",
+        "chronicle_poc_receipt_valid=true",
+        "chronicle_poc_events=proposal=PR-001",
+        "chronicle_poc_action_count=12",
+        "chronicle_poc_fixture_no_mutation=true",
+        "chronicle_poc_runtime_sessions=1",
+        "chronicle_poc_runtime_receipts=1"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [
