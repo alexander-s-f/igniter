@@ -13,6 +13,7 @@ for a new programming language and paradigm. Not a product track or feature prop
 | [igniter-lang-propmodel.md](igniter-lang-propmodel.md) · [ru](igniter-lang-propmodel.ru.md) | Property models and algorithm synthesis — ontology/model/contract/execution four-level architecture, synthesis boundary, LLM as model author with formal verification loop, information density at MDL bound |
 | [igniter-lang-theory2.md](igniter-lang-theory2.md) · [ru](igniter-lang-theory2.ru.md) | Theoretical foundations of synthesis — decidability (Horn Datalog, PTIME), soundness (Hoare/wp calculus), completeness (Herbrand), EL description logics, stratified negation, refinement types, situation calculus; 5 open problems |
 | [igniter-lang-spec.md](igniter-lang-spec.md) · [ru](igniter-lang-spec.ru.md) | Language specification v0.1 — type system BNF, 12 node constructs with formal type rules, contract signature, annotation system, fn declarations, complete grammar, worked example, compile-time guarantee table |
+| [igniter-lang-algebra.md](igniter-lang-algebra.md) · [ru](igniter-lang-algebra.ru.md) | Contract algebra and enterprise model — everything-is-a-contract unification, closed algebraic operations, Arrows connection, organic three-tier axiom layer, enterprise primitives (entity/workflow/policy/system), the ideal of compute disappearing, standard library blueprint |
 
 ## Core Claim
 
