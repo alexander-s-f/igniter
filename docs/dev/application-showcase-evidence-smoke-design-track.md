@@ -251,3 +251,28 @@ verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can choose Dispatch scoping, tiny
   helper implementation, or Embed/Contracts next.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Evidence/smoke design is accepted.
+- The convention belongs in the existing public
+  [Interactive App Structure](../guide/interactive-app-structure.md) guide,
+  not in a new framework document.
+- Evidence artifacts remain app-local receipts/reports with shared checklist
+  vocabulary, not shared classes or package APIs.
+- Smoke proof remains explicit app-local output and marker checks. A future
+  helper may be considered only if it stays examples/specs scoped and
+  script-local first.
+- No runtime API, route DSL, marker DSL, UI kit, browser automation default,
+  generic report viewer, `interactive_app`, live runtime, persistence,
+  scheduler, auth, LLM, or connectors are accepted from this track.
+- Dispatch is accepted as the next product pressure line only as an
+  offline/fixture-backed scoping track.
+
+Next:
+
+- Open [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md).

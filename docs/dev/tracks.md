@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review showcase evidence/smoke design and choose Dispatch/helper/Embed next | [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md) | [Application Showcase Portfolio Update Track](./application-showcase-portfolio-update-track.md), [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Standby after evidence artifact design handoff | [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md) | [Application Showcase Portfolio Update Track](./application-showcase-portfolio-update-track.md), [Interactive App Structure](../guide/interactive-app-structure.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Standby after smoke proof/manual review design handoff | [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md) | [Application Showcase Portfolio Update Track](./application-showcase-portfolio-update-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Interactive App Structure](../guide/interactive-app-structure.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review Dispatch scoping and decide implementation/support next | [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md) | [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md), [Application Proposals](../experts/application-proposals.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Scope Dispatch fixture-backed incident model, deterministic contract graph, commands, snapshot, and receipt | [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md) | [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md), [Interactive App Structure](../guide/interactive-app-structure.md), [Application Proposals](../experts/application-proposals.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Scope Dispatch mounted surface, triage/routing markers, `/events`, `/receipt`, and smoke evidence | [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md) | [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -159,6 +159,9 @@ block: none | <blocker>
 - Showcase portfolio update accepted; next active track designs the tiny
   evidence/smoke proof convention before Dispatch/helper/Embed decisions:
   [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md).
+- Showcase evidence/smoke design accepted; next active track scopes Dispatch as
+  an offline/fixture-backed incident command pressure line:
+  [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 
