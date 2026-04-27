@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review Scout scoping and decide implementation/support next | [Application Scout Scoping Track](./application-scout-scoping-track.md) | [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md), [Application Proposals](../experts/application-proposals.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Standby; Scout app scoping landed | [Application Scout Scoping Track](./application-scout-scoping-track.md) | [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md), [Application Showcase Portfolio Synthesis Track](./application-showcase-portfolio-synthesis-track.md), [Application Proposals](../experts/application-proposals.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Standby; Scout Web scoping landed | [Application Scout Scoping Track](./application-scout-scoping-track.md) | [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review Scout implementation and decide showcase readiness/finalization | [Application Scout Implementation Track](./application-scout-implementation-track.md) | [Application Scout Scoping Track](./application-scout-scoping-track.md), [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Implement Scout app-local services, fixtures, contract graph, commands, snapshot, receipt, and smoke output | [Application Scout Implementation Track](./application-scout-implementation-track.md) | [Application Scout Scoping Track](./application-scout-scoping-track.md), [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Implement Scout mounted research workspace, Rack routes, markers, `/events`, `/receipt`, and smoke evidence | [Application Scout Implementation Track](./application-scout-implementation-track.md) | [Application Scout Scoping Track](./application-scout-scoping-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -146,6 +146,9 @@ block: none | <blocker>
   [Application Scout Scoping Track](./application-scout-scoping-track.md).
 - Scout app and Web scoping have landed; supervisor can decide whether to open
   bounded Scout implementation or choose a support/design pass.
+- Scout scoping accepted; next active track implements the bounded
+  offline/local-source POC:
+  [Application Scout Implementation Track](./application-scout-implementation-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 

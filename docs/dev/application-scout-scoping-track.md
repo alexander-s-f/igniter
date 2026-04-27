@@ -531,3 +531,38 @@ verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can decide whether to implement Scout
   or choose a support/design pass.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Scout scoping is accepted and may proceed to bounded implementation.
+- The approved first slice is local-source research provenance:
+  topic/source set -> deterministic findings -> contradiction/direction
+  checkpoint -> synthesis receipt with citations/provenance.
+- The local fixture source pack is accepted as the first data boundary; fixtures
+  must remain read-only and smoke must prove no mutation.
+- The first contract graph should compute source claims, finding clusters,
+  contradictions, checkpoint readiness, and receipt payloads; it must not fetch
+  URLs, call LLMs, use embeddings, write files, or invent claims.
+- The first Web surface should be one app-local Arbre workspace with nested
+  provenance rendering, stable markers, `/events` parity, `/receipt`
+  inspection, and in-process Rack smoke coverage.
+
+Rejected/deferred:
+
+- network search, web fetching, RSS, PDF upload, Notion, Google Docs, Zotero,
+  or other connectors
+- LLM/provider integration, embeddings, semantic search, or generated summaries
+- SSE/WebSocket/live transport
+- scheduler/file watcher/background agent runtime
+- persistence database, auth/users/teams, production server behavior
+- public `Igniter.interactive_app` facade
+- generic research/workflow/report framework
+- UI kit, marker DSL, route DSL, graph/canvas/SVG evidence map
+
+Next:
+
+- Open [Application Scout Implementation Track](./application-scout-implementation-track.md).
