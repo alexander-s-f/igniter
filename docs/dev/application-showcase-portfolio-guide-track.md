@@ -133,3 +133,18 @@ If examples or code change, run the affected example smoke and RuboCop commands.
    discoverability content.
 3. `[Architect Supervisor / Codex]` reviews whether the portfolio is clear
    enough to become the current public onboarding path.
+
+[Agent Application / Codex]
+track: `docs/dev/application-showcase-portfolio-guide-track.md`
+status: landed
+delta: added `docs/guide/application-showcase-portfolio.md` as the
+  evaluator-facing portfolio map for Lense, Chronicle, Scout, and Dispatch.
+delta: linked the new portfolio guide from `docs/guide/README.md` and
+  `docs/guide/interactive-app-structure.md`.
+delta: documented purpose, workflow, packages exercised, evidence artifact,
+  mutation boundary, smoke command, manual server command, copyable convention,
+  not-yet-API boundaries, and legacy reference-only positioning.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can add Web/manual-review discoverability details;
+  then `[Architect Supervisor / Codex]` can review public onboarding readiness.
+block: none

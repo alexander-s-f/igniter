@@ -18,6 +18,9 @@ Working examples:
 - `examples/application/scout_poc.rb`
 - `examples/application/dispatch_poc.rb`
 
+For an evaluator-facing comparison of Lense, Chronicle, Scout, and Dispatch,
+see [Application Showcase Portfolio](./application-showcase-portfolio.md).
+
 This is a copyable convention, not a framework contract. Keep domain vocabulary
 inside your app until the same shape repeats enough to justify a package-level
 API.
