@@ -6,8 +6,9 @@ framework or UI/runtime package.
 ## Current Integration Surfaces
 
 - `require "igniter/plugins/rails"` for Rails integration
-- `require "igniter-frontend"` for human-authored web UI
-- `require "igniter-schema-rendering"` for schema-driven rendering
+- `require "igniter-web"` for current human-authored web surfaces
+- schema-driven rendering remains a guide-level authoring direction, not a
+  current package entrypoint in this repository
 
 ## Rails Integration
 
@@ -39,8 +40,8 @@ For Rails specifically:
 
 ## Current Reading Path
 
-- [App](../app/README.md)
-- [SDK](../sdk/README.md)
-- [`packages/igniter-rails/README.md`](../../packages/igniter-rails/README.md)
-- [`packages/igniter-frontend/README.md`](../../packages/igniter-frontend/README.md)
-- [`packages/igniter-schema-rendering/README.md`](../../packages/igniter-schema-rendering/README.md)
+- [App](./app.md)
+- [SDK](./sdk.md)
+- [`packages/igniter-embed/README.md`](../../packages/igniter-embed/README.md)
+- [`packages/igniter-web/README.md`](../../packages/igniter-web/README.md)
+- [`packages/igniter-extensions/README.md`](../../packages/igniter-extensions/README.md)

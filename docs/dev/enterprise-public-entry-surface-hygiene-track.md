@@ -133,6 +133,50 @@ git diff --check
 
 If code changes unexpectedly, run affected specs/smoke/lint.
 
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+The public entry surface is now coherent enough for the current enterprise
+evaluation story:
+
+- Root README points evaluators to Enterprise Verification, the showcase
+  portfolio, active examples, and current package READMEs without local
+  absolute paths or stale companion onboarding.
+- `examples/README.md` and guide entrypoints now route toward active runnable
+  examples, the application showcase portfolio, and the compact enterprise
+  proof path.
+- `packages/igniter-contracts/README.md`, `packages/igniter-web/README.md`,
+  and app/web guides preserve the accepted boundaries: proof path yes,
+  production server/API graduation no.
+- Research Horizon's overclaim filter is accepted: cluster, production server,
+  auth, persistence, live transport, connectors, LLM/provider behavior, Lang
+  runtime enforcement, grammar/Rust, and smoke-helper/API promotion remain out
+  of the verified claim.
+
+Supervisor follow-up:
+
+- Cleaned guide-level stale public links that still pointed to removed
+  companion, old `docs/<layer>/README.md` paths, removed package README files,
+  and local absolute `igniter-frontend` package links.
+- Kept frontend/schema rendering guides as direction/reference wording, but
+  routed current proof back to `igniter-web`, Enterprise Verification, and the
+  showcase portfolio.
+
+Supervisor verification:
+
+- `git diff --check` passed.
+- Public-guide stale-link scan for removed companion, old layer README paths,
+  old uppercase frontend docs, removed package README files, and local
+  `igniter-frontend` package paths returned no matches.
+- `ruby examples/run.rb smoke` passed with 81 examples.
+
+Decision:
+
+Open the next track as a narrow release-readiness checklist. Do not implement
+new runtime behavior, extract smoke helpers, or open another product app until
+the current proof set has a compact release/evaluator readiness gate.
+
 ## Current Handoff
 
 [Architect Supervisor / Codex] Next:

@@ -1,15 +1,15 @@
 # Frontend Authoring
 
-This guide shows the current developer-facing authoring shape for
-`Igniter::Frontend`.
+This guide records the developer-facing frontend authoring direction. Current
+application/Web proof starts from `igniter-web` showcase surfaces and
+[Enterprise Verification](./enterprise-verification.md).
 
 It is based on the active `playgrounds/home-lab` implementation, not on an old
 prototype. If you want the shortest path to "how do I build a page today?",
 start here.
 
-`igniter-frontend` now ships with `arbre` as part of the standard authoring
-lane. The intended experience is: Ruby-authored app UI should feel as simple
-and powerful as working with `ActiveAdmin`, but for Igniter apps and operator
+The intended experience is: Ruby-authored app UI should feel as simple and
+powerful as working with `ActiveAdmin`, but for Igniter apps and operator
 surfaces.
 
 ## Mental Model
@@ -165,7 +165,7 @@ end
 
 ### 5. Add JavaScript as an optional layer
 
-`igniter-frontend` stays HTML-first, but it now has an optional JavaScript lane
+The frontend authoring lane stays HTML-first, with an optional JavaScript lane
 for progressive enhancement and app-owned behavior.
 
 Configure it in the app:
@@ -321,7 +321,7 @@ are a good example of the current sweet spot.
 - blocks reused across pages or apps
 - UI primitives whose internal HTML should stop leaking into pages
 
-Current useful primitives already available in `Igniter::Frontend::Arbre`:
+Useful primitive shapes from the frontend authoring direction:
 
 - `page_header`
 - `panel`
@@ -350,7 +350,8 @@ That order keeps us from over-engineering abstractions too early.
 
 ## Human vs Schema Lanes
 
-Use `Igniter::Frontend` when a developer is authoring the page directly.
+Use the human-authored frontend lane when a developer is authoring the page
+directly.
 
 Use `Igniter::SchemaRendering` when the page definition is persisted, patched,
 machine-authored, or needs a generic runtime path.
@@ -360,7 +361,7 @@ different authoring lanes on purpose.
 
 ## Related Docs
 
-- [igniter-frontend README](/Users/alex/dev/projects/igniter/packages/igniter-frontend/README.md)
-- [Frontend Components](./FRONTEND_COMPONENTS.md)
-- [Schema Rendering Authoring](./SCHEMA_RENDERING_AUTHORING.md)
-- [Frontend Packages Idea](./FRONTEND_PACKAGES_IDEA.md)
+- [igniter-web README](../../packages/igniter-web/README.md)
+- [Frontend Components](./frontend-components.md)
+- [Schema Rendering Authoring](./schema-rendering-authoring.md)
+- [Application Showcase Portfolio](./application-showcase-portfolio.md)

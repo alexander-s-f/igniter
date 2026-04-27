@@ -7,22 +7,25 @@ This is the shortest user-facing path into Igniter.
 Read:
 
 - [Top-level README](../../README.md)
-- [Igniter Concepts](../IGNITER_CONCEPTS.md)
-- [Core](../core/README.md)
+- [Igniter Concepts](../concepts/igniter.md)
+- [Core](./core.md)
+- [Enterprise Verification](./enterprise-verification.md)
 
 ## 2. Run Something Real
 
 Use:
 
 - [Examples](../../examples/README.md)
-- [Companion example](../../examples/companion/README.md)
+- [Application Showcase Portfolio](./application-showcase-portfolio.md)
+- [Interactive App Structure](./interactive-app-structure.md)
 
 ## 3. Pick The Runtime Shape
 
-- Stay in [Core](../core/README.md) if you only need embedded contracts and execution.
-- Move to [App](../app/README.md) if Igniter becomes the runtime of an app.
-- Move to [Cluster](../cluster/README.md) if execution becomes distributed.
-- Add [SDK](../sdk/README.md) packs only when optional capabilities are needed.
+- Stay in [Core](./core.md) if you only need embedded contracts and execution.
+- Move to [App](./app.md) if Igniter becomes the runtime of an app.
+- Move to [Cluster](./cluster.md) if execution becomes distributed.
+- Add [Extensions](../../packages/igniter-extensions/README.md) only when
+  optional capabilities are needed.
 
 Current architecture note:
 
@@ -34,8 +37,8 @@ Current architecture note:
 
 Read:
 
-- [CLI](../CLI.md)
-- [Stacks Next](../STACKS_NEXT.md)
+- [CLI](./cli.md)
+- [Application Capsules](./application-capsules.md)
 
 Then try:
 

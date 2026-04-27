@@ -32,9 +32,11 @@ If a capability stops making sense without hosting, networking, or optional pack
 
 ## When To Leave Core
 
-- Move to [App](../app/README.md) when you need app runtime/profile concerns.
-- Move to [Cluster](../cluster/README.md) when you need networking, mesh, routing, replication, or resilience.
-- Move to [SDK](../sdk/README.md) when you need optional packs such as AI, channels, tools, skills, or data.
+- Move to [App](./app.md) when you need app runtime/profile concerns.
+- Move to [Cluster](./cluster.md) when you need networking, mesh, routing,
+  replication, or resilience.
+- Move to [SDK](./sdk.md) when you need optional packs such as AI, channels,
+  tools, skills, or data.
 
 Current design direction:
 

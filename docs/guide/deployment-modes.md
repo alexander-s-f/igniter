@@ -108,5 +108,5 @@ longer be the recommended onboarding path.
 
 - [Getting Started](./getting-started.md)
 - [Configuration](./configuration.md)
-- [App](../app/README.md)
-- [Cluster](../cluster/README.md)
+- [App](./app.md)
+- [Cluster](./cluster.md)

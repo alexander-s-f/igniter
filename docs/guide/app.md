@@ -33,8 +33,9 @@ four richer app reviews.
 - [Guide: Application Capsules](../guide/application-capsules.md)
 - [Current: App Structure](../current/app-structure.md)
 - [Dev: Application Target Plan](../dev/application-target-plan.md)
-- [Stacks Next](../STACKS_NEXT.md)
-- [CLI](../CLI.md)
+- [Application Showcase Portfolio](./application-showcase-portfolio.md)
+- [Interactive App Structure](./interactive-app-structure.md)
+- [CLI](./cli.md)
 
 ## Supporting Reference
 
@@ -44,16 +45,16 @@ four richer app reviews.
 
 ## Useful Supporting Docs
 
-- [Store Adapters](../STORE_ADAPTERS.md)
-- [Schema Rendering Authoring](../SCHEMA_RENDERING_AUTHORING.md)
-- [Frontend Authoring](../FRONTEND_AUTHORING.md)
-- [Frontend Components](../FRONTEND_COMPONENTS.md)
+- [Store Adapters](./store-adapters.md)
+- [Schema Rendering Authoring](./schema-rendering-authoring.md)
+- [Frontend Authoring](./frontend-authoring.md)
+- [Frontend Components](./frontend-components.md)
 - [Guide: Integrations](../guide/integrations.md)
 
 ## Examples
 
 - [Examples index](../../examples/README.md)
-- [Companion example](../../examples/companion/README.md)
+- [Application Showcase Portfolio](./application-showcase-portfolio.md)
 - [Playgrounds](../../playgrounds/README.md)
 
 ## Typical Flow
@@ -83,8 +84,8 @@ Current scaffold direction:
 - web/UI surfaces should live under optional `web/handlers`, `web/views`, and
   `web/components`
 - only genuinely shared stack code should land in `lib/<project>/shared`
-- generated operator/dashboard surfaces should prefer `igniter-frontend` page
-  classes over raw HTML string assembly
+- generated operator/dashboard surfaces should prefer `igniter-web` mounted
+  surfaces over raw HTML string assembly
 
 ## Canonical Shape
 
@@ -124,7 +125,7 @@ Legacy/current-stack cross-app contract:
 
 For frontend authoring, the recommended path is:
 
-- `igniter-frontend`
+- `igniter-web`
 - Arbre
 - Tailwind surfaces
 

@@ -19,11 +19,11 @@ SDK layer.
 
 ## Reading Path
 
-- [SDK](../sdk/README.md)
+- [SDK](./sdk.md)
 - [Guide: How-Tos](./how-tos.md)
 - [Guide: Integrations](./integrations.md)
-- [`packages/igniter-ai/README.md`](../../packages/igniter-ai/README.md)
-- [`packages/igniter-sdk/README.md`](../../packages/igniter-sdk/README.md)
+- [`packages/igniter-extensions/README.md`](../../packages/igniter-extensions/README.md)
+- [`packages/igniter-mcp-adapter/README.md`](../../packages/igniter-mcp-adapter/README.md)
 
 ## Historical Deep Reference
 

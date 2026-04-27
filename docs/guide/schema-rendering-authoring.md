@@ -1,7 +1,6 @@
 # Schema Rendering Authoring
 
-This guide captures the current public authoring story for `Igniter::Frontend`
-schemas.
+This guide captures the schema-rendering authoring direction for web schemas.
 
 Use it when you want to define a page as persisted JSON-like data and render it
 through `Igniter::SchemaRendering::Renderer`.
@@ -172,7 +171,7 @@ The schema runtime is now good at:
 
 - persisted page definitions
 - semantic form grouping
-- shared rendering through `Igniter::Frontend::Tailwind`
+- shared Tailwind-oriented rendering
 - contract-backed or store-only submissions
 
 It is not yet trying to be:

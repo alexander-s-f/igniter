@@ -17,8 +17,8 @@ The cluster layer should stay above `core` and `app`. It is not the place to red
 - [Guide](../guide/README.md)
 - [Guide: How-Tos](../guide/how-tos.md)
 - [Dev: Cluster Target Plan](../dev/cluster-target-plan.md)
-- [Cluster State Snapshot](./STATE_NEXT.md)
-- [Cluster Next](./ROADMAP_NEXT.md)
+- [Cluster State Snapshot](../current/cluster-state.md)
+- [Cluster Roadmap](../current/cluster-roadmap.md)
 
 ## Supporting Reference
 
@@ -33,18 +33,24 @@ The cluster layer should stay above `core` and `app`. It is not the place to red
 ## Examples
 
 - [Examples index](../../examples/README.md)
-- cluster-oriented scripts such as `mesh.rb`, `mesh_discovery.rb`, `mesh_gossip.rb`, `distributed_server.rb`, `distributed_workflow.rb`
+- cluster-oriented examples such as `cluster/incidents`,
+  `cluster/incident_workflow`, `cluster/mesh_diagnostics`,
+  `cluster/remediation`, and `cluster/routing`
 - [Playgrounds](../../playgrounds/README.md) for local-first cluster and home-lab experiments
 
 ## Cluster Reading Heuristic
 
-- If the topic is about contracts or execution semantics without networking, it probably belongs back in [Core](../core/README.md).
-- If the topic is about app boot/profile without network coordination, it probably belongs in [App](../app/README.md).
+- If the topic is about contracts or execution semantics without networking,
+  it probably belongs back in [Core](./core.md).
+- If the topic is about app boot/profile without network coordination, it
+  probably belongs in [App](./app.md).
 
 ## Direction
 
-If you want the current implemented state, start with [Cluster State Snapshot](./STATE_NEXT.md).
-If you want the development direction beyond that, continue to [Cluster Next](./ROADMAP_NEXT.md).
+If you want the current implemented state, start with
+[Cluster State Snapshot](../current/cluster-state.md). If you want the
+development direction beyond that, continue to
+[Cluster Roadmap](../current/cluster-roadmap.md).
 
 Current design direction:
 

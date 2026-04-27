@@ -25,7 +25,7 @@ distributed routing, it probably belongs above core.
 
 ## Reading Path
 
-- [Core](../core/README.md)
+- [Core](./core.md)
 - [Guide: API And Runtime](./api-and-runtime.md)
 - [Dev: Module System](../dev/module-system.md)
 

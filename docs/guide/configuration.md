@@ -5,17 +5,17 @@ layout, or persistence.
 
 ## Current Starting Points
 
-- [CLI](../CLI.md)
-- [Stacks Next](../STACKS_NEXT.md)
+- [CLI](./cli.md)
+- [Application Capsules](./application-capsules.md)
 - [Deployment Modes](./deployment-modes.md)
-- [App](../app/README.md)
+- [App](./app.md)
 
 ## Runtime And Deployment Reference
 
-- [Deployment v1](../DEPLOYMENT_V1.md)
-- [Server v1](../SERVER_V1.md)
-- [Store Adapters](../STORE_ADAPTERS.md)
-- [Stacks v1](../STACKS_V1.md)
+- [Deployment Modes](./deployment-modes.md)
+- [Store Adapters](./store-adapters.md)
+- [Application Capsules](./application-capsules.md)
+- [Legacy Reference](../dev/legacy-reference.md)
 
 ## Current Heuristic
 
@@ -25,6 +25,7 @@ layout, or persistence.
 
 ## Project Shapes
 
-- [Companion example](../../examples/companion/README.md)
 - [Examples](../../examples/README.md)
+- [Application Showcase Portfolio](./application-showcase-portfolio.md)
+- [Interactive App Structure](./interactive-app-structure.md)
 - [Playgrounds](../../playgrounds/README.md)

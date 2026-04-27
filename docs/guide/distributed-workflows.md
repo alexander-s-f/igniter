@@ -14,9 +14,9 @@ Distributed workflow concerns belong above the embedded kernel:
 
 ## Current Reading Path
 
-- [Cluster](../cluster/README.md)
-- [cluster/STATE_NEXT.md](../cluster/STATE_NEXT.md)
-- [cluster/ROADMAP_NEXT.md](../cluster/ROADMAP_NEXT.md)
+- [Cluster](./cluster.md)
+- [Cluster State Snapshot](../current/cluster-state.md)
+- [Cluster Roadmap](../current/cluster-roadmap.md)
 - [Guide: Deployment Modes](./deployment-modes.md)
 
 ## Historical Deep Reference

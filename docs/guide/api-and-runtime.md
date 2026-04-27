@@ -12,10 +12,10 @@ surface area.
 
 ## Layer Entry Points
 
-- [Core](../core/README.md)
-- [App](../app/README.md)
-- [Cluster](../cluster/README.md)
-- [SDK](../sdk/README.md)
+- [Core](./core.md)
+- [App](./app.md)
+- [Cluster](./cluster.md)
+- [SDK](./sdk.md)
 
 Operating modes to keep in mind:
 
@@ -29,8 +29,7 @@ Operating modes to keep in mind:
 - [Igniter Lang Foundation](./igniter-lang-foundation.md)
 - [Content Addressing v1](../CONTENT_ADDRESSING_V1.md) — legacy reference for the pre-contracts activation model
 - [Dataflow v1](../DATAFLOW_V1.md) — legacy reference for the pre-contracts activation model
-- [Store Adapters](../STORE_ADAPTERS.md)
-- [Server v1](../SERVER_V1.md)
+- [Store Adapters](./store-adapters.md)
 - [Deployment Modes](./deployment-modes.md)
 
 ## Package Quick Reference
@@ -38,9 +37,6 @@ Operating modes to keep in mind:
 Package-specific entrypoints live next to the owning gem:
 
 - [`packages/igniter-contracts/README.md`](../../packages/igniter-contracts/README.md)
-- [`packages/igniter-core/README.md`](../../packages/igniter-core/README.md)
-- [`packages/igniter-ai/README.md`](../../packages/igniter-ai/README.md)
-- [`packages/igniter-sdk/README.md`](../../packages/igniter-sdk/README.md)
-- [`packages/igniter-app/README.md`](../../packages/igniter-app/README.md)
-- [`packages/igniter-server/README.md`](../../packages/igniter-server/README.md)
+- [`packages/igniter-embed/README.md`](../../packages/igniter-embed/README.md)
+- [`packages/igniter-application/README.md`](../../packages/igniter-application/README.md)
 - [`packages/igniter-cluster/README.md`](../../packages/igniter-cluster/README.md)

@@ -54,7 +54,8 @@ Current loading guidance:
 - [Igniter Concepts](../concepts/igniter.md)
 - [Patterns](../concepts/patterns.md)
 - [Examples](../../examples/README.md)
-- [Companion example](../../examples/companion/README.md)
+- [Enterprise Verification](./enterprise-verification.md)
+- [Application Showcase Portfolio](./application-showcase-portfolio.md)
 
 ## Package-Level Docs
 
@@ -62,17 +63,12 @@ Package-specific quick reference should live next to the gem that owns the
 surface:
 
 - [`packages/igniter-contracts/README.md`](../../packages/igniter-contracts/README.md)
-- [`packages/igniter-core/README.md`](../../packages/igniter-core/README.md)
-- [`packages/igniter-ai/README.md`](../../packages/igniter-ai/README.md)
-- [`packages/igniter-sdk/README.md`](../../packages/igniter-sdk/README.md)
-- [`packages/igniter-app/README.md`](../../packages/igniter-app/README.md)
-- [`packages/igniter-server/README.md`](../../packages/igniter-server/README.md)
+- [`packages/igniter-embed/README.md`](../../packages/igniter-embed/README.md)
+- [`packages/igniter-application/README.md`](../../packages/igniter-application/README.md)
 - [`packages/igniter-cluster/README.md`](../../packages/igniter-cluster/README.md)
 - [`packages/igniter-web/README.md`](../../packages/igniter-web/README.md)
 - [`packages/igniter-extensions/README.md`](../../packages/igniter-extensions/README.md)
-- [`packages/igniter-rails/README.md`](../../packages/igniter-rails/README.md)
-- [`packages/igniter-frontend/README.md`](../../packages/igniter-frontend/README.md)
-- [`packages/igniter-schema-rendering/README.md`](../../packages/igniter-schema-rendering/README.md)
+- [`packages/igniter-mcp-adapter/README.md`](../../packages/igniter-mcp-adapter/README.md)
 
 Cross-package narratives and tutorials stay here in `docs/guide/`.
 
@@ -80,5 +76,6 @@ Cross-package narratives and tutorials stay here in `docs/guide/`.
 
 Older deep documents still exist, but they should usually be reached through the
 guide indexes above or the [legacy reference list](../dev/legacy-reference.md).
-`packages/igniter-core/README.md` should now be read as reference/compatibility
-material rather than the default path for new onboarding.
+Deprecated compatibility package docs should be reached through
+[Legacy Reference](../dev/legacy-reference.md), not used as the default path for
+new onboarding.

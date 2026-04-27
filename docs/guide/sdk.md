@@ -62,5 +62,6 @@ Do not put code in SDK when it is better described as:
 
 ## Practical Heuristic
 
-- If a feature must always exist for `require "igniter"`, it likely belongs in [Core](../core/README.md), not SDK.
+- If a feature must always exist for `require "igniter"`, it likely belongs in
+  [Core](./core.md), not SDK.
 - If a feature is reusable but optional across apps or clusters, SDK is usually the right home.

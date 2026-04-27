@@ -1,7 +1,8 @@
 # Frontend Components
 
-This guide shows how we write custom `Igniter::Frontend::Arbre` components
-today.
+This guide records the earlier Arbre component authoring direction. Current
+application/Web proof starts from `igniter-web` showcase surfaces and
+[Application Showcase Portfolio](./application-showcase-portfolio.md).
 
 If [Frontend Authoring](./frontend-authoring.md)
 explains how to build a page, this guide explains how to grow the component
@@ -26,8 +27,8 @@ The goal is to hide repeated semantics and repeated structure.
 
 ## Base API
 
-All custom Arbre components inherit from
-[Igniter::Frontend::Arbre::Component](/Users/alex/dev/projects/igniter/packages/igniter-frontend/lib/igniter/frontend/arbre/component.rb:1).
+Custom Arbre components inherit from a shared component base in the frontend
+authoring lane.
 
 That base class currently gives us a few important helpers:
 
@@ -43,7 +44,7 @@ This keeps individual components small and avoids repeating the same plumbing.
 
 The basic pattern is:
 
-1. define a class under `Igniter::Frontend::Arbre::Components`
+1. define a component class under the frontend authoring namespace
 2. register a `builder_method`
 3. implement `build`
 4. optionally override `tag_name`
@@ -95,11 +96,8 @@ This is the most important design choice.
 
 A primitive gives you reusable UI vocabulary.
 
-Examples already in the repo:
-
-- [panel.rb](/Users/alex/dev/projects/igniter/packages/igniter-frontend/lib/igniter/frontend/arbre/components/panel.rb:1)
-- [tabs.rb](/Users/alex/dev/projects/igniter/packages/igniter-frontend/lib/igniter/frontend/arbre/components/tabs.rb:1)
-- [resource_list.rb](/Users/alex/dev/projects/igniter/packages/igniter-frontend/lib/igniter/frontend/arbre/components/resource_list.rb:1)
+Examples from the earlier component lane include `panel`, `tabs`, and
+`resource_list`.
 
 Use a primitive when:
 
@@ -111,11 +109,8 @@ Use a primitive when:
 
 A domain component encodes product meaning, not just UI structure.
 
-Examples already in the repo:
-
-- [conversation_panel.rb](/Users/alex/dev/projects/igniter/packages/igniter-frontend/lib/igniter/frontend/arbre/components/conversation_panel.rb:1)
-- [topology_health_panel.rb](/Users/alex/dev/projects/igniter/playgrounds/home-lab/lib/home_lab/dashboard/views/components/topology_health_panel.rb:1)
-- [devices_panel.rb](/Users/alex/dev/projects/igniter/playgrounds/home-lab/lib/home_lab/dashboard/views/components/devices_panel.rb:1)
+Examples from earlier app-local component experiments include
+`conversation_panel`, `topology_health_panel`, and `devices_panel`.
 
 Use a domain component when:
 
@@ -135,8 +130,7 @@ that the template can call directly.
 
 ## Example: `panel`
 
-[panel.rb](/Users/alex/dev/projects/igniter/packages/igniter-frontend/lib/igniter/frontend/arbre/components/panel.rb:1)
-is a good reference for the “semantic primitive” style.
+`panel` is a good reference for the "semantic primitive" style.
 
 What it does well:
 
@@ -151,8 +145,7 @@ Arbre content into it.
 
 ## Example: `tabs`
 
-[tabs.rb](/Users/alex/dev/projects/igniter/packages/igniter-frontend/lib/igniter/frontend/arbre/components/tabs.rb:1)
-shows a slightly more stateful pattern.
+`tabs` shows a slightly more stateful pattern.
 
 It keeps internal state in `@tabs`, collects calls like `tab(...)`, and renders
 the final nav and panes after the block has finished.
@@ -171,8 +164,7 @@ Use this pattern for things like:
 
 ## Example: `resource_list`
 
-[resource_list.rb](/Users/alex/dev/projects/igniter/packages/igniter-frontend/lib/igniter/frontend/arbre/components/resource_list.rb:1)
-is intentionally tiny.
+`resource_list` is intentionally tiny.
 
 That is a feature, not a weakness.
 
@@ -428,7 +420,7 @@ When you notice repetition:
 
 1. extract a page helper first
 2. check whether the shape is app-specific or generic
-3. promote generic shapes into `Igniter::Frontend::Arbre::Components`
+3. promote generic shapes into the frontend component lane
 4. keep domain-heavy blocks in the app until reuse becomes real
 
 That gives us a clean path from:
@@ -442,6 +434,6 @@ without guessing too early.
 
 ## Related Docs
 
-- [Frontend Authoring](./FRONTEND_AUTHORING.md)
-- [igniter-frontend README](/Users/alex/dev/projects/igniter/packages/igniter-frontend/README.md)
-- [Schema Rendering Authoring](./SCHEMA_RENDERING_AUTHORING.md)
+- [Frontend Authoring](./frontend-authoring.md)
+- [igniter-web README](../../packages/igniter-web/README.md)
+- [Schema Rendering Authoring](./schema-rendering-authoring.md)
