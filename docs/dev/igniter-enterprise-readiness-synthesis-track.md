@@ -200,3 +200,78 @@ ready: `[Agent Web / Codex]`, `[Agent Contracts / Codex]`, and
   `[Research Horizon / Codex]` can land their synthesis sections; then
   `[Architect Supervisor / Codex]` can choose the next active track.
 block: none
+
+## Web Readiness Synthesis
+
+[Agent Web / Codex] Web/manual-review assessment:
+
+The Web-facing onboarding path is credible for enterprise evaluation if it is
+presented as an inspectable, one-process application review surface rather than
+as a production web framework. The portfolio guide now gives evaluators a
+clear map from each showcase to its mounted surface, top-level surface marker,
+`/events`, `/report` or `/receipt`, smoke command, and manual server command.
+
+Strong enough to present publicly:
+
+- Each richer showcase has one app-local mounted Arbre surface:
+  `:lense_dashboard`, `:decision_compass`, `:research_workspace`, and
+  `:command_center`.
+- Each surface reads one app-owned snapshot through `MountContext`, while
+  `app.rb` owns command routes, redirect feedback, `/events`, and the evidence
+  endpoint.
+- Manual review has stable inspection seams: `data-ig-poc-surface`,
+  `data-ig-feedback`, app-local `data-feedback-code`, app-local
+  `data-action`, domain record/counter markers, and `data-ig-activity`.
+- `/events` is a useful enterprise proof because it mirrors the same detached
+  read model as the HTML surface and keeps browser inspection tied to
+  deterministic state.
+- `/report` and `/receipt` endpoints expose app-owned artifacts without
+  pretending there is a shared report viewer or receipt API.
+- The guide explicitly says server mode is example scaffolding and that the
+  portfolio does not require browser automation, live transport, production
+  server behavior, auth, persistence, schedulers, connectors, or LLM/provider
+  integration.
+
+Still risky or confusing for enterprise evaluators:
+
+- The portfolio is manually inspectable, but there is no single documented
+  "open this, click this, expect this" browser review path per showcase.
+- Stable markers are documented as inspection seams, but evaluators may still
+  mistake them for a public marker DSL unless release/onboarding wording keeps
+  repeating "app-local".
+- The smoke output proves Web behavior, but the relationship between smoke
+  fragments, `/events` parity, feedback redirects, and mutation-boundary proof
+  is not yet summarized as one evaluator-facing verification receipt.
+- Manual server mode proves reviewability, not production readiness. That
+  boundary is currently clear in the portfolio guide, but it should be repeated
+  anywhere the examples are advertised.
+- Browser automation should remain optional. Making it default now would add
+  tool brittleness without increasing the core deterministic proof.
+
+Recommended next Web/application work:
+
+- Prefer a narrow "showcase verification hardening" track. Web acceptance
+  should include a compact evaluator verification path that ties together
+  smoke output, mounted surface marker, one success/refusal flow, `/events`
+  parity, evidence endpoint, and mutation-boundary marker for each showcase.
+- Design, but do not yet package, an examples/specs-scoped smoke helper for
+  repeated Rack env, form encoding, redirect following, response status,
+  marker assertion, endpoint parity, and file-signature checks.
+- Keep all Web vocabulary app-local: surface names, marker names, feedback
+  codes, action values, endpoint labels, panel grouping, and CSS direction.
+- Do not open a Web runtime/API track next. Defer marker DSL, route DSL, UI
+  kit, component DSL, screen compiler, generic report viewer, live transport,
+  browser automation default, production server behavior, auth, persistence,
+  scheduler, connectors, LLM/provider behavior, and cluster placement.
+
+[Agent Web / Codex]
+track: `docs/dev/igniter-enterprise-readiness-synthesis-track.md`
+status: landed
+delta: added Web/manual-review enterprise readiness synthesis covering public
+  strengths, evaluator confusion risks, verification hardening needs, and
+  deferred Web/runtime APIs.
+verify: `git diff --check` passed.
+ready: `[Agent Contracts / Codex]` and `[Research Horizon / Codex]` can land
+  their synthesis sections; then `[Architect Supervisor / Codex]` can choose
+  the next active track.
+block: none

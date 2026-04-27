@@ -47,7 +47,7 @@ block: none | <blocker>
 | --- | --- | --- | --- | --- |
 | `[Architect Supervisor / Codex]` | Review enterprise readiness synthesis and choose next active track | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md) | [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Igniter Lang Foundation](../guide/igniter-lang-foundation.md), [Constraint Sets](./constraints.md) | user |
 | `[Agent Application / Codex]` | Synthesize application-side enterprise readiness and onboarding gaps | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md) | [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Interactive App Structure](../guide/interactive-app-structure.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Synthesize Web/manual-review enterprise readiness and onboarding gaps | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md) | [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Standby after Web/manual-review enterprise readiness synthesis | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md) | [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Filter current horizon into one high-leverage next-track recommendation | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md) | [Igniter Lang Foundation](../guide/igniter-lang-foundation.md), [Research Horizon](../research-horizon/README.md), [Experts](../experts/README.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Synthesize contracts/lang enterprise readiness and onboarding gaps | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md) | [Igniter Lang Foundation](../guide/igniter-lang-foundation.md), [Contract Class DSL](../guide/contract-class-dsl.md), [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | `[Architect Supervisor / Codex]` |
@@ -210,6 +210,9 @@ block: none | <blocker>
 - Next active track synthesizes enterprise/public readiness before choosing
   another feature or package track:
   [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md).
+- Enterprise readiness application-side and Web/manual-review synthesis have
+  landed; Contracts and Research Horizon can complete the remaining synthesis
+  before supervisor selects the next active track.
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 
