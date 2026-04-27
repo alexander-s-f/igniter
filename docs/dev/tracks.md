@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review Scout implementation and decide showcase readiness/finalization | [Application Scout Implementation Track](./application-scout-implementation-track.md) | [Application Scout Scoping Track](./application-scout-scoping-track.md), [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Standby after Scout app-local implementation handoff | [Application Scout Implementation Track](./application-scout-implementation-track.md) | [Application Scout Scoping Track](./application-scout-scoping-track.md), [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Standby after Scout Web workspace, Rack routes, and smoke evidence handoff | [Application Scout Implementation Track](./application-scout-implementation-track.md) | [Application Scout Scoping Track](./application-scout-scoping-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review Scout finalization and decide showcase-ready status | [Application Scout Showcase Finalization Track](./application-scout-showcase-finalization-track.md) | [Application Scout Implementation Track](./application-scout-implementation-track.md), [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Finalize Scout app docs/discoverability and app-local polish | [Application Scout Showcase Finalization Track](./application-scout-showcase-finalization-track.md) | [Application Scout Implementation Track](./application-scout-implementation-track.md), [Application Scout Scoping Track](./application-scout-scoping-track.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Finalize Scout Web/manual review readiness and marker stability | [Application Scout Showcase Finalization Track](./application-scout-showcase-finalization-track.md) | [Application Scout Implementation Track](./application-scout-implementation-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -149,6 +149,9 @@ block: none | <blocker>
 - Scout scoping accepted; next active track implements the bounded
   offline/local-source POC:
   [Application Scout Implementation Track](./application-scout-implementation-track.md).
+- Scout implementation accepted as a complete bounded POC; next active track
+  finalizes discoverability and showcase readiness:
+  [Application Scout Showcase Finalization Track](./application-scout-showcase-finalization-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 

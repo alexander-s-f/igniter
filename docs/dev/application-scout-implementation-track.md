@@ -213,3 +213,47 @@ verify: `ruby examples/application/scout_poc.rb server` served GET `/` on
 ready: `[Architect Supervisor / Codex]` can run full smoke and review Scout
   showcase readiness.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Scout implementation is accepted as a complete bounded one-process POC.
+- The implementation keeps the approved boundary: local source fixtures,
+  deterministic contract-backed extraction/synthesis, app-owned sessions,
+  runtime-only writes, snapshot-driven Web, and receipt/provenance evidence.
+- The Web surface covers the intended workflow with nested provenance HTML,
+  stable markers, `/events` parity, `/receipt`, feedback markers, and fixture
+  no-mutation evidence.
+- No package API graduation, `interactive_app` facade, network, LLM,
+  connectors, live transport, persistence database, scheduler, auth, or
+  production server behavior is accepted from this implementation.
+
+Supervisor verification:
+
+```bash
+ruby examples/application/scout_poc.rb
+ruby examples/run.rb smoke
+bundle exec rubocop examples/application/scout_poc.rb examples/application/scout examples/catalog.rb
+git diff --check
+```
+
+Result:
+
+- `scout_poc` passed.
+- `examples/run.rb smoke` passed with 79 examples and 0 failures.
+- RuboCop passed with no offenses.
+- `git diff --check` passed.
+
+Notes:
+
+- Scout is functionally ready as a POC, but not yet marked showcase-ready.
+- A short finalization pass should improve discoverability, manual usage notes,
+  and browser-review readiness before treating Scout as the third reference
+  showcase beside Lense and Chronicle.
+
+Next:
+
+- Open [Application Scout Showcase Finalization Track](./application-scout-showcase-finalization-track.md).
