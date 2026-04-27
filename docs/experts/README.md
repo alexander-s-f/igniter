@@ -31,6 +31,7 @@ Perspective: external expert in distributed interactive agent systems.
 | [igniter-lang/igniter-lang-precomp.md](igniter-lang/igniter-lang-precomp.md) · [ru](igniter-lang/igniter-lang-precomp.ru.md) | Probabilistic pre-computation — two-level evaluation, decision-directed lazy computation, lifted operations taxonomy, backward precision propagation through contract graphs |
 | [igniter-lang/igniter-lang-propmodel.md](igniter-lang/igniter-lang-propmodel.md) · [ru](igniter-lang/igniter-lang-propmodel.ru.md) | Property models and algorithm synthesis — four-level architecture (ontology→model→contract→execution), synthesis boundary, LLM-compiler verification loop, SIR at MDL bound |
 | [igniter-lang/igniter-lang-theory2.md](igniter-lang/igniter-lang-theory2.md) · [ru](igniter-lang/igniter-lang-theory2.ru.md) | Synthesis theoretical foundations — decidability proof (Horn Datalog PTIME), soundness (Hoare/wp), completeness (Herbrand), EL DL, stratified negation, situation calculus, refinement types; main theorem + 5 open problems |
+| [igniter-lang/igniter-lang-spec.md](igniter-lang/igniter-lang-spec.md) · [ru](igniter-lang/igniter-lang-spec.ru.md) | Language specification v0.1 — type system (primitives, compounds, `~T`, effects), 12 node constructs with formal type rules, contract signature, annotation system, fn declarations, complete grammar BNF, worked FulfillOrder/ProcessOrder example, compile-time guarantee table |
 
 ## Expert Documentation Rules
 
