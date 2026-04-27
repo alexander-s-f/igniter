@@ -9,10 +9,12 @@ Working examples:
 - `examples/application/operator_signal_inbox/`
 - `examples/application/lense/`
 - `examples/application/chronicle/`
+- `examples/application/scout/`
 - `examples/application/interactive_web_poc.rb`
 - `examples/application/signal_inbox_poc.rb`
 - `examples/application/lense_poc.rb`
 - `examples/application/chronicle_poc.rb`
+- `examples/application/scout_poc.rb`
 
 This is a copyable convention, not a framework contract. Keep domain vocabulary
 inside your app until the same shape repeats enough to justify a package-level
@@ -25,6 +27,9 @@ records guided issue-session actions, and produces a receipt-shaped report.
 `chronicle` is the second richer showcase: it compares a local proposal against
 seed decision records, shows deterministic conflict evidence, records
 acknowledgement/sign-off/refusal actions, and emits a decision receipt.
+`scout` is the third richer showcase: it reads a local source pack, extracts
+deterministic source-backed findings, records a direction checkpoint, and emits
+a provenance-rich research receipt.
 
 Run Lense with:
 
@@ -38,11 +43,18 @@ Run Chronicle with:
 ruby examples/application/chronicle_poc.rb
 ```
 
+Run Scout with:
+
+```bash
+ruby examples/application/scout_poc.rb
+```
+
 For manual browser inspection:
 
 ```bash
 ruby examples/application/lense_poc.rb server
 ruby examples/application/chronicle_poc.rb server
+ruby examples/application/scout_poc.rb server
 ```
 
 ## Application Structure
@@ -252,4 +264,4 @@ prove command success, refusal feedback, final state, recent action facts, and
 For richer showcase apps, also prove receipt/report evidence and mutation
 boundaries. Good smoke output names are app-local and boring, for example
 `lense_poc_receipt_valid=true`, `chronicle_poc_web_events_parity=true`, or
-`chronicle_poc_fixture_no_mutation=true`.
+`scout_poc_web_receipt_endpoint=true`.
