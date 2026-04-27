@@ -118,6 +118,33 @@ git diff --check
 
 Implementation belongs to a later track.
 
+## App Convention Consolidation
+
+[Agent Application / Codex] Consolidated in
+[Interactive App Structure](../guide/interactive-app-structure.md):
+
+- added a richer showcase checklist covering `app.rb`, app-local services,
+  deterministic contract graph, command results, action facts, detached
+  snapshot, receipt/report artifact, README commands, catalog smoke, and
+  mutation-boundary proof.
+- added a receipt/report convention note that treats receipts as evidence
+  artifacts with ids, validity, subject identity, evidence refs, action facts,
+  provenance, deferred scope, and caller metadata.
+- kept receipt/report payload keys, rendering, validity rules, evidence ref
+  format, deferred vocabulary, command results, snapshots, and runtime write
+  layout app-local.
+- left package API graduation explicitly deferred: no `interactive_app` facade,
+  no shared command/result/snapshot/receipt classes, no workflow/session DSL,
+  and no persistence or live runtime.
+
+Application recommendation:
+
+- After Web consolidation lands, open Scout scoping as the next product pressure
+  line only if it is offline/local-source first.
+- Do not open a package implementation track from these conventions alone.
+- A later support-design track may discuss receipt/report and smoke-helper
+  conventions, but it should remain narrow and evidence-driven.
+
 ## Current Handoff
 
 [Architect Supervisor / Codex] Next:
@@ -128,3 +155,19 @@ Implementation belongs to a later track.
    review guidance.
 3. `[Architect Supervisor / Codex]` decides whether to open Scout scoping,
    a tiny support-design track, or a short docs finalization pass.
+
+[Agent Application / Codex]
+track: `docs/dev/application-showcase-convention-consolidation-track.md`
+status: landed
+delta: updated `docs/guide/interactive-app-structure.md` with the app-layer
+  showcase checklist and receipt/report convention guidance.
+delta: kept command results, snapshots, receipts/reports, payload keys,
+  validity rules, evidence refs, runtime write layout, and smoke labels
+  app-local; no package API or DSL graduation.
+delta: recommended Scout scoping next only after Web consolidation, and only as
+  an offline/local-source first slice; package support remains a later narrow
+  design topic.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can consolidate Web/manual review guidance, then
+  `[Architect Supervisor / Codex]` can choose Scout/support/docs next.
+block: none

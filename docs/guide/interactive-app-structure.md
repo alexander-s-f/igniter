@@ -87,6 +87,54 @@ Keep these local for now:
 - command parameters
 - counters and status labels
 
+## Showcase Checklist
+
+Use this checklist when an example is meant to be a serious one-process
+showcase, not only a small interaction pressure test.
+
+- Keep `app.rb` as the visible composition boundary.
+- Put domain state and commands in app-local services.
+- Add one deterministic contracts-native graph for the core analysis or
+  readiness computation.
+- Keep the contract graph offline: no network, LLM provider, scheduler, file
+  watcher, database, or external mutation in the first slice.
+- Return app-local command results for success and refusal paths.
+- Record action facts at the command boundary.
+- Expose one detached snapshot for Web rendering, `/events`, and smoke
+  inspection.
+- Emit one app-local receipt/report artifact when the workflow reaches a useful
+  checkpoint.
+- Document smoke usage and optional manual server usage in the app README.
+- Register a catalog smoke entry only when the run is deterministic and fast.
+- Prove the mutation boundary: either no target mutation, or runtime writes only
+  in an explicit workdir.
+
+## Receipt/Report Convention
+
+Receipts and reports are evidence artifacts, not a shared framework class. Lense
+and Chronicle both prove the shape, but their payloads remain domain-specific.
+
+Include these ideas when useful:
+
+- stable receipt/report id
+- kind, validity, and generated timestamp
+- subject identity such as scan id, proposal id, session id, or project label
+- evidence refs back to files, decisions, findings, sources, or sections
+- compact action facts relevant to the artifact
+- provenance for input files, target roots, fixture paths, or contract version
+- skipped/deferred scope such as no LLM, no scheduler, or no external mutation
+- metadata supplied by the caller or inspection endpoint
+
+Keep these local for now:
+
+- receipt/report class names
+- payload keys and nested shapes
+- Markdown versus hash rendering
+- validity rules
+- evidence reference format
+- deferred item vocabulary
+- runtime write layout
+
 ## Web Structure
 
 Use one mounted web surface for the screen.
@@ -132,3 +180,8 @@ Keep marker vocabulary local for now.
 Add a runnable launcher and catalog smoke entry for each app. The smoke should
 prove command success, refusal feedback, final state, recent action facts, and
 `/events` parity with the snapshot used by the web surface.
+
+For richer showcase apps, also prove receipt/report evidence and mutation
+boundaries. Good smoke output names are app-local and boring, for example
+`lense_poc_receipt_valid=true`, `chronicle_poc_web_events_parity=true`, or
+`chronicle_poc_fixture_no_mutation=true`.
