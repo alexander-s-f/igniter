@@ -171,3 +171,24 @@ ready: `[Agent Contracts / Codex]` can add contracts/lang verification details;
   `[Research Horizon / Codex]` can filter for overclaiming; then
   `[Architect Supervisor / Codex]` can review the enterprise receipt.
 block: none
+
+[Agent Contracts / Codex]
+track: `docs/dev/enterprise-verification-receipt-hardening-track.md`
+status: landed
+delta: updated `docs/guide/enterprise-verification.md` with the contracts/lang
+  verification path, canonical package/root spec command, focused contracts
+  example commands, class DSL, Embed pressure, StepResultPack, Lang foundation,
+  and changed-file RuboCop caveat.
+delta: updated `examples/README.md` with focused contracts/lang evaluator
+  checks.
+delta: kept Lang wording explicit: descriptors and metadata manifests are
+  declared/report-only, and `type:`, `return_type:`, `deadline:`, and `wcet:`
+  do not imply runtime checks, warnings, findings, deadline monitoring, store
+  behavior, or `ExecutionResult` changes.
+verify: `git diff --check` passed; focused contracts/lang examples passed:
+  `contracts/class_pricing`, `contracts/class_callable`,
+  `contracts/embed_class_registration`, `contracts/contractable_shadow`,
+  `contracts/step_result`, and `contracts/lang_foundation`.
+ready: `[Research Horizon / Codex]` can filter for overclaiming; then
+  `[Architect Supervisor / Codex]` can review the enterprise receipt.
+block: none

@@ -44,6 +44,17 @@ ruby examples/run.rb run application/scout_poc
 ruby examples/run.rb run application/dispatch_poc
 ```
 
+The focused contracts/lang checks are:
+
+```bash
+ruby examples/run.rb run contracts/class_pricing
+ruby examples/run.rb run contracts/class_callable
+ruby examples/run.rb run contracts/embed_class_registration
+ruby examples/run.rb run contracts/contractable_shadow
+ruby examples/run.rb run contracts/step_result
+ruby examples/run.rb run contracts/lang_foundation
+```
+
 ## Active Example Lane
 
 Active runnable examples live in `examples/application/`, `examples/contracts/`, and `examples/cluster/`:

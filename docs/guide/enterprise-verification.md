@@ -6,10 +6,23 @@ Igniter story.
 The current enterprise proof is intentionally narrow:
 
 - run deterministic in-process smoke commands
+- run contracts package specs for the lower-layer kernel
 - inspect flagship application receipts/reports and mutation boundaries
+- inspect contracts/lang examples for class DSL, Embed pressure, optional
+  packs, and report-only metadata
 - review mounted Web surfaces manually when needed
 - keep production server, auth, persistence, live transport, cluster placement,
   connectors, and LLM/provider behavior out of the verified claim
+
+## Canonical Command Matrix
+
+| Layer | Command | What it proves |
+| --- | --- | --- |
+| Contracts package | `bundle exec rspec packages/igniter-contracts/spec spec/current` | The contracts kernel, packs, class DSL, Lang specs, and current root integration specs pass together. |
+| Active examples | `ruby examples/run.rb smoke` | The active contracts-native examples and flagship applications emit expected deterministic smoke fragments. |
+| Flagship apps | `ruby examples/run.rb run application/lense_poc` and the Chronicle, Scout, Dispatch equivalents below | The richer one-process application portfolio proves command/refusal loops, read-model parity, evidence artifacts, and mutation boundaries. |
+| Lang foundation | `ruby examples/run.rb run contracts/lang_foundation` | The additive Lang wrapper compiles/executes through contracts and reports declared metadata without enforcement. |
+| Changed-file lint | `bundle exec rubocop <changed files>` | Narrow changes respect current style. Full RuboCop currently includes pre-existing archived/research offenses, so changed-file lint is the practical gate for focused slices. |
 
 ## Flagship Application Verification
 
@@ -106,6 +119,54 @@ top-level surface marker, success feedback, refusal feedback, recent activity,
 target mutation. These checks use app-local `data-` attributes as inspection
 seams; they are not a marker DSL or component API.
 
+## Contracts And Lang Verification
+
+Contracts are the lower-layer proof under the application portfolio. Start with
+the package/root spec command:
+
+```bash
+bundle exec rspec packages/igniter-contracts/spec spec/current
+```
+
+Then inspect the focused contracts examples:
+
+```bash
+ruby examples/run.rb run contracts/class_pricing
+ruby examples/run.rb run contracts/class_callable
+ruby examples/run.rb run contracts/embed_class_registration
+ruby examples/run.rb run contracts/contractable_shadow
+ruby examples/run.rb run contracts/step_result
+ruby examples/run.rb run contracts/lang_foundation
+```
+
+| Proof | Command | Receipt evidence |
+| --- | --- | --- |
+| Block/kernel contracts | `bundle exec rspec packages/igniter-contracts/spec spec/current` and `ruby examples/run.rb smoke` | Baseline graph declaration, compilation, execution, diagnostics, packs, and current root integration specs pass. |
+| Class DSL | `ruby examples/run.rb run contracts/class_pricing` and `contracts/class_callable` | Human-edited contract classes expose result readers, input updates, and callable service object steps while still executing through `igniter-contracts`. |
+| Embed pressure | `ruby examples/run.rb run contracts/embed_class_registration` and `contracts/contractable_shadow` | Host registration and shadow comparison stay host-owned; contract classes expose graphs without taking over naming, reload, cache, rollout, or failure-envelope policy. |
+| StepResultPack | `ruby examples/run.rb run contracts/step_result` | Optional `step` nodes produce fail-fast dependency short-circuiting and a serializable trace without changing the ordinary `compute` path. |
+| Lang foundation | `ruby examples/run.rb run contracts/lang_foundation` | `require "igniter/lang"` loads the Ruby backend wrapper, descriptors survive as metadata, `VerificationReport` is inspectable, and `MetadataManifest` reports declared metadata as not enforced. |
+
+The contracts receipt should support this decision path:
+
+- Use the block API for low-level embedding, generated graphs, and package
+  tests.
+- Use `Igniter::Contract` class DSL for human-edited application contract
+  files.
+- Let Embed hosts own registration, discovery, reload, caching, rollout, and
+  failure envelopes.
+- Use optional packs, such as `StepResultPack`, for semantics that are useful
+  but not baseline.
+- Use `Igniter::Lang` as an additive reference/report surface, not as a
+  separate runtime.
+
+Lang wording is deliberately strict. Descriptors and metadata manifests are
+declared/report-only unless a future runtime semantics track explicitly
+accepts enforcement. In the current receipt, `type:`, `return_type:`,
+`deadline:`, and `wcet:` are visible in reports; they do not create type
+checks, warnings, findings, deadline monitoring, store behavior, or
+`ExecutionResult` changes.
+
 ## Smoke Helper Boundary
 
 The flagship apps repeat smoke mechanics such as Rack env construction, form
@@ -122,4 +183,5 @@ DSLs, route DSLs, UI components, or browser automation.
 
 - [Application Showcase Portfolio](./application-showcase-portfolio.md)
 - [Interactive App Structure](./interactive-app-structure.md)
+- [Contract Class DSL](./contract-class-dsl.md)
 - [Igniter Lang Foundation](./igniter-lang-foundation.md)
