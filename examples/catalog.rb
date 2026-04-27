@@ -740,6 +740,42 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/scout_poc",
+      "One-process Scout local-source research POC core with provenance receipt evidence.",
+      expected_fragments: [
+        "scout_poc_blank_topic=scout_blank_topic",
+        "scout_poc_no_sources=scout_no_sources",
+        "scout_poc_unknown_source=scout_unknown_source",
+        "scout_poc_start=scout_session_started",
+        "scout_poc_session_id=true",
+        "scout_poc_topic=How should engineering teams adopt AI coding assistants?",
+        "scout_poc_sources=4",
+        "scout_poc_extract=scout_findings_extracted",
+        "scout_poc_findings_initial=6",
+        "scout_poc_contradictions_initial=1",
+        "scout_poc_receipt_not_ready=scout_receipt_not_ready",
+        "scout_poc_invalid_checkpoint=scout_invalid_checkpoint",
+        "scout_poc_add_source=scout_local_source_added",
+        "scout_poc_reextract=scout_findings_extracted",
+        "scout_poc_checkpoint=scout_checkpoint_chosen",
+        "scout_poc_checkpoint_choice=balanced",
+        "scout_poc_status=complete",
+        "scout_poc_findings=8",
+        "scout_poc_contradictions=1",
+        "scout_poc_top_finding=finding-1",
+        "scout_poc_top_source=SRC-001#p1",
+        "scout_poc_receipt=scout_receipt_emitted",
+        "scout_poc_receipt_id=scout-receipt:scout-session-how-should-engineering-teams-adopt-ai-coding-assistants",
+        "scout_poc_receipt_valid=true",
+        "scout_poc_receipt_citation=true",
+        "scout_poc_events=topic=How should engineering teams adopt AI coding assistants?",
+        "scout_poc_action_count=16",
+        "scout_poc_fixture_no_mutation=true",
+        "scout_poc_runtime_sessions=1",
+        "scout_poc_runtime_receipts=1"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [

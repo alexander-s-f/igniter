@@ -1,0 +1,5 @@
+{
+  "default_topic": "How should engineering teams adopt AI coding assistants?",
+  "default_sources": ["SRC-001", "SRC-002", "SRC-003"],
+  "optional_sources": ["SRC-004"]
+}
