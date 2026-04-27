@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review Scout finalization and decide showcase-ready status | [Application Scout Showcase Finalization Track](./application-scout-showcase-finalization-track.md) | [Application Scout Implementation Track](./application-scout-implementation-track.md), [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Standby after Scout app docs/discoverability finalization | [Application Scout Showcase Finalization Track](./application-scout-showcase-finalization-track.md) | [Application Scout Implementation Track](./application-scout-implementation-track.md), [Application Scout Scoping Track](./application-scout-scoping-track.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Standby after Scout Web/manual review finalization | [Application Scout Showcase Finalization Track](./application-scout-showcase-finalization-track.md) | [Application Scout Implementation Track](./application-scout-implementation-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review updated showcase portfolio and choose next strategic line | [Application Showcase Portfolio Update Track](./application-showcase-portfolio-update-track.md) | [Application Scout Showcase Finalization Track](./application-scout-showcase-finalization-track.md), [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Update app-layer portfolio evidence across Lense, Chronicle, and Scout | [Application Showcase Portfolio Update Track](./application-showcase-portfolio-update-track.md) | [Application Scout Showcase Finalization Track](./application-scout-showcase-finalization-track.md), [Application Chronicle Showcase Finalization Track](./application-chronicle-showcase-finalization-track.md), [Application Lense Showcase Finalization Track](./application-lense-showcase-finalization-track.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Update Web/read-model portfolio evidence across Lense, Chronicle, and Scout | [Application Showcase Portfolio Update Track](./application-showcase-portfolio-update-track.md) | [Application Scout Showcase Finalization Track](./application-scout-showcase-finalization-track.md), [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -152,6 +152,10 @@ block: none | <blocker>
 - Scout implementation accepted as a complete bounded POC; next active track
   finalizes discoverability and showcase readiness:
   [Application Scout Showcase Finalization Track](./application-scout-showcase-finalization-track.md).
+- Scout accepted as showcase-ready beside Lense and Chronicle.
+- Next active track updates the showcase portfolio and chooses the next
+  strategic line:
+  [Application Showcase Portfolio Update Track](./application-showcase-portfolio-update-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 

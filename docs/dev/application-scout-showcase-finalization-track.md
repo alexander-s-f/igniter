@@ -174,3 +174,45 @@ verify: `ruby examples/application/scout_poc.rb server` served GET `/` on
 ready: `[Architect Supervisor / Codex]` can decide whether Scout is
   showcase-ready beside Lense and Chronicle.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Scout is showcase-ready as the third bounded one-process reference app.
+- The finalization pass improved discoverability and manual review readiness
+  without widening scope or promoting app-local patterns into package APIs.
+- Scout now complements Lense and Chronicle:
+  Lense stresses codebase analysis and guided remediation sessions; Chronicle
+  stresses decision evidence and sign-off receipts; Scout stresses
+  reproducible local-source research, checkpoint choice, citations, and
+  provenance receipts.
+- The app-local boundary remains correct: fixtures are read-only, runtime
+  writes stay in the workdir, contracts compute deterministic synthesis, and
+  Web consumes snapshots plus stable markers.
+
+Supervisor verification:
+
+```bash
+ruby examples/application/scout_poc.rb
+ruby examples/run.rb run application/scout_poc
+ruby examples/run.rb smoke
+bundle exec rubocop examples/application/scout_poc.rb examples/application/scout examples/catalog.rb
+git diff --check
+```
+
+Result:
+
+- `scout_poc` passed.
+- `examples/run.rb run application/scout_poc` passed.
+- `examples/run.rb smoke` passed with 79 examples and 0 failures.
+- RuboCop passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Open [Application Showcase Portfolio Update Track](./application-showcase-portfolio-update-track.md)
+  to synthesize Lense, Chronicle, and Scout together before selecting the next
+  strategic line.
