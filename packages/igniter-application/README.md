@@ -36,6 +36,7 @@ Primary API:
 - `Igniter::Application::CredentialStore`
 - `Igniter::Application::MissingCredentialError`
 - `Igniter::Application::AIRegistry`
+- `Igniter::Application::AgentRegistry`
 
 AI providers are configured at the application layer and resolved through the
 environment. Applications declare intent; provider-specific client construction
@@ -52,6 +53,24 @@ environment = Igniter::Application.build_kernel
                                   .then { |kernel| Igniter::Application::Environment.new(profile: kernel.finalize) }
 
 client = environment.ai_client(:openai)
+```
+
+Agents are configured the same way: applications declare named assistants,
+while `igniter-agents` owns run/turn/trace state.
+
+```ruby
+environment = Igniter::Application.build_kernel
+                                  .ai do
+                                    provider :summary, :fake, text: "Ready."
+                                  end
+                                  .agents do
+                                    assistant :daily_companion,
+                                              ai: :summary,
+                                              instructions: "Give one next action."
+                                  end
+                                  .then { |kernel| Igniter::Application::Environment.new(profile: kernel.finalize) }
+
+run = environment.agent(:daily_companion).run(input: "Two reminders are open.")
 ```
 
 Credentials are app runtime configuration for secrets such as API keys. They

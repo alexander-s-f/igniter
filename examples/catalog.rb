@@ -606,7 +606,8 @@ module IgniterExamples
         "companion_poc_setup_redacted=true",
         "companion_poc_web_surface=true",
         "companion_poc_capsules=true",
-        "companion_poc_events_parity=true"
+        "companion_poc_events_parity=true",
+        "companion_poc_agent_capability=true"
       ]
     ),
     example(

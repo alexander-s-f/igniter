@@ -18,6 +18,7 @@ PATH
   remote: packages/igniter-application
   specs:
     igniter-application (0.5.1)
+      igniter-agents (= 0.5.1)
       igniter-ai (= 0.5.1)
       igniter-contracts (= 0.5.1)
       igniter-extensions (= 0.5.1)

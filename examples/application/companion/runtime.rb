@@ -93,6 +93,7 @@ module Companion
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_events_parity=#{events.include?("tracker_logs=#{final.tracker_logs_today}")}"
+      out.puts "companion_poc_agent_capability=#{app.environment.agent_names.include?(:daily_companion)}"
     end
 
     def post(app, path, values = {})

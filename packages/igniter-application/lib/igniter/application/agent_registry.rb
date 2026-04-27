@@ -2,24 +2,23 @@
 
 module Igniter
   module Application
-    class AIRegistry
-      attr_reader :definitions, :credentials
+    class AgentRegistry
+      attr_reader :definitions, :ai_registry
 
-      def initialize(definitions:, credentials:)
+      def initialize(definitions:, ai_registry:)
         @definitions = definitions.each_with_object({}) do |definition, memo|
           memo[definition.name] = definition
         end.freeze
-        @credentials = credentials
-        @clients = {}
+        @ai_registry = ai_registry
+        @runtimes = {}
       end
 
-      def client(name = :default)
+      def runtime(name)
         key = name.to_sym
-        @clients[key] ||= definitions.fetch(key).build_client(credentials: credentials)
-      end
-
-      def definition(name = :default)
-        definitions.fetch(name.to_sym)
+        @runtimes[key] ||= AgentRuntime.new(
+          definition: definitions.fetch(key),
+          ai_registry: ai_registry
+        )
       end
 
       def names

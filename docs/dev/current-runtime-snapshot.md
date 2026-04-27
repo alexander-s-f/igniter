@@ -15,7 +15,8 @@ This snapshot describes the current public package graph and proof surface.
 - `igniter-ai`: provider-neutral AI execution, request/response envelopes,
   fake/live/recorded provider modes, and response normalization.
 - `igniter-agents`: minimal agent definitions, runs, turns, traces, tool-call
-  evidence, and single-turn assistant execution over `igniter-ai`.
+  evidence, single-turn assistant execution over `igniter-ai`, and
+  application-level agent DSL wiring.
 - `igniter-web`: mounted web surfaces over explicit application snapshots.
 - `igniter-cluster`: distributed planning, routing, and mesh execution layer.
 - `igniter-mcp-adapter`: transport-facing adapter for MCP tool catalogs and

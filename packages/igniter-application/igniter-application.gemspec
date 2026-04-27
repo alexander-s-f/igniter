@@ -24,4 +24,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "igniter-contracts", Igniter::VERSION
   spec.add_dependency "igniter-extensions", Igniter::VERSION
   spec.add_dependency "igniter-ai", Igniter::VERSION
+  spec.add_dependency "igniter-agents", Igniter::VERSION
 end

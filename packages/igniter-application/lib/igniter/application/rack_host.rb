@@ -34,7 +34,7 @@ module Igniter
 
       class Builder
         attr_reader :name, :root, :env, :metadata, :service_factories, :routes, :web_mounts,
-                    :credential_definitions, :ai_block
+                    :credential_definitions, :ai_block, :agents_block
 
         def initialize(name, root:, env:, metadata:)
           @name = name.to_sym
@@ -46,6 +46,7 @@ module Igniter
           @web_mounts = []
           @credential_definitions = []
           @ai_block = nil
+          @agents_block = nil
         end
 
         def service(name, callable = nil, metadata: {}, &block)
@@ -91,6 +92,13 @@ module Igniter
           self
         end
 
+        def agents(&block)
+          raise ArgumentError, "agents requires a block" unless block
+
+          @agents_block = block
+          self
+        end
+
         def get(path, &block)
           route("GET", path, &block)
         end
@@ -104,6 +112,7 @@ module Igniter
           kernel = Kernel.new
           kernel.manifest(name, root: root, env: env, metadata: metadata)
           kernel.ai(&ai_block) if ai_block
+          kernel.agents(&agents_block) if agents_block
           credential_definitions.each do |definition|
             kernel.credential(
               definition.fetch(:name),

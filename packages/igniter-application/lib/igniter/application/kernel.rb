@@ -12,7 +12,7 @@ module Igniter
                   :scheduled_jobs, :mounts, :code_paths, :host_seam, :loader_seam, :scheduler_seam,
                   :session_store_seam, :config_builder, :application_name, :application_root,
                   :application_env, :application_layout, :application_metadata,
-                  :credential_definitions, :ai_provider_definitions
+                  :credential_definitions, :ai_provider_definitions, :agent_definitions
 
       def initialize(contracts_kernel: Igniter::Contracts.build_kernel)
         @contracts_kernel = contracts_kernel
@@ -34,6 +34,7 @@ module Igniter
         @config_builder = ConfigBuilder.new
         @credential_definitions = {}
         @ai_provider_definitions = {}
+        @agent_definitions = {}
         @host_name = :embedded
         @loader_name = :manual
         @scheduler_name = :manual
@@ -204,6 +205,15 @@ module Igniter
         self
       end
 
+      def agents(&block)
+        raise ArgumentError, "agents requires a block" unless block
+
+        builder = AgentsBuilder.new
+        builder.instance_eval(&block)
+        @agent_definitions.merge!(builder.definitions)
+        self
+      end
+
       def schedule(name, every:, at: nil, &block)
         raise ArgumentError, "schedule requires a block" unless block
 
@@ -308,6 +318,7 @@ module Igniter
           config: config_builder.to_config,
           providers: providers,
           ai_providers: ai_provider_definitions.values,
+          agents: agent_definitions.values,
           credentials: CredentialStore.new(definitions: credential_definitions.values),
           services: services,
           service_definitions: service_definitions,

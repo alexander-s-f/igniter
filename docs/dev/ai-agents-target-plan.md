@@ -129,8 +129,9 @@ Acceptance:
 
 ## Second Implementation Slice
 
-Status: minimal package skeleton landed; memory, handoff, human gates, and
-contracts-first tool execution are still next.
+Status: minimal package skeleton and application-level agent DSL landed;
+memory, handoff, human gates, and contracts-first tool execution are still
+next.
 
 1. Create `packages/igniter-agents` around minimal agent run state.
 2. Treat tools as contracts-first callables.

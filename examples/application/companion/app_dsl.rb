@@ -17,6 +17,13 @@ module Companion
       ai do
         provider :openai, credential: :openai_api_key, model: config.llm_model
       end
+
+      agents do
+        assistant :daily_companion,
+                  ai: :openai,
+                  instructions: "Give one concise practical next action for the Companion user.",
+                  capsule: :daily_summary
+      end
     end
 
     def companion_store(config)

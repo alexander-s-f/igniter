@@ -109,6 +109,14 @@ module Igniter
         profile.ai_provider_names
       end
 
+      def agent(name)
+        profile.agent(name)
+      end
+
+      def agent_names
+        profile.agent_names
+      end
+
       def mount(name)
         profile.mount(name)
       end

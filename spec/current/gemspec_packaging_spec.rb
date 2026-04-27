@@ -45,7 +45,7 @@ RSpec.describe "gemspec packaging" do
     spec = load_gemspec("packages/igniter-application/igniter-application.gemspec")
 
     dependency_names = spec.dependencies.select { |dependency| dependency.type == :runtime }.map(&:name)
-    expect(dependency_names).to eq(%w[igniter-contracts igniter-extensions igniter-ai])
+    expect(dependency_names).to eq(%w[igniter-contracts igniter-extensions igniter-ai igniter-agents])
   end
 
   it "declares igniter-agents runtime dependency through igniter-ai only" do
