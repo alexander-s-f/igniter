@@ -203,6 +203,77 @@ Next-track recommendation:
   first, choose Scout only as an offline/local-source slice; do not add network,
   LLM, connectors, SSE, or persistence in its first pass.
 
+## Showcase Web Synthesis
+
+[Agent Web / Codex] Current evidence:
+
+| App | Mounted Surface | Snapshot Read | Commands | Feedback | Inspection Endpoints | Stable Markers | Smoke Loop |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Lense | `web/lense_dashboard.rb` mounts `:lense_dashboard` at `/` through `Igniter::Web.mount`. | Reads one `CodebaseSnapshot` through `MountContext` and renders scan counts, findings, active session, recent events, and report state. | Refresh scan, start session, record step done/skip/note. | Query-string redirect feedback for success and refusal paths. | `/events` mirrors snapshot text; `/report` exposes receipt-shaped report data. | Surface, scan/count/finding/evidence/session/report/feedback/action/activity markers. | In-process Rack requests cover initial render, command redirects, refusal feedback, final state, `/events` parity, and report endpoint. |
+| Chronicle | `web/decision_compass.rb` mounts `:decision_compass` at `/` through `Igniter::Web.mount`. | Reads one `ChronicleSnapshot` through `MountContext` and renders proposal/session state, conflicts, linked decisions, sign-offs/refusals, recent events, and receipt state. | Scan proposal, acknowledge conflict, sign off, refuse sign-off, emit receipt. | Query-string redirect feedback via app-local command result mapping. | `/events` mirrors snapshot text; `/receipt` exposes emitted Markdown receipt. | Surface, proposal/session/conflict/evidence/relationship/sign-off/receipt/feedback/action/activity markers. | In-process Rack requests cover initial render, command redirects, refusal feedback, receipt-not-ready, final state, `/events` parity, `/receipt`, and fixture no-mutation. |
+
+Repeated strongly enough to document as Web convention:
+
+- One app-local mounted surface is enough for the first serious slice; both
+  apps keep Arbre helpers, copy, styles, and marker names inside `web/`.
+- Web reads through `MountContext` and an app-owned snapshot; it does not own
+  command state, analysis state, report payloads, or persistence.
+- Rack routes stay in `app.rb`, translate app-local commands to redirects/text,
+  and keep the mounted surface as an opaque Web object.
+- Query-string feedback plus `data-feedback-code` is the current stable
+  refusal/success inspection seam.
+- `/events` must use the same snapshot shape as the surface. Report/receipt
+  endpoints can expose app-owned artifacts, but their payload shapes stay local.
+- Stable `data-` markers are the smoke/browser contract for now. They should be
+  boring, explicit, and domain-named rather than hidden behind a marker DSL.
+- Manual `server` mode is now a showcase convention, but it remains example
+  scaffolding, not production server behavior.
+
+Still Web-local:
+
+- Surface names, marker attribute names, action names, feedback copy, CSS
+  direction, panel layout, and endpoint labels.
+- Whether report/receipt inspection is rendered as a panel, link, or endpoint.
+- Domain grouping choices such as findings versus conflicts, guided sessions
+  versus sign-off lanes, and report versus receipt blocks.
+- Smoke output labels and catalog fragments.
+
+Tiny web/test support candidates:
+
+- A **docs-only Web surface checklist** is justified now: mounted surface,
+  `MountContext` snapshot read, feedback markers, action markers, recent
+  activity markers, `/events` parity, report/receipt endpoint, manual server
+  mode, and catalog fragments.
+- A **script-local Rack smoke helper design investigation** is justified:
+  Lense and Chronicle repeat `rack_env`, `form_body`, redirect-following, status
+  assertions, and marker checks. Keep this as a test/example helper discussion,
+  not runtime API.
+- A **manual review checklist** is useful: server command, initial surface
+  marker, one success command, one refusal command, `/events`, report/receipt
+  endpoint, and no fixture mutation.
+
+Do not graduate yet:
+
+- generic UI kit, component library, layout DSL, marker DSL, or screen compiler
+- public `Igniter.interactive_app`
+- live transport/SSE/WebSocket
+- generic report/receipt viewer
+- generic workflow/wizard controller
+- browser automation requirement for smoke
+- production server/auth/session framework
+
+Next-track recommendation from Web:
+
+- Agree with Application: open **showcase convention consolidation** first.
+  Make it documentation/checklist-oriented and optionally include a narrow
+  smoke-helper design note.
+- Do not open a package API implementation track yet. `MountContext` plus
+  app-owned snapshot rendering is the reusable seam; everything above it still
+  carries useful domain vocabulary.
+- If product pressure wins over consolidation, Scout is the best next app only
+  as an offline/local-source slice. Web should render source/provenance evidence
+  as nested HTML with markers, not graph/canvas/live transport.
+
 ## Current Handoff
 
 [Architect Supervisor / Codex] Next:
@@ -237,4 +308,26 @@ delta: recommended Scout as the next product pressure line only after
 verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can synthesize Web/read-model evidence, then
   `[Architect Supervisor / Codex]` can choose the next pressure line.
+block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-showcase-portfolio-synthesis-track.md`
+status: landed
+delta: compared Lense and Chronicle across mounted Arbre surfaces,
+  `MountContext` snapshot reads, Rack command routes, feedback redirects,
+  stable markers, `/events`, report/receipt endpoints, manual server mode, and
+  in-process Rack smoke loops.
+delta: identified Web conventions strong enough to document: one app-local
+  mounted surface, app-owned snapshot rendering, route-owned command mapping,
+  query-string feedback markers, `/events` parity, report/receipt inspection,
+  stable domain markers, and manual `server` mode.
+delta: kept surface names, marker attributes, action names, feedback copy,
+  layout, report/receipt presentation, smoke labels, UI kit, marker DSL,
+  live transport, and `interactive_app` Web behavior deferred/app-local.
+delta: recommended a docs-only Web checklist and narrow Rack smoke-helper
+  design investigation before package API work; if product pressure comes next,
+  Scout should be offline/local-source with nested HTML provenance evidence.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can choose the next product/app or
+  support-design pressure line.
 block: none
