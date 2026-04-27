@@ -33,7 +33,8 @@ module Igniter
       end
 
       class Builder
-        attr_reader :name, :root, :env, :metadata, :service_factories, :routes, :web_mounts
+        attr_reader :name, :root, :env, :metadata, :service_factories, :routes, :web_mounts,
+                    :credential_definitions
 
         def initialize(name, root:, env:, metadata:)
           @name = name.to_sym
@@ -43,6 +44,7 @@ module Igniter
           @service_factories = {}
           @routes = []
           @web_mounts = []
+          @credential_definitions = []
         end
 
         def service(name, callable = nil, metadata: {}, &block)
@@ -70,6 +72,17 @@ module Igniter
           self
         end
 
+        def credential(name, env: nil, required: false, description: nil, metadata: {})
+          @credential_definitions << {
+            name: name,
+            env: env,
+            required: required,
+            description: description,
+            metadata: metadata
+          }
+          self
+        end
+
         def get(path, &block)
           route("GET", path, &block)
         end
@@ -82,6 +95,15 @@ module Igniter
           service_instances = build_service_instances
           kernel = Kernel.new
           kernel.manifest(name, root: root, env: env, metadata: metadata)
+          credential_definitions.each do |definition|
+            kernel.credential(
+              definition.fetch(:name),
+              env: definition.fetch(:env),
+              required: definition.fetch(:required),
+              description: definition.fetch(:description),
+              metadata: definition.fetch(:metadata)
+            )
+          end
           service_factories.each do |service_name, entry|
             kernel.provide(service_name, -> { service_instances.fetch(service_name) }, metadata: entry.fetch(:metadata))
           end
