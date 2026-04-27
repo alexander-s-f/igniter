@@ -45,12 +45,12 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review showcase portfolio guide and decide public onboarding readiness | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Interactive App Structure](../guide/interactive-app-structure.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Standby after app-side portfolio guide content | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Interactive App Structure](../guide/interactive-app-structure.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Standby after Web/manual-review portfolio guide content | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
-| `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
+| `[Architect Supervisor / Codex]` | Review Igniter Lang foundation and enforce additive boundary | [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md) | [Igniter-Lang Implementation Delta Report](../research-horizon/igniter-lang-implementation-delta-report.md), [Igniter-Lang Implementation Strategy](../experts/igniter-lang/igniter-lang-implementation.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Standby after showcase portfolio guide acceptance | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Interactive App Structure](../guide/interactive-app-structure.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Standby after showcase portfolio guide acceptance | [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md) | [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Research Horizon / Codex]` | Provide narrowed Igniter-Lang foundation guardrails and keep grammar/runtime phases out of scope | [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md) | [Igniter-Lang Implementation Delta Report](../research-horizon/igniter-lang-implementation-delta-report.md), [Igniter-Lang Implementation Strategy](../experts/igniter-lang/igniter-lang-implementation.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Contracts / Codex]` | Implement or scope the additive Igniter Lang foundation pack | [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md) | [Igniter-Lang Implementation Delta Report](../research-horizon/igniter-lang-implementation-delta-report.md), [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
 
 ## Current Cycle
 
@@ -181,7 +181,13 @@ block: none | <blocker>
   enterprise-facing guide/discoverability path:
   [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md).
 - Showcase portfolio app-side and Web/manual-review guide content have landed;
-  supervisor can review public onboarding readiness.
+  supervisor accepted the guide as the public richer-application onboarding
+  path.
+- Research Horizon's Igniter-Lang implementation delta is accepted as filtered
+  research input: Ruby DSL first, grammar later; metadata/report-only before
+  runtime semantics.
+- Next active track graduates only the narrow additive foundation:
+  [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 

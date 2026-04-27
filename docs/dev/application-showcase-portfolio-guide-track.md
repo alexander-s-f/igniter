@@ -165,3 +165,34 @@ delta: clarified that manual server mode is example scaffolding and that the
 verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can review public onboarding readiness.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- The showcase portfolio guide is accepted as the current public onboarding
+  path for richer Igniter applications.
+- Lense, Chronicle, Scout, and Dispatch are now presented as a coherent
+  enterprise-facing portfolio: reproducible, one-process, offline,
+  contracts-native, inspectable through Web, and backed by evidence artifacts.
+- The guide correctly separates copyable convention from public API. Repeated
+  app/web shapes remain guide-level doctrine, not a framework contract.
+- Legacy material remains reference/private context, not the current onboarding
+  entrypoint.
+
+Supervisor verification:
+
+```bash
+git diff --check
+```
+
+Result:
+
+- `git diff --check` passed.
+
+Next:
+
+- Accept Research Horizon's Igniter-Lang delta as filtered research input and
+  open a narrow [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md).

@@ -1,0 +1,156 @@
+# Igniter Lang Foundation Pack Track
+
+This track graduates the narrowest useful part of the Igniter-Lang research
+into a bounded development track.
+
+Authoritative supervisor notes are marked:
+
+```text
+[Architect Supervisor / Codex]
+```
+
+Package agents should report with:
+
+```text
+[Agent Contracts / Codex]
+[Research Horizon / Codex]
+```
+
+Inputs:
+
+- [Igniter-Lang Implementation Delta Report](../research-horizon/igniter-lang-implementation-delta-report.md)
+- [Igniter-Lang Implementation Strategy](../experts/igniter-lang/igniter-lang-implementation.md)
+
+## Decision
+
+[Architect Supervisor / Codex] Accepted Research Horizon's filter:
+
+```text
+Ruby DSL first. Grammar later.
+```
+
+The expert implementation document is valuable as a horizon map, but only the
+Foundation Pack slice is accepted for development now.
+
+Accepted first slice:
+
+- `Igniter::Lang` namespace
+- `Igniter::Lang::Backends::Ruby` wrapper over current contracts APIs
+- immutable type descriptors such as `History`, `BiHistory`, `OLAPPoint`, and
+  `Forecast`
+- read-only `VerificationReport`
+- docs/examples proving current contracts can compile/execute through the Lang
+  wrapper
+
+Rejected/deferred for this track:
+
+- parser, `.il` files, grammar, AST front-end
+- Rust backend, certified export, AADL/TLA+/Coq export
+- real store runtime, OLAP runtime, temporal rules, time machine, forecasts
+- physical unit algebra enforcement
+- deadline runtime monitoring, warning channel changes, WCET enforcement
+- changing existing contract execution semantics
+- new production dependencies
+
+## Goal
+
+Create an additive language foundation that gives Igniter-Lang a real Ruby DSL
+reference surface without committing to new runtime semantics.
+
+The result should answer:
+
+- can `require "igniter/lang"` load without changing existing contracts?
+- can a Ruby backend wrapper compile, execute, and verify using current
+  `Igniter::Contracts` APIs?
+- can type descriptors survive as operation metadata?
+- can a verification report be inspected and serialized?
+- can docs explain which features are metadata/report-only versus real runtime
+  semantics?
+
+## Scope
+
+In scope:
+
+- additive package code in the contracts/lang area chosen by
+  `[Agent Contracts / Codex]`
+- tests for wrapper delegation, descriptors, report serialization, and
+  metadata preservation
+- one compact example or guide note if useful
+- no dependency additions
+
+Out of scope:
+
+- modifying existing contract execution behavior
+- changing `ExecutionResult` shape
+- adding warning channels
+- adding stores, OLAP handlers, temporal rules, unit algebra, deadline runtime,
+  or backend export behavior
+- parser/grammar work
+- any claim that metadata declarations are enforced semantics
+
+## Task 1: Contracts Foundation
+
+Owner: `[Agent Contracts / Codex]`
+
+Acceptance:
+
+- Add `require "igniter/lang"` as an additive entrypoint.
+- Implement `Igniter::Lang::Backends::Ruby` as a thin wrapper over current
+  contracts compile/execute/diagnose or verification APIs.
+- Implement immutable type descriptors for `History`, `BiHistory`, `OLAPPoint`,
+  and `Forecast`, with a small inspectable/serializable shape.
+- Implement a read-only `VerificationReport` shape that can be built from the
+  Ruby backend wrapper without changing runtime execution.
+- Prove descriptors can be used in operation metadata, for example `type:`.
+- Add focused specs/examples; existing contract specs must pass unchanged.
+
+## Task 2: Research Filter And Docs
+
+Owner: `[Research Horizon / Codex]`
+
+Acceptance:
+
+- Add a compact research handoff or guide note that explains the accepted
+  Foundation Pack boundary.
+- Mark `store`, `invariant metadata`, `deadline`, `wcet`, `olap`,
+  `time_machine`, physical units, Rust, and grammar as later phases.
+- Make the docs explicit that Foundation Pack features are reference DSL,
+  descriptors, wrappers, and reports, not new runtime semantics.
+- Keep the grammar friction log in research, not in public onboarding docs.
+
+## Supervisor Guardrails
+
+[Architect Supervisor / Codex] Notes:
+
+- This is a foundation track, not a language launch.
+- The code should feel boring and additive. If a change needs compiler/runtime
+  behavior changes, it belongs to a later phase.
+- Prefer current pack/profile/contracts APIs over inventing an AST.
+- The first proof should make future language work safer, not make current
+  applications more complex.
+- Do not let the expert document's later phases leak into implementation.
+
+## Verification Gate
+
+Before supervisor acceptance, run at minimum:
+
+```bash
+bundle exec rspec spec/igniter
+ruby examples/run.rb smoke
+bundle exec rubocop
+git diff --check
+```
+
+If the implementation scope stays inside `packages/igniter-contracts`, include
+any package-local specs or examples the agent adds.
+
+## Current Handoff
+
+[Architect Supervisor / Codex] Next:
+
+1. `[Agent Contracts / Codex]` implements or scopes the additive Lang
+   foundation.
+2. `[Research Horizon / Codex]` provides the narrowed research boundary and
+   documentation guardrails.
+3. `[Architect Supervisor / Codex]` reviews whether the foundation is truly
+   additive and whether metadata/report-only language is clear.
