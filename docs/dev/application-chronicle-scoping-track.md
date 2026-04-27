@@ -347,6 +347,156 @@ Application recommendation:
   useful enough that an engineer can see which existing decisions conflict with
   a proposal and what sign-off state exists.
 
+## Chronicle Web Scoping
+
+[Agent Web / Codex] Proposed first surface:
+
+Chronicle should use one mounted Web surface:
+
+```text
+examples/application/chronicle/web/decision_compass.rb
+```
+
+The surface should be a **decision compass workbench**, not a generic graph UI.
+It should render from the app-owned `ChronicleSnapshot` and submit simple forms
+back to app-local Rack routes.
+
+Recommended routes:
+
+- `GET /`: render the decision compass workbench.
+- `GET /events`: render a compact text read model from the same
+  `ChronicleSnapshot`.
+- `GET /receipt`: render the latest receipt/report text or a compact receipt
+  hash for smoke inspection.
+- `POST /proposals/scan`: scan or refresh a proposal session.
+- `POST /conflicts/acknowledge`: acknowledge one conflicting decision.
+- `POST /signoffs`: record a signer approval.
+- `POST /signoffs/refuse`: record an explicit refusal with a reason.
+- `POST /receipts`: emit the durable decision receipt when ready.
+
+The path names can remain app-local. If implementation prefers
+`/sessions/:id/...` routes, `RackHost` route params are already sufficient; do
+not use this slice to expand router/server behavior.
+
+Page sections:
+
+- proposal header: proposal id, title, author, status/readiness, conflict count,
+  open conflict count, required signers, signed/refused signers, receipt id
+- proposal selector: one form to scan an explicit seed proposal id
+- conflict evidence lane: top conflicts as cards with decision id, title,
+  status, source path/section, evidence kind, evidence excerpt, tags, and
+  acknowledge action
+- decision relationship lane: nested HTML list of related decisions and
+  conflict edges; no SVG/canvas/graph renderer in the first slice
+- sign-off lane: required signers, signed signers, refused signers, sign-off
+  form, refusal form with required reason
+- receipt lane: receipt readiness, receipt id, emit receipt action, report
+  validity marker
+- recent activity lane: proposal scan, conflict detection, acknowledgements,
+  sign-offs/refusals, receipt emission, and command refusals
+
+Feedback codes:
+
+- success: `chronicle_scan_created`,
+  `chronicle_conflict_acknowledged`, `chronicle_signoff_recorded`,
+  `chronicle_signoff_refused`, `chronicle_receipt_emitted`
+- refusal: `chronicle_unknown_proposal`, `chronicle_unknown_session`,
+  `chronicle_blank_signer`, `chronicle_blank_reason`,
+  `chronicle_receipt_not_ready`
+
+Stable markers:
+
+- `data-ig-poc-surface="chronicle_decision_compass"`
+- `data-proposal-id`
+- `data-proposal-status`
+- `data-session-id`
+- `data-conflict-count`
+- `data-open-conflict-count`
+- `data-conflict-decision-id`
+- `data-conflict-acknowledged`
+- `data-evidence-ref`
+- `data-related-decision-id`
+- `data-related-edge`
+- `data-required-signer`
+- `data-signed-by`
+- `data-refused-by`
+- `data-receipt-id`
+- `data-receipt-valid`
+- `data-feedback-code`
+- `data-ig-activity="recent"`
+- `data-activity-kind`
+- `data-action="scan-proposal"`
+- `data-action="acknowledge-conflict"`
+- `data-action="record-signoff"`
+- `data-action="refuse-signoff"`
+- `data-action="emit-receipt"`
+
+`/events` read model:
+
+Use a compact text shape that is easy to compare in smoke output, for example:
+
+```text
+proposal=PR-001 session=session-pr-001 status=needs_review conflicts=2 open=1 actions=5 receipt=none recent=proposal_scanned:ok|conflict_acknowledged:DR-041
+```
+
+The important property is parity: `proposal_id`, `session_id`, `status`,
+`conflict_count`, `open_conflict_count`, `action_count`, and `receipt_id` must
+match the rendered surface markers.
+
+Smoke acceptance:
+
+- initial render returns 200 and includes
+  `data-ig-poc-surface="chronicle_decision_compass"`.
+- initial render shows seed proposal options or the default proposal id without
+  mutating repository fixtures.
+- scan command redirects with `chronicle_scan_created`.
+- scanned page includes proposal/session/status markers, conflict counters,
+  top conflict cards, evidence refs, related decision markers, and activity
+  facts.
+- acknowledge command redirects with
+  `chronicle_conflict_acknowledged` and reduces or marks open conflict state.
+- sign-off command redirects with `chronicle_signoff_recorded`.
+- refusal command with blank reason redirects with
+  `chronicle_blank_reason` and renders a feedback marker.
+- receipt command before readiness redirects with
+  `chronicle_receipt_not_ready`.
+- receipt command after either enough sign-offs or explicit refusal emits a
+  receipt marker and `/receipt` returns deterministic receipt evidence.
+- `/events` reflects the same proposal/session/status/conflict/action/receipt
+  state as the rendered page.
+- final smoke proves seed fixture files are unchanged and only the runtime
+  workdir contains session/action/receipt artifacts.
+
+Keep Web-local for this slice:
+
+- Arbre layout and panel helpers.
+- Feedback parsing and copy.
+- Marker names.
+- Relationship-list rendering.
+- Activity labels.
+- Form paths and params.
+- Receipt lane wording.
+
+Observe for future graduation only:
+
+- The mounted-surface checklist: one local surface, one app-owned snapshot,
+  Rack form commands, feedback redirects, `/events` parity, stable markers,
+  refusal smoke, optional server mode.
+- Script-local Rack smoke helpers if Chronicle repeats the existing
+  `rack_env`/form-body boilerplate.
+- Relationship/graph rendering as nested HTML. Do not promote graph helpers
+  until a later app proves repeated need.
+
+Web recommendation:
+
+- Implement Chronicle next only as this scoped one-surface workbench.
+- Do not add graph/canvas/SVG rendering, UI components, generic sign-off
+  widgets, live updates, browser automation framework, or a public
+  `interactive_app` facade.
+- Chronicle is worthwhile because it pressures Web with linked decision
+  records, conflict evidence, sign-off state, receipt readiness, and nested
+  relationship rendering without leaving offline one-process guardrails.
+
 ## Current Handoff
 
 [Architect Supervisor / Codex] Next:
@@ -375,4 +525,27 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can scope the Chronicle mounted surface and smoke
   evidence; `[Architect Supervisor / Codex]` can decide implementation after
   Web scoping lands.
+block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-chronicle-scoping-track.md`
+status: landed
+delta: scoped one Chronicle mounted surface:
+  `examples/application/chronicle/web/decision_compass.rb`, a decision compass
+  workbench rendered from app-owned `ChronicleSnapshot`.
+delta: defined page sections, app-local routes, feedback codes, stable markers,
+  `/events` parity shape, and smoke acceptance for scan, conflict
+  acknowledgement, sign-off, refusal, receipt readiness, receipt emission, and
+  fixture no-mutation evidence.
+delta: kept Arbre layout, relationship rendering, marker names, feedback copy,
+  activity labels, form paths, and receipt lane wording Web-local; only the
+  mounted-surface checklist and script-local smoke boilerplate should be
+  observed for future graduation.
+delta: recommended implementing Chronicle next as this offline one-surface
+  workbench, with nested HTML relationship rendering and no SVG/canvas/graph
+  framework, UI kit, live transport, browser automation framework, generic
+  sign-off widgets, or public `interactive_app` facade.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can decide whether to open a bounded
+  Chronicle implementation track.
 block: none
