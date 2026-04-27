@@ -179,3 +179,46 @@ verify: `ruby examples/application/dispatch_poc.rb server` served GET `/` on
 ready: `[Architect Supervisor / Codex]` can decide whether Dispatch is
   showcase-ready beside Lense, Chronicle, Scout, and the earlier POCs.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Dispatch is showcase-ready as the fourth bounded one-process reference app.
+- The finalization pass improved discoverability and manual review readiness
+  without widening scope or promoting app-local patterns into package APIs.
+- Dispatch now complements the existing richer showcase set:
+  Lense stresses codebase analysis and guided remediation sessions; Chronicle
+  stresses decision evidence and sign-off receipts; Scout stresses
+  reproducible local-source research and provenance receipts; Dispatch stresses
+  incident triage/routing evidence, checkpoint choice, and handoff receipts.
+- The app-local boundary remains correct: fixtures are read-only, runtime
+  writes stay in the workdir, contracts compute deterministic triage/routing,
+  and Web consumes snapshots plus stable markers.
+
+Supervisor verification:
+
+```bash
+ruby examples/application/dispatch_poc.rb
+ruby examples/run.rb run application/dispatch_poc
+ruby examples/run.rb smoke
+bundle exec rubocop examples/application/dispatch_poc.rb examples/application/dispatch examples/catalog.rb
+git diff --check
+```
+
+Result:
+
+- `dispatch_poc` passed.
+- `examples/run.rb run application/dispatch_poc` passed.
+- `examples/run.rb smoke` passed with 80 examples and 0 failures.
+- RuboCop passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Open [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md)
+  to consolidate the four richer showcase apps before deciding whether the next
+  track should be support/API extraction, another product app, or enterprise
+  packaging/discoverability.
