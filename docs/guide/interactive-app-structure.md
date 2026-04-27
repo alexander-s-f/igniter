@@ -8,9 +8,11 @@ Working examples:
 - `examples/application/interactive_operator/`
 - `examples/application/operator_signal_inbox/`
 - `examples/application/lense/`
+- `examples/application/chronicle/`
 - `examples/application/interactive_web_poc.rb`
 - `examples/application/signal_inbox_poc.rb`
 - `examples/application/lense_poc.rb`
+- `examples/application/chronicle_poc.rb`
 
 This is a copyable convention, not a framework contract. Keep domain vocabulary
 inside your app until the same shape repeats enough to justify a package-level
@@ -20,16 +22,27 @@ API.
 pressure tests. `lense` is the first richer showcase: it scans a local Ruby
 project, runs a contracts-native health analysis, renders a dashboard/workbench,
 records guided issue-session actions, and produces a receipt-shaped report.
-Run it with:
+`chronicle` is the second richer showcase: it compares a local proposal against
+seed decision records, shows deterministic conflict evidence, records
+acknowledgement/sign-off/refusal actions, and emits a decision receipt.
+
+Run Lense with:
 
 ```bash
 ruby examples/application/lense_poc.rb
+```
+
+Run Chronicle with:
+
+```bash
+ruby examples/application/chronicle_poc.rb
 ```
 
 For manual browser inspection:
 
 ```bash
 ruby examples/application/lense_poc.rb server
+ruby examples/application/chronicle_poc.rb server
 ```
 
 ## Application Structure

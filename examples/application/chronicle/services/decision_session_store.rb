@@ -203,6 +203,10 @@ module Chronicle
         Dir.glob(File.join(receipts_dir, "*.md")).max
       end
 
+      def command_refusal(feedback_code:, session_id:, proposal_id:, decision_id:, status:)
+        refusal(feedback_code, session_id, proposal_id, decision_id, status)
+      end
+
       private
 
       def refresh_analysis(session, proposal:, decisions:, scanner:)

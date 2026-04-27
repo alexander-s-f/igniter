@@ -177,12 +177,26 @@ module Chronicle
     private
 
     def unknown_proposal(proposal_id)
-      sessions.send(:refusal, :chronicle_unknown_proposal, nil, proposal_id.to_s, nil, :unknown_proposal)
+      sessions.command_refusal(
+        feedback_code: :chronicle_unknown_proposal,
+        session_id: nil,
+        proposal_id: proposal_id.to_s,
+        decision_id: nil,
+        status: :unknown_proposal
+      )
     end
 
     def session_proposal(session_id)
       snapshot = sessions.snapshot
-      return sessions.send(:refusal, :chronicle_unknown_session, session_id, nil, nil, :unknown_session) if snapshot.session_id != session_id.to_s
+      if snapshot.session_id != session_id.to_s
+        return sessions.command_refusal(
+          feedback_code: :chronicle_unknown_session,
+          session_id: session_id,
+          proposal_id: nil,
+          decision_id: nil,
+          status: :unknown_session
+        )
+      end
 
       proposal = proposals.find(snapshot.proposal_id)
       return unknown_proposal(snapshot.proposal_id) unless proposal

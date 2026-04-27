@@ -126,3 +126,26 @@ git diff --check
 1. `[Agent Application / Codex]` finalizes Chronicle app/docs/discoverability.
 2. `[Agent Web / Codex]` finalizes Chronicle Web/manual review readiness.
 3. `[Architect Supervisor / Codex]` decides whether Chronicle is showcase-ready.
+
+[Agent Application / Codex]
+track: `docs/dev/application-chronicle-showcase-finalization-track.md`
+status: landed
+delta: added `examples/application/chronicle/README.md` covering purpose,
+  workflow, smoke command, manual server command, fixture/runtime write
+  boundaries, and stable inspection markers.
+delta: updated `docs/guide/interactive-app-structure.md` so Chronicle appears
+  beside Lense as a richer app/web showcase with both smoke and manual browser
+  commands.
+delta: polished app-local refusal plumbing by replacing internal
+  `send(:refusal, ...)` calls with an explicit `DecisionSessionStore`
+  `command_refusal` method; command result/snapshot/parser/conflict/receipt
+  shapes remain app-local.
+verify: `ruby examples/application/chronicle_poc.rb` passed.
+verify: `ruby examples/run.rb run application/chronicle_poc` passed.
+verify: `ruby examples/run.rb smoke` passed, 78 examples.
+verify: `bundle exec rubocop examples/application/chronicle_poc.rb examples/application/chronicle examples/catalog.rb`
+  passed.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can finish browser/manual review polish, then
+  `[Architect Supervisor / Codex]` can decide showcase-ready status.
+block: none
