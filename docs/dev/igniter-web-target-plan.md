@@ -45,7 +45,7 @@ and emits `/report` or `/receipt` evidence.
 
 Public review path:
 
-- [Enterprise Verification](../guide/enterprise-verification.md)
+- [Application Showcase Portfolio](../guide/application-showcase-portfolio.md)
 - [Application Showcase Portfolio](../guide/application-showcase-portfolio.md)
 - [Interactive App Structure](../guide/interactive-app-structure.md)
 

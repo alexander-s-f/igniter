@@ -5,8 +5,8 @@ Igniter contracts have two equal authoring forms:
 - block compilation for low-level embedding and generated graphs
 - class DSL for human-edited application code
 
-For the accepted evaluator proof path across contracts, examples, application
-showcases, and Lang, see [Enterprise Verification](./enterprise-verification.md).
+For a runnable path across contracts, examples, application showcases, and Lang,
+start with [Getting Started](./getting-started.md).
 
 Use the class form when a Rails/service/job author needs to read the contract as
 business logic.
@@ -150,5 +150,5 @@ without hiding the business graph.
 
 ## Related
 
-- [Enterprise Verification](./enterprise-verification.md)
+- [Getting Started](./getting-started.md)
 - [Igniter Lang Foundation](./igniter-lang-foundation.md)

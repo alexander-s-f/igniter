@@ -5,9 +5,9 @@ surface area.
 
 ## Canonical Public Reads
 
-- [Enterprise Verification](./enterprise-verification.md)
 - [Contract Class DSL](./contract-class-dsl.md)
 - [Core Runtime Features](./core-runtime-features.md)
+- [Getting Started](./getting-started.md)
 
 ## Layer Entry Points
 

@@ -34,7 +34,6 @@ needed.
 
 - [Application Capsules](./application-capsules.md)
 - [Interactive App Structure](./interactive-app-structure.md)
-- [Enterprise Verification](./enterprise-verification.md)
 - [Application Showcase Portfolio](./application-showcase-portfolio.md)
 - [Application Target Plan](../dev/application-target-plan.md)
 - [Igniter Web Target Plan](../dev/igniter-web-target-plan.md)

@@ -24,10 +24,9 @@ what you are trying to do.
 ### I want to build an app or stack
 
 1. [Guide](./guide/README.md)
-2. [Enterprise Verification](./guide/enterprise-verification.md)
-3. [Application Showcase Portfolio](./guide/application-showcase-portfolio.md)
-4. [Interactive App Structure](./guide/interactive-app-structure.md)
-5. [Examples](../examples/README.md)
+2. [Application Showcase Portfolio](./guide/application-showcase-portfolio.md)
+3. [Interactive App Structure](./guide/interactive-app-structure.md)
+4. [Examples](../examples/README.md)
 
 ### I want distributed execution
 

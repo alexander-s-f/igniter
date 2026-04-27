@@ -33,9 +33,7 @@ There is also a matching rake task:
 rake examples
 ```
 
-For enterprise evaluation, start with the guide-level proof path:
-[Enterprise Verification](../docs/guide/enterprise-verification.md). The
-flagship application checks are:
+For app-level evaluation, start with the flagship application checks:
 
 ```bash
 ruby examples/run.rb run application/lense_poc

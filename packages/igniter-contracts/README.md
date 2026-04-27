@@ -13,11 +13,11 @@ Primary entrypoints:
 - `require "igniter/contracts"`
 - `require "igniter/lang"` for the additive Lang foundation
 
-Evaluator proof path:
+Current proof path:
 
-- [Enterprise Verification](../../docs/guide/enterprise-verification.md)
 - [Contract Class DSL](../../docs/guide/contract-class-dsl.md)
 - [Igniter Lang Foundation](../../docs/guide/igniter-lang-foundation.md)
+- [Getting Started](../../docs/guide/getting-started.md)
 
 Current implementation focus:
 
@@ -120,7 +120,7 @@ Additional helpers:
 
 ## Verification
 
-Use the enterprise receipt as the compact public proof path:
+Use focused package specs and runnable examples as the current proof path:
 
 ```bash
 bundle exec rspec packages/igniter-contracts/spec spec/current
@@ -168,5 +168,4 @@ ruby examples/contracts/lang_foundation.rb
 ```
 
 See [Igniter Lang Foundation](../../docs/guide/igniter-lang-foundation.md) for
-the short guide, or [Enterprise Verification](../../docs/guide/enterprise-verification.md)
-for the accepted proof path.
+the short guide.

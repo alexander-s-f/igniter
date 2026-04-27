@@ -46,10 +46,7 @@ Current design notes live in:
 - [docs/dev/igniter-web-target-plan.md](../../docs/dev/igniter-web-target-plan.md)
 - [docs/dev/igniter-web-dsl-sketch.md](../../docs/dev/igniter-web-dsl-sketch.md)
 
-For the current evaluator-facing proof path across contracts, flagship
-applications, Web/manual review, and Lang foundation, start with
-[Enterprise Verification](../../docs/guide/enterprise-verification.md). For
-the four richer application examples that exercise `igniter-web`, see
+For the richer application examples that exercise `igniter-web`, see
 [Application Showcase Portfolio](../../docs/guide/application-showcase-portfolio.md).
 
 ## Current Status

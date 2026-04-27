@@ -39,7 +39,7 @@ This pattern is proven by the showcase apps and described for users in:
 
 - [Application Showcase Portfolio](../guide/application-showcase-portfolio.md)
 - [Interactive App Structure](../guide/interactive-app-structure.md)
-- [Enterprise Verification](../guide/enterprise-verification.md)
+- [Application Showcase Portfolio](../guide/application-showcase-portfolio.md)
 
 ## Non-Goals
 

@@ -9,7 +9,6 @@ Read:
 - [Top-level README](../../README.md)
 - [Igniter Concepts](../concepts/igniter.md)
 - [Core](./core.md)
-- [Enterprise Verification](./enterprise-verification.md)
 
 ## 2. Run Something Real
 
@@ -29,6 +28,7 @@ Use:
 
 Current architecture note:
 
+- Igniter is pre-v1 and does not promise backward compatibility yet
 - `Core` here really means the embedded/contracts-first operating mode
 - `App` builds on top of that embedded mode
 - `Cluster` builds on top of embedded/application runtime

@@ -12,6 +12,10 @@ Current loading guidance:
 - use `require "igniter/legacy"` only when you intentionally want the explicit
   legacy/reference lane
 
+Pre-v1 status: Igniter intentionally does not promise backward compatibility or
+a stable public API yet. Public docs describe the current direction, not a
+compatibility contract.
+
 ## What Belongs Here
 
 - getting started and first contract/app flows
@@ -28,7 +32,6 @@ Current loading guidance:
 - [Contract Class DSL](./contract-class-dsl.md)
 - [Igniter Lang Foundation](./igniter-lang-foundation.md)
 - [Application Capsules](./application-capsules.md)
-- [Enterprise Verification](./enterprise-verification.md)
 - [Application Showcase Portfolio](./application-showcase-portfolio.md)
 - [Interactive App Structure](./interactive-app-structure.md)
 - [How-Tos](./how-tos.md)
@@ -50,7 +53,6 @@ Current loading guidance:
 - [Concepts](../concepts/README.md)
 - [Igniter Concepts](../concepts/igniter.md)
 - [Examples](../../examples/README.md)
-- [Enterprise Verification](./enterprise-verification.md)
 - [Application Showcase Portfolio](./application-showcase-portfolio.md)
 
 ## Package-Level Docs
@@ -72,4 +74,4 @@ Cross-package narratives and tutorials stay here in `docs/guide/`.
 
 Legacy deep references are private working material under `playgrounds/docs/`.
 Public onboarding should start from the current guide, package READMEs,
-examples, and enterprise verification path.
+examples, and application showcase path.

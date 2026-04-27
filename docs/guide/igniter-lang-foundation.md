@@ -21,7 +21,7 @@ ruby examples/contracts/lang_foundation.rb
 ```
 
 For the accepted evaluator proof path, see
-[Enterprise Verification](./enterprise-verification.md).
+[Getting Started](./getting-started.md).
 
 Minimal usage:
 
@@ -127,5 +127,5 @@ These remain future/research phases:
 
 ## Related
 
-- [Enterprise Verification](./enterprise-verification.md)
+- [Getting Started](./getting-started.md)
 - [Contract Class DSL](./contract-class-dsl.md)

@@ -13,10 +13,14 @@ The active repository surface is intentionally limited to those packages. Older
 legacy-root layers are no longer part of the current framework story and are
 being recreated step by step instead of being carried forward.
 
-For enterprise evaluation, start with the compact proof path:
-[Enterprise Verification](./docs/guide/enterprise-verification.md). For the
-flagship application portfolio, see
-[Application Showcase Portfolio](./docs/guide/application-showcase-portfolio.md).
+## Pre-v1 Status
+
+Igniter is pre-v1. There is no backward-compatibility promise and no stable
+public API guarantee yet. That is intentional: weak shapes should be replaced
+quickly while the better architecture is still visible.
+
+Use the runnable examples and package READMEs to evaluate the current direction.
+Enterprise-grade guarantees and compatibility policy belong after v1.
 
 ## Root Facade
 
@@ -112,7 +116,6 @@ Use this for:
 ## Examples And Docs
 
 - Runnable examples: [examples/README.md](./examples/README.md)
-- Enterprise proof path: [docs/guide/enterprise-verification.md](./docs/guide/enterprise-verification.md)
 - Application showcase portfolio: [docs/guide/application-showcase-portfolio.md](./docs/guide/application-showcase-portfolio.md)
 - User guide index: [docs/guide/README.md](./docs/guide/README.md)
 - Internal design docs: [docs/dev/README.md](./docs/dev/README.md)

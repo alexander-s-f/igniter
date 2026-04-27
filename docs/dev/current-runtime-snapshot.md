@@ -21,7 +21,7 @@ This snapshot describes the current public package graph and proof surface.
 
 Current proof starts from:
 
-- [Enterprise Verification](../guide/enterprise-verification.md)
+- [Application Showcase Portfolio](../guide/application-showcase-portfolio.md)
 - [Application Showcase Portfolio](../guide/application-showcase-portfolio.md)
 - [Igniter Lang Foundation](../guide/igniter-lang-foundation.md)
 - [Examples](../../examples/README.md)

@@ -129,9 +129,6 @@ for evaluating the mounted screens, but the portfolio does not require browser
 automation, live transport, a production server, auth, persistence, scheduler,
 connectors, or LLM/provider integration.
 
-For the compact evaluator-facing proof path, see
-[Enterprise Verification](./enterprise-verification.md).
-
 ## Evidence To Inspect
 
 For each showcase, inspect three surfaces together:
