@@ -175,6 +175,74 @@ Keep marker vocabulary local for now.
   transport until another distinct app repeats enough mechanical code to make
   local readability worse.
 
+## Web Surface Checklist
+
+Use this checklist when the example is meant to be manually inspected in a
+browser as well as smoke-tested.
+
+- Build one app-local Arbre surface under `web/`.
+- Mount it through `Igniter::Web.mount` and `mount_web` from `app.rb`.
+- Read the app service through `MountContext`; render from one app-owned
+  snapshot near the top of the page.
+- Keep Rack command routes in `app.rb`, not in the surface.
+- Map command results to redirects or text responses at the app boundary.
+- Render feedback through query-string state and stable
+  `data-feedback-code` markers.
+- Mark command buttons with app-local `data-action` values.
+- Mark domain records and counters with explicit `data-` attributes.
+- Render recent activity from the same snapshot and mark it with
+  `data-ig-activity` and `data-activity-kind`.
+- Keep `/events` on the same snapshot shape used by the surface.
+- Add a report or receipt endpoint only when the app already owns a stable
+  artifact.
+- Keep manual `server` mode available for browser review, but treat it as
+  example scaffolding, not production server behavior.
+- Register catalog fragments only for markers that are deterministic and
+  useful as inspection evidence.
+
+Keep these Web details local for now:
+
+- surface names and CSS direction
+- marker attribute names and action values
+- feedback messages
+- endpoint labels such as `/report` or `/receipt`
+- grouping choices such as findings, conflicts, sessions, or sign-off lanes
+- smoke output labels and catalog fragments
+
+## Manual Browser Review
+
+Before calling a showcase manually reviewable, run the server mode and inspect
+the browser-facing seams.
+
+- Start the app with its documented `server` command.
+- Confirm the printed local URL opens the mounted surface.
+- Confirm the top-level `data-ig-poc-surface` marker is present.
+- Run one successful command through the page.
+- Run one refusal path when the app has one.
+- Confirm feedback renders with `data-feedback-code`.
+- Confirm recent activity updates from the same read model.
+- Open `/events` and confirm it agrees with the visible surface state.
+- Open `/report` or `/receipt` when the app exposes one.
+- Confirm fixtures or scanned targets are not mutated unexpectedly.
+
+## Smoke Helper Design Note
+
+Lense and Chronicle repeat small smoke-script mechanics: Rack env construction,
+form encoding, redirect following, response status checks, marker checks, and
+catalog fragments. That repetition is enough to justify a future design
+discussion, but not a runtime framework.
+
+If a helper is designed later, keep it narrow:
+
+- It should live in examples or specs first, not production runtime.
+- It should help build Rack envs, encode form bodies, follow redirects, and
+  assert marker fragments.
+- It should not know app domain names, command names, feedback codes, snapshot
+  fields, or receipt/report schemas.
+- It should not require browser automation for normal smoke runs.
+- It should not introduce a UI kit, marker DSL, route DSL, or
+  `interactive_app` facade.
+
 ## Validation
 
 Add a runnable launcher and catalog smoke entry for each app. The smoke should

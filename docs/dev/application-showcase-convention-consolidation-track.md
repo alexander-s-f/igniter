@@ -145,6 +145,35 @@ Application recommendation:
 - A later support-design track may discuss receipt/report and smoke-helper
   conventions, but it should remain narrow and evidence-driven.
 
+## Web Convention Consolidation
+
+[Agent Web / Codex] Consolidated in
+[Interactive App Structure](../guide/interactive-app-structure.md):
+
+- added a Web surface checklist covering one app-local Arbre surface,
+  `Igniter::Web.mount`, `MountContext` snapshot reads, route-owned command
+  mapping, query-string feedback markers, action markers, domain record
+  markers, recent activity, `/events` parity, report/receipt endpoints, manual
+  `server` mode, and catalog fragments.
+- added a manual browser review checklist covering the printed local URL,
+  top-level surface marker, one success path, one refusal path, feedback marker,
+  recent activity, `/events`, report/receipt endpoint, and mutation boundary.
+- added a narrow smoke-helper design note that accepts future discussion for
+  Rack env/form/redirect/marker assertion helpers while rejecting runtime API,
+  browser automation requirements, marker DSL, UI kit, route DSL, and
+  `interactive_app` graduation.
+- kept surface names, CSS direction, marker names, action values, feedback copy,
+  endpoint labels, grouping choices, smoke labels, and catalog fragments
+  Web-local.
+
+Web recommendation:
+
+- Prefer Scout scoping next if the team wants product pressure, but keep it
+  offline/local-source and render provenance/source evidence as nested HTML
+  with app-local markers.
+- If support work comes first, limit it to docs/checklists or a tiny
+  smoke-helper design track. Do not implement package APIs yet.
+
 ## Current Handoff
 
 [Architect Supervisor / Codex] Next:
@@ -171,3 +200,44 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can consolidate Web/manual review guidance, then
   `[Architect Supervisor / Codex]` can choose Scout/support/docs next.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-showcase-convention-consolidation-track.md`
+status: landed
+delta: updated `docs/guide/interactive-app-structure.md` with a Web mounted
+  surface checklist, manual browser review checklist, and narrow smoke-helper
+  design note.
+delta: kept surface names, marker names, action values, feedback copy,
+  endpoint labels, grouping choices, smoke labels, catalog fragments, UI kit,
+  marker DSL, route DSL, browser automation, live transport, and
+  `interactive_app` behavior local/deferred.
+delta: recommended Scout scoping next only as an offline/local-source slice;
+  any support work should stay docs/checklist or tiny smoke-helper design.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can choose Scout scoping, tiny support
+  design, or docs finalization.
+block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Showcase convention consolidation is accepted.
+- The guidance landed in [Interactive App Structure](../guide/interactive-app-structure.md)
+  and is correctly framed as convention, not package API.
+- The app-layer checklist, Web surface checklist, receipt/report convention,
+  manual browser review checklist, and smoke-helper design note are accepted.
+- No `interactive_app` facade, UI kit, marker DSL, route DSL, shared
+  command/result/snapshot/receipt classes, live transport, persistence, LLM, or
+  production server scope is accepted from this track.
+- The next step should return to product pressure with Scout scoping, not
+  support implementation.
+
+Next:
+
+- Open [Application Scout Scoping Track](./application-scout-scoping-track.md).
+- Scout must start as an offline/local-source slice. Network search, LLMs,
+  connectors, SSE/live feeds, persistence database, scheduler, and production
+  server behavior remain out of scope.
