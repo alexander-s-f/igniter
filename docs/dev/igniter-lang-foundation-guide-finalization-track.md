@@ -144,3 +144,32 @@ git diff --check
 ```
 
 Result: passed.
+
+[Research Horizon / Codex] Task 2 review landed for supervisor review.
+
+Reviewed the new public guide, guide index links, API/runtime index link,
+package README wording, compact example output, and accepted metadata manifest
+boundary.
+
+The public wording is appropriately modest:
+
+- `Igniter::Lang` is described as an additive contracts-facing foundation, not
+  a separate production language runtime
+- `Igniter::Lang.ruby_backend` is described as a thin wrapper over current
+  contracts APIs
+- descriptors are described as immutable definition-time metadata
+- `VerificationReport` and `MetadataManifest` are read-only/report-only
+  surfaces
+- `return_type:`, `deadline:`, and `wcet:` are explicitly declared metadata,
+  not runtime enforcement
+- runtime checks, warnings/findings, deadline monitoring, and
+  `ExecutionResult` changes are explicitly excluded
+
+Deferred phases remain in future/research language: grammar/parser/AST and
+`.il` files, Rust backend and certified exports, store DSL or Lang metadata
+builder, OLAP/time-machine/temporal-rule runtime behavior, physical unit
+algebra enforcement, invariant metadata integration, and deadline/WCET runtime
+monitoring.
+
+Recommendation: proceed to `[Architect Supervisor / Codex]` review. No public
+wording rollback is needed from the research boundary perspective.
