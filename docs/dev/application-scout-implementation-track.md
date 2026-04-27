@@ -190,3 +190,26 @@ ready: `[Agent Web / Codex]` can implement Scout mounted research workspace,
   Rack routes, `/events`, `/receipt`, web markers, and manual server mode on
   top of the app-local core.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-scout-implementation-track.md`
+status: landed
+delta: added Scout Rack wiring through `Scout.build`, including mounted Web
+  workspace, command redirects, `/events`, `/receipt`, and manual server mode.
+delta: added `examples/application/scout/web/research_workspace.rb` with an
+  Arbre research workspace rendered from `ScoutSnapshot`, stable provenance,
+  finding, contradiction, checkpoint, receipt, feedback, and activity markers.
+delta: expanded `examples/application/scout_poc.rb` and `examples/catalog.rb`
+  with in-process Rack smoke evidence for initial render, refusals, workflow
+  actions, events parity, receipt endpoint, and fixture no-mutation.
+verify: `ruby examples/application/scout_poc.rb` passed.
+verify: `ruby examples/run.rb run application/scout_poc` passed.
+verify: `ruby examples/run.rb smoke` passed, 79 examples.
+verify: `bundle exec rubocop examples/application/scout_poc.rb examples/application/scout examples/catalog.rb`
+  passed.
+verify: `git diff --check` passed.
+verify: `ruby examples/application/scout_poc.rb server` served GET `/` on
+  `http://127.0.0.1:9296/` during manual local check.
+ready: `[Architect Supervisor / Codex]` can run full smoke and review Scout
+  showcase readiness.
+block: none

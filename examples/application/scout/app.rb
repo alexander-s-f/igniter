@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
+require "uri"
+
+require "igniter/application"
+
 require_relative "services/finding_extractor"
 require_relative "services/research_session_store"
 require_relative "services/source_library"
+require_relative "web/research_workspace"
 
 module Scout
   APP_ROOT = File.expand_path(__dir__)
@@ -12,6 +17,23 @@ module Scout
     ENV.fetch("SCOUT_WORKDIR", "/tmp/igniter_scout_poc")
   end
 
+  def self.feedback_path(params)
+    "/?#{URI.encode_www_form(params)}"
+  end
+
+  def self.result_feedback_path(result)
+    feedback_param = result.success? ? :notice : :error
+    feedback_path(
+      {
+        feedback_param => result.feedback_code,
+        session: result.session_id,
+        source: result.source_id,
+        finding: result.finding_id,
+        receipt: result.receipt_id
+      }.compact
+    )
+  end
+
   def self.events_read_model(snapshot)
     recent = snapshot.recent_events.map do |event|
       source_id = event.fetch(:source_id) || "-"
@@ -19,6 +41,65 @@ module Scout
       "#{event.fetch(:kind)}:#{source_id}:#{finding_id}:#{event.fetch(:status)}"
     end
     "topic=#{snapshot.topic || "none"} session=#{snapshot.session_id || "none"} status=#{snapshot.status} sources=#{snapshot.source_count} findings=#{snapshot.finding_count} contradictions=#{snapshot.contradiction_count} checkpoint=#{snapshot.checkpoint_choice || "none"} receipt=#{snapshot.receipt_id || "none"} actions=#{snapshot.action_count} recent=#{recent.join("|")}"
+  end
+
+  def self.build(data_root: DATA_ROOT, workdir: Scout.default_workdir)
+    Igniter::Application.rack_app(:scout, root: APP_ROOT, env: :test) do
+      service(:scout) { App.new(data_root: data_root, workdir: workdir) }
+
+      mount_web(
+        :research_workspace,
+        Web.research_workspace_mount,
+        at: "/",
+        capabilities: %i[screen command],
+        metadata: { poc: true }
+      )
+
+      get "/events" do
+        text Scout.events_read_model(service(:scout).snapshot)
+      end
+
+      get "/receipt" do
+        text service(:scout).latest_receipt_text
+      end
+
+      post "/sessions/start" do |params|
+        result = service(:scout).start_session(
+          topic: params.fetch("topic", ""),
+          source_ids: params.fetch("source_ids", "")
+        )
+        redirect Scout.result_feedback_path(result)
+      end
+
+      post "/findings/extract" do |params|
+        result = service(:scout).extract_findings(session_id: params.fetch("session_id", ""))
+        redirect Scout.result_feedback_path(result)
+      end
+
+      post "/sources/add" do |params|
+        result = service(:scout).add_local_source(
+          session_id: params.fetch("session_id", ""),
+          source_id: params.fetch("source_id", "")
+        )
+        redirect Scout.result_feedback_path(result)
+      end
+
+      post "/checkpoints" do |params|
+        result = service(:scout).choose_checkpoint(
+          session_id: params.fetch("session_id", ""),
+          direction: params.fetch("direction", "")
+        )
+        redirect Scout.result_feedback_path(result)
+      end
+
+      post "/receipts" do |params|
+        result = service(:scout).emit_receipt(
+          session_id: params.fetch("session_id", ""),
+          metadata: { source: :scout_web }
+        )
+        redirect Scout.result_feedback_path(result)
+      end
+    end
   end
 
   class App
