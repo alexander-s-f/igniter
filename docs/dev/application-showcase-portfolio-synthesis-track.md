@@ -122,6 +122,87 @@ git diff --check
 
 Implementation belongs to a later track.
 
+## Showcase Application Synthesis
+
+[Agent Application / Codex] Current evidence:
+
+| App | Services | Contract Graph | Commands | Snapshot | Report/Receipt | Data Boundary | Smoke/Docs |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Lense | `CodebaseAnalyzer` reads a target Ruby tree; `IssueSessionStore` owns guided issue sessions and actions. | `CodebaseHealthContract` computes counts, prioritized findings, health score, and report metadata. | Refresh scan, start session, record step actions. | `CodebaseSnapshot` exposes scan counts, findings, active session, actions, and recent events. | `LenseAnalysisReceipt` captures scan identity, findings, evidence refs, actions, skipped items, validity, and metadata. | Reads an explicit target root and proves no scanned-project mutation. | README, manual server command, catalog smoke, report endpoint markers. |
+| Chronicle | `DecisionStore`, `ProposalStore`, `DecisionConflictScanner`, and `DecisionSessionStore` own fixtures, conflict scan, sessions, sign-offs, refusals, actions, and receipts. | `DecisionReviewContract` computes conflict evidence, required sign-offs, readiness, and receipt payload. | Scan proposal, acknowledge conflict, sign off, refuse sign-off, emit receipt. | `ChronicleSnapshot` exposes proposal/session state, conflicts, sign-offs, receipt id, actions, and recent events. | `DecisionReceipt` captures proposal, conflicts, sign-off/refusal state, provenance, actions, deferred items, validity, and metadata. | Reads repo fixtures and writes only to an explicit runtime workdir; smoke proves fixture no-mutation. | README, manual server command, catalog smoke, `/events`, `/receipt`, fixture no-mutation markers. |
+
+Repeated strongly enough to document as convention:
+
+- A showcase app has an `app.rb` composition boundary, app-local services,
+  one contract-backed analysis graph, one detached snapshot, and one
+  receipt/report artifact.
+- Domain services own mutation and command state; Web and Rack routes translate
+  command results but do not own analysis state.
+- Contracts are deterministic and offline in the first slice. They compute
+  analysis/readiness/report payloads but do not write files or call external
+  systems.
+- Commands return app-local command results with feedback codes, domain ids,
+  receipt/session ids when relevant, and the recorded action fact.
+- Action facts are part of the app's evidence trail, not just UI activity.
+- Receipts include provenance, evidence refs, action ledger slices, deferred
+  scope, validity, and caller metadata.
+- Every showcase documents smoke usage and optional manual server usage in a
+  local README.
+- Smoke must prove the core user workflow, a refusal path, final read model,
+  receipt/report evidence, and no unintended mutation.
+
+Still app-local:
+
+- Analyzer/parser details, fixture schemas, thresholds, conflict rules, and
+  guided step/sign-off vocabulary.
+- Command result class names and feedback code registries.
+- Snapshot fields and status names.
+- Action kinds and ledger schemas.
+- Receipt/report class names, Markdown/hash shape, validity rules, and deferred
+  item vocabulary.
+- Runtime workdir layout and fixture seeding strategy.
+- Catalog marker names and smoke output labels.
+
+Tiny package-support candidates:
+
+- A **documentation-only showcase checklist** is justified now: app boundary,
+  deterministic contract graph, app-owned snapshot, command result/refusal,
+  action facts, receipt/report, README commands, manual server mode, and
+  mutation boundary proof.
+- A **receipt-shaped report convention design note** is justified, but should
+  remain a convention first. Lense and Chronicle both emit receipts, yet their
+  domains still need different payloads and validity semantics.
+- A **smoke helper design investigation** may be useful after Web synthesis
+  because Lense and Chronicle both repeat rack env/form body/catalog marker
+  boilerplate. This should be a narrow test helper discussion, not a runtime
+  framework.
+
+Do not graduate yet:
+
+- public `Igniter.interactive_app`
+- generic app/workflow/session DSL
+- shared `CommandResult`, snapshot, action ledger, receipt, parser, or report
+  classes
+- generic persistence/workdir API
+- live transport/SSE/WebSocket
+- UI kit/component system
+- LLM/provider integration
+- scheduler/file watcher
+- auth/users/teams/production server framework
+
+Next-track recommendation:
+
+- Open a **showcase convention consolidation track** before another app. The
+  goal should be docs/checklists and possibly a tiny design note for
+  receipt-shaped reports and smoke helpers, not implementation.
+- After consolidation, Scout is still the strongest next product pressure line
+  if the team is ready to introduce source/provenance pressure carefully.
+  Dispatch should wait until live monitoring, scheduler, and stronger approval
+  semantics are explicitly in scope.
+- If the team wants to avoid support-design work and keep product pressure
+  first, choose Scout only as an offline/local-source slice; do not add network,
+  LLM, connectors, SSE, or persistence in its first pass.
+
 ## Current Handoff
 
 [Architect Supervisor / Codex] Next:
@@ -132,3 +213,28 @@ Implementation belongs to a later track.
    and Chronicle.
 3. `[Architect Supervisor / Codex]` chooses the next product/app or support API
    pressure line.
+
+[Agent Application / Codex]
+track: `docs/dev/application-showcase-portfolio-synthesis-track.md`
+status: landed
+delta: compared Lense and Chronicle across app-owned services, deterministic
+  contracts, command results, snapshots, action facts, sessions,
+  reports/receipts, file/workdir boundaries, README/manual usage, and catalog
+  smoke.
+delta: identified repeated showcase conventions: `app.rb` composition boundary,
+  app-owned service state, offline contract-backed analysis, local command
+  results, action facts, detached snapshots, receipt-shaped evidence, README
+  commands, manual server mode, and mutation-boundary smoke proof.
+delta: kept analyzers/parsers, fixture schemas, thresholds, conflict rules,
+  feedback codes, snapshot fields, action schemas, receipt payloads, workdir
+  layout, and smoke marker labels app-local.
+delta: recommended documentation-only showcase convention consolidation plus
+  narrow design notes for receipt-shaped reports and smoke helpers before any
+  package API graduation.
+delta: recommended Scout as the next product pressure line only after
+  consolidation and only as an offline/local-source first slice; Dispatch waits
+  for scheduler/live-monitoring/approval scope.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can synthesize Web/read-model evidence, then
+  `[Architect Supervisor / Codex]` can choose the next pressure line.
+block: none
