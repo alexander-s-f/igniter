@@ -275,3 +275,92 @@ ready: `[Agent Contracts / Codex]` and `[Research Horizon / Codex]` can land
   their synthesis sections; then `[Architect Supervisor / Codex]` can choose
   the next active track.
 block: none
+
+## Contracts/Lang Readiness Synthesis
+
+[Agent Contracts / Codex] Contracts/Lang assessment:
+
+The contracts-facing story is coherent enough for public enterprise
+evaluation if it is framed as a small, inspectable embedded kernel with a
+human authoring form and honest Lang/report metadata. The strongest current
+shape is: `igniter-contracts` owns graph declaration/execution, class DSL owns
+human-edited contract files, Embed owns host registration/reload/cache policy,
+and Lang owns additive descriptors plus read-only verification reports.
+
+Strong enough to present publicly:
+
+- `igniter-contracts` now has a clear lower-layer promise: host-agnostic,
+  profile-driven, pack-extensible, locally executable, serializable, and free
+  of Rails/application/web/cluster dependencies.
+- The block API and `Igniter::Contract` class DSL are complementary rather
+  than competing surfaces: generated/embedded graphs use blocks; application
+  authors get one class per business graph, result readers, input updates, and
+  callable service object steps.
+- Embed-facing pressure is in the right layer. Contract classes expose the
+  graph; host layers own naming, caching, discovery, reload hooks, and failure
+  envelopes.
+- `StepResultPack` is a good example of optional semantics entering through a
+  pack rather than baseline inflation: visible `step` nodes, fail-fast
+  dependency short-circuiting, and serializable trace without changing the
+  ordinary compute path.
+- Lang foundation is credible as a modest reference surface:
+  `require "igniter/lang"`, Ruby backend wrapper, immutable descriptors,
+  `VerificationReport`, and report-only `MetadataManifest`.
+- The metadata boundary is public and testable: `type:`, `return_type:`,
+  `deadline:`, and `wcet:` are declared metadata; requirement-like entries say
+  `enforced: false`, and manifest semantics say `report_only: true` and
+  `runtime_enforced: false`.
+
+Still risky or confusing for enterprise evaluators:
+
+- The public path still has several entrypoint names (`igniter-contracts`,
+  `igniter/contracts`, `Igniter::Contract`, `igniter/lang`, Embed). The roles
+  are now accurate, but evaluators need one concise "which surface should I
+  start with?" decision path.
+- Contract/package smoke confidence is strong in specs and examples, but there
+  is not yet one evaluator-facing verification receipt that ties together
+  package specs, examples smoke, changed-file lint, and known caveats such as
+  legacy/reference material.
+- Lang is useful but easy to overread. Any public mention of `History`,
+  `OLAPPoint`, `return_type`, `deadline`, or `wcet` must continue to say
+  "declared/report-only, not enforced" until compiler/runtime semantics exist.
+- Embed/SparkCRM pressure remains the right source for the next lower seam.
+  `DifferentialPack` may eventually need a pre-normalized outputs comparison
+  path, but that should still be proven by embed-side adapter awkwardness, not
+  promoted preemptively.
+- `StepResultPack` should remain optional until host/app pressure proves which
+  ergonomics are universal: unwrapping helpers, non-halting steps, broader
+  authoring conventions, and policy-level failure envelopes are not baseline
+  contracts yet.
+- Pack manifests and report metadata are promising enterprise vocabulary, but
+  no package/API graduation should happen until a host actually consumes the
+  metadata repeatedly.
+
+Recommended next contracts/lang work:
+
+- Prefer a narrow "enterprise verification hardening" track over more
+  contracts semantics. Contracts acceptance should include a compact
+  evaluator decision path for block API vs class DSL vs Embed vs Lang, one
+  canonical verification receipt for current public surfaces, and explicit
+  language that legacy is reference/private context rather than onboarding.
+- If the next track is application/showcase hardening, Contracts should
+  contribute only the package/spec/example verification portion and avoid
+  promoting app-local command/snapshot/receipt vocabulary into contracts API.
+- If Embed/SparkCRM proves repeated adapter pain around differential shadowing,
+  open a tiny seam review for pre-normalized output comparison in
+  `DifferentialPack`; otherwise keep it embed-local.
+- Defer Lang continuation until a real consumer needs manifest data. Do not
+  add store DSL, metadata builders, invariant integration, budget warnings,
+  runtime deadline monitoring, type enforcement, parser/grammar, Rust/export,
+  or new `ExecutionResult` channels from this synthesis.
+
+[Agent Contracts / Codex]
+track: `docs/dev/igniter-enterprise-readiness-synthesis-track.md`
+status: landed
+delta: added contracts/lang enterprise readiness synthesis covering public
+  strengths, evaluator risks, recommended verification hardening, Embed seam
+  watchpoints, and deferred Lang/runtime semantics.
+verify: `git diff --check` passed.
+ready: `[Research Horizon / Codex]` can land the horizon filter; then
+  `[Architect Supervisor / Codex]` can choose the next active track.
+block: none
