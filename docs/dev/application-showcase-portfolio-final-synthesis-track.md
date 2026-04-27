@@ -135,3 +135,95 @@ commands.
 2. `[Agent Web / Codex]` synthesizes Web/read-model/manual-review evidence
    across the same portfolio.
 3. `[Architect Supervisor / Codex]` decides the next strategic track.
+
+## Portfolio App Synthesis
+
+[Agent Application / Codex] App-side portfolio story:
+
+| Showcase | Workflow | Contract graph | Command/refusal model | Snapshot | Evidence artifact | Mutation boundary |
+| --- | --- | --- | --- | --- | --- | --- |
+| Lense | Local Ruby project scan -> health findings -> guided issue session -> analysis receipt. | `CodebaseHealthContract` turns scan facts into health score, prioritized findings, and report metadata. | `IssueSessionStore::CommandResult` covers guided done/skip/note actions and refusal paths. | `CodebaseSnapshot` exposes scan, findings, session, actions, and report state. | `LenseAnalysisReceipt` proves scan identity, findings, evidence refs, actions, skipped scope, and validity. | Reads a sample project and proves no scanned-project mutation. |
+| Chronicle | Proposal scan -> decision conflicts -> acknowledgement/sign-off/refusal -> decision receipt. | `DecisionReviewContract` computes conflict evidence, required sign-offs, readiness, and receipt payload. | `DecisionSessionStore::CommandResult` covers scan, acknowledgement, sign-off, refusal, receipt, and refusals. | `ChronicleSnapshot` exposes proposal, conflicts, sign-offs/refusals, actions, and receipt state. | `DecisionReceipt` proves conflict evidence, sign-off/refusal state, provenance, deferred scope, and validity. | Reads proposal/decision fixtures and writes sessions/actions/receipts only to workdir. |
+| Scout | Topic + local sources -> findings -> direction checkpoint -> research receipt. | `ResearchSynthesisContract` computes claims, findings, contradictions, checkpoint readiness, and synthesis payload. | `ResearchSessionStore::CommandResult` covers session, extraction, local source add, checkpoint, receipt, and refusals. | `ScoutSnapshot` exposes topic, sources, findings, contradictions, checkpoint, actions, and receipt state. | `ResearchReceipt` proves citations, synthesis, checkpoint choice, deferred scope, provenance, and validity. | Reads local source fixtures and writes sessions/actions/receipts only to workdir. |
+| Dispatch | Seeded incident event bundle -> triage/routing -> assignment checkpoint -> handoff receipt. | `IncidentTriageContract` computes event facts, severity, suspected cause, routing options, readiness, and receipt payload. | `IncidentSessionStore::CommandResult` covers open, triage, assignment, escalation, receipt, and refusals. | `DispatchSnapshot` exposes incident, severity/cause, route options, assignment/escalation, actions, and receipt state. | `IncidentReceipt` proves routing rationale, event citations, checkpoint, deferred no-remediation scope, provenance, and validity. | Reads incident/event/runbook/team fixtures and writes sessions/actions/receipts only to workdir. |
+
+Stable enough for guide-level doctrine:
+
+- `app.rb` as the visible composition boundary for services, mounted Web, and
+  small command routes.
+- App-owned services for fixture loading, deterministic analysis, mutable
+  session state, receipt/report emission, and read snapshots.
+- One deterministic contracts-native graph per showcase for the core
+  analysis/readiness/payload computation.
+- Local command result objects with success/refusal feedback codes and a
+  recorded action fact.
+- Detached snapshots as the read model for Web, `/events`, smoke output, and
+  manual inspection.
+- App-local receipts/reports as evidence artifacts with stable id, kind,
+  validity, subject identity, provenance, evidence refs, action facts,
+  deferred scope, metadata, and mutation-boundary proof.
+- Deterministic catalog smoke that proves at least one success path, one
+  refusal path, final state, receipt/report evidence, `/events` parity,
+  runtime writes, and fixture/target no-mutation.
+- README discoverability as part of showcase readiness, not a later docs chore.
+
+Still app-local despite repetition:
+
+- `CommandResult`, snapshot class names, fields, and payload shape.
+- Feedback code strings, action fact vocabulary, entity ids, command names, and
+  route labels.
+- Fixture schemas, parsers, thresholds, readiness rules, routing/conflict/
+  finding/checkpoint semantics, and validity rules.
+- Receipt/report classes, payload keys, Markdown/hash rendering, evidence ref
+  format, deferred-scope vocabulary, and workdir layout.
+- Smoke output names, exact marker fragments, representative success/refusal
+  path choices, and fixture signature strategy.
+
+Support/API extraction assessment:
+
+- A broad package API is still not justified. The four apps show a reliable
+  convention, but local duplication is still preserving domain clarity rather
+  than hiding it.
+- The smallest justified extraction candidate is not runtime API; it is an
+  examples/specs-scoped "showcase evidence helper" experiment for smoke
+  scripts: file signature helpers, Rack env/form helpers, redirect following,
+  stable fragment assertions, endpoint parity checks, and deterministic output
+  helpers.
+- A second safe candidate is docs-only enterprise packaging/discoverability:
+  a portfolio page or guide index that explains Lense, Chronicle, Scout, and
+  Dispatch as reference apps and points away from legacy as onboarding.
+- Do not extract shared command result, snapshot, receipt/report class, marker
+  DSL, route DSL, UI kit, workflow DSL, persistence, live runtime,
+  `Igniter.interactive_app`, or cluster placement from this evidence.
+
+Recommended next strategic track:
+
+- Prefer an enterprise-facing documentation/discoverability pass next:
+  "Application Showcase Portfolio Guide". The portfolio is now strong enough
+  to present as a coherent story, and this will reduce future onboarding and
+  agent-context load without creating premature APIs.
+- If the team wants implementation instead of docs, prefer a tiny
+  examples/specs-scoped showcase evidence helper experiment over another
+  product app.
+- If product pressure pauses or package work resumes, return to Embed/Contracts
+  before Cluster/Mesh. The current portfolio is intentionally one-process and
+  does not yet require distributed runtime machinery.
+- Keep legacy material reference-only; active onboarding should point to
+  current packages, `docs/guide/interactive-app-structure.md`, and the four
+  showcase apps.
+
+[Agent Application / Codex]
+track: `docs/dev/application-showcase-portfolio-final-synthesis-track.md`
+status: landed
+delta: added app-side portfolio synthesis comparing Lense, Chronicle, Scout,
+  and Dispatch by workflow, contract graph, command/refusal model, snapshot,
+  action facts, receipt/report artifact, and mutation boundary.
+delta: identified guide-level doctrine now stable across four apps and listed
+  repeated shapes that still stay app-local despite repetition.
+delta: recommended no broad API graduation; smallest support candidate is an
+  examples/specs-scoped showcase evidence helper, while the preferred next
+  strategic track is enterprise-facing portfolio docs/discoverability.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can add Web/read-model/manual-review synthesis;
+  then `[Architect Supervisor / Codex]` can choose the next strategic track.
+block: none
