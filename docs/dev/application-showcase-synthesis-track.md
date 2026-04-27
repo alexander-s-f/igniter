@@ -197,6 +197,96 @@ Next-track recommendation:
   decision store can stress reports, sign-offs, provenance, conflict detection,
   and app-owned records without network, LLM, scheduler, or connector scope.
 
+## Web Pattern Synthesis
+
+[Agent Web / Codex] Current evidence:
+
+| POC | Mounted Surface | Read Shape | Commands | `/events` | Markers | Smoke Loop |
+| --- | --- | --- | --- | --- | --- | --- |
+| `interactive_operator` | `web/operator_board.rb` renders one task board. | `BoardSnapshot` with tasks, open count, recent events. | create task, resolve task. | text model from the same snapshot. | surface, create form, task id/state, feedback, activity. | in-process Rack requests plus optional server. |
+| `operator_signal_inbox` | `web/signal_inbox.rb` renders one signal inbox. | `SignalSnapshot` with signals, open/critical counts, recent events. | acknowledge signal, escalate signal. | text model from the same snapshot. | surface, counters, signal id/status/severity, feedback, action buttons, activity. | in-process Rack requests plus optional server. |
+| `lense` | `web/lense_dashboard.rb` renders one dashboard/workbench. | `CodebaseSnapshot` with scan counts, findings, active session, recent events, report data. | refresh scan, start session, done/skip/note step actions. | text model from the same snapshot. | surface, scan/count/finding/session/report, feedback, activity. | in-process Rack requests plus optional server. |
+
+Repeated naturally:
+
+- Each app has one mounted Arbre surface module under local `web/`.
+- Each surface reads app state through `MountContext` and an app-owned service,
+  usually `assigns[:ctx].service(:name).call.snapshot(...)`.
+- Each surface treats the snapshot as the render source for counters, records,
+  recent activity, and footer/read-model hints.
+- Each app keeps command handling in Rack routes; forms submit to the app, then
+  routes translate app-local command results into redirects with feedback query
+  params.
+- `/events` is not live transport. It is a compact inspection endpoint rendered
+  from the same detached snapshot shape as the page.
+- Stable `data-` markers are the actual browser/smoke seam: surface marker,
+  domain ids/states, feedback code, action buttons, recent activity facts, and
+  app-specific report markers when needed.
+- The smoke loop is intentionally boring: in-process Rack requests, string
+  assertions over stable markers, refusal paths, final state, recent activity,
+  `/events` parity, and optional manual `server` mode.
+
+Still domain-specific:
+
+- Layout structure: task board, signal inbox, and Lense workbench have different
+  panel shapes and should not be normalized into a generic dashboard.
+- Marker names: `data-task-id`, `data-signal-id`, `data-finding-id`,
+  `data-session-id`, and `data-report-id` carry domain meaning.
+- Feedback copy and feedback codes remain local.
+- Form paths and params remain local.
+- Counter names and status/severity labels remain local.
+- Activity label helpers remain local because they translate domain action
+  facts into human-readable copy.
+- Lense's report lane and dynamic session route are showcase-specific evidence,
+  not enough to justify a generic report component or flow/session UI.
+
+Keep local for at least one more app:
+
+- Arbre component/layout helpers.
+- Feedback parser helpers.
+- Marker naming helpers or marker DSL.
+- Generic form/action builders.
+- Generic recent-activity component.
+- `/events` serialization helper.
+- Browser smoke helper API beyond the existing script-local `rack_env` and form
+  body utilities.
+
+Tiny future package-support candidates, not implementation mandates:
+
+- A guide-level "mounted surface checklist" for app-local Web examples:
+  one surface, one snapshot, `/events` parity, stable `data-` markers, refusal
+  smoke, optional server mode.
+- A small test helper for in-process Rack requests may become worthwhile if
+  Chronicle repeats the same boilerplate.
+- `MountContext` is already the right package seam; future work should improve
+  documentation before adding helper APIs.
+- Route params in `RackHost` are sufficient for app-local POC routes; avoid
+  broad server/router growth.
+
+Do not graduate yet:
+
+- UI kit, component library, layout DSL, marker DSL, or generic dashboard
+  framework.
+- Live transport/SSE/WebSocket.
+- Browser automation framework as part of `igniter-web`.
+- Generic report, graph, map, sign-off, or wizard components.
+- Public `Igniter.interactive_app` facade.
+
+Next-track recommendation from Web:
+
+- Agree with Application: open **Chronicle showcase scoping** next rather than a
+  second Lense slice or facade design pass.
+- Chronicle should be scoped as an offline one-process app: local Markdown
+  decision store, deterministic proposal/conflict scan, decision/sign-off
+  commands, app-owned relationship snapshot, `/events` parity, and a
+  receipt-shaped decision record.
+- Chronicle is a better immediate Web pressure test than Scout because it can
+  stress linked records, conflict evidence, sign-off state, and report output
+  without network/search/LLM connectors.
+- Chronicle should avoid SVG/canvas/graph frameworks in the first slice; render
+  the decision map as inspectable nested HTML with stable markers unless a later
+  track proves a real need.
+
 ## Current Handoff
 
 [Architect Supervisor / Codex] Next:
@@ -228,4 +318,27 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can synthesize the web/read-model side, then
   `[Architect Supervisor / Codex]` can decide the next product/app pressure
   line.
+block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-showcase-synthesis-track.md`
+status: landed
+delta: compared `interactive_operator`, `operator_signal_inbox`, and `lense`
+  across mounted surfaces, `MountContext` reads, `/events`, forms, feedback
+  codes, stable markers, and in-process Rack smoke loops.
+delta: identified the repeated Web convention: one local Arbre surface, one
+  app-owned snapshot render source, Rack form redirects with feedback, `/events`
+  snapshot parity, stable `data-` markers, refusal smoke, final-state smoke,
+  and optional manual server mode.
+delta: kept UI/layout/marker/form/activity helpers local; no UI kit,
+  component DSL, marker DSL, live transport, browser automation framework,
+  generic report/graph/sign-off component, or public `interactive_app` facade
+  should graduate yet.
+delta: agreed with the Chronicle showcase scoping recommendation, with a Web
+  boundary: offline Markdown decision store, deterministic conflict/sign-off
+  flows, nested HTML decision map, `/events` parity, and no SVG/canvas/graph
+  framework in the first slice.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can decide the next product/app
+  pressure line.
 block: none
