@@ -170,3 +170,43 @@ verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can decide Chronicle showcase-ready
   status.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Chronicle is showcase-ready as the second bounded one-process reference app.
+- The finalization pass improved discoverability and manual review readiness
+  without widening scope or promoting app-local patterns into package APIs.
+- Chronicle now sits beside Lense as a complementary showcase:
+  Lense stresses codebase analysis and guided remediation sessions; Chronicle
+  stresses decision evidence, sign-off/refusal state, and durable receipts.
+- The app-local boundary remains correct: fixtures are read-only, runtime
+  writes stay in the workdir, contracts compute deterministic analysis, and Web
+  consumes snapshots plus stable markers.
+
+Supervisor verification:
+
+```bash
+ruby examples/application/chronicle_poc.rb
+ruby examples/run.rb run application/chronicle_poc
+ruby examples/run.rb smoke
+bundle exec rubocop examples/application/chronicle_poc.rb examples/application/chronicle examples/catalog.rb
+git diff --check
+```
+
+Result:
+
+- `chronicle_poc` passed.
+- `examples/run.rb run application/chronicle_poc` passed.
+- `examples/run.rb smoke` passed with 78 examples and 0 failures.
+- RuboCop passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Open [Application Showcase Portfolio Synthesis Track](./application-showcase-portfolio-synthesis-track.md)
+  to compare Lense and Chronicle as the first two serious showcase apps before
+  selecting another product slice or graduating any tiny support API.
