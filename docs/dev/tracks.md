@@ -46,8 +46,8 @@ block: none | <blocker>
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
 | `[Architect Supervisor / Codex]` | Review Chronicle implementation and decide showcase readiness/finalization | [Application Chronicle Implementation Track](./application-chronicle-implementation-track.md) | [Application Chronicle Scoping Track](./application-chronicle-scoping-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Implement Chronicle app-local services, fixtures, contract graph, commands, snapshots, receipt evidence | [Application Chronicle Implementation Track](./application-chronicle-implementation-track.md) | [Application Chronicle Scoping Track](./application-chronicle-scoping-track.md), [Application Showcase Synthesis Track](./application-showcase-synthesis-track.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Implement Chronicle mounted workbench, Rack routes, markers, `/events`, `/receipt`, and smoke evidence | [Application Chronicle Implementation Track](./application-chronicle-implementation-track.md) | [Application Chronicle Scoping Track](./application-chronicle-scoping-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Application / Codex]` | Standby; Chronicle app-local implementation landed | [Application Chronicle Implementation Track](./application-chronicle-implementation-track.md) | [Application Chronicle Scoping Track](./application-chronicle-scoping-track.md), [Application Showcase Synthesis Track](./application-showcase-synthesis-track.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Standby; Chronicle Web implementation landed | [Application Chronicle Implementation Track](./application-chronicle-implementation-track.md) | [Application Chronicle Scoping Track](./application-chronicle-scoping-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -122,6 +122,8 @@ block: none | <blocker>
 - Chronicle scoping accepted; next active track implements the bounded
   offline one-process POC:
   [Application Chronicle Implementation Track](./application-chronicle-implementation-track.md).
+- Chronicle app-local and Web implementation have landed; supervisor can
+  review showcase readiness or request a finalization pass.
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 

@@ -188,3 +188,25 @@ ready: `[Agent Web / Codex]` can implement Chronicle mounted workbench, Rack
   routes, `/events`, `/receipt`, web markers, and manual server mode on top of
   the app-local core.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-chronicle-implementation-track.md`
+status: landed
+delta: added Chronicle mounted Arbre workbench under
+  `examples/application/chronicle/web/` rendering app-owned snapshots with
+  stable proposal/session, conflict, relationship, sign-off/refusal, receipt,
+  feedback, and recent-activity markers.
+delta: wired `Chronicle.build` Rack app routes for scan, acknowledge, sign-off,
+  refusal, receipt emission, `/events`, and `/receipt`, keeping mutation in the
+  app-owned Chronicle service.
+delta: extended `examples/application/chronicle_poc.rb` with in-process Rack
+  smoke coverage plus manual `server` mode, and registered Web smoke markers in
+  `examples/catalog.rb`.
+verify: `ruby examples/application/chronicle_poc.rb` passed.
+verify: `ruby examples/run.rb smoke` passed.
+verify: `bundle exec rubocop examples/application/chronicle_poc.rb examples/application/chronicle examples/catalog.rb`
+  passed.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can review Chronicle as a complete
+  bounded one-process showcase candidate.
+block: none
