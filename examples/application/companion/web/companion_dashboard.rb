@@ -118,6 +118,15 @@ module Companion
                 end
               end
 
+              div "data-capsule": "body-battery", style: Companion::Web.style(:panel_accent) do
+                h2 "Body battery", style: Companion::Web.style(:h2)
+                strong "#{snapshot.body_battery.fetch(:score)} / 100", "data-body-battery-score": snapshot.body_battery.fetch(:score)
+                para snapshot.body_battery.fetch(:status).capitalize,
+                     "data-body-battery-status": snapshot.body_battery.fetch(:status),
+                     style: Companion::Web.style(:muted)
+                para snapshot.body_battery.fetch(:recommendation), "data-body-battery-recommendation": "true"
+              end
+
               div "data-capsule": "daily-summary", style: Companion::Web.style(:panel_accent) do
                 h2 "Daily summary", style: Companion::Web.style(:h2)
                 para snapshot.daily_summary.fetch(:recommendation), "data-daily-recommendation": "true"

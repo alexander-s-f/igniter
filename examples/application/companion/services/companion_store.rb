@@ -22,7 +22,7 @@ module Companion
       Snapshot = Struct.new(
         :reminders, :trackers, :countdowns, :open_reminders, :tracker_logs_today,
         :countdown_count, :live_ready, :credential_status, :daily_summary,
-        :live_summary, :action_count, :recent_events,
+        :body_battery, :live_summary, :action_count, :recent_events,
         keyword_init: true
       ) do
         def to_h
@@ -36,6 +36,7 @@ module Companion
             live_ready: live_ready,
             credential_status: credential_status.dup,
             daily_summary: daily_summary.dup,
+            body_battery: body_battery.dup,
             live_summary: live_summary&.dup,
             action_count: action_count,
             recent_events: recent_events.map(&:dup)
@@ -53,6 +54,7 @@ module Companion
       def snapshot(recent_limit: 6)
         payload = base_payload
         summary = Contracts::DailySummaryContract.evaluate(snapshot: payload)
+        body_battery = Contracts::BodyBatteryContract.evaluate(snapshot: payload)
 
         Snapshot.new(
           reminders: @reminders.map(&:dup).freeze,
@@ -64,6 +66,7 @@ module Companion
           live_ready: payload.fetch(:live_ready),
           credential_status: credential_status,
           daily_summary: summary,
+          body_battery: body_battery,
           live_summary: @live_summary&.dup,
           action_count: @actions.length,
           recent_events: @actions.last(recent_limit).map { |action| action.to_h.freeze }.freeze
@@ -240,8 +243,21 @@ module Companion
           tracker_logs_today: @trackers.sum do |tracker|
             tracker.log_entries.count { |entry| entry.fetch(:date) == Date.today.iso8601 }
           end,
+          sleep_hours_today: tracker_value_today("sleep"),
+          training_minutes_today: tracker_value_today("training"),
           live_ready: credential_status.fetch(:configured)
         }
+      end
+
+      def tracker_value_today(id)
+        tracker = @trackers.find { |entry| entry.id == id.to_s }
+        return 0 unless tracker
+
+        tracker.log_entries.select { |entry| entry.fetch(:date) == Date.today.iso8601 }.sum do |entry|
+          Float(entry.fetch(:value))
+        rescue ArgumentError, TypeError
+          0
+        end
       end
 
       def credential_status

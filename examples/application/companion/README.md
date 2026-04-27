@@ -9,6 +9,7 @@ Current capsules:
 - reminders
 - trackers
 - countdowns
+- body battery
 - daily summary
 - hub install surface
 
