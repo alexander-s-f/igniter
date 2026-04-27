@@ -210,3 +210,46 @@ verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can review Chronicle as a complete
   bounded one-process showcase candidate.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Chronicle implementation is accepted as a complete bounded one-process POC.
+- The app/web split matches the approved architecture: app-local services own
+  mutation and analysis, Web renders snapshots and routes commands, and package
+  APIs were not promoted.
+- The contract-backed analysis graph is deterministic and offline.
+- Seed fixtures remain read-only; runtime writes go to the workdir.
+- Web evidence covers the intended user flow: scan, conflict evidence,
+  acknowledgement, sign-off, refusal, receipt readiness, receipt emission,
+  `/events`, `/receipt`, feedback markers, and fixture no-mutation.
+
+Supervisor verification:
+
+```bash
+ruby examples/application/chronicle_poc.rb
+ruby examples/run.rb smoke
+bundle exec rubocop examples/application/chronicle_poc.rb examples/application/chronicle examples/catalog.rb
+git diff --check
+```
+
+Result:
+
+- `chronicle_poc` passed.
+- `examples/run.rb smoke` passed with 78 examples and 0 failures.
+- RuboCop passed with no offenses.
+- `git diff --check` passed.
+
+Notes:
+
+- Chronicle is functionally ready as a POC, but not yet marked
+  showcase-ready.
+- A short finalization pass should improve discoverability, manual usage notes,
+  and polish before the team treats it as a reference showcase beside Lense.
+
+Next:
+
+- Open [Application Chronicle Showcase Finalization Track](./application-chronicle-showcase-finalization-track.md).
