@@ -29,10 +29,5 @@ distributed routing, it probably belongs above core.
 - [Guide: API And Runtime](./api-and-runtime.md)
 - [Dev: Module System](../dev/module-system.md)
 
-## Historical Deep Reference
-
-- [DATAFLOW_V1.md](../DATAFLOW_V1.md)
-- [CAPABILITIES_V1.md](../CAPABILITIES_V1.md)
-- [CONTENT_ADDRESSING_V1.md](../CONTENT_ADDRESSING_V1.md)
-- [NODE_CACHE_V1.md](../NODE_CACHE_V1.md)
-- [TEMPORAL_V1.md](../TEMPORAL_V1.md)
+Historical V1 runtime references are private working material under
+`playgrounds/docs/`.

@@ -374,13 +374,8 @@ This gives a clean early win without mixing structural reorg and hard runtime re
 
 - `README.md`
 - `docs/dev/architecture-reference.md`
-- `docs/dev/legacy/DEPLOYMENT_V1.md`
-- `docs/dev/legacy/APP_V1.md`
-- `docs/dev/legacy/SERVER_V1.md`
-- `docs/LLM_V1.md`
-- `docs/dev/legacy/SKILLS_V1.md`
-- `docs/dev/legacy/TOOLS_V1.md`
-- `docs/dev/legacy/TRANSCRIPTION_V1.md`
+- public guide and package README entrypoints
+- private legacy references under `playgrounds/docs/`
 - any examples requiring updated entry points
 
 ## Success Criteria

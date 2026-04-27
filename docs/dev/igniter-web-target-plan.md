@@ -7,7 +7,7 @@ It should be read together with:
 - [Module System](./module-system.md)
 - [Application Target Plan](./application-target-plan.md)
 - [Application And Web Integration](./application-web-integration.md)
-- [Current: App Structure](../current/app-structure.md)
+- [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md)
 
 ## Status
 

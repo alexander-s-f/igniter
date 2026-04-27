@@ -22,7 +22,6 @@ The SDK is a capability plane, not the foundation itself.
 
 - [Guide: AI And Tool Surfaces](../guide/ai-and-tools.md)
 - [Guide: Integrations](../guide/integrations.md)
-- [Dev: Legacy Reference](../dev/legacy-reference.md)
 
 ## Current SDK Model
 

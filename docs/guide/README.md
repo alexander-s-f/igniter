@@ -52,7 +52,6 @@ Current loading guidance:
 
 - [Concepts](../concepts/README.md)
 - [Igniter Concepts](../concepts/igniter.md)
-- [Patterns](../concepts/patterns.md)
 - [Examples](../../examples/README.md)
 - [Enterprise Verification](./enterprise-verification.md)
 - [Application Showcase Portfolio](./application-showcase-portfolio.md)
@@ -72,10 +71,8 @@ surface:
 
 Cross-package narratives and tutorials stay here in `docs/guide/`.
 
-## Legacy Reference
+## Legacy Boundary
 
-Older deep documents still exist, but they should usually be reached through the
-guide indexes above or the [legacy reference list](../dev/legacy-reference.md).
-Deprecated compatibility package docs should be reached through
-[Legacy Reference](../dev/legacy-reference.md), not used as the default path for
-new onboarding.
+Legacy deep references are private working material under `playgrounds/docs/`.
+Public onboarding should start from the current guide, package READMEs,
+examples, and enterprise verification path.

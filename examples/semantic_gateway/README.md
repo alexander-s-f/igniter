@@ -1,7 +1,7 @@
 # Semantic Gateway — Prototype
 
 Standalone experiment. Does not modify the `igniter` gem.  
-Design document: `docs/experts/semantic-gateway.md`
+The original design note is private working material under `playgrounds/docs/`.
 
 ## What This Is
 
@@ -137,8 +137,7 @@ means in context of this user/team" as a local vocabulary extension. The gateway
 becomes more accurate per session.
 
 **Igniter contract integration:** The gateway pipeline maps directly to an Igniter
-Contract with `compute` nodes for each stage. See `docs/experts/semantic-gateway.md`
-for the full contract design.
+Contract with `compute` nodes for each stage.
 
 ## Proposal for Igniter Integration
 

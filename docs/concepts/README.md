@@ -11,10 +11,8 @@ Use this section for durable mental models and vocabulary.
 ## Canonical Concepts
 
 - [Igniter](./igniter.md)
-- [Patterns](./patterns.md)
 
 ## Related Sections
 
 - [Guide](../guide/README.md) for practical usage
-- [Current](../current/README.md) for active current-state notes
 - [Dev](../dev/README.md) for internal architecture and implementation work

@@ -6,9 +6,8 @@ surface area.
 ## Canonical Public Reads
 
 - [Enterprise Verification](./enterprise-verification.md)
-- [API v2](../API_V2.md)
-- [Execution Model v2](../EXECUTION_MODEL_V2.md)
-- [Patterns](../PATTERNS.md)
+- [Contract Class DSL](./contract-class-dsl.md)
+- [Core Runtime Features](./core-runtime-features.md)
 
 ## Layer Entry Points
 
@@ -27,8 +26,6 @@ Operating modes to keep in mind:
 
 - [Contract Class DSL](./contract-class-dsl.md)
 - [Igniter Lang Foundation](./igniter-lang-foundation.md)
-- [Content Addressing v1](../CONTENT_ADDRESSING_V1.md) — legacy reference for the pre-contracts activation model
-- [Dataflow v1](../DATAFLOW_V1.md) — legacy reference for the pre-contracts activation model
 - [Store Adapters](./store-adapters.md)
 - [Deployment Modes](./deployment-modes.md)
 

@@ -15,11 +15,7 @@ Distributed workflow concerns belong above the embedded kernel:
 ## Current Reading Path
 
 - [Cluster](./cluster.md)
-- [Cluster State Snapshot](../current/cluster-state.md)
-- [Cluster Roadmap](../current/cluster-roadmap.md)
 - [Guide: Deployment Modes](./deployment-modes.md)
 
-## Historical Deep Reference
-
-For the older detailed design write-up, see
-[Distributed Contracts v1](../DISTRIBUTED_CONTRACTS_V1.md).
+Historical distributed-workflow references are private working material under
+`playgrounds/docs/`.

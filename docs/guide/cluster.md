@@ -17,18 +17,14 @@ The cluster layer should stay above `core` and `app`. It is not the place to red
 - [Guide](../guide/README.md)
 - [Guide: How-Tos](../guide/how-tos.md)
 - [Dev: Cluster Target Plan](../dev/cluster-target-plan.md)
-- [Cluster State Snapshot](../current/cluster-state.md)
-- [Cluster Roadmap](../current/cluster-roadmap.md)
 
 ## Supporting Reference
 
 - [Guide: Distributed Workflows](../guide/distributed-workflows.md)
-- [Dev: Legacy Reference](../dev/legacy-reference.md)
 
 ## Useful Supporting Docs
 
 - [Guide: Core Runtime Features](../guide/core-runtime-features.md)
-- [Backlog](../BACKLOG.md)
 
 ## Examples
 
@@ -47,11 +43,6 @@ The cluster layer should stay above `core` and `app`. It is not the place to red
 
 ## Direction
 
-If you want the current implemented state, start with
-[Cluster State Snapshot](../current/cluster-state.md). If you want the
-development direction beyond that, continue to
-[Cluster Roadmap](../current/cluster-roadmap.md).
-
 Current design direction:
 
 - `Cluster` is being reset as a contracts-native distributed runtime layer
@@ -59,4 +50,5 @@ Current design direction:
 - new design work should follow the
   [Cluster Target Plan](../dev/cluster-target-plan.md)
 
-Read older cluster docs only through [`../dev/legacy-reference.md`](../dev/legacy-reference.md), not as the first entrypoint.
+Older cluster research and legacy notes are private working material under
+`playgrounds/docs/`, not public onboarding.

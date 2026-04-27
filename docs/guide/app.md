@@ -31,7 +31,6 @@ four richer app reviews.
 - [Guide: Configuration](../guide/configuration.md)
 - [Guide: Deployment Modes](../guide/deployment-modes.md)
 - [Guide: Application Capsules](../guide/application-capsules.md)
-- [Current: App Structure](../current/app-structure.md)
 - [Dev: Application Target Plan](../dev/application-target-plan.md)
 - [Application Showcase Portfolio](./application-showcase-portfolio.md)
 - [Interactive App Structure](./interactive-app-structure.md)
@@ -41,7 +40,6 @@ four richer app reviews.
 
 - [Guide: Configuration](../guide/configuration.md)
 - [Guide: Integrations](../guide/integrations.md)
-- [Dev: Legacy Reference](../dev/legacy-reference.md)
 
 ## Useful Supporting Docs
 
@@ -130,8 +128,8 @@ For frontend authoring, the recommended path is:
 - Tailwind surfaces
 
 Hardcoded HTML strings in Ruby are not the preferred authoring model.
-See [Current: App Structure](../current/app-structure.md) for the active
-structure doctrine and migration direction.
+See [Interactive App Structure](./interactive-app-structure.md) for the
+current public app/web structure convention.
 
 ## Current App Model
 
@@ -152,7 +150,9 @@ The main operational split is:
 - `Igniter::Server` provides hosting/transport
 - `Igniter::Cluster` extends that into network-aware execution
 
-Legacy `service/topology` support has been removed from the canonical stack runtime. Read older historical docs only through [`../dev/legacy-reference.md`](../dev/legacy-reference.md).
+Legacy `service/topology` support has been removed from the canonical stack
+runtime. Older historical docs are private working material under
+`playgrounds/docs/`.
 
 Current design direction:
 

@@ -1,26 +1,20 @@
 # Architecture
 
-Use this index for internal structure and dependency direction across Igniter.
+Use this page as the public contributor entrypoint for Igniter architecture.
 
-## Canonical Reads
+For the current package and layer map, start with:
 
-- [Architecture Index](../ARCHITECTURE_INDEX.md)
-- [Architecture v2](../ARCHITECTURE_V2.md)
-- [Layers v1](../LAYERS_V1.md)
-- [Module System v1](../MODULE_SYSTEM_V1.md)
-
-## Runtime Semantics Relevant To Contributors
-
-- [Execution Model v2](../EXECUTION_MODEL_V2.md)
-- [API v2](../API_V2.md)
-- [Patterns](../PATTERNS.md)
-
-## Package-Layer Perspective
-
-- [Module System](./module-system.md)
 - [Package Map](./package-map.md)
+- [Module System](./module-system.md)
 - [Data Ownership](./data-ownership.md)
-- [Core](../core/README.md)
-- [App](../app/README.md)
-- [Cluster](../cluster/README.md)
-- [SDK](../sdk/README.md)
+- [Current Runtime Snapshot](./current-runtime-snapshot.md)
+
+For user-facing runtime choices, use:
+
+- [Core](../guide/core.md)
+- [App](../guide/app.md)
+- [Cluster](../guide/cluster.md)
+- [SDK](../guide/sdk.md)
+
+Private historical architecture indexes, V1 references, and old layer maps live
+under `playgrounds/docs/`.

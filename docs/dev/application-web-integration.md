@@ -100,8 +100,8 @@ Read this together with:
 - [Igniter Web Target Plan](./igniter-web-target-plan.md)
 - [Igniter Web DSL Sketch](./igniter-web-dsl-sketch.md)
 - [Current Runtime Snapshot](./current-runtime-snapshot.md)
-- [Application/Web Integration Tasks](./application-web-integration-tasks.md)
-- [Application Structure Research](./application-structure-research.md)
+- detailed integration tasks and structure research are private working
+  material under `playgrounds/docs/`
 
 ## Core Thesis
 

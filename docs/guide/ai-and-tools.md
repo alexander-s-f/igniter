@@ -25,9 +25,5 @@ SDK layer.
 - [`packages/igniter-extensions/README.md`](../../packages/igniter-extensions/README.md)
 - [`packages/igniter-mcp-adapter/README.md`](../../packages/igniter-mcp-adapter/README.md)
 
-## Historical Deep Reference
-
-- [TOOLS_V1.md](../TOOLS_V1.md)
-- [SKILLS_V1.md](../SKILLS_V1.md)
-- [CHANNELS_V1.md](../CHANNELS_V1.md)
-- [TRANSCRIPTION_V1.md](../TRANSCRIPTION_V1.md)
+Historical AI/tool references are private working material under
+`playgrounds/docs/`.

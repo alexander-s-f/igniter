@@ -25,6 +25,5 @@ Ask:
 2. Is this local state, replicated metadata, or a read model?
 3. Does it really need shared consensus visibility?
 
-## Historical Deep Reference
-
-- [PERSISTENCE_MODEL_V1.md](../PERSISTENCE_MODEL_V1.md)
+Historical persistence references are private working material under
+`playgrounds/docs/`.

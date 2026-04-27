@@ -21,14 +21,12 @@ If a capability stops making sense without hosting, networking, or optional pack
 - [Guide: API And Runtime](../guide/api-and-runtime.md)
 - [Guide: Core Runtime Features](../guide/core-runtime-features.md)
 - [Dev: Embed Target Plan](../dev/embed-target-plan.md)
-- [Igniter Concepts](../IGNITER_CONCEPTS.md)
+- [Igniter Concepts](../concepts/igniter.md)
 - [Dev: Architecture](../dev/architecture.md)
 
 ## Supporting Reference
 
-- [Patterns](../PATTERNS.md)
 - [Guide: Core Runtime Features](../guide/core-runtime-features.md)
-- [Dev: Legacy Reference](../dev/legacy-reference.md)
 
 ## When To Leave Core
 

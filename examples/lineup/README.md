@@ -4,8 +4,8 @@ Standalone experiment. No changes to `igniter` gem.
 
 ## What This Is
 
-A working implementation of the Line-Up compression format from
-`docs/research-horizon/line-up-approximation-method.md`.
+A working implementation of the Line-Up compression format. The original
+research notes are private working material under `playgrounds/docs/`.
 
 Takes a handoff message (compact or prose format) and produces a compact
 structured `lineup(...)` form that preserves semantic content with fewer tokens.
@@ -80,7 +80,7 @@ The packer is deliberately **rule-based** (no LLM, no external deps). It uses:
 
 ## The Economic Formula
 
-From `docs/research-horizon/grammar-compressed-interaction.md`:
+The research hypothesis:
 
 ```
 grammar_cost + pack_cost + repair_cost < repeated_context_cost

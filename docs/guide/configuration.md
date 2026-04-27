@@ -15,7 +15,6 @@ layout, or persistence.
 - [Deployment Modes](./deployment-modes.md)
 - [Store Adapters](./store-adapters.md)
 - [Application Capsules](./application-capsules.md)
-- [Legacy Reference](../dev/legacy-reference.md)
 
 ## Current Heuristic
 

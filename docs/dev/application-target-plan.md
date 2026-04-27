@@ -7,7 +7,7 @@ It should be read together with:
 
 - [Post-Core Target Plan](./post-core-target-plan.md)
 - [Igniter Contracts Spec](./igniter-contracts-spec.md)
-- [Current: App Structure](../current/app-structure.md)
+- [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md)
 
 The central design rule is:
 

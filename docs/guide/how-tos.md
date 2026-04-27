@@ -30,8 +30,6 @@ reading.
 
 - [Cluster](./cluster.md)
 - [Distributed Workflows](./distributed-workflows.md)
-- [Cluster State Snapshot](../current/cluster-state.md)
-- [Cluster Roadmap](../current/cluster-roadmap.md)
 
 ## Add Optional Capability Packs
 

@@ -364,8 +364,7 @@ The first canonical activator-to-pack migration target is now explicit:
 - `require "igniter/extensions/invariants"`
   -> `Igniter::Extensions::Contracts::InvariantsPack`
 
-See [examples/contracts/execution_report_migration.rb](../../examples/contracts/execution_report_migration.rb)
-and [examples/contracts/auditing.rb](../../examples/contracts/auditing.rb)
+See [examples/contracts/auditing.rb](../../examples/contracts/auditing.rb)
 and [examples/contracts/capabilities.rb](../../examples/contracts/capabilities.rb)
 and [examples/contracts/dataflow.rb](../../examples/contracts/dataflow.rb)
 and [examples/contracts/differential.rb](../../examples/contracts/differential.rb)

@@ -1,7 +1,8 @@
 # Igniter: Concepts and Principles
 
 This document describes the core ideas behind Igniter in the shortest possible form.
-For the filesystem and layer map, start with [Architecture Index](./ARCHITECTURE_INDEX.md).
+For the filesystem and layer map, start with
+[Package Map](../dev/package-map.md).
 
 ## What is Igniter?
 
