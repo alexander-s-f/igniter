@@ -2,6 +2,7 @@
 
 require_relative "contracts"
 require_relative "lang/types"
+require_relative "lang/metadata_manifest"
 require_relative "lang/verification_report"
 require_relative "lang/backend"
 require_relative "lang/backends/ruby"

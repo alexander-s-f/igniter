@@ -132,3 +132,37 @@ If new Lang files are added, include them in the changed-file RuboCop command.
 2. `[Research Horizon / Codex]` reviews non-enforcement wording.
 3. `[Architect Supervisor / Codex]` reviews additive behavior and truth in
    labeling.
+
+## Handoff Notes
+
+[Agent Contracts / Codex] Task 1 landed for review.
+
+Implemented the narrow report-only metadata manifest without adding DSL
+keywords or runtime behavior. Added immutable
+`Igniter::Lang::MetadataManifest`, wired
+`VerificationReport#metadata_manifest`, and serialize
+`metadata_manifest:` through `VerificationReport#to_h`. The manifest extracts
+only already-declared operation attributes: `type:` descriptors,
+`return_type:`, `deadline:`, and `wcet:`. Requirement-like entries carry
+`enforced: false`, and the manifest semantics report
+`report_only: true` / `runtime_enforced: false`.
+
+Execution is unchanged: metadata remains operation attributes consumed only by
+the report path. No `store` keyword, `Igniter::Lang.metadata` builder,
+warnings/findings, deadline monitoring, store adapters, parser/grammar, or
+`ExecutionResult` changes were added.
+
+Updated the compact `examples/contracts/lang_foundation.rb` proof to print the
+report-only manifest flag.
+
+Verification:
+
+```bash
+bundle exec rspec packages/igniter-contracts/spec spec/current
+ruby examples/run.rb smoke
+bundle exec rubocop packages/igniter-contracts/lib/igniter/lang.rb packages/igniter-contracts/lib/igniter/lang/types.rb packages/igniter-contracts/lib/igniter/lang/metadata_manifest.rb packages/igniter-contracts/lib/igniter/lang/backend.rb packages/igniter-contracts/lib/igniter/lang/backends/ruby.rb packages/igniter-contracts/lib/igniter/lang/verification_report.rb packages/igniter-contracts/spec/igniter/lang_spec.rb examples/contracts/lang_foundation.rb examples/catalog.rb
+git diff --check
+```
+
+Results: `201 examples, 0 failures`; examples smoke `81 passed, 0 failed`;
+changed-file RuboCop no offenses; diff check passed.

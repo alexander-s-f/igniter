@@ -12,7 +12,11 @@ history_type = Igniter::Lang::History[Numeric]
 compiled = backend.compile do
   input :price_history, type: history_type
 
-  compute :latest_price, depends_on: [:price_history], type: Numeric do |price_history:|
+  compute :latest_price,
+          depends_on: [:price_history],
+          return_type: Numeric,
+          deadline: 50,
+          wcet: 20 do |price_history:|
     price_history.fetch(:latest)
   end
 
@@ -25,3 +29,4 @@ report = backend.verify(compiled)
 puts "lang_foundation_latest_price=#{result.output(:latest_price)}"
 puts "lang_foundation_descriptor=#{history_type.to_h.fetch(:kind)}"
 puts "lang_foundation_report_ok=#{report.ok?}"
+puts "lang_foundation_manifest_report_only=#{report.metadata_manifest.report_only?}"

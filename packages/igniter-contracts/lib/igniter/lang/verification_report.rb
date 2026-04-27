@@ -3,7 +3,7 @@
 module Igniter
   module Lang
     class VerificationReport
-      attr_reader :profile_fingerprint, :operations, :findings, :descriptors, :metadata
+      attr_reader :profile_fingerprint, :operations, :findings, :descriptors, :metadata, :metadata_manifest
 
       def self.from_compilation_report(report)
         new(
@@ -29,7 +29,8 @@ module Igniter
         @operations = operations.freeze
         @findings = findings.freeze
         @metadata = metadata.transform_keys(&:to_sym).freeze
-        @descriptors = extract_descriptors(operations).freeze
+        @metadata_manifest = MetadataManifest.from_operations(operations)
+        @descriptors = metadata_manifest.descriptors
         freeze
       end
 
@@ -46,24 +47,10 @@ module Igniter
           ok: ok?,
           profile_fingerprint: profile_fingerprint,
           descriptors: descriptors,
+          metadata_manifest: metadata_manifest.to_h,
           findings: findings,
           metadata: metadata
         }
-      end
-
-      private
-
-      def extract_descriptors(operations)
-        operations.filter_map do |operation|
-          type = operation.attributes[:type]
-          next unless type.is_a?(Types::Descriptor)
-
-          {
-            node: operation.name,
-            kind: operation.kind,
-            type: type.to_h
-          }
-        end
       end
     end
   end
