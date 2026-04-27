@@ -392,6 +392,19 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/capsule_agent_transfer",
+      "Agent-aware capsule transfer carrying assistant capability evidence.",
+      expected_fragments: [
+        "application_capsule_agent_transfer_ready=true",
+        "application_capsule_agent_transfer_bundle_allowed=true",
+        "application_capsule_agent_transfer_receipt_complete=true",
+        "application_capsule_agent_transfer_agent=daily_companion",
+        "application_capsule_agent_transfer_ai_provider=openai",
+        "application_capsule_agent_transfer_tools=complete_reminder",
+        "application_capsule_agent_transfer_export=agent"
+      ]
+    ),
+    example(
       "application/capsule_host_activation_readiness",
       "Read-only host activation readiness over explicit host decisions.",
       expected_fragments: [

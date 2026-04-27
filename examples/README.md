@@ -87,6 +87,7 @@ Active runnable examples live in `examples/application/`,
 - `application/scout_poc.rb`
 - `application/dispatch_poc.rb`
 - `application/capsule_transfer_applied_verification.rb`
+- `application/capsule_agent_transfer.rb`
 - `application/capsule_transfer_apply_execution.rb`
 - `application/capsule_transfer_apply_plan.rb`
 - `application/capsule_transfer_bundle_artifact.rb`
