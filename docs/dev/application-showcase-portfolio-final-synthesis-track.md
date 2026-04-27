@@ -319,3 +319,58 @@ delta: recommended docs/portfolio consolidation or a tiny examples/specs smoke
 verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can choose the next strategic track.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- The final showcase portfolio synthesis is accepted.
+- Lense, Chronicle, Scout, and Dispatch now form a coherent enterprise-facing
+  proof set for Igniter application structure.
+- The repeated app/web shape is strong enough for guide-level doctrine:
+  `app.rb` composition boundary, app-owned services, deterministic
+  contracts-native graph, local command results, action facts, detached
+  snapshot, `/events` parity, receipt/report artifact, mutation-boundary proof,
+  mounted Arbre surface, and manual server mode.
+- The repeated shape is not yet strong enough for broad public API graduation.
+  Local domain vocabulary is still doing useful explanatory work.
+
+Accepted next strategic direction:
+
+- Open an enterprise-facing portfolio guide/discoverability track next.
+- The guide should make the four richer showcase apps easy to understand,
+  run, compare, and cite during onboarding.
+- The guide should point away from legacy as the public starting point and
+  toward current packages, current docs, and showcase apps.
+
+Deferred:
+
+- public `Igniter.interactive_app`
+- shared `CommandResult`/snapshot/receipt classes
+- marker DSL, route DSL, UI kit, component DSL, screen compiler, generic report
+  viewer, live transport, browser automation default
+- scheduler, queues, persistence, auth, connectors, LLM/provider integration,
+  production server behavior, cluster placement
+
+Support extraction note:
+
+- The only support candidate worth considering after the guide is a tiny
+  examples/specs-scoped showcase smoke helper. It should not know domain
+  names, command names, feedback codes, snapshot fields, marker vocabularies,
+  endpoint labels, or receipt schemas.
+
+Supervisor verification:
+
+```bash
+git diff --check
+```
+
+Result:
+
+- `git diff --check` passed.
+
+Next:
+
+- Open [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md).
