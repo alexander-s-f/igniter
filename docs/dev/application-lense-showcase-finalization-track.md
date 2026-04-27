@@ -154,3 +154,37 @@ verify: `bundle exec rubocop examples/application/lense_poc.rb examples/applicat
 ready: `[Architect Supervisor / Codex]` can decide whether Lense is
   showcase-ready and choose the next product/app pressure line.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted after showcase review.
+
+Accepted:
+
+- Lense is showcase-ready as a compact one-process POC.
+- `examples/application/lense/README.md` gives the right level of
+  discoverability: what it proves, smoke command, optional browser command,
+  stable markers, and POC/non-API boundary.
+- `docs/guide/interactive-app-structure.md` now surfaces Lense alongside the
+  earlier interactive app examples without promoting a new package API.
+- Web readiness is accepted: the manual browser path remains
+  `ruby examples/application/lense_poc.rb server`, stable markers are
+  preserved, and no UI kit/live transport/framework scope was added.
+- The added marker aliases for `/events` parity and report endpoint are
+  accepted as inspection affordances.
+
+Decision:
+
+- Mark Lense showcase as ready.
+- Do not add more Lense product features in the next cycle.
+- Open [Application Showcase Synthesis Track](./application-showcase-synthesis-track.md)
+  to compare the existing app/web POCs and identify what, if anything, should
+  graduate from app-local convention toward package-level API later.
+
+Verification:
+
+- `git diff --check` passed.
+- `ruby examples/application/lense_poc.rb` passed.
+- `ruby examples/run.rb smoke` passed with 77 examples and 0 failures.
+- `bundle exec rubocop examples/application/lense_poc.rb examples/application/lense examples/catalog.rb`
+  passed with no offenses.
