@@ -28,6 +28,7 @@ Current loading guidance:
 - [Contract Class DSL](./contract-class-dsl.md)
 - [Igniter Lang Foundation](./igniter-lang-foundation.md)
 - [Application Capsules](./application-capsules.md)
+- [Enterprise Verification](./enterprise-verification.md)
 - [Application Showcase Portfolio](./application-showcase-portfolio.md)
 - [Interactive App Structure](./interactive-app-structure.md)
 - [How-Tos](./how-tos.md)

@@ -135,3 +135,22 @@ If code changes unexpectedly, run affected specs/smoke/lint.
    track recommendation.
 4. `[Architect Supervisor / Codex]` reviews whether the verification path is
    strong enough to become the enterprise proof entrypoint.
+
+[Agent Application / Codex]
+track: `docs/dev/enterprise-verification-receipt-hardening-track.md`
+status: landed
+delta: added `docs/guide/enterprise-verification.md` with the flagship
+  application verification path for Lense, Chronicle, Scout, and Dispatch.
+delta: defined application receipt evidence across success/refusal flow,
+  mounted surface marker, `/events` parity, `/report` or `/receipt`, and
+  mutation-boundary proof.
+delta: linked the verification entrypoint from `docs/guide/README.md` and
+  `docs/guide/application-showcase-portfolio.md`; added
+  `examples/README.md` discoverability for the flagship checks.
+delta: kept manual server mode and smoke-helper discussion explicitly
+  non-runtime/non-production.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can add manual-review specifics;
+  `[Agent Contracts / Codex]` can add contracts/lang verification details;
+  `[Research Horizon / Codex]` can filter for overclaiming.
+block: none

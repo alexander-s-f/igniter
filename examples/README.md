@@ -33,6 +33,17 @@ There is also a matching rake task:
 rake examples
 ```
 
+For enterprise evaluation, start with the guide-level proof path:
+[Enterprise Verification](../docs/guide/enterprise-verification.md). The
+flagship application checks are:
+
+```bash
+ruby examples/run.rb run application/lense_poc
+ruby examples/run.rb run application/chronicle_poc
+ruby examples/run.rb run application/scout_poc
+ruby examples/run.rb run application/dispatch_poc
+```
+
 ## Active Example Lane
 
 Active runnable examples live in `examples/application/`, `examples/contracts/`, and `examples/cluster/`:
