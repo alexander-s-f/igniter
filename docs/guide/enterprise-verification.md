@@ -14,6 +14,10 @@ The current enterprise proof is intentionally narrow:
 - keep production server, auth, persistence, live transport, cluster placement,
   connectors, and LLM/provider behavior out of the verified claim
 
+This receipt is not a certification, security audit, compliance review, SLA,
+or release guarantee. It is a reproducible evidence path for the current public
+Igniter surface.
+
 ## Canonical Command Matrix
 
 | Layer | Command | What it proves |
@@ -178,6 +182,20 @@ Do not turn those mechanics into production runtime API in this verification
 track. A future helper should remain examples/specs-only and should not know
 domain command names, feedback codes, snapshot fields, receipt schemas, marker
 DSLs, route DSLs, UI components, or browser automation.
+
+## Non-Goals
+
+This verification path does not graduate research/runtime phases into product
+claims. Keep these out of scope until a later accepted track says otherwise:
+
+- Lang grammar/parser/AST, `.il`, Rust backend, certified exports, store/OLAP,
+  time-machine behavior, physical unit enforcement, or deadline enforcement
+- live agents, Semantic Gateway, Line-Up runtime, LLM/provider behavior, or
+  production connectors
+- cluster placement, distributed runtime, scheduler/background jobs, auth,
+  persistence, production server behavior, or deployment guarantees
+- public package APIs for smoke mechanics, route declarations, marker
+  conventions, generic receipt/report viewers, browser automation, or UI kit
 
 ## Related Guides
 

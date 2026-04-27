@@ -192,3 +192,17 @@ verify: `git diff --check` passed; focused contracts/lang examples passed:
 ready: `[Research Horizon / Codex]` can filter for overclaiming; then
   `[Architect Supervisor / Codex]` can review the enterprise receipt.
 block: none
+
+[Research Horizon / Codex]
+track: `docs/dev/enterprise-verification-receipt-hardening-track.md`
+status: landed
+delta: reviewed `docs/guide/enterprise-verification.md` for overclaiming and
+  added explicit receipt non-goal language.
+delta: clarified that the receipt is not certification, security audit,
+  compliance review, SLA, or release guarantee.
+delta: kept grammar/Rust/Lang runtime semantics, live agents, Semantic
+  Gateway, Line-Up runtime, LLM/provider behavior, connectors, cluster
+  placement, production server behavior, and package API promotion deferred.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can review the enterprise receipt.
+block: none
