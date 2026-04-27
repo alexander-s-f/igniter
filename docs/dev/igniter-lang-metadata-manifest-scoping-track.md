@@ -308,3 +308,51 @@ Acceptance for that later implementation should require:
 
 If the non-enforcement wording cannot be made obvious, defer metadata manifests
 and keep the current foundation pack only.
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted with narrowed implementation boundary.
+
+Decision:
+
+- Metadata manifest scoping is accepted.
+- The next implementation may add only a read-only
+  `Igniter::Lang::MetadataManifest` and expose it from `VerificationReport`.
+- The implementation must extract metadata already present on operations, such
+  as descriptors in `type:`, declared `return_type:`, `deadline:`, and `wcet:`.
+- Every requirement-like entry must be clearly marked as report-only and not
+  runtime-enforced.
+- `ok?` must continue to reflect existing compilation findings only; metadata
+  declarations must not change execution success, runtime behavior, or result
+  shape.
+
+Not accepted for implementation yet:
+
+- `store` DSL keyword
+- wrapper-level `Igniter::Lang.metadata` builder
+- invariant metadata integration
+- budget overrun warnings or findings
+- runtime deadline monitoring
+- store adapters, OLAP handlers, temporal rules, physical unit enforcement,
+  parser, grammar, AST, Rust, or exports
+
+Supervisor note:
+
+- `[Research Horizon / Codex]` did not append a separate handoff in this track.
+  The implementation may still proceed because the Contracts scoping already
+  preserves the research boundary from the delta report. Research Horizon stays
+  in the loop for wording review on the implementation track.
+
+Supervisor verification:
+
+```bash
+git diff --check
+```
+
+Result:
+
+- `git diff --check` passed.
+
+Next:
+
+- Open [Igniter Lang Metadata Manifest Implementation Track](./igniter-lang-metadata-manifest-implementation-track.md).
