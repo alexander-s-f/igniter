@@ -233,3 +233,98 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can add Web/read-model portfolio evidence; then
   `[Architect Supervisor / Codex]` can choose the next strategic line.
 block: none
+
+## Web Portfolio Evidence
+
+[Agent Web / Codex] Web/read-model comparison:
+
+| Axis | Lense | Chronicle | Scout |
+| --- | --- | --- | --- |
+| Mounted surface | `web/lense_dashboard.rb` mounts `:lense_dashboard` at `/`. | `web/decision_compass.rb` mounts `:decision_compass` at `/`. | `web/research_workspace.rb` mounts `:research_workspace` at `/`. |
+| Snapshot read | Reads one `CodebaseSnapshot` through `MountContext`. | Reads one `ChronicleSnapshot` through `MountContext`. | Reads one `ScoutSnapshot` through `MountContext`. |
+| Rendered state | Scan counts, findings, guided issue session, recent activity, report state. | Proposal/session state, conflicts, related decisions, sign-offs/refusals, recent activity, receipt state. | Topic/session state, source pack, findings, provenance citations, contradictions, checkpoint, recent activity, receipt state. |
+| Rack commands | Refresh scan, start session, mark step done/skip, add note. | Scan proposal, acknowledge conflict, sign off, refuse sign-off, emit receipt. | Start session, extract findings, add local source, choose checkpoint, emit receipt. |
+| Feedback | Query-string redirect feedback with app-local codes and `data-feedback-code`. | Query-string redirect feedback with app-local codes and `data-feedback-code`. | Query-string redirect feedback with app-local codes and `data-feedback-code`. |
+| Inspection endpoints | `/events` mirrors the snapshot; `/report` exposes app-owned report data. | `/events` mirrors the snapshot; `/receipt` exposes emitted Markdown receipt. | `/events` mirrors the snapshot; `/receipt` exposes emitted Markdown receipt. |
+| Stable markers | Surface, scan/count/finding/evidence/session/report/action/activity markers. | Surface, proposal/session/conflict/evidence/relationship/sign-off/receipt/action/activity markers. | Surface, topic/session/source/citation/provenance/finding/contradiction/checkpoint/receipt/action/activity markers. |
+| Smoke loop | In-process Rack smoke covers initial render, redirects, refusal feedback, final state, `/events` parity, and report endpoint. | In-process Rack smoke covers initial render, redirects, refusals, receipt-not-ready, final state, `/events` parity, `/receipt`, and fixture no-mutation. | In-process Rack smoke covers initial render, redirects, refusals, receipt-not-ready, invalid checkpoint, final state, `/events` parity, `/receipt`, and fixture no-mutation. |
+| Manual review | `server` mode opens the dashboard/workbench. | `server` mode opens the decision compass. | `server` mode opens the research workspace. |
+
+What is now stronger Web convention:
+
+- One app-local Arbre surface is the right first showcase slice; each surface
+  keeps presentation helpers, copy, styles, and marker vocabulary local.
+- Web reads exactly one app-owned detached snapshot near the top of render and
+  treats app services, contracts, reports, receipts, and persistence as owned
+  by the app layer.
+- Rack command routes belong in `app.rb`; they translate app-local command
+  results into redirects or text responses and keep mounted surfaces opaque.
+- Query-string feedback plus `data-feedback-code` is the current success and
+  refusal inspection seam.
+- `/events` must render from the same snapshot shape as the mounted surface.
+  `/report` and `/receipt` should expose app-owned artifacts only when the app
+  already owns stable report/receipt emission.
+- Stable `data-` markers are now strong smoke/browser evidence, but should
+  remain explicit and domain-named instead of becoming a marker DSL.
+- Manual `server` mode is part of showcase readiness, but remains example
+  scaffolding rather than production server behavior.
+
+What should still stay Web-local:
+
+- Surface names, route labels, marker attribute names, `data-action` values,
+  feedback copy, CSS direction, panel layout, and grouping choices.
+- Whether evidence is grouped as findings, conflicts, source citations,
+  sign-off lanes, guided sessions, report panels, or receipt lanes.
+- Report/receipt endpoint naming and display choices.
+- Smoke output labels and catalog fragments.
+- Any browser automation choice; current smoke should stay in-process Rack
+  unless a later track explicitly needs browser tooling.
+
+Tiny Web/test support recommendation:
+
+- A tiny design track is justified, but it should be a **showcase evidence
+  helper design** track that merges Application's evidence-artifact concern
+  with Web's smoke-helper concern.
+- The design can specify checklist vocabulary for mounted surface readiness,
+  `/events` parity, feedback markers, action markers, receipt/report endpoint
+  checks, manual server review, and mutation-boundary proof.
+- A future helper may be script-local first: `rack_env`, `form_body`,
+  redirect-following, response status assertions, marker checks, and endpoint
+  parity checks.
+- Do not create runtime API, route DSL, marker DSL, UI kit, screen compiler,
+  generic report/receipt viewer, `interactive_app`, live transport, or
+  persistence from this evidence.
+
+Next line recommendation from Web:
+
+- Agree with Application: open one narrow design synthesis for showcase
+  evidence and smoke proof before another implementation track.
+- After that, prefer Dispatch as the next product app if it can stay offline
+  and fixture-backed: event intake, assignment/escalation decisions, operator
+  handoff, and receipt evidence would pressure Web differently than Lense,
+  Chronicle, and Scout.
+- If product pressure pauses, return to Embed/Contracts before Cluster/Mesh;
+  the current Web evidence still favors app-local snapshots and one-process
+  mounted surfaces over distributed runtime work.
+- Keep Aria, LLM/connectors, live streams, scheduler/file watcher,
+  persistence/history DB, auth, production server, UI kit, and public
+  `interactive_app` explicitly deferred.
+
+[Agent Web / Codex]
+track: `docs/dev/application-showcase-portfolio-update-track.md`
+status: landed
+delta: added Web/read-model portfolio comparison for Lense, Chronicle, and
+  Scout across mounted surfaces, `MountContext` reads, Rack command routes,
+  feedback redirects, stable markers, `/events`, report/receipt endpoints,
+  manual server mode, and smoke loops.
+delta: identified stronger Web conventions around one app-local Arbre surface,
+  app-owned snapshot rendering, app-owned routes, query-string feedback,
+  `/events` parity, stable domain markers, and manual server review.
+delta: kept marker names, route labels, feedback copy, layout, endpoint names,
+  smoke labels, and browser automation choices Web-local.
+delta: recommended one narrow showcase evidence/smoke proof design track before
+  helper/API code; Dispatch is the preferred next product app if product
+  pressure resumes, while Embed/Contracts is the package fallback.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can choose the next strategic line.
+block: none
