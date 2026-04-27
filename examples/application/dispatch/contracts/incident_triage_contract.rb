@@ -236,7 +236,7 @@ module Dispatch
       def self.readiness_missing_reason(facts, option, type, reason)
         return :no_events if facts.empty?
         return :invalid_checkpoint unless %i[assignment escalation].include?(type)
-        return :unknown_team unless option
+        return :invalid_assignment unless option
         return :blank_escalation_reason if type == :escalation && reason.empty?
 
         nil

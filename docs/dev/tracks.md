@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review Dispatch implementation and decide showcase readiness/finalization | [Application Dispatch Implementation Track](./application-dispatch-implementation-track.md) | [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md), [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Standby after Dispatch app-local implementation handoff | [Application Dispatch Implementation Track](./application-dispatch-implementation-track.md) | [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md), [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Standby after Dispatch Web implementation handoff | [Application Dispatch Implementation Track](./application-dispatch-implementation-track.md) | [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review Dispatch finalization and decide showcase-ready status | [Application Dispatch Showcase Finalization Track](./application-dispatch-showcase-finalization-track.md) | [Application Dispatch Implementation Track](./application-dispatch-implementation-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Finalize Dispatch app/docs/discoverability after bounded implementation | [Application Dispatch Showcase Finalization Track](./application-dispatch-showcase-finalization-track.md) | [Application Dispatch Implementation Track](./application-dispatch-implementation-track.md), [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Finalize Dispatch Web/manual review readiness after bounded implementation | [Application Dispatch Showcase Finalization Track](./application-dispatch-showcase-finalization-track.md) | [Application Dispatch Implementation Track](./application-dispatch-implementation-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -165,6 +165,9 @@ block: none | <blocker>
 - Dispatch scoping accepted; next active track implements the bounded
   offline/fixture-backed incident command POC:
   [Application Dispatch Implementation Track](./application-dispatch-implementation-track.md).
+- Dispatch implementation accepted as a complete bounded POC; next active track
+  finalizes discoverability and manual review readiness:
+  [Application Dispatch Showcase Finalization Track](./application-dispatch-showcase-finalization-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 

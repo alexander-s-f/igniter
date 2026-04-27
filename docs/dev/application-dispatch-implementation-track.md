@@ -220,3 +220,43 @@ verify: `ruby examples/application/dispatch_poc.rb server` served GET `/` on
 ready: `[Architect Supervisor / Codex]` can review Dispatch as a complete
   bounded one-process showcase candidate.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Dispatch implementation is accepted as a complete bounded one-process POC.
+- The core story now works end to end:
+  seeded incident bundle -> deterministic triage/routing evidence ->
+  assignment or escalation checkpoint -> incident handoff receipt.
+- App-local boundaries remain correct: fixtures stay read-only, runtime writes
+  stay in the workdir, contract-backed analysis stays deterministic, and Web
+  consumes snapshots plus stable markers.
+- A narrow supervisor correction was required before acceptance:
+  `dispatch_invalid_assignment` now cleanly distinguishes a known-but-invalid
+  routing choice from `dispatch_unknown_team`, and blank escalation refusals
+  now preserve the correct `incident_id`/`team` evidence trail.
+
+Supervisor verification:
+
+```bash
+ruby examples/application/dispatch_poc.rb
+ruby examples/run.rb smoke
+bundle exec rubocop examples/application/dispatch_poc.rb examples/application/dispatch examples/catalog.rb
+git diff --check
+```
+
+Result:
+
+- `dispatch_poc` passed.
+- `examples/run.rb smoke` passed with 80 examples and 0 failures.
+- RuboCop passed with no offenses.
+- `git diff --check` passed.
+
+Next:
+
+- Open [Application Dispatch Showcase Finalization Track](./application-dispatch-showcase-finalization-track.md)
+  for a short discoverability/manual-review pass before marking Dispatch
+  showcase-ready beside Lense, Chronicle, and Scout.

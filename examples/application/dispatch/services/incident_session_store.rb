@@ -125,7 +125,9 @@ module Dispatch
 
       def escalate_incident(session_id:, team:, reason:, bundle:, analyzer:)
         normalized_reason = reason.to_s.strip
-        return refusal(:dispatch_blank_escalation_reason, session_id, nil, team.to_s, nil, :blank_escalation_reason) if normalized_reason.empty?
+        session = find_session(session_id)
+        incident_id = session&.incident_id
+        return refusal(:dispatch_blank_escalation_reason, session_id, incident_id, nil, team.to_s, :blank_escalation_reason) if normalized_reason.empty?
 
         checkpoint_session(
           session_id: session_id,
@@ -276,7 +278,7 @@ module Dispatch
 
       def feedback_for_missing(reason)
         {
-          unknown_team: :dispatch_unknown_team,
+          invalid_assignment: :dispatch_invalid_assignment,
           invalid_checkpoint: :dispatch_invalid_assignment,
           blank_escalation_reason: :dispatch_blank_escalation_reason
         }.fetch(reason, :dispatch_invalid_assignment)

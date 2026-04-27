@@ -73,6 +73,7 @@ Dir.mktmpdir("igniter-dispatch-poc") do |workdir|
   triage_result = app.triage_incident(session_id: open_result.session_id)
   triaged_snapshot = app.snapshot
   unknown_team = app.assign_owner(session_id: open_result.session_id, team: "frontend-oncall")
+  invalid_assignment = app.assign_owner(session_id: open_result.session_id, team: "support-ops")
   blank_escalation = app.escalate_incident(session_id: open_result.session_id, team: "database-oncall", reason: " ")
   assignment_result = app.assign_owner(session_id: open_result.session_id, team: "payments-platform")
   assigned_snapshot = app.snapshot
@@ -114,6 +115,12 @@ Dir.mktmpdir("igniter-dispatch-poc") do |workdir|
   unknown_team_web_state_status, _unknown_team_web_state_headers, unknown_team_web_state_body = web_app.call(
     rack_env("GET", unknown_team_web_headers.fetch("location"))
   )
+  invalid_assignment_web_status, invalid_assignment_web_headers, _invalid_assignment_web_body = web_app.call(
+    rack_env("POST", "/assignments", form_body(session_id: web_session_id, team: "support-ops"))
+  )
+  invalid_assignment_web_state_status, _invalid_assignment_web_state_headers, invalid_assignment_web_state_body = web_app.call(
+    rack_env("GET", invalid_assignment_web_headers.fetch("location"))
+  )
   blank_escalation_web_status, blank_escalation_web_headers, _blank_escalation_web_body = web_app.call(
     rack_env("POST", "/escalations", form_body(session_id: web_session_id, team: "database-oncall", reason: " "))
   )
@@ -140,6 +147,7 @@ Dir.mktmpdir("igniter-dispatch-poc") do |workdir|
   receipt_not_ready_web_html = receipt_not_ready_web_state_body.join
   triaged_web_html = triaged_web_body.join
   unknown_team_web_html = unknown_team_web_state_body.join
+  invalid_assignment_web_html = invalid_assignment_web_state_body.join
   blank_escalation_web_html = blank_escalation_web_state_body.join
   assigned_web_html = assigned_web_body.join
   final_web_html = final_web_body.join
@@ -160,6 +168,7 @@ Dir.mktmpdir("igniter-dispatch-poc") do |workdir|
   puts "dispatch_poc_events=#{triaged_snapshot.event_count}"
   puts "dispatch_poc_routes=#{triaged_snapshot.route_options.map { |route| route.fetch(:team) }.join(",")}"
   puts "dispatch_poc_unknown_team=#{unknown_team.feedback_code}"
+  puts "dispatch_poc_invalid_assignment=#{invalid_assignment.feedback_code}"
   puts "dispatch_poc_blank_escalation=#{blank_escalation.feedback_code}"
   puts "dispatch_poc_assignment=#{assignment_result.feedback_code}"
   puts "dispatch_poc_assigned_team=#{assigned_snapshot.assigned_team}"
@@ -205,6 +214,9 @@ Dir.mktmpdir("igniter-dispatch-poc") do |workdir|
   puts "dispatch_poc_web_unknown_team_status=#{unknown_team_web_status}"
   puts "dispatch_poc_web_unknown_team_location=#{unknown_team_web_headers.fetch("location").include?("error=dispatch_unknown_team")}"
   puts "dispatch_poc_web_unknown_team_feedback=#{unknown_team_web_state_status == 200 && unknown_team_web_html.include?("data-feedback-code=\"dispatch_unknown_team\"")}"
+  puts "dispatch_poc_web_invalid_assignment_status=#{invalid_assignment_web_status}"
+  puts "dispatch_poc_web_invalid_assignment_location=#{invalid_assignment_web_headers.fetch("location").include?("error=dispatch_invalid_assignment")}"
+  puts "dispatch_poc_web_invalid_assignment_feedback=#{invalid_assignment_web_state_status == 200 && invalid_assignment_web_html.include?("data-feedback-code=\"dispatch_invalid_assignment\"")}"
   puts "dispatch_poc_web_blank_escalation_status=#{blank_escalation_web_status}"
   puts "dispatch_poc_web_blank_escalation_location=#{blank_escalation_web_headers.fetch("location").include?("error=dispatch_blank_escalation_reason")}"
   puts "dispatch_poc_web_blank_escalation_feedback=#{blank_escalation_web_state_status == 200 && blank_escalation_web_html.include?("data-feedback-code=\"dispatch_blank_escalation_reason\"")}"
