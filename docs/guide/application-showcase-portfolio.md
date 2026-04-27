@@ -64,9 +64,9 @@ redirect feedback, `/events`, and the evidence endpoint.
 | Showcase | Mounted surface | Surface marker | Evidence endpoint | Manual review focus |
 | --- | --- | --- | --- | --- |
 | Lense | `web/lense_dashboard.rb` as `:lense_dashboard`. | `data-ig-poc-surface="lense_dashboard"` | `/report` | Scan summary, findings, evidence refs, issue-session actions, report validity, and no scanned-project mutation. |
-| Chronicle | `web/decision_compass.rb` as `:decision_compass`. | `data-ig-poc-surface="decision_compass"` | `/receipt` | Proposal context, conflict evidence, sign-off/refusal state, decision receipt validity, and fixture no-mutation. |
-| Scout | `web/research_workspace.rb` as `:research_workspace`. | `data-ig-poc-surface="research_workspace"` | `/receipt` | Topic, sources, citations, provenance, findings, contradictions, checkpoint state, research receipt validity, and fixture no-mutation. |
-| Dispatch | `web/command_center.rb` as `:command_center`. | `data-ig-poc-surface="command_center"` | `/receipt` | Incident events, severity, routing rationale, assignment/escalation checkpoint, handoff receipt validity, and fixture no-mutation. |
+| Chronicle | `web/decision_compass.rb` as `:decision_compass`. | `data-ig-poc-surface="chronicle_decision_compass"` | `/receipt` | Proposal context, conflict evidence, sign-off/refusal state, decision receipt validity, and fixture no-mutation. |
+| Scout | `web/research_workspace.rb` as `:research_workspace`. | `data-ig-poc-surface="scout_research_workspace"` | `/receipt` | Topic, sources, citations, provenance, findings, contradictions, checkpoint state, research receipt validity, and fixture no-mutation. |
+| Dispatch | `web/command_center.rb` as `:command_center`. | `data-ig-poc-surface="dispatch_command_center"` | `/receipt` | Incident events, severity, routing rationale, assignment/escalation checkpoint, handoff receipt validity, and fixture no-mutation. |
 
 During manual review, inspect the browser page and these companion endpoints:
 

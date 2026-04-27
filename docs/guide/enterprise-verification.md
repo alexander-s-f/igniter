@@ -91,6 +91,21 @@ refusal path, compare the visible state with `/events`, and open `/report` or
 production deployment, cluster behavior, connectors, or LLM integration from
 manual server mode.
 
+Use this matrix when you want a browser-facing receipt for the same proof:
+
+| Showcase | Server command | Surface marker | Success/refusal evidence | Read/artifact evidence |
+| --- | --- | --- | --- | --- |
+| Lense | `ruby examples/application/lense_poc.rb server` | `data-ig-poc-surface="lense_dashboard"` | Refresh or guided-session actions render `data-ig-feedback` and app-local `data-feedback-code`; blank note or missing finding gives a refusal path. | `/events` agrees with scan/findings/session state; `/report` exposes the valid analysis receipt. |
+| Chronicle | `ruby examples/application/chronicle_poc.rb server` | `data-ig-poc-surface="chronicle_decision_compass"` | Scan, acknowledgement, sign-off, refusal, and receipt actions render feedback markers with app-local codes. | `/events` agrees with proposal/conflict/sign-off state; `/receipt` exposes the valid decision receipt. |
+| Scout | `ruby examples/application/scout_poc.rb server` | `data-ig-poc-surface="scout_research_workspace"` | Session, extraction, source-add, checkpoint, receipt, and invalid/blank paths render feedback markers with app-local codes. | `/events` agrees with topic/source/finding/checkpoint state; `/receipt` exposes the valid research receipt. |
+| Dispatch | `ruby examples/application/dispatch_poc.rb server` | `data-ig-poc-surface="dispatch_command_center"` | Open, triage, assignment, escalation/refusal, and receipt actions render feedback markers with app-local codes. | `/events` agrees with incident/event/routing/checkpoint state; `/receipt` exposes the valid incident receipt. |
+
+The browser receipt should confirm the same categories as the smoke receipt:
+top-level surface marker, success feedback, refusal feedback, recent activity,
+`/events` parity, evidence endpoint availability, and no unexpected fixture or
+target mutation. These checks use app-local `data-` attributes as inspection
+seams; they are not a marker DSL or component API.
+
 ## Smoke Helper Boundary
 
 The flagship apps repeat smoke mechanics such as Rack env construction, form

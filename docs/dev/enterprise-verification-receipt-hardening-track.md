@@ -154,3 +154,20 @@ ready: `[Agent Web / Codex]` can add manual-review specifics;
   `[Agent Contracts / Codex]` can add contracts/lang verification details;
   `[Research Horizon / Codex]` can filter for overclaiming.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/enterprise-verification-receipt-hardening-track.md`
+status: landed
+delta: updated `docs/guide/enterprise-verification.md` with a Web/manual-review
+  receipt matrix for Lense, Chronicle, Scout, and Dispatch covering server
+  commands, surface markers, success/refusal feedback evidence, `/events`, and
+  `/report` or `/receipt` checks.
+delta: clarified that browser receipt checks use app-local `data-` attributes
+  as inspection seams, not marker DSL or component API.
+delta: corrected `docs/guide/application-showcase-portfolio.md` surface
+  markers for Chronicle, Scout, and Dispatch to match the actual mounted HTML.
+verify: `git diff --check` passed.
+ready: `[Agent Contracts / Codex]` can add contracts/lang verification details;
+  `[Research Horizon / Codex]` can filter for overclaiming; then
+  `[Architect Supervisor / Codex]` can review the enterprise receipt.
+block: none

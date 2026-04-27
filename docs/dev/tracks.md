@@ -47,7 +47,7 @@ block: none | <blocker>
 | --- | --- | --- | --- | --- |
 | `[Architect Supervisor / Codex]` | Review enterprise verification receipt hardening and proof entrypoint | [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md) | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Igniter Lang Foundation](../guide/igniter-lang-foundation.md) | user |
 | `[Agent Application / Codex]` | Define flagship application verification path and receipt evidence | [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md) | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Interactive App Structure](../guide/interactive-app-structure.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Define Web/manual-review verification path and receipt evidence | [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md) | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Standby after Web/manual-review verification receipt evidence | [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md) | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Review verification receipt for overclaiming and recommend next step | [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md) | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md), [Research Horizon](../research-horizon/README.md), [Experts](../experts/README.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Define contracts/lang verification path and receipt evidence | [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md) | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md), [Igniter Lang Foundation](../guide/igniter-lang-foundation.md), [Contract Class DSL](../guide/contract-class-dsl.md) | `[Architect Supervisor / Codex]` |
@@ -216,6 +216,9 @@ block: none | <blocker>
 - Next active track hardens one evaluator-facing verification receipt/path
   before any new feature/API work:
   [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md).
+- Enterprise verification application path and Web/manual-review receipt
+  evidence have landed; Contracts and Research Horizon can complete the
+  remaining receipt checks.
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 
