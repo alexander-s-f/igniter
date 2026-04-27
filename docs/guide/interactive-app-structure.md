@@ -257,21 +257,50 @@ the browser-facing seams.
 
 ## Smoke Helper Design Note
 
-Lense and Chronicle repeat small smoke-script mechanics: Rack env construction,
-form encoding, redirect following, response status checks, marker checks, and
-catalog fragments. That repetition is enough to justify a future design
-discussion, but not a runtime framework.
+Lense, Chronicle, and Scout repeat small smoke-script mechanics: Rack env
+construction, form encoding, redirect following, response status checks, marker
+checks, endpoint parity checks, and catalog fragments. That repetition is
+enough to justify a future design discussion, but not a runtime framework.
 
 If a helper is designed later, keep it narrow:
 
 - It should live in examples or specs first, not production runtime.
 - It should help build Rack envs, encode form bodies, follow redirects, and
-  assert marker fragments.
+  assert marker or endpoint fragments.
 - It should not know app domain names, command names, feedback codes, snapshot
   fields, or receipt/report schemas.
 - It should not require browser automation for normal smoke runs.
 - It should not introduce a UI kit, marker DSL, route DSL, or
   `interactive_app` facade.
+
+## Smoke Proof Checklist
+
+Use in-process Rack smoke as the default proof for a showcase. Browser review is
+useful, but it should not be required for normal smoke runs.
+
+A useful smoke should prove:
+
+- initial render returns HTML and includes the top-level surface marker
+- at least one successful command path redirects and renders success feedback
+- at least one refusal path redirects and renders refusal feedback
+- command buttons expose stable app-local `data-action` markers
+- feedback exposes `data-ig-feedback` and `data-feedback-code`
+- domain records and counters expose stable app-local `data-` markers
+- recent activity renders from the same snapshot as the visible state
+- final state markers match the expected completed or blocked workflow state
+- `/events` uses the same snapshot shape as the mounted surface
+- `/report` or `/receipt` exposes the app-owned artifact when one exists
+- catalog fragments cover only deterministic and inspection-useful output
+- mutation-boundary markers prove no unintended fixture or target mutation
+
+Keep these choices app-local:
+
+- smoke output names
+- exact marker names and values
+- which success and refusal paths are representative
+- endpoint names such as `/report` or `/receipt`
+- artifact text fragments used for validation
+- runtime workdir and fixture signature strategy
 
 ## Validation
 
