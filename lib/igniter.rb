@@ -7,6 +7,7 @@ require "igniter/embed"
 require "igniter/application"
 require "igniter/ai"
 require "igniter/agents"
+require "igniter/hub"
 
 module Igniter
   class << self
@@ -72,6 +73,10 @@ module Igniter
 
     def agent(...)
       Agents.agent(...)
+    end
+
+    def hub_catalog(...)
+      Hub.local_catalog(...)
     end
   end
 end

@@ -35,6 +35,11 @@ PATH
       igniter-contracts (= 0.5.1)
 
 PATH
+  remote: packages/igniter-hub
+  specs:
+    igniter-hub (0.5.1)
+
+PATH
   remote: packages/igniter-mcp-adapter
   specs:
     igniter-mcp-adapter (0.5.1)
@@ -167,6 +172,7 @@ DEPENDENCIES
   igniter-application!
   igniter-contracts!
   igniter-extensions!
+  igniter-hub!
   igniter-mcp-adapter!
   igniter-web!
   irb

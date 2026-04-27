@@ -24,6 +24,7 @@ RuboCop::RakeTask.new do |task|
     packages/igniter-application/**/*.rb
     packages/igniter-ai/**/*.rb
     packages/igniter-agents/**/*.rb
+    packages/igniter-hub/**/*.rb
     packages/igniter-web/**/*.rb
     packages/igniter-cluster/**/*.rb
     packages/igniter-mcp-adapter/**/*.rb
@@ -41,6 +42,7 @@ RSpec::Core::RakeTask.new(:spec) do |t|
     packages/igniter-application/spec
     packages/igniter-ai/spec
     packages/igniter-agents/spec
+    packages/igniter-hub/spec
     packages/igniter-web/spec
     packages/igniter-cluster/spec
     packages/igniter-mcp-adapter/spec

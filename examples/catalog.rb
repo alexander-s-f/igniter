@@ -615,12 +615,16 @@ module IgniterExamples
         "companion_poc_completed_status=200",
         "companion_poc_events_status=200",
         "companion_poc_setup_status=200",
+        "companion_poc_hub_status=200",
         "companion_poc_html_status=200",
         "companion_poc_setup_redacted=true",
         "companion_poc_web_surface=true",
         "companion_poc_capsules=true",
         "companion_poc_events_parity=true",
-        "companion_poc_agent_capability=true"
+        "companion_poc_agent_capability=true",
+        "companion_poc_hub_catalog=horoscope",
+        "companion_poc_hub_install=installed",
+        "companion_poc_hub_receipt=true"
       ]
     ),
     example(

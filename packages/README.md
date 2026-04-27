@@ -9,6 +9,7 @@ Active runtime packages:
 - `igniter-application`
 - `igniter-ai`
 - `igniter-agents`
+- `igniter-hub`
 - `igniter-web`
 - `igniter-cluster`
 - `igniter-mcp-adapter`

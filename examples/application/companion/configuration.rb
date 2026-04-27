@@ -6,13 +6,16 @@ require_relative "services/store_backends"
 
 module Companion
   class Configuration
-    attr_reader :credentials, :store_backend, :store_path, :llm_model
+    attr_reader :credentials, :store_backend, :store_path, :llm_model,
+                :hub_catalog_path, :hub_install_root
 
     def initialize
       @credentials = []
       @store_backend = :sqlite
       @store_path = File.join(Dir.tmpdir, "igniter_companion.sqlite3")
       @llm_model = ENV.fetch("OPENAI_MODEL", "gpt-5.2")
+      @hub_catalog_path = nil
+      @hub_install_root = File.join(Dir.tmpdir, "igniter_companion_capsules")
     end
 
     def credential(name, env:, required: false, description: nil)
@@ -55,6 +58,15 @@ module Companion
       self
     end
 
+    def hub(catalog_path:, install_root: nil)
+      @hub_catalog_path = catalog_path.to_s
+      @hub_install_root = install_root.to_s unless install_root.nil?
+      self
+    end
+
+    def hub_configured?
+      !hub_catalog_path.to_s.empty?
+    end
   end
 
   def self.configure

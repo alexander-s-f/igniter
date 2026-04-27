@@ -7,6 +7,7 @@ $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-extensions/lib", __d
 $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-application/lib", __dir__))
 $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-ai/lib", __dir__))
 $LOAD_PATH.unshift(File.expand_path("../../packages/igniter-web/lib", __dir__))
+$LOAD_PATH.unshift(File.expand_path("../../packages/igniter-hub/lib", __dir__))
 
 require_relative "companion/runtime"
 

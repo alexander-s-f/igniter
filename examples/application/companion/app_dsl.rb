@@ -34,6 +34,15 @@ module Companion
           assistant: environment.credentials.configured?(:openai_api_key) ? environment.agent(:daily_companion) : nil
         )
       end
+
+      service(:hub) do
+        next Services::HubInstaller::Null.new unless config.hub_configured?
+
+        Services::HubInstaller.new(
+          catalog_path: config.hub_catalog_path,
+          install_root: config.hub_install_root
+        )
+      end
     end
 
     def companion_dashboard
@@ -53,6 +62,10 @@ module Companion
 
       get "/setup" do
         text service(:companion).snapshot.credential_status.inspect
+      end
+
+      get "/hub" do
+        text service(:hub).entries.map(&:name).join(",")
       end
 
       post "/summary/live" do

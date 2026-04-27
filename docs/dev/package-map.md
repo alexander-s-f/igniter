@@ -29,6 +29,9 @@ Root should stay thin:
 - `igniter-agents`
   agent runtime semantics over contracts and AI: agent definitions, runs,
   turns, traces, tool-call evidence, and single-turn assistant execution
+- `igniter-hub`
+  local capsule catalog discovery and transfer bundle metadata; applications
+  still install through `igniter-application` transfer APIs
 - `igniter-cluster`
   contracts-native distributed runtime: remote execution, routing, admission,
   placement, peer registry, topology, distributed diagnostics
@@ -69,6 +72,8 @@ Root should stay thin:
   `igniter-ai`.
 - Put agent loops, run state, tool policy, memory/context, handoff, and human
   gates in `igniter-agents`.
+- Put capsule catalog discovery and bundle metadata in `igniter-hub`; keep
+  verification, intake, apply, and receipts in `igniter-application`.
 - Put transport and protocol work in adapter packages unless it is truly a
   cluster semantic concern.
 - Touch legacy packages only for reference, parity, migration, or retirement

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "fileutils"
+require "json"
 require "stringio"
 require "tmpdir"
 require "uri"
@@ -17,7 +18,9 @@ module Companion
       env.delete("OPENAI_API_KEY") unless env["COMPANION_LIVE"] == "1"
       db_path = File.join(Dir.tmpdir, "igniter_companion_poc_#{Process.pid}.sqlite3")
       FileUtils.rm_f(db_path)
+      hub = build_local_hub_fixture
       config = Companion.default_configuration(store_path: db_path)
+      config.hub(catalog_path: hub.fetch(:catalog_path), install_root: hub.fetch(:install_root))
       app = Companion.build(config: config)
       run_smoke(app, config: config, db_path: db_path, out: out)
     end
@@ -65,12 +68,15 @@ module Companion
 
       events_status, _events_headers, events_body = app.call(rack_env("GET", "/events"))
       setup_status, _setup_headers, setup_body = app.call(rack_env("GET", "/setup"))
+      hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
+      hub_install = app.service(:hub).install(:horoscope)
       final = store.snapshot
       persisted = Companion.build(config: config).service(:companion).snapshot
       html = html_body.join
       events = events_body.join
       setup = setup_body.join
+      hub_catalog = hub_body.join
 
       out.puts "companion_poc_live_ready=#{initial.live_ready}"
       out.puts "companion_poc_open_reminders=#{final.open_reminders}"
@@ -88,12 +94,69 @@ module Companion
       out.puts "companion_poc_completed_status=#{completed_status}"
       out.puts "companion_poc_events_status=#{events_status}"
       out.puts "companion_poc_setup_status=#{setup_status}"
+      out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_setup_redacted=#{setup.include?("openai_api_key") && !setup.include?("sk-")}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_events_parity=#{events.include?("tracker_logs=#{final.tracker_logs_today}")}"
       out.puts "companion_poc_agent_capability=#{app.environment.agent_names.include?(:daily_companion)}"
+      out.puts "companion_poc_hub_catalog=#{hub_catalog}"
+      out.puts "companion_poc_hub_install=#{hub_install.status}"
+      out.puts "companion_poc_hub_receipt=#{hub_install.receipt.to_h.fetch(:complete)}"
+    end
+
+    def build_local_hub_fixture
+      root = Dir.mktmpdir("igniter-companion-hub")
+      capsule_root = File.join(root, "horoscope_source")
+      bundle_path = File.join(root, "bundles", "horoscope")
+      install_root = File.join(root, "installed")
+      catalog_path = File.join(root, "catalog.json")
+
+      FileUtils.mkdir_p(File.join(capsule_root, "contracts"))
+      FileUtils.mkdir_p(File.join(capsule_root, "services"))
+      FileUtils.mkdir_p(File.join(capsule_root, "spec"))
+      File.write(File.join(capsule_root, "contracts/daily_horoscope.rb"), "# deterministic horoscope contract\n")
+      File.write(File.join(capsule_root, "services/horoscope_service.rb"), "# deterministic horoscope service\n")
+      File.write(File.join(capsule_root, "igniter.rb"), "# horoscope capsule config\n")
+
+      capsule = Igniter::Application.capsule(:horoscope, root: capsule_root, env: :test) do
+        layout :capsule
+        groups :contracts, :services
+        contract "Contracts::DailyHoroscope"
+        service :horoscope_service
+        export :daily_horoscope, kind: :service, target: "Services::HoroscopeService"
+      end
+      readiness = Igniter::Application.transfer_readiness(
+        handoff_manifest: Igniter::Application.handoff_manifest(
+          subject: :horoscope_bundle,
+          capsules: [capsule]
+        ),
+        transfer_inventory: Igniter::Application.transfer_inventory(capsule)
+      )
+      bundle_plan = Igniter::Application.transfer_bundle_plan(transfer_readiness: readiness)
+      Igniter::Application.write_transfer_bundle(bundle_plan, output: bundle_path, create_parent: true)
+
+      File.write(
+        catalog_path,
+        JSON.pretty_generate(
+          entries: [
+            {
+              name: :horoscope,
+              title: "Daily Horoscope",
+              version: "0.1.0",
+              description: "Deterministic horoscope capsule for Companion.",
+              bundle_path: File.join("bundles", "horoscope"),
+              capabilities: %i[daily_horoscope]
+            }
+          ]
+        )
+      )
+
+      {
+        catalog_path: catalog_path,
+        install_root: install_root
+      }
     end
 
     def post(app, path, values = {})

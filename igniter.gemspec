@@ -10,6 +10,7 @@ Gem::Specification.new do |spec|
     packages/igniter-application/lib
     packages/igniter-ai/lib
     packages/igniter-agents/lib
+    packages/igniter-hub/lib
     packages/igniter-web/lib
     packages/igniter-cluster/lib
     packages/igniter-mcp-adapter/lib
@@ -56,6 +57,8 @@ Gem::Specification.new do |spec|
     "packages/igniter-ai/README.md",
     "packages/igniter-agents/lib/**/*.rb",
     "packages/igniter-agents/README.md",
+    "packages/igniter-hub/lib/**/*.rb",
+    "packages/igniter-hub/README.md",
     "packages/igniter-web/lib/**/*.rb",
     "packages/igniter-web/README.md",
     "packages/igniter-cluster/lib/**/*.rb",

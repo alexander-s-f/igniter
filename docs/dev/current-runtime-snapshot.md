@@ -17,6 +17,8 @@ This snapshot describes the current public package graph and proof surface.
 - `igniter-agents`: minimal agent definitions, runs, turns, traces, tool-call
   evidence, single-turn assistant execution over `igniter-ai`, and
   application-level agent DSL wiring.
+- `igniter-hub`: local capsule catalog discovery and transfer bundle metadata
+  for installable capabilities.
 - `igniter-web`: mounted web surfaces over explicit application snapshots.
 - `igniter-cluster`: distributed planning, routing, and mesh execution layer.
 - `igniter-mcp-adapter`: transport-facing adapter for MCP tool catalogs and
@@ -50,3 +52,5 @@ Companion.
   proven across examples.
 - Capsule transfer is now agent-aware at the declaration/evidence layer:
   agents can be carried as capabilities, but transfer does not execute agents.
+- `igniter-hub` is local-only in the first slice: no remote download,
+  signatures, or trust policy yet.
