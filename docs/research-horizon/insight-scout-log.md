@@ -290,3 +290,34 @@ Synthesis report added; no implementation track yet.
 Source:
 `docs/research-horizon/external-expert-synthesis-report.md`,
 `docs/experts/`.
+
+### 2026-04-27: Igniter-Lang Should Start As Metadata And Backend Wrapper
+
+Signal:
+`docs/experts/igniter-lang/igniter-lang-implementation.md` proposes Ruby DSL as
+the reference implementation, an explicit backend interface, type descriptors,
+stores, invariant metadata, OLAP, temporal rules, physical units, deadlines, and
+time-machine constructs.
+
+Insight:
+The current contracts architecture already has the right pack/profile seams for
+Lang work. The first useful move is not grammar or Rust; it is a tiny
+`Igniter::Lang` foundation that wraps the current Ruby backend and adds
+definition-time descriptors/reports. Store, deadline, invariant metadata, and
+type descriptors can begin as inspectable manifests before becoming runtime
+semantics.
+
+Likely next abstraction:
+An `Igniter-Lang Foundation Pack` with `Backends::Ruby`, type descriptors, and
+read-only verification reports.
+
+Risk:
+Parser, OLAP runtime, time-machine runtime, Rust backend, and certified export
+are attractive but premature until semantics are proven in real Ruby DSL apps.
+
+Candidate track / no-track-yet:
+Proposal prepared for supervisor filtering; no implementation track yet.
+
+Source:
+`docs/research-horizon/igniter-lang-implementation-delta-report.md`,
+`docs/experts/igniter-lang/igniter-lang-implementation.md`.
