@@ -137,3 +137,99 @@ Implementation belongs to a later track.
 2. `[Agent Web / Codex]` updates Web/read-model evidence across Lense,
    Chronicle, and Scout.
 3. `[Architect Supervisor / Codex]` chooses the next strategic line.
+
+## App Portfolio Evidence
+
+[Agent Application / Codex] App-layer comparison:
+
+| Axis | Lense | Chronicle | Scout |
+| --- | --- | --- | --- |
+| Product pressure | Local Ruby codebase intelligence and guided remediation. | Proposal-vs-decision conflict review with sign-off/refusal state. | Reproducible local-source research with checkpoint and citations. |
+| Composition boundary | `examples/application/lense/app.rb` wires scan, sessions, report, Web, and Rack routes. | `examples/application/chronicle/app.rb` wires fixture stores, scanner, sessions, receipt, Web, and Rack routes. | `examples/application/scout/app.rb` wires source library, extractor, sessions, receipt, Web, and Rack routes. |
+| App services | `CodebaseAnalyzer`, `IssueSessionStore`. | `DecisionStore`, `ProposalStore`, `MarkdownRecordParser`, `DecisionConflictScanner`, `DecisionSessionStore`. | `SourceLibrary`, `SourceParser`, `FindingExtractor`, `ResearchSessionStore`. |
+| Deterministic contract | `CodebaseHealthContract` computes scan facts, health, findings, report metadata. | `DecisionReviewContract` computes conflicts, sign-off readiness, receipt payload. | `ResearchSynthesisContract` computes claims, findings, contradictions, checkpoint readiness, synthesis payload. |
+| Command result | `IssueSessionStore::CommandResult` stays local to finding-session actions. | `DecisionSessionStore::CommandResult` stays local to proposal/conflict/sign-off actions. | `ResearchSessionStore::CommandResult` stays local to topic/source/checkpoint actions. |
+| Snapshot/read model | `CodebaseSnapshot` is app-owned and detached from mutable store state. | `ChronicleSnapshot` is app-owned and detached from mutable store state. | `ScoutSnapshot` is app-owned and detached from mutable store state. |
+| Action facts | Guided actions record done, skip, note, and refusal facts. | Review actions record scan, acknowledgement, sign-off, refusal, receipt, and refusal facts. | Research actions record session, source, extraction, contradiction, checkpoint, receipt, and refusal facts. |
+| Receipt/report | `LenseAnalysisReceipt` is an app-local Markdown/hash evidence artifact. | `DecisionReceipt` is an app-local Markdown/hash evidence artifact. | `ResearchReceipt` is an app-local Markdown/hash evidence artifact. |
+| Fixture/workdir boundary | Reads a local sample project and proves no scanned-project mutation. | Reads decision/proposal fixtures and writes sessions/actions/receipts only to workdir. | Reads source fixtures and writes sessions/actions/receipts only to workdir. |
+| Discoverability | README documents purpose, smoke/manual commands, stable markers, and POC boundaries. | README documents purpose, smoke/manual commands, fixture/runtime boundaries, stable markers, and POC boundaries. | README documents purpose, workflow, smoke/manual commands, fixture/runtime boundaries, stable markers, and POC boundaries. |
+| Catalog smoke | `application/lense_poc` proves command loop, report, no mutation, Web markers. | `application/chronicle_poc` proves conflict loop, receipt, fixture no-mutation, Web markers. | `application/scout_poc` proves research loop, receipt, fixture no-mutation, Web markers. |
+
+What is now stronger convention:
+
+- `app.rb` is the visible composition boundary for app services, mounted Web,
+  and small Rack command routes.
+- Each serious showcase owns one deterministic contracts-native graph for the
+  core analysis/readiness computation.
+- Mutable state belongs in app-local stores; readers consume detached snapshots
+  rather than mutable service internals.
+- Success and refusal paths return small app-local command results and record
+  explicit action facts.
+- A useful workflow ends with one app-local evidence artifact: report or
+  receipt, with validity, provenance, action facts, deferred scope, and
+  generated metadata.
+- Smoke scripts should prove happy path, refusal path, final state, receipt or
+  report evidence, `/events` parity with Web, and mutation boundaries.
+- README/manual usage is part of showcase quality, not optional decoration.
+
+What should still stay app-local:
+
+- `CommandResult`, snapshot class names, payload fields, feedback codes, and
+  action fact vocabularies.
+- Parser formats, analysis thresholds, contradiction/conflict/finding rules,
+  checkpoint/readiness semantics, and receipt/report schemas.
+- Runtime workdir layouts and fixture pack formats.
+- Domain command names and entity ids such as findings, decisions, proposals,
+  sources, sessions, checkpoints, and sign-offs.
+- Web marker names, endpoint labels, and copy until `[Agent Web / Codex]`
+  separately proves a narrow helper candidate.
+
+Tiny support-design recommendation:
+
+- A tiny design track is now justified, but only at guide/design level first:
+  `Application Evidence Artifact Convention`.
+- The candidate should describe receipt/report checklist vocabulary, smoke
+  evidence expectations, and mutation-boundary proof patterns.
+- It should not introduce a shared receipt class, command result type, snapshot
+  type, route DSL, `interactive_app` facade, persistence layer, or UI kit.
+- If `[Agent Web / Codex]` independently recommends a smoke helper, merge the
+  two into one narrow "showcase evidence helper design" track before any code.
+
+Next line recommendation:
+
+- Recommended immediate next track: tiny support-design synthesis for evidence
+  artifacts and smoke proof shape, because three apps now repeat enough
+  mechanics to make future showcases cheaper without forcing framework scope.
+- Recommended next product app after that: Dispatch over Aria. Dispatch would
+  pressure event intake, assignment/escalation decisions, and operational
+  handoff receipts while staying offline and fixture-backed.
+- Recommended package/core fallback if product work pauses: return to
+  Embed/Contracts pressure before Cluster/Mesh work, because current showcase
+  evidence is app-local and does not yet need distributed runtime machinery.
+- Explicitly deferred: public `Igniter.interactive_app`, generic workflow DSL,
+  shared command result/snapshot classes, LLM/connectors, persistence/history
+  database, scheduler/file watcher, auth, production server, live transport,
+  and cluster placement.
+
+[Agent Application / Codex]
+track: `docs/dev/application-showcase-portfolio-update-track.md`
+status: landed
+delta: added app-layer portfolio comparison for Lense, Chronicle, and Scout
+  across services, deterministic contracts, command results, snapshots, action
+  facts, reports/receipts, fixture/workdir boundaries, README/manual usage, and
+  catalog smoke evidence.
+delta: identified stronger conventions around `app.rb`, app-owned services,
+  deterministic contracts, detached snapshots, command-result refusals, action
+  facts, evidence artifacts, smoke proof, and README/manual discoverability.
+delta: kept domain payloads, feedback/action vocabulary, parser/rule schemas,
+  receipt/report schemas, fixture/workdir layouts, and route/marker labels
+  app-local.
+delta: recommended a tiny guide/design-level evidence artifact and smoke proof
+  synthesis track before any new helper/API code; Dispatch is the preferred
+  next product app after that, while Embed/Contracts is the preferred package
+  fallback.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can add Web/read-model portfolio evidence; then
+  `[Architect Supervisor / Codex]` can choose the next strategic line.
+block: none
