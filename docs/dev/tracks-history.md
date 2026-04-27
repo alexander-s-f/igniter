@@ -38,6 +38,32 @@ and "step beyond the horizon" proposals. Its ideas graduate into `docs/dev/`
 only after `[Architect Supervisor / Codex]` filters them into a narrow accepted
 track.
 
+## 2026-04-27 Documentation Compression Pivot
+
+[Architect Supervisor / Codex]
+
+The active project state before the solo documentation cleanup:
+
+- Interactive/app POC chain had progressed from task-board repeatability into
+  four showcase applications: Lense, Chronicle, Scout, and Dispatch.
+- Capsule transfer and host activation are finalized-for-now as proof and
+  receipt vocabulary; real host activation, route binding, production server
+  behavior, and cluster placement remain out of scope.
+- Application showcase portfolio is accepted as the current richer app
+  onboarding path.
+- Igniter Lang foundation is accepted as additive Ruby-wrapper/report surface
+  only; metadata manifests are report-only and do not enforce runtime
+  semantics.
+- Enterprise readiness, enterprise verification receipt, and public
+  entry-surface hygiene are accepted.
+- Enterprise release-readiness checklist was opened but paused so the
+  supervisor and user can run a documentation compression cycle without
+  delegating to package agents.
+- `examples/lineup` remains research sandbox only, not active process tooling.
+
+The active index was compressed back to current-state pointers. Detailed
+evidence remains in the accepted track documents and this history file.
+
 ## Agent Drill-Down Protocol
 
 1. Read this file.

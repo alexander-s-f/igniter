@@ -45,255 +45,29 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Supervise enterprise release-readiness checklist | [Enterprise Release Readiness Checklist Track](./enterprise-release-readiness-checklist-track.md) | [Enterprise Verification](../guide/enterprise-verification.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Enterprise Public Entry Surface Hygiene Track](./enterprise-public-entry-surface-hygiene-track.md) | user |
-| `[Agent Application / Codex]` | Define application/examples release-readiness gate | [Enterprise Release Readiness Checklist Track](./enterprise-release-readiness-checklist-track.md) | [Enterprise Verification](../guide/enterprise-verification.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Examples](../../examples/README.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Define manual Web review release-readiness gate | [Enterprise Release Readiness Checklist Track](./enterprise-release-readiness-checklist-track.md) | [Enterprise Verification](../guide/enterprise-verification.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Interactive App Structure](../guide/interactive-app-structure.md) | `[Architect Supervisor / Codex]` |
-| `[Research Horizon / Codex]` | Filter release-readiness blockers versus deferred non-goals | [Enterprise Release Readiness Checklist Track](./enterprise-release-readiness-checklist-track.md) | [Enterprise Verification](../guide/enterprise-verification.md), [Research Horizon](../research-horizon/README.md), [Experts](../experts/README.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Contracts / Codex]` | Define contracts/Lang/package release-readiness gate | [Enterprise Release Readiness Checklist Track](./enterprise-release-readiness-checklist-track.md) | [Enterprise Verification](../guide/enterprise-verification.md), [Igniter Lang Foundation](../guide/igniter-lang-foundation.md), [Contract Class DSL](../guide/contract-class-dsl.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Solo documentation compression and project-state cleanup | [Documentation Compression Solo Track](./documentation-compression-solo-track.md) | [Documentation Compression Doctrine](./documentation-compression-doctrine.md), [Enterprise Verification](../guide/enterprise-verification.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Igniter Lang Foundation](../guide/igniter-lang-foundation.md) | user |
+| `[Agent Application / Codex]` | Paused during supervisor-only documentation cleanup | [Documentation Compression Solo Track](./documentation-compression-solo-track.md) | none | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Paused during supervisor-only documentation cleanup | [Documentation Compression Solo Track](./documentation-compression-solo-track.md) | none | `[Architect Supervisor / Codex]` |
+| `[Research Horizon / Codex]` | Paused during supervisor-only documentation cleanup | [Documentation Compression Solo Track](./documentation-compression-solo-track.md) | none | `[Architect Supervisor / Codex]` |
+| `[Agent Embed / Codex]` | Paused during supervisor-only documentation cleanup | [Documentation Compression Solo Track](./documentation-compression-solo-track.md) | none | `[Architect Supervisor / Codex]` |
+| `[Agent Contracts / Codex]` | Paused during supervisor-only documentation cleanup | [Documentation Compression Solo Track](./documentation-compression-solo-track.md) | none | `[Architect Supervisor / Codex]` |
 
 ## Current Cycle
 
 [Architect Supervisor / Codex] Current compact state:
 
-- Interactive operator POC is the active live pressure-test line.
-- Accepted POC chain: task board skeleton -> feedback/refusal -> action ledger
-  -> command result -> read snapshot -> pattern guide -> signal inbox repeat.
-- Research/expert proposals are useful, but full `interactive_app`, UI kit,
-  Plane/canvas, flow/chat/proactive agent DSL, SSE/live updates, generator, and
-  production server layer remain deferred.
-- Agent-cycle optimization has started with the highest-impact change:
-  `tracks.md` is now active-only; historical context moved to
-  [Tracks History](./tracks-history.md).
-- Constraint shorthand is now available for new active tracks:
-  [Constraint Sets](./constraints.md).
-- The emerging agent workflow is captured as a reusable lifecycle doctrine:
-  [Agent Track Lifecycle Doctrine](./agent-track-lifecycle-doctrine.md).
-- Expert formalization is accepted as reference vocabulary, not as an
-  implementation mandate:
-  [Agent Track Pattern](../experts/agent-track-pattern.md).
-- Repeatability synthesis is accepted; the pattern is guide-level convention,
-  not package API.
-- Current line returns to capsule transfer:
-  [Capsule Transfer Finalization Roadmap](./application-capsule-transfer-finalization-roadmap.md).
-- Activation Evidence And Receipt accepted the right vocabulary.
-- External expert report accepted as strategic reference, not implementation
-  mandate:
-  [Capsule Transfer Expert Report](../experts/capsule-transfer-expert-report.md).
-- Whole-project strategic expert report accepted as reference framing, not as
-  an immediate track replacement:
-  [Igniter Strategic Report](../experts/igniter-strategic-report.md).
-- Application proposals are accepted as future showcase/reference-app backlog,
-  not as the current active track:
-  [Application Proposals](../experts/application-proposals.md).
-- Activation Evidence Schema accepted the normative application schema and
-  metadata-only mount boundary.
-- Host Activation Ledger Adapter accepted the narrow Phase 3 proof.
-- Host Activation Ledger Verification Receipt accepted Phase 4 over the
-  ledger proof.
-- Activation Guide Consolidation accepted capsule transfer/activation as
-  finalized-for-now.
-- Next active track selects the first real showcase/reference app:
-  [Application Showcase Selection Track](./application-showcase-selection-track.md).
-- Lense application slice and Web dashboard/workbench slice have landed in the
-  showcase selection track.
-- Next active track implements Lense as a bounded one-process POC:
-  [Application Lense POC Implementation Track](./application-lense-poc-implementation-track.md).
-- Lense POC implementation accepted: local scan, contract-backed analysis,
-  dashboard/workbench, guided session actions, `/events`, report output, and
-  no scanned-project mutation.
-- Next active track finalizes Lense as a discoverable showcase:
-  [Application Lense Showcase Finalization Track](./application-lense-showcase-finalization-track.md).
-- Lense discoverability docs and Web readiness review have landed; supervisor
-  accepted Lense as showcase-ready.
-- New `igniter-lang` expert report is research-only context, not an active
-  feature proposal:
-  [Igniter Lang Research](../experts/igniter-lang/igniter-lang.md).
-- Next active track synthesizes app/web POC patterns before adding more scope:
-  [Application Showcase Synthesis Track](./application-showcase-synthesis-track.md).
-- App-local and Web/read-model synthesis have landed; both recommend Chronicle
-  showcase scoping next under offline one-process guardrails.
-- Showcase synthesis accepted; repeated app/web shapes remain guide-level
-  convention, not public facade/API.
-- Next active track scopes Chronicle as the second product/app pressure test:
-  [Application Chronicle Scoping Track](./application-chronicle-scoping-track.md).
-- Chronicle app-local and Web scoping have landed; supervisor can decide
-  whether to open bounded implementation.
-- Chronicle scoping accepted; next active track implements the bounded
-  offline one-process POC:
-  [Application Chronicle Implementation Track](./application-chronicle-implementation-track.md).
-- Chronicle app-local and Web implementation have landed; supervisor can
-  review showcase readiness or request a finalization pass.
-- Chronicle implementation accepted as a complete bounded POC; next active
-  track finalizes discoverability and showcase readiness:
-  [Application Chronicle Showcase Finalization Track](./application-chronicle-showcase-finalization-track.md).
-- Chronicle app and Web finalization have landed; supervisor can decide whether
-  Chronicle is showcase-ready beside Lense.
-- Chronicle accepted as showcase-ready beside Lense.
-- Next active track synthesizes the showcase portfolio before opening another
-  app or package-support design track:
-  [Application Showcase Portfolio Synthesis Track](./application-showcase-portfolio-synthesis-track.md).
-- Showcase portfolio app-layer and Web/read-model synthesis have landed;
-  supervisor can choose consolidation, tiny support design, or the next product
-  pressure line.
-- Showcase portfolio synthesis accepted; next active track consolidates
-  conventions as docs/checklists before Scout or any support API work:
-  [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md).
-- Showcase convention consolidation has landed for both app and Web; supervisor
-  can choose Scout scoping, tiny support design, or docs finalization.
-- Showcase convention consolidation accepted; next active track scopes Scout as
-  an offline/local-source product pressure line:
-  [Application Scout Scoping Track](./application-scout-scoping-track.md).
-- Scout app and Web scoping have landed; supervisor can decide whether to open
-  bounded Scout implementation or choose a support/design pass.
-- Scout scoping accepted; next active track implements the bounded
-  offline/local-source POC:
-  [Application Scout Implementation Track](./application-scout-implementation-track.md).
-- Scout implementation accepted as a complete bounded POC; next active track
-  finalizes discoverability and showcase readiness:
-  [Application Scout Showcase Finalization Track](./application-scout-showcase-finalization-track.md).
-- Scout accepted as showcase-ready beside Lense and Chronicle.
-- Next active track updates the showcase portfolio and chooses the next
-  strategic line:
-  [Application Showcase Portfolio Update Track](./application-showcase-portfolio-update-track.md).
-- Showcase portfolio update accepted; next active track designs the tiny
-  evidence/smoke proof convention before Dispatch/helper/Embed decisions:
-  [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md).
-- Showcase evidence/smoke design accepted; next active track scopes Dispatch as
-  an offline/fixture-backed incident command pressure line:
-  [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md).
-- Dispatch scoping accepted; next active track implements the bounded
-  offline/fixture-backed incident command POC:
-  [Application Dispatch Implementation Track](./application-dispatch-implementation-track.md).
-- Dispatch implementation accepted as a complete bounded POC; next active track
-  finalizes discoverability and manual review readiness:
-  [Application Dispatch Showcase Finalization Track](./application-dispatch-showcase-finalization-track.md).
-- Dispatch accepted as showcase-ready beside Lense, Chronicle, and Scout.
-- Local legacy material has moved to `playgrounds/legacy` as private/reference
-  context; active onboarding should stay on current packages, docs, and
-  showcase apps.
-- Next active track synthesizes the richer showcase portfolio before choosing
-  support/API extraction, another product app, or enterprise packaging work:
-  [Application Showcase Portfolio Final Synthesis Track](./application-showcase-portfolio-final-synthesis-track.md).
-- Showcase portfolio final app-side and Web/read-model/manual-review synthesis
-  accepted; repeated shapes are guide-level doctrine, not public API.
-- Next active track turns Lense, Chronicle, Scout, and Dispatch into a compact
-  enterprise-facing guide/discoverability path:
-  [Application Showcase Portfolio Guide Track](./application-showcase-portfolio-guide-track.md).
-- Showcase portfolio app-side and Web/manual-review guide content have landed;
-  supervisor accepted the guide as the public richer-application onboarding
-  path.
-- Research Horizon's Igniter-Lang implementation delta is accepted as filtered
-  research input: Ruby DSL first, grammar later; metadata/report-only before
-  runtime semantics.
-- Next active track graduates only the narrow additive foundation:
-  [Igniter Lang Foundation Pack Track](./igniter-lang-foundation-pack-track.md).
-- Igniter-Lang foundation pack accepted as additive: `require "igniter/lang"`,
-  Ruby backend wrapper, type descriptors, verification report, and compact
-  smoke example.
-- Next active track scopes metadata/report-only manifests before any runtime
-  semantics:
-  [Igniter Lang Metadata Manifest Scoping Track](./igniter-lang-metadata-manifest-scoping-track.md).
-- Metadata manifest scoping accepted with a narrowed boundary: report-only
-  extraction from existing operation metadata, no new DSL keywords, no runtime
-  enforcement.
-- Next active track implements only the read-only manifest/report plumbing:
-  [Igniter Lang Metadata Manifest Implementation Track](./igniter-lang-metadata-manifest-implementation-track.md).
-- Igniter-Lang metadata manifest implementation accepted as read-only report
-  plumbing, with `report_only: true`, `runtime_enforced: false`, and no runtime
-  behavior changes.
-- Next active track finalizes public wording/discoverability for the accepted
-  Lang foundation:
-  [Igniter Lang Foundation Guide Finalization Track](./igniter-lang-foundation-guide-finalization-track.md).
-- Igniter-Lang foundation guide accepted as the current public wording for the
-  additive Lang surface and report-only metadata manifest.
-- Next active track synthesizes enterprise/public readiness before choosing
-  another feature or package track:
-  [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md).
-- Enterprise readiness application-side and Web/manual-review synthesis have
-  landed; Contracts and Research Horizon synthesis landed; supervisor accepted
-  enterprise readiness synthesis.
-- Next active track hardens one evaluator-facing verification receipt/path
-  before any new feature/API work:
-  [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md).
-- Enterprise verification receipt hardening accepted:
-  [Enterprise Verification](../guide/enterprise-verification.md) is now the
-  compact evaluator-facing proof entrypoint across contracts, flagship apps,
-  Web/manual review, and Lang foundation.
-- Next active track aligns public repository entrypoints with that accepted
-  proof path before new feature/API work:
-  [Enterprise Public Entry Surface Hygiene Track](./enterprise-public-entry-surface-hygiene-track.md).
-- Public entry-surface hygiene accepted; root/examples/guide/package entry
-  surfaces now point back to Enterprise Verification and current package docs,
-  with removed companion/legacy onboarding paths cleaned from public first
-  reads.
-- Next active track creates a compact evaluator release-readiness checklist
-  before any new feature/API work:
-  [Enterprise Release Readiness Checklist Track](./enterprise-release-readiness-checklist-track.md).
-- `examples/lineup` is research sandbox only; do not replace active compact
-  handoffs with Line-Up.
-
-## Active Review
-
-### Current Accepted POC State
-
-Status: paused after repeatability; guide consolidation can resume later.
-
-Accepted slices:
-
-- [Feedback](./application-web-poc-feedback-track.md): app-local feedback and
-  blank refusal.
-- [Action Log](./application-web-poc-action-log-track.md): deterministic action
-  ledger and recent activity.
-- [Command Result](./application-web-poc-command-result-track.md): unified
-  app-local command result shape.
-- [Read Model](./application-web-poc-read-model-track.md): app-local
-  `BoardSnapshot` consumed by `/events` and the web board.
-- [Structure Synthesis](./application-web-poc-structure-synthesis-track.md):
-  app-local and web-local pattern findings.
-- [Pattern Guide](./application-web-poc-pattern-guide.md): compact copyable
-  app/web structure note.
-- [Second Scenario](./application-web-poc-second-scenario-track.md): accepted
-  `operator_signal_inbox`.
-- [Signal Inbox](./application-web-poc-signal-inbox-track.md): second app-local
-  POC with signal commands, snapshot, web surface, and smoke coverage.
-- [Repeatability Synthesis](./application-web-poc-repeatability-synthesis-track.md):
-  guide-level convention accepted; package API deferred.
-
-Verification gate observed for latest slice:
-
-- `ruby examples/application/interactive_web_poc.rb` passed.
-- `ruby examples/run.rb smoke` passed with 74 examples and 0 failures.
-- `bundle exec rubocop examples/application/interactive_web_poc.rb examples/application/interactive_operator examples/catalog.rb`
-  passed with no offenses.
-- `git diff --check` passed.
-
-### Process State
-
-Status: capsule transfer finalization reopened.
-
-Accepted:
-
-- Active tracks/history split.
-- Constraint sets for reusable boundaries.
-- Agent lifecycle doctrine and expert track-pattern vocabulary.
-- Documentation compression doctrine, narrowed to manual active-context hygiene.
-- Line-Up research sandbox acknowledged; not accepted as active tooling.
-
-Deferred:
-
-- front-matter conversion, generators, validators, automated history
-  compression, native track compiler, and native agent execution.
-
-Next:
-
-- Boundary review accepted only a narrow possible Phase 3; Application/Web
-  agents completed the evidence schema pass.
-- Phase 3 file-backed activation ledger proof is accepted.
-- Phase 4 ledger verification and activation receipt are accepted.
-- Capsule transfer/activation is finalized-for-now; real host activation and
-  web mount behavior remain out of scope.
-- Next step is a practical one-process showcase app selection, with Lense as
-  the accepted candidate.
-- Lense is showcase-ready; next step is synthesis across existing app/web POCs
-  before opening another implementation track.
+- Active implementation/proof line is paused for supervisor-only docs cleanup.
+- Current accepted public proof path is
+  [Enterprise Verification](../guide/enterprise-verification.md).
+- Current showcase portfolio is Lense, Chronicle, Scout, and Dispatch:
+  [Application Showcase Portfolio](../guide/application-showcase-portfolio.md).
+- Current Lang surface is additive/report-only:
+  [Igniter Lang Foundation](../guide/igniter-lang-foundation.md).
+- Public entry-surface hygiene is accepted; removed companion/legacy onboarding
+  paths should not return to first reads.
+- [Enterprise Release Readiness Checklist Track](./enterprise-release-readiness-checklist-track.md)
+  is paused until the documentation compression pass finishes.
+- `docs/` currently has 263 markdown files and about 90k lines; compression
+  should focus on active indexes, duplicated research/expert material, and old
+  long track files.
+- Do not delegate to package agents during this solo cleanup cycle.
