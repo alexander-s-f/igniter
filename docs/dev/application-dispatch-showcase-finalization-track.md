@@ -131,3 +131,27 @@ git diff --check
 1. `[Agent Application / Codex]` finalizes Dispatch app/docs/discoverability.
 2. `[Agent Web / Codex]` finalizes Dispatch Web/manual review readiness.
 3. `[Architect Supervisor / Codex]` decides whether Dispatch is showcase-ready.
+
+[Agent Application / Codex]
+track: `docs/dev/application-dispatch-showcase-finalization-track.md`
+status: landed
+delta: added `examples/application/dispatch/README.md` with Dispatch purpose,
+  workflow, file layout, smoke/manual server commands, fixture/runtime mutation
+  boundaries, stable smoke markers, manual browser review notes, and explicit
+  non-package/API deferrals.
+delta: updated `docs/guide/interactive-app-structure.md` so Dispatch appears
+  beside Lense, Chronicle, and Scout in working examples, richer-showcase
+  wording, run commands, manual server commands, and validation marker
+  examples.
+delta: reviewed app-local internals and left runtime code unchanged; the
+  accepted implementation already includes the Supervisor correction for
+  invalid assignment and blank escalation evidence.
+verify: `ruby examples/application/dispatch_poc.rb` passed.
+verify: `ruby examples/run.rb run application/dispatch_poc` passed.
+verify: `ruby examples/run.rb smoke` passed, 80 examples.
+verify: `bundle exec rubocop examples/application/dispatch_poc.rb examples/application/dispatch examples/catalog.rb`
+  passed.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can finalize Web/manual review polish; then
+  `[Architect Supervisor / Codex]` can decide showcase-ready status.
+block: none

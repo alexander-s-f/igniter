@@ -10,11 +10,13 @@ Working examples:
 - `examples/application/lense/`
 - `examples/application/chronicle/`
 - `examples/application/scout/`
+- `examples/application/dispatch/`
 - `examples/application/interactive_web_poc.rb`
 - `examples/application/signal_inbox_poc.rb`
 - `examples/application/lense_poc.rb`
 - `examples/application/chronicle_poc.rb`
 - `examples/application/scout_poc.rb`
+- `examples/application/dispatch_poc.rb`
 
 This is a copyable convention, not a framework contract. Keep domain vocabulary
 inside your app until the same shape repeats enough to justify a package-level
@@ -30,6 +32,9 @@ acknowledgement/sign-off/refusal actions, and emits a decision receipt.
 `scout` is the third richer showcase: it reads a local source pack, extracts
 deterministic source-backed findings, records a direction checkpoint, and emits
 a provenance-rich research receipt.
+`dispatch` is the fourth richer showcase: it reads a seeded incident event
+bundle, computes deterministic triage/routing evidence, records an assignment
+checkpoint, and emits an incident handoff receipt.
 
 Run Lense with:
 
@@ -49,12 +54,19 @@ Run Scout with:
 ruby examples/application/scout_poc.rb
 ```
 
+Run Dispatch with:
+
+```bash
+ruby examples/application/dispatch_poc.rb
+```
+
 For manual browser inspection:
 
 ```bash
 ruby examples/application/lense_poc.rb server
 ruby examples/application/chronicle_poc.rb server
 ruby examples/application/scout_poc.rb server
+ruby examples/application/dispatch_poc.rb server
 ```
 
 ## Application Structure
@@ -311,7 +323,7 @@ prove command success, refusal feedback, final state, recent action facts, and
 For richer showcase apps, also prove receipt/report evidence and mutation
 boundaries. Good smoke output names are app-local and boring, for example
 `lense_poc_receipt_valid=true`, `chronicle_poc_web_events_parity=true`, or
-`scout_poc_web_receipt_endpoint=true`.
+`dispatch_poc_web_receipt_endpoint=true`.
 
 Mutation-boundary proof should be explicit. A smoke can compare file signatures
 for read-only fixtures or scanned targets, count runtime files in the workdir,
