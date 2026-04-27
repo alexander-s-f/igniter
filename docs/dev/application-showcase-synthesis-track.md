@@ -342,3 +342,31 @@ verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can decide the next product/app
   pressure line.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- The synthesis is accepted as the current app/web evidence baseline.
+- Repeated shapes are real, but they remain guide-level conventions rather than
+  package APIs.
+- `CommandResult`, snapshots, action facts, feedback codes, Web markers,
+  report helpers, and form/layout helpers stay app-local for at least one more
+  full app.
+- `Igniter.interactive_app`, a generic app DSL, a UI kit, live transport,
+  persistence/history database, LLM/provider integration, and production server
+  concerns remain deferred.
+- Tiny support candidates are acknowledged only as future evidence targets:
+  in-process Rack smoke helpers, mounted-surface checklist language, and a
+  receipt-shaped plain-data convention after another app proves it.
+
+Next:
+
+- Open [Application Chronicle Scoping Track](./application-chronicle-scoping-track.md)
+  as the next bounded product/app pressure line.
+- Chronicle is accepted only as scoping/design in the next cycle, not as
+  implementation approval.
+- The first Chronicle slice must stay offline, one-process, deterministic, and
+  app-local-first.
