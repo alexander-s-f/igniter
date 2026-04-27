@@ -26,6 +26,16 @@ Root should stay thin:
   contracts-native distributed runtime: remote execution, routing, admission,
   placement, peer registry, topology, distributed diagnostics
 
+## Planned Runtime Packages
+
+- `igniter-ai`
+  provider-neutral AI execution: request/response envelopes, provider clients,
+  credentials-aware configuration, fake/live/recorded modes, transcripts,
+  usage, errors, and replay seams
+- `igniter-agents`
+  agent runtime semantics over contracts and AI: agent runs, turns, traces,
+  tool policy, memory/context, handoff, human gates, and supervisor vocabulary
+
 ## Current Supporting Packages
 
 - `igniter-mcp-adapter`
@@ -53,6 +63,10 @@ Root should stay thin:
 - Put code in `igniter-application` if it is about local runtime hosting,
   providers, services, boot, config, loading, or scheduling.
 - Put code in `igniter-cluster` if the network is part of the execution model.
+- Put provider clients, model envelopes, transcripts, usage, and replay seams in
+  `igniter-ai`.
+- Put agent loops, run state, tool policy, memory/context, handoff, and human
+  gates in `igniter-agents`.
 - Put transport and protocol work in adapter packages unless it is truly a
   cluster semantic concern.
 - Touch legacy packages only for reference, parity, migration, or retirement

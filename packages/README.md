@@ -1,6 +1,6 @@
 # Igniter Packages
 
-[archive](archive) – Deprecated Read-only archive from previous versions of Igniter.
+Deprecated legacy material lives under private playgrounds and is reference-only.
 
 Active runtime packages:
 
@@ -13,6 +13,9 @@ Active runtime packages:
 
 Remaining recreation work:
 
-- rebuild `igniter-server` only if an adapter surface is still needed
 - rebuild `igniter-ai`
 - rebuild `igniter-agents`
+- rebuild `igniter-server` only if an adapter surface is still needed
+
+See [AI And Agents Target Plan](../docs/dev/ai-agents-target-plan.md) before
+adding provider clients or agent runtime logic to an application example.

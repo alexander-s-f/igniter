@@ -19,6 +19,7 @@ are not part of the public documentation surface.
 - [Application Target Plan](./application-target-plan.md)
 - [Application And Web Integration](./application-web-integration.md)
 - [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md)
+- [AI And Agents Target Plan](./ai-agents-target-plan.md)
 - [Cluster Target Plan](./cluster-target-plan.md)
 - [Igniter Web Target Plan](./igniter-web-target-plan.md)
 - [MCP Adapter Package](./mcp-adapter-package-spec.md)

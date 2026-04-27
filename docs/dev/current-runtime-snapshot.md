@@ -17,16 +17,23 @@ This snapshot describes the current public package graph and proof surface.
 - `igniter-mcp-adapter`: transport-facing adapter for MCP tool catalogs and
   invocation.
 
+Planned rebuilds:
+
+- `igniter-ai`: provider-neutral AI execution, credentials-aware provider
+  configuration, fake/live/recorded modes, and replay/evaluation seams.
+- `igniter-agents`: agent run state, tool policy, memory/context, handoff, and
+  human-gate semantics over contracts and AI.
+
 ## Public Proof
 
 Current proof starts from:
 
 - [Application Showcase Portfolio](../guide/application-showcase-portfolio.md)
-- [Application Showcase Portfolio](../guide/application-showcase-portfolio.md)
 - [Igniter Lang Foundation](../guide/igniter-lang-foundation.md)
 - [Examples](../../examples/README.md)
 
-The flagship application set is Lense, Chronicle, Scout, and Dispatch.
+The flagship application set is Lense, Chronicle, Scout, Dispatch, and
+Companion.
 
 ## Boundaries
 
