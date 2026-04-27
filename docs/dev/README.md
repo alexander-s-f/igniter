@@ -29,7 +29,7 @@ are not part of the public documentation surface.
 - [Core](../guide/core.md)
 - [App](../guide/app.md)
 - [Cluster](../guide/cluster.md)
-- [SDK](../guide/sdk.md)
+- [`igniter-extensions`](../../packages/igniter-extensions/README.md)
 
 ## Public Docs Rule
 

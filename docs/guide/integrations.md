@@ -18,7 +18,8 @@ Igniter is embedded inside it.
 That entrypoint is intentionally narrow:
 
 - it loads the embedded Igniter kernel plus Rails adapters
-- it does not silently pull `igniter/app`, `igniter/server`, or `igniter/cluster`
+- it does not silently pull application hosting, web rendering, or cluster
+  coordination
 - it is the canonical public surface; `require "igniter/rails"` is not
 
 Reach for it when you want controllers, jobs, or channels to call contracts
@@ -29,7 +30,7 @@ without promoting the whole app into a larger Igniter hosting profile.
 Use:
 
 - runtime layers for execution/hosting concerns
-- sdk packs for optional shared capabilities
+- extension packs for optional shared capabilities
 - integrations for framework or environment adaptation
 
 For Rails specifically:
@@ -41,7 +42,6 @@ For Rails specifically:
 ## Current Reading Path
 
 - [App](./app.md)
-- [SDK](./sdk.md)
 - [`packages/igniter-embed/README.md`](../../packages/igniter-embed/README.md)
 - [`packages/igniter-web/README.md`](../../packages/igniter-web/README.md)
 - [`packages/igniter-extensions/README.md`](../../packages/igniter-extensions/README.md)

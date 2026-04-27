@@ -14,7 +14,7 @@ For user-facing runtime choices, use:
 - [Core](../guide/core.md)
 - [App](../guide/app.md)
 - [Cluster](../guide/cluster.md)
-- [SDK](../guide/sdk.md)
+- [`igniter-extensions`](../../packages/igniter-extensions/README.md)
 
 Private historical architecture indexes, V1 references, and old layer maps live
 under `playgrounds/docs/`.

@@ -1,33 +1,34 @@
 # Core Runtime Features
 
-Use this page when you need execution features that still belong to the kernel or
-to public core/extension activation surfaces.
+Use this page for features that still belong near the embedded contracts
+kernel.
 
-## Current Feature Set
+## Current Shape
 
-- incremental dataflow via `Igniter::Extensions::Contracts::DataflowPack`
-- capability policy via `Igniter::Extensions::Contracts::CapabilitiesPack`
-- content-addressed reuse via `Igniter::Extensions::Contracts::ContentAddressingPack`
-- cross-execution node caching via `require "igniter/core/node_cache"`
-- temporal replay via `require "igniter/core/temporal"`
+- contract DSL and class DSL
+- graph compilation and validation
+- local execution
+- diagnostics and structured reports
+- explicit optional packs from `igniter-extensions`
 
-The legacy `require "igniter/extensions/*"` activators still exist during
-retirement, but they are now migration shims rather than the preferred public
-path.
+Optional features should be installed through explicit packs. Avoid hidden
+global activation and old `igniter/core/*` entrypoints in new public examples.
 
-## Practical Heuristic
+## Heuristic
 
-Use these features when the goal is still about computation semantics or
-execution behavior, not about app hosting or cluster coordination.
+Keep a feature near the embedded kernel when it is about computation semantics
+or local execution behavior.
 
-If the feature only makes sense with HTTP hosting, external frameworks, or
-distributed routing, it probably belongs above core.
+Move it upward when it needs:
+
+- app boot/profile lifecycle
+- web rendering or browser interaction
+- framework integration
+- distributed routing or placement
 
 ## Reading Path
 
 - [Core](./core.md)
-- [Guide: API And Runtime](./api-and-runtime.md)
-- [Dev: Module System](../dev/module-system.md)
-
-Historical V1 runtime references are private working material under
-`playgrounds/docs/`.
+- [API And Runtime](./api-and-runtime.md)
+- [Module System](../dev/module-system.md)
+- [`packages/igniter-extensions/README.md`](../../packages/igniter-extensions/README.md)

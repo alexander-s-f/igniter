@@ -14,7 +14,6 @@ surface area.
 - [Core](./core.md)
 - [App](./app.md)
 - [Cluster](./cluster.md)
-- [SDK](./sdk.md)
 
 Operating modes to keep in mind:
 

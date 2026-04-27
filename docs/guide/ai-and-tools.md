@@ -1,7 +1,7 @@
 # AI And Tool Surfaces
 
-Use this page when you need optional AI-facing or agent-facing surfaces from the
-SDK layer.
+Use this page when you need optional AI-facing, agent-facing, or tool-facing
+surfaces around contracts.
 
 ## Current Surface Areas
 
@@ -19,7 +19,6 @@ SDK layer.
 
 ## Reading Path
 
-- [SDK](./sdk.md)
 - [Guide: How-Tos](./how-tos.md)
 - [Guide: Integrations](./integrations.md)
 - [`packages/igniter-extensions/README.md`](../../packages/igniter-extensions/README.md)

@@ -10,8 +10,7 @@ Igniter is being rebuilt around a contracts-native package graph:
 - `igniter-mcp-adapter` — transport-facing MCP surface
 
 The active repository surface is intentionally limited to those packages. Older
-legacy-root layers are no longer part of the current framework story and are
-being recreated step by step instead of being carried forward.
+layers are private reference material, not the current framework story.
 
 ## Pre-v1 Status
 
@@ -126,9 +125,6 @@ Use this for:
   - [packages/igniter-web/README.md](./packages/igniter-web/README.md)
   - [packages/igniter-cluster/README.md](./packages/igniter-cluster/README.md)
   - [packages/igniter-mcp-adapter/README.md](./packages/igniter-mcp-adapter/README.md)
-
-`require "igniter/legacy"` is explicit reference-only context. Do not use
-legacy material as the public onboarding path.
 
 The fuller map lives in [`docs/guide/README.md`](./docs/guide/README.md).
 

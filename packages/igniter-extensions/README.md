@@ -326,7 +326,7 @@ Igniter::Extensions::Contracts.scaffold_pack(
 )
 ```
 
-Legacy extension activators still exist for migration scenarios:
+Older extension activators still exist for migration scenarios:
 
 - `require "igniter/extensions/auditing"`
 - `require "igniter/extensions/capabilities"`
@@ -338,8 +338,7 @@ Legacy extension activators still exist for migration scenarios:
 - `require "igniter/extensions/reactive"`
 - `require "igniter/extensions/invariants"`
 
-Those activators still route through `igniter-core` and should be treated as
-legacy architecture, not as the long-term extension model.
+Those activators are migration context, not the long-term extension model.
 
 The first canonical activator-to-pack migration target is now explicit:
 

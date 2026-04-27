@@ -10,8 +10,8 @@ Active examples are limited to:
 - `igniter-cluster`
 - `igniter-mcp-adapter`
 
-Older legacy-root demos were moved out of the active tree and should not be
-treated as current reference material.
+Older demos were moved out of the active tree and should not be treated as
+current reference material.
 
 ## Runner
 

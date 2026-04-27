@@ -8,9 +8,8 @@ Current loading guidance:
 
 - prefer `require "igniter"` for embedded/default usage
 - prefer contracts-facing entrypoints when you are evaluating the migration path
-- treat `require "igniter/core"` as a deprecated compatibility alias
-- use `require "igniter/legacy"` only when you intentionally want the explicit
-  legacy/reference lane
+- use package README files for package-specific entrypoints
+- treat legacy entrypoints as private/reference context, not onboarding
 
 Pre-v1 status: Igniter intentionally does not promise backward compatibility or
 a stable public API yet. Public docs describe the current direction, not a
@@ -44,7 +43,6 @@ compatibility contract.
 - [Embedded Kernel](./core.md)
 - [App](./app.md)
 - [Cluster](./cluster.md)
-- [SDK](./sdk.md)
 - [CLI](./cli.md)
 - [Store Adapters](./store-adapters.md)
 

@@ -29,6 +29,5 @@ reading.
 
 ## Add Optional Capability Packs
 
-- [SDK](./sdk.md)
 - [AI And Tool Surfaces](./ai-and-tools.md)
 - [`packages/igniter-extensions/README.md`](../../packages/igniter-extensions/README.md)

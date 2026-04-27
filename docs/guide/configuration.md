@@ -19,8 +19,8 @@ layout, or persistence.
 ## Current Heuristic
 
 - Start embedded with `require "igniter"` when the host app already exists.
-- Move to `require "igniter/app"` when Igniter becomes the runtime shape.
-- Move to `require "igniter/cluster"` only when distribution is a real execution concern.
+- Move to `igniter-application` when Igniter becomes the runtime shape.
+- Move to `igniter-cluster` only when distribution is a real execution concern.
 
 ## Project Shapes
 

@@ -1,107 +1,46 @@
 # Module System
 
-Igniter currently has four architectural axes.
+Igniter's public module map is pre-v1 and package-first.
 
-## 1. Runtime Layers
+## Current Axes
 
-This is the hosting/execution pyramid:
+- `igniter-contracts`
+  embedded graph kernel: DSL, compilation, execution, diagnostics
+- `igniter-extensions`
+  optional packs over contracts: dataflow, differential, reporting, tooling
+- `igniter-embed`
+  host integration and configuration, especially Rails-style embedding
+- `igniter-application`
+  local app profile, providers, services, capsules, transfer, activation review
+- `igniter-web`
+  contracts-first web surfaces and app-local interactive screens
+- `igniter-cluster`
+  distributed routing, placement, ownership, health, and remediation
+- `igniter-mcp-adapter`
+  MCP-facing tool catalog and invocation surface
 
-```text
-core -> server/app -> cluster
-```
+## Rules
 
-Current public entrypoints:
+- Lower layers must not know about upper layers.
+- Optional behavior should be an explicit pack, not hidden boot mutation.
+- Integrations adapt Igniter to a host; they are not runtime layers.
+- Web owns rendering; application owns app profile and lifecycle.
+- Cluster owns distribution; contracts stay local-first and host-agnostic.
 
-- `require "igniter"`
-- `require "igniter/core"`
-- `require "igniter/server"`
-- `require "igniter/app"`
-- `require "igniter/stack"`
-- `require "igniter/cluster"`
+## Rails Boundary
 
-Rules:
+Rails embedding should use `igniter-embed` / Rails integration surfaces. It
+should not implicitly load application hosting, web rendering, or cluster
+coordination.
 
-- lower layers must not know about upper layers
-- upper layers may compose lower layers explicitly
-- loading a layer should not silently mutate unrelated runtime state
+## Placement Heuristic
 
-## 2. Actor Runtime
+Ask in this order:
 
-This is the actor/agent domain:
-
-```text
-igniter/agent
-igniter/registry
-igniter/supervisor
-igniter/agents
-igniter/ai/agents
-```
-
-Rules:
-
-- actor runtime depends on core, never the other way around
-- reusable agents belong here, not under `sdk/*`
-- moving agents into their own gem does not yet mean they are graph nodes
-
-## 3. SDK Packs
-
-This is the optional capability plane:
-
-```text
-igniter/ai
-igniter/sdk/channels
-igniter/sdk/data
-igniter/sdk/tools
-```
-
-Rules:
-
-- packs are optional and shared
-- top-level optional shortcuts are not public API
-- packs may depend downward, never upward
-- packs must not become hidden boot mechanisms
-
-## 4. Integrations
-
-This is the environment/framework integration plane:
-
-- `require "igniter/plugins/rails"`
-- `require "igniter-frontend"`
-- `require "igniter-schema-rendering"`
-
-Rules:
-
-- integrations adapt Igniter to an environment or UI surface
-- integrations are not the core runtime pyramid
-- integrations are not generic capability packs
-- integrations must not silently pull higher runtime layers as a side effect
-
-### Embedded Rails Scenario
-
-Rails is the canonical example of an integration that should stay outside the
-hosting pyramid.
-
-- `require "igniter/plugins/rails"` means embedded kernel + Rails adapter
-- it should not implicitly load `igniter/app`, `igniter/server`, or `igniter/cluster`
-- moving from embedded Rails to hosted/distributed runtime should require an
-  explicit additional `require`
-
-That keeps the framework adapter boundary clear:
-
-- Rails glue belongs in `igniter-rails`
-- hosting/profile code belongs in `igniter-app` / `igniter-server`
-- distributed behavior belongs in `igniter-cluster`
-
-## Current Practical Heuristic
-
-Ask these questions in order:
-
-1. Is it fundamental execution machinery?
-2. Is it optional and reusable?
-3. Is it an environment/framework adapter?
-
-That maps to:
-
-- runtime/core layer
-- sdk pack
-- integration/package
+1. Is it executable graph semantics? Put it in `igniter-contracts`.
+2. Is it optional reusable behavior over contracts? Put it in
+   `igniter-extensions`.
+3. Is it host integration? Put it in `igniter-embed` or a specific adapter.
+4. Is it local app runtime? Put it in `igniter-application`.
+5. Is it human/browser interaction? Put it in `igniter-web`.
+6. Is it distributed execution or coordination? Put it in `igniter-cluster`.

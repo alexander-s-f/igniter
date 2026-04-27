@@ -33,8 +33,8 @@ If a capability stops making sense without hosting, networking, or optional pack
 - Move to [App](./app.md) when you need app runtime/profile concerns.
 - Move to [Cluster](./cluster.md) when you need networking, mesh, routing,
   replication, or resilience.
-- Move to [SDK](./sdk.md) when you need optional packs such as AI, channels,
-  tools, skills, or data.
+- Move to [`igniter-extensions`](../../packages/igniter-extensions/README.md)
+  when you need optional packs.
 
 Current design direction:
 

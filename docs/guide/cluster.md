@@ -10,7 +10,8 @@ Use this section when execution is no longer single-node and the network itself 
 - resilience, plasticity, and decentralized runtime behavior
 - cluster diagnostics and routing explainability
 
-The cluster layer should stay above `core` and `app`. It is not the place to redefine the kernel.
+The cluster layer should stay above `Embed` and `Application`. It is not the
+place to redefine the kernel.
 
 ## Current First Reads
 

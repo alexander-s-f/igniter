@@ -38,29 +38,17 @@ Use `igniter-contracts` when Igniter is embedded inside another host such as:
 This package is the lower-layer dependency that other runtime shapes should
 build on top of. It should not pull:
 
-- `igniter/app`
-- `igniter/server`
-- `igniter/cluster`
-- frontend or schema-rendering packages
+- application hosting
+- server/runtime containers
+- cluster coordination
+- web rendering or schema-rendering packages
 
-It also should not depend on `igniter-core`. During the rewrite, both packages
-stay in the monorepo, but with different roles:
-
-- `igniter-contracts`
-  the new implementation that is expected to replace `igniter-core` at maturity
-- `igniter-core`
-  the legacy reference implementation used for comparison, parity checks, and
-  migration confidence while the rewrite is still in flight
-
-The legacy package now warns on public runtime entrypoints by default to make
-that architectural direction explicit. It can be switched to fail-fast mode
-with `IGNITER_LEGACY_CORE_REQUIRE=error`.
+It also should not depend on the legacy core implementation. Legacy code remains
+reference/parity material during the rewrite, not the public architecture.
 
 ## Current Shape
 
-`igniter-contracts` is now starting from its own internal primitives instead of
-growing out of the legacy `igniter-core` umbrella. The first step is the
-extensibility foundation:
+`igniter-contracts` starts from its own internal primitives:
 
 - registries
 - kernel/profile lifecycle
