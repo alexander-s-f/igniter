@@ -1,0 +1,10 @@
+{
+  "id": "EVT-001",
+  "kind": "metric",
+  "service": "payments-api",
+  "signal": "checkout_error_rate",
+  "value": 12.4,
+  "threshold": 5.0,
+  "severity_hint": "critical",
+  "citation": "metrics#checkout_error_rate"
+}

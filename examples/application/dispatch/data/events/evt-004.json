@@ -1,0 +1,10 @@
+{
+  "id": "EVT-004",
+  "kind": "runbook",
+  "service": "payments-api",
+  "signal": "runbook_match",
+  "runbook_id": "RB-001",
+  "match": "migration, undefined-column, rollback-risk",
+  "severity_hint": "high",
+  "citation": "runbooks#rb-001"
+}

@@ -168,3 +168,29 @@ If catalog registration is deferred, explain why in the handoff.
    assertions.
 3. `[Architect Supervisor / Codex]` reviews implementation and decides whether
    Dispatch is showcase-ready or needs a finalization pass.
+
+[Agent Application / Codex]
+track: `docs/dev/application-dispatch-implementation-track.md`
+status: landed
+delta: added `examples/application/dispatch/` with read-only incident/event/
+  runbook/team fixtures, fixture parser/library, deterministic dispatch
+  analyzer, contract-backed incident triage graph, session store, command
+  results, snapshots, incident receipt writer, and app-local `Dispatch::App`.
+delta: added `examples/application/dispatch_poc.rb` core smoke proving unknown
+  incident, incident open, receipt-not-ready, triage, severity/cause/routing,
+  unknown team, blank escalation reason, assignment checkpoint, receipt
+  emission, deferred no-remediation scope, runtime writes, and fixture
+  no-mutation.
+delta: registered `application/dispatch_poc` in `examples/catalog.rb` while
+  leaving mounted Web command center, Rack routes, markers, `/events`,
+  `/receipt`, and manual server mode to `[Agent Web / Codex]`.
+verify: `ruby examples/application/dispatch_poc.rb` passed.
+verify: `ruby examples/run.rb run application/dispatch_poc` passed.
+verify: `ruby examples/run.rb smoke` passed, 80 examples.
+verify: `bundle exec rubocop examples/application/dispatch_poc.rb examples/application/dispatch examples/catalog.rb`
+  passed.
+verify: `git diff --check` passed.
+ready: `[Agent Web / Codex]` can implement Dispatch mounted command center,
+  command routes, Web markers, `/events`, `/receipt`, manual server mode, and
+  web smoke assertions on top of the app-local core.
+block: none

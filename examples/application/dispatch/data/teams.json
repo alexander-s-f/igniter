@@ -1,0 +1,17 @@
+[
+  {
+    "id": "payments-platform",
+    "name": "Payments Platform",
+    "role": "owner"
+  },
+  {
+    "id": "database-oncall",
+    "name": "Database On-call",
+    "role": "escalation"
+  },
+  {
+    "id": "support-ops",
+    "name": "Support Operations",
+    "role": "observer"
+  }
+]

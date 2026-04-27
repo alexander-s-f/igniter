@@ -1,0 +1,11 @@
+{
+  "id": "EVT-002",
+  "kind": "deploy",
+  "service": "payments-api",
+  "signal": "recent_deploy",
+  "version": "v2.3.1",
+  "previous_version": "v2.3.0",
+  "deployed_at": "2026-04-26T14:18:03Z",
+  "severity_hint": "high",
+  "citation": "deploys#payments-api-v2.3.1"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "EVT-003",
+  "kind": "log",
+  "service": "payments-api",
+  "signal": "error_log",
+  "message": "PG::UndefinedColumn: column users.tier does not exist",
+  "severity_hint": "critical",
+  "citation": "logs#undefined-column"
+}

@@ -835,6 +835,39 @@ module IgniterExamples
       ]
     ),
     example(
+      "application/dispatch_poc",
+      "One-process Dispatch incident command POC core with handoff receipt evidence.",
+      expected_fragments: [
+        "dispatch_poc_unknown_incident=dispatch_unknown_incident",
+        "dispatch_poc_open=dispatch_incident_opened",
+        "dispatch_poc_session_id=true",
+        "dispatch_poc_incident=INC-001",
+        "dispatch_poc_title=Checkout errors after payments deploy",
+        "dispatch_poc_receipt_not_ready=dispatch_receipt_not_ready",
+        "dispatch_poc_triage=dispatch_triage_completed",
+        "dispatch_poc_severity=critical",
+        "dispatch_poc_cause=migration",
+        "dispatch_poc_events=4",
+        "dispatch_poc_routes=payments-platform,database-oncall",
+        "dispatch_poc_unknown_team=dispatch_unknown_team",
+        "dispatch_poc_blank_escalation=dispatch_blank_escalation_reason",
+        "dispatch_poc_assignment=dispatch_owner_assigned",
+        "dispatch_poc_assigned_team=payments-platform",
+        "dispatch_poc_handoff_ready=true",
+        "dispatch_poc_status=complete",
+        "dispatch_poc_receipt=dispatch_receipt_emitted",
+        "dispatch_poc_receipt_id=dispatch-receipt:dispatch-session-inc-001",
+        "dispatch_poc_receipt_valid=true",
+        "dispatch_poc_receipt_citation=true",
+        "dispatch_poc_receipt_deferred=true",
+        "dispatch_poc_events_read=incident=INC-001",
+        "dispatch_poc_action_count=14",
+        "dispatch_poc_fixture_no_mutation=true",
+        "dispatch_poc_runtime_sessions=1",
+        "dispatch_poc_runtime_receipts=1"
+      ]
+    ),
+    example(
       "application/mounts",
       "Generic application mount registry for web, agent, and future interaction surfaces.",
       expected_fragments: [
