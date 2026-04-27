@@ -331,3 +331,36 @@ verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can choose the next product/app or
   support-design pressure line.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Portfolio synthesis is accepted.
+- Lense and Chronicle prove a useful showcase-app convention, but not a public
+  `interactive_app` facade or package-level app framework.
+- The next step is documentation/checklist consolidation, not another
+  implementation track and not package API graduation.
+- Tiny candidates are accepted only as design/doc topics:
+  showcase checklist, Web surface checklist, receipt-shaped report convention,
+  manual review checklist, and narrow Rack smoke-helper investigation.
+- Scout remains the likely next product pressure line after consolidation, but
+  only as an offline/local-source first slice. Dispatch remains deferred until
+  scheduler/live monitoring/approval semantics are explicitly in scope.
+
+Rejected/deferred:
+
+- public `Igniter.interactive_app`
+- generic app/workflow/session DSL
+- shared `CommandResult`, snapshot, action ledger, receipt/report classes
+- UI kit, marker DSL, generic report viewer, graph/canvas renderer
+- live transport/SSE/WebSocket
+- persistence/history database
+- LLM/provider integration, connectors, scheduler/file watcher
+- auth/users/teams/production server framework
+
+Next:
+
+- Open [Application Showcase Convention Consolidation Track](./application-showcase-convention-consolidation-track.md).
