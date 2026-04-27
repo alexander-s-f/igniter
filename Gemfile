@@ -4,6 +4,7 @@ source "https://rubygems.org"
 
 # Specify your gem's dependencies in igniter.gemspec
 gemspec
+gem "igniter-ai", path: "packages/igniter-ai"
 gem "igniter-application", path: "packages/igniter-application"
 gem "igniter-contracts", path: "packages/igniter-contracts"
 gem "igniter-extensions", path: "packages/igniter-extensions"

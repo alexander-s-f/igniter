@@ -2,9 +2,13 @@
 
 require "igniter/contracts"
 require "igniter/extensions/contracts"
+require "igniter-ai"
 
 require_relative "application/config"
 require_relative "application/config_builder"
+require_relative "application/ai_provider_definition"
+require_relative "application/ai_builder"
+require_relative "application/ai_registry"
 require_relative "application/missing_credential_error"
 require_relative "application/credential_definition"
 require_relative "application/credential_store"

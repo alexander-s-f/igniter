@@ -2,8 +2,6 @@
 
 require "tmpdir"
 
-require "igniter-ai"
-
 require_relative "services/store_backends"
 
 module Companion
@@ -57,14 +55,6 @@ module Companion
       self
     end
 
-    def llm_provider
-      key = credential_store.fetch(:openai_api_key, default: nil)
-      return nil if key.nil?
-
-      Igniter::AI.client(
-        provider: Igniter::AI::Providers::OpenAIResponses.new(api_key: key, model: llm_model)
-      )
-    end
   end
 
   def self.configure

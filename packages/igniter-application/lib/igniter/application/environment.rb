@@ -101,6 +101,14 @@ module Igniter
         end&.provider || raise(KeyError, "unknown provider #{name.inspect}")
       end
 
+      def ai_client(name = :default)
+        profile.ai_client(name)
+      end
+
+      def ai_provider_names
+        profile.ai_provider_names
+      end
+
       def mount(name)
         profile.mount(name)
       end

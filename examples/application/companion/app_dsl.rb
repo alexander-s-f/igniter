@@ -13,12 +13,18 @@ module Companion
       end
     end
 
+    def companion_ai(config)
+      ai do
+        provider :openai, credential: :openai_api_key, model: config.llm_model
+      end
+    end
+
     def companion_store(config)
-      service(:companion) do
+      service(:companion) do |environment|
         Services::CompanionStore.new(
           credentials: config.credential_store,
           backend: config.store_adapter,
-          llm_provider: config.llm_provider
+          llm_provider: environment.credentials.configured?(:openai_api_key) ? environment.ai_client(:openai) : nil
         )
       end
     end

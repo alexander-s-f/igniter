@@ -22,6 +22,7 @@ module Companion
       extend AppDSL
 
       companion_credentials config
+      companion_ai config
       companion_store config
       companion_dashboard
       companion_routes

@@ -4,9 +4,15 @@ PATH
     igniter (0.5.1)
 
 PATH
+  remote: packages/igniter-ai
+  specs:
+    igniter-ai (0.5.1)
+
+PATH
   remote: packages/igniter-application
   specs:
     igniter-application (0.5.1)
+      igniter-ai (= 0.5.1)
       igniter-contracts (= 0.5.1)
       igniter-extensions (= 0.5.1)
 
@@ -149,6 +155,7 @@ PLATFORMS
 
 DEPENDENCIES
   igniter!
+  igniter-ai!
   igniter-application!
   igniter-contracts!
   igniter-extensions!

@@ -35,6 +35,24 @@ Primary API:
 - `Igniter::Application::SeamLifecycleResult`
 - `Igniter::Application::CredentialStore`
 - `Igniter::Application::MissingCredentialError`
+- `Igniter::Application::AIRegistry`
+
+AI providers are configured at the application layer and resolved through the
+environment. Applications declare intent; provider-specific client construction
+stays under `igniter-ai`:
+
+```ruby
+environment = Igniter::Application.build_kernel
+                                  .credential(:openai_api_key, env: "OPENAI_API_KEY")
+                                  .ai do
+                                    provider :openai,
+                                             credential: :openai_api_key,
+                                             model: "gpt-5.2"
+                                  end
+                                  .then { |kernel| Igniter::Application::Environment.new(profile: kernel.finalize) }
+
+client = environment.ai_client(:openai)
+```
 
 Credentials are app runtime configuration for secrets such as API keys. They
 are fetched explicitly at runtime and redacted from manifests/profile payloads:

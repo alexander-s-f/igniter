@@ -34,7 +34,7 @@ module Igniter
 
       class Builder
         attr_reader :name, :root, :env, :metadata, :service_factories, :routes, :web_mounts,
-                    :credential_definitions
+                    :credential_definitions, :ai_block
 
         def initialize(name, root:, env:, metadata:)
           @name = name.to_sym
@@ -45,6 +45,7 @@ module Igniter
           @routes = []
           @web_mounts = []
           @credential_definitions = []
+          @ai_block = nil
         end
 
         def service(name, callable = nil, metadata: {}, &block)
@@ -83,6 +84,13 @@ module Igniter
           self
         end
 
+        def ai(&block)
+          raise ArgumentError, "ai requires a block" unless block
+
+          @ai_block = block
+          self
+        end
+
         def get(path, &block)
           route("GET", path, &block)
         end
@@ -92,9 +100,10 @@ module Igniter
         end
 
         def build
-          service_instances = build_service_instances
+          service_instances = {}
           kernel = Kernel.new
           kernel.manifest(name, root: root, env: env, metadata: metadata)
+          kernel.ai(&ai_block) if ai_block
           credential_definitions.each do |definition|
             kernel.credential(
               definition.fetch(:name),
@@ -118,6 +127,7 @@ module Igniter
           end
 
           environment = Environment.new(profile: kernel.finalize)
+          service_instances.merge!(build_service_instances(environment))
           RackHost.new(
             name: name,
             root: root,
@@ -138,9 +148,10 @@ module Igniter
           self
         end
 
-        def build_service_instances
+        def build_service_instances(environment)
           service_factories.transform_values do |entry|
-            entry.fetch(:factory).call
+            factory = entry.fetch(:factory)
+            factory.arity.zero? ? factory.call : factory.call(environment)
           end
         end
       end

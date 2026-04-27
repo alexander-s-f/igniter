@@ -6,13 +6,13 @@ module Igniter
       attr_reader :contracts_profile, :contracts_packs, :application_packs,
                   :host_name, :loader_name, :scheduler_name, :session_store_name,
                   :host_seam, :loader_seam, :scheduler_seam, :session_store_seam,
-                  :config, :credentials, :providers, :service_registry, :contract_registry,
+                  :config, :credentials, :providers, :ai_registry, :service_registry, :contract_registry,
                   :scheduled_jobs, :mounts, :code_paths, :manifest
 
       def initialize(contracts_profile:, manifest:, contracts_packs:, application_packs:,
                      host_name:, loader_name:, scheduler_name:, session_store_name:,
                      host_seam:, loader_seam:, scheduler_seam:, session_store_seam:,
-                     config:, credentials:, providers:, services:, service_definitions:, interfaces:,
+                     config:, credentials:, providers:, ai_providers:, services:, service_definitions:, interfaces:,
                      registrations:, scheduled_jobs:, mounts:, code_paths:)
         @contracts_profile = contracts_profile
         @manifest = manifest
@@ -29,6 +29,7 @@ module Igniter
         @config = config
         @credentials = credentials
         @providers = providers.dup.freeze
+        @ai_registry = AIRegistry.new(definitions: ai_providers, credentials: credentials)
         @service_registry = ServiceRegistry.new(
           services: services,
           service_definitions: service_definitions,
@@ -93,6 +94,14 @@ module Igniter
         providers.map(&:name).sort
       end
 
+      def ai_client(name = :default)
+        ai_registry.client(name)
+      end
+
+      def ai_provider_names
+        ai_registry.names
+      end
+
       def contract_names
         contract_registry.names
       end
@@ -130,6 +139,7 @@ module Igniter
           config: config.to_h,
           credentials: credentials.to_h,
           providers: providers.map(&:to_h),
+          ai: ai_registry.to_h,
           services: service_registry.service_names,
           interfaces: service_registry.interface_names,
           contracts: contract_names,
