@@ -227,3 +227,95 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can add Web/read-model/manual-review synthesis;
   then `[Architect Supervisor / Codex]` can choose the next strategic track.
 block: none
+
+## Portfolio Web Synthesis
+
+[Agent Web / Codex] Web/read-model/manual-review portfolio story:
+
+| Showcase | Mounted surface | Read model | Route ownership | Artifact endpoint | Manual/smoke proof |
+| --- | --- | --- | --- | --- | --- |
+| Lense | `web/lense_dashboard.rb` mounted as `:lense_dashboard`. | `CodebaseSnapshot` read through `MountContext` for scan, findings, session, report, and activity. | `app.rb` owns scan/session/report routes and redirect feedback. | `/report` exposes the app-owned Lense analysis receipt. | Stable scan, finding, evidence, session, report, action, activity, feedback, `/events`, and no-mutation markers. |
+| Chronicle | `web/decision_compass.rb` mounted as `:decision_compass`. | `ChronicleSnapshot` read through `MountContext` for proposal, conflicts, sign-offs, refusals, receipt, and activity. | `app.rb` owns acknowledgement/sign-off/refusal/receipt routes and redirect feedback. | `/receipt` exposes the app-owned decision receipt. | Stable proposal, session, conflict, evidence, sign-off, receipt, action, activity, feedback, `/events`, and fixture no-mutation markers. |
+| Scout | `web/research_workspace.rb` mounted as `:research_workspace`. | `ScoutSnapshot` read through `MountContext` for topic, sources, findings, contradictions, checkpoint, receipt, and activity. | `app.rb` owns source/checkpoint/receipt routes and redirect feedback. | `/receipt` exposes the app-owned research receipt. | Stable topic, session, source, citation, provenance, finding, contradiction, checkpoint, receipt, action, activity, feedback, `/events`, and fixture no-mutation markers. |
+| Dispatch | `web/command_center.rb` mounted as `:command_center`. | `DispatchSnapshot` read through `MountContext` for incident, events, severity, routing, checkpoint, receipt, and activity. | `app.rb` owns assignment/escalation/receipt routes and redirect feedback. | `/receipt` exposes the app-owned incident handoff receipt. | Stable incident, event, provenance, severity, routing, checkpoint, receipt, action, activity, feedback, `/events`, and fixture no-mutation markers. |
+
+Stable enough for Web guide-level doctrine:
+
+- One app-local Arbre surface under `web/` is the visible screen boundary.
+- The surface is mounted with `Igniter::Web.mount`, then treated as an opaque
+  mount object from `app.rb`.
+- The surface reads app state through `MountContext` and takes one app-owned
+  snapshot near the top of render.
+- The app, not the surface, owns Rack command routes, form parameter handling,
+  command-result transport mapping, redirects, and report/receipt endpoints.
+- Feedback travels through query-string state and renders with
+  `data-ig-feedback` plus app-local `data-feedback-code`.
+- `/events` mirrors the same snapshot used by the mounted surface, giving smoke
+  and browser review a text endpoint that agrees with HTML.
+- `/report` or `/receipt` is added only when the app already owns a stable
+  evidence artifact.
+- Stable `data-` markers are the current inspection seam for smoke and manual
+  browser review; they are not a marker DSL.
+- Manual `server` mode is showcase scaffolding for browser review, not
+  production server behavior.
+- In-process Rack smoke remains the default verification path; browser
+  automation is useful later only as an optional review tool.
+
+Still Web-local despite repetition:
+
+- Surface names, panel grouping, copy, CSS direction, and page hierarchy.
+- Marker names and values, including entity ids, counters, states, severities,
+  action names, and activity kinds.
+- Feedback code strings and feedback messages.
+- Endpoint names such as `/report` versus `/receipt`.
+- Which success and refusal paths are chosen as representative smoke proof.
+- Smoke output labels, catalog fragments, manual review wording, and fixture or
+  target signature strategy.
+
+Support/API extraction assessment:
+
+- A public Web facade, route DSL, marker DSL, component DSL, UI kit, generic
+  report viewer, live/browser automation default, or app screen compiler is
+  still premature. The repeated Web code preserves each app's domain language
+  and keeps the examples teachable.
+- The only Web-adjacent helper worth considering now is examples/specs scoped:
+  Rack env builders, form encoding, redirect following, response status checks,
+  marker assertions, endpoint parity checks, and deterministic smoke output
+  helpers.
+- Even that helper should be designed so it does not know domain names,
+  command names, feedback codes, snapshot fields, receipt schemas, marker
+  vocabularies, or endpoint labels.
+- Docs consolidation is safer and higher leverage than package extraction:
+  publish the four-app portfolio story and keep the pattern guide/checklists as
+  the primary onboarding path.
+
+Recommended next strategic track from Web:
+
+- Prefer an enterprise-facing "Application Showcase Portfolio Guide" next. The
+  portfolio now proves deterministic contracts, inspectable Web surfaces,
+  mutation boundaries, action facts, `/events` parity, and receipt/report
+  evidence across four richer domains.
+- If the next line must implement something, choose a tiny examples/specs
+  smoke-helper design/experiment, not a runtime API.
+- If product pressure resumes, pick only a genuinely new surface pressure and
+  keep it offline, one-process, receipt-oriented, and non-live.
+- If package/core pressure resumes, return to Embed/Contracts before
+  Cluster/Mesh. Nothing in the current Web evidence requires distributed
+  runtime, production server, scheduler, persistence, auth, connectors, or live
+  transport.
+
+[Agent Web / Codex]
+track: `docs/dev/application-showcase-portfolio-final-synthesis-track.md`
+status: landed
+delta: added Web/read-model/manual-review portfolio synthesis comparing Lense,
+  Chronicle, Scout, and Dispatch by mounted surface, snapshot consumption,
+  route ownership, artifact endpoint, feedback markers, `/events`, manual
+  server mode, and smoke markers.
+delta: identified Web conventions stable enough for guide-level doctrine and
+  listed repeated surface details that should stay local for readability.
+delta: recommended docs/portfolio consolidation or a tiny examples/specs smoke
+  helper design; public Web facade, route DSL, marker DSL, UI kit, component
+  DSL, browser automation default, and live runtime remain deferred.
+verify: `git diff --check` passed.
+ready: `[Architect Supervisor / Codex]` can choose the next strategic track.
+block: none
