@@ -11,7 +11,8 @@ module Igniter
                   :services, :service_definitions, :interfaces, :registrations,
                   :scheduled_jobs, :mounts, :code_paths, :host_seam, :loader_seam, :scheduler_seam,
                   :session_store_seam, :config_builder, :application_name, :application_root,
-                  :application_env, :application_layout, :application_metadata
+                  :application_env, :application_layout, :application_metadata,
+                  :credential_definitions
 
       def initialize(contracts_kernel: Igniter::Contracts.build_kernel)
         @contracts_kernel = contracts_kernel
@@ -31,6 +32,7 @@ module Igniter
         @mounts = {}
         @code_paths = {}
         @config_builder = ConfigBuilder.new
+        @credential_definitions = {}
         @host_name = :embedded
         @loader_name = :manual
         @scheduler_name = :manual
@@ -180,6 +182,18 @@ module Igniter
         self
       end
 
+      def credential(name, env: nil, required: false, description: nil, metadata: {})
+        definition = CredentialDefinition.new(
+          name: name,
+          env: env,
+          required: required,
+          description: description,
+          metadata: metadata
+        )
+        @credential_definitions[definition.name] = definition
+        self
+      end
+
       def schedule(name, every:, at: nil, &block)
         raise ArgumentError, "schedule requires a block" unless block
 
@@ -283,6 +297,7 @@ module Igniter
           session_store_seam: session_store_seam,
           config: config_builder.to_config,
           providers: providers,
+          credentials: CredentialStore.new(definitions: credential_definitions.values),
           services: services,
           service_definitions: service_definitions,
           interfaces: interfaces,
@@ -332,6 +347,7 @@ module Igniter
           scheduled_jobs: scheduled_jobs.map { |job| job[:name] }.sort,
           mounts: mounts.values.map(&:to_h).sort_by { |entry| entry.fetch(:name).to_s },
           config: config_builder.to_config.to_h,
+          credentials: CredentialStore.new(definitions: credential_definitions.values).to_h,
           metadata: application_metadata
         )
       end

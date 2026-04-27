@@ -4,10 +4,11 @@ module Igniter
   module Application
     class ApplicationManifest
       attr_reader :name, :root, :env, :layout, :packs, :contracts, :providers,
-                  :services, :interfaces, :scheduled_jobs, :mounts, :config, :metadata
+                  :services, :interfaces, :scheduled_jobs, :mounts, :config,
+                  :credentials, :metadata
 
       def initialize(name:, root:, env:, layout:, packs: [], contracts: [], providers: [], services: [],
-                     interfaces: [], scheduled_jobs: [], mounts: [], config: {}, metadata: {})
+                     interfaces: [], scheduled_jobs: [], mounts: [], config: {}, credentials: {}, metadata: {})
         @name = name.to_sym
         @root = File.expand_path(root.to_s)
         @env = env.to_sym
@@ -20,6 +21,7 @@ module Igniter
         @scheduled_jobs = Array(scheduled_jobs).map(&:to_sym).freeze
         @mounts = Array(mounts).map(&:dup).freeze
         @config = config.dup.freeze
+        @credentials = credentials.dup.freeze
         @metadata = metadata.dup.freeze
         freeze
       end
@@ -38,6 +40,7 @@ module Igniter
           scheduled_jobs: scheduled_jobs.dup,
           mounts: mounts.map(&:dup),
           config: config.dup,
+          credentials: credentials.dup,
           metadata: metadata.dup
         }
       end

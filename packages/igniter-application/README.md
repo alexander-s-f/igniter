@@ -33,6 +33,22 @@ Primary API:
 - `Igniter::Application::ShutdownPlan`
 - `Igniter::Application::ShutdownReport`
 - `Igniter::Application::SeamLifecycleResult`
+- `Igniter::Application::CredentialStore`
+- `Igniter::Application::MissingCredentialError`
+
+Credentials are app runtime configuration for secrets such as API keys. They
+are fetched explicitly at runtime and redacted from manifests/profile payloads:
+
+```ruby
+environment = Igniter::Application.build_kernel
+                                  .credential(:openai_api_key, env: "OPENAI_API_KEY")
+                                  .then { |kernel| Igniter::Application::Environment.new(profile: kernel.finalize) }
+
+environment.credentials.configured?(:openai_api_key)
+environment.credentials.fetch(:openai_api_key)
+```
+
+See [Credentials](../../docs/guide/credentials.md).
 
 The application layer also now owns a first local session seam for durable
 host-side orchestration around contracts-native compose/collection flows:

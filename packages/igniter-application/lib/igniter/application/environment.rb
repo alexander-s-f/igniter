@@ -79,6 +79,10 @@ module Igniter
         profile.config
       end
 
+      def credentials
+        profile.credentials
+      end
+
       def manifest
         profile.manifest
       end

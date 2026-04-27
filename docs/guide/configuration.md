@@ -13,6 +13,7 @@ layout, or persistence.
 ## Runtime And Deployment Reference
 
 - [Deployment Modes](./deployment-modes.md)
+- [Credentials](./credentials.md)
 - [Store Adapters](./store-adapters.md)
 - [Application Capsules](./application-capsules.md)
 

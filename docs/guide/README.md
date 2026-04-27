@@ -35,6 +35,7 @@ compatibility contract.
 - [Interactive App Structure](./interactive-app-structure.md)
 - [How-Tos](./how-tos.md)
 - [Configuration](./configuration.md)
+- [Credentials](./credentials.md)
 - [Deployment Modes](./deployment-modes.md)
 - [Integrations](./integrations.md)
 - [Distributed Workflows](./distributed-workflows.md)
