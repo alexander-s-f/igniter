@@ -431,3 +431,49 @@ delta: added horizon filter with one recommended next track and one explicit
 verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can choose the next active track.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Enterprise readiness synthesis is accepted.
+- The current public story is credible but distributed across docs, specs,
+  examples, smoke output, showcase READMEs, and package guides.
+- The next highest-leverage work is not another feature, DSL, app, runtime, or
+  package API.
+- The next track should harden trust and reproducibility by creating a compact
+  evaluator-facing verification path and receipt.
+
+Accepted next direction:
+
+- Open an Enterprise Verification Receipt Hardening track.
+- It should define the canonical commands, explain what they prove, summarize
+  current public surfaces, and record explicit non-goals.
+- It may design examples/specs-scoped smoke helper boundaries, but should not
+  implement or graduate a runtime helper/API unless separately accepted later.
+
+Still deferred:
+
+- `Igniter.interactive_app`
+- shared command result, snapshot, receipt/report APIs
+- marker DSL, route DSL, UI kit, component DSL, browser automation default
+- Lang grammar/parser/AST, Rust/export, store/OLAP/time-machine runtime,
+  deadline enforcement
+- production server behavior, auth, persistence, schedulers, connectors,
+  live transport, cluster placement
+
+Supervisor verification:
+
+```bash
+git diff --check
+```
+
+Result:
+
+- `git diff --check` passed.
+
+Next:
+
+- Open [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md).

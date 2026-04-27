@@ -45,12 +45,12 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review enterprise readiness synthesis and choose next active track | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md) | [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Igniter Lang Foundation](../guide/igniter-lang-foundation.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Synthesize application-side enterprise readiness and onboarding gaps | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md) | [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Interactive App Structure](../guide/interactive-app-structure.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Standby after Web/manual-review enterprise readiness synthesis | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md) | [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
-| `[Research Horizon / Codex]` | Filter current horizon into one high-leverage next-track recommendation | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md) | [Igniter Lang Foundation](../guide/igniter-lang-foundation.md), [Research Horizon](../research-horizon/README.md), [Experts](../experts/README.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review enterprise verification receipt hardening and proof entrypoint | [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md) | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Igniter Lang Foundation](../guide/igniter-lang-foundation.md) | user |
+| `[Agent Application / Codex]` | Define flagship application verification path and receipt evidence | [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md) | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Interactive App Structure](../guide/interactive-app-structure.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Define Web/manual-review verification path and receipt evidence | [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md) | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md), [Application Showcase Portfolio](../guide/application-showcase-portfolio.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md) | `[Architect Supervisor / Codex]` |
+| `[Research Horizon / Codex]` | Review verification receipt for overclaiming and recommend next step | [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md) | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md), [Research Horizon](../research-horizon/README.md), [Experts](../experts/README.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Contracts / Codex]` | Synthesize contracts/lang enterprise readiness and onboarding gaps | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md) | [Igniter Lang Foundation](../guide/igniter-lang-foundation.md), [Contract Class DSL](../guide/contract-class-dsl.md), [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Contracts / Codex]` | Define contracts/lang verification path and receipt evidence | [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md) | [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md), [Igniter Lang Foundation](../guide/igniter-lang-foundation.md), [Contract Class DSL](../guide/contract-class-dsl.md) | `[Architect Supervisor / Codex]` |
 
 ## Current Cycle
 
@@ -211,8 +211,11 @@ block: none | <blocker>
   another feature or package track:
   [Igniter Enterprise Readiness Synthesis Track](./igniter-enterprise-readiness-synthesis-track.md).
 - Enterprise readiness application-side and Web/manual-review synthesis have
-  landed; Contracts and Research Horizon can complete the remaining synthesis
-  before supervisor selects the next active track.
+  landed; Contracts and Research Horizon synthesis landed; supervisor accepted
+  enterprise readiness synthesis.
+- Next active track hardens one evaluator-facing verification receipt/path
+  before any new feature/API work:
+  [Enterprise Verification Receipt Hardening Track](./enterprise-verification-receipt-hardening-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 
