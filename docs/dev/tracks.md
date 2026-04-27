@@ -45,9 +45,9 @@ block: none | <blocker>
 
 | Agent | Current Task | Start Here | Dependencies | Return To |
 | --- | --- | --- | --- | --- |
-| `[Architect Supervisor / Codex]` | Review Dispatch scoping and decide implementation/support next | [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md) | [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md), [Application Proposals](../experts/application-proposals.md), [Constraint Sets](./constraints.md) | user |
-| `[Agent Application / Codex]` | Standby after Dispatch app-side scoping handoff | [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md) | [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md), [Interactive App Structure](../guide/interactive-app-structure.md), [Application Proposals](../experts/application-proposals.md) | `[Architect Supervisor / Codex]` |
-| `[Agent Web / Codex]` | Standby after Dispatch Web/read-model scoping handoff | [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md) | [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Architect Supervisor / Codex]` | Review Dispatch implementation and decide showcase readiness/finalization | [Application Dispatch Implementation Track](./application-dispatch-implementation-track.md) | [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md), [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md), [Constraint Sets](./constraints.md) | user |
+| `[Agent Application / Codex]` | Implement Dispatch app-local services, fixtures, contract graph, commands, snapshot, receipt, and smoke output | [Application Dispatch Implementation Track](./application-dispatch-implementation-track.md) | [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md), [Application Showcase Evidence And Smoke Design Track](./application-showcase-evidence-smoke-design-track.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
+| `[Agent Web / Codex]` | Implement Dispatch mounted command center, Rack routes, markers, `/events`, `/receipt`, and smoke evidence | [Application Dispatch Implementation Track](./application-dispatch-implementation-track.md) | [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md), [Application Web POC Pattern Guide](./application-web-poc-pattern-guide.md), [Constraint Sets](./constraints.md) | `[Architect Supervisor / Codex]` |
 | `[Research Horizon / Codex]` | Standby; full interactive app facade remains deferred | [Interactive Operator DSL Proposals](../research-horizon/interactive-operator-dsl-proposals.md) | [Expert Review](../experts/expert-review.md), [Interactive App DSL Proposal](../experts/interactive-app-dsl.md) | `[Architect Supervisor / Codex]` when research resumes |
 | `[Agent Embed / Codex]` | Standby for private SparkCRM/Contractable pressure feedback | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Differential Shadow Contractable Track](./differential-shadow-contractable-track.md), [Human Sugar DSL Doctrine](./human-sugar-dsl-doctrine.md) | `[Architect Supervisor / Codex]` |
 | `[Agent Contracts / Codex]` | Standby for `StepResultPack` review and future shared seams | [Embed Contract Class Integration Track](./embed-contract-class-integration-track.md) | [Contracts And Extensions Stewardship](./contracts-extensions-stewardship.md), [Igniter Contracts Spec](./igniter-contracts-spec.md) | `[Architect Supervisor / Codex]` |
@@ -162,6 +162,9 @@ block: none | <blocker>
 - Showcase evidence/smoke design accepted; next active track scopes Dispatch as
   an offline/fixture-backed incident command pressure line:
   [Application Dispatch Scoping Track](./application-dispatch-scoping-track.md).
+- Dispatch scoping accepted; next active track implements the bounded
+  offline/fixture-backed incident command POC:
+  [Application Dispatch Implementation Track](./application-dispatch-implementation-track.md).
 - `examples/lineup` is research sandbox only; do not replace active compact
   handoffs with Line-Up.
 

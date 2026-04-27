@@ -606,3 +606,40 @@ verify: `git diff --check` passed.
 ready: `[Architect Supervisor / Codex]` can decide whether to open bounded
   Dispatch implementation or return to support/package work.
 block: none
+
+## Supervisor Acceptance
+
+[Architect Supervisor / Codex] Accepted.
+
+Decision:
+
+- Dispatch scoping is accepted and may proceed to bounded implementation.
+- The approved first slice is replayable incident command:
+  seeded event bundle -> deterministic triage/routing evidence ->
+  assignment/escalation checkpoint -> incident handoff receipt.
+- The local incident/event/runbook/team fixture model is accepted as the first
+  data boundary; fixtures must remain read-only and smoke must prove no
+  mutation.
+- The first contract graph should compute event facts, severity, suspected
+  cause, routing options, assignment/handoff readiness, and receipt payload; it
+  must not poll systems, call LLMs, use connectors, run commands, schedule
+  work, or write files.
+- The first Web surface should be one app-local Arbre command center with nested
+  event/routing/handoff evidence, stable markers, `/events` parity, `/receipt`
+  inspection, and in-process Rack smoke coverage.
+
+Rejected/deferred:
+
+- live monitoring, timers, queues, schedulers, background workers
+- Slack/PagerDuty/Opsgenie/log/metrics/deploy connectors
+- LLM triage, generated remediation, shell execution, or real remediation
+- SSE/WebSocket/live transport
+- persistence database, auth/users/teams, production server behavior
+- cluster placement or distributed runtime
+- public `Igniter.interactive_app` facade
+- generic incident/workflow/report framework
+- UI kit, marker DSL, route DSL, graph/canvas/SVG evidence map
+
+Next:
+
+- Open [Application Dispatch Implementation Track](./application-dispatch-implementation-track.md).
