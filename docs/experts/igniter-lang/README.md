@@ -9,13 +9,14 @@ for a new programming language and paradigm. Not a product track or feature prop
 the strongest active ideas live. The frontier advances as new documents are added;
 older documents remain the permanent theoretical foundation.
 
-**Current frontier: [igniter-lang-temporal.md](igniter-lang-temporal.md)**
-Temporal dimension as a first-class axis: `History[T]`, temporal access operator `[t]`,
-rule declarations with algebra and conflict detection, orthogonality principle (adding a
-rule touches zero existing contracts), temporal invariants, counterfactual reports, and
-bitemporal / rule-synthesis open directions.
+**Current frontier: [igniter-lang-temporal-deep.md](igniter-lang-temporal-deep.md)**
+Full temporal model: bitemporal `BiHistory[T]` with `T ⊑ History[T] ⊑ BiHistory[T]`,
+goal-directed rule synthesis (LP reduction → PTIME), causal chain detection via Rule
+Dependency Graph, probabilistic temporal rules with two-level evaluation, distributed
+time via Lamport/vector clocks, unified 3-axis contract parameters, and 3-iteration POC roadmap.
 
-*Previous frontier (now foundation layer): [igniter-lang-invariants.md](igniter-lang-invariants.md)*
+*Previous frontier (now layer): [igniter-lang-temporal.md](igniter-lang-temporal.md)*
+*Foundation layer: [igniter-lang-invariants.md](igniter-lang-invariants.md)*
 
 ## Documents
 
@@ -29,7 +30,8 @@ bitemporal / rule-synthesis open directions.
 | [igniter-lang-spec.md](igniter-lang-spec.md) · [ru](igniter-lang-spec.ru.md) | Language specification v0.1 — type system BNF, 12 node constructs with formal type rules, contract signature, annotation system, fn declarations, complete grammar, worked example, compile-time guarantee table |
 | [igniter-lang-algebra.md](igniter-lang-algebra.md) · [ru](igniter-lang-algebra.ru.md) | Contract algebra and enterprise model — everything-is-a-contract unification, closed algebraic operations, Arrows connection, organic three-tier axiom layer, enterprise primitives (entity/workflow/policy/system), the ideal of compute disappearing, standard library blueprint |
 | [igniter-lang-invariants.md](igniter-lang-invariants.md) · [ru](igniter-lang-invariants.ru.md) | Invariants as first-class contracts — invariant algebra (lattice, conjunction/weakening/parametrisation), formal identity with refinement types / Liquid Types, Hoare logic propagation through composition, enterprise invariant patterns, compiler-as-verifier (PTIME), 3-iteration POC roadmap |
-| ★ [igniter-lang-temporal.md](igniter-lang-temporal.md) · [ru](igniter-lang-temporal.ru.md) | **FRONTIER** — Temporal dimension — `History[T]`, `[t]` operator, `T ⊑ History[T]`, rule declarations (applies/compute/priority/combines), orthogonality principle, temporal invariants (frozen values, consistency, monotone), counterfactual period reports, rule algebra + conflict detection, situation calculus foundation, 5 open directions (bitemporal, synthesis, causal chains, probabilistic rules, distributed time) |
+| [igniter-lang-temporal.md](igniter-lang-temporal.md) · [ru](igniter-lang-temporal.ru.md) | Temporal dimension — `History[T]`, `[t]` operator, `T ⊑ History[T]`, rule declarations (applies/compute/priority/combines), orthogonality principle, temporal invariants (frozen/consistency/monotone), counterfactual reports, rule algebra + conflict detection, situation calculus foundation |
+| ★ [igniter-lang-temporal-deep.md](igniter-lang-temporal-deep.md) · [ru](igniter-lang-temporal-deep.ru.md) | **FRONTIER** — Full temporal model: bitemporal `BiHistory[T]` (4 canonical queries, `T⊑History⊑BiHistory`), goal-directed rule synthesis (LP→PTIME, `synthesize rule` DSL), causal chain detection (Rule Dependency Graph, cycle classification, 3 resolution strategies), probabilistic rules (`~applies`, two-level evaluation), distributed time (Lamport/vector clocks, causal `as_of`, consistency levels), unified 3-axis parameters, 3-iteration POC roadmap (~750 LOC) |
 
 ## Core Claim
 
