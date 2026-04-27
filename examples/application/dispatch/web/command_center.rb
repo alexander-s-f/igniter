@@ -257,6 +257,8 @@ module Dispatch
 
             section class: "checkpoint", style: Dispatch::Web.style(:panel) do
               h2 "Assignment or escalation checkpoint", style: Dispatch::Web.style(:panel_title)
+              para "Record an owner from the routing options, or escalate with a reason when database review is needed.",
+                   style: Dispatch::Web.style(:meta)
               para "Selected team: #{selected_team}",
                    "data-assigned-team": snapshot.assigned_team || "none",
                    "data-escalated-team": snapshot.escalated_team || "none",

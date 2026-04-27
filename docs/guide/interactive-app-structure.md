@@ -136,8 +136,8 @@ showcase, not only a small interaction pressure test.
 ## Receipt/Report Convention
 
 Receipts and reports are evidence artifacts, not a shared framework class.
-Lense, Chronicle, and Scout prove the shape, but their payloads remain
-domain-specific.
+Lense, Chronicle, Scout, and Dispatch prove the shape, but their payloads
+remain domain-specific.
 
 Include these ideas when useful:
 
@@ -269,10 +269,10 @@ the browser-facing seams.
 
 ## Smoke Helper Design Note
 
-Lense, Chronicle, and Scout repeat small smoke-script mechanics: Rack env
-construction, form encoding, redirect following, response status checks, marker
-checks, endpoint parity checks, and catalog fragments. That repetition is
-enough to justify a future design discussion, but not a runtime framework.
+Lense, Chronicle, Scout, and Dispatch repeat small smoke-script mechanics: Rack
+env construction, form encoding, redirect following, response status checks,
+marker checks, endpoint parity checks, and catalog fragments. That repetition
+is enough to justify a future design discussion, but not a runtime framework.
 
 If a helper is designed later, keep it narrow:
 

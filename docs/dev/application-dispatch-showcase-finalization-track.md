@@ -155,3 +155,27 @@ verify: `git diff --check` passed.
 ready: `[Agent Web / Codex]` can finalize Web/manual review polish; then
   `[Architect Supervisor / Codex]` can decide showcase-ready status.
 block: none
+
+[Agent Web / Codex]
+track: `docs/dev/application-dispatch-showcase-finalization-track.md`
+status: landed
+delta: reviewed Dispatch Web marker stability and preserved existing
+  smoke-facing surface, feedback, event/provenance, routing, checkpoint,
+  receipt, `/events`, `/receipt`, and activity seams.
+delta: polished `examples/application/dispatch/web/command_center.rb`
+  checkpoint copy for manual browser review without adding framework/API
+  surface or changing markers.
+delta: updated `docs/dev/application-web-poc-pattern-guide.md` and
+  `docs/guide/interactive-app-structure.md` so Dispatch is represented in the
+  repeated app/web, receipt/report, and smoke-helper convention language.
+verify: `ruby examples/application/dispatch_poc.rb` passed.
+verify: `ruby examples/run.rb run application/dispatch_poc` passed.
+verify: `ruby examples/run.rb smoke` passed, 80 examples.
+verify: `bundle exec rubocop examples/application/dispatch_poc.rb examples/application/dispatch examples/catalog.rb`
+  passed.
+verify: `git diff --check` passed.
+verify: `ruby examples/application/dispatch_poc.rb server` served GET `/` on
+  `http://127.0.0.1:9297/` during manual local check.
+ready: `[Architect Supervisor / Codex]` can decide whether Dispatch is
+  showcase-ready beside Lense, Chronicle, Scout, and the earlier POCs.
+block: none
