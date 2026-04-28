@@ -12,6 +12,14 @@ module Companion
       eyebrow: "margin: 0 0 6px; text-transform: uppercase; font-size: 12px; letter-spacing: .14em;",
       title: "margin: 0; font-size: 40px; line-height: 1;",
       status: "padding: 12px; border: 1px solid #18201f; background: #e8f0ff; min-width: 170px;",
+      today: "display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 18px; padding: 18px; border: 1px solid #18201f; background: #ffffff;",
+      today_main: "display: flex; flex-direction: column; gap: 10px;",
+      today_title: "margin: 0; font-size: 28px; line-height: 1.08;",
+      today_action: "margin: 0; font-size: 18px; line-height: 1.35;",
+      metric_strip: "display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;",
+      metric: "padding: 10px; border: 1px solid #d9d6c9; background: #f7f7f2;",
+      metric_label: "display: block; color: #5b6461; font-size: 12px; text-transform: uppercase;",
+      metric_value: "display: block; margin-top: 4px; font-weight: 700; font-size: 18px;",
       grid: "display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-top: 18px;",
       panel: "padding: 16px; border: 1px solid #18201f; background: #fff;",
       panel_accent: "padding: 16px; border: 1px solid #18201f; background: #eff8df;",
@@ -67,6 +75,49 @@ module Companion
                       "data-feedback-code": feedback.fetch(:code),
                       style: Companion::Web.style(:feedback) do
                 para feedback.fetch(:code).to_s.tr("_", " "), style: "margin: 0;"
+              end
+            end
+
+            section "data-companion-today": "true", style: Companion::Web.style(:today) do
+              div style: Companion::Web.style(:today_main) do
+                h2 "Today", style: Companion::Web.style(:today_title)
+                strong snapshot.daily_plan.fetch(:focus_title), "data-today-focus": "true"
+                para snapshot.daily_plan.fetch(:next_action),
+                     "data-today-next-action": "true",
+                     style: Companion::Web.style(:today_action)
+                para snapshot.daily_summary.fetch(:recommendation),
+                     "data-today-recommendation": "true",
+                     style: Companion::Web.style(:muted)
+              end
+
+              div style: Companion::Web.style(:metric_strip) do
+                div style: Companion::Web.style(:metric) do
+                  span "Energy", style: Companion::Web.style(:metric_label)
+                  span "#{snapshot.body_battery.fetch(:score)} / 100",
+                       "data-today-energy": snapshot.body_battery.fetch(:score),
+                       style: Companion::Web.style(:metric_value)
+                end
+
+                div style: Companion::Web.style(:metric) do
+                  span "Block", style: Companion::Web.style(:metric_label)
+                  span "#{snapshot.daily_plan.fetch(:block_minutes)} min",
+                       "data-today-block": snapshot.daily_plan.fetch(:block_minutes),
+                       style: Companion::Web.style(:metric_value)
+                end
+
+                div style: Companion::Web.style(:metric) do
+                  span "Reminders", style: Companion::Web.style(:metric_label)
+                  span snapshot.open_reminders.to_s,
+                       "data-today-reminders": snapshot.open_reminders,
+                       style: Companion::Web.style(:metric_value)
+                end
+
+                div style: Companion::Web.style(:metric) do
+                  span "Logs", style: Companion::Web.style(:metric_label)
+                  span snapshot.tracker_logs_today.to_s,
+                       "data-today-logs": snapshot.tracker_logs_today,
+                       style: Companion::Web.style(:metric_value)
+                end
               end
             end
 
