@@ -62,7 +62,7 @@ Root should stay thin:
 ## Placement Heuristics
 
 - Put code in `igniter-contracts` if it defines canonical embedded graph
-  semantics or kernel extension seams.
+  semantics, service execution protocols, or kernel extension seams.
 - Put code in `igniter-extensions` if it is optional behavior, tooling, or
   domain vocabulary over the contracts kernel. Language-changing DSL packs such
   as observable branching, formulas, scaling, and scoring primitives also live

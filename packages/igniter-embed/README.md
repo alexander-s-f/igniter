@@ -106,6 +106,10 @@ The base package remains Rails-free.
 
 ## Contractable Shadowing
 
+`igniter-contracts` owns the core `Contractable` service protocol used by
+`compute using:`. The `igniter-embed` `contractable` API below is a host
+wrapper for migration, shadowing, discovery, and production observation.
+
 `contractable` wraps host services without changing their public API. The
 primary callable runs synchronously and its raw result is returned; an optional
 candidate can run through a shadow adapter, normalize outputs, compare through

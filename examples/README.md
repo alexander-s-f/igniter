@@ -117,6 +117,7 @@ Active runnable examples live in `examples/application/`,
 - `contracts/basic_pricing.rb`
 - `contracts/class_pricing.rb`
 - `contracts/class_callable.rb`
+- `contracts/contractable_service.rb`
 - `contracts/embed_class_registration.rb`
 - `contracts/contractable_shadow.rb`
 - `contracts/embed_human_sugar.rb`

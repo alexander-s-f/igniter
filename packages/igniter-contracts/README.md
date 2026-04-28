@@ -100,6 +100,35 @@ Compute nodes may also use `call:` for service objects or callable classes:
 compute :gross_total, depends_on: %i[order_total country], call: Pricing::GrossTotal
 ```
 
+Contractable services expose a small service protocol to compute nodes:
+
+```ruby
+class BodyBatteryScorer
+  include Igniter::Contracts::Contractable
+
+  contractable :call do
+    input :sleep_hours
+    input :training_minutes
+    output :score
+  end
+
+  def call(sleep_hours:, training_minutes:)
+    sleep_score = observe(:sleep_score) { [[sleep_hours / 8.0, 1.0].min * 40, 0].max }
+    training_score = observe(:training_score) { training_minutes <= 45 ? 10 : 2 }
+
+    success(score: [[45 + sleep_score + training_score, 100].min, 0].max.round)
+  end
+end
+
+compute :body_battery,
+        depends_on: %i[sleep_hours training_minutes],
+        using: BodyBatteryScorer
+```
+
+`using:` returns a normalized payload with `outputs`, `observations`, `error`,
+and `success`. The service owns its internal implementation; Igniter owns the
+graph boundary and result protocol.
+
 Additional helpers:
 
 - `Igniter::Contracts.build_kernel(*packs)`

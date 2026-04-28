@@ -1217,6 +1217,15 @@ module IgniterExamples
       ]
     ),
     example(
+      "contracts/contractable_service",
+      "Contractable service protocol called through compute using.",
+      expected_fragments: [
+        "contracts_contractable_service_success=true",
+        "contracts_contractable_service_score=93",
+        "contracts_contractable_service_observations=sleep_score,training_score"
+      ]
+    ),
+    example(
       "contracts/embed_human_sugar",
       "Embed human sugar DSL for host contracts, generated runners, adapters, events, and explicit capabilities.",
       expected_fragments: [

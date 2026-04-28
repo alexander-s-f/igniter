@@ -44,6 +44,12 @@ module Igniter
           compute: DslKeyword.new(:compute, lambda { |name, builder:, **attributes, &block|
             normalized_attributes = attributes.dup
             normalized_attributes[:callable] = normalized_attributes.delete(:call) if normalized_attributes.key?(:call)
+            if normalized_attributes.key?(:using)
+              target = normalized_attributes.delete(:using)
+              normalized_attributes[:callable] = lambda do |**values|
+                Contractable.invoke(target, **values).to_h
+              end
+            end
             normalized_attributes[:callable] = block if block
             builder.add_operation(kind: :compute, name: name, **normalized_attributes)
           }),
