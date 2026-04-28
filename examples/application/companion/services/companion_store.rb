@@ -22,7 +22,7 @@ module Companion
       Snapshot = Struct.new(
         :reminders, :trackers, :countdowns, :open_reminders, :tracker_logs_today,
         :countdown_count, :live_ready, :credential_status, :daily_summary,
-        :body_battery, :live_summary, :action_count, :recent_events,
+        :body_battery, :daily_plan, :live_summary, :action_count, :recent_events,
         keyword_init: true
       ) do
         def to_h
@@ -37,6 +37,7 @@ module Companion
             credential_status: credential_status.dup,
             daily_summary: daily_summary.dup,
             body_battery: body_battery.dup,
+            daily_plan: daily_plan.dup,
             live_summary: live_summary&.dup,
             action_count: action_count,
             recent_events: recent_events.map(&:dup)
@@ -55,6 +56,7 @@ module Companion
         payload = base_payload
         summary = Contracts::DailySummaryContract.evaluate(snapshot: payload)
         body_battery = Contracts::BodyBatteryContract.evaluate(snapshot: payload)
+        daily_plan = Contracts::DailyPlanContract.evaluate(snapshot: payload, body_battery: body_battery)
 
         Snapshot.new(
           reminders: @reminders.map(&:dup).freeze,
@@ -67,6 +69,7 @@ module Companion
           credential_status: credential_status,
           daily_summary: summary,
           body_battery: body_battery,
+          daily_plan: daily_plan,
           live_summary: @live_summary&.dup,
           action_count: @actions.length,
           recent_events: @actions.last(recent_limit).map { |action| action.to_h.freeze }.freeze
@@ -243,6 +246,7 @@ module Companion
           tracker_logs_today: @trackers.sum do |tracker|
             tracker.log_entries.count { |entry| entry.fetch(:date) == Date.today.iso8601 }
           end,
+          next_reminder_title: @reminders.find { |reminder| reminder.status == :open }&.title,
           sleep_hours_today: tracker_value_today("sleep"),
           training_minutes_today: tracker_value_today("training"),
           live_ready: credential_status.fetch(:configured)

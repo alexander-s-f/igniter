@@ -127,6 +127,15 @@ module Companion
                 para snapshot.body_battery.fetch(:recommendation), "data-body-battery-recommendation": "true"
               end
 
+              div "data-capsule": "daily-plan", style: Companion::Web.style(:panel) do
+                h2 "Daily plan", style: Companion::Web.style(:h2)
+                strong snapshot.daily_plan.fetch(:focus_title), "data-daily-plan-focus": "true"
+                para "#{snapshot.daily_plan.fetch(:block_minutes)} minutes",
+                     "data-daily-plan-block": snapshot.daily_plan.fetch(:block_minutes),
+                     style: Companion::Web.style(:muted)
+                para snapshot.daily_plan.fetch(:next_action), "data-daily-plan-action": "true"
+              end
+
               div "data-capsule": "daily-summary", style: Companion::Web.style(:panel_accent) do
                 h2 "Daily summary", style: Companion::Web.style(:h2)
                 para snapshot.daily_summary.fetch(:recommendation), "data-daily-recommendation": "true"

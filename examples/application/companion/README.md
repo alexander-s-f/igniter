@@ -10,6 +10,7 @@ Current capsules:
 - trackers
 - countdowns
 - body battery
+- daily plan
 - daily summary
 - hub install surface
 
