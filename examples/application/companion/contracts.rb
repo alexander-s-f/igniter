@@ -13,6 +13,7 @@ module Companion
           name: :companion_persistence_sketch,
           registry_contracts: [
             Igniter::Contracts::PackManifest.dsl_keyword(:persist),
+            Igniter::Contracts::PackManifest.dsl_keyword(:history),
             Igniter::Contracts::PackManifest.dsl_keyword(:field)
           ],
           metadata: { category: :persistence, report_only: true }
@@ -21,6 +22,7 @@ module Companion
 
       def install_into(kernel)
         kernel.dsl_keywords.register(:persist, persist_keyword)
+        kernel.dsl_keywords.register(:history, history_keyword)
         kernel.dsl_keywords.register(:field, field_keyword)
         kernel
       end
@@ -32,6 +34,21 @@ module Companion
             name: name,
             value: {
               kind: :persist,
+              key: key.to_sym,
+              adapter: adapter.to_sym,
+              attributes: attributes.transform_keys(&:to_sym)
+            }
+          )
+        end
+      end
+
+      def history_keyword
+        Igniter::Contracts::DslKeyword.new(:history) do |name = :__history, builder:, key:, adapter:, **attributes|
+          builder.add_operation(
+            kind: :const,
+            name: name,
+            value: {
+              kind: :history,
               key: key.to_sym,
               adapter: adapter.to_sym,
               attributes: attributes.transform_keys(&:to_sym)
@@ -92,12 +109,14 @@ module Companion
     def self.persistence_manifest_for(contract_class)
       operations = contract_class.compile.operations
       persist = operations.find { |operation| operation.name == :__persist }&.attributes&.fetch(:value, nil)
+      history = operations.find { |operation| operation.name == :__history }&.attributes&.fetch(:value, nil)
       fields = operations
                .select { |operation| operation.name.to_s.start_with?("__field_") }
                .map { |operation| operation.attributes.fetch(:value) }
 
       {
         persist: persist,
+        history: history,
         fields: fields
       }
     end

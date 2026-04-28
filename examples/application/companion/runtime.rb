@@ -125,6 +125,8 @@ module Companion
       out.puts "companion_poc_tracker_log_contract_refusal=#{blank_tracker_headers.fetch("location").include?("blank_tracker_value")}"
       out.puts "companion_poc_reminder_persistence_manifest=#{reminder_persistence_manifest?}"
       out.puts "companion_poc_reminder_generated_api=#{reminder_generated_api?}"
+      out.puts "companion_poc_tracker_log_history_manifest=#{tracker_log_history_manifest?}"
+      out.puts "companion_poc_tracker_log_history_api=#{tracker_log_history_api?}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
       out.puts "companion_poc_daily_plan_surface=#{html.include?("data-daily-plan-block=")}"
@@ -216,6 +218,35 @@ module Companion
         defaulted &&
         records.find("contract-api").status == :done &&
         records.all.length == 1
+    end
+
+    def tracker_log_history_manifest?
+      manifest = Contracts::TrackerLog.persistence_manifest
+      history = manifest.fetch(:history)
+      fields = manifest.fetch(:fields).map { |field| field.fetch(:name) }
+      history.fetch(:key) == :tracker_id &&
+        history.fetch(:adapter) == :sqlite &&
+        fields == %i[tracker_id date value]
+    end
+
+    def tracker_log_history_api?
+      tracker = Services::CompanionState::Tracker.new(
+        id: "sleep",
+        name: "Sleep",
+        template: :sleep,
+        unit: "hours",
+        log_entries: []
+      )
+      history = Services::ContractHistory.new(
+        contract_class: Contracts::TrackerLog,
+        entries: -> { tracker.log_entries.map { |entry| entry.merge(tracker_id: tracker.id) } },
+        append: ->(event) { tracker.log_entries << event.reject { |attribute, _value| attribute == :tracker_id } }
+      )
+      history.append(tracker_id: "sleep", date: "2026-04-28", value: "7.5")
+
+      history.api_manifest.fetch(:operations) == %i[append all where count] &&
+        history.count(tracker_id: "sleep") == 1 &&
+        history.where(date: "2026-04-28").first.fetch(:value) == "7.5"
     end
 
     def post(app, path, values = {})

@@ -240,6 +240,8 @@ Companion currently proves the first app-local version:
 
 - `Reminder` declares the target metadata shape with `persist` and `field`
 - `ContractRecordSet` turns that metadata into a generated record API
+- `TrackerLog` declares append-only metadata with `history` and `field`
+- `ContractHistory` turns that metadata into a generated history API
 - `ReminderContract` computes create/complete success and refusal
 - `TrackerLogContract` computes append-log success and refusal
 - command contracts return result plus mutation intent
@@ -252,6 +254,8 @@ The important split is intentional:
 
 - durable shape: `contract :Reminder do persist... field... end`
 - generated API: `all`, `find`, `save`, `update`, `delete`, `clear`
+- append-only shape: `contract :TrackerLog do history... field... end`
+- history API: `append`, `all`, `where`, `count`
 - behavior: graph command contracts compute validation, result, receipt, and
   mutation intent
 - boundary: Store/app adapter applies the mutation
@@ -259,15 +263,23 @@ The important split is intentional:
 The package-level design should preserve that split unless repeated Companion
 pressure shows that one surface can stay readable while expressing both.
 
+`TrackerLog` surfaced an important storage-shape distinction: the current
+Companion state stores logs nested under trackers, but the capability wants to
+reason over a first-class append-only stream. That is a useful pressure signal
+for `History[T]`: history may project into records, but it should not be reduced
+to mutable record CRUD.
+
 ## Near-Term Plan
 
 1. Keep persisted-contract experiments app-local in Companion.
 2. Keep `ContractRecordSet` app-local until another entity repeats the same
    useful CRUD shape.
-3. Add one more persisted shape only if it tests a new semantic category.
-4. Compare record contracts, command contracts returning mutation intent, and
+3. Keep `ContractHistory` app-local until another signal/log repeats the same
+   useful append-only shape.
+4. Add one more persisted shape only if it tests a new semantic category.
+5. Compare record contracts, command contracts returning mutation intent, and
    event-log contracts plus projections.
-5. Promote a package experiment only after at least two Companion entities repeat
+6. Promote a package experiment only after at least two Companion entities repeat
    the same useful shape.
 
 ## Non-Goals

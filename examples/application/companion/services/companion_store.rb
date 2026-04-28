@@ -3,6 +3,7 @@
 require "time"
 
 require_relative "companion_state"
+require_relative "contract_history"
 require_relative "contract_record_set"
 
 module Companion
@@ -215,8 +216,28 @@ module Companion
       def apply_tracker_log_mutation(mutation)
         return unless mutation.fetch(:operation) == :append_log
 
-        tracker = @state.trackers.find { |entry| entry.id == mutation.fetch(:tracker_id).to_s }
-        tracker&.log_entries&.<< mutation.fetch(:entry)
+        tracker_logs.append(mutation.fetch(:entry).merge(tracker_id: mutation.fetch(:tracker_id)))
+      end
+
+      def tracker_logs
+        ContractHistory.new(
+          contract_class: Contracts::TrackerLog,
+          entries: method(:tracker_log_entries),
+          append: method(:append_tracker_log)
+        )
+      end
+
+      def tracker_log_entries
+        @state.trackers.flat_map do |tracker|
+          tracker.log_entries.map { |entry| entry.merge(tracker_id: tracker.id) }
+        end
+      end
+
+      def append_tracker_log(event)
+        tracker = @state.trackers.find { |entry| entry.id == event.fetch(:tracker_id).to_s }
+        return nil unless tracker
+
+        tracker.log_entries << event.reject { |attribute, _value| attribute == :tracker_id }
       end
 
       def record_contract_action(result)
