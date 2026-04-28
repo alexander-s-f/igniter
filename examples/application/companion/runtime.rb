@@ -383,10 +383,14 @@ module Companion
 
     def persistence_registry?
       persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      manifest = persistence.capability_manifest
       persistence.capability_names == %i[
         reminders trackers daily_focuses tracker_logs actions
         tracker_read_model activity_feed
-      ]
+      ] &&
+        manifest.fetch(:reminders).fetch(:kind) == :record &&
+        manifest.fetch(:tracker_logs).fetch(:kind) == :history &&
+        manifest.fetch(:activity_feed).fetch(:kind) == :projection
     end
 
     def post(app, path, values = {})

@@ -308,8 +308,8 @@ small read models can stay graph-owned.
 
 As the app-local shapes repeat, Store should stop manually assembling them.
 `CompanionPersistence` is the current proof of a future registry/factory layer:
-contract manifests plus app storage bindings produce capability objects and
-projection entry points.
+contract manifests plus declarative app storage bindings produce capability
+objects and projection entry points.
 
 ## Near-Term Plan
 
