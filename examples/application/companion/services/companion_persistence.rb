@@ -57,6 +57,14 @@ module Companion
           .merge(projection_manifest)
       end
 
+      def validation_errors
+        record_validation_errors + history_validation_errors + projection_validation_errors
+      end
+
+      def valid?
+        validation_errors.empty?
+      end
+
       def reminders
         record(:reminders)
       end
@@ -133,6 +141,39 @@ module Companion
       def projection_manifest
         PROJECTION_BINDINGS.keys.to_h do |name|
           [name, { kind: :projection, contract: PROJECTION_BINDINGS.fetch(name) }]
+        end
+      end
+
+      def record_validation_errors
+        RECORD_BINDINGS.flat_map do |name, binding|
+          manifest = binding.fetch(:contract_class).persistence_manifest
+          fields = manifest.fetch(:fields).map { |field| field.fetch(:name).to_sym }
+          members = binding.fetch(:record_class).members.map(&:to_sym)
+          errors = []
+          errors << "#{name}: missing persist declaration" unless manifest.fetch(:persist)
+          missing_fields = fields - members
+          errors << "#{name}: record class missing fields #{missing_fields.join(",")}" unless missing_fields.empty?
+          errors
+        end
+      end
+
+      def history_validation_errors
+        HISTORY_BINDINGS.flat_map do |name, binding|
+          manifest = binding.fetch(:contract_class).persistence_manifest
+          errors = []
+          errors << "#{name}: missing history declaration" unless manifest.fetch(:history)
+          errors << "#{name}: missing entries binding" unless respond_to?(binding.fetch(:entries), true)
+          errors << "#{name}: missing append binding" unless respond_to?(binding.fetch(:append), true)
+          errors
+        end
+      end
+
+      def projection_validation_errors
+        PROJECTION_BINDINGS.flat_map do |name, contract_class|
+          contract_class.compile
+          []
+        rescue StandardError => e
+          ["#{name}: projection contract failed to compile #{e.class}"]
         end
       end
 

@@ -311,6 +311,11 @@ As the app-local shapes repeat, Store should stop manually assembling them.
 contract manifests plus declarative app storage bindings produce capability
 objects and projection entry points.
 
+The registry also validates bindings: record bindings must point at contracts
+with `persist`, history bindings must point at contracts with `history`, and
+record structs must cover declared fields. This is app-local today, but it
+resembles the boundary guard a package-level persistence compiler should grow.
+
 ## Near-Term Plan
 
 1. Keep persisted-contract experiments app-local in Companion.
