@@ -43,6 +43,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   as append-only history.
 - `contracts/activity_feed_contract.rb` projects action history into the
   dashboard activity feed.
+- `contracts/persistence_readiness_contract.rb` projects persistence registry
+  validation into readiness diagnostics.
 - `services/hub_installer.rb` installs local hub capsules through transfer.
 - the dashboard exposes the local hub catalog and install action.
 - `igniter-ai` contains the live OpenAI Responses provider.

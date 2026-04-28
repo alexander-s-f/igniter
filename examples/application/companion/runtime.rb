@@ -140,6 +140,7 @@ module Companion
       out.puts "companion_poc_activity_feed_contract=#{activity_feed_contract?}"
       out.puts "companion_poc_persistence_registry=#{persistence_registry?}"
       out.puts "companion_poc_persistence_registry_valid=#{persistence_registry_valid?}"
+      out.puts "companion_poc_persistence_readiness_contract=#{persistence_readiness_contract?}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
       out.puts "companion_poc_daily_plan_surface=#{html.include?("data-daily-plan-block=")}"
@@ -397,6 +398,17 @@ module Companion
     def persistence_registry_valid?
       persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
       persistence.valid? && persistence.validation_errors.empty?
+    end
+
+    def persistence_readiness_contract?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      readiness = persistence.readiness
+      readiness.fetch(:ready) &&
+        readiness.fetch(:status) == :ready &&
+        readiness.fetch(:capability_count) == 7 &&
+        readiness.fetch(:record_count) == 3 &&
+        readiness.fetch(:history_count) == 2 &&
+        readiness.fetch(:projection_count) == 2
     end
 
     def post(app, path, values = {})

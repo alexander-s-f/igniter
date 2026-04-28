@@ -316,6 +316,11 @@ with `persist`, history bindings must point at contracts with `history`, and
 record structs must cover declared fields. This is app-local today, but it
 resembles the boundary guard a package-level persistence compiler should grow.
 
+`PersistenceReadinessContract` turns registry validation into a graph-owned
+diagnostic projection: readiness, counts by capability kind, and a compact
+summary. That suggests package-level persistence should expose diagnostics as
+contracts, not only as thrown setup errors.
+
 ## Near-Term Plan
 
 1. Keep persisted-contract experiments app-local in Companion.

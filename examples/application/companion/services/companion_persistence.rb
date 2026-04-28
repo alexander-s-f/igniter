@@ -65,6 +65,13 @@ module Companion
         validation_errors.empty?
       end
 
+      def readiness
+        Contracts::PersistenceReadinessContract.evaluate(
+          capability_manifest: capability_manifest,
+          validation_errors: validation_errors
+        )
+      end
+
       def reminders
         record(:reminders)
       end
