@@ -6,6 +6,7 @@ require "igniter/application"
 
 require_relative "app_dsl"
 require_relative "configuration"
+require_relative "contracts/activity_feed_contract"
 require_relative "contracts/body_battery_contract"
 require_relative "contracts/companion_action_history_contract"
 require_relative "contracts/daily_summary_contract"

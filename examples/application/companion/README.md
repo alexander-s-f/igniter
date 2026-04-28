@@ -37,6 +37,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   into tracker read models for the dashboard.
 - `contracts/companion_action_history_contract.rb` models user/runtime receipts
   as append-only history.
+- `contracts/activity_feed_contract.rb` projects action history into the
+  dashboard activity feed.
 - `services/hub_installer.rb` installs local hub capsules through transfer.
 - the dashboard exposes the local hub catalog and install action.
 - `igniter-ai` contains the live OpenAI Responses provider.

@@ -50,6 +50,7 @@ module Companion
 
       def snapshot(recent_limit: 6)
         tracker_read_model = tracker_read_model_for(Date.today.iso8601)
+        activity_feed = activity_feed_for(recent_limit)
         payload = @state.base_payload(
           live_ready: credential_status.fetch(:configured),
           tracker_read_model: tracker_read_model
@@ -83,8 +84,8 @@ module Companion
           daily_plan: daily_plan,
           daily_focus_title: @state.daily_focus_title,
           live_summary: @state.live_summary&.dup,
-          action_count: action_history.count,
-          recent_events: action_history.all.last(recent_limit)
+          action_count: activity_feed.fetch(:action_count),
+          recent_events: activity_feed.fetch(:recent_events)
         ).freeze
       end
 
@@ -286,6 +287,13 @@ module Companion
 
       def append_action_event(event)
         @state.append_action_event(event)
+      end
+
+      def activity_feed_for(recent_limit)
+        Contracts::ActivityFeedContract.evaluate(
+          actions: action_history.all,
+          recent_limit: recent_limit
+        )
       end
 
       def credential_status

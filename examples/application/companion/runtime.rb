@@ -134,6 +134,7 @@ module Companion
       out.puts "companion_poc_tracker_log_first_class_history=#{tracker_log_first_class_history?(config)}"
       out.puts "companion_poc_action_history_manifest=#{action_history_manifest?}"
       out.puts "companion_poc_action_history_api=#{action_history_api?}"
+      out.puts "companion_poc_activity_feed_contract=#{activity_feed_contract?}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
       out.puts "companion_poc_daily_plan_surface=#{html.include?("data-daily-plan-block=")}"
@@ -329,6 +330,20 @@ module Companion
       history.api_manifest.fetch(:operations) == %i[append all where count] &&
         history.count(status: :ready) == 1 &&
         history.where(kind: :smoke).first.fetch(:subject_id) == :companion
+    end
+
+    def activity_feed_contract?
+      feed = Contracts::ActivityFeedContract.evaluate(
+        actions: [
+          { index: 1, kind: :second, subject_id: :companion, status: :ready },
+          { index: 0, kind: :first, subject_id: :companion, status: :ready },
+          { index: 2, kind: :third, subject_id: :companion, status: :ready }
+        ],
+        recent_limit: 2
+      )
+
+      feed.fetch(:action_count) == 3 &&
+        feed.fetch(:recent_events).map { |event| event.fetch(:kind) } == %i[second third]
     end
 
     def post(app, path, values = {})
