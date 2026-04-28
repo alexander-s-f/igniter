@@ -61,7 +61,11 @@ module Companion
       end
 
       get "/setup" do
-        text service(:companion).snapshot.credential_status.inspect
+        snapshot = service(:companion).snapshot
+        text({
+          credentials: snapshot.credential_status,
+          persistence: snapshot.persistence_readiness
+        }.inspect)
       end
 
       get "/hub" do

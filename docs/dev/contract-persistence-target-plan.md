@@ -253,6 +253,8 @@ Companion currently proves the first app-local version:
 - `ActivityFeedContract` derives dashboard activity facts from action history
 - `CompanionPersistence` collects generated record/history capabilities and
   read-model projections behind the Store façade
+- `PersistenceReadinessContract` projects persistence registry diagnostics into
+  setup/readiness facts exposed by the app
 - `ReminderContract` computes create/complete success and refusal
 - `TrackerLogContract` computes append-log success and refusal
 - command contracts return result plus mutation intent
@@ -318,8 +320,9 @@ resembles the boundary guard a package-level persistence compiler should grow.
 
 `PersistenceReadinessContract` turns registry validation into a graph-owned
 diagnostic projection: readiness, counts by capability kind, and a compact
-summary. That suggests package-level persistence should expose diagnostics as
-contracts, not only as thrown setup errors.
+summary. Companion now exposes that projection through `/setup` next to
+redacted credential status. That suggests package-level persistence should
+expose diagnostics as contracts, not only as thrown setup errors.
 
 ## Near-Term Plan
 

@@ -16,7 +16,8 @@ module Companion
       Snapshot = Struct.new(
         :reminders, :trackers, :countdowns, :open_reminders, :tracker_logs_today,
         :countdown_count, :live_ready, :credential_status, :daily_summary,
-        :body_battery, :daily_plan, :daily_focus_title, :live_summary, :action_count, :recent_events,
+        :persistence_readiness, :body_battery, :daily_plan, :daily_focus_title,
+        :live_summary, :action_count, :recent_events,
         keyword_init: true
       ) do
         def to_h
@@ -29,6 +30,7 @@ module Companion
             countdown_count: countdown_count,
             live_ready: live_ready,
             credential_status: credential_status.dup,
+            persistence_readiness: persistence_readiness.dup,
             daily_summary: daily_summary.dup,
             body_battery: body_battery.dup,
             daily_plan: daily_plan.dup,
@@ -79,6 +81,7 @@ module Companion
           countdown_count: @state.countdowns.length,
           live_ready: payload.fetch(:live_ready),
           credential_status: credential_status,
+          persistence_readiness: persistence.readiness,
           daily_summary: summary,
           body_battery: body_battery,
           daily_plan: daily_plan,
