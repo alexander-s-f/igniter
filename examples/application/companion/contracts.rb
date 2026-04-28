@@ -5,6 +5,21 @@ require "igniter/extensions/contracts"
 
 module Companion
   module Contracts
+    def self.contract(name, outputs:, &block)
+      contracts(name, outputs: outputs, &block)
+    end
+
+    def self.command_result(kind, feedback_code, subject_id, action_kind, action_status)
+      {
+        kind: kind,
+        success: kind == :success,
+        feedback_code: feedback_code,
+        subject_id: subject_id,
+        action_kind: action_kind,
+        action_status: action_status
+      }
+    end
+
     def self.contracts(name, outputs:, &block)
       contract_class = Class.new(Igniter::Contract)
       contract_class.profile = Igniter::Contracts.build_profile(

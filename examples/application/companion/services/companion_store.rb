@@ -119,17 +119,16 @@ module Companion
       end
 
       def create_reminder(title)
-        normalized = title.to_s.strip
-        if normalized.empty?
-          action = @state.record_action(kind: :reminder_create_refused, subject_id: nil, status: :refused)
-          return command_result(:failure, feedback_code: :blank_reminder, subject_id: nil, action: action)
-        end
-
-        reminder = CompanionState::Reminder.new(id: @state.next_id_for(normalized, @state.reminders), title: normalized, due: "today", status: :open)
-        @state.reminders << reminder
-        action = @state.record_action(kind: :reminder_created, subject_id: reminder.id, status: :open)
+        outcome = Contracts::ReminderContract.evaluate(
+          operation: :create,
+          id: nil,
+          title: title,
+          reminders: @state.reminders
+        )
+        apply_reminder_mutation(outcome.fetch(:mutation))
+        action = record_contract_action(outcome.fetch(:result))
         persist!
-        command_result(:success, feedback_code: :reminder_created, subject_id: reminder.id, action: action)
+        command_result_from_contract(outcome.fetch(:result), action: action)
       end
 
       def update_daily_focus(title)
@@ -146,16 +145,16 @@ module Companion
       end
 
       def complete_reminder(id)
-        reminder = @state.reminders.find { |entry| entry.id == id.to_s }
-        unless reminder
-          action = @state.record_action(kind: :reminder_complete_refused, subject_id: id.to_s, status: :refused)
-          return command_result(:failure, feedback_code: :reminder_not_found, subject_id: id.to_s, action: action)
-        end
-
-        reminder.status = :done
-        action = @state.record_action(kind: :reminder_completed, subject_id: reminder.id, status: :done)
+        outcome = Contracts::ReminderContract.evaluate(
+          operation: :complete,
+          id: id,
+          title: nil,
+          reminders: @state.reminders
+        )
+        apply_reminder_mutation(outcome.fetch(:mutation))
+        action = record_contract_action(outcome.fetch(:result))
         persist!
-        command_result(:success, feedback_code: :reminder_completed, subject_id: reminder.id, action: action)
+        command_result_from_contract(outcome.fetch(:result), action: action)
       end
 
       def log_tracker(id, value)
@@ -201,8 +200,37 @@ module Companion
         @backend.save_state(@state.to_h)
       end
 
+      def apply_reminder_mutation(mutation)
+        case mutation.fetch(:operation)
+        when :append
+          @state.reminders << CompanionState::Reminder.new(**mutation.fetch(:record))
+        when :update
+          reminder = @state.reminders.find { |entry| entry.id == mutation.fetch(:id).to_s }
+          mutation.fetch(:changes).each do |attribute, value|
+            reminder[attribute] = value if reminder&.members&.include?(attribute)
+          end
+        end
+      end
+
+      def record_contract_action(result)
+        @state.record_action(
+          kind: result.fetch(:action_kind),
+          subject_id: result.fetch(:subject_id),
+          status: result.fetch(:action_status)
+        )
+      end
+
       def credential_status
         @credentials.status(:openai_api_key)
+      end
+
+      def command_result_from_contract(result, action:)
+        command_result(
+          result.fetch(:kind),
+          feedback_code: result.fetch(:feedback_code),
+          subject_id: result.fetch(:subject_id),
+          action: action
+        )
       end
 
       def command_result(kind, feedback_code:, subject_id:, action:)
