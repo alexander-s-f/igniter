@@ -25,6 +25,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   experiment with persistence as graph-owned command/result/mutation semantics.
 - `contracts/reminder_record_contract.rb` sketches the target
   `contract :Reminder do persist... field... end` metadata surface.
+- `services/contract_record_set.rb` turns that metadata into a tiny generated
+  record API: `all`, `find`, `save`, `update`, `delete`, and `clear`.
 - `services/hub_installer.rb` installs local hub capsules through transfer.
 - the dashboard exposes the local hub catalog and install action.
 - `igniter-ai` contains the live OpenAI Responses provider.

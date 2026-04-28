@@ -124,6 +124,7 @@ module Companion
       out.puts "companion_poc_reminder_contract_refusal=#{blank_reminder_headers.fetch("location").include?("blank_reminder")}"
       out.puts "companion_poc_tracker_log_contract_refusal=#{blank_tracker_headers.fetch("location").include?("blank_tracker_value")}"
       out.puts "companion_poc_reminder_persistence_manifest=#{reminder_persistence_manifest?}"
+      out.puts "companion_poc_reminder_generated_api=#{reminder_generated_api?}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
       out.puts "companion_poc_daily_plan_surface=#{html.include?("data-daily-plan-block=")}"
@@ -199,6 +200,22 @@ module Companion
       persist.fetch(:key) == :id &&
         persist.fetch(:adapter) == :sqlite &&
         fields == %i[id title due status]
+    end
+
+    def reminder_generated_api?
+      records = Services::ContractRecordSet.new(
+        contract_class: Contracts::Reminder,
+        collection: [],
+        record_class: Services::CompanionState::Reminder
+      )
+      created = records.save(id: "contract-api", title: "Generated API", due: "today")
+      defaulted = created.status == :open
+      records.update("contract-api", status: :done)
+
+      records.api_manifest.fetch(:operations) == %i[all find save update delete clear] &&
+        defaulted &&
+        records.find("contract-api").status == :done &&
+        records.all.length == 1
     end
 
     def post(app, path, values = {})

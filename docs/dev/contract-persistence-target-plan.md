@@ -239,6 +239,7 @@ Primary API:
 Companion currently proves the first app-local version:
 
 - `Reminder` declares the target metadata shape with `persist` and `field`
+- `ContractRecordSet` turns that metadata into a generated record API
 - `ReminderContract` computes create/complete success and refusal
 - `TrackerLogContract` computes append-log success and refusal
 - command contracts return result plus mutation intent
@@ -250,6 +251,7 @@ This validates the direction without committing a package API yet.
 The important split is intentional:
 
 - durable shape: `contract :Reminder do persist... field... end`
+- generated API: `all`, `find`, `save`, `update`, `delete`, `clear`
 - behavior: graph command contracts compute validation, result, receipt, and
   mutation intent
 - boundary: Store/app adapter applies the mutation
@@ -260,7 +262,8 @@ pressure shows that one surface can stay readable while expressing both.
 ## Near-Term Plan
 
 1. Keep persisted-contract experiments app-local in Companion.
-2. Let `persist`/`field` remain metadata-only until it removes real Store code.
+2. Keep `ContractRecordSet` app-local until another entity repeats the same
+   useful CRUD shape.
 3. Add one more persisted shape only if it tests a new semantic category.
 4. Compare record contracts, command contracts returning mutation intent, and
    event-log contracts plus projections.

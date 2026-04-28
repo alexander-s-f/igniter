@@ -3,6 +3,7 @@
 require "time"
 
 require_relative "companion_state"
+require_relative "contract_record_set"
 
 module Companion
   module Services
@@ -64,7 +65,7 @@ module Companion
         )
 
         Snapshot.new(
-          reminders: @state.reminders.map(&:dup).freeze,
+          reminders: reminder_records.all,
           trackers: @state.trackers.map { |tracker| tracker.dup.tap { |copy| copy.log_entries = tracker.log_entries.map(&:dup).freeze } }.freeze,
           countdowns: @state.countdowns.map(&:dup).freeze,
           open_reminders: payload.fetch(:open_reminders),
@@ -123,7 +124,7 @@ module Companion
           operation: :create,
           id: nil,
           title: title,
-          reminders: @state.reminders
+          reminders: reminder_records.all
         )
         apply_reminder_mutation(outcome.fetch(:mutation))
         action = record_contract_action(outcome.fetch(:result))
@@ -149,7 +150,7 @@ module Companion
           operation: :complete,
           id: id,
           title: nil,
-          reminders: @state.reminders
+          reminders: reminder_records.all
         )
         apply_reminder_mutation(outcome.fetch(:mutation))
         action = record_contract_action(outcome.fetch(:result))
@@ -197,13 +198,18 @@ module Companion
       def apply_reminder_mutation(mutation)
         case mutation.fetch(:operation)
         when :append
-          @state.reminders << CompanionState::Reminder.new(**mutation.fetch(:record))
+          reminder_records.save(mutation.fetch(:record))
         when :update
-          reminder = @state.reminders.find { |entry| entry.id == mutation.fetch(:id).to_s }
-          mutation.fetch(:changes).each do |attribute, value|
-            reminder[attribute] = value if reminder&.members&.include?(attribute)
-          end
+          reminder_records.update(mutation.fetch(:id), mutation.fetch(:changes))
         end
+      end
+
+      def reminder_records
+        ContractRecordSet.new(
+          contract_class: Contracts::Reminder,
+          collection: @state.reminders,
+          record_class: CompanionState::Reminder
+        )
       end
 
       def apply_tracker_log_mutation(mutation)
