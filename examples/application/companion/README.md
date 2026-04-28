@@ -25,6 +25,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   experiment with persistence as graph-owned command/result/mutation semantics.
 - `contracts/reminder_record_contract.rb` sketches the target
   `contract :Reminder do persist... field... end` metadata surface.
+- `contracts/daily_focus_record_contract.rb` models daily focus as a date-keyed
+  persisted record instead of a scalar state slot.
 - `services/contract_record_set.rb` turns that metadata into a tiny generated
   record API: `all`, `find`, `save`, `update`, `delete`, and `clear`.
 - `contracts/tracker_record_contract.rb` declares trackers as record

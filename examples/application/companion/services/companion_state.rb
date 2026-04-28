@@ -13,11 +13,12 @@ module Companion
         end
       end
       TrackerLog = Struct.new(:tracker_id, :date, :value, keyword_init: true)
+      DailyFocus = Struct.new(:date, :title, keyword_init: true)
       Countdown = Struct.new(:id, :title, :target_date, keyword_init: true)
       Action = Struct.new(:index, :kind, :subject_id, :status, keyword_init: true)
 
-      attr_accessor :daily_focus_title, :live_summary
-      attr_reader :reminders, :trackers, :tracker_logs, :countdowns, :actions, :next_action_index
+      attr_accessor :live_summary
+      attr_reader :reminders, :trackers, :tracker_logs, :daily_focuses, :countdowns, :actions, :next_action_index
 
       def self.seeded
         new.tap(&:seed)
@@ -33,8 +34,8 @@ module Companion
         @reminders = []
         @trackers = []
         @tracker_logs = []
+        @daily_focuses = []
         @countdowns = []
-        @daily_focus_title = nil
         @live_summary = nil
       end
 
@@ -80,6 +81,13 @@ module Companion
             value: payload.fetch(:value)
           )
         end
+        @daily_focuses = Array(state.fetch(:daily_focuses, legacy_daily_focus(state))).map do |entry|
+          payload = symbolize(entry)
+          DailyFocus.new(
+            date: payload.fetch(:date),
+            title: payload.fetch(:title)
+          )
+        end
         @countdowns = Array(state.fetch(:countdowns)).map do |entry|
           Countdown.new(**symbolize(entry))
         end
@@ -92,7 +100,6 @@ module Companion
             status: payload.fetch(:status).to_sym
           )
         end
-        @daily_focus_title = state[:daily_focus_title]
         @live_summary = state[:live_summary]
         @next_action_index = state.fetch(:next_action_index, actions.map(&:index).max.to_i + 1)
       end
@@ -102,6 +109,7 @@ module Companion
           reminders: reminders.map(&:to_h),
           trackers: trackers.map(&:to_h),
           tracker_logs: tracker_logs.map(&:to_h),
+          daily_focuses: daily_focuses.map(&:to_h),
           countdowns: countdowns.map(&:to_h),
           actions: actions.map(&:to_h),
           daily_focus_title: daily_focus_title,
@@ -128,6 +136,10 @@ module Companion
 
       def next_reminder_title
         reminders.find { |reminder| reminder.status == :open }&.title
+      end
+
+      def daily_focus_title(date = Date.today.iso8601)
+        daily_focuses.find { |entry| entry.date == date.to_s }&.title
       end
 
       def tracker_log_entries
@@ -177,6 +189,11 @@ module Companion
       end
 
       private
+
+      def legacy_daily_focus(state)
+        title = state[:daily_focus_title]
+        title.to_s.empty? ? [] : [{ date: Date.today.iso8601, title: title }]
+      end
 
       def symbolize(value)
         value.transform_keys(&:to_sym)

@@ -121,6 +121,9 @@ module Companion
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
       out.puts "companion_poc_daily_focus=#{final.daily_plan.fetch(:focus_title) == "Draft the launch note"}"
       out.puts "companion_poc_daily_focus_persisted=#{persisted.daily_focus_title == final.daily_focus_title}"
+      out.puts "companion_poc_daily_focus_persistence_manifest=#{daily_focus_persistence_manifest?}"
+      out.puts "companion_poc_daily_focus_generated_api=#{daily_focus_generated_api?}"
+      out.puts "companion_poc_daily_focus_first_class_record=#{daily_focus_first_class_record?(config)}"
       out.puts "companion_poc_reminder_contract_refusal=#{blank_reminder_headers.fetch("location").include?("blank_reminder")}"
       out.puts "companion_poc_tracker_log_contract_refusal=#{blank_tracker_headers.fetch("location").include?("blank_tracker_value")}"
       out.puts "companion_poc_reminder_persistence_manifest=#{reminder_persistence_manifest?}"
@@ -226,6 +229,37 @@ module Companion
         defaulted &&
         records.find("contract-api").status == :done &&
         records.all.length == 1
+    end
+
+    def daily_focus_persistence_manifest?
+      manifest = Contracts::DailyFocus.persistence_manifest
+      persist = manifest.fetch(:persist)
+      fields = manifest.fetch(:fields).map { |field| field.fetch(:name) }
+      persist.fetch(:key) == :date &&
+        persist.fetch(:adapter) == :sqlite &&
+        fields == %i[date title]
+    end
+
+    def daily_focus_generated_api?
+      records = Services::ContractRecordSet.new(
+        contract_class: Contracts::DailyFocus,
+        collection: [],
+        record_class: Services::CompanionState::DailyFocus
+      )
+      records.save(date: "2026-04-28", title: "Focus")
+      records.update("2026-04-28", title: "Updated focus")
+
+      records.api_manifest.fetch(:operations) == %i[all find save update delete clear] &&
+        records.find("2026-04-28").title == "Updated focus" &&
+        records.all.length == 1
+    end
+
+    def daily_focus_first_class_record?(config)
+      state = config.store_adapter.load_state
+      focuses = Array(state.fetch(:daily_focuses))
+      focuses.length == 1 &&
+        focuses.first.fetch(:date) == Date.today.iso8601 &&
+        focuses.first.fetch(:title) == "Draft the launch note"
     end
 
     def tracker_persistence_manifest?

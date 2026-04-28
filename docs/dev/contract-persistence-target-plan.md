@@ -240,6 +240,8 @@ Companion currently proves the first app-local version:
 
 - `Reminder` declares the target metadata shape with `persist` and `field`
 - `ContractRecordSet` turns that metadata into a generated record API
+- `DailyFocus` uses the same generated record API for date-keyed daily session
+  state
 - `Tracker` declares the same record metadata shape and uses the generated API
 - `TrackerLog` declares append-only metadata with `history` and `field`
 - `ContractHistory` turns that metadata into a generated history API
@@ -285,6 +287,10 @@ The tracker slice now shows the intended composition: the tracker definition is
 record-like, while tracker observations are append-only. The dashboard can still
 render one tracker card with recent entries, but that card is a projection from
 two storage capabilities rather than a single procedural object.
+
+Daily focus adds a workflow/session-shaped record: it is not a catalog entity,
+but a date-keyed piece of daily state. This confirms `Store[T]` should cover
+small durable app/session records as well as obvious entities.
 
 This makes projections a first-class design concern: record/history capabilities
 own durable data, while derived contracts compute read models and summary facts

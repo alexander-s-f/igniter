@@ -49,7 +49,8 @@ module Companion
       end
 
       def snapshot(recent_limit: 6)
-        tracker_read_model = tracker_read_model_for(Date.today.iso8601)
+        today = Date.today.iso8601
+        tracker_read_model = tracker_read_model_for(today)
         activity_feed = activity_feed_for(recent_limit)
         payload = @state.base_payload(
           live_ready: credential_status.fetch(:configured),
@@ -82,7 +83,7 @@ module Companion
           daily_summary: summary,
           body_battery: body_battery,
           daily_plan: daily_plan,
-          daily_focus_title: @state.daily_focus_title,
+          daily_focus_title: daily_focus_title_for(today),
           live_summary: @state.live_summary&.dup,
           action_count: activity_feed.fetch(:action_count),
           recent_events: activity_feed.fetch(:recent_events)
@@ -145,7 +146,7 @@ module Companion
           return command_result(:failure, feedback_code: :blank_daily_focus, subject_id: :daily_focus, action: action)
         end
 
-        @state.daily_focus_title = normalized
+        daily_focus_records.save(date: Date.today.iso8601, title: normalized)
         action = record_action(kind: :daily_focus_set, subject_id: :daily_focus, status: :ready)
         persist!
         command_result(:success, feedback_code: :daily_focus_set, subject_id: :daily_focus, action: action)
@@ -224,6 +225,18 @@ module Companion
           collection: @state.trackers,
           record_class: CompanionState::Tracker
         )
+      end
+
+      def daily_focus_records
+        ContractRecordSet.new(
+          contract_class: Contracts::DailyFocus,
+          collection: @state.daily_focuses,
+          record_class: CompanionState::DailyFocus
+        )
+      end
+
+      def daily_focus_title_for(date)
+        daily_focus_records.find(date)&.title
       end
 
       def tracker_read_model_for(date)
