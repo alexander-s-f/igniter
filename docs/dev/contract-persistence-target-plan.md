@@ -251,6 +251,8 @@ Companion currently proves the first app-local version:
   tracker-log history
 - `CompanionAction` declares user/runtime receipts as append-only history
 - `ActivityFeedContract` derives dashboard activity facts from action history
+- `CompanionPersistence` collects generated record/history capabilities and
+  read-model projections behind the Store façade
 - `ReminderContract` computes create/complete success and refusal
 - `TrackerLogContract` computes append-log success and refusal
 - command contracts return result plus mutation intent
@@ -303,6 +305,11 @@ activity feeds, audit trails, command receipts, and later workflow replay.
 As with tracker logs, receipt history should feed projections rather than leak
 directly into UI code. `ActivityFeedContract` is the Companion proof that even
 small read models can stay graph-owned.
+
+As the app-local shapes repeat, Store should stop manually assembling them.
+`CompanionPersistence` is the current proof of a future registry/factory layer:
+contract manifests plus app storage bindings produce capability objects and
+projection entry points.
 
 ## Near-Term Plan
 

@@ -138,6 +138,7 @@ module Companion
       out.puts "companion_poc_action_history_manifest=#{action_history_manifest?}"
       out.puts "companion_poc_action_history_api=#{action_history_api?}"
       out.puts "companion_poc_activity_feed_contract=#{activity_feed_contract?}"
+      out.puts "companion_poc_persistence_registry=#{persistence_registry?}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
       out.puts "companion_poc_daily_plan_surface=#{html.include?("data-daily-plan-block=")}"
@@ -378,6 +379,14 @@ module Companion
 
       feed.fetch(:action_count) == 3 &&
         feed.fetch(:recent_events).map { |event| event.fetch(:kind) } == %i[second third]
+    end
+
+    def persistence_registry?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      persistence.capability_names == %i[
+        reminders trackers daily_focuses tracker_logs actions
+        tracker_read_model activity_feed
+      ]
     end
 
     def post(app, path, values = {})

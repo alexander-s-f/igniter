@@ -21,6 +21,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `runtime.rb` owns server and smoke wiring.
 - `app_dsl.rb` owns app-local routing and AI/provider configuration sugar.
 - `services/store_backends.rb` provides the store interface and SQLite backend.
+- `services/companion_persistence.rb` collects app-local generated persistence
+  capabilities and read-model projections behind the Store façade.
 - `contracts/reminder_contract.rb` and `contracts/tracker_log_contract.rb`
   experiment with persistence as graph-owned command/result/mutation semantics.
 - `contracts/reminder_record_contract.rb` sketches the target

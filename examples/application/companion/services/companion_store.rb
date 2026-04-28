@@ -2,9 +2,8 @@
 
 require "time"
 
+require_relative "companion_persistence"
 require_relative "companion_state"
-require_relative "contract_history"
-require_relative "contract_record_set"
 
 module Companion
   module Services
@@ -50,8 +49,8 @@ module Companion
 
       def snapshot(recent_limit: 6)
         today = Date.today.iso8601
-        tracker_read_model = tracker_read_model_for(today)
-        activity_feed = activity_feed_for(recent_limit)
+        tracker_read_model = persistence.tracker_read_model_for(today)
+        activity_feed = persistence.activity_feed_for(recent_limit)
         payload = @state.base_payload(
           live_ready: credential_status.fetch(:configured),
           tracker_read_model: tracker_read_model
@@ -72,7 +71,7 @@ module Companion
         )
 
         Snapshot.new(
-          reminders: reminder_records.all,
+          reminders: persistence.reminders.all,
           trackers: tracker_read_model.fetch(:tracker_snapshots),
           countdowns: @state.countdowns.map(&:dup).freeze,
           open_reminders: payload.fetch(:open_reminders),
@@ -83,7 +82,7 @@ module Companion
           daily_summary: summary,
           body_battery: body_battery,
           daily_plan: daily_plan,
-          daily_focus_title: daily_focus_title_for(today),
+          daily_focus_title: persistence.daily_focus_title_for(today),
           live_summary: @state.live_summary&.dup,
           action_count: activity_feed.fetch(:action_count),
           recent_events: activity_feed.fetch(:recent_events)
@@ -131,7 +130,7 @@ module Companion
           operation: :create,
           id: nil,
           title: title,
-          reminders: reminder_records.all
+          reminders: persistence.reminders.all
         )
         apply_reminder_mutation(outcome.fetch(:mutation))
         action = record_contract_action(outcome.fetch(:result))
@@ -146,7 +145,7 @@ module Companion
           return command_result(:failure, feedback_code: :blank_daily_focus, subject_id: :daily_focus, action: action)
         end
 
-        daily_focus_records.save(date: Date.today.iso8601, title: normalized)
+        persistence.daily_focuses.save(date: Date.today.iso8601, title: normalized)
         action = record_action(kind: :daily_focus_set, subject_id: :daily_focus, status: :ready)
         persist!
         command_result(:success, feedback_code: :daily_focus_set, subject_id: :daily_focus, action: action)
@@ -157,7 +156,7 @@ module Companion
           operation: :complete,
           id: id,
           title: nil,
-          reminders: reminder_records.all
+          reminders: persistence.reminders.all
         )
         apply_reminder_mutation(outcome.fetch(:mutation))
         action = record_contract_action(outcome.fetch(:result))
@@ -170,7 +169,7 @@ module Companion
           tracker_id: id,
           value: value,
           date: Date.today.iso8601,
-          trackers: tracker_records.all
+          trackers: persistence.trackers.all
         )
         apply_tracker_log_mutation(outcome.fetch(:mutation))
         action = record_contract_action(outcome.fetch(:result))
@@ -188,6 +187,8 @@ module Companion
 
       private
 
+      attr_reader :persistence
+
       def restore_or_seed
         state = @backend.load_state
         if state
@@ -196,6 +197,7 @@ module Companion
           @state = CompanionState.seeded
           persist!
         end
+        @persistence = CompanionPersistence.new(state: @state)
       end
 
       def persist!
@@ -205,68 +207,16 @@ module Companion
       def apply_reminder_mutation(mutation)
         case mutation.fetch(:operation)
         when :append
-          reminder_records.save(mutation.fetch(:record))
+          persistence.reminders.save(mutation.fetch(:record))
         when :update
-          reminder_records.update(mutation.fetch(:id), mutation.fetch(:changes))
+          persistence.reminders.update(mutation.fetch(:id), mutation.fetch(:changes))
         end
-      end
-
-      def reminder_records
-        ContractRecordSet.new(
-          contract_class: Contracts::Reminder,
-          collection: @state.reminders,
-          record_class: CompanionState::Reminder
-        )
-      end
-
-      def tracker_records
-        ContractRecordSet.new(
-          contract_class: Contracts::Tracker,
-          collection: @state.trackers,
-          record_class: CompanionState::Tracker
-        )
-      end
-
-      def daily_focus_records
-        ContractRecordSet.new(
-          contract_class: Contracts::DailyFocus,
-          collection: @state.daily_focuses,
-          record_class: CompanionState::DailyFocus
-        )
-      end
-
-      def daily_focus_title_for(date)
-        daily_focus_records.find(date)&.title
-      end
-
-      def tracker_read_model_for(date)
-        Contracts::TrackerReadModelContract.evaluate(
-          trackers: tracker_records.all,
-          tracker_logs: tracker_logs.all,
-          date: date
-        )
       end
 
       def apply_tracker_log_mutation(mutation)
         return unless mutation.fetch(:operation) == :append_log
 
-        tracker_logs.append(mutation.fetch(:entry).merge(tracker_id: mutation.fetch(:tracker_id)))
-      end
-
-      def tracker_logs
-        ContractHistory.new(
-          contract_class: Contracts::TrackerLog,
-          entries: method(:tracker_log_entries),
-          append: method(:append_tracker_log)
-        )
-      end
-
-      def tracker_log_entries
-        @state.tracker_log_entries
-      end
-
-      def append_tracker_log(event)
-        @state.append_tracker_log(event)
+        persistence.tracker_logs.append(mutation.fetch(:entry).merge(tracker_id: mutation.fetch(:tracker_id)))
       end
 
       def record_contract_action(result)
@@ -278,34 +228,11 @@ module Companion
       end
 
       def record_action(kind:, subject_id:, status:)
-        action_history.append(
+        persistence.actions.append(
           index: @state.next_action_index,
           kind: kind,
           subject_id: subject_id,
           status: status
-        )
-      end
-
-      def action_history
-        ContractHistory.new(
-          contract_class: Contracts::CompanionAction,
-          entries: method(:action_entries),
-          append: method(:append_action_event)
-        )
-      end
-
-      def action_entries
-        @state.action_entries
-      end
-
-      def append_action_event(event)
-        @state.append_action_event(event)
-      end
-
-      def activity_feed_for(recent_limit)
-        Contracts::ActivityFeedContract.evaluate(
-          actions: action_history.all,
-          recent_limit: recent_limit
         )
       end
 
