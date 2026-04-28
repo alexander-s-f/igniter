@@ -33,8 +33,12 @@ module Companion
         round
       end
 
-      compute :score, depends_on: %i[sleep_score training_score] do |sleep_score:, training_score:|
-        [[45 + sleep_score + training_score, 100].min, 0].max.round
+      formula :score do
+        base 45
+        add :sleep_score
+        add :training_score
+        clamp 0, 100
+        round
       end
 
       piecewise :status, on: :score do

@@ -7,8 +7,8 @@ This snapshot describes the current public package graph and proof surface.
 - `igniter-contracts`: canonical embedded kernel for contract declaration,
   compilation, execution, diagnostics, and class DSL.
 - `igniter-extensions`: optional packs, operational tooling, domain behavior,
-  language packs such as observable piecewise decisions and numeric scaling,
-  differential/shadow utilities, and MCP-facing tool semantics.
+  language packs such as observable piecewise decisions, numeric scaling, and
+  formulas, differential/shadow utilities, and MCP-facing tool semantics.
 - `igniter-embed`: host integration and registration layer for applications
   that want Igniter contracts inside an existing runtime.
 - `igniter-application`: contracts-native local application runtime,

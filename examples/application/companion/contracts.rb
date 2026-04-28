@@ -8,6 +8,7 @@ module Companion
     def self.contracts(name, outputs:, &block)
       contract_class = Class.new(Igniter::Contract)
       contract_class.profile = Igniter::Contracts.build_profile(
+        Igniter::Extensions::Contracts::Language::FormulaPack,
         Igniter::Extensions::Contracts::Language::PiecewisePack,
         Igniter::Extensions::Contracts::Language::ScalePack
       )

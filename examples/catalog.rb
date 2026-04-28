@@ -1144,6 +1144,15 @@ module IgniterExamples
       ]
     ),
     example(
+      "contracts/formula",
+      "Language pack observable arithmetic formula over dependency values.",
+      expected_fragments: [
+        "contracts_formula_score=93",
+        "contracts_formula_steps=5",
+        "contracts_formula_dependencies=sleep_score,training_score"
+      ]
+    ),
+    example(
       "contracts/basic_pricing",
       "Smallest end-to-end pricing flow over igniter-contracts.",
       expected_fragments: ["contracts_basic_gross_total=120.0", "contracts_basic_updated_gross_total=180.0"]

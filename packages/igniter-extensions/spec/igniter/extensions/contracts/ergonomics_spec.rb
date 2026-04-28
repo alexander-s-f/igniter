@@ -27,6 +27,7 @@ RSpec.describe "Igniter::Extensions::Contracts ergonomics" do
                                                                    Igniter::Extensions::Contracts::IncrementalPack,
                                                                    Igniter::Extensions::Contracts::InvariantsPack,
                                                                    Igniter::Extensions::Contracts::JournalPack,
+                                                                   Igniter::Extensions::Contracts::Language::FormulaPack,
                                                                    Igniter::Extensions::Contracts::Language::PiecewisePack,
                                                                    Igniter::Extensions::Contracts::Language::ScalePack,
                                                                    Igniter::Extensions::Contracts::McpPack,
