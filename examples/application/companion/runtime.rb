@@ -127,6 +127,7 @@ module Companion
       out.puts "companion_poc_reminder_generated_api=#{reminder_generated_api?}"
       out.puts "companion_poc_tracker_log_history_manifest=#{tracker_log_history_manifest?}"
       out.puts "companion_poc_tracker_log_history_api=#{tracker_log_history_api?}"
+      out.puts "companion_poc_tracker_log_first_class_history=#{tracker_log_first_class_history?(config)}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
       out.puts "companion_poc_daily_plan_surface=#{html.include?("data-daily-plan-block=")}"
@@ -247,6 +248,15 @@ module Companion
       history.api_manifest.fetch(:operations) == %i[append all where count] &&
         history.count(tracker_id: "sleep") == 1 &&
         history.where(date: "2026-04-28").first.fetch(:value) == "7.5"
+    end
+
+    def tracker_log_first_class_history?(config)
+      state = config.store_adapter.load_state
+      logs = Array(state.fetch(:tracker_logs))
+      nested_logs = Array(state.fetch(:trackers)).flat_map { |tracker| Array(tracker.fetch(:entries, [])) }
+      logs.length == 1 &&
+        logs.first.fetch(:tracker_id) == "sleep" &&
+        nested_logs.empty?
     end
 
     def post(app, path, values = {})

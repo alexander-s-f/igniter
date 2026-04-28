@@ -242,6 +242,8 @@ Companion currently proves the first app-local version:
 - `ContractRecordSet` turns that metadata into a generated record API
 - `TrackerLog` declares append-only metadata with `history` and `field`
 - `ContractHistory` turns that metadata into a generated history API
+- Companion persists tracker logs as a first-class top-level history and
+  projects them back into tracker read models for UI compatibility
 - `ReminderContract` computes create/complete success and refusal
 - `TrackerLogContract` computes append-log success and refusal
 - command contracts return result plus mutation intent
@@ -263,11 +265,12 @@ The important split is intentional:
 The package-level design should preserve that split unless repeated Companion
 pressure shows that one surface can stay readable while expressing both.
 
-`TrackerLog` surfaced an important storage-shape distinction: the current
-Companion state stores logs nested under trackers, but the capability wants to
-reason over a first-class append-only stream. That is a useful pressure signal
-for `History[T]`: history may project into records, but it should not be reduced
-to mutable record CRUD.
+`TrackerLog` surfaced an important storage-shape distinction: Companion used to
+store logs nested under trackers, but the capability wants to reason over a
+first-class append-only stream. The POC now stores tracker logs top-level and
+projects them into tracker read models for the UI. That is a useful pressure
+signal for `History[T]`: history may project into records, but it should not be
+reduced to mutable record CRUD.
 
 ## Near-Term Plan
 

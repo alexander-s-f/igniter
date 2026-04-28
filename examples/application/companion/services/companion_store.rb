@@ -67,7 +67,7 @@ module Companion
 
         Snapshot.new(
           reminders: reminder_records.all,
-          trackers: @state.trackers.map { |tracker| tracker.dup.tap { |copy| copy.log_entries = tracker.log_entries.map(&:dup).freeze } }.freeze,
+          trackers: @state.tracker_snapshots,
           countdowns: @state.countdowns.map(&:dup).freeze,
           open_reminders: payload.fetch(:open_reminders),
           tracker_logs_today: payload.fetch(:tracker_logs_today),
@@ -228,16 +228,11 @@ module Companion
       end
 
       def tracker_log_entries
-        @state.trackers.flat_map do |tracker|
-          tracker.log_entries.map { |entry| entry.merge(tracker_id: tracker.id) }
-        end
+        @state.tracker_log_entries
       end
 
       def append_tracker_log(event)
-        tracker = @state.trackers.find { |entry| entry.id == event.fetch(:tracker_id).to_s }
-        return nil unless tracker
-
-        tracker.log_entries << event.reject { |attribute, _value| attribute == :tracker_id }
+        @state.append_tracker_log(event)
       end
 
       def record_contract_action(result)

@@ -11,11 +11,12 @@ module Companion
           super.merge(entries: log_entries)
         end
       end
+      TrackerLog = Struct.new(:tracker_id, :date, :value, keyword_init: true)
       Countdown = Struct.new(:id, :title, :target_date, keyword_init: true)
       Action = Struct.new(:index, :kind, :subject_id, :status, keyword_init: true)
 
       attr_accessor :daily_focus_title, :live_summary
-      attr_reader :reminders, :trackers, :countdowns, :actions, :next_action_index
+      attr_reader :reminders, :trackers, :tracker_logs, :countdowns, :actions, :next_action_index
 
       def self.seeded
         new.tap(&:seed)
@@ -30,6 +31,7 @@ module Companion
         @next_action_index = 0
         @reminders = []
         @trackers = []
+        @tracker_logs = []
         @countdowns = []
         @daily_focus_title = nil
         @live_summary = nil
@@ -54,14 +56,28 @@ module Companion
             status: payload.fetch(:status).to_sym
           )
         end
+        nested_logs = []
         @trackers = Array(state.fetch(:trackers)).map do |entry|
           payload = symbolize(entry)
+          nested_logs.concat(
+            Array(payload.fetch(:entries, [])).map do |tracker_entry|
+              symbolize(tracker_entry).merge(tracker_id: payload.fetch(:id))
+            end
+          )
           Tracker.new(
             id: payload.fetch(:id),
             name: payload.fetch(:name),
             template: payload.fetch(:template).to_sym,
             unit: payload.fetch(:unit),
-            log_entries: Array(payload.fetch(:entries)).map { |tracker_entry| symbolize(tracker_entry) }
+            log_entries: []
+          )
+        end
+        @tracker_logs = Array(state.fetch(:tracker_logs, nested_logs)).map do |entry|
+          payload = symbolize(entry)
+          TrackerLog.new(
+            tracker_id: payload.fetch(:tracker_id),
+            date: payload.fetch(:date),
+            value: payload.fetch(:value)
           )
         end
         @countdowns = Array(state.fetch(:countdowns)).map do |entry|
@@ -85,6 +101,7 @@ module Companion
         {
           reminders: reminders.map(&:to_h),
           trackers: trackers.map { |tracker| tracker.to_h.merge(entries: tracker.log_entries.map(&:dup)) },
+          tracker_logs: tracker_logs.map(&:to_h),
           countdowns: countdowns.map(&:to_h),
           actions: actions.map(&:to_h),
           daily_focus_title: daily_focus_title,
@@ -110,9 +127,7 @@ module Companion
       end
 
       def tracker_logs_today_count
-        trackers.sum do |tracker|
-          tracker.log_entries.count { |entry| entry.fetch(:date) == Date.today.iso8601 }
-        end
+        tracker_logs.count { |entry| entry.date == Date.today.iso8601 }
       end
 
       def next_reminder_title
@@ -120,14 +135,35 @@ module Companion
       end
 
       def tracker_value_today(id)
-        tracker = trackers.find { |entry| entry.id == id.to_s }
-        return 0 unless tracker
-
-        tracker.log_entries.select { |entry| entry.fetch(:date) == Date.today.iso8601 }.sum do |entry|
-          Float(entry.fetch(:value))
+        tracker_logs.select { |entry| entry.tracker_id == id.to_s && entry.date == Date.today.iso8601 }.sum do |entry|
+          Float(entry.value)
         rescue ArgumentError, TypeError
           0
         end
+      end
+
+      def tracker_snapshots
+        trackers.map do |tracker|
+          tracker.dup.tap do |copy|
+            copy.log_entries = tracker_logs_for(tracker.id).map do |entry|
+              { date: entry.date, value: entry.value }
+            end.freeze
+          end
+        end.freeze
+      end
+
+      def tracker_log_entries
+        tracker_logs.map(&:to_h)
+      end
+
+      def append_tracker_log(event)
+        return nil unless trackers.any? { |tracker| tracker.id == event.fetch(:tracker_id).to_s }
+
+        TrackerLog.new(
+          tracker_id: event.fetch(:tracker_id).to_s,
+          date: event.fetch(:date),
+          value: event.fetch(:value)
+        ).tap { |entry| tracker_logs << entry }
       end
 
       def record_action(kind:, subject_id:, status:)
@@ -150,6 +186,10 @@ module Companion
       end
 
       private
+
+      def tracker_logs_for(id)
+        tracker_logs.select { |entry| entry.tracker_id == id.to_s }
+      end
 
       def symbolize(value)
         value.transform_keys(&:to_sym)

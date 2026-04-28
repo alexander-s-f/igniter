@@ -29,6 +29,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   record API: `all`, `find`, `save`, `update`, `delete`, and `clear`.
 - `contracts/tracker_log_history_contract.rb` and `services/contract_history.rb`
   sketch append-only `history` semantics for logs and signals.
+- tracker logs are persisted as first-class top-level history and projected back
+  into tracker read models for the dashboard.
 - `services/hub_installer.rb` installs local hub capsules through transfer.
 - the dashboard exposes the local hub catalog and install action.
 - `igniter-ai` contains the live OpenAI Responses provider.
