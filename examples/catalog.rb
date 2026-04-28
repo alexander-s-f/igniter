@@ -1126,6 +1126,15 @@ module IgniterExamples
       ]
     ),
     example(
+      "contracts/piecewise",
+      "Language pack observable piecewise decision over regular compute nodes.",
+      expected_fragments: [
+        "contracts_piecewise_score=2",
+        "contracts_piecewise_case=heavy",
+        "contracts_piecewise_matcher=between"
+      ]
+    ),
+    example(
       "contracts/basic_pricing",
       "Smallest end-to-end pricing flow over igniter-contracts.",
       expected_fragments: ["contracts_basic_gross_total=120.0", "contracts_basic_updated_gross_total=180.0"]

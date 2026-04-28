@@ -19,30 +19,23 @@ module Companion
         0.0
       end
 
-      compute :score, depends_on: %i[sleep_hours training_minutes] do |sleep_hours:, training_minutes:|
+      piecewise :training_score, on: :training_minutes do
+        eq 0, id: :none, value: 0
+        between 1..45, id: :moderate, value: 10
+        between 46..90, id: :heavy, value: 2
+        default id: :overload, value: -12
+      end
+
+      compute :score, depends_on: %i[sleep_hours training_score] do |sleep_hours:, training_score:|
         sleep_score = [[sleep_hours / 8.0, 1.0].min * 40, 0].max
-        training_score = if training_minutes.zero?
-                           0
-                         elsif training_minutes <= 45
-                           10
-                         elsif training_minutes <= 90
-                           2
-                         else
-                           -12
-                         end
         [[45 + sleep_score + training_score, 100].min, 0].max.round
       end
 
-      compute :status, depends_on: [:score] do |score:|
-        if score >= 80
-          "charged"
-        elsif score >= 60
-          "steady"
-        elsif score >= 40
-          "low"
-        else
-          "recovery"
-        end
+      piecewise :status, on: :score do
+        between 80..100, id: :charged, value: "charged"
+        between 60...80, id: :steady, value: "steady"
+        between 40...60, id: :low, value: "low"
+        default id: :recovery, value: "recovery"
       end
 
       compute :recommendation, depends_on: %i[score sleep_hours training_minutes] do |score:, sleep_hours:, training_minutes:|

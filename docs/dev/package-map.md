@@ -17,8 +17,8 @@ Root should stay thin:
   canonical embedded kernel: DSL, compile/runtime spine, profiles, execution,
   diagnostics, extension seams
 - `igniter-extensions`
-  packs, tooling, operational behavior, and domain behavior over
-  `igniter-contracts`
+  packs, language additions, tooling, operational behavior, and domain behavior
+  over `igniter-contracts`
 - `igniter-application`
   contracts-native local runtime host: config, providers, services, loaders,
   schedulers, host adapters, boot lifecycle
@@ -64,7 +64,8 @@ Root should stay thin:
 - Put code in `igniter-contracts` if it defines canonical embedded graph
   semantics or kernel extension seams.
 - Put code in `igniter-extensions` if it is optional behavior, tooling, or
-  domain vocabulary over the contracts kernel.
+  domain vocabulary over the contracts kernel. Language-changing DSL packs such
+  as observable branching/scoring primitives also live here.
 - Put code in `igniter-application` if it is about local runtime hosting,
   providers, services, boot, config, loading, or scheduling.
 - Put code in `igniter-cluster` if the network is part of the execution model.

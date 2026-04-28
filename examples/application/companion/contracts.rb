@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
 require "igniter/contracts"
+require "igniter/extensions/contracts"
 
 module Companion
   module Contracts
     def self.contracts(name, outputs:, &block)
       contract_class = Class.new(Igniter::Contract)
+      contract_class.profile = Igniter::Contracts.build_profile(
+        Igniter::Extensions::Contracts::Language::PiecewisePack
+      )
       contract_class.define(&block)
       contract_class.define_singleton_method(:evaluate) do |**inputs|
         contract = new(**inputs)

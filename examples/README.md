@@ -125,6 +125,7 @@ Active runnable examples live in `examples/application/`,
 - `contracts/aggregates.rb`
 - `contracts/auditing.rb`
 - `contracts/branching.rb`
+- `contracts/piecewise.rb`
 - `contracts/build_effect_executor_pack.rb`
 - `contracts/build_your_own_pack.rb`
 - `contracts/capabilities.rb`
