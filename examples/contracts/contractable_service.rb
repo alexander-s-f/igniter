@@ -30,11 +30,14 @@ result = Igniter::Contracts.with.run(inputs: { sleep_hours: 7.5, training_minute
   input :sleep_hours
   input :training_minutes
   compute :body_battery, depends_on: %i[sleep_hours training_minutes], using: BodyBatteryScorer
+  compute :score, depends_on: %i[sleep_hours training_minutes], using: BodyBatteryScorer, output: :score
   output :body_battery
+  output :score
 end
 
 payload = result.output(:body_battery)
 
 puts "contracts_contractable_service_success=#{payload.fetch(:success)}"
 puts "contracts_contractable_service_score=#{payload.fetch(:outputs).fetch(:score)}"
+puts "contracts_contractable_service_scalar_score=#{result.output(:score)}"
 puts "contracts_contractable_service_observations=#{payload.fetch(:observations).map { |entry| entry.fetch(:name) }.join(",")}"

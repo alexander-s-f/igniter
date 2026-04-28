@@ -1222,6 +1222,7 @@ module IgniterExamples
       expected_fragments: [
         "contracts_contractable_service_success=true",
         "contracts_contractable_service_score=93",
+        "contracts_contractable_service_scalar_score=93",
         "contracts_contractable_service_observations=sleep_score,training_score"
       ]
     ),

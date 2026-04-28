@@ -129,6 +129,16 @@ compute :body_battery,
 and `success`. The service owns its internal implementation; Igniter owns the
 graph boundary and result protocol.
 
+Use `output:` when the graph should expose one named service output as the
+compute value:
+
+```ruby
+compute :score,
+        depends_on: %i[sleep_hours training_minutes],
+        using: BodyBatteryScorer,
+        output: :score
+```
+
 Additional helpers:
 
 - `Igniter::Contracts.build_kernel(*packs)`

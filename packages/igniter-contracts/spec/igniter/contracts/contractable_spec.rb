@@ -49,6 +49,17 @@ RSpec.describe Igniter::Contracts::Contractable do
     expect(payload.fetch(:observations).map { |entry| entry.fetch(:name) }).to eq(%i[sleep_score training_score])
   end
 
+  it "extracts a named contractable output when compute using declares output" do
+    result = Igniter::Contracts.with.run(inputs: { sleep_hours: 7.5, training_minutes: 30 }) do
+      input :sleep_hours
+      input :training_minutes
+      compute :score, depends_on: %i[sleep_hours training_minutes], using: ContractableSpecBodyBattery, output: :score
+      output :score
+    end
+
+    expect(result.output(:score)).to eq(93)
+  end
+
   it "normalizes raised service errors into failure payloads" do
     service = Class.new do
       include Igniter::Contracts::Contractable

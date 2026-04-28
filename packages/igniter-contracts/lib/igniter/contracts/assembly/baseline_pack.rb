@@ -46,8 +46,10 @@ module Igniter
             normalized_attributes[:callable] = normalized_attributes.delete(:call) if normalized_attributes.key?(:call)
             if normalized_attributes.key?(:using)
               target = normalized_attributes.delete(:using)
+              output_name = normalized_attributes.delete(:output)&.to_sym
               normalized_attributes[:callable] = lambda do |**values|
-                Contractable.invoke(target, **values).to_h
+                payload = Contractable.invoke(target, **values).to_h
+                output_name ? payload.fetch(:outputs).fetch(output_name) : payload
               end
             end
             normalized_attributes[:callable] = block if block
