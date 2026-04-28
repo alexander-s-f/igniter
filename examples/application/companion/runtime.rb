@@ -63,6 +63,8 @@ module Companion
       created_status = get_status(app, create_headers.fetch("location"))
       log_status, log_headers = post(app, "/trackers/sleep/log", value: "7.5")
       logged_status = get_status(app, log_headers.fetch("location"))
+      focus_status, focus_headers = post(app, "/today/focus", title: "Draft the launch note")
+      focused_status = get_status(app, focus_headers.fetch("location"))
       complete_status, complete_headers = post(app, "/reminders/morning-water/complete")
       completed_status = get_status(app, complete_headers.fetch("location"))
 
@@ -96,6 +98,8 @@ module Companion
       out.puts "companion_poc_created_status=#{created_status}"
       out.puts "companion_poc_log_status=#{log_status}"
       out.puts "companion_poc_logged_status=#{logged_status}"
+      out.puts "companion_poc_focus_status=#{focus_status}"
+      out.puts "companion_poc_focused_status=#{focused_status}"
       out.puts "companion_poc_complete_status=#{complete_status}"
       out.puts "companion_poc_completed_status=#{completed_status}"
       out.puts "companion_poc_events_status=#{events_status}"
@@ -107,6 +111,8 @@ module Companion
       out.puts "companion_poc_setup_redacted=#{setup.include?("openai_api_key") && !setup.include?("sk-")}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
+      out.puts "companion_poc_daily_focus=#{final.daily_plan.fetch(:focus_title) == "Draft the launch note"}"
+      out.puts "companion_poc_daily_focus_persisted=#{persisted.daily_focus_title == final.daily_focus_title}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
       out.puts "companion_poc_daily_plan_surface=#{html.include?("data-daily-plan-block=")}"

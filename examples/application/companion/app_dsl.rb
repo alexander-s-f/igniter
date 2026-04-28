@@ -94,6 +94,14 @@ module Companion
         )
       end
 
+      post "/today/focus" do |params|
+        result = service(:companion).update_daily_focus(params.fetch("title", ""))
+        redirect Companion.feedback_path(
+          (result.success? ? :notice : :error) => result.feedback_code,
+          subject: result.subject_id
+        )
+      end
+
       post "/reminders/:id/complete" do |params|
         result = service(:companion).complete_reminder(params.fetch("id", ""))
         redirect Companion.feedback_path(

@@ -5,7 +5,8 @@ require_relative "../contracts"
 module Companion
   module Contracts
     contracts :DailyPlanContract, outputs: %i[focus_title block_minutes next_action] do
-      input :snapshot
+      input :daily_focus_title
+      input :next_reminder_title
       input :body_battery
 
       compute :energy_status, depends_on: [:body_battery] do |body_battery:|
@@ -25,8 +26,8 @@ module Companion
         end
       end
 
-      compute :focus_title, depends_on: [:snapshot] do |snapshot:|
-        snapshot.fetch(:next_reminder_title) || "Daily review"
+      compute :focus_title, depends_on: %i[daily_focus_title next_reminder_title] do |daily_focus_title:, next_reminder_title:|
+        daily_focus_title || next_reminder_title || "Daily review"
       end
 
       compute :next_action, depends_on: %i[focus_title block_minutes energy_status] do |focus_title:, block_minutes:, energy_status:|

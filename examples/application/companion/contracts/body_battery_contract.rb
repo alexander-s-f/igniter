@@ -5,16 +5,17 @@ require_relative "../contracts"
 module Companion
   module Contracts
     contracts :BodyBatteryContract, outputs: %i[score status recommendation] do
-      input :snapshot
+      input :sleep_hours_today
+      input :training_minutes_today
 
-      compute :sleep_hours, depends_on: [:snapshot] do |snapshot:|
-        Float(snapshot.fetch(:sleep_hours_today, 0))
+      compute :sleep_hours, depends_on: [:sleep_hours_today] do |sleep_hours_today:|
+        Float(sleep_hours_today || 0)
       rescue ArgumentError, TypeError
         0.0
       end
 
-      compute :training_minutes, depends_on: [:snapshot] do |snapshot:|
-        Float(snapshot.fetch(:training_minutes_today, 0))
+      compute :training_minutes, depends_on: [:training_minutes_today] do |training_minutes_today:|
+        Float(training_minutes_today || 0)
       rescue ArgumentError, TypeError
         0.0
       end

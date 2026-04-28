@@ -22,7 +22,7 @@ module Companion
       Snapshot = Struct.new(
         :reminders, :trackers, :countdowns, :open_reminders, :tracker_logs_today,
         :countdown_count, :live_ready, :credential_status, :daily_summary,
-        :body_battery, :daily_plan, :live_summary, :action_count, :recent_events,
+        :body_battery, :daily_plan, :daily_focus_title, :live_summary, :action_count, :recent_events,
         keyword_init: true
       ) do
         def to_h
@@ -38,6 +38,7 @@ module Companion
             daily_summary: daily_summary.dup,
             body_battery: body_battery.dup,
             daily_plan: daily_plan.dup,
+            daily_focus_title: daily_focus_title,
             live_summary: live_summary&.dup,
             action_count: action_count,
             recent_events: recent_events.map(&:dup)
@@ -54,9 +55,20 @@ module Companion
 
       def snapshot(recent_limit: 6)
         payload = base_payload
-        summary = Contracts::DailySummaryContract.evaluate(snapshot: payload)
-        body_battery = Contracts::BodyBatteryContract.evaluate(snapshot: payload)
-        daily_plan = Contracts::DailyPlanContract.evaluate(snapshot: payload, body_battery: body_battery)
+        summary = Contracts::DailySummaryContract.evaluate(
+          open_reminders: payload.fetch(:open_reminders),
+          tracker_logs_today: payload.fetch(:tracker_logs_today),
+          live_ready: payload.fetch(:live_ready)
+        )
+        body_battery = Contracts::BodyBatteryContract.evaluate(
+          sleep_hours_today: payload.fetch(:sleep_hours_today),
+          training_minutes_today: payload.fetch(:training_minutes_today)
+        )
+        daily_plan = Contracts::DailyPlanContract.evaluate(
+          daily_focus_title: payload.fetch(:daily_focus_title),
+          next_reminder_title: payload.fetch(:next_reminder_title),
+          body_battery: body_battery
+        )
 
         Snapshot.new(
           reminders: @reminders.map(&:dup).freeze,
@@ -70,6 +82,7 @@ module Companion
           daily_summary: summary,
           body_battery: body_battery,
           daily_plan: daily_plan,
+          daily_focus_title: @daily_focus_title,
           live_summary: @live_summary&.dup,
           action_count: @actions.length,
           recent_events: @actions.last(recent_limit).map { |action| action.to_h.freeze }.freeze
@@ -126,6 +139,19 @@ module Companion
         command_result(:success, feedback_code: :reminder_created, subject_id: reminder.id, action: action)
       end
 
+      def update_daily_focus(title)
+        normalized = title.to_s.strip
+        if normalized.empty?
+          action = record_action(kind: :daily_focus_refused, subject_id: :daily_focus, status: :refused)
+          return command_result(:failure, feedback_code: :blank_daily_focus, subject_id: :daily_focus, action: action)
+        end
+
+        @daily_focus_title = normalized
+        action = record_action(kind: :daily_focus_set, subject_id: :daily_focus, status: :ready)
+        persist!
+        command_result(:success, feedback_code: :daily_focus_set, subject_id: :daily_focus, action: action)
+      end
+
       def complete_reminder(id)
         reminder = @reminders.find { |entry| entry.id == id.to_s }
         unless reminder
@@ -178,6 +204,7 @@ module Companion
           @reminders = []
           @trackers = []
           @countdowns = []
+          @daily_focus_title = nil
           @live_summary = nil
           seed
           persist!
@@ -226,6 +253,7 @@ module Companion
           )
         end
         @live_summary = state[:live_summary]
+        @daily_focus_title = state[:daily_focus_title]
         @next_action_index = state.fetch(:next_action_index)
       end
 
@@ -235,6 +263,7 @@ module Companion
           trackers: @trackers.map { |tracker| tracker.to_h.merge(entries: tracker.log_entries.map(&:dup)) },
           countdowns: @countdowns.map(&:to_h),
           actions: @actions.map(&:to_h),
+          daily_focus_title: @daily_focus_title,
           live_summary: @live_summary,
           next_action_index: @next_action_index
         )
@@ -247,6 +276,7 @@ module Companion
             tracker.log_entries.count { |entry| entry.fetch(:date) == Date.today.iso8601 }
           end,
           next_reminder_title: @reminders.find { |reminder| reminder.status == :open }&.title,
+          daily_focus_title: @daily_focus_title,
           sleep_hours_today: tracker_value_today("sleep"),
           training_minutes_today: tracker_value_today("training"),
           live_ready: credential_status.fetch(:configured)

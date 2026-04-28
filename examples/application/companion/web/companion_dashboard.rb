@@ -88,6 +88,15 @@ module Companion
                 para snapshot.daily_summary.fetch(:recommendation),
                      "data-today-recommendation": "true",
                      style: Companion::Web.style(:muted)
+                form action: "/today/focus", method: "post", style: Companion::Web.style(:form_row) do
+                  input name: "title",
+                        type: "text",
+                        placeholder: "Today's focus",
+                        value: snapshot.daily_focus_title.to_s,
+                        "data-action-input": "daily-focus",
+                        style: Companion::Web.style(:input)
+                  button "Set focus", type: "submit", "data-action": "set-daily-focus", style: Companion::Web.style(:button)
+                end
               end
 
               div style: Companion::Web.style(:metric_strip) do
