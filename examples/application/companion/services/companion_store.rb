@@ -158,22 +158,16 @@ module Companion
       end
 
       def log_tracker(id, value)
-        tracker = @state.trackers.find { |entry| entry.id == id.to_s }
-        unless tracker
-          action = @state.record_action(kind: :tracker_log_refused, subject_id: id.to_s, status: :refused)
-          return command_result(:failure, feedback_code: :tracker_not_found, subject_id: id.to_s, action: action)
-        end
-
-        normalized = value.to_s.strip
-        if normalized.empty?
-          action = @state.record_action(kind: :tracker_log_refused, subject_id: tracker.id, status: :refused)
-          return command_result(:failure, feedback_code: :blank_tracker_value, subject_id: tracker.id, action: action)
-        end
-
-        tracker.log_entries << { date: Date.today.iso8601, value: normalized }
-        action = @state.record_action(kind: :tracker_logged, subject_id: tracker.id, status: :logged)
+        outcome = Contracts::TrackerLogContract.evaluate(
+          tracker_id: id,
+          value: value,
+          date: Date.today.iso8601,
+          trackers: @state.trackers
+        )
+        apply_tracker_log_mutation(outcome.fetch(:mutation))
+        action = record_contract_action(outcome.fetch(:result))
         persist!
-        command_result(:success, feedback_code: :tracker_logged, subject_id: tracker.id, action: action)
+        command_result_from_contract(outcome.fetch(:result), action: action)
       end
 
       def events_read_model
@@ -212,6 +206,13 @@ module Companion
         end
       end
 
+      def apply_tracker_log_mutation(mutation)
+        return unless mutation.fetch(:operation) == :append_log
+
+        tracker = @state.trackers.find { |entry| entry.id == mutation.fetch(:tracker_id).to_s }
+        tracker&.log_entries&.<< mutation.fetch(:entry)
+      end
+
       def record_contract_action(result)
         @state.record_action(
           kind: result.fetch(:action_kind),
@@ -247,18 +248,6 @@ module Companion
 
           Return one short paragraph and one next action.
         PROMPT
-      end
-
-      def next_id_for(title, collection)
-        base = title.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/\A-|-+\z/, "")
-        base = "item" if base.empty?
-        candidate = base
-        suffix = 2
-        while collection.any? { |entry| entry.id == candidate }
-          candidate = "#{base}-#{suffix}"
-          suffix += 1
-        end
-        candidate
       end
     end
   end

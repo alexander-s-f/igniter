@@ -65,6 +65,8 @@ module Companion
       blank_reminder_result_status = get_status(app, blank_reminder_headers.fetch("location"))
       log_status, log_headers = post(app, "/trackers/sleep/log", value: "7.5")
       logged_status = get_status(app, log_headers.fetch("location"))
+      blank_tracker_status, blank_tracker_headers = post(app, "/trackers/sleep/log", value: " ")
+      blank_tracker_result_status = get_status(app, blank_tracker_headers.fetch("location"))
       focus_status, focus_headers = post(app, "/today/focus", title: "Draft the launch note")
       focused_status = get_status(app, focus_headers.fetch("location"))
       complete_status, complete_headers = post(app, "/reminders/morning-water/complete")
@@ -102,6 +104,8 @@ module Companion
       out.puts "companion_poc_blank_reminder_result_status=#{blank_reminder_result_status}"
       out.puts "companion_poc_log_status=#{log_status}"
       out.puts "companion_poc_logged_status=#{logged_status}"
+      out.puts "companion_poc_blank_tracker_status=#{blank_tracker_status}"
+      out.puts "companion_poc_blank_tracker_result_status=#{blank_tracker_result_status}"
       out.puts "companion_poc_focus_status=#{focus_status}"
       out.puts "companion_poc_focused_status=#{focused_status}"
       out.puts "companion_poc_complete_status=#{complete_status}"
@@ -118,6 +122,7 @@ module Companion
       out.puts "companion_poc_daily_focus=#{final.daily_plan.fetch(:focus_title) == "Draft the launch note"}"
       out.puts "companion_poc_daily_focus_persisted=#{persisted.daily_focus_title == final.daily_focus_title}"
       out.puts "companion_poc_reminder_contract_refusal=#{blank_reminder_headers.fetch("location").include?("blank_reminder")}"
+      out.puts "companion_poc_tracker_log_contract_refusal=#{blank_tracker_headers.fetch("location").include?("blank_tracker_value")}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
       out.puts "companion_poc_daily_plan_surface=#{html.include?("data-daily-plan-block=")}"
