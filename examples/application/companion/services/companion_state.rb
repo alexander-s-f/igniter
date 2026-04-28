@@ -6,7 +6,8 @@ module Companion
   module Services
     class CompanionState
       Reminder = Struct.new(:id, :title, :due, :status, keyword_init: true)
-      Tracker = Struct.new(:id, :name, :template, :unit, :log_entries, keyword_init: true) do
+      Tracker = Struct.new(:id, :name, :template, :unit, keyword_init: true)
+      TrackerSnapshot = Struct.new(:id, :name, :template, :unit, :log_entries, keyword_init: true) do
         def to_h
           super.merge(entries: log_entries)
         end
@@ -40,8 +41,8 @@ module Companion
       def seed
         reminders << Reminder.new(id: "morning-water", title: "Drink water after wake-up", due: "morning", status: :open)
         reminders << Reminder.new(id: "evening-review", title: "Review the day", due: "evening", status: :open)
-        trackers << Tracker.new(id: "sleep", name: "Sleep", template: :sleep, unit: "hours", log_entries: [])
-        trackers << Tracker.new(id: "training", name: "Training", template: :workout, unit: "minutes", log_entries: [])
+        trackers << Tracker.new(id: "sleep", name: "Sleep", template: :sleep, unit: "hours")
+        trackers << Tracker.new(id: "training", name: "Training", template: :workout, unit: "minutes")
         countdowns << Countdown.new(id: "new-year", title: "New Year", target_date: "#{Date.today.year + 1}-01-01")
         record_action(kind: :companion_seeded, subject_id: :companion, status: :ready)
       end
@@ -68,8 +69,7 @@ module Companion
             id: payload.fetch(:id),
             name: payload.fetch(:name),
             template: payload.fetch(:template).to_sym,
-            unit: payload.fetch(:unit),
-            log_entries: []
+            unit: payload.fetch(:unit)
           )
         end
         @tracker_logs = Array(state.fetch(:tracker_logs, nested_logs)).map do |entry|
@@ -100,7 +100,7 @@ module Companion
       def to_h
         {
           reminders: reminders.map(&:to_h),
-          trackers: trackers.map { |tracker| tracker.to_h.merge(entries: tracker.log_entries.map(&:dup)) },
+          trackers: trackers.map(&:to_h),
           tracker_logs: tracker_logs.map(&:to_h),
           countdowns: countdowns.map(&:to_h),
           actions: actions.map(&:to_h),
@@ -144,11 +144,15 @@ module Companion
 
       def tracker_snapshots
         trackers.map do |tracker|
-          tracker.dup.tap do |copy|
-            copy.log_entries = tracker_logs_for(tracker.id).map do |entry|
+          TrackerSnapshot.new(
+            id: tracker.id,
+            name: tracker.name,
+            template: tracker.template,
+            unit: tracker.unit,
+            log_entries: tracker_logs_for(tracker.id).map do |entry|
               { date: entry.date, value: entry.value }
             end.freeze
-          end
+          )
         end.freeze
       end
 

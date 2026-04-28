@@ -240,6 +240,7 @@ Companion currently proves the first app-local version:
 
 - `Reminder` declares the target metadata shape with `persist` and `field`
 - `ContractRecordSet` turns that metadata into a generated record API
+- `Tracker` declares the same record metadata shape and uses the generated API
 - `TrackerLog` declares append-only metadata with `history` and `field`
 - `ContractHistory` turns that metadata into a generated history API
 - Companion persists tracker logs as a first-class top-level history and
@@ -258,6 +259,8 @@ The important split is intentional:
 - generated API: `all`, `find`, `save`, `update`, `delete`, `clear`
 - append-only shape: `contract :TrackerLog do history... field... end`
 - history API: `append`, `all`, `where`, `count`
+- projection: UI read models can compose `Store[Tracker]` plus
+  `History[TrackerLog]`
 - behavior: graph command contracts compute validation, result, receipt, and
   mutation intent
 - boundary: Store/app adapter applies the mutation
@@ -271,6 +274,11 @@ first-class append-only stream. The POC now stores tracker logs top-level and
 projects them into tracker read models for the UI. That is a useful pressure
 signal for `History[T]`: history may project into records, but it should not be
 reduced to mutable record CRUD.
+
+The tracker slice now shows the intended composition: the tracker definition is
+record-like, while tracker observations are append-only. The dashboard can still
+render one tracker card with recent entries, but that card is a projection from
+two storage capabilities rather than a single procedural object.
 
 ## Near-Term Plan
 

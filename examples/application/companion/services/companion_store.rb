@@ -164,7 +164,7 @@ module Companion
           tracker_id: id,
           value: value,
           date: Date.today.iso8601,
-          trackers: @state.trackers
+          trackers: tracker_records.all
         )
         apply_tracker_log_mutation(outcome.fetch(:mutation))
         action = record_contract_action(outcome.fetch(:result))
@@ -210,6 +210,14 @@ module Companion
           contract_class: Contracts::Reminder,
           collection: @state.reminders,
           record_class: CompanionState::Reminder
+        )
+      end
+
+      def tracker_records
+        ContractRecordSet.new(
+          contract_class: Contracts::Tracker,
+          collection: @state.trackers,
+          record_class: CompanionState::Tracker
         )
       end
 

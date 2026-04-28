@@ -125,6 +125,9 @@ module Companion
       out.puts "companion_poc_tracker_log_contract_refusal=#{blank_tracker_headers.fetch("location").include?("blank_tracker_value")}"
       out.puts "companion_poc_reminder_persistence_manifest=#{reminder_persistence_manifest?}"
       out.puts "companion_poc_reminder_generated_api=#{reminder_generated_api?}"
+      out.puts "companion_poc_tracker_persistence_manifest=#{tracker_persistence_manifest?}"
+      out.puts "companion_poc_tracker_generated_api=#{tracker_generated_api?}"
+      out.puts "companion_poc_tracker_projection_composes_history=#{tracker_projection_composes_history?(final)}"
       out.puts "companion_poc_tracker_log_history_manifest=#{tracker_log_history_manifest?}"
       out.puts "companion_poc_tracker_log_history_api=#{tracker_log_history_api?}"
       out.puts "companion_poc_tracker_log_first_class_history=#{tracker_log_first_class_history?(config)}"
@@ -221,6 +224,35 @@ module Companion
         records.all.length == 1
     end
 
+    def tracker_persistence_manifest?
+      manifest = Contracts::Tracker.persistence_manifest
+      persist = manifest.fetch(:persist)
+      fields = manifest.fetch(:fields).map { |field| field.fetch(:name) }
+      persist.fetch(:key) == :id &&
+        persist.fetch(:adapter) == :sqlite &&
+        fields == %i[id name template unit]
+    end
+
+    def tracker_generated_api?
+      records = Services::ContractRecordSet.new(
+        contract_class: Contracts::Tracker,
+        collection: [],
+        record_class: Services::CompanionState::Tracker
+      )
+      records.save(id: "mood", name: "Mood", template: :scale, unit: "score")
+      records.update("mood", unit: "points")
+
+      records.api_manifest.fetch(:operations) == %i[all find save update delete clear] &&
+        records.find("mood").unit == "points" &&
+        records.all.length == 1
+    end
+
+    def tracker_projection_composes_history?(snapshot)
+      sleep = snapshot.trackers.find { |tracker| tracker.id == "sleep" }
+      sleep&.log_entries&.length == 1 &&
+        sleep.log_entries.first.fetch(:value) == "7.5"
+    end
+
     def tracker_log_history_manifest?
       manifest = Contracts::TrackerLog.persistence_manifest
       history = manifest.fetch(:history)
@@ -231,17 +263,11 @@ module Companion
     end
 
     def tracker_log_history_api?
-      tracker = Services::CompanionState::Tracker.new(
-        id: "sleep",
-        name: "Sleep",
-        template: :sleep,
-        unit: "hours",
-        log_entries: []
-      )
+      entries = []
       history = Services::ContractHistory.new(
         contract_class: Contracts::TrackerLog,
-        entries: -> { tracker.log_entries.map { |entry| entry.merge(tracker_id: tracker.id) } },
-        append: ->(event) { tracker.log_entries << event.reject { |attribute, _value| attribute == :tracker_id } }
+        entries: -> { entries },
+        append: ->(event) { entries << event }
       )
       history.append(tracker_id: "sleep", date: "2026-04-28", value: "7.5")
 

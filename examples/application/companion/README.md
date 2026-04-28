@@ -27,6 +27,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   `contract :Reminder do persist... field... end` metadata surface.
 - `services/contract_record_set.rb` turns that metadata into a tiny generated
   record API: `all`, `find`, `save`, `update`, `delete`, and `clear`.
+- `contracts/tracker_record_contract.rb` declares trackers as record
+  persistence, composed with tracker-log history for dashboard projections.
 - `contracts/tracker_log_history_contract.rb` and `services/contract_history.rb`
   sketch append-only `history` semantics for logs and signals.
 - tracker logs are persisted as first-class top-level history and projected back
