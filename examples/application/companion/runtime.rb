@@ -132,6 +132,8 @@ module Companion
       out.puts "companion_poc_tracker_log_history_manifest=#{tracker_log_history_manifest?}"
       out.puts "companion_poc_tracker_log_history_api=#{tracker_log_history_api?}"
       out.puts "companion_poc_tracker_log_first_class_history=#{tracker_log_first_class_history?(config)}"
+      out.puts "companion_poc_action_history_manifest=#{action_history_manifest?}"
+      out.puts "companion_poc_action_history_api=#{action_history_api?}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
       out.puts "companion_poc_daily_plan_surface=#{html.include?("data-daily-plan-block=")}"
@@ -304,6 +306,29 @@ module Companion
       logs.length == 1 &&
         logs.first.fetch(:tracker_id) == "sleep" &&
         nested_logs.empty?
+    end
+
+    def action_history_manifest?
+      manifest = Contracts::CompanionAction.persistence_manifest
+      history = manifest.fetch(:history)
+      fields = manifest.fetch(:fields).map { |field| field.fetch(:name) }
+      history.fetch(:key) == :index &&
+        history.fetch(:adapter) == :sqlite &&
+        fields == %i[index kind subject_id status]
+    end
+
+    def action_history_api?
+      actions = []
+      history = Services::ContractHistory.new(
+        contract_class: Contracts::CompanionAction,
+        entries: -> { actions },
+        append: ->(event) { actions << event }
+      )
+      history.append(index: 0, kind: :smoke, subject_id: :companion, status: :ready)
+
+      history.api_manifest.fetch(:operations) == %i[append all where count] &&
+        history.count(status: :ready) == 1 &&
+        history.where(kind: :smoke).first.fetch(:subject_id) == :companion
     end
 
     def post(app, path, values = {})

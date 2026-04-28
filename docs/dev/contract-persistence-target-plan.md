@@ -247,6 +247,7 @@ Companion currently proves the first app-local version:
   projects them back into tracker read models for UI compatibility
 - `TrackerReadModelContract` derives dashboard facts from tracker records plus
   tracker-log history
+- `CompanionAction` declares user/runtime receipts as append-only history
 - `ReminderContract` computes create/complete success and refusal
 - `TrackerLogContract` computes append-log success and refusal
 - command contracts return result plus mutation intent
@@ -263,6 +264,7 @@ The important split is intentional:
 - history API: `append`, `all`, `where`, `count`
 - projection: UI read models can compose `Store[Tracker]` plus
   `History[TrackerLog]` through a derived contract
+- receipts: command/user/runtime outcomes can be modeled as `History[Action]`
 - behavior: graph command contracts compute validation, result, receipt, and
   mutation intent
 - boundary: Store/app adapter applies the mutation
@@ -285,6 +287,10 @@ two storage capabilities rather than a single procedural object.
 This makes projections a first-class design concern: record/history capabilities
 own durable data, while derived contracts compute read models and summary facts
 for product surfaces.
+
+Action receipts are also history-shaped. They are not the same domain stream as
+tracker measurements, but they share append-only semantics and query needs:
+activity feeds, audit trails, command receipts, and later workflow replay.
 
 ## Near-Term Plan
 

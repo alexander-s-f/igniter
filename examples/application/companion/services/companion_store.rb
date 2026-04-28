@@ -83,20 +83,20 @@ module Companion
           daily_plan: daily_plan,
           daily_focus_title: @state.daily_focus_title,
           live_summary: @state.live_summary&.dup,
-          action_count: @state.actions.length,
-          recent_events: @state.actions.last(recent_limit).map { |action| action.to_h.freeze }.freeze
+          action_count: action_history.count,
+          recent_events: action_history.all.last(recent_limit)
         ).freeze
       end
 
       def generate_live_summary
         unless credential_status.fetch(:configured)
-          action = @state.record_action(kind: :live_summary_refused, subject_id: :daily_summary, status: :refused)
+          action = record_action(kind: :live_summary_refused, subject_id: :daily_summary, status: :refused)
           persist!
           return command_result(:failure, feedback_code: :openai_key_missing, subject_id: :daily_summary, action: action)
         end
 
         unless @assistant
-          action = @state.record_action(kind: :live_summary_refused, subject_id: :daily_summary, status: :refused)
+          action = record_action(kind: :live_summary_refused, subject_id: :daily_summary, status: :refused)
           persist!
           return command_result(:failure, feedback_code: :live_assistant_missing, subject_id: :daily_summary, action: action)
         end
@@ -114,11 +114,11 @@ module Companion
             agent_run_id: run.id,
             generated_at: Time.now.utc.iso8601
           }
-          action = @state.record_action(kind: :live_summary_generated, subject_id: :daily_summary, status: :ready)
+          action = record_action(kind: :live_summary_generated, subject_id: :daily_summary, status: :ready)
           persist!
           command_result(:success, feedback_code: :live_summary_generated, subject_id: :daily_summary, action: action)
         else
-          action = @state.record_action(kind: :live_summary_failed, subject_id: :daily_summary, status: :error)
+          action = record_action(kind: :live_summary_failed, subject_id: :daily_summary, status: :error)
           persist!
           command_result(:failure, feedback_code: :live_summary_failed, subject_id: run.error, action: action)
         end
@@ -140,12 +140,12 @@ module Companion
       def update_daily_focus(title)
         normalized = title.to_s.strip
         if normalized.empty?
-          action = @state.record_action(kind: :daily_focus_refused, subject_id: :daily_focus, status: :refused)
+          action = record_action(kind: :daily_focus_refused, subject_id: :daily_focus, status: :refused)
           return command_result(:failure, feedback_code: :blank_daily_focus, subject_id: :daily_focus, action: action)
         end
 
         @state.daily_focus_title = normalized
-        action = @state.record_action(kind: :daily_focus_set, subject_id: :daily_focus, status: :ready)
+        action = record_action(kind: :daily_focus_set, subject_id: :daily_focus, status: :ready)
         persist!
         command_result(:success, feedback_code: :daily_focus_set, subject_id: :daily_focus, action: action)
       end
@@ -256,11 +256,36 @@ module Companion
       end
 
       def record_contract_action(result)
-        @state.record_action(
+        record_action(
           kind: result.fetch(:action_kind),
           subject_id: result.fetch(:subject_id),
           status: result.fetch(:action_status)
         )
+      end
+
+      def record_action(kind:, subject_id:, status:)
+        action_history.append(
+          index: @state.next_action_index,
+          kind: kind,
+          subject_id: subject_id,
+          status: status
+        )
+      end
+
+      def action_history
+        ContractHistory.new(
+          contract_class: Contracts::CompanionAction,
+          entries: method(:action_entries),
+          append: method(:append_action_event)
+        )
+      end
+
+      def action_entries
+        @state.action_entries
+      end
+
+      def append_action_event(event)
+        @state.append_action_event(event)
       end
 
       def credential_status

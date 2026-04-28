@@ -94,7 +94,7 @@ module Companion
         end
         @daily_focus_title = state[:daily_focus_title]
         @live_summary = state[:live_summary]
-        @next_action_index = state.fetch(:next_action_index)
+        @next_action_index = state.fetch(:next_action_index, actions.map(&:index).max.to_i + 1)
       end
 
       def to_h
@@ -145,10 +145,23 @@ module Companion
       end
 
       def record_action(kind:, subject_id:, status:)
-        action = Action.new(index: next_action_index, kind: kind.to_sym, subject_id: subject_id, status: status.to_sym)
+        append_action_event(index: next_action_index, kind: kind, subject_id: subject_id, status: status)
+      end
+
+      def action_entries
+        actions.map(&:to_h)
+      end
+
+      def append_action_event(event)
+        action = Action.new(
+          index: event.fetch(:index),
+          kind: event.fetch(:kind).to_sym,
+          subject_id: event.fetch(:subject_id),
+          status: event.fetch(:status).to_sym
+        )
         actions << action
-        @next_action_index += 1
-        action
+        @next_action_index = [next_action_index, action.index + 1].max
+        action.to_h
       end
 
       def next_id_for(title, collection)
