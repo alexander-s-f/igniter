@@ -128,6 +128,7 @@ module Companion
       out.puts "companion_poc_tracker_persistence_manifest=#{tracker_persistence_manifest?}"
       out.puts "companion_poc_tracker_generated_api=#{tracker_generated_api?}"
       out.puts "companion_poc_tracker_projection_composes_history=#{tracker_projection_composes_history?(final)}"
+      out.puts "companion_poc_tracker_projection_contract=#{tracker_projection_contract?}"
       out.puts "companion_poc_tracker_log_history_manifest=#{tracker_log_history_manifest?}"
       out.puts "companion_poc_tracker_log_history_api=#{tracker_log_history_api?}"
       out.puts "companion_poc_tracker_log_first_class_history=#{tracker_log_first_class_history?(config)}"
@@ -250,6 +251,26 @@ module Companion
     def tracker_projection_composes_history?(snapshot)
       sleep = snapshot.trackers.find { |tracker| tracker.id == "sleep" }
       sleep&.log_entries&.length == 1 &&
+        sleep.log_entries.first.fetch(:value) == "7.5"
+    end
+
+    def tracker_projection_contract?
+      projection = Contracts::TrackerReadModelContract.evaluate(
+        trackers: [
+          Services::CompanionState::Tracker.new(id: "sleep", name: "Sleep", template: :sleep, unit: "hours"),
+          Services::CompanionState::Tracker.new(id: "training", name: "Training", template: :workout, unit: "minutes")
+        ],
+        tracker_logs: [
+          { tracker_id: "sleep", date: "2026-04-28", value: "7.5" },
+          { tracker_id: "training", date: "2026-04-28", value: "20" }
+        ],
+        date: "2026-04-28"
+      )
+      sleep = projection.fetch(:tracker_snapshots).find { |tracker| tracker.id == "sleep" }
+
+      projection.fetch(:logs_today) == 2 &&
+        projection.fetch(:sleep_hours_today).between?(7.49, 7.51) &&
+        projection.fetch(:training_minutes_today).between?(19.99, 20.01) &&
         sleep.log_entries.first.fetch(:value) == "7.5"
     end
 

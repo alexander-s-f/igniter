@@ -110,14 +110,14 @@ module Companion
         }
       end
 
-      def base_payload(live_ready:)
+      def base_payload(live_ready:, tracker_read_model:)
         {
           open_reminders: open_reminders_count,
-          tracker_logs_today: tracker_logs_today_count,
+          tracker_logs_today: tracker_read_model.fetch(:logs_today),
           next_reminder_title: next_reminder_title,
           daily_focus_title: daily_focus_title,
-          sleep_hours_today: tracker_value_today("sleep"),
-          training_minutes_today: tracker_value_today("training"),
+          sleep_hours_today: tracker_read_model.fetch(:sleep_hours_today),
+          training_minutes_today: tracker_read_model.fetch(:training_minutes_today),
           live_ready: live_ready
         }
       end
@@ -126,34 +126,8 @@ module Companion
         reminders.count { |reminder| reminder.status == :open }
       end
 
-      def tracker_logs_today_count
-        tracker_logs.count { |entry| entry.date == Date.today.iso8601 }
-      end
-
       def next_reminder_title
         reminders.find { |reminder| reminder.status == :open }&.title
-      end
-
-      def tracker_value_today(id)
-        tracker_logs.select { |entry| entry.tracker_id == id.to_s && entry.date == Date.today.iso8601 }.sum do |entry|
-          Float(entry.value)
-        rescue ArgumentError, TypeError
-          0
-        end
-      end
-
-      def tracker_snapshots
-        trackers.map do |tracker|
-          TrackerSnapshot.new(
-            id: tracker.id,
-            name: tracker.name,
-            template: tracker.template,
-            unit: tracker.unit,
-            log_entries: tracker_logs_for(tracker.id).map do |entry|
-              { date: entry.date, value: entry.value }
-            end.freeze
-          )
-        end.freeze
       end
 
       def tracker_log_entries
@@ -190,10 +164,6 @@ module Companion
       end
 
       private
-
-      def tracker_logs_for(id)
-        tracker_logs.select { |entry| entry.tracker_id == id.to_s }
-      end
 
       def symbolize(value)
         value.transform_keys(&:to_sym)

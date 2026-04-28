@@ -245,6 +245,8 @@ Companion currently proves the first app-local version:
 - `ContractHistory` turns that metadata into a generated history API
 - Companion persists tracker logs as a first-class top-level history and
   projects them back into tracker read models for UI compatibility
+- `TrackerReadModelContract` derives dashboard facts from tracker records plus
+  tracker-log history
 - `ReminderContract` computes create/complete success and refusal
 - `TrackerLogContract` computes append-log success and refusal
 - command contracts return result plus mutation intent
@@ -260,7 +262,7 @@ The important split is intentional:
 - append-only shape: `contract :TrackerLog do history... field... end`
 - history API: `append`, `all`, `where`, `count`
 - projection: UI read models can compose `Store[Tracker]` plus
-  `History[TrackerLog]`
+  `History[TrackerLog]` through a derived contract
 - behavior: graph command contracts compute validation, result, receipt, and
   mutation intent
 - boundary: Store/app adapter applies the mutation
@@ -279,6 +281,10 @@ The tracker slice now shows the intended composition: the tracker definition is
 record-like, while tracker observations are append-only. The dashboard can still
 render one tracker card with recent entries, but that card is a projection from
 two storage capabilities rather than a single procedural object.
+
+This makes projections a first-class design concern: record/history capabilities
+own durable data, while derived contracts compute read models and summary facts
+for product surfaces.
 
 ## Near-Term Plan
 

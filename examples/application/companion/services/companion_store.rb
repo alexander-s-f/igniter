@@ -49,7 +49,11 @@ module Companion
       end
 
       def snapshot(recent_limit: 6)
-        payload = @state.base_payload(live_ready: credential_status.fetch(:configured))
+        tracker_read_model = tracker_read_model_for(Date.today.iso8601)
+        payload = @state.base_payload(
+          live_ready: credential_status.fetch(:configured),
+          tracker_read_model: tracker_read_model
+        )
         summary = Contracts::DailySummaryContract.evaluate(
           open_reminders: payload.fetch(:open_reminders),
           tracker_logs_today: payload.fetch(:tracker_logs_today),
@@ -67,7 +71,7 @@ module Companion
 
         Snapshot.new(
           reminders: reminder_records.all,
-          trackers: @state.tracker_snapshots,
+          trackers: tracker_read_model.fetch(:tracker_snapshots),
           countdowns: @state.countdowns.map(&:dup).freeze,
           open_reminders: payload.fetch(:open_reminders),
           tracker_logs_today: payload.fetch(:tracker_logs_today),
@@ -218,6 +222,14 @@ module Companion
           contract_class: Contracts::Tracker,
           collection: @state.trackers,
           record_class: CompanionState::Tracker
+        )
+      end
+
+      def tracker_read_model_for(date)
+        Contracts::TrackerReadModelContract.evaluate(
+          trackers: tracker_records.all,
+          tracker_logs: tracker_logs.all,
+          date: date
         )
       end
 
