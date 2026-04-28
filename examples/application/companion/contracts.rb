@@ -8,7 +8,8 @@ module Companion
     def self.contracts(name, outputs:, &block)
       contract_class = Class.new(Igniter::Contract)
       contract_class.profile = Igniter::Contracts.build_profile(
-        Igniter::Extensions::Contracts::Language::PiecewisePack
+        Igniter::Extensions::Contracts::Language::PiecewisePack,
+        Igniter::Extensions::Contracts::Language::ScalePack
       )
       contract_class.define(&block)
       contract_class.define_singleton_method(:evaluate) do |**inputs|

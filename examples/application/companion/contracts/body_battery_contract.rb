@@ -26,8 +26,14 @@ module Companion
         default id: :overload, value: -12
       end
 
-      compute :score, depends_on: %i[sleep_hours training_score] do |sleep_hours:, training_score:|
-        sleep_score = [[sleep_hours / 8.0, 1.0].min * 40, 0].max
+      scale :sleep_score, from: :sleep_hours do
+        divide_by 8
+        clamp 0, 1
+        multiply_by 40
+        round
+      end
+
+      compute :score, depends_on: %i[sleep_score training_score] do |sleep_score:, training_score:|
         [[45 + sleep_score + training_score, 100].min, 0].max.round
       end
 

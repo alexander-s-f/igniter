@@ -65,7 +65,7 @@ Root should stay thin:
   semantics or kernel extension seams.
 - Put code in `igniter-extensions` if it is optional behavior, tooling, or
   domain vocabulary over the contracts kernel. Language-changing DSL packs such
-  as observable branching/scoring primitives also live here.
+  as observable branching/scaling/scoring primitives also live here.
 - Put code in `igniter-application` if it is about local runtime hosting,
   providers, services, boot, config, loading, or scheduling.
 - Put code in `igniter-cluster` if the network is part of the execution model.

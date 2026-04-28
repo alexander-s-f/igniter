@@ -1135,6 +1135,15 @@ module IgniterExamples
       ]
     ),
     example(
+      "contracts/scale",
+      "Language pack observable numeric scaling pipeline over regular compute nodes.",
+      expected_fragments: [
+        "contracts_scale_score=38",
+        "contracts_scale_steps=4",
+        "contracts_scale_last=round"
+      ]
+    ),
+    example(
       "contracts/basic_pricing",
       "Smallest end-to-end pricing flow over igniter-contracts.",
       expected_fragments: ["contracts_basic_gross_total=120.0", "contracts_basic_updated_gross_total=180.0"]
