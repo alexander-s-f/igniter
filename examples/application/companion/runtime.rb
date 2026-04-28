@@ -123,6 +123,7 @@ module Companion
       out.puts "companion_poc_daily_focus_persisted=#{persisted.daily_focus_title == final.daily_focus_title}"
       out.puts "companion_poc_reminder_contract_refusal=#{blank_reminder_headers.fetch("location").include?("blank_reminder")}"
       out.puts "companion_poc_tracker_log_contract_refusal=#{blank_tracker_headers.fetch("location").include?("blank_tracker_value")}"
+      out.puts "companion_poc_reminder_persistence_manifest=#{reminder_persistence_manifest?}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
       out.puts "companion_poc_daily_plan_surface=#{html.include?("data-daily-plan-block=")}"
@@ -189,6 +190,15 @@ module Companion
         catalog_path: catalog_path,
         install_root: install_root
       }
+    end
+
+    def reminder_persistence_manifest?
+      manifest = Contracts::Reminder.persistence_manifest
+      persist = manifest.fetch(:persist)
+      fields = manifest.fetch(:fields).map { |field| field.fetch(:name) }
+      persist.fetch(:key) == :id &&
+        persist.fetch(:adapter) == :sqlite &&
+        fields == %i[id title due status]
     end
 
     def post(app, path, values = {})

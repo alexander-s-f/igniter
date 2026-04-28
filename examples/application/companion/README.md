@@ -21,6 +21,10 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `runtime.rb` owns server and smoke wiring.
 - `app_dsl.rb` owns app-local routing and AI/provider configuration sugar.
 - `services/store_backends.rb` provides the store interface and SQLite backend.
+- `contracts/reminder_contract.rb` and `contracts/tracker_log_contract.rb`
+  experiment with persistence as graph-owned command/result/mutation semantics.
+- `contracts/reminder_record_contract.rb` sketches the target
+  `contract :Reminder do persist... field... end` metadata surface.
 - `services/hub_installer.rb` installs local hub capsules through transfer.
 - the dashboard exposes the local hub catalog and install action.
 - `igniter-ai` contains the live OpenAI Responses provider.

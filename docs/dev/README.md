@@ -12,6 +12,7 @@ are not part of the public documentation surface.
 - [Current Runtime Snapshot](./current-runtime-snapshot.md)
 - [Architecture](./architecture.md)
 - [Execution Model](./execution-model.md)
+- [Contract Persistence Target Plan](./contract-persistence-target-plan.md)
 - [Module System](./module-system.md)
 - [Package Map](./package-map.md)
 - [Data Ownership](./data-ownership.md)

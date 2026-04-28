@@ -46,6 +46,7 @@ compatibility contract.
 - [Cluster](./cluster.md)
 - [CLI](./cli.md)
 - [Store Adapters](./store-adapters.md)
+- [Contract Persistence Target Plan](../dev/contract-persistence-target-plan.md)
 
 ## Core Guide References
 

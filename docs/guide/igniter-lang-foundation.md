@@ -120,6 +120,7 @@ These remain future/research phases:
 - standalone grammar, parser, AST, and `.il` files
 - Rust backend and certified exports
 - store DSL or Lang metadata builder
+- contract persistence lowering to `Store[T]` / `History[T]`
 - OLAP, time-machine, and temporal-rule runtime behavior
 - physical unit algebra enforcement
 - invariant metadata integration
@@ -129,3 +130,4 @@ These remain future/research phases:
 
 - [Getting Started](./getting-started.md)
 - [Contract Class DSL](./contract-class-dsl.md)
+- [Contract Persistence Target Plan](../dev/contract-persistence-target-plan.md)

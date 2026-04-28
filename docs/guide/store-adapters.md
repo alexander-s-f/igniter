@@ -1,5 +1,13 @@
 # Store Adapters
 
+This guide describes execution snapshot stores: persistence for contract
+executions, pending nodes, and resume flows.
+
+Do not confuse this with the newer contract persistence target, where ordinary
+contracts may declare record, workflow, credential-local, or signal persistence
+as part of their own capability. That direction is tracked in
+[Contract Persistence Target Plan](../dev/contract-persistence-target-plan.md).
+
 Igniter ships with reference execution stores for:
 
 - memory

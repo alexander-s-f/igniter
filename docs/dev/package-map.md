@@ -40,6 +40,9 @@ Root should stay thin:
 
 - richer agent memory/context, handoff, human gates, contracts-first tool
   execution, and supervisor vocabulary
+- contract persistence capability may start as an `igniter-extensions` or
+  `igniter-application` experiment before any package split; see
+  [Contract Persistence Target Plan](./contract-persistence-target-plan.md)
 
 ## Current Supporting Packages
 
@@ -69,6 +72,10 @@ Root should stay thin:
   here.
 - Put code in `igniter-application` if it is about local runtime hosting,
   providers, services, boot, config, loading, or scheduling.
+- Put early contract-persistence experiments in `igniter-extensions` when they
+  add optional contract DSL/semantics, or in `igniter-application` when they
+  are app-host/back-end boundary behavior. Do not promote a separate package
+  until the target plan has repeated implementation evidence.
 - Put code in `igniter-cluster` if the network is part of the execution model.
 - Put provider clients, model envelopes, transcripts, usage, and replay seams in
   `igniter-ai`.
