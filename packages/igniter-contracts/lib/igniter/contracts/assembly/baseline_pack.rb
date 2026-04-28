@@ -49,7 +49,7 @@ module Igniter
               output_name = normalized_attributes.delete(:output)&.to_sym
               normalized_attributes[:callable] = lambda do |**values|
                 payload = Contractable.invoke(target, **values).to_h
-                output_name ? payload.fetch(:outputs).fetch(output_name) : payload
+                output_name && payload.fetch(:success) ? payload.fetch(:outputs).fetch(output_name) : payload
               end
             end
             normalized_attributes[:callable] = block if block

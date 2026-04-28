@@ -3,6 +3,22 @@
 require_relative "../../spec_helper"
 
 RSpec.describe Igniter::Embed::Contractable do
+  class EmbedSpecCoreContractableScorer
+    include Igniter::Contracts::Contractable
+
+    contractable :call do
+      role :migration_candidate
+      stage :shadowed
+      meta :domain, :wellness
+      input :sleep_hours
+      output :score
+    end
+
+    def call(sleep_hours:)
+      success(score: (sleep_hours * 10).round)
+    end
+  end
+
   def memory_store
     Class.new do
       attr_reader :observations
@@ -37,6 +53,16 @@ RSpec.describe Igniter::Embed::Contractable do
         status: :ok,
         outputs: result,
         metadata: { normalized: true }
+      }
+    end
+  end
+
+  def contractable_payload_normalizer
+    lambda do |payload|
+      {
+        status: payload.fetch(:status),
+        outputs: payload.fetch(:outputs),
+        metadata: payload.fetch(:metadata, {})
       }
     end
   end
@@ -189,6 +215,27 @@ RSpec.describe Igniter::Embed::Contractable do
     expect(observation).to include(role: :observed_service, stage: :profiled, mode: :observe)
     expect(observation.fetch(:candidate)).to be_nil
     expect(observation.fetch(:report)).to be_nil
+  end
+
+  it "adopts core contractable role, stage, and metadata defaults" do
+    store = memory_store
+    runner = Igniter::Embed.contractable(:body_battery) do |config|
+      config.primary EmbedSpecCoreContractableScorer
+      config.async false
+      config.store store
+      config.redact_inputs ->(**inputs) { inputs }
+      config.normalize_primary contractable_payload_normalizer
+    end
+
+    result = runner.call(sleep_hours: 8)
+
+    expect(runner.config.role).to eq(:migration_candidate)
+    expect(runner.config.stage).to eq(:shadowed)
+    expect(runner.config.metadata).to eq(domain: :wellness)
+    expect(result).to include(status: :success, outputs: { score: 80 })
+    observation = store.observations.fetch(0)
+    expect(observation).to include(role: :migration_candidate, stage: :shadowed, mode: :observe)
+    expect(observation.fetch(:primary)).to include(outputs: { score: 80 }, metadata: include(domain: :wellness))
   end
 
   it "supports shape acceptance over candidate outputs" do

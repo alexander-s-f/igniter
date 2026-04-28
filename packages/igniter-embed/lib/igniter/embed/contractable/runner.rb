@@ -207,6 +207,8 @@ module Igniter
         end
 
         def invoke(callable, args, kwargs)
+          return Igniter::Contracts::Contractable.invoke(callable, **kwargs).to_h if Igniter::Contracts::Contractable.contractable?(callable)
+
           callable.call(*args, **kwargs)
         end
 

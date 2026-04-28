@@ -119,6 +119,11 @@ work does not block the primary response. It is not a durable production job
 queue; provide an app adapter for ActiveJob, Sidekiq, or another backend when
 durability matters.
 
+When a primary or candidate is a core `Igniter::Contracts::Contractable`
+service, embed invokes it through the core protocol and adopts its declared
+`role`, `stage`, and metadata as wrapper defaults unless the wrapper explicitly
+overrides them.
+
 ```ruby
 QuoteShadow = Igniter::Embed.contractable(:quote) do |config|
   config.role :migration_candidate

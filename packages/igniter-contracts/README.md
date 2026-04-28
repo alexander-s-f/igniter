@@ -107,6 +107,9 @@ class BodyBatteryScorer
   include Igniter::Contracts::Contractable
 
   contractable :call do
+    role :migration_candidate
+    stage :shadowed
+    meta :domain, :wellness
     input :sleep_hours
     input :training_minutes
     output :score
@@ -128,6 +131,15 @@ compute :body_battery,
 `using:` returns a normalized payload with `outputs`, `observations`, `error`,
 and `success`. The service owns its internal implementation; Igniter owns the
 graph boundary and result protocol.
+
+Declared `input` and `output` names are validated at the protocol boundary.
+Missing inputs or missing declared outputs return a failure payload instead of
+raising through the caller. Extra outputs are allowed for now, which keeps
+contractable services useful during migration and discovery.
+
+`role`, `stage`, and `meta` travel in result metadata. Host layers such as
+`igniter-embed` can use those fields as defaults for observation and migration
+wrappers.
 
 Use `output:` when the graph should expose one named service output as the
 compute value:

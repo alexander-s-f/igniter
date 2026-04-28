@@ -23,6 +23,7 @@ module Igniter
           @name = name.to_sym
           @role = nil
           @stage = :captured
+          @stage_explicit = false
           @async_enabled = true
           @sample_value = 1.0
           @async_adapter = nil
@@ -39,12 +40,14 @@ module Igniter
           return primary_callable unless callable
 
           self.primary_callable = callable
+          apply_core_contractable_defaults(callable)
         end
 
         def candidate(callable = nil)
           return candidate_callable unless callable
 
           self.candidate_callable = callable
+          apply_core_contractable_defaults(callable)
         end
 
         def normalize_primary(callable = nil, &block)
@@ -69,6 +72,7 @@ module Igniter
           return @stage unless value
 
           @stage = value.to_sym
+          @stage_explicit = true
         end
 
         def async(value = nil)
@@ -201,6 +205,26 @@ module Igniter
 
         def default_async_adapter
           async ? Adapters::ThreadAsync.new : Adapters::InlineAsync.new
+        end
+
+        def apply_core_contractable_defaults(callable)
+          return unless Igniter::Contracts::Contractable.contractable?(callable)
+
+          definition = contractable_definition(callable)
+          @role ||= definition.role
+          @stage = definition.stage if definition.stage && !@stage_explicit
+          merge_core_contractable_metadata(definition.metadata)
+        end
+
+        def contractable_definition(callable)
+          klass = callable.is_a?(Class) ? callable : callable.class
+          klass.contractable_definition
+        end
+
+        def merge_core_contractable_metadata(metadata)
+          return if metadata.empty? || !@metadata_value.is_a?(Hash)
+
+          @metadata_value = metadata.merge(@metadata_value)
         end
       end
     end

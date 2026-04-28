@@ -58,12 +58,14 @@ module Igniter
         end
       end
 
-      Definition = Struct.new(:method_name, :inputs, :outputs, :metadata, keyword_init: true) do
-        def initialize(method_name:, inputs: [], outputs: [], metadata: {})
+      Definition = Struct.new(:method_name, :inputs, :outputs, :role, :stage, :metadata, keyword_init: true) do
+        def initialize(method_name:, inputs: [], outputs: [], role: nil, stage: nil, metadata: {})
           super(
             method_name: method_name.to_sym,
             inputs: inputs.map(&:to_sym).freeze,
             outputs: outputs.map(&:to_sym).freeze,
+            role: role&.to_sym,
+            stage: stage&.to_sym,
             metadata: metadata.dup.freeze
           )
           freeze
@@ -74,19 +76,23 @@ module Igniter
             method_name: method_name,
             inputs: inputs,
             outputs: outputs,
+            role: role,
+            stage: stage,
             metadata: metadata.dup
-          }
+          }.compact
         end
       end
 
       class DefinitionBuilder
-        attr_reader :method_name, :inputs, :outputs, :metadata
+        attr_reader :method_name, :inputs, :outputs, :metadata, :role_value, :stage_value
 
         def initialize(method_name)
           @method_name = method_name.to_sym
           @inputs = []
           @outputs = []
           @metadata = {}
+          @role_value = nil
+          @stage_value = nil
         end
 
         def input(name, **)
@@ -97,12 +103,27 @@ module Igniter
           outputs << name.to_sym
         end
 
+        def role(value)
+          @role_value = value.to_sym
+        end
+
+        def stage(value)
+          @stage_value = value.to_sym
+        end
+
         def meta(key, value)
           metadata[key.to_sym] = value
         end
 
         def build
-          Definition.new(method_name: method_name, inputs: inputs, outputs: outputs, metadata: metadata)
+          Definition.new(
+            method_name: method_name,
+            inputs: inputs,
+            outputs: outputs,
+            role: role_value,
+            stage: stage_value,
+            metadata: metadata
+          )
         end
       end
 
@@ -169,15 +190,21 @@ module Igniter
         def invoke(target, **inputs)
           instance = target.is_a?(Class) ? target.new : target
           definition = instance.class.contractable_definition
+          input_error = validate_inputs(definition, inputs)
+          return input_error if input_error
+
           context = ExecutionContext.new
           instance.instance_variable_set(:@__igniter_contractable_context, context)
           raw = instance.public_send(definition.method_name, **inputs)
-          normalize_result(raw, observations: context.observations)
+          result = normalize_result(raw, observations: context.observations)
+          result = with_definition_metadata(result, definition)
+          validate_outputs(definition, result)
         rescue StandardError => e
           Result.new(
             status: :failure,
             outputs: {},
             observations: context&.observations || [],
+            metadata: definition ? definition_metadata(definition) : {},
             error: { code: :contractable_error, message: e.message, class: e.class.name }
           )
         ensure
@@ -190,6 +217,61 @@ module Igniter
         end
 
         private
+
+        def validate_inputs(definition, inputs)
+          missing_inputs = definition.inputs - inputs.keys.map(&:to_sym)
+          return if missing_inputs.empty?
+
+          Result.new(
+            status: :failure,
+            metadata: definition_metadata(definition),
+            error: {
+              code: :contractable_missing_inputs,
+              message: "Missing contractable inputs: #{missing_inputs.join(", ")}",
+              inputs: missing_inputs
+            }
+          )
+        end
+
+        def validate_outputs(definition, result)
+          return result unless result.success?
+          return result if definition.outputs.empty?
+
+          missing_outputs = definition.outputs - result.outputs.keys
+          return result if missing_outputs.empty?
+
+          Result.new(
+            status: :failure,
+            outputs: result.outputs,
+            observations: result.observations,
+            metadata: result.metadata.merge(definition_metadata(definition)),
+            error: {
+              code: :contractable_missing_outputs,
+              message: "Missing contractable outputs: #{missing_outputs.join(", ")}",
+              outputs: missing_outputs
+            }
+          )
+        end
+
+        def with_definition_metadata(result, definition)
+          metadata = definition_metadata(definition)
+          return result if metadata.empty?
+
+          Result.new(
+            status: result.status,
+            outputs: result.outputs,
+            observations: result.observations,
+            error: result.error,
+            metadata: result.metadata.merge(metadata)
+          )
+        end
+
+        def definition_metadata(definition)
+          metadata = definition.metadata.dup
+          metadata[:role] = definition.role if definition.role
+          metadata[:stage] = definition.stage if definition.stage
+          metadata
+        end
 
         def normalize_result(value, observations:)
           return value if value.is_a?(Result)
