@@ -82,6 +82,8 @@ module Companion
       setup_handoff_json_status, _setup_handoff_json_headers, setup_handoff_json_body = app.call(rack_env("GET", "/setup/handoff.json"))
       setup_handoff_acceptance_status, _setup_handoff_acceptance_headers, setup_handoff_acceptance_body = app.call(rack_env("GET", "/setup/handoff/acceptance"))
       setup_handoff_acceptance_json_status, _setup_handoff_acceptance_json_headers, setup_handoff_acceptance_json_body = app.call(rack_env("GET", "/setup/handoff/acceptance.json"))
+      setup_handoff_lifecycle_status, _setup_handoff_lifecycle_headers, setup_handoff_lifecycle_body = app.call(rack_env("GET", "/setup/handoff/lifecycle"))
+      setup_handoff_lifecycle_json_status, _setup_handoff_lifecycle_json_headers, setup_handoff_lifecycle_json_body = app.call(rack_env("GET", "/setup/handoff/lifecycle.json"))
       setup_handoff_approval_acceptance_status, _setup_handoff_approval_acceptance_headers, setup_handoff_approval_acceptance_body = app.call(rack_env("GET", "/setup/handoff/approval-acceptance"))
       setup_handoff_approval_acceptance_json_status, _setup_handoff_approval_acceptance_json_headers, setup_handoff_approval_acceptance_json_body = app.call(rack_env("GET", "/setup/handoff/approval-acceptance.json"))
       setup_health_status, _setup_health_headers, setup_health_body = app.call(rack_env("GET", "/setup/health"))
@@ -146,6 +148,8 @@ module Companion
       setup_handoff_json = setup_handoff_json_body.join
       setup_handoff_acceptance = setup_handoff_acceptance_body.join
       setup_handoff_acceptance_json = setup_handoff_acceptance_json_body.join
+      setup_handoff_lifecycle = setup_handoff_lifecycle_body.join
+      setup_handoff_lifecycle_json = setup_handoff_lifecycle_json_body.join
       setup_handoff_approval_acceptance = setup_handoff_approval_acceptance_body.join
       setup_handoff_approval_acceptance_json = setup_handoff_approval_acceptance_json_body.join
       setup_health = setup_health_body.join
@@ -230,6 +234,8 @@ module Companion
       out.puts "companion_poc_setup_handoff_json_status=#{setup_handoff_json_status}"
       out.puts "companion_poc_setup_handoff_acceptance_status=#{setup_handoff_acceptance_status}"
       out.puts "companion_poc_setup_handoff_acceptance_json_status=#{setup_handoff_acceptance_json_status}"
+      out.puts "companion_poc_setup_handoff_lifecycle_status=#{setup_handoff_lifecycle_status}"
+      out.puts "companion_poc_setup_handoff_lifecycle_json_status=#{setup_handoff_lifecycle_json_status}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_status=#{setup_handoff_approval_acceptance_status}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_json_status=#{setup_handoff_approval_acceptance_json_status}"
       out.puts "companion_poc_setup_health_status=#{setup_health_status}"
@@ -290,6 +296,8 @@ module Companion
       out.puts "companion_poc_setup_handoff_json_endpoint=#{setup_handoff_json_endpoint?(setup_handoff_json)}"
       out.puts "companion_poc_setup_handoff_acceptance_endpoint=#{setup_handoff_acceptance_endpoint?(setup_handoff_acceptance)}"
       out.puts "companion_poc_setup_handoff_acceptance_json_endpoint=#{setup_handoff_acceptance_json_endpoint?(setup_handoff_acceptance_json)}"
+      out.puts "companion_poc_setup_handoff_lifecycle_endpoint=#{setup_handoff_lifecycle_endpoint?(setup_handoff_lifecycle)}"
+      out.puts "companion_poc_setup_handoff_lifecycle_json_endpoint=#{setup_handoff_lifecycle_json_endpoint?(setup_handoff_lifecycle_json)}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_endpoint=#{setup_handoff_approval_acceptance_endpoint?(setup_handoff_approval_acceptance)}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_json_endpoint=#{setup_handoff_approval_acceptance_json_endpoint?(setup_handoff_approval_acceptance_json)}"
       out.puts "companion_poc_setup_health_summary=#{setup_health_summary?(setup)}"
@@ -389,6 +397,7 @@ module Companion
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
       out.puts "companion_poc_setup_handoff_acceptance_contract=#{setup_handoff_acceptance_contract?}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_contract=#{setup_handoff_approval_acceptance_contract?}"
+      out.puts "companion_poc_setup_handoff_lifecycle_contract=#{setup_handoff_lifecycle_contract?}"
       out.puts "companion_poc_setup_health_contract=#{setup_health_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
       out.puts "companion_poc_user_defined_article_contract=#{user_defined_article_contract?}"
@@ -1564,6 +1573,7 @@ module Companion
         handoff.fetch(:descriptor).fetch(:grants_capabilities) == false &&
         handoff.fetch(:descriptor).fetch(:purpose) == :context_rotation &&
         handoff.fetch(:reading_order).include?("/setup/health.json") &&
+        handoff.fetch(:reading_order).include?("/setup/handoff/lifecycle.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/acceptance.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/approval-acceptance.json") &&
         handoff.fetch(:document_rotation).fetch(:public).include?("docs/research/companion-current-status-summary.md") &&
@@ -1637,6 +1647,34 @@ module Companion
         satisfied.fetch(:checks).all? { |check| check.fetch(:present) } &&
         satisfied.fetch(:descriptor).fetch(:gates_runtime) == false &&
         satisfied.fetch(:descriptor).fetch(:grants_capabilities) == false
+    end
+
+    def setup_handoff_lifecycle_contract?
+      db_path = File.join(Dir.mktmpdir("igniter-companion-handoff-lifecycle"), "companion.sqlite3")
+      config = Companion.default_configuration(store_path: db_path)
+      app = Companion.build(config: config)
+      store = app.service(:companion)
+      pending = store.setup_handoff_lifecycle
+      attempt_status, _attempt_headers = post(app, "/setup/handoff/acceptance/record")
+      after_attempt = store.setup_handoff_lifecycle
+      approval_status, _approval_headers = post(app, "/setup/handoff/approval-acceptance/record")
+      complete = store.setup_handoff_lifecycle
+
+      pending.fetch(:status) == :pending &&
+        pending.fetch(:descriptor).fetch(:kind) == :setup_handoff_lifecycle &&
+        pending.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        pending.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        pending.fetch(:current_stage) == :attempt_receipt &&
+        pending.fetch(:next_action) == :record_blocked_attempt &&
+        attempt_status == 303 &&
+        after_attempt.fetch(:status) == :pending &&
+        after_attempt.fetch(:current_stage) == :approval_receipt &&
+        after_attempt.fetch(:next_action) == :record_approval_receipt &&
+        approval_status == 303 &&
+        complete.fetch(:status) == :complete &&
+        complete.fetch(:current_stage) == :complete &&
+        complete.fetch(:next_action) == :review_materializer_status &&
+        complete.fetch(:stages).all? { |stage| stage.fetch(:complete) }
     end
 
     def relation_health_dashboard?(html)
@@ -2171,6 +2209,7 @@ module Companion
         setup_handoff.include?("kind=>:setup_handoff") &&
         setup_handoff.include?("gates_runtime=>false") &&
         setup_handoff.include?("/setup/health.json") &&
+        setup_handoff.include?("/setup/handoff/lifecycle.json") &&
         setup_handoff.include?("/setup/handoff/acceptance.json") &&
         setup_handoff.include?("/setup/handoff/approval-acceptance.json") &&
         setup_handoff.include?("companion-current-status-summary.md") &&
@@ -2197,6 +2236,7 @@ module Companion
         payload.fetch("descriptor").fetch("grants_capabilities") == false &&
         payload.fetch("descriptor").fetch("purpose") == "context_rotation" &&
         payload.fetch("reading_order").include?("/setup/health.json") &&
+        payload.fetch("reading_order").include?("/setup/handoff/lifecycle.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/acceptance.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/approval-acceptance.json") &&
         payload.fetch("document_rotation").fetch("public").include?("docs/research/companion-current-status-summary.md") &&
@@ -2240,6 +2280,28 @@ module Companion
         payload.fetch("missing_terms").include?("explicit_attempt_recorded") &&
         payload.fetch("missing_terms").include?("expected_phase") &&
         payload.fetch("checks").any? { |check| check.fetch("term") == "materializer_execution_blocked" && check.fetch("present") }
+    end
+
+    def setup_handoff_lifecycle_endpoint?(setup_handoff_lifecycle)
+      setup_handoff_lifecycle.include?("status=>:pending") &&
+        setup_handoff_lifecycle.include?("kind=>:setup_handoff_lifecycle") &&
+        setup_handoff_lifecycle.include?("attempt_receipt") &&
+        setup_handoff_lifecycle.include?("approval_receipt") &&
+        setup_handoff_lifecycle.include?("record_blocked_attempt")
+    end
+
+    def setup_handoff_lifecycle_json_endpoint?(setup_handoff_lifecycle_json)
+      payload = JSON.parse(setup_handoff_lifecycle_json)
+
+      payload.fetch("status") == "pending" &&
+        payload.fetch("descriptor").fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "setup_handoff_lifecycle" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("current_stage") == "attempt_receipt" &&
+        payload.fetch("next_action") == "record_blocked_attempt" &&
+        payload.fetch("stages").any? { |stage| stage.fetch("name") == "approval_receipt" && stage.fetch("mutation") == "POST /setup/handoff/approval-acceptance/record" }
     end
 
     def setup_handoff_approval_acceptance_endpoint?(setup_handoff_approval_acceptance)

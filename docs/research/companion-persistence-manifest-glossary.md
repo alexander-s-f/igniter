@@ -148,6 +148,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   action.
 - Reading order includes both handoff acceptance packets, so lifecycle progress
   can be checked without mutating setup state.
+- Reading order also includes `/setup/handoff/lifecycle.json` as the compact
+  stage map.
 - Carries `document_rotation` with the compact public docs and private track to
   read before older thread history.
 - Carries `architecture_constraints` for app-local scope, no public API promise,
@@ -158,6 +160,16 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Carries `acceptance_criteria` for the recommended next scope, including proof
   markers and non-goals.
 - It is a handoff/read model, not an execution or approval surface.
+
+`setup_handoff_lifecycle`
+
+- Read-only stage map exposed at `/setup/handoff/lifecycle.json`.
+- Composes `setup_handoff`, `setup_handoff_acceptance`,
+  `setup_handoff_approval_acceptance`, and `materializer_status`.
+- Starts as `status: :pending`, `current_stage: :attempt_receipt`.
+- Moves to `current_stage: :approval_receipt` after explicit attempt receipt.
+- Becomes `status: :complete` only after explicit approval receipt while still
+  keeping `gates_runtime: false` and `grants_capabilities: false`.
 
 `setup_handoff_acceptance`
 

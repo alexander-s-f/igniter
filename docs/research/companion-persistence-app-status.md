@@ -62,6 +62,8 @@ Current manifest vocabulary:
   before stale history, points to both handoff acceptance packets, preserves the
   current architecture constraints, and carries small reversible next-scope
   candidates with acceptance criteria and a follow-up approval receipt check
+- `/setup/handoff/lifecycle(.json)` composes handoff plus both acceptance
+  packets into a read-only stage map with current stage and next action
 - `/setup/handoff/acceptance(.json)` reports whether the recommended handoff
   scope is pending or satisfied without executing it
 - `POST /setup/handoff/acceptance/record` explicitly applies the same
@@ -190,6 +192,8 @@ Current user-defined-type pressure test:
 - `SetupHandoffApprovalAcceptanceContract`: report-only follow-up acceptance
   view for approval receipts; explicit approval POST can satisfy it only while
   approval application remains absent
+- `SetupHandoffLifecycleContract`: read-only stage map over handoff readiness,
+  attempt receipt acceptance, and approval receipt acceptance
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities

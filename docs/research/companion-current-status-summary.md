@@ -39,6 +39,7 @@ materializer_status.descriptor -> review-only lifecycle + no capability grants
 materializer_status_descriptor_health -> report-only no-grant/no-execution guard
 setup_health.descriptor -> report-only summary over readiness + guardrails
 setup_handoff.descriptor -> compact context rotation packet
+setup_handoff_lifecycle -> read-only lifecycle map over handoff acceptance
 app boundary -> explicit mutation application
 projection -> graph-owned read model
 ```
@@ -142,6 +143,8 @@ Best next move:
 - use `/setup/health.json` as the compact current-state packet before deeper
   changes
 - use `/setup/handoff.json` as the first read after context rotation
+- use `/setup/handoff/lifecycle.json` as the compact lifecycle map before
+  reading individual acceptance packets
 - follow its `reading_order` through both handoff acceptance packets before
   deciding that the materializer lifecycle advanced
 - follow its `document_rotation` block before reading long thread history

@@ -29,6 +29,7 @@ module Companion
       compute :reading_order do
         [
           "/setup/health.json",
+          "/setup/handoff/lifecycle.json",
           "/setup/handoff/acceptance.json",
           "/setup/handoff/approval-acceptance.json",
           "/setup/manifest/glossary-health.json",

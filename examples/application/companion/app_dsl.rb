@@ -73,7 +73,8 @@ module Companion
           setup_health: service(:companion).setup_health,
           setup_handoff: service(:companion).setup_handoff,
           setup_handoff_acceptance: service(:companion).setup_handoff_acceptance,
-          setup_handoff_approval_acceptance: service(:companion).setup_handoff_approval_acceptance
+          setup_handoff_approval_acceptance: service(:companion).setup_handoff_approval_acceptance,
+          setup_handoff_lifecycle: service(:companion).setup_handoff_lifecycle
         }.inspect)
       end
 
@@ -96,6 +97,14 @@ module Companion
       post "/setup/handoff/acceptance/record" do
         result = service(:companion).record_materializer_attempt
         redirect "/setup/handoff/acceptance?#{URI.encode_www_form((result.success? ? :notice : :error) => result.feedback_code, subject: result.subject_id)}"
+      end
+
+      get "/setup/handoff/lifecycle" do
+        text service(:companion).setup_handoff_lifecycle.inspect
+      end
+
+      get "/setup/handoff/lifecycle.json" do
+        text JSON.pretty_generate(service(:companion).setup_handoff_lifecycle)
       end
 
       get "/setup/handoff/approval-acceptance" do

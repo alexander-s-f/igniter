@@ -27,7 +27,7 @@ module Companion
         [
           Companion::Contracts.check(:recommended_scope, acceptance.fetch(:recommended) == :record_blocked_materializer_attempt),
           Companion::Contracts.check(:explicit_attempt_recorded, materializer_attempts.any?),
-          Companion::Contracts.check(:expected_phase, materializer_status.fetch(:phase) == :awaiting_explicit_approval_record),
+          Companion::Contracts.check(:expected_phase, %i[awaiting_explicit_approval_record approval_receipt_recorded].include?(materializer_status.fetch(:phase))),
           Companion::Contracts.check(:setup_reads_side_effect_free, acceptance.fetch(:checks).any? { |check| check.fetch(:term) == :setup_reads_stay_side_effect_free }),
           Companion::Contracts.check(:materializer_execution_blocked, descriptor.fetch(:execution_allowed) == false),
           Companion::Contracts.check(:capability_grants_blocked, descriptor.fetch(:grants_capabilities) == false)
