@@ -1549,6 +1549,11 @@ module Companion
         handoff.fetch(:document_rotation).fetch(:public).include?("docs/research/companion-current-status-summary.md") &&
         handoff.fetch(:document_rotation).fetch(:private).include?("playgrounds/docs/dev/tracks/contract-persistence-capability-track.md") &&
         handoff.fetch(:document_rotation).fetch(:policy) == :compact_current_state_first &&
+        handoff.fetch(:architecture_constraints).fetch(:scope) == :app_local_companion_proof &&
+        handoff.fetch(:architecture_constraints).fetch(:public_api_promise) == false &&
+        handoff.fetch(:architecture_constraints).fetch(:materializer_execution) == false &&
+        handoff.fetch(:architecture_constraints).fetch(:relation_enforcement) == :report_only &&
+        handoff.fetch(:architecture_constraints).fetch(:lowerings).fetch(:persist) == :store_t &&
         handoff.fetch(:current_state).fetch(:capabilities) == 17 &&
         handoff.fetch(:current_state).fetch(:materializer_grants_capabilities) == false &&
         handoff.fetch(:next_action) == :record_blocked_attempt
@@ -2088,6 +2093,9 @@ module Companion
         setup_handoff.include?("/setup/health.json") &&
         setup_handoff.include?("companion-current-status-summary.md") &&
         setup_handoff.include?("contract-persistence-capability-track.md") &&
+        setup_handoff.include?("app_local_companion_proof") &&
+        setup_handoff.include?("public_api_promise=>false") &&
+        setup_handoff.include?("relation_enforcement=>:report_only") &&
         setup_handoff.include?("record_blocked_attempt")
     end
 
@@ -2105,6 +2113,11 @@ module Companion
         payload.fetch("document_rotation").fetch("public").include?("docs/research/companion-current-status-summary.md") &&
         payload.fetch("document_rotation").fetch("private").include?("playgrounds/docs/dev/tracks/contract-persistence-capability-track.md") &&
         payload.fetch("document_rotation").fetch("policy") == "compact_current_state_first" &&
+        payload.fetch("architecture_constraints").fetch("scope") == "app_local_companion_proof" &&
+        payload.fetch("architecture_constraints").fetch("public_api_promise") == false &&
+        payload.fetch("architecture_constraints").fetch("materializer_execution") == false &&
+        payload.fetch("architecture_constraints").fetch("relation_enforcement") == "report_only" &&
+        payload.fetch("architecture_constraints").fetch("lowerings").fetch("persist") == "store_t" &&
         payload.fetch("current_state").fetch("capabilities") == 17 &&
         payload.fetch("current_state").fetch("materializer_grants_capabilities") == false &&
         payload.fetch("next_action") == "record_blocked_attempt"

@@ -4,7 +4,7 @@ require_relative "../contracts"
 
 module Companion
   module Contracts
-    contracts :SetupHandoffContract, outputs: %i[status descriptor reading_order document_rotation current_state next_action summary] do
+    contracts :SetupHandoffContract, outputs: %i[status descriptor reading_order document_rotation architecture_constraints current_state next_action summary] do
       input :setup_health
       input :manifest_summary
       input :materializer_status
@@ -50,6 +50,23 @@ module Companion
         }
       end
 
+      compute :architecture_constraints do
+        {
+          scope: :app_local_companion_proof,
+          public_api_promise: false,
+          dynamic_runtime_contracts: false,
+          materializer_execution: false,
+          relation_enforcement: :report_only,
+          approval_grants_capabilities: false,
+          lowerings: {
+            persist: :store_t,
+            history: :history_t,
+            relation: :relation_store_history
+          },
+          mutation_boundary: :app_store_boundary
+        }
+      end
+
       compute :current_state, depends_on: %i[setup_health manifest_summary materializer_status] do |setup_health:, manifest_summary:, materializer_status:|
         {
           setup_status: setup_health.fetch(:status),
@@ -80,6 +97,7 @@ module Companion
       output :descriptor
       output :reading_order
       output :document_rotation
+      output :architecture_constraints
       output :current_state
       output :next_action
       output :summary

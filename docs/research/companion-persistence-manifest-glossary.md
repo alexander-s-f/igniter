@@ -148,6 +148,9 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   action.
 - Carries `document_rotation` with the compact public docs and private track to
   read before older thread history.
+- Carries `architecture_constraints` for app-local scope, no public API promise,
+  no materializer execution, report-only relations, no approval grants, and
+  `persist` / `history` lowerings.
 - It is a handoff/read model, not an execution or approval surface.
 
 ## Current Lowerings
