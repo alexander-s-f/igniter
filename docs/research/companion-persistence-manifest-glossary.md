@@ -23,6 +23,9 @@ Read `/setup/manifest` top down:
 
 Then read `/setup/materializer.json` for the compact review lifecycle status.
 
+Use `/setup/manifest/glossary-health.json` to check whether the manifest still
+contains the required glossary terms.
+
 ## Terms
 
 `schema_version`
@@ -93,6 +96,15 @@ Then read `/setup/materializer.json` for the compact review lifecycle status.
 - Shows phase, next action, attempt audit, approval audit, and command intents.
 - Must not grant write/git/test/restart capabilities.
 
+`manifest_glossary_health`
+
+- Report-only drift check exposed at `/setup/manifest/glossary-health.json`.
+- Current stable state checks nine terms: schema version, record storage,
+  record aliases, history storage, history aliases, operation descriptors,
+  relation descriptors, projection reads, and command app boundaries.
+- `status: :stable` means the current manifest matches this glossary.
+- `status: :drift` means a term disappeared or stopped matching the glossary.
+
 ## Current Lowerings
 
 ```text
@@ -115,7 +127,7 @@ projection reads -> graph-owned read model
 Use this glossary to keep future slices small:
 
 - add missing manifest terms here before expanding implementation
+- update `manifest_glossary_health` when this glossary intentionally changes
 - keep compatibility aliases until lowerings stabilize
 - prefer report-only diagnostics before runtime enforcement
 - keep setup/read endpoints side-effect-free
-

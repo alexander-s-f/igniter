@@ -75,6 +75,14 @@ module Companion
         text service(:companion).persistence_manifest.inspect
       end
 
+      get "/setup/manifest/glossary-health" do
+        text service(:companion).manifest_glossary_health.inspect
+      end
+
+      get "/setup/manifest/glossary-health.json" do
+        text JSON.pretty_generate(service(:companion).manifest_glossary_health)
+      end
+
       get "/setup/relation-health" do
         text service(:companion).snapshot.relation_health.inspect
       end

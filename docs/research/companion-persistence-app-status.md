@@ -48,6 +48,8 @@ Current manifest vocabulary:
   and `boundary: :app` next to compatibility `operations` lists
 - relation descriptors expose source/target storage shapes, lowering metadata,
   and `enforcement.mode: :report_only`
+- `/setup/manifest/glossary-health` reports whether required glossary terms are
+  still present and stable
 
 See [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md)
 for the compact agent reading guide.

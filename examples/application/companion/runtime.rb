@@ -79,6 +79,8 @@ module Companion
       events_status, _events_headers, events_body = app.call(rack_env("GET", "/events"))
       setup_status, _setup_headers, setup_body = app.call(rack_env("GET", "/setup"))
       manifest_status, _manifest_headers, manifest_body = app.call(rack_env("GET", "/setup/manifest"))
+      manifest_glossary_status, _manifest_glossary_headers, manifest_glossary_body = app.call(rack_env("GET", "/setup/manifest/glossary-health"))
+      manifest_glossary_json_status, _manifest_glossary_json_headers, manifest_glossary_json_body = app.call(rack_env("GET", "/setup/manifest/glossary-health.json"))
       relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
       relation_health_json_status, _relation_health_json_headers, relation_health_json_body = app.call(rack_env("GET", "/setup/relation-health.json"))
       materialization_status, _materialization_headers, materialization_body = app.call(rack_env("GET", "/setup/materialization-plan"))
@@ -131,6 +133,8 @@ module Companion
       events = events_body.join
       setup = setup_body.join
       manifest = manifest_body.join
+      manifest_glossary = manifest_glossary_body.join
+      manifest_glossary_json = manifest_glossary_json_body.join
       relation_health = relation_health_body.join
       relation_health_json = relation_health_json_body.join
       materialization = materialization_body.join
@@ -203,6 +207,8 @@ module Companion
       out.puts "companion_poc_events_status=#{events_status}"
       out.puts "companion_poc_setup_status=#{setup_status}"
       out.puts "companion_poc_setup_manifest_status=#{manifest_status}"
+      out.puts "companion_poc_setup_manifest_glossary_status=#{manifest_glossary_status}"
+      out.puts "companion_poc_setup_manifest_glossary_json_status=#{manifest_glossary_json_status}"
       out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
       out.puts "companion_poc_setup_relation_health_json_status=#{relation_health_json_status}"
       out.puts "companion_poc_setup_materialization_status=#{materialization_status}"
@@ -250,6 +256,8 @@ module Companion
       out.puts "companion_poc_setup_redacted=#{setup.include?("openai_api_key") && !setup.include?("sk-")}"
       out.puts "companion_poc_setup_persistence_readiness=#{setup.include?("persistence") && setup.include?("ready")}"
       out.puts "companion_poc_setup_relation_health=#{setup.include?("relation_health") && setup.include?("clear")}"
+      out.puts "companion_poc_setup_manifest_glossary_endpoint=#{setup_manifest_glossary_endpoint?(manifest_glossary)}"
+      out.puts "companion_poc_setup_manifest_glossary_json_endpoint=#{setup_manifest_glossary_json_endpoint?(manifest_glossary_json)}"
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
       out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
       out.puts "companion_poc_setup_materialization_endpoint=#{setup_materialization_endpoint?(materialization)}"
@@ -334,6 +342,7 @@ module Companion
       out.puts "companion_poc_relation_health_repair_suggestions=#{relation_health_repair_suggestions?}"
       out.puts "companion_poc_persistence_operation_model=#{persistence_operation_model?}"
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
+      out.puts "companion_poc_persistence_manifest_glossary_contract=#{persistence_manifest_glossary_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
       out.puts "companion_poc_user_defined_article_contract=#{user_defined_article_contract?}"
       out.puts "companion_poc_wizard_type_spec_store=#{wizard_type_spec_store?}"
@@ -1362,6 +1371,25 @@ module Companion
         manifest.fetch(:commands).fetch(:materializer_approval_commands).fetch(:operations).include?(:history_append)
     end
 
+    def persistence_manifest_glossary_contract?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      stable = persistence.manifest_glossary_health
+      manifest = persistence.manifest_snapshot
+      drift_manifest = manifest.merge(
+        records: {
+          reminders: manifest.fetch(:records).fetch(:reminders).reject { |key, _value| key == :storage }
+        }
+      )
+      drift = Contracts::PersistenceManifestGlossaryContract.evaluate(manifest: drift_manifest)
+
+      stable.fetch(:status) == :stable &&
+        stable.fetch(:check_count) == 9 &&
+        stable.fetch(:missing_terms).empty? &&
+        stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
+        drift.fetch(:status) == :drift &&
+        drift.fetch(:missing_terms).include?(:record_storage)
+    end
+
     def persistence_relation_manifest?
       persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
       manifest = persistence.manifest_snapshot
@@ -1921,6 +1949,21 @@ module Companion
         manifest.include?("scopes") &&
         manifest.include?("record_append") &&
         manifest.include?("history_append")
+    end
+
+    def setup_manifest_glossary_endpoint?(manifest_glossary)
+      manifest_glossary.include?("status=>:stable") &&
+        manifest_glossary.include?("missing_terms=>[]") &&
+        manifest_glossary.include?("manifest glossary terms stable")
+    end
+
+    def setup_manifest_glossary_json_endpoint?(manifest_glossary_json)
+      payload = JSON.parse(manifest_glossary_json)
+
+      payload.fetch("status") == "stable" &&
+        payload.fetch("check_count") == 9 &&
+        payload.fetch("missing_terms").empty? &&
+        payload.fetch("checks").all? { |check| check.fetch("present") }
     end
 
     def post(app, path, values = {})

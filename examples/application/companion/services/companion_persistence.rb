@@ -326,6 +326,12 @@ module Companion
         )
       end
 
+      def manifest_glossary_health
+        Contracts::PersistenceManifestGlossaryContract.evaluate(
+          manifest: manifest_snapshot
+        )
+      end
+
       def reminders
         record(:reminders)
       end

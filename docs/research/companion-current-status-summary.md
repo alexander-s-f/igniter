@@ -127,13 +127,15 @@ Do preserve:
 
 Best next move:
 
-- use the manifest glossary to keep the next implementation slice small
-- consider validating glossary terms from `/setup/manifest` if drift appears
+- use manifest glossary health as the guardrail for the next implementation
+  slice
+- choose the next term only after the current glossary remains stable
 - continue avoiding execution and capability grant controls
 
 Acceptance:
 
 - another agent can read manifest terms without reconstructing history
+- glossary health remains stable
 - no setup/read endpoint mutates durable state
 
 Reference: [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md).

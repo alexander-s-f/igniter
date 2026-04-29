@@ -239,6 +239,10 @@ module Companion
         persistence.manifest_snapshot
       end
 
+      def manifest_glossary_health
+        persistence.manifest_glossary_health
+      end
+
       def materialization_plan
         persistence.materialization_plan
       end
