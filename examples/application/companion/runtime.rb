@@ -168,6 +168,7 @@ module Companion
       out.puts "companion_poc_persistence_registry_valid=#{persistence_registry_valid?}"
       out.puts "companion_poc_persistence_readiness_contract=#{persistence_readiness_contract?}"
       out.puts "companion_poc_persistence_relation_health_contract=#{persistence_relation_health_contract?}"
+      out.puts "companion_poc_relation_health_reports=#{relation_health_reports?}"
       out.puts "companion_poc_persistence_operation_model=#{persistence_operation_model?}"
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
@@ -640,14 +641,27 @@ module Companion
       clean = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).relation_health
       warning = Contracts::PersistenceRelationHealthContract.evaluate(
         relation_manifest: { tracker_logs_by_tracker: {} },
-        relation_warnings: ["tracker_logs_by_tracker: tracker_logs references missing trackers ghost-tracker"]
+        relation_warnings: {
+          tracker_logs_by_tracker: ["tracker_logs references missing trackers ghost-tracker"]
+        }
       )
 
       clean.fetch(:status) == :clear &&
         clean.fetch(:warning_count).zero? &&
+        clean.fetch(:relation_reports).fetch(:tracker_logs_by_tracker).fetch(:status) == :clear &&
         warning.fetch(:status) == :warning &&
         warning.fetch(:warning_count) == 1 &&
+        warning.fetch(:relation_reports).fetch(:tracker_logs_by_tracker).fetch(:status) == :warning &&
         warning.fetch(:summary).include?("1 warnings")
+    end
+
+    def relation_health_reports?
+      health = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).relation_health
+      report = health.fetch(:relation_reports).fetch(:tracker_logs_by_tracker)
+
+      report.fetch(:status) == :clear &&
+        report.fetch(:warning_count).zero? &&
+        report.fetch(:warnings).empty?
     end
 
     def persistence_operation_model?
@@ -735,8 +749,9 @@ module Companion
       orphaned = Services::CompanionPersistence.new(state: orphaned_state)
       readiness = orphaned.readiness
 
-      clean.relation_warnings.empty? &&
+      clean.relation_warnings.fetch(:tracker_logs_by_tracker).empty? &&
         orphaned.relation_health.fetch(:status) == :warning &&
+        orphaned.relation_health.fetch(:relation_reports).fetch(:tracker_logs_by_tracker).fetch(:warning_count) == 1 &&
         readiness.fetch(:ready) &&
         readiness.fetch(:warning_count) == 1 &&
         readiness.fetch(:warnings).first.include?("ghost-tracker")

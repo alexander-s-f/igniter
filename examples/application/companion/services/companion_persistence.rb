@@ -119,8 +119,8 @@ module Companion
       end
 
       def relation_warnings
-        RELATION_BINDINGS.flat_map do |name, relation|
-          relation_health_warnings(name, relation)
+        RELATION_BINDINGS.to_h do |name, relation|
+          [name, relation_health_warnings(relation)]
         end
       end
 
@@ -390,7 +390,7 @@ module Companion
         binding.fetch(:contract_class).persistence_manifest.fetch(:fields).map { |field| field.fetch(:name).to_sym }
       end
 
-      def relation_health_warnings(name, relation)
+      def relation_health_warnings(relation)
         join = relation.fetch(:join)
         source_field, target_field = join.first
         source_values = record(relation.fetch(:from)).all.map { |entry| relation_value(entry, source_field) }.map(&:to_s)
@@ -402,7 +402,7 @@ module Companion
                         .uniq
         return [] if orphan_values.empty?
 
-        ["#{name}: #{relation.fetch(:to)} references missing #{relation.fetch(:from)} #{orphan_values.join(",")}"]
+        ["#{relation.fetch(:to)} references missing #{relation.fetch(:from)} #{orphan_values.join(",")}"]
       end
 
       def relation_value(entry, field)

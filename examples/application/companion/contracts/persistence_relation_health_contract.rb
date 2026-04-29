@@ -4,7 +4,7 @@ require_relative "../contracts"
 
 module Companion
   module Contracts
-    contracts :PersistenceRelationHealthContract, outputs: %i[status relation_count warning_count warnings summary] do
+    contracts :PersistenceRelationHealthContract, outputs: %i[status relation_count warning_count warnings relation_reports summary] do
       input :relation_manifest
       input :relation_warnings
 
@@ -12,8 +12,24 @@ module Companion
         relation_manifest.length
       end
 
-      compute :warnings, depends_on: [:relation_warnings] do |relation_warnings:|
-        Array(relation_warnings)
+      compute :relation_reports, depends_on: %i[relation_manifest relation_warnings] do |relation_manifest:, relation_warnings:|
+        relation_manifest.keys.to_h do |name|
+          warnings = Array(relation_warnings.fetch(name, []))
+          [
+            name,
+            {
+              status: warnings.empty? ? :clear : :warning,
+              warning_count: warnings.length,
+              warnings: warnings
+            }
+          ]
+        end
+      end
+
+      compute :warnings, depends_on: [:relation_reports] do |relation_reports:|
+        relation_reports.flat_map do |name, report|
+          report.fetch(:warnings).map { |warning| "#{name}: #{warning}" }
+        end
       end
 
       compute :warning_count, depends_on: [:warnings] do |warnings:|
@@ -36,6 +52,7 @@ module Companion
       output :relation_count
       output :warning_count
       output :warnings
+      output :relation_reports
       output :summary
     end
   end
