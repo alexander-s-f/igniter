@@ -59,8 +59,9 @@ Current manifest vocabulary:
 - `/setup/handoff(.json)` exposes the compact context-rotation packet for
   agents with reading order, manifest scale, current materializer phase, and
   next action; it also names the compact public docs and private track to read
-  before stale history, preserves the current architecture constraints, and
-  carries small reversible next-scope candidates with acceptance criteria
+  before stale history, points to both handoff acceptance packets, preserves the
+  current architecture constraints, and carries small reversible next-scope
+  candidates with acceptance criteria and a follow-up approval receipt check
 - `/setup/handoff/acceptance(.json)` reports whether the recommended handoff
   scope is pending or satisfied without executing it
 - `POST /setup/handoff/acceptance/record` explicitly applies the same

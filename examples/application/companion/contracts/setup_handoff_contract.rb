@@ -29,6 +29,8 @@ module Companion
       compute :reading_order do
         [
           "/setup/health.json",
+          "/setup/handoff/acceptance.json",
+          "/setup/handoff/approval-acceptance.json",
           "/setup/manifest/glossary-health.json",
           "/setup/materializer.json",
           "/setup/materializer/descriptor-health.json"
@@ -145,6 +147,12 @@ module Companion
             companion_poc_materializer_supervision
             companion_poc_materializer_status_descriptor_health
           ],
+          follow_up: {
+            recommended: :record_materializer_approval_receipt,
+            endpoint: "POST /setup/handoff/approval-acceptance/record",
+            expected_result: :approval_receipt_recorded_without_capability_grants,
+            acceptance_view: "/setup/handoff/approval-acceptance.json"
+          },
           non_goals: %i[
             materializer_execution
             approval_capability_grants

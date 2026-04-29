@@ -146,6 +146,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   `grants_capabilities: false`.
 - Carries reading order, manifest scale, current materializer phase, and next
   action.
+- Reading order includes both handoff acceptance packets, so lifecycle progress
+  can be checked without mutating setup state.
 - Carries `document_rotation` with the compact public docs and private track to
   read before older thread history.
 - Carries `architecture_constraints` for app-local scope, no public API promise,

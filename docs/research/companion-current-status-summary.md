@@ -142,6 +142,8 @@ Best next move:
 - use `/setup/health.json` as the compact current-state packet before deeper
   changes
 - use `/setup/handoff.json` as the first read after context rotation
+- follow its `reading_order` through both handoff acceptance packets before
+  deciding that the materializer lifecycle advanced
 - follow its `document_rotation` block before reading long thread history
 - keep its `architecture_constraints` intact before implementing a new slice
 - use its `next_scope` as a supervised backlog, not an execution command

@@ -1564,6 +1564,8 @@ module Companion
         handoff.fetch(:descriptor).fetch(:grants_capabilities) == false &&
         handoff.fetch(:descriptor).fetch(:purpose) == :context_rotation &&
         handoff.fetch(:reading_order).include?("/setup/health.json") &&
+        handoff.fetch(:reading_order).include?("/setup/handoff/acceptance.json") &&
+        handoff.fetch(:reading_order).include?("/setup/handoff/approval-acceptance.json") &&
         handoff.fetch(:document_rotation).fetch(:public).include?("docs/research/companion-current-status-summary.md") &&
         handoff.fetch(:document_rotation).fetch(:private).include?("playgrounds/docs/dev/tracks/contract-persistence-capability-track.md") &&
         handoff.fetch(:document_rotation).fetch(:policy) == :compact_current_state_first &&
@@ -1580,6 +1582,7 @@ module Companion
         handoff.fetch(:acceptance_criteria).fetch(:recommended) == :record_blocked_materializer_attempt &&
         handoff.fetch(:acceptance_criteria).fetch(:expected_result) == :materializer_supervision_awaits_explicit_approval_record &&
         handoff.fetch(:acceptance_criteria).fetch(:proof_markers).include?(:companion_poc_materializer_attempt_record_route) &&
+        handoff.fetch(:acceptance_criteria).fetch(:follow_up).fetch(:recommended) == :record_materializer_approval_receipt &&
         handoff.fetch(:acceptance_criteria).fetch(:non_goals).include?(:materializer_execution) &&
         handoff.fetch(:next_action) == :record_blocked_attempt
     end
@@ -2168,6 +2171,8 @@ module Companion
         setup_handoff.include?("kind=>:setup_handoff") &&
         setup_handoff.include?("gates_runtime=>false") &&
         setup_handoff.include?("/setup/health.json") &&
+        setup_handoff.include?("/setup/handoff/acceptance.json") &&
+        setup_handoff.include?("/setup/handoff/approval-acceptance.json") &&
         setup_handoff.include?("companion-current-status-summary.md") &&
         setup_handoff.include?("contract-persistence-capability-track.md") &&
         setup_handoff.include?("app_local_companion_proof") &&
@@ -2176,6 +2181,7 @@ module Companion
         setup_handoff.include?("small_reversible_app_local_slice") &&
         setup_handoff.include?("explicit_post_only") &&
         setup_handoff.include?("materializer_supervision_awaits_explicit_approval_record") &&
+        setup_handoff.include?("approval_receipt_recorded_without_capability_grants") &&
         setup_handoff.include?("public_api_promotion") &&
         setup_handoff.include?("record_blocked_attempt")
     end
@@ -2191,6 +2197,8 @@ module Companion
         payload.fetch("descriptor").fetch("grants_capabilities") == false &&
         payload.fetch("descriptor").fetch("purpose") == "context_rotation" &&
         payload.fetch("reading_order").include?("/setup/health.json") &&
+        payload.fetch("reading_order").include?("/setup/handoff/acceptance.json") &&
+        payload.fetch("reading_order").include?("/setup/handoff/approval-acceptance.json") &&
         payload.fetch("document_rotation").fetch("public").include?("docs/research/companion-current-status-summary.md") &&
         payload.fetch("document_rotation").fetch("private").include?("playgrounds/docs/dev/tracks/contract-persistence-capability-track.md") &&
         payload.fetch("document_rotation").fetch("policy") == "compact_current_state_first" &&
@@ -2207,6 +2215,7 @@ module Companion
         payload.fetch("acceptance_criteria").fetch("recommended") == "record_blocked_materializer_attempt" &&
         payload.fetch("acceptance_criteria").fetch("expected_result") == "materializer_supervision_awaits_explicit_approval_record" &&
         payload.fetch("acceptance_criteria").fetch("proof_markers").include?("companion_poc_materializer_attempt_record_route") &&
+        payload.fetch("acceptance_criteria").fetch("follow_up").fetch("recommended") == "record_materializer_approval_receipt" &&
         payload.fetch("acceptance_criteria").fetch("non_goals").include?("materializer_execution") &&
         payload.fetch("next_action") == "record_blocked_attempt"
     end
