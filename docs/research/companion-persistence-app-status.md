@@ -108,6 +108,9 @@ Current user-defined-type pressure test:
   for blocked attempt counts, blocked capabilities, and latest receipt
 - `MaterializerSupervisionContract`: compact lifecycle read model over gate,
   preflight, runbook, receipt, attempt command intent, and audit trail
+- `MaterializerApprovalPolicyContract`: read-only decision model for human
+  approval over requested materializer capabilities; it validates subset/unknown
+  capabilities and still does not apply capabilities
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
@@ -218,6 +221,8 @@ Current Companion product flows use the persistence model:
 - `/setup/materializer-supervision` exposes a compact status, phase, signals,
   next action, command intent, and audit summary for the whole materializer
   lifecycle
+- `/setup/materializer-approval-policy` exposes the default pending approval
+  decision and proves approval is explicit policy data, not hidden capability
 
 ## Validated Concepts
 

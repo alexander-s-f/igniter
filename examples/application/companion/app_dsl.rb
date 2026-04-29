@@ -195,6 +195,14 @@ module Companion
         text JSON.pretty_generate(service(:companion).materializer_supervision)
       end
 
+      get "/setup/materializer-approval-policy" do
+        text service(:companion).materializer_approval_policy.inspect
+      end
+
+      get "/setup/materializer-approval-policy.json" do
+        text JSON.pretty_generate(service(:companion).materializer_approval_policy)
+      end
+
       post "/setup/materializer-attempts/record" do
         result = service(:companion).record_materializer_attempt
         redirect Companion.feedback_path(

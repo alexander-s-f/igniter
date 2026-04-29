@@ -263,6 +263,14 @@ module Companion
         )
       end
 
+      def materializer_approval_policy(approved_by: nil, approved_capabilities: [])
+        Contracts::MaterializerApprovalPolicyContract.evaluate(
+          approval_request: materializer_gate.fetch(:approval_request),
+          approved_by: approved_by,
+          approved_capabilities: approved_capabilities
+        )
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,
