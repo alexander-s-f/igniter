@@ -124,11 +124,18 @@ module Companion
         end
       end
 
+      def relation_health
+        Contracts::PersistenceRelationHealthContract.evaluate(
+          relation_manifest: relation_manifest,
+          relation_warnings: relation_warnings
+        )
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,
           relation_manifest: relation_manifest,
-          relation_warnings: relation_warnings,
+          relation_health: relation_health,
           validation_errors: validation_errors
         )
       end

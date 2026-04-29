@@ -7,7 +7,7 @@ module Companion
     contracts :PersistenceReadinessContract, outputs: %i[ready status capability_count record_count history_count projection_count relation_count warning_count warnings summary] do
       input :capability_manifest
       input :relation_manifest
-      input :relation_warnings
+      input :relation_health
       input :validation_errors
 
       compute :ready, depends_on: [:validation_errors] do |validation_errors:|
@@ -38,12 +38,12 @@ module Companion
         relation_manifest.length
       end
 
-      compute :warnings, depends_on: [:relation_warnings] do |relation_warnings:|
-        Array(relation_warnings)
+      compute :warnings, depends_on: [:relation_health] do |relation_health:|
+        relation_health.fetch(:warnings)
       end
 
-      compute :warning_count, depends_on: [:warnings] do |warnings:|
-        warnings.length
+      compute :warning_count, depends_on: [:relation_health] do |relation_health:|
+        relation_health.fetch(:warning_count)
       end
 
       compute :summary, depends_on: %i[status capability_count record_count history_count projection_count relation_count warning_count validation_errors] do |status:, capability_count:, record_count:, history_count:, projection_count:, relation_count:, warning_count:, validation_errors:|

@@ -345,8 +345,9 @@ keeps relations as typed manifest edges first, not ORM associations or database
 foreign keys. `TrackerReadModelContract` also declares the relation in its
 projection manifest inputs, proving the projection edge can be inspectable
 before a dedicated projection DSL exists. The same relation now produces
-diagnostic-only health warnings for orphan history entries while keeping
-readiness `ready`; this is the `warn` phase, not relation enforcement.
+diagnostic-only health warnings through `PersistenceRelationHealthContract` for
+orphan history entries while keeping readiness `ready`; this is the `warn`
+phase, not relation enforcement.
 
 `PersistenceReadinessContract` turns registry validation into a graph-owned
 diagnostic projection: readiness, counts by capability kind, and a compact

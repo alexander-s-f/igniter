@@ -129,6 +129,7 @@ module Companion
       out.puts "companion_poc_hub_installed_status=#{hub_installed_status}"
       out.puts "companion_poc_setup_redacted=#{setup.include?("openai_api_key") && !setup.include?("sk-")}"
       out.puts "companion_poc_setup_persistence_readiness=#{setup.include?("persistence") && setup.include?("ready")}"
+      out.puts "companion_poc_setup_relation_health=#{setup.include?("relation_health") && setup.include?("clear")}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
       out.puts "companion_poc_today_signal=#{daily_plan_signal? && html.include?("data-today-signal=")}"
@@ -166,6 +167,7 @@ module Companion
       out.puts "companion_poc_persistence_registry=#{persistence_registry?}"
       out.puts "companion_poc_persistence_registry_valid=#{persistence_registry_valid?}"
       out.puts "companion_poc_persistence_readiness_contract=#{persistence_readiness_contract?}"
+      out.puts "companion_poc_persistence_relation_health_contract=#{persistence_relation_health_contract?}"
       out.puts "companion_poc_persistence_operation_model=#{persistence_operation_model?}"
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
@@ -634,6 +636,20 @@ module Companion
         readiness.fetch(:warning_count).zero?
     end
 
+    def persistence_relation_health_contract?
+      clean = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).relation_health
+      warning = Contracts::PersistenceRelationHealthContract.evaluate(
+        relation_manifest: { tracker_logs_by_tracker: {} },
+        relation_warnings: ["tracker_logs_by_tracker: tracker_logs references missing trackers ghost-tracker"]
+      )
+
+      clean.fetch(:status) == :clear &&
+        clean.fetch(:warning_count).zero? &&
+        warning.fetch(:status) == :warning &&
+        warning.fetch(:warning_count) == 1 &&
+        warning.fetch(:summary).include?("1 warnings")
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -720,6 +736,7 @@ module Companion
       readiness = orphaned.readiness
 
       clean.relation_warnings.empty? &&
+        orphaned.relation_health.fetch(:status) == :warning &&
         readiness.fetch(:ready) &&
         readiness.fetch(:warning_count) == 1 &&
         readiness.fetch(:warnings).first.include?("ghost-tracker")

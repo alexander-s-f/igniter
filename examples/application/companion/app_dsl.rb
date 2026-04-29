@@ -64,7 +64,8 @@ module Companion
         snapshot = service(:companion).snapshot
         text({
           credentials: snapshot.credential_status,
-          persistence: snapshot.persistence_readiness
+          persistence: snapshot.persistence_readiness,
+          relation_health: snapshot.relation_health
         }.inspect)
       end
 
