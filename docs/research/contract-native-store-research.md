@@ -685,6 +685,229 @@ result is cached permanently once resolved.
 
 ---
 
+## Iteration 6 — Thread D: Zero-Migration Schema Evolution via Coercion Contracts
+
+*Recorded from design session, 2026-04-29.*
+
+### The core problem
+
+When a contract schema evolves, the store holds facts produced under multiple
+schema versions simultaneously. Every Fact carries `schema_version: Integer`
+(from the POC). Old facts are immutable — they must never be rewritten. The
+read path must bridge old and new schema transparently.
+
+### Change classification (reused from Companion)
+
+The classification already proved in `WizardTypeSpecMigrationPlanContract`:
+
+```ruby
+def self.migration_status(added_fields, removed_fields, changed_fields)
+  return :destructive if removed_fields.any?
+  return :ambiguous   if changed_fields.any?
+  return :additive    if added_fields.any?
+  :stable
+end
+```
+
+Mapped to coercion requirements:
+
+| Change | Coercion needed | Auto-generated? |
+|---|---|---|
+| stable (no change) | no | — |
+| additive (field added) | yes — inject default | **yes** |
+| destructive (field removed) | yes — drop field | **yes** |
+| ambiguous / type change | yes — transform value | **no** — hand-authored |
+| rename (`:old` → `:new`) | yes — remap key | **no** — ambiguous |
+
+### `schema_version` on the contract
+
+Declared explicitly; developer increments when fields change:
+
+```ruby
+class ArticleContract < Igniter::Contract
+  schema_version 2   # incremented from 1; triggers coercion path check
+  ...
+end
+```
+
+### `coercion` block DSL
+
+Declared alongside the `persist` block it belongs to. Only ambiguous fields
+need explicit declarations; additive and destructive are handled automatically.
+
+```ruby
+class ArticleContract < Igniter::Contract
+  schema_version 2
+
+  persist :articles, key: :id do
+    field :id,     type: :string
+    field :title,  type: :string
+    field :status, type: :symbol, default: :draft  # v1: type was :string
+    field :tags,   type: :array,  default: []      # v2: added
+    index :status
+    scope :published, where: { status: :published }
+  end
+
+  # Path: v1 → v2 (current)
+  # auto: :tags (additive) → inject default []
+  # hand: :status (ambiguous: string→symbol) → explicit lambda
+  coercion :articles, from_version: 1 do
+    field :status, via: ->(v) { v.to_sym }
+    # :tags — automatic; default comes from persist block
+  end
+
+  # If v3 is declared later — add coercion from_version: 2
+  # Chain: v1 → CoercionV1toV2 → v2 → CoercionV2toV3 → v3
+end
+```
+
+Under the hood, each `coercion` block compiles to an anonymous contract —
+consistent with "everything is a contract":
+
+```ruby
+# What the compiler generates from the coercion block above:
+ArticleContract::Coercions::V1ToV2 = Igniter::Contract.define do
+  input :raw_fact   # Fact struct
+
+  compute :coerced, depends_on: [:raw_fact] do |raw_fact:|
+    v = raw_fact.value.dup
+    # hand-authored: status string → symbol
+    v[:status] = v.fetch(:status, "draft").to_sym
+    # auto-generated: tags additive, inject field default
+    v[:tags]   = v.fetch(:tags, [])
+    v
+  end
+
+  output :coerced
+end
+```
+
+### Read path with transparent coercion
+
+```
+store_read :article, from: :articles, by: :id, using: :id
+  ↓
+1. Fetch latest Fact for [:articles, key]            — from FactLog
+2. fact.schema_version == ArticleContract.schema_version?
+   → yes : return fact.value directly
+   → no  : look up coercion path in SchemaRegistry
+3. Build coercion chain: v1 → V1ToV2 → v2 → V2ToV3 → v3 (current)
+4. Execute chain (each step is a pure contract execution, no side effects)
+5. Cache coerced result under [store, key, as_of, target_schema=current]
+6. Return coerced value
+
+The fact in the log is NEVER modified.
+```
+
+Cache key includes `target_schema_version` so that when the schema is bumped
+again the previous coerced result is not served stale.
+
+### Schema Registry
+
+`SchemaGraph` (from the POC) is extended to a `SchemaRegistry`:
+
+```ruby
+SchemaRegistry = {
+  articles: {
+    current_version: 2,
+    versions: {
+      1 => { fields: { id: :string, title: :string, status: :string } },
+      2 => { fields: { id: :string, title: :string, status: :symbol, tags: :array } }
+    },
+    coercions: {
+      [1, 2] => ArticleContract::Coercions::V1ToV2
+      # [2, 3] => ... when v3 is declared
+    }
+  }
+}
+```
+
+The coercion path is the shortest path from `fact.schema_version` to
+`current_version`. Linear chain in the common case; theoretically a DAG if
+schema branches were merged. Linear chain only in the first iteration.
+
+### Compile-time validation
+
+At contract class-load time the compiler checks:
+
+```
+1. Collect all schema_versions recorded in SchemaRegistry for :articles
+2. For each version N < current: is there a coercion [N, N+1]?
+3. Missing path → WARN: "no coercion from v1 to v2 for :articles;
+   store_read with schema: :current will fail at runtime for v1 facts"
+4. Destructive change without :safe_to_drop annotation → WARN
+```
+
+Warning, not error — the store may not contain facts under the old version
+(e.g. first deployment).
+
+### Edge cases
+
+**Rename:**
+
+```ruby
+coercion :articles, from_version: 1 do
+  rename :name, to: :full_name   # explicit; developer resolves ambiguity
+end
+```
+
+**Destructive with confirmation:**
+
+```ruby
+coercion :articles, from_version: 1 do
+  drop :legacy_field, safe_to_drop: true
+end
+```
+
+**Incompatible type with no safe default:**
+
+```ruby
+coercion :articles, from_version: 1 do
+  field :status, via: ->(v) {
+    %i[draft published archived].include?(v&.to_sym) ? v.to_sym : :draft
+  }
+end
+```
+
+### Zero-migration principle
+
+No migration files. No `ALTER TABLE`. No data backfill.
+
+```
+Developer changes fields in persist block
+→ increments schema_version
+→ declares coercion block for ambiguous changes
+→ deploys
+
+In the store:
+  old facts → schema_version: 1  (immutable forever)
+  new facts → schema_version: 2
+  read path → transparently coerces v1 → v2 on demand
+
+No downtime. No scripts.
+```
+
+| | ActiveRecord migration | Igniter coercion |
+|---|---|---|
+| Schema change | migration file + ALTER TABLE | `schema_version N` + `coercion` block |
+| Old data | backfill or NULL default | facts in log under old schema_version |
+| Reading old data | direct (already migrated) | coercion chain on demand |
+| Rollback | down-migration | schema immutable; chain works in reverse |
+| Downtime | sometimes (lock on large tables) | none |
+| Audit | data before migration lost | original facts preserved forever |
+
+### Deferred
+
+| Question | Status |
+|--------|--------|
+| SchemaRegistry implementation in store | Deferred — after query API is stable |
+| Compiler enforcement of coercion paths | Deferred — requires compiler extension |
+| Coercion chain performance (cache warm-up) | Deferred — benchmark first |
+| Cross-contract coercion (shared Store[T]) | Deferred — not in scope yet |
+| `schema: :as_stored` returning raw Fact | Linked to Thread B — already decided |
+
+---
+
 ## Reference
 
 - [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
