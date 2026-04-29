@@ -13,6 +13,9 @@ research material under `playgrounds/docs/`.
   architect/agent roles, and Igniter Lang guardrails.
 - [Vision Handoff Protocol](./vision-handoff-protocol.md) - compact briefing
   format for giving agents a large horizon with a narrow executable slice.
+- [Companion Current Status Summary](./companion-current-status-summary.md) -
+  compact current-state handoff for the Companion persistence/materializer
+  vertical.
 - [Companion Persistence App Status](./companion-persistence-app-status.md) -
   current app-local persistence proof and handoff.
 - [Contract Persistence Relations](./contract-persistence-relations.md) -
@@ -34,10 +37,11 @@ Before changing architecture or reviewing an agent proposal, read:
 4. [Igniter Lang Foundation](../guide/igniter-lang-foundation.md)
 5. [Horizon Protocol](./horizon-protocol.md)
 6. [Vision Handoff Protocol](./vision-handoff-protocol.md)
-7. [Companion Persistence App Status](./companion-persistence-app-status.md)
-8. [Contract Persistence Relations](./contract-persistence-relations.md)
-9. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
-10. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
+7. [Companion Current Status Summary](./companion-current-status-summary.md)
+8. [Companion Persistence App Status](./companion-persistence-app-status.md)
+9. [Contract Persistence Relations](./contract-persistence-relations.md)
+10. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
+11. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
 
 ## Current Research State
 
@@ -56,12 +60,10 @@ Status date: 2026-04-29.
   minimal single-turn agent state. Tool contracts, memory, handoff, and human
   gates remain future package work.
 - Companion is the strongest product pressure for persistence and agents. Its
-  app-local persistence proof now covers records, histories, projections,
-  command mutation intents, relation manifests, relation health diagnostics,
-  registry/readiness/manifest, and report-only `index`/`scope`/`command`
-  metadata. The current edge of that proof is `WizardTypeSpec`: persisted dynamic
-  specs, append-only spec lineage, static materialization plans, parity checks,
-  and dev/prod config exports.
+  app-local proof now covers records, histories, projections, command mutation
+  intents, relation manifests, relation health diagnostics,
+  registry/readiness/manifest, `WizardTypeSpec`, static materialization planning,
+  and a review-only materializer/approval audit vertical.
 - Cluster owns distributed placement, routing, ownership, health, remediation,
   and mesh attempts. Contracts remain local-first and host-agnostic.
 
