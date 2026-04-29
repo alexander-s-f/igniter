@@ -197,6 +197,8 @@ Non-goals:
 Current proof keeps R2 separate from `WizardTypeSpecMigrationPlanContract`: spec
 diffs remain contract/spec migration planning, while storage-plan descriptor
 diffs become review-only storage migration candidates.
+`/setup/storage-migration-plan-health.json` verifies the R2 non-executing shape
+as a separate drift check.
 
 ### R3 Materializer Dry Run
 

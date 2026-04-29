@@ -30,6 +30,8 @@ Read `/setup/storage-plan-health.json` when changing storage-plan vocabulary or
 checking that it remains non-executing.
 Read `/setup/storage-migration-plan.json` when discussing R2 storage-plan diffs.
 It is a review-only migration candidate report, not a runner.
+Read `/setup/storage-migration-plan-health.json` when changing R2 migration
+candidate vocabulary or checking no-execution/no-SQL boundaries.
 Read `/setup/health.json` for the compact report-only current-state packet.
 Read `/setup/handoff.json` first when rotating context between agents.
 
@@ -86,6 +88,15 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   `migration_execution_allowed: false`, and `sql_generation_allowed: false`.
 - Does not create migrations, generate SQL, alter DB schema, backfill data, or
   request capabilities.
+
+`storage_migration_plan_health`
+
+- Report-only R2 drift check exposed at
+  `/setup/storage-migration-plan-health.json`.
+- Validates descriptor policy, status vocabulary, record/history report shapes,
+  report and candidate counts, and candidate review-only/no-execution/no-SQL
+  flags.
+- Does not authorize migration execution or SQL generation.
 
 `records`
 

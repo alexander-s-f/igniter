@@ -36,6 +36,7 @@ relation_descriptor -> source/target storage shapes + report-only enforcement
 storage_plan_sketch -> report-only table/column/index/scope lowering candidates
 storage_plan_health -> drift check for non-executing storage-plan shape
 storage_migration_plan -> review-only storage-plan diff candidates
+storage_migration_plan_health -> drift check for non-executing migration plan
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
 materializer_status.descriptor -> review-only lifecycle + no capability grants
@@ -140,6 +141,8 @@ report-only, no-gate/no-grant, non-SQL-generating, and non-schema-changing.
 `/setup/storage-migration-plan.json` compares storage-plan descriptors and emits
 review-only migration candidates for additive/destructive/ambiguous storage
 changes while keeping migration execution and SQL generation disabled.
+`/setup/storage-migration-plan-health.json` verifies that R2 reports and
+candidates keep review-only/no-execution/no-SQL boundaries.
 
 Migrations are review-only. Current planning has two lanes: spec-history field
 diffs and storage-plan descriptor diffs. There is no migration generator,
@@ -184,6 +187,8 @@ Best next move:
   valid R1 evidence
 - use `/setup/storage-migration-plan.json` when discussing R2 storage-plan
   diffs; it is review-only and has no execution path
+- use `/setup/storage-migration-plan-health.json` before treating R2 migration
+  candidates as stable evidence
 - use `/setup/handoff.json` as the first read after context rotation
 - use `/setup/handoff/digest.txt` as the compact human handoff, or
   `/setup/handoff/digest.json` as the structured agent map before

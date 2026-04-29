@@ -63,6 +63,9 @@ Current manifest vocabulary:
   migration plan over storage-plan descriptor diffs; current app state is
   stable, while synthetic/additive diffs produce review-only candidates with
   `migration_execution_allowed: false` and `sql_generation_allowed: false`
+- `/setup/storage-migration-plan-health(.json)` validates the R2 descriptor,
+  status/shape vocabulary, report count, candidate count, and candidate
+  review-only/no-execution/no-SQL policy
 - `/setup` includes the same glossary health as a report-only summary signal;
   readiness does not become stricter because of glossary drift
 - `/setup/health(.json)` summarizes readiness, relation health, manifest
@@ -530,6 +533,8 @@ non-executing storage sketch.
 [S] `/setup/storage-migration-plan.json` now proves R2 storage-plan diff
 classification as review-only migration candidates, separate from spec-history
 field diffs and without execution.
+[S] `/setup/storage-migration-plan-health.json` now verifies that R2 remains a
+stable non-executing migration candidate report.
 [S] Tracker to TrackerLog proves projection relation input and warning path.
 [S] Article to Comment proves user-defined-type pressure through static
 contracts before dynamic materialization.
