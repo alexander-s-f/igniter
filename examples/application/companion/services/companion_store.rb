@@ -248,6 +248,10 @@ module Companion
         persistence.manifest_glossary_health
       end
 
+      def setup_health
+        persistence.setup_health
+      end
+
       def materialization_plan
         persistence.materialization_plan
       end

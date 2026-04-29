@@ -78,6 +78,8 @@ module Companion
 
       events_status, _events_headers, events_body = app.call(rack_env("GET", "/events"))
       setup_status, _setup_headers, setup_body = app.call(rack_env("GET", "/setup"))
+      setup_health_status, _setup_health_headers, setup_health_body = app.call(rack_env("GET", "/setup/health"))
+      setup_health_json_status, _setup_health_json_headers, setup_health_json_body = app.call(rack_env("GET", "/setup/health.json"))
       manifest_status, _manifest_headers, manifest_body = app.call(rack_env("GET", "/setup/manifest"))
       manifest_glossary_status, _manifest_glossary_headers, manifest_glossary_body = app.call(rack_env("GET", "/setup/manifest/glossary-health"))
       manifest_glossary_json_status, _manifest_glossary_json_headers, manifest_glossary_json_body = app.call(rack_env("GET", "/setup/manifest/glossary-health.json"))
@@ -134,6 +136,8 @@ module Companion
       html = html_body.join
       events = events_body.join
       setup = setup_body.join
+      setup_health = setup_health_body.join
+      setup_health_json = setup_health_json_body.join
       manifest = manifest_body.join
       manifest_glossary = manifest_glossary_body.join
       manifest_glossary_json = manifest_glossary_json_body.join
@@ -210,6 +214,8 @@ module Companion
       out.puts "companion_poc_completed_status=#{completed_status}"
       out.puts "companion_poc_events_status=#{events_status}"
       out.puts "companion_poc_setup_status=#{setup_status}"
+      out.puts "companion_poc_setup_health_status=#{setup_health_status}"
+      out.puts "companion_poc_setup_health_json_status=#{setup_health_json_status}"
       out.puts "companion_poc_setup_manifest_status=#{manifest_status}"
       out.puts "companion_poc_setup_manifest_glossary_status=#{manifest_glossary_status}"
       out.puts "companion_poc_setup_manifest_glossary_json_status=#{manifest_glossary_json_status}"
@@ -261,6 +267,9 @@ module Companion
       out.puts "companion_poc_hub_installed_status=#{hub_installed_status}"
       out.puts "companion_poc_setup_redacted=#{setup.include?("openai_api_key") && !setup.include?("sk-")}"
       out.puts "companion_poc_setup_persistence_readiness=#{setup.include?("persistence") && setup.include?("ready")}"
+      out.puts "companion_poc_setup_health_summary=#{setup_health_summary?(setup)}"
+      out.puts "companion_poc_setup_health_endpoint=#{setup_health_endpoint?(setup_health)}"
+      out.puts "companion_poc_setup_health_json_endpoint=#{setup_health_json_endpoint?(setup_health_json)}"
       out.puts "companion_poc_setup_manifest_glossary_summary=#{setup_manifest_glossary_summary?(setup)}"
       out.puts "companion_poc_setup_relation_health=#{setup.include?("relation_health") && setup.include?("clear")}"
       out.puts "companion_poc_setup_manifest_glossary_endpoint=#{setup_manifest_glossary_endpoint?(manifest_glossary)}"
@@ -352,6 +361,7 @@ module Companion
       out.puts "companion_poc_persistence_operation_model=#{persistence_operation_model?}"
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_manifest_glossary_contract=#{persistence_manifest_glossary_contract?}"
+      out.puts "companion_poc_setup_health_contract=#{setup_health_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
       out.puts "companion_poc_user_defined_article_contract=#{user_defined_article_contract?}"
       out.puts "companion_poc_wizard_type_spec_store=#{wizard_type_spec_store?}"
@@ -1488,6 +1498,26 @@ module Companion
         warning.fetch(:values) == ["ghost-tracker"]
     end
 
+    def setup_health_contract?
+      clean = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      orphaned_state = Services::CompanionState.seeded
+      orphaned_state.tracker_logs << Services::CompanionState::TrackerLog.new(
+        tracker_id: "ghost-tracker",
+        date: Date.today.iso8601,
+        value: "7"
+      )
+      warning = Services::CompanionPersistence.new(state: orphaned_state).setup_health
+      stable = clean.setup_health
+
+      stable.fetch(:status) == :stable &&
+        stable.fetch(:check_count) == 5 &&
+        stable.fetch(:review_count).zero? &&
+        stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
+        stable.fetch(:summary).include?("report-only") &&
+        warning.fetch(:status) == :needs_review &&
+        warning.fetch(:review_items).any? { |item| item.fetch(:kind) == :relation_warning && item.fetch(:count) == 1 }
+    end
+
     def relation_health_dashboard?(html)
       html.include?('data-relation-health-status="clear"') &&
         html.include?('data-relation-warning-count="0"') &&
@@ -2007,6 +2037,29 @@ module Companion
         manifest.include?("scopes") &&
         manifest.include?("record_append") &&
         manifest.include?("history_append")
+    end
+
+    def setup_health_summary?(setup)
+      setup.include?("setup_health") &&
+        setup.include?("review_count=>0") &&
+        setup.include?("report-only")
+    end
+
+    def setup_health_endpoint?(setup_health)
+      setup_health.include?("status=>:stable") &&
+        setup_health.include?("check_count=>5") &&
+        setup_health.include?("review_count=>0") &&
+        setup_health.include?("setup health checks")
+    end
+
+    def setup_health_json_endpoint?(setup_health_json)
+      payload = JSON.parse(setup_health_json)
+
+      payload.fetch("status") == "stable" &&
+        payload.fetch("check_count") == 5 &&
+        payload.fetch("review_count").zero? &&
+        payload.fetch("review_items").empty? &&
+        payload.fetch("checks").all? { |check| check.fetch("present") }
     end
 
     def setup_manifest_glossary_summary?(setup)

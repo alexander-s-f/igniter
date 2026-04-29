@@ -338,6 +338,16 @@ module Companion
         )
       end
 
+      def setup_health
+        Contracts::SetupHealthContract.evaluate(
+          readiness: readiness,
+          relation_health: relation_health,
+          manifest_glossary_health: manifest_glossary_health,
+          materializer_status_descriptor_health: materializer_status_descriptor_health,
+          infrastructure_loop_health: infrastructure_loop_health
+        )
+      end
+
       def reminders
         record(:reminders)
       end

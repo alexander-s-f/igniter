@@ -69,8 +69,17 @@ module Companion
           persistence: snapshot.persistence_readiness,
           relation_health: snapshot.relation_health,
           manifest_glossary: snapshot.manifest_glossary_health,
-          materializer_descriptor_health: snapshot.materializer_status_descriptor_health
+          materializer_descriptor_health: snapshot.materializer_status_descriptor_health,
+          setup_health: service(:companion).setup_health
         }.inspect)
+      end
+
+      get "/setup/health" do
+        text service(:companion).setup_health.inspect
+      end
+
+      get "/setup/health.json" do
+        text JSON.pretty_generate(service(:companion).setup_health)
       end
 
       get "/setup/manifest" do

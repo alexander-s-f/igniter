@@ -24,6 +24,7 @@ Read `/setup/manifest` top down:
 Then read `/setup/materializer.json` for the compact review lifecycle status.
 Read `/setup/materializer/descriptor-health.json` when changing the
 materializer status descriptor.
+Read `/setup/health.json` for the compact report-only current-state packet.
 
 Use `/setup/manifest/glossary-health.json` to check whether the manifest still
 contains the required glossary terms.
@@ -125,6 +126,14 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - `status: :stable` means the current manifest matches this glossary.
 - `status: :drift` means a term disappeared or stopped matching the glossary.
 
+`setup_health`
+
+- Report-only summary exposed at `/setup/health.json`.
+- Folds persistence readiness, relation health, manifest glossary health,
+  materializer status descriptor health, and infrastructure loop health.
+- Relation warnings become `review_items`, not runtime blockers.
+- Does not grant capabilities and does not make readiness stricter.
+
 ## Current Lowerings
 
 ```text
@@ -133,6 +142,7 @@ history alias -> storage.shape=:history -> History[T]
 relation descriptor -> Relation[Store[A], History[B]]
 command mutation -> normalized operation intent -> app boundary
 projection reads -> graph-owned read model
+setup health -> report-only current-state packet
 ```
 
 ## Do Not Infer

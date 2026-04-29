@@ -37,6 +37,7 @@ command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
 materializer_status.descriptor -> review-only lifecycle + no capability grants
 materializer_status_descriptor_health -> report-only no-grant/no-execution guard
+setup_health -> report-only summary over readiness + guardrails
 app boundary -> explicit mutation application
 projection -> graph-owned read model
 ```
@@ -137,6 +138,8 @@ Best next move:
 
 - use manifest glossary health as the guardrail for the next implementation
   slice
+- use `/setup/health.json` as the compact current-state packet before deeper
+  changes
 - choose the next term only after the current glossary remains stable
 - continue avoiding execution and capability grant controls
 
@@ -145,6 +148,7 @@ Acceptance:
 - another agent can read manifest terms without reconstructing history
 - glossary health remains stable
 - materializer status descriptor health remains stable
+- setup health remains stable or reports review items without blocking runtime
 - `/setup` surfaces glossary health without making readiness stricter
 - no setup/read endpoint mutates durable state
 
