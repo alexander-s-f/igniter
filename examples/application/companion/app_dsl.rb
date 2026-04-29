@@ -139,6 +139,14 @@ module Companion
         text JSON.pretty_generate(service(:companion).materializer_gate)
       end
 
+      get "/setup/materializer-preflight" do
+        text service(:companion).materializer_preflight.inspect
+      end
+
+      get "/setup/materializer-preflight.json" do
+        text JSON.pretty_generate(service(:companion).materializer_preflight)
+      end
+
       get "/hub" do
         text service(:hub).entries.map(&:name).join(",")
       end

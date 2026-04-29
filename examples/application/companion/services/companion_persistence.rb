@@ -204,6 +204,15 @@ module Companion
         )
       end
 
+      def materializer_preflight
+        Contracts::MaterializerPreflightContract.evaluate(
+          infrastructure_loop_health: infrastructure_loop_health,
+          materialization_parity: materialization_parity,
+          migration_plan: wizard_type_spec_migration_plan,
+          materializer_gate: materializer_gate
+        )
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,

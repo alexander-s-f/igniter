@@ -89,6 +89,9 @@ Current user-defined-type pressure test:
   write/git/test/restart materializer capabilities until explicit approval even
   when the infrastructure loop is healthy; it also emits a structured
   review-only approval request
+- `MaterializerPreflightContract`: review packet that joins loop health, parity,
+  migration status, gate state, blocked capabilities, and approval request
+  without granting capability
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
@@ -182,6 +185,8 @@ Current Companion product flows use the persistence model:
   infrastructure loop is self-supporting without requesting write capability
 - `/setup/materializer-gate` exposes the current materializer capability gate;
   default state is blocked by `human_approval_required`
+- `/setup/materializer-preflight` exposes the review packet for a future human
+  approval flow
 
 ## Validated Concepts
 

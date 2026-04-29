@@ -95,6 +95,8 @@ module Companion
       loop_health_json_status, _loop_health_json_headers, loop_health_json_body = app.call(rack_env("GET", "/setup/infrastructure-loop-health.json"))
       materializer_gate_status, _materializer_gate_headers, materializer_gate_body = app.call(rack_env("GET", "/setup/materializer-gate"))
       materializer_gate_json_status, _materializer_gate_json_headers, materializer_gate_json_body = app.call(rack_env("GET", "/setup/materializer-gate.json"))
+      materializer_preflight_status, _materializer_preflight_headers, materializer_preflight_body = app.call(rack_env("GET", "/setup/materializer-preflight"))
+      materializer_preflight_json_status, _materializer_preflight_json_headers, materializer_preflight_json_body = app.call(rack_env("GET", "/setup/materializer-preflight.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -123,6 +125,8 @@ module Companion
       loop_health_json = loop_health_json_body.join
       materializer_gate = materializer_gate_body.join
       materializer_gate_json = materializer_gate_json_body.join
+      materializer_preflight = materializer_preflight_body.join
+      materializer_preflight_json = materializer_preflight_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -171,6 +175,8 @@ module Companion
       out.puts "companion_poc_setup_infrastructure_loop_health_json_status=#{loop_health_json_status}"
       out.puts "companion_poc_setup_materializer_gate_status=#{materializer_gate_status}"
       out.puts "companion_poc_setup_materializer_gate_json_status=#{materializer_gate_json_status}"
+      out.puts "companion_poc_setup_materializer_preflight_status=#{materializer_preflight_status}"
+      out.puts "companion_poc_setup_materializer_preflight_json_status=#{materializer_preflight_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -194,6 +200,8 @@ module Companion
       out.puts "companion_poc_setup_infrastructure_loop_health_json_endpoint=#{setup_infrastructure_loop_health_json_endpoint?(loop_health_json)}"
       out.puts "companion_poc_setup_materializer_gate_endpoint=#{setup_materializer_gate_endpoint?(materializer_gate)}"
       out.puts "companion_poc_setup_materializer_gate_json_endpoint=#{setup_materializer_gate_json_endpoint?(materializer_gate_json)}"
+      out.puts "companion_poc_setup_materializer_preflight_endpoint=#{setup_materializer_preflight_endpoint?(materializer_preflight)}"
+      out.puts "companion_poc_setup_materializer_preflight_json_endpoint=#{setup_materializer_preflight_json_endpoint?(materializer_preflight_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -247,6 +255,7 @@ module Companion
       out.puts "companion_poc_wizard_type_spec_migration_plan=#{wizard_type_spec_migration_plan?}"
       out.puts "companion_poc_infrastructure_loop_health=#{infrastructure_loop_health?}"
       out.puts "companion_poc_materializer_gate=#{materializer_gate?}"
+      out.puts "companion_poc_materializer_preflight=#{materializer_preflight?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -937,6 +946,24 @@ module Companion
         payload.fetch("approval_request").fetch("review_only")
     end
 
+    def setup_materializer_preflight_endpoint?(materializer_preflight)
+      materializer_preflight.include?("blocked_until_approval") &&
+        materializer_preflight.include?("materializer_capability_request") &&
+        materializer_preflight.include?("review-only")
+    end
+
+    def setup_materializer_preflight_json_endpoint?(materializer_preflight_json)
+      payload = JSON.parse(materializer_preflight_json)
+      checklist = payload.fetch("checklist")
+
+      payload.fetch("status") == "blocked_until_approval" &&
+        checklist.values.all? &&
+        payload.fetch("evidence").fetch("blocked_capabilities") == %w[write git test restart] &&
+        payload.fetch("evidence").fetch("reasons") == ["human_approval_required"] &&
+        payload.fetch("approval_request").fetch("kind") == "materializer_capability_request" &&
+        payload.fetch("approval_request").fetch("review_only")
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -1199,6 +1226,17 @@ module Companion
         approved.fetch(:status) == :ready_to_request_capabilities &&
         approved.fetch(:approval_request).fetch(:requested_capabilities) == %i[write git test restart] &&
         approved.fetch(:approved_capabilities) == %i[write git test restart]
+    end
+
+    def materializer_preflight?
+      preflight = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).materializer_preflight
+
+      preflight.fetch(:status) == :blocked_until_approval &&
+        preflight.fetch(:checklist).values.all? &&
+        preflight.fetch(:evidence).fetch(:blocked_capabilities) == %i[write git test restart] &&
+        preflight.fetch(:evidence).fetch(:reasons) == %i[human_approval_required] &&
+        preflight.fetch(:approval_request).fetch(:kind) == :materializer_capability_request &&
+        preflight.fetch(:summary).include?("review-only")
     end
 
     def wizard_type_spec_canonical?

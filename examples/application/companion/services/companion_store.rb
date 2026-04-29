@@ -265,6 +265,10 @@ module Companion
         persistence.materializer_gate(approved: approved)
       end
 
+      def materializer_preflight
+        persistence.materializer_preflight
+      end
+
       private
 
       attr_reader :persistence
