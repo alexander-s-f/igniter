@@ -106,6 +106,14 @@ module Companion
         )
       end
 
+      post "/countdowns/create" do |params|
+        result = service(:companion).create_countdown(params.fetch("title", ""), params.fetch("target_date", ""))
+        redirect Companion.feedback_path(
+          (result.success? ? :notice : :error) => result.feedback_code,
+          subject: result.subject_id
+        )
+      end
+
       post "/reminders/:id/complete" do |params|
         result = service(:companion).complete_reminder(params.fetch("id", ""))
         redirect Companion.feedback_path(

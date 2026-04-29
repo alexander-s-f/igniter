@@ -257,6 +257,8 @@ Companion currently proves the first app-local version:
 - `PersistenceReadinessContract` projects persistence registry diagnostics into
   setup/readiness facts exposed by the app
 - `ReminderContract` computes create/complete success and refusal
+- `CountdownContract` computes create success/refusal and mutation intent for a
+  user-facing countdown form
 - `TrackerLogContract` computes append-log success and refusal
 - command contracts return result plus mutation intent
 - `CompanionStore` applies mutation at the state/backend boundary

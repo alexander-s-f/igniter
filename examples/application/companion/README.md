@@ -25,6 +25,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   capabilities and read-model projections behind the Store façade.
 - `contracts/reminder_contract.rb` and `contracts/tracker_log_contract.rb`
   experiment with persistence as graph-owned command/result/mutation semantics.
+- `contracts/countdown_contract.rb` applies the same command/result/mutation
+  semantics to a user-facing countdown creation flow.
 - `contracts/reminder_record_contract.rb` sketches the target
   `contract :Reminder do persist... field... end` metadata surface.
 - `contracts/daily_focus_record_contract.rb` models daily focus as a date-keyed

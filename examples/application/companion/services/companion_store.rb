@@ -155,6 +155,18 @@ module Companion
         command_result(:success, feedback_code: :daily_focus_set, subject_id: :daily_focus, action: action)
       end
 
+      def create_countdown(title, target_date)
+        outcome = Contracts::CountdownContract.evaluate(
+          title: title,
+          target_date: target_date,
+          countdowns: persistence.countdowns.all
+        )
+        apply_countdown_mutation(outcome.fetch(:mutation))
+        action = record_contract_action(outcome.fetch(:result))
+        persist!
+        command_result_from_contract(outcome.fetch(:result), action: action)
+      end
+
       def complete_reminder(id)
         outcome = Contracts::ReminderContract.evaluate(
           operation: :complete,
@@ -221,6 +233,12 @@ module Companion
         return unless mutation.fetch(:operation) == :append_log
 
         persistence.tracker_logs.append(mutation.fetch(:entry).merge(tracker_id: mutation.fetch(:tracker_id)))
+      end
+
+      def apply_countdown_mutation(mutation)
+        return unless mutation.fetch(:operation) == :append
+
+        persistence.countdowns.save(mutation.fetch(:record))
       end
 
       def record_contract_action(result)

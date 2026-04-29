@@ -176,6 +176,11 @@ module Companion
                     para countdown.target_date, style: Companion::Web.style(:muted)
                   end
                 end
+                form action: "/countdowns/create", method: "post", style: Companion::Web.style(:form_row) do
+                  input name: "title", type: "text", placeholder: "Launch day", style: Companion::Web.style(:input)
+                  input name: "target_date", type: "date", style: Companion::Web.style(:input)
+                  button "Add", type: "submit", "data-action": "create-countdown", style: Companion::Web.style(:button)
+                end
               end
 
               div "data-capsule": "body-battery", style: Companion::Web.style(:panel_accent) do

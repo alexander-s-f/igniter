@@ -69,6 +69,10 @@ module Companion
       blank_tracker_result_status = get_status(app, blank_tracker_headers.fetch("location"))
       focus_status, focus_headers = post(app, "/today/focus", title: "Draft the launch note")
       focused_status = get_status(app, focus_headers.fetch("location"))
+      countdown_status, countdown_headers = post(app, "/countdowns/create", title: "Launch day", target_date: "2026-05-15")
+      countdown_created_status = get_status(app, countdown_headers.fetch("location"))
+      blank_countdown_status, blank_countdown_headers = post(app, "/countdowns/create", title: " ", target_date: " ")
+      blank_countdown_result_status = get_status(app, blank_countdown_headers.fetch("location"))
       complete_status, complete_headers = post(app, "/reminders/morning-water/complete")
       completed_status = get_status(app, complete_headers.fetch("location"))
 
@@ -108,6 +112,10 @@ module Companion
       out.puts "companion_poc_blank_tracker_result_status=#{blank_tracker_result_status}"
       out.puts "companion_poc_focus_status=#{focus_status}"
       out.puts "companion_poc_focused_status=#{focused_status}"
+      out.puts "companion_poc_countdown_status=#{countdown_status}"
+      out.puts "companion_poc_countdown_created_status=#{countdown_created_status}"
+      out.puts "companion_poc_blank_countdown_status=#{blank_countdown_status}"
+      out.puts "companion_poc_blank_countdown_result_status=#{blank_countdown_result_status}"
       out.puts "companion_poc_complete_status=#{complete_status}"
       out.puts "companion_poc_completed_status=#{completed_status}"
       out.puts "companion_poc_events_status=#{events_status}"
@@ -127,6 +135,9 @@ module Companion
       out.puts "companion_poc_daily_focus_first_class_record=#{daily_focus_first_class_record?(config)}"
       out.puts "companion_poc_countdown_persistence_manifest=#{countdown_persistence_manifest?}"
       out.puts "companion_poc_countdown_generated_api=#{countdown_generated_api?}"
+      out.puts "companion_poc_countdown_contract_refusal=#{blank_countdown_headers.fetch("location").include?("blank_countdown")}"
+      out.puts "companion_poc_countdown_created=#{final.countdowns.any? { |countdown| countdown.id == "launch-day" }}"
+      out.puts "companion_poc_countdown_persisted=#{persisted.countdowns.any? { |countdown| countdown.id == "launch-day" }}"
       out.puts "companion_poc_reminder_contract_refusal=#{blank_reminder_headers.fetch("location").include?("blank_reminder")}"
       out.puts "companion_poc_tracker_log_contract_refusal=#{blank_tracker_headers.fetch("location").include?("blank_tracker_value")}"
       out.puts "companion_poc_reminder_persistence_manifest=#{reminder_persistence_manifest?}"
