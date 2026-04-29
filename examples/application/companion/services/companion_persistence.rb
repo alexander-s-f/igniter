@@ -348,6 +348,14 @@ module Companion
         )
       end
 
+      def setup_handoff
+        Contracts::SetupHandoffContract.evaluate(
+          setup_health: setup_health,
+          manifest_summary: manifest_snapshot.fetch(:summary),
+          materializer_status: materializer_status
+        )
+      end
+
       def reminders
         record(:reminders)
       end

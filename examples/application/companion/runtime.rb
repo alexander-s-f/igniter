@@ -78,6 +78,8 @@ module Companion
 
       events_status, _events_headers, events_body = app.call(rack_env("GET", "/events"))
       setup_status, _setup_headers, setup_body = app.call(rack_env("GET", "/setup"))
+      setup_handoff_status, _setup_handoff_headers, setup_handoff_body = app.call(rack_env("GET", "/setup/handoff"))
+      setup_handoff_json_status, _setup_handoff_json_headers, setup_handoff_json_body = app.call(rack_env("GET", "/setup/handoff.json"))
       setup_health_status, _setup_health_headers, setup_health_body = app.call(rack_env("GET", "/setup/health"))
       setup_health_json_status, _setup_health_json_headers, setup_health_json_body = app.call(rack_env("GET", "/setup/health.json"))
       manifest_status, _manifest_headers, manifest_body = app.call(rack_env("GET", "/setup/manifest"))
@@ -136,6 +138,8 @@ module Companion
       html = html_body.join
       events = events_body.join
       setup = setup_body.join
+      setup_handoff = setup_handoff_body.join
+      setup_handoff_json = setup_handoff_json_body.join
       setup_health = setup_health_body.join
       setup_health_json = setup_health_json_body.join
       manifest = manifest_body.join
@@ -214,6 +218,8 @@ module Companion
       out.puts "companion_poc_completed_status=#{completed_status}"
       out.puts "companion_poc_events_status=#{events_status}"
       out.puts "companion_poc_setup_status=#{setup_status}"
+      out.puts "companion_poc_setup_handoff_status=#{setup_handoff_status}"
+      out.puts "companion_poc_setup_handoff_json_status=#{setup_handoff_json_status}"
       out.puts "companion_poc_setup_health_status=#{setup_health_status}"
       out.puts "companion_poc_setup_health_json_status=#{setup_health_json_status}"
       out.puts "companion_poc_setup_manifest_status=#{manifest_status}"
@@ -267,6 +273,9 @@ module Companion
       out.puts "companion_poc_hub_installed_status=#{hub_installed_status}"
       out.puts "companion_poc_setup_redacted=#{setup.include?("openai_api_key") && !setup.include?("sk-")}"
       out.puts "companion_poc_setup_persistence_readiness=#{setup.include?("persistence") && setup.include?("ready")}"
+      out.puts "companion_poc_setup_handoff_summary=#{setup_handoff_summary?(setup)}"
+      out.puts "companion_poc_setup_handoff_endpoint=#{setup_handoff_endpoint?(setup_handoff)}"
+      out.puts "companion_poc_setup_handoff_json_endpoint=#{setup_handoff_json_endpoint?(setup_handoff_json)}"
       out.puts "companion_poc_setup_health_summary=#{setup_health_summary?(setup)}"
       out.puts "companion_poc_setup_health_endpoint=#{setup_health_endpoint?(setup_health)}"
       out.puts "companion_poc_setup_health_json_endpoint=#{setup_health_json_endpoint?(setup_health_json)}"
@@ -361,6 +370,7 @@ module Companion
       out.puts "companion_poc_persistence_operation_model=#{persistence_operation_model?}"
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_manifest_glossary_contract=#{persistence_manifest_glossary_contract?}"
+      out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
       out.puts "companion_poc_setup_health_contract=#{setup_health_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
       out.puts "companion_poc_user_defined_article_contract=#{user_defined_article_contract?}"
@@ -1525,6 +1535,22 @@ module Companion
         warning.fetch(:review_items).any? { |item| item.fetch(:kind) == :relation_warning && item.fetch(:count) == 1 }
     end
 
+    def setup_handoff_contract?
+      handoff = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).setup_handoff
+
+      handoff.fetch(:status) == :stable &&
+        handoff.fetch(:descriptor).fetch(:schema_version) == 1 &&
+        handoff.fetch(:descriptor).fetch(:kind) == :setup_handoff &&
+        handoff.fetch(:descriptor).fetch(:report_only) &&
+        handoff.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        handoff.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        handoff.fetch(:descriptor).fetch(:purpose) == :context_rotation &&
+        handoff.fetch(:reading_order).include?("/setup/health.json") &&
+        handoff.fetch(:current_state).fetch(:capabilities) == 17 &&
+        handoff.fetch(:current_state).fetch(:materializer_grants_capabilities) == false &&
+        handoff.fetch(:next_action) == :record_blocked_attempt
+    end
+
     def relation_health_dashboard?(html)
       html.include?('data-relation-health-status="clear"') &&
         html.include?('data-relation-warning-count="0"') &&
@@ -2044,6 +2070,36 @@ module Companion
         manifest.include?("scopes") &&
         manifest.include?("record_append") &&
         manifest.include?("history_append")
+    end
+
+    def setup_handoff_summary?(setup)
+      setup.include?("setup_handoff") &&
+        setup.include?("kind=>:setup_handoff") &&
+        setup.include?("context_rotation")
+    end
+
+    def setup_handoff_endpoint?(setup_handoff)
+      setup_handoff.include?("status=>:stable") &&
+        setup_handoff.include?("kind=>:setup_handoff") &&
+        setup_handoff.include?("gates_runtime=>false") &&
+        setup_handoff.include?("/setup/health.json") &&
+        setup_handoff.include?("record_blocked_attempt")
+    end
+
+    def setup_handoff_json_endpoint?(setup_handoff_json)
+      payload = JSON.parse(setup_handoff_json)
+
+      payload.fetch("status") == "stable" &&
+        payload.fetch("descriptor").fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "setup_handoff" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("descriptor").fetch("purpose") == "context_rotation" &&
+        payload.fetch("reading_order").include?("/setup/health.json") &&
+        payload.fetch("current_state").fetch("capabilities") == 17 &&
+        payload.fetch("current_state").fetch("materializer_grants_capabilities") == false &&
+        payload.fetch("next_action") == "record_blocked_attempt"
     end
 
     def setup_health_summary?(setup)

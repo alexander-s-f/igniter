@@ -56,6 +56,9 @@ Current manifest vocabulary:
   glossary health, materializer descriptor health, and infrastructure loop
   health as a self-describing report-only packet with `gates_runtime: false`
   and `grants_capabilities: false`
+- `/setup/handoff(.json)` exposes the compact context-rotation packet for
+  agents with reading order, manifest scale, current materializer phase, and
+  next action
 - `/setup/materializer(.json)` exposes a `materializer_status` descriptor with
   schema version, review-only state, history targets, command intents, audit
   counts, `grants_capabilities: false`, and `execution_allowed: false`
@@ -163,6 +166,8 @@ Current user-defined-type pressure test:
   relation diagnostics, manifest glossary health, materializer descriptor
   health, and infrastructure loop health; it emits a descriptor so agents can
   identify the packet as diagnostic, not executable
+- `SetupHandoffContract`: compact read-only handoff over setup health,
+  manifest summary, and materializer status for context rotation
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities
@@ -260,6 +265,7 @@ Current Companion product flows use the persistence model:
   reminder-complete flows without the UI owning persistence semantics
 - dashboard status exposes relation-health summary as a diagnostic signal
 - `/setup` and `/setup/manifest` expose readiness and manifest state
+- `/setup/handoff` exposes the first-read context packet for agents
 - `/setup/health` exposes a compact report-only setup health packet for agents
 - `/setup/relation-health` exposes relation diagnostics for humans
 - `/setup/relation-health.json` exposes relation diagnostics for tools

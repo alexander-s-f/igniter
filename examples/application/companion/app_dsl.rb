@@ -70,8 +70,17 @@ module Companion
           relation_health: snapshot.relation_health,
           manifest_glossary: snapshot.manifest_glossary_health,
           materializer_descriptor_health: snapshot.materializer_status_descriptor_health,
-          setup_health: service(:companion).setup_health
+          setup_health: service(:companion).setup_health,
+          setup_handoff: service(:companion).setup_handoff
         }.inspect)
+      end
+
+      get "/setup/handoff" do
+        text service(:companion).setup_handoff.inspect
+      end
+
+      get "/setup/handoff.json" do
+        text JSON.pretty_generate(service(:companion).setup_handoff)
       end
 
       get "/setup/health" do

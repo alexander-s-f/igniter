@@ -25,6 +25,7 @@ Then read `/setup/materializer.json` for the compact review lifecycle status.
 Read `/setup/materializer/descriptor-health.json` when changing the
 materializer status descriptor.
 Read `/setup/health.json` for the compact report-only current-state packet.
+Read `/setup/handoff.json` first when rotating context between agents.
 
 Use `/setup/manifest/glossary-health.json` to check whether the manifest still
 contains the required glossary terms.
@@ -137,6 +138,16 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Relation warnings become `review_items`, not runtime blockers.
 - Does not grant capabilities and does not make readiness stricter.
 
+`setup_handoff`
+
+- Compact context-rotation packet exposed at `/setup/handoff.json`.
+- Includes `descriptor` with `schema_version: 1`, `kind: :setup_handoff`,
+  `report_only: true`, `gates_runtime: false`, and
+  `grants_capabilities: false`.
+- Carries reading order, manifest scale, current materializer phase, and next
+  action.
+- It is a handoff/read model, not an execution or approval surface.
+
 ## Current Lowerings
 
 ```text
@@ -146,6 +157,7 @@ relation descriptor -> Relation[Store[A], History[B]]
 command mutation -> normalized operation intent -> app boundary
 projection reads -> graph-owned read model
 setup health -> report-only current-state packet
+setup handoff -> compact agent context rotation packet
 ```
 
 ## Do Not Infer
