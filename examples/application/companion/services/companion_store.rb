@@ -289,6 +289,10 @@ module Companion
         persistence.materializer_audit_trail
       end
 
+      def materializer_supervision
+        persistence.materializer_supervision
+      end
+
       def record_materializer_attempt
         outcome = persistence.materializer_attempt_command
         apply_persistence_mutation(outcome.fetch(:mutation))

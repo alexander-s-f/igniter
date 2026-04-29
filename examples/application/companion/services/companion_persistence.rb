@@ -252,6 +252,17 @@ module Companion
         )
       end
 
+      def materializer_supervision
+        Contracts::MaterializerSupervisionContract.evaluate(
+          materializer_gate: materializer_gate,
+          materializer_preflight: materializer_preflight,
+          materializer_runbook: materializer_runbook,
+          materializer_receipt: materializer_receipt,
+          materializer_attempt_command: materializer_attempt_command,
+          materializer_audit_trail: materializer_audit_trail
+        )
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,

@@ -187,6 +187,14 @@ module Companion
         text JSON.pretty_generate(service(:companion).materializer_audit_trail)
       end
 
+      get "/setup/materializer-supervision" do
+        text service(:companion).materializer_supervision.inspect
+      end
+
+      get "/setup/materializer-supervision.json" do
+        text JSON.pretty_generate(service(:companion).materializer_supervision)
+      end
+
       post "/setup/materializer-attempts/record" do
         result = service(:companion).record_materializer_attempt
         redirect Companion.feedback_path(

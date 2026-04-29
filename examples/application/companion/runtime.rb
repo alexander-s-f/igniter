@@ -105,6 +105,8 @@ module Companion
       materializer_attempt_command_json_status, _materializer_attempt_command_json_headers, materializer_attempt_command_json_body = app.call(rack_env("GET", "/setup/materializer-attempt-command.json"))
       materializer_audit_status, _materializer_audit_headers, materializer_audit_body = app.call(rack_env("GET", "/setup/materializer-audit-trail"))
       materializer_audit_json_status, _materializer_audit_json_headers, materializer_audit_json_body = app.call(rack_env("GET", "/setup/materializer-audit-trail.json"))
+      materializer_supervision_status, _materializer_supervision_headers, materializer_supervision_body = app.call(rack_env("GET", "/setup/materializer-supervision"))
+      materializer_supervision_json_status, _materializer_supervision_json_headers, materializer_supervision_json_body = app.call(rack_env("GET", "/setup/materializer-supervision.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -143,6 +145,8 @@ module Companion
       materializer_attempt_command_json = materializer_attempt_command_json_body.join
       materializer_audit = materializer_audit_body.join
       materializer_audit_json = materializer_audit_json_body.join
+      materializer_supervision = materializer_supervision_body.join
+      materializer_supervision_json = materializer_supervision_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -201,6 +205,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_attempt_command_json_status=#{materializer_attempt_command_json_status}"
       out.puts "companion_poc_setup_materializer_audit_status=#{materializer_audit_status}"
       out.puts "companion_poc_setup_materializer_audit_json_status=#{materializer_audit_json_status}"
+      out.puts "companion_poc_setup_materializer_supervision_status=#{materializer_supervision_status}"
+      out.puts "companion_poc_setup_materializer_supervision_json_status=#{materializer_supervision_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -234,6 +240,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_attempt_command_json_endpoint=#{setup_materializer_attempt_command_json_endpoint?(materializer_attempt_command_json)}"
       out.puts "companion_poc_setup_materializer_audit_endpoint=#{setup_materializer_audit_endpoint?(materializer_audit)}"
       out.puts "companion_poc_setup_materializer_audit_json_endpoint=#{setup_materializer_audit_json_endpoint?(materializer_audit_json)}"
+      out.puts "companion_poc_setup_materializer_supervision_endpoint=#{setup_materializer_supervision_endpoint?(materializer_supervision)}"
+      out.puts "companion_poc_setup_materializer_supervision_json_endpoint=#{setup_materializer_supervision_json_endpoint?(materializer_supervision_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -294,6 +302,7 @@ module Companion
       out.puts "companion_poc_materializer_attempt_command=#{materializer_attempt_command?}"
       out.puts "companion_poc_materializer_attempt_record_route=#{materializer_attempt_record_route?}"
       out.puts "companion_poc_materializer_audit_trail=#{materializer_audit_trail?}"
+      out.puts "companion_poc_materializer_supervision=#{materializer_supervision?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -1080,6 +1089,26 @@ module Companion
         payload.fetch("last_attempt").nil?
     end
 
+    def setup_materializer_supervision_endpoint?(materializer_supervision)
+      materializer_supervision.include?("status=>:blocked") &&
+        materializer_supervision.include?("awaiting_explicit_attempt_record") &&
+        materializer_supervision.include?("record_blocked_attempt")
+    end
+
+    def setup_materializer_supervision_json_endpoint?(materializer_supervision_json)
+      payload = JSON.parse(materializer_supervision_json)
+      signals = payload.fetch("signals")
+      command_intent = payload.fetch("command_intent")
+
+      payload.fetch("status") == "blocked" &&
+        payload.fetch("phase") == "awaiting_explicit_attempt_record" &&
+        signals.fetch("gate_blocked") &&
+        signals.fetch("attempt_command_ready") &&
+        command_intent.fetch("operation") == "history_append" &&
+        command_intent.fetch("target") == "materializer_attempts" &&
+        payload.fetch("next_action") == "record_blocked_attempt"
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -1462,6 +1491,24 @@ module Companion
         trail.fetch(:executed_count).zero? &&
         trail.fetch(:blocked_capabilities) == %i[git restart test write] &&
         trail.fetch(:last_attempt).fetch(:kind) == :materializer_runbook_receipt
+    end
+
+    def materializer_supervision?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      empty = persistence.materializer_supervision
+      command = persistence.materializer_attempt_command
+      persistence.materializer_attempts.append(command.fetch(:mutation).fetch(:event).merge(index: 0))
+      recorded = persistence.materializer_supervision
+
+      empty.fetch(:status) == :blocked &&
+        empty.fetch(:phase) == :awaiting_explicit_attempt_record &&
+        empty.fetch(:signals).fetch(:gate_blocked) &&
+        empty.fetch(:signals).fetch(:attempt_command_ready) &&
+        empty.fetch(:command_intent).fetch(:target) == :materializer_attempts &&
+        empty.fetch(:next_action) == :record_blocked_attempt &&
+        recorded.fetch(:phase) == :blocked_attempt_recorded &&
+        recorded.fetch(:audit).fetch(:attempt_count) == 1 &&
+        recorded.fetch(:next_action) == :review_human_approval_request
     end
 
     def wizard_type_spec_canonical?

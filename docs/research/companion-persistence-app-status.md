@@ -106,6 +106,8 @@ Current user-defined-type pressure test:
   applying it
 - `MaterializerAuditTrailContract`: projection over `History[MaterializerAttempt]`
   for blocked attempt counts, blocked capabilities, and latest receipt
+- `MaterializerSupervisionContract`: compact lifecycle read model over gate,
+  preflight, runbook, receipt, attempt command intent, and audit trail
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
@@ -213,6 +215,9 @@ Current Companion product flows use the persistence model:
   path that applies that intent and persists one attempt receipt
 - `/setup/materializer-audit-trail` exposes the read model over persisted
   materializer attempts
+- `/setup/materializer-supervision` exposes a compact status, phase, signals,
+  next action, command intent, and audit summary for the whole materializer
+  lifecycle
 
 ## Validated Concepts
 
