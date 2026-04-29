@@ -211,6 +211,14 @@ module Companion
         text JSON.pretty_generate(service(:companion).materializer_approval_receipt)
       end
 
+      get "/setup/materializer-approval-command" do
+        text service(:companion).materializer_approval_command.inspect
+      end
+
+      get "/setup/materializer-approval-command.json" do
+        text JSON.pretty_generate(service(:companion).materializer_approval_command)
+      end
+
       get "/setup/materializer-approvals" do
         text service(:companion).materializer_approvals.inspect
       end

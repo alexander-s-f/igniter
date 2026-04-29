@@ -127,6 +127,9 @@ Current user-defined-type pressure test:
   `applies_capabilities: false`
 - `MaterializerApproval`: static history contract for future approval receipts,
   proving the path to `History[MaterializerApproval]` without side effects
+- `MaterializerApprovalContract`: command contract that lowers an approval
+  receipt into normalized `history_append :materializer_approvals` intent
+  without applying it
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
@@ -140,6 +143,8 @@ Current command contracts:
 - `CountdownContract`: create, success/refusal, mutation intent
 - `TrackerLogContract`: append, success/refusal, mutation intent
 - `MaterializerAttemptContract`: record blocked review-only attempt,
+  success/refusal, mutation intent
+- `MaterializerApprovalContract`: record approval decision receipt,
   success/refusal, mutation intent
 
 Current operation algebra:
@@ -241,6 +246,8 @@ Current Companion product flows use the persistence model:
   decision and proves approval is explicit policy data, not hidden capability
 - `/setup/materializer-approval-receipt` exposes an audit-ready approval receipt
   without applying any capability
+- `/setup/materializer-approval-command` exposes the computed approval history
+  append intent without appending it
 
 ## Validated Concepts
 

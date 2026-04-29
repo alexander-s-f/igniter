@@ -305,6 +305,10 @@ module Companion
         persistence.materializer_approval_receipt
       end
 
+      def materializer_approval_command
+        persistence.materializer_approval_command
+      end
+
       def record_materializer_attempt
         outcome = persistence.materializer_attempt_command
         apply_persistence_mutation(outcome.fetch(:mutation))

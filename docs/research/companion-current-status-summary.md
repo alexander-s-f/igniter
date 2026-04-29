@@ -101,14 +101,12 @@ Do preserve:
 
 Best next move:
 
-- add `MaterializerApprovalCommandContract` that lowers approval receipt to a
+- add explicit app-boundary POST that applies the approval
   `history_append :materializer_approvals` intent
-- keep write application behind explicit POST only
 - then add `MaterializerApprovalAuditTrailContract`
 
 Acceptance:
 
 - approval reads do not append
-- command returns normalized `history_append`
 - explicit app-boundary POST persists one approval receipt
 - supervision still does not grant capabilities

@@ -119,6 +119,11 @@ module Companion
           contract_class: Contracts::MaterializerAttemptContract,
           commands: %i[record_blocked],
           operations: %i[history_append none]
+        },
+        materializer_approval_commands: {
+          contract_class: Contracts::MaterializerApprovalContract,
+          commands: %i[record_decision],
+          operations: %i[history_append none]
         }
       }.freeze
 
@@ -279,6 +284,12 @@ module Companion
       def materializer_approval_receipt
         Contracts::MaterializerApprovalReceiptContract.evaluate(
           approval_policy: materializer_approval_policy
+        )
+      end
+
+      def materializer_approval_command
+        Contracts::MaterializerApprovalContract.evaluate(
+          receipt: materializer_approval_receipt
         )
       end
 

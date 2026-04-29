@@ -111,6 +111,8 @@ module Companion
       materializer_approval_json_status, _materializer_approval_json_headers, materializer_approval_json_body = app.call(rack_env("GET", "/setup/materializer-approval-policy.json"))
       materializer_approval_receipt_status, _materializer_approval_receipt_headers, materializer_approval_receipt_body = app.call(rack_env("GET", "/setup/materializer-approval-receipt"))
       materializer_approval_receipt_json_status, _materializer_approval_receipt_json_headers, materializer_approval_receipt_json_body = app.call(rack_env("GET", "/setup/materializer-approval-receipt.json"))
+      materializer_approval_command_status, _materializer_approval_command_headers, materializer_approval_command_body = app.call(rack_env("GET", "/setup/materializer-approval-command"))
+      materializer_approval_command_json_status, _materializer_approval_command_json_headers, materializer_approval_command_json_body = app.call(rack_env("GET", "/setup/materializer-approval-command.json"))
       materializer_approvals_status, _materializer_approvals_headers, materializer_approvals_body = app.call(rack_env("GET", "/setup/materializer-approvals"))
       materializer_approvals_json_status, _materializer_approvals_json_headers, materializer_approvals_json_body = app.call(rack_env("GET", "/setup/materializer-approvals.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
@@ -157,6 +159,8 @@ module Companion
       materializer_approval_json = materializer_approval_json_body.join
       materializer_approval_receipt = materializer_approval_receipt_body.join
       materializer_approval_receipt_json = materializer_approval_receipt_json_body.join
+      materializer_approval_command = materializer_approval_command_body.join
+      materializer_approval_command_json = materializer_approval_command_json_body.join
       materializer_approvals = materializer_approvals_body.join
       materializer_approvals_json = materializer_approvals_json_body.join
       hub_catalog = hub_body.join
@@ -223,6 +227,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_approval_json_status=#{materializer_approval_json_status}"
       out.puts "companion_poc_setup_materializer_approval_receipt_status=#{materializer_approval_receipt_status}"
       out.puts "companion_poc_setup_materializer_approval_receipt_json_status=#{materializer_approval_receipt_json_status}"
+      out.puts "companion_poc_setup_materializer_approval_command_status=#{materializer_approval_command_status}"
+      out.puts "companion_poc_setup_materializer_approval_command_json_status=#{materializer_approval_command_json_status}"
       out.puts "companion_poc_setup_materializer_approvals_status=#{materializer_approvals_status}"
       out.puts "companion_poc_setup_materializer_approvals_json_status=#{materializer_approvals_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
@@ -264,6 +270,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_approval_json_endpoint=#{setup_materializer_approval_json_endpoint?(materializer_approval_json)}"
       out.puts "companion_poc_setup_materializer_approval_receipt_endpoint=#{setup_materializer_approval_receipt_endpoint?(materializer_approval_receipt)}"
       out.puts "companion_poc_setup_materializer_approval_receipt_json_endpoint=#{setup_materializer_approval_receipt_json_endpoint?(materializer_approval_receipt_json)}"
+      out.puts "companion_poc_setup_materializer_approval_command_endpoint=#{setup_materializer_approval_command_endpoint?(materializer_approval_command)}"
+      out.puts "companion_poc_setup_materializer_approval_command_json_endpoint=#{setup_materializer_approval_command_json_endpoint?(materializer_approval_command_json)}"
       out.puts "companion_poc_setup_materializer_approvals_endpoint=#{setup_materializer_approvals_endpoint?(materializer_approvals)}"
       out.puts "companion_poc_setup_materializer_approvals_json_endpoint=#{setup_materializer_approvals_json_endpoint?(materializer_approvals_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
@@ -330,6 +338,7 @@ module Companion
       out.puts "companion_poc_materializer_approval_policy=#{materializer_approval_policy?}"
       out.puts "companion_poc_materializer_approval_receipt=#{materializer_approval_receipt?}"
       out.puts "companion_poc_materializer_approval_history=#{materializer_approval_history?}"
+      out.puts "companion_poc_materializer_approval_command=#{materializer_approval_command?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -1174,6 +1183,27 @@ module Companion
         receipt.fetch("rejected_capabilities") == %w[write git test restart]
     end
 
+    def setup_materializer_approval_command_endpoint?(materializer_approval_command)
+      materializer_approval_command.include?("operation=>:history_append") &&
+        materializer_approval_command.include?("target=>:materializer_approvals") &&
+        materializer_approval_command.include?("materializer_approval_recordable")
+    end
+
+    def setup_materializer_approval_command_json_endpoint?(materializer_approval_command_json)
+      payload = JSON.parse(materializer_approval_command_json)
+      result = payload.fetch("result")
+      mutation = payload.fetch("mutation")
+      event = mutation.fetch("event")
+
+      result.fetch("success") &&
+        result.fetch("feedback_code") == "materializer_approval_recordable" &&
+        mutation.fetch("operation") == "history_append" &&
+        mutation.fetch("target") == "materializer_approvals" &&
+        event.fetch("applies_capabilities") == false &&
+        event.fetch("review_only") &&
+        event.fetch("rejected_capabilities") == %w[write git test restart]
+    end
+
     def setup_materializer_approvals_endpoint?(materializer_approvals)
       materializer_approvals == "[]"
     end
@@ -1196,6 +1226,7 @@ module Companion
         reminders: [Services::CompanionState::Reminder.new(id: "morning-water", title: "Water", due: "morning", status: :open)]
       ).fetch(:mutation)
       materializer_attempt = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).materializer_attempt_command.fetch(:mutation)
+      materializer_approval = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).materializer_approval_command.fetch(:mutation)
       tracker_log = Contracts::TrackerLogContract.evaluate(
         tracker_id: "sleep",
         value: "7",
@@ -1215,6 +1246,8 @@ module Companion
         tracker_log.fetch(:target) == :tracker_logs &&
         materializer_attempt.fetch(:operation) == :history_append &&
         materializer_attempt.fetch(:target) == :materializer_attempts &&
+        materializer_approval.fetch(:operation) == :history_append &&
+        materializer_approval.fetch(:target) == :materializer_approvals &&
         refused.fetch(:operation) == :none
     end
 
@@ -1226,7 +1259,7 @@ module Companion
       summary.fetch(:record_count) == 6 &&
         summary.fetch(:history_count) == 6 &&
         summary.fetch(:projection_count) == 4 &&
-        summary.fetch(:command_count) == 4 &&
+        summary.fetch(:command_count) == 5 &&
         summary.fetch(:relation_count) == 2 &&
         manifest.fetch(:records).fetch(:articles).fetch(:fields).include?(:status) &&
         manifest.fetch(:records).fetch(:wizard_type_specs).fetch(:fields).include?(:spec) &&
@@ -1240,7 +1273,8 @@ module Companion
         manifest.fetch(:projections).fetch(:materializer_audit_trail).fetch(:reads) == %i[materializer_attempts] &&
         manifest.fetch(:relations).fetch(:tracker_logs_by_tracker).fetch(:join) == { id: :tracker_id } &&
         manifest.fetch(:commands).fetch(:tracker_log_commands).fetch(:operations).include?(:history_append) &&
-        manifest.fetch(:commands).fetch(:materializer_attempt_commands).fetch(:operations).include?(:history_append)
+        manifest.fetch(:commands).fetch(:materializer_attempt_commands).fetch(:operations).include?(:history_append) &&
+        manifest.fetch(:commands).fetch(:materializer_approval_commands).fetch(:operations).include?(:history_append)
     end
 
     def persistence_relation_manifest?
@@ -1643,6 +1677,22 @@ module Companion
         appended.fetch(:applies_capabilities) == false &&
         approvals.count(status: :pending) == 1 &&
         approvals.where(kind: :materializer_approval_receipt).first.fetch(:review_only)
+    end
+
+    def materializer_approval_command?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      command = persistence.materializer_approval_command
+      mutation = command.fetch(:mutation)
+      event = mutation.fetch(:event)
+
+      command.fetch(:result).fetch(:success) &&
+        command.fetch(:result).fetch(:feedback_code) == :materializer_approval_recordable &&
+        mutation.fetch(:operation) == :history_append &&
+        mutation.fetch(:target) == :materializer_approvals &&
+        event.fetch(:kind) == :materializer_approval_receipt &&
+        event.fetch(:status) == :pending &&
+        event.fetch(:applies_capabilities) == false &&
+        event.fetch(:review_only)
     end
 
     def wizard_type_spec_canonical?
