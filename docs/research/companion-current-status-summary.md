@@ -60,6 +60,7 @@ WizardTypeSpec
 -> approval command
 -> explicit approval POST
 -> approval audit trail
+-> supervision with attempt + approval audit
 ```
 
 Important boundary:
@@ -105,11 +106,11 @@ Do preserve:
 
 Best next move:
 
-- fold approval history into `MaterializerSupervisionContract`
-- then compact materializer setup endpoints/docs if the model still feels good
+- compact the materializer read surface around supervision
+- keep lower-level setup endpoints as debug/proof surfaces while app-local
 
 Acceptance:
 
-- approval reads do not append
-- approval audit trail reads persisted approval receipts
-- supervision still does not grant capabilities
+- one supervision payload shows attempt and approval audit state
+- next action advances without applying capabilities
+- lower-level endpoints remain available for inspection

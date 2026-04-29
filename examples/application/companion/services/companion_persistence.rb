@@ -280,7 +280,9 @@ module Companion
           materializer_runbook: materializer_runbook,
           materializer_receipt: materializer_receipt,
           materializer_attempt_command: materializer_attempt_command,
-          materializer_audit_trail: materializer_audit_trail
+          materializer_audit_trail: materializer_audit_trail,
+          materializer_approval_command: materializer_approval_command,
+          materializer_approval_audit_trail: materializer_approval_audit_trail
         )
       end
 

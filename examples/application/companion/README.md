@@ -85,8 +85,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   `History[MaterializerAttempt]` into attempt counts, blocked capabilities, and
   the latest receipt.
 - `contracts/materializer_supervision_contract.rb` compacts gate, preflight,
-  runbook, receipt, command intent, and audit trail into one materializer
-  lifecycle read model.
+  runbook, receipt, attempt command, approval command, and both audit trails
+  into one materializer lifecycle read model.
 - `contracts/materializer_approval_policy_contract.rb` models human approval as
   an explicit decision over requested capabilities; policy decisions do not
   grant capabilities by themselves.

@@ -1147,13 +1147,20 @@ module Companion
       payload = JSON.parse(materializer_supervision_json)
       signals = payload.fetch("signals")
       command_intent = payload.fetch("command_intent")
+      approval_command_intent = payload.fetch("approval_command_intent")
+      approval_audit = payload.fetch("approval_audit")
 
       payload.fetch("status") == "blocked" &&
         payload.fetch("phase") == "awaiting_explicit_attempt_record" &&
         signals.fetch("gate_blocked") &&
         signals.fetch("attempt_command_ready") &&
+        signals.fetch("approval_command_ready") &&
+        signals.fetch("approval_application_absent") &&
         command_intent.fetch("operation") == "history_append" &&
         command_intent.fetch("target") == "materializer_attempts" &&
+        approval_command_intent.fetch("target") == "materializer_approvals" &&
+        approval_command_intent.fetch("applies_capabilities") == false &&
+        approval_audit.fetch("approval_count").zero? &&
         payload.fetch("next_action") == "record_blocked_attempt"
     end
 
@@ -1634,19 +1641,31 @@ module Companion
     def materializer_supervision?
       persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
       empty = persistence.materializer_supervision
-      command = persistence.materializer_attempt_command
-      persistence.materializer_attempts.append(command.fetch(:mutation).fetch(:event).merge(index: 0))
-      recorded = persistence.materializer_supervision
+      attempt_command = persistence.materializer_attempt_command
+      persistence.materializer_attempts.append(attempt_command.fetch(:mutation).fetch(:event).merge(index: 0))
+      attempt_recorded = persistence.materializer_supervision
+      approval_command = persistence.materializer_approval_command
+      persistence.materializer_approvals.append(approval_command.fetch(:mutation).fetch(:event).merge(index: 0))
+      approval_recorded = persistence.materializer_supervision
 
       empty.fetch(:status) == :blocked &&
         empty.fetch(:phase) == :awaiting_explicit_attempt_record &&
         empty.fetch(:signals).fetch(:gate_blocked) &&
         empty.fetch(:signals).fetch(:attempt_command_ready) &&
+        empty.fetch(:signals).fetch(:approval_command_ready) &&
+        empty.fetch(:signals).fetch(:approval_application_absent) &&
         empty.fetch(:command_intent).fetch(:target) == :materializer_attempts &&
+        empty.fetch(:approval_command_intent).fetch(:target) == :materializer_approvals &&
+        empty.fetch(:approval_command_intent).fetch(:applies_capabilities) == false &&
         empty.fetch(:next_action) == :record_blocked_attempt &&
-        recorded.fetch(:phase) == :blocked_attempt_recorded &&
-        recorded.fetch(:audit).fetch(:attempt_count) == 1 &&
-        recorded.fetch(:next_action) == :review_human_approval_request
+        attempt_recorded.fetch(:phase) == :awaiting_explicit_approval_record &&
+        attempt_recorded.fetch(:audit).fetch(:attempt_count) == 1 &&
+        attempt_recorded.fetch(:audit).fetch(:approval_count).zero? &&
+        attempt_recorded.fetch(:next_action) == :record_approval_receipt &&
+        approval_recorded.fetch(:phase) == :approval_receipt_recorded &&
+        approval_recorded.fetch(:approval_audit).fetch(:approval_count) == 1 &&
+        approval_recorded.fetch(:approval_audit).fetch(:applied_count).zero? &&
+        approval_recorded.fetch(:next_action) == :review_materializer_execution_request
     end
 
     def materializer_approval_policy?

@@ -123,7 +123,8 @@ Current user-defined-type pressure test:
 - `MaterializerAuditTrailContract`: projection over `History[MaterializerAttempt]`
   for blocked attempt counts, blocked capabilities, and latest receipt
 - `MaterializerSupervisionContract`: compact lifecycle read model over gate,
-  preflight, runbook, receipt, attempt command intent, and audit trail
+  preflight, runbook, receipt, attempt command intent, approval command intent,
+  attempt audit, and approval audit
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities
@@ -248,8 +249,8 @@ Current Companion product flows use the persistence model:
 - `/setup/materializer-audit-trail` exposes the read model over persisted
   materializer attempts
 - `/setup/materializer-supervision` exposes a compact status, phase, signals,
-  next action, command intent, and audit summary for the whole materializer
-  lifecycle
+  next action, attempt command intent, approval command intent, attempt audit,
+  and approval audit summary for the whole materializer lifecycle
 - `/setup/materializer-approval-policy` exposes the default pending approval
   decision and proves approval is explicit policy data, not hidden capability
 - `/setup/materializer-approval-receipt` exposes an audit-ready approval receipt
@@ -314,7 +315,7 @@ Two relation slices have landed app-locally:
 The next safe move is materialization hardening or relation-health ergonomics,
 still app-local:
 
-- fold approval audit into `MaterializerSupervisionContract`
+- compact the materializer read surface around supervision
 - keep approval reads side-effect-free
 - apply approval persistence only through an explicit app-boundary POST
 - keep dynamic wizard/configurator output sandboxed until it materializes into
@@ -356,7 +357,7 @@ metadata are reportable and usable by app-local generated APIs.
 [S] Tracker to TrackerLog proves projection relation input and warning path.
 [S] Article to Comment proves user-defined-type pressure through static
 contracts before dynamic materialization.
-Next: fold approval audit into `MaterializerSupervisionContract`, while keeping
+Next: compact the materializer read surface around supervision, while keeping
 capability grants review-only and non-applied.
 Block: none.
 ```
