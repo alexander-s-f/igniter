@@ -301,6 +301,10 @@ module Companion
         persistence.materializer_supervision
       end
 
+      def materializer_status
+        persistence.materializer_status
+      end
+
       def materializer_approval_policy
         persistence.materializer_approval_policy
       end

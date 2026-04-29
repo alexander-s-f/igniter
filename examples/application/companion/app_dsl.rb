@@ -131,6 +131,14 @@ module Companion
         text JSON.pretty_generate(service(:companion).infrastructure_loop_health)
       end
 
+      get "/setup/materializer" do
+        text service(:companion).materializer_status.inspect
+      end
+
+      get "/setup/materializer.json" do
+        text JSON.pretty_generate(service(:companion).materializer_status)
+      end
+
       get "/setup/materializer-gate" do
         text service(:companion).materializer_gate.inspect
       end

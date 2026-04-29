@@ -106,11 +106,11 @@ Do preserve:
 
 Best next move:
 
-- compact the materializer read surface around supervision
-- keep lower-level setup endpoints as debug/proof surfaces while app-local
+- add a minimal dashboard/status cue from the compact materializer packet
+- keep execution and capability grant out of the UI
 
 Acceptance:
 
-- one supervision payload shows attempt and approval audit state
-- next action advances without applying capabilities
-- lower-level endpoints remain available for inspection
+- UI exposes review-only phase/next action without offering execute
+- setup reads still do not append histories
+- low-level endpoints remain available for inspection

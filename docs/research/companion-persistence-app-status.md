@@ -248,6 +248,8 @@ Current Companion product flows use the persistence model:
   path that applies that intent and persists one attempt receipt
 - `/setup/materializer-audit-trail` exposes the read model over persisted
   materializer attempts
+- `/setup/materializer` exposes the canonical compact materializer status packet;
+  it is an alias over supervision, not a new capability
 - `/setup/materializer-supervision` exposes a compact status, phase, signals,
   next action, attempt command intent, approval command intent, attempt audit,
   and approval audit summary for the whole materializer lifecycle
@@ -315,7 +317,7 @@ Two relation slices have landed app-locally:
 The next safe move is materialization hardening or relation-health ergonomics,
 still app-local:
 
-- compact the materializer read surface around supervision
+- add a minimal dashboard/status cue from the compact materializer packet
 - keep approval reads side-effect-free
 - apply approval persistence only through an explicit app-boundary POST
 - keep dynamic wizard/configurator output sandboxed until it materializes into
@@ -357,7 +359,7 @@ metadata are reportable and usable by app-local generated APIs.
 [S] Tracker to TrackerLog proves projection relation input and warning path.
 [S] Article to Comment proves user-defined-type pressure through static
 contracts before dynamic materialization.
-Next: compact the materializer read surface around supervision, while keeping
-capability grants review-only and non-applied.
+Next: add a minimal dashboard/status cue from the compact materializer packet,
+while keeping capability grants review-only and non-applied.
 Block: none.
 ```

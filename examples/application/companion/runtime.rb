@@ -93,6 +93,8 @@ module Companion
       wizard_migration_json_status, _wizard_migration_json_headers, wizard_migration_json_body = app.call(rack_env("GET", "/setup/wizard-type-spec-migration-plan.json"))
       loop_health_status, _loop_health_headers, loop_health_body = app.call(rack_env("GET", "/setup/infrastructure-loop-health"))
       loop_health_json_status, _loop_health_json_headers, loop_health_json_body = app.call(rack_env("GET", "/setup/infrastructure-loop-health.json"))
+      materializer_status, _materializer_headers, materializer_body = app.call(rack_env("GET", "/setup/materializer"))
+      materializer_json_status, _materializer_json_headers, materializer_json_body = app.call(rack_env("GET", "/setup/materializer.json"))
       materializer_gate_status, _materializer_gate_headers, materializer_gate_body = app.call(rack_env("GET", "/setup/materializer-gate"))
       materializer_gate_json_status, _materializer_gate_json_headers, materializer_gate_json_body = app.call(rack_env("GET", "/setup/materializer-gate.json"))
       materializer_preflight_status, _materializer_preflight_headers, materializer_preflight_body = app.call(rack_env("GET", "/setup/materializer-preflight"))
@@ -143,6 +145,8 @@ module Companion
       wizard_migration_json = wizard_migration_json_body.join
       loop_health = loop_health_body.join
       loop_health_json = loop_health_json_body.join
+      materializer = materializer_body.join
+      materializer_json = materializer_json_body.join
       materializer_gate = materializer_gate_body.join
       materializer_gate_json = materializer_gate_json_body.join
       materializer_preflight = materializer_preflight_body.join
@@ -213,6 +217,8 @@ module Companion
       out.puts "companion_poc_setup_wizard_type_spec_migration_json_status=#{wizard_migration_json_status}"
       out.puts "companion_poc_setup_infrastructure_loop_health_status=#{loop_health_status}"
       out.puts "companion_poc_setup_infrastructure_loop_health_json_status=#{loop_health_json_status}"
+      out.puts "companion_poc_setup_materializer_status=#{materializer_status}"
+      out.puts "companion_poc_setup_materializer_json_status=#{materializer_json_status}"
       out.puts "companion_poc_setup_materializer_gate_status=#{materializer_gate_status}"
       out.puts "companion_poc_setup_materializer_gate_json_status=#{materializer_gate_json_status}"
       out.puts "companion_poc_setup_materializer_preflight_status=#{materializer_preflight_status}"
@@ -258,6 +264,8 @@ module Companion
       out.puts "companion_poc_setup_wizard_type_spec_migration_json_endpoint=#{setup_wizard_type_spec_migration_json_endpoint?(wizard_migration_json)}"
       out.puts "companion_poc_setup_infrastructure_loop_health_endpoint=#{setup_infrastructure_loop_health_endpoint?(loop_health)}"
       out.puts "companion_poc_setup_infrastructure_loop_health_json_endpoint=#{setup_infrastructure_loop_health_json_endpoint?(loop_health_json)}"
+      out.puts "companion_poc_setup_materializer_endpoint=#{setup_materializer_endpoint?(materializer)}"
+      out.puts "companion_poc_setup_materializer_json_endpoint=#{setup_materializer_json_endpoint?(materializer_json)}"
       out.puts "companion_poc_setup_materializer_gate_endpoint=#{setup_materializer_gate_endpoint?(materializer_gate)}"
       out.puts "companion_poc_setup_materializer_gate_json_endpoint=#{setup_materializer_gate_json_endpoint?(materializer_gate_json)}"
       out.puts "companion_poc_setup_materializer_preflight_endpoint=#{setup_materializer_preflight_endpoint?(materializer_preflight)}"
@@ -343,6 +351,7 @@ module Companion
       out.puts "companion_poc_materializer_attempt_record_route=#{materializer_attempt_record_route?}"
       out.puts "companion_poc_materializer_audit_trail=#{materializer_audit_trail?}"
       out.puts "companion_poc_materializer_supervision=#{materializer_supervision?}"
+      out.puts "companion_poc_materializer_status_packet=#{materializer_status_packet?}"
       out.puts "companion_poc_materializer_approval_policy=#{materializer_approval_policy?}"
       out.puts "companion_poc_materializer_approval_receipt=#{materializer_approval_receipt?}"
       out.puts "companion_poc_materializer_approval_history=#{materializer_approval_history?}"
@@ -1164,6 +1173,16 @@ module Companion
         payload.fetch("next_action") == "record_blocked_attempt"
     end
 
+    def setup_materializer_endpoint?(materializer)
+      materializer.include?("status=>:blocked") &&
+        materializer.include?("approval_audit") &&
+        materializer.include?("record_blocked_attempt")
+    end
+
+    def setup_materializer_json_endpoint?(materializer_json)
+      setup_materializer_supervision_json_endpoint?(materializer_json)
+    end
+
     def setup_materializer_approval_endpoint?(materializer_approval)
       materializer_approval.include?("status=>:pending") &&
         materializer_approval.include?("human_approval_missing") &&
@@ -1666,6 +1685,17 @@ module Companion
         approval_recorded.fetch(:approval_audit).fetch(:approval_count) == 1 &&
         approval_recorded.fetch(:approval_audit).fetch(:applied_count).zero? &&
         approval_recorded.fetch(:next_action) == :review_materializer_execution_request
+    end
+
+    def materializer_status_packet?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      status = persistence.materializer_status
+      supervision = persistence.materializer_supervision
+
+      status == supervision &&
+        status.fetch(:phase) == :awaiting_explicit_attempt_record &&
+        status.fetch(:approval_command_intent).fetch(:target) == :materializer_approvals &&
+        status.fetch(:approval_audit).fetch(:applied_count).zero?
     end
 
     def materializer_approval_policy?

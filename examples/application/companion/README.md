@@ -87,6 +87,9 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `contracts/materializer_supervision_contract.rb` compacts gate, preflight,
   runbook, receipt, attempt command, approval command, and both audit trails
   into one materializer lifecycle read model.
+- `/setup/materializer` and `.json` are the compact canonical materializer
+  status packet; lower-level materializer setup routes remain debug/proof
+  surfaces while this stays app-local.
 - `contracts/materializer_approval_policy_contract.rb` models human approval as
   an explicit decision over requested capabilities; policy decisions do not
   grant capabilities by themselves.
