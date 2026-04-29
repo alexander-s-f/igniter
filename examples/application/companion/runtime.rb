@@ -91,6 +91,8 @@ module Companion
       wizard_export_json_status, _wizard_export_json_headers, wizard_export_json_body = app.call(rack_env("GET", "/setup/wizard-type-spec-export.json"))
       wizard_migration_status, _wizard_migration_headers, wizard_migration_body = app.call(rack_env("GET", "/setup/wizard-type-spec-migration-plan"))
       wizard_migration_json_status, _wizard_migration_json_headers, wizard_migration_json_body = app.call(rack_env("GET", "/setup/wizard-type-spec-migration-plan.json"))
+      loop_health_status, _loop_health_headers, loop_health_body = app.call(rack_env("GET", "/setup/infrastructure-loop-health"))
+      loop_health_json_status, _loop_health_json_headers, loop_health_json_body = app.call(rack_env("GET", "/setup/infrastructure-loop-health.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -115,6 +117,8 @@ module Companion
       wizard_export_json = wizard_export_json_body.join
       wizard_migration = wizard_migration_body.join
       wizard_migration_json = wizard_migration_json_body.join
+      loop_health = loop_health_body.join
+      loop_health_json = loop_health_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -159,6 +163,8 @@ module Companion
       out.puts "companion_poc_setup_wizard_type_spec_export_json_status=#{wizard_export_json_status}"
       out.puts "companion_poc_setup_wizard_type_spec_migration_status=#{wizard_migration_status}"
       out.puts "companion_poc_setup_wizard_type_spec_migration_json_status=#{wizard_migration_json_status}"
+      out.puts "companion_poc_setup_infrastructure_loop_health_status=#{loop_health_status}"
+      out.puts "companion_poc_setup_infrastructure_loop_health_json_status=#{loop_health_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -178,6 +184,8 @@ module Companion
       out.puts "companion_poc_setup_wizard_type_spec_export_json_endpoint=#{setup_wizard_type_spec_export_json_endpoint?(wizard_export_json)}"
       out.puts "companion_poc_setup_wizard_type_spec_migration_endpoint=#{setup_wizard_type_spec_migration_endpoint?(wizard_migration)}"
       out.puts "companion_poc_setup_wizard_type_spec_migration_json_endpoint=#{setup_wizard_type_spec_migration_json_endpoint?(wizard_migration_json)}"
+      out.puts "companion_poc_setup_infrastructure_loop_health_endpoint=#{setup_infrastructure_loop_health_endpoint?(loop_health)}"
+      out.puts "companion_poc_setup_infrastructure_loop_health_json_endpoint=#{setup_infrastructure_loop_health_json_endpoint?(loop_health_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -229,6 +237,7 @@ module Companion
       out.puts "companion_poc_wizard_type_spec_export=#{wizard_type_spec_export?}"
       out.puts "companion_poc_wizard_type_spec_canonical=#{wizard_type_spec_canonical?}"
       out.puts "companion_poc_wizard_type_spec_migration_plan=#{wizard_type_spec_migration_plan?}"
+      out.puts "companion_poc_infrastructure_loop_health=#{infrastructure_loop_health?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -886,6 +895,22 @@ module Companion
         report.fetch("status") == "stable"
     end
 
+    def setup_infrastructure_loop_health_endpoint?(loop_health)
+      loop_health.include?("self_supporting") &&
+        loop_health.include?("no write capability requested")
+    end
+
+    def setup_infrastructure_loop_health_json_endpoint?(loop_health_json)
+      payload = JSON.parse(loop_health_json)
+      loop_state = payload.fetch("loop_state")
+      signals = payload.fetch("signals")
+
+      payload.fetch("status") == "self_supporting" &&
+        signals.fetch("parity_matched") &&
+        signals.fetch("migration_review_only") &&
+        loop_state.fetch("write_capability_requested") == false
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -1121,6 +1146,17 @@ module Companion
         candidate.fetch(:kind) == :additive &&
         candidate.fetch(:review_only) &&
         candidate.fetch(:added_fields) == [:body]
+    end
+
+    def infrastructure_loop_health?
+      health = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).infrastructure_loop_health
+
+      health.fetch(:status) == :self_supporting &&
+        health.fetch(:signals).values.all? &&
+        health.fetch(:loop_state).fetch(:schema_version) == 1 &&
+        health.fetch(:loop_state).fetch(:checked_capabilities) == %i[articles comments comments_by_article] &&
+        health.fetch(:loop_state).fetch(:write_capability_requested) == false &&
+        health.fetch(:summary).include?("no write capability requested")
     end
 
     def wizard_type_spec_canonical?

@@ -62,6 +62,9 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `contracts/wizard_type_spec_migration_plan_contract.rb` projects review-only
   migration candidates from spec lineage; it classifies field changes without
   running migrations.
+- `contracts/infrastructure_loop_health_contract.rb` projects the self-supporting
+  infrastructure loop from readiness, materialization, parity, and migration
+  diagnostics.
 - `contracts/durable_type_materialization_contract.rb` is the read-only bridge
   from future wizard/configurator output to static contract materialization
   plans. `/setup/materialization-plan` and `.json` expose that plan for agents

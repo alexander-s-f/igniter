@@ -123,6 +123,14 @@ module Companion
         text JSON.pretty_generate(service(:companion).wizard_type_spec_migration_plan)
       end
 
+      get "/setup/infrastructure-loop-health" do
+        text service(:companion).infrastructure_loop_health.inspect
+      end
+
+      get "/setup/infrastructure-loop-health.json" do
+        text JSON.pretty_generate(service(:companion).infrastructure_loop_health)
+      end
+
       get "/hub" do
         text service(:hub).entries.map(&:name).join(",")
       end

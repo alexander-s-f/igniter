@@ -83,6 +83,8 @@ Current user-defined-type pressure test:
 - `WizardTypeSpecMigrationPlanContract`: review-only migration candidate
   projection over spec lineage; it classifies additive, destructive, and
   ambiguous field changes without executing migrations
+- `InfrastructureLoopHealthContract`: self-supporting/fractal health projection
+  over readiness, manifest, materialization plan, parity, and migration plan
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
@@ -172,6 +174,8 @@ Current Companion product flows use the persistence model:
 - `/setup/wizard-type-spec-export` exposes dev/prod portable config projections
 - `/setup/wizard-type-spec-migration-plan` exposes review-only migration
   candidates from spec lineage
+- `/setup/infrastructure-loop-health` exposes whether the contract-managed
+  infrastructure loop is self-supporting without requesting write capability
 
 ## Validated Concepts
 
@@ -237,6 +241,8 @@ still app-local:
 - keep materialization planning read-only until explicit write/git/test/restart
   capabilities are modeled
 - require parity to pass before a future materializer requests write/git/restart
+- track the infrastructure loop as contract output so the system can inspect its
+  own support structure
 - keep relation enforcement false
 - keep relation repair suggestions review-only
 - avoid cascade semantics, FK generation, and DB planners

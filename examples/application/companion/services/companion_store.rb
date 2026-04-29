@@ -257,6 +257,10 @@ module Companion
         persistence.wizard_type_spec_migration_plan
       end
 
+      def infrastructure_loop_health
+        persistence.infrastructure_loop_health
+      end
+
       private
 
       attr_reader :persistence

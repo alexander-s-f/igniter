@@ -186,6 +186,16 @@ module Companion
         )
       end
 
+      def infrastructure_loop_health
+        Contracts::InfrastructureLoopHealthContract.evaluate(
+          readiness: readiness,
+          manifest_summary: manifest_snapshot.fetch(:summary),
+          materialization_plan: materialization_plan,
+          materialization_parity: materialization_parity,
+          migration_plan: wizard_type_spec_migration_plan
+        )
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,
