@@ -333,9 +333,152 @@ cache, затем к удалённым агентам?
 
 ---
 
+## Итерация 4 — Тред E: дизайн Query API на контракте
+
+*Зафиксировано в ходе дизайн-сессии, 2026-04-29.*
+
+### Вопрос
+
+Должен ли `ArticleContract.find(title: "hello igniter")` существовать на
+классе? Рассмотрены три пути:
+
+- **A** — Arel-style class method (`ArticleContract.find(...)`)
+- **B** — `Persistable` mixin/враппер (отдельный класс как `Contractable`)
+- **C** — запросы объявляются в теле контракта; никакого runtime query building
+
+### Почему Arel-style неправильный ответ для Igniter
+
+`ArticleContract.find(title: "hello igniter")` нарушает три инварианта Igniter:
+
+1. **Нет compile-time валидации** — запрос строится в runtime; компилятор
+   ничего о нём не знает.
+2. **Store должен инжектироваться per-execution**, а не храниться как
+   class-level синглтон. Глобальный `ArticleContract.store = my_store`
+   нетестируем и неправильен в кластере.
+3. **Контракт становится гибридом** — schema + validator + query object
+   одновременно. Эти concerns не должны смешиваться.
+
+### Почему `Persistable` — неправильный уровень абстракции
+
+`Persistable` решает правильную проблему ("не все контракты — persistence"),
+но на неправильном уровне. Opt-in — это объявление `persist` внутри тела
+контракта. Контракт с `persist` получает store surface; без него — ничего.
+Отдельный модуль-враппер добавляет косвенность без прибавки в ясности.
+
+### Правильная модель: запросы — это контракты
+
+Запрос в Igniter — это контракт с `input` узлами и `store_read`
+зависимостями. Макрос `query` объявляет именованный мини-контракт,
+привязанный к родительскому классу. Компилятор валидирует его при загрузке
+точно так же как основной `define` блок.
+
+```ruby
+class ArticleContract < Igniter::Contract
+  # Opt-in: только у этого контракта есть store surface
+  persist :articles, key: :id do
+    field :id,     type: Types::UUID,   default: -> { SecureRandom.uuid }
+    field :title,  type: Types::String
+    field :status, type: Types::Symbol, default: :draft
+    index :title
+    scope :by_title,  where: { title: :title }
+    scope :published, where: { status: :published }
+  end
+
+  # query = объявленный store_read контракт; генерирует sugar на классе
+  query :find_by_title do
+    input  :title
+    store_read :article, from: :articles, scope: :by_title
+    output :article
+  end
+
+  query :published_articles do
+    store_read :articles, from: :articles, scope: :published
+    output :articles
+  end
+
+  # Time-travel — просто ещё один input, не специальный режим
+  query :article_at do
+    input  :id
+    input  :as_of
+    store_read :article, from: :articles, by: :id, using: :id, as_of: :as_of
+    output :article
+  end
+
+  # Бизнес-логика — отдельно
+  define do
+    input :title
+    input :status
+    compute :validated, depends_on: %i[title status], call: ValidateArticle
+    store_write :saved, from: :validated, target: :articles
+    output :saved
+  end
+end
+```
+
+Использование — store всегда инжектируется per-call, никогда не глобальный:
+
+```ruby
+# Sugar, сгенерированный из query деклараций:
+ArticleContract.find_by_title(title: "hello igniter", store: my_store)
+ArticleContract.published_articles(store: my_store)
+ArticleContract.article_at(id: "uuid-123", as_of: 3.days.ago.to_f, store: my_store)
+
+# Под капотом — каждый вызов является просто выполнением контракта:
+ArticleContract::Queries::FindByTitle.execute({ title: "hello igniter" }, store: my_store)
+```
+
+### Сравнение
+
+| | Arel / ActiveRecord | Igniter `query` |
+|--|-----|------|
+| Валидация запроса | runtime | compile-time |
+| Store scope | глобальный синглтон | per-call injection |
+| Time-travel | отдельный API | `input :as_of` — обычный input |
+| Реактивная инвалидация | нет | `store_read` → cache miss → agent push |
+| Cache | отдельная настройка | `cache_ttl:` на `store_read` |
+| Тестирование | мок ORM | `adapter: :memory` |
+| "Не все контракты" | `include Persistable` | просто нет `persist` блока |
+
+### Решение: A + B (отложено)
+
+- **Основной путь (A)**: только объявленные `query` блоки генерируют
+  class-level методы. Любое чтение должно быть задекларировано.
+  Валидируется компилятором. Это целевая модель.
+
+- **Сложные случаи (B)**: отдельный query contract без sugar, для запросов
+  которые не принадлежат одному контракту:
+
+  ```ruby
+  class FindDraftsByAuthor < Igniter::Contract
+    define do
+      input :author_id
+      store_read :drafts, from: :articles,
+                 filter: { author_id: :author_id, status: :draft }
+      output :drafts
+    end
+  end
+  ```
+
+- **Никакого Arel-style runtime query building.** Никогда.
+
+- **Реализация макроса `query` отложена** до давления реальных приложений.
+  Модель принята; sugar появится когда будет нужен.
+
+### Ключевые инварианты, которые сохраняются
+
+- Контракт без `persist` имеет нулевую store surface.
+- Store всегда инжектируется per execution (keyword аргумент `store:`).
+- Каждый запрос — скомпилированный граф; компилятор валидирует inputs,
+  типы и `store_read` привязки при загрузке.
+- Time-travel не требует специального режима запроса — `as_of:` —
+  обычный типизированный input.
+
+---
+
 ## Ссылки
 
 - [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
 - [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
 - [Companion Current Status Summary](./companion-current-status-summary.md)
+- [POC Спецификация](./contract-native-store-poc.md)
 - [Канонический английский файл](./contract-native-store-research.md)

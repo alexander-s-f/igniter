@@ -336,8 +336,152 @@ Priority order (open to revision):
 
 ---
 
+## Iteration 4 — Thread E: Contract Query API Design
+
+*Recorded from design session, 2026-04-29.*
+
+### The question
+
+Should `ArticleContract.find(title: "hello igniter")` exist on the class?
+Three paths were considered:
+
+- **A** — Arel-style class method (`ArticleContract.find(...)`)
+- **B** — `Persistable` mixin/wrapper (separate class like `Contractable`)
+- **C** — Queries declared in the contract body; no runtime query building
+
+### Why Arel-style is wrong for Igniter
+
+`ArticleContract.find(title: "hello igniter")` breaks three Igniter invariants:
+
+1. **No compile-time validation** — the query is built at runtime; the
+   compiler knows nothing about it.
+2. **Store must be injected per-execution**, not held as a class-level
+   singleton. A global `ArticleContract.store = my_store` is untestable
+   and wrong in a cluster.
+3. **The contract class becomes a hybrid** — schema + validator + query
+   object simultaneously. These concerns should not merge.
+
+### Why `Persistable` is the wrong abstraction level
+
+`Persistable` solves the right problem ("not all contracts are persistent")
+but at the wrong level. The opt-in is the `persist` declaration inside the
+contract body. A contract with `persist` gets a store surface; a contract
+without it has none. A separate wrapper module adds indirection without adding
+clarity.
+
+### The correct model: queries ARE contracts
+
+A query in Igniter is a contract with `input` nodes and `store_read`
+dependencies. The `query` macro declares a named mini-contract scoped to the
+parent class. The compiler validates it at load time exactly like the main
+`define` block.
+
+```ruby
+class ArticleContract < Igniter::Contract
+  # Opt-in: only this contract has a store surface
+  persist :articles, key: :id do
+    field :id,     type: Types::UUID,   default: -> { SecureRandom.uuid }
+    field :title,  type: Types::String
+    field :status, type: Types::Symbol, default: :draft
+    index :title
+    scope :by_title,  where: { title: :title }
+    scope :published, where: { status: :published }
+  end
+
+  # query = declared store_read contract; generates class-level sugar
+  query :find_by_title do
+    input  :title
+    store_read :article, from: :articles, scope: :by_title
+    output :article
+  end
+
+  query :published_articles do
+    store_read :articles, from: :articles, scope: :published
+    output :articles
+  end
+
+  # Time-travel — just another input, not a special mode
+  query :article_at do
+    input  :id
+    input  :as_of
+    store_read :article, from: :articles, by: :id, using: :id, as_of: :as_of
+    output :article
+  end
+
+  # Business logic stays separate
+  define do
+    input :title
+    input :status
+    compute :validated, depends_on: %i[title status], call: ValidateArticle
+    store_write :saved, from: :validated, target: :articles
+    output :saved
+  end
+end
+```
+
+Usage — store is always injected per-call, never global:
+
+```ruby
+# Sugar generated from query declarations:
+ArticleContract.find_by_title(title: "hello igniter", store: my_store)
+ArticleContract.published_articles(store: my_store)
+ArticleContract.article_at(id: "uuid-123", as_of: 3.days.ago.to_f, store: my_store)
+
+# Under the hood — each is just a contract execution:
+ArticleContract::Queries::FindByTitle.execute({ title: "hello igniter" }, store: my_store)
+```
+
+### Comparison
+
+| | Arel / ActiveRecord | Igniter `query` |
+|--|-----|------|
+| Query validation | runtime | compile-time |
+| Store scope | global singleton | per-call injection |
+| Time-travel | separate API | `input :as_of` — ordinary input |
+| Reactive invalidation | none | `store_read` → cache miss → agent push |
+| Cache | separate config | `cache_ttl:` on `store_read` |
+| Testing | mock ORM | `adapter: :memory` |
+| "Not all contracts" | `include Persistable` | simply no `persist` block |
+
+### Decision: A + B (deferred)
+
+- **Primary path (A)**: only declared `query` blocks generate class-level
+  methods. Any read must be declared. Compile-time validated. This is the
+  target.
+
+- **Complex cases (B)**: a standalone query contract without sugar, for
+  queries that do not belong to a single contract class:
+
+  ```ruby
+  class FindDraftsByAuthor < Igniter::Contract
+    define do
+      input :author_id
+      store_read :drafts, from: :articles,
+                 filter: { author_id: :author_id, status: :draft }
+      output :drafts
+    end
+  end
+  ```
+
+- **No Arel-style runtime query building.** Ever.
+
+- **`query` macro implementation is deferred** until real application
+  pressure justifies it. The model is decided; the sugar ships when needed.
+
+### Key invariants preserved
+
+- A contract without `persist` has zero store surface.
+- Store is always injected per execution (`store:` keyword argument).
+- Every query is a compiled graph; the compiler validates inputs, types,
+  and `store_read` bindings at load time.
+- Time-travel requires no special query mode — `as_of:` is an ordinary
+  typed input.
+
+---
+
 ## Reference
 
 - [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
 - [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
 - [Companion Current Status Summary](./companion-current-status-summary.md)
+- [POC Specification](./contract-native-store-poc.md)
