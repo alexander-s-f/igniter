@@ -5,9 +5,13 @@ require_relative "../contracts"
 module Companion
   module Contracts
     contracts :StaticMaterializationParityContract,
-              outputs: %i[status plan_status static_required checked_capabilities mismatches summary] do
+              outputs: %i[schema_version status plan_status static_required checked_capabilities mismatches summary] do
       input :materialization_plan
       input :manifest_snapshot
+
+      compute :schema_version, depends_on: [:materialization_plan] do |materialization_plan:|
+        materialization_plan.fetch(:schema_version, 0)
+      end
 
       compute :plan_status, depends_on: [:materialization_plan] do |materialization_plan:|
         materialization_plan.fetch(:status)
@@ -27,7 +31,7 @@ module Companion
           relations.keys
       end
 
-      compute :mismatches, depends_on: %i[materialization_plan manifest_snapshot] do |materialization_plan:, manifest_snapshot:|
+      compute :mismatches, depends_on: %i[schema_version materialization_plan manifest_snapshot] do |schema_version:, materialization_plan:, manifest_snapshot:|
         record = materialization_plan.fetch(:record_contract)
         histories = materialization_plan.fetch(:history_contracts)
         relations = materialization_plan.fetch(:relations)
@@ -36,6 +40,7 @@ module Companion
         actual_relations = manifest_snapshot.fetch(:relations)
         errors = []
 
+        errors << "schema_version missing" if schema_version.to_i <= 0
         expected_record_fields = record.fetch(:fields).map { |field| field.fetch(:name).to_sym }
         actual_record = records.fetch(record.fetch(:capability), nil)
         if actual_record
@@ -81,6 +86,7 @@ module Companion
         end
       end
 
+      output :schema_version
       output :status
       output :plan_status
       output :static_required

@@ -83,6 +83,9 @@ Current user-defined-type pressure test:
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
+- seeded wizard specs now use canonical `schema_version: 1` and
+  `storage.shape`, while preserving `persist`/`history` aliases for current
+  app-local compatibility
 
 Current command contracts:
 

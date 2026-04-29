@@ -52,7 +52,9 @@ The launcher is intentionally thin. App-local infrastructure lives under
   typed fields, enum status defaults, scopes, index, and publish command
   metadata; `Comment` is append-only history related back to articles.
 - `contracts/wizard_type_spec_record_contract.rb` stores sandbox-authored
-  durable type specs as persisted JSON data before static materialization.
+  durable type specs as persisted JSON data before static materialization. The
+  seeded spec uses `schema_version: 1` and host-neutral `storage.shape`, while
+  keeping `persist`/`history` aliases for current app-local compatibility.
 - `contracts/wizard_type_spec_history_contract.rb` keeps append-only spec
   lineage for future migrations.
 - `contracts/wizard_type_spec_export_contract.rb` projects portable dev/prod

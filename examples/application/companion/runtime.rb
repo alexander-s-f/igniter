@@ -219,6 +219,7 @@ module Companion
       out.puts "companion_poc_wizard_type_spec_store=#{wizard_type_spec_store?}"
       out.puts "companion_poc_wizard_type_spec_history=#{wizard_type_spec_history?}"
       out.puts "companion_poc_wizard_type_spec_export=#{wizard_type_spec_export?}"
+      out.puts "companion_poc_wizard_type_spec_canonical=#{wizard_type_spec_canonical?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -802,8 +803,13 @@ module Companion
     def setup_materialization_json_endpoint?(materialization_json)
       payload = JSON.parse(materialization_json)
 
+      record = payload.fetch("record_contract")
+      history = payload.fetch("history_contracts").first
       payload.fetch("status") == "ready_for_static_materialization" &&
+        payload.fetch("schema_version") == 1 &&
         payload.fetch("static_required") &&
+        record.fetch("storage").fetch("shape") == "store" &&
+        history.fetch("storage").fetch("shape") == "history" &&
         payload.fetch("relations").key?("comments_by_article") &&
         payload.fetch("required_capabilities") == %w[write git test restart]
     end
@@ -817,7 +823,8 @@ module Companion
     def setup_materialization_parity_json_endpoint?(parity_json)
       payload = JSON.parse(parity_json)
 
-      payload.fetch("status") == "matched" &&
+      payload.fetch("schema_version") == 1 &&
+        payload.fetch("status") == "matched" &&
         payload.fetch("mismatches").empty? &&
         payload.fetch("checked_capabilities").include?("comments_by_article")
     end
@@ -832,7 +839,10 @@ module Companion
       payload = JSON.parse(wizard_specs_json)
       spec = payload.find { |entry| entry.fetch("id") == "article-comment" }.fetch("spec")
 
-      spec.fetch("name") == "Article" &&
+      spec.fetch("schema_version") == 1 &&
+        spec.fetch("storage").fetch("shape") == "store" &&
+        spec.fetch("histories").first.fetch("storage").fetch("shape") == "history" &&
+        spec.fetch("name") == "Article" &&
         spec.fetch("fields").any? { |field| field.fetch("name") == "status" && field.fetch("type") == "enum" } &&
         spec.fetch("histories").first.fetch("relation").fetch("name") == "comments_by_article"
     end
@@ -846,7 +856,8 @@ module Companion
     def setup_wizard_type_spec_export_json_endpoint?(wizard_export_json)
       payload = JSON.parse(wizard_export_json)
 
-      payload.fetch("dev_config").fetch("history").any? &&
+      payload.fetch("schema_versions") == [1] &&
+        payload.fetch("dev_config").fetch("history").any? &&
         payload.fetch("prod_config").fetch("history").empty? &&
         payload.fetch("prod_config").fetch("compressed")
     end
@@ -1021,6 +1032,9 @@ module Companion
         manifest.fetch(:fields).any? { |field| field.fetch(:name) == :spec && field.fetch(:attributes).fetch(:type) == :json } &&
         api.fetch(:fields) == %i[id contract spec] &&
         record.contract == "Article" &&
+        record.spec.fetch(:schema_version) == 1 &&
+        record.spec.fetch(:id) == "article-comment" &&
+        record.spec.fetch(:storage).fetch(:shape) == :store &&
         record.spec.fetch(:name) == :Article &&
         record.spec.fetch(:histories).first.fetch(:relation).fetch(:name) == :comments_by_article &&
         persistence.materialization_plan.fetch(:record_contract).fetch(:contract) == record.spec.fetch(:name)
@@ -1034,17 +1048,32 @@ module Companion
       manifest.fetch(:history).fetch(:key) == :index &&
         manifest.fetch(:fields).any? { |field| field.fetch(:name) == :spec && field.fetch(:attributes).fetch(:type) == :json } &&
         changes.any? { |change| change.fetch(:spec_id) == "article-comment" && change.fetch(:change_kind) == :seeded_static_sync } &&
+        changes.first.fetch(:spec).fetch(:schema_version) == 1 &&
         changes.first.fetch(:spec).fetch(:name) == :Article
     end
 
     def wizard_type_spec_export?
       export = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).wizard_type_spec_export
 
-      export.fetch(:dev_config).fetch(:compressed) == false &&
+      export.fetch(:schema_versions) == [1] &&
+        export.fetch(:dev_config).fetch(:compressed) == false &&
         export.fetch(:dev_config).fetch(:history).any? &&
         export.fetch(:prod_config).fetch(:compressed) &&
         export.fetch(:prod_config).fetch(:history).empty? &&
         export.fetch(:prod_config).fetch(:specs).length == export.fetch(:dev_config).fetch(:specs).length
+    end
+
+    def wizard_type_spec_canonical?
+      spec = Services::CompanionState.article_comment_type_spec
+      history = spec.fetch(:histories).first
+
+      spec.fetch(:schema_version) == 1 &&
+        spec.fetch(:kind) == :record &&
+        spec.fetch(:storage) == { shape: :store, key: :id, adapter: :sqlite } &&
+        spec.fetch(:persist) == { key: :id, adapter: :sqlite } &&
+        history.fetch(:storage) == { shape: :history, key: :index, adapter: :sqlite } &&
+        history.fetch(:history) == { key: :index, adapter: :sqlite } &&
+        history.fetch(:relation).fetch(:enforced) == false
     end
 
     def static_materialization_plan?
@@ -1053,10 +1082,12 @@ module Companion
       relation = plan.fetch(:relations).fetch(:comments_by_article)
 
       plan.fetch(:status) == :ready_for_static_materialization &&
+        plan.fetch(:schema_version) == 1 &&
         plan.fetch(:static_required) &&
         record.fetch(:contract) == :Article &&
+        record.fetch(:storage).fetch(:shape) == :store &&
         record.fetch(:fields).any? { |field| field.fetch(:name) == :status && field.fetch(:default, field.dig(:attributes, :default)) == :draft } &&
-        plan.fetch(:history_contracts).any? { |history| history.fetch(:contract) == :Comment } &&
+        plan.fetch(:history_contracts).any? { |history| history.fetch(:contract) == :Comment && history.fetch(:storage).fetch(:shape) == :history } &&
         relation.fetch(:from) == :articles &&
         relation.fetch(:to) == :comments &&
         relation.fetch(:enforced) == false &&
@@ -1068,6 +1099,7 @@ module Companion
       parity = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).materialization_parity
 
       parity.fetch(:status) == :matched &&
+        parity.fetch(:schema_version) == 1 &&
         parity.fetch(:plan_status) == :ready_for_static_materialization &&
         parity.fetch(:static_required) &&
         parity.fetch(:checked_capabilities) == %i[articles comments comments_by_article] &&

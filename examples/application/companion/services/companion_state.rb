@@ -37,18 +37,22 @@ module Companion
 
       def self.article_comment_type_spec
         {
+          schema_version: 1,
+          id: "article-comment",
           name: :Article,
           capability: :articles,
+          kind: :record,
+          storage: { shape: :store, key: :id, adapter: :sqlite },
           persist: { key: :id, adapter: :sqlite },
           fields: [
-            { name: :id },
-            { name: :title, type: :string },
+            { name: :id, type: :string, required: true },
+            { name: :title, type: :string, required: true },
             { name: :body, type: :string },
             { name: :created_at, type: :datetime },
             { name: :status, type: :enum, values: %i[draft published archived], default: :draft }
           ],
           indexes: [
-            { name: :status }
+            { name: :status, fields: [:status] }
           ],
           scopes: [
             { name: :drafts, where: { status: :draft } },
@@ -61,10 +65,11 @@ module Companion
             {
               name: :Comment,
               capability: :comments,
+              storage: { shape: :history, key: :index, adapter: :sqlite },
               history: { key: :index, adapter: :sqlite },
               fields: [
-                { name: :index },
-                { name: :article_id },
+                { name: :index, type: :integer },
+                { name: :article_id, type: :string },
                 { name: :body, type: :string },
                 { name: :created_at, type: :datetime }
               ],
@@ -77,10 +82,12 @@ module Companion
                 cardinality: :one_to_many,
                 integrity: :validate_on_append,
                 consistency: :local,
-                projection: nil
+                projection: nil,
+                enforced: false
               }
             }
-          ]
+          ],
+          metadata: { source: :static_sync, materialized: true }
         }
       end
 
@@ -350,22 +357,29 @@ module Companion
 
       def ensure_default_wizard_type_specs
         existing = wizard_type_specs.find { |entry| entry.id == "article-comment" }
+        canonical = self.class.article_comment_type_spec
 
-        unless existing
-          wizard_type_specs << WizardTypeSpec.new(
+        if existing
+          existing.spec = canonical unless existing.spec.fetch(:schema_version, nil)
+        else
+          existing = WizardTypeSpec.new(
             id: "article-comment",
             contract: "Article",
-            spec: self.class.article_comment_type_spec
+            spec: canonical
           )
+          wizard_type_specs << existing
         end
 
-        return if wizard_type_spec_changes.any? { |entry| entry.spec_id == "article-comment" }
+        canonical_change_exists = wizard_type_spec_changes.any? do |entry|
+          entry.spec_id == "article-comment" && entry.spec.fetch(:schema_version, nil) == 1
+        end
+        return if canonical_change_exists
 
         append_wizard_type_spec_change(
           spec_id: "article-comment",
           contract: "Article",
           change_kind: :backfilled_static_sync,
-          spec: existing&.spec || self.class.article_comment_type_spec,
+          spec: existing.spec,
           created_at: Date.today.iso8601
         )
       end
