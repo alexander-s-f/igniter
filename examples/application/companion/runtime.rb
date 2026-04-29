@@ -109,6 +109,8 @@ module Companion
       materializer_supervision_json_status, _materializer_supervision_json_headers, materializer_supervision_json_body = app.call(rack_env("GET", "/setup/materializer-supervision.json"))
       materializer_approval_status, _materializer_approval_headers, materializer_approval_body = app.call(rack_env("GET", "/setup/materializer-approval-policy"))
       materializer_approval_json_status, _materializer_approval_json_headers, materializer_approval_json_body = app.call(rack_env("GET", "/setup/materializer-approval-policy.json"))
+      materializer_approval_receipt_status, _materializer_approval_receipt_headers, materializer_approval_receipt_body = app.call(rack_env("GET", "/setup/materializer-approval-receipt"))
+      materializer_approval_receipt_json_status, _materializer_approval_receipt_json_headers, materializer_approval_receipt_json_body = app.call(rack_env("GET", "/setup/materializer-approval-receipt.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -151,6 +153,8 @@ module Companion
       materializer_supervision_json = materializer_supervision_json_body.join
       materializer_approval = materializer_approval_body.join
       materializer_approval_json = materializer_approval_json_body.join
+      materializer_approval_receipt = materializer_approval_receipt_body.join
+      materializer_approval_receipt_json = materializer_approval_receipt_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -213,6 +217,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_supervision_json_status=#{materializer_supervision_json_status}"
       out.puts "companion_poc_setup_materializer_approval_status=#{materializer_approval_status}"
       out.puts "companion_poc_setup_materializer_approval_json_status=#{materializer_approval_json_status}"
+      out.puts "companion_poc_setup_materializer_approval_receipt_status=#{materializer_approval_receipt_status}"
+      out.puts "companion_poc_setup_materializer_approval_receipt_json_status=#{materializer_approval_receipt_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -250,6 +256,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_supervision_json_endpoint=#{setup_materializer_supervision_json_endpoint?(materializer_supervision_json)}"
       out.puts "companion_poc_setup_materializer_approval_endpoint=#{setup_materializer_approval_endpoint?(materializer_approval)}"
       out.puts "companion_poc_setup_materializer_approval_json_endpoint=#{setup_materializer_approval_json_endpoint?(materializer_approval_json)}"
+      out.puts "companion_poc_setup_materializer_approval_receipt_endpoint=#{setup_materializer_approval_receipt_endpoint?(materializer_approval_receipt)}"
+      out.puts "companion_poc_setup_materializer_approval_receipt_json_endpoint=#{setup_materializer_approval_receipt_json_endpoint?(materializer_approval_receipt_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -312,6 +320,7 @@ module Companion
       out.puts "companion_poc_materializer_audit_trail=#{materializer_audit_trail?}"
       out.puts "companion_poc_materializer_supervision=#{materializer_supervision?}"
       out.puts "companion_poc_materializer_approval_policy=#{materializer_approval_policy?}"
+      out.puts "companion_poc_materializer_approval_receipt=#{materializer_approval_receipt?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -1137,6 +1146,24 @@ module Companion
         decision.fetch("applies_capabilities") == false
     end
 
+    def setup_materializer_approval_receipt_endpoint?(materializer_approval_receipt)
+      materializer_approval_receipt.include?("materializer_approval_receipt") &&
+        materializer_approval_receipt.include?("status=>:pending") &&
+        materializer_approval_receipt.include?("applies_capabilities=>false")
+    end
+
+    def setup_materializer_approval_receipt_json_endpoint?(materializer_approval_receipt_json)
+      payload = JSON.parse(materializer_approval_receipt_json)
+      receipt = payload.fetch("receipt")
+
+      payload.fetch("status") == "pending" &&
+        receipt.fetch("kind") == "materializer_approval_receipt" &&
+        receipt.fetch("approved") == false &&
+        receipt.fetch("review_only") &&
+        receipt.fetch("applies_capabilities") == false &&
+        receipt.fetch("rejected_capabilities") == %w[write git test restart]
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -1561,6 +1588,25 @@ module Companion
         approved.fetch(:decision).fetch(:applies_capabilities) == false &&
         needs_review.fetch(:status) == :needs_review &&
         needs_review.fetch(:unknown_capabilities) == %i[deploy]
+    end
+
+    def materializer_approval_receipt?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      pending = persistence.materializer_approval_receipt
+      approved_policy = persistence.materializer_approval_policy(
+        approved_by: "architect",
+        approved_capabilities: %i[write git test restart]
+      )
+      approved = Contracts::MaterializerApprovalReceiptContract.evaluate(approval_policy: approved_policy)
+
+      pending.fetch(:status) == :pending &&
+        pending.fetch(:receipt).fetch(:kind) == :materializer_approval_receipt &&
+        pending.fetch(:receipt).fetch(:approved) == false &&
+        pending.fetch(:receipt).fetch(:applies_capabilities) == false &&
+        pending.fetch(:receipt).fetch(:review_only) &&
+        approved.fetch(:status) == :approved &&
+        approved.fetch(:receipt).fetch(:granted_capabilities) == %i[write git test restart] &&
+        approved.fetch(:receipt).fetch(:applies_capabilities) == false
     end
 
     def wizard_type_spec_canonical?

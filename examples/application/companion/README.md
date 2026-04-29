@@ -90,6 +90,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `contracts/materializer_approval_policy_contract.rb` models human approval as
   an explicit decision over requested capabilities; policy decisions do not
   grant capabilities by themselves.
+- `contracts/materializer_approval_receipt_contract.rb` records that approval
+  decision as a review-only receipt while preserving `applies_capabilities=false`.
 - `contracts/durable_type_materialization_contract.rb` is the read-only bridge
   from future wizard/configurator output to static contract materialization
   plans. `/setup/materialization-plan` and `.json` expose that plan for agents

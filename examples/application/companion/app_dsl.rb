@@ -203,6 +203,14 @@ module Companion
         text JSON.pretty_generate(service(:companion).materializer_approval_policy)
       end
 
+      get "/setup/materializer-approval-receipt" do
+        text service(:companion).materializer_approval_receipt.inspect
+      end
+
+      get "/setup/materializer-approval-receipt.json" do
+        text JSON.pretty_generate(service(:companion).materializer_approval_receipt)
+      end
+
       post "/setup/materializer-attempts/record" do
         result = service(:companion).record_materializer_attempt
         redirect Companion.feedback_path(

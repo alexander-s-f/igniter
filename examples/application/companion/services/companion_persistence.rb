@@ -271,6 +271,12 @@ module Companion
         )
       end
 
+      def materializer_approval_receipt
+        Contracts::MaterializerApprovalReceiptContract.evaluate(
+          approval_policy: materializer_approval_policy
+        )
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,

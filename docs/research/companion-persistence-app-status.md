@@ -111,6 +111,9 @@ Current user-defined-type pressure test:
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities
+- `MaterializerApprovalReceiptContract`: review-only receipt projection over the
+  approval policy decision; approved receipts still keep
+  `applies_capabilities: false`
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
@@ -223,6 +226,8 @@ Current Companion product flows use the persistence model:
   lifecycle
 - `/setup/materializer-approval-policy` exposes the default pending approval
   decision and proves approval is explicit policy data, not hidden capability
+- `/setup/materializer-approval-receipt` exposes an audit-ready approval receipt
+  without applying any capability
 
 ## Validated Concepts
 
