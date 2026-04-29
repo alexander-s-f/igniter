@@ -255,6 +255,7 @@ module Companion
       out.puts "companion_poc_hub_installed_status=#{hub_installed_status}"
       out.puts "companion_poc_setup_redacted=#{setup.include?("openai_api_key") && !setup.include?("sk-")}"
       out.puts "companion_poc_setup_persistence_readiness=#{setup.include?("persistence") && setup.include?("ready")}"
+      out.puts "companion_poc_setup_manifest_glossary_summary=#{setup_manifest_glossary_summary?(setup)}"
       out.puts "companion_poc_setup_relation_health=#{setup.include?("relation_health") && setup.include?("clear")}"
       out.puts "companion_poc_setup_manifest_glossary_endpoint=#{setup_manifest_glossary_endpoint?(manifest_glossary)}"
       out.puts "companion_poc_setup_manifest_glossary_json_endpoint=#{setup_manifest_glossary_json_endpoint?(manifest_glossary_json)}"
@@ -1949,6 +1950,13 @@ module Companion
         manifest.include?("scopes") &&
         manifest.include?("record_append") &&
         manifest.include?("history_append")
+    end
+
+    def setup_manifest_glossary_summary?(setup)
+      setup.include?("manifest_glossary") &&
+        setup.include?("status=>:stable") &&
+        setup.include?("check_count=>9") &&
+        setup.include?("missing_terms=>[]")
     end
 
     def setup_manifest_glossary_endpoint?(manifest_glossary)

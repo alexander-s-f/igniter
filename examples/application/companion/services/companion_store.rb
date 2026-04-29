@@ -22,7 +22,7 @@ module Companion
         :reminders, :trackers, :countdowns, :open_reminders, :tracker_logs_today,
         :countdown_count, :live_ready, :credential_status, :daily_summary,
         :persistence_readiness, :body_battery, :daily_plan, :daily_focus_title,
-        :relation_health, :materializer_status, :live_summary, :action_count, :recent_events,
+        :relation_health, :manifest_glossary_health, :materializer_status, :live_summary, :action_count, :recent_events,
         keyword_init: true
       ) do
         def to_h
@@ -41,6 +41,7 @@ module Companion
             daily_plan: daily_plan.dup,
             daily_focus_title: daily_focus_title,
             relation_health: relation_health.dup,
+            manifest_glossary_health: manifest_glossary_health.dup,
             materializer_status: materializer_status.dup,
             live_summary: live_summary&.dup,
             action_count: action_count,
@@ -104,6 +105,7 @@ module Companion
           credential_status: credential_status,
           persistence_readiness: persistence.readiness,
           relation_health: persistence.relation_health,
+          manifest_glossary_health: persistence.manifest_glossary_health,
           daily_summary: summary,
           body_battery: body_battery,
           daily_plan: daily_plan,

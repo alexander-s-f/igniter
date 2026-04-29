@@ -25,6 +25,7 @@ Then read `/setup/materializer.json` for the compact review lifecycle status.
 
 Use `/setup/manifest/glossary-health.json` to check whether the manifest still
 contains the required glossary terms.
+The same report is also summarized in `/setup` as `manifest_glossary`.
 
 ## Terms
 
@@ -99,6 +100,7 @@ contains the required glossary terms.
 `manifest_glossary_health`
 
 - Report-only drift check exposed at `/setup/manifest/glossary-health.json`.
+- Also surfaced in `/setup` as a summary signal.
 - Current stable state checks nine terms: schema version, record storage,
   record aliases, history storage, history aliases, operation descriptors,
   relation descriptors, projection reads, and command app boundaries.

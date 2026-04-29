@@ -67,7 +67,8 @@ module Companion
         text({
           credentials: snapshot.credential_status,
           persistence: snapshot.persistence_readiness,
-          relation_health: snapshot.relation_health
+          relation_health: snapshot.relation_health,
+          manifest_glossary: snapshot.manifest_glossary_health
         }.inspect)
       end
 

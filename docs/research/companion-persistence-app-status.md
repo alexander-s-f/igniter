@@ -50,6 +50,8 @@ Current manifest vocabulary:
   and `enforcement.mode: :report_only`
 - `/setup/manifest/glossary-health` reports whether required glossary terms are
   still present and stable
+- `/setup` includes the same glossary health as a report-only summary signal;
+  readiness does not become stricter because of glossary drift
 
 See [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md)
 for the compact agent reading guide.

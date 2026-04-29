@@ -136,6 +136,7 @@ Acceptance:
 
 - another agent can read manifest terms without reconstructing history
 - glossary health remains stable
+- `/setup` surfaces glossary health without making readiness stricter
 - no setup/read endpoint mutates durable state
 
 Reference: [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md).
