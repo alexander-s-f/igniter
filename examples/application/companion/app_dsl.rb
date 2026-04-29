@@ -72,6 +72,7 @@ module Companion
           storage_plan_sketch: service(:companion).storage_plan_sketch,
           storage_plan_health: service(:companion).storage_plan_health,
           storage_migration_plan: service(:companion).storage_migration_plan,
+          storage_migration_plan_health: service(:companion).storage_migration_plan_health,
           materializer_descriptor_health: snapshot.materializer_status_descriptor_health,
           setup_health: service(:companion).setup_health,
           setup_handoff: service(:companion).setup_handoff,
@@ -251,6 +252,14 @@ module Companion
 
       get "/setup/storage-migration-plan.json" do
         text JSON.pretty_generate(service(:companion).storage_migration_plan)
+      end
+
+      get "/setup/storage-migration-plan-health" do
+        text service(:companion).storage_migration_plan_health.inspect
+      end
+
+      get "/setup/storage-migration-plan-health.json" do
+        text JSON.pretty_generate(service(:companion).storage_migration_plan_health)
       end
 
       get "/setup/relation-health" do
