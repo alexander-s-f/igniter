@@ -169,6 +169,7 @@ module Companion
       out.puts "companion_poc_persistence_operation_model=#{persistence_operation_model?}"
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
+      out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
       out.puts "companion_poc_setup_manifest=#{setup_manifest?(manifest)}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
@@ -626,7 +627,8 @@ module Companion
         readiness.fetch(:capability_count) == 9 &&
         readiness.fetch(:record_count) == 4 &&
         readiness.fetch(:history_count) == 2 &&
-        readiness.fetch(:projection_count) == 3
+        readiness.fetch(:projection_count) == 3 &&
+        readiness.fetch(:relation_count) == 1
     end
 
     def persistence_operation_model?
@@ -671,9 +673,26 @@ module Companion
         summary.fetch(:history_count) == 2 &&
         summary.fetch(:projection_count) == 3 &&
         summary.fetch(:command_count) == 3 &&
+        summary.fetch(:relation_count) == 1 &&
         manifest.fetch(:records).fetch(:reminders).fetch(:operations) == %i[all find save update delete clear scope command] &&
         manifest.fetch(:histories).fetch(:tracker_logs).fetch(:operations) == %i[append all where count] &&
+        manifest.fetch(:relations).fetch(:tracker_logs_by_tracker).fetch(:join) == { id: :tracker_id } &&
         manifest.fetch(:commands).fetch(:tracker_log_commands).fetch(:operations).include?(:history_append)
+    end
+
+    def persistence_relation_manifest?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      manifest = persistence.manifest_snapshot
+      relation = manifest.fetch(:relations).fetch(:tracker_logs_by_tracker)
+
+      persistence.valid? &&
+        relation.fetch(:kind) == :event_owner &&
+        relation.fetch(:from) == :trackers &&
+        relation.fetch(:to) == :tracker_logs &&
+        relation.fetch(:join) == { id: :tracker_id } &&
+        relation.fetch(:cardinality) == :one_to_many &&
+        relation.fetch(:projection) == :tracker_read_model &&
+        relation.fetch(:enforced) == false
     end
 
     def persistence_metadata_manifest?
@@ -704,6 +723,7 @@ module Companion
         manifest.include?("histories") &&
         manifest.include?("projections") &&
         manifest.include?("commands") &&
+        manifest.include?("relations") &&
         manifest.include?("indexes") &&
         manifest.include?("scopes") &&
         manifest.include?("record_append") &&

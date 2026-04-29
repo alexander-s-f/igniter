@@ -67,6 +67,20 @@ module Companion
         }
       }.freeze
 
+      RELATION_BINDINGS = {
+        tracker_logs_by_tracker: {
+          kind: :event_owner,
+          from: :trackers,
+          to: :tracker_logs,
+          join: { id: :tracker_id },
+          cardinality: :one_to_many,
+          integrity: :validate_on_append,
+          consistency: :local,
+          projection: :tracker_read_model,
+          enforced: false
+        }
+      }.freeze
+
       def initialize(state:)
         @state = state
       end
@@ -82,7 +96,7 @@ module Companion
       end
 
       def validation_errors
-        record_validation_errors + history_validation_errors + projection_validation_errors
+        record_validation_errors + history_validation_errors + projection_validation_errors + relation_validation_errors
       end
 
       def valid?
@@ -92,6 +106,7 @@ module Companion
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,
+          relation_manifest: relation_manifest,
           validation_errors: validation_errors
         )
       end
@@ -198,7 +213,8 @@ module Companion
           records: record_operation_manifest,
           histories: history_operation_manifest,
           projections: projection_operation_manifest,
-          commands: command_operation_manifest
+          commands: command_operation_manifest,
+          relations: relation_manifest
         }
       end
 
@@ -231,6 +247,10 @@ module Companion
             operations: binding.fetch(:operations)
           }
         end
+      end
+
+      def relation_manifest
+        RELATION_BINDINGS
       end
 
       def record_validation_errors
@@ -280,6 +300,51 @@ module Companion
         rescue StandardError => e
           ["#{name}: projection contract failed to compile #{e.class}"]
         end
+      end
+
+      def relation_validation_errors
+        RELATION_BINDINGS.flat_map do |name, relation|
+          errors = []
+          from = relation.fetch(:from)
+          to = relation.fetch(:to)
+          join = relation.fetch(:join)
+          projection = relation.fetch(:projection, nil)
+
+          errors << "#{name}: from capability missing #{from}" unless capability_manifest.key?(from)
+          errors << "#{name}: to capability missing #{to}" unless capability_manifest.key?(to)
+          errors.concat(relation_kind_errors(name, relation)) if capability_manifest.key?(from) && capability_manifest.key?(to)
+          errors.concat(relation_join_errors(name, from, to, join)) if capability_manifest.key?(from) && capability_manifest.key?(to)
+          errors << "#{name}: projection missing #{projection}" if projection && !PROJECTION_BINDINGS.key?(projection)
+          errors << "#{name}: enforcement must remain false" if relation.fetch(:enforced)
+          errors
+        end
+      end
+
+      def relation_kind_errors(name, relation)
+        from_kind = capability_manifest.fetch(relation.fetch(:from)).fetch(:kind)
+        to_kind = capability_manifest.fetch(relation.fetch(:to)).fetch(:kind)
+        return [] unless relation.fetch(:kind) == :event_owner
+
+        errors = []
+        errors << "#{name}: event_owner from must be record" unless from_kind == :record
+        errors << "#{name}: event_owner to must be history" unless to_kind == :history
+        errors
+      end
+
+      def relation_join_errors(name, from, to, join)
+        from_fields = capability_fields(from)
+        to_fields = capability_fields(to)
+        missing_from = join.keys.map(&:to_sym) - from_fields
+        missing_to = join.values.map(&:to_sym) - to_fields
+        errors = []
+        errors << "#{name}: join source fields missing #{missing_from.join(",")}" unless missing_from.empty?
+        errors << "#{name}: join target fields missing #{missing_to.join(",")}" unless missing_to.empty?
+        errors
+      end
+
+      def capability_fields(name)
+        binding = RECORD_BINDINGS[name] || HISTORY_BINDINGS[name]
+        binding.fetch(:contract_class).persistence_manifest.fetch(:fields).map { |field| field.fetch(:name).to_sym }
       end
 
       def tracker_log_entries

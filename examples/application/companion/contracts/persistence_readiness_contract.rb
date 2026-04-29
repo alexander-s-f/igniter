@@ -4,8 +4,9 @@ require_relative "../contracts"
 
 module Companion
   module Contracts
-    contracts :PersistenceReadinessContract, outputs: %i[ready status capability_count record_count history_count projection_count summary] do
+    contracts :PersistenceReadinessContract, outputs: %i[ready status capability_count record_count history_count projection_count relation_count summary] do
       input :capability_manifest
+      input :relation_manifest
       input :validation_errors
 
       compute :ready, depends_on: [:validation_errors] do |validation_errors:|
@@ -32,9 +33,13 @@ module Companion
         capability_manifest.values.count { |entry| entry.fetch(:kind) == :projection }
       end
 
-      compute :summary, depends_on: %i[status capability_count record_count history_count projection_count validation_errors] do |status:, capability_count:, record_count:, history_count:, projection_count:, validation_errors:|
+      compute :relation_count, depends_on: [:relation_manifest] do |relation_manifest:|
+        relation_manifest.length
+      end
+
+      compute :summary, depends_on: %i[status capability_count record_count history_count projection_count relation_count validation_errors] do |status:, capability_count:, record_count:, history_count:, projection_count:, relation_count:, validation_errors:|
         if status == :ready
-          "#{capability_count} capabilities: #{record_count} records, #{history_count} histories, #{projection_count} projections."
+          "#{capability_count} capabilities, #{relation_count} relations: #{record_count} records, #{history_count} histories, #{projection_count} projections."
         else
           "Persistence blocked: #{Array(validation_errors).join("; ")}"
         end
@@ -46,6 +51,7 @@ module Companion
       output :record_count
       output :history_count
       output :projection_count
+      output :relation_count
       output :summary
     end
   end

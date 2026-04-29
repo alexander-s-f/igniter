@@ -337,6 +337,13 @@ with `persist`, history bindings must point at contracts with `history`, and
 record structs must cover declared fields. This is app-local today, but it
 resembles the boundary guard a package-level persistence compiler should grow.
 
+Companion now also exposes one report-only relation manifest:
+`tracker_logs_by_tracker` names the edge `trackers.id -> tracker_logs.tracker_id`
+with `event_owner` semantics and `enforced: false`. Readiness validates endpoint
+kinds, join fields, projection presence, and the non-enforcement boundary. This
+keeps relations as typed manifest edges first, not ORM associations or database
+foreign keys.
+
 `PersistenceReadinessContract` turns registry validation into a graph-owned
 diagnostic projection: readiness, counts by capability kind, and a compact
 summary. Companion now exposes that projection through `/setup` next to

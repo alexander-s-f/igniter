@@ -4,7 +4,7 @@ require_relative "../contracts"
 
 module Companion
   module Contracts
-    contracts :PersistenceManifestContract, outputs: %i[records histories projections commands summary] do
+    contracts :PersistenceManifestContract, outputs: %i[records histories projections commands relations summary] do
       input :capability_manifest
       input :operation_manifest
 
@@ -24,13 +24,18 @@ module Companion
         operation_manifest.fetch(:commands)
       end
 
-      compute :summary, depends_on: %i[capability_manifest records histories projections commands] do |capability_manifest:, records:, histories:, projections:, commands:|
+      compute :relations, depends_on: [:operation_manifest] do |operation_manifest:|
+        operation_manifest.fetch(:relations)
+      end
+
+      compute :summary, depends_on: %i[capability_manifest records histories projections commands relations] do |capability_manifest:, records:, histories:, projections:, commands:, relations:|
         {
           capability_count: capability_manifest.length,
           record_count: records.length,
           history_count: histories.length,
           projection_count: projections.length,
-          command_count: commands.length
+          command_count: commands.length,
+          relation_count: relations.length
         }
       end
 
@@ -38,6 +43,7 @@ module Companion
       output :histories
       output :projections
       output :commands
+      output :relations
       output :summary
     end
   end
