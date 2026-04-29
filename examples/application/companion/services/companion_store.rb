@@ -202,6 +202,10 @@ module Companion
         "live=#{snapshot.live_ready} reminders=#{snapshot.open_reminders} tracker_logs=#{snapshot.tracker_logs_today} recent=#{recent.join("|")}"
       end
 
+      def persistence_manifest
+        persistence.manifest_snapshot
+      end
+
       private
 
       attr_reader :persistence

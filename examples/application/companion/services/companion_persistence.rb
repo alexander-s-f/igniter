@@ -49,6 +49,24 @@ module Companion
         activity_feed: Contracts::ActivityFeedContract
       }.freeze
 
+      COMMAND_BINDINGS = {
+        reminder_commands: {
+          contract_class: Contracts::ReminderContract,
+          commands: %i[create complete],
+          operations: %i[record_append record_update none]
+        },
+        countdown_commands: {
+          contract_class: Contracts::CountdownContract,
+          commands: %i[create],
+          operations: %i[record_append none]
+        },
+        tracker_log_commands: {
+          contract_class: Contracts::TrackerLogContract,
+          commands: %i[append],
+          operations: %i[history_append none]
+        }
+      }.freeze
+
       def initialize(state:)
         @state = state
       end
@@ -75,6 +93,13 @@ module Companion
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,
           validation_errors: validation_errors
+        )
+      end
+
+      def manifest_snapshot
+        Contracts::PersistenceManifestContract.evaluate(
+          capability_manifest: capability_manifest,
+          operation_manifest: operation_manifest
         )
       end
 
@@ -165,6 +190,46 @@ module Companion
       def projection_manifest
         PROJECTION_BINDINGS.keys.to_h do |name|
           [name, { kind: :projection, contract: PROJECTION_BINDINGS.fetch(name) }]
+        end
+      end
+
+      def operation_manifest
+        {
+          records: record_operation_manifest,
+          histories: history_operation_manifest,
+          projections: projection_operation_manifest,
+          commands: command_operation_manifest
+        }
+      end
+
+      def record_operation_manifest
+        RECORD_BINDINGS.keys.to_h do |name|
+          api = record(name).api_manifest
+          [name, api.merge(kind: :record)]
+        end
+      end
+
+      def history_operation_manifest
+        HISTORY_BINDINGS.keys.to_h do |name|
+          api = history(name).api_manifest
+          [name, api.merge(kind: :history)]
+        end
+      end
+
+      def projection_operation_manifest
+        PROJECTION_BINDINGS.keys.to_h do |name|
+          [name, { kind: :projection, contract: PROJECTION_BINDINGS.fetch(name) }]
+        end
+      end
+
+      def command_operation_manifest
+        COMMAND_BINDINGS.transform_values do |binding|
+          {
+            kind: :command,
+            contract: binding.fetch(:contract_class),
+            commands: binding.fetch(:commands),
+            operations: binding.fetch(:operations)
+          }
         end
       end
 

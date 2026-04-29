@@ -258,6 +258,8 @@ Companion currently proves the first app-local version:
   read-model projections behind the Store façade
 - `PersistenceReadinessContract` projects persistence registry diagnostics into
   setup/readiness facts exposed by the app
+- `PersistenceManifestContract` projects registry capabilities and guaranteed
+  operations into a compact setup manifest
 - `ReminderContract` computes create/complete success and refusal
 - `CountdownContract` computes create success/refusal and mutation intent for a
   user-facing countdown form
@@ -283,6 +285,8 @@ The important split is intentional:
 - operation model: intents use `record_append`, `record_update`,
   `history_append`, or `none`, plus a target capability
 - boundary: Store/app adapter applies the operation through the registry
+- diagnostics: `/setup/manifest` exposes records, histories, projections, and
+  command operation guarantees without promoting a public API yet
 
 The package-level design should preserve that split unless repeated Companion
 pressure shows that one surface can stay readable while expressing both.

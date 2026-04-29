@@ -78,6 +78,7 @@ module Companion
 
       events_status, _events_headers, events_body = app.call(rack_env("GET", "/events"))
       setup_status, _setup_headers, setup_body = app.call(rack_env("GET", "/setup"))
+      manifest_status, _manifest_headers, manifest_body = app.call(rack_env("GET", "/setup/manifest"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -89,6 +90,7 @@ module Companion
       html = html_body.join
       events = events_body.join
       setup = setup_body.join
+      manifest = manifest_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -120,6 +122,7 @@ module Companion
       out.puts "companion_poc_completed_status=#{completed_status}"
       out.puts "companion_poc_events_status=#{events_status}"
       out.puts "companion_poc_setup_status=#{setup_status}"
+      out.puts "companion_poc_setup_manifest_status=#{manifest_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -158,6 +161,8 @@ module Companion
       out.puts "companion_poc_persistence_registry_valid=#{persistence_registry_valid?}"
       out.puts "companion_poc_persistence_readiness_contract=#{persistence_readiness_contract?}"
       out.puts "companion_poc_persistence_operation_model=#{persistence_operation_model?}"
+      out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
+      out.puts "companion_poc_setup_manifest=#{setup_manifest?(manifest)}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
       out.puts "companion_poc_daily_plan_surface=#{html.include?("data-daily-plan-block=")}"
@@ -497,6 +502,29 @@ module Companion
         tracker_log.fetch(:operation) == :history_append &&
         tracker_log.fetch(:target) == :tracker_logs &&
         refused.fetch(:operation) == :none
+    end
+
+    def persistence_manifest_contract?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      manifest = persistence.manifest_snapshot
+      summary = manifest.fetch(:summary)
+
+      summary.fetch(:record_count) == 4 &&
+        summary.fetch(:history_count) == 2 &&
+        summary.fetch(:projection_count) == 3 &&
+        summary.fetch(:command_count) == 3 &&
+        manifest.fetch(:records).fetch(:reminders).fetch(:operations) == %i[all find save update delete clear] &&
+        manifest.fetch(:histories).fetch(:tracker_logs).fetch(:operations) == %i[append all where count] &&
+        manifest.fetch(:commands).fetch(:tracker_log_commands).fetch(:operations).include?(:history_append)
+    end
+
+    def setup_manifest?(manifest)
+      manifest.include?("records") &&
+        manifest.include?("histories") &&
+        manifest.include?("projections") &&
+        manifest.include?("commands") &&
+        manifest.include?("record_append") &&
+        manifest.include?("history_append")
     end
 
     def post(app, path, values = {})

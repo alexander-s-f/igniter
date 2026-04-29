@@ -68,6 +68,10 @@ module Companion
         }.inspect)
       end
 
+      get "/setup/manifest" do
+        text service(:companion).persistence_manifest.inspect
+      end
+
       get "/hub" do
         text service(:hub).entries.map(&:name).join(",")
       end
