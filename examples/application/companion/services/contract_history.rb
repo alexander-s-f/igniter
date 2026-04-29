@@ -37,7 +37,8 @@ module Companion
           storage: storage,
           history: history_alias,
           fields: field_names,
-          operations: %i[append all where count]
+          operations: %i[append all where count],
+          operation_descriptors: history_operation_descriptors
         }
       end
 
@@ -70,6 +71,18 @@ module Companion
 
       def field_names
         @field_names ||= fields.map { |field| field.fetch(:name).to_sym }.freeze
+      end
+
+      def history_operation_descriptors
+        %i[append all where count].map do |operation|
+          {
+            name: operation,
+            kind: :history_api,
+            target_shape: :history,
+            mutates: operation == :append,
+            boundary: :app
+          }
+        end
       end
 
       def event_payload(attributes)

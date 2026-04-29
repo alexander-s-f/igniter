@@ -70,7 +70,8 @@ module Companion
           indexes: indexes,
           scopes: scopes,
           commands: commands,
-          operations: %i[all find save update delete clear scope command]
+          operations: %i[all find save update delete clear scope command],
+          operation_descriptors: record_operation_descriptors
         }
       end
 
@@ -124,6 +125,18 @@ module Companion
           {
             name: command.fetch(:name),
             attributes: command.fetch(:attributes)
+          }
+        end
+      end
+
+      def record_operation_descriptors
+        %i[all find save update delete clear scope command].map do |operation|
+          {
+            name: operation,
+            kind: :record_api,
+            target_shape: :store,
+            mutates: %i[save update delete clear].include?(operation),
+            boundary: :app
           }
         end
       end

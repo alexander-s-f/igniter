@@ -44,6 +44,8 @@ Current manifest vocabulary:
 - record capabilities use `storage.shape: :store`
 - history capabilities use `storage.shape: :history`
 - current `persist`/`history` aliases remain present for compatibility
+- `operation_descriptors` expose operation name, target shape, mutation flag,
+  and `boundary: :app` next to compatibility `operations` lists
 
 Current record capabilities:
 
@@ -348,7 +350,6 @@ Two relation slices have landed app-locally:
 
 The next safe move is vocabulary and materializer hardening, still app-local:
 
-- keep operation algebra small and explicit
 - keep relation metadata typed and report-only
 - keep approval reads side-effect-free
 - apply approval persistence only through an explicit app-boundary POST

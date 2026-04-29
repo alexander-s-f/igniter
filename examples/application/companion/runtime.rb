@@ -1294,6 +1294,13 @@ module Companion
         target_date: " ",
         countdowns: []
       ).fetch(:mutation)
+      manifest = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).manifest_snapshot
+      reminder_operation = manifest.fetch(:records).fetch(:reminders).fetch(:operation_descriptors).find { |entry| entry.fetch(:name) == :save }
+      tracker_log_operation = manifest.fetch(:histories).fetch(:tracker_logs).fetch(:operation_descriptors).find { |entry| entry.fetch(:name) == :append }
+      materializer_operation = manifest.fetch(:commands).fetch(:materializer_attempt_commands).fetch(:operation_descriptors).find do |entry|
+        entry.fetch(:name) == :history_append
+      end
+      refusal_operation = manifest.fetch(:commands).fetch(:countdown_commands).fetch(:operation_descriptors).find { |entry| entry.fetch(:name) == :none }
 
       reminder_create.fetch(:operation) == :record_append &&
         reminder_create.fetch(:target) == :reminders &&
@@ -1304,7 +1311,15 @@ module Companion
         materializer_attempt.fetch(:target) == :materializer_attempts &&
         materializer_approval.fetch(:operation) == :history_append &&
         materializer_approval.fetch(:target) == :materializer_approvals &&
-        refused.fetch(:operation) == :none
+        refused.fetch(:operation) == :none &&
+        reminder_operation.fetch(:target_shape) == :store &&
+        reminder_operation.fetch(:mutates) &&
+        tracker_log_operation.fetch(:target_shape) == :history &&
+        tracker_log_operation.fetch(:mutates) &&
+        materializer_operation.fetch(:target_shape) == :history &&
+        materializer_operation.fetch(:boundary) == :app &&
+        refusal_operation.fetch(:mutates) == false &&
+        refusal_operation.fetch(:target_shape) == :none
     end
 
     def persistence_manifest_contract?
@@ -1323,6 +1338,10 @@ module Companion
         manifest.fetch(:records).fetch(:reminders).fetch(:persist) == { key: :id, adapter: :sqlite } &&
         manifest.fetch(:histories).fetch(:tracker_logs).fetch(:storage) == { shape: :history, key: :tracker_id, adapter: :sqlite } &&
         manifest.fetch(:histories).fetch(:tracker_logs).fetch(:history) == { key: :tracker_id, adapter: :sqlite } &&
+        manifest.fetch(:records).fetch(:reminders).fetch(:operation_descriptors).any? { |entry| entry.fetch(:name) == :save && entry.fetch(:target_shape) == :store } &&
+        manifest.fetch(:histories).fetch(:tracker_logs).fetch(:operation_descriptors).any? { |entry| entry.fetch(:name) == :append && entry.fetch(:target_shape) == :history } &&
+        manifest.fetch(:commands).fetch(:reminder_commands).fetch(:operation_descriptors).any? { |entry| entry.fetch(:name) == :record_update && entry.fetch(:target_shape) == :store } &&
+        manifest.fetch(:commands).fetch(:tracker_log_commands).fetch(:operation_descriptors).any? { |entry| entry.fetch(:name) == :history_append && entry.fetch(:target_shape) == :history } &&
         manifest.fetch(:records).fetch(:articles).fetch(:fields).include?(:status) &&
         manifest.fetch(:records).fetch(:wizard_type_specs).fetch(:fields).include?(:spec) &&
         manifest.fetch(:histories).fetch(:comments).fetch(:fields).include?(:article_id) &&

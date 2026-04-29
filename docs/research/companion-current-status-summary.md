@@ -33,6 +33,7 @@ history -> History[T]
 storage.shape=:store/:history -> canonical manifest descriptor
 relation -> typed manifest edge
 command -> normalized operation intent
+operation_descriptor -> explicit target shape + mutation boundary
 app boundary -> explicit mutation application
 projection -> graph-owned read model
 ```
@@ -125,12 +126,10 @@ Do preserve:
 
 Best next move:
 
-- stabilize operation algebra and relation semantics in the same canonical
-  manifest vocabulary
+- stabilize relation semantics in the same canonical manifest vocabulary
 - continue avoiding execution and capability grant controls
 
 Acceptance:
 
-- operation entries are explicit enough for another agent to classify writes
 - relation metadata remains typed and report-only
 - no setup/read endpoint mutates durable state

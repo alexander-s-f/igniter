@@ -29,6 +29,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   semantics to a user-facing countdown creation flow.
 - command contracts now return normalized persistence operations:
   `record_append`, `record_update`, `history_append`, or `none`.
+- manifests expose canonical `operation_descriptors` next to compatibility
+  `operations` lists, including target shape, mutation flag, and app boundary.
 - `contracts/persistence_manifest_contract.rb` projects records, histories,
   projections, and command operations into `/setup/manifest`.
 - persistence manifests now include `schema_version: 1` and canonical

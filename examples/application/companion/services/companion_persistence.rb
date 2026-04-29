@@ -476,8 +476,32 @@ module Companion
             kind: :command,
             contract: binding.fetch(:contract_class),
             commands: binding.fetch(:commands),
-            operations: binding.fetch(:operations)
+            operations: binding.fetch(:operations),
+            operation_descriptors: command_operation_descriptors(binding.fetch(:operations))
           }
+        end
+      end
+
+      def command_operation_descriptors(operations)
+        operations.map do |operation|
+          {
+            name: operation,
+            kind: :mutation_intent,
+            target_shape: command_operation_target_shape(operation),
+            mutates: operation != :none,
+            boundary: :app
+          }
+        end
+      end
+
+      def command_operation_target_shape(operation)
+        case operation
+        when :record_append, :record_update
+          :store
+        when :history_append
+          :history
+        else
+          :none
         end
       end
 
