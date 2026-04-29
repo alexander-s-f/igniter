@@ -73,6 +73,10 @@ module Companion
         text service(:companion).persistence_manifest.inspect
       end
 
+      get "/setup/relation-health" do
+        text service(:companion).snapshot.relation_health.inspect
+      end
+
       get "/hub" do
         text service(:hub).entries.map(&:name).join(",")
       end

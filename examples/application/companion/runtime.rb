@@ -79,6 +79,7 @@ module Companion
       events_status, _events_headers, events_body = app.call(rack_env("GET", "/events"))
       setup_status, _setup_headers, setup_body = app.call(rack_env("GET", "/setup"))
       manifest_status, _manifest_headers, manifest_body = app.call(rack_env("GET", "/setup/manifest"))
+      relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -91,6 +92,7 @@ module Companion
       events = events_body.join
       setup = setup_body.join
       manifest = manifest_body.join
+      relation_health = relation_health_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -123,6 +125,7 @@ module Companion
       out.puts "companion_poc_events_status=#{events_status}"
       out.puts "companion_poc_setup_status=#{setup_status}"
       out.puts "companion_poc_setup_manifest_status=#{manifest_status}"
+      out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -130,6 +133,7 @@ module Companion
       out.puts "companion_poc_setup_redacted=#{setup.include?("openai_api_key") && !setup.include?("sk-")}"
       out.puts "companion_poc_setup_persistence_readiness=#{setup.include?("persistence") && setup.include?("ready")}"
       out.puts "companion_poc_setup_relation_health=#{setup.include?("relation_health") && setup.include?("clear")}"
+      out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
       out.puts "companion_poc_today_signal=#{daily_plan_signal? && html.include?("data-today-signal=")}"
@@ -720,6 +724,13 @@ module Companion
         suggestion.fetch(:command).fetch(:name) == :review_relation_warning &&
         suggestion.fetch(:command).fetch(:arguments).fetch(:values) == ["ghost-tracker"] &&
         report_suggestion.fetch(:command).fetch(:arguments).fetch(:relation) == :tracker_logs_by_tracker
+    end
+
+    def setup_relation_health_endpoint?(relation_health)
+      relation_health.include?("relation_reports") &&
+        relation_health.include?("tracker_logs_by_tracker") &&
+        relation_health.include?("repair_suggestions") &&
+        relation_health.include?("status=>:clear")
     end
 
     def persistence_operation_model?

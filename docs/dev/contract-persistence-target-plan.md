@@ -349,7 +349,8 @@ per-relation diagnostic health reports through
 `PersistenceRelationHealthContract` for orphan history entries. Warnings are
 structured as relation/kind/endpoint/value payloads and can produce report-only
 review suggestions while keeping readiness `ready`; this is the `warn` phase,
-not relation enforcement or automatic repair.
+not relation enforcement or automatic repair. Companion exposes the projection
+directly at `/setup/relation-health`.
 
 `PersistenceReadinessContract` turns registry validation into a graph-owned
 diagnostic projection: readiness, counts by capability kind, and a compact

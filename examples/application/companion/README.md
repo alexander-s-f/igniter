@@ -51,7 +51,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   for `trackers.id -> tracker_logs.tracker_id`, and the tracker read-model
   manifest declares that relation as an input. Relation health warnings are
   graph-owned, per-relation, structured, diagnostic-only, and include review
-  suggestions without enforcing writes.
+  suggestions without enforcing writes. `/setup/relation-health` exposes the
+  same projection directly.
 - `contracts/daily_plan_contract.rb` emits the Today next-action signal and
   quick action command intent from explicit facts rather than a whole snapshot.
 - `POST /today/quick-action` executes the current graph-owned target, so the
