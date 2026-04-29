@@ -146,6 +146,8 @@ Best next move:
 - keep its `architecture_constraints` intact before implementing a new slice
 - use its `next_scope` as a supervised backlog, not an execution command
 - use its `acceptance_criteria` before calling a small slice complete
+- use `/setup/handoff/acceptance.json` to observe acceptance before/after an
+  explicit app-boundary action
 - choose the next term only after the current glossary remains stable
 - continue avoiding execution and capability grant controls
 
@@ -161,6 +163,7 @@ Acceptance:
 - setup handoff preserves app-local/no-public-API/no-execution constraints
 - setup handoff keeps next scope small, reversible, and app-local
 - setup handoff defines acceptance without creating a runtime gate
+- setup handoff acceptance remains report-only and pending until explicit POST
 - `/setup` surfaces glossary health without making readiness stricter
 - no setup/read endpoint mutates durable state
 

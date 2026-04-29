@@ -80,6 +80,8 @@ module Companion
       setup_status, _setup_headers, setup_body = app.call(rack_env("GET", "/setup"))
       setup_handoff_status, _setup_handoff_headers, setup_handoff_body = app.call(rack_env("GET", "/setup/handoff"))
       setup_handoff_json_status, _setup_handoff_json_headers, setup_handoff_json_body = app.call(rack_env("GET", "/setup/handoff.json"))
+      setup_handoff_acceptance_status, _setup_handoff_acceptance_headers, setup_handoff_acceptance_body = app.call(rack_env("GET", "/setup/handoff/acceptance"))
+      setup_handoff_acceptance_json_status, _setup_handoff_acceptance_json_headers, setup_handoff_acceptance_json_body = app.call(rack_env("GET", "/setup/handoff/acceptance.json"))
       setup_health_status, _setup_health_headers, setup_health_body = app.call(rack_env("GET", "/setup/health"))
       setup_health_json_status, _setup_health_json_headers, setup_health_json_body = app.call(rack_env("GET", "/setup/health.json"))
       manifest_status, _manifest_headers, manifest_body = app.call(rack_env("GET", "/setup/manifest"))
@@ -140,6 +142,8 @@ module Companion
       setup = setup_body.join
       setup_handoff = setup_handoff_body.join
       setup_handoff_json = setup_handoff_json_body.join
+      setup_handoff_acceptance = setup_handoff_acceptance_body.join
+      setup_handoff_acceptance_json = setup_handoff_acceptance_json_body.join
       setup_health = setup_health_body.join
       setup_health_json = setup_health_json_body.join
       manifest = manifest_body.join
@@ -220,6 +224,8 @@ module Companion
       out.puts "companion_poc_setup_status=#{setup_status}"
       out.puts "companion_poc_setup_handoff_status=#{setup_handoff_status}"
       out.puts "companion_poc_setup_handoff_json_status=#{setup_handoff_json_status}"
+      out.puts "companion_poc_setup_handoff_acceptance_status=#{setup_handoff_acceptance_status}"
+      out.puts "companion_poc_setup_handoff_acceptance_json_status=#{setup_handoff_acceptance_json_status}"
       out.puts "companion_poc_setup_health_status=#{setup_health_status}"
       out.puts "companion_poc_setup_health_json_status=#{setup_health_json_status}"
       out.puts "companion_poc_setup_manifest_status=#{manifest_status}"
@@ -276,6 +282,8 @@ module Companion
       out.puts "companion_poc_setup_handoff_summary=#{setup_handoff_summary?(setup)}"
       out.puts "companion_poc_setup_handoff_endpoint=#{setup_handoff_endpoint?(setup_handoff)}"
       out.puts "companion_poc_setup_handoff_json_endpoint=#{setup_handoff_json_endpoint?(setup_handoff_json)}"
+      out.puts "companion_poc_setup_handoff_acceptance_endpoint=#{setup_handoff_acceptance_endpoint?(setup_handoff_acceptance)}"
+      out.puts "companion_poc_setup_handoff_acceptance_json_endpoint=#{setup_handoff_acceptance_json_endpoint?(setup_handoff_acceptance_json)}"
       out.puts "companion_poc_setup_health_summary=#{setup_health_summary?(setup)}"
       out.puts "companion_poc_setup_health_endpoint=#{setup_health_endpoint?(setup_health)}"
       out.puts "companion_poc_setup_health_json_endpoint=#{setup_health_json_endpoint?(setup_health_json)}"
@@ -371,6 +379,7 @@ module Companion
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_manifest_glossary_contract=#{persistence_manifest_glossary_contract?}"
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
+      out.puts "companion_poc_setup_handoff_acceptance_contract=#{setup_handoff_acceptance_contract?}"
       out.puts "companion_poc_setup_health_contract=#{setup_health_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
       out.puts "companion_poc_user_defined_article_contract=#{user_defined_article_contract?}"
@@ -1566,6 +1575,29 @@ module Companion
         handoff.fetch(:next_action) == :record_blocked_attempt
     end
 
+    def setup_handoff_acceptance_contract?
+      db_path = File.join(Dir.mktmpdir("igniter-companion-handoff-acceptance"), "companion.sqlite3")
+      config = Companion.default_configuration(store_path: db_path)
+      app = Companion.build(config: config)
+      store = app.service(:companion)
+      pending = store.setup_handoff_acceptance
+      record_status, record_headers = post(app, "/setup/materializer-attempts/record")
+      recorded_status = get_status(app, record_headers.fetch("location"))
+      satisfied = store.setup_handoff_acceptance
+
+      pending.fetch(:status) == :pending &&
+        pending.fetch(:descriptor).fetch(:kind) == :setup_handoff_acceptance &&
+        pending.fetch(:missing_terms).include?(:explicit_attempt_recorded) &&
+        pending.fetch(:missing_terms).include?(:expected_phase) &&
+        record_status == 303 &&
+        recorded_status == 200 &&
+        satisfied.fetch(:status) == :satisfied &&
+        satisfied.fetch(:missing_terms).empty? &&
+        satisfied.fetch(:checks).all? { |check| check.fetch(:present) } &&
+        satisfied.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        satisfied.fetch(:descriptor).fetch(:grants_capabilities) == false
+    end
+
     def relation_health_dashboard?(html)
       html.include?('data-relation-health-status="clear"') &&
         html.include?('data-relation-warning-count="0"') &&
@@ -2139,6 +2171,28 @@ module Companion
         payload.fetch("acceptance_criteria").fetch("proof_markers").include?("companion_poc_materializer_attempt_record_route") &&
         payload.fetch("acceptance_criteria").fetch("non_goals").include?("materializer_execution") &&
         payload.fetch("next_action") == "record_blocked_attempt"
+    end
+
+    def setup_handoff_acceptance_endpoint?(setup_handoff_acceptance)
+      setup_handoff_acceptance.include?("status=>:pending") &&
+        setup_handoff_acceptance.include?("kind=>:setup_handoff_acceptance") &&
+        setup_handoff_acceptance.include?("explicit_attempt_recorded") &&
+        setup_handoff_acceptance.include?("expected_phase") &&
+        setup_handoff_acceptance.include?("gates_runtime=>false")
+    end
+
+    def setup_handoff_acceptance_json_endpoint?(setup_handoff_acceptance_json)
+      payload = JSON.parse(setup_handoff_acceptance_json)
+
+      payload.fetch("status") == "pending" &&
+        payload.fetch("descriptor").fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "setup_handoff_acceptance" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("missing_terms").include?("explicit_attempt_recorded") &&
+        payload.fetch("missing_terms").include?("expected_phase") &&
+        payload.fetch("checks").any? { |check| check.fetch("term") == "materializer_execution_blocked" && check.fetch("present") }
     end
 
     def setup_health_summary?(setup)

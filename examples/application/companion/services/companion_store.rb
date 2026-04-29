@@ -256,6 +256,10 @@ module Companion
         persistence.setup_handoff
       end
 
+      def setup_handoff_acceptance
+        persistence.setup_handoff_acceptance
+      end
+
       def materialization_plan
         persistence.materialization_plan
       end

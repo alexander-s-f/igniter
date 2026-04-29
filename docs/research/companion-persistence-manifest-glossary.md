@@ -157,6 +157,15 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   markers and non-goals.
 - It is a handoff/read model, not an execution or approval surface.
 
+`setup_handoff_acceptance`
+
+- Report-only acceptance status exposed at `/setup/handoff/acceptance.json`.
+- Evaluates the recommended handoff scope without executing it.
+- Starts as `status: :pending` on clean setup state.
+- Becomes `status: :satisfied` only after explicit
+  `POST /setup/materializer-attempts/record`.
+- Must keep `gates_runtime: false` and `grants_capabilities: false`.
+
 ## Current Lowerings
 
 ```text

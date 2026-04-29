@@ -61,6 +61,8 @@ Current manifest vocabulary:
   next action; it also names the compact public docs and private track to read
   before stale history, preserves the current architecture constraints, and
   carries small reversible next-scope candidates with acceptance criteria
+- `/setup/handoff/acceptance(.json)` reports whether the recommended handoff
+  scope is pending or satisfied without executing it
 - `/setup/materializer(.json)` exposes a `materializer_status` descriptor with
   schema version, review-only state, history targets, command intents, audit
   counts, `grants_capabilities: false`, and `execution_allowed: false`
@@ -172,6 +174,9 @@ Current user-defined-type pressure test:
   manifest summary, and materializer status for context rotation, including
   document rotation pointers and app-local/no-public-API/no-execution
   constraints plus a supervised next-scope backlog and acceptance criteria
+- `SetupHandoffAcceptanceContract`: report-only acceptance view for the
+  recommended handoff scope; clean setup is pending, explicit materializer
+  attempt POST can satisfy it
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities
@@ -270,6 +275,8 @@ Current Companion product flows use the persistence model:
 - dashboard status exposes relation-health summary as a diagnostic signal
 - `/setup` and `/setup/manifest` expose readiness and manifest state
 - `/setup/handoff` exposes the first-read context packet for agents
+- `/setup/handoff/acceptance` exposes read-only acceptance status for the
+  recommended handoff scope
 - `/setup/health` exposes a compact report-only setup health packet for agents
 - `/setup/relation-health` exposes relation diagnostics for humans
 - `/setup/relation-health.json` exposes relation diagnostics for tools
