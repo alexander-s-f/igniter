@@ -4,7 +4,7 @@ require_relative "../contracts"
 
 module Companion
   module Contracts
-    contracts :SetupHealthContract, outputs: %i[status check_count review_count checks review_items summary] do
+    contracts :SetupHealthContract, outputs: %i[status check_count review_count descriptor checks review_items summary] do
       input :readiness
       input :relation_health
       input :manifest_glossary_health
@@ -48,6 +48,22 @@ module Companion
         checks.all? { |check| check.fetch(:present) } && review_items.empty? ? :stable : :needs_review
       end
 
+      compute :descriptor, depends_on: [:checks] do |checks:|
+        {
+          schema_version: 1,
+          kind: :setup_health,
+          report_only: true,
+          gates_runtime: false,
+          grants_capabilities: false,
+          sources: %i[
+            readiness relation_health manifest_glossary_health
+            materializer_status_descriptor_health infrastructure_loop_health
+          ],
+          check_terms: checks.map { |check| check.fetch(:term) },
+          review_item_policy: :diagnostic_only
+        }
+      end
+
       compute :summary, depends_on: %i[status check_count review_count] do |status:, check_count:, review_count:|
         "#{status}: #{check_count} setup health checks, #{review_count} review items, report-only."
       end
@@ -55,6 +71,7 @@ module Companion
       output :status
       output :check_count
       output :review_count
+      output :descriptor
       output :checks
       output :review_items
       output :summary

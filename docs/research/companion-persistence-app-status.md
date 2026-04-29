@@ -54,7 +54,8 @@ Current manifest vocabulary:
   readiness does not become stricter because of glossary drift
 - `/setup/health(.json)` summarizes readiness, relation health, manifest
   glossary health, materializer descriptor health, and infrastructure loop
-  health as a report-only packet
+  health as a self-describing report-only packet with `gates_runtime: false`
+  and `grants_capabilities: false`
 - `/setup/materializer(.json)` exposes a `materializer_status` descriptor with
   schema version, review-only state, history targets, command intents, audit
   counts, `grants_capabilities: false`, and `execution_allowed: false`
@@ -160,7 +161,8 @@ Current user-defined-type pressure test:
   counts, and status/phase alignment
 - `SetupHealthContract`: report-only summary over persistence readiness,
   relation diagnostics, manifest glossary health, materializer descriptor
-  health, and infrastructure loop health
+  health, and infrastructure loop health; it emits a descriptor so agents can
+  identify the packet as diagnostic, not executable
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities

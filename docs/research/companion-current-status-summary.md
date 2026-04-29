@@ -37,7 +37,7 @@ command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
 materializer_status.descriptor -> review-only lifecycle + no capability grants
 materializer_status_descriptor_health -> report-only no-grant/no-execution guard
-setup_health -> report-only summary over readiness + guardrails
+setup_health.descriptor -> report-only summary over readiness + guardrails
 app boundary -> explicit mutation application
 projection -> graph-owned read model
 ```
@@ -149,6 +149,7 @@ Acceptance:
 - glossary health remains stable
 - materializer status descriptor health remains stable
 - setup health remains stable or reports review items without blocking runtime
+- setup health descriptor remains report-only and does not gate runtime
 - `/setup` surfaces glossary health without making readiness stricter
 - no setup/read endpoint mutates durable state
 

@@ -1510,6 +1510,13 @@ module Companion
       stable = clean.setup_health
 
       stable.fetch(:status) == :stable &&
+        stable.fetch(:descriptor).fetch(:schema_version) == 1 &&
+        stable.fetch(:descriptor).fetch(:kind) == :setup_health &&
+        stable.fetch(:descriptor).fetch(:report_only) &&
+        stable.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        stable.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        stable.fetch(:descriptor).fetch(:sources).include?(:materializer_status_descriptor_health) &&
+        stable.fetch(:descriptor).fetch(:review_item_policy) == :diagnostic_only &&
         stable.fetch(:check_count) == 5 &&
         stable.fetch(:review_count).zero? &&
         stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
@@ -2047,6 +2054,8 @@ module Companion
 
     def setup_health_endpoint?(setup_health)
       setup_health.include?("status=>:stable") &&
+        setup_health.include?("kind=>:setup_health") &&
+        setup_health.include?("gates_runtime=>false") &&
         setup_health.include?("check_count=>5") &&
         setup_health.include?("review_count=>0") &&
         setup_health.include?("setup health checks")
@@ -2056,6 +2065,13 @@ module Companion
       payload = JSON.parse(setup_health_json)
 
       payload.fetch("status") == "stable" &&
+        payload.fetch("descriptor").fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "setup_health" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("descriptor").fetch("sources").include?("materializer_status_descriptor_health") &&
+        payload.fetch("descriptor").fetch("review_item_policy") == "diagnostic_only" &&
         payload.fetch("check_count") == 5 &&
         payload.fetch("review_count").zero? &&
         payload.fetch("review_items").empty? &&

@@ -129,6 +129,9 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 `setup_health`
 
 - Report-only summary exposed at `/setup/health.json`.
+- Includes `descriptor` with `schema_version: 1`, `kind: :setup_health`,
+  `report_only: true`, `gates_runtime: false`, and
+  `grants_capabilities: false`.
 - Folds persistence readiness, relation health, manifest glossary health,
   materializer status descriptor health, and infrastructure loop health.
 - Relation warnings become `review_items`, not runtime blockers.
