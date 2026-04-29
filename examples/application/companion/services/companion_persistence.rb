@@ -402,7 +402,15 @@ module Companion
                         .uniq
         return [] if orphan_values.empty?
 
-        ["#{relation.fetch(:to)} references missing #{relation.fetch(:from)} #{orphan_values.join(",")}"]
+        [
+          {
+            kind: :missing_source,
+            from: relation.fetch(:from),
+            to: relation.fetch(:to),
+            values: orphan_values,
+            message: "#{relation.fetch(:to)} references missing #{relation.fetch(:from)} #{orphan_values.join(",")}"
+          }
+        ]
       end
 
       def relation_value(entry, field)

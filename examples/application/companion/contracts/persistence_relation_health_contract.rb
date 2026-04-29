@@ -28,7 +28,7 @@ module Companion
 
       compute :warnings, depends_on: [:relation_reports] do |relation_reports:|
         relation_reports.flat_map do |name, report|
-          report.fetch(:warnings).map { |warning| "#{name}: #{warning}" }
+          report.fetch(:warnings).map { |warning| warning.merge(relation: name) }
         end
       end
 

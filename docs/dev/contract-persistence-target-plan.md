@@ -346,8 +346,9 @@ foreign keys. `TrackerReadModelContract` also declares the relation in its
 projection manifest inputs, proving the projection edge can be inspectable
 before a dedicated projection DSL exists. The same relation now produces
 per-relation diagnostic health reports through
-`PersistenceRelationHealthContract` for orphan history entries while keeping
-readiness `ready`; this is the `warn` phase, not relation enforcement.
+`PersistenceRelationHealthContract` for orphan history entries. Warnings are
+structured as relation/kind/endpoint/value payloads while keeping readiness
+`ready`; this is the `warn` phase, not relation enforcement.
 
 `PersistenceReadinessContract` turns registry validation into a graph-owned
 diagnostic projection: readiness, counts by capability kind, and a compact

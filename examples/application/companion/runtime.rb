@@ -169,6 +169,7 @@ module Companion
       out.puts "companion_poc_persistence_readiness_contract=#{persistence_readiness_contract?}"
       out.puts "companion_poc_persistence_relation_health_contract=#{persistence_relation_health_contract?}"
       out.puts "companion_poc_relation_health_reports=#{relation_health_reports?}"
+      out.puts "companion_poc_relation_health_structured_warnings=#{relation_health_structured_warnings?}"
       out.puts "companion_poc_persistence_operation_model=#{persistence_operation_model?}"
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
@@ -642,9 +643,18 @@ module Companion
       warning = Contracts::PersistenceRelationHealthContract.evaluate(
         relation_manifest: { tracker_logs_by_tracker: {} },
         relation_warnings: {
-          tracker_logs_by_tracker: ["tracker_logs references missing trackers ghost-tracker"]
+          tracker_logs_by_tracker: [
+            {
+              kind: :missing_source,
+              from: :trackers,
+              to: :tracker_logs,
+              values: ["ghost-tracker"],
+              message: "tracker_logs references missing trackers ghost-tracker"
+            }
+          ]
         }
       )
+      warning_entry = warning.fetch(:warnings).first
 
       clean.fetch(:status) == :clear &&
         clean.fetch(:warning_count).zero? &&
@@ -652,6 +662,9 @@ module Companion
         warning.fetch(:status) == :warning &&
         warning.fetch(:warning_count) == 1 &&
         warning.fetch(:relation_reports).fetch(:tracker_logs_by_tracker).fetch(:status) == :warning &&
+        warning_entry.fetch(:relation) == :tracker_logs_by_tracker &&
+        warning_entry.fetch(:kind) == :missing_source &&
+        warning_entry.fetch(:values) == ["ghost-tracker"] &&
         warning.fetch(:summary).include?("1 warnings")
     end
 
@@ -662,6 +675,27 @@ module Companion
       report.fetch(:status) == :clear &&
         report.fetch(:warning_count).zero? &&
         report.fetch(:warnings).empty?
+    end
+
+    def relation_health_structured_warnings?
+      orphaned_state = Services::CompanionState.seeded
+      orphaned_state.tracker_logs << Services::CompanionState::TrackerLog.new(
+        tracker_id: "ghost-tracker",
+        date: Date.today.iso8601,
+        value: "7"
+      )
+      warning = Services::CompanionPersistence
+                .new(state: orphaned_state)
+                .relation_health
+                .fetch(:warnings)
+                .first
+
+      warning.fetch(:relation) == :tracker_logs_by_tracker &&
+        warning.fetch(:kind) == :missing_source &&
+        warning.fetch(:from) == :trackers &&
+        warning.fetch(:to) == :tracker_logs &&
+        warning.fetch(:values) == ["ghost-tracker"] &&
+        warning.fetch(:message).include?("ghost-tracker")
     end
 
     def persistence_operation_model?
@@ -748,13 +782,16 @@ module Companion
       )
       orphaned = Services::CompanionPersistence.new(state: orphaned_state)
       readiness = orphaned.readiness
+      warning = readiness.fetch(:warnings).first
 
       clean.relation_warnings.fetch(:tracker_logs_by_tracker).empty? &&
         orphaned.relation_health.fetch(:status) == :warning &&
         orphaned.relation_health.fetch(:relation_reports).fetch(:tracker_logs_by_tracker).fetch(:warning_count) == 1 &&
         readiness.fetch(:ready) &&
         readiness.fetch(:warning_count) == 1 &&
-        readiness.fetch(:warnings).first.include?("ghost-tracker")
+        warning.fetch(:relation) == :tracker_logs_by_tracker &&
+        warning.fetch(:kind) == :missing_source &&
+        warning.fetch(:values) == ["ghost-tracker"]
     end
 
     def persistence_metadata_manifest?
