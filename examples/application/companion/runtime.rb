@@ -83,6 +83,8 @@ module Companion
       relation_health_json_status, _relation_health_json_headers, relation_health_json_body = app.call(rack_env("GET", "/setup/relation-health.json"))
       materialization_status, _materialization_headers, materialization_body = app.call(rack_env("GET", "/setup/materialization-plan"))
       materialization_json_status, _materialization_json_headers, materialization_json_body = app.call(rack_env("GET", "/setup/materialization-plan.json"))
+      parity_status, _parity_headers, parity_body = app.call(rack_env("GET", "/setup/materialization-parity"))
+      parity_json_status, _parity_json_headers, parity_json_body = app.call(rack_env("GET", "/setup/materialization-parity.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -99,6 +101,8 @@ module Companion
       relation_health_json = relation_health_json_body.join
       materialization = materialization_body.join
       materialization_json = materialization_json_body.join
+      parity = parity_body.join
+      parity_json = parity_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -135,6 +139,8 @@ module Companion
       out.puts "companion_poc_setup_relation_health_json_status=#{relation_health_json_status}"
       out.puts "companion_poc_setup_materialization_status=#{materialization_status}"
       out.puts "companion_poc_setup_materialization_json_status=#{materialization_json_status}"
+      out.puts "companion_poc_setup_materialization_parity_status=#{parity_status}"
+      out.puts "companion_poc_setup_materialization_parity_json_status=#{parity_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -146,6 +152,8 @@ module Companion
       out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
       out.puts "companion_poc_setup_materialization_endpoint=#{setup_materialization_endpoint?(materialization)}"
       out.puts "companion_poc_setup_materialization_json_endpoint=#{setup_materialization_json_endpoint?(materialization_json)}"
+      out.puts "companion_poc_setup_materialization_parity_endpoint=#{setup_materialization_parity_endpoint?(parity)}"
+      out.puts "companion_poc_setup_materialization_parity_json_endpoint=#{setup_materialization_parity_json_endpoint?(parity_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -193,6 +201,7 @@ module Companion
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
       out.puts "companion_poc_user_defined_article_contract=#{user_defined_article_contract?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
+      out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
       out.puts "companion_poc_projection_relation_manifest=#{projection_relation_manifest?}"
       out.puts "companion_poc_relation_health_warning=#{relation_health_warning?}"
@@ -778,6 +787,20 @@ module Companion
         payload.fetch("required_capabilities") == %w[write git test restart]
     end
 
+    def setup_materialization_parity_endpoint?(parity)
+      parity.include?("matched") &&
+        parity.include?("comments_by_article") &&
+        parity.include?("Static materialization matches")
+    end
+
+    def setup_materialization_parity_json_endpoint?(parity_json)
+      payload = JSON.parse(parity_json)
+
+      payload.fetch("status") == "matched" &&
+        payload.fetch("mismatches").empty? &&
+        payload.fetch("checked_capabilities").include?("comments_by_article")
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -951,6 +974,17 @@ module Companion
         relation.fetch(:enforced) == false &&
         plan.fetch(:required_capabilities) == %i[write git test restart] &&
         plan.fetch(:validation_errors).empty?
+    end
+
+    def static_materialization_parity?
+      parity = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).materialization_parity
+
+      parity.fetch(:status) == :matched &&
+        parity.fetch(:plan_status) == :ready_for_static_materialization &&
+        parity.fetch(:static_required) &&
+        parity.fetch(:checked_capabilities) == %i[articles comments comments_by_article] &&
+        parity.fetch(:mismatches).empty? &&
+        parity.fetch(:summary).include?("3 planned capabilities")
     end
 
     def setup_manifest?(manifest)

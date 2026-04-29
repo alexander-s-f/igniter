@@ -55,6 +55,9 @@ The launcher is intentionally thin. App-local infrastructure lives under
   from future wizard/configurator output to static contract materialization
   plans. `/setup/materialization-plan` and `.json` expose that plan for agents
   without writing files.
+- `contracts/static_materialization_parity_contract.rb` checks whether that
+  read-only plan matches the current static manifests. `/setup/materialization-parity`
+  and `.json` expose drift before any future materializer gains write capability.
 - `services/companion_persistence.rb` exposes report-only relation manifests
   for `trackers.id -> tracker_logs.tracker_id` and
   `articles.id -> comments.article_id`; the tracker read-model manifest declares

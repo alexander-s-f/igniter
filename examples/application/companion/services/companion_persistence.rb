@@ -156,6 +156,13 @@ module Companion
         Contracts::DurableTypeMaterializationContract.evaluate(type_spec: article_comment_type_spec)
       end
 
+      def materialization_parity
+        Contracts::StaticMaterializationParityContract.evaluate(
+          materialization_plan: materialization_plan,
+          manifest_snapshot: manifest_snapshot
+        )
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,

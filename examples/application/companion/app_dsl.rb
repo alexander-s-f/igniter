@@ -91,6 +91,14 @@ module Companion
         text JSON.pretty_generate(service(:companion).materialization_plan)
       end
 
+      get "/setup/materialization-parity" do
+        text service(:companion).materialization_parity.inspect
+      end
+
+      get "/setup/materialization-parity.json" do
+        text JSON.pretty_generate(service(:companion).materialization_parity)
+      end
+
       get "/hub" do
         text service(:hub).entries.map(&:name).join(",")
       end

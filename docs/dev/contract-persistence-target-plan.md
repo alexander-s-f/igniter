@@ -132,7 +132,9 @@ typed capabilities.
 The current Companion proof keeps this as a read-only graph contract:
 `DurableTypeMaterializationContract` accepts a wizard-shaped durable type spec
 and returns the static record/history/relation plan plus required materializer
-capabilities. It does not write files or restart the app.
+capabilities. `StaticMaterializationParityContract` then compares that plan with
+the static manifests and reports drift. Neither contract writes files or restarts
+the app.
 
 ## Compatibility Ladder
 

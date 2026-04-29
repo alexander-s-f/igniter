@@ -241,6 +241,10 @@ module Companion
         persistence.materialization_plan
       end
 
+      def materialization_parity
+        persistence.materialization_parity
+      end
+
       private
 
       attr_reader :persistence
