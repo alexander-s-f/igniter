@@ -1354,6 +1354,9 @@ module Companion
         manifest.fetch(:projections).fetch(:materializer_audit_trail).fetch(:reads) == %i[materializer_attempts] &&
         manifest.fetch(:projections).fetch(:materializer_approval_audit_trail).fetch(:reads) == %i[materializer_approvals] &&
         manifest.fetch(:relations).fetch(:tracker_logs_by_tracker).fetch(:join) == { id: :tracker_id } &&
+        manifest.fetch(:relations).fetch(:tracker_logs_by_tracker).fetch(:descriptor).fetch(:from).fetch(:storage_shape) == :store &&
+        manifest.fetch(:relations).fetch(:tracker_logs_by_tracker).fetch(:descriptor).fetch(:to).fetch(:storage_shape) == :history &&
+        manifest.fetch(:relations).fetch(:tracker_logs_by_tracker).fetch(:descriptor).fetch(:enforcement).fetch(:mode) == :report_only &&
         manifest.fetch(:commands).fetch(:tracker_log_commands).fetch(:operations).include?(:history_append) &&
         manifest.fetch(:commands).fetch(:materializer_attempt_commands).fetch(:operations).include?(:history_append) &&
         manifest.fetch(:commands).fetch(:materializer_approval_commands).fetch(:operations).include?(:history_append)
@@ -1364,8 +1367,11 @@ module Companion
       manifest = persistence.manifest_snapshot
       relation = manifest.fetch(:relations).fetch(:tracker_logs_by_tracker)
       article_relation = manifest.fetch(:relations).fetch(:comments_by_article)
+      descriptor = relation.fetch(:descriptor)
+      article_descriptor = article_relation.fetch(:descriptor)
 
       persistence.valid? &&
+        relation.fetch(:schema_version) == 1 &&
         relation.fetch(:kind) == :event_owner &&
         relation.fetch(:from) == :trackers &&
         relation.fetch(:to) == :tracker_logs &&
@@ -1373,10 +1379,19 @@ module Companion
         relation.fetch(:cardinality) == :one_to_many &&
         relation.fetch(:projection) == :tracker_read_model &&
         relation.fetch(:enforced) == false &&
+        descriptor.fetch(:kind) == :relation &&
+        descriptor.fetch(:edge) == :event_owner &&
+        descriptor.fetch(:from) == { capability: :trackers, storage_shape: :store } &&
+        descriptor.fetch(:to) == { capability: :tracker_logs, storage_shape: :history } &&
+        descriptor.fetch(:enforcement) == { enforced: false, mode: :report_only } &&
+        descriptor.fetch(:lowering) == { shape: :relation, from: :store, to: :history } &&
         article_relation.fetch(:from) == :articles &&
         article_relation.fetch(:to) == :comments &&
         article_relation.fetch(:join) == { id: :article_id } &&
-        article_relation.fetch(:enforced) == false
+        article_relation.fetch(:enforced) == false &&
+        article_descriptor.fetch(:from).fetch(:storage_shape) == :store &&
+        article_descriptor.fetch(:to).fetch(:storage_shape) == :history &&
+        article_descriptor.fetch(:enforcement).fetch(:mode) == :report_only
     end
 
     def projection_relation_manifest?
@@ -1900,6 +1915,8 @@ module Companion
         manifest.include?("relations") &&
         manifest.include?("schema_version") &&
         manifest.include?("storage") &&
+        manifest.include?("descriptor") &&
+        manifest.include?("report_only") &&
         manifest.include?("indexes") &&
         manifest.include?("scopes") &&
         manifest.include?("record_append") &&

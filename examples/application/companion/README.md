@@ -122,7 +122,9 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `services/companion_persistence.rb` exposes report-only relation manifests
   for `trackers.id -> tracker_logs.tracker_id` and
   `articles.id -> comments.article_id`; the tracker read-model manifest declares
-  its relation as an input. Relation health warnings are graph-owned,
+  its relation as an input. Relation manifests include canonical descriptors
+  with source/target storage shapes, lowering metadata, and
+  `enforcement.mode: :report_only`. Relation health warnings are graph-owned,
   per-relation, structured, diagnostic-only, and include review suggestions
   without enforcing writes. `/setup/relation-health` exposes the same projection
   directly, with `/setup/relation-health.json` for tools. The dashboard surfaces

@@ -46,6 +46,8 @@ Current manifest vocabulary:
 - current `persist`/`history` aliases remain present for compatibility
 - `operation_descriptors` expose operation name, target shape, mutation flag,
   and `boundary: :app` next to compatibility `operations` lists
+- relation descriptors expose source/target storage shapes, lowering metadata,
+  and `enforcement.mode: :report_only`
 
 Current record capabilities:
 
@@ -81,7 +83,8 @@ Current relation capability:
 - `tracker_logs_by_tracker`: report-only `event_owner` relation from `Tracker`
   records to `TrackerLog` history with `join: { id: :tracker_id }`,
   `cardinality: :one_to_many`, `projection: :tracker_read_model`, and
-  `enforced: false`
+  `enforced: false`; its descriptor lowers `Store[Tracker]` to
+  `History[TrackerLog]` through a report-only relation
 
 Current relation diagnostics:
 

@@ -32,6 +32,7 @@ persist -> Store[T]
 history -> History[T]
 storage.shape=:store/:history -> canonical manifest descriptor
 relation -> typed manifest edge
+relation_descriptor -> source/target storage shapes + report-only enforcement
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
 app boundary -> explicit mutation application
@@ -126,10 +127,10 @@ Do preserve:
 
 Best next move:
 
-- stabilize relation semantics in the same canonical manifest vocabulary
+- clean up a compact manifest glossary / agent reading guide
 - continue avoiding execution and capability grant controls
 
 Acceptance:
 
-- relation metadata remains typed and report-only
+- another agent can read manifest terms without reconstructing history
 - no setup/read endpoint mutates durable state

@@ -506,7 +506,54 @@ module Companion
       end
 
       def relation_manifest
-        RELATION_BINDINGS
+        RELATION_BINDINGS.to_h do |name, relation|
+          [name, relation.merge(schema_version: 1, descriptor: relation_descriptor(name, relation))]
+        end
+      end
+
+      def relation_descriptor(name, relation)
+        from_shape = capability_storage_shape(relation.fetch(:from))
+        to_shape = capability_storage_shape(relation.fetch(:to))
+        {
+          schema_version: 1,
+          name: name,
+          kind: :relation,
+          edge: relation.fetch(:kind),
+          from: {
+            capability: relation.fetch(:from),
+            storage_shape: from_shape
+          },
+          to: {
+            capability: relation.fetch(:to),
+            storage_shape: to_shape
+          },
+          join: relation.fetch(:join),
+          cardinality: relation.fetch(:cardinality),
+          integrity: relation.fetch(:integrity),
+          consistency: relation.fetch(:consistency),
+          projection: relation.fetch(:projection, nil),
+          enforcement: {
+            enforced: relation.fetch(:enforced),
+            mode: :report_only
+          },
+          lowering: {
+            shape: :relation,
+            from: from_shape,
+            to: to_shape
+          }
+        }
+      end
+
+      def capability_storage_shape(name)
+        if RECORD_BINDINGS.key?(name)
+          :store
+        elsif HISTORY_BINDINGS.key?(name)
+          :history
+        elsif PROJECTION_BINDINGS.key?(name)
+          :projection
+        else
+          :unknown
+        end
       end
 
       def record_validation_errors
