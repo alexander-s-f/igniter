@@ -71,14 +71,15 @@ module Companion
           next_reminder_title: payload.fetch(:next_reminder_title),
           body_battery: body_battery
         )
+        countdowns = persistence.countdowns.all
 
         Snapshot.new(
           reminders: persistence.reminders.all,
           trackers: tracker_read_model.fetch(:tracker_snapshots),
-          countdowns: @state.countdowns.map(&:dup).freeze,
+          countdowns: countdowns,
           open_reminders: payload.fetch(:open_reminders),
           tracker_logs_today: payload.fetch(:tracker_logs_today),
-          countdown_count: @state.countdowns.length,
+          countdown_count: countdowns.length,
           live_ready: payload.fetch(:live_ready),
           credential_status: credential_status,
           persistence_readiness: persistence.readiness,

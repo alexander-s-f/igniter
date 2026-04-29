@@ -29,6 +29,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   `contract :Reminder do persist... field... end` metadata surface.
 - `contracts/daily_focus_record_contract.rb` models daily focus as a date-keyed
   persisted record instead of a scalar state slot.
+- `contracts/countdown_record_contract.rb` models countdowns as generated
+  persisted records.
 - `services/contract_record_set.rb` turns that metadata into a tiny generated
   record API: `all`, `find`, `save`, `update`, `delete`, and `clear`.
 - `contracts/tracker_record_contract.rb` declares trackers as record

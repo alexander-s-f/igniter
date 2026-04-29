@@ -22,6 +22,11 @@ module Companion
           contract_class: Contracts::DailyFocus,
           collection: :daily_focuses,
           record_class: CompanionState::DailyFocus
+        },
+        countdowns: {
+          contract_class: Contracts::Countdown,
+          collection: :countdowns,
+          record_class: CompanionState::Countdown
         }
       }.freeze
 
@@ -86,6 +91,10 @@ module Companion
 
       def daily_focus_title_for(date)
         daily_focuses.find(date)&.title
+      end
+
+      def countdowns
+        record(:countdowns)
       end
 
       def tracker_logs

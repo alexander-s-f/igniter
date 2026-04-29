@@ -243,6 +243,7 @@ Companion currently proves the first app-local version:
 - `DailyFocus` uses the same generated record API for date-keyed daily session
   state
 - `Tracker` declares the same record metadata shape and uses the generated API
+- `Countdown` declares the same record metadata shape and uses the generated API
 - `TrackerLog` declares append-only metadata with `history` and `field`
 - `ContractHistory` turns that metadata into a generated history API
 - Companion persists tracker logs as a first-class top-level history and

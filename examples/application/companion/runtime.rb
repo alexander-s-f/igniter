@@ -125,6 +125,8 @@ module Companion
       out.puts "companion_poc_daily_focus_persistence_manifest=#{daily_focus_persistence_manifest?}"
       out.puts "companion_poc_daily_focus_generated_api=#{daily_focus_generated_api?}"
       out.puts "companion_poc_daily_focus_first_class_record=#{daily_focus_first_class_record?(config)}"
+      out.puts "companion_poc_countdown_persistence_manifest=#{countdown_persistence_manifest?}"
+      out.puts "companion_poc_countdown_generated_api=#{countdown_generated_api?}"
       out.puts "companion_poc_reminder_contract_refusal=#{blank_reminder_headers.fetch("location").include?("blank_reminder")}"
       out.puts "companion_poc_tracker_log_contract_refusal=#{blank_tracker_headers.fetch("location").include?("blank_tracker_value")}"
       out.puts "companion_poc_reminder_persistence_manifest=#{reminder_persistence_manifest?}"
@@ -266,6 +268,29 @@ module Companion
         focuses.first.fetch(:title) == "Draft the launch note"
     end
 
+    def countdown_persistence_manifest?
+      manifest = Contracts::Countdown.persistence_manifest
+      persist = manifest.fetch(:persist)
+      fields = manifest.fetch(:fields).map { |field| field.fetch(:name) }
+      persist.fetch(:key) == :id &&
+        persist.fetch(:adapter) == :sqlite &&
+        fields == %i[id title target_date]
+    end
+
+    def countdown_generated_api?
+      records = Services::ContractRecordSet.new(
+        contract_class: Contracts::Countdown,
+        collection: [],
+        record_class: Services::CompanionState::Countdown
+      )
+      records.save(id: "launch", title: "Launch", target_date: "2026-05-01")
+      records.update("launch", title: "Public launch")
+
+      records.api_manifest.fetch(:operations) == %i[all find save update delete clear] &&
+        records.find("launch").title == "Public launch" &&
+        records.all.length == 1
+    end
+
     def tracker_persistence_manifest?
       manifest = Contracts::Tracker.persistence_manifest
       persist = manifest.fetch(:persist)
@@ -388,10 +413,11 @@ module Companion
       persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
       manifest = persistence.capability_manifest
       persistence.capability_names == %i[
-        reminders trackers daily_focuses tracker_logs actions
+        reminders trackers daily_focuses countdowns tracker_logs actions
         tracker_read_model activity_feed
       ] &&
         manifest.fetch(:reminders).fetch(:kind) == :record &&
+        manifest.fetch(:countdowns).fetch(:kind) == :record &&
         manifest.fetch(:tracker_logs).fetch(:kind) == :history &&
         manifest.fetch(:activity_feed).fetch(:kind) == :projection
     end
@@ -406,8 +432,8 @@ module Companion
       readiness = persistence.readiness
       readiness.fetch(:ready) &&
         readiness.fetch(:status) == :ready &&
-        readiness.fetch(:capability_count) == 7 &&
-        readiness.fetch(:record_count) == 3 &&
+        readiness.fetch(:capability_count) == 8 &&
+        readiness.fetch(:record_count) == 4 &&
         readiness.fetch(:history_count) == 2 &&
         readiness.fetch(:projection_count) == 2
     end
