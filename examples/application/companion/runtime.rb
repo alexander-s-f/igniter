@@ -132,6 +132,7 @@ module Companion
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
       out.puts "companion_poc_today_signal=#{daily_plan_signal? && html.include?("data-today-signal=")}"
+      out.puts "companion_poc_today_quick_action=#{daily_plan_quick_action? && html.include?("data-today-quick-action=")}"
       out.puts "companion_poc_daily_focus=#{final.daily_plan.fetch(:focus_title) == "Draft the launch note"}"
       out.puts "companion_poc_daily_focus_persisted=#{persisted.daily_focus_title == final.daily_focus_title}"
       out.puts "companion_poc_daily_focus_persistence_manifest=#{daily_focus_persistence_manifest?}"
@@ -483,18 +484,24 @@ module Companion
     def daily_plan_signal?
       log_tracker = Contracts::DailyPlanContract.evaluate(
         daily_focus_title: nil,
+        next_reminder_id: nil,
         next_reminder_title: nil,
+        suggested_tracker_id: "sleep",
         body_battery: { status: "steady" },
         open_reminders: 0,
         tracker_logs_today: 0,
+        urgent_countdown_id: nil,
         urgent_countdown_title: nil
       )
       close_reminder = Contracts::DailyPlanContract.evaluate(
         daily_focus_title: "Write note",
+        next_reminder_id: "morning-water",
         next_reminder_title: "Drink water",
+        suggested_tracker_id: "sleep",
         body_battery: { status: "charged" },
         open_reminders: 1,
         tracker_logs_today: 1,
+        urgent_countdown_id: nil,
         urgent_countdown_title: nil
       )
 
@@ -502,6 +509,36 @@ module Companion
         log_tracker.fetch(:next_action).include?("tracker") &&
         close_reminder.fetch(:signal) == :close_reminder &&
         close_reminder.fetch(:next_action).include?("Drink water")
+    end
+
+    def daily_plan_quick_action?
+      log_tracker = Contracts::DailyPlanContract.evaluate(
+        daily_focus_title: nil,
+        next_reminder_id: nil,
+        next_reminder_title: nil,
+        suggested_tracker_id: "sleep",
+        body_battery: { status: "steady" },
+        open_reminders: 0,
+        tracker_logs_today: 0,
+        urgent_countdown_id: nil,
+        urgent_countdown_title: nil
+      ).fetch(:quick_action)
+      close_reminder = Contracts::DailyPlanContract.evaluate(
+        daily_focus_title: "Write note",
+        next_reminder_id: "morning-water",
+        next_reminder_title: "Drink water",
+        suggested_tracker_id: "sleep",
+        body_battery: { status: "charged" },
+        open_reminders: 1,
+        tracker_logs_today: 1,
+        urgent_countdown_id: nil,
+        urgent_countdown_title: nil
+      ).fetch(:quick_action)
+
+      log_tracker.fetch(:kind) == :tracker_log &&
+        log_tracker.fetch(:subject_id) == "sleep" &&
+        close_reminder.fetch(:kind) == :complete_reminder &&
+        close_reminder.fetch(:subject_id) == "morning-water"
     end
 
     def persistence_registry?

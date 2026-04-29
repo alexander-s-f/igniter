@@ -54,7 +54,10 @@ module Companion
         reminders = persistence.reminders
         open_reminders = reminders.scope(:open)
         tracker_read_model = persistence.tracker_read_model_for(today)
+        trackers = tracker_read_model.fetch(:tracker_snapshots)
         countdown_read_model = persistence.countdown_read_model_for(today)
+        countdowns = countdown_read_model.fetch(:countdown_snapshots)
+        urgent = urgent_countdown(countdowns)
         activity_feed = persistence.activity_feed_for(recent_limit)
         payload = @state.base_payload(
           live_ready: credential_status.fetch(:configured),
@@ -71,19 +74,21 @@ module Companion
           sleep_hours_today: payload.fetch(:sleep_hours_today),
           training_minutes_today: payload.fetch(:training_minutes_today)
         )
-        countdowns = countdown_read_model.fetch(:countdown_snapshots)
         daily_plan = Contracts::DailyPlanContract.evaluate(
           daily_focus_title: payload.fetch(:daily_focus_title),
+          next_reminder_id: open_reminders.first&.id,
           next_reminder_title: payload.fetch(:next_reminder_title),
+          suggested_tracker_id: trackers.first&.id,
           body_battery: body_battery,
           open_reminders: payload.fetch(:open_reminders),
           tracker_logs_today: payload.fetch(:tracker_logs_today),
-          urgent_countdown_title: urgent_countdown_title(countdowns)
+          urgent_countdown_id: urgent&.id,
+          urgent_countdown_title: urgent&.title
         )
 
         Snapshot.new(
           reminders: reminders.all,
-          trackers: tracker_read_model.fetch(:tracker_snapshots),
+          trackers: trackers,
           countdowns: countdowns,
           open_reminders: payload.fetch(:open_reminders),
           tracker_logs_today: payload.fetch(:tracker_logs_today),
@@ -289,11 +294,10 @@ module Companion
         PROMPT
       end
 
-      def urgent_countdown_title(countdowns)
-        countdown = countdowns
-                    .select { |entry| entry.days_remaining&.between?(0, 7) }
-                    .min_by(&:days_remaining)
-        countdown&.title
+      def urgent_countdown(countdowns)
+        countdowns
+          .select { |entry| entry.days_remaining&.between?(0, 7) }
+          .min_by(&:days_remaining)
       end
     end
   end

@@ -53,6 +53,7 @@ module Companion
           store = assigns[:ctx].service(:companion).call
           hub = assigns[:ctx].service(:hub).call
           snapshot = store.snapshot
+          quick_action = snapshot.daily_plan.fetch(:quick_action)
           feedback = Companion::Web.feedback_for(assigns[:env])
 
           main "data-ig-poc-surface": "companion_dashboard", style: Companion::Web.style(:shell) do
@@ -86,6 +87,36 @@ module Companion
                      "data-today-next-action": "true",
                      "data-today-signal": snapshot.daily_plan.fetch(:signal),
                      style: Companion::Web.style(:today_action)
+                case quick_action.fetch(:kind)
+                when :tracker_log
+                  form action: "/trackers/#{quick_action.fetch(:subject_id)}/log",
+                       method: "post",
+                       "data-today-quick-action": quick_action.fetch(:kind),
+                       style: Companion::Web.style(:form_row) do
+                    input name: "value",
+                          type: "text",
+                          placeholder: "Value",
+                          style: Companion::Web.style(:input)
+                    button quick_action.fetch(:label),
+                           type: "submit",
+                           "data-action": "today-log-tracker",
+                           style: Companion::Web.style(:button)
+                  end
+                when :complete_reminder
+                  form action: "/reminders/#{quick_action.fetch(:subject_id)}/complete",
+                       method: "post",
+                       "data-today-quick-action": quick_action.fetch(:kind),
+                       style: Companion::Web.style(:form_row) do
+                    button quick_action.fetch(:label),
+                           type: "submit",
+                           "data-action": "today-complete-reminder",
+                           style: Companion::Web.style(:button)
+                  end
+                else
+                  para quick_action.fetch(:label),
+                       "data-today-quick-action": quick_action.fetch(:kind),
+                       style: Companion::Web.style(:muted)
+                end
                 para snapshot.daily_summary.fetch(:recommendation),
                      "data-today-recommendation": "true",
                      style: Companion::Web.style(:muted)
