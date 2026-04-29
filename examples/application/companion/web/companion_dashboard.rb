@@ -84,6 +84,7 @@ module Companion
                 strong snapshot.daily_plan.fetch(:focus_title), "data-today-focus": "true"
                 para snapshot.daily_plan.fetch(:next_action),
                      "data-today-next-action": "true",
+                     "data-today-signal": snapshot.daily_plan.fetch(:signal),
                      style: Companion::Web.style(:today_action)
                 para snapshot.daily_summary.fetch(:recommendation),
                      "data-today-recommendation": "true",

@@ -71,12 +71,15 @@ module Companion
           sleep_hours_today: payload.fetch(:sleep_hours_today),
           training_minutes_today: payload.fetch(:training_minutes_today)
         )
+        countdowns = countdown_read_model.fetch(:countdown_snapshots)
         daily_plan = Contracts::DailyPlanContract.evaluate(
           daily_focus_title: payload.fetch(:daily_focus_title),
           next_reminder_title: payload.fetch(:next_reminder_title),
-          body_battery: body_battery
+          body_battery: body_battery,
+          open_reminders: payload.fetch(:open_reminders),
+          tracker_logs_today: payload.fetch(:tracker_logs_today),
+          urgent_countdown_title: urgent_countdown_title(countdowns)
         )
-        countdowns = countdown_read_model.fetch(:countdown_snapshots)
 
         Snapshot.new(
           reminders: reminders.all,
@@ -284,6 +287,13 @@ module Companion
 
           Return one short paragraph and one next action.
         PROMPT
+      end
+
+      def urgent_countdown_title(countdowns)
+        countdown = countdowns
+                    .select { |entry| entry.days_remaining&.between?(0, 7) }
+                    .min_by(&:days_remaining)
+        countdown&.title
       end
     end
   end

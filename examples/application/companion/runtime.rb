@@ -131,6 +131,7 @@ module Companion
       out.puts "companion_poc_setup_persistence_readiness=#{setup.include?("persistence") && setup.include?("ready")}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
+      out.puts "companion_poc_today_signal=#{daily_plan_signal? && html.include?("data-today-signal=")}"
       out.puts "companion_poc_daily_focus=#{final.daily_plan.fetch(:focus_title) == "Draft the launch note"}"
       out.puts "companion_poc_daily_focus_persisted=#{persisted.daily_focus_title == final.daily_focus_title}"
       out.puts "companion_poc_daily_focus_persistence_manifest=#{daily_focus_persistence_manifest?}"
@@ -477,6 +478,30 @@ module Companion
 
       feed.fetch(:action_count) == 3 &&
         feed.fetch(:recent_events).map { |event| event.fetch(:kind) } == %i[second third]
+    end
+
+    def daily_plan_signal?
+      log_tracker = Contracts::DailyPlanContract.evaluate(
+        daily_focus_title: nil,
+        next_reminder_title: nil,
+        body_battery: { status: "steady" },
+        open_reminders: 0,
+        tracker_logs_today: 0,
+        urgent_countdown_title: nil
+      )
+      close_reminder = Contracts::DailyPlanContract.evaluate(
+        daily_focus_title: "Write note",
+        next_reminder_title: "Drink water",
+        body_battery: { status: "charged" },
+        open_reminders: 1,
+        tracker_logs_today: 1,
+        urgent_countdown_title: nil
+      )
+
+      log_tracker.fetch(:signal) == :log_tracker &&
+        log_tracker.fetch(:next_action).include?("tracker") &&
+        close_reminder.fetch(:signal) == :close_reminder &&
+        close_reminder.fetch(:next_action).include?("Drink water")
     end
 
     def persistence_registry?
