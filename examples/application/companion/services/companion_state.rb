@@ -119,9 +119,9 @@ module Companion
         }
       end
 
-      def base_payload(live_ready:, tracker_read_model:)
+      def base_payload(live_ready:, tracker_read_model:, open_reminders:, next_reminder_title:)
         {
-          open_reminders: open_reminders_count,
+          open_reminders: open_reminders,
           tracker_logs_today: tracker_read_model.fetch(:logs_today),
           next_reminder_title: next_reminder_title,
           daily_focus_title: daily_focus_title,
@@ -129,14 +129,6 @@ module Companion
           training_minutes_today: tracker_read_model.fetch(:training_minutes_today),
           live_ready: live_ready
         }
-      end
-
-      def open_reminders_count
-        reminders.count { |reminder| reminder.status == :open }
-      end
-
-      def next_reminder_title
-        reminders.find { |reminder| reminder.status == :open }&.title
       end
 
       def daily_focus_title(date = Date.today.iso8601)

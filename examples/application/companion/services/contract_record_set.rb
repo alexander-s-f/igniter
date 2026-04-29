@@ -47,6 +47,16 @@ module Companion
         collection.clear
       end
 
+      def scope(name)
+        definition = scopes.find { |candidate| candidate.fetch(:name).to_sym == name.to_sym }
+        return [] unless definition
+
+        where = definition.fetch(:attributes).fetch(:where, {})
+        collection.select do |record|
+          where.all? { |attribute, value| read(record, attribute).to_s == value.to_s }
+        end.map(&:dup).freeze
+      end
+
       def api_manifest
         {
           key: key,
@@ -54,7 +64,7 @@ module Companion
           indexes: indexes,
           scopes: scopes,
           commands: commands,
-          operations: %i[all find save update delete clear]
+          operations: %i[all find save update delete clear scope]
         }
       end
 

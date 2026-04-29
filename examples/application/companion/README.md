@@ -41,7 +41,7 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `contracts/countdown_read_model_contract.rb` derives days-remaining facts
   from countdown records for the dashboard.
 - `services/contract_record_set.rb` turns that metadata into a tiny generated
-  record API: `all`, `find`, `save`, `update`, `delete`, and `clear`.
+  record API: `all`, `find`, `save`, `update`, `delete`, `clear`, and `scope`.
 - `contracts/tracker_record_contract.rb` declares trackers as record
   persistence, composed with tracker-log history for dashboard projections.
 - `contracts/tracker_read_model_contract.rb` derives tracker dashboard facts

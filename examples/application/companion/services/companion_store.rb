@@ -51,12 +51,16 @@ module Companion
 
       def snapshot(recent_limit: 6)
         today = Date.today.iso8601
+        reminders = persistence.reminders
+        open_reminders = reminders.scope(:open)
         tracker_read_model = persistence.tracker_read_model_for(today)
         countdown_read_model = persistence.countdown_read_model_for(today)
         activity_feed = persistence.activity_feed_for(recent_limit)
         payload = @state.base_payload(
           live_ready: credential_status.fetch(:configured),
-          tracker_read_model: tracker_read_model
+          tracker_read_model: tracker_read_model,
+          open_reminders: open_reminders.length,
+          next_reminder_title: open_reminders.first&.title
         )
         summary = Contracts::DailySummaryContract.evaluate(
           open_reminders: payload.fetch(:open_reminders),
@@ -75,7 +79,7 @@ module Companion
         countdowns = countdown_read_model.fetch(:countdown_snapshots)
 
         Snapshot.new(
-          reminders: persistence.reminders.all,
+          reminders: reminders.all,
           trackers: tracker_read_model.fetch(:tracker_snapshots),
           countdowns: countdowns,
           open_reminders: payload.fetch(:open_reminders),

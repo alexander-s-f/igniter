@@ -274,7 +274,7 @@ This validates the direction without committing a package API yet.
 The important split is intentional:
 
 - durable shape: `contract :Reminder do persist... field... end`
-- generated API: `all`, `find`, `save`, `update`, `delete`, `clear`
+- generated API: `all`, `find`, `save`, `update`, `delete`, `clear`, `scope`
 - append-only shape: `contract :TrackerLog do history... field... end`
 - history API: `append`, `all`, `where`, `count`
 - projection: UI read models can compose `Store[Tracker]` plus
@@ -290,6 +290,8 @@ The important split is intentional:
   command operation guarantees without promoting a public API yet
 - query metadata: app-local `index` and `scope` metadata are report-only and
   preserve the path to typed `Store[T]` capabilities
+- scope execution: app-local generated record APIs may evaluate declared scopes
+  in memory for product pressure without implying database indexes or planners
 
 The package-level design should preserve that split unless repeated Companion
 pressure shows that one surface can stay readable while expressing both.
