@@ -49,8 +49,9 @@ Status date: 2026-04-29.
   gates remain future package work.
 - Companion is the strongest product pressure for persistence and agents. Its
   app-local persistence proof now covers records, histories, projections,
-  command mutation intents, registry/readiness/manifest, and report-only
-  `index`/`scope`/`command` metadata.
+  command mutation intents, relation manifests, relation health diagnostics,
+  registry/readiness/manifest, and report-only `index`/`scope`/`command`
+  metadata.
 - Cluster owns distributed placement, routing, ownership, health, remediation,
   and mesh attempts. Contracts remain local-first and host-agnostic.
 

@@ -1,7 +1,7 @@
 # Contract Persistence Relations
 
-Status: research specification. App-local proof target only. Not accepted core
-DSL, package API, database planner, or Igniter Lang grammar.
+Status: research specification with first app-local Companion slice landed. Not
+accepted core DSL, package API, database planner, or Igniter Lang grammar.
 
 ## Core Claim
 
@@ -84,8 +84,18 @@ Relations should graduate one phase at a time:
 6. `enforce`: writes can reject or require repair.
 7. `place`: cluster/storage layers can use the relation for locality.
 
-Companion should stay at phases 1-3 for the next slice, with existing
-projections acting as evidence for phase 4.
+Companion has reached phases 1-4 for one relation and phase 5 as diagnostics:
+
+- `declare`: `RELATION_BINDINGS`
+- `manifest`: `/setup/manifest`
+- `validate`: endpoint, kind, join-field, projection, and `enforced: false`
+  checks
+- `project`: `tracker_read_model` declares `tracker_logs_by_tracker` as an
+  input relation
+- `warn`: relation health reports orphan history references as structured
+  warnings
+
+Companion has not reached `enforce` or `place`.
 
 ## Agent-Clean DSL
 
@@ -202,7 +212,7 @@ Readiness should validate:
 
 ## Companion First Slice
 
-Do this app-locally before any core work:
+This has landed app-locally:
 
 ```ruby
 RELATION_BINDINGS = {
@@ -224,10 +234,65 @@ Acceptance:
 
 - `/setup/manifest` includes `relations`
 - readiness validates endpoints and join fields
-- smoke proves the relation manifest
+- projection manifests include relation inputs
+- relation health reports can emit structured warnings
+- relation health can emit review suggestions
+- smoke proves relation manifest, projection relation input, relation health,
+  structured warnings, and setup endpoints
 - no new core DSL keyword
 - no DB foreign key or SQL index generation
-- no behavior change beyond reporting/validation
+- no write enforcement or automatic repair
+
+## Current Companion Shape
+
+The active app-local implementation uses:
+
+```ruby
+RELATION_BINDINGS = {
+  tracker_logs_by_tracker: {
+    kind: :event_owner,
+    from: :trackers,
+    to: :tracker_logs,
+    join: { id: :tracker_id },
+    cardinality: :one_to_many,
+    integrity: :validate_on_append,
+    consistency: :local,
+    projection: :tracker_read_model,
+    enforced: false
+  }
+}.freeze
+```
+
+Projection input metadata:
+
+```ruby
+PROJECTION_INPUT_BINDINGS = {
+  tracker_read_model: {
+    reads: %i[trackers tracker_logs],
+    relations: %i[tracker_logs_by_tracker]
+  }
+}.freeze
+```
+
+Relation health reports:
+
+- per relation status
+- warning count
+- structured warning payloads
+- review suggestions shaped as command intents
+- no mutation or repair execution
+
+## Next App-Local Slice
+
+Choose one:
+
+- add one more relation only if Companion product pressure needs it
+- harden relation health summaries and setup output
+- add manifest-only relation sugar in Companion, lowering to the explicit
+  registry manifest
+
+Do not add enforcement, cascade behavior, DB foreign keys, relation planners, or
+core DSL.
 
 ## Lang Lowering
 
@@ -278,14 +343,16 @@ Do not add yet:
 [Architect Supervisor / Codex]
 Track: docs/research/contract-persistence-relations.md
 Status: research spec proposed for app-local Companion proof.
+[D] First app-local relation proof landed for Tracker -> TrackerLog ->
+TrackerReadModel.
 [D] A relation is a typed manifest edge between persistence capabilities, not an
 ORM association or DB foreign key first.
 [R] Canonical form is explicit relation manifest; human sugar may lower to it.
 [R] Relation phases must follow declare -> manifest -> validate -> project ->
 warn -> enforce -> place.
-[S] First relation pressure is Tracker record to TrackerLog history to
-TrackerReadModel projection.
-Next: add app-local `RELATION_BINDINGS` to CompanionPersistence, expose
-relations in setup manifest, and validate endpoints/join fields.
+[S] Companion is at declare/manifest/validate/project/warn for one relation;
+enforce/place remain deferred.
+Next: keep relation health diagnostic-only and add another relation only under
+real product pressure.
 Block: no core/package promotion until relation manifest proves useful.
 ```
