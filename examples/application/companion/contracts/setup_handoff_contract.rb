@@ -30,6 +30,7 @@ module Companion
         [
           "/setup/health.json",
           "/setup/handoff/lifecycle.json",
+          "/setup/handoff/lifecycle-health.json",
           "/setup/handoff/acceptance.json",
           "/setup/handoff/approval-acceptance.json",
           "/setup/manifest/glossary-health.json",

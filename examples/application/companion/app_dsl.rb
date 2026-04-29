@@ -74,7 +74,8 @@ module Companion
           setup_handoff: service(:companion).setup_handoff,
           setup_handoff_acceptance: service(:companion).setup_handoff_acceptance,
           setup_handoff_approval_acceptance: service(:companion).setup_handoff_approval_acceptance,
-          setup_handoff_lifecycle: service(:companion).setup_handoff_lifecycle
+          setup_handoff_lifecycle: service(:companion).setup_handoff_lifecycle,
+          setup_handoff_lifecycle_health: service(:companion).setup_handoff_lifecycle_health
         }.inspect)
       end
 
@@ -105,6 +106,14 @@ module Companion
 
       get "/setup/handoff/lifecycle.json" do
         text JSON.pretty_generate(service(:companion).setup_handoff_lifecycle)
+      end
+
+      get "/setup/handoff/lifecycle-health" do
+        text service(:companion).setup_handoff_lifecycle_health.inspect
+      end
+
+      get "/setup/handoff/lifecycle-health.json" do
+        text JSON.pretty_generate(service(:companion).setup_handoff_lifecycle_health)
       end
 
       get "/setup/handoff/approval-acceptance" do

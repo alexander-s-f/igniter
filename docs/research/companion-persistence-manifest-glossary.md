@@ -150,6 +150,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   can be checked without mutating setup state.
 - Reading order also includes `/setup/handoff/lifecycle.json` as the compact
   stage map.
+- Reading order includes `/setup/handoff/lifecycle-health.json` as the drift
+  check for that stage map.
 - Carries `document_rotation` with the compact public docs and private track to
   read before older thread history.
 - Carries `architecture_constraints` for app-local scope, no public API promise,
@@ -170,6 +172,14 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Moves to `current_stage: :approval_receipt` after explicit attempt receipt.
 - Becomes `status: :complete` only after explicit approval receipt while still
   keeping `gates_runtime: false` and `grants_capabilities: false`.
+
+`setup_handoff_lifecycle_health`
+
+- Report-only drift check exposed at `/setup/handoff/lifecycle-health.json`.
+- Validates lifecycle descriptor shape, source packets, stage order, read views,
+  explicit POST mutations, current stage, and next action.
+- Stays outside `setup_health` because it depends on `setup_handoff`, which
+  already depends on `setup_health`.
 
 `setup_handoff_acceptance`
 

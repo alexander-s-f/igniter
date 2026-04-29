@@ -64,6 +64,9 @@ Current manifest vocabulary:
   candidates with acceptance criteria and a follow-up approval receipt check
 - `/setup/handoff/lifecycle(.json)` composes handoff plus both acceptance
   packets into a read-only stage map with current stage and next action
+- `/setup/handoff/lifecycle-health(.json)` validates lifecycle descriptor,
+  stage order, views, explicit POST mutations, current stage, and next action
+  without feeding back into `/setup/health`
 - `/setup/handoff/acceptance(.json)` reports whether the recommended handoff
   scope is pending or satisfied without executing it
 - `POST /setup/handoff/acceptance/record` explicitly applies the same
@@ -194,6 +197,8 @@ Current user-defined-type pressure test:
   approval application remains absent
 - `SetupHandoffLifecycleContract`: read-only stage map over handoff readiness,
   attempt receipt acceptance, and approval receipt acceptance
+- `SetupHandoffLifecycleHealthContract`: report-only drift check for that stage
+  map, kept separate from `SetupHealthContract` to avoid cyclic diagnostics
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities
