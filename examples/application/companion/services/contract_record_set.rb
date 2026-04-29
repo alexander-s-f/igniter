@@ -51,6 +51,9 @@ module Companion
         {
           key: key,
           fields: field_names,
+          indexes: indexes,
+          scopes: scopes,
+          commands: commands,
           operations: %i[all find save update delete clear]
         }
       end
@@ -69,6 +72,33 @@ module Companion
 
       def fields
         manifest.fetch(:fields)
+      end
+
+      def indexes
+        manifest.fetch(:indexes, []).map do |index|
+          {
+            name: index.fetch(:name),
+            attributes: index.fetch(:attributes)
+          }
+        end
+      end
+
+      def scopes
+        manifest.fetch(:scopes, []).map do |scope|
+          {
+            name: scope.fetch(:name),
+            attributes: scope.fetch(:attributes)
+          }
+        end
+      end
+
+      def commands
+        manifest.fetch(:commands, []).map do |command|
+          {
+            name: command.fetch(:name),
+            attributes: command.fetch(:attributes)
+          }
+        end
       end
 
       def field_names

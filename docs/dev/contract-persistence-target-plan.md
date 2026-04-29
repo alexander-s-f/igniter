@@ -238,7 +238,8 @@ Primary API:
 
 Companion currently proves the first app-local version:
 
-- `Reminder` declares the target metadata shape with `persist` and `field`
+- `Reminder` declares the target metadata shape with `persist`, `field`,
+  `index`, `scope`, and command metadata
 - `ContractRecordSet` turns that metadata into a generated record API
 - `DailyFocus` uses the same generated record API for date-keyed daily session
   state
@@ -287,6 +288,8 @@ The important split is intentional:
 - boundary: Store/app adapter applies the operation through the registry
 - diagnostics: `/setup/manifest` exposes records, histories, projections, and
   command operation guarantees without promoting a public API yet
+- query metadata: app-local `index` and `scope` metadata are report-only and
+  preserve the path to typed `Store[T]` capabilities
 
 The package-level design should preserve that split unless repeated Companion
 pressure shows that one surface can stay readable while expressing both.

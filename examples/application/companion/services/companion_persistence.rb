@@ -242,6 +242,8 @@ module Companion
           errors << "#{name}: missing persist declaration" unless manifest.fetch(:persist)
           missing_fields = fields - members
           errors << "#{name}: record class missing fields #{missing_fields.join(",")}" unless missing_fields.empty?
+          invalid_indexes = manifest.fetch(:indexes, []).map { |index| index.fetch(:name).to_sym } - fields
+          errors << "#{name}: indexes reference missing fields #{invalid_indexes.join(",")}" unless invalid_indexes.empty?
           errors
         end
       end

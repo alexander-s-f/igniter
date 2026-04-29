@@ -11,6 +11,10 @@ module Companion
       field :title
       field :due
       field :status, default: :open
+
+      index :status
+      scope :open, where: { status: :open }
+      command :complete, operation: :record_update, changes: { status: :done }
     end
   end
 end

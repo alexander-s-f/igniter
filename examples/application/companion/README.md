@@ -32,7 +32,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `contracts/persistence_manifest_contract.rb` projects records, histories,
   projections, and command operations into `/setup/manifest`.
 - `contracts/reminder_record_contract.rb` sketches the target
-  `contract :Reminder do persist... field... end` metadata surface.
+  `contract :Reminder do persist... field... index... scope... command... end`
+  metadata surface.
 - `contracts/daily_focus_record_contract.rb` models daily focus as a date-keyed
   persisted record instead of a scalar state slot.
 - `contracts/countdown_record_contract.rb` models countdowns as generated

@@ -14,7 +14,10 @@ module Companion
           registry_contracts: [
             Igniter::Contracts::PackManifest.dsl_keyword(:persist),
             Igniter::Contracts::PackManifest.dsl_keyword(:history),
-            Igniter::Contracts::PackManifest.dsl_keyword(:field)
+            Igniter::Contracts::PackManifest.dsl_keyword(:field),
+            Igniter::Contracts::PackManifest.dsl_keyword(:index),
+            Igniter::Contracts::PackManifest.dsl_keyword(:scope),
+            Igniter::Contracts::PackManifest.dsl_keyword(:command)
           ],
           metadata: { category: :persistence, report_only: true }
         )
@@ -24,6 +27,9 @@ module Companion
         kernel.dsl_keywords.register(:persist, persist_keyword)
         kernel.dsl_keywords.register(:history, history_keyword)
         kernel.dsl_keywords.register(:field, field_keyword)
+        kernel.dsl_keywords.register(:index, index_keyword)
+        kernel.dsl_keywords.register(:scope, scope_keyword)
+        kernel.dsl_keywords.register(:command, command_keyword)
         kernel
       end
 
@@ -64,6 +70,48 @@ module Companion
             name: :"__field_#{name}",
             value: {
               kind: :field,
+              name: name.to_sym,
+              attributes: attributes.transform_keys(&:to_sym)
+            }
+          )
+        end
+      end
+
+      def index_keyword
+        Igniter::Contracts::DslKeyword.new(:index) do |name, builder:, **attributes|
+          builder.add_operation(
+            kind: :const,
+            name: :"__index_#{name}",
+            value: {
+              kind: :index,
+              name: name.to_sym,
+              attributes: attributes.transform_keys(&:to_sym)
+            }
+          )
+        end
+      end
+
+      def scope_keyword
+        Igniter::Contracts::DslKeyword.new(:scope) do |name, builder:, **attributes|
+          builder.add_operation(
+            kind: :const,
+            name: :"__scope_#{name}",
+            value: {
+              kind: :scope,
+              name: name.to_sym,
+              attributes: attributes.transform_keys(&:to_sym)
+            }
+          )
+        end
+      end
+
+      def command_keyword
+        Igniter::Contracts::DslKeyword.new(:command) do |name, builder:, **attributes|
+          builder.add_operation(
+            kind: :const,
+            name: :"__command_#{name}",
+            value: {
+              kind: :command,
               name: name.to_sym,
               attributes: attributes.transform_keys(&:to_sym)
             }
@@ -142,11 +190,23 @@ module Companion
       fields = operations
                .select { |operation| operation.name.to_s.start_with?("__field_") }
                .map { |operation| operation.attributes.fetch(:value) }
+      indexes = operations
+                .select { |operation| operation.name.to_s.start_with?("__index_") }
+                .map { |operation| operation.attributes.fetch(:value) }
+      scopes = operations
+               .select { |operation| operation.name.to_s.start_with?("__scope_") }
+               .map { |operation| operation.attributes.fetch(:value) }
+      commands = operations
+                 .select { |operation| operation.name.to_s.start_with?("__command_") }
+                 .map { |operation| operation.attributes.fetch(:value) }
 
       {
         persist: persist,
         history: history,
-        fields: fields
+        fields: fields,
+        indexes: indexes,
+        scopes: scopes,
+        commands: commands
       }
     end
   end

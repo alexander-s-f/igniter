@@ -11,6 +11,8 @@ research material under `playgrounds/docs/`.
 
 - [Horizon Protocol](./horizon-protocol.md) - working protocol, planning frame,
   architect/agent roles, and Igniter Lang guardrails.
+- [Vision Handoff Protocol](./vision-handoff-protocol.md) - compact briefing
+  format for giving agents a large horizon with a narrow executable slice.
 
 ## Read First
 
@@ -21,6 +23,7 @@ Before changing architecture or reviewing an agent proposal, read:
 3. [Module System](../dev/module-system.md)
 4. [Igniter Lang Foundation](../guide/igniter-lang-foundation.md)
 5. [Horizon Protocol](./horizon-protocol.md)
+6. [Vision Handoff Protocol](./vision-handoff-protocol.md)
 
 ## Current Research State
 

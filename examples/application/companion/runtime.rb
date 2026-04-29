@@ -162,6 +162,7 @@ module Companion
       out.puts "companion_poc_persistence_readiness_contract=#{persistence_readiness_contract?}"
       out.puts "companion_poc_persistence_operation_model=#{persistence_operation_model?}"
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
+      out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
       out.puts "companion_poc_setup_manifest=#{setup_manifest?(manifest)}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
@@ -518,11 +519,36 @@ module Companion
         manifest.fetch(:commands).fetch(:tracker_log_commands).fetch(:operations).include?(:history_append)
     end
 
+    def persistence_metadata_manifest?
+      manifest = Contracts::Reminder.persistence_manifest
+      api = Services::ContractRecordSet.new(
+        contract_class: Contracts::Reminder,
+        collection: [],
+        record_class: Services::CompanionState::Reminder
+      ).api_manifest
+      command_mutation = Contracts::ReminderContract.evaluate(
+        operation: :complete,
+        id: "morning-water",
+        title: nil,
+        reminders: [Services::CompanionState::Reminder.new(id: "morning-water", title: "Water", due: "morning", status: :open)]
+      ).fetch(:mutation)
+
+      manifest.fetch(:indexes).any? { |index| index.fetch(:name) == :status } &&
+        manifest.fetch(:scopes).any? { |scope| scope.fetch(:name) == :open && scope.fetch(:attributes).fetch(:where) == { status: :open } } &&
+        manifest.fetch(:commands).any? { |command| command.fetch(:name) == :complete && command.fetch(:attributes).fetch(:operation) == :record_update } &&
+        api.fetch(:indexes).any? { |index| index.fetch(:name) == :status } &&
+        api.fetch(:scopes).any? { |scope| scope.fetch(:name) == :open } &&
+        api.fetch(:commands).any? { |command| command.fetch(:name) == :complete } &&
+        command_mutation.fetch(:operation) == :record_update
+    end
+
     def setup_manifest?(manifest)
       manifest.include?("records") &&
         manifest.include?("histories") &&
         manifest.include?("projections") &&
         manifest.include?("commands") &&
+        manifest.include?("indexes") &&
+        manifest.include?("scopes") &&
         manifest.include?("record_append") &&
         manifest.include?("history_append")
     end
