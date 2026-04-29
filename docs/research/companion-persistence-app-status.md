@@ -87,7 +87,8 @@ Current user-defined-type pressure test:
   over readiness, manifest, materialization plan, parity, and migration plan
 - `MaterializerGateContract`: read-only capability gate that blocks
   write/git/test/restart materializer capabilities until explicit approval even
-  when the infrastructure loop is healthy
+  when the infrastructure loop is healthy; it also emits a structured
+  review-only approval request
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`

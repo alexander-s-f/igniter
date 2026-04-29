@@ -932,7 +932,9 @@ module Companion
       payload.fetch("status") == "blocked" &&
         payload.fetch("approved_capabilities").empty? &&
         payload.fetch("blocked_capabilities") == %w[write git test restart] &&
-        payload.fetch("reasons") == ["human_approval_required"]
+        payload.fetch("reasons") == ["human_approval_required"] &&
+        payload.fetch("approval_request").fetch("kind") == "materializer_capability_request" &&
+        payload.fetch("approval_request").fetch("review_only")
     end
 
     def persistence_operation_model?
@@ -1192,7 +1194,10 @@ module Companion
         blocked.fetch(:reasons) == %i[human_approval_required] &&
         blocked.fetch(:approved_capabilities).empty? &&
         blocked.fetch(:blocked_capabilities) == %i[write git test restart] &&
+        blocked.fetch(:approval_request).fetch(:contract) == :Article &&
+        blocked.fetch(:approval_request).fetch(:review_only) &&
         approved.fetch(:status) == :ready_to_request_capabilities &&
+        approved.fetch(:approval_request).fetch(:requested_capabilities) == %i[write git test restart] &&
         approved.fetch(:approved_capabilities) == %i[write git test restart]
     end
 

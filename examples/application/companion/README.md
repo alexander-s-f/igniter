@@ -66,7 +66,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   infrastructure loop from readiness, materialization, parity, and migration
   diagnostics.
 - `contracts/materializer_gate_contract.rb` keeps future materializer
-  write/git/test/restart capabilities behind an explicit approval gate.
+  write/git/test/restart capabilities behind an explicit approval gate and emits
+  a structured review-only approval request.
 - `contracts/durable_type_materialization_contract.rb` is the read-only bridge
   from future wizard/configurator output to static contract materialization
   plans. `/setup/materialization-plan` and `.json` expose that plan for agents
