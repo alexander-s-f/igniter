@@ -338,6 +338,12 @@ module Companion
         )
       end
 
+      def storage_plan_sketch
+        Contracts::PersistenceStoragePlanSketchContract.evaluate(
+          manifest: manifest_snapshot
+        )
+      end
+
       def setup_health
         Contracts::SetupHealthContract.evaluate(
           readiness: readiness,

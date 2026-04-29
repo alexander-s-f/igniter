@@ -67,6 +67,7 @@ module Companion
           storage: storage,
           persist: persist_alias,
           fields: field_names,
+          field_descriptors: fields,
           indexes: indexes,
           scopes: scopes,
           commands: commands,

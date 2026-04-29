@@ -248,6 +248,10 @@ module Companion
         persistence.manifest_glossary_health
       end
 
+      def storage_plan_sketch
+        persistence.storage_plan_sketch
+      end
+
       def setup_health
         persistence.setup_health
       end

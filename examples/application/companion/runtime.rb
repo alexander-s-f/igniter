@@ -108,6 +108,8 @@ module Companion
       manifest_status, _manifest_headers, manifest_body = app.call(rack_env("GET", "/setup/manifest"))
       manifest_glossary_status, _manifest_glossary_headers, manifest_glossary_body = app.call(rack_env("GET", "/setup/manifest/glossary-health"))
       manifest_glossary_json_status, _manifest_glossary_json_headers, manifest_glossary_json_body = app.call(rack_env("GET", "/setup/manifest/glossary-health.json"))
+      storage_plan_status, _storage_plan_headers, storage_plan_body = app.call(rack_env("GET", "/setup/storage-plan"))
+      storage_plan_json_status, _storage_plan_json_headers, storage_plan_json_body = app.call(rack_env("GET", "/setup/storage-plan.json"))
       relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
       relation_health_json_status, _relation_health_json_headers, relation_health_json_body = app.call(rack_env("GET", "/setup/relation-health.json"))
       materialization_status, _materialization_headers, materialization_body = app.call(rack_env("GET", "/setup/materialization-plan"))
@@ -191,6 +193,8 @@ module Companion
       manifest = manifest_body.join
       manifest_glossary = manifest_glossary_body.join
       manifest_glossary_json = manifest_glossary_json_body.join
+      storage_plan = storage_plan_body.join
+      storage_plan_json = storage_plan_json_body.join
       relation_health = relation_health_body.join
       relation_health_json = relation_health_json_body.join
       materialization = materialization_body.join
@@ -294,6 +298,8 @@ module Companion
       out.puts "companion_poc_setup_manifest_status=#{manifest_status}"
       out.puts "companion_poc_setup_manifest_glossary_status=#{manifest_glossary_status}"
       out.puts "companion_poc_setup_manifest_glossary_json_status=#{manifest_glossary_json_status}"
+      out.puts "companion_poc_setup_storage_plan_status=#{storage_plan_status}"
+      out.puts "companion_poc_setup_storage_plan_json_status=#{storage_plan_json_status}"
       out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
       out.puts "companion_poc_setup_relation_health_json_status=#{relation_health_json_status}"
       out.puts "companion_poc_setup_materialization_status=#{materialization_status}"
@@ -375,6 +381,8 @@ module Companion
       out.puts "companion_poc_setup_relation_health=#{setup.include?("relation_health") && setup.include?("clear")}"
       out.puts "companion_poc_setup_manifest_glossary_endpoint=#{setup_manifest_glossary_endpoint?(manifest_glossary)}"
       out.puts "companion_poc_setup_manifest_glossary_json_endpoint=#{setup_manifest_glossary_json_endpoint?(manifest_glossary_json)}"
+      out.puts "companion_poc_setup_storage_plan_endpoint=#{setup_storage_plan_endpoint?(storage_plan)}"
+      out.puts "companion_poc_setup_storage_plan_json_endpoint=#{setup_storage_plan_json_endpoint?(storage_plan_json)}"
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
       out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
       out.puts "companion_poc_setup_materialization_endpoint=#{setup_materialization_endpoint?(materialization)}"
@@ -462,6 +470,7 @@ module Companion
       out.puts "companion_poc_persistence_operation_model=#{persistence_operation_model?}"
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_manifest_glossary_contract=#{persistence_manifest_glossary_contract?}"
+      out.puts "companion_poc_persistence_storage_plan_sketch_contract=#{persistence_storage_plan_sketch_contract?}"
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
       out.puts "companion_poc_setup_handoff_acceptance_contract=#{setup_handoff_acceptance_contract?}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_contract=#{setup_handoff_approval_acceptance_contract?}"
@@ -1546,6 +1555,33 @@ module Companion
         stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
         drift.fetch(:status) == :drift &&
         drift.fetch(:missing_terms).include?(:record_storage)
+    end
+
+    def persistence_storage_plan_sketch_contract?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      plan = persistence.storage_plan_sketch
+      reminders = plan.fetch(:records).fetch(:reminders)
+      wizard_specs = plan.fetch(:records).fetch(:wizard_type_specs)
+      tracker_logs = plan.fetch(:histories).fetch(:tracker_logs)
+
+      plan.fetch(:schema_version) == 1 &&
+        plan.fetch(:descriptor).fetch(:kind) == :persistence_storage_plan_sketch &&
+        plan.fetch(:descriptor).fetch(:report_only) &&
+        plan.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        plan.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        plan.fetch(:descriptor).fetch(:schema_changes_allowed) == false &&
+        plan.fetch(:descriptor).fetch(:sql_generation_allowed) == false &&
+        plan.fetch(:summary).fetch(:status) == :sketched &&
+        plan.fetch(:summary).fetch(:record_plan_count) == 6 &&
+        plan.fetch(:summary).fetch(:history_plan_count) == 6 &&
+        reminders.fetch(:store_lowering) == :store_t &&
+        reminders.fetch(:primary_key_candidate) == :id &&
+        reminders.fetch(:indexes).any? { |index| index.fetch(:name) == :status && index.fetch(:fields) == [:status] } &&
+        reminders.fetch(:scopes).any? { |scope| scope.fetch(:name) == :open && scope.fetch(:where) == { status: :open } } &&
+        wizard_specs.fetch(:columns).any? { |column| column.fetch(:name) == :spec && column.fetch(:portable_type) == :json && column.fetch(:adapter_type_candidate) == :json_document } &&
+        tracker_logs.fetch(:history_lowering) == :history_t &&
+        tracker_logs.fetch(:append_only) &&
+        tracker_logs.fetch(:partition_key_candidate) == :tracker_id
     end
 
     def persistence_relation_manifest?
@@ -2855,6 +2891,40 @@ module Companion
         payload.fetch("check_count") == 9 &&
         payload.fetch("missing_terms").empty? &&
         payload.fetch("checks").all? { |check| check.fetch("present") }
+    end
+
+    def setup_storage_plan_endpoint?(storage_plan)
+      storage_plan.include?("kind=>:persistence_storage_plan_sketch") &&
+        storage_plan.include?("schema_changes_allowed=>false") &&
+        storage_plan.include?("sql_generation_allowed=>false") &&
+        storage_plan.include?("store_lowering=>:store_t") &&
+        storage_plan.include?("history_lowering=>:history_t") &&
+        storage_plan.include?("adapter_type_candidate=>:json_document")
+    end
+
+    def setup_storage_plan_json_endpoint?(storage_plan_json)
+      payload = JSON.parse(storage_plan_json)
+      reminders = payload.fetch("records").fetch("reminders")
+      wizard_specs = payload.fetch("records").fetch("wizard_type_specs")
+      tracker_logs = payload.fetch("histories").fetch("tracker_logs")
+
+      payload.fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "persistence_storage_plan_sketch" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("descriptor").fetch("schema_changes_allowed") == false &&
+        payload.fetch("descriptor").fetch("sql_generation_allowed") == false &&
+        payload.fetch("summary").fetch("status") == "sketched" &&
+        payload.fetch("summary").fetch("record_plan_count") == 6 &&
+        payload.fetch("summary").fetch("history_plan_count") == 6 &&
+        reminders.fetch("store_lowering") == "store_t" &&
+        reminders.fetch("indexes").any? { |index| index.fetch("name") == "status" && index.fetch("fields") == ["status"] } &&
+        reminders.fetch("scopes").any? { |scope| scope.fetch("name") == "open" && scope.fetch("where") == { "status" => "open" } } &&
+        wizard_specs.fetch("columns").any? { |column| column.fetch("name") == "spec" && column.fetch("portable_type") == "json" && column.fetch("adapter_type_candidate") == "json_document" } &&
+        tracker_logs.fetch("history_lowering") == "history_t" &&
+        tracker_logs.fetch("append_only") &&
+        tracker_logs.fetch("partition_key_candidate") == "tracker_id"
     end
 
     def post(app, path, values = {})

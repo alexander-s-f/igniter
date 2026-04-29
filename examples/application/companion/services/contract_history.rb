@@ -37,6 +37,7 @@ module Companion
           storage: storage,
           history: history_alias,
           fields: field_names,
+          field_descriptors: fields,
           operations: %i[append all where count],
           operation_descriptors: history_operation_descriptors
         }

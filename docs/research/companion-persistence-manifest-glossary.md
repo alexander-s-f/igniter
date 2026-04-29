@@ -24,6 +24,8 @@ Read `/setup/manifest` top down:
 Then read `/setup/materializer.json` for the compact review lifecycle status.
 Read `/setup/materializer/descriptor-health.json` when changing the
 materializer status descriptor.
+Read `/setup/storage-plan.json` when discussing field/table lowerings. It is a
+review-only sketch, not a DB schema or migration plan.
 Read `/setup/health.json` for the compact report-only current-state packet.
 Read `/setup/handoff.json` first when rotating context between agents.
 
@@ -45,6 +47,19 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - `storage.shape: :store` means future `Store[T]`.
 - `storage.shape: :history` means future `History[T]`.
 - `persist` and `history` remain compatibility aliases beside `storage`.
+
+`storage_plan_sketch`
+
+- Review-only R1 lowerings exposed at `/setup/storage-plan.json`.
+- Maps records to storage/table name candidates, primary key candidates,
+  columns from field descriptors, index candidates, and scope/query
+  descriptors.
+- Maps histories to append-only table candidates with partition key candidates.
+- Includes adapter type mapping candidates such as JSON fields to
+  `:json_document`.
+- Keeps `schema_changes_allowed: false` and `sql_generation_allowed: false`.
+- Does not imply a table-per-contract guarantee, migration runner, DB planner,
+  index creation, or backfill.
 
 `records`
 

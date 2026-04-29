@@ -69,6 +69,7 @@ module Companion
           persistence: snapshot.persistence_readiness,
           relation_health: snapshot.relation_health,
           manifest_glossary: snapshot.manifest_glossary_health,
+          storage_plan_sketch: service(:companion).storage_plan_sketch,
           materializer_descriptor_health: snapshot.materializer_status_descriptor_health,
           setup_health: service(:companion).setup_health,
           setup_handoff: service(:companion).setup_handoff,
@@ -224,6 +225,14 @@ module Companion
 
       get "/setup/manifest/glossary-health.json" do
         text JSON.pretty_generate(service(:companion).manifest_glossary_health)
+      end
+
+      get "/setup/storage-plan" do
+        text service(:companion).storage_plan_sketch.inspect
+      end
+
+      get "/setup/storage-plan.json" do
+        text JSON.pretty_generate(service(:companion).storage_plan_sketch)
       end
 
       get "/setup/relation-health" do
