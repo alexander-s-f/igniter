@@ -8,6 +8,11 @@ require_relative "companion_state"
 module Companion
   module Services
     class CompanionStore
+      TODAY_QUICK_ACTION_COMMANDS = {
+        log_tracker: ->(store, arguments, input) { store.log_tracker(arguments.fetch(:id), input.fetch(:value)) },
+        complete_reminder: ->(store, arguments, _input) { store.complete_reminder(arguments.fetch(:id)) }
+      }.freeze
+
       CommandResult = Struct.new(:kind, :feedback_code, :subject_id, :action, keyword_init: true) do
         def success?
           kind == :success
@@ -208,17 +213,14 @@ module Companion
 
       def run_today_quick_action(value: nil)
         quick_action = snapshot.daily_plan.fetch(:quick_action)
+        command = quick_action[:command]
 
-        case quick_action.fetch(:kind)
-        when :tracker_log
-          log_tracker(quick_action.fetch(:subject_id), value)
-        when :complete_reminder
-          complete_reminder(quick_action.fetch(:subject_id))
-        else
-          action = record_action(kind: :today_quick_action_refused, subject_id: quick_action.fetch(:kind), status: :refused)
-          persist!
-          command_result(:failure, feedback_code: :today_quick_action_unavailable, subject_id: quick_action.fetch(:kind), action: action)
-        end
+        return unavailable_today_quick_action(quick_action.fetch(:kind)) unless command
+
+        handler = TODAY_QUICK_ACTION_COMMANDS[command.fetch(:name)]
+        return unavailable_today_quick_action(command.fetch(:name)) unless handler
+
+        handler.call(self, command.fetch(:arguments), { value: value })
       end
 
       def events_read_model
@@ -295,6 +297,12 @@ module Companion
 
       def command_result(kind, feedback_code:, subject_id:, action:)
         CommandResult.new(kind: kind.to_sym, feedback_code: feedback_code.to_sym, subject_id: subject_id, action: action)
+      end
+
+      def unavailable_today_quick_action(subject_id)
+        action = record_action(kind: :today_quick_action_refused, subject_id: subject_id, status: :refused)
+        persist!
+        command_result(:failure, feedback_code: :today_quick_action_unavailable, subject_id: subject_id, action: action)
       end
 
       def daily_summary_prompt(snapshot)

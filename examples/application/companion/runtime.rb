@@ -133,6 +133,7 @@ module Companion
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
       out.puts "companion_poc_today_signal=#{daily_plan_signal? && html.include?("data-today-signal=")}"
       out.puts "companion_poc_today_quick_action=#{daily_plan_quick_action? && html.include?("data-today-quick-action=")}"
+      out.puts "companion_poc_today_quick_action_command=#{daily_plan_quick_action_command? && html.include?("data-today-command=")}"
       out.puts "companion_poc_today_quick_action_route=#{today_quick_action_route? && html.include?('action="/today/quick-action"')}"
       out.puts "companion_poc_daily_focus=#{final.daily_plan.fetch(:focus_title) == "Draft the launch note"}"
       out.puts "companion_poc_daily_focus_persisted=#{persisted.daily_focus_title == final.daily_focus_title}"
@@ -540,6 +541,37 @@ module Companion
         log_tracker.fetch(:subject_id) == "sleep" &&
         close_reminder.fetch(:kind) == :complete_reminder &&
         close_reminder.fetch(:subject_id) == "morning-water"
+    end
+
+    def daily_plan_quick_action_command?
+      log_tracker = Contracts::DailyPlanContract.evaluate(
+        daily_focus_title: nil,
+        next_reminder_id: nil,
+        next_reminder_title: nil,
+        suggested_tracker_id: "sleep",
+        body_battery: { status: "steady" },
+        open_reminders: 0,
+        tracker_logs_today: 0,
+        urgent_countdown_id: nil,
+        urgent_countdown_title: nil
+      ).fetch(:quick_action).fetch(:command)
+      close_reminder = Contracts::DailyPlanContract.evaluate(
+        daily_focus_title: "Write note",
+        next_reminder_id: "morning-water",
+        next_reminder_title: "Drink water",
+        suggested_tracker_id: "sleep",
+        body_battery: { status: "charged" },
+        open_reminders: 1,
+        tracker_logs_today: 1,
+        urgent_countdown_id: nil,
+        urgent_countdown_title: nil
+      ).fetch(:quick_action).fetch(:command)
+
+      log_tracker.fetch(:name) == :log_tracker &&
+        log_tracker.fetch(:arguments).fetch(:id) == "sleep" &&
+        log_tracker.fetch(:arguments).fetch(:value) == :input_value &&
+        close_reminder.fetch(:name) == :complete_reminder &&
+        close_reminder.fetch(:arguments).fetch(:id) == "morning-water"
     end
 
     def today_quick_action_route?

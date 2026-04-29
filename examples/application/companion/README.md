@@ -48,7 +48,7 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `contracts/tracker_read_model_contract.rb` derives tracker dashboard facts
   from tracker records plus tracker-log history.
 - `contracts/daily_plan_contract.rb` emits the Today next-action signal and
-  quick action target from explicit facts rather than a whole snapshot.
+  quick action command intent from explicit facts rather than a whole snapshot.
 - `POST /today/quick-action` executes the current graph-owned target, so the
   dashboard does not hardcode domain command routes for Today.
 - `contracts/tracker_log_history_contract.rb` and `services/contract_history.rb`

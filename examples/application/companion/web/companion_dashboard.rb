@@ -92,6 +92,7 @@ module Companion
                   form action: "/today/quick-action",
                        method: "post",
                        "data-today-quick-action": quick_action.fetch(:kind),
+                       "data-today-command": quick_action.fetch(:command).fetch(:name),
                        style: Companion::Web.style(:form_row) do
                     input name: "value",
                           type: "text",
@@ -106,6 +107,7 @@ module Companion
                   form action: "/today/quick-action",
                        method: "post",
                        "data-today-quick-action": quick_action.fetch(:kind),
+                       "data-today-command": quick_action.fetch(:command).fetch(:name),
                        style: Companion::Web.style(:form_row) do
                     button quick_action.fetch(:label),
                            type: "submit",

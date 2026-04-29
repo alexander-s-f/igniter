@@ -74,7 +74,14 @@ module Companion
           {
             kind: :tracker_log,
             subject_id: suggested_tracker_id,
-            label: "Log tracker"
+            label: "Log tracker",
+            command: {
+              name: :log_tracker,
+              arguments: {
+                id: suggested_tracker_id,
+                value: :input_value
+              }
+            }
           }
         when :close_reminder
           next { kind: :none, subject_id: nil, label: "No open reminder target" } unless next_reminder_id
@@ -82,7 +89,13 @@ module Companion
           {
             kind: :complete_reminder,
             subject_id: next_reminder_id,
-            label: "Done"
+            label: "Done",
+            command: {
+              name: :complete_reminder,
+              arguments: {
+                id: next_reminder_id
+              }
+            }
           }
         when :countdown
           {
