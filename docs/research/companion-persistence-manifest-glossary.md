@@ -156,6 +156,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   context packet.
 - Reading order includes `/setup/handoff/packet-registry.json` as the indexed
   setup packet surface.
+- Reading order includes `/setup/handoff/extraction-sketch.json` as the
+  package-placement sketch without public API promise.
 - Carries `document_rotation` with the compact public docs and private track to
   read before older thread history.
 - Carries `architecture_constraints` for app-local scope, no public API promise,
@@ -201,6 +203,15 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   reading order, and explicit receipt POST paths.
 - All indexed packets must remain report-only, `gates_runtime: false`, and
   `grants_capabilities: false`.
+
+`setup_handoff_extraction_sketch`
+
+- Read-only landing-zone packet exposed at
+  `/setup/handoff/extraction-sketch.json`.
+- Keeps current scope `companion_app_local`.
+- Names extraction candidates for `igniter-extensions` and
+  `igniter-application`, while reserving future `igniter-persistence`.
+- Must keep `package_promise: false` and `package_split_now: false`.
 
 `setup_handoff_acceptance`
 

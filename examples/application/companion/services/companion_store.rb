@@ -280,6 +280,10 @@ module Companion
         persistence.setup_handoff_packet_registry
       end
 
+      def setup_handoff_extraction_sketch
+        persistence.setup_handoff_extraction_sketch
+      end
+
       def materialization_plan
         persistence.materialization_plan
       end

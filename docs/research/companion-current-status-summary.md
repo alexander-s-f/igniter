@@ -43,6 +43,7 @@ setup_handoff_lifecycle -> read-only lifecycle map over handoff acceptance
 setup_handoff_lifecycle_health -> drift check without setup_health cycle
 setup_handoff_supervision -> single agent context packet over handoff lifecycle
 setup_handoff_packet_registry -> read-only index of setup/handoff packet surface
+setup_handoff_extraction_sketch -> landing-zone map without package promise
 app boundary -> explicit mutation application
 projection -> graph-owned read model
 ```
@@ -154,6 +155,8 @@ Best next move:
   with lifecycle stage, health signals, packet refs, and next action
 - use `/setup/handoff/packet-registry.json` when an agent needs the indexed
   setup packet surface plus explicit receipt POST paths
+- use `/setup/handoff/extraction-sketch.json` when an agent needs the
+  app-local/extensions/application/future-persistence placement map
 - follow its `reading_order` through both handoff acceptance packets before
   deciding that the materializer lifecycle advanced
 - follow its `document_rotation` block before reading long thread history

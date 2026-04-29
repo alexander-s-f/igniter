@@ -80,6 +80,8 @@ module Companion
       setup_status, _setup_headers, setup_body = app.call(rack_env("GET", "/setup"))
       setup_handoff_status, _setup_handoff_headers, setup_handoff_body = app.call(rack_env("GET", "/setup/handoff"))
       setup_handoff_json_status, _setup_handoff_json_headers, setup_handoff_json_body = app.call(rack_env("GET", "/setup/handoff.json"))
+      setup_handoff_extraction_sketch_status, _setup_handoff_extraction_sketch_headers, setup_handoff_extraction_sketch_body = app.call(rack_env("GET", "/setup/handoff/extraction-sketch"))
+      setup_handoff_extraction_sketch_json_status, _setup_handoff_extraction_sketch_json_headers, setup_handoff_extraction_sketch_json_body = app.call(rack_env("GET", "/setup/handoff/extraction-sketch.json"))
       setup_handoff_packet_registry_status, _setup_handoff_packet_registry_headers, setup_handoff_packet_registry_body = app.call(rack_env("GET", "/setup/handoff/packet-registry"))
       setup_handoff_packet_registry_json_status, _setup_handoff_packet_registry_json_headers, setup_handoff_packet_registry_json_body = app.call(rack_env("GET", "/setup/handoff/packet-registry.json"))
       setup_handoff_supervision_status, _setup_handoff_supervision_headers, setup_handoff_supervision_body = app.call(rack_env("GET", "/setup/handoff/supervision"))
@@ -152,6 +154,8 @@ module Companion
       setup = setup_body.join
       setup_handoff = setup_handoff_body.join
       setup_handoff_json = setup_handoff_json_body.join
+      setup_handoff_extraction_sketch = setup_handoff_extraction_sketch_body.join
+      setup_handoff_extraction_sketch_json = setup_handoff_extraction_sketch_json_body.join
       setup_handoff_packet_registry = setup_handoff_packet_registry_body.join
       setup_handoff_packet_registry_json = setup_handoff_packet_registry_json_body.join
       setup_handoff_supervision = setup_handoff_supervision_body.join
@@ -244,6 +248,8 @@ module Companion
       out.puts "companion_poc_setup_status=#{setup_status}"
       out.puts "companion_poc_setup_handoff_status=#{setup_handoff_status}"
       out.puts "companion_poc_setup_handoff_json_status=#{setup_handoff_json_status}"
+      out.puts "companion_poc_setup_handoff_extraction_sketch_status=#{setup_handoff_extraction_sketch_status}"
+      out.puts "companion_poc_setup_handoff_extraction_sketch_json_status=#{setup_handoff_extraction_sketch_json_status}"
       out.puts "companion_poc_setup_handoff_packet_registry_status=#{setup_handoff_packet_registry_status}"
       out.puts "companion_poc_setup_handoff_packet_registry_json_status=#{setup_handoff_packet_registry_json_status}"
       out.puts "companion_poc_setup_handoff_supervision_status=#{setup_handoff_supervision_status}"
@@ -312,6 +318,8 @@ module Companion
       out.puts "companion_poc_setup_handoff_summary=#{setup_handoff_summary?(setup)}"
       out.puts "companion_poc_setup_handoff_endpoint=#{setup_handoff_endpoint?(setup_handoff)}"
       out.puts "companion_poc_setup_handoff_json_endpoint=#{setup_handoff_json_endpoint?(setup_handoff_json)}"
+      out.puts "companion_poc_setup_handoff_extraction_sketch_endpoint=#{setup_handoff_extraction_sketch_endpoint?(setup_handoff_extraction_sketch)}"
+      out.puts "companion_poc_setup_handoff_extraction_sketch_json_endpoint=#{setup_handoff_extraction_sketch_json_endpoint?(setup_handoff_extraction_sketch_json)}"
       out.puts "companion_poc_setup_handoff_packet_registry_endpoint=#{setup_handoff_packet_registry_endpoint?(setup_handoff_packet_registry)}"
       out.puts "companion_poc_setup_handoff_packet_registry_json_endpoint=#{setup_handoff_packet_registry_json_endpoint?(setup_handoff_packet_registry_json)}"
       out.puts "companion_poc_setup_handoff_supervision_endpoint=#{setup_handoff_supervision_endpoint?(setup_handoff_supervision)}"
@@ -425,6 +433,7 @@ module Companion
       out.puts "companion_poc_setup_handoff_lifecycle_health_contract=#{setup_handoff_lifecycle_health_contract?}"
       out.puts "companion_poc_setup_handoff_supervision_contract=#{setup_handoff_supervision_contract?}"
       out.puts "companion_poc_setup_handoff_packet_registry_contract=#{setup_handoff_packet_registry_contract?}"
+      out.puts "companion_poc_setup_handoff_extraction_sketch_contract=#{setup_handoff_extraction_sketch_contract?}"
       out.puts "companion_poc_setup_health_contract=#{setup_health_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
       out.puts "companion_poc_user_defined_article_contract=#{user_defined_article_contract?}"
@@ -1600,6 +1609,7 @@ module Companion
         handoff.fetch(:descriptor).fetch(:grants_capabilities) == false &&
         handoff.fetch(:descriptor).fetch(:purpose) == :context_rotation &&
         handoff.fetch(:reading_order).include?("/setup/health.json") &&
+        handoff.fetch(:reading_order).include?("/setup/handoff/extraction-sketch.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/packet-registry.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/supervision.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/lifecycle.json") &&
@@ -1770,6 +1780,25 @@ module Companion
           "POST /setup/handoff/approval-acceptance/record"
         ] &&
         registry.fetch(:summary).include?("8 setup packets")
+    end
+
+    def setup_handoff_extraction_sketch_contract?
+      sketch = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).setup_handoff_extraction_sketch
+
+      sketch.fetch(:status) == :sketched &&
+        sketch.fetch(:descriptor).fetch(:kind) == :setup_handoff_extraction_sketch &&
+        sketch.fetch(:descriptor).fetch(:package_promise) == false &&
+        sketch.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        sketch.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        sketch.fetch(:placements).fetch(:companion_app_local).include?(:setup_handoff_packet_registry) &&
+        sketch.fetch(:placements).fetch(:igniter_extensions_candidate).include?(:store_history_relation_descriptors) &&
+        sketch.fetch(:placements).fetch(:igniter_application_candidate).include?(:explicit_app_boundary_writes) &&
+        sketch.fetch(:placements).fetch(:future_igniter_persistence_candidate).include?(:adapter_contract) &&
+        sketch.fetch(:constraints).fetch(:current_scope) == :companion_app_local &&
+        sketch.fetch(:constraints).fetch(:package_split_now) == false &&
+        sketch.fetch(:constraints).fetch(:forbidden_names).include?(:igniter_data) &&
+        sketch.fetch(:constraints).fetch(:reserved_future_name) == :igniter_persistence &&
+        sketch.fetch(:next_action) == :keep_companion_app_local
     end
 
     def relation_health_dashboard?(html)
@@ -2304,6 +2333,7 @@ module Companion
         setup_handoff.include?("kind=>:setup_handoff") &&
         setup_handoff.include?("gates_runtime=>false") &&
         setup_handoff.include?("/setup/health.json") &&
+        setup_handoff.include?("/setup/handoff/extraction-sketch.json") &&
         setup_handoff.include?("/setup/handoff/packet-registry.json") &&
         setup_handoff.include?("/setup/handoff/supervision.json") &&
         setup_handoff.include?("/setup/handoff/lifecycle.json") &&
@@ -2334,6 +2364,7 @@ module Companion
         payload.fetch("descriptor").fetch("grants_capabilities") == false &&
         payload.fetch("descriptor").fetch("purpose") == "context_rotation" &&
         payload.fetch("reading_order").include?("/setup/health.json") &&
+        payload.fetch("reading_order").include?("/setup/handoff/extraction-sketch.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/packet-registry.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/supervision.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/lifecycle.json") &&
@@ -2473,6 +2504,31 @@ module Companion
         payload.fetch("read_order").include?("/setup/handoff/supervision.json") &&
         payload.fetch("mutation_paths").include?("POST /setup/handoff/acceptance/record") &&
         payload.fetch("mutation_paths").include?("POST /setup/handoff/approval-acceptance/record")
+    end
+
+    def setup_handoff_extraction_sketch_endpoint?(setup_handoff_extraction_sketch)
+      setup_handoff_extraction_sketch.include?("status=>:sketched") &&
+        setup_handoff_extraction_sketch.include?("kind=>:setup_handoff_extraction_sketch") &&
+        setup_handoff_extraction_sketch.include?("package_promise=>false") &&
+        setup_handoff_extraction_sketch.include?("igniter_extensions_candidate") &&
+        setup_handoff_extraction_sketch.include?("igniter_application_candidate") &&
+        setup_handoff_extraction_sketch.include?("reserved_future_name=>:igniter_persistence")
+    end
+
+    def setup_handoff_extraction_sketch_json_endpoint?(setup_handoff_extraction_sketch_json)
+      payload = JSON.parse(setup_handoff_extraction_sketch_json)
+
+      payload.fetch("status") == "sketched" &&
+        payload.fetch("descriptor").fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "setup_handoff_extraction_sketch" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("package_promise") == false &&
+        payload.fetch("constraints").fetch("package_split_now") == false &&
+        payload.fetch("constraints").fetch("reserved_future_name") == "igniter_persistence" &&
+        payload.fetch("placements").fetch("igniter_extensions_candidate").include?("store_history_relation_descriptors") &&
+        payload.fetch("placements").fetch("igniter_application_candidate").include?("explicit_app_boundary_writes") &&
+        payload.fetch("placements").fetch("future_igniter_persistence_candidate").include?("adapter_contract") &&
+        payload.fetch("next_action") == "keep_companion_app_local"
     end
 
     def setup_handoff_approval_acceptance_endpoint?(setup_handoff_approval_acceptance)

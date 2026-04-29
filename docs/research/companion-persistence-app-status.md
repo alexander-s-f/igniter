@@ -73,6 +73,9 @@ Current manifest vocabulary:
 - `/setup/handoff/packet-registry(.json)` indexes setup/handoff packets,
   report-only/no-gate/no-grant boundaries, reading order, and explicit receipt
   POST paths
+- `/setup/handoff/extraction-sketch(.json)` maps the indexed packet surface to
+  app-local, `igniter-extensions`, `igniter-application`, and future
+  `igniter-persistence` placement candidates without making a package promise
 - `/setup/handoff/acceptance(.json)` reports whether the recommended handoff
   scope is pending or satisfied without executing it
 - `POST /setup/handoff/acceptance/record` explicitly applies the same
@@ -210,6 +213,8 @@ Current user-defined-type pressure test:
   status
 - `SetupHandoffPacketRegistryContract`: read-only registry of setup/handoff
   packet endpoints and explicit mutation paths
+- `SetupHandoffExtractionSketchContract`: read-only landing-zone sketch that
+  preserves app-local scope and names future extraction candidates
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities

@@ -410,6 +410,13 @@ module Companion
         )
       end
 
+      def setup_handoff_extraction_sketch
+        Contracts::SetupHandoffExtractionSketchContract.evaluate(
+          setup_handoff_packet_registry: setup_handoff_packet_registry,
+          setup_handoff_supervision: setup_handoff_supervision
+        )
+      end
+
       def reminders
         record(:reminders)
       end
