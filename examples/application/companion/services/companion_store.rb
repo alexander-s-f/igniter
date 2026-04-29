@@ -317,6 +317,14 @@ module Companion
         command_result_from_contract(outcome.fetch(:result), action: action)
       end
 
+      def record_materializer_approval
+        outcome = persistence.materializer_approval_command
+        apply_persistence_mutation(outcome.fetch(:mutation))
+        action = record_contract_action(outcome.fetch(:result))
+        persist!
+        command_result_from_contract(outcome.fetch(:result), action: action)
+      end
+
       private
 
       attr_reader :persistence

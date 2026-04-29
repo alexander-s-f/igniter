@@ -97,6 +97,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   approval receipts.
 - `contracts/materializer_approval_contract.rb` lowers an approval receipt into
   a normalized `history_append :materializer_approvals` intent without applying it.
+- `POST /setup/materializer-approvals/record` is the explicit app-boundary write
+  path for that approval intent; read-only setup endpoints still do not append.
 - `contracts/durable_type_materialization_contract.rb` is the read-only bridge
   from future wizard/configurator output to static contract materialization
   plans. `/setup/materialization-plan` and `.json` expose that plan for agents

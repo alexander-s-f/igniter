@@ -248,6 +248,8 @@ Current Companion product flows use the persistence model:
   without applying any capability
 - `/setup/materializer-approval-command` exposes the computed approval history
   append intent without appending it
+- `POST /setup/materializer-approvals/record` is the explicit app-boundary write
+  path that persists one approval receipt without applying capability
 
 ## Validated Concepts
 

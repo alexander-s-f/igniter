@@ -235,6 +235,14 @@ module Companion
         )
       end
 
+      post "/setup/materializer-approvals/record" do
+        result = service(:companion).record_materializer_approval
+        redirect Companion.feedback_path(
+          (result.success? ? :notice : :error) => result.feedback_code,
+          subject: result.subject_id
+        )
+      end
+
       get "/hub" do
         text service(:hub).entries.map(&:name).join(",")
       end

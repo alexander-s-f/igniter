@@ -339,6 +339,7 @@ module Companion
       out.puts "companion_poc_materializer_approval_receipt=#{materializer_approval_receipt?}"
       out.puts "companion_poc_materializer_approval_history=#{materializer_approval_history?}"
       out.puts "companion_poc_materializer_approval_command=#{materializer_approval_command?}"
+      out.puts "companion_poc_materializer_approval_record_route=#{materializer_approval_record_route?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -1693,6 +1694,27 @@ module Companion
         event.fetch(:status) == :pending &&
         event.fetch(:applies_capabilities) == false &&
         event.fetch(:review_only)
+    end
+
+    def materializer_approval_record_route?
+      db_path = File.join(Dir.mktmpdir("igniter-companion-materializer-approval"), "companion.sqlite3")
+      config = Companion.default_configuration(store_path: db_path)
+      app = Companion.build(config: config)
+      store = app.service(:companion)
+      _command_status, _command_headers, _command_body = app.call(rack_env("GET", "/setup/materializer-approval-command.json"))
+      before_count = store.materializer_approvals.length
+      record_status, record_headers = post(app, "/setup/materializer-approvals/record")
+      recorded_status = get_status(app, record_headers.fetch("location"))
+      approvals = store.materializer_approvals
+      persisted_approvals = Companion.build(config: config).service(:companion).materializer_approvals
+
+      before_count.zero? &&
+        record_status == 303 &&
+        recorded_status == 200 &&
+        approvals.length == 1 &&
+        approvals.first.fetch(:kind) == :materializer_approval_receipt &&
+        approvals.first.fetch(:applies_capabilities) == false &&
+        persisted_approvals.length == 1
     end
 
     def wizard_type_spec_canonical?
