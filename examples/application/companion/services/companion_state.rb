@@ -16,10 +16,13 @@ module Companion
       DailyFocus = Struct.new(:date, :title, keyword_init: true)
       Countdown = Struct.new(:id, :title, :target_date, keyword_init: true)
       CountdownSnapshot = Struct.new(:id, :title, :target_date, :days_remaining, keyword_init: true)
+      Article = Struct.new(:id, :title, :body, :created_at, :status, keyword_init: true)
+      Comment = Struct.new(:index, :article_id, :body, :created_at, keyword_init: true)
       Action = Struct.new(:index, :kind, :subject_id, :status, keyword_init: true)
 
       attr_accessor :live_summary
-      attr_reader :reminders, :trackers, :tracker_logs, :daily_focuses, :countdowns, :actions, :next_action_index
+      attr_reader :reminders, :trackers, :tracker_logs, :daily_focuses, :countdowns, :articles,
+                  :comments, :actions, :next_action_index, :next_comment_index
 
       def self.seeded
         new.tap(&:seed)
@@ -37,7 +40,10 @@ module Companion
         @tracker_logs = []
         @daily_focuses = []
         @countdowns = []
+        @articles = []
+        @comments = []
         @live_summary = nil
+        @next_comment_index = 0
       end
 
       def seed
@@ -46,6 +52,14 @@ module Companion
         trackers << Tracker.new(id: "sleep", name: "Sleep", template: :sleep, unit: "hours")
         trackers << Tracker.new(id: "training", name: "Training", template: :workout, unit: "minutes")
         countdowns << Countdown.new(id: "new-year", title: "New Year", target_date: "#{Date.today.year + 1}-01-01")
+        articles << Article.new(
+          id: "welcome-note",
+          title: "Welcome note",
+          body: "Static contract proof for wizard-shaped durable types.",
+          created_at: Date.today.iso8601,
+          status: :draft
+        )
+        append_comment_event(article_id: "welcome-note", body: "First comment from static materialization.", created_at: Date.today.iso8601)
         record_action(kind: :companion_seeded, subject_id: :companion, status: :ready)
       end
 
@@ -92,6 +106,25 @@ module Companion
         @countdowns = Array(state.fetch(:countdowns)).map do |entry|
           Countdown.new(**symbolize(entry))
         end
+        @articles = Array(state.fetch(:articles, [])).map do |entry|
+          payload = symbolize(entry)
+          Article.new(
+            id: payload.fetch(:id),
+            title: payload.fetch(:title),
+            body: payload.fetch(:body),
+            created_at: payload.fetch(:created_at),
+            status: payload.fetch(:status).to_sym
+          )
+        end
+        @comments = Array(state.fetch(:comments, [])).map do |entry|
+          payload = symbolize(entry)
+          Comment.new(
+            index: payload.fetch(:index),
+            article_id: payload.fetch(:article_id),
+            body: payload.fetch(:body),
+            created_at: payload.fetch(:created_at)
+          )
+        end
         @actions = Array(state.fetch(:actions)).map do |entry|
           payload = symbolize(entry)
           Action.new(
@@ -103,6 +136,7 @@ module Companion
         end
         @live_summary = state[:live_summary]
         @next_action_index = state.fetch(:next_action_index, actions.map(&:index).max.to_i + 1)
+        @next_comment_index = state.fetch(:next_comment_index, comments.map(&:index).max.to_i + 1)
       end
 
       def to_h
@@ -112,10 +146,13 @@ module Companion
           tracker_logs: tracker_logs.map(&:to_h),
           daily_focuses: daily_focuses.map(&:to_h),
           countdowns: countdowns.map(&:to_h),
+          articles: articles.map(&:to_h),
+          comments: comments.map(&:to_h),
           actions: actions.map(&:to_h),
           daily_focus_title: daily_focus_title,
           live_summary: live_summary,
-          next_action_index: next_action_index
+          next_action_index: next_action_index,
+          next_comment_index: next_comment_index
         }
       end
 
@@ -155,6 +192,22 @@ module Companion
 
       def action_entries
         actions.map(&:to_h)
+      end
+
+      def comment_entries
+        comments.map(&:to_h)
+      end
+
+      def append_comment_event(event)
+        comment = Comment.new(
+          index: event.fetch(:index, next_comment_index),
+          article_id: event.fetch(:article_id),
+          body: event.fetch(:body),
+          created_at: event.fetch(:created_at)
+        )
+        comments << comment
+        @next_comment_index = [next_comment_index, comment.index + 1].max
+        comment.to_h
       end
 
       def append_action_event(event)

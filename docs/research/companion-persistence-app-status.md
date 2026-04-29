@@ -61,6 +61,15 @@ Current relation diagnostics:
 - orphan tracker-log entries produce diagnostic-only `missing_source` warnings
 - relation warnings do not reject writes or repair data
 
+Current user-defined-type pressure test:
+
+- `Article`: static record contract shaped like a future wizard output, with
+  typed fields, enum status default, scopes, index, and publish command metadata
+- `Comment`: static append-only history contract with an `article_id` relation
+  field
+- `comments_by_article`: report-only relation from `Article` records to
+  `Comment` history, with enforcement still disabled
+
 Current command contracts:
 
 - `ReminderContract`: create/complete, success/refusal, mutation intent
@@ -131,6 +140,7 @@ Current Companion product flows use the persistence model:
 - activity feed is a projection from action history
 - Today quick action is graph-owned and can invoke tracker-log append or
   reminder-complete flows without the UI owning persistence semantics
+- dashboard status exposes relation-health summary as a diagnostic signal
 - `/setup` and `/setup/manifest` expose readiness and manifest state
 - `/setup/relation-health` exposes relation diagnostics for humans
 - `/setup/relation-health.json` exposes relation diagnostics for tools
@@ -163,11 +173,21 @@ Not accepted yet:
 - `Igniter::Lang` grammar syntax
 - treating histories as mutable CRUD
 
-## Next Research Move
+## Authoring Rule
 
-The first relation slice has landed app-locally:
+Dynamic authoring is allowed as a sandbox. A wizard/configurator may collect a
+durable type shape, preview it, and run local experiments, but durable
+production behavior should materialize into static contracts before it becomes
+part of the app. The materializer may later be a specialized agent or contract
+with explicit capabilities such as write, git, push, update, and restart. Until
+that exists, Companion strengthens the static contract shape first.
+
+## Latest Research Move
+
+Two relation slices have landed app-locally:
 
 - `Store[Tracker] + History[TrackerLog] -> TrackerReadModelContract`
+- `Store[Article] + History[Comment] -> comments_by_article`
 - relation manifest is exposed through setup manifest
 - readiness includes relation count and relation warning count
 - projection manifest declares relation input
@@ -175,10 +195,11 @@ The first relation slice has landed app-locally:
 - relation repair suggestions are command-intent shaped, but not executable
   repair behavior
 
-The next safe move is one more relation pressure test or relation-health
-hardening, still app-local:
+The next safe move is materialization hardening or relation-health ergonomics,
+still app-local:
 
-- add a second relation only if Companion has real product pressure
+- keep dynamic wizard/configurator output sandboxed until it materializes into
+  static contracts
 - keep relation enforcement false
 - keep relation repair suggestions review-only
 - avoid cascade semantics, FK generation, and DB planners
@@ -200,9 +221,10 @@ relation declarations into core from this proof alone.
 [R] Preserve `persist -> Store[T]` and `history -> History[T]`.
 [S] Reminder now proves metadata beyond fields: index, scope, and command
 metadata are reportable and usable by app-local generated APIs.
-[S] Tracker to TrackerLog now proves the first report-only relation manifest,
-projection relation input, and relation-health warning path.
-Next: keep relation health diagnostic-only; add another relation only under real
-Companion pressure.
+[S] Tracker to TrackerLog proves projection relation input and warning path.
+[S] Article to Comment proves user-defined-type pressure through static
+contracts before dynamic materialization.
+Next: keep relation health diagnostic-only; harden static materialization shape
+before adding wizard runtime.
 Block: none.
 ```

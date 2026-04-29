@@ -47,12 +47,18 @@ The launcher is intentionally thin. App-local infrastructure lives under
   persistence, composed with tracker-log history for dashboard projections.
 - `contracts/tracker_read_model_contract.rb` derives tracker dashboard facts
   from tracker records plus tracker-log history.
-- `services/companion_persistence.rb` exposes a report-only relation manifest
-  for `trackers.id -> tracker_logs.tracker_id`, and the tracker read-model
-  manifest declares that relation as an input. Relation health warnings are
-  graph-owned, per-relation, structured, diagnostic-only, and include review
-  suggestions without enforcing writes. `/setup/relation-health` exposes the
-  same projection directly, with `/setup/relation-health.json` for tools.
+- `contracts/article_record_contract.rb` and `contracts/comment_history_contract.rb`
+  are a static, wizard-shaped durable type proof: `Article` is a record with
+  typed fields, enum status defaults, scopes, index, and publish command
+  metadata; `Comment` is append-only history related back to articles.
+- `services/companion_persistence.rb` exposes report-only relation manifests
+  for `trackers.id -> tracker_logs.tracker_id` and
+  `articles.id -> comments.article_id`; the tracker read-model manifest declares
+  its relation as an input. Relation health warnings are graph-owned,
+  per-relation, structured, diagnostic-only, and include review suggestions
+  without enforcing writes. `/setup/relation-health` exposes the same projection
+  directly, with `/setup/relation-health.json` for tools. The dashboard surfaces
+  the current relation-health summary as a quiet diagnostic signal.
 - `contracts/daily_plan_contract.rb` emits the Today next-action signal and
   quick action command intent from explicit facts rather than a whole snapshot.
 - `POST /today/quick-action` executes the current graph-owned target, so the

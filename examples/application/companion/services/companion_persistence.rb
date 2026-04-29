@@ -27,6 +27,11 @@ module Companion
           contract_class: Contracts::Countdown,
           collection: :countdowns,
           record_class: CompanionState::Countdown
+        },
+        articles: {
+          contract_class: Contracts::Article,
+          collection: :articles,
+          record_class: CompanionState::Article
         }
       }.freeze
 
@@ -40,6 +45,11 @@ module Companion
           contract_class: Contracts::CompanionAction,
           entries: :action_entries,
           append: :append_action_event
+        },
+        comments: {
+          contract_class: Contracts::Comment,
+          entries: :comment_entries,
+          append: :append_comment_event
         }
       }.freeze
 
@@ -92,6 +102,17 @@ module Companion
           integrity: :validate_on_append,
           consistency: :local,
           projection: :tracker_read_model,
+          enforced: false
+        },
+        comments_by_article: {
+          kind: :event_owner,
+          from: :articles,
+          to: :comments,
+          join: { id: :article_id },
+          cardinality: :one_to_many,
+          integrity: :validate_on_append,
+          consistency: :local,
+          projection: nil,
           enforced: false
         }
       }.freeze
@@ -167,8 +188,16 @@ module Companion
         record(:countdowns)
       end
 
+      def articles
+        record(:articles)
+      end
+
       def tracker_logs
         history(:tracker_logs)
+      end
+
+      def comments
+        history(:comments)
       end
 
       def actions
@@ -433,6 +462,14 @@ module Companion
 
       def append_action_event(event)
         state.append_action_event(event)
+      end
+
+      def comment_entries
+        state.comment_entries
+      end
+
+      def append_comment_event(event)
+        state.append_comment_event(event)
       end
     end
   end

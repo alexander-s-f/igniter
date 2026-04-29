@@ -139,6 +139,7 @@ module Companion
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
       out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
+      out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
       out.puts "companion_poc_today_signal=#{daily_plan_signal? && html.include?("data-today-signal=")}"
       out.puts "companion_poc_today_quick_action=#{daily_plan_quick_action? && html.include?("data-today-quick-action=")}"
@@ -182,6 +183,7 @@ module Companion
       out.puts "companion_poc_persistence_operation_model=#{persistence_operation_model?}"
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
+      out.puts "companion_poc_user_defined_article_contract=#{user_defined_article_contract?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
       out.puts "companion_poc_projection_relation_manifest=#{projection_relation_manifest?}"
       out.puts "companion_poc_relation_health_warning=#{relation_health_warning?}"
@@ -619,11 +621,13 @@ module Companion
       persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
       manifest = persistence.capability_manifest
       persistence.capability_names == %i[
-        reminders trackers daily_focuses countdowns tracker_logs actions
+        reminders trackers daily_focuses countdowns articles tracker_logs actions comments
         tracker_read_model countdown_read_model activity_feed
       ] &&
         manifest.fetch(:reminders).fetch(:kind) == :record &&
         manifest.fetch(:countdowns).fetch(:kind) == :record &&
+        manifest.fetch(:articles).fetch(:kind) == :record &&
+        manifest.fetch(:comments).fetch(:kind) == :history &&
         manifest.fetch(:countdown_read_model).fetch(:kind) == :projection &&
         manifest.fetch(:tracker_logs).fetch(:kind) == :history &&
         manifest.fetch(:activity_feed).fetch(:kind) == :projection
@@ -639,11 +643,11 @@ module Companion
       readiness = persistence.readiness
       readiness.fetch(:ready) &&
         readiness.fetch(:status) == :ready &&
-        readiness.fetch(:capability_count) == 9 &&
-        readiness.fetch(:record_count) == 4 &&
-        readiness.fetch(:history_count) == 2 &&
+        readiness.fetch(:capability_count) == 11 &&
+        readiness.fetch(:record_count) == 5 &&
+        readiness.fetch(:history_count) == 3 &&
         readiness.fetch(:projection_count) == 3 &&
-        readiness.fetch(:relation_count) == 1 &&
+        readiness.fetch(:relation_count) == 2 &&
         readiness.fetch(:warning_count).zero?
     end
 
@@ -681,11 +685,13 @@ module Companion
     def relation_health_reports?
       health = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).relation_health
       report = health.fetch(:relation_reports).fetch(:tracker_logs_by_tracker)
+      article_report = health.fetch(:relation_reports).fetch(:comments_by_article)
 
       report.fetch(:status) == :clear &&
         report.fetch(:warning_count).zero? &&
         report.fetch(:warnings).empty? &&
-        report.fetch(:repair_suggestions).empty?
+        report.fetch(:repair_suggestions).empty? &&
+        article_report.fetch(:status) == :clear
     end
 
     def relation_health_structured_warnings?
@@ -786,11 +792,13 @@ module Companion
       manifest = persistence.manifest_snapshot
       summary = manifest.fetch(:summary)
 
-      summary.fetch(:record_count) == 4 &&
-        summary.fetch(:history_count) == 2 &&
+      summary.fetch(:record_count) == 5 &&
+        summary.fetch(:history_count) == 3 &&
         summary.fetch(:projection_count) == 3 &&
         summary.fetch(:command_count) == 3 &&
-        summary.fetch(:relation_count) == 1 &&
+        summary.fetch(:relation_count) == 2 &&
+        manifest.fetch(:records).fetch(:articles).fetch(:fields).include?(:status) &&
+        manifest.fetch(:histories).fetch(:comments).fetch(:fields).include?(:article_id) &&
         manifest.fetch(:records).fetch(:reminders).fetch(:operations) == %i[all find save update delete clear scope command] &&
         manifest.fetch(:histories).fetch(:tracker_logs).fetch(:operations) == %i[append all where count] &&
         manifest.fetch(:projections).fetch(:tracker_read_model).fetch(:relations) == %i[tracker_logs_by_tracker] &&
@@ -802,6 +810,7 @@ module Companion
       persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
       manifest = persistence.manifest_snapshot
       relation = manifest.fetch(:relations).fetch(:tracker_logs_by_tracker)
+      article_relation = manifest.fetch(:relations).fetch(:comments_by_article)
 
       persistence.valid? &&
         relation.fetch(:kind) == :event_owner &&
@@ -810,7 +819,11 @@ module Companion
         relation.fetch(:join) == { id: :tracker_id } &&
         relation.fetch(:cardinality) == :one_to_many &&
         relation.fetch(:projection) == :tracker_read_model &&
-        relation.fetch(:enforced) == false
+        relation.fetch(:enforced) == false &&
+        article_relation.fetch(:from) == :articles &&
+        article_relation.fetch(:to) == :comments &&
+        article_relation.fetch(:join) == { id: :article_id } &&
+        article_relation.fetch(:enforced) == false
     end
 
     def projection_relation_manifest?
@@ -844,6 +857,12 @@ module Companion
         warning.fetch(:values) == ["ghost-tracker"]
     end
 
+    def relation_health_dashboard?(html)
+      html.include?('data-relation-health-status="clear"') &&
+        html.include?('data-relation-warning-count="0"') &&
+        html.include?("relations clear")
+    end
+
     def persistence_metadata_manifest?
       manifest = Contracts::Reminder.persistence_manifest
       api = Services::ContractRecordSet.new(
@@ -865,6 +884,32 @@ module Companion
         api.fetch(:scopes).any? { |scope| scope.fetch(:name) == :open } &&
         api.fetch(:commands).any? { |command| command.fetch(:name) == :complete } &&
         command_mutation.fetch(:operation) == :record_update
+    end
+
+    def user_defined_article_contract?
+      article_manifest = Contracts::Article.persistence_manifest
+      comment_manifest = Contracts::Comment.persistence_manifest
+      api = Services::ContractRecordSet.new(
+        contract_class: Contracts::Article,
+        collection: [],
+        record_class: Services::CompanionState::Article
+      ).api_manifest
+      comments = Services::ContractHistory.new(
+        contract_class: Contracts::Comment,
+        entries: -> { [] },
+        append: ->(event) { event }
+      ).api_manifest
+      article = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).articles.find("welcome-note")
+
+      article_manifest.fetch(:persist).fetch(:key) == :id &&
+        article_manifest.fetch(:fields).any? { |field| field.fetch(:name) == :status && field.fetch(:attributes).fetch(:default) == :draft } &&
+        article_manifest.fetch(:fields).any? { |field| field.fetch(:name) == :status && field.fetch(:attributes).fetch(:type) == :enum } &&
+        article_manifest.fetch(:commands).any? { |command| command.fetch(:name) == :publish && command.fetch(:attributes).fetch(:changes) == { status: :published } } &&
+        comment_manifest.fetch(:history).fetch(:key) == :index &&
+        comment_manifest.fetch(:fields).any? { |field| field.fetch(:name) == :article_id } &&
+        api.fetch(:scopes).any? { |scope| scope.fetch(:name) == :drafts } &&
+        comments.fetch(:operations) == %i[append all where count] &&
+        article.status == :draft
     end
 
     def setup_manifest?(manifest)

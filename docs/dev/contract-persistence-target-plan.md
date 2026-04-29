@@ -109,6 +109,26 @@ Contract persistence is different:
 Both lines may share adapter infrastructure later, but they should not be
 collapsed conceptually.
 
+## Dynamic Authoring To Static Contracts
+
+Dynamic contract authoring is a sandbox path, not the durability boundary.
+Wizard/configurator flows may collect a type shape, preview generated manifests,
+and run local experiments, but accepted app behavior should materialize into
+static contracts before it becomes production shape.
+
+The intended flow is:
+
+1. User or agent drafts a shape dynamically.
+2. The system validates the manifest as record/history/relation/command
+   metadata.
+3. A materializer with explicit capabilities writes static contracts and app
+   bindings.
+4. Git/test/restart capabilities make the change reviewable and recoverable.
+
+This keeps future dynamic UX open while preserving the language path:
+`persist -> Store[T]`, `history -> History[T]`, and relation manifests over
+typed capabilities.
+
 ## Compatibility Ladder
 
 This plan must stay compatible with the larger `Store[T]` and `History[T]`

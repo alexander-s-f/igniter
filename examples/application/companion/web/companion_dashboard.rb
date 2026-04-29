@@ -54,6 +54,9 @@ module Companion
           hub = assigns[:ctx].service(:hub).call
           snapshot = store.snapshot
           quick_action = snapshot.daily_plan.fetch(:quick_action)
+          relation_health = snapshot.relation_health
+          relation_status = relation_health.fetch(:status)
+          relation_warning_count = relation_health.fetch(:warning_count)
           feedback = Companion::Web.feedback_for(assigns[:env])
 
           main "data-ig-poc-surface": "companion_dashboard", style: Companion::Web.style(:shell) do
@@ -64,10 +67,14 @@ module Companion
                 para snapshot.daily_summary.fetch(:summary), "data-companion-summary": "offline", style: Companion::Web.style(:muted)
               end
 
-              aside "data-live-ready": snapshot.live_ready, style: Companion::Web.style(:status) do
+              aside "data-live-ready": snapshot.live_ready,
+                    "data-relation-health-status": relation_status,
+                    "data-relation-warning-count": relation_warning_count,
+                    style: Companion::Web.style(:status) do
                 strong(snapshot.live_ready ? "Live ready" : "Offline mode")
                 para(snapshot.live_ready ? "OPENAI_API_KEY is configured." : "Set OPENAI_API_KEY to enable live assistant features.",
                      style: Companion::Web.style(:muted))
+                para relation_health.fetch(:summary), style: Companion::Web.style(:muted)
               end
             end
 
