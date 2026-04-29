@@ -69,6 +69,9 @@ Current user-defined-type pressure test:
   field
 - `comments_by_article`: report-only relation from `Article` records to
   `Comment` history, with enforcement still disabled
+- `DurableTypeMaterializationContract`: read-only graph contract that accepts a
+  wizard-shaped spec and returns the static contract/history/relation plan plus
+  required materializer capabilities
 
 Current command contracts:
 
@@ -144,6 +147,8 @@ Current Companion product flows use the persistence model:
 - `/setup` and `/setup/manifest` expose readiness and manifest state
 - `/setup/relation-health` exposes relation diagnostics for humans
 - `/setup/relation-health.json` exposes relation diagnostics for tools
+- `/setup/materialization-plan` exposes the read-only wizard-spec to static
+  contract materialization plan
 
 ## Validated Concepts
 
@@ -200,6 +205,8 @@ still app-local:
 
 - keep dynamic wizard/configurator output sandboxed until it materializes into
   static contracts
+- keep materialization planning read-only until explicit write/git/test/restart
+  capabilities are modeled
 - keep relation enforcement false
 - keep relation repair suggestions review-only
 - avoid cascade semantics, FK generation, and DB planners

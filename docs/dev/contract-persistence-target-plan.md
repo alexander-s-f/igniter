@@ -129,6 +129,11 @@ This keeps future dynamic UX open while preserving the language path:
 `persist -> Store[T]`, `history -> History[T]`, and relation manifests over
 typed capabilities.
 
+The current Companion proof keeps this as a read-only graph contract:
+`DurableTypeMaterializationContract` accepts a wizard-shaped durable type spec
+and returns the static record/history/relation plan plus required materializer
+capabilities. It does not write files or restart the app.
+
 ## Compatibility Ladder
 
 This plan must stay compatible with the larger `Store[T]` and `History[T]`

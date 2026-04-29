@@ -152,6 +152,10 @@ module Companion
         )
       end
 
+      def materialization_plan
+        Contracts::DurableTypeMaterializationContract.evaluate(type_spec: article_comment_type_spec)
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,
@@ -470,6 +474,55 @@ module Companion
 
       def append_comment_event(event)
         state.append_comment_event(event)
+      end
+
+      def article_comment_type_spec
+        {
+          name: :Article,
+          capability: :articles,
+          persist: { key: :id, adapter: :sqlite },
+          fields: [
+            { name: :id },
+            { name: :title, type: :string },
+            { name: :body, type: :string },
+            { name: :created_at, type: :datetime },
+            { name: :status, type: :enum, values: %i[draft published archived], default: :draft }
+          ],
+          indexes: [
+            { name: :status }
+          ],
+          scopes: [
+            { name: :drafts, where: { status: :draft } },
+            { name: :published, where: { status: :published } }
+          ],
+          commands: [
+            { name: :publish, operation: :record_update, changes: { status: :published } }
+          ],
+          histories: [
+            {
+              name: :Comment,
+              capability: :comments,
+              history: { key: :index, adapter: :sqlite },
+              fields: [
+                { name: :index },
+                { name: :article_id },
+                { name: :body, type: :string },
+                { name: :created_at, type: :datetime }
+              ],
+              relation: {
+                name: :comments_by_article,
+                kind: :event_owner,
+                from: :articles,
+                to: :comments,
+                join: { id: :article_id },
+                cardinality: :one_to_many,
+                integrity: :validate_on_append,
+                consistency: :local,
+                projection: nil
+              }
+            }
+          ]
+        }
       end
     end
   end

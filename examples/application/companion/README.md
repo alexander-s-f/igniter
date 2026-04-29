@@ -51,6 +51,10 @@ The launcher is intentionally thin. App-local infrastructure lives under
   are a static, wizard-shaped durable type proof: `Article` is a record with
   typed fields, enum status defaults, scopes, index, and publish command
   metadata; `Comment` is append-only history related back to articles.
+- `contracts/durable_type_materialization_contract.rb` is the read-only bridge
+  from future wizard/configurator output to static contract materialization
+  plans. `/setup/materialization-plan` and `.json` expose that plan for agents
+  without writing files.
 - `services/companion_persistence.rb` exposes report-only relation manifests
   for `trackers.id -> tracker_logs.tracker_id` and
   `articles.id -> comments.article_id`; the tracker read-model manifest declares

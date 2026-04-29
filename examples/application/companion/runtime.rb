@@ -81,6 +81,8 @@ module Companion
       manifest_status, _manifest_headers, manifest_body = app.call(rack_env("GET", "/setup/manifest"))
       relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
       relation_health_json_status, _relation_health_json_headers, relation_health_json_body = app.call(rack_env("GET", "/setup/relation-health.json"))
+      materialization_status, _materialization_headers, materialization_body = app.call(rack_env("GET", "/setup/materialization-plan"))
+      materialization_json_status, _materialization_json_headers, materialization_json_body = app.call(rack_env("GET", "/setup/materialization-plan.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -95,6 +97,8 @@ module Companion
       manifest = manifest_body.join
       relation_health = relation_health_body.join
       relation_health_json = relation_health_json_body.join
+      materialization = materialization_body.join
+      materialization_json = materialization_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -129,6 +133,8 @@ module Companion
       out.puts "companion_poc_setup_manifest_status=#{manifest_status}"
       out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
       out.puts "companion_poc_setup_relation_health_json_status=#{relation_health_json_status}"
+      out.puts "companion_poc_setup_materialization_status=#{materialization_status}"
+      out.puts "companion_poc_setup_materialization_json_status=#{materialization_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -138,6 +144,8 @@ module Companion
       out.puts "companion_poc_setup_relation_health=#{setup.include?("relation_health") && setup.include?("clear")}"
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
       out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
+      out.puts "companion_poc_setup_materialization_endpoint=#{setup_materialization_endpoint?(materialization)}"
+      out.puts "companion_poc_setup_materialization_json_endpoint=#{setup_materialization_json_endpoint?(materialization_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -184,6 +192,7 @@ module Companion
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
       out.puts "companion_poc_user_defined_article_contract=#{user_defined_article_contract?}"
+      out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
       out.puts "companion_poc_projection_relation_manifest=#{projection_relation_manifest?}"
       out.puts "companion_poc_relation_health_warning=#{relation_health_warning?}"
@@ -754,6 +763,21 @@ module Companion
         report.fetch("repair_suggestions").empty?
     end
 
+    def setup_materialization_endpoint?(materialization)
+      materialization.include?("ready_for_static_materialization") &&
+        materialization.include?("comments_by_article") &&
+        materialization.include?("write")
+    end
+
+    def setup_materialization_json_endpoint?(materialization_json)
+      payload = JSON.parse(materialization_json)
+
+      payload.fetch("status") == "ready_for_static_materialization" &&
+        payload.fetch("static_required") &&
+        payload.fetch("relations").key?("comments_by_article") &&
+        payload.fetch("required_capabilities") == %w[write git test restart]
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -910,6 +934,23 @@ module Companion
         api.fetch(:scopes).any? { |scope| scope.fetch(:name) == :drafts } &&
         comments.fetch(:operations) == %i[append all where count] &&
         article.status == :draft
+    end
+
+    def static_materialization_plan?
+      plan = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).materialization_plan
+      record = plan.fetch(:record_contract)
+      relation = plan.fetch(:relations).fetch(:comments_by_article)
+
+      plan.fetch(:status) == :ready_for_static_materialization &&
+        plan.fetch(:static_required) &&
+        record.fetch(:contract) == :Article &&
+        record.fetch(:fields).any? { |field| field.fetch(:name) == :status && field.fetch(:default, field.dig(:attributes, :default)) == :draft } &&
+        plan.fetch(:history_contracts).any? { |history| history.fetch(:contract) == :Comment } &&
+        relation.fetch(:from) == :articles &&
+        relation.fetch(:to) == :comments &&
+        relation.fetch(:enforced) == false &&
+        plan.fetch(:required_capabilities) == %i[write git test restart] &&
+        plan.fetch(:validation_errors).empty?
     end
 
     def setup_manifest?(manifest)

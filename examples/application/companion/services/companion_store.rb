@@ -237,6 +237,10 @@ module Companion
         persistence.manifest_snapshot
       end
 
+      def materialization_plan
+        persistence.materialization_plan
+      end
+
       private
 
       attr_reader :persistence

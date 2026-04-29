@@ -83,6 +83,14 @@ module Companion
         text JSON.pretty_generate(service(:companion).snapshot.relation_health)
       end
 
+      get "/setup/materialization-plan" do
+        text service(:companion).materialization_plan.inspect
+      end
+
+      get "/setup/materialization-plan.json" do
+        text JSON.pretty_generate(service(:companion).materialization_plan)
+      end
+
       get "/hub" do
         text service(:hub).entries.map(&:name).join(",")
       end
