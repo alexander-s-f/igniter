@@ -196,6 +196,14 @@ module Companion
         )
       end
 
+      def materializer_gate(approved: false)
+        Contracts::MaterializerGateContract.evaluate(
+          infrastructure_loop_health: infrastructure_loop_health,
+          materialization_plan: materialization_plan,
+          approved: approved
+        )
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,

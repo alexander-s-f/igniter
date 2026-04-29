@@ -261,6 +261,10 @@ module Companion
         persistence.infrastructure_loop_health
       end
 
+      def materializer_gate(approved: false)
+        persistence.materializer_gate(approved: approved)
+      end
+
       private
 
       attr_reader :persistence

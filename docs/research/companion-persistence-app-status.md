@@ -85,6 +85,9 @@ Current user-defined-type pressure test:
   ambiguous field changes without executing migrations
 - `InfrastructureLoopHealthContract`: self-supporting/fractal health projection
   over readiness, manifest, materialization plan, parity, and migration plan
+- `MaterializerGateContract`: read-only capability gate that blocks
+  write/git/test/restart materializer capabilities until explicit approval even
+  when the infrastructure loop is healthy
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
@@ -176,6 +179,8 @@ Current Companion product flows use the persistence model:
   candidates from spec lineage
 - `/setup/infrastructure-loop-health` exposes whether the contract-managed
   infrastructure loop is self-supporting without requesting write capability
+- `/setup/materializer-gate` exposes the current materializer capability gate;
+  default state is blocked by `human_approval_required`
 
 ## Validated Concepts
 
@@ -243,6 +248,8 @@ still app-local:
 - require parity to pass before a future materializer requests write/git/restart
 - track the infrastructure loop as contract output so the system can inspect its
   own support structure
+- keep materializer write/git/test/restart capabilities behind an explicit
+  approval gate
 - keep relation enforcement false
 - keep relation repair suggestions review-only
 - avoid cascade semantics, FK generation, and DB planners

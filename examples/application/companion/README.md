@@ -65,6 +65,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `contracts/infrastructure_loop_health_contract.rb` projects the self-supporting
   infrastructure loop from readiness, materialization, parity, and migration
   diagnostics.
+- `contracts/materializer_gate_contract.rb` keeps future materializer
+  write/git/test/restart capabilities behind an explicit approval gate.
 - `contracts/durable_type_materialization_contract.rb` is the read-only bridge
   from future wizard/configurator output to static contract materialization
   plans. `/setup/materialization-plan` and `.json` expose that plan for agents

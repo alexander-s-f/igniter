@@ -93,6 +93,8 @@ module Companion
       wizard_migration_json_status, _wizard_migration_json_headers, wizard_migration_json_body = app.call(rack_env("GET", "/setup/wizard-type-spec-migration-plan.json"))
       loop_health_status, _loop_health_headers, loop_health_body = app.call(rack_env("GET", "/setup/infrastructure-loop-health"))
       loop_health_json_status, _loop_health_json_headers, loop_health_json_body = app.call(rack_env("GET", "/setup/infrastructure-loop-health.json"))
+      materializer_gate_status, _materializer_gate_headers, materializer_gate_body = app.call(rack_env("GET", "/setup/materializer-gate"))
+      materializer_gate_json_status, _materializer_gate_json_headers, materializer_gate_json_body = app.call(rack_env("GET", "/setup/materializer-gate.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -119,6 +121,8 @@ module Companion
       wizard_migration_json = wizard_migration_json_body.join
       loop_health = loop_health_body.join
       loop_health_json = loop_health_json_body.join
+      materializer_gate = materializer_gate_body.join
+      materializer_gate_json = materializer_gate_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -165,6 +169,8 @@ module Companion
       out.puts "companion_poc_setup_wizard_type_spec_migration_json_status=#{wizard_migration_json_status}"
       out.puts "companion_poc_setup_infrastructure_loop_health_status=#{loop_health_status}"
       out.puts "companion_poc_setup_infrastructure_loop_health_json_status=#{loop_health_json_status}"
+      out.puts "companion_poc_setup_materializer_gate_status=#{materializer_gate_status}"
+      out.puts "companion_poc_setup_materializer_gate_json_status=#{materializer_gate_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -186,6 +192,8 @@ module Companion
       out.puts "companion_poc_setup_wizard_type_spec_migration_json_endpoint=#{setup_wizard_type_spec_migration_json_endpoint?(wizard_migration_json)}"
       out.puts "companion_poc_setup_infrastructure_loop_health_endpoint=#{setup_infrastructure_loop_health_endpoint?(loop_health)}"
       out.puts "companion_poc_setup_infrastructure_loop_health_json_endpoint=#{setup_infrastructure_loop_health_json_endpoint?(loop_health_json)}"
+      out.puts "companion_poc_setup_materializer_gate_endpoint=#{setup_materializer_gate_endpoint?(materializer_gate)}"
+      out.puts "companion_poc_setup_materializer_gate_json_endpoint=#{setup_materializer_gate_json_endpoint?(materializer_gate_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -238,6 +246,7 @@ module Companion
       out.puts "companion_poc_wizard_type_spec_canonical=#{wizard_type_spec_canonical?}"
       out.puts "companion_poc_wizard_type_spec_migration_plan=#{wizard_type_spec_migration_plan?}"
       out.puts "companion_poc_infrastructure_loop_health=#{infrastructure_loop_health?}"
+      out.puts "companion_poc_materializer_gate=#{materializer_gate?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -911,6 +920,21 @@ module Companion
         loop_state.fetch("write_capability_requested") == false
     end
 
+    def setup_materializer_gate_endpoint?(materializer_gate)
+      materializer_gate.include?("status=>:blocked") &&
+        materializer_gate.include?("human_approval_required") &&
+        materializer_gate.include?("write")
+    end
+
+    def setup_materializer_gate_json_endpoint?(materializer_gate_json)
+      payload = JSON.parse(materializer_gate_json)
+
+      payload.fetch("status") == "blocked" &&
+        payload.fetch("approved_capabilities").empty? &&
+        payload.fetch("blocked_capabilities") == %w[write git test restart] &&
+        payload.fetch("reasons") == ["human_approval_required"]
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -1157,6 +1181,19 @@ module Companion
         health.fetch(:loop_state).fetch(:checked_capabilities) == %i[articles comments comments_by_article] &&
         health.fetch(:loop_state).fetch(:write_capability_requested) == false &&
         health.fetch(:summary).include?("no write capability requested")
+    end
+
+    def materializer_gate?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      blocked = persistence.materializer_gate
+      approved = persistence.materializer_gate(approved: true)
+
+      blocked.fetch(:status) == :blocked &&
+        blocked.fetch(:reasons) == %i[human_approval_required] &&
+        blocked.fetch(:approved_capabilities).empty? &&
+        blocked.fetch(:blocked_capabilities) == %i[write git test restart] &&
+        approved.fetch(:status) == :ready_to_request_capabilities &&
+        approved.fetch(:approved_capabilities) == %i[write git test restart]
     end
 
     def wizard_type_spec_canonical?
