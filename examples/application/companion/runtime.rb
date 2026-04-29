@@ -80,6 +80,7 @@ module Companion
       setup_status, _setup_headers, setup_body = app.call(rack_env("GET", "/setup"))
       manifest_status, _manifest_headers, manifest_body = app.call(rack_env("GET", "/setup/manifest"))
       relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
+      relation_health_json_status, _relation_health_json_headers, relation_health_json_body = app.call(rack_env("GET", "/setup/relation-health.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -93,6 +94,7 @@ module Companion
       setup = setup_body.join
       manifest = manifest_body.join
       relation_health = relation_health_body.join
+      relation_health_json = relation_health_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -126,6 +128,7 @@ module Companion
       out.puts "companion_poc_setup_status=#{setup_status}"
       out.puts "companion_poc_setup_manifest_status=#{manifest_status}"
       out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
+      out.puts "companion_poc_setup_relation_health_json_status=#{relation_health_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -134,6 +137,7 @@ module Companion
       out.puts "companion_poc_setup_persistence_readiness=#{setup.include?("persistence") && setup.include?("ready")}"
       out.puts "companion_poc_setup_relation_health=#{setup.include?("relation_health") && setup.include?("clear")}"
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
+      out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
       out.puts "companion_poc_today_signal=#{daily_plan_signal? && html.include?("data-today-signal=")}"
@@ -731,6 +735,17 @@ module Companion
         relation_health.include?("tracker_logs_by_tracker") &&
         relation_health.include?("repair_suggestions") &&
         relation_health.include?("status=>:clear")
+    end
+
+    def setup_relation_health_json_endpoint?(relation_health_json)
+      payload = JSON.parse(relation_health_json)
+      report = payload.fetch("relation_reports").fetch("tracker_logs_by_tracker")
+
+      payload.fetch("status") == "clear" &&
+        payload.fetch("warning_count").zero? &&
+        payload.fetch("repair_suggestions").empty? &&
+        report.fetch("status") == "clear" &&
+        report.fetch("repair_suggestions").empty?
     end
 
     def persistence_operation_model?

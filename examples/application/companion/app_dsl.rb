@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "json"
+
 module Companion
   module AppDSL
     def companion_credentials(config)
@@ -75,6 +77,10 @@ module Companion
 
       get "/setup/relation-health" do
         text service(:companion).snapshot.relation_health.inspect
+      end
+
+      get "/setup/relation-health.json" do
+        text JSON.pretty_generate(service(:companion).snapshot.relation_health)
       end
 
       get "/hub" do
