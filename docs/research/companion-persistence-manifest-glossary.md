@@ -26,6 +26,8 @@ Read `/setup/materializer/descriptor-health.json` when changing the
 materializer status descriptor.
 Read `/setup/storage-plan.json` when discussing field/table lowerings. It is a
 review-only sketch, not a DB schema or migration plan.
+Read `/setup/storage-plan-health.json` when changing storage-plan vocabulary or
+checking that it remains non-executing.
 Read `/setup/health.json` for the compact report-only current-state packet.
 Read `/setup/handoff.json` first when rotating context between agents.
 
@@ -60,6 +62,15 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Keeps `schema_changes_allowed: false` and `sql_generation_allowed: false`.
 - Does not imply a table-per-contract guarantee, migration runner, DB planner,
   index creation, or backfill.
+
+`storage_plan_health`
+
+- Report-only drift check exposed at `/setup/storage-plan-health.json`.
+- Validates no-gate/no-grant descriptor policy, disabled schema changes,
+  disabled SQL generation, Store/History lowerings, key candidates,
+  field-derived columns, adapter type candidates, index/scope sources, and
+  summary counts.
+- Does not feed into runtime execution or authorize migrations.
 
 `records`
 

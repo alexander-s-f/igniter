@@ -55,6 +55,10 @@ Current manifest vocabulary:
   descriptors, SQLite adapter type mapping candidates, index candidates,
   scope/query descriptors, and append-only history table candidates; schema
   changes and SQL generation remain explicitly disabled
+- `/setup/storage-plan-health(.json)` validates the storage-plan sketch:
+  descriptor policy, no schema changes, no SQL generation, Store/History
+  lowerings, key candidates, field-derived columns, adapter type candidates,
+  index/scope sources, and summary counts
 - `/setup` includes the same glossary health as a report-only summary signal;
   readiness does not become stricter because of glossary drift
 - `/setup/health(.json)` summarizes readiness, relation health, manifest
@@ -517,6 +521,8 @@ metadata are reportable and usable by app-local generated APIs.
 [S] `/setup/storage-plan.json` now proves R1 field/index/scope/history lowerings
 as review-only storage candidates without table creation, SQL generation, or
 migration execution.
+[S] `/setup/storage-plan-health.json` now verifies that R1 remains a stable
+non-executing storage sketch.
 [S] Tracker to TrackerLog proves projection relation input and warning path.
 [S] Article to Comment proves user-defined-type pressure through static
 contracts before dynamic materialization.

@@ -110,6 +110,8 @@ module Companion
       manifest_glossary_json_status, _manifest_glossary_json_headers, manifest_glossary_json_body = app.call(rack_env("GET", "/setup/manifest/glossary-health.json"))
       storage_plan_status, _storage_plan_headers, storage_plan_body = app.call(rack_env("GET", "/setup/storage-plan"))
       storage_plan_json_status, _storage_plan_json_headers, storage_plan_json_body = app.call(rack_env("GET", "/setup/storage-plan.json"))
+      storage_plan_health_status, _storage_plan_health_headers, storage_plan_health_body = app.call(rack_env("GET", "/setup/storage-plan-health"))
+      storage_plan_health_json_status, _storage_plan_health_json_headers, storage_plan_health_json_body = app.call(rack_env("GET", "/setup/storage-plan-health.json"))
       relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
       relation_health_json_status, _relation_health_json_headers, relation_health_json_body = app.call(rack_env("GET", "/setup/relation-health.json"))
       materialization_status, _materialization_headers, materialization_body = app.call(rack_env("GET", "/setup/materialization-plan"))
@@ -195,6 +197,8 @@ module Companion
       manifest_glossary_json = manifest_glossary_json_body.join
       storage_plan = storage_plan_body.join
       storage_plan_json = storage_plan_json_body.join
+      storage_plan_health = storage_plan_health_body.join
+      storage_plan_health_json = storage_plan_health_json_body.join
       relation_health = relation_health_body.join
       relation_health_json = relation_health_json_body.join
       materialization = materialization_body.join
@@ -300,6 +304,8 @@ module Companion
       out.puts "companion_poc_setup_manifest_glossary_json_status=#{manifest_glossary_json_status}"
       out.puts "companion_poc_setup_storage_plan_status=#{storage_plan_status}"
       out.puts "companion_poc_setup_storage_plan_json_status=#{storage_plan_json_status}"
+      out.puts "companion_poc_setup_storage_plan_health_status=#{storage_plan_health_status}"
+      out.puts "companion_poc_setup_storage_plan_health_json_status=#{storage_plan_health_json_status}"
       out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
       out.puts "companion_poc_setup_relation_health_json_status=#{relation_health_json_status}"
       out.puts "companion_poc_setup_materialization_status=#{materialization_status}"
@@ -383,6 +389,8 @@ module Companion
       out.puts "companion_poc_setup_manifest_glossary_json_endpoint=#{setup_manifest_glossary_json_endpoint?(manifest_glossary_json)}"
       out.puts "companion_poc_setup_storage_plan_endpoint=#{setup_storage_plan_endpoint?(storage_plan)}"
       out.puts "companion_poc_setup_storage_plan_json_endpoint=#{setup_storage_plan_json_endpoint?(storage_plan_json)}"
+      out.puts "companion_poc_setup_storage_plan_health_endpoint=#{setup_storage_plan_health_endpoint?(storage_plan_health)}"
+      out.puts "companion_poc_setup_storage_plan_health_json_endpoint=#{setup_storage_plan_health_json_endpoint?(storage_plan_health_json)}"
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
       out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
       out.puts "companion_poc_setup_materialization_endpoint=#{setup_materialization_endpoint?(materialization)}"
@@ -471,6 +479,7 @@ module Companion
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_manifest_glossary_contract=#{persistence_manifest_glossary_contract?}"
       out.puts "companion_poc_persistence_storage_plan_sketch_contract=#{persistence_storage_plan_sketch_contract?}"
+      out.puts "companion_poc_persistence_storage_plan_health_contract=#{persistence_storage_plan_health_contract?}"
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
       out.puts "companion_poc_setup_handoff_acceptance_contract=#{setup_handoff_acceptance_contract?}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_contract=#{setup_handoff_approval_acceptance_contract?}"
@@ -1582,6 +1591,26 @@ module Companion
         tracker_logs.fetch(:history_lowering) == :history_t &&
         tracker_logs.fetch(:append_only) &&
         tracker_logs.fetch(:partition_key_candidate) == :tracker_id
+    end
+
+    def persistence_storage_plan_health_contract?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      stable = persistence.storage_plan_health
+      drift_plan = persistence.storage_plan_sketch.merge(
+        descriptor: persistence.storage_plan_sketch.fetch(:descriptor).merge(schema_changes_allowed: true)
+      )
+      drift = Contracts::PersistenceStoragePlanHealthContract.evaluate(storage_plan: drift_plan)
+
+      stable.fetch(:status) == :stable &&
+        stable.fetch(:check_count) == 17 &&
+        stable.fetch(:descriptor).fetch(:kind) == :persistence_storage_plan_health &&
+        stable.fetch(:descriptor).fetch(:validates) == :persistence_storage_plan_sketch &&
+        stable.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        stable.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        stable.fetch(:missing_terms).empty? &&
+        stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
+        drift.fetch(:status) == :drift &&
+        drift.fetch(:missing_terms).include?(:no_schema_changes)
     end
 
     def persistence_relation_manifest?
@@ -2925,6 +2954,29 @@ module Companion
         tracker_logs.fetch("history_lowering") == "history_t" &&
         tracker_logs.fetch("append_only") &&
         tracker_logs.fetch("partition_key_candidate") == "tracker_id"
+    end
+
+    def setup_storage_plan_health_endpoint?(storage_plan_health)
+      storage_plan_health.include?("status=>:stable") &&
+        storage_plan_health.include?("kind=>:persistence_storage_plan_health") &&
+        storage_plan_health.include?("validates=>:persistence_storage_plan_sketch") &&
+        storage_plan_health.include?("check_count=>17") &&
+        storage_plan_health.include?("storage plan terms stable")
+    end
+
+    def setup_storage_plan_health_json_endpoint?(storage_plan_health_json)
+      payload = JSON.parse(storage_plan_health_json)
+
+      payload.fetch("status") == "stable" &&
+        payload.fetch("check_count") == 17 &&
+        payload.fetch("descriptor").fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "persistence_storage_plan_health" &&
+        payload.fetch("descriptor").fetch("validates") == "persistence_storage_plan_sketch" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("missing_terms").empty? &&
+        payload.fetch("checks").all? { |check| check.fetch("present") }
     end
 
     def post(app, path, values = {})

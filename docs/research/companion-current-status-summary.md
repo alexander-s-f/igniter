@@ -34,6 +34,7 @@ storage.shape=:store/:history -> canonical manifest descriptor
 relation -> typed manifest edge
 relation_descriptor -> source/target storage shapes + report-only enforcement
 storage_plan_sketch -> report-only table/column/index/scope lowering candidates
+storage_plan_health -> drift check for non-executing storage-plan shape
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
 materializer_status.descriptor -> review-only lifecycle + no capability grants
@@ -133,6 +134,8 @@ derives table/storage names, key candidates, column candidates, adapter type
 mapping candidates, indexes, scopes, and append-only history table candidates
 from the manifest while keeping `schema_changes_allowed: false` and
 `sql_generation_allowed: false`.
+`/setup/storage-plan-health.json` verifies that this storage sketch remains
+report-only, no-gate/no-grant, non-SQL-generating, and non-schema-changing.
 
 Migrations are review-only. Current planning compares spec-history snapshots and
 classifies field changes as stable, additive, destructive, or ambiguous. There
@@ -174,6 +177,8 @@ Best next move:
   slice
 - use `/setup/health.json` as the compact current-state packet before deeper
   changes
+- use `/setup/storage-plan-health.json` before treating storage-plan output as
+  valid R1 evidence
 - use `/setup/handoff.json` as the first read after context rotation
 - use `/setup/handoff/digest.txt` as the compact human handoff, or
   `/setup/handoff/digest.json` as the structured agent map before

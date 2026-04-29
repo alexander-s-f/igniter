@@ -252,6 +252,10 @@ module Companion
         persistence.storage_plan_sketch
       end
 
+      def storage_plan_health
+        persistence.storage_plan_health
+      end
+
       def setup_health
         persistence.setup_health
       end

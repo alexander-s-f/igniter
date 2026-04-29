@@ -171,6 +171,8 @@ Non-goals:
 
 Current proof keeps these non-goals explicit with `schema_changes_allowed: false`
 and `sql_generation_allowed: false`.
+`/setup/storage-plan-health.json` now verifies the non-executing shape as a
+separate drift check.
 
 ### R2 Migration Plan V2
 

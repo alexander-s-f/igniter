@@ -344,6 +344,12 @@ module Companion
         )
       end
 
+      def storage_plan_health
+        Contracts::PersistenceStoragePlanHealthContract.evaluate(
+          storage_plan: storage_plan_sketch
+        )
+      end
+
       def setup_health
         Contracts::SetupHealthContract.evaluate(
           readiness: readiness,
