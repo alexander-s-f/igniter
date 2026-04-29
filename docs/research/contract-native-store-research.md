@@ -908,6 +908,215 @@ No downtime. No scripts.
 
 ---
 
+## Iteration 7 — Thread E: Reactive Store + Proactive Agents
+
+*Recorded from design session, 2026-04-29.*
+
+### Key insight: push trigger alongside the existing timer trigger
+
+`ProactiveAgent` already works via a `_scan` mechanism:
+timer fires `:_scan` → poll all watchers → evaluate triggers → act.
+
+Thread E adds a **push trigger** next to the timer: when the store writes a
+fact, it fires `:_scan` immediately instead of waiting for the next timer
+cycle. Both paths use the same `_scan` pipeline; the store push is the primary
+signal, the timer is the reliability fallback.
+
+```
+Pull (existing):
+  timer(scan_interval) → :_scan → poll all watchers → evaluate triggers → act
+
+Push (new):
+  store.write → ReadCache.invalidate → consumer.call →
+  → agent mailbox ← :_scan → poll store-backed watchers → evaluate triggers → act
+```
+
+### New `watch` form for store-backed dependencies
+
+```ruby
+# Existing form (poll lambda):
+watch :pending_tasks, poll: -> { external_api.fetch_tasks }
+
+# New form (store-backed, reactive):
+watch :pending_tasks, store: :tasks, scope: :pending, cache_ttl: 30
+```
+
+At agent start, a store-backed watch registers an AccessPath with
+`consumers: [method(:trigger_scan)]`. `trigger_scan` puts `:_scan` into the
+agent mailbox immediately:
+
+```ruby
+def trigger_scan(store, key)
+  mailbox.send(:_scan, { source: :store_push, store: store, key: key })
+end
+```
+
+The poll lambda for a store-backed watch is auto-generated:
+
+```ruby
+# Compiled from watch :pending_tasks, store: :tasks, scope: :pending:
+watch :pending_tasks, poll: -> { @store.read(store: :tasks, scope: :pending) }
+```
+
+The agent scan loop never changes — it always calls poll lambdas. The
+only difference is *who initiates* the scan: timer or store.
+
+### Full example: TaskDispatcherAgent
+
+```ruby
+class TaskDispatcherAgent < Igniter::Server::Agents::ProactiveAgent
+  intent "Dispatch pending tasks as soon as they appear in the store"
+
+  # Store-backed watch — push model
+  # Any write to :tasks triggers an immediate scan instead of waiting
+  watch :pending_tasks, store: :tasks, scope: :pending, cache_ttl: 30
+
+  # Regular poll watch — unchanged
+  watch :agent_config, poll: -> { Config.current }
+
+  trigger :new_pending_tasks,
+          condition: ->(ctx) {
+            ctx[:pending_tasks]&.any? { |t| t[:dispatched_at].nil? }
+          },
+          action: ->(state:, context:) {
+            undispatched = context[:pending_tasks].reject { |t| t[:dispatched_at] }
+            undispatched.each { |task| dispatch(task) }
+            state.merge(last_dispatch_count: undispatched.length)
+          }
+
+  # Long fallback interval — store push is the primary mechanism
+  scan_interval 60.0
+
+  private
+
+  def dispatch(task) = ...
+end
+
+agent = TaskDispatcherAgent.start(store: my_store)
+```
+
+### Contract-level: `store_read reactive: true` and `tick`
+
+For agents that use a contract as their scan logic:
+
+```ruby
+class PendingTasksContract < Igniter::Contract
+  define do
+    # reactive: true — when :tasks/:pending changes, notify the consumer
+    store_read :tasks, from: :tasks, scope: :pending,
+               cache_ttl: 30, reactive: true
+
+    compute :prioritized, depends_on: [:tasks], call: PrioritizeByDeadline
+    output :prioritized
+  end
+end
+
+class TaskDispatcherAgent < Igniter::Server::Agents::ProactiveAgent
+  # tick = contract is the agent's scan logic
+  # Agent re-executes the contract on reactive invalidation
+  tick PendingTasksContract, store: :companion_store
+
+  on :tick_result do |result|
+    next unless result.success?
+    result[:prioritized].each { |task| schedule_work(task) }
+  end
+
+  scan_interval 120.0  # very long fallback; store push is primary
+end
+```
+
+`tick` compiles to:
+1. `watch :_tick_result, poll: -> { PendingTasksContract.execute({}, store: @store) }`
+2. All `store_read reactive: true` nodes in the contract register consumers.
+3. A trigger fires `:tick_result` when the result changes.
+
+### Full flow: store write → agent action
+
+```
+1. store.write(store: :tasks, key: "t1", value: { status: :pending, ... })
+
+2. FactLog.append(fact)
+
+3. ReadCache.invalidate(store: :tasks, key: "t1")
+   → delete cache entries for :tasks/"t1"
+   → consumers for :tasks: [TaskDispatcherAgent(A).trigger_scan,
+                              TaskDispatcherAgent(B).trigger_scan]
+
+4. TaskDispatcherAgent(A).trigger_scan(:tasks, "t1")
+   → mailbox.send(:_scan, { source: :store_push, store: :tasks, key: "t1" })
+
+5. Agent thread: _scan handler fires
+   → poll :pending_tasks (store.read :tasks, scope: :pending)
+   → store: cache miss (just invalidated)
+   → FactLog: latest fact + scope filter → [{ id: "t1", status: :pending, ... }]
+
+6. Evaluate trigger :new_pending_tasks
+   → condition: undispatched.any? → true
+
+7. Action: dispatch(task)
+   → state.merge(last_dispatch_count: 1)
+```
+
+### Distributed cluster: Raft + reactivity
+
+```
+Node C: store.write(:tasks, "t1", {...})
+  → Raft: proposal → consensus → committed (term: 43, index: 156)
+
+Node A: Raft log replay fact(term: 43, index: 156)
+  → FactLog.append → ReadCache.invalidate → TaskDispatcherAgent(A).trigger_scan
+
+Node B: Raft log replay fact(term: 43, index: 156)
+  → FactLog.append → ReadCache.invalidate → TaskDispatcherAgent(B).trigger_scan
+```
+
+Reactivity on every node is a direct consequence of Raft replay. No separate
+pub/sub infrastructure is needed.
+
+### Push what: invalidation vs fact
+
+| | Push invalidation | Push fact |
+|---|---|---|
+| Complexity | simple — already in POC | requires schema coercion per consumer |
+| Latency | +1 re-fetch | no re-fetch |
+| Data volume | minimal (store, key) | full payload |
+| Schema safety | agent reads in its own schema | store must know consumer schema version |
+| First iteration | **yes** | deferred |
+
+Decision: **push invalidation** — `consumer.call(store, key)`. The agent
+re-reads via `store_read` and may hit the cache if another agent already
+fetched the new value.
+
+### Scope-aware filtering (deferred)
+
+First iteration: any write to `:tasks` notifies ALL consumers for `:tasks`
+regardless of which scope they watch. The agent re-reads and handles gracefully
+(most triggers find nothing changed if the relevant scope was not touched).
+
+Future: the store evaluates the scope condition at write time:
+
+```ruby
+if scope_condition_touched?(fact, path.scope)
+  path.consumers.each { |c| c.call(fact.store, fact.key) }
+end
+```
+
+Requires: the store can evaluate scope predicates (`where: { status: :pending }`)
+against a fact value. Deferred.
+
+### Deferred
+
+| Question | Status |
+|--------|--------|
+| `tick` macro implementation | Deferred — model decided; sugar ships under pressure |
+| `reactive: true` on `store_read` in compiler | Deferred — requires compiler extension |
+| Scope-aware consumer filtering | Deferred — first iteration: any write = all notified |
+| Push fact (not invalidation) | Deferred — after schema coercion is stable |
+| Backpressure on agent mailbox under high write rate | Deferred — benchmark first |
+| Consumer de-registration on agent stop | Required — prevent memory leaks; deferred to impl |
+
+---
+
 ## Reference
 
 - [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
