@@ -163,6 +163,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Reading order includes `/setup/handoff/digest.json` and
   `/setup/handoff/digest.txt` as the structured and plain-text compact diagram
   plus next-read summary.
+- Reading order includes `/setup/handoff/next-scope.json` as the supervised
+  backlog packet for the current reversible slice.
 - Carries `document_rotation` with the compact public docs and private track to
   read before older thread history.
 - Carries `architecture_constraints` for app-local scope, no public API promise,
@@ -233,6 +235,15 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Includes a short ASCII text diagram, highlights, and recommended next reads.
 - Composes supervision, extraction sketch, and promotion readiness.
 - Remains report-only with no runtime gate and no capability grants.
+
+`setup_handoff_next_scope`
+
+- Supervised backlog packet exposed at `/setup/handoff/next-scope.json`.
+- Pulls `next_scope` and `acceptance_criteria` out of the large handoff packet.
+- Names the recommended app-local slice, candidate list, forbidden moves,
+  explicit receipt POST paths, and current lifecycle next action.
+- Remains report-only and does not grant execution, approval, or package/API
+  promotion capability.
 
 `setup_handoff_acceptance`
 

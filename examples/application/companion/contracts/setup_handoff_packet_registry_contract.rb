@@ -12,6 +12,7 @@ module Companion
       input :setup_handoff_lifecycle_health
       input :setup_handoff_acceptance
       input :setup_handoff_approval_acceptance
+      input :setup_handoff_next_scope
       input :materializer_status
 
       compute :descriptor do
@@ -29,12 +30,13 @@ module Companion
               depends_on: %i[
                 setup_health setup_handoff setup_handoff_supervision
                 setup_handoff_lifecycle setup_handoff_lifecycle_health
-                setup_handoff_acceptance setup_handoff_approval_acceptance
+                setup_handoff_acceptance setup_handoff_approval_acceptance setup_handoff_next_scope
                 materializer_status
-              ] do |setup_health:, setup_handoff:, setup_handoff_supervision:, setup_handoff_lifecycle:, setup_handoff_lifecycle_health:, setup_handoff_acceptance:, setup_handoff_approval_acceptance:, materializer_status:|
+              ] do |setup_health:, setup_handoff:, setup_handoff_supervision:, setup_handoff_lifecycle:, setup_handoff_lifecycle_health:, setup_handoff_acceptance:, setup_handoff_approval_acceptance:, setup_handoff_next_scope:, materializer_status:|
         [
           Companion::Contracts.packet(:setup_health, "/setup/health.json", setup_health.fetch(:descriptor), :diagnostic),
           Companion::Contracts.packet(:setup_handoff, "/setup/handoff.json", setup_handoff.fetch(:descriptor), :context_rotation),
+          Companion::Contracts.packet(:setup_handoff_next_scope, "/setup/handoff/next-scope.json", setup_handoff_next_scope.fetch(:descriptor), :supervised_backlog),
           Companion::Contracts.packet(:setup_handoff_supervision, "/setup/handoff/supervision.json", setup_handoff_supervision.fetch(:descriptor), :agent_context),
           Companion::Contracts.packet(:setup_handoff_lifecycle, "/setup/handoff/lifecycle.json", setup_handoff_lifecycle.fetch(:descriptor), :lifecycle_map),
           Companion::Contracts.packet(:setup_handoff_lifecycle_health, "/setup/handoff/lifecycle-health.json", setup_handoff_lifecycle_health.fetch(:descriptor), :drift_check),

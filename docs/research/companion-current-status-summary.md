@@ -46,6 +46,7 @@ setup_handoff_packet_registry -> read-only index of setup/handoff packet surface
 setup_handoff_extraction_sketch -> landing-zone map without package promise
 setup_handoff_promotion_readiness -> explicit blocked signal for package/API promotion
 setup_handoff_digest -> compact text diagram and next-read summary (.json + .txt)
+setup_handoff_next_scope -> supervised backlog packet, not execution
 app boundary -> explicit mutation application
 projection -> graph-owned read model
 ```
@@ -152,6 +153,8 @@ Best next move:
 - use `/setup/handoff/digest.txt` as the compact human handoff, or
   `/setup/handoff/digest.json` as the structured agent map before
   following the deeper packet list
+- use `/setup/handoff/next-scope.json` as the supervised backlog packet before
+  treating any candidate as the current slice
 - use `/setup/handoff/lifecycle.json` as the compact lifecycle map before
   reading individual acceptance packets
 - use `/setup/handoff/lifecycle-health.json` as the lifecycle drift check; it
@@ -168,8 +171,9 @@ Best next move:
   deciding that the materializer lifecycle advanced
 - follow its `document_rotation` block before reading long thread history
 - keep its `architecture_constraints` intact before implementing a new slice
-- use its `next_scope` as a supervised backlog, not an execution command
-- use its `acceptance_criteria` before calling a small slice complete
+- use `next_scope` through `/setup/handoff/next-scope.json` as a supervised
+  backlog, not an execution command
+- use its embedded `acceptance_criteria` before calling a small slice complete
 - use `/setup/handoff/acceptance.json` to observe acceptance before/after an
   explicit app-boundary action
 - `POST /setup/handoff/acceptance/record` is only an explicit alias for the

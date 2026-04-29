@@ -66,6 +66,9 @@ Current manifest vocabulary:
   lifecycle stage, materializer phase, next action, extraction scope, and
   promotion status; `/setup/handoff/digest.txt` is the plain-text handoff
   projection for fast reading or copying into agent context
+- `/setup/handoff/next-scope(.json)` exposes the supervised backlog slice:
+  recommended app-local move, candidates, forbidden moves, acceptance criteria,
+  explicit receipt POST paths, and lifecycle next action; it remains report-only
 - `/setup/handoff/lifecycle(.json)` composes handoff plus both acceptance
   packets into a read-only stage map with current stage and next action
 - `/setup/handoff/lifecycle-health(.json)` validates lifecycle descriptor,
