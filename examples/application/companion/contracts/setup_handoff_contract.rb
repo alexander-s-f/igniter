@@ -4,7 +4,7 @@ require_relative "../contracts"
 
 module Companion
   module Contracts
-    contracts :SetupHandoffContract, outputs: %i[status descriptor reading_order document_rotation architecture_constraints current_state next_action summary] do
+    contracts :SetupHandoffContract, outputs: %i[status descriptor reading_order document_rotation architecture_constraints current_state next_scope next_action summary] do
       input :setup_health
       input :manifest_summary
       input :materializer_status
@@ -81,6 +81,39 @@ module Companion
         }
       end
 
+      compute :next_scope do
+        {
+          policy: :small_reversible_app_local_slice,
+          recommended: :record_blocked_materializer_attempt,
+          candidates: [
+            {
+              name: :record_blocked_materializer_attempt,
+              kind: :app_boundary_receipt,
+              endpoint: "POST /setup/materializer-attempts/record",
+              reason: :advance_review_lifecycle_without_execution
+            },
+            {
+              name: :inspect_relation_warning_flow,
+              kind: :diagnostic_projection,
+              endpoint: "/setup/relation-health.json",
+              reason: :keep_relations_report_only
+            },
+            {
+              name: :extract_capability_descriptor_sketch,
+              kind: :documentation_slice,
+              endpoint: "/setup/handoff.json",
+              reason: :prepare_future_package_boundary_without_public_api
+            }
+          ],
+          forbidden: %i[
+            materializer_execution
+            approval_capability_grants
+            public_api_promotion
+            relation_enforcement
+          ]
+        }
+      end
+
       compute :next_action, depends_on: %i[setup_health materializer_status] do |setup_health:, materializer_status:|
         if setup_health.fetch(:review_count).positive?
           :review_setup_health_items
@@ -99,6 +132,7 @@ module Companion
       output :document_rotation
       output :architecture_constraints
       output :current_state
+      output :next_scope
       output :next_action
       output :summary
     end

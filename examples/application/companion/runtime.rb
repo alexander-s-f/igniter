@@ -1556,6 +1556,9 @@ module Companion
         handoff.fetch(:architecture_constraints).fetch(:lowerings).fetch(:persist) == :store_t &&
         handoff.fetch(:current_state).fetch(:capabilities) == 17 &&
         handoff.fetch(:current_state).fetch(:materializer_grants_capabilities) == false &&
+        handoff.fetch(:next_scope).fetch(:policy) == :small_reversible_app_local_slice &&
+        handoff.fetch(:next_scope).fetch(:recommended) == :record_blocked_materializer_attempt &&
+        handoff.fetch(:next_scope).fetch(:forbidden).include?(:public_api_promotion) &&
         handoff.fetch(:next_action) == :record_blocked_attempt
     end
 
@@ -2096,6 +2099,8 @@ module Companion
         setup_handoff.include?("app_local_companion_proof") &&
         setup_handoff.include?("public_api_promise=>false") &&
         setup_handoff.include?("relation_enforcement=>:report_only") &&
+        setup_handoff.include?("small_reversible_app_local_slice") &&
+        setup_handoff.include?("public_api_promotion") &&
         setup_handoff.include?("record_blocked_attempt")
     end
 
@@ -2120,6 +2125,9 @@ module Companion
         payload.fetch("architecture_constraints").fetch("lowerings").fetch("persist") == "store_t" &&
         payload.fetch("current_state").fetch("capabilities") == 17 &&
         payload.fetch("current_state").fetch("materializer_grants_capabilities") == false &&
+        payload.fetch("next_scope").fetch("policy") == "small_reversible_app_local_slice" &&
+        payload.fetch("next_scope").fetch("recommended") == "record_blocked_materializer_attempt" &&
+        payload.fetch("next_scope").fetch("forbidden").include?("public_api_promotion") &&
         payload.fetch("next_action") == "record_blocked_attempt"
     end
 

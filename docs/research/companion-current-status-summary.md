@@ -144,6 +144,7 @@ Best next move:
 - use `/setup/handoff.json` as the first read after context rotation
 - follow its `document_rotation` block before reading long thread history
 - keep its `architecture_constraints` intact before implementing a new slice
+- use its `next_scope` as a supervised backlog, not an execution command
 - choose the next term only after the current glossary remains stable
 - continue avoiding execution and capability grant controls
 
@@ -157,6 +158,7 @@ Acceptance:
 - setup handoff remains read-only and points to the current reading order
 - setup handoff keeps public/private document rotation compact
 - setup handoff preserves app-local/no-public-API/no-execution constraints
+- setup handoff keeps next scope small, reversible, and app-local
 - `/setup` surfaces glossary health without making readiness stricter
 - no setup/read endpoint mutates durable state
 

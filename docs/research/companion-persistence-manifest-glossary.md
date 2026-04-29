@@ -151,6 +151,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Carries `architecture_constraints` for app-local scope, no public API promise,
   no materializer execution, report-only relations, no approval grants, and
   `persist` / `history` lowerings.
+- Carries `next_scope` with small reversible app-local candidates and forbidden
+  moves.
 - It is a handoff/read model, not an execution or approval surface.
 
 ## Current Lowerings
