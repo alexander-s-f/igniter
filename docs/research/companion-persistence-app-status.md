@@ -52,6 +52,9 @@ Current manifest vocabulary:
   still present and stable
 - `/setup` includes the same glossary health as a report-only summary signal;
   readiness does not become stricter because of glossary drift
+- `/setup/materializer(.json)` exposes a `materializer_status` descriptor with
+  schema version, review-only state, history targets, command intents, audit
+  counts, `grants_capabilities: false`, and `execution_allowed: false`
 
 See [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md)
 for the compact agent reading guide.
@@ -144,7 +147,8 @@ Current user-defined-type pressure test:
   for blocked attempt counts, blocked capabilities, and latest receipt
 - `MaterializerSupervisionContract`: compact lifecycle read model over gate,
   preflight, runbook, receipt, attempt command intent, approval command intent,
-  attempt audit, and approval audit
+  attempt audit, and approval audit; it also emits the canonical
+  `materializer_status` descriptor consumed by `/setup/materializer(.json)`
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities

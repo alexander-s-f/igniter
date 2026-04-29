@@ -1169,9 +1169,17 @@ module Companion
       command_intent = payload.fetch("command_intent")
       approval_command_intent = payload.fetch("approval_command_intent")
       approval_audit = payload.fetch("approval_audit")
+      descriptor = payload.fetch("descriptor")
 
       payload.fetch("status") == "blocked" &&
         payload.fetch("phase") == "awaiting_explicit_attempt_record" &&
+        descriptor.fetch("schema_version") == 1 &&
+        descriptor.fetch("kind") == "materializer_status" &&
+        descriptor.fetch("review_only") &&
+        descriptor.fetch("grants_capabilities") == false &&
+        descriptor.fetch("execution_allowed") == false &&
+        descriptor.fetch("histories").fetch("attempts") == "materializer_attempts" &&
+        descriptor.fetch("histories").fetch("approvals") == "materializer_approvals" &&
         signals.fetch("gate_blocked") &&
         signals.fetch("attempt_command_ready") &&
         signals.fetch("approval_command_ready") &&
@@ -1186,6 +1194,8 @@ module Companion
 
     def setup_materializer_endpoint?(materializer)
       materializer.include?("status=>:blocked") &&
+        materializer.include?("kind=>:materializer_status") &&
+        materializer.include?("grants_capabilities=>false") &&
         materializer.include?("approval_audit") &&
         materializer.include?("record_blocked_attempt")
     end
@@ -1773,6 +1783,13 @@ module Companion
       supervision = persistence.materializer_supervision
 
       status == supervision &&
+        status.fetch(:descriptor).fetch(:schema_version) == 1 &&
+        status.fetch(:descriptor).fetch(:kind) == :materializer_status &&
+        status.fetch(:descriptor).fetch(:review_only) &&
+        status.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        status.fetch(:descriptor).fetch(:execution_allowed) == false &&
+        status.fetch(:descriptor).fetch(:app_boundary_required) &&
+        status.fetch(:descriptor).fetch(:histories) == { attempts: :materializer_attempts, approvals: :materializer_approvals } &&
         status.fetch(:phase) == :awaiting_explicit_attempt_record &&
         status.fetch(:approval_command_intent).fetch(:target) == :materializer_approvals &&
         status.fetch(:approval_audit).fetch(:applied_count).zero?

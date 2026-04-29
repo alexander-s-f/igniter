@@ -35,6 +35,7 @@ relation -> typed manifest edge
 relation_descriptor -> source/target storage shapes + report-only enforcement
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
+materializer_status.descriptor -> review-only lifecycle + no capability grants
 app boundary -> explicit mutation application
 projection -> graph-owned read model
 ```
@@ -64,6 +65,7 @@ WizardTypeSpec
 -> explicit approval POST
 -> approval audit trail
 -> supervision with attempt + approval audit
+-> materializer_status descriptor with review-only/no-grant boundary
 ```
 
 Important boundary:
@@ -73,6 +75,8 @@ Important boundary:
 - no write/git/test/restart capability is granted by setup reads
 - explicit write paths exist only for recording blocked materializer attempts
   and approval receipts
+- the compact materializer status packet now has its own descriptor, but that
+  descriptor is only inspection metadata
 
 ## Most Important Insight
 

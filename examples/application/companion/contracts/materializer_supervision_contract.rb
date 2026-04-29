@@ -5,7 +5,7 @@ require_relative "../contracts"
 module Companion
   module Contracts
     contracts :MaterializerSupervisionContract,
-              outputs: %i[status phase signals command_intent approval_command_intent audit approval_audit next_action summary] do
+              outputs: %i[status phase descriptor signals command_intent approval_command_intent audit approval_audit next_action summary] do
       input :materializer_gate
       input :materializer_preflight
       input :materializer_runbook
@@ -114,12 +114,45 @@ module Companion
         end
       end
 
+      compute :descriptor, depends_on: %i[status phase command_intent approval_command_intent audit approval_audit next_action] do |status:, phase:, command_intent:, approval_command_intent:, audit:, approval_audit:, next_action:|
+        {
+          schema_version: 1,
+          kind: :materializer_status,
+          status: status,
+          phase: phase,
+          review_only: true,
+          grants_capabilities: false,
+          execution_allowed: false,
+          app_boundary_required: true,
+          histories: {
+            attempts: :materializer_attempts,
+            approvals: :materializer_approvals
+          },
+          command_intents: {
+            attempt: command_intent,
+            approval: approval_command_intent
+          },
+          audits: {
+            attempts: {
+              count: audit.fetch(:attempt_count),
+              executed_count: audit.fetch(:executed_count)
+            },
+            approvals: {
+              count: approval_audit.fetch(:approval_count),
+              applied_count: approval_audit.fetch(:applied_count)
+            }
+          },
+          next_action: next_action
+        }
+      end
+
       compute :summary, depends_on: %i[status phase audit approval_audit next_action] do |status:, phase:, audit:, approval_audit:, next_action:|
         "#{status}/#{phase}: attempts=#{audit.fetch(:attempt_count)}, approvals=#{approval_audit.fetch(:approval_count)}, applied=#{approval_audit.fetch(:applied_count)}, next=#{next_action}."
       end
 
       output :status
       output :phase
+      output :descriptor
       output :signals
       output :command_intent
       output :approval_command_intent

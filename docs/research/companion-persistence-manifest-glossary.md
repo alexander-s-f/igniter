@@ -95,7 +95,12 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Compact status packet exposed at `/setup/materializer.json`.
 - Alias over materializer supervision, not a new capability.
 - Shows phase, next action, attempt audit, approval audit, and command intents.
+- Includes canonical `descriptor` with `schema_version: 1`,
+  `kind: :materializer_status`, review-only state, history targets, command
+  intents, and audit counts.
 - Must not grant write/git/test/restart capabilities.
+- `grants_capabilities: false` and `execution_allowed: false` are part of the
+  descriptor contract.
 
 `manifest_glossary_health`
 
