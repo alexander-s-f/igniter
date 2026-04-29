@@ -79,7 +79,8 @@ module Companion
           setup_handoff_supervision: service(:companion).setup_handoff_supervision,
           setup_handoff_packet_registry: service(:companion).setup_handoff_packet_registry,
           setup_handoff_extraction_sketch: service(:companion).setup_handoff_extraction_sketch,
-          setup_handoff_promotion_readiness: service(:companion).setup_handoff_promotion_readiness
+          setup_handoff_promotion_readiness: service(:companion).setup_handoff_promotion_readiness,
+          setup_handoff_digest: service(:companion).setup_handoff_digest
         }.inspect)
       end
 
@@ -89,6 +90,14 @@ module Companion
 
       get "/setup/handoff.json" do
         text JSON.pretty_generate(service(:companion).setup_handoff)
+      end
+
+      get "/setup/handoff/digest" do
+        text service(:companion).setup_handoff_digest.inspect
+      end
+
+      get "/setup/handoff/digest.json" do
+        text JSON.pretty_generate(service(:companion).setup_handoff_digest)
       end
 
       get "/setup/handoff/acceptance" do

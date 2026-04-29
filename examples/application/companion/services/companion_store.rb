@@ -288,6 +288,10 @@ module Companion
         persistence.setup_handoff_promotion_readiness
       end
 
+      def setup_handoff_digest
+        persistence.setup_handoff_digest
+      end
+
       def materialization_plan
         persistence.materialization_plan
       end

@@ -160,6 +160,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   package-placement sketch without public API promise.
 - Reading order includes `/setup/handoff/promotion-readiness.json` as the
   explicit package/API promotion blocker report.
+- Reading order includes `/setup/handoff/digest.json` as the compact text
+  diagram and next-read summary.
 - Carries `document_rotation` with the compact public docs and private track to
   read before older thread history.
 - Carries `architecture_constraints` for app-local scope, no public API promise,
@@ -222,6 +224,13 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Current expected status is `:blocked`.
 - Names why package/API promotion is not ready yet.
 - Allowed next steps must keep Companion app-local and gather repeated pressure.
+
+`setup_handoff_digest`
+
+- Compact human/agent packet exposed at `/setup/handoff/digest.json`.
+- Includes a short ASCII text diagram, highlights, and recommended next reads.
+- Composes supervision, extraction sketch, and promotion readiness.
+- Remains report-only with no runtime gate and no capability grants.
 
 `setup_handoff_acceptance`
 

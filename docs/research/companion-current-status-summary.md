@@ -45,6 +45,7 @@ setup_handoff_supervision -> single agent context packet over handoff lifecycle
 setup_handoff_packet_registry -> read-only index of setup/handoff packet surface
 setup_handoff_extraction_sketch -> landing-zone map without package promise
 setup_handoff_promotion_readiness -> explicit blocked signal for package/API promotion
+setup_handoff_digest -> compact text diagram and next-read summary
 app boundary -> explicit mutation application
 projection -> graph-owned read model
 ```
@@ -148,6 +149,8 @@ Best next move:
 - use `/setup/health.json` as the compact current-state packet before deeper
   changes
 - use `/setup/handoff.json` as the first read after context rotation
+- use `/setup/handoff/digest.json` as the compact human/agent map before
+  following the deeper packet list
 - use `/setup/handoff/lifecycle.json` as the compact lifecycle map before
   reading individual acceptance packets
 - use `/setup/handoff/lifecycle-health.json` as the lifecycle drift check; it
