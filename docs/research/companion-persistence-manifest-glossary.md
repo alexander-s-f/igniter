@@ -153,6 +153,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   `persist` / `history` lowerings.
 - Carries `next_scope` with small reversible app-local candidates and forbidden
   moves.
+- Carries `acceptance_criteria` for the recommended next scope, including proof
+  markers and non-goals.
 - It is a handoff/read model, not an execution or approval surface.
 
 ## Current Lowerings

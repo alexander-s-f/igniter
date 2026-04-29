@@ -4,7 +4,7 @@ require_relative "../contracts"
 
 module Companion
   module Contracts
-    contracts :SetupHandoffContract, outputs: %i[status descriptor reading_order document_rotation architecture_constraints current_state next_scope next_action summary] do
+    contracts :SetupHandoffContract, outputs: %i[status descriptor reading_order document_rotation architecture_constraints current_state next_scope acceptance_criteria next_action summary] do
       input :setup_health
       input :manifest_summary
       input :materializer_status
@@ -114,6 +114,45 @@ module Companion
         }
       end
 
+      compute :acceptance_criteria do
+        {
+          recommended: :record_blocked_materializer_attempt,
+          expected_result: :materializer_supervision_awaits_explicit_approval_record,
+          checks: [
+            {
+              term: :explicit_post_only,
+              expected: "POST /setup/materializer-attempts/record"
+            },
+            {
+              term: :history_append_applied_at_app_boundary,
+              expected: :materializer_attempts
+            },
+            {
+              term: :setup_reads_stay_side_effect_free,
+              expected: true
+            },
+            {
+              term: :materializer_execution_remains_blocked,
+              expected: false
+            },
+            {
+              term: :capability_grants_remain_false,
+              expected: false
+            }
+          ],
+          proof_markers: %i[
+            companion_poc_materializer_attempt_record_route
+            companion_poc_materializer_supervision
+            companion_poc_materializer_status_descriptor_health
+          ],
+          non_goals: %i[
+            materializer_execution
+            approval_capability_grants
+            public_api_promotion
+          ]
+        }
+      end
+
       compute :next_action, depends_on: %i[setup_health materializer_status] do |setup_health:, materializer_status:|
         if setup_health.fetch(:review_count).positive?
           :review_setup_health_items
@@ -133,6 +172,7 @@ module Companion
       output :architecture_constraints
       output :current_state
       output :next_scope
+      output :acceptance_criteria
       output :next_action
       output :summary
     end

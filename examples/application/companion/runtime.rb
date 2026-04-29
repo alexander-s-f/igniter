@@ -1559,6 +1559,10 @@ module Companion
         handoff.fetch(:next_scope).fetch(:policy) == :small_reversible_app_local_slice &&
         handoff.fetch(:next_scope).fetch(:recommended) == :record_blocked_materializer_attempt &&
         handoff.fetch(:next_scope).fetch(:forbidden).include?(:public_api_promotion) &&
+        handoff.fetch(:acceptance_criteria).fetch(:recommended) == :record_blocked_materializer_attempt &&
+        handoff.fetch(:acceptance_criteria).fetch(:expected_result) == :materializer_supervision_awaits_explicit_approval_record &&
+        handoff.fetch(:acceptance_criteria).fetch(:proof_markers).include?(:companion_poc_materializer_attempt_record_route) &&
+        handoff.fetch(:acceptance_criteria).fetch(:non_goals).include?(:materializer_execution) &&
         handoff.fetch(:next_action) == :record_blocked_attempt
     end
 
@@ -2100,6 +2104,8 @@ module Companion
         setup_handoff.include?("public_api_promise=>false") &&
         setup_handoff.include?("relation_enforcement=>:report_only") &&
         setup_handoff.include?("small_reversible_app_local_slice") &&
+        setup_handoff.include?("explicit_post_only") &&
+        setup_handoff.include?("materializer_supervision_awaits_explicit_approval_record") &&
         setup_handoff.include?("public_api_promotion") &&
         setup_handoff.include?("record_blocked_attempt")
     end
@@ -2128,6 +2134,10 @@ module Companion
         payload.fetch("next_scope").fetch("policy") == "small_reversible_app_local_slice" &&
         payload.fetch("next_scope").fetch("recommended") == "record_blocked_materializer_attempt" &&
         payload.fetch("next_scope").fetch("forbidden").include?("public_api_promotion") &&
+        payload.fetch("acceptance_criteria").fetch("recommended") == "record_blocked_materializer_attempt" &&
+        payload.fetch("acceptance_criteria").fetch("expected_result") == "materializer_supervision_awaits_explicit_approval_record" &&
+        payload.fetch("acceptance_criteria").fetch("proof_markers").include?("companion_poc_materializer_attempt_record_route") &&
+        payload.fetch("acceptance_criteria").fetch("non_goals").include?("materializer_execution") &&
         payload.fetch("next_action") == "record_blocked_attempt"
     end
 

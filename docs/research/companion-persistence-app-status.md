@@ -60,7 +60,7 @@ Current manifest vocabulary:
   agents with reading order, manifest scale, current materializer phase, and
   next action; it also names the compact public docs and private track to read
   before stale history, preserves the current architecture constraints, and
-  carries small reversible next-scope candidates
+  carries small reversible next-scope candidates with acceptance criteria
 - `/setup/materializer(.json)` exposes a `materializer_status` descriptor with
   schema version, review-only state, history targets, command intents, audit
   counts, `grants_capabilities: false`, and `execution_allowed: false`
@@ -171,7 +171,7 @@ Current user-defined-type pressure test:
 - `SetupHandoffContract`: compact read-only handoff over setup health,
   manifest summary, and materializer status for context rotation, including
   document rotation pointers and app-local/no-public-API/no-execution
-  constraints plus a supervised next-scope backlog
+  constraints plus a supervised next-scope backlog and acceptance criteria
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities

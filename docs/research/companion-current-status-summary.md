@@ -145,6 +145,7 @@ Best next move:
 - follow its `document_rotation` block before reading long thread history
 - keep its `architecture_constraints` intact before implementing a new slice
 - use its `next_scope` as a supervised backlog, not an execution command
+- use its `acceptance_criteria` before calling a small slice complete
 - choose the next term only after the current glossary remains stable
 - continue avoiding execution and capability grant controls
 
@@ -159,6 +160,7 @@ Acceptance:
 - setup handoff keeps public/private document rotation compact
 - setup handoff preserves app-local/no-public-API/no-execution constraints
 - setup handoff keeps next scope small, reversible, and app-local
+- setup handoff defines acceptance without creating a runtime gate
 - `/setup` surfaces glossary health without making readiness stricter
 - no setup/read endpoint mutates durable state
 
