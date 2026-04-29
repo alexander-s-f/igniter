@@ -68,7 +68,8 @@ module Companion
           credentials: snapshot.credential_status,
           persistence: snapshot.persistence_readiness,
           relation_health: snapshot.relation_health,
-          manifest_glossary: snapshot.manifest_glossary_health
+          manifest_glossary: snapshot.manifest_glossary_health,
+          materializer_descriptor_health: snapshot.materializer_status_descriptor_health
         }.inspect)
       end
 
@@ -146,6 +147,14 @@ module Companion
 
       get "/setup/materializer.json" do
         text JSON.pretty_generate(service(:companion).materializer_status)
+      end
+
+      get "/setup/materializer/descriptor-health" do
+        text service(:companion).materializer_status_descriptor_health.inspect
+      end
+
+      get "/setup/materializer/descriptor-health.json" do
+        text JSON.pretty_generate(service(:companion).materializer_status_descriptor_health)
       end
 
       get "/setup/materializer-gate" do

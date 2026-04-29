@@ -55,6 +55,8 @@ Current manifest vocabulary:
 - `/setup/materializer(.json)` exposes a `materializer_status` descriptor with
   schema version, review-only state, history targets, command intents, audit
   counts, `grants_capabilities: false`, and `execution_allowed: false`
+- `/setup/materializer/descriptor-health(.json)` reports descriptor drift
+  without changing readiness or granting execution
 
 See [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md)
 for the compact agent reading guide.
@@ -149,6 +151,10 @@ Current user-defined-type pressure test:
   preflight, runbook, receipt, attempt command intent, approval command intent,
   attempt audit, and approval audit; it also emits the canonical
   `materializer_status` descriptor consumed by `/setup/materializer(.json)`
+- `MaterializerStatusDescriptorHealthContract`: report-only guard that validates
+  the compact status descriptor still has schema version, review-only/no-grant
+  boundaries, app-boundary requirement, history targets, command intents, audit
+  counts, and status/phase alignment
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities
@@ -262,6 +268,8 @@ Current Companion product flows use the persistence model:
   default state is blocked by `human_approval_required`
 - `/setup/materializer-preflight` exposes the review packet for a future human
   approval flow
+- `/setup/materializer/descriptor-health` exposes the materializer status
+  descriptor guard for agents and reviewers
 - `/setup/materializer-runbook` exposes the blocked review-only materializer
   steps that a future approved agent could execute
 - `/setup/materializer-receipt` exposes the non-executed audit receipt for the

@@ -36,6 +36,7 @@ relation_descriptor -> source/target storage shapes + report-only enforcement
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
 materializer_status.descriptor -> review-only lifecycle + no capability grants
+materializer_status_descriptor_health -> report-only no-grant/no-execution guard
 app boundary -> explicit mutation application
 projection -> graph-owned read model
 ```
@@ -66,6 +67,7 @@ WizardTypeSpec
 -> approval audit trail
 -> supervision with attempt + approval audit
 -> materializer_status descriptor with review-only/no-grant boundary
+-> materializer_status_descriptor_health report-only guard
 ```
 
 Important boundary:
@@ -77,6 +79,8 @@ Important boundary:
   and approval receipts
 - the compact materializer status packet now has its own descriptor, but that
   descriptor is only inspection metadata
+- descriptor health now checks that the status packet still refuses capability
+  grants and execution
 
 ## Most Important Insight
 
@@ -140,6 +144,7 @@ Acceptance:
 
 - another agent can read manifest terms without reconstructing history
 - glossary health remains stable
+- materializer status descriptor health remains stable
 - `/setup` surfaces glossary health without making readiness stricter
 - no setup/read endpoint mutates durable state
 

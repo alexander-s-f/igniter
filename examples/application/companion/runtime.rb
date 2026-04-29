@@ -97,6 +97,8 @@ module Companion
       loop_health_json_status, _loop_health_json_headers, loop_health_json_body = app.call(rack_env("GET", "/setup/infrastructure-loop-health.json"))
       materializer_status, _materializer_headers, materializer_body = app.call(rack_env("GET", "/setup/materializer"))
       materializer_json_status, _materializer_json_headers, materializer_json_body = app.call(rack_env("GET", "/setup/materializer.json"))
+      materializer_descriptor_health_status, _materializer_descriptor_health_headers, materializer_descriptor_health_body = app.call(rack_env("GET", "/setup/materializer/descriptor-health"))
+      materializer_descriptor_health_json_status, _materializer_descriptor_health_json_headers, materializer_descriptor_health_json_body = app.call(rack_env("GET", "/setup/materializer/descriptor-health.json"))
       materializer_gate_status, _materializer_gate_headers, materializer_gate_body = app.call(rack_env("GET", "/setup/materializer-gate"))
       materializer_gate_json_status, _materializer_gate_json_headers, materializer_gate_json_body = app.call(rack_env("GET", "/setup/materializer-gate.json"))
       materializer_preflight_status, _materializer_preflight_headers, materializer_preflight_body = app.call(rack_env("GET", "/setup/materializer-preflight"))
@@ -151,6 +153,8 @@ module Companion
       loop_health_json = loop_health_json_body.join
       materializer = materializer_body.join
       materializer_json = materializer_json_body.join
+      materializer_descriptor_health = materializer_descriptor_health_body.join
+      materializer_descriptor_health_json = materializer_descriptor_health_json_body.join
       materializer_gate = materializer_gate_body.join
       materializer_gate_json = materializer_gate_json_body.join
       materializer_preflight = materializer_preflight_body.join
@@ -225,6 +229,8 @@ module Companion
       out.puts "companion_poc_setup_infrastructure_loop_health_json_status=#{loop_health_json_status}"
       out.puts "companion_poc_setup_materializer_status=#{materializer_status}"
       out.puts "companion_poc_setup_materializer_json_status=#{materializer_json_status}"
+      out.puts "companion_poc_setup_materializer_descriptor_health_status=#{materializer_descriptor_health_status}"
+      out.puts "companion_poc_setup_materializer_descriptor_health_json_status=#{materializer_descriptor_health_json_status}"
       out.puts "companion_poc_setup_materializer_gate_status=#{materializer_gate_status}"
       out.puts "companion_poc_setup_materializer_gate_json_status=#{materializer_gate_json_status}"
       out.puts "companion_poc_setup_materializer_preflight_status=#{materializer_preflight_status}"
@@ -275,6 +281,8 @@ module Companion
       out.puts "companion_poc_setup_infrastructure_loop_health_json_endpoint=#{setup_infrastructure_loop_health_json_endpoint?(loop_health_json)}"
       out.puts "companion_poc_setup_materializer_endpoint=#{setup_materializer_endpoint?(materializer)}"
       out.puts "companion_poc_setup_materializer_json_endpoint=#{setup_materializer_json_endpoint?(materializer_json)}"
+      out.puts "companion_poc_setup_materializer_descriptor_health_endpoint=#{setup_materializer_descriptor_health_endpoint?(materializer_descriptor_health)}"
+      out.puts "companion_poc_setup_materializer_descriptor_health_json_endpoint=#{setup_materializer_descriptor_health_json_endpoint?(materializer_descriptor_health_json)}"
       out.puts "companion_poc_setup_materializer_gate_endpoint=#{setup_materializer_gate_endpoint?(materializer_gate)}"
       out.puts "companion_poc_setup_materializer_gate_json_endpoint=#{setup_materializer_gate_json_endpoint?(materializer_gate_json)}"
       out.puts "companion_poc_setup_materializer_preflight_endpoint=#{setup_materializer_preflight_endpoint?(materializer_preflight)}"
@@ -362,6 +370,7 @@ module Companion
       out.puts "companion_poc_materializer_audit_trail=#{materializer_audit_trail?}"
       out.puts "companion_poc_materializer_supervision=#{materializer_supervision?}"
       out.puts "companion_poc_materializer_status_packet=#{materializer_status_packet?}"
+      out.puts "companion_poc_materializer_status_descriptor_health=#{materializer_status_descriptor_health?}"
       out.puts "companion_poc_materializer_approval_policy=#{materializer_approval_policy?}"
       out.puts "companion_poc_materializer_approval_receipt=#{materializer_approval_receipt?}"
       out.puts "companion_poc_materializer_approval_history=#{materializer_approval_history?}"
@@ -1204,6 +1213,21 @@ module Companion
       setup_materializer_supervision_json_endpoint?(materializer_json)
     end
 
+    def setup_materializer_descriptor_health_endpoint?(materializer_descriptor_health)
+      materializer_descriptor_health.include?("status=>:stable") &&
+        materializer_descriptor_health.include?("check_count=>10") &&
+        materializer_descriptor_health.include?("materializer status descriptor terms stable")
+    end
+
+    def setup_materializer_descriptor_health_json_endpoint?(materializer_descriptor_health_json)
+      payload = JSON.parse(materializer_descriptor_health_json)
+
+      payload.fetch("status") == "stable" &&
+        payload.fetch("check_count") == 10 &&
+        payload.fetch("missing_terms").empty? &&
+        payload.fetch("checks").all? { |check| check.fetch("present") }
+    end
+
     def setup_materializer_approval_endpoint?(materializer_approval)
       materializer_approval.include?("status=>:pending") &&
         materializer_approval.include?("human_approval_missing") &&
@@ -1795,6 +1819,22 @@ module Companion
         status.fetch(:approval_audit).fetch(:applied_count).zero?
     end
 
+    def materializer_status_descriptor_health?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      stable = persistence.materializer_status_descriptor_health
+      descriptor = persistence.materializer_status.fetch(:descriptor).merge(execution_allowed: true)
+      drift = Contracts::MaterializerStatusDescriptorHealthContract.evaluate(
+        materializer_status: persistence.materializer_status.merge(descriptor: descriptor)
+      )
+
+      stable.fetch(:status) == :stable &&
+        stable.fetch(:check_count) == 10 &&
+        stable.fetch(:missing_terms).empty? &&
+        stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
+        drift.fetch(:status) == :drift &&
+        drift.fetch(:missing_terms).include?(:no_execution)
+    end
+
     def materializer_approval_policy?
       persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
       pending = persistence.materializer_approval_policy
@@ -1971,6 +2011,7 @@ module Companion
 
     def setup_manifest_glossary_summary?(setup)
       setup.include?("manifest_glossary") &&
+        setup.include?("materializer_descriptor_health") &&
         setup.include?("status=>:stable") &&
         setup.include?("check_count=>9") &&
         setup.include?("missing_terms=>[]")

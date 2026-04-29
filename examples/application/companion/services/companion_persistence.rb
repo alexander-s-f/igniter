@@ -290,6 +290,12 @@ module Companion
         materializer_supervision
       end
 
+      def materializer_status_descriptor_health
+        Contracts::MaterializerStatusDescriptorHealthContract.evaluate(
+          materializer_status: materializer_status
+        )
+      end
+
       def materializer_approval_policy(approved_by: nil, approved_capabilities: [])
         Contracts::MaterializerApprovalPolicyContract.evaluate(
           approval_request: materializer_gate.fetch(:approval_request),

@@ -22,6 +22,8 @@ Read `/setup/manifest` top down:
 7. `summary`
 
 Then read `/setup/materializer.json` for the compact review lifecycle status.
+Read `/setup/materializer/descriptor-health.json` when changing the
+materializer status descriptor.
 
 Use `/setup/manifest/glossary-health.json` to check whether the manifest still
 contains the required glossary terms.
@@ -101,6 +103,17 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Must not grant write/git/test/restart capabilities.
 - `grants_capabilities: false` and `execution_allowed: false` are part of the
   descriptor contract.
+
+`materializer_status_descriptor_health`
+
+- Report-only drift check exposed at
+  `/setup/materializer/descriptor-health.json`.
+- Verifies schema version, descriptor kind, review-only state, no capability
+  grants, no execution, app-boundary requirement, history targets, command
+  intents, audit counts, and status/phase alignment.
+- `status: :stable` means the compact status descriptor still preserves the
+  materializer safety boundary.
+- Does not make persistence readiness stricter.
 
 `manifest_glossary_health`
 

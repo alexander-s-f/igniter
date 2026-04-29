@@ -22,7 +22,8 @@ module Companion
         :reminders, :trackers, :countdowns, :open_reminders, :tracker_logs_today,
         :countdown_count, :live_ready, :credential_status, :daily_summary,
         :persistence_readiness, :body_battery, :daily_plan, :daily_focus_title,
-        :relation_health, :manifest_glossary_health, :materializer_status, :live_summary, :action_count, :recent_events,
+        :relation_health, :manifest_glossary_health, :materializer_status, :materializer_status_descriptor_health,
+        :live_summary, :action_count, :recent_events,
         keyword_init: true
       ) do
         def to_h
@@ -43,6 +44,7 @@ module Companion
             relation_health: relation_health.dup,
             manifest_glossary_health: manifest_glossary_health.dup,
             materializer_status: materializer_status.dup,
+            materializer_status_descriptor_health: materializer_status_descriptor_health.dup,
             live_summary: live_summary&.dup,
             action_count: action_count,
             recent_events: recent_events.map(&:dup)
@@ -106,6 +108,7 @@ module Companion
           persistence_readiness: persistence.readiness,
           relation_health: persistence.relation_health,
           manifest_glossary_health: persistence.manifest_glossary_health,
+          materializer_status_descriptor_health: persistence.materializer_status_descriptor_health,
           daily_summary: summary,
           body_battery: body_battery,
           daily_plan: daily_plan,
@@ -311,6 +314,10 @@ module Companion
 
       def materializer_status
         persistence.materializer_status
+      end
+
+      def materializer_status_descriptor_health
+        persistence.materializer_status_descriptor_health
       end
 
       def materializer_approval_policy
