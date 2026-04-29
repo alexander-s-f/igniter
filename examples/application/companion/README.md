@@ -59,6 +59,9 @@ The launcher is intentionally thin. App-local infrastructure lives under
   lineage for future migrations.
 - `contracts/wizard_type_spec_export_contract.rb` projects portable dev/prod
   config: dev keeps history, prod compresses to latest specs.
+- `contracts/wizard_type_spec_migration_plan_contract.rb` projects review-only
+  migration candidates from spec lineage; it classifies field changes without
+  running migrations.
 - `contracts/durable_type_materialization_contract.rb` is the read-only bridge
   from future wizard/configurator output to static contract materialization
   plans. `/setup/materialization-plan` and `.json` expose that plan for agents

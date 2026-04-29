@@ -180,6 +180,12 @@ module Companion
         )
       end
 
+      def wizard_type_spec_migration_plan
+        Contracts::WizardTypeSpecMigrationPlanContract.evaluate(
+          spec_history: wizard_type_spec_changes.all
+        )
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,

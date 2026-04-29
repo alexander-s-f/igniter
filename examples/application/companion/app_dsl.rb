@@ -115,6 +115,14 @@ module Companion
         text JSON.pretty_generate(service(:companion).wizard_type_spec_export)
       end
 
+      get "/setup/wizard-type-spec-migration-plan" do
+        text service(:companion).wizard_type_spec_migration_plan.inspect
+      end
+
+      get "/setup/wizard-type-spec-migration-plan.json" do
+        text JSON.pretty_generate(service(:companion).wizard_type_spec_migration_plan)
+      end
+
       get "/hub" do
         text service(:hub).entries.map(&:name).join(",")
       end

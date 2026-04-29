@@ -80,6 +80,9 @@ Current user-defined-type pressure test:
   that plan with the already materialized static manifests and reports drift
 - `WizardTypeSpecExportContract`: read-only export projection with dev mode
   retaining history and prod mode compressed to latest specs only
+- `WizardTypeSpecMigrationPlanContract`: review-only migration candidate
+  projection over spec lineage; it classifies additive, destructive, and
+  ambiguous field changes without executing migrations
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
@@ -167,6 +170,8 @@ Current Companion product flows use the persistence model:
   agents and reviewers
 - `/setup/wizard-type-specs` exposes stored dynamic specs before materialization
 - `/setup/wizard-type-spec-export` exposes dev/prod portable config projections
+- `/setup/wizard-type-spec-migration-plan` exposes review-only migration
+  candidates from spec lineage
 
 ## Validated Concepts
 
@@ -226,6 +231,7 @@ still app-local:
 - store dynamic wizard output as durable specs, not executable runtime code
 - keep spec history append-only for dev/migration work; prod export may compress
   to latest-only specs
+- migration planning may classify changes, but must remain review-only
 - prefer a future canonical spec shape with `schema_version` and
   `storage.shape`, while keeping current `persist`/`history` compatibility
 - keep materialization planning read-only until explicit write/git/test/restart

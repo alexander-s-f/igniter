@@ -89,6 +89,8 @@ module Companion
       wizard_spec_json_status, _wizard_spec_json_headers, wizard_spec_json_body = app.call(rack_env("GET", "/setup/wizard-type-specs.json"))
       wizard_export_status, _wizard_export_headers, wizard_export_body = app.call(rack_env("GET", "/setup/wizard-type-spec-export"))
       wizard_export_json_status, _wizard_export_json_headers, wizard_export_json_body = app.call(rack_env("GET", "/setup/wizard-type-spec-export.json"))
+      wizard_migration_status, _wizard_migration_headers, wizard_migration_body = app.call(rack_env("GET", "/setup/wizard-type-spec-migration-plan"))
+      wizard_migration_json_status, _wizard_migration_json_headers, wizard_migration_json_body = app.call(rack_env("GET", "/setup/wizard-type-spec-migration-plan.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -111,6 +113,8 @@ module Companion
       wizard_specs_json = wizard_spec_json_body.join
       wizard_export = wizard_export_body.join
       wizard_export_json = wizard_export_json_body.join
+      wizard_migration = wizard_migration_body.join
+      wizard_migration_json = wizard_migration_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -153,6 +157,8 @@ module Companion
       out.puts "companion_poc_setup_wizard_type_specs_json_status=#{wizard_spec_json_status}"
       out.puts "companion_poc_setup_wizard_type_spec_export_status=#{wizard_export_status}"
       out.puts "companion_poc_setup_wizard_type_spec_export_json_status=#{wizard_export_json_status}"
+      out.puts "companion_poc_setup_wizard_type_spec_migration_status=#{wizard_migration_status}"
+      out.puts "companion_poc_setup_wizard_type_spec_migration_json_status=#{wizard_migration_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -170,6 +176,8 @@ module Companion
       out.puts "companion_poc_setup_wizard_type_specs_json_endpoint=#{setup_wizard_type_specs_json_endpoint?(wizard_specs_json)}"
       out.puts "companion_poc_setup_wizard_type_spec_export_endpoint=#{setup_wizard_type_spec_export_endpoint?(wizard_export)}"
       out.puts "companion_poc_setup_wizard_type_spec_export_json_endpoint=#{setup_wizard_type_spec_export_json_endpoint?(wizard_export_json)}"
+      out.puts "companion_poc_setup_wizard_type_spec_migration_endpoint=#{setup_wizard_type_spec_migration_endpoint?(wizard_migration)}"
+      out.puts "companion_poc_setup_wizard_type_spec_migration_json_endpoint=#{setup_wizard_type_spec_migration_json_endpoint?(wizard_migration_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -220,6 +228,7 @@ module Companion
       out.puts "companion_poc_wizard_type_spec_history=#{wizard_type_spec_history?}"
       out.puts "companion_poc_wizard_type_spec_export=#{wizard_type_spec_export?}"
       out.puts "companion_poc_wizard_type_spec_canonical=#{wizard_type_spec_canonical?}"
+      out.puts "companion_poc_wizard_type_spec_migration_plan=#{wizard_type_spec_migration_plan?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -862,6 +871,21 @@ module Companion
         payload.fetch("prod_config").fetch("compressed")
     end
 
+    def setup_wizard_type_spec_migration_endpoint?(wizard_migration)
+      wizard_migration.include?("review-only migration candidates") &&
+        wizard_migration.include?("article-comment") &&
+        wizard_migration.include?("status=>:stable")
+    end
+
+    def setup_wizard_type_spec_migration_json_endpoint?(wizard_migration_json)
+      payload = JSON.parse(wizard_migration_json)
+      report = payload.fetch("reports").find { |entry| entry.fetch("spec_id") == "article-comment" }
+
+      payload.fetch("status") == "stable" &&
+        payload.fetch("candidate_count").zero? &&
+        report.fetch("status") == "stable"
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -1061,6 +1085,42 @@ module Companion
         export.fetch(:prod_config).fetch(:compressed) &&
         export.fetch(:prod_config).fetch(:history).empty? &&
         export.fetch(:prod_config).fetch(:specs).length == export.fetch(:dev_config).fetch(:specs).length
+    end
+
+    def wizard_type_spec_migration_plan?
+      current = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).wizard_type_spec_migration_plan
+      current_spec = Services::CompanionState.article_comment_type_spec
+      previous_spec = current_spec.merge(
+        fields: current_spec.fetch(:fields).reject { |field| field.fetch(:name) == :body }
+      )
+      synthetic = Contracts::WizardTypeSpecMigrationPlanContract.evaluate(
+        spec_history: [
+          {
+            index: 0,
+            spec_id: "article-comment",
+            contract: "Article",
+            change_kind: :wizard_edit,
+            spec: previous_spec,
+            created_at: "2026-04-28"
+          },
+          {
+            index: 1,
+            spec_id: "article-comment",
+            contract: "Article",
+            change_kind: :wizard_edit,
+            spec: current_spec,
+            created_at: "2026-04-29"
+          }
+        ]
+      )
+      candidate = synthetic.fetch(:reports).first.fetch(:candidates).first
+
+      current.fetch(:status) == :stable &&
+        current.fetch(:candidate_count).zero? &&
+        synthetic.fetch(:status) == :review_required &&
+        candidate.fetch(:kind) == :additive &&
+        candidate.fetch(:review_only) &&
+        candidate.fetch(:added_fields) == [:body]
     end
 
     def wizard_type_spec_canonical?

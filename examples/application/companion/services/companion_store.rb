@@ -253,6 +253,10 @@ module Companion
         persistence.wizard_type_spec_export
       end
 
+      def wizard_type_spec_migration_plan
+        persistence.wizard_type_spec_migration_plan
+      end
+
       private
 
       attr_reader :persistence
