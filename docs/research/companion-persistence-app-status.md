@@ -49,6 +49,9 @@ Current manifest vocabulary:
 - relation descriptors expose source/target storage shapes, lowering metadata,
   and `enforcement.mode: :report_only`
 
+See [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md)
+for the compact agent reading guide.
+
 Current record capabilities:
 
 - `Reminder`: `persist`, fields, `index :status`, `scope :open`, command

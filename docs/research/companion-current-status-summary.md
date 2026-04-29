@@ -127,10 +127,13 @@ Do preserve:
 
 Best next move:
 
-- clean up a compact manifest glossary / agent reading guide
+- use the manifest glossary to keep the next implementation slice small
+- consider validating glossary terms from `/setup/manifest` if drift appears
 - continue avoiding execution and capability grant controls
 
 Acceptance:
 
 - another agent can read manifest terms without reconstructing history
 - no setup/read endpoint mutates durable state
+
+Reference: [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md).
