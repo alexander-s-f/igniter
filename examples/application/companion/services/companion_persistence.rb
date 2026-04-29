@@ -77,7 +77,8 @@ module Companion
         tracker_read_model: Contracts::TrackerReadModelContract,
         countdown_read_model: Contracts::CountdownReadModelContract,
         activity_feed: Contracts::ActivityFeedContract,
-        materializer_audit_trail: Contracts::MaterializerAuditTrailContract
+        materializer_audit_trail: Contracts::MaterializerAuditTrailContract,
+        materializer_approval_audit_trail: Contracts::MaterializerApprovalAuditTrailContract
       }.freeze
 
       PROJECTION_INPUT_BINDINGS = {
@@ -95,6 +96,10 @@ module Companion
         },
         materializer_audit_trail: {
           reads: %i[materializer_attempts],
+          relations: []
+        },
+        materializer_approval_audit_trail: {
+          reads: %i[materializer_approvals],
           relations: []
         }
       }.freeze
@@ -259,6 +264,12 @@ module Companion
       def materializer_audit_trail
         Contracts::MaterializerAuditTrailContract.evaluate(
           attempts: materializer_attempts.all
+        )
+      end
+
+      def materializer_approval_audit_trail
+        Contracts::MaterializerApprovalAuditTrailContract.evaluate(
+          approvals: materializer_approvals.all
         )
       end
 

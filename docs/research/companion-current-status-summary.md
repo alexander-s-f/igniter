@@ -20,10 +20,10 @@ Current manifest scale:
 
 - records: 6
 - histories: 6
-- projections: 4
-- command groups: 4
+- projections: 5
+- command groups: 5
 - relations: 2
-- total capabilities: 16
+- total capabilities: 17
 
 Core validated path:
 
@@ -57,6 +57,9 @@ WizardTypeSpec
 -> approval policy
 -> approval receipt
 -> approval history shape
+-> approval command
+-> explicit approval POST
+-> approval audit trail
 ```
 
 Important boundary:
@@ -64,7 +67,8 @@ Important boundary:
 - approval/policy/receipt/history are data and audit shapes
 - `applies_capabilities` remains false
 - no write/git/test/restart capability is granted by setup reads
-- explicit write path exists only for recording blocked materializer attempts
+- explicit write paths exist only for recording blocked materializer attempts
+  and approval receipts
 
 ## Most Important Insight
 
@@ -101,8 +105,8 @@ Do preserve:
 
 Best next move:
 
-- add `MaterializerApprovalAuditTrailContract`
-- then fold approval history into `MaterializerSupervisionContract`
+- fold approval history into `MaterializerSupervisionContract`
+- then compact materializer setup endpoints/docs if the model still feels good
 
 Acceptance:
 

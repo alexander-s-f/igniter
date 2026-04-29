@@ -32,10 +32,10 @@ Current manifest scale:
 
 - records: 6
 - histories: 6
-- projections: 4
-- command groups: 4
+- projections: 5
+- command groups: 5
 - relations: 2
-- total capabilities: 16
+- total capabilities: 17
 
 Current record capabilities:
 
@@ -44,11 +44,15 @@ Current record capabilities:
 - `Tracker`: `persist`, fields
 - `DailyFocus`: `persist`, date-keyed workflow/session record
 - `Countdown`: `persist`, fields
+- `Article`: `persist`, wizard-shaped static user type proof
+- `WizardTypeSpec`: `persist`, JSON durable spec store
 
 Current history capabilities:
 
 - `TrackerLog`: `history`, append-only tracker measurements
 - `CompanionAction`: `history`, append-only user/runtime receipts
+- `Comment`: `history`, append-only article comments
+- `WizardTypeSpecChange`: `history`, append-only spec lineage
 - `MaterializerAttempt`: `history`, append-only future materializer audit
   receipts; declared and manifest-visible, but not auto-appended by setup reads
 - `MaterializerApproval`: `history`, append-only future approval audit receipts;
@@ -60,6 +64,7 @@ Current projection contracts:
 - `CountdownReadModelContract`: countdown records to dashboard facts
 - `ActivityFeedContract`: action history to activity facts
 - `MaterializerAuditTrailContract`: materializer attempt history to audit facts
+- `MaterializerApprovalAuditTrailContract`: approval history to audit facts
 
 Current relation capability:
 
@@ -130,6 +135,9 @@ Current user-defined-type pressure test:
 - `MaterializerApprovalContract`: command contract that lowers an approval
   receipt into normalized `history_append :materializer_approvals` intent
   without applying it
+- `MaterializerApprovalAuditTrailContract`: projection over
+  `History[MaterializerApproval]` for approval counts, granted/rejected
+  capabilities, applied count, and latest receipt
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
@@ -250,6 +258,8 @@ Current Companion product flows use the persistence model:
   append intent without appending it
 - `POST /setup/materializer-approvals/record` is the explicit app-boundary write
   path that persists one approval receipt without applying capability
+- `/setup/materializer-approval-audit-trail` exposes the read model over
+  persisted approval receipts
 
 ## Validated Concepts
 
@@ -304,11 +314,9 @@ Two relation slices have landed app-locally:
 The next safe move is materialization hardening or relation-health ergonomics,
 still app-local:
 
-- add `MaterializerApprovalCommandContract` that lowers approval receipt to a
-  normalized `history_append :materializer_approvals` intent
+- fold approval audit into `MaterializerSupervisionContract`
 - keep approval reads side-effect-free
 - apply approval persistence only through an explicit app-boundary POST
-- then add `MaterializerApprovalAuditTrailContract`
 - keep dynamic wizard/configurator output sandboxed until it materializes into
   static contracts
 - store dynamic wizard output as durable specs, not executable runtime code
@@ -348,7 +356,7 @@ metadata are reportable and usable by app-local generated APIs.
 [S] Tracker to TrackerLog proves projection relation input and warning path.
 [S] Article to Comment proves user-defined-type pressure through static
 contracts before dynamic materialization.
-Next: add `MaterializerApprovalCommandContract` so approval receipts lower to
-`history_append :materializer_approvals`, but only explicit POST applies it.
+Next: fold approval audit into `MaterializerSupervisionContract`, while keeping
+capability grants review-only and non-applied.
 Block: none.
 ```

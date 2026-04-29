@@ -293,6 +293,10 @@ module Companion
         persistence.materializer_audit_trail
       end
 
+      def materializer_approval_audit_trail
+        persistence.materializer_approval_audit_trail
+      end
+
       def materializer_supervision
         persistence.materializer_supervision
       end

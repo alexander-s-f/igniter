@@ -227,6 +227,14 @@ module Companion
         text JSON.pretty_generate(service(:companion).materializer_approvals)
       end
 
+      get "/setup/materializer-approval-audit-trail" do
+        text service(:companion).materializer_approval_audit_trail.inspect
+      end
+
+      get "/setup/materializer-approval-audit-trail.json" do
+        text JSON.pretty_generate(service(:companion).materializer_approval_audit_trail)
+      end
+
       post "/setup/materializer-attempts/record" do
         result = service(:companion).record_materializer_attempt
         redirect Companion.feedback_path(
