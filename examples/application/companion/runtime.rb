@@ -171,6 +171,7 @@ module Companion
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
       out.puts "companion_poc_projection_relation_manifest=#{projection_relation_manifest?}"
+      out.puts "companion_poc_relation_health_warning=#{relation_health_warning?}"
       out.puts "companion_poc_setup_manifest=#{setup_manifest?(manifest)}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
@@ -629,7 +630,8 @@ module Companion
         readiness.fetch(:record_count) == 4 &&
         readiness.fetch(:history_count) == 2 &&
         readiness.fetch(:projection_count) == 3 &&
-        readiness.fetch(:relation_count) == 1
+        readiness.fetch(:relation_count) == 1 &&
+        readiness.fetch(:warning_count).zero?
     end
 
     def persistence_operation_model?
@@ -704,6 +706,23 @@ module Companion
       persistence.valid? &&
         projection.fetch(:reads) == %i[trackers tracker_logs] &&
         projection.fetch(:relations) == %i[tracker_logs_by_tracker]
+    end
+
+    def relation_health_warning?
+      clean = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      orphaned_state = Services::CompanionState.seeded
+      orphaned_state.tracker_logs << Services::CompanionState::TrackerLog.new(
+        tracker_id: "ghost-tracker",
+        date: Date.today.iso8601,
+        value: "7"
+      )
+      orphaned = Services::CompanionPersistence.new(state: orphaned_state)
+      readiness = orphaned.readiness
+
+      clean.relation_warnings.empty? &&
+        readiness.fetch(:ready) &&
+        readiness.fetch(:warning_count) == 1 &&
+        readiness.fetch(:warnings).first.include?("ghost-tracker")
     end
 
     def persistence_metadata_manifest?

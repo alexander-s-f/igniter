@@ -49,7 +49,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   from tracker records plus tracker-log history.
 - `services/companion_persistence.rb` exposes a report-only relation manifest
   for `trackers.id -> tracker_logs.tracker_id`, and the tracker read-model
-  manifest declares that relation as an input.
+  manifest declares that relation as an input. Relation health warnings are
+  diagnostic-only and do not enforce writes.
 - `contracts/daily_plan_contract.rb` emits the Today next-action signal and
   quick action command intent from explicit facts rather than a whole snapshot.
 - `POST /today/quick-action` executes the current graph-owned target, so the

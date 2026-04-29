@@ -118,10 +118,17 @@ module Companion
         validation_errors.empty?
       end
 
+      def relation_warnings
+        RELATION_BINDINGS.flat_map do |name, relation|
+          relation_health_warnings(name, relation)
+        end
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,
           relation_manifest: relation_manifest,
+          relation_warnings: relation_warnings,
           validation_errors: validation_errors
         )
       end
@@ -374,6 +381,27 @@ module Companion
       def capability_fields(name)
         binding = RECORD_BINDINGS[name] || HISTORY_BINDINGS[name]
         binding.fetch(:contract_class).persistence_manifest.fetch(:fields).map { |field| field.fetch(:name).to_sym }
+      end
+
+      def relation_health_warnings(name, relation)
+        join = relation.fetch(:join)
+        source_field, target_field = join.first
+        source_values = record(relation.fetch(:from)).all.map { |entry| relation_value(entry, source_field) }.map(&:to_s)
+        orphan_values = history(relation.fetch(:to))
+                        .all
+                        .map { |entry| relation_value(entry, target_field) }
+                        .map(&:to_s)
+                        .reject { |value| source_values.include?(value) }
+                        .uniq
+        return [] if orphan_values.empty?
+
+        ["#{name}: #{relation.fetch(:to)} references missing #{relation.fetch(:from)} #{orphan_values.join(",")}"]
+      end
+
+      def relation_value(entry, field)
+        return entry.fetch(field.to_sym) if entry.respond_to?(:fetch)
+
+        entry.public_send(field)
       end
 
       def tracker_log_entries

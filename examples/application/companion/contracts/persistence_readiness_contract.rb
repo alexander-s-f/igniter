@@ -4,9 +4,10 @@ require_relative "../contracts"
 
 module Companion
   module Contracts
-    contracts :PersistenceReadinessContract, outputs: %i[ready status capability_count record_count history_count projection_count relation_count summary] do
+    contracts :PersistenceReadinessContract, outputs: %i[ready status capability_count record_count history_count projection_count relation_count warning_count warnings summary] do
       input :capability_manifest
       input :relation_manifest
+      input :relation_warnings
       input :validation_errors
 
       compute :ready, depends_on: [:validation_errors] do |validation_errors:|
@@ -37,9 +38,17 @@ module Companion
         relation_manifest.length
       end
 
-      compute :summary, depends_on: %i[status capability_count record_count history_count projection_count relation_count validation_errors] do |status:, capability_count:, record_count:, history_count:, projection_count:, relation_count:, validation_errors:|
+      compute :warnings, depends_on: [:relation_warnings] do |relation_warnings:|
+        Array(relation_warnings)
+      end
+
+      compute :warning_count, depends_on: [:warnings] do |warnings:|
+        warnings.length
+      end
+
+      compute :summary, depends_on: %i[status capability_count record_count history_count projection_count relation_count warning_count validation_errors] do |status:, capability_count:, record_count:, history_count:, projection_count:, relation_count:, warning_count:, validation_errors:|
         if status == :ready
-          "#{capability_count} capabilities, #{relation_count} relations: #{record_count} records, #{history_count} histories, #{projection_count} projections."
+          "#{capability_count} capabilities, #{relation_count} relations, #{warning_count} warnings: #{record_count} records, #{history_count} histories, #{projection_count} projections."
         else
           "Persistence blocked: #{Array(validation_errors).join("; ")}"
         end
@@ -52,6 +61,8 @@ module Companion
       output :history_count
       output :projection_count
       output :relation_count
+      output :warning_count
+      output :warnings
       output :summary
     end
   end
