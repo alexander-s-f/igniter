@@ -4,7 +4,7 @@ require_relative "../contracts"
 
 module Companion
   module Contracts
-    contracts :PersistenceRelationHealthContract, outputs: %i[status relation_count warning_count warnings relation_reports summary] do
+    contracts :PersistenceRelationHealthContract, outputs: %i[status relation_count warning_count warnings repair_suggestions relation_reports summary] do
       input :relation_manifest
       input :relation_warnings
 
@@ -15,12 +15,27 @@ module Companion
       compute :relation_reports, depends_on: %i[relation_manifest relation_warnings] do |relation_manifest:, relation_warnings:|
         relation_manifest.keys.to_h do |name|
           warnings = Array(relation_warnings.fetch(name, []))
+          repair_suggestions = warnings.map do |warning|
+            {
+              kind: :review_missing_source,
+              label: "Review #{warning.fetch(:values, []).join(", ")}",
+              command: {
+                name: :review_relation_warning,
+                arguments: {
+                  relation: name,
+                  warning_kind: warning.fetch(:kind),
+                  values: warning.fetch(:values, [])
+                }
+              }
+            }
+          end
           [
             name,
             {
               status: warnings.empty? ? :clear : :warning,
               warning_count: warnings.length,
-              warnings: warnings
+              warnings: warnings,
+              repair_suggestions: repair_suggestions
             }
           ]
         end
@@ -34,6 +49,12 @@ module Companion
 
       compute :warning_count, depends_on: [:warnings] do |warnings:|
         warnings.length
+      end
+
+      compute :repair_suggestions, depends_on: [:relation_reports] do |relation_reports:|
+        relation_reports.flat_map do |name, report|
+          report.fetch(:repair_suggestions).map { |suggestion| suggestion.merge(relation: name) }
+        end
       end
 
       compute :status, depends_on: [:warning_count] do |warning_count:|
@@ -52,6 +73,7 @@ module Companion
       output :relation_count
       output :warning_count
       output :warnings
+      output :repair_suggestions
       output :relation_reports
       output :summary
     end

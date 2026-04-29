@@ -170,6 +170,7 @@ module Companion
       out.puts "companion_poc_persistence_relation_health_contract=#{persistence_relation_health_contract?}"
       out.puts "companion_poc_relation_health_reports=#{relation_health_reports?}"
       out.puts "companion_poc_relation_health_structured_warnings=#{relation_health_structured_warnings?}"
+      out.puts "companion_poc_relation_health_repair_suggestions=#{relation_health_repair_suggestions?}"
       out.puts "companion_poc_persistence_operation_model=#{persistence_operation_model?}"
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
@@ -658,6 +659,7 @@ module Companion
 
       clean.fetch(:status) == :clear &&
         clean.fetch(:warning_count).zero? &&
+        clean.fetch(:repair_suggestions).empty? &&
         clean.fetch(:relation_reports).fetch(:tracker_logs_by_tracker).fetch(:status) == :clear &&
         warning.fetch(:status) == :warning &&
         warning.fetch(:warning_count) == 1 &&
@@ -674,7 +676,8 @@ module Companion
 
       report.fetch(:status) == :clear &&
         report.fetch(:warning_count).zero? &&
-        report.fetch(:warnings).empty?
+        report.fetch(:warnings).empty? &&
+        report.fetch(:repair_suggestions).empty?
     end
 
     def relation_health_structured_warnings?
@@ -696,6 +699,27 @@ module Companion
         warning.fetch(:to) == :tracker_logs &&
         warning.fetch(:values) == ["ghost-tracker"] &&
         warning.fetch(:message).include?("ghost-tracker")
+    end
+
+    def relation_health_repair_suggestions?
+      orphaned_state = Services::CompanionState.seeded
+      orphaned_state.tracker_logs << Services::CompanionState::TrackerLog.new(
+        tracker_id: "ghost-tracker",
+        date: Date.today.iso8601,
+        value: "7"
+      )
+      health = Services::CompanionPersistence.new(state: orphaned_state).relation_health
+      suggestion = health.fetch(:repair_suggestions).first
+      report_suggestion = health.fetch(:relation_reports)
+                                .fetch(:tracker_logs_by_tracker)
+                                .fetch(:repair_suggestions)
+                                .first
+
+      suggestion.fetch(:relation) == :tracker_logs_by_tracker &&
+        suggestion.fetch(:kind) == :review_missing_source &&
+        suggestion.fetch(:command).fetch(:name) == :review_relation_warning &&
+        suggestion.fetch(:command).fetch(:arguments).fetch(:values) == ["ghost-tracker"] &&
+        report_suggestion.fetch(:command).fetch(:arguments).fetch(:relation) == :tracker_logs_by_tracker
     end
 
     def persistence_operation_model?
