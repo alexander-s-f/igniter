@@ -30,6 +30,7 @@ Core validated path:
 ```text
 persist -> Store[T]
 history -> History[T]
+storage.shape=:store/:history -> canonical manifest descriptor
 relation -> typed manifest edge
 command -> normalized operation intent
 app boundary -> explicit mutation application
@@ -124,12 +125,12 @@ Do preserve:
 
 Best next move:
 
-- stabilize manifest vocabulary around `schema_version`, `storage.shape`,
-  operation algebra, relation semantics, and approval lifecycle
+- stabilize operation algebra and relation semantics in the same canonical
+  manifest vocabulary
 - continue avoiding execution and capability grant controls
 
 Acceptance:
 
-- main user surface stays calm and useful
-- review signal is visible enough for development
-- no UI path applies materializer capabilities
+- operation entries are explicit enough for another agent to classify writes
+- relation metadata remains typed and report-only
+- no setup/read endpoint mutates durable state

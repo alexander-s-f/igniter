@@ -34,6 +34,8 @@ module Companion
       def api_manifest
         {
           key: key,
+          storage: storage,
+          history: history_alias,
           fields: field_names,
           operations: %i[append all where count]
         }
@@ -49,6 +51,17 @@ module Companion
 
       def history
         manifest.fetch(:history)
+      end
+
+      def storage
+        manifest.fetch(:storage)
+      end
+
+      def history_alias
+        {
+          key: history.fetch(:key),
+          adapter: history.fetch(:adapter)
+        }
       end
 
       def fields

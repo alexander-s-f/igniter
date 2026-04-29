@@ -31,6 +31,9 @@ The launcher is intentionally thin. App-local infrastructure lives under
   `record_append`, `record_update`, `history_append`, or `none`.
 - `contracts/persistence_manifest_contract.rb` projects records, histories,
   projections, and command operations into `/setup/manifest`.
+- persistence manifests now include `schema_version: 1` and canonical
+  `storage.shape` descriptors while preserving `persist`/`history` aliases for
+  app-local compatibility.
 - `contracts/reminder_record_contract.rb` sketches the target
   `contract :Reminder do persist... field... index... scope... command... end`
   metadata surface.

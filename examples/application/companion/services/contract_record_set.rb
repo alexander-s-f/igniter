@@ -64,6 +64,8 @@ module Companion
       def api_manifest
         {
           key: key,
+          storage: storage,
+          persist: persist_alias,
           fields: field_names,
           indexes: indexes,
           scopes: scopes,
@@ -82,6 +84,17 @@ module Companion
 
       def persist
         manifest.fetch(:persist)
+      end
+
+      def storage
+        manifest.fetch(:storage)
+      end
+
+      def persist_alias
+        {
+          key: persist.fetch(:key),
+          adapter: persist.fetch(:adapter)
+        }
       end
 
       def fields

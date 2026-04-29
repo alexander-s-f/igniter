@@ -37,6 +37,14 @@ Current manifest scale:
 - relations: 2
 - total capabilities: 17
 
+Current manifest vocabulary:
+
+- top-level `schema_version: 1`
+- durable capabilities expose canonical `storage.shape`
+- record capabilities use `storage.shape: :store`
+- history capabilities use `storage.shape: :history`
+- current `persist`/`history` aliases remain present for compatibility
+
 Current record capabilities:
 
 - `Reminder`: `persist`, fields, `index :status`, `scope :open`, command
@@ -340,8 +348,6 @@ Two relation slices have landed app-locally:
 
 The next safe move is vocabulary and materializer hardening, still app-local:
 
-- stabilize the manifest vocabulary around `schema_version` and `storage.shape`
-- keep current `persist`/`history` aliases for app-local compatibility
 - keep operation algebra small and explicit
 - keep relation metadata typed and report-only
 - keep approval reads side-effect-free

@@ -199,8 +199,11 @@ module Companion
       commands = operations
                  .select { |operation| operation.name.to_s.start_with?("__command_") }
                  .map { |operation| operation.attributes.fetch(:value) }
+      storage = storage_descriptor(persist: persist, history: history)
 
       {
+        schema_version: 1,
+        storage: storage,
         persist: persist,
         history: history,
         fields: fields,
@@ -208,6 +211,14 @@ module Companion
         scopes: scopes,
         commands: commands
       }
+    end
+
+    def self.storage_descriptor(persist:, history:)
+      if persist
+        { shape: :store, key: persist.fetch(:key), adapter: persist.fetch(:adapter) }
+      elsif history
+        { shape: :history, key: history.fetch(:key), adapter: history.fetch(:adapter) }
+      end
     end
   end
 end

@@ -1312,11 +1312,17 @@ module Companion
       manifest = persistence.manifest_snapshot
       summary = manifest.fetch(:summary)
 
-      summary.fetch(:record_count) == 6 &&
+      manifest.fetch(:schema_version) == 1 &&
+        summary.fetch(:schema_version) == 1 &&
+        summary.fetch(:record_count) == 6 &&
         summary.fetch(:history_count) == 6 &&
         summary.fetch(:projection_count) == 5 &&
         summary.fetch(:command_count) == 5 &&
         summary.fetch(:relation_count) == 2 &&
+        manifest.fetch(:records).fetch(:reminders).fetch(:storage) == { shape: :store, key: :id, adapter: :sqlite } &&
+        manifest.fetch(:records).fetch(:reminders).fetch(:persist) == { key: :id, adapter: :sqlite } &&
+        manifest.fetch(:histories).fetch(:tracker_logs).fetch(:storage) == { shape: :history, key: :tracker_id, adapter: :sqlite } &&
+        manifest.fetch(:histories).fetch(:tracker_logs).fetch(:history) == { key: :tracker_id, adapter: :sqlite } &&
         manifest.fetch(:records).fetch(:articles).fetch(:fields).include?(:status) &&
         manifest.fetch(:records).fetch(:wizard_type_specs).fetch(:fields).include?(:spec) &&
         manifest.fetch(:histories).fetch(:comments).fetch(:fields).include?(:article_id) &&
@@ -1873,6 +1879,8 @@ module Companion
         manifest.include?("projections") &&
         manifest.include?("commands") &&
         manifest.include?("relations") &&
+        manifest.include?("schema_version") &&
+        manifest.include?("storage") &&
         manifest.include?("indexes") &&
         manifest.include?("scopes") &&
         manifest.include?("record_append") &&
