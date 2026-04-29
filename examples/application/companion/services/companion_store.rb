@@ -277,6 +277,10 @@ module Companion
         persistence.materializer_receipt
       end
 
+      def materializer_attempt_command
+        persistence.materializer_attempt_command
+      end
+
       private
 
       attr_reader :persistence

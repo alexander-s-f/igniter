@@ -100,6 +100,9 @@ Current user-defined-type pressure test:
   blocked runbook and non-executed step events for future history persistence
 - `MaterializerAttempt`: static history contract for those future receipts,
   proving the path to `History[MaterializerAttempt]` without side effects
+- `MaterializerAttemptContract`: command contract that lowers the review-only
+  receipt into normalized `history_append :materializer_attempts` intent without
+  applying it
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
@@ -112,6 +115,8 @@ Current command contracts:
 - `ReminderContract`: create/complete, success/refusal, mutation intent
 - `CountdownContract`: create, success/refusal, mutation intent
 - `TrackerLogContract`: append, success/refusal, mutation intent
+- `MaterializerAttemptContract`: record blocked review-only attempt,
+  success/refusal, mutation intent
 
 Current operation algebra:
 
@@ -199,6 +204,8 @@ Current Companion product flows use the persistence model:
   steps that a future approved agent could execute
 - `/setup/materializer-receipt` exposes the non-executed audit receipt for the
   blocked materializer runbook
+- `/setup/materializer-attempt-command` exposes the computed history append
+  intent for that receipt without appending it
 
 ## Validated Concepts
 

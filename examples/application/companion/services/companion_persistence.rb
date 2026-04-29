@@ -104,6 +104,11 @@ module Companion
           contract_class: Contracts::TrackerLogContract,
           commands: %i[append],
           operations: %i[history_append none]
+        },
+        materializer_attempt_commands: {
+          contract_class: Contracts::MaterializerAttemptContract,
+          commands: %i[record_blocked],
+          operations: %i[history_append none]
         }
       }.freeze
 
@@ -227,6 +232,12 @@ module Companion
       def materializer_receipt
         Contracts::MaterializerReceiptContract.evaluate(
           materializer_runbook: materializer_runbook
+        )
+      end
+
+      def materializer_attempt_command
+        Contracts::MaterializerAttemptContract.evaluate(
+          receipt: materializer_receipt
         )
       end
 

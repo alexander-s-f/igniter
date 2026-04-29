@@ -77,6 +77,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   review-only, non-executed receipt suitable for future history persistence.
 - `contracts/materializer_attempt_history_contract.rb` declares that future
   receipt history as static `history` metadata before any automatic append path.
+- `contracts/materializer_attempt_contract.rb` lowers a review-only receipt into
+  a normalized `history_append :materializer_attempts` intent without applying it.
 - `contracts/durable_type_materialization_contract.rb` is the read-only bridge
   from future wizard/configurator output to static contract materialization
   plans. `/setup/materialization-plan` and `.json` expose that plan for agents

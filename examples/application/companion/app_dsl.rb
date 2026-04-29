@@ -163,6 +163,14 @@ module Companion
         text JSON.pretty_generate(service(:companion).materializer_receipt)
       end
 
+      get "/setup/materializer-attempt-command" do
+        text service(:companion).materializer_attempt_command.inspect
+      end
+
+      get "/setup/materializer-attempt-command.json" do
+        text JSON.pretty_generate(service(:companion).materializer_attempt_command)
+      end
+
       get "/hub" do
         text service(:hub).entries.map(&:name).join(",")
       end

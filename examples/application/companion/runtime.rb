@@ -101,6 +101,8 @@ module Companion
       materializer_runbook_json_status, _materializer_runbook_json_headers, materializer_runbook_json_body = app.call(rack_env("GET", "/setup/materializer-runbook.json"))
       materializer_receipt_status, _materializer_receipt_headers, materializer_receipt_body = app.call(rack_env("GET", "/setup/materializer-receipt"))
       materializer_receipt_json_status, _materializer_receipt_json_headers, materializer_receipt_json_body = app.call(rack_env("GET", "/setup/materializer-receipt.json"))
+      materializer_attempt_command_status, _materializer_attempt_command_headers, materializer_attempt_command_body = app.call(rack_env("GET", "/setup/materializer-attempt-command"))
+      materializer_attempt_command_json_status, _materializer_attempt_command_json_headers, materializer_attempt_command_json_body = app.call(rack_env("GET", "/setup/materializer-attempt-command.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -135,6 +137,8 @@ module Companion
       materializer_runbook_json = materializer_runbook_json_body.join
       materializer_receipt = materializer_receipt_body.join
       materializer_receipt_json = materializer_receipt_json_body.join
+      materializer_attempt_command = materializer_attempt_command_body.join
+      materializer_attempt_command_json = materializer_attempt_command_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -189,6 +193,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_runbook_json_status=#{materializer_runbook_json_status}"
       out.puts "companion_poc_setup_materializer_receipt_status=#{materializer_receipt_status}"
       out.puts "companion_poc_setup_materializer_receipt_json_status=#{materializer_receipt_json_status}"
+      out.puts "companion_poc_setup_materializer_attempt_command_status=#{materializer_attempt_command_status}"
+      out.puts "companion_poc_setup_materializer_attempt_command_json_status=#{materializer_attempt_command_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -218,6 +224,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_runbook_json_endpoint=#{setup_materializer_runbook_json_endpoint?(materializer_runbook_json)}"
       out.puts "companion_poc_setup_materializer_receipt_endpoint=#{setup_materializer_receipt_endpoint?(materializer_receipt)}"
       out.puts "companion_poc_setup_materializer_receipt_json_endpoint=#{setup_materializer_receipt_json_endpoint?(materializer_receipt_json)}"
+      out.puts "companion_poc_setup_materializer_attempt_command_endpoint=#{setup_materializer_attempt_command_endpoint?(materializer_attempt_command)}"
+      out.puts "companion_poc_setup_materializer_attempt_command_json_endpoint=#{setup_materializer_attempt_command_json_endpoint?(materializer_attempt_command_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -275,6 +283,7 @@ module Companion
       out.puts "companion_poc_materializer_runbook=#{materializer_runbook?}"
       out.puts "companion_poc_materializer_receipt=#{materializer_receipt?}"
       out.puts "companion_poc_materializer_attempt_history=#{materializer_attempt_history?}"
+      out.puts "companion_poc_materializer_attempt_command=#{materializer_attempt_command?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -1022,6 +1031,27 @@ module Companion
         payload.fetch("events").all? { |event| event.fetch("kind") == "materializer_step_blocked" && event.fetch("executed") == false }
     end
 
+    def setup_materializer_attempt_command_endpoint?(materializer_attempt_command)
+      materializer_attempt_command.include?("operation=>:history_append") &&
+        materializer_attempt_command.include?("target=>:materializer_attempts") &&
+        materializer_attempt_command.include?("materializer_attempt_recordable")
+    end
+
+    def setup_materializer_attempt_command_json_endpoint?(materializer_attempt_command_json)
+      payload = JSON.parse(materializer_attempt_command_json)
+      result = payload.fetch("result")
+      mutation = payload.fetch("mutation")
+      event = mutation.fetch("event")
+
+      result.fetch("success") &&
+        result.fetch("feedback_code") == "materializer_attempt_recordable" &&
+        mutation.fetch("operation") == "history_append" &&
+        mutation.fetch("target") == "materializer_attempts" &&
+        event.fetch("executed") == false &&
+        event.fetch("review_only") &&
+        event.fetch("blocked_step_count") == 4
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -1035,6 +1065,7 @@ module Companion
         title: nil,
         reminders: [Services::CompanionState::Reminder.new(id: "morning-water", title: "Water", due: "morning", status: :open)]
       ).fetch(:mutation)
+      materializer_attempt = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).materializer_attempt_command.fetch(:mutation)
       tracker_log = Contracts::TrackerLogContract.evaluate(
         tracker_id: "sleep",
         value: "7",
@@ -1052,6 +1083,8 @@ module Companion
         reminder_complete.fetch(:operation) == :record_update &&
         tracker_log.fetch(:operation) == :history_append &&
         tracker_log.fetch(:target) == :tracker_logs &&
+        materializer_attempt.fetch(:operation) == :history_append &&
+        materializer_attempt.fetch(:target) == :materializer_attempts &&
         refused.fetch(:operation) == :none
     end
 
@@ -1063,7 +1096,7 @@ module Companion
       summary.fetch(:record_count) == 6 &&
         summary.fetch(:history_count) == 5 &&
         summary.fetch(:projection_count) == 3 &&
-        summary.fetch(:command_count) == 3 &&
+        summary.fetch(:command_count) == 4 &&
         summary.fetch(:relation_count) == 2 &&
         manifest.fetch(:records).fetch(:articles).fetch(:fields).include?(:status) &&
         manifest.fetch(:records).fetch(:wizard_type_specs).fetch(:fields).include?(:spec) &&
@@ -1074,7 +1107,8 @@ module Companion
         manifest.fetch(:histories).fetch(:tracker_logs).fetch(:operations) == %i[append all where count] &&
         manifest.fetch(:projections).fetch(:tracker_read_model).fetch(:relations) == %i[tracker_logs_by_tracker] &&
         manifest.fetch(:relations).fetch(:tracker_logs_by_tracker).fetch(:join) == { id: :tracker_id } &&
-        manifest.fetch(:commands).fetch(:tracker_log_commands).fetch(:operations).include?(:history_append)
+        manifest.fetch(:commands).fetch(:tracker_log_commands).fetch(:operations).include?(:history_append) &&
+        manifest.fetch(:commands).fetch(:materializer_attempt_commands).fetch(:operations).include?(:history_append)
     end
 
     def persistence_relation_manifest?
@@ -1346,6 +1380,22 @@ module Companion
         appended.fetch(:index).zero? &&
         attempts.count(status: :blocked) == 1 &&
         attempts.where(kind: :materializer_runbook_receipt).first.fetch(:executed) == false
+    end
+
+    def materializer_attempt_command?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      command = persistence.materializer_attempt_command
+      mutation = command.fetch(:mutation)
+      event = mutation.fetch(:event)
+
+      command.fetch(:result).fetch(:success) &&
+        command.fetch(:result).fetch(:feedback_code) == :materializer_attempt_recordable &&
+        mutation.fetch(:operation) == :history_append &&
+        mutation.fetch(:target) == :materializer_attempts &&
+        event.fetch(:kind) == :materializer_runbook_receipt &&
+        event.fetch(:status) == :blocked &&
+        event.fetch(:executed) == false &&
+        event.fetch(:review_only)
     end
 
     def wizard_type_spec_canonical?
