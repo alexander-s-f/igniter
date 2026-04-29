@@ -263,6 +263,8 @@ Current Companion product flows use the persistence model:
   path that persists one approval receipt without applying capability
 - `/setup/materializer-approval-audit-trail` exposes the read model over
   persisted approval receipts
+- the dashboard surfaces the compact materializer packet as a review-only card
+  with no execute action
 
 ## Validated Concepts
 

@@ -106,11 +106,12 @@ Do preserve:
 
 Best next move:
 
-- add a minimal dashboard/status cue from the compact materializer packet
-- keep execution and capability grant out of the UI
+- decide whether materializer review should stay visible on the main dashboard
+  or move behind a setup/review surface
+- continue avoiding execution and capability grant controls
 
 Acceptance:
 
-- UI exposes review-only phase/next action without offering execute
-- setup reads still do not append histories
-- low-level endpoints remain available for inspection
+- main user surface stays calm and useful
+- review signal is visible enough for development
+- no UI path applies materializer capabilities

@@ -274,6 +274,26 @@ module Companion
                 end
               end
 
+              div "data-capsule": "materializer",
+                  "data-materializer-status": snapshot.materializer_status.fetch(:status),
+                  "data-materializer-phase": snapshot.materializer_status.fetch(:phase),
+                  "data-materializer-next-action": snapshot.materializer_status.fetch(:next_action),
+                  "data-materializer-applied-count": snapshot.materializer_status.fetch(:approval_audit).fetch(:applied_count),
+                  style: Companion::Web.style(:panel) do
+                h2 "Materializer", style: Companion::Web.style(:h2)
+                strong snapshot.materializer_status.fetch(:phase).to_s.tr("_", " ")
+                para "Next: #{snapshot.materializer_status.fetch(:next_action).to_s.tr("_", " ")}",
+                     style: Companion::Web.style(:muted)
+                para(
+                  "Attempts #{snapshot.materializer_status.fetch(:audit).fetch(:attempt_count)} / approvals #{snapshot.materializer_status.fetch(:approval_audit).fetch(:approval_count)} / applied #{snapshot.materializer_status.fetch(:approval_audit).fetch(:applied_count)}",
+                  "data-materializer-audit": "true",
+                  style: Companion::Web.style(:muted)
+                )
+                para snapshot.materializer_status.fetch(:summary),
+                     "data-materializer-summary": "true",
+                     style: Companion::Web.style(:activity)
+              end
+
               div "data-capsule": "hub", "data-hub-catalog": hub.entries.map(&:name).join(","), style: Companion::Web.style(:panel) do
                 h2 "Hub", style: Companion::Web.style(:h2)
                 if hub.entries.empty?

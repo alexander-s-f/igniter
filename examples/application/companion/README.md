@@ -90,6 +90,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `/setup/materializer` and `.json` are the compact canonical materializer
   status packet; lower-level materializer setup routes remain debug/proof
   surfaces while this stays app-local.
+- the dashboard surfaces that materializer packet as a review-only status card;
+  it deliberately has no execute action.
 - `contracts/materializer_approval_policy_contract.rb` models human approval as
   an explicit decision over requested capabilities; policy decisions do not
   grant capabilities by themselves.

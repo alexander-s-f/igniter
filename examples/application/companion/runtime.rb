@@ -364,9 +364,10 @@ module Companion
       out.puts "companion_poc_projection_relation_manifest=#{projection_relation_manifest?}"
       out.puts "companion_poc_relation_health_warning=#{relation_health_warning?}"
       out.puts "companion_poc_setup_manifest=#{setup_manifest?(manifest)}"
-      out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
+      out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary materializer].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
       out.puts "companion_poc_daily_plan_surface=#{html.include?("data-daily-plan-block=")}"
+      out.puts "companion_poc_materializer_dashboard=#{materializer_dashboard?(html)}"
       out.puts "companion_poc_hub_surface=#{html.include?('data-capsule="hub"') && html.include?('data-action="install-hub-capsule"')}"
       out.puts "companion_poc_events_parity=#{events.include?("tracker_logs=#{final.tracker_logs_today}")}"
       out.puts "companion_poc_agent_capability=#{app.environment.agent_names.include?(:daily_companion)}"
@@ -1388,6 +1389,16 @@ module Companion
       html.include?('data-relation-health-status="clear"') &&
         html.include?('data-relation-warning-count="0"') &&
         html.include?("relations clear")
+    end
+
+    def materializer_dashboard?(html)
+      html.include?('data-capsule="materializer"') &&
+        html.include?('data-materializer-status="blocked"') &&
+        html.include?('data-materializer-phase="awaiting_explicit_attempt_record"') &&
+        html.include?('data-materializer-next-action="record_blocked_attempt"') &&
+        html.include?('data-materializer-applied-count="0"') &&
+        html.include?('data-materializer-audit="true"') &&
+        !html.include?('data-action="execute-materializer"')
     end
 
     def persistence_metadata_manifest?
