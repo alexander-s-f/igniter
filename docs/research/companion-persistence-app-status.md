@@ -92,6 +92,8 @@ Current user-defined-type pressure test:
 - `MaterializerPreflightContract`: review packet that joins loop health, parity,
   migration status, gate state, blocked capabilities, and approval request
   without granting capability
+- `MaterializerRunbookContract`: review-only protocol that lowers the preflight
+  packet into blocked write/test/git/restart materializer steps
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
@@ -187,6 +189,8 @@ Current Companion product flows use the persistence model:
   default state is blocked by `human_approval_required`
 - `/setup/materializer-preflight` exposes the review packet for a future human
   approval flow
+- `/setup/materializer-runbook` exposes the blocked review-only materializer
+  steps that a future approved agent could execute
 
 ## Validated Concepts
 

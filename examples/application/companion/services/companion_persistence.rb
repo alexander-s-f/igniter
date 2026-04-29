@@ -213,6 +213,12 @@ module Companion
         )
       end
 
+      def materializer_runbook
+        Contracts::MaterializerRunbookContract.evaluate(
+          materializer_preflight: materializer_preflight
+        )
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,

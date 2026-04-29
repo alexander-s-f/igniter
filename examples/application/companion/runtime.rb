@@ -97,6 +97,8 @@ module Companion
       materializer_gate_json_status, _materializer_gate_json_headers, materializer_gate_json_body = app.call(rack_env("GET", "/setup/materializer-gate.json"))
       materializer_preflight_status, _materializer_preflight_headers, materializer_preflight_body = app.call(rack_env("GET", "/setup/materializer-preflight"))
       materializer_preflight_json_status, _materializer_preflight_json_headers, materializer_preflight_json_body = app.call(rack_env("GET", "/setup/materializer-preflight.json"))
+      materializer_runbook_status, _materializer_runbook_headers, materializer_runbook_body = app.call(rack_env("GET", "/setup/materializer-runbook"))
+      materializer_runbook_json_status, _materializer_runbook_json_headers, materializer_runbook_json_body = app.call(rack_env("GET", "/setup/materializer-runbook.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -127,6 +129,8 @@ module Companion
       materializer_gate_json = materializer_gate_json_body.join
       materializer_preflight = materializer_preflight_body.join
       materializer_preflight_json = materializer_preflight_json_body.join
+      materializer_runbook = materializer_runbook_body.join
+      materializer_runbook_json = materializer_runbook_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -177,6 +181,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_gate_json_status=#{materializer_gate_json_status}"
       out.puts "companion_poc_setup_materializer_preflight_status=#{materializer_preflight_status}"
       out.puts "companion_poc_setup_materializer_preflight_json_status=#{materializer_preflight_json_status}"
+      out.puts "companion_poc_setup_materializer_runbook_status=#{materializer_runbook_status}"
+      out.puts "companion_poc_setup_materializer_runbook_json_status=#{materializer_runbook_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -202,6 +208,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_gate_json_endpoint=#{setup_materializer_gate_json_endpoint?(materializer_gate_json)}"
       out.puts "companion_poc_setup_materializer_preflight_endpoint=#{setup_materializer_preflight_endpoint?(materializer_preflight)}"
       out.puts "companion_poc_setup_materializer_preflight_json_endpoint=#{setup_materializer_preflight_json_endpoint?(materializer_preflight_json)}"
+      out.puts "companion_poc_setup_materializer_runbook_endpoint=#{setup_materializer_runbook_endpoint?(materializer_runbook)}"
+      out.puts "companion_poc_setup_materializer_runbook_json_endpoint=#{setup_materializer_runbook_json_endpoint?(materializer_runbook_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -256,6 +264,7 @@ module Companion
       out.puts "companion_poc_infrastructure_loop_health=#{infrastructure_loop_health?}"
       out.puts "companion_poc_materializer_gate=#{materializer_gate?}"
       out.puts "companion_poc_materializer_preflight=#{materializer_preflight?}"
+      out.puts "companion_poc_materializer_runbook=#{materializer_runbook?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -964,6 +973,25 @@ module Companion
         payload.fetch("approval_request").fetch("review_only")
     end
 
+    def setup_materializer_runbook_endpoint?(materializer_runbook)
+      materializer_runbook.include?("blocked_until_approval") &&
+        materializer_runbook.include?("write_static_contracts") &&
+        materializer_runbook.include?("run_focused_tests") &&
+        materializer_runbook.include?("review-only")
+    end
+
+    def setup_materializer_runbook_json_endpoint?(materializer_runbook_json)
+      payload = JSON.parse(materializer_runbook_json)
+      steps = payload.fetch("steps")
+
+      payload.fetch("status") == "blocked_until_approval" &&
+        payload.fetch("blocked_capabilities") == %w[write git test restart] &&
+        payload.fetch("approval_request").fetch("kind") == "materializer_capability_request" &&
+        steps.length == 4 &&
+        steps.all? { |step| step.fetch("status") == "blocked" && step.fetch("review_only") } &&
+        steps.map { |step| step.fetch("capability") }.sort == %w[git restart test write]
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -1237,6 +1265,18 @@ module Companion
         preflight.fetch(:evidence).fetch(:reasons) == %i[human_approval_required] &&
         preflight.fetch(:approval_request).fetch(:kind) == :materializer_capability_request &&
         preflight.fetch(:summary).include?("review-only")
+    end
+
+    def materializer_runbook?
+      runbook = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).materializer_runbook
+      steps = runbook.fetch(:steps)
+
+      runbook.fetch(:status) == :blocked_until_approval &&
+        runbook.fetch(:blocked_capabilities) == %i[write git test restart] &&
+        runbook.fetch(:approval_request).fetch(:kind) == :materializer_capability_request &&
+        steps.length == 4 &&
+        steps.all? { |step| step.fetch(:status) == :blocked && step.fetch(:review_only) } &&
+        steps.map { |step| step.fetch(:capability) }.sort == %i[git restart test write]
     end
 
     def wizard_type_spec_canonical?

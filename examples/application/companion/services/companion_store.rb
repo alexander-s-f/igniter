@@ -269,6 +269,10 @@ module Companion
         persistence.materializer_preflight
       end
 
+      def materializer_runbook
+        persistence.materializer_runbook
+      end
+
       private
 
       attr_reader :persistence

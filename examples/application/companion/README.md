@@ -71,6 +71,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
 - `contracts/materializer_preflight_contract.rb` packages loop health, parity,
   migration status, blocked capabilities, and approval request into a review
   packet without granting materializer capabilities.
+- `contracts/materializer_runbook_contract.rb` turns that preflight packet into
+  a blocked, review-only materializer runbook with one capability per step.
 - `contracts/durable_type_materialization_contract.rb` is the read-only bridge
   from future wizard/configurator output to static contract materialization
   plans. `/setup/materialization-plan` and `.json` expose that plan for agents

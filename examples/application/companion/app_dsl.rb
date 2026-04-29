@@ -147,6 +147,14 @@ module Companion
         text JSON.pretty_generate(service(:companion).materializer_preflight)
       end
 
+      get "/setup/materializer-runbook" do
+        text service(:companion).materializer_runbook.inspect
+      end
+
+      get "/setup/materializer-runbook.json" do
+        text JSON.pretty_generate(service(:companion).materializer_runbook)
+      end
+
       get "/hub" do
         text service(:hub).entries.map(&:name).join(",")
       end
