@@ -17,6 +17,9 @@ research material under `playgrounds/docs/`.
   current app-local persistence proof and handoff.
 - [Contract Persistence Relations](./contract-persistence-relations.md) -
   research model, specification, and DSL for relation manifests.
+- [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md) -
+  handoff request for spec lineage, materialization, export, and migration
+  analysis.
 
 ## Read First
 
@@ -30,6 +33,7 @@ Before changing architecture or reviewing an agent proposal, read:
 6. [Vision Handoff Protocol](./vision-handoff-protocol.md)
 7. [Companion Persistence App Status](./companion-persistence-app-status.md)
 8. [Contract Persistence Relations](./contract-persistence-relations.md)
+9. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
 
 ## Current Research State
 
@@ -51,7 +55,9 @@ Status date: 2026-04-29.
   app-local persistence proof now covers records, histories, projections,
   command mutation intents, relation manifests, relation health diagnostics,
   registry/readiness/manifest, and report-only `index`/`scope`/`command`
-  metadata.
+  metadata. The current edge of that proof is `WizardTypeSpec`: persisted dynamic
+  specs, append-only spec lineage, static materialization plans, parity checks,
+  and dev/prod config exports.
 - Cluster owns distributed placement, routing, ownership, health, remediation,
   and mesh attempts. Contracts remain local-first and host-agnostic.
 
