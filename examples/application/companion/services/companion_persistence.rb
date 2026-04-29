@@ -219,6 +219,12 @@ module Companion
         )
       end
 
+      def materializer_receipt
+        Contracts::MaterializerReceiptContract.evaluate(
+          materializer_runbook: materializer_runbook
+        )
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,

@@ -273,6 +273,10 @@ module Companion
         persistence.materializer_runbook
       end
 
+      def materializer_receipt
+        persistence.materializer_receipt
+      end
+
       private
 
       attr_reader :persistence

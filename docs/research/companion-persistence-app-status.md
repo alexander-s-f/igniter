@@ -94,6 +94,8 @@ Current user-defined-type pressure test:
   without granting capability
 - `MaterializerRunbookContract`: review-only protocol that lowers the preflight
   packet into blocked write/test/git/restart materializer steps
+- `MaterializerReceiptContract`: review-only receipt projection that records the
+  blocked runbook and non-executed step events for future history persistence
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
@@ -191,6 +193,8 @@ Current Companion product flows use the persistence model:
   approval flow
 - `/setup/materializer-runbook` exposes the blocked review-only materializer
   steps that a future approved agent could execute
+- `/setup/materializer-receipt` exposes the non-executed audit receipt for the
+  blocked materializer runbook
 
 ## Validated Concepts
 

@@ -99,6 +99,8 @@ module Companion
       materializer_preflight_json_status, _materializer_preflight_json_headers, materializer_preflight_json_body = app.call(rack_env("GET", "/setup/materializer-preflight.json"))
       materializer_runbook_status, _materializer_runbook_headers, materializer_runbook_body = app.call(rack_env("GET", "/setup/materializer-runbook"))
       materializer_runbook_json_status, _materializer_runbook_json_headers, materializer_runbook_json_body = app.call(rack_env("GET", "/setup/materializer-runbook.json"))
+      materializer_receipt_status, _materializer_receipt_headers, materializer_receipt_body = app.call(rack_env("GET", "/setup/materializer-receipt"))
+      materializer_receipt_json_status, _materializer_receipt_json_headers, materializer_receipt_json_body = app.call(rack_env("GET", "/setup/materializer-receipt.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -131,6 +133,8 @@ module Companion
       materializer_preflight_json = materializer_preflight_json_body.join
       materializer_runbook = materializer_runbook_body.join
       materializer_runbook_json = materializer_runbook_json_body.join
+      materializer_receipt = materializer_receipt_body.join
+      materializer_receipt_json = materializer_receipt_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -183,6 +187,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_preflight_json_status=#{materializer_preflight_json_status}"
       out.puts "companion_poc_setup_materializer_runbook_status=#{materializer_runbook_status}"
       out.puts "companion_poc_setup_materializer_runbook_json_status=#{materializer_runbook_json_status}"
+      out.puts "companion_poc_setup_materializer_receipt_status=#{materializer_receipt_status}"
+      out.puts "companion_poc_setup_materializer_receipt_json_status=#{materializer_receipt_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -210,6 +216,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_preflight_json_endpoint=#{setup_materializer_preflight_json_endpoint?(materializer_preflight_json)}"
       out.puts "companion_poc_setup_materializer_runbook_endpoint=#{setup_materializer_runbook_endpoint?(materializer_runbook)}"
       out.puts "companion_poc_setup_materializer_runbook_json_endpoint=#{setup_materializer_runbook_json_endpoint?(materializer_runbook_json)}"
+      out.puts "companion_poc_setup_materializer_receipt_endpoint=#{setup_materializer_receipt_endpoint?(materializer_receipt)}"
+      out.puts "companion_poc_setup_materializer_receipt_json_endpoint=#{setup_materializer_receipt_json_endpoint?(materializer_receipt_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -265,6 +273,7 @@ module Companion
       out.puts "companion_poc_materializer_gate=#{materializer_gate?}"
       out.puts "companion_poc_materializer_preflight=#{materializer_preflight?}"
       out.puts "companion_poc_materializer_runbook=#{materializer_runbook?}"
+      out.puts "companion_poc_materializer_receipt=#{materializer_receipt?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -992,6 +1001,25 @@ module Companion
         steps.map { |step| step.fetch("capability") }.sort == %w[git restart test write]
     end
 
+    def setup_materializer_receipt_endpoint?(materializer_receipt)
+      materializer_receipt.include?("materializer_runbook_receipt") &&
+        materializer_receipt.include?("materializer_step_blocked") &&
+        materializer_receipt.include?("without execution")
+    end
+
+    def setup_materializer_receipt_json_endpoint?(materializer_receipt_json)
+      payload = JSON.parse(materializer_receipt_json)
+      receipt = payload.fetch("receipt")
+
+      payload.fetch("status") == "blocked" &&
+        receipt.fetch("kind") == "materializer_runbook_receipt" &&
+        receipt.fetch("executed") == false &&
+        receipt.fetch("review_only") &&
+        receipt.fetch("blocked_step_count") == 4 &&
+        payload.fetch("events").length == 4 &&
+        payload.fetch("events").all? { |event| event.fetch("kind") == "materializer_step_blocked" && event.fetch("executed") == false }
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -1277,6 +1305,20 @@ module Companion
         steps.length == 4 &&
         steps.all? { |step| step.fetch(:status) == :blocked && step.fetch(:review_only) } &&
         steps.map { |step| step.fetch(:capability) }.sort == %i[git restart test write]
+    end
+
+    def materializer_receipt?
+      receipt = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).materializer_receipt
+      body = receipt.fetch(:receipt)
+
+      receipt.fetch(:status) == :blocked &&
+        body.fetch(:kind) == :materializer_runbook_receipt &&
+        body.fetch(:blocked_capabilities) == %i[write git test restart] &&
+        body.fetch(:blocked_step_count) == 4 &&
+        body.fetch(:executed) == false &&
+        body.fetch(:review_only) &&
+        receipt.fetch(:events).length == 4 &&
+        receipt.fetch(:events).all? { |event| event.fetch(:kind) == :materializer_step_blocked && event.fetch(:executed) == false }
     end
 
     def wizard_type_spec_canonical?
