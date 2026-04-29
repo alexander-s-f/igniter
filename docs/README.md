@@ -9,6 +9,8 @@ what you are trying to do.
   configuration, integrations, and how-tos
 - [Concepts](./concepts/README.md) for mental models and design language
 - [Dev](./dev/README.md) for public architecture and package boundaries
+- [Research](./research/README.md) for compact horizon notes and decision
+  filters before architecture acceptance
 - [Assets](./assets/README.md) for shared documentation media such as logos
 
 ## Reading Paths
@@ -49,7 +51,9 @@ Package-local quick reference belongs next to the owning gem under
 
 Cross-package product docs belong in [`guide/`](./guide/README.md),
 cross-package mental models in [`concepts/`](./concepts/README.md), and public
-architecture work in [`dev/`](./dev/README.md).
+architecture work in [`dev/`](./dev/README.md). Research staging belongs in
+[`research/`](./research/README.md) only when it is compressed enough to avoid
+leaking private cycle history into public onboarding.
 
 Legacy deep references and internal history are private working material under
 `playgrounds/docs/`, not public onboarding.
