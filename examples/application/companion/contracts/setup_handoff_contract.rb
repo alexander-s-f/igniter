@@ -32,6 +32,7 @@ module Companion
           "/setup/handoff/digest.json",
           "/setup/handoff/digest.txt",
           "/setup/handoff/next-scope.json",
+          "/setup/handoff/next-scope-health.json",
           "/setup/handoff/promotion-readiness.json",
           "/setup/handoff/extraction-sketch.json",
           "/setup/handoff/packet-registry.json",

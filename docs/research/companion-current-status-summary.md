@@ -47,6 +47,7 @@ setup_handoff_extraction_sketch -> landing-zone map without package promise
 setup_handoff_promotion_readiness -> explicit blocked signal for package/API promotion
 setup_handoff_digest -> compact text diagram and next-read summary (.json + .txt)
 setup_handoff_next_scope -> supervised backlog packet, not execution
+setup_handoff_next_scope_health -> drift check for supervised backlog shape
 app boundary -> explicit mutation application
 projection -> graph-owned read model
 ```
@@ -155,6 +156,8 @@ Best next move:
   following the deeper packet list
 - use `/setup/handoff/next-scope.json` as the supervised backlog packet before
   treating any candidate as the current slice
+- use `/setup/handoff/next-scope-health.json` as the drift check that backlog
+  metadata is still report-only and capability-free
 - use `/setup/handoff/lifecycle.json` as the compact lifecycle map before
   reading individual acceptance packets
 - use `/setup/handoff/lifecycle-health.json` as the lifecycle drift check; it

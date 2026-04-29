@@ -165,6 +165,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   plus next-read summary.
 - Reading order includes `/setup/handoff/next-scope.json` as the supervised
   backlog packet for the current reversible slice.
+- Reading order includes `/setup/handoff/next-scope-health.json` as the drift
+  check for supervised backlog shape.
 - Carries `document_rotation` with the compact public docs and private track to
   read before older thread history.
 - Carries `architecture_constraints` for app-local scope, no public API promise,
@@ -244,6 +246,15 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   explicit receipt POST paths, and current lifecycle next action.
 - Remains report-only and does not grant execution, approval, or package/API
   promotion capability.
+
+`setup_handoff_next_scope_health`
+
+- Drift-check packet exposed at `/setup/handoff/next-scope-health.json`.
+- Validates descriptor no-gate/no-grant policy, recommended candidate presence,
+  scoped candidate endpoints, explicit setup POST mutation paths, forbidden
+  moves, acceptance alignment, and lifecycle next action vocabulary.
+- Remains outside `/setup/health` so the next-scope backlog can be supervised
+  without becoming a global runtime readiness gate.
 
 `setup_handoff_acceptance`
 

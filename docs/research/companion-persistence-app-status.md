@@ -69,6 +69,9 @@ Current manifest vocabulary:
 - `/setup/handoff/next-scope(.json)` exposes the supervised backlog slice:
   recommended app-local move, candidates, forbidden moves, acceptance criteria,
   explicit receipt POST paths, and lifecycle next action; it remains report-only
+- `/setup/handoff/next-scope-health(.json)` validates the supervised backlog
+  shape, scoped candidate endpoints, forbidden moves, acceptance alignment,
+  explicit setup POST paths, and no gate/no grant descriptor policy
 - `/setup/handoff/lifecycle(.json)` composes handoff plus both acceptance
   packets into a read-only stage map with current stage and next action
 - `/setup/handoff/lifecycle-health(.json)` validates lifecycle descriptor,

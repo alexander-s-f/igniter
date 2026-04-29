@@ -85,6 +85,8 @@ module Companion
       setup_handoff_digest_text_status, _setup_handoff_digest_text_headers, setup_handoff_digest_text_body = app.call(rack_env("GET", "/setup/handoff/digest.txt"))
       setup_handoff_next_scope_status, _setup_handoff_next_scope_headers, setup_handoff_next_scope_body = app.call(rack_env("GET", "/setup/handoff/next-scope"))
       setup_handoff_next_scope_json_status, _setup_handoff_next_scope_json_headers, setup_handoff_next_scope_json_body = app.call(rack_env("GET", "/setup/handoff/next-scope.json"))
+      setup_handoff_next_scope_health_status, _setup_handoff_next_scope_health_headers, setup_handoff_next_scope_health_body = app.call(rack_env("GET", "/setup/handoff/next-scope-health"))
+      setup_handoff_next_scope_health_json_status, _setup_handoff_next_scope_health_json_headers, setup_handoff_next_scope_health_json_body = app.call(rack_env("GET", "/setup/handoff/next-scope-health.json"))
       setup_handoff_promotion_readiness_status, _setup_handoff_promotion_readiness_headers, setup_handoff_promotion_readiness_body = app.call(rack_env("GET", "/setup/handoff/promotion-readiness"))
       setup_handoff_promotion_readiness_json_status, _setup_handoff_promotion_readiness_json_headers, setup_handoff_promotion_readiness_json_body = app.call(rack_env("GET", "/setup/handoff/promotion-readiness.json"))
       setup_handoff_extraction_sketch_status, _setup_handoff_extraction_sketch_headers, setup_handoff_extraction_sketch_body = app.call(rack_env("GET", "/setup/handoff/extraction-sketch"))
@@ -166,6 +168,8 @@ module Companion
       setup_handoff_digest_text = setup_handoff_digest_text_body.join
       setup_handoff_next_scope = setup_handoff_next_scope_body.join
       setup_handoff_next_scope_json = setup_handoff_next_scope_json_body.join
+      setup_handoff_next_scope_health = setup_handoff_next_scope_health_body.join
+      setup_handoff_next_scope_health_json = setup_handoff_next_scope_health_json_body.join
       setup_handoff_promotion_readiness = setup_handoff_promotion_readiness_body.join
       setup_handoff_promotion_readiness_json = setup_handoff_promotion_readiness_json_body.join
       setup_handoff_extraction_sketch = setup_handoff_extraction_sketch_body.join
@@ -267,6 +271,8 @@ module Companion
       out.puts "companion_poc_setup_handoff_digest_text_status=#{setup_handoff_digest_text_status}"
       out.puts "companion_poc_setup_handoff_next_scope_status=#{setup_handoff_next_scope_status}"
       out.puts "companion_poc_setup_handoff_next_scope_json_status=#{setup_handoff_next_scope_json_status}"
+      out.puts "companion_poc_setup_handoff_next_scope_health_status=#{setup_handoff_next_scope_health_status}"
+      out.puts "companion_poc_setup_handoff_next_scope_health_json_status=#{setup_handoff_next_scope_health_json_status}"
       out.puts "companion_poc_setup_handoff_promotion_readiness_status=#{setup_handoff_promotion_readiness_status}"
       out.puts "companion_poc_setup_handoff_promotion_readiness_json_status=#{setup_handoff_promotion_readiness_json_status}"
       out.puts "companion_poc_setup_handoff_extraction_sketch_status=#{setup_handoff_extraction_sketch_status}"
@@ -344,6 +350,8 @@ module Companion
       out.puts "companion_poc_setup_handoff_digest_text_endpoint=#{setup_handoff_digest_text_endpoint?(setup_handoff_digest_text)}"
       out.puts "companion_poc_setup_handoff_next_scope_endpoint=#{setup_handoff_next_scope_endpoint?(setup_handoff_next_scope)}"
       out.puts "companion_poc_setup_handoff_next_scope_json_endpoint=#{setup_handoff_next_scope_json_endpoint?(setup_handoff_next_scope_json)}"
+      out.puts "companion_poc_setup_handoff_next_scope_health_endpoint=#{setup_handoff_next_scope_health_endpoint?(setup_handoff_next_scope_health)}"
+      out.puts "companion_poc_setup_handoff_next_scope_health_json_endpoint=#{setup_handoff_next_scope_health_json_endpoint?(setup_handoff_next_scope_health_json)}"
       out.puts "companion_poc_setup_handoff_promotion_readiness_endpoint=#{setup_handoff_promotion_readiness_endpoint?(setup_handoff_promotion_readiness)}"
       out.puts "companion_poc_setup_handoff_promotion_readiness_json_endpoint=#{setup_handoff_promotion_readiness_json_endpoint?(setup_handoff_promotion_readiness_json)}"
       out.puts "companion_poc_setup_handoff_extraction_sketch_endpoint=#{setup_handoff_extraction_sketch_endpoint?(setup_handoff_extraction_sketch)}"
@@ -462,6 +470,7 @@ module Companion
       out.puts "companion_poc_setup_handoff_supervision_contract=#{setup_handoff_supervision_contract?}"
       out.puts "companion_poc_setup_handoff_packet_registry_contract=#{setup_handoff_packet_registry_contract?}"
       out.puts "companion_poc_setup_handoff_next_scope_contract=#{setup_handoff_next_scope_contract?}"
+      out.puts "companion_poc_setup_handoff_next_scope_health_contract=#{setup_handoff_next_scope_health_contract?}"
       out.puts "companion_poc_setup_handoff_extraction_sketch_contract=#{setup_handoff_extraction_sketch_contract?}"
       out.puts "companion_poc_setup_handoff_promotion_readiness_contract=#{setup_handoff_promotion_readiness_contract?}"
       out.puts "companion_poc_setup_handoff_digest_contract=#{setup_handoff_digest_contract?}"
@@ -1643,6 +1652,7 @@ module Companion
         handoff.fetch(:reading_order).include?("/setup/handoff/digest.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/digest.txt") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/next-scope.json") &&
+        handoff.fetch(:reading_order).include?("/setup/handoff/next-scope-health.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/promotion-readiness.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/extraction-sketch.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/packet-registry.json") &&
@@ -1807,15 +1817,16 @@ module Companion
         registry.fetch(:descriptor).fetch(:kind) == :setup_handoff_packet_registry &&
         registry.fetch(:descriptor).fetch(:gates_runtime) == false &&
         registry.fetch(:descriptor).fetch(:grants_capabilities) == false &&
-        registry.fetch(:packets).length == 9 &&
+        registry.fetch(:packets).length == 10 &&
         registry.fetch(:packets).all? { |packet| packet.fetch(:report_only) && packet.fetch(:gates_runtime) == false && packet.fetch(:grants_capabilities) == false } &&
         registry.fetch(:read_order).include?("/setup/handoff/next-scope.json") &&
+        registry.fetch(:read_order).include?("/setup/handoff/next-scope-health.json") &&
         registry.fetch(:read_order).include?("/setup/handoff/supervision.json") &&
         registry.fetch(:mutation_paths) == [
           "POST /setup/handoff/acceptance/record",
           "POST /setup/handoff/approval-acceptance/record"
         ] &&
-        registry.fetch(:summary).include?("9 setup packets")
+        registry.fetch(:summary).include?("10 setup packets")
     end
 
     def setup_handoff_next_scope_contract?
@@ -1843,6 +1854,29 @@ module Companion
         after_attempt.fetch(:next_action) == :record_approval_receipt &&
         complete.fetch(:status) == :complete &&
         complete.fetch(:next_action) == :review_materializer_status
+    end
+
+    def setup_handoff_next_scope_health_contract?
+      db_path = File.join(Dir.mktmpdir("igniter-companion-handoff-next-scope-health"), "companion.sqlite3")
+      config = Companion.default_configuration(store_path: db_path)
+      app = Companion.build(config: config)
+      store = app.service(:companion)
+      stable = store.setup_handoff_next_scope_health
+      post(app, "/setup/handoff/acceptance/record")
+      after_attempt = store.setup_handoff_next_scope_health
+      post(app, "/setup/handoff/approval-acceptance/record")
+      complete = store.setup_handoff_next_scope_health
+
+      stable.fetch(:status) == :stable &&
+        stable.fetch(:check_count) == 15 &&
+        stable.fetch(:descriptor).fetch(:kind) == :setup_handoff_next_scope_health &&
+        stable.fetch(:descriptor).fetch(:validates) == :setup_handoff_next_scope &&
+        stable.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        stable.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        stable.fetch(:missing_terms).empty? &&
+        after_attempt.fetch(:status) == :stable &&
+        complete.fetch(:status) == :stable &&
+        complete.fetch(:checks).all? { |check| check.fetch(:present) }
     end
 
     def setup_handoff_extraction_sketch_contract?
@@ -2431,6 +2465,7 @@ module Companion
         setup_handoff.include?("/setup/handoff/digest.json") &&
         setup_handoff.include?("/setup/handoff/digest.txt") &&
         setup_handoff.include?("/setup/handoff/next-scope.json") &&
+        setup_handoff.include?("/setup/handoff/next-scope-health.json") &&
         setup_handoff.include?("/setup/handoff/promotion-readiness.json") &&
         setup_handoff.include?("/setup/handoff/extraction-sketch.json") &&
         setup_handoff.include?("/setup/handoff/packet-registry.json") &&
@@ -2466,6 +2501,7 @@ module Companion
         payload.fetch("reading_order").include?("/setup/handoff/digest.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/digest.txt") &&
         payload.fetch("reading_order").include?("/setup/handoff/next-scope.json") &&
+        payload.fetch("reading_order").include?("/setup/handoff/next-scope-health.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/promotion-readiness.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/extraction-sketch.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/packet-registry.json") &&
@@ -2590,6 +2626,7 @@ module Companion
         setup_handoff_packet_registry.include?("kind=>:setup_handoff_packet_registry") &&
         setup_handoff_packet_registry.include?("packet_index") &&
         setup_handoff_packet_registry.include?("/setup/handoff/next-scope.json") &&
+        setup_handoff_packet_registry.include?("/setup/handoff/next-scope-health.json") &&
         setup_handoff_packet_registry.include?("/setup/handoff/supervision.json") &&
         setup_handoff_packet_registry.include?("POST /setup/handoff/approval-acceptance/record")
     end
@@ -2603,9 +2640,10 @@ module Companion
         payload.fetch("descriptor").fetch("report_only") &&
         payload.fetch("descriptor").fetch("gates_runtime") == false &&
         payload.fetch("descriptor").fetch("grants_capabilities") == false &&
-        payload.fetch("packets").length == 9 &&
+        payload.fetch("packets").length == 10 &&
         payload.fetch("packets").all? { |packet| packet.fetch("report_only") && packet.fetch("gates_runtime") == false && packet.fetch("grants_capabilities") == false } &&
         payload.fetch("read_order").include?("/setup/handoff/next-scope.json") &&
+        payload.fetch("read_order").include?("/setup/handoff/next-scope-health.json") &&
         payload.fetch("read_order").include?("/setup/handoff/supervision.json") &&
         payload.fetch("mutation_paths").include?("POST /setup/handoff/acceptance/record") &&
         payload.fetch("mutation_paths").include?("POST /setup/handoff/approval-acceptance/record")
@@ -2635,6 +2673,29 @@ module Companion
         payload.fetch("mutation_paths").include?("POST /setup/materializer-attempts/record") &&
         payload.fetch("mutation_paths").include?("POST /setup/handoff/approval-acceptance/record") &&
         payload.fetch("next_action") == "record_blocked_attempt"
+    end
+
+    def setup_handoff_next_scope_health_endpoint?(setup_handoff_next_scope_health)
+      setup_handoff_next_scope_health.include?("status=>:stable") &&
+        setup_handoff_next_scope_health.include?("kind=>:setup_handoff_next_scope_health") &&
+        setup_handoff_next_scope_health.include?("validates=>:setup_handoff_next_scope") &&
+        setup_handoff_next_scope_health.include?("check_count=>15") &&
+        setup_handoff_next_scope_health.include?("next-scope terms stable")
+    end
+
+    def setup_handoff_next_scope_health_json_endpoint?(setup_handoff_next_scope_health_json)
+      payload = JSON.parse(setup_handoff_next_scope_health_json)
+
+      payload.fetch("status") == "stable" &&
+        payload.fetch("check_count") == 15 &&
+        payload.fetch("descriptor").fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "setup_handoff_next_scope_health" &&
+        payload.fetch("descriptor").fetch("validates") == "setup_handoff_next_scope" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("missing_terms").empty? &&
+        payload.fetch("checks").all? { |check| check.fetch("present") }
     end
 
     def setup_handoff_extraction_sketch_endpoint?(setup_handoff_extraction_sketch)

@@ -394,6 +394,12 @@ module Companion
         )
       end
 
+      def setup_handoff_next_scope_health
+        Contracts::SetupHandoffNextScopeHealthContract.evaluate(
+          setup_handoff_next_scope: setup_handoff_next_scope
+        )
+      end
+
       def setup_handoff_supervision
         Contracts::SetupHandoffSupervisionContract.evaluate(
           setup_health: setup_health,
@@ -414,6 +420,7 @@ module Companion
           setup_handoff_acceptance: setup_handoff_acceptance,
           setup_handoff_approval_acceptance: setup_handoff_approval_acceptance,
           setup_handoff_next_scope: setup_handoff_next_scope,
+          setup_handoff_next_scope_health: setup_handoff_next_scope_health,
           materializer_status: materializer_status
         )
       end

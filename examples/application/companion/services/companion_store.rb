@@ -276,6 +276,10 @@ module Companion
         persistence.setup_handoff_next_scope
       end
 
+      def setup_handoff_next_scope_health
+        persistence.setup_handoff_next_scope_health
+      end
+
       def setup_handoff_supervision
         persistence.setup_handoff_supervision
       end

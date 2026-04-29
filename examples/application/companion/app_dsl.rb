@@ -77,6 +77,7 @@ module Companion
           setup_handoff_lifecycle: service(:companion).setup_handoff_lifecycle,
           setup_handoff_lifecycle_health: service(:companion).setup_handoff_lifecycle_health,
           setup_handoff_next_scope: service(:companion).setup_handoff_next_scope,
+          setup_handoff_next_scope_health: service(:companion).setup_handoff_next_scope_health,
           setup_handoff_supervision: service(:companion).setup_handoff_supervision,
           setup_handoff_packet_registry: service(:companion).setup_handoff_packet_registry,
           setup_handoff_extraction_sketch: service(:companion).setup_handoff_extraction_sketch,
@@ -134,6 +135,14 @@ module Companion
 
       get "/setup/handoff/next-scope.json" do
         text JSON.pretty_generate(service(:companion).setup_handoff_next_scope)
+      end
+
+      get "/setup/handoff/next-scope-health" do
+        text service(:companion).setup_handoff_next_scope_health.inspect
+      end
+
+      get "/setup/handoff/next-scope-health.json" do
+        text JSON.pretty_generate(service(:companion).setup_handoff_next_scope_health)
       end
 
       get "/setup/handoff/packet-registry" do
