@@ -168,6 +168,19 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   `POST /setup/handoff/acceptance/record`.
 - Must keep `gates_runtime: false` and `grants_capabilities: false`.
 
+## `setup_handoff_approval_acceptance`
+
+Report-only follow-up acceptance packet for the approval receipt step.
+
+- Exposed at `/setup/handoff/approval-acceptance(.json)`.
+- Starts as `status: :pending` on clean setup state.
+- Becomes `status: :satisfied` only after explicit attempt and approval receipt
+  POSTs.
+- Also has an explicit convenience alias:
+  `POST /setup/handoff/approval-acceptance/record`.
+- Must keep `applied_count: 0`, `gates_runtime: false`, and
+  `grants_capabilities: false`.
+
 ## Current Lowerings
 
 ```text

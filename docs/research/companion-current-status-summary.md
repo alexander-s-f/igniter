@@ -150,6 +150,8 @@ Best next move:
   explicit app-boundary action
 - `POST /setup/handoff/acceptance/record` is only an explicit alias for the
   same materializer attempt receipt path
+- use `/setup/handoff/approval-acceptance.json` to observe the follow-up
+  approval receipt as audit data, not as a capability grant
 - choose the next term only after the current glossary remains stable
 - continue avoiding execution and capability grant controls
 
@@ -166,6 +168,8 @@ Acceptance:
 - setup handoff keeps next scope small, reversible, and app-local
 - setup handoff defines acceptance without creating a runtime gate
 - setup handoff acceptance remains report-only and pending until explicit POST
+- setup handoff approval acceptance remains report-only, and satisfaction still
+  requires `applied_count: 0`
 - `/setup` surfaces glossary health without making readiness stricter
 - no setup/read endpoint mutates durable state
 

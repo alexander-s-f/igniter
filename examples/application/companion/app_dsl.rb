@@ -72,7 +72,8 @@ module Companion
           materializer_descriptor_health: snapshot.materializer_status_descriptor_health,
           setup_health: service(:companion).setup_health,
           setup_handoff: service(:companion).setup_handoff,
-          setup_handoff_acceptance: service(:companion).setup_handoff_acceptance
+          setup_handoff_acceptance: service(:companion).setup_handoff_acceptance,
+          setup_handoff_approval_acceptance: service(:companion).setup_handoff_approval_acceptance
         }.inspect)
       end
 
@@ -95,6 +96,19 @@ module Companion
       post "/setup/handoff/acceptance/record" do
         result = service(:companion).record_materializer_attempt
         redirect "/setup/handoff/acceptance?#{URI.encode_www_form((result.success? ? :notice : :error) => result.feedback_code, subject: result.subject_id)}"
+      end
+
+      get "/setup/handoff/approval-acceptance" do
+        text service(:companion).setup_handoff_approval_acceptance.inspect
+      end
+
+      get "/setup/handoff/approval-acceptance.json" do
+        text JSON.pretty_generate(service(:companion).setup_handoff_approval_acceptance)
+      end
+
+      post "/setup/handoff/approval-acceptance/record" do
+        result = service(:companion).record_materializer_approval
+        redirect "/setup/handoff/approval-acceptance?#{URI.encode_www_form((result.success? ? :notice : :error) => result.feedback_code, subject: result.subject_id)}"
       end
 
       get "/setup/health" do

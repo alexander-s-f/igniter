@@ -66,6 +66,12 @@ Current manifest vocabulary:
 - `POST /setup/handoff/acceptance/record` explicitly applies the same
   materializer attempt history append as `POST /setup/materializer-attempts/record`
   and redirects back to the acceptance view
+- `/setup/handoff/approval-acceptance(.json)` reports the follow-up approval
+  receipt acceptance; it is satisfied only after explicit approval receipt
+  persistence while `applied_count` and capability grants remain zero/false
+- `POST /setup/handoff/approval-acceptance/record` explicitly applies the same
+  approval receipt history append as `POST /setup/materializer-approvals/record`
+  and redirects back to the approval acceptance view
 - `/setup/materializer(.json)` exposes a `materializer_status` descriptor with
   schema version, review-only state, history targets, command intents, audit
   counts, `grants_capabilities: false`, and `execution_allowed: false`
@@ -180,6 +186,9 @@ Current user-defined-type pressure test:
 - `SetupHandoffAcceptanceContract`: report-only acceptance view for the
   recommended handoff scope; clean setup is pending, explicit materializer
   attempt POST can satisfy it
+- `SetupHandoffApprovalAcceptanceContract`: report-only follow-up acceptance
+  view for approval receipts; explicit approval POST can satisfy it only while
+  approval application remains absent
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities

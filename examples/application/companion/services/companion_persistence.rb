@@ -364,6 +364,14 @@ module Companion
         )
       end
 
+      def setup_handoff_approval_acceptance
+        Contracts::SetupHandoffApprovalAcceptanceContract.evaluate(
+          materializer_status: materializer_status,
+          materializer_attempts: materializer_attempts.all,
+          materializer_approvals: materializer_approvals.all
+        )
+      end
+
       def reminders
         record(:reminders)
       end
