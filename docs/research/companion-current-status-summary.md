@@ -148,6 +148,8 @@ Best next move:
 - use its `acceptance_criteria` before calling a small slice complete
 - use `/setup/handoff/acceptance.json` to observe acceptance before/after an
   explicit app-boundary action
+- `POST /setup/handoff/acceptance/record` is only an explicit alias for the
+  same materializer attempt receipt path
 - choose the next term only after the current glossary remains stable
 - continue avoiding execution and capability grant controls
 

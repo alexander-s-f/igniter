@@ -63,6 +63,9 @@ Current manifest vocabulary:
   carries small reversible next-scope candidates with acceptance criteria
 - `/setup/handoff/acceptance(.json)` reports whether the recommended handoff
   scope is pending or satisfied without executing it
+- `POST /setup/handoff/acceptance/record` explicitly applies the same
+  materializer attempt history append as `POST /setup/materializer-attempts/record`
+  and redirects back to the acceptance view
 - `/setup/materializer(.json)` exposes a `materializer_status` descriptor with
   schema version, review-only state, history targets, command intents, audit
   counts, `grants_capabilities: false`, and `execution_allowed: false`

@@ -164,6 +164,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Starts as `status: :pending` on clean setup state.
 - Becomes `status: :satisfied` only after explicit
   `POST /setup/materializer-attempts/record`.
+- Also has an explicit convenience alias:
+  `POST /setup/handoff/acceptance/record`.
 - Must keep `gates_runtime: false` and `grants_capabilities: false`.
 
 ## Current Lowerings

@@ -1581,7 +1581,7 @@ module Companion
       app = Companion.build(config: config)
       store = app.service(:companion)
       pending = store.setup_handoff_acceptance
-      record_status, record_headers = post(app, "/setup/materializer-attempts/record")
+      record_status, record_headers = post(app, "/setup/handoff/acceptance/record")
       recorded_status = get_status(app, record_headers.fetch("location"))
       satisfied = store.setup_handoff_acceptance
 
@@ -1590,6 +1590,7 @@ module Companion
         pending.fetch(:missing_terms).include?(:explicit_attempt_recorded) &&
         pending.fetch(:missing_terms).include?(:expected_phase) &&
         record_status == 303 &&
+        record_headers.fetch("location").start_with?("/setup/handoff/acceptance") &&
         recorded_status == 200 &&
         satisfied.fetch(:status) == :satisfied &&
         satisfied.fetch(:missing_terms).empty? &&
