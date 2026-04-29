@@ -281,6 +281,18 @@ module Companion
         persistence.materializer_attempt_command
       end
 
+      def materializer_attempts
+        persistence.materializer_attempts.all
+      end
+
+      def record_materializer_attempt
+        outcome = persistence.materializer_attempt_command
+        apply_persistence_mutation(outcome.fetch(:mutation))
+        action = record_contract_action(outcome.fetch(:result))
+        persist!
+        command_result_from_contract(outcome.fetch(:result), action: action)
+      end
+
       private
 
       attr_reader :persistence

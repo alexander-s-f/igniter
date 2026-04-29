@@ -206,6 +206,8 @@ Current Companion product flows use the persistence model:
   blocked materializer runbook
 - `/setup/materializer-attempt-command` exposes the computed history append
   intent for that receipt without appending it
+- `POST /setup/materializer-attempts/record` is the explicit app-boundary write
+  path that applies that intent and persists one attempt receipt
 
 ## Validated Concepts
 

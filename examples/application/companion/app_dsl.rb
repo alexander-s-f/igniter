@@ -171,6 +171,22 @@ module Companion
         text JSON.pretty_generate(service(:companion).materializer_attempt_command)
       end
 
+      get "/setup/materializer-attempts" do
+        text service(:companion).materializer_attempts.inspect
+      end
+
+      get "/setup/materializer-attempts.json" do
+        text JSON.pretty_generate(service(:companion).materializer_attempts)
+      end
+
+      post "/setup/materializer-attempts/record" do
+        result = service(:companion).record_materializer_attempt
+        redirect Companion.feedback_path(
+          (result.success? ? :notice : :error) => result.feedback_code,
+          subject: result.subject_id
+        )
+      end
+
       get "/hub" do
         text service(:hub).entries.map(&:name).join(",")
       end

@@ -284,6 +284,7 @@ module Companion
       out.puts "companion_poc_materializer_receipt=#{materializer_receipt?}"
       out.puts "companion_poc_materializer_attempt_history=#{materializer_attempt_history?}"
       out.puts "companion_poc_materializer_attempt_command=#{materializer_attempt_command?}"
+      out.puts "companion_poc_materializer_attempt_record_route=#{materializer_attempt_record_route?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -1396,6 +1397,27 @@ module Companion
         event.fetch(:status) == :blocked &&
         event.fetch(:executed) == false &&
         event.fetch(:review_only)
+    end
+
+    def materializer_attempt_record_route?
+      db_path = File.join(Dir.mktmpdir("igniter-companion-materializer-attempt"), "companion.sqlite3")
+      config = Companion.default_configuration(store_path: db_path)
+      app = Companion.build(config: config)
+      store = app.service(:companion)
+      _command_status, _command_headers, _command_body = app.call(rack_env("GET", "/setup/materializer-attempt-command.json"))
+      before_count = store.materializer_attempts.length
+      record_status, record_headers = post(app, "/setup/materializer-attempts/record")
+      recorded_status = get_status(app, record_headers.fetch("location"))
+      attempts = store.materializer_attempts
+      persisted_attempts = Companion.build(config: config).service(:companion).materializer_attempts
+
+      before_count.zero? &&
+        record_status == 303 &&
+        recorded_status == 200 &&
+        attempts.length == 1 &&
+        attempts.first.fetch(:kind) == :materializer_runbook_receipt &&
+        attempts.first.fetch(:executed) == false &&
+        persisted_attempts.length == 1
     end
 
     def wizard_type_spec_canonical?
