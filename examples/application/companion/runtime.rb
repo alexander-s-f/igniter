@@ -274,6 +274,7 @@ module Companion
       out.puts "companion_poc_materializer_preflight=#{materializer_preflight?}"
       out.puts "companion_poc_materializer_runbook=#{materializer_runbook?}"
       out.puts "companion_poc_materializer_receipt=#{materializer_receipt?}"
+      out.puts "companion_poc_materializer_attempt_history=#{materializer_attempt_history?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -714,7 +715,7 @@ module Companion
       manifest = persistence.capability_manifest
       persistence.capability_names == %i[
         reminders trackers daily_focuses countdowns articles wizard_type_specs tracker_logs actions comments
-        wizard_type_spec_changes tracker_read_model countdown_read_model activity_feed
+        wizard_type_spec_changes materializer_attempts tracker_read_model countdown_read_model activity_feed
       ] &&
         manifest.fetch(:reminders).fetch(:kind) == :record &&
         manifest.fetch(:countdowns).fetch(:kind) == :record &&
@@ -722,6 +723,7 @@ module Companion
         manifest.fetch(:wizard_type_specs).fetch(:kind) == :record &&
         manifest.fetch(:comments).fetch(:kind) == :history &&
         manifest.fetch(:wizard_type_spec_changes).fetch(:kind) == :history &&
+        manifest.fetch(:materializer_attempts).fetch(:kind) == :history &&
         manifest.fetch(:countdown_read_model).fetch(:kind) == :projection &&
         manifest.fetch(:tracker_logs).fetch(:kind) == :history &&
         manifest.fetch(:activity_feed).fetch(:kind) == :projection
@@ -737,9 +739,9 @@ module Companion
       readiness = persistence.readiness
       readiness.fetch(:ready) &&
         readiness.fetch(:status) == :ready &&
-        readiness.fetch(:capability_count) == 13 &&
+        readiness.fetch(:capability_count) == 14 &&
         readiness.fetch(:record_count) == 6 &&
-        readiness.fetch(:history_count) == 4 &&
+        readiness.fetch(:history_count) == 5 &&
         readiness.fetch(:projection_count) == 3 &&
         readiness.fetch(:relation_count) == 2 &&
         readiness.fetch(:warning_count).zero?
@@ -1059,7 +1061,7 @@ module Companion
       summary = manifest.fetch(:summary)
 
       summary.fetch(:record_count) == 6 &&
-        summary.fetch(:history_count) == 4 &&
+        summary.fetch(:history_count) == 5 &&
         summary.fetch(:projection_count) == 3 &&
         summary.fetch(:command_count) == 3 &&
         summary.fetch(:relation_count) == 2 &&
@@ -1067,6 +1069,7 @@ module Companion
         manifest.fetch(:records).fetch(:wizard_type_specs).fetch(:fields).include?(:spec) &&
         manifest.fetch(:histories).fetch(:comments).fetch(:fields).include?(:article_id) &&
         manifest.fetch(:histories).fetch(:wizard_type_spec_changes).fetch(:fields).include?(:change_kind) &&
+        manifest.fetch(:histories).fetch(:materializer_attempts).fetch(:fields).include?(:approval_request) &&
         manifest.fetch(:records).fetch(:reminders).fetch(:operations) == %i[all find save update delete clear scope command] &&
         manifest.fetch(:histories).fetch(:tracker_logs).fetch(:operations) == %i[append all where count] &&
         manifest.fetch(:projections).fetch(:tracker_read_model).fetch(:relations) == %i[tracker_logs_by_tracker] &&
@@ -1319,6 +1322,30 @@ module Companion
         body.fetch(:review_only) &&
         receipt.fetch(:events).length == 4 &&
         receipt.fetch(:events).all? { |event| event.fetch(:kind) == :materializer_step_blocked && event.fetch(:executed) == false }
+    end
+
+    def materializer_attempt_history?
+      manifest = Contracts::MaterializerAttempt.persistence_manifest
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      receipt = persistence.materializer_receipt.fetch(:receipt)
+      attempts = persistence.materializer_attempts
+      appended = attempts.append(
+        index: 0,
+        kind: receipt.fetch(:kind),
+        status: receipt.fetch(:status),
+        approval_request: receipt.fetch(:approval_request),
+        blocked_capabilities: receipt.fetch(:blocked_capabilities),
+        blocked_step_count: receipt.fetch(:blocked_step_count),
+        executed: receipt.fetch(:executed),
+        review_only: receipt.fetch(:review_only)
+      )
+
+      manifest.fetch(:history).fetch(:key) == :index &&
+        manifest.fetch(:fields).any? { |field| field.fetch(:name) == :approval_request && field.fetch(:attributes).fetch(:type) == :json } &&
+        manifest.fetch(:fields).any? { |field| field.fetch(:name) == :blocked_capabilities && field.fetch(:attributes).fetch(:type) == :json } &&
+        appended.fetch(:index).zero? &&
+        attempts.count(status: :blocked) == 1 &&
+        attempts.where(kind: :materializer_runbook_receipt).first.fetch(:executed) == false
     end
 
     def wizard_type_spec_canonical?

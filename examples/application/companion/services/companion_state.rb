@@ -20,12 +20,18 @@ module Companion
       Comment = Struct.new(:index, :article_id, :body, :created_at, keyword_init: true)
       WizardTypeSpec = Struct.new(:id, :contract, :spec, keyword_init: true)
       WizardTypeSpecChange = Struct.new(:index, :spec_id, :contract, :change_kind, :spec, :created_at, keyword_init: true)
+      MaterializerAttempt = Struct.new(
+        :index, :kind, :status, :approval_request, :blocked_capabilities,
+        :blocked_step_count, :executed, :review_only,
+        keyword_init: true
+      )
       Action = Struct.new(:index, :kind, :subject_id, :status, keyword_init: true)
 
       attr_accessor :live_summary
       attr_reader :reminders, :trackers, :tracker_logs, :daily_focuses, :countdowns, :articles,
-                  :comments, :wizard_type_specs, :wizard_type_spec_changes, :actions,
-                  :next_action_index, :next_comment_index, :next_wizard_type_spec_change_index
+                  :comments, :wizard_type_specs, :wizard_type_spec_changes, :materializer_attempts,
+                  :actions, :next_action_index, :next_comment_index,
+                  :next_wizard_type_spec_change_index, :next_materializer_attempt_index
 
       def self.seeded
         new.tap(&:seed)
@@ -103,9 +109,11 @@ module Companion
         @comments = []
         @wizard_type_specs = []
         @wizard_type_spec_changes = []
+        @materializer_attempts = []
         @live_summary = nil
         @next_comment_index = 0
         @next_wizard_type_spec_change_index = 0
+        @next_materializer_attempt_index = 0
       end
 
       def seed
@@ -218,6 +226,19 @@ module Companion
             created_at: payload.fetch(:created_at)
           )
         end
+        @materializer_attempts = Array(state.fetch(:materializer_attempts, [])).map do |entry|
+          payload = symbolize(entry)
+          MaterializerAttempt.new(
+            index: payload.fetch(:index),
+            kind: payload.fetch(:kind).to_sym,
+            status: payload.fetch(:status).to_sym,
+            approval_request: payload.fetch(:approval_request),
+            blocked_capabilities: payload.fetch(:blocked_capabilities),
+            blocked_step_count: payload.fetch(:blocked_step_count),
+            executed: payload.fetch(:executed),
+            review_only: payload.fetch(:review_only)
+          )
+        end
         @actions = Array(state.fetch(:actions)).map do |entry|
           payload = symbolize(entry)
           Action.new(
@@ -234,6 +255,10 @@ module Companion
           :next_wizard_type_spec_change_index,
           wizard_type_spec_changes.map(&:index).max.to_i + 1
         )
+        @next_materializer_attempt_index = state.fetch(
+          :next_materializer_attempt_index,
+          materializer_attempts.map(&:index).max.to_i + 1
+        )
         ensure_default_wizard_type_specs
       end
 
@@ -248,12 +273,14 @@ module Companion
           comments: comments.map(&:to_h),
           wizard_type_specs: wizard_type_specs.map(&:to_h),
           wizard_type_spec_changes: wizard_type_spec_changes.map(&:to_h),
+          materializer_attempts: materializer_attempts.map(&:to_h),
           actions: actions.map(&:to_h),
           daily_focus_title: daily_focus_title,
           live_summary: live_summary,
           next_action_index: next_action_index,
           next_comment_index: next_comment_index,
-          next_wizard_type_spec_change_index: next_wizard_type_spec_change_index
+          next_wizard_type_spec_change_index: next_wizard_type_spec_change_index,
+          next_materializer_attempt_index: next_materializer_attempt_index
         }
       end
 
@@ -327,6 +354,26 @@ module Companion
         wizard_type_spec_changes << change
         @next_wizard_type_spec_change_index = [next_wizard_type_spec_change_index, change.index + 1].max
         change.to_h
+      end
+
+      def materializer_attempt_entries
+        materializer_attempts.map(&:to_h)
+      end
+
+      def append_materializer_attempt(event)
+        attempt = MaterializerAttempt.new(
+          index: event.fetch(:index, nil) || next_materializer_attempt_index,
+          kind: event.fetch(:kind).to_sym,
+          status: event.fetch(:status).to_sym,
+          approval_request: event.fetch(:approval_request),
+          blocked_capabilities: event.fetch(:blocked_capabilities),
+          blocked_step_count: event.fetch(:blocked_step_count),
+          executed: event.fetch(:executed),
+          review_only: event.fetch(:review_only)
+        )
+        materializer_attempts << attempt
+        @next_materializer_attempt_index = [next_materializer_attempt_index, attempt.index + 1].max
+        attempt.to_h
       end
 
       def append_action_event(event)

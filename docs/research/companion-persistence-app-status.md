@@ -40,6 +40,8 @@ Current history capabilities:
 
 - `TrackerLog`: `history`, append-only tracker measurements
 - `CompanionAction`: `history`, append-only user/runtime receipts
+- `MaterializerAttempt`: `history`, append-only future materializer audit
+  receipts; declared and manifest-visible, but not auto-appended by setup reads
 
 Current projection contracts:
 
@@ -96,6 +98,8 @@ Current user-defined-type pressure test:
   packet into blocked write/test/git/restart materializer steps
 - `MaterializerReceiptContract`: review-only receipt projection that records the
   blocked runbook and non-executed step events for future history persistence
+- `MaterializerAttempt`: static history contract for those future receipts,
+  proving the path to `History[MaterializerAttempt]` without side effects
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`

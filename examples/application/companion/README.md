@@ -75,6 +75,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   a blocked, review-only materializer runbook with one capability per step.
 - `contracts/materializer_receipt_contract.rb` records the blocked runbook as a
   review-only, non-executed receipt suitable for future history persistence.
+- `contracts/materializer_attempt_history_contract.rb` declares that future
+  receipt history as static `history` metadata before any automatic append path.
 - `contracts/durable_type_materialization_contract.rb` is the read-only bridge
   from future wizard/configurator output to static contract materialization
   plans. `/setup/materialization-plan` and `.json` expose that plan for agents

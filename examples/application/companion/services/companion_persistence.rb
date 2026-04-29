@@ -60,6 +60,11 @@ module Companion
           contract_class: Contracts::WizardTypeSpecChange,
           entries: :wizard_type_spec_change_entries,
           append: :append_wizard_type_spec_change
+        },
+        materializer_attempts: {
+          contract_class: Contracts::MaterializerAttempt,
+          entries: :materializer_attempt_entries,
+          append: :append_materializer_attempt
         }
       }.freeze
 
@@ -279,6 +284,10 @@ module Companion
 
       def wizard_type_spec_changes
         history(:wizard_type_spec_changes)
+      end
+
+      def materializer_attempts
+        history(:materializer_attempts)
       end
 
       def actions
@@ -559,6 +568,14 @@ module Companion
 
       def append_wizard_type_spec_change(event)
         state.append_wizard_type_spec_change(event)
+      end
+
+      def materializer_attempt_entries
+        state.materializer_attempt_entries
+      end
+
+      def append_materializer_attempt(event)
+        state.append_materializer_attempt(event)
       end
 
       def article_comment_type_spec
