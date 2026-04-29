@@ -41,16 +41,16 @@ module Companion
 
       compute :mutation, depends_on: %i[result normalized_title normalized_target_date] do |result:, normalized_title:, normalized_target_date:|
         if result.fetch(:success)
-          {
-            operation: :append,
-            record: {
+          Companion::Contracts.record_append(
+            :countdowns,
+            {
               id: result.fetch(:subject_id),
               title: normalized_title,
               target_date: normalized_target_date
             }
-          }
+          )
         else
-          { operation: :none }
+          Companion::Contracts.no_mutation
         end
       end
 

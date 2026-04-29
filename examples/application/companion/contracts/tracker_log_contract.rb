@@ -30,13 +30,16 @@ module Companion
 
       compute :mutation, depends_on: %i[result normalized_value date] do |result:, normalized_value:, date:|
         if result.fetch(:success)
-          {
-            operation: :append_log,
-            tracker_id: result.fetch(:subject_id),
-            entry: { date: date, value: normalized_value }
-          }
+          Companion::Contracts.history_append(
+            :tracker_logs,
+            {
+              tracker_id: result.fetch(:subject_id),
+              date: date,
+              value: normalized_value
+            }
+          )
         else
-          { operation: :none }
+          Companion::Contracts.no_mutation
         end
       end
 

@@ -87,6 +87,35 @@ module Companion
       }
     end
 
+    def self.record_append(target, record)
+      {
+        operation: :record_append,
+        target: target.to_sym,
+        record: record
+      }
+    end
+
+    def self.record_update(target, id, changes)
+      {
+        operation: :record_update,
+        target: target.to_sym,
+        id: id,
+        changes: changes
+      }
+    end
+
+    def self.history_append(target, event)
+      {
+        operation: :history_append,
+        target: target.to_sym,
+        event: event
+      }
+    end
+
+    def self.no_mutation
+      { operation: :none }
+    end
+
     def self.contracts(name, outputs:, &block)
       contract_class = Class.new(Igniter::Contract)
       contract_class.profile = Igniter::Contracts.build_profile(

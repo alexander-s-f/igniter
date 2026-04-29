@@ -262,7 +262,7 @@ Companion currently proves the first app-local version:
 - `CountdownContract` computes create success/refusal and mutation intent for a
   user-facing countdown form
 - `TrackerLogContract` computes append-log success and refusal
-- command contracts return result plus mutation intent
+- command contracts return result plus normalized persistence operation intent
 - `CompanionStore` applies mutation at the state/backend boundary
 - smoke proves the metadata manifest plus success and refusal paths
 
@@ -279,8 +279,10 @@ The important split is intentional:
 - receipts: command/user/runtime outcomes can be modeled as `History[Action]`
 - activity feeds: receipt history can project into UI and audit summaries
 - behavior: graph command contracts compute validation, result, receipt, and
-  mutation intent
-- boundary: Store/app adapter applies the mutation
+  persistence operation intent
+- operation model: intents use `record_append`, `record_update`,
+  `history_append`, or `none`, plus a target capability
+- boundary: Store/app adapter applies the operation through the registry
 
 The package-level design should preserve that split unless repeated Companion
 pressure shows that one surface can stay readable while expressing both.

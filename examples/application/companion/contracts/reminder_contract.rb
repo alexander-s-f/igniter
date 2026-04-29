@@ -53,22 +53,22 @@ module Companion
         if result.fetch(:success)
           case operation.to_sym
           when :create
-            {
-              operation: :append,
-              record: {
+            Companion::Contracts.record_append(
+              :reminders,
+              {
                 id: result.fetch(:subject_id),
                 title: normalized_title,
                 due: "today",
                 status: :open
               }
-            }
+            )
           when :complete
-            { operation: :update, id: result.fetch(:subject_id), changes: { status: :done } }
+            Companion::Contracts.record_update(:reminders, result.fetch(:subject_id), { status: :done })
           else
-            { operation: :none }
+            Companion::Contracts.no_mutation
           end
         else
-          { operation: :none }
+          Companion::Contracts.no_mutation
         end
       end
 

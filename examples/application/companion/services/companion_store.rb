@@ -137,7 +137,7 @@ module Companion
           title: title,
           reminders: persistence.reminders.all
         )
-        apply_reminder_mutation(outcome.fetch(:mutation))
+        apply_persistence_mutation(outcome.fetch(:mutation))
         action = record_contract_action(outcome.fetch(:result))
         persist!
         command_result_from_contract(outcome.fetch(:result), action: action)
@@ -162,7 +162,7 @@ module Companion
           target_date: target_date,
           countdowns: persistence.countdowns.all
         )
-        apply_countdown_mutation(outcome.fetch(:mutation))
+        apply_persistence_mutation(outcome.fetch(:mutation))
         action = record_contract_action(outcome.fetch(:result))
         persist!
         command_result_from_contract(outcome.fetch(:result), action: action)
@@ -175,7 +175,7 @@ module Companion
           title: nil,
           reminders: persistence.reminders.all
         )
-        apply_reminder_mutation(outcome.fetch(:mutation))
+        apply_persistence_mutation(outcome.fetch(:mutation))
         action = record_contract_action(outcome.fetch(:result))
         persist!
         command_result_from_contract(outcome.fetch(:result), action: action)
@@ -188,7 +188,7 @@ module Companion
           date: Date.today.iso8601,
           trackers: persistence.trackers.all
         )
-        apply_tracker_log_mutation(outcome.fetch(:mutation))
+        apply_persistence_mutation(outcome.fetch(:mutation))
         action = record_contract_action(outcome.fetch(:result))
         persist!
         command_result_from_contract(outcome.fetch(:result), action: action)
@@ -221,25 +221,15 @@ module Companion
         @backend.save_state(@state.to_h)
       end
 
-      def apply_reminder_mutation(mutation)
+      def apply_persistence_mutation(mutation)
         case mutation.fetch(:operation)
-        when :append
-          persistence.reminders.save(mutation.fetch(:record))
-        when :update
-          persistence.reminders.update(mutation.fetch(:id), mutation.fetch(:changes))
+        when :record_append
+          persistence.public_send(mutation.fetch(:target)).save(mutation.fetch(:record))
+        when :record_update
+          persistence.public_send(mutation.fetch(:target)).update(mutation.fetch(:id), mutation.fetch(:changes))
+        when :history_append
+          persistence.public_send(mutation.fetch(:target)).append(mutation.fetch(:event))
         end
-      end
-
-      def apply_tracker_log_mutation(mutation)
-        return unless mutation.fetch(:operation) == :append_log
-
-        persistence.tracker_logs.append(mutation.fetch(:entry).merge(tracker_id: mutation.fetch(:tracker_id)))
-      end
-
-      def apply_countdown_mutation(mutation)
-        return unless mutation.fetch(:operation) == :append
-
-        persistence.countdowns.save(mutation.fetch(:record))
       end
 
       def record_contract_action(result)

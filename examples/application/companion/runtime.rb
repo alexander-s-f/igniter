@@ -157,6 +157,7 @@ module Companion
       out.puts "companion_poc_persistence_registry=#{persistence_registry?}"
       out.puts "companion_poc_persistence_registry_valid=#{persistence_registry_valid?}"
       out.puts "companion_poc_persistence_readiness_contract=#{persistence_readiness_contract?}"
+      out.puts "companion_poc_persistence_operation_model=#{persistence_operation_model?}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
       out.puts "companion_poc_daily_plan_surface=#{html.include?("data-daily-plan-block=")}"
@@ -463,6 +464,39 @@ module Companion
         readiness.fetch(:record_count) == 4 &&
         readiness.fetch(:history_count) == 2 &&
         readiness.fetch(:projection_count) == 3
+    end
+
+    def persistence_operation_model?
+      reminder_create = Contracts::ReminderContract.evaluate(
+        operation: :create,
+        id: nil,
+        title: "Operation model",
+        reminders: []
+      ).fetch(:mutation)
+      reminder_complete = Contracts::ReminderContract.evaluate(
+        operation: :complete,
+        id: "morning-water",
+        title: nil,
+        reminders: [Services::CompanionState::Reminder.new(id: "morning-water", title: "Water", due: "morning", status: :open)]
+      ).fetch(:mutation)
+      tracker_log = Contracts::TrackerLogContract.evaluate(
+        tracker_id: "sleep",
+        value: "7",
+        date: "2026-04-29",
+        trackers: [Services::CompanionState::Tracker.new(id: "sleep", name: "Sleep", template: :sleep, unit: "hours")]
+      ).fetch(:mutation)
+      refused = Contracts::CountdownContract.evaluate(
+        title: " ",
+        target_date: " ",
+        countdowns: []
+      ).fetch(:mutation)
+
+      reminder_create.fetch(:operation) == :record_append &&
+        reminder_create.fetch(:target) == :reminders &&
+        reminder_complete.fetch(:operation) == :record_update &&
+        tracker_log.fetch(:operation) == :history_append &&
+        tracker_log.fetch(:target) == :tracker_logs &&
+        refused.fetch(:operation) == :none
     end
 
     def post(app, path, values = {})
