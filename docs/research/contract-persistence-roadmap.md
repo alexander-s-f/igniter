@@ -176,6 +176,9 @@ separate drift check.
 
 ### R2 Migration Plan V2
 
+Status: app-local proof added in Companion as
+`/setup/storage-migration-plan(.json)`.
+
 Extend migration planning from field diff to storage-plan diff.
 
 Classify:
@@ -190,6 +193,10 @@ Non-goals:
 - no migration execution
 - no backfills
 - no destructive apply path
+
+Current proof keeps R2 separate from `WizardTypeSpecMigrationPlanContract`: spec
+diffs remain contract/spec migration planning, while storage-plan descriptor
+diffs become review-only storage migration candidates.
 
 ### R3 Materializer Dry Run
 

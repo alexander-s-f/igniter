@@ -350,6 +350,13 @@ module Companion
         )
       end
 
+      def storage_migration_plan
+        Contracts::PersistenceStorageMigrationPlanContract.evaluate(
+          storage_plan: storage_plan_sketch,
+          previous_storage_plan: nil
+        )
+      end
+
       def setup_health
         Contracts::SetupHealthContract.evaluate(
           readiness: readiness,

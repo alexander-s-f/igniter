@@ -35,6 +35,7 @@ relation -> typed manifest edge
 relation_descriptor -> source/target storage shapes + report-only enforcement
 storage_plan_sketch -> report-only table/column/index/scope lowering candidates
 storage_plan_health -> drift check for non-executing storage-plan shape
+storage_migration_plan -> review-only storage-plan diff candidates
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
 materializer_status.descriptor -> review-only lifecycle + no capability grants
@@ -136,11 +137,13 @@ from the manifest while keeping `schema_changes_allowed: false` and
 `sql_generation_allowed: false`.
 `/setup/storage-plan-health.json` verifies that this storage sketch remains
 report-only, no-gate/no-grant, non-SQL-generating, and non-schema-changing.
+`/setup/storage-migration-plan.json` compares storage-plan descriptors and emits
+review-only migration candidates for additive/destructive/ambiguous storage
+changes while keeping migration execution and SQL generation disabled.
 
-Migrations are review-only. Current planning compares spec-history snapshots and
-classifies field changes as stable, additive, destructive, or ambiguous. There
-is no migration generator, runner, DB alteration, backfill, or destructive apply
-path.
+Migrations are review-only. Current planning has two lanes: spec-history field
+diffs and storage-plan descriptor diffs. There is no migration generator,
+runner, DB alteration, backfill, or destructive apply path.
 
 Materialization is modeled, not executed. The system can plan static contracts,
 check parity, build a gated runbook, and persist attempt/approval receipts, but
@@ -179,6 +182,8 @@ Best next move:
   changes
 - use `/setup/storage-plan-health.json` before treating storage-plan output as
   valid R1 evidence
+- use `/setup/storage-migration-plan.json` when discussing R2 storage-plan
+  diffs; it is review-only and has no execution path
 - use `/setup/handoff.json` as the first read after context rotation
 - use `/setup/handoff/digest.txt` as the compact human handoff, or
   `/setup/handoff/digest.json` as the structured agent map before

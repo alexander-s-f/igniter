@@ -256,6 +256,10 @@ module Companion
         persistence.storage_plan_health
       end
 
+      def storage_migration_plan
+        persistence.storage_migration_plan
+      end
+
       def setup_health
         persistence.setup_health
       end

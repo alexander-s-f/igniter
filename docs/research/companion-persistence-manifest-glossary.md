@@ -28,6 +28,8 @@ Read `/setup/storage-plan.json` when discussing field/table lowerings. It is a
 review-only sketch, not a DB schema or migration plan.
 Read `/setup/storage-plan-health.json` when changing storage-plan vocabulary or
 checking that it remains non-executing.
+Read `/setup/storage-migration-plan.json` when discussing R2 storage-plan diffs.
+It is a review-only migration candidate report, not a runner.
 Read `/setup/health.json` for the compact report-only current-state packet.
 Read `/setup/handoff.json` first when rotating context between agents.
 
@@ -71,6 +73,19 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   field-derived columns, adapter type candidates, index/scope sources, and
   summary counts.
 - Does not feed into runtime execution or authorize migrations.
+
+`storage_migration_plan`
+
+- Review-only R2 storage-plan diff exposed at
+  `/setup/storage-migration-plan.json`.
+- Compares current and previous storage-plan descriptors when a previous plan is
+  supplied; current app state passes `nil` previous plan and reports stable.
+- Classifies storage candidates as stable, additive, destructive, or ambiguous
+  based on columns, indexes, scopes, keys, adapter, and append-only changes.
+- Emits candidates with `review_only: true`,
+  `migration_execution_allowed: false`, and `sql_generation_allowed: false`.
+- Does not create migrations, generate SQL, alter DB schema, backfill data, or
+  request capabilities.
 
 `records`
 
