@@ -50,6 +50,11 @@ Current manifest vocabulary:
   and `enforcement.mode: :report_only`
 - `/setup/manifest/glossary-health` reports whether required glossary terms are
   still present and stable
+- `/setup/storage-plan(.json)` exposes the R1 report-only storage/table sketch:
+  storage name candidates, key candidates, column candidates from field
+  descriptors, SQLite adapter type mapping candidates, index candidates,
+  scope/query descriptors, and append-only history table candidates; schema
+  changes and SQL generation remain explicitly disabled
 - `/setup` includes the same glossary health as a report-only summary signal;
   readiness does not become stricter because of glossary drift
 - `/setup/health(.json)` summarizes readiness, relation health, manifest
@@ -430,6 +435,22 @@ Current placement decision:
 
 See [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md).
 
+## Roadmap Pointers
+
+For the next architecture discussion, keep these distinctions explicit:
+
+- fields currently map to manifest/API/payload descriptors, not SQL columns
+- SQLite currently stores the whole Companion state as a JSON payload; no
+  table-per-contract lowering exists yet
+- future table/column mapping should be introduced as a report-only storage
+  plan before any DB planner or migration generator
+- current migration planning is review-only spec/field diff over
+  `WizardTypeSpecChange`; it does not execute DB or file changes
+- current materialization is plan, parity, gate, runbook, receipt, and audit; it
+  does not write files, run tests, use git, restart, or grant capabilities
+
+See [Contract Persistence Roadmap](./contract-persistence-roadmap.md).
+
 ## Authoring Rule
 
 Dynamic authoring is allowed as a sandbox. A wizard/configurator may collect a
@@ -493,6 +514,9 @@ relation declarations into core from this proof alone.
 [R] Preserve `persist -> Store[T]` and `history -> History[T]`.
 [S] Reminder now proves metadata beyond fields: index, scope, and command
 metadata are reportable and usable by app-local generated APIs.
+[S] `/setup/storage-plan.json` now proves R1 field/index/scope/history lowerings
+as review-only storage candidates without table creation, SQL generation, or
+migration execution.
 [S] Tracker to TrackerLog proves projection relation input and warning path.
 [S] Article to Comment proves user-defined-type pressure through static
 contracts before dynamic materialization.

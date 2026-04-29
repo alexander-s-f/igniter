@@ -23,6 +23,9 @@ research material under `playgrounds/docs/`.
 - [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md) -
   placement decision for app-local proof, staged extraction, and future package
   naming.
+- [Contract Persistence Roadmap](./contract-persistence-roadmap.md) -
+  compact roadmap for field/table lowerings, migration planning, and
+  materialization process.
 - [Contract Persistence Relations](./contract-persistence-relations.md) -
   research model, specification, and DSL for relation manifests.
 - [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md) -
@@ -46,9 +49,10 @@ Before changing architecture or reviewing an agent proposal, read:
 8. [Companion Persistence App Status](./companion-persistence-app-status.md)
 9. [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md)
 10. [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md)
-11. [Contract Persistence Relations](./contract-persistence-relations.md)
-12. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
-13. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
+11. [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
+12. [Contract Persistence Relations](./contract-persistence-relations.md)
+13. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
+14. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
 
 ## Current Research State
 

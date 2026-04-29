@@ -33,6 +33,7 @@ history -> History[T]
 storage.shape=:store/:history -> canonical manifest descriptor
 relation -> typed manifest edge
 relation_descriptor -> source/target storage shapes + report-only enforcement
+storage_plan_sketch -> report-only table/column/index/scope lowering candidates
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
 materializer_status.descriptor -> review-only lifecycle + no capability grants
@@ -120,6 +121,29 @@ Recommended path:
 Avoid `igniter-data` for this capability. It is too broad; the sharper concept
 is durable `Store[T]`, append-only `History[T]`, typed relations, command
 intents, materialization, and audit.
+
+## Discussion Summary
+
+Fields do not map to SQL tables yet. They map to manifest descriptors,
+generated app-local APIs, payload normalization, and projections. The current
+SQLite backend stores one JSON state payload in `companion_state`.
+
+Storage planning is now sketched, not executed. `/setup/storage-plan.json`
+derives table/storage names, key candidates, column candidates, adapter type
+mapping candidates, indexes, scopes, and append-only history table candidates
+from the manifest while keeping `schema_changes_allowed: false` and
+`sql_generation_allowed: false`.
+
+Migrations are review-only. Current planning compares spec-history snapshots and
+classifies field changes as stable, additive, destructive, or ambiguous. There
+is no migration generator, runner, DB alteration, backfill, or destructive apply
+path.
+
+Materialization is modeled, not executed. The system can plan static contracts,
+check parity, build a gated runbook, and persist attempt/approval receipts, but
+it cannot write files, run git/tests/restart, or grant capabilities.
+
+Reference: [Contract Persistence Roadmap](./contract-persistence-roadmap.md).
 
 ## Current Boundary
 
