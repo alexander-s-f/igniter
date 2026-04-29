@@ -244,6 +244,20 @@ module Companion
           errors << "#{name}: record class missing fields #{missing_fields.join(",")}" unless missing_fields.empty?
           invalid_indexes = manifest.fetch(:indexes, []).map { |index| index.fetch(:name).to_sym } - fields
           errors << "#{name}: indexes reference missing fields #{invalid_indexes.join(",")}" unless invalid_indexes.empty?
+          errors.concat(command_metadata_errors(name, manifest.fetch(:commands, []), fields))
+          errors
+        end
+      end
+
+      def command_metadata_errors(name, commands, fields)
+        commands.flat_map do |command|
+          attributes = command.fetch(:attributes)
+          operation = attributes.fetch(:operation, nil)&.to_sym
+          changes = attributes.fetch(:changes, {})
+          errors = []
+          errors << "#{name}: command #{command.fetch(:name)} has unsupported operation #{operation.inspect}" unless %i[record_append record_update none].include?(operation)
+          missing_changes = changes.keys.map(&:to_sym) - fields
+          errors << "#{name}: command #{command.fetch(:name)} changes missing fields #{missing_changes.join(",")}" unless missing_changes.empty?
           errors
         end
       end

@@ -57,6 +57,10 @@ module Companion
         end.map(&:dup).freeze
       end
 
+      def command(name)
+        commands.find { |candidate| candidate.fetch(:name).to_sym == name.to_sym }&.dup
+      end
+
       def api_manifest
         {
           key: key,
@@ -64,7 +68,7 @@ module Companion
           indexes: indexes,
           scopes: scopes,
           commands: commands,
-          operations: %i[all find save update delete clear scope]
+          operations: %i[all find save update delete clear scope command]
         }
       end
 

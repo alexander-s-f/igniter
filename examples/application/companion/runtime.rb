@@ -148,6 +148,7 @@ module Companion
       out.puts "companion_poc_reminder_persistence_manifest=#{reminder_persistence_manifest?}"
       out.puts "companion_poc_reminder_generated_api=#{reminder_generated_api?}"
       out.puts "companion_poc_reminder_scope_api=#{reminder_scope_api?}"
+      out.puts "companion_poc_reminder_command_metadata_api=#{reminder_command_metadata_api?}"
       out.puts "companion_poc_tracker_persistence_manifest=#{tracker_persistence_manifest?}"
       out.puts "companion_poc_tracker_generated_api=#{tracker_generated_api?}"
       out.puts "companion_poc_tracker_projection_composes_history=#{tracker_projection_composes_history?(final)}"
@@ -252,7 +253,7 @@ module Companion
       defaulted = created.status == :open
       records.update("contract-api", status: :done)
 
-      records.api_manifest.fetch(:operations) == %i[all find save update delete clear scope] &&
+      records.api_manifest.fetch(:operations) == %i[all find save update delete clear scope command] &&
         defaulted &&
         records.find("contract-api").status == :done &&
         records.all.length == 1
@@ -273,6 +274,26 @@ module Companion
         records.api_manifest.fetch(:scopes).any? { |scope| scope.fetch(:name) == :open }
     end
 
+    def reminder_command_metadata_api?
+      records = Services::ContractRecordSet.new(
+        contract_class: Contracts::Reminder,
+        collection: [],
+        record_class: Services::CompanionState::Reminder
+      )
+      command = records.command(:complete)
+      mutation = Contracts::ReminderContract.evaluate(
+        operation: :complete,
+        id: "morning-water",
+        title: nil,
+        reminders: [Services::CompanionState::Reminder.new(id: "morning-water", title: "Water", due: "morning", status: :open)]
+      ).fetch(:mutation)
+
+      command.fetch(:attributes).fetch(:operation) == :record_update &&
+        command.fetch(:attributes).fetch(:changes) == { status: :done } &&
+        mutation.fetch(:operation) == :record_update &&
+        mutation.fetch(:target) == :reminders
+    end
+
     def daily_focus_persistence_manifest?
       manifest = Contracts::DailyFocus.persistence_manifest
       persist = manifest.fetch(:persist)
@@ -291,7 +312,7 @@ module Companion
       records.save(date: "2026-04-28", title: "Focus")
       records.update("2026-04-28", title: "Updated focus")
 
-      records.api_manifest.fetch(:operations) == %i[all find save update delete clear scope] &&
+      records.api_manifest.fetch(:operations) == %i[all find save update delete clear scope command] &&
         records.find("2026-04-28").title == "Updated focus" &&
         records.all.length == 1
     end
@@ -322,7 +343,7 @@ module Companion
       records.save(id: "launch", title: "Launch", target_date: "2026-05-01")
       records.update("launch", title: "Public launch")
 
-      records.api_manifest.fetch(:operations) == %i[all find save update delete clear scope] &&
+      records.api_manifest.fetch(:operations) == %i[all find save update delete clear scope command] &&
         records.find("launch").title == "Public launch" &&
         records.all.length == 1
     end
@@ -358,7 +379,7 @@ module Companion
       records.save(id: "mood", name: "Mood", template: :scale, unit: "score")
       records.update("mood", unit: "points")
 
-      records.api_manifest.fetch(:operations) == %i[all find save update delete clear scope] &&
+      records.api_manifest.fetch(:operations) == %i[all find save update delete clear scope command] &&
         records.find("mood").unit == "points" &&
         records.all.length == 1
     end
@@ -530,7 +551,7 @@ module Companion
         summary.fetch(:history_count) == 2 &&
         summary.fetch(:projection_count) == 3 &&
         summary.fetch(:command_count) == 3 &&
-        manifest.fetch(:records).fetch(:reminders).fetch(:operations) == %i[all find save update delete clear scope] &&
+        manifest.fetch(:records).fetch(:reminders).fetch(:operations) == %i[all find save update delete clear scope command] &&
         manifest.fetch(:histories).fetch(:tracker_logs).fetch(:operations) == %i[append all where count] &&
         manifest.fetch(:commands).fetch(:tracker_log_commands).fetch(:operations).include?(:history_append)
     end
