@@ -80,6 +80,9 @@ Current user-defined-type pressure test:
   that plan with the already materialized static manifests and reports drift
 - `WizardTypeSpecExportContract`: read-only export projection with dev mode
   retaining history and prod mode compressed to latest specs only
+- `Wizard Type Spec Architecture`: research response now treats
+  `WizardTypeSpec` as future `Store[ContractSpec]` and
+  `WizardTypeSpecChange` as future `History[ContractSpecChange]`
 
 Current command contracts:
 
@@ -220,6 +223,8 @@ still app-local:
 - store dynamic wizard output as durable specs, not executable runtime code
 - keep spec history append-only for dev/migration work; prod export may compress
   to latest-only specs
+- prefer a future canonical spec shape with `schema_version` and
+  `storage.shape`, while keeping current `persist`/`history` compatibility
 - keep materialization planning read-only until explicit write/git/test/restart
   capabilities are modeled
 - require parity to pass before a future materializer requests write/git/restart

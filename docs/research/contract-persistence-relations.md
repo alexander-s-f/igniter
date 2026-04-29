@@ -1,6 +1,6 @@
 # Contract Persistence Relations
 
-Status: research specification with first app-local Companion slice landed. Not
+Status: research specification with app-local Companion slices landed. Not
 accepted core DSL, package API, database planner, or Igniter Lang grammar.
 
 ## Core Claim
@@ -84,14 +84,14 @@ Relations should graduate one phase at a time:
 6. `enforce`: writes can reject or require repair.
 7. `place`: cluster/storage layers can use the relation for locality.
 
-Companion has reached phases 1-4 for one relation and phase 5 as diagnostics:
+Companion has reached phases 1-4 for two relations and phase 5 as diagnostics:
 
 - `declare`: `RELATION_BINDINGS`
 - `manifest`: `/setup/manifest`
 - `validate`: endpoint, kind, join-field, projection, and `enforced: false`
   checks
 - `project`: `tracker_read_model` declares `tracker_logs_by_tracker` as an
-  input relation
+  input relation; `comments_by_article` is manifest-only for now
 - `warn`: relation health reports orphan history references as structured
   warnings
 
@@ -210,9 +210,9 @@ Readiness should validate:
 - projection exists when named
 - relation is marked `enforced: false` unless an accepted track says otherwise
 
-## Companion First Slice
+## Companion Slices
 
-This has landed app-locally:
+These have landed app-locally:
 
 ```ruby
 RELATION_BINDINGS = {
@@ -226,6 +226,17 @@ RELATION_BINDINGS = {
     consistency: :local,
     projection: :tracker_read_model,
     enforced: false
+  },
+  comments_by_article: {
+    kind: :event_owner,
+    from: :articles,
+    to: :comments,
+    join: { id: :article_id },
+    cardinality: :one_to_many,
+    integrity: :validate_on_append,
+    consistency: :local,
+    projection: nil,
+    enforced: false
   }
 }.freeze
 ```
@@ -234,7 +245,7 @@ Acceptance:
 
 - `/setup/manifest` includes `relations`
 - readiness validates endpoints and join fields
-- projection manifests include relation inputs
+- projection manifests include relation inputs where a projection exists
 - relation health reports can emit structured warnings
 - relation health can emit review suggestions
 - smoke proves relation manifest, projection relation input, relation health,
@@ -258,6 +269,17 @@ RELATION_BINDINGS = {
     integrity: :validate_on_append,
     consistency: :local,
     projection: :tracker_read_model,
+    enforced: false
+  },
+  comments_by_article: {
+    kind: :event_owner,
+    from: :articles,
+    to: :comments,
+    join: { id: :article_id },
+    cardinality: :one_to_many,
+    integrity: :validate_on_append,
+    consistency: :local,
+    projection: nil,
     enforced: false
   }
 }.freeze
@@ -286,10 +308,11 @@ Relation health reports:
 
 Choose one:
 
-- add one more relation only if Companion product pressure needs it
 - harden relation health summaries and setup output
 - add manifest-only relation sugar in Companion, lowering to the explicit
   registry manifest
+- add another relation only if it tests a new semantic kind, not another
+  `event_owner`
 
 Do not add enforcement, cascade behavior, DB foreign keys, relation planners, or
 core DSL.
@@ -343,16 +366,16 @@ Do not add yet:
 [Architect Supervisor / Codex]
 Track: docs/research/contract-persistence-relations.md
 Status: research spec proposed for app-local Companion proof.
-[D] First app-local relation proof landed for Tracker -> TrackerLog ->
-TrackerReadModel.
+[D] App-local relation proofs landed for Tracker -> TrackerLog ->
+TrackerReadModel and Article -> Comment.
 [D] A relation is a typed manifest edge between persistence capabilities, not an
 ORM association or DB foreign key first.
 [R] Canonical form is explicit relation manifest; human sugar may lower to it.
 [R] Relation phases must follow declare -> manifest -> validate -> project ->
 warn -> enforce -> place.
-[S] Companion is at declare/manifest/validate/project/warn for one relation;
-enforce/place remain deferred.
-Next: keep relation health diagnostic-only and add another relation only under
-real product pressure.
+[S] Companion is at declare/manifest/validate/project/warn for one projected
+relation and one manifest-only relation; enforce/place remain deferred.
+Next: keep relation health diagnostic-only and add another relation only if it
+tests a new semantic kind.
 Block: no core/package promotion until relation manifest proves useful.
 ```

@@ -20,6 +20,9 @@ research material under `playgrounds/docs/`.
 - [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md) -
   handoff request for spec lineage, materialization, export, and migration
   analysis.
+- [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md) -
+  research response defining the canonical spec model, export rules, and
+  materializer boundary.
 
 ## Read First
 
@@ -34,6 +37,7 @@ Before changing architecture or reviewing an agent proposal, read:
 7. [Companion Persistence App Status](./companion-persistence-app-status.md)
 8. [Contract Persistence Relations](./contract-persistence-relations.md)
 9. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
+10. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
 
 ## Current Research State
 

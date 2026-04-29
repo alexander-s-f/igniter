@@ -96,6 +96,22 @@ return:
 - reasons this should not be promoted yet
 - the smallest next reversible app-local experiment
 
+## Research Response
+
+Accepted response:
+
+- [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
+
+Summary:
+
+- `WizardTypeSpec` is best modeled as `Store[ContractSpec]`.
+- `WizardTypeSpecChange` is best modeled as `History[ContractSpecChange]`.
+- Dynamic specs are durable lineage/config data, not executable runtime code.
+- Static contracts remain the production materialized shape.
+- The smallest next experiment is to add `schema_version` and
+  `storage.shape` to the seeded Article/Comment spec while preserving current
+  `persist`/`history` compatibility.
+
 ## Handoff
 
 ```text
