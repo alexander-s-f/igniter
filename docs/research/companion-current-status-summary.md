@@ -41,6 +41,7 @@ setup_health.descriptor -> report-only summary over readiness + guardrails
 setup_handoff.descriptor -> compact context rotation packet
 setup_handoff_lifecycle -> read-only lifecycle map over handoff acceptance
 setup_handoff_lifecycle_health -> drift check without setup_health cycle
+setup_handoff_supervision -> single agent context packet over handoff lifecycle
 app boundary -> explicit mutation application
 projection -> graph-owned read model
 ```
@@ -148,6 +149,8 @@ Best next move:
   reading individual acceptance packets
 - use `/setup/handoff/lifecycle-health.json` as the lifecycle drift check; it
   intentionally stays outside `setup_health` to avoid a cyclic packet graph
+- use `/setup/handoff/supervision.json` when an agent needs one compact packet
+  with lifecycle stage, health signals, packet refs, and next action
 - follow its `reading_order` through both handoff acceptance packets before
   deciding that the materializer lifecycle advanced
 - follow its `document_rotation` block before reading long thread history

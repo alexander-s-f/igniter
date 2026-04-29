@@ -67,6 +67,9 @@ Current manifest vocabulary:
 - `/setup/handoff/lifecycle-health(.json)` validates lifecycle descriptor,
   stage order, views, explicit POST mutations, current stage, and next action
   without feeding back into `/setup/health`
+- `/setup/handoff/supervision(.json)` composes setup health, handoff, lifecycle,
+  lifecycle health, and materializer status into one report-only agent context
+  packet with packet refs and next action
 - `/setup/handoff/acceptance(.json)` reports whether the recommended handoff
   scope is pending or satisfied without executing it
 - `POST /setup/handoff/acceptance/record` explicitly applies the same
@@ -199,6 +202,9 @@ Current user-defined-type pressure test:
   attempt receipt acceptance, and approval receipt acceptance
 - `SetupHandoffLifecycleHealthContract`: report-only drift check for that stage
   map, kept separate from `SetupHealthContract` to avoid cyclic diagnostics
+- `SetupHandoffSupervisionContract`: single report-only agent context packet
+  over setup health, handoff lifecycle, lifecycle health, and materializer
+  status
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities

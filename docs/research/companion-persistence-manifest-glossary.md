@@ -152,6 +152,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   stage map.
 - Reading order includes `/setup/handoff/lifecycle-health.json` as the drift
   check for that stage map.
+- Reading order includes `/setup/handoff/supervision.json` as the compact agent
+  context packet.
 - Carries `document_rotation` with the compact public docs and private track to
   read before older thread history.
 - Carries `architecture_constraints` for app-local scope, no public API promise,
@@ -180,6 +182,15 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   explicit POST mutations, current stage, and next action.
 - Stays outside `setup_health` because it depends on `setup_handoff`, which
   already depends on `setup_health`.
+
+`setup_handoff_supervision`
+
+- Single agent context packet exposed at `/setup/handoff/supervision.json`.
+- Composes setup health, setup handoff, lifecycle, lifecycle health, and
+  materializer status.
+- Reports lifecycle status/stage, materializer phase, no-grant/no-execution
+  signals, packet refs, and next action.
+- It is not a runtime gate, approval, or execution surface.
 
 `setup_handoff_acceptance`
 

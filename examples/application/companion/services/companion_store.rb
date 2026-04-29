@@ -272,6 +272,10 @@ module Companion
         persistence.setup_handoff_lifecycle_health
       end
 
+      def setup_handoff_supervision
+        persistence.setup_handoff_supervision
+      end
+
       def materialization_plan
         persistence.materialization_plan
       end

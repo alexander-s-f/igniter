@@ -387,6 +387,16 @@ module Companion
         )
       end
 
+      def setup_handoff_supervision
+        Contracts::SetupHandoffSupervisionContract.evaluate(
+          setup_health: setup_health,
+          setup_handoff: setup_handoff,
+          setup_handoff_lifecycle: setup_handoff_lifecycle,
+          setup_handoff_lifecycle_health: setup_handoff_lifecycle_health,
+          materializer_status: materializer_status
+        )
+      end
+
       def reminders
         record(:reminders)
       end
