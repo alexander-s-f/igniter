@@ -80,6 +80,8 @@ module Companion
       setup_status, _setup_headers, setup_body = app.call(rack_env("GET", "/setup"))
       setup_handoff_status, _setup_handoff_headers, setup_handoff_body = app.call(rack_env("GET", "/setup/handoff"))
       setup_handoff_json_status, _setup_handoff_json_headers, setup_handoff_json_body = app.call(rack_env("GET", "/setup/handoff.json"))
+      setup_handoff_packet_registry_status, _setup_handoff_packet_registry_headers, setup_handoff_packet_registry_body = app.call(rack_env("GET", "/setup/handoff/packet-registry"))
+      setup_handoff_packet_registry_json_status, _setup_handoff_packet_registry_json_headers, setup_handoff_packet_registry_json_body = app.call(rack_env("GET", "/setup/handoff/packet-registry.json"))
       setup_handoff_supervision_status, _setup_handoff_supervision_headers, setup_handoff_supervision_body = app.call(rack_env("GET", "/setup/handoff/supervision"))
       setup_handoff_supervision_json_status, _setup_handoff_supervision_json_headers, setup_handoff_supervision_json_body = app.call(rack_env("GET", "/setup/handoff/supervision.json"))
       setup_handoff_acceptance_status, _setup_handoff_acceptance_headers, setup_handoff_acceptance_body = app.call(rack_env("GET", "/setup/handoff/acceptance"))
@@ -150,6 +152,8 @@ module Companion
       setup = setup_body.join
       setup_handoff = setup_handoff_body.join
       setup_handoff_json = setup_handoff_json_body.join
+      setup_handoff_packet_registry = setup_handoff_packet_registry_body.join
+      setup_handoff_packet_registry_json = setup_handoff_packet_registry_json_body.join
       setup_handoff_supervision = setup_handoff_supervision_body.join
       setup_handoff_supervision_json = setup_handoff_supervision_json_body.join
       setup_handoff_acceptance = setup_handoff_acceptance_body.join
@@ -240,6 +244,8 @@ module Companion
       out.puts "companion_poc_setup_status=#{setup_status}"
       out.puts "companion_poc_setup_handoff_status=#{setup_handoff_status}"
       out.puts "companion_poc_setup_handoff_json_status=#{setup_handoff_json_status}"
+      out.puts "companion_poc_setup_handoff_packet_registry_status=#{setup_handoff_packet_registry_status}"
+      out.puts "companion_poc_setup_handoff_packet_registry_json_status=#{setup_handoff_packet_registry_json_status}"
       out.puts "companion_poc_setup_handoff_supervision_status=#{setup_handoff_supervision_status}"
       out.puts "companion_poc_setup_handoff_supervision_json_status=#{setup_handoff_supervision_json_status}"
       out.puts "companion_poc_setup_handoff_acceptance_status=#{setup_handoff_acceptance_status}"
@@ -306,6 +312,8 @@ module Companion
       out.puts "companion_poc_setup_handoff_summary=#{setup_handoff_summary?(setup)}"
       out.puts "companion_poc_setup_handoff_endpoint=#{setup_handoff_endpoint?(setup_handoff)}"
       out.puts "companion_poc_setup_handoff_json_endpoint=#{setup_handoff_json_endpoint?(setup_handoff_json)}"
+      out.puts "companion_poc_setup_handoff_packet_registry_endpoint=#{setup_handoff_packet_registry_endpoint?(setup_handoff_packet_registry)}"
+      out.puts "companion_poc_setup_handoff_packet_registry_json_endpoint=#{setup_handoff_packet_registry_json_endpoint?(setup_handoff_packet_registry_json)}"
       out.puts "companion_poc_setup_handoff_supervision_endpoint=#{setup_handoff_supervision_endpoint?(setup_handoff_supervision)}"
       out.puts "companion_poc_setup_handoff_supervision_json_endpoint=#{setup_handoff_supervision_json_endpoint?(setup_handoff_supervision_json)}"
       out.puts "companion_poc_setup_handoff_acceptance_endpoint=#{setup_handoff_acceptance_endpoint?(setup_handoff_acceptance)}"
@@ -416,6 +424,7 @@ module Companion
       out.puts "companion_poc_setup_handoff_lifecycle_contract=#{setup_handoff_lifecycle_contract?}"
       out.puts "companion_poc_setup_handoff_lifecycle_health_contract=#{setup_handoff_lifecycle_health_contract?}"
       out.puts "companion_poc_setup_handoff_supervision_contract=#{setup_handoff_supervision_contract?}"
+      out.puts "companion_poc_setup_handoff_packet_registry_contract=#{setup_handoff_packet_registry_contract?}"
       out.puts "companion_poc_setup_health_contract=#{setup_health_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
       out.puts "companion_poc_user_defined_article_contract=#{user_defined_article_contract?}"
@@ -1591,6 +1600,7 @@ module Companion
         handoff.fetch(:descriptor).fetch(:grants_capabilities) == false &&
         handoff.fetch(:descriptor).fetch(:purpose) == :context_rotation &&
         handoff.fetch(:reading_order).include?("/setup/health.json") &&
+        handoff.fetch(:reading_order).include?("/setup/handoff/packet-registry.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/supervision.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/lifecycle.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/lifecycle-health.json") &&
@@ -1743,6 +1753,23 @@ module Companion
         after_attempt.fetch(:next_action) == :record_approval_receipt &&
         complete.fetch(:status) == :complete &&
         complete.fetch(:next_action) == :review_materializer_status
+    end
+
+    def setup_handoff_packet_registry_contract?
+      registry = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).setup_handoff_packet_registry
+
+      registry.fetch(:status) == :stable &&
+        registry.fetch(:descriptor).fetch(:kind) == :setup_handoff_packet_registry &&
+        registry.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        registry.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        registry.fetch(:packets).length == 8 &&
+        registry.fetch(:packets).all? { |packet| packet.fetch(:report_only) && packet.fetch(:gates_runtime) == false && packet.fetch(:grants_capabilities) == false } &&
+        registry.fetch(:read_order).include?("/setup/handoff/supervision.json") &&
+        registry.fetch(:mutation_paths) == [
+          "POST /setup/handoff/acceptance/record",
+          "POST /setup/handoff/approval-acceptance/record"
+        ] &&
+        registry.fetch(:summary).include?("8 setup packets")
     end
 
     def relation_health_dashboard?(html)
@@ -2277,6 +2304,7 @@ module Companion
         setup_handoff.include?("kind=>:setup_handoff") &&
         setup_handoff.include?("gates_runtime=>false") &&
         setup_handoff.include?("/setup/health.json") &&
+        setup_handoff.include?("/setup/handoff/packet-registry.json") &&
         setup_handoff.include?("/setup/handoff/supervision.json") &&
         setup_handoff.include?("/setup/handoff/lifecycle.json") &&
         setup_handoff.include?("/setup/handoff/lifecycle-health.json") &&
@@ -2306,6 +2334,7 @@ module Companion
         payload.fetch("descriptor").fetch("grants_capabilities") == false &&
         payload.fetch("descriptor").fetch("purpose") == "context_rotation" &&
         payload.fetch("reading_order").include?("/setup/health.json") &&
+        payload.fetch("reading_order").include?("/setup/handoff/packet-registry.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/supervision.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/lifecycle.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/lifecycle-health.json") &&
@@ -2420,6 +2449,30 @@ module Companion
         payload.fetch("signals").fetch("materializer_execution_allowed") == false &&
         payload.fetch("packet_refs").fetch("lifecycle_health") == "/setup/handoff/lifecycle-health.json" &&
         payload.fetch("next_action") == "record_blocked_attempt"
+    end
+
+    def setup_handoff_packet_registry_endpoint?(setup_handoff_packet_registry)
+      setup_handoff_packet_registry.include?("status=>:stable") &&
+        setup_handoff_packet_registry.include?("kind=>:setup_handoff_packet_registry") &&
+        setup_handoff_packet_registry.include?("packet_index") &&
+        setup_handoff_packet_registry.include?("/setup/handoff/supervision.json") &&
+        setup_handoff_packet_registry.include?("POST /setup/handoff/approval-acceptance/record")
+    end
+
+    def setup_handoff_packet_registry_json_endpoint?(setup_handoff_packet_registry_json)
+      payload = JSON.parse(setup_handoff_packet_registry_json)
+
+      payload.fetch("status") == "stable" &&
+        payload.fetch("descriptor").fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "setup_handoff_packet_registry" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("packets").length == 8 &&
+        payload.fetch("packets").all? { |packet| packet.fetch("report_only") && packet.fetch("gates_runtime") == false && packet.fetch("grants_capabilities") == false } &&
+        payload.fetch("read_order").include?("/setup/handoff/supervision.json") &&
+        payload.fetch("mutation_paths").include?("POST /setup/handoff/acceptance/record") &&
+        payload.fetch("mutation_paths").include?("POST /setup/handoff/approval-acceptance/record")
     end
 
     def setup_handoff_approval_acceptance_endpoint?(setup_handoff_approval_acceptance)

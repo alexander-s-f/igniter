@@ -154,6 +154,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   check for that stage map.
 - Reading order includes `/setup/handoff/supervision.json` as the compact agent
   context packet.
+- Reading order includes `/setup/handoff/packet-registry.json` as the indexed
+  setup packet surface.
 - Carries `document_rotation` with the compact public docs and private track to
   read before older thread history.
 - Carries `architecture_constraints` for app-local scope, no public API promise,
@@ -191,6 +193,14 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Reports lifecycle status/stage, materializer phase, no-grant/no-execution
   signals, packet refs, and next action.
 - It is not a runtime gate, approval, or execution surface.
+
+`setup_handoff_packet_registry`
+
+- Read-only packet index exposed at `/setup/handoff/packet-registry.json`.
+- Lists setup/handoff packet endpoints, packet roles, descriptor boundaries,
+  reading order, and explicit receipt POST paths.
+- All indexed packets must remain report-only, `gates_runtime: false`, and
+  `grants_capabilities: false`.
 
 `setup_handoff_acceptance`
 

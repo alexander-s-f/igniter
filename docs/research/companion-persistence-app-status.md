@@ -70,6 +70,9 @@ Current manifest vocabulary:
 - `/setup/handoff/supervision(.json)` composes setup health, handoff, lifecycle,
   lifecycle health, and materializer status into one report-only agent context
   packet with packet refs and next action
+- `/setup/handoff/packet-registry(.json)` indexes setup/handoff packets,
+  report-only/no-gate/no-grant boundaries, reading order, and explicit receipt
+  POST paths
 - `/setup/handoff/acceptance(.json)` reports whether the recommended handoff
   scope is pending or satisfied without executing it
 - `POST /setup/handoff/acceptance/record` explicitly applies the same
@@ -205,6 +208,8 @@ Current user-defined-type pressure test:
 - `SetupHandoffSupervisionContract`: single report-only agent context packet
   over setup health, handoff lifecycle, lifecycle health, and materializer
   status
+- `SetupHandoffPacketRegistryContract`: read-only registry of setup/handoff
+  packet endpoints and explicit mutation paths
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities

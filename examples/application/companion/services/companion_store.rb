@@ -276,6 +276,10 @@ module Companion
         persistence.setup_handoff_supervision
       end
 
+      def setup_handoff_packet_registry
+        persistence.setup_handoff_packet_registry
+      end
+
       def materialization_plan
         persistence.materialization_plan
       end

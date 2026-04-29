@@ -397,6 +397,19 @@ module Companion
         )
       end
 
+      def setup_handoff_packet_registry
+        Contracts::SetupHandoffPacketRegistryContract.evaluate(
+          setup_health: setup_health,
+          setup_handoff: setup_handoff,
+          setup_handoff_supervision: setup_handoff_supervision,
+          setup_handoff_lifecycle: setup_handoff_lifecycle,
+          setup_handoff_lifecycle_health: setup_handoff_lifecycle_health,
+          setup_handoff_acceptance: setup_handoff_acceptance,
+          setup_handoff_approval_acceptance: setup_handoff_approval_acceptance,
+          materializer_status: materializer_status
+        )
+      end
+
       def reminders
         record(:reminders)
       end
