@@ -18,6 +18,9 @@ research material under `playgrounds/docs/`.
   vertical.
 - [Companion Persistence App Status](./companion-persistence-app-status.md) -
   current app-local persistence proof and handoff.
+- [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md) -
+  placement decision for app-local proof, staged extraction, and future package
+  naming.
 - [Contract Persistence Relations](./contract-persistence-relations.md) -
   research model, specification, and DSL for relation manifests.
 - [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md) -
@@ -39,9 +42,10 @@ Before changing architecture or reviewing an agent proposal, read:
 6. [Vision Handoff Protocol](./vision-handoff-protocol.md)
 7. [Companion Current Status Summary](./companion-current-status-summary.md)
 8. [Companion Persistence App Status](./companion-persistence-app-status.md)
-9. [Contract Persistence Relations](./contract-persistence-relations.md)
-10. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
-11. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
+9. [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md)
+10. [Contract Persistence Relations](./contract-persistence-relations.md)
+11. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
+12. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
 
 ## Current Research State
 

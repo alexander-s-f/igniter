@@ -81,6 +81,24 @@ that may later materialize contracts.
 That fractal shape looks healthy, but it must stay app-local until the API
 surface is smaller and the lowerings to `Store[T]` / `History[T]` are clearer.
 
+## Landing Zone
+
+Persistence has enough signal to reserve a future home, but not enough to split
+now.
+
+Recommended path:
+
+- current: Companion app-local proof
+- first extraction: contract vocabulary/descriptors toward `igniter-extensions`
+- first runtime host extraction: registry, adapters, setup/readiness,
+  app-boundary writes, and materializer review flows toward
+  `igniter-application`
+- later, if repeated evidence appears: create `igniter-persistence`
+
+Avoid `igniter-data` for this capability. It is too broad; the sharper concept
+is durable `Store[T]`, append-only `History[T]`, typed relations, command
+intents, materialization, and audit.
+
 ## Current Boundary
 
 Do not promote yet:
@@ -106,8 +124,8 @@ Do preserve:
 
 Best next move:
 
-- decide whether materializer review should stay visible on the main dashboard
-  or move behind a setup/review surface
+- stabilize manifest vocabulary around `schema_version`, `storage.shape`,
+  operation algebra, relation semantics, and approval lifecycle
 - continue avoiding execution and capability grant controls
 
 Acceptance:

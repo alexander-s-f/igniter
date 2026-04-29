@@ -294,6 +294,28 @@ Not accepted yet:
 - `Igniter::Lang` grammar syntax
 - treating histories as mutable CRUD
 
+## Landing Zone
+
+Persistence is now important enough to reserve a landing path, but not important
+enough to split a package from this proof alone.
+
+Current placement decision:
+
+- keep the next iteration app-local in Companion
+- extract contract-facing vocabulary/descriptors toward `igniter-extensions`
+  only after the manifest vocabulary stops moving
+- extract host/runtime binding, adapters, setup/readiness surfaces, explicit
+  write boundaries, and materializer review flows toward `igniter-application`
+  only after a second app/example repeats the pressure
+- reserve `igniter-persistence` as the future package name if a separate package
+  becomes justified
+- avoid `igniter-data` for now because it is too broad and blurs persistence
+  with dataflow, analytics, datasets, and ETL
+- keep `igniter-contracts` host-agnostic; persistence remains optional
+  vocabulary plus app-boundary behavior
+
+See [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md).
+
 ## Authoring Rule
 
 Dynamic authoring is allowed as a sandbox. A wizard/configurator may collect a
@@ -316,10 +338,12 @@ Two relation slices have landed app-locally:
 - relation repair suggestions are command-intent shaped, but not executable
   repair behavior
 
-The next safe move is materialization hardening or relation-health ergonomics,
-still app-local:
+The next safe move is vocabulary and materializer hardening, still app-local:
 
-- add a minimal dashboard/status cue from the compact materializer packet
+- stabilize the manifest vocabulary around `schema_version` and `storage.shape`
+- keep current `persist`/`history` aliases for app-local compatibility
+- keep operation algebra small and explicit
+- keep relation metadata typed and report-only
 - keep approval reads side-effect-free
 - apply approval persistence only through an explicit app-boundary POST
 - keep dynamic wizard/configurator output sandboxed until it materializes into
@@ -361,7 +385,11 @@ metadata are reportable and usable by app-local generated APIs.
 [S] Tracker to TrackerLog proves projection relation input and warning path.
 [S] Article to Comment proves user-defined-type pressure through static
 contracts before dynamic materialization.
-Next: add a minimal dashboard/status cue from the compact materializer packet,
-while keeping capability grants review-only and non-applied.
+[S] Fractal/self-supporting shape is positive evidence: contracts now describe
+durable specs, validate infrastructure, compute materializer review packets, and
+project audit trails for their own future materialization path.
+Next: stabilize manifest vocabulary, operation algebra, relation semantics, and
+materializer approval lifecycle while keeping capability grants review-only and
+non-applied.
 Block: none.
 ```
