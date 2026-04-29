@@ -15,6 +15,7 @@ module Companion
       TrackerLog = Struct.new(:tracker_id, :date, :value, keyword_init: true)
       DailyFocus = Struct.new(:date, :title, keyword_init: true)
       Countdown = Struct.new(:id, :title, :target_date, keyword_init: true)
+      CountdownSnapshot = Struct.new(:id, :title, :target_date, :days_remaining, keyword_init: true)
       Action = Struct.new(:index, :kind, :subject_id, :status, keyword_init: true)
 
       attr_accessor :live_summary

@@ -33,6 +33,8 @@ The launcher is intentionally thin. App-local infrastructure lives under
   persisted record instead of a scalar state slot.
 - `contracts/countdown_record_contract.rb` models countdowns as generated
   persisted records.
+- `contracts/countdown_read_model_contract.rb` derives days-remaining facts
+  from countdown records for the dashboard.
 - `services/contract_record_set.rb` turns that metadata into a tiny generated
   record API: `all`, `find`, `save`, `update`, `delete`, and `clear`.
 - `contracts/tracker_record_contract.rb` declares trackers as record

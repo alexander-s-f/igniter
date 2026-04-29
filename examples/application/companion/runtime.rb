@@ -138,6 +138,8 @@ module Companion
       out.puts "companion_poc_countdown_contract_refusal=#{blank_countdown_headers.fetch("location").include?("blank_countdown")}"
       out.puts "companion_poc_countdown_created=#{final.countdowns.any? { |countdown| countdown.id == "launch-day" }}"
       out.puts "companion_poc_countdown_persisted=#{persisted.countdowns.any? { |countdown| countdown.id == "launch-day" }}"
+      out.puts "companion_poc_countdown_projection_contract=#{countdown_projection_contract?}"
+      out.puts "companion_poc_countdown_days_surface=#{html.include?("data-countdown-days=")}"
       out.puts "companion_poc_reminder_contract_refusal=#{blank_reminder_headers.fetch("location").include?("blank_reminder")}"
       out.puts "companion_poc_tracker_log_contract_refusal=#{blank_tracker_headers.fetch("location").include?("blank_tracker_value")}"
       out.puts "companion_poc_reminder_persistence_manifest=#{reminder_persistence_manifest?}"
@@ -302,6 +304,19 @@ module Companion
         records.all.length == 1
     end
 
+    def countdown_projection_contract?
+      projection = Contracts::CountdownReadModelContract.evaluate(
+        countdowns: [
+          Services::CompanionState::Countdown.new(id: "launch", title: "Launch", target_date: "2026-05-01")
+        ],
+        date: "2026-04-29"
+      )
+      snapshot = projection.fetch(:countdown_snapshots).first
+
+      snapshot.id == "launch" &&
+        snapshot.days_remaining == 2
+    end
+
     def tracker_persistence_manifest?
       manifest = Contracts::Tracker.persistence_manifest
       persist = manifest.fetch(:persist)
@@ -425,10 +440,11 @@ module Companion
       manifest = persistence.capability_manifest
       persistence.capability_names == %i[
         reminders trackers daily_focuses countdowns tracker_logs actions
-        tracker_read_model activity_feed
+        tracker_read_model countdown_read_model activity_feed
       ] &&
         manifest.fetch(:reminders).fetch(:kind) == :record &&
         manifest.fetch(:countdowns).fetch(:kind) == :record &&
+        manifest.fetch(:countdown_read_model).fetch(:kind) == :projection &&
         manifest.fetch(:tracker_logs).fetch(:kind) == :history &&
         manifest.fetch(:activity_feed).fetch(:kind) == :projection
     end
@@ -443,10 +459,10 @@ module Companion
       readiness = persistence.readiness
       readiness.fetch(:ready) &&
         readiness.fetch(:status) == :ready &&
-        readiness.fetch(:capability_count) == 8 &&
+        readiness.fetch(:capability_count) == 9 &&
         readiness.fetch(:record_count) == 4 &&
         readiness.fetch(:history_count) == 2 &&
-        readiness.fetch(:projection_count) == 2
+        readiness.fetch(:projection_count) == 3
     end
 
     def post(app, path, values = {})

@@ -45,6 +45,7 @@ module Companion
 
       PROJECTION_BINDINGS = {
         tracker_read_model: Contracts::TrackerReadModelContract,
+        countdown_read_model: Contracts::CountdownReadModelContract,
         activity_feed: Contracts::ActivityFeedContract
       }.freeze
 
@@ -109,6 +110,13 @@ module Companion
         Contracts::TrackerReadModelContract.evaluate(
           trackers: trackers.all,
           tracker_logs: tracker_logs.all,
+          date: date
+        )
+      end
+
+      def countdown_read_model_for(date)
+        Contracts::CountdownReadModelContract.evaluate(
+          countdowns: countdowns.all,
           date: date
         )
       end

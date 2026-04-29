@@ -250,6 +250,8 @@ Companion currently proves the first app-local version:
   projects them back into tracker read models for UI compatibility
 - `TrackerReadModelContract` derives dashboard facts from tracker records plus
   tracker-log history
+- `CountdownReadModelContract` derives days-remaining facts from countdown
+  records for the dashboard
 - `CompanionAction` declares user/runtime receipts as append-only history
 - `ActivityFeedContract` derives dashboard activity facts from action history
 - `CompanionPersistence` collects generated record/history capabilities and

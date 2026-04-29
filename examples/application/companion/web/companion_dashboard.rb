@@ -174,6 +174,11 @@ module Companion
                   div "data-countdown-id": countdown.id, style: Companion::Web.style(:item) do
                     strong countdown.title
                     para countdown.target_date, style: Companion::Web.style(:muted)
+                    para(
+                      countdown.days_remaining.nil? ? "Target date needs review" : "#{countdown.days_remaining} days left",
+                      "data-countdown-days": countdown.days_remaining,
+                      style: Companion::Web.style(:muted)
+                    )
                   end
                 end
                 form action: "/countdowns/create", method: "post", style: Companion::Web.style(:form_row) do
