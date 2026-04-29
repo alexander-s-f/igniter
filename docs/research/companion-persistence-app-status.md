@@ -48,6 +48,7 @@ Current projection contracts:
 - `TrackerReadModelContract`: `Tracker` records plus `TrackerLog` history
 - `CountdownReadModelContract`: countdown records to dashboard facts
 - `ActivityFeedContract`: action history to activity facts
+- `MaterializerAuditTrailContract`: materializer attempt history to audit facts
 
 Current relation capability:
 
@@ -103,6 +104,8 @@ Current user-defined-type pressure test:
 - `MaterializerAttemptContract`: command contract that lowers the review-only
   receipt into normalized `history_append :materializer_attempts` intent without
   applying it
+- `MaterializerAuditTrailContract`: projection over `History[MaterializerAttempt]`
+  for blocked attempt counts, blocked capabilities, and latest receipt
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`
@@ -208,6 +211,8 @@ Current Companion product flows use the persistence model:
   intent for that receipt without appending it
 - `POST /setup/materializer-attempts/record` is the explicit app-boundary write
   path that applies that intent and persists one attempt receipt
+- `/setup/materializer-audit-trail` exposes the read model over persisted
+  materializer attempts
 
 ## Validated Concepts
 

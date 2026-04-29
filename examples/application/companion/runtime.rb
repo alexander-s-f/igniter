@@ -103,6 +103,8 @@ module Companion
       materializer_receipt_json_status, _materializer_receipt_json_headers, materializer_receipt_json_body = app.call(rack_env("GET", "/setup/materializer-receipt.json"))
       materializer_attempt_command_status, _materializer_attempt_command_headers, materializer_attempt_command_body = app.call(rack_env("GET", "/setup/materializer-attempt-command"))
       materializer_attempt_command_json_status, _materializer_attempt_command_json_headers, materializer_attempt_command_json_body = app.call(rack_env("GET", "/setup/materializer-attempt-command.json"))
+      materializer_audit_status, _materializer_audit_headers, materializer_audit_body = app.call(rack_env("GET", "/setup/materializer-audit-trail"))
+      materializer_audit_json_status, _materializer_audit_json_headers, materializer_audit_json_body = app.call(rack_env("GET", "/setup/materializer-audit-trail.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -139,6 +141,8 @@ module Companion
       materializer_receipt_json = materializer_receipt_json_body.join
       materializer_attempt_command = materializer_attempt_command_body.join
       materializer_attempt_command_json = materializer_attempt_command_json_body.join
+      materializer_audit = materializer_audit_body.join
+      materializer_audit_json = materializer_audit_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -195,6 +199,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_receipt_json_status=#{materializer_receipt_json_status}"
       out.puts "companion_poc_setup_materializer_attempt_command_status=#{materializer_attempt_command_status}"
       out.puts "companion_poc_setup_materializer_attempt_command_json_status=#{materializer_attempt_command_json_status}"
+      out.puts "companion_poc_setup_materializer_audit_status=#{materializer_audit_status}"
+      out.puts "companion_poc_setup_materializer_audit_json_status=#{materializer_audit_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -226,6 +232,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_receipt_json_endpoint=#{setup_materializer_receipt_json_endpoint?(materializer_receipt_json)}"
       out.puts "companion_poc_setup_materializer_attempt_command_endpoint=#{setup_materializer_attempt_command_endpoint?(materializer_attempt_command)}"
       out.puts "companion_poc_setup_materializer_attempt_command_json_endpoint=#{setup_materializer_attempt_command_json_endpoint?(materializer_attempt_command_json)}"
+      out.puts "companion_poc_setup_materializer_audit_endpoint=#{setup_materializer_audit_endpoint?(materializer_audit)}"
+      out.puts "companion_poc_setup_materializer_audit_json_endpoint=#{setup_materializer_audit_json_endpoint?(materializer_audit_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -285,6 +293,7 @@ module Companion
       out.puts "companion_poc_materializer_attempt_history=#{materializer_attempt_history?}"
       out.puts "companion_poc_materializer_attempt_command=#{materializer_attempt_command?}"
       out.puts "companion_poc_materializer_attempt_record_route=#{materializer_attempt_record_route?}"
+      out.puts "companion_poc_materializer_audit_trail=#{materializer_audit_trail?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -726,6 +735,7 @@ module Companion
       persistence.capability_names == %i[
         reminders trackers daily_focuses countdowns articles wizard_type_specs tracker_logs actions comments
         wizard_type_spec_changes materializer_attempts tracker_read_model countdown_read_model activity_feed
+        materializer_audit_trail
       ] &&
         manifest.fetch(:reminders).fetch(:kind) == :record &&
         manifest.fetch(:countdowns).fetch(:kind) == :record &&
@@ -736,7 +746,8 @@ module Companion
         manifest.fetch(:materializer_attempts).fetch(:kind) == :history &&
         manifest.fetch(:countdown_read_model).fetch(:kind) == :projection &&
         manifest.fetch(:tracker_logs).fetch(:kind) == :history &&
-        manifest.fetch(:activity_feed).fetch(:kind) == :projection
+        manifest.fetch(:activity_feed).fetch(:kind) == :projection &&
+        manifest.fetch(:materializer_audit_trail).fetch(:kind) == :projection
     end
 
     def persistence_registry_valid?
@@ -749,10 +760,10 @@ module Companion
       readiness = persistence.readiness
       readiness.fetch(:ready) &&
         readiness.fetch(:status) == :ready &&
-        readiness.fetch(:capability_count) == 14 &&
+        readiness.fetch(:capability_count) == 15 &&
         readiness.fetch(:record_count) == 6 &&
         readiness.fetch(:history_count) == 5 &&
-        readiness.fetch(:projection_count) == 3 &&
+        readiness.fetch(:projection_count) == 4 &&
         readiness.fetch(:relation_count) == 2 &&
         readiness.fetch(:warning_count).zero?
     end
@@ -1053,6 +1064,22 @@ module Companion
         event.fetch("blocked_step_count") == 4
     end
 
+    def setup_materializer_audit_endpoint?(materializer_audit)
+      materializer_audit.include?("attempt_count=>0") &&
+        materializer_audit.include?("blocked_count=>0") &&
+        materializer_audit.include?("materializer attempts")
+    end
+
+    def setup_materializer_audit_json_endpoint?(materializer_audit_json)
+      payload = JSON.parse(materializer_audit_json)
+
+      payload.fetch("attempt_count").zero? &&
+        payload.fetch("blocked_count").zero? &&
+        payload.fetch("executed_count").zero? &&
+        payload.fetch("blocked_capabilities").empty? &&
+        payload.fetch("last_attempt").nil?
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -1096,7 +1123,7 @@ module Companion
 
       summary.fetch(:record_count) == 6 &&
         summary.fetch(:history_count) == 5 &&
-        summary.fetch(:projection_count) == 3 &&
+        summary.fetch(:projection_count) == 4 &&
         summary.fetch(:command_count) == 4 &&
         summary.fetch(:relation_count) == 2 &&
         manifest.fetch(:records).fetch(:articles).fetch(:fields).include?(:status) &&
@@ -1107,6 +1134,7 @@ module Companion
         manifest.fetch(:records).fetch(:reminders).fetch(:operations) == %i[all find save update delete clear scope command] &&
         manifest.fetch(:histories).fetch(:tracker_logs).fetch(:operations) == %i[append all where count] &&
         manifest.fetch(:projections).fetch(:tracker_read_model).fetch(:relations) == %i[tracker_logs_by_tracker] &&
+        manifest.fetch(:projections).fetch(:materializer_audit_trail).fetch(:reads) == %i[materializer_attempts] &&
         manifest.fetch(:relations).fetch(:tracker_logs_by_tracker).fetch(:join) == { id: :tracker_id } &&
         manifest.fetch(:commands).fetch(:tracker_log_commands).fetch(:operations).include?(:history_append) &&
         manifest.fetch(:commands).fetch(:materializer_attempt_commands).fetch(:operations).include?(:history_append)
@@ -1418,6 +1446,22 @@ module Companion
         attempts.first.fetch(:kind) == :materializer_runbook_receipt &&
         attempts.first.fetch(:executed) == false &&
         persisted_attempts.length == 1
+    end
+
+    def materializer_audit_trail?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      empty = persistence.materializer_audit_trail
+      command = persistence.materializer_attempt_command
+      persistence.materializer_attempts.append(command.fetch(:mutation).fetch(:event).merge(index: 0))
+      trail = persistence.materializer_audit_trail
+
+      empty.fetch(:attempt_count).zero? &&
+        empty.fetch(:last_attempt).nil? &&
+        trail.fetch(:attempt_count) == 1 &&
+        trail.fetch(:blocked_count) == 1 &&
+        trail.fetch(:executed_count).zero? &&
+        trail.fetch(:blocked_capabilities) == %i[git restart test write] &&
+        trail.fetch(:last_attempt).fetch(:kind) == :materializer_runbook_receipt
     end
 
     def wizard_type_spec_canonical?
