@@ -32,6 +32,11 @@ module Companion
           contract_class: Contracts::Article,
           collection: :articles,
           record_class: CompanionState::Article
+        },
+        wizard_type_specs: {
+          contract_class: Contracts::WizardTypeSpec,
+          collection: :wizard_type_specs,
+          record_class: CompanionState::WizardTypeSpec
         }
       }.freeze
 
@@ -50,6 +55,11 @@ module Companion
           contract_class: Contracts::Comment,
           entries: :comment_entries,
           append: :append_comment_event
+        },
+        wizard_type_spec_changes: {
+          contract_class: Contracts::WizardTypeSpecChange,
+          entries: :wizard_type_spec_change_entries,
+          append: :append_wizard_type_spec_change
         }
       }.freeze
 
@@ -163,6 +173,13 @@ module Companion
         )
       end
 
+      def wizard_type_spec_export
+        Contracts::WizardTypeSpecExportContract.evaluate(
+          specs: wizard_type_specs.all.map(&:to_h),
+          spec_history: wizard_type_spec_changes.all
+        )
+      end
+
       def readiness
         Contracts::PersistenceReadinessContract.evaluate(
           capability_manifest: capability_manifest,
@@ -203,12 +220,20 @@ module Companion
         record(:articles)
       end
 
+      def wizard_type_specs
+        record(:wizard_type_specs)
+      end
+
       def tracker_logs
         history(:tracker_logs)
       end
 
       def comments
         history(:comments)
+      end
+
+      def wizard_type_spec_changes
+        history(:wizard_type_spec_changes)
       end
 
       def actions
@@ -483,53 +508,16 @@ module Companion
         state.append_comment_event(event)
       end
 
+      def wizard_type_spec_change_entries
+        state.wizard_type_spec_change_entries
+      end
+
+      def append_wizard_type_spec_change(event)
+        state.append_wizard_type_spec_change(event)
+      end
+
       def article_comment_type_spec
-        {
-          name: :Article,
-          capability: :articles,
-          persist: { key: :id, adapter: :sqlite },
-          fields: [
-            { name: :id },
-            { name: :title, type: :string },
-            { name: :body, type: :string },
-            { name: :created_at, type: :datetime },
-            { name: :status, type: :enum, values: %i[draft published archived], default: :draft }
-          ],
-          indexes: [
-            { name: :status }
-          ],
-          scopes: [
-            { name: :drafts, where: { status: :draft } },
-            { name: :published, where: { status: :published } }
-          ],
-          commands: [
-            { name: :publish, operation: :record_update, changes: { status: :published } }
-          ],
-          histories: [
-            {
-              name: :Comment,
-              capability: :comments,
-              history: { key: :index, adapter: :sqlite },
-              fields: [
-                { name: :index },
-                { name: :article_id },
-                { name: :body, type: :string },
-                { name: :created_at, type: :datetime }
-              ],
-              relation: {
-                name: :comments_by_article,
-                kind: :event_owner,
-                from: :articles,
-                to: :comments,
-                join: { id: :article_id },
-                cardinality: :one_to_many,
-                integrity: :validate_on_append,
-                consistency: :local,
-                projection: nil
-              }
-            }
-          ]
-        }
+        wizard_type_specs.find("article-comment")&.spec || CompanionState.article_comment_type_spec
       end
     end
   end

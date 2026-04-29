@@ -63,6 +63,10 @@ Current relation diagnostics:
 
 Current user-defined-type pressure test:
 
+- `WizardTypeSpec`: static persisted record for dynamic contract specs, with
+  `id`, `contract`, and JSON `spec`
+- `WizardTypeSpecChange`: append-only history for spec lineage and future
+  migration planning
 - `Article`: static record contract shaped like a future wizard output, with
   typed fields, enum status default, scopes, index, and publish command metadata
 - `Comment`: static append-only history contract with an `article_id` relation
@@ -70,10 +74,12 @@ Current user-defined-type pressure test:
 - `comments_by_article`: report-only relation from `Article` records to
   `Comment` history, with enforcement still disabled
 - `DurableTypeMaterializationContract`: read-only graph contract that accepts a
-  wizard-shaped spec and returns the static contract/history/relation plan plus
-  required materializer capabilities
+  persisted wizard-shaped spec and returns the static contract/history/relation
+  plan plus required materializer capabilities
 - `StaticMaterializationParityContract`: read-only graph contract that compares
   that plan with the already materialized static manifests and reports drift
+- `WizardTypeSpecExportContract`: read-only export projection with dev mode
+  retaining history and prod mode compressed to latest specs only
 
 Current command contracts:
 
@@ -153,6 +159,8 @@ Current Companion product flows use the persistence model:
   contract materialization plan
 - `/setup/materialization-parity` exposes plan-to-static-manifest parity for
   agents and reviewers
+- `/setup/wizard-type-specs` exposes stored dynamic specs before materialization
+- `/setup/wizard-type-spec-export` exposes dev/prod portable config projections
 
 ## Validated Concepts
 
@@ -209,6 +217,9 @@ still app-local:
 
 - keep dynamic wizard/configurator output sandboxed until it materializes into
   static contracts
+- store dynamic wizard output as durable specs, not executable runtime code
+- keep spec history append-only for dev/migration work; prod export may compress
+  to latest-only specs
 - keep materialization planning read-only until explicit write/git/test/restart
   capabilities are modeled
 - require parity to pass before a future materializer requests write/git/restart

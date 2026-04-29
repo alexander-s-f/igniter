@@ -85,6 +85,10 @@ module Companion
       materialization_json_status, _materialization_json_headers, materialization_json_body = app.call(rack_env("GET", "/setup/materialization-plan.json"))
       parity_status, _parity_headers, parity_body = app.call(rack_env("GET", "/setup/materialization-parity"))
       parity_json_status, _parity_json_headers, parity_json_body = app.call(rack_env("GET", "/setup/materialization-parity.json"))
+      wizard_spec_status, _wizard_spec_headers, wizard_spec_body = app.call(rack_env("GET", "/setup/wizard-type-specs"))
+      wizard_spec_json_status, _wizard_spec_json_headers, wizard_spec_json_body = app.call(rack_env("GET", "/setup/wizard-type-specs.json"))
+      wizard_export_status, _wizard_export_headers, wizard_export_body = app.call(rack_env("GET", "/setup/wizard-type-spec-export"))
+      wizard_export_json_status, _wizard_export_json_headers, wizard_export_json_body = app.call(rack_env("GET", "/setup/wizard-type-spec-export.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -103,6 +107,10 @@ module Companion
       materialization_json = materialization_json_body.join
       parity = parity_body.join
       parity_json = parity_json_body.join
+      wizard_specs = wizard_spec_body.join
+      wizard_specs_json = wizard_spec_json_body.join
+      wizard_export = wizard_export_body.join
+      wizard_export_json = wizard_export_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -141,6 +149,10 @@ module Companion
       out.puts "companion_poc_setup_materialization_json_status=#{materialization_json_status}"
       out.puts "companion_poc_setup_materialization_parity_status=#{parity_status}"
       out.puts "companion_poc_setup_materialization_parity_json_status=#{parity_json_status}"
+      out.puts "companion_poc_setup_wizard_type_specs_status=#{wizard_spec_status}"
+      out.puts "companion_poc_setup_wizard_type_specs_json_status=#{wizard_spec_json_status}"
+      out.puts "companion_poc_setup_wizard_type_spec_export_status=#{wizard_export_status}"
+      out.puts "companion_poc_setup_wizard_type_spec_export_json_status=#{wizard_export_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -154,6 +166,10 @@ module Companion
       out.puts "companion_poc_setup_materialization_json_endpoint=#{setup_materialization_json_endpoint?(materialization_json)}"
       out.puts "companion_poc_setup_materialization_parity_endpoint=#{setup_materialization_parity_endpoint?(parity)}"
       out.puts "companion_poc_setup_materialization_parity_json_endpoint=#{setup_materialization_parity_json_endpoint?(parity_json)}"
+      out.puts "companion_poc_setup_wizard_type_specs_endpoint=#{setup_wizard_type_specs_endpoint?(wizard_specs)}"
+      out.puts "companion_poc_setup_wizard_type_specs_json_endpoint=#{setup_wizard_type_specs_json_endpoint?(wizard_specs_json)}"
+      out.puts "companion_poc_setup_wizard_type_spec_export_endpoint=#{setup_wizard_type_spec_export_endpoint?(wizard_export)}"
+      out.puts "companion_poc_setup_wizard_type_spec_export_json_endpoint=#{setup_wizard_type_spec_export_json_endpoint?(wizard_export_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -200,6 +216,9 @@ module Companion
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
       out.puts "companion_poc_user_defined_article_contract=#{user_defined_article_contract?}"
+      out.puts "companion_poc_wizard_type_spec_store=#{wizard_type_spec_store?}"
+      out.puts "companion_poc_wizard_type_spec_history=#{wizard_type_spec_history?}"
+      out.puts "companion_poc_wizard_type_spec_export=#{wizard_type_spec_export?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -639,13 +658,15 @@ module Companion
       persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
       manifest = persistence.capability_manifest
       persistence.capability_names == %i[
-        reminders trackers daily_focuses countdowns articles tracker_logs actions comments
-        tracker_read_model countdown_read_model activity_feed
+        reminders trackers daily_focuses countdowns articles wizard_type_specs tracker_logs actions comments
+        wizard_type_spec_changes tracker_read_model countdown_read_model activity_feed
       ] &&
         manifest.fetch(:reminders).fetch(:kind) == :record &&
         manifest.fetch(:countdowns).fetch(:kind) == :record &&
         manifest.fetch(:articles).fetch(:kind) == :record &&
+        manifest.fetch(:wizard_type_specs).fetch(:kind) == :record &&
         manifest.fetch(:comments).fetch(:kind) == :history &&
+        manifest.fetch(:wizard_type_spec_changes).fetch(:kind) == :history &&
         manifest.fetch(:countdown_read_model).fetch(:kind) == :projection &&
         manifest.fetch(:tracker_logs).fetch(:kind) == :history &&
         manifest.fetch(:activity_feed).fetch(:kind) == :projection
@@ -661,9 +682,9 @@ module Companion
       readiness = persistence.readiness
       readiness.fetch(:ready) &&
         readiness.fetch(:status) == :ready &&
-        readiness.fetch(:capability_count) == 11 &&
-        readiness.fetch(:record_count) == 5 &&
-        readiness.fetch(:history_count) == 3 &&
+        readiness.fetch(:capability_count) == 13 &&
+        readiness.fetch(:record_count) == 6 &&
+        readiness.fetch(:history_count) == 4 &&
         readiness.fetch(:projection_count) == 3 &&
         readiness.fetch(:relation_count) == 2 &&
         readiness.fetch(:warning_count).zero?
@@ -801,6 +822,35 @@ module Companion
         payload.fetch("checked_capabilities").include?("comments_by_article")
     end
 
+    def setup_wizard_type_specs_endpoint?(wizard_specs)
+      wizard_specs.include?("article-comment") &&
+        wizard_specs.include?("Article") &&
+        wizard_specs.include?("comments_by_article")
+    end
+
+    def setup_wizard_type_specs_json_endpoint?(wizard_specs_json)
+      payload = JSON.parse(wizard_specs_json)
+      spec = payload.find { |entry| entry.fetch("id") == "article-comment" }.fetch("spec")
+
+      spec.fetch("name") == "Article" &&
+        spec.fetch("fields").any? { |field| field.fetch("name") == "status" && field.fetch("type") == "enum" } &&
+        spec.fetch("histories").first.fetch("relation").fetch("name") == "comments_by_article"
+    end
+
+    def setup_wizard_type_spec_export_endpoint?(wizard_export)
+      wizard_export.include?("dev_config") &&
+        wizard_export.include?("prod_config") &&
+        wizard_export.include?("latest-only")
+    end
+
+    def setup_wizard_type_spec_export_json_endpoint?(wizard_export_json)
+      payload = JSON.parse(wizard_export_json)
+
+      payload.fetch("dev_config").fetch("history").any? &&
+        payload.fetch("prod_config").fetch("history").empty? &&
+        payload.fetch("prod_config").fetch("compressed")
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -839,13 +889,15 @@ module Companion
       manifest = persistence.manifest_snapshot
       summary = manifest.fetch(:summary)
 
-      summary.fetch(:record_count) == 5 &&
-        summary.fetch(:history_count) == 3 &&
+      summary.fetch(:record_count) == 6 &&
+        summary.fetch(:history_count) == 4 &&
         summary.fetch(:projection_count) == 3 &&
         summary.fetch(:command_count) == 3 &&
         summary.fetch(:relation_count) == 2 &&
         manifest.fetch(:records).fetch(:articles).fetch(:fields).include?(:status) &&
+        manifest.fetch(:records).fetch(:wizard_type_specs).fetch(:fields).include?(:spec) &&
         manifest.fetch(:histories).fetch(:comments).fetch(:fields).include?(:article_id) &&
+        manifest.fetch(:histories).fetch(:wizard_type_spec_changes).fetch(:fields).include?(:change_kind) &&
         manifest.fetch(:records).fetch(:reminders).fetch(:operations) == %i[all find save update delete clear scope command] &&
         manifest.fetch(:histories).fetch(:tracker_logs).fetch(:operations) == %i[append all where count] &&
         manifest.fetch(:projections).fetch(:tracker_read_model).fetch(:relations) == %i[tracker_logs_by_tracker] &&
@@ -957,6 +1009,42 @@ module Companion
         api.fetch(:scopes).any? { |scope| scope.fetch(:name) == :drafts } &&
         comments.fetch(:operations) == %i[append all where count] &&
         article.status == :draft
+    end
+
+    def wizard_type_spec_store?
+      manifest = Contracts::WizardTypeSpec.persistence_manifest
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      record = persistence.wizard_type_specs.find("article-comment")
+      api = persistence.manifest_snapshot.fetch(:records).fetch(:wizard_type_specs)
+
+      manifest.fetch(:persist).fetch(:key) == :id &&
+        manifest.fetch(:fields).any? { |field| field.fetch(:name) == :spec && field.fetch(:attributes).fetch(:type) == :json } &&
+        api.fetch(:fields) == %i[id contract spec] &&
+        record.contract == "Article" &&
+        record.spec.fetch(:name) == :Article &&
+        record.spec.fetch(:histories).first.fetch(:relation).fetch(:name) == :comments_by_article &&
+        persistence.materialization_plan.fetch(:record_contract).fetch(:contract) == record.spec.fetch(:name)
+    end
+
+    def wizard_type_spec_history?
+      manifest = Contracts::WizardTypeSpecChange.persistence_manifest
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      changes = persistence.wizard_type_spec_changes.all
+
+      manifest.fetch(:history).fetch(:key) == :index &&
+        manifest.fetch(:fields).any? { |field| field.fetch(:name) == :spec && field.fetch(:attributes).fetch(:type) == :json } &&
+        changes.any? { |change| change.fetch(:spec_id) == "article-comment" && change.fetch(:change_kind) == :seeded_static_sync } &&
+        changes.first.fetch(:spec).fetch(:name) == :Article
+    end
+
+    def wizard_type_spec_export?
+      export = Services::CompanionPersistence.new(state: Services::CompanionState.seeded).wizard_type_spec_export
+
+      export.fetch(:dev_config).fetch(:compressed) == false &&
+        export.fetch(:dev_config).fetch(:history).any? &&
+        export.fetch(:prod_config).fetch(:compressed) &&
+        export.fetch(:prod_config).fetch(:history).empty? &&
+        export.fetch(:prod_config).fetch(:specs).length == export.fetch(:dev_config).fetch(:specs).length
     end
 
     def static_materialization_plan?

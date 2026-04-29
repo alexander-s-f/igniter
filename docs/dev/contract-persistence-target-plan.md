@@ -130,11 +130,14 @@ This keeps future dynamic UX open while preserving the language path:
 typed capabilities.
 
 The current Companion proof keeps this as a read-only graph contract:
-`DurableTypeMaterializationContract` accepts a wizard-shaped durable type spec
-and returns the static record/history/relation plan plus required materializer
-capabilities. `StaticMaterializationParityContract` then compares that plan with
-the static manifests and reports drift. Neither contract writes files or restarts
-the app.
+`WizardTypeSpec` persists sandbox-authored durable type specs as data,
+`WizardTypeSpecChange` keeps append-only spec lineage,
+`DurableTypeMaterializationContract` accepts the latest spec and returns the
+static record/history/relation plan plus required materializer capabilities,
+`StaticMaterializationParityContract` compares that plan with the static
+manifests and reports drift, and `WizardTypeSpecExportContract` projects dev
+exports with history or prod exports compressed to latest specs only. None of
+these contracts writes files or restarts the app.
 
 ## Compatibility Ladder
 

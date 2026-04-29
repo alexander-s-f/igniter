@@ -245,6 +245,14 @@ module Companion
         persistence.materialization_parity
       end
 
+      def wizard_type_specs
+        persistence.wizard_type_specs.all
+      end
+
+      def wizard_type_spec_export
+        persistence.wizard_type_spec_export
+      end
+
       private
 
       attr_reader :persistence

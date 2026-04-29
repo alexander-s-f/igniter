@@ -99,6 +99,22 @@ module Companion
         text JSON.pretty_generate(service(:companion).materialization_parity)
       end
 
+      get "/setup/wizard-type-specs" do
+        text service(:companion).wizard_type_specs.map(&:to_h).inspect
+      end
+
+      get "/setup/wizard-type-specs.json" do
+        text JSON.pretty_generate(service(:companion).wizard_type_specs.map(&:to_h))
+      end
+
+      get "/setup/wizard-type-spec-export" do
+        text service(:companion).wizard_type_spec_export.inspect
+      end
+
+      get "/setup/wizard-type-spec-export.json" do
+        text JSON.pretty_generate(service(:companion).wizard_type_spec_export)
+      end
+
       get "/hub" do
         text service(:hub).entries.map(&:name).join(",")
       end

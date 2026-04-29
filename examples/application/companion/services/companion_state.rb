@@ -18,11 +18,14 @@ module Companion
       CountdownSnapshot = Struct.new(:id, :title, :target_date, :days_remaining, keyword_init: true)
       Article = Struct.new(:id, :title, :body, :created_at, :status, keyword_init: true)
       Comment = Struct.new(:index, :article_id, :body, :created_at, keyword_init: true)
+      WizardTypeSpec = Struct.new(:id, :contract, :spec, keyword_init: true)
+      WizardTypeSpecChange = Struct.new(:index, :spec_id, :contract, :change_kind, :spec, :created_at, keyword_init: true)
       Action = Struct.new(:index, :kind, :subject_id, :status, keyword_init: true)
 
       attr_accessor :live_summary
       attr_reader :reminders, :trackers, :tracker_logs, :daily_focuses, :countdowns, :articles,
-                  :comments, :actions, :next_action_index, :next_comment_index
+                  :comments, :wizard_type_specs, :wizard_type_spec_changes, :actions,
+                  :next_action_index, :next_comment_index, :next_wizard_type_spec_change_index
 
       def self.seeded
         new.tap(&:seed)
@@ -30,6 +33,55 @@ module Companion
 
       def self.from_h(state)
         new.tap { |record| record.restore(state) }
+      end
+
+      def self.article_comment_type_spec
+        {
+          name: :Article,
+          capability: :articles,
+          persist: { key: :id, adapter: :sqlite },
+          fields: [
+            { name: :id },
+            { name: :title, type: :string },
+            { name: :body, type: :string },
+            { name: :created_at, type: :datetime },
+            { name: :status, type: :enum, values: %i[draft published archived], default: :draft }
+          ],
+          indexes: [
+            { name: :status }
+          ],
+          scopes: [
+            { name: :drafts, where: { status: :draft } },
+            { name: :published, where: { status: :published } }
+          ],
+          commands: [
+            { name: :publish, operation: :record_update, changes: { status: :published } }
+          ],
+          histories: [
+            {
+              name: :Comment,
+              capability: :comments,
+              history: { key: :index, adapter: :sqlite },
+              fields: [
+                { name: :index },
+                { name: :article_id },
+                { name: :body, type: :string },
+                { name: :created_at, type: :datetime }
+              ],
+              relation: {
+                name: :comments_by_article,
+                kind: :event_owner,
+                from: :articles,
+                to: :comments,
+                join: { id: :article_id },
+                cardinality: :one_to_many,
+                integrity: :validate_on_append,
+                consistency: :local,
+                projection: nil
+              }
+            }
+          ]
+        }
       end
 
       def initialize
@@ -42,8 +94,11 @@ module Companion
         @countdowns = []
         @articles = []
         @comments = []
+        @wizard_type_specs = []
+        @wizard_type_spec_changes = []
         @live_summary = nil
         @next_comment_index = 0
+        @next_wizard_type_spec_change_index = 0
       end
 
       def seed
@@ -60,6 +115,18 @@ module Companion
           status: :draft
         )
         append_comment_event(article_id: "welcome-note", body: "First comment from static materialization.", created_at: Date.today.iso8601)
+        wizard_type_specs << WizardTypeSpec.new(
+          id: "article-comment",
+          contract: "Article",
+          spec: self.class.article_comment_type_spec
+        )
+        append_wizard_type_spec_change(
+          spec_id: "article-comment",
+          contract: "Article",
+          change_kind: :seeded_static_sync,
+          spec: self.class.article_comment_type_spec,
+          created_at: Date.today.iso8601
+        )
         record_action(kind: :companion_seeded, subject_id: :companion, status: :ready)
       end
 
@@ -125,6 +192,25 @@ module Companion
             created_at: payload.fetch(:created_at)
           )
         end
+        @wizard_type_specs = Array(state.fetch(:wizard_type_specs, [])).map do |entry|
+          payload = symbolize(entry)
+          WizardTypeSpec.new(
+            id: payload.fetch(:id),
+            contract: payload.fetch(:contract),
+            spec: payload.fetch(:spec)
+          )
+        end
+        @wizard_type_spec_changes = Array(state.fetch(:wizard_type_spec_changes, [])).map do |entry|
+          payload = symbolize(entry)
+          WizardTypeSpecChange.new(
+            index: payload.fetch(:index),
+            spec_id: payload.fetch(:spec_id),
+            contract: payload.fetch(:contract),
+            change_kind: payload.fetch(:change_kind).to_sym,
+            spec: payload.fetch(:spec),
+            created_at: payload.fetch(:created_at)
+          )
+        end
         @actions = Array(state.fetch(:actions)).map do |entry|
           payload = symbolize(entry)
           Action.new(
@@ -137,6 +223,11 @@ module Companion
         @live_summary = state[:live_summary]
         @next_action_index = state.fetch(:next_action_index, actions.map(&:index).max.to_i + 1)
         @next_comment_index = state.fetch(:next_comment_index, comments.map(&:index).max.to_i + 1)
+        @next_wizard_type_spec_change_index = state.fetch(
+          :next_wizard_type_spec_change_index,
+          wizard_type_spec_changes.map(&:index).max.to_i + 1
+        )
+        ensure_default_wizard_type_specs
       end
 
       def to_h
@@ -148,11 +239,14 @@ module Companion
           countdowns: countdowns.map(&:to_h),
           articles: articles.map(&:to_h),
           comments: comments.map(&:to_h),
+          wizard_type_specs: wizard_type_specs.map(&:to_h),
+          wizard_type_spec_changes: wizard_type_spec_changes.map(&:to_h),
           actions: actions.map(&:to_h),
           daily_focus_title: daily_focus_title,
           live_summary: live_summary,
           next_action_index: next_action_index,
-          next_comment_index: next_comment_index
+          next_comment_index: next_comment_index,
+          next_wizard_type_spec_change_index: next_wizard_type_spec_change_index
         }
       end
 
@@ -210,6 +304,24 @@ module Companion
         comment.to_h
       end
 
+      def wizard_type_spec_change_entries
+        wizard_type_spec_changes.map(&:to_h)
+      end
+
+      def append_wizard_type_spec_change(event)
+        change = WizardTypeSpecChange.new(
+          index: event.fetch(:index, next_wizard_type_spec_change_index),
+          spec_id: event.fetch(:spec_id),
+          contract: event.fetch(:contract),
+          change_kind: event.fetch(:change_kind).to_sym,
+          spec: event.fetch(:spec),
+          created_at: event.fetch(:created_at)
+        )
+        wizard_type_spec_changes << change
+        @next_wizard_type_spec_change_index = [next_wizard_type_spec_change_index, change.index + 1].max
+        change.to_h
+      end
+
       def append_action_event(event)
         action = Action.new(
           index: event.fetch(:index),
@@ -235,6 +347,28 @@ module Companion
       end
 
       private
+
+      def ensure_default_wizard_type_specs
+        existing = wizard_type_specs.find { |entry| entry.id == "article-comment" }
+
+        unless existing
+          wizard_type_specs << WizardTypeSpec.new(
+            id: "article-comment",
+            contract: "Article",
+            spec: self.class.article_comment_type_spec
+          )
+        end
+
+        return if wizard_type_spec_changes.any? { |entry| entry.spec_id == "article-comment" }
+
+        append_wizard_type_spec_change(
+          spec_id: "article-comment",
+          contract: "Article",
+          change_kind: :backfilled_static_sync,
+          spec: existing&.spec || self.class.article_comment_type_spec,
+          created_at: Date.today.iso8601
+        )
+      end
 
       def legacy_daily_focus(state)
         title = state[:daily_focus_title]

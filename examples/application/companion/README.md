@@ -51,6 +51,12 @@ The launcher is intentionally thin. App-local infrastructure lives under
   are a static, wizard-shaped durable type proof: `Article` is a record with
   typed fields, enum status defaults, scopes, index, and publish command
   metadata; `Comment` is append-only history related back to articles.
+- `contracts/wizard_type_spec_record_contract.rb` stores sandbox-authored
+  durable type specs as persisted JSON data before static materialization.
+- `contracts/wizard_type_spec_history_contract.rb` keeps append-only spec
+  lineage for future migrations.
+- `contracts/wizard_type_spec_export_contract.rb` projects portable dev/prod
+  config: dev keeps history, prod compresses to latest specs.
 - `contracts/durable_type_materialization_contract.rb` is the read-only bridge
   from future wizard/configurator output to static contract materialization
   plans. `/setup/materialization-plan` and `.json` expose that plan for agents
