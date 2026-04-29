@@ -13,6 +13,10 @@ research material under `playgrounds/docs/`.
   architect/agent roles, and Igniter Lang guardrails.
 - [Vision Handoff Protocol](./vision-handoff-protocol.md) - compact briefing
   format for giving agents a large horizon with a narrow executable slice.
+- [Companion Persistence App Status](./companion-persistence-app-status.md) -
+  current app-local persistence proof and handoff.
+- [Contract Persistence Relations](./contract-persistence-relations.md) -
+  research model, specification, and DSL for relation manifests.
 
 ## Read First
 
@@ -24,6 +28,8 @@ Before changing architecture or reviewing an agent proposal, read:
 4. [Igniter Lang Foundation](../guide/igniter-lang-foundation.md)
 5. [Horizon Protocol](./horizon-protocol.md)
 6. [Vision Handoff Protocol](./vision-handoff-protocol.md)
+7. [Companion Persistence App Status](./companion-persistence-app-status.md)
+8. [Contract Persistence Relations](./contract-persistence-relations.md)
 
 ## Current Research State
 
@@ -41,8 +47,10 @@ Status date: 2026-04-29.
 - AI and agents have first package slices: provider-neutral AI envelopes and
   minimal single-turn agent state. Tool contracts, memory, handoff, and human
   gates remain future package work.
-- Companion is the strongest product pressure for persistence and agents, but
-  app-local proof should precede shared package APIs.
+- Companion is the strongest product pressure for persistence and agents. Its
+  app-local persistence proof now covers records, histories, projections,
+  command mutation intents, registry/readiness/manifest, and report-only
+  `index`/`scope`/`command` metadata.
 - Cluster owns distributed placement, routing, ownership, health, remediation,
   and mesh attempts. Contracts remain local-first and host-agnostic.
 
