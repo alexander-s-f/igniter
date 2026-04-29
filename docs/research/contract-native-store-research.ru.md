@@ -475,6 +475,212 @@ ArticleContract::Queries::FindByTitle.execute({ title: "hello igniter" }, store:
 
 ---
 
+## Итерация 5 — Тред B: Time-Travel DSL API
+
+*Зафиксировано в ходе дизайн-сессии, 2026-04-29.*
+
+### Три измерения time-travel
+
+Time-travel — это не одна семантика, а три различных формы запроса:
+
+```
+as_of:        Float | Integer  → «что было на момент T?»            — single value
+since/until:                   → «все версии между T1 и T2»          — Array
+after_fact:   String           → «состояние после конкретного факта» — causal
+```
+
+Форма возврата ортогональна:
+
+```
+returns: :value           → payload Hash (default)
+returns: :history         → Array<Hash>, упорядоченный по timestamp
+returns: :fact            → сырой Fact struct (полные метаданные, для audit)
+returns: :causation_chain → [{value_hash, causation, timestamp}, ...]
+```
+
+### Решение: `as_of` — опция на `store_read`, не отдельный keyword
+
+```ruby
+# НЕ это (лишний keyword засоряет DSL):
+store_read_at :article, from: :articles, at: :query_time
+
+# А это — as_of как параметр store_read:
+store_read :article, from: :articles, by: :id, using: :id, as_of: :query_time
+```
+
+`as_of:` принимает два типа из существующей type system:
+
+- **Float** → сравнивается с `fact.timestamp` (wall-clock, standalone)
+- **Integer** → сравнивается с `fact.term` (Raft term, cluster)
+
+Store определяет режим по типу значения. Новый тип `TimePoint` не нужен
+в первой итерации.
+
+`after_fact:` принимает **String** (value\_hash) для точного каузального
+упорядочивания в distributed деплоях, где wall-clock ненадёжен при clock skew.
+
+### Полная сигнатура `store_read` с time-travel
+
+```ruby
+store_read :node_name,
+  from:        :store_name,         # какой Store[T]
+  by:          :primary_key,        # :primary_key | :scope | :filter
+  using:       :input_node,         # input узел с ключом
+  scope:       :scope_name,         # для :scope lookup
+  filter:      { field: :input },   # для :filter lookup
+
+  # time-travel
+  as_of:       :time_input,         # Float (wall-clock) | Integer (Raft term)
+  since:       :from_input,         # начало диапазона (auto → returns: :history)
+  until:       :to_input,           # конец диапазона
+  after_fact:  :hash_input,         # String — value_hash точки причинности
+
+  # форма возврата
+  returns:     :value,              # :value | :history | :fact | :causation_chain
+  schema:      :current,            # :current (coerce) | :as_stored (raw, audit)
+
+  # кэш
+  cache_ttl:   60,                  # игнорируется для time-travel (прошлое иммутабельно)
+  coalesce:    true
+```
+
+Правила совместимости:
+
+| Комбинация | Результат |
+|---|---|
+| `as_of:` | single value на T; иммутабельно кэшируется |
+| `since:` + `until:` | auto `returns: :history` |
+| `after_fact:` | single value после точки причинности; иммутабельно кэшируется |
+| `returns: :causation_chain` | временные ограничения игнорируются; полная цепочка |
+| `as_of:` + `cache_ttl:` | `cache_ttl:` игнорируется; прошлое не меняется |
+
+### Полный пример на ArticleContract
+
+```ruby
+class ArticleContract < Igniter::Contract
+  persist :articles, key: :id do
+    field :id,         type: :string
+    field :title,      type: :string
+    field :status,     type: :symbol, default: :draft
+    field :body,       type: :string
+    field :updated_at, type: :float,  default: -> { Time.now.to_f }
+    index :title
+    index :status
+    scope :published, where: { status: :published }
+  end
+
+  # «Каким был этот Article на момент T?»
+  # as_of: Float → wall-clock (standalone)
+  # as_of: Integer → Raft term (cluster)
+  query :article_at do
+    input :id
+    input :as_of   # Float | Integer — store определяет режим по типу
+    store_read :article, from: :articles, by: :id, using: :id, as_of: :as_of
+    output :article
+  end
+
+  # «Состояние после конкретного факта» — каузальная точность
+  # Нужно в distributed: wall-clock ненадёжен при clock skew
+  query :article_after_fact do
+    input :id
+    input :fact_hash   # String — value_hash из Fact
+    store_read :article, from: :articles, by: :id, using: :id,
+               after_fact: :fact_hash
+    output :article
+  end
+
+  # «Все версии между T1 и T2»
+  query :article_versions do
+    input :id
+    input :from_time, type: :float, default: -> { (Time.now - 86_400 * 30).to_f }
+    input :to_time,   type: :float, default: -> { Time.now.to_f }
+    store_read :versions, from: :articles, by: :id, using: :id,
+               since: :from_time, until: :to_time   # auto: returns :history
+    output :versions   # Array<Hash>
+  end
+
+  # «Полная цепочка мутаций» — отладка и аудит
+  query :article_lineage do
+    input :id
+    store_read :chain, from: :articles, by: :id, using: :id,
+               returns: :causation_chain
+    output :chain   # [{value_hash:, causation:, timestamp:}, ...]
+  end
+
+  # «Сырой факт как сохранён» — audit без coercion схемы
+  query :article_audit_snapshot do
+    input :id
+    input :as_of
+    store_read :fact, from: :articles, by: :id, using: :id,
+               as_of: :as_of, returns: :fact, schema: :as_stored
+    output :fact   # Fact struct: value_hash, causation, schema_version
+  end
+
+  define do
+    input :title
+    input :body
+    input :status
+    compute :validated, depends_on: %i[title body status], call: ValidateArticle
+    store_write :saved, from: :validated, target: :articles
+    output :saved
+  end
+end
+```
+
+Использование — store всегда per-call:
+
+```ruby
+store = Igniter::Store::IgniterStore.new
+
+# Текущее состояние
+ArticleContract.execute({ title: "hello", body: "...", status: :draft }, store: store)
+
+# Точка во времени, wall-clock
+ArticleContract.article_at(id: "uuid-1", as_of: 3.days.ago.to_f, store: store)
+
+# Точка во времени, Raft term (cluster)
+ArticleContract.article_at(id: "uuid-1", as_of: 42, store: store)
+
+# После конкретного факта (causal — самое точное)
+ArticleContract.article_after_fact(id: "uuid-1", fact_hash: "sha256:abc...", store: store)
+
+# Срез истории
+ArticleContract.article_versions(id: "uuid-1",
+                                  from_time: 7.days.ago.to_f,
+                                  to_time:   Time.now.to_f,
+                                  store: store)
+
+# Causation chain
+ArticleContract.article_lineage(id: "uuid-1", store: store)
+
+# Audit snapshot без coercion
+ArticleContract.article_audit_snapshot(id: "uuid-1", as_of: 3.days.ago.to_f, store: store)
+```
+
+### Кэш-поведение time-travel
+
+```
+as_of: nil    → current read   → кэш [store, key, nil]    → инвалидируется при записи
+as_of: Float  → time-travel    → кэш [store, key, as_of]  → НИКОГДА не инвалидируется
+after_fact:   → causal read    → кэш [store, key, hash]   → НИКОГДА не инвалидируется
+since/until   → history slice  → НЕ кэшируется (слишком большой → используй проекции)
+```
+
+Прошлое иммутабельно. `cache_ttl:` для time-travel игнорируется;
+результат кэшируется навсегда после первого разрешения.
+
+### Отложено (не в первой итерации)
+
+| Вопрос | Статус |
+|--------|--------|
+| `Types::TimePoint` (unified clock type) | Отложено — Float/Integer достаточно |
+| Pagination для `:history` (`limit:`, `offset:`) | Отложено — давление приложений |
+| `schema: :as_stored` coercion contracts | Отложено — связано с Тредом D |
+| `since/until` кэширование через проекции | Отложено — Тред E / incremental dataflow |
+| Raft log index как третий ordering primitive | Отложено — term достаточно сейчас |
+
+---
+
 ## Ссылки
 
 - [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
