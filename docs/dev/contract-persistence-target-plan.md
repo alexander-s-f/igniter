@@ -345,9 +345,10 @@ expose diagnostics as contracts, not only as thrown setup errors.
 
 Companion also now uses persisted facts to compute a graph-owned Today signal
 and quick action target. The UI renders that target as a small executable form,
-but the decision remains in `DailyPlanContract`: this is an app-local proof that
-product affordances can be graph outputs without depending on a whole snapshot
-or leaking Store internals.
+but the decision remains in `DailyPlanContract`; `/today/quick-action`
+recomputes and executes the current target through the Store boundary. This is
+an app-local proof that product affordances can be graph outputs without
+depending on a whole snapshot or leaking Store internals.
 
 ## Near-Term Plan
 

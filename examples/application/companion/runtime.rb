@@ -133,6 +133,7 @@ module Companion
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
       out.puts "companion_poc_today_signal=#{daily_plan_signal? && html.include?("data-today-signal=")}"
       out.puts "companion_poc_today_quick_action=#{daily_plan_quick_action? && html.include?("data-today-quick-action=")}"
+      out.puts "companion_poc_today_quick_action_route=#{today_quick_action_route? && html.include?('action="/today/quick-action"')}"
       out.puts "companion_poc_daily_focus=#{final.daily_plan.fetch(:focus_title) == "Draft the launch note"}"
       out.puts "companion_poc_daily_focus_persisted=#{persisted.daily_focus_title == final.daily_focus_title}"
       out.puts "companion_poc_daily_focus_persistence_manifest=#{daily_focus_persistence_manifest?}"
@@ -539,6 +540,31 @@ module Companion
         log_tracker.fetch(:subject_id) == "sleep" &&
         close_reminder.fetch(:kind) == :complete_reminder &&
         close_reminder.fetch(:subject_id) == "morning-water"
+    end
+
+    def today_quick_action_route?
+      db_path = File.join(Dir.mktmpdir("igniter-companion-today-action"), "companion.sqlite3")
+      config = Companion.default_configuration(store_path: db_path)
+      app = Companion.build(config: config)
+      store = app.service(:companion)
+      initial = store.snapshot
+      initial_action = initial.daily_plan.fetch(:quick_action)
+      first_status, first_headers = post(app, "/today/quick-action", value: "8")
+      first_result_status = get_status(app, first_headers.fetch("location"))
+      after_log = store.snapshot
+      after_log_action = after_log.daily_plan.fetch(:quick_action)
+      second_status, second_headers = post(app, "/today/quick-action")
+      second_result_status = get_status(app, second_headers.fetch("location"))
+      after_done = store.snapshot
+
+      first_status == 303 &&
+        first_result_status == 200 &&
+        second_status == 303 &&
+        second_result_status == 200 &&
+        initial_action.fetch(:kind) == :tracker_log &&
+        after_log.tracker_logs_today == initial.tracker_logs_today + 1 &&
+        after_log_action.fetch(:kind) == :complete_reminder &&
+        after_done.open_reminders == initial.open_reminders - 1
     end
 
     def persistence_registry?

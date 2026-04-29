@@ -110,6 +110,14 @@ module Companion
         )
       end
 
+      post "/today/quick-action" do |params|
+        result = service(:companion).run_today_quick_action(value: params.fetch("value", ""))
+        redirect Companion.feedback_path(
+          (result.success? ? :notice : :error) => result.feedback_code,
+          subject: result.subject_id
+        )
+      end
+
       post "/countdowns/create" do |params|
         result = service(:companion).create_countdown(params.fetch("title", ""), params.fetch("target_date", ""))
         redirect Companion.feedback_path(

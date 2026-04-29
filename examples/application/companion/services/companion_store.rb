@@ -206,6 +206,21 @@ module Companion
         command_result_from_contract(outcome.fetch(:result), action: action)
       end
 
+      def run_today_quick_action(value: nil)
+        quick_action = snapshot.daily_plan.fetch(:quick_action)
+
+        case quick_action.fetch(:kind)
+        when :tracker_log
+          log_tracker(quick_action.fetch(:subject_id), value)
+        when :complete_reminder
+          complete_reminder(quick_action.fetch(:subject_id))
+        else
+          action = record_action(kind: :today_quick_action_refused, subject_id: quick_action.fetch(:kind), status: :refused)
+          persist!
+          command_result(:failure, feedback_code: :today_quick_action_unavailable, subject_id: quick_action.fetch(:kind), action: action)
+        end
+      end
+
       def events_read_model
         snapshot = self.snapshot
         recent = snapshot.recent_events.map do |event|

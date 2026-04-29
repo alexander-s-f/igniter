@@ -89,7 +89,7 @@ module Companion
                      style: Companion::Web.style(:today_action)
                 case quick_action.fetch(:kind)
                 when :tracker_log
-                  form action: "/trackers/#{quick_action.fetch(:subject_id)}/log",
+                  form action: "/today/quick-action",
                        method: "post",
                        "data-today-quick-action": quick_action.fetch(:kind),
                        style: Companion::Web.style(:form_row) do
@@ -103,7 +103,7 @@ module Companion
                            style: Companion::Web.style(:button)
                   end
                 when :complete_reminder
-                  form action: "/reminders/#{quick_action.fetch(:subject_id)}/complete",
+                  form action: "/today/quick-action",
                        method: "post",
                        "data-today-quick-action": quick_action.fetch(:kind),
                        style: Companion::Web.style(:form_row) do
