@@ -25,13 +25,20 @@ module Companion
         :blocked_step_count, :executed, :review_only,
         keyword_init: true
       )
+      MaterializerApproval = Struct.new(
+        :index, :kind, :status, :approved, :approved_by, :contract,
+        :requested_capabilities, :granted_capabilities, :rejected_capabilities,
+        :unknown_capabilities, :reasons, :applies_capabilities, :review_only,
+        keyword_init: true
+      )
       Action = Struct.new(:index, :kind, :subject_id, :status, keyword_init: true)
 
       attr_accessor :live_summary
       attr_reader :reminders, :trackers, :tracker_logs, :daily_focuses, :countdowns, :articles,
                   :comments, :wizard_type_specs, :wizard_type_spec_changes, :materializer_attempts,
-                  :actions, :next_action_index, :next_comment_index,
-                  :next_wizard_type_spec_change_index, :next_materializer_attempt_index
+                  :materializer_approvals, :actions, :next_action_index, :next_comment_index,
+                  :next_wizard_type_spec_change_index, :next_materializer_attempt_index,
+                  :next_materializer_approval_index
 
       def self.seeded
         new.tap(&:seed)
@@ -110,10 +117,12 @@ module Companion
         @wizard_type_specs = []
         @wizard_type_spec_changes = []
         @materializer_attempts = []
+        @materializer_approvals = []
         @live_summary = nil
         @next_comment_index = 0
         @next_wizard_type_spec_change_index = 0
         @next_materializer_attempt_index = 0
+        @next_materializer_approval_index = 0
       end
 
       def seed
@@ -239,6 +248,24 @@ module Companion
             review_only: payload.fetch(:review_only)
           )
         end
+        @materializer_approvals = Array(state.fetch(:materializer_approvals, [])).map do |entry|
+          payload = symbolize(entry)
+          MaterializerApproval.new(
+            index: payload.fetch(:index),
+            kind: payload.fetch(:kind).to_sym,
+            status: payload.fetch(:status).to_sym,
+            approved: payload.fetch(:approved),
+            approved_by: payload.fetch(:approved_by),
+            contract: payload.fetch(:contract).to_sym,
+            requested_capabilities: payload.fetch(:requested_capabilities),
+            granted_capabilities: payload.fetch(:granted_capabilities),
+            rejected_capabilities: payload.fetch(:rejected_capabilities),
+            unknown_capabilities: payload.fetch(:unknown_capabilities),
+            reasons: payload.fetch(:reasons),
+            applies_capabilities: payload.fetch(:applies_capabilities),
+            review_only: payload.fetch(:review_only)
+          )
+        end
         @actions = Array(state.fetch(:actions)).map do |entry|
           payload = symbolize(entry)
           Action.new(
@@ -259,6 +286,10 @@ module Companion
           :next_materializer_attempt_index,
           materializer_attempts.map(&:index).max.to_i + 1
         )
+        @next_materializer_approval_index = state.fetch(
+          :next_materializer_approval_index,
+          materializer_approvals.map(&:index).max.to_i + 1
+        )
         ensure_default_wizard_type_specs
       end
 
@@ -274,13 +305,15 @@ module Companion
           wizard_type_specs: wizard_type_specs.map(&:to_h),
           wizard_type_spec_changes: wizard_type_spec_changes.map(&:to_h),
           materializer_attempts: materializer_attempts.map(&:to_h),
+          materializer_approvals: materializer_approvals.map(&:to_h),
           actions: actions.map(&:to_h),
           daily_focus_title: daily_focus_title,
           live_summary: live_summary,
           next_action_index: next_action_index,
           next_comment_index: next_comment_index,
           next_wizard_type_spec_change_index: next_wizard_type_spec_change_index,
-          next_materializer_attempt_index: next_materializer_attempt_index
+          next_materializer_attempt_index: next_materializer_attempt_index,
+          next_materializer_approval_index: next_materializer_approval_index
         }
       end
 
@@ -374,6 +407,31 @@ module Companion
         materializer_attempts << attempt
         @next_materializer_attempt_index = [next_materializer_attempt_index, attempt.index + 1].max
         attempt.to_h
+      end
+
+      def materializer_approval_entries
+        materializer_approvals.map(&:to_h)
+      end
+
+      def append_materializer_approval(event)
+        approval = MaterializerApproval.new(
+          index: event.fetch(:index, nil) || next_materializer_approval_index,
+          kind: event.fetch(:kind).to_sym,
+          status: event.fetch(:status).to_sym,
+          approved: event.fetch(:approved),
+          approved_by: event.fetch(:approved_by),
+          contract: event.fetch(:contract).to_sym,
+          requested_capabilities: event.fetch(:requested_capabilities),
+          granted_capabilities: event.fetch(:granted_capabilities),
+          rejected_capabilities: event.fetch(:rejected_capabilities),
+          unknown_capabilities: event.fetch(:unknown_capabilities),
+          reasons: event.fetch(:reasons),
+          applies_capabilities: event.fetch(:applies_capabilities),
+          review_only: event.fetch(:review_only)
+        )
+        materializer_approvals << approval
+        @next_materializer_approval_index = [next_materializer_approval_index, approval.index + 1].max
+        approval.to_h
       end
 
       def append_action_event(event)

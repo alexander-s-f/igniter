@@ -285,6 +285,10 @@ module Companion
         persistence.materializer_attempts.all
       end
 
+      def materializer_approvals
+        persistence.materializer_approvals.all
+      end
+
       def materializer_audit_trail
         persistence.materializer_audit_trail
       end

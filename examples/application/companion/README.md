@@ -92,6 +92,9 @@ The launcher is intentionally thin. App-local infrastructure lives under
   grant capabilities by themselves.
 - `contracts/materializer_approval_receipt_contract.rb` records that approval
   decision as a review-only receipt while preserving `applies_capabilities=false`.
+- `contracts/materializer_approval_history_contract.rb` declares the future
+  approval audit trail as static `history` metadata without auto-appending
+  approval receipts.
 - `contracts/durable_type_materialization_contract.rb` is the read-only bridge
   from future wizard/configurator output to static contract materialization
   plans. `/setup/materialization-plan` and `.json` expose that plan for agents

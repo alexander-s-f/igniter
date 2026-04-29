@@ -111,6 +111,8 @@ module Companion
       materializer_approval_json_status, _materializer_approval_json_headers, materializer_approval_json_body = app.call(rack_env("GET", "/setup/materializer-approval-policy.json"))
       materializer_approval_receipt_status, _materializer_approval_receipt_headers, materializer_approval_receipt_body = app.call(rack_env("GET", "/setup/materializer-approval-receipt"))
       materializer_approval_receipt_json_status, _materializer_approval_receipt_json_headers, materializer_approval_receipt_json_body = app.call(rack_env("GET", "/setup/materializer-approval-receipt.json"))
+      materializer_approvals_status, _materializer_approvals_headers, materializer_approvals_body = app.call(rack_env("GET", "/setup/materializer-approvals"))
+      materializer_approvals_json_status, _materializer_approvals_json_headers, materializer_approvals_json_body = app.call(rack_env("GET", "/setup/materializer-approvals.json"))
       hub_status, _hub_headers, hub_body = app.call(rack_env("GET", "/hub"))
       html_status, _html_headers, html_body = app.call(rack_env("GET", "/"))
       hub_install_status, hub_install_headers = post(app, "/hub/horoscope/install")
@@ -155,6 +157,8 @@ module Companion
       materializer_approval_json = materializer_approval_json_body.join
       materializer_approval_receipt = materializer_approval_receipt_body.join
       materializer_approval_receipt_json = materializer_approval_receipt_json_body.join
+      materializer_approvals = materializer_approvals_body.join
+      materializer_approvals_json = materializer_approvals_json_body.join
       hub_catalog = hub_body.join
       installed_html = installed_html_body.join
 
@@ -219,6 +223,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_approval_json_status=#{materializer_approval_json_status}"
       out.puts "companion_poc_setup_materializer_approval_receipt_status=#{materializer_approval_receipt_status}"
       out.puts "companion_poc_setup_materializer_approval_receipt_json_status=#{materializer_approval_receipt_json_status}"
+      out.puts "companion_poc_setup_materializer_approvals_status=#{materializer_approvals_status}"
+      out.puts "companion_poc_setup_materializer_approvals_json_status=#{materializer_approvals_json_status}"
       out.puts "companion_poc_hub_status=#{hub_status}"
       out.puts "companion_poc_html_status=#{html_status}"
       out.puts "companion_poc_hub_install_status=#{hub_install_status}"
@@ -258,6 +264,8 @@ module Companion
       out.puts "companion_poc_setup_materializer_approval_json_endpoint=#{setup_materializer_approval_json_endpoint?(materializer_approval_json)}"
       out.puts "companion_poc_setup_materializer_approval_receipt_endpoint=#{setup_materializer_approval_receipt_endpoint?(materializer_approval_receipt)}"
       out.puts "companion_poc_setup_materializer_approval_receipt_json_endpoint=#{setup_materializer_approval_receipt_json_endpoint?(materializer_approval_receipt_json)}"
+      out.puts "companion_poc_setup_materializer_approvals_endpoint=#{setup_materializer_approvals_endpoint?(materializer_approvals)}"
+      out.puts "companion_poc_setup_materializer_approvals_json_endpoint=#{setup_materializer_approvals_json_endpoint?(materializer_approvals_json)}"
       out.puts "companion_poc_web_surface=#{html.include?('data-ig-poc-surface="companion_dashboard"')}"
       out.puts "companion_poc_relation_health_dashboard=#{relation_health_dashboard?(html)}"
       out.puts "companion_poc_today_surface=#{html.include?('data-companion-today="true"') && html.include?('data-today-next-action="true"')}"
@@ -321,6 +329,7 @@ module Companion
       out.puts "companion_poc_materializer_supervision=#{materializer_supervision?}"
       out.puts "companion_poc_materializer_approval_policy=#{materializer_approval_policy?}"
       out.puts "companion_poc_materializer_approval_receipt=#{materializer_approval_receipt?}"
+      out.puts "companion_poc_materializer_approval_history=#{materializer_approval_history?}"
       out.puts "companion_poc_static_materialization_plan=#{static_materialization_plan?}"
       out.puts "companion_poc_static_materialization_parity=#{static_materialization_parity?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
@@ -761,8 +770,8 @@ module Companion
       manifest = persistence.capability_manifest
       persistence.capability_names == %i[
         reminders trackers daily_focuses countdowns articles wizard_type_specs tracker_logs actions comments
-        wizard_type_spec_changes materializer_attempts tracker_read_model countdown_read_model activity_feed
-        materializer_audit_trail
+        wizard_type_spec_changes materializer_attempts materializer_approvals tracker_read_model
+        countdown_read_model activity_feed materializer_audit_trail
       ] &&
         manifest.fetch(:reminders).fetch(:kind) == :record &&
         manifest.fetch(:countdowns).fetch(:kind) == :record &&
@@ -771,6 +780,7 @@ module Companion
         manifest.fetch(:comments).fetch(:kind) == :history &&
         manifest.fetch(:wizard_type_spec_changes).fetch(:kind) == :history &&
         manifest.fetch(:materializer_attempts).fetch(:kind) == :history &&
+        manifest.fetch(:materializer_approvals).fetch(:kind) == :history &&
         manifest.fetch(:countdown_read_model).fetch(:kind) == :projection &&
         manifest.fetch(:tracker_logs).fetch(:kind) == :history &&
         manifest.fetch(:activity_feed).fetch(:kind) == :projection &&
@@ -787,9 +797,9 @@ module Companion
       readiness = persistence.readiness
       readiness.fetch(:ready) &&
         readiness.fetch(:status) == :ready &&
-        readiness.fetch(:capability_count) == 15 &&
+        readiness.fetch(:capability_count) == 16 &&
         readiness.fetch(:record_count) == 6 &&
-        readiness.fetch(:history_count) == 5 &&
+        readiness.fetch(:history_count) == 6 &&
         readiness.fetch(:projection_count) == 4 &&
         readiness.fetch(:relation_count) == 2 &&
         readiness.fetch(:warning_count).zero?
@@ -1164,6 +1174,14 @@ module Companion
         receipt.fetch("rejected_capabilities") == %w[write git test restart]
     end
 
+    def setup_materializer_approvals_endpoint?(materializer_approvals)
+      materializer_approvals == "[]"
+    end
+
+    def setup_materializer_approvals_json_endpoint?(materializer_approvals_json)
+      JSON.parse(materializer_approvals_json).empty?
+    end
+
     def persistence_operation_model?
       reminder_create = Contracts::ReminderContract.evaluate(
         operation: :create,
@@ -1206,7 +1224,7 @@ module Companion
       summary = manifest.fetch(:summary)
 
       summary.fetch(:record_count) == 6 &&
-        summary.fetch(:history_count) == 5 &&
+        summary.fetch(:history_count) == 6 &&
         summary.fetch(:projection_count) == 4 &&
         summary.fetch(:command_count) == 4 &&
         summary.fetch(:relation_count) == 2 &&
@@ -1215,6 +1233,7 @@ module Companion
         manifest.fetch(:histories).fetch(:comments).fetch(:fields).include?(:article_id) &&
         manifest.fetch(:histories).fetch(:wizard_type_spec_changes).fetch(:fields).include?(:change_kind) &&
         manifest.fetch(:histories).fetch(:materializer_attempts).fetch(:fields).include?(:approval_request) &&
+        manifest.fetch(:histories).fetch(:materializer_approvals).fetch(:fields).include?(:granted_capabilities) &&
         manifest.fetch(:records).fetch(:reminders).fetch(:operations) == %i[all find save update delete clear scope command] &&
         manifest.fetch(:histories).fetch(:tracker_logs).fetch(:operations) == %i[append all where count] &&
         manifest.fetch(:projections).fetch(:tracker_read_model).fetch(:relations) == %i[tracker_logs_by_tracker] &&
@@ -1607,6 +1626,23 @@ module Companion
         approved.fetch(:status) == :approved &&
         approved.fetch(:receipt).fetch(:granted_capabilities) == %i[write git test restart] &&
         approved.fetch(:receipt).fetch(:applies_capabilities) == false
+    end
+
+    def materializer_approval_history?
+      manifest = Contracts::MaterializerApproval.persistence_manifest
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      receipt = persistence.materializer_approval_receipt.fetch(:receipt)
+      approvals = persistence.materializer_approvals
+      appended = approvals.append(receipt.merge(index: 0))
+
+      manifest.fetch(:history).fetch(:key) == :index &&
+        manifest.fetch(:fields).any? { |field| field.fetch(:name) == :granted_capabilities && field.fetch(:attributes).fetch(:type) == :json } &&
+        manifest.fetch(:fields).any? { |field| field.fetch(:name) == :reasons && field.fetch(:attributes).fetch(:type) == :json } &&
+        appended.fetch(:index).zero? &&
+        appended.fetch(:kind) == :materializer_approval_receipt &&
+        appended.fetch(:applies_capabilities) == false &&
+        approvals.count(status: :pending) == 1 &&
+        approvals.where(kind: :materializer_approval_receipt).first.fetch(:review_only)
     end
 
     def wizard_type_spec_canonical?

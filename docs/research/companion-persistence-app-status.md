@@ -42,6 +42,8 @@ Current history capabilities:
 - `CompanionAction`: `history`, append-only user/runtime receipts
 - `MaterializerAttempt`: `history`, append-only future materializer audit
   receipts; declared and manifest-visible, but not auto-appended by setup reads
+- `MaterializerApproval`: `history`, append-only future approval audit receipts;
+  declared and manifest-visible, but not auto-appended by setup reads
 
 Current projection contracts:
 
@@ -114,6 +116,8 @@ Current user-defined-type pressure test:
 - `MaterializerApprovalReceiptContract`: review-only receipt projection over the
   approval policy decision; approved receipts still keep
   `applies_capabilities: false`
+- `MaterializerApproval`: static history contract for future approval receipts,
+  proving the path to `History[MaterializerApproval]` without side effects
 - `Wizard Type Spec Architecture`: research response now treats
   `WizardTypeSpec` as future `Store[ContractSpec]` and
   `WizardTypeSpecChange` as future `History[ContractSpecChange]`

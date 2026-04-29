@@ -65,6 +65,11 @@ module Companion
           contract_class: Contracts::MaterializerAttempt,
           entries: :materializer_attempt_entries,
           append: :append_materializer_attempt
+        },
+        materializer_approvals: {
+          contract_class: Contracts::MaterializerApproval,
+          entries: :materializer_approval_entries,
+          append: :append_materializer_approval
         }
       }.freeze
 
@@ -335,6 +340,10 @@ module Companion
 
       def materializer_attempts
         history(:materializer_attempts)
+      end
+
+      def materializer_approvals
+        history(:materializer_approvals)
       end
 
       def actions
@@ -623,6 +632,14 @@ module Companion
 
       def append_materializer_attempt(event)
         state.append_materializer_attempt(event)
+      end
+
+      def materializer_approval_entries
+        state.materializer_approval_entries
+      end
+
+      def append_materializer_approval(event)
+        state.append_materializer_approval(event)
       end
 
       def article_comment_type_spec
