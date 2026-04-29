@@ -158,6 +158,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   setup packet surface.
 - Reading order includes `/setup/handoff/extraction-sketch.json` as the
   package-placement sketch without public API promise.
+- Reading order includes `/setup/handoff/promotion-readiness.json` as the
+  explicit package/API promotion blocker report.
 - Carries `document_rotation` with the compact public docs and private track to
   read before older thread history.
 - Carries `architecture_constraints` for app-local scope, no public API promise,
@@ -212,6 +214,14 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
 - Names extraction candidates for `igniter-extensions` and
   `igniter-application`, while reserving future `igniter-persistence`.
 - Must keep `package_promise: false` and `package_split_now: false`.
+
+`setup_handoff_promotion_readiness`
+
+- Report-only blocker packet exposed at
+  `/setup/handoff/promotion-readiness.json`.
+- Current expected status is `:blocked`.
+- Names why package/API promotion is not ready yet.
+- Allowed next steps must keep Companion app-local and gather repeated pressure.
 
 `setup_handoff_acceptance`
 

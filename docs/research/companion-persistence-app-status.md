@@ -76,6 +76,10 @@ Current manifest vocabulary:
 - `/setup/handoff/extraction-sketch(.json)` maps the indexed packet surface to
   app-local, `igniter-extensions`, `igniter-application`, and future
   `igniter-persistence` placement candidates without making a package promise
+- `/setup/handoff/promotion-readiness(.json)` reports promotion as blocked and
+  names the current blockers: single-app pressure, no public API promise, no
+  package split, blocked materializer execution/capability grants, and
+  report-only packet surface
 - `/setup/handoff/acceptance(.json)` reports whether the recommended handoff
   scope is pending or satisfied without executing it
 - `POST /setup/handoff/acceptance/record` explicitly applies the same
@@ -215,6 +219,8 @@ Current user-defined-type pressure test:
   packet endpoints and explicit mutation paths
 - `SetupHandoffExtractionSketchContract`: read-only landing-zone sketch that
   preserves app-local scope and names future extraction candidates
+- `SetupHandoffPromotionReadinessContract`: report-only blocker list that keeps
+  package/API promotion explicitly blocked while proof remains app-local
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities

@@ -284,6 +284,10 @@ module Companion
         persistence.setup_handoff_extraction_sketch
       end
 
+      def setup_handoff_promotion_readiness
+        persistence.setup_handoff_promotion_readiness
+      end
+
       def materialization_plan
         persistence.materialization_plan
       end
