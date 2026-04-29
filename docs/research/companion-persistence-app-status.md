@@ -28,6 +28,15 @@ public Igniter persistence API.
 These keywords compile to metadata operations in Companion contract manifests.
 They do not change the core contracts runtime.
 
+Current manifest scale:
+
+- records: 6
+- histories: 6
+- projections: 4
+- command groups: 4
+- relations: 2
+- total capabilities: 16
+
 Current record capabilities:
 
 - `Reminder`: `persist`, fields, `index :status`, `scope :open`, command
@@ -286,6 +295,11 @@ Two relation slices have landed app-locally:
 The next safe move is materialization hardening or relation-health ergonomics,
 still app-local:
 
+- add `MaterializerApprovalCommandContract` that lowers approval receipt to a
+  normalized `history_append :materializer_approvals` intent
+- keep approval reads side-effect-free
+- apply approval persistence only through an explicit app-boundary POST
+- then add `MaterializerApprovalAuditTrailContract`
 - keep dynamic wizard/configurator output sandboxed until it materializes into
   static contracts
 - store dynamic wizard output as durable specs, not executable runtime code
@@ -325,7 +339,7 @@ metadata are reportable and usable by app-local generated APIs.
 [S] Tracker to TrackerLog proves projection relation input and warning path.
 [S] Article to Comment proves user-defined-type pressure through static
 contracts before dynamic materialization.
-Next: keep relation health diagnostic-only; harden static materialization shape
-before adding wizard runtime.
+Next: add `MaterializerApprovalCommandContract` so approval receipts lower to
+`history_append :materializer_approvals`, but only explicit POST applies it.
 Block: none.
 ```
