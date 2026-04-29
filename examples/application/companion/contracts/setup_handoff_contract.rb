@@ -4,7 +4,7 @@ require_relative "../contracts"
 
 module Companion
   module Contracts
-    contracts :SetupHandoffContract, outputs: %i[status descriptor reading_order current_state next_action summary] do
+    contracts :SetupHandoffContract, outputs: %i[status descriptor reading_order document_rotation current_state next_action summary] do
       input :setup_health
       input :manifest_summary
       input :materializer_status
@@ -33,6 +33,21 @@ module Companion
           "/setup/materializer.json",
           "/setup/materializer/descriptor-health.json"
         ]
+      end
+
+      compute :document_rotation do
+        {
+          public: [
+            "docs/research/companion-current-status-summary.md",
+            "docs/research/companion-persistence-manifest-glossary.md",
+            "docs/research/companion-persistence-app-status.md"
+          ],
+          private: [
+            "playgrounds/docs/dev/tracks/contract-persistence-capability-track.md"
+          ],
+          policy: :compact_current_state_first,
+          stale_history_policy: :prefer_handoff_over_long_thread
+        }
       end
 
       compute :current_state, depends_on: %i[setup_health manifest_summary materializer_status] do |setup_health:, manifest_summary:, materializer_status:|
@@ -64,6 +79,7 @@ module Companion
       output :status
       output :descriptor
       output :reading_order
+      output :document_rotation
       output :current_state
       output :next_action
       output :summary

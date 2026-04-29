@@ -142,6 +142,7 @@ Best next move:
 - use `/setup/health.json` as the compact current-state packet before deeper
   changes
 - use `/setup/handoff.json` as the first read after context rotation
+- follow its `document_rotation` block before reading long thread history
 - choose the next term only after the current glossary remains stable
 - continue avoiding execution and capability grant controls
 
@@ -153,6 +154,7 @@ Acceptance:
 - setup health remains stable or reports review items without blocking runtime
 - setup health descriptor remains report-only and does not gate runtime
 - setup handoff remains read-only and points to the current reading order
+- setup handoff keeps public/private document rotation compact
 - `/setup` surfaces glossary health without making readiness stricter
 - no setup/read endpoint mutates durable state
 

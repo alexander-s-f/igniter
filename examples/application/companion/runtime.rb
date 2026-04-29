@@ -1546,6 +1546,9 @@ module Companion
         handoff.fetch(:descriptor).fetch(:grants_capabilities) == false &&
         handoff.fetch(:descriptor).fetch(:purpose) == :context_rotation &&
         handoff.fetch(:reading_order).include?("/setup/health.json") &&
+        handoff.fetch(:document_rotation).fetch(:public).include?("docs/research/companion-current-status-summary.md") &&
+        handoff.fetch(:document_rotation).fetch(:private).include?("playgrounds/docs/dev/tracks/contract-persistence-capability-track.md") &&
+        handoff.fetch(:document_rotation).fetch(:policy) == :compact_current_state_first &&
         handoff.fetch(:current_state).fetch(:capabilities) == 17 &&
         handoff.fetch(:current_state).fetch(:materializer_grants_capabilities) == false &&
         handoff.fetch(:next_action) == :record_blocked_attempt
@@ -2083,6 +2086,8 @@ module Companion
         setup_handoff.include?("kind=>:setup_handoff") &&
         setup_handoff.include?("gates_runtime=>false") &&
         setup_handoff.include?("/setup/health.json") &&
+        setup_handoff.include?("companion-current-status-summary.md") &&
+        setup_handoff.include?("contract-persistence-capability-track.md") &&
         setup_handoff.include?("record_blocked_attempt")
     end
 
@@ -2097,6 +2102,9 @@ module Companion
         payload.fetch("descriptor").fetch("grants_capabilities") == false &&
         payload.fetch("descriptor").fetch("purpose") == "context_rotation" &&
         payload.fetch("reading_order").include?("/setup/health.json") &&
+        payload.fetch("document_rotation").fetch("public").include?("docs/research/companion-current-status-summary.md") &&
+        payload.fetch("document_rotation").fetch("private").include?("playgrounds/docs/dev/tracks/contract-persistence-capability-track.md") &&
+        payload.fetch("document_rotation").fetch("policy") == "compact_current_state_first" &&
         payload.fetch("current_state").fetch("capabilities") == 17 &&
         payload.fetch("current_state").fetch("materializer_grants_capabilities") == false &&
         payload.fetch("next_action") == "record_blocked_attempt"

@@ -146,6 +146,8 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   `grants_capabilities: false`.
 - Carries reading order, manifest scale, current materializer phase, and next
   action.
+- Carries `document_rotation` with the compact public docs and private track to
+  read before older thread history.
 - It is a handoff/read model, not an execution or approval surface.
 
 ## Current Lowerings

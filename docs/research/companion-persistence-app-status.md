@@ -58,7 +58,8 @@ Current manifest vocabulary:
   and `grants_capabilities: false`
 - `/setup/handoff(.json)` exposes the compact context-rotation packet for
   agents with reading order, manifest scale, current materializer phase, and
-  next action
+  next action; it also names the compact public docs and private track to read
+  before stale history
 - `/setup/materializer(.json)` exposes a `materializer_status` descriptor with
   schema version, review-only state, history targets, command intents, audit
   counts, `grants_capabilities: false`, and `execution_allowed: false`
@@ -167,7 +168,8 @@ Current user-defined-type pressure test:
   health, and infrastructure loop health; it emits a descriptor so agents can
   identify the packet as diagnostic, not executable
 - `SetupHandoffContract`: compact read-only handoff over setup health,
-  manifest summary, and materializer status for context rotation
+  manifest summary, and materializer status for context rotation, including
+  document rotation pointers
 - `MaterializerApprovalPolicyContract`: read-only decision model for human
   approval over requested materializer capabilities; it validates subset/unknown
   capabilities and still does not apply capabilities
