@@ -342,7 +342,9 @@ Companion now also exposes one report-only relation manifest:
 with `event_owner` semantics and `enforced: false`. Readiness validates endpoint
 kinds, join fields, projection presence, and the non-enforcement boundary. This
 keeps relations as typed manifest edges first, not ORM associations or database
-foreign keys.
+foreign keys. `TrackerReadModelContract` also declares the relation in its
+projection manifest inputs, proving the projection edge can be inspectable
+before a dedicated projection DSL exists.
 
 `PersistenceReadinessContract` turns registry validation into a graph-owned
 diagnostic projection: readiness, counts by capability kind, and a compact

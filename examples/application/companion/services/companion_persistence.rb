@@ -49,6 +49,21 @@ module Companion
         activity_feed: Contracts::ActivityFeedContract
       }.freeze
 
+      PROJECTION_INPUT_BINDINGS = {
+        tracker_read_model: {
+          reads: %i[trackers tracker_logs],
+          relations: %i[tracker_logs_by_tracker]
+        },
+        countdown_read_model: {
+          reads: %i[countdowns],
+          relations: []
+        },
+        activity_feed: {
+          reads: %i[actions],
+          relations: []
+        }
+      }.freeze
+
       COMMAND_BINDINGS = {
         reminder_commands: {
           contract_class: Contracts::ReminderContract,
@@ -204,7 +219,7 @@ module Companion
 
       def projection_manifest
         PROJECTION_BINDINGS.keys.to_h do |name|
-          [name, { kind: :projection, contract: PROJECTION_BINDINGS.fetch(name) }]
+          [name, { kind: :projection, contract: PROJECTION_BINDINGS.fetch(name) }.merge(PROJECTION_INPUT_BINDINGS.fetch(name))]
         end
       end
 
@@ -234,7 +249,7 @@ module Companion
 
       def projection_operation_manifest
         PROJECTION_BINDINGS.keys.to_h do |name|
-          [name, { kind: :projection, contract: PROJECTION_BINDINGS.fetch(name) }]
+          [name, { kind: :projection, contract: PROJECTION_BINDINGS.fetch(name) }.merge(PROJECTION_INPUT_BINDINGS.fetch(name))]
         end
       end
 
@@ -296,10 +311,24 @@ module Companion
       def projection_validation_errors
         PROJECTION_BINDINGS.flat_map do |name, contract_class|
           contract_class.compile
-          []
+          projection_input_errors(name)
         rescue StandardError => e
           ["#{name}: projection contract failed to compile #{e.class}"]
         end
+      end
+
+      def projection_input_errors(name)
+        binding = PROJECTION_INPUT_BINDINGS.fetch(name)
+        reads = binding.fetch(:reads)
+        relations = binding.fetch(:relations)
+        errors = []
+        missing_reads = reads - capability_manifest.keys
+        errors << "#{name}: projection reads missing capabilities #{missing_reads.join(",")}" unless missing_reads.empty?
+        missing_relations = relations - relation_manifest.keys
+        errors << "#{name}: projection uses missing relations #{missing_relations.join(",")}" unless missing_relations.empty?
+        mismatched_relations = relations.reject { |relation| relation_manifest.fetch(relation).fetch(:projection) == name }
+        errors << "#{name}: projection relation mismatch #{mismatched_relations.join(",")}" unless mismatched_relations.empty?
+        errors
       end
 
       def relation_validation_errors

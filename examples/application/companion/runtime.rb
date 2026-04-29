@@ -170,6 +170,7 @@ module Companion
       out.puts "companion_poc_persistence_manifest_contract=#{persistence_manifest_contract?}"
       out.puts "companion_poc_persistence_metadata_manifest=#{persistence_metadata_manifest?}"
       out.puts "companion_poc_persistence_relation_manifest=#{persistence_relation_manifest?}"
+      out.puts "companion_poc_projection_relation_manifest=#{projection_relation_manifest?}"
       out.puts "companion_poc_setup_manifest=#{setup_manifest?(manifest)}"
       out.puts "companion_poc_capsules=#{%w[reminders trackers countdowns body-battery daily-plan daily-summary].all? { |name| html.include?("data-capsule=\"#{name}\"") }}"
       out.puts "companion_poc_body_battery_surface=#{html.include?("data-body-battery-score=")}"
@@ -676,6 +677,7 @@ module Companion
         summary.fetch(:relation_count) == 1 &&
         manifest.fetch(:records).fetch(:reminders).fetch(:operations) == %i[all find save update delete clear scope command] &&
         manifest.fetch(:histories).fetch(:tracker_logs).fetch(:operations) == %i[append all where count] &&
+        manifest.fetch(:projections).fetch(:tracker_read_model).fetch(:relations) == %i[tracker_logs_by_tracker] &&
         manifest.fetch(:relations).fetch(:tracker_logs_by_tracker).fetch(:join) == { id: :tracker_id } &&
         manifest.fetch(:commands).fetch(:tracker_log_commands).fetch(:operations).include?(:history_append)
     end
@@ -693,6 +695,15 @@ module Companion
         relation.fetch(:cardinality) == :one_to_many &&
         relation.fetch(:projection) == :tracker_read_model &&
         relation.fetch(:enforced) == false
+    end
+
+    def projection_relation_manifest?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      projection = persistence.manifest_snapshot.fetch(:projections).fetch(:tracker_read_model)
+
+      persistence.valid? &&
+        projection.fetch(:reads) == %i[trackers tracker_logs] &&
+        projection.fetch(:relations) == %i[tracker_logs_by_tracker]
     end
 
     def persistence_metadata_manifest?
