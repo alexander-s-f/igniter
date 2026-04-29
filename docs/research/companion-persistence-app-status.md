@@ -64,7 +64,8 @@ Current manifest vocabulary:
   candidates with acceptance criteria and a follow-up approval receipt check
 - `/setup/handoff/digest(.json)` exposes the compact human/agent diagram with
   lifecycle stage, materializer phase, next action, extraction scope, and
-  promotion status
+  promotion status; `/setup/handoff/digest.txt` is the plain-text handoff
+  projection for fast reading or copying into agent context
 - `/setup/handoff/lifecycle(.json)` composes handoff plus both acceptance
   packets into a read-only stage map with current stage and next action
 - `/setup/handoff/lifecycle-health(.json)` validates lifecycle descriptor,

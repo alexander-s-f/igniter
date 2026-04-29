@@ -100,6 +100,20 @@ module Companion
         text JSON.pretty_generate(service(:companion).setup_handoff_digest)
       end
 
+      get "/setup/handoff/digest.txt" do
+        digest = service(:companion).setup_handoff_digest
+        lines = [
+          digest.fetch(:diagram),
+          "",
+          digest.fetch(:summary),
+          "",
+          "next_reads:",
+          *digest.fetch(:next_reads).map { |path| "- #{path}" }
+        ]
+
+        text lines.join("\n")
+      end
+
       get "/setup/handoff/acceptance" do
         text service(:companion).setup_handoff_acceptance.inspect
       end

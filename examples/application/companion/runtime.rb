@@ -82,6 +82,7 @@ module Companion
       setup_handoff_json_status, _setup_handoff_json_headers, setup_handoff_json_body = app.call(rack_env("GET", "/setup/handoff.json"))
       setup_handoff_digest_status, _setup_handoff_digest_headers, setup_handoff_digest_body = app.call(rack_env("GET", "/setup/handoff/digest"))
       setup_handoff_digest_json_status, _setup_handoff_digest_json_headers, setup_handoff_digest_json_body = app.call(rack_env("GET", "/setup/handoff/digest.json"))
+      setup_handoff_digest_text_status, _setup_handoff_digest_text_headers, setup_handoff_digest_text_body = app.call(rack_env("GET", "/setup/handoff/digest.txt"))
       setup_handoff_promotion_readiness_status, _setup_handoff_promotion_readiness_headers, setup_handoff_promotion_readiness_body = app.call(rack_env("GET", "/setup/handoff/promotion-readiness"))
       setup_handoff_promotion_readiness_json_status, _setup_handoff_promotion_readiness_json_headers, setup_handoff_promotion_readiness_json_body = app.call(rack_env("GET", "/setup/handoff/promotion-readiness.json"))
       setup_handoff_extraction_sketch_status, _setup_handoff_extraction_sketch_headers, setup_handoff_extraction_sketch_body = app.call(rack_env("GET", "/setup/handoff/extraction-sketch"))
@@ -160,6 +161,7 @@ module Companion
       setup_handoff_json = setup_handoff_json_body.join
       setup_handoff_digest = setup_handoff_digest_body.join
       setup_handoff_digest_json = setup_handoff_digest_json_body.join
+      setup_handoff_digest_text = setup_handoff_digest_text_body.join
       setup_handoff_promotion_readiness = setup_handoff_promotion_readiness_body.join
       setup_handoff_promotion_readiness_json = setup_handoff_promotion_readiness_json_body.join
       setup_handoff_extraction_sketch = setup_handoff_extraction_sketch_body.join
@@ -258,6 +260,7 @@ module Companion
       out.puts "companion_poc_setup_handoff_json_status=#{setup_handoff_json_status}"
       out.puts "companion_poc_setup_handoff_digest_status=#{setup_handoff_digest_status}"
       out.puts "companion_poc_setup_handoff_digest_json_status=#{setup_handoff_digest_json_status}"
+      out.puts "companion_poc_setup_handoff_digest_text_status=#{setup_handoff_digest_text_status}"
       out.puts "companion_poc_setup_handoff_promotion_readiness_status=#{setup_handoff_promotion_readiness_status}"
       out.puts "companion_poc_setup_handoff_promotion_readiness_json_status=#{setup_handoff_promotion_readiness_json_status}"
       out.puts "companion_poc_setup_handoff_extraction_sketch_status=#{setup_handoff_extraction_sketch_status}"
@@ -332,6 +335,7 @@ module Companion
       out.puts "companion_poc_setup_handoff_json_endpoint=#{setup_handoff_json_endpoint?(setup_handoff_json)}"
       out.puts "companion_poc_setup_handoff_digest_endpoint=#{setup_handoff_digest_endpoint?(setup_handoff_digest)}"
       out.puts "companion_poc_setup_handoff_digest_json_endpoint=#{setup_handoff_digest_json_endpoint?(setup_handoff_digest_json)}"
+      out.puts "companion_poc_setup_handoff_digest_text_endpoint=#{setup_handoff_digest_text_endpoint?(setup_handoff_digest_text)}"
       out.puts "companion_poc_setup_handoff_promotion_readiness_endpoint=#{setup_handoff_promotion_readiness_endpoint?(setup_handoff_promotion_readiness)}"
       out.puts "companion_poc_setup_handoff_promotion_readiness_json_endpoint=#{setup_handoff_promotion_readiness_json_endpoint?(setup_handoff_promotion_readiness_json)}"
       out.puts "companion_poc_setup_handoff_extraction_sketch_endpoint=#{setup_handoff_extraction_sketch_endpoint?(setup_handoff_extraction_sketch)}"
@@ -1628,6 +1632,7 @@ module Companion
         handoff.fetch(:descriptor).fetch(:purpose) == :context_rotation &&
         handoff.fetch(:reading_order).include?("/setup/health.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/digest.json") &&
+        handoff.fetch(:reading_order).include?("/setup/handoff/digest.txt") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/promotion-readiness.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/extraction-sketch.json") &&
         handoff.fetch(:reading_order).include?("/setup/handoff/packet-registry.json") &&
@@ -2386,6 +2391,7 @@ module Companion
         setup_handoff.include?("gates_runtime=>false") &&
         setup_handoff.include?("/setup/health.json") &&
         setup_handoff.include?("/setup/handoff/digest.json") &&
+        setup_handoff.include?("/setup/handoff/digest.txt") &&
         setup_handoff.include?("/setup/handoff/promotion-readiness.json") &&
         setup_handoff.include?("/setup/handoff/extraction-sketch.json") &&
         setup_handoff.include?("/setup/handoff/packet-registry.json") &&
@@ -2419,6 +2425,7 @@ module Companion
         payload.fetch("descriptor").fetch("purpose") == "context_rotation" &&
         payload.fetch("reading_order").include?("/setup/health.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/digest.json") &&
+        payload.fetch("reading_order").include?("/setup/handoff/digest.txt") &&
         payload.fetch("reading_order").include?("/setup/handoff/promotion-readiness.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/extraction-sketch.json") &&
         payload.fetch("reading_order").include?("/setup/handoff/packet-registry.json") &&
@@ -2634,6 +2641,14 @@ module Companion
         payload.fetch("highlights").fetch("package_promise") == false &&
         payload.fetch("next_reads").include?("/setup/handoff/supervision.json") &&
         payload.fetch("diagram").include?("Companion app-local proof")
+    end
+
+    def setup_handoff_digest_text_endpoint?(setup_handoff_digest_text)
+      setup_handoff_digest_text.include?("Companion app-local proof") &&
+        setup_handoff_digest_text.include?("promotion: blocked") &&
+        setup_handoff_digest_text.include?("next_reads:") &&
+        setup_handoff_digest_text.include?("/setup/handoff/supervision.json") &&
+        setup_handoff_digest_text.include?("/setup/handoff/promotion-readiness.json")
     end
 
     def setup_handoff_approval_acceptance_endpoint?(setup_handoff_approval_acceptance)
