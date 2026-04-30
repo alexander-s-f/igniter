@@ -136,6 +136,8 @@ module Companion
       store_convergence_json_status, _store_convergence_json_headers, store_convergence_json_body = app.call(rack_env("GET", "/setup/store-convergence-sidecar.json"))
       companion_store_app_flow_status, _companion_store_app_flow_headers, companion_store_app_flow_body = app.call(rack_env("GET", "/setup/companion-store-app-flow-sidecar"))
       companion_store_app_flow_json_status, _companion_store_app_flow_json_headers, companion_store_app_flow_json_body = app.call(rack_env("GET", "/setup/companion-store-app-flow-sidecar.json"))
+      companion_index_metadata_status, _companion_index_metadata_headers, companion_index_metadata_body = app.call(rack_env("GET", "/setup/companion-index-metadata-sidecar"))
+      companion_index_metadata_json_status, _companion_index_metadata_json_headers, companion_index_metadata_json_body = app.call(rack_env("GET", "/setup/companion-index-metadata-sidecar.json"))
       companion_receipt_projection_status, _companion_receipt_projection_headers, companion_receipt_projection_body = app.call(rack_env("GET", "/setup/companion-receipt-projection-sidecar"))
       companion_receipt_projection_json_status, _companion_receipt_projection_json_headers, companion_receipt_projection_json_body = app.call(rack_env("GET", "/setup/companion-receipt-projection-sidecar.json"))
       relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
@@ -249,6 +251,8 @@ module Companion
       store_convergence_json = store_convergence_json_body.join
       companion_store_app_flow = companion_store_app_flow_body.join
       companion_store_app_flow_json = companion_store_app_flow_json_body.join
+      companion_index_metadata = companion_index_metadata_body.join
+      companion_index_metadata_json = companion_index_metadata_json_body.join
       companion_receipt_projection = companion_receipt_projection_body.join
       companion_receipt_projection_json = companion_receipt_projection_json_body.join
       relation_health = relation_health_body.join
@@ -382,6 +386,8 @@ module Companion
       out.puts "companion_poc_setup_store_convergence_sidecar_json_status=#{store_convergence_json_status}"
       out.puts "companion_poc_setup_companion_store_app_flow_sidecar_status=#{companion_store_app_flow_status}"
       out.puts "companion_poc_setup_companion_store_app_flow_sidecar_json_status=#{companion_store_app_flow_json_status}"
+      out.puts "companion_poc_setup_companion_index_metadata_sidecar_status=#{companion_index_metadata_status}"
+      out.puts "companion_poc_setup_companion_index_metadata_sidecar_json_status=#{companion_index_metadata_json_status}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_status=#{companion_receipt_projection_status}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_json_status=#{companion_receipt_projection_json_status}"
       out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
@@ -493,6 +499,8 @@ module Companion
       out.puts "companion_poc_setup_store_convergence_sidecar_json_endpoint=#{setup_store_convergence_sidecar_json_endpoint?(store_convergence_json)}"
       out.puts "companion_poc_setup_companion_store_app_flow_sidecar_endpoint=#{setup_companion_store_app_flow_sidecar_endpoint?(companion_store_app_flow)}"
       out.puts "companion_poc_setup_companion_store_app_flow_sidecar_json_endpoint=#{setup_companion_store_app_flow_sidecar_json_endpoint?(companion_store_app_flow_json)}"
+      out.puts "companion_poc_setup_companion_index_metadata_sidecar_endpoint=#{setup_companion_index_metadata_sidecar_endpoint?(companion_index_metadata)}"
+      out.puts "companion_poc_setup_companion_index_metadata_sidecar_json_endpoint=#{setup_companion_index_metadata_sidecar_json_endpoint?(companion_index_metadata_json)}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_endpoint=#{setup_companion_receipt_projection_sidecar_endpoint?(companion_receipt_projection)}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_json_endpoint=#{setup_companion_receipt_projection_sidecar_json_endpoint?(companion_receipt_projection_json)}"
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
@@ -596,6 +604,7 @@ module Companion
       out.puts "companion_poc_persistence_effect_intent_health_contract=#{persistence_effect_intent_health_contract?}"
       out.puts "companion_poc_store_convergence_sidecar_contract=#{store_convergence_sidecar_contract?}"
       out.puts "companion_poc_companion_store_app_flow_sidecar_contract=#{companion_store_app_flow_sidecar_contract?}"
+      out.puts "companion_poc_companion_index_metadata_sidecar_contract=#{companion_index_metadata_sidecar_contract?}"
       out.puts "companion_poc_companion_receipt_projection_sidecar_contract=#{companion_receipt_projection_sidecar_contract?}"
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
       out.puts "companion_poc_setup_handoff_acceptance_contract=#{setup_handoff_acceptance_contract?}"
@@ -2051,6 +2060,34 @@ module Companion
         checks.any? { |check| check.fetch(:term) == :enum_values_mirrored && check.fetch(:present) } &&
         checks.any? { |check| check.fetch(:term) == :typed_record_round_trip && check.fetch(:present) } &&
         packet.fetch(:summary).include?("receipt_intent=record_write")
+    end
+
+    def companion_index_metadata_sidecar_contract?
+      packet = Services::CompanionIndexMetadataSidecar.packet
+      descriptor = packet.fetch(:descriptor)
+      records = packet.fetch(:records)
+      package_gap = packet.fetch(:package_gap)
+      pressure = packet.fetch(:pressure)
+      checks = packet.fetch(:checks)
+
+      packet.fetch(:schema_version) == 1 &&
+        descriptor.fetch(:kind) == :companion_index_metadata_sidecar &&
+        descriptor.fetch(:report_only) &&
+        descriptor.fetch(:gates_runtime) == false &&
+        descriptor.fetch(:replaces_app_backend) == false &&
+        descriptor.fetch(:db_index_promise) == false &&
+        packet.fetch(:status) == :stable &&
+        checks.length == 12 &&
+        checks.all? { |check| check.fetch(:present) } &&
+        records.map { |record| record.fetch(:contract).to_s }.sort == %w[Article Reminder] &&
+        records.all? { |record| record.fetch(:indexes).all? { |index| index.fetch(:fields) == [:status] } } &&
+        records.all? { |record| record.fetch(:indexes).all? { |index| index.fetch(:fields_declared) } } &&
+        records.all? { |record| record.fetch(:scopes).all? { |scope| scope.fetch(:covered_by_index) } } &&
+        records.all? { |record| record.fetch(:generated_index_api_present) == false } &&
+        package_gap.fetch(:status) == :open &&
+        package_gap.fetch(:expected_api) == :_indexes &&
+        pressure.fetch(:next_question) == :index_metadata &&
+        pressure.fetch(:package_request) == :mirror_manifest_indexes_as_record_metadata
     end
 
     def companion_receipt_projection_sidecar_contract?
@@ -3827,6 +3864,42 @@ module Companion
         payload.fetch("checks").any? { |check| check.fetch("term") == "typed_record_round_trip" && check.fetch("present") } &&
         payload.fetch("summary").include?("store=reminders") &&
         payload.fetch("summary").include?("receipt_intent=record_write")
+    end
+
+    def setup_companion_index_metadata_sidecar_endpoint?(companion_index_metadata)
+      companion_index_metadata.include?("kind=>:companion_index_metadata_sidecar") &&
+        companion_index_metadata.include?("status=>:stable") &&
+        companion_index_metadata.include?("claim=>:portable_index_metadata_shape") &&
+        companion_index_metadata.include?("db_index_promise=>false") &&
+        companion_index_metadata.include?("package_request=>:mirror_manifest_indexes_as_record_metadata") &&
+        companion_index_metadata.include?("expected_api=>:_indexes")
+    end
+
+    def setup_companion_index_metadata_sidecar_json_endpoint?(companion_index_metadata_json)
+      payload = JSON.parse(companion_index_metadata_json)
+      descriptor = payload.fetch("descriptor")
+      records = payload.fetch("records")
+      package_gap = payload.fetch("package_gap")
+      pressure = payload.fetch("pressure")
+
+      payload.fetch("schema_version") == 1 &&
+        descriptor.fetch("kind") == "companion_index_metadata_sidecar" &&
+        descriptor.fetch("report_only") &&
+        descriptor.fetch("gates_runtime") == false &&
+        descriptor.fetch("replaces_app_backend") == false &&
+        descriptor.fetch("db_index_promise") == false &&
+        payload.fetch("status") == "stable" &&
+        payload.fetch("checks").length == 12 &&
+        payload.fetch("checks").all? { |check| check.fetch("present") } &&
+        records.map { |record| record.fetch("contract") }.sort == %w[Article Reminder] &&
+        records.all? { |record| record.fetch("indexes").all? { |index| index.fetch("fields") == ["status"] } } &&
+        records.all? { |record| record.fetch("indexes").all? { |index| index.fetch("fields_declared") } } &&
+        records.all? { |record| record.fetch("scopes").all? { |scope| scope.fetch("covered_by_index") } } &&
+        records.all? { |record| record.fetch("generated_index_api_present") == false } &&
+        package_gap.fetch("status") == "open" &&
+        package_gap.fetch("expected_api") == "_indexes" &&
+        pressure.fetch("next_question") == "index_metadata" &&
+        pressure.fetch("package_request") == "mirror_manifest_indexes_as_record_metadata"
     end
 
     def setup_companion_receipt_projection_sidecar_endpoint?(companion_receipt_projection)

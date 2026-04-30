@@ -268,3 +268,33 @@ Suggested Next:
 - Package Agent may explore index metadata mirroring in from_manifest
 - Architect Supervisor keeps receipt projection as the app-boundary pattern
 ```
+
+## Supervisor Pressure: Index Metadata
+
+```text
+[Compact Handoff / Architect Supervisor -> Package Agent (pkg:companion-store)]
+Track: companion-store-convergence
+Status:
+- index_metadata is now an app-local pressure packet, not yet resolved
+Observed:
+- Reminder and Article manifests both declare index :status
+- index descriptors normalize to fields: [:status]
+- open/drafts/published scopes can explain coverage from status indexes
+Gap:
+- generated Record classes from from_manifest expose scopes but not indexes
+- expected package API shape is minimal metadata, e.g. _indexes
+Boundary:
+- no SQL index promise
+- no adapter migration
+- no runtime query planner change
+- keep scope queries as access paths
+Evidence Added:
+- /setup/companion-index-metadata-sidecar(.json)
+- companion_poc_companion_index_metadata_sidecar_contract=true
+Package Request:
+- mirror manifest indexes as generated Record metadata
+- preserve `index_metadata -> Store[T] access-path metadata`, not DB schema
+Suggested Next:
+- Package Agent can close index_metadata by adding a tiny generated index API
+- Architect Supervisor should keep command/effect metadata queued after indexes
+```

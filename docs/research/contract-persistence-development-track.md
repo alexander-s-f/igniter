@@ -93,6 +93,7 @@ Likely surface:
 - `/setup/effect-intent-health(.json)`
 - `/setup/store-convergence-sidecar(.json)`
 - `/setup/companion-store-app-flow-sidecar(.json)`
+- `/setup/companion-index-metadata-sidecar(.json)`
 - `/setup/companion-receipt-projection-sidecar(.json)`
 
 Acceptance:
@@ -120,6 +121,9 @@ Acceptance:
 - `/setup/companion-store-app-flow-sidecar(.json)` proves one app-pattern write
   through `Igniter::Companion::Store` with a normalized receipt and no main app
   state mutation
+- `/setup/companion-index-metadata-sidecar(.json)` proves app manifests can
+  normalize index descriptors and identify the package metadata gap without
+  promising SQL indexes
 - `/setup/companion-receipt-projection-sidecar(.json)` proves normalized store
   receipts project to `CompanionAction` history without exposing fact internals
 - no runtime gate, core DSL promotion, DB schema change, SQL generation, or

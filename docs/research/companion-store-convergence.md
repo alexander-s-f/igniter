@@ -46,6 +46,8 @@ Companion now exposes a tiny convergence sidecar:
 - `/setup/store-convergence-sidecar.json`
 - `/setup/companion-store-app-flow-sidecar`
 - `/setup/companion-store-app-flow-sidecar.json`
+- `/setup/companion-index-metadata-sidecar`
+- `/setup/companion-index-metadata-sidecar.json`
 - `/setup/companion-receipt-projection-sidecar`
 - `/setup/companion-receipt-projection-sidecar.json`
 
@@ -76,6 +78,9 @@ Proved:
   can bind the package store/history name without a `store:` override
 - the app-flow sidecar proves one app-pattern `Reminder` write/read/scope cycle
   through `Igniter::Companion::Store` and returns a normalized write receipt
+- the index metadata sidecar proves app manifests can normalize
+  `index :status` into portable metadata and explain scope coverage without
+  promising SQL indexes; it also detects the current package gap
 - the receipt projection sidecar proves package receipts should feed app action
   history through a small app receipt projection, not direct receipt consumption
 - the packet does not mutate main Companion state or replace the current app
@@ -104,12 +109,17 @@ Proved:
    implementation filters in Ruby after `IgniterStore#history`; future store
    work can decide whether this becomes an indexed access path.
 
-5. Normalized receipts now exist at the package facade. The next app-local
-   question is whether `mutation_intent -> app boundary -> action history`
-   should consume these receipts directly or project a smaller app receipt
-   shape.
+5. Normalized receipts now exist at the package facade and the app-local answer
+   is projection: action history receives a small app receipt, not substrate
+   receipt internals.
 
-6. Blob-JSON SQLite in the app remains a useful POC backend, but the next true
+6. Index descriptors are present in app manifests and can be normalized as
+   portable metadata. `Igniter::Companion.from_manifest` does not yet expose a
+   generated record index metadata API, so the package-facing gap is now
+   precise: mirror manifest indexes as record metadata without promising SQL
+   indexes.
+
+7. Blob-JSON SQLite in the app remains a useful POC backend, but the next true
    convergence proof should be a tiny isolated adapter slice, not a full
    Companion migration.
 
@@ -153,7 +163,11 @@ For app-local Companion:
   annotation-only metadata (`type`, `values`), without coercion.
 - Package write receipts feed action history through a small app receipt
   projection. Store internals stay evidence-only.
-- Next package-facing pressure is `index_metadata`.
+- `index_metadata` now has an app-local pressure packet: manifests normalize
+  indexes and explain scope coverage; package generated classes still need an
+  index metadata surface.
+- Next package-facing pressure remains `index_metadata` until the package
+  facade mirrors manifest indexes.
 
 ## Non-Goals
 

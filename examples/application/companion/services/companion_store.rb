@@ -304,6 +304,10 @@ module Companion
         Services::CompanionStoreAppFlowSidecar.packet
       end
 
+      def companion_index_metadata_sidecar
+        Services::CompanionIndexMetadataSidecar.packet
+      end
+
       def companion_receipt_projection_sidecar
         Services::CompanionReceiptProjectionSidecar.packet
       end
