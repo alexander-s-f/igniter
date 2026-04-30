@@ -39,8 +39,8 @@ research material under `playgrounds/docs/`.
   compact cross-track note connecting app-local Companion, `igniter-companion`,
   and `igniter-store`.
 - [Igniter Store Progress Summary](./igniter-store-progress-summary.md) -
-  compact checkpoint for the hot fact engine, Store/History pressure, and Rust
-  snapshot gaps.
+  compact checkpoint for the hot fact engine, Store/History pressure, network
+  transport, and Rust parity gaps.
 - [Contract Persistence Organic Model](./contract-persistence-organic-model.md) -
   horizon model for Store/History as future graph-native concepts.
 - [Contract-Native Store Research](./contract-native-store-research.md) -

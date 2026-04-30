@@ -24,6 +24,12 @@ File backend
   -> CRC32-framed WAL
   -> optional snapshot checkpoint in Ruby fallback
   -> Rust tier pending snapshot parity
+
+Network backend
+  -> CRC32-framed request/response transport
+  -> StoreServer owns durable facts
+  -> clients replay facts and rebuild local read indices
+  -> Rust tier pending wire deserialisation
 ```
 
 ## What Is Strong Now
@@ -46,12 +52,19 @@ File backend
 - File durability moved from old JSONL POC thinking to CRC32-framed WAL.
 - Ruby fallback supports snapshot checkpoint/replay; Rust/native tier has this
   as explicit pending pressure.
+- `NetworkBackend` + `StoreServer` prove the first transport abstraction:
+  app/client code can talk to a remote durable fact host through the same
+  backend interface.
+- `WireProtocol` is now shared framing vocabulary for WAL and network transport.
+- The server model keeps contract computation in the app and moves durable fact
+  projection to the store server.
 
 ## Current Test Signal
 
-- `packages/igniter-store`: 60 examples, 0 failures, 6 pending.
-- Pending items are expected Rust snapshot parity gaps:
-  `FactLog#all_facts` and `FileBackend#write_snapshot`.
+- `packages/igniter-store`: 68 examples, 0 failures, 14 pending.
+- Pending items are expected Rust/native parity gaps:
+  `FactLog#all_facts`, `FileBackend#write_snapshot`, and network wire
+  deserialisation for `NetworkBackend` / `StoreServer`.
 - `packages/igniter-companion`: 47 examples, 0 failures.
 
 ## Architecture Meaning
@@ -62,7 +75,8 @@ File backend
 - not a DB adapter abstraction
 - not the public contract persistence API
 - yes: append-only truth, time travel, causation, access paths, cache
-  invalidation, and hot/cold sync foundation
+  invalidation, hot/cold sync foundation, and now a first store-server
+  transport path
 
 `igniter-companion` is the typed facade:
 
@@ -102,4 +116,8 @@ Store-side pressure after index metadata:
 - decide whether index descriptors remain facade metadata or become explicit
   `AccessPath` metadata
 - finish Rust snapshot parity (`all_facts`, `write_snapshot`)
+- finish Rust network parity by adding native fact deserialisation from existing
+  fact fields
+- keep `NetworkBackend` as a transport/backend swap, not as RPC for contract
+  logic
 - keep PostgreSQL sync hub as cold/async circuit, not write-path dependency
