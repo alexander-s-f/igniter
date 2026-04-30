@@ -50,6 +50,8 @@ Companion now exposes a tiny convergence sidecar:
 - `/setup/companion-index-metadata-sidecar.json`
 - `/setup/companion-receipt-projection-sidecar`
 - `/setup/companion-receipt-projection-sidecar.json`
+- `/setup/companion-store-server-topology-sidecar`
+- `/setup/companion-store-server-topology-sidecar.json`
 
 This packet is report-only and ephemeral. It creates an in-memory
 `Igniter::Companion::Store`, defines package-level typed classes for one
@@ -83,6 +85,9 @@ Proved:
   promising SQL indexes; it also detects the current package gap
 - the receipt projection sidecar proves package receipts should feed app action
   history through a small app receipt projection, not direct receipt consumption
+- the store-server topology sidecar proves the app/server boundary shape:
+  app computes contracts, StoreServer hosts durable fact projection, network
+  transport is backend swap, and native wire deserialization is the explicit gap
 - the packet does not mutate main Companion state or replace the current app
   backend
 
@@ -166,6 +171,9 @@ For app-local Companion:
 - `index_metadata` now has an app-local pressure packet: manifests normalize
   indexes and explain scope coverage; package generated classes still need an
   index metadata surface.
+- StoreServer topology now has an app-local pressure packet. It does not execute
+  network transport in the app POC; it records `NetworkBackend`/StoreServer as a
+  backend-swap topology and keeps `native_wire_deserialization` as package gap.
 - Next package-facing pressure remains `index_metadata` until the package
   facade mirrors manifest indexes.
 

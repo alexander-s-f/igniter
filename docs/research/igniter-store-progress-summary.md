@@ -115,6 +115,8 @@ Store-side pressure after index metadata:
 - expose a compact access-path metadata snapshot from `SchemaGraph`
 - decide whether index descriptors remain facade metadata or become explicit
   `AccessPath` metadata
+- use `/setup/companion-store-server-topology-sidecar.json` as app-local pressure
+  when discussing StoreServer topology from Companion
 - finish Rust snapshot parity (`all_facts`, `write_snapshot`)
 - finish Rust network parity by adding native fact deserialisation from existing
   fact fields

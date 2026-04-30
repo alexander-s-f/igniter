@@ -298,3 +298,36 @@ Suggested Next:
 - Package Agent can close index_metadata by adding a tiny generated index API
 - Architect Supervisor should keep command/effect metadata queued after indexes
 ```
+
+## Supervisor Pressure: Store Server Topology
+
+```text
+[Compact Handoff / Architect Supervisor -> Package Agent (pkg:companion-store)]
+Track: companion-store-convergence
+Status:
+- store_server_topology is now an app-local pressure packet
+- it is parallel to index_metadata, not a replacement for it
+Observed:
+- Companion Store has backend shape :memory / :file / :network
+- StoreServer owns durable facts, WAL, replay, snapshot
+- app process keeps contract computation and typed facade
+- clients replay facts and rebuild local read indices
+Gap:
+- current runtime is NATIVE=true
+- NetworkBackend / StoreServer are Ruby Phase 1 only under current package guard
+- native wire deserialization needs Fact construction from existing wire fields
+Boundary:
+- no network execution in Companion POC
+- no app backend migration
+- no contract logic RPC
+- no public API promise
+Evidence Added:
+- /setup/companion-store-server-topology-sidecar(.json)
+- companion_poc_companion_store_server_topology_sidecar_contract=true
+Package Request:
+- add native fact deserialization for wire/replay payloads
+- preserve NetworkBackend as backend swap, not logic transport
+Suggested Next:
+- Package Agent can keep index_metadata primary
+- Store Agent can use this packet when planning Rust network parity
+```

@@ -85,6 +85,7 @@ module Companion
           companion_store_app_flow_sidecar: service(:companion).companion_store_app_flow_sidecar,
           companion_index_metadata_sidecar: service(:companion).companion_index_metadata_sidecar,
           companion_receipt_projection_sidecar: service(:companion).companion_receipt_projection_sidecar,
+          companion_store_server_topology_sidecar: service(:companion).companion_store_server_topology_sidecar,
           materializer_descriptor_health: snapshot.materializer_status_descriptor_health,
           setup_health: service(:companion).setup_health,
           setup_handoff: service(:companion).setup_handoff,
@@ -368,6 +369,14 @@ module Companion
 
       get "/setup/companion-receipt-projection-sidecar.json" do
         text JSON.pretty_generate(service(:companion).companion_receipt_projection_sidecar)
+      end
+
+      get "/setup/companion-store-server-topology-sidecar" do
+        text service(:companion).companion_store_server_topology_sidecar.inspect
+      end
+
+      get "/setup/companion-store-server-topology-sidecar.json" do
+        text JSON.pretty_generate(service(:companion).companion_store_server_topology_sidecar)
       end
 
       get "/setup/relation-health" do

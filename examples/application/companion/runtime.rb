@@ -140,6 +140,8 @@ module Companion
       companion_index_metadata_json_status, _companion_index_metadata_json_headers, companion_index_metadata_json_body = app.call(rack_env("GET", "/setup/companion-index-metadata-sidecar.json"))
       companion_receipt_projection_status, _companion_receipt_projection_headers, companion_receipt_projection_body = app.call(rack_env("GET", "/setup/companion-receipt-projection-sidecar"))
       companion_receipt_projection_json_status, _companion_receipt_projection_json_headers, companion_receipt_projection_json_body = app.call(rack_env("GET", "/setup/companion-receipt-projection-sidecar.json"))
+      companion_store_server_topology_status, _companion_store_server_topology_headers, companion_store_server_topology_body = app.call(rack_env("GET", "/setup/companion-store-server-topology-sidecar"))
+      companion_store_server_topology_json_status, _companion_store_server_topology_json_headers, companion_store_server_topology_json_body = app.call(rack_env("GET", "/setup/companion-store-server-topology-sidecar.json"))
       relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
       relation_health_json_status, _relation_health_json_headers, relation_health_json_body = app.call(rack_env("GET", "/setup/relation-health.json"))
       materialization_status, _materialization_headers, materialization_body = app.call(rack_env("GET", "/setup/materialization-plan"))
@@ -255,6 +257,8 @@ module Companion
       companion_index_metadata_json = companion_index_metadata_json_body.join
       companion_receipt_projection = companion_receipt_projection_body.join
       companion_receipt_projection_json = companion_receipt_projection_json_body.join
+      companion_store_server_topology = companion_store_server_topology_body.join
+      companion_store_server_topology_json = companion_store_server_topology_json_body.join
       relation_health = relation_health_body.join
       relation_health_json = relation_health_json_body.join
       materialization = materialization_body.join
@@ -390,6 +394,8 @@ module Companion
       out.puts "companion_poc_setup_companion_index_metadata_sidecar_json_status=#{companion_index_metadata_json_status}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_status=#{companion_receipt_projection_status}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_json_status=#{companion_receipt_projection_json_status}"
+      out.puts "companion_poc_setup_companion_store_server_topology_sidecar_status=#{companion_store_server_topology_status}"
+      out.puts "companion_poc_setup_companion_store_server_topology_sidecar_json_status=#{companion_store_server_topology_json_status}"
       out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
       out.puts "companion_poc_setup_relation_health_json_status=#{relation_health_json_status}"
       out.puts "companion_poc_setup_materialization_status=#{materialization_status}"
@@ -503,6 +509,8 @@ module Companion
       out.puts "companion_poc_setup_companion_index_metadata_sidecar_json_endpoint=#{setup_companion_index_metadata_sidecar_json_endpoint?(companion_index_metadata_json)}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_endpoint=#{setup_companion_receipt_projection_sidecar_endpoint?(companion_receipt_projection)}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_json_endpoint=#{setup_companion_receipt_projection_sidecar_json_endpoint?(companion_receipt_projection_json)}"
+      out.puts "companion_poc_setup_companion_store_server_topology_sidecar_endpoint=#{setup_companion_store_server_topology_sidecar_endpoint?(companion_store_server_topology)}"
+      out.puts "companion_poc_setup_companion_store_server_topology_sidecar_json_endpoint=#{setup_companion_store_server_topology_sidecar_json_endpoint?(companion_store_server_topology_json)}"
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
       out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
       out.puts "companion_poc_setup_materialization_endpoint=#{setup_materialization_endpoint?(materialization)}"
@@ -606,6 +614,7 @@ module Companion
       out.puts "companion_poc_companion_store_app_flow_sidecar_contract=#{companion_store_app_flow_sidecar_contract?}"
       out.puts "companion_poc_companion_index_metadata_sidecar_contract=#{companion_index_metadata_sidecar_contract?}"
       out.puts "companion_poc_companion_receipt_projection_sidecar_contract=#{companion_receipt_projection_sidecar_contract?}"
+      out.puts "companion_poc_companion_store_server_topology_sidecar_contract=#{companion_store_server_topology_sidecar_contract?}"
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
       out.puts "companion_poc_setup_handoff_acceptance_contract=#{setup_handoff_acceptance_contract?}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_contract=#{setup_handoff_approval_acceptance_contract?}"
@@ -2114,6 +2123,35 @@ module Companion
         mutation.fetch(:target) == :actions &&
         mutation.fetch(:event).keys.sort == %i[index kind status subject_id] &&
         packet.fetch(:activity_feed).fetch(:recent_events).last.fetch(:kind) == :store_write_receipt
+    end
+
+    def companion_store_server_topology_sidecar_contract?
+      packet = Services::CompanionStoreServerTopologySidecar.packet
+      descriptor = packet.fetch(:descriptor)
+      topology = packet.fetch(:topology)
+      backend_matrix = packet.fetch(:backend_matrix)
+      package_gap = packet.fetch(:package_gap)
+      pressure = packet.fetch(:pressure)
+      checks = packet.fetch(:checks)
+      network = backend_matrix.find { |entry| entry.fetch(:backend) == :network }
+
+      packet.fetch(:schema_version) == 1 &&
+        descriptor.fetch(:kind) == :companion_store_server_topology_sidecar &&
+        descriptor.fetch(:report_only) &&
+        descriptor.fetch(:gates_runtime) == false &&
+        descriptor.fetch(:executes_network) == false &&
+        packet.fetch(:status) == :stable &&
+        checks.length == 12 &&
+        checks.all? { |check| check.fetch(:present) } &&
+        topology.fetch(:app_process).fetch(:owns).include?(:contract_computation) &&
+        topology.fetch(:store_server).fetch(:owns).include?(:durable_facts) &&
+        topology.fetch(:transport).fetch(:operation_surface) == %i[write_fact replay write_snapshot] &&
+        backend_matrix.map { |entry| entry.fetch(:backend) } == %i[memory file network] &&
+        network.fetch(:phase) == :native_wire_deserialization_pending &&
+        package_gap.fetch(:status) == :open &&
+        package_gap.fetch(:name) == :native_wire_deserialization &&
+        pressure.fetch(:next_question) == :network_backend_native_parity &&
+        pressure.fetch(:does_not_replace_current_pressure) == :index_metadata
     end
 
     def persistence_relation_manifest?
@@ -3934,6 +3972,43 @@ module Companion
         mutation.fetch("target") == "actions" &&
         mutation.fetch("event").keys.sort == %w[index kind status subject_id].sort &&
         payload.fetch("activity_feed").fetch("recent_events").last.fetch("kind") == "store_write_receipt"
+    end
+
+    def setup_companion_store_server_topology_sidecar_endpoint?(companion_store_server_topology)
+      companion_store_server_topology.include?("kind=>:companion_store_server_topology_sidecar") &&
+        companion_store_server_topology.include?("status=>:stable") &&
+        companion_store_server_topology.include?("claim=>:store_server_projection_topology") &&
+        companion_store_server_topology.include?("executes_network=>false") &&
+        companion_store_server_topology.include?("backend=>:network") &&
+        companion_store_server_topology.include?("native_wire_deserialization_pending")
+    end
+
+    def setup_companion_store_server_topology_sidecar_json_endpoint?(companion_store_server_topology_json)
+      payload = JSON.parse(companion_store_server_topology_json)
+      descriptor = payload.fetch("descriptor")
+      topology = payload.fetch("topology")
+      backend_matrix = payload.fetch("backend_matrix")
+      package_gap = payload.fetch("package_gap")
+      pressure = payload.fetch("pressure")
+      network = backend_matrix.find { |entry| entry.fetch("backend") == "network" }
+
+      payload.fetch("schema_version") == 1 &&
+        descriptor.fetch("kind") == "companion_store_server_topology_sidecar" &&
+        descriptor.fetch("report_only") &&
+        descriptor.fetch("gates_runtime") == false &&
+        descriptor.fetch("executes_network") == false &&
+        payload.fetch("status") == "stable" &&
+        payload.fetch("checks").length == 12 &&
+        payload.fetch("checks").all? { |check| check.fetch("present") } &&
+        topology.fetch("app_process").fetch("owns").include?("contract_computation") &&
+        topology.fetch("store_server").fetch("owns").include?("durable_facts") &&
+        topology.fetch("transport").fetch("operation_surface") == %w[write_fact replay write_snapshot] &&
+        backend_matrix.map { |entry| entry.fetch("backend") } == %w[memory file network] &&
+        network.fetch("phase") == "native_wire_deserialization_pending" &&
+        package_gap.fetch("status") == "open" &&
+        package_gap.fetch("name") == "native_wire_deserialization" &&
+        pressure.fetch("next_question") == "network_backend_native_parity" &&
+        pressure.fetch("does_not_replace_current_pressure") == "index_metadata"
     end
 
     def post(app, path, values = {})

@@ -312,6 +312,10 @@ module Companion
         Services::CompanionReceiptProjectionSidecar.packet
       end
 
+      def companion_store_server_topology_sidecar
+        Services::CompanionStoreServerTopologySidecar.packet
+      end
+
       def setup_health
         persistence.setup_health
       end

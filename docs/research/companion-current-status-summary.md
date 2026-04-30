@@ -49,6 +49,7 @@ store_convergence_sidecar -> manifest-generated Record/History over fact store
 companion_store_app_flow_sidecar -> isolated app-pattern Store write + receipt proof
 companion_index_metadata_sidecar -> manifest index descriptors + package metadata gap
 companion_receipt_projection_sidecar -> package receipt -> action history projection proof
+companion_store_server_topology_sidecar -> StoreServer topology + native wire gap proof
 performance_signal -> setup packet recomputation needs memoization/snapshot
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
