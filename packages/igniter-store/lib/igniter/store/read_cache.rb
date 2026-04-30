@@ -11,10 +11,15 @@ module Igniter
         super()
         @entries = {}
         @consumers = Hash.new { |hash, key| hash[key] = [] }
+        @scope_consumers = Hash.new { |hash, key| hash[key] = [] }
       end
 
       def register_consumer(store, callable)
         synchronize { @consumers[store] << callable }
+      end
+
+      def register_scope_consumer(store, scope, callable)
+        synchronize { @scope_consumers[[store, scope]] << callable }
       end
 
       def get(store:, key:, as_of: nil, ttl: nil)
@@ -60,24 +65,40 @@ module Igniter
       end
 
       def invalidate(store:, key: nil)
-        targets = synchronize do
+        point_targets, scope_notifications = synchronize do
+          affected_scopes = []
           @entries.delete_if do |cache_key, _entry|
-            if cache_key[0] == :scope
-              cache_key[1] == store
+            if cache_key[0] == :scope && cache_key[1] == store
+              affected_scopes << cache_key[2]
+              true
             else
               cache_key[0] == store && (key.nil? || cache_key[1] == key)
             end
           end
-          @consumers[store].dup
+
+          scope_notifs = affected_scopes.uniq.map do |scope|
+            [scope, @scope_consumers[[store, scope]].dup]
+          end
+
+          [@consumers[store].dup, scope_notifs]
         end
 
-        targets.each { |target| notify(target, store, key) }
+        point_targets.each { |t| notify(t, store, key) }
+        scope_notifications.each do |scope, targets|
+          targets.each { |t| notify_scope(t, store, scope) }
+        end
       end
 
       private
 
       def notify(target, store, key)
         target.call(store, key)
+      rescue StandardError
+        nil
+      end
+
+      def notify_scope(target, store, scope)
+        target.call(store, scope)
       rescue StandardError
         nil
       end

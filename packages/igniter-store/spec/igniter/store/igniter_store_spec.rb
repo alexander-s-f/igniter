@@ -119,6 +119,24 @@ RSpec.describe Igniter::Store::IgniterStore do
         .to raise_error(ArgumentError, /scope=:unknown/)
     end
 
+    it "applies cache_ttl from registered AccessPath automatically" do
+      store_with_ttl = described_class.new
+      store_with_ttl.register_path(
+        Igniter::Store::AccessPath.new(
+          store: :items,
+          lookup: :primary_key,
+          scope: :active,
+          filters: { active: true },
+          cache_ttl: 60,
+          consumers: []
+        )
+      )
+      store_with_ttl.write(store: :items, key: "i1", value: { active: true })
+      first  = store_with_ttl.query(store: :items, scope: :active)
+      second = store_with_ttl.query(store: :items, scope: :active)
+      expect(first).to equal(second)
+    end
+
     it "supports time-travel via as_of" do
       store.write(store: :tasks, key: "t1", value: { title: "A", status: :pending })
       sleep 0.01
@@ -131,6 +149,137 @@ RSpec.describe Igniter::Store::IgniterStore do
 
       now = store.query(store: :tasks, scope: :pending)
       expect(now).to be_empty
+    end
+  end
+
+  describe "reactive scope consumers" do
+    it "notifies scope consumers when a fact in the store changes" do
+      store = described_class.new
+      notifications = []
+
+      store.register_path(
+        Igniter::Store::AccessPath.new(
+          store: :tasks,
+          lookup: :primary_key,
+          scope: :pending,
+          filters: { status: :pending },
+          cache_ttl: nil,
+          consumers: [->(s, scope) { notifications << [s, scope] }]
+        )
+      )
+
+      store.write(store: :tasks, key: "t1", value: { status: :pending })
+      # cache is cold — no scope entry yet, no notification
+      expect(notifications).to be_empty
+
+      # warm the cache with a query
+      store.query(store: :tasks, scope: :pending)
+
+      # second write invalidates the scope cache → notifies consumer
+      store.write(store: :tasks, key: "t1", value: { status: :done })
+      expect(notifications).to eq([[:tasks, :pending]])
+    end
+
+    it "notifies only scope consumers for the matching store" do
+      store = described_class.new
+      pending_calls = []
+      done_calls    = []
+
+      store.register_path(
+        Igniter::Store::AccessPath.new(
+          store: :tasks,
+          lookup: :primary_key,
+          scope: :pending,
+          filters: { status: :pending },
+          cache_ttl: nil,
+          consumers: [->(s, sc) { pending_calls << sc }]
+        )
+      )
+      store.register_path(
+        Igniter::Store::AccessPath.new(
+          store: :tasks,
+          lookup: :primary_key,
+          scope: :done,
+          filters: { status: :done },
+          cache_ttl: nil,
+          consumers: [->(s, sc) { done_calls << sc }]
+        )
+      )
+
+      store.write(store: :tasks, key: "t1", value: { status: :pending })
+      # warm both scopes
+      store.query(store: :tasks, scope: :pending)
+      store.query(store: :tasks, scope: :done)
+      pending_calls.clear
+      done_calls.clear
+
+      store.write(store: :tasks, key: "t1", value: { status: :done })
+
+      # both scope caches were invalidated — both consumers notified
+      expect(pending_calls).to eq([:pending])
+      expect(done_calls).to eq([:done])
+    end
+
+    it "does not notify scope consumers for a different store" do
+      store = described_class.new
+      calls = []
+
+      store.register_path(
+        Igniter::Store::AccessPath.new(
+          store: :tasks,
+          lookup: :primary_key,
+          scope: :pending,
+          filters: { status: :pending },
+          cache_ttl: nil,
+          consumers: [->(s, sc) { calls << s }]
+        )
+      )
+
+      # warm tasks scope
+      store.query(store: :tasks, scope: :pending)
+      calls.clear
+
+      # write to a different store — should NOT trigger tasks scope consumer
+      store.write(store: :other, key: "x1", value: { status: :pending })
+      expect(calls).to be_empty
+    end
+
+    it "does not notify point-read consumers for scope paths" do
+      store = described_class.new
+      point_calls = []
+      scope_calls = []
+
+      store.register_path(
+        Igniter::Store::AccessPath.new(
+          store: :tasks,
+          lookup: :primary_key,
+          scope: nil,
+          filters: nil,
+          cache_ttl: nil,
+          consumers: [->(s, k) { point_calls << k }]
+        )
+      )
+      store.register_path(
+        Igniter::Store::AccessPath.new(
+          store: :tasks,
+          lookup: :primary_key,
+          scope: :pending,
+          filters: { status: :pending },
+          cache_ttl: nil,
+          consumers: [->(s, sc) { scope_calls << sc }]
+        )
+      )
+
+      store.write(store: :tasks, key: "t1", value: { status: :pending })
+      # warm scope cache
+      store.query(store: :tasks, scope: :pending)
+      point_calls.clear
+      scope_calls.clear
+
+      store.write(store: :tasks, key: "t1", value: { status: :done })
+
+      expect(point_calls).to eq(["t1"])     # point consumer fires for key
+      expect(scope_calls).to eq([:pending]) # scope consumer fires for scope
     end
   end
 end

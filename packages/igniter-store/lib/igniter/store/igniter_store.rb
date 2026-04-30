@@ -25,7 +25,13 @@ module Igniter
 
       def register_path(path)
         @schema_graph.register(path)
-        path.consumers.to_a.each { |consumer| @cache.register_consumer(path.store, consumer) }
+        path.consumers.to_a.each do |consumer|
+          if path.scope
+            @cache.register_scope_consumer(path.store, path.scope, consumer)
+          else
+            @cache.register_consumer(path.store, consumer)
+          end
+        end
         self
       end
 
@@ -74,11 +80,12 @@ module Igniter
       end
 
       def query(store:, scope:, as_of: nil, ttl: nil)
-        cached = @cache.get_scope(store: store, scope: scope, as_of: as_of, ttl: ttl)
-        return cached if cached
-
         path = @schema_graph.path_for(store: store, scope: scope)
         raise ArgumentError, "No registered path for store=#{store.inspect} scope=#{scope.inspect}" unless path
+
+        effective_ttl = ttl || path.cache_ttl
+        cached = @cache.get_scope(store: store, scope: scope, as_of: as_of, ttl: effective_ttl)
+        return cached if cached
 
         filters = path.filters || {}
         facts = @log.query_scope(store: store, filters: filters, as_of: as_of)
