@@ -9,7 +9,9 @@ module Igniter
 
       def initialize(backend: nil)
         @backend = backend
-        @log = FactLog.new(backend: backend)
+        # Native FactLog takes no backend arg — write_fact is called directly by IgniterStore.
+        # Pure-Ruby FactLog also accepts `backend:` for backward compat (ignored when nil).
+        @log = FactLog.new
         @cache = ReadCache.new
         @schema_graph = SchemaGraph.new
       end
@@ -38,6 +40,7 @@ module Igniter
           term: term
         )
         @log.append(fact)
+        @backend&.write_fact(fact)
         @cache.invalidate(store: store, key: key)
         fact
       end
@@ -51,6 +54,7 @@ module Igniter
           term: term
         )
         @log.append(fact)
+        @backend&.write_fact(fact)
         fact
       end
 

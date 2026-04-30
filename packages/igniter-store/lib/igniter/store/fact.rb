@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Pure-Ruby fallback — skipped when the Rust native extension is loaded.
+return if defined?(Igniter::Store::NATIVE) && Igniter::Store::NATIVE
+
 require "digest"
 require "json"
 require "securerandom"

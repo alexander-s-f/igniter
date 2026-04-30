@@ -16,9 +16,16 @@ Gem::Specification.new do |spec|
 
   spec.files = Dir[
     "lib/**/*.rb",
+    "ext/**/*.{rb,rs,toml}",
     "examples/**/*.rb",
     "README.md"
   ].sort
 
   spec.require_paths = ["lib"]
+  spec.extensions    = ["ext/igniter_store_native/extconf.rb"]
+
+  spec.add_development_dependency "rb_sys", "~> 0.9"
+  spec.add_development_dependency "rake-compiler", "~> 1.2"
+  spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "rake", "~> 13.0"
 end

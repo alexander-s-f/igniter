@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Pure-Ruby fallback — skipped when the Rust native extension is loaded.
+return if defined?(Igniter::Store::NATIVE) && Igniter::Store::NATIVE
+
 require "monitor"
 
 module Igniter
@@ -7,12 +10,11 @@ module Igniter
     class FactLog
       include MonitorMixin
 
-      def initialize(backend: nil)
+      def initialize
         super()
         @log = []
         @by_id = {}
         @by_key = Hash.new { |hash, key| hash[key] = [] }
-        @backend = backend
       end
 
       def append(fact)
@@ -20,7 +22,6 @@ module Igniter
           @log << fact
           @by_id[fact.id] = fact
           @by_key[[fact.store, fact.key]] << fact
-          @backend&.write_fact(fact)
         end
         fact
       end
