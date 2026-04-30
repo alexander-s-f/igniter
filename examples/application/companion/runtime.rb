@@ -2002,7 +2002,11 @@ module Companion
         history.fetch(:partition_query_supported) &&
         history.fetch(:partition_replay_count) == 2 &&
         history.fetch(:partition_replay_values) == [7.0, 8.5] &&
-        pressure.fetch(:next_question) == :manifest_generated_record_history_classes
+        pressure.fetch(:next_question) == :store_name_in_manifest &&
+        pressure.fetch(:store_name_status).fetch(:current_binding) == :external_store_argument &&
+        pressure.fetch(:store_name_status).fetch(:manifest_has_store_name) == false &&
+        pressure.fetch(:resolved).include?(:manifest_generated_record_history_classes) &&
+        pressure.fetch(:facade_input_ready).include?(:history_partition_key)
     end
 
     def persistence_relation_manifest?
@@ -3665,7 +3669,10 @@ module Companion
         store_convergence.include?("current_status=>:done") &&
         store_convergence.include?("past_status=>:open") &&
         store_convergence.include?("partition_query_supported=>true") &&
-        store_convergence.include?("next_question=>:manifest_generated_record_history_classes")
+        store_convergence.include?("next_question=>:store_name_in_manifest") &&
+        store_convergence.include?("current_binding=>:external_store_argument") &&
+        store_convergence.include?("manifest_generated_record_history_classes") &&
+        store_convergence.include?("facade_input_ready")
     end
 
     def setup_store_convergence_sidecar_json_endpoint?(store_convergence_json)
@@ -3706,7 +3713,11 @@ module Companion
         history.fetch("partition_query_supported") &&
         history.fetch("partition_replay_count") == 2 &&
         history.fetch("partition_replay_values") == [7.0, 8.5] &&
-        pressure.fetch("next_question") == "manifest_generated_record_history_classes"
+        pressure.fetch("next_question") == "store_name_in_manifest" &&
+        pressure.fetch("store_name_status").fetch("current_binding") == "external_store_argument" &&
+        pressure.fetch("store_name_status").fetch("manifest_has_store_name") == false &&
+        pressure.fetch("resolved").include?("manifest_generated_record_history_classes") &&
+        pressure.fetch("facade_input_ready").include?("history_partition_key")
     end
 
     def post(app, path, values = {})

@@ -52,13 +52,15 @@ This packet is report-only and ephemeral. It creates an in-memory
 
 Proved:
 
-- `Reminder` contract manifest now generates the typed package Record class
+- `Igniter::Companion.from_manifest` now generates typed package Record/History
+  classes from app-local persistence manifests
+- `Reminder` contract manifest generates the typed package Record class
 - Record write/read/scope works through `Igniter::Companion::Store`
 - Record time-travel read returns the earlier `:open` state
 - Record causation chain has two facts
 - Record writes now return normalized `WriteReceipt` data with fact metadata
   and delegation back to the typed record
-- `TrackerLog` contract manifest now generates the typed package History class
+- `TrackerLog` contract manifest generates the typed package History class
 - float values round-trip as `[7.0, 8.5]`
 - `TrackerLog` declares `partition_key :tracker_id`
 - `Store#replay(partition: "sleep")` filters the append-only history stream by
@@ -66,6 +68,9 @@ Proved:
 - history appends now return normalized `AppendReceipt` data with fact metadata
   and delegation back to the typed event
 - facts expose receipt data through `fact_id`, `value_hash`, and `timestamp`
+- the pressure packet now makes `store_name_in_manifest` explicit: package
+  generation currently binds `store:` externally, while app-local manifests only
+  expose `storage.shape`, `storage.key`, and adapter metadata
 - the packet does not mutate main Companion state or replace the current app
   backend
 
@@ -73,9 +78,9 @@ Proved:
 
 1. App-local Companion has richer manifests than `igniter-companion` classes.
    The sidecar can now generate `field`, `scope`, and `partition_key` from
-   manifests, but the package facade still does not consume the full descriptor
-   vocabulary: portable field types, enum values, indexes, command metadata,
-   relation metadata, or manifest export.
+   manifests through the package facade, but the facade still does not consume
+   the full descriptor vocabulary: portable field types, enum values, indexes,
+   command metadata, relation metadata, or manifest export.
 
 2. `igniter-store` has facts and access paths, but command intent still lives
    above it. R2d now says commands should keep lowering to `mutation_intent`,
@@ -92,9 +97,10 @@ Proved:
    implementation filters in Ruby after `IgniterStore#history`; future store
    work can decide whether this becomes an indexed access path.
 
-5. Normalized receipts now exist at the package facade. The next question is
-   whether app-local `mutation_intent -> app boundary -> action history` should
-   consume these receipts directly or project a smaller app receipt shape.
+5. Normalized receipts now exist at the package facade. The next app-local
+   question is whether `mutation_intent -> app boundary -> action history`
+   should consume these receipts directly or project a smaller app receipt
+   shape.
 
 6. Blob-JSON SQLite in the app remains a useful POC backend, but the next true
    convergence proof should be a tiny isolated adapter slice, not a full
@@ -115,9 +121,11 @@ For `igniter-store` research:
 
 For `igniter-companion` research:
 
-- Which manifest-generated descriptor should move next into the package facade:
-  portable field type, enum values, index metadata, command metadata, or
-  relation metadata?
+- `manifest_generated_record_history_classes` is resolved in the package
+  facade. Next pressure is `store_name_in_manifest`, followed by portable field
+  types, index metadata, command/effect metadata, and relation metadata.
+- Should store/capability identity live in the manifest as `storage.capability`,
+  stay an external package binding, or be derived by registry convention?
 - Which app-local descriptors should be mirrored first: field type, scope,
   index, or command metadata?
 - Can `Igniter::Companion::Store` receipts be shaped into the app-local

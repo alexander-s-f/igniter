@@ -53,7 +53,8 @@ Already proved in Companion:
   `store_write` / `store_append` effects without creating runtime effect nodes
 - package-level `Igniter::Companion::Store` can round-trip one app-local
   `Reminder` record and one `TrackerLog` history into `igniter-store` facts as
-  an ephemeral sidecar proof, including normalized receipts and partition replay
+  an ephemeral sidecar proof, including `Igniter::Companion.from_manifest`,
+  normalized receipts, and partition replay
 
 Accepted research evidence:
 
@@ -66,8 +67,9 @@ Accepted research evidence:
 ## Next Development Slice
 
 Current evidence: **R2a Field Type Validation**,
-**R2b Relation Type Compatibility**, **R2c Access Path Sketch**, and
-**R2d Typed Effect Intent**, app-local and report-only.
+**R2b Relation Type Compatibility**, **R2c Access Path Sketch**,
+**R2d Typed Effect Intent**, and a tiny Companion/Store convergence sidecar,
+app-local and report-only.
 
 Goal:
 
@@ -75,11 +77,16 @@ Goal:
 - keep commands lowering to normalized mutation intent
 - treat `store_write` / `store_append` as future typed app-boundary effects,
   not current runtime nodes
+- keep the package facade pressure descriptor-first: manifest-generated classes
+  are resolved, next pressure is where `store_name` should live
+- treat `store_name_in_manifest` as a naming/capability decision, not a storage
+  backend decision
 
 Likely surface:
 
 - `/setup/effect-intent-plan(.json)`
 - `/setup/effect-intent-health(.json)`
+- `/setup/store-convergence-sidecar(.json)`
 
 Acceptance:
 
@@ -100,6 +107,9 @@ Acceptance:
   future `store_write` / `store_append` typed effect descriptors
 - `/setup/effect-intent-health(.json)` validates no StoreWrite node, no
   StoreAppend node, no Saga execution, and app-boundary-only mutation
+- `/setup/store-convergence-sidecar(.json)` proves manifest-generated
+  Record/History bindings, normalized facade receipts, and history partition
+  replay without replacing the app backend
 - no runtime gate, core DSL promotion, DB schema change, SQL generation, or
   materializer execution
 - report explicitly preserves `persist -> Store[T]` and `history -> History[T]`

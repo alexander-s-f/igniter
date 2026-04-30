@@ -18,15 +18,11 @@ module Companion
       end
 
       def proof
-        reminder_record = self.class.generated_record_class(
-          :GeneratedReminderRecord,
-          capability: :reminders,
-          contract: Contracts::Reminder
+        reminder_record = Igniter::Companion.from_manifest(
+          Contracts::Reminder.persistence_manifest, store: :reminders
         )
-        tracker_log_event = self.class.generated_history_class(
-          :GeneratedTrackerLogEvent,
-          capability: :tracker_logs,
-          contract: Contracts::TrackerLog
+        tracker_log_event = Igniter::Companion.from_manifest(
+          Contracts::TrackerLog.persistence_manifest, store: :tracker_logs
         )
 
         store = Igniter::Companion::Store.new
@@ -62,40 +58,6 @@ module Companion
           history: history_report(tracker_log_event, [first_receipt, second_receipt, third_receipt], replay_all, replay_sleep),
           pressure: pressure_report
         }.tap { store.close }
-      end
-
-      def self.generated_record_class(const_name, capability:, contract:)
-        return const_get(const_name) if const_defined?(const_name, false)
-
-        manifest = contract.persistence_manifest
-        klass = Class.new do
-          include Igniter::Companion::Record
-
-          store_name capability
-          manifest.fetch(:fields).each do |descriptor|
-            field descriptor.fetch(:name), default: descriptor.fetch(:attributes, {}).fetch(:default, nil)
-          end
-          manifest.fetch(:scopes).each do |descriptor|
-            scope descriptor.fetch(:name), filters: descriptor.fetch(:attributes, {}).fetch(:where, {})
-          end
-        end
-        const_set(const_name, klass)
-      end
-
-      def self.generated_history_class(const_name, capability:, contract:)
-        return const_get(const_name) if const_defined?(const_name, false)
-
-        manifest = contract.persistence_manifest
-        klass = Class.new do
-          include Igniter::Companion::History
-
-          history_name capability
-          partition_key manifest.fetch(:history).fetch(:key)
-          manifest.fetch(:fields).each do |descriptor|
-            field descriptor.fetch(:name), default: descriptor.fetch(:attributes, {}).fetch(:default, nil)
-          end
-        end
-        const_set(const_name, klass)
       end
 
       private
@@ -144,12 +106,51 @@ module Companion
 
       def pressure_report
         {
-          next_question: :manifest_generated_record_history_classes,
+          next_question: :store_name_in_manifest,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
-          asks: %i[
+          package_owner_currently_exploring: :manifest_generated_record_history_classes,
+          store_name_status: {
+            current_binding: :external_store_argument,
+            manifest_has_store_name: false,
+            suggested_manifest_key: :capability,
+            record: {
+              contract: :Reminder,
+              current_store: :reminders,
+              manifest_storage_keys: Contracts::Reminder.persistence_manifest.fetch(:storage).keys
+            },
+            history: {
+              contract: :TrackerLog,
+              current_store: :tracker_logs,
+              manifest_storage_keys: Contracts::TrackerLog.persistence_manifest.fetch(:storage).keys
+            }
+          },
+          resolved: %i[
             manifest_generated_record_history_classes
             normalized_store_receipts_v2
+            history_partition_key
+          ],
+          facade_input_ready: %i[
+            storage_shape
+            fields
+            field_defaults
+            scopes
+            history_partition_key
+          ],
+          asks: %i[
+            store_name_in_manifest
+            portable_field_types
+            index_metadata
+            command_effect_metadata
+            relation_metadata
+            companion_store_backed_app_flow
+          ],
+          recommended_order: %i[
+            store_name_in_manifest
+            portable_field_types
+            indexes
+            command_effects
+            relations
           ]
         }
       end

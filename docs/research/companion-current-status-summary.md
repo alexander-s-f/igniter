@@ -45,7 +45,7 @@ access_path_plan -> report-only store_read descriptor sketch
 access_path_health -> drift check for non-executing access path plan
 effect_intent_plan -> report-only store_write/store_append descriptor sketch
 effect_intent_health -> drift check for app-boundary typed effect intent
-store_convergence_sidecar -> tiny package-level Record/History over fact store
+store_convergence_sidecar -> manifest-generated Record/History over fact store
 performance_signal -> setup packet recomputation needs memoization/snapshot
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
