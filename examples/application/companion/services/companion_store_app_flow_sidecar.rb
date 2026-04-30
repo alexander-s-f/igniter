@@ -59,22 +59,22 @@ module Companion
         article   = store.read(article_class, key: "a1")
 
         {
-          store_name:              reminder_class.store_name,
+          store_name: reminder_class.store_name,
           generated_from_manifest: true,
-          main_state_mutated:      false,
+          main_state_mutated: false,
           write: {
-            ok:     true,
-            title:  write_params[:title],
+            ok: true,
+            title: write_params[:title],
             status: write_params[:status]
           },
           read: {
-            title:  record.title,
+            title: record.title,
             status: record.status
           },
           receipt: {
-            mutation_intent:     receipt.mutation_intent,
-            fact_id:             receipt.fact_id,
-            value_hash_present:  !receipt.value_hash.nil?,
+            mutation_intent: receipt.mutation_intent,
+            fact_id: receipt.fact_id,
+            value_hash_present: !receipt.value_hash.nil?,
             delegates_to_record: receipt.title == write_params[:title]
           },
           scope: {
@@ -89,15 +89,15 @@ module Companion
       def typed_fields_report(article_class, article, receipt)
         fields_meta = article_class._fields
         {
-          field_count:          fields_meta.length,
-          typed_field_count:    fields_meta.count { |_, m| !m[:type].nil? },
-          enum_values_present:  fields_meta[:status]&.fetch(:values, nil)&.any?,
-          status_type:          fields_meta[:status]&.fetch(:type),
-          title_type:           fields_meta[:title]&.fetch(:type),
-          created_at_type:      fields_meta[:created_at]&.fetch(:type),
-          round_trip_status:    article.status,
-          round_trip_title:     article.title,
-          receipt_intent:       receipt.mutation_intent
+          field_count: fields_meta.length,
+          typed_field_count: fields_meta.count { |_, m| !m[:type].nil? },
+          enum_values_present: fields_meta[:status]&.fetch(:values, nil)&.any?,
+          status_type: fields_meta[:status]&.fetch(:type),
+          title_type: fields_meta[:title]&.fetch(:type),
+          created_at_type: fields_meta[:created_at]&.fetch(:type),
+          round_trip_status: article.status,
+          round_trip_title: article.title,
+          receipt_intent: receipt.mutation_intent
         }
       end
     end

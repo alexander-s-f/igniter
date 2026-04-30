@@ -124,9 +124,10 @@ For `igniter-store` research:
 
 For `igniter-companion` research:
 
-- `manifest_generated_record_history_classes`, `store_name_in_manifest`, and
-  `companion_store_backed_app_flow` are resolved as report-only proofs. Next
-  package-facade pressure is `portable_field_types`, followed by index metadata,
+- `manifest_generated_record_history_classes`, `store_name_in_manifest`,
+  `companion_store_backed_app_flow`, and `portable_field_types` are resolved as
+  report-only proofs. Next app-boundary pressure is
+  `mutation_intent_to_app_boundary`, followed by index metadata,
   command/effect metadata, and relation metadata.
 - Should `storage.name` remain the canonical capability identity, or should it
   later split into separate package store name and app capability name?
@@ -144,6 +145,8 @@ For app-local Companion:
   normalized receipts.
 - The app-flow sidecar is sufficient to close `companion_store_backed_app_flow`
   as an isolated proof, not as an app backend migration.
+- Portable field types are mirrored into generated package classes as
+  annotation-only metadata (`type`, `values`), without coercion.
 - Next app-boundary pressure is `mutation_intent_to_app_boundary`: decide
   whether package write receipts feed action history directly or via projection.
 

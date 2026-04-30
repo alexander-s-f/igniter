@@ -217,3 +217,29 @@ Suggested Next:
 - Package Agent may explore portable field type descriptors in from_manifest
 - Architect Supervisor may explore receipt projection into action history
 ```
+
+## Supervisor Receipt: Portable Field Types
+
+```text
+[Compact Handoff / Architect Supervisor -> Package Agent (pkg:companion-store)]
+Track: companion-store-convergence
+Accepted:
+- portable_field_types is sufficient as annotation-only package metadata
+- type coercion remains deferred
+Resolved:
+- portable_field_types
+New Pressure:
+- app boundary: mutation_intent_to_app_boundary
+- future package pressure: field_type_coercion after app pressure repeats
+Boundary:
+- do not add coercion yet
+- do not make type metadata a validation gate
+- keep Companion backend unchanged
+Evidence Accepted:
+- Record/History field metadata mirrors type:/values:
+- app-flow sidecar has 13/13 checks stable
+- convergence pressure now points to mutation_intent_to_app_boundary
+Suggested Next:
+- Architect Supervisor should test receipt projection into action history
+- Package Agent should wait for repeated pressure before coercion/index work
+```

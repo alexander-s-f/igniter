@@ -2013,11 +2013,14 @@ module Companion
         history.fetch(:partition_replay_values) == [7.0, 8.5] &&
         record.fetch(:manifest_store_name_present) &&
         history.fetch(:manifest_store_name_present) &&
-        pressure.fetch(:next_question) == :portable_field_types &&
+        pressure.fetch(:next_question) == :mutation_intent_to_app_boundary &&
         pressure.fetch(:resolved).include?(:manifest_generated_record_history_classes) &&
         pressure.fetch(:resolved).include?(:store_name_in_manifest) &&
         pressure.fetch(:resolved).include?(:companion_store_backed_app_flow) &&
+        pressure.fetch(:resolved).include?(:portable_field_types) &&
         pressure.fetch(:facade_input_ready).include?(:storage_name) &&
+        pressure.fetch(:facade_input_ready).include?(:field_types) &&
+        pressure.fetch(:facade_input_ready).include?(:enum_values) &&
         pressure.fetch(:facade_input_ready).include?(:history_partition_key)
     end
 
@@ -2032,8 +2035,11 @@ module Companion
         descriptor.fetch(:gates_runtime) == false &&
         descriptor.fetch(:replaces_app_backend) == false &&
         packet.fetch(:status) == :stable &&
-        checks.length == 10 &&
+        checks.length == 13 &&
         checks.all? { |check| check.fetch(:present) } &&
+        checks.any? { |check| check.fetch(:term) == :typed_fields_mirrored && check.fetch(:present) } &&
+        checks.any? { |check| check.fetch(:term) == :enum_values_mirrored && check.fetch(:present) } &&
+        checks.any? { |check| check.fetch(:term) == :typed_record_round_trip && check.fetch(:present) } &&
         packet.fetch(:summary).include?("receipt_intent=record_write")
     end
 
@@ -3698,8 +3704,11 @@ module Companion
         store_convergence.include?("past_status=>:open") &&
         store_convergence.include?("partition_query_supported=>true") &&
         store_convergence.include?("manifest_store_name_present=>true") &&
-        store_convergence.include?("next_question=>:portable_field_types") &&
+        store_convergence.include?("next_question=>:mutation_intent_to_app_boundary") &&
+        store_convergence.include?("portable_field_types") &&
         store_convergence.include?("companion_store_backed_app_flow") &&
+        store_convergence.include?("field_types") &&
+        store_convergence.include?("enum_values") &&
         store_convergence.include?("store_name_in_manifest") &&
         store_convergence.include?("manifest_generated_record_history_classes") &&
         store_convergence.include?("facade_input_ready")
@@ -3745,11 +3754,14 @@ module Companion
         history.fetch("partition_query_supported") &&
         history.fetch("partition_replay_count") == 2 &&
         history.fetch("partition_replay_values") == [7.0, 8.5] &&
-        pressure.fetch("next_question") == "portable_field_types" &&
+        pressure.fetch("next_question") == "mutation_intent_to_app_boundary" &&
         pressure.fetch("resolved").include?("manifest_generated_record_history_classes") &&
         pressure.fetch("resolved").include?("store_name_in_manifest") &&
         pressure.fetch("resolved").include?("companion_store_backed_app_flow") &&
+        pressure.fetch("resolved").include?("portable_field_types") &&
         pressure.fetch("facade_input_ready").include?("storage_name") &&
+        pressure.fetch("facade_input_ready").include?("field_types") &&
+        pressure.fetch("facade_input_ready").include?("enum_values") &&
         pressure.fetch("facade_input_ready").include?("history_partition_key")
     end
 
@@ -3770,8 +3782,11 @@ module Companion
         descriptor.fetch("gates_runtime") == false &&
         descriptor.fetch("replaces_app_backend") == false &&
         payload.fetch("status") == "stable" &&
-        payload.fetch("checks").length == 10 &&
+        payload.fetch("checks").length == 13 &&
         payload.fetch("checks").all? { |check| check.fetch("present") } &&
+        payload.fetch("checks").any? { |check| check.fetch("term") == "typed_fields_mirrored" && check.fetch("present") } &&
+        payload.fetch("checks").any? { |check| check.fetch("term") == "enum_values_mirrored" && check.fetch("present") } &&
+        payload.fetch("checks").any? { |check| check.fetch("term") == "typed_record_round_trip" && check.fetch("present") } &&
         payload.fetch("summary").include?("store=reminders") &&
         payload.fetch("summary").include?("receipt_intent=record_write")
     end

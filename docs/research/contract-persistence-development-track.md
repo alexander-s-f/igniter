@@ -81,7 +81,9 @@ Goal:
   and `storage.name` are resolved
 - treat `companion_store_backed_app_flow` as closed by an isolated app-flow
   sidecar, not by a full backend migration
-- make `portable_field_types` the next package-facade descriptor pressure
+- treat `portable_field_types` as closed by annotation-only package metadata,
+  with coercion deferred
+- make `mutation_intent_to_app_boundary` the next app-local boundary pressure
 
 Likely surface:
 
