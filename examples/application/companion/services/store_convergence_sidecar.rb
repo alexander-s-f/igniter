@@ -18,12 +18,8 @@ module Companion
       end
 
       def proof
-        reminder_record = Igniter::Companion.from_manifest(
-          Contracts::Reminder.persistence_manifest, store: :reminders
-        )
-        tracker_log_event = Igniter::Companion.from_manifest(
-          Contracts::TrackerLog.persistence_manifest, store: :tracker_logs
-        )
+        reminder_record   = Igniter::Companion.from_manifest(Contracts::Reminder.persistence_manifest)
+        tracker_log_event = Igniter::Companion.from_manifest(Contracts::TrackerLog.persistence_manifest)
 
         store = Igniter::Companion::Store.new
         store.register(reminder_record)
@@ -69,6 +65,7 @@ module Companion
           package_class: record_class.name,
           generated_from_manifest: true,
           manifest_storage: manifest.fetch(:storage),
+          manifest_store_name_present: !manifest.dig(:storage, :name).nil?,
           manifest_fields: manifest.fetch(:fields).map { |field| field.fetch(:name) },
           manifest_scopes: manifest.fetch(:scopes).map { |scope| scope.fetch(:name) },
           read_title: read.title,
@@ -91,6 +88,7 @@ module Companion
           package_class: history_class.name,
           generated_from_manifest: true,
           manifest_storage: manifest.fetch(:storage),
+          manifest_store_name_present: !manifest.dig(:storage, :name).nil?,
           manifest_fields: manifest.fetch(:fields).map { |field| field.fetch(:name) },
           partition_key_declared: manifest.fetch(:history).fetch(:key),
           partition_query_supported: true,
@@ -106,47 +104,32 @@ module Companion
 
       def pressure_report
         {
-          next_question: :store_name_in_manifest,
+          next_question: :companion_store_backed_app_flow,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
-          package_owner_currently_exploring: :manifest_generated_record_history_classes,
-          store_name_status: {
-            current_binding: :external_store_argument,
-            manifest_has_store_name: false,
-            suggested_manifest_key: :capability,
-            record: {
-              contract: :Reminder,
-              current_store: :reminders,
-              manifest_storage_keys: Contracts::Reminder.persistence_manifest.fetch(:storage).keys
-            },
-            history: {
-              contract: :TrackerLog,
-              current_store: :tracker_logs,
-              manifest_storage_keys: Contracts::TrackerLog.persistence_manifest.fetch(:storage).keys
-            }
-          },
           resolved: %i[
             manifest_generated_record_history_classes
             normalized_store_receipts_v2
             history_partition_key
+            store_name_in_manifest
           ],
           facade_input_ready: %i[
             storage_shape
+            storage_name
             fields
             field_defaults
             scopes
             history_partition_key
           ],
           asks: %i[
-            store_name_in_manifest
+            companion_store_backed_app_flow
             portable_field_types
             index_metadata
             command_effect_metadata
             relation_metadata
-            companion_store_backed_app_flow
           ],
           recommended_order: %i[
-            store_name_in_manifest
+            companion_store_backed_app_flow
             portable_field_types
             indexes
             command_effects

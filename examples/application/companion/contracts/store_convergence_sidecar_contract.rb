@@ -55,6 +55,8 @@ module Companion
           Companion::Contracts.check(:substrate_present,            proof.fetch(:substrate) == :"igniter-store"),
           Companion::Contracts.check(:record_manifest_generated,     record.fetch(:generated_from_manifest) == true),
           Companion::Contracts.check(:history_manifest_generated,    history.fetch(:generated_from_manifest) == true),
+          Companion::Contracts.check(:store_name_in_manifest,        record.fetch(:manifest_store_name_present) &&
+                                                                     history.fetch(:manifest_store_name_present)),
           Companion::Contracts.check(:record_round_trip,            record.fetch(:current_status) == :done),
           Companion::Contracts.check(:record_scope_works,           record.fetch(:open_before_count) == 1 && record.fetch(:open_after_count).zero?),
           Companion::Contracts.check(:record_time_travel_works,     record.fetch(:past_status) == :open),

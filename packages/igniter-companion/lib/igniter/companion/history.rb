@@ -55,18 +55,22 @@ module Igniter
 
       # Build an anonymous History class from a persistence_manifest hash.
       # Manifest structure:
-      #   storage: { shape: :history, key: :tracker_id, adapter: ... }
+      #   storage: { shape: :history, name: :tracker_logs, key: :tracker_id, adapter: ... }
       #   history: { key: :tracker_id, ... }
       #   fields:  [{ name: :tracker_id, attributes: {} }, ...]
       #
       # The partition_key is taken from history.key (falls back to storage.key).
+      # `store:` is optional when `manifest[:storage][:name]` is present.
       #
       # Usage:
-      #   klass = Igniter::Companion::History.from_manifest(manifest, store: :tracker_logs)
-      def self.from_manifest(manifest, store:)
+      #   klass = Igniter::Companion::History.from_manifest(manifest)
+      #   klass = Igniter::Companion::History.from_manifest(manifest, store: :override)
+      def self.from_manifest(manifest, store: nil)
+        resolved_store = store || manifest.dig(:storage, :name) ||
+                         raise(ArgumentError, "store: is required when manifest has no storage.name")
         Class.new do
           include Igniter::Companion::History
-          history_name store
+          history_name resolved_store
 
           pk = manifest.dig(:history, :key) || manifest.dig(:storage, :key)
           partition_key pk if pk

@@ -199,7 +199,8 @@ module Companion
       commands = operations
                  .select { |operation| operation.name.to_s.start_with?("__command_") }
                  .map { |operation| operation.attributes.fetch(:value) }
-      storage = storage_descriptor(persist: persist, history: history)
+      store_name = infer_store_name(contract_class)
+      storage = storage_descriptor(persist: persist, history: history, store_name: store_name)
 
       {
         schema_version: 1,
@@ -213,11 +214,20 @@ module Companion
       }
     end
 
-    def self.storage_descriptor(persist:, history:)
+    # Derives the conventional store/history name from a contract class.
+    # Converts PascalCase to snake_case and pluralises (simple suffix rule).
+    # Example: Reminder → :reminders, TrackerLog → :tracker_logs
+    def self.infer_store_name(contract_class)
+      short = contract_class.name.to_s.split("::").last
+      snake = short.gsub(/([A-Z])/, '_\1').sub(/\A_/, "").downcase
+      snake.end_with?("s") ? snake.to_sym : :"#{snake}s"
+    end
+
+    def self.storage_descriptor(persist:, history:, store_name: nil)
       if persist
-        { shape: :store, key: persist.fetch(:key), adapter: persist.fetch(:adapter) }
+        { shape: :store, name: store_name, key: persist.fetch(:key), adapter: persist.fetch(:adapter) }
       elsif history
-        { shape: :history, key: history.fetch(:key), adapter: history.fetch(:adapter) }
+        { shape: :history, name: store_name, key: history.fetch(:key), adapter: history.fetch(:adapter) }
       end
     end
   end

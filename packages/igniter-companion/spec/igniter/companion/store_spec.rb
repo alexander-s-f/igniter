@@ -292,7 +292,7 @@ RSpec.describe Igniter::Companion::Store do
   # ── Manifest-generated classes ─────────────────────────────────────────────
 
   RECORD_MANIFEST = {
-    storage: { shape: :store, key: :id },
+    storage: { shape: :store, name: :gen_items, key: :id },
     fields: [
       { name: :id,     attributes: {} },
       { name: :title,  attributes: {} },
@@ -306,7 +306,7 @@ RSpec.describe Igniter::Companion::Store do
   }.freeze
 
   HISTORY_MANIFEST = {
-    storage: { shape: :history, key: :tracker_id },
+    storage: { shape: :history, name: :gen_events, key: :tracker_id },
     history: { kind: :history, key: :tracker_id },
     fields: [
       { name: :tracker_id, attributes: {} },
@@ -316,14 +316,25 @@ RSpec.describe Igniter::Companion::Store do
   }.freeze
 
   describe "Record.from_manifest" do
-    subject(:klass) { Igniter::Companion::Record.from_manifest(RECORD_MANIFEST, store: :gen_records) }
+    subject(:klass) { Igniter::Companion::Record.from_manifest(RECORD_MANIFEST) }
 
     it "returns a class that includes Record" do
       expect(klass.ancestors).to include(Igniter::Companion::Record)
     end
 
-    it "sets store_name from the store: argument" do
-      expect(klass.store_name).to eq(:gen_records)
+    it "uses storage.name from manifest when store: is omitted" do
+      expect(klass.store_name).to eq(:gen_items)
+    end
+
+    it "overrides store_name when store: is given explicitly" do
+      override = Igniter::Companion::Record.from_manifest(RECORD_MANIFEST, store: :custom)
+      expect(override.store_name).to eq(:custom)
+    end
+
+    it "raises when manifest has no storage.name and store: is omitted" do
+      nameless = { storage: { shape: :store, key: :id }, fields: [], scopes: [] }
+      expect { Igniter::Companion::Record.from_manifest(nameless) }
+        .to raise_error(ArgumentError, /store:/)
     end
 
     it "declares all manifest fields as attributes" do
@@ -359,14 +370,14 @@ RSpec.describe Igniter::Companion::Store do
   end
 
   describe "History.from_manifest" do
-    subject(:klass) { Igniter::Companion::History.from_manifest(HISTORY_MANIFEST, store: :gen_logs) }
+    subject(:klass) { Igniter::Companion::History.from_manifest(HISTORY_MANIFEST) }
 
     it "returns a class that includes History" do
       expect(klass.ancestors).to include(Igniter::Companion::History)
     end
 
-    it "sets history_name from the store: argument" do
-      expect(klass.store_name).to eq(:gen_logs)
+    it "uses storage.name from manifest when store: is omitted" do
+      expect(klass.store_name).to eq(:gen_events)
     end
 
     it "sets partition_key from history.key in manifest" do
@@ -391,16 +402,21 @@ RSpec.describe Igniter::Companion::Store do
   end
 
   describe "Igniter::Companion.from_manifest" do
-    it "returns a Record class for shape: :store" do
-      klass = Igniter::Companion.from_manifest(RECORD_MANIFEST, store: :items)
+    it "returns a Record class for shape: :store using manifest name" do
+      klass = Igniter::Companion.from_manifest(RECORD_MANIFEST)
       expect(klass.ancestors).to include(Igniter::Companion::Record)
-      expect(klass.store_name).to eq(:items)
+      expect(klass.store_name).to eq(:gen_items)
     end
 
-    it "returns a History class for shape: :history" do
-      klass = Igniter::Companion.from_manifest(HISTORY_MANIFEST, store: :events)
+    it "returns a History class for shape: :history using manifest name" do
+      klass = Igniter::Companion.from_manifest(HISTORY_MANIFEST)
       expect(klass.ancestors).to include(Igniter::Companion::History)
-      expect(klass.store_name).to eq(:events)
+      expect(klass.store_name).to eq(:gen_events)
+    end
+
+    it "overrides manifest name when store: is given" do
+      klass = Igniter::Companion.from_manifest(RECORD_MANIFEST, store: :override)
+      expect(klass.store_name).to eq(:override)
     end
 
     it "raises ArgumentError for unknown shape" do

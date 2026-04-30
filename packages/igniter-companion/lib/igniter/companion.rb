@@ -8,13 +8,14 @@ require_relative "companion/store"
 module Igniter
   module Companion
     # Dispatch on manifest storage shape → Record or History class.
+    # `store:` is optional when the manifest carries `storage[:name]`.
     #
-    #   klass = Igniter::Companion.from_manifest(manifest, store: :reminders)
-    #   # => anonymous Class including Record (for shape: :store)
+    #   klass = Igniter::Companion.from_manifest(manifest)
+    #   # uses manifest[:storage][:name] as the store/history name
     #
-    #   klass = Igniter::Companion.from_manifest(manifest, store: :tracker_logs)
-    #   # => anonymous Class including History (for shape: :history)
-    def self.from_manifest(manifest, store:)
+    #   klass = Igniter::Companion.from_manifest(manifest, store: :override)
+    #   # explicit override
+    def self.from_manifest(manifest, store: nil)
       shape = manifest.dig(:storage, :shape)
       case shape
       when :store   then Record.from_manifest(manifest, store: store)

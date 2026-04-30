@@ -248,7 +248,31 @@ klass = Igniter::Companion.from_manifest(
 - Scopes (только Record): `name` + `filters:` (из `attributes[:where]`)
 - Partition key (History): `history.key`, fallback на `storage.key`
 
-**Выявленный gap** (`pressure.next_question`): `:store_name_in_manifest` — манифест не содержит имя store/history (например, `:reminders`, `:tracker_logs`). Вызывающий обязан передать его отдельно. Рекомендация: добавить поле `name:` в DSL-декларацию `persist`/`history`.
+**Gap закрыт немедленно**: см. следующую запись.
+
+---
+
+### [2026-04-30] Имя store в манифесте (`storage.name`)
+
+**Gap закрыт**: `persistence_manifest_for` теперь выводит имя store из имени класса контракта через snake_case + наивное множественное число (`Reminder` → `:reminders`, `TrackerLog` → `:tracker_logs`) и включает как `storage[:name]`.
+
+```ruby
+manifest[:storage]  # => { shape: :store, name: :reminders, key: :id, adapter: :sqlite }
+```
+
+**`from_manifest` теперь не требует явного `store:`**:
+
+```ruby
+klass = Igniter::Companion.from_manifest(Contracts::Reminder.persistence_manifest)
+klass.store_name  # => :reminders  (из манифеста)
+
+klass = Igniter::Companion.from_manifest(manifest, store: :override)
+klass.store_name  # => :override  (явный приоритет)
+```
+
+Бросает `ArgumentError` если в манифесте нет `storage.name` и `store:` не передан — старый API продолжает работать.
+
+**Следующий открытый вопрос** (`pressure.next_question`): `:companion_store_backed_app_flow` — подключить `Igniter::Companion::Store` на app-уровне, чтобы `persist :reminders` текло через facts/WAL вместо blob-JSON/SQLite.
 
 ---
 

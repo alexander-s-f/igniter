@@ -52,17 +52,22 @@ module Igniter
 
       # Build an anonymous Record class from a persistence_manifest hash.
       # Manifest structure (from app-local contract DSL):
-      #   storage: { shape: :store, key: :id, adapter: ... }
+      #   storage: { shape: :store, name: :reminders, key: :id, adapter: ... }
       #   fields:  [{ name: :title, attributes: {} },
       #             { name: :status, attributes: { default: :open } }, ...]
       #   scopes:  [{ name: :open, attributes: { where: { status: :open } } }, ...]
       #
+      # `store:` is optional when `manifest[:storage][:name]` is present.
+      #
       # Usage:
-      #   klass = Igniter::Companion::Record.from_manifest(manifest, store: :reminders)
-      def self.from_manifest(manifest, store:)
+      #   klass = Igniter::Companion::Record.from_manifest(manifest)
+      #   klass = Igniter::Companion::Record.from_manifest(manifest, store: :override)
+      def self.from_manifest(manifest, store: nil)
+        resolved_store = store || manifest.dig(:storage, :name) ||
+                         raise(ArgumentError, "store: is required when manifest has no storage.name")
         Class.new do
           include Igniter::Companion::Record
-          store_name store
+          store_name resolved_store
 
           manifest.fetch(:fields, []).each do |field_def|
             attrs = field_def.fetch(:attributes, {})

@@ -248,7 +248,31 @@ klass = Igniter::Companion.from_manifest(
 - Scopes (Record only): `name` + `filters:` (from `attributes[:where]`)
 - Partition key (History): `history.key` falling back to `storage.key`
 
-**Current gap surfaced** (`pressure.next_question`): `:store_name_in_manifest` — the manifest does not carry the store/history name (e.g., `:reminders`, `:tracker_logs`). The caller must supply it separately. Recommend adding a `name:` field to the persist/history DSL declaration.
+**This gap was resolved immediately**: see next entry.
+
+---
+
+### [2026-04-30] Store name in manifest (`storage.name`)
+
+**Gap resolved**: `persistence_manifest_for` now derives the store name from the contract class name via snake_case + naive pluralisation (`Reminder` → `:reminders`, `TrackerLog` → `:tracker_logs`) and includes it as `storage[:name]`.
+
+```ruby
+manifest[:storage]  # => { shape: :store, name: :reminders, key: :id, adapter: :sqlite }
+```
+
+**`from_manifest` is now zero-argument for the store name**:
+
+```ruby
+klass = Igniter::Companion.from_manifest(Contracts::Reminder.persistence_manifest)
+klass.store_name  # => :reminders  (from manifest)
+
+klass = Igniter::Companion.from_manifest(manifest, store: :override)
+klass.store_name  # => :override  (explicit wins)
+```
+
+Raises `ArgumentError` if manifest has no `storage.name` and `store:` is not given — keeps the old API path working.
+
+**Next open question** (`pressure.next_question`): `:companion_store_backed_app_flow` — wire `Igniter::Companion::Store` into the actual app layer so `persist :reminders` flows through facts/WAL instead of blob-JSON/SQLite.
 
 ---
 
