@@ -294,10 +294,11 @@ RSpec.describe Igniter::Companion::Store do
   RECORD_MANIFEST = {
     storage: { shape: :store, name: :gen_items, key: :id },
     fields: [
-      { name: :id,     attributes: {} },
-      { name: :title,  attributes: {} },
-      { name: :status, attributes: { default: :open } },
-      { name: :due,    attributes: {} }
+      { name: :id,         attributes: {} },
+      { name: :title,      attributes: { type: :string } },
+      { name: :status,     attributes: { type: :enum, values: %i[open done], default: :open } },
+      { name: :due,        attributes: {} },
+      { name: :created_at, attributes: { type: :datetime } }
     ],
     scopes: [
       { name: :open, attributes: { where: { status: :open } } },
@@ -338,7 +339,7 @@ RSpec.describe Igniter::Companion::Store do
     end
 
     it "declares all manifest fields as attributes" do
-      expect(klass._fields.keys).to eq(%i[id title status due])
+      expect(klass._fields.keys).to eq(%i[id title status due created_at])
     end
 
     it "applies field defaults declared in the manifest" do
@@ -423,6 +424,60 @@ RSpec.describe Igniter::Companion::Store do
       bad_manifest = { storage: { shape: :graph } }
       expect { Igniter::Companion.from_manifest(bad_manifest, store: :x) }
         .to raise_error(ArgumentError, /Unknown storage shape/)
+    end
+  end
+
+  # ── Portable field types ───────────────────────────────────────────────────
+
+  describe "portable field types" do
+    subject(:klass) { Igniter::Companion::Record.from_manifest(RECORD_MANIFEST) }
+
+    it "stores type: in _fields metadata" do
+      expect(klass._fields[:title][:type]).to eq(:string)
+      expect(klass._fields[:created_at][:type]).to eq(:datetime)
+    end
+
+    it "stores values: for enum fields" do
+      expect(klass._fields[:status][:type]).to eq(:enum)
+      expect(klass._fields[:status][:values]).to eq(%i[open done])
+    end
+
+    it "stores nil type for untyped fields" do
+      expect(klass._fields[:id][:type]).to be_nil
+      expect(klass._fields[:due][:type]).to be_nil
+    end
+
+    it "combines type with default" do
+      expect(klass._fields[:status][:default]).to eq(:open)
+      expect(klass._fields[:status][:type]).to eq(:enum)
+    end
+
+    it "supports type: kwarg on hand-written field declarations" do
+      klass = Class.new do
+        include Igniter::Companion::Record
+        store_name :typed_test
+        field :score,  type: :float
+        field :active, type: :boolean
+        field :label,  type: :string, default: "n/a"
+      end
+      expect(klass._fields[:score][:type]).to eq(:float)
+      expect(klass._fields[:active][:type]).to eq(:boolean)
+      expect(klass._fields[:label][:default]).to eq("n/a")
+    end
+
+    it "typed field round-trips correctly through Store write/read" do
+      s = Igniter::Companion::Store.new
+      s.register(klass)
+
+      s.write(klass, key: "t1", id: "t1", title: "Hello", status: :open,
+              created_at: "2026-04-30")
+      record = s.read(klass, key: "t1")
+
+      expect(record.title).to eq("Hello")
+      expect(record.status).to eq(:open)
+      expect(record.created_at).to eq("2026-04-30")
+    ensure
+      s&.close
     end
   end
 end

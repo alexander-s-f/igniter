@@ -170,10 +170,12 @@ Resolved:
 - history_partition_key
 - store_name_in_manifest
 - companion_store_backed_app_flow (isolated adapter slice, not full migration)
+- portable_field_types (annotation-only: type:/values: in _fields, no coercion)
 New Pressure:
-- portable_field_types: manifest fields have no type descriptor yet
 - mutation_intent_to_app_boundary: should WriteReceipt.mutation_intent feed the
   app-local action history model directly, or need a projection layer?
+- field_type_coercion: type: is metadata only; `:datetime` fields return strings,
+  `:integer` fields may return floats on JSON round-trip — coercion deferred
 - storage_name_convention: snake_plural inference is naive; acronyms and
   irregular plurals will fail silently (HTTP -> h_t_t_ps)
 Boundary Risk:

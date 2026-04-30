@@ -104,7 +104,7 @@ module Companion
 
       def pressure_report
         {
-          next_question: :portable_field_types,
+          next_question: :mutation_intent_to_app_boundary,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
           resolved: %i[
@@ -113,26 +113,27 @@ module Companion
             history_partition_key
             store_name_in_manifest
             companion_store_backed_app_flow
+            portable_field_types
           ],
           facade_input_ready: %i[
             storage_shape
             storage_name
             fields
+            field_types
             field_defaults
+            enum_values
             scopes
             history_partition_key
           ],
           asks: %i[
-            portable_field_types
             mutation_intent_to_app_boundary
             index_metadata
             command_effect_metadata
             relation_metadata
           ],
           recommended_order: %i[
-            portable_field_types
             mutation_intent_to_app_boundary
-            indexes
+            index_metadata
             command_effects
             relations
           ]

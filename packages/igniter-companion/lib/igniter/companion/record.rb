@@ -31,9 +31,9 @@ module Igniter
           end
         end
 
-        def field(name, default: nil)
+        def field(name, default: nil, type: nil, values: nil)
           @_fields ||= {}
-          @_fields[name] = { default: default }
+          @_fields[name] = { default: default, type: type, values: values }
           attr_reader name
         end
 
@@ -71,11 +71,10 @@ module Igniter
 
           manifest.fetch(:fields, []).each do |field_def|
             attrs = field_def.fetch(:attributes, {})
-            if attrs.key?(:default)
-              field field_def.fetch(:name), default: attrs.fetch(:default)
-            else
-              field field_def.fetch(:name)
-            end
+            field field_def.fetch(:name),
+                  default: attrs[:default],
+                  type:    attrs[:type],
+                  values:  attrs[:values]
           end
 
           manifest.fetch(:scopes, []).each do |scope_def|

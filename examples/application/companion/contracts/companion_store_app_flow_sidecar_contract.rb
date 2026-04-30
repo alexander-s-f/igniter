@@ -29,6 +29,7 @@ module Companion
         read    = proof.fetch(:read)
         receipt = proof.fetch(:receipt)
         scope   = proof.fetch(:scope)
+        typed   = proof.fetch(:typed_fields)
 
         [
           Companion::Contracts.check(:report_only,            descriptor.fetch(:report_only)),
@@ -41,7 +42,14 @@ module Companion
           Companion::Contracts.check(:receipt_fact_id,        !receipt.fetch(:fact_id).nil?),
           Companion::Contracts.check(:receipt_delegates,      receipt.fetch(:delegates_to_record)),
           Companion::Contracts.check(:scope_query_works,      scope.fetch(:open_count) == 1),
-          Companion::Contracts.check(:generated_from_manifest, proof.fetch(:generated_from_manifest))
+          Companion::Contracts.check(:generated_from_manifest, proof.fetch(:generated_from_manifest)),
+          Companion::Contracts.check(:typed_fields_mirrored,  typed.fetch(:typed_field_count) == 4 &&
+                                                              typed.fetch(:status_type) == :enum &&
+                                                              typed.fetch(:title_type) == :string &&
+                                                              typed.fetch(:created_at_type) == :datetime),
+          Companion::Contracts.check(:enum_values_mirrored,   typed.fetch(:enum_values_present)),
+          Companion::Contracts.check(:typed_record_round_trip, typed.fetch(:round_trip_status) == :draft &&
+                                                               typed.fetch(:round_trip_title) == "Igniter companion")
         ]
       end
 

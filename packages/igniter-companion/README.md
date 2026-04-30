@@ -276,6 +276,34 @@ Raises `ArgumentError` if manifest has no `storage.name` and `store:` is not giv
 
 ---
 
+### [2026-04-30] Portable field types
+
+**Capability added**: `field` DSL now accepts `type:` and `values:` kwargs. `from_manifest` mirrors them from `attributes[:type]` and `attributes[:values]` in the manifest descriptor.
+
+```ruby
+# Hand-written:
+field :status, type: :enum, values: %i[open done], default: :open
+field :title,  type: :string
+field :score,  type: :float
+
+# Generated from manifest (Article contract with typed fields):
+klass = Igniter::Companion.from_manifest(Contracts::Article.persistence_manifest)
+klass._fields[:status]  # => { type: :enum, values: [:draft, :published, :archived],
+                         #      default: :draft }
+klass._fields[:title]   # => { type: :string, values: nil, default: nil }
+```
+
+**Supported vocabulary** (mirrors app-local `PersistenceFieldTypePlanContract`):
+`:string`, `:integer`, `:float`, `:boolean`, `:datetime`, `:enum`, `:json`, `:unspecified` / nil (no-op)
+
+**Annotation only**: `type:` is stored as metadata in `_fields` but does not coerce values during read. Coercion is a separate future concern.
+
+**Evidence**: app-flow sidecar 13/13 stable — `typed_fields_mirrored`, `enum_values_mirrored`, `typed_record_round_trip` all pass.
+
+**Next open question** (`pressure.next_question`): `:mutation_intent_to_app_boundary` — should `WriteReceipt.mutation_intent` feed the app-local action history model directly, or does it need a projection layer?
+
+---
+
 ### [pending] `nil` vs absent field semantics on read
 
 **Hypothesis** (untested): if a field was not stored in the value hash (e.g. an
