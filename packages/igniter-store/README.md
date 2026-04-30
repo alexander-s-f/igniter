@@ -271,6 +271,62 @@ first query after reopen, which is already the lazy-init behaviour.
 
 ---
 
+### [2026-04-30] NetworkBackend + StoreServer (Phase 1 transport abstraction)
+
+**Change**: Three new pure-Ruby classes implement the first step of the client-server
+projection model:
+
+- `WireProtocol` — shared CRC32-framed encoding module (included by `FileBackend`,
+  `NetworkBackend`, and `StoreServer`).
+- `NetworkBackend` — client-side backend implementing the same `write_fact` / `replay` /
+  `write_snapshot` interface as `FileBackend`, but transmitting calls over a TCP or
+  Unix socket connection.
+- `StoreServer` — minimal TCP/Unix server wrapping durable storage (`:memory` or `:file`).
+  Each incoming connection is handled in a separate thread; writes are serialised by
+  `@write_mutex`; reads snapshot `@in_memory_facts` under the same lock.
+
+**Usage** — swap the backend without changing application code:
+
+```ruby
+# Server process (or background thread)
+server = Igniter::Store::StoreServer.new(
+  address: "127.0.0.1:7400", backend: :file, path: "/var/lib/igniter/store.wal"
+)
+server.start_async
+
+# Application process — identical API to :memory and :file
+store = Igniter::Companion::Store.new(
+  backend: :network, address: "127.0.0.1:7400"
+)
+store.register(Task)
+store.write(Task, key: "t1", title: "Hello", status: :open)
+```
+
+**Wire protocol**: CRC32-framed JSON, one request frame + one response frame per RPC.
+Reuses the same framing as the WAL file format — the same `WireProtocol` module is
+shared across both, ensuring consistency.
+
+**Replay on reconnect**: a new `NetworkBackend` client sends a `replay` request on
+first use (explicitly called by `Companion::Store.new(backend: :network)`).  The
+`IgniterStore` on the client side rebuilds all in-memory indices (scope index,
+partition index, cache) from the replayed facts — identical to the `:file` path.
+
+**Availability**:
+- Ruby fallback (`NATIVE = false`): fully implemented. 8 specs (all skipped when NATIVE).
+- NATIVE (`NATIVE = true`): `NetworkBackend` and `StoreServer` both have NATIVE guards —
+  they are skipped because `Fact.new(**h)` is not available with the Rust extension.
+  Phase 2 will add Rust-native fact deserialisation.
+
+**Playground**: demo 07 (`07_network.rb`) exercises the full two-client round-trip
+(write via client 1, reconnect as client 2, verify fact visibility and scope queries).
+
+**Candidate pressure on Rust backend**:
+- `RubyFact`: expose a class-level `deserialize(hash)` method that constructs a Fact
+  from existing id/timestamp/value_hash fields (without re-generating them via `build`).
+  This is the only blocker for NATIVE NetworkBackend support.
+
+---
+
 ## Open Pressure (Tier 2 remaining / Tier 3)
 
 | Pressure | Status | Description |
@@ -281,6 +337,10 @@ first query after reopen, which is already the lazy-init behaviour.
 | `read_cache_lru_cap` | ✅ done | LRU cap on time-travel cache entries; default 1 000, configurable |
 | `schema_version_hook` | ✅ done | `register_coercion` hook; `CoercedFact` wrapper on all read paths |
 | `snapshot_checkpoint` | ✅ done (Ruby) | `checkpoint` + snapshot-aware replay; Rust backend is candidate pressure |
+| `network_backend_phase1` | ✅ done (Ruby) | `NetworkBackend` + `StoreServer`; pure-Ruby; Rust wire-deserialise is Phase 2 |
+| `subscription_registry` | ⬜ planned | Phase 2: `on_scope` → persistent `SubscriptionRecord`; pluggable event-bus adapters |
+| `replication_log` | ⬜ planned | Phase 3: append-only replication fan-out; replica bootstrap via snapshot |
+| `consistency_annotation` | ⬜ planned | Phase 4: per-store `:strong`/`:eventual` routing in NetworkBackend write path |
 
 ---
 
@@ -290,3 +350,4 @@ first query after reopen, which is already the lazy-init behaviour.
 - [Contract-Native Store POC](../../docs/research/contract-native-store-poc.md)
 - [Contract-Native Store Sync Hub](../../docs/research/contract-native-store-sync-hub.md)
 - [Contract Persistence Development Track](../../docs/research/contract-persistence-development-track.md)
+- [Contract-Native Store: Server Model](../../docs/research/contract-native-store-server-model.md)

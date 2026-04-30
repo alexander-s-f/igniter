@@ -10,8 +10,13 @@ module Igniter
     # Acts as the "user side" pressure on igniter-store primitives.
     #
     # Usage:
-    #   store = Igniter::Companion::Store.new               # in-memory
+    #   store = Igniter::Companion::Store.new                          # in-memory
     #   store = Igniter::Companion::Store.new(backend: :file, path: "/tmp/data.wal")
+    #   store = Igniter::Companion::Store.new(                         # remote server
+    #     backend:   :network,
+    #     address:   "127.0.0.1:7400",
+    #     transport: :tcp    # default; or :unix for Unix domain sockets
+    #   )
     #
     #   store.register(Reminder)
     #   store.write(Reminder, key: "r1", title: "Buy milk", status: :open)
@@ -20,11 +25,25 @@ module Igniter
     #   store.append(TrackerLog, tracker_id: "t1", value: 8.5)
     #   store.replay(TrackerLog)
     class Store
-      def initialize(backend: :memory, path: nil)
+      def initialize(backend: :memory, path: nil, address: nil, transport: :tcp)
         @inner = case backend
-        when :memory then Igniter::Store::IgniterStore.new
-        when :file   then Igniter::Store::IgniterStore.open(path)
-        else raise ArgumentError, "Unknown backend: #{backend.inspect}. Use :memory or :file"
+        when :memory
+          Igniter::Store::IgniterStore.new
+        when :file
+          Igniter::Store::IgniterStore.open(path)
+        when :network
+          if Igniter::Store::NATIVE
+            raise NotImplementedError,
+                  ":network backend requires the pure-Ruby fallback (NATIVE=false). " \
+                  "Rust-native wire deserialisation is planned for Phase 2."
+          end
+          raise ArgumentError, "address: is required for :network backend" unless address
+          nb    = Igniter::Store::NetworkBackend.new(address: address, transport: transport)
+          store = Igniter::Store::IgniterStore.new(backend: nb)
+          nb.replay.each { |fact| store.__send__(:replay, fact) }
+          store
+        else
+          raise ArgumentError, "Unknown backend: #{backend.inspect}. Use :memory, :file, or :network"
         end
       end
 

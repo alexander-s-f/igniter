@@ -59,6 +59,10 @@ research material under `playgrounds/docs/`.
 - [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md) -
   research response defining the canonical spec model, export rules, and
   materializer boundary.
+- [Contract-Native Store: Server Model](./contract-native-store-server-model.md) -
+  architectural research on the client-server projection model, event delivery
+  adapters, deployment topologies, CRDT-compatible facts, consistency
+  annotations, and the NetworkBackend implementation roadmap.
 
 ## Read First
 
@@ -87,6 +91,7 @@ Before changing architecture or reviewing an agent proposal, read:
 21. [Contract Persistence Relations](./contract-persistence-relations.md)
 22. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
 23. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
+24. [Contract-Native Store: Server Model](./contract-native-store-server-model.md)
 
 ## Current Research State
 

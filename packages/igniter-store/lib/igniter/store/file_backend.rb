@@ -7,6 +7,7 @@ require "json"
 require "zlib"
 require "set"
 require "fileutils"
+require_relative "wire_protocol"
 
 module Igniter
   module Store
@@ -28,9 +29,9 @@ module Igniter
     # is sorted by timestamp. Startup cost is O(snapshot_size + delta_wal_size)
     # instead of O(total_wal_size).
     class FileBackend
-      FRAME_HEADER_SIZE = 4
-      FRAME_CRC_SIZE    = 4
-      SNAPSHOT_SUFFIX   = ".snap"
+      include WireProtocol
+
+      SNAPSHOT_SUFFIX = ".snap"
 
       def initialize(path)
         @path = path.to_s
@@ -79,31 +80,6 @@ module Igniter
       end
 
       private
-
-      # --- Frame encoding / decoding ---
-
-      def encode_frame(body)
-        body_b = body.b
-        [body_b.bytesize].pack("N") << body_b << [Zlib.crc32(body)].pack("N")
-      end
-
-      # Reads one frame from +io+.  Returns the body String on success, nil on
-      # truncation or CRC mismatch (caller should stop reading).
-      def read_frame(io)
-        header = io.read(FRAME_HEADER_SIZE)
-        return nil if header.nil? || header.bytesize < FRAME_HEADER_SIZE
-
-        len  = header.unpack1("N")
-        body = io.read(len)
-        return nil if body.nil? || body.bytesize < len
-
-        crc_bytes = io.read(FRAME_CRC_SIZE)
-        return nil if crc_bytes.nil? || crc_bytes.bytesize < FRAME_CRC_SIZE
-
-        return nil unless Zlib.crc32(body) == crc_bytes.unpack1("N")
-
-        body
-      end
 
       # Parses a raw JSON body into a frozen Fact.  Returns nil on parse error.
       def decode_fact(body)

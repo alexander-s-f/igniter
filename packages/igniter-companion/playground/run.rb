@@ -26,7 +26,8 @@ ALL_DEMOS = {
   "03" => { file: "03_history.rb",     title: "History & Partition Replay",       method: :run_03 },
   "04" => { file: "04_coercion.rb",    title: "Schema Version Coercion",          method: :run_04 },
   "05" => { file: "05_snapshot.rb",    title: "WAL Snapshot Checkpoint",          method: :run_05 },
-  "06" => { file: "06_concurrent.rb",  title: "Concurrency",                      method: :run_06 }
+  "06" => { file: "06_concurrent.rb",  title: "Concurrency",                      method: :run_06 },
+  "07" => { file: "07_network.rb",     title: "NetworkBackend / StoreServer",     method: :run_07 }
 }.freeze
 
 def banner
