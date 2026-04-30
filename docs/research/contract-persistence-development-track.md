@@ -34,6 +34,8 @@ Already proved in Companion:
 - R2a field type health: `/setup/field-type-health(.json)`
 - R2b relation type plan: `/setup/relation-type-plan(.json)`
 - R2b relation type health: `/setup/relation-type-health(.json)`
+- R2c access path plan: `/setup/access-path-plan(.json)`
+- R2c access path health: `/setup/access-path-health(.json)`
 - `schema_version: 1`
 - canonical `storage.shape`
 - Store/History lowerings as descriptors
@@ -51,8 +53,9 @@ Accepted research evidence:
 
 ## Next Development Slice
 
-Current evidence: **R2a Field Type Validation** and
-**R2b Relation Type Compatibility**, app-local and report-only.
+Current evidence: **R2a Field Type Validation**,
+**R2b Relation Type Compatibility**, and **R2c Access Path Sketch**,
+app-local and report-only.
 
 Goal:
 
@@ -77,6 +80,11 @@ Acceptance:
   `Relation[Store[A], History[B]]`
 - `/setup/relation-type-health(.json)` validates non-enforcing/no-FK
   boundaries
+- `/setup/access-path-plan(.json)` reports store/history/relation read
+  descriptors, key bindings, scope/filter sources, cache hints, and projection
+  consumers
+- `/setup/access-path-health(.json)` validates no StoreRead node, no runtime
+  planner, no cache execution, and non-mutating access-path descriptors
 - no runtime gate, core DSL promotion, DB schema change, SQL generation, or
   materializer execution
 - report explicitly preserves `persist -> Store[T]` and `history -> History[T]`
@@ -180,8 +188,9 @@ Do preserve:
 Track: docs/research/contract-persistence-development-track.md
 Status: development track accepted.
 [D] R1 storage plan, R2 storage migration, R2a field type validation, and R2b
-relation type compatibility are current app-local evidence.
-[D] Next implementation slice is R2c Access Path Sketch.
+relation type compatibility plus R2c access path sketch are current app-local
+evidence.
+[D] Next implementation slice is R2d Typed Effect Intent.
 [D] `packages/igniter-store` is the isolated POC gem for contract-native store
 experiments.
 [D] Organic Store[T]/History[T] graph nodes are accepted as horizon, not current
@@ -191,5 +200,5 @@ path descriptors stabilize.
 [R] No core graph-node changes, package split, SQL generation, migration
 execution, or materializer execution from this track alone.
 [S] Use Companion pressure and report-only health packets to decide promotion.
-Next: implement app-local access path sketch and health packet.
+Next: implement app-local typed effect intent sketch and health packet.
 ```

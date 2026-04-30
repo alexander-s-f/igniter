@@ -81,6 +81,14 @@ Current manifest vocabulary:
 - `/setup/relation-type-health(.json)` validates R2b descriptor policy,
   Store/History/Relation lowerings, report-only enforcement, join reports,
   missing-field detection, mismatch detection, and no FK/enforcement capability
+- `/setup/access-path-plan(.json)` exposes the R2c report-only access-path
+  sketch over storage and relation type descriptors; it reports record/history
+  read paths, relation join paths, key bindings, scope/filter sources,
+  cache/coalesce hints, and projection reactive consumer hints without adding a
+  StoreRead node or runtime planner
+- `/setup/access-path-health(.json)` validates R2c descriptor policy,
+  Store/History/Relation lowerings, read-path descriptors, non-mutating
+  boundaries, cache hints, projection consumers, and no access-path execution
 - `/setup` includes the same glossary health as a report-only summary signal;
   readiness does not become stricter because of glossary drift
 - `/setup/health(.json)` summarizes readiness, relation health, manifest

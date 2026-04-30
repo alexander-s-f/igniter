@@ -41,6 +41,11 @@ Read `/setup/relation-type-plan.json` before changing relation joins,
 projection inputs, access-path sketches, FK discussions, or migration planning.
 Read `/setup/relation-type-health.json` when checking that R2b relation type
 compatibility remains report-only and non-enforcing.
+Read `/setup/access-path-plan.json` before discussing future `store_read`
+dependencies, cache/coalescing, projection consumers, reactive invalidation, or
+typed effect intent.
+Read `/setup/access-path-health.json` when checking that R2c access paths remain
+metadata only and do not become runtime graph nodes.
 Read `/setup/health.json` for the compact report-only current-state packet.
 Read `/setup/handoff.json` first when rotating context between agents.
 
@@ -144,6 +149,26 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   counts, and no FK/enforcement capability.
 - Does not authorize FK generation, relation enforcement, DB migrations, or
   runtime graph-node changes.
+
+`access_path_plan`
+
+- Report-only R2c access-path sketch exposed at `/setup/access-path-plan.json`.
+- Describes record/history/relation read paths, lookup kind, key bindings,
+  scope/filter sources, cache/coalesce hints, and projection reactive consumer
+  hints.
+- Includes current APIs such as `all`, `find`, `scope`, `where`, and `count`,
+  plus future-only index/join descriptors marked `implemented: false`.
+- Keeps `store_read_node_allowed: false`, `runtime_planner_allowed: false`, and
+  `cache_execution_allowed: false`.
+
+`access_path_health`
+
+- Report-only drift check exposed at `/setup/access-path-health.json`.
+- Validates descriptor policy, Store/History/Relation lowerings, path
+  descriptors, no mutation, cache hint presence, projection consumers, summary
+  counts, and no runtime planner/cache execution.
+- Does not authorize StoreRead graph nodes, cache execution, reactive runtime
+  wiring, DB indexes, or relation enforcement.
 
 `records`
 

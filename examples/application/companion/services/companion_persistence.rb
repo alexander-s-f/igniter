@@ -389,6 +389,20 @@ module Companion
         )
       end
 
+      def access_path_plan
+        Contracts::PersistenceAccessPathPlanContract.evaluate(
+          manifest: manifest_snapshot,
+          storage_plan: storage_plan_sketch,
+          relation_type_plan: relation_type_plan
+        )
+      end
+
+      def access_path_health
+        Contracts::PersistenceAccessPathHealthContract.evaluate(
+          access_path_plan: access_path_plan
+        )
+      end
+
       def setup_health
         Contracts::SetupHealthContract.evaluate(
           readiness: readiness,

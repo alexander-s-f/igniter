@@ -280,6 +280,14 @@ module Companion
         persistence.relation_type_health
       end
 
+      def access_path_plan
+        persistence.access_path_plan
+      end
+
+      def access_path_health
+        persistence.access_path_health
+      end
+
       def setup_health
         persistence.setup_health
       end

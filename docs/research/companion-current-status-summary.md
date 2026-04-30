@@ -41,6 +41,8 @@ field_type_plan -> report-only validation of field descriptors + samples
 field_type_health -> drift check for field/type validation boundaries
 relation_type_plan -> report-only join field type compatibility
 relation_type_health -> drift check for non-enforcing relation type plan
+access_path_plan -> report-only store_read descriptor sketch
+access_path_health -> drift check for non-executing access path plan
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
 materializer_status.descriptor -> review-only lifecycle + no capability grants
@@ -158,6 +160,12 @@ it checks join field descriptors for `Relation[Store[A], History[B]]` edges
 without generating FKs or enforcing relations.
 `/setup/relation-type-health.json` verifies that relation type compatibility
 stays report-only, non-enforcing, and capability-free.
+`/setup/access-path-plan.json` is the R2c access path sketch: it reports
+record/history/relation read descriptors, key bindings, scope/filter sources,
+cache/coalesce hints, and projection reactive consumer hints without creating a
+StoreRead graph node or runtime planner.
+`/setup/access-path-health.json` verifies that access-path metadata remains
+report-only, no-gate/no-grant, non-mutating, and non-executing.
 
 Migrations are review-only. Current planning has two lanes: spec-history field
 diffs and storage-plan descriptor diffs. There is no migration generator,
@@ -212,6 +220,10 @@ Best next move:
   projections, access paths, or future FK/migration discussions
 - use `/setup/relation-type-health.json` before treating R2b relation type
   compatibility as stable evidence
+- use `/setup/access-path-plan.json` before discussing future `store_read`
+  graph dependencies, cache plans, reactive consumers, or typed effect intents
+- use `/setup/access-path-health.json` before treating R2c access-path
+  descriptors as stable evidence
 - use `/setup/handoff.json` as the first read after context rotation
 - use `/setup/handoff/digest.txt` as the compact human handoff, or
   `/setup/handoff/digest.json` as the structured agent map before

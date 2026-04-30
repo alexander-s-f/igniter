@@ -77,6 +77,8 @@ module Companion
           field_type_health: service(:companion).field_type_health,
           relation_type_plan: service(:companion).relation_type_plan,
           relation_type_health: service(:companion).relation_type_health,
+          access_path_plan: service(:companion).access_path_plan,
+          access_path_health: service(:companion).access_path_health,
           materializer_descriptor_health: snapshot.materializer_status_descriptor_health,
           setup_health: service(:companion).setup_health,
           setup_handoff: service(:companion).setup_handoff,
@@ -296,6 +298,22 @@ module Companion
 
       get "/setup/relation-type-health.json" do
         text JSON.pretty_generate(service(:companion).relation_type_health)
+      end
+
+      get "/setup/access-path-plan" do
+        text service(:companion).access_path_plan.inspect
+      end
+
+      get "/setup/access-path-plan.json" do
+        text JSON.pretty_generate(service(:companion).access_path_plan)
+      end
+
+      get "/setup/access-path-health" do
+        text service(:companion).access_path_health.inspect
+      end
+
+      get "/setup/access-path-health.json" do
+        text JSON.pretty_generate(service(:companion).access_path_health)
       end
 
       get "/setup/relation-health" do

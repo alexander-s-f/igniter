@@ -124,6 +124,10 @@ module Companion
       relation_type_plan_json_status, _relation_type_plan_json_headers, relation_type_plan_json_body = app.call(rack_env("GET", "/setup/relation-type-plan.json"))
       relation_type_health_status, _relation_type_health_headers, relation_type_health_body = app.call(rack_env("GET", "/setup/relation-type-health"))
       relation_type_health_json_status, _relation_type_health_json_headers, relation_type_health_json_body = app.call(rack_env("GET", "/setup/relation-type-health.json"))
+      access_path_plan_status, _access_path_plan_headers, access_path_plan_body = app.call(rack_env("GET", "/setup/access-path-plan"))
+      access_path_plan_json_status, _access_path_plan_json_headers, access_path_plan_json_body = app.call(rack_env("GET", "/setup/access-path-plan.json"))
+      access_path_health_status, _access_path_health_headers, access_path_health_body = app.call(rack_env("GET", "/setup/access-path-health"))
+      access_path_health_json_status, _access_path_health_json_headers, access_path_health_json_body = app.call(rack_env("GET", "/setup/access-path-health.json"))
       relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
       relation_health_json_status, _relation_health_json_headers, relation_health_json_body = app.call(rack_env("GET", "/setup/relation-health.json"))
       materialization_status, _materialization_headers, materialization_body = app.call(rack_env("GET", "/setup/materialization-plan"))
@@ -223,6 +227,10 @@ module Companion
       relation_type_plan_json = relation_type_plan_json_body.join
       relation_type_health = relation_type_health_body.join
       relation_type_health_json = relation_type_health_json_body.join
+      access_path_plan = access_path_plan_body.join
+      access_path_plan_json = access_path_plan_json_body.join
+      access_path_health = access_path_health_body.join
+      access_path_health_json = access_path_health_json_body.join
       relation_health = relation_health_body.join
       relation_health_json = relation_health_json_body.join
       materialization = materialization_body.join
@@ -342,6 +350,10 @@ module Companion
       out.puts "companion_poc_setup_relation_type_plan_json_status=#{relation_type_plan_json_status}"
       out.puts "companion_poc_setup_relation_type_health_status=#{relation_type_health_status}"
       out.puts "companion_poc_setup_relation_type_health_json_status=#{relation_type_health_json_status}"
+      out.puts "companion_poc_setup_access_path_plan_status=#{access_path_plan_status}"
+      out.puts "companion_poc_setup_access_path_plan_json_status=#{access_path_plan_json_status}"
+      out.puts "companion_poc_setup_access_path_health_status=#{access_path_health_status}"
+      out.puts "companion_poc_setup_access_path_health_json_status=#{access_path_health_json_status}"
       out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
       out.puts "companion_poc_setup_relation_health_json_status=#{relation_health_json_status}"
       out.puts "companion_poc_setup_materialization_status=#{materialization_status}"
@@ -439,6 +451,10 @@ module Companion
       out.puts "companion_poc_setup_relation_type_plan_json_endpoint=#{setup_relation_type_plan_json_endpoint?(relation_type_plan_json)}"
       out.puts "companion_poc_setup_relation_type_health_endpoint=#{setup_relation_type_health_endpoint?(relation_type_health)}"
       out.puts "companion_poc_setup_relation_type_health_json_endpoint=#{setup_relation_type_health_json_endpoint?(relation_type_health_json)}"
+      out.puts "companion_poc_setup_access_path_plan_endpoint=#{setup_access_path_plan_endpoint?(access_path_plan)}"
+      out.puts "companion_poc_setup_access_path_plan_json_endpoint=#{setup_access_path_plan_json_endpoint?(access_path_plan_json)}"
+      out.puts "companion_poc_setup_access_path_health_endpoint=#{setup_access_path_health_endpoint?(access_path_health)}"
+      out.puts "companion_poc_setup_access_path_health_json_endpoint=#{setup_access_path_health_json_endpoint?(access_path_health_json)}"
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
       out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
       out.puts "companion_poc_setup_materialization_endpoint=#{setup_materialization_endpoint?(materialization)}"
@@ -534,6 +550,8 @@ module Companion
       out.puts "companion_poc_persistence_field_type_health_contract=#{persistence_field_type_health_contract?}"
       out.puts "companion_poc_persistence_relation_type_plan_contract=#{persistence_relation_type_plan_contract?}"
       out.puts "companion_poc_persistence_relation_type_health_contract=#{persistence_relation_type_health_contract?}"
+      out.puts "companion_poc_persistence_access_path_plan_contract=#{persistence_access_path_plan_contract?}"
+      out.puts "companion_poc_persistence_access_path_health_contract=#{persistence_access_path_health_contract?}"
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
       out.puts "companion_poc_setup_handoff_acceptance_contract=#{setup_handoff_acceptance_contract?}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_contract=#{setup_handoff_approval_acceptance_contract?}"
@@ -1815,6 +1833,55 @@ module Companion
         stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
         drift.fetch(:status) == :drift &&
         drift.fetch(:missing_terms).include?(:no_foreign_key_generation)
+    end
+
+    def persistence_access_path_plan_contract?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      plan = persistence.access_path_plan
+      reminders = plan.fetch(:records).fetch(:reminders)
+      tracker_logs = plan.fetch(:histories).fetch(:tracker_logs)
+      tracker_relation = plan.fetch(:relations).fetch(:tracker_logs_by_tracker)
+      tracker_projection = plan.fetch(:projections).fetch(:tracker_read_model)
+
+      plan.fetch(:schema_version) == 1 &&
+        plan.fetch(:descriptor).fetch(:kind) == :persistence_access_path_plan &&
+        plan.fetch(:descriptor).fetch(:report_only) &&
+        plan.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        plan.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        plan.fetch(:descriptor).fetch(:store_read_node_allowed) == false &&
+        plan.fetch(:descriptor).fetch(:runtime_planner_allowed) == false &&
+        plan.fetch(:descriptor).fetch(:cache_execution_allowed) == false &&
+        plan.fetch(:descriptor).fetch(:source) == { storage: :persistence_storage_plan_sketch, relation_types: :persistence_relation_type_plan } &&
+        plan.fetch(:descriptor).fetch(:preserves) == { persist: :store_t, history: :history_t, relation: :relation_t } &&
+        plan.fetch(:status) == :sketched &&
+        plan.fetch(:path_count) == 43 &&
+        reminders.fetch(:paths).any? { |path| path.fetch(:name) == :find && path.fetch(:lookup_kind) == :key && path.fetch(:key_binding) == { field: :id, source: :argument } } &&
+        reminders.fetch(:paths).any? { |path| path.fetch(:name) == :scope_open && path.fetch(:lookup_kind) == :scope && path.fetch(:implemented) } &&
+        reminders.fetch(:paths).any? { |path| path.fetch(:name) == :index_status && path.fetch(:lookup_kind) == :index && path.fetch(:implemented) == false } &&
+        tracker_logs.fetch(:paths).any? { |path| path.fetch(:name) == :partition && path.fetch(:lookup_kind) == :partition && path.fetch(:key_binding) == { field: :tracker_id, source: :criteria } } &&
+        tracker_relation.fetch(:paths).first.fetch(:lookup_kind) == :join &&
+        tracker_projection.fetch(:reads) == %i[trackers tracker_logs] &&
+        tracker_projection.fetch(:reactive_consumer_hint)
+    end
+
+    def persistence_access_path_health_contract?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      stable = persistence.access_path_health
+      drift_plan = persistence.access_path_plan.merge(
+        descriptor: persistence.access_path_plan.fetch(:descriptor).merge(store_read_node_allowed: true)
+      )
+      drift = Contracts::PersistenceAccessPathHealthContract.evaluate(access_path_plan: drift_plan)
+
+      stable.fetch(:status) == :stable &&
+        stable.fetch(:check_count) == 22 &&
+        stable.fetch(:descriptor).fetch(:kind) == :persistence_access_path_health &&
+        stable.fetch(:descriptor).fetch(:validates) == :persistence_access_path_plan &&
+        stable.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        stable.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        stable.fetch(:missing_terms).empty? &&
+        stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
+        drift.fetch(:status) == :drift &&
+        drift.fetch(:missing_terms).include?(:no_store_read_node)
     end
 
     def persistence_relation_manifest?
@@ -3339,6 +3406,66 @@ module Companion
         payload.fetch("descriptor").fetch("schema_version") == 1 &&
         payload.fetch("descriptor").fetch("kind") == "persistence_relation_type_health" &&
         payload.fetch("descriptor").fetch("validates") == "persistence_relation_type_plan" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("missing_terms").empty? &&
+        payload.fetch("checks").all? { |check| check.fetch("present") }
+    end
+
+    def setup_access_path_plan_endpoint?(access_path_plan)
+      access_path_plan.include?("kind=>:persistence_access_path_plan") &&
+        access_path_plan.include?("store_read_node_allowed=>false") &&
+        access_path_plan.include?("runtime_planner_allowed=>false") &&
+        access_path_plan.include?("lookup_kind=>:key") &&
+        access_path_plan.include?("lookup_kind=>:join") &&
+        access_path_plan.include?("future_index_lookup")
+    end
+
+    def setup_access_path_plan_json_endpoint?(access_path_plan_json)
+      payload = JSON.parse(access_path_plan_json)
+      reminders = payload.fetch("records").fetch("reminders")
+      tracker_logs = payload.fetch("histories").fetch("tracker_logs")
+      tracker_relation = payload.fetch("relations").fetch("tracker_logs_by_tracker")
+      tracker_projection = payload.fetch("projections").fetch("tracker_read_model")
+
+      payload.fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "persistence_access_path_plan" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("descriptor").fetch("store_read_node_allowed") == false &&
+        payload.fetch("descriptor").fetch("runtime_planner_allowed") == false &&
+        payload.fetch("descriptor").fetch("cache_execution_allowed") == false &&
+        payload.fetch("descriptor").fetch("source") == { "storage" => "persistence_storage_plan_sketch", "relation_types" => "persistence_relation_type_plan" } &&
+        payload.fetch("descriptor").fetch("preserves") == { "persist" => "store_t", "history" => "history_t", "relation" => "relation_t" } &&
+        payload.fetch("status") == "sketched" &&
+        payload.fetch("path_count") == 43 &&
+        reminders.fetch("paths").any? { |path| path.fetch("name") == "find" && path.fetch("lookup_kind") == "key" && path.fetch("key_binding") == { "field" => "id", "source" => "argument" } } &&
+        reminders.fetch("paths").any? { |path| path.fetch("name") == "scope_open" && path.fetch("lookup_kind") == "scope" && path.fetch("implemented") } &&
+        reminders.fetch("paths").any? { |path| path.fetch("name") == "index_status" && path.fetch("lookup_kind") == "index" && path.fetch("implemented") == false } &&
+        tracker_logs.fetch("paths").any? { |path| path.fetch("name") == "partition" && path.fetch("lookup_kind") == "partition" && path.fetch("key_binding") == { "field" => "tracker_id", "source" => "criteria" } } &&
+        tracker_relation.fetch("paths").first.fetch("lookup_kind") == "join" &&
+        tracker_projection.fetch("reads") == %w[trackers tracker_logs] &&
+        tracker_projection.fetch("reactive_consumer_hint")
+    end
+
+    def setup_access_path_health_endpoint?(access_path_health)
+      access_path_health.include?("status=>:stable") &&
+        access_path_health.include?("kind=>:persistence_access_path_health") &&
+        access_path_health.include?("validates=>:persistence_access_path_plan") &&
+        access_path_health.include?("check_count=>22") &&
+        access_path_health.include?("access path terms stable")
+    end
+
+    def setup_access_path_health_json_endpoint?(access_path_health_json)
+      payload = JSON.parse(access_path_health_json)
+
+      payload.fetch("status") == "stable" &&
+        payload.fetch("check_count") == 22 &&
+        payload.fetch("descriptor").fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "persistence_access_path_health" &&
+        payload.fetch("descriptor").fetch("validates") == "persistence_access_path_plan" &&
         payload.fetch("descriptor").fetch("report_only") &&
         payload.fetch("descriptor").fetch("gates_runtime") == false &&
         payload.fetch("descriptor").fetch("grants_capabilities") == false &&
