@@ -26,6 +26,9 @@ research material under `playgrounds/docs/`.
 - [Contract Persistence Roadmap](./contract-persistence-roadmap.md) -
   compact roadmap for field/table lowerings, migration planning, and
   materialization process.
+- [Contract Persistence Development Track](./contract-persistence-development-track.md) -
+  accepted development track from Companion pressure and contract-native store
+  research.
 - [Contract Persistence Relations](./contract-persistence-relations.md) -
   research model, specification, and DSL for relation manifests.
 - [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md) -
@@ -50,9 +53,10 @@ Before changing architecture or reviewing an agent proposal, read:
 9. [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md)
 10. [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md)
 11. [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
-12. [Contract Persistence Relations](./contract-persistence-relations.md)
-13. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
-14. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
+12. [Contract Persistence Development Track](./contract-persistence-development-track.md)
+13. [Contract Persistence Relations](./contract-persistence-relations.md)
+14. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
+15. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
 
 ## Current Research State
 

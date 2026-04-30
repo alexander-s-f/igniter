@@ -1,6 +1,6 @@
 # Contract Persistence Roadmap
 
-Status date: 2026-04-29.
+Status date: 2026-04-30.
 Scope: Companion app-local proof, roadmap, and discussion summary. Not public
 API, package API, DB planner, migration runner, or materializer execution.
 
@@ -200,6 +200,49 @@ diffs become review-only storage migration candidates.
 `/setup/storage-migration-plan-health.json` verifies the R2 non-executing shape
 as a separate drift check.
 
+### R2a Field Type Validation
+
+Status: accepted next development slice.
+
+Connect field declarations to report-only type validation before Store/History
+become graph nodes.
+
+Output:
+
+- field type vocabulary report
+- default value compatibility checks
+- enum domain checks
+- JSON field shape markers
+- required/key presence checks
+- seeded payload shape warnings
+
+Non-goals:
+
+- no core type-system enforcement
+- no runtime write rejection
+- no SQL type generation
+- no DB schema change
+- no package API
+
+This is the bridge from manifest metadata to organic persistence. It keeps the
+path open for future `Store[T]` graph nodes without changing the core graph yet.
+
+### R2b Access Path Sketch
+
+Status: horizon slice after R2a.
+
+Sketch `store_read` as a report-only descriptor before making it a runtime graph
+node:
+
+- store/history target
+- lookup kind
+- key/input binding
+- scope/filter source
+- cache/coalesce hints
+- future reactive consumer hint
+
+Non-goal: no StoreReadNode in core.
+
 ### R3 Materializer Dry Run
 
 Add a materializer dry-run packet that renders proposed file/binding changes as
@@ -272,5 +315,6 @@ materialization.
 writes or capability grants.
 [R] Do not infer tables, migrations, indexes, FKs, or dynamic execution from the
 current Companion proof.
-[S] Next best slice is R1: report-only storage/table sketch.
+[S] R1 storage plan and R2 storage migration plan are now app-local evidence.
+[S] Next best slice is R2a: report-only field/type validation.
 ```

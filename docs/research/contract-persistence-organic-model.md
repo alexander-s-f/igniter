@@ -1,6 +1,6 @@
 # Contract Persistence: Organic Model
 
-Status date: 2026-04-29.
+Status date: 2026-04-30.
 Scope: Architecture recommendations for organic contract-native persistence.
 Not a public API promise, package API, or execution plan.
 
@@ -232,6 +232,7 @@ testable, storage-unaware.
 
 ```
 R1 (done)  Storage plan sketch — report-only
+R2 (done)  Storage migration plan — report-only
 R2a        field → type system — fields participate in type validation
 R2b        store_read as compute-like graph node (lazy, cache_ttl, coalesce)
 R3         store_write / store_append as typed effect output with Saga
@@ -271,5 +272,8 @@ Status: architectural recommendations for organic contract-native persistence.
 [D] Schema versioning IS History[ContractSpecChange] — already present in Companion.
 [R] Do not add ORM-style query methods or model callbacks to this path.
 [R] Keep the "graph computes intent, store applies" boundary.
-[S] Next best slice: R2a — connect field declarations to the type system.
+[S] Development track is captured in
+docs/research/contract-persistence-development-track.md.
+[S] Next best slice: R2a — connect field declarations to report-only type
+validation before core graph-node changes.
 ```
