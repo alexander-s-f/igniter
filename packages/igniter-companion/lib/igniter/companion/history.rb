@@ -53,6 +53,35 @@ module Igniter
         end
       end
 
+      # Build an anonymous History class from a persistence_manifest hash.
+      # Manifest structure:
+      #   storage: { shape: :history, key: :tracker_id, adapter: ... }
+      #   history: { key: :tracker_id, ... }
+      #   fields:  [{ name: :tracker_id, attributes: {} }, ...]
+      #
+      # The partition_key is taken from history.key (falls back to storage.key).
+      #
+      # Usage:
+      #   klass = Igniter::Companion::History.from_manifest(manifest, store: :tracker_logs)
+      def self.from_manifest(manifest, store:)
+        Class.new do
+          include Igniter::Companion::History
+          history_name store
+
+          pk = manifest.dig(:history, :key) || manifest.dig(:storage, :key)
+          partition_key pk if pk
+
+          manifest.fetch(:fields, []).each do |field_def|
+            attrs = field_def.fetch(:attributes, {})
+            if attrs.key?(:default)
+              field field_def.fetch(:name), default: attrs.fetch(:default)
+            else
+              field field_def.fetch(:name)
+            end
+          end
+        end
+      end
+
       attr_reader :fact_id, :timestamp
 
       def initialize(fact_id: nil, timestamp: nil, **attrs)

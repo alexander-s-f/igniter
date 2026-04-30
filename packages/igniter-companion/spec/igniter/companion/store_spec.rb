@@ -288,4 +288,125 @@ RSpec.describe Igniter::Companion::Store do
       expect(recent.map(&:value)).to eq([8.5])
     end
   end
+
+  # ── Manifest-generated classes ─────────────────────────────────────────────
+
+  RECORD_MANIFEST = {
+    storage: { shape: :store, key: :id },
+    fields: [
+      { name: :id,     attributes: {} },
+      { name: :title,  attributes: {} },
+      { name: :status, attributes: { default: :open } },
+      { name: :due,    attributes: {} }
+    ],
+    scopes: [
+      { name: :open, attributes: { where: { status: :open } } },
+      { name: :done, attributes: { where: { status: :done } } }
+    ]
+  }.freeze
+
+  HISTORY_MANIFEST = {
+    storage: { shape: :history, key: :tracker_id },
+    history: { kind: :history, key: :tracker_id },
+    fields: [
+      { name: :tracker_id, attributes: {} },
+      { name: :value,      attributes: {} },
+      { name: :notes,      attributes: { default: nil } }
+    ]
+  }.freeze
+
+  describe "Record.from_manifest" do
+    subject(:klass) { Igniter::Companion::Record.from_manifest(RECORD_MANIFEST, store: :gen_records) }
+
+    it "returns a class that includes Record" do
+      expect(klass.ancestors).to include(Igniter::Companion::Record)
+    end
+
+    it "sets store_name from the store: argument" do
+      expect(klass.store_name).to eq(:gen_records)
+    end
+
+    it "declares all manifest fields as attributes" do
+      expect(klass._fields.keys).to eq(%i[id title status due])
+    end
+
+    it "applies field defaults declared in the manifest" do
+      obj = klass.new(key: "x", id: "x", title: "T")
+      expect(obj.status).to eq(:open)
+    end
+
+    it "declares all manifest scopes" do
+      expect(klass._scopes.keys).to eq(%i[open done])
+    end
+
+    it "scope filters map from manifest where: attributes" do
+      expect(klass._scopes[:open][:filters]).to eq({ status: :open })
+    end
+
+    it "works end-to-end with Store write/read/scope" do
+      s = Igniter::Companion::Store.new
+      s.register(klass)
+
+      s.write(klass, key: "r1", id: "r1", title: "Foo", status: :open)
+      s.write(klass, key: "r2", id: "r2", title: "Bar", status: :done)
+
+      expect(s.read(klass, key: "r1").title).to eq("Foo")
+      expect(s.scope(klass, :open).map(&:title)).to eq(["Foo"])
+      expect(s.scope(klass, :done).map(&:title)).to eq(["Bar"])
+    ensure
+      s&.close
+    end
+  end
+
+  describe "History.from_manifest" do
+    subject(:klass) { Igniter::Companion::History.from_manifest(HISTORY_MANIFEST, store: :gen_logs) }
+
+    it "returns a class that includes History" do
+      expect(klass.ancestors).to include(Igniter::Companion::History)
+    end
+
+    it "sets history_name from the store: argument" do
+      expect(klass.store_name).to eq(:gen_logs)
+    end
+
+    it "sets partition_key from history.key in manifest" do
+      expect(klass._partition_key).to eq(:tracker_id)
+    end
+
+    it "declares all manifest fields" do
+      expect(klass._fields.keys).to eq(%i[tracker_id value notes])
+    end
+
+    it "works end-to-end with Store append/replay/partition" do
+      s = Igniter::Companion::Store.new
+      s.append(klass, tracker_id: "sleep",    value: 7.0)
+      s.append(klass, tracker_id: "training", value: 45.0)
+      s.append(klass, tracker_id: "sleep",    value: 8.5)
+
+      expect(s.replay(klass).length).to eq(3)
+      expect(s.replay(klass, partition: "sleep").map(&:value)).to eq([7.0, 8.5])
+    ensure
+      s&.close
+    end
+  end
+
+  describe "Igniter::Companion.from_manifest" do
+    it "returns a Record class for shape: :store" do
+      klass = Igniter::Companion.from_manifest(RECORD_MANIFEST, store: :items)
+      expect(klass.ancestors).to include(Igniter::Companion::Record)
+      expect(klass.store_name).to eq(:items)
+    end
+
+    it "returns a History class for shape: :history" do
+      klass = Igniter::Companion.from_manifest(HISTORY_MANIFEST, store: :events)
+      expect(klass.ancestors).to include(Igniter::Companion::History)
+      expect(klass.store_name).to eq(:events)
+    end
+
+    it "raises ArgumentError for unknown shape" do
+      bad_manifest = { storage: { shape: :graph } }
+      expect { Igniter::Companion.from_manifest(bad_manifest, store: :x) }
+        .to raise_error(ArgumentError, /Unknown storage shape/)
+    end
+  end
 end

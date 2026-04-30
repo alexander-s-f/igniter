@@ -50,6 +50,36 @@ module Igniter
         end
       end
 
+      # Build an anonymous Record class from a persistence_manifest hash.
+      # Manifest structure (from app-local contract DSL):
+      #   storage: { shape: :store, key: :id, adapter: ... }
+      #   fields:  [{ name: :title, attributes: {} },
+      #             { name: :status, attributes: { default: :open } }, ...]
+      #   scopes:  [{ name: :open, attributes: { where: { status: :open } } }, ...]
+      #
+      # Usage:
+      #   klass = Igniter::Companion::Record.from_manifest(manifest, store: :reminders)
+      def self.from_manifest(manifest, store:)
+        Class.new do
+          include Igniter::Companion::Record
+          store_name store
+
+          manifest.fetch(:fields, []).each do |field_def|
+            attrs = field_def.fetch(:attributes, {})
+            if attrs.key?(:default)
+              field field_def.fetch(:name), default: attrs.fetch(:default)
+            else
+              field field_def.fetch(:name)
+            end
+          end
+
+          manifest.fetch(:scopes, []).each do |scope_def|
+            filters = scope_def.fetch(:attributes, {}).fetch(:where, {})
+            scope scope_def.fetch(:name), filters: filters
+          end
+        end
+      end
+
       attr_reader :key
 
       def initialize(key:, **attrs)

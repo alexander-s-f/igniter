@@ -225,6 +225,33 @@ scope-кэш был прогрет запросом до этого.
 
 ---
 
+### [2026-04-30] Manifest-generated Record/History классы
+
+**Добавлена возможность**: `Igniter::Companion.from_manifest(manifest, store:)` генерирует анонимный `Record` или `History` класс из хэша `persistence_manifest` приложения. Диспатч по `manifest[:storage][:shape]` (`:store` → `Record`, `:history` → `History`).
+
+```ruby
+klass = Igniter::Companion.from_manifest(
+  Companion::Contracts::Reminder.persistence_manifest,
+  store: :reminders
+)
+# klass включает Record, поля + scopes объявлены
+
+klass = Igniter::Companion.from_manifest(
+  Companion::Contracts::TrackerLog.persistence_manifest,
+  store: :tracker_logs
+)
+# klass включает History, с partition_key + полями
+```
+
+**Что генерируется из манифеста**:
+- Поля: `name` + `default:` (если `attributes[:default]` присутствует)
+- Scopes (только Record): `name` + `filters:` (из `attributes[:where]`)
+- Partition key (History): `history.key`, fallback на `storage.key`
+
+**Выявленный gap** (`pressure.next_question`): `:store_name_in_manifest` — манифест не содержит имя store/history (например, `:reminders`, `:tracker_logs`). Вызывающий обязан передать его отдельно. Рекомендация: добавить поле `name:` в DSL-декларацию `persist`/`history`.
+
+---
+
 ### [предстоящее] `nil` vs absent поля на чтении
 
 **Гипотеза** (не проверена): если поле не было записано в value (например,

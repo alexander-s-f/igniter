@@ -224,6 +224,34 @@ cache state?
 
 ---
 
+### [2026-04-30] Manifest-generated Record/History classes
+
+**Capability added**: `Igniter::Companion.from_manifest(manifest, store:)` generates an anonymous `Record` or `History` class from an app-local `persistence_manifest` hash. Dispatches on `manifest[:storage][:shape]` (`:store` → `Record`, `:history` → `History`).
+
+```ruby
+# From an app-local Igniter contract that declares `persist :reminders`:
+klass = Igniter::Companion.from_manifest(
+  Companion::Contracts::Reminder.persistence_manifest,
+  store: :reminders
+)
+# klass includes Record, has all fields + scopes declared
+
+klass = Igniter::Companion.from_manifest(
+  Companion::Contracts::TrackerLog.persistence_manifest,
+  store: :tracker_logs
+)
+# klass includes History, has partition_key + all fields
+```
+
+**What gets generated from the manifest**:
+- Fields: `name` + `default:` (if `attributes[:default]` present)
+- Scopes (Record only): `name` + `filters:` (from `attributes[:where]`)
+- Partition key (History): `history.key` falling back to `storage.key`
+
+**Current gap surfaced** (`pressure.next_question`): `:store_name_in_manifest` — the manifest does not carry the store/history name (e.g., `:reminders`, `:tracker_logs`). The caller must supply it separately. Recommend adding a `name:` field to the persist/history DSL declaration.
+
+---
+
 ### [pending] `nil` vs absent field semantics on read
 
 **Hypothesis** (untested): if a field was not stored in the value hash (e.g. an
