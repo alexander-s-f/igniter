@@ -1,5 +1,6 @@
 use magnus::{
-    r_hash::ForEach, prelude::*, Error, IntoValue, RArray, RHash, Ruby, Symbol, Value,
+    r_hash::ForEach, prelude::*, Error, Float as RbFloat, IntoValue, Integer as RbInteger,
+    RArray, RHash, Ruby, Symbol, Value,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -149,13 +150,15 @@ fn ruby_to_json_inner(val: Value) -> serde_json::Value {
         });
         return serde_json::Value::Object(map.into_iter().collect());
     }
-    // Integer (check before Float — Ruby Integers satisfy f64::try_convert too)
-    if let Ok(i) = i64::try_convert(val) {
-        return serde_json::json!(i);
+    // Integer — exact Ruby type check to avoid coercing Float 7.0 → 7
+    if let Some(int) = RbInteger::from_value(val) {
+        if let Ok(n) = int.to_i64() {
+            return serde_json::json!(n);
+        }
     }
-    // Float
-    if let Ok(f) = f64::try_convert(val) {
-        return serde_json::json!(f);
+    // Float — exact Ruby type check
+    if let Some(flt) = RbFloat::from_value(val) {
+        return serde_json::json!(flt.to_f64());
     }
     // String
     if let Ok(s) = String::try_convert(val) {
