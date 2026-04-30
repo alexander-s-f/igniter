@@ -296,6 +296,10 @@ module Companion
         persistence.effect_intent_health
       end
 
+      def store_convergence_sidecar
+        Services::StoreConvergenceSidecar.packet
+      end
+
       def setup_health
         persistence.setup_health
       end

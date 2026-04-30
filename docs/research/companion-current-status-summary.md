@@ -45,6 +45,7 @@ access_path_plan -> report-only store_read descriptor sketch
 access_path_health -> drift check for non-executing access path plan
 effect_intent_plan -> report-only store_write/store_append descriptor sketch
 effect_intent_health -> drift check for app-boundary typed effect intent
+store_convergence_sidecar -> tiny package-level Record/History over fact store
 performance_signal -> setup packet recomputation needs memoization/snapshot
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
@@ -180,6 +181,11 @@ descriptors while keeping `command_still_lowers_to: :mutation_intent`.
 `/setup/effect-intent-health.json` verifies that typed effects remain
 report-only, app-boundary-only, non-Saga, and do not create StoreWrite or
 StoreAppend runtime nodes.
+`/setup/store-convergence-sidecar.json` is the first tiny convergence proof
+between app-local manifests, `igniter-companion`, and `igniter-store`: one
+`Reminder` typed Record and one `TrackerLog` typed History flow through
+`Igniter::Companion::Store` into immutable facts without replacing the current
+Companion backend.
 
 Migrations are review-only. Current planning has two lanes: spec-history field
 diffs and storage-plan descriptor diffs. There is no migration generator,
@@ -242,6 +248,8 @@ Best next move:
   `store_append`, Saga, or effect-node semantics
 - use `/setup/effect-intent-health.json` before treating R2d typed effect
   descriptors as stable evidence
+- use `/setup/store-convergence-sidecar.json` before discussing package-level
+  store adapter slices, fact receipts, or `history key` partition lowering
 - use `/setup/handoff.json` as the first read after context rotation
 - use `/setup/handoff/digest.txt` as the compact human handoff, or
   `/setup/handoff/digest.json` as the structured agent map before

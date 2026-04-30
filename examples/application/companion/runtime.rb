@@ -132,6 +132,8 @@ module Companion
       effect_intent_plan_json_status, _effect_intent_plan_json_headers, effect_intent_plan_json_body = app.call(rack_env("GET", "/setup/effect-intent-plan.json"))
       effect_intent_health_status, _effect_intent_health_headers, effect_intent_health_body = app.call(rack_env("GET", "/setup/effect-intent-health"))
       effect_intent_health_json_status, _effect_intent_health_json_headers, effect_intent_health_json_body = app.call(rack_env("GET", "/setup/effect-intent-health.json"))
+      store_convergence_status, _store_convergence_headers, store_convergence_body = app.call(rack_env("GET", "/setup/store-convergence-sidecar"))
+      store_convergence_json_status, _store_convergence_json_headers, store_convergence_json_body = app.call(rack_env("GET", "/setup/store-convergence-sidecar.json"))
       relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
       relation_health_json_status, _relation_health_json_headers, relation_health_json_body = app.call(rack_env("GET", "/setup/relation-health.json"))
       materialization_status, _materialization_headers, materialization_body = app.call(rack_env("GET", "/setup/materialization-plan"))
@@ -239,6 +241,8 @@ module Companion
       effect_intent_plan_json = effect_intent_plan_json_body.join
       effect_intent_health = effect_intent_health_body.join
       effect_intent_health_json = effect_intent_health_json_body.join
+      store_convergence = store_convergence_body.join
+      store_convergence_json = store_convergence_json_body.join
       relation_health = relation_health_body.join
       relation_health_json = relation_health_json_body.join
       materialization = materialization_body.join
@@ -366,6 +370,8 @@ module Companion
       out.puts "companion_poc_setup_effect_intent_plan_json_status=#{effect_intent_plan_json_status}"
       out.puts "companion_poc_setup_effect_intent_health_status=#{effect_intent_health_status}"
       out.puts "companion_poc_setup_effect_intent_health_json_status=#{effect_intent_health_json_status}"
+      out.puts "companion_poc_setup_store_convergence_sidecar_status=#{store_convergence_status}"
+      out.puts "companion_poc_setup_store_convergence_sidecar_json_status=#{store_convergence_json_status}"
       out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
       out.puts "companion_poc_setup_relation_health_json_status=#{relation_health_json_status}"
       out.puts "companion_poc_setup_materialization_status=#{materialization_status}"
@@ -471,6 +477,8 @@ module Companion
       out.puts "companion_poc_setup_effect_intent_plan_json_endpoint=#{setup_effect_intent_plan_json_endpoint?(effect_intent_plan_json)}"
       out.puts "companion_poc_setup_effect_intent_health_endpoint=#{setup_effect_intent_health_endpoint?(effect_intent_health)}"
       out.puts "companion_poc_setup_effect_intent_health_json_endpoint=#{setup_effect_intent_health_json_endpoint?(effect_intent_health_json)}"
+      out.puts "companion_poc_setup_store_convergence_sidecar_endpoint=#{setup_store_convergence_sidecar_endpoint?(store_convergence)}"
+      out.puts "companion_poc_setup_store_convergence_sidecar_json_endpoint=#{setup_store_convergence_sidecar_json_endpoint?(store_convergence_json)}"
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
       out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
       out.puts "companion_poc_setup_materialization_endpoint=#{setup_materialization_endpoint?(materialization)}"
@@ -570,6 +578,7 @@ module Companion
       out.puts "companion_poc_persistence_access_path_health_contract=#{persistence_access_path_health_contract?}"
       out.puts "companion_poc_persistence_effect_intent_plan_contract=#{persistence_effect_intent_plan_contract?}"
       out.puts "companion_poc_persistence_effect_intent_health_contract=#{persistence_effect_intent_health_contract?}"
+      out.puts "companion_poc_store_convergence_sidecar_contract=#{store_convergence_sidecar_contract?}"
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
       out.puts "companion_poc_setup_handoff_acceptance_contract=#{setup_handoff_acceptance_contract?}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_contract=#{setup_handoff_approval_acceptance_contract?}"
@@ -1953,6 +1962,39 @@ module Companion
         stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
         drift.fetch(:status) == :drift &&
         drift.fetch(:missing_terms).include?(:no_store_write_node)
+    end
+
+    def store_convergence_sidecar_contract?
+      packet = Services::StoreConvergenceSidecar.packet
+      descriptor = packet.fetch(:descriptor)
+      record = packet.fetch(:record)
+      history = packet.fetch(:history)
+      pressure = packet.fetch(:pressure)
+
+      packet.fetch(:schema_version) == 1 &&
+        descriptor.fetch(:kind) == :store_convergence_sidecar &&
+        descriptor.fetch(:report_only) &&
+        descriptor.fetch(:gates_runtime) == false &&
+        descriptor.fetch(:grants_capabilities) == false &&
+        descriptor.fetch(:replaces_app_backend) == false &&
+        descriptor.fetch(:mutates_main_state) == false &&
+        descriptor.fetch(:package_facade) == :"igniter-companion" &&
+        descriptor.fetch(:substrate) == :"igniter-store" &&
+        descriptor.fetch(:preserves) == { persist: :store_t, history: :history_t, command: :mutation_intent } &&
+        packet.fetch(:status) == :stable &&
+        packet.fetch(:checks).length == 15 &&
+        packet.fetch(:checks).all? { |check| check.fetch(:present) } &&
+        record.fetch(:current_status) == :done &&
+        record.fetch(:past_status) == :open &&
+        record.fetch(:open_before_count) == 1 &&
+        record.fetch(:open_after_count).zero? &&
+        record.fetch(:causation_count) == 2 &&
+        history.fetch(:replay_count) == 2 &&
+        history.fetch(:values) == [7.0, 8.5] &&
+        history.fetch(:event_fact_ids).all? &&
+        history.fetch(:partition_key_declared) == :tracker_id &&
+        history.fetch(:partition_query_supported) == false &&
+        pressure.fetch(:next_question) == :history_partition_key_lowering
     end
 
     def persistence_relation_manifest?
@@ -3606,6 +3648,48 @@ module Companion
         payload.fetch("descriptor").fetch("grants_capabilities") == false &&
         payload.fetch("missing_terms").empty? &&
         payload.fetch("checks").all? { |check| check.fetch("present") }
+    end
+
+    def setup_store_convergence_sidecar_endpoint?(store_convergence)
+      store_convergence.include?("kind=>:store_convergence_sidecar") &&
+        store_convergence.include?("package_facade=>:\"igniter-companion\"") &&
+        store_convergence.include?("substrate=>:\"igniter-store\"") &&
+        store_convergence.include?("current_status=>:done") &&
+        store_convergence.include?("past_status=>:open") &&
+        store_convergence.include?("next_question=>:history_partition_key_lowering")
+    end
+
+    def setup_store_convergence_sidecar_json_endpoint?(store_convergence_json)
+      payload = JSON.parse(store_convergence_json)
+      descriptor = payload.fetch("descriptor")
+      record = payload.fetch("record")
+      history = payload.fetch("history")
+      pressure = payload.fetch("pressure")
+
+      payload.fetch("schema_version") == 1 &&
+        descriptor.fetch("kind") == "store_convergence_sidecar" &&
+        descriptor.fetch("report_only") &&
+        descriptor.fetch("gates_runtime") == false &&
+        descriptor.fetch("grants_capabilities") == false &&
+        descriptor.fetch("replaces_app_backend") == false &&
+        descriptor.fetch("mutates_main_state") == false &&
+        descriptor.fetch("package_facade") == "igniter-companion" &&
+        descriptor.fetch("substrate") == "igniter-store" &&
+        descriptor.fetch("preserves") == { "persist" => "store_t", "history" => "history_t", "command" => "mutation_intent" } &&
+        payload.fetch("status") == "stable" &&
+        payload.fetch("checks").length == 15 &&
+        payload.fetch("checks").all? { |check| check.fetch("present") } &&
+        record.fetch("current_status") == "done" &&
+        record.fetch("past_status") == "open" &&
+        record.fetch("open_before_count") == 1 &&
+        record.fetch("open_after_count").zero? &&
+        record.fetch("causation_count") == 2 &&
+        history.fetch("replay_count") == 2 &&
+        history.fetch("values") == [7.0, 8.5] &&
+        history.fetch("event_fact_ids").all? &&
+        history.fetch("partition_key_declared") == "tracker_id" &&
+        history.fetch("partition_query_supported") == false &&
+        pressure.fetch("next_question") == "history_partition_key_lowering"
     end
 
     def post(app, path, values = {})

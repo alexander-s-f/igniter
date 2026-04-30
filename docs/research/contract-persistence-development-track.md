@@ -38,6 +38,8 @@ Already proved in Companion:
 - R2c access path health: `/setup/access-path-health(.json)`
 - R2d typed effect intent plan: `/setup/effect-intent-plan(.json)`
 - R2d typed effect intent health: `/setup/effect-intent-health(.json)`
+- tiny Companion/Store convergence sidecar:
+  `/setup/store-convergence-sidecar(.json)`
 - `schema_version: 1`
 - canonical `storage.shape`
 - Store/History lowerings as descriptors
@@ -49,6 +51,9 @@ Already proved in Companion:
   persistence packet cost
 - command mutation intents can now be reported as future typed
   `store_write` / `store_append` effects without creating runtime effect nodes
+- package-level `Igniter::Companion::Store` can round-trip one app-local
+  `Reminder` record and one `TrackerLog` history into `igniter-store` facts as
+  an ephemeral sidecar proof
 
 Accepted research evidence:
 
@@ -145,6 +150,24 @@ Current Companion surface:
 - mutating effects keep `boundary: :app` and
   `command_still_lowers_to: :mutation_intent`
 
+### Sidecar: Companion / Store Convergence
+
+Tiny report-only bridge over the package stack:
+
+- app-local manifest vocabulary remains the source pressure
+- `Igniter::Companion::Record` / `History` provide typed package classes
+- `Igniter::Companion::Store` writes into `Igniter::Store::IgniterStore`
+- immutable facts prove causation, replay, time-travel, and receipts
+
+Current surface:
+
+- `/setup/store-convergence-sidecar(.json)`
+
+Current pressure:
+
+- define `history key: :tracker_id` lowering for append-only fact streams
+- define normalized store receipts before broader adapter migration
+
 ### R3 Materializer Dry Run
 
 Render proposed file/binding changes as review data only.
@@ -207,7 +230,8 @@ Status: development track accepted.
 [D] R1 storage plan, R2 storage migration, R2a field type validation, R2b
 relation type compatibility, R2c access path sketch, and R2d typed effect
 intent are current app-local evidence.
-[D] Next implementation slice is R3 Materializer Dry Run.
+[D] Next implementation slice is either R3 Materializer Dry Run or a focused
+history partition/receipt convergence slice.
 [D] `packages/igniter-store` is the isolated POC gem for contract-native store
 experiments.
 [D] Organic Store[T]/History[T] graph nodes are accepted as horizon, not current

@@ -38,6 +38,30 @@ as facts through `Igniter::Store::IgniterStore`.
   time-travel reads, access path registry, read cache invalidation, and WAL
   replay
 
+## Current Sidecar Proof
+
+Companion now exposes a tiny convergence sidecar:
+
+- `/setup/store-convergence-sidecar`
+- `/setup/store-convergence-sidecar.json`
+
+This packet is report-only and ephemeral. It creates an in-memory
+`Igniter::Companion::Store`, defines package-level typed classes for one
+`Reminder` record and one `TrackerLog` history, and exercises the path into
+`Igniter::Store::IgniterStore`.
+
+Proved:
+
+- `Reminder` contract manifest can be mirrored as a typed Record class
+- Record write/read/scope works through `Igniter::Companion::Store`
+- Record time-travel read returns the earlier `:open` state
+- Record causation chain has two facts
+- `TrackerLog` append/replay works through typed History
+- float values round-trip as `[7.0, 8.5]`
+- facts expose receipt data through `fact_id` and `timestamp`
+- the packet does not mutate main Companion state or replace the current app
+  backend
+
 ## Pressure Points
 
 1. App-local Companion has richer manifests than `igniter-companion` classes.
@@ -56,7 +80,8 @@ as facts through `Igniter::Store::IgniterStore`.
 
 4. History append uses generated fact keys. That is fine for append-only facts,
    but app-level `history key: :tracker_id` still needs a clear lowering:
-   partition key, event payload key, or both.
+   partition key, event payload key, or both. The sidecar marks this explicitly
+   as `next_question: :history_partition_key_lowering`.
 
 5. Blob-JSON SQLite in the app remains a useful POC backend, but the next true
    convergence proof should be a tiny isolated adapter slice, not a full
@@ -88,9 +113,10 @@ For app-local Companion:
 
 - Keep R2a-R2d as the read-before-write ladder.
 - Do not replace the SQLite JSON backend yet.
-- Next convergence slice should be a tiny sidecar proof, for example one
-  `Reminder` record and one `TrackerLog` history flowing through
-  `Igniter::Companion::Store` beside the existing app state.
+- The tiny sidecar proof is now present. Use it before any broader adapter
+  migration.
+- Next convergence slice should answer history partition lowering and normalized
+  store receipts before moving more app state.
 
 ## Non-Goals
 
@@ -106,17 +132,16 @@ For app-local Companion:
 ```text
 [Architect Supervisor / Codex]
 Track: companion-store-convergence
-Status: alignment note created after reading packages/igniter-companion and
-packages/igniter-store.
+Status: alignment note plus tiny sidecar proof.
 [D] App-local Companion owns vocabulary pressure; igniter-companion owns typed
 developer surface; igniter-store owns fact substrate.
-[D] Current bridge should be manifest-generated Record/History bindings over
-Igniter::Companion::Store, first as a tiny sidecar proof.
+[D] Current bridge proves hand-written Record/History bindings over
+Igniter::Companion::Store as a tiny sidecar proof.
 [R] Preserve `persist -> Store[T]`, `history -> History[T]`, and command ->
 mutation_intent -> app boundary.
 [R] Do not migrate full Companion storage or promote API from this note alone.
-[S] Use this note to ask Store/Companion research targeted questions before R3
-materializer dry-run or any adapter slice.
-Next: decide whether the next implementation remains R3 materializer dry-run or
-a small sidecar convergence proof over Reminder/TrackerLog.
+[S] `/setup/store-convergence-sidecar.json` proves record/history fact-store
+round trip and exposes history partition key lowering as the next pressure.
+Next: request/research the `history key` lowering model and normalized store
+receipt shape before a broader adapter slice.
 ```
