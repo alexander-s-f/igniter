@@ -302,4 +302,130 @@ RSpec.describe Igniter::Store::IgniterStore do
       expect(scope_calls).to eq([:pending]) # scope consumer fires for scope
     end
   end
+
+  describe "materialized scope index" do
+    let(:store) { described_class.new }
+
+    before do
+      store.register_path(
+        Igniter::Store::AccessPath.new(
+          store: :tasks, lookup: :primary_key, scope: :pending,
+          filters: { status: :pending }, cache_ttl: nil, consumers: []
+        )
+      )
+      store.register_path(
+        Igniter::Store::AccessPath.new(
+          store: :tasks, lookup: :primary_key, scope: :done,
+          filters: { status: :done }, cache_ttl: nil, consumers: []
+        )
+      )
+    end
+
+    it "returns the same results as a full scan before and after index initialisation" do
+      store.write(store: :tasks, key: "t1", value: { status: :pending })
+      store.write(store: :tasks, key: "t2", value: { status: :done })
+      store.write(store: :tasks, key: "t3", value: { status: :pending })
+
+      # First query — full scan, builds index
+      first = store.query(store: :tasks, scope: :pending).map { |f| f.key }.sort
+      expect(first).to eq(%w[t1 t3])
+
+      # Subsequent query — served from index
+      second = store.query(store: :tasks, scope: :pending).map { |f| f.key }.sort
+      expect(second).to eq(%w[t1 t3])
+    end
+
+    it "maintains the index when a key enters a scope" do
+      store.query(store: :tasks, scope: :pending)  # warm index (empty)
+
+      store.write(store: :tasks, key: "t1", value: { status: :pending })
+      results = store.query(store: :tasks, scope: :pending)
+      expect(results.map { |f| f.key }).to eq(["t1"])
+    end
+
+    it "maintains the index when a key leaves a scope" do
+      store.write(store: :tasks, key: "t1", value: { status: :pending })
+      store.query(store: :tasks, scope: :pending)  # warm: index = {t1}
+
+      store.write(store: :tasks, key: "t1", value: { status: :done })
+      expect(store.query(store: :tasks, scope: :pending)).to be_empty
+      expect(store.query(store: :tasks, scope: :done).map { |f| f.key }).to eq(["t1"])
+    end
+
+    it "does not use the index for time-travel queries" do
+      store.write(store: :tasks, key: "t1", value: { status: :pending })
+      sleep 0.01
+      checkpoint = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.01
+      store.write(store: :tasks, key: "t1", value: { status: :done })
+
+      store.query(store: :tasks, scope: :pending)  # warm index (reflects current: empty)
+
+      # Time-travel should still see t1 as pending at checkpoint
+      past = store.query(store: :tasks, scope: :pending, as_of: checkpoint)
+      expect(past.map { |f| f.key }).to eq(["t1"])
+    end
+  end
+
+  describe "scope-aware invalidation" do
+    def path_for(scope, filters, consumers: [])
+      Igniter::Store::AccessPath.new(
+        store: :tasks, lookup: :primary_key, scope: scope,
+        filters: filters, cache_ttl: nil, consumers: consumers
+      )
+    end
+
+    it "does not notify scope consumers when write does not change scope membership" do
+      store      = described_class.new
+      fired      = []
+      store.register_path(path_for(:pending, { status: :pending },
+                                   consumers: [->(s, sc) { fired << sc }]))
+
+      store.write(store: :tasks, key: "t1", value: { status: :pending })
+      store.query(store: :tasks, scope: :pending)  # warm index
+      fired.clear
+
+      # Only title changes; status (the scope filter field) is unchanged
+      store.write(store: :tasks, key: "t1", value: { status: :pending, title: "Updated" })
+      expect(fired).to be_empty
+    end
+
+    it "notifies scope consumers when a key enters the scope" do
+      store = described_class.new
+      fired = []
+      store.register_path(path_for(:pending, { status: :pending },
+                                   consumers: [->(s, sc) { fired << sc }]))
+
+      store.query(store: :tasks, scope: :pending)  # warm empty index
+      fired.clear
+
+      store.write(store: :tasks, key: "t1", value: { status: :pending })
+      expect(fired).to eq([:pending])
+    end
+
+    it "notifies scope consumers when a key leaves the scope" do
+      store = described_class.new
+      fired = []
+      store.register_path(path_for(:pending, { status: :pending },
+                                   consumers: [->(s, sc) { fired << sc }]))
+
+      store.write(store: :tasks, key: "t1", value: { status: :pending })
+      store.query(store: :tasks, scope: :pending)  # warm index: {t1}
+      fired.clear
+
+      store.write(store: :tasks, key: "t1", value: { status: :done })
+      expect(fired).to eq([:pending])
+    end
+
+    it "does not notify scope consumers before the scope cache is warmed" do
+      store = described_class.new
+      fired = []
+      store.register_path(path_for(:pending, { status: :pending },
+                                   consumers: [->(s, sc) { fired << sc }]))
+
+      # No query yet — cache cold, consumers should not be spammed
+      store.write(store: :tasks, key: "t1", value: { status: :pending })
+      expect(fired).to be_empty
+    end
+  end
 end

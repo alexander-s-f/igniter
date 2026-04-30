@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "securerandom"
+require "set"
 
 module Igniter
   module Store
@@ -8,12 +9,15 @@ module Igniter
       attr_reader :schema_graph
 
       def initialize(backend: nil)
-        @backend = backend
-        # Native FactLog takes no backend arg — write_fact is called directly by IgniterStore.
-        # Pure-Ruby FactLog also accepts `backend:` for backward compat (ignored when nil).
-        @log = FactLog.new
-        @cache = ReadCache.new
+        @backend      = backend
+        @log          = FactLog.new
+        @cache        = ReadCache.new
         @schema_graph = SchemaGraph.new
+        # Materialized scope index: { [store, scope] => Set<key> }
+        # Populated lazily on first query; maintained on every write thereafter.
+        # Time-travel queries (as_of: non-nil) bypass the index.
+        @scope_index  = {}
+        @scope_mutex  = Mutex.new
       end
 
       def self.open(path)
@@ -47,7 +51,8 @@ module Igniter
         )
         @log.append(fact)
         @backend&.write_fact(fact)
-        @cache.invalidate(store: store, key: key)
+        scope_changes = update_scope_indices(store, key, value)
+        @cache.invalidate(store: store, key: key, scope_changes: scope_changes)
         fact
       end
 
@@ -88,7 +93,25 @@ module Igniter
         return cached if cached
 
         filters = path.filters || {}
-        facts = @log.query_scope(store: store, filters: filters, as_of: as_of)
+        facts = if as_of
+          # Time-travel: bypass scope index — the index reflects current state only.
+          @log.query_scope(store: store, filters: filters, as_of: as_of)
+        else
+          scope_key = [store, scope]
+          idx = @scope_mutex.synchronize { @scope_index[scope_key] }
+          if idx
+            # Index is warm: O(matched_keys) read instead of O(all_keys) scan.
+            idx.filter_map { |k| @log.latest_for(store: store, key: k) }
+          else
+            # First query for this scope: full scan + build index.
+            all_facts = @log.query_scope(store: store, filters: filters, as_of: nil)
+            @scope_mutex.synchronize do
+              @scope_index[scope_key] ||= Set.new(all_facts.map(&:key))
+            end
+            all_facts
+          end
+        end
+
         @cache.put_scope(store: store, scope: scope, facts: facts, as_of: as_of)
         facts
       end
@@ -120,6 +143,55 @@ module Igniter
 
       def replay(fact)
         @log.replay(fact)
+      end
+
+      private
+
+      # Updates the materialized scope index for all scopes registered on +store+.
+      # Returns a Hash of { scope_name => :changed | :unchanged | :unknown } so that
+      # ReadCache can suppress consumer notifications for scopes whose membership
+      # did not change.
+      #
+      # :unknown means the index was not yet initialised (no query has run for that
+      # scope). ReadCache treats :unknown conservatively — it still notifies.
+      def update_scope_indices(store, key, new_value)
+        changes = {}
+        # Multiple paths may share the same [store, scope] key (e.g. when on_scope
+        # adds a consumer path alongside the register path).  Process each scope
+        # exactly once — the shared Set must not be evaluated twice per write.
+        seen_scopes = Set.new
+        @schema_graph.paths_for(store).each do |path|
+          next unless path.scope
+          next unless seen_scopes.add?(path.scope)
+
+          scope_key = [store, path.scope]
+          filters   = path.filters || {}
+          now_in    = matches_filters?(new_value, filters)
+
+          @scope_mutex.synchronize do
+            idx = @scope_index[scope_key]
+            if idx.nil?
+              changes[path.scope] = :unknown
+            else
+              was_in = idx.include?(key)
+              if now_in && !was_in
+                idx.add(key)
+                changes[path.scope] = :changed
+              elsif !now_in && was_in
+                idx.delete(key)
+                changes[path.scope] = :changed
+              else
+                changes[path.scope] = :unchanged
+              end
+            end
+          end
+        end
+        changes
+      end
+
+      def matches_filters?(value, filters)
+        return false unless value.is_a?(Hash)
+        filters.all? { |k, v| value[k] == v }
       end
     end
   end

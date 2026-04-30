@@ -64,7 +64,12 @@ module Igniter
         end
       end
 
-      def invalidate(store:, key: nil)
+      # +scope_changes+ is a Hash of { scope_name => :changed | :unchanged | :unknown }
+      # produced by IgniterStore#update_scope_indices.  Scope consumers are only
+      # notified for scopes that are :changed or :unknown (conservative).  Scopes
+      # marked :unchanged are skipped — their membership did not change and firing
+      # their consumers would be a false-positive thundering herd.
+      def invalidate(store:, key: nil, scope_changes: {})
         point_targets, scope_notifications = synchronize do
           affected_scopes = []
           @entries.delete_if do |cache_key, _entry|
@@ -76,7 +81,13 @@ module Igniter
             end
           end
 
-          scope_notifs = affected_scopes.uniq.map do |scope|
+          # Scope-aware: suppress notifications for scopes whose membership is
+          # confirmed unchanged.  All other scopes (changed or unknown) still fire.
+          notify_scopes = affected_scopes.uniq.reject do |scope|
+            scope_changes[scope] == :unchanged
+          end
+
+          scope_notifs = notify_scopes.map do |scope|
             [scope, @scope_consumers[[store, scope]].dup]
           end
 

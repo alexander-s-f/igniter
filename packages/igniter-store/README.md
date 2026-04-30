@@ -113,16 +113,43 @@ intentionally compatible.
 
 ---
 
-## Open Pressure (Tier 2 next)
+### [2026-04-30] Materialized scope index + scope-aware invalidation
 
-| Pressure | Description |
-|----------|-------------|
-| `scope_materialized_index` | `query_scope` is O(keys) scan; needs a per-scope live Set index updated on write |
-| `scope_aware_invalidation` | any write notifies ALL scope consumers; scope index enables surgical notification |
-| `history_partition_index` | `History[T]` replay(partition:) does full log scan; needs secondary index by partition key |
-| `read_cache_lru_cap` | time-travel cache entries never evicted; needs LRU capacity limit |
-| `schema_version_hook` | `schema_version` field on Fact is inert; read path needs a coercion hook point |
-| `snapshot_checkpoint` | WAL replay is O(total facts); needs snapshot + replay-since-checkpoint for fast startup |
+**Change**: `IgniterStore` now maintains a per-scope materialized index in
+`@scope_index: { [store, scope] => Set<key> }`, initialized lazily on the
+first `query` call for each scope and maintained on every subsequent `write`.
+
+**Before**: `query_scope` scanned O(all keys in store) on every call.  Any write
+to a store invalidated ALL scope caches and notified ALL scope consumers —
+a thundering herd even when the write touched an unrelated scope.
+
+**After**:
+- `query` (non–time-travel): O(matched keys) — reads the Set, fetches latest fact
+  per key.  Full scan only on the very first call.
+- `write` evaluates scope predicates for the written key only, updating the Set
+  in O(registered scopes) per write.
+- `ReadCache.invalidate` now accepts `scope_changes: { scope => :changed | :unchanged | :unknown }`.
+  Consumers are skipped for `:unchanged` scopes — their membership did not change.
+  `:unknown` (index not yet warm) fires conservatively; `:changed` fires normally.
+
+**Time-travel** (`as_of:` non-nil) bypasses the scope index and still does a full
+log scan — the index reflects current state only.
+
+**Evidence**: 8 new specs covering index accuracy, lazy init, scope entry/exit,
+and suppressed false-positive notifications.
+
+---
+
+## Open Pressure (Tier 2 remaining / Tier 3)
+
+| Pressure | Status | Description |
+|----------|--------|-------------|
+| `scope_materialized_index` | ✅ done | per-scope Set index, O(1) query |
+| `scope_aware_invalidation` | ✅ done | suppress unchanged scope consumers |
+| `history_partition_index` | open | `History[T]` replay(partition:) is full log scan; needs secondary index by partition key |
+| `read_cache_lru_cap` | open | time-travel cache entries never evicted; needs LRU capacity limit |
+| `schema_version_hook` | open | `schema_version` field on Fact is inert; read path needs a coercion hook point |
+| `snapshot_checkpoint` | open | WAL replay is O(total facts); needs snapshot + replay-since-checkpoint for fast startup |
 
 ---
 
