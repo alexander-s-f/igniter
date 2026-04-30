@@ -170,6 +170,36 @@ contain the partition field) do NOT update the index. The caller is responsible 
 
 ---
 
+### [2026-04-30] Read cache LRU cap for time-travel entries
+
+**Change**: `ReadCache` now accepts `lru_cap:` (default: 1 000). All time-travel
+cache entries — point reads and scope reads with `as_of: non-nil` — are tracked
+in an ordered `@lru_order` hash and evicted LRU when the count exceeds the cap.
+
+**Before**: every unique `as_of` timestamp produced a permanent cache entry.
+A workload running time-travel queries across N timestamps (e.g. animation,
+audit replay) would accumulate O(N) entries that were never freed, growing
+unboundedly until the process restarted.
+
+**After**:
+- Time-travel entries are evicted LRU when `@lru_order.size > lru_cap`.
+- Accessed entries are promoted to MRU (delete + reinsert in the ordered hash)
+  so frequently re-read checkpoints are not the first to be evicted.
+- Current-state entries (`as_of: nil`) are **not** counted against the LRU cap
+  and are never evicted by this mechanism — they live until `invalidate` is
+  called by a normal write, which is the correct existing behaviour.
+- `invalidate` removes evicted keys from `@lru_order` so the tracker stays
+  consistent when writes race with time-travel reads.
+
+**Tuning**: pass `lru_cap:` to `IgniterStore.new` or `IgniterStore.open` to
+override the default. Example: `IgniterStore.new(lru_cap: 5_000)`.
+
+**Candidate pressure on igniter-companion**: `Companion::Store.new` could
+expose `lru_cap:` as a top-level option and forward it to the inner store.
+Not done here — defer under app pressure.
+
+---
+
 ## Open Pressure (Tier 2 remaining / Tier 3)
 
 | Pressure | Status | Description |
@@ -177,7 +207,7 @@ contain the partition field) do NOT update the index. The caller is responsible 
 | `scope_materialized_index` | ✅ done | per-scope Set index, O(1) query |
 | `scope_aware_invalidation` | ✅ done | suppress unchanged scope consumers |
 | `history_partition_index` | ✅ done | `History[T]` partition index, O(partition slice) query |
-| `read_cache_lru_cap` | open | time-travel cache entries never evicted; needs LRU capacity limit |
+| `read_cache_lru_cap` | ✅ done | LRU cap on time-travel cache entries; default 1 000, configurable |
 | `schema_version_hook` | open | `schema_version` field on Fact is inert; read path needs a coercion hook point |
 | `snapshot_checkpoint` | open | WAL replay is O(total facts); needs snapshot + replay-since-checkpoint for fast startup |
 

@@ -8,10 +8,10 @@ module Igniter
     class IgniterStore
       attr_reader :schema_graph
 
-      def initialize(backend: nil)
+      def initialize(backend: nil, lru_cap: ReadCache::DEFAULT_LRU_CAP)
         @backend      = backend
         @log          = FactLog.new
-        @cache        = ReadCache.new
+        @cache        = ReadCache.new(lru_cap: lru_cap)
         @schema_graph = SchemaGraph.new
         # Materialized scope index: { [store, scope] => Set<key> }
         # Populated lazily on first query; maintained on every write thereafter.
@@ -25,9 +25,9 @@ module Igniter
         @partition_mutex = Mutex.new
       end
 
-      def self.open(path)
+      def self.open(path, lru_cap: ReadCache::DEFAULT_LRU_CAP)
         backend = FileBackend.new(path)
-        store = new(backend: backend)
+        store = new(backend: backend, lru_cap: lru_cap)
         backend.replay.each { |fact| store.__send__(:replay, fact) }
         store
       end

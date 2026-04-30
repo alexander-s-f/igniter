@@ -7,11 +7,18 @@ module Igniter
     class ReadCache
       include MonitorMixin
 
-      def initialize
+      DEFAULT_LRU_CAP = 1_000
+
+      def initialize(lru_cap: DEFAULT_LRU_CAP)
         super()
-        @entries = {}
-        @consumers = Hash.new { |hash, key| hash[key] = [] }
+        @entries         = {}
+        @consumers       = Hash.new { |hash, key| hash[key] = [] }
         @scope_consumers = Hash.new { |hash, key| hash[key] = [] }
+        @lru_cap         = lru_cap
+        # Tracks insertion/access order for time-travel cache entries only.
+        # Current-state entries (as_of: nil) live until explicit invalidation.
+        # Ruby Hash preserves insertion order; delete+reinsert = move to MRU.
+        @lru_order = {}
       end
 
       def register_consumer(store, callable)
@@ -23,7 +30,15 @@ module Igniter
       end
 
       def get(store:, key:, as_of: nil, ttl: nil)
-        entry = synchronize { @entries[[store, key, as_of]] }
+        cache_key = [store, key, as_of]
+        entry = synchronize do
+          e = @entries[cache_key]
+          if e && as_of
+            @lru_order.delete(cache_key)
+            @lru_order[cache_key] = true
+          end
+          e
+        end
         return nil unless entry
 
         if ttl
@@ -35,16 +50,29 @@ module Igniter
       end
 
       def put(store:, key:, fact:, as_of: nil)
+        cache_key = [store, key, as_of]
         synchronize do
-          @entries[[store, key, as_of]] = {
-            fact: fact,
+          @entries[cache_key] = {
+            fact:      fact,
             cached_at: Process.clock_gettime(Process::CLOCK_REALTIME)
           }
+          if as_of
+            @lru_order[cache_key] = true
+            evict_lru_if_needed
+          end
         end
       end
 
       def get_scope(store:, scope:, as_of: nil, ttl: nil)
-        entry = synchronize { @entries[[:scope, store, scope, as_of]] }
+        cache_key = [:scope, store, scope, as_of]
+        entry = synchronize do
+          e = @entries[cache_key]
+          if e && as_of
+            @lru_order.delete(cache_key)
+            @lru_order[cache_key] = true
+          end
+          e
+        end
         return nil unless entry
 
         if ttl
@@ -56,11 +84,16 @@ module Igniter
       end
 
       def put_scope(store:, scope:, facts:, as_of: nil)
+        cache_key = [:scope, store, scope, as_of]
         synchronize do
-          @entries[[:scope, store, scope, as_of]] = {
-            facts: facts,
+          @entries[cache_key] = {
+            facts:     facts,
             cached_at: Process.clock_gettime(Process::CLOCK_REALTIME)
           }
+          if as_of
+            @lru_order[cache_key] = true
+            evict_lru_if_needed
+          end
         end
       end
 
@@ -73,16 +106,16 @@ module Igniter
         point_targets, scope_notifications = synchronize do
           affected_scopes = []
           @entries.delete_if do |cache_key, _entry|
-            if cache_key[0] == :scope && cache_key[1] == store
+            should_delete = if cache_key[0] == :scope && cache_key[1] == store
               affected_scopes << cache_key[2]
               true
             else
               cache_key[0] == store && (key.nil? || cache_key[1] == key)
             end
+            @lru_order.delete(cache_key) if should_delete
+            should_delete
           end
 
-          # Scope-aware: suppress notifications for scopes whose membership is
-          # confirmed unchanged.  All other scopes (changed or unknown) still fire.
           notify_scopes = affected_scopes.uniq.reject do |scope|
             scope_changes[scope] == :unchanged
           end
@@ -100,7 +133,19 @@ module Igniter
         end
       end
 
+      def lru_size
+        synchronize { @lru_order.size }
+      end
+
       private
+
+      def evict_lru_if_needed
+        while @lru_order.size > @lru_cap
+          oldest_key, = @lru_order.first
+          @lru_order.delete(oldest_key)
+          @entries.delete(oldest_key)
+        end
+      end
 
       def notify(target, store, key)
         target.call(store, key)
