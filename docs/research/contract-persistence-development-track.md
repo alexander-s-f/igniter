@@ -42,6 +42,9 @@ Already proved in Companion:
 - operation descriptors with `boundary: :app`
 - relation descriptors with report-only enforcement
 - materializer lifecycle as review-only packets
+- performance signal: `/setup` slowdown comes from repeated packet
+  recomputation and oversized aggregate rendering, not from individual
+  persistence packet cost
 
 Accepted research evidence:
 

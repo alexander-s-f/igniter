@@ -43,6 +43,7 @@ relation_type_plan -> report-only join field type compatibility
 relation_type_health -> drift check for non-enforcing relation type plan
 access_path_plan -> report-only store_read descriptor sketch
 access_path_health -> drift check for non-executing access path plan
+performance_signal -> setup packet recomputation needs memoization/snapshot
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
 materializer_status.descriptor -> review-only lifecycle + no capability grants
@@ -112,6 +113,11 @@ that may later materialize contracts.
 
 That fractal shape looks healthy, but it must stay app-local until the API
 surface is smaller and the lowerings to `Store[T]` / `History[T]` are clearer.
+
+Performance signal: individual persistence packets are fast, but aggregate
+`/setup` is slow because it recomputes nested setup/handoff/materializer packets
+many times and renders a large inspected hash. See
+[Companion Contract Performance Signal](./companion-contract-performance-signal.md).
 
 ## Landing Zone
 

@@ -20,6 +20,9 @@ research material under `playgrounds/docs/`.
   current app-local persistence proof and handoff.
 - [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md) -
   compact guide for reading `/setup/manifest` and materializer status packets.
+- [Companion Contract Performance Signal](./companion-contract-performance-signal.md) -
+  POC performance finding for setup packet recomputation and optimization
+  ladder.
 - [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md) -
   placement decision for app-local proof, staged extraction, and future package
   naming.
@@ -61,16 +64,17 @@ Before changing architecture or reviewing an agent proposal, read:
 7. [Companion Current Status Summary](./companion-current-status-summary.md)
 8. [Companion Persistence App Status](./companion-persistence-app-status.md)
 9. [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md)
-10. [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md)
-11. [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
-12. [Contract Persistence Development Track](./contract-persistence-development-track.md)
-13. [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
-14. [Contract-Native Store Research](./contract-native-store-research.md)
-15. [Contract-Native Store POC](./contract-native-store-poc.md)
-16. [Contract-Native Store Sync Hub](./contract-native-store-sync-hub.md)
-17. [Contract Persistence Relations](./contract-persistence-relations.md)
-18. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
-19. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
+10. [Companion Contract Performance Signal](./companion-contract-performance-signal.md)
+11. [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md)
+12. [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
+13. [Contract Persistence Development Track](./contract-persistence-development-track.md)
+14. [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
+15. [Contract-Native Store Research](./contract-native-store-research.md)
+16. [Contract-Native Store POC](./contract-native-store-poc.md)
+17. [Contract-Native Store Sync Hub](./contract-native-store-sync-hub.md)
+18. [Contract Persistence Relations](./contract-persistence-relations.md)
+19. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
+20. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
 
 ## Current Research State
 
