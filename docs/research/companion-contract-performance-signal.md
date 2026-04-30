@@ -11,6 +11,8 @@ and oversized aggregate `/setup` rendering.
 
 ## Measurement
 
+Initial measurement before app-local memoization:
+
 Measured against the live Companion server on `127.0.0.1:9298`:
 
 ```text
@@ -39,6 +41,34 @@ setup_handoff_packet_registry  ~1.2s
 setup_handoff_digest           ~4.8s
 ```
 
+After app-local packet memoization plus invalidation on generated record/history
+mutations:
+
+```text
+/setup                         ~12ms first read, ~1ms warm read
+/setup/manifest                ~1ms
+/setup/storage-plan.json       <1ms
+/setup/field-type-plan.json    <1ms
+/setup/relation-type-plan.json <1ms
+/setup/access-path-plan.json   <1ms
+/setup/health.json             <1ms warm read
+/                             ~1ms warm read
+```
+
+```text
+persistence_manifest           <1ms
+storage_plan_sketch            <1ms
+field_type_plan                <1ms
+relation_type_plan             <1ms
+access_path_plan               <1ms
+setup_health                   ~3-4ms
+setup_handoff                  <1ms
+setup_handoff_digest           ~1ms
+setup_handoff_packet_registry  <1ms
+setup_handoff_supervision      <1ms
+repeat packet reads            ~0ms
+```
+
 ## Diagnosis
 
 The POC currently computes setup packets by calling service methods directly.
@@ -65,7 +95,7 @@ The problem shape:
 
 ## Optimization Ladder
 
-1. Request-local packet memoization.
+1. Request-local packet memoization. **App-local proof implemented.**
    Compute each setup/materializer/persistence packet once per request or per
    service read cycle.
 
@@ -106,8 +136,8 @@ memoized at the Companion app boundary.
 
 Recommended reversible slice:
 
-- add app-local setup packet timing or memoization around `CompanionPersistence`
-  read packets
-- verify `/setup` drops from seconds to low hundreds of milliseconds or less
+- keep the current app-local packet memoization
+- add a compact `/setup/performance.json` only if the signal returns
+- consider packet snapshot boundary if aggregate packet shape grows again
 - keep individual packet endpoints unchanged
 - keep all persistence/materializer packets report-only

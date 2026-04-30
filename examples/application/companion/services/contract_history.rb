@@ -3,16 +3,18 @@
 module Companion
   module Services
     class ContractHistory
-      def initialize(contract_class:, entries:, append:)
+      def initialize(contract_class:, entries:, append:, on_change: nil)
         @contract_class = contract_class
         @entries = entries
         @appender = append
+        @on_change = on_change
         @manifest = contract_class.persistence_manifest
       end
 
       def append(attributes)
         payload = event_payload(attributes)
         append_entry(payload)
+        changed!
         payload.freeze
       end
 
@@ -45,7 +47,11 @@ module Companion
 
       private
 
-      attr_reader :contract_class, :entries, :appender, :manifest
+      attr_reader :contract_class, :entries, :appender, :on_change, :manifest
+
+      def changed!
+        on_change&.call
+      end
 
       def key
         history.fetch(:key)

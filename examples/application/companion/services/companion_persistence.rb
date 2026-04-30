@@ -159,6 +159,11 @@ module Companion
 
       def initialize(state:)
         @state = state
+        @packet_cache = {}
+      end
+
+      def clear_packet_cache!
+        @packet_cache.clear
       end
 
       def capability_names
@@ -180,110 +185,140 @@ module Companion
       end
 
       def relation_warnings
-        RELATION_BINDINGS.to_h do |name, relation|
-          [name, relation_health_warnings(relation)]
+        packet_cache_fetch(:relation_warnings) do
+          RELATION_BINDINGS.to_h do |name, relation|
+            [name, relation_health_warnings(relation)]
+          end
         end
       end
 
       def relation_health
-        Contracts::PersistenceRelationHealthContract.evaluate(
-          relation_manifest: relation_manifest,
-          relation_warnings: relation_warnings
-        )
+        packet_cache_fetch(:relation_health) do
+          Contracts::PersistenceRelationHealthContract.evaluate(
+            relation_manifest: relation_manifest,
+            relation_warnings: relation_warnings
+          )
+        end
       end
 
       def materialization_plan
-        Contracts::DurableTypeMaterializationContract.evaluate(type_spec: article_comment_type_spec)
+        packet_cache_fetch(:materialization_plan) do
+          Contracts::DurableTypeMaterializationContract.evaluate(type_spec: article_comment_type_spec)
+        end
       end
 
       def materialization_parity
-        Contracts::StaticMaterializationParityContract.evaluate(
-          materialization_plan: materialization_plan,
-          manifest_snapshot: manifest_snapshot
-        )
+        packet_cache_fetch(:materialization_parity) do
+          Contracts::StaticMaterializationParityContract.evaluate(
+            materialization_plan: materialization_plan,
+            manifest_snapshot: manifest_snapshot
+          )
+        end
       end
 
       def wizard_type_spec_export
-        Contracts::WizardTypeSpecExportContract.evaluate(
-          specs: wizard_type_specs.all.map(&:to_h),
-          spec_history: wizard_type_spec_changes.all
-        )
+        packet_cache_fetch(:wizard_type_spec_export) do
+          Contracts::WizardTypeSpecExportContract.evaluate(
+            specs: wizard_type_specs.all.map(&:to_h),
+            spec_history: wizard_type_spec_changes.all
+          )
+        end
       end
 
       def wizard_type_spec_migration_plan
-        Contracts::WizardTypeSpecMigrationPlanContract.evaluate(
-          spec_history: wizard_type_spec_changes.all
-        )
+        packet_cache_fetch(:wizard_type_spec_migration_plan) do
+          Contracts::WizardTypeSpecMigrationPlanContract.evaluate(
+            spec_history: wizard_type_spec_changes.all
+          )
+        end
       end
 
       def infrastructure_loop_health
-        Contracts::InfrastructureLoopHealthContract.evaluate(
-          readiness: readiness,
-          manifest_summary: manifest_snapshot.fetch(:summary),
-          materialization_plan: materialization_plan,
-          materialization_parity: materialization_parity,
-          migration_plan: wizard_type_spec_migration_plan
-        )
+        packet_cache_fetch(:infrastructure_loop_health) do
+          Contracts::InfrastructureLoopHealthContract.evaluate(
+            readiness: readiness,
+            manifest_summary: manifest_snapshot.fetch(:summary),
+            materialization_plan: materialization_plan,
+            materialization_parity: materialization_parity,
+            migration_plan: wizard_type_spec_migration_plan
+          )
+        end
       end
 
       def materializer_gate(approved: false)
-        Contracts::MaterializerGateContract.evaluate(
-          infrastructure_loop_health: infrastructure_loop_health,
-          materialization_plan: materialization_plan,
-          approved: approved
-        )
+        packet_cache_fetch(:materializer_gate, approved) do
+          Contracts::MaterializerGateContract.evaluate(
+            infrastructure_loop_health: infrastructure_loop_health,
+            materialization_plan: materialization_plan,
+            approved: approved
+          )
+        end
       end
 
       def materializer_preflight
-        Contracts::MaterializerPreflightContract.evaluate(
-          infrastructure_loop_health: infrastructure_loop_health,
-          materialization_parity: materialization_parity,
-          migration_plan: wizard_type_spec_migration_plan,
-          materializer_gate: materializer_gate
-        )
+        packet_cache_fetch(:materializer_preflight) do
+          Contracts::MaterializerPreflightContract.evaluate(
+            infrastructure_loop_health: infrastructure_loop_health,
+            materialization_parity: materialization_parity,
+            migration_plan: wizard_type_spec_migration_plan,
+            materializer_gate: materializer_gate
+          )
+        end
       end
 
       def materializer_runbook
-        Contracts::MaterializerRunbookContract.evaluate(
-          materializer_preflight: materializer_preflight
-        )
+        packet_cache_fetch(:materializer_runbook) do
+          Contracts::MaterializerRunbookContract.evaluate(
+            materializer_preflight: materializer_preflight
+          )
+        end
       end
 
       def materializer_receipt
-        Contracts::MaterializerReceiptContract.evaluate(
-          materializer_runbook: materializer_runbook
-        )
+        packet_cache_fetch(:materializer_receipt) do
+          Contracts::MaterializerReceiptContract.evaluate(
+            materializer_runbook: materializer_runbook
+          )
+        end
       end
 
       def materializer_attempt_command
-        Contracts::MaterializerAttemptContract.evaluate(
-          receipt: materializer_receipt
-        )
+        packet_cache_fetch(:materializer_attempt_command) do
+          Contracts::MaterializerAttemptContract.evaluate(
+            receipt: materializer_receipt
+          )
+        end
       end
 
       def materializer_audit_trail
-        Contracts::MaterializerAuditTrailContract.evaluate(
-          attempts: materializer_attempts.all
-        )
+        packet_cache_fetch(:materializer_audit_trail) do
+          Contracts::MaterializerAuditTrailContract.evaluate(
+            attempts: materializer_attempts.all
+          )
+        end
       end
 
       def materializer_approval_audit_trail
-        Contracts::MaterializerApprovalAuditTrailContract.evaluate(
-          approvals: materializer_approvals.all
-        )
+        packet_cache_fetch(:materializer_approval_audit_trail) do
+          Contracts::MaterializerApprovalAuditTrailContract.evaluate(
+            approvals: materializer_approvals.all
+          )
+        end
       end
 
       def materializer_supervision
-        Contracts::MaterializerSupervisionContract.evaluate(
-          materializer_gate: materializer_gate,
-          materializer_preflight: materializer_preflight,
-          materializer_runbook: materializer_runbook,
-          materializer_receipt: materializer_receipt,
-          materializer_attempt_command: materializer_attempt_command,
-          materializer_audit_trail: materializer_audit_trail,
-          materializer_approval_command: materializer_approval_command,
-          materializer_approval_audit_trail: materializer_approval_audit_trail
-        )
+        packet_cache_fetch(:materializer_supervision) do
+          Contracts::MaterializerSupervisionContract.evaluate(
+            materializer_gate: materializer_gate,
+            materializer_preflight: materializer_preflight,
+            materializer_runbook: materializer_runbook,
+            materializer_receipt: materializer_receipt,
+            materializer_attempt_command: materializer_attempt_command,
+            materializer_audit_trail: materializer_audit_trail,
+            materializer_approval_command: materializer_approval_command,
+            materializer_approval_audit_trail: materializer_approval_audit_trail
+          )
+        end
       end
 
       def materializer_status
@@ -291,225 +326,285 @@ module Companion
       end
 
       def materializer_status_descriptor_health
-        Contracts::MaterializerStatusDescriptorHealthContract.evaluate(
-          materializer_status: materializer_status
-        )
+        packet_cache_fetch(:materializer_status_descriptor_health) do
+          Contracts::MaterializerStatusDescriptorHealthContract.evaluate(
+            materializer_status: materializer_status
+          )
+        end
       end
 
       def materializer_approval_policy(approved_by: nil, approved_capabilities: [])
-        Contracts::MaterializerApprovalPolicyContract.evaluate(
-          approval_request: materializer_gate.fetch(:approval_request),
-          approved_by: approved_by,
-          approved_capabilities: approved_capabilities
-        )
+        packet_cache_fetch(:materializer_approval_policy, approved_by, approved_capabilities) do
+          Contracts::MaterializerApprovalPolicyContract.evaluate(
+            approval_request: materializer_gate.fetch(:approval_request),
+            approved_by: approved_by,
+            approved_capabilities: approved_capabilities
+          )
+        end
       end
 
       def materializer_approval_receipt
-        Contracts::MaterializerApprovalReceiptContract.evaluate(
-          approval_policy: materializer_approval_policy
-        )
+        packet_cache_fetch(:materializer_approval_receipt) do
+          Contracts::MaterializerApprovalReceiptContract.evaluate(
+            approval_policy: materializer_approval_policy
+          )
+        end
       end
 
       def materializer_approval_command
-        Contracts::MaterializerApprovalContract.evaluate(
-          receipt: materializer_approval_receipt
-        )
+        packet_cache_fetch(:materializer_approval_command) do
+          Contracts::MaterializerApprovalContract.evaluate(
+            receipt: materializer_approval_receipt
+          )
+        end
       end
 
       def readiness
-        Contracts::PersistenceReadinessContract.evaluate(
-          capability_manifest: capability_manifest,
-          relation_manifest: relation_manifest,
-          relation_health: relation_health,
-          validation_errors: validation_errors
-        )
+        packet_cache_fetch(:readiness) do
+          Contracts::PersistenceReadinessContract.evaluate(
+            capability_manifest: capability_manifest,
+            relation_manifest: relation_manifest,
+            relation_health: relation_health,
+            validation_errors: validation_errors
+          )
+        end
       end
 
       def manifest_snapshot
-        Contracts::PersistenceManifestContract.evaluate(
-          capability_manifest: capability_manifest,
-          operation_manifest: operation_manifest
-        )
+        packet_cache_fetch(:manifest_snapshot) do
+          Contracts::PersistenceManifestContract.evaluate(
+            capability_manifest: capability_manifest,
+            operation_manifest: operation_manifest
+          )
+        end
       end
 
       def manifest_glossary_health
-        Contracts::PersistenceManifestGlossaryContract.evaluate(
-          manifest: manifest_snapshot
-        )
+        packet_cache_fetch(:manifest_glossary_health) do
+          Contracts::PersistenceManifestGlossaryContract.evaluate(
+            manifest: manifest_snapshot
+          )
+        end
       end
 
       def storage_plan_sketch
-        Contracts::PersistenceStoragePlanSketchContract.evaluate(
-          manifest: manifest_snapshot
-        )
+        packet_cache_fetch(:storage_plan_sketch) do
+          Contracts::PersistenceStoragePlanSketchContract.evaluate(
+            manifest: manifest_snapshot
+          )
+        end
       end
 
       def storage_plan_health
-        Contracts::PersistenceStoragePlanHealthContract.evaluate(
-          storage_plan: storage_plan_sketch
-        )
+        packet_cache_fetch(:storage_plan_health) do
+          Contracts::PersistenceStoragePlanHealthContract.evaluate(
+            storage_plan: storage_plan_sketch
+          )
+        end
       end
 
       def storage_migration_plan
-        Contracts::PersistenceStorageMigrationPlanContract.evaluate(
-          storage_plan: storage_plan_sketch,
-          previous_storage_plan: nil
-        )
+        packet_cache_fetch(:storage_migration_plan) do
+          Contracts::PersistenceStorageMigrationPlanContract.evaluate(
+            storage_plan: storage_plan_sketch,
+            previous_storage_plan: nil
+          )
+        end
       end
 
       def storage_migration_plan_health
-        Contracts::PersistenceStorageMigrationPlanHealthContract.evaluate(
-          storage_migration_plan: storage_migration_plan
-        )
+        packet_cache_fetch(:storage_migration_plan_health) do
+          Contracts::PersistenceStorageMigrationPlanHealthContract.evaluate(
+            storage_migration_plan: storage_migration_plan
+          )
+        end
       end
 
       def field_type_plan
-        Contracts::PersistenceFieldTypePlanContract.evaluate(
-          manifest: manifest_snapshot,
-          samples: field_type_samples
-        )
+        packet_cache_fetch(:field_type_plan) do
+          Contracts::PersistenceFieldTypePlanContract.evaluate(
+            manifest: manifest_snapshot,
+            samples: field_type_samples
+          )
+        end
       end
 
       def field_type_health
-        Contracts::PersistenceFieldTypeHealthContract.evaluate(
-          field_type_plan: field_type_plan
-        )
+        packet_cache_fetch(:field_type_health) do
+          Contracts::PersistenceFieldTypeHealthContract.evaluate(
+            field_type_plan: field_type_plan
+          )
+        end
       end
 
       def relation_type_plan
-        Contracts::PersistenceRelationTypePlanContract.evaluate(
-          relation_manifest: relation_manifest,
-          field_type_plan: field_type_plan
-        )
+        packet_cache_fetch(:relation_type_plan) do
+          Contracts::PersistenceRelationTypePlanContract.evaluate(
+            relation_manifest: relation_manifest,
+            field_type_plan: field_type_plan
+          )
+        end
       end
 
       def relation_type_health
-        Contracts::PersistenceRelationTypeHealthContract.evaluate(
-          relation_type_plan: relation_type_plan
-        )
+        packet_cache_fetch(:relation_type_health) do
+          Contracts::PersistenceRelationTypeHealthContract.evaluate(
+            relation_type_plan: relation_type_plan
+          )
+        end
       end
 
       def access_path_plan
-        Contracts::PersistenceAccessPathPlanContract.evaluate(
-          manifest: manifest_snapshot,
-          storage_plan: storage_plan_sketch,
-          relation_type_plan: relation_type_plan
-        )
+        packet_cache_fetch(:access_path_plan) do
+          Contracts::PersistenceAccessPathPlanContract.evaluate(
+            manifest: manifest_snapshot,
+            storage_plan: storage_plan_sketch,
+            relation_type_plan: relation_type_plan
+          )
+        end
       end
 
       def access_path_health
-        Contracts::PersistenceAccessPathHealthContract.evaluate(
-          access_path_plan: access_path_plan
-        )
+        packet_cache_fetch(:access_path_health) do
+          Contracts::PersistenceAccessPathHealthContract.evaluate(
+            access_path_plan: access_path_plan
+          )
+        end
       end
 
       def setup_health
-        Contracts::SetupHealthContract.evaluate(
-          readiness: readiness,
-          relation_health: relation_health,
-          manifest_glossary_health: manifest_glossary_health,
-          materializer_status_descriptor_health: materializer_status_descriptor_health,
-          infrastructure_loop_health: infrastructure_loop_health
-        )
+        packet_cache_fetch(:setup_health) do
+          Contracts::SetupHealthContract.evaluate(
+            readiness: readiness,
+            relation_health: relation_health,
+            manifest_glossary_health: manifest_glossary_health,
+            materializer_status_descriptor_health: materializer_status_descriptor_health,
+            infrastructure_loop_health: infrastructure_loop_health
+          )
+        end
       end
 
       def setup_handoff
-        Contracts::SetupHandoffContract.evaluate(
-          setup_health: setup_health,
-          manifest_summary: manifest_snapshot.fetch(:summary),
-          materializer_status: materializer_status
-        )
+        packet_cache_fetch(:setup_handoff) do
+          Contracts::SetupHandoffContract.evaluate(
+            setup_health: setup_health,
+            manifest_summary: manifest_snapshot.fetch(:summary),
+            materializer_status: materializer_status
+          )
+        end
       end
 
       def setup_handoff_acceptance
-        Contracts::SetupHandoffAcceptanceContract.evaluate(
-          setup_handoff: setup_handoff,
-          materializer_status: materializer_status,
-          materializer_attempts: materializer_attempts.all
-        )
+        packet_cache_fetch(:setup_handoff_acceptance) do
+          Contracts::SetupHandoffAcceptanceContract.evaluate(
+            setup_handoff: setup_handoff,
+            materializer_status: materializer_status,
+            materializer_attempts: materializer_attempts.all
+          )
+        end
       end
 
       def setup_handoff_approval_acceptance
-        Contracts::SetupHandoffApprovalAcceptanceContract.evaluate(
-          materializer_status: materializer_status,
-          materializer_attempts: materializer_attempts.all,
-          materializer_approvals: materializer_approvals.all
-        )
+        packet_cache_fetch(:setup_handoff_approval_acceptance) do
+          Contracts::SetupHandoffApprovalAcceptanceContract.evaluate(
+            materializer_status: materializer_status,
+            materializer_attempts: materializer_attempts.all,
+            materializer_approvals: materializer_approvals.all
+          )
+        end
       end
 
       def setup_handoff_lifecycle
-        Contracts::SetupHandoffLifecycleContract.evaluate(
-          setup_handoff: setup_handoff,
-          setup_handoff_acceptance: setup_handoff_acceptance,
-          setup_handoff_approval_acceptance: setup_handoff_approval_acceptance,
-          materializer_status: materializer_status
-        )
+        packet_cache_fetch(:setup_handoff_lifecycle) do
+          Contracts::SetupHandoffLifecycleContract.evaluate(
+            setup_handoff: setup_handoff,
+            setup_handoff_acceptance: setup_handoff_acceptance,
+            setup_handoff_approval_acceptance: setup_handoff_approval_acceptance,
+            materializer_status: materializer_status
+          )
+        end
       end
 
       def setup_handoff_lifecycle_health
-        Contracts::SetupHandoffLifecycleHealthContract.evaluate(
-          setup_handoff_lifecycle: setup_handoff_lifecycle
-        )
+        packet_cache_fetch(:setup_handoff_lifecycle_health) do
+          Contracts::SetupHandoffLifecycleHealthContract.evaluate(
+            setup_handoff_lifecycle: setup_handoff_lifecycle
+          )
+        end
       end
 
       def setup_handoff_next_scope
-        Contracts::SetupHandoffNextScopeContract.evaluate(
-          setup_handoff: setup_handoff,
-          setup_handoff_lifecycle: setup_handoff_lifecycle
-        )
+        packet_cache_fetch(:setup_handoff_next_scope) do
+          Contracts::SetupHandoffNextScopeContract.evaluate(
+            setup_handoff: setup_handoff,
+            setup_handoff_lifecycle: setup_handoff_lifecycle
+          )
+        end
       end
 
       def setup_handoff_next_scope_health
-        Contracts::SetupHandoffNextScopeHealthContract.evaluate(
-          setup_handoff_next_scope: setup_handoff_next_scope
-        )
+        packet_cache_fetch(:setup_handoff_next_scope_health) do
+          Contracts::SetupHandoffNextScopeHealthContract.evaluate(
+            setup_handoff_next_scope: setup_handoff_next_scope
+          )
+        end
       end
 
       def setup_handoff_supervision
-        Contracts::SetupHandoffSupervisionContract.evaluate(
-          setup_health: setup_health,
-          setup_handoff: setup_handoff,
-          setup_handoff_lifecycle: setup_handoff_lifecycle,
-          setup_handoff_lifecycle_health: setup_handoff_lifecycle_health,
-          materializer_status: materializer_status
-        )
+        packet_cache_fetch(:setup_handoff_supervision) do
+          Contracts::SetupHandoffSupervisionContract.evaluate(
+            setup_health: setup_health,
+            setup_handoff: setup_handoff,
+            setup_handoff_lifecycle: setup_handoff_lifecycle,
+            setup_handoff_lifecycle_health: setup_handoff_lifecycle_health,
+            materializer_status: materializer_status
+          )
+        end
       end
 
       def setup_handoff_packet_registry
-        Contracts::SetupHandoffPacketRegistryContract.evaluate(
-          setup_health: setup_health,
-          setup_handoff: setup_handoff,
-          setup_handoff_supervision: setup_handoff_supervision,
-          setup_handoff_lifecycle: setup_handoff_lifecycle,
-          setup_handoff_lifecycle_health: setup_handoff_lifecycle_health,
-          setup_handoff_acceptance: setup_handoff_acceptance,
-          setup_handoff_approval_acceptance: setup_handoff_approval_acceptance,
-          setup_handoff_next_scope: setup_handoff_next_scope,
-          setup_handoff_next_scope_health: setup_handoff_next_scope_health,
-          materializer_status: materializer_status
-        )
+        packet_cache_fetch(:setup_handoff_packet_registry) do
+          Contracts::SetupHandoffPacketRegistryContract.evaluate(
+            setup_health: setup_health,
+            setup_handoff: setup_handoff,
+            setup_handoff_supervision: setup_handoff_supervision,
+            setup_handoff_lifecycle: setup_handoff_lifecycle,
+            setup_handoff_lifecycle_health: setup_handoff_lifecycle_health,
+            setup_handoff_acceptance: setup_handoff_acceptance,
+            setup_handoff_approval_acceptance: setup_handoff_approval_acceptance,
+            setup_handoff_next_scope: setup_handoff_next_scope,
+            setup_handoff_next_scope_health: setup_handoff_next_scope_health,
+            materializer_status: materializer_status
+          )
+        end
       end
 
       def setup_handoff_extraction_sketch
-        Contracts::SetupHandoffExtractionSketchContract.evaluate(
-          setup_handoff_packet_registry: setup_handoff_packet_registry,
-          setup_handoff_supervision: setup_handoff_supervision
-        )
+        packet_cache_fetch(:setup_handoff_extraction_sketch) do
+          Contracts::SetupHandoffExtractionSketchContract.evaluate(
+            setup_handoff_packet_registry: setup_handoff_packet_registry,
+            setup_handoff_supervision: setup_handoff_supervision
+          )
+        end
       end
 
       def setup_handoff_promotion_readiness
-        Contracts::SetupHandoffPromotionReadinessContract.evaluate(
-          setup_handoff_extraction_sketch: setup_handoff_extraction_sketch,
-          setup_handoff_packet_registry: setup_handoff_packet_registry
-        )
+        packet_cache_fetch(:setup_handoff_promotion_readiness) do
+          Contracts::SetupHandoffPromotionReadinessContract.evaluate(
+            setup_handoff_extraction_sketch: setup_handoff_extraction_sketch,
+            setup_handoff_packet_registry: setup_handoff_packet_registry
+          )
+        end
       end
 
       def setup_handoff_digest
-        Contracts::SetupHandoffDigestContract.evaluate(
-          setup_handoff_supervision: setup_handoff_supervision,
-          setup_handoff_extraction_sketch: setup_handoff_extraction_sketch,
-          setup_handoff_promotion_readiness: setup_handoff_promotion_readiness
-        )
+        packet_cache_fetch(:setup_handoff_digest) do
+          Contracts::SetupHandoffDigestContract.evaluate(
+            setup_handoff_supervision: setup_handoff_supervision,
+            setup_handoff_extraction_sketch: setup_handoff_extraction_sketch,
+            setup_handoff_promotion_readiness: setup_handoff_promotion_readiness
+          )
+        end
       end
 
       def reminders
@@ -590,12 +685,20 @@ module Companion
 
       attr_reader :state
 
+      def packet_cache_fetch(name, *parts)
+        key = [name, *parts]
+        return @packet_cache.fetch(key) if @packet_cache.key?(key)
+
+        @packet_cache[key] = yield
+      end
+
       def record(name)
         binding = RECORD_BINDINGS.fetch(name)
         ContractRecordSet.new(
           contract_class: binding.fetch(:contract_class),
           collection: state.public_send(binding.fetch(:collection)),
-          record_class: binding.fetch(:record_class)
+          record_class: binding.fetch(:record_class),
+          on_change: -> { clear_packet_cache! }
         )
       end
 
@@ -604,7 +707,8 @@ module Companion
         ContractHistory.new(
           contract_class: binding.fetch(:contract_class),
           entries: method(binding.fetch(:entries)),
-          append: method(binding.fetch(:append))
+          append: method(binding.fetch(:append)),
+          on_change: -> { clear_packet_cache! }
         )
       end
 

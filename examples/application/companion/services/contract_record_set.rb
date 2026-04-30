@@ -3,10 +3,11 @@
 module Companion
   module Services
     class ContractRecordSet
-      def initialize(contract_class:, collection:, record_class:)
+      def initialize(contract_class:, collection:, record_class:, on_change: nil)
         @contract_class = contract_class
         @collection = collection
         @record_class = record_class
+        @on_change = on_change
         @manifest = contract_class.persistence_manifest
       end
 
@@ -25,6 +26,7 @@ module Companion
 
         record = record_class.new(**payload)
         collection << record
+        changed!
         record
       end
 
@@ -35,16 +37,20 @@ module Companion
         normalize(changes).each do |attribute, value|
           record[attribute] = value if field_names.include?(attribute) && record_members.include?(attribute)
         end
+        changed!
         record
       end
 
       def delete(id)
         index = collection.index { |record| read(record, key).to_s == id.to_s }
-        index ? collection.delete_at(index) : nil
+        return nil unless index
+
+        collection.delete_at(index).tap { changed! }
       end
 
       def clear
         collection.clear
+        changed!
       end
 
       def scope(name)
@@ -78,7 +84,11 @@ module Companion
 
       private
 
-      attr_reader :contract_class, :collection, :record_class, :manifest
+      attr_reader :contract_class, :collection, :record_class, :on_change, :manifest
+
+      def changed!
+        on_change&.call
+      end
 
       def key
         persist.fetch(:key)

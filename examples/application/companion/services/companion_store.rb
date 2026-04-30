@@ -457,6 +457,7 @@ module Companion
 
       def persist!
         @backend.save_state(@state.to_h)
+        persistence.clear_packet_cache! if defined?(@persistence) && @persistence
       end
 
       def apply_persistence_mutation(mutation)
@@ -484,7 +485,7 @@ module Companion
           kind: kind,
           subject_id: subject_id,
           status: status
-        )
+        ).tap { persistence.clear_packet_cache! }
       end
 
       def credential_status
