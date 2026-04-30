@@ -38,6 +38,9 @@ research material under `playgrounds/docs/`.
 - [Companion / Store Convergence](./companion-store-convergence.md) -
   compact cross-track note connecting app-local Companion, `igniter-companion`,
   and `igniter-store`.
+- [Igniter Store Progress Summary](./igniter-store-progress-summary.md) -
+  compact checkpoint for the hot fact engine, Store/History pressure, and Rust
+  snapshot gaps.
 - [Contract Persistence Organic Model](./contract-persistence-organic-model.md) -
   horizon model for Store/History as future graph-native concepts.
 - [Contract-Native Store Research](./contract-native-store-research.md) -
@@ -76,13 +79,14 @@ Before changing architecture or reviewing an agent proposal, read:
 13. [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
 14. [Contract Persistence Development Track](./contract-persistence-development-track.md)
 15. [Companion / Store Convergence](./companion-store-convergence.md)
-16. [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
-17. [Contract-Native Store Research](./contract-native-store-research.md)
-18. [Contract-Native Store POC](./contract-native-store-poc.md)
-19. [Contract-Native Store Sync Hub](./contract-native-store-sync-hub.md)
-20. [Contract Persistence Relations](./contract-persistence-relations.md)
-21. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
-22. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
+16. [Igniter Store Progress Summary](./igniter-store-progress-summary.md)
+17. [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
+18. [Contract-Native Store Research](./contract-native-store-research.md)
+19. [Contract-Native Store POC](./contract-native-store-poc.md)
+20. [Contract-Native Store Sync Hub](./contract-native-store-sync-hub.md)
+21. [Contract Persistence Relations](./contract-persistence-relations.md)
+22. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
+23. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
 
 ## Current Research State
 
