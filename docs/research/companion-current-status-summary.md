@@ -1,6 +1,6 @@
 # Companion Current Status Summary
 
-Status date: 2026-04-29.
+Status date: 2026-04-30.
 Role: compact handoff for `[Architect Supervisor / Codex]`.
 Scope: Companion app-local proof only; no public persistence API promise.
 
@@ -37,6 +37,8 @@ storage_plan_sketch -> report-only table/column/index/scope lowering candidates
 storage_plan_health -> drift check for non-executing storage-plan shape
 storage_migration_plan -> review-only storage-plan diff candidates
 storage_migration_plan_health -> drift check for non-executing migration plan
+field_type_plan -> report-only validation of field descriptors + samples
+field_type_health -> drift check for field/type validation boundaries
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
 materializer_status.descriptor -> review-only lifecycle + no capability grants
@@ -143,6 +145,12 @@ review-only migration candidates for additive/destructive/ambiguous storage
 changes while keeping migration execution and SQL generation disabled.
 `/setup/storage-migration-plan-health.json` verifies that R2 reports and
 candidates keep review-only/no-execution/no-SQL boundaries.
+`/setup/field-type-plan.json` is the R2a field/type validation report: it
+checks descriptor vocabulary, defaults, enum values, JSON fields, datetime
+values, required keys, and seeded payload shape while preserving
+`persist -> Store[T]` and `history -> History[T]`.
+`/setup/field-type-health.json` verifies that this type-validation packet stays
+report-only, no-gate/no-grant, non-SQL, non-schema-changing, and non-materializing.
 
 Migrations are review-only. Current planning has two lanes: spec-history field
 diffs and storage-plan descriptor diffs. There is no migration generator,
@@ -189,6 +197,10 @@ Best next move:
   diffs; it is review-only and has no execution path
 - use `/setup/storage-migration-plan-health.json` before treating R2 migration
   candidates as stable evidence
+- use `/setup/field-type-plan.json` before widening field metadata, relation
+  type checks, access paths, or materializer dry-run output
+- use `/setup/field-type-health.json` before treating R2a type validation as
+  stable evidence
 - use `/setup/handoff.json` as the first read after context rotation
 - use `/setup/handoff/digest.txt` as the compact human handoff, or
   `/setup/handoff/digest.json` as the structured agent map before

@@ -1,6 +1,6 @@
 # Companion Persistence Manifest Glossary
 
-Status date: 2026-04-29.
+Status date: 2026-04-30.
 Scope: app-local Companion manifest vocabulary. Not public API.
 
 ## Claim
@@ -32,6 +32,11 @@ Read `/setup/storage-migration-plan.json` when discussing R2 storage-plan diffs.
 It is a review-only migration candidate report, not a runner.
 Read `/setup/storage-migration-plan-health.json` when changing R2 migration
 candidate vocabulary or checking no-execution/no-SQL boundaries.
+Read `/setup/field-type-plan.json` before changing field vocabulary, defaults,
+enum domains, JSON fields, required keys, relation type checks, access paths,
+or materializer dry-run output.
+Read `/setup/field-type-health.json` when checking that R2a type validation
+remains report-only and non-executing.
 Read `/setup/health.json` for the compact report-only current-state packet.
 Read `/setup/handoff.json` first when rotating context between agents.
 
@@ -97,6 +102,25 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   report and candidate counts, and candidate review-only/no-execution/no-SQL
   flags.
 - Does not authorize migration execution or SQL generation.
+
+`field_type_plan`
+
+- Report-only R2a validation exposed at `/setup/field-type-plan.json`.
+- Validates field descriptor vocabulary, defaults, enum domains, JSON fields,
+  datetime values, required key presence, and current seeded payload shape.
+- Preserves `persist -> Store[T]` and `history -> History[T]` explicitly in the
+  descriptor.
+- Does not gate runtime, change schema, generate SQL, execute materializer
+  steps, or grant capabilities.
+
+`field_type_health`
+
+- Report-only drift check exposed at `/setup/field-type-health.json`.
+- Validates descriptor policy, Store/History lowerings, supported field types,
+  required-key coverage, enum/json checks, no type issues, summary counts, and
+  no schema/SQL/materializer execution.
+- Does not authorize relation enforcement, DB migrations, access-path nodes, or
+  typed write execution.
 
 `records`
 

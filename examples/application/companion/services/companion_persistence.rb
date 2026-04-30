@@ -363,6 +363,19 @@ module Companion
         )
       end
 
+      def field_type_plan
+        Contracts::PersistenceFieldTypePlanContract.evaluate(
+          manifest: manifest_snapshot,
+          samples: field_type_samples
+        )
+      end
+
+      def field_type_health
+        Contracts::PersistenceFieldTypeHealthContract.evaluate(
+          field_type_plan: field_type_plan
+        )
+      end
+
       def setup_health
         Contracts::SetupHealthContract.evaluate(
           readiness: readiness,
@@ -837,6 +850,13 @@ module Companion
         return entry.fetch(field.to_sym) if entry.respond_to?(:fetch)
 
         entry.public_send(field)
+      end
+
+      def field_type_samples
+        {
+          records: RECORD_BINDINGS.keys.to_h { |name| [name, record(name).all.map(&:to_h)] },
+          histories: HISTORY_BINDINGS.keys.to_h { |name| [name, history(name).all] }
+        }
       end
 
       def tracker_log_entries

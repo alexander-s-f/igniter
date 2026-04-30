@@ -1,6 +1,6 @@
 # Companion Persistence App Status
 
-Status date: 2026-04-29.
+Status date: 2026-04-30.
 Scope: Companion application proof only. No core, package, stable API, grammar,
 or migration-generator promotion.
 
@@ -66,6 +66,14 @@ Current manifest vocabulary:
 - `/setup/storage-migration-plan-health(.json)` validates the R2 descriptor,
   status/shape vocabulary, report count, candidate count, and candidate
   review-only/no-execution/no-SQL policy
+- `/setup/field-type-plan(.json)` exposes the R2a report-only field/type
+  validation plan over current manifests and seeded samples; it checks
+  descriptor vocabulary, defaults, enum domains, JSON fields, datetime values,
+  required keys, and payload shape while preserving `persist -> Store[T]` and
+  `history -> History[T]`
+- `/setup/field-type-health(.json)` validates R2a descriptor policy,
+  Store/History lowerings, supported field types, required-key coverage,
+  enum/json checks, no type issues, and no schema/SQL/materializer execution
 - `/setup` includes the same glossary health as a report-only summary signal;
   readiness does not become stricter because of glossary drift
 - `/setup/health(.json)` summarizes readiness, relation health, manifest

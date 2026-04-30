@@ -116,6 +116,10 @@ module Companion
       storage_migration_plan_json_status, _storage_migration_plan_json_headers, storage_migration_plan_json_body = app.call(rack_env("GET", "/setup/storage-migration-plan.json"))
       storage_migration_plan_health_status, _storage_migration_plan_health_headers, storage_migration_plan_health_body = app.call(rack_env("GET", "/setup/storage-migration-plan-health"))
       storage_migration_plan_health_json_status, _storage_migration_plan_health_json_headers, storage_migration_plan_health_json_body = app.call(rack_env("GET", "/setup/storage-migration-plan-health.json"))
+      field_type_plan_status, _field_type_plan_headers, field_type_plan_body = app.call(rack_env("GET", "/setup/field-type-plan"))
+      field_type_plan_json_status, _field_type_plan_json_headers, field_type_plan_json_body = app.call(rack_env("GET", "/setup/field-type-plan.json"))
+      field_type_health_status, _field_type_health_headers, field_type_health_body = app.call(rack_env("GET", "/setup/field-type-health"))
+      field_type_health_json_status, _field_type_health_json_headers, field_type_health_json_body = app.call(rack_env("GET", "/setup/field-type-health.json"))
       relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
       relation_health_json_status, _relation_health_json_headers, relation_health_json_body = app.call(rack_env("GET", "/setup/relation-health.json"))
       materialization_status, _materialization_headers, materialization_body = app.call(rack_env("GET", "/setup/materialization-plan"))
@@ -207,6 +211,10 @@ module Companion
       storage_migration_plan_json = storage_migration_plan_json_body.join
       storage_migration_plan_health = storage_migration_plan_health_body.join
       storage_migration_plan_health_json = storage_migration_plan_health_json_body.join
+      field_type_plan = field_type_plan_body.join
+      field_type_plan_json = field_type_plan_json_body.join
+      field_type_health = field_type_health_body.join
+      field_type_health_json = field_type_health_json_body.join
       relation_health = relation_health_body.join
       relation_health_json = relation_health_json_body.join
       materialization = materialization_body.join
@@ -318,6 +326,10 @@ module Companion
       out.puts "companion_poc_setup_storage_migration_plan_json_status=#{storage_migration_plan_json_status}"
       out.puts "companion_poc_setup_storage_migration_plan_health_status=#{storage_migration_plan_health_status}"
       out.puts "companion_poc_setup_storage_migration_plan_health_json_status=#{storage_migration_plan_health_json_status}"
+      out.puts "companion_poc_setup_field_type_plan_status=#{field_type_plan_status}"
+      out.puts "companion_poc_setup_field_type_plan_json_status=#{field_type_plan_json_status}"
+      out.puts "companion_poc_setup_field_type_health_status=#{field_type_health_status}"
+      out.puts "companion_poc_setup_field_type_health_json_status=#{field_type_health_json_status}"
       out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
       out.puts "companion_poc_setup_relation_health_json_status=#{relation_health_json_status}"
       out.puts "companion_poc_setup_materialization_status=#{materialization_status}"
@@ -407,6 +419,10 @@ module Companion
       out.puts "companion_poc_setup_storage_migration_plan_json_endpoint=#{setup_storage_migration_plan_json_endpoint?(storage_migration_plan_json)}"
       out.puts "companion_poc_setup_storage_migration_plan_health_endpoint=#{setup_storage_migration_plan_health_endpoint?(storage_migration_plan_health)}"
       out.puts "companion_poc_setup_storage_migration_plan_health_json_endpoint=#{setup_storage_migration_plan_health_json_endpoint?(storage_migration_plan_health_json)}"
+      out.puts "companion_poc_setup_field_type_plan_endpoint=#{setup_field_type_plan_endpoint?(field_type_plan)}"
+      out.puts "companion_poc_setup_field_type_plan_json_endpoint=#{setup_field_type_plan_json_endpoint?(field_type_plan_json)}"
+      out.puts "companion_poc_setup_field_type_health_endpoint=#{setup_field_type_health_endpoint?(field_type_health)}"
+      out.puts "companion_poc_setup_field_type_health_json_endpoint=#{setup_field_type_health_json_endpoint?(field_type_health_json)}"
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
       out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
       out.puts "companion_poc_setup_materialization_endpoint=#{setup_materialization_endpoint?(materialization)}"
@@ -498,6 +514,8 @@ module Companion
       out.puts "companion_poc_persistence_storage_plan_health_contract=#{persistence_storage_plan_health_contract?}"
       out.puts "companion_poc_persistence_storage_migration_plan_contract=#{persistence_storage_migration_plan_contract?}"
       out.puts "companion_poc_persistence_storage_migration_plan_health_contract=#{persistence_storage_migration_plan_health_contract?}"
+      out.puts "companion_poc_persistence_field_type_plan_contract=#{persistence_field_type_plan_contract?}"
+      out.puts "companion_poc_persistence_field_type_health_contract=#{persistence_field_type_health_contract?}"
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
       out.puts "companion_poc_setup_handoff_acceptance_contract=#{setup_handoff_acceptance_contract?}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_contract=#{setup_handoff_approval_acceptance_contract?}"
@@ -1679,6 +1697,56 @@ module Companion
         stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
         drift.fetch(:status) == :drift &&
         drift.fetch(:missing_terms).include?(:no_migration_execution)
+    end
+
+    def persistence_field_type_plan_contract?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      plan = persistence.field_type_plan
+      articles = plan.fetch(:records).fetch(:articles)
+      wizard_specs = plan.fetch(:records).fetch(:wizard_type_specs)
+      comments = plan.fetch(:histories).fetch(:comments)
+      article_status = articles.fetch(:fields).find { |field| field.fetch(:name) == :status }
+      wizard_spec = wizard_specs.fetch(:fields).find { |field| field.fetch(:name) == :spec }
+
+      plan.fetch(:schema_version) == 1 &&
+        plan.fetch(:descriptor).fetch(:kind) == :persistence_field_type_plan &&
+        plan.fetch(:descriptor).fetch(:report_only) &&
+        plan.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        plan.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        plan.fetch(:descriptor).fetch(:schema_changes_allowed) == false &&
+        plan.fetch(:descriptor).fetch(:sql_generation_allowed) == false &&
+        plan.fetch(:descriptor).fetch(:materializer_execution_allowed) == false &&
+        plan.fetch(:descriptor).fetch(:preserves) == { persist: :store_t, history: :history_t } &&
+        plan.fetch(:status) == :stable &&
+        plan.fetch(:issue_count).zero? &&
+        plan.fetch(:summary).fetch(:record_shape_count) == 6 &&
+        plan.fetch(:summary).fetch(:history_shape_count) == 6 &&
+        articles.fetch(:lowering) == :store_t &&
+        comments.fetch(:lowering) == :history_t &&
+        article_status.fetch(:declared_type) == :enum &&
+        article_status.fetch(:enum_values) == %i[draft published archived] &&
+        wizard_spec.fetch(:declared_type) == :json &&
+        wizard_spec.fetch(:sample_count).positive?
+    end
+
+    def persistence_field_type_health_contract?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      stable = persistence.field_type_health
+      drift_plan = persistence.field_type_plan.merge(
+        descriptor: persistence.field_type_plan.fetch(:descriptor).merge(sql_generation_allowed: true)
+      )
+      drift = Contracts::PersistenceFieldTypeHealthContract.evaluate(field_type_plan: drift_plan)
+
+      stable.fetch(:status) == :stable &&
+        stable.fetch(:check_count) == 18 &&
+        stable.fetch(:descriptor).fetch(:kind) == :persistence_field_type_health &&
+        stable.fetch(:descriptor).fetch(:validates) == :persistence_field_type_plan &&
+        stable.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        stable.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        stable.fetch(:missing_terms).empty? &&
+        stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
+        drift.fetch(:status) == :drift &&
+        drift.fetch(:missing_terms).include?(:no_sql_generation)
     end
 
     def persistence_relation_manifest?
@@ -3087,6 +3155,62 @@ module Companion
         payload.fetch("descriptor").fetch("schema_version") == 1 &&
         payload.fetch("descriptor").fetch("kind") == "persistence_storage_migration_plan_health" &&
         payload.fetch("descriptor").fetch("validates") == "persistence_storage_migration_plan" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("missing_terms").empty? &&
+        payload.fetch("checks").all? { |check| check.fetch("present") }
+    end
+
+    def setup_field_type_plan_endpoint?(field_type_plan)
+      field_type_plan.include?("kind=>:persistence_field_type_plan") &&
+        field_type_plan.include?("materializer_execution_allowed=>false") &&
+        field_type_plan.include?("persist=>:store_t") &&
+        field_type_plan.include?("history=>:history_t") &&
+        field_type_plan.include?("declared_type=>:enum") &&
+        field_type_plan.include?("declared_type=>:json")
+    end
+
+    def setup_field_type_plan_json_endpoint?(field_type_plan_json)
+      payload = JSON.parse(field_type_plan_json)
+      article_status = payload.fetch("records").fetch("articles").fetch("fields").find { |field| field.fetch("name") == "status" }
+      wizard_spec = payload.fetch("records").fetch("wizard_type_specs").fetch("fields").find { |field| field.fetch("name") == "spec" }
+
+      payload.fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "persistence_field_type_plan" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("descriptor").fetch("schema_changes_allowed") == false &&
+        payload.fetch("descriptor").fetch("sql_generation_allowed") == false &&
+        payload.fetch("descriptor").fetch("materializer_execution_allowed") == false &&
+        payload.fetch("descriptor").fetch("preserves") == { "persist" => "store_t", "history" => "history_t" } &&
+        payload.fetch("status") == "stable" &&
+        payload.fetch("issue_count").zero? &&
+        payload.fetch("summary").fetch("record_shape_count") == 6 &&
+        payload.fetch("summary").fetch("history_shape_count") == 6 &&
+        article_status.fetch("declared_type") == "enum" &&
+        article_status.fetch("enum_values") == %w[draft published archived] &&
+        wizard_spec.fetch("declared_type") == "json" &&
+        wizard_spec.fetch("sample_count").positive?
+    end
+
+    def setup_field_type_health_endpoint?(field_type_health)
+      field_type_health.include?("status=>:stable") &&
+        field_type_health.include?("kind=>:persistence_field_type_health") &&
+        field_type_health.include?("validates=>:persistence_field_type_plan") &&
+        field_type_health.include?("check_count=>18") &&
+        field_type_health.include?("field type terms stable")
+    end
+
+    def setup_field_type_health_json_endpoint?(field_type_health_json)
+      payload = JSON.parse(field_type_health_json)
+
+      payload.fetch("status") == "stable" &&
+        payload.fetch("check_count") == 18 &&
+        payload.fetch("descriptor").fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "persistence_field_type_health" &&
+        payload.fetch("descriptor").fetch("validates") == "persistence_field_type_plan" &&
         payload.fetch("descriptor").fetch("report_only") &&
         payload.fetch("descriptor").fetch("gates_runtime") == false &&
         payload.fetch("descriptor").fetch("grants_capabilities") == false &&

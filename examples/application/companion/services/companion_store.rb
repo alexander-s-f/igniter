@@ -264,6 +264,14 @@ module Companion
         persistence.storage_migration_plan_health
       end
 
+      def field_type_plan
+        persistence.field_type_plan
+      end
+
+      def field_type_health
+        persistence.field_type_health
+      end
+
       def setup_health
         persistence.setup_health
       end

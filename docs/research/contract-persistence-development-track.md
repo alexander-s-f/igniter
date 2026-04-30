@@ -30,6 +30,8 @@ Already proved in Companion:
 - R2 storage migration plan: `/setup/storage-migration-plan(.json)`
 - R2 storage migration health:
   `/setup/storage-migration-plan-health(.json)`
+- R2a field type plan: `/setup/field-type-plan(.json)`
+- R2a field type health: `/setup/field-type-health(.json)`
 - `schema_version: 1`
 - canonical `storage.shape`
 - Store/History lowerings as descriptors
@@ -47,7 +49,7 @@ Accepted research evidence:
 
 ## Next Development Slice
 
-Next slice: **R2a Field Type Validation**, app-local and report-only.
+Current slice: **R2a Field Type Validation**, app-local and report-only.
 
 Goal:
 
@@ -64,13 +66,13 @@ Likely surface:
 
 Acceptance:
 
-- no runtime gate
-- no core DSL promotion
-- no DB schema change
-- no SQL generation
-- no materializer execution
-- report explicitly preserves `persist -> Store[T]` and
-  `history -> History[T]`
+- `/setup/field-type-plan(.json)` reports current field descriptors and seeded
+  payload shape
+- `/setup/field-type-health(.json)` validates descriptor policy and no-execution
+  boundaries
+- no runtime gate, core DSL promotion, DB schema change, SQL generation, or
+  materializer execution
+- report explicitly preserves `persist -> Store[T]` and `history -> History[T]`
 - failures are review items, not write blockers
 
 ## Ladder
