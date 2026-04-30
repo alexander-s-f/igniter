@@ -67,6 +67,7 @@ end
 class TrackerLog
   include Igniter::Companion::History
   history_name :tracker_logs
+  partition_key :tracker_id   # включает partition replay
 
   field :tracker_id
   field :value
@@ -95,8 +96,30 @@ store.scope(Reminder, :open, as_of: checkpoint)  # time-travel
 store.append(TrackerLog, tracker_id: "t1", value: 8.5)
 store.replay(TrackerLog)                         # => [#<TrackerLog ...>, ...]
 store.replay(TrackerLog, since: cutoff)          # с фильтром по времени
+store.replay(TrackerLog, partition: "sleep")     # фильтр по partition_key
 
 store.causation_chain(Reminder, key: "r1")       # цепочка мутаций для отладки
+```
+
+### Нормализованные receipts
+
+`write` и `append` возвращают объекты-receipts с метаданными мутации.
+Неизвестные методы делегируются на вложенный record/event:
+
+```ruby
+receipt = store.write(Reminder, key: "r1", title: "Buy milk")
+receipt.mutation_intent          # => :record_write
+receipt.fact_id                  # => "550e8400-..."
+receipt.value_hash               # => "a3b1c2..."
+receipt.causation                # => nil (первая запись) или предыдущий value_hash
+receipt.title                    # => "Buy milk"  (делегировано на Reminder)
+receipt.record                   # => #<Reminder ...>
+
+receipt = store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
+receipt.mutation_intent          # => :history_append
+receipt.timestamp                # => 1714483200.123
+receipt.value                    # => 8.5  (делегировано на TrackerLog)
+receipt.event                    # => #<TrackerLog ...>
 ```
 
 ### Реактивные подписки
@@ -179,6 +202,26 @@ scope-кэш был прогрет запросом до этого.
 **Открытый вопрос для igniter-store**: стоит ли добавить `eager: true` опцию
 в `AccessPath`, которая регистрирует consumer как point-write listener
 независимо от состояния кэша?
+
+---
+
+### [2026-04-30] Partition queries для History
+
+**Добавлена возможность**: `partition_key :field_name` на `History`-классе; `Store#replay(partition: "value")` фильтрует события по этому полю.
+
+**Реализация**: partition key хранится в value payload (не в ключе факта), поэтому фильтрация происходит на Ruby-слое после того, как `@inner.history(...)` возвращает все события для данного store. Регистрация нового `AccessPath` не нужна.
+
+**Проверка сходимости**: check `history_partition_query` в `StoreConvergenceSidecarContract` проходит с `partition_replay_count == 2` и `partition_replay_values == [7.0, 8.5]`.
+
+---
+
+### [2026-04-30] Нормализованные receipts (`WriteReceipt` / `AppendReceipt`)
+
+**Добавлена возможность**: `Store#write` возвращает `WriteReceipt`; `Store#append` — `AppendReceipt`. Оба несут `mutation_intent`, `fact_id`, `value_hash` и делегируют неизвестные методы на вложенный record/event.
+
+**Давление**: raw `IgniterStore` возвращает `FactData`-подобный объект с `id`/`value_hash`/`causation`/`timestamp`. Обёртка в типизированные receipts на companion-слое не позволяет утечь деталям store во внешний код.
+
+**Следующий открытый вопрос** (`pressure.next_question`): `:manifest_generated_record_history_classes` — автогенерация `Record`/`History`-классов из декларации `persistence_manifest` без фиксации финального DSL.
 
 ---
 

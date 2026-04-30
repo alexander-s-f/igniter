@@ -28,13 +28,25 @@ module Igniter
         end
         alias_method :store_name, :history_name
 
+        # Declares the field whose value partitions the event stream.
+        # Enables Store#replay(partition:) to filter by a specific partition value.
+        #   partition_key :tracker_id  →  store.replay(TrackerLog, partition: "sleep")
+        def partition_key(name = nil)
+          if name
+            @_partition_key = name
+          else
+            @_partition_key
+          end
+        end
+
         def field(name, default: nil)
           @_fields ||= {}
           @_fields[name] = { default: default }
           attr_reader name
         end
 
-        def _fields; @_fields ||= {}; end
+        def _fields;       @_fields       ||= {}; end
+        def _partition_key; @_partition_key; end
 
         def from_fact(fact)
           new(fact_id: fact.id, timestamp: fact.timestamp, **fact.value)

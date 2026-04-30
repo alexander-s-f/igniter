@@ -65,10 +65,20 @@ module Igniter
         self
       end
 
-      # Write (upsert) a record. Returns the instantiated schema object.
+      # Write (upsert) a record. Returns a WriteReceipt wrapping the typed record.
+      # Receipt delegates unknown methods to the record, so callers can use it
+      # as if it were the record directly (e.g. receipt.title).
       def write(schema_class, key:, **fields)
-        @inner.write(store: schema_class.store_name, key: key, value: fields)
-        schema_class.new(key: key, **fields)
+        fact = @inner.write(store: schema_class.store_name, key: key, value: fields)
+        record = schema_class.new(key: key, **fields)
+        WriteReceipt.new(
+          mutation_intent: :record_write,
+          fact_id:         fact.id,
+          value_hash:      fact.value_hash,
+          causation:       fact.causation,
+          key:             key,
+          record:          record
+        )
       end
 
       # Read the latest value for a key. Returns nil if not found.
@@ -85,16 +95,31 @@ module Igniter
         facts.map { |f| schema_class.from_fact(f) }
       end
 
-      # Append an event to a History stream.
+      # Append an event to a History stream. Returns an AppendReceipt.
+      # Receipt delegates unknown methods to the event (e.g. receipt.value).
       def append(history_class, **fields)
-        fact = @inner.append(history: history_class.store_name, event: fields)
-        history_class.new(fact_id: fact.id, timestamp: fact.timestamp, **fields)
+        fact  = @inner.append(history: history_class.store_name, event: fields)
+        event = history_class.new(fact_id: fact.id, timestamp: fact.timestamp, **fields)
+        AppendReceipt.new(
+          mutation_intent: :history_append,
+          fact_id:         fact.id,
+          value_hash:      fact.value_hash,
+          timestamp:       fact.timestamp,
+          event:           event
+        )
       end
 
-      # Replay all events from a History stream, optionally with time filters.
-      def replay(history_class, since: nil, as_of: nil)
-        @inner.history(store: history_class.store_name, since: since, as_of: as_of)
-              .map { |f| history_class.from_fact(f) }
+      # Replay events from a History stream.
+      # `partition:` filters by the declared partition_key value (e.g. tracker_id: "sleep").
+      # `since:` / `as_of:` are timestamp boundaries.
+      def replay(history_class, since: nil, as_of: nil, partition: nil)
+        facts = @inner.history(store: history_class.store_name, since: since, as_of: as_of)
+
+        if partition && (pk = history_class._partition_key)
+          facts = facts.select { |f| f.value[pk] == partition }
+        end
+
+        facts.map { |f| history_class.from_fact(f) }
       end
 
       # Causation chain for a Record key — useful for debugging mutations.

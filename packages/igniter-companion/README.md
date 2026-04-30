@@ -65,6 +65,7 @@ Wraps `History[T]` from igniter-store. Append-only; keys are auto-generated.
 class TrackerLog
   include Igniter::Companion::History
   history_name :tracker_logs
+  partition_key :tracker_id   # enables partition replay
 
   field :tracker_id
   field :value
@@ -93,8 +94,30 @@ store.scope(Reminder, :open, as_of: checkpoint)  # time-travel
 store.append(TrackerLog, tracker_id: "t1", value: 8.5)
 store.replay(TrackerLog)                         # => [#<TrackerLog ...>, ...]
 store.replay(TrackerLog, since: cutoff)          # time-filtered
+store.replay(TrackerLog, partition: "sleep")     # filtered by partition_key value
 
 store.causation_chain(Reminder, key: "r1")       # mutation chain for debugging
+```
+
+### Normalized receipts
+
+`write` and `append` return receipt objects carrying mutation metadata.
+They delegate unknown methods to the underlying record/event:
+
+```ruby
+receipt = store.write(Reminder, key: "r1", title: "Buy milk")
+receipt.mutation_intent          # => :record_write
+receipt.fact_id                  # => "550e8400-..."
+receipt.value_hash               # => "a3b1c2..."
+receipt.causation                # => nil (first write) or previous value_hash
+receipt.title                    # => "Buy milk"  (delegated to Reminder)
+receipt.record                   # => #<Reminder ...>
+
+receipt = store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
+receipt.mutation_intent          # => :history_append
+receipt.timestamp                # => 1714483200.123
+receipt.value                    # => 8.5  (delegated to TrackerLog)
+receipt.event                    # => #<TrackerLog ...>
 ```
 
 ### Reactive subscriptions
@@ -178,6 +201,26 @@ is needed (event bus / WAL tail).
 **Open question for igniter-store**: should `AccessPath` support an `eager: true`
 option that registers the consumer as a point-write listener independent of
 cache state?
+
+---
+
+### [2026-04-30] History partition queries
+
+**Capability added**: `partition_key :field_name` on a `History` class; `Store#replay(partition: "value")` filters events by that field.
+
+**Implementation**: partition key lives in the value payload (not in the fact key), so filtering happens at the Ruby layer after `@inner.history(...)` returns all events for the store. No new `AccessPath` registration required.
+
+**Convergence check**: `history_partition_query` check in `StoreConvergenceSidecarContract` passes with `partition_replay_count == 2` and `partition_replay_values == [7.0, 8.5]`.
+
+---
+
+### [2026-04-30] Normalized store receipts (`WriteReceipt` / `AppendReceipt`)
+
+**Capability added**: `Store#write` returns a `WriteReceipt`; `Store#append` returns an `AppendReceipt`. Both carry `mutation_intent`, `fact_id`, `value_hash` and delegate unknown methods to the wrapped record/event.
+
+**Pressure surfaced**: the raw `IgniterStore` returns a `FactData`-like object with `id`/`value_hash`/`causation`/`timestamp`. Wrapping this in typed receipts at the companion layer avoids leaking store internals into application code.
+
+**Next open question** (`pressure.next_question`): `:manifest_generated_record_history_classes` — auto-generate `Record`/`History` classes from a `persistence_manifest` declaration without committing to a final DSL.
 
 ---
 

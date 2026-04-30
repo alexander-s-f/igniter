@@ -19,6 +19,7 @@ end
 class TrackerLog
   include Igniter::Companion::History
   history_name :tracker_logs
+  partition_key :tracker_id
 
   field :tracker_id
   field :value
@@ -37,11 +38,16 @@ RSpec.describe Igniter::Companion::Store do
   # ── Record round-trip ──────────────────────────────────────────────────────
 
   describe "Record write / read round-trip" do
-    it "returns a typed Record with the written fields" do
+    it "returns a WriteReceipt that delegates to the typed record" do
       r = store.write(Reminder, key: "r1", title: "Buy milk", status: :open)
 
-      expect(r).to be_a(Reminder)
+      expect(r).to be_a(Igniter::Companion::WriteReceipt)
+      expect(r.mutation_intent).to eq(:record_write)
+      expect(r.fact_id).not_to be_nil
+      expect(r.value_hash).not_to be_nil
       expect(r.key).to eq("r1")
+      expect(r.record).to be_a(Reminder)
+      # delegation to record
       expect(r.title).to eq("Buy milk")
       expect(r.status).to eq(:open)
     end
@@ -206,15 +212,17 @@ RSpec.describe Igniter::Companion::Store do
       expect(events.map(&:value)).to eq([7.0, 8.5])
     end
 
-    it "returns History instances with fact_id and timestamp" do
-      store.append(TrackerLog, tracker_id: "t1", value: 9.0)
+    it "returns an AppendReceipt that delegates to the typed event" do
+      receipt = store.append(TrackerLog, tracker_id: "t1", value: 9.0)
 
-      events = store.replay(TrackerLog)
-      event  = events.first
-
-      expect(event).to be_a(TrackerLog)
-      expect(event.fact_id).not_to be_nil
-      expect(event.timestamp).to be_a(Float)
+      expect(receipt).to be_a(Igniter::Companion::AppendReceipt)
+      expect(receipt.mutation_intent).to eq(:history_append)
+      expect(receipt.fact_id).not_to be_nil
+      expect(receipt.timestamp).to be_a(Float)
+      expect(receipt.event).to be_a(TrackerLog)
+      # delegation to event
+      expect(receipt.value).to eq(9.0)
+      expect(receipt.tracker_id).to eq("t1")
     end
 
     it "applies field defaults on replay" do
@@ -233,6 +241,51 @@ RSpec.describe Igniter::Companion::Store do
 
       recent = store.replay(TrackerLog, since: cutoff)
       expect(recent.map(&:value)).to eq([2.0])
+    end
+
+    it "replays all events without partition filter" do
+      store.append(TrackerLog, tracker_id: "sleep",    value: 7.0)
+      store.append(TrackerLog, tracker_id: "training", value: 45.0)
+      store.append(TrackerLog, tracker_id: "sleep",    value: 8.5)
+
+      all = store.replay(TrackerLog)
+      expect(all.length).to eq(3)
+    end
+  end
+
+  describe "History partition replay" do
+    it "filters events by the declared partition_key value" do
+      store.append(TrackerLog, tracker_id: "sleep",    value: 7.0)
+      store.append(TrackerLog, tracker_id: "training", value: 45.0)
+      store.append(TrackerLog, tracker_id: "sleep",    value: 8.5)
+
+      sleep_logs    = store.replay(TrackerLog, partition: "sleep")
+      training_logs = store.replay(TrackerLog, partition: "training")
+
+      expect(sleep_logs.map(&:value)).to eq([7.0, 8.5])
+      expect(training_logs.map(&:value)).to eq([45.0])
+    end
+
+    it "returns empty array for a partition with no events" do
+      store.append(TrackerLog, tracker_id: "sleep", value: 7.0)
+      expect(store.replay(TrackerLog, partition: "weight")).to be_empty
+    end
+
+    it "returns TrackerLog instances from partition replay" do
+      store.append(TrackerLog, tracker_id: "sleep", value: 7.0)
+      results = store.replay(TrackerLog, partition: "sleep")
+      expect(results).to all(be_a(TrackerLog))
+    end
+
+    it "respects since: combined with partition:" do
+      store.append(TrackerLog, tracker_id: "sleep", value: 6.0)
+      sleep 0.01
+      cutoff = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.01
+      store.append(TrackerLog, tracker_id: "sleep", value: 8.5)
+
+      recent = store.replay(TrackerLog, partition: "sleep", since: cutoff)
+      expect(recent.map(&:value)).to eq([8.5])
     end
   end
 end
