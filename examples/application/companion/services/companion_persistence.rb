@@ -107,26 +107,36 @@ module Companion
       COMMAND_BINDINGS = {
         reminder_commands: {
           contract_class: Contracts::ReminderContract,
+          target: :reminders,
+          target_shape: :store,
           commands: %i[create complete],
           operations: %i[record_append record_update none]
         },
         countdown_commands: {
           contract_class: Contracts::CountdownContract,
+          target: :countdowns,
+          target_shape: :store,
           commands: %i[create],
           operations: %i[record_append none]
         },
         tracker_log_commands: {
           contract_class: Contracts::TrackerLogContract,
+          target: :tracker_logs,
+          target_shape: :history,
           commands: %i[append],
           operations: %i[history_append none]
         },
         materializer_attempt_commands: {
           contract_class: Contracts::MaterializerAttemptContract,
+          target: :materializer_attempts,
+          target_shape: :history,
           commands: %i[record_blocked],
           operations: %i[history_append none]
         },
         materializer_approval_commands: {
           contract_class: Contracts::MaterializerApprovalContract,
+          target: :materializer_approvals,
+          target_shape: :history,
           commands: %i[record_decision],
           operations: %i[history_append none]
         }
@@ -472,6 +482,23 @@ module Companion
         end
       end
 
+      def effect_intent_plan
+        packet_cache_fetch(:effect_intent_plan) do
+          Contracts::PersistenceEffectIntentPlanContract.evaluate(
+            manifest: manifest_snapshot,
+            access_path_plan: access_path_plan
+          )
+        end
+      end
+
+      def effect_intent_health
+        packet_cache_fetch(:effect_intent_health) do
+          Contracts::PersistenceEffectIntentHealthContract.evaluate(
+            effect_intent_plan: effect_intent_plan
+          )
+        end
+      end
+
       def setup_health
         packet_cache_fetch(:setup_health) do
           Contracts::SetupHealthContract.evaluate(
@@ -765,18 +792,21 @@ module Companion
           {
             kind: :command,
             contract: binding.fetch(:contract_class),
+            target: binding.fetch(:target),
+            target_shape: binding.fetch(:target_shape),
             commands: binding.fetch(:commands),
             operations: binding.fetch(:operations),
-            operation_descriptors: command_operation_descriptors(binding.fetch(:operations))
+            operation_descriptors: command_operation_descriptors(binding.fetch(:operations), binding.fetch(:target))
           }
         end
       end
 
-      def command_operation_descriptors(operations)
+      def command_operation_descriptors(operations, target)
         operations.map do |operation|
           {
             name: operation,
             kind: :mutation_intent,
+            target: operation == :none ? nil : target,
             target_shape: command_operation_target_shape(operation),
             mutates: operation != :none,
             boundary: :app

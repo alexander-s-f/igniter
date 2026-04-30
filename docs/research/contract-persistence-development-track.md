@@ -36,6 +36,8 @@ Already proved in Companion:
 - R2b relation type health: `/setup/relation-type-health(.json)`
 - R2c access path plan: `/setup/access-path-plan(.json)`
 - R2c access path health: `/setup/access-path-health(.json)`
+- R2d typed effect intent plan: `/setup/effect-intent-plan(.json)`
+- R2d typed effect intent health: `/setup/effect-intent-health(.json)`
 - `schema_version: 1`
 - canonical `storage.shape`
 - Store/History lowerings as descriptors
@@ -45,6 +47,8 @@ Already proved in Companion:
 - performance signal: `/setup` slowdown comes from repeated packet
   recomputation and oversized aggregate rendering, not from individual
   persistence packet cost
+- command mutation intents can now be reported as future typed
+  `store_write` / `store_append` effects without creating runtime effect nodes
 
 Accepted research evidence:
 
@@ -57,21 +61,20 @@ Accepted research evidence:
 ## Next Development Slice
 
 Current evidence: **R2a Field Type Validation**,
-**R2b Relation Type Compatibility**, and **R2c Access Path Sketch**,
-app-local and report-only.
+**R2b Relation Type Compatibility**, **R2c Access Path Sketch**, and
+**R2d Typed Effect Intent**, app-local and report-only.
 
 Goal:
 
-- connect `field` declarations to a compact type-validation report
-- validate field vocabulary, defaults, enum values, JSON fields, and required
-  keys against current Companion manifests and seeded data
-- surface type drift before storage, relation, migration, or materializer
-  execution expands
+- use the R2a-R2d packets as the stable read-before-write ladder
+- keep commands lowering to normalized mutation intent
+- treat `store_write` / `store_append` as future typed app-boundary effects,
+  not current runtime nodes
 
 Likely surface:
 
-- `/setup/field-type-plan(.json)` or `/setup/persistence-type-plan(.json)`
-- `/setup/field-type-health(.json)` or `/setup/persistence-type-health(.json)`
+- `/setup/effect-intent-plan(.json)`
+- `/setup/effect-intent-health(.json)`
 
 Acceptance:
 
@@ -88,6 +91,10 @@ Acceptance:
   consumers
 - `/setup/access-path-health(.json)` validates no StoreRead node, no runtime
   planner, no cache execution, and non-mutating access-path descriptors
+- `/setup/effect-intent-plan(.json)` reports command mutation intents as
+  future `store_write` / `store_append` typed effect descriptors
+- `/setup/effect-intent-health(.json)` validates no StoreWrite node, no
+  StoreAppend node, no Saga execution, and app-boundary-only mutation
 - no runtime gate, core DSL promotion, DB schema change, SQL generation, or
   materializer execution
 - report explicitly preserves `persist -> Store[T]` and `history -> History[T]`
@@ -130,6 +137,13 @@ Report-only `store_write` / `store_append` descriptor sketch over existing
 command mutation intents.
 
 No Saga execution, no core effect-node change.
+Current Companion surface:
+
+- `/setup/effect-intent-plan(.json)`
+- `/setup/effect-intent-health(.json)`
+- command `none` remains explicit as `effect: :none`
+- mutating effects keep `boundary: :app` and
+  `command_still_lowers_to: :mutation_intent`
 
 ### R3 Materializer Dry Run
 
@@ -190,10 +204,10 @@ Do preserve:
 [Architect Supervisor / Codex]
 Track: docs/research/contract-persistence-development-track.md
 Status: development track accepted.
-[D] R1 storage plan, R2 storage migration, R2a field type validation, and R2b
-relation type compatibility plus R2c access path sketch are current app-local
-evidence.
-[D] Next implementation slice is R2d Typed Effect Intent.
+[D] R1 storage plan, R2 storage migration, R2a field type validation, R2b
+relation type compatibility, R2c access path sketch, and R2d typed effect
+intent are current app-local evidence.
+[D] Next implementation slice is R3 Materializer Dry Run.
 [D] `packages/igniter-store` is the isolated POC gem for contract-native store
 experiments.
 [D] Organic Store[T]/History[T] graph nodes are accepted as horizon, not current
@@ -203,5 +217,6 @@ path descriptors stabilize.
 [R] No core graph-node changes, package split, SQL generation, migration
 execution, or materializer execution from this track alone.
 [S] Use Companion pressure and report-only health packets to decide promotion.
-Next: implement app-local typed effect intent sketch and health packet.
+Next: design an app-local materializer dry-run packet that renders proposed
+file/binding changes as review data only.
 ```

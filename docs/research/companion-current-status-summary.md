@@ -43,6 +43,8 @@ relation_type_plan -> report-only join field type compatibility
 relation_type_health -> drift check for non-enforcing relation type plan
 access_path_plan -> report-only store_read descriptor sketch
 access_path_health -> drift check for non-executing access path plan
+effect_intent_plan -> report-only store_write/store_append descriptor sketch
+effect_intent_health -> drift check for app-boundary typed effect intent
 performance_signal -> setup packet recomputation needs memoization/snapshot
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
@@ -172,6 +174,12 @@ cache/coalesce hints, and projection reactive consumer hints without creating a
 StoreRead graph node or runtime planner.
 `/setup/access-path-health.json` verifies that access-path metadata remains
 report-only, no-gate/no-grant, non-mutating, and non-executing.
+`/setup/effect-intent-plan.json` is the R2d typed effect intent sketch: it maps
+existing command mutation intents to future `store_write` / `store_append`
+descriptors while keeping `command_still_lowers_to: :mutation_intent`.
+`/setup/effect-intent-health.json` verifies that typed effects remain
+report-only, app-boundary-only, non-Saga, and do not create StoreWrite or
+StoreAppend runtime nodes.
 
 Migrations are review-only. Current planning has two lanes: spec-history field
 diffs and storage-plan descriptor diffs. There is no migration generator,
@@ -229,6 +237,10 @@ Best next move:
 - use `/setup/access-path-plan.json` before discussing future `store_read`
   graph dependencies, cache plans, reactive consumers, or typed effect intents
 - use `/setup/access-path-health.json` before treating R2c access-path
+  descriptors as stable evidence
+- use `/setup/effect-intent-plan.json` before discussing future `store_write`,
+  `store_append`, Saga, or effect-node semantics
+- use `/setup/effect-intent-health.json` before treating R2d typed effect
   descriptors as stable evidence
 - use `/setup/handoff.json` as the first read after context rotation
 - use `/setup/handoff/digest.txt` as the compact human handoff, or

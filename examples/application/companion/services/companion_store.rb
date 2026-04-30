@@ -288,6 +288,14 @@ module Companion
         persistence.access_path_health
       end
 
+      def effect_intent_plan
+        persistence.effect_intent_plan
+      end
+
+      def effect_intent_health
+        persistence.effect_intent_health
+      end
+
       def setup_health
         persistence.setup_health
       end

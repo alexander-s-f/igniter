@@ -94,7 +94,7 @@ Status date: 2026-04-29.
   gates remain future package work.
 - Companion is the strongest product pressure for persistence and agents. Its
   app-local proof now covers records, histories, projections, command mutation
-  intents, relation manifests, relation health diagnostics,
+  intents, typed effect intent descriptors, relation manifests, relation health diagnostics,
   registry/readiness/manifest, `WizardTypeSpec`, static materialization planning,
   and a review-only materializer/approval audit vertical.
 - Cluster owns distributed placement, routing, ownership, health, remediation,

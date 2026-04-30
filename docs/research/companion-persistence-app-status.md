@@ -89,6 +89,14 @@ Current manifest vocabulary:
 - `/setup/access-path-health(.json)` validates R2c descriptor policy,
   Store/History/Relation lowerings, read-path descriptors, non-mutating
   boundaries, cache hints, projection consumers, and no access-path execution
+- `/setup/effect-intent-plan(.json)` exposes the R2d report-only typed effect
+  intent sketch over existing command mutation intents; it maps
+  `record_append`/`record_update` to future `store_write`,
+  `history_append` to future `store_append`, and keeps `none` explicit as
+  `effect: :none`
+- `/setup/effect-intent-health(.json)` validates R2d descriptor policy,
+  app-boundary-only mutation, preserved `mutation_intent` lowering, no
+  StoreWrite/StoreAppend runtime node, and no Saga execution
 - `/setup` includes the same glossary health as a report-only summary signal;
   readiness does not become stricter because of glossary drift
 - `/setup/health(.json)` summarizes readiness, relation health, manifest
@@ -309,6 +317,15 @@ Current operation algebra:
 - `record_update`
 - `history_append`
 - `none`
+
+Typed effect intent sketch:
+
+- `record_append` -> future `store_write`, write kind `insert`
+- `record_update` -> future `store_write`, write kind `update`
+- `history_append` -> future `store_append`, write kind `append`
+- `none` -> `effect: :none`
+- every mutating effect keeps `boundary: :app`
+- every command still lowers to `mutation_intent`
 
 ## Registry Shape
 
@@ -541,8 +558,8 @@ Track: docs/research/companion-persistence-app-status.md
 Status: current Companion app-level persistence proof summarized.
 [D] Persistence stays app-local while the concept settles.
 [D] Current validated shape is records + histories + projections + command
-operation intents + relation manifests + relation health +
-registry/readiness/manifest.
+operation intents + typed effect intent reports + relation manifests +
+relation health + registry/readiness/manifest.
 [R] Do not promote `persist`, `history`, `index`, `scope`, `command`, or
 relation declarations into core from this proof alone.
 [R] Preserve `persist -> Store[T]` and `history -> History[T]`.
@@ -558,14 +575,17 @@ classification as review-only migration candidates, separate from spec-history
 field diffs and without execution.
 [S] `/setup/storage-migration-plan-health.json` now verifies that R2 remains a
 stable non-executing migration candidate report.
+[S] `/setup/effect-intent-plan.json` and
+`/setup/effect-intent-health.json` now prove R2d typed effect intents without
+StoreWrite/StoreAppend runtime nodes or Saga execution.
 [S] Tracker to TrackerLog proves projection relation input and warning path.
 [S] Article to Comment proves user-defined-type pressure through static
 contracts before dynamic materialization.
 [S] Fractal/self-supporting shape is positive evidence: contracts now describe
 durable specs, validate infrastructure, compute materializer review packets, and
 project audit trails for their own future materialization path.
-Next: stabilize manifest vocabulary, operation algebra, relation semantics, and
-materializer approval lifecycle while keeping capability grants review-only and
+Next: use the stable R2a-R2d descriptor ladder before designing R3
+materializer dry-run review data; keep capability grants review-only and
 non-applied.
 Block: none.
 ```

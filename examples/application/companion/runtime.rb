@@ -128,6 +128,10 @@ module Companion
       access_path_plan_json_status, _access_path_plan_json_headers, access_path_plan_json_body = app.call(rack_env("GET", "/setup/access-path-plan.json"))
       access_path_health_status, _access_path_health_headers, access_path_health_body = app.call(rack_env("GET", "/setup/access-path-health"))
       access_path_health_json_status, _access_path_health_json_headers, access_path_health_json_body = app.call(rack_env("GET", "/setup/access-path-health.json"))
+      effect_intent_plan_status, _effect_intent_plan_headers, effect_intent_plan_body = app.call(rack_env("GET", "/setup/effect-intent-plan"))
+      effect_intent_plan_json_status, _effect_intent_plan_json_headers, effect_intent_plan_json_body = app.call(rack_env("GET", "/setup/effect-intent-plan.json"))
+      effect_intent_health_status, _effect_intent_health_headers, effect_intent_health_body = app.call(rack_env("GET", "/setup/effect-intent-health"))
+      effect_intent_health_json_status, _effect_intent_health_json_headers, effect_intent_health_json_body = app.call(rack_env("GET", "/setup/effect-intent-health.json"))
       relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
       relation_health_json_status, _relation_health_json_headers, relation_health_json_body = app.call(rack_env("GET", "/setup/relation-health.json"))
       materialization_status, _materialization_headers, materialization_body = app.call(rack_env("GET", "/setup/materialization-plan"))
@@ -231,6 +235,10 @@ module Companion
       access_path_plan_json = access_path_plan_json_body.join
       access_path_health = access_path_health_body.join
       access_path_health_json = access_path_health_json_body.join
+      effect_intent_plan = effect_intent_plan_body.join
+      effect_intent_plan_json = effect_intent_plan_json_body.join
+      effect_intent_health = effect_intent_health_body.join
+      effect_intent_health_json = effect_intent_health_json_body.join
       relation_health = relation_health_body.join
       relation_health_json = relation_health_json_body.join
       materialization = materialization_body.join
@@ -354,6 +362,10 @@ module Companion
       out.puts "companion_poc_setup_access_path_plan_json_status=#{access_path_plan_json_status}"
       out.puts "companion_poc_setup_access_path_health_status=#{access_path_health_status}"
       out.puts "companion_poc_setup_access_path_health_json_status=#{access_path_health_json_status}"
+      out.puts "companion_poc_setup_effect_intent_plan_status=#{effect_intent_plan_status}"
+      out.puts "companion_poc_setup_effect_intent_plan_json_status=#{effect_intent_plan_json_status}"
+      out.puts "companion_poc_setup_effect_intent_health_status=#{effect_intent_health_status}"
+      out.puts "companion_poc_setup_effect_intent_health_json_status=#{effect_intent_health_json_status}"
       out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
       out.puts "companion_poc_setup_relation_health_json_status=#{relation_health_json_status}"
       out.puts "companion_poc_setup_materialization_status=#{materialization_status}"
@@ -455,6 +467,10 @@ module Companion
       out.puts "companion_poc_setup_access_path_plan_json_endpoint=#{setup_access_path_plan_json_endpoint?(access_path_plan_json)}"
       out.puts "companion_poc_setup_access_path_health_endpoint=#{setup_access_path_health_endpoint?(access_path_health)}"
       out.puts "companion_poc_setup_access_path_health_json_endpoint=#{setup_access_path_health_json_endpoint?(access_path_health_json)}"
+      out.puts "companion_poc_setup_effect_intent_plan_endpoint=#{setup_effect_intent_plan_endpoint?(effect_intent_plan)}"
+      out.puts "companion_poc_setup_effect_intent_plan_json_endpoint=#{setup_effect_intent_plan_json_endpoint?(effect_intent_plan_json)}"
+      out.puts "companion_poc_setup_effect_intent_health_endpoint=#{setup_effect_intent_health_endpoint?(effect_intent_health)}"
+      out.puts "companion_poc_setup_effect_intent_health_json_endpoint=#{setup_effect_intent_health_json_endpoint?(effect_intent_health_json)}"
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
       out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
       out.puts "companion_poc_setup_materialization_endpoint=#{setup_materialization_endpoint?(materialization)}"
@@ -552,6 +568,8 @@ module Companion
       out.puts "companion_poc_persistence_relation_type_health_contract=#{persistence_relation_type_health_contract?}"
       out.puts "companion_poc_persistence_access_path_plan_contract=#{persistence_access_path_plan_contract?}"
       out.puts "companion_poc_persistence_access_path_health_contract=#{persistence_access_path_health_contract?}"
+      out.puts "companion_poc_persistence_effect_intent_plan_contract=#{persistence_effect_intent_plan_contract?}"
+      out.puts "companion_poc_persistence_effect_intent_health_contract=#{persistence_effect_intent_health_contract?}"
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
       out.puts "companion_poc_setup_handoff_acceptance_contract=#{setup_handoff_acceptance_contract?}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_contract=#{setup_handoff_approval_acceptance_contract?}"
@@ -1882,6 +1900,59 @@ module Companion
         stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
         drift.fetch(:status) == :drift &&
         drift.fetch(:missing_terms).include?(:no_store_read_node)
+    end
+
+    def persistence_effect_intent_plan_contract?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      plan = persistence.effect_intent_plan
+      reminder = plan.fetch(:commands).fetch(:reminder_commands)
+      tracker_log = plan.fetch(:commands).fetch(:tracker_log_commands)
+      reminder_update = reminder.fetch(:intents).find { |intent| intent.fetch(:operation) == :record_update }
+      tracker_append = tracker_log.fetch(:intents).find { |intent| intent.fetch(:operation) == :history_append }
+
+      plan.fetch(:schema_version) == 1 &&
+        plan.fetch(:descriptor).fetch(:kind) == :persistence_effect_intent_plan &&
+        plan.fetch(:descriptor).fetch(:report_only) &&
+        plan.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        plan.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        plan.fetch(:descriptor).fetch(:store_write_node_allowed) == false &&
+        plan.fetch(:descriptor).fetch(:store_append_node_allowed) == false &&
+        plan.fetch(:descriptor).fetch(:saga_execution_allowed) == false &&
+        plan.fetch(:descriptor).fetch(:app_boundary_required) &&
+        plan.fetch(:descriptor).fetch(:source) == { commands: :operation_manifest, access_paths: :persistence_access_path_plan } &&
+        plan.fetch(:descriptor).fetch(:preserves) == { persist: :store_t, history: :history_t, command: :mutation_intent } &&
+        plan.fetch(:status) == :sketched &&
+        plan.fetch(:intent_count) == 11 &&
+        reminder.fetch(:target) == :reminders &&
+        reminder_update.fetch(:effect) == :store_write &&
+        reminder_update.fetch(:write_kind) == :update &&
+        reminder_update.fetch(:lowering) == :store_t &&
+        reminder_update.fetch(:command_still_lowers_to) == :mutation_intent &&
+        reminder_update.fetch(:access_path_source).fetch(:present) &&
+        tracker_append.fetch(:effect) == :store_append &&
+        tracker_append.fetch(:write_kind) == :append &&
+        tracker_append.fetch(:lowering) == :history_t &&
+        tracker_append.fetch(:access_path_source).fetch(:present)
+    end
+
+    def persistence_effect_intent_health_contract?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      stable = persistence.effect_intent_health
+      drift_plan = persistence.effect_intent_plan.merge(
+        descriptor: persistence.effect_intent_plan.fetch(:descriptor).merge(store_write_node_allowed: true)
+      )
+      drift = Contracts::PersistenceEffectIntentHealthContract.evaluate(effect_intent_plan: drift_plan)
+
+      stable.fetch(:status) == :stable &&
+        stable.fetch(:check_count) == 24 &&
+        stable.fetch(:descriptor).fetch(:kind) == :persistence_effect_intent_health &&
+        stable.fetch(:descriptor).fetch(:validates) == :persistence_effect_intent_plan &&
+        stable.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        stable.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        stable.fetch(:missing_terms).empty? &&
+        stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
+        drift.fetch(:status) == :drift &&
+        drift.fetch(:missing_terms).include?(:no_store_write_node)
     end
 
     def persistence_relation_manifest?
@@ -3466,6 +3537,70 @@ module Companion
         payload.fetch("descriptor").fetch("schema_version") == 1 &&
         payload.fetch("descriptor").fetch("kind") == "persistence_access_path_health" &&
         payload.fetch("descriptor").fetch("validates") == "persistence_access_path_plan" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("missing_terms").empty? &&
+        payload.fetch("checks").all? { |check| check.fetch("present") }
+    end
+
+    def setup_effect_intent_plan_endpoint?(effect_intent_plan)
+      effect_intent_plan.include?("kind=>:persistence_effect_intent_plan") &&
+        effect_intent_plan.include?("store_write_node_allowed=>false") &&
+        effect_intent_plan.include?("store_append_node_allowed=>false") &&
+        effect_intent_plan.include?("saga_execution_allowed=>false") &&
+        effect_intent_plan.include?("effect=>:store_write") &&
+        effect_intent_plan.include?("effect=>:store_append")
+    end
+
+    def setup_effect_intent_plan_json_endpoint?(effect_intent_plan_json)
+      payload = JSON.parse(effect_intent_plan_json)
+      reminder = payload.fetch("commands").fetch("reminder_commands")
+      tracker_log = payload.fetch("commands").fetch("tracker_log_commands")
+      reminder_update = reminder.fetch("intents").find { |intent| intent.fetch("operation") == "record_update" }
+      tracker_append = tracker_log.fetch("intents").find { |intent| intent.fetch("operation") == "history_append" }
+
+      payload.fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "persistence_effect_intent_plan" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("descriptor").fetch("store_write_node_allowed") == false &&
+        payload.fetch("descriptor").fetch("store_append_node_allowed") == false &&
+        payload.fetch("descriptor").fetch("saga_execution_allowed") == false &&
+        payload.fetch("descriptor").fetch("app_boundary_required") &&
+        payload.fetch("descriptor").fetch("source") == { "commands" => "operation_manifest", "access_paths" => "persistence_access_path_plan" } &&
+        payload.fetch("descriptor").fetch("preserves") == { "persist" => "store_t", "history" => "history_t", "command" => "mutation_intent" } &&
+        payload.fetch("status") == "sketched" &&
+        payload.fetch("intent_count") == 11 &&
+        reminder.fetch("target") == "reminders" &&
+        reminder_update.fetch("effect") == "store_write" &&
+        reminder_update.fetch("write_kind") == "update" &&
+        reminder_update.fetch("lowering") == "store_t" &&
+        reminder_update.fetch("command_still_lowers_to") == "mutation_intent" &&
+        reminder_update.fetch("access_path_source").fetch("present") &&
+        tracker_append.fetch("effect") == "store_append" &&
+        tracker_append.fetch("write_kind") == "append" &&
+        tracker_append.fetch("lowering") == "history_t" &&
+        tracker_append.fetch("access_path_source").fetch("present")
+    end
+
+    def setup_effect_intent_health_endpoint?(effect_intent_health)
+      effect_intent_health.include?("status=>:stable") &&
+        effect_intent_health.include?("kind=>:persistence_effect_intent_health") &&
+        effect_intent_health.include?("validates=>:persistence_effect_intent_plan") &&
+        effect_intent_health.include?("check_count=>24") &&
+        effect_intent_health.include?("effect intent terms stable")
+    end
+
+    def setup_effect_intent_health_json_endpoint?(effect_intent_health_json)
+      payload = JSON.parse(effect_intent_health_json)
+
+      payload.fetch("status") == "stable" &&
+        payload.fetch("check_count") == 24 &&
+        payload.fetch("descriptor").fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "persistence_effect_intent_health" &&
+        payload.fetch("descriptor").fetch("validates") == "persistence_effect_intent_plan" &&
         payload.fetch("descriptor").fetch("report_only") &&
         payload.fetch("descriptor").fetch("gates_runtime") == false &&
         payload.fetch("descriptor").fetch("grants_capabilities") == false &&
