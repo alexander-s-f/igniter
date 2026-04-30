@@ -367,6 +367,111 @@ RSpec.describe Igniter::Store::IgniterStore do
     end
   end
 
+  describe "schema coercion hook" do
+    it "applies coercion on point read" do
+      store = described_class.new
+      store.register_coercion(:items) { |v, _sv| v.merge(coerced: true) }
+
+      store.write(store: :items, key: "i1", value: { name: "Widget" })
+      result = store.read(store: :items, key: "i1")
+
+      expect(result).to include(name: "Widget", coerced: true)
+    end
+
+    it "passes schema_version to the coercion block" do
+      store    = described_class.new
+      received = []
+      store.register_coercion(:items) { |v, sv| received << sv; v }
+
+      store.write(store: :items, key: "i1", value: { x: 1 }, schema_version: 3)
+      store.read(store: :items, key: "i1")
+
+      expect(received).to eq([3])
+    end
+
+    it "applies coercion on time-travel read" do
+      store = described_class.new
+      store.register_coercion(:items) { |v, _sv| v.merge(migrated: true) }
+
+      store.write(store: :items, key: "i1", value: { x: 1 })
+      future = Process.clock_gettime(Process::CLOCK_REALTIME) + 10
+
+      result = store.read(store: :items, key: "i1", as_of: future)
+      expect(result).to include(x: 1, migrated: true)
+    end
+
+    it "applies coercion on scope query facts" do
+      store = described_class.new
+      store.register_path(
+        Igniter::Store::AccessPath.new(
+          store: :items, lookup: :primary_key, scope: :active,
+          filters: { active: true }, cache_ttl: nil, consumers: []
+        )
+      )
+      store.register_coercion(:items) { |v, _sv| v.merge(coerced: true) }
+
+      store.write(store: :items, key: "i1", value: { active: true, name: "A" })
+      results = store.query(store: :items, scope: :active)
+
+      expect(results.map { |f| f.value }).to all(include(coerced: true))
+    end
+
+    it "applies coercion on history facts" do
+      store = described_class.new
+      store.register_coercion(:logs) { |v, _sv| v.merge(migrated: true) }
+
+      store.append(history: :logs, event: { action: :created })
+      results = store.history(store: :logs)
+
+      expect(results.map { |f| f.value }).to all(include(migrated: true))
+    end
+
+    it "does not affect stores without a registered coercion" do
+      store = described_class.new
+      store.register_coercion(:other) { |v, _| v.merge(touched: true) }
+
+      store.write(store: :items, key: "i1", value: { x: 1 })
+      result = store.read(store: :items, key: "i1")
+
+      expect(result).to eq({ x: 1 })
+    end
+
+    it "returns the original fact from query when value is not changed by coercion" do
+      store = described_class.new
+      store.register_path(
+        Igniter::Store::AccessPath.new(
+          store: :items, lookup: :primary_key, scope: :active,
+          filters: { active: true }, cache_ttl: nil, consumers: []
+        )
+      )
+      # Coercion returns the same object → no CoercedFact wrapping needed
+      store.register_coercion(:items) { |v, _| v }
+
+      store.write(store: :items, key: "i1", value: { active: true } )
+      results = store.query(store: :items, scope: :active)
+
+      expect(results.first).to be_a(Igniter::Store::Fact)
+    end
+
+    it "wraps fact in CoercedFact when coercion changes the value" do
+      store = described_class.new
+      store.register_path(
+        Igniter::Store::AccessPath.new(
+          store: :items, lookup: :primary_key, scope: :active,
+          filters: { active: true }, cache_ttl: nil, consumers: []
+        )
+      )
+      store.register_coercion(:items) { |v, _| v.merge(extra: 1) }
+
+      store.write(store: :items, key: "i1", value: { active: true })
+      results = store.query(store: :items, scope: :active)
+
+      expect(results.first).to be_a(Igniter::Store::CoercedFact)
+      expect(results.first.key).to eq("i1")
+      expect(results.first.value).to include(extra: 1)
+    end
+  end
+
   describe "history_partition" do
     let(:store) { described_class.new }
 

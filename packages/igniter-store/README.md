@@ -200,6 +200,38 @@ Not done here — defer under app pressure.
 
 ---
 
+### [2026-04-30] Schema version coercion hook
+
+**Change**: `IgniterStore#register_coercion(store_name) { |value, schema_version| ... }` registers
+a read-path migration block. On every read — `read`, `time_travel`, `query`, `history`,
+`history_partition` — the block is called with the raw stored value and its `schema_version`.
+The return value replaces the value seen by the caller. Raw facts are never mutated.
+
+When a coercion changes the value, the fact is wrapped in a `CoercedFact` struct that
+delegates all identity fields (`id`, `key`, `timestamp`, `causation`, `value_hash`,
+`schema_version`) to the underlying fact. If the coercion returns the same object
+(`equal?`), the original fact is returned unchanged (zero allocation on no-op coercions).
+
+**Why on the read path, not write path**: the schema_version field was written at insert time
+and is correct for that version. Mutating facts on write would require migrating all existing
+WAL entries and invalidating causation chains. A read-path transform is zero-cost for
+unchanged facts and allows progressive migration.
+
+**Pattern — field rename across schema versions**:
+```ruby
+store.register_coercion(:tasks) do |value, schema_version|
+  next value if schema_version >= 2
+  # v1 stored :title; v2 renamed to :name
+  value.merge(name: value.delete(:title))
+end
+```
+
+**Candidate pressure on igniter-companion**: `Companion::Store` should expose
+`register_coercion` as a passthrough to the inner store, possibly mapped from
+schema class migration declarations. Not done here — defer under app pressure.
+
+---
+
 ## Open Pressure (Tier 2 remaining / Tier 3)
 
 | Pressure | Status | Description |
@@ -208,7 +240,7 @@ Not done here — defer under app pressure.
 | `scope_aware_invalidation` | ✅ done | suppress unchanged scope consumers |
 | `history_partition_index` | ✅ done | `History[T]` partition index, O(partition slice) query |
 | `read_cache_lru_cap` | ✅ done | LRU cap on time-travel cache entries; default 1 000, configurable |
-| `schema_version_hook` | open | `schema_version` field on Fact is inert; read path needs a coercion hook point |
+| `schema_version_hook` | ✅ done | `register_coercion` hook; `CoercedFact` wrapper on all read paths |
 | `snapshot_checkpoint` | open | WAL replay is O(total facts); needs snapshot + replay-since-checkpoint for fast startup |
 
 ---

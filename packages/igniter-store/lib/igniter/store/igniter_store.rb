@@ -5,6 +5,18 @@ require "set"
 
 module Igniter
   module Store
+    # Thin wrapper returned from read paths when a schema coercion is registered.
+    # Delegates identity fields to the underlying fact; exposes the coerced value.
+    CoercedFact = Struct.new(:fact, :value) do
+      def key            = fact.key
+      def id             = fact.id
+      def timestamp      = fact.timestamp
+      def schema_version = fact.schema_version
+      def causation      = fact.causation
+      def value_hash     = fact.value_hash
+      def store          = fact.store
+    end
+
     class IgniterStore
       attr_reader :schema_graph
 
@@ -23,6 +35,9 @@ module Igniter
         # as_of/since filtering is applied at read time over the pre-grouped slice.
         @partition_index = {}
         @partition_mutex = Mutex.new
+        # Schema coercion hooks: { store_name => callable(value, schema_version) }
+        # Applied on every read path; raw facts remain immutable in the log and cache.
+        @coercions = {}
       end
 
       def self.open(path, lru_cap: ReadCache::DEFAULT_LRU_CAP)
@@ -41,6 +56,15 @@ module Igniter
             @cache.register_consumer(path.store, consumer)
           end
         end
+        self
+      end
+
+      # Register a schema migration hook for +store_name+.
+      # The block receives (value, schema_version) and must return the migrated value.
+      # Applied on every read (point reads, scope queries, history); raw facts are
+      # never mutated — coercion is a read-path transform only.
+      def register_coercion(store_name, &block)
+        @coercions[store_name] = block
         self
       end
 
@@ -84,13 +108,13 @@ module Igniter
 
       def read(store:, key:, as_of: nil, ttl: nil)
         cached = @cache.get(store: store, key: key, as_of: as_of, ttl: ttl)
-        return cached.value if cached
+        return coerce_value(store, cached) if cached
 
         fact = @log.latest_for(store: store, key: key, as_of: as_of)
         return nil unless fact
 
         @cache.put(store: store, key: key, fact: fact, as_of: as_of)
-        fact.value
+        coerce_value(store, fact)
       end
 
       def time_travel(store:, key:, at:)
@@ -103,7 +127,7 @@ module Igniter
 
         effective_ttl = ttl || path.cache_ttl
         cached = @cache.get_scope(store: store, scope: scope, as_of: as_of, ttl: effective_ttl)
-        return cached if cached
+        return apply_coercions(store, cached) if cached
 
         filters = path.filters || {}
         facts = if as_of
@@ -126,11 +150,11 @@ module Igniter
         end
 
         @cache.put_scope(store: store, scope: scope, facts: facts, as_of: as_of)
-        facts
+        apply_coercions(store, facts)
       end
 
       def history(store:, key: nil, since: nil, as_of: nil)
-        @log.facts_for(store: store, key: key, since: since, as_of: as_of)
+        apply_coercions(store, @log.facts_for(store: store, key: key, since: since, as_of: as_of))
       end
 
       # Partition-filtered history query backed by a materialized index.
@@ -153,7 +177,7 @@ module Igniter
           slice = (@partition_index[idx_key][partition_value] || []).dup
           slice = slice.select { |f| f.timestamp >= since } if since
           slice = slice.select { |f| f.timestamp <= as_of } if as_of
-          slice
+          apply_coercions(store, slice)
         end
       end
 
@@ -229,6 +253,28 @@ module Igniter
       def matches_filters?(value, filters)
         return false unless value.is_a?(Hash)
         filters.all? { |k, v| value[k] == v }
+      end
+
+      # Returns the coerced value for a single fact point-read.
+      def coerce_value(store, fact)
+        coercion = @coercions[store]
+        return fact.value unless coercion
+
+        coercion.call(fact.value, fact.schema_version)
+      end
+
+      # Wraps each fact in a CoercedFact when a coercion is registered for +store+.
+      # Returns the original array unchanged when no coercion is registered (preserves
+      # object identity for TTL cache equality checks).
+      def apply_coercions(store, facts)
+        coercion = @coercions[store]
+        return facts unless coercion
+
+        facts.map do |f|
+          original = f.value
+          coerced  = coercion.call(original, f.schema_version)
+          coerced.equal?(original) ? f : CoercedFact.new(f, coerced)
+        end
       end
     end
   end
