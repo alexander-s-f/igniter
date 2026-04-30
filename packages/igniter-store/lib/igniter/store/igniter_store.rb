@@ -41,7 +41,7 @@ module Igniter
           store: store,
           key: key,
           value: value,
-          causation: previous&.value_hash,
+          causation: previous&.id,
           schema_version: schema_version,
           term: term
         )
@@ -100,9 +100,10 @@ module Igniter
       def causation_chain(store:, key:)
         history(store: store, key: key).map do |fact|
           {
+            id:         fact.id,
             value_hash: fact.value_hash[0, 12],
-            causation: fact.causation&.then { |value| value[0, 12] },
-            timestamp: fact.timestamp
+            causation:  fact.causation,
+            timestamp:  fact.timestamp
           }
         end
       end

@@ -6,12 +6,32 @@ RSpec.describe Igniter::Store::IgniterStore do
   it "writes immutable facts, reads current state, and preserves causation" do
     store = described_class.new
 
-    first = store.write(store: :reminders, key: "r1", value: { title: "Buy milk", status: :open })
+    first  = store.write(store: :reminders, key: "r1", value: { title: "Buy milk", status: :open })
     second = store.write(store: :reminders, key: "r1", value: { title: "Buy milk", status: :closed })
 
-    expect(second.causation).to eq(first.value_hash)
+    expect(second.causation).to eq(first.id)
+    expect(second.causation).not_to eq(first.value_hash)
     expect(store.read(store: :reminders, key: "r1")).to include(status: :closed)
     expect(store.causation_chain(store: :reminders, key: "r1").length).to eq(2)
+  end
+
+  it "causation chain is unambiguous when the same value is written twice" do
+    store = described_class.new
+
+    f1 = store.write(store: :items, key: "x", value: { status: :open })
+    f2 = store.write(store: :items, key: "x", value: { status: :open })
+    f3 = store.write(store: :items, key: "x", value: { status: :open })
+
+    expect(f1.value_hash).to eq(f2.value_hash).and eq(f3.value_hash)
+    expect(f2.causation).to eq(f1.id)
+    expect(f3.causation).to eq(f2.id)
+
+    chain = store.causation_chain(store: :items, key: "x")
+    expect(chain.length).to eq(3)
+    expect(chain[0][:causation]).to be_nil
+    expect(chain[1][:causation]).to eq(f1.id)
+    expect(chain[2][:causation]).to eq(f2.id)
+    expect(chain.map { |e| e[:id] }).to eq([f1.id, f2.id, f3.id])
   end
 
   it "supports time-travel reads" do
