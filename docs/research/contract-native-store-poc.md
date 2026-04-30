@@ -3,6 +3,8 @@
 Status date: 2026-04-29.
 Scope: Ruby POC proving the core storage model. Not a public API.
 Source: `examples/igniter_store_poc.rb` — runnable, stdlib only.
+Package POC: `packages/igniter-store` — isolated gem skeleton for continued
+experiments.
 Russian companion: `contract-native-store-poc.ru.md`.
 
 ---
@@ -312,3 +314,4 @@ core gem.
 - [Contract-Native Store Research](./contract-native-store-research.md)
 - [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
 - [POC source](../../examples/igniter_store_poc.rb)
+- [POC package](../../packages/igniter-store/README.md)

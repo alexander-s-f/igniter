@@ -358,8 +358,9 @@ model is stable.
 
 Priority order:
 
-1. Prove the polymorphic hub table with a minimal BackgroundSync in Ruby
-   (extend `examples/igniter_store_poc.rb` or a new `examples/igniter_hub_poc.rb`)
+1. Prove the polymorphic hub table with a minimal BackgroundSync in Ruby under
+   `packages/igniter-store`; keep the old `examples/igniter_store_poc.rb` as
+   reference-only.
 2. Decide on conflict resolution for `Store[T]` (Q1)
 3. Implement retention policy declarations in the `persist`/`history` DSL
 4. Implement partition drop sweeper for high-volume transient histories
@@ -371,3 +372,4 @@ Priority order:
 - [Contract-Native Store Research](./contract-native-store-research.md)
 - [Contract-Native Store POC](./contract-native-store-poc.md)
 - [POC source](../../examples/igniter_store_poc.rb)
+- [POC package](../../packages/igniter-store/README.md)

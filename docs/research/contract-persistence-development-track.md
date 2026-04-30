@@ -119,13 +119,28 @@ No filesystem writes, git, tests, restart, or capability grant.
 
 ### R4 Contract-Native Store Experiment
 
-Keep the POC as a separate experiment:
+Keep the POC as a separate experiment under `packages/igniter-store`.
+
+Current package entrypoint:
+
+```ruby
+require "igniter-store"
+```
+
+Current package smoke:
+
+```bash
+ruby -I packages/igniter-store/lib packages/igniter-store/examples/store_poc.rb
+```
+
+Owns:
 
 - content-addressed facts
 - append-only WAL
 - time-travel
 - reactive invalidation
 - access path registry
+- future PostgreSQL sync-hub and retention experiments
 
 Do not wire it into Companion runtime until R2a-R2d are stable.
 
@@ -157,6 +172,8 @@ Track: docs/research/contract-persistence-development-track.md
 Status: development track accepted.
 [D] R1 storage plan and R2 storage migration are current app-local evidence.
 [D] Next implementation slice is R2a Field Type Validation.
+[D] `packages/igniter-store` is the isolated POC gem for contract-native store
+experiments.
 [D] Organic Store[T]/History[T] graph nodes are accepted as horizon, not current
 core work.
 [D] Contract-native store POC stays separate until field/type/relation/access

@@ -14,6 +14,12 @@ Active runtime packages:
 - `igniter-cluster`
 - `igniter-mcp-adapter`
 
+Experimental research packages:
+
+- `igniter-store` - contract-native store POC for immutable facts,
+  time-travel reads, reactive invalidation, WAL replay, and future sync-hub
+  experiments.
+
 Remaining recreation work:
 
 - rebuild `igniter-server` only if an adapter surface is still needed

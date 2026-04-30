@@ -29,6 +29,16 @@ research material under `playgrounds/docs/`.
 - [Contract Persistence Development Track](./contract-persistence-development-track.md) -
   accepted development track from Companion pressure and contract-native store
   research.
+- [Contract Persistence Organic Model](./contract-persistence-organic-model.md) -
+  horizon model for Store/History as future graph-native concepts.
+- [Contract-Native Store Research](./contract-native-store-research.md) -
+  living research on compile-time access paths, time-travel, reactivity, and
+  agent/cluster store pressure.
+- [Contract-Native Store POC](./contract-native-store-poc.md) - POC
+  specification for immutable facts, causation chains, time-travel,
+  invalidation, and WAL replay.
+- [Contract-Native Store Sync Hub](./contract-native-store-sync-hub.md) -
+  PostgreSQL sync-hub and retention research for hot/cold store circuits.
 - [Contract Persistence Relations](./contract-persistence-relations.md) -
   research model, specification, and DSL for relation manifests.
 - [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md) -
@@ -54,9 +64,13 @@ Before changing architecture or reviewing an agent proposal, read:
 10. [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md)
 11. [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
 12. [Contract Persistence Development Track](./contract-persistence-development-track.md)
-13. [Contract Persistence Relations](./contract-persistence-relations.md)
-14. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
-15. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
+13. [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
+14. [Contract-Native Store Research](./contract-native-store-research.md)
+15. [Contract-Native Store POC](./contract-native-store-poc.md)
+16. [Contract-Native Store Sync Hub](./contract-native-store-sync-hub.md)
+17. [Contract Persistence Relations](./contract-persistence-relations.md)
+18. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
+19. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
 
 ## Current Research State
 
