@@ -79,14 +79,16 @@ Goal:
   not current runtime nodes
 - keep the package facade pressure descriptor-first: manifest-generated classes
   and `storage.name` are resolved
-- treat the next convergence pressure as `companion_store_backed_app_flow`, not
-  a full backend migration
+- treat `companion_store_backed_app_flow` as closed by an isolated app-flow
+  sidecar, not by a full backend migration
+- make `portable_field_types` the next package-facade descriptor pressure
 
 Likely surface:
 
 - `/setup/effect-intent-plan(.json)`
 - `/setup/effect-intent-health(.json)`
 - `/setup/store-convergence-sidecar(.json)`
+- `/setup/companion-store-app-flow-sidecar(.json)`
 
 Acceptance:
 
@@ -110,6 +112,9 @@ Acceptance:
 - `/setup/store-convergence-sidecar(.json)` proves manifest-generated
   Record/History bindings, normalized facade receipts, and history partition
   replay without replacing the app backend
+- `/setup/companion-store-app-flow-sidecar(.json)` proves one app-pattern write
+  through `Igniter::Companion::Store` with a normalized receipt and no main app
+  state mutation
 - no runtime gate, core DSL promotion, DB schema change, SQL generation, or
   materializer execution
 - report explicitly preserves `persist -> Store[T]` and `history -> History[T]`

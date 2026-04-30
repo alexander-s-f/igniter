@@ -46,22 +46,22 @@ module Companion
         open_scope = store.scope(reminder_class, :open)
 
         {
-          store_name:            reminder_class.store_name,
+          store_name: reminder_class.store_name,
           generated_from_manifest: true,
-          main_state_mutated:    false,
+          main_state_mutated: false,
           write: {
-            ok:     true,
-            title:  write_params[:title],
+            ok: true,
+            title: write_params[:title],
             status: write_params[:status]
           },
           read: {
-            title:  record.title,
+            title: record.title,
             status: record.status
           },
           receipt: {
-            mutation_intent:     receipt.mutation_intent,
-            fact_id:             receipt.fact_id,
-            value_hash_present:  !receipt.value_hash.nil?,
+            mutation_intent: receipt.mutation_intent,
+            fact_id: receipt.fact_id,
+            value_hash_present: !receipt.value_hash.nil?,
             delegates_to_record: receipt.title == write_params[:title]
           },
           scope: {

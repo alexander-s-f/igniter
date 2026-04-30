@@ -134,6 +134,8 @@ module Companion
       effect_intent_health_json_status, _effect_intent_health_json_headers, effect_intent_health_json_body = app.call(rack_env("GET", "/setup/effect-intent-health.json"))
       store_convergence_status, _store_convergence_headers, store_convergence_body = app.call(rack_env("GET", "/setup/store-convergence-sidecar"))
       store_convergence_json_status, _store_convergence_json_headers, store_convergence_json_body = app.call(rack_env("GET", "/setup/store-convergence-sidecar.json"))
+      companion_store_app_flow_status, _companion_store_app_flow_headers, companion_store_app_flow_body = app.call(rack_env("GET", "/setup/companion-store-app-flow-sidecar"))
+      companion_store_app_flow_json_status, _companion_store_app_flow_json_headers, companion_store_app_flow_json_body = app.call(rack_env("GET", "/setup/companion-store-app-flow-sidecar.json"))
       relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
       relation_health_json_status, _relation_health_json_headers, relation_health_json_body = app.call(rack_env("GET", "/setup/relation-health.json"))
       materialization_status, _materialization_headers, materialization_body = app.call(rack_env("GET", "/setup/materialization-plan"))
@@ -243,6 +245,8 @@ module Companion
       effect_intent_health_json = effect_intent_health_json_body.join
       store_convergence = store_convergence_body.join
       store_convergence_json = store_convergence_json_body.join
+      companion_store_app_flow = companion_store_app_flow_body.join
+      companion_store_app_flow_json = companion_store_app_flow_json_body.join
       relation_health = relation_health_body.join
       relation_health_json = relation_health_json_body.join
       materialization = materialization_body.join
@@ -372,6 +376,8 @@ module Companion
       out.puts "companion_poc_setup_effect_intent_health_json_status=#{effect_intent_health_json_status}"
       out.puts "companion_poc_setup_store_convergence_sidecar_status=#{store_convergence_status}"
       out.puts "companion_poc_setup_store_convergence_sidecar_json_status=#{store_convergence_json_status}"
+      out.puts "companion_poc_setup_companion_store_app_flow_sidecar_status=#{companion_store_app_flow_status}"
+      out.puts "companion_poc_setup_companion_store_app_flow_sidecar_json_status=#{companion_store_app_flow_json_status}"
       out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
       out.puts "companion_poc_setup_relation_health_json_status=#{relation_health_json_status}"
       out.puts "companion_poc_setup_materialization_status=#{materialization_status}"
@@ -479,6 +485,8 @@ module Companion
       out.puts "companion_poc_setup_effect_intent_health_json_endpoint=#{setup_effect_intent_health_json_endpoint?(effect_intent_health_json)}"
       out.puts "companion_poc_setup_store_convergence_sidecar_endpoint=#{setup_store_convergence_sidecar_endpoint?(store_convergence)}"
       out.puts "companion_poc_setup_store_convergence_sidecar_json_endpoint=#{setup_store_convergence_sidecar_json_endpoint?(store_convergence_json)}"
+      out.puts "companion_poc_setup_companion_store_app_flow_sidecar_endpoint=#{setup_companion_store_app_flow_sidecar_endpoint?(companion_store_app_flow)}"
+      out.puts "companion_poc_setup_companion_store_app_flow_sidecar_json_endpoint=#{setup_companion_store_app_flow_sidecar_json_endpoint?(companion_store_app_flow_json)}"
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
       out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
       out.puts "companion_poc_setup_materialization_endpoint=#{setup_materialization_endpoint?(materialization)}"
@@ -579,6 +587,7 @@ module Companion
       out.puts "companion_poc_persistence_effect_intent_plan_contract=#{persistence_effect_intent_plan_contract?}"
       out.puts "companion_poc_persistence_effect_intent_health_contract=#{persistence_effect_intent_health_contract?}"
       out.puts "companion_poc_store_convergence_sidecar_contract=#{store_convergence_sidecar_contract?}"
+      out.puts "companion_poc_companion_store_app_flow_sidecar_contract=#{companion_store_app_flow_sidecar_contract?}"
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
       out.puts "companion_poc_setup_handoff_acceptance_contract=#{setup_handoff_acceptance_contract?}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_contract=#{setup_handoff_approval_acceptance_contract?}"
@@ -2004,11 +2013,28 @@ module Companion
         history.fetch(:partition_replay_values) == [7.0, 8.5] &&
         record.fetch(:manifest_store_name_present) &&
         history.fetch(:manifest_store_name_present) &&
-        pressure.fetch(:next_question) == :companion_store_backed_app_flow &&
+        pressure.fetch(:next_question) == :portable_field_types &&
         pressure.fetch(:resolved).include?(:manifest_generated_record_history_classes) &&
         pressure.fetch(:resolved).include?(:store_name_in_manifest) &&
+        pressure.fetch(:resolved).include?(:companion_store_backed_app_flow) &&
         pressure.fetch(:facade_input_ready).include?(:storage_name) &&
         pressure.fetch(:facade_input_ready).include?(:history_partition_key)
+    end
+
+    def companion_store_app_flow_sidecar_contract?
+      packet = Services::CompanionStoreAppFlowSidecar.packet
+      descriptor = packet.fetch(:descriptor)
+      checks = packet.fetch(:checks)
+
+      packet.fetch(:schema_version) == 1 &&
+        descriptor.fetch(:kind) == :companion_store_app_flow_sidecar &&
+        descriptor.fetch(:report_only) &&
+        descriptor.fetch(:gates_runtime) == false &&
+        descriptor.fetch(:replaces_app_backend) == false &&
+        packet.fetch(:status) == :stable &&
+        checks.length == 10 &&
+        checks.all? { |check| check.fetch(:present) } &&
+        packet.fetch(:summary).include?("receipt_intent=record_write")
     end
 
     def persistence_relation_manifest?
@@ -3672,7 +3698,8 @@ module Companion
         store_convergence.include?("past_status=>:open") &&
         store_convergence.include?("partition_query_supported=>true") &&
         store_convergence.include?("manifest_store_name_present=>true") &&
-        store_convergence.include?("next_question=>:companion_store_backed_app_flow") &&
+        store_convergence.include?("next_question=>:portable_field_types") &&
+        store_convergence.include?("companion_store_backed_app_flow") &&
         store_convergence.include?("store_name_in_manifest") &&
         store_convergence.include?("manifest_generated_record_history_classes") &&
         store_convergence.include?("facade_input_ready")
@@ -3718,11 +3745,35 @@ module Companion
         history.fetch("partition_query_supported") &&
         history.fetch("partition_replay_count") == 2 &&
         history.fetch("partition_replay_values") == [7.0, 8.5] &&
-        pressure.fetch("next_question") == "companion_store_backed_app_flow" &&
+        pressure.fetch("next_question") == "portable_field_types" &&
         pressure.fetch("resolved").include?("manifest_generated_record_history_classes") &&
         pressure.fetch("resolved").include?("store_name_in_manifest") &&
+        pressure.fetch("resolved").include?("companion_store_backed_app_flow") &&
         pressure.fetch("facade_input_ready").include?("storage_name") &&
         pressure.fetch("facade_input_ready").include?("history_partition_key")
+    end
+
+    def setup_companion_store_app_flow_sidecar_endpoint?(companion_store_app_flow)
+      companion_store_app_flow.include?("kind=>:companion_store_app_flow_sidecar") &&
+        companion_store_app_flow.include?("status=>:stable") &&
+        companion_store_app_flow.include?("store=reminders") &&
+        companion_store_app_flow.include?("receipt_intent=record_write")
+    end
+
+    def setup_companion_store_app_flow_sidecar_json_endpoint?(companion_store_app_flow_json)
+      payload = JSON.parse(companion_store_app_flow_json)
+      descriptor = payload.fetch("descriptor")
+
+      payload.fetch("schema_version") == 1 &&
+        descriptor.fetch("kind") == "companion_store_app_flow_sidecar" &&
+        descriptor.fetch("report_only") &&
+        descriptor.fetch("gates_runtime") == false &&
+        descriptor.fetch("replaces_app_backend") == false &&
+        payload.fetch("status") == "stable" &&
+        payload.fetch("checks").length == 10 &&
+        payload.fetch("checks").all? { |check| check.fetch("present") } &&
+        payload.fetch("summary").include?("store=reminders") &&
+        payload.fetch("summary").include?("receipt_intent=record_write")
     end
 
     def post(app, path, values = {})

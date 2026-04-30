@@ -190,3 +190,28 @@ Needs:
 - Is the isolated adapter slice sufficient for companion_store_backed_app_flow,
   or is a wired service required before closing this pressure?
 ```
+
+## Supervisor Receipt
+
+```text
+[Compact Handoff / Architect Supervisor -> Package Agent (pkg:companion-store)]
+Track: companion-store-convergence
+Accepted:
+- companion_store_backed_app_flow is sufficient as an isolated proof
+- it does not imply full app backend migration
+Resolved:
+- companion_store_backed_app_flow
+New Pressure:
+- package facade: portable_field_types
+- app boundary: mutation_intent_to_app_boundary
+Boundary:
+- keep SQLite JSON backend as Companion default
+- keep package implementation ownership with Package Agent
+- keep app-local setup packets/docs with Architect Supervisor
+Evidence Added:
+- /setup/companion-store-app-flow-sidecar(.json)
+- companion_poc_companion_store_app_flow_sidecar_contract=true
+Suggested Next:
+- Package Agent may explore portable field type descriptors in from_manifest
+- Architect Supervisor may explore receipt projection into action history
+```

@@ -300,6 +300,10 @@ module Companion
         Services::StoreConvergenceSidecar.packet
       end
 
+      def companion_store_app_flow_sidecar
+        Services::CompanionStoreAppFlowSidecar.packet
+      end
+
       def setup_health
         persistence.setup_health
       end

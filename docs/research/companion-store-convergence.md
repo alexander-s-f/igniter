@@ -44,6 +44,8 @@ Companion now exposes a tiny convergence sidecar:
 
 - `/setup/store-convergence-sidecar`
 - `/setup/store-convergence-sidecar.json`
+- `/setup/companion-store-app-flow-sidecar`
+- `/setup/companion-store-app-flow-sidecar.json`
 
 This packet is report-only and ephemeral. It creates an in-memory
 `Igniter::Companion::Store`, defines package-level typed classes for one
@@ -70,6 +72,8 @@ Proved:
 - facts expose receipt data through `fact_id`, `value_hash`, and `timestamp`
 - app-local manifests now expose `storage.name`, so `from_manifest(manifest)`
   can bind the package store/history name without a `store:` override
+- the app-flow sidecar proves one app-pattern `Reminder` write/read/scope cycle
+  through `Igniter::Companion::Store` and returns a normalized write receipt
 - the packet does not mutate main Companion state or replace the current app
   backend
 
@@ -120,10 +124,10 @@ For `igniter-store` research:
 
 For `igniter-companion` research:
 
-- `manifest_generated_record_history_classes` and `store_name_in_manifest` are
-  resolved in the package facade. Next pressure is
-  `companion_store_backed_app_flow`, followed by portable field types, index
-  metadata, command/effect metadata, and relation metadata.
+- `manifest_generated_record_history_classes`, `store_name_in_manifest`, and
+  `companion_store_backed_app_flow` are resolved as report-only proofs. Next
+  package-facade pressure is `portable_field_types`, followed by index metadata,
+  command/effect metadata, and relation metadata.
 - Should `storage.name` remain the canonical capability identity, or should it
   later split into separate package store name and app capability name?
 - Which app-local descriptors should be mirrored first: field type, scope,
@@ -137,9 +141,11 @@ For app-local Companion:
 - Keep R2a-R2d as the read-before-write ladder.
 - Do not replace the SQLite JSON backend yet.
 - The tiny sidecar proof is now present and updated for partition replay plus
-  normalized receipts. Use it before any broader adapter migration.
-- Next convergence slice should decide which additional app-local descriptor
-  belongs in the package facade first.
+  normalized receipts.
+- The app-flow sidecar is sufficient to close `companion_store_backed_app_flow`
+  as an isolated proof, not as an app backend migration.
+- Next app-boundary pressure is `mutation_intent_to_app_boundary`: decide
+  whether package write receipts feed action history directly or via projection.
 
 ## Non-Goals
 

@@ -82,6 +82,7 @@ module Companion
           effect_intent_plan: service(:companion).effect_intent_plan,
           effect_intent_health: service(:companion).effect_intent_health,
           store_convergence_sidecar: service(:companion).store_convergence_sidecar,
+          companion_store_app_flow_sidecar: service(:companion).companion_store_app_flow_sidecar,
           materializer_descriptor_health: snapshot.materializer_status_descriptor_health,
           setup_health: service(:companion).setup_health,
           setup_handoff: service(:companion).setup_handoff,
@@ -341,6 +342,14 @@ module Companion
 
       get "/setup/store-convergence-sidecar.json" do
         text JSON.pretty_generate(service(:companion).store_convergence_sidecar)
+      end
+
+      get "/setup/companion-store-app-flow-sidecar" do
+        text service(:companion).companion_store_app_flow_sidecar.inspect
+      end
+
+      get "/setup/companion-store-app-flow-sidecar.json" do
+        text JSON.pretty_generate(service(:companion).companion_store_app_flow_sidecar)
       end
 
       get "/setup/relation-health" do
