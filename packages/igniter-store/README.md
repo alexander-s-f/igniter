@@ -140,13 +140,43 @@ and suppressed false-positive notifications.
 
 ---
 
+### [2026-04-30] History partition index
+
+**Change**: `IgniterStore` now maintains a per-(store, partition_key) materialized index
+`@partition_index: { [store, partition_key] => { partition_value => [fact, ...] } }`.
+A new `#history_partition` method provides O(partition slice) reads instead of O(total events).
+`#append` accepts an optional `partition_key:` parameter; when provided and the index is warm,
+the new fact is appended to the correct partition bucket in O(1).
+
+**Before**: `Companion::Store#replay(partition:)` called `@inner.history(...)` (full scan of
+all events in the store), then filtered in Ruby. For a store with N total events split across P
+partitions, each `replay` was O(N) regardless of partition size.
+
+**After**:
+- First `history_partition` call for a (store, partition_key) pair: O(N) full scan that builds
+  the index — one-time cost identical to the old path.
+- Subsequent `history_partition` calls: O(partition slice) — read the pre-grouped bucket directly.
+- New `append` calls: O(1) bucket append when the index is already warm.
+- `since:` / `as_of:` time filters applied at read time over the cached slice; they do NOT
+  prevent the index from being used.
+
+**Companion impact**: `Companion::Store#append` now passes `partition_key: history_class._partition_key`
+to `@inner.append`; `#replay(partition:)` delegates to `@inner.history_partition` when a
+partition key is declared. The public API of Companion is unchanged.
+
+**Index correctness edge**: appends without `partition_key:` (or where the event does not
+contain the partition field) do NOT update the index. The caller is responsible for passing
+`partition_key:` consistently — Companion always does so via `_partition_key`.
+
+---
+
 ## Open Pressure (Tier 2 remaining / Tier 3)
 
 | Pressure | Status | Description |
 |----------|--------|-------------|
 | `scope_materialized_index` | ✅ done | per-scope Set index, O(1) query |
 | `scope_aware_invalidation` | ✅ done | suppress unchanged scope consumers |
-| `history_partition_index` | open | `History[T]` replay(partition:) is full log scan; needs secondary index by partition key |
+| `history_partition_index` | ✅ done | `History[T]` partition index, O(partition slice) query |
 | `read_cache_lru_cap` | open | time-travel cache entries never evicted; needs LRU capacity limit |
 | `schema_version_hook` | open | `schema_version` field on Fact is inert; read path needs a coercion hook point |
 | `snapshot_checkpoint` | open | WAL replay is O(total facts); needs snapshot + replay-since-checkpoint for fast startup |

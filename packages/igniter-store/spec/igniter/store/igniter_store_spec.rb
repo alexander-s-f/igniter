@@ -367,6 +367,83 @@ RSpec.describe Igniter::Store::IgniterStore do
     end
   end
 
+  describe "history_partition" do
+    let(:store) { described_class.new }
+
+    it "returns only events matching the partition value" do
+      store.append(history: :logs, event: { tracker_id: "sleep", value: 8.0 }, partition_key: :tracker_id)
+      store.append(history: :logs, event: { tracker_id: "mood",  value: 7.0 }, partition_key: :tracker_id)
+      store.append(history: :logs, event: { tracker_id: "sleep", value: 7.5 }, partition_key: :tracker_id)
+
+      results = store.history_partition(store: :logs, partition_key: :tracker_id, partition_value: "sleep")
+      expect(results.map { |f| f.value[:value] }).to eq([8.0, 7.5])
+    end
+
+    it "returns an empty array for an unknown partition value" do
+      store.append(history: :logs, event: { tracker_id: "sleep", value: 8.0 }, partition_key: :tracker_id)
+
+      results = store.history_partition(store: :logs, partition_key: :tracker_id, partition_value: "mood")
+      expect(results).to be_empty
+    end
+
+    it "builds the index lazily on first call and serves subsequent calls from it" do
+      store.append(history: :logs, event: { tracker_id: "sleep", value: 8.0 }, partition_key: :tracker_id)
+      store.append(history: :logs, event: { tracker_id: "sleep", value: 7.5 }, partition_key: :tracker_id)
+
+      # First call — full scan
+      first = store.history_partition(store: :logs, partition_key: :tracker_id, partition_value: "sleep")
+      # Second call — served from index (object identity of facts is preserved)
+      second = store.history_partition(store: :logs, partition_key: :tracker_id, partition_value: "sleep")
+      expect(first.map(&:id)).to eq(second.map(&:id))
+    end
+
+    it "maintains the index for subsequent appends" do
+      store.history_partition(store: :logs, partition_key: :tracker_id, partition_value: "sleep")  # warm empty
+
+      store.append(history: :logs, event: { tracker_id: "sleep", value: 8.0 }, partition_key: :tracker_id)
+      store.append(history: :logs, event: { tracker_id: "sleep", value: 7.5 }, partition_key: :tracker_id)
+
+      results = store.history_partition(store: :logs, partition_key: :tracker_id, partition_value: "sleep")
+      expect(results.length).to eq(2)
+    end
+
+    it "does not include new appends in the index when partition_key is not specified" do
+      store.history_partition(store: :logs, partition_key: :tracker_id, partition_value: "sleep")  # warm
+
+      # append without partition_key — index not updated
+      store.append(history: :logs, event: { tracker_id: "sleep", value: 9.0 })
+
+      results = store.history_partition(store: :logs, partition_key: :tracker_id, partition_value: "sleep")
+      expect(results).to be_empty
+    end
+
+    it "filters by since:" do
+      store.append(history: :logs, event: { tracker_id: "sleep", value: 8.0 }, partition_key: :tracker_id)
+      sleep 0.01
+      boundary = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.01
+      store.append(history: :logs, event: { tracker_id: "sleep", value: 7.5 }, partition_key: :tracker_id)
+
+      results = store.history_partition(
+        store: :logs, partition_key: :tracker_id, partition_value: "sleep", since: boundary
+      )
+      expect(results.map { |f| f.value[:value] }).to eq([7.5])
+    end
+
+    it "filters by as_of:" do
+      store.append(history: :logs, event: { tracker_id: "sleep", value: 8.0 }, partition_key: :tracker_id)
+      sleep 0.01
+      boundary = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.01
+      store.append(history: :logs, event: { tracker_id: "sleep", value: 7.5 }, partition_key: :tracker_id)
+
+      results = store.history_partition(
+        store: :logs, partition_key: :tracker_id, partition_value: "sleep", as_of: boundary
+      )
+      expect(results.map { |f| f.value[:value] }).to eq([8.0])
+    end
+  end
+
   describe "scope-aware invalidation" do
     def path_for(scope, filters, consumers: [])
       Igniter::Store::AccessPath.new(

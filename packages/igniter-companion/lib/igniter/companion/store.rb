@@ -98,7 +98,8 @@ module Igniter
       # Append an event to a History stream. Returns an AppendReceipt.
       # Receipt delegates unknown methods to the event (e.g. receipt.value).
       def append(history_class, **fields)
-        fact  = @inner.append(history: history_class.store_name, event: fields)
+        pk    = history_class._partition_key
+        fact  = @inner.append(history: history_class.store_name, event: fields, partition_key: pk)
         event = history_class.new(fact_id: fact.id, timestamp: fact.timestamp, **fields)
         AppendReceipt.new(
           mutation_intent: :history_append,
@@ -113,10 +114,17 @@ module Igniter
       # `partition:` filters by the declared partition_key value (e.g. tracker_id: "sleep").
       # `since:` / `as_of:` are timestamp boundaries.
       def replay(history_class, since: nil, as_of: nil, partition: nil)
-        facts = @inner.history(store: history_class.store_name, since: since, as_of: as_of)
-
-        if partition && (pk = history_class._partition_key)
-          facts = facts.select { |f| f.value[pk] == partition }
+        pk    = history_class._partition_key
+        facts = if partition && pk
+          @inner.history_partition(
+            store:           history_class.store_name,
+            partition_key:   pk,
+            partition_value: partition,
+            since:           since,
+            as_of:           as_of
+          )
+        else
+          @inner.history(store: history_class.store_name, since: since, as_of: as_of)
         end
 
         facts.map { |f| history_class.from_fact(f) }

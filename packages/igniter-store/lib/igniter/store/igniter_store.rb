@@ -18,6 +18,11 @@ module Igniter
         # Time-travel queries (as_of: non-nil) bypass the index.
         @scope_index  = {}
         @scope_mutex  = Mutex.new
+        # Partition index: { [store, partition_key] => { partition_value => [fact, ...] } }
+        # Populated lazily on first history_partition call; maintained on every append thereafter.
+        # as_of/since filtering is applied at read time over the pre-grouped slice.
+        @partition_index = {}
+        @partition_mutex = Mutex.new
       end
 
       def self.open(path)
@@ -56,7 +61,7 @@ module Igniter
         fact
       end
 
-      def append(history:, event:, schema_version: 1, term: 0)
+      def append(history:, event:, schema_version: 1, term: 0, partition_key: nil)
         fact = Fact.build(
           store: history,
           key: SecureRandom.uuid,
@@ -66,6 +71,14 @@ module Igniter
         )
         @log.append(fact)
         @backend&.write_fact(fact)
+        if partition_key && (pv = event[partition_key])
+          idx_key = [history, partition_key]
+          @partition_mutex.synchronize do
+            if @partition_index.key?(idx_key)
+              (@partition_index[idx_key][pv] ||= []) << fact
+            end
+          end
+        end
         fact
       end
 
@@ -118,6 +131,30 @@ module Igniter
 
       def history(store:, key: nil, since: nil, as_of: nil)
         @log.facts_for(store: store, key: key, since: since, as_of: as_of)
+      end
+
+      # Partition-filtered history query backed by a materialized index.
+      # First call for a (store, partition_key) pair performs a full scan and
+      # builds the index; subsequent calls are O(partition slice).
+      # as_of/since filtering is applied over the cached slice at read time.
+      def history_partition(store:, partition_key:, partition_value:, since: nil, as_of: nil)
+        idx_key = [store, partition_key]
+        @partition_mutex.synchronize do
+          unless @partition_index.key?(idx_key)
+            all_facts = @log.facts_for(store: store)
+            groups    = Hash.new { |h, k| h[k] = [] }
+            all_facts.each do |f|
+              pv = f.value[partition_key]
+              groups[pv] << f if pv
+            end
+            @partition_index[idx_key] = groups
+          end
+
+          slice = (@partition_index[idx_key][partition_value] || []).dup
+          slice = slice.select { |f| f.timestamp >= since } if since
+          slice = slice.select { |f| f.timestamp <= as_of } if as_of
+          slice
+        end
       end
 
       def causation_chain(store:, key:)
