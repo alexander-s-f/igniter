@@ -185,7 +185,10 @@ StoreAppend runtime nodes.
 between app-local manifests, `igniter-companion`, and `igniter-store`: one
 `Reminder` typed Record and one `TrackerLog` typed History flow through
 `Igniter::Companion::Store` into immutable facts without replacing the current
-Companion backend.
+Companion backend. It now generates the package Record/History classes from
+the app-local contract manifests and includes normalized `WriteReceipt` /
+`AppendReceipt` metadata plus `TrackerLog` partition replay via
+`partition_key :tracker_id`.
 
 Migrations are review-only. Current planning has two lanes: spec-history field
 diffs and storage-plan descriptor diffs. There is no migration generator,
@@ -249,7 +252,8 @@ Best next move:
 - use `/setup/effect-intent-health.json` before treating R2d typed effect
   descriptors as stable evidence
 - use `/setup/store-convergence-sidecar.json` before discussing package-level
-  store adapter slices, fact receipts, or `history key` partition lowering
+  store adapter slices, fact receipts, partition replay, or package facade
+  descriptor mirroring
 - use `/setup/handoff.json` as the first read after context rotation
 - use `/setup/handoff/digest.txt` as the compact human handoff, or
   `/setup/handoff/digest.json` as the structured agent map before

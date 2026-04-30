@@ -1982,19 +1982,27 @@ module Companion
         descriptor.fetch(:substrate) == :"igniter-store" &&
         descriptor.fetch(:preserves) == { persist: :store_t, history: :history_t, command: :mutation_intent } &&
         packet.fetch(:status) == :stable &&
-        packet.fetch(:checks).length == 15 &&
+        packet.fetch(:checks).length == 19 &&
         packet.fetch(:checks).all? { |check| check.fetch(:present) } &&
+        record.fetch(:generated_from_manifest) &&
+        history.fetch(:generated_from_manifest) &&
         record.fetch(:current_status) == :done &&
         record.fetch(:past_status) == :open &&
         record.fetch(:open_before_count) == 1 &&
         record.fetch(:open_after_count).zero? &&
         record.fetch(:causation_count) == 2 &&
-        history.fetch(:replay_count) == 2 &&
+        record.fetch(:write_receipt_intent) == :record_write &&
+        record.fetch(:write_receipt_fact_id_present) &&
+        record.fetch(:write_receipt_delegates) &&
+        history.fetch(:replay_count) == 3 &&
         history.fetch(:values) == [7.0, 8.5] &&
         history.fetch(:event_fact_ids).all? &&
         history.fetch(:partition_key_declared) == :tracker_id &&
-        history.fetch(:partition_query_supported) == false &&
-        pressure.fetch(:next_question) == :history_partition_key_lowering
+        history.fetch(:append_receipt_intent) == :history_append &&
+        history.fetch(:partition_query_supported) &&
+        history.fetch(:partition_replay_count) == 2 &&
+        history.fetch(:partition_replay_values) == [7.0, 8.5] &&
+        pressure.fetch(:next_question) == :manifest_generated_record_history_classes
     end
 
     def persistence_relation_manifest?
@@ -3656,7 +3664,8 @@ module Companion
         store_convergence.include?("substrate=>:\"igniter-store\"") &&
         store_convergence.include?("current_status=>:done") &&
         store_convergence.include?("past_status=>:open") &&
-        store_convergence.include?("next_question=>:history_partition_key_lowering")
+        store_convergence.include?("partition_query_supported=>true") &&
+        store_convergence.include?("next_question=>:manifest_generated_record_history_classes")
     end
 
     def setup_store_convergence_sidecar_json_endpoint?(store_convergence_json)
@@ -3677,19 +3686,27 @@ module Companion
         descriptor.fetch("substrate") == "igniter-store" &&
         descriptor.fetch("preserves") == { "persist" => "store_t", "history" => "history_t", "command" => "mutation_intent" } &&
         payload.fetch("status") == "stable" &&
-        payload.fetch("checks").length == 15 &&
+        payload.fetch("checks").length == 19 &&
         payload.fetch("checks").all? { |check| check.fetch("present") } &&
+        record.fetch("generated_from_manifest") &&
+        history.fetch("generated_from_manifest") &&
         record.fetch("current_status") == "done" &&
         record.fetch("past_status") == "open" &&
         record.fetch("open_before_count") == 1 &&
         record.fetch("open_after_count").zero? &&
         record.fetch("causation_count") == 2 &&
-        history.fetch("replay_count") == 2 &&
+        record.fetch("write_receipt_intent") == "record_write" &&
+        record.fetch("write_receipt_fact_id_present") &&
+        record.fetch("write_receipt_delegates") &&
+        history.fetch("replay_count") == 3 &&
         history.fetch("values") == [7.0, 8.5] &&
         history.fetch("event_fact_ids").all? &&
         history.fetch("partition_key_declared") == "tracker_id" &&
-        history.fetch("partition_query_supported") == false &&
-        pressure.fetch("next_question") == "history_partition_key_lowering"
+        history.fetch("append_receipt_intent") == "history_append" &&
+        history.fetch("partition_query_supported") &&
+        history.fetch("partition_replay_count") == 2 &&
+        history.fetch("partition_replay_values") == [7.0, 8.5] &&
+        pressure.fetch("next_question") == "manifest_generated_record_history_classes"
     end
 
     def post(app, path, values = {})

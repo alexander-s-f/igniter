@@ -12,58 +12,45 @@ end
 module Companion
   module Services
     class StoreConvergenceSidecar
-      class ReminderRecord
-        include Igniter::Companion::Record
-
-        store_name :reminders
-
-        field :id
-        field :title
-        field :due
-        field :status, default: :open
-
-        scope :open, filters: { status: :open }
-      end
-
-      class TrackerLogEvent
-        include Igniter::Companion::History
-
-        history_name :tracker_logs
-        partition_key :tracker_id
-
-        field :tracker_id
-        field :date
-        field :value
-      end
-
       def self.packet
         proof = new.proof
         Contracts::StoreConvergenceSidecarContract.evaluate(proof: proof)
       end
 
       def proof
+        reminder_record = self.class.generated_record_class(
+          :GeneratedReminderRecord,
+          capability: :reminders,
+          contract: Contracts::Reminder
+        )
+        tracker_log_event = self.class.generated_history_class(
+          :GeneratedTrackerLogEvent,
+          capability: :tracker_logs,
+          contract: Contracts::TrackerLog
+        )
+
         store = Igniter::Companion::Store.new
-        store.register(ReminderRecord)
+        store.register(reminder_record)
 
         notifications = []
-        store.on_scope(ReminderRecord, :open) { |store_name, scope| notifications << [store_name, scope] }
+        store.on_scope(reminder_record, :open) { |store_name, scope| notifications << [store_name, scope] }
 
-        write_receipt = store.write(ReminderRecord, key: "morning-water", id: "morning-water", title: "Drink water", due: "morning", status: :open)
-        read = store.read(ReminderRecord, key: "morning-water")
-        open_before = store.scope(ReminderRecord, :open)
+        write_receipt = store.write(reminder_record, key: "morning-water", id: "morning-water", title: "Drink water", due: "morning", status: :open)
+        read = store.read(reminder_record, key: "morning-water")
+        open_before = store.scope(reminder_record, :open)
         sleep 0.001
         checkpoint = Process.clock_gettime(Process::CLOCK_REALTIME)
         sleep 0.001
-        store.write(ReminderRecord, key: "morning-water", id: "morning-water", title: "Drink water", due: "morning", status: :done)
-        current = store.read(ReminderRecord, key: "morning-water")
-        past = store.read(ReminderRecord, key: "morning-water", as_of: checkpoint)
-        open_after = store.scope(ReminderRecord, :open)
+        store.write(reminder_record, key: "morning-water", id: "morning-water", title: "Drink water", due: "morning", status: :done)
+        current = store.read(reminder_record, key: "morning-water")
+        past = store.read(reminder_record, key: "morning-water", as_of: checkpoint)
+        open_after = store.scope(reminder_record, :open)
 
-        first_receipt  = store.append(TrackerLogEvent, tracker_id: "sleep",     date: "2026-04-30", value: 7.0)
-        second_receipt = store.append(TrackerLogEvent, tracker_id: "training",  date: "2026-04-30", value: 42.0)
-        third_receipt  = store.append(TrackerLogEvent, tracker_id: "sleep",     date: "2026-05-01", value: 8.5)
-        replay_all     = store.replay(TrackerLogEvent)
-        replay_sleep   = store.replay(TrackerLogEvent, partition: "sleep")
+        first_receipt  = store.append(tracker_log_event, tracker_id: "sleep",     date: "2026-04-30", value: 7.0)
+        second_receipt = store.append(tracker_log_event, tracker_id: "training",  date: "2026-04-30", value: 42.0)
+        third_receipt  = store.append(tracker_log_event, tracker_id: "sleep",     date: "2026-05-01", value: 8.5)
+        replay_all     = store.replay(tracker_log_event)
+        replay_sleep   = store.replay(tracker_log_event, partition: "sleep")
 
         {
           schema_version: 1,
@@ -71,19 +58,54 @@ module Companion
           substrate: :"igniter-store",
           backend: :memory,
           main_state_mutated: false,
-          record: record_report(store, read, current, past, open_before, open_after, notifications, write_receipt),
-          history: history_report([first_receipt, second_receipt, third_receipt], replay_all, replay_sleep),
+          record: record_report(store, reminder_record, read, current, past, open_before, open_after, notifications, write_receipt),
+          history: history_report(tracker_log_event, [first_receipt, second_receipt, third_receipt], replay_all, replay_sleep),
           pressure: pressure_report
         }.tap { store.close }
       end
 
+      def self.generated_record_class(const_name, capability:, contract:)
+        return const_get(const_name) if const_defined?(const_name, false)
+
+        manifest = contract.persistence_manifest
+        klass = Class.new do
+          include Igniter::Companion::Record
+
+          store_name capability
+          manifest.fetch(:fields).each do |descriptor|
+            field descriptor.fetch(:name), default: descriptor.fetch(:attributes, {}).fetch(:default, nil)
+          end
+          manifest.fetch(:scopes).each do |descriptor|
+            scope descriptor.fetch(:name), filters: descriptor.fetch(:attributes, {}).fetch(:where, {})
+          end
+        end
+        const_set(const_name, klass)
+      end
+
+      def self.generated_history_class(const_name, capability:, contract:)
+        return const_get(const_name) if const_defined?(const_name, false)
+
+        manifest = contract.persistence_manifest
+        klass = Class.new do
+          include Igniter::Companion::History
+
+          history_name capability
+          partition_key manifest.fetch(:history).fetch(:key)
+          manifest.fetch(:fields).each do |descriptor|
+            field descriptor.fetch(:name), default: descriptor.fetch(:attributes, {}).fetch(:default, nil)
+          end
+        end
+        const_set(const_name, klass)
+      end
+
       private
 
-      def record_report(store, read, current, past, open_before, open_after, notifications, write_receipt)
+      def record_report(store, record_class, read, current, past, open_before, open_after, notifications, write_receipt)
         manifest = Contracts::Reminder.persistence_manifest
         {
           contract: :Reminder,
-          package_class: self.class::ReminderRecord.name,
+          package_class: record_class.name,
+          generated_from_manifest: true,
           manifest_storage: manifest.fetch(:storage),
           manifest_fields: manifest.fetch(:fields).map { |field| field.fetch(:name) },
           manifest_scopes: manifest.fetch(:scopes).map { |scope| scope.fetch(:name) },
@@ -92,7 +114,7 @@ module Companion
           past_status: past.status,
           open_before_count: open_before.length,
           open_after_count: open_after.length,
-          causation_count: store.causation_chain(ReminderRecord, key: "morning-water").length,
+          causation_count: store.causation_chain(record_class, key: "morning-water").length,
           invalidation_notifications: notifications,
           write_receipt_intent: write_receipt.mutation_intent,
           write_receipt_fact_id_present: !write_receipt.fact_id.nil?,
@@ -100,11 +122,12 @@ module Companion
         }
       end
 
-      def history_report(receipts, replay_all, replay_sleep)
+      def history_report(history_class, receipts, replay_all, replay_sleep)
         manifest = Contracts::TrackerLog.persistence_manifest
         {
           contract: :TrackerLog,
-          package_class: self.class::TrackerLogEvent.name,
+          package_class: history_class.name,
+          generated_from_manifest: true,
           manifest_storage: manifest.fetch(:storage),
           manifest_fields: manifest.fetch(:fields).map { |field| field.fetch(:name) },
           partition_key_declared: manifest.fetch(:history).fetch(:key),

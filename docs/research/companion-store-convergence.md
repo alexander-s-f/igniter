@@ -52,22 +52,30 @@ This packet is report-only and ephemeral. It creates an in-memory
 
 Proved:
 
-- `Reminder` contract manifest can be mirrored as a typed Record class
+- `Reminder` contract manifest now generates the typed package Record class
 - Record write/read/scope works through `Igniter::Companion::Store`
 - Record time-travel read returns the earlier `:open` state
 - Record causation chain has two facts
-- `TrackerLog` append/replay works through typed History
+- Record writes now return normalized `WriteReceipt` data with fact metadata
+  and delegation back to the typed record
+- `TrackerLog` contract manifest now generates the typed package History class
 - float values round-trip as `[7.0, 8.5]`
-- facts expose receipt data through `fact_id` and `timestamp`
+- `TrackerLog` declares `partition_key :tracker_id`
+- `Store#replay(partition: "sleep")` filters the append-only history stream by
+  the declared partition key
+- history appends now return normalized `AppendReceipt` data with fact metadata
+  and delegation back to the typed event
+- facts expose receipt data through `fact_id`, `value_hash`, and `timestamp`
 - the packet does not mutate main Companion state or replace the current app
   backend
 
 ## Pressure Points
 
 1. App-local Companion has richer manifests than `igniter-companion` classes.
-   The package facade currently has `field` and `scope`, but not the full
-   descriptor vocabulary: portable field types, enum values, indexes, command
-   metadata, relation metadata, or manifest export.
+   The sidecar can now generate `field`, `scope`, and `partition_key` from
+   manifests, but the package facade still does not consume the full descriptor
+   vocabulary: portable field types, enum values, indexes, command metadata,
+   relation metadata, or manifest export.
 
 2. `igniter-store` has facts and access paths, but command intent still lives
    above it. R2d now says commands should keep lowering to `mutation_intent`,
@@ -78,12 +86,17 @@ Proved:
    pressure belongs in store research as either WAL tail, event bus, or explicit
    eager access path listeners.
 
-4. History append uses generated fact keys. That is fine for append-only facts,
-   but app-level `history key: :tracker_id` still needs a clear lowering:
-   partition key, event payload key, or both. The sidecar marks this explicitly
-   as `next_question: :history_partition_key_lowering`.
+4. History append uses generated fact keys. App-level `history key:
+   :tracker_id` now has a first package answer in `igniter-companion`:
+   `partition_key :tracker_id` plus `Store#replay(partition:)`. The first
+   implementation filters in Ruby after `IgniterStore#history`; future store
+   work can decide whether this becomes an indexed access path.
 
-5. Blob-JSON SQLite in the app remains a useful POC backend, but the next true
+5. Normalized receipts now exist at the package facade. The next question is
+   whether app-local `mutation_intent -> app boundary -> action history` should
+   consume these receipts directly or project a smaller app receipt shape.
+
+6. Blob-JSON SQLite in the app remains a useful POC backend, but the next true
    convergence proof should be a tiny isolated adapter slice, not a full
    Companion migration.
 
@@ -93,30 +106,32 @@ For `igniter-store` research:
 
 - What is the minimal fact descriptor needed to represent `Store[T]` versus
   `History[T]` without importing app-level DSL concepts?
-- Should append-only histories expose partition keys as first-class access path
-  descriptors?
+- Should append-only histories promote partition filtering to first-class store
+  access paths, or keep first-pass Ruby-layer filtering?
 - Should "every mutation" observation be modeled as WAL tail, event bus, eager
   access path, or a separate `History[StoreEvent]`?
 - How should typed effect intent map to facts: direct `write/append`, command
-  receipt fact, or both?
+  receipt fact, normalized facade receipt, or all three?
 
 For `igniter-companion` research:
 
-- Can the package facade accept a manifest-generated class without committing to
-  the final public DSL?
+- Which manifest-generated descriptor should move next into the package facade:
+  portable field type, enum values, index metadata, command metadata, or
+  relation metadata?
 - Which app-local descriptors should be mirrored first: field type, scope,
   index, or command metadata?
-- Can `Igniter::Companion::Store` return a normalized receipt that matches
-  Companion's current `mutation_intent -> app boundary -> action history` model?
+- Can `Igniter::Companion::Store` receipts be shaped into the app-local
+  `mutation_intent -> app boundary -> action history` model without leaking
+  substrate details?
 
 For app-local Companion:
 
 - Keep R2a-R2d as the read-before-write ladder.
 - Do not replace the SQLite JSON backend yet.
-- The tiny sidecar proof is now present. Use it before any broader adapter
-  migration.
-- Next convergence slice should answer history partition lowering and normalized
-  store receipts before moving more app state.
+- The tiny sidecar proof is now present and updated for partition replay plus
+  normalized receipts. Use it before any broader adapter migration.
+- Next convergence slice should decide which additional app-local descriptor
+  belongs in the package facade first.
 
 ## Non-Goals
 
@@ -132,16 +147,18 @@ For app-local Companion:
 ```text
 [Architect Supervisor / Codex]
 Track: companion-store-convergence
-Status: alignment note plus tiny sidecar proof.
+Status: alignment note plus tiny sidecar proof updated with partition replay
+and normalized receipts.
 [D] App-local Companion owns vocabulary pressure; igniter-companion owns typed
 developer surface; igniter-store owns fact substrate.
-[D] Current bridge proves hand-written Record/History bindings over
-Igniter::Companion::Store as a tiny sidecar proof.
+[D] Current bridge proves manifest-generated Record/History bindings over
+Igniter::Companion::Store as a tiny sidecar proof, including partition replay
+and normalized receipts.
 [R] Preserve `persist -> Store[T]`, `history -> History[T]`, and command ->
 mutation_intent -> app boundary.
 [R] Do not migrate full Companion storage or promote API from this note alone.
 [S] `/setup/store-convergence-sidecar.json` proves record/history fact-store
-round trip and exposes history partition key lowering as the next pressure.
-Next: request/research the `history key` lowering model and normalized store
-receipt shape before a broader adapter slice.
+round trip, partition replay, and normalized receipt metadata.
+Next: decide the first additional manifest descriptor to mirror into the
+package facade before a broader adapter slice.
 ```

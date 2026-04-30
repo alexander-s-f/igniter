@@ -53,6 +53,8 @@ module Companion
           Companion::Contracts.check(:no_main_state_mutation,       proof.fetch(:main_state_mutated) == false),
           Companion::Contracts.check(:package_facade_present,       proof.fetch(:package_facade) == :"igniter-companion"),
           Companion::Contracts.check(:substrate_present,            proof.fetch(:substrate) == :"igniter-store"),
+          Companion::Contracts.check(:record_manifest_generated,     record.fetch(:generated_from_manifest) == true),
+          Companion::Contracts.check(:history_manifest_generated,    history.fetch(:generated_from_manifest) == true),
           Companion::Contracts.check(:record_round_trip,            record.fetch(:current_status) == :done),
           Companion::Contracts.check(:record_scope_works,           record.fetch(:open_before_count) == 1 && record.fetch(:open_after_count).zero?),
           Companion::Contracts.check(:record_time_travel_works,     record.fetch(:past_status) == :open),

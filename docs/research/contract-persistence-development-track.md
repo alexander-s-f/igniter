@@ -53,7 +53,7 @@ Already proved in Companion:
   `store_write` / `store_append` effects without creating runtime effect nodes
 - package-level `Igniter::Companion::Store` can round-trip one app-local
   `Reminder` record and one `TrackerLog` history into `igniter-store` facts as
-  an ephemeral sidecar proof
+  an ephemeral sidecar proof, including normalized receipts and partition replay
 
 Accepted research evidence:
 
@@ -165,8 +165,10 @@ Current surface:
 
 Current pressure:
 
-- define `history key: :tracker_id` lowering for append-only fact streams
-- define normalized store receipts before broader adapter migration
+- choose the next app-local descriptor to mirror into the package facade
+- decide whether partition replay should remain package-level filtering or
+  become a store access path
+- decide the app-local receipt projection before broader adapter migration
 
 ### R3 Materializer Dry Run
 
@@ -231,7 +233,7 @@ Status: development track accepted.
 relation type compatibility, R2c access path sketch, and R2d typed effect
 intent are current app-local evidence.
 [D] Next implementation slice is either R3 Materializer Dry Run or a focused
-history partition/receipt convergence slice.
+package facade descriptor-mirroring slice.
 [D] `packages/igniter-store` is the isolated POC gem for contract-native store
 experiments.
 [D] Organic Store[T]/History[T] graph nodes are accepted as horizon, not current
