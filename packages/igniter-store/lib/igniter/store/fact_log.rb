@@ -63,6 +63,10 @@ module Igniter
         end
       end
 
+      def all_facts
+        synchronize { @log.dup }
+      end
+
       def size
         synchronize { @log.size }
       end

@@ -192,6 +192,19 @@ module Igniter
         end
       end
 
+      # Write a snapshot of the current fact log to the backend's snapshot file.
+      # After a checkpoint, startup replay only replays facts written since the
+      # snapshot — reducing startup cost from O(total_facts) to O(delta_facts).
+      #
+      # No-op when the backend or log does not support snapshot (e.g. in-memory
+      # store or NATIVE FactLog without all_facts).  Returns self.
+      def checkpoint
+        if @backend.respond_to?(:write_snapshot) && @log.respond_to?(:all_facts)
+          @backend.write_snapshot(@log.all_facts)
+        end
+        self
+      end
+
       def fact_count
         @log.size
       end

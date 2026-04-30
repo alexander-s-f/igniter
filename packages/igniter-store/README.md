@@ -232,6 +232,45 @@ schema class migration declarations. Not done here — defer under app pressure.
 
 ---
 
+### [2026-04-30] Snapshot checkpoint
+
+**Change**: `IgniterStore#checkpoint` writes all current facts from `FactLog#all_facts`
+to a snapshot file (`<wal_path>.snap`) via `FileBackend#write_snapshot`. On subsequent
+`IgniterStore.open`, `FileBackend#replay` loads the snapshot first, deduplicates WAL
+facts by ID against the snapshot set, and returns `snapshot_facts + delta_wal_facts`
+sorted by timestamp. Startup cost is O(snapshot_size + delta) instead of O(total_facts).
+
+**Snapshot file format** (`<wal_path>.snap`):
+```
+[header frame: JSON { type: "snapshot_header", fact_count: N, written_at: T }]
+[fact frame 1] ... [fact frame N]
+```
+Same CRC32-framed format as the WAL — a corrupt snapshot is detected by a bad CRC on
+the header frame and the backend falls back to full WAL replay automatically.
+
+**Atomicity**: `write_snapshot` writes to a `.tmp` file and renames atomically, so a
+process kill mid-checkpoint never corrupts an existing snapshot.
+
+**Deduplication**: WAL facts whose `id` is already in the snapshot set are skipped,
+not by byte offset or fact count. This tolerates WAL facts that were written
+concurrently with snapshot creation.
+
+**Scope / partition indices**: not included in the snapshot — they are rebuilt lazily on
+first query after reopen, which is already the lazy-init behaviour.
+
+**Availability**:
+- Ruby fallback (`NATIVE = false`): fully implemented and tested (6 specs).
+- NATIVE (`NATIVE = true`): Rust `FactLog` does not yet expose `all_facts` — `checkpoint`
+  is a no-op. `FileBackend#write_snapshot` is also not implemented in the Rust backend.
+  Both are candidate pressures for the Rust tier.
+
+**Candidate pressure on Rust backend**:
+- `RubyFactLog`: add `all_facts()` → `Vec<RubyFact>` method exposed to Ruby
+- `RubyFileBackend`: add `write_snapshot(facts)` using the same frame format (body = MessagePack)
+- Match the snapshot header record structure so Ruby-written snapshots are readable by Rust and vice versa
+
+---
+
 ## Open Pressure (Tier 2 remaining / Tier 3)
 
 | Pressure | Status | Description |
@@ -241,7 +280,7 @@ schema class migration declarations. Not done here — defer under app pressure.
 | `history_partition_index` | ✅ done | `History[T]` partition index, O(partition slice) query |
 | `read_cache_lru_cap` | ✅ done | LRU cap on time-travel cache entries; default 1 000, configurable |
 | `schema_version_hook` | ✅ done | `register_coercion` hook; `CoercedFact` wrapper on all read paths |
-| `snapshot_checkpoint` | open | WAL replay is O(total facts); needs snapshot + replay-since-checkpoint for fast startup |
+| `snapshot_checkpoint` | ✅ done (Ruby) | `checkpoint` + snapshot-aware replay; Rust backend is candidate pressure |
 
 ---
 
