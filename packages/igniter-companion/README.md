@@ -304,6 +304,41 @@ klass._fields[:title]   # => { type: :string, values: nil, default: nil }
 
 ---
 
+### [2026-04-30] Mutation intent to app boundary
+
+**Capability proven**: `[Architect Supervisor / Codex]` implemented `CompanionReceiptProjectionSidecar` on the app side, proving the projection pattern 12/12 stable.
+
+**Answer**: A projection layer is required. `WriteReceipt` does NOT flow directly to action history. Instead:
+
+```ruby
+# Package receipt (internal)
+receipt = store.write(reminder_class, ...)
+# receipt.mutation_intent  => :record_write
+# receipt.fact_id          => "uuid..."      ← NOT exposed upward
+# receipt.value_hash       => "blake3..."    ← NOT exposed upward
+
+# App projection (boundary pattern)
+app_receipt = {
+  kind:              :store_write_receipt,
+  source:            :igniter_companion_store,
+  target:            :reminders,
+  subject_id:        "reminder-1",
+  status:            :recorded,
+  mutation_intent:   receipt.mutation_intent,   # ← preserved
+  store_fact_exposed:  false,
+  value_hash_exposed:  false
+}
+# action_event shape → { index:, kind:, subject_id:, status: :recorded }
+```
+
+**Boundary**: `fact_id` and `value_hash` are store internals — they stop at the package boundary. `mutation_intent` crosses the boundary because it describes the operation semantics, not the storage internals.
+
+**Evidence**: `companion_receipt_projection_sidecar` 12/12 checks stable (`strategy: :small_app_receipt`).
+
+**Next open question** (`pressure.next_question`): `:index_metadata` — should index declarations from the manifest (unique, composite) be mirrored into the generated class descriptor?
+
+---
+
 ### [pending] `nil` vs absent field semantics on read
 
 **Hypothesis** (untested): if a field was not stored in the value hash (e.g. an

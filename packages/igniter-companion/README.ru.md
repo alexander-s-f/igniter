@@ -276,6 +276,63 @@ klass.store_name  # => :override  (явный приоритет)
 
 ---
 
+### [2026-04-30] Portable field types
+
+**Возможность добавлена**: DSL `field` теперь принимает `type:` и `values:`. `from_manifest` зеркалирует их из `attributes[:type]` и `attributes[:values]` в дескрипторе манифеста.
+
+```ruby
+# Явно:
+field :status, type: :enum, values: %i[open done], default: :open
+field :title,  type: :string
+
+# Из манифеста (класс Article с типизированными полями):
+klass = Igniter::Companion.from_manifest(Contracts::Article.persistence_manifest)
+klass._fields[:status]  # => { type: :enum, values: [:draft, :published, :archived], default: :draft }
+klass._fields[:title]   # => { type: :string, values: nil, default: nil }
+```
+
+**Только аннотация**: `type:` хранится как метаданные в `_fields`, но не принуждает значения при чтении. Coercion — отдельная будущая задача.
+
+**Evidence**: app-flow sidecar 13/13 стабильно — `typed_fields_mirrored`, `enum_values_mirrored`, `typed_record_round_trip` проходят.
+
+**Следующий открытый вопрос** (`pressure.next_question`): `:mutation_intent_to_app_boundary` — должен ли `WriteReceipt.mutation_intent` напрямую попасть в историю действий приложения, или нужен проекционный слой?
+
+---
+
+### [2026-04-30] Mutation intent to app boundary
+
+**Доказательство получено**: `[Architect Supervisor / Codex]` реализовал `CompanionReceiptProjectionSidecar` на стороне приложения — 12/12 стабильно.
+
+**Ответ**: Проекционный слой обязателен. `WriteReceipt` не передаётся в историю действий напрямую. Схема:
+
+```ruby
+# Package receipt (внутренний)
+receipt = store.write(reminder_class, ...)
+# receipt.mutation_intent  => :record_write
+# receipt.fact_id          => "uuid..."      ← не выходит наружу
+# receipt.value_hash       => "blake3..."    ← не выходит наружу
+
+# App projection (паттерн границы)
+app_receipt = {
+  kind:              :store_write_receipt,
+  source:            :igniter_companion_store,
+  target:            :reminders,
+  subject_id:        "reminder-1",
+  status:            :recorded,
+  mutation_intent:   receipt.mutation_intent,   # ← сохраняется
+  store_fact_exposed:  false,
+  value_hash_exposed:  false
+}
+```
+
+**Граница**: `fact_id` и `value_hash` — внутренности хранилища, они останавливаются на границе пакета. `mutation_intent` пересекает границу, потому что описывает семантику операции, а не детали хранения.
+
+**Evidence**: `companion_receipt_projection_sidecar` 12/12 стабильно (`strategy: :small_app_receipt`).
+
+**Следующий открытый вопрос** (`pressure.next_question`): `:index_metadata` — должны ли декларации индексов из манифеста (уникальные, составные) зеркалироваться в дескриптор генерируемого класса?
+
+---
+
 ### [предстоящее] `nil` vs absent поля на чтении
 
 **Гипотеза** (не проверена): если поле не было записано в value (например,
