@@ -39,6 +39,8 @@ storage_migration_plan -> review-only storage-plan diff candidates
 storage_migration_plan_health -> drift check for non-executing migration plan
 field_type_plan -> report-only validation of field descriptors + samples
 field_type_health -> drift check for field/type validation boundaries
+relation_type_plan -> report-only join field type compatibility
+relation_type_health -> drift check for non-enforcing relation type plan
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
 materializer_status.descriptor -> review-only lifecycle + no capability grants
@@ -151,6 +153,11 @@ values, required keys, and seeded payload shape while preserving
 `persist -> Store[T]` and `history -> History[T]`.
 `/setup/field-type-health.json` verifies that this type-validation packet stays
 report-only, no-gate/no-grant, non-SQL, non-schema-changing, and non-materializing.
+`/setup/relation-type-plan.json` is the R2b relation type compatibility report:
+it checks join field descriptors for `Relation[Store[A], History[B]]` edges
+without generating FKs or enforcing relations.
+`/setup/relation-type-health.json` verifies that relation type compatibility
+stays report-only, non-enforcing, and capability-free.
 
 Migrations are review-only. Current planning has two lanes: spec-history field
 diffs and storage-plan descriptor diffs. There is no migration generator,
@@ -201,6 +208,10 @@ Best next move:
   type checks, access paths, or materializer dry-run output
 - use `/setup/field-type-health.json` before treating R2a type validation as
   stable evidence
+- use `/setup/relation-type-plan.json` before changing relation joins,
+  projections, access paths, or future FK/migration discussions
+- use `/setup/relation-type-health.json` before treating R2b relation type
+  compatibility as stable evidence
 - use `/setup/handoff.json` as the first read after context rotation
 - use `/setup/handoff/digest.txt` as the compact human handoff, or
   `/setup/handoff/digest.json` as the structured agent map before

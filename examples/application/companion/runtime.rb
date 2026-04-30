@@ -120,6 +120,10 @@ module Companion
       field_type_plan_json_status, _field_type_plan_json_headers, field_type_plan_json_body = app.call(rack_env("GET", "/setup/field-type-plan.json"))
       field_type_health_status, _field_type_health_headers, field_type_health_body = app.call(rack_env("GET", "/setup/field-type-health"))
       field_type_health_json_status, _field_type_health_json_headers, field_type_health_json_body = app.call(rack_env("GET", "/setup/field-type-health.json"))
+      relation_type_plan_status, _relation_type_plan_headers, relation_type_plan_body = app.call(rack_env("GET", "/setup/relation-type-plan"))
+      relation_type_plan_json_status, _relation_type_plan_json_headers, relation_type_plan_json_body = app.call(rack_env("GET", "/setup/relation-type-plan.json"))
+      relation_type_health_status, _relation_type_health_headers, relation_type_health_body = app.call(rack_env("GET", "/setup/relation-type-health"))
+      relation_type_health_json_status, _relation_type_health_json_headers, relation_type_health_json_body = app.call(rack_env("GET", "/setup/relation-type-health.json"))
       relation_health_status, _relation_health_headers, relation_health_body = app.call(rack_env("GET", "/setup/relation-health"))
       relation_health_json_status, _relation_health_json_headers, relation_health_json_body = app.call(rack_env("GET", "/setup/relation-health.json"))
       materialization_status, _materialization_headers, materialization_body = app.call(rack_env("GET", "/setup/materialization-plan"))
@@ -215,6 +219,10 @@ module Companion
       field_type_plan_json = field_type_plan_json_body.join
       field_type_health = field_type_health_body.join
       field_type_health_json = field_type_health_json_body.join
+      relation_type_plan = relation_type_plan_body.join
+      relation_type_plan_json = relation_type_plan_json_body.join
+      relation_type_health = relation_type_health_body.join
+      relation_type_health_json = relation_type_health_json_body.join
       relation_health = relation_health_body.join
       relation_health_json = relation_health_json_body.join
       materialization = materialization_body.join
@@ -330,6 +338,10 @@ module Companion
       out.puts "companion_poc_setup_field_type_plan_json_status=#{field_type_plan_json_status}"
       out.puts "companion_poc_setup_field_type_health_status=#{field_type_health_status}"
       out.puts "companion_poc_setup_field_type_health_json_status=#{field_type_health_json_status}"
+      out.puts "companion_poc_setup_relation_type_plan_status=#{relation_type_plan_status}"
+      out.puts "companion_poc_setup_relation_type_plan_json_status=#{relation_type_plan_json_status}"
+      out.puts "companion_poc_setup_relation_type_health_status=#{relation_type_health_status}"
+      out.puts "companion_poc_setup_relation_type_health_json_status=#{relation_type_health_json_status}"
       out.puts "companion_poc_setup_relation_health_status=#{relation_health_status}"
       out.puts "companion_poc_setup_relation_health_json_status=#{relation_health_json_status}"
       out.puts "companion_poc_setup_materialization_status=#{materialization_status}"
@@ -423,6 +435,10 @@ module Companion
       out.puts "companion_poc_setup_field_type_plan_json_endpoint=#{setup_field_type_plan_json_endpoint?(field_type_plan_json)}"
       out.puts "companion_poc_setup_field_type_health_endpoint=#{setup_field_type_health_endpoint?(field_type_health)}"
       out.puts "companion_poc_setup_field_type_health_json_endpoint=#{setup_field_type_health_json_endpoint?(field_type_health_json)}"
+      out.puts "companion_poc_setup_relation_type_plan_endpoint=#{setup_relation_type_plan_endpoint?(relation_type_plan)}"
+      out.puts "companion_poc_setup_relation_type_plan_json_endpoint=#{setup_relation_type_plan_json_endpoint?(relation_type_plan_json)}"
+      out.puts "companion_poc_setup_relation_type_health_endpoint=#{setup_relation_type_health_endpoint?(relation_type_health)}"
+      out.puts "companion_poc_setup_relation_type_health_json_endpoint=#{setup_relation_type_health_json_endpoint?(relation_type_health_json)}"
       out.puts "companion_poc_setup_relation_health_endpoint=#{setup_relation_health_endpoint?(relation_health)}"
       out.puts "companion_poc_setup_relation_health_json_endpoint=#{setup_relation_health_json_endpoint?(relation_health_json)}"
       out.puts "companion_poc_setup_materialization_endpoint=#{setup_materialization_endpoint?(materialization)}"
@@ -516,6 +532,8 @@ module Companion
       out.puts "companion_poc_persistence_storage_migration_plan_health_contract=#{persistence_storage_migration_plan_health_contract?}"
       out.puts "companion_poc_persistence_field_type_plan_contract=#{persistence_field_type_plan_contract?}"
       out.puts "companion_poc_persistence_field_type_health_contract=#{persistence_field_type_health_contract?}"
+      out.puts "companion_poc_persistence_relation_type_plan_contract=#{persistence_relation_type_plan_contract?}"
+      out.puts "companion_poc_persistence_relation_type_health_contract=#{persistence_relation_type_health_contract?}"
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
       out.puts "companion_poc_setup_handoff_acceptance_contract=#{setup_handoff_acceptance_contract?}"
       out.puts "companion_poc_setup_handoff_approval_acceptance_contract=#{setup_handoff_approval_acceptance_contract?}"
@@ -1747,6 +1765,56 @@ module Companion
         stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
         drift.fetch(:status) == :drift &&
         drift.fetch(:missing_terms).include?(:no_sql_generation)
+    end
+
+    def persistence_relation_type_plan_contract?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      plan = persistence.relation_type_plan
+      tracker_relation = plan.fetch(:relations).fetch(:tracker_logs_by_tracker)
+      comment_relation = plan.fetch(:relations).fetch(:comments_by_article)
+      tracker_join = tracker_relation.fetch(:joins).first
+      comment_join = comment_relation.fetch(:joins).first
+
+      plan.fetch(:schema_version) == 1 &&
+        plan.fetch(:descriptor).fetch(:kind) == :persistence_relation_type_plan &&
+        plan.fetch(:descriptor).fetch(:report_only) &&
+        plan.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        plan.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        plan.fetch(:descriptor).fetch(:relation_enforcement_allowed) == false &&
+        plan.fetch(:descriptor).fetch(:foreign_key_generation_allowed) == false &&
+        plan.fetch(:descriptor).fetch(:source) == :persistence_field_type_plan &&
+        plan.fetch(:descriptor).fetch(:preserves) == { relation: :relation_t, from: :store_t, to: :history_t } &&
+        plan.fetch(:status) == :stable &&
+        plan.fetch(:issue_count).zero? &&
+        plan.fetch(:relation_count) == 2 &&
+        tracker_relation.fetch(:lowering) == { shape: :relation, from: :store, to: :history } &&
+        tracker_relation.fetch(:enforcement) == { enforced: false, mode: :report_only } &&
+        tracker_join.fetch(:from_field) == :id &&
+        tracker_join.fetch(:to_field) == :tracker_id &&
+        tracker_join.fetch(:compatibility) == :inferred &&
+        comment_join.fetch(:from_field) == :id &&
+        comment_join.fetch(:to_field) == :article_id &&
+        comment_join.fetch(:compatibility) == :inferred
+    end
+
+    def persistence_relation_type_health_contract?
+      persistence = Services::CompanionPersistence.new(state: Services::CompanionState.seeded)
+      stable = persistence.relation_type_health
+      drift_plan = persistence.relation_type_plan.merge(
+        descriptor: persistence.relation_type_plan.fetch(:descriptor).merge(foreign_key_generation_allowed: true)
+      )
+      drift = Contracts::PersistenceRelationTypeHealthContract.evaluate(relation_type_plan: drift_plan)
+
+      stable.fetch(:status) == :stable &&
+        stable.fetch(:check_count) == 19 &&
+        stable.fetch(:descriptor).fetch(:kind) == :persistence_relation_type_health &&
+        stable.fetch(:descriptor).fetch(:validates) == :persistence_relation_type_plan &&
+        stable.fetch(:descriptor).fetch(:gates_runtime) == false &&
+        stable.fetch(:descriptor).fetch(:grants_capabilities) == false &&
+        stable.fetch(:missing_terms).empty? &&
+        stable.fetch(:checks).all? { |check| check.fetch(:present) } &&
+        drift.fetch(:status) == :drift &&
+        drift.fetch(:missing_terms).include?(:no_foreign_key_generation)
     end
 
     def persistence_relation_manifest?
@@ -3211,6 +3279,66 @@ module Companion
         payload.fetch("descriptor").fetch("schema_version") == 1 &&
         payload.fetch("descriptor").fetch("kind") == "persistence_field_type_health" &&
         payload.fetch("descriptor").fetch("validates") == "persistence_field_type_plan" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("missing_terms").empty? &&
+        payload.fetch("checks").all? { |check| check.fetch("present") }
+    end
+
+    def setup_relation_type_plan_endpoint?(relation_type_plan)
+      relation_type_plan.include?("kind=>:persistence_relation_type_plan") &&
+        relation_type_plan.include?("relation_enforcement_allowed=>false") &&
+        relation_type_plan.include?("foreign_key_generation_allowed=>false") &&
+        relation_type_plan.include?("relation=>:relation_t") &&
+        relation_type_plan.include?("compatibility=>:inferred") &&
+        relation_type_plan.include?("comments_by_article")
+    end
+
+    def setup_relation_type_plan_json_endpoint?(relation_type_plan_json)
+      payload = JSON.parse(relation_type_plan_json)
+      tracker_relation = payload.fetch("relations").fetch("tracker_logs_by_tracker")
+      comment_relation = payload.fetch("relations").fetch("comments_by_article")
+      tracker_join = tracker_relation.fetch("joins").first
+      comment_join = comment_relation.fetch("joins").first
+
+      payload.fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "persistence_relation_type_plan" &&
+        payload.fetch("descriptor").fetch("report_only") &&
+        payload.fetch("descriptor").fetch("gates_runtime") == false &&
+        payload.fetch("descriptor").fetch("grants_capabilities") == false &&
+        payload.fetch("descriptor").fetch("relation_enforcement_allowed") == false &&
+        payload.fetch("descriptor").fetch("foreign_key_generation_allowed") == false &&
+        payload.fetch("descriptor").fetch("source") == "persistence_field_type_plan" &&
+        payload.fetch("descriptor").fetch("preserves") == { "relation" => "relation_t", "from" => "store_t", "to" => "history_t" } &&
+        payload.fetch("status") == "stable" &&
+        payload.fetch("issue_count").zero? &&
+        payload.fetch("relation_count") == 2 &&
+        tracker_relation.fetch("enforcement") == { "enforced" => false, "mode" => "report_only" } &&
+        tracker_join.fetch("from_field") == "id" &&
+        tracker_join.fetch("to_field") == "tracker_id" &&
+        tracker_join.fetch("compatibility") == "inferred" &&
+        comment_join.fetch("from_field") == "id" &&
+        comment_join.fetch("to_field") == "article_id" &&
+        comment_join.fetch("compatibility") == "inferred"
+    end
+
+    def setup_relation_type_health_endpoint?(relation_type_health)
+      relation_type_health.include?("status=>:stable") &&
+        relation_type_health.include?("kind=>:persistence_relation_type_health") &&
+        relation_type_health.include?("validates=>:persistence_relation_type_plan") &&
+        relation_type_health.include?("check_count=>19") &&
+        relation_type_health.include?("relation type terms stable")
+    end
+
+    def setup_relation_type_health_json_endpoint?(relation_type_health_json)
+      payload = JSON.parse(relation_type_health_json)
+
+      payload.fetch("status") == "stable" &&
+        payload.fetch("check_count") == 19 &&
+        payload.fetch("descriptor").fetch("schema_version") == 1 &&
+        payload.fetch("descriptor").fetch("kind") == "persistence_relation_type_health" &&
+        payload.fetch("descriptor").fetch("validates") == "persistence_relation_type_plan" &&
         payload.fetch("descriptor").fetch("report_only") &&
         payload.fetch("descriptor").fetch("gates_runtime") == false &&
         payload.fetch("descriptor").fetch("grants_capabilities") == false &&

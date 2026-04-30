@@ -32,6 +32,8 @@ Already proved in Companion:
   `/setup/storage-migration-plan-health(.json)`
 - R2a field type plan: `/setup/field-type-plan(.json)`
 - R2a field type health: `/setup/field-type-health(.json)`
+- R2b relation type plan: `/setup/relation-type-plan(.json)`
+- R2b relation type health: `/setup/relation-type-health(.json)`
 - `schema_version: 1`
 - canonical `storage.shape`
 - Store/History lowerings as descriptors
@@ -49,7 +51,8 @@ Accepted research evidence:
 
 ## Next Development Slice
 
-Current slice: **R2a Field Type Validation**, app-local and report-only.
+Current evidence: **R2a Field Type Validation** and
+**R2b Relation Type Compatibility**, app-local and report-only.
 
 Goal:
 
@@ -69,6 +72,10 @@ Acceptance:
 - `/setup/field-type-plan(.json)` reports current field descriptors and seeded
   payload shape
 - `/setup/field-type-health(.json)` validates descriptor policy and no-execution
+  boundaries
+- `/setup/relation-type-plan(.json)` reports join field compatibility over
+  `Relation[Store[A], History[B]]`
+- `/setup/relation-type-health(.json)` validates non-enforcing/no-FK
   boundaries
 - no runtime gate, core DSL promotion, DB schema change, SQL generation, or
   materializer execution
@@ -172,8 +179,9 @@ Do preserve:
 [Architect Supervisor / Codex]
 Track: docs/research/contract-persistence-development-track.md
 Status: development track accepted.
-[D] R1 storage plan and R2 storage migration are current app-local evidence.
-[D] Next implementation slice is R2a Field Type Validation.
+[D] R1 storage plan, R2 storage migration, R2a field type validation, and R2b
+relation type compatibility are current app-local evidence.
+[D] Next implementation slice is R2c Access Path Sketch.
 [D] `packages/igniter-store` is the isolated POC gem for contract-native store
 experiments.
 [D] Organic Store[T]/History[T] graph nodes are accepted as horizon, not current
@@ -183,5 +191,5 @@ path descriptors stabilize.
 [R] No core graph-node changes, package split, SQL generation, migration
 execution, or materializer execution from this track alone.
 [S] Use Companion pressure and report-only health packets to decide promotion.
-Next: implement app-local field/type validation report and health packet.
+Next: implement app-local access path sketch and health packet.
 ```

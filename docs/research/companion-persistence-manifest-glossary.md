@@ -37,6 +37,10 @@ enum domains, JSON fields, required keys, relation type checks, access paths,
 or materializer dry-run output.
 Read `/setup/field-type-health.json` when checking that R2a type validation
 remains report-only and non-executing.
+Read `/setup/relation-type-plan.json` before changing relation joins,
+projection inputs, access-path sketches, FK discussions, or migration planning.
+Read `/setup/relation-type-health.json` when checking that R2b relation type
+compatibility remains report-only and non-enforcing.
 Read `/setup/health.json` for the compact report-only current-state packet.
 Read `/setup/handoff.json` first when rotating context between agents.
 
@@ -121,6 +125,25 @@ The same report is also summarized in `/setup` as `manifest_glossary`.
   no schema/SQL/materializer execution.
 - Does not authorize relation enforcement, DB migrations, access-path nodes, or
   typed write execution.
+
+`relation_type_plan`
+
+- Report-only R2b relation compatibility plan exposed at
+  `/setup/relation-type-plan.json`.
+- Checks join field descriptors for `Relation[Store[A], History[B]]` edges.
+- Treats `:unspecified` fields as inferred compatibility so legacy/simple
+  fields do not become premature public type commitments.
+- Keeps `relation_enforcement_allowed: false` and
+  `foreign_key_generation_allowed: false`.
+
+`relation_type_health`
+
+- Report-only drift check exposed at `/setup/relation-type-health.json`.
+- Validates descriptor policy, Relation/Store/History lowerings, report-only
+  enforcement, join reports, missing-field checks, mismatch checks, summary
+  counts, and no FK/enforcement capability.
+- Does not authorize FK generation, relation enforcement, DB migrations, or
+  runtime graph-node changes.
 
 `records`
 

@@ -272,6 +272,14 @@ module Companion
         persistence.field_type_health
       end
 
+      def relation_type_plan
+        persistence.relation_type_plan
+      end
+
+      def relation_type_health
+        persistence.relation_type_health
+      end
+
       def setup_health
         persistence.setup_health
       end

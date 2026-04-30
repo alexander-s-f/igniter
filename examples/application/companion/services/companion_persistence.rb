@@ -376,6 +376,19 @@ module Companion
         )
       end
 
+      def relation_type_plan
+        Contracts::PersistenceRelationTypePlanContract.evaluate(
+          relation_manifest: relation_manifest,
+          field_type_plan: field_type_plan
+        )
+      end
+
+      def relation_type_health
+        Contracts::PersistenceRelationTypeHealthContract.evaluate(
+          relation_type_plan: relation_type_plan
+        )
+      end
+
       def setup_health
         Contracts::SetupHealthContract.evaluate(
           readiness: readiness,

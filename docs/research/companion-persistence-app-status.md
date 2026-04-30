@@ -74,6 +74,13 @@ Current manifest vocabulary:
 - `/setup/field-type-health(.json)` validates R2a descriptor policy,
   Store/History lowerings, supported field types, required-key coverage,
   enum/json checks, no type issues, and no schema/SQL/materializer execution
+- `/setup/relation-type-plan(.json)` exposes the R2b report-only relation type
+  compatibility plan over relation manifests plus field type reports; it checks
+  join fields for `Relation[Store[A], History[B]]`, treats `:unspecified` as
+  inferred compatibility, and keeps relation enforcement/FK generation disabled
+- `/setup/relation-type-health(.json)` validates R2b descriptor policy,
+  Store/History/Relation lowerings, report-only enforcement, join reports,
+  missing-field detection, mismatch detection, and no FK/enforcement capability
 - `/setup` includes the same glossary health as a report-only summary signal;
   readiness does not become stricter because of glossary drift
 - `/setup/health(.json)` summarizes readiness, relation health, manifest
