@@ -35,8 +35,9 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
     log_class.define_method("_native_append",      method!(FactLog::rb_append, 1))?;
     log_class.define_method("replay",              method!(FactLog::rb_replay_fact, 1))?;
     log_class.define_method("latest_for_native",   method!(FactLog::rb_latest_for_native, 3))?;
-    log_class.define_method("facts_for_native",    method!(FactLog::rb_facts_for_native, 4))?;
-    log_class.define_method("size",                method!(FactLog::rb_size, 0))?;
+    log_class.define_method("facts_for_native",       method!(FactLog::rb_facts_for_native, 4))?;
+    log_class.define_method("query_scope_native",     method!(FactLog::rb_query_scope_native, 3))?;
+    log_class.define_method("size",                   method!(FactLog::rb_size, 0))?;
 
     // ── FileBackend ───────────────────────────────────────────────────────────
     let fb_class = store_mod.define_class("FileBackend", ruby.class_object())?;

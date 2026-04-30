@@ -49,8 +49,29 @@ module Igniter
         end
       end
 
+      def query_scope(store:, filters:, as_of: nil)
+        synchronize do
+          seen = {}
+          @by_key.each do |(s, k), facts|
+            next unless s == store
+            candidates = as_of ? facts.select { |f| f.timestamp <= as_of } : facts
+            latest = candidates.last
+            next unless latest
+            seen[k] = latest if matches_filters?(latest.value, filters)
+          end
+          seen.values
+        end
+      end
+
       def size
         synchronize { @log.size }
+      end
+
+      private
+
+      def matches_filters?(value, filters)
+        return false unless value.is_a?(Hash)
+        filters.all? { |k, v| value[k] == v }
       end
     end
   end

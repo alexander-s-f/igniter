@@ -38,10 +38,35 @@ module Igniter
         end
       end
 
+      def get_scope(store:, scope:, as_of: nil, ttl: nil)
+        entry = synchronize { @entries[[:scope, store, scope, as_of]] }
+        return nil unless entry
+
+        if ttl
+          age = Process.clock_gettime(Process::CLOCK_REALTIME) - entry.fetch(:cached_at)
+          return nil if age > ttl
+        end
+
+        entry.fetch(:facts)
+      end
+
+      def put_scope(store:, scope:, facts:, as_of: nil)
+        synchronize do
+          @entries[[:scope, store, scope, as_of]] = {
+            facts: facts,
+            cached_at: Process.clock_gettime(Process::CLOCK_REALTIME)
+          }
+        end
+      end
+
       def invalidate(store:, key: nil)
         targets = synchronize do
           @entries.delete_if do |cache_key, _entry|
-            cache_key[0] == store && (key.nil? || cache_key[1] == key)
+            if cache_key[0] == :scope
+              cache_key[1] == store
+            else
+              cache_key[0] == store && (key.nil? || cache_key[1] == key)
+            end
           end
           @consumers[store].dup
         end

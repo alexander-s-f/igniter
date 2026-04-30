@@ -73,6 +73,19 @@ module Igniter
         read(store: store, key: key, as_of: at)
       end
 
+      def query(store:, scope:, as_of: nil, ttl: nil)
+        cached = @cache.get_scope(store: store, scope: scope, as_of: as_of, ttl: ttl)
+        return cached if cached
+
+        path = @schema_graph.path_for(store: store, scope: scope)
+        raise ArgumentError, "No registered path for store=#{store.inspect} scope=#{scope.inspect}" unless path
+
+        filters = path.filters || {}
+        facts = @log.query_scope(store: store, filters: filters, as_of: as_of)
+        @cache.put_scope(store: store, scope: scope, facts: facts, as_of: as_of)
+        facts
+      end
+
       def history(store:, key: nil, since: nil, as_of: nil)
         @log.facts_for(store: store, key: key, since: since, as_of: as_of)
       end

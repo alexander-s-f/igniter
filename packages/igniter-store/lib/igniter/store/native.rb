@@ -41,6 +41,10 @@ begin
     def facts_for(store:, key: nil, since: nil, as_of: nil)
       facts_for_native(store.to_s, key&.to_s, since&.to_f, as_of&.to_f)
     end
+
+    def query_scope(store:, filters:, as_of: nil)
+      query_scope_native(store.to_s, filters, as_of&.to_f)
+    end
   end
 
   Igniter::Store.send(:remove_const, :NATIVE) if Igniter::Store.const_defined?(:NATIVE)

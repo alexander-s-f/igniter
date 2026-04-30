@@ -1,8 +1,8 @@
-use magnus::{prelude::*, Error, IntoValue, RArray, Ruby, Value};
+use magnus::{prelude::*, Error, IntoValue, RArray, RHash, Ruby, Value};
 use parking_lot::RwLock;
 use std::collections::HashMap;
 
-use crate::fact::{Fact, FactData};
+use crate::fact::{ruby_hash_to_json_sorted, Fact, FactData};
 
 struct FactLogInner {
     log: Vec<FactData>,
@@ -123,5 +123,58 @@ impl FactLog {
 
     pub fn rb_size(&self) -> usize {
         self.0.read().log.len()
+    }
+
+    /// Returns latest fact per key in `store` whose `value` matches all `filters`.
+    /// `filters` is a Ruby Hash like `{ status: :pending }`.
+    /// Returns the latest fact per key (optionally as of a timestamp).
+    pub fn rb_query_scope_native(
+        &self,
+        store: String,
+        filters: RHash,
+        as_of: Option<f64>,
+    ) -> Result<RArray, Error> {
+        let ruby = unsafe { Ruby::get_unchecked() };
+        let filter_json = ruby_hash_to_json_sorted(filters.as_value());
+
+        let inner = self.0.read();
+
+        let mut results: Vec<FactData> = Vec::new();
+
+        for ((s, _k), indices) in &inner.by_key {
+            if s != &store {
+                continue;
+            }
+            let latest_idx = if let Some(as_of) = as_of {
+                indices
+                    .iter()
+                    .rev()
+                    .find(|&&i| inner.log[i].timestamp <= as_of)
+                    .copied()
+            } else {
+                indices.last().copied()
+            };
+            if let Some(idx) = latest_idx {
+                if matches_filters(&inner.log[idx].value, &filter_json) {
+                    results.push(inner.log[idx].clone());
+                }
+            }
+        }
+        drop(inner);
+
+        let arr = RArray::new();
+        for data in results {
+            arr.push(Fact(data).into_value_with(&ruby))?;
+        }
+        Ok(arr)
+    }
+}
+
+fn matches_filters(value: &serde_json::Value, filters: &serde_json::Value) -> bool {
+    match (value, filters) {
+        (serde_json::Value::Object(v), serde_json::Value::Object(f)) => {
+            f.iter().all(|(k, fv)| v.get(k).map_or(false, |vv| vv == fv))
+        }
+        _ => false,
     }
 }
