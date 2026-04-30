@@ -46,6 +46,8 @@ Companion now exposes a tiny convergence sidecar:
 - `/setup/store-convergence-sidecar.json`
 - `/setup/companion-store-app-flow-sidecar`
 - `/setup/companion-store-app-flow-sidecar.json`
+- `/setup/companion-receipt-projection-sidecar`
+- `/setup/companion-receipt-projection-sidecar.json`
 
 This packet is report-only and ephemeral. It creates an in-memory
 `Igniter::Companion::Store`, defines package-level typed classes for one
@@ -74,6 +76,8 @@ Proved:
   can bind the package store/history name without a `store:` override
 - the app-flow sidecar proves one app-pattern `Reminder` write/read/scope cycle
   through `Igniter::Companion::Store` and returns a normalized write receipt
+- the receipt projection sidecar proves package receipts should feed app action
+  history through a small app receipt projection, not direct receipt consumption
 - the packet does not mutate main Companion state or replace the current app
   backend
 
@@ -125,9 +129,9 @@ For `igniter-store` research:
 For `igniter-companion` research:
 
 - `manifest_generated_record_history_classes`, `store_name_in_manifest`,
-  `companion_store_backed_app_flow`, and `portable_field_types` are resolved as
-  report-only proofs. Next app-boundary pressure is
-  `mutation_intent_to_app_boundary`, followed by index metadata,
+  `companion_store_backed_app_flow`, `portable_field_types`, and
+  `mutation_intent_to_app_boundary` are resolved as report-only proofs. Next
+  package-facade pressure is `index_metadata`, followed by
   command/effect metadata, and relation metadata.
 - Should `storage.name` remain the canonical capability identity, or should it
   later split into separate package store name and app capability name?
@@ -147,8 +151,9 @@ For app-local Companion:
   as an isolated proof, not as an app backend migration.
 - Portable field types are mirrored into generated package classes as
   annotation-only metadata (`type`, `values`), without coercion.
-- Next app-boundary pressure is `mutation_intent_to_app_boundary`: decide
-  whether package write receipts feed action history directly or via projection.
+- Package write receipts feed action history through a small app receipt
+  projection. Store internals stay evidence-only.
+- Next package-facing pressure is `index_metadata`.
 
 ## Non-Goals
 

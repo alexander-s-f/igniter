@@ -83,7 +83,9 @@ Goal:
   sidecar, not by a full backend migration
 - treat `portable_field_types` as closed by annotation-only package metadata,
   with coercion deferred
-- make `mutation_intent_to_app_boundary` the next app-local boundary pressure
+- treat `mutation_intent_to_app_boundary` as closed by app-local receipt
+  projection, not direct package receipt consumption
+- make `index_metadata` the next package-facing descriptor pressure
 
 Likely surface:
 
@@ -91,6 +93,7 @@ Likely surface:
 - `/setup/effect-intent-health(.json)`
 - `/setup/store-convergence-sidecar(.json)`
 - `/setup/companion-store-app-flow-sidecar(.json)`
+- `/setup/companion-receipt-projection-sidecar(.json)`
 
 Acceptance:
 
@@ -117,6 +120,8 @@ Acceptance:
 - `/setup/companion-store-app-flow-sidecar(.json)` proves one app-pattern write
   through `Igniter::Companion::Store` with a normalized receipt and no main app
   state mutation
+- `/setup/companion-receipt-projection-sidecar(.json)` proves normalized store
+  receipts project to `CompanionAction` history without exposing fact internals
 - no runtime gate, core DSL promotion, DB schema change, SQL generation, or
   materializer execution
 - report explicitly preserves `persist -> Store[T]` and `history -> History[T]`

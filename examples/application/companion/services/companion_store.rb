@@ -304,6 +304,10 @@ module Companion
         Services::CompanionStoreAppFlowSidecar.packet
       end
 
+      def companion_receipt_projection_sidecar
+        Services::CompanionReceiptProjectionSidecar.packet
+      end
+
       def setup_health
         persistence.setup_health
       end

@@ -243,3 +243,28 @@ Suggested Next:
 - Architect Supervisor should test receipt projection into action history
 - Package Agent should wait for repeated pressure before coercion/index work
 ```
+
+## Supervisor Receipt: Mutation Intent To App Boundary
+
+```text
+[Compact Handoff / Architect Supervisor -> Package Agent (pkg:companion-store)]
+Track: companion-store-convergence
+Accepted:
+- mutation_intent_to_app_boundary is resolved app-locally by projection
+- package WriteReceipt remains evidence; action history receives a small app receipt
+Resolved:
+- mutation_intent_to_app_boundary
+New Pressure:
+- package facade: index_metadata
+Boundary:
+- do not expose fact_id/value_hash in CompanionAction
+- do not consume package receipts directly as app history rows
+- keep projection report-only until repeated app pressure appears
+Evidence Added:
+- /setup/companion-receipt-projection-sidecar(.json)
+- companion_poc_companion_receipt_projection_sidecar_contract=true
+- convergence pressure now points to index_metadata
+Suggested Next:
+- Package Agent may explore index metadata mirroring in from_manifest
+- Architect Supervisor keeps receipt projection as the app-boundary pattern
+```

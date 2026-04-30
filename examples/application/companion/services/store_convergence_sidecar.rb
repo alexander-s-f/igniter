@@ -104,7 +104,7 @@ module Companion
 
       def pressure_report
         {
-          next_question: :mutation_intent_to_app_boundary,
+          next_question: :index_metadata,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
           resolved: %i[
@@ -114,6 +114,7 @@ module Companion
             store_name_in_manifest
             companion_store_backed_app_flow
             portable_field_types
+            mutation_intent_to_app_boundary
           ],
           facade_input_ready: %i[
             storage_shape
@@ -126,13 +127,11 @@ module Companion
             history_partition_key
           ],
           asks: %i[
-            mutation_intent_to_app_boundary
             index_metadata
             command_effect_metadata
             relation_metadata
           ],
           recommended_order: %i[
-            mutation_intent_to_app_boundary
             index_metadata
             command_effects
             relations
