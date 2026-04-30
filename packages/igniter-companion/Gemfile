@@ -1,0 +1,10 @@
+source "https://rubygems.org"
+
+gemspec
+
+# igniter-store is the backing storage primitive.
+# Run `cd ../igniter-store && PATH="$HOME/.cargo/bin:$PATH" bundle exec rake compile` first.
+gem "igniter-store", path: "../igniter-store"
+
+gem "rspec", "~> 3.0"
+gem "rake", "~> 13.0"

@@ -1,0 +1,67 @@
+# frozen_string_literal: true
+
+module Igniter
+  module Companion
+    # Mixin for append-only event streams backed by History[T].
+    #
+    # DSL:
+    #   history_name :tracker_logs   # storage namespace (defaults to lowercased class name)
+    #   field :tracker_id            # event payload fields
+    #   field :value
+    #
+    # Usage via Igniter::Companion::Store:
+    #   store.append(TrackerLog, tracker_id: "t1", value: 8.5)
+    #   store.replay(TrackerLog)  # => [#<TrackerLog ...>, ...]
+    module History
+      def self.included(base)
+        base.extend(ClassMethods)
+        base.instance_variable_set(:@_fields, {})
+      end
+
+      module ClassMethods
+        def history_name(name = nil)
+          if name
+            @_history_name = name
+          else
+            @_history_name ||= self.name&.split("::")&.last&.downcase&.to_sym || :events
+          end
+        end
+        alias_method :store_name, :history_name
+
+        def field(name, default: nil)
+          @_fields ||= {}
+          @_fields[name] = { default: default }
+          attr_reader name
+        end
+
+        def _fields; @_fields ||= {}; end
+
+        def from_fact(fact)
+          new(fact_id: fact.id, timestamp: fact.timestamp, **fact.value)
+        end
+      end
+
+      attr_reader :fact_id, :timestamp
+
+      def initialize(fact_id: nil, timestamp: nil, **attrs)
+        @fact_id   = fact_id
+        @timestamp = timestamp
+        self.class._fields.each do |name, opts|
+          val = attrs.key?(name) ? attrs[name] : opts[:default]
+          instance_variable_set(:"@#{name}", val)
+        end
+      end
+
+      def to_h
+        self.class._fields.keys.each_with_object({}) do |name, h|
+          h[name] = public_send(name)
+        end
+      end
+
+      def inspect
+        fields = self.class._fields.keys.map { |n| "#{n}=#{public_send(n).inspect}" }.join(" ")
+        "#<#{self.class.name} fact_id=#{@fact_id&.slice(0, 8)} #{fields}>"
+      end
+    end
+  end
+end
