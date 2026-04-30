@@ -13,6 +13,9 @@ research material under `playgrounds/docs/`.
   architect/agent roles, and Igniter Lang guardrails.
 - [Vision Handoff Protocol](./vision-handoff-protocol.md) - compact briefing
   format for giving agents a large horizon with a narrow executable slice.
+- [Inter-Agent Compact Handoff](./inter-agent-compact-handoff.md) - compact
+  pressure-packet protocol for coordinating parallel agents without context
+  dumps.
 - [Companion Current Status Summary](./companion-current-status-summary.md) -
   compact current-state handoff for the Companion persistence/materializer
   vertical.
@@ -64,21 +67,22 @@ Before changing architecture or reviewing an agent proposal, read:
 4. [Igniter Lang Foundation](../guide/igniter-lang-foundation.md)
 5. [Horizon Protocol](./horizon-protocol.md)
 6. [Vision Handoff Protocol](./vision-handoff-protocol.md)
-7. [Companion Current Status Summary](./companion-current-status-summary.md)
-8. [Companion Persistence App Status](./companion-persistence-app-status.md)
-9. [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md)
-10. [Companion Contract Performance Signal](./companion-contract-performance-signal.md)
-11. [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md)
-12. [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
-13. [Contract Persistence Development Track](./contract-persistence-development-track.md)
-14. [Companion / Store Convergence](./companion-store-convergence.md)
-15. [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
-16. [Contract-Native Store Research](./contract-native-store-research.md)
-17. [Contract-Native Store POC](./contract-native-store-poc.md)
-18. [Contract-Native Store Sync Hub](./contract-native-store-sync-hub.md)
-19. [Contract Persistence Relations](./contract-persistence-relations.md)
-20. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
-21. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
+7. [Inter-Agent Compact Handoff](./inter-agent-compact-handoff.md)
+8. [Companion Current Status Summary](./companion-current-status-summary.md)
+9. [Companion Persistence App Status](./companion-persistence-app-status.md)
+10. [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md)
+11. [Companion Contract Performance Signal](./companion-contract-performance-signal.md)
+12. [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md)
+13. [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
+14. [Contract Persistence Development Track](./contract-persistence-development-track.md)
+15. [Companion / Store Convergence](./companion-store-convergence.md)
+16. [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
+17. [Contract-Native Store Research](./contract-native-store-research.md)
+18. [Contract-Native Store POC](./contract-native-store-poc.md)
+19. [Contract-Native Store Sync Hub](./contract-native-store-sync-hub.md)
+20. [Contract Persistence Relations](./contract-persistence-relations.md)
+21. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
+22. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
 
 ## Current Research State
 
