@@ -68,9 +68,8 @@ Proved:
 - history appends now return normalized `AppendReceipt` data with fact metadata
   and delegation back to the typed event
 - facts expose receipt data through `fact_id`, `value_hash`, and `timestamp`
-- the pressure packet now makes `store_name_in_manifest` explicit: package
-  generation currently binds `store:` externally, while app-local manifests only
-  expose `storage.shape`, `storage.key`, and adapter metadata
+- app-local manifests now expose `storage.name`, so `from_manifest(manifest)`
+  can bind the package store/history name without a `store:` override
 - the packet does not mutate main Companion state or replace the current app
   backend
 
@@ -121,11 +120,12 @@ For `igniter-store` research:
 
 For `igniter-companion` research:
 
-- `manifest_generated_record_history_classes` is resolved in the package
-  facade. Next pressure is `store_name_in_manifest`, followed by portable field
-  types, index metadata, command/effect metadata, and relation metadata.
-- Should store/capability identity live in the manifest as `storage.capability`,
-  stay an external package binding, or be derived by registry convention?
+- `manifest_generated_record_history_classes` and `store_name_in_manifest` are
+  resolved in the package facade. Next pressure is
+  `companion_store_backed_app_flow`, followed by portable field types, index
+  metadata, command/effect metadata, and relation metadata.
+- Should `storage.name` remain the canonical capability identity, or should it
+  later split into separate package store name and app capability name?
 - Which app-local descriptors should be mirrored first: field type, scope,
   index, or command metadata?
 - Can `Igniter::Companion::Store` receipts be shaped into the app-local

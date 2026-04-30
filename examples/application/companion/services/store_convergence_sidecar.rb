@@ -18,7 +18,7 @@ module Companion
       end
 
       def proof
-        reminder_record   = Igniter::Companion.from_manifest(Contracts::Reminder.persistence_manifest)
+        reminder_record = Igniter::Companion.from_manifest(Contracts::Reminder.persistence_manifest)
         tracker_log_event = Igniter::Companion.from_manifest(Contracts::TrackerLog.persistence_manifest)
 
         store = Igniter::Companion::Store.new

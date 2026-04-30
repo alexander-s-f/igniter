@@ -78,9 +78,9 @@ Goal:
 - treat `store_write` / `store_append` as future typed app-boundary effects,
   not current runtime nodes
 - keep the package facade pressure descriptor-first: manifest-generated classes
-  are resolved, next pressure is where `store_name` should live
-- treat `store_name_in_manifest` as a naming/capability decision, not a storage
-  backend decision
+  and `storage.name` are resolved
+- treat the next convergence pressure as `companion_store_backed_app_flow`, not
+  a full backend migration
 
 Likely surface:
 

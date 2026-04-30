@@ -1618,9 +1618,9 @@ module Companion
         summary.fetch(:projection_count) == 5 &&
         summary.fetch(:command_count) == 5 &&
         summary.fetch(:relation_count) == 2 &&
-        manifest.fetch(:records).fetch(:reminders).fetch(:storage) == { shape: :store, key: :id, adapter: :sqlite } &&
+        manifest.fetch(:records).fetch(:reminders).fetch(:storage) == { shape: :store, name: :reminders, key: :id, adapter: :sqlite } &&
         manifest.fetch(:records).fetch(:reminders).fetch(:persist) == { key: :id, adapter: :sqlite } &&
-        manifest.fetch(:histories).fetch(:tracker_logs).fetch(:storage) == { shape: :history, key: :tracker_id, adapter: :sqlite } &&
+        manifest.fetch(:histories).fetch(:tracker_logs).fetch(:storage) == { shape: :history, name: :tracker_logs, key: :tracker_id, adapter: :sqlite } &&
         manifest.fetch(:histories).fetch(:tracker_logs).fetch(:history) == { key: :tracker_id, adapter: :sqlite } &&
         manifest.fetch(:records).fetch(:reminders).fetch(:operation_descriptors).any? { |entry| entry.fetch(:name) == :save && entry.fetch(:target_shape) == :store } &&
         manifest.fetch(:histories).fetch(:tracker_logs).fetch(:operation_descriptors).any? { |entry| entry.fetch(:name) == :append && entry.fetch(:target_shape) == :history } &&
@@ -1982,7 +1982,7 @@ module Companion
         descriptor.fetch(:substrate) == :"igniter-store" &&
         descriptor.fetch(:preserves) == { persist: :store_t, history: :history_t, command: :mutation_intent } &&
         packet.fetch(:status) == :stable &&
-        packet.fetch(:checks).length == 19 &&
+        packet.fetch(:checks).length == 20 &&
         packet.fetch(:checks).all? { |check| check.fetch(:present) } &&
         record.fetch(:generated_from_manifest) &&
         history.fetch(:generated_from_manifest) &&
@@ -2002,10 +2002,12 @@ module Companion
         history.fetch(:partition_query_supported) &&
         history.fetch(:partition_replay_count) == 2 &&
         history.fetch(:partition_replay_values) == [7.0, 8.5] &&
-        pressure.fetch(:next_question) == :store_name_in_manifest &&
-        pressure.fetch(:store_name_status).fetch(:current_binding) == :external_store_argument &&
-        pressure.fetch(:store_name_status).fetch(:manifest_has_store_name) == false &&
+        record.fetch(:manifest_store_name_present) &&
+        history.fetch(:manifest_store_name_present) &&
+        pressure.fetch(:next_question) == :companion_store_backed_app_flow &&
         pressure.fetch(:resolved).include?(:manifest_generated_record_history_classes) &&
+        pressure.fetch(:resolved).include?(:store_name_in_manifest) &&
+        pressure.fetch(:facade_input_ready).include?(:storage_name) &&
         pressure.fetch(:facade_input_ready).include?(:history_partition_key)
     end
 
@@ -3669,8 +3671,9 @@ module Companion
         store_convergence.include?("current_status=>:done") &&
         store_convergence.include?("past_status=>:open") &&
         store_convergence.include?("partition_query_supported=>true") &&
-        store_convergence.include?("next_question=>:store_name_in_manifest") &&
-        store_convergence.include?("current_binding=>:external_store_argument") &&
+        store_convergence.include?("manifest_store_name_present=>true") &&
+        store_convergence.include?("next_question=>:companion_store_backed_app_flow") &&
+        store_convergence.include?("store_name_in_manifest") &&
         store_convergence.include?("manifest_generated_record_history_classes") &&
         store_convergence.include?("facade_input_ready")
     end
@@ -3693,10 +3696,12 @@ module Companion
         descriptor.fetch("substrate") == "igniter-store" &&
         descriptor.fetch("preserves") == { "persist" => "store_t", "history" => "history_t", "command" => "mutation_intent" } &&
         payload.fetch("status") == "stable" &&
-        payload.fetch("checks").length == 19 &&
+        payload.fetch("checks").length == 20 &&
         payload.fetch("checks").all? { |check| check.fetch("present") } &&
         record.fetch("generated_from_manifest") &&
         history.fetch("generated_from_manifest") &&
+        record.fetch("manifest_store_name_present") &&
+        history.fetch("manifest_store_name_present") &&
         record.fetch("current_status") == "done" &&
         record.fetch("past_status") == "open" &&
         record.fetch("open_before_count") == 1 &&
@@ -3713,10 +3718,10 @@ module Companion
         history.fetch("partition_query_supported") &&
         history.fetch("partition_replay_count") == 2 &&
         history.fetch("partition_replay_values") == [7.0, 8.5] &&
-        pressure.fetch("next_question") == "store_name_in_manifest" &&
-        pressure.fetch("store_name_status").fetch("current_binding") == "external_store_argument" &&
-        pressure.fetch("store_name_status").fetch("manifest_has_store_name") == false &&
+        pressure.fetch("next_question") == "companion_store_backed_app_flow" &&
         pressure.fetch("resolved").include?("manifest_generated_record_history_classes") &&
+        pressure.fetch("resolved").include?("store_name_in_manifest") &&
+        pressure.fetch("facade_input_ready").include?("storage_name") &&
         pressure.fetch("facade_input_ready").include?("history_partition_key")
     end
 
