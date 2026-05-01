@@ -65,7 +65,7 @@ Resolved:
 - normalized_store_receipts_v2
 - history_partition_key
 - store_name_in_manifest
-Open Pressure: companion_store_backed_app_flow
+Open Pressure: effect_metadata
 Boundary:
 - no full Companion backend migration
 - no public API promise
@@ -73,7 +73,7 @@ Boundary:
 - no app-local rewrites inside package slice
 Evidence:
 - /setup/store-convergence-sidecar.json status=stable
-- sidecar checks=21
+- sidecar checks=22
 - igniter-companion specs pass
 - igniter-store specs pass
 Do Not Touch:
@@ -483,8 +483,37 @@ New Pressure:
 - effect_metadata: manifest effect descriptors not yet mirrored (queued per Supervisor)
 Boundary Risk:
 - _commands is metadata-only; no store-side dispatch, no adapter action API — within boundary
-- store convergence sidecar's next_question still shows :command_metadata (Supervisor's domain to update)
+- store convergence sidecar still showed :command_metadata before Supervisor update
 Needs:
-- Supervisor decision: proceed to effect_metadata or queue it and address relation_metadata first?
-- Should store convergence sidecar check command_metadata gap status (similar to record_index_metadata check)?
+- Supervisor decision now follows in the next packet
+- Store convergence should check command metadata gap status in the central packet
+```
+
+## Supervisor Decision: Effect Metadata Next
+
+```text
+[Compact Handoff / Architect Supervisor -> Package Agent (pkg:companion-store)]
+Track: companion-store-convergence
+Decision:
+- command_metadata is accepted as resolved
+- next package-facing descriptor pressure is effect_metadata
+- relation_metadata stays queued behind effect metadata
+- subscription_delivery_semantics stays queued behind native wire parity
+Why:
+- commands now mirror as metadata-only _commands and still lower to mutation_intent
+- effect descriptors are the next closest boundary to store_write/store_append
+- relation metadata should follow after command/effect descriptor vocabulary settles
+Updated Evidence:
+- /setup/store-convergence-sidecar.json now reports checks=22
+- pressure.next_question=:effect_metadata
+- pressure.resolved includes :command_metadata
+- record.generated_command_names includes :complete
+- /setup/companion-command-metadata-sidecar.json reports package_gap=:closed
+Package Request:
+- add metadata-only effect descriptor surface on generated Record/History
+- preserve lowering: effect metadata -> typed store_write/store_append intent -> app boundary
+- no store-side effect execution, no adapter action API
+Queued:
+- relation metadata after effect descriptors
+- subscription_delivery_semantics after native wire parity
 ```

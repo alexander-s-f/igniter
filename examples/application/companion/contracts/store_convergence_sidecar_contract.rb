@@ -59,6 +59,8 @@ module Companion
                                                                      history.fetch(:manifest_store_name_present)),
           Companion::Contracts.check(:record_index_metadata,         record.fetch(:manifest_indexes).include?(:status) &&
                                                                      record.fetch(:generated_index_names).include?(:status)),
+          Companion::Contracts.check(:record_command_metadata,       record.fetch(:manifest_commands).include?(:complete) &&
+                                                                     record.fetch(:generated_command_names).include?(:complete)),
           Companion::Contracts.check(:record_round_trip,            record.fetch(:current_status) == :done),
           Companion::Contracts.check(:record_scope_works,           record.fetch(:open_before_count) == 1 && record.fetch(:open_after_count).zero?),
           Companion::Contracts.check(:record_time_travel_works,     record.fetch(:past_status) == :open),
