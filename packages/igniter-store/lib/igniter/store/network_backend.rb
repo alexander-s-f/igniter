@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-# Pure-Ruby only: NetworkBackend deserialises Fact objects from the wire using
-# Fact.new, which is not available in the Rust native extension.
-# Phase 2 of the network backend will add a Rust-native deserialise path.
-return if defined?(Igniter::Store::NATIVE) && Igniter::Store::NATIVE
-
 require "socket"
 require "json"
 require_relative "wire_protocol"
@@ -157,9 +152,7 @@ module Igniter
       end
 
       def decode_fact(h)
-        h[:store]     = h.fetch(:store).to_sym
-        h[:timestamp] = h.fetch(:timestamp).to_f
-        Fact.new(**h).freeze
+        Fact.from_h(h)
       end
     end
   end

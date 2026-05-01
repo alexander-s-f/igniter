@@ -3,10 +3,7 @@
 require_relative "../../spec_helper"
 require "tmpdir"
 
-SERVER_NATIVE_SKIP = "NATIVE: StoreServer requires Fact.new — Ruby-only in Phase 1."
-
-RSpec.describe "StoreServer + ServerConfig + ServerLogger",
-               skip: (Igniter::Store::NATIVE ? SERVER_NATIVE_SKIP : false) do
+RSpec.describe "StoreServer + ServerConfig + ServerLogger" do
 
   def free_port
     s = TCPServer.new("127.0.0.1", 0)

@@ -2,11 +2,7 @@
 
 require_relative "../../spec_helper"
 
-NATIVE_SKIP_MSG = "NATIVE: StoreServer/NetworkBackend use Fact.new for wire deserialisation; " \
-                  "Rust-native path is Phase 2 work."
-
-RSpec.describe "NetworkBackend + StoreServer",
-               skip: (Igniter::Store::NATIVE ? NATIVE_SKIP_MSG : false) do
+RSpec.describe "NetworkBackend + StoreServer" do
   # Finds a free TCP port by binding briefly with port 0, then releasing it.
   def free_port
     s = TCPServer.new("127.0.0.1", 0)
