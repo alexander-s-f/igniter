@@ -88,6 +88,9 @@ Proved:
 - the store-server topology sidecar proves the app/server boundary shape:
   app computes contracts, StoreServer hosts durable fact projection, network
   transport is backend swap, and native wire deserialization is the explicit gap
+- the same topology packet now tracks the new operational surface:
+  `ServerConfig`, `ServerLogger`, `SubscriptionRegistry`, `wait_until_ready`,
+  graceful drain, `stats`, and `subscribe/fact_written` push delivery
 - the packet does not mutate main Companion state or replace the current app
   backend
 

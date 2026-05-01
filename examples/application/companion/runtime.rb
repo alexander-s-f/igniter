@@ -2092,11 +2092,11 @@ module Companion
         records.all? { |record| record.fetch(:indexes).all? { |index| index.fetch(:fields) == [:status] } } &&
         records.all? { |record| record.fetch(:indexes).all? { |index| index.fetch(:fields_declared) } } &&
         records.all? { |record| record.fetch(:scopes).all? { |scope| scope.fetch(:covered_by_index) } } &&
-        records.all? { |record| record.fetch(:generated_index_api_present) == false } &&
-        package_gap.fetch(:status) == :open &&
+        records.all? { |record| record.fetch(:generated_index_api_present) == true } &&
+        package_gap.fetch(:status) == :closed &&
         package_gap.fetch(:expected_api) == :_indexes &&
-        pressure.fetch(:next_question) == :index_metadata &&
-        pressure.fetch(:package_request) == :mirror_manifest_indexes_as_record_metadata
+        pressure.fetch(:next_question) == :command_metadata &&
+        pressure.fetch(:resolved) == :index_metadata
     end
 
     def companion_receipt_projection_sidecar_contract?
@@ -2141,11 +2141,13 @@ module Companion
         descriptor.fetch(:gates_runtime) == false &&
         descriptor.fetch(:executes_network) == false &&
         packet.fetch(:status) == :stable &&
-        checks.length == 12 &&
+        checks.length == 15 &&
         checks.all? { |check| check.fetch(:present) } &&
         topology.fetch(:app_process).fetch(:owns).include?(:contract_computation) &&
         topology.fetch(:store_server).fetch(:owns).include?(:durable_facts) &&
-        topology.fetch(:transport).fetch(:operation_surface) == %i[write_fact replay write_snapshot] &&
+        topology.fetch(:transport).fetch(:operation_surface) == %i[write_fact replay write_snapshot stats subscribe] &&
+        topology.fetch(:operational_lifecycle).fetch(:readiness) == :wait_until_ready &&
+        topology.fetch(:subscription_boundary).fetch(:app_contract_logic) == :not_in_callback &&
         backend_matrix.map { |entry| entry.fetch(:backend) } == %i[memory file network] &&
         network.fetch(:phase) == :native_wire_deserialization_pending &&
         package_gap.fetch(:status) == :open &&
@@ -3909,7 +3911,7 @@ module Companion
         companion_index_metadata.include?("status=>:stable") &&
         companion_index_metadata.include?("claim=>:portable_index_metadata_shape") &&
         companion_index_metadata.include?("db_index_promise=>false") &&
-        companion_index_metadata.include?("package_request=>:mirror_manifest_indexes_as_record_metadata") &&
+        companion_index_metadata.include?("resolved=>:index_metadata") &&
         companion_index_metadata.include?("expected_api=>:_indexes")
     end
 
@@ -3933,11 +3935,11 @@ module Companion
         records.all? { |record| record.fetch("indexes").all? { |index| index.fetch("fields") == ["status"] } } &&
         records.all? { |record| record.fetch("indexes").all? { |index| index.fetch("fields_declared") } } &&
         records.all? { |record| record.fetch("scopes").all? { |scope| scope.fetch("covered_by_index") } } &&
-        records.all? { |record| record.fetch("generated_index_api_present") == false } &&
-        package_gap.fetch("status") == "open" &&
+        records.all? { |record| record.fetch("generated_index_api_present") == true } &&
+        package_gap.fetch("status") == "closed" &&
         package_gap.fetch("expected_api") == "_indexes" &&
-        pressure.fetch("next_question") == "index_metadata" &&
-        pressure.fetch("package_request") == "mirror_manifest_indexes_as_record_metadata"
+        pressure.fetch("next_question") == "command_metadata" &&
+        pressure.fetch("resolved") == "index_metadata"
     end
 
     def setup_companion_receipt_projection_sidecar_endpoint?(companion_receipt_projection)
@@ -3980,6 +3982,8 @@ module Companion
         companion_store_server_topology.include?("claim=>:store_server_projection_topology") &&
         companion_store_server_topology.include?("executes_network=>false") &&
         companion_store_server_topology.include?("backend=>:network") &&
+        companion_store_server_topology.include?("wait_until_ready") &&
+        companion_store_server_topology.include?("subscription_registry") &&
         companion_store_server_topology.include?("native_wire_deserialization_pending")
     end
 
@@ -3998,11 +4002,13 @@ module Companion
         descriptor.fetch("gates_runtime") == false &&
         descriptor.fetch("executes_network") == false &&
         payload.fetch("status") == "stable" &&
-        payload.fetch("checks").length == 12 &&
+        payload.fetch("checks").length == 15 &&
         payload.fetch("checks").all? { |check| check.fetch("present") } &&
         topology.fetch("app_process").fetch("owns").include?("contract_computation") &&
         topology.fetch("store_server").fetch("owns").include?("durable_facts") &&
-        topology.fetch("transport").fetch("operation_surface") == %w[write_fact replay write_snapshot] &&
+        topology.fetch("transport").fetch("operation_surface") == %w[write_fact replay write_snapshot stats subscribe] &&
+        topology.fetch("operational_lifecycle").fetch("readiness") == "wait_until_ready" &&
+        topology.fetch("subscription_boundary").fetch("app_contract_logic") == "not_in_callback" &&
         backend_matrix.map { |entry| entry.fetch("backend") } == %w[memory file network] &&
         network.fetch("phase") == "native_wire_deserialization_pending" &&
         package_gap.fetch("status") == "open" &&

@@ -27,6 +27,9 @@ module Companion
           main_state_mutated: false,
           network_executed: false,
           wire_protocol_known: Igniter::Store.const_defined?(:WireProtocol),
+          server_config_known: Igniter::Store.const_defined?(:ServerConfig),
+          server_logger_known: Igniter::Store.const_defined?(:ServerLogger),
+          subscription_registry_known: Igniter::Store.const_defined?(:SubscriptionRegistry),
           topology: topology,
           backend_matrix: backend_matrix(native: native, network_ready: network_ready),
           package_gap: package_gap(native: native, network_ready: network_ready),
@@ -44,13 +47,32 @@ module Companion
           },
           store_server: {
             owns: %i[durable_facts wal replay snapshot],
+            observes: %i[stats active_connections subscriptions],
             does_not_own: %i[contract_node_execution app_business_logic]
           },
           client_rebuilds: %i[scope_index partition_index read_cache],
           transport: {
             protocol: :crc32_framed_json,
-            shape: :request_response,
-            operation_surface: %i[write_fact replay write_snapshot]
+            shape: :request_response_plus_push,
+            operation_surface: %i[write_fact replay write_snapshot stats subscribe],
+            request_response: %i[write_fact replay write_snapshot stats ping close],
+            push_surface: %i[subscribe fact_written]
+          },
+          operational_lifecycle: {
+            config: :server_config,
+            logger: :server_logger,
+            executable: :"igniter-store-server",
+            phases: %i[configure bind ready accept drain stop],
+            readiness: :wait_until_ready,
+            shutdown: :graceful_drain
+          },
+          subscription_boundary: {
+            registry: :subscription_registry,
+            record: :subscription_record,
+            server_event: :fact_written,
+            client_handle: :subscription_handle,
+            filters: :stores,
+            app_contract_logic: :not_in_callback
           }
         }
       end
@@ -92,11 +114,14 @@ module Companion
         {
           next_question: :network_backend_native_parity,
           package_request: :fact_deserialize_for_native_wire,
+          follow_up_request: :subscription_delivery_semantics,
           does_not_replace_current_pressure: :index_metadata,
           acceptance: %i[
             native_fact_deserialize_from_wire_hash
             network_backend_available_under_native
             store_server_available_under_native
+            lifecycle_support_constants_loaded_under_native
+            subscription_registry_loaded_under_native
             no_contract_logic_rpc
           ],
           non_goals: %i[

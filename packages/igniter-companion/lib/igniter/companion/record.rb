@@ -42,8 +42,14 @@ module Igniter
           @_scopes[name] = { filters: filters, cache_ttl: cache_ttl }
         end
 
-        def _fields; @_fields ||= {}; end
-        def _scopes; @_scopes ||= {}; end
+        def index(name, fields:, unique: false)
+          @_indexes ||= {}
+          @_indexes[name] = { fields: Array(fields).map(&:to_sym), unique: unique }
+        end
+
+        def _fields;  @_fields  ||= {}; end
+        def _scopes;  @_scopes  ||= {}; end
+        def _indexes; @_indexes ||= {}; end
 
         def from_fact(fact)
           new(key: fact.key, **fact.value)
@@ -80,6 +86,14 @@ module Igniter
           manifest.fetch(:scopes, []).each do |scope_def|
             filters = scope_def.fetch(:attributes, {}).fetch(:where, {})
             scope scope_def.fetch(:name), filters: filters
+          end
+
+          manifest.fetch(:indexes, []).each do |index_def|
+            attrs  = index_def.fetch(:attributes, {})
+            fields = Array(attrs.fetch(:fields, index_def.fetch(:name))).map(&:to_sym)
+            index index_def.fetch(:name),
+                  fields: fields,
+                  unique: attrs.fetch(:unique, false)
           end
         end
       end

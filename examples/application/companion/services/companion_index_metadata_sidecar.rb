@@ -96,8 +96,9 @@ module Companion
 
       def pressure_report
         {
-          next_question: :index_metadata,
-          package_request: :mirror_manifest_indexes_as_record_metadata,
+          next_question: :command_metadata,
+          resolved: :index_metadata,
+          package_request: :await_supervisor_command_metadata_pressure,
           acceptance: %i[
             from_manifest_preserves_indexes
             generated_record_exposes_indexes

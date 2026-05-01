@@ -56,6 +56,15 @@ module Companion
                                                             topology.fetch(:store_server).fetch(:owns).include?(:replay)),
           Companion::Contracts.check(:backend_swap_shape, backend_matrix.map { |entry| entry.fetch(:backend) } == %i[memory file network]),
           Companion::Contracts.check(:wire_protocol_known, proof.fetch(:wire_protocol_known)),
+          Companion::Contracts.check(:server_support_constants_known, proof.fetch(:server_config_known) &&
+                                                                      proof.fetch(:server_logger_known) &&
+                                                                      proof.fetch(:subscription_registry_known)),
+          Companion::Contracts.check(:server_lifecycle_shape, topology.fetch(:operational_lifecycle).fetch(:config) == :server_config &&
+                                                              topology.fetch(:operational_lifecycle).fetch(:readiness) == :wait_until_ready &&
+                                                              topology.fetch(:operational_lifecycle).fetch(:shutdown) == :graceful_drain),
+          Companion::Contracts.check(:subscription_boundary_shape, topology.fetch(:subscription_boundary).fetch(:registry) == :subscription_registry &&
+                                                                  topology.fetch(:subscription_boundary).fetch(:server_event) == :fact_written &&
+                                                                  topology.fetch(:subscription_boundary).fetch(:app_contract_logic) == :not_in_callback),
           Companion::Contracts.check(:network_phase_recorded, backend_matrix.find { |entry| entry.fetch(:backend) == :network }.fetch(:phase) != :unknown),
           Companion::Contracts.check(:native_gap_explicit, %i[open closed].include?(package_gap.fetch(:status)) &&
                                                            package_gap.fetch(:name) == :native_wire_deserialization),

@@ -117,6 +117,11 @@ Store-side pressure after index metadata:
   `AccessPath` metadata
 - use `/setup/companion-store-server-topology-sidecar.json` as app-local pressure
   when discussing StoreServer topology from Companion
+- StoreServer has moved from transport proof to operational proof:
+  `ServerConfig`, `ServerLogger`, `SubscriptionRegistry`,
+  `igniter-store-server`, `wait_until_ready`, graceful drain, `stats`, and
+  `subscribe/fact_written`; Companion should treat this as lifecycle/delivery
+  capability, not as a contract-logic RPC surface
 - finish Rust snapshot parity (`all_facts`, `write_snapshot`)
 - finish Rust network parity by adding native fact deserialisation from existing
   fact fields

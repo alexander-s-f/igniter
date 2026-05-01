@@ -51,10 +51,10 @@ module Companion
           Companion::Contracts.check(:index_fields_declared, records.all? { |record| record.fetch(:indexes).all? { |index| index.fetch(:fields_declared) } }),
           Companion::Contracts.check(:scope_coverage_explained, records.all? { |record| record.fetch(:scopes).all? { |scope| scope.fetch(:covered_by_index) } }),
           Companion::Contracts.check(:generated_scope_metadata_present, records.all? { |record| record.fetch(:generated_scope_names).any? }),
-          Companion::Contracts.check(:package_index_gap_detected, package_gap.fetch(:status) == :open &&
-                                                                       package_gap.fetch(:generated_index_api_present) == false),
-          Companion::Contracts.check(:pressure_ready, pressure.fetch(:next_question) == :index_metadata &&
-                                                       pressure.fetch(:package_request) == :mirror_manifest_indexes_as_record_metadata)
+          Companion::Contracts.check(:package_index_gap_closed, package_gap.fetch(:status) == :closed &&
+                                                                      package_gap.fetch(:generated_index_api_present) == true),
+          Companion::Contracts.check(:pressure_ready, pressure.fetch(:next_question) == :command_metadata &&
+                                                       pressure.fetch(:resolved) == :index_metadata)
         ]
       end
 

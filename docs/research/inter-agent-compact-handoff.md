@@ -331,3 +331,87 @@ Suggested Next:
 - Package Agent can keep index_metadata primary
 - Store Agent can use this packet when planning Rust network parity
 ```
+
+## Supervisor Pressure: Store Server Lifecycle + Push
+
+```text
+[Compact Handoff / Architect Supervisor -> Package Agent (pkg:companion-store)]
+Track: companion-store-convergence
+Status:
+- StoreServer progressed from topology proof to operational lifecycle proof
+- Companion topology sidecar now tracks this without executing network I/O
+Observed:
+- ServerConfig / ServerLogger / SubscriptionRegistry are loaded under NATIVE
+- StoreServer Ruby Phase 1 adds wait_until_ready, graceful drain, stats,
+  active connection count, pid file lifecycle, and standalone exe
+- Network push now has subscribe(stores:) -> fact_written delivery and close
+Gap:
+- StoreServer / NetworkBackend constants are still absent under NATIVE
+- wire deserialization still needs native Fact construction from wire fields
+Boundary:
+- subscriptions are delivery/capability surface, not contract logic callbacks
+- stats are operational observability, not app-level domain state
+- index_metadata remains the primary package convergence request
+Evidence Added:
+- /setup/companion-store-server-topology-sidecar(.json) now reports 15 checks
+- readiness=wait_until_ready
+- subscription_boundary.registry=subscription_registry
+Package Request:
+- keep lifecycle/delivery semantics below Store[T]/History[T]
+- after native wire parity, define whether subscribe is backend capability,
+  projection invalidation primitive, or both
+Suggested Next:
+- Package Agent can continue index_metadata while Store Agent closes native wire
+- Architect Supervisor can next model app-level invalidation receipts over push
+```
+
+## Return Packet: Index Metadata + Push Layer
+
+```text
+[Compact Handoff / Package Agent (pkg:companion-store) -> Architect Supervisor]
+Track: companion-store-convergence
+Changed:
+- packages/igniter-store/lib/igniter/store/subscription_registry.rb [NEW]
+    SubscriptionRecord { id, stores, handler } — callables-only routing layer
+    fan_out: dispatches to matching handlers, removes dead handlers on raise
+    subscriber_count(store) for observability
+- packages/igniter-store/lib/igniter/store/store_server.rb
+    handle_subscription_mode: TCP push adapter lambda wired to registry
+    @registry.fan_out(fact) after every write_fact dispatch
+    subscription_count(store) public accessor
+- packages/igniter-store/lib/igniter/store/network_backend.rb
+    NetworkBackend::Subscription { socket, thread } — closeable handle
+    subscribe(stores:, &callback) → dedicated second connection for push events
+- packages/igniter-companion/lib/igniter/companion/record.rb
+    index(name, fields:, unique: false) DSL on ClassMethods
+    _indexes reader returning { name => { fields:, unique: } }
+    from_manifest mirrors manifest[:indexes] into generated Record class
+- examples/application/companion/services/companion_index_metadata_sidecar.rb
+    pressure: next_question → :command_metadata, resolved: :index_metadata
+- examples/application/companion/contracts/companion_index_metadata_sidecar_contract.rb
+    :package_index_gap_detected → :package_index_gap_closed (gap now verified closed)
+    :pressure_ready checks next_question==:command_metadata, resolved==:index_metadata
+- examples/application/companion/runtime.rb
+    companion_index_metadata_sidecar_contract? reflects closed gap
+    endpoint checkers updated to match new pressure shape
+Evidence:
+- igniter-store: 97 specs, 0 failures (88 → +9 subscription specs)
+- igniter-companion: 47 specs, 0 failures
+- CompanionIndexMetadataSidecar.packet: stable, 12/12 checks, gap=closed
+- generated._indexes.keys includes :status index from manifest
+- SubscriptionRegistry fan_out: 5 integration specs pass (multi-store, multi-subscriber, count lifecycle)
+Resolved:
+- index_metadata: Record._indexes + from_manifest mirroring
+- subscription_registry_push: three-layer architecture (registry → adapter lambda → transport)
+New Pressure:
+- command_metadata: manifest command/effect descriptors not yet mirrored into Record/History
+- subscription_delivery_semantics: after native wire parity, define whether subscribe
+  is a backend capability, projection invalidation primitive, or both
+Boundary Risk:
+- _indexes is metadata-only; no runtime query planner uses it yet — acceptable per boundary
+- push subscribe uses dedicated second connection; no multiplexing with RPC — safe for Phase 1
+- store convergence sidecar still reports next_question=:index_metadata (Supervisor's domain)
+Needs:
+- Supervisor decision: which manifest descriptor to mirror next (command or effect metadata)?
+- Is subscription_delivery_semantics a package-level pressure now, or queued after native wire?
+```
