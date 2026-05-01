@@ -8,6 +8,7 @@ module Igniter
         @projections = {}
         @derivations = []
         @scatters    = []
+        @relations   = {}
         @retention   = {}
       end
 
@@ -111,6 +112,34 @@ module Igniter
             partition_by: r.partition_by,
             target_store: r.target_store,
             has_rule:     true
+          }
+        end
+      end
+
+      # --- Relation registry ---
+
+      def register_relation(relation_rule)
+        @relations[relation_rule.name] = relation_rule
+        self
+      end
+
+      def relation_for(name:)
+        @relations[name]
+      end
+
+      def registered_relations
+        @relations.keys
+      end
+
+      # Compact snapshot of all registered relations (no callables — pure metadata).
+      def relation_snapshot
+        @relations.transform_values do |r|
+          {
+            name:      r.name,
+            source:    r.source,
+            partition: r.partition,
+            target:    r.target,
+            index_store: :"__rel_#{r.name}"
           }
         end
       end

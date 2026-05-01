@@ -92,6 +92,48 @@ module Igniter
         store ? all.select { |f| f.value[:compacted_store] == store } : all
       end
 
+      # Declare a named cross-store relation backed by a materialized scatter index.
+      #
+      # When any fact is written to +source+, the value of +partition+ in that
+      # fact is used as a key into the index store :"__rel_<name>".  The index
+      # entry accumulates the unique source keys that share that partition value.
+      #
+      # resolve(name, from: value) reads the index and returns the current values
+      # of all matching source facts (latest per key).
+      #
+      # This is a 1-N relation: one partition_key value → many source keys.
+      # The index is append-only (G-Set): facts are never removed from the index.
+      def register_relation(name, source:, partition:, target:)
+        rule = RelationRule.new(name: name, source: source, partition: partition, target: target)
+        @schema_graph.register_relation(rule)
+
+        index_store = :"__rel_#{name}"
+        register_scatter(
+          source_store: source,
+          partition_by: partition,
+          target_store: index_store,
+          rule: lambda { |partition_key, existing, new_fact|
+            keys = existing ? existing[:keys].dup : []
+            keys << new_fact.key unless keys.include?(new_fact.key)
+            { keys: keys, count: keys.size, partition_key: partition_key }
+          }
+        )
+        self
+      end
+
+      # Resolve a named relation for a given partition value.
+      # Returns an Array of the current values of all source facts whose
+      # partition field equals +from+.  Returns [] when nothing is indexed yet.
+      def resolve(relation_name, from:)
+        rule = @schema_graph.relation_for(name: relation_name)
+        raise ArgumentError, "No relation registered: #{relation_name.inspect}" unless rule
+
+        index_entry = read(store: :"__rel_#{relation_name}", key: from.to_s)
+        return [] unless index_entry
+
+        index_entry[:keys].filter_map { |key| read(store: rule.source, key: key) }
+      end
+
       # Register a scatter derivation rule.
       # When a fact is written to +source_store+, the value of +partition_by+ in
       # that fact's value is extracted as the target key.  +rule+ is called as:

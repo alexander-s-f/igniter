@@ -149,6 +149,27 @@ module Igniter
         facts.map { |f| history_class.from_fact(f) }
       end
 
+      # Declare a named cross-store relation at the companion level.
+      # +source+ may be a schema class (store_name is used) or a Symbol.
+      # +target+ may be a schema class or Symbol — informational only.
+      def register_relation(name, source:, partition:, target:)
+        src = source.respond_to?(:store_name) ? source.store_name : source.to_sym
+        tgt = target.respond_to?(:store_name) ? target.store_name : target.to_sym
+        @inner.register_relation(name, source: src, partition: partition, target: tgt)
+        self
+      end
+
+      # Resolve a named relation for a given partition value.
+      # Returns an Array of the current source values for all matching keys.
+      def resolve(relation_name, from:)
+        @inner.resolve(relation_name, from: from)
+      end
+
+      # Returns a compact snapshot of all registered relation rules.
+      def _relations
+        @inner.schema_graph.relation_snapshot
+      end
+
       # Register a scatter derivation rule at the companion level.
       # Delegates to IgniterStore#register_scatter.  See that method for full semantics.
       # +source_schema+ may be a schema class (its store_name is used) or a Symbol.

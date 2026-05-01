@@ -51,6 +51,20 @@ module Igniter
       keyword_init: true
     )
 
+    # Declarative relation between two stores.  Backed by a ScatterRule that
+    # maintains a materialized index in :"__rel_<name>".
+    # source:    Symbol — store whose facts carry the foreign key
+    # partition: Symbol — field in source fact's value that holds the FK value
+    # target:    Symbol — logical "owning" store (informational / metadata only)
+    # Resolved via IgniterStore#resolve(name, from: partition_value).
+    RelationRule = Struct.new(
+      :name,       # Symbol — relation name, e.g. :article_comments
+      :source,     # Symbol — source store
+      :partition,  # Symbol — FK field in source fact's value
+      :target,     # Symbol — logical target store (metadata only)
+      keyword_init: true
+    )
+
     # Scatter derivation rule: when a fact is written to source_store,
     # extract partition_by field from its value to determine the target key,
     # then call rule.(partition_key, existing_value, new_fact) → Hash | nil
