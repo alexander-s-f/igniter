@@ -92,6 +92,24 @@ module Igniter
         store ? all.select { |f| f.value[:compacted_store] == store } : all
       end
 
+      # Register a scatter derivation rule.
+      # When a fact is written to +source_store+, the value of +partition_by+ in
+      # that fact's value is extracted as the target key.  +rule+ is called as:
+      #   rule.(partition_key, existing_value, new_fact) → Hash | nil
+      # Returning nil skips the write.  Scatter writes do not re-trigger scatter
+      # (cycle-safe via a separate thread-local guard).
+      def register_scatter(source_store:, partition_by:, target_store:, rule:)
+        @schema_graph.register_scatter(
+          ScatterRule.new(
+            source_store: source_store,
+            partition_by: partition_by,
+            target_store: target_store,
+            rule:         rule
+          )
+        )
+        self
+      end
+
       def register_derivation(source_store:, source_filters: {}, target_store:, target_key:, rule:)
         @schema_graph.register_derivation(
           DerivationRule.new(
@@ -141,6 +159,7 @@ module Igniter
         scope_changes = update_scope_indices(store, key, value)
         @cache.invalidate(store: store, key: key, scope_changes: scope_changes)
         run_derivations(store: store, source_fact: fact)
+        run_scatters(store: store, source_fact: fact)
         fact
       end
 
@@ -474,6 +493,35 @@ module Igniter
           end
         ensure
           Thread.current[:igniter_deriving] = false
+        end
+      end
+
+      # Runs all scatter rules registered for +store+ unless we are already inside
+      # a scatter derivation (separate cycle guard from gather derivations).
+      # Extracts partition_by field from the triggering fact's value, reads the
+      # current index entry, calls rule.(partition_key, existing, new_fact), and
+      # writes the result when non-nil.
+      def run_scatters(store:, source_fact:)
+        return if Thread.current[:igniter_scattering]
+
+        rules = @schema_graph.scatters_for_store(store: store)
+        return if rules.empty?
+
+        Thread.current[:igniter_scattering] = true
+        begin
+          rules.each do |rule|
+            partition_value = source_fact.value[rule.partition_by]
+            next unless partition_value
+
+            target_key     = partition_value.to_s
+            existing_value = read(store: rule.target_store, key: target_key)
+            derived_value  = rule.rule.call(partition_value, existing_value, source_fact)
+            next unless derived_value
+
+            write(store: rule.target_store, key: target_key, value: derived_value)
+          end
+        ensure
+          Thread.current[:igniter_scattering] = false
         end
       end
 

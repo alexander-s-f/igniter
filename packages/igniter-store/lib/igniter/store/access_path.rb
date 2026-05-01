@@ -50,5 +50,21 @@ module Igniter
       :reactive,       # Boolean — whether push-reactive delivery is expected
       keyword_init: true
     )
+
+    # Scatter derivation rule: when a fact is written to source_store,
+    # extract partition_by field from its value to determine the target key,
+    # then call rule.(partition_key, existing_value, new_fact) → Hash | nil
+    # to update exactly one entry in target_store.
+    #
+    # Unlike Gather (DerivationRule), Scatter is 1-source → 1-index-entry:
+    # the rule accumulates into an existing value rather than re-evaluating
+    # the full source set.  rule returning nil skips the write.
+    ScatterRule = Struct.new(
+      :source_store,  # Symbol — store that triggers the scatter
+      :partition_by,  # Symbol — key in source fact's value used as target key
+      :target_store,  # Symbol — store where the index entry is written
+      :rule,          # callable(partition_key, existing_value, new_fact) → Hash | nil
+      keyword_init: true
+    )
   end
 end

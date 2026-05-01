@@ -7,6 +7,7 @@ module Igniter
         @paths       = Hash.new { |hash, key| hash[key] = [] }
         @projections = {}
         @derivations = []
+        @scatters    = []
         @retention   = {}
       end
 
@@ -85,6 +86,31 @@ module Igniter
             target_store:   r.target_store,
             target_key:     r.target_key.respond_to?(:call) ? :callable : r.target_key,
             has_rule:       true
+          }
+        end
+      end
+
+      # --- Scatter Derivation registry ---
+
+      def register_scatter(scatter_rule)
+        @scatters << scatter_rule
+        self
+      end
+
+      # All scatter rules whose source_store matches the given store.
+      def scatters_for_store(store:)
+        @scatters.select { |r| r.source_store == store }
+      end
+
+      # Compact snapshot of registered scatter rules (rule callables omitted).
+      def scatter_snapshot
+        @scatters.map.with_index do |r, i|
+          {
+            index:        i,
+            source_store: r.source_store,
+            partition_by: r.partition_by,
+            target_store: r.target_store,
+            has_rule:     true
           }
         end
       end
