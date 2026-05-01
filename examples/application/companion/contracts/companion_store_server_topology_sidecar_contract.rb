@@ -68,8 +68,8 @@ module Companion
           Companion::Contracts.check(:network_phase_recorded, backend_matrix.find { |entry| entry.fetch(:backend) == :network }.fetch(:phase) != :unknown),
           Companion::Contracts.check(:native_gap_explicit, %i[open closed].include?(package_gap.fetch(:status)) &&
                                                            package_gap.fetch(:name) == :native_wire_deserialization),
-          Companion::Contracts.check(:package_request_scoped, pressure.fetch(:package_request) == :fact_deserialize_for_native_wire),
-          Companion::Contracts.check(:main_convergence_unchanged, pressure.fetch(:does_not_replace_current_pressure) == :index_metadata)
+          Companion::Contracts.check(:native_parity_resolved, pressure.fetch(:resolved) == :network_backend_native_parity),
+          Companion::Contracts.check(:next_question_known, %i[reactive_derivation projection_descriptor_mirroring].include?(pressure.fetch(:next_question)))
         ]
       end
 

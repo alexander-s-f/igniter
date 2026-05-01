@@ -10,6 +10,13 @@ RSpec.describe Igniter::Store::SchemaGraph do
     )
   end
 
+  def make_projection(name:, reads:, relations: [], consumer_hint: :contract_node, reactive: false)
+    Igniter::Store::ProjectionPath.new(
+      name: name, reads: reads, relations: relations,
+      consumer_hint: consumer_hint, reactive: reactive
+    )
+  end
+
   subject(:graph) { described_class.new }
 
   describe "#register / #paths_for" do
@@ -124,6 +131,76 @@ RSpec.describe Igniter::Store::SchemaGraph do
       graph.register(make_path(store: :tasks, scope: :open, consumers: [:a]))
       entry = graph.metadata_snapshot[:tasks].first
       expect(entry).not_to have_key(:consumers)
+    end
+  end
+
+  describe "#register_projection / #projection_for / #projections_for_store" do
+    it "stores and retrieves a projection by name" do
+      proj = make_projection(name: :tracker_read_model, reads: [:trackers, :tracker_logs])
+      graph.register_projection(proj)
+      expect(graph.projection_for(name: :tracker_read_model)).to be(proj)
+    end
+
+    it "returns nil for an unregistered projection name" do
+      expect(graph.projection_for(name: :unknown)).to be_nil
+    end
+
+    it "is chainable" do
+      proj = make_projection(name: :tracker_read_model, reads: [:trackers])
+      expect(graph.register_projection(proj)).to be(graph)
+    end
+
+    it "finds projections reading from a given store" do
+      p1 = make_projection(name: :tracker_read_model, reads: [:trackers, :tracker_logs])
+      p2 = make_projection(name: :countdown_read_model, reads: [:countdowns])
+      graph.register_projection(p1).register_projection(p2)
+      expect(graph.projections_for_store(store: :trackers)).to contain_exactly(p1)
+      expect(graph.projections_for_store(store: :tracker_logs)).to contain_exactly(p1)
+      expect(graph.projections_for_store(store: :countdowns)).to contain_exactly(p2)
+    end
+
+    it "returns empty array when no projections read from the given store" do
+      expect(graph.projections_for_store(store: :unknown)).to eq([])
+    end
+  end
+
+  describe "#projection_snapshot" do
+    it "returns empty hash when no projections are registered" do
+      expect(graph.projection_snapshot).to eq({})
+    end
+
+    it "keys snapshot by projection name" do
+      graph.register_projection(make_projection(name: :tracker_read_model, reads: [:trackers]))
+      graph.register_projection(make_projection(name: :countdown_read_model, reads: [:countdowns]))
+      expect(graph.projection_snapshot.keys).to contain_exactly(:tracker_read_model, :countdown_read_model)
+    end
+
+    it "captures all descriptor fields and derived counts" do
+      proj = make_projection(
+        name: :tracker_read_model,
+        reads: [:trackers, :tracker_logs],
+        relations: [:tracker_logs_by_tracker],
+        consumer_hint: :contract_node,
+        reactive: true
+      )
+      graph.register_projection(proj)
+      entry = graph.projection_snapshot[:tracker_read_model]
+      expect(entry).to eq(
+        name:           :tracker_read_model,
+        reads:          [:trackers, :tracker_logs],
+        relations:      [:tracker_logs_by_tracker],
+        consumer_hint:  :contract_node,
+        reactive:       true,
+        store_count:    2,
+        relation_count: 1
+      )
+    end
+
+    it "records store_count and relation_count as integers" do
+      graph.register_projection(make_projection(name: :activity_feed, reads: [:actions], relations: []))
+      entry = graph.projection_snapshot[:activity_feed]
+      expect(entry[:store_count]).to eq(1)
+      expect(entry[:relation_count]).to eq(0)
     end
   end
 end

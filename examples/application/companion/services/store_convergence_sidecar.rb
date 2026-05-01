@@ -130,7 +130,7 @@ module Companion
 
       def pressure_report
         {
-          next_question: :projection_descriptor_mirroring,
+          next_question: :reactive_derivation,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
           resolved: %i[
@@ -147,6 +147,7 @@ module Companion
             relation_metadata
             app_projection_metadata_shape
             store_schema_graph_metadata_snapshot
+            projection_descriptor_mirroring
           ],
           facade_input_ready: %i[
             storage_shape
@@ -165,10 +166,10 @@ module Companion
             history_partition_key
           ],
           asks: %i[
-            projection_descriptor_mirroring
+            reactive_derivation
           ],
           recommended_order: %i[
-            projection_descriptor_mirroring
+            reactive_derivation
           ]
         }
       end

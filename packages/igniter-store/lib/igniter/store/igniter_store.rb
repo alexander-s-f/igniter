@@ -47,6 +47,11 @@ module Igniter
         store
       end
 
+      def register_projection(projection_path)
+        @schema_graph.register_projection(projection_path)
+        self
+      end
+
       def register_path(path)
         @schema_graph.register(path)
         path.consumers.to_a.each do |consumer|

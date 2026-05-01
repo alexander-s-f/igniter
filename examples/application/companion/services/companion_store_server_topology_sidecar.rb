@@ -112,10 +112,8 @@ module Companion
 
       def pressure_report
         {
-          next_question: :network_backend_native_parity,
-          package_request: :fact_deserialize_for_native_wire,
-          follow_up_request: :subscription_delivery_semantics,
-          does_not_replace_current_pressure: :index_metadata,
+          next_question: :reactive_derivation,
+          resolved: :network_backend_native_parity,
           acceptance: %i[
             native_fact_deserialize_from_wire_hash
             network_backend_available_under_native

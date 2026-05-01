@@ -149,6 +149,27 @@ module Igniter
         facts.map { |f| history_class.from_fact(f) }
       end
 
+      # Register a projection descriptor — metadata-only, no execution.
+      # Records which stores and relations a cross-record projection reads,
+      # making this visible to the store engine via SchemaGraph.
+      def register_projection(name, reads:, relations: [], consumer_hint: :contract_node, reactive: false)
+        @inner.register_projection(
+          Igniter::Store::ProjectionPath.new(
+            name:          name,
+            reads:         Array(reads).map(&:to_sym),
+            relations:     Array(relations).map(&:to_sym),
+            consumer_hint: consumer_hint,
+            reactive:      reactive
+          )
+        )
+        self
+      end
+
+      # Returns a compact snapshot of all registered projection descriptors.
+      def _projections
+        @inner.schema_graph.projection_snapshot
+      end
+
       # Causation chain for a Record key — useful for debugging mutations.
       def causation_chain(schema_class, key:)
         @inner.causation_chain(store: schema_class.store_name, key: key)

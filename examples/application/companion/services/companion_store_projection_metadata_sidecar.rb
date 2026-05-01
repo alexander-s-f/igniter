@@ -20,11 +20,12 @@ module Companion
       def proof
         persistence = CompanionPersistence.new(state: CompanionState.seeded)
         projections = projection_reports(persistence)
+        schema_api_present = schema_api_verified?(projections)
 
         {
           main_state_mutated: false,
           projections: projections,
-          package_gap: package_gap(projections),
+          package_gap: package_gap(projections, schema_api_present),
           pressure: pressure_report
         }
       end
@@ -64,11 +65,22 @@ module Companion
         relations.empty? || relations == %i[tracker_logs_by_tracker] && name == :tracker_read_model
       end
 
-      def package_gap(projections)
+      def schema_api_verified?(projections)
+        store = Igniter::Companion::Store.new
+        projections.each do |p|
+          store.register_projection(p[:name], reads: p[:reads], relations: p[:relations])
+        end
+        registered = store._projections
+        projections.all? { |p| registered.key?(p[:name]) }
+      rescue StandardError
+        false
+      end
+
+      def package_gap(projections, schema_api_present)
         {
-          status: :open,
+          status: schema_api_present ? :closed : :open,
           expected_api: :_projections,
-          generated_projection_api_present: false,
+          generated_projection_api_present: schema_api_present,
           projection_count: projections.length,
           package_surface: :"igniter-companion",
           lower_level_capability: :"Store[T]/History[T]"
@@ -77,9 +89,8 @@ module Companion
 
       def pressure_report
         {
-          next_question: :projection_descriptor_mirroring,
-          resolved: :app_projection_metadata_shape,
-          package_request: :mirror_projection_metadata_without_execution,
+          next_question: :reactive_derivation,
+          resolved: %i[app_projection_metadata_shape projection_descriptor_mirroring],
           lowering_claim: :projection_metadata_lowers_to_read_descriptor,
           acceptance: %i[
             projections_manifest_present
@@ -88,7 +99,7 @@ module Companion
             tracker_projection_composes_record_and_history
             no_store_side_projection_execution
             no_query_planner_promise
-            package_projection_gap_open
+            schema_graph_projection_registry_closed
           ],
           non_goals: %i[
             store_projection_execution

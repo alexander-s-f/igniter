@@ -4,7 +4,8 @@ module Igniter
   module Store
     class SchemaGraph
       def initialize
-        @paths = Hash.new { |hash, key| hash[key] = [] }
+        @paths       = Hash.new { |hash, key| hash[key] = [] }
+        @projections = {}
       end
 
       def register(path)
@@ -26,6 +27,38 @@ module Igniter
 
       def registered_stores
         @paths.keys
+      end
+
+      # --- Projection registry ---
+
+      def register_projection(projection_path)
+        @projections[projection_path.name] = projection_path
+        self
+      end
+
+      def projection_for(name:)
+        @projections[name]
+      end
+
+      # All projections whose reads list includes the given store.
+      def projections_for_store(store:)
+        @projections.values.select { |p| p.reads.include?(store) }
+      end
+
+      # Compact snapshot of all registered projections, keyed by name.
+      # Parallel to metadata_snapshot for access paths.
+      def projection_snapshot
+        @projections.transform_values do |p|
+          {
+            name:           p.name,
+            reads:          p.reads,
+            relations:      p.relations,
+            consumer_hint:  p.consumer_hint,
+            reactive:       p.reactive,
+            store_count:    p.reads.size,
+            relation_count: p.relations.size
+          }
+        end
       end
 
       # Returns a compact snapshot of all registered access paths keyed by store.
