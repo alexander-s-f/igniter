@@ -57,6 +57,23 @@ module Igniter
         def _indexes;  @_indexes  ||= {}; end
         def _commands; @_commands ||= {}; end
 
+        # Derived from _commands: maps each command to its store-level effect.
+        # Applies the same operation → store_op mapping as the effect_intent plan.
+        # Metadata-only — no store-side execution.
+        def _effects
+          @_effects ||= _commands.transform_values do |attrs|
+            op = attrs[:operation]
+            EFFECT_KIND_MAP.fetch(op, EFFECT_KIND_MAP[:__unknown__]).merge(source_operation: op)
+          end
+        end
+
+        EFFECT_KIND_MAP = {
+          record_append:  { store_op: :store_write,  write_kind: :insert, lowers_to: :store_t  },
+          record_update:  { store_op: :store_write,  write_kind: :update, lowers_to: :store_t  },
+          history_append: { store_op: :store_append, write_kind: :append, lowers_to: :history_t },
+          __unknown__:    { store_op: :none,          write_kind: :none,   lowers_to: :none     }
+        }.freeze
+
         def from_fact(fact)
           new(key: fact.key, **fact.value)
         end

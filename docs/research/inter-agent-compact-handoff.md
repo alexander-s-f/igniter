@@ -517,3 +517,49 @@ Queued:
 - relation metadata after effect descriptors
 - subscription_delivery_semantics after native wire parity
 ```
+
+## Return Packet: Effect Metadata
+
+```text
+[Compact Handoff / Package Agent (pkg:companion-store) -> Architect Supervisor]
+Track: companion-store-convergence
+Changed:
+- packages/igniter-companion/lib/igniter/companion/record.rb
+    EFFECT_KIND_MAP constant: record_append→store_write/insert/store_t,
+    record_update→store_write/update/store_t, history_append→store_append/append/history_t
+    _effects computed from _commands — no new DSL, no manifest changes needed
+- examples/application/companion/services/companion_effect_metadata_sidecar.rb [NEW]
+    proof: effect_count, effects (name/store_op/write_kind/lowers_to/source_operation),
+    effects_cover_commands, lowering_preserved, store_write_effects, store_append_effects
+    package_gap: status closed, derivation_strategy=derived_from_commands
+    pressure: next_question=:relation_metadata, resolved=:effect_metadata
+- examples/application/companion/contracts/companion_effect_metadata_sidecar_contract.rb [NEW]
+    12 checks: report_only, no_runtime_gate, no_backend_replacement, no_main_state_mutation,
+    no_store_side_execution, effects_derived_from_commands, manifest_effects_present,
+    effects_cover_commands, store_write_intent_present, lowering_chain_preserved,
+    package_effect_gap_closed, pressure_ready
+- examples/application/companion/services/companion_store.rb
+    companion_effect_metadata_sidecar method
+- examples/application/companion/app_dsl.rb
+    snapshot entry + GET /setup/companion-effect-metadata-sidecar{,.json} routes
+- examples/application/companion/runtime.rb
+    HTTP calls, body joins, status/endpoint out.puts, contract key,
+    companion_effect_metadata_sidecar_contract? and endpoint validation methods
+Evidence:
+- igniter-companion: 47 specs, 0 failures
+- CompanionEffectMetadataSidecar.packet: stable, 12/12 checks, gap=closed
+- Reminder._effects=[:complete]→{store_op: :store_write, write_kind: :update, lowers_to: :store_t}
+- Article._effects=[:publish]→{store_op: :store_write, write_kind: :update, lowers_to: :store_t}
+- No new DSL in contracts.rb — derivation is purely computed from _commands
+Resolved:
+- effect_metadata: _effects computed from _commands, lowering chain verified
+New Pressure:
+- relation_metadata: manifest relation descriptors not yet mirrored (queued per Supervisor)
+Boundary Risk:
+- _effects is derived, not declared — if a command has an unknown operation, store_op=:none
+  (handled by EFFECT_KIND_MAP __unknown__ fallback; no silent data loss)
+- store convergence sidecar next_question may still show :effect_metadata (Supervisor's domain)
+Needs:
+- Supervisor decision: proceed to relation_metadata?
+- Should _effects include history_append effects (store_append) once a History contract declares them?
+```

@@ -312,6 +312,10 @@ module Companion
         Services::CompanionCommandMetadataSidecar.packet
       end
 
+      def companion_effect_metadata_sidecar
+        Services::CompanionEffectMetadataSidecar.packet
+      end
+
       def companion_receipt_projection_sidecar
         Services::CompanionReceiptProjectionSidecar.packet
       end
