@@ -56,6 +56,10 @@ Network backend
   vocabulary.
 - `DerivationRule` proves the first reactive derivation shape with a lineage
   API and causation proof hash.
+- `ScatterRule` adds partitioned 1-source to 1-index-entry derivations for
+  relation/read-model indexes, with cycle protection separate from gather rules.
+- `RetentionPolicy` and `compact` add first hot-log lifecycle control:
+  permanent, ephemeral, and rolling-window retention with compaction receipts.
 - File durability moved from old JSONL POC thinking to CRC32-framed WAL.
 - Snapshot checkpoint/replay exists across the current Ruby/native-aware package
   surface.
@@ -68,7 +72,7 @@ Network backend
 
 ## Current Test Signal
 
-- `packages/igniter-store`: 154 examples, 0 failures.
+- `packages/igniter-store`: 200 examples, 0 failures.
 - `packages/igniter-companion`: 47 examples, 0 failures.
 
 ## Architecture Meaning
@@ -79,8 +83,8 @@ Network backend
 - not a DB adapter abstraction
 - not the public contract persistence API
 - yes: append-only truth, time travel, causation, access paths, cache
-  invalidation, hot/cold sync foundation, and now a first store-server
-  transport path
+  invalidation, hot/cold sync foundation, retention/compaction, and now a first
+  store-server transport path
 
 `igniter-companion` is the typed facade:
 
@@ -117,7 +121,8 @@ projection_descriptor_mirroring
 reactive_derivation
   -> active: prove whether projection/read-model updates can lower to
      derivation metadata and normalized operation intent
-  -> Store already has DerivationRule, derivation_snapshot, and lineage(...)
+  -> Store already has DerivationRule, ScatterRule, derivation_snapshot,
+     scatter_snapshot, retention_snapshot, and lineage(...)
   -> next app pressure should avoid moving business contract logic into Store
 ```
 

@@ -613,7 +613,7 @@ Changed:
     reports package_gap=:closed
     store_convergence_sidecar pressure.next_question=:reactive_derivation
 Evidence:
-- packages/igniter-store/spec: 154 examples, 0 failures
+- packages/igniter-store/spec: 200 examples, 0 failures
 - packages/igniter-companion/spec: 47 examples, 0 failures
 - companion_poc convergence/projection/topology runtime predicates are true
 Boundary:
@@ -624,6 +624,34 @@ Boundary:
 Next:
 - prove app projection/read-model intent can lower to DerivationRule without
   moving business contract logic into Store
+```
+
+## Return Packet: Retention + Scatter Derivation
+
+```text
+[Compact Handoff / Package Agent (pkg:companion-store) -> Architect Supervisor]
+Track: igniter-store-reactive-derivation
+Status:
+- Store substrate advanced beyond gather derivation into retention/compaction
+  and scatter derivation
+Changed:
+- RetentionPolicy: strategy=:permanent/:ephemeral/:rolling_window, duration
+- SchemaGraph: retention registry/snapshot, scatter registry/snapshot
+- IgniterStore#set_retention, compact, compaction_receipts
+- IgniterStore#register_scatter with partition_by -> target_store index entry
+Evidence:
+- packages/igniter-store/spec: 200 examples, 0 failures
+- compaction receipts are written to :__compaction_receipts before log rebuild
+- compaction keeps latest per key and clears cache/scope/history indices
+- scatter accumulates per-partition index facts and coexists with gather
+  derivations under separate cycle guards
+Boundary:
+- compaction is explicit, not automatic scheduler/runtime policy
+- scatter is substrate/index maintenance, not app projection business logic
+- no public contract DSL promise yet
+Next:
+- app-local proof should decide which projection/relation index intent maps to
+  gather DerivationRule versus scatter ScatterRule
 ```
 
 ## Supervisor Pressure: Store SchemaGraph Metadata Snapshot
