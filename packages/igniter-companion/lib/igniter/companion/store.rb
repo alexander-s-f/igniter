@@ -149,6 +149,26 @@ module Igniter
         facts.map { |f| history_class.from_fact(f) }
       end
 
+      # Register a scatter derivation rule at the companion level.
+      # Delegates to IgniterStore#register_scatter.  See that method for full semantics.
+      # +source_schema+ may be a schema class (its store_name is used) or a Symbol.
+      # +target_store+ is always a Symbol (the raw store name for the index).
+      def register_scatter(source_schema, partition_by:, target_store:, rule:)
+        source = source_schema.respond_to?(:store_name) ? source_schema.store_name : source_schema.to_sym
+        @inner.register_scatter(
+          source_store: source,
+          partition_by: partition_by,
+          target_store: target_store,
+          rule:         rule
+        )
+        self
+      end
+
+      # Returns a compact snapshot of all registered scatter rules.
+      def _scatters
+        @inner.schema_graph.scatter_snapshot
+      end
+
       # Register a projection descriptor — metadata-only, no execution.
       # Records which stores and relations a cross-record projection reads,
       # making this visible to the store engine via SchemaGraph.

@@ -130,7 +130,7 @@ module Companion
 
       def pressure_report
         {
-          next_question: :reactive_derivation,
+          next_question: :relation_rule_dsl,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
           resolved: %i[
@@ -148,6 +148,8 @@ module Companion
             app_projection_metadata_shape
             store_schema_graph_metadata_snapshot
             projection_descriptor_mirroring
+            reactive_derivation
+            scatter_derivation
           ],
           facade_input_ready: %i[
             storage_shape
@@ -164,12 +166,14 @@ module Companion
             projections
             schema_graph_metadata_snapshot
             history_partition_key
+            derivation_rules
+            scatter_rules
           ],
           asks: %i[
-            reactive_derivation
+            relation_rule_dsl
           ],
           recommended_order: %i[
-            reactive_derivation
+            relation_rule_dsl
           ]
         }
       end
