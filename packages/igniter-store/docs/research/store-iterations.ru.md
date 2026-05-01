@@ -3,7 +3,7 @@
 Дата: 2026-04-29.
 Формат: живой исследовательский документ — каждая итерация добавляется снизу.
 Область: распределённые кластеры проактивных агентов; опциональный отдельный пакет.
-Канонический: `contract-native-store-research.md`. Этот файл — русская версия.
+Канонический: `store-iterations.md`. Этот файл — русская версия.
 
 ---
 
@@ -1113,8 +1113,8 @@ end
 
 ## Ссылки
 
-- [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
-- [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
-- [Companion Current Status Summary](./companion-current-status-summary.md)
-- [POC Спецификация](./contract-native-store-poc.md)
-- [Канонический английский файл](./contract-native-store-research.md)
+- [Contract Persistence Organic Model](../../../../docs/research/contract-persistence-organic-model.md)
+- [Contract Persistence Roadmap](../../../../docs/research/contract-persistence-roadmap.md)
+- [Companion Current Status Summary](../../../../packages/igniter-companion/docs/current-status.md)
+- [POC Спецификация](../poc-specification.md)
+- [Канонический английский файл](./store-iterations.md)

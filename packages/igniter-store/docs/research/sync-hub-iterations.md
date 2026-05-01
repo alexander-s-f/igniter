@@ -3,7 +3,7 @@
 Status date: 2026-04-30.
 Format: living research document — each iteration appended below.
 Scope: PostgreSQL as sync hub, retention policies, hot/cold circuit.
-Canonical: this file. Russian companion: `contract-native-store-sync-hub.ru.md`.
+Canonical: this file. Russian companion: `sync-hub-iterations.ru.md`.
 
 ---
 
@@ -369,7 +369,7 @@ Priority order:
 
 ## Reference
 
-- [Contract-Native Store Research](./contract-native-store-research.md)
-- [Contract-Native Store POC](./contract-native-store-poc.md)
-- [POC source](../../examples/igniter_store_poc.rb)
-- [POC package](../../packages/igniter-store/README.md)
+- [Contract-Native Store Research](./store-iterations.md)
+- [Contract-Native Store POC](../poc-specification.md)
+- [POC source](../../../../examples/igniter_store_poc.rb)
+- [POC package](../../README.md)

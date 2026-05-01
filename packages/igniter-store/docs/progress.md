@@ -93,10 +93,9 @@ Companion app-local proof is the product pressure:
 
 ## Important Drift Note
 
-`docs/research/contract-native-store-poc.md` is useful historical context but is
-stale in details: it still describes JSON-Lines WAL and value-hash causation in
-some sections. The current package README and specs are the canonical Store POC
-state until that older POC document is rotated or compacted.
+Older thread references to `docs/research/contract-native-store-poc.md` are
+historical context only. The current package README and specs in
+`packages/igniter-store/docs/` are the canonical Store POC state.
 
 ## Next Pressure
 

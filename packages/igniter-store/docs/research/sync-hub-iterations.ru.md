@@ -3,7 +3,7 @@
 Дата: 2026-04-30.
 Формат: живой исследовательский документ — каждая итерация добавляется ниже.
 Область: PostgreSQL как хаб синхронизации, политики хранения, горячий/холодный контур.
-Канонический: `contract-native-store-sync-hub.md`. Данный файл — русский компаньон.
+Канонический: `sync-hub-iterations.md`. Данный файл — русский компаньон.
 
 ---
 
@@ -372,7 +372,7 @@ DDL-генератор (уровень A) и реактивный триггер
 
 ## Ссылки
 
-- [Contract-Native Store Research](./contract-native-store-research.md)
-- [Contract-Native Store POC](./contract-native-store-poc.md)
-- [Исходник POC](../../examples/igniter_store_poc.rb)
-- [Канонический английский файл](./contract-native-store-sync-hub.md)
+- [Contract-Native Store Research](./store-iterations.md)
+- [Contract-Native Store POC](../poc-specification.md)
+- [Исходник POC](../../../../examples/igniter_store_poc.rb)
+- [Канонический английский файл](./sync-hub-iterations.md)

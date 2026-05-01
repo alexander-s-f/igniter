@@ -3,7 +3,7 @@
 Status date: 2026-04-29.
 Format: living research document — each iteration appended below.
 Scope: distributed proactive agent clusters; optional separate package.
-Canonical: this file. Russian companion: `contract-native-store-research.ru.md`.
+Canonical: this file. Russian companion: `store-iterations.ru.md`.
 
 ---
 
@@ -1119,7 +1119,7 @@ against a fact value. Deferred.
 
 ## Reference
 
-- [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
-- [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
-- [Companion Current Status Summary](./companion-current-status-summary.md)
-- [POC Specification](./contract-native-store-poc.md)
+- [Contract Persistence Organic Model](../../../../docs/research/contract-persistence-organic-model.md)
+- [Contract Persistence Roadmap](../../../../docs/research/contract-persistence-roadmap.md)
+- [Companion Current Status Summary](../../../../packages/igniter-companion/docs/current-status.md)
+- [POC Specification](../poc-specification.md)
