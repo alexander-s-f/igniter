@@ -13,6 +13,18 @@ module Igniter
       keyword_init: true
     )
 
+    # Retention policy for a store — controls compaction behaviour.
+    # strategy: :permanent   — never compact (default)
+    #           :ephemeral   — keep only latest fact per key; drop all historical
+    #           :rolling_window — drop historical facts older than duration seconds,
+    #                             always preserving the latest per key
+    # duration: Float seconds (required for :rolling_window)
+    RetentionPolicy = Struct.new(
+      :strategy,   # Symbol
+      :duration,   # Float | nil
+      keyword_init: true
+    )
+
     # Derivation rule: when facts matching source_store/source_filters change, call
     # rule.(source_facts) and write the result to target_store at target_key.
     # source_filters: {} means all latest facts per key in that store.

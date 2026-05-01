@@ -7,6 +7,7 @@ module Igniter
         @paths       = Hash.new { |hash, key| hash[key] = [] }
         @projections = {}
         @derivations = []
+        @retention   = {}
       end
 
       def register(path)
@@ -86,6 +87,28 @@ module Igniter
             has_rule:       true
           }
         end
+      end
+
+      # --- Retention registry ---
+
+      def register_retention(store, policy)
+        @retention[store] = policy
+        self
+      end
+
+      # Returns the RetentionPolicy for store, or nil (meaning :permanent / no compaction).
+      def retention_for(store:)
+        @retention[store]
+      end
+
+      # Stores with an explicitly registered retention policy (any strategy).
+      def retention_stores
+        @retention.keys
+      end
+
+      # Compact snapshot of all registered retention policies.
+      def retention_snapshot
+        @retention.transform_values { |p| { strategy: p.strategy, duration: p.duration } }
       end
 
       # Returns a compact snapshot of all registered access paths keyed by store.

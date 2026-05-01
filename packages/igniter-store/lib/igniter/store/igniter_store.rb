@@ -23,6 +23,7 @@ module Igniter
 
       def initialize(backend: nil, lru_cap: ReadCache::DEFAULT_LRU_CAP)
         @backend      = backend
+        @lru_cap      = lru_cap
         @log          = FactLog.new
         @cache        = ReadCache.new(lru_cap: lru_cap)
         @schema_graph = SchemaGraph.new
@@ -58,6 +59,39 @@ module Igniter
       # +rule+ is called with the current source facts and the result is written
       # to +target_store+ at +target_key+.  Returning nil from +rule+ skips the write.
       # Derivations do not re-trigger on derived writes (cycle-safe).
+      # Declare a retention policy for +store+.
+      # strategy: :permanent (default — never compact)
+      #           :ephemeral — keep only the latest fact per key
+      #           :rolling_window — keep latest per key + facts within duration seconds
+      # Call compact or compact(store) to execute the policy.
+      def set_retention(store, strategy:, duration: nil)
+        @schema_graph.register_retention(
+          store,
+          RetentionPolicy.new(strategy: strategy, duration: duration)
+        )
+        self
+      end
+
+      # Run compaction for +store+ (or all stores with registered retention policies).
+      # Returns an Array of result hashes: { store:, strategy:, dropped_count:,
+      # kept_count:, receipt_id: }.  Permanent stores and stores with nothing to
+      # drop return dropped_count: 0 and receipt_id: nil.
+      def compact(store = nil)
+        targets = store ? [store] : @schema_graph.retention_stores
+        targets.filter_map do |s|
+          policy = @schema_graph.retention_for(store: s)
+          next unless policy && policy.strategy != :permanent
+          compact_store(s, policy)
+        end
+      end
+
+      # Facts written by compaction runs for +store+ (or all receipts when nil).
+      # Receipts live in the :__compaction_receipts meta-store.
+      def compaction_receipts(store: nil)
+        all = @log.facts_for(store: :__compaction_receipts)
+        store ? all.select { |f| f.value[:compacted_store] == store } : all
+      end
+
       def register_derivation(source_store:, source_filters: {}, target_store:, target_key:, rule:)
         @schema_graph.register_derivation(
           DerivationRule.new(
@@ -326,6 +360,93 @@ module Igniter
           end
         end
         changes
+      end
+
+      # --- Compaction internals ---
+
+      def compact_store(store, policy)
+        now         = Process.clock_gettime(Process::CLOCK_REALTIME)
+        store_facts = @log.facts_for(store: store)
+        keep, drop  = partition_compaction(store_facts, policy, now: now)
+
+        return { store: store, strategy: policy.strategy, dropped_count: 0, kept_count: keep.size, receipt_id: nil } if drop.empty?
+
+        # Belt 7b — write receipt to meta-store before rebuilding log
+        receipt = write_compaction_receipt(store, drop, policy, now)
+
+        # Rebuild log: all other stores + compaction receipts + kept facts for this store
+        surviving = @log.all_facts.reject { |f| f.store == store }
+        surviving << receipt unless surviving.any? { |f| f.id == receipt.id }
+        new_facts = (surviving + keep).sort_by(&:timestamp)
+        rebuild_log!(new_facts)
+
+        if @backend.respond_to?(:write_snapshot) && @log.respond_to?(:all_facts)
+          @backend.write_snapshot(@log.all_facts)
+        end
+
+        { store: store, strategy: policy.strategy, dropped_count: drop.size, kept_count: keep.size, receipt_id: receipt.id }
+      end
+
+      # Returns [keep_facts, drop_facts]. Latest fact per key is always kept.
+      def partition_compaction(facts, policy, now:)
+        latest_ids = facts.group_by(&:key).transform_values { |fs| fs.max_by(&:timestamp).id }
+        current    = Set.new(latest_ids.values)
+
+        case policy.strategy
+        when :ephemeral
+          keep = facts.select { |f| current.include?(f.id) }
+          drop = facts.reject { |f| current.include?(f.id) }
+        when :rolling_window
+          cutoff = now - policy.duration.to_f
+          keep   = facts.select { |f| current.include?(f.id) || f.timestamp >= cutoff }
+          drop   = facts.reject { |f| current.include?(f.id) || f.timestamp >= cutoff }
+        else
+          keep = facts
+          drop = []
+        end
+
+        [keep, drop]
+      end
+
+      # Write a compaction receipt fact to the :__compaction_receipts meta-store.
+      def write_compaction_receipt(store, dropped_facts, policy, now)
+        oldest = dropped_facts.min_by(&:timestamp)
+        newest = dropped_facts.max_by(&:timestamp)
+        write(
+          store: :__compaction_receipts,
+          key:   "#{store}_#{SecureRandom.hex(4)}",
+          value: {
+            type:            :compaction_receipt,
+            compacted_store: store,
+            strategy:        policy.strategy,
+            compacted_count: dropped_facts.size,
+            oldest_dropped:  oldest&.id,
+            newest_dropped:  newest&.id,
+            oldest_ts:       oldest&.timestamp,
+            newest_ts:       newest&.timestamp,
+            compacted_at:    now
+          }
+        )
+      end
+
+      # Replace the in-memory FactLog with a rebuilt one from +new_facts+.
+      # Clears all derived indices (scope index, partition index, read cache) —
+      # they will be rebuilt lazily on next access.
+      def rebuild_log!(new_facts)
+        new_log = FactLog.new
+        new_facts.each { |f| new_log.replay(f) }
+
+        # Native FactLog tracks seen stores only via the Ruby append patch;
+        # replay bypasses it so we backfill manually.
+        if defined?(Igniter::Store::NATIVE) && Igniter::Store::NATIVE
+          seen = new_facts.map(&:store).uniq
+          new_log.instance_variable_set(:@_seen_stores, seen)
+        end
+
+        @log = new_log
+        @scope_mutex.synchronize     { @scope_index.clear }
+        @partition_mutex.synchronize { @partition_index.clear }
+        @cache = ReadCache.new(lru_cap: @lru_cap)
       end
 
       def lineage_proof_hash(chain)
