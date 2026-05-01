@@ -119,11 +119,11 @@ projection_descriptor_mirroring
   -> keep projections inspectable above Store[T] / History[T]
 
 reactive_derivation
-  -> active: prove whether projection/read-model updates can lower to
-     derivation metadata and normalized operation intent
-  -> Store already has DerivationRule, ScatterRule, derivation_snapshot,
-     scatter_snapshot, retention_snapshot, and lineage(...)
-  -> next app pressure should avoid moving business contract logic into Store
+  -> resolved as package substrate: Store has DerivationRule, ScatterRule,
+     derivation_snapshot, scatter_snapshot, retention_snapshot, and lineage(...)
+  -> CompanionStore now exposes register_scatter and _scatters
+  -> next pressure is relation_rule_dsl: decide how relation declarations map
+     to gather/scatter rules without moving business contract logic into Store
 ```
 
 Store-side pressure after index metadata:

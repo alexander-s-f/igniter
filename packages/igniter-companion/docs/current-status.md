@@ -55,8 +55,9 @@ companion_store_projection_metadata_sidecar -> projection descriptors + closed p
 companion_store_schema_graph_metadata_sidecar -> app scope paths + closed Store SchemaGraph metadata snapshot
 companion_receipt_projection_sidecar -> package receipt -> action history projection proof
 companion_store_server_topology_sidecar -> StoreServer topology/lifecycle/push + native wire gap proof
-store_reactive_derivation -> package DerivationRule/ScatterRule + lineage proof substrate, app lowering not proven yet
+store_reactive_derivation -> package DerivationRule/ScatterRule + CompanionStore _scatters facade
 store_retention_compaction -> package RetentionPolicy + explicit compaction receipts, app policy not proven yet
+relation_rule_dsl -> next pressure: relation declarations should choose gather/scatter rules
 performance_signal -> setup packet recomputation needs memoization/snapshot
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
@@ -271,9 +272,9 @@ Best next move:
 - use `/setup/companion-store-schema-graph-metadata-sidecar.json` before
   discussing Store-side access-path metadata; it proves app scope paths lower to
   `SchemaGraph#metadata_snapshot` without query planner or backend migration
-- use Store derivation/scatter/lineage specs before treating
-  `reactive_derivation` as app-proven; the package substrate exists, but
-  Companion lowering is still the next slice
+- use Store derivation/scatter/lineage specs plus `CompanionStore#_scatters`
+  before treating relation rules as app-proven; the substrate/facade exists,
+  but relation DSL lowering is still the next slice
 - use `/setup/handoff.json` as the first read after context rotation
 - use `/setup/handoff/digest.txt` as the compact human handoff, or
   `/setup/handoff/digest.json` as the structured agent map before

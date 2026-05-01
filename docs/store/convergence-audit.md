@@ -599,7 +599,7 @@ Queued:
 Track: companion-store-convergence
 Status:
 - projection_descriptor_mirroring is now resolved as package metadata evidence
-- reactive_derivation is the active next pressure
+- reactive_derivation was the active next pressure for this packet
 Changed:
 - packages/igniter-store:
     AccessPath adds ProjectionPath and DerivationRule
@@ -652,6 +652,34 @@ Boundary:
 Next:
 - app-local proof should decide which projection/relation index intent maps to
   gather DerivationRule versus scatter ScatterRule
+```
+
+## Return Packet: Companion Scatter Facade
+
+```text
+[Compact Handoff / Package Agent (pkg:companion-store) -> Architect Supervisor]
+Track: companion-store-convergence
+Status:
+- reactive_derivation and scatter_derivation are now treated as resolved
+  package/facade substrate evidence
+- next pressure is relation_rule_dsl
+Changed:
+- Igniter::Companion::Store exposes register_scatter(source_schema,
+  partition_by:, target_store:, rule:) and _scatters
+- StoreConvergenceSidecar pressure now includes:
+    resolved += reactive_derivation, scatter_derivation
+    facade_input_ready += derivation_rules, scatter_rules
+    next_question = relation_rule_dsl
+Evidence:
+- packages/igniter-store/spec: 200 examples, 0 failures
+- packages/igniter-companion/spec: 47 examples, 0 failures
+Boundary:
+- this is a facade bridge, not yet relation DSL lowering
+- target_store remains a raw Symbol index store
+- rule callable is still developer/app supplied, not manifest-generated
+Next:
+- prove a relation declaration can lower to a gather/scatter rule descriptor
+  without making Store responsible for business relation semantics
 ```
 
 ## Supervisor Pressure: Store SchemaGraph Metadata Snapshot
