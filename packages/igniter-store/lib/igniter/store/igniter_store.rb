@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "digest"
 require "securerandom"
 require "set"
 
@@ -52,6 +53,24 @@ module Igniter
         self
       end
 
+      # Register a reactive derivation rule.
+      # When any fact is written to +source_store+ (filtered by +source_filters+),
+      # +rule+ is called with the current source facts and the result is written
+      # to +target_store+ at +target_key+.  Returning nil from +rule+ skips the write.
+      # Derivations do not re-trigger on derived writes (cycle-safe).
+      def register_derivation(source_store:, source_filters: {}, target_store:, target_key:, rule:)
+        @schema_graph.register_derivation(
+          DerivationRule.new(
+            source_store:   source_store,
+            source_filters: source_filters,
+            target_store:   target_store,
+            target_key:     target_key,
+            rule:           rule
+          )
+        )
+        self
+      end
+
       def register_path(path)
         @schema_graph.register(path)
         path.consumers.to_a.each do |consumer|
@@ -87,6 +106,7 @@ module Igniter
         @backend&.write_fact(fact)
         scope_changes = update_scope_indices(store, key, value)
         @cache.invalidate(store: store, key: key, scope_changes: scope_changes)
+        run_derivations(store: store, source_fact: fact)
         fact
       end
 
@@ -197,6 +217,46 @@ module Igniter
         end
       end
 
+      # Returns a causal proof for the given store/key: the full fact chain in
+      # chronological order, any registered derivation rules triggered by this
+      # store, and a Merkle proof hash over the chain.
+      #
+      # proof_hash: SHA256 of "id:value_hash:causation" entries joined by "|".
+      # Stable for the same chain; changes when any fact is added.
+      # nil when the chain is empty (key unknown).
+      #
+      # derived_by: derivation rules registered for this store — what downstream
+      # stores are affected by writes here.
+      def lineage(store:, key:)
+        chain = @log.facts_for(store: store, key: key).map do |fact|
+          {
+            id:             fact.id,
+            store:          fact.store,
+            key:            fact.key,
+            causation:      fact.causation,
+            value_hash:     fact.value_hash,
+            timestamp:      fact.timestamp,
+            schema_version: fact.schema_version
+          }
+        end
+
+        derived_by = @schema_graph.derivations_for_store(store: store).map do |rule|
+          {
+            target_store:   rule.target_store,
+            target_key:     rule.target_key.respond_to?(:call) ? :callable : rule.target_key,
+            source_filters: rule.source_filters
+          }
+        end
+
+        {
+          subject:    { store: store, key: key },
+          chain:      chain,
+          depth:      chain.size,
+          derived_by: derived_by,
+          proof_hash: chain.empty? ? nil : lineage_proof_hash(chain)
+        }
+      end
+
       # Write a snapshot of the current fact log to the backend's snapshot file.
       # After a checkpoint, startup replay only replays facts written since the
       # snapshot — reducing startup cost from O(total_facts) to O(delta_facts).
@@ -266,6 +326,34 @@ module Igniter
           end
         end
         changes
+      end
+
+      def lineage_proof_hash(chain)
+        input = chain.map { |e| "#{e[:id]}:#{e[:value_hash]}:#{e[:causation]}" }.join("|")
+        Digest::SHA256.hexdigest(input)
+      end
+
+      # Runs all derivation rules registered for +store+ unless we are already inside
+      # a derivation (cycle guard via thread-local flag).
+      def run_derivations(store:, source_fact:)
+        return if Thread.current[:igniter_deriving]
+
+        rules = @schema_graph.derivations_for_store(store: store)
+        return if rules.empty?
+
+        Thread.current[:igniter_deriving] = true
+        begin
+          rules.each do |rule|
+            source_facts  = @log.query_scope(store: rule.source_store, filters: rule.source_filters)
+            derived_value = rule.rule.call(source_facts)
+            next unless derived_value
+
+            tk = rule.target_key.respond_to?(:call) ? rule.target_key.call(source_facts) : rule.target_key.to_s
+            write(store: rule.target_store, key: tk, value: derived_value)
+          end
+        ensure
+          Thread.current[:igniter_deriving] = false
+        end
       end
 
       def matches_filters?(value, filters)

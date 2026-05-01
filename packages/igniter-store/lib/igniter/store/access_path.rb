@@ -13,6 +13,20 @@ module Igniter
       keyword_init: true
     )
 
+    # Derivation rule: when facts matching source_store/source_filters change, call
+    # rule.(source_facts) and write the result to target_store at target_key.
+    # source_filters: {} means all latest facts per key in that store.
+    # rule returning nil skips the derived write.
+    # target_key may be a String/Symbol or a callable(Array<Fact>) → String.
+    DerivationRule = Struct.new(
+      :source_store,    # Symbol
+      :source_filters,  # Hash
+      :target_store,    # Symbol
+      :target_key,      # String | Symbol | callable
+      :rule,            # callable(Array<Fact>) → Hash | nil
+      keyword_init: true
+    )
+
     # Read-model descriptor: which stores and relations a cross-record projection reads.
     # Metadata-only — no execution happens inside the store engine.
     # Registered in SchemaGraph so the engine knows which projections depend on which stores.
