@@ -48,6 +48,10 @@ Companion now exposes a tiny convergence sidecar:
 - `/setup/companion-store-app-flow-sidecar.json`
 - `/setup/companion-index-metadata-sidecar`
 - `/setup/companion-index-metadata-sidecar.json`
+- `/setup/companion-store-projection-metadata-sidecar`
+- `/setup/companion-store-projection-metadata-sidecar.json`
+- `/setup/companion-store-schema-graph-metadata-sidecar`
+- `/setup/companion-store-schema-graph-metadata-sidecar.json`
 - `/setup/companion-receipt-projection-sidecar`
 - `/setup/companion-receipt-projection-sidecar.json`
 - `/setup/companion-store-server-topology-sidecar`
@@ -187,6 +191,10 @@ For app-local Companion:
   projects existing `projection` manifests into metadata-only projection
   descriptors (`reads`, `relations`, consumer hints) and intentionally keeps
   the package `_projections` gap open.
+- `store_schema_graph_metadata_snapshot` is now closed as Store-side metadata
+  evidence: app scope access paths lower into `Igniter::Store::SchemaGraph` and
+  `metadata_snapshot` preserves store/scope/filter routing without exposing
+  callback bodies or promising a query planner.
 - StoreServer topology now has an app-local pressure packet. It does not execute
   network transport in the app POC; it records `NetworkBackend`/StoreServer as a
   backend-swap topology and keeps `native_wire_deserialization` as package gap.
@@ -214,7 +222,7 @@ developer surface; igniter-store owns fact substrate.
 [D] Current bridge proves manifest-generated Record/History bindings over
 Igniter::Companion::Store as a tiny sidecar proof, including partition replay,
 normalized receipts, relation metadata, and app-local projection descriptor
-shape.
+shape plus Store schema-graph metadata evidence.
 [R] Preserve `persist -> Store[T]`, `history -> History[T]`, and command ->
 mutation_intent -> app boundary.
 [R] Do not migrate full Companion storage or promote API from this note alone.
@@ -222,6 +230,8 @@ mutation_intent -> app boundary.
 round trip, partition replay, and normalized receipt metadata.
 [S] `/setup/companion-store-projection-metadata-sidecar.json` proves
 projection descriptor shape and reports package_gap=:open for `_projections`.
+[S] `/setup/companion-store-schema-graph-metadata-sidecar.json` proves app
+scope paths lower to Store `SchemaGraph#metadata_snapshot`.
 Next: mirror projection metadata in the package facade without query planner,
 adapter projection execution, or app backend migration.
 ```

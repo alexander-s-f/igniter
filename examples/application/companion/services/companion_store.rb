@@ -324,6 +324,10 @@ module Companion
         Services::CompanionStoreProjectionMetadataSidecar.packet
       end
 
+      def companion_store_schema_graph_metadata_sidecar
+        Services::CompanionStoreSchemaGraphMetadataSidecar.packet
+      end
+
       def companion_receipt_projection_sidecar
         Services::CompanionReceiptProjectionSidecar.packet
       end

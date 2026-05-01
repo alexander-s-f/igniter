@@ -154,7 +154,7 @@ Current manifest vocabulary:
 - `/setup/materializer/descriptor-health(.json)` reports descriptor drift
   without changing readiness or granting execution
 
-See [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md)
+See [Companion Persistence Manifest Glossary](./manifest-glossary.md)
 for the compact agent reading guide.
 
 Current record capabilities:
@@ -484,7 +484,7 @@ Current placement decision:
 - keep `igniter-contracts` host-agnostic; persistence remains optional
   vocabulary plus app-boundary behavior
 
-See [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md).
+See [Contract Persistence Landing Zone](../../../docs/research/contract-persistence-landing-zone.md).
 
 ## Roadmap Pointers
 
@@ -500,7 +500,7 @@ For the next architecture discussion, keep these distinctions explicit:
 - current materialization is plan, parity, gate, runbook, receipt, and audit; it
   does not write files, run tests, use git, restart, or grant capabilities
 
-See [Contract Persistence Roadmap](./contract-persistence-roadmap.md).
+See [Contract Persistence Roadmap](../../../docs/research/contract-persistence-roadmap.md).
 
 ## Authoring Rule
 

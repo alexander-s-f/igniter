@@ -146,6 +146,7 @@ module Companion
             effect_metadata
             relation_metadata
             app_projection_metadata_shape
+            store_schema_graph_metadata_snapshot
           ],
           facade_input_ready: %i[
             storage_shape
@@ -160,6 +161,7 @@ module Companion
             effects
             relations
             projections
+            schema_graph_metadata_snapshot
             history_partition_key
           ],
           asks: %i[

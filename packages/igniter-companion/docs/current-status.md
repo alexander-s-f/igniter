@@ -51,6 +51,8 @@ companion_index_metadata_sidecar -> manifest index descriptors + closed package 
 companion_command_metadata_sidecar -> manifest command descriptors + closed package _commands metadata
 companion_effect_metadata_sidecar -> derived effect descriptors + closed package _effects metadata
 companion_relation_metadata_sidecar -> relation descriptors + closed package _relations metadata
+companion_store_projection_metadata_sidecar -> projection descriptors + open package _projections gap
+companion_store_schema_graph_metadata_sidecar -> app scope paths + closed Store SchemaGraph metadata snapshot
 companion_receipt_projection_sidecar -> package receipt -> action history projection proof
 companion_store_server_topology_sidecar -> StoreServer topology/lifecycle/push + native wire gap proof
 performance_signal -> setup packet recomputation needs memoization/snapshot
@@ -127,7 +129,7 @@ surface is smaller and the lowerings to `Store[T]` / `History[T]` are clearer.
 Performance signal: individual persistence packets are fast, but aggregate
 `/setup` is slow because it recomputes nested setup/handoff/materializer packets
 many times and renders a large inspected hash. See
-[Companion Contract Performance Signal](./companion-contract-performance-signal.md).
+[Companion Contract Performance Signal](./performance.md).
 
 ## Landing Zone
 
@@ -205,7 +207,7 @@ Materialization is modeled, not executed. The system can plan static contracts,
 check parity, build a gated runbook, and persist attempt/approval receipts, but
 it cannot write files, run git/tests/restart, or grant capabilities.
 
-Reference: [Contract Persistence Roadmap](./contract-persistence-roadmap.md).
+Reference: [Contract Persistence Roadmap](../../../docs/research/contract-persistence-roadmap.md).
 
 ## Current Boundary
 
@@ -265,6 +267,9 @@ Best next move:
   discussing projection/read-model descriptor mirroring; it is stable
   app-local pressure and intentionally reports package_gap=:open for
   `_projections`
+- use `/setup/companion-store-schema-graph-metadata-sidecar.json` before
+  discussing Store-side access-path metadata; it proves app scope paths lower to
+  `SchemaGraph#metadata_snapshot` without query planner or backend migration
 - use `/setup/handoff.json` as the first read after context rotation
 - use `/setup/handoff/digest.txt` as the compact human handoff, or
   `/setup/handoff/digest.json` as the structured agent map before
@@ -319,4 +324,4 @@ Acceptance:
 - `/setup` surfaces glossary health without making readiness stricter
 - no setup/read endpoint mutates durable state
 
-Reference: [Companion Persistence Manifest Glossary](./companion-persistence-manifest-glossary.md).
+Reference: [Companion Persistence Manifest Glossary](./manifest-glossary.md).

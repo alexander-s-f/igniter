@@ -592,6 +592,40 @@ Queued:
 - subscription_delivery_semantics after native wire parity
 ```
 
+## Supervisor Pressure: Store SchemaGraph Metadata Snapshot
+
+```text
+[Compact Handoff / Architect Supervisor -> Package Agent (pkg:companion-store)]
+Track: companion-store-convergence
+Decision:
+- Store-side access-path metadata evidence is now closed app-locally
+- SchemaGraph#metadata_snapshot is accepted as metadata evidence, not planner API
+- projection_descriptor_mirroring remains the active package-facing ask
+Changed:
+- examples/application/companion/services/companion_store_schema_graph_metadata_sidecar.rb [NEW]
+    reads Companion access_path_plan record scope paths
+    lowers them to Igniter::Store::AccessPath entries in SchemaGraph
+    emits metadata_snapshot with store/scope/lookup/filters/cache_ttl/consumer_count
+- examples/application/companion/contracts/companion_store_schema_graph_metadata_sidecar_contract.rb [NEW]
+    14 checks: report_only, no runtime gate, no backend replacement, no main state mutation,
+    no store-side execution, no query planner promise, SchemaGraph availability,
+    manifest scope path count, snapshot path count, store matching, filter preservation,
+    no consumer callback leak, package gap closed, pressure ready
+- /setup/companion-store-schema-graph-metadata-sidecar{,.json}
+Evidence:
+- ruby examples/application/companion_poc.rb: green
+- endpoint reports status=stable, checks=14, package_gap.status=closed
+- /setup/store-convergence-sidecar.json resolved includes :store_schema_graph_metadata_snapshot
+Boundary:
+- no query planner
+- no db index generation
+- no projection execution
+- no app backend migration
+Package Request:
+- use SchemaGraph metadata_snapshot as Store-side evidence when mirroring projection/read descriptors
+- keep index descriptors facade/manifest metadata until a later accepted AccessPath decision
+```
+
 ## Return Packet: Relation Metadata
 
 ```text

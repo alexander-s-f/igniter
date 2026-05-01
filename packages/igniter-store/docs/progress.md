@@ -1,6 +1,6 @@
 # Igniter Store Progress Summary
 
-Status date: 2026-04-30.
+Status date: 2026-05-01.
 Audience: Architect Supervisor, Package Agent, Research.
 Scope: compact checkpoint for `packages/igniter-store` and its pressure on
 `igniter-companion` / Companion.
@@ -22,14 +22,13 @@ History[T] append
 
 File backend
   -> CRC32-framed WAL
-  -> optional snapshot checkpoint in Ruby fallback
-  -> Rust tier pending snapshot parity
+  -> snapshot checkpoint/replay support
 
 Network backend
   -> CRC32-framed request/response transport
   -> StoreServer owns durable facts
   -> clients replay facts and rebuild local read indices
-  -> Rust tier pending wire deserialisation
+  -> native-aware Fact.from_h deserialisation path
 ```
 
 ## What Is Strong Now
@@ -49,9 +48,11 @@ Network backend
   invalidation-driven.
 - Schema version coercion exists as a read-path hook; raw facts are never
   mutated.
+- `SchemaGraph#metadata_snapshot` exposes compact access-path routing metadata
+  without leaking callback bodies or promising a query planner.
 - File durability moved from old JSONL POC thinking to CRC32-framed WAL.
-- Ruby fallback supports snapshot checkpoint/replay; Rust/native tier has this
-  as explicit pending pressure.
+- Snapshot checkpoint/replay exists across the current Ruby/native-aware package
+  surface.
 - `NetworkBackend` + `StoreServer` prove the first transport abstraction:
   app/client code can talk to a remote durable fact host through the same
   backend interface.
@@ -61,10 +62,7 @@ Network backend
 
 ## Current Test Signal
 
-- `packages/igniter-store`: 68 examples, 0 failures, 14 pending.
-- Pending items are expected Rust/native parity gaps:
-  `FactLog#all_facts`, `FileBackend#write_snapshot`, and network wire
-  deserialisation for `NetworkBackend` / `StoreServer`.
+- `packages/igniter-store`: 114 examples, 0 failures.
 - `packages/igniter-companion`: 47 examples, 0 failures.
 
 ## Architecture Meaning
@@ -105,6 +103,8 @@ Immediate package-facing pressure from Companion is now:
 projection_descriptor_mirroring
   -> app-local Companion now exposes store_projection_metadata as a stable
      pressure packet with package_gap=:open for _projections
+  -> /setup/companion-store-schema-graph-metadata-sidecar.json now proves
+     app scope access paths lower to Store SchemaGraph metadata_snapshot
   -> mirror read/projection descriptor shape after Record/History metadata
   -> no query planner or adapter projection execution yet
   -> keep projections inspectable above Store[T] / History[T]
@@ -112,7 +112,7 @@ projection_descriptor_mirroring
 
 Store-side pressure after index metadata:
 
-- expose a compact access-path metadata snapshot from `SchemaGraph`
+- keep `SchemaGraph#metadata_snapshot` as metadata evidence, not a planner API
 - decide whether index descriptors remain facade metadata or become explicit
   `AccessPath` metadata
 - use `/setup/companion-store-server-topology-sidecar.json` as app-local pressure
@@ -122,9 +122,8 @@ Store-side pressure after index metadata:
   `igniter-store-server`, `wait_until_ready`, graceful drain, `stats`, and
   `subscribe/fact_written`; Companion should treat this as lifecycle/delivery
   capability, not as a contract-logic RPC surface
-- finish Rust snapshot parity (`all_facts`, `write_snapshot`)
-- finish Rust network parity by adding native fact deserialisation from existing
-  fact fields
+- finish true native fact reconstruction if stable `id` / `timestamp` fidelity
+  becomes required over the network
 - keep `NetworkBackend` as a transport/backend swap, not as RPC for contract
   logic
 - keep PostgreSQL sync hub as cold/async circuit, not write-path dependency
