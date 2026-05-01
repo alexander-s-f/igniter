@@ -15,17 +15,21 @@ RSpec.describe "NetworkBackend + StoreServer",
     port
   end
 
+  def null_logger
+    Igniter::Store::ServerLogger.new(nil, :error)
+  end
+
   def start_server(port, backend: :memory, path: nil)
     server = Igniter::Store::StoreServer.new(
-      address:   "127.0.0.1:#{port}",
+      address:  "127.0.0.1:#{port}",
       transport: :tcp,
-      backend:   backend,
-      path:      path
+      backend:  backend,
+      path:     path,
+      logger:   null_logger
     )
-    thread = server.start_async
-    # Give the accept loop time to start
-    sleep 0.05
-    [server, thread]
+    server.start_async
+    server.wait_until_ready
+    [server, nil]
   end
 
   def client_backend(port)
@@ -118,7 +122,8 @@ RSpec.describe "NetworkBackend + StoreServer",
       nb2.replay.each { |f| store2.__send__(:replay, f) }
 
       expect(store2.fact_count).to eq(2)
-      expect(store2.read(store: :tasks, key: "a")).to include(status: :open)
+      # JSON serialization converts symbol values to strings over the wire
+      expect(store2.read(store: :tasks, key: "a")).to include(status: "open")
       nb2.close
     end
   end

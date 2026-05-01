@@ -8,55 +8,110 @@ return if defined?(Igniter::Store::NATIVE) && Igniter::Store::NATIVE
 require "socket"
 require "json"
 require_relative "wire_protocol"
+require_relative "server_config"
+require_relative "server_logger"
 
 module Igniter
   module Store
-    # StoreServer — a minimal TCP / Unix socket server that exposes an
-    # IgniterStore's durable fact storage over the network.
+    # Minimal TCP / Unix socket server that exposes durable fact storage over
+    # the network.  Clients use NetworkBackend to connect.
     #
-    # The server acts as the "durable backend" half of the network topology:
-    # it accepts facts from NetworkBackend clients, persists them, and serves
-    # replay requests. Clients rebuild all in-memory state (scope index, cache,
-    # coercions) locally; the server only owns durability.
+    # The server is the "durability half" of the network topology: it persists
+    # facts and serves replay requests.  All in-memory indices (scope, partition,
+    # cache, coercions) are rebuilt by each client from the replayed facts.
     #
-    # Wire protocol: CRC32-framed JSON (same framing as FileBackend WAL).
+    # Lifecycle:
+    #   server = StoreServer.new(host: "127.0.0.1", port: 7400, backend: :file, path: "store.wal")
+    #   server.start_async            # background thread
+    #   server.wait_until_ready       # blocks until accepting (no sleep needed)
+    #   ...
+    #   server.stop                   # graceful drain, then close
     #
-    # Usage — start in a background thread:
-    #   server = Igniter::Store::StoreServer.new(
-    #     address:  "127.0.0.1:7400",
-    #     backend:  :file,
-    #     path:     "/var/lib/igniter/store.wal"
-    #   )
-    #   server.start_async
+    # Foreground / CLI:
+    #   server.start_foreground       # sets signal traps, blocks until stop
     #
-    # Or foreground (e.g. a dedicated server process):
-    #   server.start   # blocks
+    # Configuration object:
+    #   config = ServerConfig.new(host: "0.0.0.0", port: 7400, backend: :file, ...)
+    #   server = StoreServer.new(config: config)
     class StoreServer
       include WireProtocol
 
-      def initialize(address:, transport: :tcp, backend: :memory, path: nil)
-        @backend_type   = backend
-        @backend        = build_backend(backend, path)
-        @server         = build_server(address, transport)
-        @write_mutex    = Mutex.new   # serialises write_fact + in_memory_facts updates
-        @stopped        = false
+      # ── Constructor ──────────────────────────────────────────────────────────
+
+      # Accepts keyword args (backward compatible) OR a +config:+ ServerConfig.
+      # Keyword args take precedence over config fields when both are given.
+      def initialize(host: nil, port: nil, transport: nil, backend: nil, path: nil,
+                     logger: nil, pid_file: nil, drain_timeout: nil,
+                     max_connections: nil, config: nil,
+                     # Legacy positional-style: address: "host:port"
+                     address: nil)
+        cfg = config || ServerConfig.new
+
+        # Keyword args override the config where explicitly provided.
+        resolved_host      = host      || (address ? split_address(address).first : nil) || cfg.host
+        resolved_port      = port      || (address ? split_address(address).last  : nil) || cfg.port
+        resolved_transport = transport || cfg.transport
+        resolved_backend   = backend   || cfg.backend
+        resolved_path      = path      || cfg.path
+        resolved_pid       = pid_file  || cfg.pid_file
+        resolved_drain     = drain_timeout  || cfg.drain_timeout
+        resolved_max       = max_connections || cfg.max_connections
+
+        log_io    = config&.log_io    || $stdout
+        log_level = config&.log_level || :info
+
+        @logger          = logger || ServerLogger.new(log_io, log_level)
+        @backend_type    = resolved_backend
+        @transport_type  = resolved_transport
+        @backend         = build_backend(resolved_backend, resolved_path)
+        @server          = build_server(resolved_host, resolved_port, resolved_transport)
+        @write_mutex     = Mutex.new
+        @active          = 0
+        @active_mutex    = Mutex.new
         @in_memory_facts = []
+        @stopped         = false
+        @started_at      = nil
+        @pid_file        = resolved_pid
+        @drain_timeout   = resolved_drain
+        @max_connections = resolved_max
+        @ready_mutex     = Mutex.new
+        @ready_cond      = ConditionVariable.new
+        # The server socket is bound and listening as soon as build_server returns.
+        # Signal readiness here so wait_until_ready is race-free for callers that
+        # connect before start_async is called.
+        @ready_latch     = true
+        @started_at      = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        # Cache the bind address string now while the socket is guaranteed open,
+        # so start/stop threads don't race on @server.addr after close.
+        @bind_address_str = resolved_transport == :unix ?
+          resolved_host.to_s :
+          "#{@server.addr[3]}:#{@server.addr[1]}"
+        write_pid_file(resolved_pid)
       end
+
+      # ── Lifecycle ────────────────────────────────────────────────────────────
 
       # Starts the accept loop in the calling thread (blocks until #stop).
       def start
+        @logger.info("Listening on #{@bind_address_str} " \
+                     "(transport=#{@transport_type} backend=#{@backend_type})")
         until @stopped
           begin
             client = @server.accept
           rescue IOError, Errno::EBADF
-            break  # server was closed
+            break
           end
-          Thread.new { handle_client(client) }
+          active = @active_mutex.synchronize { @active += 1; @active }
+          @logger.debug("Connection accepted (active=#{active})")
+          Thread.new(client) { |s| handle_client(s) }
         end
+      ensure
+        remove_pid_file
+        @logger.info("Stopped.")
       end
 
       # Starts the accept loop in a background daemon thread.
-      # Returns the Thread so callers can join or inspect it.
+      # Call wait_until_ready after this to avoid race conditions.
       def start_async
         Thread.new do
           Thread.current.abort_on_exception = false
@@ -64,47 +119,97 @@ module Igniter
         end
       end
 
-      def stop
+      # Blocks until the server's accept loop is running and ready for connections.
+      # Replaces the sleep 0.05 hack in callers.
+      def wait_until_ready(timeout: 2)
+        @ready_mutex.synchronize do
+          deadline = Time.now + timeout
+          until @ready_latch
+            remaining = deadline - Time.now
+            raise "StoreServer did not become ready within #{timeout}s" if remaining <= 0
+            @ready_cond.wait(@ready_mutex, remaining)
+          end
+        end
+        self
+      end
+
+      # Starts the accept loop with SIGTERM/SIGINT traps for CLI/foreground use.
+      # Blocks until a signal or #stop is called.
+      def start_foreground
+        trap("SIGTERM") { stop }
+        trap("INT")     { stop }
+        start
+      end
+
+      # Gracefully stops the server.
+      # 1. Closes the server socket (no new connections accepted).
+      # 2. Waits up to +timeout+ seconds for active connections to finish.
+      # 3. Force-closes remaining connections and closes the backend.
+      def stop(timeout: nil)
+        t = timeout || @drain_timeout
         @stopped = true
+        @logger.info("Stopping (drain_timeout=#{t}s)...")
         @server.close rescue nil
+        remove_pid_file
+
+        deadline = Time.now + t
+        loop do
+          active = @active_mutex.synchronize { @active }
+          break if active.zero? || Time.now >= deadline
+          @logger.debug("Draining #{active} connection(s)...")
+          sleep 0.05
+        end
+
+        remaining = @active_mutex.synchronize { @active }
+        @logger.warn("Force-closing #{remaining} connection(s).") if remaining.positive?
         @write_mutex.synchronize { @backend&.close rescue nil }
       end
 
-      # The port the server is listening on (useful when address uses port 0).
-      def port
-        @server.addr[1]
+      # ── Accessors ────────────────────────────────────────────────────────────
+
+      # Canonical bind address string (e.g. "127.0.0.1:7400" or "/tmp/store.sock").
+      # Cached at initialize time — safe to call even after stop closes the socket.
+      def bind_address
+        @bind_address_str
       end
 
-      # The address the server is bound to.
-      def addr
-        @server.addr[3]
+      # Number of currently active client connections.
+      def active_connections
+        @active_mutex.synchronize { @active }
       end
+
+      # ── Private ──────────────────────────────────────────────────────────────
 
       private
 
       def build_backend(type, path)
         case type
-        when :memory then nil  # no persistence — facts served from memory only
+        when :memory then nil
         when :file   then FileBackend.new(path.to_s)
         else raise ArgumentError, "StoreServer backend must be :memory or :file, got #{type.inspect}"
         end
       end
 
-      def build_server(address, transport)
+      def build_server(host, port, transport)
         case transport
         when :tcp
-          host, port = address.split(":")
-          server = TCPServer.new(host, Integer(port))
+          server = TCPServer.new(host.to_s, Integer(port))
           server.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
           server
         when :unix
-          UNIXServer.new(address)
+          UNIXServer.new(host.to_s)
         else
           raise ArgumentError, "Unknown transport: #{transport.inspect}. Use :tcp or :unix"
         end
       end
 
+      def split_address(address)
+        host, port_s = address.to_s.split(":")
+        [host, port_s ? Integer(port_s) : 7400]
+      end
+
       def handle_client(socket)
+        socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, true) rescue nil
         loop do
           body = read_frame(socket)
           break unless body
@@ -114,10 +219,15 @@ module Igniter
           socket.write(encode_frame(JSON.generate(resp)))
           break if req[:op] == "close"
         end
-      rescue IOError, Errno::ECONNRESET, Errno::EPIPE
+      rescue IOError, Errno::ECONNRESET, Errno::EPIPE, Errno::EBADF
+        nil
+      rescue => e
+        @logger.warn("handle_client: #{e.class}: #{e.message}")
         nil
       ensure
         socket.close rescue nil
+        @active_mutex.synchronize { @active -= 1 }
+        @logger.debug("Connection closed (active=#{@active_mutex.synchronize { @active }})")
       end
 
       def dispatch(req)
@@ -131,13 +241,8 @@ module Igniter
           { ok: true }
 
         when "replay"
-          # Snapshot the list under the write lock to avoid torn reads.
           facts = @write_mutex.synchronize do
-            if @backend
-              @backend.replay
-            else
-              @in_memory_facts.dup
-            end
+            @backend ? @backend.replay : @in_memory_facts.dup
           end
           { ok: true, facts: facts.map(&:to_h) }
 
@@ -147,8 +252,19 @@ module Igniter
             @write_mutex.synchronize { @backend.write_snapshot(facts) }
             { ok: true }
           else
-            { ok: true }  # silently skip — memory backend has no snapshot
+            { ok: true }
           end
+
+        when "stats"
+          uptime_ms = @started_at ?
+            ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - @started_at) * 1000).ceil : 0
+          facts_written = @write_mutex.synchronize { @in_memory_facts.size }
+          {
+            ok:                 true,
+            facts_written:      facts_written,
+            connections_active: @active_mutex.synchronize { @active },
+            uptime_ms:          uptime_ms
+          }
 
         when "ping"
           { ok: true, pong: true }
@@ -168,6 +284,21 @@ module Igniter
         h[:store]     = h.fetch(:store).to_sym
         h[:timestamp] = h.fetch(:timestamp).to_f
         Fact.new(**h).freeze
+      end
+
+      def write_pid_file(path)
+        return unless path
+        File.write(path, "#{Process.pid}\n")
+        @logger.info("PID #{Process.pid} written to #{path}")
+      rescue SystemCallError => e
+        @logger.warn("Could not write PID file #{path}: #{e.message}")
+      end
+
+      def remove_pid_file
+        return unless @pid_file && File.exist?(@pid_file)
+        File.delete(@pid_file)
+      rescue SystemCallError
+        nil
       end
     end
   end

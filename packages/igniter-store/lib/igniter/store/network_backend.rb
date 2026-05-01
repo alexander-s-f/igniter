@@ -59,7 +59,8 @@ module Igniter
       def close
         @mutex.synchronize do
           send_frame({ op: "close" })
-        rescue IOError, Errno::EPIPE
+          read_frame(@socket)  # drain the server's { ok: true } so socket can close cleanly (FIN not RST)
+        rescue IOError, Errno::EPIPE, Errno::ECONNRESET
           nil
         ensure
           @socket.close rescue nil
@@ -72,7 +73,9 @@ module Igniter
         case @transport
         when :tcp
           host, port = @address.split(":")
-          TCPSocket.new(host, Integer(port))
+          s = TCPSocket.new(host, Integer(port))
+          s.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, true)
+          s
         when :unix
           UNIXSocket.new(@address)
         else

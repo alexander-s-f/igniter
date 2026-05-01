@@ -1,0 +1,68 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+#
+# igniter-store-server — standalone StoreServer process
+#
+# Usage:
+#   igniter-store-server [options]
+#
+# Examples:
+#   igniter-store-server
+#   igniter-store-server --port 7400 --backend memory
+#   igniter-store-server --backend file --path /var/lib/igniter/store.wal --pid-file /run/igniter-store.pid
+#   igniter-store-server --host 0.0.0.0 --port 7400 --log-level debug
+
+require "optparse"
+require_relative "../lib/igniter-store"
+
+opts = {}
+
+parser = OptionParser.new do |o|
+  o.banner = "Usage: igniter-store-server [options]"
+  o.separator ""
+  o.separator "Network:"
+  o.on("--host HOST",                    "Bind host         (default: 127.0.0.1)")      { |v| opts[:host] = v }
+  o.on("--port PORT",       Integer,     "Bind port         (default: 7400)")            { |v| opts[:port] = v }
+  o.on("--transport TYPE",               "tcp or unix       (default: tcp)")             { |v| opts[:transport] = v.to_sym }
+
+  o.separator ""
+  o.separator "Storage:"
+  o.on("--backend BACKEND",              "memory or file    (default: memory)")          { |v| opts[:backend] = v.to_sym }
+  o.on("--path PATH",                    "WAL file path     (required for --backend file)") { |v| opts[:path] = v }
+
+  o.separator ""
+  o.separator "Operations:"
+  o.on("--log-level LEVEL",             "debug|info|warn|error (default: info)")        { |v| opts[:log_level] = v.to_sym }
+  o.on("--pid-file PATH",               "Write PID to file on startup")                 { |v| opts[:pid_file] = v }
+  o.on("--drain-timeout SECS", Integer, "Graceful shutdown drain timeout (default: 5)") { |v| opts[:drain_timeout] = v }
+
+  o.separator ""
+  o.on("-h", "--help", "Show this help and exit") { puts o; exit 0 }
+  o.on("-v", "--version", "Show version and exit") do
+    require "igniter/version"
+    puts "igniter-store #{Igniter::VERSION}"
+    exit 0
+  end
+end
+
+begin
+  parser.parse!
+rescue OptionParser::InvalidOption, OptionParser::InvalidArgument => e
+  warn "Error: #{e.message}"
+  warn parser
+  exit 1
+end
+
+# Validate --backend file requires --path
+if opts[:backend] == :file && opts[:path].nil?
+  warn "Error: --backend file requires --path PATH"
+  exit 1
+end
+
+config = Igniter::Store::ServerConfig.new(**opts)
+
+$stdout.sync = true
+$stderr.sync = true
+
+server = Igniter::Store::StoreServer.new(config: config)
+server.start_foreground

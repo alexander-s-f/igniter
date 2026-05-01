@@ -18,8 +18,12 @@ Gem::Specification.new do |spec|
     "lib/**/*.rb",
     "ext/**/*.{rb,rs,toml}",
     "examples/**/*.rb",
+    "exe/*",
     "README.md"
   ].sort
+
+  spec.bindir      = "exe"
+  spec.executables = ["igniter-store-server"]
 
   spec.require_paths = ["lib"]
   spec.extensions    = ["ext/igniter_store_native/extconf.rb"]
