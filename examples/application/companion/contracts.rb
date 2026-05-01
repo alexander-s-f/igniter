@@ -17,7 +17,8 @@ module Companion
             Igniter::Contracts::PackManifest.dsl_keyword(:field),
             Igniter::Contracts::PackManifest.dsl_keyword(:index),
             Igniter::Contracts::PackManifest.dsl_keyword(:scope),
-            Igniter::Contracts::PackManifest.dsl_keyword(:command)
+            Igniter::Contracts::PackManifest.dsl_keyword(:command),
+            Igniter::Contracts::PackManifest.dsl_keyword(:relation)
           ],
           metadata: { category: :persistence, report_only: true }
         )
@@ -30,6 +31,7 @@ module Companion
         kernel.dsl_keywords.register(:index, index_keyword)
         kernel.dsl_keywords.register(:scope, scope_keyword)
         kernel.dsl_keywords.register(:command, command_keyword)
+        kernel.dsl_keywords.register(:relation, relation_keyword)
         kernel
       end
 
@@ -118,6 +120,20 @@ module Companion
           )
         end
       end
+
+      def relation_keyword
+        Igniter::Contracts::DslKeyword.new(:relation) do |name, builder:, **attributes|
+          builder.add_operation(
+            kind: :const,
+            name: :"__relation_#{name}",
+            value: {
+              kind: :relation,
+              name: name.to_sym,
+              attributes: attributes.transform_keys(&:to_sym)
+            }
+          )
+        end
+      end
     end
 
     def self.contract(name, outputs: [], &block)
@@ -199,6 +215,9 @@ module Companion
       commands = operations
                  .select { |operation| operation.name.to_s.start_with?("__command_") }
                  .map { |operation| operation.attributes.fetch(:value) }
+      relations = operations
+                  .select { |operation| operation.name.to_s.start_with?("__relation_") }
+                  .map { |operation| operation.attributes.fetch(:value) }
       store_name = infer_store_name(contract_class)
       storage = storage_descriptor(persist: persist, history: history, store_name: store_name)
 
@@ -210,7 +229,8 @@ module Companion
         fields: fields,
         indexes: indexes,
         scopes: scopes,
-        commands: commands
+        commands: commands,
+        relations: relations
       }
     end
 

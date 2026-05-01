@@ -591,3 +591,86 @@ Package Request:
 Queued:
 - subscription_delivery_semantics after native wire parity
 ```
+
+## Return Packet: Relation Metadata
+
+```text
+[Compact Handoff / Package Agent (pkg:companion-store) -> Architect Supervisor]
+Track: companion-store-convergence
+Changed:
+- examples/application/companion/contracts.rb
+    PersistenceSketchPack: added relation keyword to manifest registry + install_into
+    relation_keyword method: creates __relation_#{name} const operations
+    persistence_manifest_for: extracts relations from operations, returns relations: key
+- examples/application/companion/contracts/article_record_contract.rb
+    relation :comments_by_article, kind: :event_owner, to: :comments,
+             join: { id: :article_id }, cardinality: :one_to_many
+- packages/igniter-companion/lib/igniter/companion/record.rb
+    ClassMethods: relation(name, **attrs) DSL + _relations reader
+    from_manifest: mirrors manifest[:relations] into generated Record class
+- examples/application/companion/services/companion_relation_metadata_sidecar.rb [NEW]
+    proof: relation_count, relations (name/kind/to/cardinality/join/lowers_to),
+    generated_relation_api_present, generated_relation_names, lowering_preserved
+    package_gap: status closed, declaration_strategy=per_record_contract_dsl
+    pressure: next_question=:store_projection_metadata, resolved=:relation_metadata
+- examples/application/companion/contracts/companion_relation_metadata_sidecar_contract.rb [NEW]
+    12 checks: report_only, no_runtime_gate, no_backend_replacement, no_main_state_mutation,
+    no_store_side_execution, relation_declared_in_contract_dsl, manifest_relations_present,
+    relation_descriptor_shape_preserved, generated_relation_api_present,
+    generated_relation_names_match, package_relation_gap_closed, pressure_ready
+- examples/application/companion/services/companion_store.rb
+    companion_relation_metadata_sidecar method
+- examples/application/companion/app_dsl.rb
+    snapshot entry + GET /setup/companion-relation-metadata-sidecar{,.json} routes
+- examples/application/companion/runtime.rb
+    HTTP calls, body joins, status/endpoint out.puts, contract key,
+    companion_relation_metadata_sidecar_contract? and endpoint validation methods
+- examples/catalog.rb
+    companion_poc_countdowns=2 (pre-existing stale fragment, corrected)
+Evidence:
+- igniter-companion: 47 specs, 0 failures
+- example_scripts: 87 specs, 0 failures
+- CompanionRelationMetadataSidecar.packet: stable, 12/12 checks, gap=closed
+- Article._relations={comments_by_article: {kind: :event_owner, to: :comments, ...}}
+- Reminder._relations={} (no relations declared — Reminder has no history children)
+- _relations reader works on both seeded (Article) and empty (Reminder) cases
+- No store-side joins, no adapter relation execution API — pure metadata descriptors
+Resolved:
+- relation_metadata: per-record DSL relation keyword, manifest extraction, Record mirroring
+New Pressure:
+- store_projection_metadata: next unresolved descriptor vocabulary (Supervisor to decide scope)
+Boundary Risk:
+- Only Article has relations declared; Reminder stays clean (empty _relations hash)
+- lowers_to=:relation_descriptor is metadata-only — no query planner, no adapter API
+- relation keyword is app-local (PersistenceSketchPack); not in igniter-companion DSL
+Needs:
+- Supervisor decision on store_projection_metadata scope
+- Store convergence sidecar should eventually reflect relation_metadata gap as closed
+```
+
+## Supervisor Decision: Store Projection Metadata Next
+
+```text
+[Compact Handoff / Architect Supervisor -> Package Agent (pkg:companion-store)]
+Track: companion-store-convergence
+Decision:
+- relation_metadata is accepted as resolved
+- next package-facing descriptor pressure is store_projection_metadata
+- subscription_delivery_semantics stays queued behind native wire parity
+Why:
+- relation descriptors now mirror as metadata-only _relations
+- no store-side joins or adapter relation API were introduced
+- projection/read-model descriptors are the next unresolved metadata vocabulary
+Updated Evidence:
+- /setup/store-convergence-sidecar.json now reports checks=24
+- pressure.next_question=:store_projection_metadata
+- pressure.resolved includes :relation_metadata
+- relation.generated_relation_names includes :comments_by_article
+- /setup/companion-relation-metadata-sidecar.json reports package_gap=:closed
+Package Request:
+- define metadata-only store projection/read-model descriptor surface
+- preserve projection computation above Store[T]/History[T]
+- no query planner, no adapter projection execution, no app backend migration
+Queued:
+- subscription_delivery_semantics after native wire parity
+```

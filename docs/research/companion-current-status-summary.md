@@ -50,6 +50,7 @@ companion_store_app_flow_sidecar -> isolated app-pattern Store write + receipt p
 companion_index_metadata_sidecar -> manifest index descriptors + closed package _indexes metadata
 companion_command_metadata_sidecar -> manifest command descriptors + closed package _commands metadata
 companion_effect_metadata_sidecar -> derived effect descriptors + closed package _effects metadata
+companion_relation_metadata_sidecar -> relation descriptors + closed package _relations metadata
 companion_receipt_projection_sidecar -> package receipt -> action history projection proof
 companion_store_server_topology_sidecar -> StoreServer topology/lifecycle/push + native wire gap proof
 performance_signal -> setup packet recomputation needs memoization/snapshot

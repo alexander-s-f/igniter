@@ -103,10 +103,10 @@ state until that older POC document is rotated or compacted.
 Immediate package-facing pressure from Companion is now:
 
 ```text
-relation_metadata
-  -> mirror manifest relation descriptors as generated facade metadata
-  -> no join execution in the store substrate
-  -> keep relation health/reporting above Store[T] / History[T]
+store_projection_metadata
+  -> mirror read/projection descriptor shape after Record/History metadata
+  -> no query planner or adapter projection execution yet
+  -> keep projections inspectable above Store[T] / History[T]
 ```
 
 Store-side pressure after index metadata:

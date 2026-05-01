@@ -19,6 +19,7 @@ module Companion
 
       def proof
         reminder_record = Igniter::Companion.from_manifest(Contracts::Reminder.persistence_manifest)
+        article_record = Igniter::Companion.from_manifest(Contracts::Article.persistence_manifest)
         tracker_log_event = Igniter::Companion.from_manifest(Contracts::TrackerLog.persistence_manifest)
 
         store = Igniter::Companion::Store.new
@@ -52,6 +53,7 @@ module Companion
           main_state_mutated: false,
           record: record_report(store, reminder_record, read, current, past, open_before, open_after, notifications, write_receipt),
           history: history_report(tracker_log_event, [first_receipt, second_receipt, third_receipt], replay_all, replay_sleep),
+          relation: relation_report(article_record),
           pressure: pressure_report
         }.tap { store.close }
       end
@@ -108,9 +110,27 @@ module Companion
         }
       end
 
+      def relation_report(record_class)
+        manifest = Contracts::Article.persistence_manifest
+        generated_relations = record_class.respond_to?(:_relations) ? record_class._relations : {}
+        relation = generated_relations.fetch(:comments_by_article, {})
+
+        {
+          contract: :Article,
+          package_class: record_class.name,
+          generated_from_manifest: true,
+          manifest_relations: manifest.fetch(:relations).map { |entry| entry.fetch(:name) },
+          generated_relation_names: generated_relations.keys,
+          comments_relation_to: relation.fetch(:to, nil),
+          comments_relation_kind: relation.fetch(:kind, nil),
+          comments_relation_cardinality: relation.fetch(:cardinality, nil),
+          store_side_join_execution: false
+        }
+      end
+
       def pressure_report
         {
-          next_question: :relation_metadata,
+          next_question: :store_projection_metadata,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
           resolved: %i[
@@ -124,6 +144,7 @@ module Companion
             index_metadata
             command_metadata
             effect_metadata
+            relation_metadata
           ],
           facade_input_ready: %i[
             storage_shape
@@ -136,13 +157,14 @@ module Companion
             indexes
             commands
             effects
+            relations
             history_partition_key
           ],
           asks: %i[
-            relation_metadata
+            store_projection_metadata
           ],
           recommended_order: %i[
-            relations
+            store_projection_metadata
           ]
         }
       end

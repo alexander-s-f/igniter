@@ -5,7 +5,7 @@ require_relative "../contracts"
 module Companion
   module Contracts
     contracts :StoreConvergenceSidecarContract,
-              outputs: %i[schema_version descriptor status checks record history pressure summary] do
+              outputs: %i[schema_version descriptor status checks record history relation pressure summary] do
       input :proof
 
       compute :schema_version do
@@ -40,11 +40,15 @@ module Companion
         proof.fetch(:history)
       end
 
+      compute :relation, depends_on: [:proof] do |proof:|
+        proof.fetch(:relation)
+      end
+
       compute :pressure, depends_on: [:proof] do |proof:|
         proof.fetch(:pressure)
       end
 
-      compute :checks, depends_on: %i[descriptor record history proof] do |descriptor:, record:, history:, proof:|
+      compute :checks, depends_on: %i[descriptor record history relation proof] do |descriptor:, record:, history:, relation:, proof:|
         [
           Companion::Contracts.check(:report_only,                  descriptor.fetch(:report_only)),
           Companion::Contracts.check(:no_runtime_gate,              descriptor.fetch(:gates_runtime) == false),
@@ -63,6 +67,10 @@ module Companion
                                                                      record.fetch(:generated_command_names).include?(:complete)),
           Companion::Contracts.check(:record_effect_metadata,        record.fetch(:generated_effect_names).include?(:complete) &&
                                                                      record.fetch(:generated_effect_store_ops).include?(:store_write)),
+          Companion::Contracts.check(:record_relation_metadata,      relation.fetch(:manifest_relations).include?(:comments_by_article) &&
+                                                                     relation.fetch(:generated_relation_names).include?(:comments_by_article) &&
+                                                                     relation.fetch(:comments_relation_to) == :comments &&
+                                                                     relation.fetch(:store_side_join_execution) == false),
           Companion::Contracts.check(:record_round_trip,            record.fetch(:current_status) == :done),
           Companion::Contracts.check(:record_scope_works,           record.fetch(:open_before_count) == 1 && record.fetch(:open_after_count).zero?),
           Companion::Contracts.check(:record_time_travel_works,     record.fetch(:past_status) == :open),
@@ -94,6 +102,7 @@ module Companion
       output :checks
       output :record
       output :history
+      output :relation
       output :pressure
       output :summary
     end

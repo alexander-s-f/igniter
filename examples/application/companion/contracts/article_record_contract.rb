@@ -17,6 +17,7 @@ module Companion
       scope :drafts, where: { status: :draft }
       scope :published, where: { status: :published }
       command :publish, operation: :record_update, changes: { status: :published }
+      relation :comments_by_article, kind: :event_owner, to: :comments, join: { id: :article_id }, cardinality: :one_to_many
     end
   end
 end

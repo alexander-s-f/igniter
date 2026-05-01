@@ -142,6 +142,8 @@ module Companion
       companion_command_metadata_json_status, _companion_command_metadata_json_headers, companion_command_metadata_json_body = app.call(rack_env("GET", "/setup/companion-command-metadata-sidecar.json"))
       companion_effect_metadata_status, _companion_effect_metadata_headers, companion_effect_metadata_body = app.call(rack_env("GET", "/setup/companion-effect-metadata-sidecar"))
       companion_effect_metadata_json_status, _companion_effect_metadata_json_headers, companion_effect_metadata_json_body = app.call(rack_env("GET", "/setup/companion-effect-metadata-sidecar.json"))
+      companion_relation_metadata_status, _companion_relation_metadata_headers, companion_relation_metadata_body = app.call(rack_env("GET", "/setup/companion-relation-metadata-sidecar"))
+      companion_relation_metadata_json_status, _companion_relation_metadata_json_headers, companion_relation_metadata_json_body = app.call(rack_env("GET", "/setup/companion-relation-metadata-sidecar.json"))
       companion_receipt_projection_status, _companion_receipt_projection_headers, companion_receipt_projection_body = app.call(rack_env("GET", "/setup/companion-receipt-projection-sidecar"))
       companion_receipt_projection_json_status, _companion_receipt_projection_json_headers, companion_receipt_projection_json_body = app.call(rack_env("GET", "/setup/companion-receipt-projection-sidecar.json"))
       companion_store_server_topology_status, _companion_store_server_topology_headers, companion_store_server_topology_body = app.call(rack_env("GET", "/setup/companion-store-server-topology-sidecar"))
@@ -263,6 +265,8 @@ module Companion
       companion_command_metadata_json = companion_command_metadata_json_body.join
       companion_effect_metadata = companion_effect_metadata_body.join
       companion_effect_metadata_json = companion_effect_metadata_json_body.join
+      companion_relation_metadata = companion_relation_metadata_body.join
+      companion_relation_metadata_json = companion_relation_metadata_json_body.join
       companion_receipt_projection = companion_receipt_projection_body.join
       companion_receipt_projection_json = companion_receipt_projection_json_body.join
       companion_store_server_topology = companion_store_server_topology_body.join
@@ -404,6 +408,8 @@ module Companion
       out.puts "companion_poc_setup_companion_command_metadata_sidecar_json_status=#{companion_command_metadata_json_status}"
       out.puts "companion_poc_setup_companion_effect_metadata_sidecar_status=#{companion_effect_metadata_status}"
       out.puts "companion_poc_setup_companion_effect_metadata_sidecar_json_status=#{companion_effect_metadata_json_status}"
+      out.puts "companion_poc_setup_companion_relation_metadata_sidecar_status=#{companion_relation_metadata_status}"
+      out.puts "companion_poc_setup_companion_relation_metadata_sidecar_json_status=#{companion_relation_metadata_json_status}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_status=#{companion_receipt_projection_status}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_json_status=#{companion_receipt_projection_json_status}"
       out.puts "companion_poc_setup_companion_store_server_topology_sidecar_status=#{companion_store_server_topology_status}"
@@ -523,6 +529,8 @@ module Companion
       out.puts "companion_poc_setup_companion_command_metadata_sidecar_json_endpoint=#{setup_companion_command_metadata_sidecar_json_endpoint?(companion_command_metadata_json)}"
       out.puts "companion_poc_setup_companion_effect_metadata_sidecar_endpoint=#{setup_companion_effect_metadata_sidecar_endpoint?(companion_effect_metadata)}"
       out.puts "companion_poc_setup_companion_effect_metadata_sidecar_json_endpoint=#{setup_companion_effect_metadata_sidecar_json_endpoint?(companion_effect_metadata_json)}"
+      out.puts "companion_poc_setup_companion_relation_metadata_sidecar_endpoint=#{setup_companion_relation_metadata_sidecar_endpoint?(companion_relation_metadata)}"
+      out.puts "companion_poc_setup_companion_relation_metadata_sidecar_json_endpoint=#{setup_companion_relation_metadata_sidecar_json_endpoint?(companion_relation_metadata_json)}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_endpoint=#{setup_companion_receipt_projection_sidecar_endpoint?(companion_receipt_projection)}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_json_endpoint=#{setup_companion_receipt_projection_sidecar_json_endpoint?(companion_receipt_projection_json)}"
       out.puts "companion_poc_setup_companion_store_server_topology_sidecar_endpoint=#{setup_companion_store_server_topology_sidecar_endpoint?(companion_store_server_topology)}"
@@ -631,6 +639,7 @@ module Companion
       out.puts "companion_poc_companion_index_metadata_sidecar_contract=#{companion_index_metadata_sidecar_contract?}"
       out.puts "companion_poc_companion_command_metadata_sidecar_contract=#{companion_command_metadata_sidecar_contract?}"
       out.puts "companion_poc_companion_effect_metadata_sidecar_contract=#{companion_effect_metadata_sidecar_contract?}"
+      out.puts "companion_poc_companion_relation_metadata_sidecar_contract=#{companion_relation_metadata_sidecar_contract?}"
       out.puts "companion_poc_companion_receipt_projection_sidecar_contract=#{companion_receipt_projection_sidecar_contract?}"
       out.puts "companion_poc_companion_store_server_topology_sidecar_contract=#{companion_store_server_topology_sidecar_contract?}"
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
@@ -2023,6 +2032,7 @@ module Companion
       descriptor = packet.fetch(:descriptor)
       record = packet.fetch(:record)
       history = packet.fetch(:history)
+      relation = packet.fetch(:relation)
       pressure = packet.fetch(:pressure)
 
       packet.fetch(:schema_version) == 1 &&
@@ -2036,10 +2046,11 @@ module Companion
         descriptor.fetch(:substrate) == :"igniter-store" &&
         descriptor.fetch(:preserves) == { persist: :store_t, history: :history_t, command: :mutation_intent } &&
         packet.fetch(:status) == :stable &&
-        packet.fetch(:checks).length == 23 &&
+        packet.fetch(:checks).length == 24 &&
         packet.fetch(:checks).all? { |check| check.fetch(:present) } &&
         record.fetch(:generated_from_manifest) &&
         history.fetch(:generated_from_manifest) &&
+        relation.fetch(:generated_from_manifest) &&
         record.fetch(:manifest_indexes).include?(:status) &&
         record.fetch(:generated_index_names).include?(:status) &&
         record.fetch(:current_status) == :done &&
@@ -2064,7 +2075,11 @@ module Companion
         record.fetch(:generated_command_names).include?(:complete) &&
         record.fetch(:generated_effect_names).include?(:complete) &&
         record.fetch(:generated_effect_store_ops).include?(:store_write) &&
-        pressure.fetch(:next_question) == :relation_metadata &&
+        relation.fetch(:manifest_relations).include?(:comments_by_article) &&
+        relation.fetch(:generated_relation_names).include?(:comments_by_article) &&
+        relation.fetch(:comments_relation_to) == :comments &&
+        relation.fetch(:store_side_join_execution) == false &&
+        pressure.fetch(:next_question) == :store_projection_metadata &&
         pressure.fetch(:resolved).include?(:manifest_generated_record_history_classes) &&
         pressure.fetch(:resolved).include?(:store_name_in_manifest) &&
         pressure.fetch(:resolved).include?(:companion_store_backed_app_flow) &&
@@ -2073,12 +2088,14 @@ module Companion
         pressure.fetch(:resolved).include?(:index_metadata) &&
         pressure.fetch(:resolved).include?(:command_metadata) &&
         pressure.fetch(:resolved).include?(:effect_metadata) &&
+        pressure.fetch(:resolved).include?(:relation_metadata) &&
         pressure.fetch(:facade_input_ready).include?(:storage_name) &&
         pressure.fetch(:facade_input_ready).include?(:field_types) &&
         pressure.fetch(:facade_input_ready).include?(:enum_values) &&
         pressure.fetch(:facade_input_ready).include?(:indexes) &&
         pressure.fetch(:facade_input_ready).include?(:commands) &&
         pressure.fetch(:facade_input_ready).include?(:effects) &&
+        pressure.fetch(:facade_input_ready).include?(:relations) &&
         pressure.fetch(:facade_input_ready).include?(:history_partition_key)
     end
 
@@ -2185,6 +2202,35 @@ module Companion
         package_gap.fetch(:derivation_strategy) == :derived_from_commands &&
         pressure.fetch(:next_question) == :relation_metadata &&
         pressure.fetch(:resolved) == :effect_metadata
+    end
+
+    def companion_relation_metadata_sidecar_contract?
+      packet = Services::CompanionRelationMetadataSidecar.packet
+      descriptor = packet.fetch(:descriptor)
+      records = packet.fetch(:records)
+      package_gap = packet.fetch(:package_gap)
+      pressure = packet.fetch(:pressure)
+      checks = packet.fetch(:checks)
+
+      packet.fetch(:schema_version) == 1 &&
+        descriptor.fetch(:kind) == :companion_relation_metadata_sidecar &&
+        descriptor.fetch(:report_only) &&
+        descriptor.fetch(:gates_runtime) == false &&
+        descriptor.fetch(:store_side_execution) == false &&
+        descriptor.fetch(:declaration) == :per_record_dsl_relation_keyword &&
+        descriptor.fetch(:lowers_to) == :relation_descriptor &&
+        packet.fetch(:status) == :stable &&
+        checks.length == 12 &&
+        checks.all? { |check| check.fetch(:present) } &&
+        records.map { |record| record.fetch(:contract).to_s }.sort == %w[Article Reminder] &&
+        records.any? { |record| record.fetch(:relation_count).positive? } &&
+        records.all? { |record| record.fetch(:lowering_preserved) } &&
+        records.all? { |record| record.fetch(:generated_relation_api_present) == true } &&
+        package_gap.fetch(:status) == :closed &&
+        package_gap.fetch(:expected_api) == :_relations &&
+        package_gap.fetch(:declaration_strategy) == :per_record_contract_dsl &&
+        pressure.fetch(:next_question) == :store_projection_metadata &&
+        pressure.fetch(:resolved) == :relation_metadata
     end
 
     def companion_receipt_projection_sidecar_contract?
@@ -3905,18 +3951,21 @@ module Companion
         store_convergence.include?("past_status=>:open") &&
         store_convergence.include?("partition_query_supported=>true") &&
         store_convergence.include?("manifest_store_name_present=>true") &&
-        store_convergence.include?("next_question=>:relation_metadata") &&
+        store_convergence.include?("next_question=>:store_projection_metadata") &&
         store_convergence.include?("portable_field_types") &&
         store_convergence.include?("mutation_intent_to_app_boundary") &&
         store_convergence.include?("index_metadata") &&
         store_convergence.include?("command_metadata") &&
         store_convergence.include?("effect_metadata") &&
+        store_convergence.include?("relation_metadata") &&
         store_convergence.include?("companion_store_backed_app_flow") &&
         store_convergence.include?("field_types") &&
         store_convergence.include?("enum_values") &&
         store_convergence.include?("indexes") &&
         store_convergence.include?("commands") &&
         store_convergence.include?("effects") &&
+        store_convergence.include?("relations") &&
+        store_convergence.include?("comments_by_article") &&
         store_convergence.include?("store_name_in_manifest") &&
         store_convergence.include?("manifest_generated_record_history_classes") &&
         store_convergence.include?("facade_input_ready")
@@ -3927,6 +3976,7 @@ module Companion
       descriptor = payload.fetch("descriptor")
       record = payload.fetch("record")
       history = payload.fetch("history")
+      relation = payload.fetch("relation")
       pressure = payload.fetch("pressure")
 
       payload.fetch("schema_version") == 1 &&
@@ -3940,10 +3990,11 @@ module Companion
         descriptor.fetch("substrate") == "igniter-store" &&
         descriptor.fetch("preserves") == { "persist" => "store_t", "history" => "history_t", "command" => "mutation_intent" } &&
         payload.fetch("status") == "stable" &&
-        payload.fetch("checks").length == 23 &&
+        payload.fetch("checks").length == 24 &&
         payload.fetch("checks").all? { |check| check.fetch("present") } &&
         record.fetch("generated_from_manifest") &&
         history.fetch("generated_from_manifest") &&
+        relation.fetch("generated_from_manifest") &&
         record.fetch("manifest_store_name_present") &&
         history.fetch("manifest_store_name_present") &&
         record.fetch("manifest_indexes").include?("status") &&
@@ -3952,6 +4003,10 @@ module Companion
         record.fetch("generated_command_names").include?("complete") &&
         record.fetch("generated_effect_names").include?("complete") &&
         record.fetch("generated_effect_store_ops").include?("store_write") &&
+        relation.fetch("manifest_relations").include?("comments_by_article") &&
+        relation.fetch("generated_relation_names").include?("comments_by_article") &&
+        relation.fetch("comments_relation_to") == "comments" &&
+        relation.fetch("store_side_join_execution") == false &&
         record.fetch("current_status") == "done" &&
         record.fetch("past_status") == "open" &&
         record.fetch("open_before_count") == 1 &&
@@ -3968,7 +4023,7 @@ module Companion
         history.fetch("partition_query_supported") &&
         history.fetch("partition_replay_count") == 2 &&
         history.fetch("partition_replay_values") == [7.0, 8.5] &&
-        pressure.fetch("next_question") == "relation_metadata" &&
+        pressure.fetch("next_question") == "store_projection_metadata" &&
         pressure.fetch("resolved").include?("manifest_generated_record_history_classes") &&
         pressure.fetch("resolved").include?("store_name_in_manifest") &&
         pressure.fetch("resolved").include?("companion_store_backed_app_flow") &&
@@ -3977,12 +4032,14 @@ module Companion
         pressure.fetch("resolved").include?("index_metadata") &&
         pressure.fetch("resolved").include?("command_metadata") &&
         pressure.fetch("resolved").include?("effect_metadata") &&
+        pressure.fetch("resolved").include?("relation_metadata") &&
         pressure.fetch("facade_input_ready").include?("storage_name") &&
         pressure.fetch("facade_input_ready").include?("field_types") &&
         pressure.fetch("facade_input_ready").include?("enum_values") &&
         pressure.fetch("facade_input_ready").include?("indexes") &&
         pressure.fetch("facade_input_ready").include?("commands") &&
         pressure.fetch("facade_input_ready").include?("effects") &&
+        pressure.fetch("facade_input_ready").include?("relations") &&
         pressure.fetch("facade_input_ready").include?("history_partition_key")
     end
 
@@ -4117,6 +4174,41 @@ module Companion
         package_gap.fetch("expected_api") == "_effects" &&
         pressure.fetch("next_question") == "relation_metadata" &&
         pressure.fetch("resolved") == "effect_metadata"
+    end
+
+    def setup_companion_relation_metadata_sidecar_endpoint?(companion_relation_metadata)
+      companion_relation_metadata.include?("kind=>:companion_relation_metadata_sidecar") &&
+        companion_relation_metadata.include?("status=>:stable") &&
+        companion_relation_metadata.include?("claim=>:portable_relation_metadata_shape") &&
+        companion_relation_metadata.include?("declaration=>:per_record_dsl_relation_keyword") &&
+        companion_relation_metadata.include?("resolved=>:relation_metadata") &&
+        companion_relation_metadata.include?("expected_api=>:_relations")
+    end
+
+    def setup_companion_relation_metadata_sidecar_json_endpoint?(companion_relation_metadata_json)
+      payload = JSON.parse(companion_relation_metadata_json)
+      descriptor = payload.fetch("descriptor")
+      records = payload.fetch("records")
+      package_gap = payload.fetch("package_gap")
+      pressure = payload.fetch("pressure")
+
+      payload.fetch("schema_version") == 1 &&
+        descriptor.fetch("kind") == "companion_relation_metadata_sidecar" &&
+        descriptor.fetch("report_only") &&
+        descriptor.fetch("gates_runtime") == false &&
+        descriptor.fetch("store_side_execution") == false &&
+        descriptor.fetch("declaration") == "per_record_dsl_relation_keyword" &&
+        payload.fetch("status") == "stable" &&
+        payload.fetch("checks").length == 12 &&
+        payload.fetch("checks").all? { |check| check.fetch("present") } &&
+        records.map { |record| record.fetch("contract") }.sort == %w[Article Reminder] &&
+        records.any? { |record| record.fetch("relation_count").positive? } &&
+        records.all? { |record| record.fetch("lowering_preserved") } &&
+        records.all? { |record| record.fetch("generated_relation_api_present") == true } &&
+        package_gap.fetch("status") == "closed" &&
+        package_gap.fetch("expected_api") == "_relations" &&
+        pressure.fetch("next_question") == "store_projection_metadata" &&
+        pressure.fetch("resolved") == "relation_metadata"
     end
 
     def setup_companion_receipt_projection_sidecar_endpoint?(companion_receipt_projection)

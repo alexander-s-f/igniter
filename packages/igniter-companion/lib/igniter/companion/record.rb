@@ -25,9 +25,9 @@ module Igniter
       module ClassMethods
         def store_name(name = nil)
           if name
-            @_store_name = name
+            @store_name = name
           else
-            @_store_name ||= self.name&.split("::")&.last&.downcase&.to_sym || :records
+            @store_name ||= self.name&.split("::")&.last&.downcase&.to_sym || :records
           end
         end
 
@@ -52,10 +52,16 @@ module Igniter
           @_commands[name] = attrs
         end
 
-        def _fields;   @_fields   ||= {}; end
-        def _scopes;   @_scopes   ||= {}; end
-        def _indexes;  @_indexes  ||= {}; end
-        def _commands; @_commands ||= {}; end
+        def relation(name, **attrs)
+          @_relations ||= {}
+          @_relations[name] = attrs
+        end
+
+        def _fields = @_fields ||= {}
+        def _scopes = @_scopes ||= {}
+        def _indexes = @_indexes ||= {}
+        def _commands = @_commands ||= {}
+        def _relations = @_relations ||= {}
 
         # Derived from _commands: maps each command to its store-level effect.
         # Applies the same operation → store_op mapping as the effect_intent plan.
@@ -68,10 +74,10 @@ module Igniter
         end
 
         EFFECT_KIND_MAP = {
-          record_append:  { store_op: :store_write,  write_kind: :insert, lowers_to: :store_t  },
-          record_update:  { store_op: :store_write,  write_kind: :update, lowers_to: :store_t  },
+          record_append: { store_op: :store_write,  write_kind: :insert, lowers_to: :store_t  },
+          record_update: { store_op: :store_write,  write_kind: :update, lowers_to: :store_t  },
           history_append: { store_op: :store_append, write_kind: :append, lowers_to: :history_t },
-          __unknown__:    { store_op: :none,          write_kind: :none,   lowers_to: :none     }
+          __unknown__: { store_op: :none, write_kind: :none, lowers_to: :none }
         }.freeze
 
         def from_fact(fact)
@@ -102,8 +108,8 @@ module Igniter
             attrs = field_def.fetch(:attributes, {})
             field field_def.fetch(:name),
                   default: attrs[:default],
-                  type:    attrs[:type],
-                  values:  attrs[:values]
+                  type: attrs[:type],
+                  values: attrs[:values]
           end
 
           manifest.fetch(:scopes, []).each do |scope_def|
@@ -122,6 +128,11 @@ module Igniter
           manifest.fetch(:commands, []).each do |command_def|
             attrs = command_def.fetch(:attributes, {})
             command command_def.fetch(:name), **attrs
+          end
+
+          manifest.fetch(:relations, []).each do |relation_def|
+            attrs = relation_def.fetch(:attributes, {})
+            relation relation_def.fetch(:name), **attrs
           end
         end
       end

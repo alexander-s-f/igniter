@@ -602,7 +602,7 @@ module IgniterExamples
         "companion_poc_live_ready=false",
         "companion_poc_open_reminders=2",
         "companion_poc_tracker_logs=1",
-        "companion_poc_countdowns=1",
+        "companion_poc_countdowns=2",
         "companion_poc_store_backend=sqlite",
         "companion_poc_store_file=true",
         "companion_poc_sqlite_persisted=true",
