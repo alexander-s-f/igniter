@@ -84,7 +84,7 @@ RSpec.describe Igniter::Store::FileBackend do
     expect(store.fact_count).to eq(0)
   end
 
-  describe "snapshot checkpoint", skip: (Igniter::Store::NATIVE ? "Rust FactLog does not yet expose all_facts — candidate pressure for Rust backend" : false) do
+  describe "snapshot checkpoint" do
     it "checkpoint + reopen returns all facts (pre-snapshot and post-snapshot)" do
       path = tmp_path
 
