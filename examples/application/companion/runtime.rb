@@ -144,6 +144,8 @@ module Companion
       companion_effect_metadata_json_status, _companion_effect_metadata_json_headers, companion_effect_metadata_json_body = app.call(rack_env("GET", "/setup/companion-effect-metadata-sidecar.json"))
       companion_relation_metadata_status, _companion_relation_metadata_headers, companion_relation_metadata_body = app.call(rack_env("GET", "/setup/companion-relation-metadata-sidecar"))
       companion_relation_metadata_json_status, _companion_relation_metadata_json_headers, companion_relation_metadata_json_body = app.call(rack_env("GET", "/setup/companion-relation-metadata-sidecar.json"))
+      companion_store_projection_metadata_status, _companion_store_projection_metadata_headers, companion_store_projection_metadata_body = app.call(rack_env("GET", "/setup/companion-store-projection-metadata-sidecar"))
+      companion_store_projection_metadata_json_status, _companion_store_projection_metadata_json_headers, companion_store_projection_metadata_json_body = app.call(rack_env("GET", "/setup/companion-store-projection-metadata-sidecar.json"))
       companion_receipt_projection_status, _companion_receipt_projection_headers, companion_receipt_projection_body = app.call(rack_env("GET", "/setup/companion-receipt-projection-sidecar"))
       companion_receipt_projection_json_status, _companion_receipt_projection_json_headers, companion_receipt_projection_json_body = app.call(rack_env("GET", "/setup/companion-receipt-projection-sidecar.json"))
       companion_store_server_topology_status, _companion_store_server_topology_headers, companion_store_server_topology_body = app.call(rack_env("GET", "/setup/companion-store-server-topology-sidecar"))
@@ -267,6 +269,8 @@ module Companion
       companion_effect_metadata_json = companion_effect_metadata_json_body.join
       companion_relation_metadata = companion_relation_metadata_body.join
       companion_relation_metadata_json = companion_relation_metadata_json_body.join
+      companion_store_projection_metadata = companion_store_projection_metadata_body.join
+      companion_store_projection_metadata_json = companion_store_projection_metadata_json_body.join
       companion_receipt_projection = companion_receipt_projection_body.join
       companion_receipt_projection_json = companion_receipt_projection_json_body.join
       companion_store_server_topology = companion_store_server_topology_body.join
@@ -410,6 +414,8 @@ module Companion
       out.puts "companion_poc_setup_companion_effect_metadata_sidecar_json_status=#{companion_effect_metadata_json_status}"
       out.puts "companion_poc_setup_companion_relation_metadata_sidecar_status=#{companion_relation_metadata_status}"
       out.puts "companion_poc_setup_companion_relation_metadata_sidecar_json_status=#{companion_relation_metadata_json_status}"
+      out.puts "companion_poc_setup_companion_store_projection_metadata_sidecar_status=#{companion_store_projection_metadata_status}"
+      out.puts "companion_poc_setup_companion_store_projection_metadata_sidecar_json_status=#{companion_store_projection_metadata_json_status}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_status=#{companion_receipt_projection_status}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_json_status=#{companion_receipt_projection_json_status}"
       out.puts "companion_poc_setup_companion_store_server_topology_sidecar_status=#{companion_store_server_topology_status}"
@@ -531,6 +537,8 @@ module Companion
       out.puts "companion_poc_setup_companion_effect_metadata_sidecar_json_endpoint=#{setup_companion_effect_metadata_sidecar_json_endpoint?(companion_effect_metadata_json)}"
       out.puts "companion_poc_setup_companion_relation_metadata_sidecar_endpoint=#{setup_companion_relation_metadata_sidecar_endpoint?(companion_relation_metadata)}"
       out.puts "companion_poc_setup_companion_relation_metadata_sidecar_json_endpoint=#{setup_companion_relation_metadata_sidecar_json_endpoint?(companion_relation_metadata_json)}"
+      out.puts "companion_poc_setup_companion_store_projection_metadata_sidecar_endpoint=#{setup_companion_store_projection_metadata_sidecar_endpoint?(companion_store_projection_metadata)}"
+      out.puts "companion_poc_setup_companion_store_projection_metadata_sidecar_json_endpoint=#{setup_companion_store_projection_metadata_sidecar_json_endpoint?(companion_store_projection_metadata_json)}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_endpoint=#{setup_companion_receipt_projection_sidecar_endpoint?(companion_receipt_projection)}"
       out.puts "companion_poc_setup_companion_receipt_projection_sidecar_json_endpoint=#{setup_companion_receipt_projection_sidecar_json_endpoint?(companion_receipt_projection_json)}"
       out.puts "companion_poc_setup_companion_store_server_topology_sidecar_endpoint=#{setup_companion_store_server_topology_sidecar_endpoint?(companion_store_server_topology)}"
@@ -640,6 +648,7 @@ module Companion
       out.puts "companion_poc_companion_command_metadata_sidecar_contract=#{companion_command_metadata_sidecar_contract?}"
       out.puts "companion_poc_companion_effect_metadata_sidecar_contract=#{companion_effect_metadata_sidecar_contract?}"
       out.puts "companion_poc_companion_relation_metadata_sidecar_contract=#{companion_relation_metadata_sidecar_contract?}"
+      out.puts "companion_poc_companion_store_projection_metadata_sidecar_contract=#{companion_store_projection_metadata_sidecar_contract?}"
       out.puts "companion_poc_companion_receipt_projection_sidecar_contract=#{companion_receipt_projection_sidecar_contract?}"
       out.puts "companion_poc_companion_store_server_topology_sidecar_contract=#{companion_store_server_topology_sidecar_contract?}"
       out.puts "companion_poc_setup_handoff_contract=#{setup_handoff_contract?}"
@@ -2079,7 +2088,7 @@ module Companion
         relation.fetch(:generated_relation_names).include?(:comments_by_article) &&
         relation.fetch(:comments_relation_to) == :comments &&
         relation.fetch(:store_side_join_execution) == false &&
-        pressure.fetch(:next_question) == :store_projection_metadata &&
+        pressure.fetch(:next_question) == :projection_descriptor_mirroring &&
         pressure.fetch(:resolved).include?(:manifest_generated_record_history_classes) &&
         pressure.fetch(:resolved).include?(:store_name_in_manifest) &&
         pressure.fetch(:resolved).include?(:companion_store_backed_app_flow) &&
@@ -2089,6 +2098,7 @@ module Companion
         pressure.fetch(:resolved).include?(:command_metadata) &&
         pressure.fetch(:resolved).include?(:effect_metadata) &&
         pressure.fetch(:resolved).include?(:relation_metadata) &&
+        pressure.fetch(:resolved).include?(:app_projection_metadata_shape) &&
         pressure.fetch(:facade_input_ready).include?(:storage_name) &&
         pressure.fetch(:facade_input_ready).include?(:field_types) &&
         pressure.fetch(:facade_input_ready).include?(:enum_values) &&
@@ -2231,6 +2241,41 @@ module Companion
         package_gap.fetch(:declaration_strategy) == :per_record_contract_dsl &&
         pressure.fetch(:next_question) == :store_projection_metadata &&
         pressure.fetch(:resolved) == :relation_metadata
+    end
+
+    def companion_store_projection_metadata_sidecar_contract?
+      packet = Services::CompanionStoreProjectionMetadataSidecar.packet
+      descriptor = packet.fetch(:descriptor)
+      projections = packet.fetch(:projections)
+      package_gap = packet.fetch(:package_gap)
+      pressure = packet.fetch(:pressure)
+      checks = packet.fetch(:checks)
+
+      packet.fetch(:schema_version) == 1 &&
+        descriptor.fetch(:kind) == :companion_store_projection_metadata_sidecar &&
+        descriptor.fetch(:report_only) &&
+        descriptor.fetch(:gates_runtime) == false &&
+        descriptor.fetch(:store_side_execution) == false &&
+        descriptor.fetch(:query_planner_promise) == false &&
+        descriptor.fetch(:lowers_to) == :projection_descriptor &&
+        packet.fetch(:status) == :stable &&
+        checks.length == 14 &&
+        checks.all? { |check| check.fetch(:present) } &&
+        projections.map { |projection| projection.fetch(:name).to_s }.sort == %w[
+          activity_feed
+          countdown_read_model
+          materializer_approval_audit_trail
+          materializer_audit_trail
+          tracker_read_model
+        ] &&
+        projections.all? { |projection| projection.fetch(:lowers_to) == :projection_descriptor } &&
+        projections.all? { |projection| projection.fetch(:store_side_execution) == false } &&
+        projections.all? { |projection| projection.fetch(:query_planner_promise) == false } &&
+        package_gap.fetch(:status) == :open &&
+        package_gap.fetch(:expected_api) == :_projections &&
+        package_gap.fetch(:generated_projection_api_present) == false &&
+        pressure.fetch(:next_question) == :projection_descriptor_mirroring &&
+        pressure.fetch(:resolved) == :app_projection_metadata_shape
     end
 
     def companion_receipt_projection_sidecar_contract?
@@ -3951,7 +3996,7 @@ module Companion
         store_convergence.include?("past_status=>:open") &&
         store_convergence.include?("partition_query_supported=>true") &&
         store_convergence.include?("manifest_store_name_present=>true") &&
-        store_convergence.include?("next_question=>:store_projection_metadata") &&
+        store_convergence.include?("next_question=>:projection_descriptor_mirroring") &&
         store_convergence.include?("portable_field_types") &&
         store_convergence.include?("mutation_intent_to_app_boundary") &&
         store_convergence.include?("index_metadata") &&
@@ -3965,6 +4010,8 @@ module Companion
         store_convergence.include?("commands") &&
         store_convergence.include?("effects") &&
         store_convergence.include?("relations") &&
+        store_convergence.include?("projections") &&
+        store_convergence.include?("app_projection_metadata_shape") &&
         store_convergence.include?("comments_by_article") &&
         store_convergence.include?("store_name_in_manifest") &&
         store_convergence.include?("manifest_generated_record_history_classes") &&
@@ -4023,7 +4070,7 @@ module Companion
         history.fetch("partition_query_supported") &&
         history.fetch("partition_replay_count") == 2 &&
         history.fetch("partition_replay_values") == [7.0, 8.5] &&
-        pressure.fetch("next_question") == "store_projection_metadata" &&
+        pressure.fetch("next_question") == "projection_descriptor_mirroring" &&
         pressure.fetch("resolved").include?("manifest_generated_record_history_classes") &&
         pressure.fetch("resolved").include?("store_name_in_manifest") &&
         pressure.fetch("resolved").include?("companion_store_backed_app_flow") &&
@@ -4033,6 +4080,7 @@ module Companion
         pressure.fetch("resolved").include?("command_metadata") &&
         pressure.fetch("resolved").include?("effect_metadata") &&
         pressure.fetch("resolved").include?("relation_metadata") &&
+        pressure.fetch("resolved").include?("app_projection_metadata_shape") &&
         pressure.fetch("facade_input_ready").include?("storage_name") &&
         pressure.fetch("facade_input_ready").include?("field_types") &&
         pressure.fetch("facade_input_ready").include?("enum_values") &&
@@ -4040,6 +4088,7 @@ module Companion
         pressure.fetch("facade_input_ready").include?("commands") &&
         pressure.fetch("facade_input_ready").include?("effects") &&
         pressure.fetch("facade_input_ready").include?("relations") &&
+        pressure.fetch("facade_input_ready").include?("projections") &&
         pressure.fetch("facade_input_ready").include?("history_partition_key")
     end
 
@@ -4209,6 +4258,49 @@ module Companion
         package_gap.fetch("expected_api") == "_relations" &&
         pressure.fetch("next_question") == "store_projection_metadata" &&
         pressure.fetch("resolved") == "relation_metadata"
+    end
+
+    def setup_companion_store_projection_metadata_sidecar_endpoint?(companion_store_projection_metadata)
+      companion_store_projection_metadata.include?("kind=>:companion_store_projection_metadata_sidecar") &&
+        companion_store_projection_metadata.include?("status=>:stable") &&
+        companion_store_projection_metadata.include?("claim=>:portable_projection_metadata_shape") &&
+        companion_store_projection_metadata.include?("declaration=>:projection_contract_reads_and_relations") &&
+        companion_store_projection_metadata.include?("expected_api=>:_projections") &&
+        companion_store_projection_metadata.include?("next_question=>:projection_descriptor_mirroring")
+    end
+
+    def setup_companion_store_projection_metadata_sidecar_json_endpoint?(companion_store_projection_metadata_json)
+      payload = JSON.parse(companion_store_projection_metadata_json)
+      descriptor = payload.fetch("descriptor")
+      projections = payload.fetch("projections")
+      package_gap = payload.fetch("package_gap")
+      pressure = payload.fetch("pressure")
+
+      payload.fetch("schema_version") == 1 &&
+        descriptor.fetch("kind") == "companion_store_projection_metadata_sidecar" &&
+        descriptor.fetch("report_only") &&
+        descriptor.fetch("gates_runtime") == false &&
+        descriptor.fetch("store_side_execution") == false &&
+        descriptor.fetch("query_planner_promise") == false &&
+        descriptor.fetch("lowers_to") == "projection_descriptor" &&
+        payload.fetch("status") == "stable" &&
+        payload.fetch("checks").length == 14 &&
+        payload.fetch("checks").all? { |check| check.fetch("present") } &&
+        projections.map { |projection| projection.fetch("name") }.sort == %w[
+          activity_feed
+          countdown_read_model
+          materializer_approval_audit_trail
+          materializer_audit_trail
+          tracker_read_model
+        ] &&
+        projections.all? { |projection| projection.fetch("lowers_to") == "projection_descriptor" } &&
+        projections.all? { |projection| projection.fetch("store_side_execution") == false } &&
+        projections.all? { |projection| projection.fetch("query_planner_promise") == false } &&
+        package_gap.fetch("status") == "open" &&
+        package_gap.fetch("expected_api") == "_projections" &&
+        package_gap.fetch("generated_projection_api_present") == false &&
+        pressure.fetch("next_question") == "projection_descriptor_mirroring" &&
+        pressure.fetch("resolved") == "app_projection_metadata_shape"
     end
 
     def setup_companion_receipt_projection_sidecar_endpoint?(companion_receipt_projection)

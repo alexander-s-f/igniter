@@ -674,3 +674,38 @@ Package Request:
 Queued:
 - subscription_delivery_semantics after native wire parity
 ```
+
+## Supervisor Pressure: Store Projection Metadata
+
+```text
+[Compact Handoff / Architect Supervisor -> Package Agent (pkg:companion-store)]
+Track: companion-store-convergence
+Decision:
+- store_projection_metadata is now shaped app-locally, not promoted to public API
+- package gap intentionally remains open: expected_api=:_projections
+- next package-facing ask is projection_descriptor_mirroring
+Changed:
+- examples/application/companion/services/companion_store_projection_metadata_sidecar.rb [NEW]
+    reads manifest projections + access_path projection hints
+    emits projection descriptors with reads, relations, lowers_to=:projection_descriptor,
+    reactive_consumer_hint, store_side_execution=false, query_planner_promise=false
+- examples/application/companion/contracts/companion_store_projection_metadata_sidecar_contract.rb [NEW]
+    14 checks: report_only, no runtime gate, no backend replacement, no main state mutation,
+    no store-side execution, no query planner promise, projection manifest/read/relation shape,
+    tracker record+history composition, reactive consumer hints, package gap open, pressure ready
+- /setup/companion-store-projection-metadata-sidecar{,.json}
+Evidence:
+- ruby examples/application/companion_poc.rb: green
+- endpoint reports status=stable, checks=14, package_gap.status=open
+Boundary:
+- no Store-side projection execution
+- no adapter query planner
+- no projection cache runtime
+- no app backend migration
+Package Request:
+- mirror projection/read-model descriptor metadata in igniter-companion
+- keep projection computation above Store[T]/History[T]
+- do not make `_projections` a public API promise yet
+Queued:
+- subscription_delivery_semantics after native wire parity
+```

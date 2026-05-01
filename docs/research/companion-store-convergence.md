@@ -183,11 +183,15 @@ For app-local Companion:
 - `relation_metadata` now has a closed app-local pressure packet: app-local
   relation descriptors mirror into generated package Records as metadata-only
   `_relations`, preserving relation health/reporting above Store[T]/History[T].
+- `store_projection_metadata` now has an app-local pressure packet: Companion
+  projects existing `projection` manifests into metadata-only projection
+  descriptors (`reads`, `relations`, consumer hints) and intentionally keeps
+  the package `_projections` gap open.
 - StoreServer topology now has an app-local pressure packet. It does not execute
   network transport in the app POC; it records `NetworkBackend`/StoreServer as a
   backend-swap topology and keeps `native_wire_deserialization` as package gap.
-- Next package-facing pressure is `store_projection_metadata`; subscription delivery
-  semantics stay queued behind native wire parity.
+- Next package-facing pressure is `projection_descriptor_mirroring`;
+  subscription delivery semantics stay queued behind native wire parity.
 
 ## Non-Goals
 
@@ -208,13 +212,16 @@ and normalized receipts.
 [D] App-local Companion owns vocabulary pressure; igniter-companion owns typed
 developer surface; igniter-store owns fact substrate.
 [D] Current bridge proves manifest-generated Record/History bindings over
-Igniter::Companion::Store as a tiny sidecar proof, including partition replay
-and normalized receipts.
+Igniter::Companion::Store as a tiny sidecar proof, including partition replay,
+normalized receipts, relation metadata, and app-local projection descriptor
+shape.
 [R] Preserve `persist -> Store[T]`, `history -> History[T]`, and command ->
 mutation_intent -> app boundary.
 [R] Do not migrate full Companion storage or promote API from this note alone.
 [S] `/setup/store-convergence-sidecar.json` proves record/history fact-store
 round trip, partition replay, and normalized receipt metadata.
-Next: mirror command metadata into the package facade before effect/relation
-metadata or a broader adapter slice.
+[S] `/setup/companion-store-projection-metadata-sidecar.json` proves
+projection descriptor shape and reports package_gap=:open for `_projections`.
+Next: mirror projection metadata in the package facade without query planner,
+adapter projection execution, or app backend migration.
 ```

@@ -103,7 +103,9 @@ state until that older POC document is rotated or compacted.
 Immediate package-facing pressure from Companion is now:
 
 ```text
-store_projection_metadata
+projection_descriptor_mirroring
+  -> app-local Companion now exposes store_projection_metadata as a stable
+     pressure packet with package_gap=:open for _projections
   -> mirror read/projection descriptor shape after Record/History metadata
   -> no query planner or adapter projection execution yet
   -> keep projections inspectable above Store[T] / History[T]

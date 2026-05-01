@@ -320,6 +320,10 @@ module Companion
         Services::CompanionRelationMetadataSidecar.packet
       end
 
+      def companion_store_projection_metadata_sidecar
+        Services::CompanionStoreProjectionMetadataSidecar.packet
+      end
+
       def companion_receipt_projection_sidecar
         Services::CompanionReceiptProjectionSidecar.packet
       end

@@ -261,6 +261,10 @@ Best next move:
 - use `/setup/store-convergence-sidecar.json` before discussing package-level
   store adapter slices, fact receipts, partition replay, or package facade
   descriptor mirroring
+- use `/setup/companion-store-projection-metadata-sidecar.json` before
+  discussing projection/read-model descriptor mirroring; it is stable
+  app-local pressure and intentionally reports package_gap=:open for
+  `_projections`
 - use `/setup/handoff.json` as the first read after context rotation
 - use `/setup/handoff/digest.txt` as the compact human handoff, or
   `/setup/handoff/digest.json` as the structured agent map before
