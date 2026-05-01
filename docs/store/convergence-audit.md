@@ -613,7 +613,7 @@ Changed:
     reports package_gap=:closed
     store_convergence_sidecar pressure.next_question=:reactive_derivation
 Evidence:
-- packages/igniter-store/spec: 200 examples, 0 failures
+- packages/igniter-store/spec: 221 examples, 0 failures
 - packages/igniter-companion/spec: 47 examples, 0 failures
 - companion_poc convergence/projection/topology runtime predicates are true
 Boundary:
@@ -640,7 +640,7 @@ Changed:
 - IgniterStore#set_retention, compact, compaction_receipts
 - IgniterStore#register_scatter with partition_by -> target_store index entry
 Evidence:
-- packages/igniter-store/spec: 200 examples, 0 failures
+- packages/igniter-store/spec: 221 examples, 0 failures
 - compaction receipts are written to :__compaction_receipts before log rebuild
 - compaction keeps latest per key and clears cache/scope/history indices
 - scatter accumulates per-partition index facts and coexists with gather
@@ -671,7 +671,7 @@ Changed:
     facade_input_ready += derivation_rules, scatter_rules
     next_question = relation_rule_dsl
 Evidence:
-- packages/igniter-store/spec: 200 examples, 0 failures
+- packages/igniter-store/spec: 221 examples, 0 failures
 - packages/igniter-companion/spec: 47 examples, 0 failures
 Boundary:
 - this is a facade bridge, not yet relation DSL lowering
@@ -680,6 +680,33 @@ Boundary:
 Next:
 - prove a relation declaration can lower to a gather/scatter rule descriptor
   without making Store responsible for business relation semantics
+```
+
+## Return Packet: Store RelationRule Primitive
+
+```text
+[Compact Handoff / Package Agent (pkg:companion-store) -> Architect Supervisor]
+Track: relation-rule-dsl
+Status:
+- relation_rule_dsl advanced from pressure to first Store package primitive
+Changed:
+- Igniter::Store::RelationRule(name, source, partition, target)
+- IgniterStore#register_relation(name, source:, partition:, target:)
+- IgniterStore#resolve(name, from:)
+- SchemaGraph relation registry + relation_snapshot
+- CompanionStore register_relation/resolve/_relations facade
+Evidence:
+- packages/igniter-store/spec: 221 examples, 0 failures
+- packages/igniter-companion/spec: 47 examples, 0 failures
+- companion_poc convergence/projection/topology predicates are true
+Boundary:
+- relation index is G-Set append-only over :__rel_<name>
+- target is metadata/informational; Store does not enforce FK/cardinality
+- resolve returns current source values, not typed app records yet
+- app contract relation DSL lowering is not proven
+Next:
+- decide app-local lowering from relation descriptors to RelationRule while
+  preserving relation semantics above Store[T]/History[T]
 ```
 
 ## Supervisor Pressure: Store SchemaGraph Metadata Snapshot

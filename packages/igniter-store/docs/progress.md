@@ -60,6 +60,9 @@ Network backend
   relation/read-model indexes, with cycle protection separate from gather rules.
 - `RetentionPolicy` and `compact` add first hot-log lifecycle control:
   permanent, ephemeral, and rolling-window retention with compaction receipts.
+- `RelationRule` adds the first named relation primitive over Store facts:
+  `register_relation`, auto scatter index `__rel_<name>`, `resolve`, and
+  `relation_snapshot`.
 - File durability moved from old JSONL POC thinking to CRC32-framed WAL.
 - Snapshot checkpoint/replay exists across the current Ruby/native-aware package
   surface.
@@ -72,7 +75,7 @@ Network backend
 
 ## Current Test Signal
 
-- `packages/igniter-store`: 200 examples, 0 failures.
+- `packages/igniter-store`: 221 examples, 0 failures.
 - `packages/igniter-companion`: 47 examples, 0 failures.
 
 ## Architecture Meaning
@@ -122,8 +125,10 @@ reactive_derivation
   -> resolved as package substrate: Store has DerivationRule, ScatterRule,
      derivation_snapshot, scatter_snapshot, retention_snapshot, and lineage(...)
   -> CompanionStore now exposes register_scatter and _scatters
-  -> next pressure is relation_rule_dsl: decide how relation declarations map
-     to gather/scatter rules without moving business contract logic into Store
+  -> relation_rule_dsl now has a package primitive: RelationRule +
+     register_relation/resolve/relation_snapshot
+  -> next pressure is app/contract lowering: decide how app relation
+     declarations map to RelationRule without moving business semantics into Store
 ```
 
 Store-side pressure after index metadata:
