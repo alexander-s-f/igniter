@@ -24,6 +24,16 @@ Status: POC package, not stable API, not wired into core.
 - cluster consensus
 - materializer execution
 
+## Docs
+
+See [`docs/`](docs/) for specifications, progress records, and design iteration history:
+
+- [docs/poc-specification.md](docs/poc-specification.md) — POC spec
+- [docs/server-model.md](docs/server-model.md) — StoreServer + NetworkBackend design
+- [docs/relations-specification.md](docs/relations-specification.md) — relation manifests
+- [docs/progress.md](docs/progress.md) — progress summary
+- [docs/research/](docs/research/) — design iteration history
+
 ## Why `igniter-store`
 
 This package is broader than persistence. The research direction includes
@@ -346,8 +356,8 @@ partition index, cache) from the replayed facts — identical to the `:file` pat
 
 ## Research Track
 
-- [Contract-Native Store Research](../../docs/research/contract-native-store-research.md)
-- [Contract-Native Store POC](../../docs/research/contract-native-store-poc.md)
-- [Contract-Native Store Sync Hub](../../docs/research/contract-native-store-sync-hub.md)
+- [Contract-Native Store Research](docs/research/store-iterations.md)
+- [Contract-Native Store POC](docs/poc-specification.md)
+- [Contract-Native Store Sync Hub](docs/research/sync-hub-iterations.md)
 - [Contract Persistence Development Track](../../docs/research/contract-persistence-development-track.md)
-- [Contract-Native Store: Server Model](../../docs/research/contract-native-store-server-model.md)
+- [Contract-Native Store: Server Model](docs/server-model.md)

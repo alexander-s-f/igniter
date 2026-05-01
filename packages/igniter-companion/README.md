@@ -28,6 +28,15 @@ examples/application/companion   ←── app-level contracts, manifests, mater
 **Convergence point**: when `PersistenceSketchPack` in `examples/application/companion`
 drives its records through `Igniter::Companion::Store` instead of blob-JSON in SQLite.
 
+## Docs
+
+See [`docs/`](docs/) for status summaries, manifest glossary, and performance signals:
+
+- [docs/current-status.md](docs/current-status.md) — current implementation status
+- [docs/app-status.md](docs/app-status.md) — app-local persistence proof status
+- [docs/manifest-glossary.md](docs/manifest-glossary.md) — persistence manifest glossary
+- [docs/performance.md](docs/performance.md) — contract performance signal notes
+
 ---
 
 ## Architecture
