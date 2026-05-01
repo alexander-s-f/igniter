@@ -47,9 +47,15 @@ module Igniter
           @_indexes[name] = { fields: Array(fields).map(&:to_sym), unique: unique }
         end
 
-        def _fields;  @_fields  ||= {}; end
-        def _scopes;  @_scopes  ||= {}; end
-        def _indexes; @_indexes ||= {}; end
+        def command(name, **attrs)
+          @_commands ||= {}
+          @_commands[name] = attrs
+        end
+
+        def _fields;   @_fields   ||= {}; end
+        def _scopes;   @_scopes   ||= {}; end
+        def _indexes;  @_indexes  ||= {}; end
+        def _commands; @_commands ||= {}; end
 
         def from_fact(fact)
           new(key: fact.key, **fact.value)
@@ -94,6 +100,11 @@ module Igniter
             index index_def.fetch(:name),
                   fields: fields,
                   unique: attrs.fetch(:unique, false)
+          end
+
+          manifest.fetch(:commands, []).each do |command_def|
+            attrs = command_def.fetch(:attributes, {})
+            command command_def.fetch(:name), **attrs
           end
         end
       end

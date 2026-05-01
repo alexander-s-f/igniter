@@ -444,3 +444,47 @@ Queued:
 - relation metadata after command/effect descriptors
 - subscription_delivery_semantics after native wire parity
 ```
+
+## Return Packet: Command Metadata
+
+```text
+[Compact Handoff / Package Agent (pkg:companion-store) -> Architect Supervisor]
+Track: companion-store-convergence
+Changed:
+- packages/igniter-companion/lib/igniter/companion/record.rb
+    command(name, **attrs) DSL on ClassMethods
+    _commands reader returning { name => { operation:, changes:, ... } }
+    from_manifest mirrors manifest[:commands] into generated Record class
+- examples/application/companion/services/companion_command_metadata_sidecar.rb [NEW]
+    proof: command_count, commands (name/operation/changes/lowers_to), lowering_preserved
+    package_gap: status closed once _commands present
+    pressure: next_question=:effect_metadata, resolved=:command_metadata
+- examples/application/companion/contracts/companion_command_metadata_sidecar_contract.rb [NEW]
+    12 checks: report_only, no_runtime_gate, no_backend_replacement, no_main_state_mutation,
+    no_store_side_execution, manifest_commands_present, command_operations_declared,
+    command_lowering_preserved, generated_command_api_present, generated_command_names_match,
+    package_command_gap_closed, pressure_ready
+- examples/application/companion/services/companion_store.rb
+    companion_command_metadata_sidecar method
+- examples/application/companion/app_dsl.rb
+    snapshot entry + GET /setup/companion-command-metadata-sidecar{,.json} routes
+- examples/application/companion/runtime.rb
+    HTTP calls, body joins, status/endpoint out.puts, contract key,
+    companion_command_metadata_sidecar_contract? and endpoint validation methods
+Evidence:
+- igniter-companion: 47 specs, 0 failures
+- CompanionCommandMetadataSidecar.packet: stable, 12/12 checks, gap=closed
+- Reminder._commands.keys = [:complete], Article._commands.keys = [:publish]
+- lowering_preserved=true for all records
+- command_metadata lowers to :mutation_intent (no store-side execution)
+Resolved:
+- command_metadata: Record._commands + from_manifest mirroring, lowering verified
+New Pressure:
+- effect_metadata: manifest effect descriptors not yet mirrored (queued per Supervisor)
+Boundary Risk:
+- _commands is metadata-only; no store-side dispatch, no adapter action API — within boundary
+- store convergence sidecar's next_question still shows :command_metadata (Supervisor's domain to update)
+Needs:
+- Supervisor decision: proceed to effect_metadata or queue it and address relation_metadata first?
+- Should store convergence sidecar check command_metadata gap status (similar to record_index_metadata check)?
+```
