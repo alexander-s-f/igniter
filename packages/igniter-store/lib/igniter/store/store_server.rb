@@ -10,6 +10,7 @@ require "json"
 require_relative "wire_protocol"
 require_relative "server_config"
 require_relative "server_logger"
+require_relative "subscription_registry"
 
 module Igniter
   module Store
@@ -79,6 +80,7 @@ module Igniter
         # The server socket is bound and listening as soon as build_server returns.
         # Signal readiness here so wait_until_ready is race-free for callers that
         # connect before start_async is called.
+        @registry        = SubscriptionRegistry.new
         @ready_latch     = true
         @started_at      = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         # Cache the bind address string now while the socket is guaranteed open,
@@ -178,6 +180,11 @@ module Igniter
         @active_mutex.synchronize { @active }
       end
 
+      # Number of active push subscriptions for a given store name.
+      def subscription_count(store)
+        @registry.subscriber_count(store)
+      end
+
       # ── Private ──────────────────────────────────────────────────────────────
 
       private
@@ -214,7 +221,14 @@ module Igniter
           body = read_frame(socket)
           break unless body
 
-          req  = JSON.parse(body, symbolize_names: true)
+          req = JSON.parse(body, symbolize_names: true)
+
+          if req[:op] == "subscribe"
+            stores = (req[:stores] || []).map(&:to_s)
+            handle_subscription_mode(socket, stores)
+            break
+          end
+
           resp = dispatch(req)
           socket.write(encode_frame(JSON.generate(resp)))
           break if req[:op] == "close"
@@ -230,6 +244,28 @@ module Igniter
         @logger.debug("Connection closed (active=#{@active_mutex.synchronize { @active }})")
       end
 
+      def handle_subscription_mode(socket, stores)
+        write_mutex = Mutex.new
+        adapter = lambda do |fact|
+          frame = encode_frame(JSON.generate({ event: "fact_written", fact: fact.to_h }))
+          write_mutex.synchronize { socket.write(frame) }
+        end
+
+        # Ack before registering: no concurrent writes possible until after this line.
+        socket.write(encode_frame(JSON.generate({ ok: true })))
+        record = @registry.subscribe(stores: stores, &adapter)
+
+        loop do
+          body = read_frame(socket)
+          break unless body
+          break if JSON.parse(body, symbolize_names: true)[:op] == "close"
+        end
+      rescue IOError, Errno::ECONNRESET, Errno::EPIPE, Errno::EBADF
+        nil
+      ensure
+        @registry.unsubscribe(record)
+      end
+
       def dispatch(req)
         case req[:op]
         when "write_fact"
@@ -238,6 +274,7 @@ module Igniter
             @backend&.write_fact(fact)
             @in_memory_facts << fact
           end
+          @registry.fan_out(fact)
           { ok: true }
 
         when "replay"

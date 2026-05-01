@@ -26,10 +26,34 @@ module Igniter
     #
     # Direct usage:
     #   nb = Igniter::Store::NetworkBackend.new(address: "127.0.0.1:7400")
+    #
+    # Reactive push subscription (separate connection, background thread):
+    #   handle = nb.subscribe(stores: [:tasks]) { |fact| puts fact.key }
+    #   handle.close   # unsubscribes cleanly
     class NetworkBackend
       include WireProtocol
 
       class NetworkError < StandardError; end
+
+      # Handle returned by #subscribe. Call #close to unsubscribe.
+      class Subscription
+        include WireProtocol
+
+        def initialize(socket, thread)
+          @socket = socket
+          @thread = thread
+        end
+
+        def close
+          begin
+            @socket.write(encode_frame(JSON.generate({ op: "close" })))
+          rescue IOError, Errno::EPIPE, Errno::ECONNRESET
+            nil
+          end
+          @socket.close rescue nil
+          @thread.kill rescue nil
+        end
+      end
 
       def initialize(address:, transport: :tcp)
         @address   = address
@@ -54,6 +78,40 @@ module Igniter
       def write_snapshot(facts)
         rpc("write_snapshot", facts: facts.map(&:to_h))
         nil
+      end
+
+      # Opens a dedicated second connection for push events and registers a handler.
+      # The main RPC connection is unaffected.
+      # Returns a Subscription handle; call handle.close to unsubscribe.
+      def subscribe(stores:, &callback)
+        raise ArgumentError, "subscribe requires a block" unless callback
+
+        sub_socket = connect
+        stores_s   = Array(stores).map(&:to_s)
+        sub_socket.write(encode_frame(JSON.generate({ op: "subscribe", stores: stores_s })))
+
+        body = read_frame(sub_socket)
+        raise NetworkError, "Subscribe: server closed connection" unless body
+        resp = JSON.parse(body, symbolize_names: true)
+        raise NetworkError, resp[:error] unless resp[:ok]
+
+        thread = Thread.new(sub_socket) do |sock|
+          Thread.current.abort_on_exception = false
+          loop do
+            body = read_frame(sock)
+            break unless body
+            event = JSON.parse(body, symbolize_names: true)
+            next unless event[:event] == "fact_written"
+            fact = decode_fact(event[:fact])
+            callback.call(fact) rescue nil
+          end
+        rescue IOError, Errno::ECONNRESET, Errno::EPIPE, Errno::EBADF
+          nil
+        ensure
+          sock.close rescue nil
+        end
+
+        Subscription.new(sub_socket, thread)
       end
 
       def close

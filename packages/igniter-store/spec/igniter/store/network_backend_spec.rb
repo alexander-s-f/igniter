@@ -218,4 +218,99 @@ RSpec.describe "NetworkBackend + StoreServer",
       expect(facts.size).to eq(20)
     end
   end
+
+  describe "subscribe / push" do
+    it "delivers fact_written events to subscriber" do
+      port = free_port
+      @server, = start_server(port)
+
+      received = []
+      sub = client_backend(port)
+      handle = sub.subscribe(stores: [:tasks]) { |f| received << f }
+
+      writer = client_backend(port)
+      writer.write_fact(Igniter::Store::Fact.build(store: :tasks, key: "t1", value: { n: 1 }))
+      sleep 0.05
+
+      expect(received.size).to eq(1)
+      expect(received.first.key).to eq("t1")
+      expect(received.first.store).to eq(:tasks)
+
+      handle.close
+      writer.close
+    end
+
+    it "does not deliver facts for stores not subscribed to" do
+      port = free_port
+      @server, = start_server(port)
+
+      received = []
+      sub    = client_backend(port)
+      handle = sub.subscribe(stores: [:reminders]) { |f| received << f }
+
+      writer = client_backend(port)
+      writer.write_fact(Igniter::Store::Fact.build(store: :tasks, key: "t1", value: {}))
+      sleep 0.05
+
+      expect(received).to be_empty
+
+      handle.close
+      writer.close
+    end
+
+    it "one subscription covers multiple stores" do
+      port = free_port
+      @server, = start_server(port)
+
+      received = []
+      sub    = client_backend(port)
+      handle = sub.subscribe(stores: [:tasks, :reminders]) { |f| received << f.store }
+
+      writer = client_backend(port)
+      writer.write_fact(Igniter::Store::Fact.build(store: :tasks,     key: "t1", value: {}))
+      writer.write_fact(Igniter::Store::Fact.build(store: :reminders, key: "r1", value: {}))
+      writer.write_fact(Igniter::Store::Fact.build(store: :other,     key: "o1", value: {}))
+      sleep 0.05
+
+      expect(received.sort).to eq(%i[reminders tasks])
+
+      handle.close
+      writer.close
+    end
+
+    it "multiple subscribers each receive the fact" do
+      port = free_port
+      @server, = start_server(port)
+
+      buckets = Array.new(3) { [] }
+      handles = buckets.map do |bucket|
+        nb = client_backend(port)
+        nb.subscribe(stores: [:items]) { |f| bucket << f.key }
+      end
+      sleep 0.05
+
+      writer = client_backend(port)
+      writer.write_fact(Igniter::Store::Fact.build(store: :items, key: "x", value: {}))
+      sleep 0.05
+
+      buckets.each { |b| expect(b).to eq(["x"]) }
+
+      handles.each(&:close)
+      writer.close
+    end
+
+    it "subscription_count drops to zero after handle.close" do
+      port = free_port
+      @server, = start_server(port)
+
+      sub    = client_backend(port)
+      handle = sub.subscribe(stores: [:tasks]) { }
+      sleep 0.05
+      expect(@server.subscription_count(:tasks)).to eq(1)
+
+      handle.close
+      sleep 0.05
+      expect(@server.subscription_count(:tasks)).to eq(0)
+    end
+  end
 end

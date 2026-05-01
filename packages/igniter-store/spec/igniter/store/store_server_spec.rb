@@ -267,4 +267,78 @@ RSpec.describe "StoreServer + ServerConfig + ServerLogger",
       FileUtils.rm_rf(dir)
     end
   end
+
+  describe "SubscriptionRegistry / push" do
+    it "subscription_count reflects connected subscribers" do
+      port    = free_port
+      @server = start(port)
+
+      sub = client(port)
+      handle = sub.subscribe(stores: [:tasks]) { }
+      sleep 0.05
+      expect(@server.subscription_count(:tasks)).to eq(1)
+
+      handle.close
+      sleep 0.05
+      expect(@server.subscription_count(:tasks)).to eq(0)
+    end
+
+    it "delivers fact_written events to a subscriber" do
+      port    = free_port
+      @server = start(port)
+
+      received = []
+      sub_nb   = client(port)
+      handle   = sub_nb.subscribe(stores: [:tasks]) { |f| received << f }
+
+      writer = client(port)
+      writer.write_fact(Igniter::Store::Fact.build(store: :tasks, key: "t1", value: { n: 1 }))
+      sleep 0.05
+
+      expect(received.size).to eq(1)
+      expect(received.first.key).to eq("t1")
+
+      handle.close
+      writer.close
+    end
+
+    it "does not deliver facts for unsubscribed stores" do
+      port    = free_port
+      @server = start(port)
+
+      received = []
+      sub_nb   = client(port)
+      handle   = sub_nb.subscribe(stores: [:reminders]) { |f| received << f }
+
+      writer = client(port)
+      writer.write_fact(Igniter::Store::Fact.build(store: :tasks, key: "t1", value: {}))
+      sleep 0.05
+
+      expect(received).to be_empty
+
+      handle.close
+      writer.close
+    end
+
+    it "fan-out reaches multiple subscribers" do
+      port    = free_port
+      @server = start(port)
+
+      buckets = Array.new(3) { [] }
+      handles = buckets.map do |bucket|
+        nb = client(port)
+        nb.subscribe(stores: [:items]) { |f| bucket << f.key }
+      end
+      sleep 0.05
+
+      writer = client(port)
+      writer.write_fact(Igniter::Store::Fact.build(store: :items, key: "x", value: {}))
+      sleep 0.05
+
+      buckets.each { |b| expect(b).to eq(["x"]) }
+
+      handles.each(&:close)
+      writer.close
+    end
+  end
 end
