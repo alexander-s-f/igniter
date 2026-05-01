@@ -82,7 +82,8 @@ Proved:
   through `Igniter::Companion::Store` and returns a normalized write receipt
 - the index metadata sidecar proves app manifests can normalize
   `index :status` into portable metadata and explain scope coverage without
-  promising SQL indexes; it also detects the current package gap
+  promising SQL indexes; the package gap is now closed by generated
+  `Record._indexes` metadata
 - the receipt projection sidecar proves package receipts should feed app action
   history through a small app receipt projection, not direct receipt consumption
 - the store-server topology sidecar proves the app/server boundary shape:
@@ -97,10 +98,10 @@ Proved:
 ## Pressure Points
 
 1. App-local Companion has richer manifests than `igniter-companion` classes.
-   The sidecar can now generate `field`, `scope`, and `partition_key` from
-   manifests through the package facade, but the facade still does not consume
-   the full descriptor vocabulary: portable field types, enum values, indexes,
-   command metadata, relation metadata, or manifest export.
+   The sidecar can now generate `field`, `scope`, `partition_key`, and
+   metadata-only `index` descriptors from manifests through the package facade,
+   but the facade still does not consume the full descriptor vocabulary:
+   command metadata, relation metadata, effect metadata, or manifest export.
 
 2. `igniter-store` has facts and access paths, but command intent still lives
    above it. R2d now says commands should keep lowering to `mutation_intent`,
@@ -121,11 +122,9 @@ Proved:
    is projection: action history receives a small app receipt, not substrate
    receipt internals.
 
-6. Index descriptors are present in app manifests and can be normalized as
-   portable metadata. `Igniter::Companion.from_manifest` does not yet expose a
-   generated record index metadata API, so the package-facing gap is now
-   precise: mirror manifest indexes as record metadata without promising SQL
-   indexes.
+6. Index descriptors are present in app manifests and now mirror into generated
+   package Records as metadata-only `_indexes`. This closes the first portable
+   descriptor gap without promising SQL indexes, migrations, or planner changes.
 
 7. Blob-JSON SQLite in the app remains a useful POC backend, but the next true
    convergence proof should be a tiny isolated adapter slice, not a full
@@ -147,10 +146,10 @@ For `igniter-store` research:
 For `igniter-companion` research:
 
 - `manifest_generated_record_history_classes`, `store_name_in_manifest`,
-  `companion_store_backed_app_flow`, `portable_field_types`, and
-  `mutation_intent_to_app_boundary` are resolved as report-only proofs. Next
-  package-facade pressure is `index_metadata`, followed by
-  command/effect metadata, and relation metadata.
+  `companion_store_backed_app_flow`, `portable_field_types`,
+  `mutation_intent_to_app_boundary`, and `index_metadata` are resolved as
+  report-only proofs. Next package-facade pressure is `command_metadata`,
+  followed by effect metadata and relation metadata.
 - Should `storage.name` remain the canonical capability identity, or should it
   later split into separate package store name and app capability name?
 - Which app-local descriptors should be mirrored first: field type, scope,
@@ -171,14 +170,14 @@ For app-local Companion:
   annotation-only metadata (`type`, `values`), without coercion.
 - Package write receipts feed action history through a small app receipt
   projection. Store internals stay evidence-only.
-- `index_metadata` now has an app-local pressure packet: manifests normalize
-  indexes and explain scope coverage; package generated classes still need an
-  index metadata surface.
+- `index_metadata` now has a closed app-local pressure packet: manifests
+  normalize indexes, explain scope coverage, and generated package Records
+  expose metadata-only `_indexes`.
 - StoreServer topology now has an app-local pressure packet. It does not execute
   network transport in the app POC; it records `NetworkBackend`/StoreServer as a
   backend-swap topology and keeps `native_wire_deserialization` as package gap.
-- Next package-facing pressure remains `index_metadata` until the package
-  facade mirrors manifest indexes.
+- Next package-facing pressure is `command_metadata`; subscription delivery
+  semantics stay queued behind native wire parity.
 
 ## Non-Goals
 
@@ -206,6 +205,6 @@ mutation_intent -> app boundary.
 [R] Do not migrate full Companion storage or promote API from this note alone.
 [S] `/setup/store-convergence-sidecar.json` proves record/history fact-store
 round trip, partition replay, and normalized receipt metadata.
-Next: decide the first additional manifest descriptor to mirror into the
-package facade before a broader adapter slice.
+Next: mirror command metadata into the package facade before effect/relation
+metadata or a broader adapter slice.
 ```

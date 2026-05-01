@@ -47,7 +47,7 @@ effect_intent_plan -> report-only store_write/store_append descriptor sketch
 effect_intent_health -> drift check for app-boundary typed effect intent
 store_convergence_sidecar -> manifest-generated Record/History over fact store
 companion_store_app_flow_sidecar -> isolated app-pattern Store write + receipt proof
-companion_index_metadata_sidecar -> manifest index descriptors + package metadata gap
+companion_index_metadata_sidecar -> manifest index descriptors + closed package _indexes metadata
 companion_receipt_projection_sidecar -> package receipt -> action history projection proof
 companion_store_server_topology_sidecar -> StoreServer topology/lifecycle/push + native wire gap proof
 performance_signal -> setup packet recomputation needs memoization/snapshot

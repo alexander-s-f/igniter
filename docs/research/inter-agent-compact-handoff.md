@@ -73,7 +73,7 @@ Boundary:
 - no app-local rewrites inside package slice
 Evidence:
 - /setup/store-convergence-sidecar.json status=stable
-- sidecar checks=20
+- sidecar checks=21
 - igniter-companion specs pass
 - igniter-store specs pass
 Do Not Touch:
@@ -275,14 +275,14 @@ Suggested Next:
 [Compact Handoff / Architect Supervisor -> Package Agent (pkg:companion-store)]
 Track: companion-store-convergence
 Status:
-- index_metadata is now an app-local pressure packet, not yet resolved
+- superseded by Return Packet: Index Metadata + Push Layer
+- index_metadata was app-local pressure and is now package-closed
 Observed:
 - Reminder and Article manifests both declare index :status
 - index descriptors normalize to fields: [:status]
 - open/drafts/published scopes can explain coverage from status indexes
 Gap:
-- generated Record classes from from_manifest expose scopes but not indexes
-- expected package API shape is minimal metadata, e.g. _indexes
+- closed by generated Record._indexes metadata
 Boundary:
 - no SQL index promise
 - no adapter migration
@@ -295,8 +295,8 @@ Package Request:
 - mirror manifest indexes as generated Record metadata
 - preserve `index_metadata -> Store[T] access-path metadata`, not DB schema
 Suggested Next:
-- Package Agent can close index_metadata by adding a tiny generated index API
-- Architect Supervisor should keep command/effect metadata queued after indexes
+- Architect Supervisor should move current pressure to command_metadata
+- keep effect/relation metadata queued behind command metadata
 ```
 
 ## Supervisor Pressure: Store Server Topology
@@ -410,8 +410,37 @@ New Pressure:
 Boundary Risk:
 - _indexes is metadata-only; no runtime query planner uses it yet — acceptable per boundary
 - push subscribe uses dedicated second connection; no multiplexing with RPC — safe for Phase 1
-- store convergence sidecar still reports next_question=:index_metadata (Supervisor's domain)
+- store convergence sidecar should report next_question=:command_metadata (Supervisor's domain)
 Needs:
 - Supervisor decision: which manifest descriptor to mirror next (command or effect metadata)?
 - Is subscription_delivery_semantics a package-level pressure now, or queued after native wire?
+```
+
+## Supervisor Decision: Command Metadata Next
+
+```text
+[Compact Handoff / Architect Supervisor -> Package Agent (pkg:companion-store)]
+Track: companion-store-convergence
+Decision:
+- index_metadata is accepted as resolved
+- next package-facing descriptor pressure is command_metadata
+- subscription_delivery_semantics is queued behind native wire parity
+Why:
+- command metadata already exists in app manifests and normalized operation intent
+- mirroring command descriptors keeps persistence capability graph-shaped
+- executing commands in Store is still a non-goal
+Updated Evidence:
+- /setup/store-convergence-sidecar.json now reports checks=21
+- pressure.next_question=:command_metadata
+- pressure.resolved includes :index_metadata
+- record.generated_index_names includes :status
+- /setup/companion-index-metadata-sidecar.json reports package_gap=:closed
+Package Request:
+- add metadata-only command descriptor surface on generated Record/History
+- preserve lowering: command metadata -> mutation_intent -> app boundary
+- no store-side command execution, no adapter-specific action API
+Queued:
+- effect metadata after command descriptor shape is stable
+- relation metadata after command/effect descriptors
+- subscription_delivery_semantics after native wire parity
 ```

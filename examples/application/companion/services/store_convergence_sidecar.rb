@@ -68,6 +68,8 @@ module Companion
           manifest_store_name_present: !manifest.dig(:storage, :name).nil?,
           manifest_fields: manifest.fetch(:fields).map { |field| field.fetch(:name) },
           manifest_scopes: manifest.fetch(:scopes).map { |scope| scope.fetch(:name) },
+          manifest_indexes: manifest.fetch(:indexes).map { |index| index.fetch(:name) },
+          generated_index_names: record_class.respond_to?(:_indexes) ? record_class._indexes.keys : [],
           read_title: read.title,
           current_status: current.status,
           past_status: past.status,
@@ -104,7 +106,7 @@ module Companion
 
       def pressure_report
         {
-          next_question: :index_metadata,
+          next_question: :command_metadata,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
           resolved: %i[
@@ -115,6 +117,7 @@ module Companion
             companion_store_backed_app_flow
             portable_field_types
             mutation_intent_to_app_boundary
+            index_metadata
           ],
           facade_input_ready: %i[
             storage_shape
@@ -124,15 +127,14 @@ module Companion
             field_defaults
             enum_values
             scopes
+            indexes
             history_partition_key
           ],
           asks: %i[
-            index_metadata
             command_effect_metadata
             relation_metadata
           ],
           recommended_order: %i[
-            index_metadata
             command_effects
             relations
           ]

@@ -100,14 +100,13 @@ state until that older POC document is rotated or compacted.
 
 ## Next Pressure
 
-Immediate package-facing pressure from Companion is still:
+Immediate package-facing pressure from Companion is now:
 
 ```text
-index_metadata
-  -> mirror manifest indexes as generated Record metadata
-  -> no SQL index promise
-  -> no adapter migration
-  -> keep scopes as access paths
+command_metadata
+  -> mirror manifest command/effect descriptors as generated facade metadata
+  -> no command execution in the store substrate
+  -> keep mutation_intent above Store[T] / History[T]
 ```
 
 Store-side pressure after index metadata:
