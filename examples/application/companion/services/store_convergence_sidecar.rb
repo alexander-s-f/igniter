@@ -72,6 +72,8 @@ module Companion
           manifest_commands: manifest.fetch(:commands).map { |command| command.fetch(:name) },
           generated_index_names: record_class.respond_to?(:_indexes) ? record_class._indexes.keys : [],
           generated_command_names: record_class.respond_to?(:_commands) ? record_class._commands.keys : [],
+          generated_effect_names: record_class.respond_to?(:_effects) ? record_class._effects.keys : [],
+          generated_effect_store_ops: record_class.respond_to?(:_effects) ? record_class._effects.values.map { |effect| effect.fetch(:store_op) } : [],
           read_title: read.title,
           current_status: current.status,
           past_status: past.status,
@@ -108,7 +110,7 @@ module Companion
 
       def pressure_report
         {
-          next_question: :effect_metadata,
+          next_question: :relation_metadata,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
           resolved: %i[
@@ -121,6 +123,7 @@ module Companion
             mutation_intent_to_app_boundary
             index_metadata
             command_metadata
+            effect_metadata
           ],
           facade_input_ready: %i[
             storage_shape
@@ -132,14 +135,13 @@ module Companion
             scopes
             indexes
             commands
+            effects
             history_partition_key
           ],
           asks: %i[
-            effect_metadata
             relation_metadata
           ],
           recommended_order: %i[
-            effects
             relations
           ]
         }

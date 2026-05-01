@@ -2036,7 +2036,7 @@ module Companion
         descriptor.fetch(:substrate) == :"igniter-store" &&
         descriptor.fetch(:preserves) == { persist: :store_t, history: :history_t, command: :mutation_intent } &&
         packet.fetch(:status) == :stable &&
-        packet.fetch(:checks).length == 22 &&
+        packet.fetch(:checks).length == 23 &&
         packet.fetch(:checks).all? { |check| check.fetch(:present) } &&
         record.fetch(:generated_from_manifest) &&
         history.fetch(:generated_from_manifest) &&
@@ -2062,7 +2062,9 @@ module Companion
         history.fetch(:manifest_store_name_present) &&
         record.fetch(:manifest_commands).include?(:complete) &&
         record.fetch(:generated_command_names).include?(:complete) &&
-        pressure.fetch(:next_question) == :effect_metadata &&
+        record.fetch(:generated_effect_names).include?(:complete) &&
+        record.fetch(:generated_effect_store_ops).include?(:store_write) &&
+        pressure.fetch(:next_question) == :relation_metadata &&
         pressure.fetch(:resolved).include?(:manifest_generated_record_history_classes) &&
         pressure.fetch(:resolved).include?(:store_name_in_manifest) &&
         pressure.fetch(:resolved).include?(:companion_store_backed_app_flow) &&
@@ -2070,11 +2072,13 @@ module Companion
         pressure.fetch(:resolved).include?(:mutation_intent_to_app_boundary) &&
         pressure.fetch(:resolved).include?(:index_metadata) &&
         pressure.fetch(:resolved).include?(:command_metadata) &&
+        pressure.fetch(:resolved).include?(:effect_metadata) &&
         pressure.fetch(:facade_input_ready).include?(:storage_name) &&
         pressure.fetch(:facade_input_ready).include?(:field_types) &&
         pressure.fetch(:facade_input_ready).include?(:enum_values) &&
         pressure.fetch(:facade_input_ready).include?(:indexes) &&
         pressure.fetch(:facade_input_ready).include?(:commands) &&
+        pressure.fetch(:facade_input_ready).include?(:effects) &&
         pressure.fetch(:facade_input_ready).include?(:history_partition_key)
     end
 
@@ -3901,16 +3905,18 @@ module Companion
         store_convergence.include?("past_status=>:open") &&
         store_convergence.include?("partition_query_supported=>true") &&
         store_convergence.include?("manifest_store_name_present=>true") &&
-        store_convergence.include?("next_question=>:effect_metadata") &&
+        store_convergence.include?("next_question=>:relation_metadata") &&
         store_convergence.include?("portable_field_types") &&
         store_convergence.include?("mutation_intent_to_app_boundary") &&
         store_convergence.include?("index_metadata") &&
         store_convergence.include?("command_metadata") &&
+        store_convergence.include?("effect_metadata") &&
         store_convergence.include?("companion_store_backed_app_flow") &&
         store_convergence.include?("field_types") &&
         store_convergence.include?("enum_values") &&
         store_convergence.include?("indexes") &&
         store_convergence.include?("commands") &&
+        store_convergence.include?("effects") &&
         store_convergence.include?("store_name_in_manifest") &&
         store_convergence.include?("manifest_generated_record_history_classes") &&
         store_convergence.include?("facade_input_ready")
@@ -3934,7 +3940,7 @@ module Companion
         descriptor.fetch("substrate") == "igniter-store" &&
         descriptor.fetch("preserves") == { "persist" => "store_t", "history" => "history_t", "command" => "mutation_intent" } &&
         payload.fetch("status") == "stable" &&
-        payload.fetch("checks").length == 22 &&
+        payload.fetch("checks").length == 23 &&
         payload.fetch("checks").all? { |check| check.fetch("present") } &&
         record.fetch("generated_from_manifest") &&
         history.fetch("generated_from_manifest") &&
@@ -3944,6 +3950,8 @@ module Companion
         record.fetch("generated_index_names").include?("status") &&
         record.fetch("manifest_commands").include?("complete") &&
         record.fetch("generated_command_names").include?("complete") &&
+        record.fetch("generated_effect_names").include?("complete") &&
+        record.fetch("generated_effect_store_ops").include?("store_write") &&
         record.fetch("current_status") == "done" &&
         record.fetch("past_status") == "open" &&
         record.fetch("open_before_count") == 1 &&
@@ -3960,7 +3968,7 @@ module Companion
         history.fetch("partition_query_supported") &&
         history.fetch("partition_replay_count") == 2 &&
         history.fetch("partition_replay_values") == [7.0, 8.5] &&
-        pressure.fetch("next_question") == "effect_metadata" &&
+        pressure.fetch("next_question") == "relation_metadata" &&
         pressure.fetch("resolved").include?("manifest_generated_record_history_classes") &&
         pressure.fetch("resolved").include?("store_name_in_manifest") &&
         pressure.fetch("resolved").include?("companion_store_backed_app_flow") &&
@@ -3968,11 +3976,13 @@ module Companion
         pressure.fetch("resolved").include?("mutation_intent_to_app_boundary") &&
         pressure.fetch("resolved").include?("index_metadata") &&
         pressure.fetch("resolved").include?("command_metadata") &&
+        pressure.fetch("resolved").include?("effect_metadata") &&
         pressure.fetch("facade_input_ready").include?("storage_name") &&
         pressure.fetch("facade_input_ready").include?("field_types") &&
         pressure.fetch("facade_input_ready").include?("enum_values") &&
         pressure.fetch("facade_input_ready").include?("indexes") &&
         pressure.fetch("facade_input_ready").include?("commands") &&
+        pressure.fetch("facade_input_ready").include?("effects") &&
         pressure.fetch("facade_input_ready").include?("history_partition_key")
     end
 

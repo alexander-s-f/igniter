@@ -560,6 +560,34 @@ Boundary Risk:
   (handled by EFFECT_KIND_MAP __unknown__ fallback; no silent data loss)
 - store convergence sidecar next_question may still show :effect_metadata (Supervisor's domain)
 Needs:
-- Supervisor decision: proceed to relation_metadata?
-- Should _effects include history_append effects (store_append) once a History contract declares them?
+- Supervisor decision now follows in the next packet
+- Store convergence should check effect metadata gap status in the central packet
+```
+
+## Supervisor Decision: Relation Metadata Next
+
+```text
+[Compact Handoff / Architect Supervisor -> Package Agent (pkg:companion-store)]
+Track: companion-store-convergence
+Decision:
+- effect_metadata is accepted as resolved
+- next package-facing descriptor pressure is relation_metadata
+- subscription_delivery_semantics stays queued behind native wire parity
+Why:
+- effects are derived metadata from _commands, not a new DSL surface
+- _effects preserves the lowering chain to store_write/store_append intent
+- relation descriptors are now the next unresolved manifest vocabulary
+Updated Evidence:
+- /setup/store-convergence-sidecar.json now reports checks=23
+- pressure.next_question=:relation_metadata
+- pressure.resolved includes :effect_metadata
+- record.generated_effect_names includes :complete
+- record.generated_effect_store_ops includes :store_write
+- /setup/companion-effect-metadata-sidecar.json reports package_gap=:closed
+Package Request:
+- add metadata-only relation descriptor surface on generated Record/History
+- preserve relation health/reporting above Store[T]/History[T]
+- no store-side joins, no adapter relation execution API
+Queued:
+- subscription_delivery_semantics after native wire parity
 ```

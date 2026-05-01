@@ -147,9 +147,9 @@ For `igniter-companion` research:
 
 - `manifest_generated_record_history_classes`, `store_name_in_manifest`,
   `companion_store_backed_app_flow`, `portable_field_types`,
-  `mutation_intent_to_app_boundary`, `index_metadata`, and `command_metadata`
-  are resolved as report-only proofs. Next package-facade pressure is
-  `effect_metadata`, followed by relation metadata.
+  `mutation_intent_to_app_boundary`, `index_metadata`, `command_metadata`, and
+  `effect_metadata` are resolved as report-only proofs. Next package-facade
+  pressure is `relation_metadata`.
 - Should `storage.name` remain the canonical capability identity, or should it
   later split into separate package store name and app capability name?
 - Which app-local descriptors should be mirrored first: field type, scope,
@@ -176,10 +176,14 @@ For app-local Companion:
 - `command_metadata` now has a closed app-local pressure packet: manifest
   commands mirror into generated package Records as metadata-only `_commands`
   and preserve `command -> mutation_intent -> app boundary`.
+- `effect_metadata` now has a closed app-local pressure packet: generated
+  package Records derive metadata-only `_effects` from `_commands`, preserving
+  `effect -> store_write/store_append intent -> app boundary` without store-side
+  execution.
 - StoreServer topology now has an app-local pressure packet. It does not execute
   network transport in the app POC; it records `NetworkBackend`/StoreServer as a
   backend-swap topology and keeps `native_wire_deserialization` as package gap.
-- Next package-facing pressure is `effect_metadata`; subscription delivery
+- Next package-facing pressure is `relation_metadata`; subscription delivery
   semantics stay queued behind native wire parity.
 
 ## Non-Goals
