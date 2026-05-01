@@ -1,6 +1,6 @@
 # Companion Current Status Summary
 
-Status date: 2026-04-30.
+Status date: 2026-05-01.
 Role: compact handoff for `[Architect Supervisor / Codex]`.
 Scope: Companion app-local proof only; no public persistence API promise.
 
@@ -51,10 +51,11 @@ companion_index_metadata_sidecar -> manifest index descriptors + closed package 
 companion_command_metadata_sidecar -> manifest command descriptors + closed package _commands metadata
 companion_effect_metadata_sidecar -> derived effect descriptors + closed package _effects metadata
 companion_relation_metadata_sidecar -> relation descriptors + closed package _relations metadata
-companion_store_projection_metadata_sidecar -> projection descriptors + open package _projections gap
+companion_store_projection_metadata_sidecar -> projection descriptors + closed package _projections gap
 companion_store_schema_graph_metadata_sidecar -> app scope paths + closed Store SchemaGraph metadata snapshot
 companion_receipt_projection_sidecar -> package receipt -> action history projection proof
 companion_store_server_topology_sidecar -> StoreServer topology/lifecycle/push + native wire gap proof
+store_reactive_derivation -> package DerivationRule + lineage proof substrate, app lowering not proven yet
 performance_signal -> setup packet recomputation needs memoization/snapshot
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
@@ -265,11 +266,13 @@ Best next move:
   descriptor mirroring
 - use `/setup/companion-store-projection-metadata-sidecar.json` before
   discussing projection/read-model descriptor mirroring; it is stable
-  app-local pressure and intentionally reports package_gap=:open for
-  `_projections`
+  app-local pressure and now reports package_gap=:closed for `_projections`
 - use `/setup/companion-store-schema-graph-metadata-sidecar.json` before
   discussing Store-side access-path metadata; it proves app scope paths lower to
   `SchemaGraph#metadata_snapshot` without query planner or backend migration
+- use Store derivation/lineage specs before treating `reactive_derivation` as
+  app-proven; the package substrate exists, but Companion lowering is still the
+  next slice
 - use `/setup/handoff.json` as the first read after context rotation
 - use `/setup/handoff/digest.txt` as the compact human handoff, or
   `/setup/handoff/digest.json` as the structured agent map before

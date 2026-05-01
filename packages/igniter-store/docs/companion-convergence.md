@@ -1,6 +1,6 @@
 # Companion / Store Convergence
 
-Status date: 2026-04-30.
+Status date: 2026-05-01.
 Role: compact cross-track note for `[Architect Supervisor / Codex]`.
 Scope: synchronization between the app-local Companion persistence proof,
 `packages/igniter-companion`, and `packages/igniter-store`.
@@ -96,6 +96,12 @@ Proved:
 - the same topology packet now tracks the new operational surface:
   `ServerConfig`, `ServerLogger`, `SubscriptionRegistry`, `wait_until_ready`,
   graceful drain, `stats`, and `subscribe/fact_written` push delivery
+- projection descriptors now mirror through the package facade:
+  `Igniter::Companion::Store#register_projection`, `_projections`, and Store
+  `SchemaGraph#projection_snapshot` close the `_projections` metadata gap
+- Store now has the first reactive derivation substrate:
+  `DerivationRule`, derivation registry/snapshot, and `lineage(store:, key:)`
+  with causation proof hash
 - the packet does not mutate main Companion state or replace the current app
   backend
 
@@ -187,10 +193,10 @@ For app-local Companion:
 - `relation_metadata` now has a closed app-local pressure packet: app-local
   relation descriptors mirror into generated package Records as metadata-only
   `_relations`, preserving relation health/reporting above Store[T]/History[T].
-- `store_projection_metadata` now has an app-local pressure packet: Companion
+- `store_projection_metadata` now has a closed pressure packet: Companion
   projects existing `projection` manifests into metadata-only projection
-  descriptors (`reads`, `relations`, consumer hints) and intentionally keeps
-  the package `_projections` gap open.
+  descriptors (`reads`, `relations`, consumer hints), and the package facade
+  exposes `_projections`.
 - `store_schema_graph_metadata_snapshot` is now closed as Store-side metadata
   evidence: app scope access paths lower into `Igniter::Store::SchemaGraph` and
   `metadata_snapshot` preserves store/scope/filter routing without exposing
@@ -198,8 +204,8 @@ For app-local Companion:
 - StoreServer topology now has an app-local pressure packet. It does not execute
   network transport in the app POC; it records `NetworkBackend`/StoreServer as a
   backend-swap topology and keeps `native_wire_deserialization` as package gap.
-- Next package-facing pressure is `projection_descriptor_mirroring`;
-  subscription delivery semantics stay queued behind native wire parity.
+- Next package-facing pressure is `reactive_derivation`; subscription delivery
+  semantics stay queued behind native wire/runtime readiness.
 
 ## Non-Goals
 
@@ -229,9 +235,10 @@ mutation_intent -> app boundary.
 [S] `/setup/store-convergence-sidecar.json` proves record/history fact-store
 round trip, partition replay, and normalized receipt metadata.
 [S] `/setup/companion-store-projection-metadata-sidecar.json` proves
-projection descriptor shape and reports package_gap=:open for `_projections`.
+projection descriptor shape and reports package_gap=:closed for `_projections`.
 [S] `/setup/companion-store-schema-graph-metadata-sidecar.json` proves app
 scope paths lower to Store `SchemaGraph#metadata_snapshot`.
-Next: mirror projection metadata in the package facade without query planner,
-adapter projection execution, or app backend migration.
+[S] Store package now exposes derivation metadata and lineage proof primitives.
+Next: prove reactive derivation from app projection/read-model intent without
+query planner, adapter projection execution, or app backend migration.
 ```

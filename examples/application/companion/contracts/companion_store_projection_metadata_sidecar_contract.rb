@@ -58,11 +58,12 @@ module Companion
           end),
           Companion::Contracts.check(:relation_metadata_linked, projections.all? { |projection| projection.fetch(:relation_metadata_linked) }),
           Companion::Contracts.check(:reactive_consumer_hints_present, projections.all? { |projection| projection.fetch(:reactive_consumer_hint) }),
-          Companion::Contracts.check(:package_projection_gap_open, package_gap.fetch(:status) == :open &&
-                                                                    package_gap.fetch(:expected_api) == :_projections &&
-                                                                    package_gap.fetch(:generated_projection_api_present) == false),
-          Companion::Contracts.check(:pressure_ready, pressure.fetch(:next_question) == :projection_descriptor_mirroring &&
-                                                      pressure.fetch(:resolved) == :app_projection_metadata_shape)
+          Companion::Contracts.check(:package_projection_registry_closed, package_gap.fetch(:status) == :closed &&
+                                                                          package_gap.fetch(:expected_api) == :_projections &&
+                                                                          package_gap.fetch(:generated_projection_api_present) == true),
+          Companion::Contracts.check(:pressure_ready, pressure.fetch(:next_question) == :reactive_derivation &&
+                                                      pressure.fetch(:resolved).include?(:app_projection_metadata_shape) &&
+                                                      pressure.fetch(:resolved).include?(:projection_descriptor_mirroring))
         ]
       end
 

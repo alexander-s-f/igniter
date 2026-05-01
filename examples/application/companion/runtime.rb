@@ -2097,7 +2097,7 @@ module Companion
         relation.fetch(:generated_relation_names).include?(:comments_by_article) &&
         relation.fetch(:comments_relation_to) == :comments &&
         relation.fetch(:store_side_join_execution) == false &&
-        pressure.fetch(:next_question) == :projection_descriptor_mirroring &&
+        pressure.fetch(:next_question) == :reactive_derivation &&
         pressure.fetch(:resolved).include?(:manifest_generated_record_history_classes) &&
         pressure.fetch(:resolved).include?(:store_name_in_manifest) &&
         pressure.fetch(:resolved).include?(:companion_store_backed_app_flow) &&
@@ -2109,6 +2109,7 @@ module Companion
         pressure.fetch(:resolved).include?(:relation_metadata) &&
         pressure.fetch(:resolved).include?(:app_projection_metadata_shape) &&
         pressure.fetch(:resolved).include?(:store_schema_graph_metadata_snapshot) &&
+        pressure.fetch(:resolved).include?(:projection_descriptor_mirroring) &&
         pressure.fetch(:facade_input_ready).include?(:storage_name) &&
         pressure.fetch(:facade_input_ready).include?(:field_types) &&
         pressure.fetch(:facade_input_ready).include?(:enum_values) &&
@@ -2116,6 +2117,8 @@ module Companion
         pressure.fetch(:facade_input_ready).include?(:commands) &&
         pressure.fetch(:facade_input_ready).include?(:effects) &&
         pressure.fetch(:facade_input_ready).include?(:relations) &&
+        pressure.fetch(:facade_input_ready).include?(:projections) &&
+        pressure.fetch(:facade_input_ready).include?(:schema_graph_metadata_snapshot) &&
         pressure.fetch(:facade_input_ready).include?(:history_partition_key)
     end
 
@@ -2281,11 +2284,12 @@ module Companion
         projections.all? { |projection| projection.fetch(:lowers_to) == :projection_descriptor } &&
         projections.all? { |projection| projection.fetch(:store_side_execution) == false } &&
         projections.all? { |projection| projection.fetch(:query_planner_promise) == false } &&
-        package_gap.fetch(:status) == :open &&
+        package_gap.fetch(:status) == :closed &&
         package_gap.fetch(:expected_api) == :_projections &&
-        package_gap.fetch(:generated_projection_api_present) == false &&
-        pressure.fetch(:next_question) == :projection_descriptor_mirroring &&
-        pressure.fetch(:resolved) == :app_projection_metadata_shape
+        package_gap.fetch(:generated_projection_api_present) == true &&
+        pressure.fetch(:next_question) == :reactive_derivation &&
+        pressure.fetch(:resolved).include?(:app_projection_metadata_shape) &&
+        pressure.fetch(:resolved).include?(:projection_descriptor_mirroring)
     end
 
     def companion_store_schema_graph_metadata_sidecar_contract?
@@ -2372,8 +2376,8 @@ module Companion
         network.fetch(:phase) == :native_wire_deserialization_pending &&
         package_gap.fetch(:status) == :open &&
         package_gap.fetch(:name) == :native_wire_deserialization &&
-        pressure.fetch(:next_question) == :network_backend_native_parity &&
-        pressure.fetch(:does_not_replace_current_pressure) == :index_metadata
+        pressure.fetch(:next_question) == :reactive_derivation &&
+        pressure.fetch(:resolved) == :network_backend_native_parity
     end
 
     def persistence_relation_manifest?
@@ -4037,7 +4041,7 @@ module Companion
         store_convergence.include?("past_status=>:open") &&
         store_convergence.include?("partition_query_supported=>true") &&
         store_convergence.include?("manifest_store_name_present=>true") &&
-        store_convergence.include?("next_question=>:projection_descriptor_mirroring") &&
+        store_convergence.include?("next_question=>:reactive_derivation") &&
         store_convergence.include?("portable_field_types") &&
         store_convergence.include?("mutation_intent_to_app_boundary") &&
         store_convergence.include?("index_metadata") &&
@@ -4054,6 +4058,8 @@ module Companion
         store_convergence.include?("projections") &&
         store_convergence.include?("app_projection_metadata_shape") &&
         store_convergence.include?("store_schema_graph_metadata_snapshot") &&
+        store_convergence.include?("projection_descriptor_mirroring") &&
+        store_convergence.include?("reactive_derivation") &&
         store_convergence.include?("schema_graph_metadata_snapshot") &&
         store_convergence.include?("comments_by_article") &&
         store_convergence.include?("store_name_in_manifest") &&
@@ -4113,7 +4119,7 @@ module Companion
         history.fetch("partition_query_supported") &&
         history.fetch("partition_replay_count") == 2 &&
         history.fetch("partition_replay_values") == [7.0, 8.5] &&
-        pressure.fetch("next_question") == "projection_descriptor_mirroring" &&
+        pressure.fetch("next_question") == "reactive_derivation" &&
         pressure.fetch("resolved").include?("manifest_generated_record_history_classes") &&
         pressure.fetch("resolved").include?("store_name_in_manifest") &&
         pressure.fetch("resolved").include?("companion_store_backed_app_flow") &&
@@ -4125,6 +4131,7 @@ module Companion
         pressure.fetch("resolved").include?("relation_metadata") &&
         pressure.fetch("resolved").include?("app_projection_metadata_shape") &&
         pressure.fetch("resolved").include?("store_schema_graph_metadata_snapshot") &&
+        pressure.fetch("resolved").include?("projection_descriptor_mirroring") &&
         pressure.fetch("facade_input_ready").include?("storage_name") &&
         pressure.fetch("facade_input_ready").include?("field_types") &&
         pressure.fetch("facade_input_ready").include?("enum_values") &&
@@ -4311,7 +4318,8 @@ module Companion
         companion_store_projection_metadata.include?("claim=>:portable_projection_metadata_shape") &&
         companion_store_projection_metadata.include?("declaration=>:projection_contract_reads_and_relations") &&
         companion_store_projection_metadata.include?("expected_api=>:_projections") &&
-        companion_store_projection_metadata.include?("next_question=>:projection_descriptor_mirroring")
+        companion_store_projection_metadata.include?("status=>:closed") &&
+        companion_store_projection_metadata.include?("next_question=>:reactive_derivation")
     end
 
     def setup_companion_store_projection_metadata_sidecar_json_endpoint?(companion_store_projection_metadata_json)
@@ -4341,11 +4349,12 @@ module Companion
         projections.all? { |projection| projection.fetch("lowers_to") == "projection_descriptor" } &&
         projections.all? { |projection| projection.fetch("store_side_execution") == false } &&
         projections.all? { |projection| projection.fetch("query_planner_promise") == false } &&
-        package_gap.fetch("status") == "open" &&
+        package_gap.fetch("status") == "closed" &&
         package_gap.fetch("expected_api") == "_projections" &&
-        package_gap.fetch("generated_projection_api_present") == false &&
-        pressure.fetch("next_question") == "projection_descriptor_mirroring" &&
-        pressure.fetch("resolved") == "app_projection_metadata_shape"
+        package_gap.fetch("generated_projection_api_present") == true &&
+        pressure.fetch("next_question") == "reactive_derivation" &&
+        pressure.fetch("resolved").include?("app_projection_metadata_shape") &&
+        pressure.fetch("resolved").include?("projection_descriptor_mirroring")
     end
 
     def setup_companion_store_schema_graph_metadata_sidecar_endpoint?(companion_store_schema_graph_metadata)
@@ -4457,8 +4466,8 @@ module Companion
         network.fetch("phase") == "native_wire_deserialization_pending" &&
         package_gap.fetch("status") == "open" &&
         package_gap.fetch("name") == "native_wire_deserialization" &&
-        pressure.fetch("next_question") == "network_backend_native_parity" &&
-        pressure.fetch("does_not_replace_current_pressure") == "index_metadata"
+        pressure.fetch("next_question") == "reactive_derivation" &&
+        pressure.fetch("resolved") == "network_backend_native_parity"
     end
 
     def post(app, path, values = {})

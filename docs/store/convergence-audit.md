@@ -592,6 +592,40 @@ Queued:
 - subscription_delivery_semantics after native wire parity
 ```
 
+## Return Packet: Projection Mirroring + Reactive Derivation
+
+```text
+[Compact Handoff / Architect Supervisor]
+Track: companion-store-convergence
+Status:
+- projection_descriptor_mirroring is now resolved as package metadata evidence
+- reactive_derivation is the active next pressure
+Changed:
+- packages/igniter-store:
+    AccessPath adds ProjectionPath and DerivationRule
+    SchemaGraph adds projection registry/snapshot and derivation registry/snapshot
+    IgniterStore adds register_projection, register_derivation, derivation runner,
+    and lineage(store:, key:) with derived_by + proof_hash evidence
+- packages/igniter-companion:
+    Store exposes register_projection and _projections over SchemaGraph
+- examples/application/companion:
+    companion_store_projection_metadata_sidecar now verifies _projections and
+    reports package_gap=:closed
+    store_convergence_sidecar pressure.next_question=:reactive_derivation
+Evidence:
+- packages/igniter-store/spec: 154 examples, 0 failures
+- packages/igniter-companion/spec: 47 examples, 0 failures
+- companion_poc convergence/projection/topology runtime predicates are true
+Boundary:
+- no query planner
+- no adapter projection execution
+- no app backend migration
+- derivation exists as Store substrate proof, not yet as Companion app lowering
+Next:
+- prove app projection/read-model intent can lower to DerivationRule without
+  moving business contract logic into Store
+```
+
 ## Supervisor Pressure: Store SchemaGraph Metadata Snapshot
 
 ```text

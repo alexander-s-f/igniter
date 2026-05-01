@@ -50,6 +50,12 @@ Network backend
   mutated.
 - `SchemaGraph#metadata_snapshot` exposes compact access-path routing metadata
   without leaking callback bodies or promising a query planner.
+- `SchemaGraph` now also registers projection descriptors and derivation rules
+  as inspectable metadata, still without becoming a query planner.
+- `ProjectionPath` mirrors app projection descriptors into Store-side graph
+  vocabulary.
+- `DerivationRule` proves the first reactive derivation shape with a lineage
+  API and causation proof hash.
 - File durability moved from old JSONL POC thinking to CRC32-framed WAL.
 - Snapshot checkpoint/replay exists across the current Ruby/native-aware package
   surface.
@@ -62,7 +68,7 @@ Network backend
 
 ## Current Test Signal
 
-- `packages/igniter-store`: 114 examples, 0 failures.
+- `packages/igniter-store`: 154 examples, 0 failures.
 - `packages/igniter-companion`: 47 examples, 0 failures.
 
 ## Architecture Meaning
@@ -101,13 +107,18 @@ Immediate package-facing pressure from Companion is now:
 
 ```text
 projection_descriptor_mirroring
-  -> app-local Companion now exposes store_projection_metadata as a stable
-     pressure packet with package_gap=:open for _projections
+  -> closed: app-local Companion projection descriptors now mirror through
+     igniter-companion into Store SchemaGraph projection_snapshot
   -> /setup/companion-store-schema-graph-metadata-sidecar.json now proves
      app scope access paths lower to Store SchemaGraph metadata_snapshot
-  -> mirror read/projection descriptor shape after Record/History metadata
   -> no query planner or adapter projection execution yet
   -> keep projections inspectable above Store[T] / History[T]
+
+reactive_derivation
+  -> active: prove whether projection/read-model updates can lower to
+     derivation metadata and normalized operation intent
+  -> Store already has DerivationRule, derivation_snapshot, and lineage(...)
+  -> next app pressure should avoid moving business contract logic into Store
 ```
 
 Store-side pressure after index metadata:
