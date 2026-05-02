@@ -13,6 +13,7 @@ Implementation specifications and progress records for the `igniter-store` packa
 | [segmented-storage-hardening-proposal.md](segmented-storage-hardening-proposal.md) | Next hardening slice for segmented WAL storage |
 | [storage-metadata-conformance-proposal.md](storage-metadata-conformance-proposal.md) | Conformance slice for storage metadata across backend/protocol/wire/MCP |
 | [package-agent-task-pack.md](package-agent-task-pack.md) | Sequential large-slice task pack for Package Agent |
+| [architect-supervisor-backlog.md](architect-supervisor-backlog.md) | Small local polish backlog for Architect Supervisor / Codex |
 | [rust-native-data-plane-plan.md](rust-native-data-plane-plan.md) | Rust/native data-plane migration plan for storage, codecs, indexes, and delivery |
 | [changefeed-events-plan.md](changefeed-events-plan.md) | Changefeed/events subsystem plan over committed facts |
 | [poc-specification.md](poc-specification.md) | Contract-native store proof-of-concept spec |
