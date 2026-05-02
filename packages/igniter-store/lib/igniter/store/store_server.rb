@@ -222,6 +222,46 @@ module Igniter
         @metrics.snapshot(backend: @backend)
       end
 
+      # Canonical observability snapshot — single source of truth for all transports.
+      #
+      # Canonical shape (same top-level keys across protocol, HTTP, MCP, and server):
+      #   schema_version, generated_at, status, uptime_ms, metrics, alerts, storage, server
+      #
+      # This is the full server+storage shape. For the compact health check shape
+      # use #health_snapshot. For the pure storage-level protocol shape use
+      # Protocol::Interpreter#observability_snapshot.
+      def observability_snapshot
+        snap = @metrics.snapshot(backend: @backend)
+        now  = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        {
+          schema_version: 1,
+          generated_at:   snap[:generated_at],
+          status:         @stopped ? :stopped : :ready,
+          uptime_ms:      ((@started_at ? now - @started_at : 0) * 1000).ceil,
+          metrics: {
+            requests_total:             snap[:requests_total],
+            errors_total:               snap[:errors_total],
+            facts_written:              snap[:facts_written],
+            facts_replayed:             snap[:facts_replayed],
+            bytes_in:                   snap[:bytes_in],
+            bytes_out:                  snap[:bytes_out],
+            active_connections:         snap[:active_connections],
+            accepted_connections_total: snap[:accepted_connections_total],
+            closed_connections_total:   snap[:closed_connections_total],
+            rejected_connections_total: snap[:rejected_connections_total],
+            subscription_count:         snap[:subscription_count]
+          },
+          alerts:  snap[:alerts],
+          storage: snap[:storage_stats],
+          server: {
+            backend:      @backend_type.to_s,
+            transport:    @transport_type.to_s,
+            bind_address: @bind_address_str,
+            last_error:   @last_error
+          }
+        }
+      end
+
       # Lazy Protocol::Interpreter for the envelope dispatch layer.
       # Owns a fresh IgniterStore independent of the legacy fact log.
       # HTTP and TCP adapters share this interpreter instance.
@@ -235,7 +275,8 @@ module Igniter
         http = http_port ? HTTPAdapter.new(
           interpreter:     protocol,
           port:            http_port,
-          health_provider: method(:health_snapshot)
+          health_provider: method(:health_snapshot),
+          status_provider: method(:observability_snapshot)
         ) : nil
         tcp  = tcp_port  ? TCPAdapter.new(interpreter: protocol, port: tcp_port)  : nil
         http&.start_async
@@ -399,8 +440,7 @@ module Igniter
           }
 
         when "server_status"
-          snap = @metrics.snapshot(backend: @backend)
-          { ok: true }.merge(snap)
+          { ok: true }.merge(observability_snapshot)
 
         when "ping"
           { ok: true, pong: true }

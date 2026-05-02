@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "digest"
+require "time"
 
 module Igniter
   module Store
@@ -16,9 +17,17 @@ module Igniter
           subscription: Handlers::SubscriptionHandler,
         }.freeze
 
-        def initialize(store)
-          @store    = store
-          @registry = {}  # content fingerprint → Receipt (dedup)
+        # Default thresholds for storage-level alerts in observability_snapshot.
+        # Override per-interpreter via alert_thresholds: at construction time.
+        DEFAULT_STORAGE_ALERT_THRESHOLDS = {
+          quarantine_receipt_count: 10,
+          storage_byte_size:        1_073_741_824   # 1 GiB
+        }.freeze
+
+        def initialize(store, alert_thresholds: {})
+          @store            = store
+          @registry         = {}  # content fingerprint → Receipt (dedup)
+          @alert_thresholds = DEFAULT_STORAGE_ALERT_THRESHOLDS.merge(alert_thresholds)
         end
 
         # Generic descriptor registration — dispatches by kind:.
@@ -219,7 +228,63 @@ module Igniter
           wire.dispatch(envelope)
         end
 
+        # ── Observability ─────────────────────────────────────────────────────
+
+        # Returns the canonical storage-level observability snapshot.
+        #
+        # Canonical shape (same top-level keys at every layer; server-only fields
+        # are nil at the protocol level):
+        #   schema_version, generated_at, status, uptime_ms (nil),
+        #   metrics (nil), alerts, storage, server (nil)
+        #
+        # storage-level alerts (quarantine_receipt_count, storage_byte_size) are
+        # checked against +alert_thresholds+ configured at construction time.
+        def observability_snapshot
+          storage = @store.storage_stats rescue nil
+          alerts  = check_storage_alerts(storage)
+          {
+            schema_version: 1,
+            generated_at:   Time.now.iso8601(3),
+            status:         :ready,
+            uptime_ms:      nil,
+            metrics:        nil,
+            alerts:         alerts,
+            storage:        storage,
+            server:         nil
+          }
+        end
+
         private
+
+        def check_storage_alerts(storage)
+          return [] unless storage
+          alerts = []
+          stores = storage["stores"] || {}
+
+          qc = stores.values.sum { |s| s["quarantine_receipt_count"].to_i }
+          t  = @alert_thresholds[:quarantine_receipt_count]
+          if t && qc > t
+            alerts << {
+              type:          :quarantine_receipt_count,
+              threshold:     t,
+              current_value: qc,
+              message:       "quarantine_receipt_count exceeded threshold: #{qc} > #{t}"
+            }
+          end
+
+          bs = stores.values.sum { |s| s["byte_size"].to_i }
+          t  = @alert_thresholds[:storage_byte_size]
+          if t && bs > t
+            alerts << {
+              type:          :storage_byte_size,
+              threshold:     t,
+              current_value: bs,
+              message:       "storage_byte_size exceeded threshold: #{bs} > #{t}"
+            }
+          end
+
+          alerts
+        end
 
         def fingerprint(descriptor)
           Digest::SHA256.hexdigest(descriptor.to_a.sort_by { |k, _| k.to_s }.inspect)

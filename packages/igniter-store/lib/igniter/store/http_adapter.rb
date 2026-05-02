@@ -80,13 +80,34 @@ module Igniter
         end
       end
 
+      # Returns the canonical observability snapshot at GET /v1/status.
+      # When +status_provider+ is given (e.g. StoreServer#observability_snapshot),
+      # it is called to produce the full server+storage shape.
+      # Otherwise falls back to the interpreter's storage-level snapshot.
+      class StatusHandler
+        include ResponseHelper
+
+        def initialize(interpreter:, status_provider: nil)
+          @interpreter     = interpreter
+          @status_provider = status_provider
+        end
+
+        def call(env)
+          return method_not_allowed unless env["REQUEST_METHOD"] == "GET"
+
+          data = @status_provider ? @status_provider.call : @interpreter.observability_snapshot
+          json_response(200, data)
+        end
+      end
+
       # ── Adapter ──────────────────────────────────────────────────────────────
 
-      def initialize(interpreter:, port: 7300, host: "0.0.0.0", health_provider: nil)
+      def initialize(interpreter:, port: 7300, host: "0.0.0.0", health_provider: nil, status_provider: nil)
         @interpreter     = interpreter
         @port            = port
         @host            = host
         @health_provider = health_provider
+        @status_provider = status_provider
         @puma            = nil
         @thread          = nil
       end
@@ -95,6 +116,7 @@ module Igniter
       def rack_app
         interp = @interpreter
         hp     = @health_provider
+        sp     = @status_provider
         not_found = ->(env) {
           body = JSON.generate({ error: "Not found: #{env["REQUEST_METHOD"]} #{env["PATH_INFO"]}" })
           [404, { "Content-Type" => "application/json", "Content-Length" => body.bytesize.to_s }, [body]]
@@ -103,6 +125,7 @@ module Igniter
         Rack::Builder.new do
           map "/v1/dispatch" do run DispatchHandler.new(interp) end
           map "/v1/health"   do run HealthHandler.new(health_provider: hp) end
+          map "/v1/status"   do run StatusHandler.new(interpreter: interp, status_provider: sp) end
           map "/v1/metadata" do run MetadataHandler.new(interp) end
           run not_found
         end

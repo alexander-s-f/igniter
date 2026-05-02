@@ -385,29 +385,31 @@ RSpec.describe "StoreServer Observability" do
   # ── server_status op ────────────────────────────────────────────────────────
 
   describe "server_status operation" do
-    it "returns ok with full metrics snapshot" do
+    it "returns ok with canonical observability shape" do
       port    = free_port
       @server = start(port)
       c       = client(port)
 
       resp = c.__send__(:rpc, "server_status")
-      expect(resp[:ok]).to              be true
-      expect(resp[:schema_version]).to  eq(1)
-      expect(resp[:uptime_ms]).to       be > 0
-      expect(resp[:requests_total]).to  be_a(Hash)
-      expect(resp[:facts_written]).to   be_a(Integer)
+      expect(resp[:ok]).to             be true
+      expect(resp[:schema_version]).to eq(1)
+      expect(resp[:status]).not_to     be_nil
+      expect(resp[:uptime_ms]).to      be > 0
+      expect(resp[:metrics]).to        be_a(Hash)
+      expect(resp[:alerts]).to         be_an(Array)
+      expect(resp[:server]).to         be_a(Hash)
 
       c.close
     end
 
-    it "facts_written is reflected in server_status" do
+    it "facts_written is reflected inside metrics in server_status" do
       port    = free_port
       @server = start(port)
       c = client(port)
 
       c.write_fact(Igniter::Store::Fact.build(store: :x, key: "k1", value: { n: 1 }))
       resp = c.__send__(:rpc, "server_status")
-      expect(resp[:facts_written]).to eq(1)
+      expect(resp[:metrics][:facts_written]).to eq(1)
 
       c.close
     end

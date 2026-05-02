@@ -34,6 +34,7 @@ module Igniter
           resolve
           metadata_snapshot
           descriptor_snapshot
+          observability_snapshot
           sync_hub_profile
           replay
           storage_stats
@@ -118,6 +119,9 @@ module Igniter
 
           when :descriptor_snapshot
             @interpreter.descriptor_snapshot
+
+          when :observability_snapshot
+            @interpreter.observability_snapshot
 
           when :sync_hub_profile
             @interpreter.sync_hub_profile(

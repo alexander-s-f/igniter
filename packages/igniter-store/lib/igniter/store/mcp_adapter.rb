@@ -39,6 +39,7 @@ module Igniter
       READ_TOOLS = %i[
         metadata_snapshot
         descriptor_snapshot
+        observability_snapshot
         read
         query
         resolve
@@ -49,15 +50,16 @@ module Igniter
       ].freeze
 
       TOOL_TO_OP = {
-        metadata_snapshot:  :metadata_snapshot,
-        descriptor_snapshot: :descriptor_snapshot,
-        read:               :read,
-        query:              :query,
-        resolve:            :resolve,
-        replay:             :replay,
-        sync_profile:       :sync_hub_profile,
-        storage_stats:      :storage_stats,
-        segment_manifest:   :segment_manifest
+        metadata_snapshot:      :metadata_snapshot,
+        descriptor_snapshot:    :descriptor_snapshot,
+        observability_snapshot: :observability_snapshot,
+        read:                   :read,
+        query:                  :query,
+        resolve:                :resolve,
+        replay:                 :replay,
+        sync_profile:           :sync_hub_profile,
+        storage_stats:          :storage_stats,
+        segment_manifest:       :segment_manifest
       }.freeze
 
       class RemoteDispatch
@@ -160,6 +162,9 @@ module Igniter
         when :descriptor_snapshot
           @interpreter.descriptor_snapshot
 
+        when :observability_snapshot
+          @interpreter.observability_snapshot
+
         when :read
           @interpreter.read(
             store: args.fetch(:store),
@@ -220,7 +225,7 @@ module Igniter
 
       def packet_for(name, args)
         case name
-        when :metadata_snapshot, :descriptor_snapshot
+        when :metadata_snapshot, :descriptor_snapshot, :observability_snapshot
           {}
         when :read
           { store: args.fetch(:store), key: args.fetch(:key), as_of: args[:as_of] }
@@ -296,15 +301,16 @@ module Igniter
 
       def tool_description(name)
         {
-          metadata_snapshot:  "Return the full protocol registry metadata snapshot.",
-          descriptor_snapshot: "Return registered descriptors grouped by kind.",
-          read:               "Read the current (or as_of) value for one key.",
-          query:              "Query a bounded store view with optional where/order/limit/as_of.",
-          resolve:            "Resolve a registered relation from a source key.",
-          replay:             "Replay bounded facts by store, time range, or limit.",
-          sync_profile:       "Return a sync hub profile (facts + descriptors + cursor).",
-          storage_stats:      "Return aggregate storage statistics for one or all stores.",
-          segment_manifest:   "Return per-segment storage manifest for one or all stores."
+          metadata_snapshot:      "Return the full protocol registry metadata snapshot.",
+          descriptor_snapshot:    "Return registered descriptors grouped by kind.",
+          observability_snapshot: "Return the canonical observability snapshot: status, alerts, storage.",
+          read:                   "Read the current (or as_of) value for one key.",
+          query:                  "Query a bounded store view with optional where/order/limit/as_of.",
+          resolve:                "Resolve a registered relation from a source key.",
+          replay:                 "Replay bounded facts by store, time range, or limit.",
+          sync_profile:           "Return a sync hub profile (facts + descriptors + cursor).",
+          storage_stats:          "Return aggregate storage statistics for one or all stores.",
+          segment_manifest:       "Return per-segment storage manifest for one or all stores."
         }.fetch(name, name.to_s)
       end
 
