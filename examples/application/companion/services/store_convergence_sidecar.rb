@@ -130,7 +130,7 @@ module Companion
 
       def pressure_report
         {
-          next_question: :companion_relation_auto_wire,
+          next_question: :companion_typed_resolve,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
           resolved: %i[
@@ -151,6 +151,7 @@ module Companion
             reactive_derivation
             scatter_derivation
             relation_rule_dsl
+            companion_relation_auto_wire
           ],
           facade_input_ready: %i[
             storage_shape
@@ -170,12 +171,13 @@ module Companion
             derivation_rules
             scatter_rules
             relation_rules
+            typed_resolve
           ],
           asks: %i[
-            companion_relation_auto_wire
+            companion_typed_resolve
           ],
           recommended_order: %i[
-            companion_relation_auto_wire
+            companion_typed_resolve
           ]
         }
       end

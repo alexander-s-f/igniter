@@ -595,4 +595,147 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
   end
+
+  # ── Typed resolve (Belt 11) ────────────────────────────────────────────────
+
+  describe "Companion::Store#resolve — typed records (Belt 11)" do
+    # Store where both BlogPost and BlogComment are registered.
+    subject(:store) do
+      s = described_class.new
+      s.register(BlogPost)
+      s.register(BlogComment)
+      s
+    end
+
+    it "returns typed BlogComment instances when source class is registered" do
+      store.write(BlogComment, key: "c1", body: "Hello", post_id: "p1")
+      result = store.resolve(:comments_by_post, from: "p1")
+      expect(result.first).to be_a(BlogComment)
+    end
+
+    it "typed instance has the correct field values" do
+      store.write(BlogComment, key: "c1", body: "Nice article", post_id: "p1")
+      comment = store.resolve(:comments_by_post, from: "p1").first
+      expect(comment.body).to   eq("Nice article")
+      expect(comment.post_id).to eq("p1")
+    end
+
+    it "typed instance has a key" do
+      store.write(BlogComment, key: "c1", body: "Hi", post_id: "p1")
+      comment = store.resolve(:comments_by_post, from: "p1").first
+      expect(comment.key).to eq("c1")
+    end
+
+    it "returns the latest typed value after an update" do
+      store.write(BlogComment, key: "c1", body: "v1", post_id: "p1")
+      store.write(BlogComment, key: "c1", body: "v2", post_id: "p1")
+      result = store.resolve(:comments_by_post, from: "p1")
+      expect(result.size).to eq(1)
+      expect(result.first.body).to eq("v2")
+    end
+
+    it "returns multiple typed instances for different comment keys" do
+      store.write(BlogComment, key: "c1", body: "First",  post_id: "p1")
+      store.write(BlogComment, key: "c2", body: "Second", post_id: "p1")
+      result = store.resolve(:comments_by_post, from: "p1")
+      expect(result).to all(be_a(BlogComment))
+      expect(result.map(&:body)).to contain_exactly("First", "Second")
+    end
+
+    it "returns [] for an unknown partition value" do
+      expect(store.resolve(:comments_by_post, from: "p99")).to eq([])
+    end
+
+    it "raises ArgumentError for an unregistered relation" do
+      expect { store.resolve(:nonexistent, from: "p1") }
+        .to raise_error(ArgumentError, /No relation registered/)
+    end
+
+    context "when source class is NOT registered" do
+      subject(:store) do
+        # Only BlogPost registered, BlogComment is not
+        s = described_class.new
+        s.register(BlogPost)
+        s
+      end
+
+      it "falls back to raw Hash values when source class is not in schema registry" do
+        # Write directly via the inner store to bypass companion write
+        store.instance_variable_get(:@inner).write(
+          store: :blog_comments, key: "c1",
+          value: { body: "raw write", post_id: "p1" }
+        )
+        result = store.resolve(:comments_by_post, from: "p1")
+        # The scatter triggers and builds the index since BlogPost registered BlogComment relation
+        expect(result).not_to be_empty
+        expect(result.first).to be_a(Hash)
+        expect(result.first[:body]).to eq("raw write")
+      end
+    end
+  end
+
+  describe "from_manifest with relations → register → typed resolve (end-to-end)" do
+    RELATION_MANIFEST = {
+      storage: { shape: :store, name: :wiki_pages, key: :id },
+      fields: [
+        { name: :id,    attributes: {} },
+        { name: :title, attributes: { type: :string } }
+      ],
+      scopes: [],
+      indexes: [],
+      commands: [],
+      relations: [
+        {
+          name: :revisions_by_page,
+          attributes: {
+            kind: :event_owner, to: :wiki_revisions,
+            join: { id: :page_id }, cardinality: :one_to_many
+          }
+        }
+      ]
+    }.freeze
+
+    REVISION_MANIFEST = {
+      storage: { shape: :store, name: :wiki_revisions, key: :id },
+      fields: [
+        { name: :id,      attributes: {} },
+        { name: :page_id, attributes: {} },
+        { name: :body,    attributes: { type: :string } }
+      ],
+      scopes: [],
+      indexes: [],
+      commands: [],
+      relations: []
+    }.freeze
+
+    it "from_manifest parses relations and register auto-wires them" do
+      wiki_page     = Igniter::Companion.from_manifest(RELATION_MANIFEST)
+      wiki_revision = Igniter::Companion.from_manifest(REVISION_MANIFEST)
+
+      s = described_class.new
+      s.register(wiki_page)
+      s.register(wiki_revision)
+
+      s.write(wiki_revision, key: "r1", id: "r1", page_id: "p1", body: "First draft")
+      s.write(wiki_revision, key: "r2", id: "r2", page_id: "p1", body: "Second draft")
+
+      result = s.resolve(:revisions_by_page, from: "p1")
+      expect(result.size).to eq(2)
+      expect(result).to all(be_a(wiki_revision))
+      expect(result.map(&:body)).to contain_exactly("First draft", "Second draft")
+    ensure
+      s&.close
+    end
+
+    it "relation_snapshot is populated after register" do
+      wiki_page = Igniter::Companion.from_manifest(RELATION_MANIFEST)
+
+      s = described_class.new
+      s.register(wiki_page)
+
+      expect(s._relations.keys).to include(:revisions_by_page)
+    ensure
+      s&.close
+    end
+  end
 end

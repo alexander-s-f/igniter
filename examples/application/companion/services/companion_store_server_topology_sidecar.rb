@@ -112,7 +112,7 @@ module Companion
 
       def pressure_report
         {
-          next_question: :companion_relation_auto_wire,
+          next_question: :companion_typed_resolve,
           resolved: %i[
             network_backend_native_parity
             reactive_derivation

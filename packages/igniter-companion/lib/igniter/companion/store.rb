@@ -26,7 +26,8 @@ module Igniter
     #   store.replay(TrackerLog)
     class Store
       def initialize(backend: :memory, path: nil, address: nil, transport: :tcp)
-        @registered = Set.new
+        @registered     = Set.new
+        @schema_by_store = {}
         @inner = case backend
         when :memory
           Igniter::Store::IgniterStore.new
@@ -60,6 +61,7 @@ module Igniter
         return self if @registered.include?(schema_class)
 
         @registered << schema_class
+        @schema_by_store[schema_class.store_name] = schema_class
 
         if schema_class.respond_to?(:_scopes)
           schema_class._scopes.each do |scope_name, opts|
@@ -189,9 +191,23 @@ module Igniter
       end
 
       # Resolve a named relation for a given partition value.
-      # Returns an Array of the current source values for all matching keys.
+      # Returns typed Record instances when the source schema class was registered
+      # via register(); otherwise returns raw value Hashes (backward compatible).
+      # Returns [] when nothing is indexed for the given partition value.
       def resolve(relation_name, from:)
-        @inner.resolve(relation_name, from: from)
+        rule = @inner.schema_graph.relation_for(name: relation_name)
+        raise ArgumentError, "No relation registered: #{relation_name.inspect}" unless rule
+
+        index_entry = @inner.read(store: :"__rel_#{relation_name}", key: from.to_s)
+        return [] unless index_entry
+
+        source_class = @schema_by_store[rule.source]
+
+        index_entry[:keys].filter_map do |key|
+          value = @inner.read(store: rule.source, key: key)
+          next unless value
+          source_class ? source_class.new(key: key, **value) : value
+        end
       end
 
       # Returns a compact snapshot of all registered relation rules.
