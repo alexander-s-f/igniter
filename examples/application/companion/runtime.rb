@@ -2097,7 +2097,7 @@ module Companion
         relation.fetch(:generated_relation_names).include?(:comments_by_article) &&
         relation.fetch(:comments_relation_to) == :comments &&
         relation.fetch(:store_side_join_execution) == false &&
-        pressure.fetch(:next_question) == :relation_rule_dsl &&
+        pressure.fetch(:next_question).nil? &&
         pressure.fetch(:resolved).include?(:manifest_generated_record_history_classes) &&
         pressure.fetch(:resolved).include?(:store_name_in_manifest) &&
         pressure.fetch(:resolved).include?(:companion_store_backed_app_flow) &&
@@ -2112,6 +2112,15 @@ module Companion
         pressure.fetch(:resolved).include?(:projection_descriptor_mirroring) &&
         pressure.fetch(:resolved).include?(:reactive_derivation) &&
         pressure.fetch(:resolved).include?(:scatter_derivation) &&
+        pressure.fetch(:resolved).include?(:relation_rule_dsl) &&
+        pressure.fetch(:resolved).include?(:companion_relation_auto_wire) &&
+        pressure.fetch(:resolved).include?(:companion_typed_resolve) &&
+        pressure.fetch(:resolved).include?(:companion_resolve_time_travel) &&
+        pressure.fetch(:resolved).include?(:op1_descriptor_packet_import) &&
+        pressure.fetch(:resolved).include?(:op2_metadata_export) &&
+        pressure.fetch(:resolved).include?(:op3_wire_envelope) &&
+        pressure.fetch(:resolved).include?(:op4_sync_hub_profile) &&
+        pressure.fetch(:resolved).include?(:companion_protocol_adoption) &&
         pressure.fetch(:facade_input_ready).include?(:storage_name) &&
         pressure.fetch(:facade_input_ready).include?(:field_types) &&
         pressure.fetch(:facade_input_ready).include?(:enum_values) &&
@@ -2123,7 +2132,20 @@ module Companion
         pressure.fetch(:facade_input_ready).include?(:schema_graph_metadata_snapshot) &&
         pressure.fetch(:facade_input_ready).include?(:history_partition_key) &&
         pressure.fetch(:facade_input_ready).include?(:derivation_rules) &&
-        pressure.fetch(:facade_input_ready).include?(:scatter_rules)
+        pressure.fetch(:facade_input_ready).include?(:scatter_rules) &&
+        pressure.fetch(:facade_input_ready).include?(:relation_rules) &&
+        pressure.fetch(:facade_input_ready).include?(:typed_resolve) &&
+        pressure.fetch(:facade_input_ready).include?(:protocol_descriptor_import) &&
+        pressure.fetch(:facade_input_ready).include?(:protocol_write_fact) &&
+        pressure.fetch(:facade_input_ready).include?(:protocol_query_where) &&
+        pressure.fetch(:facade_input_ready).include?(:protocol_metadata_snapshot) &&
+        pressure.fetch(:facade_input_ready).include?(:wire_envelope_dispatch) &&
+        pressure.fetch(:facade_input_ready).include?(:sync_hub_profile) &&
+        pressure.fetch(:facade_input_ready).include?(:fact_log_replay) &&
+        pressure.fetch(:facade_input_ready).include?(:companion_metadata_snapshot) &&
+        pressure.fetch(:facade_input_ready).include?(:companion_descriptor_snapshot) &&
+        pressure.fetch(:asks).empty? &&
+        pressure.fetch(:recommended_order).empty?
     end
 
     def companion_store_app_flow_sidecar_contract?
@@ -2380,8 +2402,11 @@ module Companion
         network.fetch(:phase) == :native_wire_deserialization_pending &&
         package_gap.fetch(:status) == :open &&
         package_gap.fetch(:name) == :native_wire_deserialization &&
-        pressure.fetch(:next_question) == :reactive_derivation &&
-        pressure.fetch(:resolved) == :network_backend_native_parity
+        pressure.fetch(:next_question) == :companion_resolve_time_travel &&
+        pressure.fetch(:resolved).include?(:network_backend_native_parity) &&
+        pressure.fetch(:resolved).include?(:relation_rule_dsl) &&
+        pressure.fetch(:resolved).include?(:companion_relation_auto_wire) &&
+        pressure.fetch(:resolved).include?(:companion_typed_resolve)
     end
 
     def persistence_relation_manifest?
@@ -4045,7 +4070,7 @@ module Companion
         store_convergence.include?("past_status=>:open") &&
         store_convergence.include?("partition_query_supported=>true") &&
         store_convergence.include?("manifest_store_name_present=>true") &&
-        store_convergence.include?("next_question=>:relation_rule_dsl") &&
+        store_convergence.include?("next_question=>nil") &&
         store_convergence.include?("portable_field_types") &&
         store_convergence.include?("mutation_intent_to_app_boundary") &&
         store_convergence.include?("index_metadata") &&
@@ -4065,8 +4090,18 @@ module Companion
         store_convergence.include?("projection_descriptor_mirroring") &&
         store_convergence.include?("reactive_derivation") &&
         store_convergence.include?("scatter_derivation") &&
+        store_convergence.include?("relation_rule_dsl") &&
+        store_convergence.include?("companion_relation_auto_wire") &&
+        store_convergence.include?("companion_typed_resolve") &&
+        store_convergence.include?("companion_resolve_time_travel") &&
+        store_convergence.include?("op1_descriptor_packet_import") &&
+        store_convergence.include?("op2_metadata_export") &&
+        store_convergence.include?("op3_wire_envelope") &&
+        store_convergence.include?("op4_sync_hub_profile") &&
         store_convergence.include?("derivation_rules") &&
         store_convergence.include?("scatter_rules") &&
+        store_convergence.include?("protocol_metadata_snapshot") &&
+        store_convergence.include?("sync_hub_profile") &&
         store_convergence.include?("schema_graph_metadata_snapshot") &&
         store_convergence.include?("comments_by_article") &&
         store_convergence.include?("store_name_in_manifest") &&
@@ -4126,7 +4161,7 @@ module Companion
         history.fetch("partition_query_supported") &&
         history.fetch("partition_replay_count") == 2 &&
         history.fetch("partition_replay_values") == [7.0, 8.5] &&
-        pressure.fetch("next_question") == "relation_rule_dsl" &&
+        pressure.fetch("next_question").nil? &&
         pressure.fetch("resolved").include?("manifest_generated_record_history_classes") &&
         pressure.fetch("resolved").include?("store_name_in_manifest") &&
         pressure.fetch("resolved").include?("companion_store_backed_app_flow") &&
@@ -4141,6 +4176,15 @@ module Companion
         pressure.fetch("resolved").include?("projection_descriptor_mirroring") &&
         pressure.fetch("resolved").include?("reactive_derivation") &&
         pressure.fetch("resolved").include?("scatter_derivation") &&
+        pressure.fetch("resolved").include?("relation_rule_dsl") &&
+        pressure.fetch("resolved").include?("companion_relation_auto_wire") &&
+        pressure.fetch("resolved").include?("companion_typed_resolve") &&
+        pressure.fetch("resolved").include?("companion_resolve_time_travel") &&
+        pressure.fetch("resolved").include?("op1_descriptor_packet_import") &&
+        pressure.fetch("resolved").include?("op2_metadata_export") &&
+        pressure.fetch("resolved").include?("op3_wire_envelope") &&
+        pressure.fetch("resolved").include?("op4_sync_hub_profile") &&
+        pressure.fetch("resolved").include?("companion_protocol_adoption") &&
         pressure.fetch("facade_input_ready").include?("storage_name") &&
         pressure.fetch("facade_input_ready").include?("field_types") &&
         pressure.fetch("facade_input_ready").include?("enum_values") &&
@@ -4152,7 +4196,20 @@ module Companion
         pressure.fetch("facade_input_ready").include?("schema_graph_metadata_snapshot") &&
         pressure.fetch("facade_input_ready").include?("history_partition_key") &&
         pressure.fetch("facade_input_ready").include?("derivation_rules") &&
-        pressure.fetch("facade_input_ready").include?("scatter_rules")
+        pressure.fetch("facade_input_ready").include?("scatter_rules") &&
+        pressure.fetch("facade_input_ready").include?("relation_rules") &&
+        pressure.fetch("facade_input_ready").include?("typed_resolve") &&
+        pressure.fetch("facade_input_ready").include?("protocol_descriptor_import") &&
+        pressure.fetch("facade_input_ready").include?("protocol_write_fact") &&
+        pressure.fetch("facade_input_ready").include?("protocol_query_where") &&
+        pressure.fetch("facade_input_ready").include?("protocol_metadata_snapshot") &&
+        pressure.fetch("facade_input_ready").include?("wire_envelope_dispatch") &&
+        pressure.fetch("facade_input_ready").include?("sync_hub_profile") &&
+        pressure.fetch("facade_input_ready").include?("fact_log_replay") &&
+        pressure.fetch("facade_input_ready").include?("companion_metadata_snapshot") &&
+        pressure.fetch("facade_input_ready").include?("companion_descriptor_snapshot") &&
+        pressure.fetch("asks").empty? &&
+        pressure.fetch("recommended_order").empty?
     end
 
     def setup_companion_store_app_flow_sidecar_endpoint?(companion_store_app_flow)
@@ -4477,8 +4534,11 @@ module Companion
         network.fetch("phase") == "native_wire_deserialization_pending" &&
         package_gap.fetch("status") == "open" &&
         package_gap.fetch("name") == "native_wire_deserialization" &&
-        pressure.fetch("next_question") == "reactive_derivation" &&
-        pressure.fetch("resolved") == "network_backend_native_parity"
+        pressure.fetch("next_question") == "companion_resolve_time_travel" &&
+        pressure.fetch("resolved").include?("network_backend_native_parity") &&
+        pressure.fetch("resolved").include?("relation_rule_dsl") &&
+        pressure.fetch("resolved").include?("companion_relation_auto_wire") &&
+        pressure.fetch("resolved").include?("companion_typed_resolve")
     end
 
     def post(app, path, values = {})

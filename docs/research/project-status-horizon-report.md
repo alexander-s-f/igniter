@@ -79,7 +79,8 @@ field type plan -> relation type plan
 access path plan -> typed effect intent plan
 store convergence sidecar -> package Record/History facade
 projection/schema graph sidecars -> Store metadata evidence
-derivation/scatter/relation rules -> next: companion_relation_auto_wire
+derivation/scatter/relation rules -> Companion typed resolve + as_of resolve
+OP1/OP2/OP3/OP4 -> descriptor import, metadata export, wire envelope, sync profile
 materializer lifecycle -> still review-only/no grants
 ```
 
@@ -89,16 +90,21 @@ without changing core contract execution.
 
 ## Current Worktree Notes
 
-The Companion sidecar baseline already points at the next pressure slice:
+The Companion sidecar baseline now reports the current Store/Companion protocol
+horizon as closed for this POC slice:
 
 - `examples/application/companion/services/companion_store_server_topology_sidecar.rb`
 - `examples/application/companion/services/store_convergence_sidecar.rb`
 
 Meaning:
 
-- `reactive_derivation`, `scatter_derivation`, and `relation_rule_dsl` are now
-  marked resolved in the sidecar pressure reports
-- next question moved to `:companion_relation_auto_wire`
+- `reactive_derivation`, `scatter_derivation`, `relation_rule_dsl`,
+  `companion_relation_auto_wire`, `companion_typed_resolve`,
+  `companion_resolve_time_travel`, `op1_descriptor_packet_import`,
+  `op2_metadata_export`, `op3_wire_envelope`, `op4_sync_hub_profile`, and
+  `companion_protocol_adoption` are marked resolved in StoreConvergence
+- `pressure.next_question` is now `nil`; the next slice should be architect
+  selected, not inferred by the previous packet
 
 Current uncommitted changes from this report are docs-only snapshot updates.
 
@@ -107,8 +113,8 @@ Current uncommitted changes from this report are docs-only snapshot updates.
 Fresh checks on 2026-05-02:
 
 - `ruby examples/run.rb smoke`: 87 passed, 0 failed, 0 skipped.
-- `bundle exec rspec packages/igniter-store/spec`: 221 examples, 0 failures.
-- `RUBYLIB=packages/igniter-companion/lib:packages/igniter-store/lib bundle exec rspec packages/igniter-companion/spec`: 59 examples, 0 failures.
+- `bundle exec rspec packages/igniter-store/spec`: 327 examples, 0 failures, 2 pending.
+- `RUBYLIB=packages/igniter-companion/lib:packages/igniter-store/lib bundle exec rspec packages/igniter-companion/spec`: 89 examples, 0 failures.
 
 Note: running `bundle exec rspec packages/igniter-companion/spec` without
 `RUBYLIB` fails to load `igniter/companion`; the package spec helper is not yet
@@ -318,20 +324,16 @@ Igniter's Ruby DSL internals.
 
 ## Recommended Next Moves
 
-1. Close the current dirty sidecar slice by implementing/validating
-   `companion_relation_auto_wire` app-locally.
-2. Start OP1 from the Store Open Protocol: descriptor packet import through
-   plain hashes, independent of `Igniter::Contract`.
-3. Make `packages/igniter-companion/spec/spec_helper.rb` self-contained so
+1. Decide the next architect-owned slice after OP1-OP4: conformance kit,
+   StoreServer envelope integration, or app-local protocol adoption proof.
+2. Make `packages/igniter-companion/spec/spec_helper.rb` self-contained so
    package specs do not require manual `RUBYLIB`.
-4. Update package docs after relation auto-wire: Companion status, Store
-   progress, and convergence audit.
-5. Keep StoreServer lifecycle as operational substrate only; do not route
+3. Keep StoreServer lifecycle as operational substrate only; do not route
    contract business logic through it.
-6. Keep sync hub as async/cold proof: minimal BackgroundSync next, no write-path
+4. Keep sync hub as async/cold proof: minimal BackgroundSync next, no write-path
    dependency.
-7. Treat materializer dry-run as a separate lane; do not combine it with
-   relation auto-wire.
+5. Treat materializer dry-run as a separate lane; do not combine it with
+   protocol transport work.
 
 ## Handoff
 
@@ -343,13 +345,15 @@ Status: whole-project status updated on 2026-05-02.
 [D] igniter-store is hot fact engine; igniter-companion is typed facade.
 [D] igniter-store now has an Open Protocol proposal: descriptor/fact/receipt
 waist for non-Igniter clients as well as Igniter contracts.
-[D] Companion remains the strongest product pressure and next asks for
-companion_relation_auto_wire.
+[D] Companion remains the strongest product pressure; the current
+Store/Companion protocol pressure packet is closed and awaits a new
+architect-selected slice.
 [R] Do not promote Store graph nodes, migrations, materializer execution, or
 relation enforcement to core from current evidence.
 [R] Do not let StoreServer become a contract-logic RPC surface.
-[S] Fresh checks: examples smoke 87/0, store specs 221/0, companion specs 59/0
-with RUBYLIB.
-Next: close relation auto-wire sidecar slice, start OP1 descriptor packet import,
-then revisit sync-hub and materializer dry-run as separate lanes.
+[S] Fresh checks: examples smoke 87/0, store specs 327/0 with 2 pending,
+companion specs 89/0 with RUBYLIB.
+Next: choose between conformance kit, StoreServer envelope integration,
+app-local protocol adoption, or sync-hub follow-through; keep materializer
+dry-run separate.
 ```

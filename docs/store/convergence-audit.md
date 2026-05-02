@@ -592,6 +592,45 @@ Queued:
 - subscription_delivery_semantics after native wire parity
 ```
 
+## Return Packet: OP1-OP4 Protocol Horizon
+
+```text
+[Compact Handoff / Architect Supervisor]
+Track: companion-store-convergence
+Status:
+- current Store/Companion protocol pressure packet is closed for this POC slice
+- StoreConvergenceSidecar reports pressure.next_question=nil
+Changed:
+- Companion relation auto-wire registers one_to_many relation descriptors as
+  Store RelationRule-backed indexes
+- Companion resolve now returns typed source records when schema is known and
+  supports as_of point-in-time relation resolution
+- OP1 descriptor packet import supports store/history/access_path/relation/
+  projection/derivation/subscription descriptors with receipts and dedup
+- OP2 metadata_snapshot exposes stores, histories, access paths, relations,
+  projections, derivations, scatters, subscriptions, and retention
+- OP3 WireEnvelope routes register/write/read/query/resolve/metadata/replay
+  across process-boundary packet hashes
+- OP4 SyncProfile packages descriptors, fact replay, retention, compaction
+  receipts, cursor, and incremental sync shape
+- CompanionStore exposes metadata_snapshot and descriptor_snapshot over the
+  protocol surface
+Evidence:
+- examples smoke: 87 passed, 0 failed, 0 skipped
+- packages/igniter-store/spec: 327 examples, 0 failures, 2 pending
+- packages/igniter-companion/spec with RUBYLIB: 89 examples, 0 failures
+- companion_poc convergence/projection/topology predicates are true
+Boundary:
+- not a public API promise
+- StoreServer remains fact/projection host, not contract-logic RPC
+- sync hub profile is packet shape, not hot write-path dependency
+- native Fact#producer persistence remains Phase 2 pending
+Next:
+- architect should choose the next slice explicitly: protocol conformance kit,
+  StoreServer envelope integration, app-local protocol adoption, or sync-hub
+  follow-through
+```
+
 ## Return Packet: Projection Mirroring + Reactive Derivation
 
 ```text

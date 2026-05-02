@@ -57,7 +57,8 @@ companion_receipt_projection_sidecar -> package receipt -> action history projec
 companion_store_server_topology_sidecar -> StoreServer topology/lifecycle/push + native wire gap proof
 store_reactive_derivation -> package DerivationRule/ScatterRule + CompanionStore _scatters facade
 store_retention_compaction -> package RetentionPolicy + explicit compaction receipts, app policy not proven yet
-relation_rule_dsl -> Store RelationRule primitive exists; app/contract lowering not proven yet
+relation_rule_dsl -> Store RelationRule primitive + Companion auto-wire/typed resolve/as_of resolve
+store_open_protocol -> OP1/OP2/OP3/OP4 descriptor import, metadata export, wire envelope, sync profile
 performance_signal -> setup packet recomputation needs memoization/snapshot
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
