@@ -210,6 +210,28 @@ app-local proof
 
 Current strongest next pressure is `companion_relation_auto_wire`.
 
+### 9. Store needs an open waist
+
+`igniter-store` should remain part of the Igniter ecosystem, but it should not
+be locked to `Igniter::Contract` classes. The strategic surface is an open
+descriptor/fact/receipt/query protocol where Igniter contracts are a first-class
+client, not the only client.
+
+Out-of-box direction:
+
+```text
+custom contract system
+external DSL
+agent memory model
+Companion typed records
+Igniter contracts
+        -> Igniter Store Open Protocol
+        -> igniter-store fact engine
+```
+
+This keeps the Lego-style option alive: another ecosystem can implement its own
+contract model and still interoperate through Store facts.
+
 ## Ideas Beyond The Usual Box
 
 ### Semantic Flight Recorder
@@ -278,19 +300,37 @@ Companion relation manifest
 
 If this feels boring and inspectable, it earns the right to move lower.
 
+### Store Protocol As Ecosystem API
+
+Publish `igniter-store` as a protocol-compatible fact substrate before treating
+it as an Igniter-only persistence layer. The protocol should center on packets:
+
+- descriptors
+- facts
+- receipts
+- queries
+- subscriptions
+- replay/sync envelopes
+
+This creates space for multi-language clients, external contract DSLs,
+simulation engines, and agent memory systems to plug in without depending on
+Igniter's Ruby DSL internals.
+
 ## Recommended Next Moves
 
 1. Close the current dirty sidecar slice by implementing/validating
    `companion_relation_auto_wire` app-locally.
-2. Make `packages/igniter-companion/spec/spec_helper.rb` self-contained so
+2. Start OP1 from the Store Open Protocol: descriptor packet import through
+   plain hashes, independent of `Igniter::Contract`.
+3. Make `packages/igniter-companion/spec/spec_helper.rb` self-contained so
    package specs do not require manual `RUBYLIB`.
-3. Update package docs after relation auto-wire: Companion status, Store
+4. Update package docs after relation auto-wire: Companion status, Store
    progress, and convergence audit.
-4. Keep StoreServer lifecycle as operational substrate only; do not route
+5. Keep StoreServer lifecycle as operational substrate only; do not route
    contract business logic through it.
-5. Keep sync hub as async/cold proof: minimal BackgroundSync next, no write-path
+6. Keep sync hub as async/cold proof: minimal BackgroundSync next, no write-path
    dependency.
-6. Treat materializer dry-run as a separate lane; do not combine it with
+7. Treat materializer dry-run as a separate lane; do not combine it with
    relation auto-wire.
 
 ## Handoff
@@ -301,6 +341,8 @@ Track: docs/research/project-status-horizon-report.md
 Status: whole-project status updated on 2026-05-02.
 [D] Igniter is now a contracts-native substrate track, not only a contract DSL.
 [D] igniter-store is hot fact engine; igniter-companion is typed facade.
+[D] igniter-store now has an Open Protocol proposal: descriptor/fact/receipt
+waist for non-Igniter clients as well as Igniter contracts.
 [D] Companion remains the strongest product pressure and next asks for
 companion_relation_auto_wire.
 [R] Do not promote Store graph nodes, migrations, materializer execution, or
@@ -308,6 +350,6 @@ relation enforcement to core from current evidence.
 [R] Do not let StoreServer become a contract-logic RPC surface.
 [S] Fresh checks: examples smoke 87/0, store specs 221/0, companion specs 59/0
 with RUBYLIB.
-Next: close relation auto-wire sidecar slice, then revisit sync-hub and
-materializer dry-run as separate lanes.
+Next: close relation auto-wire sidecar slice, start OP1 descriptor packet import,
+then revisit sync-hub and materializer dry-run as separate lanes.
 ```

@@ -28,6 +28,7 @@ Status: POC package, not stable API, not wired into core.
 
 See [`docs/`](docs/) for specifications, progress records, and design iteration history:
 
+- [docs/open-protocol.md](docs/open-protocol.md) — standalone descriptor/fact/receipt protocol
 - [docs/poc-specification.md](docs/poc-specification.md) — POC spec
 - [docs/server-model.md](docs/server-model.md) — StoreServer + NetworkBackend design
 - [docs/relations-specification.md](docs/relations-specification.md) — relation manifests
@@ -40,6 +41,10 @@ This package is broader than persistence. The research direction includes
 time-travel, reactive agents, access paths, hot/cold sync, retention, and future
 cluster replay. `igniter-persistence` remains reserved for stable durable
 capability APIs if they later emerge from this work.
+
+The package should also expose an open protocol boundary: descriptors, facts,
+receipts, queries, and subscriptions. Igniter contracts and Companion records are
+first-class clients of that protocol, but not the only possible clients.
 
 ## Example
 

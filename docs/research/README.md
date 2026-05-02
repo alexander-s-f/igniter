@@ -44,6 +44,7 @@ Implementation snapshots that shipped are kept in their package `docs/` director
 
 | Document | New Location |
 |----------|-------------|
+| Igniter Store Open Protocol | [packages/igniter-store/docs/open-protocol.md](../../packages/igniter-store/docs/open-protocol.md) |
 | Contract-Native Store POC spec | [packages/igniter-store/docs/poc-specification.md](../../packages/igniter-store/docs/poc-specification.md) |
 | Contract-Native Store Server Model | [packages/igniter-store/docs/server-model.md](../../packages/igniter-store/docs/server-model.md) |
 | Contract Persistence Relations | [packages/igniter-store/docs/relations-specification.md](../../packages/igniter-store/docs/relations-specification.md) |
@@ -98,6 +99,8 @@ Status date: 2026-05-02.
   and a review-only materializer/approval audit vertical.
 - `igniter-store` has shipped Phase 1 (StoreServer, NetworkBackend, TCP/Unix transport,
   graceful drain, stats, PID, CLI) and Phase 2 (SubscriptionRegistry reactive push).
+- `igniter-store` now has an Open Protocol proposal: descriptor/fact/receipt/query
+  waist for non-Igniter clients as well as Igniter contracts.
 - `igniter-companion` is now the typed Record/History facade over
   `igniter-store`, carrying Companion manifest pressure toward package-level
   Store/History experiments.
