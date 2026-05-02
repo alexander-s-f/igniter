@@ -196,8 +196,6 @@ module Igniter
           end
 
           facts
-        rescue StandardError
-          []
         end
 
         private
@@ -212,7 +210,7 @@ module Igniter
             @last_ts_ms = ts_ms
 
             vals = @fields.map { |fn|
-              v = f.value[fn.to_sym] || f.value[fn]
+              v = f.value.key?(fn.to_sym) ? f.value[fn.to_sym] : f.value[fn]
               v.is_a?(Symbol) ? v.to_s : v
             }
             [@key_map[key], delta, vals]

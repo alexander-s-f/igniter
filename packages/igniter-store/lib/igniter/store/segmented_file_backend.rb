@@ -45,10 +45,11 @@ module Igniter
     class SegmentedFileBackend
       include WireProtocol
 
-      MANIFEST_SUFFIX   = ".manifest.json"
-      PURGED_SUFFIX     = ".purged.json"
-      DEFAULT_MAX_BYTES = 64 * 1024 * 1024  # 64 MB
-      DEFAULT_CODEC     = :json_crc32
+      MANIFEST_SUFFIX    = ".manifest.json"
+      PURGED_SUFFIX      = ".purged.json"
+      QUARANTINE_SUFFIX  = ".quarantine.json"
+      DEFAULT_MAX_BYTES  = 64 * 1024 * 1024  # 64 MB
+      DEFAULT_CODEC      = :json_crc32
 
       attr_reader :root_dir
 
@@ -73,6 +74,7 @@ module Igniter
 
         FileUtils.mkdir_p(File.join(@root_dir, "wal"))
         retention.each { |store, policy| set_retention(store, **policy) }
+        recover_orphaned_segments!
       end
 
       def write_fact(fact)
@@ -149,6 +151,15 @@ module Igniter
       def purge_receipts(store: nil)
         glob = store ? "store=#{store}" : "store=*"
         Dir[File.join(@root_dir, "wal", glob, "**", "*#{PURGED_SUFFIX}")]
+          .map { |p| JSON.parse(File.read(p)) rescue nil }
+          .compact
+      end
+
+      # List quarantine receipts for segments that could not be decoded.
+      # +store+ — restrict to one store; nil = all stores.
+      def quarantine_receipts(store: nil)
+        glob = store ? "store=#{store}" : "store=*"
+        Dir[File.join(@root_dir, "wal", glob, "**", "*#{QUARANTINE_SUFFIX}")]
           .map { |p| JSON.parse(File.read(p)) rescue nil }
           .compact
       end
@@ -262,7 +273,7 @@ module Igniter
         if live && cname == :json_crc32
           resume_segment(live, store, bucket, cname)
         else
-          seal_orphaned_live!(live) if live
+          seal_orphaned_live!(live, codec_name: cname) if live
           open_new_segment_in(store, bucket, cname)
         end
       end
@@ -297,15 +308,21 @@ module Igniter
       # Seal a live segment that belongs to a previous session or a codec
       # that cannot be resumed (compact_delta).  No manifest metadata is
       # available so we only write a minimal one.
-      def seal_orphaned_live!(path)
+      def seal_orphaned_live!(path, codec_name: DEFAULT_CODEC)
         file = File.open(path, "ab")
         file.flush
         file.close
-        write_manifest(path, codec: "json_crc32", fact_count: count_frames(path),
-                       byte_size: File.size(path), min_ts: nil, max_ts: nil,
-                       store: path.split("store=").last.split("/").first,
-                       bucket: path.split("date=").last.split("/").first,
-                       number: segment_number_from_path(path))
+        store_name = path.split("store=").last.split("/").first
+        bucket     = path.split("date=").last.split("/").first
+        number     = segment_number_from_path(path)
+        if File.size(path) == 0
+          FileUtils.rm_f(path)
+          return
+        end
+        write_manifest(path, codec: codec_name.to_s,
+                       fact_count: count_frames_for_codec(path, codec_name),
+                       byte_size:  File.size(path), min_ts: nil, max_ts: nil,
+                       store: store_name, bucket: bucket, number: number)
       end
 
       def seal_segment!(seg)
@@ -371,8 +388,13 @@ module Igniter
       def read_segment(path)
         codec_name = manifest_codec_for(path)
         codec = Codecs.build(codec_name)
-        File.open(path, "rb") { |io| codec.decode(io) }
-      rescue StandardError
+        facts = File.open(path, "rb") { |io| codec.decode(io) }
+        if facts.empty? && segment_expects_facts?(path)
+          write_quarantine_receipt(path, RuntimeError.new("segment not empty but decoded 0 facts"))
+        end
+        facts
+      rescue StandardError => e
+        write_quarantine_receipt(path, e)
         []
       end
 
@@ -428,6 +450,71 @@ module Igniter
         n
       rescue StandardError
         0
+      end
+
+      # For compact_delta the first frame is a header, subsequent frames are batches.
+      # Each batch carries a count prefix — sum those instead of counting raw frames.
+      def count_frames_for_codec(path, codec_name)
+        return count_frames(path) unless codec_name.to_sym == :compact_delta_zlib ||
+                                         codec_name.to_sym == :compact_delta
+        return 0 unless File.exist?(path)
+        total = 0
+        File.open(path, "rb") do |f|
+          read_frame(f)  # skip header
+          while (body = read_frame(f))
+            total += body[0, 4].unpack1("N") rescue 0
+          end
+        end
+        total
+      rescue StandardError
+        0
+      end
+
+      def write_quarantine_receipt(path, error)
+        mpath = path + MANIFEST_SUFFIX
+        manifest = File.exist?(mpath) ? (JSON.parse(File.read(mpath)) rescue {}) : {}
+        receipt = manifest.merge(
+          "quarantined_at" => Process.clock_gettime(Process::CLOCK_REALTIME),
+          "error_class"    => error.class.to_s,
+          "error_message"  => error.message.to_s[0, 500],
+          "segment_path"   => path
+        )
+        File.write(path + QUARANTINE_SUFFIX, JSON.generate(receipt))
+      rescue StandardError
+        nil  # never raise from error-handler path
+      end
+
+      def segment_expects_facts?(path)
+        mpath = path + MANIFEST_SUFFIX
+        return false unless File.exist?(mpath)
+        (JSON.parse(File.read(mpath))["fact_count"] || 0).to_i > 0
+      rescue StandardError
+        false
+      end
+
+      # On startup, seal any live segments that were left open by a previous crash.
+      # Codec is detected by peeking at the first frame rather than relying on the
+      # current codec config (the store may have been reconfigured between sessions).
+      def recover_orphaned_segments!
+        Dir[File.join(@root_dir, "wal", "store=*", "date=*")].each do |dir|
+          orphans = Dir[File.join(dir, "segment-*.wal")]
+                      .reject { |p| p.end_with?(MANIFEST_SUFFIX) || p.end_with?(PURGED_SUFFIX) || p.end_with?(QUARANTINE_SUFFIX) }
+                      .reject { |p| File.exist?(p + MANIFEST_SUFFIX) }
+          orphans.each { |p| seal_orphaned_live!(p, codec_name: detect_segment_codec(p)) }
+        end
+      end
+
+      # Peek at the first frame of a segment file and determine its codec.
+      def detect_segment_codec(path)
+        File.open(path, "rb") do |f|
+          body = read_frame(f)
+          return DEFAULT_CODEC unless body&.length&.> 0
+          parsed = MessagePack.unpack(body)
+          return :compact_delta_zlib if parsed.is_a?(Hash) && parsed.key?("fields")
+          DEFAULT_CODEC
+        end
+      rescue StandardError
+        DEFAULT_CODEC
       end
     end
   end

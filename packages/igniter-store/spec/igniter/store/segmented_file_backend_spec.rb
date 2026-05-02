@@ -623,6 +623,149 @@ RSpec.describe Igniter::Store::SegmentedFileBackend do
     end
   end
 
+  # ── Codec value correctness ─────────────────────────────────────────────────
+
+  describe "compact_delta codec value correctness" do
+    let(:cd) { described_class.new(root, codec: :compact_delta) }
+    after { cd.close rescue nil }
+
+    it "round-trips false" do
+      cd.write_fact(make_fact(key: "k1", value: { enabled: false, score: 1.0 }))
+      cd.close
+
+      b2   = described_class.new(root, codec: :compact_delta)
+      fact = b2.replay.first
+      b2.close
+
+      expect(fact.value[:enabled]).to be false
+    end
+
+    it "round-trips nil in a present field" do
+      cd.write_fact(make_fact(key: "k1", value: { label: nil, score: 42.0 }))
+      cd.close
+
+      b2   = described_class.new(root, codec: :compact_delta)
+      fact = b2.replay.first
+      b2.close
+
+      expect(fact.value.key?(:label)).to be true
+      expect(fact.value[:label]).to be_nil
+    end
+
+    it "round-trips mixed true/false/nil across multiple facts" do
+      cd.write_fact(make_fact(key: "a", value: { flag: true,  n: 1 }))
+      cd.write_fact(make_fact(key: "b", value: { flag: false, n: 2 }))
+      cd.write_fact(make_fact(key: "c", value: { flag: nil,   n: 3 }))
+      cd.close
+
+      b2    = described_class.new(root, codec: :compact_delta)
+      facts = b2.replay.sort_by { |f| f.value[:n] }
+      b2.close
+
+      expect(facts[0].value[:flag]).to be true
+      expect(facts[1].value[:flag]).to be false
+      expect(facts[2].value[:flag]).to be_nil
+    end
+
+    it "round-trips symbol values as strings" do
+      cd.write_fact(make_fact(key: "k1", value: { status: :active, score: 1.0 }))
+      cd.close
+
+      b2   = described_class.new(root, codec: :compact_delta)
+      fact = b2.replay.first
+      b2.close
+
+      expect(fact.value[:status]).to eq("active")
+    end
+  end
+
+  # ── Crash recovery — compact_delta orphan ───────────────────────────────────
+
+  describe "compact_delta orphan recovery" do
+    it "seals orphaned compact_delta segment with correct codec in manifest" do
+      b = described_class.new(root, codec: :compact_delta)
+      b.write_fact(make_fact(key: "pre_crash", value: { v: 1.0 }))
+      b.instance_variable_get(:@segments)["readings"][:file].close
+
+      b2 = described_class.new(root, codec: :compact_delta)
+      b2.close
+
+      m = JSON.parse(File.read(manifests_for.first))
+      expect(m["codec"]).to eq("compact_delta_zlib")
+    end
+
+    it "replays pre-crash facts that were in completed batches" do
+      # compact_delta buffers BATCH_SIZE=64 facts before writing to disk.
+      # Only full batches survive an unclean shutdown.
+      b = described_class.new(root, codec: :compact_delta)
+      64.times { |i| b.write_fact(make_fact(key: "k#{i}", value: { v: i.to_f })) }
+      # 64 facts triggered one batch write — they are on disk.
+      # Simulate crash: close file handle without flushing/sealing.
+      b.instance_variable_get(:@segments)["readings"][:file].close
+
+      b2    = described_class.new(root, codec: :compact_delta)
+      facts = b2.replay
+      b2.close
+
+      expect(facts.size).to eq(64)
+      expect(facts.map(&:key)).to include("k0", "k63")
+    end
+
+    it "does not replay orphan as empty when completed batches exist" do
+      b = described_class.new(root, codec: :compact_delta)
+      128.times { |i| b.write_fact(make_fact(key: "k#{i}", value: { v: i.to_f })) }
+      b.instance_variable_get(:@segments)["readings"][:file].close
+
+      b2    = described_class.new(root, codec: :compact_delta)
+      facts = b2.replay
+      b2.close
+
+      expect(facts.size).to eq(128)
+    end
+  end
+
+  # ── Quarantine receipts ──────────────────────────────────────────────────────
+
+  describe "quarantine receipts" do
+    it "writes a quarantine receipt for a corrupt segment and returns []" do
+      b = described_class.new(root)
+      b.write_fact(make_fact(key: "ok"))
+      b.close
+
+      seg = segment_files_for.first
+      File.write(seg, "CORRUPT_GARBAGE_DATA_NOT_A_VALID_FRAME")
+
+      b2    = described_class.new(root)
+      facts = b2.replay
+      b2.close
+
+      expect(facts).to be_empty
+      receipts = b2.quarantine_receipts(store: :readings)
+      expect(receipts.size).to eq(1)
+      expect(receipts.first["error_class"]).to be_a(String)
+      expect(receipts.first["segment_path"]).to eq(seg)
+    end
+
+    it "quarantine receipt includes segment metadata from manifest when available" do
+      b = described_class.new(root)
+      b.write_fact(make_fact(key: "ok"))
+      b.close
+
+      seg   = segment_files_for.first
+      mpath = seg + described_class::MANIFEST_SUFFIX
+      File.write(seg, "CORRUPT")
+
+      b2 = described_class.new(root)
+      b2.replay
+      b2.close
+
+      receipt = b2.quarantine_receipts.first
+      expect(receipt["store"]).to    eq("readings")
+      expect(receipt["codec"]).to    eq("json_crc32")
+      expect(receipt["sealed"]).to   be true
+    end
+  end
+
   # ── IgniterStore integration ────────────────────────────────────────────────
 
   describe "Igniter::Store.segmented factory" do
