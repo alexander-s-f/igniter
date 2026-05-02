@@ -81,8 +81,8 @@ Network backend
 
 ## Current Test Signal
 
-- `packages/igniter-store`: 327 examples, 0 failures.
-- `packages/igniter-companion`: 75 examples, 0 failures.
+- `packages/igniter-store`: 327 examples, 0 failures, 2 pending (native Phase 2).
+- `packages/igniter-companion`: 89 examples, 0 failures.
 
 ## Architecture Meaning
 
@@ -157,6 +157,18 @@ OP4 — Sync Hub Profile
   -> WireEnvelope: :sync_hub_profile and :replay ops added
   -> serialize_fact helper: full fact → protocol fact packet hash
   -> All four open-protocol slices (OP1–OP4) now implemented
+
+Companion Protocol Adoption
+  -> Companion::Store#register emits :store or :history descriptor via
+     @inner.register_descriptor on every new schema class registration
+  -> Record classes (respond_to?(:_scopes)) → :store descriptor with fields,
+     capabilities, and producer: { system: :igniter_companion }
+  -> History classes → :history descriptor with partition_key as key:
+  -> Companion::Store#metadata_snapshot delegates to @inner.protocol.metadata_snapshot
+  -> Companion::Store#descriptor_snapshot delegates to @inner.protocol.descriptor_snapshot
+  -> metadata_snapshot[:stores] / [:histories] now reflect all companion-managed schemas
+  -> Access paths still registered via direct API (preserves filter semantics)
+  -> 89 companion specs, 0 failures
 ```
 
 Store-side pressure after index metadata:

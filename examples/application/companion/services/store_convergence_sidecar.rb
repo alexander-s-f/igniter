@@ -130,7 +130,7 @@ module Companion
 
       def pressure_report
         {
-          next_question: :companion_protocol_adoption,
+          next_question: nil,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
           resolved: %i[
@@ -158,6 +158,7 @@ module Companion
             op2_metadata_export
             op3_wire_envelope
             op4_sync_hub_profile
+            companion_protocol_adoption
           ],
           facade_input_ready: %i[
             storage_shape
@@ -185,13 +186,11 @@ module Companion
             wire_envelope_dispatch
             sync_hub_profile
             fact_log_replay
+            companion_metadata_snapshot
+            companion_descriptor_snapshot
           ],
-          asks: %i[
-            companion_protocol_adoption
-          ],
-          recommended_order: %i[
-            companion_protocol_adoption
-          ]
+          asks: [],
+          recommended_order: []
         }
       end
     end

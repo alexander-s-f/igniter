@@ -753,6 +753,131 @@ RSpec.describe Igniter::Companion::Store do
     end
   end
 
+  # ── Protocol adoption (OP1/OP2 visibility) ───────────────────────────────────
+
+  describe "Companion::Store — protocol adoption (OP1/OP2)" do
+    describe "#metadata_snapshot" do
+      it "returns a Hash with schema_version: 1" do
+        snap = store.metadata_snapshot
+        expect(snap).to be_a(Hash)
+        expect(snap[:schema_version]).to eq(1)
+      end
+
+      it "includes :stores key with Reminder's store name after register" do
+        snap = store.metadata_snapshot
+        expect(snap[:stores]).to include(Reminder.store_name)
+      end
+
+      it "includes :histories key" do
+        s = described_class.new
+        s.register(TrackerLog)
+        snap = s.metadata_snapshot
+        expect(snap[:histories]).to include(TrackerLog.store_name)
+      ensure
+        s&.close
+      end
+
+      it "includes access_paths, relations, projections, scatters, retention keys" do
+        snap = store.metadata_snapshot
+        expect(snap).to have_key(:access_paths)
+        expect(snap).to have_key(:relations)
+        expect(snap).to have_key(:projections)
+        expect(snap).to have_key(:scatters)
+        expect(snap).to have_key(:retention)
+      end
+    end
+
+    describe "#descriptor_snapshot" do
+      it "returns a Hash with :stores and :histories keys" do
+        snap = store.descriptor_snapshot
+        expect(snap).to have_key(:stores)
+        expect(snap).to have_key(:histories)
+      end
+
+      it "descriptor_snapshot[:stores] contains the Reminder descriptor" do
+        snap = store.descriptor_snapshot
+        expect(snap[:stores]).to have_key(Reminder.store_name)
+      end
+
+      it "Reminder descriptor has kind: :store and expected name" do
+        desc = store.descriptor_snapshot[:stores][Reminder.store_name]
+        expect(desc[:kind]).to eq(:store)
+        expect(desc[:name]).to eq(Reminder.store_name)
+      end
+
+      it "Reminder descriptor carries a producer from igniter_companion" do
+        desc = store.descriptor_snapshot[:stores][Reminder.store_name]
+        expect(desc[:producer][:system]).to eq(:igniter_companion)
+        expect(desc[:producer][:name]).to   be_a(String)
+      end
+
+      it "TrackerLog descriptor appears in :histories" do
+        s = described_class.new
+        s.register(TrackerLog)
+        desc = s.descriptor_snapshot[:histories][TrackerLog.store_name]
+        expect(desc[:kind]).to eq(:history)
+        expect(desc[:name]).to eq(TrackerLog.store_name)
+      ensure
+        s&.close
+      end
+
+      it "TrackerLog descriptor key equals the declared partition_key" do
+        s = described_class.new
+        s.register(TrackerLog)
+        desc = s.descriptor_snapshot[:histories][TrackerLog.store_name]
+        expect(desc[:key]).to eq(TrackerLog._partition_key)
+      ensure
+        s&.close
+      end
+    end
+
+    describe "descriptor field content" do
+      subject(:record_class) { Igniter::Companion::Record.from_manifest(RECORD_MANIFEST) }
+
+      it "store descriptor fields list matches manifest fields" do
+        s = described_class.new
+        s.register(record_class)
+        desc = s.descriptor_snapshot[:stores][record_class.store_name]
+        field_names = desc[:fields].map { |f| f[:name] }
+        expect(field_names).to eq(record_class._fields.keys)
+      ensure
+        s&.close
+      end
+
+      it "store descriptor carries type metadata for typed fields" do
+        s = described_class.new
+        s.register(record_class)
+        desc  = s.descriptor_snapshot[:stores][record_class.store_name]
+        title = desc[:fields].find { |f| f[:name] == :title }
+        expect(title[:type]).to eq(:string)
+      ensure
+        s&.close
+      end
+
+      it "store descriptor carries values: for enum fields" do
+        s = described_class.new
+        s.register(record_class)
+        desc   = s.descriptor_snapshot[:stores][record_class.store_name]
+        status = desc[:fields].find { |f| f[:name] == :status }
+        expect(status[:values]).to eq(%i[open done])
+      ensure
+        s&.close
+      end
+    end
+
+    describe "register idempotency with descriptors" do
+      it "calling register twice does not create duplicate store descriptors" do
+        s = described_class.new
+        s.register(Reminder)
+        s.register(Reminder)
+        snap = s.descriptor_snapshot
+        expect(snap[:stores].keys.count { |k| k == Reminder.store_name }).to eq(1)
+      ensure
+        s&.close
+      end
+    end
+  end
+
   describe "from_manifest with relations → register → typed resolve (end-to-end)" do
     RELATION_MANIFEST = {
       storage: { shape: :store, name: :wiki_pages, key: :id },

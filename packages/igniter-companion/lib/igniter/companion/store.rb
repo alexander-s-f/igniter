@@ -95,6 +95,13 @@ module Igniter
           end
         end
 
+        # Emit protocol descriptor for OP1/OP2 visibility.
+        # Access paths are registered via direct API (to preserve filter semantics);
+        # store/history descriptors go through the protocol surface so that
+        # metadata_snapshot[:stores] / metadata_snapshot[:histories] reflect all
+        # companion-managed schemas.
+        emit_companion_descriptor(schema_class)
+
         self
       end
 
@@ -268,8 +275,74 @@ module Igniter
         @inner.causation_chain(store: schema_class.store_name, key: key)
       end
 
+      # Returns the unified OP2 metadata snapshot including all schemas registered
+      # through the companion (stores, histories, access_paths, relations, etc.).
+      def metadata_snapshot
+        @inner.protocol.metadata_snapshot
+      end
+
+      # Returns raw store/history/subscription descriptor packets registered
+      # through the companion protocol surface.
+      def descriptor_snapshot
+        @inner.protocol.descriptor_snapshot
+      end
+
       def close
         @inner.close
+      end
+
+      private
+
+      def emit_companion_descriptor(schema_class)
+        if schema_class.respond_to?(:_scopes)
+          emit_store_descriptor(schema_class)
+        else
+          emit_history_descriptor(schema_class)
+        end
+      end
+
+      def emit_store_descriptor(schema_class)
+        key = if schema_class.respond_to?(:_fields) && schema_class._fields.key?(:id)
+          :id
+        elsif schema_class.respond_to?(:_fields)
+          schema_class._fields.keys.first || :id
+        else
+          :id
+        end
+
+        fields = if schema_class.respond_to?(:_fields)
+          schema_class._fields.map do |name, attrs|
+            h = { name: name }
+            h[:type]    = attrs[:type]    if attrs[:type]
+            h[:default] = attrs[:default] unless attrs[:default].nil?
+            h[:values]  = attrs[:values]  if attrs[:values]
+            h
+          end
+        else
+          []
+        end
+
+        @inner.register_descriptor({
+          schema_version: 1,
+          kind:           :store,
+          name:           schema_class.store_name,
+          key:            key,
+          fields:         fields,
+          capabilities:   %i[write current_read as_of_read],
+          producer:       { system: :igniter_companion, name: schema_class.name.to_s }
+        })
+      end
+
+      def emit_history_descriptor(schema_class)
+        pk = schema_class.respond_to?(:_partition_key) ? schema_class._partition_key : :id
+
+        @inner.register_descriptor({
+          schema_version: 1,
+          kind:           :history,
+          name:           schema_class.store_name,
+          key:            pk || :id,
+          producer:       { system: :igniter_companion, name: schema_class.name.to_s }
+        })
       end
     end
   end
