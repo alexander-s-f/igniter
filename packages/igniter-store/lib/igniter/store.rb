@@ -23,6 +23,8 @@ require_relative "store/schema_graph"
 require_relative "store/protocol"
 require_relative "store/http_adapter"
 require_relative "store/tcp_adapter"
+require_relative "store/codecs"
+require_relative "store/segmented_file_backend"
 
 module Igniter
   module Store
@@ -33,6 +35,16 @@ module Igniter
 
       def open(path)
         IgniterStore.open(path)
+      end
+
+      # Open (or create) a segmented WAL store at +root_dir+.
+      # Facts from all stores are partitioned into per-store, per-time-bucket
+      # segment files under root_dir/wal/.
+      def segmented(root_dir, **opts)
+        backend = SegmentedFileBackend.new(root_dir, **opts)
+        store   = IgniterStore.new(backend: backend)
+        backend.replay.each { |fact| store.__send__(:replay, fact) }
+        store
       end
 
       def access_path(...)
