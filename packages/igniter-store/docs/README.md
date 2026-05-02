@@ -7,6 +7,7 @@ Implementation specifications and progress records for the `igniter-store` packa
 | File | Description |
 |------|-------------|
 | [open-protocol.md](open-protocol.md) | Standalone Store Open Protocol proposal |
+| [server-api-proposal.md](server-api-proposal.md) | Server/API layer above Store Open Protocol |
 | [poc-specification.md](poc-specification.md) | Contract-native store proof-of-concept spec |
 | [poc-specification.ru.md](poc-specification.ru.md) | То же, на русском |
 | [server-model.md](server-model.md) | StoreServer + NetworkBackend design (TCP/Unix, subscription registry) |
