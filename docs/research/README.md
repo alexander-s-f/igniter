@@ -14,6 +14,8 @@ design notes. Keep implementation snapshots and package specs in their respectiv
   architect/agent roles, and Igniter Lang guardrails.
 - [Vision Handoff Protocol](./vision-handoff-protocol.md) - compact briefing
   format for giving agents a large horizon with a narrow executable slice.
+- [Project Status Horizon Report](./project-status-horizon-report.md) -
+  whole-project status, verification, strategic insights, and horizon ideas.
 
 ### Persistence Design
 - [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md) -
@@ -65,20 +67,21 @@ Before changing architecture or reviewing an agent proposal, read:
 4. [Igniter Lang Foundation](../guide/igniter-lang-foundation.md)
 5. [Horizon Protocol](./horizon-protocol.md)
 6. [Vision Handoff Protocol](./vision-handoff-protocol.md)
-7. [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md)
-8. [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
-9. [Contract Persistence Development Track](./contract-persistence-development-track.md)
-10. [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
-11. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
-12. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
+7. [Project Status Horizon Report](./project-status-horizon-report.md)
+8. [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md)
+9. [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
+10. [Contract Persistence Development Track](./contract-persistence-development-track.md)
+11. [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
+12. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
+13. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
 
 ## Current Research State
 
-Status date: 2026-05-01.
+Status date: 2026-05-02.
 
 - Active package family: `igniter-contracts`, `igniter-extensions`,
-  `igniter-application`, `igniter-ai`, `igniter-agents`, `igniter-hub`,
-  `igniter-web`, `igniter-cluster`, `igniter-mcp-adapter`.
+  `igniter-embed`, `igniter-application`, `igniter-ai`, `igniter-agents`,
+  `igniter-hub`, `igniter-web`, `igniter-cluster`, `igniter-mcp-adapter`.
 - `Igniter::Lang` is additive and report-only: Ruby backend wrapper,
   immutable descriptors (`History`, `BiHistory`, `OLAPPoint`, `Forecast`),
   `VerificationReport`, and `MetadataManifest`.
@@ -95,6 +98,9 @@ Status date: 2026-05-01.
   and a review-only materializer/approval audit vertical.
 - `igniter-store` has shipped Phase 1 (StoreServer, NetworkBackend, TCP/Unix transport,
   graceful drain, stats, PID, CLI) and Phase 2 (SubscriptionRegistry reactive push).
+- `igniter-companion` is now the typed Record/History facade over
+  `igniter-store`, carrying Companion manifest pressure toward package-level
+  Store/History experiments.
 - Cluster owns distributed placement, routing, ownership, health, remediation,
   and mesh attempts. Contracts remain local-first and host-agnostic.
 
