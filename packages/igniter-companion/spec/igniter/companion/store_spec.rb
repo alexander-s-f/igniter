@@ -479,7 +479,8 @@ RSpec.describe Igniter::Companion::Store do
       store.write(BlogComment, key: "c1", body: "Great post!", post_id: "p1")
       result = store.resolve(:comments_by_post, from: "p1")
       expect(result.size).to eq(1)
-      expect(result.first[:body]).to eq("Great post!")
+      # write auto-registers BlogComment, so typed BlogComment instances are returned
+      expect(result.first.body).to eq("Great post!")
     end
 
     it "accumulates multiple comments for the same post" do
@@ -487,7 +488,7 @@ RSpec.describe Igniter::Companion::Store do
       store.write(BlogComment, key: "c2", body: "Second", post_id: "p1")
       result = store.resolve(:comments_by_post, from: "p1")
       expect(result.size).to eq(2)
-      expect(result.map { |v| v[:body] }).to contain_exactly("First", "Second")
+      expect(result.map(&:body)).to contain_exactly("First", "Second")
     end
 
     it "keeps per-post indexes separate" do
@@ -502,7 +503,7 @@ RSpec.describe Igniter::Companion::Store do
       store.write(BlogComment, key: "c1", body: "new", post_id: "p1")
       result = store.resolve(:comments_by_post, from: "p1")
       expect(result.size).to eq(1)
-      expect(result.first[:body]).to eq("new")
+      expect(result.first.body).to eq("new")
     end
 
     it "_relations snapshot includes index_store key" do
@@ -539,6 +540,84 @@ RSpec.describe Igniter::Companion::Store do
       expect { s.register(Reminder) }.not_to raise_error
     ensure
       s&.close
+    end
+  end
+
+  # ── Belt 12: auto-register on write + time-travel resolve ─────────────────
+
+  describe "auto-register schema class on write (Belt 12)" do
+    subject(:store) do
+      s = described_class.new
+      s.register(BlogPost)   # registers BlogPost + wires the relation
+      # BlogComment NOT explicitly registered
+      s
+    end
+
+    it "write(BlogComment, ...) registers the class for typed resolve" do
+      store.write(BlogComment, key: "c1", body: "Auto-registered!", post_id: "p1")
+      result = store.resolve(:comments_by_post, from: "p1")
+      expect(result.first).to be_a(BlogComment)
+    end
+
+    it "typed instance has correct fields after auto-register" do
+      store.write(BlogComment, key: "c1", body: "Hello", post_id: "p1")
+      comment = store.resolve(:comments_by_post, from: "p1").first
+      expect(comment.body).to    eq("Hello")
+      expect(comment.key).to     eq("c1")
+      expect(comment.post_id).to eq("p1")
+    end
+
+    it "auto-register is idempotent across multiple writes" do
+      store.write(BlogComment, key: "c1", body: "One",   post_id: "p1")
+      store.write(BlogComment, key: "c2", body: "Two",   post_id: "p1")
+      result = store.resolve(:comments_by_post, from: "p1")
+      expect(result).to all(be_a(BlogComment))
+      expect(result.size).to eq(2)
+    end
+  end
+
+  describe "resolve with as_of: (Belt 12 time-travel)" do
+    subject(:store) do
+      s = described_class.new
+      s.register(BlogPost)
+      s.register(BlogComment)
+      s
+    end
+
+    it "returns the relation state at a past checkpoint" do
+      store.write(BlogComment, key: "c1", body: "Early",  post_id: "p1")
+      sleep 0.005
+      checkpoint = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.005
+      store.write(BlogComment, key: "c2", body: "Later",  post_id: "p1")
+
+      past    = store.resolve(:comments_by_post, from: "p1", as_of: checkpoint)
+      current = store.resolve(:comments_by_post, from: "p1")
+
+      expect(past.size).to    eq(1)
+      expect(past.first).to   be_a(BlogComment)
+      expect(past.first.body).to eq("Early")
+      expect(current.size).to eq(2)
+    end
+
+    it "returns [] when partition had no entries before the checkpoint" do
+      sleep 0.005
+      checkpoint = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.005
+      store.write(BlogComment, key: "c1", body: "Post", post_id: "p1")
+
+      expect(store.resolve(:comments_by_post, from: "p1", as_of: checkpoint)).to eq([])
+    end
+
+    it "returns the source value at the past checkpoint, not the current value" do
+      store.write(BlogComment, key: "c1", body: "v1", post_id: "p1")
+      sleep 0.005
+      checkpoint = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.005
+      store.write(BlogComment, key: "c1", body: "v2", post_id: "p1")
+
+      past = store.resolve(:comments_by_post, from: "p1", as_of: checkpoint)
+      expect(past.first.body).to eq("v1")
     end
   end
 

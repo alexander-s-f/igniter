@@ -112,12 +112,14 @@ module Companion
 
       def pressure_report
         {
-          next_question: :companion_typed_resolve,
+          next_question: :companion_resolve_time_travel,
           resolved: %i[
             network_backend_native_parity
             reactive_derivation
             scatter_derivation
             relation_rule_dsl
+            companion_relation_auto_wire
+            companion_typed_resolve
           ],
           acceptance: %i[
             native_fact_deserialize_from_wire_hash

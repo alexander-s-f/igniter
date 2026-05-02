@@ -122,16 +122,19 @@ module Igniter
       end
 
       # Resolve a named relation for a given partition value.
-      # Returns an Array of the current values of all source facts whose
-      # partition field equals +from+.  Returns [] when nothing is indexed yet.
-      def resolve(relation_name, from:)
+      # Returns an Array of values of all source facts whose partition field
+      # equals +from+.  Returns [] when nothing is indexed yet.
+      #
+      # as_of: Float timestamp — when given, reads the index state AND each
+      # source value at that point in time (consistent point-in-time snapshot).
+      def resolve(relation_name, from:, as_of: nil)
         rule = @schema_graph.relation_for(name: relation_name)
         raise ArgumentError, "No relation registered: #{relation_name.inspect}" unless rule
 
-        index_entry = read(store: :"__rel_#{relation_name}", key: from.to_s)
+        index_entry = read(store: :"__rel_#{relation_name}", key: from.to_s, as_of: as_of)
         return [] unless index_entry
 
-        index_entry[:keys].filter_map { |key| read(store: rule.source, key: key) }
+        index_entry[:keys].filter_map { |key| read(store: rule.source, key: key, as_of: as_of) }
       end
 
       # Register a scatter derivation rule.

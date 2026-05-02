@@ -118,7 +118,10 @@ module Igniter
       # Write (upsert) a record. Returns a WriteReceipt wrapping the typed record.
       # Receipt delegates unknown methods to the record, so callers can use it
       # as if it were the record directly (e.g. receipt.title).
+      # Also registers schema_class in the schema registry so that resolve
+      # returns typed instances without requiring an explicit register call.
       def write(schema_class, key:, **fields)
+        @schema_by_store[schema_class.store_name] ||= schema_class
         fact = @inner.write(store: schema_class.store_name, key: key, value: fields)
         record = schema_class.new(key: key, **fields)
         WriteReceipt.new(
@@ -191,20 +194,24 @@ module Igniter
       end
 
       # Resolve a named relation for a given partition value.
-      # Returns typed Record instances when the source schema class was registered
-      # via register(); otherwise returns raw value Hashes (backward compatible).
+      # Returns typed Record instances when the source schema class is known
+      # (registered via register() or written via write()); otherwise returns
+      # raw value Hashes (backward compatible).
       # Returns [] when nothing is indexed for the given partition value.
-      def resolve(relation_name, from:)
+      #
+      # as_of: Float timestamp — when given, reads the index state AND each
+      # source value at that point in time (consistent point-in-time snapshot).
+      def resolve(relation_name, from:, as_of: nil)
         rule = @inner.schema_graph.relation_for(name: relation_name)
         raise ArgumentError, "No relation registered: #{relation_name.inspect}" unless rule
 
-        index_entry = @inner.read(store: :"__rel_#{relation_name}", key: from.to_s)
+        index_entry = @inner.read(store: :"__rel_#{relation_name}", key: from.to_s, as_of: as_of)
         return [] unless index_entry
 
         source_class = @schema_by_store[rule.source]
 
         index_entry[:keys].filter_map do |key|
-          value = @inner.read(store: rule.source, key: key)
+          value = @inner.read(store: rule.source, key: key, as_of: as_of)
           next unless value
           source_class ? source_class.new(key: key, **value) : value
         end

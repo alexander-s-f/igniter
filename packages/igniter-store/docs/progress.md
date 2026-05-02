@@ -75,8 +75,8 @@ Network backend
 
 ## Current Test Signal
 
-- `packages/igniter-store`: 221 examples, 0 failures.
-- `packages/igniter-companion`: 69 examples, 0 failures.
+- `packages/igniter-store`: 224 examples, 0 failures.
+- `packages/igniter-companion`: 75 examples, 0 failures.
 
 ## Architecture Meaning
 

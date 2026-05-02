@@ -228,6 +228,50 @@ RSpec.describe "RelationRule DSL (Belt 9)" do
     end
   end
 
+  # ------------------------------------------------------------------ time-travel resolve (as_of:)
+
+  describe "#resolve with as_of:" do
+    before do
+      store.register_relation(:article_comments,
+        source: :comments, partition: :article_id, target: :articles)
+    end
+
+    it "returns the relation state at a past point in time" do
+      store.write(store: :comments, key: "c1", value: { article_id: "a1", body: "Early" })
+      sleep 0.005
+      checkpoint = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.005
+      store.write(store: :comments, key: "c2", value: { article_id: "a1", body: "Later" })
+
+      past    = store.resolve(:article_comments, from: "a1", as_of: checkpoint)
+      current = store.resolve(:article_comments, from: "a1")
+
+      expect(past.size).to    eq(1)
+      expect(past.first[:body]).to eq("Early")
+      expect(current.size).to eq(2)
+    end
+
+    it "returns [] when nothing was indexed before as_of" do
+      sleep 0.005
+      checkpoint = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.005
+      store.write(store: :comments, key: "c1", value: { article_id: "a1", body: "Post-checkpoint" })
+
+      expect(store.resolve(:article_comments, from: "a1", as_of: checkpoint)).to eq([])
+    end
+
+    it "reflects updated source values at the past timestamp" do
+      store.write(store: :comments, key: "c1", value: { article_id: "a1", body: "v1" })
+      sleep 0.005
+      checkpoint = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.005
+      store.write(store: :comments, key: "c1", value: { article_id: "a1", body: "v2" })
+
+      past = store.resolve(:article_comments, from: "a1", as_of: checkpoint)
+      expect(past.first[:body]).to eq("v1")
+    end
+  end
+
   # ------------------------------------------------------------------ G-Set property
 
   describe "G-Set (append-only) property" do
