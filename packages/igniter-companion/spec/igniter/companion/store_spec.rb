@@ -427,6 +427,121 @@ RSpec.describe Igniter::Companion::Store do
     end
   end
 
+  # ── Relation auto-wire (Belt 10) ──────────────────────────────────────────
+
+  # Schema classes used only in this section to avoid polluting global fixtures.
+  BlogPost = Class.new do
+    include Igniter::Companion::Record
+    store_name :blog_posts
+    field :title
+    relation :comments_by_post, kind: :event_owner, to: :blog_comments,
+             join: { id: :post_id }, cardinality: :one_to_many
+    relation :tags_by_post,     kind: :ownership, to: :blog_tags,
+             join: { id: :post_id }, cardinality: :one_to_many
+    relation :author_ref,       kind: :reference, to: :users,
+             join: { author_id: :id }, cardinality: :many_to_one  # should NOT be auto-wired
+  end
+
+  BlogComment = Class.new do
+    include Igniter::Companion::Record
+    store_name :blog_comments
+    field :body
+    field :post_id
+  end
+
+  describe "Companion::Store register — relation auto-wire" do
+    subject(:store) do
+      s = described_class.new
+      s.register(BlogPost)
+      s
+    end
+
+    it "auto-wires one_to_many/event_owner relation on register" do
+      snap = store._relations
+      expect(snap.keys).to include(:comments_by_post)
+    end
+
+    it "auto-wires one_to_many/ownership relation on register" do
+      snap = store._relations
+      expect(snap.keys).to include(:tags_by_post)
+    end
+
+    it "does NOT auto-wire many_to_one/reference relations" do
+      snap = store._relations
+      expect(snap.keys).not_to include(:author_ref)
+    end
+
+    it "resolves an empty array before any comments are written" do
+      expect(store.resolve(:comments_by_post, from: "p1")).to eq([])
+    end
+
+    it "resolve returns source values after a comment is written" do
+      store.write(BlogComment, key: "c1", body: "Great post!", post_id: "p1")
+      result = store.resolve(:comments_by_post, from: "p1")
+      expect(result.size).to eq(1)
+      expect(result.first[:body]).to eq("Great post!")
+    end
+
+    it "accumulates multiple comments for the same post" do
+      store.write(BlogComment, key: "c1", body: "First",  post_id: "p1")
+      store.write(BlogComment, key: "c2", body: "Second", post_id: "p1")
+      result = store.resolve(:comments_by_post, from: "p1")
+      expect(result.size).to eq(2)
+      expect(result.map { |v| v[:body] }).to contain_exactly("First", "Second")
+    end
+
+    it "keeps per-post indexes separate" do
+      store.write(BlogComment, key: "c1", body: "On P1", post_id: "p1")
+      store.write(BlogComment, key: "c2", body: "On P2", post_id: "p2")
+      expect(store.resolve(:comments_by_post, from: "p1").size).to eq(1)
+      expect(store.resolve(:comments_by_post, from: "p2").size).to eq(1)
+    end
+
+    it "returns latest comment value after update" do
+      store.write(BlogComment, key: "c1", body: "old", post_id: "p1")
+      store.write(BlogComment, key: "c1", body: "new", post_id: "p1")
+      result = store.resolve(:comments_by_post, from: "p1")
+      expect(result.size).to eq(1)
+      expect(result.first[:body]).to eq("new")
+    end
+
+    it "_relations snapshot includes index_store key" do
+      snap = store._relations
+      expect(snap[:comments_by_post][:index_store]).to eq(:__rel_comments_by_post)
+    end
+  end
+
+  describe "Companion::Store register — idempotency" do
+    it "calling register twice with the same class is a no-op (no duplicate rules)" do
+      s = described_class.new
+      s.register(BlogPost)
+      s.register(BlogPost)
+
+      # Only one scatter rule per relation, not two
+      scatter = s.instance_variable_get(:@inner).schema_graph.scatter_snapshot
+      comments_scatters = scatter.select { |r| r[:source_store] == :blog_comments }
+      expect(comments_scatters.size).to eq(1)
+    ensure
+      s&.close
+    end
+
+    it "returns self (chainable)" do
+      s = described_class.new
+      expect(s.register(BlogPost)).to be(s)
+    ensure
+      s&.close
+    end
+  end
+
+  describe "Companion::Store register — schema class without _relations" do
+    it "does not raise when schema_class has no _relations (plain Reminder)" do
+      s = described_class.new
+      expect { s.register(Reminder) }.not_to raise_error
+    ensure
+      s&.close
+    end
+  end
+
   # ── Portable field types ───────────────────────────────────────────────────
 
   describe "portable field types" do

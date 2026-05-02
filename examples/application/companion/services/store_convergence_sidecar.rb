@@ -130,7 +130,7 @@ module Companion
 
       def pressure_report
         {
-          next_question: :relation_rule_dsl,
+          next_question: :companion_relation_auto_wire,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
           resolved: %i[
@@ -150,6 +150,7 @@ module Companion
             projection_descriptor_mirroring
             reactive_derivation
             scatter_derivation
+            relation_rule_dsl
           ],
           facade_input_ready: %i[
             storage_shape
@@ -168,12 +169,13 @@ module Companion
             history_partition_key
             derivation_rules
             scatter_rules
+            relation_rules
           ],
           asks: %i[
-            relation_rule_dsl
+            companion_relation_auto_wire
           ],
           recommended_order: %i[
-            relation_rule_dsl
+            companion_relation_auto_wire
           ]
         }
       end

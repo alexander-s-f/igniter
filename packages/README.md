@@ -19,6 +19,9 @@ Experimental research packages:
 - `igniter-store` - contract-native store POC for immutable facts,
   time-travel reads, reactive invalidation, WAL replay, and future sync-hub
   experiments.
+- `igniter-companion` - typed Record/History facade over `igniter-store`,
+  carrying Companion app-local persistence pressure toward package-level
+  Store/History experiments.
 
 Remaining recreation work:
 

@@ -112,8 +112,13 @@ module Companion
 
       def pressure_report
         {
-          next_question: :reactive_derivation,
-          resolved: :network_backend_native_parity,
+          next_question: :companion_relation_auto_wire,
+          resolved: %i[
+            network_backend_native_parity
+            reactive_derivation
+            scatter_derivation
+            relation_rule_dsl
+          ],
           acceptance: %i[
             native_fact_deserialize_from_wire_hash
             network_backend_available_under_native

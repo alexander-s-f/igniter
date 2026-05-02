@@ -26,6 +26,7 @@ module Igniter
     #   store.replay(TrackerLog)
     class Store
       def initialize(backend: :memory, path: nil, address: nil, transport: :tcp)
+        @registered = Set.new
         @inner = case backend
         when :memory
           Igniter::Store::IgniterStore.new
@@ -47,23 +48,51 @@ module Igniter
         end
       end
 
-      # Register a Record schema — sets up AccessPaths for all declared scopes.
-      # Must be called before any scope queries on this schema class.
+      # Register a Record schema — sets up AccessPaths for all declared scopes
+      # and auto-wires one_to_many relations with a join key as materialized
+      # scatter indexes.  Idempotent: calling register twice with the same class
+      # is a no-op.
+      #
+      # Auto-wire criteria for a declared relation:
+      #   cardinality: :one_to_many  AND  join present  AND
+      #   kind: :event_owner or :ownership
       def register(schema_class)
-        return self unless schema_class.respond_to?(:_scopes)
+        return self if @registered.include?(schema_class)
 
-        schema_class._scopes.each do |scope_name, opts|
-          @inner.register_path(
-            Igniter::Store::AccessPath.new(
-              store:     schema_class.store_name,
-              lookup:    :primary_key,
-              scope:     scope_name,
-              filters:   opts[:filters],
-              cache_ttl: opts[:cache_ttl],
-              consumers: []
+        @registered << schema_class
+
+        if schema_class.respond_to?(:_scopes)
+          schema_class._scopes.each do |scope_name, opts|
+            @inner.register_path(
+              Igniter::Store::AccessPath.new(
+                store:     schema_class.store_name,
+                lookup:    :primary_key,
+                scope:     scope_name,
+                filters:   opts[:filters],
+                cache_ttl: opts[:cache_ttl],
+                consumers: []
+              )
             )
-          )
+          end
         end
+
+        if schema_class.respond_to?(:_relations)
+          schema_class._relations.each do |rel_name, attrs|
+            next unless attrs[:cardinality] == :one_to_many
+            next if attrs[:join].nil? || attrs[:join].empty?
+            next unless %i[event_owner ownership].include?(attrs[:kind])
+
+            partition = attrs[:join].values.first
+            next unless partition
+
+            register_relation(rel_name,
+              source: attrs[:to],
+              partition: partition,
+              target: schema_class.store_name
+            )
+          end
+        end
+
         self
       end
 
