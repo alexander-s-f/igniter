@@ -145,6 +145,54 @@ module Igniter
           @store.schema_graph.descriptor_snapshot
         end
 
+        # OP4: generates a SyncProfile for a cold hub or incremental update.
+        #
+        # Full sync (cursor: nil):     all facts + full descriptor snapshot
+        # Incremental (cursor: given): facts since cursor[:value] timestamp + snapshot
+        # stores: Array<Symbol>        optional store filter (nil = all stores)
+        #
+        # The returned SyncProfile#next_cursor should be persisted by the hub and
+        # sent back as cursor: on the next call to receive only new facts.
+        def sync_hub_profile(as_of: nil, cursor: nil, stores: nil)
+          from = cursor&.dig(:value)
+
+          raw_facts = @store.fact_log_all(since: from, as_of: as_of)
+
+          if stores
+            allowed = Array(stores).map(&:to_sym).to_set
+            raw_facts = raw_facts.select { |f| allowed.include?(f.store) }
+          end
+
+          fact_packets = raw_facts.map { |f| serialize_fact(f) }
+
+          SyncProfile.new(
+            schema_version:           1,
+            kind:                     :sync_hub_profile,
+            generated_at:             Process.clock_gettime(Process::CLOCK_REALTIME),
+            cursor:                   cursor,
+            descriptors:              metadata_snapshot,
+            facts:                    fact_packets,
+            retention:                @store.schema_graph.retention_snapshot,
+            compaction_receipts:      compaction_receipt_summaries,
+            subscription_checkpoints: {}
+          )
+        end
+
+        # OP4: return all (or range-filtered) facts as serialized fact packets.
+        # Suitable for WAL replay to a cold hub or test double.
+        # filter: { store: :name } — optional store filter.
+        def replay(from: nil, to: nil, filter: nil)
+          raw_facts = @store.fact_log_all(since: from, as_of: to)
+
+          if filter
+            filter = filter.transform_keys(&:to_sym)
+            store_sym = filter[:store]&.to_sym
+            raw_facts = raw_facts.select { |f| f.store == store_sym } if store_sym
+          end
+
+          raw_facts.map { |f| serialize_fact(f) }
+        end
+
         # OP3: returns the WireEnvelope router for this interpreter.
         # Accepts process-boundary envelope hashes and returns response envelopes.
         def wire
@@ -160,6 +208,33 @@ module Igniter
 
         def fingerprint(descriptor)
           Digest::SHA256.hexdigest(descriptor.to_a.sort_by { |k, _| k.to_s }.inspect)
+        end
+
+        def serialize_fact(fact)
+          {
+            schema_version: 1,
+            kind:       :fact,
+            id:         fact.id,
+            store:      fact.store,
+            key:        fact.key,
+            value:      fact.value,
+            value_hash: fact.value_hash,
+            causation:  fact.causation,
+            timestamp:  fact.timestamp,
+            producer:   fact.producer
+          }
+        end
+
+        def compaction_receipt_summaries
+          @store.compaction_receipts.map do |f|
+            {
+              id:              f.id,
+              compacted_store: f.value[:compacted_store],
+              strategy:        f.value[:strategy],
+              compacted_count: f.value[:compacted_count],
+              compacted_at:    f.value[:compacted_at]
+            }
+          end
         end
       end
     end

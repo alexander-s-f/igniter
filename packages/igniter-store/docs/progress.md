@@ -81,7 +81,7 @@ Network backend
 
 ## Current Test Signal
 
-- `packages/igniter-store`: 300 examples, 0 failures.
+- `packages/igniter-store`: 327 examples, 0 failures.
 - `packages/igniter-companion`: 75 examples, 0 failures.
 
 ## Architecture Meaning
@@ -145,8 +145,18 @@ OP3 — Wire Envelope
   -> Pure Ruby — no I/O; StoreServer feeds deserialized hashes in,
      ships serialized responses out (framing stays in WireProtocol)
 
-Pending:
-  OP4 — Sync Hub Profile (cold sync profile)
+OP4 — Sync Hub Profile
+  -> SyncProfile value object: schema_version, kind, generated_at, cursor,
+     descriptors, facts, retention, compaction_receipts, subscription_checkpoints
+  -> SyncProfile#full? / incremental? / fact_count / next_cursor
+  -> Cursor: { kind: :timestamp, value: Float } — hub persists and sends back
+     on next sync to receive only new facts (incremental delta mode)
+  -> Interpreter#sync_hub_profile(as_of:, cursor:, stores:) — full or incremental
+  -> Interpreter#replay(from:, to:, filter:) — WAL replay as fact packet array
+  -> IgniterStore#fact_log_all(since:, as_of:) — time-bounded log access
+  -> WireEnvelope: :sync_hub_profile and :replay ops added
+  -> serialize_fact helper: full fact → protocol fact packet hash
+  -> All four open-protocol slices (OP1–OP4) now implemented
 ```
 
 Store-side pressure after index metadata:

@@ -34,6 +34,8 @@ module Igniter
           resolve
           metadata_snapshot
           descriptor_snapshot
+          sync_hub_profile
+          replay
         ].freeze
 
         def initialize(interpreter)
@@ -114,6 +116,21 @@ module Igniter
 
           when :descriptor_snapshot
             @interpreter.descriptor_snapshot
+
+          when :sync_hub_profile
+            @interpreter.sync_hub_profile(
+              as_of:  packet[:as_of],
+              cursor: packet[:cursor],
+              stores: packet[:stores]
+            )
+
+          when :replay
+            facts = @interpreter.replay(
+              from:   packet[:from],
+              to:     packet[:to],
+              filter: packet[:filter]
+            )
+            { facts: facts, count: facts.size }
           end
         end
 

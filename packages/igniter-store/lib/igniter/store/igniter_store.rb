@@ -385,6 +385,17 @@ module Igniter
         @log.size
       end
 
+      # Return all facts from the log, optionally bounded by time range.
+      # Used by the open protocol sync hub profile and replay operations.
+      # Returns [] when the native FactLog lacks all_facts support.
+      def fact_log_all(since: nil, as_of: nil)
+        return [] unless @log.respond_to?(:all_facts)
+        facts = @log.all_facts
+        facts = facts.select { |f| f.timestamp >= since } if since
+        facts = facts.select { |f| f.timestamp <= as_of  } if as_of
+        facts
+      end
+
       def close
         @backend&.close
       end
