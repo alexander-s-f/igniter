@@ -54,10 +54,15 @@ module Igniter
       class HealthHandler
         include ResponseHelper
 
+        def initialize(health_provider: nil)
+          @health_provider = health_provider
+        end
+
         def call(env)
           return method_not_allowed unless env["REQUEST_METHOD"] == "GET"
 
-          json_response(200, { protocol: :igniter_store, schema_version: 1, status: :ready })
+          health = @health_provider ? @health_provider.call : { protocol: :igniter_store, schema_version: 1, status: :ready }
+          json_response(200, health)
         end
       end
 
@@ -77,17 +82,19 @@ module Igniter
 
       # ── Adapter ──────────────────────────────────────────────────────────────
 
-      def initialize(interpreter:, port: 7300, host: "0.0.0.0")
-        @interpreter = interpreter
-        @port        = port
-        @host        = host
-        @puma        = nil
-        @thread      = nil
+      def initialize(interpreter:, port: 7300, host: "0.0.0.0", health_provider: nil)
+        @interpreter     = interpreter
+        @port            = port
+        @host            = host
+        @health_provider = health_provider
+        @puma            = nil
+        @thread          = nil
       end
 
       # Returns a Rack-compatible app mountable in any Rack server.
       def rack_app
         interp = @interpreter
+        hp     = @health_provider
         not_found = ->(env) {
           body = JSON.generate({ error: "Not found: #{env["REQUEST_METHOD"]} #{env["PATH_INFO"]}" })
           [404, { "Content-Type" => "application/json", "Content-Length" => body.bytesize.to_s }, [body]]
@@ -95,7 +102,7 @@ module Igniter
 
         Rack::Builder.new do
           map "/v1/dispatch" do run DispatchHandler.new(interp) end
-          map "/v1/health"   do run HealthHandler.new           end
+          map "/v1/health"   do run HealthHandler.new(health_provider: hp) end
           map "/v1/metadata" do run MetadataHandler.new(interp) end
           run not_found
         end
