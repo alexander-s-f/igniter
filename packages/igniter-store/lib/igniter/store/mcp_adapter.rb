@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require "json"
+require "net/http"
 require "securerandom"
+require "set"
+require "uri"
 
 module Igniter
   module Store
@@ -19,6 +23,10 @@ module Igniter
     # Usage — wrap an existing Interpreter:
     #
     #   adapter = Igniter::Store::MCPAdapter.new(proto)  # proto = Protocol::Interpreter
+    #
+    # Usage — remote StoreServer /v1/dispatch:
+    #
+    #   adapter = Igniter::Store::MCPAdapter.remote("http://127.0.0.1:7300/v1/dispatch")
     #
     # Every response includes:
     #   schema_version, request_id, source_protocol_op, status, result | error
@@ -52,6 +60,47 @@ module Igniter
         segment_manifest:   :segment_manifest
       }.freeze
 
+      class RemoteDispatch
+        def initialize(endpoint)
+          @uri = normalize_endpoint(endpoint)
+        end
+
+        def dispatch(op:, packet:, request_id:)
+          envelope = {
+            protocol:       :igniter_store,
+            schema_version: SCHEMA_VERSION,
+            request_id:     request_id,
+            op:             op,
+            packet:         packet
+          }
+
+          request = Net::HTTP::Post.new(@uri)
+          request["Content-Type"] = "application/json"
+          request.body = JSON.generate(envelope)
+
+          http = Net::HTTP.new(@uri.host, @uri.port)
+          http.use_ssl = @uri.scheme == "https"
+          response = http.request(request)
+          unless response.code.to_i.between?(200, 299)
+            raise "HTTP #{@uri} returned #{response.code}"
+          end
+
+          JSON.parse(response.body, symbolize_names: true)
+        end
+
+        private
+
+        def normalize_endpoint(endpoint)
+          uri = URI(endpoint.to_s)
+          uri.path = "/v1/dispatch" if uri.path.nil? || uri.path.empty? || uri.path == "/"
+          uri
+        end
+      end
+
+      def self.remote(endpoint, enabled_tools: READ_TOOLS)
+        new(RemoteDispatch.new(endpoint), enabled_tools: enabled_tools)
+      end
+
       # +interpreter_or_store+ — Protocol::Interpreter, IgniterStore, or a store
       #   returned by Igniter::Store.segmented / Igniter::Store.memory.
       # +enabled_tools+        — Array of tool name Symbols. Defaults to READ_TOOLS.
@@ -61,11 +110,14 @@ module Igniter
                          interpreter_or_store
                        when IgniterStore
                          Protocol::Interpreter.new(interpreter_or_store)
+                       when RemoteDispatch
+                         interpreter_or_store
                        else
                          raise ArgumentError,
-                               "MCPAdapter expects a Protocol::Interpreter or IgniterStore, " \
+                               "MCPAdapter expects a Protocol::Interpreter, IgniterStore, or RemoteDispatch, " \
                                "got #{interpreter_or_store.class}"
                        end
+        @remote = interpreter_or_store.is_a?(RemoteDispatch)
         @enabled = enabled_tools.map(&:to_sym).to_set
       end
 
@@ -78,25 +130,29 @@ module Igniter
       # Returns a response Hash with schema_version, request_id, status, etc.
       # Never raises — errors are captured into the response envelope.
       def call_tool(name, arguments = {})
-        name = name.to_sym
+        tool = nil
+        req = nil
+        tool = name.to_sym
         args = arguments.transform_keys(&:to_sym)
         req  = args.delete(:request_id) || generate_request_id
 
-        unless @enabled.include?(name)
-          return error_response(name, req, "Tool #{name.inspect} is not enabled")
+        unless @enabled.include?(tool)
+          return error_response(tool, req, "Tool #{tool.inspect} is not enabled")
         end
 
-        result = dispatch(name, args)
-        ok_response(name, req, result)
+        result = dispatch(tool, args, request_id: req)
+        ok_response(tool, req, result)
       rescue ArgumentError => e
-        error_response(name, generate_request_id, e.message)
+        error_response(tool, req || generate_request_id, e.message)
       rescue StandardError => e
-        error_response(name, generate_request_id, "Internal error: #{e.message}")
+        error_response(tool, req || generate_request_id, "Internal error: #{e.message}")
       end
 
       private
 
-      def dispatch(name, args)
+      def dispatch(name, args, request_id:)
+        return remote_dispatch(name, args, request_id: request_id) if @remote
+
         case name
         when :metadata_snapshot
           @interpreter.metadata_snapshot
@@ -149,6 +205,60 @@ module Igniter
 
         when :segment_manifest
           @interpreter.segment_manifest(store: args[:store])
+        end
+      end
+
+      def remote_dispatch(name, args, request_id:)
+        packet = packet_for(name, args)
+        op = TOOL_TO_OP.fetch(name)
+        response = @interpreter.dispatch(op: op, packet: packet, request_id: request_id)
+        status = response[:status]&.to_sym
+        raise "remote dispatch #{op.inspect} failed: #{response[:error]}" unless status == :ok
+
+        normalize_wire_result(name, response[:result])
+      end
+
+      def packet_for(name, args)
+        case name
+        when :metadata_snapshot, :descriptor_snapshot
+          {}
+        when :read
+          { store: args.fetch(:store), key: args.fetch(:key), as_of: args[:as_of] }
+        when :query
+          raise ArgumentError, "query: requires limit:" unless args.key?(:limit)
+          { store: args.fetch(:store), where: args.fetch(:where, {}),
+            order: args[:order], limit: args[:limit].to_i, as_of: args[:as_of] }
+        when :resolve
+          { relation: args.fetch(:relation), from: args.fetch(:from), as_of: args[:as_of] }
+        when :replay
+          unless args[:limit] || args[:store] || args[:from]
+            raise ArgumentError, "replay: requires at least one bounding argument (limit:, store:, or from:)"
+          end
+          packet = { from: args[:from], to: args[:to], filter: args[:filter] }
+          packet[:filter] = { store: args[:store] } if args[:store]
+          packet[:limit] = args[:limit].to_i if args[:limit]
+          packet
+        when :sync_profile
+          { as_of: args[:as_of], cursor: args[:cursor], stores: args[:stores] }
+        when :storage_stats, :segment_manifest
+          { store: args[:store] }
+        else
+          {}
+        end.compact
+      end
+
+      def normalize_wire_result(name, result)
+        case name
+        when :read
+          result[:value]
+        when :query, :resolve
+          result[:results]
+        when :replay
+          facts = result[:facts]
+          count = result[:count]
+          { facts: facts, count: count }
+        else
+          result
         end
       end
 

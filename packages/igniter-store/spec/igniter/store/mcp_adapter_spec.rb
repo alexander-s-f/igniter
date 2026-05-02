@@ -8,6 +8,13 @@ RSpec.describe Igniter::Store::MCPAdapter do
   subject(:adapter) { described_class.new(store) }
   let(:store)       { Igniter::Store.memory }
 
+  def free_port
+    s = TCPServer.new("127.0.0.1", 0)
+    p = s.addr[1]
+    s.close
+    p
+  end
+
   after { store.close rescue nil }
 
   # ── Construction ─────────────────────────────────────────────────────────────
@@ -76,6 +83,19 @@ RSpec.describe Igniter::Store::MCPAdapter do
     it "request_id is echoed when provided in arguments" do
       resp = adapter.call_tool(:metadata_snapshot, request_id: "test_req_1")
       expect(resp[:request_id]).to eq("test_req_1")
+    end
+
+    it "preserves request_id when an argument error occurs" do
+      resp = adapter.call_tool(:read, key: "t1", request_id: "err_req_1")
+      expect(resp[:status]).to     eq(:error)
+      expect(resp[:request_id]).to eq("err_req_1")
+    end
+
+    it "returns nil source_protocol_op for unknown tools" do
+      resp = adapter.call_tool(:unknown_tool, request_id: "unknown_req")
+      expect(resp[:status]).to             eq(:error)
+      expect(resp[:request_id]).to         eq("unknown_req")
+      expect(resp[:source_protocol_op]).to be_nil
     end
 
     it "auto-generates request_id when not provided" do
@@ -235,6 +255,61 @@ RSpec.describe Igniter::Store::MCPAdapter do
                       })[:result]
       expect(mcp_result[:schema_version]).to eq(wire_result[:schema_version])
       expect(mcp_result[:stores]).to         eq(wire_result[:stores])
+    end
+  end
+
+  # ── Remote /v1/dispatch mode ────────────────────────────────────────────────
+
+  describe ".remote" do
+    let(:port) { free_port }
+    let(:remote_store) { Igniter::Store.memory }
+    let(:interpreter) { Igniter::Store::Protocol.new(remote_store) }
+    let(:http_adapter) {
+      Igniter::Store::HTTPAdapter.new(interpreter: interpreter, host: "127.0.0.1", port: port)
+    }
+    let(:remote_adapter) {
+      described_class.remote("http://127.0.0.1:#{port}/v1/dispatch")
+    }
+
+    before do
+      http_adapter.start_async
+    end
+
+    after do
+      http_adapter.stop rescue nil
+      remote_store.close rescue nil
+    end
+
+    it "normalizes remote read result to match embedded tool shape" do
+      remote_store.write(store: :tasks, key: "t1", value: { done: false })
+      resp = remote_adapter.call_tool(:read, store: "tasks", key: "t1", request_id: "remote_read_1")
+
+      expect(resp[:status]).to             eq(:ok)
+      expect(resp[:request_id]).to         eq("remote_read_1")
+      expect(resp[:source_protocol_op]).to eq(:read)
+      expect(resp[:result]).to             include(done: false)
+    end
+
+    it "normalizes remote query result to an Array" do
+      remote_store.write(store: :tasks, key: "t1", value: { status: "open" })
+      remote_store.write(store: :tasks, key: "t2", value: { status: "done" })
+
+      resp = remote_adapter.call_tool(:query, store: "tasks", where: { status: "open" },
+                                              limit: 10, request_id: "remote_query_1")
+
+      expect(resp[:status]).to eq(:ok)
+      expect(resp[:result]).to be_an(Array)
+      expect(resp[:result].first).to include(status: "open")
+    end
+
+    it "preserves request_id when remote dispatch returns an error" do
+      resp = remote_adapter.call_tool(:resolve, relation: "missing_relation",
+                                                from: "x", request_id: "remote_err_1")
+
+      expect(resp[:status]).to             eq(:error)
+      expect(resp[:request_id]).to         eq("remote_err_1")
+      expect(resp[:source_protocol_op]).to eq(:resolve)
+      expect(resp[:error]).to              match(/remote dispatch/)
     end
   end
 end
