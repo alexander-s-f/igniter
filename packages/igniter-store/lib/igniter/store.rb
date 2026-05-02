@@ -21,6 +21,8 @@ require_relative "store/igniter_store"
 require_relative "store/read_cache"
 require_relative "store/schema_graph"
 require_relative "store/protocol"
+require_relative "store/http_adapter"
+require_relative "store/tcp_adapter"
 
 module Igniter
   module Store

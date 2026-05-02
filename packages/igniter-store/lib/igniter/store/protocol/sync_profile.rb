@@ -37,6 +37,8 @@ module Igniter
         def incremental? = !full?
         def fact_count   = facts.size
 
+        def to_json(*opts) = to_h.to_json(*opts)
+
         # Build the cursor that a hub should send on its next sync request.
         def next_cursor
           return nil if facts.empty?

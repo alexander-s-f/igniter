@@ -28,8 +28,12 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.extensions    = ["ext/igniter_store_native/extconf.rb"]
 
+  spec.add_dependency "rack", "~> 3.0"
+
   spec.add_development_dependency "rb_sys", "~> 0.9"
   spec.add_development_dependency "rake-compiler", "~> 1.2"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rake", "~> 13.0"
+  spec.add_development_dependency "puma", "~> 6.0"
+  spec.add_development_dependency "rack-test", "~> 2.0"
 end

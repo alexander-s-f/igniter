@@ -1,7 +1,7 @@
 # Igniter Store Server API Proposal
 
 Status date: 2026-05-02.
-Status: proposal for the server/API layer above Igniter Store Open Protocol.
+Status: architecture decided, ready for implementation.
 Not a stable public API.
 
 ## Claim
@@ -36,24 +36,19 @@ become a contract-logic RPC server.
 
 ### 1. Protocol Core
 
-Already present in `Igniter::Store::Protocol::Interpreter`:
+Already shipped in `Igniter::Store::Protocol::Interpreter`:
 
 - `register_descriptor`
-- `write`
-- `write_fact`
-- `read`
-- `query`
-- `resolve`
-- `metadata_snapshot`
-- `descriptor_snapshot`
-- `replay`
-- `sync_hub_profile`
+- `write` / `write_fact`
+- `read` / `query` / `resolve`
+- `metadata_snapshot` / `descriptor_snapshot`
+- `replay` / `sync_hub_profile`
 
-This layer is in-process Ruby and owns protocol semantics.
+This layer is in-process Ruby and owns all protocol semantics.
 
 ### 2. Wire Envelope
 
-Already present in `Igniter::Store::Protocol::WireEnvelope`:
+Already shipped in `Igniter::Store::Protocol::WireEnvelope`:
 
 ```ruby
 {
@@ -82,7 +77,7 @@ Response:
 }
 ```
 
-Errors should stay envelope-shaped:
+Errors remain envelope-shaped:
 
 ```ruby
 {
@@ -94,24 +89,68 @@ Errors should stay envelope-shaped:
 }
 ```
 
-### 3. Server Transport
+### 3. Transport Adapters
 
-The next implementation layer should route transport requests into
-`WireEnvelope#dispatch`.
+Two independent adapter classes, both delegating to a shared
+`Protocol::Interpreter`. Both live in the same `StoreServer` process.
 
-Initial target:
+#### HTTPAdapter
 
-```text
-POST /v1/dispatch
+```ruby
+adapter = Igniter::Store::HTTPAdapter.new(interpreter: interpreter, port: 7300)
+adapter.rack_app   # → Rack-compatible callable, mountable in any server
+adapter.start      # → starts WEBrick (dev/test) or Puma (via dev dep)
 ```
 
-This endpoint accepts one wire envelope and returns one wire envelope response.
+HTTP stack: Rack interface. No HTTP production dependency.
+`rack` and `puma` are development dependencies only — the user mounts `rack_app`
+in their own server in production.
 
-Transport alternatives can share the same payload:
+Routes:
 
-- HTTP JSON for human/debug/tool interoperability.
-- TCP or Unix socket framed packets for local/server runtime.
-- SSE or WebSocket for subscription delivery.
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/v1/dispatch` | Canonical: accepts/returns one WireEnvelope |
+| `GET`  | `/v1/health`   | Liveness + protocol version |
+| `GET`  | `/v1/metadata` | Convenience → `metadata_snapshot` |
+
+All other operations go through `/v1/dispatch`. Convenience routes that cannot
+be expressed as wire ops must not be added.
+
+Testing: `rack-test` (dev dep) — `rack_app.call(env)`, no network sockets.
+
+#### TCPAdapter
+
+```ruby
+adapter = Igniter::Store::TCPAdapter.new(interpreter: interpreter, port: 7401)
+adapter.start  # framed WireProtocol read → wire.dispatch → framed response
+```
+
+Uses existing `WireProtocol` CRC32 framing. Reads one envelope hash per frame,
+dispatches, writes one response frame.
+
+Port 7401 is distinct from the legacy StoreServer port (7400). `NetworkBackend`
+continues to talk to the legacy path — TCPAdapter is the new envelope path.
+
+### 4. StoreServer Process Model
+
+All transports in one process. `StoreServer` owns `IgniterStore` and
+`Protocol::Interpreter`. Adapters receive the interpreter as a dependency.
+
+```text
+StoreServer process
+  IgniterStore  (durable facts)
+  Protocol::Interpreter  (OP1–OP5 semantics)
+
+  Legacy path (port 7400):     write_fact / replay / subscribe
+  HTTPAdapter  (port 7300):    /v1/dispatch  →  interpreter.wire.dispatch
+  TCPAdapter   (port 7401):    framed packet →  interpreter.wire.dispatch
+```
+
+CLI: `igniter-store-server --http-port 7300 --tcp-port 7401`
+
+Subscriptions (SSE or framed push): out of scope for first slice. The legacy
+`subscribe` path on port 7400 remains available.
 
 ## Minimal HTTP Surface
 
@@ -148,23 +187,20 @@ expressed as a wire op, it should not be added yet.
 ## StoreServer Integration
 
 Current `StoreServer` already hosts durable facts and network replay/write
-paths. The next server slice should add envelope dispatch without removing the
+paths. The new adapter layer adds envelope dispatch without touching the
 existing lower-level path.
-
-Target shape:
 
 ```text
 StoreServer
   owns: IgniterStore
-  owns: Protocol::Interpreter
-  owns: Protocol::WireEnvelope
-  routes:
-    legacy write_fact/replay/subscribe
-    protocol dispatch envelope
+  owns: Protocol::Interpreter  ← new ownership, lazy-initialised
+  owns: HTTPAdapter            ← new, wraps interpreter
+  owns: TCPAdapter             ← new, wraps interpreter
+  legacy:
+    write_fact / replay / subscribe paths (port 7400, unchanged)
 ```
 
-This lets existing `NetworkBackend` tests remain valid while opening OP1-OP4 to
-remote clients.
+Existing `NetworkBackend` tests remain valid — legacy port is untouched.
 
 ## Boundary Rules
 
@@ -251,26 +287,64 @@ Suggested smoke:
 8. fetch sync_hub_profile
 ```
 
-## Open Questions
+## Resolved Decisions
 
-- Should first transport be HTTP JSON, framed TCP/Unix, or both?
-- Should `NetworkBackend` move to wire envelopes immediately or keep the legacy
-  path until compatibility is proven?
-- Should subscriptions use SSE first, or remain framed socket push?
+| Question | Decision |
+|----------|----------|
+| First transport | Both HTTP and TCP/Unix from day one |
+| HTTP stack | Rack interface + Puma/WEBrick as dev deps only |
+| Two transports config | Two independent adapter classes (HTTPAdapter, TCPAdapter) |
+| Process model | All in one StoreServer process, two ports |
+| NetworkBackend migration | Legacy path stays; envelope path is additive |
+| Subscriptions (first slice) | Out of scope — legacy subscribe path remains |
+
+## Open Questions (remaining)
+
 - Should descriptor registration persist across server restart before the
-  protocol API is called stable?
+  protocol API is called stable? (Suggestion: file WAL already handles this
+  if `backend: :file` is used — descriptors are not currently in the WAL, so
+  re-registration on startup may be required until WAL includes descriptors.)
 - Should sync profiles be generated on demand only, or also persisted as facts?
+
+## First Slice Acceptance
+
+```text
+1. StoreServer starts HTTPAdapter (port 7300) and TCPAdapter (port 7401)
+2. POST /v1/dispatch accepts OP3 envelope → WireEnvelope#dispatch → response
+3. register_descriptor → write → read → query → resolve → metadata_snapshot
+   all work through both transports
+4. sync_hub_profile works through both transports
+5. Error responses remain envelope-shaped
+6. Legacy write_fact / replay / subscribe on port 7400 still passes all specs
+7. CLI accepts --http-port and --tcp-port flags
+```
+
+Suggested smoke sequence:
+```text
+1. register store descriptor :tasks
+2. register relation descriptor :project_tasks
+3. write task facts
+4. read one task
+5. query open tasks
+6. resolve project_tasks
+7. fetch metadata_snapshot
+8. fetch sync_hub_profile
+```
 
 ## Handoff
 
 ```text
 [Architect Supervisor / Codex]
 Track: igniter-store-server-api
-Status: proposal drafted.
+Status: architecture decided, ready for implementation.
 [D] Open Protocol is the semantic waist; server API is transport over it.
-[R] Canonical first endpoint should be POST /v1/dispatch accepting WireEnvelope.
+[D] Both HTTP (Rack, port 7300) and TCP (port 7401) adapters ship together.
+[D] HTTPAdapter exposes rack_app — no production HTTP dep.
+[D] TCPAdapter reuses WireProtocol CRC32 framing.
+[D] All transports in one StoreServer process; legacy port 7400 untouched.
+[D] NetworkBackend legacy path stays until envelope compatibility is proven.
+[D] Subscriptions are out of scope for this slice.
 [R] Convenience REST endpoints must lower to protocol ops and add no semantics.
 [R] StoreServer remains fact/projection host, not contract-logic RPC.
-[S] OP1-OP4 are implemented in-process; next proof is server-boundary dispatch.
-Next: implement StoreServer envelope integration with a protocol smoke.
+Next: implement HTTPAdapter + TCPAdapter + StoreServer wiring.
 ```

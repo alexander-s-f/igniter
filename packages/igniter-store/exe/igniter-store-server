@@ -37,6 +37,11 @@ parser = OptionParser.new do |o|
   o.on("--drain-timeout SECS", Integer, "Graceful shutdown drain timeout (default: 5)") { |v| opts[:drain_timeout] = v }
 
   o.separator ""
+  o.separator "Protocol API (envelope dispatch):"
+  o.on("--http-port PORT", Integer, "HTTP adapter port  (default: disabled)") { |v| opts[:http_port] = v }
+  o.on("--tcp-port PORT",  Integer, "TCP adapter port   (default: disabled)") { |v| opts[:tcp_port]  = v }
+
+  o.separator ""
   o.on("-h", "--help", "Show this help and exit") { puts o; exit 0 }
   o.on("-v", "--version", "Show version and exit") do
     require "igniter/version"
@@ -59,10 +64,17 @@ if opts[:backend] == :file && opts[:path].nil?
   exit 1
 end
 
+http_port = opts.delete(:http_port)
+tcp_port  = opts.delete(:tcp_port)
+
 config = Igniter::Store::ServerConfig.new(**opts)
 
 $stdout.sync = true
 $stderr.sync = true
 
 server = Igniter::Store::StoreServer.new(config: config)
-server.start_foreground
+if http_port || tcp_port
+  server.start_with_adapters(http_port: http_port, tcp_port: tcp_port)
+else
+  server.start_foreground
+end

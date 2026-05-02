@@ -180,6 +180,26 @@ module Igniter
         @registry.subscriber_count(store)
       end
 
+      # Lazy Protocol::Interpreter for the envelope dispatch layer.
+      # Owns a fresh IgniterStore independent of the legacy fact log.
+      # HTTP and TCP adapters share this interpreter instance.
+      def protocol
+        @protocol ||= Protocol::Interpreter.new(IgniterStore.new)
+      end
+
+      # Starts the legacy accept loop plus optional HTTP/TCP envelope adapters,
+      # all in one foreground process. Adapters are stopped on exit.
+      def start_with_adapters(http_port: nil, tcp_port: nil)
+        http = http_port ? HTTPAdapter.new(interpreter: protocol, port: http_port) : nil
+        tcp  = tcp_port  ? TCPAdapter.new(interpreter: protocol, port: tcp_port)  : nil
+        http&.start_async
+        tcp&.start_async
+        start_foreground
+      ensure
+        http&.stop
+        tcp&.stop
+      end
+
       # ── Private ──────────────────────────────────────────────────────────────
 
       private
