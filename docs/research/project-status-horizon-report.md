@@ -68,7 +68,7 @@ Current proof:
 - projections: 5
 - command groups: 5
 - relations: 2
-- total capabilities: 17
+- total capabilities: 19
 
 Current graph of pressure:
 
@@ -81,6 +81,7 @@ store convergence sidecar -> package Record/History facade
 projection/schema graph sidecars -> Store metadata evidence
 derivation/scatter/relation rules -> Companion typed resolve + as_of resolve
 OP1/OP2/OP3/OP4 -> descriptor import, metadata export, wire envelope, sync profile
+OP5/companion_protocol_adoption -> Companion#register emits descriptors; OP2 surface on Companion
 materializer lifecycle -> still review-only/no grants
 ```
 

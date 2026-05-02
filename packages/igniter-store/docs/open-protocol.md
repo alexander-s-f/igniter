@@ -2,8 +2,9 @@
 
 Status date: 2026-05-02.
 
-Status: proposal for `igniter-store` as an ecosystem-facing protocol surface.
-This is not a stable public API yet.
+Status: shipped (OP0–OP5 implemented). The protocol surface is live in
+`packages/igniter-store` and `packages/igniter-companion`. Not yet a stable
+public API — packets and opcodes may evolve before v1.
 
 ## Claim
 
@@ -336,29 +337,37 @@ Compatibility rules:
 - Protocol versions evolve by adding packet kinds or optional fields first.
 - Breaking changes require a new `schema_version`.
 
-## Proposal Slices
+## Implemented Slices
 
 ### OP0: Vocabulary
 
-Document canonical names for descriptors, facts, receipts, queries,
-subscriptions, lineage, retention, and sync.
+Canonical names for descriptors, facts, receipts, queries, subscriptions,
+lineage, retention, and sync are defined and used throughout the codebase.
 
 ### OP1: Descriptor Packet Import
 
-Allow plain hashes to register stores, histories, access paths, relations,
-projections, derivations, subscriptions, and retention policies.
-
-Success signal: a non-Igniter test client can register a store and write/query
-facts without using `Igniter::Contract`.
+Shipped: `Protocol::Interpreter` (7 handler classes), content-addressed SHA256
+dedup, named helpers `register_store` / `register_history` / `register_access_path` /
+`register_relation` / `register_projection` / `register_derivation` /
+`register_subscription`. Protocol-level `write` / `write_fact` / `read` /
+`query(where:)` / `resolve`. Receipt contract: `:accepted | :rejected | :deduplicated`
++ write receipts with `fact_id` and `value_hash`.
 
 ### OP2: Metadata Export
 
-Expose `metadata_snapshot` as the canonical introspection format for Companion,
-docs, tests, StoreServer, and future visual tools.
+Shipped: `Protocol::Interpreter#metadata_snapshot` returns unified snapshot
+(`stores`, `histories`, `access_paths`, `relations`, `projections`, `derivations`,
+`scatters`, `subscriptions`, `retention`). `descriptor_snapshot` for raw
+store/history/subscription descriptors. Companion, StoreServer, and visual tools
+consume one endpoint.
 
 ### OP3: Wire Envelope
 
-Define a process boundary envelope for StoreServer:
+Shipped: `Protocol::WireEnvelope` dispatches op envelope hashes to Interpreter.
+9 operations: `register_descriptor`, `write`, `write_fact`, `read`, `query`,
+`resolve`, `metadata_snapshot`, `descriptor_snapshot`, `sync_hub_profile`, `replay`.
+Response envelope: `{ protocol:, schema_version:, request_id:, status:, result: }`.
+Error safety net: unexpected raises → error response. Pure Ruby — no I/O.
 
 ```ruby
 {
@@ -372,14 +381,28 @@ Define a process boundary envelope for StoreServer:
 
 ### OP4: Sync Hub Profile
 
-Define a cold sync profile for durable hubs:
+Shipped: `SyncProfile` value object with `full?` / `incremental?` / `fact_count` /
+`next_cursor`. Cursor: `{ kind: :timestamp, value: Float }` — hub persists and sends
+back on next sync to receive only new facts. `Interpreter#sync_hub_profile(as_of:, cursor:, stores:)`.
+`Interpreter#replay(from:, to:, filter:)`. `IgniterStore#fact_log_all(since:, as_of:)`.
 
+Profile carries:
 - accepted fact log
-- descriptor registry snapshot
+- descriptor registry snapshot (`metadata_snapshot`)
 - retention policy snapshot
 - compaction receipts
 - replay cursors
 - subscription checkpoints
+
+### OP5: Companion Protocol Adoption
+
+Shipped: `Companion::Store#register` emits `:store` or `:history` descriptor via
+`@inner.register_descriptor` for every new schema class. Record classes
+(detected via `respond_to?(:_scopes)`) produce `:store` descriptors with
+`fields`, `capabilities`, and `producer: { system: :igniter_companion }`.
+History classes produce `:history` descriptors with the declared `partition_key`.
+`Companion::Store#metadata_snapshot` / `#descriptor_snapshot` delegate to
+`@inner.protocol` — companion-managed schemas appear in the OP2 unified snapshot.
 
 ## Out-Of-Box Ideas
 

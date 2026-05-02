@@ -21,12 +21,6 @@ design notes. Keep implementation snapshots and package specs in their respectiv
 - [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md) -
   placement decision for app-local proof, staged extraction, and future package
   naming.
-- [Contract Persistence Roadmap](./contract-persistence-roadmap.md) -
-  compact roadmap for field/table lowerings, migration planning, and
-  materialization process.
-- [Contract Persistence Development Track](./contract-persistence-development-track.md) -
-  accepted development track from Companion pressure and contract-native store
-  research.
 - [Contract Persistence Organic Model](./contract-persistence-organic-model.md) -
   horizon model for Store/History as future graph-native concepts.
 
@@ -37,6 +31,16 @@ design notes. Keep implementation snapshots and package specs in their respectiv
 - [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md) -
   research response defining the canonical spec model, export rules, and
   materializer boundary.
+
+## Moved to Playgrounds
+
+Planning/roadmap docs for work that is now fully shipped. Kept for historical
+reference in `playgrounds/docs/research/`.
+
+| Document | Playgrounds Location |
+|----------|---------------------|
+| Contract Persistence Development Track | [playgrounds/docs/research/](../../playgrounds/docs/research/contract-persistence-development-track.md) |
+| Contract Persistence Roadmap | [playgrounds/docs/research/](../../playgrounds/docs/research/contract-persistence-roadmap.md) |
 
 ## Rotated to Package Docs
 
@@ -70,11 +74,9 @@ Before changing architecture or reviewing an agent proposal, read:
 6. [Vision Handoff Protocol](./vision-handoff-protocol.md)
 7. [Project Status Horizon Report](./project-status-horizon-report.md)
 8. [Contract Persistence Landing Zone](./contract-persistence-landing-zone.md)
-9. [Contract Persistence Roadmap](./contract-persistence-roadmap.md)
-10. [Contract Persistence Development Track](./contract-persistence-development-track.md)
-11. [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
-12. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
-13. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
+9. [Contract Persistence Organic Model](./contract-persistence-organic-model.md)
+10. [Wizard Type Spec Research Request](./wizard-type-spec-research-request.md)
+11. [Wizard Type Spec Architecture](./wizard-type-spec-architecture.md)
 
 ## Current Research State
 

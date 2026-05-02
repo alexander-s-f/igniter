@@ -1,6 +1,6 @@
 # Companion Current Status Summary
 
-Status date: 2026-05-01.
+Status date: 2026-05-02.
 Role: compact handoff for `[Architect Supervisor / Codex]`.
 Scope: Companion app-local proof only; no public persistence API promise.
 
@@ -23,7 +23,7 @@ Current manifest scale:
 - projections: 5
 - command groups: 5
 - relations: 2
-- total capabilities: 17
+- total capabilities: 19
 
 Core validated path:
 
@@ -59,6 +59,8 @@ store_reactive_derivation -> package DerivationRule/ScatterRule + CompanionStore
 store_retention_compaction -> package RetentionPolicy + explicit compaction receipts, app policy not proven yet
 relation_rule_dsl -> Store RelationRule primitive + Companion auto-wire/typed resolve/as_of resolve
 store_open_protocol -> OP1/OP2/OP3/OP4 descriptor import, metadata export, wire envelope, sync profile
+companion_protocol_adoption -> Companion::Store#register emits :store/:history descriptors;
+  metadata_snapshot / descriptor_snapshot delegate to @inner.protocol (OP2 surface)
 performance_signal -> setup packet recomputation needs memoization/snapshot
 command -> normalized operation intent
 operation_descriptor -> explicit target shape + mutation boundary
@@ -211,7 +213,7 @@ Materialization is modeled, not executed. The system can plan static contracts,
 check parity, build a gated runbook, and persist attempt/approval receipts, but
 it cannot write files, run git/tests/restart, or grant capabilities.
 
-Reference: [Contract Persistence Roadmap](../../../docs/research/contract-persistence-roadmap.md).
+Reference: [Contract Persistence Roadmap](../../../playgrounds/docs/research/contract-persistence-roadmap.md) (archived — roadmap fully walked as of 2026-05-02).
 
 ## Current Boundary
 
