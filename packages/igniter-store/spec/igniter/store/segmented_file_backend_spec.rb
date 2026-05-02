@@ -766,6 +766,250 @@ RSpec.describe Igniter::Store::SegmentedFileBackend do
     end
   end
 
+  # ── storage_stats ───────────────────────────────────────────────────────────
+
+  describe "#storage_stats" do
+    it "returns schema_version, generated_at, and stores keys" do
+      backend.write_fact(make_fact(key: "k1"))
+      stats = backend.storage_stats
+
+      expect(stats["schema_version"]).to eq(1)
+      expect(stats["generated_at"]).to   be_a(Float)
+      expect(stats["stores"]).to         be_a(Hash)
+    end
+
+    it "counts live segment before close" do
+      backend.write_fact(make_fact(key: "k1"))
+      stats = backend.storage_stats(store: :readings)["stores"]["readings"]
+
+      expect(stats["live_count"]).to    eq(1)
+      expect(stats["sealed_count"]).to  eq(0)
+      expect(stats["segment_count"]).to eq(1)
+      expect(stats["fact_count"]).to    eq(1)
+    end
+
+    it "counts sealed segment after close" do
+      backend.write_fact(make_fact(key: "k1"))
+      backend.close
+
+      b2    = described_class.new(root)
+      stats = b2.storage_stats(store: :readings)["stores"]["readings"]
+      b2.close
+
+      expect(stats["sealed_count"]).to  eq(1)
+      expect(stats["live_count"]).to    eq(0)
+      expect(stats["fact_count"]).to    eq(1)
+      expect(stats["byte_size"]).to     be > 0
+    end
+
+    it "reports all stores when no store: filter given" do
+      backend.write_fact(make_fact(store: :readings, key: "r1"))
+      backend.write_fact(make_fact(store: :signals,  key: "s1"))
+      stats = backend.storage_stats
+
+      expect(stats["stores"].keys).to match_array(%w[readings signals])
+    end
+
+    it "reports codecs used per store" do
+      b = described_class.new(root, codec: :compact_delta)
+      b.write_fact(make_fact(key: "k1"))
+      b.close
+
+      b2    = described_class.new(root, codec: :compact_delta)
+      stats = b2.storage_stats(store: :readings)["stores"]["readings"]
+      b2.close
+
+      expect(stats["codecs"]).to include("compact_delta_zlib")
+    end
+
+    it "reports min/max timestamps" do
+      backend.write_fact(make_fact(key: "k1"))
+      backend.close
+
+      b2    = described_class.new(root)
+      stats = b2.storage_stats(store: :readings)["stores"]["readings"]
+      b2.close
+
+      expect(stats["min_timestamp"]).to be_a(Float)
+      expect(stats["max_timestamp"]).to be_a(Float)
+    end
+
+    it "reports purge_receipt_count after purge" do
+      b = described_class.new(root,
+            retention: { readings: { strategy: :ephemeral } })
+      2.times { |i| b.write_fact(make_fact(key: "k#{i}")); b.checkpoint! }
+      b.close
+
+      b2 = described_class.new(root,
+             retention: { readings: { strategy: :ephemeral } })
+      b2.purge!
+      stats = b2.storage_stats(store: :readings)["stores"]["readings"]
+      b2.close
+
+      expect(stats["purge_receipt_count"]).to eq(1)
+    end
+  end
+
+  # ── segment_manifest ────────────────────────────────────────────────────────
+
+  describe "#segment_manifest" do
+    it "includes segments array" do
+      backend.write_fact(make_fact(key: "k1"))
+      manifest = backend.segment_manifest(store: :readings)
+      store_data = manifest["stores"]["readings"]
+
+      expect(store_data["segments"]).to be_an(Array)
+      expect(store_data["segments"].size).to eq(1)
+    end
+
+    it "live segment entry has sealed: false" do
+      backend.write_fact(make_fact(key: "k1"))
+      seg = backend.segment_manifest(store: :readings)["stores"]["readings"]["segments"].first
+
+      expect(seg["sealed"]).to     be false
+      expect(seg["segment_id"]).to be_a(String)
+      expect(seg["codec"]).to      eq("json_crc32")
+      expect(seg["fact_count"]).to eq(1)
+    end
+
+    it "sealed segment entry has sealed: true and sealed_at timestamp" do
+      backend.write_fact(make_fact(key: "k1"))
+      backend.close
+
+      b2  = described_class.new(root)
+      seg = b2.segment_manifest(store: :readings)["stores"]["readings"]["segments"].first
+      b2.close
+
+      expect(seg["sealed"]).to    be true
+      expect(seg["sealed_at"]).to be_a(Float)
+    end
+
+    it "reports both sealed and live segments after checkpoint!" do
+      backend.write_fact(make_fact(key: "before"))
+      backend.checkpoint!
+      backend.write_fact(make_fact(key: "after"))
+
+      store_data = backend.segment_manifest(store: :readings)["stores"]["readings"]
+      expect(store_data["sealed_count"]).to eq(1)
+      expect(store_data["live_count"]).to   eq(1)
+      expect(store_data["segments"].size).to eq(2)
+    end
+
+    it "storage_stats does not include segments array" do
+      backend.write_fact(make_fact(key: "k1"))
+      stats = backend.storage_stats(store: :readings)["stores"]["readings"]
+
+      expect(stats).not_to have_key("segments")
+    end
+  end
+
+  # ── Receipt semantics ───────────────────────────────────────────────────────
+
+  describe "purge receipt semantics" do
+    def make_ephemeral_backend(n_segs = 2)
+      b = described_class.new(root,
+            retention: { readings: { strategy: :ephemeral } })
+      n_segs.times { |i| b.write_fact(make_fact(key: "k#{i}")); b.checkpoint! }
+      b.close
+      described_class.new(root,
+        retention: { readings: { strategy: :ephemeral } })
+    end
+
+    it "receipt includes reason field with human-readable explanation" do
+      b2 = make_ephemeral_backend(2)
+      receipts = b2.purge!
+      b2.close
+
+      expect(receipts.first["reason"]).to be_a(String)
+      expect(receipts.first["reason"]).to match(/ephemeral/)
+    end
+
+    it "rolling_window receipt reason mentions window duration" do
+      b = described_class.new(root,
+            retention: { readings: { strategy: :rolling_window, duration: 3600 } })
+      b.write_fact(make_fact(key: "old"))
+      b.checkpoint!
+      b.write_fact(make_fact(key: "new"))
+      b.close
+
+      old_seg = manifests_for.min
+      m = JSON.parse(File.read(old_seg))
+      old_ts = Process.clock_gettime(Process::CLOCK_REALTIME) - 7200
+      m["max_timestamp"] = old_ts
+      File.write(old_seg, JSON.generate(m))
+
+      b2 = described_class.new(root,
+             retention: { readings: { strategy: :rolling_window, duration: 3600 } })
+      receipts = b2.purge!
+      b2.close
+
+      expect(receipts.first["reason"]).to match(/rolling_window/)
+      expect(receipts.first["reason"]).to match(/3600/)
+    end
+
+    it "receipt includes stable segment_id from manifest" do
+      b2 = make_ephemeral_backend(2)
+      receipts = b2.purge!
+      b2.close
+
+      expect(receipts.first["segment_id"]).to be_a(String)
+      expect(receipts.first["segment_id"]).to match(%r{readings/.+/\d+})
+    end
+
+    it "purge_receipts is sorted by purged_at ascending" do
+      b = described_class.new(root,
+            retention: { readings: { strategy: :ephemeral } })
+      3.times { |i| b.write_fact(make_fact(key: "k#{i}")); b.checkpoint! }
+      b.close
+
+      b2 = described_class.new(root,
+             retention: { readings: { strategy: :ephemeral } })
+      b2.purge!
+      receipts = b2.purge_receipts
+      b2.close
+
+      timestamps = receipts.map { |r| r["purged_at"] }
+      expect(timestamps).to eq(timestamps.sort)
+    end
+
+    it "purge_receipts(since:) filters by purged_at" do
+      b2 = make_ephemeral_backend(2)
+      b2.purge!
+
+      t_now = Process.clock_gettime(Process::CLOCK_REALTIME)
+      receipts_future = b2.purge_receipts(since: t_now + 9999)
+      receipts_past   = b2.purge_receipts(since: 0.0)
+      b2.close
+
+      expect(receipts_future).to be_empty
+      expect(receipts_past.size).to eq(1)
+    end
+
+    it "purge_receipts(limit:) caps the result count" do
+      b = described_class.new(root,
+            retention: { readings: { strategy: :ephemeral } })
+      4.times { |i| b.write_fact(make_fact(key: "k#{i}")); b.checkpoint! }
+      b.close
+
+      b2 = described_class.new(root,
+             retention: { readings: { strategy: :ephemeral } })
+      b2.purge!
+      receipts = b2.purge_receipts(limit: 2)
+      b2.close
+
+      expect(receipts.size).to eq(2)
+    end
+
+    it "storage_stats reports correct purge_receipt_count" do
+      b2 = make_ephemeral_backend(3)
+      b2.purge!
+      stats = b2.storage_stats(store: :readings)["stores"]["readings"]
+      b2.close
+
+      expect(stats["purge_receipt_count"]).to eq(2)
+    end
+  end
+
   # ── IgniterStore integration ────────────────────────────────────────────────
 
   describe "Igniter::Store.segmented factory" do

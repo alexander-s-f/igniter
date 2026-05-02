@@ -125,7 +125,7 @@ module Igniter
         def metadata_snapshot
           g = @store.schema_graph
           ds = g.descriptor_snapshot
-          {
+          snap = {
             schema_version: 1,
             stores:        ds[:stores],
             histories:     ds[:histories],
@@ -137,6 +137,21 @@ module Igniter
             subscriptions: ds[:subscriptions],
             retention:     g.retention_snapshot
           }
+          stats = @store.storage_stats
+          snap[:storage] = stats if stats
+          snap
+        end
+
+        # Physical storage stats from the backend (SegmentedFileBackend).
+        # Returns nil when the backend does not support it.
+        def storage_stats(store: nil)
+          @store.storage_stats(store: store)
+        end
+
+        # Detailed per-segment manifest from the backend.
+        # Returns nil when the backend does not support it.
+        def segment_manifest(store: nil)
+          @store.segment_manifest(store: store)
         end
 
         # Raw descriptor-only snapshot (store/history/subscription).

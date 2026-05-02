@@ -50,6 +50,7 @@ module Igniter
       QUARANTINE_SUFFIX  = ".quarantine.json"
       DEFAULT_MAX_BYTES  = 64 * 1024 * 1024  # 64 MB
       DEFAULT_CODEC      = :json_crc32
+      SCHEMA_VERSION     = 1
 
       attr_reader :root_dir
 
@@ -147,12 +148,20 @@ module Igniter
       end
 
       # List purge receipts written by previous purge! calls.
-      # +store+ — restrict to one store; nil = all stores.
-      def purge_receipts(store: nil)
+      # +store+  — restrict to one store; nil = all stores.
+      # +since+  — only receipts where purged_at >= since (Float unix sec).
+      # +until_+ — only receipts where purged_at <= until_ (Float unix sec).
+      # +limit+  — return at most this many, ordered by purged_at ascending.
+      def purge_receipts(store: nil, since: nil, until_: nil, limit: nil)
         glob = store ? "store=#{store}" : "store=*"
-        Dir[File.join(@root_dir, "wal", glob, "**", "*#{PURGED_SUFFIX}")]
-          .map { |p| JSON.parse(File.read(p)) rescue nil }
-          .compact
+        receipts = Dir[File.join(@root_dir, "wal", glob, "**", "*#{PURGED_SUFFIX}")]
+                     .map { |p| JSON.parse(File.read(p)) rescue nil }
+                     .compact
+                     .sort_by { |r| r["purged_at"] || 0 }
+        receipts = receipts.select { |r| (r["purged_at"] || 0) >= since    } if since
+        receipts = receipts.select { |r| (r["purged_at"] || 0) <= until_   } if until_
+        receipts = receipts.first(limit)                                       if limit
+        receipts
       end
 
       # List quarantine receipts for segments that could not be decoded.
@@ -162,6 +171,23 @@ module Igniter
         Dir[File.join(@root_dir, "wal", glob, "**", "*#{QUARANTINE_SUFFIX}")]
           .map { |p| JSON.parse(File.read(p)) rescue nil }
           .compact
+      end
+
+      # Detailed per-segment manifest for one or all stores.
+      # Includes a "segments" array with one entry per segment (sealed + live).
+      # Safe to call while the backend is open.
+      def segment_manifest(store: nil)
+        @mutex.synchronize do
+          build_storage_view(store: store ? store.to_s : nil, include_segments: true)
+        end
+      end
+
+      # Compact aggregate stats for one or all stores.
+      # No per-segment detail — suitable for health checks and protocol metadata.
+      def storage_stats(store: nil)
+        @mutex.synchronize do
+          build_storage_view(store: store ? store.to_s : nil, include_segments: false)
+        end
       end
 
       private
@@ -213,10 +239,11 @@ module Igniter
         manifest = File.exist?(mpath) ? (JSON.parse(File.read(mpath)) rescue {}) : {}
 
         receipt = manifest.merge(
-          "purged_at"        => now,
-          "purge_strategy"   => policy[:strategy].to_s,
-          "purge_duration"   => policy[:duration],
-          "segment_path"     => path
+          "purged_at"      => now,
+          "purge_strategy" => policy[:strategy].to_s,
+          "purge_duration" => policy[:duration],
+          "segment_path"   => path,
+          "reason"         => purge_reason(policy, manifest, now)
         )
 
         receipt_path = path + PURGED_SUFFIX
@@ -225,6 +252,20 @@ module Igniter
         FileUtils.rm_f(path)
         FileUtils.rm_f(mpath)
         receipt
+      end
+
+      def purge_reason(policy, manifest, now)
+        store_name = manifest["store"] || "unknown"
+        seg_id     = manifest["segment_id"] || "unknown"
+        case policy[:strategy].to_sym
+        when :rolling_window
+          age = now - (manifest["max_timestamp"] || now)
+          "rolling_window: segment #{seg_id} (store=#{store_name}) max_timestamp #{age.round(1)}s older than retention window of #{policy[:duration]}s"
+        when :ephemeral
+          "ephemeral: segment #{seg_id} (store=#{store_name}) superseded by newer sealed segment"
+        else
+          "#{policy[:strategy]}: segment #{seg_id} (store=#{store_name}) purged by policy"
+        end
       end
 
       # ── Codec resolution ─────────────────────────────────────────────────
@@ -515,6 +556,83 @@ module Igniter
         end
       rescue StandardError
         DEFAULT_CODEC
+      end
+
+      # ── Storage metadata ──────────────────────────────────────────────────
+
+      def build_storage_view(store:, include_segments:)
+        target_stores = store ? [store] : manifest_store_names
+        now = Process.clock_gettime(Process::CLOCK_REALTIME)
+        {
+          "schema_version" => SCHEMA_VERSION,
+          "generated_at"   => now,
+          "stores"         => target_stores.sort.to_h { |s| [s, build_store_stats(s, include_segments: include_segments)] }
+        }
+      end
+
+      def build_store_stats(store, include_segments:)
+        sealed_manifests = Dir[File.join(@root_dir, "wal", "store=#{store}", "**", "segment-*.wal#{MANIFEST_SUFFIX}")]
+                             .sort
+                             .map { |p| JSON.parse(File.read(p)) rescue nil }
+                             .compact
+
+        live = @segments[store]
+
+        total_facts = sealed_manifests.sum { |m| m["fact_count"].to_i }
+        total_facts += live[:count] if live
+        total_bytes = sealed_manifests.sum { |m| m["byte_size"].to_i }
+        total_bytes += (File.size?(live[:path]) || 0) if live
+        codecs = (sealed_manifests.map { |m| m["codec"] } +
+                  (live ? [live[:codec_name].to_s] : [])).uniq.compact.sort
+
+        min_ts = (sealed_manifests.map { |m| m["min_timestamp"] }.compact +
+                  (live&.dig(:min_ts) ? [live[:min_ts]] : [])).min
+        max_ts = (sealed_manifests.map { |m| m["max_timestamp"] }.compact +
+                  (live&.dig(:max_ts) ? [live[:max_ts]] : [])).max
+
+        purge_count      = Dir[File.join(@root_dir, "wal", "store=#{store}", "**", "*#{PURGED_SUFFIX}")].size
+        quarantine_count = Dir[File.join(@root_dir, "wal", "store=#{store}", "**", "*#{QUARANTINE_SUFFIX}")].size
+
+        stats = {
+          "segment_count"            => sealed_manifests.size + (live ? 1 : 0),
+          "sealed_count"             => sealed_manifests.size,
+          "live_count"               => live ? 1 : 0,
+          "codecs"                   => codecs,
+          "byte_size"                => total_bytes,
+          "fact_count"               => total_facts,
+          "min_timestamp"            => min_ts,
+          "max_timestamp"            => max_ts,
+          "purge_receipt_count"      => purge_count,
+          "quarantine_receipt_count" => quarantine_count
+        }
+
+        if include_segments
+          segs = sealed_manifests.map { |m|
+            m.slice("segment_id", "codec", "fact_count", "byte_size",
+                    "min_timestamp", "max_timestamp", "sealed", "sealed_at")
+          }
+          if live
+            segs << {
+              "segment_id"    => segment_id(live[:store], live[:bucket], live[:number]),
+              "codec"         => live[:codec_name].to_s,
+              "fact_count"    => live[:count],
+              "byte_size"     => File.size?(live[:path]) || 0,
+              "min_timestamp" => live[:min_ts],
+              "max_timestamp" => live[:max_ts],
+              "sealed"        => false,
+              "sealed_at"     => nil
+            }
+          end
+          stats["segments"] = segs
+        end
+
+        stats
+      end
+
+      def manifest_store_names
+        disk = stored_store_names
+        live = @segments.keys
+        (disk + live).uniq
       end
     end
   end

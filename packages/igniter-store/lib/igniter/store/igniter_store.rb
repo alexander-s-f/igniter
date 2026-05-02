@@ -400,6 +400,19 @@ module Igniter
         @backend&.close
       end
 
+      # Returns storage metadata from the backend when it supports it.
+      # Delegates to SegmentedFileBackend#storage_stats or returns nil for
+      # backends that do not expose storage metadata (in-memory, FileBackend).
+      def storage_stats(store: nil)
+        return nil unless @backend.respond_to?(:storage_stats)
+        @backend.storage_stats(store: store)
+      end
+
+      def segment_manifest(store: nil)
+        return nil unless @backend.respond_to?(:segment_manifest)
+        @backend.segment_manifest(store: store)
+      end
+
       protected
 
       def replay(fact)

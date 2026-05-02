@@ -36,6 +36,8 @@ module Igniter
           descriptor_snapshot
           sync_hub_profile
           replay
+          storage_stats
+          segment_manifest
         ].freeze
 
         def initialize(interpreter)
@@ -131,6 +133,12 @@ module Igniter
               filter: packet[:filter]
             )
             { facts: facts, count: facts.size }
+
+          when :storage_stats
+            @interpreter.storage_stats(store: packet[:store])
+
+          when :segment_manifest
+            @interpreter.segment_manifest(store: packet[:store])
           end
         end
 

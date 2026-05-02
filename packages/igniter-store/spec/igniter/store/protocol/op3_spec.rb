@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "../../../spec_helper"
+require "tmpdir"
+require "fileutils"
 
 RSpec.describe "OP3 — Wire Envelope" do
   subject(:proto) { Igniter::Store::Protocol.new }
@@ -253,6 +255,109 @@ RSpec.describe "OP3 — Wire Envelope" do
         wire.dispatch(envelope(:metadata_snapshot, {}, request_id: id))
       end
       expect(responses.map { |r| r[:request_id] }).to eq(ids)
+    end
+  end
+
+  # ------------------------------------------------------------------ storage_stats op
+
+  describe "op: :storage_stats" do
+    it "is listed as a valid operation" do
+      expect(Igniter::Store::Protocol::WireEnvelope::OPERATIONS).to include(:storage_stats)
+    end
+
+    it "returns ok status for in-memory store (no segmented backend)" do
+      resp = wire.dispatch(envelope(:storage_stats))
+      expect(resp[:status]).to eq(:ok)
+    end
+
+    it "returns nil result for in-memory store (backend does not support it)" do
+      resp = wire.dispatch(envelope(:storage_stats))
+      expect(resp[:result]).to be_nil
+    end
+
+    context "with a SegmentedFileBackend store" do
+      let(:tmpdir)    { Dir.mktmpdir("op3-storage-spec-") }
+      let(:seg_store) { Igniter::Store.segmented(tmpdir) }
+      let(:seg_proto) { Igniter::Store::Protocol.new(seg_store) }
+      let(:seg_wire)  { seg_proto.wire }
+
+      after do
+        seg_store.close rescue nil
+        FileUtils.rm_rf(tmpdir)
+      end
+
+      it "returns storage stats with schema_version and stores keys" do
+        seg_store.write(store: :readings, key: "k1", value: { v: 1 })
+        resp = seg_wire.dispatch(envelope(:storage_stats))
+
+        expect(resp[:status]).to             eq(:ok)
+        expect(resp[:result]["schema_version"]).to eq(1)
+        expect(resp[:result]["stores"]).to   be_a(Hash)
+        expect(resp[:result]["stores"].keys).to include("readings")
+      end
+
+      it "respects store: filter in packet" do
+        seg_store.write(store: :readings, key: "k1", value: { v: 1 })
+        seg_store.write(store: :signals,  key: "s1", value: { v: 2 })
+        resp = seg_wire.dispatch(envelope(:storage_stats, { store: "readings" }))
+
+        expect(resp[:result]["stores"].keys).to eq(["readings"])
+      end
+    end
+  end
+
+  # ------------------------------------------------------------------ segment_manifest op
+
+  describe "op: :segment_manifest" do
+    it "is listed as a valid operation" do
+      expect(Igniter::Store::Protocol::WireEnvelope::OPERATIONS).to include(:segment_manifest)
+    end
+
+    context "with a SegmentedFileBackend store" do
+      let(:tmpdir)    { Dir.mktmpdir("op3-manifest-spec-") }
+      let(:seg_store) { Igniter::Store.segmented(tmpdir) }
+      let(:seg_proto) { Igniter::Store::Protocol.new(seg_store) }
+      let(:seg_wire)  { seg_proto.wire }
+
+      after do
+        seg_store.close rescue nil
+        FileUtils.rm_rf(tmpdir)
+      end
+
+      it "returns manifest with segments array" do
+        seg_store.write(store: :readings, key: "k1", value: { v: 1 })
+        resp = seg_wire.dispatch(envelope(:segment_manifest, { store: "readings" }))
+
+        store_data = resp[:result]["stores"]["readings"]
+        expect(store_data["segments"]).to be_an(Array)
+        expect(store_data["segments"].first["sealed"]).to be false
+      end
+    end
+  end
+
+  # ------------------------------------------------------------------ metadata_snapshot includes storage
+
+  describe "metadata_snapshot includes storage key for segmented backend" do
+    let(:tmpdir)    { Dir.mktmpdir("op3-meta-storage-spec-") }
+    let(:seg_store) { Igniter::Store.segmented(tmpdir) }
+    let(:seg_proto) { Igniter::Store::Protocol.new(seg_store) }
+
+    after do
+      seg_store.close rescue nil
+      FileUtils.rm_rf(tmpdir)
+    end
+
+    it "includes storage: key in metadata_snapshot when backend supports it" do
+      seg_store.write(store: :readings, key: "k1", value: { v: 1 })
+      snap = seg_proto.metadata_snapshot
+
+      expect(snap[:storage]).not_to be_nil
+      expect(snap[:storage]["schema_version"]).to eq(1)
+    end
+
+    it "metadata_snapshot storage: is absent for in-memory store" do
+      snap = proto.metadata_snapshot
+      expect(snap).not_to have_key(:storage)
     end
   end
 
