@@ -25,6 +25,7 @@ require_relative "store/http_adapter"
 require_relative "store/tcp_adapter"
 require_relative "store/codecs"
 require_relative "store/segmented_file_backend"
+require_relative "store/mcp_adapter"
 
 module Igniter
   module Store
