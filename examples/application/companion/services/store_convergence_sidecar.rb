@@ -130,7 +130,7 @@ module Companion
 
       def pressure_report
         {
-          next_question: :companion_resolve_time_travel,
+          next_question: :op3_wire_envelope,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
           resolved: %i[
@@ -153,6 +153,9 @@ module Companion
             relation_rule_dsl
             companion_relation_auto_wire
             companion_typed_resolve
+            companion_resolve_time_travel
+            op1_descriptor_packet_import
+            op2_metadata_export
           ],
           facade_input_ready: %i[
             storage_shape
@@ -173,12 +176,16 @@ module Companion
             scatter_rules
             relation_rules
             typed_resolve
+            protocol_descriptor_import
+            protocol_write_fact
+            protocol_query_where
+            protocol_metadata_snapshot
           ],
           asks: %i[
-            companion_resolve_time_travel
+            op3_wire_envelope
           ],
           recommended_order: %i[
-            companion_resolve_time_travel
+            op3_wire_envelope
           ]
         }
       end

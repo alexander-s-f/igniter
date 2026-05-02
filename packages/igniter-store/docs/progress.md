@@ -63,6 +63,12 @@ Network backend
 - `RelationRule` adds the first named relation primitive over Store facts:
   `register_relation`, auto scatter index `__rel_<name>`, `resolve`, and
   `relation_snapshot`.
+- `Fact#producer` field added (pure-Ruby only; native Phase 2) — provenance
+  metadata carried with every fact.
+- `Protocol::Interpreter` (OP1/OP2) opens an ecosystem-facing protocol surface:
+  descriptor packet import (7 kinds), content-addressed dedup, write receipts,
+  protocol-level `write`/`write_fact`/`read`/`query(where:)`/`resolve`, and
+  unified `metadata_snapshot` covering all registered graph artifacts.
 - File durability moved from old JSONL POC thinking to CRC32-framed WAL.
 - Snapshot checkpoint/replay exists across the current Ruby/native-aware package
   surface.
@@ -75,7 +81,7 @@ Network backend
 
 ## Current Test Signal
 
-- `packages/igniter-store`: 224 examples, 0 failures.
+- `packages/igniter-store`: 274 examples, 0 failures.
 - `packages/igniter-companion`: 75 examples, 0 failures.
 
 ## Architecture Meaning
@@ -110,25 +116,28 @@ historical context only. The current package README and specs in
 
 ## Next Pressure
 
-Immediate package-facing pressure from Companion is now:
+Open protocol slices completed:
 
 ```text
-projection_descriptor_mirroring
-  -> closed: app-local Companion projection descriptors now mirror through
-     igniter-companion into Store SchemaGraph projection_snapshot
-  -> /setup/companion-store-schema-graph-metadata-sidecar.json now proves
-     app scope access paths lower to Store SchemaGraph metadata_snapshot
-  -> no query planner or adapter projection execution yet
-  -> keep projections inspectable above Store[T] / History[T]
+OP1 — Descriptor Packet Import
+  -> Protocol::Interpreter dispatches by kind: (7 handler classes)
+  -> Content-addressed dedup (SHA256 fingerprint)
+  -> Named helpers: register_store / register_history / register_access_path /
+     register_relation / register_projection / register_derivation /
+     register_subscription
+  -> Protocol-level write / write_fact / read / query(where:) / resolve
+  -> Receipt contract: :accepted | :rejected | :deduplicated + write receipts
 
-reactive_derivation
-  -> resolved as package substrate: Store has DerivationRule, ScatterRule,
-     derivation_snapshot, scatter_snapshot, retention_snapshot, and lineage(...)
-  -> CompanionStore now exposes register_scatter and _scatters
-  -> relation_rule_dsl now has a package primitive: RelationRule +
-     register_relation/resolve/relation_snapshot
-  -> next pressure is app/contract lowering: decide how app relation
-     declarations map to RelationRule without moving business semantics into Store
+OP2 — Metadata Export
+  -> Protocol::Interpreter#metadata_snapshot returns unified snapshot:
+     stores, histories, access_paths, relations, projections, derivations,
+     scatters, subscriptions, retention (schema_version: 1)
+  -> descriptor_snapshot for raw store/history/subscription descriptors
+  -> Companion, StoreServer, and visual tools consume one endpoint
+
+Pending:
+  OP3 — Wire Envelope (process boundary for StoreServer)
+  OP4 — Sync Hub Profile (cold sync profile)
 ```
 
 Store-side pressure after index metadata:

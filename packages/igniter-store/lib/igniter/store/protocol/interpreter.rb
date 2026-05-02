@@ -55,6 +55,31 @@ module Igniter
           Receipt.write_accepted(store: store.to_sym, key: key, fact: fact)
         end
 
+        # Accept a full fact packet hash (kind: :fact) and write it to the store.
+        # Designed for wire replay, server ingestion, and protocol-native clients.
+        # Note: at: is recorded in the packet but cannot override the engine timestamp —
+        # the engine assigns monotonic timestamps on write.
+        def write_fact(packet)
+          packet = packet.transform_keys(&:to_sym)
+          kind = packet[:kind]&.to_sym
+          return Receipt.rejection("write_fact: expected kind: :fact, got #{kind.inspect}", kind: :fact) unless kind == :fact
+
+          store = packet[:store]
+          key   = packet[:key]
+          value = packet[:value]
+          return Receipt.rejection("write_fact: missing store:",  kind: :fact) unless store
+          return Receipt.rejection("write_fact: missing key:",    kind: :fact) unless key
+          return Receipt.rejection("write_fact: missing value:",  kind: :fact) unless value
+
+          fact = @store.write(
+            store:    store.to_sym,
+            key:      key.to_s,
+            value:    value,
+            producer: packet[:producer]
+          )
+          Receipt.write_accepted(store: store.to_sym, key: key, fact: fact)
+        end
+
         # Read the current value for a key (or nil).
         def read(store:, key:, as_of: nil)
           @store.read(store: store.to_sym, key: key, as_of: as_of)
@@ -91,12 +116,31 @@ module Igniter
           @store.resolve(relation_name, from: from, as_of: as_of)
         end
 
-        # OP2: compact metadata snapshot of all registered descriptors + schema graph.
+        # OP2: unified protocol metadata snapshot.
+        # Combines raw descriptor registry (store/history/subscription),
+        # engine routing metadata (access paths), and all derived graph artifacts
+        # (relations, projections, derivations, scatters, retention) into one
+        # canonical introspection response.
+        # Used by Companion, StoreServer, visual tools, and compliance test kits.
         def metadata_snapshot
-          @store.schema_graph.metadata_snapshot
+          g = @store.schema_graph
+          ds = g.descriptor_snapshot
+          {
+            schema_version: 1,
+            stores:        ds[:stores],
+            histories:     ds[:histories],
+            access_paths:  g.metadata_snapshot,
+            relations:     g.relation_snapshot,
+            projections:   g.projection_snapshot,
+            derivations:   g.derivation_snapshot,
+            scatters:      g.scatter_snapshot,
+            subscriptions: ds[:subscriptions],
+            retention:     g.retention_snapshot
+          }
         end
 
-        # OP2: raw protocol descriptor snapshot (store/history/subscription descriptors).
+        # Raw descriptor-only snapshot (store/history/subscription).
+        # Use metadata_snapshot for the full picture; this is a lower-level accessor.
         def descriptor_snapshot
           @store.schema_graph.descriptor_snapshot
         end

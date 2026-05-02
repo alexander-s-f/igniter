@@ -396,21 +396,88 @@ RSpec.describe "OP1 — Descriptor Packet Import" do
     end
   end
 
-  # ------------------------------------------------------------------ OP2: metadata_snapshot + descriptor_snapshot
+  # ------------------------------------------------------------------ OP2: unified metadata_snapshot
 
-  describe "metadata_snapshot and descriptor_snapshot" do
-    it "metadata_snapshot reflects registered access paths" do
-      proto.register_store(schema_version: 1, kind: :store, name: :widgets, key: :id, fields: [])
-      proto.register_access_path(
-        schema_version: 1, kind: :access_path, name: :widgets_by_color,
-        store: :widgets, fields: [:color]
+  describe "OP2 — metadata_snapshot (unified)" do
+    before do
+      proto.register_store(
+        schema_version: 1, kind: :store,
+        name: :widgets, key: :id,
+        fields: [{ name: :id, type: :string }, { name: :color, type: :symbol }]
       )
-      snap = proto.metadata_snapshot
-      expect(snap[:widgets]).to be_an(Array)
-      expect(snap[:widgets].map { |p| p[:scope] }).to include(:widgets_by_color)
+      proto.register_access_path(
+        schema_version: 1, kind: :access_path,
+        name: :widgets_by_color, store: :widgets, fields: [:color]
+      )
+      proto.register_history(
+        schema_version: 1, kind: :history,
+        name: :widget_events, key: :widget_id
+      )
+      proto.register_relation(
+        schema_version: 1, kind: :relation,
+        name: :warehouse_widgets,
+        from: { store: :warehouses, key: :id },
+        to:   { store: :widgets, field: :warehouse_id },
+        cardinality: :many
+      )
+      proto.register_subscription(
+        schema_version: 1, kind: :subscription,
+        name: :widget_changed, source: :widgets
+      )
     end
 
-    it "descriptor_snapshot includes registered store and subscription descriptors" do
+    it "has schema_version: 1" do
+      expect(proto.metadata_snapshot[:schema_version]).to eq(1)
+    end
+
+    it "includes registered store descriptors under :stores" do
+      snap = proto.metadata_snapshot
+      expect(snap[:stores]).to have_key(:widgets)
+      expect(snap[:stores][:widgets]).to include(name: :widgets, key: :id)
+    end
+
+    it "includes registered history descriptors under :histories" do
+      snap = proto.metadata_snapshot
+      expect(snap[:histories]).to have_key(:widget_events)
+    end
+
+    it "includes access path routing metadata under :access_paths" do
+      snap = proto.metadata_snapshot
+      expect(snap[:access_paths][:widgets]).to be_an(Array)
+      expect(snap[:access_paths][:widgets].map { |p| p[:scope] }).to include(:widgets_by_color)
+    end
+
+    it "includes relation rules under :relations" do
+      snap = proto.metadata_snapshot
+      expect(snap[:relations]).to have_key(:warehouse_widgets)
+      expect(snap[:relations][:warehouse_widgets]).to include(
+        source: :widgets, partition: :warehouse_id
+      )
+    end
+
+    it "includes subscription descriptors under :subscriptions" do
+      snap = proto.metadata_snapshot
+      expect(snap[:subscriptions]).to have_key(:widget_changed)
+    end
+
+    it "includes :derivations, :scatters, :projections, :retention keys" do
+      snap = proto.metadata_snapshot
+      expect(snap).to have_key(:derivations)
+      expect(snap).to have_key(:scatters)
+      expect(snap).to have_key(:projections)
+      expect(snap).to have_key(:retention)
+    end
+
+    it "includes scatter rules auto-created by register_relation" do
+      snap = proto.metadata_snapshot
+      expect(snap[:scatters].any? { |s| s[:source_store] == :widgets }).to be true
+    end
+  end
+
+  # ------------------------------------------------------------------ descriptor_snapshot (low-level)
+
+  describe "descriptor_snapshot (low-level)" do
+    it "includes registered store and subscription descriptors" do
       proto.register_store(schema_version: 1, kind: :store, name: :alerts, key: :id, fields: [])
       proto.register_subscription(
         schema_version: 1, kind: :subscription, name: :alert_fired, source: :alerts
@@ -418,6 +485,55 @@ RSpec.describe "OP1 — Descriptor Packet Import" do
       snap = proto.descriptor_snapshot
       expect(snap[:stores]).to        have_key(:alerts)
       expect(snap[:subscriptions]).to have_key(:alert_fired)
+    end
+  end
+
+  # ------------------------------------------------------------------ write_fact(packet)
+
+  describe "write_fact(packet)" do
+    it "accepts a valid fact packet and returns a write Receipt" do
+      r = proto.write_fact(
+        schema_version: 1,
+        kind:  :fact,
+        store: :tasks,
+        key:   "t1",
+        value: { id: "t1", status: :open },
+        producer: { system: :external_client, name: :demo }
+      )
+      expect(r.accepted?).to  be true
+      expect(r.fact_id).not_to be_nil
+      expect(r.store).to      eq(:tasks)
+      expect(r.key).to        eq("t1")
+    end
+
+    it "the written fact is readable via read" do
+      proto.write_fact(kind: :fact, store: :tasks, key: "t1", value: { status: :open })
+      val = proto.read(store: :tasks, key: "t1")
+      expect(val[:status]).to eq(:open)
+    end
+
+    it "rejects a packet with wrong kind" do
+      r = proto.write_fact(kind: :store, store: :tasks, key: "t1", value: {})
+      expect(r.rejected?).to be true
+      expect(r.errors.first).to match(/kind/)
+    end
+
+    it "rejects a packet missing store:" do
+      r = proto.write_fact(kind: :fact, key: "t1", value: {})
+      expect(r.rejected?).to be true
+    end
+
+    it "rejects a packet missing value:" do
+      r = proto.write_fact(kind: :fact, store: :tasks, key: "t1")
+      expect(r.rejected?).to be true
+    end
+
+    it "successive write_fact calls build a causation chain" do
+      proto.write_fact(kind: :fact, store: :tasks, key: "t1", value: { status: :open })
+      proto.write_fact(kind: :fact, store: :tasks, key: "t1", value: { status: :done })
+      chain = proto.instance_variable_get(:@store).causation_chain(store: :tasks, key: "t1")
+      expect(chain.size).to   eq(2)
+      expect(chain[1][:causation]).to eq(chain[0][:id])
     end
   end
 end
