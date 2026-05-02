@@ -46,6 +46,7 @@ module Igniter
       include WireProtocol
 
       MANIFEST_SUFFIX   = ".manifest.json"
+      PURGED_SUFFIX     = ".purged.json"
       DEFAULT_MAX_BYTES = 64 * 1024 * 1024  # 64 MB
       DEFAULT_CODEC     = :json_crc32
 
@@ -55,15 +56,23 @@ module Igniter
       # +max_bytes+   — rotate segment when file reaches this size (default 64 MB).
       # +time_bucket+ — :day (default), :hour, or :none.
       # +codec+       — Symbol or Hash{store_name => Symbol}.  See class docs.
-      def initialize(root_dir, max_bytes: DEFAULT_MAX_BYTES, time_bucket: :day, codec: DEFAULT_CODEC)
-        @root_dir    = root_dir.to_s
-        @max_bytes   = max_bytes
-        @time_bucket = time_bucket
-        @codec_spec  = codec      # Symbol or Hash
-        @segments    = {}         # store_name (String) → segment state Hash
-        @mutex       = Mutex.new
+      # +retention+ — Hash{ store_name => { strategy:, duration: } }
+      #   Strategies:
+      #     :permanent      — never purge (default when no policy set)
+      #     :rolling_window — purge sealed segments where max_timestamp < now - duration (Float seconds)
+      #     :ephemeral      — keep only the single newest sealed segment per store
+      def initialize(root_dir, max_bytes: DEFAULT_MAX_BYTES, time_bucket: :day,
+                     codec: DEFAULT_CODEC, retention: {})
+        @root_dir           = root_dir.to_s
+        @max_bytes          = max_bytes
+        @time_bucket        = time_bucket
+        @codec_spec         = codec      # Symbol or Hash
+        @segments           = {}         # store_name (String) → segment state Hash
+        @retention_policies = {}
+        @mutex              = Mutex.new
 
         FileUtils.mkdir_p(File.join(@root_dir, "wal"))
+        retention.each { |store, policy| set_retention(store, **policy) }
       end
 
       def write_fact(fact)
@@ -117,7 +126,95 @@ module Igniter
           .map    { |d| File.basename(d).sub("store=", "") }
       end
 
+      # Register (or replace) the retention policy for a store.
+      def set_retention(store, strategy:, duration: nil)
+        @mutex.synchronize do
+          @retention_policies[store.to_s] = { strategy: strategy.to_sym, duration: duration }
+        end
+      end
+
+      # Delete eligible sealed segments for stores that have a policy.
+      # Returns an Array of receipt hashes (one per deleted segment).
+      # Live (unsealed) segments are never touched.
+      # +store+ — restrict purge to one store; nil = all stores with a policy.
+      def purge!(store: nil)
+        @mutex.synchronize do
+          targets = store ? [store.to_s] : @retention_policies.keys
+          targets.flat_map { |s| purge_store!(s) }
+        end
+      end
+
+      # List purge receipts written by previous purge! calls.
+      # +store+ — restrict to one store; nil = all stores.
+      def purge_receipts(store: nil)
+        glob = store ? "store=#{store}" : "store=*"
+        Dir[File.join(@root_dir, "wal", glob, "**", "*#{PURGED_SUFFIX}")]
+          .map { |p| JSON.parse(File.read(p)) rescue nil }
+          .compact
+      end
+
       private
+
+      # ── Retention ────────────────────────────────────────────────────────
+
+      def purge_store!(store)
+        policy = @retention_policies[store]
+        return [] unless policy
+
+        now    = Process.clock_gettime(Process::CLOCK_REALTIME)
+        live   = @segments[store]&.dig(:path)
+        sealed = sealed_segment_paths(store)
+
+        to_delete = select_for_purge(sealed, policy, now)
+        to_delete.reject! { |p| p == live }
+
+        to_delete.map { |p| delete_segment_with_receipt!(p, policy, now) }.compact
+      end
+
+      def sealed_segment_paths(store)
+        Dir[File.join(@root_dir, "wal", "store=#{store}", "**", "segment-*.wal")]
+          .reject { |p| p.end_with?(MANIFEST_SUFFIX) || p.end_with?(PURGED_SUFFIX) }
+          .select { |p| File.exist?(p + MANIFEST_SUFFIX) }
+          .sort
+      end
+
+      def select_for_purge(paths, policy, now)
+        case policy[:strategy]
+        when :permanent
+          []
+        when :rolling_window
+          duration = policy[:duration].to_f
+          paths.select { |p|
+            m      = JSON.parse(File.read(p + MANIFEST_SUFFIX)) rescue nil
+            next false unless m
+            max_ts = m["max_timestamp"]
+            max_ts && max_ts < (now - duration)
+          }
+        when :ephemeral
+          paths.empty? ? [] : paths[0..-2]
+        else
+          []
+        end
+      end
+
+      def delete_segment_with_receipt!(path, policy, now)
+        mpath = path + MANIFEST_SUFFIX
+        manifest = File.exist?(mpath) ? (JSON.parse(File.read(mpath)) rescue {}) : {}
+
+        receipt = manifest.merge(
+          "purged_at"        => now,
+          "purge_strategy"   => policy[:strategy].to_s,
+          "purge_duration"   => policy[:duration],
+          "segment_path"     => path
+        )
+
+        receipt_path = path + PURGED_SUFFIX
+        File.write(receipt_path, JSON.generate(receipt))
+
+        FileUtils.rm_f(path)
+        FileUtils.rm_f(mpath)
+        receipt
+      end
 
       # ── Codec resolution ─────────────────────────────────────────────────
 
@@ -216,6 +313,10 @@ module Igniter
         seg[:codec].flush(seg[:file])
         seg[:file].flush
         seg[:file].close
+        if seg[:count] == 0
+          FileUtils.rm_f(seg[:path])
+          return
+        end
         write_manifest(seg[:path],
                        codec:      seg[:codec].name,
                        fact_count: seg[:count],

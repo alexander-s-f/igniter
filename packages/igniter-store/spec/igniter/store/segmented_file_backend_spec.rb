@@ -395,6 +395,234 @@ RSpec.describe Igniter::Store::SegmentedFileBackend do
     end
   end
 
+  # ── Retention policies ──────────────────────────────────────────────────────
+
+  describe "retention policies" do
+    def purged_receipts_for(store_name = "readings")
+      Dir[File.join(root, "wal", "store=#{store_name}", "**", "*#{described_class::PURGED_SUFFIX}")]
+    end
+
+    context ":rolling_window strategy" do
+      it "purges sealed segments older than duration" do
+        b = described_class.new(root,
+              retention: { readings: { strategy: :rolling_window, duration: 60 } })
+        b.write_fact(make_fact(key: "old"))
+        b.checkpoint!
+        b.write_fact(make_fact(key: "new"))
+        b.close
+
+        old_seg = manifests_for.min
+        m = JSON.parse(File.read(old_seg))
+        old_ts = Process.clock_gettime(Process::CLOCK_REALTIME) - 120
+        m["max_timestamp"] = old_ts
+        m["min_timestamp"] = old_ts
+        File.write(old_seg, JSON.generate(m))
+
+        b2 = described_class.new(root,
+               retention: { readings: { strategy: :rolling_window, duration: 60 } })
+        receipts = b2.purge!
+        b2.close
+
+        expect(receipts.size).to eq(1)
+        expect(receipts.first["purge_strategy"]).to eq("rolling_window")
+      end
+
+      it "does not purge segments within the window" do
+        b = described_class.new(root,
+              retention: { readings: { strategy: :rolling_window, duration: 3600 } })
+        b.write_fact(make_fact(key: "recent"))
+        b.checkpoint!
+        b.write_fact(make_fact(key: "newest"))
+        b.close
+
+        b2 = described_class.new(root,
+               retention: { readings: { strategy: :rolling_window, duration: 3600 } })
+        receipts = b2.purge!
+        b2.close
+
+        expect(receipts).to be_empty
+      end
+
+      it "never touches the live (unsealed) segment" do
+        b = described_class.new(root,
+              retention: { readings: { strategy: :rolling_window, duration: 0 } })
+        b.write_fact(make_fact(key: "live"))
+
+        receipts = b.purge!
+        b.close
+
+        expect(receipts).to be_empty
+        expect(segment_files_for.size).to eq(1)
+      end
+    end
+
+    context ":ephemeral strategy" do
+      it "keeps only the newest sealed segment" do
+        b = described_class.new(root,
+              retention: { readings: { strategy: :ephemeral } })
+        3.times { |i|
+          b.write_fact(make_fact(key: "k#{i}"))
+          b.checkpoint!
+        }
+        b.close
+
+        b2 = described_class.new(root,
+               retention: { readings: { strategy: :ephemeral } })
+        receipts = b2.purge!
+        b2.close
+
+        expect(receipts.size).to eq(2)
+        remaining = segment_files_for.select { |p|
+          File.exist?(p + described_class::MANIFEST_SUFFIX)
+        }
+        expect(remaining.size).to eq(1)
+      end
+
+      it "returns empty receipts when only one sealed segment exists" do
+        b = described_class.new(root,
+              retention: { readings: { strategy: :ephemeral } })
+        b.write_fact(make_fact(key: "only"))
+        b.close
+
+        b2 = described_class.new(root,
+               retention: { readings: { strategy: :ephemeral } })
+        receipts = b2.purge!
+        b2.close
+
+        expect(receipts).to be_empty
+      end
+    end
+
+    context ":permanent strategy" do
+      it "never purges any segment" do
+        b = described_class.new(root,
+              retention: { readings: { strategy: :permanent } })
+        3.times { |i|
+          b.write_fact(make_fact(key: "k#{i}"))
+          b.checkpoint!
+        }
+        b.close
+
+        b2 = described_class.new(root,
+               retention: { readings: { strategy: :permanent } })
+        receipts = b2.purge!
+        b2.close
+
+        expect(receipts).to be_empty
+      end
+    end
+
+    context "receipt audit trail" do
+      it "writes a .purged.json receipt before deleting" do
+        b = described_class.new(root,
+              retention: { readings: { strategy: :ephemeral } })
+        2.times { |i|
+          b.write_fact(make_fact(key: "k#{i}"))
+          b.checkpoint!
+        }
+        b.close
+
+        b2 = described_class.new(root,
+               retention: { readings: { strategy: :ephemeral } })
+        b2.purge!
+        b2.close
+
+        expect(purged_receipts_for.size).to eq(1)
+        receipt = JSON.parse(File.read(purged_receipts_for.first))
+        expect(receipt["purge_strategy"]).to eq("ephemeral")
+        expect(receipt["purged_at"]).to      be_a(Float)
+        expect(receipt["segment_path"]).to   be_a(String)
+      end
+
+      it "purge_receipts returns all written receipts" do
+        b = described_class.new(root,
+              retention: { readings: { strategy: :ephemeral } })
+        3.times { |i|
+          b.write_fact(make_fact(key: "k#{i}"))
+          b.checkpoint!
+        }
+        b.close
+
+        b2 = described_class.new(root,
+               retention: { readings: { strategy: :ephemeral } })
+        b2.purge!
+        b2.close
+
+        b3 = described_class.new(root)
+        receipts = b3.purge_receipts(store: :readings)
+        b3.close
+
+        expect(receipts.size).to eq(2)
+        expect(receipts).to all(include("purge_strategy" => "ephemeral"))
+      end
+    end
+
+    context "set_retention at runtime" do
+      it "applies a policy set after construction" do
+        b = described_class.new(root)
+        3.times { |i|
+          b.write_fact(make_fact(key: "k#{i}"))
+          b.checkpoint!
+        }
+        b.close
+
+        b2 = described_class.new(root)
+        b2.set_retention(:readings, strategy: :ephemeral)
+        receipts = b2.purge!
+        b2.close
+
+        expect(receipts.size).to eq(2)
+      end
+    end
+
+    context "purge scope" do
+      it "purge!(store:) only affects the named store" do
+        b = described_class.new(root,
+              retention: {
+                readings: { strategy: :ephemeral },
+                signals:  { strategy: :ephemeral }
+              })
+        2.times {
+          b.write_fact(make_fact(store: :readings, key: "r"))
+          b.write_fact(make_fact(store: :signals,  key: "s"))
+          b.checkpoint!
+        }
+        b.close
+
+        b2 = described_class.new(root,
+               retention: {
+                 readings: { strategy: :ephemeral },
+                 signals:  { strategy: :ephemeral }
+               })
+        receipts = b2.purge!(store: :readings)
+        b2.close
+
+        expect(receipts.size).to eq(1)
+        expect(receipts.first["store"]).to eq("readings")
+      end
+    end
+
+    context "replay after purge" do
+      it "replays only facts from surviving segments" do
+        b = described_class.new(root,
+              retention: { readings: { strategy: :ephemeral } })
+        b.write_fact(make_fact(key: "k0"))
+        b.checkpoint!
+        b.write_fact(make_fact(key: "k1"))
+        b.close
+
+        b2 = described_class.new(root,
+               retention: { readings: { strategy: :ephemeral } })
+        b2.purge!
+        facts = b2.replay(store: :readings)
+        b2.close
+
+        expect(facts.map(&:key)).to     include("k1")
+        expect(facts.map(&:key)).not_to include("k0")
+      end
+    end
+  end
+
   # ── IgniterStore integration ────────────────────────────────────────────────
 
   describe "Igniter::Store.segmented factory" do
