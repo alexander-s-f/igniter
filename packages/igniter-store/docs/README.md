@@ -28,6 +28,7 @@ Implementation specifications and progress records for the `igniter-store` packa
 
 | File | Description |
 |------|-------------|
+| [intelligent-ledger/README.md](intelligent-ledger/README.md) | Intelligent Ledger research index: inference, derivations, and fact routes |
 | [research/store-iterations.md](research/store-iterations.md) | Store design iteration history |
 | [research/store-iterations.ru.md](research/store-iterations.ru.md) | То же, на русском |
 | [research/sync-hub-iterations.md](research/sync-hub-iterations.md) | Sync-hub design iteration history |
