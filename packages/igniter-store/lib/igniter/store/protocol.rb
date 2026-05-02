@@ -9,6 +9,7 @@ require_relative "protocol/handlers/projection_handler"
 require_relative "protocol/handlers/derivation_handler"
 require_relative "protocol/handlers/subscription_handler"
 require_relative "protocol/interpreter"
+require_relative "protocol/wire_envelope"
 
 module Igniter
   module Store

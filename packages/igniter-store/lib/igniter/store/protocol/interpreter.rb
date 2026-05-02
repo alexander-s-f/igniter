@@ -145,6 +145,17 @@ module Igniter
           @store.schema_graph.descriptor_snapshot
         end
 
+        # OP3: returns the WireEnvelope router for this interpreter.
+        # Accepts process-boundary envelope hashes and returns response envelopes.
+        def wire
+          @wire ||= WireEnvelope.new(self)
+        end
+
+        # OP3: convenience shorthand — dispatch one wire envelope hash.
+        def dispatch(envelope)
+          wire.dispatch(envelope)
+        end
+
         private
 
         def fingerprint(descriptor)

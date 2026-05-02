@@ -130,7 +130,7 @@ module Companion
 
       def pressure_report
         {
-          next_question: :op3_wire_envelope,
+          next_question: :op4_sync_hub_profile,
           adapter_slice: :sidecar_only,
           app_backend_migration: false,
           resolved: %i[
@@ -156,6 +156,7 @@ module Companion
             companion_resolve_time_travel
             op1_descriptor_packet_import
             op2_metadata_export
+            op3_wire_envelope
           ],
           facade_input_ready: %i[
             storage_shape
@@ -180,12 +181,13 @@ module Companion
             protocol_write_fact
             protocol_query_where
             protocol_metadata_snapshot
+            wire_envelope_dispatch
           ],
           asks: %i[
-            op3_wire_envelope
+            op4_sync_hub_profile
           ],
           recommended_order: %i[
-            op3_wire_envelope
+            op4_sync_hub_profile
           ]
         }
       end

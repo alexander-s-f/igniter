@@ -81,7 +81,7 @@ Network backend
 
 ## Current Test Signal
 
-- `packages/igniter-store`: 274 examples, 0 failures.
+- `packages/igniter-store`: 300 examples, 0 failures.
 - `packages/igniter-companion`: 75 examples, 0 failures.
 
 ## Architecture Meaning
@@ -135,8 +135,17 @@ OP2 — Metadata Export
   -> descriptor_snapshot for raw store/history/subscription descriptors
   -> Companion, StoreServer, and visual tools consume one endpoint
 
+OP3 — Wire Envelope
+  -> Protocol::WireEnvelope dispatches op envelope hashes to Interpreter
+  -> Operations: register_descriptor / write / write_fact / read / query /
+     resolve / metadata_snapshot / descriptor_snapshot
+  -> Response envelope: { protocol:, schema_version:, request_id:, status:, result: }
+  -> Error safety net: unexpected raises → error response (never leaks exceptions)
+  -> Interpreter#wire (memoized) + Interpreter#dispatch convenience shorthand
+  -> Pure Ruby — no I/O; StoreServer feeds deserialized hashes in,
+     ships serialized responses out (framing stays in WireProtocol)
+
 Pending:
-  OP3 — Wire Envelope (process boundary for StoreServer)
   OP4 — Sync Hub Profile (cold sync profile)
 ```
 
