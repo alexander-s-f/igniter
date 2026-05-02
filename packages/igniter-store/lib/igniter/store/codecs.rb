@@ -60,6 +60,8 @@ module Igniter
 
         def flush(_io) = 0   # stateless, nothing buffered
 
+        def buffered_count = 0
+
         def decode(io)
           facts = []
           loop do
@@ -149,6 +151,8 @@ module Igniter
         def flush(io)
           @batch_buf.empty? ? 0 : write_batch(io)
         end
+
+        def buffered_count = @batch_buf.size
 
         # ── Read side ────────────────────────────────────────────────────────
 

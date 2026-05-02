@@ -63,12 +63,20 @@ module Igniter
       #     :permanent      — never purge (default when no policy set)
       #     :rolling_window — purge sealed segments where max_timestamp < now - duration (Float seconds)
       #     :ephemeral      — keep only the single newest sealed segment per store
+      # +flush+ — durability policy applied after every +write_fact+:
+      #   :batch      — (default) flush only at BATCH_SIZE, close, or checkpoint.
+      #                 compact_delta facts < BATCH_SIZE are lost on a crash.
+      #   :on_write   — flush after every single fact (safest, smallest write window).
+      #   { every_n: N } — flush after every N facts per store.
+      #
+      # json_crc32 writes every fact immediately regardless of this setting.
       def initialize(root_dir, max_bytes: DEFAULT_MAX_BYTES, time_bucket: :day,
-                     codec: DEFAULT_CODEC, retention: {})
+                     codec: DEFAULT_CODEC, retention: {}, flush: :batch)
         @root_dir           = root_dir.to_s
         @max_bytes          = max_bytes
         @time_bucket        = time_bucket
         @codec_spec         = codec      # Symbol or Hash
+        @flush_policy       = flush
         @segments           = {}         # store_name (String) → segment state Hash
         @retention_policies = {}
         @mutex              = Mutex.new
@@ -87,6 +95,7 @@ module Igniter
           ts = fact.timestamp.to_f
           seg[:min_ts] = seg[:min_ts] ? [seg[:min_ts], ts].min : ts
           seg[:max_ts] = seg[:max_ts] ? [seg[:max_ts], ts].max : ts
+          apply_flush_policy(seg)
         end
       end
 
@@ -190,6 +199,27 @@ module Igniter
         end
       end
 
+      # Returns the current durability posture: configured policy plus a per-store
+      # breakdown showing how many facts are buffered in memory vs. on disk.
+      #
+      # Buffered facts are at risk of loss on a process crash. A "flushed" store
+      # has all accepted facts on disk; a "buffered" store has unflushed in-memory
+      # facts that would be lost if the process were killed right now.
+      def durability_snapshot
+        @mutex.synchronize do
+          stores_snap = @segments.to_h do |name, seg|
+            buffered = seg[:codec].buffered_count
+            [name, {
+              "codec"          => seg[:codec_name].to_s,
+              "buffered_count" => buffered,
+              "facts_on_disk"  => seg[:count] - buffered,
+              "durability"     => buffered > 0 ? "buffered" : "flushed"
+            }]
+          end
+          { "policy" => flush_policy_name, "stores" => stores_snap }
+        end
+      end
+
       private
 
       # ── Retention ────────────────────────────────────────────────────────
@@ -265,6 +295,36 @@ module Igniter
           "ephemeral: segment #{seg_id} (store=#{store_name}) superseded by newer sealed segment"
         else
           "#{policy[:strategy]}: segment #{seg_id} (store=#{store_name}) purged by policy"
+        end
+      end
+
+      # ── Flush policy ─────────────────────────────────────────────────────
+
+      def apply_flush_policy(seg)
+        case @flush_policy
+        when :on_write
+          seg[:codec].flush(seg[:file])
+          seg[:file].flush
+        when Hash
+          n = @flush_policy[:every_n]
+          if n
+            seg[:facts_since_flush] = (seg[:facts_since_flush] || 0) + 1
+            if seg[:facts_since_flush] >= n
+              seg[:codec].flush(seg[:file])
+              seg[:file].flush
+              seg[:facts_since_flush] = 0
+            end
+          end
+        end
+        # :batch — no extra flush beyond what the codec already does at BATCH_SIZE
+      end
+
+      def flush_policy_name
+        case @flush_policy
+        when :batch    then "batch"
+        when :on_write then "on_write"
+        when Hash      then "every_n:#{@flush_policy[:every_n]}"
+        else                @flush_policy.to_s
         end
       end
 
