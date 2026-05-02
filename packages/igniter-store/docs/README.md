@@ -11,6 +11,7 @@ Implementation specifications and progress records for the `igniter-store` packa
 | [mcp-adapter-proposal.md](mcp-adapter-proposal.md) | MCP agent adapter over Store Open Protocol |
 | [storage-format-benchmark-plan.md](storage-format-benchmark-plan.md) | Compact storage, partitioning, encryption, and benchmark plan |
 | [segmented-storage-hardening-proposal.md](segmented-storage-hardening-proposal.md) | Next hardening slice for segmented WAL storage |
+| [storage-metadata-conformance-proposal.md](storage-metadata-conformance-proposal.md) | Conformance slice for storage metadata across backend/protocol/wire/MCP |
 | [poc-specification.md](poc-specification.md) | Contract-native store proof-of-concept spec |
 | [poc-specification.ru.md](poc-specification.ru.md) | То же, на русском |
 | [server-model.md](server-model.md) | StoreServer + NetworkBackend design (TCP/Unix, subscription registry) |
