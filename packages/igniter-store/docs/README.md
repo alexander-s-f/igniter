@@ -12,6 +12,7 @@ Implementation specifications and progress records for the `igniter-store` packa
 | [storage-format-benchmark-plan.md](storage-format-benchmark-plan.md) | Compact storage, partitioning, encryption, and benchmark plan |
 | [segmented-storage-hardening-proposal.md](segmented-storage-hardening-proposal.md) | Next hardening slice for segmented WAL storage |
 | [storage-metadata-conformance-proposal.md](storage-metadata-conformance-proposal.md) | Conformance slice for storage metadata across backend/protocol/wire/MCP |
+| [package-agent-task-pack.md](package-agent-task-pack.md) | Sequential large-slice task pack for Package Agent |
 | [poc-specification.md](poc-specification.md) | Contract-native store proof-of-concept spec |
 | [poc-specification.ru.md](poc-specification.ru.md) | То же, на русском |
 | [server-model.md](server-model.md) | StoreServer + NetworkBackend design (TCP/Unix, subscription registry) |

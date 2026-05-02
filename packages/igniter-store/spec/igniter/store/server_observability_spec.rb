@@ -214,6 +214,22 @@ RSpec.describe "StoreServer Observability" do
         expect(m.alerts.count { |a| a.type == :max_connections }).to eq(1)
       end
 
+      it "fires quarantine_receipt_count alert from storage_stats" do
+        backend = Object.new
+        def backend.storage_stats
+          {
+            "stores" => {
+              "readings" => { "quarantine_receipt_count" => 2, "byte_size" => 10 }
+            }
+          }
+        end
+
+        m = described_class.new(thresholds: { quarantine_receipt_count: 1 })
+        alerts = m.check_alerts(backend: backend)
+
+        expect(alerts.any? { |a| a.type == :quarantine_receipt_count }).to be true
+      end
+
       it "returns empty array when no thresholds breached" do
         expect(metrics.check_alerts).to be_empty
       end

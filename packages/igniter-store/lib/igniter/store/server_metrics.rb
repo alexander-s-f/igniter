@@ -173,7 +173,7 @@ module Igniter
             begin
               stats = backend.storage_stats
               if stats
-                qc = stats["stores"]&.values&.sum { |s| s["quarantine_count"].to_i } || 0
+                qc = stats["stores"]&.values&.sum { |s| s["quarantine_receipt_count"].to_i } || 0
                 fire_alert(:quarantine_receipt_count, qc)
                 bs = stats["stores"]&.values&.sum { |s| s["byte_size"].to_i } || 0
                 fire_alert(:storage_byte_size, bs)
