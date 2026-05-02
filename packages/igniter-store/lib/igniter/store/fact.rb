@@ -19,9 +19,10 @@ module Igniter
         :timestamp,
         :term,
         :schema_version,
+        :producer,
         keyword_init: true
       ) do
-        def self.build(store:, key:, value:, causation: nil, term: 0, schema_version: 1)
+        def self.build(store:, key:, value:, causation: nil, term: 0, schema_version: 1, producer: nil)
           serialized = JSON.generate(stable_sort(value))
           new(
             id: SecureRandom.uuid,
@@ -32,7 +33,8 @@ module Igniter
             causation: causation,
             timestamp: Process.clock_gettime(Process::CLOCK_REALTIME),
             term: term,
-            schema_version: schema_version
+            schema_version: schema_version,
+            producer: producer ? deep_freeze(producer) : nil
           ).freeze
         end
 
@@ -89,10 +91,12 @@ module Igniter
           build(
             store: h[:store], key: h[:key], value: h[:value],
             causation: h[:causation], term: h.fetch(:term, 0),
-            schema_version: h.fetch(:schema_version, 1)
+            schema_version: h.fetch(:schema_version, 1),
+            producer: h[:producer]
           )
         else
-          new(**h).freeze
+          new(**h.slice(:id, :store, :key, :value, :value_hash, :causation,
+                        :timestamp, :term, :schema_version, :producer)).freeze
         end
       end
     end

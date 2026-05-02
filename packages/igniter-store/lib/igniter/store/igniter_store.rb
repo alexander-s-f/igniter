@@ -21,6 +21,18 @@ module Igniter
     class IgniterStore
       attr_reader :schema_graph
 
+      # Returns a Protocol::Interpreter wrapping this store.
+      # External / non-Igniter clients use this surface to register descriptors,
+      # write facts, and query via the open protocol vocabulary.
+      def protocol
+        @protocol ||= Protocol::Interpreter.new(self)
+      end
+
+      # Convenience shorthand: register a protocol descriptor packet.
+      def register_descriptor(packet)
+        protocol.register(packet)
+      end
+
       def initialize(backend: nil, lru_cap: ReadCache::DEFAULT_LRU_CAP)
         @backend      = backend
         @lru_cap      = lru_cap
@@ -189,7 +201,7 @@ module Igniter
         self
       end
 
-      def write(store:, key:, value:, schema_version: 1, term: 0)
+      def write(store:, key:, value:, schema_version: 1, term: 0, producer: nil)
         previous = @log.latest_for(store: store, key: key)
         fact = Fact.build(
           store: store,
@@ -197,7 +209,8 @@ module Igniter
           value: value,
           causation: previous&.id,
           schema_version: schema_version,
-          term: term
+          term: term,
+          producer: producer
         )
         @log.append(fact)
         @backend&.write_fact(fact)

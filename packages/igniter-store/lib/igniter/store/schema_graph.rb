@@ -10,6 +10,10 @@ module Igniter
         @scatters    = []
         @relations   = {}
         @retention   = {}
+        # Raw protocol descriptor storage (OP2 — metadata export)
+        @store_descriptors        = {}
+        @history_descriptors      = {}
+        @subscription_descriptors = {}
       end
 
       def register(path)
@@ -164,6 +168,32 @@ module Igniter
       # Compact snapshot of all registered retention policies.
       def retention_snapshot
         @retention.transform_values { |p| { strategy: p.strategy, duration: p.duration } }
+      end
+
+      # --- Raw descriptor storage (OP2 — metadata export) ---
+
+      def register_store_descriptor(descriptor)
+        @store_descriptors[descriptor[:name].to_sym] = descriptor
+        self
+      end
+
+      def register_history_descriptor(descriptor)
+        @history_descriptors[descriptor[:name].to_sym] = descriptor
+        self
+      end
+
+      def register_subscription_descriptor(descriptor)
+        @subscription_descriptors[descriptor[:name].to_sym] = descriptor
+        self
+      end
+
+      # Snapshot of all raw protocol-level descriptors registered via OP1.
+      def descriptor_snapshot
+        {
+          stores:        @store_descriptors,
+          histories:     @history_descriptors,
+          subscriptions: @subscription_descriptors
+        }
       end
 
       # Returns a compact snapshot of all registered access paths keyed by store.

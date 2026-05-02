@@ -10,7 +10,8 @@ begin
   # ── Ruby wrappers on top of Rust-defined Fact ─────────────────────────────
   # Translates keyword args to the positional _native_build method.
   class Igniter::Store::Fact
-    def self.build(store:, key:, value:, causation: nil, term: 0, schema_version: 1)
+    def self.build(store:, key:, value:, causation: nil, term: 0, schema_version: 1, producer: nil)
+      # producer: accepted but not forwarded to native — Phase 2 gap.
       _native_build(
         store.to_s,
         key.to_s,
@@ -20,6 +21,9 @@ begin
         schema_version.to_i
       )
     end
+
+    # Native Rust struct does not carry producer yet (Phase 2).
+    def producer = nil
   end
 
   # ── Ruby wrappers on top of Rust-defined FactLog ──────────────────────────

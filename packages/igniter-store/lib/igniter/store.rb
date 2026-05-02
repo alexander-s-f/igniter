@@ -20,6 +20,7 @@ require_relative "store/store_server"
 require_relative "store/igniter_store"
 require_relative "store/read_cache"
 require_relative "store/schema_graph"
+require_relative "store/protocol"
 
 module Igniter
   module Store
