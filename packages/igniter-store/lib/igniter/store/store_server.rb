@@ -2,6 +2,7 @@
 
 require "socket"
 require "json"
+require "time"
 require_relative "wire_protocol"
 require_relative "server_config"
 require_relative "server_logger"
@@ -10,6 +11,31 @@ require_relative "subscription_registry"
 
 module Igniter
   module Store
+    # Thread-safe bounded ring buffer for structured server events.
+    # Oldest events are evicted when +max_size+ is exceeded.
+    class EventRing
+      def initialize(max_size)
+        @max_size = max_size
+        @events   = []
+        @mutex    = Mutex.new
+      end
+
+      def push(event)
+        @mutex.synchronize do
+          @events.push(event)
+          @events.shift if @events.size > @max_size
+        end
+      end
+
+      def to_a
+        @mutex.synchronize { @events.dup }
+      end
+
+      def size
+        @mutex.synchronize { @events.size }
+      end
+    end
+
     # Minimal TCP / Unix socket server that exposes durable fact storage over
     # the network.  Clients use NetworkBackend to connect.
     #
@@ -42,7 +68,9 @@ module Igniter
                      max_connections: nil, config: nil,
                      # Legacy positional-style: address: "host:port"
                      address: nil,
-                     metrics_thresholds: {})
+                     metrics_thresholds: {},
+                     slow_op_threshold_ms: nil,
+                     max_recent_events:    100)
         cfg = config || ServerConfig.new
 
         # Keyword args override the config where explicitly provided.
@@ -85,8 +113,11 @@ module Igniter
         @bind_address_str = resolved_transport == :unix ?
           resolved_host.to_s :
           "#{@server.addr[3]}:#{@server.addr[1]}"
-        @metrics    = ServerMetrics.new(thresholds: metrics_thresholds)
-        @last_error = nil
+        @metrics              = ServerMetrics.new(thresholds: metrics_thresholds)
+        @last_error           = nil
+        @draining             = false
+        @slow_op_threshold_ms = slow_op_threshold_ms
+        @event_ring           = EventRing.new(max_recent_events)
         write_pid_file(resolved_pid)
       end
 
@@ -96,10 +127,10 @@ module Igniter
       def start
         @logger.info("Listening on #{@bind_address_str} " \
                      "(transport=#{@transport_type} backend=#{@backend_type})")
-        @logger.event(:server_start,
-                      bind_address: @bind_address_str,
-                      transport:    @transport_type,
-                      backend:      @backend_type)
+        emit_event(:server_start,
+                   bind_address: @bind_address_str,
+                   transport:    @transport_type,
+                   backend:      @backend_type)
         until @stopped
           begin
             client = @server.accept
@@ -107,12 +138,18 @@ module Igniter
             break
           end
 
+          if @draining
+            @metrics.record_connection_rejected
+            client.close rescue nil
+            next
+          end
+
           active = @active_mutex.synchronize { @active += 1; @active }
 
           if @max_connections && active > @max_connections
             @active_mutex.synchronize { @active -= 1 }
             @metrics.record_connection_rejected
-            @logger.event(:alert, type: :max_connections, active: active, max: @max_connections)
+            emit_event(:alert, type: :max_connections, active: active, max: @max_connections)
             client.close rescue nil
             next
           end
@@ -123,7 +160,7 @@ module Igniter
       ensure
         remove_pid_file
         @logger.info("Stopped.")
-        @logger.event(:server_stop, bind_address: @bind_address_str)
+        emit_event(:server_stop, bind_address: @bind_address_str)
       end
 
       # Starts the accept loop in a background daemon thread.
@@ -181,6 +218,31 @@ module Igniter
         @write_mutex.synchronize { @backend&.close rescue nil }
       end
 
+      # Transitions the server into draining state: new connections are rejected
+      # but the accept loop keeps running.  Existing connections are allowed to
+      # finish (or time out).  Call +stop+ afterward to tear down the socket.
+      #
+      # Returns self so callers can chain: server.drain.stop
+      def drain(timeout: nil)
+        return self if @stopped
+
+        t = timeout || @drain_timeout
+        @draining = true
+        emit_event(:server_draining, bind_address: @bind_address_str)
+        @logger.info("Draining (timeout=#{t}s)...")
+
+        deadline = Time.now + t
+        loop do
+          active = @active_mutex.synchronize { @active }
+          break if active.zero? || Time.now >= deadline
+          sleep 0.05
+        end
+
+        remaining = @active_mutex.synchronize { @active }
+        @logger.warn("Drain timeout: #{remaining} connection(s) still active.") if remaining.positive?
+        self
+      end
+
       # ── Accessors ────────────────────────────────────────────────────────────
 
       # Canonical bind address string (e.g. "127.0.0.1:7400" or "/tmp/store.sock").
@@ -199,14 +261,26 @@ module Igniter
         @registry.subscriber_count(store)
       end
 
+      # True when the server is live and accepting traffic.
+      def ready?    = !@stopped && !@draining
+
+      # True when the server has entered draining state (rejecting new connections).
+      def draining? = @draining
+
+      # Recent structured events from the bounded ring buffer.
+      # Returns an Array of event hashes (newest at end), size ≤ max_recent_events.
+      def recent_events
+        @event_ring.to_a
+      end
+
       # Compact health snapshot Hash.
-      # status: :ready | :stopped
+      # status: :ready | :draining | :stopped
       def health_snapshot
         now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         snap = @metrics.snapshot
         {
           schema_version:     1,
-          status:             @stopped ? :stopped : :ready,
+          status:             current_status,
           backend:            @backend_type.to_s,
           transport:          @transport_type.to_s,
           bind_address:       @bind_address_str,
@@ -231,16 +305,18 @@ module Igniter
       # use #health_snapshot. For the pure storage-level protocol shape use
       # Protocol::Interpreter#observability_snapshot.
       def observability_snapshot
+        @metrics.check_alerts(backend: @backend)
         snap = @metrics.snapshot(backend: @backend)
         now  = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         {
           schema_version: 1,
           generated_at:   snap[:generated_at],
-          status:         @stopped ? :stopped : :ready,
+          status:         current_status,
           uptime_ms:      ((@started_at ? now - @started_at : 0) * 1000).ceil,
           metrics: {
             requests_total:             snap[:requests_total],
             errors_total:               snap[:errors_total],
+            slow_ops_total:             snap[:slow_ops_total],
             facts_written:              snap[:facts_written],
             facts_replayed:             snap[:facts_replayed],
             bytes_in:                   snap[:bytes_in],
@@ -273,10 +349,13 @@ module Igniter
       # all in one foreground process. Adapters are stopped on exit.
       def start_with_adapters(http_port: nil, tcp_port: nil)
         http = http_port ? HTTPAdapter.new(
-          interpreter:     protocol,
-          port:            http_port,
-          health_provider: method(:health_snapshot),
-          status_provider: method(:observability_snapshot)
+          interpreter:      protocol,
+          port:             http_port,
+          health_provider:  method(:health_snapshot),
+          status_provider:  method(:observability_snapshot),
+          ready_provider:   method(:ready?),
+          metrics_provider: -> { observability_snapshot[:metrics] },
+          events_provider:  method(:recent_events)
         ) : nil
         tcp  = tcp_port  ? TCPAdapter.new(interpreter: protocol, port: tcp_port)  : nil
         http&.start_async
@@ -290,6 +369,21 @@ module Igniter
       # ── Private ──────────────────────────────────────────────────────────────
 
       private
+
+      # Emits a structured event to both the logger and the event ring buffer.
+      def emit_event(type, level: :info, **attrs)
+        @logger.event(type, level: level, **attrs)
+        @event_ring.push({ type: type, level: level, ts: Time.now.iso8601(3), **attrs })
+      rescue StandardError
+        nil  # never raise from instrumentation path
+      end
+
+      def current_status
+        if    @stopped   then :stopped
+        elsif @draining  then :draining
+        else                  :ready
+        end
+      end
 
       def build_backend(type, path)
         case type
@@ -324,7 +418,7 @@ module Igniter
         socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, true) rescue nil
         remote_addr = socket.peeraddr(false)[2] rescue "unknown"
         conn_id = @metrics.record_connection_accepted(remote_addr: remote_addr)
-        @logger.event(:connection_open, connection_id: conn_id, remote_addr: remote_addr)
+        emit_event(:connection_open, connection_id: conn_id, remote_addr: remote_addr)
 
         loop do
           body = read_frame(socket)
@@ -338,7 +432,18 @@ module Igniter
             break
           end
 
+          t0         = Process.clock_gettime(Process::CLOCK_MONOTONIC)
           resp       = dispatch(req)
+          elapsed_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - t0) * 1000).ceil
+
+          if @slow_op_threshold_ms && elapsed_ms > @slow_op_threshold_ms
+            @metrics.record_slow_op(op: req[:op].to_s)
+            emit_event(:slow_op, level: :warn, connection_id: conn_id,
+                       op: req[:op].to_s, elapsed_ms: elapsed_ms,
+                       threshold_ms: @slow_op_threshold_ms)
+          end
+
+          resp = resp.merge(request_id: req[:request_id]) if req[:request_id]
           resp_json  = JSON.generate(resp)
           resp_frame = encode_frame(resp_json)
           @metrics.record_request(
@@ -347,10 +452,10 @@ module Igniter
           )
           if resp[:ok] == false
             @metrics.record_error(op: req[:op].to_s, error_class: "RequestError")
-            @logger.event(:request_error, level: :warn,
-                          connection_id: conn_id, op: req[:op].to_s, error: resp[:error])
+            emit_event(:request_error, level: :warn,
+                       connection_id: conn_id, op: req[:op].to_s, error: resp[:error])
           else
-            @logger.event(:request, level: :debug, connection_id: conn_id, op: req[:op].to_s)
+            emit_event(:request, level: :debug, connection_id: conn_id, op: req[:op].to_s)
           end
           socket.write(resp_frame)
           break if req[:op] == "close"
@@ -361,15 +466,15 @@ module Igniter
         close_reason = :error
         @last_error  = e.message
         @logger.warn("handle_client: #{e.class}: #{e.message}")
-        @logger.event(:backend_error, level: :error,
-                      connection_id: conn_id, error_class: e.class.to_s, message: e.message)
+        emit_event(:backend_error, level: :error,
+                   connection_id: conn_id, error_class: e.class.to_s, message: e.message)
         @metrics.record_error(op: "connection", error_class: e.class.to_s)
       ensure
         socket.close rescue nil
         @active_mutex.synchronize { @active -= 1 }
         if conn_id
           @metrics.record_connection_closed(id: conn_id, reason: close_reason)
-          @logger.event(:connection_close, connection_id: conn_id, reason: close_reason)
+          emit_event(:connection_close, connection_id: conn_id, reason: close_reason)
         end
         @logger.debug("Connection closed (active=#{@active_mutex.synchronize { @active }})")
       end
@@ -384,7 +489,7 @@ module Igniter
         # Ack before registering: no concurrent writes possible until after this line.
         socket.write(encode_frame(JSON.generate({ ok: true })))
         stores.each { |s| @metrics.record_subscription_opened(store: s) }
-        @logger.event(:subscription_open, connection_id: connection_id, stores: stores)
+        emit_event(:subscription_open, connection_id: connection_id, stores: stores)
         record = @registry.subscribe(stores: stores, &adapter)
 
         loop do
@@ -397,7 +502,7 @@ module Igniter
       ensure
         @registry.unsubscribe(record)
         stores.each { |s| @metrics.record_subscription_closed(store: s) }
-        @logger.event(:subscription_close, connection_id: connection_id, stores: stores)
+        emit_event(:subscription_close, connection_id: connection_id, stores: stores)
       end
 
       def dispatch(req)
@@ -449,10 +554,10 @@ module Igniter
           { ok: true }
 
         else
-          { ok: false, error: "Unknown op: #{req[:op].inspect}" }
+          { ok: false, error_code: :unknown_op, error: "Unknown op: #{req[:op].inspect}" }
         end
       rescue => e
-        { ok: false, error: e.message }
+        { ok: false, error_code: :internal_error, error: e.message }
       end
 
       def decode_fact(h)

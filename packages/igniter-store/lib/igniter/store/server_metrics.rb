@@ -35,7 +35,8 @@ module Igniter
         error_rate:               0.1,
         replay_size:              10_000,
         quarantine_receipt_count: 10,
-        storage_byte_size:        1_073_741_824
+        storage_byte_size:        1_073_741_824,
+        slow_op_count:            nil   # nil = disabled; set to an integer to enable
       }.freeze
 
       def initialize(thresholds: {})
@@ -48,6 +49,7 @@ module Igniter
         @bytes_out           = 0
         @requests_total      = Hash.new(0)
         @errors_total        = Hash.new(0)
+        @slow_ops_total      = Hash.new(0)
         @accepted_total      = 0
         @closed_total        = 0
         @rejected_total      = 0
@@ -111,6 +113,10 @@ module Igniter
         @mutex.synchronize { @errors_total[key] += 1 }
       end
 
+      def record_slow_op(op:)
+        @mutex.synchronize { @slow_ops_total[op.to_s] += 1 }
+      end
+
       def record_facts_written(count: 1)
         @mutex.synchronize { @facts_written += count }
       end
@@ -146,6 +152,7 @@ module Igniter
             bytes_out:                  @bytes_out,
             requests_total:             @requests_total.dup,
             errors_total:               @errors_total.dup,
+            slow_ops_total:             @slow_ops_total.dup,
             active_connections:         @active_conns.size,
             accepted_connections_total: @accepted_total,
             closed_connections_total:   @closed_total,
@@ -182,6 +189,9 @@ module Igniter
               nil
             end
           end
+
+          total_slow = @slow_ops_total.values.sum
+          fire_alert(:slow_op_count, total_slow) if total_slow.positive?
         end
         @mutex.synchronize { @alerts.dup }
       end
