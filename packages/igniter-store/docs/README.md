@@ -8,6 +8,7 @@ Implementation specifications and progress records for the `igniter-store` packa
 |------|-------------|
 | [open-protocol.md](open-protocol.md) | Standalone Store Open Protocol proposal |
 | [server-api-proposal.md](server-api-proposal.md) | Server/API layer above Store Open Protocol |
+| [mcp-adapter-proposal.md](mcp-adapter-proposal.md) | MCP agent adapter over Store Open Protocol |
 | [storage-format-benchmark-plan.md](storage-format-benchmark-plan.md) | Compact storage, partitioning, encryption, and benchmark plan |
 | [poc-specification.md](poc-specification.md) | Contract-native store proof-of-concept spec |
 | [poc-specification.ru.md](poc-specification.ru.md) | То же, на русском |

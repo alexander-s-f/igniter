@@ -11,7 +11,7 @@ that waist over transport without inventing a second meaning layer.
 
 ```text
 clients
-  CompanionStore / agents / external DSLs / JS apps / sync hubs
+  CompanionStore / MCP adapter / agents / external DSLs / JS apps / sync hubs
         |
         v
 Server API layer
@@ -31,6 +31,9 @@ IgniterStore fact engine
 
 The server should be a protocol host and durable projection host. It must not
 become a contract-logic RPC server.
+
+MCP should sit above this layer as an agent-facing adapter. Its remote mode
+should call `/v1/dispatch`, not invent a second network protocol.
 
 ## Layers
 
@@ -183,6 +186,22 @@ wire-envelope operations internally:
 
 These are adapters, not separate semantics. If a convenience endpoint cannot be
 expressed as a wire op, it should not be added yet.
+
+## MCP Adapter Relationship
+
+MCP is a client adapter for operators and agents:
+
+```text
+MCP tool/resource
+  -> local Protocol::Interpreter#dispatch
+  or remote POST /v1/dispatch
+  -> Store Open Protocol result
+```
+
+The MCP layer may rename operations into tool-friendly names, add bounded
+resource views, and apply tool policy. It must not add persistence semantics.
+Mutating MCP tools should be disabled by default until policy and receipt
+handling are explicit.
 
 ## StoreServer Integration
 
