@@ -1,7 +1,7 @@
 # Igniter Store Server API Proposal
 
 Status date: 2026-05-02.
-Status: architecture decided, ready for implementation.
+Status: shipped (HTTPAdapter + TCPAdapter + StoreServer wiring, 2026-05-02).
 Not a stable public API.
 
 ## Claim
@@ -336,15 +336,16 @@ Suggested smoke sequence:
 ```text
 [Architect Supervisor / Codex]
 Track: igniter-store-server-api
-Status: architecture decided, ready for implementation.
+Status: shipped (2026-05-02). All first-slice acceptance criteria met.
 [D] Open Protocol is the semantic waist; server API is transport over it.
 [D] Both HTTP (Rack, port 7300) and TCP (port 7401) adapters ship together.
-[D] HTTPAdapter exposes rack_app — no production HTTP dep.
+[D] HTTPAdapter exposes rack_app + Rack::Builder routes; rack ~> 3.0 is prod dep.
 [D] TCPAdapter reuses WireProtocol CRC32 framing.
 [D] All transports in one StoreServer process; legacy port 7400 untouched.
 [D] NetworkBackend legacy path stays until envelope compatibility is proven.
 [D] Subscriptions are out of scope for this slice.
+[D] SyncProfile#to_json serializes as hash over wire (Struct default is array).
 [R] Convenience REST endpoints must lower to protocol ops and add no semantics.
 [R] StoreServer remains fact/projection host, not contract-logic RPC.
-Next: implement HTTPAdapter + TCPAdapter + StoreServer wiring.
+Next: architect-selected — descriptor WAL persistence, SSE push, or conformance tests.
 ```

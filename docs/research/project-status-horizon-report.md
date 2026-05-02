@@ -51,7 +51,8 @@ and now the infrastructure that may later materialize more contracts.
   scope-aware invalidation, history partition indexes, LRU time-travel cache,
   read-path schema coercion, CRC32-framed WAL, snapshot checkpoint/replay,
   retention/compaction, derivation/scatter/relation rules, StoreServer,
-  NetworkBackend, WireProtocol, subscriptions, stats, drain, and CLI.
+  NetworkBackend, WireProtocol, subscriptions, stats, drain, CLI, HTTPAdapter
+  (Rack, port 7300), and TCPAdapter (WireProtocol framing, port 7401).
 - `igniter-companion`: typed Record/History facade over `igniter-store`. It
   turns app-local manifests into Record/History classes, normalized receipts,
   partition replay, projection metadata, schema-graph sidecars, and convergence
@@ -82,6 +83,7 @@ projection/schema graph sidecars -> Store metadata evidence
 derivation/scatter/relation rules -> Companion typed resolve + as_of resolve
 OP1/OP2/OP3/OP4 -> descriptor import, metadata export, wire envelope, sync profile
 OP5/companion_protocol_adoption -> Companion#register emits descriptors; OP2 surface on Companion
+server_api_transport -> HTTPAdapter (Rack/port 7300) + TCPAdapter (port 7401) over WireEnvelope
 materializer lifecycle -> still review-only/no grants
 ```
 
@@ -114,7 +116,7 @@ Current uncommitted changes from this report are docs-only snapshot updates.
 Fresh checks on 2026-05-02:
 
 - `ruby examples/run.rb smoke`: 87 passed, 0 failed, 0 skipped.
-- `bundle exec rspec packages/igniter-store/spec`: 327 examples, 0 failures, 2 pending.
+- `bundle exec rspec packages/igniter-store/spec`: 350 examples, 0 failures, 2 pending.
 - `RUBYLIB=packages/igniter-companion/lib:packages/igniter-store/lib bundle exec rspec packages/igniter-companion/spec`: 89 examples, 0 failures.
 
 Note: running `bundle exec rspec packages/igniter-companion/spec` without
