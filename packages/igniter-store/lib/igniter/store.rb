@@ -15,6 +15,8 @@ require_relative "store/file_backend"      # Ruby FileBackend + native snapshot 
 require_relative "store/server_config"
 require_relative "store/server_logger"
 require_relative "store/subscription_registry"
+require_relative "store/change_event"
+require_relative "store/changefeed_buffer"
 require_relative "store/network_backend"
 require_relative "store/store_server"
 require_relative "store/igniter_store"

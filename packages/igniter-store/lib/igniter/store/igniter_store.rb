@@ -39,9 +39,10 @@ module Igniter
         protocol.register(packet)
       end
 
-      def initialize(backend: nil, lru_cap: ReadCache::DEFAULT_LRU_CAP)
+      def initialize(backend: nil, lru_cap: ReadCache::DEFAULT_LRU_CAP, changefeed: nil)
         @backend      = backend
         @lru_cap      = lru_cap
+        @changefeed   = changefeed
         @log          = FactLog.new
         @cache        = ReadCache.new(lru_cap: lru_cap)
         @schema_graph = SchemaGraph.new
@@ -227,6 +228,7 @@ module Igniter
         @cache.invalidate(store: store, key: key, scope_changes: scope_changes)
         run_derivations(store: store, source_fact: fact)
         run_scatters(store: store, source_fact: fact)
+        @changefeed&.emit(fact)
         fact
       end
 
@@ -249,6 +251,7 @@ module Igniter
             end
           end
         end
+        @changefeed&.emit(fact)
         fact
       end
 

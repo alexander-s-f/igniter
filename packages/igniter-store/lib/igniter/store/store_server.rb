@@ -8,6 +8,8 @@ require_relative "server_config"
 require_relative "server_logger"
 require_relative "server_metrics"
 require_relative "subscription_registry"
+require_relative "change_event"
+require_relative "changefeed_buffer"
 
 module Igniter
   module Store
@@ -105,7 +107,7 @@ module Igniter
         # The server socket is bound and listening as soon as build_server returns.
         # Signal readiness here so wait_until_ready is race-free for callers that
         # connect before start_async is called.
-        @registry        = SubscriptionRegistry.new
+        @changefeed      = ChangefeedBuffer.new
         @ready_latch     = true
         @started_at      = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         # Cache the bind address string now while the socket is guaranteed open,
@@ -258,7 +260,7 @@ module Igniter
 
       # Number of active push subscriptions for a given store name.
       def subscription_count(store)
-        @registry.subscriber_count(store)
+        @changefeed.subscriber_count(store)
       end
 
       # True when the server is live and accepting traffic.
@@ -334,7 +336,8 @@ module Igniter
             transport:    @transport_type.to_s,
             bind_address: @bind_address_str,
             last_error:   @last_error
-          }
+          },
+          changefeed: @changefeed.snapshot
         }
       end
 
@@ -481,8 +484,8 @@ module Igniter
 
       def handle_subscription_mode(socket, stores, connection_id: nil)
         write_mutex = Mutex.new
-        adapter = lambda do |fact|
-          frame = encode_frame(JSON.generate({ event: "fact_written", fact: fact.to_h }))
+        adapter = lambda do |change_event|
+          frame = encode_frame(JSON.generate({ event: "fact_written", fact: change_event.fact.to_h }))
           write_mutex.synchronize { socket.write(frame) }
         end
 
@@ -490,7 +493,7 @@ module Igniter
         socket.write(encode_frame(JSON.generate({ ok: true })))
         stores.each { |s| @metrics.record_subscription_opened(store: s) }
         emit_event(:subscription_open, connection_id: connection_id, stores: stores)
-        record = @registry.subscribe(stores: stores, &adapter)
+        handle = @changefeed.subscribe(stores: stores, &adapter)
 
         loop do
           body = read_frame(socket)
@@ -500,7 +503,7 @@ module Igniter
       rescue IOError, Errno::ECONNRESET, Errno::EPIPE, Errno::EBADF
         nil
       ensure
-        @registry.unsubscribe(record)
+        handle&.close
         stores.each { |s| @metrics.record_subscription_closed(store: s) }
         emit_event(:subscription_close, connection_id: connection_id, stores: stores)
       end
@@ -513,7 +516,7 @@ module Igniter
             @backend&.write_fact(fact)
             @in_memory_facts << fact
           end
-          @registry.fan_out(fact)
+          @changefeed.emit(fact)
           @metrics.record_facts_written
           { ok: true }
 

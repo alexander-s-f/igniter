@@ -32,6 +32,7 @@ Implementation specifications and progress records for the `igniter-store` packa
 |------|-------------|
 | [intelligent-ledger/README.md](intelligent-ledger/README.md) | Intelligent Ledger research index: inference, derivations, and fact routes |
 | [tracks/pre-v1-fact-model-migration.md](tracks/pre-v1-fact-model-migration.md) | Package Agent track for the P0 Fact model migration |
+| [tracks/changefeed-events-v0.md](tracks/changefeed-events-v0.md) | Package Agent track for the first Changefeed events subsystem slice |
 | [research/store-iterations.md](research/store-iterations.md) | Store design iteration history |
 | [research/store-iterations.ru.md](research/store-iterations.ru.md) | То же, на русском |
 | [research/sync-hub-iterations.md](research/sync-hub-iterations.md) | Sync-hub design iteration history |
