@@ -114,7 +114,8 @@ module Igniter
             store:    :availability_snapshots,
             key:      "#{tid}/#{bucket}",
             value:    snapshot_value,
-            producer: PRODUCER
+            producer: PRODUCER,
+            derivation: snapshot_derivation_metadata(snapshot_value)
           )
 
           # --- persist receipt ---
@@ -161,6 +162,15 @@ module Igniter
             latest = facts.max_by(&:transaction_time)
             latest if latest&.value&.fetch(:type, nil).to_s != "cancelled"
           end
+        end
+
+        def snapshot_derivation_metadata(snapshot_value)
+          raw = snapshot_value.fetch("derivation")
+          {
+            name: raw.fetch("name"),
+            version: raw.fetch("version"),
+            source_fact_ids: snapshot_value.fetch("derived_from_fact_ids")
+          }
         end
       end
     end

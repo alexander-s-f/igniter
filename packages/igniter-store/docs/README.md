@@ -13,6 +13,7 @@ Implementation specifications and progress records for the `igniter-store` packa
 | [segmented-storage-hardening-proposal.md](segmented-storage-hardening-proposal.md) | Next hardening slice for segmented WAL storage |
 | [storage-metadata-conformance-proposal.md](storage-metadata-conformance-proposal.md) | Conformance slice for storage metadata across backend/protocol/wire/MCP |
 | [docs-workflow.md](docs-workflow.md) | Documentation workflow for research, proposals, tracks, and final docs |
+| [package-agent-onboarding.md](package-agent-onboarding.md) | Compact fresh-chat entrypoint for Package Agent |
 | [package-agent-task-pack.md](package-agent-task-pack.md) | Sequential large-slice task pack for Package Agent |
 | [architect-supervisor-backlog.md](architect-supervisor-backlog.md) | Small local polish backlog for Architect Supervisor / Codex |
 | [rust-native-data-plane-plan.md](rust-native-data-plane-plan.md) | Rust/native data-plane migration plan for storage, codecs, indexes, and delivery |

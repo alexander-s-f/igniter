@@ -1,7 +1,7 @@
 # igniter-store Package Agent Task Pack
 
-Status date: 2026-05-02
-Status: sequential task pack, not a stable public API promise
+Status date: 2026-05-03
+Status: mostly executed sequential task pack, not a stable public API promise
 Supervisor: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 
@@ -23,11 +23,13 @@ Supervisor/Codex loop; this pack is meant for larger context-heavy work.
   partition/segment shape, manifest facts, and quarantine receipts.
 - Current package verification baseline after the latest local fix:
   `bundle exec rspec spec` in `packages/igniter-store` passes with
-  524 examples, 0 failures, 2 pending.
+  622 examples, 0 failures.
 
 ## Operating Rules
 
 - Prefer vertical slices over isolated helper changes.
+- Start fresh Package Agent chats from `docs/package-agent-onboarding.md`, then
+  read `docs/progress.md` and the single assigned track.
 - Keep Store Open Protocol as the semantic center. HTTP, MCP, and legacy server
   commands should be transports/views over the protocol, not competing models.
 - Do not expose runtime database/storage implementation details in public API

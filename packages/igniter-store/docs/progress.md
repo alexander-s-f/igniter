@@ -1,6 +1,6 @@
 # Igniter Store Progress Summary
 
-Status date: 2026-05-01.
+Status date: 2026-05-03.
 Audience: Architect Supervisor, Package Agent, Research.
 Scope: compact checkpoint for `packages/igniter-store` and its pressure on
 `igniter-companion` / Companion.
@@ -9,7 +9,8 @@ Scope: compact checkpoint for `packages/igniter-store` and its pressure on
 
 ```text
 Store[T] record write
-  -> immutable Fact(id, store, key, value, value_hash, causation, timestamp)
+  -> immutable Fact(id, store, key, value, value_hash, causation,
+     transaction_time, valid_time, producer, derivation)
   -> FactLog append
   -> current read / time-travel read
   -> scope query via registered AccessPath
@@ -63,8 +64,9 @@ Network backend
 - `RelationRule` adds the first named relation primitive over Store facts:
   `register_relation`, auto scatter index `__rel_<name>`, `resolve`, and
   `relation_snapshot`.
-- `Fact#producer` field added (pure-Ruby only; native Phase 2) — provenance
-  metadata carried with every fact.
+- `Fact` now carries canonical Ledger metadata in Ruby and native modes:
+  `transaction_time`, nullable `valid_time`, `producer`, and inline
+  `derivation`; `timestamp` and `term` remain transitional aliases.
 - `Protocol::Interpreter` (OP1/OP2) opens an ecosystem-facing protocol surface:
   descriptor packet import (7 kinds), content-addressed dedup, write receipts,
   protocol-level `write`/`write_fact`/`read`/`query(where:)`/`resolve`, and
@@ -81,7 +83,7 @@ Network backend
 
 ## Current Test Signal
 
-- `packages/igniter-store`: 327 examples, 0 failures, 2 pending (native Phase 2).
+- `packages/igniter-store`: 622 examples, 0 failures.
 - `packages/igniter-companion`: 89 examples, 0 failures.
 
 ## Architecture Meaning

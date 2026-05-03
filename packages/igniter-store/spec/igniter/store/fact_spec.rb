@@ -36,5 +36,48 @@ RSpec.describe Igniter::Store::Fact do
     expect(f2.causation).not_to eq(f2.value_hash)
   end
 
+  it "exposes the canonical pre-v1 fact fields" do
+    fact = described_class.build(
+      store: :items,
+      key: "a",
+      value: { status: :open },
+      valid_time: 1_714_200_123.5,
+      producer: { system: :spec, name: :FactSpec },
+      derivation: { name: :demo_derivation, source_fact_ids: ["source-1"] }
+    )
 
+    expect(fact.transaction_time).to be_a(Float)
+    expect(fact.timestamp).to eq(fact.transaction_time)
+    expect(fact.valid_time).to eq(1_714_200_123.5)
+    expect(fact.term).to eq(1_714_200_123.5)
+    expect(fact.producer[:system]).to eq(:spec)
+    expect(fact.derivation[:name]).to eq(:demo_derivation)
+    expect(fact.to_h).to include(
+      transaction_time: fact.transaction_time,
+      valid_time: 1_714_200_123.5,
+      producer: fact.producer,
+      derivation: fact.derivation
+    )
+  end
+
+  it "accepts legacy timestamp and term keys when rebuilding from a hash" do
+    fact = described_class.from_h(
+      id: "fact-1",
+      store: :items,
+      key: "a",
+      value: { status: :open },
+      value_hash: "hash-1",
+      causation: nil,
+      timestamp: 1_714_200_000.0,
+      term: 1_714_200_123.5,
+      schema_version: 1,
+      producer: { system: :legacy },
+      derivation: { name: :legacy_derivation }
+    )
+
+    expect(fact.transaction_time).to be_a(Float)
+    expect(fact.valid_time).to eq(1_714_200_123.5)
+    expect(fact.producer[:system]).to eq(:legacy)
+    expect(fact.derivation[:name]).to eq(:legacy_derivation)
+  end
 end

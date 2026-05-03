@@ -207,14 +207,14 @@ module Igniter
         self
       end
 
-      def write(store:, key:, value:, schema_version: 1, valid_time: nil, term: nil,
+      def write(store:, key:, value:, schema_version: 1, causation: nil, valid_time: nil, term: nil,
                 producer: nil, derivation: nil)
         previous = @log.latest_for(store: store, key: key)
         fact = Fact.build(
           store:          store,
           key:            key,
           value:          value,
-          causation:      previous&.id,
+          causation:      causation || previous&.id,
           schema_version: schema_version,
           valid_time:     valid_time,
           term:           term,

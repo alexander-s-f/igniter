@@ -44,9 +44,7 @@ RSpec.describe "OP1 — Descriptor Packet Import" do
       expect(fact.producer).to be_nil
     end
 
-    context "producer: storage (pure-Ruby only; native is Phase 2)" do
-      before { skip "producer: not stored in native Rust extension (Phase 2)" if Igniter::Store::NATIVE }
-
+    context "producer: storage" do
       it "stores the producer hash when provided" do
         store = Igniter::Store::IgniterStore.new
         p = { system: :demo_dsl, name: :TaskFlow }
@@ -498,12 +496,33 @@ RSpec.describe "OP1 — Descriptor Packet Import" do
         store: :tasks,
         key:   "t1",
         value: { id: "t1", status: :open },
-        producer: { system: :external_client, name: :demo }
+        valid_time: 1_714_200_123.5,
+        producer: { system: :external_client, name: :demo },
+        derivation: { name: :seed_task, source_fact_ids: ["source-1"] }
       )
       expect(r.accepted?).to  be true
       expect(r.fact_id).not_to be_nil
       expect(r.store).to      eq(:tasks)
       expect(r.key).to        eq("t1")
+    end
+
+    it "stores canonical fact metadata from packet ingress" do
+      proto.write_fact(
+        schema_version: 1,
+        kind: :fact,
+        store: :tasks,
+        key: "t1",
+        value: { id: "t1", status: :open },
+        valid_time: 1_714_200_123.5,
+        producer: { system: :external_client, name: :demo },
+        derivation: { name: :seed_task, source_fact_ids: ["source-1"] }
+      )
+
+      fact = proto.instance_variable_get(:@store).history(store: :tasks, key: "t1").last
+      expect(fact.valid_time).to eq(1_714_200_123.5)
+      expect(fact.producer[:system]).to eq(:external_client)
+      expect(fact.derivation[:name]).to eq(:seed_task)
+      expect(fact.derivation[:source_fact_ids]).to eq(["source-1"])
     end
 
     it "the written fact is readable via read" do

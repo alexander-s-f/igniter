@@ -59,8 +59,18 @@ module Igniter
         def register_subscription(descriptor) = register(descriptor)
 
         # Write a fact. Returns a write Receipt carrying fact_id and value_hash.
-        def write(store:, key:, value:, causation: nil, producer: nil)
-          fact = @store.write(store: store.to_sym, key: key, value: value, producer: producer)
+        def write(store:, key:, value:, causation: nil, valid_time: nil, term: nil,
+                  producer: nil, derivation: nil)
+          fact = @store.write(
+            store:      store.to_sym,
+            key:        key,
+            value:      value,
+            causation:  causation,
+            valid_time: valid_time,
+            term:       term,
+            producer:   producer,
+            derivation: derivation
+          )
           Receipt.write_accepted(store: store.to_sym, key: key, fact: fact)
         end
 
@@ -81,10 +91,14 @@ module Igniter
           return Receipt.rejection("write_fact: missing value:",  kind: :fact) unless value
 
           fact = @store.write(
-            store:    store.to_sym,
-            key:      key.to_s,
-            value:    value,
-            producer: packet[:producer]
+            store:      store.to_sym,
+            key:        key.to_s,
+            value:      value,
+            causation:  packet[:causation],
+            valid_time: packet[:valid_time],
+            term:       packet[:term],
+            producer:   packet[:producer],
+            derivation: packet[:derivation]
           )
           Receipt.write_accepted(store: store.to_sym, key: key, fact: fact)
         end

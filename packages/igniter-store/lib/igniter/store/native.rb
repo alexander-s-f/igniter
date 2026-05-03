@@ -25,6 +25,27 @@ begin
         derivation
       )
     end
+
+    alias_method :_native_value, :value
+    alias_method :_native_producer, :producer
+    alias_method :_native_derivation, :derivation
+
+    def value = self.class.deep_freeze_native_value(_native_value)
+
+    def producer = self.class.deep_freeze_native_value(_native_producer)
+
+    def derivation = self.class.deep_freeze_native_value(_native_derivation)
+
+    def self.deep_freeze_native_value(value)
+      case value
+      when Hash
+        value.transform_values { |entry| deep_freeze_native_value(entry) }.freeze
+      when Array
+        value.map { |entry| deep_freeze_native_value(entry) }.freeze
+      else
+        value.frozen? ? value : value.dup.freeze
+      end
+    end
   end
 
   # ── Ruby wrappers on top of Rust-defined FactLog ──────────────────────────

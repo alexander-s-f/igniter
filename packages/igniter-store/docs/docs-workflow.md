@@ -59,3 +59,6 @@ Package Agent should receive `tracks/` documents, not broad research notes. A
 track should be one large vertical slice that can be completed, tested, and
 handed back in a compact packet.
 
+For fresh Package Agent chats, use `docs/package-agent-onboarding.md` as the
+first read, then `docs/progress.md`, then exactly one assigned track. This keeps
+token pressure bounded after large completed slices.

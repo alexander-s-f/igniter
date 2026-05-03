@@ -260,5 +260,24 @@ RSpec.describe "Intelligent Ledger: AvailabilitySnapshot proof" do
       expect(stored_receipt).not_to be_nil
       expect(stored_receipt.value[:snapshot_fact_id]).to eq(snap.id)
     end
+
+    it "persists inline derivation metadata on the snapshot fact" do
+      ledger.write_template(technician_id: "tech-7b", weekly_schedule: WEEKDAY_SCHEDULE)
+
+      result = ledger.compute_snapshot(
+        technician_id: "tech-7b",
+        horizon_start: MONDAY,
+        horizon_days:  HORIZON_DAYS
+      )
+
+      snapshot = result[:snapshot_fact]
+      expect(snapshot.derivation[:name]).to eq(
+        Igniter::Store::IntelligentLedger::AvailabilityDeriver::DERIVATION_NAME
+      )
+      expect(snapshot.derivation[:version]).to eq(
+        Igniter::Store::IntelligentLedger::AvailabilityDeriver::DERIVATION_VERSION
+      )
+      expect(snapshot.derivation[:source_fact_ids]).not_to be_empty
+    end
   end
 end

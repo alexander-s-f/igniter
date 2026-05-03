@@ -1,7 +1,7 @@
 # Track: Pre-v1 Fact Model Migration
 
 Status date: 2026-05-03
-Status: ready for Package Agent
+Status: landed; supervisor cleanup applied
 Supervisor: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 
@@ -28,8 +28,8 @@ The accepted pre-v1 direction is documented in:
 - `docs/rust-native-data-plane-plan.md`
 
 The availability proof showed that derived facts need inline explanation, not
-only separate receipt facts. Native mode currently drops `producer`, and `term`
-is not semantically useful.
+only separate receipt facts. Native mode now stores `producer`; `term` remains a
+compatibility alias while `valid_time` is the canonical domain-time field.
 
 ## Scope
 
@@ -121,6 +121,19 @@ No derivation evaluator is required in this track.
 - Availability example can write snapshot facts with inline `derivation`.
 - Full `packages/igniter-store` suite passes.
 
+## Supervisor Cleanup
+
+2026-05-03:
+
+- Removed stale native Phase 2 pending around `Fact#producer`.
+- `Protocol::Interpreter#write` and `write_fact` now accept `valid_time`,
+  legacy `term`, `producer`, and `derivation` on ingress.
+- Native Fact wrapper now returns frozen `value`, `producer`, and `derivation`
+  metadata to match the Ruby fallback contract.
+- Availability snapshot proof now persists inline `derivation` metadata on the
+  snapshot fact.
+- Added canonical Fact and legacy `timestamp`/`term` compatibility specs.
+
 ## Non-Goals
 
 - No typed producer validation or producer indexes.
@@ -159,4 +172,3 @@ Status: done | partial | blocked
 [R] Risks / next recommendations:
 - ...
 ```
-
