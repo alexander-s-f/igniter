@@ -3,7 +3,7 @@
 require_relative "../../../spec_helper"
 require "date"
 require "time"
-require "igniter/store/intelligent_ledger/availability_ledger"
+require_relative "../../../../examples/intelligent_ledger/availability_ledger"
 
 # Intelligent Ledger — Availability Snapshot Proof
 #
