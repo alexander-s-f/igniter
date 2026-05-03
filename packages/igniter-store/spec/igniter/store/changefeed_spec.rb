@@ -7,6 +7,13 @@ RSpec.describe "Changefeed subsystem" do
     Igniter::Store::Fact.build(store: store, key: key, value: value)
   end
 
+  # Small helper to wait for async worker threads to deliver events.
+  def wait_delivery(timeout: 0.3, poll: 0.005)
+    deadline = Time.now + timeout
+    yield while Time.now < deadline
+    nil
+  end
+
   # ── ChangeEvent ───────────────────────────────────────────────────────────────
 
   describe Igniter::Store::ChangeEvent do
@@ -71,6 +78,7 @@ RSpec.describe "Changefeed subsystem" do
 
         fact = build_fact(store: :tasks)
         buf.emit(fact)
+        sleep 0.05
 
         expect(received.size).to eq(1)
         expect(received.first).to be_a(Igniter::Store::ChangeEvent)
@@ -83,6 +91,7 @@ RSpec.describe "Changefeed subsystem" do
         buf.subscribe(stores: [:reminders]) { |e| received << e }
 
         buf.emit(build_fact(store: :tasks))
+        sleep 0.05
 
         expect(received).to be_empty
       end
@@ -94,6 +103,7 @@ RSpec.describe "Changefeed subsystem" do
         buf.emit(build_fact(store: :tasks))
         buf.emit(build_fact(store: :reminders))
         buf.emit(build_fact(store: :other))
+        sleep 0.05
 
         expect(received.sort).to eq(%i[reminders tasks])
       end
@@ -103,6 +113,7 @@ RSpec.describe "Changefeed subsystem" do
         buckets.each { |b| buf.subscribe(stores: [:items]) { |e| b << e.key } }
 
         buf.emit(build_fact(store: :items, key: "x"))
+        sleep 0.05
 
         buckets.each { |b| expect(b).to eq(["x"]) }
       end
@@ -122,6 +133,7 @@ RSpec.describe "Changefeed subsystem" do
         buf.subscribe(stores: [:tasks]) { |e| events << e }
 
         3.times { |i| buf.emit(build_fact(key: "k#{i}")) }
+        sleep 0.05
 
         seqs = events.map { |e| e.cursor[:sequence] }
         expect(seqs).to eq([1, 2, 3])
@@ -142,8 +154,8 @@ RSpec.describe "Changefeed subsystem" do
         handle   = buf.subscribe(stores: [:tasks]) { |e| received << e }
 
         buf.emit(build_fact)
-        handle.close
-        buf.emit(build_fact)
+        handle.close            # joins worker; drains first event
+        buf.emit(build_fact)    # no subscriber, ignored
 
         expect(received.size).to eq(1)
       end
@@ -189,6 +201,7 @@ RSpec.describe "Changefeed subsystem" do
         small.subscribe(stores: [:tasks]) { |e| received << e.key }
 
         5.times { |i| small.emit(build_fact(key: "k#{i}")) }
+        sleep 0.05
 
         expect(received).to eq(%w[k0 k1 k2 k3 k4])
       end
@@ -201,6 +214,7 @@ RSpec.describe "Changefeed subsystem" do
 
         buf.emit(build_fact)
         buf.emit(build_fact)
+        sleep 0.05
 
         snap = buf.snapshot
         expect(snap[:failed_total]).to   eq(1)
@@ -215,6 +229,7 @@ RSpec.describe "Changefeed subsystem" do
         buf.subscribe(stores: [:tasks]) { |e| good_received << e.key }
 
         buf.emit(build_fact(key: "x"))
+        sleep 0.05
 
         expect(good_received).to eq(["x"])
       end
@@ -222,6 +237,7 @@ RSpec.describe "Changefeed subsystem" do
       it "does not raise from emit when all subscribers fail" do
         buf.subscribe(stores: [:tasks]) { raise "boom" }
         expect { buf.emit(build_fact) }.not_to raise_error
+        sleep 0.02  # let worker thread exit cleanly
       end
     end
 
@@ -229,8 +245,8 @@ RSpec.describe "Changefeed subsystem" do
       it "snapshot has all required keys" do
         snap = buf.snapshot
         expected = %i[
-          emitted_total delivered_total dropped_total failed_total
-          buffered max_size subscriber_count oldest_sequence newest_sequence
+          emitted_total delivered_total dropped_total overflow_dropped_total
+          failed_total buffered max_size subscriber_count oldest_sequence newest_sequence
         ]
         expected.each { |k| expect(snap).to have_key(k) }
       end
@@ -244,6 +260,7 @@ RSpec.describe "Changefeed subsystem" do
         buf.subscribe(stores: [:tasks]) { }
         buf.subscribe(stores: [:tasks]) { }
         buf.emit(build_fact)
+        sleep 0.05
         expect(buf.snapshot[:delivered_total]).to eq(2)
       end
 
@@ -272,12 +289,154 @@ RSpec.describe "Changefeed subsystem" do
           Thread.new { buf.emit(build_fact(key: "k#{i}")) }
         end
         threads.each(&:join)
+        sleep 0.1  # wait for worker thread to drain all 10 events
 
         snap = buf.snapshot
         expect(snap[:emitted_total]).to    eq(10)
         expect(snap[:delivered_total]).to  eq(10)
         expect(received.size).to           eq(10)
         expect(received.sort).to           eq(received.uniq.sort)
+      end
+    end
+
+    # ── Async fan-out behavior ─────────────────────────────────────────────────
+
+    describe "async fan-out behavior" do
+      let(:buf) { described_class.new(max_size: 100, subscriber_queue_size: 5, overflow: :drop_oldest) }
+
+      it "emit returns quickly even when subscriber handler is slow" do
+        latch  = Mutex.new
+        go     = ConditionVariable.new
+        paused = true
+
+        handle = buf.subscribe(stores: []) do |_e|
+          latch.synchronize { go.wait(latch) while paused }
+        end
+
+        t_start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        buf.emit(build_fact)
+        elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - t_start
+
+        expect(elapsed).to be < 0.05
+
+        latch.synchronize { paused = false; go.broadcast }
+        handle.close
+      end
+
+      it "drops oldest events when subscriber queue overflows (:drop_oldest)" do
+        latch  = Mutex.new
+        go     = ConditionVariable.new
+        paused = true
+        delivered = []
+
+        handle = buf.subscribe(stores: []) do |e|
+          latch.synchronize { go.wait(latch) while paused }
+          delivered << e.cursor[:sequence]
+        end
+
+        # Pause handler so queue fills; emit more than queue capacity
+        10.times { buf.emit(build_fact) }
+        sleep 0.02  # fan_out has time to enqueue
+
+        latch.synchronize { paused = false; go.broadcast }
+        handle.close
+
+        # queue_size=5: 1 being processed + 5 in queue → 6 max, rest dropped
+        expect(delivered.size).to be <= 6
+        expect(buf.snapshot[:overflow_dropped_total]).to be > 0
+        # newest events should be retained (drop_oldest policy)
+        expect(delivered.last).to eq(10)
+      end
+
+      it "drop_oldest preserves newest events in queue" do
+        latch  = Mutex.new
+        go     = ConditionVariable.new
+        paused = true
+        delivered = []
+
+        handle = buf.subscribe(stores: []) do |e|
+          latch.synchronize { go.wait(latch) while paused }
+          delivered << e.cursor[:sequence]
+        end
+
+        6.times { buf.emit(build_fact) }  # exactly fills queue (1 running + 5)
+        sleep 0.02
+
+        # Overflow: emit 4 more, oldest in queue dropped each time
+        4.times { buf.emit(build_fact) }
+        sleep 0.02
+
+        latch.synchronize { paused = false; go.broadcast }
+        handle.close
+
+        # Sequences 7–10 should survive; early sequences may be dropped
+        expect(delivered).to include(7, 8, 9, 10)
+      end
+
+      it "raising subscriber is removed and counted as failed" do
+        buf2   = described_class.new
+        handle = buf2.subscribe(stores: []) { |_e| raise "boom" }
+
+        buf2.emit(build_fact)
+        sleep 0.05
+
+        expect(buf2.snapshot[:failed_total]).to   eq(1)
+        expect(buf2.snapshot[:delivered_total]).to eq(0)
+        expect(buf2.subscriber_count).to           eq(0)
+        handle.close  # idempotent
+      end
+
+      it "Subscription#close stops delivery and releases the worker thread" do
+        buf2      = described_class.new
+        delivered = []
+        handle    = buf2.subscribe(stores: []) { |e| delivered << e }
+
+        buf2.emit(build_fact)
+        handle.close  # drains first event, stops worker
+
+        count_after_close = delivered.size
+
+        buf2.emit(build_fact)  # no subscriber
+        sleep 0.05
+
+        expect(delivered.size).to eq(count_after_close)
+        expect(handle.instance_variable_get(:@record).thread.alive?).to be false
+      end
+
+      it "overflow_dropped_total is 0 when queue never fills" do
+        buf2   = described_class.new(subscriber_queue_size: 100)
+        handle = buf2.subscribe(stores: []) { }
+        5.times { buf2.emit(build_fact) }
+        sleep 0.05
+        expect(buf2.snapshot[:overflow_dropped_total]).to eq(0)
+        handle.close
+      end
+
+      it "wildcard subscription (stores: []) receives events from all stores" do
+        buf2     = described_class.new
+        received = []
+        handle   = buf2.subscribe(stores: []) { |e| received << e.store }
+
+        buf2.emit(build_fact(store: :tasks))
+        buf2.emit(build_fact(store: :reminders))
+        buf2.emit(build_fact(store: :other))
+        sleep 0.05
+
+        expect(received.map(&:to_s).sort).to eq(%w[other reminders tasks])
+        handle.close
+      end
+
+      it "multiple worker threads do not corrupt delivered_total counter" do
+        buf2       = described_class.new
+        n_subs     = 5
+        n_emits    = 20
+        handles    = n_subs.times.map { buf2.subscribe(stores: []) { } }
+
+        n_emits.times { buf2.emit(build_fact) }
+        sleep 0.2
+
+        expect(buf2.snapshot[:delivered_total]).to eq(n_subs * n_emits)
+        handles.each(&:close)
       end
     end
   end
@@ -293,6 +452,7 @@ RSpec.describe "Changefeed subsystem" do
       feed.subscribe(stores: [:tasks]) { |e| received << e }
 
       store.write(store: :tasks, key: "t1", value: { status: :open })
+      sleep 0.05
 
       expect(received.size).to eq(1)
       expect(received.first.store).to eq(:tasks)
@@ -304,6 +464,7 @@ RSpec.describe "Changefeed subsystem" do
       feed.subscribe(stores: [:events]) { |e| received << e }
 
       store.append(history: :events, event: { type: "order_placed" })
+      sleep 0.05
 
       expect(received.size).to eq(1)
       expect(received.first.store).to eq(:events)
@@ -314,6 +475,7 @@ RSpec.describe "Changefeed subsystem" do
       feed.subscribe(stores: [:tasks]) { |e| seqs << e.cursor[:sequence] }
 
       3.times { |i| store.write(store: :tasks, key: "k#{i}", value: {}) }
+      sleep 0.05
 
       expect(seqs).to eq([1, 2, 3])
     end
@@ -323,6 +485,7 @@ RSpec.describe "Changefeed subsystem" do
       feed.subscribe(stores: [:other]) { |e| received << e }
 
       store.write(store: :tasks, key: "t1", value: {})
+      sleep 0.05
 
       expect(received).to be_empty
     end
@@ -543,7 +706,7 @@ RSpec.describe "Changefeed subsystem" do
         # Subscriber receives first 3 live
         emit_n(3)
 
-        # Subscriber disconnects (unsubscribes)
+        # Subscription close drains queue and joins worker — all 3 delivered
         handle.close
         last_cursor = received_live.last.cursor
 
@@ -580,6 +743,7 @@ RSpec.describe "Changefeed subsystem" do
       feed.subscribe(stores: [:tasks, :summaries]) { |e| all_events << e }
 
       store.write(store: :tasks, key: "t1", value: { status: :open })
+      sleep 0.05
 
       # Source (:tasks) must appear before derived (:summaries)
       expect(all_events.size).to be >= 2
@@ -611,6 +775,7 @@ RSpec.describe "Changefeed subsystem" do
       feed.subscribe(stores: [:comments, :article_index]) { |e| all_events << e }
 
       store.write(store: :comments, key: "c1", value: { article_id: "a1", body: "hi" })
+      sleep 0.05
 
       expect(all_events.size).to be >= 2
       expect(all_events[0].store).to eq(:comments)
@@ -633,6 +798,7 @@ RSpec.describe "Changefeed subsystem" do
       feed.subscribe(stores: [:items, :item_counts]) { |e| seqs << e.cursor[:sequence] }
 
       2.times { |i| store.write(store: :items, key: "i#{i}", value: {}) }
+      sleep 0.05
 
       expect(seqs).to eq(seqs.sort)
       expect(seqs.uniq).to eq(seqs)
@@ -647,6 +813,7 @@ RSpec.describe "Changefeed subsystem" do
 
       store.append(history: :audit, event: { action: "login" })
       store.append(history: :audit, event: { action: "logout" })
+      sleep 0.05
 
       expect(events.size).to eq(2)
       expect(events.map { |e| e.cursor[:sequence] }).to eq([1, 2])

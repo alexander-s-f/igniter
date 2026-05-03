@@ -4,15 +4,19 @@ require "securerandom"
 
 module Igniter
   module Store
-    # Bounded in-memory Changefeed buffer.
+    # Bounded in-memory Changefeed buffer with async per-subscriber fan-out.
     #
     # Receives committed facts via +emit+, builds ChangeEvent objects with
     # monotonic sequence cursors, retains recent events in a bounded ring, and
-    # fans out to registered subscriber handlers.
+    # fans out to registered subscriber handlers via per-subscriber bounded
+    # queues and worker threads so that slow subscribers never stall +emit+.
     #
-    # Delivery semantics: best-effort live push.
-    # - Fan-out is synchronous: a handler that raises is removed and counted as
-    #   failed, but a handler that merely blocks will stall the emit call.
+    # Delivery semantics: async best-effort push.
+    # - Fan-out enqueues to a per-subscriber SubscriberQueue; emit returns quickly.
+    # - Each subscriber has one worker thread draining its queue.
+    # - When a subscriber queue is full, the oldest event is dropped (default
+    #   :drop_oldest) and +overflow_dropped_total+ is incremented.
+    # - A handler that raises is removed and counted as failed; its worker exits.
     # - When the ring is full the oldest retained event is dropped and
     #   +dropped_total+ is incremented.
     # - No durable checkpoints in this v0 slice.
@@ -20,7 +24,7 @@ module Igniter
     # Ordering policy:
     # - Sequences are assigned in emit-call order (monotonically increasing).
     # - IgniterStore emits the source fact BEFORE triggering derivations/scatters,
-    #   so subscribers always see cause before effects.
+    #   so subscribers always see cause before effects within their queue.
     #
     # Replay cursor semantics (see #replay):
     # - nil cursor    → all retained events from oldest retained sequence.
@@ -31,12 +35,70 @@ module Igniter
     # Usage:
     #   buf    = ChangefeedBuffer.new(max_size: 1_000)
     #   handle = buf.subscribe(stores: [:tasks]) { |event| deliver(event) }
-    #   buf.emit(fact)      # called after every committed fact write
-    #   handle.close        # unsubscribes cleanly
+    #   buf.emit(fact)      # enqueues to matching subscriber queues; returns quickly
+    #   handle.close        # drains pending events, stops worker, unsubscribes
     class ChangefeedBuffer
-      DEFAULT_MAX_SIZE = 1_000
+      DEFAULT_MAX_SIZE              = 1_000
+      DEFAULT_SUBSCRIBER_QUEUE_SIZE = 100
+      DEFAULT_OVERFLOW              = :drop_oldest
 
-      # Returned by #subscribe. Call #close to unsubscribe.
+      # Bounded FIFO queue for one subscriber's async delivery pipeline.
+      #
+      # +push+ is non-blocking and returns +true+ when an overflow drop occurs.
+      # +pop+ blocks until an event is available or the queue is closed.
+      # Once closed, +pop+ drains remaining items then returns +nil+.
+      class SubscriberQueue
+        def initialize(max_size:, overflow: :drop_oldest)
+          @max_size = max_size
+          @overflow = overflow
+          @items    = []
+          @mu       = Mutex.new
+          @cond     = ConditionVariable.new
+          @closed   = false
+        end
+
+        # Returns +true+ if an overflow drop occurred, +false+ otherwise.
+        def push(event)
+          @mu.synchronize do
+            return false if @closed
+            if @items.size >= @max_size
+              case @overflow
+              when :drop_oldest
+                @items.shift
+                @items << event
+                @cond.signal
+              end
+              # :drop_newest — discard silently (don't add)
+              return true
+            end
+            @items << event
+            @cond.signal
+            false
+          end
+        end
+
+        # Blocks until an event is available. Returns +nil+ when closed and drained.
+        def pop
+          @mu.synchronize do
+            @cond.wait(@mu) while @items.empty? && !@closed
+            @items.shift
+          end
+        end
+
+        def close
+          @mu.synchronize do
+            @closed = true
+            @cond.broadcast
+          end
+        end
+
+        def size
+          @mu.synchronize { @items.size }
+        end
+      end
+
+      # Returned by #subscribe. Call #close to drain pending deliveries,
+      # stop the worker thread, and unsubscribe.
       class Subscription
         def initialize(record, buffer)
           @record = record
@@ -45,40 +107,66 @@ module Igniter
 
         def close
           @buffer.__send__(:remove_record, @record)
+          @record.thread&.join(2) rescue nil
         end
       end
 
-      SubscriptionRecord = Struct.new(:id, :stores, :handler, keyword_init: true)
+      SubscriptionRecord = Struct.new(:id, :stores, :handler, :queue, :thread, keyword_init: true)
 
-      def initialize(max_size: DEFAULT_MAX_SIZE)
-        @max_size        = max_size
-        @ring            = []
-        @records         = []
-        @mutex           = Mutex.new
-        @sequence        = 0
-        @emitted_total   = 0
-        @delivered_total = 0
-        @dropped_total   = 0
-        @failed_total    = 0
+      def initialize(max_size: DEFAULT_MAX_SIZE,
+                     subscriber_queue_size: DEFAULT_SUBSCRIBER_QUEUE_SIZE,
+                     overflow: DEFAULT_OVERFLOW)
+        @max_size              = max_size
+        @subscriber_queue_size = subscriber_queue_size
+        @overflow              = overflow
+        @ring                  = []
+        @records               = []
+        @mutex                 = Mutex.new
+        @sequence              = 0
+        @emitted_total         = 0
+        @delivered_total       = 0
+        @dropped_total         = 0
+        @overflow_dropped_total = 0
+        @failed_total          = 0
       end
 
       # Register a subscriber handler for one or more store names.
-      # +stores:+ — Array of store name symbols/strings, or [] for all stores.
+      # +stores:+ — Array of store name symbols/strings, or [] for all stores (wildcard).
       # Returns a Subscription handle; call handle.close to unsubscribe.
       def subscribe(stores:, &handler)
         raise ArgumentError, "subscribe requires a block" unless handler
 
+        q = SubscriberQueue.new(max_size: @subscriber_queue_size, overflow: @overflow)
         record = SubscriptionRecord.new(
           id:      SecureRandom.hex(8),
           stores:  Array(stores).map(&:to_s),
-          handler: handler
+          handler: handler,
+          queue:   q,
+          thread:  nil
         )
+
+        thread = Thread.new do
+          loop do
+            event = q.pop
+            break if event.nil?
+            begin
+              handler.call(event)
+              @mutex.synchronize { @delivered_total += 1 }
+            rescue StandardError
+              @mutex.synchronize { @failed_total += 1 }
+              remove_record(record)
+              break
+            end
+          end
+        end
+        record.thread = thread
+
         @mutex.synchronize { @records << record }
         Subscription.new(record, self)
       end
 
-      # Build a ChangeEvent from +fact+, add to the ring buffer, and fan out
-      # to all matching subscribers. Returns the emitted ChangeEvent.
+      # Build a ChangeEvent from +fact+, add to the ring buffer, and enqueue to
+      # matching subscriber queues. Returns the emitted ChangeEvent immediately.
       def emit(fact)
         event = @mutex.synchronize do
           @sequence += 1
@@ -123,10 +211,6 @@ module Igniter
       #     newest_cursor: { sequence: N } | nil,
       #     dropped_total: Integer
       #   }
-      #
-      # status :cursor_too_old means the requested sequence is older than the
-      # oldest retained event AND there are dropped events in between — the
-      # caller must recover from the fact log instead of relying on replay.
       def replay(cursor: nil, stores: nil, limit: nil)
         @mutex.synchronize do
           if @ring.empty?
@@ -149,8 +233,6 @@ module Igniter
             else
               req_seq = Integer(cursor[:sequence])
 
-              # Gap check: there are events between req_seq+1 and oldest_seq-1
-              # that were dropped from the ring.
               if req_seq < oldest_seq - 1
                 return {
                   status:        :cursor_too_old,
@@ -162,7 +244,6 @@ module Igniter
                 }
               end
 
-              # Caller is already at or beyond the head — nothing new.
               if req_seq >= newest_seq
                 return {
                   status:        :ok,
@@ -177,13 +258,11 @@ module Igniter
               @ring.select { |e| e.cursor[:sequence] > req_seq }
             end
 
-          # Store filter
           if stores && !stores.empty?
             store_strs = Array(stores).map(&:to_s)
             candidates = candidates.select { |e| store_strs.include?(e.store.to_s) }
           end
 
-          # Limit
           candidates = candidates.first(limit) if limit
 
           result_cursor =
@@ -205,46 +284,48 @@ module Igniter
       end
 
       # Compact snapshot of current changefeed state for observability.
+      # +overflow_dropped_total+ counts subscriber queue drops (distinct from
+      # +dropped_total+ which counts retained ring drops).
       def snapshot
         @mutex.synchronize do
           {
-            emitted_total:    @emitted_total,
-            delivered_total:  @delivered_total,
-            dropped_total:    @dropped_total,
-            failed_total:     @failed_total,
-            buffered:         @ring.size,
-            max_size:         @max_size,
-            subscriber_count: @records.size,
-            oldest_sequence:  @ring.first&.cursor&.fetch(:sequence, nil),
-            newest_sequence:  @ring.last&.cursor&.fetch(:sequence, nil)
+            emitted_total:          @emitted_total,
+            delivered_total:        @delivered_total,
+            dropped_total:          @dropped_total,
+            overflow_dropped_total: @overflow_dropped_total,
+            failed_total:           @failed_total,
+            buffered:               @ring.size,
+            max_size:               @max_size,
+            subscriber_count:       @records.size,
+            oldest_sequence:        @ring.first&.cursor&.fetch(:sequence, nil),
+            newest_sequence:        @ring.last&.cursor&.fetch(:sequence, nil)
           }
         end
       end
 
       protected
 
+      # Removes +record+ from the active list and closes its queue.
+      # Does not join the worker thread (safe to call from inside the worker).
+      # Subscription#close handles the join for external callers.
       def remove_record(record)
         return unless record
         @mutex.synchronize { @records.reject! { |r| r.equal?(record) } }
+        record.queue&.close
       end
 
       private
 
       def fan_out(event)
         store_s  = event.store.to_s
-        # A record with an empty stores list is a wildcard — receives all stores.
         matching = @mutex.synchronize {
           @records.select { |r| r.stores.empty? || r.stores.include?(store_s) }.dup
         }
-        dead     = []
+        overflow_count = 0
         matching.each do |record|
-          record.handler.call(event)
-          @mutex.synchronize { @delivered_total += 1 }
-        rescue StandardError
-          @mutex.synchronize { @failed_total += 1 }
-          dead << record
+          overflow_count += 1 if record.queue.push(event)
         end
-        dead.each { |r| remove_record(r) } unless dead.empty?
+        @mutex.synchronize { @overflow_dropped_total += overflow_count } if overflow_count > 0
       end
     end
   end
