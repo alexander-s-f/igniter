@@ -34,6 +34,7 @@ Implementation specifications and progress records for the `igniter-store` packa
 | [tracks/pre-v1-fact-model-migration.md](tracks/pre-v1-fact-model-migration.md) | Package Agent track for the P0 Fact model migration |
 | [tracks/changefeed-events-v0.md](tracks/changefeed-events-v0.md) | Package Agent track for the first Changefeed events subsystem slice |
 | [tracks/changefeed-ordering-replay-v0.md](tracks/changefeed-ordering-replay-v0.md) | Package Agent track for Changefeed ordering and replay cursor semantics |
+| [tracks/changefeed-sse-events-v0.md](tracks/changefeed-sse-events-v0.md) | Package Agent track for SSE `/v1/events` over Changefeed replay/live push |
 | [research/store-iterations.md](research/store-iterations.md) | Store design iteration history |
 | [research/store-iterations.ru.md](research/store-iterations.ru.md) | То же, на русском |
 | [research/sync-hub-iterations.md](research/sync-hub-iterations.md) | Sync-hub design iteration history |

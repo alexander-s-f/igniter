@@ -263,6 +263,11 @@ module Igniter
         @changefeed.subscriber_count(store)
       end
 
+      # The server's ChangefeedBuffer — used by SSE and other push transports.
+      def changefeed
+        @changefeed
+      end
+
       # True when the server is live and accepting traffic.
       def ready?    = !@stopped && !@draining
 
@@ -352,13 +357,14 @@ module Igniter
       # all in one foreground process. Adapters are stopped on exit.
       def start_with_adapters(http_port: nil, tcp_port: nil)
         http = http_port ? HTTPAdapter.new(
-          interpreter:      protocol,
-          port:             http_port,
-          health_provider:  method(:health_snapshot),
-          status_provider:  method(:observability_snapshot),
-          ready_provider:   method(:ready?),
-          metrics_provider: -> { observability_snapshot[:metrics] },
-          events_provider:  method(:recent_events)
+          interpreter:         protocol,
+          port:                http_port,
+          health_provider:     method(:health_snapshot),
+          status_provider:     method(:observability_snapshot),
+          ready_provider:      method(:ready?),
+          metrics_provider:    -> { observability_snapshot[:metrics] },
+          events_provider:     method(:recent_events),
+          changefeed_provider: method(:changefeed)
         ) : nil
         tcp  = tcp_port  ? TCPAdapter.new(interpreter: protocol, port: tcp_port)  : nil
         http&.start_async

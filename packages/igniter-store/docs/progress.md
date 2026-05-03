@@ -83,7 +83,7 @@ Network backend
 
 ## Current Test Signal
 
-- `packages/igniter-store`: 679 examples, 0 failures (as of 2026-05-03, includes Changefeed v0 + ordering/replay).
+- `packages/igniter-store`: 699 examples, 0 failures (as of 2026-05-03, includes Changefeed v0 + ordering/replay + SSE events).
 - `packages/igniter-companion`: 89 examples, 0 failures.
 
 ## Architecture Meaning

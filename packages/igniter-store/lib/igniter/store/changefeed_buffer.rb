@@ -63,6 +63,7 @@ module Igniter
       end
 
       # Register a subscriber handler for one or more store names.
+      # +stores:+ — Array of store name symbols/strings, or [] for all stores.
       # Returns a Subscription handle; call handle.close to unsubscribe.
       def subscribe(stores:, &handler)
         raise ArgumentError, "subscribe requires a block" unless handler
@@ -96,10 +97,11 @@ module Igniter
       end
 
       # Number of active subscribers, optionally filtered by store name.
+      # Wildcard subscribers (stores == []) are counted for every store.
       def subscriber_count(store = nil)
         @mutex.synchronize do
           if store
-            @records.count { |r| r.stores.include?(store.to_s) }
+            @records.count { |r| r.stores.empty? || r.stores.include?(store.to_s) }
           else
             @records.size
           end
@@ -230,7 +232,10 @@ module Igniter
 
       def fan_out(event)
         store_s  = event.store.to_s
-        matching = @mutex.synchronize { @records.select { |r| r.stores.include?(store_s) }.dup }
+        # A record with an empty stores list is a wildcard — receives all stores.
+        matching = @mutex.synchronize {
+          @records.select { |r| r.stores.empty? || r.stores.include?(store_s) }.dup
+        }
         dead     = []
         matching.each do |record|
           record.handler.call(event)
