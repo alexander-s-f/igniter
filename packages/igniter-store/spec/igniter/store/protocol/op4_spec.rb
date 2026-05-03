@@ -57,9 +57,9 @@ RSpec.describe "OP4 — Sync Hub Profile" do
 
     it "next_cursor returns a timestamp cursor pointing to the latest fact" do
       facts = [
-        { timestamp: 1000.0 },
-        { timestamp: 3000.0 },
-        { timestamp: 2000.0 }
+        { transaction_time: 1000.0 },
+        { transaction_time: 3000.0 },
+        { transaction_time: 2000.0 }
       ]
       profile = Igniter::Store::Protocol::SyncProfile.new(
         schema_version: 1, kind: :sync_hub_profile,
@@ -116,7 +116,7 @@ RSpec.describe "OP4 — Sync Hub Profile" do
       expect(packets.first).to include(kind: :fact, schema_version: 1)
     end
 
-    it "each packet carries id, store, key, value, value_hash, causation, timestamp" do
+    it "each packet carries id, store, key, value, value_hash, causation, transaction_time" do
       packet = proto.replay.first
       expect(packet).to have_key(:id)
       expect(packet).to have_key(:store)
@@ -124,7 +124,7 @@ RSpec.describe "OP4 — Sync Hub Profile" do
       expect(packet).to have_key(:value)
       expect(packet).to have_key(:value_hash)
       expect(packet).to have_key(:causation)
-      expect(packet).to have_key(:timestamp)
+      expect(packet).to have_key(:transaction_time)
     end
 
     it "filters by store when filter: { store: } given" do

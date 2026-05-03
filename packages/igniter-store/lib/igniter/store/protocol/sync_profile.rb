@@ -42,7 +42,8 @@ module Igniter
         # Build the cursor that a hub should send on its next sync request.
         def next_cursor
           return nil if facts.empty?
-          latest_ts = facts.max_by { |f| f[:timestamp] }[:timestamp]
+          latest_ts = facts.max_by { |f| f[:transaction_time] || f[:timestamp] }
+                          .then { |f| f[:transaction_time] || f[:timestamp] }
           { kind: :timestamp, value: latest_ts }
         end
       end

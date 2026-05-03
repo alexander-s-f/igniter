@@ -9,13 +9,19 @@ module Igniter
     # Thin wrapper returned from read paths when a schema coercion is registered.
     # Delegates identity fields to the underlying fact; exposes the coerced value.
     CoercedFact = Struct.new(:fact, :value) do
-      def key            = fact.key
-      def id             = fact.id
-      def timestamp      = fact.timestamp
-      def schema_version = fact.schema_version
-      def causation      = fact.causation
-      def value_hash     = fact.value_hash
-      def store          = fact.store
+      def key              = fact.key
+      def id               = fact.id
+      def transaction_time = fact.transaction_time
+      def valid_time       = fact.valid_time
+      def schema_version   = fact.schema_version
+      def causation        = fact.causation
+      def value_hash       = fact.value_hash
+      def store            = fact.store
+      def producer         = fact.producer
+      def derivation       = fact.derivation
+      # Backward-compat aliases
+      alias_method :timestamp, :transaction_time
+      alias_method :term,      :valid_time
     end
 
     class IgniterStore
@@ -201,16 +207,19 @@ module Igniter
         self
       end
 
-      def write(store:, key:, value:, schema_version: 1, term: 0, producer: nil)
+      def write(store:, key:, value:, schema_version: 1, valid_time: nil, term: nil,
+                producer: nil, derivation: nil)
         previous = @log.latest_for(store: store, key: key)
         fact = Fact.build(
-          store: store,
-          key: key,
-          value: value,
-          causation: previous&.id,
+          store:          store,
+          key:            key,
+          value:          value,
+          causation:      previous&.id,
           schema_version: schema_version,
-          term: term,
-          producer: producer
+          valid_time:     valid_time,
+          term:           term,
+          producer:       producer,
+          derivation:     derivation
         )
         @log.append(fact)
         @backend&.write_fact(fact)
@@ -221,13 +230,14 @@ module Igniter
         fact
       end
 
-      def append(history:, event:, schema_version: 1, term: 0, partition_key: nil)
+      def append(history:, event:, schema_version: 1, valid_time: nil, term: nil, partition_key: nil)
         fact = Fact.build(
-          store: history,
-          key: SecureRandom.uuid,
-          value: event,
+          store:          history,
+          key:            SecureRandom.uuid,
+          value:          event,
           schema_version: schema_version,
-          term: term
+          valid_time:     valid_time,
+          term:           term
         )
         @log.append(fact)
         @backend&.write_fact(fact)
@@ -311,8 +321,8 @@ module Igniter
           end
 
           slice = (@partition_index[idx_key][partition_value] || []).dup
-          slice = slice.select { |f| f.timestamp >= since } if since
-          slice = slice.select { |f| f.timestamp <= as_of } if as_of
+          slice = slice.select { |f| f.transaction_time >= since } if since
+          slice = slice.select { |f| f.transaction_time <= as_of } if as_of
           apply_coercions(store, slice)
         end
       end
@@ -323,7 +333,7 @@ module Igniter
             id:         fact.id,
             value_hash: fact.value_hash[0, 12],
             causation:  fact.causation,
-            timestamp:  fact.timestamp
+            transaction_time: fact.transaction_time
           }
         end
       end
@@ -341,13 +351,14 @@ module Igniter
       def lineage(store:, key:)
         chain = @log.facts_for(store: store, key: key).map do |fact|
           {
-            id:             fact.id,
-            store:          fact.store,
-            key:            fact.key,
-            causation:      fact.causation,
-            value_hash:     fact.value_hash,
-            timestamp:      fact.timestamp,
-            schema_version: fact.schema_version
+            id:               fact.id,
+            store:            fact.store,
+            key:              fact.key,
+            causation:        fact.causation,
+            value_hash:       fact.value_hash,
+            transaction_time: fact.transaction_time,
+            valid_time:       fact.valid_time,
+            schema_version:   fact.schema_version
           }
         end
 
@@ -391,8 +402,8 @@ module Igniter
       def fact_log_all(since: nil, as_of: nil)
         return [] unless @log.respond_to?(:all_facts)
         facts = @log.all_facts
-        facts = facts.select { |f| f.timestamp >= since } if since
-        facts = facts.select { |f| f.timestamp <= as_of  } if as_of
+        facts = facts.select { |f| f.transaction_time >= since } if since
+        facts = facts.select { |f| f.transaction_time <= as_of  } if as_of
         facts
       end
 
@@ -478,7 +489,7 @@ module Igniter
         # Rebuild log: all other stores + compaction receipts + kept facts for this store
         surviving = @log.all_facts.reject { |f| f.store == store }
         surviving << receipt unless surviving.any? { |f| f.id == receipt.id }
-        new_facts = (surviving + keep).sort_by(&:timestamp)
+        new_facts = (surviving + keep).sort_by(&:transaction_time)
         rebuild_log!(new_facts)
 
         if @backend.respond_to?(:write_snapshot) && @log.respond_to?(:all_facts)
@@ -490,7 +501,7 @@ module Igniter
 
       # Returns [keep_facts, drop_facts]. Latest fact per key is always kept.
       def partition_compaction(facts, policy, now:)
-        latest_ids = facts.group_by(&:key).transform_values { |fs| fs.max_by(&:timestamp).id }
+        latest_ids = facts.group_by(&:key).transform_values { |fs| fs.max_by(&:transaction_time).id }
         current    = Set.new(latest_ids.values)
 
         case policy.strategy
@@ -499,8 +510,8 @@ module Igniter
           drop = facts.reject { |f| current.include?(f.id) }
         when :rolling_window
           cutoff = now - policy.duration.to_f
-          keep   = facts.select { |f| current.include?(f.id) || f.timestamp >= cutoff }
-          drop   = facts.reject { |f| current.include?(f.id) || f.timestamp >= cutoff }
+          keep   = facts.select { |f| current.include?(f.id) || f.transaction_time >= cutoff }
+          drop   = facts.reject { |f| current.include?(f.id) || f.transaction_time >= cutoff }
         else
           keep = facts
           drop = []
@@ -511,8 +522,8 @@ module Igniter
 
       # Write a compaction receipt fact to the :__compaction_receipts meta-store.
       def write_compaction_receipt(store, dropped_facts, policy, now)
-        oldest = dropped_facts.min_by(&:timestamp)
-        newest = dropped_facts.max_by(&:timestamp)
+        oldest = dropped_facts.min_by(&:transaction_time)
+        newest = dropped_facts.max_by(&:transaction_time)
         write(
           store: :__compaction_receipts,
           key:   "#{store}_#{SecureRandom.hex(4)}",
@@ -523,8 +534,8 @@ module Igniter
             compacted_count: dropped_facts.size,
             oldest_dropped:  oldest&.id,
             newest_dropped:  newest&.id,
-            oldest_ts:       oldest&.timestamp,
-            newest_ts:       newest&.timestamp,
+            oldest_ts:       oldest&.transaction_time,
+            newest_ts:       newest&.transaction_time,
             compacted_at:    now
           }
         )

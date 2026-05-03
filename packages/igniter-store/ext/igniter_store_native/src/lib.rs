@@ -15,19 +15,24 @@ fn init(ruby: &Ruby) -> Result<(), Error> {
 
     // ── Fact ──────────────────────────────────────────────────────────────────
     let fact_class = store_mod.define_class("Fact", ruby.class_object())?;
-    fact_class.define_singleton_method("_native_build", function!(fact::rb_build, 6))?;
-    fact_class.define_method("id",             method!(Fact::rb_id, 0))?;
-    fact_class.define_method("store",          method!(Fact::rb_store, 0))?;
-    fact_class.define_method("key",            method!(Fact::rb_key, 0))?;
-    fact_class.define_method("value",          method!(Fact::rb_value, 0))?;
-    fact_class.define_method("value_hash",     method!(Fact::rb_value_hash, 0))?;
-    fact_class.define_method("causation",      method!(Fact::rb_causation, 0))?;
-    fact_class.define_method("timestamp",      method!(Fact::rb_timestamp, 0))?;
-    fact_class.define_method("term",           method!(Fact::rb_term, 0))?;
-    fact_class.define_method("schema_version", method!(Fact::rb_schema_version, 0))?;
-    fact_class.define_method("to_h",           method!(Fact::rb_to_h, 0))?;
-    fact_class.define_method("inspect",        method!(Fact::rb_inspect, 0))?;
-    fact_class.define_method("frozen?",        method!(Fact::rb_frozen, 0))?;
+    fact_class.define_singleton_method("_native_build", function!(fact::rb_build, 8))?;
+    fact_class.define_method("id",               method!(Fact::rb_id, 0))?;
+    fact_class.define_method("store",            method!(Fact::rb_store, 0))?;
+    fact_class.define_method("key",              method!(Fact::rb_key, 0))?;
+    fact_class.define_method("value",            method!(Fact::rb_value, 0))?;
+    fact_class.define_method("value_hash",       method!(Fact::rb_value_hash, 0))?;
+    fact_class.define_method("causation",        method!(Fact::rb_causation, 0))?;
+    fact_class.define_method("transaction_time", method!(Fact::rb_transaction_time, 0))?;
+    fact_class.define_method("valid_time",       method!(Fact::rb_valid_time, 0))?;
+    fact_class.define_method("producer",         method!(Fact::rb_producer, 0))?;
+    fact_class.define_method("derivation",       method!(Fact::rb_derivation, 0))?;
+    fact_class.define_method("schema_version",   method!(Fact::rb_schema_version, 0))?;
+    fact_class.define_method("to_h",             method!(Fact::rb_to_h, 0))?;
+    fact_class.define_method("inspect",          method!(Fact::rb_inspect, 0))?;
+    fact_class.define_method("frozen?",          method!(Fact::rb_frozen, 0))?;
+    // Backward-compat aliases (removed after callers migrate)
+    fact_class.define_method("timestamp",        method!(Fact::rb_timestamp, 0))?;
+    fact_class.define_method("term",             method!(Fact::rb_term, 0))?;
 
     // ── FactLog ───────────────────────────────────────────────────────────────
     let log_class = store_mod.define_class("FactLog", ruby.class_object())?;

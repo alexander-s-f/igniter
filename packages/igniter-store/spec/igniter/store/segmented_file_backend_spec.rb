@@ -39,7 +39,7 @@ RSpec.describe Igniter::Store::SegmentedFileBackend do
 
       expect(facts.size).to eq(3)
       expect(facts.map(&:key)).to match_array(%w[k0 k1 k2])
-      expect(facts).to eq(facts.sort_by(&:timestamp))
+      expect(facts).to eq(facts.sort_by(&:transaction_time))
     end
 
     it "persists facts across independent backend instances" do

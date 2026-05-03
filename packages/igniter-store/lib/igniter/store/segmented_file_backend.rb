@@ -92,7 +92,7 @@ module Igniter
           seg = active_segment_for(store)
           seg[:codec].encode_fact(seg[:file], fact)
           seg[:count] += 1
-          ts = fact.timestamp.to_f
+          ts = fact.transaction_time.to_f
           seg[:min_ts] = seg[:min_ts] ? [seg[:min_ts], ts].min : ts
           seg[:max_ts] = seg[:max_ts] ? [seg[:max_ts], ts].max : ts
           apply_flush_policy(seg)
@@ -106,7 +106,7 @@ module Igniter
       def replay(store: nil, since: nil, as_of: nil)
         segment_paths_for(store: store ? store.to_s : nil, since: since, as_of: as_of)
           .flat_map { |path| read_segment(path) }
-          .sort_by(&:timestamp)
+          .sort_by(&:transaction_time)
       end
 
       # Seal every open segment and open a fresh one per store.

@@ -35,15 +35,15 @@ module Igniter
 
         def latest_for(store:, key:, as_of: nil)
           facts = synchronize { @by_key[[store, key]].dup }
-          facts = facts.select { |fact| fact.timestamp <= as_of } if as_of
+          facts = facts.select { |fact| fact.transaction_time <= as_of } if as_of
           facts.last
         end
 
         def facts_for(store:, key: nil, since: nil, as_of: nil)
           synchronize do
             facts = key ? @by_key[[store, key]].dup : @log.select { |fact| fact.store == store }
-            facts = facts.select { |fact| fact.timestamp >= since } if since
-            facts = facts.select { |fact| fact.timestamp <= as_of } if as_of
+            facts = facts.select { |fact| fact.transaction_time >= since } if since
+            facts = facts.select { |fact| fact.transaction_time <= as_of } if as_of
             facts
           end
         end
@@ -53,7 +53,7 @@ module Igniter
             seen = {}
             @by_key.each do |(s, k), facts|
               next unless s == store
-              candidates = as_of ? facts.select { |f| f.timestamp <= as_of } : facts
+              candidates = as_of ? facts.select { |f| f.transaction_time <= as_of } : facts
               latest = candidates.last
               next unless latest
               seen[k] = latest if matches_filters?(latest.value, filters)
@@ -95,7 +95,7 @@ module Igniter
 
         def all_facts
           @_seen_stores ||= []
-          @_seen_stores.flat_map { |s| facts_for(store: s) }.sort_by(&:timestamp)
+          @_seen_stores.flat_map { |s| facts_for(store: s) }.sort_by(&:transaction_time)
         end
       end
     end

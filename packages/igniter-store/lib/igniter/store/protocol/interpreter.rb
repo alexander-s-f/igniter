@@ -105,7 +105,7 @@ module Igniter
           latest = {}
           facts.each do |f|
             existing = latest[f.key]
-            latest[f.key] = f if existing.nil? || f.timestamp > existing.timestamp
+            latest[f.key] = f if existing.nil? || f.transaction_time > existing.transaction_time
           end
 
           results = latest.values.map(&:value)
@@ -300,8 +300,10 @@ module Igniter
             value:      fact.value,
             value_hash: fact.value_hash,
             causation:  fact.causation,
-            timestamp:  fact.timestamp,
-            producer:   fact.producer
+            transaction_time: fact.transaction_time,
+            valid_time:       fact.valid_time,
+            producer:         fact.producer,
+            derivation:       fact.derivation
           }
         end
 

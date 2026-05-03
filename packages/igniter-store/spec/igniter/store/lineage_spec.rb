@@ -43,7 +43,7 @@ RSpec.describe "Causal Proof / Lineage API" do
       store.write(store: :tasks, key: "t1", value: { v: 1 })
       entry = store.lineage(store: :tasks, key: "t1")[:chain].first
       expect(entry.keys).to contain_exactly(
-        :id, :store, :key, :causation, :value_hash, :timestamp, :schema_version
+        :id, :store, :key, :causation, :value_hash, :transaction_time, :valid_time, :schema_version
       )
     end
 

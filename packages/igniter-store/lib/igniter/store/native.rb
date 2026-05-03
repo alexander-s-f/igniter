@@ -8,22 +8,23 @@ begin
   require "igniter_store_native"
 
   # ── Ruby wrappers on top of Rust-defined Fact ─────────────────────────────
-  # Translates keyword args to the positional _native_build method.
+  # Translates keyword args to the positional _native_build method (8-arg form).
   class Igniter::Store::Fact
-    def self.build(store:, key:, value:, causation: nil, term: 0, schema_version: 1, producer: nil)
-      # producer: accepted but not forwarded to native — Phase 2 gap.
+    def self.build(store:, key:, value:, causation: nil, valid_time: nil, term: nil,
+                   schema_version: 1, producer: nil, derivation: nil)
+      # term: is a deprecated alias for valid_time — accepted for compat.
+      vt = valid_time.nil? ? (term ? term.to_f : nil) : valid_time.to_f
       _native_build(
         store.to_s,
         key.to_s,
         value,
         causation,
-        term.to_i,
-        schema_version.to_i
+        vt,
+        schema_version.to_i,
+        producer,
+        derivation
       )
     end
-
-    # Native Rust struct does not carry producer yet (Phase 2).
-    def producer = nil
   end
 
   # ── Ruby wrappers on top of Rust-defined FactLog ──────────────────────────

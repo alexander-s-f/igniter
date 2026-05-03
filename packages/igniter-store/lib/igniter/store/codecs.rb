@@ -137,7 +137,7 @@ module Igniter
           unless @header_written
             @fields = (fact.value || {}).keys.map(&:to_s).sort
             header  = { store: fact.store.to_s, fields: @fields,
-                        term: fact.term, schema_version: fact.schema_version }
+                        valid_time: fact.valid_time, schema_version: fact.schema_version }
             body = MessagePack.pack(stringify(header))
             io.write(encode_frame(body))
             @header_written = true
@@ -161,9 +161,9 @@ module Igniter
           return [] unless header_body
           header = MessagePack.unpack(header_body)
           fields = header["fields"] || []
-          store  = (header["store"] || "").to_sym
-          term   = (header["term"] || 0).to_i
-          sv     = (header["schema_version"] || 1).to_i
+          store      = (header["store"] || "").to_sym
+          valid_time = (header["valid_time"] || header["term"])&.to_f
+          sv         = (header["schema_version"] || 1).to_i
 
           key_map    = {}    # Integer index → key_string
           last_ts_ms = nil
@@ -184,15 +184,15 @@ module Igniter
               vh    = Digest::SHA256.hexdigest(JSON.generate(stable_sort(value)))
 
               fact_hash = {
-                id:             SecureRandom.uuid,
-                store:          store,
-                key:            key_map[key_idx.to_i],
-                value:          value,
-                value_hash:     vh,
-                causation:      nil,
-                timestamp:      ts_ms / 1_000.0,
-                term:           term,
-                schema_version: sv
+                id:               SecureRandom.uuid,
+                store:            store,
+                key:              key_map[key_idx.to_i],
+                value:            value,
+                value_hash:       vh,
+                causation:        nil,
+                transaction_time: ts_ms / 1_000.0,
+                valid_time:       valid_time,
+                schema_version:   sv
               }
               fact = Fact.from_h(fact_hash) rescue nil
               facts << fact if fact
@@ -209,7 +209,7 @@ module Igniter
             key = f.key.to_s
             @key_map[key] ||= @key_map.size
 
-            ts_ms   = (f.timestamp.to_f * 1_000).round
+            ts_ms   = (f.transaction_time.to_f * 1_000).round
             delta   = @last_ts_ms ? ts_ms - @last_ts_ms : ts_ms
             @last_ts_ms = ts_ms
 

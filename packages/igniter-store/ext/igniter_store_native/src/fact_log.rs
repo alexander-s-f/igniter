@@ -65,7 +65,7 @@ impl FactLog {
             indices
                 .iter()
                 .rev()
-                .find(|&&i| inner.log[i].timestamp <= as_of)
+                .find(|&&i| inner.log[i].transaction_time <= as_of)
                 .copied()
         } else {
             indices.last().copied()
@@ -106,7 +106,7 @@ impl FactLog {
         let filtered: Vec<FactData> = indices
             .into_iter()
             .filter(|&i| {
-                let t = inner.log[i].timestamp;
+                let t = inner.log[i].transaction_time;
                 since.map_or(true, |s| t >= s) && as_of.map_or(true, |a| t <= a)
             })
             .map(|i| inner.log[i].clone())
@@ -149,7 +149,7 @@ impl FactLog {
                 indices
                     .iter()
                     .rev()
-                    .find(|&&i| inner.log[i].timestamp <= as_of)
+                    .find(|&&i| inner.log[i].transaction_time <= as_of)
                     .copied()
             } else {
                 indices.last().copied()

@@ -158,7 +158,7 @@ module Igniter
         def active_order_facts(order_facts)
           by_order = order_facts.group_by { |f| f.key }
           by_order.filter_map do |_order_id, facts|
-            latest = facts.max_by(&:timestamp)
+            latest = facts.max_by(&:transaction_time)
             latest if latest&.value&.fetch(:type, nil).to_s != "cancelled"
           end
         end

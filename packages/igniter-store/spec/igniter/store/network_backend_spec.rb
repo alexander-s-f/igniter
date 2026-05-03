@@ -70,7 +70,7 @@ RSpec.describe "NetworkBackend + StoreServer" do
 
       expect(facts.size).to eq(3)
       # timestamps must be non-decreasing
-      times = facts.map(&:timestamp)
+      times = facts.map(&:transaction_time)
       expect(times).to eq(times.sort)
     end
   end

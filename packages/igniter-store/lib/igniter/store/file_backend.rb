@@ -46,7 +46,7 @@ module Igniter
         def replay
           snapshot_facts, seen_ids = load_snapshot
           wal_facts = read_wal_frames.reject { |f| seen_ids.include?(f.id) }
-          (snapshot_facts + wal_facts).sort_by(&:timestamp)
+          (snapshot_facts + wal_facts).sort_by(&:transaction_time)
         end
 
         # Atomically writes all +facts+ to a snapshot file (<wal_path>.snap).
