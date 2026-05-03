@@ -378,4 +378,278 @@ RSpec.describe "Changefeed subsystem" do
       c.close
     end
   end
+
+  # ── ChangefeedBuffer#replay cursor semantics ──────────────────────────────────
+
+  describe "ChangefeedBuffer#replay" do
+    let(:buf) { Igniter::Store::ChangefeedBuffer.new }
+
+    def emit_n(n, store: :tasks)
+      n.times { |i| buf.emit(build_fact(store: store, key: "k#{i}")) }
+    end
+
+    describe "nil cursor — full retained replay" do
+      it "returns all retained events in sequence order" do
+        emit_n(3)
+        result = buf.replay
+        expect(result[:status]).to        eq(:ok)
+        expect(result[:events].size).to   eq(3)
+        seqs = result[:events].map { |e| e.cursor[:sequence] }
+        expect(seqs).to eq([1, 2, 3])
+      end
+
+      it "returns empty events when ring is empty" do
+        result = buf.replay
+        expect(result[:status]).to        eq(:ok)
+        expect(result[:events]).to        be_empty
+        expect(result[:cursor]).to        be_nil
+        expect(result[:oldest_cursor]).to be_nil
+        expect(result[:newest_cursor]).to be_nil
+      end
+
+      it "result has all required keys" do
+        emit_n(2)
+        result = buf.replay
+        %i[status events cursor oldest_cursor newest_cursor dropped_total].each do |k|
+          expect(result).to have_key(k)
+        end
+      end
+    end
+
+    describe "cursor { sequence: N } — replay after N" do
+      it "returns events with sequence > N" do
+        emit_n(5)
+        result = buf.replay(cursor: { sequence: 2 })
+        expect(result[:status]).to       eq(:ok)
+        seqs = result[:events].map { |e| e.cursor[:sequence] }
+        expect(seqs).to eq([3, 4, 5])
+      end
+
+      it "cursor in result equals last returned event's sequence" do
+        emit_n(5)
+        result = buf.replay(cursor: { sequence: 2 })
+        expect(result[:cursor]).to eq({ sequence: 5 })
+      end
+
+      it "returns empty when cursor is at newest sequence" do
+        emit_n(3)
+        result = buf.replay(cursor: { sequence: 3 })
+        expect(result[:status]).to      eq(:ok)
+        expect(result[:events]).to      be_empty
+        expect(result[:cursor]).to      eq({ sequence: 3 })
+      end
+
+      it "returns empty when cursor is beyond newest sequence" do
+        emit_n(3)
+        result = buf.replay(cursor: { sequence: 99 })
+        expect(result[:status]).to      eq(:ok)
+        expect(result[:events]).to      be_empty
+      end
+
+      it "oldest_cursor and newest_cursor always reflect ring boundaries" do
+        emit_n(5)
+        result = buf.replay(cursor: { sequence: 2 })
+        expect(result[:oldest_cursor]).to eq({ sequence: 1 })
+        expect(result[:newest_cursor]).to eq({ sequence: 5 })
+      end
+    end
+
+    describe ":cursor_too_old — gap due to ring overflow" do
+      it "returns :cursor_too_old when cursor is before oldest retained with a gap" do
+        small = Igniter::Store::ChangefeedBuffer.new(max_size: 3)
+        5.times { |i| small.emit(build_fact(key: "k#{i}")) }
+        # Ring now holds [3,4,5], oldest=3, dropped=2
+        # cursor seq=1 → gap: need seq 2 which is gone
+        result = small.replay(cursor: { sequence: 1 })
+        expect(result[:status]).to        eq(:cursor_too_old)
+        expect(result[:events]).to        be_empty
+        expect(result[:oldest_cursor]).to eq({ sequence: 3 })
+        expect(result[:newest_cursor]).to eq({ sequence: 5 })
+      end
+
+      it "does NOT return :cursor_too_old when cursor is exactly oldest_seq - 1 (no gap)" do
+        small = Igniter::Store::ChangefeedBuffer.new(max_size: 3)
+        5.times { |i| small.emit(build_fact(key: "k#{i}")) }
+        # oldest=3, cursor=2: seq 3 = cursor+1, no gap
+        result = small.replay(cursor: { sequence: 2 })
+        expect(result[:status]).to      eq(:ok)
+        seqs = result[:events].map { |e| e.cursor[:sequence] }
+        expect(seqs).to eq([3, 4, 5])
+      end
+
+      it "includes dropped_total in :cursor_too_old result" do
+        small = Igniter::Store::ChangefeedBuffer.new(max_size: 2)
+        5.times { |i| small.emit(build_fact(key: "k#{i}")) }
+        result = small.replay(cursor: { sequence: 1 })
+        expect(result[:dropped_total]).to eq(3)
+      end
+    end
+
+    describe "store-filtered replay" do
+      it "returns only events matching the requested stores" do
+        buf.emit(build_fact(store: :tasks,     key: "t1"))
+        buf.emit(build_fact(store: :reminders, key: "r1"))
+        buf.emit(build_fact(store: :tasks,     key: "t2"))
+
+        result = buf.replay(stores: [:tasks])
+        stores = result[:events].map(&:store)
+        expect(stores).to eq(%i[tasks tasks])
+      end
+
+      it "returns empty when store filter matches nothing" do
+        emit_n(3)
+        result = buf.replay(stores: [:other])
+        expect(result[:status]).to    eq(:ok)
+        expect(result[:events]).to    be_empty
+      end
+
+      it "nil stores returns all stores" do
+        buf.emit(build_fact(store: :tasks))
+        buf.emit(build_fact(store: :reminders))
+        result = buf.replay(stores: nil)
+        expect(result[:events].size).to eq(2)
+      end
+    end
+
+    describe "limit parameter" do
+      it "caps the number of returned events" do
+        emit_n(5)
+        result = buf.replay(limit: 3)
+        expect(result[:events].size).to     eq(3)
+        seqs = result[:events].map { |e| e.cursor[:sequence] }
+        expect(seqs).to eq([1, 2, 3])
+      end
+
+      it "cursor reflects the last returned event when limit is applied" do
+        emit_n(5)
+        result = buf.replay(limit: 2)
+        expect(result[:cursor]).to eq({ sequence: 2 })
+      end
+
+      it "limit with cursor returns next page" do
+        emit_n(6)
+        page1 = buf.replay(limit: 3)
+        page2 = buf.replay(cursor: page1[:cursor], limit: 3)
+        seqs2 = page2[:events].map { |e| e.cursor[:sequence] }
+        expect(seqs2).to eq([4, 5, 6])
+      end
+    end
+
+    describe "subscriber cursor handoff" do
+      it "subscriber can replay missed events using last received cursor" do
+        received_live = []
+        handle = buf.subscribe(stores: [:tasks]) { |e| received_live << e }
+
+        # Subscriber receives first 3 live
+        emit_n(3)
+
+        # Subscriber disconnects (unsubscribes)
+        handle.close
+        last_cursor = received_live.last.cursor
+
+        # 2 more events emitted while subscriber is away
+        buf.emit(build_fact(key: "k3"))
+        buf.emit(build_fact(key: "k4"))
+
+        # Subscriber replays from last_cursor to catch up
+        result = buf.replay(cursor: last_cursor, stores: [:tasks])
+        expect(result[:status]).to     eq(:ok)
+        expect(result[:events].size).to eq(2)
+        keys = result[:events].map(&:key)
+        expect(keys).to eq(%w[k3 k4])
+      end
+    end
+  end
+
+  # ── Emission ordering: source-first policy ────────────────────────────────────
+
+  describe "Emission ordering policy (source before derived/scatter)" do
+    it "source fact is emitted before derived facts" do
+      feed  = Igniter::Store::ChangefeedBuffer.new
+      store = Igniter::Store::IgniterStore.new(changefeed: feed)
+
+      store.register_derivation(
+        source_store: :tasks,
+        source_filters: {},
+        target_store: :summaries,
+        target_key: "count",
+        rule: ->(facts) { { n: facts.size } }
+      )
+
+      all_events = []
+      feed.subscribe(stores: [:tasks, :summaries]) { |e| all_events << e }
+
+      store.write(store: :tasks, key: "t1", value: { status: :open })
+
+      # Source (:tasks) must appear before derived (:summaries)
+      expect(all_events.size).to be >= 2
+      first  = all_events[0]
+      second = all_events[1]
+      expect(first.store).to  eq(:tasks)
+      expect(second.store).to eq(:summaries)
+      # Sequence is also monotonically increasing
+      expect(first.cursor[:sequence]).to  eq(1)
+      expect(second.cursor[:sequence]).to eq(2)
+    end
+
+    it "source fact is emitted before scatter-derived facts" do
+      feed  = Igniter::Store::ChangefeedBuffer.new
+      store = Igniter::Store::IgniterStore.new(changefeed: feed)
+
+      store.register_scatter(
+        source_store: :comments,
+        partition_by: :article_id,
+        target_store: :article_index,
+        rule: lambda { |part_key, existing, new_fact|
+          ids = existing ? existing[:ids].dup : []
+          ids << new_fact.key unless ids.include?(new_fact.key)
+          { article_id: part_key, ids: ids }
+        }
+      )
+
+      all_events = []
+      feed.subscribe(stores: [:comments, :article_index]) { |e| all_events << e }
+
+      store.write(store: :comments, key: "c1", value: { article_id: "a1", body: "hi" })
+
+      expect(all_events.size).to be >= 2
+      expect(all_events[0].store).to eq(:comments)
+      expect(all_events[1].store).to eq(:article_index)
+    end
+
+    it "multiple writes produce strictly increasing sequences across source + derived" do
+      feed  = Igniter::Store::ChangefeedBuffer.new
+      store = Igniter::Store::IgniterStore.new(changefeed: feed)
+
+      store.register_derivation(
+        source_store: :items,
+        source_filters: {},
+        target_store: :item_counts,
+        target_key: "total",
+        rule: ->(facts) { { n: facts.size } }
+      )
+
+      seqs = []
+      feed.subscribe(stores: [:items, :item_counts]) { |e| seqs << e.cursor[:sequence] }
+
+      2.times { |i| store.write(store: :items, key: "i#{i}", value: {}) }
+
+      expect(seqs).to eq(seqs.sort)
+      expect(seqs.uniq).to eq(seqs)
+    end
+
+    it "append does not trigger derivations so ordering is trivial" do
+      feed  = Igniter::Store::ChangefeedBuffer.new
+      store = Igniter::Store::IgniterStore.new(changefeed: feed)
+
+      events = []
+      feed.subscribe(stores: [:audit]) { |e| events << e }
+
+      store.append(history: :audit, event: { action: "login" })
+      store.append(history: :audit, event: { action: "logout" })
+
+      expect(events.size).to eq(2)
+      expect(events.map { |e| e.cursor[:sequence] }).to eq([1, 2])
+    end
+  end
 end

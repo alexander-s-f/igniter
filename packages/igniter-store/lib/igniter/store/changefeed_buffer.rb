@@ -11,11 +11,22 @@ module Igniter
     # fans out to registered subscriber handlers.
     #
     # Delivery semantics: best-effort live push.
-    # - Slow or failing subscribers do not block the emit path (synchronous
-    #   fan-out; if a handler raises it is removed and counted as failed).
+    # - Fan-out is synchronous: a handler that raises is removed and counted as
+    #   failed, but a handler that merely blocks will stall the emit call.
     # - When the ring is full the oldest retained event is dropped and
     #   +dropped_total+ is incremented.
     # - No durable checkpoints in this v0 slice.
+    #
+    # Ordering policy:
+    # - Sequences are assigned in emit-call order (monotonically increasing).
+    # - IgniterStore emits the source fact BEFORE triggering derivations/scatters,
+    #   so subscribers always see cause before effects.
+    #
+    # Replay cursor semantics (see #replay):
+    # - nil cursor    → all retained events from oldest retained sequence.
+    # - {sequence: N} → events with sequence > N.
+    # - N < oldest-1  → :cursor_too_old (gap due to ring overflow).
+    # - N >= newest   → empty :ok (caller is already at the head).
     #
     # Usage:
     #   buf    = ChangefeedBuffer.new(max_size: 1_000)
@@ -92,6 +103,102 @@ module Igniter
           else
             @records.size
           end
+        end
+      end
+
+      # Replay retained ChangeEvents from the in-memory ring.
+      #
+      # +cursor+  — nil or { sequence: Integer }
+      # +stores+  — nil (all) or Array of store name symbols/strings to filter
+      # +limit+   — nil (all matching) or Integer cap on returned events
+      #
+      # Returns a Hash:
+      #   {
+      #     status:        :ok | :cursor_too_old,
+      #     events:        [ChangeEvent, ...],
+      #     cursor:        { sequence: N } | nil,
+      #     oldest_cursor: { sequence: N } | nil,
+      #     newest_cursor: { sequence: N } | nil,
+      #     dropped_total: Integer
+      #   }
+      #
+      # status :cursor_too_old means the requested sequence is older than the
+      # oldest retained event AND there are dropped events in between — the
+      # caller must recover from the fact log instead of relying on replay.
+      def replay(cursor: nil, stores: nil, limit: nil)
+        @mutex.synchronize do
+          if @ring.empty?
+            return {
+              status:        :ok,
+              events:        [],
+              cursor:        nil,
+              oldest_cursor: nil,
+              newest_cursor: nil,
+              dropped_total: @dropped_total
+            }
+          end
+
+          oldest_seq = @ring.first.cursor[:sequence]
+          newest_seq = @ring.last.cursor[:sequence]
+
+          candidates =
+            if cursor.nil?
+              @ring.dup
+            else
+              req_seq = Integer(cursor[:sequence])
+
+              # Gap check: there are events between req_seq+1 and oldest_seq-1
+              # that were dropped from the ring.
+              if req_seq < oldest_seq - 1
+                return {
+                  status:        :cursor_too_old,
+                  events:        [],
+                  cursor:        { sequence: newest_seq },
+                  oldest_cursor: { sequence: oldest_seq },
+                  newest_cursor: { sequence: newest_seq },
+                  dropped_total: @dropped_total
+                }
+              end
+
+              # Caller is already at or beyond the head — nothing new.
+              if req_seq >= newest_seq
+                return {
+                  status:        :ok,
+                  events:        [],
+                  cursor:        { sequence: newest_seq },
+                  oldest_cursor: { sequence: oldest_seq },
+                  newest_cursor: { sequence: newest_seq },
+                  dropped_total: @dropped_total
+                }
+              end
+
+              @ring.select { |e| e.cursor[:sequence] > req_seq }
+            end
+
+          # Store filter
+          if stores && !stores.empty?
+            store_strs = Array(stores).map(&:to_s)
+            candidates = candidates.select { |e| store_strs.include?(e.store.to_s) }
+          end
+
+          # Limit
+          candidates = candidates.first(limit) if limit
+
+          result_cursor =
+            if candidates.last
+              { sequence: candidates.last.cursor[:sequence] }
+            else
+              { sequence: newest_seq }
+            end
+
+          {
+            status:        :ok,
+            events:        candidates,
+            cursor:        result_cursor,
+            oldest_cursor: { sequence: oldest_seq },
+            newest_cursor: { sequence: newest_seq },
+            dropped_total: @dropped_total
+          }
         end
       end
 

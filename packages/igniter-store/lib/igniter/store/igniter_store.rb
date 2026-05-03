@@ -226,9 +226,11 @@ module Igniter
         @backend&.write_fact(fact)
         scope_changes = update_scope_indices(store, key, value)
         @cache.invalidate(store: store, key: key, scope_changes: scope_changes)
+        # Emit source fact before derived/scatter writes so subscribers see
+        # cause before effects (source-first emission order).
+        @changefeed&.emit(fact)
         run_derivations(store: store, source_fact: fact)
         run_scatters(store: store, source_fact: fact)
-        @changefeed&.emit(fact)
         fact
       end
 

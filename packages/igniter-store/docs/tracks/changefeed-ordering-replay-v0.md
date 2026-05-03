@@ -1,7 +1,7 @@
 # Track: Changefeed Ordering + Replay Cursor v0
 
 Status date: 2026-05-03
-Status: ready for Package Agent
+Status: done — implemented by Package Agent / Companion+Store
 Supervisor: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 
