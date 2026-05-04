@@ -1,7 +1,7 @@
 # Track: Ledger Boundary Availability Proof v0
 
 Status date: 2026-05-04
-Status: assigned
+Status: done
 Supervisor: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 
@@ -293,22 +293,47 @@ docs/intelligent-ledger/ledger-boundaries-compaction-plan.md
 docs/intelligent-ledger/availability-snapshot-proof.md
 ```
 
-## Handoff Format
+## Handoff
 
 ```text
 [Package Agent / Companion+Store]
 Track: igniter-store/ledger-boundary-availability-proof-v0
-Status: done | partial | blocked
+Status: done
 
 [D] Decisions:
-- ...
+- LedgerBoundary is a PORO tracking open/closed/compacted state in-memory;
+  boundary records and receipts are persisted to the store for durability.
+- result_hash is SHA-256 of (output_value.to_s + sorted_source_fact_ids + rule_version).
+  It is intentionally not cross-store stable (computed_at and fact UUIDs vary),
+  but is immutable within a boundary after close! — which is the required invariant.
+- LedgerBoundary.key_for() is a class-level helper for computing deterministic
+  boundary keys without instantiating a full boundary object.
+- Compaction is logical/in-memory: detail_status -> :purged, output_value retained.
+- Late facts write to :late_fact_receipts with disposition "correction_boundary";
+  they do not mutate the original boundary.
 
 [S] Shipped:
-- ...
+- examples/intelligent_ledger/ledger_boundary.rb
+    LedgerBoundary PORO: open/close/compact lifecycle, result_hash, key_for()
+- examples/intelligent_ledger/availability_boundary_ledger.rb
+    AvailabilityBoundaryLedger: open_boundary, close_boundary, compact_boundary,
+    replay, full_replay, cleanup_plan, write_late_fact
+- spec/igniter/store/intelligent_ledger/ledger_boundary_proof_spec.rb
+    39 examples covering all 7 acceptance behaviors + delegation regression
 
 [T] Tests:
-- ...
+- 39 new examples, 0 failures
+- Full package suite: 837 examples, 0 failures
+- Existing availability_snapshot_proof_spec.rb unchanged and green
 
 [R] Risks / next recommendations:
-- ...
+- result_hash depends on output_value.to_s which is sensitive to Hash ordering
+  and computed_at; if cross-run content-addressing is required, normalize to
+  only semantic fields (available_seconds, available_slots, blocked_intervals).
+- Boundary registry is in-memory only; after process restart, boundaries are
+  gone. A next step would be hydrating @boundaries from :ledger_boundaries store
+  on startup.
+- cleanup_plan considers all tracked boundaries regardless of store; filtering
+  by which store a boundary's facts live in requires richer metadata.
+- No multi-boundary-type support yet; a single technician_day policy is proven.
 ```
