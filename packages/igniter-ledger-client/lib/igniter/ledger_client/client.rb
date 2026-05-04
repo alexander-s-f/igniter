@@ -3,6 +3,7 @@
 require_relative "envelope"
 require_relative "error"
 require_relative "results"
+require_relative "subscription"
 
 module Igniter
   module LedgerClient
@@ -70,6 +71,16 @@ module Igniter
         packet[:since] = since if since
         packet[:limit] = limit if limit
         dispatch(:compaction_activity, packet)
+      end
+
+      def subscribe(stores:, cursor: nil, &block)
+        raise ArgumentError, "subscribe requires a block" unless block
+
+        raise NotImplementedError, "ledger client transport does not support subscriptions" unless transport.respond_to?(:subscribe)
+
+        transport.subscribe(stores: stores, cursor: cursor) do |event|
+          block.call(Results::ChangeEventResult.new(event))
+        end
       end
 
       def dispatch(operation, packet = {}, request_id: nil)

@@ -3,6 +3,7 @@
 require_relative "ledger_client/envelope"
 require_relative "ledger_client/error"
 require_relative "ledger_client/results"
+require_relative "ledger_client/subscription"
 require_relative "ledger_client/client"
 require_relative "ledger_client/transports/object_dispatch"
 require_relative "ledger_client/transports/remote_http"

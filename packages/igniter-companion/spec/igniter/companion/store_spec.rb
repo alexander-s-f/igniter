@@ -290,9 +290,9 @@ RSpec.describe Igniter::Companion::Store do
   end
 
   describe "client-backed Ledger boundary" do
-    def client_backed_store
-      ledger = Igniter::Ledger::LedgerStore.new
-      client = Igniter::LedgerClient.wrap(ledger.protocol)
+    def client_backed_store(changefeed: nil)
+      ledger = Igniter::Ledger::LedgerStore.new(changefeed: changefeed)
+      client = changefeed ? Igniter::LedgerClient.wrap(ledger) : Igniter::LedgerClient.wrap(ledger.protocol)
       described_class.new(client: client)
     end
 
@@ -405,12 +405,32 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
-    it "still fails clearly for unsupported client-backed scope subscriptions" do
-      s = client_backed_store
+    it "subscribes to client-backed scope changes and yields refreshed records" do
+      s = client_backed_store(changefeed: Igniter::Store::ChangefeedBuffer.new)
+      s.register(Reminder)
+      notifications = []
+
+      subscription = s.on_scope(Reminder, :open) do |store_name, records|
+        notifications << [store_name, records.map(&:title)]
+      end
+
+      s.write(Reminder, key: "r1", title: "A", status: :open)
+      sleep 0.05
+
+      expect(notifications).to include([:reminders, ["A"]])
+      subscription.close
+      subscription.close
+    ensure
+      subscription&.close
+      s&.close
+    end
+
+    it "fails clearly for unknown client-backed scope subscriptions" do
+      s = client_backed_store(changefeed: Igniter::Store::ChangefeedBuffer.new)
       s.register(Reminder)
 
-      expect { s.on_scope(Reminder, :open) { nil } }
-        .to raise_error(NotImplementedError, /scope subscriptions/)
+      expect { s.on_scope(Reminder, :archived) { nil } }
+        .to raise_error(ArgumentError, /scope=:archived/)
     ensure
       s&.close
     end

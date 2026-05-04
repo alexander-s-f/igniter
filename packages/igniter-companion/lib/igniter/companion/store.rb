@@ -119,7 +119,19 @@ module Igniter
       # Subscribe a callable to scope-level changes.
       # The callable receives (store_name, scope_name) when facts in the store change.
       def on_scope(schema_class, scope_name, &block)
-        raise unsupported_client_mode!("scope subscriptions") if client_backed?
+        raise ArgumentError, "on_scope requires a block" unless block
+
+        if client_backed?
+          scope_opts = schema_class._scopes[scope_name]
+          unless scope_opts
+            raise ArgumentError,
+                  "No registered scope=#{scope_name.inspect} for store=#{schema_class.store_name.inspect}"
+          end
+
+          return @inner.subscribe(stores: [schema_class.store_name]) do |_event|
+            block.call(schema_class.store_name, scope(schema_class, scope_name))
+          end
+        end
 
         scope_opts = schema_class._scopes[scope_name] || {}
         @inner.register_path(
@@ -371,6 +383,10 @@ module Igniter
 
         def append(...)
           client.append(...)
+        end
+
+        def subscribe(...)
+          client.subscribe(...)
         end
 
         def history(store:, key: nil, since: nil, as_of: nil)

@@ -107,7 +107,10 @@ store.causation_chain(Reminder, key: "r1")       # цепочка мутаций
 `igniter-ledger-client`, а не старый proof через `backend: :network`:
 
 ```ruby
-client = Igniter::LedgerClient.remote_http("http://127.0.0.1:7300/v1/dispatch")
+client = Igniter::LedgerClient.remote_http(
+  "http://127.0.0.1:7300/v1/dispatch",
+  events_url: "http://127.0.0.1:7300/v1/events"
+)
 store = Igniter::Companion::Store.new(client: client)
 
 store.register(Reminder)
@@ -120,8 +123,8 @@ store.replay(TrackerLog)
 ```
 
 В client-backed v0 поддержаны `register`, `write`, `read`, `append`, обычный
-`replay`, `scope`, `metadata_snapshot` и `descriptor_snapshot`. Scope-подписки,
-relation resolve и partition replay пока требуют embedded Ledger engine path и
+`replay`, `scope`, `on_scope`, `metadata_snapshot` и `descriptor_snapshot`.
+Relation resolve и partition replay пока требуют embedded Ledger engine path и
 явно поднимают `NotImplementedError`.
 
 ### Нормализованные receipts
@@ -148,15 +151,17 @@ receipt.event                    # => #<TrackerLog ...>
 ### Реактивные подписки
 
 ```ruby
-store.on_scope(Reminder, :open) do |store_name, scope|
+store.on_scope(Reminder, :open) do |store_name, payload|
   # вызывается при инвалидации scope-кэша
-  puts "#{store_name}/#{scope} changed — refresh your view"
+  puts "#{store_name} changed — refresh your view"
 end
 ```
 
 Подписчик **не** вызывается на каждый write — только когда scope-кэш был прогрет
 запросом до этого, а следующий write его инвалидировал. Lazy-семантика из igniter-ledger
 (см. [Инсайты](#давление-и-инсайты)).
+В embedded-режиме второй аргумент — имя scope. В client-backed режиме подписка
+идёт через события Ledger client, а второй аргумент — свежие записи этого scope.
 
 ---
 

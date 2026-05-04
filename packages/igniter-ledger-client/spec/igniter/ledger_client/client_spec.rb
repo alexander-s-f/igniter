@@ -40,6 +40,16 @@ RSpec.describe Igniter::LedgerClient::Client do
     end
   end
 
+  class FakeSubscriptionTransport < FakeTransport
+    attr_reader :subscribe_args
+
+    def subscribe(stores:, cursor:, &block)
+      @subscribe_args = { stores: stores, cursor: cursor }
+      block.call("cursor" => { "sequence" => 3 }, "store" => "orders", "key" => "o1")
+      Igniter::LedgerClient::Subscription.new
+    end
+  end
+
   it "dispatches write through a protocol envelope and returns result" do
     transport = FakeTransport.new
     client = described_class.new(transport: transport)
@@ -122,5 +132,26 @@ RSpec.describe Igniter::LedgerClient::Client do
     expect(query.count).to eq(1)
     expect(replay.facts).to eq([{ key: "evt_1" }])
     expect(replay.count).to eq(1)
+  end
+
+  it "subscribes through the transport and yields normalized change events" do
+    transport = FakeSubscriptionTransport.new
+    client = described_class.new(transport: transport)
+    received = []
+
+    subscription = client.subscribe(stores: [:orders], cursor: { sequence: 2 }) { |event| received << event }
+
+    expect(subscription).to respond_to(:close)
+    expect(transport.subscribe_args).to eq(stores: [:orders], cursor: { sequence: 2 })
+    expect(received.first).to be_a(Igniter::LedgerClient::Results::ChangeEventResult)
+    expect(received.first.sequence).to eq(3)
+    expect(received.first.store).to eq(:orders)
+  end
+
+  it "raises clearly when a transport has no subscription boundary" do
+    client = described_class.new(transport: FakeTransport.new)
+
+    expect { client.subscribe(stores: [:orders]) { nil } }
+      .to raise_error(NotImplementedError, /subscriptions/)
   end
 end

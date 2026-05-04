@@ -183,6 +183,66 @@ module Igniter
         end
       end
 
+      class ChangeEventResult
+        include HashAccess
+
+        attr_reader :sequence, :store, :key, :fact_id, :value_hash, :cursor, :raw
+
+        def initialize(raw = {})
+          @raw = raw
+          data = normalize(raw)
+          @cursor = normalize_cursor(data[:cursor])
+          @sequence = (data[:sequence] || cursor[:sequence])&.to_i
+          @store = token(data[:store])
+          @key = data[:key]
+          @fact_id = data[:fact_id]
+          @value_hash = data[:value_hash] || fact_value_hash(raw)
+          freeze
+        end
+
+        def to_h
+          {
+            sequence: sequence,
+            store: store,
+            key: key,
+            fact_id: fact_id,
+            value_hash: value_hash,
+            cursor: cursor,
+            raw: raw
+          }.compact
+        end
+
+        private
+
+        def normalize(raw)
+          hash = if raw.respond_to?(:to_h)
+                   raw.to_h
+                 else
+                   %i[sequence store key fact_id value_hash cursor].each_with_object({}) do |field, acc|
+                     acc[field] = raw.public_send(field) if raw.respond_to?(field)
+                   end
+                 end
+
+          hash.to_h.transform_keys(&:to_sym)
+        end
+
+        def normalize_cursor(cursor)
+          return {} unless cursor
+
+          cursor.to_h.transform_keys(&:to_sym).freeze
+        end
+
+        def fact_value_hash(raw)
+          return raw.fact.value_hash if raw.respond_to?(:fact) && raw.fact.respond_to?(:value_hash)
+
+          nil
+        end
+
+        def token(value)
+          value.is_a?(String) ? value.to_sym : value
+        end
+      end
+
       module_function
 
       def wrap(operation, raw)

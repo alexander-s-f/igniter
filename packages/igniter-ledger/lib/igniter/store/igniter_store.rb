@@ -25,7 +25,7 @@ module Igniter
     end
 
     class IgniterStore
-      attr_reader :schema_graph
+      attr_reader :schema_graph, :changefeed
 
       # Returns a Protocol::Interpreter wrapping this store.
       # External / non-Igniter clients use this surface to register descriptors,

@@ -120,7 +120,10 @@ For remote Ledger deployments, prefer the standard `igniter-ledger-client`
 boundary over the older `backend: :network` transport proof:
 
 ```ruby
-client = Igniter::LedgerClient.remote_http("http://127.0.0.1:7300/v1/dispatch")
+client = Igniter::LedgerClient.remote_http(
+  "http://127.0.0.1:7300/v1/dispatch",
+  events_url: "http://127.0.0.1:7300/v1/events"
+)
 store = Igniter::Companion::Store.new(client: client)
 
 store.register(Reminder)
@@ -133,9 +136,9 @@ store.replay(TrackerLog)
 ```
 
 Client-backed mode currently supports `register`, `write`, `read`, `append`,
-plain `replay`, `scope`, `metadata_snapshot`, and `descriptor_snapshot`. Scope
-subscriptions, relation resolution, and partition replay still require the
-embedded Ledger engine path and raise `NotImplementedError` in client-backed v0.
+plain `replay`, `scope`, `on_scope`, `metadata_snapshot`, and
+`descriptor_snapshot`. Relation resolution and partition replay still require
+the embedded Ledger engine path and raise `NotImplementedError` in client-backed v0.
 
 ### Normalized receipts
 
@@ -161,15 +164,18 @@ receipt.event                    # => #<TrackerLog ...>
 ### Reactive subscriptions
 
 ```ruby
-store.on_scope(Reminder, :open) do |store_name, scope|
+store.on_scope(Reminder, :open) do |store_name, payload|
   # fires when the scope cache is invalidated by a write
-  puts "#{store_name}/#{scope} changed — refresh your view"
+  puts "#{store_name} changed — refresh your view"
 end
 ```
 
 The subscriber is **not** called on every write — only when the scope cache was
 warmed by a prior query and then invalidated by the next write. This is the
 lazy-invalidation semantics from igniter-ledger (see [Insights](#pressure--insights)).
+Embedded callbacks receive the scope name as the second argument. Client-backed
+callbacks subscribe to Ledger client change events for the record store and
+receive refreshed records for the declared scope.
 
 ---
 

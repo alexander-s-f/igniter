@@ -94,6 +94,23 @@ RSpec.describe Igniter::LedgerClient::Results do
     expect(replay.count).to eq(1)
   end
 
+  it "normalizes change events without depending on ledger runtime classes" do
+    event = described_class::ChangeEventResult.new(
+      "cursor" => { "sequence" => 7 },
+      "store" => "reminders",
+      "key" => "r1",
+      "fact_id" => "fact_1",
+      "value_hash" => "hash_1"
+    )
+
+    expect(event.sequence).to eq(7)
+    expect(event.store).to eq(:reminders)
+    expect(event.key).to eq("r1")
+    expect(event.fact_id).to eq("fact_1")
+    expect(event.value_hash).to eq("hash_1")
+    expect(event[:cursor]).to eq(sequence: 7)
+  end
+
   it "leaves snapshot-like operations raw" do
     raw = { stores: {} }
 

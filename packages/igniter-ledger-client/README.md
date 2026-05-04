@@ -95,6 +95,7 @@ client.read(store:, key:, as_of: nil)
 client.query(store:, where:, limit: nil, as_of: nil, order: nil)
 client.replay(store: nil, from: nil, to: nil, filter: nil)
 client.resolve(relation:, from:, as_of: nil)
+client.subscribe(stores:, cursor: nil) { |event| ... }
 client.metadata_snapshot
 client.descriptor_snapshot
 client.observability_snapshot
@@ -106,6 +107,12 @@ client.close
 history semantics distinct from keyed record writes. `key:` may be sent as
 client metadata for future idempotency work, but protocol v0 returns the
 generated fact key and does not treat `key:` as a stable idempotency guarantee.
+
+`subscribe` returns an idempotently closeable handle and yields
+`Igniter::LedgerClient::Results::ChangeEventResult` objects. Remote HTTP
+subscriptions read SSE from `/v1/events`; `events_url:` can be passed explicitly,
+otherwise it is derived from `/v1/dispatch`. Cursor resume uses the `?cursor=`
+query parameter.
 
 ## Docs
 
@@ -125,6 +132,7 @@ Successful mutation/read calls return small result objects:
 - `read` -> `Igniter::LedgerClient::Results::ReadResult`
 - `query` -> `Igniter::LedgerClient::Results::QueryResult`
 - `replay` -> `Igniter::LedgerClient::Results::ReplayResult`
+- `subscribe` events -> `Igniter::LedgerClient::Results::ChangeEventResult`
 
 Result objects expose named readers, `to_h`, and transitional `[]` access.
 `QueryResult#items` is the canonical row shape for query consumers and includes
