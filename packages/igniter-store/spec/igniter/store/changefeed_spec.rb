@@ -439,6 +439,299 @@ RSpec.describe "Changefeed subsystem" do
         handles.each(&:close)
       end
     end
+
+    # ── Delivery policy and observability ─────────────────────────────────────
+
+    describe "delivery policy and observability" do
+      describe "overflow policy validation" do
+        it "raises ArgumentError for unknown overflow policy" do
+          expect {
+            described_class.new(overflow: :unknown_policy)
+          }.to raise_error(ArgumentError, /unknown overflow policy/)
+        end
+
+        it "accepts :drop_oldest" do
+          expect { described_class.new(overflow: :drop_oldest) }.not_to raise_error
+        end
+
+        it "accepts :drop_newest" do
+          expect { described_class.new(overflow: :drop_newest) }.not_to raise_error
+        end
+      end
+
+      describe "close_policy validation" do
+        it "raises ArgumentError for unknown close_policy" do
+          expect {
+            described_class.new(close_policy: :unknown_policy)
+          }.to raise_error(ArgumentError, /unknown close_policy/)
+        end
+
+        it "accepts :drain" do
+          expect { described_class.new(close_policy: :drain) }.not_to raise_error
+        end
+
+        it "accepts :discard" do
+          expect { described_class.new(close_policy: :discard) }.not_to raise_error
+        end
+      end
+
+      describe ":drop_newest overflow policy" do
+        it "discards the incoming event when queue is full" do
+          buf2     = described_class.new(subscriber_queue_size: 3, overflow: :drop_newest)
+          latch    = Mutex.new
+          go       = ConditionVariable.new
+          paused   = true
+          delivered = []
+
+          handle = buf2.subscribe(stores: []) do |e|
+            latch.synchronize { go.wait(latch) while paused }
+            delivered << e.cursor[:sequence]
+          end
+
+          # Emit more than queue capacity; extras must be silently discarded
+          8.times { buf2.emit(build_fact) }
+          sleep 0.02
+
+          latch.synchronize { paused = false; go.broadcast }
+          handle.close
+
+          # At most 1 (being processed) + 3 (queued) = 4 events delivered
+          expect(delivered.size).to be_between(1, 4)
+          expect(buf2.snapshot[:overflow_dropped_total]).to be > 0
+          # drop_newest: oldest events survive; delivered in FIFO order
+          expect(delivered).to eq(delivered.sort)
+          expect(delivered.first).to eq(1) if delivered.any?
+        end
+
+        it "queue never grows beyond max when using :drop_newest" do
+          buf2   = described_class.new(subscriber_queue_size: 3, overflow: :drop_newest)
+          latch  = Mutex.new
+          go     = ConditionVariable.new
+          paused = true
+
+          handle = buf2.subscribe(stores: []) { latch.synchronize { go.wait(latch) while paused } }
+
+          20.times { buf2.emit(build_fact) }
+          sleep 0.02
+
+          sub_snaps = buf2.subscriber_snapshot
+          expect(sub_snaps.first[:queue_size]).to be <= 3
+
+          latch.synchronize { paused = false; go.broadcast }
+          handle.close
+        end
+      end
+
+      describe ":drain close policy" do
+        it "delivers all queued events before worker exits" do
+          buf2     = described_class.new(close_policy: :drain, subscriber_queue_size: 20)
+          latch    = Mutex.new
+          go       = ConditionVariable.new
+          paused   = true
+          delivered = []
+
+          handle = buf2.subscribe(stores: []) do |e|
+            latch.synchronize { go.wait(latch) while paused }
+            delivered << e.cursor[:sequence]
+          end
+
+          10.times { buf2.emit(build_fact) }
+          sleep 0.02  # events queued but handler paused
+
+          # Unpause then close — drain policy must deliver all 10
+          latch.synchronize { paused = false; go.broadcast }
+          handle.close
+
+          expect(delivered.size).to eq(10)
+          expect(delivered.sort).to eq((1..10).to_a)
+        end
+      end
+
+      describe ":discard close policy" do
+        it "drops queued events and exits quickly" do
+          buf2      = described_class.new(close_policy: :discard, subscriber_queue_size: 20)
+          delivered = []
+
+          # Handler takes 50ms per event; draining all 20 would take ~1 second
+          handle = buf2.subscribe(stores: []) do |e|
+            sleep 0.05
+            delivered << e.cursor[:sequence]
+          end
+
+          20.times { buf2.emit(build_fact) }
+          sleep 0.02  # let worker start processing event 1
+
+          t_start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+          handle.close  # discard: clears queue, worker exits after current event
+          elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - t_start
+
+          # Full drain would take ~1s; discard exits after current event (~50ms)
+          expect(elapsed).to be < 0.4
+          expect(delivered.size).to be <= 2  # at most the event in-progress + 1 more
+        end
+
+        it "Subscription#close is idempotent with :discard" do
+          buf2   = described_class.new(close_policy: :discard)
+          handle = buf2.subscribe(stores: []) { }
+          buf2.emit(build_fact)
+          expect { handle.close; handle.close }.not_to raise_error
+        end
+      end
+
+      describe "#subscriber_snapshot" do
+        it "returns empty array when no subscribers" do
+          buf2 = described_class.new
+          expect(buf2.subscriber_snapshot).to eq([])
+        end
+
+        it "returns one entry per active subscriber" do
+          buf2 = described_class.new
+          h1   = buf2.subscribe(stores: [:tasks]) { }
+          h2   = buf2.subscribe(stores: [:reminders]) { }
+          expect(buf2.subscriber_snapshot.size).to eq(2)
+          h1.close; h2.close
+        end
+
+        it "entry has all required fields" do
+          buf2   = described_class.new(subscriber_queue_size: 42, overflow: :drop_newest, close_policy: :discard)
+          handle = buf2.subscribe(stores: ["tasks"]) { }
+
+          snap = buf2.subscriber_snapshot.first
+          expect(snap[:id]).to                     match(/\A[0-9a-f]{16}\z/)
+          expect(snap[:stores]).to                 eq(["tasks"])
+          expect(snap[:queue_size]).to             be_a(Integer)
+          expect(snap[:queue_max_size]).to         eq(42)
+          expect(snap[:overflow]).to               eq(:drop_newest)
+          expect(snap[:close_policy]).to           eq(:discard)
+          expect(snap[:status]).to                 eq(:active)
+          expect(snap[:delivered_total]).to        be_a(Integer)
+          expect(snap[:overflow_dropped_total]).to be_a(Integer)
+          expect(snap[:failed_total]).to           be_a(Integer)
+
+          handle.close
+        end
+
+        it "entry is removed after Subscription#close" do
+          buf2   = described_class.new
+          handle = buf2.subscribe(stores: [:tasks]) { }
+          expect(buf2.subscriber_snapshot.size).to eq(1)
+          handle.close
+          expect(buf2.subscriber_snapshot).to be_empty
+        end
+
+        it "delivered_total tracks per-subscriber deliveries" do
+          buf2 = described_class.new
+          h1   = buf2.subscribe(stores: [:tasks]) { }
+          h2   = buf2.subscribe(stores: [:tasks]) { }
+
+          3.times { buf2.emit(build_fact(store: :tasks)) }
+          sleep 0.05
+
+          snaps = buf2.subscriber_snapshot
+          snaps.each { |s| expect(s[:delivered_total]).to eq(3) }
+
+          h1.close; h2.close
+        end
+
+        it "overflow_dropped_total tracks per-subscriber drops" do
+          buf2   = described_class.new(subscriber_queue_size: 2, overflow: :drop_oldest)
+          latch  = Mutex.new
+          go     = ConditionVariable.new
+          paused = true
+
+          handle = buf2.subscribe(stores: []) { latch.synchronize { go.wait(latch) while paused } }
+
+          10.times { buf2.emit(build_fact) }
+          sleep 0.02
+
+          snap = buf2.subscriber_snapshot.first
+          expect(snap[:overflow_dropped_total]).to be > 0
+
+          latch.synchronize { paused = false; go.broadcast }
+          handle.close
+        end
+      end
+
+      describe "#snapshot aggregate observability" do
+        it "includes close_policy, overflow, subscriber_queue_size, total_queued" do
+          buf2 = described_class.new(
+            subscriber_queue_size: 50,
+            overflow: :drop_newest,
+            close_policy: :discard
+          )
+          snap = buf2.snapshot
+          expect(snap[:close_policy]).to          eq(:discard)
+          expect(snap[:overflow]).to              eq(:drop_newest)
+          expect(snap[:subscriber_queue_size]).to eq(50)
+          expect(snap[:total_queued]).to          be_a(Integer)
+        end
+
+        it "total_queued reflects sum of active subscriber queue depths" do
+          buf2   = described_class.new(subscriber_queue_size: 20)
+          latch  = Mutex.new
+          go     = ConditionVariable.new
+          paused = true
+
+          h1 = buf2.subscribe(stores: []) { latch.synchronize { go.wait(latch) while paused } }
+          h2 = buf2.subscribe(stores: []) { latch.synchronize { go.wait(latch) while paused } }
+
+          5.times { buf2.emit(build_fact) }
+          sleep 0.02
+
+          snap = buf2.snapshot
+          # 2 subscribers × 5 events each; at least some queued (handler paused)
+          expect(snap[:total_queued]).to be > 0
+
+          latch.synchronize { paused = false; go.broadcast }
+          h1.close; h2.close
+        end
+
+        it "total_queued is 0 when no subscribers" do
+          expect(described_class.new.snapshot[:total_queued]).to eq(0)
+        end
+
+        it "overflow and ring dropped_total are distinct counters tracking different drop sources" do
+          buf2   = described_class.new(max_size: 2, subscriber_queue_size: 3, overflow: :drop_oldest)
+          latch  = Mutex.new
+          go     = ConditionVariable.new
+          paused = true
+
+          handle = buf2.subscribe(stores: []) { latch.synchronize { go.wait(latch) while paused } }
+
+          7.times { buf2.emit(build_fact) }
+          sleep 0.02
+
+          snap = buf2.snapshot
+          # Both counters record drops but track different code paths:
+          # dropped_total        → retained ring eviction (max_size=2, 5 evictions)
+          # overflow_dropped_total → subscriber queue overflow (subscriber slower than emit)
+          expect(snap[:dropped_total]).to          be > 0
+          expect(snap[:overflow_dropped_total]).to be > 0
+          expect(snap).to have_key(:dropped_total)
+          expect(snap).to have_key(:overflow_dropped_total)
+
+          latch.synchronize { paused = false; go.broadcast }
+          handle.close
+        end
+      end
+
+      describe "Subscription#close idempotency" do
+        it "calling close twice does not raise" do
+          buf2   = described_class.new
+          handle = buf2.subscribe(stores: [:tasks]) { }
+          buf2.emit(build_fact)
+          expect { handle.close; handle.close }.not_to raise_error
+        end
+
+        it "subscriber_count is 0 after double close" do
+          buf2   = described_class.new
+          handle = buf2.subscribe(stores: [:tasks]) { }
+          handle.close
+          handle.close
+          expect(buf2.subscriber_count).to eq(0)
+        end
+      end
+    end
   end
 
   # ── IgniterStore changefeed integration ──────────────────────────────────────

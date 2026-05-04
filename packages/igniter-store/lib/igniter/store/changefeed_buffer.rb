@@ -14,12 +14,20 @@ module Igniter
     # Delivery semantics: async best-effort push.
     # - Fan-out enqueues to a per-subscriber SubscriberQueue; emit returns quickly.
     # - Each subscriber has one worker thread draining its queue.
-    # - When a subscriber queue is full, the oldest event is dropped (default
-    #   :drop_oldest) and +overflow_dropped_total+ is incremented.
-    # - A handler that raises is removed and counted as failed; its worker exits.
+    # - When a subscriber queue is full, overflow policy determines which event
+    #   is dropped (see +overflow:+ option).
+    # - A handler that raises is removed, counted as failed, and its worker exits.
     # - When the ring is full the oldest retained event is dropped and
     #   +dropped_total+ is incremented.
     # - No durable checkpoints in this v0 slice.
+    #
+    # Overflow policies (subscriber queue full):
+    # - +:drop_oldest+ — remove the oldest queued event; add the incoming event.
+    # - +:drop_newest+ — discard the incoming event; queue unchanged.
+    #
+    # Close policies (Subscription#close):
+    # - +:drain+    — deliver all queued events before stopping the worker.
+    # - +:discard+  — clear the queue immediately; worker exits after current event.
     #
     # Ordering policy:
     # - Sequences are assigned in emit-call order (monotonically increasing).
@@ -36,17 +44,22 @@ module Igniter
     #   buf    = ChangefeedBuffer.new(max_size: 1_000)
     #   handle = buf.subscribe(stores: [:tasks]) { |event| deliver(event) }
     #   buf.emit(fact)      # enqueues to matching subscriber queues; returns quickly
-    #   handle.close        # drains pending events, stops worker, unsubscribes
+    #   handle.close        # respects close_policy (drain or discard), joins worker
     class ChangefeedBuffer
       DEFAULT_MAX_SIZE              = 1_000
       DEFAULT_SUBSCRIBER_QUEUE_SIZE = 100
       DEFAULT_OVERFLOW              = :drop_oldest
+      DEFAULT_CLOSE_POLICY          = :drain
+
+      VALID_OVERFLOW_POLICIES = %i[drop_oldest drop_newest].freeze
+      VALID_CLOSE_POLICIES    = %i[drain discard].freeze
 
       # Bounded FIFO queue for one subscriber's async delivery pipeline.
       #
       # +push+ is non-blocking and returns +true+ when an overflow drop occurs.
       # +pop+ blocks until an event is available or the queue is closed.
-      # Once closed, +pop+ drains remaining items then returns +nil+.
+      # Once closed, +pop+ drains remaining items (unless discard was requested)
+      # then returns +nil+.
       class SubscriberQueue
         def initialize(max_size:, overflow: :drop_oldest)
           @max_size = max_size
@@ -67,8 +80,9 @@ module Igniter
                 @items.shift
                 @items << event
                 @cond.signal
+              when :drop_newest
+                # discard the incoming event; queue unchanged
               end
-              # :drop_newest — discard silently (don't add)
               return true
             end
             @items << event
@@ -78,17 +92,20 @@ module Igniter
         end
 
         # Blocks until an event is available. Returns +nil+ when closed and drained.
+        # Pass +discard: true+ to clear queued events before closing.
+        def close(discard: false)
+          @mu.synchronize do
+            @items.clear if discard
+            @closed = true
+            @cond.broadcast
+          end
+        end
+
+        # Blocks until next event or close signal. Returns nil when closed+drained.
         def pop
           @mu.synchronize do
             @cond.wait(@mu) while @items.empty? && !@closed
             @items.shift
-          end
-        end
-
-        def close
-          @mu.synchronize do
-            @closed = true
-            @cond.broadcast
           end
         end
 
@@ -97,8 +114,11 @@ module Igniter
         end
       end
 
-      # Returned by #subscribe. Call #close to drain pending deliveries,
-      # stop the worker thread, and unsubscribe.
+      # Returned by #subscribe. Call #close to stop delivery and release resources.
+      # Close behavior is governed by the buffer's +close_policy+:
+      # - +:drain+   — pending events are delivered before worker stops.
+      # - +:discard+ — pending events are dropped; worker stops immediately.
+      # Calling #close is idempotent.
       class Subscription
         def initialize(record, buffer)
           @record = record
@@ -111,23 +131,40 @@ module Igniter
         end
       end
 
-      SubscriptionRecord = Struct.new(:id, :stores, :handler, :queue, :thread, keyword_init: true)
+      SubscriptionRecord = Struct.new(
+        :id, :stores, :handler, :queue, :thread,
+        :overflow, :close_policy,
+        :delivered_total, :overflow_dropped_total, :failed_total,
+        :status,
+        keyword_init: true
+      )
 
       def initialize(max_size: DEFAULT_MAX_SIZE,
                      subscriber_queue_size: DEFAULT_SUBSCRIBER_QUEUE_SIZE,
-                     overflow: DEFAULT_OVERFLOW)
-        @max_size              = max_size
-        @subscriber_queue_size = subscriber_queue_size
-        @overflow              = overflow
-        @ring                  = []
-        @records               = []
-        @mutex                 = Mutex.new
-        @sequence              = 0
-        @emitted_total         = 0
-        @delivered_total       = 0
-        @dropped_total         = 0
+                     overflow: DEFAULT_OVERFLOW,
+                     close_policy: DEFAULT_CLOSE_POLICY)
+        unless VALID_OVERFLOW_POLICIES.include?(overflow)
+          raise ArgumentError, "unknown overflow policy: #{overflow.inspect}. " \
+                               "Valid: #{VALID_OVERFLOW_POLICIES.map(&:inspect).join(", ")}"
+        end
+        unless VALID_CLOSE_POLICIES.include?(close_policy)
+          raise ArgumentError, "unknown close_policy: #{close_policy.inspect}. " \
+                               "Valid: #{VALID_CLOSE_POLICIES.map(&:inspect).join(", ")}"
+        end
+
+        @max_size               = max_size
+        @subscriber_queue_size  = subscriber_queue_size
+        @overflow               = overflow
+        @close_policy           = close_policy
+        @ring                   = []
+        @records                = []
+        @mutex                  = Mutex.new
+        @sequence               = 0
+        @emitted_total          = 0
+        @delivered_total        = 0
+        @dropped_total          = 0
         @overflow_dropped_total = 0
-        @failed_total          = 0
+        @failed_total           = 0
       end
 
       # Register a subscriber handler for one or more store names.
@@ -138,11 +175,17 @@ module Igniter
 
         q = SubscriberQueue.new(max_size: @subscriber_queue_size, overflow: @overflow)
         record = SubscriptionRecord.new(
-          id:      SecureRandom.hex(8),
-          stores:  Array(stores).map(&:to_s),
-          handler: handler,
-          queue:   q,
-          thread:  nil
+          id:                     SecureRandom.hex(8),
+          stores:                 Array(stores).map(&:to_s),
+          handler:                handler,
+          queue:                  q,
+          thread:                 nil,
+          overflow:               @overflow,
+          close_policy:           @close_policy,
+          delivered_total:        0,
+          overflow_dropped_total: 0,
+          failed_total:           0,
+          status:                 :active
         )
 
         thread = Thread.new do
@@ -151,9 +194,16 @@ module Igniter
             break if event.nil?
             begin
               handler.call(event)
-              @mutex.synchronize { @delivered_total += 1 }
+              @mutex.synchronize do
+                @delivered_total += 1
+                record.delivered_total += 1
+              end
             rescue StandardError
-              @mutex.synchronize { @failed_total += 1 }
+              @mutex.synchronize do
+                @failed_total += 1
+                record.failed_total += 1
+                record.status = :failed
+              end
               remove_record(record)
               break
             end
@@ -284,10 +334,13 @@ module Igniter
       end
 
       # Compact snapshot of current changefeed state for observability.
-      # +overflow_dropped_total+ counts subscriber queue drops (distinct from
-      # +dropped_total+ which counts retained ring drops).
+      #
+      # +dropped_total+          — retained ring drops (ring full)
+      # +overflow_dropped_total+ — subscriber queue drops (slow consumer)
+      # +total_queued+           — sum of all active subscriber queue sizes (backpressure)
       def snapshot
         @mutex.synchronize do
+          total_queued = @records.sum { |r| r.queue.size }
           {
             emitted_total:          @emitted_total,
             delivered_total:        @delivered_total,
@@ -297,21 +350,52 @@ module Igniter
             buffered:               @ring.size,
             max_size:               @max_size,
             subscriber_count:       @records.size,
+            subscriber_queue_size:  @subscriber_queue_size,
+            overflow:               @overflow,
+            close_policy:           @close_policy,
+            total_queued:           total_queued,
             oldest_sequence:        @ring.first&.cursor&.fetch(:sequence, nil),
             newest_sequence:        @ring.last&.cursor&.fetch(:sequence, nil)
           }
         end
       end
 
+      # Per-subscriber state snapshot for diagnosing slow/failing consumers.
+      #
+      # Returns an Array of Hashes — one per active subscriber — with fields:
+      #   id, stores, queue_size, queue_max_size, overflow, close_policy,
+      #   status, delivered_total, overflow_dropped_total, failed_total
+      #
+      # Subscribers that have already failed or been closed are not listed.
+      def subscriber_snapshot
+        @mutex.synchronize do
+          @records.map do |r|
+            {
+              id:                     r.id,
+              stores:                 r.stores,
+              queue_size:             r.queue.size,
+              queue_max_size:         @subscriber_queue_size,
+              overflow:               r.overflow,
+              close_policy:           r.close_policy,
+              status:                 r.status,
+              delivered_total:        r.delivered_total,
+              overflow_dropped_total: r.overflow_dropped_total,
+              failed_total:           r.failed_total
+            }
+          end
+        end
+      end
+
       protected
 
       # Removes +record+ from the active list and closes its queue.
-      # Does not join the worker thread (safe to call from inside the worker).
+      # Respects the record's +close_policy+ (:drain or :discard).
+      # Does not join the worker thread — safe to call from inside the worker.
       # Subscription#close handles the join for external callers.
       def remove_record(record)
         return unless record
         @mutex.synchronize { @records.reject! { |r| r.equal?(record) } }
-        record.queue&.close
+        record.queue&.close(discard: record.close_policy == :discard)
       end
 
       private
@@ -321,11 +405,18 @@ module Igniter
         matching = @mutex.synchronize {
           @records.select { |r| r.stores.empty? || r.stores.include?(store_s) }.dup
         }
-        overflow_count = 0
+        overflow_records = []
         matching.each do |record|
-          overflow_count += 1 if record.queue.push(event)
+          overflow_records << record if record.queue.push(event)
         end
-        @mutex.synchronize { @overflow_dropped_total += overflow_count } if overflow_count > 0
+        unless overflow_records.empty?
+          @mutex.synchronize do
+            overflow_records.each do |r|
+              @overflow_dropped_total += 1
+              r.overflow_dropped_total += 1
+            end
+          end
+        end
       end
     end
   end
