@@ -24,4 +24,21 @@ module Igniter
       end
     end
   end
+
+  module DurableModel
+    Record = Companion::Record
+    History = Companion::History
+    Store = Companion::Store
+    WriteReceipt = Companion::WriteReceipt
+    AppendReceipt = Companion::AppendReceipt
+
+    def self.from_manifest(manifest, store: nil)
+      shape = manifest.dig(:storage, :shape)
+      case shape
+      when :store then Record.from_manifest(manifest, store: store)
+      when :history then History.from_manifest(manifest, store: store)
+      else raise ArgumentError, "Unknown storage shape: #{shape.inspect}. Expected :store or :history"
+      end
+    end
+  end
 end

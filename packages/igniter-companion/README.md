@@ -1,14 +1,16 @@
 # igniter-companion
 
-Application-facing Record/History facade backed by `igniter-ledger`.
+Durable Model: the application-facing Record/History layer backed by
+`igniter-ledger`.
 
-Status: active pre-v1 platform lane. The surface is intentionally compact and
-experimental while Store/Ledger semantics settle.
+Status: active pre-v1 platform lane. This package is still physically named
+`igniter-companion` during the v0 migration, but the canonical Ruby namespace is
+`Igniter::DurableModel`. `Igniter::Companion` remains a compatibility alias.
 
 ## Purpose
 
-This package is the **consumer-facing layer over `igniter-ledger` for
-application code**.
+This package is the **Durable Model layer over `igniter-ledger` for application
+code**.
 
 It serves two goals:
 
@@ -25,14 +27,14 @@ examples/application/companion   ←── app-level contracts, manifests, mater
                    │
                    │  digging toward each other
                    ▼
-  packages/igniter-companion      ←── typed DSL on top of igniter-ledger
+  packages/igniter-companion      ←── Durable Model DSL on top of igniter-ledger
                    │
                    ▼
   packages/igniter-ledger          ←── facts, WAL, scope, reactive (Rust/Ruby FFI)
 ```
 
 **Convergence point**: when `PersistenceSketchPack` in `examples/application/companion`
-drives its records through `Igniter::Companion::Store` instead of blob-JSON in SQLite.
+drives its records through `Igniter::DurableModel::Store` instead of blob-JSON in SQLite.
 
 ## Docs
 
@@ -48,10 +50,18 @@ See [`docs/`](docs/) for status summaries, manifest glossary, and performance si
 ## Architecture
 
 ```
-lib/igniter/companion/
+lib/igniter/durable_model.rb
+lib/igniter/durable_model/
   record.rb    — Record mixin: store_name, field, scope DSL → typed objects
   history.rb   — History mixin: history_name, field → append-only events
   store.rb     — Store: register, write, read, scope, append, replay, on_scope
+```
+
+The older `lib/igniter/companion` load path remains available for compatibility.
+
+```ruby
+require "igniter/durable_model" # canonical
+require "igniter/companion"     # compatibility
 ```
 
 ### `Record`
@@ -60,7 +70,7 @@ Wraps `Store[T]` from igniter-ledger. The latest written value is the current st
 
 ```ruby
 class Reminder
-  include Igniter::Companion::Record
+  include Igniter::DurableModel::Record
   store_name :reminders
 
   field :title
@@ -78,7 +88,7 @@ Wraps `History[T]` from igniter-ledger. Append-only; keys are auto-generated.
 
 ```ruby
 class TrackerLog
-  include Igniter::Companion::History
+  include Igniter::DurableModel::History
   history_name :tracker_logs
   partition_key :tracker_id   # enables partition replay
 
@@ -93,8 +103,8 @@ end
 Orchestrator — holds the `IgniterStore` instance, knows about registered schemas.
 
 ```ruby
-store = Igniter::Companion::Store.new            # in-memory (default)
-store = Igniter::Companion::Store.new(           # file-backed WAL
+store = Igniter::DurableModel::Store.new         # in-memory (default)
+store = Igniter::DurableModel::Store.new(        # file-backed WAL
   backend: :file,
   path:    "/tmp/companion.wal"
 )
@@ -124,7 +134,7 @@ client = Igniter::LedgerClient.remote_http(
   "http://127.0.0.1:7300/v1/dispatch",
   events_url: "http://127.0.0.1:7300/v1/events"
 )
-store = Igniter::Companion::Store.new(client: client)
+store = Igniter::DurableModel::Store.new(client: client)
 
 store.register(Reminder)
 store.write(Reminder, key: "r1", title: "Buy milk", status: :open)

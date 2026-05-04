@@ -1,8 +1,11 @@
-# Companion Current Status Summary
+# Durable Model Current Status Summary
 
 Status date: 2026-05-02.
 Role: compact handoff for `[Architect Supervisor / Codex]`.
-Scope: Companion app-local proof only; no public persistence API promise.
+Scope: Durable Model app-local proof only; no public persistence API promise.
+The physical package is still `igniter-companion` during v0 namespace adoption;
+the canonical Ruby namespace is `Igniter::DurableModel`, with
+`Igniter::Companion` retained as compatibility.
 
 ## Current Claim
 

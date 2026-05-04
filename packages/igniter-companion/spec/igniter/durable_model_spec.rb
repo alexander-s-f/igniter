@@ -1,0 +1,138 @@
+# frozen_string_literal: true
+
+require "igniter/durable_model"
+require "igniter/durable_model/record"
+require "igniter/durable_model/history"
+require "igniter/durable_model/receipts"
+require "igniter/durable_model/store"
+require_relative "../spec_helper"
+
+RSpec.describe Igniter::DurableModel do
+  let(:record_class) do
+    Class.new do
+      include Igniter::DurableModel::Record
+
+      store_name :durable_reminders
+      field :title
+      field :status, default: :open
+
+      scope :open, filters: { status: :open }
+    end
+  end
+
+  let(:history_class) do
+    Class.new do
+      include Igniter::DurableModel::History
+
+      history_name :durable_tracker_logs
+      partition_key :tracker_id
+      field :tracker_id
+      field :value
+    end
+  end
+
+  let(:record_manifest) do
+    {
+      storage: { shape: :store, name: :durable_manifest_records, key: :id },
+      fields: [
+        { name: :id, attributes: {} },
+        { name: :title, attributes: {} },
+        { name: :status, attributes: { default: :open } }
+      ],
+      scopes: [
+        { name: :open, attributes: { where: { status: :open } } }
+      ]
+    }
+  end
+
+  let(:history_manifest) do
+    {
+      storage: { shape: :history, name: :durable_manifest_events, key: :tracker_id },
+      history: { key: :tracker_id },
+      fields: [
+        { name: :tracker_id, attributes: {} },
+        { name: :value, attributes: {} }
+      ]
+    }
+  end
+
+  it "exposes clear canonical and compatibility constant identity" do
+    expect(described_class::Record).to equal(Igniter::Companion::Record)
+    expect(described_class::History).to equal(Igniter::Companion::History)
+    expect(described_class::Store).to equal(Igniter::Companion::Store)
+    expect(described_class::WriteReceipt).to equal(Igniter::Companion::WriteReceipt)
+    expect(described_class::AppendReceipt).to equal(Igniter::Companion::AppendReceipt)
+  end
+
+  it "supports register/write/read/scope through DurableModel::Store" do
+    store = described_class::Store.new
+    store.register(record_class)
+
+    receipt = store.write(record_class, key: "r1", title: "Buy milk", status: :open)
+    store.write(record_class, key: "r2", title: "Done", status: :done)
+
+    expect(receipt).to be_a(described_class::WriteReceipt)
+    expect(store.read(record_class, key: "r1").title).to eq("Buy milk")
+    expect(store.scope(record_class, :open).map(&:key)).to eq(["r1"])
+  ensure
+    store&.close
+  end
+
+  it "supports append/replay through DurableModel::Store" do
+    store = described_class::Store.new
+
+    receipt = store.append(history_class, tracker_id: "sleep", value: 7.0)
+    store.append(history_class, tracker_id: "sleep", value: 8.0)
+
+    expect(receipt).to be_a(described_class::AppendReceipt)
+    expect(store.replay(history_class).map(&:value)).to eq([7.0, 8.0])
+  ensure
+    store&.close
+  end
+
+  it "builds DurableModel record and history classes from manifests" do
+    record = described_class::Record.from_manifest(record_manifest)
+    history = described_class::History.from_manifest(history_manifest)
+
+    expect(record.ancestors).to include(described_class::Record)
+    expect(history.ancestors).to include(described_class::History)
+    expect(record.store_name).to eq(:durable_manifest_records)
+    expect(history.store_name).to eq(:durable_manifest_events)
+  end
+
+  it "dispatches from_manifest from both namespaces" do
+    durable_record = described_class.from_manifest(record_manifest)
+    compatible_history = Igniter::Companion.from_manifest(history_manifest)
+
+    expect(durable_record.ancestors).to include(described_class::Record)
+    expect(compatible_history.ancestors).to include(described_class::History)
+  end
+
+  it "keeps Companion compatibility usage working" do
+    compatible = Class.new do
+      include Igniter::Companion::Record
+      store_name :compatible_records
+      field :title
+    end
+    store = Igniter::Companion::Store.new
+
+    store.write(compatible, key: "c1", title: "Still here")
+
+    expect(store.read(compatible, key: "c1").title).to eq("Still here")
+  ensure
+    store&.close
+  end
+
+  it "keeps LedgerClient-backed stores working through the DurableModel namespace" do
+    ledger = Igniter::Ledger::LedgerStore.new
+    client = Igniter::LedgerClient.wrap(ledger.protocol)
+    store = described_class::Store.new(client: client)
+    store.register(record_class)
+
+    store.write(record_class, key: "r1", title: "Remote", status: :open)
+
+    expect(store.scope(record_class, :open).map(&:title)).to eq(["Remote"])
+  ensure
+    store&.close
+  end
+end

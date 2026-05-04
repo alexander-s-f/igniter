@@ -1,6 +1,6 @@
 # Track: Durable Model Namespace Adoption v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-companion`
@@ -225,6 +225,19 @@ Run the full ledger suite only if the touched code path or dependency wiring
 could affect protocol behavior; otherwise report that Companion and Ledger
 Client suites are sufficient for this namespace slice.
 
+## Final Notes
+
+- Added canonical `Igniter::DurableModel` load paths under
+  `lib/igniter/durable_model*`.
+- `Igniter::DurableModel::Record`, `History`, `Store`, `WriteReceipt`, and
+  `AppendReceipt` are explicit aliases to the existing implementation constants.
+- `require "igniter/companion"` also defines the canonical Durable Model
+  namespace, so compatibility users do not get a split constant world.
+- `Igniter::DurableModel.from_manifest`, `Record.from_manifest`, and
+  `History.from_manifest` work; `Igniter::Companion.from_manifest` remains
+  compatible.
+- Physical package and gem names are unchanged.
+
 ## Handoff Format
 
 ```text
@@ -244,4 +257,3 @@ Status: done | partial | blocked
 [R] Risks / next recommendations:
 - ...
 ```
-

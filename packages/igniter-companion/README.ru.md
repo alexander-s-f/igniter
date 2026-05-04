@@ -1,12 +1,17 @@
 # igniter-companion
 
-DSL уровня приложения для Record/History, backed by `igniter-ledger`.
+Durable Model: слой Record/History уровня приложения поверх `igniter-ledger`.
 
 > Канонический оригинал — [README.md](README.md) (English).
 
+Статус: физический пакет во время v0-миграции всё ещё называется
+`igniter-companion`, но канонический Ruby namespace теперь
+`Igniter::DurableModel`. `Igniter::Companion` остаётся compatibility alias.
+
 ## Цель
 
-Этот пакет — **потребитель `igniter-ledger` с точки зрения прикладного кода**.
+Этот пакет — **Durable Model слой над `igniter-ledger` с точки зрения
+прикладного кода**.
 
 Он существует по двум причинам:
 
@@ -21,24 +26,32 @@ examples/application/companion   ←── app-level contracts, manifests, mater
                    │
                    │  копают навстречу друг другу
                    ▼
-  packages/igniter-companion      ←── типизированный DSL поверх igniter-ledger
+  packages/igniter-companion      ←── Durable Model DSL поверх igniter-ledger
                    │
                    ▼
   packages/igniter-ledger          ←── факты, WAL, scope, reactive (Rust/Ruby FFI)
 ```
 
 **Точка сближения**: когда `PersistenceSketchPack` в `examples/application/companion`
-начнёт работать через `Igniter::Companion::Store` вместо blob-JSON в SQLite.
+начнёт работать через `Igniter::DurableModel::Store` вместо blob-JSON в SQLite.
 
 ---
 
 ## Архитектура
 
 ```
-lib/igniter/companion/
+lib/igniter/durable_model.rb
+lib/igniter/durable_model/
   record.rb    — Record mixin: store_name, field, scope DSL → типизированные объекты
   history.rb   — History mixin: history_name, field → append-only события
   store.rb     — Store: register, write, read, scope, append, replay, on_scope
+```
+
+Старый load path `lib/igniter/companion` остаётся для compatibility.
+
+```ruby
+require "igniter/durable_model" # canonical
+require "igniter/companion"     # compatibility
 ```
 
 ### `Record`
@@ -47,7 +60,7 @@ lib/igniter/companion/
 
 ```ruby
 class Reminder
-  include Igniter::Companion::Record
+  include Igniter::DurableModel::Record
   store_name :reminders
 
   field :title
@@ -65,7 +78,7 @@ end
 
 ```ruby
 class TrackerLog
-  include Igniter::Companion::History
+  include Igniter::DurableModel::History
   history_name :tracker_logs
   partition_key :tracker_id   # включает partition replay
 
@@ -80,8 +93,8 @@ end
 Оркестратор — хранит инстанс `IgniterStore`, знает о зарегистрированных схемах.
 
 ```ruby
-store = Igniter::Companion::Store.new            # in-memory (по умолчанию)
-store = Igniter::Companion::Store.new(           # file-backed WAL
+store = Igniter::DurableModel::Store.new         # in-memory (по умолчанию)
+store = Igniter::DurableModel::Store.new(        # file-backed WAL
   backend: :file,
   path:    "/tmp/companion.wal"
 )
@@ -111,7 +124,7 @@ client = Igniter::LedgerClient.remote_http(
   "http://127.0.0.1:7300/v1/dispatch",
   events_url: "http://127.0.0.1:7300/v1/events"
 )
-store = Igniter::Companion::Store.new(client: client)
+store = Igniter::DurableModel::Store.new(client: client)
 
 store.register(Reminder)
 store.write(Reminder, key: "r1", title: "Buy milk", status: :open)
