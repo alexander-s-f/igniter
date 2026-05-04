@@ -212,8 +212,41 @@ module Igniter
             facts:                    fact_packets,
             retention:                @store.schema_graph.retention_snapshot,
             compaction_receipts:      compaction_receipt_summaries,
+            compaction_activity:      compaction_activity,
             subscription_checkpoints: {}
           )
+        end
+
+        # Normalized compaction lifecycle activity.
+        #
+        # Returns a response envelope with schema_version, generated_at, filters,
+        # activity (normalized entries), and count.
+        #
+        # Filtering:
+        #   store:  delegate to IgniterStore#compaction_activity(store:)
+        #   kind:   filter entries by :kind
+        #   since:  keep entries where occurred_at >= since
+        #   limit:  cap result count after all other filters
+        def compaction_activity(store: nil, kind: nil, since: nil, limit: nil)
+          store_sym = store&.to_sym
+          entries = @store.compaction_activity(store: store_sym)
+
+          entries = entries.select { |e| e[:kind].to_s == kind.to_s } if kind
+          entries = entries.select { |e| e[:occurred_at] >= since.to_f } if since
+          entries = entries.first(limit.to_i) if limit
+
+          {
+            schema_version: 1,
+            generated_at:   Time.now.iso8601(3),
+            filters: {
+              store: store&.to_s,
+              kind:  kind&.to_s,
+              since: since&.to_f,
+              limit: limit&.to_i
+            },
+            activity: entries,
+            count:    entries.size
+          }
         end
 
         # OP4: return all (or range-filtered) facts as serialized fact packets.

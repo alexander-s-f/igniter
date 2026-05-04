@@ -1,7 +1,7 @@
 # Track: Compaction Activity Protocol Surface v0
 
 Status date: 2026-05-04
-Status: ready
+Status: done
 Supervisor: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 
@@ -254,4 +254,64 @@ Status: done | partial | blocked
 
 [R] Risks / next recommendations:
 - ...
+```
+
+## Handoff
+
+```text
+[Package Agent / Companion+Store]
+Track: igniter-store/compaction-activity-protocol-surface-v0
+Status: done
+
+[D] Decisions:
+- Scope A: Protocol::Interpreter#compaction_activity(store:, kind:, since:, limit:) wraps
+  IgniterStore#compaction_activity with filter pipeline and returns a normalized response
+  envelope: { schema_version: 1, generated_at:, filters:, activity:, count: }.
+  Filtering order: store → kind → since → limit.
+  All filter args default to nil (no restriction); nil values appear as nil in filters hash.
+- Scope B: :compaction_activity added to WireEnvelope::OPERATIONS (end of list).
+  Route case passes all four filter params through from packet.
+- Scope C: CompactionActivityHandler added to HTTPAdapter before not_found catch-all.
+  Route is /v1/compaction/activity — no prefix conflict with /v1/events.
+  Invalid since/limit returns 400 JSON with key name in message.  Non-GET → 405.
+- Scope D: :compaction_activity added to READ_TOOLS and TOOL_TO_OP.
+  Local dispatch calls interpreter#compaction_activity directly.
+  Remote dispatch builds packet_for with store/kind/since/limit (nil-stripped via .compact).
+  tool_input_schema matches track spec exactly.
+  source_protocol_op is :compaction_activity.
+- Scope E: SyncProfile gained :compaction_activity field (additive, after :compaction_receipts).
+  sync_hub_profile populates it by calling compaction_activity (no filters = all activity).
+  compaction_receipts is preserved — not removed.
+
+[S] Shipped:
+- lib/igniter/store/protocol/interpreter.rb: #compaction_activity method
+- lib/igniter/store/protocol/wire_envelope.rb: OPERATIONS includes :compaction_activity + route case
+- lib/igniter/store/http_adapter.rb: CompactionActivityHandler class + /v1/compaction/activity route
+- lib/igniter/store/mcp_adapter.rb: READ_TOOLS, TOOL_TO_OP, dispatch, packet_for,
+  tool_description, tool_input_schema entries for :compaction_activity
+- lib/igniter/store/protocol/sync_profile.rb: :compaction_activity field added
+
+[T] Tests:
+- spec/igniter/store/compaction_activity_protocol_surface_spec.rb (39 examples):
+  Scope A: schema envelope shape, empty activity, retention/prune entries,
+           store/kind/since/limit filtering, nil filter values;
+  Scope B: OPERATIONS includes op, dispatch ok, result agrees with interpreter,
+           filter passthrough, unknown keys safe, errors are envelope errors;
+  Scope C: 200 JSON, 405 non-GET, store/kind/since params, 400 invalid since,
+           400 invalid limit, limit param, data agrees with interpreter;
+  Scope D: READ_TOOLS, TOOL_TO_OP, tool_list, schema props, call_tool ok,
+           activity after compact, filter passthrough, source_protocol_op,
+           no bare mutating tools, wire packet roundtrip;
+  Scope E: SyncProfile responds to compaction_activity, is a hash with schema_version,
+           includes compact entries, compaction_receipts still present.
+- Full suite: 1171 examples, 0 failures.
+
+[R] Risks / next recommendations:
+- compaction_activity in SyncProfile is a snapshot at sync time (no filters applied).
+  If a hub needs filtered activity, it should call the dedicated wire op or HTTP endpoint.
+- Remote MCP adapter dispatches through /v1/dispatch (wire op), not through
+  /v1/compaction/activity (HTTP convenience) — consistent with track guidance.
+- The HTTP handler is a convenience surface; canonical transport remains /v1/dispatch.
+- next natural slice: remote write ops (compact/prune/purge via wire) — the non-goals
+  in this track.
 ```

@@ -47,6 +47,7 @@ module Igniter
         sync_profile
         storage_stats
         segment_manifest
+        compaction_activity
       ].freeze
 
       TOOL_TO_OP = {
@@ -59,7 +60,8 @@ module Igniter
         replay:                 :replay,
         sync_profile:           :sync_hub_profile,
         storage_stats:          :storage_stats,
-        segment_manifest:       :segment_manifest
+        segment_manifest:       :segment_manifest,
+        compaction_activity:    :compaction_activity
       }.freeze
 
       class RemoteDispatch
@@ -210,6 +212,14 @@ module Igniter
 
         when :segment_manifest
           @interpreter.segment_manifest(store: args[:store])
+
+        when :compaction_activity
+          @interpreter.compaction_activity(
+            store: args[:store],
+            kind:  args[:kind],
+            since: args[:since],
+            limit: args[:limit]
+          )
         end
       end
 
@@ -247,6 +257,8 @@ module Igniter
           { as_of: args[:as_of], cursor: args[:cursor], stores: args[:stores] }
         when :storage_stats, :segment_manifest
           { store: args[:store] }
+        when :compaction_activity
+          { store: args[:store], kind: args[:kind], since: args[:since], limit: args[:limit] }
         else
           {}
         end.compact
@@ -310,7 +322,8 @@ module Igniter
           replay:                 "Replay bounded facts by store, time range, or limit.",
           sync_profile:           "Return a sync hub profile (facts + descriptors + cursor).",
           storage_stats:          "Return aggregate storage statistics for one or all stores.",
-          segment_manifest:       "Return per-segment storage manifest for one or all stores."
+          segment_manifest:       "Return per-segment storage manifest for one or all stores.",
+          compaction_activity:    "Return normalized compaction lifecycle activity (retention compact, exact prune, segment purge)."
         }.fetch(name, name.to_s)
       end
 
@@ -340,6 +353,10 @@ module Igniter
           { type: "object",
             properties: { stores: { type: "array" }, cursor: { type: "object" },
                           as_of: { type: "number" } } }
+        when :compaction_activity
+          { type: "object",
+            properties: { store: { type: "string" }, kind: { type: "string" },
+                          since: { type: "number" }, limit: { type: "integer" } } }
         else
           { type: "object", properties: {} }
         end

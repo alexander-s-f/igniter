@@ -39,6 +39,7 @@ module Igniter
           replay
           storage_stats
           segment_manifest
+          compaction_activity
         ].freeze
 
         def initialize(interpreter)
@@ -143,6 +144,14 @@ module Igniter
 
           when :segment_manifest
             @interpreter.segment_manifest(store: packet[:store])
+
+          when :compaction_activity
+            @interpreter.compaction_activity(
+              store: packet[:store],
+              kind:  packet[:kind],
+              since: packet[:since],
+              limit: packet[:limit]
+            )
           end
         end
 

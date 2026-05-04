@@ -30,6 +30,7 @@ module Igniter
         :facts,                     # Array<Hash> — serialized fact packets
         :retention,                 # Hash — from SchemaGraph#retention_snapshot
         :compaction_receipts,       # Array<Hash> — compaction summaries
+        :compaction_activity,       # Hash — normalized activity envelope from Interpreter#compaction_activity
         :subscription_checkpoints,  # Hash — subscription name → last position
         keyword_init: true
       ) do

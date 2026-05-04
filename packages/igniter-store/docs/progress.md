@@ -112,7 +112,7 @@ activity stream via `store.compaction_activity` /
 
 ## Current Test Signal
 
-- `packages/igniter-store`: 1109 examples, 0 failures (as of 2026-05-04, includes Compaction Lifecycle Unification v0 + Physical Purge Barrier v0).
+- `packages/igniter-store`: 1171 examples, 0 failures (as of 2026-05-04, includes Compaction Activity Protocol Surface v0 + Compaction Lifecycle Unification v0 + Physical Purge Barrier v0).
 - `packages/igniter-companion`: 89 examples, 0 failures.
 
 ## Architecture Meaning

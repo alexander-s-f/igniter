@@ -273,6 +273,53 @@ module Igniter
         end
       end
 
+      # GET /v1/compaction/activity — normalized compaction lifecycle activity.
+      #
+      # Query params (all optional):
+      #   ?store=orders
+      #   ?kind=exact_prune
+      #   ?since=1714000000
+      #   ?limit=50
+      #
+      # Returns same JSON shape as Protocol::Interpreter#compaction_activity.
+      # Non-GET → 405.  Invalid numeric since/limit → 400.
+      class CompactionActivityHandler
+        include ResponseHelper
+
+        def initialize(interpreter)
+          @interpreter = interpreter
+        end
+
+        def call(env)
+          return method_not_allowed unless env["REQUEST_METHOD"] == "GET"
+
+          query = Rack::Utils.parse_query(env["QUERY_STRING"] || "")
+
+          store = query["store"]
+          kind  = query["kind"]
+
+          since_raw = query["since"]
+          if since_raw
+            since = Float(since_raw) rescue nil
+            return json_response(400, { error: "Invalid numeric value for 'since': #{since_raw.inspect}" }) if since.nil?
+          end
+
+          limit_raw = query["limit"]
+          if limit_raw
+            limit = Integer(limit_raw, 10) rescue nil
+            return json_response(400, { error: "Invalid integer value for 'limit': #{limit_raw.inspect}" }) if limit.nil?
+          end
+
+          result = @interpreter.compaction_activity(
+            store: store,
+            kind:  kind,
+            since: since,
+            limit: limit
+          )
+          json_response(200, result)
+        end
+      end
+
       # Returns recent structured events from the server event ring buffer.
       class EventsRecentHandler
         include ResponseHelper
@@ -323,15 +370,16 @@ module Igniter
         }
 
         Rack::Builder.new do
-          map "/v1/dispatch"       do run DispatchHandler.new(interp) end
-          map "/v1/health"         do run HealthHandler.new(health_provider: hp) end
-          map "/v1/status"         do run StatusHandler.new(interpreter: interp, status_provider: sp) end
-          map "/v1/ready"          do run ReadyHandler.new(ready_provider: rp) end
-          map "/v1/metrics"        do run MetricsHandler.new(metrics_provider: mp) end
+          map "/v1/dispatch"            do run DispatchHandler.new(interp) end
+          map "/v1/health"              do run HealthHandler.new(health_provider: hp) end
+          map "/v1/status"              do run StatusHandler.new(interpreter: interp, status_provider: sp) end
+          map "/v1/ready"               do run ReadyHandler.new(ready_provider: rp) end
+          map "/v1/metrics"             do run MetricsHandler.new(metrics_provider: mp) end
           # /v1/events/recent must precede /v1/events to avoid prefix shadowing.
-          map "/v1/events/recent"  do run EventsRecentHandler.new(events_provider: ep) end
-          map "/v1/events"         do run SseEventsHandler.new(changefeed_provider: cp) end
-          map "/v1/metadata"       do run MetadataHandler.new(interp) end
+          map "/v1/events/recent"       do run EventsRecentHandler.new(events_provider: ep) end
+          map "/v1/events"              do run SseEventsHandler.new(changefeed_provider: cp) end
+          map "/v1/metadata"            do run MetadataHandler.new(interp) end
+          map "/v1/compaction/activity" do run CompactionActivityHandler.new(interp) end
           run not_found
         end
       end
