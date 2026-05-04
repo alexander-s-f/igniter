@@ -39,7 +39,7 @@ Root should stay thin:
   experimental contract-native hot fact engine: immutable facts, time-travel,
   access paths, reactive invalidation, retention/compaction, LedgerServer
   transport, and future hot/cold sync experiments
-- `igniter-companion`
+- `igniter-durable-model`
   experimental typed Record/History facade over `igniter-ledger`; owns
   app-facing Store/History ergonomics and pressure from Companion manifests,
   while avoiding core persistence API promises
@@ -50,7 +50,7 @@ Root should stay thin:
   execution, and supervisor vocabulary
 - stable contract persistence capability may still graduate later through
   `igniter-extensions` / `igniter-application` / future `igniter-persistence`;
-  current `igniter-ledger` and `igniter-companion` remain pressure packages, not
+  current `igniter-ledger` and `igniter-durable-model` remain pressure packages, not
   final public persistence API
 
 ## Current Supporting Packages
@@ -90,7 +90,7 @@ Root should stay thin:
   sync-hub, and transport-backend experiments in `igniter-ledger`; do not put
   contract business logic execution there.
 - Put app-facing generated Record/History classes, receipts, manifest-to-store
-  facades, and Companion pressure adapters in `igniter-companion`; do not put
+  facades, and Companion pressure adapters in `igniter-durable-model`; do not put
   core DSL promotion there.
 - Put provider clients, model envelopes, transcripts, usage, and replay seams in
   `igniter-ai`.

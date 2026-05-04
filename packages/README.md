@@ -17,7 +17,7 @@ This directory is the current package map for the pre-v1 Igniter framework.
 - `igniter-ledger-client` - protocol-first client boundary for Store/Ledger
   users; owns envelopes, transport adapters, errors, and future pool/retry
   policy without embedding the storage engine.
-- `igniter-companion` - typed Record/History facade over `igniter-ledger`,
+- `igniter-durable-model` - typed Record/History facade over `igniter-ledger`,
   carrying app-facing persistence pressure back into Store/Ledger design.
 - `igniter-application` - contracts-native app runtime: manifests, providers,
   services, credentials, agents, sessions, snapshots, and boot/shutdown plans.
@@ -39,7 +39,7 @@ All packages are pre-v1. API stability, transport guarantees, and production
 deployment promises should be checked in the owning package README and current
 track docs before depending on them.
 
-`igniter-ledger` and `igniter-companion` are no longer parked as passive research
+`igniter-ledger` and `igniter-durable-model` are no longer parked as passive research
 packages. They remain experimental in API shape, but they are active foundation
 work for Ledger-backed companion systems.
 

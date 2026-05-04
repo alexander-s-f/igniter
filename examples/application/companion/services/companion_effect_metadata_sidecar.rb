@@ -5,7 +5,7 @@ begin
 rescue LoadError
   root = File.expand_path("../../../..", __dir__)
   $LOAD_PATH.unshift(File.join(root, "packages/igniter-ledger/lib"))
-  $LOAD_PATH.unshift(File.join(root, "packages/igniter-companion/lib"))
+  $LOAD_PATH.unshift(File.join(root, "packages/igniter-durable-model/lib"))
   require "igniter/companion"
 end
 
@@ -66,7 +66,7 @@ module Companion
           generated_effect_api_present: generated_effect_api_present,
           derivation_strategy: :derived_from_commands,
           record_count_with_effects: records.count { |record| record.fetch(:effect_count).positive? },
-          package_surface: :"igniter-companion"
+          package_surface: :"igniter-durable-model"
         }
       end
 

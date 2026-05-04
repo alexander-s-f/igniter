@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Igniter
-  module Companion
+  module DurableModel
     # Mixin that turns a plain Ruby class into a Record type backed by Store[T].
     #
     # DSL:
@@ -11,7 +11,7 @@ module Igniter
     #   scope :open, filters: { status: :open }
     #   scope :open, filters: {...}, cache_ttl: 30
     #
-    # Usage via Igniter::Companion::Store:
+    # Usage via Igniter::DurableModel::Store:
     #   store.write(Reminder, key: "r1", title: "Buy milk")
     #   store.read(Reminder, key: "r1")   # => #<Reminder key="r1" title="Buy milk" status=:open>
     #   store.scope(Reminder, :open)       # => [#<Reminder ...>, ...]
@@ -95,13 +95,13 @@ module Igniter
       # `store:` is optional when `manifest[:storage][:name]` is present.
       #
       # Usage:
-      #   klass = Igniter::Companion::Record.from_manifest(manifest)
-      #   klass = Igniter::Companion::Record.from_manifest(manifest, store: :override)
+      #   klass = Igniter::DurableModel::Record.from_manifest(manifest)
+      #   klass = Igniter::DurableModel::Record.from_manifest(manifest, store: :override)
       def self.from_manifest(manifest, store: nil)
         resolved_store = store || manifest.dig(:storage, :name) ||
                          raise(ArgumentError, "store: is required when manifest has no storage.name")
         Class.new do
-          include Igniter::Companion::Record
+          include Igniter::DurableModel::Record
           store_name resolved_store
 
           manifest.fetch(:fields, []).each do |field_def|

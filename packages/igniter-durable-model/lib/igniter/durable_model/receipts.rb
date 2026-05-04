@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Igniter
-  module Companion
+  module DurableModel
     # Normalized return from Store#write.
     # Carries mutation metadata alongside the typed record object.
     # Delegates unknown methods to `record` so callers can use it transparently.

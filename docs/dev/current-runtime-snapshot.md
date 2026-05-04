@@ -30,7 +30,7 @@ This snapshot describes the current public package graph and proof surface.
 - `igniter-ledger`: experimental contract-native hot fact engine with immutable
   facts, time-travel reads, causation, access paths, reactive invalidation,
   retention/compaction, LedgerServer transport, and package-local docs/specs.
-- `igniter-companion`: experimental typed Record/History facade over
+- `igniter-durable-model`: experimental typed Record/History facade over
   `igniter-ledger`, used to converge Companion app-local persistence manifests
   with package-level Store/History facts without making persistence a core API.
 
@@ -62,7 +62,7 @@ Companion.
   material under `playgrounds/docs/`.
 - Public package APIs should graduate only from repeated, low-ceremony shapes
   proven across examples.
-- `igniter-ledger` and `igniter-companion` are package-level pressure surfaces,
+- `igniter-ledger` and `igniter-durable-model` are package-level pressure surfaces,
   not umbrella/core guarantees. The Store server hosts durable facts and
   projections; contract computation stays in the app.
 - Capsule transfer is now agent-aware at the declaration/evidence layer:

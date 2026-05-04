@@ -13,7 +13,7 @@
 # Start an interactive REPL with everything pre-loaded:
 #   ruby playground/run.rb repl
 #
-# From the package root (packages/igniter-companion/):
+# From the package root (packages/igniter-durable-model/):
 #   bundle exec ruby playground/run.rb
 
 require_relative "setup"
@@ -35,7 +35,7 @@ def banner
   width = 60
   puts "═" * width
   puts " Igniter Store Playground".center(width)
-  puts " igniter-companion · igniter-ledger".center(width)
+  puts " igniter-durable-model · igniter-ledger".center(width)
   puts " NATIVE = #{Igniter::Store::NATIVE}".center(width)
   puts "═" * width
 end

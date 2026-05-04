@@ -5,7 +5,7 @@ begin
 rescue LoadError
   root = File.expand_path("../../../..", __dir__)
   $LOAD_PATH.unshift(File.join(root, "packages/igniter-ledger/lib"))
-  $LOAD_PATH.unshift(File.join(root, "packages/igniter-companion/lib"))
+  $LOAD_PATH.unshift(File.join(root, "packages/igniter-durable-model/lib"))
   require "igniter/companion"
 end
 

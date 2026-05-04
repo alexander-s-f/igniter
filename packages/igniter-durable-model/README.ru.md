@@ -1,12 +1,12 @@
-# igniter-companion
+# igniter-durable-model
 
 Durable Model: слой Record/History уровня приложения поверх `igniter-ledger`.
 
 > Канонический оригинал — [README.md](README.md) (English).
 
-Статус: физический пакет во время v0-миграции всё ещё называется
-`igniter-companion`, но канонический Ruby namespace теперь
-`Igniter::DurableModel`. `Igniter::Companion` остаётся compatibility alias.
+Статус: пакет теперь называется `igniter-durable-model`, а канонический Ruby
+namespace — `Igniter::DurableModel`. `Igniter::Companion` остаётся
+compatibility alias для старой package identity и Companion app proof.
 
 ## Цель
 
@@ -26,7 +26,7 @@ examples/application/companion   ←── app-level contracts, manifests, mater
                    │
                    │  копают навстречу друг другу
                    ▼
-  packages/igniter-companion      ←── Durable Model DSL поверх igniter-ledger
+  packages/igniter-durable-model      ←── Durable Model DSL поверх igniter-ledger
                    │
                    ▼
   packages/igniter-ledger          ←── факты, WAL, scope, reactive (Rust/Ruby FFI)
@@ -186,7 +186,7 @@ cd ../igniter-ledger
 PATH="$HOME/.cargo/bin:$PATH" bundle exec rake compile
 
 # Запустить суиту companion:
-cd ../igniter-companion
+cd ../igniter-durable-model
 bundle exec rake spec
 ```
 

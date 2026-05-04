@@ -1,11 +1,12 @@
-# igniter-companion
+# igniter-durable-model
 
 Durable Model: the application-facing Record/History layer backed by
 `igniter-ledger`.
 
-Status: active pre-v1 platform lane. This package is still physically named
-`igniter-companion` during the v0 migration, but the canonical Ruby namespace is
-`Igniter::DurableModel`. `Igniter::Companion` remains a compatibility alias.
+Status: active pre-v1 platform lane. The package is now
+`igniter-durable-model`, and the canonical Ruby namespace is
+`Igniter::DurableModel`. `Igniter::Companion` remains a compatibility alias for
+the old package identity and the Companion app proof.
 
 ## Purpose
 
@@ -27,7 +28,7 @@ examples/application/companion   ←── app-level contracts, manifests, mater
                    │
                    │  digging toward each other
                    ▼
-  packages/igniter-companion      ←── Durable Model DSL on top of igniter-ledger
+  packages/igniter-durable-model      ←── Durable Model DSL on top of igniter-ledger
                    │
                    ▼
   packages/igniter-ledger          ←── facts, WAL, scope, reactive (Rust/Ruby FFI)
@@ -197,7 +198,7 @@ cd ../igniter-ledger
 PATH="$HOME/.cargo/bin:$PATH" bundle exec rake compile
 
 # Run the companion suite:
-cd ../igniter-companion
+cd ../igniter-durable-model
 bundle exec rake spec
 ```
 

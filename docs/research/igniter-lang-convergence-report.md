@@ -4,7 +4,7 @@ Status: public research synthesis
 Date: 2026-05-04
 Source horizon: archived `playgrounds/docs/experts/igniter-lang`
 Current evidence: `igniter-contracts`, `igniter-ledger`, `igniter-ledger-client`,
-and the package currently named `igniter-companion`
+and `igniter-durable-model`
 
 ## Claim
 
@@ -38,8 +38,8 @@ Ledger        -> current fact engine / WAL / changefeed
 This supports the package identity decision:
 
 ```text
-packages/igniter-companion       current name
-packages/igniter-durable-model   recommended target name
+packages/igniter-durable-model   package name
+Igniter::DurableModel            canonical Ruby namespace
 ```
 
 `Companion` should remain an app/product/example name. The package is becoming
@@ -76,7 +76,7 @@ Current movement partially validates this:
 
 - `igniter-ledger` owns hot fact physics: immutable facts, WAL, causation,
   query, changefeed, retention, compaction, and server delivery
-- the current `igniter-companion` package owns typed application ergonomics:
+- the current `igniter-durable-model` package owns typed application ergonomics:
   Record, History, scopes, receipts, and manifest-generated model classes
 - `igniter-ledger-client` owns protocol and transport only
 
@@ -336,4 +336,3 @@ Not accepted yet:
 - invariant enforcement
 - automatic materializer write capabilities
 - standalone Igniter language grammar
-

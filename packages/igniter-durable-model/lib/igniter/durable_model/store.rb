@@ -4,21 +4,21 @@ require "igniter/ledger"
 require "igniter-ledger-client"
 
 module Igniter
-  module Companion
+  module DurableModel
     # Application-level store that wraps Igniter::Ledger::LedgerStore.
     #
     # Provides typed read/write/scope/append/replay via Record and History schema classes.
     # Acts as the "user side" pressure on igniter-ledger primitives.
     #
     # Usage:
-    #   store = Igniter::Companion::Store.new                          # in-memory
-    #   store = Igniter::Companion::Store.new(backend: :file, path: "/tmp/data.wal")
-    #   store = Igniter::Companion::Store.new(                         # remote server
+    #   store = Igniter::DurableModel::Store.new                       # in-memory
+    #   store = Igniter::DurableModel::Store.new(backend: :file, path: "/tmp/data.wal")
+    #   store = Igniter::DurableModel::Store.new(                      # remote server
     #     backend:   :network,
     #     address:   "127.0.0.1:7400",
     #     transport: :tcp    # default; or :unix for Unix domain sockets
     #   )
-    #   store = Igniter::Companion::Store.new(client: ledger_client)    # preferred remote boundary
+    #   store = Igniter::DurableModel::Store.new(client: ledger_client) # preferred remote boundary
     #
     #   store.register(Reminder)
     #   store.write(Reminder, key: "r1", title: "Buy milk", status: :open)
@@ -110,7 +110,7 @@ module Igniter
         # Access paths are registered via direct API (to preserve filter semantics);
         # store/history descriptors go through the protocol surface so that
         # metadata_snapshot[:stores] / metadata_snapshot[:histories] reflect all
-        # companion-managed schemas.
+        # durable-model-managed schemas.
         emit_companion_descriptor(schema_class)
 
         self
@@ -235,7 +235,7 @@ module Igniter
         facts.map { |f| history_class.from_fact(f) }
       end
 
-      # Declare a named cross-store relation at the companion level.
+      # Declare a named cross-store relation at the Durable Model level.
       # +source+ may be a schema class (store_name is used) or a Symbol.
       # +target+ may be a schema class or Symbol — informational only.
       def register_relation(name, source:, partition:, target:)
@@ -280,7 +280,7 @@ module Igniter
         @inner.schema_graph.relation_snapshot
       end
 
-      # Register a scatter derivation rule at the companion level.
+      # Register a scatter derivation rule at the Durable Model level.
       # Delegates to IgniterStore#register_scatter.  See that method for full semantics.
       # +source_schema+ may be a schema class (its store_name is used) or a Symbol.
       # +target_store+ is always a Symbol (the raw store name for the index).
@@ -337,13 +337,13 @@ module Igniter
       end
 
       # Returns the unified OP2 metadata snapshot including all schemas registered
-      # through the companion (stores, histories, access_paths, relations, etc.).
+      # through Durable Model (stores, histories, access_paths, relations, etc.).
       def metadata_snapshot
         @inner.protocol.metadata_snapshot
       end
 
       # Returns raw store/history/subscription descriptor packets registered
-      # through the companion protocol surface.
+      # through the Durable Model protocol surface.
       def descriptor_snapshot
         @inner.protocol.descriptor_snapshot
       end
@@ -390,7 +390,7 @@ module Igniter
         end
 
         def history(store:, key: nil, since: nil, as_of: nil)
-          raise NotImplementedError, "client-backed Companion store does not support key-filtered history replay yet" if key
+          raise NotImplementedError, "client-backed Durable Model store does not support key-filtered history replay yet" if key
 
           client.replay(store: store, from: since, to: as_of).facts.map { |fact| normalize_fact(fact) }
         end
@@ -442,7 +442,7 @@ module Igniter
       end
 
       def unsupported_client_mode!(feature)
-        NotImplementedError.new("client-backed Companion store does not support #{feature} in v0")
+        NotImplementedError.new("client-backed Durable Model store does not support #{feature} in v0")
       end
 
       def result_fact_id(result)

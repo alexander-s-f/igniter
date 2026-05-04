@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Igniter
-  module Companion
+  module DurableModel
     # Mixin for append-only event streams backed by History[T].
     #
     # DSL:
@@ -9,7 +9,7 @@ module Igniter
     #   field :tracker_id            # event payload fields
     #   field :value
     #
-    # Usage via Igniter::Companion::Store:
+    # Usage via Igniter::DurableModel::Store:
     #   store.append(TrackerLog, tracker_id: "t1", value: 8.5)
     #   store.replay(TrackerLog)  # => [#<TrackerLog ...>, ...]
     module History
@@ -63,13 +63,13 @@ module Igniter
       # `store:` is optional when `manifest[:storage][:name]` is present.
       #
       # Usage:
-      #   klass = Igniter::Companion::History.from_manifest(manifest)
-      #   klass = Igniter::Companion::History.from_manifest(manifest, store: :override)
+      #   klass = Igniter::DurableModel::History.from_manifest(manifest)
+      #   klass = Igniter::DurableModel::History.from_manifest(manifest, store: :override)
       def self.from_manifest(manifest, store: nil)
         resolved_store = store || manifest.dig(:storage, :name) ||
                          raise(ArgumentError, "store: is required when manifest has no storage.name")
         Class.new do
-          include Igniter::Companion::History
+          include Igniter::DurableModel::History
           history_name resolved_store
 
           pk = manifest.dig(:history, :key) || manifest.dig(:storage, :key)

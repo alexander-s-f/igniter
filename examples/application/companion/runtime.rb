@@ -2060,7 +2060,7 @@ module Companion
         descriptor.fetch(:grants_capabilities) == false &&
         descriptor.fetch(:replaces_app_backend) == false &&
         descriptor.fetch(:mutates_main_state) == false &&
-        descriptor.fetch(:package_facade) == :"igniter-companion" &&
+        descriptor.fetch(:package_facade) == :"igniter-durable-model" &&
         descriptor.fetch(:substrate) == :"igniter-ledger" &&
         descriptor.fetch(:preserves) == { persist: :store_t, history: :history_t, command: :mutation_intent } &&
         packet.fetch(:status) == :stable &&
@@ -4064,7 +4064,7 @@ module Companion
 
     def setup_store_convergence_sidecar_endpoint?(store_convergence)
       store_convergence.include?("kind=>:store_convergence_sidecar") &&
-        store_convergence.include?("package_facade=>:\"igniter-companion\"") &&
+        store_convergence.include?("package_facade=>:\"igniter-durable-model\"") &&
         store_convergence.include?("substrate=>:\"igniter-ledger\"") &&
         store_convergence.include?("current_status=>:done") &&
         store_convergence.include?("past_status=>:open") &&
@@ -4124,7 +4124,7 @@ module Companion
         descriptor.fetch("grants_capabilities") == false &&
         descriptor.fetch("replaces_app_backend") == false &&
         descriptor.fetch("mutates_main_state") == false &&
-        descriptor.fetch("package_facade") == "igniter-companion" &&
+        descriptor.fetch("package_facade") == "igniter-durable-model" &&
         descriptor.fetch("substrate") == "igniter-ledger" &&
         descriptor.fetch("preserves") == { "persist" => "store_t", "history" => "history_t", "command" => "mutation_intent" } &&
         payload.fetch("status") == "stable" &&

@@ -13,7 +13,7 @@ PATH
 PATH
   remote: .
   specs:
-    igniter-companion (0.1.0)
+    igniter-durable-model (0.1.0)
       igniter-ledger
       igniter-ledger-client
 
@@ -43,7 +43,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  igniter-companion!
+  igniter-durable-model!
   igniter-ledger!
   igniter-ledger-client!
   rake (~> 13.0)
@@ -51,7 +51,7 @@ DEPENDENCIES
 
 CHECKSUMS
   diff-lcs (1.6.2) sha256=9ae0d2cba7d4df3075fe8cd8602a8604993efc0dfa934cff568969efb1909962
-  igniter-companion (0.1.0)
+  igniter-durable-model (0.1.0)
   igniter-ledger (0.5.1)
   igniter-ledger-client (0.5.1)
   msgpack (1.8.0)

@@ -1,6 +1,6 @@
 # Track: Durable Model Package Rename v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Current package: `packages/igniter-companion`
@@ -215,6 +215,19 @@ Optional but recommended if dependency wiring changed:
 BUNDLE_GEMFILE=packages/igniter-ledger/Gemfile bundle exec rspec packages/igniter-ledger/spec
 ```
 
+## Final Notes
+
+- Moved the package directory from `packages/igniter-companion` to
+  `packages/igniter-durable-model` with `git mv`.
+- Renamed the gemspec to `igniter-durable-model.gemspec` and updated gem
+  identity to `igniter-durable-model`.
+- Canonical implementation now lives under `lib/igniter/durable_model/*`.
+- `lib/igniter/companion.rb` and `lib/igniter/companion/*` remain compatibility
+  shims over `Igniter::DurableModel`.
+- Updated package docs, package maps, research index links, and source-tree
+  load paths in the Companion app proof to point at the new package directory.
+- Companion app/product references remain Companion.
+
 ## Handoff Format
 
 ```text
@@ -234,4 +247,3 @@ Status: done | partial | blocked
 [R] Risks / next recommendations:
 - ...
 ```
-

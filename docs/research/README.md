@@ -59,10 +59,10 @@ Implementation snapshots that shipped are kept in their package `docs/` director
 | Igniter Ledger Progress Summary | [packages/igniter-ledger/docs/progress.md](../../packages/igniter-ledger/docs/progress.md) |
 | Contract-Native Store Research (iterations) | [packages/igniter-ledger/docs/research/store-iterations.md](../../packages/igniter-ledger/docs/research/store-iterations.md) |
 | Contract-Native Store Sync Hub (iterations) | [packages/igniter-ledger/docs/research/sync-hub-iterations.md](../../packages/igniter-ledger/docs/research/sync-hub-iterations.md) |
-| Companion Current Status Summary | [packages/igniter-companion/docs/current-status.md](../../packages/igniter-companion/docs/current-status.md) |
-| Companion Persistence App Status | [packages/igniter-companion/docs/app-status.md](../../packages/igniter-companion/docs/app-status.md) |
-| Companion Persistence Manifest Glossary | [packages/igniter-companion/docs/manifest-glossary.md](../../packages/igniter-companion/docs/manifest-glossary.md) |
-| Companion Contract Performance Signal | [packages/igniter-companion/docs/performance.md](../../packages/igniter-companion/docs/performance.md) |
+| Durable Model Current Status Summary | [packages/igniter-durable-model/docs/current-status.md](../../packages/igniter-durable-model/docs/current-status.md) |
+| Durable Model Persistence App Status | [packages/igniter-durable-model/docs/app-status.md](../../packages/igniter-durable-model/docs/app-status.md) |
+| Durable Model Persistence Manifest Glossary | [packages/igniter-durable-model/docs/manifest-glossary.md](../../packages/igniter-durable-model/docs/manifest-glossary.md) |
+| Durable Model Contract Performance Signal | [packages/igniter-durable-model/docs/performance.md](../../packages/igniter-durable-model/docs/performance.md) |
 | Inter-Agent Compact Handoff (convergence audit) | [docs/store/convergence-audit.md](../store/convergence-audit.md) |
 
 ## Read First
@@ -106,7 +106,7 @@ Status date: 2026-05-02.
   graceful drain, stats, PID, CLI) and Phase 2 (SubscriptionRegistry reactive push).
 - `igniter-ledger` now has an Open Protocol proposal: descriptor/fact/receipt/query
   waist for non-Igniter clients as well as Igniter contracts.
-- `igniter-companion` is now the typed Record/History facade over
+- `igniter-durable-model` is now the typed Record/History facade over
   `igniter-ledger`, carrying Companion manifest pressure toward package-level
   Store/History experiments.
 - Cluster owns distributed placement, routing, ownership, health, remediation,

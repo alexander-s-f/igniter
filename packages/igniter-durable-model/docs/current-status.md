@@ -3,9 +3,9 @@
 Status date: 2026-05-02.
 Role: compact handoff for `[Architect Supervisor / Codex]`.
 Scope: Durable Model app-local proof only; no public persistence API promise.
-The physical package is still `igniter-companion` during v0 namespace adoption;
-the canonical Ruby namespace is `Igniter::DurableModel`, with
-`Igniter::Companion` retained as compatibility.
+The physical package is now `igniter-durable-model`; the canonical Ruby
+namespace is `Igniter::DurableModel`, with `Igniter::Companion` retained as
+compatibility.
 
 ## Current Claim
 
@@ -200,7 +200,7 @@ descriptors while keeping `command_still_lowers_to: :mutation_intent`.
 report-only, app-boundary-only, non-Saga, and do not create StoreWrite or
 StoreAppend runtime nodes.
 `/setup/store-convergence-sidecar.json` is the first tiny convergence proof
-between app-local manifests, `igniter-companion`, and `igniter-ledger`: one
+between app-local manifests, `igniter-durable-model`, and `igniter-ledger`: one
 `Reminder` typed Record and one `TrackerLog` typed History flow through
 `Igniter::Companion::Store` into immutable facts without replacing the current
 Companion backend. It now generates the package Record/History classes from
