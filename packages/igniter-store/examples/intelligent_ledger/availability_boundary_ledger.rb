@@ -321,6 +321,63 @@ module Igniter
           end
         end
 
+        # Rebuilds the in-memory boundary registry from persisted store facts.
+        #
+        # Reads :ledger_boundaries, :ledger_boundary_receipts,
+        # :ledger_settlement_receipts, and :ledger_cleanup_receipts to restore
+        # boundary state. Recovers output_value by scanning :availability_snapshots
+        # for the fact referenced by output_fact_id (linear scan — acceptable for proof).
+        #
+        # Idempotent: boundaries already in the registry are skipped.
+        # Incomplete records (missing closure receipt) are skipped with a warning.
+        #
+        # Returns:
+        #   { status: :ok, hydrated_count:, skipped_count:, warnings: [] }
+        def hydrate_boundaries
+          hydrated = 0
+          skipped  = 0
+          warnings = []
+
+          @store.history(store: :ledger_boundaries)
+            .group_by(&:key)
+            .each do |bk, facts|
+              next if @boundaries.key?(bk)
+
+              br = facts.max_by(&:transaction_time).value
+
+              closure_facts = @store.history(store: :ledger_boundary_receipts, key: bk)
+              if closure_facts.empty?
+                skipped  += 1
+                warnings << "boundary #{bk}: closure receipt missing, skipped"
+                next
+              end
+
+              settlement_facts      = @store.history(store: :ledger_settlement_receipts, key: bk)
+              settlement_receipt_id = settlement_facts.empty? ? nil : settlement_facts.last.id
+
+              cleanup_facts         = @store.history(store: :ledger_cleanup_receipts, key: bk)
+              cleanup_receipt       = cleanup_facts.last
+              compaction_receipt_id = cleanup_receipt&.id
+              compacted_at          = cleanup_receipt \
+                ? safe_parse_time(cleanup_receipt.value[:compacted_at]) : nil
+
+              output_value = find_snapshot_value(br[:output_fact_id])
+
+              boundary = LedgerBoundary.from_persisted(
+                boundary_record:       br,
+                output_value:          output_value,
+                settlement_receipt_id: settlement_receipt_id,
+                compaction_receipt_id: compaction_receipt_id,
+                compacted_at:          compacted_at
+              )
+
+              @boundaries[bk] = boundary
+              hydrated += 1
+            end
+
+          { status: :ok, hydrated_count: hydrated, skipped_count: skipped, warnings: warnings }
+        end
+
         # Records a late fact for a closed boundary without mutating the original.
         # The original result_hash and settlement outputs remain unchanged.
         # Records boundary_status_at_arrival and settlement_status_at_arrival so
@@ -372,6 +429,19 @@ module Igniter
           Time.utc(d.year, d.month, d.day) < before
         rescue ArgumentError
           false
+        end
+
+        # Scans :availability_snapshots for a fact whose id matches +fact_id+.
+        # Returns the fact's value (symbol-keyed hash) or nil if not found.
+        def find_snapshot_value(fact_id)
+          return nil unless fact_id
+          @store.history(store: :availability_snapshots).find { |f| f.id == fact_id }&.value
+        end
+
+        def safe_parse_time(val)
+          val ? Time.parse(val.to_s) : nil
+        rescue ArgumentError, TypeError
+          nil
         end
 
         def boundary_record_value(boundary)

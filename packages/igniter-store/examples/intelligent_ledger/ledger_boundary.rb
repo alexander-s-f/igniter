@@ -91,7 +91,63 @@ module Igniter
           "#{POLICY_NAME}/company=#{company_id}/technician=#{technician_id}/date=#{date}/version=#{rule_version}"
         end
 
+        # Rebuilds a LedgerBoundary from persisted store data after a process restart.
+        #
+        # boundary_record      — value hash from :ledger_boundaries (symbol keys from store)
+        # output_value         — value hash recovered from :availability_snapshots, or nil
+        # settlement_receipt_id — fact ID from :ledger_settlement_receipts, nil if unsettled
+        # compaction_receipt_id — fact ID from :ledger_cleanup_receipts, nil if not compacted
+        # compacted_at          — parsed Time from cleanup receipt, nil if not compacted
+        #
+        # Status is authoritative from receipt evidence: if compaction_receipt_id is present
+        # the status is :compacted regardless of what the boundary record says, because the
+        # boundary record in :ledger_boundaries is written at close time and never updated.
+        def self.from_persisted(boundary_record:, output_value: nil,
+                                settlement_receipt_id: nil,
+                                compaction_receipt_id: nil,
+                                compacted_at: nil)
+          obj = allocate
+          obj.__send__(:restore_from_record!,
+                       boundary_record:       boundary_record,
+                       output_value:          output_value,
+                       settlement_receipt_id: settlement_receipt_id,
+                       compaction_receipt_id: compaction_receipt_id,
+                       compacted_at:          compacted_at)
+          obj
+        end
+
         private
+
+        def restore_from_record!(boundary_record:, output_value:,
+                                 settlement_receipt_id:, compaction_receipt_id:, compacted_at:)
+          @boundary_key = boundary_record[:boundary_key]
+          @rule_version = boundary_record[:rule_version] || RULE_VERSION
+          @subject      = boundary_record[:subject].freeze
+
+          # Status: cleanup receipt evidence overrides the stored boundary status
+          # (boundary record is written at close time and never updated on compact)
+          @status       = compaction_receipt_id ? :compacted : :closed
+          @detail_status = compaction_receipt_id ? :purged : (boundary_record[:detail_status]&.to_sym || :full)
+
+          @output_fact_id  = boundary_record[:output_fact_id]
+          @output_value    = output_value
+          @receipt_fact_id = boundary_record[:receipt_fact_id]
+          @result_hash     = boundary_record[:result_hash]
+          @source_fact_ids = Array(boundary_record[:source_fact_ids]).freeze
+
+          @closed_at             = parse_time_safe(boundary_record[:closed_at])
+          @compacted_at          = compacted_at
+          @compaction_receipt_id = compaction_receipt_id
+
+          @settlement_status     = settlement_receipt_id ? :settled : :unsettled
+          @settlement_receipt_id = settlement_receipt_id
+        end
+
+        def parse_time_safe(val)
+          val ? Time.parse(val.to_s) : nil
+        rescue ArgumentError, TypeError
+          nil
+        end
 
         def build_boundary_key
           s = @subject
