@@ -1,7 +1,7 @@
 # Track: Ledger Cleanup Execution + Edge Index v0
 
 Status date: 2026-05-04
-Status: ready
+Status: done
 Supervisor: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 
@@ -315,22 +315,86 @@ ledger2.execute_cleanup_plan(plan)
 - This slice still validates safety at plan/execution time only. Later physical
   purge will need a stronger revalidation step immediately before deletion.
 
-## Handoff Template
+## Handoff
 
 ```text
 [Package Agent / Companion+Store]
 Track: igniter-store/ledger-cleanup-execution-and-edge-index-v0
-Status: done | partial | blocked
+Status: done
 
 [D] Decisions:
-- ...
+- Target index key = to_fact_id; multiple edges to the same fact accumulate as
+  separate history entries under that key, each carrying edge_id in value.
+  raw_external_edges_for groups by edge_id within that history to get latest state
+  per edge, then filters for blocking statuses. Full :ledger_relation_edges scan
+  is no longer needed for guard lookup.
+- link_fact now writes to both :ledger_relation_edges (canonical) and
+  :ledger_relation_edge_targets (access path). refresh_relation_edges does the
+  same when transitioning raw → redirected. The target index is never consulted
+  as source of truth; canonical history always wins in a conflict.
+- rebuild_relation_edge_target_index added as public method: replays latest edge
+  per edge_id from :ledger_relation_edges into the index. Idempotent (appends
+  latest state; older entries remain in history). Useful for disaster recovery
+  or proof-setup on a store that only has canonical history.
+- execute_cleanup_plan(plan) accepts the result of cleanup_plan. Blocked plan →
+  returns { status: :blocked, reason: :plan_not_ready } without writing a
+  receipt. Ready plan → writes to :ledger_cleanup_execution_receipts keyed by
+  stable plan hash.
+- Idempotency key = SHA256 of [store, before, fidelity, require_reference_redirects,
+  sorted(receipts_to_keep)]. Volatile fields (executed_at) are excluded from the
+  hash. Second call for the same plan returns deduplicated: true without writing
+  a new receipt record.
+- cleanup_plan result now includes fidelity: and require_reference_redirects:
+  fields (additive; no existing specs required updating). These fields are used
+  by execute_cleanup_plan to embed in the receipt.
+- Blocked execution does not write rejected receipts. A blocked result has no
+  receipt in the store; this does not interfere with later successful idempotency
+  for a ready plan derived from the same cleanup scope.
+- Existing Scenario 4 in ledger_boundary_cleanup_reference_guards_proof_spec.rb
+  was updated to write to both :ledger_relation_edges AND :ledger_relation_edge_targets
+  when manually simulating an edge. This correctly mirrors what link_fact does
+  and is the expected pattern for direct-write tests now that the index is the
+  access path.
 
 [S] Shipped:
-- ...
+- examples/intelligent_ledger/availability_boundary_ledger.rb (updated)
+    require "digest" added.
+    cleanup_plan: result now includes fidelity: and require_reference_redirects:.
+    link_fact: writes to :ledger_relation_edge_targets after canonical write.
+    refresh_relation_edges: writes to :ledger_relation_edge_targets when redirecting.
+    rebuild_relation_edge_target_index: public method, replays from canonical history.
+    execute_cleanup_plan: public method, writes durable receipt or returns blocked.
+    raw_external_edges_for (private): replaced full scan of :ledger_relation_edges
+      with indexed lookup from :ledger_relation_edge_targets.
+    write_relation_edge_target (private): shared helper for index writes.
+    stable_plan_hash (private): SHA256-based idempotency key for execution receipts.
+    Store layout comment updated with two new stores.
+- spec/igniter/store/intelligent_ledger/ledger_cleanup_execution_and_edge_index_proof_spec.rb (new)
+    27 examples across 10 describe groups (Scope A + Scope B).
+- spec/igniter/store/intelligent_ledger/ledger_boundary_cleanup_reference_guards_proof_spec.rb (minor)
+    Scenario 4 updated to write the unresolved edge to both canonical store and
+    target index, reflecting the correct pattern for direct-write edge simulation.
 
 [T] Tests:
-- ...
+- 27 new examples, 0 failures
+- 1075/1075 full package suite examples, 0 failures, 0 warnings
+- All existing proof specs, cleanup guard specs, and settlement/hydration specs
+  remain green.
 
 [R] Risks / next recommendations:
-- ...
+- The target index is an access path. Any code path that writes to
+  :ledger_relation_edges directly (without going through link_fact /
+  refresh_relation_edges) must also write to :ledger_relation_edge_targets, or
+  run rebuild_relation_edge_target_index afterward. The updated Scenario 4 test
+  now documents this expectation.
+- Blocked execution receipts are not written. If the policy ever changes to write
+  rejected receipts, ensure their presence does not falsely trigger idempotency
+  for a later successful execution of the same scope.
+- The stable_plan_hash includes receipts_to_keep (sorted boundary receipt fact IDs).
+  Adding new boundaries between two cleanup_plan calls changes the hash, which
+  is correct. Callers that cache a plan and execute it later should be aware of
+  this.
+- physical purge remains the next major slice. The execute_cleanup_plan receipt
+  should be treated as a "commit" record; actual deletion will need to re-validate
+  guard state immediately before each fact is removed.
 ```

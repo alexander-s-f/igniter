@@ -151,24 +151,32 @@ RSpec.describe "Ledger Boundary Cleanup Reference Guards — intelligent ledger 
       bk = setup_settled(tid)
       boundary = ledger.find_boundary(bk)
 
-      # Manually write an unresolved edge pointing at a source fact id
+      # Manually write an unresolved edge pointing at a source fact id.
+      # Must write to both canonical history AND the target index (mirrors link_fact).
       source_id = boundary.source_fact_ids.first
+      edge_value = {
+        "edge_id"         => "edge-unresolved-s4",
+        "relation"        => "mystery",
+        "from_store"      => "unknown_system",
+        "from_key"        => "mystery-1",
+        "from_fact_id"    => "mystery-fact",
+        "to_store"        => nil,
+        "to_key"          => nil,
+        "to_fact_id"      => source_id,
+        "to_boundary_key" => nil,
+        "ref_status"      => "unresolved",
+        "fidelity"        => "raw",
+        "evidence"        => {}
+      }
+      store.write(store: :ledger_relation_edges, key: "edge-unresolved-s4", value: edge_value)
       store.write(
-        store:    :ledger_relation_edges,
-        key:      "edge-unresolved-s4",
-        value:    {
-          "edge_id"         => "edge-unresolved-s4",
-          "relation"        => "mystery",
-          "from_store"      => "unknown_system",
-          "from_key"        => "mystery-1",
-          "from_fact_id"    => "mystery-fact",
-          "to_store"        => nil,
-          "to_key"          => nil,
-          "to_fact_id"      => source_id,
-          "to_boundary_key" => nil,
-          "ref_status"      => "unresolved",
-          "fidelity"        => "raw",
-          "evidence"        => {}
+        store: :ledger_relation_edge_targets,
+        key:   source_id,
+        value: {
+          "to_fact_id" => source_id, "edge_id" => "edge-unresolved-s4",
+          "from_store" => "unknown_system", "from_fact_id" => "mystery-fact",
+          "to_store" => nil, "to_boundary_key" => nil,
+          "ref_status" => "unresolved", "relation" => "mystery", "evidence" => {}
         }
       )
 

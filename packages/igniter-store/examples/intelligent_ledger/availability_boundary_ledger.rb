@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "securerandom"
+require "digest"
 require "time"
 require_relative "availability_ledger"
 require_relative "ledger_boundary"
@@ -14,14 +15,16 @@ module Igniter
       # closure/settlement/compaction receipts to the store.
       #
       # Additional store layout:
-      #   :ledger_boundaries          — key: boundary_key
-      #   :ledger_boundary_receipts   — key: boundary_key
-      #   :ledger_boundary_summaries  — key: boundary_key  (settlement output)
-      #   :ledger_boundary_metrics    — key: boundary_key  (settlement output)
-      #   :ledger_settlement_receipts — key: boundary_key  (settlement output)
-      #   :ledger_cleanup_receipts    — key: boundary_key
-      #   :ledger_fact_redirects      — key: original_fact_id (written at compaction)
-      #   :late_fact_receipts         — key: "late/<boundary_key>/<token>"
+      #   :ledger_boundaries                    — key: boundary_key
+      #   :ledger_boundary_receipts             — key: boundary_key
+      #   :ledger_boundary_summaries            — key: boundary_key  (settlement output)
+      #   :ledger_boundary_metrics              — key: boundary_key  (settlement output)
+      #   :ledger_settlement_receipts           — key: boundary_key  (settlement output)
+      #   :ledger_cleanup_receipts              — key: boundary_key
+      #   :ledger_fact_redirects                — key: original_fact_id (written at compaction)
+      #   :ledger_relation_edge_targets         — key: to_fact_id    (access path; canonical is :ledger_relation_edges)
+      #   :ledger_cleanup_execution_receipts    — key: plan_hash     (idempotent execution record)
+      #   :late_fact_receipts                   — key: "late/<boundary_key>/<token>"
       #
       # Proof-known raw stores scanned by resolve_ref(:raw):
       RAW_PROOF_STORES = %i[availability_templates availability_overrides order_events].freeze
@@ -392,13 +395,15 @@ module Igniter
               @store.history(store: :ledger_boundary_receipts, key: b.boundary_key).last&.id
             end
             result = {
-              status:                     :ready,
-              store:                      store,
-              before:                     before.iso8601,
-              blocking_boundaries:        [],
-              required_boundary_policies: [LedgerBoundary::POLICY_NAME.to_sym],
-              receipts_to_keep:           receipts,
-              expected_detail_status:     fidelity == :boundary ? :purged : :full
+              status:                      :ready,
+              store:                       store,
+              before:                      before.iso8601,
+              fidelity:                    fidelity,
+              require_reference_redirects: require_reference_redirects,
+              blocking_boundaries:         [],
+              required_boundary_policies:  [LedgerBoundary::POLICY_NAME.to_sym],
+              receipts_to_keep:            receipts,
+              expected_detail_status:      fidelity == :boundary ? :purged : :full
             }
             result[:blocking_relation_edges] = [] if require_reference_redirects
             result
@@ -408,12 +413,14 @@ module Igniter
             unsettled_blocking.each { |b| blocking_reasons[b.boundary_key] = :settlement_required }
             reference_blocking.each { |b| blocking_reasons[b.boundary_key] = :external_reference_redirect_required }
             result = {
-              status:                     :blocked,
-              store:                      store,
-              before:                     before.iso8601,
-              blocking_boundaries:        all_blocking.map(&:boundary_key),
-              blocking_reasons:           blocking_reasons,
-              required_boundary_policies: [LedgerBoundary::POLICY_NAME.to_sym]
+              status:                      :blocked,
+              store:                       store,
+              before:                      before.iso8601,
+              fidelity:                    fidelity,
+              require_reference_redirects: require_reference_redirects,
+              blocking_boundaries:         all_blocking.map(&:boundary_key),
+              blocking_reasons:            blocking_reasons,
+              required_boundary_policies:  [LedgerBoundary::POLICY_NAME.to_sym]
             }
             result[:blocking_relation_edges] = blocking_relation_edges if require_reference_redirects
             result
@@ -576,6 +583,18 @@ module Igniter
             producer: PRODUCER
           )
 
+          write_relation_edge_target(
+            edge_id:        edge_id,
+            to_fact_id:     to_fact_id.to_s,
+            from_store:     from_store.to_s,
+            from_fact_id:   from_fact_id.to_s,
+            to_store:       value["to_store"],
+            to_boundary_key: nil,
+            ref_status:     value["ref_status"],
+            relation:       relation.to_s,
+            evidence:       {}
+          )
+
           { edge_id: edge_id, edge_fact: edge_fact }
         end
 
@@ -678,6 +697,19 @@ module Igniter
                 ),
                 producer: PRODUCER
               )
+
+              write_relation_edge_target(
+                edge_id:         edge_id,
+                to_fact_id:      to_fact_id.to_s,
+                from_store:      edge[:from_store].to_s,
+                from_fact_id:    edge[:from_fact_id].to_s,
+                to_store:        edge[:to_store]&.to_s,
+                to_boundary_key: redirect[:boundary_key],
+                ref_status:      "redirected",
+                relation:        edge[:relation].to_s,
+                evidence:        evidence
+              )
+
               refreshed += 1
             end
 
@@ -711,23 +743,165 @@ module Igniter
           )
         end
 
-        private
-
-        # Returns the latest relation edge value (symbol-keyed) for each edge that
-        # points to one of the boundary's source facts and has a blocking ref_status
-        # (raw or unresolved). Redirected edges are safe and excluded.
-        def raw_external_edges_for(boundary)
-          source_ids = Set.new(boundary.source_fact_ids.map(&:to_s))
-          return [] if source_ids.empty?
-
+        # Replays :ledger_relation_edges into :ledger_relation_edge_targets.
+        # Use for recovery or proof setup when the target index is missing.
+        # Safe to call on a live ledger — idempotent (appends latest state per edge).
+        #
+        # Returns: { rebuilt_count: }
+        def rebuild_relation_edge_target_index
+          rebuilt = 0
           @store.history(store: :ledger_relation_edges)
             .group_by(&:key)
-            .filter_map do |_edge_id, facts|
-              latest = facts.max_by(&:transaction_time).value
-              next unless source_ids.include?(latest[:to_fact_id].to_s)
-              next unless %w[raw unresolved].include?(latest[:ref_status].to_s)
-              latest
+            .each do |_edge_id, facts|
+              edge = facts.max_by(&:transaction_time).value
+              to_fact_id = (edge[:to_fact_id] || edge["to_fact_id"]).to_s
+              next if to_fact_id.empty?
+
+              write_relation_edge_target(
+                edge_id:         (edge[:edge_id]   || edge["edge_id"]).to_s,
+                to_fact_id:      to_fact_id,
+                from_store:      (edge[:from_store] || edge["from_store"]).to_s,
+                from_fact_id:    (edge[:from_fact_id] || edge["from_fact_id"]).to_s,
+                to_store:        (edge[:to_store] || edge["to_store"])&.to_s,
+                to_boundary_key: edge[:to_boundary_key] || edge["to_boundary_key"],
+                ref_status:      (edge[:ref_status] || edge["ref_status"]).to_s,
+                relation:        (edge[:relation]  || edge["relation"]).to_s,
+                evidence:        edge[:evidence]   || edge["evidence"] || {}
+              )
+              rebuilt += 1
             end
+          { rebuilt_count: rebuilt }
+        end
+
+        # Executes a ready cleanup plan and writes a durable receipt.
+        #
+        # For a ready plan:
+        #   - Writes an executed_noop receipt to :ledger_cleanup_execution_receipts.
+        #   - Is idempotent: a second call for the same plan returns deduplicated: true.
+        #   - Returns { status: :executed_noop, plan_hash:, receipt_id:, deduplicated:, receipt: }.
+        #
+        # For a blocked plan:
+        #   - Does not write a receipt.
+        #   - Returns { status: :blocked, reason: :plan_not_ready, blocking_boundaries:,
+        #     blocking_relation_edges: }.
+        #
+        # No physical deletion is performed in this slice.
+        def execute_cleanup_plan(plan)
+          unless plan[:status] == :ready
+            return {
+              status:                  :blocked,
+              reason:                  :plan_not_ready,
+              blocking_boundaries:     Array(plan[:blocking_boundaries]),
+              blocking_relation_edges: Array(plan[:blocking_relation_edges])
+            }
+          end
+
+          hash = stable_plan_hash(plan)
+
+          # Idempotency check: return existing receipt when plan was already executed.
+          existing = @store.history(store: :ledger_cleanup_execution_receipts, key: hash)
+          unless existing.empty?
+            receipt = existing.last
+            return {
+              status:       :executed_noop,
+              plan_hash:    hash,
+              receipt_id:   receipt.id,
+              deduplicated: true,
+              receipt:      receipt.value
+            }
+          end
+
+          before_time    = Time.parse(plan[:before].to_s)
+          in_window_keys = @boundaries.values
+            .select { |b| boundary_date_before?(b, before_time) && b.closed? }
+            .map(&:boundary_key)
+
+          require_rr = plan.fetch(:require_reference_redirects, false)
+
+          receipt_value = {
+            "status"                        => "executed_noop",
+            "plan_hash"                     => hash,
+            "store"                         => plan[:store].to_s,
+            "before"                        => plan[:before].to_s,
+            "fidelity"                      => plan.fetch(:fidelity, :boundary).to_s,
+            "require_reference_redirects"   => require_rr,
+            "expected_detail_status"        => plan.fetch(:expected_detail_status, :purged).to_s,
+            "boundary_keys"                 => in_window_keys,
+            "receipts_to_keep"              => Array(plan[:receipts_to_keep]),
+            "blocking_relation_edges_count" => 0,
+            "relation_guard"                => {
+              "checked"          => require_rr,
+              "raw_edges"        => 0,
+              "unresolved_edges" => 0,
+              "redirected_edges" => 0
+            },
+            "executed_at"                   => Time.now.utc.iso8601(3)
+          }
+
+          fact = @store.write(
+            store:    :ledger_cleanup_execution_receipts,
+            key:      hash,
+            value:    receipt_value,
+            producer: PRODUCER
+          )
+
+          { status: :executed_noop, plan_hash: hash, receipt_id: fact.id,
+            deduplicated: false, receipt: receipt_value }
+        end
+
+        private
+
+        # Returns the latest relation edge value for each blocking edge (raw or
+        # unresolved) that targets one of the boundary's source facts.
+        # Uses :ledger_relation_edge_targets index instead of scanning all history.
+        def raw_external_edges_for(boundary)
+          source_ids = boundary.source_fact_ids.map(&:to_s)
+          return [] if source_ids.empty?
+
+          source_ids.flat_map do |fact_id|
+            @store.history(store: :ledger_relation_edge_targets, key: fact_id)
+              .group_by { |f| (f.value[:edge_id] || f.value["edge_id"]).to_s }
+              .filter_map do |_eid, facts|
+                latest = facts.max_by(&:transaction_time).value
+                next unless %w[raw unresolved].include?(latest[:ref_status].to_s)
+                latest
+              end
+          end
+        end
+
+        # Writes a single entry to :ledger_relation_edge_targets.
+        # Called on edge creation and on redirect; accumulates in history per to_fact_id.
+        def write_relation_edge_target(edge_id:, to_fact_id:, from_store:, from_fact_id:,
+                                       to_store:, to_boundary_key:, ref_status:, relation:, evidence:)
+          @store.write(
+            store:    :ledger_relation_edge_targets,
+            key:      to_fact_id.to_s,
+            value:    {
+              "to_fact_id"      => to_fact_id.to_s,
+              "edge_id"         => edge_id.to_s,
+              "from_store"      => from_store.to_s,
+              "from_fact_id"    => from_fact_id.to_s,
+              "to_store"        => to_store&.to_s,
+              "to_boundary_key" => to_boundary_key,
+              "ref_status"      => ref_status.to_s,
+              "relation"        => relation.to_s,
+              "evidence"        => evidence || {}
+            },
+            producer: PRODUCER
+          )
+        end
+
+        # Deterministic hash of cleanup plan identity, excluding volatile fields.
+        # Used as the idempotency key for :ledger_cleanup_execution_receipts.
+        def stable_plan_hash(plan)
+          parts = [
+            plan[:store].to_s,
+            plan[:before].to_s,
+            plan.fetch(:fidelity, :boundary).to_s,
+            plan.fetch(:require_reference_redirects, false).to_s,
+            Array(plan[:receipts_to_keep]).sort.join(",")
+          ]
+          Digest::SHA256.hexdigest(parts.join("|"))
         end
 
         def find_or_open_boundary(company_id:, technician_id:, date:)
