@@ -6,6 +6,17 @@ protocol-facing storage surfaces.
 Status: active platform lane, still POC/pre-v1. APIs, storage formats, and
 transport contracts may change before v1.
 
+## Compatibility Note
+
+New code should use `igniter-ledger`, `require "igniter-ledger"`,
+`Igniter::Ledger::LedgerStore`, and `igniter-ledger-server`.
+
+This package was previously exposed as `igniter-store`. During the pre-v1 rename
+window, compatibility shims remain for `require "igniter-store"`,
+`igniter-store-server`, and the `Igniter::Store` constants. The internal Ruby
+namespace and file path still use `Igniter::Store` / `lib/igniter/store/**`;
+treat that as implementation structure until a later deep-rename track.
+
 ## Purpose
 
 `igniter-ledger` is broader than persistence. It is the hot fact engine behind
@@ -147,6 +158,24 @@ sink = Igniter::Ledger::ContractableReceiptSink.new(
   producer: { type: :embed, name: :spark_sink }
 )
 ```
+
+The sink can also use the protocol boundary through `igniter-ledger-client`
+instead of depending on the embedded store API:
+
+```ruby
+require "igniter-ledger"
+require "igniter-ledger-client"
+
+ledger = Igniter::Ledger::LedgerStore.new
+client = Igniter::LedgerClient.wrap(ledger.protocol)
+
+sink = Igniter::Ledger::ContractableReceiptSink.new(client: client)
+sink.record_observation(receipt)
+sink.events_for("obs_abc123")
+```
+
+This is the preferred direction for packages that should talk to Ledger through
+a stable client/protocol boundary.
 
 Run the POC smoke:
 

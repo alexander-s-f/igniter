@@ -167,7 +167,7 @@ bundle exec rake spec
 числового типа. Magnus вызывает Ruby-метод `to_i` при конвертации, поэтому
 `Float(7.0).to_i` → `7`, `Float(8.5).to_i` → `8`.
 
-**Исправление** (в `igniter-ledger/ext/igniter_ledger_native/src/fact.rs`):
+**Исправление** (в `igniter-ledger/ext/igniter_store_native/src/fact.rs`):
 ```rust
 // Было (неточно — coerce-ит Float через to_i):
 if let Ok(i) = i64::try_convert(val) { return serde_json::json!(i); }

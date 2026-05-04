@@ -65,6 +65,19 @@ client = Igniter::LedgerClient.wrap(protocol_interpreter.wire)
 client.metadata_snapshot
 ```
 
+When `igniter-ledger` is present in the same process, wrapping
+`LedgerStore#protocol` is the local adoption path:
+
+```ruby
+ledger = Igniter::Ledger::LedgerStore.new
+client = Igniter::LedgerClient.wrap(ledger.protocol)
+```
+
+Package-level adapters should prefer accepting a `client:` argument over
+reaching into Ledger internals. For example, `ContractableReceiptSink` can be
+constructed with `client: client` and still use the same protocol envelope path
+as a remote HTTP client.
+
 ## v0 Surface
 
 ```ruby

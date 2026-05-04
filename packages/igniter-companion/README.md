@@ -180,7 +180,7 @@ fix, and lesson learned.
 Magnus routes this through Ruby's `to_i` coercion protocol, so `Float(7.0).to_i`
 returns `7`, and `Float(8.5).to_i` returns `8`.
 
-**Fix** (in `igniter-ledger/ext/igniter_ledger_native/src/fact.rs`):
+**Fix** (in `igniter-ledger/ext/igniter_store_native/src/fact.rs`):
 ```rust
 // Before (inaccurate — coerces Float via to_i):
 if let Ok(i) = i64::try_convert(val) { return serde_json::json!(i); }
