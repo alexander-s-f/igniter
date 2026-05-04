@@ -287,6 +287,15 @@ The client package still has no runtime dependency on `igniter-ledger`; it only
 adds `:append` to the shared envelope operation list. `key:` remains client-side
 metadata in protocol v0 and is not an idempotency guarantee.
 
+## Follow-Up Note: Result Models
+
+As of `ledger-client-result-models-v0`, common mutation/read methods return
+small immutable result objects under `Igniter::LedgerClient::Results`.
+Receipt-like calls expose `accepted?`, `status`, `store`, `key`, `fact_id`, and
+`value_hash`; read/query/replay calls expose `value`/`found?`,
+`results`/`count`, and `facts`/`count`. Snapshot-style methods remain raw hashes
+until a later slice proves a stable model is worth the added surface.
+
 ## Handoff Format
 
 ```text

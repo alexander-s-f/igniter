@@ -1,6 +1,6 @@
 # Track: Ledger Client Result Models v0
 
-Status: ready
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-ledger-client`
@@ -178,3 +178,20 @@ Status: done | partial | blocked
 - ...
 ```
 
+## Final Notes
+
+Status date: 2026-05-04.
+
+- Added `Igniter::LedgerClient::Results` with `ReceiptResult`, `WriteResult`,
+  `AppendResult`, `ReadResult`, `QueryResult`, and `ReplayResult`.
+- `write`, `append`, `register_descriptor`, `read`, `query`, and `replay`
+  normalize raw protocol results into result objects.
+- Local receipt-like objects and remote string-key hashes normalize to the same
+  client-facing shape.
+- Result objects expose named readers, `to_h`, transitional `[]`, and freeze
+  themselves.
+- Metadata, descriptor, observability, and compaction snapshot methods remain
+  raw protocol results for v0.
+- `ContractableReceiptSink` accepts `ReadResult` and `ReplayResult` on the
+  client-backed path.
+- No `igniter-ledger` runtime dependency was added to `igniter-ledger-client`.

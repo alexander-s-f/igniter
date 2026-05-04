@@ -87,12 +87,14 @@ the client boundary without forcing Ledger engine internals into every caller.
 
 ### M1: protocol append
 
-Status: assigned to Package Agent.
+Status: landed.
 
 Make `LedgerClient#append` a real protocol operation instead of lowering to
 `write`. This closes the biggest semantic gap for histories/events.
 
 ### M2: client read result models
+
+Status: landed.
 
 Normalize the return values for:
 
@@ -102,10 +104,9 @@ Normalize the return values for:
 - `append`
 - `write`
 
-Current client methods return raw protocol `result` payloads. That is useful for
-v0, but consumers quickly learn too much about transport result shapes. Add
-small immutable structs or plain value objects only if they remove ambiguity
-without hiding Ledger semantics.
+Common client mutation/read methods return small immutable result objects.
+Snapshot-style metadata and observability methods intentionally remain raw
+hashes until a later slice proves a stable model is worth the added surface.
 
 ### M3: Companion remote boundary
 
@@ -162,4 +163,3 @@ depending on how generic the proof becomes.
 1. `ledger-client-append-protocol-boundary-v0`
 2. `ledger-client-result-models-v0`
 3. `companion-ledger-client-remote-boundary-v0`
-

@@ -1,0 +1,192 @@
+# frozen_string_literal: true
+
+module Igniter
+  module LedgerClient
+    module Results
+      module HashAccess
+        def [](key)
+          to_h[key.to_sym]
+        end
+      end
+
+      class ReceiptResult
+        include HashAccess
+
+        FIELDS = %i[
+          schema_version
+          kind
+          status
+          name
+          store
+          key
+          fact_id
+          value_hash
+          warnings
+          errors
+          derived
+        ].freeze
+
+        attr_reader(*FIELDS)
+
+        def initialize(raw = {})
+          data = self.class.normalize(raw)
+          @schema_version = data[:schema_version]
+          @kind = token(data[:kind])
+          @status = token(data[:status])
+          @name = token(data[:name])
+          @store = token(data[:store])
+          @key = data[:key]
+          @fact_id = data[:fact_id]
+          @value_hash = data[:value_hash]
+          @warnings = Array(data[:warnings]).freeze
+          @errors = Array(data[:errors]).freeze
+          @derived = Array(data[:derived]).freeze
+          freeze
+        end
+
+        def accepted? = status == :accepted
+
+        def rejected? = status == :rejected
+
+        def deduplicated? = status == :deduplicated
+
+        def to_h
+          {
+            schema_version: schema_version,
+            kind: kind,
+            status: status,
+            name: name,
+            store: store,
+            key: key,
+            fact_id: fact_id,
+            value_hash: value_hash,
+            warnings: warnings,
+            errors: errors,
+            derived: derived
+          }.compact
+        end
+
+        def self.normalize(raw)
+          hash = if raw.respond_to?(:to_h)
+            raw.to_h
+          else
+            FIELDS.each_with_object({}) do |field, acc|
+              acc[field] = raw.public_send(field) if raw.respond_to?(field)
+            end
+          end
+
+          hash.to_h.each_with_object({}) do |(key, value), acc|
+            acc[key.to_sym] = value
+          end
+        end
+
+        private
+
+        def token(value)
+          value.is_a?(String) ? value.to_sym : value
+        end
+      end
+
+      class WriteResult < ReceiptResult
+      end
+
+      class AppendResult < ReceiptResult
+      end
+
+      class ReadResult
+        include HashAccess
+
+        attr_reader :value
+
+        def initialize(raw = {})
+          data = normalize(raw)
+          @value = data[:value]
+          @found = data.key?(:found) ? !!data[:found] : !value.nil?
+          freeze
+        end
+
+        def found? = @found
+
+        def to_h
+          { value: value, found: found? }
+        end
+
+        private
+
+        def normalize(raw)
+          hash = raw.respond_to?(:to_h) ? raw.to_h : {}
+          hash.each_with_object({}) { |(key, value), acc| acc[key.to_sym] = value }
+        end
+      end
+
+      class QueryResult
+        include HashAccess
+
+        attr_reader :results, :count
+
+        def initialize(raw = {})
+          data = normalize(raw)
+          @results = Array(data[:results]).freeze
+          @count = data.key?(:count) ? data[:count].to_i : results.size
+          freeze
+        end
+
+        def to_h
+          { results: results, count: count }
+        end
+
+        private
+
+        def normalize(raw)
+          hash = raw.respond_to?(:to_h) ? raw.to_h : {}
+          hash.each_with_object({}) { |(key, value), acc| acc[key.to_sym] = value }
+        end
+      end
+
+      class ReplayResult
+        include HashAccess
+
+        attr_reader :facts, :count
+
+        def initialize(raw = {})
+          data = normalize(raw)
+          @facts = Array(data[:facts]).freeze
+          @count = data.key?(:count) ? data[:count].to_i : facts.size
+          freeze
+        end
+
+        def to_h
+          { facts: facts, count: count }
+        end
+
+        private
+
+        def normalize(raw)
+          hash = raw.respond_to?(:to_h) ? raw.to_h : {}
+          hash.each_with_object({}) { |(key, value), acc| acc[key.to_sym] = value }
+        end
+      end
+
+      module_function
+
+      def wrap(operation, raw)
+        case operation.to_sym
+        when :register_descriptor
+          ReceiptResult.new(raw)
+        when :write
+          WriteResult.new(raw)
+        when :append
+          AppendResult.new(raw)
+        when :read
+          ReadResult.new(raw)
+        when :query
+          QueryResult.new(raw)
+        when :replay
+          ReplayResult.new(raw)
+        else
+          raw
+        end
+      end
+    end
+  end
+end

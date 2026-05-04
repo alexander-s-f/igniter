@@ -115,8 +115,20 @@ generated fact key and does not treat `key:` as a stable idempotency guarantee.
 ## Error Policy
 
 The client raises `Igniter::LedgerClient::Error` for protocol error envelopes
-and `Igniter::LedgerClient::TransportError` for transport failures. Successful
-calls return the protocol `result` payload directly.
+and `Igniter::LedgerClient::TransportError` for transport failures.
+
+Successful mutation/read calls return small result objects:
+
+- `write` -> `Igniter::LedgerClient::Results::WriteResult`
+- `append` -> `Igniter::LedgerClient::Results::AppendResult`
+- `register_descriptor` -> `Igniter::LedgerClient::Results::ReceiptResult`
+- `read` -> `Igniter::LedgerClient::Results::ReadResult`
+- `query` -> `Igniter::LedgerClient::Results::QueryResult`
+- `replay` -> `Igniter::LedgerClient::Results::ReplayResult`
+
+Result objects expose named readers, `to_h`, and transitional `[]` access.
+Snapshot-style methods such as `metadata_snapshot` and `observability_snapshot`
+still return raw protocol hashes in v0.
 
 ## Package Boundary
 

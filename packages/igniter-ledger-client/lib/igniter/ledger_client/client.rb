@@ -1,6 +1,8 @@
 # frozen_string_literal: true
+
 require_relative "envelope"
 require_relative "error"
+require_relative "results"
 
 module Igniter
   module LedgerClient
@@ -12,24 +14,24 @@ module Igniter
       end
 
       def register_descriptor(descriptor = nil, **fields)
-        dispatch(:register_descriptor, (descriptor || {}).merge(fields))
+        Results.wrap(:register_descriptor, dispatch(:register_descriptor, (descriptor || {}).merge(fields)))
       end
 
       def write(store:, key:, value:, **metadata)
-        dispatch(:write, metadata.merge(store: store, key: key, value: value))
+        Results.wrap(:write, dispatch(:write, metadata.merge(store: store, key: key, value: value)))
       end
 
       def append(history:, event:, key: nil, partition_key: nil, **metadata)
         packet = metadata.merge(history: history, event: event)
         packet[:key] = key if key
         packet[:partition_key] = partition_key if partition_key
-        dispatch(:append, packet)
+        Results.wrap(:append, dispatch(:append, packet))
       end
 
       def read(store:, key:, as_of: nil)
         packet = { store: store, key: key }
         packet[:as_of] = as_of if as_of
-        dispatch(:read, packet)
+        Results.wrap(:read, dispatch(:read, packet))
       end
 
       def query(store:, where:, limit: nil, as_of: nil, order: nil)
@@ -37,7 +39,7 @@ module Igniter
         packet[:limit] = limit if limit
         packet[:as_of] = as_of if as_of
         packet[:order] = order if order
-        dispatch(:query, packet)
+        Results.wrap(:query, dispatch(:query, packet))
       end
 
       def replay(store: nil, from: nil, to: nil, filter: nil)
@@ -46,7 +48,7 @@ module Igniter
         packet[:to] = to if to
         packet[:filter] = filter if filter
         packet[:filter] = { store: store } if store && !filter
-        dispatch(:replay, packet)
+        Results.wrap(:replay, dispatch(:replay, packet))
       end
 
       def resolve(relation:, from:, as_of: nil)

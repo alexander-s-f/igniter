@@ -116,6 +116,8 @@ module Igniter
       end
 
       def normalize_read_result(result)
+        return result.value if result.respond_to?(:value) && result.respond_to?(:found?)
+
         if result.is_a?(Hash) && result.key?(:value)
           result[:value]
         else
@@ -141,6 +143,8 @@ module Igniter
         return target.history(store: store) if target.respond_to?(:history)
 
         replay_result = target.replay(store: store)
+        return replay_result.facts if replay_result.respond_to?(:facts)
+
         if replay_result.is_a?(Hash) && replay_result.key?(:facts)
           replay_result[:facts]
         else
