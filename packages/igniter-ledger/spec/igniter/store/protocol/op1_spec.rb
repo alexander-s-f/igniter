@@ -403,11 +403,13 @@ RSpec.describe "OP1 — Descriptor Packet Import" do
 
       pending_tasks = proto.query(store: :tasks, where: { status: :pending })
       expect(pending_tasks.size).to eq(2)
-      expect(pending_tasks.map { |t| t[:id] }).to contain_exactly("t1", "t3")
+      expect(pending_tasks.map { |t| t[:key] }).to contain_exactly("t1", "t3")
+      expect(pending_tasks.map { |t| t[:value][:id] }).to contain_exactly("t1", "t3")
 
       open_tasks = proto.query(store: :tasks, where: { status: :open })
       expect(open_tasks.size).to eq(1)
-      expect(open_tasks.first[:id]).to eq("t2")
+      expect(open_tasks.first[:key]).to eq("t2")
+      expect(open_tasks.first[:value][:id]).to eq("t2")
 
       all_tasks = proto.query(store: :tasks)
       expect(all_tasks.size).to eq(3)

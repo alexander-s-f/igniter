@@ -70,11 +70,25 @@ RSpec.describe Igniter::LedgerClient::Results do
     expect(result.to_h).to eq(value: { status: "open" }, found: true)
   end
 
-  it "normalizes query and replay counts" do
-    query = described_class.wrap(:query, { "results" => [{ status: "open" }] })
+  it "honors explicit false read results" do
+    result = described_class.wrap(:read, { "value" => nil, "found" => false })
+
+    expect(result).not_to be_found
+    expect(result.to_h).to eq(value: nil, found: false)
+  end
+
+  it "normalizes query items, results, and replay counts" do
+    query = described_class.wrap(
+      :query,
+      {
+        "items" => [{ "key" => "r1", "value" => { "status" => "open" } }],
+        "results" => [{ "status" => "open" }]
+      }
+    )
     replay = described_class.wrap(:replay, { "facts" => [{ key: "evt_1" }] })
 
-    expect(query.results).to eq([{ status: "open" }])
+    expect(query.items).to eq([{ key: "r1", value: { status: "open" } }])
+    expect(query.results).to eq([{ "status" => "open" }])
     expect(query.count).to eq(1)
     expect(replay.facts).to eq([{ key: "evt_1" }])
     expect(replay.count).to eq(1)

@@ -99,7 +99,7 @@ module Igniter
         def initialize(raw = {})
           data = normalize(raw)
           @value = data[:value]
-          @found = data.key?(:found) ? !data[:found].nil? : !value.nil?
+          @found = data.key?(:found) ? boolean(data[:found]) : !value.nil?
           freeze
         end
 
@@ -115,22 +115,27 @@ module Igniter
           hash = raw.respond_to?(:to_h) ? raw.to_h : {}
           hash.each_with_object({}) { |(key, value), acc| acc[key.to_sym] = value }
         end
+
+        def boolean(value)
+          value ? true : false
+        end
       end
 
       class QueryResult
         include HashAccess
 
-        attr_reader :results, :count
+        attr_reader :items, :results, :count
 
         def initialize(raw = {})
           data = normalize(raw)
-          @results = Array(data[:results]).freeze
-          @count = data.key?(:count) ? data[:count].to_i : results.size
+          @items = normalize_items(data[:items]).freeze
+          @results = Array(data[:results] || items.map { |item| item[:value] }).freeze
+          @count = data.key?(:count) ? data[:count].to_i : [items.size, results.size].max
           freeze
         end
 
         def to_h
-          { results: results, count: count }
+          { items: items, results: results, count: count }
         end
 
         private
@@ -138,6 +143,19 @@ module Igniter
         def normalize(raw)
           hash = raw.respond_to?(:to_h) ? raw.to_h : {}
           hash.each_with_object({}) { |(key, value), acc| acc[key.to_sym] = value }
+        end
+
+        def normalize_items(raw_items)
+          Array(raw_items).map do |item|
+            data = item.to_h.transform_keys(&:to_sym)
+            { key: data[:key], value: normalize_value(data[:value] || {}) }
+          end
+        end
+
+        def normalize_value(value)
+          return value unless value.is_a?(Hash)
+
+          value.each_with_object({}) { |(key, entry), acc| acc[key.to_sym] = entry }
         end
       end
 

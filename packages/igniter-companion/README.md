@@ -133,8 +133,8 @@ store.replay(TrackerLog)
 ```
 
 Client-backed mode currently supports `register`, `write`, `read`, `append`,
-plain `replay`, `metadata_snapshot`, and `descriptor_snapshot`. Scope queries,
-scope subscriptions, relation resolution, and partition replay still require the
+plain `replay`, `scope`, `metadata_snapshot`, and `descriptor_snapshot`. Scope
+subscriptions, relation resolution, and partition replay still require the
 embedded Ledger engine path and raise `NotImplementedError` in client-backed v0.
 
 ### Normalized receipts

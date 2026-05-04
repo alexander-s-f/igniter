@@ -167,7 +167,20 @@ module Igniter
 
       # Query all records matching a registered scope.
       def scope(schema_class, scope_name, as_of: nil)
-        raise unsupported_client_mode!("scope queries") if client_backed?
+        if client_backed?
+          scope_opts = schema_class._scopes[scope_name]
+          unless scope_opts
+            raise ArgumentError,
+                  "No registered scope=#{scope_name.inspect} for store=#{schema_class.store_name.inspect}"
+          end
+
+          result = @inner.query(
+            store: schema_class.store_name,
+            where: scope_opts[:filters] || {},
+            as_of: as_of
+          )
+          return result.items.map { |item| schema_class.new(key: item[:key], **item[:value]) }
+        end
 
         facts = @inner.query(store: schema_class.store_name, scope: scope_name, as_of: as_of)
         facts.map { |f| schema_class.from_fact(f) }
@@ -350,6 +363,10 @@ module Igniter
 
         def read(...)
           client.read(...)
+        end
+
+        def query(...)
+          client.query(...)
         end
 
         def append(...)

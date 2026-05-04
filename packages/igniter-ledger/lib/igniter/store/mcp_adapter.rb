@@ -176,13 +176,14 @@ module Igniter
 
         when :query
           raise ArgumentError, "query: requires limit:" unless args.key?(:limit)
-          @interpreter.query(
+          items = @interpreter.query(
             store:  args.fetch(:store),
             where:  args.fetch(:where, {}),
             order:  args[:order],
             limit:  args[:limit].to_i,
             as_of:  args[:as_of]
           )
+          items.map { |item| item[:value] }
 
         when :resolve
           @interpreter.resolve(

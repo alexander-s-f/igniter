@@ -359,12 +359,58 @@ RSpec.describe Igniter::Companion::Store do
       s&.close
     end
 
-    it "fails clearly for unsupported scope queries" do
+    it "queries declared Record scopes through LedgerClient items" do
       s = client_backed_store
       s.register(Reminder)
 
-      expect { s.scope(Reminder, :open) }
-        .to raise_error(NotImplementedError, /scope queries/)
+      s.write(Reminder, key: "r1", title: "A", status: :open)
+      s.write(Reminder, key: "r2", title: "B", status: :done)
+      s.write(Reminder, key: "r3", title: "C", status: :open)
+
+      results = s.scope(Reminder, :open)
+
+      expect(results.map(&:key)).to contain_exactly("r1", "r3")
+      expect(results.map(&:title)).to contain_exactly("A", "C")
+      expect(results).to all(be_a(Reminder))
+    ensure
+      s&.close
+    end
+
+    it "queries client-backed scopes at a past point in time" do
+      s = client_backed_store
+      s.register(Reminder)
+
+      s.write(Reminder, key: "r1", title: "A", status: :open)
+      sleep 0.01
+      checkpoint = Process.clock_gettime(Process::CLOCK_REALTIME)
+      sleep 0.01
+      s.write(Reminder, key: "r1", title: "A", status: :done)
+
+      at_checkpoint = s.scope(Reminder, :open, as_of: checkpoint)
+      current = s.scope(Reminder, :open)
+
+      expect(at_checkpoint.map(&:key)).to eq(["r1"])
+      expect(current).to be_empty
+    ensure
+      s&.close
+    end
+
+    it "fails clearly for unknown client-backed scopes" do
+      s = client_backed_store
+      s.register(Reminder)
+
+      expect { s.scope(Reminder, :archived) }
+        .to raise_error(ArgumentError, /scope=:archived/)
+    ensure
+      s&.close
+    end
+
+    it "still fails clearly for unsupported client-backed scope subscriptions" do
+      s = client_backed_store
+      s.register(Reminder)
+
+      expect { s.on_scope(Reminder, :open) { nil } }
+        .to raise_error(NotImplementedError, /scope subscriptions/)
     ensure
       s&.close
     end

@@ -139,16 +139,16 @@ module Igniter
             latest[f.key] = f if existing.nil? || f.transaction_time > existing.transaction_time
           end
 
-          results = latest.values.map(&:value)
+          rows = latest.values
 
           where.each do |field, val|
             sym = field.to_sym
-            results = results.select { |v| v[sym] == val }
+            rows = rows.select { |fact| fact.value[sym] == val }
           end
 
-          results = results.sort_by { |v| v[order.to_sym] } if order
-          results = results.first(limit)                      if limit
-          results
+          rows = rows.sort_by { |fact| fact.value[order.to_sym] } if order
+          rows = rows.first(limit) if limit
+          rows.map { |fact| { key: fact.key, value: fact.value } }
         end
 
         # Resolve a named relation (delegates to IgniterStore#resolve).

@@ -224,7 +224,9 @@ Status date: 2026-05-04.
   `ReplayResult` instead of raw protocol hashes.
 - Local embedded `backend: :memory` / `:file` and legacy `backend: :network`
   construction remain in place.
-- Client-backed v0 raises `NotImplementedError` for scope queries,
+- Initial client-backed v0 raised `NotImplementedError` for scope queries,
   scope subscriptions, relation/scatter/projection operations, causation
-  chains, key-filtered history, and partition replay.
+  chains, key-filtered history, and partition replay. Scope queries are promoted
+  in `companion-ledger-client-scope-query-boundary-v0`; the other gaps remain
+  explicit.
 - No dependency from `igniter-ledger-client` to `igniter-ledger` was introduced.

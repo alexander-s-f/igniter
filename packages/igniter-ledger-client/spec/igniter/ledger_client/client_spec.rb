@@ -23,7 +23,7 @@ RSpec.describe Igniter::LedgerClient::Client do
                when :read
                  { value: { status: :open }, found: true }
                when :query
-                 { results: [{ status: :open }], count: 1 }
+                 { items: [{ key: "o1", value: { status: :open } }], results: [{ status: :open }], count: 1 }
                when :replay
                  { facts: [{ key: "evt_1" }], count: 1 }
                else
@@ -117,6 +117,7 @@ RSpec.describe Igniter::LedgerClient::Client do
     expect(read).to be_a(Igniter::LedgerClient::Results::ReadResult)
     expect(read).to be_found
     expect(read.value).to eq(status: :open)
+    expect(query.items).to eq([{ key: "o1", value: { status: :open } }])
     expect(query.results).to eq([{ status: :open }])
     expect(query.count).to eq(1)
     expect(replay.facts).to eq([{ key: "evt_1" }])

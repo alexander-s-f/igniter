@@ -225,6 +225,15 @@ RSpec.describe "OP3 — Wire Envelope" do
       expect(resp[:result][:results]).to all(include(status: :open))
     end
 
+    it "returns canonical items with key and value while preserving value-only results" do
+      resp = wire.dispatch(envelope(:query, { store: :tasks, where: { status: :open }, order: :status }))
+
+      expect(resp[:result][:items]).to all(include(:key, :value))
+      expect(resp[:result][:items].map { |item| item[:key] }).to contain_exactly("t1", "t3")
+      expect(resp[:result][:items].map { |item| item[:value] }).to eq(resp[:result][:results])
+      expect(resp[:result][:results]).to all(include(status: :open))
+    end
+
     it "returns all records when where: is empty" do
       resp = wire.dispatch(envelope(:query, { store: :tasks }))
       expect(resp[:result][:count]).to eq(3)

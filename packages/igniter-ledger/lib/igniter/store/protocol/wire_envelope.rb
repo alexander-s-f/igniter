@@ -112,14 +112,14 @@ module Igniter
             { value: value, found: !value.nil? }
 
           when :query
-            results = @interpreter.query(
+            items = @interpreter.query(
               store:  packet.fetch(:store),
               where:  packet.fetch(:where, {}),
               order:  packet[:order],
               limit:  packet[:limit],
               as_of:  packet[:as_of]
             )
-            { results: results, count: results.size }
+            { items: items, results: items.map { |item| item[:value] }, count: items.size }
 
           when :resolve
             results = @interpreter.resolve(

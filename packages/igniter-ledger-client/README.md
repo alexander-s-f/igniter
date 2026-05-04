@@ -127,6 +127,9 @@ Successful mutation/read calls return small result objects:
 - `replay` -> `Igniter::LedgerClient::Results::ReplayResult`
 
 Result objects expose named readers, `to_h`, and transitional `[]` access.
+`QueryResult#items` is the canonical row shape for query consumers and includes
+`{ key:, value: }` entries; `QueryResult#results` remains the backward-compatible
+value-only list.
 Snapshot-style methods such as `metadata_snapshot` and `observability_snapshot`
 still return raw protocol hashes in v0.
 

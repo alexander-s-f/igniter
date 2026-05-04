@@ -120,9 +120,9 @@ store.replay(TrackerLog)
 ```
 
 В client-backed v0 поддержаны `register`, `write`, `read`, `append`, обычный
-`replay`, `metadata_snapshot` и `descriptor_snapshot`. Scope-запросы,
-scope-подписки, relation resolve и partition replay пока требуют embedded
-Ledger engine path и явно поднимают `NotImplementedError`.
+`replay`, `scope`, `metadata_snapshot` и `descriptor_snapshot`. Scope-подписки,
+relation resolve и partition replay пока требуют embedded Ledger engine path и
+явно поднимают `NotImplementedError`.
 
 ### Нормализованные receipts
 

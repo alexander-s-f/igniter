@@ -1,6 +1,6 @@
 # Track: Companion Ledger Client Scope Query Boundary v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target packages: `packages/igniter-companion`, `packages/igniter-ledger-client`, `packages/igniter-ledger`
@@ -157,6 +157,20 @@ BUNDLE_GEMFILE=packages/igniter-ledger/Gemfile bundle exec rspec packages/ignite
 
 If the full ledger suite needs local sockets, run it outside the sandbox.
 
+## Final Notes
+
+- Protocol `query` now returns canonical `items` rows with `{ key:, value: }`
+  while preserving value-only `results` and `count`.
+- `Igniter::LedgerClient::Results::QueryResult` exposes `#items`, `#results`,
+  `#count`, `#to_h`, and normalizes local/remote key shapes without depending on
+  `igniter-ledger` classes.
+- Client-backed `Igniter::Companion::Store#scope` lowers declared scope filters
+  to `LedgerClient#query(store:, where:, as_of:)` and rebuilds typed records from
+  query item keys and values.
+- Embedded scope behavior is unchanged.
+- Client-backed `on_scope`, relations, projection/scatter behavior, causation,
+  key-filtered history, and partition replay remain explicit v0 gaps.
+
 ## Handoff Format
 
 ```text
@@ -176,4 +190,3 @@ Status: done | partial | blocked
 [R] Risks / next recommendations:
 - ...
 ```
-
