@@ -33,8 +33,9 @@ write/append fact
 ```
 
 The package intentionally sits below the application-facing `Record` /
-`History` facade in `igniter-companion`. App code should usually begin there;
-this package owns the fact substrate, protocol, and operational storage model.
+`History` facade in `igniter-durable-model`. App code should usually begin
+there; this package owns the fact substrate, protocol, and operational storage
+model.
 
 ## Current Surface
 
@@ -58,7 +59,7 @@ this package owns the fact substrate, protocol, and operational storage model.
 
 - public contract persistence DSL (`persist`, `history`) as a stable user API
 - `Record` / `History` application ergonomics; that belongs to
-  `igniter-companion`
+  `igniter-durable-model`
 - SQL schema generation, ORM semantics, or migration execution
 - arbitrary application workflows or side effects inside storage
 - cluster consensus or deployment guarantees
@@ -92,7 +93,7 @@ The likely product-language migration is:
 Store package name in older docs
   -> igniter-ledger package
   -> Store[T] / History[T] typed capability semantics
-  -> Companion Record/History app facade
+  -> Durable Model Record/History app facade
 ```
 
 Do not collapse these layers into one object model. `persist` and `history` in
@@ -204,13 +205,13 @@ by hash lookup returns multiple candidates. `fact.id` (UUID) is an unambiguous
 pointer to one specific event.
 
 **Impact on consumers**: `causation_chain` entries now include `id:` and show the
-full UUID causation instead of a truncated hash prefix. The companion package
+full UUID causation instead of a truncated hash prefix. The Durable Model package
 passes `causation_chain(...).length` — count is unaffected.
 
-**Candidate pressure on `igniter-companion`**: the `WriteReceipt` currently
+**Candidate pressure on `igniter-durable-model`**: the `WriteReceipt` currently
 forwards `fact.causation` to app receipts. Now causation is a UUID; if the app
-ever exposes it, document as a temporal pointer to a fact identity, not a content
-address.
+ever exposes it, document as a temporal pointer to a fact identity, not a
+content address.
 
 ---
 
@@ -278,7 +279,7 @@ A new `#history_partition` method provides O(partition slice) reads instead of O
 `#append` accepts an optional `partition_key:` parameter; when provided and the index is warm,
 the new fact is appended to the correct partition bucket in O(1).
 
-**Before**: `Companion::Store#replay(partition:)` called `@inner.history(...)` (full scan of
+**Before**: `DurableModel::Store#replay(partition:)` called `@inner.history(...)` (full scan of
 all events in the store), then filtered in Ruby. For a store with N total events split across P
 partitions, each `replay` was O(N) regardless of partition size.
 
@@ -290,13 +291,13 @@ partitions, each `replay` was O(N) regardless of partition size.
 - `since:` / `as_of:` time filters applied at read time over the cached slice; they do NOT
   prevent the index from being used.
 
-**Companion impact**: `Companion::Store#append` now passes `partition_key: history_class._partition_key`
+**Durable Model impact**: `DurableModel::Store#append` now passes `partition_key: history_class._partition_key`
 to `@inner.append`; `#replay(partition:)` delegates to `@inner.history_partition` when a
-partition key is declared. The public API of Companion is unchanged.
+partition key is declared. The public API of Durable Model is unchanged.
 
 **Index correctness edge**: appends without `partition_key:` (or where the event does not
 contain the partition field) do NOT update the index. The caller is responsible for passing
-`partition_key:` consistently — Companion always does so via `_partition_key`.
+`partition_key:` consistently — Durable Model always does so via `_partition_key`.
 
 ---
 
@@ -324,7 +325,7 @@ unboundedly until the process restarted.
 **Tuning**: pass `lru_cap:` to `IgniterStore.new` or `IgniterStore.open` to
 override the default. Example: `IgniterStore.new(lru_cap: 5_000)`.
 
-**Candidate pressure on igniter-companion**: `Companion::Store.new` could
+**Candidate pressure on igniter-durable-model**: `DurableModel::Store.new` could
 expose `lru_cap:` as a top-level option and forward it to the inner store.
 Not done here — defer under app pressure.
 
@@ -356,7 +357,7 @@ store.register_coercion(:tasks) do |value, schema_version|
 end
 ```
 
-**Candidate pressure on igniter-companion**: `Companion::Store` should expose
+**Candidate pressure on igniter-durable-model**: `DurableModel::Store` should expose
 `register_coercion` as a passthrough to the inner store, possibly mapped from
 schema class migration declarations. Not done here — defer under app pressure.
 
@@ -425,7 +426,7 @@ server = Igniter::Ledger::LedgerServer.new(
 server.start_async
 
 # Application process — identical API to :memory and :file
-store = Igniter::Companion::Store.new(
+store = Igniter::DurableModel::Store.new(
   backend: :network, address: "127.0.0.1:7400"
 )
 store.register(Task)
@@ -437,7 +438,7 @@ Reuses the same framing as the WAL file format — the same `WireProtocol` modul
 shared across both, ensuring consistency.
 
 **Replay on reconnect**: a new `NetworkBackend` client sends a `replay` request on
-first use (explicitly called by `Companion::Store.new(backend: :network)`).  The
+first use (explicitly called by `DurableModel::Store.new(backend: :network)`).  The
 `IgniterStore` on the client side rebuilds all in-memory indices (scope index,
 partition index, cache) from the replayed facts — identical to the `:file` path.
 

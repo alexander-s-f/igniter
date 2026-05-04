@@ -37,8 +37,8 @@ Packages and host apps
 |----------|--------------|-------------|--------|
 | `ContractableReceiptSink` | `store:` embedded engine | `store:` or `client:` | first adoption proof landed |
 | `igniter-ledger-client` specs | fake dispatch / remote HTTP shell | stay package-local, no engine dependency | landed |
-| `igniter-companion` local store | direct embedded Ledger engine | direct embedded is acceptable for local app facade | keep for now |
-| `igniter-companion` network backend | `Igniter::Store::NetworkBackend` | `LedgerClient` remote/local boundary | candidate |
+| `igniter-durable-model` local store | direct embedded Ledger engine | direct embedded is acceptable for local app facade | keep for now |
+| `igniter-durable-model` network backend | `Igniter::Store::NetworkBackend` | `LedgerClient` remote/local boundary | landed |
 | `igniter-embed` receipt delivery | adapter protocol, no Ledger dependency | adapters may use `LedgerClient` | candidate |
 | Spark CRM integration | not in repo | app-level `LedgerClient` adapter/pool/outbox | future external adoption |
 | MCP/HTTP adapters | direct protocol/server adapters | may remain server-side implementation | keep |
@@ -68,7 +68,7 @@ Packages and host apps
 - compaction and boundaries
 - native data plane
 
-`igniter-companion` should own:
+`igniter-durable-model` should own:
 
 - Record/History developer ergonomics
 - schema manifests
@@ -108,15 +108,15 @@ Common client mutation/read methods return small immutable result objects.
 Snapshot-style metadata and observability methods intentionally remain raw
 hashes until a later slice proves a stable model is worth the added surface.
 
-### M3: Companion remote boundary
+### M3: Durable Model remote boundary
 
-Add a Companion store construction path that accepts a `LedgerClient`.
+Add a Durable Model store construction path that accepts a `LedgerClient`.
 
 Possible shape:
 
 ```ruby
 client = Igniter::LedgerClient.remote_http("http://127.0.0.1:7300/v1/dispatch")
-store = Igniter::Companion::Store.new(client: client)
+store = Igniter::DurableModel::Store.new(client: client)
 ```
 
 The local embedded path can keep using `Igniter::Ledger::LedgerStore`. The
@@ -153,7 +153,7 @@ depending on how generic the proof becomes.
    automatically use `store.protocol`, or should callers stay explicit?
 2. Should client read models be structs, hashes with stable keys, or protocol
    receipts extended consistently?
-3. Does Companion need `client:` first, or should the next consumer be
+3. Does Durable Model need more `client:` coverage first, or should the next consumer be
    `igniter-embed`/Spark-style receipt delivery?
 4. Should `NetworkBackend` eventually become an implementation of a
    `LedgerClient` TCP transport, or remain a legacy embedded backend?
@@ -162,4 +162,4 @@ depending on how generic the proof becomes.
 
 1. `ledger-client-append-protocol-boundary-v0`
 2. `ledger-client-result-models-v0`
-3. `companion-ledger-client-remote-boundary-v0`
+3. `companion-ledger-client-remote-boundary-v0` (landed against Durable Model)

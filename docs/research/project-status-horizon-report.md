@@ -13,7 +13,7 @@ contracts-native substrate:
 contracts kernel
 -> application/showcase pressure
 -> Companion persistence pressure
--> igniter-companion typed facade
+-> igniter-durable-model typed facade
 -> igniter-ledger hot fact engine
 -> ledger server / reactive delivery / future sync hub
 -> later language and package consolidation
@@ -53,10 +53,12 @@ and now the infrastructure that may later materialize more contracts.
   retention/compaction, derivation/scatter/relation rules, StoreServer,
   NetworkBackend, WireProtocol, subscriptions, stats, drain, CLI, HTTPAdapter
   (Rack, port 7300), and TCPAdapter (WireProtocol framing, port 7401).
-- `igniter-companion`: typed Record/History facade over `igniter-ledger`. It
+- `igniter-durable-model`: typed Record/History facade over `igniter-ledger`. It
   turns app-local manifests into Record/History classes, normalized receipts,
   partition replay, projection metadata, schema-graph sidecars, and convergence
   proofs without replacing Companion's app backend or declaring a core API.
+  `Igniter::DurableModel` is canonical; `Igniter::Companion` remains
+  compatibility and Companion app/product proof vocabulary.
 
 ## Companion Status
 
@@ -117,9 +119,9 @@ Fresh checks on 2026-05-04:
 
 - `ruby examples/run.rb smoke`: 87 passed, 0 failed, 0 skipped.
 - `BUNDLE_GEMFILE=packages/igniter-ledger/Gemfile bundle exec rspec packages/igniter-ledger/spec`: 1199 examples, 0 failures.
-- `BUNDLE_GEMFILE=packages/igniter-companion/Gemfile bundle exec rspec packages/igniter-companion/spec`: 89 examples, 0 failures.
+- `BUNDLE_GEMFILE=packages/igniter-durable-model/Gemfile bundle exec rspec packages/igniter-durable-model/spec`: 107 examples, 0 failures.
 
-Note: Companion now verifies through its package Gemfile; the old manual
+Note: Durable Model now verifies through its package Gemfile; the old manual
 `RUBYLIB` path is no longer the current verification path.
 
 ## Strategic Insights
@@ -135,8 +137,8 @@ move, and forbidden moves, it is not ready to become substrate.
 
 ### 2. Persistence split into semantics and physics
 
-Companion/`igniter-companion` own typed app semantics. `igniter-ledger` owns fact
-physics. This is the right split.
+Durable Model/`igniter-durable-model` owns typed app semantics.
+`igniter-ledger` owns fact physics. This is the right split.
 
 Out-of-box direction: avoid "database abstraction" language. Use a physics
 vocabulary:
@@ -231,7 +233,7 @@ Out-of-box direction:
 custom contract system
 external DSL
 agent memory model
-Companion typed records
+Durable Model typed records
 Igniter contracts
         -> Igniter Ledger Open Protocol
         -> igniter-ledger fact engine
@@ -301,7 +303,7 @@ app-level relation auto-wiring:
 
 ```text
 Companion relation manifest
--> igniter-companion facade
+-> igniter-durable-model facade
 -> igniter-ledger RelationRule
 -> relation_snapshot/resolve proof
 ```
@@ -328,7 +330,7 @@ Igniter's Ruby DSL internals.
 
 1. Decide the next architect-owned slice after OP1-OP4: conformance kit,
    StoreServer envelope integration, or app-local protocol adoption proof.
-2. Make `packages/igniter-companion/spec/spec_helper.rb` self-contained so
+2. Keep `packages/igniter-durable-model/spec/spec_helper.rb` self-contained so
    package specs do not require manual `RUBYLIB`.
 3. Keep StoreServer lifecycle as operational substrate only; do not route
    contract business logic through it.
@@ -344,7 +346,7 @@ Igniter's Ruby DSL internals.
 Track: docs/research/project-status-horizon-report.md
 Status: whole-project status updated on 2026-05-02.
 [D] Igniter is now a contracts-native substrate track, not only a contract DSL.
-[D] igniter-ledger is hot fact engine; igniter-companion is typed facade.
+[D] igniter-ledger is hot fact engine; igniter-durable-model is typed facade.
 [D] igniter-ledger now has an Open Protocol proposal: descriptor/fact/receipt
 waist for non-Igniter clients as well as Igniter contracts.
 [D] Companion remains the strongest product pressure; the current
@@ -353,8 +355,8 @@ architect-selected slice.
 [R] Do not promote Store graph nodes, migrations, materializer execution, or
 relation enforcement to core from current evidence.
 [R] Do not let StoreServer become a contract-logic RPC surface.
-[S] Fresh checks: examples smoke 87/0, ledger specs 1199/0, companion specs
-89/0 with package Gemfile.
+[S] Fresh checks: examples smoke 87/0, ledger specs 1199/0, durable-model specs
+107/0 with package Gemfile.
 Next: choose between conformance kit, StoreServer envelope integration,
 app-local protocol adoption, or sync-hub follow-through; keep materializer
 dry-run separate.

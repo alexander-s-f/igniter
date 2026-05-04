@@ -5,8 +5,7 @@ Durable Model: the application-facing Record/History layer backed by
 
 Status: active pre-v1 platform lane. The package is now
 `igniter-durable-model`, and the canonical Ruby namespace is
-`Igniter::DurableModel`. `Igniter::Companion` remains a compatibility alias for
-the old package identity and the Companion app proof.
+`Igniter::DurableModel`.
 
 ## Purpose
 
@@ -58,11 +57,8 @@ lib/igniter/durable_model/
   store.rb     — Store: register, write, read, scope, append, replay, on_scope
 ```
 
-The older `lib/igniter/companion` load path remains available for compatibility.
-
 ```ruby
-require "igniter/durable_model" # canonical
-require "igniter/companion"     # compatibility
+require "igniter/durable_model"
 ```
 
 ### `Record`
@@ -107,7 +103,7 @@ Orchestrator — holds the `IgniterStore` instance, knows about registered schem
 store = Igniter::DurableModel::Store.new         # in-memory (default)
 store = Igniter::DurableModel::Store.new(        # file-backed WAL
   backend: :file,
-  path:    "/tmp/companion.wal"
+  path:    "/tmp/durable-model.wal"
 )
 
 store.register(Reminder)   # registers an AccessPath for each declared scope
@@ -123,6 +119,17 @@ store.replay(TrackerLog, since: cutoff)          # time-filtered
 store.replay(TrackerLog, partition: "sleep")     # filtered by partition_key value
 
 store.causation_chain(Reminder, key: "r1")       # mutation chain for debugging
+```
+
+### Compatibility
+
+The older `lib/igniter/companion` load path and `Igniter::Companion` namespace
+remain available for pre-rename callers and for the Companion app proof:
+
+```ruby
+require "igniter/companion"
+
+Igniter::Companion::Store # => Igniter::DurableModel::Store
 ```
 
 #### Remote Ledger Client Boundary
@@ -197,7 +204,7 @@ receive refreshed records for the declared scope.
 cd ../igniter-ledger
 PATH="$HOME/.cargo/bin:$PATH" bundle exec rake compile
 
-# Run the companion suite:
+# Run the Durable Model suite:
 cd ../igniter-durable-model
 bundle exec rake spec
 ```
@@ -206,7 +213,7 @@ bundle exec rake spec
 
 ## Pressure & Insights
 
-This section is a living log. Every time the companion layer surfaces a mismatch
+This section is a living log. Every time the Durable Model layer surfaces a mismatch
 or bug in the underlying store, it is recorded here with date, symptom, root cause,
 fix, and lesson learned.
 
@@ -248,7 +255,7 @@ the scope cache has been warmed by a query.
 **This is intentional**: `ReadCache` removes scope entries on invalidation, but if
 the cache is cold there is nothing to remove and therefore no entries → no notifications.
 
-**Implication for companion**: `on_scope` should be documented as
+**Implication for Durable Model**: `on_scope` should be documented as
 "notification of a warmed-cache change", not "notification of every mutation".
 For reacting to every mutation regardless of cache state, a different mechanism
 is needed (event bus / WAL tail).
@@ -273,7 +280,7 @@ cache state?
 
 **Capability added**: `Store#write` returns a `WriteReceipt`; `Store#append` returns an `AppendReceipt`. Both carry `mutation_intent`, `fact_id`, `value_hash` and delegate unknown methods to the wrapped record/event.
 
-**Pressure surfaced**: the raw `IgniterStore` returns a `FactData`-like object with `id`/`value_hash`/`causation`/`timestamp`. Wrapping this in typed receipts at the companion layer avoids leaking store internals into application code.
+**Pressure surfaced**: the raw `IgniterStore` returns a `FactData`-like object with `id`/`value_hash`/`causation`/`timestamp`. Wrapping this in typed receipts at the Durable Model layer avoids leaking store internals into application code.
 
 **Next open question** (`pressure.next_question`): `:manifest_generated_record_history_classes` — auto-generate `Record`/`History` classes from a `persistence_manifest` declaration without committing to a final DSL.
 
@@ -281,17 +288,17 @@ cache state?
 
 ### [2026-04-30] Manifest-generated Record/History classes
 
-**Capability added**: `Igniter::Companion.from_manifest(manifest, store:)` generates an anonymous `Record` or `History` class from an app-local `persistence_manifest` hash. Dispatches on `manifest[:storage][:shape]` (`:store` → `Record`, `:history` → `History`).
+**Capability added**: `Igniter::DurableModel.from_manifest(manifest, store:)` generates an anonymous `Record` or `History` class from an app-local `persistence_manifest` hash. Dispatches on `manifest[:storage][:shape]` (`:store` → `Record`, `:history` → `History`).
 
 ```ruby
 # From an app-local Igniter contract that declares `persist :reminders`:
-klass = Igniter::Companion.from_manifest(
+klass = Igniter::DurableModel.from_manifest(
   Companion::Contracts::Reminder.persistence_manifest,
   store: :reminders
 )
 # klass includes Record, has all fields + scopes declared
 
-klass = Igniter::Companion.from_manifest(
+klass = Igniter::DurableModel.from_manifest(
   Companion::Contracts::TrackerLog.persistence_manifest,
   store: :tracker_logs
 )
@@ -318,16 +325,16 @@ manifest[:storage]  # => { shape: :store, name: :reminders, key: :id, adapter: :
 **`from_manifest` is now zero-argument for the store name**:
 
 ```ruby
-klass = Igniter::Companion.from_manifest(Contracts::Reminder.persistence_manifest)
+klass = Igniter::DurableModel.from_manifest(Contracts::Reminder.persistence_manifest)
 klass.store_name  # => :reminders  (from manifest)
 
-klass = Igniter::Companion.from_manifest(manifest, store: :override)
+klass = Igniter::DurableModel.from_manifest(manifest, store: :override)
 klass.store_name  # => :override  (explicit wins)
 ```
 
 Raises `ArgumentError` if manifest has no `storage.name` and `store:` is not given — keeps the old API path working.
 
-**Next open question** (`pressure.next_question`): `:companion_store_backed_app_flow` — wire `Igniter::Companion::Store` into the actual app layer so `persist :reminders` flows through facts/WAL instead of blob-JSON/SQLite.
+**Next open question** (`pressure.next_question`): `:companion_store_backed_app_flow` — wire `Igniter::DurableModel::Store` into the actual app layer so `persist :reminders` flows through facts/WAL instead of blob-JSON/SQLite.
 
 ---
 
@@ -342,7 +349,7 @@ field :title,  type: :string
 field :score,  type: :float
 
 # Generated from manifest (Article contract with typed fields):
-klass = Igniter::Companion.from_manifest(Contracts::Article.persistence_manifest)
+klass = Igniter::DurableModel.from_manifest(Contracts::Article.persistence_manifest)
 klass._fields[:status]  # => { type: :enum, values: [:draft, :published, :archived],
                          #      default: :draft }
 klass._fields[:title]   # => { type: :string, values: nil, default: nil }
@@ -375,7 +382,7 @@ receipt = store.write(reminder_class, ...)
 # App projection (boundary pattern)
 app_receipt = {
   kind:              :store_write_receipt,
-  source:            :igniter_companion_store,
+  source:            :igniter_durable_model_store,
   target:            :reminders,
   subject_id:        "reminder-1",
   status:            :recorded,
@@ -426,7 +433,7 @@ uses blob-JSON over SQLite. The target path:
 ```
 PersistenceSketchPack (DSL: persist/history/field/scope)
   → generates Record/History classes
-  → stores via Igniter::Companion::Store
+  → stores via Igniter::DurableModel::Store
   → backed by Igniter::Ledger::LedgerStore (facts + WAL)
 ```
 

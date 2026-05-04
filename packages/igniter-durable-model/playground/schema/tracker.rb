@@ -3,7 +3,7 @@
 module Playground
   module Schema
     class TrackerEntry
-      include Igniter::Companion::History
+      include Igniter::DurableModel::History
 
       history_name :tracker_entries
       partition_key :tracker_id

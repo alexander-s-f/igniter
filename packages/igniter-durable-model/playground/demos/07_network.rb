@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # Demo 07 — NetworkBackend / StoreServer
 # Starts an in-process StoreServer on a free TCP port, connects two
-# Companion::Store clients to it, and demonstrates that facts written
+# DurableModel::Store clients to it, and demonstrates that facts written
 # by the first client are visible to the second after reconnect.
 #
 # This exercises the first step of the client-server projection model:
@@ -46,7 +46,7 @@ def run_07(_store = nil)
   sleep 0.05  # let the accept loop start
 
   puts "\n▸ Client 1: writing 4 tasks..."
-  store1 = Igniter::Companion::Store.new(
+  store1 = Igniter::DurableModel::Store.new(
     backend: :network, address: "127.0.0.1:#{port}", transport: :tcp
   )
   store1.register(task)
@@ -57,7 +57,7 @@ def run_07(_store = nil)
   store1.close
 
   puts "▸ Client 2: reconnecting — reads from server state..."
-  store2 = Igniter::Companion::Store.new(
+  store2 = Igniter::DurableModel::Store.new(
     backend: :network, address: "127.0.0.1:#{port}", transport: :tcp
   )
   store2.register(task)

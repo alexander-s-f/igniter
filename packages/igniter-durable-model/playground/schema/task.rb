@@ -3,7 +3,7 @@
 module Playground
   module Schema
     class Task
-      include Igniter::Companion::Record
+      include Igniter::DurableModel::Record
 
       store_name :tasks
 

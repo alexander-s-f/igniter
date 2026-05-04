@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 #
-# Igniter Store Playground
-# ========================
+# Igniter Durable Model Playground
+# ================================
 # Run all demos:
 #   ruby playground/run.rb
 #
@@ -34,7 +34,7 @@ ALL_DEMOS = {
 def banner
   width = 60
   puts "═" * width
-  puts " Igniter Store Playground".center(width)
+  puts " Igniter Durable Model Playground".center(width)
   puts " igniter-durable-model · igniter-ledger".center(width)
   puts " NATIVE = #{Igniter::Store::NATIVE}".center(width)
   puts "═" * width

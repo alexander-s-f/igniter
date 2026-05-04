@@ -1,6 +1,6 @@
 # Track: Durable Model Public Reference Cleanup v0
 
-Status: proposed
+Status: done
 Owner: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 Target package: `packages/igniter-durable-model`
@@ -183,6 +183,15 @@ BUNDLE_GEMFILE=packages/igniter-durable-model/Gemfile bundle exec ruby packages/
 Only run the playground smoke if it is already stable in the current package;
 otherwise report why it was skipped.
 
+## Final Notes
+
+- Canonical README and playground examples now use `require "igniter/durable_model"`
+  and `Igniter::DurableModel::*`.
+- `Igniter::Companion` remains documented only as compatibility/app proof
+  vocabulary in current public package docs.
+- Current package, Ledger, Ledger Client, and project status docs now point
+  app users toward `igniter-durable-model`.
+
 ## Handoff Format
 
 ```text
@@ -202,4 +211,3 @@ Status: done | partial | blocked
 [R] Risks / next recommendations:
 - ...
 ```
-

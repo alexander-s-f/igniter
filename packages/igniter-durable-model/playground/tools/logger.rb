@@ -2,7 +2,7 @@
 
 module Playground
   module Tools
-    # Wraps a Companion::Store and logs timing + call info for each operation.
+    # Wraps a DurableModel::Store and logs timing + call info for each operation.
     # Also accumulates a structured call log for post-run analysis.
     #
     # Usage:

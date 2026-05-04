@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "igniter/durable_model"
 require "igniter/companion"
 
 RSpec.configure do |config|

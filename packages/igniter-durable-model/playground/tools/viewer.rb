@@ -50,7 +50,7 @@ module Playground
         out.puts sep
       end
 
-      # Renders an array of Companion Record instances.
+      # Renders an array of Durable Model Record instances.
       def self.records(records, schema_class, title: nil, out: $stdout)
         cols = [[:key, :key]] + schema_class._fields.keys.map { |f| [f, f] }
         table(records, cols: cols, title: title || schema_class.name, out: out)

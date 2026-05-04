@@ -13,8 +13,8 @@ module Playground
     #   inspector.scope_index        # => { [:tasks, :open] => 3, ... }
     #   inspector.partition_index    # => { [:tracker_entries, :tracker_id] => {"sleep"=>4} }
     class Inspector
-      def initialize(companion_store)
-        @inner = companion_store.instance_variable_get(:@inner)
+      def initialize(durable_model_store)
+        @inner = durable_model_store.instance_variable_get(:@inner)
       end
 
       # Returns a flat hash of key metrics.

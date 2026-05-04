@@ -58,7 +58,7 @@ def run_08(_store = nil)
 
   # ── 3. Two clients write + read ──────────────────────────────────────────────
   puts "\n▸ Client 1: writing 3 tasks..."
-  store1 = Igniter::Companion::Store.new(
+  store1 = Igniter::DurableModel::Store.new(
     backend: :network, address: "127.0.0.1:#{port}", transport: :tcp
   )
   store1.register(task)
@@ -67,7 +67,7 @@ def run_08(_store = nil)
   store1.write(task, key: "t3", title: "Ship it",     status: :done,  priority: :low)
 
   puts "▸ Client 2: reconnecting + reading state..."
-  store2 = Igniter::Companion::Store.new(
+  store2 = Igniter::DurableModel::Store.new(
     backend: :network, address: "127.0.0.1:#{port}", transport: :tcp
   )
   store2.register(task)
