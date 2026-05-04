@@ -11,13 +11,16 @@ module Igniter
       # Extends AvailabilityLedger with LedgerBoundary lifecycle management.
       #
       # Tracks boundaries in-memory (keyed by boundary_key) and persists
-      # closure/compaction receipts to the store.
+      # closure/settlement/compaction receipts to the store.
       #
       # Additional store layout:
-      #   :ledger_boundaries         — key: boundary_key
-      #   :ledger_boundary_receipts  — key: boundary_key
-      #   :ledger_cleanup_receipts   — key: boundary_key
-      #   :late_fact_receipts        — key: "late/<boundary_key>/<token>"
+      #   :ledger_boundaries          — key: boundary_key
+      #   :ledger_boundary_receipts   — key: boundary_key
+      #   :ledger_boundary_summaries  — key: boundary_key  (settlement output)
+      #   :ledger_boundary_metrics    — key: boundary_key  (settlement output)
+      #   :ledger_settlement_receipts — key: boundary_key  (settlement output)
+      #   :ledger_cleanup_receipts    — key: boundary_key
+      #   :late_fact_receipts         — key: "late/<boundary_key>/<token>"
       class AvailabilityBoundaryLedger
         PRODUCER = {
           "system"  => "availability_boundary_ledger",
@@ -93,23 +96,120 @@ module Igniter
             boundary_fact: boundary_fact, closure_receipt_fact: closure_receipt }
         end
 
-        # Compact a closed boundary: marks detail_status :purged, writes cleanup receipt.
+        # Settle a closed boundary: runs pre-compaction transforms (summary, metrics),
+        # persists settlement receipt, transitions settlement_status to :settled.
+        #
+        # Settlement transforms:
+        #   "availability_summary" — compact summary of the snapshot output
+        #   "availability_metrics" — derived capacity metrics
+        #
+        # Returns:
+        #   { boundary:, summary_fact:, metrics_fact:, settlement_receipt: }
+        def settle_boundary(boundary_key)
+          boundary = @boundaries[boundary_key]
+          raise ArgumentError, "boundary not found: #{boundary_key}"         unless boundary
+          raise ArgumentError, "boundary must be closed before settlement"   unless boundary.status == :closed
+          raise ArgumentError, "boundary already settled"                    if boundary.settled?
+
+          output       = boundary.output_value
+          slots        = output[:available_slots] || []
+          blocked      = output[:blocked_intervals] || []
+          avail_secs   = output[:available_seconds].to_f
+          blocked_secs = blocked.sum { |b| b[:end].to_f - b[:start].to_f }
+
+          # Transform 1: availability summary
+          summary_fact = @store.write(
+            store:    :ledger_boundary_summaries,
+            key:      boundary_key,
+            value:    {
+              "boundary_key"           => boundary_key,
+              "summary_type"           => "availability",
+              "available_seconds"      => avail_secs.to_i,
+              "available_slot_count"   => slots.size,
+              "blocked_interval_count" => blocked.size,
+              "source_fact_count"      => boundary.source_fact_ids.size,
+              "result_hash"            => boundary.result_hash
+            },
+            producer: PRODUCER
+          )
+
+          # Transform 2: capacity metrics (capacity_percent uses full 24h day as denominator)
+          metrics_fact = @store.write(
+            store:    :ledger_boundary_metrics,
+            key:      boundary_key,
+            value:    {
+              "boundary_key"     => boundary_key,
+              "capacity_percent" => (avail_secs / (24 * 3600.0) * 100).round(2),
+              "available_hours"  => (avail_secs / 3600.0).round(4),
+              "blocked_hours"    => (blocked_secs / 3600.0).round(4)
+            },
+            producer: PRODUCER
+          )
+
+          # Per-transform receipts (embedded in settlement receipt)
+          transforms = [
+            {
+              "transform_name"     => "availability_summary",
+              "transform_version"  => "1.0",
+              "input_boundary_key" => boundary_key,
+              "input_result_hash"  => boundary.result_hash,
+              "output_fact_id"     => summary_fact.id,
+              "status"             => "ok"
+            },
+            {
+              "transform_name"     => "availability_metrics",
+              "transform_version"  => "1.0",
+              "input_boundary_key" => boundary_key,
+              "input_result_hash"  => boundary.result_hash,
+              "output_fact_id"     => metrics_fact.id,
+              "status"             => "ok"
+            }
+          ]
+
+          settlement_receipt = @store.write(
+            store:    :ledger_settlement_receipts,
+            key:      boundary_key,
+            value:    {
+              "boundary_key"      => boundary_key,
+              "settlement_status" => "settled",
+              "transform_names"   => transforms.map { |t| t["transform_name"] },
+              "output_fact_ids"   => {
+                "availability_summary" => summary_fact.id,
+                "availability_metrics" => metrics_fact.id
+              },
+              "result_hash"       => boundary.result_hash,
+              "transforms"        => transforms,
+              "settled_at"        => Time.now.iso8601(3)
+            },
+            producer: PRODUCER
+          )
+
+          boundary.settle!(settlement_receipt_id: settlement_receipt.id)
+
+          { boundary: boundary, summary_fact: summary_fact,
+            metrics_fact: metrics_fact, settlement_receipt: settlement_receipt }
+        end
+
+        # Compact a settled boundary: marks detail_status :purged, writes cleanup receipt.
+        # Settlement is required before compaction.
         # Returns the compaction receipt fact.
         def compact_boundary(boundary_key)
           boundary = @boundaries[boundary_key]
-          raise ArgumentError, "boundary not found: #{boundary_key}" unless boundary
-          raise ArgumentError, "boundary must be closed before compaction" unless boundary.status == :closed
+          raise ArgumentError, "boundary not found: #{boundary_key}"        unless boundary
+          raise ArgumentError, "boundary must be closed before compaction"  unless boundary.status == :closed
+          raise ArgumentError, "boundary must be settled before compaction" unless boundary.settled?
 
           compaction_receipt = @store.write(
             store:    :ledger_cleanup_receipts,
             key:      boundary_key,
             value:    {
-              "boundary_key"        => boundary_key,
-              "output_fact_id"      => boundary.output_fact_id,
-              "result_hash"         => boundary.result_hash,
-              "source_fact_ids"     => boundary.source_fact_ids,
-              "detail_status_after" => "purged",
-              "compacted_at"        => Time.now.iso8601(3)
+              "boundary_key"          => boundary_key,
+              "output_fact_id"        => boundary.output_fact_id,
+              "result_hash"           => boundary.result_hash,
+              "source_fact_ids"       => boundary.source_fact_ids,
+              "settlement_receipt_id" => boundary.settlement_receipt_id,
+              "detail_status_after"   => "purged",
+              "compacted_at"          => Time.now.iso8601(3)
             },
             producer: PRODUCER
           )
@@ -180,12 +280,19 @@ module Igniter
 
         # Returns a cleanup plan for a given store and time cutoff.
         #
-        # :blocked — one or more open boundaries cover facts before +before+
-        # :ready   — all required boundaries are closed; receipts listed for retention
+        # :blocked — open boundaries, or closed-but-unsettled boundaries, in the window
+        # :ready   — all required boundaries are settled; receipts listed for retention
+        #
+        # blocking_reasons maps each blocking boundary_key to its reason:
+        #   :open                — boundary is still open
+        #   :settlement_required — boundary is closed but not yet settled
         def cleanup_plan(store:, before:, fidelity: :boundary)
-          blocking = @boundaries.values.select { |b| b.open? && boundary_date_before?(b, before) }
+          in_window         = @boundaries.values.select { |b| boundary_date_before?(b, before) }
+          open_blocking     = in_window.select(&:open?)
+          unsettled_blocking = in_window.select { |b| b.status == :closed && !b.settled? }
+          all_blocking      = open_blocking + unsettled_blocking
 
-          if blocking.empty?
+          if all_blocking.empty?
             receipts = @boundaries.values.filter_map do |b|
               next unless b.closed?
               @store.history(store: :ledger_boundary_receipts, key: b.boundary_key).last&.id
@@ -200,18 +307,24 @@ module Igniter
               expected_detail_status:     fidelity == :boundary ? :purged : :full
             }
           else
+            blocking_reasons = {}
+            open_blocking.each     { |b| blocking_reasons[b.boundary_key] = :open }
+            unsettled_blocking.each { |b| blocking_reasons[b.boundary_key] = :settlement_required }
             {
               status:                     :blocked,
               store:                      store,
               before:                     before.iso8601,
-              blocking_boundaries:        blocking.map(&:boundary_key),
+              blocking_boundaries:        all_blocking.map(&:boundary_key),
+              blocking_reasons:           blocking_reasons,
               required_boundary_policies: [LedgerBoundary::POLICY_NAME.to_sym]
             }
           end
         end
 
         # Records a late fact for a closed boundary without mutating the original.
-        # The original result_hash remains unchanged.
+        # The original result_hash and settlement outputs remain unchanged.
+        # Records boundary_status_at_arrival and settlement_status_at_arrival so
+        # callers can see whether the boundary was settled or compacted at the time.
         # Returns the late-fact receipt.
         def write_late_fact(boundary_key:, fact_value:, fact_type:)
           boundary = @boundaries[boundary_key]
@@ -222,12 +335,14 @@ module Igniter
             store:    :late_fact_receipts,
             key:      "late/#{boundary_key}/#{SecureRandom.hex(8)}",
             value:    {
-              "boundary_key"         => boundary_key,
-              "fact_type"            => fact_type.to_s,
-              "fact_value"           => fact_value,
-              "original_result_hash" => boundary.result_hash,
-              "recorded_at"          => Time.now.iso8601(3),
-              "disposition"          => "correction_boundary"
+              "boundary_key"                  => boundary_key,
+              "fact_type"                     => fact_type.to_s,
+              "fact_value"                    => fact_value,
+              "original_result_hash"          => boundary.result_hash,
+              "boundary_status_at_arrival"    => boundary.status.to_s,
+              "settlement_status_at_arrival"  => boundary.settlement_status.to_s,
+              "recorded_at"                   => Time.now.iso8601(3),
+              "disposition"                   => "correction_boundary"
             },
             producer: PRODUCER
           )

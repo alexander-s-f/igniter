@@ -209,7 +209,10 @@ RSpec.describe "Intelligent Ledger: LedgerBoundary availability proof" do
         )
       end
 
-      before { ledger.compact_boundary(boundary_key) }
+      before do
+        ledger.settle_boundary(boundary_key)
+        ledger.compact_boundary(boundary_key)
+      end
 
       it "returns status: :detail_unavailable" do
         result = ledger.full_replay(company_id: company, technician_id: tid, date: BOUNDARY_PROOF_DATE)
@@ -239,6 +242,9 @@ RSpec.describe "Intelligent Ledger: LedgerBoundary availability proof" do
       r = ledger.close_boundary(company_id: company, technician_id: tid, date: BOUNDARY_PROOF_DATE)
       r[:boundary].boundary_key
     end
+
+    # Settlement is required before compaction.
+    before { ledger.settle_boundary(boundary_key) }
 
     it "compact_boundary writes to :ledger_cleanup_receipts" do
       ledger.compact_boundary(boundary_key)
@@ -313,9 +319,13 @@ RSpec.describe "Intelligent Ledger: LedgerBoundary availability proof" do
       expect(plan[:blocking_boundaries]).to include(expected_key)
     end
 
-    it "plan becomes :ready after the boundary closes" do
+    it "plan becomes :ready after the boundary is settled" do
       ledger.open_boundary(company_id: company, technician_id: tid, date: BOUNDARY_PROOF_DATE)
       ledger.close_boundary(company_id: company, technician_id: tid, date: BOUNDARY_PROOF_DATE)
+      bk = IntelligentLedger::LedgerBoundary.key_for(
+        company_id: company, technician_id: tid, date: BOUNDARY_PROOF_DATE.to_s
+      )
+      ledger.settle_boundary(bk)
       plan = ledger.cleanup_plan(store: :order_events, before: cutoff, fidelity: :boundary)
       expect(plan[:status]).to eq(:ready)
       expect(plan[:blocking_boundaries]).to be_empty
@@ -324,6 +334,10 @@ RSpec.describe "Intelligent Ledger: LedgerBoundary availability proof" do
     it "ready plan includes boundary receipt IDs for retention" do
       ledger.open_boundary(company_id: company, technician_id: tid, date: BOUNDARY_PROOF_DATE)
       ledger.close_boundary(company_id: company, technician_id: tid, date: BOUNDARY_PROOF_DATE)
+      bk = IntelligentLedger::LedgerBoundary.key_for(
+        company_id: company, technician_id: tid, date: BOUNDARY_PROOF_DATE.to_s
+      )
+      ledger.settle_boundary(bk)
       plan = ledger.cleanup_plan(store: :order_events, before: cutoff, fidelity: :boundary)
       expect(plan[:receipts_to_keep]).not_to be_empty
     end
@@ -331,6 +345,10 @@ RSpec.describe "Intelligent Ledger: LedgerBoundary availability proof" do
     it "ready plan lists required boundary policies" do
       ledger.open_boundary(company_id: company, technician_id: tid, date: BOUNDARY_PROOF_DATE)
       ledger.close_boundary(company_id: company, technician_id: tid, date: BOUNDARY_PROOF_DATE)
+      bk = IntelligentLedger::LedgerBoundary.key_for(
+        company_id: company, technician_id: tid, date: BOUNDARY_PROOF_DATE.to_s
+      )
+      ledger.settle_boundary(bk)
       plan = ledger.cleanup_plan(store: :order_events, before: cutoff, fidelity: :boundary)
       expect(plan[:required_boundary_policies]).to include(:technician_day)
     end
@@ -409,6 +427,7 @@ RSpec.describe "Intelligent Ledger: LedgerBoundary availability proof" do
 
     it "also works when boundary is :compacted" do
       bk = boundary_key
+      ledger.settle_boundary(bk)
       ledger.compact_boundary(bk)
       receipt = ledger.write_late_fact(
         boundary_key: bk,

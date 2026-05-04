@@ -1,7 +1,7 @@
 # Track: Ledger Boundary Settlement Proof v0
 
 Status date: 2026-05-04
-Status: assigned
+Status: done
 Supervisor: [Architect Supervisor / Codex]
 Agent: Package Agent / Companion+Store (pkg:companion-store)
 
@@ -280,22 +280,58 @@ docs/intelligent-ledger/ledger-boundaries-compaction-plan.md
 docs/tracks/ledger-boundary-availability-proof-v0.md
 ```
 
-## Handoff Format
+## Handoff
 
 ```text
 [Package Agent / Companion+Store]
 Track: igniter-store/ledger-boundary-settlement-proof-v0
-Status: done | partial | blocked
+Status: done
 
 [D] Decisions:
-- ...
+- settlement_status kept as a separate attribute (:unsettled/:settled) on LedgerBoundary
+  rather than promoting :settled into the main status enum. This avoids breaking the
+  closed?/compacted? predicates and keeps the lifecycle clean.
+- compact! enforces settled? first; raises ArgumentError if called on unsettled boundary.
+- cleanup_plan now separates open_blocking vs. unsettled_blocking and emits
+  blocking_reasons: { boundary_key => :open | :settlement_required }.
+- Two settlement transforms: availability_summary and availability_metrics.
+  capacity_percent uses a 24h day denominator (not shift length) — documented in comments.
+- Per-transform receipts embedded in the settlement receipt (not separate store).
+- write_late_fact records boundary_status_at_arrival and settlement_status_at_arrival.
+- Store normalises string keys to symbols on read-back — spec uses symbol keys for
+  transform array elements (discovered via one test failure, fixed immediately).
 
 [S] Shipped:
-- ...
+- examples/intelligent_ledger/ledger_boundary.rb (updated)
+    Added: settlement_status, settlement_receipt_id, settle!, settled? predicate.
+    Updated compact! to require settlement first.
+- examples/intelligent_ledger/availability_boundary_ledger.rb (updated)
+    Added: settle_boundary (summary + metrics + settlement receipt + transform receipts).
+    Updated compact_boundary: settlement guard + settlement_receipt_id in cleanup receipt.
+    Updated cleanup_plan: unsettled_blocking + blocking_reasons.
+    Updated write_late_fact: boundary_status_at_arrival + settlement_status_at_arrival.
+    Updated store layout comment.
+- spec/igniter/store/intelligent_ledger/ledger_boundary_proof_spec.rb (updated)
+    Scenarios 4/5/6/7: added settle_boundary before compact_boundary calls.
+    Scenario 6: three "ready after closure" tests updated to "ready after settlement".
+- spec/igniter/store/intelligent_ledger/ledger_boundary_settlement_proof_spec.rb (new)
+    40 examples across 10 scenarios covering all settlement acceptance criteria.
 
 [T] Tests:
-- ...
+- 40 new settlement proof examples, 0 failures
+- 87/87 intelligent_ledger specs
+- Full package suite: 877 examples, 0 failures
+- Existing availability_snapshot_proof_spec.rb unchanged and green
 
 [R] Risks / next recommendations:
-- ...
+- capacity_percent uses 24h/day denominator — if shift-relative capacity is needed,
+  the settlement transform needs to know the expected shift length (not in boundary yet).
+- Settlement is idempotent at the boundary level (raises if already settled), but
+  store writes are not deduplication-safe — re-running settle_boundary on a new store
+  instance would write duplicate facts. Idempotency requires hydration from store.
+- Transform registry: currently two hardcoded transforms; a next step would be a small
+  transform registry so domain-specific settlement passes can be added without modifying
+  AvailabilityBoundaryLedger directly.
+- No settlement for partial-day schedules yet; blocked_hours calculation assumes simple
+  interval subtraction which is correct for this proof but may diverge with DST.
 ```
