@@ -69,11 +69,11 @@ legacy primary result
 
 This is the safest first path for Rails and other host apps.
 
-### `igniter-store`
+### `igniter-ledger`
 
 The Ledger substrate: immutable facts, `Store[T]` and `History[T]` experiments,
 causation, current/time-travel reads, access paths, WAL durability, changefeed,
-Store Open Protocol, StoreServer, compaction lifecycle, and intelligent-ledger
+Ledger Open Protocol, LedgerServer, compaction lifecycle, and intelligent-ledger
 boundary proofs.
 
 It is still a POC package, but it is no longer just "persistence research"; it
@@ -87,7 +87,7 @@ without embedding the storage engine.
 
 ### `igniter-companion`
 
-Typed application-facing `Record` / `History` facade over `igniter-store`.
+Typed application-facing `Record` / `History` facade over `igniter-ledger`.
 It turns raw facts into ergonomic app objects while applying pressure back onto
 Store capabilities such as scopes, partitions, receipts, manifests, and typed
 storage semantics.
@@ -154,7 +154,7 @@ Igniter is being shaped by real application pressure such as Spark CRM:
 ```text
 Existing app remains the system of record
   -> Igniter Embed observes/shadows risky services
-  -> Igniter Store records facts and receipts
+  -> Igniter Ledger records facts and receipts
   -> Ledger boundaries close semantic decisions
   -> Web/Agents explain, review, and recommend
 ```
@@ -187,7 +187,7 @@ and approval gates.
 - [igniter-contracts](./packages/igniter-contracts/README.md)
 - [igniter-extensions](./packages/igniter-extensions/README.md)
 - [igniter-embed](./packages/igniter-embed/README.md)
-- [igniter-store](./packages/igniter-store/README.md)
+- [igniter-ledger](./packages/igniter-ledger/README.md)
 - [igniter-ledger-client](./packages/igniter-ledger-client/README.md)
 - [igniter-companion](./packages/igniter-companion/README.md)
 - [igniter-application](./packages/igniter-application/README.md)

@@ -1,18 +1,18 @@
 # igniter-companion
 
-DSL уровня приложения для Record/History, backed by `igniter-store`.
+DSL уровня приложения для Record/History, backed by `igniter-ledger`.
 
 > Канонический оригинал — [README.md](README.md) (English).
 
 ## Цель
 
-Этот пакет — **потребитель `igniter-store` с точки зрения прикладного кода**.
+Этот пакет — **потребитель `igniter-ledger` с точки зрения прикладного кода**.
 
 Он существует по двум причинам:
 
 1. **Пользовательская поверхность** — показывает, как должна выглядеть работа с фактами из кода контрактов/приложений: типизированные `Record`, append-only `History`, scope-запросы, реактивные подписки.
 
-2. **Давление на ядро** — каждая новая возможность на этом уровне выявляет пробелы, неудобства или баги в `igniter-store`. Это намеренно. Инсайты фиксируются в секции [Давление и инсайты](#давление-и-инсайты) ниже.
+2. **Давление на ядро** — каждая новая возможность на этом уровне выявляет пробелы, неудобства или баги в `igniter-ledger`. Это намеренно. Инсайты фиксируются в секции [Давление и инсайты](#давление-и-инсайты) ниже.
 
 ### Метафора туннеля
 
@@ -21,10 +21,10 @@ examples/application/companion   ←── app-level contracts, manifests, mater
                    │
                    │  копают навстречу друг другу
                    ▼
-  packages/igniter-companion      ←── типизированный DSL поверх igniter-store
+  packages/igniter-companion      ←── типизированный DSL поверх igniter-ledger
                    │
                    ▼
-  packages/igniter-store          ←── факты, WAL, scope, reactive (Rust/Ruby FFI)
+  packages/igniter-ledger          ←── факты, WAL, scope, reactive (Rust/Ruby FFI)
 ```
 
 **Точка сближения**: когда `PersistenceSketchPack` в `examples/application/companion`
@@ -43,7 +43,7 @@ lib/igniter/companion/
 
 ### `Record`
 
-Оборачивает `Store[T]` из igniter-store. Последнее записанное значение — текущее состояние.
+Оборачивает `Store[T]` из igniter-ledger. Последнее записанное значение — текущее состояние.
 
 ```ruby
 class Reminder
@@ -61,7 +61,7 @@ end
 
 ### `History`
 
-Оборачивает `History[T]` из igniter-store. Append-only, ключи генерируются автоматически.
+Оборачивает `History[T]` из igniter-ledger. Append-only, ключи генерируются автоматически.
 
 ```ruby
 class TrackerLog
@@ -132,7 +132,7 @@ end
 ```
 
 Подписчик **не** вызывается на каждый write — только когда scope-кэш был прогрет
-запросом до этого, а следующий write его инвалидировал. Lazy-семантика из igniter-store
+запросом до этого, а следующий write его инвалидировал. Lazy-семантика из igniter-ledger
 (см. [Инсайты](#давление-и-инсайты)).
 
 ---
@@ -140,8 +140,8 @@ end
 ## Запуск тестов
 
 ```bash
-# Скомпилировать igniter-store (один раз):
-cd ../igniter-store
+# Скомпилировать igniter-ledger (один раз):
+cd ../igniter-ledger
 PATH="$HOME/.cargo/bin:$PATH" bundle exec rake compile
 
 # Запустить суиту companion:
@@ -167,7 +167,7 @@ bundle exec rake spec
 числового типа. Magnus вызывает Ruby-метод `to_i` при конвертации, поэтому
 `Float(7.0).to_i` → `7`, `Float(8.5).to_i` → `8`.
 
-**Исправление** (в `igniter-store/ext/igniter_store_native/src/fact.rs`):
+**Исправление** (в `igniter-ledger/ext/igniter_ledger_native/src/fact.rs`):
 ```rust
 // Было (неточно — coerce-ит Float через to_i):
 if let Ok(i) = i64::try_convert(val) { return serde_json::json!(i); }
@@ -199,7 +199,7 @@ scope-кэш был прогрет запросом до этого.
 "уведомление об изменении прогретого кэша", не "уведомление о каждой мутации".
 Для реакции на каждую мутацию нужен другой механизм (event bus / WAL tail).
 
-**Открытый вопрос для igniter-store**: стоит ли добавить `eager: true` опцию
+**Открытый вопрос для igniter-ledger**: стоит ли добавить `eager: true` опцию
 в `AccessPath`, которая регистрирует consumer как point-write listener
 независимо от состояния кэша?
 
@@ -351,7 +351,7 @@ app_receipt = {
 field :address  # { city: "Moscow", zip: "101000" }
 ```
 
-После round-trip через igniter-store ключи становятся Symbols (`:city`, `:zip`).
+После round-trip через igniter-ledger ключи становятся Symbols (`:city`, `:zip`).
 Это правильно. Но нет способа объявить структуру вложенного объекта.
 Кандидат для будущего расширения: `embedded :address do ... end`.
 
@@ -366,7 +366,7 @@ field :address  # { city: "Moscow", zip: "101000" }
 PersistenceSketchPack (DSL: persist/history/field/scope)
   → генерирует Record/History классы
   → хранит через Igniter::Companion::Store
-  → backed by Igniter::Store::IgniterStore (facts + WAL)
+  → backed by Igniter::Ledger::LedgerStore (facts + WAL)
 ```
 
 Когда первый реальный `persist :reminders` пройдёт через этот стек end-to-end,

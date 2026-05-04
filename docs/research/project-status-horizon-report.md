@@ -1,6 +1,6 @@
 # Project Status Horizon Report
 
-Status date: 2026-05-02.
+Status date: 2026-05-04.
 Scope: whole-project compact status, current evidence, insights, and horizon
 ideas. Not a public API promise.
 
@@ -14,8 +14,8 @@ contracts kernel
 -> application/showcase pressure
 -> Companion persistence pressure
 -> igniter-companion typed facade
--> igniter-store hot fact engine
--> store server / reactive delivery / future sync hub
+-> igniter-ledger hot fact engine
+-> ledger server / reactive delivery / future sync hub
 -> later language and package consolidation
 ```
 
@@ -46,14 +46,14 @@ and now the infrastructure that may later materialize more contracts.
 
 ### New Pressure Packages
 
-- `igniter-store`: experimental hot fact engine. Current evidence includes
+- `igniter-ledger`: experimental hot fact engine. Current evidence includes
   immutable facts, fact-id causation, time-travel reads, scope access paths,
   scope-aware invalidation, history partition indexes, LRU time-travel cache,
   read-path schema coercion, CRC32-framed WAL, snapshot checkpoint/replay,
   retention/compaction, derivation/scatter/relation rules, StoreServer,
   NetworkBackend, WireProtocol, subscriptions, stats, drain, CLI, HTTPAdapter
   (Rack, port 7300), and TCPAdapter (WireProtocol framing, port 7401).
-- `igniter-companion`: typed Record/History facade over `igniter-store`. It
+- `igniter-companion`: typed Record/History facade over `igniter-ledger`. It
   turns app-local manifests into Record/History classes, normalized receipts,
   partition replay, projection metadata, schema-graph sidecars, and convergence
   proofs without replacing Companion's app backend or declaring a core API.
@@ -93,7 +93,7 @@ without changing core contract execution.
 
 ## Current Worktree Notes
 
-The Companion sidecar baseline now reports the current Store/Companion protocol
+The Companion sidecar baseline now reports the current Ledger/Companion protocol
 horizon as closed for this POC slice:
 
 - `examples/application/companion/services/companion_store_server_topology_sidecar.rb`
@@ -113,15 +113,14 @@ Current uncommitted changes from this report are docs-only snapshot updates.
 
 ## Verification Snapshot
 
-Fresh checks on 2026-05-02:
+Fresh checks on 2026-05-04:
 
 - `ruby examples/run.rb smoke`: 87 passed, 0 failed, 0 skipped.
-- `bundle exec rspec packages/igniter-store/spec`: 350 examples, 0 failures, 2 pending.
-- `RUBYLIB=packages/igniter-companion/lib:packages/igniter-store/lib bundle exec rspec packages/igniter-companion/spec`: 89 examples, 0 failures.
+- `BUNDLE_GEMFILE=packages/igniter-ledger/Gemfile bundle exec rspec packages/igniter-ledger/spec`: 1199 examples, 0 failures.
+- `BUNDLE_GEMFILE=packages/igniter-companion/Gemfile bundle exec rspec packages/igniter-companion/spec`: 89 examples, 0 failures.
 
-Note: running `bundle exec rspec packages/igniter-companion/spec` without
-`RUBYLIB` fails to load `igniter/companion`; the package spec helper is not yet
-self-contained through root load-path registration.
+Note: Companion now verifies through its package Gemfile; the old manual
+`RUBYLIB` path is no longer the current verification path.
 
 ## Strategic Insights
 
@@ -136,7 +135,7 @@ move, and forbidden moves, it is not ready to become substrate.
 
 ### 2. Persistence split into semantics and physics
 
-Companion/`igniter-companion` own typed app semantics. `igniter-store` owns fact
+Companion/`igniter-companion` own typed app semantics. `igniter-ledger` owns fact
 physics. This is the right split.
 
 Out-of-box direction: avoid "database abstraction" language. Use a physics
@@ -219,9 +218,9 @@ app-local proof
 
 Current strongest next pressure is `companion_relation_auto_wire`.
 
-### 9. Store needs an open waist
+### 9. Ledger needs an open waist
 
-`igniter-store` should remain part of the Igniter ecosystem, but it should not
+`igniter-ledger` should remain part of the Igniter ecosystem, but it should not
 be locked to `Igniter::Contract` classes. The strategic surface is an open
 descriptor/fact/receipt/query protocol where Igniter contracts are a first-class
 client, not the only client.
@@ -234,12 +233,12 @@ external DSL
 agent memory model
 Companion typed records
 Igniter contracts
-        -> Igniter Store Open Protocol
-        -> igniter-store fact engine
+        -> Igniter Ledger Open Protocol
+        -> igniter-ledger fact engine
 ```
 
 This keeps the Lego-style option alive: another ecosystem can implement its own
-contract model and still interoperate through Store facts.
+contract model and still interoperate through Ledger facts.
 
 ## Ideas Beyond The Usual Box
 
@@ -269,7 +268,7 @@ This turns migration review into simulation rather than static diff.
 ### Time-Travel UX Everywhere
 
 Every dashboard can get an `as_of` control because time-travel is structural in
-Store facts. Debugging becomes visual, not log scraping.
+Ledger facts. Debugging becomes visual, not log scraping.
 
 ### Capability Firewall
 
@@ -303,15 +302,15 @@ app-level relation auto-wiring:
 ```text
 Companion relation manifest
 -> igniter-companion facade
--> igniter-store RelationRule
+-> igniter-ledger RelationRule
 -> relation_snapshot/resolve proof
 ```
 
 If this feels boring and inspectable, it earns the right to move lower.
 
-### Store Protocol As Ecosystem API
+### Ledger Protocol As Ecosystem API
 
-Publish `igniter-store` as a protocol-compatible fact substrate before treating
+Publish `igniter-ledger` as a protocol-compatible fact substrate before treating
 it as an Igniter-only persistence layer. The protocol should center on packets:
 
 - descriptors
@@ -345,17 +344,17 @@ Igniter's Ruby DSL internals.
 Track: docs/research/project-status-horizon-report.md
 Status: whole-project status updated on 2026-05-02.
 [D] Igniter is now a contracts-native substrate track, not only a contract DSL.
-[D] igniter-store is hot fact engine; igniter-companion is typed facade.
-[D] igniter-store now has an Open Protocol proposal: descriptor/fact/receipt
+[D] igniter-ledger is hot fact engine; igniter-companion is typed facade.
+[D] igniter-ledger now has an Open Protocol proposal: descriptor/fact/receipt
 waist for non-Igniter clients as well as Igniter contracts.
 [D] Companion remains the strongest product pressure; the current
-Store/Companion protocol pressure packet is closed and awaits a new
+Ledger/Companion protocol pressure packet is closed and awaits a new
 architect-selected slice.
 [R] Do not promote Store graph nodes, migrations, materializer execution, or
 relation enforcement to core from current evidence.
 [R] Do not let StoreServer become a contract-logic RPC surface.
-[S] Fresh checks: examples smoke 87/0, store specs 327/0 with 2 pending,
-companion specs 89/0 with RUBYLIB.
+[S] Fresh checks: examples smoke 87/0, ledger specs 1199/0, companion specs
+89/0 with package Gemfile.
 Next: choose between conformance kit, StoreServer envelope integration,
 app-local protocol adoption, or sync-hub follow-through; keep materializer
 dry-run separate.

@@ -1,13 +1,13 @@
 # igniter-companion
 
-Application-facing Record/History facade backed by `igniter-store`.
+Application-facing Record/History facade backed by `igniter-ledger`.
 
 Status: active pre-v1 platform lane. The surface is intentionally compact and
 experimental while Store/Ledger semantics settle.
 
 ## Purpose
 
-This package is the **consumer-facing layer over `igniter-store` for
+This package is the **consumer-facing layer over `igniter-ledger` for
 application code**.
 
 It serves two goals:
@@ -16,7 +16,7 @@ It serves two goals:
    contract/application code: typed `Record` objects, append-only `History`
    streams, scope queries, generated schemas, and normalized receipts.
 
-2. **Pressure on the core** — every new capability at this level surfaces gaps, friction, or bugs in `igniter-store`. This is intentional. Insights are recorded in the [Pressure & Insights](#pressure--insights) section below.
+2. **Pressure on the core** — every new capability at this level surfaces gaps, friction, or bugs in `igniter-ledger`. This is intentional. Insights are recorded in the [Pressure & Insights](#pressure--insights) section below.
 
 ### The Tunnel Metaphor
 
@@ -25,10 +25,10 @@ examples/application/companion   ←── app-level contracts, manifests, mater
                    │
                    │  digging toward each other
                    ▼
-  packages/igniter-companion      ←── typed DSL on top of igniter-store
+  packages/igniter-companion      ←── typed DSL on top of igniter-ledger
                    │
                    ▼
-  packages/igniter-store          ←── facts, WAL, scope, reactive (Rust/Ruby FFI)
+  packages/igniter-ledger          ←── facts, WAL, scope, reactive (Rust/Ruby FFI)
 ```
 
 **Convergence point**: when `PersistenceSketchPack` in `examples/application/companion`
@@ -56,7 +56,7 @@ lib/igniter/companion/
 
 ### `Record`
 
-Wraps `Store[T]` from igniter-store. The latest written value is the current state.
+Wraps `Store[T]` from igniter-ledger. The latest written value is the current state.
 
 ```ruby
 class Reminder
@@ -74,7 +74,7 @@ end
 
 ### `History`
 
-Wraps `History[T]` from igniter-store. Append-only; keys are auto-generated.
+Wraps `History[T]` from igniter-ledger. Append-only; keys are auto-generated.
 
 ```ruby
 class TrackerLog
@@ -146,15 +146,15 @@ end
 
 The subscriber is **not** called on every write — only when the scope cache was
 warmed by a prior query and then invalidated by the next write. This is the
-lazy-invalidation semantics from igniter-store (see [Insights](#pressure--insights)).
+lazy-invalidation semantics from igniter-ledger (see [Insights](#pressure--insights)).
 
 ---
 
 ## Running tests
 
 ```bash
-# Compile igniter-store first (once):
-cd ../igniter-store
+# Compile igniter-ledger first (once):
+cd ../igniter-ledger
 PATH="$HOME/.cargo/bin:$PATH" bundle exec rake compile
 
 # Run the companion suite:
@@ -180,7 +180,7 @@ fix, and lesson learned.
 Magnus routes this through Ruby's `to_i` coercion protocol, so `Float(7.0).to_i`
 returns `7`, and `Float(8.5).to_i` returns `8`.
 
-**Fix** (in `igniter-store/ext/igniter_store_native/src/fact.rs`):
+**Fix** (in `igniter-ledger/ext/igniter_ledger_native/src/fact.rs`):
 ```rust
 // Before (inaccurate — coerces Float via to_i):
 if let Ok(i) = i64::try_convert(val) { return serde_json::json!(i); }
@@ -213,7 +213,7 @@ the cache is cold there is nothing to remove and therefore no entries → no not
 For reacting to every mutation regardless of cache state, a different mechanism
 is needed (event bus / WAL tail).
 
-**Open question for igniter-store**: should `AccessPath` support an `eager: true`
+**Open question for igniter-ledger**: should `AccessPath` support an `eager: true`
 option that registers the consumer as a point-write listener independent of
 cache state?
 
@@ -372,7 +372,7 @@ The current DSL has no nested type declarations. For example:
 field :address  # { city: "Moscow", zip: "101000" }
 ```
 
-After a round-trip through igniter-store the keys are Symbols (`:city`, `:zip`).
+After a round-trip through igniter-ledger the keys are Symbols (`:city`, `:zip`).
 This is correct. But there is no way to declare the structure of the nested object.
 Candidate for a future DSL addition: `embedded :address do ... end`.
 
@@ -387,7 +387,7 @@ uses blob-JSON over SQLite. The target path:
 PersistenceSketchPack (DSL: persist/history/field/scope)
   → generates Record/History classes
   → stores via Igniter::Companion::Store
-  → backed by Igniter::Store::IgniterStore (facts + WAL)
+  → backed by Igniter::Ledger::LedgerStore (facts + WAL)
 ```
 
 When the first real `persist :reminders` flows through this stack end-to-end,

@@ -21,7 +21,7 @@ module Igniter
         dispatch(:write, metadata.merge(store: store, key: key, value: value))
       end
 
-      # v0 client-level append lowers to the current Store Open Protocol write op.
+      # v0 client-level append lowers to the current Ledger Open Protocol write op.
       # The server protocol does not yet expose a distinct append operation.
       def append(history:, event:, key: nil, partition_key: nil, **metadata)
         generated_key = key || event_key(event)

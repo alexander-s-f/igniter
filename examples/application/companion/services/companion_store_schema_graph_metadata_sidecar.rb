@@ -4,7 +4,7 @@ begin
   require "igniter/companion"
 rescue LoadError
   root = File.expand_path("../../../..", __dir__)
-  $LOAD_PATH.unshift(File.join(root, "packages/igniter-store/lib"))
+  $LOAD_PATH.unshift(File.join(root, "packages/igniter-ledger/lib"))
   $LOAD_PATH.unshift(File.join(root, "packages/igniter-companion/lib"))
   require "igniter/companion"
 end
@@ -20,7 +20,7 @@ module Companion
       def proof
         persistence = CompanionPersistence.new(state: CompanionState.seeded)
         scope_paths = manifest_scope_paths(persistence)
-        graph = Igniter::Store::SchemaGraph.new
+        graph = Igniter::Ledger::SchemaGraph.new
         scope_paths.each { |path| graph.register(access_path_for(path)) }
 
         snapshot = graph.metadata_snapshot
@@ -55,7 +55,7 @@ module Companion
       end
 
       def access_path_for(path)
-        Igniter::Store::AccessPath.new(
+        Igniter::Ledger::AccessPath.new(
           store: path.fetch(:store),
           lookup: path.fetch(:lookup),
           scope: path.fetch(:scope),
@@ -67,8 +67,8 @@ module Companion
 
       def graph_report(graph, snapshot)
         {
-          schema_graph_constant_present: Igniter::Store.const_defined?(:SchemaGraph),
-          access_path_constant_present: Igniter::Store.const_defined?(:AccessPath),
+          schema_graph_constant_present: Igniter::Ledger.const_defined?(:SchemaGraph),
+          access_path_constant_present: Igniter::Ledger.const_defined?(:AccessPath),
           metadata_snapshot_api_present: graph.respond_to?(:metadata_snapshot),
           registered_stores: graph.registered_stores,
           path_count: snapshot.values.sum(&:length),
@@ -82,7 +82,7 @@ module Companion
           status: api_present ? :closed : :open,
           expected_api: :metadata_snapshot,
           schema_graph_metadata_snapshot_present: api_present,
-          package_surface: :"igniter-store",
+          package_surface: :"igniter-ledger",
           lower_level_capability: :access_path_metadata
         }
       end

@@ -4,7 +4,7 @@ begin
   require "igniter/companion"
 rescue LoadError
   root = File.expand_path("../../../..", __dir__)
-  $LOAD_PATH.unshift(File.join(root, "packages/igniter-store/lib"))
+  $LOAD_PATH.unshift(File.join(root, "packages/igniter-ledger/lib"))
   $LOAD_PATH.unshift(File.join(root, "packages/igniter-companion/lib"))
   require "igniter/companion"
 end
@@ -48,7 +48,7 @@ module Companion
         {
           schema_version: 1,
           package_facade: :"igniter-companion",
-          substrate: :"igniter-store",
+          substrate: :"igniter-ledger",
           backend: :memory,
           main_state_mutated: false,
           record: record_report(store, reminder_record, read, current, past, open_before, open_after, notifications, write_receipt),

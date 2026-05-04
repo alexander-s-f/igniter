@@ -1,6 +1,6 @@
 # igniter-ledger-client
 
-Protocol-first client package for Igniter Ledger / Store Open Protocol.
+Protocol-first client package for Igniter Ledger / Ledger Open Protocol.
 
 Status: pre-v1 skeleton. This package owns the client boundary, not the storage
 engine.
@@ -9,16 +9,16 @@ engine.
 
 `igniter-ledger-client` is the shared client layer for packages and host apps
 that need to talk to a Ledger/Store endpoint without depending on
-`igniter-store` internals.
+`igniter-ledger` internals.
 
 ```text
 Embed / Companion / Web / MCP / Spark adapters
   -> Igniter::LedgerClient
-  -> Store Open Protocol envelope
+  -> Ledger Open Protocol envelope
   -> local dispatch | remote HTTP | future TCP/pool/outbox transport
 ```
 
-The package deliberately has no runtime dependency on `igniter-store`.
+The package deliberately has no runtime dependency on `igniter-ledger`.
 
 ## Owns
 
@@ -82,7 +82,7 @@ client.compaction_activity(store: nil, kind: nil, since: nil, limit: nil)
 client.close
 ```
 
-`append` currently lowers to the Store Open Protocol `write` op because the
+`append` currently lowers to the Ledger Open Protocol `write` op because the
 server protocol does not yet expose a distinct append operation. That gap should
 be closed in the next protocol slice before high-volume history clients depend
 on it.

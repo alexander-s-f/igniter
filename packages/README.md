@@ -11,13 +11,13 @@ This directory is the current package map for the pre-v1 Igniter framework.
   observing/shadowing existing services without changing primary responses.
 - `igniter-extensions` - optional packs, tooling, provenance, reactive,
   differential, invariant, and operational extension lanes.
-- `igniter-store` - Ledger substrate for facts, histories, receipts, WAL,
-  replay, changefeed, Store Open Protocol, compaction activity, and intelligent
+- `igniter-ledger` - Ledger substrate for facts, histories, receipts, WAL,
+  replay, changefeed, Ledger Open Protocol, compaction activity, and intelligent
   boundary proofs. Still pre-v1/POC, but now an active platform lane.
 - `igniter-ledger-client` - protocol-first client boundary for Store/Ledger
   users; owns envelopes, transport adapters, errors, and future pool/retry
   policy without embedding the storage engine.
-- `igniter-companion` - typed Record/History facade over `igniter-store`,
+- `igniter-companion` - typed Record/History facade over `igniter-ledger`,
   carrying app-facing persistence pressure back into Store/Ledger design.
 - `igniter-application` - contracts-native app runtime: manifests, providers,
   services, credentials, agents, sessions, snapshots, and boot/shutdown plans.
@@ -39,14 +39,14 @@ All packages are pre-v1. API stability, transport guarantees, and production
 deployment promises should be checked in the owning package README and current
 track docs before depending on them.
 
-`igniter-store` and `igniter-companion` are no longer parked as passive research
+`igniter-ledger` and `igniter-companion` are no longer parked as passive research
 packages. They remain experimental in API shape, but they are active foundation
 work for Ledger-backed companion systems.
 
 ## Deferred / Conditional Work
 
 - Rebuild `igniter-server` only if an adapter surface is still needed after
-  `igniter-store`, `igniter-web`, MCP, and app-local mounts settle.
+  `igniter-ledger`, `igniter-web`, MCP, and app-local mounts settle.
 
 See [AI And Agents Target Plan](../docs/dev/ai-agents-target-plan.md) before
 adding provider clients or agent runtime logic to an application example.

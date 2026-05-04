@@ -4,7 +4,7 @@ require_relative "../contracts"
 
 module Companion
   module Contracts
-    contracts :CompanionStoreServerTopologySidecarContract,
+    contracts :CompanionLedgerServerTopologySidecarContract,
               outputs: %i[schema_version descriptor status checks topology backend_matrix package_gap pressure summary] do
       input :proof
 

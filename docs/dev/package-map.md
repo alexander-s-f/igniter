@@ -35,12 +35,12 @@ Root should stay thin:
 - `igniter-cluster`
   contracts-native distributed runtime: remote execution, routing, admission,
   placement, peer registry, topology, distributed diagnostics
-- `igniter-store`
+- `igniter-ledger`
   experimental contract-native hot fact engine: immutable facts, time-travel,
-  access paths, reactive invalidation, retention/compaction, StoreServer
+  access paths, reactive invalidation, retention/compaction, LedgerServer
   transport, and future hot/cold sync experiments
 - `igniter-companion`
-  experimental typed Record/History facade over `igniter-store`; owns
+  experimental typed Record/History facade over `igniter-ledger`; owns
   app-facing Store/History ergonomics and pressure from Companion manifests,
   while avoiding core persistence API promises
 
@@ -50,7 +50,7 @@ Root should stay thin:
   execution, and supervisor vocabulary
 - stable contract persistence capability may still graduate later through
   `igniter-extensions` / `igniter-application` / future `igniter-persistence`;
-  current `igniter-store` and `igniter-companion` remain pressure packages, not
+  current `igniter-ledger` and `igniter-companion` remain pressure packages, not
   final public persistence API
 
 ## Current Supporting Packages
@@ -86,8 +86,8 @@ Root should stay thin:
   are app-host/back-end boundary behavior. Do not promote a separate package
   until the target plan has repeated implementation evidence.
 - Put code in `igniter-cluster` if the network is part of the execution model.
-- Put immutable fact log, time-travel, access path, retention, StoreServer,
-  sync-hub, and transport-backend experiments in `igniter-store`; do not put
+- Put immutable fact log, time-travel, access path, retention, LedgerServer,
+  sync-hub, and transport-backend experiments in `igniter-ledger`; do not put
   contract business logic execution there.
 - Put app-facing generated Record/History classes, receipts, manifest-to-store
   facades, and Companion pressure adapters in `igniter-companion`; do not put

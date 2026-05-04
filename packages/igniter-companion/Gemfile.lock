@@ -1,18 +1,22 @@
 PATH
-  remote: ../igniter-store
+  remote: ../igniter-ledger
   specs:
-    igniter-store (0.5.1)
+    igniter-ledger (0.5.1)
+      msgpack (~> 1.0)
+      rack (~> 3.0)
 
 PATH
   remote: .
   specs:
     igniter-companion (0.1.0)
-      igniter-store
+      igniter-ledger
 
 GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.6.2)
+    msgpack (1.8.0)
+    rack (3.2.6)
     rake (13.4.2)
     rspec (3.13.2)
       rspec-core (~> 3.13.0)
@@ -34,14 +38,16 @@ PLATFORMS
 
 DEPENDENCIES
   igniter-companion!
-  igniter-store!
+  igniter-ledger!
   rake (~> 13.0)
   rspec (~> 3.0)
 
 CHECKSUMS
   diff-lcs (1.6.2) sha256=9ae0d2cba7d4df3075fe8cd8602a8604993efc0dfa934cff568969efb1909962
   igniter-companion (0.1.0)
-  igniter-store (0.5.1)
+  igniter-ledger (0.5.1)
+  msgpack (1.8.0)
+  rack (3.2.6)
   rake (13.4.2) sha256=cb825b2bd5f1f8e91ca37bddb4b9aaf345551b4731da62949be002fa89283701
   rspec (3.13.2) sha256=206284a08ad798e61f86d7ca3e376718d52c0bc944626b2349266f239f820587
   rspec-core (3.13.6) sha256=a8823c6411667b60a8bca135364351dda34cd55e44ff94c4be4633b37d828b2d

@@ -22,7 +22,7 @@ module Companion
           replaces_app_backend: false,
           mutates_main_state: false,
           package_facade: :"igniter-companion",
-          substrate: :"igniter-store",
+          substrate: :"igniter-ledger",
           role: :tiny_convergence_proof,
           preserves: {
             persist: :store_t,
@@ -56,7 +56,7 @@ module Companion
           Companion::Contracts.check(:no_app_backend_replacement,   descriptor.fetch(:replaces_app_backend) == false),
           Companion::Contracts.check(:no_main_state_mutation,       proof.fetch(:main_state_mutated) == false),
           Companion::Contracts.check(:package_facade_present,       proof.fetch(:package_facade) == :"igniter-companion"),
-          Companion::Contracts.check(:substrate_present,            proof.fetch(:substrate) == :"igniter-store"),
+          Companion::Contracts.check(:substrate_present,            proof.fetch(:substrate) == :"igniter-ledger"),
           Companion::Contracts.check(:record_manifest_generated,     record.fetch(:generated_from_manifest) == true),
           Companion::Contracts.check(:history_manifest_generated,    history.fetch(:generated_from_manifest) == true),
           Companion::Contracts.check(:store_name_in_manifest,        record.fetch(:manifest_store_name_present) &&

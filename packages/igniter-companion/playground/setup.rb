@@ -2,7 +2,7 @@
 
 # Adds both gem lib/ dirs to load path so the playground runs from any cwd.
 $LOAD_PATH.unshift(File.expand_path("../../lib", __dir__))
-$LOAD_PATH.unshift(File.expand_path("../../../igniter-store/lib", __dir__))
+$LOAD_PATH.unshift(File.expand_path("../../../igniter-ledger/lib", __dir__))
 
 require "igniter/companion"
 

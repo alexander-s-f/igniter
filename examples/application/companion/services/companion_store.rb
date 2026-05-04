@@ -333,7 +333,7 @@ module Companion
       end
 
       def companion_store_server_topology_sidecar
-        Services::CompanionStoreServerTopologySidecar.packet
+        Services::CompanionLedgerServerTopologySidecar.packet
       end
 
       def setup_health

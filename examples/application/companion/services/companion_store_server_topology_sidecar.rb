@@ -4,32 +4,32 @@ begin
   require "igniter/companion"
 rescue LoadError
   root = File.expand_path("../../../..", __dir__)
-  $LOAD_PATH.unshift(File.join(root, "packages/igniter-store/lib"))
+  $LOAD_PATH.unshift(File.join(root, "packages/igniter-ledger/lib"))
   $LOAD_PATH.unshift(File.join(root, "packages/igniter-companion/lib"))
   require "igniter/companion"
 end
 
 module Companion
   module Services
-    class CompanionStoreServerTopologySidecar
+    class CompanionLedgerServerTopologySidecar
       def self.packet
         proof = new.proof
-        Contracts::CompanionStoreServerTopologySidecarContract.evaluate(proof: proof)
+        Contracts::CompanionLedgerServerTopologySidecarContract.evaluate(proof: proof)
       end
 
       def proof
-        native = Igniter::Store::NATIVE
+        native = Igniter::Ledger::NATIVE
         network_ready = !native &&
-                        Igniter::Store.const_defined?(:NetworkBackend) &&
-                        Igniter::Store.const_defined?(:StoreServer)
+                        Igniter::Ledger.const_defined?(:NetworkBackend) &&
+                        Igniter::Ledger.const_defined?(:LedgerServer)
 
         {
           main_state_mutated: false,
           network_executed: false,
-          wire_protocol_known: Igniter::Store.const_defined?(:WireProtocol),
-          server_config_known: Igniter::Store.const_defined?(:ServerConfig),
-          server_logger_known: Igniter::Store.const_defined?(:ServerLogger),
-          subscription_registry_known: Igniter::Store.const_defined?(:SubscriptionRegistry),
+          wire_protocol_known: Igniter::Ledger.const_defined?(:WireProtocol),
+          server_config_known: Igniter::Ledger.const_defined?(:ServerConfig),
+          server_logger_known: Igniter::Ledger.const_defined?(:ServerLogger),
+          subscription_registry_known: Igniter::Ledger.const_defined?(:SubscriptionRegistry),
           topology: topology,
           backend_matrix: backend_matrix(native: native, network_ready: network_ready),
           package_gap: package_gap(native: native, network_ready: network_ready),
@@ -61,7 +61,7 @@ module Companion
           operational_lifecycle: {
             config: :server_config,
             logger: :server_logger,
-            executable: :"igniter-store-server",
+            executable: :"igniter-ledger-server",
             phases: %i[configure bind ready accept drain stop],
             readiness: :wait_until_ready,
             shutdown: :graceful_drain
@@ -103,10 +103,10 @@ module Companion
           status: network_ready ? :closed : :open,
           name: :native_wire_deserialization,
           current_runtime_native: native,
-          network_backend_constant: Igniter::Store.const_defined?(:NetworkBackend),
-          store_server_constant: Igniter::Store.const_defined?(:StoreServer),
+          network_backend_constant: Igniter::Ledger.const_defined?(:NetworkBackend),
+          store_server_constant: Igniter::Ledger.const_defined?(:LedgerServer),
           blocker: network_ready ? nil : :fact_deserialize_from_wire_hash,
-          package_surface: :"igniter-store"
+          package_surface: :"igniter-ledger"
         }
       end
 

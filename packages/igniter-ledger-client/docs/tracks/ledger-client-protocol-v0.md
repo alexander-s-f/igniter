@@ -8,7 +8,7 @@ Agent: Package Agent / Companion+Store (pkg:companion-store)
 ## Goal
 
 Create one standard client boundary for everything that talks to
-`igniter-store` / Ledger.
+`igniter-ledger` / Ledger.
 
 This is a foundation slice. The point is to prevent every layer from inventing
 its own store client:
@@ -34,7 +34,7 @@ Igniter::LedgerClient
 ```
 
 `igniter-ledger-client` must remain a protocol/transport package. It must not
-embed the storage engine or depend on `igniter-store` internals.
+embed the storage engine or depend on `igniter-ledger` internals.
 
 ## Read First
 
@@ -43,13 +43,13 @@ Use the compact fresh-chat route:
 1. `packages/igniter-ledger-client/README.md`
 2. `packages/igniter-ledger-client/lib/igniter/ledger_client/client.rb`
 3. `packages/igniter-ledger-client/lib/igniter/ledger_client/envelope.rb`
-4. `packages/igniter-store/docs/package-agent-onboarding.md`
-5. `packages/igniter-store/docs/progress.md`
-6. `packages/igniter-store/docs/open-protocol.md`
-7. `packages/igniter-store/docs/server-api-proposal.md`
-8. `packages/igniter-store/lib/igniter/store/protocol/interpreter.rb`
-9. `packages/igniter-store/lib/igniter/store/protocol/wire_envelope.rb`
-10. `packages/igniter-store/lib/igniter/store/contractable_receipt_sink.rb`
+4. `packages/igniter-ledger/docs/package-agent-onboarding.md`
+5. `packages/igniter-ledger/docs/progress.md`
+6. `packages/igniter-ledger/docs/open-protocol.md`
+7. `packages/igniter-ledger/docs/server-api-proposal.md`
+8. `packages/igniter-ledger/lib/igniter/store/protocol/interpreter.rb`
+9. `packages/igniter-ledger/lib/igniter/store/protocol/wire_envelope.rb`
+10. `packages/igniter-ledger/lib/igniter/store/contractable_receipt_sink.rb`
 11. this track
 
 Do not read all docs/tracks unless a failing test forces it.
@@ -90,7 +90,7 @@ client-facing method names and return envelopes should stay stable.
 ```text
 client method
   -> normalized request
-  -> Store Open Protocol op where possible
+  -> Ledger Open Protocol op where possible
   -> normalized response/result
 ```
 
@@ -208,7 +208,7 @@ safe.
 But add a compact design note:
 
 ```text
-packages/igniter-store/docs/ledger-client-protocol.md
+packages/igniter-ledger/docs/ledger-client-protocol.md
 ```
 
 It should define:
@@ -223,8 +223,8 @@ It should define:
 
 Also update:
 
-- `packages/igniter-store/README.md`
-- `packages/igniter-store/docs/README.md`
+- `packages/igniter-ledger/README.md`
+- `packages/igniter-ledger/docs/README.md`
 
 ## Scope E: Tests
 
@@ -248,10 +248,10 @@ HTTP dispatch proof if current specs already have HTTPAdapter helpers.
 
 - One documented `LedgerClient` entrypoint exists.
 - Local client works against `IgniterStore`.
-- Remote HTTP client lowers to Store Open Protocol / WireEnvelope.
+- Remote HTTP client lowers to Ledger Open Protocol / WireEnvelope.
 - `ContractableReceiptSink` can use `client:` and remains compatible with
   `store:`.
-- Existing `igniter-store` specs pass.
+- Existing `igniter-ledger` specs pass.
 - Existing `igniter-embed` contractable specs pass.
 - Docs explicitly say where pooling, retries, and backpressure belong.
 - No new client implementation is added to Embed.
@@ -276,14 +276,14 @@ HTTP dispatch proof if current specs already have HTTPAdapter helpers.
 - Be explicit about error policy. Silent remote failures are worse than a noisy
   POC.
 - Keep pool/retry as a client/delivery concern, not a contract/Embed concern.
-- Be careful with naming. `LedgerClient` is a concept; `igniter-store` remains
+- Be careful with naming. `LedgerClient` is a concept; `igniter-ledger` remains
   the package for now.
 
 ## Handoff Format
 
 ```text
 [Package Agent / Companion+Store]
-Track: igniter-store/ledger-client-protocol-v0
+Track: igniter-ledger/ledger-client-protocol-v0
 Status: done | partial | blocked
 
 [D] Decisions:

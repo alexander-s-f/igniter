@@ -27,11 +27,11 @@ This snapshot describes the current public package graph and proof surface.
 - `igniter-cluster`: distributed planning, routing, and mesh execution layer.
 - `igniter-mcp-adapter`: transport-facing adapter for MCP tool catalogs and
   invocation.
-- `igniter-store`: experimental contract-native hot fact engine with immutable
+- `igniter-ledger`: experimental contract-native hot fact engine with immutable
   facts, time-travel reads, causation, access paths, reactive invalidation,
-  retention/compaction, StoreServer transport, and package-local docs/specs.
+  retention/compaction, LedgerServer transport, and package-local docs/specs.
 - `igniter-companion`: experimental typed Record/History facade over
-  `igniter-store`, used to converge Companion app-local persistence manifests
+  `igniter-ledger`, used to converge Companion app-local persistence manifests
   with package-level Store/History facts without making persistence a core API.
 
 Planned rebuilds:
@@ -62,7 +62,7 @@ Companion.
   material under `playgrounds/docs/`.
 - Public package APIs should graduate only from repeated, low-ceremony shapes
   proven across examples.
-- `igniter-store` and `igniter-companion` are package-level pressure surfaces,
+- `igniter-ledger` and `igniter-companion` are package-level pressure surfaces,
   not umbrella/core guarantees. The Store server hosts durable facts and
   projections; contract computation stays in the app.
 - Capsule transfer is now agent-aware at the declaration/evidence layer:

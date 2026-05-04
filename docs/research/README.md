@@ -48,14 +48,14 @@ Implementation snapshots that shipped are kept in their package `docs/` director
 
 | Document | New Location |
 |----------|-------------|
-| Igniter Store Open Protocol | [packages/igniter-store/docs/open-protocol.md](../../packages/igniter-store/docs/open-protocol.md) |
-| Contract-Native Store POC spec | [packages/igniter-store/docs/poc-specification.md](../../packages/igniter-store/docs/poc-specification.md) |
-| Contract-Native Store Server Model | [packages/igniter-store/docs/server-model.md](../../packages/igniter-store/docs/server-model.md) |
-| Contract Persistence Relations | [packages/igniter-store/docs/relations-specification.md](../../packages/igniter-store/docs/relations-specification.md) |
-| Companion / Store Convergence | [packages/igniter-store/docs/companion-convergence.md](../../packages/igniter-store/docs/companion-convergence.md) |
-| Igniter Store Progress Summary | [packages/igniter-store/docs/progress.md](../../packages/igniter-store/docs/progress.md) |
-| Contract-Native Store Research (iterations) | [packages/igniter-store/docs/research/store-iterations.md](../../packages/igniter-store/docs/research/store-iterations.md) |
-| Contract-Native Store Sync Hub (iterations) | [packages/igniter-store/docs/research/sync-hub-iterations.md](../../packages/igniter-store/docs/research/sync-hub-iterations.md) |
+| Igniter Ledger Open Protocol | [packages/igniter-ledger/docs/open-protocol.md](../../packages/igniter-ledger/docs/open-protocol.md) |
+| Contract-Native Store POC spec | [packages/igniter-ledger/docs/poc-specification.md](../../packages/igniter-ledger/docs/poc-specification.md) |
+| Contract-Native Store Server Model | [packages/igniter-ledger/docs/server-model.md](../../packages/igniter-ledger/docs/server-model.md) |
+| Contract Persistence Relations | [packages/igniter-ledger/docs/relations-specification.md](../../packages/igniter-ledger/docs/relations-specification.md) |
+| Companion / Store Convergence | [packages/igniter-ledger/docs/companion-convergence.md](../../packages/igniter-ledger/docs/companion-convergence.md) |
+| Igniter Ledger Progress Summary | [packages/igniter-ledger/docs/progress.md](../../packages/igniter-ledger/docs/progress.md) |
+| Contract-Native Store Research (iterations) | [packages/igniter-ledger/docs/research/store-iterations.md](../../packages/igniter-ledger/docs/research/store-iterations.md) |
+| Contract-Native Store Sync Hub (iterations) | [packages/igniter-ledger/docs/research/sync-hub-iterations.md](../../packages/igniter-ledger/docs/research/sync-hub-iterations.md) |
 | Companion Current Status Summary | [packages/igniter-companion/docs/current-status.md](../../packages/igniter-companion/docs/current-status.md) |
 | Companion Persistence App Status | [packages/igniter-companion/docs/app-status.md](../../packages/igniter-companion/docs/app-status.md) |
 | Companion Persistence Manifest Glossary | [packages/igniter-companion/docs/manifest-glossary.md](../../packages/igniter-companion/docs/manifest-glossary.md) |
@@ -99,12 +99,12 @@ Status date: 2026-05-02.
   intents, typed effect intent descriptors, relation manifests, relation health diagnostics,
   registry/readiness/manifest, `WizardTypeSpec`, static materialization planning,
   and a review-only materializer/approval audit vertical.
-- `igniter-store` has shipped Phase 1 (StoreServer, NetworkBackend, TCP/Unix transport,
+- `igniter-ledger` has shipped Phase 1 (LedgerServer, NetworkBackend, TCP/Unix transport,
   graceful drain, stats, PID, CLI) and Phase 2 (SubscriptionRegistry reactive push).
-- `igniter-store` now has an Open Protocol proposal: descriptor/fact/receipt/query
+- `igniter-ledger` now has an Open Protocol proposal: descriptor/fact/receipt/query
   waist for non-Igniter clients as well as Igniter contracts.
 - `igniter-companion` is now the typed Record/History facade over
-  `igniter-store`, carrying Companion manifest pressure toward package-level
+  `igniter-ledger`, carrying Companion manifest pressure toward package-level
   Store/History experiments.
 - Cluster owns distributed placement, routing, ownership, health, remediation,
   and mesh attempts. Contracts remain local-first and host-agnostic.

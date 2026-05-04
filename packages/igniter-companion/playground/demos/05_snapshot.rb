@@ -21,7 +21,7 @@ def run_05(_ignored_store = nil)
     puts "\n  ⚠  NATIVE = true: checkpoint is a no-op in this environment."
     puts "  The Rust FileBackend does not yet expose write_snapshot."
     puts "  Run without the compiled extension to try this demo."
-    puts "  (candidate pressure documented in packages/igniter-store/README.md)"
+    puts "  (candidate pressure documented in packages/igniter-ledger/README.md)"
     return
   end
 

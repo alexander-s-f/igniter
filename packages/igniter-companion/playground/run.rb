@@ -35,7 +35,7 @@ def banner
   width = 60
   puts "═" * width
   puts " Igniter Store Playground".center(width)
-  puts " igniter-companion · igniter-store".center(width)
+  puts " igniter-companion · igniter-ledger".center(width)
   puts " NATIVE = #{Igniter::Store::NATIVE}".center(width)
   puts "═" * width
 end

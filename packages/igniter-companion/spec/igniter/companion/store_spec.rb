@@ -57,7 +57,7 @@ RSpec.describe Igniter::Companion::Store do
       r = store.read(Reminder, key: "r1")
 
       expect(r.title).to eq("Buy milk")
-      expect(r.status).to eq(:open)    # Symbol survives JSON round-trip via igniter-store
+      expect(r.status).to eq(:open)    # Symbol survives JSON round-trip via igniter-ledger
     end
 
     it "applies field defaults on read when value has no entry for that field" do

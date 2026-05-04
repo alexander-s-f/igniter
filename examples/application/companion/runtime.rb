@@ -2061,7 +2061,7 @@ module Companion
         descriptor.fetch(:replaces_app_backend) == false &&
         descriptor.fetch(:mutates_main_state) == false &&
         descriptor.fetch(:package_facade) == :"igniter-companion" &&
-        descriptor.fetch(:substrate) == :"igniter-store" &&
+        descriptor.fetch(:substrate) == :"igniter-ledger" &&
         descriptor.fetch(:preserves) == { persist: :store_t, history: :history_t, command: :mutation_intent } &&
         packet.fetch(:status) == :stable &&
         packet.fetch(:checks).length == 24 &&
@@ -2376,7 +2376,7 @@ module Companion
     end
 
     def companion_store_server_topology_sidecar_contract?
-      packet = Services::CompanionStoreServerTopologySidecar.packet
+      packet = Services::CompanionLedgerServerTopologySidecar.packet
       descriptor = packet.fetch(:descriptor)
       topology = packet.fetch(:topology)
       backend_matrix = packet.fetch(:backend_matrix)
@@ -4065,7 +4065,7 @@ module Companion
     def setup_store_convergence_sidecar_endpoint?(store_convergence)
       store_convergence.include?("kind=>:store_convergence_sidecar") &&
         store_convergence.include?("package_facade=>:\"igniter-companion\"") &&
-        store_convergence.include?("substrate=>:\"igniter-store\"") &&
+        store_convergence.include?("substrate=>:\"igniter-ledger\"") &&
         store_convergence.include?("current_status=>:done") &&
         store_convergence.include?("past_status=>:open") &&
         store_convergence.include?("partition_query_supported=>true") &&
@@ -4125,7 +4125,7 @@ module Companion
         descriptor.fetch("replaces_app_backend") == false &&
         descriptor.fetch("mutates_main_state") == false &&
         descriptor.fetch("package_facade") == "igniter-companion" &&
-        descriptor.fetch("substrate") == "igniter-store" &&
+        descriptor.fetch("substrate") == "igniter-ledger" &&
         descriptor.fetch("preserves") == { "persist" => "store_t", "history" => "history_t", "command" => "mutation_intent" } &&
         payload.fetch("status") == "stable" &&
         payload.fetch("checks").length == 24 &&

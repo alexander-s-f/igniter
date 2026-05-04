@@ -325,7 +325,7 @@ adapters easier to write correctly.
 
 ## Non-Goals
 
-- Do not add Rails, ActiveJob, Sidekiq, ActiveRecord, or igniter-store as hard
+- Do not add Rails, ActiveJob, Sidekiq, ActiveRecord, or igniter-ledger as hard
   dependencies.
 - Do not implement the Spark companion app in this slice.
 - Do not build a web receipt viewer yet.

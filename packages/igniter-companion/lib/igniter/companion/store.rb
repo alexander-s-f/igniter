@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require "igniter/store"
+require "igniter/ledger"
 
 module Igniter
   module Companion
-    # Application-level store that wraps Igniter::Store::IgniterStore.
+    # Application-level store that wraps Igniter::Ledger::LedgerStore.
     #
     # Provides typed read/write/scope/append/replay via Record and History schema classes.
-    # Acts as the "user side" pressure on igniter-store primitives.
+    # Acts as the "user side" pressure on igniter-ledger primitives.
     #
     # Usage:
     #   store = Igniter::Companion::Store.new                          # in-memory
@@ -30,9 +30,9 @@ module Igniter
         @schema_by_store = {}
         @inner = case backend
         when :memory
-          Igniter::Store::IgniterStore.new
+          Igniter::Ledger::LedgerStore.new
         when :file
-          Igniter::Store::IgniterStore.open(path)
+          Igniter::Ledger::LedgerStore.open(path)
         when :network
           if Igniter::Store::NATIVE
             raise NotImplementedError,
@@ -41,7 +41,7 @@ module Igniter
           end
           raise ArgumentError, "address: is required for :network backend" unless address
           nb    = Igniter::Store::NetworkBackend.new(address: address, transport: transport)
-          store = Igniter::Store::IgniterStore.new(backend: nb)
+          store = Igniter::Ledger::LedgerStore.new(backend: nb)
           nb.replay.each { |fact| store.__send__(:replay, fact) }
           store
         else
