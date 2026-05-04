@@ -441,6 +441,196 @@ query availability for technician day
 
 This avoids full-history replay while keeping honesty about lost detail.
 
+## Pre-Compaction Settlement
+
+Before a boundary loses internal detail, it should have a chance to materialize
+the useful memory hidden inside those details.
+
+Compaction should not mean:
+
+```text
+delete internals
+```
+
+It should mean:
+
+```text
+settle boundary
+  -> run declared pre-compaction transforms
+  -> persist outputs / metrics / reports / approximations
+  -> write settlement receipt
+  -> only then compact or purge internal detail
+```
+
+Working lifecycle:
+
+```text
+open
+  -> closed
+     -> settling
+        -> settled
+           -> compacted
+```
+
+The `settled` state says: "all required memory-preserving transforms have
+successfully run; it is now safe to reduce detail according to policy."
+
+## Pre-Compaction Transform Types
+
+Boundaries should support declarative transform hooks before internal facts are
+summarized or purged.
+
+### Approximation / Signal Processing
+
+Good for high-frequency geo and sensor facts.
+
+```text
+raw GPS pings
+  -> Kalman-smoothed path
+  -> route segments
+  -> stop/start intervals
+  -> distance/time metrics
+  -> purge noisy raw points
+```
+
+Possible outputs:
+
+- smoothed polyline
+- bounding boxes
+- visit intervals
+- distance travelled
+- confidence/error metrics
+
+### Business Summaries
+
+Good for order/schedule/operation domains.
+
+```text
+order schedule mutations
+  -> final order schedule summary
+  -> conflict report
+  -> technician utilization summary
+  -> customer contact timeline
+```
+
+Possible outputs:
+
+- `OrderLifecycleSummary`
+- `TechnicianDaySummary`
+- `ScheduleConflictReport`
+- `NotificationDeliverySummary`
+
+### Metrics / Statistics / Analytics
+
+Good for dashboards and long-range retention.
+
+```text
+lead decisions for one hour
+  -> accepted_count
+  -> rejected_count by reason
+  -> avg bid
+  -> no-capacity rate
+  -> top ZIPs
+```
+
+Possible outputs:
+
+- counters
+- histograms
+- percentiles
+- min/max/avg
+- rollup facts for reports
+
+### Proof / Audit Summaries
+
+Good for support and compliance.
+
+```text
+internal decision steps
+  -> input digest
+  -> rule versions
+  -> source ref ranges
+  -> output hash
+  -> redacted explanation
+```
+
+Possible outputs:
+
+- support-safe receipt
+- redacted error report
+- rule-version manifest
+- source range proof
+
+## DSL Sketch For Settlement
+
+```ruby
+boundary :technician_geo_day,
+         subject: %i[company_id technician_id],
+         window: { by: :observed_at, bucket: :day } do
+  include_facts :geo_ping
+
+  before_compact do
+    transform :kalman_path, output: :smoothed_route
+    summarize :stops, output: :visit_intervals
+    metric :distance_miles
+    metric :drive_time_minutes
+  end
+
+  compact internals: :after_settlement, keep: :boundary
+end
+```
+
+Business example:
+
+```ruby
+boundary :technician_day,
+         subject: %i[company_id technician_id],
+         window: { by: :starts_at, bucket: :day } do
+  include_facts :schedule_created, :schedule_moved, :off_schedule_created
+
+  before_compact do
+    summarize :availability, output: :availability_snapshot
+    report :conflicts, output: :schedule_conflict_report
+    metric :capacity_percent
+    metric :completed_jobs_count
+  end
+
+  compact internals: :after_settlement, keep: :boundary
+end
+```
+
+The names above are research sketches, not public API.
+
+## Settlement Rules
+
+- Required settlement transforms must succeed before detail is purged.
+- Optional transforms may fail and produce warning receipts if policy allows it.
+- Every transform output must be content-addressed or have a stable result hash.
+- Every transform must record:
+  - transform name
+  - transform version
+  - input fact refs or source ranges
+  - output fact refs
+  - result hash
+  - error/warning state if applicable
+- Settlement itself writes a receipt.
+- Cleanup eligibility depends on settlement status, not only closure status.
+
+Updated cleanup rule:
+
+```text
+fact is purge-eligible when:
+  retention policy allows purge
+  AND all required boundary policies for that fact are closed
+  AND all required settlement transforms are settled
+  AND every closed boundary has durable boundary output + receipt
+  AND every boundary either:
+        keeps no-detail boundary replay
+        OR archived its internals elsewhere
+        OR explicitly allows internal purge
+  AND no open sync/export/diagnostic cursor requires the raw fact
+```
+
 ## Fact Cleanup Eligibility
 
 Raw fact cleanup needs more than a retention timer.
@@ -454,6 +644,7 @@ Suggested rule:
 fact is purge-eligible when:
   retention policy allows purge
   AND all required boundary policies for that fact are closed
+  AND all required settlement transforms are settled
   AND every closed boundary has durable boundary output + receipt
   AND every boundary either:
         keeps no-detail boundary replay
