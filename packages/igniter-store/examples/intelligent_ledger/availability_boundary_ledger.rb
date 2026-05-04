@@ -349,18 +349,49 @@ module Igniter
         # blocking_reasons maps each blocking boundary_key to its reason:
         #   :open                — boundary is still open
         #   :settlement_required — boundary is closed but not yet settled
-        def cleanup_plan(store:, before:, fidelity: :boundary)
-          in_window         = @boundaries.values.select { |b| boundary_date_before?(b, before) }
-          open_blocking     = in_window.select(&:open?)
+        # Returns a cleanup plan for a given store and time cutoff.
+        #
+        # :blocked — open boundaries, closed-but-unsettled, or (when
+        #   require_reference_redirects: true) settled boundaries whose source facts
+        #   still have raw or unresolved external relation edges.
+        # :ready   — all in-window boundaries are settled and no blocking reference
+        #   edges remain.
+        #
+        # require_reference_redirects: (default false, preserving existing behavior)
+        #   When true, the plan also checks :ledger_relation_edges. A settled boundary
+        #   whose source facts are pointed at by raw or unresolved edges is blocked with
+        #   reason :external_reference_redirect_required.
+        def cleanup_plan(store:, before:, fidelity: :boundary, require_reference_redirects: false)
+          in_window          = @boundaries.values.select { |b| boundary_date_before?(b, before) }
+          open_blocking      = in_window.select(&:open?)
           unsettled_blocking = in_window.select { |b| b.status == :closed && !b.settled? }
-          all_blocking      = open_blocking + unsettled_blocking
+
+          reference_blocking      = []
+          blocking_relation_edges = []
+
+          if require_reference_redirects
+            in_window.select(&:settled?).each do |boundary|
+              raw_edges = raw_external_edges_for(boundary)
+              unless raw_edges.empty?
+                reference_blocking << boundary
+                blocking_relation_edges.concat(raw_edges.map { |e|
+                  { edge_id:    e[:edge_id],
+                    to_fact_id: e[:to_fact_id],
+                    ref_status: e[:ref_status].to_s.to_sym,
+                    boundary_key: boundary.boundary_key }
+                })
+              end
+            end
+          end
+
+          all_blocking = open_blocking + unsettled_blocking + reference_blocking
 
           if all_blocking.empty?
             receipts = @boundaries.values.filter_map do |b|
               next unless b.closed?
               @store.history(store: :ledger_boundary_receipts, key: b.boundary_key).last&.id
             end
-            {
+            result = {
               status:                     :ready,
               store:                      store,
               before:                     before.iso8601,
@@ -369,11 +400,14 @@ module Igniter
               receipts_to_keep:           receipts,
               expected_detail_status:     fidelity == :boundary ? :purged : :full
             }
+            result[:blocking_relation_edges] = [] if require_reference_redirects
+            result
           else
             blocking_reasons = {}
-            open_blocking.each     { |b| blocking_reasons[b.boundary_key] = :open }
+            open_blocking.each      { |b| blocking_reasons[b.boundary_key] = :open }
             unsettled_blocking.each { |b| blocking_reasons[b.boundary_key] = :settlement_required }
-            {
+            reference_blocking.each { |b| blocking_reasons[b.boundary_key] = :external_reference_redirect_required }
+            result = {
               status:                     :blocked,
               store:                      store,
               before:                     before.iso8601,
@@ -381,6 +415,8 @@ module Igniter
               blocking_reasons:           blocking_reasons,
               required_boundary_policies: [LedgerBoundary::POLICY_NAME.to_sym]
             }
+            result[:blocking_relation_edges] = blocking_relation_edges if require_reference_redirects
+            result
           end
         end
 
@@ -676,6 +712,23 @@ module Igniter
         end
 
         private
+
+        # Returns the latest relation edge value (symbol-keyed) for each edge that
+        # points to one of the boundary's source facts and has a blocking ref_status
+        # (raw or unresolved). Redirected edges are safe and excluded.
+        def raw_external_edges_for(boundary)
+          source_ids = Set.new(boundary.source_fact_ids.map(&:to_s))
+          return [] if source_ids.empty?
+
+          @store.history(store: :ledger_relation_edges)
+            .group_by(&:key)
+            .filter_map do |_edge_id, facts|
+              latest = facts.max_by(&:transaction_time).value
+              next unless source_ids.include?(latest[:to_fact_id].to_s)
+              next unless %w[raw unresolved].include?(latest[:ref_status].to_s)
+              latest
+            end
+        end
 
         def find_or_open_boundary(company_id:, technician_id:, date:)
           key = LedgerBoundary.key_for(

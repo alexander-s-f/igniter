@@ -7,8 +7,8 @@ RSpec.describe "Ledger Relation Edge Redirect Projection — intelligent ledger 
   EDGE_DATE     = Date.new(2026, 5, 1)
   EDGE_SCHEDULE = { "5" => [["09:00", "17:00"]] }.freeze  # Friday
 
-  ABL = Igniter::Store::IntelligentLedger::AvailabilityBoundaryLedger
-  LB  = Igniter::Store::IntelligentLedger::LedgerBoundary
+  ABL = Igniter::Store::IntelligentLedger::AvailabilityBoundaryLedger unless defined?(ABL)
+  LB  = Igniter::Store::IntelligentLedger::LedgerBoundary             unless defined?(LB)
 
   let(:store)  { Igniter::Store::IgniterStore.new }
   let(:ledger) { ABL.new(store: store) }
