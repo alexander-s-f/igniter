@@ -1,50 +1,92 @@
 # igniter-store
 
-Experimental contract-native store package for Igniter.
+Pre-v1 Ledger substrate for Igniter facts, histories, receipts, replay, and
+protocol-facing storage surfaces.
 
-Status: POC package, not stable API, not wired into core.
+Status: active platform lane, still POC/pre-v1. APIs, storage formats, and
+transport contracts may change before v1.
 
-## Owns
+## Purpose
 
-- immutable content-addressed facts
-- append-only `Store[T]` and `History[T]` fact log experiments
-- causation chains (fact-id–based, unambiguous)
-- current and time-travel reads
-- reactive cache invalidation
-- compile-time access path registry experiments
-- WAL with CRC32-framed durability
+`igniter-store` is broader than persistence. It is the hot fact engine behind
+Ledger-backed companion systems:
+
+```text
+write/append fact
+  -> immutable fact log
+  -> current and time-travel reads
+  -> indexes, access paths, relations, projections
+  -> changefeed / replay / receipts
+  -> compaction activity and LedgerBoundary proofs
+  -> Store Open Protocol / StoreServer / MCP / SSE reads
+```
+
+The package intentionally sits below the application-facing `Record` /
+`History` facade in `igniter-companion`. App code should usually begin there;
+this package owns the fact substrate, protocol, and operational storage model.
+
+## Current Surface
+
+- immutable content-addressed facts with stable `id` and value hash
+- record-like `Store[T]` and append-only `History[T]` semantics
+- fact-id causation chains for unambiguous temporal history
+- transaction time, valid time, producer, and derivation metadata
+- current reads, time-travel reads, and replay windows
+- scope access paths, relation rules, projection descriptors, derivation rules,
+  scatter rules, and metadata snapshots
+- CRC32-framed WAL, snapshot checkpoint/replay, segmented storage hardening, and
+  durability policy work
+- retention, compaction lifecycle, prune/purge executors, compaction activity,
+  and LedgerBoundary cleanup/provenance/redirect proofs
+- bounded changefeed with replay cursors, SSE `/v1/events`, async fan-out,
+  delivery policy, diagnostics, and server config
+- Store Open Protocol interpreter, wire envelope, StoreServer, HTTP status,
+  MCP adapter surface, and sync/replay profiles
 
 ## Does Not Own
 
-- contract DSL integration
-- core graph node types
-- SQL schema generation
-- migration execution
-- PostgreSQL sync hub implementation
-- cluster consensus
-- materializer execution
+- public contract persistence DSL (`persist`, `history`) as a stable user API
+- `Record` / `History` application ergonomics; that belongs to
+  `igniter-companion`
+- SQL schema generation, ORM semantics, or migration execution
+- arbitrary application workflows or side effects inside storage
+- cluster consensus or deployment guarantees
+- AI/agent authority decisions
 
 ## Docs
 
-See [`docs/`](docs/) for specifications, progress records, and design iteration history:
+Start with:
 
-- [docs/open-protocol.md](docs/open-protocol.md) — standalone descriptor/fact/receipt protocol
-- [docs/poc-specification.md](docs/poc-specification.md) — POC spec
-- [docs/server-model.md](docs/server-model.md) — StoreServer + NetworkBackend design
-- [docs/relations-specification.md](docs/relations-specification.md) — relation manifests
-- [docs/progress.md](docs/progress.md) — progress summary
-- [docs/research/](docs/research/) — design iteration history
+- [docs/README.md](docs/README.md) — package documentation index
+- [docs/progress.md](docs/progress.md) — compact current status
+- [docs/pre-v1-core-model-proposal.md](docs/pre-v1-core-model-proposal.md) —
+  core fact model proposal before v1
+- [docs/open-protocol.md](docs/open-protocol.md) — Store Open Protocol
+- [docs/server-api-proposal.md](docs/server-api-proposal.md) — server/API layer
+  above the protocol
+- [docs/intelligent-ledger/README.md](docs/intelligent-ledger/README.md) —
+  inference, derivation, routes, and boundary research horizon
+- [docs/tracks/](docs/tracks/) — completed and active implementation slices
+- [docs/research/](docs/research/) — older compressed iteration history
 
-## Why `igniter-store`
+## Strategic Position
 
-This package is broader than persistence. The research direction includes
-time-travel, reactive agents, access paths, hot/cold sync, retention, and future
-cluster replay. `igniter-persistence` remains reserved for stable durable
-capability APIs if they later emerge from this work.
+`igniter-store` is currently named Store because it began as a persistence proof.
+The model has grown toward Ledger semantics: append-only facts, causation,
+receipts, replay, boundaries, compaction, explainability, and protocol reads.
 
-The package should also expose an open protocol boundary: descriptors, facts,
-receipts, queries, and subscriptions. Igniter contracts and Companion records are
-first-class clients of that protocol, but not the only possible clients.
+The likely product-language migration is:
+
+```text
+Store package name today
+  -> Ledger substrate concept
+  -> Store[T] / History[T] typed capability semantics
+  -> Companion Record/History app facade
+```
+
+Do not collapse these layers into one object model. `persist` and `history` in
+future contract DSL should remain sugar lowerable to Store/History capability
+manifests.
 
 ## Example
 
@@ -342,20 +384,17 @@ partition index, cache) from the replayed facts — identical to the `:file` pat
 
 ---
 
-## Open Pressure (Tier 2 remaining / Tier 3)
+## Historical Pressure Log Tail
 
-| Pressure | Status | Description |
-|----------|--------|-------------|
-| `scope_materialized_index` | ✅ done | per-scope Set index, O(1) query |
-| `scope_aware_invalidation` | ✅ done | suppress unchanged scope consumers |
-| `history_partition_index` | ✅ done | `History[T]` partition index, O(partition slice) query |
-| `read_cache_lru_cap` | ✅ done | LRU cap on time-travel cache entries; default 1 000, configurable |
-| `schema_version_hook` | ✅ done | `register_coercion` hook; `CoercedFact` wrapper on all read paths |
-| `snapshot_checkpoint` | ✅ done (Ruby) | `checkpoint` + snapshot-aware replay; Rust backend is candidate pressure |
-| `network_backend_phase1` | ✅ done (Ruby) | `NetworkBackend` + `StoreServer`; pure-Ruby; Rust wire-deserialise is Phase 2 |
-| `subscription_registry` | ⬜ planned | Phase 2: `on_scope` → persistent `SubscriptionRecord`; pluggable event-bus adapters |
-| `replication_log` | ⬜ planned | Phase 3: append-only replication fan-out; replica bootstrap via snapshot |
-| `consistency_annotation` | ⬜ planned | Phase 4: per-store `:strong`/`:eventual` routing in NetworkBackend write path |
+The entries above preserve useful early implementation pressure from the Store
+POC. Several items that were once listed as "open" have since moved into
+completed StoreServer, changefeed, protocol, and compaction tracks.
+
+For current status, use:
+
+- [docs/progress.md](docs/progress.md)
+- [docs/README.md](docs/README.md)
+- [docs/tracks/](docs/tracks/)
 
 ---
 
@@ -364,5 +403,5 @@ partition index, cache) from the replayed facts — identical to the `:file` pat
 - [Contract-Native Store Research](docs/research/store-iterations.md)
 - [Contract-Native Store POC](docs/poc-specification.md)
 - [Contract-Native Store Sync Hub](docs/research/sync-hub-iterations.md)
-- [Contract Persistence Development Track](../../docs/research/contract-persistence-development-track.md)
+- [Contract Persistence Development Track](../../playgrounds/docs/research-horizon/contract-persistence-development-track.md)
 - [Contract-Native Store: Server Model](docs/server-model.md)

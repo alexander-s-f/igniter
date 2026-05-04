@@ -1,14 +1,20 @@
 # igniter-companion
 
-Application-level Record/History DSL backed by `igniter-store`.
+Application-facing Record/History facade backed by `igniter-store`.
+
+Status: active pre-v1 platform lane. The surface is intentionally compact and
+experimental while Store/Ledger semantics settle.
 
 ## Purpose
 
-This package is the **consumer of `igniter-store` from application code**.
+This package is the **consumer-facing layer over `igniter-store` for
+application code**.
 
 It serves two goals:
 
-1. **User-facing surface** — shows what working with facts looks like from contract/application code: typed `Record` objects, append-only `History` streams, scope queries, and reactive subscriptions.
+1. **App-facing surface** — shows what working with facts looks like from
+   contract/application code: typed `Record` objects, append-only `History`
+   streams, scope queries, generated schemas, and normalized receipts.
 
 2. **Pressure on the core** — every new capability at this level surfaces gaps, friction, or bugs in `igniter-store`. This is intentional. Insights are recorded in the [Pressure & Insights](#pressure--insights) section below.
 
@@ -118,7 +124,7 @@ receipt = store.write(Reminder, key: "r1", title: "Buy milk")
 receipt.mutation_intent          # => :record_write
 receipt.fact_id                  # => "550e8400-..."
 receipt.value_hash               # => "a3b1c2..."
-receipt.causation                # => nil (first write) or previous value_hash
+receipt.causation                # => nil (first write) or previous fact id
 receipt.title                    # => "Buy milk"  (delegated to Reminder)
 receipt.record                   # => #<Reminder ...>
 
