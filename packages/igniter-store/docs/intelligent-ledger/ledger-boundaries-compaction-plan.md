@@ -812,6 +812,239 @@ The default should be `correction`, not mutation.
 
 The original closed boundary remains immutable.
 
+## Cross-Store Reference Consistency
+
+Boundaries must preserve reference consistency when raw facts are compacted.
+
+Problem:
+
+```text
+OrderAssignedFact
+  id: fact-123
+  store: :order_events
+
+NotificationFact
+  references: fact-123
+
+later:
+  fact-123 is compacted/purged inside TechnicianDayBoundary
+```
+
+The reference from `NotificationFact` must not become silently broken.
+
+Target behavior:
+
+```text
+resolve(fact-123)
+  -> raw fact exists
+     return direct fact
+
+  -> raw fact compacted
+     return boundary redirect / proof reference
+
+  -> raw fact unknown
+     return not_found
+```
+
+This creates a "redirect" layer from raw fact IDs to boundary evidence.
+
+## Boundary Redirect Reference
+
+When a boundary compacts internal facts, it should preserve a compact reference
+map for purged internal fact IDs.
+
+Suggested shape:
+
+```text
+FactRedirect
+  original_fact_id
+  original_store
+  boundary_key
+  boundary_policy
+  boundary_output_fact_id
+  boundary_receipt_id
+  settlement_receipt_id
+  detail_status
+  reference_role
+  compacted_at
+```
+
+`reference_role` explains what kind of evidence remains:
+
+```text
+:included_in_boundary
+:summarized_by_boundary
+:aggregated_into_metric
+:redacted_in_boundary
+:archived_elsewhere
+```
+
+Example:
+
+```text
+fact order_event:fact-123
+  -> compacted by technician_day/company=1/technician=7/date=2026-05-04
+  -> redirect says:
+       "fact-123 is no longer hot, but it was included in this closed boundary,
+        whose output hash and settlement receipt are retained."
+```
+
+## Reference Resolution Modes
+
+Callers should be explicit about required reference fidelity.
+
+```ruby
+ledger.resolve_ref("fact-123", fidelity: :raw)
+ledger.resolve_ref("fact-123", fidelity: :boundary)
+ledger.resolve_ref("fact-123", fidelity: :summary)
+```
+
+Possible outcomes:
+
+```ruby
+{ status: :ok, kind: :raw_fact, fact: ... }
+
+{ status: :redirected,
+  kind: :boundary_ref,
+  original_fact_id: "fact-123",
+  boundary_key: "...",
+  detail_status: :purged,
+  evidence: {
+    boundary_output_fact_id: "...",
+    boundary_receipt_id: "...",
+    settlement_receipt_id: "..."
+  }
+}
+
+{ status: :detail_unavailable,
+  original_fact_id: "fact-123",
+  boundary_key: "...",
+  required_fidelity: :raw,
+  available_fidelity: :boundary
+}
+
+{ status: :not_found, original_fact_id: "fact-123" }
+```
+
+This prevents silent downgrade:
+
+- `fidelity: :raw` fails if the raw fact was purged.
+- `fidelity: :boundary` may follow redirects.
+- `fidelity: :summary` may accept settlement metrics/reports only.
+
+## Cross-Store Relation Projection
+
+Cross-store relations should not point only to raw fact IDs.
+
+They should be able to resolve through a reference chain:
+
+```text
+Order
+  -> ScheduleFact raw ref
+     OR BoundaryRedirect ref
+        -> TechnicianDayBoundary
+        -> AvailabilitySummary / SettlementReceipt
+```
+
+Relation index entries should include enough metadata to survive compaction:
+
+```text
+RelationEdge
+  from_store
+  from_key
+  to_store
+  to_key
+  to_fact_id
+  to_boundary_key
+  ref_status: :raw | :redirected | :unresolved
+  fidelity: :raw | :boundary | :summary
+```
+
+When raw detail is compacted:
+
+```text
+relation edge
+  :raw -> :redirected
+```
+
+not:
+
+```text
+relation edge disappears
+```
+
+## Boundary Compaction Reference Rule
+
+Before purging internal facts, compaction must ensure one of:
+
+```text
+1. no external references exist for the internal facts
+2. all external references have redirect entries
+3. referenced facts are archived and redirect entries point to archive refs
+```
+
+Cleanup eligibility therefore expands again:
+
+```text
+fact is purge-eligible when:
+  retention policy allows purge
+  AND all required boundary policies for that fact are closed
+  AND all required settlement transforms are settled
+  AND external references are either absent or redirected
+  AND every closed boundary has durable boundary output + receipt
+  AND every boundary either:
+        keeps no-detail boundary replay
+        OR archived its internals elsewhere
+        OR explicitly allows internal purge
+  AND no open sync/export/diagnostic cursor requires the raw fact
+```
+
+This keeps the ledger referentially honest after compaction.
+
+## Aggregation Consistency With Boundaries
+
+Aggregations must declare which fidelity they require.
+
+```text
+raw aggregation
+  reads raw internal facts
+
+boundary aggregation
+  reads boundary outputs / settlement summaries / metrics
+
+summary aggregation
+  reads rollups or sketches only
+```
+
+Never silently mix raw facts and boundary summaries without reporting it.
+
+Suggested result metadata:
+
+```ruby
+{
+  value: 82.4,
+  operation: :avg,
+  fidelity: :boundary,
+  source: :settlement_metrics,
+  coverage: :complete,
+  boundaries: [...],
+  detail_status: :mixed
+}
+```
+
+Algebra rule for settlement outputs:
+
+```text
+sum        -> preserve sum
+count      -> preserve count
+avg        -> preserve sum + count
+min/max    -> preserve min/max
+percentile -> preserve histogram/sketch, not only one percentile number
+```
+
+This lets larger boundaries and reports aggregate correctly over smaller
+boundaries after raw detail is gone.
+
 ## Product Example: Technician Availability
 
 ```text
