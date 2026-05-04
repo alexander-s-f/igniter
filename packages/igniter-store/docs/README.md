@@ -57,7 +57,6 @@ first; use track docs for implementation history and acceptance evidence.
 | [tracks/compaction-lifecycle-unification-v0.md](tracks/compaction-lifecycle-unification-v0.md) | Unified compact/prune/purge vocabulary |
 | [tracks/compaction-activity-protocol-surface-v0.md](tracks/compaction-activity-protocol-surface-v0.md) | Compaction activity protocol/read surface |
 | [tracks/contractable-receipt-ledger-sink-v0.md](tracks/contractable-receipt-ledger-sink-v0.md) | Durable Store/Ledger sink for Embed contractable observation/event receipts |
-| [tracks/ledger-client-protocol-v0.md](tracks/ledger-client-protocol-v0.md) | Unified Ledger client boundary for local/remote Store users |
 | [tracks/changefeed-events-v0.md](tracks/changefeed-events-v0.md) | Package Agent track for the first Changefeed events subsystem slice |
 | [tracks/changefeed-ordering-replay-v0.md](tracks/changefeed-ordering-replay-v0.md) | Package Agent track for Changefeed ordering and replay cursor semantics |
 | [tracks/changefeed-sse-events-v0.md](tracks/changefeed-sse-events-v0.md) | Package Agent track for SSE `/v1/events` over Changefeed replay/live push |

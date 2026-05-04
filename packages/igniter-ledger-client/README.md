@@ -87,6 +87,11 @@ server protocol does not yet expose a distinct append operation. That gap should
 be closed in the next protocol slice before high-volume history clients depend
 on it.
 
+## Docs
+
+- [docs/tracks/ledger-client-protocol-v0.md](docs/tracks/ledger-client-protocol-v0.md)
+  — current implementation/convergence track for this package.
+
 ## Error Policy
 
 The client raises `Igniter::LedgerClient::Error` for protocol error envelopes
