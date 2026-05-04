@@ -14,6 +14,9 @@ This directory is the current package map for the pre-v1 Igniter framework.
 - `igniter-store` - Ledger substrate for facts, histories, receipts, WAL,
   replay, changefeed, Store Open Protocol, compaction activity, and intelligent
   boundary proofs. Still pre-v1/POC, but now an active platform lane.
+- `igniter-ledger-client` - protocol-first client boundary for Store/Ledger
+  users; owns envelopes, transport adapters, errors, and future pool/retry
+  policy without embedding the storage engine.
 - `igniter-companion` - typed Record/History facade over `igniter-store`,
   carrying app-facing persistence pressure back into Store/Ledger design.
 - `igniter-application` - contracts-native app runtime: manifests, providers,

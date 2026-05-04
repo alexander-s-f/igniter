@@ -10,6 +10,7 @@ gem "igniter-application", path: "packages/igniter-application"
 gem "igniter-contracts", path: "packages/igniter-contracts"
 gem "igniter-extensions", path: "packages/igniter-extensions"
 gem "igniter-hub", path: "packages/igniter-hub"
+gem "igniter-ledger-client", path: "packages/igniter-ledger-client"
 gem "igniter-mcp-adapter", path: "packages/igniter-mcp-adapter"
 gem "igniter-web", path: "packages/igniter-web"
 

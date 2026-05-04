@@ -20,6 +20,7 @@ The short version:
 Contracts
   -> Embed migration bridge
   -> Store / Ledger facts and receipts
+  -> Ledger Client protocol boundary
   -> Companion typed Record/History facade
   -> Application + Web operator surfaces
   -> Agents / AI / Cluster / Hub runtime lanes
@@ -77,6 +78,12 @@ boundary proofs.
 
 It is still a POC package, but it is no longer just "persistence research"; it
 is the event memory and receipt substrate for companion systems.
+
+### `igniter-ledger-client`
+
+The protocol-first client boundary for Ledger users. It owns request/response
+envelopes, transports, errors, and future pooling/retry/backpressure policy
+without embedding the storage engine.
 
 ### `igniter-companion`
 
@@ -181,6 +188,7 @@ and approval gates.
 - [igniter-extensions](./packages/igniter-extensions/README.md)
 - [igniter-embed](./packages/igniter-embed/README.md)
 - [igniter-store](./packages/igniter-store/README.md)
+- [igniter-ledger-client](./packages/igniter-ledger-client/README.md)
 - [igniter-companion](./packages/igniter-companion/README.md)
 - [igniter-application](./packages/igniter-application/README.md)
 - [igniter-web](./packages/igniter-web/README.md)

@@ -40,6 +40,11 @@ PATH
     igniter-hub (0.5.1)
 
 PATH
+  remote: packages/igniter-ledger-client
+  specs:
+    igniter-ledger-client (0.5.1)
+
+PATH
   remote: packages/igniter-mcp-adapter
   specs:
     igniter-mcp-adapter (0.5.1)
@@ -173,6 +178,7 @@ DEPENDENCIES
   igniter-contracts!
   igniter-extensions!
   igniter-hub!
+  igniter-ledger-client!
   igniter-mcp-adapter!
   igniter-web!
   irb
