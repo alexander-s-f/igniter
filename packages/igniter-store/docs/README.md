@@ -36,6 +36,7 @@ Implementation specifications and progress records for the `igniter-store` packa
 | [tracks/changefeed-ordering-replay-v0.md](tracks/changefeed-ordering-replay-v0.md) | Package Agent track for Changefeed ordering and replay cursor semantics |
 | [tracks/changefeed-sse-events-v0.md](tracks/changefeed-sse-events-v0.md) | Package Agent track for SSE `/v1/events` over Changefeed replay/live push |
 | [tracks/changefeed-async-fanout-v0.md](tracks/changefeed-async-fanout-v0.md) | Package Agent track for Ruby async fan-out with per-subscriber queues |
+| [tracks/changefeed-delivery-policy-observability-v0.md](tracks/changefeed-delivery-policy-observability-v0.md) | Package Agent track for Changefeed delivery policy and observability hardening |
 | [research/store-iterations.md](research/store-iterations.md) | Store design iteration history |
 | [research/store-iterations.ru.md](research/store-iterations.ru.md) | То же, на русском |
 | [research/sync-hub-iterations.md](research/sync-hub-iterations.md) | Sync-hub design iteration history |
